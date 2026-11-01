@@ -134,17 +134,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
     go();
   });
 
-  /* Jangan biarkan gameplay.html dimuat saat portrait: tunggu gate orientasi dilepas. Sumber kebenaran = atribut data-ut-gate di <html>
-     yang dipasang/dilepas assets/js/landscape.js (bukan detektor kedua). Berbasis event (MutationObserver), tanpa polling.
-     Desktop / perangkat non-sentuh / landscape: atribut tidak ada -> langsung lanjut. Jika lock ditolak browser, gate tetap aktif sampai HP diputar. */
+  /* Stage 4.1.18: tidak ada gate orientasi; portrait dan landscape langsung menuju tujuan. */
   function go() {
-    const gated = () => to === 'gameplay' && document.documentElement.hasAttribute('data-ut-gate');
-    if (gated()) {
-      const mo = new MutationObserver(() => { if (!gated()) { mo.disconnect(); go(); } });
-      mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-ut-gate'] });
-      return;
-    }
-    setTimeout(() => { if (gated()) go(); else location.replace(dest); }, 300);
+    setTimeout(() => { location.replace(dest); }, 300);
   }
 })();
 </script>
