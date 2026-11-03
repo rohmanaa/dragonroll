@@ -3256,10 +3256,52 @@ function faceURL(k){
 }
 const PUN=UT.Gameplay.Config.PUN;
 function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion:0,grass:0},ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
-/* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory). Reward sementara: +5 skor (reward non-Power yang sudah ada).
+/* Chest = event/reward container (Feature 2: Reward Pool). Power BUKAN reward Chest (Power = Shop -> Inventory -> Gameplay).
+   resolveChestReward() memilih TEPAT SATU reward berbobot; applyChestReward() menerapkannya lewat sistem existing:
+   Coin/Emerald(=gems)/XP = PlayerData.grant (hanya pemain manusia), Ganjil/Genap/Lucky = flag p.cd dipakai satu roll di doRoll (pola p.p4),
+   Add Roll = p.extra, Surprise = walk/fly existing (hanya memindahkan pemain, petak tujuan tidak memicu event).
    Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak. */
+const CHEST_POOL=[ /* bobot per-mil: total 1000 = 100% */
+  {id:'empty',w:100},{id:'coin',w:220},{id:'xp',w:130},{id:'surprise',w:100},{id:'odd',w:150},{id:'even',w:150},{id:'lucky',w:70},{id:'gem',w:5},{id:'addroll',w:75}];
+const CHEST_POOL_TOTAL=CHEST_POOL.reduce((a,r)=>a+r.w,0);
+if(CHEST_POOL_TOTAL!==1000) console.error('[Chest] total bobot reward harus 1000 (=100%), sekarang '+CHEST_POOL_TOTAL);
+function resolveChestReward(rng){
+  let x=Math.floor((rng||Math.random)()*CHEST_POOL_TOTAL);
+  for(const r of CHEST_POOL){ if(x<r.w) return r.id; x-=r.w; }
+  return 'empty'; /* tak tercapai selama total bobot benar */
+}
+function chestDiceValue(kind,rng){ if(kind==='lucky') return 6; const a=kind==='odd'?[1,3,5]:[2,4,6]; return a[Math.floor((rng||Math.random)()*3)]; }
 const CHEST_LC={active:false,seq:0,done:new Set(),rewards:0};
 function chestToken(p){ return 'L'+gameId+':'+p.idx+':'+p.pos+':'+(++CHEST_LC.seq); }
+async function applyChestReward(p,id){
+  const PD=window.PlayerData;
+  const pay=(label,o)=>{ /* currency/XP: hanya pemain manusia; CPU tidak menerima */
+    if(p.cpu) return 'Computer tidak menerima '+label;
+    if(!PD||typeof PD.grant!=='function') return 'Hadiah gagal disimpan';
+    const r=PD.grant(Object.assign({reason:'chest'},o));
+    return r&&r.ok?label:'Hadiah gagal disimpan';
+  };
+  let text,to=0;
+  switch(id){
+    case 'coin': text=pay('+5 Coin',{coins:5}); break;
+    case 'xp': text=pay('+10 XP',{xp:10}); break;
+    case 'gem': text=pay('+1 Emerald',{gems:1}); break;
+    case 'odd': p.cd='odd'; text='Dadu Ganjil berikutnya'; break;
+    case 'even': p.cd='even'; text='Dadu Genap berikutnya'; break;
+    case 'lucky': p.cd='lucky'; text='Lucky 6!'; break;
+    case 'addroll': p.extra=true; text='Roll Tambahan!'; break;
+    case 'surprise':{
+      const d=[-3,-2,-1,1,2,3][Math.floor(Math.random()*6)]; to=Math.max(1,Math.min(99,p.pos+d));
+      text=to===p.pos?'Surprise! Tetap di sini':'Surprise! '+(to>p.pos?'Maju ':'Mundur ')+Math.abs(to-p.pos)+' langkah'; break; }
+    default: text='Kosong'; /* empty: tidak ada perubahan state */
+  }
+  setMsg(p.name+' membuka peti: '+text+'.'); fb('event','chest','Chest: '+text); renderChips();
+  if(id==='surprise'&&to!==p.pos){ /* hanya memindahkan pemain; tidak memicu ulang ular/tangga/Chest/mob/event */
+    if(to>p.pos) await walk(p,p.pos,to); else await fly(p,to,0.45,0.9);
+    p.pos=to; renderChips();
+  }
+  return {id,text};
+}
 async function giveChest(p,tok){
    tok=tok||chestToken(p);
    if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
@@ -3267,11 +3309,11 @@ async function giveChest(p,tok){
    try{
      openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
-     p.score+=5; CHEST_LC.rewards++; /* reward tepat 1x */
-     setMsg(p.name+' membuka peti: +5 skor.'); fb('event','chest','Chest ditemukan! +5 skor');
+     const id=resolveChestReward(); CHEST_LC.rewards++; /* 1 resolusi + 1 penerapan per lifecycle */
+     await applyChestReward(p,id); if(gid!==gameId) return {status:'stale'};
      await sleep(reduce?300:900); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama proses */
      sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
-     return {status:'accepted'};
+     return {status:'accepted',reward:id};
    }finally{ closeChest(n); CHEST_LC.active=false; }
 }
 try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
@@ -3328,7 +3370,7 @@ function renderChips(){
     const nm=document.createElement('span'); nm.textContent=p.name;
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/4'):String(p.pos));
     d.appendChild(im); d.appendChild(nm); d.appendChild(ps);
-    const bfT=[p.bonus?'🗡️+3':'',p.extra?'🪶 ekstra':'',p.p4?'🧪 dadu 4-6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
+    const bfT=[p.bonus?'🗡️+3':'',p.extra?'🪶 ekstra':'',p.p4?'🧪 dadu 4-6':'',p.cd==='odd'?'🎲 ganjil':'',p.cd==='even'?'🎲 genap':'',p.cd==='lucky'?'🍀 dadu 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===100&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
@@ -3616,6 +3658,7 @@ async function doRoll(opt){
   const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
   if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
   else if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; }
+  else if(p.cd){ v=chestDiceValue(p.cd); p.cd=null; } /* Chest: Ganjil/Genap/Lucky 6, berlaku satu roll (pola p.p4) */
   const rs=sfx.roll(); showDie(v,!reduce);
   try{
     await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
@@ -3656,7 +3699,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,crystal:0,dragonReady:false,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
+    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,crystal:0,dragonReady:false,pawn,score:0,bonus:0,extra:false,p4:false,cd:null,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;
