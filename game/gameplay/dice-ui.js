@@ -38,6 +38,8 @@
     dX = tx + 360 * ax; dY = ty + 360 * ay;
     dieEl.style.transition = anim ? 'transform 1.05s cubic-bezier(.15,.7,.2,1)' : 'none';
     dieEl.style.transform = 'rotateX(' + dX + 'deg) rotateY(' + dY + 'deg)';
+    var fs = dieEl.querySelectorAll('.face'); /* muka hasil tetap terang; muka lain digelapkan sedikit */
+    for (var k = 0; k < fs.length; k++) fs[k].classList.toggle('dim', !fs[k].classList.contains('f' + v));
     if (anim && dieScene) { dieScene.classList.remove('hop'); void dieScene.offsetWidth; dieScene.classList.add('hop'); }
   }
 
