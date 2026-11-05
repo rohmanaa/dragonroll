@@ -5652,6 +5652,7 @@ function initMultiplayerBridge(){
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
+  onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
   onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[]); p.loadout=true; renderChips(); publishGameSnapshot(); },
   onSnapshot:applyGameSnapshot
  }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);
@@ -5667,8 +5668,9 @@ const LOBBY_URL='lobby.html'; /* fallback bila tidak ada data room */
 function exitToRoom(){
   if(ONLINE_ROOM){ /* room online masih berstatus 'playing' -> room.html akan meluncurkan game lagi; keluar langsung ke Mode Selection */
     try{ sessionStorage.setItem('ut-mp-exited',String(ROOM_CFG.roomId)); sessionStorage.removeItem('ut-room'); sessionStorage.removeItem('ut-multiplayer-room'); }catch(e){}
-    try{ if(MP_SYNC&&MP_SYNC.close) MP_SYNC.close(); }catch(e){}
-    location.href='mode.html'; return;
+    const bye=()=>{ try{ if(MP_SYNC&&MP_SYNC.close) MP_SYNC.close(); }catch(e){} location.href='mode.html'; };
+    if(ONLINE_HOST&&MP_SYNC&&MP_SYNC.announceLeave&&!gameOver){ Promise.race([MP_SYNC.announceLeave().catch(()=>{}),sleep(700)]).then(bye); } else bye(); /* host keluar -> beri tahu tamu */
+    return;
   }
   if(window.UT&&UT.RoomFlow) UT.RoomFlow.exitGame(); else location.href=LOBBY_URL; } /* kembali ke room/mode asal masuk */
 function chooseTheme(key){

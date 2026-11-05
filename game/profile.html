@@ -457,7 +457,8 @@ function render(){
  $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
-<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div></div>`;
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Akun</span><b>${(()=>{try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');return a&&a.username?'@'+esc(a.username):'-'}catch(e){return '-'}})()}</b><button class="ib" data-a="logout" aria-label="Keluar akun" title="Keluar akun">${RI('ui/exit','lt')}</button></div></div>`;
  $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
  $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
 <button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div></button>
@@ -500,6 +501,7 @@ function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');r
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
  if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
+ else if(a==='logout'){if(!confirm('Keluar dari akun ini?'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
  else if(a==='copy'){navigator.clipboard?.writeText(MOCK.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
 $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
