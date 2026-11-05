@@ -1,4 +1,4 @@
--- Uji SQL game_events. Jalankan di Postgres dengan stub auth (lihat audit/multiplayer-step2-event-log.md).
+-- Uji SQL game_events. Jalankan di Postgres dengan stub auth (lihat game/laporan-audit.html, bagian event log multiplayer).
 -- Variabel psql tidak diinterpolasi di dalam $$, jadi asersi memakai helper __chk / __err.
 -- Peran dipasang lewat request.jwt.claim.sub + SET ROLE authenticated. Gagal = psql berhenti dengan error.
 \set ON_ERROR_STOP on

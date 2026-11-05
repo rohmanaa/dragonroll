@@ -47,4 +47,4 @@ The host browser is authoritative and must stay connected during a match. This i
 
 ## Event log (Langkah 2)
 
-`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `audit/multiplayer-step2-event-log.md`.
+`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `game/laporan-audit.html` (bagian "Langkah 2 — Fondasi event log multiplayer").

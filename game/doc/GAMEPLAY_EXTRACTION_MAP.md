@@ -20,7 +20,7 @@ Nomor baris mengacu pada `gameplay.html` pada HEAD `ded3992` (`stage4.0: add gam
 | `/*GEOM-START*/` | ada | ±520 | membuka blok primitif geometri voxel |
 | `/*GEOM-END*/` | ada | ±579 | menutup blok; isi: `FACES`, `CORNERS`, `EDGES`, `makeBatch`, `addBox`, `addOBox` |
 | `/*LOGIC-END*/` | ada | ±439 | menutup blok data/aturan awal (`ROW_H` … `mcBlock`) |
-| `/*LOGIC-START*/` | **tidak ada** | — | sudah hilang sebelum Stage 4.0.9 (lihat `GAMEPLAY_HUD_AUDIT.md`). **Tidak ditambahkan di sub-step ini** (akan mengubah `gameplay.html`). Dicatat sebagai discrepancy terhadap instruksi marker. |
+| `/*LOGIC-START*/` | **tidak ada** | — | sudah hilang sebelum Stage 4.0.9 (lihat `game/laporan-audit.html`, bagian Audit HUD). **Tidak ditambahkan di sub-step ini** (akan mengubah `gameplay.html`). Dicatat sebagai discrepancy terhadap instruksi marker. |
 | `/*TEST-HOOK*/` | ada | ±2030 | bukan marker wajib dari instruksi, tetapi ada di file; jangan dihapus |
 
 Catatan: blok `GEOM-START/END` hanya berisi **primitif** geometri. Builder yang memakainya (`buildBatch`, `buildMcTerrain`, `addOak`, `buildLadders`, `buildSnakes`, `buildWorld`, dll.) berada **di luar** marker. Pemindahan blok GEOM tidak otomatis memindahkan builder tersebut.
