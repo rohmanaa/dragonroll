@@ -179,7 +179,7 @@ const TILES={
      {id:'team',c:'tc2',ic:'team',t:'TEAM',d:'2 vs 2 • langsung cari tim',go:()=>ranked('team',4)}],
  cr:[{id:'vsc',c:'tc2',ic:'bot',t:'VS COMPUTER',d:'Lawan AI',flip:{h:'JUMLAH PESERTA',o:[2,3,4].map(n=>[n+' PESERTA',()=>room('vsc','solo',n)])}},
      {id:'local',c:'tc1',ic:'loc',t:'MULTI PLAYER',d:'Satu perangkat, gantian',flip:{h:'JUMLAH PEMAIN',o:[2,3,4].map(n=>[n+' PEMAIN',()=>room('local','solo',n)])}},
-     {id:'online',c:'tc3',ic:'room',t:'ONLINE ROOM',d:'Buat room atau gabung pemain lain',flip:{h:'PILIH AKSI',o:[['CREATE SOLO',()=>room('online','solo',4)],['CREATE TEAM',()=>room('online','team',4)],['QUICK JOIN SOLO',()=>quickJoin('solo')],['QUICK JOIN TEAM',()=>quickJoin('team')]]}}]};
+     {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['SOLO',()=>room('online','solo',4)],['TEAM',()=>room('online','team',4)]]}}]};
 Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
  <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
  <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
