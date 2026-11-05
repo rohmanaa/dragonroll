@@ -1273,6 +1273,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script type="module" src="assets/js/cloud-sync.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
 <script src="assets/js/app.js"></script>
@@ -3613,7 +3614,7 @@ async function crystalRoll(p,v,gid){
     setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); if(d[n-1]) sfx.crystalDestroyed(); else sfx.bounce(); /* Crystal n sudah hancur -> suara 'crystal was destroyed', bukan bounce */
     await S(sleep(900)); return false;
   }
-  d[n-1]=true; p.crystal++; syncCrystals();
+  d[n-1]=true; p.crystal++; syncCrystals(); mpCue({k:'crys',pid:p.networkId,n:n});
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
   setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/'+CRYSTAL_N+')'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/'+CRYSTAL_N,{gid,ttl:1800});
   await S(sleep(900)); renderChips();
@@ -3632,6 +3633,7 @@ function arenaCamPan(){
 }
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
+  mpCue({k:'awake',boss:'dragon',pid:p.networkId});
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[GOAL],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
   const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
@@ -3831,6 +3833,7 @@ async function gatherFort(gid){
 async function awakenWither(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const F=FORT; if(!F){ AWK.done=true; return; }
+  mpCue({k:'awake',boss:'wither',pid:p.networkId});
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },Fk=reduce?0.35:1;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart(); /* musik boss (sama seperti pertarungan naga di World) */
   const sv={px:panGoal.x,pz:panGoal.z,zoom:goal.zoom}; let qk=null,finished=false;
@@ -3884,6 +3887,7 @@ async function skeletonRoll(p,v,gid){
     const why='Skeleton '+n+' sudah dikalahkan.'; setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
     await S(sleep(900)); return false;
   }
+  mpCue({k:'skel',pid:p.networkId,i:n-1});
   await S(punchSkeleton(p,n-1,gid));
   d[n-1]=true; p.crystal++; syncSkeletons(); renderChips();
   setMsg(p.name+' mengalahkan Skeleton '+n+'! ('+p.crystal+'/'+CRYSTAL_N+')'); fb('event','dragon','Skeleton '+n+' kalah! '+p.crystal+'/'+CRYSTAL_N,{gid,ttl:1800});
@@ -3897,7 +3901,7 @@ async function skeletonRoll(p,v,gid){
 }
 /* Wither muncul dari bawah benteng: gemuruh, kubus terlempar, naik menembus altar */
 async function witherRise(p,gid){
-  const F=FORT,w=WITHER; if(!w||WF.risen) return; WF.risen=true;
+  const F=FORT,w=WITHER; if(!w||WF.risen) return; WF.risen=true; mpCue({k:'wrise',pid:p.networkId});
   const Fk=reduce?0.35:1,S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },qk=sfx.quakeStart();
   setMsg('Semua Skeleton kalah! Benteng bergemuruh...'); fb('event','dragon','Sesuatu bangkit dari bawah benteng...',{gid,ttl:2600});
   w.dy=-2.6; w.sc=0.5; w.g.visible=true; w.halo.visible=true;
@@ -3911,14 +3915,14 @@ async function witherRise(p,gid){
   }finally{ sfx.quakeStop(qk); if(gid===gameId){ w.shk=0; w.dy=0; w.sc=WF.SC; } }
 }
 /* Serangan ke Wither: bidak melompat ke depan altar & memukul; damage = angka dadu x DMG dari HP 120 per pemain (pola sama dgn hitDragon) */
-async function hitWither(p,v){
-  if(!canAttackDragon(p)) return;
+async function hitWither(p,v,vo,vdead){
+  if(!vo&&!canAttackDragon(p)) return;
   const w=WITHER,F=FORT,pw=p.pawn,dmg=v*DMG,gid=gameId,Fk=reduce?0.4:1,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!',H=window.UT&&UT.GameplayHUD,slot=fortSlot(p.idx);
   if(H&&typeof H.showCombat==='function') hud('showCombat',p.name,'Wither',atk,{hp:p.dhp,maxHp:p.hpMax,bossName:'Wither',owner:p.name,gid});
   else setMsg(p.name+' menyerang Wither: '+v+' x '+DMG+' = '+dmg+' damage!');
   const dir=new THREE.Vector3(w.x-pw.position.x,0,w.z-pw.position.z); if(dir.lengthSq()<1e-4) dir.set(1,0,0); dir.normalize();
   const hit=new THREE.Vector3(w.x-dir.x*1.35,F.fl,w.z-dir.z*1.35);
-  focus=pw; sfx.dragonHurt();
+  focus=pw; sfx.dragonHurt(); if(!vo) mpCue({k:'bhit',boss:'wither',pid:p.networkId,v:v,dead:(p.dhp-dmg<=0)});
   try{
     await hopTo(pw,hit,0.4*Fk,0.55); if(gid!==gameId) throw STALE;
     pw.rotation.order='YXZ'; pw.rotation.y=Math.atan2(w.x-hit.x,w.z-hit.z);
@@ -3928,9 +3932,9 @@ async function hitWither(p,v){
     await hopTo(pw,slot,0.4*Fk,0.45); pw.rotation.y=Math.PI/2;
   }finally{ pw.rotation.order='XYZ'; pw.rotation.x=0; w.shk=0; }
   if(gid!==gameId) throw STALE;
-  p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
-  if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
-  DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
+  if(!vo){ p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p); }
+  if(vo?!vdead:p.dhp>0){ if(!vo) setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
+  if(!vo){ DRG.defeated=true; settleDragonDefeat(p); } dragonMusicStop(); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron); tamu: visual saja, tanpa hadiah */
   sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
   fireBurst(w.x,w.y0+0.6,w.z,2.2,F.fl); setTimeout(()=>{ if(gid===gameId) fireBurst(w.x,w.y0+1.0,w.z,1.6,F.fl); },450);
   await tween(1.6*Fk,k=>{ w.dy=-k*2.6; w.sc=WF.SC*(1-0.8*k); w.shk=Math.sin(k*60)*0.05*(1-k); });
@@ -4774,21 +4778,21 @@ function updateDragonFire(dt,now){
   DFX.step(dt,{fire:DFIRE.on?fire:0,smoke:ok||(dragon.visible&&!reduce&&!document.hidden&&AWK.done&&!AWK.running&&!DRG.defeated&&!gameOver)});
 }
 function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
-async function hitDragon(p,v){
-   if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
+async function hitDragon(p,v,vo,vdead){
+   if(!vo&&!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
    /* 4.1.9: 1 serangan = 1 presentation utama (combat strip HUD, dengan guard gid). setMsg + attack card hanya FALLBACK bila HUD combat tidak tersedia, agar tidak jadi 3 notifikasi yang sama. */
    const H=window.UT&&UT.GameplayHUD;
    if(H&&typeof H.showCombat==='function') hud('showCombat',p.name,'Ender Dragon',atk,{hp:p.dhp,owner:p.name,gid});
    else{ setMsg(p.name+' menyerang Ender Dragon: '+v+' x '+DMG+' = '+dmg+' damage!'); showAttackCard(p.name,'Ender Dragon','hit','Menyerang naga '+v+' x '+DMG+' = '+dmg+' damage!'); }
-   sfx.dragonHurt();
+   sfx.dragonHurt(); if(!vo) mpCue({k:'bhit',boss:'dragon',pid:p.networkId,v:v,dead:(p.dhp-dmg<=0)});
    await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6);
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
-   p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
-   if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
-   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
+   if(!vo){ p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p); }
+   if(vo?!vdead:p.dhp>0){ if(!vo) setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
+   if(!vo){ DRG.defeated=true; settleDragonDefeat(p); } dragonMusicStop(); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath();
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
    await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); });
@@ -4802,6 +4806,7 @@ async function explode(p){
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
 async function teleport(p,to){
+  mpCue({k:'tp',pid:p.networkId,to:to});
   spawnConfetti(p.pawn.position);
   await tween(0.3,k=>p.pawn.scale.setScalar(1-k));
   p.pawn.position.copy(slotPos(p.idx,to)); spawnConfetti(p.pawn.position);
@@ -5087,6 +5092,7 @@ async function giveChest(p,tok){
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
      const rw=resolveChestReward(); CHEST_LC.rewards++; /* reward tepat 1x per lifecycle */
      const res=await applyChestReward(p,rw,gid); if(gid!==gameId) return {status:'stale'};
+     mpCue({k:'chest',pid:p.networkId,n:n,txt:res.text});
      setMsg(p.name+' membuka peti: '+res.text+'.');
      if(FBK){ FBK.showChestRewardCard(p.name,res.text); sfx.rewardpower(); } else fb('event','chest','Chest: '+res.text); /* compact reward card + SFX reward 1x per reward */
      await sleep(reduce?600:1200); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama card tampil */
@@ -5383,13 +5389,13 @@ function totemModal(p,what,gid){
   });
 }
 async function askTotem(p,gid,what){
-  if(p.shield){ p.shield=false; return true; }
+  if(p.shield){ p.shield=false; mpCue({k:'totem',pid:p.networkId}); return true; }
   if(!p.pu||!(p.pu.totem>0)) return false;
-  if(p.cpu){ p.pu.totem--; return true; }
+  if(p.cpu){ p.pu.totem--; mpCue({k:'totem',pid:p.networkId}); return true; }
   setMsg(p.name+' kena '+what+'. Pakai Totem?');
   const use=await totemModal(p,what,gid);
   if(gid!==gameId) throw STALE;
-  if(use) p.pu.totem--; else setMsg(p.name+' memilih tidak memakai Totem.');
+  if(use){ p.pu.totem--; mpCue({k:'totem',pid:p.networkId}); } else setMsg(p.name+' memilih tidak memakai Totem.');
   return use;
 }
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
@@ -5591,8 +5597,8 @@ function startGame(m,keys){
    Three.js objects stay local; only plain JSON gameplay state is synchronized. */
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
-let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
-function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
+let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null,MP_CUE_SEQ=0;const MP_CUE_SEEN=new Set();
+function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ c.id=gameId+':'+(++MP_CUE_SEQ); c.t=Date.now(); MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
   const p=mpPlayerByNet(c.pid); if(!p) return Promise.resolve();
@@ -5600,10 +5606,23 @@ function mpRunCue(c){
   if(c.k==='walk') return walk(p,c.from,c.to);
   if(c.k==='climb') return climb(p,c.from,c.to);
   if(c.k==='bite') return bite(p,c.from,c.to,gameId);
+  /* efek visual host -> tamu (tidak mengubah logika; state final tetap dari snapshot) */
+  if(c.k==='chest'){ const n=c.n; openChest(n); sfx.chest(); setMsg(p.name+' membuka peti: '+c.txt+'.');
+    return sleep(reduce?200:550).then(()=>{ if(FBK){ FBK.showChestRewardCard(p.name,c.txt); sfx.rewardpower(); } return sleep(reduce?600:1200); })
+      .then(()=>{ if(FBK) FBK.hideChestRewardCard(); sfx.chestClose(); closeChest(n); return sleep(reduce?150:350); })
+      .catch(e=>{ if(FBK) FBK.hideChestRewardCard(); closeChest(n); throw e; }); }
+  if(c.k==='totem'){ puFx('pr:'+p.idx,'pfx-hit'); powerFxPawn('totem_block',p); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); sfx.pop(); return sleep(900); }
+  if(c.k==='tp') return teleport(p,c.to);
+  if(c.k==='awake') return c.boss==='wither'?awakenWither(p,gameId):awakenDragon(p,gameId);
+  if(c.k==='wrise') return witherRise(p,gameId);
+  if(c.k==='skel') return punchSkeleton(p,c.i,gameId).then(()=>{ crystalDone(p)[c.i]=true; syncSkeletons(); });
+  if(c.k==='crys'){ crystalDone(p)[c.n-1]=true; syncCrystals(); const cv=ARENA&&ARENA.cv[c.n-1]; if(cv) cv.flash=1; sfx.crystalBreak(); setMsg(p.name+' menghancurkan Crystal '+c.n+'!'); return sleep(900); }
+  if(c.k==='bhit') return c.boss==='wither'?hitWither(p,c.v,true,c.dead):hitDragon(p,c.v,true,c.dead);
   return Promise.resolve();
 }
 function onMpCue(c){
   if(!ONLINE_ROOM||ONLINE_HOST) return;
+  if(c&&c.id){ if(MP_CUE_SEEN.has(c.id)) return; MP_CUE_SEEN.add(c.id); if(MP_CUE_SEEN.size>400) MP_CUE_SEEN.delete(MP_CUE_SEEN.values().next().value); } /* idempotent: id sama tidak diputar 2x */
   MP_CUE_N++;
   MP_CUE_CHAIN=MP_CUE_CHAIN.then(()=>mpRunCue(c)).catch(e=>{ if(e!==STALE) console.error('[multiplayer] cue failed',e); }).then(()=>{
     MP_CUE_N--;

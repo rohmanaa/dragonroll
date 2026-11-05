@@ -364,6 +364,29 @@
       return clone(st.profile);
     },
 
+    /* ---- Sinkronisasi akun (cloud-sync.js) ---- */
+    /* Salinan state lengkap untuk diunggah. */
+    exportState: function () { return clone(load()); },
+    /* Ganti state lokal dengan data dari server (divalidasi sanitize; tidak menjalankan migrasi legacy lagi). */
+    importState: function (obj) {
+      if (!obj || typeof obj !== 'object' || !isFinite(obj.coins) || !isFinite(obj.xp) || !obj.inventory || typeof obj.inventory !== 'object' || !obj.equipped) return { ok: false, reason: 'data-tidak-valid' }; /* jangan timpa progres lokal dengan data rusak */
+      var st = sanitize(obj); if (!st) return { ok: false, reason: 'data-tidak-valid' };
+      st.migration = MIGRATION_VERSION;
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      mirrorLegacy(st); notify('sync');
+      return { ok: true };
+    },
+    /* State bersih untuk akun baru di perangkat yang sebelumnya dipakai akun lain (tanpa impor data legacy). */
+    resetState: function () {
+      var st = freshState();
+      st.inventory = {}; st.nextSeq = 0;
+      C.starters().forEach(function (it) { st.inventory[it.id] = { qty: 1, acquiredAt: st.createdAt, seq: st.nextSeq++ }; });
+      st.equipped = clone(C.defaultEquipped); st.migration = MIGRATION_VERSION;
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      mirrorLegacy(st); notify('sync');
+      return { ok: true };
+    },
+
     /* Langganan perubahan (halaman ini + tab/halaman lain). Mengembalikan fungsi berhenti. */
     subscribe: function (fn) {
       listeners.push(fn);

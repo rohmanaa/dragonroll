@@ -44,3 +44,14 @@ Online room config does not upload PlayerData profile names, inventory, equipped
 - [ ] Review Supabase Auth rate limits/CAPTCHA and database logs before public release.
 
 The host browser is authoritative and must stay connected during a match. This is a lightweight anonymous prototype, not anti-cheat or a dedicated server.
+
+## Player account data (progress sync)
+
+Migration `supabase/migrations/202611050002_player_profiles.sql` creates `public.player_profiles` (one jsonb `state` per registered account; RLS = owner only, anonymous multiplayer identities excluded, no DELETE).
+Run it in the SQL Editor **before** relying on cloud sync. Without it the game keeps working from localStorage (sync just logs a warning).
+
+`game/assets/js/cloud-sync.js` behaviour:
+- Login: server row exists -> server wins (local copy is backed up to `ularTanggaBlok:player:v1:backup:*`, last 3 kept). No row -> local data is uploaded once (local data is never deleted).
+- If this device's local data belongs to a different account, a new account starts from a fresh state (old data backed up).
+- Saves are debounced (2.5 s) and flushed on tab hide/close. Offline/error -> stays local and retries later.
+- Conflict rule is last-write-wins per account. Client-side state is not anti-cheat: a user can edit their own row.

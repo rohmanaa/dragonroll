@@ -36,6 +36,7 @@ function finish(session) {
   const u = userFrom(session);
   if (!u) throw new Error('Sesi tidak valid');
   writeCache(u); applyName(u.username);
+  try { window.dispatchEvent(new Event('ut:auth-changed')); } catch (e) {}
   return u;
 }
 async function check() { // sesi tersimpan? (tidak membuat akun anonim)
@@ -68,6 +69,7 @@ async function signIn(username, password) {
   } catch (e) { throw new Error(friendly(e)); }
 }
 async function signOut() {
+  try { if (window.UT && UT.CloudSync) await UT.CloudSync.flush(); } catch (e) {} // simpan perubahan terakhir sebelum keluar
   try { const c = await MP.getClient(); await c.auth.signOut(); } catch (e) {}
   writeCache(null);
 }
