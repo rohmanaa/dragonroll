@@ -4,7 +4,7 @@ Tanggal: 2026-11-05. Metode: baca kode (`game/gameplay.html`, `assets/js/multipl
 **Belum ada uji runtime dua klien** (MULTIPLAYER_STATE: "No runtime tests"; Supabase live belum divalidasi), jadi semua temuan = dari kode, bukan dari pengamatan.
 
 ## Prinsip target (dari permintaan)
-1. **Hak aksi sama**: host dan tamu punya hak yang sama di gameplay (roll, pakai power, keputusan Totem, dll). Host hanya "menjalankan mesin" (host-authoritative), bukan punya hak lebih.
+1. **Hak aksi sama**: "host" hanyalah pemain yang membuat ruangan dan mengajak teman, **bukan server**. Semua pemain punya hak yang sama di gameplay (roll, pakai power, keputusan Totem, dll). Game tidak boleh bergantung pada perangkat host.
 2. **Presentasi identik**: animasi, efek, suara, toast/HUD harus tampil sama di semua klien.
 3. **Personal = milik akun** ("akunku/akunmu"): pilihan dadu, skin, frame, loadout power, suara/teks menang-kalah, reward. Satu akun tidak boleh menimpa/ikut menerima milik akun lain.
 4. **Peran host** (boleh beda): pengaturan ruangan (siang/malam, mulai/keluar ruangan).
@@ -53,3 +53,33 @@ Tidak ada cue untuk semua ini (host-only):
 4. **Bus presentasi (P1)**: bungkus `sfx.*`, `fb/hud`, `puFx/powerFxPawn`, konfeti/kembang api, fase boss dalam satu helper yang di host sekaligus menyiarkan `{k:'sfx'|'toast'|'fx'|…}` bernomor urut; tamu memutar berurutan. Ganti teleport snapshot dengan cue untuk setiap perpindahan pion.
 5. **Keandalan (P2)**: nomor urut + resend cue, AFK/auto-roll online, deteksi tamu putus, `busy` tidak dipaksa false saat cue berjalan.
 6. **Uji dua klien** (dua browser/akun) setelah migrasi Supabase aktif; tulis skenario uji per item di atas.
+
+## Rekomendasi arsitektur (host = pemain biasa)
+
+Masalah akar: model sekarang *host-authoritative* (mesin game hanya jalan di perangkat host), sehingga host otomatis berkuasa: reward jatuh ke host, keputusan Totem di layar host, host bisa memalsukan dadu, dan game bubar saat host keluar. Target: semua pemain setara, game tidak bergantung pada satu perangkat.
+
+Prinsip:
+1. **Satu jalur aksi.** Roll/power/Totem dari host dan tamu sama-sama dikirim sebagai *aksi* ke Supabase (RPC), divalidasi (giliran, kepemilikan akun), lalu dicatat.
+2. **Log kejadian berurutan** (`game_events`: `seq`, `type`, `payload`): lempar, jalan, tangga, ular, mob, chest, power, toast/suara/efek, menang. Semua klien, termasuk host, memutar log yang sama berurutan, sehingga animasi, suara, dan HUD identik. Klien yang telat gabung atau reconnect memutar ulang dari `seq` terakhir.
+3. **Hasil personal dihitung tiap akun** dari log: dadu, skin, frame, reward, teks/suara menang-kalah, keputusan Totem (modal muncul di klien pemilik akun).
+4. **Host hanya peran ruangan**: atur siang/malam, mulai game. Host keluar tidak mengakhiri game.
+
+### Tahap 1 — log kejadian + referee yang bisa pindah
+- Mesin game tetap JS (menulis ulang seluruh aturan ke SQL terlalu besar). Pemain yang menjalankan mesin berperan sebagai *referee* tak terlihat; setiap hasil mesin dipublikasikan sebagai log berurutan (nomor urut + resend), bukan 4 cue + snapshot.
+- Seluruh aksi presentasi (sfx, toast, efek, konfeti, fase boss) dibungkus satu helper yang menulis event ke log; semua klien memutarnya.
+- Referee pindah otomatis ke pemain lain bila pemainnya keluar/putus (state diambil dari snapshot + log terakhir).
+- Menyelesaikan: P0 #1-5, seluruh P1, sebagian P2 (#6, #7, #9, #10).
+
+### Tahap 2 — validasi server
+- Dadu diacak di server (RPC), aksi divalidasi di server: host tidak bisa memalsukan angka/giliran.
+- Reward diberikan sekali per akun per game, tercatat di server.
+
+## Rencana pelaksanaan (urut)
+1. Keputusan produk: kebijakan reward (hanya pemenang atau + partisipasi), dadu yang tampil (milik pelempar atau milik penonton), batas waktu Totem + hasil bawaan.
+2. Skema `game_events` + RPC `submit_action` + Realtime subscribe (Supabase) + nomor urut/resend.
+3. Bungkus presentasi (sfx/toast/efek/HUD) ke helper event; ganti 4 cue + teleport snapshot dengan event.
+4. Hasil personal: reward, "Kamu menang/kalah", suara menang/kalah, Totem ke akun korban.
+5. Skin/dadu/frame per akun dikirim saat masuk room.
+6. AFK/auto-roll online, deteksi putus, pemindahan referee.
+7. Tahap 2 (dadu server, anti-curang).
+8. Uji dua klien untuk setiap temuan di tabel; catat hasil di dokumen ini.
