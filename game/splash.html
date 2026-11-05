@@ -96,6 +96,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 /* Gerbang login: tombol LOGIN setelah loading + modal Daftar/Masuk (gaya navy + hijau neon) */
 .login-btn{display:none;margin:18px auto 0;min-width:180px;padding:12px 28px;font:400 22px 'Lilita One',sans-serif;letter-spacing:.06em;color:#0b2a0b;background:linear-gradient(#b8ff63,#65ed26 60%,#3fbf1c);border:3px solid #0b1838;border-radius:10px;box-shadow:0 5px 0 #0b1838,inset 0 3px 0 rgba(255,255,255,.45);cursor:pointer}
 .login-btn.show{display:block}
+body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loading disembunyikan setelah tombol LOGIN muncul */
 .login-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0b1838,inset 0 3px 0 rgba(255,255,255,.45)}
 .auth-ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(9,21,43,.72);backdrop-filter:blur(4px);padding:16px}
 .auth-ov.show{display:flex}
@@ -161,7 +162,7 @@ window.UT_afterLoad = function (go) {
   lab.textContent = 'MEMERIKSA AKUN';
   ready.then(ok => ok ? UT.Auth.check() : null).then(user => {
     if (user) { lab.textContent = 'HALO, ' + String(user.username).toUpperCase(); go(); return; }
-    lab.textContent = 'SIAP!'; btn.classList.add('show'); btn.focus();
+    lab.textContent = 'SIAP!'; document.body.classList.add('login-ready'); btn.classList.add('show'); btn.focus();
     btn.onclick = () => openAuth(go);
   });
 };
