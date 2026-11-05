@@ -42,3 +42,6 @@ Cara membuat: lewat layar login/daftar di game, atau Supabase → Authentication
 - Anonymous Auth bisa disalahgunakan dalam jumlah besar: atur rate limit atau CAPTCHA sebelum rilis publik.
 - Risiko yang diterima sementara: selama dadu diacak di klien, anggota room secara teknis bisa mengirim hasil dadu palsu (ditutup di tahap server).
 - `game_events` tumbuh selama game: rencanakan pemangkasan atau snapshot checkpoint.
+
+## 5. Versi mudah dibaca
+Langkah-langkah di bagian 1–2 tersedia sebagai halaman HTML dengan checklist dan tombol salin: `audit/tutorial-supabase.html`.

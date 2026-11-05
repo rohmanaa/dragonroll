@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tutorial: Supabase sendiri untuk multiplayer Ular Tangga</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2433;--muted:#5b6578;--line:#e3e7ee;--accent:#2f7d32;--accent-soft:#e6f3e7;--warn:#a15c00;--warn-soft:#fff3df;--code:#f0f2f6;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--card:#1a2029;--text:#e8ecf3;--muted:#9aa6ba;--line:#2a3340;--accent:#6fcf74;--accent-soft:#1f3322;--warn:#f0b35a;--warn-soft:#3a2d17;--code:#232b37;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+h1{font-size:1.6rem;line-height:1.25;margin:8px 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.step{display:flex;gap:14px}
+.num{flex:0 0 34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:grid;place-items:center}
+.step h2{font-size:1.1rem;margin:2px 0 6px}
+.step p,.step ul,.step ol{margin:6px 0}
+.step ul,.step ol{padding-left:20px}
+.note{border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.95rem}
+.ok{background:var(--accent-soft)}
+.warn{background:var(--warn-soft);color:var(--text);border-left:4px solid var(--warn)}
+code{background:var(--code);padding:1px 6px;border-radius:6px;font:.9em ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+.codebox{position:relative;margin:10px 0}
+pre{background:var(--code);border-radius:10px;padding:12px;overflow-x:auto;margin:0;font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+button.copy{position:absolute;top:6px;right:6px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:4px 10px;font-size:.8rem;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow-x:auto}
+.toc a{color:var(--accent);text-decoration:none}
+.check li{list-style:none;margin-left:-20px}
+.check input{margin-right:8px}
+footer{color:var(--muted);font-size:.85rem;margin-top:28px}
+</style>
+</head>
+<body>
+<main>
+<h1>Tutorial: Supabase sendiri untuk multiplayer</h1>
+<p class="sub">Ular Tangga Minecraft · melengkapi <code>audit/rekomendasi.md</code> dan <code>multiplayer-step2-event-log.md</code></p>
+
+<div class="card toc">
+<strong>Isi</strong>
+<ol>
+<li><a href="#buat">Buat proyek</a></li>
+<li><a href="#auth">Aktifkan login</a></li>
+<li><a href="#migrasi">Jalankan migrasi SQL</a></li>
+<li><a href="#realtime">Cek Realtime</a></li>
+<li><a href="#kunci">Pasang URL dan kunci</a></li>
+<li><a href="#akun">Buat akun uji</a></li>
+<li><a href="#cek">Query pengecekan</a></li>
+<li><a href="#aman">Keamanan</a></li>
+</ol>
+</div>
+
+<div class="note warn"><strong>Penting:</strong> <code>config.example.js</code> saat ini menunjuk ke proyek Supabase milik orang lain. Jangan menjalankan migrasi di sana tanpa izin pemiliknya. Buat proyek sendiri dengan langkah berikut.</div>
+
+<section class="card step" id="buat"><div class="num">1</div><div>
+<h2>Buat proyek</h2>
+<ol>
+<li>Buka <code>supabase.com</code>, daftar (bisa pakai akun GitHub).</li>
+<li><strong>New project</strong>: isi nama, password database (simpan baik-baik), pilih region terdekat, misalnya Singapore.</li>
+<li>Tunggu sekitar 2 menit sampai proyek siap.</li>
+</ol>
+<p>Paket gratis cukup untuk pengembangan dan tes bersama teman. Proyek yang lama tidak aktif bisa dijeda otomatis, dan bisa dihidupkan lagi dari dashboard.</p>
+</div></section>
+
+<section class="card step" id="auth"><div class="num">2</div><div>
+<h2>Aktifkan login</h2>
+<ul>
+<li><strong>Authentication → Providers → Anonymous</strong>: aktifkan <em>Allow anonymous sign-ins</em> (dipakai room online).</li>
+<li><strong>Authentication → Providers → Email</strong>: aktif, dan <strong>Confirm email dimatikan</strong>. Login username dan password di <code>game/assets/js/auth.js</code> memetakan username ke email internal <code>username@dragonroll-game.com</code>, jadi tidak ada email yang dikirim.</li>
+</ul>
+</div></section>
+
+<section class="card step" id="migrasi"><div class="num">3</div><div>
+<h2>Jalankan migrasi SQL</h2>
+<p>Buka <strong>SQL Editor → New query</strong>. Jalankan <strong>berurutan</strong>, satu file per query:</p>
+<div class="scroll"><table>
+<tr><th>Urutan</th><th>File</th><th>Fungsi</th></tr>
+<tr><td>1</td><td><code>supabase/migrations/202611050001_multiplayer.sql</code></td><td>Tabel <code>game_rooms</code> dan RPC room</td></tr>
+<tr><td>2</td><td><code>supabase/migrations/202611060001_game_events.sql</code></td><td>Event log, profil publik, klaim reward</td></tr>
+</table></div>
+<p>Salin isi file dari GitHub, tempel, lalu <strong>Run</strong>. Aman dijalankan ulang karena memakai <code>if not exists</code> dan <code>create or replace</code>. File ini hanya menambah dan tidak menghapus data yang ada.</p>
+</div></section>
+
+<section class="card step" id="realtime"><div class="num">4</div><div>
+<h2>Cek Realtime</h2>
+<p><strong>Database → Publications → supabase_realtime</strong>: pastikan <code>game_rooms</code> dan <code>game_events</code> aktif. Kalau belum, aktifkan di sana.</p>
+</div></section>
+
+<section class="card step" id="kunci"><div class="num">5</div><div>
+<h2>Pasang URL dan kunci</h2>
+<ol>
+<li><strong>Project Settings → API</strong>: salin <strong>Project URL</strong> dan <strong>publishable/anon key</strong>.</li>
+<li>Ganti dua nilai itu di <code>game/assets/js/multiplayer/config.example.js</code>, lalu commit dan push.</li>
+</ol>
+<div class="note warn">Kunci anon memang boleh publik. <strong>Jangan pernah</strong> memakai kunci <code>service_role</code> di repo atau browser.</div>
+</div></section>
+
+<section class="card step" id="akun"><div class="num">6</div><div>
+<h2>Buat akun uji</h2>
+<p>Untuk uji dua klien, siapkan dua akun. Aturan username: 3–16 karakter, hanya huruf, angka, atau underscore. Password minimal 6 karakter.</p>
+<ul>
+<li><strong>Lewat game:</strong> buka layar login/daftar, isi username dan password.</li>
+<li><strong>Lewat dashboard:</strong> <strong>Authentication → Users → Add user</strong>. Isi email <code>username@dragonroll-game.com</code>, isi password, centang <strong>Auto Confirm User</strong>.</li>
+</ul>
+<p>Contoh pasangan akun: <code>omanbogel</code> dan <code>omanbogel2</code>.</p>
+<div class="note warn">Pakai password sederhana hanya di proyek uji yang bukan produksi, dan hapus akunnya setelah selesai. Password tidak ditulis di repo.</div>
+</div></section>
+
+<section class="card step" id="cek"><div class="num">7</div><div>
+<h2>Query pengecekan</h2>
+<p>Tempel di SQL Editor setelah migrasi. Hasil yang benar: <code>tabel=2</code>, <code>fungsi=4</code>, <code>realtime=1</code>, <code>kolom=1</code>.</p>
+<div class="codebox"><button class="copy" type="button" data-copy="q">Salin</button>
+<pre id="q">select
+  (select count(*) from information_schema.tables where table_name in ('game_events','game_reward_claims')) as tabel,
+  (select count(*) from information_schema.routines where routine_name in ('submit_game_action','set_game_public_profile','claim_game_reward','is_game_room_member')) as fungsi,
+  (select count(*) from pg_publication_tables where pubname='supabase_realtime' and tablename='game_events') as realtime,
+  (select count(*) from information_schema.columns where table_name='game_rooms' and column_name='event_seq') as kolom;</pre></div>
+<p>Kalau ada angka 0 atau migrasi error, catat pesan errornya untuk diperbaiki.</p>
+<ul class="check">
+<li><label><input type="checkbox"> Proyek dibuat</label></li>
+<li><label><input type="checkbox"> Anonymous dan Email aktif (Confirm email mati)</label></li>
+<li><label><input type="checkbox"> Migrasi 1 dan 2 berhasil</label></li>
+<li><label><input type="checkbox"> Realtime aktif untuk dua tabel</label></li>
+<li><label><input type="checkbox"> URL dan kunci diganti di config</label></li>
+<li><label><input type="checkbox"> Query pengecekan: 2 / 4 / 1 / 1</label></li>
+<li><label><input type="checkbox"> Dua akun uji siap</label></li>
+</ul>
+</div></section>
+
+<section class="card step" id="aman"><div class="num">8</div><div>
+<h2>Keamanan</h2>
+<ul>
+<li>Cabut (revoke) setiap token GitHub yang pernah ditempel di chat. Pakai <code>gh auth login</code> atau Claude Code.</li>
+<li>Anonymous Auth bisa disalahgunakan dalam jumlah besar. Atur rate limit atau CAPTCHA sebelum rilis publik.</li>
+<li>Selama dadu diacak di klien, anggota room secara teknis bisa mengirim hasil dadu palsu. Ditutup di tahap server.</li>
+<li><code>game_events</code> tumbuh selama game, jadi pemangkasan atau snapshot checkpoint perlu direncanakan.</li>
+</ul>
+</div></section>
+
+<footer>Dokumen audit · 5 November 2026</footer>
+</main>
+<script>
+document.querySelectorAll('button.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var el=document.getElementById(b.getAttribute('data-copy'));
+    var text=el?el.textContent:'';
+    try{
+      navigator.clipboard.writeText(text).then(function(){b.textContent='Tersalin';setTimeout(function(){b.textContent='Salin'},1500)},function(){b.textContent='Gagal'});
+    }catch(e){b.textContent='Gagal'}
+  });
+});
+</script>
+</body>
+</html>
