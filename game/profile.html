@@ -491,7 +491,7 @@ const DT={win:()=>rows('Rasio Kemenangan',[['Menang',MOCK.win],['Kalah',MOCK.pla
  achall:()=>achModal(),skins:()=>skinModal(),
  stat:()=>rows('Statistik',[['Level',MOCK.lvl],['Rasio kemenangan',pcn()+'%'],['Total main',MOCK.play],['Peringkat global','#'+MOCK.rank]]),
  hist:()=>openModal('<h2>Riwayat</h2><p>Riwayat pertandingan terbaru akan tampil di sini.</p>')};
-function editName(){openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
+function editName(){try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');if(a&&a.username){toast('Nama mengikuti username akunmu: '+a.username);return}}catch(e){}openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
  const i=$('#ni');i.value=pname();setTimeout(()=>{i.focus();i.select()},60);
  const ok=()=>{const v=i.value.trim();if(v.length<3){toast('Nama minimal 3 karakter');return}PD.setName(v);closeModal();render();toast('Nama diperbarui')};
  $('#ns').addEventListener('click',ok);i.addEventListener('keydown',e=>{if(e.key==='Enter')ok()})})}

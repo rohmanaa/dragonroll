@@ -92,6 +92,30 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 .meta,.load-meta{margin-top:14px;font-size:13px}
 @media (min-aspect-ratio:1/1){.bottom-ui{width:min(260px,34cqw)}}
 </style>
+<style id="auth-ui">
+/* Gerbang login: tombol LOGIN setelah loading + modal Daftar/Masuk (gaya navy + hijau neon) */
+.login-btn{display:none;margin:18px auto 0;min-width:180px;padding:12px 28px;font:400 22px 'Lilita One',sans-serif;letter-spacing:.06em;color:#0b2a0b;background:linear-gradient(#b8ff63,#65ed26 60%,#3fbf1c);border:3px solid #0b1838;border-radius:10px;box-shadow:0 5px 0 #0b1838,inset 0 3px 0 rgba(255,255,255,.45);cursor:pointer}
+.login-btn.show{display:block}
+.login-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0b1838,inset 0 3px 0 rgba(255,255,255,.45)}
+.auth-ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(9,21,43,.72);backdrop-filter:blur(4px);padding:16px}
+.auth-ov.show{display:flex}
+.auth-card{width:min(380px,100%);max-height:100%;overflow:auto;background:#0f1f3d;border:3px solid #7dff2e;border-radius:16px;box-shadow:0 8px 0 #050c1c,0 0 30px rgba(125,255,46,.25);padding:20px 20px 18px;color:#fff}
+.auth-card h2{margin:0 0 4px;font:400 28px 'Lilita One',sans-serif;letter-spacing:.04em;text-align:center}
+.auth-card h2 span{color:#7dff2e}
+.auth-sub{margin:0 0 14px;text-align:center;font-size:12px;font-weight:600;color:#9fb6d9}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.auth-tab{padding:9px 0;font:400 16px 'Lilita One',sans-serif;letter-spacing:.05em;color:#9fb6d9;background:#16294f;border:2px solid #223a6b;border-radius:8px;cursor:pointer}
+.auth-tab[aria-selected=true]{color:#0b2a0b;background:#7dff2e;border-color:#7dff2e}
+.auth-card label{display:block;margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.08em;color:#cfe0ff}
+.auth-card input{width:100%;padding:11px 12px;font:700 16px 'Plus Jakarta Sans',sans-serif;color:#fff;background:#09152b;border:2px solid #29437a;border-radius:8px;outline:none}
+.auth-card input:focus{border-color:#7dff2e}
+.auth-hint{margin-top:4px;font-size:11px;font-weight:600;color:#7f96bd}
+.auth-err{min-height:18px;margin:10px 0 0;font-size:13px;font-weight:700;color:#ff8a8a;text-align:center}
+.auth-go{width:100%;margin-top:10px;padding:12px;font:400 20px 'Lilita One',sans-serif;letter-spacing:.06em;color:#0b2a0b;background:linear-gradient(#b8ff63,#65ed26 60%,#3fbf1c);border:3px solid #050c1c;border-radius:10px;box-shadow:0 4px 0 #050c1c;cursor:pointer}
+.auth-go:disabled{opacity:.6;cursor:wait}
+.auth-sw{margin:12px 0 0;text-align:center;font-size:12px;font-weight:600;color:#9fb6d9}
+.auth-sw button{background:none;border:0;padding:0;font:800 12px 'Plus Jakarta Sans',sans-serif;color:#7dff2e;text-decoration:underline;cursor:pointer}
+</style>
 <link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full"></script>
 <script src="assets/js/landscape.js"></script></head>
 <body>
@@ -106,9 +130,67 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 
     <div class="loading-track"><div class="loading-fill" id="fill"></div></div>
     <div class="load-meta"><span id="label">MENYIAPKAN DUNIA</span><span id="percent">0%</span></div>
+    <button type="button" class="login-btn" id="loginBtn">LOGIN</button>
   </section>
 </main>
 
+
+<div class="auth-ov" id="authOv" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <form class="auth-card" id="authForm" autocomplete="on" novalidate>
+    <h2 id="authTitle">DRAGON <span>ROLL</span></h2>
+    <p class="auth-sub" id="authSub">Buat akun untuk mulai bermain</p>
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab" id="tabReg" role="tab" aria-selected="true">DAFTAR</button>
+      <button type="button" class="auth-tab" id="tabLog" role="tab" aria-selected="false">MASUK</button>
+    </div>
+    <label for="auUser">USERNAME</label>
+    <input id="auUser" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="16" placeholder="contoh: oman_bogel">
+    <div class="auth-hint" id="auUserHint">3-16 karakter: huruf, angka, underscore</div>
+    <label for="auPass">PASSWORD</label>
+    <input id="auPass" name="password" type="password" autocomplete="new-password" placeholder="minimal 6 karakter">
+    <div class="auth-err" id="authErr" role="alert"></div>
+    <button type="submit" class="auth-go" id="authGo">DAFTAR</button>
+    <p class="auth-sw" id="authSw">Sudah punya akun? <button type="button" id="swBtn">Masuk</button></p>
+  </form>
+</div>
+<script>
+/* Gerbang login (dipanggil setelah loading selesai) */
+window.UT_afterLoad = function (go) {
+  const lab = document.getElementById('label'), btn = document.getElementById('loginBtn');
+  const ready = new Promise(res => { if (window.UT && UT.Auth) return res(true); addEventListener('ut:auth-module-ready', () => res(true), { once: true }); setTimeout(() => res(false), 8000); });
+  lab.textContent = 'MEMERIKSA AKUN';
+  ready.then(ok => ok ? UT.Auth.check() : null).then(user => {
+    if (user) { lab.textContent = 'HALO, ' + String(user.username).toUpperCase(); go(); return; }
+    lab.textContent = 'SIAP!'; btn.classList.add('show'); btn.focus();
+    btn.onclick = () => openAuth(go);
+  });
+};
+function openAuth(go) {
+  const $ = id => document.getElementById(id), ov = $('authOv'), f = $('authForm'), err = $('authErr'), goB = $('authGo');
+  let mode = 'reg';
+  function setMode(m) {
+    mode = m; err.textContent = '';
+    $('tabReg').setAttribute('aria-selected', String(m === 'reg')); $('tabLog').setAttribute('aria-selected', String(m === 'log'));
+    $('authSub').textContent = m === 'reg' ? 'Buat akun untuk mulai bermain' : 'Masuk dengan akun kamu';
+    goB.textContent = m === 'reg' ? 'DAFTAR' : 'MASUK';
+    $('auPass').autocomplete = m === 'reg' ? 'new-password' : 'current-password';
+    $('auUserHint').style.display = m === 'reg' ? '' : 'none';
+    $('authSw').innerHTML = m === 'reg' ? 'Sudah punya akun? <button type="button" id="swBtn">Masuk</button>' : 'Belum punya akun? <button type="button" id="swBtn">Daftar</button>';
+    $('swBtn').onclick = () => setMode(m === 'reg' ? 'log' : 'reg');
+  }
+  $('tabReg').onclick = () => setMode('reg'); $('tabLog').onclick = () => setMode('log');
+  setMode('reg'); ov.classList.add('show'); setTimeout(() => $('auUser').focus(), 50);
+  f.onsubmit = async e => {
+    e.preventDefault(); err.textContent = ''; goB.disabled = true; const t = goB.textContent; goB.textContent = 'TUNGGU...';
+    try {
+      if (!(window.UT && UT.Auth)) throw new Error('Modul akun belum siap. Muat ulang halaman.');
+      const u = $('auUser').value, p = $('auPass').value;
+      const user = mode === 'reg' ? await UT.Auth.signUp(u, p) : await UT.Auth.signIn(u, p);
+      ov.classList.remove('show'); document.getElementById('label').textContent = 'HALO, ' + String(user.username).toUpperCase(); go();
+    } catch (e2) { err.textContent = e2.message || 'Gagal. Coba lagi.'; goB.disabled = false; goB.textContent = t; }
+  };
+}
+</script>
 <script src="assets/js/preloader.js"></script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
@@ -131,10 +213,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
   UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'SIAP!'; }).then(() => {
-    try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {}
-    setTimeout(() => location.replace(dest), 350);
+    const go = () => { try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {} setTimeout(() => location.replace(dest), 350); };
+    window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
   });
 })();
 </script>
+<script type="module" src="assets/js/auth.js"></script>
 </body>
 </html>
