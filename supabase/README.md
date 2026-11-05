@@ -44,3 +44,7 @@ Online room config does not upload PlayerData profile names, inventory, equipped
 - [ ] Review Supabase Auth rate limits/CAPTCHA and database logs before public release.
 
 The host browser is authoritative and must stay connected during a match. This is a lightweight anonymous prototype, not anti-cheat or a dedicated server.
+
+## Event log (Langkah 2)
+
+`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `audit/multiplayer-step2-event-log.md`.
