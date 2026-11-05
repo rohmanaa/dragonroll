@@ -298,7 +298,7 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:PW.equipped.slice(),
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.slice(),
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?'klasik':(di&&di.gameKey)}}
 function launch(){clearT();RF.launch(cfg())}
 async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
