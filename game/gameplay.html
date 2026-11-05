@@ -5172,6 +5172,7 @@ function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performanc
 function turnTag(){ return gameOver?'Selesai':ORD(cur); } /* teks chip panel Giliran: 1st/2nd/... atau Selesai saat game berakhir */
 function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
 function syncOppTurn(){ const c=players[cur]; document.body.classList.toggle('opp-turn',!!(c&&!canControlPlayer(c)&&!gameOver)); } /* Roll & Auto disembunyikan saat bukan giliran pemain ini (CPU / pemain online lain) */
+let TOAST_P=null;
 function showTurnToast(){
   let t=document.getElementById('turnToast'); if(!t){ t=document.createElement('div'); t.id='turnToast'; t.setAttribute('role','status'); t.textContent='Giliran kamu'; document.body.appendChild(t); }
   t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
@@ -5223,7 +5224,7 @@ function beginTurn(extra){
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
   specialHint(p); setRoll(ONLINE_ROOM?canControlPlayer(p):!p.cpu); startTurnTimer();
-  if(canControlPlayer(p)&&!document.getElementById('readyScreen')) showTurnToast(); /* toast tengah "Giliran kamu" */
+  if(!canControlPlayer(p)) TOAST_P=null; else if(!document.getElementById('readyScreen')&&(extra||TOAST_P!==p)){ TOAST_P=p; showTurnToast(); } /* toast tengah "Giliran kamu": sekali per giliran (snapshot online memanggil beginTurn lagi) */
   if(ONLINE_ROOM)publishGameSnapshot();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion_odd','potion_even','totem','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
