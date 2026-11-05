@@ -83,3 +83,50 @@ Prinsip:
 6. AFK/auto-roll online, deteksi putus, pemindahan referee.
 7. Tahap 2 (dadu server, anti-curang).
 8. Uji dua klien untuk setiap temuan di tabel; catat hasil di dokumen ini.
+
+## Keputusan Final Produk (Langkah 0)
+
+Status: **DISETUJUI** oleh pemilik produk. Menjadi dasar untuk seluruh rencana pelaksanaan 8 langkah.
+
+### Prinsip yang berlaku
+- "Host" hanyalah pemain yang mengajak teman, bukan server.
+- Semua pemain punya hak yang sama.
+- Yang personal tetap milik akun masing-masing.
+
+### Keputusan 1: Kebijakan reward, personal per akun
+- Setiap pemain menerima coin dan XP sendiri, dicatat ke PlayerData akunnya masing-masing. Tidak ada reward yang mengalir ke host.
+- Hadiah chest diberikan ke pemain yang bidaknya masuk petak chest, dan ditampilkan di layar semua pemain.
+- Hasil menang/kalah dihitung per akun, bukan per host.
+- Anti-farming diterima sebagai kebijakan: game harus selesai agar reward dihitung, dan Kamar Teman punya batas (cap) harian.
+
+### Keputusan 2: Skin yang tampil, milik pemilik, terlihat oleh semua
+- Tujuan: flexing. Skin yang sedang dipakai (equipped) harus terlihat oleh pemain lain.
+- Cakupan: gameplay dan semua tempat yang memperlihatkan pemain lain (room/ruang tunggu, daftar pemain online, dan sejenisnya).
+- Yang tampil: skin karakter, skin dadu, frame, dan efek milik masing-masing pemain.
+- Saat pemain A melempar dadu, semua layar menampilkan dadu, efek, dan suara milik A.
+- Data yang dikirim hanya ID (`characterSkinId`, `diceId`, `frameId`, `effectId`), bukan asetnya. Tiap perangkat merender dari katalog miliknya.
+- Fallback ke dadu putih/standar hanya bila ID tidak dikenali (misalnya versi game lama). Slot `effectId` disiapkan sekarang, isinya menyusul.
+- Semua ID ini dikirim lewat satu objek `publicProfile`.
+
+**Publik (boleh dilihat pemain lain):**
+- Nama tampilan, avatar
+- Skin karakter, skin dadu, frame, efek yang sedang dipakai
+- Level/lencana atau statistik lain hanya bila diputuskan publik nanti (belum diputuskan)
+
+**Privat (hanya akun sendiri, tidak pernah masuk `publicProfile`):**
+- Jumlah coin, gem, XP
+- Isi inventory (skin yang dimiliki tapi tidak dipakai)
+- Riwayat pembelian, email, data akun lain
+- Statistik menang/kalah pribadi
+
+### Keputusan 3: Totem, batas 15 detik
+- Batas waktu keputusan Totem: 15 detik.
+- Jika tidak ada keputusan dalam 15 detik, Totem otomatis terpakai.
+- Hitung mundur ditampilkan sama di semua layar.
+- Tahap 1: timer dijalankan oleh pemain pengelola game. Validasi sungguhan oleh server baru di Tahap 2.
+- Nilai 15 detik disimpan di config agar mudah disesuaikan setelah uji coba.
+
+### Implikasi untuk Tahap 1
+- Setiap kejadian pada log berurutan wajib membawa `playerId`, serta `diceId`/`skinId` bila relevan, agar keputusan 1 dan 2 bisa diputar sama di semua layar.
+- Risiko yang diterima di Tahap 1: dadu masih diacak di klien pengelola game, sehingga pengelola secara teknis bisa curang. Ini ditutup di Tahap 2 (dadu diacak dan aksi divalidasi di server).
+- Keputusan yang masih terbuka: apakah level, jumlah menang, atau lencana ditampilkan ke pemain lain.
