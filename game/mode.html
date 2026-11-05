@@ -179,7 +179,7 @@ const TILES={
      {id:'team',c:'tc2',ic:'team',t:'TEAM',d:'2 vs 2 • langsung cari tim',go:()=>ranked('team',4)}],
  cr:[{id:'vsc',c:'tc2',ic:'bot',t:'VS COMPUTER',d:'Lawan AI',flip:{h:'JUMLAH PESERTA',o:[2,3,4].map(n=>[n+' PESERTA',()=>room('vsc','solo',n)])}},
      {id:'local',c:'tc1',ic:'loc',t:'MULTI PLAYER',d:'Satu perangkat, gantian',flip:{h:'JUMLAH PEMAIN',o:[2,3,4].map(n=>[n+' PEMAIN',()=>room('local','solo',n)])}},
-     {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['TEAM',()=>room('online','team',4)],['SOLO',()=>room('online','solo',4)]]}}]};
+     {id:'online',c:'tc3',ic:'room',t:'ONLINE ROOM',d:'Buat room atau gabung pemain lain',flip:{h:'PILIH AKSI',o:[['CREATE SOLO',()=>room('online','solo',4)],['CREATE TEAM',()=>room('online','team',4)],['QUICK JOIN SOLO',()=>quickJoin('solo')],['QUICK JOIN TEAM',()=>quickJoin('team')]]}}]};
 Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
  <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
  <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
@@ -195,6 +195,17 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 addEventListener('pageshow',()=>{closeAll();cancelMM()});
 
 /* ---------- alur ---------- */
+async function quickJoin(format){
+ try{
+  const ready=()=>new Promise(resolve=>{if(UT.Multiplayer&&UT.Multiplayer.RoomService)return resolve();addEventListener('ut:multiplayer-ready',resolve,{once:true})});
+  await ready();
+  const MP=UT.Multiplayer.RoomService,player=await MP.ensurePlayer();
+  UT.UI.toast('Mencari room publik...');
+  const joined=await MP.quickJoin({name:player.name,format});
+  location.href='room.html?mode=online&format='+encodeURIComponent(format)+'&count='+joined.max_players+'&role=guest&code='+encodeURIComponent(joined.code);
+ }catch(e){console.error('[multiplayer] quick join failed',e);UT.UI.toast(e.message==='NO_PUBLIC_ROOM_AVAILABLE'?'Belum ada room publik yang tersedia.':'Quick Join gagal: '+(e.message||'Periksa koneksi'),3000)}
+}
+
 function room(mode,format,count){RF.navigate('room',{mode,format,count})}
 let mm=null,tm=[];
 function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#mm').classList.remove('show')}
@@ -212,5 +223,9 @@ $('#back').onclick=()=>RF.navigate('back');
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{if(window.UT&&UT.Router&&UT.Router.toShop)UT.Router.toShop({tab:b.dataset.buy});else location.href='shop.html'});
 document.documentElement.classList.add('ut-ready');
 })();
+</script>
+<script type="module">
+import './assets/js/multiplayer/room-service.js';
+window.dispatchEvent(new Event('ut:multiplayer-ready'));
 </script>
 </body></html>

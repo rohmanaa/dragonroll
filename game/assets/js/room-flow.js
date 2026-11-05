@@ -49,8 +49,8 @@
     cfg = Object.assign({ map: (getMap() || {}).gameKey }, cfg);
     var ev = new CustomEvent('game:start', { detail: cfg, cancelable: true });
     if (!g.dispatchEvent(ev)) return;
-    var mode = gameMode(cfg), mine = cfg.skin || eqKey('skin') || 'steve';
-    var skins = skinKeys(mode === 'cpu' ? 1 : +mode, mine), dice = cfg.dice || eqKey('dice');
+    var mode = gameMode(cfg), online = cfg.mode === 'online', mine = online ? (cfg.skin || 'steve') : (cfg.skin || eqKey('skin') || 'steve');
+    var skins = skinKeys(mode === 'cpu' ? 1 : +mode, mine), dice = online ? (cfg.dice || 'klasik') : (cfg.dice || eqKey('dice'));
     var p = new URLSearchParams({ mode: mode, skins: skins.join(',') });
     if (cfg.map) p.set('theme', cfg.map);
     if (dice) p.set('dice', dice);

@@ -108,6 +108,8 @@ html{font-size:min(2.6vw,1.45vh)}
 #pMp{background:linear-gradient(145deg,#ffb23d,#e8841a 55%,#c4650d);box-shadow:0 0 0 .25rem var(--ink),0 .4rem 0 .25rem var(--ink),inset 0 0 0 .3rem rgba(255,228,165,.55)}
 #pMp .mc{background:linear-gradient(120deg,#fff5df,#ecd9b3)}
 #pMp .mc .ma{box-shadow:0 0 0 .2rem #5b390f}
+html.mp-online #room{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"hd" "rt"}
+html.mp-online #lf{display:none}
 </style></head>
 <body>
 <main id="room">
@@ -142,8 +144,8 @@ html{font-size:min(2.6vw,1.45vh)}
 <div class="ov" id="inv"><div class="box blue" role="dialog" aria-modal="true" aria-label="Invite Friend">
  <button class="x" id="invX" aria-label="Tutup">✕</button><h2>👥 INVITE FRIEND</h2>
  <div class="rowc"><div class="seg"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div><button class="sm" id="cCode" title="Salin kode"></button><button class="sm" id="cLink">LINK</button><span class="pill" id="slotInfo"></span></div>
- <div class="tabs"><button class="tab on" id="tOn">🟢 ONLINE</button><button class="tab" id="tOff">⚪ OFFLINE</button></div>
- <input class="srch" id="srch" placeholder="Cari nama teman..." autocomplete="off">
+ <div class="tabs" hidden><button class="tab on" id="tOn">🟢 ONLINE</button><button class="tab" id="tOff">⚪ OFFLINE</button></div>
+ <input class="srch" id="srch" placeholder="Cari nama teman..." autocomplete="off" hidden>
  <div class="sc" id="fl"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
@@ -167,8 +169,8 @@ const q=new URLSearchParams(location.search),MODE=q.get('mode');
 if(RF.MODES.indexOf(MODE)<0){location.replace('mode.html');return}
 const ONLINE=MODE==='online',FORMAT=(ONLINE&&q.get('format')==='team')?'team':'solo',TEAM=ONLINE&&FORMAT==='team';
 const COUNT=ONLINE?4:Math.min(4,Math.max(2,parseInt(q.get('count'),10)||2));
-const HOST=!(ONLINE&&q.get('role')==='guest');
-const jc=(q.get('code')||'').toUpperCase(),JOIN=(!HOST&&/^[A-Z0-9]{4,8}$/.test(jc))?jc:null;
+let HOST=!(ONLINE&&q.get('role')==='guest');
+const jc=(q.get('code')||'').toUpperCase(),JOIN=(!HOST&&/^[A-Z0-9]{6,8}$/.test(jc))?jc:null;
 const MAP=RF.getMap(),TILES=100;
 const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Room • Team':'Create Room • Solo'};
 /* DATA DEMO (ganti dengan API/server): stok Power per pertandingan & daftar teman belum punya backend */
@@ -177,28 +179,48 @@ const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',o
  {id:'l3',name:'Dodi',online:false,level:9},{id:'g4',name:'DinoRush',online:false,level:35}];
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>1+Math.floor(PD.xp()/100);
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
-const S={invTab:'online',invites:{},timers:[],room:null,hostT:null,invTeam:0};
+const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
 /* ---------- navigasi ---------- */
-const leave=to=>{clearT();RF.navigate(to)};
+const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
 $('#back').onclick=()=>leave('mode');$('#cls').onclick=()=>leave('home');
 /* ---------- setup room ---------- */
 function setup(){
- const P=[];
- if(ONLINE&&!HOST)P.push({id:'host',name:'Mike',level:21,ready:false,team:1,kind:'host'},{id:'me',name:myName(),level:myLevel(),ready:false,team:TEAM?1:0,kind:'friend'});
- else P.push({id:'me',name:myName(),level:myLevel(),ready:false,team:TEAM?1:0,kind:'host'});
+ if(ONLINE){renderRoomHeader();return;}
+ const P=[{id:'me',name:myName(),level:myLevel(),ready:true,team:0,kind:'host'}];
  if(MODE==='vsc')for(let i=1;i<COUNT;i++)P.push({id:'b'+i,name:'Bot '+i,level:rand(4,20),ready:true,team:0,kind:'bot'});
  if(MODE==='local')for(let i=1;i<COUNT;i++)P.push({id:'p'+i,name:'Pemain '+(i+1),level:1,ready:true,team:0,kind:'local'});
- if(!HOST)[['f_g2','RakaPlay',28],['f_g3','NayaCraft',24]].forEach((f,i)=>{if(P.length<COUNT)P.push({id:f[0],fid:'g'+(i+1),name:f[1],level:f[2],ready:false,team:TEAM?2:0,kind:'friend'})});
- S.room={privacy:'private',code:JOIN||Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[rand(0,31)]).join(''),players:P};
- /* ponsel lokal / bot otomatis Ready; host harus menekan READY sendiri */
- P.forEach(p=>{if(p.kind==='bot'||p.kind==='local')p.ready=true});
- if(HOST)P.find(p=>p.id==='me').ready=true; /* host tidak perlu READY, langsung START */
+ S.room={privacy:'private',code:'',players:P}; renderRoomHeader();
+}
+function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,b=>chars[b%chars.length]).join('')}
+function renderRoomHeader(){
+ document.documentElement.classList.toggle('mp-online',ONLINE);
  $('#rt_t').textContent=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
- $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';
- $('#invB').hidden=!(ONLINE&&HOST);$('#cCode').textContent='KODE '+S.room.code;
- if(ONLINE&&!HOST)guestSim();
+ $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';$('#invB').hidden=!(ONLINE&&HOST);$('#invB').textContent='ROOM ACCESS';
+ $('#cCode').textContent='KODE '+(S.room.code||'------');
+}
+function applyRemoteRoom(row){
+ if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
+ S.room={id:row.id,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
+ renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
+ $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
+ $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
+ renderPlayers();renderBottom();
+ if((row.status==='playing'||row.status==='finished')&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
+}
+async function setupOnline(){
+ try{
+  const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
+  S.mpIdentity=await MP.ensurePlayer();let row;
+  if(HOST){
+   let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
+   if(saved&&saved.id){try{row=await MP.getRoom(saved.id)}catch(_){} }
+   if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:COUNT,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
+  }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
+  try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
+  applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
+ }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
 const EQ=[['dice','DICE','DADU'],['skin','SKIN','SKIN'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
@@ -240,15 +262,15 @@ function renderMap(){
 }
 /* ---------- PLAYER ROOM ---------- */
 const pending=()=>Object.keys(S.invites).length,slotsLeft=()=>COUNT-S.room.players.length-pending();
-const me=()=>S.room.players.find(p=>p.id==='me');
+const me=()=>S.room.players.find(p=>p.id===(S.mpIdentity&&S.mpIdentity.id||'me'));
 function avatar(p){return p.kind==='bot'?'<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>':`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
 function prow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal'}[p.kind],
- tags=(p.kind==='host'?'<span class="tg">HOST</span>':'')+(p.id==='me'&&p.kind!=='host'?'<span class="tg me">KAMU</span>':''),
- mv=(TEAM&&HOST)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'';
- return `<div class="plr ${TEAM?'t'+p.team:''} ${p.id==='me'?'me':''}">${avatar(p)}<div class="pi"><b>${esc(p.name)}${tags}</b><small>Lv ${p.level} • ${kind}</small></div>${mv}<span class="st ${p.ready?'rd':'wt'}">${p.ready?'✓ READY':'WAITING'}</span></div>`}
+ tags=(p.kind==='host'?'<span class="tg">HOST</span>':'')+(p.id===(S.mpIdentity&&S.mpIdentity.id||'me')&&p.kind!=='host'?'<span class="tg me">KAMU</span>':''),
+ mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'';
+ return `<div class="plr ${TEAM?'t'+p.team:''} ${p.id===(S.mpIdentity&&S.mpIdentity.id||'me')?'me':''}">${avatar(p)}<div class="pi"><b>${esc(p.name)}${tags}</b><small>Lv ${p.level} • ${kind}</small></div>${mv}<span class="st ${p.ready?'rd':'wt'}">${p.ready?'✓ READY':'WAITING'}</span></div>`}
 function srow(team){if(!ONLINE)return'';const lock=S.room.privacy==='private',c=TEAM?'t'+team:'';
  if(!HOST)return `<div class="slot static ${c}"><span>${lock?'🔒':'🔓'}</span><span>Slot kosong</span></div>`;
- return `<button class="slot ${c}" data-inv="${team||0}"><span class="plus">＋</span><span>Ketuk untuk Membuka<small>${lock?'Khusus undangan':'Terbuka untuk umum'}</small></span></button>`}
+ return `<button class="slot ${c}" data-share="1"><span class="plus">↗</span><span>Bagikan Room<small>Salin kode atau tautan undangan</small></span></button>`}
 /* slot terkunci (warna kayu + ikon gembok) untuk sisa slot sampai 4, mis. main berdua -> 2 slot bawah terkunci */
 function lrow(){return `<div class="slot lk" aria-label="Slot terkunci"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false"><span>Terkunci</span></div>`}
 function renderPlayers(){
@@ -258,49 +280,43 @@ function renderPlayers(){
  else{h=P.map(prow).join('');for(let i=P.length;i<COUNT;i++)h+=srow(0);for(let i=COUNT;i<4;i++)h+=lrow()}
  $('#plrs').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();
 }
-$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-inv]');if(m)moveTeam(m.dataset.mv);else if(s)openInvite(+s.dataset.inv)};
+$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-share]');if(m)moveTeam(m.dataset.mv);else if(s)copy('link')};
 function copy(t){const v=t==='code'?S.room.code:`${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
  try{navigator.clipboard.writeText(v).then(()=>toast(t==='code'?'Kode disalin':'Link disalin'),()=>toast('Kode: '+S.room.code))}catch(e){toast('Kode: '+S.room.code)}}
 $('#cCode').onclick=()=>HOST&&copy('code');$('#cLink').onclick=()=>HOST&&copy('link');
-$('#sPriv').onclick=()=>{if(HOST){S.room.privacy='private';renderPlayers()}};$('#sPub').onclick=()=>{if(HOST){S.room.privacy='public';renderPlayers()}};
+$('#sPriv').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,false));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};$('#sPub').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,true));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};
 function moveTeam(id){if(!HOST)return;const p=S.room.players.find(x=>x.id===id),t=p.team===1?2:1;if(S.room.players.filter(x=>x.team===t).length>=2)return toast('Team '+t+' sudah penuh');p.team=t;renderPlayers();renderBottom()}
 /* ---------- READY / START (START hanya host) ---------- */
-function check(){const P=S.room.players;
+function check(){const P=S.room.players,h=me();
+ if(!h)return{ok:false,msg:ONLINE?'Menghubungkan ke room...':'Menyiapkan pemain'};
  if(ONLINE){if(TEAM){if(P.length<4)return{ok:false,msg:`Butuh ${4-P.length} pemain lagi untuk 2 vs 2`};if(P.filter(p=>p.team===1).length!==2)return{ok:false,msg:'Atur tim menjadi 2 vs 2'}}else if(P.length<2)return{ok:false,msg:'Butuh minimal 2 pemain'}}
- if(!me().ready)return{ok:false,msg:'Tekan READY untuk bersiap'};
+ if(!h.ready)return{ok:false,msg:'Tekan READY untuk bersiap'};
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
-function renderBottom(){const c=check(),h=me();$('#sttx').textContent=(c.ok?'✅ ':'⏳ ')+c.msg+(ONLINE&&pending()?` • ${pending()} undangan menunggu`:'');
+function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textContent=(c.ok?'✅ ':'⏳ ')+c.msg+(ONLINE&&pending()?` • ${pending()} undangan menunggu`:'');
  const rb=$('#rdy');rb.textContent=h.ready?'✕ BATAL READY':'✓ READY';rb.classList.toggle('wait',h.ready);
- $('#rdy').hidden=HOST;$('#start').hidden=!HOST;$('#start').disabled=!c.ok;
- if(!HOST){ /* SIMULASI: host menekan START — ganti dengan event dari server */
-  if(c.ok&&!S.hostT)S.hostT=setTimeout(()=>{toast('Host memulai permainan');launch()},2000);else if(!c.ok&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}}
-$('#rdy').onclick=()=>{const h=me();h.ready=!h.ready;renderPlayers();renderBottom()};
-function cfg(){const sk=eqItem('skin'),fr=eqItem('frame'),di=eqItem('dice');
+ const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
+ if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
+$('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
+function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({name:p.name,team:p.team,kind:p.kind})),powers:PW.equipped.slice(),
-  skin:sk&&sk.gameKey,frame:fr&&fr.gameKey,dice:di&&di.gameKey}}
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:online?[]:PW.equipped.slice(),
+  skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?'klasik':(di&&di.gameKey)}}
 function launch(){clearT();RF.launch(cfg())}
-function startGame(){if(!HOST||!check().ok)return;launch()}   /* server: validasi ulang host + syarat saat backend tersedia */
+async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
 $('#start').onclick=startGame;
-function guestSim(){const P=S.room.players,rd=(id,ms)=>S.timers.push(setTimeout(()=>{const p=P.find(x=>x.id===id);if(p){p.ready=true;renderPlayers();renderBottom()}},ms));rd('host',rand(1200,2400));rd('f_g2',rand(2000,3500));rd('f_g3',rand(2500,4000))}
+/* Online room membership/readiness comes from Supabase; no demo guest simulation. */
 /* ---------- INVITE (hanya Create Room, host) ---------- */
 function openInvite(team){if(!ONLINE||!HOST)return;S.invTeam=team||0;S.invTab='online';$('#srch').value='';renderInvite();$('#inv').classList.add('show')}
 const closeInvite=()=>$('#inv').classList.remove('show');
 $('#invB').onclick=()=>openInvite(0);$('#invX').onclick=closeInvite;$('#inv').onclick=e=>{if(e.target.id==='inv')closeInvite()};
 $('#tOn').onclick=()=>{S.invTab='online';renderInvite()};$('#tOff').onclick=()=>{S.invTab='offline';renderInvite()};$('#srch').oninput=renderInvite;
-function renderInvite(){const r=S.room,left=slotsLeft(),qs=$('#srch').value.trim().toLowerCase(),on=S.invTab==='online';
- $('#tOn').classList.toggle('on',on);$('#tOff').classList.toggle('on',!on);
+function renderInvite(){
+ const r=S.room;
  $('#sPriv').classList.toggle('on',r.privacy==='private');$('#sPub').classList.toggle('on',r.privacy==='public');
- $('#slotInfo').textContent=`${r.players.length}/${COUNT} • Slot: ${Math.max(0,left)}${TEAM&&S.invTeam?' • Team '+S.invTeam:''}`;
- const list=FRIENDS.filter(f=>f.online===on&&f.name.toLowerCase().includes(qs));
- $('#fl').innerHTML=list.length?list.map(f=>{const inR=r.players.some(p=>p.fid===f.id),pe=S.invites[f.id];let b,s;
-  if(inR){b='<button class="bt" disabled>DI ROOM</button>';s='<small class="on_">● Sudah di room</small>'}
-  else if(!f.online){b='<button class="bt" disabled>OFFLINE</button>';s='<small class="off_">○ Offline</small>'}
-  else if(pe){b=`<button class="bt sent" data-c="${f.id}">✓ SENT</button>`;s='<small class="wt_">⏳ Menunggu respons • ketuk untuk batal</small>'}
-  else if(left<=0){b='<button class="bt" disabled>PENUH</button>';s='<small class="on_">● Online</small>'}
-  else{b=`<button class="bt" data-i="${f.id}">INVITE</button>`;s='<small class="on_">● Online</small>'}
-  return `<div class="fr"><span class="av">${esc(f.name[0])}</span><div class="pi"><b>${esc(f.name)}</b>${s}</div>${b}</div>`}).join(''):`<div class="emp">Tidak ada teman ${on?'yang sedang online':'offline'}</div>`}
+ $('#slotInfo').textContent=r.players.length+'/'+COUNT+' pemain';
+ $('#fl').innerHTML='<div class="emp">Bagikan kode atau tautan undangan kepada pemain lain. '+(r.privacy==='public'?'Room ini juga tersedia melalui Quick Join.':'Room privat hanya dapat dimasuki menggunakan kode undangan.')+'</div>';
+}
 $('#fl').onclick=e=>{const i=e.target.closest('[data-i]'),c=e.target.closest('[data-c]');if(i)invite(i.dataset.i);else if(c)cancelInv(c.dataset.c)};
 /* SIMULASI undangan: ganti dengan server (kirim invite, terima respons, sinkron slot/tim) */
 function invite(id){const f=FRIENDS.find(x=>x.id===id),r=S.room;if(!HOST||!f.online||S.invites[id]||r.players.some(p=>p.fid===id)||slotsLeft()<=0)return;
@@ -314,7 +330,12 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice()}
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();
+if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
 document.documentElement.classList.add('ut-ready');
 })();
+</script>
+<script type="module">
+import './assets/js/multiplayer/room-service.js';
+window.dispatchEvent(new Event('ut:multiplayer-ready'));
 </script>
 </body></html>

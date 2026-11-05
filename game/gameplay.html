@@ -4947,7 +4947,11 @@ cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camLocked()||AWK.running
 /* ---------- Permainan ---------- */
 const STALE={};
 let paused=false;
-let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=null;
+let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=null,winnerIndex=-1;
+const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
+const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
+const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
+let MP_SYNC=null,MP_ID=null,MP_CONNECTING=false,MP_APPLYING=false;
 
 function setMsg(t){ $('msg').textContent=t; }
 /* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (gameplay/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
@@ -4955,6 +4959,8 @@ function hud(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](.
 function fb(k,...a){ try{ const F=window.UT&&UT.Gameplay&&UT.Gameplay.Feedback; if(F&&typeof F[k]==='function') return F[k](...a); if(k==='event'){ hud('showEvent',...a); return true; } }catch(e){ console.error(e); } return false; }
 if(window.UT&&UT.GameplayHUD) UT.GameplayHUD.init({getGameId:()=>gameId,isPaused:()=>paused});
 function setRoll(on){ $('btnRoll').disabled=!on; }
+function canControlPlayer(p){return !!p&&!p.cpu&&(!ONLINE_ROOM||!!(MP_ID&&p.networkId===MP_ID));}
+function submitRoll(value){const opt=Number.isInteger(value)?{value:value}:undefined;if(!ONLINE_ROOM){ensureAudio();doRoll(opt);return;}const p=players[cur];if(!canControlPlayer(p)||busy||paused||gameOver)return;ensureAudio();if(ONLINE_HOST){doRoll(opt);return;}if(MP_SYNC)MP_SYNC.requestRoll({playerId:MP_ID,value:Number.isInteger(value)?value:null}).catch(e=>console.error('[multiplayer] roll request failed',e));}
 const FC={
  steve:{p:{h:'#4a2e13',H:'#3a2410',s:'#c58c62',w:'#fff',b:'#3b4fd8',n:'#a56a45',m:'#5a3820'},f:['hhhhhhhh','hHhhhhHh','hssssssh','swbssbws','sssnnsss','ssmmmmss','smmmmmms','ssmmmmss']},
  alex:{p:{o:'#d4701c',O:'#b85a10',s:'#e8b48a',w:'#fff',g:'#2f8f3f',n:'#c98b66',m:'#b0563a'},f:['oooooooo','oOooooOo','osssssso','swgssgws','sssnnsss','sssmmsss','ssssssss','ssssssss']},
@@ -4970,7 +4976,7 @@ const FRM={},FFURL={};
 (function(){ try{ window.ItemCatalog.items.filter(i=>i.kind==='frame').forEach(i=>{ const im=new Image(); im.onload=()=>{ try{ if(typeof renderChips==='function'&&typeof players!=='undefined'&&players&&players.length) renderChips(); }catch(e){} }; im.src=i.image; FRM[i.id]=im; }); }catch(e){} })();
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
-function frameOf(p){ try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
+function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 function framedFace(p){
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;
@@ -5100,6 +5106,7 @@ function cpuPUValid(p,k){
 async function usePU(k,cpu){
   const p=players[cur];
   if(!p||busy||gameOver||AWK.running||!p.pu[k]||(p.cpu&&!cpu)) return;
+  if(ONLINE_ROOM&&!ONLINE_HOST){if(canControlPlayer(p)&&MP_SYNC)MP_SYNC.requestPower({playerId:MP_ID,power:k}).catch(e=>console.error('[multiplayer] power request failed',e));return;}
   /* Fase Dragon = p.pos===GOAL (kondisi existing di playTurn). Pedang/Totem (id 'totem') hanya relevan untuk gerak papan: tolak SEBELUM konsumsi, Power tidak berkurang. CPU: tolak diam-diam (CPU sudah memfilter Power valid sebelum usePU, 4.1.8). */
   if(p.pos===GOAL&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
   if(k==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, Pedang, TNT, atau Rumput.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
@@ -5183,7 +5190,8 @@ function beginTurn(extra){
   if(extra) hud('showTurn',p,{extra:true}); /* toast "Giliran X" dihapus (sudah ada penanda giliran di panel Pemain); "Giliran tambahan!" tetap karena tidak ada penanda lain */
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
-  specialHint(p); setRoll(!p.cpu); startTurnTimer();
+  specialHint(p); setRoll(ONLINE_ROOM?canControlPlayer(p):!p.cpu); startTurnTimer();
+  if(ONLINE_ROOM)publishGameSnapshot();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion_odd','potion_even','totem','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
 /* 4.1.15.6: snapshot state giliran (baca-saja) agar modul lain/uji bisa membaca tanpa mengekspos players. Sumber kebenaran tetap players[]+cur. */
@@ -5196,7 +5204,7 @@ const AFK_TURN_MS=15000;
 function clearTurnTimer(){ try{ if(UT.GameplayAFK) UT.GameplayAFK.clear('turn'); }catch(e){} }
 function startTurnTimer(){
   clearTurnTimer();
-  const A=UT.GameplayAFK,p=players[cur]; if(!A||!p||p.cpu||paused||busy||gameOver||document.getElementById('readyScreen')) return;
+  const A=UT.GameplayAFK,p=players[cur]; if(ONLINE_ROOM||!A||!p||p.cpu||paused||busy||gameOver||document.getElementById('readyScreen')) return;
   const gid=gameId,who=p;
   A.start('turn',AFK_TURN_MS,()=>{
     if(gid!==gameId||gameOver||players[cur]!==who||busy||paused) return; /* sudah main / pindah giliran / jeda -> abaikan */
@@ -5471,7 +5479,7 @@ function holdEnd(select){
   const v=DH.v,gid=DH.gid; DH.on=false; DH.id=null; cancelAnimationFrame(DH.raf); DH.raf=0; clearInterval(DH.timer); DH.timer=0;
   try{ $('btnRoll').releasePointerCapture&&DH.pc&&$('btnRoll').releasePointerCapture(DH.pc); }catch(e){} DH.pc=null;
   syncRollLabel();
-  if(select&&gid===gameId&&!busy&&!paused&&!gameOver&&specialDiceActive(players[cur])){ ensureAudio(); doRoll({value:v}); }
+  if(select&&gid===gameId&&!busy&&!paused&&!gameOver&&specialDiceActive(players[cur])){ submitRoll(v); }
   else if(gid===gameId&&!busy&&!gameOver){ startTurnTimer(); } /* batal: dadu kembali normal, timer AFK jalan lagi */
 }
 (function wireSpecialDice(){
@@ -5495,7 +5503,7 @@ window.addEventListener('pagehide',()=>dragonMusicStop(true));
   b.addEventListener('blur',()=>holdEnd(false));
 })();
 async function doRoll(opt){
-  if(busy||paused||gameOver||!players.length||AWK.running) return;
+  if((ONLINE_ROOM&&!ONLINE_HOST)||busy||paused||gameOver||!players.length||AWK.running) return;
   if(DH.on) holdEnd(false); /* tombol roll tidak boleh tertinggal dalam mode tahan */
   busy=true; setRoll(false); clearTurnTimer();
   const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
@@ -5515,12 +5523,12 @@ async function doRoll(opt){
     }
     const bn=p.bonus; p.bonus=0; await playTurn(p,v,gid,bn);
   }catch(e){
-    if(e!==STALE){ console.error(e); busy=false; setRoll(!players[cur].cpu); startTurnTimer(); }
+    if(e!==STALE){ console.error(e); busy=false; setRoll(ONLINE_ROOM?canControlPlayer(players[cur]):!players[cur].cpu); startTurnTimer(); }
   }
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
-function finishGame(p){
-  gameOver=true; clearTurnTimer(); p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
+function finishGame(p,fromRemote){
+  gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
@@ -5529,19 +5537,20 @@ function finishGame(p){
   $('winTitle').textContent=lost?'Kamu kalah':(mode==='cpu'&&!p.cpu)?'Kamu menang':p.name+' menang';
   $('winText').textContent=(p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':'Pionmu lebih dulu sampai di puncak. Mau main lagi?')+(DRG.text&&!p.cpu?' '+DRG.text:'');
   setTimeout(()=>{ if(gameOver) $('win').hidden=false; },500);
+  if(!fromRemote)publishGameSnapshot();
 }
 function startGame(m,keys){
-  mode=m; gameId++; busy=false; gameOver=false; hud('reset');
+  mode=m; gameId++; busy=false; gameOver=false; winnerIndex=-1; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
   players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
   applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
   if(m==='cpu') keys=[keys[0]||'steve','villager']; /* 4.1.14.10: Computer selalu Villager, bukan Mob/skin acak */
-  defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
+  defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,name:(i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,dragonReady:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
+    players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;
@@ -5549,7 +5558,7 @@ function startGame(m,keys){
   showDie(1,false);
   /* 4.1.15: Ready Screen sebelum giliran pertama. ?ready=0 / modul tak termuat -> langsung main seperti sebelumnya. */
   const gidR=gameId,goPlay=()=>{ if(gidR!==gameId) return; publishTurnState(); beginTurn(); },RD=window.UT&&UT.GameplayReady;
-  if(RD&&RD.show&&UT.GameplayAFK&&new URLSearchParams(location.search).get('ready')!=='0'){
+  if(!ONLINE_ROOM&&RD&&RD.show&&UT.GameplayAFK&&new URLSearchParams(location.search).get('ready')!=='0'){
     setRoll(false); setMsg('Pilih kartu untuk menentukan urutan giliran.'); focus=players[0].pawn; renderChips();
     const pre=players.filter(q=>PNG_DEFS.some(d=>d.key===q.key)).map(q=>loadSkin3D(q.key)).concat([frameWait()]); /* tunggu wajah PNG (maks 1,5 dtk) */
     Promise.race([Promise.all(pre),sleep(1500)]).catch(()=>{}).then(()=>{ if(gidR!==gameId) return; return RD.show(players,{face:q=>framedFace(q),sfx:n=>{ try{ sfx[n]&&sfx[n](); }catch(e){} }}); }).then(r=>{ if(!r) return; if(gidR!==gameId) return;
@@ -5557,6 +5566,55 @@ function startGame(m,keys){
       if(Array.isArray(r)&&r.length===players.length&&r.every(q=>players.indexOf(q)>-1)){ players.length=0; r.forEach(q=>players.push(q)); }
       cur=0; goPlay(); }).catch(e=>{ console.error(e); goPlay(); });
   }else goPlay();
+}
+
+
+/* ---------- Supabase multiplayer snapshot bridge ----------
+   The host runs the existing game engine. Guests send roll intents and apply committed snapshots.
+   Three.js objects stay local; only plain JSON gameplay state is synchronized. */
+function makeGameSnapshot(){
+ return {cur:cur,gameOver:gameOver,winnerIndex:winnerIndex,awake:!!AWK.done,witherRisen:!!WF.risen,
+  dragonVisible:!!dragon.visible,dragonDefeated:!!DRG.defeated,dragonDone:!!DRG.done,dragonText:DRG.text||'',night:!!night,
+  players:players.map(p=>({networkId:p.networkId,name:p.name,pos:p.pos,sixes:p.sixes,dhp:p.dhp,hpMax:p.hpMax,
+   crystal:p.crystal,cdone:Array.isArray(p.cdone)?p.cdone.slice():[],dragonReady:!!p.dragonReady,inArena:!!p.inArena,
+   score:p.score,bonus:p.bonus,extra:!!p.extra,odd:!!p.odd,even:!!p.even,lucky:!!p.lucky,shield:!!p.shield,
+   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,
+   pawn:p.pawn?{x:p.pawn.position.x,y:p.pawn.position.y,z:p.pawn.position.z,ry:p.pawn.rotation.y}:null}))};
+}
+function applyGameSnapshot(s){
+ if(!ONLINE_ROOM||!s||!Array.isArray(s.players)||s.players.length!==players.length)return;
+ MP_APPLYING=true;
+ try{
+  s.players.forEach((v,i)=>{const p=players[i];if(!p)return;
+   ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
+   p.cdone=Array.isArray(v.cdone)?v.cdone.slice():new Array(CRYSTAL_N).fill(false);
+   if(v.pu&&typeof v.pu==='object')p.pu=Object.assign({},v.pu);
+   if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
+  });
+  cur=Math.max(0,Math.min(players.length-1,Number(s.cur)||0));winnerIndex=Number.isInteger(s.winnerIndex)?s.winnerIndex:-1;
+  busy=false;gameOver=!!s.gameOver;AWK.done=!!s.awake;AWK.running=false;WF.risen=!!s.witherRisen;
+  DRG.defeated=!!s.dragonDefeated;DRG.done=!!s.dragonDone;DRG.text=s.dragonText||'';dragon.visible=!!s.dragonVisible;
+  if(typeof s.night==='boolean'&&night!==s.night)setNight(s.night);
+  if(AWK.done)applyArenaState();
+  renderChips();syncCrystals();syncSkeletons();syncBossCam();
+  if(gameOver){const w=players[winnerIndex>=0&&winnerIndex<players.length?winnerIndex:0];if(w)finishGame(w,true);}
+  else beginTurn();
+ }finally{MP_APPLYING=false;}
+}
+function publishGameSnapshot(){
+ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||MP_APPLYING||!players.length)return;
+ MP_SYNC.publish({roomConfig:ROOM_CFG,snapshot:makeGameSnapshot()}).catch(e=>console.error('[multiplayer] snapshot publish failed',e));
+}
+function initMultiplayerBridge(){
+ if(!ONLINE_ROOM||MP_CONNECTING)return;MP_CONNECTING=true;
+ const G=window.UT&&UT.Multiplayer&&UT.Multiplayer.GameSync;
+ if(!G){console.error('[multiplayer] game sync module missing');return;}
+ G.connect({roomId:ROOM_CFG.roomId,isHost:ONLINE_HOST,roomConfig:ROOM_CFG,
+  onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
+  onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
+  onSnapshot:applyGameSnapshot
+ }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);else if(ONLINE_HOST)publishGameSnapshot();beginTurn()})
+ .catch(e=>{MP_CONNECTING=false;console.error('[multiplayer] game sync connection failed',e);setMsg('Koneksi multiplayer terputus. Muat ulang untuk mencoba kembali.')});
 }
 
 /* ---------- Kontrol antarmuka ---------- */
@@ -5588,14 +5646,14 @@ function applyDice(k){
 $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.key===diceKey)+1)%DICE.length].key));
 applyDice(diceKey);
 updateNightUI();
-$('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ ensureAudio(); doRoll(); });
+$('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ submitRoll(); });
 /* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
    Pemain lokal = pemain non-CPU dengan idx 0 (pemilik profil PlayerData; konvensi sama dengan frameOf). Sistem turn/ID tetap players[]+cur+p.idx.
    Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di localStorage 'ut-autoroll'. */
 const AUTO_ROLL_DELAY=900,AUTO_KEY='ut-autoroll'; let autoRoll=false,autoSince=0,autoGid=-1;
 try{ autoRoll=localStorage.getItem(AUTO_KEY)==='1'; }catch(e){}
-function localPlayerIdx(){ return 0; }
-function isLocalPlayer(p){ return !!p&&!p.cpu&&p.idx===localPlayerIdx(); }
+function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId===MP_ID):0; }
+function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
 function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200}); }catch(e){} }
@@ -5606,7 +5664,7 @@ setInterval(()=>{
   if(autoGid!==gameId){ autoGid=gameId; autoSince=0; return; } /* game baru: reset penghitung */
   if(!autoRoll||!autoCanRoll()){ autoSince=0; return; }
   const now=performance.now(); if(!autoSince){ autoSince=now; return; }
-  if(now-autoSince>=AUTO_ROLL_DELAY){ autoSince=0; ensureAudio(); doRoll(); } /* doRoll() set busy sinkron -> tick berikut tidak bisa roll ganda */
+  if(now-autoSince>=AUTO_ROLL_DELAY){ autoSince=0; ensureAudio(); submitRoll(); } /* doRoll() set busy sinkron -> tick berikut tidak bisa roll ganda */
 },150);
 $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
@@ -5782,6 +5840,7 @@ ensureMusic();
   EV.forEach(e=>document.addEventListener(e,unlock,true));
 })();
 startGame(CFG.mode,CFG.skins.slice());
+if(ONLINE_ROOM){addEventListener('ut:multiplayer-game-sync-ready',initMultiplayerBridge,{once:true});if(UT.Multiplayer&&UT.Multiplayer.GameSync)initMultiplayerBridge();}
 /*TEST-HOOK*/
 requestAnimationFrame(frame);
 })();
@@ -5927,4 +5986,8 @@ html body:is(.th-world,.th-nether) .dm-bar{background:var(--tp-dm-bg);box-shadow
 html body:is(.th-world,.th-nether) .dm-bar i{border-left-color:var(--tp-dm-seg);text-shadow:0 1px 0 var(--tp-ol)}
 html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
 </style>
+<script type="module">
+import './assets/js/multiplayer/game-sync.js';
+window.dispatchEvent(new Event('ut:multiplayer-game-sync-ready'));
+</script>
 </body></html>
