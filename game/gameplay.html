@@ -1,5 +1,16 @@
 <!doctype html><html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="gameplay/particle-fx.css"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 .flip{transform:scaleX(-1)}
+
+/* giliran lawan (CPU): tombol Roll & Auto disembunyikan (bukan disabled); mahkota HUD hanya untuk host; sisi dadu non-hasil lebih gelap */
+html body.opp-turn #side #btnRoll,html body.opp-turn #side #btnAuto{visibility:hidden!important;pointer-events:none!important}
+html body #side .pr:not(.host) .pos::before{display:none}
+html body #side .pr:not(.host) .pos{gap:0}
+.face::after{content:"";position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .25s}
+.face.dim::after{opacity:.2}
+#turnToast{position:fixed;left:50%;top:44%;z-index:60;translate:-50% -50%;padding:10px 30px 12px;border:3px solid #7fd0ff;border-radius:999px;color:#fff;font:800 clamp(18px,2.4vw,30px)/1.1 "Baloo 2","Nunito",system-ui,sans-serif;text-shadow:0 2px 0 #0b1838;background:linear-gradient(#2e74e6,#123a94);box-shadow:0 0 0 3px #0b1838,0 6px 0 3px #0b1838,0 12px 16px rgba(0,0,0,.3);pointer-events:none;opacity:0;scale:.85;white-space:nowrap}
+#turnToast.show{animation:turnToast 1.3s ease both}
+@keyframes turnToast{0%{opacity:0;scale:.8}16%{opacity:1;scale:1.06}28%{scale:1}78%{opacity:1}100%{opacity:0;scale:.96}}
+@media (prefers-reduced-motion:reduce){#turnToast.show{animation:turnToastR 1.3s ease both}@keyframes turnToastR{0%{opacity:0}15%,80%{opacity:1}100%{opacity:0}}}
 </style><title>Ular Tangga Blok</title><script src="assets/js/landscape.js"></script></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4577,11 +4588,17 @@ function puFx(key,cls){ if(reduce) return; PUFX[key]={cls,t:performance.now()}; 
 function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performance.now()-f.t; if(e>=PUFX_MS){ delete PUFX[key]; return; } el.classList.add(f.cls); el.style.setProperty('--fx-d',(-e)+'ms'); }
 function turnTag(){ return gameOver?'Selesai':ORD(cur); } /* teks chip panel Giliran: 1st/2nd/... atau Selesai saat game berakhir */
 function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
+function syncOppTurn(){ const c=players[cur]; document.body.classList.toggle('opp-turn',!!(c&&c.cpu&&!gameOver)); } /* Roll & Auto disembunyikan saat giliran CPU */
+function showTurnToast(){
+  let t=document.getElementById('turnToast'); if(!t){ t=document.createElement('div'); t.id='turnToast'; t.setAttribute('role','status'); t.textContent='Giliran kamu'; document.body.appendChild(t); }
+  t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+}
 function renderChips(){
+  try{ syncOppTurn(); }catch(e){}
   try{ syncDiceGuide(); }catch(e){ console.error(e); }
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   players.forEach((p,i)=>{
-    const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
+    const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':'')+(p.idx===localPlayerIdx()&&!p.cpu?' host':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N):String(p.pos));
@@ -4620,6 +4637,7 @@ function beginTurn(extra){
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
   specialHint(p); setRoll(!p.cpu); startTurnTimer();
+  if(!p.cpu&&!document.getElementById('readyScreen')) showTurnToast(); /* toast tengah "Giliran kamu" */
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion_odd','potion_even','totem','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
 /* 4.1.15.6: snapshot state giliran (baca-saja) agar modul lain/uji bisa membaca tanpa mengekspos players. Sumber kebenaran tetap players[]+cur. */
