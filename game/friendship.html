@@ -86,9 +86,19 @@ html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow
 html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
 html body .ov>.box>#mb{border-radius:0}
 html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f);box-shadow:var(--bev),var(--px);text-shadow:0 .16rem 0 #6a120c}
-</style><script src="assets/js/landscape.js"></script></head>
+</style><script src="assets/js/landscape.js"></script><link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+.blue,html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
+.tab:not(.on),.tb:not(.on){background:linear-gradient(var(--sl3),var(--sl4))}
+html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
+html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
+@media(min-aspect-ratio:1/1){html.stage16 body{inset:0 auto auto 0;height:calc(min(100vh,54.054vw) - 7rem)}}
+#hero,#main{background:linear-gradient(var(--sl1),var(--sl2))!important;box-shadow:var(--slf)!important;border-radius:1rem}
+.friend{background:linear-gradient(var(--sl3),var(--sl4))}.act:not(.play){background:linear-gradient(var(--sl3),var(--sl4))}
+</style></head>
 <body>
 <div id="sky"></div>
+<div id="gnd" aria-hidden="true"></div>
 <div id="ui">
 <div id="top">
 <button class="ab blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
