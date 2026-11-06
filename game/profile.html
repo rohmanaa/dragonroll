@@ -375,10 +375,16 @@ html body .ac2 .clm:not(:disabled){animation:clmp 1.6s ease-in-out infinite}
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // ---- data: player state dari PlayerData (nama, skin terpasang, currency, settings).
-// Statistik permainan (lvl/xp/win/rank/uid) belum punya sumber data -> placeholder mock, TIDAK mengarang hasil pertandingan.
+// Level/XP/win/main/streak = PlayerData (dicatat dari hasil match sungguhan). Rank & ID = server (butuh sesi Supabase), '—' bila belum ada.
+// Masih contoh (belum ada sumber data): misi, efek, emote, dan sebagian angka pencapaian di STAT().
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']};
-const MOCK={uid:'#FG123456',joined:'12 Jan 2025',lvl:26,xp:1250,xpMax:3000,win:75,play:120,rank:128,misi:48,streak:7,dadu:8,efek:15,emote:5};
+const _li=()=>PD.levelInfo(),_st=()=>PD.stats();
+const PROF={uid:'—',rank:null,misi:48,dadu:8,efek:15,emote:5,
+ get joined(){try{return new Date(PD.joinedAt()).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}catch(e){return '—'}},
+ get lvl(){return _li().level},get xp(){return _li().xpIn},get xpMax(){return _li().xpMax},
+ get win(){return _st().wins},get play(){return _st().plays},get streak(){return _st().streak},get bestStreak(){return _st().bestStreak}};
+const RK=()=>PROF.rank?'#'+fmt(PROF.rank):'—';
 const pname=()=>PD.profile().name;
 const eqSkin=()=>IC.byId(PD.equippedId('skin'))||IC.byId('skin.steve');
 const ownedSkins=()=>PD.ownedItems().filter(o=>o.item.kind==='skin').map(o=>o.item);
@@ -412,7 +418,7 @@ dice:'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM8 
 const CH=sv('<path d="m9 5 7 7-7 7"/>'),GLOBE=sv('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>');
 const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><image href="assets/Images/icon/${p}.webp" x="12" y="13" width="24" height="24"/></svg>`;
 const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal],['set','Pengaturan',G]];
-const pcn=()=>MOCK.play?Math.floor(MOCK.win/MOCK.play*100):0;
+const pcn=()=>PROF.play?Math.floor(PROF.win/PROF.play*100):0;
 /* ---- Achievement: definisi dari referensi (15 achievement x 3 bintang). Progress = PLACEHOLDER (belum ada sumber data statistik), kecuali jumlah skin & emerald yang nyata. Klaim reward dikerjakan terpisah. */
 const ACH=[
 ['peti','Penakluk Peti','Buka peti','chest',[10,50,200],'lobby/gift'],
@@ -436,7 +442,7 @@ const CLK='ularTanggaBlok:achClaimed:v1';let clMem={};
 const CL={all(){try{return JSON.parse(localStorage.getItem(CLK))||clMem}catch(e){return clMem}},
  get(id){return Math.min(3,+this.all()[id]||0)},
  set(id,n){const o=this.all();o[id]=n;clMem=o;try{localStorage.setItem(CLK,JSON.stringify(o))}catch(e){}}};
-const STAT=()=>({chest:34,dragon:12,play:MOCK.play,win:MOCK.win,ladder:32,snake:28,skill:44,dice:310,match:MOCK.play,login:12,streak:3,skins:ownedSkins().length,emerald:PD.gems(),strat:4});
+const STAT=()=>({chest:34,dragon:12,play:PROF.play,win:PROF.win,ladder:32,snake:28,skill:44,dice:310,match:PROF.play,login:12,streak:PROF.bestStreak,skins:ownedSkins().length,emerald:PD.gems(),strat:4});
 const achInfo=()=>{const S=STAT();return ACH.map(a=>{const v=S[a[3]]||0,t=a[4],st=t.filter(x=>v>=x).length,tg=t[Math.min(st,2)];const cl=Math.min(CL.get(a[0]),st);return {id:a[0],name:a[1],desc:a[2],fb:a[5],v,st,tg,done:st>=3,r:Math.min(1,v/tg),cl,pend:st-cl}})};
 const STAR=on=>`<img class="star${on?'':' off'}" src="assets/Images/icon/ui/start.webp" alt="" draggable="false">`;
 const stars=n=>`<span class="stars">${[0,1,2].map(i=>STAR(i<n)).join('')}</span>`;
@@ -448,24 +454,35 @@ const SWORDS='<svg viewBox="0 0 24 24" fill="none" stroke="#0b1838" stroke-width
 const UPA='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11l6-6 6 6M5 21h14"/></svg>';
 const frameSrc=()=>{const f=IC.byId(PD.equippedId('frame'));return f&&f.image?f.image:'data/frame/frame-default.webp'};
 const kcount=k=>PD.ownedItems().filter(o=>o.item.kind===k).length;
+/* ID & peringkat global dari server. Tidak membuat sesi baru: belum pernah main/login -> tetap '—'. */
+(async()=>{try{
+ await import('./assets/js/multiplayer/client.js');
+ const c=await UT.Multiplayer.getClient(),{data}=await c.auth.getSession();
+ if(!data.session)return;
+ PROF.uid='#'+data.session.user.id.slice(0,8).toUpperCase();
+ await import('./assets/js/multiplayer/room-service.js');
+ const rows=await UT.Multiplayer.RoomService.getLeaderboard('global',1),me=(rows||[]).find(r=>r.is_me);
+ if(me)PROF.rank=Number(me.pos);
+ render();
+}catch(e){console.warn('[profil] data server gagal',e)}})();
 function render(){
  const eq=eqSkin(),
- bar=`<div class="bar"><i style="width:${MOCK.xp/MOCK.xpMax*100}%"></i><span>${fmt(MOCK.xp)} / ${fmt(MOCK.xpMax)}</span></div>`,
+ bar=`<div class="bar"><i style="width:${PROF.xp/PROF.xpMax*100}%"></i><span>${fmt(PROF.xp)} / ${fmt(PROF.xpMax)}</span></div>`,
  av=(i,c)=>c==='a1'?`<div class="av fr ${c}">${thumb(i)}<img class="frm" src="${frameSrc()}" alt="" draggable="false" decoding="async"></div>`:`<div class="av ${c}">${thumb(i)}</div>`,
- K=[['Skin',ownedSkins().length,'items/skin'],['Dadu',kcount('dice')||MOCK.dadu,'items/dadu'],['Efek',MOCK.efek,'items/efek'],['Emote',MOCK.emote,'items/emote']],
+ K=[['Skin',ownedSkins().length,'items/skin'],['Dadu',kcount('dice')||PROF.dadu,'items/dadu'],['Efek',PROF.efek,'items/efek'],['Emote',PROF.emote,'items/emote']],
  AI=achInfo(),top=AI.filter(a=>!a.done).sort((a,b)=>b.r-a.r).concat(AI.filter(a=>a.done)).slice(0,5),got=AI.filter(a=>a.st>0).length;
- $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
+ $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${PROF.lvl}</div>${bar}</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
-<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(PROF.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
 <div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Akun</span><b>${(()=>{try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');return a&&a.username?'@'+esc(a.username):'-'}catch(e){return '-'}})()}</b><button class="ib" data-a="logout" aria-label="Keluar akun" title="Keluar akun">${RI('ui/exit','lt')}</button></div></div>`;
  $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
  $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
-<button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div></button>
-<button class="ax" data-a="win">${SWORDS}<div><small>Rasio Kemenangan</small><span class="v"><b>${pcn()}%</b><em>${MOCK.win} / ${MOCK.play}</em></span></div></button>
-<button class="ax" data-a="mis">${RI('lobby/misi')}<div><small>Misi</small><b>${MOCK.misi}</b></div>${CH.replace('<svg','<svg class="ch"')}</button>
-<button class="ax" data-a="wl">${RI('lobby/trophy')}<div><small>Win / Lose</small><b>${MOCK.win} / ${MOCK.play-MOCK.win}</b></div></button>
-<div class="ax w2">${FLAME}<small style="display:inline;font-size:1.3rem">Win Streak</small><b style="margin-left:1rem">${MOCK.streak}</b></div></div>`;
+<button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>${RK()} ${RI('lobby/leader')}</b></div></button>
+<button class="ax" data-a="win">${SWORDS}<div><small>Rasio Kemenangan</small><span class="v"><b>${pcn()}%</b><em>${PROF.win} / ${PROF.play}</em></span></div></button>
+<button class="ax" data-a="mis">${RI('lobby/misi')}<div><small>Misi</small><b>${PROF.misi}</b></div>${CH.replace('<svg','<svg class="ch"')}</button>
+<button class="ax" data-a="wl">${RI('lobby/trophy')}<div><small>Win / Lose</small><b>${PROF.win} / ${PROF.play-PROF.win}</b></div></button>
+<div class="ax w2">${FLAME}<small style="display:inline;font-size:1.3rem">Win Streak</small><b style="margin-left:1rem">${PROF.streak}</b></div></div>`;
  $('#pg').innerHTML=`<div class="ah">${RI('lobby/trophy')}<h3>Achievement</h3><span class="gr cnt" role="status" aria-label="${got} achievement diraih">${got} Achievement</span></div><div class="al" id="alist" tabindex="0">${AI.map(achCard).join('')}</div><div class="alhint" aria-hidden="true">${sv('<path d="m6 9 6 6 6-6"/>')}</div>`;
  const al=$('#alist'),hint=$('#pg .alhint');if(al&&hint){const upd=()=>hint.classList.toggle('end',al.scrollTop+al.clientHeight>=al.scrollHeight-4);al.addEventListener('scroll',upd,{passive:true});requestAnimationFrame(upd)}}
 function skinModal(re){
@@ -483,14 +500,14 @@ function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;
 function init(){
  $('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo()}
 const rows=(t,a)=>openModal(`<h2>${t}</h2>`+a.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join(''));
-const DT={win:()=>rows('Rasio Kemenangan',[['Menang',MOCK.win],['Kalah',MOCK.play-MOCK.win],['Rasio',pcn()+'%']]),
- play:()=>rows('Total Main',[['Pertandingan',MOCK.play],['Misi selesai',15],['Event diikuti',5]]),
- rank:()=>rows('Peringkat Global',[['Peringkat','#'+MOCK.rank],['Level',MOCK.lvl],['XP',fmt(MOCK.xp)+' / '+fmt(MOCK.xpMax)]]),
+const DT={win:()=>rows('Rasio Kemenangan',[['Menang',PROF.win],['Kalah',PROF.play-PROF.win],['Rasio',pcn()+'%']]),
+ play:()=>rows('Total Main',[['Pertandingan',PROF.play],['Misi selesai',15],['Event diikuti',5]]),
+ rank:()=>rows('Peringkat Global',[['Peringkat',RK()],['Level',PROF.lvl],['XP',fmt(PROF.xp)+' / '+fmt(PROF.xpMax)]]),
  ach:()=>rows('Pencapaian',[['Skin',12],['Dadu',8],['Misi',15],['Event',5]]),
- mis:()=>rows('Misi',[['Misi selesai',MOCK.misi],['Event diikuti',5]]),
- wl:()=>rows('Win / Lose',[['Menang',MOCK.win],['Kalah',MOCK.play-MOCK.win],['Win streak',MOCK.streak]]),
+ mis:()=>rows('Misi',[['Misi selesai',PROF.misi],['Event diikuti',5]]),
+ wl:()=>rows('Win / Lose',[['Menang',PROF.win],['Kalah',PROF.play-PROF.win],['Win streak',PROF.streak]]),
  achall:()=>achModal(),skins:()=>skinModal(),
- stat:()=>rows('Statistik',[['Level',MOCK.lvl],['Rasio kemenangan',pcn()+'%'],['Total main',MOCK.play],['Peringkat global','#'+MOCK.rank]]),
+ stat:()=>rows('Statistik',[['Level',PROF.lvl],['Rasio kemenangan',pcn()+'%'],['Total main',PROF.play],['Peringkat global',RK()]]),
  hist:()=>openModal('<h2>Riwayat</h2><p>Riwayat pertandingan terbaru akan tampil di sini.</p>')};
 function editName(){try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');if(a&&a.username){toast('Nama mengikuti username akunmu: '+a.username);return}}catch(e){}openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
  const i=$('#ni');i.value=pname();setTimeout(()=>{i.focus();i.select()},60);
@@ -502,7 +519,7 @@ function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');r
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
  if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
  else if(a==='logout'){if(!confirm('Keluar dari akun ini?'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
- else if(a==='copy'){navigator.clipboard?.writeText(MOCK.uid).catch(()=>{});toast('ID pengguna disalin')}});
+ else if(a==='copy'){navigator.clipboard?.writeText(PROF.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
 $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
  if(a==='pick'){playSound('click');pickSkin(b.dataset.id)}else if(a==='chg'){playSound('click');changeSkin()}});

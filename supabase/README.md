@@ -48,3 +48,16 @@ The host browser is authoritative and must stay connected during a match. This i
 ## Event log (Langkah 2)
 
 `supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `game/laporan-audit.html` (bagian "Langkah 2 — Fondasi event log multiplayer").
+
+## Statistik pemain & leaderboard (`202611080001_player_stats.sql`)
+
+Terapkan setelah `202611070003_friendships.sql`. Menambah tabel `player_stats` + `player_match_results`, fungsi `submit_match_result` dan `get_leaderboard` (scope `global` / `weekly` / `friends`). Tabel tidak bisa diakses langsung dari browser (RLS tanpa policy); semua lewat fungsi `security definer`.
+
+- **Poin:** menang +100, kalah +10 (konstanta di server). **Level/XP:** menang +120, kalah +40 XP di klien (`player-data.js`); server menyimpan XP total yang dilaporkan klien hanya untuk menampilkan level (kosmetik, tidak memengaruhi peringkat).
+- **Idempoten:** `match_id` yang sama tidak dihitung dua kali. Match online memakai `room:<roomId>:g<gameId>` dan wajib anggota room. Lawan CPU memakai token acak per match.
+- **Batas kecepatan:** hasil yang masuk < 45 detik setelah hasil sebelumnya diabaikan.
+- **Mingguan:** reset Senin 00:00 UTC.
+- **Hanya dicatat:** lawan CPU dan online. Mode gantian 2-4 pemain di 1 layar tidak dicatat.
+- **Keamanan:** bukan anti-cheat. Klien yang dimodifikasi tetap bisa mengirim hasil palsu (maks. 1 per 45 detik). Jangan dipakai untuk hadiah bernilai.
+
+Checklist uji (setelah migrasi diterapkan): [ ] main 1 match vs CPU -> toast "+XP/+poin" muncul; [ ] profil menampilkan level/menang/main nyata; [ ] tab Global/Mingguan menampilkan baris kamu; [ ] tambah teman -> tab Teman menampilkan dia setelah dia main; [ ] refresh halaman hasil match online -> poin tidak bertambah dua kali.

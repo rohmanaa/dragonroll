@@ -5592,11 +5592,38 @@ async function doRoll(opt){
     if(e!==STALE){ console.error(e); busy=false; setRoll(ONLINE_ROOM?canControlPlayer(players[cur]):!players[cur].cpu); startTurnTimer(); }
   }
 }
+let MATCH_TOKEN=''; /* id unik per match (hanya untuk lawan CPU); online memakai roomId+gameId supaya refresh tidak menghitung ulang */
+let MATCH_DONE=''; /* token match yang sudah dicatat -> 1x per match walau finishGame terpanggil lagi (snapshot/refresh) */
+/* Catat hasil match ke statistik pemain (level/XP/leaderboard). Hanya: lawan CPU, atau online (pemain lokal ikut main).
+   Mode lokal gantian (2-4 pemain di 1 layar) tidak dicatat: tidak jelas siapa "kamu". Gagal = diam-diam, tidak mengganggu game. */
+function recordMatchResult(winner){
+  try{
+    const PD=window.PlayerData; if(!PD||typeof PD.recordMatch!=='function') return;
+    let token,won,roomId=null;
+    if(ONLINE_ROOM){
+      const me=players.find(q=>isLocalPlayer(q)); if(!me||me.left) return;
+      won=isLocalPlayer(winner); roomId=ROOM_CFG.roomId; token='room:'+roomId+':g'+gameId;
+    }else if(mode==='cpu'){
+      won=!winner.cpu; token='cpu:'+MATCH_TOKEN;
+    }else return;
+    if(MATCH_DONE===token) return; MATCH_DONE=token;
+    const r=PD.recordMatch({token,won});
+    if(!r||!r.ok||r.duplicate) return;
+    const bits=['+'+r.xpGain+' XP','+'+r.points+' poin']; if(r.levelUp) bits.push('LEVEL '+r.level+'!');
+    try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },900); }catch(e){}
+    /* kirim ke server (leaderboard). Gagal/offline: statistik lokal tetap tersimpan. */
+    import('./assets/js/multiplayer/room-service.js').then(()=>{
+      const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
+      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId});
+    }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
+  }catch(e){ console.error('[stats]',e); }
+}
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
+  recordMatchResult(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
   $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak '+GOAL;
@@ -5606,7 +5633,7 @@ function finishGame(p,fromRemote){
   if(!fromRemote)publishGameSnapshot();
 }
 function startGame(m,keys){
-  mode=m; gameId++; busy=false; gameOver=false; winnerIndex=-1; hud('reset');
+  mode=m; gameId++; MATCH_TOKEN=Date.now().toString(36)+Math.random().toString(36).slice(2,8); busy=false; gameOver=false; winnerIndex=-1; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
   players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
   applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);

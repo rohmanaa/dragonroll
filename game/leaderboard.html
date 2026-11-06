@@ -351,42 +351,51 @@ const MEDAL=['1st','2nd','3rd'];
 const medal=n=>`<img class="mi" src="assets/Images/icon/rank/${MEDAL[n-1]}.webp" alt="Peringkat ${n}" draggable="false" decoding="async">`;
 $('#m1').innerHTML=medal(1);$('#m2').innerHTML=medal(2);$('#m3').innerHTML=medal(3);
 
-/* Wajah pemain = UT.CharacterData (sama dengan gameplay). Pemain contoh dipetakan ke karakter; 'Kamu' = skin yang sedang dipakai. */
-const NK={RizkyPro:'steve',Zyrex:'skeleton',Luna:'alex',FajarGG:'ender',Sakura:'creeper',Barra:'zombie',Nayla:'villager',Dika:'creeper'};
+/* ---- Data leaderboard NYATA dari Supabase (RPC get_leaderboard). Tidak ada data contoh. ---- */
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const FA=window.FrameAvatar;
+const SCOPE={global:'global',teman:'friends',mingguan:'weekly'};
+const CHARS=['steve','alex','creeper','zombie','skeleton','villager','ender'];
+const hash=s=>[...String(s)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
 const myKey=()=>{try{const it=ItemCatalog.byId(PlayerData.equippedId('skin'));return it&&it.gameKey||'steve'}catch(e){return'steve'}};
-const face=name=>UT.CharacterData.face('player',name==='Kamu'?myKey():(NK[name]||'steve'),{label:name});
-
-// Data State
-const ME={name:'Kamu',lv:16,hair:0x7a4a2a,hood:0x1fb8d8,xp:320,xpMax:1000};
-const DATA={
- global:{top:[['RizkyPro',15720],['Zyrex',12450],['Luna',11960]],others:[['FajarGG',26,8420,0x8a2be2,0x4a2a8a],['Sakura',24,7950,0xff6ab8,0x1fb8d8],['Barra',23,7680,0x7a4a2a,0x2a3a5a],['Nayla',22,7420,0x2a2a34,0x2a2a34],['Dika',21,7210,0x2fb04a,0x2fa04a]],me:{rank:128,score:3420}},
- teman:{top:[['Dika',6200],['Barra',5480],['Nayla',4900]],others:[['Sakura',24,2980,0xff6ab8,0x1fb8d8],['FajarGG',26,2640,0x8a2be2,0x4a2a8a],['Luna',20,2210,0xd23a32,0xd23a32],['Zyrex',19,1870,0xcfcfd6,0xeeeef2]],me:{rank:4,score:3420}},
- mingguan:{top:[['Luna',2840],['RizkyPro',2610],['FajarGG',2390]],others:[['Zyrex',19,2100,0xcfcfd6,0xeeeef2],['Sakura',24,1980,0xff6ab8,0x1fb8d8],['Barra',23,1760,0x7a4a2a,0x2a3a5a],['Nayla',22,1640,0x2a2a34,0x2a2a34],['Dika',21,1500,0x2fb04a,0x2fa04a]],me:{rank:57,score:820}}
-};
-/* frame pemain lain = data contoh (belum ada server); frame kamu = frame yang sedang dipakai */
-const FA=window.FrameAvatar,FR={Sakura:'frame.gold',FajarGG:'frame.gold',Luna:'frame.gold'};
+/* wajah = UT.CharacterData (sama dengan gameplay). Pemain lain: karakter dipilih dari hash id (server belum menyimpan skin). 'Kamu' = skin yang sedang dipakai. */
+const face=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
 let tab='global';
+const CACHE={};   /* tab -> {state:'loading'|'ok'|'error', rows:[], at} */
 const pad=n=>n<10?'0'+n:''+n;
+const cur=()=>CACHE[tab]||{state:'loading',rows:[]};
+
+async function load(t,force){
+ const c=CACHE[t];
+ if(c&&c.state==='ok'&&!force&&Date.now()-c.at<20000)return;
+ CACHE[t]={state:'loading',rows:(c&&c.rows)||[]};if(t===tab)renderAll();
+ try{
+  await import('./assets/js/multiplayer/room-service.js');
+  const rows=await UT.Multiplayer.RoomService.getLeaderboard(SCOPE[t],50);
+  CACHE[t]={state:'ok',at:Date.now(),rows:(rows||[]).map(r=>({pos:Number(r.pos),uid:r.uid,name:r.pname,lv:r.lvl,score:Number(r.score),wins:r.wins,plays:r.plays,me:!!r.is_me}))};
+ }catch(e){console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:[]}}
+ if(t===tab)renderAll();
+}
 
 function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]===tab?'on':''}" data-t="${t[0]}"><img class="ci" src="assets/Images/icon/${t[2]}.webp" alt="" draggable="false">${t[1]}</button>`).join('');
- document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll()}))}
+ document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll();load(tab)}))}
 
-function renderPodium(){const d=DATA[tab].top;
- const pl=(i,k)=>`<div class="pn">${d[i][0]}</div><div class="ps">${TR}${fmt(d[i][1])}</div>`;
+function renderPodium(){const rows=cur().rows,pl=i=>rows[i]?`<div class="pn">${esc(rows[i].name)}</div><div class="ps">${TR}${fmt(rows[i].score)}</div>`:`<div class="pn">—</div><div class="ps">${TR}0</div>`;
  $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
 
-function renderMe(){const m=DATA[tab].me;
- $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>#${m.rank}</b></div>${FA.wrap('<span class="av">'+face('Kamu')+'</span>','4.4rem',FA.mine())}<div class="inf"><div class="nm">${ME.name}</div><div class="lv">Lv. ${ME.lv}</div><div class="xp"><i style="width:${ME.xp/ME.xpMax*100}%"></i><span>${ME.xp} / ${fmt(ME.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(m.score)}</div>`;
- $('#bk').addEventListener('click',()=>{playSound('click');toast('Posisi kamu: #'+m.rank)})}
+function renderMe(){const mine=cur().rows.find(r=>r.me),L=PD.levelInfo(),nm=PD.profile().name;
+ const rank=mine?'#'+fmt(mine.pos):'—',score=mine?mine.score:0;
+ $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>${rank}</b></div>${FA.wrap('<span class="av">'+face({me:1,name:nm,uid:''})+'</span>','4.4rem',FA.mine())}<div class="inf"><div class="nm">${esc(nm)}</div><div class="lv">Lv. ${L.level}</div><div class="xp"><i style="width:${L.xpIn/L.xpMax*100}%"></i><span>${fmt(L.xpIn)} / ${fmt(L.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(score)}</div>`;
+ $('#bk').addEventListener('click',()=>{playSound('click');toast(mine?'Posisi kamu: '+rank:'Selesaikan pertandingan untuk masuk peringkat')})}
 
-function renderRows(){const d=DATA[tab],m=d.me;
- const list=d.others.map(o=>({n:o[0],lv:o[1],s:o[2],h:o[3],c:o[4],f:FR[o[0]]}));
- const me={n:ME.name,lv:ME.lv,s:m.score,h:ME.hair,c:ME.hood,me:1,f:FA.mine()};
- let out=[];
- if(m.rank<=8){list.splice(m.rank-4,0,me);out=list.map((o,i)=>({...o,r:4+i}))}
- else{out=list.slice(0,5).map((o,i)=>({...o,r:4+i}));out.push({...me,r:m.rank})}
- out=out.slice(0,6);if(m.rank<=8&&!out.some(o=>o.me))out[5]={...me,r:m.rank};
- $('#rows').innerHTML=out.map((o,i)=>`<div class="gc lr ${o.me?'me':''}" style="animation-delay:${i*40}ms" data-n="${o.n}" data-r="${o.r}"><span class="no">${o.me&&o.r>99?o.r:pad(o.r)}</span><div class="who">${FA.wrap('<span class="av">'+face(o.me?'Kamu':o.n)+'</span>','4rem',o.f)}<div><div class="nm2">${o.n}</div><div class="lv2">Lv. ${o.lv}</div></div></div><div class="sc">${TR}${fmt(o.s)}</div><div class="rk">${o.me?SHD:DM}</div></div>`).join('');
+function renderRows(){const c=cur(),box=$('#rows');
+ const note=t=>{box.innerHTML=`<div class="gc" style="padding:2rem;text-align:center;justify-content:center;font-size:1.6rem;line-height:1.3;min-height:8rem">${t}</div>`};
+ if(c.state==='loading'&&!c.rows.length)return note('Memuat peringkat...');
+ if(c.state==='error')return note('Gagal memuat peringkat. Periksa koneksi, lalu buka tab ini lagi.');
+ const rest=c.rows.slice(3);
+ if(!c.rows.length)return note(tab==='teman'?'Belum ada temanmu yang bermain. Tambah teman lewat menu Teman.':tab==='mingguan'?'Belum ada yang bermain minggu ini. Jadilah yang pertama!':'Belum ada pemain di peringkat. Selesaikan satu pertandingan untuk masuk.');
+ if(!rest.length)return note('Hanya ada '+c.rows.length+' pemain. Ajak temanmu main!');
+ box.innerHTML=rest.map((o,i)=>`<div class="gc lr ${o.me?'me':''}" style="animation-delay:${Math.min(i,10)*40}ms" data-n="${esc(o.name)}" data-r="${o.pos}"><span class="no">${pad(o.pos)}</span><div class="who">${FA.wrap('<span class="av">'+face(o)+'</span>','4rem',o.me?FA.mine():undefined)}<div><div class="nm2">${esc(o.name)}</div><div class="lv2">Lv. ${o.lv}</div></div></div><div class="sc">${TR}${fmt(o.score)}</div><div class="rk">${o.me?SHD:DM}</div></div>`).join('');
  document.querySelectorAll('.lr').forEach(r=>r.addEventListener('click',()=>{playSound('click');toast(r.dataset.n+' — peringkat #'+r.dataset.r)}))}
 
 function renderCur(){renderCurrency()}
@@ -406,7 +415,7 @@ $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 $('#rw').addEventListener('click',()=>{playSound('click');
  const R=[['Peringkat 1','500',DM],['Peringkat 2','300',DM],['Peringkat 3','200',DM],['Top 10','100',DM],['Top 100','50',DM]];
- openModal('<h2>Hadiah Musim Ini</h2>'+R.map(r=>`<div class="row"><span>${r[0]}</span><b>+${r[1]}${r[2]}</b></div>`).join(''))});
+ openModal('<h2>Hadiah Musim Ini</h2><p style="font-size:1.3rem;margin:.2rem 0 .8rem;opacity:.85">Belum aktif — segera hadir.</p>'+R.map(r=>`<div class="row"><span>${r[0]}</span><b>+${r[1]}${r[2]}</b></div>`).join(''))});
 
 function buy(type){const g=type==='gem',packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
@@ -493,7 +502,9 @@ function build(){const cv=$('#gl');
 function fit(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;const hi=SET().graphics==='high';R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=w/h<1.2?36:30;R.cam.updateProjectionMatrix()}
 function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(!R.cv.offsetParent)return;R.chars.forEach(c=>c.userData.anim(t));R.cam.position.set(0,4.2,15);R.cam.lookAt(0,3.4,0);R.r.render(R.scene,R.cam)}
 
-renderTabs();renderAll();
+renderTabs();renderAll();load(tab);
+addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(tab,true)});
+PD.subscribe(()=>renderMe());
 if(ok)build();
 if(ok&&R){new ResizeObserver(fit).observe($('#pod'));fit();requestAnimationFrame(loop)}
 else $('#pod').insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>');

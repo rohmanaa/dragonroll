@@ -67,11 +67,40 @@
     return out;
   }
 
+
+  /* ---------- Statistik pertandingan & level (nyata, disimpan lokal) ---------- */
+  var XP_WIN = 120, XP_LOSS = 40;          /* XP per match (menang / kalah) */
+  var PTS_WIN = 100, PTS_LOSS = 10;        /* poin leaderboard per match */
+  var SEEN_MAX = 40;                       /* token match terakhir untuk cegah hitung ganda */
+  /* XP untuk naik dari level L ke L+1 = 400 + 100*(L-1). Level 1 mulai di XP 0. */
+  function xpNeed(L) { return 400 + 100 * (L - 1); }
+  function levelInfo(xp) {
+    var L = 1, left = Math.max(0, Math.floor(+xp) || 0);
+    while (left >= xpNeed(L) && L < 999) { left -= xpNeed(L); L++; }
+    return { level: L, xpIn: left, xpMax: xpNeed(L) };
+  }
+  function weekKey(t) { /* Senin 00:00 UTC minggu ini, format YYYY-MM-DD (sama dengan server) */
+    var d = new Date(t || Date.now()), day = (d.getUTCDay() + 6) % 7;
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day));
+    return d.toISOString().slice(0, 10);
+  }
+  function normStats(s) {
+    s = (s && typeof s === 'object') ? s : {};
+    var n = function (v) { v = Math.floor(+v); return (isFinite(v) && v >= 0) ? v : 0; };
+    var wk = weekKey();
+    return {
+      plays: n(s.plays), wins: n(s.wins), streak: n(s.streak), bestStreak: n(s.bestStreak),
+      points: n(s.points),
+      weekKey: wk, weekPoints: (s.weekKey === wk) ? n(s.weekPoints) : 0,   /* minggu baru -> reset */
+      seen: Array.isArray(s.seen) ? s.seen.filter(function (x) { return typeof x === 'string'; }).slice(-SEEN_MAX) : []
+    };
+  }
+
   /* ---------- Pembuatan data awal ---------- */
   function freshState() {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
-    var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, nextSeq: seq,
+    var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped),
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan */
@@ -99,6 +128,7 @@
       coins: (isFinite(o.coins) && o.coins >= 0) ? Math.floor(o.coins) : 0,
       gems: (isFinite(o.gems) && o.gems >= 0) ? Math.floor(o.gems) : START_GEMS,
       xp: (isFinite(o.xp) && o.xp >= 0) ? Math.floor(o.xp) : START_XP, /* save lama tanpa xp -> 0 */
+      stats: normStats(o.stats),
       nextSeq: 0, inventory: {}, equipped: {},
       settings: normSettings(o.settings),
       profile: normProfile(o.profile)
@@ -244,6 +274,33 @@
     coins: function () { return load().coins; },
     gems: function () { return load().gems; },
     xp: function () { return load().xp; },
+    /* Level dihitung dari total XP (match + hadiah). {level, xpIn, xpMax, xp} */
+    levelInfo: function () { var x = load().xp, i = levelInfo(x); i.xp = x; return i; },
+    /* Statistik match (salinan). weekPoints otomatis 0 bila minggu sudah berganti. */
+    stats: function () { var st = normStats(load().stats); delete st.seen; return st; },
+    joinedAt: function () { return load().createdAt; },
+    /* Catat hasil 1 match. IDEMPOTEN per token: token yang sama tidak dihitung dua kali.
+       o = {token, won:boolean}. Mengembalikan {ok, duplicate, won, xpGain, points, levelUp, ...stats}. */
+    recordMatch: function (o) {
+      o = o || {};
+      var token = String(o.token || '').slice(0, 80);
+      if (!token) return { ok: false, reason: 'token-kosong' };
+      var st = load(), s = normStats(st.stats);
+      if (s.seen.indexOf(token) >= 0) return { ok: true, duplicate: true };
+      var won = !!o.won, before = levelInfo(st.xp).level;
+      s.plays += 1;
+      if (won) { s.wins += 1; s.streak += 1; if (s.streak > s.bestStreak) s.bestStreak = s.streak; }
+      else { s.streak = 0; }
+      var pts = won ? PTS_WIN : PTS_LOSS, gain = won ? XP_WIN : XP_LOSS;
+      s.points += pts; s.weekPoints += pts;
+      s.seen.push(token); s.seen = s.seen.slice(-SEEN_MAX);
+      st.stats = s; st.xp += gain;
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('stats');
+      var after = levelInfo(st.xp).level;
+      return { ok: true, duplicate: false, won: won, xpGain: gain, points: pts, level: after, levelUp: after > before,
+               plays: s.plays, wins: s.wins, streak: s.streak, totalPoints: s.points, weekPoints: s.weekPoints };
+    },
     settings: function () { return clone(load().settings); },
     profile: function () { return clone(load().profile); },
     owns: function (id) { return !!load().inventory[id]; },
