@@ -1367,7 +1367,7 @@ function dragonMusicStart(){
   }catch(e){}
 }
 function dragonMusicHalt(){ cancelAnimationFrame(DM.raf); if(DM.a){ try{ DM.a.pause(); DM.a.currentTime=0; }catch(e){} } }
-function dragonMusicStop(instant){
+function dragonMusicStop(instant){ try{ if(MP_SEQ===0) mpCue({k:'dmusic',i:!!instant}); }catch(e){}
   if(!DM.active&&!(DM.a&&!DM.a.paused)) return; DM.active=false;
   if(instant||!DM.a){ dragonMusicHalt(); return; }
   dmFade(0,DM.fadeOut,()=>{ dragonMusicHalt(); playMusic(); }); /* BGM biasa lanjut setelah fade out */
@@ -4580,8 +4580,9 @@ const GA=window.UT&&UT.GameplayAudio;
 function ensureAudio(){ try{ if(GA) GA.ensure(); }catch(e){} }
 const sfx0=GA?GA.sfx:new Proxy({},{get:()=>()=>{}});
 /* MP: suara hasil aksi (hit/chest/reward/power/pop) dimainkan host lalu di-mirror ke tamu lewat cue 'sfx'. Suara gerak (hop/ladder) sudah dimainkan tamu sendiri lewat cue walk/climb/bite. */
-const SFX_MIRROR={hit:1,playerHurt:1,chest:1,chestClose:1,rewardpower:1,power:1,pop:1};
-const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||!SFX_MIRROR[k]) return v; return function(...a){ try{ mpCue({k:'sfx',n:k,a:k==='power'?[a[0]]:[]}); }catch(e){} return v.apply(t,a); }; }}); /* modul tak termuat -> senyap, game tetap jalan (bukan implementasi audio kedua) */
+const SFX_DENY={roll:1,rollStop:1,hop:1,ladder:1,ladderStop:1,hiss:1,chomp:1,gulp:1,quakeStart:1,quakeStop:1,towerRise:1,towerStop:1,arenaUp:1,arenaStop:1,dragonSpawn:1,shuffleTick:1}; /* dimainkan tamu sendiri (walk/climb/bite & sequence boss) atau butuh handle lokal */
+let MP_SEQ=0; /* >0 = host sedang menjalankan sequence yang juga dijalankan ulang di tamu -> jangan mirror suara/FX di dalamnya (hindari dobel) */
+const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||typeof k!=='string'||SFX_DENY[k]) return v; return function(...a){ try{ if(MP_SEQ===0) mpCue({k:'sfx',n:k,a:k==='power'?[a[0]]:[]}); }catch(e){} return v.apply(t,a); }; }}); /* modul tak termuat -> senyap, game tetap jalan (bukan implementasi audio kedua) */
 
 /* ---------- Dadu ---------- */
 /* Presentation dadu = UT.GameplayDiceUI (gameplay/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
@@ -4590,13 +4591,13 @@ try{ const D=window.UT&&UT.GameplayDiceUI; if(D) D.init(); }catch(e){ console.er
 showDie(1,false);
 
 /* ---------- Konfeti ---------- */
-function spawnConfetti(pos){ if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
+function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
 function powerFxPawn(key,pl){
-  mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
+  if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
   try{
     const PF=window.UT&&UT.PowerFX; if(!PF||!pl||!pl.pawn||reduce) return;
     const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
@@ -4798,7 +4799,7 @@ async function hitDragon(p,v){
    const H=window.UT&&UT.GameplayHUD;
    if(H&&typeof H.showCombat==='function') hud('showCombat',p.name,'Ender Dragon',atk,{hp:p.dhp,owner:p.name,gid});
    else{ setMsg(p.name+' menyerang Ender Dragon: '+v+' x '+DMG+' = '+dmg+' damage!'); showAttackCard(p.name,'Ender Dragon','hit','Menyerang naga '+v+' x '+DMG+' = '+dmg+' damage!'); }
-   sfx.dragonHurt();
+   sfx.dragonHurt(); mpCue({k:'dfx',t:'hurt'});
    await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6);
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
@@ -4806,7 +4807,7 @@ async function hitDragon(p,v){
    p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
-   sfx.dragonDeath();
+   sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
    await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); });
    dragon.visible=false;
@@ -4980,7 +4981,9 @@ if(ONLINE_ROOM) document.body.classList.add('mp-online');
 
 function setMsg(t){ $('msg').textContent=t; }
 /* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (gameplay/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
-function hud(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](...a); }catch(e){ console.error(e); } }
+const HUD_MIRROR={showCombat:1,showResult:1};
+function hud(f,...a){ try{ if(HUD_MIRROR[f]&&MP_SEQ===0&&ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'hud',f:f,a:JSON.parse(JSON.stringify(a))}); }catch(e){} return hud0(f,...a); }
+function hud0(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](...a); }catch(e){ console.error(e); } }
 function mpFbMirrorable(k,a){ const o=a[a.length-1]; if(k==='short') return !(o&&typeof o==='object'&&o.local); return k==='event'&&o&&typeof o==='object'&&o.gid!==undefined&&!o.local; }
 function fb(k,...a){ try{ if(ONLINE_ROOM&&ONLINE_HOST&&mpFbMirrorable(k,a)) mpCue({k:'fb',f:k,a:JSON.parse(JSON.stringify(a))}); }catch(e){} return fb0(k,...a); }
 function fb0(k,...a){ try{ const F=window.UT&&UT.Gameplay&&UT.Gameplay.Feedback; if(F&&typeof F[k]==='function') return F[k](...a); if(k==='event'){ hud('showEvent',...a); return true; } }catch(e){ console.error(e); } return false; }
@@ -5359,7 +5362,7 @@ async function celebrate(p){
 /* Efek mob di petak p.pos. Dipakai playTurn (setelah dadu) DAN setelah Chest 'Kejutan' memindahkan pemain. */
 /* Efek hit 2D di posisi pion: gelombang + garis angin + flash merah + guncangan layar */
 function hitBlastFx(p){
-  mpCue({k:'hitfx',pid:p&&p.networkId});
+  if(MP_SEQ===0) mpCue({k:'hitfx',pid:p&&p.networkId});
   if(reduce) return;
   try{
     let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
@@ -5636,7 +5639,7 @@ function startGame(m,keys){
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
-const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1};
+const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1,confetti:1,dmusic:1,hud:1,dfx:1,seq:1};
 function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
@@ -5651,7 +5654,12 @@ function mpRunCue(c){
 function mpFixGid(a){ return (a||[]).map(x=>(x&&typeof x==='object'&&!Array.isArray(x)&&x.gid!==undefined)?Object.assign({},x,{gid:gameId}):x); }
 function mpRunFeedbackCue(c){
   try{
-    if(c.k==='fb'){ fb0(c.f,...mpFixGid(c.a)); if(c.f==='short'){ /* fallback HUD sama seperti host */ } }
+    if(c.k==='fb'){ const a=mpFixGid(c.a); if(c.f==='short'&&!fb0(c.f,...a)){ const o=a[3]||{}; hud0('showPower',a[0],a[1],a[2],o); } else if(c.f!=='short') fb0(c.f,...a); }
+    else if(c.k==='seq'){ return mpRunSeq(c); }
+    else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z)); }
+    else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
+    else if(c.k==='hud'){ hud0(c.f,...mpFixGid(c.a)); }
+    else if(c.k==='dfx'){ return mpDragonFx(c.t); }
     else if(c.k==='sfx'){ const f=sfx0[c.n]; if(typeof f==='function') f.apply(sfx0,c.a||[]); }
     else if(c.k==='atk'){ if(FBK) FBK.showAttackCard(c.a[0],c.a[1],c.a[2],c.a[3],{silent:true}); }
     else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
@@ -5664,6 +5672,35 @@ function mpRunFeedbackCue(c){
   return Promise.resolve();
 }
 let MP_CCARD_T=0;
+/* Sequence boss/kemenangan: host menjalankan fungsi aslinya, tamu menjalankan fungsi yang SAMA secara lokal (animasi, kamera, musik, SFX-nya sendiri). Hanya presentasi; state tetap dari host lewat snapshot. */
+function mpRunSeq(c){
+  const p=c.pid?mpPlayerByNet(c.pid):null,gid=gameId;
+  if(c.n==='celebrate'&&p) return celebrate(p);
+  if(c.n==='awakenDragon'&&p) return awakenDragon(p,gid);
+  if(c.n==='awakenWither'&&p) return awakenWither(p,gid);
+  if(c.n==='gatherArena') return gatherArena(gid);
+  if(c.n==='gatherFort') return gatherFort(gid);
+  return Promise.resolve();
+}
+async function mpDragonFx(t){
+  const D=dragon&&dragon.userData; if(!D) return;
+  if(t==='hurt'){ await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); }); D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF)); }
+  else if(t==='death'){ spawnConfetti(dragon.position); await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); }); dragon.visible=false; }
+}
+/* Bungkus sequence: host kirim cue 'seq' lalu jalankan aslinya (MP_SEQ>0 menahan mirror suara/FX di dalamnya). */
+function mpWrapSeq(name,fn,withPid){
+  return function(...a){
+    if(!(ONLINE_ROOM&&ONLINE_HOST)) return fn.apply(this,a);
+    const q=withPid?a[0]:null; mpCue({k:'seq',n:name,pid:q&&q.networkId});
+    MP_SEQ++; let r; try{ r=fn.apply(this,a); }catch(e){ MP_SEQ--; throw e; }
+    return Promise.resolve(r).finally(()=>{ MP_SEQ--; });
+  };
+}
+celebrate=mpWrapSeq('celebrate',celebrate,true);
+awakenDragon=mpWrapSeq('awakenDragon',awakenDragon,true);
+awakenWither=mpWrapSeq('awakenWither',awakenWither,true);
+gatherArena=mpWrapSeq('gatherArena',gatherArena,false);
+gatherFort=mpWrapSeq('gatherFort',gatherFort,false);
 /* Totem: keputusan dibuat di layar KORBAN, bukan di layar host. Host menunggu jawaban (maks 15 dtk -> otomatis pakai, sama seperti timeout modal). */
 let MP_TOTEM=null;
 function mpAskGuestTotem(p,what,gid){
