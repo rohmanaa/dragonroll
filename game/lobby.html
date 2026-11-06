@@ -70,15 +70,13 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .box:has(.mimg){padding:.8rem;width:min(70rem,92vw)}
 .mimg{display:block;width:100%;max-height:80vh;object-fit:contain;border-radius:1.6rem}
 /* ===== bawah kiri: toko / teman / hadiah ===== */
-#toko{left:2.8rem;bottom:2.75rem;width:13.8rem;height:9.9rem;border-radius:1.2rem;display:block;text-align:center;background:linear-gradient(#ffc83a 0%,#ffae1f 55%,#f08215 56%,#f08215 100%);box-shadow:inset 0 0 0 .22rem #ffe27a,inset 0 0 0 .4rem #1b2a44,0 .4rem 0 #1b2a44,0 .9rem 1.3rem rgba(120,60,0,.35)}
-#toko .ch2{position:absolute;left:50%;translate:-50% 0;top:-2.6rem;width:10.2rem;height:8.2rem;filter:drop-shadow(0 .4rem .3rem rgba(90,40,0,.4))}
-#toko b{position:absolute;left:0;right:0;bottom:.9rem;font-size:2.8rem;line-height:3rem;-webkit-text-stroke:.28rem #7a3f06;paint-order:stroke fill;text-shadow:0 .2rem 0 #7a3f06}
-.nw{position:absolute;right:-.9rem;top:-1.8rem;background:linear-gradient(#ff5a4a,#d9261c);border:.18rem solid #fff;border-radius:.7rem;padding:0 .8rem;font-size:1.4rem;line-height:2rem;box-shadow:0 .2rem .3rem rgba(0,0,0,.35);pointer-events:none;z-index:3}
+#toko{left:2.8rem;background:linear-gradient(#ffc83a 0%,#ffae1f 55%,#f08215 56%,#f08215 100%);box-shadow:inset 0 0 0 .22rem #ffe27a,inset 0 0 0 .4rem #1b2a44,0 .35rem 0 #1b2a44,0 .8rem 1.2rem rgba(120,60,0,.35)}
+.nw{position:absolute;right:-.8rem;top:-1.5rem;background:linear-gradient(#ff5a4a,#d9261c);border:.18rem solid #fff;border-radius:.7rem;padding:0 .7rem;font-size:1.2rem;line-height:1.8rem;box-shadow:0 .2rem .3rem rgba(0,0,0,.35);pointer-events:none;z-index:3}
 .cd{bottom:2.75rem;width:8.1rem;height:8rem;border-radius:1.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem}
 .cd>svg{width:4.4rem;height:4.4rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
 .cd b{display:block;font-size:1.6rem;line-height:2rem}
-#teman{left:17.7rem}
-#hadc{left:26.7rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:inset 0 0 0 .22rem #d2b4ff,inset 0 0 0 .4rem #30136e,0 .35rem 0 #1e0a4a,0 .8rem 1.2rem rgba(30,10,90,.4)}
+#teman{left:11.9rem}
+#hadc{left:21rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:inset 0 0 0 .22rem #d2b4ff,inset 0 0 0 .4rem #30136e,0 .35rem 0 #1e0a4a,0 .8rem 1.2rem rgba(30,10,90,.4)}
 /* ===== MULAI (kanan bawah) ===== */
 #play{right:2.8rem;bottom:2.75rem;width:26.3rem;height:9.9rem;border-radius:1.2rem;display:flex;align-items:center;justify-content:center;gap:1rem;padding:0 1rem 0 1.2rem;background:linear-gradient(#6fd45a 0%,#58bb48 55%,#3f9d3a 56%,#3f9d3a 100%);box-shadow:inset 0 0 0 .22rem #a8ec8f,inset 0 0 0 .4rem #1b2a44,0 .45rem 0 #1b2a44,0 1rem 1.6rem rgba(10,60,20,.4);animation:glow 2.4s ease-in-out infinite}
 @keyframes glow{50%{box-shadow:inset 0 0 0 .22rem #a8ec8f,inset 0 0 0 .4rem #1b2a44,0 .45rem 0 #1b2a44,0 0 2.6rem rgba(140,255,120,.9)}}
@@ -89,7 +87,6 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .sq>.ic{width:3.7rem;height:3.7rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
 .lm>.ic{width:4rem;height:4rem}
 .cd>.ic{width:4.4rem;height:4.4rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
-#toko>.ic.ch2{filter:drop-shadow(0 .4rem .3rem rgba(90,40,0,.4))}
 #play>.ic.gp{filter:drop-shadow(0 .3rem .2rem rgba(10,50,10,.5))}
 #pt{text-align:left;color:#fff}
 #pt b{display:block;font-size:4.3rem;line-height:4.4rem;color:#ffd62e;-webkit-text-stroke:.38rem #1b5a14;paint-order:stroke fill;text-shadow:0 .3rem 0 #1b5a14}
@@ -147,7 +144,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
    <span id="evn" role="button" aria-label="Event berikutnya"><svg viewBox="0 0 14 24"><path d="m3 3 9 9-9 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
  </div>
 
- <button class="ab" id="toko" data-act="toko" aria-label="Toko"><img class="ic ch2" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async"><b>TOKO</b><span class="nw">BARU</span></button>
+ <button class="ab cd" id="toko" data-act="toko" aria-label="Toko"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #7a3f06">TOKO</b><span class="nw">BARU</span></button>
  <button class="ab pn cd" id="teman" data-act="teman" aria-label="Teman"><img class="ic" src="assets/Images/icon/lobby/hand.webp" alt="" draggable="false" decoding="async"><b class="tx">TEMAN</b><i class="dot">3</i></button>
  <button class="ab pn cd" id="hadc" data-act="hadiah" aria-label="Hadiah"><img class="ic" src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #30136e">HADIAH</b><i class="dot">1</i></button>
 
