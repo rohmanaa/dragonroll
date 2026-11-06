@@ -162,6 +162,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
@@ -211,7 +212,9 @@ renderAvatar();renderCurrency();renderName();renderXp();
 document.querySelectorAll('#ui>:not(.ut-curbar)').forEach((e,i)=>e.style.animationDelay=(i*.045)+'s');
 /* event: UI ikut berubah tanpa reload halaman */
 UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()});
-if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp()});
+if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp();renderCurrency()});
+/* B5: akun login + flag -> saldo & inventory dari server */
+if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh();
 /* sinkron XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0){SRV_XP=Math.floor(x);renderXp()}}).catch(()=>{});
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});

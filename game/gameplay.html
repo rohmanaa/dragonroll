@@ -1291,6 +1291,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
 <script src="assets/js/app.js"></script>
@@ -3599,6 +3600,11 @@ function settleDragonDefeat(p){
     const rec=dragonWinLoad();
     if(rec.last&&rec.last.token===DRG.token&&rec.last.settled){ DRG.done=true; return {status:'duplicate'}; }
     const rec1={token:DRG.token,winner:p.name,skin:p.key,cpu:!!p.cpu,mode:String(mode),at:Date.now(),settled:true,rewarded:false,coins:0,gems:0};
+    if(!p.cpu&&window.PlayerData&&PlayerData.serverMode&&PlayerData.serverMode()){ /* B5: akun login -> hadiah ditentukan & dibayar SERVER (async); klien tidak memberi koin/gem */
+      rec.wins++; rec1.server=true; rec.last=rec1; dragonWinSave(rec); DRG.done=true;
+      serverBossClaim(p,gameId);
+      return DRG.result={status:'pending'};
+    }
     if(!p.cpu){ /* CPU menang = pemain kalah: kemenangan dicatat, hadiah tidak diberikan */
       const R=(UT.Gameplay&&UT.Gameplay.Config&&UT.Gameplay.Config.DRAGON_REWARD)||{},PD=window.PlayerData;
       const coins=Math.max(0,Math.floor(+R.coins||0)),gems=Math.max(0,Math.floor(+R.gems||0));
@@ -3610,6 +3616,25 @@ function settleDragonDefeat(p){
     rec.last=rec1; dragonWinSave(rec); DRG.done=true;
     return DRG.result={status:rec1.rewarded?'granted':'no-reward',coins:rec1.coins,gems:rec1.gems};
   }finally{ DRG.busy=false; }
+}
+/* B5: klaim hadiah boss ke server. Online: hanya pemenang yang boleh (server memeriksa); room harus sudah 'finished' -> coba ulang sebentar.
+   Lawan CPU/lokal: idempoten per token match, dibatasi harian oleh server. Nominal dari server, bukan dari klien. */
+async function serverBossClaim(p,gid){
+  const W=window.UT&&UT.WalletService&&UT.WalletService.get(); if(!W) return;
+  try{
+    let r;
+    if(ONLINE_ROOM){
+      if(!isLocalPlayer(p)) return; /* hanya perangkat pemenang yang mengklaim */
+      for(let n=0;n<7;n++){ r=await W.claimBossOnline(ROOM_CFG.roomId); if(!r||(r.reason!=='room_not_finished'&&r.reason!=='no_result')) break; await new Promise(ok=>setTimeout(ok,1500)); }
+    }else r=await W.claimBossCpu(DRG.token);
+    const bn=BOSS==='wither'?'Wither':'Dragon';
+    if(r&&r.ok&&!r.duplicate){
+      const parts=[]; if(r.reward_coins>0) parts.push('+'+r.reward_coins+' Coin'); if(r.reward_gems>0) parts.push('+'+r.reward_gems+' Gem');
+      DRG.text='Hadiah: '+parts.join(' · ')+'.';
+      setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.'); try{ sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid}); }catch(e){}
+    }else if(r&&(r.reason==='daily_cap'||r.reason==='terlalu-cepat')) setMsg('Batas hadiah '+bn+' harian tercapai.');
+    else if(r&&r.ok===false&&r.reason!=='sudah-klaim'&&r.reason!=='not_winner'&&r.reason!=='mode-lokal') setMsg('Hadiah '+bn+' gagal disimpan.');
+  }catch(e){ console.warn('[wallet] klaim boss gagal',e); }
 }
 /* Dipanggil playTurn setelah efek kemenangan (celebrate). Settle sudah terjadi saat naga kalah; di sini hanya feedback hadiah. */
 async function dragonDefeatReward(p,gid){
@@ -5651,6 +5676,7 @@ function recordMatchResult(winner){
     if(MATCH_DONE===token) return; MATCH_DONE=token;
     const r=PD.recordMatch({token,won,noPoints:!ONLINE_ROOM}); /* lawan CPU: XP tetap, poin leaderboard 0 (server menegakkan hal yang sama) */
     if(!r||!r.ok||r.duplicate) return;
+    try{ if(PD.serverMode&&PD.serverMode()){ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); } }catch(e){} /* B5: progres misi dihitung server (win juga menghitung play) */
     const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
     const bits=['+'+r.xpGain+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(r.levelUp) bits.push('LEVEL '+r.level+'!');
     try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },900); }catch(e){}
