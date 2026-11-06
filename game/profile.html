@@ -568,7 +568,7 @@ const modal=$('#modal');let mOpen=false,onClose=null;
 function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');onClose&&onClose();onClose=null;setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
 $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-function buy(type){if(type==='gem'){toast('Pembelian Gem belum tersedia.');playSound('error');return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
+function buy(type){if(type==='gem'){location.href='shop.html?emerald=1';return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
   document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',async()=>{const i=+b.dataset.i,p=packs[i];const r=g?(SV()?{ok:false,reason:'tidak-tersedia'}:PD.addCurrency(0,p[0])):(SV()?await WS().exchange(i):PD.addCurrency(p[0],-[10,40,120][i]));
    if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}

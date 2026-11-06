@@ -202,6 +202,51 @@ t('WS.dailyGet mengembalikan status server', async () => {
   const r = await e.S.dailyGet(); assert.strictEqual(r.ok, true); assert.strictEqual(r.next_day, 3);
 });
 
+/* ---------- Iklan berhadiah ---------- */
+const ADS = require('../assets/js/ads-service.js');
+t('Ads: iklan selesai -> token valid untuk server, unik tiap tayangan', async () => {
+  const A = ADS.create({ provider: { show: async () => ({ completed: true }) } });
+  const a = await A.show(), b = await A.show();
+  assert.strictEqual(a.ok, true); assert.ok(/^[A-Za-z0-9_-]{8,64}$/.test(a.token)); assert.notStrictEqual(a.token, b.token);
+});
+t('Ads: ditutup sebelum selesai -> tidak ada token', async () => {
+  const A = ADS.create({ provider: { show: async () => ({ completed: false }) } });
+  assert.deepStrictEqual(await A.show(), { ok: false, reason: 'dibatalkan' });
+});
+t('Ads: tanpa provider / provider error / tayangan ganda', async () => {
+  assert.strictEqual((await ADS.create({}).show()).reason, 'tidak-tersedia');
+  assert.strictEqual((await ADS.create({ provider: { show: async () => { throw new Error('x'); } } }).show()).reason, 'gagal');
+  let go; const gate = new Promise(r => { go = r; });
+  const A = ADS.create({ provider: { show: async () => { await gate; return { completed: true }; } } });
+  const p1 = A.show(), p2 = A.show(); go(); const [x, y] = await Promise.all([p1, p2]);
+  assert.strictEqual([x, y].filter(r => r.reason === 'sedang-diproses').length, 1);
+});
+t('Ads: completed harus tepat true (nilai truthy lain ditolak)', async () => {
+  assert.strictEqual((await ADS.create({ provider: { show: async () => ({ completed: 'yes' }) } }).show()).ok, false);
+});
+t('WS.claimAd: hanya token dikirim; emerald dari respons server', async () => {
+  const e = svc({ claim_ad_reward: () => ({ ok: true, coins: 1000, gems: 5, reward_gems: 5, sisa_hari_ini: 4 }) });
+  const r = await e.S.claimAd('ad-abcd1234'); assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(e.calls[0], ['claim_ad_reward', { p_token: 'ad-abcd1234' }]); assert.strictEqual(e.PD.gems(), 5);
+});
+t('WS.claimAd: batas harian/terlalu cepat/duplikat tidak mengubah saldo', async () => {
+  for (const resp of [{ ok: false, reason: 'daily_cap' }, { ok: false, reason: 'terlalu-cepat', tunggu_detik: 30 }, { ok: true, duplicate: true, coins: 1, gems: 99 }]) {
+    const e = svc({ claim_ad_reward: () => resp }); e.PD.applyServerWallet({ coins: 10, gems: 2 });
+    await e.S.claimAd('ad-abcd1234'); assert.strictEqual(e.PD.gems(), 2);
+  }
+});
+t('WS.claimAd/adGet: mode lokal tidak memanggil server', async () => {
+  const e = svc(base, false);
+  assert.strictEqual((await e.S.claimAd('ad-abcd1234')).reason, 'mode-lokal'); assert.strictEqual((await e.S.adGet()).reason, 'mode-lokal'); assert.strictEqual(e.calls.length, 0);
+});
+t('WS.adGet: status sisa jatah dari server', async () => {
+  const e = svc({ ad_reward_get: () => ({ gems: 5, cap: 5, left: 3, tunggu_detik: 0 }) });
+  const r = await e.S.adGet(); assert.strictEqual(r.ok, true); assert.strictEqual(r.left, 3);
+});
+t('akun server: PD.addCurrency(0,5) tetap ditolak (emerald hanya lewat claimAd)', () => {
+  const { PD } = loginOn(); assert.strictEqual(PD.addCurrency(0, 5).reason, 'server-wallet'); assert.strictEqual(PD.gems(), 0);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');

@@ -147,6 +147,19 @@
       try { return Object.assign({ ok: true }, await rpc('reward_caps_get')); } catch (e) { return fail(e); }
     }
 
+    /* ----- emerald dari iklan berhadiah: token dari ads-service; nominal, batas harian, dan jeda ditentukan server ----- */
+    function claimAd(token) {
+      return once('ad', async function () {
+        var r = await rpc('claim_ad_reward', { p_token: String(token || '') });
+        if (r && r.ok && !r.duplicate) mirror(r.coins, r.gems);
+        return r;
+      });
+    }
+    async function adGet() {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return Object.assign({ ok: true }, await rpc('ad_reward_get')); } catch (e) { return fail(e); }
+    }
+
     /* ----- achievement: RPC klaim tetap lewat progress-service; di sini hanya sinkron saldo ----- */
     function claimAchievement(id, clientValue) {
       return once('ach', async function () {
@@ -166,7 +179,7 @@
       enabled: enabled, refresh: refresh, buy: buy, exchange: exchange,
       dailyGet: dailyGet, claimDaily: claimDaily,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
-      claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet,
+      claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,
       claimAchievement: claimAchievement
     };
   }
