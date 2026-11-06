@@ -92,6 +92,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 .meta,.load-meta{margin-top:14px;font-size:13px}
 @media (min-aspect-ratio:1/1){.bottom-ui{width:min(260px,34cqw)}}
 </style>
+<style id="progress-match">
+/* Bar splash disamakan dengan bar layar awan antar-halaman (play.html #ov .ldb): lintasan bulat putih, isi hijau mulus + kilau, teks biru. HANYA tampilan. */
+.bottom-ui,html body .bottom-ui{width:min(320px,60vw)}
+@media (min-aspect-ratio:1/1){.bottom-ui,html body .bottom-ui{width:min(320px,34cqw)}}
+.track,.loading-track{height:14px;padding:0;border-radius:7px;background:rgba(255,255,255,.7);border:2px solid #fff;box-sizing:content-box;
+  box-shadow:0 2px 0 rgba(42,95,147,.28),inset 0 2px 3px rgba(42,95,147,.18);overflow:hidden}
+.fill,.loading-fill{position:relative;overflow:hidden;height:100%;border-radius:5px;background:linear-gradient(#9be15a,#4fb83a);box-shadow:none;transition:width .35s ease-out}
+.fill::after,.loading-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);transform:translateX(-100%);animation:ldsh 1.1s linear infinite}
+@keyframes ldsh{to{transform:translateX(100%)}}
+.meta,.load-meta{display:flex;justify-content:center;gap:10px;margin-top:8px;font:800 15px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:0;color:#2a5f93;text-shadow:0 1px 0 #fff;white-space:nowrap}
+@media(max-width:700px){.meta,.load-meta{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.fill::after,.loading-fill::after{animation:none}}
+</style>
 <style id="auth-ui">
 /* Gerbang login: tombol LOGIN setelah loading + modal Daftar/Masuk (gaya navy + hijau neon) */
 .login-btn{display:none;margin:18px auto 0;min-width:180px;padding:12px 28px;font:400 22px 'Lilita One',sans-serif;letter-spacing:.06em;color:#0b2a0b;background:linear-gradient(#b8ff63,#65ed26 60%,#3fbf1c);border:3px solid #0b1838;border-radius:10px;box-shadow:0 5px 0 #0b1838,inset 0 3px 0 rgba(255,255,255,.45);cursor:pointer}
