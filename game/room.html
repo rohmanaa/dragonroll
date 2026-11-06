@@ -66,8 +66,19 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 .slot.t1{border-left:1rem solid #2f8cf0}.slot.t2{border-left:1rem solid #e5483f}
 .slot .plus{width:3.4rem;height:3.4rem;flex:none;display:grid;place-items:center;font-size:2.8rem;line-height:1;border-radius:.9rem;background:linear-gradient(#ffe16b,#ff9c17);color:#382000;box-shadow:0 0 0 .2rem #704008;text-shadow:none}
 .slot small{display:block;font-size:1.05rem;font-weight:700;color:#cfe0ff}.slot.static{cursor:default}
-.slot.lk{border:.25rem solid #4a2c10;background:linear-gradient(180deg,#b9824a,#8a5a2b 50%,#7a4c22 52%,#8a5a2b);box-shadow:inset 0 .2rem 0 rgba(255,225,170,.45),inset 0 -.3rem 0 rgba(60,30,8,.4);color:#ffe9c4;text-shadow:0 .15rem 0 #4a2c10;cursor:not-allowed;gap:1rem}
+.slot.lk,.slot.op{position:relative;border:.25rem solid #4a2c10;background:linear-gradient(180deg,#b9824a,#8a5a2b 50%,#7a4c22 52%,#8a5a2b);box-shadow:inset 0 .2rem 0 rgba(255,225,170,.45),inset 0 -.3rem 0 rgba(60,30,8,.4);color:#ffe9c4;text-shadow:0 .15rem 0 #4a2c10;cursor:not-allowed;gap:1rem}
+.slot.op{cursor:default;padding-left:3rem}.slot.op.t1{border-left:1rem solid #2f8cf0}.slot.op.t2{border-left:1rem solid #e5483f}
+.slot.lk.tap{cursor:pointer;justify-content:center;padding-left:3rem;font:inherit;font-size:1.5rem;color:#ffe9c4}
+.slot .mk{position:absolute;left:.9rem;top:50%;translate:0 -50%;width:0;height:0;border-left:1rem solid #ffcf4a;border-top:.75rem solid transparent;border-bottom:.75rem solid transparent;filter:drop-shadow(0 .1rem 0 #4a2c10)}
+.slot .em{flex:1;text-align:center;font-size:1.4rem;color:#e9cfa6;text-shadow:0 .1rem 0 #4a2c10}
+.ub{flex:1;max-width:26rem;min-height:3.8rem;padding:0 1.4rem;border-radius:1rem;font-size:1.5rem;white-space:nowrap;color:#fff;background:linear-gradient(#ffb347,#f26b00);text-shadow:0 .15rem 0 #7a3000;box-shadow:0 0 0 .2rem #4a2000,inset 0 .2rem .2rem rgba(255,255,255,.5)}
 .slot.lk img{width:3.4rem;height:3.4rem;object-fit:contain;filter:drop-shadow(0 .15rem 0 rgba(60,30,8,.6))}
+#rt .st_{flex-wrap:wrap}
+#drB{position:fixed;inset:0;background:rgba(18,51,127,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:48}
+#dr{position:fixed;left:0;top:0;bottom:0;width:min(44rem,86vw);z-index:49;display:flex;flex-direction:column;gap:.8rem;padding:max(1.2rem,env(safe-area-inset-top)) 1.4rem max(1.2rem,env(safe-area-inset-bottom)) max(1.4rem,env(safe-area-inset-left));border-radius:0 1.6rem 1.6rem 0;background:linear-gradient(145deg,#2f6fd0,#1b4aa8 55%,#143a85);box-shadow:0 0 0 .25rem var(--ink),inset 0 0 0 .3rem rgba(150,205,255,.5);transform:translateX(-108%);visibility:hidden;transition:transform .28s,visibility 0s .28s}
+.dro #dr{transform:none;visibility:visible;transition:transform .28s}.dro #drB{opacity:1;pointer-events:auto}
+#dr h2{font-size:2.3rem;padding-right:4.6rem}#dr .x{right:1rem;top:1rem;width:4rem;height:4rem;font-size:2rem}
+#dr .tabs{margin:0}#dr .sc{flex:1}.dnote{padding:1rem;border-radius:1rem;background:rgba(11,21,48,.35);font-size:1.3rem;font-weight:700;line-height:1.35;color:#dcecff}
 #sttx{flex:none;margin:.6rem 0 .5rem;font-size:1.35rem;line-height:1.15;text-align:center;color:#ffe9a6}
 #acts{flex:none;display:flex;gap:.9rem}
 .big{flex:1;min-width:0;height:5rem;padding:0 1.4rem;border-radius:1.1rem;font-size:2.2rem;white-space:nowrap;color:#fff;background:linear-gradient(#75ed46,#16a92d);box-shadow:0 0 0 .22rem #073f20,0 .4rem 0 .22rem #073f20,inset 0 .2rem .2rem rgba(255,255,255,.55);text-shadow:0 .15rem 0 #146322}
@@ -131,7 +142,7 @@ html{font-size:min(2.6vw,1.45vh)}
   </section>
  </div>
  <section class="pn" id="rt" aria-label="Player Room">
-  <div class="st_"><h2>👥 PLAYER ROOM</h2><span class="pill" id="cnt"></span><button class="gold sm" id="invB" hidden>＋ INVITE</button></div>
+  <div class="st_"><h2>👥 PLAYER ROOM</h2><span class="pill" id="cnt"></span><button class="gold sm" id="invB" hidden>ROOM ACCESS</button><button class="sm ub" id="invD" hidden>＋ INVITE</button></div>
   <div id="plrs"></div>
   <div id="sttx"></div>
   <div id="acts"><button class="big" id="rdy">✓ READY</button><button class="big go" id="start">▶ START GAME</button></div>
@@ -145,6 +156,13 @@ html{font-size:min(2.6vw,1.45vh)}
  <div class="tabs" hidden><button class="tab on" id="tOn">🟢 ONLINE</button><button class="tab" id="tOff">⚪ OFFLINE</button></div>
  <input class="srch" id="srch" placeholder="Cari nama teman..." autocomplete="off" hidden>
  <div class="sc" id="fl"></div></div></div>
+<div id="drB"></div>
+<aside id="dr" role="dialog" aria-label="Undang Teman" aria-hidden="true">
+ <button class="x" id="drX" aria-label="Tutup">✕</button><h2>👥 UNDANG TEMAN</h2>
+ <div class="rowc"><span class="pill" id="drCnt"></span></div>
+ <div class="tabs"><button class="tab on" id="dTf">👫 TEMAN</button><button class="tab" id="dTp">🌐 PUBLIK</button></div>
+ <div class="sc" id="drL"></div>
+</aside>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
 <link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
@@ -175,9 +193,10 @@ const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Roo
 const POWER_STOCK={sword:2,feather:2,tnt:1,totem:1,potion_odd:2,potion_even:2,grass:2};
 const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',online:true,level:18},{id:'g1',name:'RakaPlay',online:true,level:28},{id:'g2',name:'NayaCraft',online:true,level:24},{id:'g3',name:'AlyaVoxel',online:true,level:19},
  {id:'l3',name:'Dodi',online:false,level:9},{id:'g4',name:'DinoRush',online:false,level:35}];
+const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>1+Math.floor(PD.xp()/100);
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
-const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,mpUnsub:null,gameLaunched:false};
+const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
 /* ---------- navigasi ---------- */
@@ -195,12 +214,12 @@ function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=n
 function renderRoomHeader(){
  document.documentElement.classList.toggle('mp-online',ONLINE);
  $('#rt_t').textContent=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
- $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';$('#invB').hidden=!(ONLINE&&HOST);$('#invB').textContent='ROOM ACCESS';
+ $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+cap()+' pemain';$('#invB').hidden=!(ONLINE&&HOST);$('#invD').hidden=!(ONLINE&&HOST);
  $('#cCode').textContent='KODE '+(S.room.code||'------');
 }
 function applyRemoteRoom(row){
  if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
- S.room={id:row.id,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
+ S.room={id:row.id,max:Number(row.max_players)||0,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
  renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
  $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
@@ -214,7 +233,7 @@ async function setupOnline(){
   if(HOST){
    let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
    if(saved&&saved.id){try{row=await MP.getRoom(saved.id);if(!row||row.status!=='waiting'||row.host_id!==S.mpIdentity.id)row=null}catch(_){row=null} }
-   if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:COUNT,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
+   if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:TEAM?4:2,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
@@ -259,26 +278,29 @@ function renderMap(){
  $('#mTxt').innerHTML=`Game Mode: ${MODE_LABEL[MODE]}<br>Map: ${MAP?esc(MAP.name.replace(/^Map /,'')):'-'}<br>Number of Tiles: ${TILES}`;
 }
 /* ---------- PLAYER ROOM ---------- */
-const pending=()=>Object.keys(S.invites).length,slotsLeft=()=>COUNT-S.room.players.length-pending();
+const pending=()=>Object.keys(S.invites).length,slotsLeft=()=>cap()-S.room.players.length-pending();
 const me=()=>S.room.players.find(p=>p.id===(S.mpIdentity&&S.mpIdentity.id||'me'));
 function avatar(p){return p.kind==='bot'?'<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>':`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
 function prow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal'}[p.kind],
  tags=(p.kind==='host'?'<span class="tg">HOST</span>':'')+(p.id===(S.mpIdentity&&S.mpIdentity.id||'me')&&p.kind!=='host'?'<span class="tg me">KAMU</span>':''),
  mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'';
  return `<div class="plr ${TEAM?'t'+p.team:''} ${p.id===(S.mpIdentity&&S.mpIdentity.id||'me')?'me':''}">${avatar(p)}<div class="pi"><b>${esc(p.name)}${tags}</b><small>Lv ${p.level} • ${kind}</small></div>${mv}<span class="st ${p.ready?'rd':'wt'}">${p.ready?'✓ READY':'WAITING'}</span></div>`}
-function srow(team){if(!ONLINE)return'';const lock=S.room.privacy==='private',c=TEAM?'t'+team:'';
- if(!HOST)return `<div class="slot static ${c}"><span>${lock?'🔒':'🔓'}</span><span>Slot kosong</span></div>`;
- return `<button class="slot ${c}" data-share="1"><span class="plus">↗</span><span>Bagikan Room<small>Salin kode atau tautan undangan</small></span></button>`}
-/* slot terkunci (warna kayu + ikon gembok) untuk sisa slot sampai 4, mis. main berdua -> 2 slot bawah terkunci */
-function lrow(){return `<div class="slot lk" aria-label="Slot terkunci"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false"><span>Terkunci</span></div>`}
+function srow(team){if(!ONLINE)return'';const c=TEAM?'t'+team:'';
+ if(!HOST)return `<div class="slot op static ${c}"><i class="mk"></i><span class="em">Slot kosong</span></div>`;
+ return `<div class="slot op ${c}"><i class="mk"></i><button class="ub" data-share="1">＋ Undang Teman</button></div>`}
+/* slot terkunci: online -> sentuh untuk membuka (host); offline -> hanya penanda terkunci */
+function lrow(){if(ONLINE)return `<button class="slot lk tap" data-open="1" aria-label="Sentuh untuk membuka"><i class="mk"></i><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false"><span>Sentuh untuk Membuka</span></button>`;
+ return `<div class="slot lk" aria-label="Slot terkunci"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false"><span>Terkunci</span></div>`}
 function renderPlayers(){
- const r=S.room,P=r.players;$('#cnt').textContent=P.length+'/'+COUNT;
+ const r=S.room,P=r.players;$('#cnt').textContent=P.length+'/'+cap();
  let h='';
  if(TEAM)[1,2].forEach(t=>{const tp=P.filter(p=>p.team===t);h+=`<div class="th t${t}"><span>TEAM ${t}</span><span>${tp.length}/2</span></div>`+tp.map(prow).join('');for(let i=tp.length;i<2;i++)h+=srow(t)});
- else{h=P.map(prow).join('');for(let i=P.length;i<COUNT;i++)h+=srow(0);for(let i=COUNT;i<4;i++)h+=lrow()}
- $('#plrs').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();
+ else{h=P.map(prow).join('');for(let i=P.length;i<cap();i++)h+=srow(0);for(let i=cap();i<4;i++)h+=lrow()}
+ $('#plrs').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();if(document.documentElement.classList.contains('dro'))renderDrawer();
 }
-$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-share]');if(m)moveTeam(m.dataset.mv);else if(s)copy('link')};
+$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-share]'),o=e.target.closest('[data-open]');if(m)moveTeam(m.dataset.mv);else if(s)openDrawer('friends');else if(o)openSlot()};
+async function openSlot(){if(!ONLINE)return;if(!HOST)return toast('Hanya host yang bisa membuka slot');if(cap()>=4)return;
+ try{applyRemoteRoom(await UT.Multiplayer.RoomService.setSlots(S.mpRoomId,cap()+1))}catch(e){toast('Gagal membuka slot: '+(e.message||'coba lagi'))}}
 function copy(t){const v=t==='code'?S.room.code:`${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
  try{navigator.clipboard.writeText(v).then(()=>toast(t==='code'?'Kode disalin':'Link disalin'),()=>toast('Kode: '+S.room.code))}catch(e){toast('Kode: '+S.room.code)}}
 $('#cCode').onclick=()=>HOST&&copy('code');$('#cLink').onclick=()=>HOST&&copy('link');
@@ -314,7 +336,7 @@ $('#tOn').onclick=()=>{S.invTab='online';renderInvite()};$('#tOff').onclick=()=>
 function renderInvite(){
  const r=S.room;
  $('#sPriv').classList.toggle('on',r.privacy==='private');$('#sPub').classList.toggle('on',r.privacy==='public');
- $('#slotInfo').textContent=r.players.length+'/'+COUNT+' pemain';
+ $('#slotInfo').textContent=r.players.length+'/'+cap()+' pemain';
  $('#fl').innerHTML='<div class="emp">Bagikan kode atau tautan undangan kepada pemain lain. '+(r.privacy==='public'?'Room ini juga tersedia melalui Quick Join.':'Room privat hanya dapat dimasuki menggunakan kode undangan.')+'</div>';
 }
 $('#fl').onclick=e=>{const i=e.target.closest('[data-i]'),c=e.target.closest('[data-c]');if(i)invite(i.dataset.i);else if(c)cancelInv(c.dataset.c)};
@@ -326,7 +348,32 @@ function accept(f,pref){const r=S.room;if(r.players.length>=COUNT)return;let tea
  if(TEAM){const c=t=>r.players.filter(p=>p.team===t).length;team=[pref,1,2].find(t=>t&&c(t)<2)||1}
  const p={id:'f_'+f.id,fid:f.id,name:f.name,level:f.level,ready:false,team,kind:'friend'};r.players.push(p);toast(f.name+' bergabung');
  S.timers.push(setTimeout(()=>{if(r.players.includes(p)){p.ready=true;renderPlayers();renderBottom()}},rand(2000,4000)));renderPlayers();renderBottom()}
-addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice()}});
+/* ---------- DRAWER UNDANG TEMAN (dari kiri; tab Teman & Publik) ---------- */
+const root=document.documentElement;
+function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
+function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
+function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
+function renderDrawer(){
+ const r=S.room,left=cap()-r.players.length;
+ $('#drCnt').textContent=r.players.length+'/'+cap()+' pemain';
+ $('#dTf').classList.toggle('on',S.drTab==='friends');$('#dTp').classList.toggle('on',S.drTab==='public');
+ if(S.drTab==='friends'){
+  const list=FRIENDS.slice().sort((a,b)=>(b.online?1:0)-(a.online?1:0));
+  $('#drL').innerHTML=list.map(f=>{const sent=!!S.sent[f.id],dis=!f.online||left<=0;
+   return `<div class="fr"><span class="av">${esc(f.name[0]).toUpperCase()}</span><div class="pi"><b>${esc(f.name)}</b><small class="${f.online?'on_':'off_'}">${f.online?'● Online':'○ Offline'} • Lv ${f.level}</small></div><button class="bt ${sent?'sent':''}" data-inv="${f.id}" ${dis?'disabled':''}>${!f.online?'OFFLINE':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')+(left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'');
+ }else{
+  $('#drL').innerHTML=`<div class="dnote">${r.privacy==='public'?'Room kamu PUBLIK: pemain lain bisa bergabung lewat Quick Join selama masih ada slot kosong.':'Room kamu PRIVAT: hanya bisa dimasuki dengan kode atau tautan undangan.'}</div><div class="rowc"><div class="seg"><button data-vis="private" class="${r.privacy==='private'?'on':''}">PRIVAT</button><button data-vis="public" class="${r.privacy==='public'?'on':''}">PUBLIK</button></div></div>`;
+ }
+}
+async function sendInvite(id){const f=FRIENDS.find(x=>x.id===id);if(!f||!f.online||!HOST||!S.room.code)return;
+ const url=inviteLink(),text=`Ayo main Ular Tangga! Kode room: ${S.room.code}`;
+ try{if(navigator.share){await navigator.share({title:'Ular Tangga',text:text,url:url})}else{await navigator.clipboard.writeText(text+' '+url);toast('Link undangan disalin, kirim ke '+f.name)}S.sent[id]=true;renderDrawer()}catch(e){if(e&&e.name!=='AbortError')toast('Kode: '+S.room.code)}}
+$('#dr').onclick=async e=>{const i=e.target.closest('[data-inv]'),v=e.target.closest('[data-vis]');
+ if(i)sendInvite(i.dataset.inv);
+ else if(v&&HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,v.dataset.vis==='public'))}catch(er){toast('Gagal mengubah akses room')}}};
+$('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
+$('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;$('#drB').onclick=closeDrawer;
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();
