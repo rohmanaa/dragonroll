@@ -34,11 +34,10 @@ svg{display:block}
 #gear>.ic{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .18rem 0 var(--ol));display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
 
 /* panel kiri (karakter 3D) */
-#hero{left:1.8rem;top:8.6rem;bottom:2.4rem;width:34rem;background:linear-gradient(#2f6fe2,#1d4cb8);box-shadow:var(--bev),var(--px),var(--lip);overflow:hidden}
+#hero{left:1.8rem;top:8.6rem;bottom:2.4rem;width:34rem;background:transparent;box-shadow:none;overflow:hidden}
 #hero h2{position:absolute;left:2rem;top:1.3rem;margin:0;font-size:2.7rem;text-shadow:0 .2rem 0 var(--ol)}
 #hero p{position:absolute;left:2rem;top:5rem;right:2rem;margin:0;color:#e7f7ff;font-size:1.35rem;line-height:1.25;text-shadow:0 .12rem 0 var(--ol)}
-#character{position:absolute;left:0;right:0;top:10.2rem;bottom:7.6rem;touch-action:pan-y}#character canvas{width:100%;height:100%;display:block;cursor:grab}#character canvas:active{cursor:grabbing}.noGL{height:100%;display:grid;place-items:center;font-size:6rem}
-.heroBtn{position:absolute;bottom:1.8rem;left:2rem;right:2rem;height:4.6rem;font-size:1.9rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .16rem 0 #8a4a06}
+#character{position:absolute;left:0;right:0;top:10.2rem;bottom:1.8rem;touch-action:pan-y}#character canvas{width:100%;height:100%;display:block;cursor:grab}#character canvas:active{cursor:grabbing}.noGL{height:100%;display:grid;place-items:center;font-size:6rem}
 
 /* panel kanan (daftar teman) */
 #main{left:37.4rem;right:1.8rem;top:8.6rem;bottom:2.4rem;padding:1.2rem;background:linear-gradient(#2a62d6,#1a449f);box-shadow:var(--bev),var(--px),var(--lip);display:flex;flex-direction:column;gap:1.1rem}
@@ -74,7 +73,7 @@ svg{display:block}
 .modalBtn{height:4.2rem;padding:0 1.8rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);font-size:1.5rem;text-shadow:0 .14rem 0 #8a4a06}
 .modalBtn.no{background:linear-gradient(#8a96ad,#5a667e);text-shadow:0 .14rem 0 var(--ol)}
 
-@media(max-aspect-ratio:1/1){html{font-size:2.5vw}body{overflow:auto}#ui{position:relative;min-height:100vh;display:flex;flex-direction:column;gap:1.4rem;padding:1.4rem}.ab{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important}#top{display:flex;flex-wrap:wrap;align-items:center;gap:1.4rem}#title{order:0;width:auto;flex:1;min-width:15rem}#hero{width:auto;height:42rem;order:1}.heroBtn{bottom:1.2rem}.main,#main{order:2;left:auto;right:auto;top:auto;bottom:auto;width:auto;height:65rem;min-height:65rem}.friend{grid-template-columns:5rem 1fr}.actions{grid-column:2}.actions .act{flex:1}.avatar{width:4.7rem;height:4.7rem}.name{font-size:1.45rem}.tab{min-width:9rem;font-size:1.35rem;padding:0 1rem}.search input{font-size:1.25rem}}
+@media(max-aspect-ratio:1/1){html{font-size:2.5vw}body{overflow:auto}#ui{position:relative;min-height:100vh;display:flex;flex-direction:column;gap:1.4rem;padding:1.4rem}.ab{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important}#top{display:flex;flex-wrap:wrap;align-items:center;gap:1.4rem}#title{order:0;width:auto;flex:1;min-width:15rem}#hero{width:auto;height:42rem;order:1}.main,#main{order:2;left:auto;right:auto;top:auto;bottom:auto;width:auto;height:65rem;min-height:65rem}.friend{grid-template-columns:5rem 1fr}.actions{grid-column:2}.actions .act{flex:1}.avatar{width:4.7rem;height:4.7rem}.name{font-size:1.45rem}.tab{min-width:9rem;font-size:1.35rem;padding:0 1rem}.search input{font-size:1.25rem}}
 #back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .flip{transform:scaleX(-1)}
 </style>
@@ -107,7 +106,6 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 <section id="hero" class="ab">
 <h2>Teman & Sosial</h2><p>Temukan teman, lihat siapa yang online, dan ajak mereka bermain bersama.</p>
 <div id="character"><canvas id="gl"></canvas></div>
-<button class="heroBtn" id="inviteHero">＋ Undang Teman</button>
 </section>
 <main id="main" class="ab">
 <div id="mainTop"><button class="tab on" data-filter="online">Online <span class="badgeCount" id="onlineCount">0</span></button><button class="tab" data-filter="all">Semua</button><button class="tab" data-filter="request">Permintaan <span class="badgeCount" id="reqCount">0</span></button></div>
@@ -170,7 +168,7 @@ function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain
   try{const res=await RS().sendFriendRequest({username:n,myName:await myName()});closeModal();toast(res==='accepted'?'Kalian sekarang berteman!':'Permintaan teman dikirim!');if(res==='accepted')load()}catch(e){toast(errMsg(e))}}}
 $('#search').addEventListener('input',e=>{query=e.target.value;render()});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render();load()}));
-$('#addBtn').onclick=addFriend;$('#inviteHero').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
+$('#addBtn').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
 $('#back').onclick=()=>{location.href='lobby.html'};$('#gear').onclick=()=>toast('Pengaturan dibuka');
 $('#friends').addEventListener('click',async e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend'),id=card&&card.dataset.id;if(!id)return;
  const f=[...viewFriends(),...viewRequests()].find(x=>x.id===id);if(!f)return;
