@@ -1,13 +1,4 @@
-/* lobby-theme: tema seragam dengan lobby (slate + tanah grid & daun). Dipakai mode/teman/profil/leaderboard. */
+/* lobby-theme: tema seragam dengan lobby (slate). Dipakai semua halaman lobby. */
 :root{--sl1:#3f506b;--sl2:#26344c;--sl3:#52647f;--sl4:#33445f;--gold:#f4cd5c;--slf:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35)}
 html,body{background:linear-gradient(#3d9bfd,#6fbdfc 50%,#bfe4ff 85%,#d8f0ff)}
 .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;box-shadow:var(--slf)!important;border-radius:1rem}
-#gnd{position:fixed;left:0;right:0;bottom:0;height:calc(6.5rem + env(safe-area-inset-bottom));z-index:0;pointer-events:none;
- background:linear-gradient(#52d843,#2fae2f) 0 0/100% 1.1rem no-repeat,
-  linear-gradient(135deg,rgba(255,225,170,.28),transparent 38%,rgba(40,20,5,.32)) 0 0/4.4rem 4.4rem,
-  linear-gradient(rgba(58,31,10,.6) .22rem,transparent .22rem) 0 0/4.4rem 4.4rem,
-  linear-gradient(90deg,rgba(58,31,10,.6) .22rem,transparent .22rem) 0 0/4.4rem 4.4rem,
-  linear-gradient(#a8733e,#7a4a22);box-shadow:0 -.3rem 0 #1f7a22}
-#gnd::before{content:"";position:absolute;left:0;right:0;bottom:calc(100% - .5rem);height:2.6rem;
- background:radial-gradient(ellipse 1.2rem 2.2rem at 50% 100%,#46d03c 97%,transparent) 0 100%/2.6rem 2.6rem repeat-x,
-  radial-gradient(ellipse 1.2rem 1.7rem at 50% 100%,#2a9a2c 97%,transparent) 1.3rem 100%/2.6rem 2.1rem repeat-x}
