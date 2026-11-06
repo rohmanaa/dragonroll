@@ -55,3 +55,14 @@ Pengeluaran: toko (`shop.html` -> `PD.purchase`), koin; "hadiahkan item" ke tema
 - **Halaman:** shop (buy, tukar gem; hadiahkan item dimatikan), profile (achievement: server sudah mengkredit, klien hanya sinkron), inventory, leaderboard (tukar gem), dailyreward (status & klaim dari server, hitung mundur WIB), misi (quest_get/track/claim), lobby (refresh saldo), gameplay (hadiah boss -> `claim_boss_reward` / `claim_cpu_boss_reward`; progres misi -> `quest_track` per match, idempoten lewat token `recordMatch`).
 - **Tes:** `node game/tests/player-data-server.test.js`.
 - **Belum:** `play.html`, `room.html`, `friendship.html`, `mode.html`, `splash.html` hanya membaca saldo (tidak diubah). Kebijakan impor saldo lama dari localStorage belum diputuskan (saat flag menyala, saldo lokal ditimpa server). Uji manual end-to-end di Supabase nyata belum dilakukan.
+
+## B6: emerald dari iklan berhadiah (terpasang; verifikasi iklan = CATATAN/ditunda)
+- **Server:** `claim_ad_reward(token)` (+5 emerald, maks 5/hari WIB, jeda 60 detik, idempoten per token) dan `ad_reward_get()`. Migrasi `202611120001_wallet_b6_ad_reward.sql`, tes `supabase/tests/wallet_b6_test.sql` (belum dijalankan; sandbox tanpa `psql`).
+- **Klien:** `assets/js/ads-service.js` (`UT.Ads`), `WalletService.claimAd/adGet`, modal Toko Emerald di `shop.html` (`?emerald=1` dari halaman lain). Tamu: simulasi lokal dengan batas sama.
+- **Provider iklan masih SIMULASI** (overlay 5 detik). Produksi: `UT.Ads.setProvider({ show: () => sdk.showRewarded().then(ok => ({ completed: !!ok })) })`.
+
+### TODO / CATATAN: verifikasi iklan di server (ditunda)
+- **Celah sekarang:** token klaim dibuat klien, jadi server tidak tahu iklan benar-benar ditonton. Batas harian hanya membatasi kerugian: maks 25 emerald/hari/akun (= 1.250 koin lewat tukar gem).
+- **Perbaikan yang direncanakan (server-side verification, mis. AdMob SSV):** jaringan iklan memanggil balik endpoint server (Edge Function) dengan tanda tangan yang diverifikasi; server menyimpan token/transaction_id ke tabel "iklan terverifikasi"; `claim_ad_reward` hanya menerima token yang ada di tabel itu (sekali pakai, terikat ke user). Token klien dikirim ke SDK sebagai custom data agar callback bisa dicocokkan.
+- **Sebelum rilis publik:** pasang provider nyata, lalu kerjakan verifikasi di atas, atau turunkan `c_gems`/`c_daily` bila belum sempat.
+- **Keputusan ekonomi yang masih terbuka:** angka 5 emerald x 5 iklan/hari belum dibandingkan dengan kurs tukar (10 gem = 500 koin).
