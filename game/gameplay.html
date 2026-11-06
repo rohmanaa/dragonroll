@@ -4888,7 +4888,8 @@ const CAM_PRESETS={
   iso:{yaw:Math.PI/4,pitch:0.615,zoom:1},  /* isometrik 35,26 derajat */
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
-const CAM_ORDER=['free','front','back','left','right','iso','top'],CAM_NAMES={free:'Free',front:'Front',back:'Back',left:'Left',right:'Right',iso:'Iso',top:'Top'};
+CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:1}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
+const CAM_ORDER=['free','front','back','left','right','iso','top','pov'],CAM_NAMES={free:'Free',front:'Front',back:'Back',left:'Left',right:'Right',iso:'Iso',top:'Top',pov:'POV'};
 const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
@@ -4956,6 +4957,46 @@ function camSetPreset(k){
   camSave(); camUI();
 }
 function camNextPreset(){ camSetPreset(CAM_ORDER[(CAM_ORDER.indexOf(camCfg.preset)+1)%CAM_ORDER.length]); }
+/* ---------- POV Bidak (orang pertama) ----------
+   Kamera di mata bidak pemain; geser layar = tengok kiri/kanan/atas/bawah, cubit/roda = zoom (FOV).
+   Offline/hotseat: ikut bidak yang sedang giliran. Online: selalu bidak milik sendiri. Bidak sendiri disembunyikan selama POV. */
+const POV={yaw:0,pitch:0,gy:0,gp:0,fov:72,pawn:null,px:0,pz:0,look:0,on:false,baseFov:38,baseNear:0.1};
+const povActive=()=>camCfg.angle&&camCfg.preset==='pov';
+function povPawn(){
+  try{
+    if(typeof ONLINE_ROOM!=='undefined'&&ONLINE_ROOM&&MP_ID){ const m=players.find(q=>q.networkId===MP_ID); if(m&&m.pawn) return m.pawn; }
+    const c=players[cur]; if(c&&c.pawn) return c.pawn;
+  }catch(e){}
+  return null;
+}
+const povWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+function povLook(dx,dy){
+  POV.gy-=dx*0.005; POV.gp=clamp(POV.gp-dy*0.005,-1.25,1.25); POV.look=performance.now(); /* geser kanan = tengok kanan, geser atas = tengok atas */
+}
+function povRelease(){
+  if(POV.pawn){ POV.pawn.visible=true; POV.pawn=null; }
+  if(POV.on){ POV.on=false; camera.fov=POV.baseFov; camera.near=POV.baseNear; camera.updateProjectionMatrix(); }
+}
+function povUpdate(pw,dt,now){
+  if(!POV.on){ POV.on=true; POV.baseFov=camera.fov; POV.baseNear=camera.near; camera.near=0.04; POV.pawn=null; }
+  if(pw!==POV.pawn){
+    if(POV.pawn) POV.pawn.visible=true;
+    POV.pawn=pw; pw.visible=false;
+    POV.gy=POV.yaw=Math.atan2(-pw.position.x,-pw.position.z); POV.gp=POV.pitch=-0.12; /* awal: menghadap tengah papan */
+    POV.px=pw.position.x; POV.pz=pw.position.z;
+  }
+  pw.visible=false;
+  const mx=pw.position.x-POV.px,mz=pw.position.z-POV.pz; POV.px=pw.position.x; POV.pz=pw.position.z;
+  if(mx*mx+mz*mz>1e-5&&now-POV.look>1400){ POV.gy=POV.yaw+povWrap(Math.atan2(mx,mz)-POV.yaw); POV.gp+=(-0.12-POV.gp)*0.05; } /* saat bidak berjalan, pandangan ikut arah jalan */
+  const m=1-Math.exp(-dt*12);
+  POV.yaw+=povWrap(POV.gy-POV.yaw)*m; POV.pitch+=(POV.gp-POV.pitch)*m;
+  const sc=pw.scale&&pw.scale.y||1,eye=0.78*sc,cp=Math.cos(POV.pitch);
+  const fx=Math.sin(POV.yaw),fz=Math.cos(POV.yaw);
+  camera.up.set(0,1,0);
+  camera.position.set(pw.position.x+fx*0.1*sc,pw.position.y+eye,pw.position.z+fz*0.1*sc);
+  camera.lookAt(camera.position.x+fx*cp,camera.position.y+Math.sin(POV.pitch),camera.position.z+fz*cp);
+  if(Math.abs(camera.fov-POV.fov)>0.05){ camera.fov+=(POV.fov-camera.fov)*m; camera.updateProjectionMatrix(); }
+}
 const cv=$('c'),ptrs=new Map();let pinch=0,twist=0,rotating=false;
 const span=()=>{ const a=Array.from(ptrs.values()); return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y); };
 const ang=()=>{ const a=Array.from(ptrs.values()); return Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x); };
@@ -4984,6 +5025,11 @@ cv.addEventListener('pointermove',e=>{
   if(camLocked()||AWK.running) return;
   const p=ptrs.get(e.pointerId); if(!p) return;
   const dx=e.clientX-p.x,dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+  if(povActive()){
+    if(ptrs.size===1) povLook(dx,dy);
+    else if(ptrs.size===2){ const d=span(); if(pinch>0&&d>0) POV.fov=clamp(POV.fov*pinch/d,45,95); pinch=d; }
+    return;
+  }
   if(ptrs.size===1){
     if(rotating){ goal.yaw-=dx*0.006; goal.pitch=clamp(goal.pitch+dy*0.005,0.22,1.3); }
     else panBy(dx,dy);
@@ -4998,7 +5044,7 @@ cv.addEventListener('pointermove',e=>{
 });
 const endPtr=e=>{ ptrs.delete(e.pointerId); pinch=0; if(ptrs.size===1){ const q=Array.from(ptrs.values())[0]; } if(!ptrs.size){ rotating=false; cv.style.cursor='grab'; } };
 cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
-cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camLocked()||AWK.running) return; goal.zoom=clamp(goal.zoom*Math.exp(e.deltaY*0.001),0.4,1.5); },{passive:false});
+cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camLocked()||AWK.running) return; if(povActive()){ POV.fov=clamp(POV.fov*Math.exp(e.deltaY*0.001),45,95); return; } goal.zoom=clamp(goal.zoom*Math.exp(e.deltaY*0.001),0.4,1.5); },{passive:false});
 
 /* ---------- Permainan ---------- */
 const STALE={};
@@ -6069,6 +6115,7 @@ function frame(now){
   camera.position.set(camTarget.x+dist*Math.sin(cam.yaw)*cp,camTarget.y+dist*Math.sin(cam.pitch),camTarget.z+dist*Math.cos(cam.yaw)*cp);
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
   camera.lookAt(camTarget);
+  { const pw=povActive()?povPawn():null; if(pw) povUpdate(pw,dt,now); else povRelease(); } /* POV Bidak menimpa posisi/arah kamera di atas */
   skyDome.position.copy(camera.position);
   if(!reduce){
     clouds.forEach(c=>{ c.g.position.x+=c.speed*dt; if(c.g.position.x>24) c.g.position.x=-24; });
