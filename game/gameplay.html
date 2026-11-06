@@ -5192,13 +5192,14 @@ function renderChips(){
   try{ syncOppTurn(); }catch(e){}
   try{ syncDiceGuide(); }catch(e){ console.error(e); }
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
+  const autoOn=(()=>{ try{ return !!autoRoll; }catch(e){ return false; } })(); /* tombol Auto milik pemain lokal -> chip AUTO (try: autoRoll dideklarasi setelah fungsi ini) */
   players.forEach((p,i)=>{
     if(ONLINE_ROOM&&p.left) return; /* pemain sudah keluar: jangan tampil di HUD (daftar, skor) */
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css); /* mahkota hanya untuk host */
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos));
-    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
+    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(autoOn&&isLocalPlayer(p)&&!gameOver)){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=(p.dhp/(p.hpMax||100)*100)+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
@@ -5866,7 +5867,7 @@ function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId==
 function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
-function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
 syncAutoBtn();
 setInterval(()=>{
