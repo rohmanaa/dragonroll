@@ -216,9 +216,24 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 #show #art .fr-th{width:min(34rem,70%);height:auto;aspect-ratio:1/1}
 #show #art .fr-th .fr-in svg{width:100%;height:100%}
 </style>
-</head>
+<link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
+html body #title{background:linear-gradient(var(--sl1),var(--sl2))!important}
+html body .cat:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
+html body #info,html body #bot,html body #rec,html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
+html body #gwrap{background:linear-gradient(var(--sl2),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .12rem #8696ad}
+html body .card:not(.lg):not(.lk){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
+html body .bt:not(.own):not(.gd):not(.no){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 .15rem 0 rgba(255,255,255,.25),0 .15rem 0 #0b1220}
+html body #rl{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
+html body .row{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
+html body #toast{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033}
+html body #idesc{color:#cdd8ea}
+@media(min-aspect-ratio:1/1){html.stage16 body{inset:0 0 auto 0;height:calc(min(100vh,54.054vw) - 7rem)}}
+</style></head>
 <body>
 <div id="sky"></div>
+<div id="gnd" aria-hidden="true"></div>
 <div id="ui">
 <div id="top">
  <button class="ab blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
