@@ -104,6 +104,49 @@
     return { sixes: n, forfeit: false };
   }
 
+  /* ---- Efek mob & peti (murni) ----
+     SOFT_CAP = batas legacy 99 yang di kode lama tertulis mati (Villager, peti, Enderman maks 98),
+     juga pada peta goal>100 (Nether=120). Dipertahankan agar refaktor tidak mengubah perilaku;
+     ubah di satu tempat ini bila ingin mengikuti goal. */
+  var SOFT_CAP = 99;
+
+  /* Efek mob di petak `pos`. o: {goal, back:{mob:langkah}, rng}. -> {kind:'back'|'forward'|'teleport'|'none', to, steps} */
+  function mobEffect(mob, pos, o) {
+    o = o || {}; var goal = o.goal || DEFAULTS.goal, rng = o.rng || Math.random, to;
+    function res(kind, t) { return { kind: kind, to: t, steps: t - pos }; }
+    if (mob === 'creeper') return res('back', Math.max(1, pos - 2));
+    if (mob === 'skeleton') return res('back', Math.max(1, pos - 1));
+    if (mob === 'villager') return res('forward', Math.min(SOFT_CAP, pos + 5));
+    if (mob === 'strider') return res('forward', Math.min(goal - 1, pos + 3));
+    if (mob === 'ender') {
+      var hi = SOFT_CAP - 1, tries = 0;
+      do { to = pos + Math.floor(rng() * 21) - 10; } while ((to < 1 || to > hi || to === pos) && ++tries < 1000);
+      if (to < 1 || to > hi || to === pos) to = pos;
+      return res('teleport', to);
+    }
+    var bk = o.back && o.back[mob];
+    if (typeof bk !== 'number') return res('none', pos);
+    return res('back', Math.max(1, pos - bk));
+  }
+
+  /* Maju/mundur peti: dijepit ke [1, cap]. */
+  function chestMove(pos, delta, cap) { return Math.max(1, Math.min(cap || SOFT_CAP, pos + delta)); }
+
+  /* Petak tangga/ular terdekat DI DEPAN pos dari tabel {petak:tujuan}; null bila tidak ada. */
+  function chestNearest(pos, table) {
+    var ahead = Object.keys(table || {}).map(Number).filter(function (n) { return n > pos; }).sort(function (a, b) { return a - b; });
+    return ahead.length ? ahead[0] : null;
+  }
+
+  /* Undi reward peti dari pool [{id,w}] (total wajib 1000). Tidak valid -> {id:'empty', invalid:true}. */
+  function pickChestReward(pool, rng) {
+    var total = (pool || []).reduce(function (a, r) { return a + r.w; }, 0);
+    if (total !== 1000) return { id: 'empty', invalid: true };
+    var x = Math.floor((rng || Math.random)() * total);
+    for (var i = 0; i < pool.length; i++) { if (x < pool[i].w) return { id: pool[i].id }; x -= pool[i].w; }
+    return { id: 'empty' };
+  }
+
   function advance(s) {
     s.cur = (s.cur + 1) % s.players.length; s.turn++;
   }
@@ -148,5 +191,5 @@
     return { state: s, events: ev };
   }
 
-  return { DEFAULTS: DEFAULTS, validateBoard: validateBoard, planMove: planMove, sixesAfter: sixesAfter, create: create, roll: roll, rollValue: rollValue };
+  return { DEFAULTS: DEFAULTS, validateBoard: validateBoard, planMove: planMove, sixesAfter: sixesAfter, mobEffect: mobEffect, chestMove: chestMove, chestNearest: chestNearest, pickChestReward: pickChestReward, SOFT_CAP: SOFT_CAP, create: create, roll: roll, rollValue: rollValue };
 });

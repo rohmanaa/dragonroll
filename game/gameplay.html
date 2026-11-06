@@ -5057,11 +5057,9 @@ const CHEST_CFG=UT.Gameplay.Config;
 function chestPoolTotal(){ return (CHEST_CFG.CHEST_POOL||[]).reduce((a,r)=>a+r.w,0); }
 /* Weighted random. Total harus 1000 (=100%); bila pool rusak -> 'empty' (aman, tidak pernah reward lain/Power). rnd bisa disuntik utk test. */
 function resolveChestReward(rnd){
-  const pool=CHEST_CFG.CHEST_POOL||[],total=chestPoolTotal();
-  if(total!==1000){ console.error('CHEST_POOL total '+total+' != 1000'); return {id:'empty'}; }
-  let x=Math.floor((rnd||Math.random)()*total);
-  for(const r of pool){ if(x<r.w) return {id:r.id}; x-=r.w; }
-  return {id:'empty'};
+  const r=UT.Gameplay.Core.pickChestReward(CHEST_CFG.CHEST_POOL||[],rnd); /* undian reward = game-core.js */
+  if(r.invalid) console.error('CHEST_POOL total '+chestPoolTotal()+' != 1000');
+  return {id:r.id};
 }
 /* Dadu khusus (Pasti 6 dari Chest; Ganjil/Genap dari Power Ramuan): hanya mengubah NILAI roll berikutnya. Satu roll -> semua flag (lucky/odd/even) direset. Lucky > Odd/Even (flag eksklusif, lihat chestFlag). */
 function chestDiceForce(p){
@@ -5086,16 +5084,16 @@ async function applyChestReward(p,rw,gid){
     case 'xp': return {text:grant({xp:AMT.xp},'+'+AMT.xp+' XP')};
     case 'gems': return {text:grant({gems:AMT.gems},'+'+AMT.gems+' Emerald')};
     case 'maju': case 'mundur':{
-      const d=MOVES[Math.floor(Math.random()*MOVES.length)]*(rw.id==='mundur'?-1:1),to=Math.max(1,Math.min(99,p.pos+d)),mv=to-p.pos;
+      const d=MOVES[Math.floor(Math.random()*MOVES.length)]*(rw.id==='mundur'?-1:1),to=UT.Gameplay.Core.chestMove(p.pos,d),mv=to-p.pos;
       /* gerak DITUNDA: giveChest menjalankannya setelah card tertutup & peti menutup */
       const from=p.pos;
       return {text:mv===0?'Tidak bergerak':(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah',
         after:mv===0?null:async()=>{ await walk(p,from,to); if(gid!==gameId) return; p.pos=to; renderChips(); }};
     }
     case 'tangga': case 'ular':{
-      const src=rw.id==='tangga'?LADDERS:SNAKES,ahead=Object.keys(src).map(Number).filter(n=>n>p.pos).sort((a,b)=>a-b);
-      if(!ahead.length) return {text:rw.id==='tangga'?'Lucky! Tapi tidak ada tangga di depanmu':'Unlucky! Tapi tidak ada ular di depanmu'};
-      const to=ahead[0];
+      const src=rw.id==='tangga'?LADDERS:SNAKES,ahead=UT.Gameplay.Core.chestNearest(p.pos,src);
+      if(ahead==null) return {text:rw.id==='tangga'?'Lucky! Tapi tidak ada tangga di depanmu':'Unlucky! Tapi tidak ada ular di depanmu'};
+      const to=ahead;
       return {text:rw.id==='tangga'?'Lucky! Meluncur ke Tangga di petak '+to:'Unlucky! Meluncur ke Ular di petak '+to,
         after:async()=>{ sfx.pop(); await teleport(p,to); if(gid!==gameId) return; p.pos=to; renderChips(); }};
     }
@@ -5388,28 +5386,29 @@ function hitBlastFx(p){
 async function resolveMobAt(p,gid){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   const k=mobOn(p.pos,themeKey); mobReact(p.pos);
+  const ME=UT.Gameplay.Core.mobEffect(k,p.pos,{goal:GOAL,back:MOBBACK}); /* aturan efek mob = game-core.js */
   if(k==='creeper'){
     setMsg('Creeper meledak! '+p.name+' terlempar mundur 2 blok.'); fb('event','mob','Creeper! Meledak, mundur 2 blok',{gid});
     sfx.creeper();
     await A(sleep(300)); sfx.playerHurt(); await A(explode(p));
-    const to=Math.max(1,p.pos-2); await A(walk(p,p.pos,to)); p.pos=to;
+    const to=ME.to; await A(walk(p,p.pos,to)); p.pos=to;
   }else if(k==='ender'){
-    let to; do{ to=p.pos+Math.floor(Math.random()*21)-10; }while(to<1||to>98||to===p.pos);
+    const to=ME.to;
     setMsg('Enderman! '+p.name+' teleport '+(to>p.pos?'maju':'mundur')+' ke '+to+'.'); fb('event','mob','Enderman! Teleport ke '+to,{gid});
     sfx.enderman();
     await A(sleep(300)); await A(teleport(p,to)); p.pos=to;
   }else if(k==='villager'){
-    const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.villager(); p.score+=5;
+    const to=ME.to; setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.villager(); p.score+=5;
     await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
 }else if(k==='strider'){
-    const to=Math.min(GOAL-1,p.pos+3); setMsg('Strider membantu! '+p.name+' maju 3 blok ke '+to+'.'); fb('event','mob','Strider membantu! Maju 3 blok',{gid}); sfx.villager(); p.score+=3;
+    const to=ME.to; setMsg('Strider membantu! '+p.name+' maju 3 blok ke '+to+'.'); fb('event','mob','Strider membantu! Maju 3 blok',{gid}); sfx.villager(); p.score+=3;
     await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
 }else if(k==='skeleton'){
     setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
     sfx.skeltonSh();
-    const to=Math.max(1,p.pos-1); await A(sleep(400)); sfx.playerHurt(); await A(fly(p,to,0.45,0.9)); p.pos=to;
+    const to=ME.to; await A(sleep(400)); sfx.playerHurt(); await A(fly(p,to,0.45,0.9)); p.pos=to;
   }else{
-    const bk=MOBBACK[k],to=Math.max(1,p.pos-bk);
+    const bk=MOBBACK[k],to=ME.to;
     setMsg(MOBNAME[k]+' menghantam! '+p.name+' terpental mundur '+bk+' blok ke '+to+'.'); fb('event','mob',MOBNAME[k]+'! Mundur '+bk+' blok',{gid});
     showAttackCard(MOBNAME[k],p.name,'hit',MOBNAME[k]+' menghantam '+p.name+' dan mundur '+bk+' blok.');
     sfx.hit(); sfx.playerHurt(); hitBlastFx(p);

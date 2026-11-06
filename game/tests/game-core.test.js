@@ -98,3 +98,70 @@ console.log('\n' + n + ' tes lulus');
   }
   console.log('ok - ekuivalen rumus lama (' + k + ' kombinasi)');
 })();
+
+/* ===== Tahap 2: mob & peti, memakai data ASLI gameplay/config.js ===== */
+global.window = global; require('../gameplay/config.js');
+const CFG = global.UT.Gameplay.Config;
+const seeded = seed => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+
+t('config asli: papan valid & tidak ada petak spesial bentrok', () => {
+  assert.deepStrictEqual(C.validateBoard({ goal: 100, ladders: CFG.LADDERS, snakes: CFG.SNAKES }), []);
+  const mobs = [].concat(...CFG.MOB_POSITIONS.map(m => m[1]));
+  const all = [...Object.keys(CFG.LADDERS), ...Object.keys(CFG.SNAKES), ...CFG.CHESTS, ...mobs].map(Number);
+  assert.strictEqual(new Set(all).size, all.length);
+});
+t('config asli: kolam peti total 1000', () => {
+  assert.strictEqual(CFG.CHEST_POOL.reduce((a, r) => a + r.w, 0), 1000);
+});
+t('pickChestReward ekuivalen kode lama (semua nilai undian 0..999)', () => {
+  for (let x = 0; x < 1000; x++) {
+    let y = x, old = 'empty'; for (const r of CFG.CHEST_POOL) { if (y < r.w) { old = r.id; break; } y -= r.w; }
+    assert.strictEqual(C.pickChestReward(CFG.CHEST_POOL, () => (x + 0.5) / 1000).id, old);
+  }
+});
+t('pickChestReward: pool rusak -> empty+invalid; distribusi ~ bobot', () => {
+  assert.deepStrictEqual(C.pickChestReward([{ id: 'a', w: 10 }], Math.random), { id: 'empty', invalid: true });
+  const cnt = {}, r = seeded(42), N = 100000;
+  for (let i = 0; i < N; i++) { const id = C.pickChestReward(CFG.CHEST_POOL, r).id; cnt[id] = (cnt[id] || 0) + 1; }
+  CFG.CHEST_POOL.forEach(e => assert.ok(Math.abs(cnt[e.id] / N - e.w / 1000) < 0.01, e.id));
+});
+t('mobEffect deterministik ekuivalen kode lama (semua mob config, pos 1..100)', () => {
+  const kinds = Object.keys(CFG.MOB_BACK).concat(['creeper', 'skeleton', 'villager', 'strider']);
+  for (const k of kinds) for (let pos = 1; pos <= 100; pos++) {
+    let old;
+    if (k === 'creeper') old = Math.max(1, pos - 2);
+    else if (k === 'skeleton') old = Math.max(1, pos - 1);
+    else if (k === 'villager') old = Math.min(99, pos + 5);
+    else if (k === 'strider') old = Math.min(100 - 1, pos + 3);
+    else old = Math.max(1, pos - CFG.MOB_BACK[k]);
+    const e = C.mobEffect(k, pos, { goal: 100, back: CFG.MOB_BACK });
+    if (k === 'creeper' || k === 'skeleton' || k === 'villager' || k === 'strider' || CFG.MOB_BACK[k] != null) assert.strictEqual(e.to, old, k + '@' + pos);
+  }
+});
+t('mobEffect ender: selalu 1..98, tidak sama dengan pos, dalam jarak 10', () => {
+  const r = seeded(9);
+  for (let pos = 1; pos <= 99; pos++) for (let i = 0; i < 200; i++) {
+    const e = C.mobEffect('ender', pos, { rng: r });
+    assert.ok(e.to >= 1 && e.to <= 98 && e.to !== pos && Math.abs(e.to - pos) <= 10, pos + '->' + e.to);
+    assert.strictEqual(e.kind, 'teleport');
+  }
+});
+t('mobEffect: mob tak dikenal tidak memindahkan', () => {
+  assert.deepStrictEqual(C.mobEffect('xyz', 50, { back: {} }), { kind: 'none', to: 50, steps: 0 });
+});
+t('mobEffect: pos tidak pernah < 1 dan strider memakai goal', () => {
+  assert.strictEqual(C.mobEffect('warden', 3, { back: CFG.MOB_BACK }).to, 1);
+  assert.strictEqual(C.mobEffect('strider', 118, { goal: 120 }).to, 119);
+});
+t('chestMove ekuivalen kode lama', () => {
+  for (let pos = 0; pos <= 100; pos++) for (const d of [-3, -2, -1, 1, 2, 3])
+    assert.strictEqual(C.chestMove(pos, d), Math.max(1, Math.min(99, pos + d)));
+});
+t('chestNearest: terdekat di depan, null bila tidak ada', () => {
+  assert.strictEqual(C.chestNearest(0, CFG.LADDERS), 3);
+  assert.strictEqual(C.chestNearest(3, CFG.LADDERS), 8);
+  assert.strictEqual(C.chestNearest(71, CFG.LADDERS), null);
+  assert.strictEqual(C.chestNearest(50, CFG.SNAKES), 62);
+  assert.strictEqual(C.chestNearest(98, CFG.SNAKES), null);
+});
+console.log('\nSEMUA TES SELESAI');
