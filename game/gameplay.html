@@ -5573,11 +5573,33 @@ window.addEventListener('pagehide',()=>dragonMusicStop(true));
   b.addEventListener('keyup',e=>{ if((e.key===' '||e.key==='Enter')&&DH.on&&DH.id==='kbd'){ e.preventDefault(); holdEnd(true); } });
   b.addEventListener('blur',()=>holdEnd(false));
 })();
+/* Online: minta angka dadu 1-6 ke server (RPC roll_game_dice). Retry memakai eventId yang sama, jadi angka tidak diundi ulang. */
+async function serverRoll(p){
+  if(!MP_SYNC||!MP_SYNC.rollDice) throw new Error('SYNC_NOT_READY');
+  const eid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});
+  for(let n=0;;n++){
+    try{
+      const row=await MP_SYNC.rollDice({playerId:p.networkId||null,eventId:eid});
+      const v=row&&row.payload?Number(row.payload.v):NaN;
+      if(Number.isInteger(v)&&v>=1&&v<=6) return v;
+      throw new Error('BAD_ROLL');
+    }catch(e){
+      const t=String((e&&(e.message||e.code))||e);
+      if(n>=3||/ROOM_NOT_PLAYING|ROOM_ACCESS_DENIED|AUTH_REQUIRED|ROLL_TARGET_NOT_IN_ROOM|ROLL_FOR_OTHER/.test(t)) throw e;
+      await sleep(/ROLL_TOO_FAST/.test(t)?800:400*(n+1));
+    }
+  }
+}
 async function doRoll(opt){
   if((ONLINE_ROOM&&!ONLINE_HOST)||busy||paused||gameOver||!players.length||AWK.running) return;
   if(DH.on) holdEnd(false); /* tombol roll tidak boleh tertinggal dalam mode tahan */
   busy=true; setRoll(false); clearTurnTimer();
-  const gid=gameId,p=players[cur];if(!p.cpu&&!(opt&&opt.afk)) afkReset(p); /* roll manual = pemain aktif lagi */ let v=1+Math.floor(Math.random()*6);
+  const gid=gameId,p=players[cur];if(!p.cpu&&!(opt&&opt.afk)) afkReset(p); /* roll manual = pemain aktif lagi */ let v=1;
+  if(ONLINE_ROOM){ /* online (host): angka dadu diundi server dan tercatat di game_events; tidak ada fallback Math.random */
+    try{ v=await serverRoll(p); }
+    catch(e){ console.error('[multiplayer] server dice failed',e); if(gid!==gameId) return; busy=false; setMsg('Dadu dari server gagal. Coba lagi.'); setRoll(canControlPlayer(players[cur])); startTurnTimer(); return; }
+    if(gid!==gameId) return;
+  } else v=1+Math.floor(Math.random()*6);
   if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
   else{ const cv=chestDiceForce(p); if(cv) v=cv; try{ syncDiceGuide(); }catch(e){} } /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
   const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});

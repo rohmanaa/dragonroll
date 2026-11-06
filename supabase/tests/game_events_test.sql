@@ -30,9 +30,9 @@ select set_config('request.jwt.claim.sub', :'A', false) \g /dev/null
 select start_game_room(:'room_id', '{}'::jsonb) is not null as started \gset
 
 -- T1: seq berurutan dari dua pemain berbeda (host bukan server).
-select (submit_game_action(:'room_id','roll','{"v":4}'::jsonb, gen_random_uuid())).seq as s1 \gset
+select (submit_game_action(:'room_id','move','{"to":4}'::jsonb, gen_random_uuid())).seq as s1 \gset
 select set_config('request.jwt.claim.sub', :'B', false) \g /dev/null
-select (submit_game_action(:'room_id','roll','{"v":2}'::jsonb, gen_random_uuid())).seq as s2 \gset
+select (submit_game_action(:'room_id','turn_begin','{"t":2}'::jsonb, gen_random_uuid())).seq as s2 \gset
 select (submit_game_action(:'room_id','move','{"to":6}'::jsonb, null)).seq as s3 \gset
 select __chk(:s1 = 1 and :s2 = 2 and :s3 = 3, 'T1 seq harus 1,2,3') \g /dev/null
 

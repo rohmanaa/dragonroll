@@ -61,3 +61,14 @@ Terapkan setelah `202611070003_friendships.sql`. Menambah tabel `player_stats` +
 - **Keamanan:** bukan anti-cheat. Klien yang dimodifikasi tetap bisa mengirim hasil palsu (maks. 1 per 45 detik). Jangan dipakai untuk hadiah bernilai.
 
 Checklist uji (setelah migrasi diterapkan): [ ] main 1 match vs CPU -> toast "+XP/+poin" muncul; [ ] profil menampilkan level/menang/main nyata; [ ] tab Global/Mingguan menampilkan baris kamu; [ ] tambah teman -> tab Teman menampilkan dia setelah dia main; [ ] refresh halaman hasil match online -> poin tidak bertambah dua kali.
+
+## Dadu dari server (`202611100001_roll_game_dice.sql`)
+
+Terapkan setelah `202611060001_game_events.sql`. Menambah RPC `roll_game_dice(p_room_id, p_player_id, p_client_event_id)`: server mengundi 1-6 dan mencatatnya sebagai event `roll` (`payload: {v, pid, src:'server'}`) di `game_events`. Host memakai fungsi ini di `doRoll` (`serverRoll` di `gameplay.html`, `rollDice` di `game-sync.js`); online tidak ada fallback `Math.random`.
+
+- **Idempoten:** `p_client_event_id` yang sama mengembalikan event lama, jadi retry tidak mengundi ulang.
+- **Hak akses:** pemanggil harus anggota room; hanya host yang boleh mengundi untuk pemain lain (giliran tamu dan pemain AUTO).
+- **Jeda minimum:** 700 ms antar-undian per room (`ROLL_TOO_FAST`).
+- **Event `roll` hanya dari server:** `submit_game_action` menolak type `roll` (`ROLL_EVENT_SERVER_ONLY`).
+- **Belum tertutup (butuh 3C, server menjalankan game penuh):** server belum tahu giliran siapa, host masih bisa meminta undian baru dengan `client_event_id` baru, dan modifier dadu (Pasti 6, Ganjil, Genap, Special Dice) masih diterapkan di klien. Host juga masih bisa mengubah state lain lewat snapshot.
+- **Uji:** `supabase/tests/roll_game_dice_test.sql` (prasyarat sama dengan `game_events_test.sql`).
