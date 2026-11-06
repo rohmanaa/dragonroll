@@ -1,6 +1,11 @@
 /* Data pemain bersama — SINGLE SOURCE OF TRUTH (Tahap 3).
    Dibaca/ditulis oleh SEMUA halaman non-gameplay lewat objek ini.
-   Penyimpanan: localStorage["ularTanggaBlok:player:v1"] (hanya di browser ini, tanpa sinkronisasi server).
+   Penyimpanan: localStorage (hanya di browser ini, tanpa sinkronisasi server), TERPISAH PER AKUN:
+   - tamu / belum login : "ularTanggaBlok:player:v1"
+   - akun login         : "ularTanggaBlok:player:v1:acct:<id akun>" (id dari cache "ut-auth")
+   Logout tidak menghapus data akun; data kembali saat akun itu login lagi. Akun berikutnya di perangkat
+   yang sama TIDAK mewarisi koin/inventory/XP akun sebelumnya. Data tamu dipindahkan (bukan disalin) ke
+   akun pertama yang login bila akun itu belum punya data lokal.
    Butuh: item-catalog.js dimuat lebih dulu.
 
    MIGRASI (v1): data lama dari kunci legacy "inv", "shop", "modeScreen", "ut-dadu", "ut-tema2"
@@ -10,7 +15,8 @@
 (function (g) {
   'use strict';
   var C = g.ItemCatalog;
-  var KEY = 'ularTanggaBlok:player:v1';
+  var BASE_KEY = 'ularTanggaBlok:player:v1';
+  var ACH_BASE = 'ularTanggaBlok:achClaimed:v1';   /* klaim achievement (dipakai profile.html) */
   var SCHEMA = 1;
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
   var START_COINS = 1000;      /* saldo awal SEKALI saat data dibuat; tidak ada koin gratis berulang */
@@ -33,16 +39,41 @@
   var LEGACY_THEME_MAP = {};   /* ut-tema2 sudah memakai kunci tema canonical */
   var LEGACY_MAPS = { skin: LEGACY_SKIN_MAP, dice: LEGACY_DICE_MAP, theme: LEGACY_THEME_MAP };
 
+  /* Id akun yang sedang login (dari cache auth.js). '' = tamu. Divalidasi agar aman dipakai sebagai bagian nama kunci. */
+  function accountId() {
+    try {
+      var a = JSON.parse(localStorage.getItem('ut-auth') || 'null');
+      return (a && typeof a.id === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(a.id)) ? a.id : '';
+    } catch (e) { return ''; }
+  }
+  function keyFor(base) { var id = accountId(); return id ? base + ':acct:' + id : base; }
+  function key() { return keyFor(BASE_KEY); }
+  /* Akun login pertama kali di perangkat ini: pindahkan data tamu (jika ada) ke akun, lalu hapus salinan tamu
+     agar akun lain tidak ikut mewarisinya. Tidak berbuat apa-apa bila akun sudah punya data. */
+  function adoptGuest() {
+    if (!accountId()) return;
+    try {
+      [BASE_KEY, ACH_BASE].forEach(function (b) {
+        var dst = keyFor(b);
+        if (localStorage.getItem(dst) !== null) return;
+        var v = localStorage.getItem(b);
+        if (v === null) return;
+        localStorage.setItem(dst, v);
+        localStorage.removeItem(b);
+      });
+    } catch (e) {}
+  }
+
   var memState = null;     /* cadangan di memori jika localStorage tidak bisa dipakai */
   var persistent = probe();
   var listeners = [];
 
   function probe() {
-    try { var k = KEY + ':probe'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return true; }
+    try { var k = BASE_KEY + ':probe'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return true; }
     catch (e) { return false; }
   }
-  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
-  function rawSet(s) { try { localStorage.setItem(KEY, s); return true; } catch (e) { return false; } }
+  function rawGet() { try { return localStorage.getItem(key()); } catch (e) { return null; } }
+  function rawSet(s) { try { localStorage.setItem(key(), s); return true; } catch (e) { return false; } }
   function legacyGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function legacySet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function legacyJSON(k) { /* baca key legacy tanpa pernah menulis/menghapusnya */
@@ -97,13 +128,13 @@
   }
 
   /* ---------- Pembuatan data awal ---------- */
-  function freshState() {
+  function freshState(skipLegacy) {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
     var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped),
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
-    migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan */
+    if (!skipLegacy) migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan (hanya untuk tamu, bukan akun baru) */
     return st;
   }
 
@@ -240,8 +271,11 @@
       return clone(memState);
     }
     var raw = rawGet();
+    if (raw === null && accountId()) { adoptGuest(); raw = rawGet(); }
     if (raw === null) {
-      var st0 = ensureMigration(freshState());
+      /* Akun baru tanpa data tamu: mulai bersih, jangan impor key legacy global (inv/shop) milik orang lain. */
+      var st0 = accountId() ? freshState(true) : ensureMigration(freshState());
+      if (accountId()) st0.migration = MIGRATION_VERSION;
       if (!write(st0)) { persistent = false; memState = clone(st0); }
       return st0;
     }
@@ -249,8 +283,10 @@
     try { parsed = JSON.parse(raw); } catch (e) { parsed = null; }
     var st = sanitize(parsed);
     if (!st) { /* rusak: cadangkan dulu, lalu mulai bersih — tidak menghapus apa pun */
-      try { localStorage.setItem(KEY + ':corrupt:' + Date.now(), raw); } catch (e) {}
-      st = ensureMigration(freshState()); write(st);
+      try { localStorage.setItem(key() + ':corrupt:' + Date.now(), raw); } catch (e) {}
+      st = accountId() ? freshState(true) : ensureMigration(freshState());
+      if (accountId()) st.migration = MIGRATION_VERSION;
+      write(st);
       return st;
     }
     var before = st.migration;
@@ -265,7 +301,10 @@
 
   /* ---------- API publik ---------- */
   var API = {
-    key: KEY,
+    get key() { return key(); },
+    /* Id akun aktif ('' = tamu) dan kunci klaim achievement untuk akun itu (dipakai profile.html). */
+    scope: function () { return accountId(); },
+    achKey: function () { return keyFor(ACH_BASE); },
     startCoins: START_COINS,
     startGems: START_GEMS,
     migrationVersion: MIGRATION_VERSION, /* playerDataMigrationVersion */
@@ -429,7 +468,7 @@
   };
 
   g.addEventListener('storage', function (e) {
-    if (e.key === KEY || e.key === null) notify('storage');
+    if (e.key === key() || e.key === 'ut-auth' || e.key === null) notify('storage');
   });
   g.addEventListener('pageshow', function (e) { if (e.persisted) notify('pageshow'); }); /* bfcache saat tombol kembali */
 

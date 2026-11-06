@@ -439,7 +439,7 @@ const ACH=[
 ['legenda','Sang Legenda','Menangkan pertandingan','win',[500,1000,2000],'rank/1st']];
 const REW=[[250,5],[750,10],[2000,25]];
 /* klaim achievement: jumlah milestone yang sudah diklaim per achievement (permanen, tidak di-reset) */
-const CLK='ularTanggaBlok:achClaimed:v1';let clMem={};
+const CLK=PD.achKey();let clMem={}; /* kunci klaim per akun (tamu = tanpa akhiran) */
 const CL={all(){try{return JSON.parse(localStorage.getItem(CLK))||clMem}catch(e){return clMem}},
  get(id){return Math.min(3,+this.all()[id]||0)},
  set(id,n){const o=this.all();o[id]=n;clMem=o;try{localStorage.setItem(CLK,JSON.stringify(o))}catch(e){}}};
@@ -529,7 +529,7 @@ function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');r
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
  if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
- else if(a==='logout'){if(!confirm('Keluar dari akun ini?'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
+ else if(a==='logout'){if(!confirm('Keluar dari akun ini? Koin, item, dan progres akun ini tetap tersimpan dan kembali saat kamu login lagi.'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
  else if(a==='copy'){navigator.clipboard?.writeText(PROF.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
 $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
