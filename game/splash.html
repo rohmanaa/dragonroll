@@ -130,9 +130,34 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 .auth-sw{margin:12px 0 0;text-align:center;font-size:12px;font-weight:600;color:#9fb6d9}
 .auth-sw button{background:none;border:0;padding:0;font:800 12px 'Plus Jakarta Sans',sans-serif;color:#7dff2e;text-decoration:underline;cursor:pointer}
 </style>
+<style id="intro-logo">
+/* Intro logo (gaya Clash of Clans): latar hitam, logo fade in lalu fade out + suara naga, baru layar loading. */
+.intro{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:#000;opacity:1;transition:opacity .5s ease}
+.intro.on{display:flex}
+.intro.off{opacity:0;pointer-events:none}
+.intro img{width:min(78vw,62vh,560px);height:auto;opacity:0;transform:scale(.94);animation:introLogo 2.4s ease-in-out forwards}
+@keyframes introLogo{0%{opacity:0;transform:scale(.94)}30%{opacity:1;transform:scale(1)}72%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.intro img{animation:introLogoRm 2s linear forwards}@keyframes introLogoRm{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}}
+</style>
 <link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full"></script>
 <script src="assets/js/landscape.js"></script></head>
 <body>
+<div class="intro" id="intro" aria-hidden="true"><img src="assets/Images/logo/dragon-roll-logo.webp" alt="DRAGON ROLL" decoding="async"></div>
+<script>
+/* Intro logo: hanya saat start dingin (tanpa ?next). Loading baru jalan setelah intro selesai (window.UT_introDone). */
+(function(){
+  var DUR=2400, intro=document.getElementById('intro'), done;
+  window.UT_introDone=new Promise(function(r){done=r;});
+  if(new URLSearchParams(location.search).get('next')){ intro.remove(); done(); return; }
+  intro.classList.add('on');
+  var a; try{ a=new Audio('assets/sfx/dragon/naga-bumper.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
+  var played=false;
+  function play(){ if(played||!a) return; var p; try{ p=a.play(); }catch(e){ return; } played=true; if(p&&p.catch) p.catch(function(){ played=false; }); }
+  play(); /* bila autoplay diblokir browser, ulang di sentuhan pertama */
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){ addEventListener(ev,play,{once:true,passive:true}); });
+  setTimeout(function(){ intro.classList.add('off'); setTimeout(function(){ intro.remove(); done(); },450); },DUR);
+})();
+</script>
 
 <main class="splash" aria-label="Layar memuat DRAGON ROLL">
   <section class="bottom-ui">
@@ -226,10 +251,10 @@ function openAuth(go) {
   const dest = /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx) && !/^(splash|loading)\.html/i.test(nx) ? nx : 'lobby.html';
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
-  UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'SIAP!'; }).then(() => {
+  (window.UT_introDone||Promise.resolve()).then(() => UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'SIAP!'; }).then(() => {
     const go = () => { try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {} setTimeout(() => location.replace(dest), 350); };
     window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
-  });
+  }));
 })();
 </script>
 <script type="module" src="assets/js/auth.js"></script>

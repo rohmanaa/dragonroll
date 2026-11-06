@@ -26,6 +26,7 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 | | `skeleton-shoot.mp3` | skeleton menembak | `skeltonSh` |
 | | `enderman-teleport.mp3` | enderman teleport | `enderman` |
 | | `creeper-explosion.mp3`, `creeper-hiss.mp3`, `enderman-alt.mp3`, `mob-hit-alt.mp3` | *belum dipakai* | — |
+| `dragon/` | `naga-bumper.mp3` | suara naga ±1 dtk pada intro logo `splash.html` (taruh file dari Pixabay di sini; bila belum ada, intro tetap jalan tanpa suara) | — |
 | `dragon/` | `dragon-idle.mp3` | naga muncul / bertengger / saat diserang | `dragonSpawn`, `dragonIdle` |
 | | `dragon-hurt.mp3` / `dragon-death.mp3` | naga kena / kalah | `dragonHurt` / `dragonDeath` |
 | | `earthquake.mp3` | gempa saat gunung runtuh | `quakeStart` / `quakeStop` |
