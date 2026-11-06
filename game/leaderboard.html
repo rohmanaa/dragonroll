@@ -417,7 +417,7 @@ $('#rw').addEventListener('click',()=>{playSound('click');
  const R=[['Peringkat 1','500',DM],['Peringkat 2','300',DM],['Peringkat 3','200',DM],['Top 10','100',DM],['Top 100','50',DM]];
  openModal('<h2>Hadiah Musim Ini</h2><p style="font-size:1.3rem;margin:.2rem 0 .8rem;opacity:.85">Belum aktif — segera hadir.</p>'+R.map(r=>`<div class="row"><span>${r[0]}</span><b>+${r[1]}${r[2]}</b></div>`).join(''))});
 
-function buy(type){const g=type==='gem',packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
+function buy(type){if(type==='gem'){toast('Pembelian Gem belum tersedia.');playSound('error');return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
   document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i,p=packs[i];const r=g?PD.addCurrency(0,p[0]):PD.addCurrency(p[0],-[10,40,120][i]);
    if(!r.ok){toast(r.reason==='gem-kurang'?'Gem tidak cukup.':'Transaksi gagal.');playSound('error');return}
