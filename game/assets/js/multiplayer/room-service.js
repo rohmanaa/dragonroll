@@ -31,6 +31,6 @@ function subscribe(roomId,onRoom){
  }catch(e){console.error('[multiplayer] subscription failed',e)}})();
  return ()=>{closed=true;if(heartbeatTimer)clearInterval(heartbeatTimer);if(channel)MP.getClient().then(c=>c.removeChannel(channel)).catch(()=>{})};
 }
-async function submitMatchResult(o){await ensurePlayer();return rpc('submit_match_result',{p_match_id:o.matchId,p_won:!!o.won,p_name:o.name,p_xp_total:Math.max(0,Math.floor(+o.xpTotal||0)),p_room_id:o.roomId||null})}
+async function submitMatchResult(o){await ensurePlayer();return rpc('submit_match_result',{p_match_id:o.matchId,p_won:!!o.won,p_name:o.name,p_xp_total:Math.max(0,Math.floor(+o.xpTotal||0)),p_room_id:o.roomId||null,p_mode:o.mode||null,p_players:o.players||null,p_stats:o.stats||null})}
 async function getLeaderboard(scope,limit){await ensurePlayer();return rpc('get_leaderboard',{p_scope:scope,p_limit:limit||50})}
 Object.assign(MP,{RoomService:{submitMatchResult,getLeaderboard,sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});

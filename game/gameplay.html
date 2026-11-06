@@ -3945,7 +3945,7 @@ async function hitWither(p,v){
     await hopTo(pw,slot,0.4*Fk,0.45); pw.rotation.y=Math.PI/2;
   }finally{ pw.rotation.order='XYZ'; pw.rotation.x=0; w.shk=0; }
   if(gid!==gameId) throw STALE;
-  p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
+  p.dhp=Math.max(0,p.dhp-dmg); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
   if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
   sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
@@ -4808,7 +4808,7 @@ async function hitDragon(p,v){
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
-   p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
+   p.dhp=Math.max(0,p.dhp-dmg); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
@@ -5109,6 +5109,7 @@ async function giveChest(p,tok){
    tok=tok||chestToken(p);
    if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
    CHEST_LC.active=true; CHEST_LC.done.add(tok); const n=p.pos,gid=gameId;
+   try{ if(isLocalPlayer(p)) import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.bumpCounter('chests',1)).catch(()=>{}); }catch(e){}
    try{
      openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
@@ -5155,7 +5156,7 @@ async function usePU(k,cpu){
   if((k==='potion_odd'||k==='potion_even')&&(p.odd||p.even||p.lucky)){ if(cpu) return; fb('event','info','Dadu berikutnya sudah ditentukan.'); return setMsg('Dadu berikutnya sudah ditentukan (Ramuan / Pasti 6). Lempar dulu.'); } /* ditolak SEBELUM konsumsi */
   if(k==='tnt'&&!L){ if(cpu) return; fb('event','info','TNT belum punya target.'); return setMsg('TNT belum punya target.'); }
   if(k==='grass'&&(!L||L.pos<=p.pos)){ if(cpu) return; fb('event','info','Tidak ada pemain di depanmu.'); return setMsg('Tidak ada pemain di depanmu.'); }
-  busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
+  busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; msBump(p,'skills',k); sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   if(k==='feather') p.extra=true; if(k==='potion_odd') chestFlag(p,'odd'); if(k==='potion_even') chestFlag(p,'even'); if(k==='totem') p.shield=true;
   puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
   if(k==='feather'||k==='potion_odd'||k==='potion_even'||k==='totem') powerFxPawn(k,p); /* sword/tnt/grass: efek keluar di target saat KENA (bukan saat diblok Totem) */
@@ -5451,11 +5452,11 @@ async function resolveTileAt(p,gid){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
-    await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
+    msBump(p,'ladders'); await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
   }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'&&mobOn(p.pos,themeKey)!=='strider'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
     p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); powerFxPawn('totem_block',p); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
-    const to=SNAKES[p.pos];
+    const to=SNAKES[p.pos]; msBump(p,'snakes');
     if(!SNAKEINFO[p.pos]){ p.pos=to; setMsg('Ular! '+p.name+' turun ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); await A(sleep(350)); await A(hopTo(p.pawn,slotPos(p.idx,to),0.5,0.8)); }
     else{ setMsg('Dicaplok ular! '+p.name+' turun dari '+p.pos+' ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); sfx.naiktangga(); await A(sleep(350)); await A(bite(p,p.pos,to,gid)); }
     p.pos=to;
@@ -5583,7 +5584,7 @@ async function doRoll(opt){
   const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});
   try{
     await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
-    setMsg(p.name+' melempar '+v+'.');
+    setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
     p.sixes=(v===6)?p.sixes+1:0;
     await sleep(300); if(gid!==gameId) return;
     if(p.sixes>=3){
@@ -5598,6 +5599,9 @@ async function doRoll(opt){
   }
 }
 let MATCH_TOKEN=''; /* id unik per match (hanya untuk lawan CPU); online memakai roomId+gameId supaya refresh tidak menghitung ulang */
+const MS={dice:0,ladders:0,snakes:0,skills:0,dragon_hits:0,skill_ids:[]}; /* statistik match untuk profil/achievement; hanya aksi pemain LOKAL */
+function msReset(){ MS.dice=0;MS.ladders=0;MS.snakes=0;MS.skills=0;MS.dragon_hits=0;MS.skill_ids=[]; }
+function msBump(p,k,id){ try{ if(!isLocalPlayer(p)) return; MS[k]=(MS[k]||0)+1; if(id&&!MS.skill_ids.includes(id)&&MS.skill_ids.length<8) MS.skill_ids.push(id); }catch(e){} }
 let MATCH_DONE=''; /* token match yang sudah dicatat -> 1x per match walau finishGame terpanggil lagi (snapshot/refresh) */
 /* Catat hasil match ke statistik pemain (level/XP/leaderboard). Hanya: lawan CPU, atau online (pemain lokal ikut main).
    Mode lokal gantian (2-4 pemain di 1 layar) tidak dicatat: tidak jelas siapa "kamu". Gagal = diam-diam, tidak mengganggu game. */
@@ -5619,7 +5623,7 @@ function recordMatchResult(winner){
     /* kirim ke server (leaderboard). Gagal/offline: statistik lokal tetap tersimpan. */
     import('./assets/js/multiplayer/room-service.js').then(()=>{
       const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
-      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId});
+      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:{dice:MS.dice,ladders:MS.ladders,snakes:MS.snakes,skills:MS.skills,dragon_hits:MS.dragon_hits,skill_ids:MS.skill_ids.slice()}});
     }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
   }catch(e){ console.error('[stats]',e); }
 }
@@ -5638,7 +5642,7 @@ function finishGame(p,fromRemote){
   if(!fromRemote)publishGameSnapshot();
 }
 function startGame(m,keys){
-  mode=m; gameId++; MATCH_TOKEN=Date.now().toString(36)+Math.random().toString(36).slice(2,8); busy=false; gameOver=false; winnerIndex=-1; hud('reset');
+  mode=m; gameId++; MATCH_TOKEN=Date.now().toString(36)+Math.random().toString(36).slice(2,8); msReset(); busy=false; gameOver=false; winnerIndex=-1; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
   players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
   applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);

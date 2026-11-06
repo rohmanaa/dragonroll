@@ -168,6 +168,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
+<script>import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.dailyLogin()).catch(()=>{})</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script>
