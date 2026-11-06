@@ -193,16 +193,12 @@ let HOST=!(ONLINE&&q.get('role')==='guest');
 const jc=(q.get('code')||'').toUpperCase(),JOIN=(!HOST&&/^[A-Z0-9]{6,8}$/.test(jc))?jc:null;
 const MAP=RF.getMap(),TILES=100;
 const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Room • Team':'Create Room • Solo'};
-/* DATA DEMO (ganti dengan API/server): stok Power per pertandingan & daftar teman belum punya backend */
-const POWER_STOCK={sword:2,feather:2,tnt:1,totem:1,potion_odd:2,potion_even:2,grass:2};
-const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',online:true,level:18},{id:'g1',name:'RakaPlay',online:true,level:28},{id:'g2',name:'NayaCraft',online:true,level:24},{id:'g3',name:'AlyaVoxel',online:true,level:19},
- {id:'l3',name:'Dodi',online:false,level:9},{id:'g4',name:'DinoRush',online:false,level:35}];
 const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>PD.levelInfo().level; /* satu rumus dengan profil (PlayerData.levelInfo) */
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
-const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
+const S={invTab:'online',timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
-function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
+function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null}
 /* ---------- navigasi ---------- */
 const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
 $('#back').onclick=()=>leave('mode');$('#cls').onclick=()=>leave('home');
@@ -283,7 +279,6 @@ function renderMap(){
  $('#mTxt').innerHTML=`Game Mode: ${MODE_LABEL[MODE]}<br>Map: ${MAP?esc(MAP.name.replace(/^Map /,'')):'-'}<br>Number of Tiles: ${TILES}`;
 }
 /* ---------- PLAYER ROOM ---------- */
-const pending=()=>Object.keys(S.invites).length,slotsLeft=()=>cap()-S.room.players.length-pending();
 const me=()=>S.room.players.find(p=>p.id===(S.mpIdentity&&S.mpIdentity.id||'me'));
 function avatar(p){return p.kind==='bot'?'<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>':`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
 const CROWN='<svg viewBox="0 0 24 24" aria-label="Host"><path d="M3 18.5h18l1-11.5-5.2 4.2L12 4 7.2 11.2 2 7z" fill="#ffe14d" stroke="#7a4a00" stroke-width="1.4" stroke-linejoin="round"/><rect x="3" y="18.5" width="18" height="2.6" rx="1" fill="#f0a010" stroke="#7a4a00" stroke-width="1.2"/></svg>';
@@ -328,7 +323,7 @@ function check(){const P=S.room.players,h=me();
  if(!h.ready)return{ok:false,msg:'Tekan READY untuk bersiap'};
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
-function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textContent=(c.ok?'✅ ':'⏳ ')+c.msg+(ONLINE&&pending()?` • ${pending()} undangan menunggu`:'');
+function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textContent=(c.ok?'✅ ':'⏳ ')+c.msg;
  const rb=$('#rdy');rb.textContent=h.ready?'✕ BATAL READY':'✓ READY';rb.classList.toggle('wait',h.ready);
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
@@ -342,7 +337,7 @@ async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();ret
 $('#start').onclick=startGame;
 /* Online room membership/readiness comes from Supabase; no demo guest simulation. */
 /* ---------- INVITE (hanya Create Room, host) ---------- */
-function openInvite(team){if(!ONLINE||!HOST)return;S.invTeam=team||0;S.invTab='online';$('#srch').value='';renderInvite();$('#inv').classList.add('show')}
+function openInvite(team){if(!ONLINE||!HOST)return;S.invTab='online';$('#srch').value='';renderInvite();$('#inv').classList.add('show')}
 const closeInvite=()=>$('#inv').classList.remove('show');
 $('#invB').onclick=()=>openInvite(0);$('#invX').onclick=closeInvite;$('#inv').onclick=e=>{if(e.target.id==='inv')closeInvite()};
 $('#tOn').onclick=()=>{S.invTab='online';renderInvite()};$('#tOff').onclick=()=>{S.invTab='offline';renderInvite()};$('#srch').oninput=renderInvite;
@@ -352,15 +347,6 @@ function renderInvite(){
  $('#slotInfo').textContent=r.players.length+'/'+cap()+' pemain';
  $('#fl').innerHTML='<div class="emp">Bagikan kode atau tautan undangan kepada pemain lain. '+(r.privacy==='public'?'Room ini juga tersedia melalui Quick Join.':'Room privat hanya dapat dimasuki menggunakan kode undangan.')+'</div>';
 }
-$('#fl').onclick=e=>{const i=e.target.closest('[data-i]'),c=e.target.closest('[data-c]');if(i)invite(i.dataset.i);else if(c)cancelInv(c.dataset.c)};
-/* SIMULASI undangan: ganti dengan server (kirim invite, terima respons, sinkron slot/tim) */
-function invite(id){const f=FRIENDS.find(x=>x.id===id),r=S.room;if(!HOST||!f.online||S.invites[id]||r.players.some(p=>p.fid===id)||slotsLeft()<=0)return;
- const team=S.invTeam||0;S.invites[id]={team,timer:setTimeout(()=>{delete S.invites[id];accept(f,team)},rand(1800,4000))};renderPlayers();renderBottom();toast('Undangan dikirim ke '+f.name)}
-function cancelInv(id){const v=S.invites[id];if(!v)return;clearTimeout(v.timer);delete S.invites[id];renderPlayers();renderBottom()}
-function accept(f,pref){const r=S.room;if(r.players.length>=COUNT)return;let team=0;
- if(TEAM){const c=t=>r.players.filter(p=>p.team===t).length;team=[pref,1,2].find(t=>t&&c(t)<2)||1}
- const p={id:'f_'+f.id,fid:f.id,name:f.name,level:f.level,ready:false,team,kind:'friend'};r.players.push(p);toast(f.name+' bergabung');
- S.timers.push(setTimeout(()=>{if(r.players.includes(p)){p.ready=true;renderPlayers();renderBottom()}},rand(2000,4000)));renderPlayers();renderBottom()}
 /* ---------- DRAWER UNDANG TEMAN (dari kiri; tab Teman & Publik) ---------- */
 const root=document.documentElement;
 function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFriends();renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
