@@ -9,8 +9,8 @@ async function connect(options){
  channel.on('broadcast',{event:'power_request'},({payload})=>{if(options.isHost&&options.onPowerRequest)options.onPowerRequest(payload||{})});
  channel.on('broadcast',{event:'loadout'},({payload})=>{if(options.isHost&&options.onLoadout&&payload)options.onLoadout(payload)});
  channel.on('broadcast',{event:'host_left'},()=>{if(!options.isHost&&options.onHostLeft)options.onHostLeft()});
- channel.on('presence',{event:'leave'},({key})=>{if(options.isHost&&options.onPlayerLeft)options.onPlayerLeft(key)}); // pemain keluar game -> host menjadikannya AUTO
- channel.on('presence',{event:'join'},({key})=>{if(options.isHost&&options.onPlayerJoin)options.onPlayerJoin(key)});
+ channel.on('presence',{event:'leave'},({key})=>{if(options.isHost&&options.onPlayerLeft)options.onPlayerLeft(key);if(options.onPeerLeft)options.onPeerLeft(key)}); // pemain keluar game -> host menjadikannya AUTO
+ channel.on('presence',{event:'join'},({key})=>{if(options.isHost&&options.onPlayerJoin)options.onPlayerJoin(key);if(options.onPeerJoin)options.onPeerJoin(key)});
  channel.on('broadcast',{event:'emote'},({payload})=>{if(options.onEmote&&payload)options.onEmote(payload)}); // emote dari pemain mana pun
   channel.on('broadcast',{event:'totem_answer'},({payload})=>{if(options.isHost&&options.onTotemAnswer&&payload)options.onTotemAnswer(payload)});
   channel.on('broadcast',{event:'cue'},({payload})=>{if(!options.isHost&&options.onCue&&payload)options.onCue(payload)});

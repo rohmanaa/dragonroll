@@ -4977,6 +4977,7 @@ const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.la
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
 let MP_SYNC=null,MP_ID=null,MP_CONNECTING=false,MP_APPLYING=false;
+const MP_LEFT=new Set(); /* networkId pemain yang keluar dari game: disembunyikan dari HUD & tidak ikut 'Main lagi' */
 if(ONLINE_ROOM) document.body.classList.add('mp-online');
 
 function setMsg(t){ $('msg').textContent=t; }
@@ -5192,6 +5193,7 @@ function renderChips(){
   try{ syncDiceGuide(); }catch(e){ console.error(e); }
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   players.forEach((p,i)=>{
+    if(ONLINE_ROOM&&p.left) return; /* pemain sudah keluar: jangan tampil di HUD (daftar, skor) */
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css); /* mahkota hanya untuk host */
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
@@ -5612,6 +5614,7 @@ function startGame(m,keys){
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
   if(m==='cpu') keys=[keys[0]||'steve','villager']; /* 4.1.14.10: Computer selalu Villager, bukan Mob/skin acak */
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
+  if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
@@ -5732,7 +5735,7 @@ function makeGameSnapshot(){
   players:players.map(p=>({networkId:p.networkId,name:p.name,pos:p.pos,sixes:p.sixes,dhp:p.dhp,hpMax:p.hpMax,
    crystal:p.crystal,cdone:Array.isArray(p.cdone)?p.cdone.slice():[],dragonReady:!!p.dragonReady,inArena:!!p.inArena,
    score:p.score,bonus:p.bonus,extra:!!p.extra,odd:!!p.odd,even:!!p.even,lucky:!!p.lucky,shield:!!p.shield,
-   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,loadout:!!p.loadout,auto:!!p.auto,afkMiss:p.afkMiss|0,
+   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,loadout:!!p.loadout,auto:!!p.auto,left:!!p.left,afkMiss:p.afkMiss|0,
    pawn:p.pawn?{x:p.pawn.position.x,y:p.pawn.position.y,z:p.pawn.position.z,ry:p.pawn.rotation.y}:null}))};
 }
 function applyGameSnapshot(s){
@@ -5741,7 +5744,7 @@ function applyGameSnapshot(s){
  MP_APPLYING=true;
  try{
   s.players.forEach((v,i)=>{const p=players[i];if(!p)return;
-   ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder','loadout','auto','afkMiss'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
+   ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder','loadout','auto','left','afkMiss'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
    p.cdone=Array.isArray(v.cdone)?v.cdone.slice():new Array(CRYSTAL_N).fill(false);
    if(v.pu&&typeof v.pu==='object')p.pu=Object.assign({},v.pu);
    if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
@@ -5768,6 +5771,8 @@ function initMultiplayerBridge(){
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
+  onPeerLeft:key=>{ if(!key||key===MP_ID) return; MP_LEFT.add(key); const q=mpPlayerByNet(key); if(q&&!q.cpu) q.left=true; try{ renderChips(); }catch(e){} }, /* semua klien (host/tamu, juga saat game over) */
+  onPeerJoin:key=>{ if(!key||key===MP_ID) return; MP_LEFT.delete(key); const q=mpPlayerByNet(key); if(q&&q.left){ q.left=false; try{ renderChips(); }catch(e){} } },
   onTotemAnswer:onMpTotemAnswer,
   onEmote:onMpEmote,
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
