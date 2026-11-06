@@ -326,12 +326,14 @@ function invField(k,def){try{const r=JSON.parse(localStorage.getItem('inv')||'nu
 let D=Object.assign({claimed:0,last:'',shift:0,temp:null},invField('daily',{}));
 let BAG=Object.assign({box:0},invField('bag',{}));
 const save=()=>{try{const r=(()=>{try{return JSON.parse(localStorage.getItem('inv'))||{}}catch(e){return{}}})();r.daily=D;r.bag=BAG;localStorage.setItem('inv',JSON.stringify(r))}catch(e){}};
-const now=()=>new Date(Date.now()+D.shift*864e5);
+const DEBUG=new URLSearchParams(location.search).has('debug'); /* simulasi hari hanya dengan ?debug di URL */
+const now=()=>new Date(Date.now()+(DEBUG?D.shift:0)*864e5);
 const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const daysBetween=(a,b)=>Math.round((Date.UTC(...b.split('-').map((v,i)=>i===1?v-1:+v))-Date.UTC(...a.split('-').map((v,i)=>i===1?v-1:+v)))/864e5);
 function sync(){const t=key(now());if(D.last){const df=daysBetween(D.last,t);if(df>1||(df>=1&&D.claimed>=7))D.claimed=0}
- if(D.temp&&Date.now()+D.shift*864e5>D.temp.exp)D.temp=null;save()}
+ if(D.temp&&Date.now()+(DEBUG?D.shift:0)*864e5>D.temp.exp)D.temp=null;save()}
 const doneToday=()=>D.last===key(now());
+if(!DEBUG&&D.shift){D.shift=0;const k0=key(now());if(D.last>k0)D.last=k0;save()} /* buang sisa simulasi lama: hari kembali ke waktu asli */
 // ---------- helpers
 const SET=()=>PD.settings();
 const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
@@ -375,7 +377,7 @@ $('#see').addEventListener('click',()=>{playSound('click');
 // ---------- misc buttons
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');location.href='shop.html'}));
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
-$('#rst').addEventListener('click',()=>{D.shift++;sync();renderDays();tick();playSound('select');toast('Simulasi: hari berikutnya (mock)')});
+$('#rst').addEventListener('click',()=>{if(!DEBUG)return;D.shift++;sync();renderDays();tick();playSound('select');toast('Simulasi: hari berikutnya (mock)')});
 // ---------- countdown
 function tick(){const n=now(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));
  $('#cd').textContent=[s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':');
