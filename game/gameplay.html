@@ -5109,6 +5109,7 @@ async function giveChest(p,tok){
    tok=tok||chestToken(p);
    if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
    CHEST_LC.active=true; CHEST_LC.done.add(tok); const n=p.pos,gid=gameId;
+   msBump(p,'chests');
    try{ if(isLocalPlayer(p)) import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.bumpCounter('chests',1)).catch(()=>{}); }catch(e){}
    try{
      openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
@@ -5599,9 +5600,10 @@ async function doRoll(opt){
   }
 }
 let MATCH_TOKEN=''; /* id unik per match (hanya untuk lawan CPU); online memakai roomId+gameId supaya refresh tidak menghitung ulang */
-const MS={dice:0,ladders:0,snakes:0,skills:0,dragon_hits:0,skill_ids:[]}; /* statistik match untuk profil/achievement; hanya aksi pemain LOKAL */
-function msReset(){ MS.dice=0;MS.ladders=0;MS.snakes=0;MS.skills=0;MS.dragon_hits=0;MS.skill_ids=[]; }
-function msBump(p,k,id){ try{ if(!isLocalPlayer(p)) return; MS[k]=(MS[k]||0)+1; if(id&&!MS.skill_ids.includes(id)&&MS.skill_ids.length<8) MS.skill_ids.push(id); }catch(e){} }
+/* Statistik match untuk profil/achievement disimpan per pemain (p.ms). Online: host menghitung untuk semua pemain manusia dan menyertakannya di snapshot, jadi tamu mengirim statistiknya sendiri. */
+let CH_SENT=0; /* jumlah peti tamu yang sudah dikirim ke server (reset tiap match) */
+function msReset(){ CH_SENT=0; }
+function msBump(p,k,id){ try{ if(!p||p.cpu) return; const m=p.ms||(p.ms={dice:0,ladders:0,snakes:0,skills:0,dragon_hits:0,chests:0,skill_ids:[]}); m[k]=(m[k]||0)+1; if(id&&!m.skill_ids.includes(id)&&m.skill_ids.length<8) m.skill_ids.push(id); }catch(e){} }
 let MATCH_DONE=''; /* token match yang sudah dicatat -> 1x per match walau finishGame terpanggil lagi (snapshot/refresh) */
 /* Catat hasil match ke statistik pemain (level/XP/leaderboard). Hanya: lawan CPU, atau online (pemain lokal ikut main).
    Mode lokal gantian (2-4 pemain di 1 layar) tidak dicatat: tidak jelas siapa "kamu". Gagal = diam-diam, tidak mengganggu game. */
@@ -5618,12 +5620,13 @@ function recordMatchResult(winner){
     if(MATCH_DONE===token) return; MATCH_DONE=token;
     const r=PD.recordMatch({token,won});
     if(!r||!r.ok||r.duplicate) return;
+    const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
     const bits=['+'+r.xpGain+' XP','+'+r.points+' poin']; if(r.levelUp) bits.push('LEVEL '+r.level+'!');
     try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },900); }catch(e){}
     /* kirim ke server (leaderboard). Gagal/offline: statistik lokal tetap tersimpan. */
     import('./assets/js/multiplayer/room-service.js').then(()=>{
       const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
-      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:{dice:MS.dice,ladders:MS.ladders,snakes:MS.snakes,skills:MS.skills,dragon_hits:MS.dragon_hits,skill_ids:MS.skill_ids.slice()}});
+      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:ST});
     }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
   }catch(e){ console.error('[stats]',e); }
 }
@@ -5773,7 +5776,7 @@ function makeGameSnapshot(){
   players:players.map(p=>({networkId:p.networkId,name:p.name,pos:p.pos,sixes:p.sixes,dhp:p.dhp,hpMax:p.hpMax,
    crystal:p.crystal,cdone:Array.isArray(p.cdone)?p.cdone.slice():[],dragonReady:!!p.dragonReady,inArena:!!p.inArena,
    score:p.score,bonus:p.bonus,extra:!!p.extra,odd:!!p.odd,even:!!p.even,lucky:!!p.lucky,shield:!!p.shield,
-   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,loadout:!!p.loadout,auto:!!p.auto,left:!!p.left,afkMiss:p.afkMiss|0,
+   pu:Object.assign({},p.pu),ms:p.ms?Object.assign({},p.ms,{skill_ids:(p.ms.skill_ids||[]).slice()}):null,turnOrder:p.turnOrder||0,loadout:!!p.loadout,auto:!!p.auto,left:!!p.left,afkMiss:p.afkMiss|0,
    pawn:p.pawn?{x:p.pawn.position.x,y:p.pawn.position.y,z:p.pawn.position.z,ry:p.pawn.rotation.y}:null}))};
 }
 function applyGameSnapshot(s){
@@ -5785,8 +5788,10 @@ function applyGameSnapshot(s){
    ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder','loadout','auto','left','afkMiss'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
    p.cdone=Array.isArray(v.cdone)?v.cdone.slice():new Array(CRYSTAL_N).fill(false);
    if(v.pu&&typeof v.pu==='object')p.pu=Object.assign({},v.pu);
+   if(v.ms&&typeof v.ms==='object')p.ms=v.ms;
    if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
   });
+  if(!ONLINE_HOST){ try{ const lp=players.find(q=>isLocalPlayer(q)),d=lp&&lp.ms?Math.min(20,(lp.ms.chests|0)-CH_SENT):0; if(d>0){ CH_SENT+=d; import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.bumpCounter('chests',d)).catch(()=>{}); } }catch(e){} }
   cur=Math.max(0,Math.min(players.length-1,Number(s.cur)||0));winnerIndex=Number.isInteger(s.winnerIndex)?s.winnerIndex:-1;
   busy=false;gameOver=!!s.gameOver;AWK.done=!!s.awake;AWK.running=false;WF.risen=!!s.witherRisen;
   DRG.defeated=!!s.dragonDefeated;DRG.done=!!s.dragonDone;DRG.text=s.dragonText||'';dragon.visible=!!s.dragonVisible;
