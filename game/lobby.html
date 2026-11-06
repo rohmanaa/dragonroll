@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full"></script><style>
+<link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-bg.webp"></script><style>
 :root{--bd:#12337f;--g:#3cc23c;--sl1:#3f506b;--sl2:#26344c;--gold:#f4cd5c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.85vh)}
@@ -289,15 +289,14 @@ scene.add(new THREE.AmbientLight(0xdff6ff,.42),new THREE.HemisphereLight(0xb4eef
 const sun=new THREE.DirectionalLight(0xffd88a,1.05);sun.position.set(16,20,10);/* sinar emas hangat dari kanan atas */sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});sun.shadow.bias=-.0008;scene.add(sun);
 const anims=[];
 
-// pulau melayang = komponen terpisah (assets/js/floating-island.js); latar+awan = SceneBackground (assets/js/scene-bg.js)
-const isl=UT.FloatingIsland.create(THREE,{seed:5});scene.add(isl);
+// pulau melayang dihapus: karakter berdiri di lantai batu pada latar lobby-bg.webp; latar+awan = SceneBackground (assets/js/scene-bg.js)
+const HERO_S=.55,HERO_Y=-3.9;/* skala & tinggi kaki: telapak pas di lantai batu bagian bawah-tengah latar */
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
-const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);hero.rotation.y=-.3;scene.add(hero);
-const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(.3,.03,.1);scene.add(cs);/* AO kontak di bawah karakter */
-anims.push(t=>{isl.userData.update(t);hero.position.y=isl.position.y;cs.position.y=.03+isl.position.y});
+const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
+const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(0,HERO_Y+.03,.1);cs.scale.setScalar(HERO_S*1.2);scene.add(cs);/* AO kontak di bawah karakter */
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
 let cheer=0;
-cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.385&&x<.615&&yr>-16.8&&yr<10.3){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
+cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.385&&x<.615&&yr>-3&&yr<22.5){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
 function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
