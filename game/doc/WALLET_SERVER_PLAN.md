@@ -1,6 +1,6 @@
 # Rencana dompet server (coins/gems)
 
-Status: **B1 selesai, B2 sisi server selesai, B3 dan B4 sisi server selesai (B4 belum di-push/diterapkan). Klien belum disentuh sama sekali; pemasangan klien = B5 (menggantikan B2c).**
+Status: **B1 selesai, B2 sisi server selesai, B3 dan B4 sisi server selesai (B4 belum di-push/diterapkan). Klien B5 terpasang di balik flag (default MATI); lihat bagian "B5 klien" di bawah.**
 Migrasi: `202611110001_wallet_b1.sql`, `202611110002_wallet_b2_server.sql`, `202611110003_wallet_b3_daily_quest_exchange.sql`, `202611110004_wallet_b4_caps.sql`. Tes: `supabase/tests/wallet_b1_test.sql`, `wallet_b2_test.sql`, `wallet_b3_test.sql`, `wallet_b4_test.sql`.
 
 ## Masalah (hasil audit)
@@ -47,3 +47,11 @@ Pengeluaran: toko (`shop.html` -> `PD.purchase`), koin; "hadiahkan item" ke tema
 - Harga di server harus disinkronkan ulang tiap `item-catalog.js` berubah (`gen-item-seed.js`).
 - Hasil match lawan CPU dan chest tetap tidak terverifikasi (browser); karena itu B4 memakai batas harian.
 - Daily reward, misi, dan tukar gem sudah ada di server (B3) tetapi klien masih lokal sampai B5.
+
+## B5 klien (terpasang, flag mati secara default)
+- **Flag:** `window.UT_SERVER_WALLET = true` atau `localStorage['ut:serverWallet']='1'`. Aktif hanya untuk akun login; tamu tetap lokal. Nyalakan HANYA setelah migrasi B1-B4 diterapkan di Supabase.
+- **`assets/js/wallet-service.js`** (`UT.WalletService.get()`): satu-satunya pintu ke RPC dompet. Klien hanya mengirim id/token/indeks paket. Satu RPC per aksi sekaligus; gagal jaringan -> `{ok:false, reason:'jaringan'}`.
+- **`PlayerData` mode server:** coins/gems/inventory = cermin dari respons server (`applyServerWallet`, `applyServerItem`). `purchase`, `addCurrency`, dan `grant` (koin/gem/item) ditolak dengan `reason:'server-wallet'`; XP, equip, nama, pengaturan tetap lokal.
+- **Halaman:** shop (buy, tukar gem; hadiahkan item dimatikan), profile (achievement: server sudah mengkredit, klien hanya sinkron), inventory, leaderboard (tukar gem), dailyreward (status & klaim dari server, hitung mundur WIB), misi (quest_get/track/claim), lobby (refresh saldo), gameplay (hadiah boss -> `claim_boss_reward` / `claim_cpu_boss_reward`; progres misi -> `quest_track` per match, idempoten lewat token `recordMatch`).
+- **Tes:** `node game/tests/player-data-server.test.js`.
+- **Belum:** `play.html`, `room.html`, `friendship.html`, `mode.html`, `splash.html` hanya membaca saldo (tidak diubah). Kebijakan impor saldo lama dari localStorage belum diputuskan (saat flag menyala, saldo lokal ditimpa server). Uji manual end-to-end di Supabase nyata belum dilakukan.

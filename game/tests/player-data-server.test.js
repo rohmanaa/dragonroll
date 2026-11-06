@@ -183,6 +183,25 @@ t('WS.claimAchievement: saldo dari wallet_coins/wallet_gems', async () => {
   await e.S.claimAchievement('x', null); assert.strictEqual(e.PD.coins(), 1250); assert.strictEqual(e.PD.gems(), 5);
 });
 
+t('WS.questTrack: hanya tipe dikirim; questGet menambah ok:true', async () => {
+  const q = { day: '2026-11-06', seconds_to_reset: 100, quests: [], bonus: { reward: 100, status: 'locked' } };
+  const e = svc({ quest_track: () => q, quest_get: () => q });
+  const r = await e.S.questTrack('win'); assert.deepStrictEqual(e.calls[0], ['quest_track', { p_type: 'win' }]); assert.strictEqual(r.bonus.reward, 100);
+  assert.strictEqual((await e.S.questGet()).ok, true);
+});
+t('WS.questTrack mode lokal -> tidak memanggil server', async () => {
+  const e = svc(base, false); assert.strictEqual((await e.S.questTrack('play')).reason, 'mode-lokal'); assert.strictEqual(e.calls.length, 0);
+});
+t('WS.claimBossOnline: sukses memperbarui saldo, id room dikirim apa adanya', async () => {
+  const e = svc({ claim_boss_reward: () => ({ ok: true, coins: 3000, gems: 40, reward_coins: 500, reward_gems: 10 }) });
+  await e.S.claimBossOnline('11111111-2222-3333-4444-555555555555');
+  assert.strictEqual(e.PD.coins(), 3000); assert.deepStrictEqual(e.calls[0], ['claim_boss_reward', { p_room_id: '11111111-2222-3333-4444-555555555555' }]);
+});
+t('WS.dailyGet mengembalikan status server', async () => {
+  const e = svc({ daily_reward_get: () => ({ claimed: 2, claimed_today: false, next_day: 3, seconds_to_reset: 500, box: 0 }) });
+  const r = await e.S.dailyGet(); assert.strictEqual(r.ok, true); assert.strictEqual(r.next_day, 3);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');
