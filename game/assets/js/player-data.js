@@ -299,6 +299,18 @@
     listeners.slice().forEach(function (fn) { try { fn(reason); } catch (e) {} });
   }
 
+  /* ---------- Mode dompet server (B5) ----------
+     Akun login + flag menyala: coins/gems/inventory dimiliki SERVER. Data lokal hanya CERMIN (cache baca)
+     yang diisi dari respons RPC lewat applyServerWallet/applyServerItem (dipanggil wallet-service.js).
+     Mutasi lokal (purchase/addCurrency/grant mata uang/item) DITOLAK agar tidak ada saldo ganda atau saldo
+     yang bisa diedit lewat devtools. XP, statistik, pengaturan, nama, dan equip tetap lokal. Tamu tidak berubah.
+     Flag: window.UT_SERVER_WALLET === true  atau  localStorage['ut:serverWallet'] === '1'. */
+  function flagOn() {
+    try { if (g.UT_SERVER_WALLET === true) return true; } catch (e) {}
+    try { return localStorage.getItem('ut:serverWallet') === '1'; } catch (e) { return false; }
+  }
+  function serverMode() { return !!accountId() && flagOn(); }
+
   /* ---------- API publik ---------- */
   var API = {
     get key() { return key(); },
@@ -377,6 +389,7 @@
 
     /* Pembelian atomik (harga katalog = coins): validasi dulu, lalu saldo + inventory dalam SATU penulisan. */
     purchase: function (id) {
+      if (serverMode()) return { ok: false, reason: 'server-wallet' };   /* beli lewat WalletService.buy */
       var it = C.byId(id);
       if (!it || it.starter || !(it.price > 0)) return { ok: false, reason: 'tidak-tersedia' };
       var st = load();
@@ -395,6 +408,7 @@
     /* Perubahan currency atomik: addCurrency(+500) / addCurrency(0, +10) / addCurrency(-200, -5).
        Return {ok, coins, gems} atau {ok:false, reason:'saldo-kurang'|'gem-kurang', kurang} */
     addCurrency: function (dCoins, dGems) {
+      if (serverMode()) return { ok: false, reason: 'server-wallet' };
       var dC = Math.floor(+dCoins || 0), dG = Math.floor(+dGems || 0);
       var st = load();
       var nc = st.coins + dC, ng = st.gems + dG;
@@ -410,6 +424,8 @@
        Item non-stackable yang sudah dimiliki -> tidak diduplikasi; beri kompensasi duplicateCoins/duplicateGems. */
     grant: function (o) {
       o = o || {};
+      /* Akun server: hanya XP yang boleh lewat sini; koin/gem/item hanya dari server (WalletService). */
+      if (serverMode() && (o.coins || o.gems || o.item)) return { ok: false, reason: 'server-wallet' };
       var it = o.item ? C.byId(o.item) : null;
       if (o.item && !it) return { ok: false, reason: 'tidak-dikenal' };
       var st = load();
@@ -458,6 +474,46 @@
       if (!write(st)) return null;
       notify('profile');
       return clone(st.profile);
+    },
+
+    /* ----- Mode dompet server ----- */
+    serverMode: function () { return serverMode(); },
+    /* Isi cermin dari server: {coins?, gems?, inventory?:[{id, qty}]}. Hanya berlaku di mode server.
+       Inventory = daftar server (+ item awal). Equip yang tak lagi dimiliki dikembalikan ke default. */
+    applyServerWallet: function (o) {
+      if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
+      o = o || {};
+      var st = load(), now = Date.now();
+      if (isFinite(o.coins) && o.coins >= 0) st.coins = Math.floor(o.coins);
+      if (isFinite(o.gems) && o.gems >= 0) st.gems = Math.floor(o.gems);
+      if (Array.isArray(o.inventory)) {
+        var inv = {}, seq = 0;
+        C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: (st.inventory[it.id] || {}).acquiredAt || st.createdAt, seq: seq++ }; });
+        o.inventory.forEach(function (e) {
+          if (!e || !C.byId(e.id)) return;                /* id tak dikenal katalog klien: abaikan */
+          var q = Math.max(1, Math.floor(+e.qty) || 1), prev = st.inventory[e.id];
+          inv[e.id] = { qty: q, acquiredAt: prev ? prev.acquiredAt : now, seq: prev ? prev.seq : seq++ };
+        });
+        st.inventory = inv; st.nextSeq = Math.max(seq, st.nextSeq || 0);
+        ['skin', 'dice', 'theme', 'frame'].forEach(function (slot) {
+          var it = C.byId(st.equipped[slot]);
+          if (!it || !st.inventory[it.id]) st.equipped[slot] = C.defaultEquipped[slot];
+        });
+      }
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      mirrorLegacy(st); notify('server-wallet');
+      return { ok: true, coins: st.coins, gems: st.gems };
+    },
+    /* Tambah satu item hasil pembelian server ke cermin (tanpa menunggu inventory_get). */
+    applyServerItem: function (id) {
+      if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
+      var it = C.byId(id); if (!it) return { ok: false, reason: 'tidak-dikenal' };
+      var st = load(), cur = st.inventory[id];
+      st.inventory[id] = cur ? { qty: it.stackable ? cur.qty + 1 : 1, acquiredAt: cur.acquiredAt, seq: cur.seq }
+                             : { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ };
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('server-wallet');
+      return { ok: true };
     },
 
     /* Langganan perubahan (halaman ini + tab/halaman lain). Mengembalikan fungsi berhenti. */
