@@ -237,7 +237,7 @@ async function setupOnline(){
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
-  try{const PR=UT.Multiplayer.Presence;if(PR){PR.start({status:'room'});PR.onChange(()=>{if(root.classList.contains('dro')&&S.drTab==='public')renderDrawer()})}}catch(_){}
+  try{const PR=UT.Multiplayer.Presence;if(PR){PR.start({status:'room'});PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()})}}catch(_){}
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
@@ -351,29 +351,27 @@ function accept(f,pref){const r=S.room;if(r.players.length>=COUNT)return;let tea
  S.timers.push(setTimeout(()=>{if(r.players.includes(p)){p.ready=true;renderPlayers();renderBottom()}},rand(2000,4000)));renderPlayers();renderBottom()}
 /* ---------- DRAWER UNDANG TEMAN (dari kiri; tab Teman & Publik) ---------- */
 const root=document.documentElement;
-function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
+function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFriends();renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
 function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
 function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
+const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
+async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}if(root.classList.contains('dro'))renderDrawer()}
+function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
+ return `<div class="fr"><span class="av">${esc(name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(name)}</b><small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="sm" data-add="${esc(id)}" data-nm="${esc(name)}">＋ TEMAN</button>`}<button class="bt ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}
 function renderDrawer(){
- const r=S.room,left=cap()-r.players.length,P=UT.Multiplayer.Presence;
+ const r=S.room,left=cap()-r.players.length,P=UT.Multiplayer.Presence,on=P?P.list():[],fr=S.friends||[],fids=new Set(fr.map(f=>f.friend_id));
  $('#drCnt').textContent=r.players.length+'/'+cap()+' pemain';
  $('#dTf').classList.toggle('on',S.drTab==='friends');$('#dTp').classList.toggle('on',S.drTab==='public');
  const full=left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'';
  if(S.drTab==='friends'){
-  const list=FRIENDS.filter(f=>f.online);
-  $('#drL').innerHTML=(list.map(f=>{const sent=!!S.sent[f.id];
-   return `<div class="fr"><span class="av">${esc(f.name[0]).toUpperCase()}</span><div class="pi"><b>${esc(f.name)}</b><small class="on_">● Online • Lv ${f.level}</small></div><button class="bt ${sent?'sent':''}" data-inv="${f.id}" ${left<=0?'disabled':''}>${sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')||'<div class="emp">Tidak ada teman yang sedang online.</div>')+full;
+  const list=on.filter(p=>fids.has(p.id));
+  $('#drL').innerHTML=(list.map(p=>drow(p.id,(fr.find(f=>f.friend_id===p.id)||{}).friend_name||p.name,p.status,true,left)).join('')||`<div class="emp">${fr.length?'Tidak ada teman yang sedang online.':'Belum ada teman. Tambahkan dari tab Pemain Online.'}</div>`)+full;
  }else{
-  const list=P?P.list():[];
-  $('#drL').innerHTML=(list.map(p=>{const sent=!!S.sent[p.id];
-   return `<div class="fr"><span class="av">${esc(p.name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(p.name)}</b><small class="on_">● Online</small></div><button class="bt ${sent?'sent':''}" data-pinv="${esc(p.id)}" ${left<=0?'disabled':''}>${sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')||'<div class="emp">Belum ada pemain lain yang online di lobi.</div>')+full;
+  $('#drL').innerHTML=(on.map(p=>drow(p.id,p.name,p.status,fids.has(p.id),left)).join('')||'<div class="emp">Belum ada pemain lain yang online.</div>')+full;
  }
 }
 async function invitePlayer(id){if(!HOST||!S.room.code)return;try{await UT.Multiplayer.Presence.invite(id,{code:S.room.code,format:FORMAT});S.sent[id]=true;toast('Undangan terkirim');renderDrawer()}catch(e){toast(e.message==='TUNGGU_SEBENTAR'?'Tunggu sebentar sebelum mengundang lagi':'Gagal mengirim undangan')}}
-async function sendInvite(id){const f=FRIENDS.find(x=>x.id===id);if(!f||!f.online||!HOST||!S.room.code)return;
- const url=inviteLink(),text=`Ayo main Ular Tangga! Kode room: ${S.room.code}`;
- try{if(navigator.share){await navigator.share({title:'Ular Tangga',text:text,url:url})}else{await navigator.clipboard.writeText(text+' '+url);toast('Link undangan disalin, kirim ke '+f.name)}S.sent[id]=true;renderDrawer()}catch(e){if(e&&e.name!=='AbortError')toast('Kode: '+S.room.code)}}
-$('#dr').onclick=e=>{const i=e.target.closest('[data-inv]'),p=e.target.closest('[data-pinv]');if(i)sendInvite(i.dataset.inv);else if(p)invitePlayer(p.dataset.pinv)};
+$('#dr').onclick=async e=>{const p=e.target.closest('[data-pinv]'),a=e.target.closest('[data-add]');if(p&&!p.disabled)invitePlayer(p.dataset.pinv);else if(a){try{await UT.Multiplayer.RoomService.addFriend(a.dataset.add,a.dataset.nm,S.mpIdentity.name);toast(a.dataset.nm+' ditambahkan sebagai teman');loadFriends()}catch(er){toast('Gagal menambah teman')}}};
 $('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
 $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;$('#drB').onclick=closeDrawer;
 addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});

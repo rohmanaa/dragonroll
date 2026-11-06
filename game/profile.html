@@ -454,7 +454,7 @@ function render(){
  av=(i,c)=>c==='a1'?`<div class="av fr ${c}">${thumb(i)}<img class="frm" src="${frameSrc()}" alt="" draggable="false" decoding="async"></div>`:`<div class="av ${c}">${thumb(i)}</div>`,
  K=[['Skin',ownedSkins().length,'items/skin'],['Dadu',kcount('dice')||MOCK.dadu,'items/dadu'],['Efek',MOCK.efek,'items/efek'],['Emote',MOCK.emote,'items/emote']],
  AI=achInfo(),top=AI.filter(a=>!a.done).sort((a,b)=>b.r-a.r).concat(AI.filter(a=>a.done)).slice(0,5),got=AI.filter(a=>a.st>0).length;
- $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
+ $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
 <div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>

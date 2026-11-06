@@ -1,13 +1,13 @@
 // Pemain online (Supabase Realtime Presence) + undangan langsung lewat broadcast.
-// status: 'lobby' = bisa diundang; 'room' / 'game' = tampil sibuk (tidak ditampilkan di daftar undang).
+// status: 'lobby' = bisa diundang; 'room' / 'game' = sedang sibuk (tampil, tapi tidak bisa diundang).
 import './room-service.js';
 const MP=window.UT.Multiplayer;
 let ch=null,inbox=null,me=null,client=null,starting=null,status='lobby';
 const subs=new Set(),lastSent={};
 function players(){
  if(!ch)return[];const st=ch.presenceState(),out=[];
- Object.keys(st).forEach(k=>{if(me&&k===me.id)return;const m=st[k][st[k].length-1]||{};if(m.status!=='lobby')return;out.push({id:k,name:String(m.name||'Player').slice(0,24)})});
- return out.sort((a,b)=>a.name.localeCompare(b.name));
+ Object.keys(st).forEach(k=>{if(me&&k===me.id)return;const m=st[k][st[k].length-1]||{};out.push({id:k,name:String(m.name||'Player').slice(0,24),status:m.status||'lobby'})});
+ return out.sort((a,b)=>(a.status==='lobby'?0:1)-(b.status==='lobby'?0:1)||a.name.localeCompare(b.name));
 }
 function notify(){const l=players();subs.forEach(f=>{try{f(l)}catch(e){console.error(e)}})}
 function track(){if(ch&&me)ch.track({id:me.id,name:me.name,status:status}).catch(()=>{})}
@@ -27,6 +27,7 @@ async function start(opts){
  if(ch){track();return}
  if(starting)return starting;
  starting=(async()=>{
+  if(opts&&opts.requireSession){const c0=await MP.getClient();const r0=await c0.auth.getSession();if(!r0.data||!r0.data.session)return}
   me=await MP.RoomService.ensurePlayer();client=await MP.getClient();
   ch=client.channel('online-players',{config:{presence:{key:me.id}}});
   ch.on('presence',{event:'sync'},notify);

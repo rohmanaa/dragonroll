@@ -222,6 +222,10 @@ window.UT = window.UT || {};
     if (UT.App.ready) return UT.App; /* idempoten: tidak membuat ulang sistem */
     UT.App.options = options;
     UT.App.page = options.page || null;
+    /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
+    if (['lobby','shop','inventory','profile','misi','friendship','leaderboard','dailyreward'].indexOf(UT.App.page) >= 0) {
+      try { import('./multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
+    }
     if (UT.App.page && UT.PAGES.indexOf(UT.App.page) < 0 && win.console) console.warn('[UT.App] page tidak dikenal:', UT.App.page);
     /* Jembatan PlayerData -> UT.Events (tanpa mengubah PlayerData) */
     var PD = win.PlayerData;
