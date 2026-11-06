@@ -997,6 +997,10 @@ body #pauseMenu #pmMode:disabled{opacity:.55;cursor:not-allowed}
 /* urutan giliran = chip angka kecil di pojok foto profil (kiri: daftar Pemain; kanan: panel Giliran) */
 body #side .pr .pav{position:relative;display:flex;flex:none}
 body #side .pr .pav>.atag{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;justify-content:center;height:1.45em;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:8px;line-height:1;letter-spacing:.04em;white-space:nowrap;color:#fff;border-radius:999px;border:1.5px solid #0d4a14;background:linear-gradient(#6ff26a,#1fa83c);text-shadow:0 1px 0 #0d4a14;pointer-events:none}
+@keyframes atagGlow{0%,100%{box-shadow:0 0 3px 0 rgba(111,242,106,.55),0 0 6px 1px rgba(111,242,106,.25);filter:brightness(1)}50%{box-shadow:0 0 7px 2px rgba(150,255,140,.95),0 0 14px 4px rgba(111,242,106,.55);filter:brightness(1.22)}}
+@keyframes atagShine{0%{background-position:160% 0,0 0}60%,100%{background-position:-60% 0,0 0}}
+body #side .pr .pav>.atag{background-image:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%),linear-gradient(#6ff26a,#1fa83c);background-size:250% 100%,100% 100%;background-repeat:no-repeat;animation:atagGlow 1.4s ease-in-out infinite,atagShine 2.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){body #side .pr .pav>.atag{animation:none;box-shadow:0 0 6px 1px rgba(111,242,106,.7)}}
 body #side .pr .pav>.ord{position:absolute;right:-7px;top:-9px;z-index:2;display:flex;align-items:center;justify-content:center;min-width:1.55em;height:1.55em;margin:0;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:11px;line-height:1;border-radius:999px;border:2px solid var(--pc,#fff);background:linear-gradient(#1b3270,#12235a);color:#fff;text-shadow:0 1px 0 #000;pointer-events:none}
 /* chip panel Giliran (kanan bawah): tanpa mahkota, isi 1st/2nd/3rd/4th (atau Selesai) */
 body #side .tn>h3::before{display:none}
