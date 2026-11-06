@@ -330,7 +330,7 @@
       s.plays += 1;
       if (won) { s.wins += 1; s.streak += 1; if (s.streak > s.bestStreak) s.bestStreak = s.streak; }
       else { s.streak = 0; }
-      var pts = won ? PTS_WIN : PTS_LOSS, gain = won ? XP_WIN : XP_LOSS;
+      var pts = o.noPoints ? 0 : (won ? PTS_WIN : PTS_LOSS), gain = won ? XP_WIN : XP_LOSS;
       s.points += pts; s.weekPoints += pts;
       s.seen.push(token); s.seen = s.seen.slice(-SEEN_MAX);
       st.stats = s; st.xp += gain;
