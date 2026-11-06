@@ -3,16 +3,18 @@ import './room-service.js';
 const MP=window.UT.Multiplayer;
 async function connect(options){
  const identity=await MP.RoomService.ensurePlayer(),client=await MP.getClient();
- let revision=Number(options.roomConfig.roomRevision)||0,channel=client.channel('game-sync:'+options.roomId,{config:{broadcast:{self:false}}});
+ let revision=Number(options.roomConfig.roomRevision)||0,channel=client.channel('game-sync:'+options.roomId,{config:{broadcast:{self:false},presence:{key:identity.id}}});
  let resolveReady,rejectReady;const ready=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject});
  channel.on('broadcast',{event:'roll_request'},({payload})=>{if(options.isHost&&options.onRollRequest)options.onRollRequest(payload||{})});
  channel.on('broadcast',{event:'power_request'},({payload})=>{if(options.isHost&&options.onPowerRequest)options.onPowerRequest(payload||{})});
  channel.on('broadcast',{event:'loadout'},({payload})=>{if(options.isHost&&options.onLoadout&&payload)options.onLoadout(payload)});
  channel.on('broadcast',{event:'host_left'},()=>{if(!options.isHost&&options.onHostLeft)options.onHostLeft()});
+ channel.on('presence',{event:'leave'},({key})=>{if(options.isHost&&options.onPlayerLeft)options.onPlayerLeft(key)}); // pemain keluar game -> host menjadikannya AUTO
+ channel.on('presence',{event:'join'},({key})=>{if(options.isHost&&options.onPlayerJoin)options.onPlayerJoin(key)});
  channel.on('broadcast',{event:'cue'},({payload})=>{if(!options.isHost&&options.onCue&&payload)options.onCue(payload)});
  channel.on('broadcast',{event:'snapshot'},({payload})=>{if(!options.isHost&&options.onSnapshot&&payload)options.onSnapshot(payload)});
  channel.subscribe(async status=>{
-  if(status==='SUBSCRIBED'){try{const {data,error}=await client.from('game_rooms').select('revision,game_state').eq('id',options.roomId).maybeSingle();if(error)throw error;
+  if(status==='SUBSCRIBED'){try{await channel.track({player_id:identity.id,online_at:new Date().toISOString()})}catch(_){}try{const {data,error}=await client.from('game_rooms').select('revision,game_state').eq('id',options.roomId).maybeSingle();if(error)throw error;
    if(data){revision=Number(data.revision)||revision;if(data.game_state&&data.game_state.snapshot&&!options.isHost&&options.onSnapshot)options.onSnapshot(data.game_state.snapshot)}
    resolveReady(data||null);
   }catch(e){rejectReady(e)}}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')rejectReady(new Error('Realtime channel '+status));

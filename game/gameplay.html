@@ -996,6 +996,7 @@ body #pauseMenu #pmMode:disabled{opacity:.55;cursor:not-allowed}
 <style id="hud-ord-chip">
 /* urutan giliran = chip angka kecil di pojok foto profil (kiri: daftar Pemain; kanan: panel Giliran) */
 body #side .pr .pav{position:relative;display:flex;flex:none}
+body #side .pr .pav>.atag{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;justify-content:center;height:1.45em;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:8px;line-height:1;letter-spacing:.04em;white-space:nowrap;color:#fff;border-radius:999px;border:1.5px solid #0d4a14;background:linear-gradient(#6ff26a,#1fa83c);text-shadow:0 1px 0 #0d4a14;pointer-events:none}
 body #side .pr .pav>.ord{position:absolute;right:-7px;top:-9px;z-index:2;display:flex;align-items:center;justify-content:center;min-width:1.55em;height:1.55em;margin:0;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:11px;line-height:1;border-radius:999px;border:2px solid var(--pc,#fff);background:linear-gradient(#1b3270,#12235a);color:#fff;text-shadow:0 1px 0 #000;pointer-events:none}
 /* chip panel Giliran (kanan bawah): tanpa mahkota, isi 1st/2nd/3rd/4th (atau Selesai) */
 body #side .tn>h3::before{display:none}
@@ -5162,7 +5163,7 @@ async function usePU(k,cpu){
     else t=p.name+' bertukar posisi dengan '+L.name+' — '+p.name+' '+p.pos+', '+L.name+' '+L.pos;
     e=k==='sword'?SW.name+(oldS-SW.pos>0?' mundur '+(oldS-SW.pos)+' petak':' tidak bergerak'):k==='tnt'?L.name+(oldL-L.pos>0?' mundur '+(oldL-L.pos)+' petak':' tidak bergerak'):'Bertukar posisi dengan '+L.name; if(blocked){ const vv=k==='sword'?SW:L; t=vv.name+' menahan '+PUN[k][1]+' '+p.name+' dengan Totem'; e=vv.name+' menahan serangan dengan Totem'; } setMsg(t); if(!hit){ const po={gid,icon:PUN[k][0],desc:e}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); } /* hit=true: card tengah sudah tampil dari titik kena; banner HUD hanya untuk Power yang diblok */
   }else{ const po={gid,icon:PUN[k][0],desc:PUN[k][2]}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); }
-  busy=false; if(!p.cpu) setRoll(true); focus=p.pawn; renderChips(); startTurnTimer(); /* setelah Power, hitung ulang 15 dtk */
+  busy=false; if(!p.cpu) setRoll(true); focus=p.pawn; renderChips(); startTurnTimer(); /* setelah Power, hitung ulang 10 dtk */
 }
 /* Stage 4.1.21 — feedback Power lewat sistem class-toggle existing (renderChips + data-state). renderChips() membangun ulang DOM, jadi feedback disimpan sebagai
    cap waktu pendek lalu dipasang ulang dengan animation-delay negatif (animasi lanjut, tidak restart). Tanpa timer/rAF/listener baru; kedaluwarsa otomatis. */
@@ -5186,7 +5187,7 @@ function renderChips(){
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos));
-    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
+    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=(p.dhp/(p.hpMax||100)*100)+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
@@ -5233,17 +5234,28 @@ function publishTurnState(){
   players.forEach((q,i)=>{ if(!q.turnOrder) q.turnOrder=i+1; }); /* tanpa shuffle (?ready=0): urutan awal */
   try{ const C=UT.Gameplay.Core; C.turn={ turnOrder:players.map(q=>({id:q.idx,name:q.name,turnOrder:q.turnOrder||0,cpu:!!q.cpu})), get currentTurnIndex(){ return cur; }, get currentPlayerId(){ return players[cur]?players[cur].idx:null; } }; }catch(e){}
 }
-/* 4.1.15.8-9: AFK giliran manusia. Satu timer aktif ('turn') lewat UT.GameplayAFK. Timeout -> doRoll() existing (identitas pemain tidak berubah). */
-const AFK_TURN_MS=15000;
+/* AFK giliran manusia: 10 dtk tanpa Roll -> auto roll. 3x berturut-turut tidak roll (atau keluar game) -> pemain jadi AUTO (HUD: label AUTO di bawah foto).
+   Online: HOST yang menjalankan timer untuk semua pemain (tamu hanya menampilkan hitung mundur). Roll manual mengembalikan kendali (afkReset). */
+const AFK_TURN_MS=10000,AFK_MAX_MISS=3,AFK_AUTO_MS=2000; /* pemain AUTO: roll setelah 2 dtk (masih sempat ambil alih dengan menekan Roll) */
+function afkMiss(p){ p.afkMiss=(p.afkMiss|0)+1; if(p.afkMiss>=AFK_MAX_MISS){ p.auto=true; return true; } return false; }
+function afkReset(p){ if(p){ p.afkMiss=0; p.auto=false; p.left=false; } }
 function clearTurnTimer(){ try{ if(UT.GameplayAFK) UT.GameplayAFK.clear('turn'); }catch(e){} }
 function startTurnTimer(){
   clearTurnTimer();
-  const A=UT.GameplayAFK,p=players[cur]; if(ONLINE_ROOM||!A||!p||p.cpu||paused||busy||gameOver||document.getElementById('readyScreen')) return;
+  const A=UT.GameplayAFK,p=players[cur]; if(!A||!p||p.cpu||paused||busy||gameOver||document.getElementById('readyScreen')) return;
   const gid=gameId,who=p;
-  A.start('turn',AFK_TURN_MS,()=>{
+  const tick=s=>{ if(gid===gameId&&!busy&&!paused&&!gameOver&&players[cur]===who&&s<=5&&s>0) setMsg(who.name+': auto roll dalam '+s+' dtk'); };
+  if(ONLINE_ROOM&&!ONLINE_HOST){ if(!who.auto) A.start('turn',AFK_TURN_MS,()=>{},tick); return; } /* tamu: hanya hitung mundur tampilan; host yang me-roll */
+  const wasAuto=!!who.auto;
+  A.start('turn',wasAuto?AFK_AUTO_MS:AFK_TURN_MS,()=>{
     if(gid!==gameId||gameOver||players[cur]!==who||busy||paused) return; /* sudah main / pindah giliran / jeda -> abaikan */
-    setMsg(who.name+' tidak aktif. Auto roll...'); fb('event','info',who.name+' AFK — auto roll',{gid}); doRoll();
-  },s=>{ if(gid===gameId&&!busy&&!paused&&!gameOver&&players[cur]===who&&s<=5&&s>0) setMsg(who.name+': auto roll dalam '+s+' dtk'); });
+    if(wasAuto){ fb('event','info',who.name+' AUTO — roll otomatis',{gid}); doRoll({afk:true}); return; }
+    const toAuto=afkMiss(who);
+    setMsg(toAuto?who.name+' tidak aktif 3x. Mode AUTO aktif.':who.name+' tidak aktif. Auto roll...');
+    fb('event','info',who.name+(toAuto?' AFK 3x — mode AUTO':' AFK — auto roll'),{gid});
+    if(toAuto){ try{ renderChips(); }catch(e){} }
+    doRoll({afk:true});
+  },tick);
 }
 function nextTurn(){ cur=(cur+1)%players.length; busy=false; beginTurn(); }
 
@@ -5543,7 +5555,7 @@ async function doRoll(opt){
   if((ONLINE_ROOM&&!ONLINE_HOST)||busy||paused||gameOver||!players.length||AWK.running) return;
   if(DH.on) holdEnd(false); /* tombol roll tidak boleh tertinggal dalam mode tahan */
   busy=true; setRoll(false); clearTurnTimer();
-  const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
+  const gid=gameId,p=players[cur];if(!p.cpu&&!(opt&&opt.afk)) afkReset(p); /* roll manual = pemain aktif lagi */ let v=1+Math.floor(Math.random()*6);
   if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
   else{ const cv=chestDiceForce(p); if(cv) v=cv; try{ syncDiceGuide(); }catch(e){} } /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
   const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});
@@ -5636,7 +5648,7 @@ function makeGameSnapshot(){
   players:players.map(p=>({networkId:p.networkId,name:p.name,pos:p.pos,sixes:p.sixes,dhp:p.dhp,hpMax:p.hpMax,
    crystal:p.crystal,cdone:Array.isArray(p.cdone)?p.cdone.slice():[],dragonReady:!!p.dragonReady,inArena:!!p.inArena,
    score:p.score,bonus:p.bonus,extra:!!p.extra,odd:!!p.odd,even:!!p.even,lucky:!!p.lucky,shield:!!p.shield,
-   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,loadout:!!p.loadout,
+   pu:Object.assign({},p.pu),turnOrder:p.turnOrder||0,loadout:!!p.loadout,auto:!!p.auto,afkMiss:p.afkMiss|0,
    pawn:p.pawn?{x:p.pawn.position.x,y:p.pawn.position.y,z:p.pawn.position.z,ry:p.pawn.rotation.y}:null}))};
 }
 function applyGameSnapshot(s){
@@ -5645,7 +5657,7 @@ function applyGameSnapshot(s){
  MP_APPLYING=true;
  try{
   s.players.forEach((v,i)=>{const p=players[i];if(!p)return;
-   ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder','loadout'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
+   ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','turnOrder','loadout','auto','afkMiss'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
    p.cdone=Array.isArray(v.cdone)?v.cdone.slice():new Array(CRYSTAL_N).fill(false);
    if(v.pu&&typeof v.pu==='object')p.pu=Object.assign({},v.pu);
    if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
@@ -5672,6 +5684,8 @@ function initMultiplayerBridge(){
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
+  onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
+  onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
   onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[]); p.loadout=true; renderChips(); publishGameSnapshot(); },
   onSnapshot:applyGameSnapshot
