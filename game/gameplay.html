@@ -5663,7 +5663,8 @@ function mpRunFeedbackCue(c){
     else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
     else if(c.k==='hud'){ hud0(c.f,...mpFixGid(c.a)); }
     else if(c.k==='dfx'){ return mpDragonFx(c.t); }
-    else if(c.k==='sfx'){ const f=sfx0[c.n]; if(typeof f==='function') f.apply(sfx0,c.a||[]); }
+    else if(c.k==='sfx'){ const f=sfx0[c.n]; if(typeof f==='function'){ /* suara aksi pemain lain: lebih pelan (MP_SFX_GAIN) dari suara aksi sendiri; volume dibaca saat dipanggil, jadi cukup diturunkan sesaat lalu dikembalikan */
+        const base=sfxVol/100; try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(base*MP_SFX_GAIN); f.apply(sfx0,c.a||[]); } finally{ try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(base); }catch(e){} } } }
     else if(c.k==='atk'){ if(FBK) FBK.showAttackCard(c.a[0],c.a[1],c.a[2],c.a[3],{silent:true}); }
     else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
@@ -5675,6 +5676,7 @@ function mpRunFeedbackCue(c){
   return Promise.resolve();
 }
 let MP_CCARD_T=0;
+const MP_SFX_GAIN=0.6; /* 60% dari volume SFX pemain; ubah angka ini untuk lebih pelan/keras */
 /* Sequence boss/kemenangan: host menjalankan fungsi aslinya, tamu menjalankan fungsi yang SAMA secara lokal (animasi, kamera, musik, SFX-nya sendiri). Hanya presentasi; state tetap dari host lewat snapshot. */
 function mpRunSeq(c){
   const p=c.pid?mpPlayerByNet(c.pid):null,gid=gameId;
