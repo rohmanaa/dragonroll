@@ -1295,6 +1295,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'gameplay'});</script>
 <script src="gameplay/module-bridge.js"></script>
+<script src="gameplay/game-core.js"></script>
 <script src="gameplay/maps/registry.js"></script>
 <script src="gameplay/maps/world.js"></script>
 <script src="gameplay/maps/nether.js"></script>
@@ -5485,14 +5486,12 @@ async function playTurn(p,v,gid,bn){
     if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
     return;
   }
-  const target=p.pos+v+(bn||0);
-  if(target<=GOAL){
-    await A(walk(p,p.pos,target)); p.pos=target;
-  }else{
-    const over=target-GOAL,fin=GOAL-over;
-    await A(walk(p,p.pos,GOAL)); p.pos=GOAL; renderChips();
-    setMsg('Kelebihan '+over+'. '+p.name+' memantul mundur ke '+fin+'.'); fb('event','bounce','Kelebihan '+over+'! Memantul ke '+fin,{gid}); sfx.bounce();
-    await A(sleep(300)); await A(walk(p,GOAL,fin)); p.pos=fin;
+  const PM=UT.Gameplay.Core.planMove(p.pos,v+(bn||0),GOAL); /* aturan gerak/pantulan = game-core.js */
+  await A(walk(p,p.pos,PM.to)); p.pos=PM.to;
+  if(PM.over){
+    renderChips();
+    setMsg('Kelebihan '+PM.over+'. '+p.name+' memantul mundur ke '+PM.bounceTo+'.'); fb('event','bounce','Kelebihan '+PM.over+'! Memantul ke '+PM.bounceTo,{gid}); sfx.bounce();
+    await A(sleep(300)); await A(walk(p,GOAL,PM.bounceTo)); p.pos=PM.bounceTo;
   }
   renderChips();
   if(p.pos===GOAL&&BOSS==='wither'){ setMsg(p.name+' tiba di Benteng Nether! Siap lawan Wither.'); fb('event','dragon',p.name+' tiba di Benteng Nether! Siap lawan Wither',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenWither(p,gid)); await A(gatherFort(gid)); nextTurn(); return; }
@@ -5586,10 +5585,10 @@ async function doRoll(opt){
   try{
     await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
-    p.sixes=(v===6)?p.sixes+1:0;
+    const SX=UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* aturan tiga-6 = game-core.js */
     await sleep(300); if(gid!==gameId) return;
-    if(p.sixes>=3){
-      p.sixes=0; sfx.bounce();
+    if(SX.forfeit){
+      sfx.bounce();
       setMsg(p.name+' dapat 6 tiga kali berturut-turut. Giliran hangus.'); hud('showResult','Tiga kali 6!','Giliran hangus.',{gid,ttl:1500});
       await sleep(1500); if(gid!==gameId) return;
       nextTurn(); return;
