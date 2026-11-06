@@ -3,6 +3,7 @@
 
 /* giliran lawan (CPU): tombol Roll & Auto disembunyikan (bukan disabled); mahkota HUD hanya untuk host; sisi dadu non-hasil lebih gelap */
 html body.opp-turn #side #btnRoll,html body.opp-turn #side #btnAuto{visibility:hidden!important;pointer-events:none!important}
+html body.opp-turn #side #diceMeter{display:none!important} /* bar angka 1-6 (dadu khusus) juga hanya untuk pemain yang sedang main */
 html body #side .pr:not(.host) .pos::before{display:none}
 html body.mp-online #side .pr.host::after{content:none} /* satu mahkota saja (di samping posisi) */
 html body #side .pr:not(.host) .pos{gap:0}
@@ -2844,11 +2845,11 @@ function buildLabels(th){
   const geo=new THREE.PlaneGeometry(0.6,0.6);
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n];
-    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false}));
+    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false})); /* fog:false: nomor tidak ikut memudar jadi warna langit saat kamera jauh */
     m.rotation.x=-Math.PI/2; m.position.set(t.x,t.h+0.012,t.z); m.renderOrder=2;
     world.add(m);
   }
-  const st=new THREE.Mesh(new THREE.PlaneGeometry(1.8,0.45),new THREE.MeshBasicMaterial({map:labelTexture('START',256,64,40,th.label,th.labelLine),transparent:true,depthWrite:false}));
+  const st=new THREE.Mesh(new THREE.PlaneGeometry(1.8,0.45),new THREE.MeshBasicMaterial({map:labelTexture('START',256,64,40,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false}));
   st.rotation.x=-Math.PI/2; st.position.set(PAD.x,0.012,PAD.z+1.5); st.renderOrder=2;
   world.add(st);
 }
@@ -4981,6 +4982,8 @@ let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
+/* Resume: simpan room online yang sedang dimainkan di localStorage (tahan tab ditutup/browser mati). Lobby membaca ini & mengalihkan pemain kembali ke game; dihapus saat keluar lewat menu atau game selesai. */
+if(ONLINE_ROOM){ try{ localStorage.setItem('ut-mp-active',JSON.stringify({id:ROOM_CFG.roomId,code:ROOM_CFG.code||'',format:ROOM_CFG.format==='team'?'team':'solo',t:Date.now()})); }catch(e){} }
 let MP_SYNC=null,MP_ID=null,MP_CONNECTING=false,MP_APPLYING=false;
 const MP_LEFT=new Set(); /* networkId pemain yang keluar dari game: disembunyikan dari HUD & tidak ikut 'Main lagi' */
 if(ONLINE_ROOM) document.body.classList.add('mp-online');
@@ -5201,12 +5204,12 @@ function renderChips(){
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   const autoOn=(()=>{ try{ return !!autoRoll; }catch(e){ return false; } })(); /* tombol Auto milik pemain lokal -> chip AUTO (try: autoRoll dideklarasi setelah fungsi ini) */
   players.forEach((p,i)=>{
-    if(ONLINE_ROOM&&p.left) return; /* pemain sudah keluar: jangan tampil di HUD (daftar, skor) */
+    /* pemain yang keluar/terputus tetap tampil di HUD (ditandai AUTO) agar profilnya tidak hilang & kembali normal saat ia masuk lagi */
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css); /* mahkota hanya untuk host */
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos));
-    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p))))){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
+    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(ONLINE_ROOM&&p.left&&!p.cpu)||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p))))){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=(p.dhp/(p.hpMax||100)*100)+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
@@ -5521,7 +5524,7 @@ function specialHint(p){
 function syncRollLabel(){
   const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
   b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll');
-  dmShow(sp&&!AWK.running); if(sp&&!DH.on) dmDraw(0);
+  dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
 function dmSeg(x){ return Math.max(1,Math.min(6,Math.floor(x*6)+1)); }
@@ -5661,6 +5664,7 @@ function recordMatchResult(winner){
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
+  if(ONLINE_ROOM){ try{ localStorage.removeItem('ut-mp-active'); }catch(e){} } /* game selesai: tidak perlu resume */
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
@@ -5865,7 +5869,7 @@ function initMultiplayerBridge(){
 const LOBBY_URL='lobby.html'; /* fallback bila tidak ada data room */
 function exitToRoom(){
   if(ONLINE_ROOM){ /* room online masih berstatus 'playing' -> room.html akan meluncurkan game lagi; keluar langsung ke Mode Selection */
-    try{ sessionStorage.setItem('ut-mp-exited',String(ROOM_CFG.roomId)); sessionStorage.removeItem('ut-room'); sessionStorage.removeItem('ut-multiplayer-room'); }catch(e){}
+    try{ sessionStorage.setItem('ut-mp-exited',String(ROOM_CFG.roomId)); sessionStorage.removeItem('ut-room'); sessionStorage.removeItem('ut-multiplayer-room'); localStorage.removeItem('ut-mp-active'); }catch(e){}
     const bye=()=>{ try{ if(MP_SYNC&&MP_SYNC.close) MP_SYNC.close(); }catch(e){} location.href='mode.html'; };
     const srv=()=>{ try{ const RS=window.UT&&UT.Multiplayer&&UT.Multiplayer.RoomService; return RS&&RS.exitRoom?Promise.race([RS.exitRoom(ROOM_CFG.roomId).catch(()=>{}),sleep(900)]):Promise.resolve(); }catch(e){ return Promise.resolve(); } }; /* keluarkan dari room di server agar room lama tidak 'playing' selamanya */
     if(ONLINE_HOST&&MP_SYNC&&MP_SYNC.announceLeave&&!gameOver){ Promise.race([MP_SYNC.announceLeave().catch(()=>{}),sleep(700)]).then(srv).then(bye); } else srv().then(bye); /* host keluar -> beri tahu tamu */

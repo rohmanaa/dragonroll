@@ -166,6 +166,20 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
 <script>import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.dailyLogin()).catch(()=>{})</script>
+<script>
+/* Resume game online: bila pemain keluar tiba-tiba (tab ditutup/refresh/browser mati) saat game multiplayer masih berjalan, alihkan kembali ke game.
+   Kunci 'ut-mp-active' ditulis gameplay.html & dihapus saat keluar lewat menu / game selesai. Room.html bergabung ulang (join_game_room mengembalikan room bila sudah anggota) lalu meluncurkan game. */
+(async function(){ try{
+  var raw=localStorage.getItem('ut-mp-active'); if(!raw) return;
+  var a=JSON.parse(raw);
+  if(!a||!a.id||!/^[A-Za-z0-9]{6,8}$/.test(a.code||'')||Date.now()-(+a.t||0)>6*3600*1000){ localStorage.removeItem('ut-mp-active'); return; }
+  await import('./assets/js/multiplayer/room-service.js');
+  var RS=UT.Multiplayer.RoomService, me=await RS.ensurePlayer(), row=await RS.getRoom(a.id);
+  var mine=row&&row.status==='playing'&&(row.players||[]).some(function(p){ return p.id===me.id; });
+  if(!mine){ localStorage.removeItem('ut-mp-active'); return; }
+  location.replace('room.html?mode=online&format='+(a.format==='team'?'team':'solo')+'&role=guest&code='+encodeURIComponent(String(a.code).toUpperCase()));
+}catch(e){ if(e&&String(e.message||e).indexOf('ROOM_NOT_FOUND')>-1){ try{ localStorage.removeItem('ut-mp-active'); }catch(_){} } } })();
+</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script>
