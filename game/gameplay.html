@@ -3209,8 +3209,8 @@ function blazeFireStep(m,dt,t,hot){
 function sparkle(pos){ if(FX) FX.sparkle(pos); } /* visual: UT.GameplayFX */
 function mobReact(n){ if(MOBOBJ[n]) MOBOBJ[n].react=1.6; }
 /* Lifecycle Chest: open=1 menahan tutup terbuka sampai closeChest() dipanggil (tidak lagi timer otomatis). */
-function openChest(n){ const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
-function closeChest(n){ const c=CHESTOBJ[n]; if(c) c.open=0; }
+function openChest(n){ mpCue({k:'chest',n:n,o:1}); const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
+function closeChest(n){ mpCue({k:'chest',n:n,o:0}); const c=CHESTOBJ[n]; if(c) c.open=0; }
 function updateMobs(dt,t){
   updateGhasts(dt,t); updateLavafalls(t); updateWither(dt,t); updateFort(dt,t); updateWFX(dt);
   const pw=players.map(p=>p.pawn.position);
@@ -4578,7 +4578,10 @@ const lerp=(a,b,k)=>a+(b-a)*k;
 let muted=false;
 const GA=window.UT&&UT.GameplayAudio;
 function ensureAudio(){ try{ if(GA) GA.ensure(); }catch(e){} }
-const sfx=GA?GA.sfx:new Proxy({},{get:()=>()=>{}}); /* modul tak termuat -> senyap, game tetap jalan (bukan implementasi audio kedua) */
+const sfx0=GA?GA.sfx:new Proxy({},{get:()=>()=>{}});
+/* MP: suara hasil aksi (hit/chest/reward/power/pop) dimainkan host lalu di-mirror ke tamu lewat cue 'sfx'. Suara gerak (hop/ladder) sudah dimainkan tamu sendiri lewat cue walk/climb/bite. */
+const SFX_MIRROR={hit:1,playerHurt:1,chest:1,chestClose:1,rewardpower:1,power:1,pop:1};
+const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||!SFX_MIRROR[k]) return v; return function(...a){ try{ mpCue({k:'sfx',n:k,a:k==='power'?[a[0]]:[]}); }catch(e){} return v.apply(t,a); }; }}); /* modul tak termuat -> senyap, game tetap jalan (bukan implementasi audio kedua) */
 
 /* ---------- Dadu ---------- */
 /* Presentation dadu = UT.GameplayDiceUI (gameplay/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
@@ -4593,6 +4596,7 @@ function clearConfetti(){ if(FX) FX.clearConfetti(); }
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
 function powerFxPawn(key,pl){
+  mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
   try{
     const PF=window.UT&&UT.PowerFX; if(!PF||!pl||!pl.pawn||reduce) return;
     const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
@@ -4977,7 +4981,9 @@ if(ONLINE_ROOM) document.body.classList.add('mp-online');
 function setMsg(t){ $('msg').textContent=t; }
 /* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (gameplay/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
 function hud(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](...a); }catch(e){ console.error(e); } }
-function fb(k,...a){ try{ const F=window.UT&&UT.Gameplay&&UT.Gameplay.Feedback; if(F&&typeof F[k]==='function') return F[k](...a); if(k==='event'){ hud('showEvent',...a); return true; } }catch(e){ console.error(e); } return false; }
+function mpFbMirrorable(k,a){ const o=a[a.length-1]; if(k==='short') return !(o&&typeof o==='object'&&o.local); return k==='event'&&o&&typeof o==='object'&&o.gid!==undefined&&!o.local; }
+function fb(k,...a){ try{ if(ONLINE_ROOM&&ONLINE_HOST&&mpFbMirrorable(k,a)) mpCue({k:'fb',f:k,a:JSON.parse(JSON.stringify(a))}); }catch(e){} return fb0(k,...a); }
+function fb0(k,...a){ try{ const F=window.UT&&UT.Gameplay&&UT.Gameplay.Feedback; if(F&&typeof F[k]==='function') return F[k](...a); if(k==='event'){ hud('showEvent',...a); return true; } }catch(e){ console.error(e); } return false; }
 if(window.UT&&UT.GameplayHUD) UT.GameplayHUD.init({getGameId:()=>gameId,isPaused:()=>paused});
 function setRoll(on){ $('btnRoll').disabled=!on; }
 function isHostPlayer(p){ try{ const h=(ROOM_CFG.players||[]).find(x=>x.kind==='host'); return !!(h&&p&&p.networkId===h.id); }catch(e){ return false; } }
@@ -5101,9 +5107,9 @@ async function giveChest(p,tok){
      const rw=resolveChestReward(); CHEST_LC.rewards++; /* reward tepat 1x per lifecycle */
      const res=await applyChestReward(p,rw,gid); if(gid!==gameId) return {status:'stale'};
      setMsg(p.name+' membuka peti: '+res.text+'.');
-     if(FBK){ FBK.showChestRewardCard(p.name,res.text); sfx.rewardpower(); } else fb('event','chest','Chest: '+res.text); /* compact reward card + SFX reward 1x per reward */
+     if(FBK){ mpCue({k:'ccard',w:p.name,t:res.text}); FBK.showChestRewardCard(p.name,res.text); sfx.rewardpower(); } else fb('event','chest','Chest: '+res.text); /* compact reward card + SFX reward 1x per reward */
      await sleep(reduce?600:1200); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama card tampil */
-     if(FBK) FBK.hideChestRewardCard();
+     mpCue({k:'ccard_hide'}); if(FBK) FBK.hideChestRewardCard();
      sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
      if(gid!==gameId) return {status:'stale'};
      if(res.after){ await res.after(); if(gid!==gameId) return {status:'stale'}; } /* urutan: peti buka -> card -> card tutup -> peti tutup -> pion jalan */
@@ -5115,7 +5121,7 @@ try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
 const FBK=(window.UT&&UT.GameplayFeedback)||null; /* modul tak termuat -> presentasi visual dilewati, gameplay tetap jalan */
 if(FBK) FBK.init({sfx,sleep,reduce});
 async function showPUCard(p,k){ if(FBK) return FBK.showPUCard(p,k); }
-function showAttackCard(attacker,defender,weapon,desc,o){ if(FBK) FBK.showAttackCard(attacker,defender,weapon,desc,o); }
+function showAttackCard(attacker,defender,weapon,desc,o){ mpCue({k:'atk',a:[attacker,defender,weapon,desc]}); if(FBK) FBK.showAttackCard(attacker,defender,weapon,desc,o); }
 /* Power Hit: card tengah (#puCard) dipanggil dari titik target BENAR-BENAR kena (tidak diblok Totem). Suara hit dimainkan pemanggil (sfx.playerHurt), jadi card dibisukan agar tidak dobel. */
 function powerHitCard(p,T,k,effect){ showAttackCard(p.name,T.name,k,'Kena! '+effect,{silent:true}); }
 /* CPU hanya memilih Power yang valid (aturan sama dengan usePU): punya stok, bukan Pedang/Totem di fase Dragon, TNT wajib punya target. */
@@ -5133,7 +5139,7 @@ async function usePU(k,cpu){
   if(!p||busy||gameOver||AWK.running||!p.pu[k]||(p.cpu&&!cpu)) return;
   if(ONLINE_ROOM&&!ONLINE_HOST){if(canControlPlayer(p)&&MP_SYNC)MP_SYNC.requestPower({playerId:MP_ID,power:k}).catch(e=>console.error('[multiplayer] power request failed',e));return;}
   /* Fase Dragon = p.pos===GOAL (kondisi existing di playTurn). Pedang/Totem (id 'totem') hanya relevan untuk gerak papan: tolak SEBELUM konsumsi, Power tidak berkurang. CPU: tolak diam-diam (CPU sudah memfilter Power valid sebelum usePU, 4.1.8). */
-  if(p.pos===GOAL&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
+  if(p.pos===GOAL&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0],local:true})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
   if(k==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, Pedang, TNT, atau Rumput.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
   const gid=gameId,L=players.filter(q=>q!==p&&q.pos>0&&q.pos<GOAL).sort((a,b)=>b.pos-a.pos)[0];
   const SW=k==='sword'?players.filter(q=>q!==p&&q.pos>0&&q.pos<GOAL&&q.pos===p.pos)[0]:null; /* Pedang: musuh di petak yang SAMA */
@@ -5168,7 +5174,7 @@ async function usePU(k,cpu){
 /* Stage 4.1.21 — feedback Power lewat sistem class-toggle existing (renderChips + data-state). renderChips() membangun ulang DOM, jadi feedback disimpan sebagai
    cap waktu pendek lalu dipasang ulang dengan animation-delay negatif (animasi lanjut, tidak restart). Tanpa timer/rAF/listener baru; kedaluwarsa otomatis. */
 const PUFX={}, PUFX_MS=650;
-function puFx(key,cls){ if(reduce) return; PUFX[key]={cls,t:performance.now()}; }
+function puFx(key,cls){ mpCue({k:'pufx',key:key,cls:cls}); if(reduce) return; PUFX[key]={cls,t:performance.now()}; }
 function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performance.now()-f.t; if(e>=PUFX_MS){ delete PUFX[key]; return; } el.classList.add(f.cls); el.style.setProperty('--fx-d',(-e)+'ms'); }
 function turnTag(){ return gameOver?'Selesai':ORD(cur); } /* teks chip panel Giliran: 1st/2nd/... atau Selesai saat game berakhir */
 function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
@@ -5353,6 +5359,7 @@ async function celebrate(p){
 /* Efek mob di petak p.pos. Dipakai playTurn (setelah dadu) DAN setelah Chest 'Kejutan' memindahkan pemain. */
 /* Efek hit 2D di posisi pion: gelombang + garis angin + flash merah + guncangan layar */
 function hitBlastFx(p){
+  mpCue({k:'hitfx',pid:p&&p.networkId});
   if(reduce) return;
   try{
     let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
@@ -5419,9 +5426,14 @@ async function askTotem(p,gid,what){
   if(!p.pu||!(p.pu.totem>0)) return false;
   if(p.cpu){ p.pu.totem--; return true; }
   setMsg(p.name+' kena '+what+'. Pakai Totem?');
-  const use=await totemModal(p,what,gid);
+  let use;
+  if(ONLINE_ROOM&&ONLINE_HOST&&p.networkId&&p.networkId!==MP_ID&&!p.left&&!p.auto){ /* korban = tamu: tanya di layarnya, bukan di layar host */
+    try{ fb('event','info',p.name+' kena '+what+' — memilih Totem...',{gid,ttl:2400}); }catch(e){}
+    use=await mpAskGuestTotem(p,what,gid);
+  } else if(ONLINE_ROOM&&p.networkId&&p.networkId!==MP_ID){ use=true; } /* tamu keluar/AUTO: otomatis pakai */
+  else use=await totemModal(p,what,gid);
   if(gid!==gameId) throw STALE;
-  if(use) p.pu.totem--; else setMsg(p.name+' memilih tidak memakai Totem.');
+  if(use) p.pu.totem--; else { setMsg(p.name+' memilih tidak memakai Totem.'); try{ fb('event','info',p.name+' memilih tidak memakai Totem',{gid,ttl:1800}); }catch(e){} }
   return use;
 }
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
@@ -5624,6 +5636,7 @@ function startGame(m,keys){
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
+const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1};
 function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
@@ -5634,10 +5647,44 @@ function mpRunCue(c){
   if(c.k==='bite') return bite(p,c.from,c.to,gameId);
   return Promise.resolve();
 }
+/* Cue feedback (tamu): pemain mana pun melihat/mendengar hasil aksi yang sama dengan host. Tidak ada gate giliran. */
+function mpFixGid(a){ return (a||[]).map(x=>(x&&typeof x==='object'&&!Array.isArray(x)&&x.gid!==undefined)?Object.assign({},x,{gid:gameId}):x); }
+function mpRunFeedbackCue(c){
+  try{
+    if(c.k==='fb'){ fb0(c.f,...mpFixGid(c.a)); if(c.f==='short'){ /* fallback HUD sama seperti host */ } }
+    else if(c.k==='sfx'){ const f=sfx0[c.n]; if(typeof f==='function') f.apply(sfx0,c.a||[]); }
+    else if(c.k==='atk'){ if(FBK) FBK.showAttackCard(c.a[0],c.a[1],c.a[2],c.a[3],{silent:true}); }
+    else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
+    else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
+    else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
+    else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
+    else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }
+    else if(c.k==='pufx'){ puFx(c.key,c.cls); }
+  }catch(e){ console.error('[multiplayer] feedback cue failed',e); }
+  return Promise.resolve();
+}
+let MP_CCARD_T=0;
+/* Totem: keputusan dibuat di layar KORBAN, bukan di layar host. Host menunggu jawaban (maks 15 dtk -> otomatis pakai, sama seperti timeout modal). */
+let MP_TOTEM=null;
+function mpAskGuestTotem(p,what,gid){
+  return new Promise(res=>{
+    const id='t'+Date.now()+Math.random().toString(36).slice(2,6);
+    const done=v=>{ if(MP_TOTEM&&MP_TOTEM.id===id){ clearTimeout(MP_TOTEM.t); MP_TOTEM=null; res(v); } };
+    MP_TOTEM={id:id,res:done,t:setTimeout(()=>done(true),15000)};
+    mpCue({k:'totem_ask',id:id,pid:p.networkId,what:what});
+  });
+}
+function onMpTotemAnswer(pl){ if(MP_TOTEM&&pl&&pl.id===MP_TOTEM.id) MP_TOTEM.res(!!pl.use); }
+async function mpGuestTotemPrompt(c){
+  const p=mpPlayerByNet(c.pid); if(!p||p.networkId!==MP_ID) return; /* hanya korban yang melihat modal */
+  const use=await totemModal(p,c.what,gameId);
+  try{ if(MP_SYNC&&MP_SYNC.sendTotemAnswer) await MP_SYNC.sendTotemAnswer({id:c.id,playerId:MP_ID,use:!!use}); }catch(e){ console.error('[multiplayer] totem answer failed',e); }
+}
 function onMpCue(c){
   if(!ONLINE_ROOM||ONLINE_HOST) return;
+  if(c&&c.k==='totem_ask'){ mpGuestTotemPrompt(c); return; } /* di luar antrean animasi: modal harus segera muncul */
   MP_CUE_N++;
-  MP_CUE_CHAIN=MP_CUE_CHAIN.then(()=>mpRunCue(c)).catch(e=>{ if(e!==STALE) console.error('[multiplayer] cue failed',e); }).then(()=>{
+  MP_CUE_CHAIN=MP_CUE_CHAIN.then(()=>(c&&MPFB[c.k])?mpRunFeedbackCue(c):mpRunCue(c)).catch(e=>{ if(e!==STALE) console.error('[multiplayer] cue failed',e); }).then(()=>{
     MP_CUE_N--;
     if(MP_CUE_N===0&&MP_PENDING_SNAP){ const s=MP_PENDING_SNAP; MP_PENDING_SNAP=null; applyGameSnapshot(s); }
   });
@@ -5684,6 +5731,7 @@ function initMultiplayerBridge(){
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
+  onTotemAnswer:onMpTotemAnswer,
   onEmote:onMpEmote,
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
   onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
@@ -5747,7 +5795,7 @@ function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId==
 function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
-function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200}); }catch(e){} }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
 syncAutoBtn();
 setInterval(()=>{
