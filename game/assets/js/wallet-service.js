@@ -171,13 +171,20 @@
     };
   }
 
-  /* Instans browser: dibuat malas agar tidak memuat klien Supabase sebelum diperlukan. */
+  /* Instans browser: dibuat malas; klien Supabase baru dimuat saat RPC pertama (halaman tidak perlu memuatnya lebih dulu). */
+  var SELF = (typeof document !== 'undefined' && document.currentScript && document.currentScript.src) || '';
   var browser = null;
   function get() {
     if (browser) return browser;
     var w = (typeof window !== 'undefined') ? window : null;
-    if (!w || !w.UT || !w.UT.Multiplayer) return null;
-    browser = create({ PlayerData: w.PlayerData, getClient: function () { return w.UT.Multiplayer.getClient(); } });
+    if (!w || !w.PlayerData) return null;
+    browser = create({
+      PlayerData: w.PlayerData,
+      getClient: async function () {
+        if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL('multiplayer/client.js', SELF || w.location.href).href);
+        return w.UT.Multiplayer.getClient();
+      }
+    });
     return browser;
   }
 
