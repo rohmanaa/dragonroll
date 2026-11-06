@@ -55,7 +55,11 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 #plrs{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;display:grid;align-content:space-evenly;gap:.6rem;padding:.6rem .6rem}#plrs::-webkit-scrollbar{display:none}
 .plr{display:flex;align-items:center;gap:1rem;min-height:5rem;padding:.5rem .7rem;border-radius:1.2rem;color:#352719;background:linear-gradient(90deg,#fff5df,#e9d8b4);box-shadow:0 0 0 .22rem #5d3a13,inset 0 .2rem #fff}
 .plr.me{box-shadow:0 0 0 .22rem #5d3a13,0 0 0 .5rem #ffd73a}
-.plr.t1{border-left:1rem solid #2f8cf0}.plr.t2{border-left:1rem solid #e5483f}
+.plr{overflow:hidden}
+.plr .blk{flex:none;align-self:stretch;width:7.4rem;margin:-.5rem 0 -.5rem -.7rem;display:grid;place-items:center;font-size:1.5rem;line-height:1;color:#fff;text-shadow:0 .12rem 0 rgba(40,20,0,.55);-webkit-text-stroke:.05rem rgba(40,20,0,.35);box-shadow:inset -.2rem 0 0 rgba(0,0,0,.18),inset 0 .2rem 0 rgba(255,255,255,.35)}
+.plr .blk svg{width:3.6rem;height:3.6rem;filter:drop-shadow(0 .12rem 0 rgba(60,30,0,.55))}
+.plr.c0 .blk{background:linear-gradient(#ff7a6b,#d4302a)}.plr.c1 .blk{background:linear-gradient(#58b6ff,#1f6fd6)}.plr.c2 .blk{background:linear-gradient(#ffd54a,#eea015)}.plr.c3 .blk{background:linear-gradient(#7fe35a,#2f9f2c)}
+.af{flex:none;height:4.4rem;aspect-ratio:4/3;padding:0;border-radius:.9rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;font-size:1rem;color:#fff;background:linear-gradient(#ff9fba,#d4506f);box-shadow:0 0 0 .18rem #7a2540,inset 0 .15rem .15rem rgba(255,255,255,.5);text-shadow:0 .1rem 0 #7a2540}.af b{font-size:1.9rem;line-height:.9}.af.sent{background:linear-gradient(#c5ccd8,#8794a8);box-shadow:0 0 0 .18rem #3b475a;text-shadow:none;color:#2a3548}
 .av{width:4.2rem;height:4.2rem;flex:none;border-radius:1rem;display:grid;place-items:center;font-size:2.2rem;background:linear-gradient(135deg,#b6e7ff,#7b9ed8);box-shadow:0 0 0 .2rem #60431e;color:#2b4a7a}.av img{width:80%;height:80%}
 .pi{flex:1;min-width:0;line-height:1.15}.pi b{display:block;font-size:1.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pi small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.15rem;font-weight:700;color:#725c3d}
 .tg{font-size:.95rem;padding:.1rem .6rem;margin-left:.6rem;border-radius:.5rem;background:#ffce48;border:.1rem solid #83500b;color:#4a2c00;vertical-align:middle}.tg.me{background:#bfe3ff;border-color:#2a6aa8}
@@ -196,7 +200,7 @@ const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',o
 const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>1+Math.floor(PD.xp()/100);
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
-const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},mpUnsub:null,gameLaunched:false};
+const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
 /* ---------- navigasi ---------- */
@@ -229,7 +233,7 @@ function applyRemoteRoom(row){
 async function setupOnline(){
  try{
   const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
-  S.mpIdentity=await MP.ensurePlayer();let row;
+  S.mpIdentity=await MP.ensurePlayer();loadFriends();let row;
   if(HOST){
    let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
    if(saved&&saved.id){try{row=await MP.getRoom(saved.id);if(!row||row.status!=='waiting'||row.host_id!==S.mpIdentity.id)row=null}catch(_){row=null} }
@@ -282,10 +286,15 @@ function renderMap(){
 const pending=()=>Object.keys(S.invites).length,slotsLeft=()=>cap()-S.room.players.length-pending();
 const me=()=>S.room.players.find(p=>p.id===(S.mpIdentity&&S.mpIdentity.id||'me'));
 function avatar(p){return p.kind==='bot'?'<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>':`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
-function prow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal'}[p.kind],
- tags=(p.kind==='host'?'<span class="tg">HOST</span>':'')+(p.id===(S.mpIdentity&&S.mpIdentity.id||'me')&&p.kind!=='host'?'<span class="tg me">KAMU</span>':''),
- mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'';
- return `<div class="plr ${TEAM?'t'+p.team:''} ${p.id===(S.mpIdentity&&S.mpIdentity.id||'me')?'me':''}">${avatar(p)}<div class="pi"><b>${esc(p.name)}${tags}</b><small>Lv ${p.level} • ${kind}</small></div>${mv}<span class="st ${p.ready?'rd':'wt'}">${p.ready?'✓ READY':'WAITING'}</span></div>`}
+const CROWN='<svg viewBox="0 0 24 24" aria-label="Host"><path d="M3 18.5h18l1-11.5-5.2 4.2L12 4 7.2 11.2 2 7z" fill="#ffe14d" stroke="#7a4a00" stroke-width="1.4" stroke-linejoin="round"/><rect x="3" y="18.5" width="18" height="2.6" rx="1" fill="#f0a010" stroke="#7a4a00" stroke-width="1.2"/></svg>';
+function prow(p,i){const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId,isHost=p.kind==='host',
+ col=TEAM?(p.team===2?'c0':'c1'):'c'+((i||0)%4),blk=isHost?CROWN:(p.ready?'Ready':'Waiting'),
+ fr=new Set((S.friends||[]).map(f=>f.friend_id)),showAdd=ONLINE&&!isMe&&p.kind!=='bot'&&!fr.has(p.id),sent=!!S.reqSent[p.id],
+ kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal'}[p.kind],
+ sub=ONLINE?'':`<small>Lv ${p.level} • ${kind}</small>`,
+ mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'',
+ add=showAdd?`<button class="af ${sent?'sent':''}" data-af="${esc(p.id)}" data-nm="${esc(p.name)}" ${sent?'disabled':''} aria-label="Add Friend"><b>${sent?'✓':'＋'}</b><span>${sent?'Terkirim':'Add Friend'}</span></button>`:'';
+ return `<div class="plr ${col} ${isMe?'me':''}"><span class="blk">${blk}</span>${avatar(p)}<div class="pi"><b>${esc(p.name)}</b>${sub}</div>${mv}${add}</div>`}
 function srow(team){if(!ONLINE)return'';const c=TEAM?'t'+team:'';
  if(!HOST)return `<div class="slot op static ${c}"><i class="mk"></i><span class="em">Slot kosong</span></div>`;
  return `<div class="slot op ${c}"><i class="mk"></i><button class="ub" data-share="1">＋ Undang Teman</button></div>`}
@@ -299,7 +308,10 @@ function renderPlayers(){
  else{h=P.map(prow).join('');for(let i=P.length;i<cap();i++)h+=srow(0);for(let i=cap();i<4;i++)h+=lrow()}
  $('#plrs').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();if(document.documentElement.classList.contains('dro'))renderDrawer();
 }
-$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-share]'),o=e.target.closest('[data-open]');if(m)moveTeam(m.dataset.mv);else if(s)openDrawer('friends');else if(o)openSlot()};
+$('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-share]'),o=e.target.closest('[data-open]'),af=e.target.closest('[data-af]');if(m)moveTeam(m.dataset.mv);else if(s)openDrawer('friends');else if(o)openSlot();else if(af)addFriendReq(af)};
+async function addFriendReq(b){const id=b.dataset.af,nm=b.dataset.nm;if(S.reqSent[id])return;
+ try{const res=await UT.Multiplayer.RoomService.sendFriendRequest({id:id,name:nm,myName:S.mpIdentity.name});S.reqSent[id]=true;toast(res==='accepted'?'Kalian sekarang berteman':'Permintaan teman dikirim ke '+nm);if(res==='accepted')loadFriends();else renderPlayers()}
+ catch(er){toast(er.message==='ALREADY_FRIENDS'?'Sudah berteman':'Gagal mengirim permintaan teman')}}
 async function openSlot(){if(!ONLINE)return;if(!HOST)return toast('Hanya host yang bisa membuka slot');if(cap()>=4)return;
  try{applyRemoteRoom(await UT.Multiplayer.RoomService.setSlots(S.mpRoomId,cap()+1))}catch(e){toast('Gagal membuka slot: '+(e.message||'coba lagi'))}}
 function copy(t){const v=t==='code'?S.room.code:`${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
@@ -355,7 +367,7 @@ function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFri
 function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
 function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
 const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
-async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}if(root.classList.contains('dro'))renderDrawer()}
+async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}renderPlayers();if(root.classList.contains('dro'))renderDrawer()}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
  return `<div class="fr"><span class="av">${esc(name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(name)}</b><small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="sm" data-add="${esc(id)}" data-nm="${esc(name)}">＋ TEMAN</button>`}<button class="bt ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}
 function renderDrawer(){
