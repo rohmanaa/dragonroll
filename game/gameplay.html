@@ -5206,7 +5206,7 @@ function renderChips(){
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos));
-    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(autoOn&&isLocalPlayer(p)&&!gameOver)){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
+    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p))))){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=(p.dhp/(p.hpMax||100)*100)+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
@@ -5844,9 +5844,10 @@ function initMultiplayerBridge(){
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
   onPeerLeft:key=>{ if(!key||key===MP_ID) return; MP_LEFT.add(key); const q=mpPlayerByNet(key); if(q&&!q.cpu) q.left=true; try{ renderChips(); }catch(e){} }, /* semua klien (host/tamu, juga saat game over) */
-  onPeerJoin:key=>{ if(!key||key===MP_ID) return; MP_LEFT.delete(key); const q=mpPlayerByNet(key); if(q&&q.left){ q.left=false; try{ renderChips(); }catch(e){} } },
+  onPeerJoin:key=>{ if(!key||key===MP_ID) return; MP_LEFT.delete(key); const q=mpPlayerByNet(key); if(q&&q.left){ q.left=false; try{ renderChips(); }catch(e){} } mpBroadcastAutoRoll(); }, /* pemain (re)join: kirim ulang status Auto milik kita agar chip-nya benar */
   onTotemAnswer:onMpTotemAnswer,
   onEmote:onMpEmote,
+  onAutoRoll:onMpAutoRoll,
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
   onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
@@ -5856,7 +5857,7 @@ function initMultiplayerBridge(){
    const me=mpPlayerByNet(MP_ID);
    if(ONLINE_HOST){ if(me&&!me.loadout){ me.pu=loadoutPU(MY_SEL); me.loadout=true; } if(!sync.initialSnapshot)publishGameSnapshot(); }
    else if(sync.sendLoadout){ /* tamu: kirim ulang sampai host mengakui lewat snapshot */ let n=0; const t=setInterval(()=>{ const q=mpPlayerByNet(MP_ID); if(!q||q.loadout||++n>40){ clearInterval(t); return; } sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); },1500); sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); }
-   beginTurn()})
+   mpBroadcastAutoRoll(); beginTurn()})
  .catch(e=>{MP_CONNECTING=false;console.error('[multiplayer] game sync connection failed',e);setMsg('Koneksi multiplayer terputus. Muat ulang untuk mencoba kembali.')});
 }
 
@@ -5909,7 +5910,7 @@ function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId==
 function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
-function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
 syncAutoBtn();
 setInterval(()=>{
@@ -6004,6 +6005,9 @@ window.addEventListener('ut:emote',e=>{
   showEmote(p,em);
   if(ONLINE_ROOM&&MP_SYNC&&MP_SYNC.sendEmote){ try{ MP_SYNC.sendEmote({playerId:MP_ID,emoji:em}).catch(()=>{}); }catch(er){} }
 });
+/* Chip AUTO terlihat semua pemain: status tombol Auto tiap pemain disiarkan (bukan dari snapshot host) lalu disimpan di p.autoRoll */
+function mpBroadcastAutoRoll(){ try{ if(ONLINE_ROOM&&MP_SYNC&&MP_SYNC.sendAutoRoll&&MP_ID) MP_SYNC.sendAutoRoll({playerId:MP_ID,on:!!autoRoll}).catch(()=>{}); }catch(e){} }
+function onMpAutoRoll(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(!p||p.networkId===MP_ID) return; p.autoRoll=!!pl.on; try{ renderChips(); }catch(e){} }
 function onMpEmote(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(p&&p.networkId!==MP_ID) showEmote(p,pl.emoji); }
 
 function frame(now){
