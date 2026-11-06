@@ -26,6 +26,14 @@ async function getClient() {
   catch (error) { clientPromise = null; throw error; }
 }
 
+// Nama pemain: akun login (username+password) memakai username-nya; tamu memakai displayName atau Player-XXXX.
+function resolvePlayerName(user, displayName) {
+  const meta = (user && user.user_metadata) || {};
+  const isGuest = !user || !!user.is_anonymous;
+  const account = isGuest ? '' : (meta.username || String(user.email || '').split('@')[0]);
+  return String(account || displayName || '').trim().slice(0, 24) || ('Player-' + String((user && user.id) || '0000').slice(0, 4).toUpperCase());
+}
+
 async function ensureAnonymousPlayer(displayName) {
   const supabase = await getClient();
   let { data: { session }, error } = await supabase.auth.getSession();
@@ -35,18 +43,20 @@ async function ensureAnonymousPlayer(displayName) {
     if (result.error) throw result.error;
     session = result.data.session;
   }
-  const name = String(displayName || '').trim().slice(0, 24) || ('Player-' + session.user.id.slice(0, 4).toUpperCase());
+  const isGuest = !!session.user.is_anonymous;
+  const name = resolvePlayerName(session.user, displayName);
   const current = session.user.user_metadata || {};
-  if (current.display_name !== name) {
+  if (isGuest && current.display_name !== name) { // akun login tidak diubah metadata-nya
     const result = await supabase.auth.updateUser({ data: { display_name: name } });
     if (result.error) throw result.error;
   }
-  return { id: session.user.id, name: name, isAnonymous: true };
+  return { id: session.user.id, name: name, isAnonymous: isGuest };
 }
 
 window.UT = window.UT || {};
 window.UT.Multiplayer = window.UT.Multiplayer || {};
 Object.assign(window.UT.Multiplayer, {
   getClient: getClient,
-  ensureAnonymousPlayer: ensureAnonymousPlayer
+  ensureAnonymousPlayer: ensureAnonymousPlayer,
+  resolvePlayerName: resolvePlayerName
 });
