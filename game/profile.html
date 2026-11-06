@@ -375,15 +375,16 @@ html body .ac2 .clm:not(:disabled){animation:clmp 1.6s ease-in-out infinite}
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // ---- data: player state dari PlayerData (nama, skin terpasang, currency, settings).
-// Level/XP/win/main/streak = PlayerData (dicatat dari hasil match sungguhan). Rank & ID = server (butuh sesi Supabase), '—' bila belum ada.
-// Masih contoh (belum ada sumber data): misi, efek, emote, dan sebagian angka pencapaian di STAT().
+// Level/XP = PlayerData lokal. Menang/main/streak, peringkat, counter achievement, misi, dan riwayat = server (get_my_profile, butuh sesi Supabase);
+// bila server belum tersedia (offline / belum pernah main) menang/main/streak memakai PlayerData lokal, sisanya 0 atau '—'. Tidak ada angka contoh.
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']};
 const _li=()=>PD.levelInfo(),_st=()=>PD.stats();
+let SRV=null; /* get_my_profile (server); null = belum login / offline */
 const PROF={uid:'—',rank:null,
  get joined(){try{return new Date(PD.joinedAt()).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}catch(e){return '—'}},
  get lvl(){return _li().level},get xp(){return _li().xpIn},get xpMax(){return _li().xpMax},
- get win(){return _st().wins},get play(){return _st().plays},get streak(){return _st().streak},get bestStreak(){return _st().bestStreak}};
+ get win(){return SRV?SRV.wins:_st().wins},get play(){return SRV?SRV.plays:_st().plays},get streak(){return SRV?SRV.streak:_st().streak},get bestStreak(){return SRV?SRV.best_streak:_st().bestStreak}};
 const RK=()=>PROF.rank?'#'+fmt(PROF.rank):'—';
 const pname=()=>PD.profile().name;
 const eqSkin=()=>IC.byId(PD.equippedId('skin'))||IC.byId('skin.steve');
@@ -419,7 +420,7 @@ const CH=sv('<path d="m9 5 7 7-7 7"/>'),GLOBE=sv('<circle cx="12" cy="12" r="9"/
 const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><image href="assets/Images/icon/${p}.webp" x="12" y="13" width="24" height="24"/></svg>`;
 const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal],['set','Pengaturan',G]];
 const pcn=()=>PROF.play?Math.floor(PROF.win/PROF.play*100):0;
-/* ---- Achievement: definisi dari referensi (15 achievement x 3 bintang). Progress = PLACEHOLDER (belum ada sumber data statistik), kecuali jumlah skin & emerald yang nyata. Klaim reward dikerjakan terpisah. */
+/* ---- Achievement: definisi dari referensi (15 achievement x 3 bintang). Progress dibaca dari STAT() (server; skin & emerald dari perangkat). Klaim divalidasi server lewat claim_achievement. */
 const ACH=[
 ['peti','Penakluk Peti','Buka peti','chest',[10,50,200],'lobby/gift'],
 ['naga','Penyerang Naga','Serang naga','dragon',[3,10,30],'mode/modekhsusus'],
@@ -442,7 +443,6 @@ const CLK='ularTanggaBlok:achClaimed:v1';let clMem={};
 const CL={all(){try{return JSON.parse(localStorage.getItem(CLK))||clMem}catch(e){return clMem}},
  get(id){return Math.min(3,+this.all()[id]||0)},
  set(id,n){const o=this.all();o[id]=n;clMem=o;try{localStorage.setItem(CLK,JSON.stringify(o))}catch(e){}}};
-let SRV=null; /* get_my_profile (server); null = belum login / offline -> angka server tampil 0, bukan mockup */
 const SC=()=>(SRV&&SRV.counters)||{},MIS=()=>SC().missions_done||0;
 const STAT=()=>{const c=SC(),pl=SRV?SRV.plays:PROF.play,wn=SRV?SRV.wins:PROF.win,bs=SRV?SRV.best_streak:PROF.bestStreak;
  return {chest:c.chests||0,dragon:c.dragon_hits||0,play:pl,win:wn,ladder:c.ladders||0,snake:c.snakes||0,skill:c.skills_used||0,dice:c.dice_rolls||0,match:pl,login:c.best_login_streak||0,streak:bs,skins:ownedSkins().length,emerald:PD.gems(),strat:c.skill_wins||0}};
@@ -542,7 +542,7 @@ const modal=$('#modal');let mOpen=false,onClose=null;
 function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');onClose&&onClose();onClose=null;setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
 $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-function buy(type){const g=type==='gem',packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
+function buy(type){if(type==='gem'){toast('Pembelian Gem belum tersedia.');playSound('error');return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
   document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i,p=packs[i];const r=g?PD.addCurrency(0,p[0]):PD.addCurrency(p[0],-[10,40,120][i]);
    if(!r.ok){toast(r.reason==='gem-kurang'?'Gem tidak cukup.':'Transaksi gagal.');playSound('error');return}
