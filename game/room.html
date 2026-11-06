@@ -198,7 +198,7 @@ const POWER_STOCK={sword:2,feather:2,tnt:1,totem:1,potion_odd:2,potion_even:2,gr
 const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',online:true,level:18},{id:'g1',name:'RakaPlay',online:true,level:28},{id:'g2',name:'NayaCraft',online:true,level:24},{id:'g3',name:'AlyaVoxel',online:true,level:19},
  {id:'l3',name:'Dodi',online:false,level:9},{id:'g4',name:'DinoRush',online:false,level:35}];
 const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
-const myName=()=>PD.profile().name||'Kamu',myLevel=()=>1+Math.floor(PD.xp()/100);
+const myName=()=>PD.profile().name||'Kamu',myLevel=()=>PD.levelInfo().level; /* satu rumus dengan profil (PlayerData.levelInfo) */
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
 const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
