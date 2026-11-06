@@ -123,8 +123,32 @@ html{font-size:min(2.6vw,1.45vh)}
 #pMp{background:linear-gradient(145deg,#ffb23d,#e8841a 55%,#c4650d);box-shadow:0 0 0 .25rem var(--ink),0 .4rem 0 .25rem var(--ink),inset 0 0 0 .3rem rgba(255,228,165,.55)}
 #pMp .mc{background:linear-gradient(120deg,#fff5df,#ecd9b3)}
 #pMp .mc .ma{box-shadow:0 0 0 .2rem #5b390f}
+
+/* ===== seragam dengan lobby: slate + ruang kiri/kanan + tanah grid & daun ===== */
+:root{--sl1:#3f506b;--sl2:#26344c;--gold:#f4cd5c;--slf:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35)}
+html,body{background:linear-gradient(#3d9bfd,#6fbdfc 50%,#bfe4ff 85%,#d8f0ff)}
+.blue,.pn,#pEq,#pPw,#pMp{background:linear-gradient(var(--sl1),var(--sl2));box-shadow:var(--slf);border-radius:1rem}
+#pEq .eqi,#pPw .pc{background:linear-gradient(#52647f,#33445f)}
+.tab,.seg button{background:linear-gradient(#52647f,#33445f)}.tab.on,.seg button.on{background:linear-gradient(#7af07a,#2cb02c);color:#0b3a0b}
+.pc.sel{box-shadow:0 0 0 .22rem #172033,0 0 0 .5rem var(--gold)}
+h2,#tt b,.box h2{-webkit-text-stroke:0;text-shadow:0 .16rem 0 #0b1220,0 0 .4rem rgba(11,18,32,.5)}
+#tt small,.sub,.hint,.emp,.dnote{color:#cdd8ea}
+.slot{background:linear-gradient(#33445f,#26344c);border-color:#8696ad}
+#dr,.box{background:linear-gradient(var(--sl1),var(--sl2))!important;box-shadow:var(--slf)}
+#gnd{position:fixed;left:0;right:0;bottom:0;height:calc(6.5rem + env(safe-area-inset-bottom));z-index:0;pointer-events:none;
+ background:linear-gradient(#52d843,#2fae2f) 0 0/100% 1.1rem no-repeat,
+  linear-gradient(135deg,rgba(255,225,170,.28),transparent 38%,rgba(40,20,5,.32)) 0 0/4.4rem 4.4rem,
+  linear-gradient(rgba(58,31,10,.6) .22rem,transparent .22rem) 0 0/4.4rem 4.4rem,
+  linear-gradient(90deg,rgba(58,31,10,.6) .22rem,transparent .22rem) 0 0/4.4rem 4.4rem,
+  linear-gradient(#a8733e,#7a4a22);box-shadow:0 -.3rem 0 #1f7a22}
+#gnd::before{content:"";position:absolute;left:0;right:0;bottom:calc(100% - .5rem);height:2.6rem;
+ background:radial-gradient(ellipse 1.2rem 2.2rem at 50% 100%,#46d03c 97%,transparent) 0 100%/2.6rem 2.6rem repeat-x,
+  radial-gradient(ellipse 1.2rem 1.7rem at 50% 100%,#2a9a2c 97%,transparent) 1.3rem 100%/2.6rem 2.1rem repeat-x}
+#room{z-index:1;padding-bottom:max(9rem,env(safe-area-inset-bottom))}
+@media(min-aspect-ratio:1/1){html{font-size:min(1vw,1.85vh)}#room{inset:0 auto 0 50%;width:100rem;translate:-50% 0;padding-left:2.6rem;padding-right:2.6rem}}
 </style></head>
 <body>
+<div id="gnd" aria-hidden="true"></div>
 <main id="room">
  <header id="hd">
   <button class="blue ib" id="back" aria-label="Kembali"><img src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
