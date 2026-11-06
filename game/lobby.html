@@ -125,10 +125,10 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
  <div class="ab" id="prof" role="button" tabindex="0" data-act="prof" aria-label="Profil">
   <div id="pbox" class="pn"></div>
   <div id="ava"></div><img id="avf" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async">
-  <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><strong id="lvn">26</strong></div>
+  <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><strong id="lvn">1</strong></div>
   <div id="nrow"><span id="pname" class="tx">OmanBogel</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
-  <div id="xp"><i style="width:41.7%"></i></div>
-  <div id="xpt"><b>1.250</b><span>/ 3.000 XP</span></div>
+  <div id="xp"><i style="width:0%"></i></div>
+  <div id="xpt"><b>0</b><span>/ 400 XP</span></div>
  </div>
 
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-act="buygem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-act="buycoin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
@@ -189,12 +189,20 @@ function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').text
 function fitName(){const n=$('#pname');if(!n)return;const MAX=3.1,MIN=1.1;let sz=MAX;n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem';
  while(n.scrollWidth>n.clientWidth&&sz>MIN){sz=Math.max(MIN,+(sz-.1).toFixed(2));n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem'}}
 function renderName(){const n=$('#pname');if(n){n.textContent=PD.profile().name;fitName()}}
+/* XP & level: sumber PlayerData (sama dengan profile.html); bila server punya XP lebih tinggi (main di perangkat lain) pakai itu. Rumus = PlayerData.levelInfo / level_from_xp server. */
+let SRV_XP=0;
+function lvInfo(xp){let L=1,left=Math.max(0,Math.floor(+xp)||0);while(left>=400+100*(L-1)&&L<999){left-=400+100*(L-1);L++}return{level:L,xpIn:left,xpMax:400+100*(L-1)}}
+function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),a=$('#lvn'),b=$('#xp i'),t=$('#xpt');
+ if(a)a.textContent=i.level;if(b)b.style.width=Math.min(100,i.xpIn/i.xpMax*100).toFixed(1)+'%';
+ if(t){t.innerHTML='<b></b><span></span>';t.firstChild.textContent=fmt(i.xpIn);t.lastChild.textContent='/ '+fmt(i.xpMax)+' XP'}}
 window.addEventListener('resize',fitName);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitName);
-renderAvatar();renderCurrency();renderName();
+renderAvatar();renderCurrency();renderName();renderXp();
 document.querySelectorAll('#ui>:not(.ut-curbar)').forEach((e,i)=>e.style.animationDelay=(i*.045)+'s');
 /* event: UI ikut berubah tanpa reload halaman */
-UT.Events.on('currencyChanged',renderCurrency);
-if(PD.subscribe)PD.subscribe(renderName);
+UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()});
+if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp()});
+/* sinkron XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
+import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0){SRV_XP=Math.floor(x);renderXp()}}).catch(()=>{});
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});
 /* frame profil = frame yang sedang dipakai (Inventory) */
 function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=document.getElementById('avf');if(im)im.src=(f&&f.image)||'data/frame/frame-default.webp'}

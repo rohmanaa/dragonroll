@@ -14,7 +14,8 @@ async function acceptFriendRequest(id,myName){await ensurePlayer();return rpc('a
 async function declineFriendRequest(id){await ensurePlayer();return rpc('decline_friend_request',{p_from_id:id})}
 async function listRequests(){await ensurePlayer();const c=await MP.getClient();const {data,error}=await c.from('friend_requests').select('from_id,from_name').eq('to_id',MP._identity.id).order('created_at',{ascending:false});if(error)throw error;return data||[]}
 async function removeFriend(id){await ensurePlayer();return rpc('remove_friend',{p_friend_id:id})}
-async function listFriends(){await ensurePlayer();const c=await MP.getClient();const {data,error}=await c.from('friendships').select('friend_id,friend_name').order('friend_name');if(error)throw error;return data||[]}
+async function listFriends(){await ensurePlayer();const c=await MP.getClient();let r=await c.rpc('list_my_friends'); /* nama = username akun saat ini (202611100004); migrasi belum diterapkan -> pakai salinan lama */
+ if(r.error)r=await c.from('friendships').select('friend_id,friend_name').order('friend_name');if(r.error)throw r.error;return r.data||[]}
 async function setSlots(roomId,max){await ensurePlayer();return rpc('set_game_room_slots',{p_room_id:roomId,p_max_players:max})}
 async function exitRoom(roomId){await ensurePlayer();return rpc('exit_game_room',{p_room_id:roomId})}
 async function heartbeat(roomId){await ensurePlayer();return rpc('heartbeat_game_room',{p_room_id:roomId})}

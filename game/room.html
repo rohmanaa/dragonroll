@@ -356,6 +356,9 @@ const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
 async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}renderPlayers();if(root.classList.contains('dro'))renderDrawer()}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
  return `<div class="fr"><span class="av">${esc(name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(name)}</b><small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="sm" data-add="${esc(id)}" data-nm="${esc(name)}">＋ TEMAN</button>`}<button class="bt ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}
+/* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
+const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
+function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}
 function renderDrawer(){
  const r=S.room,left=cap()-r.players.length,P=UT.Multiplayer.Presence,on=P?P.list():[],fr=S.friends||[],fids=new Set(fr.map(f=>f.friend_id));
  $('#drCnt').textContent=r.players.length+'/'+cap()+' pemain';
@@ -363,7 +366,7 @@ function renderDrawer(){
  const full=left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'';
  if(S.drTab==='friends'){
   const list=on.filter(p=>fids.has(p.id));
-  $('#drL').innerHTML=(list.map(p=>drow(p.id,(fr.find(f=>f.friend_id===p.id)||{}).friend_name||p.name,p.status,true,left)).join('')||`<div class="emp">${fr.length?'Tidak ada teman yang sedang online.':'Belum ada teman. Tambahkan dari tab Pemain Online.'}</div>`)+full;
+  $('#drL').innerHTML=(list.map(p=>drow(p.id,friendName(p,fr),p.status,true,left)).join('')||`<div class="emp">${fr.length?'Tidak ada teman yang sedang online.':'Belum ada teman. Tambahkan dari tab Pemain Online.'}</div>`)+full;
  }else{
   $('#drL').innerHTML=(on.map(p=>drow(p.id,p.name,p.status,fids.has(p.id),left)).join('')||'<div class="emp">Belum ada pemain lain yang online.</div>')+full;
  }
