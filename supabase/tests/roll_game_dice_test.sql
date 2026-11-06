@@ -81,6 +81,38 @@ begin
   if array_length(seen, 1) <> 6 then raise exception 'ASSERT FAILED: hanya muncul % angka berbeda', array_length(seen, 1); end if;
 end $$;
 
+-- D8: mode dadu: lucky=6, odd in {1,3,5}, even in {2,4,6}, special=nilai yang diminta (1..6); mode/nilai tidak valid ditolak; mode tercatat di log.
+create or replace function public.__reset_dice(p_room uuid) returns void language sql security definer as $$
+  update public.game_rooms set last_dice_at = null where id = p_room $$;
+grant execute on function public.__reset_dice(uuid) to authenticated;
+do $$
+declare i int; r public.game_events; rid uuid; v int;
+begin
+  select id into rid from public.game_rooms where code = 'DICEROOM';
+  perform set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', true);
+  for i in 1..60 loop
+    perform public.__reset_dice(rid);
+    set local role authenticated;
+    r := public.roll_game_dice(rid, null, gen_random_uuid(), 'lucky');
+    if (r.payload->>'v')::int <> 6 or r.payload->>'mode' <> 'lucky' then raise exception 'ASSERT FAILED: lucky harus 6'; end if;
+    perform public.__reset_dice(rid);
+    r := public.roll_game_dice(rid, null, gen_random_uuid(), 'odd'); v := (r.payload->>'v')::int;
+    if v not in (1,3,5) or r.payload->>'mode' <> 'odd' then raise exception 'ASSERT FAILED: odd dapat %', v; end if;
+    perform public.__reset_dice(rid);
+    r := public.roll_game_dice(rid, null, gen_random_uuid(), 'even'); v := (r.payload->>'v')::int;
+    if v not in (2,4,6) or r.payload->>'mode' <> 'even' then raise exception 'ASSERT FAILED: even dapat %', v; end if;
+    perform public.__reset_dice(rid);
+    r := public.roll_game_dice(rid, null, gen_random_uuid(), 'special', 3);
+    if (r.payload->>'v')::int <> 3 or r.payload->>'mode' <> 'special' then raise exception 'ASSERT FAILED: special harus 3'; end if;
+    reset role;
+  end loop;
+end $$;
+select set_config('request.jwt.claim.sub', :'A', false) \g /dev/null
+set role authenticated;
+select __err(format('select roll_game_dice(%L, null, gen_random_uuid(), %L)', :'room_id', 'curang'), 'INVALID_DICE_MODE') \g /dev/null
+select __err(format('select roll_game_dice(%L, null, gen_random_uuid(), %L)', :'room_id', 'special'), 'INVALID_DICE_VALUE') \g /dev/null
+select __err(format('select roll_game_dice(%L, null, gen_random_uuid(), %L, 7)', :'room_id', 'special'), 'INVALID_DICE_VALUE') \g /dev/null
+
 -- D7: ruang yang belum/tidak sedang bermain ditolak.
 reset role;
 update public.game_rooms set status = 'finished', last_dice_at = null where id = :'room_id';

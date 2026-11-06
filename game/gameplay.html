@@ -5070,6 +5070,8 @@ function chestDiceForce(p){
   p.lucky=p.odd=p.even=false;
   return v;
 }
+/* Online: mode dadu untuk server (angka diundi server). Mereset flag seperti chestDiceForce. */
+function chestDiceMode(p){ const m=p.lucky?'lucky':p.odd?'odd':p.even?'even':'normal'; p.lucky=p.odd=p.even=false; return m; }
 function chestFlag(p,k){ p.lucky=p.odd=p.even=false; p[k]=true; } /* flag dadu terbaru (Chest atau Ramuan) menggantikan flag sebelumnya */
 /* Terapkan reward -> {text}. Currency/XP hanya untuk pemain manusia (CPU tidak mendapat currency). Surprise hanya memindahkan pion (tanpa memicu event petak tujuan). */
 async function applyChestReward(p,rw,gid){
@@ -5574,18 +5576,18 @@ window.addEventListener('pagehide',()=>dragonMusicStop(true));
   b.addEventListener('blur',()=>holdEnd(false));
 })();
 /* Online: minta angka dadu 1-6 ke server (RPC roll_game_dice). Retry memakai eventId yang sama, jadi angka tidak diundi ulang. */
-async function serverRoll(p){
+async function serverRoll(p,mode,value){
   if(!MP_SYNC||!MP_SYNC.rollDice) throw new Error('SYNC_NOT_READY');
   const eid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});
   for(let n=0;;n++){
     try{
-      const row=await MP_SYNC.rollDice({playerId:p.networkId||null,eventId:eid});
+      const row=await MP_SYNC.rollDice({playerId:p.networkId||null,eventId:eid,mode:mode||'normal',value:Number.isInteger(value)?value:null});
       const v=row&&row.payload?Number(row.payload.v):NaN;
       if(Number.isInteger(v)&&v>=1&&v<=6) return v;
       throw new Error('BAD_ROLL');
     }catch(e){
       const t=String((e&&(e.message||e.code))||e);
-      if(n>=3||/ROOM_NOT_PLAYING|ROOM_ACCESS_DENIED|AUTH_REQUIRED|ROLL_TARGET_NOT_IN_ROOM|ROLL_FOR_OTHER/.test(t)) throw e;
+      if(n>=3||/ROOM_NOT_PLAYING|ROOM_ACCESS_DENIED|AUTH_REQUIRED|ROLL_TARGET_NOT_IN_ROOM|ROLL_FOR_OTHER|INVALID_DICE/.test(t)) throw e;
       await sleep(/ROLL_TOO_FAST/.test(t)?800:400*(n+1));
     }
   }
@@ -5595,13 +5597,19 @@ async function doRoll(opt){
   if(DH.on) holdEnd(false); /* tombol roll tidak boleh tertinggal dalam mode tahan */
   busy=true; setRoll(false); clearTurnTimer();
   const gid=gameId,p=players[cur];if(!p.cpu&&!(opt&&opt.afk)) afkReset(p); /* roll manual = pemain aktif lagi */ let v=1;
-  if(ONLINE_ROOM){ /* online (host): angka dadu diundi server dan tercatat di game_events; tidak ada fallback Math.random */
-    try{ v=await serverRoll(p); }
-    catch(e){ console.error('[multiplayer] server dice failed',e); if(gid!==gameId) return; busy=false; setMsg('Dadu dari server gagal. Coba lagi.'); setRoll(canControlPlayer(players[cur])); startTurnTimer(); return; }
+  const spOK=!!(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)); /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
+  if(ONLINE_ROOM){ /* online (host): angka dadu (termasuk modifier) diundi server dan tercatat di game_events; tidak ada fallback Math.random */
+    const fl={lucky:p.lucky,odd:p.odd,even:p.even};
+    const mode=spOK?'special':chestDiceMode(p); /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
+    if(!spOK){ try{ syncDiceGuide(); }catch(e){} }
+    try{ v=await serverRoll(p,mode,spOK?opt.value:null); }
+    catch(e){ console.error('[multiplayer] server dice failed',e); p.lucky=fl.lucky; p.odd=fl.odd; p.even=fl.even; try{ syncDiceGuide(); }catch(e2){} if(gid!==gameId) return; busy=false; setMsg('Dadu dari server gagal. Coba lagi.'); setRoll(canControlPlayer(players[cur])); startTurnTimer(); return; }
     if(gid!==gameId) return;
-  } else v=1+Math.floor(Math.random()*6);
-  if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
-  else{ const cv=chestDiceForce(p); if(cv) v=cv; try{ syncDiceGuide(); }catch(e){} } /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
+  } else {
+    v=1+Math.floor(Math.random()*6);
+    if(spOK) v=opt.value;
+    else{ const cv=chestDiceForce(p); if(cv) v=cv; try{ syncDiceGuide(); }catch(e){} } /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
+  }
   const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});
   try{
     await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;

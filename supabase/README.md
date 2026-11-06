@@ -72,3 +72,9 @@ Terapkan setelah `202611060001_game_events.sql`. Menambah RPC `roll_game_dice(p_
 - **Event `roll` hanya dari server:** `submit_game_action` menolak type `roll` (`ROLL_EVENT_SERVER_ONLY`).
 - **Belum tertutup (butuh 3C, server menjalankan game penuh):** server belum tahu giliran siapa, host masih bisa meminta undian baru dengan `client_event_id` baru, dan modifier dadu (Pasti 6, Ganjil, Genap, Special Dice) masih diterapkan di klien. Host juga masih bisa mengubah state lain lewat snapshot.
 - **Uji:** `supabase/tests/roll_game_dice_test.sql` (prasyarat sama dengan `game_events_test.sql`).
+
+## Modifier dadu dari server (`202611100003_dice_modes.sql`)
+
+Terapkan setelah `202611100002_roll_game_dice.sql`. Mengganti `roll_game_dice` menjadi 5 argumen: `p_mode` (`normal`, `lucky`, `odd`, `even`, `special`) dan `p_value` (wajib 1-6 untuk `special`). Server mengundi di himpunan angka sesuai mode (lucky = 6, odd = 1/3/5, even = 2/4/6) dan mencatat `mode` di payload event `roll`. Klien (`doRoll`) mengirim mode dari flag Chest/Ramuan; bila RPC gagal, flag dikembalikan.
+
+- **Masih belum tertutup:** server tidak tahu apakah pemain benar-benar punya flag atau sedang di Block 100 (Special Dice); mode hanya tercatat di log. Server juga belum tahu aturan giliran, jadi host masih bisa meminta undian baru. Mencegah itu butuh server yang menjalankan aturan giliran (3C).

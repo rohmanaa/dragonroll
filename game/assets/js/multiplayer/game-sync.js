@@ -33,7 +33,7 @@ async function connect(options){
   sendCue:payload=>{if(!options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'cue',payload})},
   requestRoll:async payload=>{if(options.isHost)throw new Error('HOST_DOES_NOT_REQUEST_REMOTE_ROLL');const result=await channel.send({type:'broadcast',event:'roll_request',payload});if(result==='error')throw new Error('ROLL_REQUEST_FAILED');return result},
   requestPower:async payload=>{if(options.isHost)throw new Error('HOST_DOES_NOT_REQUEST_REMOTE_POWER');const result=await channel.send({type:'broadcast',event:'power_request',payload});if(result==='error')throw new Error('POWER_REQUEST_FAILED');return result},
-  rollDice:async ({playerId,eventId})=>{if(!options.isHost)throw new Error('HOST_ONLY');const {data,error}=await client.rpc('roll_game_dice',{p_room_id:options.roomId,p_player_id:playerId||null,p_client_event_id:eventId||null});if(error)throw error;return data}, // angka dadu diundi server; event 'roll' dicatat di game_events
+  rollDice:async ({playerId,eventId,mode,value})=>{if(!options.isHost)throw new Error('HOST_ONLY');const {data,error}=await client.rpc('roll_game_dice',{p_room_id:options.roomId,p_player_id:playerId||null,p_client_event_id:eventId||null,p_mode:mode||'normal',p_value:Number.isInteger(value)?value:null});if(error)throw error;return data}, // angka dadu diundi server; event 'roll' dicatat di game_events
   close:()=>client.removeChannel(channel)
  };
 }
