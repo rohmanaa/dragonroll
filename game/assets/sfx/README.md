@@ -32,6 +32,7 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 | | `tower-rise.mp3` | tower naik | `towerRise` / `towerStop` |
 | | `crystal-appear.mp3` | End Crystal muncul | `crystalAppear` |
 | | `crystal-break.mp3` | crystal hancur | `crystalBreak` |
+| *(root `sfx/`)* | `notification.mp3` | notif undangan teman (muncul lagi tiap 10 dtk, maks 3x) | `UT.Audio 'notif'` |
 | *(root `sfx/`)* | `dragon-areana-up-before-crystal.mp3` | Dragon Arena naik setelah gempa, sebelum tower/crystal (Awakening) | `arenaUp` / `arenaStop` |
 | *(root `sfx/`)* | `setalah-hancurkan-crsytal.mp3` | semua 4 Crystal hancur (READY); fallback = fanfare sintetis | `crystalsCleared` |
 | | `../new sound/dragonAwakening.mp3` | Awakening lama (tidak dipakai; fallback sintetis bila gagal) | `dragonAwakening` |

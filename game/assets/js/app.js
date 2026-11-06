@@ -168,7 +168,8 @@ window.UT = window.UT || {};
     button: 'ui/button-click.mp3',
     chest: 'ui/chest-reward.mp3',
     kalah: 'ui/game-lose.mp3',
-    power: 'ui/power-claim.mp3'
+    power: 'ui/power-claim.mp3',
+    notif: 'notification.mp3'        /* notif undangan teman (presence.js); file di root assets/sfx/ */
   };
   var audioCache = {}, muted = false, volume = 1;
   UT.Audio.sources = SFX;
