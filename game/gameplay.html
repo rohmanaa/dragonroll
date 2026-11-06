@@ -5638,15 +5638,16 @@ function recordMatchResult(winner){
       won=!winner.cpu; token='cpu:'+MATCH_TOKEN;
     }else return;
     if(MATCH_DONE===token) return; MATCH_DONE=token;
-    const r=PD.recordMatch({token,won});
+    const r=PD.recordMatch({token,won,noPoints:!ONLINE_ROOM}); /* lawan CPU: XP tetap, poin leaderboard 0 (server menegakkan hal yang sama) */
     if(!r||!r.ok||r.duplicate) return;
     const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
-    const bits=['+'+r.xpGain+' XP','+'+r.points+' poin']; if(r.levelUp) bits.push('LEVEL '+r.level+'!');
+    const bits=['+'+r.xpGain+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(r.levelUp) bits.push('LEVEL '+r.level+'!');
     try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },900); }catch(e){}
     /* kirim ke server (leaderboard). Gagal/offline: statistik lokal tetap tersimpan. */
     import('./assets/js/multiplayer/room-service.js').then(()=>{
       const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
-      return RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:ST});
+      const send=n=>RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:ST}).then(r=>{ if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6) return new Promise(ok=>setTimeout(ok,1500)).then(()=>send(n+1)); return r; }); /* server baru mencatat bila room sudah 'finished'; host bisa lebih cepat dari snapshot-nya */
+      return send(0);
     }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
   }catch(e){ console.error('[stats]',e); }
 }
