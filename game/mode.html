@@ -226,6 +226,8 @@ document.documentElement.classList.add('ut-ready');
 </script>
 <script type="module">
 import './assets/js/multiplayer/room-service.js';
+import './assets/js/multiplayer/presence.js';
 window.dispatchEvent(new Event('ut:multiplayer-ready'));
+window.UT.Multiplayer.Presence.start({status:'lobby'});
 </script>
 </body></html>

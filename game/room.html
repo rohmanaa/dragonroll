@@ -160,7 +160,7 @@ html{font-size:min(2.6vw,1.45vh)}
 <aside id="dr" role="dialog" aria-label="Undang Teman" aria-hidden="true">
  <button class="x" id="drX" aria-label="Tutup">✕</button><h2>👥 UNDANG TEMAN</h2>
  <div class="rowc"><span class="pill" id="drCnt"></span></div>
- <div class="tabs"><button class="tab on" id="dTf">👫 TEMAN</button><button class="tab" id="dTp">🌐 PUBLIK</button></div>
+ <div class="tabs"><button class="tab on" id="dTf">👫 TEMAN ONLINE</button><button class="tab" id="dTp">🌐 PEMAIN ONLINE</button></div>
  <div class="sc" id="drL"></div>
 </aside>
 <div id="toast"></div>
@@ -237,6 +237,7 @@ async function setupOnline(){
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
+  try{const PR=UT.Multiplayer.Presence;if(PR){PR.start({status:'room'});PR.onChange(()=>{if(root.classList.contains('dro')&&S.drTab==='public')renderDrawer()})}}catch(_){}
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
@@ -354,23 +355,25 @@ function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';renderD
 function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
 function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
 function renderDrawer(){
- const r=S.room,left=cap()-r.players.length;
+ const r=S.room,left=cap()-r.players.length,P=UT.Multiplayer.Presence;
  $('#drCnt').textContent=r.players.length+'/'+cap()+' pemain';
  $('#dTf').classList.toggle('on',S.drTab==='friends');$('#dTp').classList.toggle('on',S.drTab==='public');
+ const full=left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'';
  if(S.drTab==='friends'){
-  const list=FRIENDS.slice().sort((a,b)=>(b.online?1:0)-(a.online?1:0));
-  $('#drL').innerHTML=list.map(f=>{const sent=!!S.sent[f.id],dis=!f.online||left<=0;
-   return `<div class="fr"><span class="av">${esc(f.name[0]).toUpperCase()}</span><div class="pi"><b>${esc(f.name)}</b><small class="${f.online?'on_':'off_'}">${f.online?'● Online':'○ Offline'} • Lv ${f.level}</small></div><button class="bt ${sent?'sent':''}" data-inv="${f.id}" ${dis?'disabled':''}>${!f.online?'OFFLINE':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')+(left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'');
+  const list=FRIENDS.filter(f=>f.online);
+  $('#drL').innerHTML=(list.map(f=>{const sent=!!S.sent[f.id];
+   return `<div class="fr"><span class="av">${esc(f.name[0]).toUpperCase()}</span><div class="pi"><b>${esc(f.name)}</b><small class="on_">● Online • Lv ${f.level}</small></div><button class="bt ${sent?'sent':''}" data-inv="${f.id}" ${left<=0?'disabled':''}>${sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')||'<div class="emp">Tidak ada teman yang sedang online.</div>')+full;
  }else{
-  $('#drL').innerHTML=`<div class="dnote">${r.privacy==='public'?'Room kamu PUBLIK: pemain lain bisa bergabung lewat Quick Join selama masih ada slot kosong.':'Room kamu PRIVAT: hanya bisa dimasuki dengan kode atau tautan undangan.'}</div><div class="rowc"><div class="seg"><button data-vis="private" class="${r.privacy==='private'?'on':''}">PRIVAT</button><button data-vis="public" class="${r.privacy==='public'?'on':''}">PUBLIK</button></div></div>`;
+  const list=P?P.list():[];
+  $('#drL').innerHTML=(list.map(p=>{const sent=!!S.sent[p.id];
+   return `<div class="fr"><span class="av">${esc(p.name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(p.name)}</b><small class="on_">● Online</small></div><button class="bt ${sent?'sent':''}" data-pinv="${esc(p.id)}" ${left<=0?'disabled':''}>${sent?'KIRIM LAGI':'UNDANG'}</button></div>`}).join('')||'<div class="emp">Belum ada pemain lain yang online di lobi.</div>')+full;
  }
 }
+async function invitePlayer(id){if(!HOST||!S.room.code)return;try{await UT.Multiplayer.Presence.invite(id,{code:S.room.code,format:FORMAT});S.sent[id]=true;toast('Undangan terkirim');renderDrawer()}catch(e){toast(e.message==='TUNGGU_SEBENTAR'?'Tunggu sebentar sebelum mengundang lagi':'Gagal mengirim undangan')}}
 async function sendInvite(id){const f=FRIENDS.find(x=>x.id===id);if(!f||!f.online||!HOST||!S.room.code)return;
  const url=inviteLink(),text=`Ayo main Ular Tangga! Kode room: ${S.room.code}`;
  try{if(navigator.share){await navigator.share({title:'Ular Tangga',text:text,url:url})}else{await navigator.clipboard.writeText(text+' '+url);toast('Link undangan disalin, kirim ke '+f.name)}S.sent[id]=true;renderDrawer()}catch(e){if(e&&e.name!=='AbortError')toast('Kode: '+S.room.code)}}
-$('#dr').onclick=async e=>{const i=e.target.closest('[data-inv]'),v=e.target.closest('[data-vis]');
- if(i)sendInvite(i.dataset.inv);
- else if(v&&HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,v.dataset.vis==='public'))}catch(er){toast('Gagal mengubah akses room')}}};
+$('#dr').onclick=e=>{const i=e.target.closest('[data-inv]'),p=e.target.closest('[data-pinv]');if(i)sendInvite(i.dataset.inv);else if(p)invitePlayer(p.dataset.pinv)};
 $('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
 $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;$('#drB').onclick=closeDrawer;
 addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});
@@ -383,6 +386,7 @@ document.documentElement.classList.add('ut-ready');
 </script>
 <script type="module">
 import './assets/js/multiplayer/room-service.js';
+import './assets/js/multiplayer/presence.js';
 window.dispatchEvent(new Event('ut:multiplayer-ready'));
 </script>
 </body></html>
