@@ -139,7 +139,14 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 @keyframes introLogo{0%{opacity:0;transform:scale(.94)}30%{opacity:1;transform:scale(1)}72%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.intro img{animation:introLogoRm 2s linear forwards}@keyframes introLogoRm{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}}
 </style>
-<link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full"></script>
+<link rel="preload" as="image" href="assets/Images/background/loading-bg.webp">
+<style id="loading-bg">
+/* Latar layar loading: pulau melayang + naga (loading-bg.webp). Menggantikan SceneBackground di halaman ini. */
+body{background:#1b3fb4}
+.loading-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#1b3fb4 url(assets/Images/background/loading-bg.webp) 50% 50%/cover no-repeat}
+/* gradasi gelap lembut di bawah agar bar progres & teks tetap terbaca */
+.loading-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,60,0) 55%,rgba(8,16,60,.55) 100%)}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div class="intro" id="intro" aria-hidden="true"><img src="assets/Images/logo/dragon-roll-logo.webp" alt="DRAGON ROLL" decoding="async"></div>
@@ -159,6 +166,7 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 })();
 </script>
 
+<div class="loading-bg" aria-hidden="true"></div>
 <main class="splash" aria-label="Layar memuat DRAGON ROLL">
   <section class="bottom-ui">
     <!-- dadu berputar kecil di atas bar -->
