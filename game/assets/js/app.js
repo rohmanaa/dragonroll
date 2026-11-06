@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'room'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'room', 'settings'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -249,7 +249,7 @@ window.UT = window.UT || {};
     }
     /* Suara ketukan tombol otomatis untuk halaman yang belum punya playSound sendiri (halaman lain sudah memanggil UT.Audio.play('button')).
        Hanya bunyi bila pengaturan "Suara" aktif. */
-    if (['lobby', 'mode', 'friendship'].indexOf(UT.App.page) > -1) {
+    if (['lobby', 'mode', 'friendship', 'settings'].indexOf(UT.App.page) > -1) {
       doc.addEventListener('click', function (e) {
         var t = e.target && e.target.closest ? e.target.closest('button,[role="button"],a[href],[data-act]') : null;
         if (!t || t.disabled) return;

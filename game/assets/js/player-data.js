@@ -22,7 +22,7 @@
   var START_COINS = 1000;      /* saldo awal SEKALI saat data dibuat; tidak ada koin gratis berulang */
   var START_GEMS = 0;
   var START_XP = 0;            /* Chest Feature 2: XP minimal (hanya angka tersimpan; tanpa level/progression) */
-  var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high' };
+  var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high', ambience: 'day' }; /* ambience: 'day' | 'night' | 'system' (ikuti perangkat) */
   var DEFAULT_PROFILE = { name: 'OmanBogel' };   /* nama mock sementara (satu sumber: PlayerData.profile().name) */
 
   /* ---------- Mapping legacy -> canonical (EKSPLISIT, bukan tebakan) ----------
@@ -88,6 +88,7 @@
       if (typeof s.sound === 'boolean') out.sound = s.sound;
       if (typeof s.vibration === 'boolean') out.vibration = s.vibration;
       if (s.graphics === 'high' || s.graphics === 'low') out.graphics = s.graphics;
+      if (s.ambience === 'day' || s.ambience === 'night' || s.ambience === 'system') out.ambience = s.ambience;
     }
     return out;
   }
@@ -460,6 +461,7 @@
       if (typeof p.sound === 'boolean') next.sound = p.sound;
       if (typeof p.vibration === 'boolean') next.vibration = p.vibration;
       if (p.graphics === 'high' || p.graphics === 'low') next.graphics = p.graphics;
+      if (p.ambience === 'day' || p.ambience === 'night' || p.ambience === 'system') next.ambience = p.ambience;
       st.settings = next;
       if (!write(st)) return null;
       notify('settings');

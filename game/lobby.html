@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-bg.webp"></script><style>
+<link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-bg.webp"></script><style>
 :root{--bd:#12337f;--g:#3cc23c;--sl1:#3f506b;--sl2:#26344c;--gold:#f4cd5c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.85vh)}
@@ -255,8 +255,7 @@ const ACT={
  lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},misi(){location.href='misi.html'},hadiah(){location.href='dailyreward.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
  event(){const e=EVENTS[si];if(e.url){location.href=e.url;return}openModal(`<img class="mimg" src="${e.modal||e.img}" alt="Event">`)},
  free(){soon('Hadiah gratis')},buygem(){soon('Beli gem')},buycoin(){soon('Beli coin')},
- gear(){const T=SET(),row=(k,l)=>`<div class="row"><span>${l}</span><button class="tg ${T[k]?'on':''}" data-k="${k}">${T[k]?'ON':'OFF'}</button></div>`;
-  openModal(`<h2>Pengaturan</h2>${row('music','Musik')}${row('sound','Suara')}${row('vibration','Getar')}`,()=>document.querySelectorAll('.tg').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.k,v=!SET()[k];const n=PD.setSettings({[k]:v});b.classList.toggle('on',n[k]);b.textContent=n[k]?'ON':'OFF';buzz()})))}
+ gear(){location.href='settings.html'}
 };
 document.querySelectorAll('[data-act]').forEach(b=>{const f=()=>{buzz();ACT[b.dataset.act]()};b.addEventListener('click',f);if(b.getAttribute('role')==='button')b.addEventListener('keydown',e=>{if(e.key==='Enter')f()})});
 
@@ -285,8 +284,9 @@ const cv=$('#gl'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alp
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xa8ecff,22,90);/* distance fog biru-cyan */
 const cam=new THREE.PerspectiveCamera(36,16/9,.1,250);
-scene.add(new THREE.AmbientLight(0xdff6ff,.42),new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5));/* langit cyan + pantulan rumput */
+const amb=new THREE.AmbientLight(0xdff6ff,.42),hemi=new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5);scene.add(amb,hemi);/* langit cyan + pantulan rumput */
 const sun=new THREE.DirectionalLight(0xffd88a,1.05);sun.position.set(16,20,10);/* sinar emas hangat dari kanan atas */sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});sun.shadow.bias=-.0008;scene.add(sun);
+const hiG=()=>!(UT.Ambience&&UT.Ambience.graphics()==='low');sun.castShadow=hiG();renderer.shadowMap.enabled=hiG();/* Pengaturan > Grafik rendah: tanpa bayangan, resolusi 1x */
 const anims=[];
 
 // pulau melayang dihapus: karakter berdiri di lantai batu pada latar lobby-bg.webp; latar+awan = SceneBackground (assets/js/scene-bg.js)
@@ -294,13 +294,26 @@ const HERO_S=.9,HERO_Y=-1.95;/* skala & tinggi kaki: telapak pas di lantai batu 
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
 const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
 const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(0,HERO_Y+.03,.1);cs.scale.setScalar(HERO_S*1.2);scene.add(cs);/* AO kontak di bawah karakter */
+/* ---------- suasana siang/malam (Pengaturan > Suasana): lampu 3D berubah halus; malam = cahaya bulan dingin + lampu hangat di dekat karakter ---------- */
+const lamp=new THREE.PointLight(0xffb866,0,18,2);lamp.position.set(-4.5,HERO_Y+4.2,6.5);scene.add(lamp);
+const LP={day:{amb:[0xdff6ff,.42],hemi:[0xb4eeff,0x6a9a50,.5],sun:[0xffd88a,1.05],fog:0xa8ecff,lamp:0},
+ night:{amb:[0x6a82d8,.36],hemi:[0x5676c8,0x1e2e52,.46],sun:[0xa9c2ff,.7],fog:0x142a66,lamp:1.9}};
+const LC={amb:new THREE.Color(),hemi:new THREE.Color(),hemiG:new THREE.Color(),sun:new THREE.Color(),fog:new THREE.Color()},LN={amb:0,hemi:0,sun:0,lamp:0},_c=new THREE.Color();
+let LT=null,moodT=0;
+function lightApply(){amb.color.copy(LC.amb);amb.intensity=LN.amb;hemi.color.copy(LC.hemi);hemi.groundColor.copy(LC.hemiG);hemi.intensity=LN.hemi;sun.color.copy(LC.sun);sun.intensity=LN.sun;scene.fog.color.copy(LC.fog);lamp.intensity=LN.lamp}
+function setMood(m,instant){const p=LP[m]||LP.day;LT={c:{amb:p.amb[0],hemi:p.hemi[0],hemiG:p.hemi[1],sun:p.sun[0],fog:p.fog},n:{amb:p.amb[1],hemi:p.hemi[2],sun:p.sun[1],lamp:p.lamp}};
+ if(instant){for(const k in LT.c)LC[k].set(LT.c[k]);Object.assign(LN,LT.n);lightApply();moodT=0}else moodT=1.8}
+function moodStep(dt){if(moodT<=0||!LT)return;moodT-=dt;const a=1-Math.exp(-dt*5);for(const k in LT.c)LC[k].lerp(_c.set(LT.c[k]),a);for(const k in LT.n)LN[k]+=(LT.n[k]-LN[k])*a;lightApply()}
+setMood(UT.Ambience?UT.Ambience.resolved():'day',true);
+if(UT.Ambience)UT.Ambience.on(d=>{setMood(d.resolved);fit()});
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
 let cheer=0;
 cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.365&&x<.635&&yr>-21&&yr<17){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
-function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
+function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(hiG()?Math.min(devicePixelRatio,1.5):1);renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
-function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.05);
+let lastT=0;
+function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;moodStep(dt);
  cam.position.set(0,5.5,26);cam.lookAt(0,3,0);
  if(cheer>0){cheer-=.016;if(cheer<=0){chI.visible=true;chC.visible=false}}
  (chC.visible?chC:chI).userData.anim(t);

@@ -51,6 +51,16 @@
     return c;
   }
 
+  /* ubin bintang (canvas 2D, digambar sekali): titik kecil acak + beberapa yang lebih terang */
+  var STAR_URL = '';
+  function starTile() {
+    if (STAR_URL) return STAR_URL;
+    var c = document.createElement('canvas'); c.width = 640; c.height = 360; var g = c.getContext('2d'), r = rng(21), i, x, y, a, z;
+    for (i = 0; i < 130; i++) { x = r() * 640; y = r() * 360; z = r(); a = .35 + r() * .55; g.fillStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')'; g.fillRect(x, y, z > .9 ? 3 : (z > .55 ? 2 : 1), z > .9 ? 3 : (z > .55 ? 2 : 1)); }
+    for (i = 0; i < 9; i++) { x = r() * 640; y = r() * 360; var gr = g.createRadialGradient(x, y, 0, x, y, 7); gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, 'rgba(180,210,255,0)'); g.fillStyle = gr; g.fillRect(x - 7, y - 7, 14, 14); }
+    return (STAR_URL = c.toDataURL('image/png'));
+  }
+
   function lowEnd() { try { return (navigator.hardwareConcurrency || 8) <= 2 || (navigator.deviceMemory || 8) <= 2; } catch (e) { return false; } }
 
   function mount(container, opts) {
@@ -68,6 +78,8 @@
     [['sky', 'sbg-sky'], ['fog', 'sbg-fog'], ['sun', 'sbg-sun'], ['rays', 'sbg-rays'], ['bloom', 'sbg-bloom']].forEach(function (p) {
       if (fx[p[0]]) { var d = document.createElement('div'); d.className = p[1]; el.appendChild(d); }
     });
+    /* suasana malam (assets/js/ambience.js): bintang + bulan; tersembunyi di siang hari lewat CSS */
+    if (fx.sky) { var st = document.createElement('div'); st.className = 'sbg-stars'; try { st.style.backgroundImage = 'url(' + starTile() + ')'; } catch (e) {} el.appendChild(st); var mn = document.createElement('div'); mn.className = 'sbg-moon'; el.appendChild(mn); }
     var layer = document.createElement('div'); layer.className = 'sbg-clouds';
     /* fase berbasis jam dinding -> awan melanjutkan posisinya saat pindah halaman (tidak "reset") */
     var now = Date.now() / 1000;
