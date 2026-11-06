@@ -62,7 +62,7 @@ Terapkan setelah `202611070003_friendships.sql`. Menambah tabel `player_stats` +
 
 Checklist uji (setelah migrasi diterapkan): [ ] main 1 match vs CPU -> toast "+XP/+poin" muncul; [ ] profil menampilkan level/menang/main nyata; [ ] tab Global/Mingguan menampilkan baris kamu; [ ] tambah teman -> tab Teman menampilkan dia setelah dia main; [ ] refresh halaman hasil match online -> poin tidak bertambah dua kali.
 
-## Dadu dari server (`202611100001_roll_game_dice.sql`)
+## Dadu dari server (`202611100002_roll_game_dice.sql`)
 
 Terapkan setelah `202611060001_game_events.sql`. Menambah RPC `roll_game_dice(p_room_id, p_player_id, p_client_event_id)`: server mengundi 1-6 dan mencatatnya sebagai event `roll` (`payload: {v, pid, src:'server'}`) di `game_events`. Host memakai fungsi ini di `doRoll` (`serverRoll` di `gameplay.html`, `rollDice` di `game-sync.js`); online tidak ada fallback `Math.random`.
 
