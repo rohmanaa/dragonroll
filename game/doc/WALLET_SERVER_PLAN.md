@@ -1,7 +1,7 @@
 # Rencana dompet server (coins/gems)
 
-Status: **B1 selesai, B2 sisi server selesai (B2c = pemasangan klien belum), B3-B4 belum.**
-Migrasi: `202611110001_wallet_b1.sql`, `202611110002_wallet_b2_server.sql`. Tes: `supabase/tests/wallet_b1_test.sql`, `wallet_b2_test.sql`.
+Status: **B1 selesai, B2 sisi server selesai, B3 sisi server selesai (belum di-push/diterapkan), B4 belum. Klien belum disentuh sama sekali; pemasangan klien = B5 (menggantikan B2c).**
+Migrasi: `202611110001_wallet_b1.sql`, `202611110002_wallet_b2_server.sql`, `202611110003_wallet_b3_daily_quest_exchange.sql`. Tes: `supabase/tests/wallet_b1_test.sql`, `wallet_b2_test.sql`, `wallet_b3_test.sql`.
 
 ## Masalah (hasil audit)
 Semua perubahan saldo sudah lewat `PlayerData` (`assets/js/player-data.js`: `grant`, `purchase`, `addCurrency`), tapi saldo dan inventory disimpan di localStorage, jadi bisa diedit lewat devtools. Server hanya mencatat klaim (achievement, reward boss) agar tidak ganda.
@@ -14,8 +14,11 @@ Semua perubahan saldo sudah lewat `PlayerData` (`assets/js/player-data.js`: `gra
 | Chest (koin/XP/gem) | `gameplay.html` `applyChestReward` |
 | Kalahkan boss 500 koin + 10 gem | `gameplay.html` `settleDragonDefeat`, nominal `Config.DRAGON_REWARD`; diberikan ke akun host |
 | Achievement 250/750/2000 koin, 5/10/25 gem | angka server (`claim_achievement`), saldo ditambah di klien |
+| Tukar gem -> koin (10->500, 40->2.500, 120->10.000) | `PD.addCurrency` di `shop.html`, `profile.html`, `leaderboard.html`, `inventory.html` (berlabel mock tetapi berjalan; mode tamu menambah gem gratis) |
 
-Pengeluaran: toko (`shop.html` -> `PD.purchase`), hanya koin. Pemakaian gem belum ditemukan.
+Chest: pool di `config.js` tidak punya entri koin/XP/gem, jadi kemungkinan bukan sumber pemasukan (belum pasti: config bisa ditimpa di tempat lain).
+
+Pengeluaran: toko (`shop.html` -> `PD.purchase`), koin; "hadiahkan item" ke teman palsu (Budi, Sari, Rafi, Nina) memotong koin lokal lewat `PD.addCurrency` (akan dimatikan untuk akun login). Pemakaian gem belum ditemukan.
 
 ## Prinsip desain
 - Klien tidak pernah mengirim nominal; server menentukan nominal per jenis reward.
@@ -28,9 +31,9 @@ Pengeluaran: toko (`shop.html` -> `PD.purchase`), hanya koin. Pemakaian gem belu
 ## Tahap
 - **B1 (selesai):** tabel `player_wallet`, `wallet_ledger`; fungsi internal `_wallet_apply` (idempoten, anti-negatif, terkunci per baris) dan `_wallet_ensure` (saldo awal 1000/0); RPC baca `wallet_get()`, `wallet_history(limit)`. Belum ada RPC tambah/kurang dari klien, jadi aman diterapkan sendirian.
 - **B2 (server selesai):** tabel `item_catalog` (harga di server, disalin dari `item-catalog.js` lewat `node game/tools/wallet/gen-item-seed.js --write`; `--check` untuk CI), `player_inventory`, RPC `buy_item(item_id)` (saldo + inventory satu transaksi, anti beli ganda), `inventory_get()`, `claim_boss_reward(room_id)` (hanya PEMENANG, sekali per room, maksimal 10 per hari per akun), dan `claim_achievement` kini juga mengkredit dompet server.
-- **B2c (belum):** pasang di klien: `shop.html`/`player-data.js` memanggil `buy_item` dan `wallet_get`; `gameplay.html` memanggil `claim_boss_reward` (bukan `PlayerData.grant` di perangkat host); setelah klien memakai saldo server, panggilan `PD.addCurrency` lokal untuk achievement WAJIB dihentikan agar tidak dihitung dua kali.
-- **B3:** daily reward dan misi pindah ke server (jam server, bukan jam HP).
-- **B4:** chest dan hadiah lawan CPU diberi batas harian per akun (tidak bisa diverifikasi karena game jalan di browser).
+- **B3 (server selesai, klien belum):** hari server tetap **WIB (Asia/Jakarta)** untuk daily reward dan misi (`_wib_today()`, tanggal tidak pernah dari klien; `last_claim_date` bertipe date). RPC: `daily_reward_get`, `claim_daily_reward` (tabel 7 hari di server, kunci ledger per tanggal), `quest_get/quest_track/quest_claim/quest_claim_all/quest_claim_bonus` (nominal di server; progres 'play'/'win' dilaporkan klien, maks 375 koin/hari), `exchange_gems(pack)` (paket tetap). "Hadiahkan item" tidak punya RPC (teman palsu).
+- **B4:** batas harian untuk hadiah yang tidak bisa diverifikasi (lawan CPU, progres misi win/play, chest bila ternyata ada).
+- **B5 (cutover klien, menggantikan B2c):** SEMUA jalur pindah ke server sekaligus di balik flag: `buy_item`, `claim_boss_reward`, `claim_achievement`, daily, misi, tukar gem, dan `wallet_get` sebagai sumber saldo. Memindahkan sebagian saja membuat hadiah hilang (saldo lokal ditimpa server) atau terhitung dua kali. Hadiahkan item dimatikan untuk akun login. UI daily/misi menampilkan "reset 00.00 WIB" + hitung mundur dari `seconds_to_reset`. Mode tamu tetap lokal.
 - Klien: `PlayerData` jadi cache/cermin saldo server untuk akun login; `shop.html`, `dailyreward.html`, `quest-data.js` memanggil RPC.
 
 ## Cara menerapkan B1
@@ -43,4 +46,4 @@ Pengeluaran: toko (`shop.html` -> `PD.purchase`), hanya koin. Pemakaian gem belu
 - Achievement sumber `client` (skin, emerald) masih memakai nilai dari klien (dibatasi ke tier tertinggi).
 - Harga di server harus disinkronkan ulang tiap `item-catalog.js` berubah (`gen-item-seed.js`).
 - Hasil match lawan CPU dan chest tetap tidak terverifikasi (browser); karena itu B4 memakai batas harian.
-- Daily reward dan inventory masih lokal sampai B2/B3.
+- Daily reward, misi, dan tukar gem sudah ada di server (B3) tetapi klien masih lokal sampai B5.
