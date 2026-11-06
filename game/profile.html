@@ -366,6 +366,7 @@ html body .ac2 .clm:not(:disabled){animation:clmp 1.6s ease-in-out infinite}
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'profile'});</script>
@@ -378,6 +379,8 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>Str
 // Level/XP = PlayerData lokal. Menang/main/streak, peringkat, counter achievement, misi, dan riwayat = server (get_my_profile, butuh sesi Supabase);
 // bila server belum tersedia (offline / belum pernah main) menang/main/streak memakai PlayerData lokal, sisanya 0 atau '—'. Tidak ada angka contoh.
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
+const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* B5: akun login + flag = dompet server */
+const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']};
 const _li=()=>PD.levelInfo(),_st=()=>PD.stats();
 let SRV=null; /* get_my_profile (server); null = belum login / offline */
@@ -452,7 +455,7 @@ try{if(localStorage.getItem(CLK+':paid')===null)localStorage.setItem(CLK+':paid'
 /* bayar reward milestone dari yang sudah dibayar sampai "to" (minFrom = batas bawah aman). Saldo lebih dulu, penanda PL sesudahnya. */
 function payOwed(id,to,minFrom=0){const from=Math.max(PL.get(id),minFrom);if(to<=from)return{ok:true,rw:[0,0]};
  const rw=REW.slice(from,to).reduce((t,x)=>[t[0]+x[0],t[1]+x[1]],[0,0]);
- if(rw[0]||rw[1]){const x=PD.addCurrency(rw[0],rw[1]);if(!x.ok)return{ok:false,rw}}
+ if((rw[0]||rw[1])&&!SV()){const x=PD.addCurrency(rw[0],rw[1]);if(!x.ok)return{ok:false,rw}} /* akun server: reward sudah dikreditkan server */
  PL.set(id,to);return{ok:true,rw}}
 /* pemulihan lokal: klaim sudah tercatat tetapi pembayaran belum selesai */
 function recoverLocal(){Object.keys(INT.all()).forEach(id=>{const c=CL.get(id);if(c>PL.get(id)&&payOwed(id,c,INT.get(id)).ok)INT.del(id)})}
@@ -517,6 +520,7 @@ async function claimAch(id){const a=achInfo().find(x=>x.id===id);if(!a||a.pend<1
   const r=await UT.Multiplayer.Progress.claimAchievement(id,(id==='skin'||id==='emerald')?a.v:null),stars=Math.min(3,+r.stars||0);
   if(!r.ok){const sv0=Math.max(cl0,+r.claimed||0);CL.set(id,sv0);PL.set(id,Math.max(PL.get(id),sv0));INT.del(id);render();toast('Belum ada reward untuk diklaim');return}
   CL.set(id,stars);
+  if(SV())PD.applyServerWallet({coins:r.wallet_coins,gems:r.wallet_gems});
   const pay=payOwed(id,stars,cl0),rw=pay.rw;
   if(!pay.ok){render();toast('Reward belum tersimpan. Buka profil lagi untuk menerimanya.');playSound('error');return}
   INT.del(id);const al=$('#alist'),sc=al?al.scrollTop:0;render();const n=$('#alist');if(n)n.scrollTop=sc;renderCurrency();
@@ -527,7 +531,8 @@ function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').text
 function renderInfo(){renderCurrency()}
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 function init(){
- recoverLocal();$('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo()}
+ recoverLocal();$('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo();
+ if(SV()&&WS())WS().refresh().then(r=>{if(r.ok)renderInfo()}); /* B5 */}
 const rows=(t,a)=>openModal(`<h2>${t}</h2>`+a.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join(''));
 const DT={win:()=>rows('Rasio Kemenangan',[['Menang',PROF.win],['Kalah',PROF.play-PROF.win],['Rasio',pcn()+'%']]),
  play:()=>rows('Total Main',[['Pertandingan',PROF.play],['Misi selesai',MIS()]]),
@@ -565,8 +570,8 @@ function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing'
 $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 function buy(type){if(type==='gem'){toast('Pembelian Gem belum tersedia.');playSound('error');return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
-  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i,p=packs[i];const r=g?PD.addCurrency(0,p[0]):PD.addCurrency(p[0],-[10,40,120][i]);
-   if(!r.ok){toast(r.reason==='gem-kurang'?'Gem tidak cukup.':'Transaksi gagal.');playSound('error');return}
+  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',async()=>{const i=+b.dataset.i,p=packs[i];const r=g?(SV()?{ok:false,reason:'tidak-tersedia'}:PD.addCurrency(0,p[0])):(SV()?await WS().exchange(i):PD.addCurrency(p[0],-[10,40,120][i]));
+   if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}
    renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
 $('#gear').addEventListener('click',()=>{const T=SET();const row=(k,l)=>`<div class="row"><span>${l}</span><button class="tg ${T[k]?'on':''}" data-k="${k}">${T[k]?'ON':'OFF'}</button></div>`;

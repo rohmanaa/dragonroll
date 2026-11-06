@@ -241,6 +241,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'inventory'});</script>
@@ -251,6 +252,8 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
 // ---- data: inventory BUKAN database sendiri. Item & kepemilikan dibaca dari ItemCatalog + PlayerData.
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
+const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* B5: akun login + flag = dompet server */
+const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RC={common:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)'};
 const BG={common:['#5a8aa8','#2f5f80'],rare:['#3a8ff0','#1b55c0'],epic:['#8a4ae0','#4a2aa8'],legendary:['#f0c040','#b98020']};
 const KINDS=['skin','frame','dice','powerup'];   /* Map bukan item inventory */
@@ -339,8 +342,8 @@ $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>
 /* Top-up lewat PlayerData.addCurrency — tidak ada currency state kedua. */
 function buy(type){if(type==='gem'){toast('Pembelian Gem belum tersedia.');playSound('error');return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
  openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
-  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i,p=packs[i];const r=g?PD.addCurrency(0,p[0]):PD.addCurrency(p[0],-[10,40,120][i]);
-   if(!r.ok){toast(r.reason==='gem-kurang'?'Gem tidak cukup.':'Transaksi gagal.');playSound('error');return}
+  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',async()=>{const i=+b.dataset.i,p=packs[i];const r=g?(SV()?{ok:false,reason:'tidak-tersedia'}:PD.addCurrency(0,p[0])):(SV()?await WS().exchange(i):PD.addCurrency(p[0],-[10,40,120][i]));
+   if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}
    renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
 $('#gear').addEventListener('click',()=>{const T=SET();const row=(k,l)=>`<div class="row"><span>${l}</span><button class="tg ${T[k]?'on':''}" data-k="${k}">${T[k]?'ON':'OFF'}</button></div>`;
@@ -390,6 +393,7 @@ setCat('skin'); /* mengisi sel dari PlayerData + render grid/info/recent */
 if(ok){main=rig($('#gl'),true,1.8,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
+if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
 })();
 </script>
 </body></html>

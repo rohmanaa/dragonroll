@@ -291,6 +291,7 @@ html body #title small{font-size:1.2rem}
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/mob-view.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'dailyreward'});</script>
@@ -312,6 +313,11 @@ gift:'<svg viewBox="0 0 24 24"><path d="M4 11h16v10H4z" fill="#f5a623" stroke="#
 $('#tgift').innerHTML='<img class="ic" src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false" decoding="async">';$('#gemI').innerHTML=I.gem;$('#coinI').innerHTML=I.coin;
 // ---------- data (reward table memakai ID canonical dari ItemCatalog; lihat DATA_MIGRATION.md)
 const PD=window.PlayerData,IC=window.ItemCatalog;
+/* B5: akun login + flag -> status & klaim dari SERVER (hari WIB, tanggal bukan dari jam perangkat). SD = hasil daily_reward_get. */
+const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
+let SD=null,RESET_AT=0,busy=false;
+const SRV=()=>SV()&&!!SD;
+function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,claimed_today:!!r.claimed_today,box:+r.box||0};D.claimed=SD.claimed;BAG.box=SD.box;RESET_AT=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const R=[
  {h:'Hari 1',a:'x50',t:'50 Gem',ic:I.gem,ty:'gem',n:50},
  {h:'Hari 2',a:'x1.000',t:'1.000 Coin',ic:I.coin,ty:'coin',n:1000},
@@ -325,14 +331,14 @@ const R=[
 function invField(k,def){try{const r=JSON.parse(localStorage.getItem('inv')||'null');return (r&&r[k]&&typeof r[k]==='object')?r[k]:def}catch(e){return def}}
 let D=Object.assign({claimed:0,last:'',shift:0,temp:null},invField('daily',{}));
 let BAG=Object.assign({box:0},invField('bag',{}));
-const save=()=>{try{const r=(()=>{try{return JSON.parse(localStorage.getItem('inv'))||{}}catch(e){return{}}})();r.daily=D;r.bag=BAG;localStorage.setItem('inv',JSON.stringify(r))}catch(e){}};
+const save=()=>{if(SV())return;try{const r=(()=>{try{return JSON.parse(localStorage.getItem('inv'))||{}}catch(e){return{}}})();r.daily=D;r.bag=BAG;localStorage.setItem('inv',JSON.stringify(r))}catch(e){}};
 const DEBUG=new URLSearchParams(location.search).has('debug'); /* simulasi hari hanya dengan ?debug di URL */
 const now=()=>new Date(Date.now()+(DEBUG?D.shift:0)*864e5);
 const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const daysBetween=(a,b)=>Math.round((Date.UTC(...b.split('-').map((v,i)=>i===1?v-1:+v))-Date.UTC(...a.split('-').map((v,i)=>i===1?v-1:+v)))/864e5);
-function sync(){const t=key(now());if(D.last){const df=daysBetween(D.last,t);if(df>1||(df>=1&&D.claimed>=7))D.claimed=0}
+function sync(){if(SV())return;const t=key(now());if(D.last){const df=daysBetween(D.last,t);if(df>1||(df>=1&&D.claimed>=7))D.claimed=0}
  if(D.temp&&Date.now()+(DEBUG?D.shift:0)*864e5>D.temp.exp)D.temp=null;save()}
-const doneToday=()=>D.last===key(now());
+const doneToday=()=>SRV()?SD.claimed_today:D.last===key(now());
 if(!DEBUG&&D.shift){D.shift=0;const k0=key(now());if(D.last>k0)D.last=k0;save()} /* buang sisa simulasi lama: hari kembali ke waktu asli */
 // ---------- helpers
 const SET=()=>PD.settings();
@@ -368,9 +374,20 @@ function grant(r){let msg=r.t;
  else if(r.ty==='skin'){const res=PD.grant({item:r.id,duplicateGems:100});if(res.duplicate)msg='Skin (sudah punya) → +100 Gem'}
  else if(r.ty==='powerup'){const res=PD.grant({item:r.id});if(res.ok)msg=r.t+' ×1 diterima (Power)'}
  return msg}
-function claim(i,el){const r=R[i],msg=grant(r);D.claimed=i+1;D.last=key(now());save();
- playSound('purchase');buzz();sparkle(el,22);pulse(r.ty==='gem'?'#gem':'#coin');renderDays();
+function done(r,msg,el){playSound('purchase');buzz();sparkle(el,22);pulse(r.ty==='gem'?'#gem':'#coin');renderDays();
  openModal(`<h2>Hadiah Diklaim!</h2><div class="rw">${r.ic}</div><div>${msg}</div><button class="ok" id="okb">Mantap!</button>`,()=>$('#okb').addEventListener('click',()=>{playSound('click');closeModal()}))}
+function claim(i,el){if(SV())return claimServer(i,el);const r=R[i],msg=grant(r);D.claimed=i+1;D.last=key(now());save();done(r,msg,el)}
+/* Akun server: nominal & item ditentukan server (claim_daily_reward); klien hanya menampilkan hasilnya. */
+async function claimServer(i,el){if(busy)return;busy=true;
+ try{const w=WS(),r=w?await w.claimDaily():{ok:false,reason:'jaringan'};
+  if(!r.ok){const m={'sudah-klaim':'Sudah klaim hari ini, kembali besok!','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.'};
+   toast(m[r.reason]||'Klaim gagal.');playSound('error');const d=await w.dailyGet();if(applyDaily(d)){renderDays();tick()}return}
+  const row=R[(r.day||i+1)-1]||R[i];let msg=row.t;
+  if(r.duplicate)msg=r.type==='skin'?'Skin (sudah punya) → +'+fmt(r.gems)+' Gem':'Dadu (sudah punya) → +'+fmt(r.coins)+' Coin';
+  else if(r.type==='powerup')msg=row.t+' ×1 diterima (Power)';
+  applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
+  done(row,msg,el)}
+ finally{busy=false}}
 // ---------- list modal
 $('#see').addEventListener('click',()=>{playSound('click');
  openModal('<h2>Semua Hadiah</h2>'+R.map((r,i)=>`<div class="row ${state(i)==='now'?'cl':''}"><div class="ri">${r.ic}</div><div>${r.h}<small>${r.t}</small></div><span class="tag">${state(i)==='done'?'Diklaim':state(i)==='now'?'Klaim!':'Menunggu'}</span></div>`).join(''))});
@@ -379,7 +396,12 @@ document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 $('#rst').addEventListener('click',()=>{if(!DEBUG)return;D.shift++;sync();renderDays();tick();playSound('select');toast('Simulasi: hari berikutnya (mock)')});
 // ---------- countdown
-function tick(){const n=now(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));
+function tick(){
+ if(SRV()){const sec=Math.max(0,Math.ceil((RESET_AT-Date.now())/1000));
+  $('#cd').textContent=[sec/3600|0,(sec%3600)/60|0,sec%60].map(v=>String(v).padStart(2,'0')).join(':');
+  if(sec===0&&!tick.rf){tick.rf=1;WS().dailyGet().then(d=>{if(applyDaily(d))renderDays()}).finally(()=>setTimeout(()=>{tick.rf=0},3000))}
+  return}
+ const n=now(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));
  $('#cd').textContent=[s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':');
  if(s===0||key(n)!==tick.k){if(tick.k&&key(n)!==tick.k){sync();renderDays()}tick.k=key(n)}}
 // ---------- 3D
@@ -409,6 +431,7 @@ if(ok&&rigs.length){clock=new THREE.Clock();new ResizeObserver(fit).observe(docu
 else{$('#hero').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:6rem">🧑‍🚀</div>';$('#chest').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:8rem">🎁</div>'}
 // ---------- init
 sync();renderDays();tick();setInterval(tick,1000);
+if(SV()&&WS()){const sm=document.querySelector('#rst small');if(sm)sm.textContent='Reset 00.00 WIB:';WS().refresh().then(()=>renderCurrency());WS().dailyGet().then(d=>{if(applyDaily(d)){renderDays();tick()}})} /* B5: status dari server */
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
