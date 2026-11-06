@@ -205,7 +205,7 @@ function applyRemoteRoom(row){
  $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
  renderPlayers();renderBottom();
- if((row.status==='playing'||row.status==='finished')&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched&&!(sessionStorage.getItem('ut-mp-exited')===String(row.id))){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
+ if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched&&!(sessionStorage.getItem('ut-mp-exited')===String(row.id))){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
 }
 async function setupOnline(){
  try{
@@ -213,7 +213,7 @@ async function setupOnline(){
   S.mpIdentity=await MP.ensurePlayer();let row;
   if(HOST){
    let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
-   if(saved&&saved.id){try{row=await MP.getRoom(saved.id)}catch(_){} }
+   if(saved&&saved.id){try{row=await MP.getRoom(saved.id);if(!row||row.status!=='waiting'||row.host_id!==S.mpIdentity.id)row=null}catch(_){row=null} }
    if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:COUNT,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
@@ -287,6 +287,8 @@ function moveTeam(id){if(!HOST)return;const p=S.room.players.find(x=>x.id===id),
 /* ---------- READY / START (START hanya host) ---------- */
 function check(){const P=S.room.players,h=me();
  if(!h)return{ok:false,msg:ONLINE?'Menghubungkan ke room...':'Menyiapkan pemain'};
+ if(ONLINE&&S.room.status==='finished')return{ok:false,msg:'Permainan di room ini sudah selesai. Kembali dan buat room baru.'};
+ if(ONLINE&&S.room.status==='playing')return{ok:false,msg:'Permainan di room ini sedang berlangsung.'};
  if(ONLINE){if(TEAM){if(P.length<4)return{ok:false,msg:`Butuh ${4-P.length} pemain lagi untuk 2 vs 2`};if(P.filter(p=>p.team===1).length!==2)return{ok:false,msg:'Atur tim menjadi 2 vs 2'}}else if(P.length<2)return{ok:false,msg:'Butuh minimal 2 pemain'}}
  if(!h.ready)return{ok:false,msg:'Tekan READY untuk bersiap'};
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};

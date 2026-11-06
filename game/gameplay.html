@@ -5703,7 +5703,8 @@ function exitToRoom(){
   if(ONLINE_ROOM){ /* room online masih berstatus 'playing' -> room.html akan meluncurkan game lagi; keluar langsung ke Mode Selection */
     try{ sessionStorage.setItem('ut-mp-exited',String(ROOM_CFG.roomId)); sessionStorage.removeItem('ut-room'); sessionStorage.removeItem('ut-multiplayer-room'); }catch(e){}
     const bye=()=>{ try{ if(MP_SYNC&&MP_SYNC.close) MP_SYNC.close(); }catch(e){} location.href='mode.html'; };
-    if(ONLINE_HOST&&MP_SYNC&&MP_SYNC.announceLeave&&!gameOver){ Promise.race([MP_SYNC.announceLeave().catch(()=>{}),sleep(700)]).then(bye); } else bye(); /* host keluar -> beri tahu tamu */
+    const srv=()=>{ try{ const RS=window.UT&&UT.Multiplayer&&UT.Multiplayer.RoomService; return RS&&RS.exitRoom?Promise.race([RS.exitRoom(ROOM_CFG.roomId).catch(()=>{}),sleep(900)]):Promise.resolve(); }catch(e){ return Promise.resolve(); } }; /* keluarkan dari room di server agar room lama tidak 'playing' selamanya */
+    if(ONLINE_HOST&&MP_SYNC&&MP_SYNC.announceLeave&&!gameOver){ Promise.race([MP_SYNC.announceLeave().catch(()=>{}),sleep(700)]).then(srv).then(bye); } else srv().then(bye); /* host keluar -> beri tahu tamu */
     return;
   }
   if(window.UT&&UT.RoomFlow) UT.RoomFlow.exitGame(); else location.href=LOBBY_URL; } /* kembali ke room/mode asal masuk */
