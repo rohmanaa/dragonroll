@@ -146,7 +146,13 @@ body{background:#1b3fb4}
 .loading-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#1b3fb4 url(assets/Images/background/loading-bg.webp) 50% 50%/cover no-repeat}
 /* gradasi gelap lembut di bawah agar bar progres & teks tetap terbaca */
 .loading-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,60,0) 55%,rgba(8,16,60,.55) 100%)}
+/* Teks status loading: putih, lebih kecil, huruf biasa (bukan kapital semua), tetap terbaca di atas latar lewat bayangan lembut */
+.meta,.load-meta{font:700 13px/1.2 'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.01em;text-transform:none;color:#fff;text-shadow:0 1px 2px rgba(5,20,60,.75),0 0 8px rgba(5,20,60,.45);opacity:1}
+.load-meta span{color:#fff}
+/* Mode awan: dipakai saat intro naga tidak ditampilkan (pindah halaman dalam sesi yang sama). Latar langit + awan seperti antar-halaman, tanpa bar & dadu. */
+html.quick .loading-bg,html.quick .hero-dice,html.quick .loading-track,html.quick .load-meta{display:none!important}
 </style>
+<link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/ambience.js"></script><script src="assets/js/scene-bg.js"></script>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div class="intro" id="intro" aria-hidden="true"><img src="assets/Images/logo/dragon-roll-logo.webp" alt="DRAGON ROLL" decoding="async"></div>
@@ -155,7 +161,15 @@ body{background:#1b3fb4}
 (function(){
   var DUR=2400, intro=document.getElementById('intro'), done;
   window.UT_introDone=new Promise(function(r){done=r;});
-  if(new URLSearchParams(location.search).get('next')){ intro.remove(); done(); return; }
+  var hasNext=!!new URLSearchParams(location.search).get('next'), booted=false;
+  try{ booted=sessionStorage.getItem('ut:booted')==='1'; }catch(e){}
+  /* Naga selalu tampil di awal sesi baru, walau game dibuka lewat halaman lain (boot-guard mengalihkan ke sini dengan ?next).
+     Hanya bila sesi sudah berjalan (sudah lewat splash) dan dialihkan lagi -> loading awan singkat tanpa bar. */
+  if(hasNext && booted){
+    intro.remove(); document.documentElement.classList.add('quick');
+    try{ if(window.UT&&UT.SceneBG) UT.SceneBG.mount(document.body,{preset:'soft',image:'assets/Images/background/bg.webp'}); }catch(e){}
+    done(); return;
+  }
   intro.classList.add('on');
   var a; try{ a=new Audio('assets/sfx/dragon/naga-bumper.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
   var played=false;
@@ -176,7 +190,7 @@ body{background:#1b3fb4}
     </div>
 
     <div class="loading-track"><div class="loading-fill" id="fill"></div></div>
-    <div class="load-meta"><span id="label">MENYIAPKAN DUNIA</span><span id="percent">0%</span></div>
+    <div class="load-meta"><span id="label">Menyiapkan dunia</span><span id="percent">0%</span></div>
     <button type="button" class="login-btn" id="loginBtn">LOGIN</button>
   </section>
 </main>
@@ -205,10 +219,10 @@ body{background:#1b3fb4}
 window.UT_afterLoad = function (go) {
   const lab = document.getElementById('label'), btn = document.getElementById('loginBtn');
   const ready = new Promise(res => { if (window.UT && UT.Auth) return res(true); addEventListener('ut:auth-module-ready', () => res(true), { once: true }); setTimeout(() => res(false), 8000); });
-  lab.textContent = 'MEMERIKSA AKUN';
+  lab.textContent = 'Memeriksa akun';
   ready.then(ok => ok ? UT.Auth.check() : null).then(user => {
-    if (user) { lab.textContent = 'HALO, ' + String(user.username).toUpperCase(); go(); return; }
-    lab.textContent = 'SIAP!'; document.body.classList.add('login-ready'); btn.classList.add('show'); btn.focus();
+    if (user) { lab.textContent = 'Halo, ' + String(user.username); go(); return; }
+    lab.textContent = 'Siap!'; document.body.classList.add('login-ready'); btn.classList.add('show'); btn.focus();
     btn.onclick = () => openAuth(go);
   });
 };
@@ -233,7 +247,7 @@ function openAuth(go) {
       if (!(window.UT && UT.Auth)) throw new Error('Modul akun belum siap. Muat ulang halaman.');
       const u = $('auUser').value, p = $('auPass').value;
       const user = mode === 'reg' ? await UT.Auth.signUp(u, p) : await UT.Auth.signIn(u, p);
-      ov.classList.remove('show'); document.getElementById('label').textContent = 'HALO, ' + String(user.username).toUpperCase(); go();
+      ov.classList.remove('show'); document.getElementById('label').textContent = 'Halo, ' + String(user.username); go();
     } catch (e2) { err.textContent = e2.message || 'Gagal. Coba lagi.'; goB.disabled = false; goB.textContent = t; }
   };
 }
@@ -245,7 +259,7 @@ function openAuth(go) {
 (() => {
   /* ---------- preload data & aset, lalu masuk ke lobby ---------- */
   const out = document.getElementById('percent'), fill = document.getElementById('fill'), lab = document.getElementById('label');
-  const LABELS = { kode: 'MEMUAT GAME', gambar: 'MEMUAT GAMBAR', audio: 'MEMUAT MUSIK & SUARA', data: 'MENYIAPKAN DUNIA' };
+  const LABELS = { kode: 'Memuat game', gambar: 'Memuat gambar', audio: 'Memuat musik & suara', data: 'Menyiapkan dunia' };
   const ASSETS=[
     'assets/css/base.css','assets/css/shared-ui.css','assets/css/scene-bg.css','assets/js/scene-bg.js','assets/js/floating-island.js','assets/js/character-data.js','assets/js/character-view.js','assets/js/mob-view.js','assets/Images/background/bg.webp','assets/js/landscape.js','assets/js/boot-guard.js','assets/js/item-catalog.js','assets/js/item-art.js','assets/js/player-data.js','assets/js/app.js','assets/js/game-integration.js','hud/ui-core.js','hud/components/button.css','hud/components/button.js',
     'assets/sfx/ui/button-click.mp3','assets/sfx/ui/chest-reward.mp3','assets/sfx/ui/game-lose.mp3','assets/sfx/ui/power-claim.mp3',
@@ -259,7 +273,7 @@ function openAuth(go) {
   const dest = /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx) && !/^(splash|loading)\.html/i.test(nx) ? nx : 'lobby.html';
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
-  (window.UT_introDone||Promise.resolve()).then(() => UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'SIAP!'; }).then(() => {
+  (window.UT_introDone||Promise.resolve()).then(() => UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'Siap!'; }).then(() => {
     const go = () => { try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {} setTimeout(() => location.replace(dest), 350); };
     window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
   }));
