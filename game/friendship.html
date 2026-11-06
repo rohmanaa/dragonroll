@@ -102,7 +102,7 @@ html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f
 <button class="heroBtn" id="inviteHero">＋ Undang Teman</button>
 </section>
 <main id="main" class="ab">
-<div id="mainTop"><button class="tab on" data-filter="online">Online <span class="badgeCount" id="onlineCount">0</span></button><button class="tab" data-filter="all">Semua</button><button class="tab" data-filter="request">Permintaan <span class="badgeCount" id="reqCount">2</span></button></div>
+<div id="mainTop"><button class="tab on" data-filter="online">Online <span class="badgeCount" id="onlineCount">0</span></button><button class="tab" data-filter="all">Semua</button><button class="tab" data-filter="request">Permintaan <span class="badgeCount" id="reqCount">0</span></button></div>
 <div id="searchRow"><label class="search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#fff" stroke-width="2.5"/><path d="m16 16 5 5" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg><input id="search" placeholder="Cari nama pemain..." autocomplete="off"></label><button class="add" id="addBtn">＋ Tambah</button></div>
 <div id="list"><div id="friends"></div></div>
 </main>
@@ -127,34 +127,54 @@ const PD=window.PlayerData,fmt=n=>n.toLocaleString('id-ID');
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
 renderCurrency();
 UT.Events.on('currencyChanged',renderCurrency);
-const friends=[
-{id:1,name:'RakaPlay',level:28,status:'online',mode:'Lobby',skin:0x22b8d8},
-{id:2,name:'NayaCraft',level:24,status:'online',mode:'Menunggu',skin:0x9a4ae0},
-{id:3,name:'BimaGG',level:31,status:'busy',mode:'Ranked',skin:0xf0b030,frame:'frame.gold'},
-{id:4,name:'AlyaVoxel',level:19,status:'online',mode:'Lobby',skin:0x4acb58},
-{id:5,name:'DinoRush',level:35,status:'offline',mode:'Offline',skin:0xd23a32,frame:'frame.gold'},
-{id:6,name:'KikoPlay',level:17,status:'offline',mode:'Offline',skin:0x5a75d6}
-];
-const requests=[{id:101,name:'FajarCube',level:21,status:'online',mode:'Mengirim permintaan',skin:0x35d3f0},{id:102,name:'SalsaFun',level:26,status:'online',mode:'Mengirim permintaan',skin:0xff7ad0}];
-let filter='online',query='';
-function avatar(color,seed){return `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#a9dcf8"/><ellipse cx="50" cy="82" rx="31" ry="9" fill="#6fbf4a" opacity=".75"/><rect x="31" y="27" width="38" height="31" rx="3" fill="#f1c49b"/><rect x="27" y="23" width="46" height="13" rx="3" fill="#7a4a2a"/><rect x="26" y="50" width="48" height="32" rx="3" fill="${'#'+color.toString(16).padStart(6,'0')}"/><rect x="39" y="38" width="6" height="6" fill="#24335a"/><rect x="55" y="38" width="6" height="6" fill="#24335a"/><rect x="42" y="49" width="16" height="3" rx="1.5" fill="#a45a4d"/></svg>`}
-function statusText(f){return f.status==='online'?'Online':f.status==='busy'?'Sedang bermain':'Offline'}
+const RS=()=>UT.Multiplayer&&UT.Multiplayer.RoomService,PR=()=>UT.Multiplayer&&UT.Multiplayer.Presence;
+let friends=[],requests=[],filter='online',query='',authed=null,loaded=false;
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COLORS=[0x22b8d8,0x9a4ae0,0xf0b030,0x4acb58,0xd23a32,0x5a75d6,0x35d3f0,0xff7ad0];
+const colorOf=n=>COLORS[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
+function avatar(color){return `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#a9dcf8"/><ellipse cx="50" cy="82" rx="31" ry="9" fill="#6fbf4a" opacity=".75"/><rect x="31" y="27" width="38" height="31" rx="3" fill="#f1c49b"/><rect x="27" y="23" width="46" height="13" rx="3" fill="#7a4a2a"/><rect x="26" y="50" width="48" height="32" rx="3" fill="${'#'+color.toString(16).padStart(6,'0')}"/><rect x="39" y="38" width="6" height="6" fill="#24335a"/><rect x="55" y="38" width="6" height="6" fill="#24335a"/><rect x="42" y="49" width="16" height="3" rx="1.5" fill="#a45a4d"/></svg>`}
+function presMap(){const m={};try{(PR()?PR().list():[]).forEach(p=>m[p.id]=p.status)}catch(e){}return m}
+function viewFriends(){const pm=presMap();return friends.map(f=>{const st=pm[f.friend_id];return{id:f.friend_id,name:f.friend_name,status:!st?'offline':st==='lobby'?'online':'busy',mode:st==='lobby'?'Di lobi':st==='room'?'Di room':st==='game'?'Sedang bermain':'Offline',skin:colorOf(f.friend_name)}})}
+function viewRequests(){return requests.map(r=>({id:r.from_id,name:r.from_name,status:'online',mode:'Mengirim permintaan',skin:colorOf(r.from_name)}))}
 function render(){
- const source=filter==='request'?requests:friends;
- const arr=source.filter(f=>(f.name+' '+f.level).toLowerCase().includes(query.toLowerCase())).filter(f=>filter!=='online'||f.status==='online');
- $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${f.id}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatar(f.skin,i)+'</div>','5.2rem',f.frame)}<div class="finfo"><div class="name">${f.name}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>Lv. ${f.level} · ${statusText(f)}${f.status!=='offline'&&filter!=='request'?` · ${f.mode}`:''}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>Tidak ada teman yang ditemukan.</p></div></div>`;
- $('#onlineCount').textContent=friends.filter(x=>x.status==='online').length;
+ const fv=viewFriends(),rv=viewRequests(),source=filter==='request'?rv:fv;
+ const arr=source.filter(f=>f.name.toLowerCase().includes(query.toLowerCase())).filter(f=>filter!=='online'||f.status!=='offline');
+ const emptyMsg=authed===false?'Masuk ke akunmu untuk melihat teman.':!loaded?'Memuat...':filter==='request'?'Belum ada permintaan teman.':filter==='online'?'Tidak ada teman yang sedang online.':'Belum ada teman. Tekan ＋ Tambah untuk mengirim permintaan.';
+ $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${esc(f.id)}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatar(f.skin)+'</div>','5.2rem',f.frame)}<div class="finfo"><div class="name">${esc(f.name)}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>${esc(f.mode)}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button><button class="act remove" data-action="remove">Hapus</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>${emptyMsg}</p></div></div>`;
+ $('#onlineCount').textContent=fv.filter(x=>x.status!=='offline').length;
  $('#reqCount').textContent=requests.length;
 }
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('toastOn');clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove('toastOn'),1800)}
 function openModal(html){$('#mb').innerHTML=html;$('#modal').style.display='grid';requestAnimationFrame(()=>$('#modal').classList.add('show'))}
 function closeModal(){ $('#modal').classList.remove('show');setTimeout(()=>$('#modal').style.display='none',220)}
-function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain yang ingin kamu tambahkan.</p><label class="search" style="height:4.2rem;width:100%;display:flex;margin:1rem 0"><input id="friendName" placeholder="Contoh: Player123" style="text-align:center"></label><div class="modalBtns"><button class="modalBtn no" id="cancel">Batal</button><button class="modalBtn" id="send">Kirim Permintaan</button></div>`);$('#cancel').onclick=closeModal;$('#send').onclick=()=>{const n=$('#friendName').value.trim();if(!n){toast('Masukkan username dulu.');return}closeModal();toast('Permintaan teman dikirim!')}}
+const ERR={USER_NOT_FOUND:'Username tidak ditemukan.',CANNOT_ADD_SELF:'Tidak bisa menambah diri sendiri.',ALREADY_FRIENDS:'Kalian sudah berteman.',REQUEST_NOT_FOUND:'Permintaan tidak ditemukan.'};
+const errMsg=e=>ERR[e&&e.message]||'Gagal, periksa koneksi.';
+const myName=async()=>(await RS().ensurePlayer()).name;
+async function load(){
+ try{await ready;const c=await UT.Multiplayer.getClient();const {data}=await c.auth.getSession();authed=!!data.session;
+  if(authed){const [f,r]=await Promise.all([RS().listFriends(),RS().listRequests()]);friends=f;requests=r}
+ }catch(e){console.warn('[friends] gagal memuat',e)}
+ loaded=true;render();
+}
+const ready=import('./assets/js/multiplayer/presence.js').then(()=>{PR().start({status:'lobby',requireSession:true});PR().onChange(render)}).catch(e=>console.warn('[friends] presence gagal',e));
+function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain yang ingin kamu tambahkan.</p><label class="search" style="height:4.2rem;width:100%;display:flex;margin:1rem 0"><input id="friendName" placeholder="Username teman" style="text-align:center"></label><div class="modalBtns"><button class="modalBtn no" id="cancel">Batal</button><button class="modalBtn" id="send">Kirim Permintaan</button></div>`);$('#cancel').onclick=closeModal;
+ $('#send').onclick=async()=>{const n=$('#friendName').value.trim();if(!n){toast('Masukkan username dulu.');return}
+  try{const res=await RS().sendFriendRequest({username:n,myName:await myName()});closeModal();toast(res==='accepted'?'Kalian sekarang berteman!':'Permintaan teman dikirim!');if(res==='accepted')load()}catch(e){toast(errMsg(e))}}}
 $('#search').addEventListener('input',e=>{query=e.target.value;render()});
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render()}));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render();load()}));
 $('#addBtn').onclick=addFriend;$('#inviteHero').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
 $('#back').onclick=()=>{location.href='lobby.html'};$('#gear').onclick=()=>toast('Pengaturan dibuka');
-document.addEventListener('click',e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend');const id=Number(card?.dataset.id);const f=[...friends,...requests].find(x=>x.id===id);if(btn.classList.contains('accept')){const idx=requests.findIndex(x=>x.id===id);if(idx>-1){friends.push({...requests[idx],status:'online',mode:'Lobby'});requests.splice(idx,1);filter='online';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.filter===filter));render();toast(f.name+' sekarang menjadi teman!')}}else if(btn.classList.contains('decline')){const idx=requests.findIndex(x=>x.id===id);if(idx>-1)requests.splice(idx,1);render();toast('Permintaan ditolak.')}else if(btn.classList.contains('play')){toast('Undangan bermain dikirim ke '+f.name+'!')}else if(btn.dataset.action==='remove'){const idx=friends.findIndex(x=>x.id===id);if(idx>-1)friends.splice(idx,1);render();toast('Teman dihapus.')}else if(btn.dataset.action==='profile'){openModal(`<h2>${f.name}</h2><p>Level ${f.level}<br>${statusText(f)}${f.mode?' · '+f.mode:''}</p><div class="modalBtns"><button class="modalBtn" onclick="document.querySelector('#mx').click()">Tutup</button></div>`)}});
+$('#friends').addEventListener('click',async e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend'),id=card&&card.dataset.id;if(!id)return;
+ const f=[...viewFriends(),...viewRequests()].find(x=>x.id===id);if(!f)return;
+ try{
+  if(btn.classList.contains('accept')){await RS().acceptFriendRequest(id,await myName());filter='online';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.filter===filter));await load();toast(f.name+' sekarang menjadi teman!')}
+  else if(btn.classList.contains('decline')){await RS().declineFriendRequest(id);await load();toast('Permintaan ditolak.')}
+  else if(btn.classList.contains('play')){location.href='room.html?mode=online&format=solo&count=4&invite='+encodeURIComponent(id)}
+  else if(btn.dataset.action==='remove'){await RS().removeFriend(id);await load();toast('Teman dihapus.')}
+  else if(btn.dataset.action==='profile'){openModal(`<h2>${esc(f.name)}</h2><p>${esc(f.mode)}</p><div class="modalBtns"><button class="modalBtn" onclick="document.querySelector('#mx').click()">Tutup</button></div>`)}
+ }catch(er){toast(errMsg(er))}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});setInterval(()=>{if(!document.hidden&&authed)load()},20000);
+load();
 // ---- 3D: sistem yang sama dengan inventory (character + island voxel + rig + drag putar)
 const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
 const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p&&p.add(o);return o};

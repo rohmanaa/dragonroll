@@ -9,7 +9,10 @@ async function setReady(roomId,ready){await ensurePlayer();return rpc('set_game_
 async function setVisibility(roomId,isPublic){await ensurePlayer();return rpc('set_game_room_visibility',{p_room_id:roomId,p_is_public:!!isPublic})}
 async function quickJoin(o){await ensurePlayer();return rpc('quick_join_game_room',{p_name:o.name,p_format:o.format||'solo'})}
 async function leaveRoom(roomId){await ensurePlayer();return rpc('leave_game_room',{p_room_id:roomId})}
-async function addFriend(id,friendName,myName){await ensurePlayer();return rpc('add_friend',{p_friend_id:id,p_friend_name:friendName,p_my_name:myName})}
+async function sendFriendRequest(o){await ensurePlayer();return rpc('send_friend_request',{p_target_id:o.id||null,p_username:o.username||null,p_my_name:o.myName,p_target_name:o.name||null})}
+async function acceptFriendRequest(id,myName){await ensurePlayer();return rpc('accept_friend_request',{p_from_id:id,p_my_name:myName})}
+async function declineFriendRequest(id){await ensurePlayer();return rpc('decline_friend_request',{p_from_id:id})}
+async function listRequests(){await ensurePlayer();const c=await MP.getClient();const {data,error}=await c.from('friend_requests').select('from_id,from_name').eq('to_id',MP._identity.id).order('created_at',{ascending:false});if(error)throw error;return data||[]}
 async function removeFriend(id){await ensurePlayer();return rpc('remove_friend',{p_friend_id:id})}
 async function listFriends(){await ensurePlayer();const c=await MP.getClient();const {data,error}=await c.from('friendships').select('friend_id,friend_name').order('friend_name');if(error)throw error;return data||[]}
 async function setSlots(roomId,max){await ensurePlayer();return rpc('set_game_room_slots',{p_room_id:roomId,p_max_players:max})}
@@ -28,4 +31,4 @@ function subscribe(roomId,onRoom){
  }catch(e){console.error('[multiplayer] subscription failed',e)}})();
  return ()=>{closed=true;if(heartbeatTimer)clearInterval(heartbeatTimer);if(channel)MP.getClient().then(c=>c.removeChannel(channel)).catch(()=>{})};
 }
-Object.assign(MP,{RoomService:{addFriend,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});
+Object.assign(MP,{RoomService:{sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});

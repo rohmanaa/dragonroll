@@ -237,7 +237,7 @@ async function setupOnline(){
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
-  try{const PR=UT.Multiplayer.Presence;if(PR){PR.start({status:'room'});PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()})}}catch(_){}
+  try{const PR=UT.Multiplayer.Presence;if(PR){const INV=HOST?q.get('invite'):null;PR.start({status:'room'}).then(()=>{if(INV&&/^[0-9a-f-]{36}$/i.test(INV)&&row.code)return PR.invite(INV,{code:row.code,format:FORMAT}).then(()=>toast('Undangan terkirim'))}).catch(()=>{});PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()})}}catch(_){}
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
@@ -371,7 +371,7 @@ function renderDrawer(){
  }
 }
 async function invitePlayer(id){if(!HOST||!S.room.code)return;try{await UT.Multiplayer.Presence.invite(id,{code:S.room.code,format:FORMAT});S.sent[id]=true;toast('Undangan terkirim');renderDrawer()}catch(e){toast(e.message==='TUNGGU_SEBENTAR'?'Tunggu sebentar sebelum mengundang lagi':'Gagal mengirim undangan')}}
-$('#dr').onclick=async e=>{const p=e.target.closest('[data-pinv]'),a=e.target.closest('[data-add]');if(p&&!p.disabled)invitePlayer(p.dataset.pinv);else if(a){try{await UT.Multiplayer.RoomService.addFriend(a.dataset.add,a.dataset.nm,S.mpIdentity.name);toast(a.dataset.nm+' ditambahkan sebagai teman');loadFriends()}catch(er){toast('Gagal menambah teman')}}};
+$('#dr').onclick=async e=>{const p=e.target.closest('[data-pinv]'),a=e.target.closest('[data-add]');if(p&&!p.disabled)invitePlayer(p.dataset.pinv);else if(a){try{const res=await UT.Multiplayer.RoomService.sendFriendRequest({id:a.dataset.add,name:a.dataset.nm,myName:S.mpIdentity.name});toast(res==='accepted'?'Kalian sekarang berteman':'Permintaan teman dikirim ke '+a.dataset.nm);loadFriends()}catch(er){toast(er.message==='ALREADY_FRIENDS'?'Sudah berteman':'Gagal mengirim permintaan teman')}}};
 $('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
 $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;$('#drB').onclick=closeDrawer;
 addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});
