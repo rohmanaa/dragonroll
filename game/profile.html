@@ -439,10 +439,28 @@ const ACH=[
 ['legenda','Sang Legenda','Menangkan pertandingan','win',[500,1000,2000],'rank/1st']];
 const REW=[[250,5],[750,10],[2000,25]];
 /* klaim achievement: jumlah milestone yang sudah diklaim per achievement (permanen, tidak di-reset) */
-const CLK=PD.achKey();let clMem={}; /* kunci klaim per akun (tamu = tanpa akhiran) */
-const CL={all(){try{return JSON.parse(localStorage.getItem(CLK))||clMem}catch(e){return clMem}},
- get(id){return Math.min(3,+this.all()[id]||0)},
- set(id,n){const o=this.all();o[id]=n;clMem=o;try{localStorage.setItem(CLK,JSON.stringify(o))}catch(e){}}};
+const CLK=PD.achKey(); /* kunci klaim per akun (tamu = tanpa akhiran) */
+/* Penyimpanan peta {id:angka}. CL = milestone yang sudah diklaim (server), PL = milestone yang rewardnya SUDAH dibayarkan ke saldo lokal,
+   INT = niat klaim yang ditulis SEBELUM memanggil server (write-ahead) agar reward bisa dibayar ulang bila tab mati di tengah jalan. */
+const mkStore=k=>{let mem={};const S={all(){try{const o=JSON.parse(localStorage.getItem(k));return(o&&typeof o==='object'&&!Array.isArray(o))?o:mem}catch(e){return mem}},
+ get(id){return Math.min(3,+S.all()[id]||0)},has(id){return Object.prototype.hasOwnProperty.call(S.all(),id)},
+ set(id,n){const o=Object.assign({},S.all());o[id]=n;mem=o;try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}},
+ del(id){const o=Object.assign({},S.all());delete o[id];mem=o;try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}}};return S};
+const CL=mkStore(CLK),PL=mkStore(CLK+':paid'),INT=mkStore(CLK+':intent');
+/* data lama: semua klaim yang sudah ada dianggap sudah dibayar (tidak ada pembayaran ulang) */
+try{if(localStorage.getItem(CLK+':paid')===null)localStorage.setItem(CLK+':paid',JSON.stringify(CL.all()))}catch(e){}
+/* bayar reward milestone dari yang sudah dibayar sampai "to" (minFrom = batas bawah aman). Saldo lebih dulu, penanda PL sesudahnya. */
+function payOwed(id,to,minFrom=0){const from=Math.max(PL.get(id),minFrom);if(to<=from)return{ok:true,rw:[0,0]};
+ const rw=REW.slice(from,to).reduce((t,x)=>[t[0]+x[0],t[1]+x[1]],[0,0]);
+ if(rw[0]||rw[1]){const x=PD.addCurrency(rw[0],rw[1]);if(!x.ok)return{ok:false,rw}}
+ PL.set(id,to);return{ok:true,rw}}
+/* pemulihan lokal: klaim sudah tercatat tetapi pembayaran belum selesai */
+function recoverLocal(){Object.keys(INT.all()).forEach(id=>{const c=CL.get(id);if(c>PL.get(id)&&payOwed(id,c,INT.get(id)).ok)INT.del(id)})}
+/* pemulihan dari server: bila ada niat klaim dan server ternyata menerimanya, bayar yang belum dibayar; selain itu hanya sinkron angka (tanpa bayar) */
+function recoverServer(claims){Object.keys(claims||{}).forEach(id=>{const s=Math.min(3,+claims[id]||0);
+ if(INT.has(id)){const c0=INT.get(id);
+  if(s>c0){if(s>CL.get(id))CL.set(id,s);if(payOwed(id,s,c0).ok)INT.del(id)}else INT.del(id)}
+ else if(s>CL.get(id)){CL.set(id,s);PL.set(id,Math.max(PL.get(id),s))}})}
 const SC=()=>(SRV&&SRV.counters)||{},MIS=()=>SC().missions_done||0;
 const STAT=()=>{const c=SC(),pl=SRV?SRV.plays:PROF.play,wn=SRV?SRV.wins:PROF.win,bs=SRV?SRV.best_streak:PROF.bestStreak;
  return {chest:c.chests||0,dragon:c.dragon_hits||0,play:pl,win:wn,ladder:c.ladders||0,snake:c.snakes||0,skill:c.skills_used||0,dice:c.dice_rolls||0,match:pl,login:c.best_login_streak||0,streak:bs,skins:ownedSkins().length,emerald:PD.gems(),strat:c.skill_wins||0}};
@@ -465,7 +483,7 @@ const kcount=k=>PD.ownedItems().filter(o=>o.item.kind===k).length;
  PROF.uid='#'+data.session.user.id.slice(0,8).toUpperCase();
  await import('./assets/js/multiplayer/progress-service.js');
  const sp=await UT.Multiplayer.Progress.getMyProfile();
- if(sp&&sp.exists){SRV=sp;PROF.rank=sp.rank?Number(sp.rank):null;Object.keys(sp.claims||{}).forEach(id=>{if((+sp.claims[id]||0)>CL.get(id))CL.set(id,+sp.claims[id])})}
+ if(sp&&sp.exists){SRV=sp;PROF.rank=sp.rank?Number(sp.rank):null;recoverServer(sp.claims);renderCurrency()}
  render();
 }catch(e){console.warn('[profil] data server gagal',e)}})();
 function render(){
@@ -493,12 +511,15 @@ function skinModal(re){
  if(re){$('#mb').innerHTML=html;return}openModal(html,null,true)}
 async function claimAch(id){const a=achInfo().find(x=>x.id===id);if(!a||a.pend<1||claimAch.busy)return;claimAch.busy=1;
  try{
+  const cl0=CL.get(id);
+  INT.set(id,cl0); /* write-ahead: bila tab mati setelah server menerima klaim, reward dibayar saat profil dibuka lagi */
   await import('./assets/js/multiplayer/progress-service.js');
-  const r=await UT.Multiplayer.Progress.claimAchievement(id,(id==='skin'||id==='emerald')?a.v:null),cl0=CL.get(id),stars=Math.min(3,+r.stars||0);
-  if(!r.ok){CL.set(id,Math.max(cl0,+r.claimed||0));render();toast('Belum ada reward untuk diklaim');return}
-  const rw=REW.slice(cl0,stars).reduce((t,x)=>[t[0]+x[0],t[1]+x[1]],[0,0]);
-  if(rw[0]||rw[1]){const x=PD.addCurrency(rw[0],rw[1]);if(!x.ok){toast('Gagal klaim reward.');playSound('error');return}}
-  CL.set(id,stars);const al=$('#alist'),sc=al?al.scrollTop:0;render();const n=$('#alist');if(n)n.scrollTop=sc;renderCurrency();
+  const r=await UT.Multiplayer.Progress.claimAchievement(id,(id==='skin'||id==='emerald')?a.v:null),stars=Math.min(3,+r.stars||0);
+  if(!r.ok){const sv0=Math.max(cl0,+r.claimed||0);CL.set(id,sv0);PL.set(id,Math.max(PL.get(id),sv0));INT.del(id);render();toast('Belum ada reward untuk diklaim');return}
+  CL.set(id,stars);
+  const pay=payOwed(id,stars,cl0),rw=pay.rw;
+  if(!pay.ok){render();toast('Reward belum tersimpan. Buka profil lagi untuk menerimanya.');playSound('error');return}
+  INT.del(id);const al=$('#alist'),sc=al?al.scrollTop:0;render();const n=$('#alist');if(n)n.scrollTop=sc;renderCurrency();
   pulse('#coin');pulse('#gem');playSound('coin');buzz();sparkle($('#pg'),14);toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')
  }catch(e){console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.');playSound('error')}finally{claimAch.busy=0}}
 function achModal(){openModal(`<h2>Achievement</h2><div class="alm">${achInfo().map(achCard).join('')}</div>`,null,true)}
@@ -506,7 +527,7 @@ function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').text
 function renderInfo(){renderCurrency()}
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 function init(){
- $('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo()}
+ recoverLocal();$('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo()}
 const rows=(t,a)=>openModal(`<h2>${t}</h2>`+a.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join(''));
 const DT={win:()=>rows('Rasio Kemenangan',[['Menang',PROF.win],['Kalah',PROF.play-PROF.win],['Rasio',pcn()+'%']]),
  play:()=>rows('Total Main',[['Pertandingan',PROF.play],['Misi selesai',MIS()]]),
