@@ -5684,6 +5684,7 @@ function initMultiplayerBridge(){
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
   onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false)},
   onCue:onMpCue,
+  onEmote:onMpEmote,
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
   onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
@@ -5808,6 +5809,41 @@ $('btnToMenu').addEventListener('click',exitToRoom);
 
 /* ---------- Loop render ---------- */
 let last=performance.now();
+/* ---------- Emote di atas pion (lokal + sinkron online) ---------- */
+const EMOTE_OK=['\u{1F600}','\u{1F602}','\u{1F60E}','\u{1F621}','\u{1F62D}','\u{1F44D}'], EM_LIVE=[];
+function showEmote(p,emoji){
+  if(!p||!p.pawn||EMOTE_OK.indexOf(emoji)<0) return;
+  const old=EM_LIVE.findIndex(e=>e.p===p); if(old>=0){ EM_LIVE[old].el.remove(); EM_LIVE.splice(old,1); }
+  const el=document.createElement('div'); el.className='pawn-emote'; el.textContent=emoji; el.style.opacity='0'; document.body.appendChild(el);
+  EM_LIVE.push({p:p,el:el,t0:performance.now()}); updateEmotes(performance.now());
+}
+function updateEmotes(now){
+  if(!EM_LIVE.length) return;
+  const r=$('c').getBoundingClientRect();
+  for(let i=EM_LIVE.length-1;i>=0;i--){
+    const e=EM_LIVE[i],age=now-e.t0;
+    if(age>2400){ e.el.remove(); EM_LIVE.splice(i,1); continue; }
+    const v=e.p.pawn.position.clone(); v.y+=3.0; v.project(camera);
+    if(v.z>1){ e.el.style.opacity='0'; continue; }
+    const x=r.left+(v.x*0.5+0.5)*r.width, y=r.top+(-v.y*0.5+0.5)*r.height;
+    const pop=Math.min(1,age/160), fade=age>2000?Math.max(0,1-(age-2000)/400):1, rise=reduce?0:Math.min(14,age/60);
+    e.el.style.opacity=String(pop*fade);
+    e.el.style.transform='translate('+x.toFixed(1)+'px,'+(y-rise).toFixed(1)+'px) translate(-50%,-100%) scale('+(0.6+0.4*pop).toFixed(3)+')';
+  }
+}
+function myEmotePlayer(){
+  if(ONLINE_ROOM) return mpPlayerByNet(MP_ID);
+  const t=players[cur]; if(t&&!t.cpu) return t;
+  return players.find(q=>!q.cpu)||null;
+}
+window.addEventListener('ut:emote',e=>{
+  const em=e.detail&&e.detail.emoji; if(EMOTE_OK.indexOf(em)<0) return;
+  const p=myEmotePlayer(); if(!p) return; e.preventDefault();
+  showEmote(p,em);
+  if(ONLINE_ROOM&&MP_SYNC&&MP_SYNC.sendEmote){ try{ MP_SYNC.sendEmote({playerId:MP_ID,emoji:em}).catch(()=>{}); }catch(er){} }
+});
+function onMpEmote(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(p&&p.networkId!==MP_ID) showEmote(p,pl.emoji); }
+
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(0.05,(now-last)/1000); last=now;
@@ -5864,6 +5900,7 @@ function frame(now){
     dragon.position.y=D.y0+Math.sin(now*0.003)*0.18+D.dy; dragon.rotation.y=Math.sin(now*0.0015)*0.2+D.shk;
     try{ updateDragonFire(dt,now); }catch(e){ console.error(e); } }
   if(FBK) FBK.updateTurnMarkers(players,now,dt);
+  try{ updateEmotes(now); }catch(er){}
   if(FX) FX.updateConfetti(dt);
   const watch=[camTarget];
   if(focus) watch.push(focus.position);

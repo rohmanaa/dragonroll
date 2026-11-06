@@ -11,7 +11,8 @@ async function connect(options){
  channel.on('broadcast',{event:'host_left'},()=>{if(!options.isHost&&options.onHostLeft)options.onHostLeft()});
  channel.on('presence',{event:'leave'},({key})=>{if(options.isHost&&options.onPlayerLeft)options.onPlayerLeft(key)}); // pemain keluar game -> host menjadikannya AUTO
  channel.on('presence',{event:'join'},({key})=>{if(options.isHost&&options.onPlayerJoin)options.onPlayerJoin(key)});
- channel.on('broadcast',{event:'cue'},({payload})=>{if(!options.isHost&&options.onCue&&payload)options.onCue(payload)});
+ channel.on('broadcast',{event:'emote'},({payload})=>{if(options.onEmote&&payload)options.onEmote(payload)}); // emote dari pemain mana pun
+  channel.on('broadcast',{event:'cue'},({payload})=>{if(!options.isHost&&options.onCue&&payload)options.onCue(payload)});
  channel.on('broadcast',{event:'snapshot'},({payload})=>{if(!options.isHost&&options.onSnapshot&&payload)options.onSnapshot(payload)});
  channel.subscribe(async status=>{
   if(status==='SUBSCRIBED'){try{await channel.track({player_id:identity.id,online_at:new Date().toISOString()})}catch(_){}try{const {data,error}=await client.from('game_rooms').select('revision,game_state').eq('id',options.roomId).maybeSingle();if(error)throw error;
@@ -26,6 +27,7 @@ async function connect(options){
   publish:async gameState=>{if(!options.isHost)throw new Error('HOST_ONLY');const {data,error}=await client.rpc('update_game_state',{p_room_id:options.roomId,p_game_state:gameState,p_expected_revision:revision});if(error)throw error;revision=Number(data.revision)||revision+1;await channel.send({type:'broadcast',event:'snapshot',payload:gameState.snapshot});return revision},
   sendLoadout:payload=>{if(options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'loadout',payload})},
   announceLeave:()=>{if(!options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'host_left',payload:{}})},
+  sendEmote:payload=>channel.send({type:'broadcast',event:'emote',payload}),
   sendCue:payload=>{if(!options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'cue',payload})},
   requestRoll:async payload=>{if(options.isHost)throw new Error('HOST_DOES_NOT_REQUEST_REMOTE_ROLL');const result=await channel.send({type:'broadcast',event:'roll_request',payload});if(result==='error')throw new Error('ROLL_REQUEST_FAILED');return result},
   requestPower:async payload=>{if(options.isHost)throw new Error('HOST_DOES_NOT_REQUEST_REMOTE_POWER');const result=await channel.send({type:'broadcast',event:'power_request',payload});if(result==='error')throw new Error('POWER_REQUEST_FAILED');return result},

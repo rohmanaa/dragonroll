@@ -80,9 +80,12 @@
       var b = e.target.closest && e.target.closest('button[data-e]');
       if (!b || cooling) return;
       cooling = true; setTimeout(function () { cooling = false; }, 1500);
-      var bub = doc.createElement('div'); bub.className = 'em-bubble'; bub.textContent = b.getAttribute('data-e');
-      d.appendChild(bub); setTimeout(function () { if (bub.parentNode) bub.parentNode.removeChild(bub); }, 1900);
-      try { win.dispatchEvent(new CustomEvent('ut:emote', { detail: { emoji: b.getAttribute('data-e') } })); } catch (err) { /* abaikan */ }
+      var em = b.getAttribute('data-e'), handled = false;
+      try { handled = !win.dispatchEvent(new CustomEvent('ut:emote', { detail: { emoji: em }, cancelable: true })); } catch (err) { /* abaikan */ }
+      if (!handled) { /* tidak ada penangan (mis. di luar gameplay): tampilkan balon di dock saja */
+        var bub = doc.createElement('div'); bub.className = 'em-bubble'; bub.textContent = em;
+        d.appendChild(bub); setTimeout(function () { if (bub.parentNode) bub.parentNode.removeChild(bub); }, 1900);
+      }
       toggle(false);
     });
   }
