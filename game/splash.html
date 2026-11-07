@@ -142,6 +142,14 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 .intro img{width:min(78vw,62vh,560px);height:auto;opacity:0;transform:scale(.94);animation:introLogo 2.4s ease-in-out forwards}
 @keyframes introLogo{0%{opacity:0;transform:scale(.94)}30%{opacity:1;transform:scale(1)}72%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.intro img{animation:introLogoRm 2s linear forwards}@keyframes introLogoRm{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}}
+/* Fade in dari hitam saat layar naga dimulai */
+html.introfade{background:#000}
+html.introfade body{animation:utIn .7s ease backwards}
+@keyframes utIn{from{opacity:0}to{opacity:1}}
+/* Fade out ke hitam sebelum pindah ke lobby */
+.to-black{position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:all;transition:opacity .5s ease}
+.to-black.on{opacity:1}
+@media(prefers-reduced-motion:reduce){html.introfade body{animation:none}.to-black{transition:none}}
 </style>
 <link rel="preload" as="image" href="assets/Images/background/loading-bg.webp">
 <style id="loading-bg">
@@ -174,7 +182,7 @@ html.quick,html.quick body{background:#000}
     intro.remove(); document.documentElement.classList.add('quick');
     done(); return;
   }
-  intro.classList.add('on');
+  intro.classList.add('on'); document.documentElement.classList.add('introfade');
   var a; try{ a=new Audio('assets/sfx/dragon/naga-bumper.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
   var played=false;
   function play(){ if(played||!a) return; var p; try{ p=a.play(); }catch(e){ return; } played=true; if(p&&p.catch) p.catch(function(){ played=false; }); }
@@ -280,7 +288,13 @@ function openAuth(go) {
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
   (window.UT_introDone||Promise.resolve()).then(() => UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'Siap!'; }).then(() => {
-    const go = () => { try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {} setTimeout(() => location.replace(dest), 350); };
+    const go = () => {
+      try { sessionStorage.setItem('ut:booted', '1'); sessionStorage.setItem('ut:fadein', '1'); } catch (e) {}
+      /* fade out ke hitam, lalu pindah halaman (halaman tujuan fade in dari hitam lewat boot-guard.js) */
+      const v = document.createElement('div'); v.className = 'to-black'; document.body.appendChild(v);
+      requestAnimationFrame(() => requestAnimationFrame(() => v.classList.add('on')));
+      setTimeout(() => location.replace(dest), 550);
+    };
     window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
   }));
 })();
