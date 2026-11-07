@@ -3808,41 +3808,23 @@ function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p
    Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
    Hadiah = PlayerData.grant existing (nominal: UT.Gameplay.Config.DRAGON_REWARD). Tidak ada currency/reward system baru.
    Anti-ganda: (1) DRG.defeated menutup hitDragon begitu naga kalah, (2) DRG.done/busy mengunci settle, (3) token unik per game dicocokkan dengan catatan tersimpan.
-   Catatan kemenangan: localStorage 'ut-dragon-win' = {v,wins,last:{token,winner,skin,cpu,mode,at,settled,rewarded,coins,gems}} (terpisah dari PlayerData; ditulis aman via try/catch). */
-const DRG={defeated:false,done:false,busy:false,token:'',result:null,text:''},DRG_KEY='ut-dragon-win';
+   Catatan kemenangan lokal 'ut-dragon-win' sudah dihapus (Tahap 4); hadiah & batas harian di server. */
+const DRG={defeated:false,done:false,busy:false,token:'',result:null,text:''};
 function resetDragonDefeat(){ DRG.defeated=false; DRG.done=false; DRG.busy=false; DRG.result=null; DRG.text=''; DRG.token='dw-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); }
-function dragonWinLoad(){
-  let raw=null; try{ raw=localStorage.getItem(DRG_KEY); }catch(e){}
-  const rec={v:1,wins:0,last:null};
-  if(!raw) return rec;
-  try{ const o=JSON.parse(raw); if(o&&typeof o==='object'&&!Array.isArray(o)){ if(isFinite(o.wins)&&o.wins>=0) rec.wins=Math.floor(o.wins); if(o.last&&typeof o.last==='object'&&!Array.isArray(o.last)) rec.last=o.last; return rec; } }catch(e){}
-  try{ localStorage.setItem(DRG_KEY+':corrupt:'+Date.now(),raw); }catch(e){} /* rusak: cadangkan dulu, jangan hapus */
-  return rec;
-}
-function dragonWinSave(rec){ try{ localStorage.setItem(DRG_KEY,JSON.stringify(rec)); return true; }catch(e){ return false; } }
+/* Tahap 4: catatan kemenangan lokal ('ut-dragon-win') dihapus. Hadiah & batas harian ditentukan SERVER (serverBossClaim);
+   anti-ganda tetap lewat DRG.done/busy (sinkron) + token per game yang dicocokkan server. Sisa key lama dibersihkan sekali. */
+try{ for(let i=localStorage.length-1;i>=0;i--){ const k=localStorage.key(i); if(k&&(k==='ut-dragon-win'||k.indexOf('ut-dragon-win:corrupt:')===0)) localStorage.removeItem(k); } }catch(e){}
 /* Idempoten: panggilan ke-2 dst untuk game yang sama TIDAK memberi hadiah lagi. Sinkron (tanpa await) agar tidak bisa disela game baru. */
 function settleDragonDefeat(p){
   if(DRG.done||DRG.busy) return {status:'duplicate'};
   DRG.busy=true;
   try{
-    const rec=dragonWinLoad();
-    if(rec.last&&rec.last.token===DRG.token&&rec.last.settled){ DRG.done=true; return {status:'duplicate'}; }
-    const rec1={token:DRG.token,winner:p.name,skin:p.key,cpu:!!p.cpu,mode:String(mode),at:Date.now(),settled:true,rewarded:false,coins:0,gems:0};
-    if(!p.cpu&&window.PlayerData&&PlayerData.serverMode&&PlayerData.serverMode()){ /* B5: akun login -> hadiah ditentukan & dibayar SERVER (async); klien tidak memberi koin/gem */
-      rec.wins++; rec1.server=true; rec.last=rec1; dragonWinSave(rec); DRG.done=true;
-      serverBossClaim(p,gameId);
+    if(p.cpu){ DRG.done=true; return DRG.result={status:'no-reward'}; } /* CPU menang = pemain kalah: tidak ada hadiah */
+    if(window.PlayerData&&PlayerData.serverMode&&PlayerData.serverMode()){ /* hadiah ditentukan & dibayar SERVER (async); klien tidak memberi koin/gem */
+      DRG.done=true; serverBossClaim(p,gameId);
       return DRG.result={status:'pending'};
     }
-    if(!p.cpu){ /* CPU menang = pemain kalah: kemenangan dicatat, hadiah tidak diberikan */
-      const R=(UT.Gameplay&&UT.Gameplay.Config&&UT.Gameplay.Config.DRAGON_REWARD)||{},PD=window.PlayerData;
-      const coins=Math.max(0,Math.floor(+R.coins||0)),gems=Math.max(0,Math.floor(+R.gems||0));
-      if(!PD||typeof PD.grant!=='function') return DRG.result={status:'unavailable'};
-      const r=PD.grant({coins,gems,reason:'dragon-defeat'}); /* atomik; gagal = tidak ada yang tertulis, boleh dicoba ulang */
-      if(!r||!r.ok) return DRG.result={status:'failed',reason:r&&r.reason};
-      rec1.rewarded=true; rec1.coins=coins; rec1.gems=gems; rec.wins++;
-    }
-    rec.last=rec1; dragonWinSave(rec); DRG.done=true;
-    return DRG.result={status:rec1.rewarded?'granted':'no-reward',coins:rec1.coins,gems:rec1.gems};
+    return DRG.result={status:'unavailable'}; /* tanpa akun login: tidak ada jalur lokal, hadiah tidak diberikan */
   }finally{ DRG.busy=false; }
 }
 /* B5: klaim hadiah boss ke server. Online: hanya pemenang yang boleh (server memeriksa); room harus sudah 'finished' -> coba ulang sebentar.
