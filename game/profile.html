@@ -582,12 +582,7 @@ function buy(type){if(type==='gem'){location.href='shop.html?emerald=1';return}c
    if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}
    renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
-$('#gear').addEventListener('click',()=>{const T=SET();const row=(k,l)=>`<div class="row"><span>${l}</span><button class="tg ${T[k]?'on':''}" data-k="${k}">${T[k]?'ON':'OFF'}</button></div>`;
- openModal(`<h2>Pengaturan</h2>${row('music','Musik')}${row('sound','Suara')}${row('vibration','Getar')}<div class="row"><span>Grafik</span><button class="tg on" data-k="graphics">${T.graphics==='high'?'Tinggi':'Rendah'}</button></div>`,()=>{
-  document.querySelectorAll('.tg').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.k,cur=SET();let v;
-   if(k==='graphics'){v=cur.graphics==='high'?'low':'high';b.textContent=v==='high'?'Tinggi':'Rendah';PD.setSettings({graphics:v});fit()}
-   else{v=!cur[k];b.classList.toggle('on',v);b.textContent=v?'ON':'OFF';PD.setSettings({[k]:v})}
-   playSound('click');buzz()}))})});
+$('#gear').addEventListener('click',()=>{try{playSound('click');buzz()}catch(e){}location.href='settings.html'});
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
 // ---- 3D

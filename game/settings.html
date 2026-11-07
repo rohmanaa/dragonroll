@@ -116,8 +116,10 @@ $$('[data-tg]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tg;
 $$('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{A.set({graphics:b.dataset.gfx});buzz();render()}));
 $$('[data-amb]').forEach(b=>b.addEventListener('click',()=>{A.set({ambience:b.dataset.amb});buzz();render()}));
 A.on(render);
-$('#back').addEventListener('click',()=>{location.href='lobby.html'});
-addEventListener('keydown',e=>{if(e.key==='Escape')location.href='lobby.html'});
+/* kembali ke halaman asal (profil, toko, dll.); bila tidak ada, ke lobby */
+const home=()=>{let to='lobby.html';try{const r=new URL(document.referrer);if(r.origin===location.origin){const n=r.pathname.split('/').pop();if(/^[a-z0-9_-]+\.html$/i.test(n)&&!/^(settings|splash|index|play)\.html$/i.test(n))to=n+r.search}}catch(e){}location.href=to};
+$('#back').addEventListener('click',home);
+addEventListener('keydown',e=>{if(e.key==='Escape')home()});
 render();
 document.documentElement.classList.add('ut-ready');
 })();

@@ -169,7 +169,7 @@ function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain
 $('#search').addEventListener('input',e=>{query=e.target.value;render()});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render();load()}));
 $('#addBtn').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
-$('#back').onclick=()=>{location.href='lobby.html'};$('#gear').onclick=()=>toast('Pengaturan dibuka');
+$('#back').onclick=()=>{location.href='lobby.html'};$('#gear').onclick=()=>{location.href='settings.html'};
 $('#friends').addEventListener('click',async e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend'),id=card&&card.dataset.id;if(!id)return;
  const f=[...viewFriends(),...viewRequests()].find(x=>x.id===id);if(!f)return;
  try{
