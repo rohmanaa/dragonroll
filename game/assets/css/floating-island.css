@@ -1,0 +1,177 @@
+/* =====================================================================================
+   FloatingIsland CSS — komponen pulau melayang versi CSS murni (tanpa WebGL / THREE).
+   Padanan visual dari assets/js/floating-island.js (v2): palet zaitun/sage, tepi rumput menetes,
+   tanah + tanah liat + kerikil, batu abu-kebiruan + lumut, butir emas, kristal biru bercahaya,
+   stalaktit, kepingan batu melayang, dekor (bunga, jamur, semak, jumbai rumput, batu), bayangan kontak.
+
+   Pasang :  <link rel="stylesheet" href="assets/css/floating-island.css">
+   Ukuran :  atur --k (skala) di elemen .ui-island, mis. style="--k:1.4". 1 blok = 1.2rem x --k.
+   Markup :  lihat floating-island-demo.html (salin blok .ui-island). Urutan dekor: dari y kecil ke besar.
+
+     .ui-island
+       i.ui-isl-shadow
+       .ui-isl-float
+         i.ui-isl-rock.r1/.r2/.r3         kepingan batu melayang (bawah)
+         i.ui-isl-crystal.c1/.c2/.c3      kristal biru bercahaya
+         i.ui-isl-stal                    stalaktit batu menjuntai
+         .ui-isl-body                     tanah + batu (::before = tetesan lumut)
+         .ui-isl-top                      permukaan rumput (::before) + dekor sebagai anak:
+           i.ui-isl-d.tuft | .flower(--c) | .shroom | .bush | .pebble   (posisi: --x / --y dalam %)
+
+   Varian :  .ui-isl--far (latar jauh: buram, tanpa dekor, ganti .isl lama di #sky)
+             .ui-isl--static (tanpa melayang)   .ui-isl--lite (tanpa dekor & batu melayang)
+   ===================================================================================== */
+
+:root{
+  /* palet = PAL di floating-island.js */
+  --isl-grass-a:#6a9440;--isl-grass-b:#5d8738;--isl-grass-c:#76a049;--isl-grass-d:#537c3a;
+  --isl-olive:#86973f;--isl-sage:#5a8452;--isl-moss-a:#5a8744;--isl-moss-b:#4e7a3e;
+  --isl-dirt-a:#8b5d3a;--isl-dirt-b:#7d5233;--isl-dirt-c:#96683f;--isl-dirt-d:#6e4a2e;
+  --isl-clay:#a8794a;--isl-gravel:#8c8b90;
+  --isl-stone-a:#9a9ca6;--isl-stone-b:#868a96;--isl-stone-c:#aeb0b8;--isl-stone-d:#7c808c;
+  --isl-sand:#b09a78;--isl-stone-moss:#6f8f55;
+  --isl-gold:#d9a441;--isl-crystal:#7fd0e8;--isl-crystal-glow:#2a8fb8;
+  --isl-tuft-a:#4f7f33;--isl-tuft-b:#68923f;--isl-tuft-c:#86a850;
+  --isl-flower-pink:#e58fa0;--isl-flower-yellow:#f0cf68;--isl-flower-cream:#f2efe6;--isl-flower-lilac:#a99bd6;--isl-flower-orange:#e9a35c;
+  --isl-shadow:rgba(20,50,90,.38);
+}
+
+.ui-island{
+  --k:1;--u:calc(var(--k)*1.2rem);--bob:.3;
+  position:relative;display:inline-block;vertical-align:top;flex:none;
+  width:calc(var(--u)*7.4);height:calc(var(--u)*11.6);
+  pointer-events:none;user-select:none;contain:layout style;
+}
+.ui-island *,.ui-island *::before,.ui-island *::after{box-sizing:border-box}
+.ui-island i{display:block;font-style:normal;position:absolute}
+
+/* ---- bayangan kontak (contactShadow) ---- */
+.ui-isl-shadow{left:calc(var(--u)*-1);width:calc(var(--u)*9.4);bottom:0;height:calc(var(--u)*2.6);
+  background:radial-gradient(closest-side,var(--isl-shadow),rgba(20,50,90,.14) 55%,transparent);
+  animation:isl-shadow 5.7s ease-in-out infinite}
+
+/* ---- melayang naik-turun halus (update(t): sin(t*1.1)*amp, rot.z .012) ---- */
+.ui-isl-float{position:absolute;inset:0;animation:isl-bob 5.7s ease-in-out infinite;will-change:transform}
+@keyframes isl-bob{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(calc(var(--u)*var(--bob)*-1)) rotate(.35deg)}75%{transform:translateY(calc(var(--u)*var(--bob))) rotate(-.35deg)}}
+@keyframes isl-shadow{0%,100%{transform:scale(1);opacity:1}25%{transform:scale(.93);opacity:.8}75%{transform:scale(1.07);opacity:1}}
+
+/* ---- permukaan atas: rumput catur 2-warna + petak zaitun/sage ---- */
+.ui-isl-top{position:absolute;left:0;top:0;width:100%;height:calc(var(--u)*2.5);z-index:3}
+.ui-isl-top::before{content:"";position:absolute;inset:0;
+  clip-path:polygon(20% 0,80% 0,80% 12%,92% 12%,92% 30%,100% 30%,100% 70%,92% 70%,92% 88%,80% 88%,80% 100%,20% 100%,20% 88%,8% 88%,8% 70%,0 70%,0 30%,8% 30%,8% 12%,20% 12%);
+  background:
+    radial-gradient(circle at 30% 40%,rgba(255,255,255,.14) 0 1px,transparent 1.6px) 0 0/9px 7px,
+    radial-gradient(circle at 72% 66%,rgba(0,0,0,.15) 0 1px,transparent 1.6px) 0 0/6px 8px,
+    linear-gradient(180deg,rgba(255,255,255,.1),transparent 30%,transparent 68%,rgba(0,0,0,.16)),
+    linear-gradient(rgba(255,255,255,.11),rgba(255,255,255,.11)) 18% calc(var(--u)*0.25)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1)) 44% calc(var(--u)*0.7)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) 71% calc(var(--u)*1.2)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1)) 30% calc(var(--u)*1.6)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(rgba(255,255,255,.09),rgba(255,255,255,.09)) 58% calc(var(--u)*1.9)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(rgba(0,0,0,.09),rgba(0,0,0,.09)) 84% calc(var(--u)*0.85)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    linear-gradient(var(--isl-olive),var(--isl-olive)) 70% calc(var(--u)*0.3)/calc(var(--u)*2) calc(var(--u)*0.84) no-repeat,
+    linear-gradient(var(--isl-sage),var(--isl-sage)) 8% calc(var(--u)*1.1)/calc(var(--u)*2) calc(var(--u)*0.84) no-repeat,
+    linear-gradient(var(--isl-olive),var(--isl-olive)) 14% calc(var(--u)*0.2)/calc(var(--u)*1) calc(var(--u)*0.42) no-repeat,
+    conic-gradient(var(--isl-grass-a) 25%,var(--isl-grass-b) 0 50%,var(--isl-grass-a) 0 75%,var(--isl-grass-b) 0) 0 0/calc(var(--u)*2) calc(var(--u)*0.84);
+  filter:drop-shadow(0 calc(var(--u)*.05) 0 rgba(0,0,0,.12))}
+
+/* ---- badan: baris rumput-depan / tanah / tanah / batu, tepi bergelombang ---- */
+.ui-isl-body{position:absolute;left:0;top:calc(var(--u)*1.7);width:100%;height:calc(var(--u)*4.6);z-index:2;
+  clip-path:polygon(0 0,100% 0,100% 24%,96% 24%,96% 56.5%,90.5% 56.5%,90.5% 70%,87% 70%,87% 78.3%,77% 78.3%,77% 100%,25% 100%,25% 86%,21% 86%,21% 78.3%,9.5% 78.3%,9.5% 56.5%,3% 56.5%,3% 38%,0 38%);
+  background:
+    radial-gradient(circle at 22% 30%,rgba(255,255,255,.16) 0 1px,transparent 1.6px) 0 0/11px 9px,
+    radial-gradient(circle at 68% 62%,rgba(0,0,0,.17) 0 1px,transparent 1.6px) 0 0/7px 13px,
+    radial-gradient(circle at 40% 80%,rgba(255,255,255,.1) 0 1px,transparent 1.5px) 0 0/5px 6px,
+    linear-gradient(90deg,rgba(0,0,0,.15),transparent 55%,rgba(255,255,255,.06)),
+    linear-gradient(180deg,transparent 50%,rgba(0,0,0,.24)),
+    linear-gradient(90deg,rgba(0,0,0,.14) 0 1px,transparent 1px) 0 0/var(--u) 100%,
+    linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.2)) 0 calc(var(--u)*1.6)/100% 1px no-repeat,
+    linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.2)) 0 calc(var(--u)*2.6)/100% 1px no-repeat,
+    linear-gradient(rgba(0,0,0,.2),rgba(0,0,0,.2)) 0 calc(var(--u)*3.6)/100% 1px no-repeat,
+    linear-gradient(var(--isl-gold),var(--isl-gold)) 36% calc(var(--u)*3.95)/calc(var(--u)*0.3) calc(var(--u)*0.3) no-repeat,
+    linear-gradient(var(--isl-gold),var(--isl-gold)) 64% calc(var(--u)*3.8)/calc(var(--u)*0.22) calc(var(--u)*0.22) no-repeat,
+    linear-gradient(var(--isl-sand),var(--isl-sand)) 51% calc(var(--u)*3.6)/calc(var(--u)*1) calc(var(--u)*1) no-repeat,
+    linear-gradient(var(--isl-stone-moss),var(--isl-stone-moss)) 27% calc(var(--u)*3.6)/calc(var(--u)*1) calc(var(--u)*0.5) no-repeat,
+    linear-gradient(var(--isl-stone-moss),var(--isl-stone-moss)) 75% calc(var(--u)*3.6)/calc(var(--u)*1) calc(var(--u)*0.35) no-repeat,
+    linear-gradient(var(--isl-clay),var(--isl-clay)) 42% calc(var(--u)*1.6)/calc(var(--u)*1) calc(var(--u)*1) no-repeat,
+    linear-gradient(var(--isl-clay),var(--isl-clay)) 83% calc(var(--u)*2.6)/calc(var(--u)*1) calc(var(--u)*1) no-repeat,
+    linear-gradient(var(--isl-gravel),var(--isl-gravel)) 18% calc(var(--u)*2.6)/calc(var(--u)*1) calc(var(--u)*1) no-repeat,
+    linear-gradient(var(--isl-gravel),var(--isl-gravel)) 67% calc(var(--u)*1.6)/calc(var(--u)*1) calc(var(--u)*1) no-repeat,
+    linear-gradient(90deg,var(--isl-grass-b) 0 13.51%,var(--isl-grass-d) 13.51% 27.03%,var(--isl-grass-b) 27.03% 40.54%,var(--isl-grass-a) 40.54% 54.05%,var(--isl-grass-b) 54.05% 67.57%,var(--isl-grass-d) 67.57% 81.08%,var(--isl-grass-a) 81.08% 94.59%,var(--isl-grass-b) 94.59% 108.11%) 0 0/100% calc(var(--u)*1.6) no-repeat,
+    linear-gradient(90deg,var(--isl-dirt-a) 0 13.51%,var(--isl-dirt-c) 13.51% 27.03%,var(--isl-dirt-b) 27.03% 40.54%,var(--isl-dirt-a) 40.54% 54.05%,var(--isl-dirt-d) 54.05% 67.57%,var(--isl-dirt-c) 67.57% 81.08%,var(--isl-dirt-a) 81.08% 94.59%,var(--isl-dirt-b) 94.59% 108.11%) 0 calc(var(--u)*1.6)/100% calc(var(--u)*1) no-repeat,
+    linear-gradient(90deg,var(--isl-dirt-b) 0 13.51%,var(--isl-dirt-a) 13.51% 27.03%,var(--isl-dirt-d) 27.03% 40.54%,var(--isl-dirt-c) 40.54% 54.05%,var(--isl-dirt-b) 54.05% 67.57%,var(--isl-dirt-a) 67.57% 81.08%,var(--isl-dirt-c) 81.08% 94.59%,var(--isl-dirt-d) 94.59% 108.11%) 0 calc(var(--u)*2.6)/100% calc(var(--u)*1) no-repeat,
+    linear-gradient(90deg,var(--isl-stone-b) 0 13.51%,var(--isl-stone-a) 13.51% 27.03%,var(--isl-stone-d) 27.03% 40.54%,var(--isl-stone-b) 40.54% 54.05%,var(--isl-stone-c) 54.05% 67.57%,var(--isl-stone-a) 67.57% 81.08%,var(--isl-stone-b) 81.08% 94.59%,var(--isl-stone-d) 94.59% 108.11%) 0 calc(var(--u)*3.6)/100% calc(var(--u)*1) no-repeat}
+/* rumput menetes di tepi (y=1, 62% blok berlumut) */
+.ui-isl-body::before{content:"";position:absolute;left:0;top:calc(var(--u)*1.6);width:100%;height:calc(var(--u)*1.5);
+  clip-path:polygon(0 0,0.0% 62%,13.51% 62%,13.51% 30%,27.03% 30%,27.03% 66%,40.54% 66%,40.54% 66%,54.05% 66%,54.05% 22%,67.57% 22%,67.57% 50%,81.08% 50%,81.08% 28%,94.59% 28%,94.59% 66%,100% 66%,100% 0);
+  background:linear-gradient(180deg,transparent 70%,rgba(0,0,0,.2)),linear-gradient(90deg,var(--isl-moss-a) 0 13.51%,var(--isl-moss-b) 13.51% 27.03%,var(--isl-moss-a) 27.03% 40.54%,var(--isl-moss-b) 40.54% 54.05%,var(--isl-moss-a) 54.05% 67.57%,var(--isl-moss-b) 67.57% 81.08%,var(--isl-moss-a) 81.08% 94.59%,var(--isl-moss-b) 94.59% 108.11%)}
+/* stalaktit batu menjuntai (di luar clip-path badan => pakai elemen terpisah lewat .ui-isl-stal) */
+.ui-isl-stal{left:calc(var(--u)*1.7);top:calc(var(--u)*6.25);width:calc(var(--u)*4);height:calc(var(--u)*2.1);z-index:1;
+  background:linear-gradient(var(--isl-stone-b),var(--isl-stone-b)) 0% 0/17% calc(var(--u)*1.1) no-repeat,linear-gradient(var(--isl-stone-a),var(--isl-stone-a)) 19% 0/17% calc(var(--u)*2.0) no-repeat,linear-gradient(var(--isl-stone-d),var(--isl-stone-d)) 39% 0/17% calc(var(--u)*1.0) no-repeat,linear-gradient(var(--isl-stone-b),var(--isl-stone-b)) 52% 0/17% calc(var(--u)*1.7) no-repeat,linear-gradient(var(--isl-stone-c),var(--isl-stone-c)) 72% 0/17% calc(var(--u)*1.1) no-repeat,linear-gradient(var(--isl-stone-a),var(--isl-stone-a)) 88% 0/17% calc(var(--u)*0.8) no-repeat;filter:brightness(.82) drop-shadow(0 0 0 rgba(0,0,0,.2))}
+
+/* ---- kristal biru bercahaya ---- */
+.ui-isl-crystal{z-index:1;width:calc(var(--u)*.26);height:calc(var(--u)*.6);
+  background:linear-gradient(135deg,#c8f1fb 0 30%,var(--isl-crystal) 30% 70%,#4fb4d4 70%);
+  box-shadow:0 0 calc(var(--u)*.5) var(--isl-crystal-glow),inset calc(var(--u)*-.05) calc(var(--u)*-.05) 0 rgba(0,40,80,.25);
+  animation:isl-glow 3.6s ease-in-out infinite}
+.ui-isl-crystal.c1{left:30%;top:calc(var(--u)*6.25);transform:rotate(-14deg)}
+.ui-isl-crystal.c2{left:58%;top:calc(var(--u)*6.45);width:calc(var(--u)*.2);height:calc(var(--u)*.46);transform:rotate(10deg);animation-delay:-1.2s}
+.ui-isl-crystal.c3{left:70%;top:calc(var(--u)*5.55);width:calc(var(--u)*.18);height:calc(var(--u)*.38);transform:rotate(22deg);animation-delay:-2.4s}
+@keyframes isl-glow{50%{box-shadow:0 0 calc(var(--u)*.8) var(--isl-crystal-glow),inset calc(var(--u)*-.05) calc(var(--u)*-.05) 0 rgba(0,40,80,.25);filter:brightness(1.18)}}
+
+/* ---- kepingan batu melayang ---- */
+.ui-isl-rock{z-index:1;background:linear-gradient(135deg,#8c8c98 0 40%,#70707c 40%);
+  box-shadow:inset calc(var(--u)*-.07) calc(var(--u)*-.07) 0 rgba(0,0,0,.22),inset calc(var(--u)*.04) calc(var(--u)*.04) 0 rgba(255,255,255,.12);
+  animation:isl-rock 6.4s ease-in-out infinite}
+.ui-isl-rock.r1{left:46%;top:calc(var(--u)*8.2);width:calc(var(--u)*.5);height:calc(var(--u)*.5)}
+.ui-isl-rock.r2{left:66%;top:calc(var(--u)*7.6);width:calc(var(--u)*.32);height:calc(var(--u)*.32);animation-delay:-2s}
+.ui-isl-rock.r3{left:36%;top:calc(var(--u)*8.9);width:calc(var(--u)*.22);height:calc(var(--u)*.22);animation-delay:-4s}
+@keyframes isl-rock{50%{transform:translateY(calc(var(--u)*.2)) rotate(6deg)}}
+
+/* ---- dekor puncak: posisi titik pijak = (--x,--y) dalam % permukaan atas ---- */
+.ui-isl-d{left:var(--x,50%);top:var(--y,50%);transform:translate(-50%,-100%);z-index:4}
+.ui-isl-d.tuft{width:calc(var(--u)*.46);height:calc(var(--u)*.62);
+  background:
+    linear-gradient(var(--isl-tuft-a),var(--isl-tuft-a)) 0 100%/22% 100% no-repeat,
+    linear-gradient(var(--isl-tuft-b),var(--isl-tuft-b)) 50% 100%/22% 78% no-repeat,
+    linear-gradient(var(--isl-tuft-c),var(--isl-tuft-c)) 100% 100%/22% 56% no-repeat}
+.ui-isl-d.flower{--c:var(--isl-flower-pink);width:calc(var(--u)*.2);height:calc(var(--u)*.5);
+  background:linear-gradient(var(--isl-tuft-a),var(--isl-tuft-a)) 50% 100%/30% 80% no-repeat}
+.ui-isl-d.flower::before{content:"";position:absolute;left:0;top:0;width:100%;height:calc(var(--u)*.2);background:var(--c);
+  box-shadow:inset calc(var(--u)*-.04) calc(var(--u)*-.04) 0 rgba(0,0,0,.14)}
+.ui-isl-d.flower::after{content:"";position:absolute;left:34%;top:calc(var(--u)*.06);width:32%;height:calc(var(--u)*.08);background:#f6e08a}
+.ui-isl-d.flower.pink{--c:var(--isl-flower-pink)}.ui-isl-d.flower.yellow{--c:var(--isl-flower-yellow)}
+.ui-isl-d.flower.cream{--c:var(--isl-flower-cream)}.ui-isl-d.flower.lilac{--c:var(--isl-flower-lilac)}
+.ui-isl-d.flower.orange{--c:var(--isl-flower-orange)}
+.ui-isl-d.shroom{width:calc(var(--u)*.14);height:calc(var(--u)*.22);background:#e8dcc0}
+.ui-isl-d.shroom::before{content:"";position:absolute;left:50%;bottom:calc(var(--u)*.14);width:calc(var(--u)*.36);height:calc(var(--u)*.13);translate:-50% 0;background:#c2503f;
+  box-shadow:inset calc(var(--u)*-.05) calc(var(--u)*-.04) 0 rgba(0,0,0,.18)}
+.ui-isl-d.shroom::after{content:"";position:absolute;left:62%;bottom:calc(var(--u)*.2);width:calc(var(--u)*.09);height:calc(var(--u)*.04);background:#fff}
+.ui-isl-d.bush{width:calc(var(--u)*.58);height:calc(var(--u)*.4);background:#45703a;
+  box-shadow:inset calc(var(--u)*-.07) calc(var(--u)*-.06) 0 rgba(0,0,0,.2)}
+.ui-isl-d.bush::before{content:"";position:absolute;left:18%;bottom:calc(var(--u)*.3);width:62%;height:calc(var(--u)*.3);background:#55823f;
+  box-shadow:inset calc(var(--u)*-.05) calc(var(--u)*-.04) 0 rgba(0,0,0,.14)}
+.ui-isl-d.pebble{width:calc(var(--u)*.7);height:calc(var(--u)*.34);background:#b9a98c;
+  box-shadow:inset calc(var(--u)*-.08) calc(var(--u)*-.07) 0 rgba(0,0,0,.2),inset calc(var(--u)*.04) calc(var(--u)*.04) 0 rgba(255,255,255,.18)}
+.ui-isl-d.pebble.s{width:calc(var(--u)*.44);height:calc(var(--u)*.24);background:#9c9ca2}
+.ui-isl-d.pebble.t{width:calc(var(--u)*.36);height:calc(var(--u)*.2);background:#b4a48a}
+
+/* ================= VARIAN ================= */
+.ui-isl--static .ui-isl-float,.ui-isl--static .ui-isl-shadow,.ui-isl--static .ui-isl-rock,.ui-isl--static .ui-isl-crystal{animation:none}
+.ui-isl--lite .ui-isl-d,.ui-isl--lite .ui-isl-rock{display:none}
+/* pulau latar jauh: pengganti .isl 2D di #sky (buram + transparan, dekor dimatikan) */
+.ui-isl--far{opacity:.7;filter:blur(var(--blur,1px))}
+.ui-isl--far .ui-isl-d,.ui-isl--far .ui-isl-rock,.ui-isl--far .ui-isl-shadow{display:none}
+.ui-isl--far .ui-isl-float{animation-duration:7s}
+.ui-isl--far .ui-isl-crystal{animation:none}
+
+/* ================= SUASANA (selaras scene-bg.css) ================= */
+html[data-ambience="night"] .ui-island{filter:brightness(.66) saturate(.88) contrast(1.05) hue-rotate(-6deg)}
+html[data-ambience="night"] .ui-island.ui-isl--far{filter:brightness(.66) saturate(.88) contrast(1.05) hue-rotate(-6deg) blur(var(--blur,1px))}
+html[data-ambience="night"] .ui-isl-crystal{box-shadow:0 0 calc(var(--u)*.9) var(--isl-crystal-glow),inset calc(var(--u)*-.05) calc(var(--u)*-.05) 0 rgba(0,40,80,.25)}
+html[data-graphics="low"] .ui-isl-crystal{box-shadow:none;animation:none}
+html[data-graphics="low"] .ui-isl-top::before{filter:none}
+html[data-graphics="low"] .ui-isl--far{filter:none}
+html[data-graphics="low"] .ui-isl-rock{animation:none}
+@media (prefers-reduced-motion:reduce){
+  .ui-isl-float,.ui-isl-shadow,.ui-isl-rock,.ui-isl-crystal{animation:none}}

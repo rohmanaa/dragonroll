@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FloatingIsland CSS — demo</title>
+<link rel="stylesheet" href="assets/css/floating-island.css">
+<style>
+body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;color:#fff;
+ background:linear-gradient(#1f86f5,#4db4ff 40%,#8fe9ff 75%,#c6faff)}
+html[data-ambience="night"] body{background:linear-gradient(#040a26,#0c1d52 40%,#18397d 75%,#25508f)}
+.row{display:flex;flex-wrap:wrap;gap:2rem;justify-content:center;align-items:flex-end;padding:2rem 1rem}
+h1{font-size:1rem;text-align:center;margin:1rem 0 0}
+button{display:block;margin:.5rem auto;padding:.4rem .9rem;border:0;border-radius:.5rem}
+</style></head><body>
+<h1>FloatingIsland CSS</h1>
+<button onclick="document.documentElement.dataset.ambience=document.documentElement.dataset.ambience==='night'?'':'night'">Siang / Malam</button>
+
+<div class="row">
+  <!-- Pulau utama (skala 1.3) -->
+  <div class="ui-island" style="--k:1.3">
+    <i class="ui-isl-shadow"></i>
+    <div class="ui-isl-float">
+      <i class="ui-isl-rock r1"></i><i class="ui-isl-rock r2"></i><i class="ui-isl-rock r3"></i>
+      <i class="ui-isl-crystal c1"></i><i class="ui-isl-crystal c2"></i><i class="ui-isl-crystal c3"></i>
+      <i class="ui-isl-stal"></i>
+      <div class="ui-isl-body"></div>
+      <div class="ui-isl-top">
+        <i class="ui-isl-d tuft"    style="--x:20%;--y:34%"></i>
+        <i class="ui-isl-d flower pink" style="--x:34%;--y:28%"></i>
+        <i class="ui-isl-d shroom"  style="--x:78%;--y:36%"></i>
+        <i class="ui-isl-d flower yellow" style="--x:64%;--y:30%"></i>
+        <i class="ui-isl-d pebble s" style="--x:12%;--y:56%"></i>
+        <i class="ui-isl-d tuft"    style="--x:86%;--y:58%"></i>
+        <i class="ui-isl-d flower lilac" style="--x:22%;--y:70%"></i>
+        <i class="ui-isl-d bush"    style="--x:80%;--y:74%"></i>
+        <i class="ui-isl-d flower cream" style="--x:40%;--y:86%"></i>
+        <i class="ui-isl-d pebble"  style="--x:62%;--y:88%"></i>
+        <i class="ui-isl-d flower orange" style="--x:50%;--y:90%"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Varian lite (tanpa dekor) -->
+  <div class="ui-island ui-isl--lite" style="--k:.8">
+    <i class="ui-isl-shadow"></i>
+    <div class="ui-isl-float">
+      <i class="ui-isl-crystal c1"></i><i class="ui-isl-crystal c2"></i>
+      <i class="ui-isl-stal"></i><div class="ui-isl-body"></div><div class="ui-isl-top"></div>
+    </div>
+  </div>
+
+  <!-- Varian far (latar jauh, pengganti .isl di #sky) -->
+  <div class="ui-island ui-isl--far" style="--k:.55;--blur:2px">
+    <div class="ui-isl-float"><i class="ui-isl-stal"></i><div class="ui-isl-body"></div><div class="ui-isl-top"></div></div>
+  </div>
+</div>
+</body></html>
