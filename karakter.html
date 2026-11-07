@@ -1611,22 +1611,18 @@ renderTabs();
 /* ================================================================
    11. KAMERA
    ================================================================ */
-let camYaw=0.4,camPitch=0.18,camDist=5.4;
-const ptrs=new Map();let pinch=0;
+/* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
+let camYaw=0.4,camPitch=0.18;const camDist=3.6;
+const ptrs=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{
   const p=ptrs.get(e.pointerId);if(!p)return;
   const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
   if(ptrs.size===1){camYaw-=dx*0.007;camPitch=clamp(camPitch+dy*0.005,-0.05,1.3);}
-  else if(ptrs.size===2){
-    const a=Array.from(ptrs.values()),d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
-    if(pinch)camDist=clamp(camDist*pinch/d,3,10);
-    pinch=d;
-  }
 });
-const ptrEnd=e=>{ptrs.delete(e.pointerId);pinch=0;};
+const ptrEnd=e=>{ptrs.delete(e.pointerId);};
 cv.addEventListener('pointerup',ptrEnd);cv.addEventListener('pointercancel',ptrEnd);
-cv.addEventListener('wheel',e=>{camDist=clamp(camDist*(1+e.deltaY*0.001),3,10);e.preventDefault();},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();},{passive:false}); /* scroll tidak lagi zoom */
 let viewDirty=true;
 function fit(){
   const w=showEl.clientWidth,h=showEl.clientHeight;if(!w||!h)return;
