@@ -33,6 +33,7 @@ svg{display:block}
 #sbs button{width:4.4rem;height:3.5rem;border-radius:1.2rem;padding:0;display:grid;place-items:center;font-size:1.3rem;line-height:1}
 #sbs svg{width:2.4rem;height:2.4rem}
 #sbs .ci{width:2.8rem;height:2.8rem}
+#sbs #b4{font-size:2.2rem}
 .pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
 #gear{right:1.4rem;top:1.7rem;width:4.4rem;height:4.4rem;border-radius:1.4rem;padding:0;display:grid;place-items:center}#gear svg{width:2.8rem;height:2.8rem}
 #gear>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
@@ -357,7 +358,7 @@ html body .in,html body .st{background:linear-gradient(var(--sl3),var(--sl4));bo
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
 </div>
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
-<div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
+<div class="ab" id="sbs"><button class="blue" id="b4" aria-label="Ubah tampilan karakter">🧩</button><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
 <section class="ab pn" id="pc"></section>
 <div class="ab" id="midcol">
 <section class="ab pn" id="ai"></section>
@@ -513,7 +514,6 @@ function render(){
 <button class="ax" data-a="win">${SWORDS}<div><small>Rasio Kemenangan</small><span class="v"><b>${pcn()}%</b><em>${PROF.win} / ${PROF.play}</em></span></div></button>
 <button class="ax" data-a="mis">${RI('lobby/misi')}<div><small>Misi</small><b>${MIS()}</b></div>${CH.replace('<svg','<svg class="ch"')}</button>
 <button class="ax" data-a="wl">${RI('lobby/trophy')}<div><small>Win / Lose</small><b>${PROF.win} / ${PROF.play-PROF.win}</b></div></button>
-<button class="ax w2" data-a="karakter">${RI('items/skin')}<div><small>Karakter</small><b>Ubah Tampilan</b></div></button>
 <div class="ax w2">${FLAME}<small style="display:inline;font-size:1.3rem">Win Streak</small><b style="margin-left:1rem">${PROF.streak}</b></div></div>`;
  $('#pg').innerHTML=`<div class="ah">${RI('lobby/trophy')}<h3>Achievement</h3><span class="gr cnt" role="status" aria-label="${got} achievement diraih">${got} Achievement</span></div><div class="al" id="alist" tabindex="0">${AI.map(achCard).join('')}</div><div class="alhint" aria-hidden="true">${sv('<path d="m6 9 6 6 6-6"/>')}</div>`;
  const al=$('#alist'),hint=$('#pg .alhint');if(al&&hint){const upd=()=>hint.classList.toggle('end',al.scrollTop+al.clientHeight>=al.scrollHeight-4);al.addEventListener('scroll',upd,{passive:true});requestAnimationFrame(upd)}}
@@ -562,7 +562,7 @@ function pickSkin(id){const t=IC.byId(id);if(t){sel=t;render();buildModels();if(
 function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');return}const r=PD.equip(sel.id);
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
- if(DT[a])DT[a]();else if(a==='karakter')location.href='karakter.html';else if(a==='name')editName();
+ if(DT[a])DT[a]();else if(a==='name')editName();
  else if(a==='logout'){if(!confirm('Keluar dari akun ini? Koin, item, dan progres akun ini tetap tersimpan dan kembali saat kamu login lagi.'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
  else if(a==='copy'){navigator.clipboard?.writeText(PROF.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
@@ -571,6 +571,7 @@ $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 $('#b0').addEventListener('click',()=>{if(!main)return;main.r.render(main.scene,main.cam);const l=document.createElement('a');l.href=main.cv.toDataURL('image/png');l.download='profil-'+pname()+'.png';l.click();toast('Foto disimpan')});
 $('#b1').addEventListener('click',()=>{pose=POSES[(POSES.indexOf(pose)+1)%POSES.length];buildModels();toast('Pose: '+pose)});
 $('#b3').addEventListener('click',()=>{spin=1;playSound('select')});
+$('#b4').addEventListener('click',()=>{playSound('click');location.href='karakter.html'});
 // ---- modal
 const modal=$('#modal');let mOpen=false,onClose=null;
 function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
