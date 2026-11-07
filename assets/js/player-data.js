@@ -11,7 +11,10 @@
    MIGRASI (v1): data lama dari kunci legacy "inv", "shop", "modeScreen", "ut-dadu", "ut-tema2"
    diimpor SEKALI secara idempoten. Kunci legacy TIDAK dihapus dan TIDAK ditimpa — tetap
    dipertahankan sebagai sumber kompatibilitas sampai tahap cleanup di masa depan.
-   Tidak ada localStorage.clear() / removeItem untuk key legacy di file ini. */
+   Tidak ada localStorage.clear(). Pembersihan (Tahap 1 penghapusan localStorage) hanya menghapus key legacy yang
+   TIDAK dibaca kode mana pun lagi ("shop", "modeScreen", "lobbyGift"), dan HANYA setelah migrasi v1 selesai;
+   "inv", "ut-dadu", "ut-tema2", "ut-malam" masih dipakai halaman lain dan dibiarkan. Cadangan ":corrupt:"
+   dipangkas ke yang terbaru saja per kunci. */
 (function (g) {
   'use strict';
   var C = g.ItemCatalog;
@@ -356,6 +359,42 @@
     return st;
   }
 
+  /* ---------- Pembersihan localStorage (Tahap 1) ----------
+     - Key legacy tanpa pembaca: shop, modeScreen, lobbyGift. Hanya dihapus bila data tamu sudah termigrasi
+       (state tamu belum ada, atau migration >= MIGRATION_VERSION), karena migrateV1 masih membaca shop/modeScreen sekali.
+     - Cadangan data rusak "<kunci>:corrupt:<ts>": simpan yang TERBARU saja per kunci, hapus yang lebih lama.
+     Idempoten, sekali per muat halaman, aman bila localStorage tidak tersedia / tidak bisa dienumerasi. */
+  var cleaned = false;
+  var DEAD_LEGACY_KEYS = ['shop', 'modeScreen', 'lobbyGift'];
+  function guestMigrated() {
+    try {
+      var raw = localStorage.getItem(BASE_KEY);
+      if (raw === null) return true;
+      var o = JSON.parse(raw);
+      return !!(o && isFinite(o.migration) && o.migration >= MIGRATION_VERSION);
+    } catch (e) { return false; }
+  }
+  function cleanupLegacy() {
+    if (cleaned) return;
+    cleaned = true;
+    try {
+      if (guestMigrated()) {
+        DEAD_LEGACY_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+      }
+      var n = localStorage.length, newest = {}, all = [], i, k, at, base, ts;
+      if (!isFinite(n) || typeof localStorage.key !== 'function') return;
+      for (i = 0; i < n; i++) {
+        k = localStorage.key(i);
+        if (typeof k !== 'string' || k.indexOf('ularTanggaBlok:') !== 0) continue;
+        at = k.indexOf(':corrupt:'); if (at < 0) continue;
+        base = k.slice(0, at); ts = +k.slice(at + 9) || 0;
+        all.push([k, base, ts]);
+        if (!(base in newest) || ts > newest[base]) newest[base] = ts;
+      }
+      all.forEach(function (e) { if (e[2] < newest[e[1]]) { try { localStorage.removeItem(e[0]); } catch (x) {} } });
+    } catch (e) { /* abaikan: pembersihan bersifat opsional */ }
+  }
+
   /* ---------- Baca ---------- */
   function load() {
     if (!persistent) {
@@ -384,6 +423,7 @@
     var before = st.migration;
     st = ensureMigration(st);
     if (st.migration !== before) write(st); /* hasil migrasi disimpan sekali */
+    cleanupLegacy();
     return st;
   }
 
