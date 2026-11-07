@@ -1461,11 +1461,13 @@ function setInfo(name,desc){$('#irar').textContent=CATS[cat].name;$('#iname').te
 function updateInfo(){
   const c=CATS[cat];
   updateBuy();
+  if(pv&&pv.set){const ss=pv.set,sok=ss.cis.every(canSell),nm=ss.cis.map(x=>x.name).join(', ');
+    setInfo(ss.n.replace(/^\S+\s/,'')+' (Set)',sok?ss.cis.length+' item belum dimiliki: '+nm+'. Beli semua untuk memakai set ini.':'Set ini berisi item yang tidak dijual ('+nm+'). Hanya preview.');return;}
   if(pv){setInfo(pv.ci.name,canSell(pv.ci)?'Belum dimiliki. Ini hanya preview, beli untuk memakainya.':'Belum dimiliki dan tidak dijual (hadiah/event). Hanya preview.');return;}
   if(c.type==='gender')setInfo(cfg.gender==='m'?'Laki-laki':'Perempuan','Pilih gender karakter. Pakaian menyesuaikan gender.');
   else if(c.type==='skin'){const s=SKINS.find(x=>x.id===cfg.skin);setInfo(s?s.n:'Warna kulit','Pilih warna kulit karakter.');}
   else if(c.type==='body')setInfo('Ukuran tubuh','Atur tinggi dan besar badan karakter.');
-  else if(c.type==='preset')setInfo('Set siap pakai','Ketuk satu set untuk memakai semua perlengkapannya sekaligus.');
+  else if(c.type==='preset')setInfo('Set siap pakai','Ketuk set untuk preview. Item yang belum dimiliki bisa dibeli sekaligus per set.');
   else if(c.type==='multi')setInfo('Aksesori ('+cfg.accessories.length+' dipakai)','Beberapa aksesori boleh dipakai bersamaan. Ikon gembok = beli di Toko.');
   else{const it=find(c.reg,cfg[c.key].id);setInfo(it&&it.id!=='none'?it.n:'Tidak dipakai','Ketuk kartu untuk mengganti. Ikon gembok = beli di Toko.');}
 }
@@ -1474,11 +1476,24 @@ let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disim
 const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 const canSell=ci=>!!ci&&ci.price>0&&ci.source==='shop';
-function startPreview(ci,part){
+function startPreview(ci,part,set){
   endPreview();
-  pv={saved:clone(cfg),ci:ci};previewAll=true;
+  pv={saved:clone(cfg),ci:ci,set:set||null};previewAll=true;
   apply(part);
 }
+/* ===== Set: beli per set = total harga item yang belum dimiliki ===== */
+const SLOTK=['top','legs','boots','helm','chest','shoulder','cape','weapon'];
+function setParts(p){ /* item katalog tiap bagian set (selain 'none') */
+  const out=[];
+  SLOTK.forEach(k=>{const o=p.set[k];if(!o||o.id==='none')return;const ci=catItem(k,find(k,o.id));if(ci)out.push(ci);});
+  (p.set.accessories||[]).forEach(a=>{const ci=catItem('acc',find('acc',a.id));if(ci)out.push(ci);});
+  return out;
+}
+function setStatus(p){
+  const miss=setParts(p).filter(ci=>!PD.owns(ci.id));
+  return {miss:miss,total:miss.reduce((a,ci)=>a+(ci.price>0?ci.price:0),0),sellable:miss.every(canSell)};
+}
+const setOn=p=>SLOTK.every(k=>cfg[k].id===((p.set[k]||{id:'none'}).id))&&cfg.accessories.length===p.set.accessories.length&&p.set.accessories.every(a=>cfg.accessories.some(x=>x.id===a.id));
 function endPreview(){
   if(!pv)return;
   const s=pv.saved;pv=null;previewAll=false;
@@ -1487,10 +1502,10 @@ function endPreview(){
 function updateBuy(){
   const b=$('#buy'),inf=$('#info');
   if(!pv){b.style.display='none';inf.classList.remove('hasbuy');return;}
-  const ok=canSell(pv.ci);
+  const ok=pv.set?pv.set.cis.every(canSell):canSell(pv.ci),price=pv.set?pv.set.total:pv.ci.price;
   b.style.display='';inf.classList.add('hasbuy');
   b.className='use'+(ok?'':' no');
-  b.innerHTML=ok?'<img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">'+fmt(pv.ci.price):'Tidak dijual';
+  b.innerHTML=ok?'<img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">'+fmt(price):'Tidak dijual';
 }
 const modal=$('#modal');let mOpen=false;
 function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
@@ -1516,7 +1531,37 @@ function confirmBuy(ci){
     });
   });
 }
-$('#buy').addEventListener('click',()=>{if(!pv)return;if(!canSell(pv.ci)){toast('Item ini tidak dijual.');return;}confirmBuy(pv.ci);});
+function confirmBuySet(set){
+  const coins=PD.coins(),ok=coins>=set.total,nm=set.n.replace(/^\S+\s/,'');
+  const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2rem;margin:.4rem 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
+  openModal(ok
+    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+  ()=>{
+    $('#no').addEventListener('click',closeModal);
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    $('#yes').addEventListener('click',async()=>{
+      let done=0;
+      for(const ci of set.cis){
+        if(PD.owns(ci.id)){done++;continue;}
+        const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
+        if(!r||!r.ok){
+          closeModal();
+          toast((WMSG[r&&r.reason]||'Pembelian gagal.')+(done?' ('+done+'/'+set.cis.length+' item sudah dibeli)':''));
+          renderCurrency();endPreview();renderOpts();return;
+        }
+        done++;
+      }
+      closeModal();
+      /* semua item sudah dimiliki: pertahankan tampilan set, lalu simpan & pakai lewat jalur normal */
+      const keep=clone(cfg);pv=null;previewAll=false;cfg=keep;apply(null,true);
+      renderCurrency();toast('Set berhasil dibeli dan dipakai!');
+    });
+  });
+}
+$('#buy').addEventListener('click',()=>{if(!pv)return;
+  if(pv.set){if(!pv.set.cis.every(canSell)){toast('Set ini berisi item yang tidak dijual.');return;}confirmBuySet(pv.set);return;}
+  if(!canSell(pv.ci)){toast('Item ini tidak dijual.');return;}confirmBuy(pv.ci);});
 function slider(label,key,min,max){
   const w=document.createElement('div');w.className='slrow';
   const t=document.createElement('span');
@@ -1558,8 +1603,13 @@ function renderOpts(){
     r.addEventListener('click',()=>{apply({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
   }else if(c.type==='preset'){
-    PRESETS.filter(p=>p.g===cfg.gender).forEach(p=>optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,badge:'Pakai',fn:()=>apply(clone(p.set)),
-      tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body]),fr:'full',part:()=>clone(p.set)}})));
+    PRESETS.filter(p=>p.g===cfg.gender).forEach(p=>{
+      const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
+      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&pv.set&&pv.set.id===p.id),
+        badge:lock?'🔒 '+(st.sellable?fmt(st.total)+' koin':'Tidak dijual'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
+        fn:()=>lock?startPreview(st.miss[0],clone(p.set),{id:p.id,n:p.n,cis:st.miss,total:st.total}):apply(clone(p.set)),
+        tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body]),fr:'full',part:()=>clone(p.set)}}));
+    });
   }else if(c.type==='multi'){
     ACCS.filter(okG).forEach(it=>{
       const on=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);

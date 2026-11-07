@@ -254,7 +254,6 @@ html body .use img{width:3rem;height:3rem}
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
 </div>
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
-<div class="ab" id="sbs"><button class="blue" id="b1" aria-label="Ganti pose"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.200M20 3v5h-5M4 12a8 8 0 0 0 13 6.200" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="blue" id="b2" aria-label="Lihat yang dipakai"></button><button class="blue" id="b3" aria-label="Putar 360">360°</button></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
 <section class="ab" id="rec"><span id="rl"><svg viewBox="0 0 24 24"><path d="M3 18 2 7l5 4 5-7 5 7 5-4-1 11z" fill="#ffd24d"/></svg><b id="rlt"></b></span><button class="blue rarr" id="rp" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div id="rlist"></div><button class="blue rarr" id="rn" aria-label="Berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button></section>
 <section class="ab" id="bot"><div id="gwrap"><div id="grid"></div></div><button class="use" id="use"></button></section>
@@ -362,9 +361,6 @@ function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').text
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 $('#use').addEventListener('click',e=>{if(sel){const w=isOwned(sel);act(sel);if(w)sparkle(e.currentTarget)}});
 $('#rp').addEventListener('click',()=>{off--;renderRecent()});$('#rn').addEventListener('click',()=>{off++;renderRecent()});
-$('#b1').addEventListener('click',()=>{pose=POSES[(POSES.indexOf(pose)+1)%POSES.length];buildModels();toast('Pose: '+pose)});
-$('#b2').innerHTML=SH;$('#b2').addEventListener('click',()=>{const e=equippedItem(cat);if(e)pick(e)});
-$('#b3').addEventListener('click',()=>{spin=1;playSound('select')});
 // ---- event: ikut memperbarui UI saat state berubah (tanpa reload halaman)
 UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('inventoryChanged',()=>{setCat(cat)});
