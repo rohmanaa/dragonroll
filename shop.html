@@ -472,15 +472,12 @@ async function exchange(i){
   }finally{busy=false}
 }
 /* ---------- Toko Emerald: emerald didapat dengan menonton iklan berhadiah (tombol Iklan) ----------
-   Akun server: nominal, batas harian & jeda ditentukan SERVER (claim_ad_reward). Tamu: simulasi lokal dengan batas yang sama. */
+   Tahap 4: nominal, batas harian & jeda ditentukan SERVER (claim_ad_reward); tidak ada lagi simulasi lokal (key ut:adLocal:* dihapus). */
 const AD={gems:5,cap:5,gap:60};
-function adLocal(){const d=new Date(),k='ut:adLocal:'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();let o={n:0,t:0};try{o=Object.assign(o,JSON.parse(localStorage.getItem(k)||'{}'))}catch(e){}return{k,o}}
-function adLocalState(){const{o}=adLocal(),w=Math.max(0,Math.ceil((o.t+AD.gap*1000-Date.now())/1000));return{ok:true,gems:AD.gems,cap:AD.cap,left:Math.max(0,AD.cap-o.n),tunggu_detik:w}}
-function adLocalClaim(){const{k,o}=adLocal(),st=adLocalState();if(st.left<1)return{ok:false,reason:'daily_cap'};if(st.tunggu_detik>0)return{ok:false,reason:'terlalu-cepat',tunggu_detik:st.tunggu_detik};
- const r=PD.addCurrency(0,AD.gems);if(!r.ok)return r;o.n++;o.t=Date.now();try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}return{ok:true,reward_gems:AD.gems}}
+try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('ut:adLocal:')===0)localStorage.removeItem(k)}}catch(e){}   /* bersihkan sisa simulasi iklan lokal lama */
 const AMSG={'daily_cap':'Batas iklan hari ini tercapai. Kembali besok (00.00 WIB).','tidak-tersedia':'Iklan belum tersedia.','dibatalkan':'Iklan belum selesai, hadiah tidak diberikan.','gagal':'Iklan gagal dimuat.','token-tidak-valid':'Klaim tidak valid.'};
 async function gemShop(){
- const srv=SV()&&WS();let st=srv?await WS().adGet():adLocalState();if(!st.ok)st=null;
+ const srv=SV()&&WS();let st=srv?await WS().adGet():null;if(st&&!st.ok)st=null;   /* Tahap 4: iklan hanya lewat server; tanpa akun = status tidak tersedia */
  const info=s=>s?(s.left<1?'Batas iklan hari ini tercapai':'Sisa hari ini: '+s.left+'/'+s.cap)+(s.left>0&&s.tunggu_detik>0?' · tunggu '+s.tunggu_detik+' dtk':''):'Status iklan tidak tersedia';
  const gems=(st&&st.gems)||AD.gems,sim=window.UT&&UT.Ads&&UT.Ads.isMock()?'<small style="display:block;opacity:.7;margin-top:.6rem">Iklan simulasi (mode pengembangan)</small>':'';
  openModal(`<h2>Tambah Emerald</h2><p style="margin:0 0 1rem">Tonton iklan, dapat +${gems} Emerald</p><button class="pack" id="adb"><span>&#9654; Tonton Iklan</span><span>+${gems} Emerald</span></button><small id="adn" style="display:block;margin-top:.8rem">${info(st)}</small>${sim}`,()=>{
@@ -488,10 +485,10 @@ async function gemShop(){
   b.addEventListener('click',async()=>{b.disabled=true;playSound('click');
    const a=window.UT&&UT.Ads?await UT.Ads.show():{ok:false,reason:'tidak-tersedia'};
    if(!a.ok){toast(AMSG[a.reason]||'Iklan gagal.');playSound('error');b.disabled=false;return}
-   const r=srv?await WS().claimAd(a.token):adLocalClaim();
+   const r=srv?await WS().claimAd(a.token):{ok:false,reason:'belum-login'};
    if(!r.ok){toast(r.reason==='terlalu-cepat'?'Tunggu '+(r.tunggu_detik||'')+' detik lagi.':(AMSG[r.reason]||WMSG[r.reason]||'Klaim gagal.'));playSound('error')}
    else{renderCurrency();pulse('#gem');playSound('coin');buzz();toast('+'+fmt(r.reward_gems||gems)+' Emerald')}
-   const n=srv?await WS().adGet():adLocalState();if(mOpen&&$('#adn')){st=n.ok?n:st;$('#adn').textContent=info(st);b.disabled=!st||st.left<1}})})}
+   const n=srv?await WS().adGet():{ok:false};if(mOpen&&$('#adn')){st=n.ok?n:st;$('#adn').textContent=info(st);b.disabled=!st||st.left<1}})})}
 
 
 /* panel Emerald (terpisah dari Coin): tombol memakai alur iklan yang sama */
