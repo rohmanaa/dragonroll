@@ -20,7 +20,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 }
 /* Layar memuat (tirai awan): muncul seketika saat halaman akan berpindah (tanpa transisi), hilang halus setelah halaman baru benar-benar siap. */
 #ov{z-index:10;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Lilita One',system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:url(assets/Images/background/bg.webp) 50% 72%/cover no-repeat,linear-gradient(180deg,#1f86f5 0%,#4db4ff 38%,#8fe9ff 72%,#c6faff 100%)}
+  background:#000}
 #ov.hide{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s}
 #ov .clouds{position:absolute;inset:0;overflow:hidden}
 #ov .c0{position:absolute;inset:0;background:#e9f5ff;z-index:1}
@@ -60,6 +60,13 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 #ov.hide .ld{animation:none;opacity:0;transition:opacity .25s ease}
 #ov.quiet .clouds{visibility:hidden}
 @media (prefers-reduced-motion:reduce){#ov .ldb b::after,#ov .ldt i{animation:none!important}#ov .cl::before{animation:none!important}#ov:not(.quiet).hide{opacity:0;transition:opacity .25s ease,visibility 0s linear .25s}#ov:not(.quiet).hide .cl{transform:none;transition:none}#ov:not(.quiet).hide .c0{opacity:1;transition:none}}
+/* Layar memuat = tirai HITAM dengan fade in (saat halaman berpindah) & fade out (halaman siap). bg.webp + tirai awan dihapus. */
+#ov{background:#000;opacity:1;transition:opacity .18s ease}
+#ov .clouds{display:none}
+#ov.hide,#ov:not(.quiet).hide{opacity:0;background:#000;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
+#ov .ld{color:#e8eefb;text-shadow:none}
+#ov .ldt i{background:#e8eefb}
+#ov .ldb{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4);box-shadow:none}
 </style>
 </head>
 <body>
@@ -111,7 +118,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     var imgs = [];
     try { imgs = Array.prototype.filter.call(d.images || [], function (im) { return !im.complete && im.src; }); } catch (e) {}
     var waits = imgs.map(function (im) { return new Promise(function (r) { im.addEventListener('load', r); im.addEventListener('error', r); }); });
-    /* latar (bg.webp) harus sudah ter-decode, kalau tidak frame pertama tampil polos */
+    /* latar halaman (.sbg-img) harus sudah ter-decode, kalau tidak frame pertama tampil polos */
     var bg = Promise.resolve();
     try { var bi = d.querySelector('.sbg-img'); if (bi && bi.decode) bg = bi.decode().catch(function () {}); } catch (e) {}
     /* halaman yang menyembunyikan body sampai render awal selesai (html:not(.ut-ready) body{visibility:hidden}):
