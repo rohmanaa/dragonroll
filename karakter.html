@@ -238,32 +238,30 @@ html body #cats{overflow-y:auto;overflow-x:hidden;padding:.3rem .5rem .8rem .3re
 html body #cats::-webkit-scrollbar{display:none}
 html body .cat{flex:none}
 html body .cat .ce{font-size:2.3rem;line-height:1;width:3rem;text-align:center;flex:none;text-shadow:none}
-html body .cat .cl{font-size:1.75rem;white-space:nowrap}
+html body .cat .cl{white-space:nowrap}
 html body #sbs button{font-size:2rem}
 html body #sbs button.on{outline:.3rem solid #ffe36a;outline-offset:-.1rem}
 html body #bot{gap:.8rem}
-#bh{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.2rem .6rem 0;font-size:2.3rem;text-shadow:0 .15rem 0 var(--ol)}
+#bh{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.2rem .6rem 0;font-size:2.3rem;text-shadow:0 .15rem 0 #0b1220}
 #bh .bha{display:flex;gap:.8rem}
-#bh .sm{height:3.6rem;padding:0 1.4rem;font-size:1.6rem;border-radius:.8rem;display:flex;align-items:center;gap:.5rem}
+#bh .bt{width:auto;padding:0 1.6rem}
 #grid.flat{grid-template-columns:1fr!important;grid-auto-rows:auto!important;gap:1rem}
 .card .th{display:grid;place-items:center;width:100%}
 .card .th .em{font-size:4.4rem;line-height:1}
-.card .th .sq{display:block;width:62%;aspect-ratio:1;border-radius:.6rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35)}
-.card .badge{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .th .sq{display:block;width:62%;aspect-ratio:1;border-radius:.6rem;border:.3rem solid #172033;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35)}
+.card .bt{overflow:hidden;white-space:nowrap}
 .card.lk .th .em{filter:grayscale(1);opacity:.55}
-.slrow{display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.4rem;border-radius:.8rem;border:.3rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2));font-size:1.9rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
+.slrow{display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.4rem;border-radius:.8rem;border:.3rem solid #172033;background:linear-gradient(var(--sl3),var(--sl4));font-size:1.9rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
 .slrow input{width:100%;margin:0;accent-color:#ffd24d;height:2rem}
-.slrow+.bt,#grid.flat>.bt{width:auto;align-self:center;padding:0 2.4rem;height:3.6rem;font-size:1.7rem}
-#dyes{flex:none;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;padding:.7rem .9rem;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3)}
+.slrow+.bt,#grid.flat>.bt{width:auto;align-self:center;padding:0 2.4rem}
+#dyes{flex:none;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;padding:.7rem .9rem;border-radius:.7rem;border:.25rem solid #172033;background:linear-gradient(var(--sl2),var(--sl4));box-shadow:inset 0 0 0 .12rem #8696ad}
 #dyes:empty{display:none}
 #dyes .lbl{font-size:1.5rem;margin-right:.4rem}
-#dyes .sw{width:3.4rem;height:3.4rem;padding:0;border-radius:.6rem;border:.25rem solid var(--ol);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35);flex:none}
+#dyes .sw{width:3.4rem;height:3.4rem;padding:0;border-radius:.6rem;border:.25rem solid #172033;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35);flex:none}
 #dyes .sw.on{outline:.3rem solid #ffe36a;outline-offset:.1rem}
 @media (min-aspect-ratio:1/1){
   html body #cats{width:13.2rem;bottom:13rem}
-  html body .cat{height:4.2rem;gap:.7rem;padding:0 .8rem}
-  html body #sbs{top:8rem;gap:.55rem}
-  html body #sbs button{width:4.4rem;height:3.4rem}
+    html body #sbs{top:8rem}
 }
 @media (max-aspect-ratio:1/1){
   html body #cats{overflow-x:auto;overflow-y:hidden}
@@ -286,7 +284,7 @@ html body #bot{gap:.8rem}
 <div class="ab" id="sbs" aria-label="Gerakan"></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
 <section class="ab" id="bot">
- <div id="bh"><b id="bht"></b><span class="bha"><button class="blue sm" id="rnd">🎲 Acak</button><button class="blue sm" id="shp">🛒 Toko</button></span></div>
+ <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
  <div id="gwrap"><div id="grid"></div></div>
  <div id="dyes"></div>
 </section>
@@ -1314,7 +1312,7 @@ const tabsEl=$('#cats'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
 let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),1800);}
 const hex=c=>'#'+('000000'+c.toString(16)).slice(-6);
-const BG={own:'linear-gradient(#4ad04a,#2a9a2a)',def:'linear-gradient(#4aa8ff,#2a78e0)',lock:'linear-gradient(#7d8da8,#58698a)'};
+const BG={own:'own',def:'',lock:'no'};
 const CKSVG='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const emo=e=>'<span class="em">'+e+'</span>';
 const sq=c=>'<i class="sq" style="background:'+hex(c)+'"></i>';
@@ -1324,9 +1322,9 @@ function card(o){
   d.className='card'+(o.on?' sel':'')+(o.lock?' lk':'');
   d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
   d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
-  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.badge?'<span class="badge"></span>':'');
+  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.badge?'<button class="bt"></button>':'');
   d.querySelector('.nm').textContent=o.nm;
-  if(o.badge){const b=d.querySelector('.badge');b.textContent=o.badge;b.style.background=o.bg||BG.def;}
+  if(o.badge){const b=d.querySelector('.bt');b.textContent=o.badge;if(o.bg)b.classList.add(o.bg);}
   d.addEventListener('click',o.fn);
   d.addEventListener('keydown',e=>{if(e.key==='Enter')o.fn();});
   return d;
