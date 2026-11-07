@@ -10,6 +10,7 @@ function boot(opts) {
   const ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { addEventListener() {}, localStorage: ls };
   if (opts.flag) w.UT_SERVER_WALLET = true;
+  if (opts.flagOff) w.UT_SERVER_WALLET = false;
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   ['item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
@@ -26,10 +27,25 @@ t('tamu: perilaku lokal tidak berubah (flag menyala sekalipun)', () => {
   assert.strictEqual(PD.grant({ coins: 10 }).ok, true);
   assert.strictEqual(PD.applyServerWallet({ coins: 9 }).ok, false);
 });
-t('akun login tanpa flag: tetap lokal', () => {
+t('Tahap 3: akun login tanpa flag apa pun: mode server MENYALA bawaan', () => {
   const { PD } = boot({ store: ACCT });
+  assert.strictEqual(PD.serverMode(), true);
+  assert.strictEqual(PD.addCurrency(5, 0).reason, 'server-wallet');
+});
+t('saklar darurat: localStorage ut:serverWallet=0 mematikan mode server', () => {
+  const { PD } = boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) });
   assert.strictEqual(PD.serverMode(), false);
   assert.strictEqual(PD.addCurrency(5, 0).ok, true);
+});
+t('saklar darurat: window.UT_SERVER_WALLET=false mematikan mode server', () => {
+  const { PD } = boot({ store: ACCT, flagOff: true });
+  assert.strictEqual(PD.serverMode(), false);
+});
+t('Tahap 3: data tamu TIDAK dipindah ke akun baru; saldo awal akun bersih', () => {
+  const guest = JSON.stringify({ v: 1, coins: 99999, gems: 99, migration: 1 });
+  const { PD, store } = boot({ store: Object.assign({ 'ularTanggaBlok:player:v1': guest }, ACCT) });
+  assert.notStrictEqual(PD.coins(), 99999);
+  assert.strictEqual(store['ularTanggaBlok:player:v1'], guest, 'data tamu tidak disentuh');
 });
 t('akun login + flag: serverMode aktif', () => assert.strictEqual(loginOn().PD.serverMode(), true));
 t('flag lewat localStorage juga berlaku', () => {
@@ -98,7 +114,7 @@ t('edit devtools pada saldo lokal ditimpa server saat refresh', () => {
 /* ---------- WalletService dengan klien Supabase palsu ---------- */
 const WS = require('../assets/js/wallet-service.js');
 function svc(handlers, flag) {
-  const env = flag === false ? boot({ store: ACCT }) : loginOn();
+  const env = flag === false ? boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) }) : loginOn();
   const calls = [];
   const client = { rpc: async (name, args) => { calls.push([name, args]); const h = handlers[name]; if (!h) return { data: null, error: { message: 'no handler ' + name } }; const d = await h(args); return d && d.__err ? { data: null, error: { message: d.__err } } : { data: d, error: null }; } };
   return Object.assign(env, { calls, S: WS.create({ PlayerData: env.PD, getClient: async () => client }) });

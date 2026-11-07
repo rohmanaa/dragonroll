@@ -4,8 +4,8 @@
    - tamu / belum login : "ularTanggaBlok:player:v1"
    - akun login         : "ularTanggaBlok:player:v1:acct:<id akun>" (id dari cache "ut-auth")
    Logout tidak menghapus data akun; data kembali saat akun itu login lagi. Akun berikutnya di perangkat
-   yang sama TIDAK mewarisi koin/inventory/XP akun sebelumnya. Data tamu dipindahkan (bukan disalin) ke
-   akun pertama yang login bila akun itu belum punya data lokal.
+   yang sama TIDAK mewarisi koin/inventory/XP akun sebelumnya. Tahap 3: data tamu TIDAK lagi dipindahkan ke
+   akun; akun login memakai dompet server (saldo awal dari server).
    Butuh: item-catalog.js dimuat lebih dulu.
 
    MIGRASI (v1): data lama dari kunci legacy "inv", "shop", "modeScreen", "ut-dadu", "ut-tema2"
@@ -52,22 +52,6 @@
   }
   function keyFor(base) { var id = accountId(); return id ? base + ':acct:' + id : base; }
   function key() { return keyFor(BASE_KEY); }
-  /* Akun login pertama kali di perangkat ini: pindahkan data tamu (jika ada) ke akun, lalu hapus salinan tamu
-     agar akun lain tidak ikut mewarisinya. Tidak berbuat apa-apa bila akun sudah punya data. */
-  function adoptGuest() {
-    if (!accountId()) return;
-    try {
-      [BASE_KEY, ACH_BASE].forEach(function (b) {
-        var dst = keyFor(b);
-        if (localStorage.getItem(dst) !== null) return;
-        var v = localStorage.getItem(b);
-        if (v === null) return;
-        localStorage.setItem(dst, v);
-        localStorage.removeItem(b);
-      });
-    } catch (e) {}
-  }
-
   var memState = null;     /* cadangan di memori jika localStorage tidak bisa dipakai */
   var persistent = probe();
   var listeners = [];
@@ -402,9 +386,8 @@
       return clone(memState);
     }
     var raw = rawGet();
-    if (raw === null && accountId()) { adoptGuest(); raw = rawGet(); }
     if (raw === null) {
-      /* Akun baru tanpa data tamu: mulai bersih, jangan impor key legacy global (inv/shop) milik orang lain. */
+      /* Akun baru: mulai bersih (Tahap 3: saldo/data tamu lama tidak diimpor). */
       var st0 = accountId() ? freshState(true) : ensureMigration(freshState());
       if (accountId()) st0.migration = MIGRATION_VERSION;
       if (!write(st0)) { persistent = false; memState = clone(st0); }
@@ -436,10 +419,12 @@
      yang diisi dari respons RPC lewat applyServerWallet/applyServerItem (dipanggil wallet-service.js).
      Mutasi lokal (purchase/addCurrency/grant mata uang/item) DITOLAK agar tidak ada saldo ganda atau saldo
      yang bisa diedit lewat devtools. XP, statistik, pengaturan, nama, dan equip tetap lokal. Tamu tidak berubah.
-     Flag: window.UT_SERVER_WALLET === true  atau  localStorage['ut:serverWallet'] === '1'. */
+     Tahap 3: mode server MENYALA SECARA BAWAAN untuk akun login. Saklar darurat (sementara, sampai Tahap 3c):
+     window.UT_SERVER_WALLET === false  atau  localStorage['ut:serverWallet'] === '0' mematikannya. */
   function flagOn() {
-    try { if (g.UT_SERVER_WALLET === true) return true; } catch (e) {}
-    try { return localStorage.getItem('ut:serverWallet') === '1'; } catch (e) { return false; }
+    try { if (g.UT_SERVER_WALLET === false) return false; } catch (e) {}
+    try { if (localStorage.getItem('ut:serverWallet') === '0') return false; } catch (e) {}
+    return true;
   }
   function serverMode() { return !!accountId() && flagOn(); }
 

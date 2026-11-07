@@ -32,8 +32,8 @@ const base = o => Object.assign({ gender: 'm', top: { id: 'tee', dye: 'blue' }, 
   helm: { id: 'none' }, chest: { id: 'none' }, shoulder: { id: 'none' }, cape: { id: 'none' }, weapon: { id: 'none' }, accessories: [] }, o || {});
 const row = (slot, name, data) => ({ slot, name, data: data || base(), updated_at: '2026-11-07T10:00:00Z' });
 
-t('tamu / akun tanpa flag: semua method mode-lokal, tidak ada panggilan server', async () => {
-  for (const b of [boot({ flag: true }), boot({ store: ACCT })]) {
+t('tamu / akun dengan saklar darurat mati: semua method mode-lokal, tidak ada panggilan server', async () => {
+  for (const b of [boot({ flag: true }), boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) })]) {
     const fc = fakeClient({}), s = Svc.create({ PlayerData: b.PD, getClient: fc.getClient });
     for (const r of [await s.refresh(), await s.saveOutfit('A', base()), await s.renameOutfit(0, 'B'), await s.deleteOutfit(0), await s.pushAppearance(), await s.roomAppearance('x')])
       assert.strictEqual(r.reason, 'mode-lokal');
