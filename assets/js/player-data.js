@@ -128,12 +128,28 @@
     };
   }
 
+  /* ---------- Gear karakter (builder) ----------
+     equipped['g.<bagian>'] / equipped['g.acc.<kunci>'] = ID gear yang DIMILIKI; slot kosong = tidak dipakai.
+     gearDye[itemId] = id pewarna pilihan pemain (kosmetik, lokal; daftar warna milik builder, di sini hanya divalidasi bentuknya). */
+  var DYE_RE = /^[a-z0-9_]{1,24}$/;
+  function cleanGear(st, eq, dyes) {
+    st.gearDye = {};
+    C.gearSlots().forEach(function (slot) {
+      var it = C.byId(eq && eq[slot]);
+      if (it && it.slot === slot && st.inventory[it.id]) st.equipped[slot] = it.id; else delete st.equipped[slot];
+    });
+    if (dyes && typeof dyes === 'object') Object.keys(dyes).forEach(function (id) {
+      var it = C.byId(id);
+      if (it && it.kind === 'gear' && typeof dyes[id] === 'string' && DYE_RE.test(dyes[id])) st.gearDye[id] = dyes[id];
+    });
+  }
+
   /* ---------- Pembuatan data awal ---------- */
   function freshState(skipLegacy) {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
     var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
-               inventory: inv, equipped: clone(C.defaultEquipped),
+               inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {},
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     if (!skipLegacy) migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan (hanya untuk tamu, bukan akun baru) */
     return st;
@@ -191,6 +207,7 @@
       var it = C.byId(eq[slot]);
       st.equipped[slot] = (it && it.slot === slot && st.inventory[it.id]) ? it.id : C.defaultEquipped[slot];
     });
+    cleanGear(st, eq, o.gearDye);
     return st;
   }
 
@@ -388,6 +405,33 @@
       return { ok: true, item: it };
     },
 
+    /* Lepas gear dari slot (hanya slot gear; skin/dadu/tema/frame selalu terpasang). */
+    unequip: function (slot) {
+      if (C.gearSlots().indexOf(slot) < 0) return { ok: false, reason: 'bukan-slot-gear' };
+      var st = load();
+      if (st.equipped[slot]) { delete st.equipped[slot]; if (!write(st)) return { ok: false, reason: 'gagal-simpan' }; notify('equip'); }
+      return { ok: true };
+    },
+    /* Pewarna gear (kosmetik): dye = id warna builder atau null untuk kembali ke bawaan. Hanya untuk gear yang dimiliki. */
+    setGearDye: function (id, dye) {
+      var it = C.byId(id), st = load();
+      if (!it || it.kind !== 'gear') return { ok: false, reason: 'bukan-gear' };
+      if (!st.inventory[id]) return { ok: false, reason: 'belum-dimiliki' };
+      if (dye === null || dye === undefined) delete st.gearDye[id];
+      else if (typeof dye === 'string' && DYE_RE.test(dye)) st.gearDye[id] = dye;
+      else return { ok: false, reason: 'warna-tidak-valid' };
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('equip'); return { ok: true };
+    },
+    /* Tampilan gear sekarang: { 'g.helm': {id:'gear.helm.knight', dye:'steel'|null}, ... } (hanya slot terisi) */
+    gearLook: function () {
+      var st = load(), out = {};
+      C.gearSlots().forEach(function (slot) {
+        var id = st.equipped[slot]; if (id) out[slot] = { id: id, dye: st.gearDye[id] || null };
+      });
+      return out;
+    },
+
     /* Pembelian atomik (harga katalog = coins): validasi dulu, lalu saldo + inventory dalam SATU penulisan. */
     purchase: function (id) {
       if (serverMode()) return { ok: false, reason: 'server-wallet' };   /* beli lewat WalletService.buy */
@@ -501,6 +545,7 @@
           var it = C.byId(st.equipped[slot]);
           if (!it || !st.inventory[it.id]) st.equipped[slot] = C.defaultEquipped[slot];
         });
+        cleanGear(st, st.equipped, st.gearDye);   /* gear yang tidak ada di inventory server dilepas */
       }
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       mirrorLegacy(st); notify('server-wallet');
