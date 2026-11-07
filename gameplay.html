@@ -1306,7 +1306,7 @@ if (typeof THREE === 'undefined') {
 </script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
-<script src="assets/js/player-data.js"></script>
+<script src="assets/js/prefs.js"></script><script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
@@ -1351,7 +1351,7 @@ if(!(window.UT&&UT.GameplayVoxelGeom)){ showBootErr(); return; }
 
 /* ---------- Musik latar ---------- */
 let bgMusic=null,musicOn=true,musicVol=60;
-try{ musicVol=parseInt(localStorage.getItem('ut-musicvol')||'60',10)||60; musicOn=localStorage.getItem('ut-musicon')!=='0'; }catch(e){}
+try{ musicVol=parseInt(UT.Prefs.get('musicVol',60),10)||60; musicOn=UT.Prefs.get('musicOn',true)!==false; }catch(e){}
 const MUSIC=['assets/music/first_light_particles.mp3','assets/music/community.mp3','assets/music/sunset_plains.mp3','assets/music/rainy.mp3']; /* playlist BGM gameplay: diputar berurutan, lalu ulang dari awal */
 let musicIdx=0;
 function ensureMusic(){
@@ -1369,8 +1369,8 @@ function playMusic(){
 function stopMusic(){
   if(!bgMusic) return; try{ bgMusic.pause(); }catch(e){}
 }
-function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-musicvol',String(musicVol)); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; }
-function setMusicOn(v){ musicOn=!!v; try{ localStorage.setItem('ut-musicon',musicOn?'1':'0'); }catch(e){} if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
+function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('musicVol',musicVol); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; }
+function setMusicOn(v){ musicOn=!!v; try{ UT.Prefs.set('musicOn',musicOn); }catch(e){} if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
 /* ---------- Musik Naga (muncul-naga.mp3): mulai saat pemain pertama masuk Block 100, loop + fade in/out, berhenti saat naga kalah / game selesai / game baru ---------- */
 const DM={a:null,active:false,raf:0,fadeIn:2000,fadeOut:2500};
 function dmTarget(){ return Math.max(0,Math.min(1,musicVol/100)); }
@@ -3041,9 +3041,9 @@ const fontReady=(document.fonts&&document.fonts.load)
 let night=false,nightObjs=[],torchMeshes=[],skyStars=null;
 const PHASE_SEC=12*60;                         /* mode auto: tiap fase siang/malam 12 menit */
 let autoDN=false,phaseT=0;
-try{ autoDN=localStorage.getItem('ut-auto')==='1'; }catch(e){}
+try{ autoDN=UT.Prefs.get('autoDN',false)===true; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
-try{ night=localStorage.getItem('ut-malam')==='1'; }catch(e){}
+try{ night=UT.Prefs.get('night',false)===true; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
 /* corak papan: petak genap = bingkai gelap + inti terang, petak ganjil = papan catur kecil */
 function tileShade(bc,n,t,i,j,themeKey){
@@ -5109,7 +5109,6 @@ function onResize(){
 window.addEventListener('resize',onResize); window.addEventListener('orientationchange',onResize); onResize();
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
-const CAM_KEY='ut-cam';
 const CAM_PITCH=0.62+5*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 5 derajat -> kamera lebih tinggi, pandangan lebih ke bawah */
 const CAM_PRESETS={
   free:{yaw:0,pitch:CAM_PITCH,zoom:1},     /* sudut default; diatur manual */
@@ -5139,8 +5138,8 @@ function lockZoom(){
 }
 const lockPreset=()=>({yaw:0,pitch:Math.PI/2,zoom:lockZoom()});
 let camSnap=null; /* konfigurasi ANGLE yang disimpan saat masuk LOCK */
-function camSave(){ try{ localStorage.setItem(CAM_KEY,JSON.stringify({angle:camCfg.angle,preset:camCfg.preset,follow:camCfg.follow,snap:camSnap})); }catch(e){} }
-function camLoad(){ try{ const o=JSON.parse(localStorage.getItem(CAM_KEY)||'null'); if(o&&typeof o==='object'){ camCfg.angle=o.angle===true; camCfg.preset=CAM_PRESETS[o.preset]?o.preset:'free'; camCfg.follow=o.follow!==false; const q=o.snap,ok=v=>typeof v==='number'&&isFinite(v); if(q&&ok(q.yaw)&&ok(q.pitch)&&ok(q.zoom)&&ok(q.px)&&ok(q.pz)&&q.hold&&ok(q.hold.x)&&ok(q.hold.y)&&ok(q.hold.z)) camSnap={yaw:q.yaw,pitch:clamp(q.pitch,0.22,Math.PI/2),zoom:clamp(q.zoom,0.4,1.5),px:q.px,pz:q.pz,top:q.top===true,hold:{x:q.hold.x,y:q.hold.y,z:q.hold.z}}; } }catch(e){} }
+function camSave(){ try{ UT.Prefs.set('cam',{angle:camCfg.angle,preset:camCfg.preset,follow:camCfg.follow,snap:camSnap}); }catch(e){} }
+function camLoad(){ try{ const o=UT.Prefs.get('cam',null); if(o&&typeof o==='object'){ camCfg.angle=o.angle===true; camCfg.preset=CAM_PRESETS[o.preset]?o.preset:'free'; camCfg.follow=o.follow!==false; const q=o.snap,ok=v=>typeof v==='number'&&isFinite(v); if(q&&ok(q.yaw)&&ok(q.pitch)&&ok(q.zoom)&&ok(q.px)&&ok(q.pz)&&q.hold&&ok(q.hold.x)&&ok(q.hold.y)&&ok(q.hold.z)) camSnap={yaw:q.yaw,pitch:clamp(q.pitch,0.22,Math.PI/2),zoom:clamp(q.zoom,0.4,1.5),px:q.px,pz:q.pz,top:q.top===true,hold:{x:q.hold.x,y:q.hold.y,z:q.hold.z}}; } }catch(e){} }
 function camHoldHere(){ camHold.x=camTarget.x-pan.x; camHold.y=camTarget.y; camHold.z=camTarget.z-pan.z; } /* bekukan titik pandang saat FOLLOW dimatikan (tanpa loncat) */
 function resetCam(P){
   if(!(P&&typeof P.yaw==='number')) P=camCfg.angle?CAM_PRESETS[camCfg.preset]:lockPreset();
@@ -5381,8 +5380,8 @@ const PUN=UT.Gameplay.Config.PUN;
 /* Loadout Power: hanya Power yang dipilih di Room (sessionStorage 'ut-room' -> cfg.powers) yang dibawa ke gameplay (tombol HUD + stok awal).
    Tanpa konfigurasi Room (null) = perilaku lama (semua Power). ID & efek Power tidak berubah. */
 const PU_SEL=(()=>{ try{ const r=JSON.parse(sessionStorage.getItem('ut-room')||'null'); if(r&&Array.isArray(r.powers)) return r.powers.filter((k,i,a)=>PUN[k]&&a.indexOf(k)===i); }catch(e){} return null; })();
-/* online: tiap pemain membawa Power pilihannya sendiri (localStorage 'ut-room-powers:v1', sama dengan room.html); dikirim ke host lewat broadcast 'loadout' */
-const MY_SEL=(()=>{ try{ const d=JSON.parse(localStorage.getItem('ut-room-powers:v1')||'{}'); return (d.equipped||[]).filter((k,i,a)=>PUN[k]&&a.indexOf(k)===i).slice(0,5); }catch(e){ return []; } })();
+/* online: tiap pemain membawa Power pilihannya sendiri (UT.Prefs 'roomPowers', sama dengan room.html); dikirim ke host lewat broadcast 'loadout' */
+const MY_SEL=(()=>{ try{ const d=UT.Prefs.get('roomPowers',{}); return (d.equipped||[]).filter((k,i,a)=>PUN[k]&&a.indexOf(k)===i).slice(0,5); }catch(e){ return []; } })();
 const puKeys=()=>ONLINE_ROOM?MY_SEL:(PU_SEL||Object.keys(PUN));
 function loadoutPU(keys){ const o={sword:0,feather:0,tnt:0,totem:0,potion_odd:0,potion_even:0,grass:0}; (keys||[]).filter((k,i,a)=>PUN[k]&&a.indexOf(k)===i).slice(0,5).forEach(k=>{ o[k]=1; }); return o; }
 function startPU(){ if(ONLINE_ROOM) return loadoutPU([]); const o={sword:0,feather:0,tnt:0,totem:0,potion_odd:0,potion_even:0,grass:0}; if(PU_SEL){ PU_SEL.forEach(k=>{ o[k]=1; }); return o; } const ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
@@ -6223,8 +6222,8 @@ function chooseTheme(key){
   pendingTheme=null; buildWorld(key);
 }
 let lastSkins=null;
-function setNight(v){ night=v; phaseT=0; try{ localStorage.setItem('ut-malam',v?'1':'0'); }catch(e){} applyLook(theme); }
-function setAuto(v){ autoDN=v; phaseT=0; try{ localStorage.setItem('ut-auto',v?'1':'0'); }catch(e){} }
+function setNight(v){ night=v; phaseT=0; try{ UT.Prefs.set('night',!!v); }catch(e){} applyLook(theme); }
+function setAuto(v){ autoDN=v; phaseT=0; try{ UT.Prefs.set('autoDN',!!v); }catch(e){} }
 function cycleMode(){ /* Siang -> Malam -> Auto -> Siang */
   if(ONLINE_ROOM&&!ONLINE_HOST){ try{ fb('event','info','Hanya host yang bisa mengubah siang/malam',{gid:gameId,ttl:1800}); }catch(e){} return; } /* online: hanya host; tamu mengikuti snapshot */
   if(autoDN){ setAuto(false); setNight(false); }
@@ -6249,14 +6248,14 @@ updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ submitRoll(); });
 /* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
    Pemain lokal = pemain non-CPU dengan idx 0 (pemilik profil PlayerData; konvensi sama dengan frameOf). Sistem turn/ID tetap players[]+cur+p.idx.
-   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di localStorage 'ut-autoroll'. */
-const AUTO_ROLL_DELAY=900,AUTO_KEY='ut-autoroll'; let autoRoll=false,autoSince=0,autoGid=-1;
-try{ autoRoll=localStorage.getItem(AUTO_KEY)==='1'; }catch(e){}
+   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di UT.Prefs 'autoRoll'. */
+const AUTO_ROLL_DELAY=900; let autoRoll=false,autoSince=0,autoGid=-1;
+try{ autoRoll=UT.Prefs.get('autoRoll',false)===true; }catch(e){}
 function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId===MP_ID):0; }
 function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
-function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ UT.Prefs.set('autoRoll',autoRoll); }catch(e){} syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
 syncAutoBtn();
 setInterval(()=>{
@@ -6279,8 +6278,8 @@ $('btnTheme').addEventListener('click',()=>{
 });
 $('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/tabler/'+(muted?'volume-off':'volume')+'.svg" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
-let sfxVol=100; try{ const sv=parseInt(localStorage.getItem('ut-sfxvol'),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
-function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-sfxvol',String(sfxVol)); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} }
+let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
+function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} }
 setSfxVol(sfxVol);
 function syncMusicUI(){
   const v=$('pmVol'); if(v){ v.value=musicVol; paintRange(v); }

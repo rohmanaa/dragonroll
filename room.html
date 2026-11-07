@@ -4,7 +4,7 @@
 <title>Game Room</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/room-bg.webp"></script>
+<link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/room-bg.webp"></script>
 
 <style>:root{--curbar-right:7.8rem;--curbar-top:1.9rem;--cur-fs:1.9rem;--cur-icon:5.4rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1"><script src="assets/js/landscape.js"></script><style>
 :root{--bk:max(5rem,44px)}
@@ -272,9 +272,9 @@ function renderChoice(){
 $('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)return;const r=PD.equip(b.dataset.id);if(!r.ok)return toast('Tidak bisa dipakai');renderEq();closeChoice();toast(IC.byId(b.dataset.id).name+' dipakai')};
 $('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeChoice()};
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
-const POWERS=IC.items.filter(i=>i.kind==='powerup'),PK='ut-room-powers:v1';
-function loadP(){try{const d=JSON.parse(localStorage.getItem(PK)||'{}');return{equipped:(d.equipped||[]).filter(id=>POWERS.some(p=>p.id===id)).slice(0,5)}}catch(e){return{equipped:[]}}}
-const PW=loadP();const saveP=()=>{try{localStorage.setItem(PK,JSON.stringify(PW))}catch(e){}};
+const POWERS=IC.items.filter(i=>i.kind==='powerup'),PK='roomPowers';
+function loadP(){try{const d=UT.Prefs.get(PK,{});return{equipped:(d.equipped||[]).filter(id=>POWERS.some(p=>p.id===id)).slice(0,5)}}catch(e){return{equipped:[]}}}
+const PW=loadP();const saveP=()=>{try{UT.Prefs.set(PK,PW)}catch(e){}};
 function renderPower(){
  $('#pcnt').textContent=PW.equipped.length+' / 5 DIPILIH';$('#psc').style.setProperty('--pn',POWERS.length);
  $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id);return `<div class="pc ${on?'sel':''}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-label="${esc(p.name)}" title="${esc(p.name+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div></div>`}).join('');

@@ -66,6 +66,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 <iframe id="f" title="DRAGON ROLL" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
 <div id="ov" role="status" aria-live="polite" aria-label="Memuat"><div class="clouds" aria-hidden="true"><div class="c0"></div><div class="cl a k1 l"></div><div class="cl b k1 r"></div><div class="cl c k2 l"></div><div class="cl a k2 r"></div><div class="cl b k3 l"></div><div class="cl c k3 r"></div><div class="cl a k4 l"></div><div class="cl b k4 r"></div></div><div class="ld" aria-hidden="true"><div class="ldt"><span>Memuat halaman</span><i></i><i></i><i></i></div><div class="ldb"><b></b></div></div></div>
 <noscript>Game ini memerlukan JavaScript.</noscript>
+<script src="assets/js/prefs.js"></script>
 <script>
 (function () {
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
@@ -139,7 +140,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     try { var o = (JSON.parse(localStorage.getItem(STORE) || '{}').settings) || {}; return { music: o.music !== false, sound: o.sound !== false }; } catch (e) {}
     return { music: true, sound: true };
   }
-  function musicVol() { try { return Math.max(0, Math.min(100, parseInt(localStorage.getItem('ut-musicvol') || '60', 10) || 60)) / 100; } catch (e) { return 0.6; } }
+  function musicVol() { try { return Math.max(0, Math.min(100, parseInt(UT.Prefs.get('musicVol', 60), 10) || 60)) / 100; } catch (e) { return 0.6; } }
 
   /* Musik latar untuk semua halaman selain gameplay (gameplay punya musiknya sendiri).
      Empat lagu di assets/music diputar bergantian. */

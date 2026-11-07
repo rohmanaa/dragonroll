@@ -7,17 +7,17 @@
 (function (g) {
   'use strict';
   var UT = g.UT = g.UT || {}, IC = g.ItemCatalog, PD = g.PlayerData;
-  var MAP_KEY = 'ut-room-map', CFG_KEY = 'ut-config', ROOM_KEY = 'ut-room';
+  var CFG_KEY = 'ut-config', ROOM_KEY = 'ut-room';
   var MODES = ['vsc', 'local', 'online'];
 
   function maps() { return IC.items.filter(function (i) { return i.kind === 'theme'; }); }   /* Map bukan item milik/dibeli: semua map bisa dimainkan siapa saja */
   function getMap() {
     var k = null, m = maps();
-    try { k = localStorage.getItem(MAP_KEY); } catch (e) {}
+    try { k = UT.Prefs.get('roomMap', null); } catch (e) {}
     return m.filter(function (x) { return x.gameKey === k; })[0] ||
            m.filter(function (x) { return x.id === PD.equippedId('theme'); })[0] || m[0] || null;
   }
-  function setMap(gameKey) { try { localStorage.setItem(MAP_KEY, gameKey); } catch (e) {} }
+  function setMap(gameKey) { try { UT.Prefs.set('roomMap', gameKey); } catch (e) {} }
 
   /* skin tiap pemain: skin sendiri di urutan pertama, sisanya skin lain (gameplay butuh n skin) */
   function skinKeys(n, mine) {
