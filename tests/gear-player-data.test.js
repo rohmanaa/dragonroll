@@ -6,8 +6,11 @@ function boot(store) {
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   ['item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ctx.PlayerData.__store = store;
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
+const own = (PD, ...ids) => { PD.coins(); const k = PD.key, st = JSON.parse(PD.__store[k]);   /* Tahap 3c: PD.grant item dihapus; seed inventory langsung ke storage */
+  ids.forEach(id => { st.inventory[id] = { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ }; }); PD.__store[k] = JSON.stringify(st); };
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 t('pemain baru memiliki gear starter, belum memakai gear apa pun', () => {
@@ -22,12 +25,14 @@ t('equip gear milik sendiri berhasil; gear belum dimiliki ditolak', () => {
   assert.strictEqual(PD.equip('gear.helm.crown').reason, 'belum-dimiliki');
   assert.strictEqual(PD.gearLook()['g.helm'], undefined);
 });
-t('beli gear lokal: koin berkurang sesuai harga katalog lalu bisa dipakai', () => {
+t('Tahap 3c: PD.purchase/purchaseSet lokal ditolak (tanpa akun: belum-login; akun: server-wallet); gear milik bisa dipakai', () => {
   const { PD, IC } = boot(), it = IC.byId('gear.helm.straw'), before = PD.coins();
-  assert.strictEqual(PD.purchase(it.id).ok, true);
-  assert.strictEqual(PD.coins(), before - it.price);
-  assert.strictEqual(PD.equip(it.id).ok, true);
-  assert.strictEqual(PD.purchase(it.id).reason, 'sudah-dimiliki');
+  assert.strictEqual(PD.purchase(it.id).reason, 'belum-login');
+  assert.strictEqual(PD.purchaseSet([it.id]).reason, 'belum-login');
+  assert.strictEqual(PD.coins(), before); assert.strictEqual(PD.owns(it.id), false);
+  const acc = boot({ 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 't' }) }).PD;
+  assert.strictEqual(acc.purchase(it.id).reason, 'server-wallet');
+  own(PD, it.id); assert.strictEqual(PD.owns(it.id), true); assert.strictEqual(PD.equip(it.id).ok, true);
 });
 t('unequip hanya untuk slot gear', () => {
   const { PD } = boot(); PD.equip('gear.top.tee');
@@ -37,7 +42,7 @@ t('unequip hanya untuk slot gear', () => {
   assert.strictEqual(PD.equippedId('skin'), 'skin.steve');
 });
 t('aksesori: beberapa dipakai sekaligus (satu slot per aksesori)', () => {
-  const { PD } = boot(); PD.grant({ item: 'gear.acc.belt' }); PD.grant({ item: 'gear.acc.pack' });
+  const { PD } = boot(); own(PD, 'gear.acc.belt', 'gear.acc.pack');
   PD.equip('gear.acc.belt'); PD.equip('gear.acc.pack');
   const l = PD.gearLook(); assert.ok(l['g.acc.belt'] && l['g.acc.pack']);
 });

@@ -66,3 +66,9 @@ Pengeluaran: toko (`shop.html` -> `PD.purchase`), koin; "hadiahkan item" ke tema
 - **Perbaikan yang direncanakan (server-side verification, mis. AdMob SSV):** jaringan iklan memanggil balik endpoint server (Edge Function) dengan tanda tangan yang diverifikasi; server menyimpan token/transaction_id ke tabel "iklan terverifikasi"; `claim_ad_reward` hanya menerima token yang ada di tabel itu (sekali pakai, terikat ke user). Token klien dikirim ke SDK sebagai custom data agar callback bisa dicocokkan.
 - **Sebelum rilis publik:** pasang provider nyata, lalu kerjakan verifikasi di atas, atau turunkan `c_gems`/`c_daily` bila belum sempat.
 - **Keputusan ekonomi yang masih terbuka:** angka 5 emerald x 5 iklan/hari belum dibandingkan dengan kurs tukar (10 gem = 500 koin).
+
+## Tahap 3 (hapus localStorage): status
+- **3a:** mode server bawaan untuk akun login (`9cf3e10`). **3b:** wajib login, sesi anonim multiplayer dihapus (`4997b54`).
+- **3c:** saklar darurat (`ut:serverWallet`, `UT_SERVER_WALLET`) dihapus; `PlayerData.purchase/purchaseSet/addCurrency` dan `grant` koin/gem/item tidak lagi menulis apa pun (tanpa akun: `belum-login`; akun: `server-wallet`). `grant({xp})` tetap lokal. Saldo lama di localStorage tidak diimpor (keputusan pemilik).
+- **Sisa untuk Tahap 4:** cabang non-server di halaman (`dailyreward`, `hadiah-misi`, `shop` iklan lokal, `quest-data.js`) sekarang kode mati; dihapus bersama key `inv`, `ut:quest`, `ut-dragon-win`, `ut:adLocal:*`.
+- Tes paritas `PlayerData.purchaseSet` lokal vs `buy_set` dihapus dari `tests/buy-set-sql.integration.test.js`.

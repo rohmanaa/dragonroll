@@ -20,11 +20,16 @@ const ACCT = { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbb
 const loginOn = () => boot({ store: ACCT, flag: true });
 const buyable = IC => IC.items.find(i => !i.starter && i.price > 0);
 
-t('tamu: perilaku lokal tidak berubah (flag menyala sekalipun)', () => {
-  const { PD, IC } = boot({ flag: true });
+t('Tahap 3c: tanpa akun (belum login): semua mutasi dompet ditolak, saldo tidak berubah; XP tetap lokal', () => {
+  const { PD } = boot({ flag: true });
   assert.strictEqual(PD.serverMode(), false);
-  assert.strictEqual(PD.addCurrency(0, 5).ok, true);
-  assert.strictEqual(PD.grant({ coins: 10 }).ok, true);
+  const c0 = PD.coins(), g0 = PD.gems();
+  assert.strictEqual(PD.addCurrency(0, 5).reason, 'belum-login');
+  assert.strictEqual(PD.grant({ coins: 10 }).reason, 'belum-login');
+  assert.strictEqual(PD.purchase('gear.helm.straw').reason, 'belum-login');
+  assert.strictEqual(PD.purchaseSet(['gear.helm.straw']).reason, 'belum-login');
+  assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.gems(), g0);
+  assert.strictEqual(PD.grant({ xp: 5 }).ok, true);
   assert.strictEqual(PD.applyServerWallet({ coins: 9 }).ok, false);
 });
 t('Tahap 3: akun login tanpa flag apa pun: mode server MENYALA bawaan', () => {
@@ -32,14 +37,9 @@ t('Tahap 3: akun login tanpa flag apa pun: mode server MENYALA bawaan', () => {
   assert.strictEqual(PD.serverMode(), true);
   assert.strictEqual(PD.addCurrency(5, 0).reason, 'server-wallet');
 });
-t('saklar darurat: localStorage ut:serverWallet=0 mematikan mode server', () => {
-  const { PD } = boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) });
-  assert.strictEqual(PD.serverMode(), false);
-  assert.strictEqual(PD.addCurrency(5, 0).ok, true);
-});
-t('saklar darurat: window.UT_SERVER_WALLET=false mematikan mode server', () => {
-  const { PD } = boot({ store: ACCT, flagOff: true });
-  assert.strictEqual(PD.serverMode(), false);
+t('Tahap 3c: saklar darurat DIHAPUS: ut:serverWallet=0 / UT_SERVER_WALLET=false tidak mematikan mode server', () => {
+  assert.strictEqual(boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) }).PD.serverMode(), true);
+  assert.strictEqual(boot({ store: ACCT, flagOff: true }).PD.serverMode(), true);
 });
 t('Tahap 3: data tamu TIDAK dipindah ke akun baru; saldo awal akun bersih', () => {
   const guest = JSON.stringify({ v: 1, coins: 99999, gems: 99, migration: 1 });
@@ -48,10 +48,6 @@ t('Tahap 3: data tamu TIDAK dipindah ke akun baru; saldo awal akun bersih', () =
   assert.strictEqual(store['ularTanggaBlok:player:v1'], guest, 'data tamu tidak disentuh');
 });
 t('akun login + flag: serverMode aktif', () => assert.strictEqual(loginOn().PD.serverMode(), true));
-t('flag lewat localStorage juga berlaku', () => {
-  const { PD } = boot({ store: Object.assign({ 'ut:serverWallet': '1' }, ACCT) });
-  assert.strictEqual(PD.serverMode(), true);
-});
 t('mode server: purchase/addCurrency/grant(koin,gem,item) ditolak dan saldo tidak berubah', () => {
   const { PD, IC } = loginOn(); const c0 = PD.coins(), g0 = PD.gems();
   const it = buyable(IC); assert.ok(it, 'perlu item berbayar di katalog');
@@ -114,7 +110,7 @@ t('edit devtools pada saldo lokal ditimpa server saat refresh', () => {
 /* ---------- WalletService dengan klien Supabase palsu ---------- */
 const WS = require('../assets/js/wallet-service.js');
 function svc(handlers, flag) {
-  const env = flag === false ? boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) }) : loginOn();
+  const env = flag === false ? boot() : loginOn();   /* mode lokal = belum login */
   const calls = [];
   const client = { rpc: async (name, args) => { calls.push([name, args]); const h = handlers[name]; if (!h) return { data: null, error: { message: 'no handler ' + name } }; const d = await h(args); return d && d.__err ? { data: null, error: { message: d.__err } } : { data: d, error: null }; } };
   return Object.assign(env, { calls, S: WS.create({ PlayerData: env.PD, getClient: async () => client }) });
@@ -308,44 +304,6 @@ t('WS.buySet: argumen bukan array -> dikirim sebagai daftar kosong (server yang 
   await e.S.buySet(null); assert.deepStrictEqual(e.calls[0][1], { p_item_ids: [] });
 });
 
-t('PD.purchaseSet (tamu): sukses = satu penulisan, koin dipotong sekali, semua item masuk', () => {
-  const { PD, IC } = boot(); const its = gearBuyable(IC, 3), total = its.reduce((a, i) => a + i.price, 0);
-  const c0 = PD.coins(), r = PD.purchaseSet(its.map(i => i.id));
-  assert.strictEqual(r.ok, true); assert.strictEqual(r.spent, total); assert.strictEqual(PD.coins(), c0 - total);
-  its.forEach(i => assert.strictEqual(PD.owns(i.id), true));
-});
-t('PD.purchaseSet: saldo kurang tidak menulis apa pun (termasuk item yang terjangkau)', () => {
-  const { PD, IC } = boot(); const its = gearBuyable(IC, 40); PD.addCurrency(-PD.coins() + 100, 0);
-  const cheap = its.find(i => i.price <= 100), pricey = its.find(i => i.price > 300);
-  const r = PD.purchaseSet([cheap.id, pricey.id]);
-  assert.strictEqual(r.reason, 'saldo-kurang'); assert.strictEqual(r.kurang, cheap.price + pricey.price - 100);
-  assert.strictEqual(PD.coins(), 100); assert.strictEqual(PD.owns(cheap.id), false); assert.strictEqual(PD.owns(pricey.id), false);
-});
-t('PD.purchaseSet: dimiliki dilewati & tidak ditagih; semua dimiliki -> ok spent 0', () => {
-  const { PD, IC } = boot(); const [a, b] = gearBuyable(IC, 2); PD.purchase(a.id); const c0 = PD.coins();
-  const r = PD.purchaseSet([a.id, b.id]);
-  assert.strictEqual(r.ok, true); assert.strictEqual(r.spent, b.price); assert.strictEqual(JSON.stringify(r.skipped), JSON.stringify([a.id])); assert.strictEqual(JSON.stringify(r.items), JSON.stringify([b.id]));
-  assert.strictEqual(PD.coins(), c0 - b.price);
-  const again = PD.purchaseSet([a.id, b.id]);
-  assert.strictEqual(again.ok, true); assert.strictEqual(again.spent, 0); assert.strictEqual(PD.coins(), c0 - b.price);
-});
-t('PD.purchaseSet: satu item tidak dijual menolak seluruh set (bukan gear / starter / tak dikenal / null)', () => {
-  const { PD, IC } = boot(); const [a] = gearBuyable(IC, 1), c0 = PD.coins();
-  const starterGear = IC.items.find(i => i.kind === 'gear' && i.starter), dice = IC.items.find(i => i.kind === 'dice' && !i.starter && i.price > 0);
-  [[starterGear.id], [dice.id], ['gear.tidak-ada'], [null], [5]].forEach(bad => {
-    assert.strictEqual(PD.purchaseSet([a.id].concat(bad)).reason, 'tidak-tersedia');
-  });
-  assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.owns(a.id), false);
-});
-t('PD.purchaseSet: id berulang digabung; kosong/bukan array ditolak; batas 20 unik dan 200 mentah', () => {
-  const { PD, IC } = boot(); const its = gearBuyable(IC, 21), a = its[0];
-  const r = PD.purchaseSet([a.id, a.id, a.id]); assert.strictEqual(r.spent, a.price); assert.strictEqual(PD.qty(a.id), 1);
-  assert.strictEqual(PD.purchaseSet([]).reason, 'tidak-tersedia'); assert.strictEqual(PD.purchaseSet(null).reason, 'tidak-tersedia');
-  assert.strictEqual(PD.purchaseSet(its.map(i => i.id)).reason, 'terlalu-banyak');
-  assert.notStrictEqual(PD.purchaseSet(its.slice(0, 20).map(i => i.id)).reason, 'terlalu-banyak');
-  assert.strictEqual(PD.purchaseSet(new Array(201).fill(a.id)).reason, 'terlalu-banyak');
-  const r25 = boot().PD.purchaseSet(new Array(25).fill(0).map((_, i) => its[i % 3].id)); assert.strictEqual(r25.ok, true);
-});
 t('PD.purchaseSet: akun server ditolak (harus lewat WalletService.buySet)', () => {
   const { PD, IC } = loginOn(); const c0 = PD.coins();
   assert.strictEqual(PD.purchaseSet(gearBuyable(IC, 2).map(i => i.id)).reason, 'server-wallet'); assert.strictEqual(PD.coins(), c0);

@@ -2,8 +2,7 @@
    Klien tidak pernah mengirim nominal: server yang menentukan (lihat doc/WALLET_SERVER_PLAN.md).
    Aktif hanya untuk AKUN LOGIN + flag menyala. Tamu/offline tetap memakai PlayerData lokal.
 
-   Flag (Tahap 3: default MENYALA; migrasi B1-B4 dan B6 harus sudah diterapkan di Supabase):
-     Tahap 3: BAWAAN MENYALA untuk akun login. Saklar darurat: window.UT_SERVER_WALLET = false atau localStorage['ut:serverWallet'] = '0'
+   Tahap 3c: tidak ada flag lagi; aktif untuk SEMUA akun login (tanpa akun: 'mode-lokal' = belum login).
 
    Setiap pemanggilan sukses menyegarkan cermin PlayerData lewat PlayerData.applyServerWallet().
    Semua method async dan TIDAK melempar untuk kegagalan jaringan: mengembalikan {ok:false, reason}.

@@ -419,14 +419,9 @@
      yang diisi dari respons RPC lewat applyServerWallet/applyServerItem (dipanggil wallet-service.js).
      Mutasi lokal (purchase/addCurrency/grant mata uang/item) DITOLAK agar tidak ada saldo ganda atau saldo
      yang bisa diedit lewat devtools. XP, statistik, pengaturan, nama, dan equip tetap lokal. Tamu tidak berubah.
-     Tahap 3: mode server MENYALA SECARA BAWAAN untuk akun login. Saklar darurat (sementara, sampai Tahap 3c):
-     window.UT_SERVER_WALLET === false  atau  localStorage['ut:serverWallet'] === '0' mematikannya. */
-  function flagOn() {
-    try { if (g.UT_SERVER_WALLET === false) return false; } catch (e) {}
-    try { if (localStorage.getItem('ut:serverWallet') === '0') return false; } catch (e) {}
-    return true;
-  }
-  function serverMode() { return !!accountId() && flagOn(); }
+     Tahap 3c: tidak ada lagi saklar/flag; akun login SELALU mode server, dan tanpa akun tidak ada mutasi dompet. */
+  function serverMode() { return !!accountId(); }
+  function walletDenied() { return { ok: false, reason: serverMode() ? 'server-wallet' : 'belum-login' }; }
 
   /* ---------- API publik ---------- */
   var API = {
@@ -580,22 +575,7 @@
     },
 
     /* Pembelian atomik (harga katalog = coins): validasi dulu, lalu saldo + inventory dalam SATU penulisan. */
-    purchase: function (id) {
-      if (serverMode()) return { ok: false, reason: 'server-wallet' };   /* beli lewat WalletService.buy */
-      var it = C.byId(id);
-      if (!it || it.starter || !(it.price > 0)) return { ok: false, reason: 'tidak-tersedia' };
-      var st = load();
-      if (st.inventory[id] && !it.stackable) return { ok: false, reason: 'sudah-dimiliki', item: it };
-      if (st.coins < it.price) return { ok: false, reason: 'saldo-kurang', item: it, kurang: it.price - st.coins };
-      var before = st.coins;
-      st.coins = before - it.price;
-      var cur = st.inventory[id];
-      st.inventory[id] = cur ? { qty: cur.qty + 1, acquiredAt: cur.acquiredAt, seq: cur.seq }
-                             : { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ };
-      if (!write(st)) return { ok: false, reason: 'gagal-simpan', item: it };
-      notify('purchase');
-      return { ok: true, item: it, coins: st.coins, gems: st.gems, spent: it.price };
-    },
+    purchase: function (id) { return walletDenied(); },   /* Tahap 3c: beli hanya lewat WalletService.buy (server) */
 
     /* Beli SET gear atomik untuk tamu/lokal: validasi + hitung total + cek saldo dulu, lalu saldo dan SEMUA item
        dalam SATU penulisan (tidak ada set setengah jadi). Aturan SAMA dengan RPC buy_set di server
@@ -603,75 +583,23 @@
        (setelah digabung) -> terlalu-banyak; elemen null/tak dikenal/bukan gear/starter/tanpa harga -> tidak-tersedia
        (SATU item tidak dijual menolak seluruh set); item sudah dimiliki dilewati dan tidak ditagih;
        total > koin -> saldo-kurang + kurang. Return {ok, items, skipped, spent, coins, gems}. */
-    purchaseSet: function (ids) {
-      if (serverMode()) return { ok: false, reason: 'server-wallet' };   /* akun server: WalletService.buySet */
-      if (!Array.isArray(ids) || ids.length === 0) return { ok: false, reason: 'tidak-tersedia' };
-      if (ids.length > SET_MAX_RAW) return { ok: false, reason: 'terlalu-banyak' };
-      if (ids.some(function (x) { return typeof x !== 'string'; })) return { ok: false, reason: 'tidak-tersedia' };
-      var uniq = ids.filter(function (x, i) { return ids.indexOf(x) === i; }).sort();
-      if (uniq.length > SET_MAX_UNIQUE) return { ok: false, reason: 'terlalu-banyak' };
-      var its = uniq.map(function (id) { return C.byId(id); });
-      if (its.some(function (it) { return !it || it.kind !== 'gear' || it.starter || it.stackable || !(it.price > 0); })) {
-        return { ok: false, reason: 'tidak-tersedia' };
-      }
-      var st = load(), skipped = [], fresh = [], total = 0;
-      its.forEach(function (it) {
-        if (st.inventory[it.id]) skipped.push(it.id); else { fresh.push(it); total += it.price; }
-      });
-      if (!fresh.length) return { ok: true, items: [], skipped: skipped, spent: 0, coins: st.coins, gems: st.gems };
-      if (st.coins < total) return { ok: false, reason: 'saldo-kurang', kurang: total - st.coins };
-      st.coins -= total;
-      var now = Date.now();
-      fresh.forEach(function (it) { st.inventory[it.id] = { qty: 1, acquiredAt: now, seq: st.nextSeq++ }; });
-      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };   /* load() mengembalikan salinan: tidak ada yang tersisa */
-      notify('purchase');
-      return { ok: true, items: fresh.map(function (it) { return it.id; }), skipped: skipped, spent: total, coins: st.coins, gems: st.gems };
-    },
+    purchaseSet: function (ids) { return walletDenied(); },   /* Tahap 3c: hanya WalletService.buySet (server, RPC buy_set) */
 
     /* Perubahan currency atomik: addCurrency(+500) / addCurrency(0, +10) / addCurrency(-200, -5).
        Return {ok, coins, gems} atau {ok:false, reason:'saldo-kurang'|'gem-kurang', kurang} */
-    addCurrency: function (dCoins, dGems) {
-      if (serverMode()) return { ok: false, reason: 'server-wallet' };
-      var dC = Math.floor(+dCoins || 0), dG = Math.floor(+dGems || 0);
-      var st = load();
-      var nc = st.coins + dC, ng = st.gems + dG;
-      if (nc < 0) return { ok: false, reason: 'saldo-kurang', kurang: -nc };
-      if (ng < 0) return { ok: false, reason: 'gem-kurang', kurang: -ng };
-      st.coins = nc; st.gems = ng;
-      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      notify('currency');
-      return { ok: true, coins: st.coins, gems: st.gems };
-    },
+    addCurrency: function (dCoins, dGems) { return walletDenied(); },   /* Tahap 3c: saldo hanya dari server */
 
     /* Hadiah/reward atomik (daily reward, event): {coins, gems, xp, item, duplicateCoins, duplicateGems, reason}.
        Item non-stackable yang sudah dimiliki -> tidak diduplikasi; beri kompensasi duplicateCoins/duplicateGems. */
     grant: function (o) {
       o = o || {};
-      /* Akun server: hanya XP yang boleh lewat sini; koin/gem/item hanya dari server (WalletService). */
-      if (serverMode() && (o.coins || o.gems || o.item)) return { ok: false, reason: 'server-wallet' };
-      var it = o.item ? C.byId(o.item) : null;
-      if (o.item && !it) return { ok: false, reason: 'tidak-dikenal' };
+      /* Tahap 3c: koin/gem/item hanya dari server (WalletService). Lewat sini hanya XP (lokal). */
+      if (o.coins || o.gems || o.item) return walletDenied();
       var st = load();
-      var duplicate = false, compensation = 0;
-      if (it) {
-        if (st.inventory[it.id] && !it.stackable) {
-          duplicate = true;
-          compensation = Math.max(0, Math.floor(+o.duplicateCoins || 0));
-          st.coins += compensation;
-          var compG = Math.max(0, Math.floor(+o.duplicateGems || 0));
-          st.gems += compG; compensation += compG;
-        } else {
-          var cur = st.inventory[it.id];
-          st.inventory[it.id] = cur ? { qty: cur.qty + 1, acquiredAt: cur.acquiredAt, seq: cur.seq }
-                                    : { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ };
-        }
-      }
-      st.coins += Math.max(0, Math.floor(+o.coins || 0));
-      st.gems += Math.max(0, Math.floor(+o.gems || 0));
       st.xp += Math.max(0, Math.floor(+o.xp || 0));
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       notify(o.reason || 'reward');
-      return { ok: true, duplicate: duplicate, compensation: compensation, coins: st.coins, gems: st.gems, xp: st.xp };
+      return { ok: true, duplicate: false, compensation: 0, coins: st.coins, gems: st.gems, xp: st.xp };
     },
 
     /* Pengaturan (bagian dari player state): whitelist field, satu penulisan. */

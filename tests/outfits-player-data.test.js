@@ -6,6 +6,7 @@ function boot(store) {
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   ['item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ctx.PlayerData.__store = store;
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -13,7 +14,8 @@ const none = { id: 'none' };
 const base = (o) => Object.assign({ gender: 'm', top: { id: 'tee', dye: 'blue' }, legs: { id: 'pants', dye: 'navy' }, boots: { id: 'shoes', dye: 'brown' },
   helm: none, chest: none, shoulder: none, cape: none, weapon: none, accessories: [] }, o || {});
 const keyOf = s => Object.keys(s).find(k => /player/.test(k));
-const own = (PD, ...ids) => ids.forEach(id => PD.grant({ item: id }));
+const own = (PD, ...ids) => { PD.coins(); const k = PD.key, st = JSON.parse(PD.__store[k]);   /* Tahap 3c: PD.grant item dihapus; seed inventory langsung ke storage */
+  ids.forEach(id => { st.inventory[id] = { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ }; }); PD.__store[k] = JSON.stringify(st); };
 
 t('pemain baru: belum punya outfit, batas 5 slot', () => {
   const { PD } = boot();

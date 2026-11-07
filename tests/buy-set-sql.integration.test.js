@@ -1,8 +1,7 @@
 /* Tes integrasi buy_set: klien ASLI (WalletService + PlayerData) terhadap SQL ASLI di Postgres uji.
    Tidak jalan tanpa PSQL_CMD (DB uji dengan migrasi sampai 202611140001), jadi aman di CI biasa. Contoh:
      PSQL_CMD="psql -X -q -At -v ON_ERROR_STOP=1 -d ulartangga_test" node tests/buy-set-sql.integration.test.js
-   Isi: (1) PARITAS: PlayerData.purchaseSet (tamu) dan buy_set (server) memberi hasil yang sama untuk input yang sama;
-        (2) klien server memakai WalletService.buySet -> cermin cocok dengan DB; (3) dua buy_set paralel tidak menagih dua kali. */
+   Isi: (1) [dihapus di Tahap 3c: paritas dengan PlayerData.purchaseSet lokal]; (2) klien server memakai WalletService.buySet -> cermin cocok dengan DB; (3) dua buy_set paralel tidak menagih dua kali. */
 if (!process.env.PSQL_CMD) { console.log('dilewati: set PSQL_CMD untuk menjalankan tes integrasi buy_set'); process.exit(0); }
 const assert = require('assert');
 const { spawn } = require('child_process');
@@ -67,16 +66,7 @@ const SCEN = [
   ['25 mentah, 3 unik', [], new Array(25).fill(0).map((_, i) => cheap[i % 3])],
   ['201 mentah', [], new Array(201).fill(cheap[0])]
 ];
-SCEN.forEach(([name, pre, ids]) => t('PARITAS ' + name + ': tamu (purchaseSet) == server (buy_set)', async () => {
-  const guest = boot().PD; pre.forEach(id => assert.ok(guest.purchase(id).ok));
-  const uid = await newUser();
-  for (const id of pre) assert.strictEqual((await asUser(uid, "public.buy_item(" + lit(id) + ")")).ok, true);
-  const g = pick(guest.purchaseSet(ids));
-  const s = pick(await asUser(uid, "public.buy_set(" + (ids.length ? lit(ids) : "'{}'::text[]") + ")"));
-  assert.deepStrictEqual(s, g, name + ' server=' + JSON.stringify(s) + ' tamu=' + JSON.stringify(g));
-  const db = await dbState(uid);
-  assert.strictEqual(db.coins == null ? 1000 : db.coins, guest.coins(), 'saldo DB (kosong = saldo awal 1000) == saldo lokal'); assert.strictEqual(db.inv.length, pre.length + (g.items ? g.items.length : 0));
-}));
+/* Tahap 3c: blok PARITAS (PlayerData.purchaseSet lokal vs buy_set) dihapus bersama jalur lokal. Skenario SCEN di atas dipakai sebagai dokumentasi aturan buy_set; aturan itu diuji di supabase/tests/wallet_buy_set_test.sql. */
 
 t('KLIEN ASLI: WalletService.buySet terhadap SQL asli -> cermin cocok dengan DB; kegagalan tidak mengubah cermin', async () => {
   const uid = await newUser();
