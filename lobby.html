@@ -54,10 +54,12 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 /* ===== kolom kiri ===== */
 .lm{top:12.3rem;width:7rem;height:7rem}
 .lm>svg{width:4rem;height:4rem}.lm>span{font-size:1rem}
-#inv{left:2.8rem}#lead{left:10.2rem}#misi{left:17.6rem;top:12.3rem}
+/* baris 1: Karakter, Frame, Dadu · baris 2: Efek, Power-up, Leaderboard */
+#chr{left:2.8rem}#frm{left:10.2rem}#dad{left:17.6rem}
+#efk,#pwr,#lead{top:19.7rem}#efk{left:2.8rem}#pwr{left:10.2rem}#lead{left:17.6rem}
 .pnl{left:2.8rem;width:20.3rem;text-align:center;cursor:pointer;display:block}
 .pnl h3{margin:0;font-size:1.9rem;line-height:2.4rem;color:var(--gold);text-shadow:0 .15rem 0 #0b1220;letter-spacing:.04em}
-#event{top:21.2rem;width:21.8rem;height:15.6rem;padding:.6rem .7rem .7rem;overflow:hidden;border-radius:1rem}
+#event{top:27.1rem;width:21.8rem;height:15.6rem;padding:.6rem .7rem .7rem;overflow:hidden;border-radius:1rem}
 #event .eb{position:relative;margin-top:.4rem;height:11.6rem;border-radius:.6rem;overflow:hidden;background:#0e1626;box-shadow:inset 0 0 0 .15rem #0b1220}
 #evbg{position:absolute;inset:0;background:var(--bg,none) center/cover no-repeat}
 #evd{position:absolute;left:0;right:0;bottom:.1rem;display:flex;justify-content:center}
@@ -76,7 +78,7 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .cd>svg{width:4.4rem;height:4.4rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
 .cd b{display:block;font-size:1.6rem;line-height:2rem}
 #teman{left:11.9rem}
-#hadc{left:21rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:inset 0 0 0 .22rem #d2b4ff,inset 0 0 0 .4rem #30136e,0 .35rem 0 #1e0a4a,0 .8rem 1.2rem rgba(30,10,90,.4)}
+#hadc{left:21rem;width:10.6rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:inset 0 0 0 .22rem #d2b4ff,inset 0 0 0 .4rem #30136e,0 .35rem 0 #1e0a4a,0 .8rem 1.2rem rgba(30,10,90,.4)}
 /* ===== MULAI (kanan bawah) ===== */
 #play{right:2.8rem;bottom:2.75rem;width:26.3rem;height:9.9rem;border-radius:1.2rem;display:flex;align-items:center;justify-content:center;gap:1rem;padding:0 1rem 0 1.2rem;background:linear-gradient(#6fd45a 0%,#58bb48 55%,#3f9d3a 56%,#3f9d3a 100%);box-shadow:inset 0 0 0 .22rem #a8ec8f,inset 0 0 0 .4rem #1b2a44,0 .45rem 0 #1b2a44,0 1rem 1.6rem rgba(10,60,20,.4);animation:glow 2.4s ease-in-out infinite}
 @keyframes glow{50%{box-shadow:inset 0 0 0 .22rem #a8ec8f,inset 0 0 0 .4rem #1b2a44,0 .45rem 0 #1b2a44,0 0 2.6rem rgba(140,255,120,.9)}}
@@ -133,10 +135,13 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
  <button class="ab pn sq sm" id="mail" data-act="mail" aria-label="Pesan"><img class="ic" src="assets/Images/icon/lobby/mail.webp" alt="" draggable="false" decoding="async"><span class="tx">MAIL</span><i class="dot">1</i></button>
  <button class="ab pn sq sm" id="gear" data-act="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"><span class="tx">SETTINGS</span></button>
 
- <button class="ab pn sq lm" id="inv" data-act="inv"><img class="ic" src="assets/Images/icon/lobby/inventory.webp" alt="" draggable="false" decoding="async"><span class="tx">Inventory</span></button>
- <button class="ab pn sq lm" id="lead" data-act="lead"><img class="ic" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false" decoding="async"><span class="tx">Leaderboard</span></button>
+ <button class="ab pn sq lm" id="chr" data-act="chr" aria-label="Karakter"><img class="ic" src="assets/Images/icon/items/skin.webp" alt="" draggable="false" decoding="async"><span class="tx">Karakter</span></button>
+ <button class="ab pn sq lm" id="frm" data-act="frm" aria-label="Frame"><img class="ic" src="data/frame/icon-frame.webp" alt="" draggable="false" decoding="async"><span class="tx">Frame</span></button>
+ <button class="ab pn sq lm" id="dad" data-act="dad" aria-label="Dadu"><img class="ic" src="assets/Images/icon/items/dadu.webp" alt="" draggable="false" decoding="async"><span class="tx">Dadu</span></button>
 
- <button class="ab pn sq lm" id="misi" data-act="misi" aria-label="Misi"><img class="ic" src="assets/Images/icon/lobby/misi.webp" alt="" draggable="false" decoding="async"><span class="tx">Misi</span><i class="dot">2</i></button>
+ <button class="ab pn sq lm" id="efk" data-act="efk" aria-label="Efek"><img class="ic" src="assets/Images/icon/items/efek.webp" alt="" draggable="false" decoding="async"><span class="tx">Efek</span></button>
+ <button class="ab pn sq lm" id="pwr" data-act="pwr" aria-label="Power-up"><img class="ic" src="assets/Images/icon/items/power.webp" alt="" draggable="false" decoding="async"><span class="tx">Power-up</span></button>
+ <button class="ab pn sq lm" id="lead" data-act="lead"><img class="ic" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false" decoding="async"><span class="tx">Leaderboard</span></button>
 
  <div class="ab pn pnl one" id="event" role="button" tabindex="0" data-act="event" aria-label="Event">
   <h3>EVENT</h3>
@@ -146,7 +151,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 
  <button class="ab cd" id="toko" data-act="toko" aria-label="Toko"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #7a3f06">TOKO</b><span class="nw">BARU</span></button>
  <button class="ab pn cd" id="teman" data-act="teman" aria-label="Teman"><img class="ic" src="assets/Images/icon/lobby/hand.webp" alt="" draggable="false" decoding="async"><b class="tx">TEMAN</b><i class="dot">3</i></button>
- <button class="ab pn cd" id="hadc" data-act="hadiah" aria-label="Hadiah"><img class="ic" src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #30136e">HADIAH</b><i class="dot">1</i></button>
+ <button class="ab pn cd" id="hadc" data-act="hadmisi" aria-label="Hadiah dan Misi"><img class="ic" src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #30136e;font-size:1.3rem;white-space:nowrap">HADIAH &amp; MISI</b><i class="dot">3</i></button>
 
  <button class="ab" id="play" aria-label="Mulai, pilih mode">
   <img class="ic gp" src="assets/Images/icon/mode/console.webp" alt="" draggable="false" decoding="async">
@@ -251,8 +256,8 @@ goEv(0);
 /* ---------- actions ---------- */
 const soon=n=>toast(n+' segera hadir');
 const ACT={
- inv(){location.href='inventory.html'},
- lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},misi(){location.href='misi.html'},hadiah(){location.href='dailyreward.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
+ chr(){location.href='karakter.html'},frm(){location.href='frame.html'},dad(){location.href='dadu.html'},efk(){location.href='efek.html'},pwr(){location.href='powerup.html'},
+ lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},hadmisi(){location.href='hadiah-misi.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
  event(){const e=EVENTS[si];if(e.url){location.href=e.url;return}openModal(`<img class="mimg" src="${e.modal||e.img}" alt="Event">`)},
  free(){soon('Hadiah gratis')},buygem(){soon('Beli gem')},buycoin(){soon('Beli coin')},
  gear(){location.href='settings.html'}

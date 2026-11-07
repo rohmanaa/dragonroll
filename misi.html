@@ -94,7 +94,8 @@ img.ic{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:no
 html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
 html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
 #list,#tot{background:#1f2c44}
-</style></head>
+</style><script>if(/[?&]embed=1/.test(location.search)){document.documentElement.classList.add('embed');window.__go=function(u){try{parent.location.href=u}catch(e){location.href=u}}}</script><style>html.embed #back{display:none!important}</style>
+</head>
 <body>
 <div id="stage">
  <button class="ab blue" id="back" aria-label="Kembali"><img class="ic" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
@@ -184,8 +185,8 @@ $('#claimAll').addEventListener('click',()=>{if(SV()){srvClaim(w=>w.questClaimAl
 $('#claimBonus').addEventListener('click',()=>{if(SV()){srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');pulse('#coin');toast('Bonus +'+fmt(r.coins)+' Coin diterima!')});return}const r=Q.claimBonus();
  if(r.ok){playSound('chest');pulse('#coin');toast('Bonus +'+fmt(r.coins)+' Coin diterima!')}
  render()});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');location.href='shop.html'}));
-$('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})('shop.html')}));
+$('#back').addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})('lobby.html')});
 try{PD.subscribe(renderCurrency)}catch(e){}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(SV())reloadQ();else render()}});
 if(SV()&&WS()){const w=WS();w.questTrack('login').then(()=>reloadQ()); /* membuka Misi = login hari ini (dilaporkan ke server) */}

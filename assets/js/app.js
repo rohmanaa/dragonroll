@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'room', 'settings', 'karakter'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'room', 'settings', 'karakter'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -112,7 +112,7 @@ window.UT = window.UT || {};
     try { new URLSearchParams(win.location.search).forEach(function (v, k) { out[k] = v; }); } catch (e) {}
     return out;
   };
-  ['lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward'].forEach(function (p) {
+  ['lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'leaderboard', 'profile', 'friendship', 'dailyreward'].forEach(function (p) {
     UT.Router['to' + p.charAt(0).toUpperCase() + p.slice(1)] = function (params) { return UT.Router.go(p + '.html', params); };
   });
 
@@ -224,7 +224,7 @@ window.UT = window.UT || {};
     UT.App.options = options;
     UT.App.page = options.page || null;
     /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
-    if (['lobby','shop','inventory','profile','misi','friendship','leaderboard','dailyreward'].indexOf(UT.App.page) >= 0) {
+    if (['lobby','shop','frame','dadu','efek','powerup','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward'].indexOf(UT.App.page) >= 0) {
       try { import('./multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
     }
     if (UT.App.page && UT.PAGES.indexOf(UT.App.page) < 0 && win.console) console.warn('[UT.App] page tidak dikenal:', UT.App.page);

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hadiah &amp; Misi</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/dailyreward-bg.webp"></script><style>
+:root{--bd:#12337f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html{font-size:min(1vw,1.78vh)}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
+.ab{position:absolute}
+button{font:inherit;color:inherit;border:0;cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
+button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transform:scale(.94)}button:focus-visible{outline:.3rem solid #fff}
+#back{left:1.4rem;top:1.5rem;width:4.7rem;height:4.7rem;border-radius:1.4rem;padding:0;display:grid;place-items:center}
+#back img{width:3rem;height:3rem;display:block}
+#tabs{left:1.4rem;top:7.9rem;width:12.6rem;display:flex;flex-direction:column;gap:.7rem}
+.tab{height:6.4rem;border-radius:1.6rem;display:flex;align-items:center;gap:.9rem;padding:0 1rem;font-size:2rem;text-shadow:0 .15rem 0 #0b1220;border:.25rem solid transparent;position:relative}
+.tab img{width:3.6rem;height:3.6rem;flex:none;display:block;object-fit:contain}
+.tab span{white-space:nowrap}
+.tab.on{border-color:#ffe36a;background:linear-gradient(#ffd24d,#f4a81f)!important;box-shadow:0 .4rem 0 #b9740c,0 0 1.8rem #ffd24d!important;transform:scale(1.04);text-shadow:0 .2rem 0 #a35f08}
+.pane{position:absolute;left:15rem;right:0;top:0;bottom:0;width:calc(100% - 15rem);height:100%;border:0;background:transparent}
+.pane[hidden]{display:none}
+</style><link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
+html body .tab:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
+</style>
+<script src="assets/js/landscape.js"></script></head>
+<body>
+<div id="ui">
+ <button class="ab blue" id="back" aria-label="Kembali"><img src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+ <nav class="ab" id="tabs" aria-label="Hadiah dan Misi">
+  <button class="tab" id="tH" data-tab="hadiah" aria-label="Hadiah"><img src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false"><span>Hadiah</span></button>
+  <button class="tab" id="tM" data-tab="misi" aria-label="Misi"><img src="assets/Images/icon/lobby/misi.webp" alt="" draggable="false"><span>Misi</span></button>
+ </nav>
+ <iframe class="pane" id="pHadiah" title="Hadiah Harian" hidden></iframe>
+ <iframe class="pane" id="pMisi" title="Misi Harian" hidden></iframe>
+</div>
+<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="hud/ui-core.js"></script>
+<script>UT.App.init({page:'hadiahmisi'});</script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const SRC={hadiah:'dailyreward.html?embed=1',misi:'misi.html?embed=1'};
+const PANE={hadiah:$('#pHadiah'),misi:$('#pMisi')};
+let cur=null;
+function show(t,replace){
+  if(!SRC[t])t='hadiah';
+  Object.keys(PANE).forEach(k=>{
+    const on=k===t;
+    if(on&&!PANE[k].getAttribute('src'))PANE[k].src=SRC[k]; /* dimuat saat pertama dibuka */
+    PANE[k].hidden=!on;
+  });
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  cur=t;
+  try{history.replaceState(null,'','?tab='+t)}catch(e){}
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab!==cur)show(b.dataset.tab)}));
+$('#back').addEventListener('click',()=>{location.href='lobby.html'});
+const q=new URLSearchParams(location.search).get('tab');
+show(q==='misi'?'misi':'hadiah');
+document.documentElement.classList.add('ut-ready');
+})();
+</script>
+</body></html>
