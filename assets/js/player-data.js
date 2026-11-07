@@ -144,12 +144,27 @@
     });
   }
 
+  /* ---------- Tampilan dasar karakter (builder) ----------
+     look = { gender:'m'|'f', skin:'s1'..'s5', eyes:{id,dye}, hair:{id,dye}, body:{height,build} } atau null (belum pernah diatur).
+     Kosmetik lokal (bukan item dagangan): hanya BENTUK data yang divalidasi; daftar id/warna milik builder. */
+  var LOOK_ID = /^[a-z0-9_]{1,24}$/;
+  function cleanLook(l) {
+    if (!l || typeof l !== 'object' || Array.isArray(l)) return null;
+    var part = function (p) { return (p && typeof p === 'object' && LOOK_ID.test(p.id || '') && LOOK_ID.test(p.dye || '')) ? { id: p.id, dye: p.dye } : null; };
+    var eyes = part(l.eyes), hair = part(l.hair);
+    var b = (l.body && typeof l.body === 'object') ? l.body : {};
+    var h = +b.height, bd = +b.build;
+    if (!eyes || !hair || (l.gender !== 'm' && l.gender !== 'f') || !/^s[1-5]$/.test(l.skin || '')) return null;
+    return { gender: l.gender, skin: l.skin, eyes: eyes, hair: hair,
+             body: { height: Math.min(1.1, Math.max(0.9, isFinite(h) && h > 0 ? h : 1)), build: Math.min(1.15, Math.max(0.9, isFinite(bd) && bd > 0 ? bd : 1)) } };
+  }
+
   /* ---------- Pembuatan data awal ---------- */
   function freshState(skipLegacy) {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
     var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
-               inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {},
+               inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null,
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     if (!skipLegacy) migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan (hanya untuk tamu, bukan akun baru) */
     return st;
@@ -208,6 +223,7 @@
       st.equipped[slot] = (it && it.slot === slot && st.inventory[it.id]) ? it.id : C.defaultEquipped[slot];
     });
     cleanGear(st, eq, o.gearDye);
+    st.look = cleanLook(o.look);
     return st;
   }
 
@@ -405,6 +421,15 @@
       return { ok: true, item: it };
     },
 
+    /* Tampilan dasar karakter (null bila belum diatur). */
+    look: function () { var l = load().look; return l ? clone(l) : null; },
+    /* Simpan tampilan dasar; data tidak valid ditolak seluruhnya (tidak ada simpan setengah). */
+    setLook: function (l) {
+      var c = cleanLook(l); if (!c) return { ok: false, reason: 'look-tidak-valid' };
+      var st = load(); st.look = c;
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('equip'); return { ok: true };
+    },
     /* Lepas gear dari slot (hanya slot gear; skin/dadu/tema/frame selalu terpasang). */
     unequip: function (slot) {
       if (C.gearSlots().indexOf(slot) < 0) return { ok: false, reason: 'bukan-slot-gear' };

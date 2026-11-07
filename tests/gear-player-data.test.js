@@ -59,4 +59,22 @@ t('save yang diedit (gear tak dimiliki / id palsu / dye rusak) dibersihkan saat 
   assert.strictEqual(JSON.stringify(Object.keys(l)), '["g.top"]');
   assert.strictEqual(l['g.top'].dye, 'red');
 });
+
+/* ---- look ---- */
+const LOOK = { gender: 'f', skin: 's3', eyes: { id: 'lash', dye: 'blue' }, hair: { id: 'bob', dye: 'brown' }, body: { height: 1.05, build: 1 } };
+t('look: awalnya null; setLook valid tersimpan dan terbaca', () => {
+  const { PD } = boot(); assert.strictEqual(PD.look(), null);
+  assert.strictEqual(PD.setLook(LOOK).ok, true);
+  assert.strictEqual(PD.look().hair.id, 'bob'); assert.strictEqual(PD.look().gender, 'f');
+});
+t('look: data rusak ditolak seluruhnya dan tidak mengubah yang lama', () => {
+  const { PD } = boot(); PD.setLook(LOOK);
+  [{ ...LOOK, gender: 'x' }, { ...LOOK, skin: 's9' }, { ...LOOK, eyes: { id: '<b>', dye: 'blue' } }, null, 'a'].forEach(bad =>
+    assert.strictEqual(PD.setLook(bad).reason, 'look-tidak-valid'));
+  assert.strictEqual(PD.look().skin, 's3');
+});
+t('look: tinggi/badan dibatasi rentang builder', () => {
+  const { PD } = boot(); PD.setLook({ ...LOOK, body: { height: 9, build: -3 } });
+  assert.strictEqual(PD.look().body.height, 1.1); assert.strictEqual(PD.look().body.build, 1);
+});
 console.log(n + ' tes lulus');
