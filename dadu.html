@@ -236,6 +236,14 @@ html body #cats .cat .ci{width:2.8rem;height:2.8rem}
 html body .bt img,html body .use img{width:1.7rem;height:1.7rem;display:block}
 html body .use img{width:3rem;height:3rem}
 </style>
+<style id="standalone-no-tabs">
+/* Halaman mandiri: tanpa tab kategori di kiri; kolom kiri dipusatkan di atas panel info */
+#cats{display:none!important}
+@media (min-aspect-ratio:1/1){
+  html body #show{left:10.05rem}
+  html body #sbs{left:32.7rem}
+}
+</style>
 </head>
 <body>
 <div id="sky"></div>
@@ -245,7 +253,6 @@ html body .use img{width:3rem;height:3rem}
  <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/items/dadu.webp" alt="" draggable="false" decoding="async">Dadu</div>
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
 </div>
-<nav class="ab" id="cats" aria-label="Kategori"></nav>
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
 <div class="ab" id="sbs"><button class="blue" id="b1" aria-label="Ganti pose"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.200M20 3v5h-5M4 12a8 8 0 0 0 13 6.200" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="blue" id="b2" aria-label="Lihat yang dipakai"></button><button class="blue" id="b3" aria-label="Putar 360">360°</button></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
@@ -318,9 +325,9 @@ const CK='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="
 const RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']},POSES=['idle','wave','dance','victory','laugh'];
 let off=0,pose='idle';
 const bg=r=>`linear-gradient(${RB[r][0]},${RB[r][1]})`,badge=r=>`<span class="badge" style="background:${bg(r)}">${RN[r]}</span>`;
-function renderCats(){$('#cats').innerHTML=NAV.map(c=>`<button class="blue cat ${c[0]===cat?'on':''}" data-c="${c[0]}" aria-label="${c[1]}">${catImg(c[0])}<span>${c[1]}</span></button>`).join('');
+function renderCats(){
  $('#rlt').textContent=(NAV.find(c=>c[0]===cat)||[0,''])[1]+' Terbaru';
- document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{const n=NAV.find(c=>c[0]===b.dataset.c);if(n[0]===cat){playSound('select');return}playSound('click');location.href=n[2]}))}
+}
 function setCat(c){cat=c;const l=ownedList(c);sel=(sel&&l.some(o=>o.item===sel))?sel:((l.find(o=>o.equipped)||l.find(o=>o.owned)||l[0]||{}).item||null);off=0;pose='idle';renderCats();renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}
 function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();playSound('select');PFX.at(i)}
 function renderGrid(){const g=$('#grid');g.innerHTML='';
