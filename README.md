@@ -11,7 +11,7 @@ Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `pyt
 | `frame.html` / `dadu.html` | Frame profil & skin dadu: semua item tampil, terkunci bisa di-preview, beli pakai coin |
 | `efek.html` | Efek/aura: kerangka kosong (belum ada item efek di game) |
 | `powerup.html` | Power-up (pedang, bulu, TNT, dll): jumlah yang dimiliki |
-| `hadiah-misi.html` | Hadiah Harian + Misi Harian, tab di kiri (memuat `dailyreward.html` & `misi.html` dengan `?embed=1`) |
+| `hadiah-misi.html` | Hadiah Harian + Misi Harian, tab di kiri (memuat `dailyreward.html` & `misi.html` dengan `?embed=1`; keduanya transparan saat embed dan memakai satu latar milik `hadiah-misi.html`) |
 | `skins.html` | Pratinjau & terapkan skin karakter |
 | `shop.html` | Toko khusus beli Coin (tukar Emerald); Emerald (tonton iklan) di panel terpisah |
 | `lobby.html` | Menu utama: Karakter, Frame, Dadu, Efek, Power-up, Leaderboard, Toko, Teman, Hadiah & Misi, Mulai -> mode |

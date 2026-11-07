@@ -99,9 +99,12 @@
 
   UT.SceneBG = { mount: mount, defaults: DEFAULTS };
 
-  /* auto-mount: <script data-auto data-preset="soft"> */
+  /* auto-mount: <script data-auto data-preset="soft">
+     Halaman yang dibuka sebagai embed (?embed=1, mis. tab di hadiah-misi.html) TIDAK memasang latar sendiri:
+     latar milik halaman induk, supaya semua tab memakai satu latar yang sama. */
   var me = document.currentScript;
-  if (me && me.hasAttribute('data-auto')) {
+  var isEmbed = /[?&]embed=1/.test(location.search);
+  if (me && me.hasAttribute('data-auto') && !isEmbed) {
     var cfg = { preset: me.getAttribute('data-preset') || 'full' };
     if (me.getAttribute('data-image')) cfg.image = me.getAttribute('data-image');
     var go = function () { if (!document.body) return false; UT.SceneBG.instance = mount(document.body, cfg); return true; };
