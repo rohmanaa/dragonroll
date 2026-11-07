@@ -123,6 +123,10 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 .auth-card label{display:block;margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.08em;color:#cfe0ff}
 .auth-card input{width:100%;padding:11px 12px;font:700 16px 'Plus Jakarta Sans',sans-serif;color:#fff;background:#09152b;border:2px solid #29437a;border-radius:8px;outline:none}
 .auth-card input:focus{border-color:#7dff2e}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:46px}
+.pw-eye{position:absolute;right:4px;top:50%;translate:0 -50%;width:38px;height:38px;padding:0;display:grid;place-items:center;border:0;border-radius:8px;background:none;color:#9db4de;cursor:pointer}
+.pw-eye:hover,.pw-eye:focus-visible{color:#7dff2e;outline:none}.pw-eye svg{width:22px;height:22px}
+.pw-eye .eye-off{display:none}.pw-eye.on .eye-on{display:none}.pw-eye.on .eye-off{display:block}
 .auth-hint{margin-top:4px;font-size:11px;font-weight:600;color:#7f96bd}
 .auth-err{min-height:18px;margin:10px 0 0;font-size:13px;font-weight:700;color:#ff8a8a;text-align:center}
 .auth-go{width:100%;margin-top:10px;padding:12px;font:400 20px 'Lilita One',sans-serif;letter-spacing:.06em;color:#0b2a0b;background:linear-gradient(#b8ff63,#65ed26 60%,#3fbf1c);border:3px solid #050c1c;border-radius:10px;box-shadow:0 4px 0 #050c1c;cursor:pointer}
@@ -205,10 +209,10 @@ html.quick,html.quick body{background:#000}
       <button type="button" class="auth-tab" id="tabLog" role="tab" aria-selected="false">MASUK</button>
     </div>
     <label for="auUser">USERNAME</label>
-    <input id="auUser" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="16" placeholder="contoh: oman_bogel">
+    <input id="auUser" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="16" placeholder="username">
     <div class="auth-hint" id="auUserHint">3-16 karakter: huruf, angka, underscore</div>
     <label for="auPass">PASSWORD</label>
-    <input id="auPass" name="password" type="password" autocomplete="new-password" placeholder="minimal 6 karakter">
+    <div class="pw-wrap"><input id="auPass" name="password" type="password" autocomplete="new-password" placeholder="********"><button type="button" class="pw-eye" id="pwEye" aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.5 17.5 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div>
     <div class="auth-err" id="authErr" role="alert"></div>
     <button type="submit" class="auth-go" id="authGo">DAFTAR</button>
     <p class="auth-sw" id="authSw">Sudah punya akun? <button type="button" id="swBtn">Masuk</button></p>
@@ -240,6 +244,8 @@ function openAuth(go) {
     $('swBtn').onclick = () => setMode(m === 'reg' ? 'log' : 'reg');
   }
   $('tabReg').onclick = () => setMode('reg'); $('tabLog').onclick = () => setMode('log');
+  const eye = $('pwEye'), pw = $('auPass');
+  eye.onclick = () => { const show = pw.type === 'password'; pw.type = show ? 'text' : 'password'; eye.classList.toggle('on', show); eye.setAttribute('aria-pressed', String(show)); eye.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password'); pw.focus(); };
   setMode('reg'); ov.classList.add('show'); setTimeout(() => $('auUser').focus(), 50);
   f.onsubmit = async e => {
     e.preventDefault(); err.textContent = ''; goB.disabled = true; const t = goB.textContent; goB.textContent = 'TUNGGU...';
