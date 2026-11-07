@@ -1,0 +1,77 @@
+# Uji lalu terapkan migrasi Supabase.
+#  - job "test"   : tes klien (node) + semua migrasi di Supabase LOKAL (Docker) + tes SQL + tes integrasi buy_set.
+#  - job "deploy" : `supabase db push` ke proyek produksi, HANYA push ke main dan HANYA bila "test" lulus.
+# Secret yang dibutuhkan (Settings > Secrets and variables > Actions): SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD.
+# Prasyarat deploy: riwayat migrasi produksi sudah dirapikan dengan `supabase migration repair` (lihat panduan).
+name: db-migrate
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/**', 'tests/**', 'assets/js/**', '.github/workflows/db-migrate.yml']
+  pull_request:
+    paths: ['supabase/**', 'tests/**', 'assets/js/**', '.github/workflows/db-migrate.yml']
+  workflow_dispatch:
+
+env:
+  PROJECT_REF: fxtecbxuoyavdvpcylht
+  LOCAL_DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Tes klien (node)
+        run: for f in tests/*.test.js; do echo "== $f"; node "$f" || exit 1; done
+
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: Supabase lokal (menerapkan semua migrasi)
+        run: |
+          [ -f supabase/config.toml ] || supabase init
+          supabase start
+
+      - name: Tes SQL
+        run: |
+          for f in supabase/tests/*_test.sql; do
+            echo "== $f"
+            psql "$LOCAL_DB" -v ON_ERROR_STOP=1 -q -f "$f" || exit 1
+          done
+
+      - name: Tes integrasi buy_set (klien asli vs SQL asli)
+        env:
+          PSQL_CMD: psql -X -q -At -v ON_ERROR_STOP=1 postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: node tests/buy-set-sql.integration.test.js
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production        # buat environment ini di Settings > Environments; tambahkan "Required reviewers" bila ingin persetujuan manual
+    concurrency: db-deploy         # satu deploy pada satu waktu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: Hubungkan ke proyek
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          [ -f supabase/config.toml ] || supabase init
+          supabase link --project-ref "$PROJECT_REF"
+      - name: Daftar migrasi yang akan diterapkan
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push --dry-run
+      - name: Terapkan
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push
