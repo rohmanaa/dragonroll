@@ -30,6 +30,19 @@
     return true;
   }
 
+  /* Bayangan sisi KIRI: hitung normal tiap muka setelah rotasi akhir (tilt CSS rotateX(-28) rotateY(38) + rotasi dadu), muka yang menghadap kiri layar digelapkan. */
+  var TILT_X = -28, TILT_Y = 38, FACE_N = { 1: [0, 0, 1], 6: [0, 0, -1], 3: [1, 0, 0], 4: [-1, 0, 0], 5: [0, -1, 0], 2: [0, 1, 0] };
+  function rotX(n, d) { var a = d * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [n[0], n[1] * c - n[2] * s, n[1] * s + n[2] * c]; }
+  function rotY(n, d) { var a = d * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [n[0] * c + n[2] * s, n[1], -n[0] * s + n[2] * c]; }
+  function shade(fs, v) {
+    for (var k = 0; k < fs.length; k++) {
+      var f = fs[k], id = +f.className.match(/f([1-6])/)[1];
+      var n = rotX(rotY(rotX(rotY(FACE_N[id], dY), dX + 90), TILT_Y), TILT_X);
+      var left = n[2] > 0 ? Math.max(0, Math.min(0.5, -n[0] * 0.55)) : 0; /* x<0 = menghadap kiri */
+      f.style.setProperty('--sh', ((id === v ? 0 : 0.2) + left).toFixed(2));
+    }
+  }
+
   function showDie(v, anim) {
     if (!dieEl && !init()) return;
     if (!DIE_T[v]) return; /* hanya 1..6; nilai lain diabaikan (hasil tetap ditentukan gameplay) */
@@ -40,6 +53,7 @@
     dieEl.style.transform = 'rotateX(' + (dX + 90) + 'deg) rotateY(' + dY + 'deg)'; /* +90: muka hasil dibawa ke ATAS kubus (bukan depan/samping) */
     var fs = dieEl.querySelectorAll('.face'); /* muka hasil tetap terang; muka lain digelapkan sedikit */
     for (var k = 0; k < fs.length; k++) fs[k].classList.toggle('dim', !fs[k].classList.contains('f' + v));
+    shade(fs, v);
     if (anim && dieScene) { dieScene.classList.remove('hop'); void dieScene.offsetWidth; dieScene.classList.add('hop'); }
   }
 
