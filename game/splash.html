@@ -149,8 +149,9 @@ body{background:#1b3fb4}
 /* Teks status loading: putih, lebih kecil, huruf biasa (bukan kapital semua), tetap terbaca di atas latar lewat bayangan lembut */
 .meta,.load-meta{font:700 13px/1.2 'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.01em;text-transform:none;color:#fff;text-shadow:0 1px 2px rgba(5,20,60,.75),0 0 8px rgba(5,20,60,.45);opacity:1}
 .load-meta span{color:#fff}
-/* Mode awan: dipakai saat intro naga tidak ditampilkan (pindah halaman dalam sesi yang sama). Latar langit + awan seperti antar-halaman, tanpa bar & dadu. */
+/* Mode cepat: dipakai saat intro naga tidak ditampilkan (pindah halaman dalam sesi yang sama). Latar hitam polos seperti layar naga, tanpa bar & dadu. */
 html.quick .loading-bg,html.quick .hero-dice,html.quick .loading-track,html.quick .load-meta{display:none!important}
+html.quick,html.quick body{background:#000}
 </style>
 <link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/ambience.js"></script><script src="assets/js/scene-bg.js"></script>
 <script src="assets/js/landscape.js"></script></head>
@@ -164,10 +165,9 @@ html.quick .loading-bg,html.quick .hero-dice,html.quick .loading-track,html.quic
   var hasNext=!!new URLSearchParams(location.search).get('next'), booted=false;
   try{ booted=sessionStorage.getItem('ut:booted')==='1'; }catch(e){}
   /* Naga selalu tampil di awal sesi baru, walau game dibuka lewat halaman lain (boot-guard mengalihkan ke sini dengan ?next).
-     Hanya bila sesi sudah berjalan (sudah lewat splash) dan dialihkan lagi -> loading awan singkat tanpa bar. */
+     Hanya bila sesi sudah berjalan (sudah lewat splash) dan dialihkan lagi -> layar hitam polos tanpa bar. */
   if(hasNext && booted){
     intro.remove(); document.documentElement.classList.add('quick');
-    try{ if(window.UT&&UT.SceneBG) UT.SceneBG.mount(document.body,{preset:'soft',image:'assets/Images/background/bg.webp'}); }catch(e){}
     done(); return;
   }
   intro.classList.add('on');
