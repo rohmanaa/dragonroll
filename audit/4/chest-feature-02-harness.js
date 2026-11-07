@@ -7,7 +7,7 @@
    Batas: game 3D asli (Three.js) tidak dijalankan di sini. */
 'use strict';
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const ROOT = path.join(__dirname, '..', '..', 'game');
+const ROOT = path.join(__dirname, '..', '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
 /* ---------- util tes ---------- */

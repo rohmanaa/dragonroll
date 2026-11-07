@@ -4,8 +4,8 @@
    Setelah mengubah harga di item-catalog.js: jalankan --write, lalu terapkan ULANG migrasi (aman diulang: upsert). */
 'use strict';
 const fs = require('fs'), path = require('path');
-const ROOT = path.join(__dirname, '..', '..', '..');
-const CAT = path.join(ROOT, 'game', 'assets', 'js', 'item-catalog.js');
+const ROOT = path.join(__dirname, '..', '..');
+const CAT = path.join(ROOT, 'assets', 'js', 'item-catalog.js');
 const MIG = path.join(ROOT, 'supabase', 'migrations', '202611110002_wallet_b2_server.sql');
 const BEGIN = '-- BEGIN CATALOG SEED (dibuat oleh game/tools/wallet/gen-item-seed.js; jangan edit tangan)';
 const END = '-- END CATALOG SEED';

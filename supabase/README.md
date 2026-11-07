@@ -6,8 +6,8 @@
 2. In **Authentication → Providers → Anonymous**, enable anonymous sign-ins.
 3. Apply `supabase/migrations/202611050001_multiplayer.sql` in the SQL Editor (or with Supabase CLI).
 4. Confirm `public.game_rooms` is enabled for Realtime. The migration attempts to add it to `supabase_realtime`; if publication permissions prevent that, enable it from Database → Publications / Realtime settings.
-5. The public project URL and publishable key are already configured in `game/assets/js/multiplayer/config.example.js`. If the key is rotated, update that file and commit the new public key. This key is designed to be public; never use the service_role/secret key.
-6. In Vercel, import the GitHub repository and set **Root Directory** to `game`, **Framework Preset** to `Other`, **Build Command** to none, and **Output Directory** to `.`. The site is static; no Vercel Functions or server environment variables are needed.
+5. The public project URL and publishable key are already configured in `assets/js/multiplayer/config.example.js`. If the key is rotated, update that file and commit the new public key. This key is designed to be public; never use the service_role/secret key.
+6. In Vercel, import the GitHub repository and leave **Root Directory** empty (repo root; game files now live at the repo root), **Framework Preset** to `Other`, **Build Command** to none, and **Output Directory** to `.`. The site is static; no Vercel Functions or server environment variables are needed.
 
 ## Anonymous player identity
 
@@ -38,7 +38,7 @@ Online room config does not upload PlayerData profile names, inventory, equipped
 - [ ] Enable Anonymous Auth.
 - [ ] Apply the SQL migration and verify `game_rooms` is in the Realtime publication.
 - [ ] Put the public Supabase URL and anon/publishable key in `config.example.js`.
-- [ ] Deploy `game/` as the Vercel project root.
+- [ ] Deploy the repo root as the Vercel project root (Root Directory empty).
 - [ ] Test private invite code, invalid code, Ready, host start, public toggle, Quick Join Solo/Team, simultaneous Quick Join, refresh/reconnect, and turns in two browsers.
 - [ ] Test special dice, power/tile effects, Ender Dragon, Nether/Wither, game finish, and host/guest refresh during a game.
 - [ ] Review Supabase Auth rate limits/CAPTCHA and database logs before public release.
@@ -47,7 +47,7 @@ The host browser is authoritative and must stay connected during a match. This i
 
 ## Event log (Langkah 2)
 
-`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `game/laporan-audit.html` (bagian "Langkah 2 — Fondasi event log multiplayer").
+`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `laporan-audit.html` (bagian "Langkah 2 — Fondasi event log multiplayer").
 
 ## Statistik pemain & leaderboard (`202611080001_player_stats.sql`)
 

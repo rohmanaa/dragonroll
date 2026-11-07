@@ -1,7 +1,7 @@
 // Jalankan: node --test tests/multiplayer/
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const EventLog = require('../../game/assets/js/multiplayer/event-log.js');
+const EventLog = require('../../assets/js/multiplayer/event-log.js');
 
 const FAST = { GAP_WAIT_MS: 5, RETRY_BASE_MS: 2, RETRY_MAX_MS: 10, RETRY_MAX_ATTEMPTS: 4 };
 const sleep = ms => new Promise(r => setTimeout(r, ms));

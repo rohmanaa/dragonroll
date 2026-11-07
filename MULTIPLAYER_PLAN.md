@@ -33,13 +33,13 @@ The repository is a static HTML/CSS/JavaScript application, not a framework-base
 
 Relevant existing files discovered during repository review:
 
-- `game/lobby.html`
-- `game/room.html`
-- `game/gameplay.html`
-- `game/assets/js/room-flow.js`
-- `game/assets/js/player-data.js`
-- `game/assets/js/game-integration.js`
-- `game/gameplay/` game-engine modules
+- `lobby.html`
+- `room.html`
+- `gameplay.html`
+- `assets/js/room-flow.js`
+- `assets/js/player-data.js`
+- `assets/js/game-integration.js`
+- `gameplay/` game-engine modules
 
 The current room flow already presents online/offline, private/public, room code, invite, player list, ready, and start concepts. However, room state, player state, guest readiness, and host start behavior are currently simulated in browser-local JavaScript. Public/private selection is not backed by matchmaking, and separate browsers do not share lobby or gameplay state.
 
@@ -108,7 +108,7 @@ Prefer a minimal set of narrowly scoped RPCs over adding a separate application 
 
 ## Verified integration findings
 
-The existing room/game contract was traced in Checkpoint 1. The room router stores the full room config in sessionStorage under `ut-room` before gameplay navigation. Gameplay state is closure-private inside `game/gameplay.html`; its authoritative state is held in `players[]`, `cur`, and related per-player fields. `doRoll()` is the single dice entry point and `playTurn()` owns movement, tile effects, chests, boss phases, and turn advancement. The engine currently supports local hot-seat play; all seats are human except the VS Computer mode.
+The existing room/game contract was traced in Checkpoint 1. The room router stores the full room config in sessionStorage under `ut-room` before gameplay navigation. Gameplay state is closure-private inside `gameplay.html`; its authoritative state is held in `players[]`, `cur`, and related per-player fields. `doRoll()` is the single dice entry point and `playTurn()` owns movement, tile effects, chests, boss phases, and turn advancement. The engine currently supports local hot-seat play; all seats are human except the VS Computer mode.
 
 Consequences for multiplayer implementation:
 
@@ -197,7 +197,7 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 - [x] Add host heartbeat, stale waiting-room filtering, and stale-room pruning on create.
 - [x] Mark a room finished when the host persists a terminal snapshot; prevent silent host transfer during an active match.
 - [x] Keep profile/inventory/cosmetic/power-up data out of the online room payload; use anonymous names and neutral defaults.
-- [x] Document static Vercel deployment with `game/` as root and tracked public Supabase config.
+- [x] Document static Vercel deployment with `` as root and tracked public Supabase config.
 - [ ] Apply the SQL migration and run the full two-browser test matrix against a real Supabase project.
 
 **Acceptance:** code and setup are committed; live acceptance remains pending a configured Supabase project and runtime test results.

@@ -2,7 +2,7 @@
   "name": "DRAGON ROLL",
   "short_name": "Dragon Roll",
   "description": "DRAGON ROLL — ROLL • ADVENTURE • CONQUER. Lempar dadu, panjat tangga, hindari ular.",
-  "id": "/game/",
+  "id": "/",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

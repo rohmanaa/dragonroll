@@ -4,7 +4,7 @@
    Batas: ini BUKAN browser test; render, klik nyata, dan animasi 3D tidak dijalankan. */
 'use strict';
 const fs=require('fs'),path=require('path'),vm=require('vm');
-const html=fs.readFileSync(path.join(__dirname,'..','..','game','gameplay.html'),'utf8');
+const html=fs.readFileSync(path.join(__dirname,'..','..','gameplay.html'),'utf8');
 const a=html.indexOf('/* Auto roll (4.1.25 ownership)'),b=html.indexOf("$('btnCam').addEventListener");
 if(a<0||b<0) throw new Error('blok Auto Roll tidak ditemukan');
 const block=html.slice(a,b);

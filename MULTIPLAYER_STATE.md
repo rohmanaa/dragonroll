@@ -23,7 +23,7 @@ Out of scope: user accounts/profile/shop/inventory, friends/chat/rankings, and a
 
 ## Repository and engine contracts
 
-See the verified source-flow analysis and integration implications in `MULTIPLAYER_PLAN.md`. Key facts: `room.html` currently simulates online behavior; `RoomFlow.launch(cfg)` stores `ut-room` before navigation; gameplay state is closure-private inside `game/gameplay.html`; `doRoll()` and `playTurn()` are the central authoritative engine path.
+See the verified source-flow analysis and integration implications in `MULTIPLAYER_PLAN.md`. Key facts: `room.html` currently simulates online behavior; `RoomFlow.launch(cfg)` stores `ut-room` before navigation; gameplay state is closure-private inside `gameplay.html`; `doRoll()` and `playTurn()` are the central authoritative engine path.
 
 ## Architecture decisions
 
@@ -78,7 +78,7 @@ Out of scope: user accounts/profile/shop/inventory, friends/chat/rankings, and a
 
 ## Repository and engine contracts
 
-See the verified source-flow analysis and integration implications in `MULTIPLAYER_PLAN.md`. Key facts: `room.html` currently simulates online behavior; `RoomFlow.launch(cfg)` stores `ut-room` before navigation; gameplay state is closure-private inside `game/gameplay.html`; `doRoll()` and `playTurn()` are the central authoritative engine path.
+See the verified source-flow analysis and integration implications in `MULTIPLAYER_PLAN.md`. Key facts: `room.html` currently simulates online behavior; `RoomFlow.launch(cfg)` stores `ut-room` before navigation; gameplay state is closure-private inside `gameplay.html`; `doRoll()` and `playTurn()` are the central authoritative engine path.
 
 ## Architecture decisions
 
@@ -124,41 +124,41 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 - `room-service.js`: host heartbeat every 30 seconds while connected; heartbeat stops on unsubscribe/host transfer. Static review caught and fixed a stale variable reference in the host-transfer heartbeat cleanup path.
 - Room state now carries the server status through the UI so Ready/Start controls stay hidden after the room starts or finishes; the setup path no longer overrides that status-based visibility.
 - `client.js` imports the tracked `config.example.js`, avoiding an ignored/untracked config file in static Vercel deployments.
-- Configured `game/assets/js/multiplayer/config.example.js` with the user-provided Supabase project URL and publishable key. No secret/service-role key was supplied or added.
+- Configured `assets/js/multiplayer/config.example.js` with the user-provided Supabase project URL and publishable key. No secret/service-role key was supplied or added.
 - `room-flow.js`, `room.html`, `game-integration.js`, and `gameplay.html`: online rooms no longer send account inventory, equipped cosmetics, or power-up selections; neutral defaults are used.
-- `supabase/README.md`: documented Vercel root directory (`game/`), public browser config, Anonymous Auth, and live test checklist.
+- `supabase/README.md`: documented Vercel root directory (``), public browser config, Anonymous Auth, and live test checklist.
 
 ## Checkpoint 6 changes
 
-- `game/gameplay.html`: JSON snapshot/apply bridge; host-only simulation; guest roll requests; room seat identity/name mapping; turn, position, power, crystal/boss, and finish snapshots; online turn order is deterministic.
-- `game/assets/js/multiplayer/game-sync.js`: Realtime Broadcast roll-intent/snapshot transport; snapshots persist via revision-checked RPC.
-- `game/assets/js/game-integration.js`: online games preserve the room creator's shared skin/map/dice selections rather than substituting guest inventory cosmetics.
-- `game/room.html`: passes room ID/revision/latest persisted snapshot into gameplay.
+- `gameplay.html`: JSON snapshot/apply bridge; host-only simulation; guest roll requests; room seat identity/name mapping; turn, position, power, crystal/boss, and finish snapshots; online turn order is deterministic.
+- `assets/js/multiplayer/game-sync.js`: Realtime Broadcast roll-intent/snapshot transport; snapshots persist via revision-checked RPC.
+- `assets/js/game-integration.js`: online games preserve the room creator's shared skin/map/dice selections rather than substituting guest inventory cosmetics.
+- `room.html`: passes room ID/revision/latest persisted snapshot into gameplay.
 
 ## Checkpoint 5 changes
 
-- `game/room.html`: room host role is derived from the current backend host ID; waiting-room host state is restored from session storage after refresh; the host start button now calls the database start RPC; guests transition into gameplay when the Realtime room row reports `playing` with the host's room configuration; explicit leave clears the saved room reference.
-- `game/assets/js/multiplayer/room-service.js`: start-room RPC wrapper and member-scoped room recovery read.
+- `room.html`: room host role is derived from the current backend host ID; waiting-room host state is restored from session storage after refresh; the host start button now calls the database start RPC; guests transition into gameplay when the Realtime room row reports `playing` with the host's room configuration; explicit leave clears the saved room reference.
+- `assets/js/multiplayer/room-service.js`: start-room RPC wrapper and member-scoped room recovery read.
 - SQL `start_game_room` validates host, minimum players, team balance, and all-ready before transitioning the room to `playing`.
 
 ## Checkpoint 4 changes
 
-- `game/assets/js/multiplayer/room-service.js`: visibility update and atomic Quick Join wrappers.
+- `assets/js/multiplayer/room-service.js`: visibility update and atomic Quick Join wrappers.
 - `supabase/migrations/202611050001_multiplayer.sql`: host-only `set_game_room_visibility` RPC. Existing `quick_join_game_room` uses row locking and `SKIP LOCKED`.
-- `game/room.html`: ROOM ACCESS modal controls persisted private/public visibility; friend/demo invitation UI is hidden and replaced by room-code/link sharing.
-- `game/mode.html`: online room tile offers Create Solo/Team and Quick Join Solo/Team. Quick Join joins through RPC, then opens the existing room page.
+- `room.html`: ROOM ACCESS modal controls persisted private/public visibility; friend/demo invitation UI is hidden and replaced by room-code/link sharing.
+- `mode.html`: online room tile offers Create Solo/Team and Quick Join Solo/Team. Quick Join joins through RPC, then opens the existing room page.
 - `supabase/README.md`: public room setup/behavior notes.
 
 ## Checkpoint 3 changes
 
-- `game/assets/js/multiplayer/room-service.js`: create/join/ready/leave RPC calls and room-row Realtime + Presence subscription.
-- `game/room.html`: online mode creates private rooms or joins by invite code through Supabase; roster/readiness render from backend rows; fake guest readiness/start timers are removed from the active online flow; host empty slots share a room link. Local VS Computer/hot-seat setup remains local.
+- `assets/js/multiplayer/room-service.js`: create/join/ready/leave RPC calls and room-row Realtime + Presence subscription.
+- `room.html`: online mode creates private rooms or joins by invite code through Supabase; roster/readiness render from backend rows; fake guest readiness/start timers are removed from the active online flow; host empty slots share a room link. Local VS Computer/hot-seat setup remains local.
 
 ## Checkpoint 2 changes
 
 - `supabase/migrations/202611050001_multiplayer.sql`: `game_rooms` schema, indexes, RLS select policy, anonymous-auth RPCs for create/join/Quick Join/ready/leave/start/game-state update, revision conflict guard, and Realtime publication setup.
-- `game/assets/js/multiplayer/config.example.js`: public URL/key template.
-- `game/assets/js/multiplayer/client.js`: lazy Supabase JS v2 client bootstrap and anonymous sign-in helper.
+- `assets/js/multiplayer/config.example.js`: public URL/key template.
+- `assets/js/multiplayer/client.js`: lazy Supabase JS v2 client bootstrap and anonymous sign-in helper.
 - `supabase/README.md`: Supabase project, Anonymous Auth, SQL, and static deployment setup.
 - `.gitignore`: excludes local `config.js` so local public project configuration is not accidentally committed.
 
@@ -188,4 +188,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Repository implementation and static review are complete to the prototype scope. Before calling this production-ready, configure a Supabase project and run the real acceptance pass:  enable Anonymous Auth in the supplied Supabase project, apply `supabase/migrations/202611050001_multiplayer.sql`, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. The public project URL/publishable key are already committed in the browser config. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
+Repository implementation and static review are complete to the prototype scope. Before calling this production-ready, configure a Supabase project and run the real acceptance pass:  enable Anonymous Auth in the supplied Supabase project, apply `supabase/migrations/202611050001_multiplayer.sql`, deploy `` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. The public project URL/publishable key are already committed in the browser config. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.

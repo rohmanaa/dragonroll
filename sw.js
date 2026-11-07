@@ -1,4 +1,4 @@
-/* Service worker DRAGON ROLL (PWA). Scope: /game/.
+/* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
    Strategi: network-first (kode game selalu terbaru saat online), cadangan cache saat offline.
    Request Range (audio streaming) dan non-GET tidak disentuh. Naikkan VERSION untuk membersihkan cache lama. */
 const VERSION = 'ut-pwa-v28';

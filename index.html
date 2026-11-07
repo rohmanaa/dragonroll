@@ -1,183 +1,34 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DRAGON ROLL — Game Voxel 3D</title>
-<meta name="description" content="Ular Tangga klasik dalam dunia blok 3D. Lempar dadu, panjat tangga, hindari ular, bareng teman atau pemain dari seluruh Indonesia.">
-<link rel="icon" type="image/png" href="assets/image/favicon.png"><link rel="icon" href="assets/image/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="assets/image/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/index.css">
-</head>
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DRAGON ROLL</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<script>
+/* PWA terpasang (standalone/fullscreen): langsung ke layar loading, dijalankan paling awal agar halaman ini tidak sempat tampil. */
+(function(){try{var s=(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches))||navigator.standalone===true;if(s){location.replace('splash.html');}}catch(e){}})();
+</script>
+<script src="assets/js/landscape.js"></script><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Dragon Roll"><link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{display:grid;place-items:center;background:#000;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+/* Tata letak landscape di semua orientasi: logo kiri, teks + tombol kanan */
+main{width:min(600px,100%);display:grid;grid-template-columns:auto 1fr;column-gap:clamp(16px,4vw,28px);align-items:center;text-align:left}
+.logo{grid-row:1/4;width:clamp(96px,26vw,150px);height:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.25)) drop-shadow(0 14px 22px rgba(0,0,0,.3))}
+h1{margin:0 0 4px;font-size:clamp(24px,6vw,32px);letter-spacing:.3px;text-shadow:0 3px 0 rgba(0,0,0,.3)}
+p{margin:0 0 14px;opacity:.95;font-size:clamp(11px,2.8vw,14px);font-weight:700;letter-spacing:.08em}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:13px 18px;font:inherit;font-weight:800;font-size:17px;color:#fff;cursor:pointer;text-decoration:none;text-align:center}
+.play{background:linear-gradient(#ffd24d,#f4a81f);color:#5a3500;box-shadow:0 5px 0 #b9740c}
+.btn:active{transform:translateY(3px);box-shadow:none}
+</style></head>
 <body>
-
-
-<div class="page">
-
-<!-- HERO -->
-<section class="hero img-bg" id="top">
-<div class="hero-in">
-<div class="hero-art img-hero" aria-hidden="true"></div>
-
-<header class="hnav">
-<a class="hlogo logo-img" href="#top" aria-label="DRAGON ROLL"></a>
-<nav class="hlinks" aria-label="Menu utama" data-i18n-aria="nav.aria">
-<a class="on" href="#top"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true" ><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg><span data-i18n="nav.home">Beranda</span></a>
-<a href="#adventure"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true" ><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7z"/></svg><span data-i18n="nav.characters">Karakter</span></a>
-<a href="#peringkat"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z"/><path d="M7 5H3c0 4 2 6 4 6M17 5h4c0 4-2 6-4 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M11 13h2v4h-2z"/><path d="M8 21h8v-3H8z"/></svg><span data-i18n="nav.ranking">Peringkat</span></a>
-</nav>
-<div class="hright"><div class="lang" role="group" aria-label="Bahasa / Language" data-i18n-aria="lang.aria"><button type="button" data-lang="id" aria-pressed="true">ID</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
-<a class="hlogin" href="#main"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true" ><circle cx="12" cy="8" r="4.5"/><path d="M3 22c0-6 4-9 9-9s9 3 9 9z"/></svg><span data-i18n="nav.login">Masuk / Daftar</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a></div>
-</header>
-
-<div class="hero-left">
-<h1 class="hbig" data-i18n-html="hero.title"><span>Naik tangga.</span><span>Hindari ular.</span><span class="gold">Kuasai pulau blok.</span></h1>
-<p class="hsub" data-i18n-html="hero.tagline">Petualangan seru di dunia blocky<br>bersama teman-temanmu!</p>
-<div class="hbtns">
-<a class="pill pgold" id="main" target="_blank" rel="noopener" href="game/lobby.html"><svg viewBox="0 0 24 24" width="38" height="38" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M10 7.500v9l7-4.500z" fill="#2f8cf0"/></svg><span data-i18n="hero.play">PLAY NOW</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a>
-</div>
-</div>
-
-<div class="panels">
-<section class="glass gc" aria-label="Komunitas">
-<a class="comm" id="komunitas" href="#komunitas">
-<span class="cube"><svg viewBox="0 0 48 52" width="46" height="50" aria-hidden="true"><polygon points="24,2 46,14 24,26 2,14" fill="#bfeaff"/><polygon points="2,14 24,26 24,50 2,38" fill="#5ab8ff"/><polygon points="24,26 46,14 46,38 24,50" fill="#2f86ee"/></svg></span>
-<span class="ctxt"><b data-i18n="comm.title">Bergabung dengan Komunitas</b><small data-i18n="comm.desc">Temukan teman baru, ikuti event, dan jadilah yang terbaik!</small></span>
-<span class="cface img-banner" aria-hidden="true"></span>
-<span class="cav" aria-hidden="true"><i><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#ffe9a8"/><rect x="6" y="30" width="28" height="12" fill="#f0b030"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="#f0b030"/><rect x="8" y="10" width="4" height="12" fill="#f0b030"/><rect x="28" y="10" width="4" height="12" fill="#f0b030"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg></i><i><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#e0c8ff"/><rect x="6" y="30" width="28" height="12" fill="#6a3ad0"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="#8a2be2"/><rect x="8" y="10" width="4" height="12" fill="#8a2be2"/><rect x="28" y="10" width="4" height="12" fill="#8a2be2"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg></i><i><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#ffc8c0"/><rect x="6" y="30" width="28" height="12" fill="#d23a32"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="#d23a32"/><rect x="8" y="10" width="4" height="12" fill="#d23a32"/><rect x="28" y="10" width="4" height="12" fill="#d23a32"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg></i><i><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#bff0c8"/><rect x="6" y="30" width="28" height="12" fill="#2fa04a"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="#2fb04a"/><rect x="8" y="10" width="4" height="12" fill="#2fb04a"/><rect x="28" y="10" width="4" height="12" fill="#2fb04a"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg></i></span>
-<span class="cbtn"><span data-i18n="comm.btn">Gabung Sekarang</span> <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>
-</a>
-</section>
-
-<aside class="glass adv" id="adventure" aria-labelledby="advh">
-<h2 id="advh" data-i18n="adv.title">YOUR ADVENTURE</h2>
-<a class="arow" href="game/lobby.html" target="_blank" rel="noopener"><span class="aic ic1"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#8fd0ff"/><rect x="6" y="30" width="28" height="12" fill="#1fb8d8"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="#7a4a2a"/><rect x="8" y="10" width="4" height="12" fill="#7a4a2a"/><rect x="28" y="10" width="4" height="12" fill="#7a4a2a"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg></span><span class="atx"><b data-i18n="nav.characters">Karakter</b><small data-i18n="adv.char.desc">Koleksi &amp; upgrade karaktermu</small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a>
-<a class="arow" href="game/lobby.html" target="_blank" rel="noopener"><span class="aic ic2"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="6" width="28" height="28" rx="7" fill="#fff" stroke="#c9d8f0" stroke-width="1.500"/><g fill="#1a2a55"><circle cx="14" cy="14" r="3"/><circle cx="26" cy="14" r="3"/><circle cx="20" cy="20" r="3"/><circle cx="14" cy="26" r="3"/><circle cx="26" cy="26" r="3"/></g></svg></span><span class="atx"><b data-i18n="adv.dice">Dadu</b><small data-i18n="adv.dice.desc">Dapatkan dadu keren</small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a>
-<a class="arow" href="leaderboard.html"><span class="aic ic3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0zM7 5H3c0 4 2 6 4 6M17 5h4c0 4-2 6-4 6M12 13v4M8 21h8M9 17h6v4H9z" fill="#ffc83a" stroke="#c98a0c" stroke-width="1.400" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span class="atx"><b data-i18n="adv.lb">Leaderboard</b><small data-i18n="adv.lb.desc">Buktikan siapa yang terbaik</small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a>
-<a class="arow" href="game/lobby.html" target="_blank" rel="noopener"><span class="aic ic4"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="18" height="4" rx="1" fill="#ffd24d" stroke="#c98a0c" stroke-width="1"/><rect x="5" y="13" width="14" height="8" rx="1" fill="#ffc83a" stroke="#c98a0c" stroke-width="1"/><path d="M12 9v12" stroke="#e0402c" stroke-width="2.600"/><path d="M12 9C8 9 7 3 10.500 4c1.500.6 1.500 5 1.500 5Zm0 0c4 0 5-6 1.500-5-1.500.6-1.500 5-1.500 5Z" fill="#e0402c"/></svg></span><span class="atx"><b data-i18n="adv.reward">Hadiah</b><small data-i18n="adv.reward.desc">Login setiap hari dapat hadiah</small></span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></a>
-</aside>
-</div>
-</div>
-</section>
-
-<!-- FITUR -->
-<section id="fitur" style="max-width:1280px;margin:0 auto;padding:110px var(--px) 40px">
-<div style="text-align:center;max-width:640px;margin:0 auto 52px">
-<div style="color:#ffd24d;font-weight:700;font-size:14px;letter-spacing:.14em" data-i18n="feat.eyebrow">FITUR GAME</div>
-<h2 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(32px,6vw,46px);line-height:1.05;margin:12px 0 14px" data-i18n="feat.title">Klasik di dasarnya, segar di setiap blok</h2>
-<p style="color:#b9c9e4;font-size:17px;line-height:1.6;margin:0" data-i18n="feat.sub">Permainan yang dikenal semua orang, dibangun ulang dengan dunia voxel yang hangat dan penuh kejutan.</p>
-</div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px">
-<div class="card" style="padding:28px">
-<div style="width:56px;height:56px;border-radius:14px;background:rgba(255,210,77,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffd24d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.5"></circle><path d="M17 14c2.5 0 4 2 4 5"></path></svg></div>
-<h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:0 0 8px" data-i18n="feat.1.t">Multiplayer real-time</h3>
-<p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="feat.1.d">Ajak teman atau tantang pemain dari seluruh Indonesia dalam satu papan yang sama.</p>
-</div>
-<div class="card" style="padding:28px">
-<div style="width:56px;height:56px;border-radius:14px;background:rgba(255,210,77,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffd24d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5"></path></svg></div>
-<h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:0 0 8px" data-i18n="feat.2.t">Dunia voxel 3D</h3>
-<p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="feat.2.d">Pulau melayang, pohon kubik, dan karakter pixel yang detail di setiap ronde.</p>
-</div>
-<div class="card" style="padding:28px">
-<div style="width:56px;height:56px;border-radius:14px;background:rgba(255,210,77,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffd24d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"></rect><circle cx="9" cy="9" r="1"></circle><circle cx="15" cy="9" r="1"></circle><circle cx="9" cy="15" r="1"></circle><circle cx="15" cy="15" r="1"></circle></svg></div>
-<h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:0 0 8px" data-i18n="feat.3.t">Papan acak tiap ronde</h3>
-<p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="feat.3.d">Posisi tangga dan ular berubah, jadi tidak ada dua pertandingan yang sama.</p>
-</div>
-<div class="card" style="padding:28px">
-<div style="width:56px;height:56px;border-radius:14px;background:rgba(255,210,77,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffd24d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4v1a3 3 0 0 0 4 3M16 6h4v1a3 3 0 0 1-4 3M12 13v4M8 20h8M10 17h4"></path></svg></div>
-<h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:0 0 8px" data-i18n="feat.4.t">Peringkat &amp; musim</h3>
-<p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="feat.4.d">Kumpulkan poin, naik peringkat, dan raih skin blok eksklusif tiap musim.</p>
-</div>
-</div>
-</section>
-
-<!-- PAPAN PERINGKAT TOP VOXEL -->
-<section id="peringkat" style="max-width:1280px;margin:0 auto;padding:100px var(--px) 40px">
-<div style="text-align:center;max-width:680px;margin:0 auto 64px">
-<div class="eyebrow" data-i18n="lb.eyebrow">PEMAIN TERBAIK MUSIM INI</div>
-<h2 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(32px,6vw,46px);line-height:1.05;margin:12px 0 14px" data-i18n="lb.title">Papan Peringkat Top Voxel</h2>
-<p style="color:#b9c9e4;font-size:17px;line-height:1.6;margin:0 0 22px" data-i18n="lb.sub">Para penjelajah blok terbaik yang telah menaklukkan puncak papan permainan!</p>
-<span class="live-pill"><span class="dot"></span><span data-i18n-html="lb.online"><b>12.480</b> pemain online sekarang</span></span>
-</div>
-
-<div class="podium">
-<div class="card pd pd2">
-<span class="tag" style="background:#d5e0f0;color:#0b1a2e" data-i18n="lb.tag2">#2 PERAK</span>
-<div class="av"><svg width="72" height="76" viewBox="-28 -4 56 56" aria-hidden="true"><polygon points="0,0 24,12 0,24 -24,12" fill="#e4ecf7"/><polygon points="-24,12 0,24 0,48 -24,36" fill="#aebdd3"/><polygon points="0,24 24,12 24,36 0,48" fill="#8497b3"/><path d="M-14 22l8 4v7l-8-4zM14 22l-8 4v7l8-4z" fill="#0b1a2e"/></svg></div>
-<h3>Budi_VoxelMaster</h3>
-<div class="sub" data-i18n="lb.sub2">Level 42 · Skin Ksatria</div>
-<div class="stat"><span data-i18n="lb.wins">Kemenangan</span><b data-i18n="lb.m2">1.240 match</b></div>
-</div>
-<div class="card pd pd1">
-<span class="tag" style="background:#ffe27a;color:#3a2a00" data-i18n="lb.tag1">#1 JUARA</span>
-<div class="av"><svg class="crown" width="44" height="34" viewBox="0 0 40 30" aria-hidden="true"><polygon points="3,25 6,7 14,15 20,3 26,15 34,7 37,25" fill="#ffe27a" stroke="#c48f00" stroke-width="2" stroke-linejoin="round"/><rect x="3" y="25" width="34" height="4" rx="1" fill="#f2b705"/></svg><svg width="92" height="98" viewBox="-28 -4 56 56" aria-hidden="true"><polygon points="0,0 24,12 0,24 -24,12" fill="#ffe27a"/><polygon points="-24,12 0,24 0,48 -24,36" fill="#f2b705"/><polygon points="0,24 24,12 24,36 0,48" fill="#c48f00"/><path d="M-14 22l8 4v7l-8-4zM14 22l-8 4v7l8-4z" fill="#0b1a2e"/></svg></div>
-<h3>RajaBlok99</h3>
-<div class="sub" style="color:#ffe27a;font-weight:600" data-i18n="lb.sub1">Level 58 · Skin Naga Emas</div>
-<div class="stat"><span data-i18n="lb.wins">Kemenangan</span><b data-i18n="lb.m1">2.890 match</b></div>
-</div>
-<div class="card pd pd3">
-<span class="tag" style="background:#f0a96a;color:#2e1604" data-i18n="lb.tag3">#3 PERUNGGU</span>
-<div class="av"><svg width="72" height="76" viewBox="-28 -4 56 56" aria-hidden="true"><polygon points="0,0 24,12 0,24 -24,12" fill="#f0a96a"/><polygon points="-24,12 0,24 0,48 -24,36" fill="#d17a36"/><polygon points="0,24 24,12 24,36 0,48" fill="#a35a22"/><path d="M-14 22l8 4v7l-8-4zM14 22l-8 4v7l8-4z" fill="#0b1a2e"/></svg></div>
-<h3>Siti_NinjaBlok</h3>
-<div class="sub" data-i18n="lb.sub3">Level 39 · Skin Ninja</div>
-<div class="stat"><span data-i18n="lb.wins">Kemenangan</span><b data-i18n="lb.m3">980 match</b></div>
-</div>
-</div>
-
-<div style="text-align:center;margin-top:48px">
-<a class="btn-line" href="leaderboard.html"><span data-i18n="lb.all">Lihat Papan Peringkat Lengkap</span> <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-</div>
-</section>
-
-<!-- CARA BERMAIN -->
-<section id="cara" style="max-width:1280px;margin:0 auto;padding:90px var(--px) 40px">
-<div style="text-align:center;max-width:640px;margin:0 auto 52px">
-<div style="color:#ffd24d;font-weight:700;font-size:14px;letter-spacing:.14em" data-i18n="how.eyebrow">CARA BERMAIN</div>
-<h2 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(32px,6vw,46px);line-height:1.05;margin:12px 0 0" data-i18n="how.title">Empat langkah menuju puncak</h2>
-</div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px">
-<div class="card" style="padding:28px;position:relative"><div style="font-family:'Lilita One',sans-serif;font-size:64px;line-height:1;color:#ffd24d">1</div><h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:12px 0 8px" data-i18n="how.1.t">Lempar dadu</h3><p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="how.1.d">Ketuk dadu 3D dan lihat berapa langkah yang kamu dapat.</p></div>
-<div class="card" style="padding:28px"><div style="font-family:'Lilita One',sans-serif;font-size:64px;line-height:1;color:#ffd24d">2</div><h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:12px 0 8px" data-i18n="how.2.t">Jalankan pionmu</h3><p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="how.2.d">Pion blokmu melompat petak demi petak sesuai angka dadu.</p></div>
-<div class="card" style="padding:28px"><div style="font-family:'Lilita One',sans-serif;font-size:64px;line-height:1;color:#ffd24d">3</div><h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:12px 0 8px" data-i18n="how.3.t">Tangga atau ular</h3><p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="how.3.d">Mendarat di kaki tangga, kamu naik. Di kepala ular, kamu meluncur turun.</p></div>
-<div class="card" style="padding:28px"><div style="font-family:'Lilita One',sans-serif;font-size:64px;line-height:1;color:#ffd24d">4</div><h3 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:24px;margin:12px 0 8px" data-i18n="how.4.t">Capai kotak 100</h3><p style="color:#b9c9e4;font-size:15.5px;line-height:1.6;margin:0" data-i18n="how.4.d">Pemain pertama yang tiba di puncak pulau jadi pemenang.</p></div>
-</div>
-</section>
-
-<!-- CTA -->
-<section style="max-width:1280px;margin:0 auto;padding:70px var(--px) 90px">
-<div style="border-radius:28px;padding:64px 32px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(255,210,77,.22),rgba(255,210,77,0) 60%),#1a4aa8;border:1px solid #6cc0ff">
-<h2 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(34px,6.5vw,52px);line-height:1.05;margin:0 0 14px" data-i18n-html="cta.title">Siap menaklukkan <span style="color:#ffd24d">pulau blok?</span></h2>
-<p style="color:#c9d8f0;font-size:18px;margin:0 0 32px" data-i18n="cta.sub">Gratis dimainkan langsung di browser. Tanpa unduhan.</p>
-<a class="cta" target="_blank" rel="noopener" href="game/lobby.html" data-i18n="cta.btn">Main Sekarang</a>
-</div>
-</section>
-
-<footer class="bigfoot" id="promosi" style="border-top:1px solid #2a6ad8">
-<div class="bf-top"><div class="bf-in">
-<div class="eyebrow" data-i18n="promo.eyebrow">HADIAH &amp; PROMOSI</div>
-<h2 style="font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(32px,6vw,46px);line-height:1.05;margin:12px 0 14px" data-i18n="promo.title">Dadu emas, peti harta, dan kejutan setiap hari</h2>
-<p style="color:#d4e2f7;font-size:17px;line-height:1.6;margin:0 0 22px" data-i18n="promo.desc">Masuk setiap hari untuk klaim hadiah, buka peti harta di sepanjang papan, dan kumpulkan koin serta permata untuk skin blok favoritmu.</p>
-<div class="chips"><span data-i18n="promo.chip1">Login harian</span><span data-i18n="promo.chip2">Peti harta</span><span data-i18n="promo.chip3">Koin &amp; permata</span></div>
-<a class="btn-line" href="game/lobby.html" target="_blank" rel="noopener"><span data-i18n="promo.btn">Main &amp; Klaim Hadiah</span> <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-</div></div>
-<div class="bf-bar"><div class="ft"><span class="flogo logo-img" role="img" aria-label="DRAGON ROLL"></span><nav aria-label="Footer" data-i18n-aria="ft.aria"><a href="#" data-i18n="ft.about">Tentang Kami</a><a href="#" data-i18n="ft.help">Bantuan</a><a href="#" data-i18n="ft.terms">Syarat &amp; Ketentuan</a><a href="#" data-i18n="ft.privacy">Privasi</a><a href="#" data-i18n="ft.contact">Kontak</a></nav><span data-i18n="ft.copy">© 2026 DRAGON ROLL. Semua hak dilindungi.</span></div></div>
-</footer>
-
-</div>
-
-
-<dialog id="trailer" aria-label="Trailer DRAGON ROLL" data-i18n-aria="trailer.aria">
-<div class="tr-box">
-<button class="tr-x" id="trailerClose" type="button" aria-label="Tutup trailer" data-i18n-aria="trailer.close">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-<div class="tr-screen" id="trScreen"></div>
-</div>
-</dialog>
-<script src="assets/js/main.js"></script>
-<script src="assets/lang/id.js"></script>
-<script src="assets/lang/en.js"></script>
-<script src="assets/js/i18n.js"></script>
-</body>
-</html>
+<main>
+<img class="logo" src="assets/icons/icon-192.png" width="150" height="150" alt="">
+<h1>DRAGON ROLL</h1>
+<p>ROLL • ADVENTURE • CONQUER</p>
+<a class="btn play" id="play" href="splash.html">Main Sekarang</a>
+</main>
+<script>
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(function(){}); });
+}
+</script>
+</body></html>

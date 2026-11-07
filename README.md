@@ -5,7 +5,7 @@ Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `pyt
 ## Halaman
 | File | Fungsi |
 |---|---|
-| `index.html` | Landing publik. "Main Sekarang" -> `ular tangga.html` |
+| `index.html` | Halaman pembuka. "Main Sekarang" -> `splash.html` |
 | `ular tangga.html` | Beranda aplikasi (profil, koin, ringkasan, pintasan) |
 | `inventory.html` | Koleksi item yang dimiliki (cari, filter, urut, gunakan) |
 | `skins.html` | Pratinjau & terapkan skin karakter |
@@ -23,6 +23,6 @@ Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `pyt
 Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
 
 ## Karakter & mob
-- `game/assets/js/character-data.js` (`UT.CharacterData`) = model karakter pemain/mob gameplay; `character-view.js` = karakter 3D di halaman. Lihat `game/doc/CHARACTER_DATA.md`.
-- `game/assets/js/mob-view.js` (`UT.MobView`) = mob dekoratif reusable (kupu-kupu + bunga di Teman, ayam di Hadiah Harian). Lihat `game/doc/MOB_VIEW.md`.
+- `assets/js/character-data.js` (`UT.CharacterData`) = model karakter pemain/mob gameplay; `character-view.js` = karakter 3D di halaman. Lihat `doc/CHARACTER_DATA.md`.
+- `assets/js/mob-view.js` (`UT.MobView`) = mob dekoratif reusable (kupu-kupu + bunga di Teman, ayam di Hadiah Harian). Lihat `doc/MOB_VIEW.md`.
 - Skin PNG sudah dihapus; semua skin memakai model voxel yang sama dengan gameplay.
