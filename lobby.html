@@ -36,14 +36,18 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 #pname{font-size:3.1rem;line-height:3.8rem;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden}
 #flag{flex:0 0 auto}
 #flag{width:2.8rem;height:1.9rem;border-radius:.3rem;overflow:hidden;border:.1rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.3)}
-#xp{position:absolute;left:9.9rem;top:5.8rem;width:8.2rem;height:2.1rem;border-radius:.6rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
+#xp{position:absolute;left:9.9rem;top:5.7rem;width:18.7rem;height:2.4rem;border-radius:.6rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
 #xp i{position:relative;display:block;height:100%;border-radius:.6rem;overflow:hidden;background:linear-gradient(#b9ff8a 0%,#6fe03c 38%,#2fa51f 52%,#46c92c 100%);box-shadow:inset 0 .12rem .1rem rgba(255,255,255,.65),inset 0 -.15rem .15rem rgba(14,84,10,.55),0 0 .6rem rgba(120,255,80,.55);animation:xpGlow 2.4s ease-in-out infinite}
 #xp i::before{content:"";position:absolute;left:.3rem;right:.3rem;top:.14rem;height:36%;border-radius:.4rem;background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,.12))}
 #xp i::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.7),transparent);animation:xpShine 2.2s ease-in-out infinite}
 @keyframes xpShine{0%{left:-60%}60%,100%{left:130%}}
 @keyframes xpGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12) saturate(1.1)}}
-#xpt{position:absolute;left:18.7rem;top:5.8rem;width:9.9rem;height:2.1rem;display:flex;align-items:center;justify-content:center;gap:.3rem;border-radius:.6rem;background:linear-gradient(#222f47,#131c2e);box-shadow:inset 0 0 0 .14rem #56667e,inset 0 .15rem .25rem rgba(0,0,0,.5);font-size:1.15rem;line-height:1;white-space:nowrap;color:#e9f6ff;text-shadow:0 .1rem 0 rgba(8,14,26,.9);z-index:3}
-#xpt b{color:#9fff72;font-weight:800}
+/* teks XP berada DI DALAM bar (overlay di atas track), putih + outline gelap supaya terbaca di atas hijau maupun gelap */
+#xpt{position:absolute;left:9.9rem;top:5.7rem;width:18.7rem;height:2.4rem;display:flex;align-items:center;justify-content:center;gap:.35rem;font-size:1.35rem;line-height:1;white-space:nowrap;color:#fff;-webkit-text-stroke:.24rem #0c2a10;paint-order:stroke fill;text-shadow:0 .12rem 0 rgba(8,20,10,.85);pointer-events:none;z-index:4}
+#xpt b{color:#fff;font-weight:800}
+/* badge kamera di kanan bawah frame avatar (visual saja; tap tetap membuka profil) */
+#cam{position:absolute;left:6.5rem;top:6.5rem;width:3rem;height:3rem;border-radius:50%;display:grid;place-items:center;background:linear-gradient(#5aa9f2,#2f6fc4);box-shadow:inset 0 0 0 .16rem #bfe0ff,0 0 0 .2rem #172033,0 .25rem 0 .2rem #0b1220,0 .5rem .8rem rgba(0,0,0,.35);pointer-events:none;z-index:4}
+#cam svg{width:1.8rem;height:1.8rem;filter:drop-shadow(0 .1rem 0 rgba(11,18,32,.6))}
 @media(prefers-reduced-motion:reduce){#xp i,#xp i::after{animation:none!important}}
 /* ===== mail & settings (kanan atas, bawah currency) ===== */
 .sq{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;white-space:nowrap}
@@ -52,11 +56,10 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .sm{top:9.4rem;width:6.5rem;height:6.9rem}
 #mail{right:9.7rem}#gear{right:2.6rem}
 /* ===== kolom kiri ===== */
-.lm{top:12.3rem;width:7rem;height:7rem}
-.lm>svg{width:4rem;height:4rem}.lm>span{font-size:1rem}
-/* baris 1: Karakter, Frame, Dadu · baris 2: Efek, Power-up, Leaderboard */
-#chr{left:2.8rem}#frm{left:10.2rem}#dad{left:17.6rem}
-#efk,#pwr,#lead{top:19.7rem}#efk{left:2.8rem}#pwr{left:10.2rem}#lead{left:17.6rem}
+/* tombol menu kiri: PANJANG, ditumpuk ke bawah (ikon di kiri, label di tengah). 6 tombol x 4rem + jarak .5rem -> selesai ±39.5rem, di atas kartu Toko/Teman/Hadiah (mulai ±43rem) */
+.lm{left:2.8rem;width:17rem;height:4rem;flex-direction:row;justify-content:flex-start;gap:.8rem;padding:0 1rem 0 .9rem}
+.lm>svg{width:3.2rem;height:3.2rem}.lm>span{flex:1;font-size:1.65rem;line-height:1;text-align:center}
+#chr{top:12.7rem}#frm{top:17.2rem}#dad{top:21.7rem}#efk{top:26.2rem}#pwr{top:30.7rem}#lead{top:35.2rem}
 .pnl{left:2.8rem;width:20.3rem;text-align:center;cursor:pointer;display:block}
 .pnl h3{margin:0;font-size:1.9rem;line-height:2.4rem;color:var(--gold);text-shadow:0 .15rem 0 #0b1220;letter-spacing:.04em}
 .box:has(.mimg){padding:.8rem;width:min(70rem,92vw)}
@@ -77,7 +80,7 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 /* icon gambar (assets/Images/icon/*.webp) menggantikan svg tombol lobby */
 .ab>.ic{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .sq>.ic{width:3.7rem;height:3.7rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
-.lm>.ic{width:4rem;height:4rem}
+.lm>.ic{width:3.2rem;height:3.2rem;flex:none}
 .cd>.ic{width:4.4rem;height:4.4rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
 #play>.ic.gp{filter:drop-shadow(0 .3rem .2rem rgba(10,50,10,.5))}
 #pt{text-align:left;color:#fff}
@@ -114,6 +117,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
  <div class="ab" id="prof" role="button" tabindex="0" data-act="prof" aria-label="Profil">
   <div id="pbox" class="pn"></div>
   <div id="ava"></div><img id="avf" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async">
+  <div id="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M8.2 5.2 9.2 3.6h5.6l1 1.6H19a2.4 2.4 0 0 1 2.4 2.4v9.8A2.4 2.4 0 0 1 19 19.8H5a2.4 2.4 0 0 1-2.4-2.4V7.6A2.4 2.4 0 0 1 5 5.2h3.2Z" fill="#fff"/><circle cx="12" cy="12.4" r="4.1" fill="#2f6fc4"/><circle cx="12" cy="12.4" r="2.3" fill="#bfe0ff"/></svg></div>
   <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><strong id="lvn">1</strong></div>
   <div id="nrow"><span id="pname" class="tx">OmanBogel</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
   <div id="xp"><i style="width:0%"></i></div>

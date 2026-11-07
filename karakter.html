@@ -1372,7 +1372,7 @@ MODES.forEach(m=>{
 });
 const jb=document.createElement('button');jb.className='blue';jb.textContent='⬆️';jb.title='Loncat';jb.setAttribute('aria-label','Loncat');
 jb.addEventListener('click',jump);sbs.appendChild(jb);
-$('#back').addEventListener('click',()=>{location.href='profile.html';});
+$('#back').addEventListener('click',()=>{location.href='lobby.html';});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{location.href='shop.html';});
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html';}));
