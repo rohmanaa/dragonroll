@@ -158,20 +158,20 @@ html body .cat.on{border-color:var(--ol);background:linear-gradient(#f7c940,#e0a
 html body #sbs button{border-radius:.8rem}
 
 /* kartu info item */
-html body #info{border-radius:.9rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
+html body #info{border-radius:.9rem;border:.3rem solid var(--ol)} /* warna/transparansi: lihat blok "Panel kaca" di bawah */
 html body .badge{border:.2rem solid var(--ol);border-radius:.7rem;box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35)}
 html body #iname{text-shadow:none}
 html body #idesc{color:#fff}
 
 /* strip "Skin Terbaru" */
-html body #rec{border-radius:.9rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
+html body #rec{border-radius:.9rem;border:.3rem solid var(--ol)}
 html body #rl{border:.2rem solid var(--ol);border-top:0;border-radius:0 0 .7rem .7rem;background:linear-gradient(var(--nv1),var(--nv2))}
 html body .rt{border-radius:.6rem;border:.25rem solid var(--ol);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.2)}
 html body .rt.on{border-color:#f1d04a;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.2),0 0 0 .15rem #f1d04a}
 
 /* panel grid kanan */
-html body #bot{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a74e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
-html body #gwrap{border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3)}
+html body #bot{border-radius:1rem;border:.3rem solid var(--ol)}
+html body #gwrap{border-radius:.7rem;border:.25rem solid var(--ol)}
 
 /* kartu item */
 html body .card{border-radius:.8rem;border:.3rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
@@ -221,9 +221,16 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
 html body #title{background:linear-gradient(var(--sl1),var(--sl2))!important}
 html body .cat:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
-html body #info,html body #bot,html body #rec,html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
-html body #gwrap{background:linear-gradient(var(--sl2),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .12rem #8696ad}
-html body .card:not(.lg):not(.lk){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
+/* Panel kaca: #info, #bot (grid kanan), #gwrap, #dyes dibuat agak transparan + blur latar.
+   Atur seberapa transparan lewat --pn-a (0 = bening, 1 = solid). Modal (.box) tetap solid. */
+:root{--pn-a:.62;--pn-in-a:.5;--card-a:.92;--pn-blur:.6rem}
+html body #info,html body #bot,html body #rec{
+  background:linear-gradient(rgba(63,80,107,var(--pn-a)),rgba(38,52,76,var(--pn-a)));
+  border-color:rgba(23,32,51,.85);box-shadow:var(--slf);
+  -webkit-backdrop-filter:blur(var(--pn-blur));backdrop-filter:blur(var(--pn-blur))}
+html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
+html body #gwrap{background:linear-gradient(rgba(38,52,76,var(--pn-in-a)),rgba(51,68,95,var(--pn-in-a)));border-color:rgba(23,32,51,.85);box-shadow:inset 0 0 0 .12rem rgba(134,150,173,.8)}
+html body .card:not(.lg):not(.lk){background:linear-gradient(rgba(82,100,127,var(--card-a)),rgba(51,68,95,var(--card-a)));border-color:#172033}
 html body .bt:not(.own):not(.gd):not(.no){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 .15rem 0 rgba(255,255,255,.25),0 .15rem 0 #0b1220}
 html body #rl{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
 html body .row{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
@@ -261,7 +268,7 @@ html body #bot{gap:.8rem}
 .slrow{display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.4rem;border-radius:.8rem;border:.3rem solid #172033;background:linear-gradient(var(--sl3),var(--sl4));font-size:1.9rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
 .slrow input{width:100%;margin:0;accent-color:#ffd24d;height:2rem}
 .slrow+.bt,#grid.flat>.bt{width:auto;align-self:center;padding:0 2.4rem}
-#dyes{flex:none;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;padding:.7rem .9rem;border-radius:.7rem;border:.25rem solid #172033;background:linear-gradient(var(--sl2),var(--sl4));box-shadow:inset 0 0 0 .12rem #8696ad}
+#dyes{flex:none;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;padding:.7rem .9rem;border-radius:.7rem;border:.25rem solid rgba(23,32,51,.85);background:linear-gradient(rgba(38,52,76,var(--pn-in-a,.5)),rgba(51,68,95,var(--pn-in-a,.5)));box-shadow:inset 0 0 0 .12rem rgba(134,150,173,.8)}
 #dyes:empty{display:none}
 #dyes .lbl{font-size:1.5rem;margin-right:.4rem}
 #dyes .sw{width:3.4rem;height:3.4rem;padding:0;border-radius:.6rem;border:.25rem solid #172033;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35);flex:none}
