@@ -149,9 +149,12 @@ html.introfade{background:#000}
 html.introfade body{background:transparent;animation:utIn .7s ease backwards}
 @keyframes utIn{from{opacity:0}to{opacity:1}}
 /* Fade out ke hitam sebelum pindah ke lobby */
-.to-black{position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:all;transition:opacity .5s ease}
+.to-black{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at center,rgba(0,0,0,.55) 0%,#000 78%);opacity:0;pointer-events:all;transition:opacity 1.5s cubic-bezier(.45,0,.25,1)}
 .to-black.on{opacity:1}
-@media(prefers-reduced-motion:reduce){html.introfade body{animation:none}.to-black{transition:none}}
+/* sinematik: UI loading memudar duluan, latar zoom pelan (transform di .loading-bg saja, bukan di body) */
+html.leaving .loading-bg{transition:transform 2s cubic-bezier(.2,.6,.3,1);transform:scale(1.08)}
+html.leaving .splash{transition:opacity .7s ease;opacity:0}
+@media(prefers-reduced-motion:reduce){html.introfade body{animation:none}.to-black{transition:none}html.leaving .loading-bg,html.leaving .splash{transition:none;transform:none}}
 </style>
 <link rel="preload" as="image" href="assets/Images/background/loading-bg.webp">
 <style id="loading-bg">
@@ -294,8 +297,10 @@ function openAuth(go) {
       try { sessionStorage.setItem('ut:booted', '1'); sessionStorage.setItem('ut:fadein', '1'); } catch (e) {}
       /* fade out ke hitam, lalu pindah halaman (halaman tujuan fade in dari hitam lewat boot-guard.js) */
       const v = document.createElement('div'); v.className = 'to-black'; document.body.appendChild(v);
+      const rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      document.documentElement.classList.add('leaving');
       requestAnimationFrame(() => requestAnimationFrame(() => v.classList.add('on')));
-      setTimeout(() => location.replace(dest), 550);
+      setTimeout(() => location.replace(dest), rm ? 150 : 1700);
     };
     window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
   }));
