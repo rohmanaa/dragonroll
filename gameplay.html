@@ -1898,6 +1898,28 @@ function updateRoam(dt,t){
 function inPen(R,x,z,m){ m=m||0; return x>R.x0+m&&x<R.x1-m&&z>R.z0+m&&z<R.z1-m; }
 const inR=(R,x,z)=>x>R.x0&&x<R.x1&&z>R.z0&&z<R.z1;
 function queuePen(x,z,yaw,kind,c1,c2,pen){ if(capped(ROAMQ,kind)) return; ROAMQ.push({x,z,yaw,kind,c1,c2,pen:pen||RANCH}); }
+/* dinding batu berpiksel untuk tebing kandang: lumut menetes di atas, batu bata kasar bervariasi, kerikil/tanah liat, blok menonjol (relief).
+   (fx,fz) = pusat bidang, (dx,dz) = normal keluar, len = panjang, y dari yBot..yTop. Deterministik (hash), tidak memakai rnd(). */
+function wallPix(B,fx,fz,dx,dz,len,yTop,yBot,sd){
+  const tx=dz,tz=-dx,nc=Math.max(1,Math.round(len/0.3)),cw=len/nc,RH=0.25,H=yTop-yBot; if(H<=0.01) return;
+  const nr=Math.max(1,Math.ceil(H/RH-0.001));
+  for(let i=0;i<nc;i++){
+    const off=-len/2+cw*(i+0.5),cx=fx+tx*off,cz=fz+tz*off,drip=1+(islH(cx+sd,cz,51)<0.4?1:0);
+    for(let r=0;r<nr;r++){
+      const y0=yTop-r*RH,hh=Math.min(RH,y0-yBot); if(hh<=0.001) break;
+      const rr=islH(cx*1.7+r*3.3,cz*1.3-r*2.1+sd,52);
+      let hex; if(r<drip) hex=ISL.moss[(i+r)&1];
+      else if(rr<0.06) hex=ISL.clay; else if(rr<0.12) hex=ISL.gravel; else if(rr<0.2) hex=ISL.dirt[Math.floor(rr*20)&3];
+      else hex=ISL.stone[Math.floor(islH(cx,cz+r,53)*4)&3];
+      let c=new THREE.Color(hex).offsetHSL(0,0,(islH(cx,cz,54+r)-0.5)*0.07+(r===nr-1?-0.05:0)); /* baris bawah sedikit lebih gelap */
+      addSideQuad(B,cx+dx*0.012,y0-hh/2,cz+dz*0.012,dx,dz,cw,hh,c);
+      if(r>=drip&&rr>0.72){ /* blok batu menonjol (relief) */
+        const pw=cw*0.86,ph=hh*0.82,pc=new THREE.Color(ISL.stone[Math.floor(rr*40)&3]).offsetHSL(0,0,(rr-0.85)*0.12);
+        addBox(B,cx+dx*0.045,y0-hh/2,cz+dz*0.045,dx?0.07:pw,ph,dx?pw:0.07,pc,{edge:false});
+      }
+    }
+  }
+}
 function addRanch(DB){
   const F={edge:false},W=ljit,TORCH=[];
   const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
@@ -1921,6 +1943,10 @@ function addRanch(DB){
     if(up>0.01){
       addBox(DB,cx,-up/2,cz,P.x1-P.x0+0.3,up,P.z1-P.z0+0.3,W(0x777770,0.06));
       addBox(DB,cx,-0.04,cz,P.x1-P.x0+0.34,0.1,P.z1-P.z0+0.34,W(0x4F9A34,0.07),F);
+      /* tebing kandang: dinding batu berpiksel di keempat sisi platform */
+      const hx=(P.x1-P.x0+0.3)/2+0.03,hz=(P.z1-P.z0+0.3)/2+0.03,sd=P.x0*3+P.z0;
+      wallPix(DB,cx+hx,cz,1,0,P.z1-P.z0+0.3,-0.09,-up,sd); wallPix(DB,cx-hx,cz,-1,0,P.z1-P.z0+0.3,-0.09,-up,sd+7);
+      wallPix(DB,cx,cz+hz,0,1,P.x1-P.x0+0.3,-0.09,-up,sd+13); wallPix(DB,cx,cz-hz,0,-1,P.x1-P.x0+0.3,-0.09,-up,sd+19);
     }
     bl(0,0.02,0,W_,0.04,D_,W(GROUND[P.k],0.08),F);
     for(let i=0;i<7;i++) bl(-hw+0.4+lr()*(W_-0.8),0.05,-hd+0.4+lr()*(D_-0.8),0.3+lr()*0.3,0.03,0.25+lr()*0.25,W(0xD9B44A,0.1),F);
@@ -1953,7 +1979,8 @@ function addRanch(DB){
   function buildPath(){
     PATH.forEach(s=>{
       const za=s[0],zb=s[1],top=s[2],len=za-zb,zm=(za+zb)/2,body=top-RB;
-      if(body>0.01) addBox(DB,PATHX,RB+body/2,zm,PATHW,body,len,W(0x77776F,0.06),F);
+      if(body>0.01){ addBox(DB,PATHX,RB+body/2,zm,PATHW,body,len,W(0x77776F,0.06),F);
+        [-1,1].forEach(sg=>wallPix(DB,PATHX+sg*(PATHW/2+0.03),zm,sg,0,len,top-0.02,RB,za*5+sg)); } /* sisi jalan batu: dinding berpiksel */
       const nzt=Math.max(1,Math.round(len/0.4)),tz=len/nzt;
       for(let j=0;j<nzt;j++) for(let c=-1;c<=1;c++) addBox(DB,PATHX+c*0.4,top+0.02,za-tz*(j+0.5),0.37,0.04,tz*0.92,W(0x9A9A90,0.1),F);
     });
@@ -5047,13 +5074,16 @@ function camSetPreset(k){
 function camNextPreset(){ camSetPreset(CAM_ORDER[(CAM_ORDER.indexOf(camCfg.preset)+1)%CAM_ORDER.length]); }
 /* ---------- POV Bidak (orang pertama) ----------
    Kamera di mata bidak pemain; geser layar = tengok kiri/kanan/atas/bawah, cubit/roda = zoom (FOV).
-   Offline/hotseat: ikut bidak yang sedang giliran. Online: selalu bidak milik sendiri. Bidak sendiri disembunyikan selama POV. */
-const POV={yaw:0,pitch:0,gy:0,gp:0,fov:72,pawn:null,px:0,pz:0,look:0,on:false,baseFov:38,baseNear:0.1};
+   POV hanya untuk bidak milik sendiri, tidak pernah pindah ke bidak orang lain/CPU. Online: bidak pemain lokal (kalau belum ada: tidak ada POV).
+   Offline: bidak pemain manusia (hotseat: bidak manusia yang terakhir/sedang giliran; giliran CPU tidak memindahkan POV). Bidak sendiri disembunyikan selama POV. */
+const POV={yaw:0,pitch:0,gy:0,gp:0,fov:72,pawn:null,own:null,px:0,pz:0,look:0,on:false,baseFov:38,baseNear:0.1};
 const povActive=()=>camCfg.angle&&camCfg.preset==='pov';
 function povPawn(){
   try{
-    if(typeof ONLINE_ROOM!=='undefined'&&ONLINE_ROOM&&MP_ID){ const m=players.find(q=>q.networkId===MP_ID); if(m&&m.pawn) return m.pawn; }
-    const c=players[cur]; if(c&&c.pawn) return c.pawn;
+    if(typeof ONLINE_ROOM!=='undefined'&&ONLINE_ROOM){ const m=MP_ID?players.find(q=>q.networkId===MP_ID):null; return (m&&m.pawn)?m.pawn:null; } /* online: hanya milik sendiri, tanpa fallback ke pemain lain */
+    const c=players[cur]; if(c&&c.pawn&&!c.cpu) POV.own=c; /* offline: ikut manusia yang sedang giliran; giliran CPU tidak mengubahnya */
+    if(!POV.own||players.indexOf(POV.own)<0||!POV.own.pawn) POV.own=players.find(q=>!q.cpu&&q.pawn)||null;
+    return POV.own?POV.own.pawn:null;
   }catch(e){}
   return null;
 }
