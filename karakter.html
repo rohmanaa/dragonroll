@@ -1678,7 +1678,17 @@ function fit(){
   const w=showEl.clientWidth,h=showEl.clientHeight;if(!w||!h)return;
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
   renderer.setSize(w,h,false);
-  camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.updateProjectionMatrix();
+  camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.clearViewOffset();camera.updateProjectionMatrix();
+  /* landscape: turunkan karakter 3D sampai kakinya sejajar dengan dasar tombol Loncat (dihitung dari posisi tombol, ikut ukuran layar) */
+  try{
+    if(matchMedia('(min-aspect-ratio:1/1)').matches&&jb.offsetHeight){
+      const jr=jb.getBoundingClientRect(),sr=showEl.getBoundingClientRect(),ty=0.85;
+      camera.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,ty+Math.sin(camPitch)*camDist,Math.cos(camYaw)*Math.cos(camPitch)*camDist);
+      camera.lookAt(0,ty,0);camera.updateMatrixWorld(true);
+      const v=new THREE.Vector3(0,0,0).project(camera),feet=(1-v.y)/2*h,dy=(jr.bottom-sr.top)-feet;
+      if(isFinite(dy)&&Math.abs(dy)<h*0.45)camera.setViewOffset(w,h,0,-dy,w,h);
+    }
+  }catch(e){}
 }
 try{new ResizeObserver(fit).observe(showEl);}catch(e){addEventListener('resize',fit);}
 fit();
