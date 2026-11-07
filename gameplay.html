@@ -1765,7 +1765,9 @@ function walkBlocked(x,z){
   for(let i=0;i<NOWALK.length;i++){ const r=NOWALK[i]; if(x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]) return true; }
   return false;
 }
-function queueAnimal(x,z,yaw,kind,c1,c2){ ROAMQ.push({x,z,yaw,kind,c1,c2}); }
+const MOB_CAP=3; /* World: maksimal 3 per jenis hewan/mob di luar board */
+const capped=(Q,kind)=>themeKey==='minecraft'&&Q.filter(q=>q.kind===kind).length>=MOB_CAP;
+function queueAnimal(x,z,yaw,kind,c1,c2){ if(capped(ROAMQ,kind)) return; ROAMQ.push({x,z,yaw,kind,c1,c2}); }
 function mkPart(g,px,py,pz,draw,far){
   const b=makeBatch(); draw(b);
   const p=new THREE.Group(); p.position.set(px,py,pz); p.add(buildBatch(b,{cast:!far})); g.add(p); return p;
@@ -1895,7 +1897,7 @@ function updateRoam(dt,t){
 /* ===== PETERNAKAN (kandang di kaki gunung kanan) + MOB LIAR (golem vs zombie/skeleton/creeper/spider) ===== */
 function inPen(R,x,z,m){ m=m||0; return x>R.x0+m&&x<R.x1-m&&z>R.z0+m&&z<R.z1-m; }
 const inR=(R,x,z)=>x>R.x0&&x<R.x1&&z>R.z0&&z<R.z1;
-function queuePen(x,z,yaw,kind,c1,c2,pen){ ROAMQ.push({x,z,yaw,kind,c1,c2,pen:pen||RANCH}); }
+function queuePen(x,z,yaw,kind,c1,c2,pen){ if(capped(ROAMQ,kind)) return; ROAMQ.push({x,z,yaw,kind,c1,c2,pen:pen||RANCH}); }
 function addRanch(DB){
   const F={edge:false},W=ljit,TORCH=[];
   const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
@@ -1974,7 +1976,7 @@ function addRanch(DB){
   TORCH.forEach(t=>addTorch(DB,t[0],t[1],t[2])); RANCH.bees.forEach(b=>{ b.cy+=RB; });
   /* mob liar di bawah board, di pinggir pohon (1 golem saja). Mob jahat hanya muncul malam: lihat syncHostNight */
   [['golem',-1.8,7.8],['zombie',-4.6,9.8],['zombie',-0.8,10.8],['skeleton',-2.6,9.4],['skeleton',1.8,10.2],['creeper',0.6,9.2],['spider',-5.0,11.0],['spider',2.8,11.0]]
-    .forEach(q=>HOSTQ.push({kind:q[0],x:q[1],z:q[2]}));
+    .forEach(q=>{ if(!capped(HOSTQ,q[0])) HOSTQ.push({kind:q[0],x:q[1],z:q[2]}); });
 }
 /* ---- model voxel mob liar ---- */
 function makeHostile(kind){
