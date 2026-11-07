@@ -29,7 +29,8 @@
     dice:    { category: 'aksesori', noun: 'Skin dadu',  slot: 'dice' },
     theme:   { category: 'lainnya',  noun: 'Maps', slot: 'theme' },
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
-    frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' }
+    frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' },
+    gear:    { category: 'aksesori', noun: 'Gear',       slot: null }   /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
   };
   /* Frame profil: gambar WebP transparan (badan frame = 68% lebar gambar) di game/data/frame/.
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
@@ -134,12 +135,109 @@
     powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
   ];
 
+
+  /* ---- Gear karakter builder (Blocky Character System) ----
+     Bagian tubuh/baju/aksesori yang bisa dikombinasikan bebas. ID = 'gear.<bagian>.<kunci>' (kunci = id di builder).
+     slot item = 'g.<bagian>' (satu item per bagian) atau 'g.acc.<kunci>' (aksesori: boleh banyak, satu slot per aksesori).
+     source: 'starter' (gratis, dimiliki sejak awal) | 'shop' (dibeli dengan koin; HARGA ASLI ADA DI SERVER: tabel item_catalog,
+     disalin lewat tools/wallet/gen-item-seed.js) | 'quest' | 'event' (price null: tidak dijual; diberikan server).
+     g = 'm' | 'f' | null (null = semua gender). Mata, rambut, warna kulit & pewarna adalah dasar penampilan, bukan item dagangan.
+     Belum ada di builder (SENGAJA dilewati): aura, trail, spawn_effect, idle_animation, bundle. */
+  var GEAR_SLOTS = [
+    { key: 'top', label: 'Baju' }, { key: 'legs', label: 'Celana' }, { key: 'boots', label: 'Sepatu' },
+    { key: 'helm', label: 'Kepala' }, { key: 'chest', label: 'Zirah' }, { key: 'shoulder', label: 'Bahu' },
+    { key: 'cape', label: 'Punggung' }, { key: 'weapon', label: 'Tangan' }, { key: 'acc', label: 'Aksesori' }
+  ];
+  var GEAR_RARITY_BY_PRICE = function (p) { return p <= 150 ? 'common' : p <= 400 ? 'rare' : p <= 800 ? 'epic' : 'legendary'; };
+  function gear(part, key, name, price, g, extra) {
+    var label = GEAR_SLOTS.filter(function (x) { return x.key === part; })[0].label;
+    return Object.assign({ id: 'gear.' + part + '.' + key, kind: 'gear', gameKey: key, part: part, name: name,
+      rarity: GEAR_RARITY_BY_PRICE(price), price: price, desc: name + ' untuk bagian ' + label + ' karakter.',
+      starter: price === 0, source: price === 0 ? 'starter' : 'shop', g: g || null,
+      slot: part === 'acc' ? 'g.acc.' + key : 'g.' + part }, extra || {});
+  }
+  var GEAR = [
+    /* top */
+    gear('top', 'tee', 'Kaus', 0),
+    gear('top', 'blouse', 'Blus', 0, 'f'),
+    gear('top', 'tunic', 'Tunik', 120),
+    gear('top', 'overall', 'Overall', 150),
+    gear('top', 'vest', 'Kemeja Tali', 150),
+    gear('top', 'coat', 'Jas', 400, 'm'),
+    gear('top', 'robe', 'Jubah Sihir', 350),
+    gear('top', 'dress', 'Gaun', 300, 'f'),
+    gear('top', 'sundress', 'Terusan', 200, 'f'),
+    gear('top', 'cardigan', 'Kardigan', 200, 'f'),
+    /* legs */
+    gear('legs', 'pants', 'Celana', 0),
+    gear('legs', 'skirt', 'Rok Mini', 0, 'f'),
+    gear('legs', 'bare', 'Kaki Polos', 0),
+    gear('legs', 'shorts', 'Pendek', 80),
+    gear('legs', 'formal', 'Formal', 250, 'm'),
+    gear('legs', 'tights', 'Stoking', 100, 'f'),
+    gear('legs', 'lskirt', 'Rok Panjang', 150, 'f'),
+    /* boots */
+    gear('boots', 'shoes', 'Sepatu', 0),
+    gear('boots', 'mary', 'Mary Jane', 0, 'f'),
+    gear('boots', 'none', 'Telapak', 0),
+    gear('boots', 'cloth', 'Sepatu Kain', 60),
+    gear('boots', 'sandal', 'Sandal', 60),
+    gear('boots', 'tall', 'Bot Tinggi', 120),
+    gear('boots', 'flat', 'Sepatu Flat', 80, 'f'),
+    gear('boots', 'knee', 'Bot Lutut', 150, 'f'),
+    /* helm */
+    gear('helm', 'knight', 'Helm Baja', 400),
+    gear('helm', 'wizard', 'Topi Sihir', 300),
+    gear('helm', 'straw', 'Topi Jerami', 120),
+    gear('helm', 'crown', 'Mahkota', 900),
+    gear('helm', 'ribbon', 'Pita Besar', 150, 'f'),
+    gear('helm', 'tiara', 'Tiara', 600, 'f'),
+    gear('helm', 'flowers', 'Mahkota Bunga', 250, 'f'),
+    gear('helm', 'beret', 'Baret', 150, 'f'),
+    /* chest */
+    gear('chest', 'plate', 'Zirah Baja', 700),
+    gear('chest', 'leather', 'Zirah Kulit', 350),
+    gear('chest', 'valk', 'Zirah Valkyrie', 800, 'f'),
+    gear('chest', 'bodice', 'Korset Kulit', 300, 'f'),
+    /* shoulder */
+    gear('shoulder', 'pad', 'Bahu Baja', 350),
+    gear('shoulder', 'spiked', 'Bahu Duri', 450, 'm'),
+    gear('shoulder', 'leather', 'Bahu Kulit', 200),
+    gear('shoulder', 'ruffle', 'Bahu Renda', 250, 'f'),
+    gear('shoulder', 'gem', 'Bahu Permata', 500, 'f'),
+    /* cape */
+    gear('cape', 'short', 'Jubah Pendek', 250),
+    gear('cape', 'long', 'Jubah Panjang', 400),
+    gear('cape', 'wings', 'Sayap Peri', 900, 'f'),
+    /* weapon */
+    gear('weapon', 'sword', 'Pedang', 300),
+    gear('weapon', 'staff', 'Tongkat', 350),
+    gear('weapon', 'axe', 'Kapak', 450, 'm'),
+    gear('weapon', 'wand', 'Tongkat Peri', 300, 'f'),
+    gear('weapon', 'rapier', 'Rapier', 450, 'f'),
+    gear('weapon', 'parasol', 'Payung', 200, 'f'),
+    /* acc */
+    gear('acc', 'belt', 'Sabuk', 80),
+    gear('acc', 'scarf', 'Syal', 100),
+    gear('acc', 'gloves', 'Sarung Tangan', 100),
+    gear('acc', 'glasses', 'Kacamata Bulat', 120),
+    gear('acc', 'pack', 'Ransel', 150),
+    gear('acc', 'goggles', 'Kacamata', 200),
+    gear('acc', 'beard', 'Jenggot', 100, 'm'),
+    gear('acc', 'mustache', 'Kumis', 80, 'm'),
+    gear('acc', 'bow', 'Pita Rambut', 80, 'f'),
+    gear('acc', 'earrings', 'Anting', 150, 'f'),
+    gear('acc', 'necklace', 'Kalung', 200, 'f'),
+    gear('acc', 'purse', 'Tas Selempang', 150, 'f')
+  ];
+  ITEMS = ITEMS.concat(GEAR);
+
   var DEFAULT_EQUIPPED = Object.freeze({ skin: 'skin.steve', dice: 'dice.klasik', theme: 'theme.minecraft', frame: 'frame.default' });
   var BY_ID = {};
   ITEMS.forEach(function (it) {
     var meta = KIND_META[it.kind];
     it.category = meta.category;
-    it.slot = meta.slot;
+    if (it.kind !== 'gear') it.slot = meta.slot;   /* gear: slot sudah per item ('g.<bagian>') */
     it.stackable = !!it.stackable;
     it.featured = !!it.featured;
     if (it.kind === 'skin') { /* validasi texture ringan: path buruk TIDAK membuat halaman crash, skin tampil dgn fallback */
@@ -159,6 +257,9 @@
     SKIN_GROUPS: SKIN_GROUPS,
     FRAME_TAB_ICON: FRAME_TAB_ICON,
     KIND_META: KIND_META,
+    GEAR_SLOTS: Object.freeze(GEAR_SLOTS),
+    /* Semua slot equipment gear yang dikenal ('g.top', ..., 'g.acc.belt', ...) */
+    gearSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }); },
     items: Object.freeze(ITEMS.slice()),
     byId: function (id) { return Object.prototype.hasOwnProperty.call(BY_ID, id) ? BY_ID[id] : null; },
     byGameKey: function (kind, gameKey) { return BY_ID[kind + '.' + gameKey] || null; },
