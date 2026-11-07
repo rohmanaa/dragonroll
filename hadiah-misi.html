@@ -429,20 +429,10 @@ const R=[
  {h:'Hari 5',a:'x1',t:'Dadu Emas x1',ic:I.dice,ty:'dice',id:'emas',dup:300},
  {h:'Hari 6',a:'x2.000',t:'2.000 Coin',ic:I.coins,ty:'coin',n:2000},
  {h:'Hari 7',a:'Skin Epic',sub:'(Permanen)',t:'Skin Epic Enderman (Permanen)',ic:I.skin('#141414','#222222'),ty:'skin',id:'skin.ender',big:1}];
-// ---------- state: currency/ownership dari PlayerData. State klaim yang EXISTING (inv.daily, inv.bag)
-// tetap dipakai & disimpan ke key legacy 'inv' (read-modify-write; field lain TIDAK ditimpa, key tidak dihapus).
-function invField(k,def){try{const r=JSON.parse(localStorage.getItem('inv')||'null');return (r&&r[k]&&typeof r[k]==='object')?r[k]:def}catch(e){return def}}
-let D=Object.assign({claimed:0,last:'',shift:0,temp:null},invField('daily',{}));
-let BAG=Object.assign({box:0},invField('bag',{}));
-const save=()=>{if(SV())return;try{const r=(()=>{try{return JSON.parse(localStorage.getItem('inv'))||{}}catch(e){return{}}})();r.daily=D;r.bag=BAG;localStorage.setItem('inv',JSON.stringify(r))}catch(e){}};
-const DEBUG=new URLSearchParams(location.search).has('debug'); /* simulasi hari hanya dengan ?debug di URL */
-const now=()=>new Date(Date.now()+(DEBUG?D.shift:0)*864e5);
-const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const daysBetween=(a,b)=>Math.round((Date.UTC(...b.split('-').map((v,i)=>i===1?v-1:+v))-Date.UTC(...a.split('-').map((v,i)=>i===1?v-1:+v)))/864e5);
-function sync(){if(SV())return;const t=key(now());if(D.last){const df=daysBetween(D.last,t);if(df>1||(df>=1&&D.claimed>=7))D.claimed=0}
- if(D.temp&&Date.now()+(DEBUG?D.shift:0)*864e5>D.temp.exp)D.temp=null;save()}
-const doneToday=()=>SRV()?SD.claimed_today:D.last===key(now());
-if(!DEBUG&&D.shift){D.shift=0;const k0=key(now());if(D.last>k0)D.last=k0;save()} /* buang sisa simulasi lama: hari kembali ke waktu asli */
+// ---------- state: currency/ownership dari PlayerData. Status klaim harian HANYA dari server (daily_reward_get); key 'inv' tidak dibaca/ditulis lagi.
+let D={claimed:0};
+let BAG={box:0};
+const doneToday=()=>!!(SD&&SD.claimed_today);
 // ---------- helpers
 const SET=()=>PD.settings();
 const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
@@ -469,17 +459,9 @@ function renderDays(){
  renderCurrency()}
 function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}catch(e){}}
 // ---------- claim (semua reward lewat transaksi PlayerData: atomik, tidak bisa digandakan)
-function grant(r){let msg=r.t;
- if(r.ty==='gem')PD.grant({gems:r.n});
- else if(r.ty==='coin')PD.grant({coins:r.n});
- else if(r.ty==='box'){BAG.box=(BAG.box||0)+1;save()}
- else if(r.ty==='dice'){const res=PD.grant({item:'dice.'+r.id,duplicateCoins:r.dup||300});if(res.duplicate)msg='Dadu (sudah punya) → +'+fmt(r.dup||300)+' Coin'}
- else if(r.ty==='skin'){const res=PD.grant({item:r.id,duplicateGems:100});if(res.duplicate)msg='Skin (sudah punya) → +100 Gem'}
- else if(r.ty==='powerup'){const res=PD.grant({item:r.id});if(res.ok)msg=r.t+' ×1 diterima (Power)'}
- return msg}
 function done(r,msg,el){playSound('purchase');buzz();sparkle(el,22);pulse(r.ty==='gem'?'#gem':'#coin');renderDays();
  openModal(`<h2>Hadiah Diklaim!</h2><div class="rw">${r.ic}</div><div>${msg}</div><button class="ok" id="okb">Mantap!</button>`,()=>$('#okb').addEventListener('click',()=>{playSound('click');closeModal()}))}
-function claim(i,el){if(SV())return claimServer(i,el);const r=R[i],msg=grant(r);D.claimed=i+1;D.last=key(now());save();done(r,msg,el)}
+function claim(i,el){if(!SV()){toast('Silakan login untuk mengklaim hadiah.');playSound('error');return}return claimServer(i,el)}
 /* Akun server: nominal & item ditentukan server (claim_daily_reward); klien hanya menampilkan hasilnya. */
 async function claimServer(i,el){if(busy)return;busy=true;
  try{const w=WS(),r=w?await w.claimDaily():{ok:false,reason:'jaringan'};
@@ -495,16 +477,13 @@ async function claimServer(i,el){if(busy)return;busy=true;
 $('#see').addEventListener('click',()=>{playSound('click');
  openModal('<h2>Semua Hadiah</h2>'+R.map((r,i)=>`<div class="row ${state(i)==='now'?'cl':''}"><div class="ri">${r.ic}</div><div>${r.h}<small>${r.t}</small></div><span class="tag">${state(i)==='done'?'Diklaim':state(i)==='now'?'Klaim!':'Menunggu'}</span></div>`).join(''))});
 // ---------- misc buttons
-$('#rst').addEventListener('click',()=>{if(!DEBUG)return;D.shift++;sync();renderDays();tick();playSound('select');toast('Simulasi: hari berikutnya (mock)')});
 // ---------- countdown
 function tick(){
  if(SRV()){const sec=Math.max(0,Math.ceil((RESET_AT-Date.now())/1000));
   $('#cd').textContent=[sec/3600|0,(sec%3600)/60|0,sec%60].map(v=>String(v).padStart(2,'0')).join(':');
   if(sec===0&&!tick.rf){tick.rf=1;WS().dailyGet().then(d=>{if(applyDaily(d))renderDays()}).finally(()=>setTimeout(()=>{tick.rf=0},3000))}
   return}
- const n=now(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));
- $('#cd').textContent=[s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':');
- if(s===0||key(n)!==tick.k){if(tick.k&&key(n)!==tick.k){sync();renderDays()}tick.k=key(n)}}
+ $('#cd').textContent='--:--:--'}  /* tanpa server (belum login): hitung mundur tidak tersedia */
 // ---------- 3D
 let ok=typeof THREE!=='undefined';
 const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
@@ -531,7 +510,7 @@ if(ok){rig($('#glh'),hero,1.6,19,38,1.4,3,.72);rig($('#glc'),chest,2.3,18,34)}
 if(ok&&rigs.length){clock=new THREE.Clock();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe(ROOT);fit();requestAnimationFrame(loop)}
 else{$('#hero').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:6rem">🧑‍🚀</div>';$('#chest').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:8rem">🎁</div>'}
 // ---------- init
-sync();renderDays();tick();setInterval(tick,1000);
+renderDays();tick();setInterval(tick,1000);
 if(SV()&&WS()){const sm=$('#rst small');if(sm)sm.textContent='Reset 00.00 WIB:';WS().refresh().then(()=>renderCurrency());WS().dailyGet().then(d=>{if(applyDaily(d)){renderDays();tick()}})} /* B5: status dari server */
 };</script>
 <script>window.__initMisi=()=>{
