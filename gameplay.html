@@ -2615,8 +2615,9 @@ function buildMcTerrain(TB,th){
       addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
       if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
-      if(grassy&&h<2.5){ addBox(TB,gx,h-0.1,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.012); }
-      else addBox(TB,gx,h-0.1,gz,2,0.2,2,j); }
+      /* naik 0.02 agar tidak sebidang (z-fighting) dengan rumput 1x1 sekeliling board yang menimpa strip gz=+-7 */
+      if(grassy&&h<2.5){ addBox(TB,gx,h-0.08,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.032); }
+      else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
   }
   if(mc) addIslUnder(TB);
   for(let z=7;z<=(mc?ISLZ:28);z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
@@ -4262,7 +4263,7 @@ function buildNetherIslands(TB,th){
     const c=I[k],cl=NI_CLIFF[c.bio],tp=NI_TOP[c.bio],h=c.h;
     if(c.bridge&&BOSS==='wither') return;                                   /* jembatan ke benteng: baru MUNCUL saat fase Wither (buildWitherFort) */
     addBox(TB,c.x,(h-0.95)/2,c.z,1,h+0.05,1,jit(cl[0],0.06),F);            /* tebing bawah (turun ke lava) */
-    addBox(TB,c.x,h-0.3,c.z,1,0.3,1,jit(cl[1+Math.floor(rnd()*2)],0.07),F); /* lapis tebing atas */
+    addBox(TB,c.x,h-0.325,c.z,1,0.25,1,jit(cl[1+Math.floor(rnd()*2)],0.07),F); /* lapis tebing atas */
     let top=tp[Math.floor(rnd()*3)];
     if(c.bridge) top=[0x34262F,0x3C2D37,0x2C2029][((c.x*2+c.z*3)|0)&1?1:0];     /* jalan ke benteng: batu hitam polos */
     else if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
@@ -4550,7 +4551,7 @@ function buildCustomGround(TB,th){
     addBox(TB,gx,h-0.1,gz,2,0.2,2,nb?jit(NB_GROUND[nb][(gx+gz)%4===0?1:0],0.08):jit(th.ground,0.08));
   }
   addBox(TB,PAD.x,-0.25,PAD.z,2.6,0.5,2.6,jit(th.wall[1],0.05)); /* alas area Start di atas lava */
-  addBox(TB,PAD.x+1.7,-0.05,PAD.z,1.2,0.1,0.8,0x3A2A1A); /* papan penghubung ke petak 1 */
+  addBox(TB,PAD.x+1.7,-0.04,PAD.z,1.2,0.1,0.8,0x3A2A1A); /* papan penghubung ke petak 1 */
   if(TILES.island) buildNetherIslands(TB,th);
 }
 /* ---------- Lavafall: lava mengalir turun dari tepi board ke lautan lava (warna mengalir) ---------- */
