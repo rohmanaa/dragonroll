@@ -1760,7 +1760,7 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
 }
 
 /* ---------- makhluk berkeliling (domba, babi, sapi, ayam, penduduk) ---------- */
-const ROAM=[],ROAMQ=[],NOWALK=[],TREEPOS=[],GHASTS=[],LAVAFALLS=[];
+const ROAM=[],ROAMQ=[],NOWALK=[],TREEPOS=[],DECOR_SEED=[],GHASTS=[],LAVAFALLS=[];
 /* peternakan + mob liar: state (dibersihkan di clearFX) */
 const BEES=[],HOST=[],HOSTQ=[],ARROWS=[];
 const RB=1;                                            /* tinggi tanah dasar peternakan (kaki lereng, di sini jalan batu mulai naik) */
@@ -2542,7 +2542,7 @@ function addMushIsl(B,x,z){
   addBox(B,x+0.08,0.31,z+0.06,0.08,0.03,0.08,0xffffff,{edge:false});
 }
 function addGrassScenery(DB,th){
-  const mc=th.decor==='mc',r=mkRng(0x6A55+THEMES.indexOf(th)*131),placed=[];
+  const mc=th.decor==='mc',r=mkRng(0x6A55+THEMES.indexOf(th)*131),placed=th.decor==='mc'?DECOR_SEED.map(a=>a.slice()):[];
   const ok=(x,z,pad)=>{
     if(mc&&(Math.abs(x)>ISLX-1.5||Math.abs(z)>ISLZ-1.5)) return false; /* pulau World lebih kecil */
     if(Math.abs(x)<6.2&&Math.abs(z)<6.2) return false;                  /* board + pagar */
@@ -2711,11 +2711,22 @@ function addMcEnv(DB){
   addFarm(DB);
   /* hewan dekat board dihapus -> pindah ke kandang (addRanch) */
   queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(5.85,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
+  const FL=[]; DECOR_SEED.length=0;
   for(let i=0;i<90;i++){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
-    addBox(DB,x,0.07,z,0.14,0.14,0.14,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF]),{edge:false});
+    FL.push([x,z,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF])]); /* rnd tetap sama; dipasang setelah kandang/pohon ada */
   }
   addRanch(DB); /* kandang ternak + pohon + lebah (di kaki gunung kanan) & mob liar di bawah */
+  /* Bunga kecil: buang yang bentrok dengan benda (kandang/pagar, pohon, villager/pemancing) atau bunga lain yang terlalu dekat */
+  FL.forEach(f=>{
+    const x=f[0],z=f[1];
+    if(penBlocked(x,z)) return;
+    if(TREEPOS.some(t=>Math.hypot(x-t[0],z-t[1])<0.8*t[2]+0.15)) return;
+    if([[-6.9,-2.0],[5.85,2.2]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
+    if(DECOR_SEED.some(k=>Math.hypot(x-k[0],z-k[1])<0.22)) return;
+    DECOR_SEED.push([x,z,0.16]);
+    addBox(DB,x,0.07,z,0.14,0.14,0.14,f[2],{edge:false});
+  });
   addGrassScenery(DB,theme); /* batu + semak + rumpun pixel kecil di luar board */
 }
 function tileColor(n,t,th){
@@ -4627,12 +4638,14 @@ function buildWorld(key){
     {
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,tileShade(bc,n,t,i,j,th.key),{edge:false});
+      /* dekor kecil di sudut petak dibuang bila petak ini berisi mob/chest (bentrok). Argumen tetap dievaluasi -> urutan rnd() & seed dunia tidak berubah. */
+      const decorOK=!(mobOn(n,th.key)||CHESTS.has(n)),dbox=(x,y,z,w,h,d,c,o)=>{ if(decorOK) addBox(TB,x,y,z,w,h,d,c,o); };
       const cx=()=>t.x+(rnd()<0.5?-0.34:0.34),cz=()=>t.z+(rnd()<0.5?-0.34:0.34);
-      if(bc===0x5A9E3C&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
-      if(bc===0x8E8E8E) for(let k=0;k<3;k++) addBox(TB,cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
-      if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) addBox(TB,cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
+      if(bc===0x5A9E3C&&rnd()<0.6) dbox(cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
+      if(bc===0x8E8E8E) for(let k=0;k<3;k++) dbox(cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
+      if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) dbox(cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
       if(bc===0x3F76E4||bc===0x2F5FCC) waterDetail(TB,t.x,t.z,t.h,0.94,0.94,n+200,3,3); /* riak air detail */
-      if(bc===0x8A2B2B&&rnd()<0.3) addBox(TB,cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
+      if(bc===0x8A2B2B&&rnd()<0.3) dbox(cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
     }
   }
   MCFLAT=(th.decor==='mc');
