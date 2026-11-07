@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id" class="stage16">
+<head><script src="assets/js/frame-guard.js"></script>
+<script src="assets/js/boot-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Toko</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}#back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.flip{transform:scaleX(-1)}
+.arr .ci{width:2.6rem;height:2.6rem;display:block;object-fit:contain;pointer-events:none}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/shop-bg.webp"></script>
+<style>
+:root{
+  --bd:#12337f;
+  --y1:#ffd24d;
+  --y2:#ff9a1f;
+  --g:#3cc23c;
+  --r0:#6f8aa8;
+  --r1:#2f8cf0;
+  --r2:#9a4ae0;
+  --r3:#f0b030;
+  --panel-bg: rgba(120,195,255,.85);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html{font-size:min(1vw,1.78vh)}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
+
+#sky{position:fixed;inset:0;overflow:hidden;z-index:0}
+.isl{position:absolute;opacity:.75;animation:fl 6s ease-in-out infinite}
+.isl i{display:block;background:#6fbf4a}.isl b{display:block;background:#8a5a3a;margin:0 auto}
+@keyframes fl{50%{translate:0 -.8rem}}
+
+.ab{position:relative}
+
+/* Container Utama Grid Layout */
+#ui{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:grid;
+  grid-template-columns: 14rem 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 1rem 1.5rem;
+  padding: 1.5rem;
+}
+
+/* Header Section */
+#top-bar{
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.header-left{
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.header-right{
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.ut-curbar {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  margin: 0 !important;
+}
+
+.ut-curbar .cur {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+}
+
+button{font:inherit;color:inherit;border:0;cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
+button:hover{transform:scale(1.05);filter:brightness(1.08)}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:.3rem solid #fff}
+
+.blue{background:linear-gradient(#4aa8ff,#1f6fe0);box-shadow:0 .5rem 0 var(--bd),0 1rem 1.4rem rgba(18,51,127,.4),inset 0 .2rem .2rem rgba(255,255,255,.6)}
+svg{display:block}
+
+#back{width:4.5rem;height:4.5rem;border-radius:1.4rem;padding:0;display:grid;place-items:center;flex-shrink:0}
+#back svg{width:2.8rem;height:2.8rem}
+
+#title{
+  height:4.5rem;
+  border-radius:2.2rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  padding: 0 2rem;
+  font-size:3rem;
+  text-shadow:0 .2rem 0 var(--bd);
+}
+#title svg{width:3.2rem;height:3.2rem}
+
+#gear{width:4.5rem;height:4.5rem;border-radius:1.4rem;padding:0;display:grid;place-items:center;flex-shrink:0}
+#gear svg{width:2.8rem;height:2.8rem}
+#gear>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+
+/* Sidebar Kategori Kiri */
+#cats{
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: max(.8rem, 8px);
+  overflow-y: auto;
+  /* ruang untuk shadow/glow/scale tombol agar tidak terpotong oleh overflow;
+     margin negatif menjaga posisi & lebar tombol tetap sama */
+  padding: 1.4rem 1.4rem 1.8rem;
+  margin: -1.4rem -1.4rem -1.4rem;
+  pointer-events: none;
+  scrollbar-width: none;
+}
+#cats::-webkit-scrollbar{display:none}
+#cats .cat{pointer-events:auto}
+
+.cat{
+  min-height:44px;
+  height:4.4rem;
+  border-radius:1.5rem;
+  display:flex;
+  align-items:center;
+  gap:max(.8rem, 8px);
+  padding-block:10px;
+  padding-inline:max(1.2rem, 14px);
+  font-size:2rem;
+  text-shadow:0 .15rem 0 var(--bd);
+  border:.25rem solid transparent;
+  width: 100%;
+  white-space:nowrap;
+}
+.cat svg{width:2.6rem;height:2.6rem}
+.cat .ci{width:2.6rem;height:2.6rem;flex:none}
+.cat.on{border-color:#ffe36a;background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 .4rem 0 #b9740c,0 0 1.5rem #ffd24d;transform:scale(1.02);text-shadow:0 .2rem 0 #a35f08}
+
+/* Right Content Section */
+.right-section{
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+}
+
+/* Top Showcase & Info Area */
+.shop-top-panel{
+  display: grid;
+  grid-template-columns: 26rem 1fr;
+  gap: 1.2rem;
+  height: 24rem;
+  flex-shrink: 0;
+}
+
+#show{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: rgba(40,130,240,.3);
+}
+#show canvas{width:100%;height:100%;display:block}
+#show #art{display:none;position:absolute;inset:0;place-items:center}
+#show #art svg{width:82%;height:82%}
+#show.art canvas{display:none}#show.art #art{display:grid}
+
+.arr-wrap{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 .8rem;
+  pointer-events: none;
+  z-index: 5;
+}
+.arr{width:3.8rem;height:4.6rem;border-radius:1.3rem;padding:0;display:grid;place-items:center;pointer-events: auto}
+.arr svg{width:2.2rem;height:2.2rem}
+
+#info{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 2rem;
+  padding: 1.8rem 1.8rem 1.2rem;
+  background: linear-gradient(#3b95f4,#1c62d4);
+  box-shadow: 0 .5rem 0 var(--bd),0 1.2rem 2rem rgba(18,51,127,.4),inset 0 .2rem .3rem rgba(255,255,255,.55),inset 0 0 0 .25rem #5cb4ff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.badge{display:inline-block;padding:0 1rem;border-radius:1rem;font-size:1.5rem;line-height:2.2rem;background:var(--rc,var(--r1));box-shadow:inset 0 .15rem .2rem rgba(255,255,255,.5)}
+#info .badge{position:absolute;left:1.2rem;top:-1.2rem}
+#iname{font-size:3rem;line-height:1.1;margin:0}
+#idesc{font-size:1.5rem;line-height:1.2;font-weight:700;color:#e0f2ff}
+#iprice{display:flex;align-items:center;gap:.6rem;font-size:2.4rem;color:#ffe36a;margin:0}
+#iprice svg{width:2.6rem;height:2.6rem}
+
+.cta{width:100%;height:4.2rem;border-radius:2.1rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .35rem 0 #c96a0c,inset 0 .25rem .25rem rgba(255,255,255,.6);font-size:2.6rem;display:flex;align-items:center;justify-content:center;gap:.8rem;text-shadow:0 .15rem 0 #8a4a0a;padding:0}
+.cta svg{width:2.6rem;height:2.6rem}
+.cta.own{background:linear-gradient(#6fe06f,#2faa2f);box-shadow:0 .35rem 0 #1c6d1c,inset 0 .25rem .25rem rgba(255,255,255,.5);text-shadow:0 .15rem 0 #1c6d1c}
+.cta:disabled{filter:saturate(.8);cursor:default;transform:none}
+
+#gift{width:100%;height:3.6rem;border-radius:1.8rem;font-size:2.2rem;display:flex;align-items:center;justify-content:center;gap:.8rem;padding:0;background:linear-gradient(#4aa8ff,#1f78e8);box-shadow:0 .3rem 0 var(--bd),inset 0 .15rem .2rem rgba(255,255,255,.6)}
+#gift svg{width:2.2rem;height:2.2rem}
+/* icon gambar menggantikan svg judul & tombol Hadiah */
+#title>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+#gift>.ic{width:2.2rem;height:2.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+
+.pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
+
+/* Bottom Shop Grid Panel */
+#bot{
+  width: 100%;
+  flex: 1;
+  border-radius: 2.2rem;
+  padding: 1rem 1.2rem;
+  background: var(--panel-bg);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 .6rem 2rem rgba(18,51,127,.35),inset 0 .2rem .3rem rgba(255,255,255,.8),inset 0 0 0 .25rem rgba(80,160,240,.7);
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  min-height: 0;
+}
+
+#grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);gap:.8rem;overflow-y:auto}
+
+.card{position:relative;border-radius:1.4rem;padding:.4rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;background:linear-gradient(var(--c1),var(--c2));box-shadow:0 .25rem 0 rgba(10,30,100,.5),inset 0 0 0 .2rem rgba(255,255,255,.25);animation:pop .35s both;cursor:pointer;overflow:hidden}
+@keyframes pop{from{opacity:0;transform:scale(.85)}}
+.card .badge{position:absolute;left:.5rem;top:.4rem;font-size:1.1rem;line-height:1.5rem;padding:0 .6rem;z-index:1}
+.card.sel{box-shadow:0 0 0 .3rem #ffe36a,0 0 1.4rem #ffe36a}
+.card .th{flex:1;min-height:0;width:70%}.card .th svg{width:100%;height:100%}
+.card:hover .th{animation:wig .8s}@keyframes wig{50%{rotate:8deg;scale:1.1}}
+.card .nm{font-size:1.4rem;line-height:1.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.card .pr{display:flex;align-items:center;gap:.3rem;font-size:1.5rem;line-height:1.6rem;color:#ffe36a}.card .pr.soon{font-size:1.2rem;color:#dceaff}.card .pr svg{width:1.5rem;height:1.5rem}
+.card .bt{width:88%;height:2.2rem;margin:.2rem 0 .2rem;border-radius:1.1rem;font-size:1.4rem;line-height:2.2rem;padding:0;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .18rem 0 #c96a0c;text-shadow:0 .1rem 0 #8a4a0a}
+.card .bt.own{background:linear-gradient(#6fe06f,#2faa2f);box-shadow:0 .18rem 0 #1c6d1c}
+.ck{position:absolute;right:.5rem;top:50%;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--g);border:.18rem solid #fff;display:grid;place-items:center}.ck svg{width:1.2rem;height:1.2rem}
+
+.sp{position:fixed;width:1.2rem;height:1.2rem;background:#fff6a0;rotate:45deg;pointer-events:none;z-index:99;animation:spk .8s forwards}
+@keyframes spk{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+
+/* Modal Styling */
+.ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.4);backdrop-filter:blur(6px);z-index:50;opacity:0;transition:opacity .25s}
+.ov.show{opacity:1}.ov>.box{transform:scale(.85);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}.ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.9)}
+.box{position:relative;width:min(44rem,92vw);max-height:90vh;overflow:auto;background:linear-gradient(#7cc2ff,#4a9ae8);border-radius:2.2rem;padding:2.5rem 2rem 2rem;box-shadow:0 1rem 0 var(--bd),0 2rem 3rem rgba(0,0,0,.3);font-size:2.2rem;text-align:center}
+.box.big{width:min(56rem,92vw)}
+.box h2{margin:0 0 1rem;font-size:3rem;text-shadow:0 .2rem 0 var(--bd)}
+.x{position:absolute;right:-.8rem;top:-.8rem;width:4.2rem;height:4.2rem;border-radius:50%;background:#ee4a4a;box-shadow:0 .3rem 0 #8e1d1d;font-size:2.2rem;padding:0}
+.row{display:flex;justify-content:space-between;align-items:center;background:rgba(18,51,127,.25);border-radius:1.2rem;padding:.8rem 1.2rem;margin:.6rem 0;gap:1rem}
+.row.sel{outline:.3rem solid #ffe36a}
+.tg{min-width:7rem;height:3.5rem;border-radius:1.8rem;background:#7b8aa8;box-shadow:inset 0 .2rem .4rem rgba(0,0,0,.3);font-size:1.8rem;padding:0 1rem}.tg.on{background:var(--g)}
+.pack,.mb{width:100%;display:flex;justify-content:space-between;align-items:center;margin:.6rem 0;padding:1rem 1.4rem;border-radius:1.2rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .35rem 0 #c96a0c;font-size:2.2rem;text-shadow:0 .15rem 0 rgba(107,53,17,.7)}
+.mb{justify-content:center;width:48%;display:inline-flex;margin:1rem 1% 0}.mb.no{background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 .35rem 0 #2f5090;text-shadow:none}
+
+#toast{position:fixed;left:50%;bottom:2.5rem;translate:-50% 2rem;background:var(--bd);padding:.7rem 2rem;border-radius:1.8rem;font-size:2.2rem;opacity:0;transition:opacity .3s,translate .35s cubic-bezier(.3,1.8,.5,1);z-index:99;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;translate:-50% 0}
+
+/* Media Query Responsif Mobile */
+@media(max-aspect-ratio:1/1){
+  html{font-size:2.2vw}
+  #ui{
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    gap:1.2rem;
+    padding:1rem;
+  }
+  #cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px;overflow:visible;flex-shrink:0;padding:0 0 6px;margin:0}
+  .cat{padding-inline:8px;justify-content:center;gap:6px;min-width:0}
+  .right-section{width:100%}
+  .shop-top-panel{grid-template-columns: 1fr; height: auto; gap: 1rem}
+  #show{height:55vw}
+  #info{height:auto}
+  #bot{height:auto;min-height:45rem}
+  #grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:18rem}
+}
+</style>
+<link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
+<style id="shop-pixel">
+/* Toko: restyle gaya pixel Minecraft mengikuti redesign-hud/toko.webp.
+   HANYA tampilan. Markup, id, class, dan JS tidak berubah (tombol tidak ditambah/dihapus). Dimuat setelah shared-ui.css. */
+:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
+html body #ui{padding:1.1rem 1.5rem 1.1rem;gap:1rem 1.4rem}
+html body .shop-top-panel{height:23rem}
+
+/* tombol biru (Back, Gear, panah) */
+html body .blue,html body #gift{background:linear-gradient(var(--rb1),var(--rb2));border:.3rem solid var(--ol);border-radius:.9rem;box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
+html body #back,html body #gear{width:5rem;height:5rem}
+html body #title{height:5rem;border-radius:.9rem;padding:0 2rem;font-size:3.2rem;text-shadow:none;background:linear-gradient(var(--nv1),var(--nv2))}
+
+/* currency: disamakan dengan Lobby */
+:root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
+
+/* kategori kiri */
+html body .cat{height:4.6rem;border-radius:.9rem;border:.3rem solid var(--ol);font-size:2.2rem;text-shadow:0 .2rem 0 var(--ol)}
+html body .cat.on{border-color:var(--ol);background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,90,0,.5),0 .35rem 0 var(--ol);transform:none;text-shadow:0 .2rem 0 #8a5a08}
+
+/* preview 3D */
+html body #show{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#5aa9f5,#a2d6fb);box-shadow:inset 0 0 0 .3rem #3a74e0,0 .35rem 0 var(--ol)}
+
+/* panel info */
+html body #info{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
+html body #info .badge{left:1.6rem;top:-1.6rem}
+html body .badge{border:.2rem solid var(--ol);border-radius:.7rem;box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35)}
+html body #iname{font-size:3.4rem;text-shadow:none}
+html body #idesc{font-size:1.5rem;color:#fff}
+html body .cta{height:4.6rem;border-radius:.9rem;border:.3rem solid var(--ol);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
+html body .cta.own{background:linear-gradient(#4fd24c,#259a2e);box-shadow:inset 0 0 0 .15rem #8cf08a,inset 0 -.3rem 0 rgba(0,70,10,.45),0 .3rem 0 var(--ol);text-shadow:0 .15rem 0 #0d4a14}
+html body #gift{height:3.8rem}
+
+/* grid item */
+html body #bot{border-radius:1rem;border:.3rem solid var(--ol);padding:.7rem .9rem;background:linear-gradient(#3a74e0,#2a58c4);backdrop-filter:none;box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
+html body #grid{gap:.6rem}
+html body .card{border-radius:.8rem;border:.3rem solid var(--ol);padding:.4rem .5rem .5rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18)}
+html body .card.sel{border-color:#f1d04a;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 0 0 .15rem #f1d04a}
+html body .card .badge{left:.4rem;top:.3rem;border-radius:.5rem;border-width:.15rem}
+html body .card .th{position:absolute;top:.35rem;right:.5rem;width:2.6rem;height:2.6rem;flex:none}
+html body .card .nm{font-size:1.5rem;line-height:1.5rem}
+html body .card .bt{width:94%;height:2.3rem;margin:.1rem 0 0;border-radius:.6rem;border:.2rem solid var(--ol);font-size:1.5rem;line-height:1.9rem;background:linear-gradient(#ffb133,#f08a14);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.4),0 .15rem 0 var(--ol);text-shadow:0 .1rem 0 rgba(90,45,0,.6)}
+html body .card .bt.own{background:linear-gradient(#3fc545,#23952c);text-shadow:0 .1rem 0 #0d4a14}
+html body .ck{top:auto;bottom:3.6rem;right:.3rem;width:2.4rem;height:2.4rem;border:.2rem solid #fff;box-shadow:0 0 0 .15rem var(--ol)}
+/* modal & toast: disamakan gaya pixel (tidak pill) */
+html body .box{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .6rem 0 var(--ol),0 2rem 3rem rgba(0,0,0,.3)}
+html body .x{border-radius:.6rem;border:.2rem solid var(--ol);box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35),0 .2rem 0 var(--ol)}
+html body .row{border-radius:.7rem;border:.2rem solid var(--ol);background:rgba(10,30,100,.35)}
+html body .tg{border-radius:.6rem;border:.2rem solid var(--ol)}
+html body .pack,html body .mb{border-radius:.9rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
+html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
+</style>
+<script src="assets/js/landscape.js"></script><style id="frame-tab">
+/* tab Frame: frame + wajah skin terpasang */
+.fr-th{position:relative;width:100%;height:100%}
+.fr-th .fr-in{position:absolute;inset:16%;display:block;border-radius:.3rem;background:linear-gradient(#bfe6ff,#6cb8f0)}
+.fr-th .fr-in svg{width:100%;height:100%;display:block}
+.fr-th .fr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+#show #art .fr-th{width:min(34rem,70%);height:auto;aspect-ratio:1/1}
+#show #art .fr-th .fr-in svg{width:100%;height:100%}
+</style>
+<link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+html body .blue,html body #gift{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
+html body #title{background:linear-gradient(var(--sl1),var(--sl2))!important}
+html body .cat:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
+html body #info,html body #bot,html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
+html body #show{border-color:#172033;box-shadow:inset 0 0 0 .3rem #8696ad,0 .35rem 0 #0b1220}
+html body .row{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
+html body #toast{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033}
+html body .mb.no{background:linear-gradient(var(--sl3),var(--sl4));box-shadow:0 .3rem 0 #0b1220}
+html body #idesc{color:#cdd8ea}
+</style></head>
+<body>
+<div id="sky"></div>
+
+<div id="ui">
+  <!-- Top Header Bar -->
+  <header id="top-bar">
+    <div class="header-left">
+      <button class="blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+      <div class="blue" id="title"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async">Toko</div>
+    </div>
+
+    <!-- Kelompok Kanan: Gem + Coin + Gear -->
+    <div class="header-right">
+      <div class="ut-curbar">
+        <div class="cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
+        <div class="cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Kategori Kiri -->
+  <nav id="cats" aria-label="Kategori"></nav>
+
+  <!-- Konten Utama Kanan -->
+  <div class="right-section">
+    <!-- Panel Atas: Showcase 3D & Info Detail -->
+    <div class="shop-top-panel">
+      <div id="show">
+        <canvas id="gl"></canvas>
+        <div id="art"></div>
+        <div class="arr-wrap">
+          <button class="blue arr" id="prev" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+          <button class="blue arr" id="next" aria-label="Berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+        </div>
+      </div>
+
+      <section id="info">
+        <span class="badge" id="irar"></span>
+        <div id="iname"></div>
+        <div id="idesc"></div>
+        <div id="iprice"></div>
+        <button class="cta" id="buy"></button>
+        <button id="gift"><img class="ic" src="assets/Images/icon/lobby/gift.webp" alt="" draggable="false" decoding="async">Hadiah</button>
+      </section>
+    </div>
+
+    <!-- Panel Bawah: Grid Item (navigasi kategori ada di #cats) -->
+    <section id="bot">
+      <div id="grid"></div>
+    </section>
+  </div>
+</div>
+
+<div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
+<div id="toast"></div>
+
+<script src="assets/js/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
+<script src="assets/js/character-data.js"></script>
+<script src="assets/js/character-view.js"></script>
+<script src="assets/js/item-art.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/ads-service.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="hud/ui-core.js"></script>
+<script>UT.App.init({page:'shop'});</script>
+<script src="assets/js/vendor/three.min.js"></script>
+<script src="assets/js/floating-island.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
+const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
+const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* B5: akun login + flag = dompet server */
+const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RC={common:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)'};
+const BG={common:['#36517c','#243a60'],rare:['#3a82ee','#2257c8'],epic:['#7a3fd8','#4f27a6'],legendary:['#f0c040','#b98020']};
+const CI={skin:IC.items.filter(i=>i.kind==='skin'),dice:IC.items.filter(i=>i.kind==='dice'),powerup:IC.items.filter(i=>i.kind==='powerup'),frame:IC.items.filter(i=>i.kind==='frame')};
+const SOON={effect:'Efek',emote:'Emote'};
+const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['frame','Frame','M4 4h16v16H4zM8 8h8v8H8z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
+const catImg=k=>k==='frame'?'<img class="ci" src="'+IC.FRAME_TAB_ICON+'" alt="" draggable="false">':'<img class="ci" src="assets/Images/icon/items/'+({skin:'skin',dice:'dadu',powerup:'power',effect:'efek',emote:'emote'}[k]||'skin')+'.webp" alt="" draggable="false">';
+const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
+const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
+
+/* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
+const PFX={at(i,el){try{if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
+ note(i){try{const d=i&&i.kind==='powerup'&&window.UT&&UT.PowerFX&&UT.PowerFX.DATA[i.gameKey];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
+let cat='skin',sel=CI.skin[0];
+const list=c=>CI[c]||null;
+const owned=i=>PD.owns(i.id),equipped=i=>PD.isEquipped(i.id);
+const SET=()=>PD.settings();
+const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
+
+function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
+const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)}
+function sparkle(el,n=12){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;for(let i=0;i<n;i++){const s=document.createElement('i');s.className='sp';s.style.left=cx+'px';s.style.top=cy+'px';const a=Math.random()*6.28,d=30+Math.random()*60;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),850)}}
+
+// Background sky islands
+(()=>{const sk=$('#sky');[[5,60,6],[18,30,4],[30,70,5],[62,16,5],[86,48,7],[92,12,4],[2,20,5],[75,75,6],[45,85,4]].forEach((p,i)=>{const e=document.createElement('div');e.className='isl';e.style.cssText=`left:${p[0]}%;top:${p[1]}%;animation-delay:${-i}s;filter:blur(${i%3}px)`;e.innerHTML=`<i style="width:${p[2]}rem;height:${p[2]*.4}rem"></i><b style="width:${p[2]*.7}rem;height:${p[2]*.6}rem"></b>`;sk.appendChild(e)})})();
+
+function thumb(c,it){
+ if(c==='skin')return AR.face(it.id);
+ if(c==='dice')return AR.dice(it.id);
+ if(c==='theme')return AR.theme(it.id);
+ if(c==='powerup')return AR.powerup(it.id);
+ if(c==='frame')return AR.frame(it.id);
+ return `<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="7" fill="rgba(255,255,255,.25)"/><path d="M12 21l6 6 11-13" fill="none" stroke="#fff" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+
+function renderCats(){
+  $('#cats').innerHTML=CATS.map(c=>`<button class="blue cat ${c[0]===cat?'on':''}" data-c="${c[0]}" aria-label="${c[1]}">${catImg(c[0])}${c[1]}</button>`).join('');
+  document.querySelectorAll('#cats [data-c]').forEach(b=>b.addEventListener('click',()=>{playSound('click');setCat(b.dataset.c)}))
+}
+
+function setCat(c){cat=c;const l=list(c);sel=l?(l.find(i=>equipped(i))||l[0]):null;renderCats();renderGrid();renderInfo();buildModels();playSound('select')}
+
+function renderGrid(){const g=$('#grid');g.innerHTML='';
+ if(!list(cat)){g.innerHTML=`<div style="grid-column:1/-1;display:grid;place-items:center;font-size:2.2rem;text-shadow:0 .2rem 0 var(--bd)">${SOON[cat]} — Segera hadir</div>`;return}
+ list(cat).forEach((i,n)=>{const b=document.createElement('div');b.className='card'+(i===sel?' sel':'');b.tabIndex=0;b.setAttribute('role','button');b.setAttribute('aria-label',i.name);b.style.setProperty('--c1',BG[i.rarity][0]);b.style.setProperty('--c2',BG[i.rarity][1]);b.style.setProperty('--rc',RC[i.rarity]);b.style.animationDelay=n*25+'ms';
+  const ow=owned(i),eq=equipped(i),np=i.price==null;
+  const pr=np?'<span class="pr soon">Segera hadir</span>':`<span class="pr">${CM}${fmt(i.price)}</span>`;
+  const bt=np?'<button class="bt no">Segera</button>':`<button class="bt ${ow?'own':''}">${ow?(eq?'Digunakan':'Dimiliki'):'Beli'}</button>`;
+  b.innerHTML=`<span class="badge">${RN[i.rarity]}</span><div class="th">${thumb(cat,i)}</div>${eq?`<span class="ck">${CK}</span>`:''}<span class="nm">${i.name}</span>${pr}${bt}`;
+  b.addEventListener('click',e=>{sel=i;renderGrid();renderInfo();buildModels();playSound('select');sparkle(b,6);PFX.at(i,b);if(e.target.closest('.bt'))act(i)});
+  b.addEventListener('keydown',e=>{if(e.key==='Enter')b.click()});g.appendChild(b)})}
+
+const CK='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function act(i){if(i.price==null){toast('Belum dijual — segera hadir.');playSound('error');return}
+ if(owned(i)){const r=PD.equip(i.id);toast(r.ok?(i.kind==='skin'?'Skin digunakan.':i.kind==='frame'?'Frame digunakan.':'Item digunakan.'):'Gagal memakai item.');renderGrid();renderInfo();playSound('select')}else confirmBuy(i)}
+
+function renderInfo(){const p=$('#info');
+ if(!sel){$('#irar').textContent='SOON';$('#irar').style.setProperty('--rc',RC.common);$('#iname').textContent=SOON[cat];$('#idesc').textContent='Kategori ini belum memiliki item canonical.';$('#iprice').innerHTML='';const b=$('#buy');b.className='cta';b.disabled=true;b.innerHTML='Segera hadir';renderCurrency();return}
+ const i=sel,ow=owned(i),eq=equipped(i);
+ $('#irar').textContent=RN[i.rarity];$('#irar').style.setProperty('--rc',RC[i.rarity]);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+PFX.note(i);
+ if(i.price==null){$('#iprice').innerHTML='<span style="font-size:1.6rem;opacity:.85">Harga belum ditentukan</span>';const b=$('#buy');b.className='cta';b.disabled=true;b.innerHTML='Segera hadir';p.animate([{transform:'translateY(1rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
+ $('#iprice').innerHTML=CM+fmt(i.price);
+ const b=$('#buy');b.className='cta'+(ow?' own':'');b.disabled=eq;b.innerHTML=ow?(eq?CK+'Digunakan':'Pakai'):CM+'Beli';
+ p.animate([{transform:'translateY(1rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});
+ renderCurrency()}
+
+function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
+
+$('#buy').addEventListener('click',e=>{if(sel){act(sel);sparkle(e.currentTarget)}});
+$('#prev').addEventListener('click',()=>step(-1));$('#next').addEventListener('click',()=>step(1));
+function step(d){const l=list(cat);if(!l)return;const n=(l.indexOf(sel)+d+l.length)%l.length;sel=l[n];renderGrid();renderInfo();buildModels();playSound('select');PFX.at(sel)}
+
+UT.Events.on('currencyChanged',renderCurrency);
+UT.Events.on('inventoryChanged',()=>{const l=list(cat);if(l&&(!sel||!l.includes(sel)))sel=l.find(i=>equipped(i))||l[0];renderGrid();renderInfo()});
+UT.Events.on('skinChanged',()=>{renderGrid();renderInfo()});
+UT.Events.on('diceChanged',()=>{renderGrid();renderInfo()});
+UT.Events.on('frameChanged',()=>{renderGrid();renderInfo()});
+
+const modal=$('#modal');let mOpen=false,onClose=null;
+function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
+function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');onClose&&onClose();onClose=null;setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
+$('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function confirmBuy(i){const coins=PD.coins(),ok=coins>=i.price;
+ openModal(ok?`<h2>Konfirmasi</h2><p>Apakah kamu ingin membeli ${i.name}?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="width:2.8rem">${CM}</span>${fmt(i.price)}</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Konfirmasi</button>`
+ :`<h2>Coin tidak cukup</h2><p>Kamu butuh ${fmt(i.price-coins)} coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>`,()=>{
+  $('#no').addEventListener('click',()=>{playSound('click');closeModal()});
+  if(ok)$('#yes').addEventListener('click',async()=>{const r=SV()?await WS().buy(i.id):PD.purchase(i.id);
+   if(!r.ok){toast(WMSG[r.reason]||'Pembelian gagal.');playSound('error');closeModal();return}
+   closeModal();sel=i.item;renderGrid();renderInfo();playSound('purchase');buzz();toast('Pembelian berhasil!');sparkle($('#show'),24);spin=1});
+  else{playSound('error');$('#more').addEventListener('click',()=>{closeModal();setTimeout(()=>buy('coin'),300)})}})}
+
+function buy(type){if(type==='gem'){gemShop();return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
+ openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
+  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',async()=>{const i=+b.dataset.i,p=packs[i];const r=g?(SV()?{ok:false,reason:'tidak-tersedia'}:PD.addCurrency(0,p[0])):(SV()?await WS().exchange(i):PD.addCurrency(p[0],-[10,40,120][i]));
+   if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');if(r.reason==='gem-kurang'){closeModal();setTimeout(gemShop,300)}return}
+   renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
+
+/* ---------- Toko Emerald: emerald didapat dengan menonton iklan berhadiah (tombol Iklan) ----------
+   Akun server: nominal, batas harian & jeda ditentukan SERVER (claim_ad_reward). Tamu: simulasi lokal dengan batas yang sama. */
+const AD={gems:5,cap:5,gap:60};
+function adLocal(){const d=new Date(),k='ut:adLocal:'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();let o={n:0,t:0};try{o=Object.assign(o,JSON.parse(localStorage.getItem(k)||'{}'))}catch(e){}return{k,o}}
+function adLocalState(){const{o}=adLocal(),w=Math.max(0,Math.ceil((o.t+AD.gap*1000-Date.now())/1000));return{ok:true,gems:AD.gems,cap:AD.cap,left:Math.max(0,AD.cap-o.n),tunggu_detik:w}}
+function adLocalClaim(){const{k,o}=adLocal(),st=adLocalState();if(st.left<1)return{ok:false,reason:'daily_cap'};if(st.tunggu_detik>0)return{ok:false,reason:'terlalu-cepat',tunggu_detik:st.tunggu_detik};
+ const r=PD.addCurrency(0,AD.gems);if(!r.ok)return r;o.n++;o.t=Date.now();try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}return{ok:true,reward_gems:AD.gems}}
+const AMSG={'daily_cap':'Batas iklan hari ini tercapai. Kembali besok (00.00 WIB).','tidak-tersedia':'Iklan belum tersedia.','dibatalkan':'Iklan belum selesai, hadiah tidak diberikan.','gagal':'Iklan gagal dimuat.','token-tidak-valid':'Klaim tidak valid.'};
+async function gemShop(){
+ const srv=SV()&&WS();let st=srv?await WS().adGet():adLocalState();if(!st.ok)st=null;
+ const info=s=>s?(s.left<1?'Batas iklan hari ini tercapai':'Sisa hari ini: '+s.left+'/'+s.cap)+(s.left>0&&s.tunggu_detik>0?' · tunggu '+s.tunggu_detik+' dtk':''):'Status iklan tidak tersedia';
+ const gems=(st&&st.gems)||AD.gems,sim=window.UT&&UT.Ads&&UT.Ads.isMock()?'<small style="display:block;opacity:.7;margin-top:.6rem">Iklan simulasi (mode pengembangan)</small>':'';
+ openModal(`<h2>Tambah Emerald</h2><p style="margin:0 0 1rem">Tonton iklan, dapat +${gems} Emerald</p><button class="pack" id="adb"><span>&#9654; Tonton Iklan</span><span>+${gems} Emerald</span></button><small id="adn" style="display:block;margin-top:.8rem">${info(st)}</small>${sim}`,()=>{
+  const b=$('#adb');if(!st||st.left<1)b.disabled=true;
+  b.addEventListener('click',async()=>{b.disabled=true;playSound('click');
+   const a=window.UT&&UT.Ads?await UT.Ads.show():{ok:false,reason:'tidak-tersedia'};
+   if(!a.ok){toast(AMSG[a.reason]||'Iklan gagal.');playSound('error');b.disabled=false;return}
+   const r=srv?await WS().claimAd(a.token):adLocalClaim();
+   if(!r.ok){toast(r.reason==='terlalu-cepat'?'Tunggu '+(r.tunggu_detik||'')+' detik lagi.':(AMSG[r.reason]||WMSG[r.reason]||'Klaim gagal.'));playSound('error')}
+   else{renderInfo();pulse('#gem');playSound('coin');buzz();toast('+'+fmt(r.reward_gems||gems)+' Emerald')}
+   const n=srv?await WS().adGet():adLocalState();if(mOpen&&$('#adn')){st=n.ok?n:st;$('#adn').textContent=info(st);b.disabled=!st||st.left<1}})})}
+
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
+if(new URLSearchParams(location.search).has('emerald'))setTimeout(gemShop,400); /* dari halaman lain: ?emerald=1 */
+
+$('#gift').addEventListener('click',()=>{if(SV()){toast('Hadiahkan item belum tersedia untuk akun online.');playSound('error');return}if(!sel||sel.price==null){toast('Item ini belum bisa dihadiahkan.');playSound('error');return}const fr=['Budi','Sari','Rafi','Nina'];let pick=0;
+ openModal(`<h2>Hadiahkan Item</h2><p style="margin:0">${sel.name} · ${fmt(sel.price)} coin</p>`+fr.map((f,i)=>`<button class="row fr ${i?'':'sel'}" style="width:100%;border:0;color:#fff;font:inherit"><span>${f}</span></button>`).join('')+`<button class="mb no" id="no">Batal</button><button class="mb" id="ok">Konfirmasi</button>`,()=>{
+  const rows=document.querySelectorAll('.fr');rows.forEach((r,i)=>r.addEventListener('click',()=>{pick=i;rows.forEach(x=>x.classList.remove('sel'));r.classList.add('sel')}));
+  $('#no').addEventListener('click',closeModal);
+  $('#ok').addEventListener('click',()=>{const r=PD.addCurrency(-sel.price,0);
+   if(!r.ok){toast('Coin tidak cukup.');playSound('error');return}
+   closeModal();renderInfo();pulse('#coin');playSound('purchase');toast('Hadiah terkirim ke '+fr[pick]+'!')})})});
+
+
+$('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
+window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
+
+// 3D Rendering Engine
+const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:new THREE.Color(c),roughness:r});
+const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p&&p.add(o);return o};
+
+function character(sk,emote){return UT.CharacterView.make(THREE,sk,emote)} /* model = UT.CharacterData (sama dengan gameplay), bukan rig lama */
+
+function diceTex(c,p){const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');x.fillStyle=c;x.fillRect(0,0,128,128);x.fillStyle=p;[[32,32],[96,32],[64,64],[32,96],[96,96]].forEach(a=>{x.beginPath();x.arc(a[0],a[1],12,0,6.3);x.fill()});return new THREE.CanvasTexture(cv)}
+
+function model(c,it){let g;
+ if(c==='skin')g=character(AR.palette(it.id)||{hood:'#00a8a8',hair:'#4a2e13',pants:'#3b4fd8'});
+ else if(c==='dice'){g=new THREE.Group();const m=new THREE.MeshStandardMaterial({map:diceTex(it.art.bg,it.art.pip),roughness:.35});const d=bx(2.6,2.6,2.6,m,0,3,0,g);g.userData.anim=t=>{d.rotation.y=t*.8;d.rotation.x=.5+Math.sin(t)*.2;d.position.y=3+Math.sin(t*1.6)*.2}}
+ return g}
+
+function island(){return UT.FloatingIsland.create(THREE,{seed:5,bob:0,scale:.92})} /* komponen bersama: assets/js/floating-island.js */
+
+let ok=true;const rigs=[];
+function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
+ const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(fov,1,.1,100);scene.add(new THREE.AmbientLight(0xffffff,.6),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
+ const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-8,right:8,top:10,bottom:-6});scene.add(sun);
+ const holder=new THREE.Group();scene.add(holder);if(withIsland)holder.add(island());
+ const R={r,scene,cam,holder,cv,cy,dist,rot:0,vel:0,cur:null,drag:false,fov};
+ cv.addEventListener('pointerdown',e=>{R.drag=true;R.lx=e.clientX;cv.setPointerCapture(e.pointerId)});
+ cv.addEventListener('pointermove',e=>{if(R.drag){R.vel=(e.clientX-R.lx)*.012;R.rot+=R.vel;R.lx=e.clientX}});
+ const up=()=>R.drag=false;cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.style.touchAction='pan-y';
+ rigs.push(R);return R}catch(e){ok=false;console.warn('WebGL unavailable',e);return null}}
+
+let main,spin=0;
+function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
+
+function showThemeArt(on){const s=$('#show');const sv=on&&sel?AR.forItem(sel.id):'';
+ s.classList.toggle('art',!!sv);$('#art').innerHTML=sv}
+
+function buildModels(){if(!list(cat)){showThemeArt(false);return}
+ if(cat==='theme'||cat==='powerup'||cat==='frame'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return}
+ showThemeArt(false);setModel(main,cat,sel);spin=1}
+
+function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}
+
+const clock=typeof THREE!=='undefined'?new THREE.Clock():null;
+function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
+ rigs.forEach(R=>{if(!R.cur||!R.cv.offsetParent)return;const el=R.cv.getBoundingClientRect();if(!el.width)return;
+  if(!R.drag){R.vel*=.95;R.rot+=R.vel+.004}if(spin>0&&R===main){}R.holder.rotation.y=R.rot+(spin>0?(1-spin)*6.28:0);
+  R.cur.userData.anim&&R.cur.userData.anim(t);R.cam.position.set(0,R.cy+1,R.dist);R.cam.lookAt(0,R.cy,0);R.r.render(R.scene,R.cam)});
+ if(spin>0)spin=Math.max(0,spin-.025)}
+
+if(typeof THREE==='undefined')ok=false;
+renderCats();renderGrid();renderInfo();
+if(ok){main=rig($('#gl'),true,3.4,17,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
+if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo()}}); /* B5: saldo & inventory dari server */
+})();
+</script>
+</body>
+</html>

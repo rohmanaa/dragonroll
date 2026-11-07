@@ -1,0 +1,46 @@
+/* Ular Tangga Blok — base.css (Tahap 2)
+   Fondasi gaya bersama. SENGAJA minimal & aman:
+   - Selector elemen/kelas umum dibungkus :where() => spesifisitas 0, gaya halaman SELALU menang.
+   - Komponen bersama memakai awalan "ut-" agar tidak bentrok dengan .overlay/.modal/.toast milik halaman.
+   - Tidak mengubah tampilan halaman yang sudah ada. */
+
+:where(button) { -webkit-tap-highlight-color: transparent; }
+:where(a) { -webkit-tap-highlight-color: transparent; }
+:where(input, textarea, select) { font: inherit; }
+
+/* Utilitas umum (hanya berlaku bila halaman tidak mendefinisikan sendiri) */
+:where(.hidden) { display: none !important; }
+:where(.disabled) { opacity: .5; pointer-events: none; }
+
+/* Overlay + modal bersama (dipakai UT.UI.modal) */
+.ut-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 20, 50, .55);
+}
+.ut-overlay[hidden] { display: none; }
+.ut-modal {
+  max-width: min(90vw, 28rem); max-height: 86vh; overflow: auto;
+  padding: 16px 18px; border-radius: 14px;
+  background: #fff; color: #1b2a3b;
+  font: 700 15px/1.4 system-ui, sans-serif;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.ut-modal-close {
+  display: block; margin: 12px 0 0 auto; padding: 6px 14px;
+  border: 0; border-radius: 8px; background: #12337f; color: #fff; font: inherit; cursor: pointer;
+}
+
+/* Toast bersama (dipakai UT.UI.toast bila halaman tidak punya #toast sendiri) */
+.ut-toast {
+  position: fixed; left: 50%; bottom: 8%; z-index: 9100;
+  transform: translateX(-50%) translateY(10px);
+  max-width: 86vw; padding: 8px 16px; border-radius: 999px;
+  background: rgba(18, 51, 127, .95); color: #fff;
+  font: 700 14px/1.3 system-ui, sans-serif; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+}
+.ut-toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Indikator loading bersama (UT.UI.setLoading menambah kelas ini pada <html>) */
+html.ut-loading, html.ut-loading body { cursor: progress; }

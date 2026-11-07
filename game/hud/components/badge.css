@@ -1,0 +1,30 @@
+/* Ular Tangga Blok — hud/components/badge.css (Stage 4.0.8)
+   Semua selector berawalan .ut-badge*; tidak menyentuh .badge/.tag/.soon/.badgeCount milik halaman.
+   Ukuran memakai rem (skala halaman) mengikuti audit: sm = kartu inventory/shop, md = mode/dailyreward, lg = panel info shop.
+   Posisi (absolut di pojok kartu, margin-left:auto, dst.) sengaja TIDAK diatur di sini — itu urusan halaman. */
+
+.ut-badge {
+  --ut-badge-bg: linear-gradient(#4aa8ff, #2a78e0);
+  --ut-badge-ink: #fff;
+  --ut-badge-fs: 1.2rem; --ut-badge-lh: 1.7rem; --ut-badge-px: 1rem;
+  box-sizing: border-box; display: inline-block; vertical-align: middle;
+  max-width: 100%; margin: 0; padding: 0 var(--ut-badge-px);
+  border: 0; border-radius: 1rem;
+  background: var(--ut-badge-bg); color: var(--ut-badge-ink);
+  font-family: inherit; font-weight: 800; font-size: var(--ut-badge-fs); line-height: var(--ut-badge-lh);
+  text-align: center; white-space: normal; overflow-wrap: anywhere; /* label panjang membungkus, tidak melebarkan viewport */
+  box-shadow: inset 0 .15rem .2rem rgba(255, 255, 255, .5), 0 .15rem 0 rgba(10, 30, 100, .4);
+  user-select: none;
+}
+
+/* Variant */
+.ut-badge-default { /* nilai dasar di atas */ }
+.ut-badge-success { --ut-badge-bg: linear-gradient(#4ad04a, #2a9a2a); }
+.ut-badge-warning { --ut-badge-bg: linear-gradient(#ffe36a, #ffb62a); --ut-badge-ink: #8a4a0a; }
+.ut-badge-danger  { --ut-badge-bg: linear-gradient(#ff8a7a, #e0332b); }
+.ut-badge-info    { --ut-badge-bg: linear-gradient(#7fd4ff, #35a8f0); --ut-badge-ink: #0b2a5c; }
+
+/* Size */
+.ut-badge-sm { --ut-badge-fs: 1.1rem; --ut-badge-lh: 1.5rem; --ut-badge-px: .7rem; }
+.ut-badge-md { --ut-badge-fs: 1.2rem; --ut-badge-lh: 1.7rem; --ut-badge-px: 1rem; }
+.ut-badge-lg { --ut-badge-fs: 1.5rem; --ut-badge-lh: 2.2rem; --ut-badge-px: 1.2rem; }

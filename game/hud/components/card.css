@@ -1,0 +1,44 @@
+/* Ular Tangga Blok — hud/components/card.css (Stage 4.0.4)
+   Semua selector berawalan .ut-card*; tidak menyentuh .card/.gc/.friend/.row/.panel/.pack/.box milik halaman.
+   Ukuran memakai em (mengikuti font-size induk) agar card ikut skala halaman mana pun dan bisa mengecil.
+   Variabel halaman (--bd) dipakai bila ada, dengan fallback. */
+
+.ut-card {
+  --ut-card-bg: linear-gradient(#3f9bff, #1c55c0);
+  --ut-card-border: transparent;
+  --ut-card-shadow: 0 .25em 0 rgba(10, 30, 100, .5), inset 0 0 0 .18em rgba(120, 190, 255, .55);
+  box-sizing: border-box; position: relative;
+  display: block; width: 100%; max-width: 100%; min-width: 0; margin: 0; /* boleh menyusut; tidak ada lebar tetap */
+  padding: 1em;
+  border: .12em solid var(--ut-card-border); border-radius: 1em;
+  background: var(--ut-card-bg); color: #fff;
+  box-shadow: var(--ut-card-shadow);
+  overflow: hidden; overflow-wrap: anywhere; /* isi panjang membungkus, tidak melebarkan viewport */
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+
+/* Variant */
+.ut-card-default { /* nilai dasar di atas */ }
+.ut-card-elevated {
+  --ut-card-shadow: 0 .4em 0 var(--bd, #12337f), 0 1em 1.6em rgba(18, 51, 127, .38), inset 0 .15em .2em rgba(255, 255, 255, .4);
+}
+.ut-card-outlined {
+  --ut-card-bg: rgba(255, 255, 255, .12);
+  --ut-card-border: rgba(255, 255, 255, .8);
+  --ut-card-shadow: none;
+}
+.ut-card-flat {
+  --ut-card-bg: rgba(18, 51, 127, .28);
+  --ut-card-border: transparent;
+  --ut-card-shadow: none;
+}
+
+/* Padding */
+.ut-card-p-none { padding: 0; }
+.ut-card-p-sm { padding: .5em; }
+.ut-card-p-md { padding: 1em; }
+.ut-card-p-lg { padding: 1.6em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ut-card { transition: none; }
+}

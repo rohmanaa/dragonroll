@@ -1,0 +1,34 @@
+/* Ular Tangga Blok — hud/components/currency.css (Stage 4.0.5)
+   Semua selector berawalan .ut-currency*; tidak menyentuh .cur/.ab/.plus/#gem/#coin/.ut-curbar milik halaman & shared-ui.css.
+   Proporsi diambil dari audit pill currency existing (shared-ui.css): tinggi = 2.1em, ikon = 2.6em, gradasi biru + bayangan 3D.
+   Ukuran dasar (font-size) memakai rem seperti halaman existing: sm 1.6rem, md 2rem (default shared-ui), lg 2.6rem (mendekati shop).
+   Tidak ada lebar tetap: angka panjang membungkus di dalam pill, tidak melebarkan viewport. */
+
+.ut-currency {
+  box-sizing: border-box;
+  display: inline-flex; align-items: center; vertical-align: middle;
+  max-width: 100%; min-width: 0; min-height: 2.1em; margin: 0;
+  padding: .15em .7em .15em .15em; gap: .35em;
+  border-radius: 1.05em;
+  background: linear-gradient(#2d62c8, #173c94);
+  box-shadow: 0 .2em 0 #0b2160, 0 .5em .7em rgba(18, 51, 127, .4), inset 0 .1em .1em rgba(255, 255, 255, .35);
+  color: #fff; font-weight: 900; line-height: 1.15; white-space: normal;
+}
+
+.ut-currency-icon {
+  flex: none; display: block;
+  width: 2.6em; height: 2.6em; margin: -.25em 0; /* ikon menonjol ke atas/bawah pill, bukan ke samping (tidak memicu overflow horizontal) */
+  filter: drop-shadow(0 .15em .15em rgba(0, 0, 0, .35));
+  pointer-events: none;
+}
+.ut-currency-icon svg { display: block; width: 100%; height: 100%; }
+
+.ut-currency-value {
+  flex: 1 1 auto; min-width: 0;
+  text-align: center; overflow-wrap: anywhere; word-break: break-all; /* angka panjang tanpa spasi tetap di dalam pill */
+}
+
+/* Ukuran */
+.ut-currency-sm { font-size: 1.6rem; }
+.ut-currency-md { font-size: 2rem; }
+.ut-currency-lg { font-size: 2.6rem; }

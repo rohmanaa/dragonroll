@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id" class="stage16">
+<head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teman — Voxel Game</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/friendship-bg.webp"></script><style>
+:root{
+  --ol:#08112b;            /* outline hitam-navy */
+  --bd:#08112b;
+  --g:#3cc23c;--red:#ee4a4a;
+  --navy:#10286a;
+  --px:0 -.3rem 0 0 var(--ol),0 .3rem 0 0 var(--ol),-.3rem 0 0 0 var(--ol),.3rem 0 0 0 var(--ol);       /* outline piksel (sudut bertakik) */
+  --pxs:0 -.2rem 0 0 var(--ol),0 .2rem 0 0 var(--ol),-.2rem 0 0 0 var(--ol),.2rem 0 0 0 var(--ol);
+  --bev:inset .24rem .24rem 0 rgba(255,255,255,.34),inset -.24rem -.24rem 0 rgba(0,0,0,.3);
+  --bevs:inset .18rem .18rem 0 rgba(255,255,255,.16),inset -.18rem -.18rem 0 rgba(0,0,0,.35);
+  --lip:0 .6rem 0 0 var(--ol);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html{font-size:min(1vw,1.78vh)}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
+button,input{font:inherit;color:inherit;border:0;border-radius:0}
+button{cursor:pointer;transition:transform .1s,filter .1s}
+button:hover{transform:translateY(-.1rem);filter:brightness(1.1)}button:active{transform:translateY(.3rem);filter:brightness(.95)}
+button:focus-visible,input:focus-visible{outline:.3rem solid #fff}
+#sky{position:fixed;inset:0;overflow:hidden;pointer-events:none}.isl{position:absolute;opacity:.65;animation:fl 6s ease-in-out infinite}.isl i{display:block;background:#6fbf4a}.isl b{display:block;background:#8a5a3a;margin:0 auto}@keyframes fl{50%{translate:0 -.8rem}}
+.ab{position:absolute}
+.blue{background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .18rem 0 var(--ol)}
+svg{display:block}
+#back{left:1.8rem;top:1.8rem;width:4.7rem;height:4.7rem;padding:0;display:grid;place-items:center}#back svg{width:3rem;height:3rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
+#title{left:8rem;top:1.8rem;width:22rem;height:4.7rem;display:flex;align-items:center;gap:1.2rem;padding-left:2rem;font-size:3.4rem;text-shadow:0 .22rem 0 var(--ol)}#title svg{width:3.4rem;height:3.4rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
+#title>.ic{width:3.4rem;height:3.4rem;filter:drop-shadow(0 .18rem 0 var(--ol));display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+#gear{right:1.8rem;top:1.9rem;width:4.5rem;height:4.5rem;padding:0;display:grid;place-items:center}#gear svg{width:2.8rem;height:2.8rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
+#gear>.ic{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .18rem 0 var(--ol));display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+
+/* panel kiri (karakter 3D) */
+#hero{left:1.8rem;top:8.6rem;bottom:2.4rem;width:34rem;background:transparent;box-shadow:none;overflow:hidden}
+#hero h2{position:absolute;left:2rem;top:1.3rem;margin:0;font-size:2.7rem;text-shadow:0 .2rem 0 var(--ol)}
+#hero p{position:absolute;left:2rem;top:5rem;right:2rem;margin:0;color:#e7f7ff;font-size:1.35rem;line-height:1.25;text-shadow:0 .12rem 0 var(--ol)}
+#character{position:absolute;left:0;right:0;top:10.2rem;bottom:1.8rem;touch-action:pan-y}#character canvas{width:100%;height:100%;display:block;cursor:grab}#character canvas:active{cursor:grabbing}.noGL{height:100%;display:grid;place-items:center;font-size:6rem}
+
+/* panel kanan (daftar teman) */
+#main{left:37.4rem;right:1.8rem;top:8.6rem;bottom:2.4rem;padding:1.2rem;background:linear-gradient(#2a62d6,#1a449f);box-shadow:var(--bev),var(--px),var(--lip);display:flex;flex-direction:column;gap:1.1rem}
+#mainTop{display:flex;gap:1rem;align-items:center;flex:none;padding:0 .3rem .5rem}
+.tab{height:4rem;min-width:11rem;background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bev),var(--px),var(--lip);font-size:1.7rem;padding:0 1.5rem;text-shadow:0 .16rem 0 var(--ol)}
+.tab.on{background:linear-gradient(#fff6cf,#f2d77a);box-shadow:inset .24rem .24rem 0 rgba(255,255,255,.7),inset -.24rem -.24rem 0 rgba(160,110,10,.35),var(--px),var(--lip);color:#4a3200;text-shadow:none}
+#searchRow{display:flex;gap:1rem;align-items:center;flex:none;padding:0 .3rem}
+.search{height:4.2rem;flex:1;background:var(--navy);box-shadow:inset 0 .25rem 0 rgba(0,0,0,.4),var(--pxs);display:flex;align-items:center;padding:0 1.3rem;gap:.7rem}.search svg{width:2.1rem;flex:none}.search input{width:100%;height:100%;background:transparent;outline:0;font-size:1.45rem}.search input::placeholder{color:#a9c6f0}
+.add{height:4.2rem;padding:0 1.6rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);font-size:1.5rem;text-shadow:0 .14rem 0 #8a4a06}
+#list{flex:1;min-height:0;overflow:auto;padding:1rem .9rem .9rem;background:#0f2766;box-shadow:inset .25rem .25rem 0 rgba(0,0,0,.45),var(--pxs)}
+#friends{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,38rem),1fr));gap:1rem;align-content:start}
+.friend{min-width:0;min-height:6.8rem;padding:.6rem .9rem;display:grid;grid-template-columns:6.6rem 1fr auto;align-items:center;gap:.8rem;background:linear-gradient(#2a62d6,#1a4cb8);box-shadow:var(--bevs),var(--pxs);animation:pop .25s both;text-shadow:0 .14rem 0 var(--ol)}
+.friend:hover{filter:brightness(1.1)}@keyframes pop{from{opacity:0;transform:translateY(.5rem)}}
+.avatar{width:5.2rem;height:5.2rem;background:linear-gradient(#5db4f5,#a9dcf8);border:.2rem solid var(--ol);box-shadow:0 0 0 .2rem #8aa8e0;display:grid;place-items:center;overflow:hidden}.avatar svg{width:100%;height:100%}
+.finfo{min-width:0}.name{font-size:1.65rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;align-items:center;gap:.8rem;color:#dff3ff;font-size:1.05rem;margin-top:.25rem}
+.dot{width:.9rem;height:.9rem;background:#3eea59;box-shadow:0 0 0 .15rem var(--ol)}.dot.off{background:#9aaac0}.dot.busy{background:#ffd24d}
+.actions{display:flex;gap:.7rem}
+.act{height:3.4rem;min-width:8rem;padding:0 1rem;background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bevs),var(--pxs),0 .45rem 0 0 var(--ol);font-size:1.15rem;text-shadow:0 .12rem 0 var(--ol)}
+.act.play{background:linear-gradient(#4fd25a,#23932f)}
+.act.remove{background:linear-gradient(#f4705f,#c4291f)}
+.empty{height:100%;display:grid;place-items:center;text-align:center;color:#dff3ff;font-size:1.5rem}.empty div{max-width:30rem}
+.badgeCount{margin-left:.5rem;padding:.2rem .8rem;background:var(--navy);color:#fff;box-shadow:var(--pxs);font-size:1rem;text-shadow:0 .1rem 0 var(--ol)}
+.request .act{background:linear-gradient(#ffd23e,#f09a12);text-shadow:0 .12rem 0 #8a4a06}
+#toast{position:fixed;left:50%;bottom:3rem;translate:-50% 2rem;background:var(--navy);padding:.8rem 2.4rem;box-shadow:var(--bevs),var(--px);font-size:2rem;opacity:0;transition:opacity .3s,translate .3s;z-index:99;pointer-events:none;white-space:nowrap;text-shadow:0 .14rem 0 var(--ol)}.toastOn{opacity:1!important;translate:-50% 0!important}
+
+/* modal (gaya piksel) */
+.ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(8,17,43,.5);z-index:50;opacity:0;transition:opacity .25s}.ov.show{opacity:1}
+.box{position:relative;width:min(46rem,92vw);max-height:90vh;overflow:auto;background:linear-gradient(#2f6fe2,#1d4cb8);padding:3rem 2.4rem 2.4rem;box-shadow:var(--bev),var(--px),0 .9rem 0 0 var(--ol);font-size:1.5rem;text-align:center;transform:scale(.9);transition:transform .2s}.ov.show .box{transform:scale(1)}
+.box h2{margin:0 0 1rem;font-size:3rem;text-shadow:0 .22rem 0 var(--ol)}
+.x{position:absolute;right:-1rem;top:-1rem;width:4.6rem;height:4.6rem;background:linear-gradient(#f4705f,#c4291f);box-shadow:var(--bev),var(--px);font-size:2.4rem;padding:0;text-shadow:0 .16rem 0 #6a120c}
+.modalBtns{display:flex;gap:1.2rem;justify-content:center;margin-top:1.2rem}
+.modalBtn{height:4.2rem;padding:0 1.8rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);font-size:1.5rem;text-shadow:0 .14rem 0 #8a4a06}
+.modalBtn.no{background:linear-gradient(#8a96ad,#5a667e);text-shadow:0 .14rem 0 var(--ol)}
+
+@media(max-aspect-ratio:1/1){html{font-size:2.5vw}body{overflow:auto}#ui{position:relative;min-height:100vh;display:flex;flex-direction:column;gap:1.4rem;padding:1.4rem}.ab{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important}#top{display:flex;flex-wrap:wrap;align-items:center;gap:1.4rem}#title{order:0;width:auto;flex:1;min-width:15rem}#hero{width:auto;height:42rem;order:1}.main,#main{order:2;left:auto;right:auto;top:auto;bottom:auto;width:auto;height:65rem;min-height:65rem}.friend{grid-template-columns:5rem 1fr}.actions{grid-column:2}.actions .act{flex:1}.avatar{width:4.7rem;height:4.7rem}.name{font-size:1.45rem}.tab{min-width:9rem;font-size:1.35rem;padding:0 1rem}.search input{font-size:1.25rem}}
+#back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.flip{transform:scaleX(-1)}
+</style>
+<style>:root{--curbar-right:2.6rem;--curbar-top:2.05rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
+<style>
+/* override shared-ui.css (dimuat sebelum blok ini): currency sama dengan lobi, modal gaya piksel; shared-ui.css sendiri tidak diubah */
+:root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
+html body .ov>.box>#mb{border-radius:0}
+html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f);box-shadow:var(--bev),var(--px);text-shadow:0 .16rem 0 #6a120c}
+</style><script src="assets/js/landscape.js"></script><link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+.blue,html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
+.tab:not(.on),.tb:not(.on){background:linear-gradient(var(--sl3),var(--sl4))}
+html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
+html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
+#hero,#main{background:linear-gradient(var(--sl1),var(--sl2))!important;box-shadow:var(--slf)!important;border-radius:1rem}
+.friend{background:linear-gradient(var(--sl3),var(--sl4))}.act:not(.play){background:linear-gradient(var(--sl3),var(--sl4))}
+</style></head>
+<body>
+<div id="sky"></div>
+<div id="ui">
+<div id="top">
+<button class="ab blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+<div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/lobby/hand.webp" alt="" draggable="false" decoding="async">Teman</div>
+<div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV">120</span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV">8.450</span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
+</div>
+<section id="hero" class="ab">
+<h2>Teman & Sosial</h2><p>Temukan teman, lihat siapa yang online, dan ajak mereka bermain bersama.</p>
+<div id="character"><canvas id="gl"></canvas></div>
+</section>
+<main id="main" class="ab">
+<div id="mainTop"><button class="tab on" data-filter="online">Online <span class="badgeCount" id="onlineCount">0</span></button><button class="tab" data-filter="all">Semua</button><button class="tab" data-filter="request">Permintaan <span class="badgeCount" id="reqCount">0</span></button></div>
+<div id="searchRow"><label class="search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#fff" stroke-width="2.5"/><path d="m16 16 5 5" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg><input id="search" placeholder="Cari nama pemain..." autocomplete="off"></label><button class="add" id="addBtn">＋ Tambah</button></div>
+<div id="list"><div id="friends"></div></div>
+</main>
+</div>
+<div class="ov" id="modal"><div class="box"><button class="x" id="mx">✕</button><div id="mb"></div></div></div>
+<div id="toast"></div>
+<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/mob-view.js"></script>
+<script src="assets/js/item-art.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="assets/js/frame-avatar.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="hud/ui-core.js"></script>
+<script>UT.App.init({page:'friendship'});</script>
+<script src="assets/js/vendor/three.min.js"></script>
+<script src="assets/js/floating-island.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+// currency dari PlayerData (single source of truth) — angka hardcoded di HTML hanya fallback noscript
+const PD=window.PlayerData,fmt=n=>n.toLocaleString('id-ID');
+function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+renderCurrency();
+UT.Events.on('currencyChanged',renderCurrency);
+const RS=()=>UT.Multiplayer&&UT.Multiplayer.RoomService,PR=()=>UT.Multiplayer&&UT.Multiplayer.Presence;
+let friends=[],requests=[],filter='online',query='',authed=null,loaded=false;
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COLORS=[0x22b8d8,0x9a4ae0,0xf0b030,0x4acb58,0xd23a32,0x5a75d6,0x35d3f0,0xff7ad0];
+const colorOf=n=>COLORS[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
+function avatar(color){return `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#a9dcf8"/><ellipse cx="50" cy="82" rx="31" ry="9" fill="#6fbf4a" opacity=".75"/><rect x="31" y="27" width="38" height="31" rx="3" fill="#f1c49b"/><rect x="27" y="23" width="46" height="13" rx="3" fill="#7a4a2a"/><rect x="26" y="50" width="48" height="32" rx="3" fill="${'#'+color.toString(16).padStart(6,'0')}"/><rect x="39" y="38" width="6" height="6" fill="#24335a"/><rect x="55" y="38" width="6" height="6" fill="#24335a"/><rect x="42" y="49" width="16" height="3" rx="1.5" fill="#a45a4d"/></svg>`}
+function presMap(){const m={};try{(PR()?PR().list():[]).forEach(p=>m[p.id]=p.status)}catch(e){}return m}
+function viewFriends(){const pm=presMap();return friends.map(f=>{const st=pm[f.friend_id];return{id:f.friend_id,name:f.friend_name,status:!st?'offline':st==='lobby'?'online':'busy',mode:st==='lobby'?'Di lobi':st==='room'?'Di room':st==='game'?'Sedang bermain':'Offline',skin:colorOf(f.friend_name)}})}
+function viewRequests(){return requests.map(r=>({id:r.from_id,name:r.from_name,status:'online',mode:'Mengirim permintaan',skin:colorOf(r.from_name)}))}
+function render(){
+ const fv=viewFriends(),rv=viewRequests(),source=filter==='request'?rv:fv;
+ const arr=source.filter(f=>f.name.toLowerCase().includes(query.toLowerCase())).filter(f=>filter!=='online'||f.status!=='offline');
+ const emptyMsg=authed===false?'Masuk ke akunmu untuk melihat teman.':!loaded?'Memuat...':filter==='request'?'Belum ada permintaan teman.':filter==='online'?'Tidak ada teman yang sedang online.':'Belum ada teman. Tekan ＋ Tambah untuk mengirim permintaan.';
+ $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${esc(f.id)}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatar(f.skin)+'</div>','5.2rem',f.frame)}<div class="finfo"><div class="name">${esc(f.name)}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>${esc(f.mode)}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button><button class="act remove" data-action="remove">Hapus</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>${emptyMsg}</p></div></div>`;
+ $('#onlineCount').textContent=fv.filter(x=>x.status!=='offline').length;
+ $('#reqCount').textContent=requests.length;
+}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('toastOn');clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove('toastOn'),1800)}
+function openModal(html){$('#mb').innerHTML=html;$('#modal').style.display='grid';requestAnimationFrame(()=>$('#modal').classList.add('show'))}
+function closeModal(){ $('#modal').classList.remove('show');setTimeout(()=>$('#modal').style.display='none',220)}
+const ERR={USER_NOT_FOUND:'Username tidak ditemukan.',CANNOT_ADD_SELF:'Tidak bisa menambah diri sendiri.',ALREADY_FRIENDS:'Kalian sudah berteman.',REQUEST_NOT_FOUND:'Permintaan tidak ditemukan.'};
+const errMsg=e=>ERR[e&&e.message]||'Gagal, periksa koneksi.';
+const myName=async()=>(await RS().ensurePlayer()).name;
+async function load(){
+ try{await ready;const c=await UT.Multiplayer.getClient();const {data}=await c.auth.getSession();authed=!!data.session;
+  if(authed){const [f,r]=await Promise.all([RS().listFriends(),RS().listRequests()]);friends=f;requests=r}
+ }catch(e){console.warn('[friends] gagal memuat',e)}
+ loaded=true;render();
+}
+const ready=import('./assets/js/multiplayer/presence.js').then(()=>{PR().start({status:'lobby',requireSession:true});PR().onChange(render)}).catch(e=>console.warn('[friends] presence gagal',e));
+function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain yang ingin kamu tambahkan.</p><label class="search" style="height:4.2rem;width:100%;display:flex;margin:1rem 0"><input id="friendName" placeholder="Username teman" style="text-align:center"></label><div class="modalBtns"><button class="modalBtn no" id="cancel">Batal</button><button class="modalBtn" id="send">Kirim Permintaan</button></div>`);$('#cancel').onclick=closeModal;
+ $('#send').onclick=async()=>{const n=$('#friendName').value.trim();if(!n){toast('Masukkan username dulu.');return}
+  try{const res=await RS().sendFriendRequest({username:n,myName:await myName()});closeModal();toast(res==='accepted'?'Kalian sekarang berteman!':'Permintaan teman dikirim!');if(res==='accepted')load()}catch(e){toast(errMsg(e))}}}
+$('#search').addEventListener('input',e=>{query=e.target.value;render()});
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render();load()}));
+$('#addBtn').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
+$('#back').onclick=()=>{location.href='lobby.html'};
+$('#friends').addEventListener('click',async e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend'),id=card&&card.dataset.id;if(!id)return;
+ const f=[...viewFriends(),...viewRequests()].find(x=>x.id===id);if(!f)return;
+ try{
+  if(btn.classList.contains('accept')){await RS().acceptFriendRequest(id,await myName());filter='online';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.filter===filter));await load();toast(f.name+' sekarang menjadi teman!')}
+  else if(btn.classList.contains('decline')){await RS().declineFriendRequest(id);await load();toast('Permintaan ditolak.')}
+  else if(btn.classList.contains('play')){location.href='room.html?mode=online&format=solo&count=4&invite='+encodeURIComponent(id)}
+  else if(btn.dataset.action==='remove'){await RS().removeFriend(id);await load();toast('Teman dihapus.')}
+  else if(btn.dataset.action==='profile'){openModal(`<h2>${esc(f.name)}</h2><p>${esc(f.mode)}</p><div class="modalBtns"><button class="modalBtn" onclick="document.querySelector('#mx').click()">Tutup</button></div>`)}
+ }catch(er){toast(errMsg(er))}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});setInterval(()=>{if(!document.hidden&&authed)load()},20000);
+load();
+// ---- 3D: sistem yang sama dengan inventory (character + island voxel + rig + drag putar)
+const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p&&p.add(o);return o};
+function island(){return UT.FloatingIsland.create(THREE,{seed:5,bob:0,scale:.92})} /* komponen bersama: assets/js/floating-island.js */
+let R=null;
+function init3D(){const cv=$('#gl'),r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
+ const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(36,1,.1,100);scene.add(new THREE.AmbientLight(0xffffff,.6),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
+ const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-8,right:8,top:10,bottom:-6});scene.add(sun);
+ const holder=new THREE.Group();scene.add(holder);holder.add(island());const ch=UT.MobView.make(THREE,'butterfly-garden',{palette:'blue'}) /* kupu-kupu terbang di atas bunga (assets/js/mob-view.js) */;holder.add(ch);
+ R={r,scene,cam,holder,cv,ch,cy:1.3,dist:19,fov:36,rot:0,vel:0,drag:false,clock:new THREE.Clock()};
+ cv.addEventListener('pointerdown',e=>{R.drag=true;R.lx=e.clientX;cv.setPointerCapture(e.pointerId)});
+ cv.addEventListener('pointermove',e=>{if(R.drag){R.vel=(e.clientX-R.lx)*.012;R.rot+=R.vel;R.lx=e.clientX}});
+ const up=()=>R.drag=false;cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+ new ResizeObserver(fit3D).observe(cv);fit3D();requestAnimationFrame(loop3D)}
+function fit3D(){if(!R)return;let hi=true;try{hi=PD.settings().graphics==='high'}catch(e){}const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;
+ R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()}
+function loop3D(){requestAnimationFrame(loop3D);if(!R||!R.cv.offsetParent)return;const t=R.clock.getElapsedTime();
+ if(!R.drag){R.vel*=.95;R.rot+=R.vel+.004}R.holder.rotation.y=R.rot;R.ch.userData.anim(t);
+ R.cam.position.set(0,R.cy+1,R.dist);R.cam.lookAt(0,R.cy,0);R.r.render(R.scene,R.cam)}
+// ---- sky: pulau melayang buram (sama dengan inventory)
+(()=>{const sk=$('#sky');[[5,60,6],[18,30,4],[30,70,5],[62,16,5],[86,48,7],[92,12,4],[2,20,5],[75,75,6],[45,85,4]].forEach((p,i)=>{const e=document.createElement('div');e.className='isl';e.style.cssText=`left:${p[0]}%;top:${p[1]}%;animation-delay:${-i}s;filter:blur(${i%3}px)`;e.innerHTML=`<i style="width:${p[2]}rem;height:${p[2]*.4}rem"></i><b style="width:${p[2]*.7}rem;height:${p[2]*.6}rem"></b>`;sk.appendChild(e)})})();
+// tombol + mata uang -> toko (sama dengan daily reward)
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href='shop.html'}));
+let ok3d=false;if(window.THREE){try{init3D();ok3d=true}catch(e){console.warn('WebGL unavailable',e)}}
+if(!ok3d)$('#character').innerHTML='<div class="noGL">👥</div>';
+render();
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
+})();
+</script>
+</body></html>

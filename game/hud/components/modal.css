@@ -1,0 +1,67 @@
+/* Ular Tangga Blok — hud/components/modal.css (Stage 4.0.6)
+   Semua selector berawalan .ut-modal*; tidak menyentuh .ov/.box/.x/#modal/#mx/#mb milik halaman & shared-ui.css.
+   Elemen .ut-modal hanya ada di DOM saat modal terbuka, jadi memuat file ini tidak mengubah UI halaman existing.
+   Tampilan mengikuti modal existing (audit): kotak biru gradasi, radius 2.4rem, bayangan 3D (var --bd bila ada), tombol tutup merah
+   menonjol di pojok kanan atas, backdrop biru transparan + blur. Ukuran memakai rem seperti halaman existing. */
+
+.ut-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center;
+  box-sizing: border-box; margin: 0; padding: 0;
+  font-family: inherit; color: #fff;
+}
+
+.ut-modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(18, 51, 127, .4);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+
+.ut-modal-dialog {
+  position: relative; box-sizing: border-box;
+  display: flex; flex-direction: column; min-height: 0;
+  width: min(48rem, calc(100vw - 4rem)); /* sisakan ruang agar tombol tutup yang menonjol tidak keluar viewport */
+  max-height: calc(100vh - 4rem);
+  padding: 3rem 2.4rem 2.4rem;
+  background: linear-gradient(#7cc2ff, #4a9ae8);
+  border-radius: 2.4rem;
+  box-shadow: 0 1rem 0 var(--bd, #12337f), 0 2rem 3rem rgba(0, 0, 0, .3);
+  font-size: 2.4rem; text-align: center;
+  animation: ut-modal-in .25s cubic-bezier(.3, 1.5, .5, 1);
+}
+@supports (height: 1dvh) {
+  .ut-modal-dialog { max-height: calc(100dvh - 4rem); }
+}
+
+.ut-modal-header { flex: none; }
+.ut-modal-title {
+  margin: 0 0 1.2rem; font-size: 3.4rem; line-height: 1.15; font-weight: inherit;
+  text-shadow: 0 .2rem 0 var(--bd, #12337f);
+  overflow-wrap: anywhere; word-break: break-word;
+}
+
+.ut-modal-body {
+  flex: 1 1 auto; min-height: 0;
+  overflow-x: hidden; overflow-y: auto;
+  overflow-wrap: anywhere; word-break: break-word; /* teks panjang tanpa spasi tetap di dalam dialog */
+  border-radius: 1.4rem;
+}
+.ut-modal-text { margin: .4rem 0 1rem; }
+
+.ut-modal-close {
+  position: absolute; z-index: 5; top: -1.4rem; right: -1.4rem;
+  box-sizing: border-box; width: 4.6rem; height: 4.6rem; margin: 0; padding: 0;
+  display: grid; place-items: center; line-height: 1;
+  border: 0; border-radius: 50%;
+  background: #ee4a4a; box-shadow: 0 .3rem 0 #8e1d1d;
+  color: #fff; font: inherit; font-size: 2.4rem; cursor: pointer;
+}
+.ut-modal-close:focus-visible { outline: .3rem solid #fff; outline-offset: .2rem; }
+
+@keyframes ut-modal-in {
+  from { opacity: 0; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ut-modal-dialog { animation: none; }
+}

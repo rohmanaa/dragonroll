@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voxel FX Lab — Refined Effects</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0d14;--panel:#111722;--line:#273244;--muted:#9aa8bb;--text:#eef4ff;--accent:#78e4c2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1d3040 0,transparent 48%),var(--bg);font:14px/1.45 Inter,system-ui,Segoe UI,sans-serif;color:var(--text)}
+main{max-width:1180px;margin:auto;padding:24px 18px 40px}.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:11px}h1{font-size:clamp(25px,4vw,38px);line-height:1.05;margin:8px 0}p{color:var(--muted);margin:0;max-width:650px}.pill{border:1px solid #365448;background:#142a27;color:#b8ffe8;border-radius:999px;padding:7px 11px;font-size:12px;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,.8fr);gap:16px}.panel{background:linear-gradient(180deg,#141b27,#0f151f);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 16px 45px #0003}.panelhead{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line);gap:10px}.panelhead strong{font-size:13px}.small{font-size:11px;color:var(--muted)}
+#arena{height:430px;position:relative;overflow:hidden;background:linear-gradient(#101b2a 0%,#18283a 58%,#243b46 100%);isolation:isolate}
+#arena:before{content:"";position:absolute;inset:0;opacity:.32;background-image:linear-gradient(#9fb8c31a 1px,transparent 1px),linear-gradient(90deg,#9fb8c31a 1px,transparent 1px);background-size:28px 28px;transform:perspective(400px) rotateX(13deg) scale(1.3);transform-origin:bottom;mask-image:linear-gradient(transparent,#000)}
+.sun{position:absolute;width:120px;height:120px;border-radius:50%;top:45px;left:50%;transform:translateX(-50%);background:#f8d98a0d;box-shadow:0 0 75px #ffdf9d12}
+.platform{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);width:210px;height:42px;background:#365c54;clip-path:polygon(14% 0,86% 0,100% 50%,86% 100%,14% 100%,0 50%);box-shadow:0 10px 0 #1b3838}
+.platform:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#ffffff13,transparent 35%,#0002)}
+.player{position:absolute;bottom:86px;left:50%;transform:translateX(-50%);width:44px;height:76px;z-index:4;filter:drop-shadow(0 8px 4px #0006);transition:filter .2s}
+.head{position:absolute;top:0;left:8px;width:28px;height:27px;background:#c99569;border:3px solid #382f35;box-shadow:inset -5px 0 #9b6c52}
+.hair{position:absolute;top:-3px;left:6px;width:32px;height:10px;background:#352d2a;z-index:1}
+.body{position:absolute;top:29px;left:5px;width:34px;height:29px;background:#3b8f79;border:3px solid #193b3b;box-shadow:inset -7px 0 #286453}
+.leg{position:absolute;top:56px;width:14px;height:20px;background:#5b6f9e;border:3px solid #26334f}.leg.l{left:7px}.leg.r{right:7px}
+#arena.playing .player{animation:playerBounce .55s ease-in-out 2}
+@keyframes playerBounce{50%{transform:translate(-50%,-12px) rotate(-4deg)}}
+#fx{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+.banner{position:absolute;z-index:7;top:18px;left:50%;transform:translateX(-50%) translateY(-5px) scale(.92);font-weight:1000;font-size:clamp(19px,4vw,34px);letter-spacing:.12em;text-shadow:0 3px 0 #7d3b16,0 0 22px currentColor;opacity:0;white-space:nowrap;pointer-events:none}
+.banner.show{animation:bannerIn 1.25s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes bannerIn{0%{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.75)}15%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.08)}28%{transform:translateX(-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-8px) scale(1.03)}}
+.caption{position:absolute;bottom:13px;left:14px;color:#d8e7e8b5;font-size:10px;letter-spacing:.12em;text-transform:uppercase;z-index:8}
+.controls{padding:14px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line)}
+button{font:inherit;cursor:pointer;color:var(--text);background:#202b3b;border:1px solid #35445a;border-radius:10px;padding:9px 12px;transition:.15s}
+button:hover{border-color:#7be2c2;transform:translateY(-1px);background:#26394a}button:active{transform:translateY(0)}button.primary{background:#b5f7dc;color:#10211e;border-color:#b5f7dc;font-weight:800}
+.fxgrid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fxbtn{text-align:left;min-height:65px;display:flex;align-items:center;gap:10px;padding:10px;background:#151e2b}.fxbtn .emoji{font-size:21px;width:28px;text-align:center}.fxbtn strong{display:block;font-size:12px}.fxbtn small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.fxbtn.active{border-color:#8bf0cc;background:#1c352f;box-shadow:inset 0 0 0 1px #8bf0cc22}
+.note{padding:0 15px 15px;color:var(--muted);font-size:11px}.footer{margin-top:15px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#78879b;font-size:11px}
+@media(max-width:800px){main{padding:18px 12px 28px}.layout{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column;gap:12px}#arena{height:360px}.fxgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){#arena{height:320px}.fxgrid{grid-template-columns:1fr 1fr;gap:6px}.fxbtn{padding:8px;min-height:61px}.fxbtn .emoji{font-size:18px;width:23px}.fxbtn strong{font-size:11px}.panelhead{padding:11px 12px}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div><div class="eyebrow">Voxel game · visual effects playground</div><h1>FX Lab <span style="color:#83e6c6">/ Refined</span></h1><p>Setiap efek punya bahasa gerak sendiri: impact, teleport, debu, magic, atau perayaan. Klik efek untuk melihat timing dan bentuknya.</p></div>
+    <div class="pill">● Standalone · HTML + CSS + JS</div>
+  </header>
+  <div class="layout">
+    <section class="panel">
+      <div class="panelhead"><strong>LIVE PREVIEW</strong><span class="small" id="status">Siap dimainkan</span></div>
+      <div id="arena">
+        <div class="sun"></div><div class="banner" id="banner">VICTORY!</div>
+        <div class="platform"></div>
+        <div class="player" id="player"><div class="hair"></div><div class="head"></div><div class="body"></div><div class="leg l"></div><div class="leg r"></div></div>
+        <canvas id="fx"></canvas>
+        <div class="caption">Voxel arena · preview effects only</div>
+      </div>
+      <div class="controls">
+        <button class="primary" id="random">✦ Random FX</button><button id="replay">↻ Replay</button><button id="clear">Clear arena</button>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panelhead"><strong>FX LIBRARY <span class="small">(14)</span></strong><span class="small">Pilih untuk preview</span></div>
+      <div class="fxgrid" id="fxgrid"></div>
+      <div class="note">Prototype visual 2D. Belum mengubah mekanik dadu, gerak pemain, atau scene game utama.</div>
+    </section>
+  </div>
+  <div class="footer"><span>Design principle: distinct silhouette · readable timing · controlled particles</span><span>No external libraries</span></div>
+</main>
+<script>
+(()=>{
+const canvas=document.querySelector('#fx'),ctx=canvas.getContext('2d'),arena=document.querySelector('#arena');
+const status=document.querySelector('#status'),banner=document.querySelector('#banner'),player=document.querySelector('#player');
+let W=0,H=0,parts=[],rings=[],streaks=[],last=0,raf=0,active=null,started=0;
+const effects=[
+{id:'fire',icon:'🔥',name:'Fire Bloom',desc:'Flame lick + ember drift'},
+{id:'creeper',icon:'💥',name:'Creeper Explosion',desc:'Shockwave + voxel debris'},
+{id:'ender',icon:'🟣',name:'Enderman Teleport',desc:'Collapse → vanish → reform'},
+{id:'power',icon:'✨',name:'Power Burst',desc:'Radial charge release'},
+{id:'totem',icon:'🟡',name:'Totem Shield',desc:'Protective glyph + orbit'},
+{id:'slash',icon:'⚔️',name:'Hit / Slash',desc:'Fast diagonal impact arc'},
+{id:'potion',icon:'🧪',name:'Potion Burst',desc:'Glass glint + liquid splash'},
+{id:'smoke',icon:'💨',name:'Smoke / Dust',desc:'Low expanding dust cloud'},
+{id:'pickup',icon:'⭐',name:'Pickup',desc:'Magnet snap + sparkle'},
+{id:'snake',icon:'🐍',name:'Snake Impact',desc:'Ground strike + green shards'},
+{id:'ladder',icon:'🪜',name:'Ladder Rise',desc:'Ascending rungs + trail'},
+{id:'dice',icon:'🎲',name:'Dice Impact',desc:'Heavy landing + bounce'},
+{id:'victory',icon:'🏆',name:'Victory Burst',desc:'Radial confetti celebration'},
+{id:'defeat',icon:'☠️',name:'Defeat Burst',desc:'Dim pulse + falling debris'}
+];
+const colors={fire:['#ffec91','#ff9d38','#f04b27'],creeper:['#a8ff78','#4fdb65','#d7ffc2'],ender:['#dca8ff','#9c55ff','#5731c9'],power:['#fff5b2','#9af8ff','#62d8ff'],totem:['#fff2a6','#ffcc45','#e98d28'],slash:['#ffffff','#b8eaff','#6fa9ff'],potion:['#c9fffb','#6be9dc','#43a6dc'],smoke:['#e0e6eb','#9eacb6','#667785'],pickup:['#fff8a8','#ffdf4e','#fff'],snake:['#c5ff7b','#6ee34f','#2c9b55'],ladder:['#fff2a6','#a7f3d0','#d7a86e'],dice:['#fff','#b8c7d8','#7d91a8'],victory:['#fff3a3','#ffd451','#f7a7ff','#78e7ff','#8fffb6'],defeat:['#c3c9d2','#7d8797','#495363']};
+function resize(){const r=arena.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;canvas.width=W*d;canvas.height=H*d;ctx.setTransform(d,0,0,d,0,0)}new ResizeObserver(resize).observe(arena);resize();
+function center(){return{x:W/2,y:H*.62}}
+function particle(x,y,vx,vy,color,shape='square',life=650,size=5,gravity=0.12,extra={}){parts.push({x,y,vx,vy,color,shape,life,max:life,size,gravity,rot:Math.random()*6.28,spin:(Math.random()-.5)*.18,...extra})}
+function ring(x,y,color,r=12,life=420,width=3,shape='circle'){rings.push({x,y,color,r,life,max:life,width,shape})}
+function line(x1,y1,x2,y2,color,life=220,width=3){streaks.push({x1,y1,x2,y2,color,life,max:life,width})}
+function burst(x,y,n,palette,speed=5,shape='square',life=700,gravity=.13){for(let i=0;i<n;i++){let a=Math.random()*Math.PI*2,s=(.35+Math.random())*speed;particle(x,y,Math.cos(a)*s,Math.sin(a)*s,palette[i%palette.length],shape,life*(.7+Math.random()*.6),2+Math.random()*5,gravity)}}
+function floorY(){return H-75}
+function clear(){parts=[];rings=[];streaks=[];banner.classList.remove('show');arena.classList.remove('playing');ctx.clearRect(0,0,W,H);status.textContent='Arena dibersihkan';active=null}
+function play(id){
+ clear();active=id;started=performance.now();status.textContent=effects.find(e=>e.id===id).name;arena.classList.add('playing');
+ const c=center(),x=c.x,y=c.y, floor=floorY(),pal=colors[id]||colors.power;
+ const addBanner=(text,color)=>{banner.textContent=text;banner.style.color=color;banner.classList.remove('show');void banner.offsetWidth;banner.classList.add('show')};
+ switch(id){
+ case'fire':
+   ring(x,floor-10,'#ff9b37',9,430,4);for(let i=0;i<34;i++)particle(x+(Math.random()-.5)*36,floor-12, (Math.random()-.5)*1.7,-(2+Math.random()*4),pal[i%3],Math.random()<.6?'square':'circle',650+Math.random()*450,3+Math.random()*5,-.025);
+   burst(x,floor-20,18,pal,2,'circle',600,-.04);break;
+ case'creeper':
+   ring(x,floor-5,'#caff8a',8,470,6);ring(x,floor-5,'#6cf278',5,550,2,'diamond');burst(x,floor-8,52,pal,8,'square',750,.19);
+   for(let i=0;i<18;i++)particle(x+(Math.random()-.5)*90,floor-25-Math.random()*20,(Math.random()-.5)*2,-Math.random()*2,'#52675a','circle',500+Math.random()*350,7+Math.random()*8,.035);
+   flash('#b9ff9a',.22);break;
+ case'ender':
+   // Collapse into a tight vortex, then disperse as the player reappears.
+   for(let i=0;i<42;i++){let a=Math.random()*Math.PI*2,r=20+Math.random()*48;particle(x+Math.cos(a)*r,y+Math.sin(a)*r, -Math.cos(a)*(2+Math.random()*2),-Math.sin(a)*(2+Math.random()*2),pal[i%3],'square',430+Math.random()*250,2+Math.random()*4,-.005)}
+   ring(x,y,'#c68aff',10,500,4);player.style.opacity='.15';setTimeout(()=>{player.style.opacity='1';burst(x,y,35,pal,5,'square',600,-.02);ring(x,y,'#e6c6ff',5,450,3)},260);break;
+ case'power':
+   flash('#b8f9ff',.17);ring(x,y,'#ffffff',4,420,5);ring(x,y,'#74e9ff',22,600,2);burst(x,y,48,pal,7,'diamond',650,-.015);
+   for(let i=0;i<12;i++){let a=i*Math.PI/6;line(x+Math.cos(a)*12,y+Math.sin(a)*12,x+Math.cos(a)*78,y+Math.sin(a)*78,'#c5ffff',300,2)}break;
+ case'totem':
+   ring(x,y,'#ffe58b',12,800,4);ring(x,y,'#fff7c5',31,850,2,'diamond');
+   for(let i=0;i<18;i++){let a=i*Math.PI/9;particle(x+Math.cos(a)*42,y+Math.sin(a)*42,Math.cos(a)*.35,Math.sin(a)*.35,pal[i%3],'diamond',900,4,-.002,{orbit:{x,y,r:42,a,s:.035}})}
+   for(let i=0;i<8;i++){let a=i*Math.PI/4;line(x+Math.cos(a)*16,y+Math.sin(a)*16,x+Math.cos(a)*28,y+Math.sin(a)*28,'#fff3a8',320,2)}break;
+ case'slash':
+   line(x-78,y+34,x+63,y-63,'#ffffff',250,8);line(x-58,y+43,x+80,y-54,'#7edfff',300,3);
+   burst(x+18,y-18,19,pal,5,'square',400,.09);ring(x+15,y-15,'#b9eaff',5,260,2);flash('#d9f6ff',.12);break;
+ case'potion':
+   ring(x,y,'#a6fff0',8,400,4);burst(x,y,30,pal,5,'circle',700,.12);
+   for(let i=0;i<9;i++){let a=Math.random()*Math.PI*2;line(x,y,x+Math.cos(a)*(28+Math.random()*45),y+Math.sin(a)*(28+Math.random()*45),'#c7fff9',250,2)}break;
+ case'smoke':
+   for(let i=0;i<24;i++){let a=Math.random()*Math.PI*2,r=Math.random()*22;particle(x+Math.cos(a)*r,floor-4+Math.random()*8,(Math.random()-.5)*1.1,-(.3+Math.random()*1.3),pal[i%3],'circle',700+Math.random()*500,8+Math.random()*12,-.002,{alpha:.48})}
+   ring(x,floor,'#bac6ce',8,550,2);break;
+ case'pickup':
+   ring(x,y,'#fff1a0',4,430,3);burst(x,y,24,pal,4,'diamond',480,-.03);
+   for(let i=0;i<7;i++){let a=i*Math.PI*2/7;line(x+Math.cos(a)*14,y+Math.sin(a)*14,x+Math.cos(a)*31,y+Math.sin(a)*31,'#fff6b6',300,2)}break;
+ case'snake':
+   ring(x,floor-4,'#9cff67',6,380,5,'diamond');burst(x,floor-7,27,pal,6,'square',620,.2);
+   for(let i=0;i<8;i++)line(x-38+i*10,floor-18,x-25+i*10,floor-35,'#d7ff92',200,2);flash('#aaff71',.1);break;
+ case'ladder':
+   // A readable ascending trail rather than a generic upward particle spray.
+   for(let i=0;i<7;i++){let yy=floor-8-i*25,xx=x-30+i*8;line(xx-10,yy,xx+10,yy,'#e7c58a',520,3);particle(xx,yy,0,-.3,pal[i%3],'diamond',550,4,-.01)}
+   for(let i=0;i<20;i++){let yy=floor-Math.random()*170,xx=x-30+(floor-yy)*.3;particle(xx+(Math.random()-.5)*20,yy,(Math.random()-.5)*.5,-.8,pal[i%3],'square',500,3,-.01)}break;
+ case'dice':
+   ring(x,floor-6,'#e8f2ff',8,420,5);ring(x,floor-6,'#8ba8c8',15,500,2);burst(x,floor-8,20,pal,4,'square',480,.18);
+   // Impact squash / bounce cue
+   player.animate([{transform:'translateX(-50%) scaleY(1)'},{transform:'translateX(-50%) scaleY(.78)'},{transform:'translateX(-50%) translateY(-8px) scaleY(1.04)'},{transform:'translateX(-50%) scaleY(1)'}],{duration:420,easing:'ease-out'});break;
+ case'victory':
+   addBanner('VICTORY!','#fff2a0');flash('#fff0b8',.2);
+   ring(x,y,'#fff0a0',8,520,5);ring(x,y,'#8fffe0',18,720,2);
+   // Hero moment: outward radial confetti with weight, spin and staggered sparkles.
+   burst(x,y,66,pal,8,'square',1150,.16);
+   for(let i=0;i<18;i++){let a=i*Math.PI/9;line(x+Math.cos(a)*18,y+Math.sin(a)*18,x+Math.cos(a)*105,y+Math.sin(a)*105,pal[i%pal.length],360,2)}
+   for(let i=0;i<12;i++){let xx=30+Math.random()*(W-60);particle(xx,-8,(Math.random()-.5)*.8,1.3+Math.random()*1.8,pal[i%pal.length],'rect',1600,5,.035,{spin:(Math.random()-.5)*.22})}
+   break;
+ case'defeat':
+   addBanner('DEFEAT','#d0d8e5');flash('#9daabd',.18);ring(x,floor-3,'#818b9d',8,650,4);
+   for(let i=0;i<36;i++)particle(x+(Math.random()-.5)*100,floor-12-Math.random()*60,(Math.random()-.5)*2,-(Math.random()*1.8),pal[i%3],'square',700+Math.random()*700,3+Math.random()*5,.12);
+   player.animate([{filter:'grayscale(0)'},{filter:'grayscale(1) brightness(.7)'},{filter:'grayscale(.8)'}],{duration:650,fill:'forwards'});break;
+ }
+ startLoop();
+}
+function flash(color,alpha){const el=document.createElement('div');el.style.cssText=`position:absolute;inset:0;z-index:6;pointer-events:none;background:${color};opacity:${alpha};mix-blend-mode:screen;`;arena.append(el);el.animate([{opacity:alpha},{opacity:0}],{duration:180,easing:'ease-out'}).onfinish=()=>el.remove()}
+function startLoop(){if(raf)cancelAnimationFrame(raf);last=performance.now();raf=requestAnimationFrame(tick)}
+function tick(now){const dt=Math.min(32,now-last);last=now;ctx.clearRect(0,0,W,H);
+ parts=parts.filter(p=>p.life>0);
+ for(const p of parts){const f=dt/16.67;p.life-=dt;
+   if(p.orbit&&p.life>p.max-100){p.orbit.a+=p.orbit.s*f;p.x=p.orbit.x+Math.cos(p.orbit.a)*p.orbit.r;p.y=p.orbit.y+Math.sin(p.orbit.a)*p.orbit.r}else{p.vy+=p.gravity*f;p.x+=p.vx*f;p.y+=p.vy*f}
+   p.rot+=p.spin*f;const fade=Math.max(0,Math.min(1,p.life/Math.min(220,p.max)));ctx.save();ctx.globalAlpha=(p.alpha??1)*Math.min(1,p.life/100)*Math.min(1,fade+.25);ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;
+   if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size*.65,0,Math.PI*2);ctx.fill()}
+   else if(p.shape==='diamond'){ctx.rotate(Math.PI/4);ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size)}
+   else if(p.shape==='rect'){ctx.fillRect(-p.size/2,-p.size,p.size,p.size*2)}
+   else ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();
+ }
+ rings=rings.filter(r=>r.life>0);for(const r of rings){r.life-=dt;r.r+=dt*.095;ctx.save();ctx.globalAlpha=Math.max(0,r.life/r.max);ctx.strokeStyle=r.color;ctx.lineWidth=r.width;ctx.beginPath();if(r.shape==='diamond'){ctx.moveTo(r.x,r.y-r.r);ctx.lineTo(r.x+r.r,r.y);ctx.lineTo(r.x,r.y+r.r);ctx.lineTo(r.x-r.r,r.y);ctx.closePath()}else ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.stroke();ctx.restore()}
+ streaks=streaks.filter(s=>s.life>0);for(const s of streaks){s.life-=dt;ctx.save();ctx.globalAlpha=Math.max(0,s.life/s.max);ctx.strokeStyle=s.color;ctx.lineWidth=s.width;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke();ctx.restore()}
+ if(parts.length||rings.length||streaks.length)raf=requestAnimationFrame(tick);else raf=0;
+}
+const grid=document.querySelector('#fxgrid');effects.forEach(e=>{const b=document.createElement('button');b.className='fxbtn';b.dataset.id=e.id;b.innerHTML=`<span class="emoji">${e.icon}</span><span><strong>${e.name}</strong><small>${e.desc}</small></span>`;b.onclick=()=>{document.querySelectorAll('.fxbtn').forEach(x=>x.classList.toggle('active',x===b));play(e.id)};grid.append(b)});
+document.querySelector('#random').onclick=()=>{const e=effects[Math.floor(Math.random()*effects.length)];document.querySelector(`.fxbtn[data-id="${e.id}"]`).click()};
+document.querySelector('#replay').onclick=()=>active?play(active):play('victory');
+document.querySelector('#clear').onclick=()=>{clear();player.style.opacity='1';player.style.filter='';player.getAnimations().forEach(a=>a.cancel());document.querySelectorAll('.fxbtn').forEach(b=>b.classList.remove('active'))};
+play('victory');
+})();
+</script>
+</body>
+</html>

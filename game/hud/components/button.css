@@ -1,0 +1,67 @@
+/* Ular Tangga Blok — hud/components/button.css (Stage 4.0.3)
+   Semua selector berawalan .ut-btn*; tidak menyentuh .btn/.cta/.bt/.ab/.mb/.pack/.heroBtn/.bb milik halaman.
+   Ukuran memakai em (mengikuti font-size tombol) + rem untuk font-size, selaras skala rem halaman.
+   Variabel halaman (--bd, --y1, --y2) dipakai bila ada, dengan fallback. */
+
+.ut-btn {
+  --ut-btn-bg: linear-gradient(var(--y1, #ffd24d), var(--y2, #ff9a1f));
+  --ut-btn-edge: #c96a0c;
+  --ut-btn-ink: #8a4a0a;
+  --ut-btn-inset: inset 0 .12em .12em rgba(255, 255, 255, .55);
+  box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+  max-width: 100%; min-height: 2.3em; margin: 0; padding: 0 1.1em;
+  border: 0; border-radius: 1.2em; /* >= setengah tinggi 1 baris (2.3em) => pill penuh */
+  background: var(--ut-btn-bg); color: #fff;
+  box-shadow: 0 .18em 0 var(--ut-btn-edge), var(--ut-btn-inset);
+  text-shadow: 0 .06em 0 var(--ut-btn-ink);
+  font-family: inherit; font-weight: 800; font-size: 1.9rem; line-height: 1.1; text-align: center;
+  white-space: normal; overflow-wrap: anywhere; /* label panjang membungkus, tidak meluap */
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+
+/* Variant */
+.ut-btn-primary { /* nilai dasar di atas */ }
+.ut-btn-secondary {
+  --ut-btn-bg: linear-gradient(#58b6ff, #1f86ee);
+  --ut-btn-edge: #14449f; --ut-btn-ink: rgba(10, 40, 120, .6);
+}
+.ut-btn-ghost {
+  --ut-btn-bg: rgba(255, 255, 255, .18);
+  --ut-btn-edge: transparent; --ut-btn-ink: rgba(10, 30, 100, .45);
+  --ut-btn-inset: inset 0 0 0 .1em rgba(255, 255, 255, .7);
+}
+.ut-btn-danger {
+  --ut-btn-bg: linear-gradient(#ff8a7a, #e0332b);
+  --ut-btn-edge: #8f1d18; --ut-btn-ink: #6d1410;
+}
+
+/* Size */
+.ut-btn-sm { font-size: 1.4rem; }
+.ut-btn-md { font-size: 1.9rem; }
+.ut-btn-lg { font-size: 2.6rem; }
+
+/* State */
+@media (hover: hover) {
+  .ut-btn:not(:disabled):hover { filter: brightness(1.08); }
+}
+.ut-btn:not(:disabled):active {
+  transform: translateY(.12em);
+  box-shadow: 0 .06em 0 var(--ut-btn-edge), var(--ut-btn-inset);
+}
+.ut-btn:focus-visible {
+  outline: .18em solid #fff; outline-offset: .12em;
+  box-shadow: 0 .18em 0 var(--ut-btn-edge), var(--ut-btn-inset), 0 0 0 .38em var(--bd, #12337f);
+}
+.ut-btn:disabled {
+  opacity: .55; filter: grayscale(.6); cursor: not-allowed; transform: none;
+}
+
+/* Target sentuh minimal ~44px pada layar sentuh */
+@media (pointer: coarse) {
+  .ut-btn { min-height: max(2.3em, 44px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ut-btn { transition: none; }
+}

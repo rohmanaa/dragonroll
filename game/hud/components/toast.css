@@ -1,0 +1,46 @@
+/* Ular Tangga Blok — hud/components/toast.css (Stage 4.0.7)
+   Semua selector berawalan .ut-toast; tidak menyentuh #toast / .toast / .on milik halaman.
+   Elemen .ut-toast-stack dan .ut-toast.ut-toast-hud hanya ada di DOM saat toast tampil, jadi memuat file ini tidak mengubah UI existing.
+   Akar toast HUD memakai kelas dasar .ut-toast (dibagi dengan UT.UI.toast / base.css) + .ut-toast-hud; semua aturan di sini
+   diawali .ut-toast.ut-toast-hud agar .ut-toast "polos" (fallback UT.UI.toast di base.css) tidak berubah.
+   Tampilan mengikuti toast legacy (audit): pil biru var(--bd), teks putih, rem seperti halaman, masuk dari bawah dengan pegas. */
+
+.ut-toast-stack {
+  position: fixed; left: 0; right: 0; z-index: 9100;
+  bottom: max(3rem, env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; align-items: center; gap: .8rem;
+  box-sizing: border-box; margin: 0; padding: 0 8px;
+  pointer-events: none; /* toast tidak pernah menangkap klik/fokus dan tidak menutupi UI di bawahnya */
+}
+
+.ut-toast.ut-toast-hud {
+  position: relative; left: auto; right: auto; bottom: auto; top: auto; z-index: auto;
+  box-sizing: border-box; margin: 0;
+  max-width: 100%; width: max-content;
+  padding: .8rem 2.4rem; border-radius: 2rem;
+  background: var(--bd, #12337f); color: #fff;
+  font: inherit; font-size: 2.2rem; line-height: 1.3; text-align: center;
+  white-space: normal; overflow-wrap: anywhere; word-break: break-word; /* pesan panjang / tanpa spasi membungkus, tidak overflow */
+  opacity: 0; transform: none; transition: none; pointer-events: none;
+}
+.ut-toast.ut-toast-hud.on {
+  opacity: 1; transform: none;
+  animation: ut-toast-in .35s cubic-bezier(.3, 1.8, .5, 1);
+}
+
+.ut-toast.ut-toast-hud .ut-toast-message { display: block; min-width: 0; }
+
+/* Varian: info mengikuti warna legacy; sisanya hanya mengganti warna latar/teks. */
+.ut-toast.ut-toast-hud.ut-toast-info    { background: var(--bd, #12337f); color: #fff; }
+.ut-toast.ut-toast-hud.ut-toast-success { background: #2f9e2f; color: #fff; }
+.ut-toast.ut-toast-hud.ut-toast-warning { background: #f5a623; color: #3a2600; }
+.ut-toast.ut-toast-hud.ut-toast-error   { background: #d9362b; color: #fff; }
+
+@keyframes ut-toast-in {
+  from { opacity: 0; transform: translateY(2rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ut-toast.ut-toast-hud.on { animation: none; }
+}

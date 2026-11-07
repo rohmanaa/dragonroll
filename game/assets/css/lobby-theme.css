@@ -1,0 +1,4 @@
+/* lobby-theme: tema seragam dengan lobby (slate). Dipakai semua halaman lobby. */
+:root{--sl1:#3f506b;--sl2:#26344c;--sl3:#52647f;--sl4:#33445f;--gold:#f4cd5c;--slf:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35)}
+html,body{background:linear-gradient(#3d9bfd,#6fbdfc 50%,#bfe4ff 85%,#d8f0ff)}
+.blue{background:linear-gradient(var(--sl1),var(--sl2))!important;box-shadow:var(--slf)!important;border-radius:1rem}
