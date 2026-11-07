@@ -2368,6 +2368,9 @@ const ISL={grass:[0x6a9440,0x5d8738,0x76a049,0x537c3a],olive:0x86973f,sage:0x5a8
 function islH(a,b,k){ const h=Math.sin(a*127.1+b*311.7+(k||0)*74.7)*43758.5453; return h-Math.floor(h); }
 function islGrass(x,z){
   const fx=Math.floor(x),fz=Math.floor(z),patch=islH(Math.floor(x/2),Math.floor(z/2),1),rr=islH(x,z,2);
+  const soil=sgn(x/4.2,z/4.2,13); /* tambalan tanah terbuka / tanah liat / kerikil di tengah rumput */
+  if(soil>0.8){ const q=islH(x,z,8); return new THREE.Color(q<0.18?ISL.gravel:q<0.4?ISL.clay:ISL.dirt[Math.floor(islH(x,z,9)*4)&3]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.05); }
+  if(soil>0.74&&rr<0.55) return new THREE.Color(ISL.moss[(fx+fz)&1]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.04); /* tepi tambalan: lumut */
   const hex=patch>0.8?ISL.olive:patch<0.16?ISL.sage:ISL.grass[((fx+fz)&1)?(rr<0.2?2:0):(rr<0.2?3:1)];
   return new THREE.Color(hex).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
 }
@@ -2393,7 +2396,12 @@ function addTopQuad(B,cx,y,cz,sx,sz,color){
 function grassTile(B,cx,cz,size,y){
   const Q=[[-1,-1],[1,-1],[-1,1],[1,1]];
   if(size>1.01){ const q=size/4; Q.forEach(d=>grassTile(B,cx+d[0]*q,cz+d[1]*q,size/2,y)); return; }
-  if(sgh(cx,cz,7)<0.24){ const q=size/4; Q.forEach(d=>addTopQuad(B,cx+d[0]*q,y,cz+d[1]*q,size/2,size/2,grassShade(cx+d[0]*q,cz+d[1]*q))); return; }
+  if(sgh(cx,cz,7)<0.24||themeKey==='minecraft'){ const q=size/4;
+    Q.forEach(d=>{ const qx=cx+d[0]*q,qz=cz+d[1]*q,col=grassShade(qx,qz); addTopQuad(B,qx,y,qz,size/2,size/2,col);
+      if(themeKey==='minecraft'&&size<=1.01) for(let k=0;k<2;k++){ /* bintik piksel terang/gelap 0.25 (tekstur butiran ala pulau) */
+        if(sgh(qx,qz,20+k)>0.42) continue;
+        const px=qx+(sgh(qx,qz,22+k)-0.5)*0.25,pz=qz+(sgh(qx,qz,24+k)-0.5)*0.25;
+        addTopQuad(B,px,y+0.004,pz,0.25,0.25,col.clone().offsetHSL(0,0,(sgh(qx,qz,26+k)<0.5?-0.045:0.05))); } }); return; }
   addTopQuad(B,cx,y,cz,size,size,grassShade(cx,cz));
 }
 /* PRNG sendiri untuk dekorasi baru: TIDAK menyentuh rnd()/lr() sehingga letak pohon, rumah, hewan, dll tidak bergeser */
@@ -2476,9 +2484,38 @@ function addGrassScenery(DB,th){
   place(40,1600,0.5,(x,z)=>{ addBushPix(DB,x,z,r); return 0.55; });
   place(190,3000,0.3,(x,z)=>{ addTuft(DB,x,z,0.9+r()*0.5,r); return 0.35; });
   if(mc){ /* dekor gaya pulau: bunga warna-warni + jamur (PRNG sendiri, dipanggil setelah dekor lama) */
-    place(70,2000,0.3,(x,z)=>{ addFlowerIsl(DB,x,z,r); return 0.3; });
-    place(10,800,0.4,(x,z)=>{ addMushIsl(DB,x,z); return 0.4; });
+    place(170,4000,0.28,(x,z)=>{ addFlowerIsl(DB,x,z,r); return 0.28; });
+    place(18,1200,0.4,(x,z)=>{ addMushIsl(DB,x,z); return 0.4; });
+    place(110,3000,0.3,(x,z)=>{ addTuft(DB,x,z,1.1+r()*0.7,r); return 0.35; }); /* jumbai rumput tambahan */
   }
+}
+/* kotak sisi vertikal 1 muka (normal sumbu dx/dz), dipakai untuk piksel tebing tanah */
+function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color){
+  const tx=dz,tz=-dx,hw=w/2,hy=hh/2,base=B.n;
+  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); });
+  B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
+}
+function addIslCliff(TB,gx,gz,h){
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+    const nh=mcH(gx+d[0]*2,gz+d[1]*2); if(nh>=h-0.01) return;
+    const rows=Math.max(1,Math.ceil((h-nh)/0.5-0.001));
+    for(let sg=0;sg<4;sg++){
+      const o=(sg-1.5)*0.5,wx=gx+d[0]*1.025+(d[1]?o:0),wz=gz+d[1]*1.025+(d[0]?o:0);
+      /* panjang lumut menetes tiap segmen: 1-2 baris */
+      const drip=1+(islH(wx,wz,31)<0.45?1:0);
+      for(let rw=0;rw<rows;rw++){
+        const y0=h-rw*0.5,hh=Math.min(0.5,y0-nh); if(hh<=0.001) break;
+        const cy=y0-hh/2,rr=islH(wx+rw*3.1,wz-rw*1.7,32);
+        let hex; if(rw<drip) hex=ISL.moss[(sg+rw)&1];
+        else if(rr<0.07) hex=ISL.clay; else if(rr<0.12) hex=ISL.gravel;
+        else if(h-rw*0.5<0.7&&h>1.2) hex=ISL.stone[Math.floor(rr*4)&3];
+        else hex=ISL.dirt[Math.floor(islH(wx,wz+rw,33)*4)&3];
+        const c=new THREE.Color(hex).offsetHSL(0,0,(islH(wx,wz,34+rw)-0.5)*0.06);
+        addSideQuad(TB,wx,cy,wz,d[0],d[1],0.5,hh,c);
+        if(rr>0.78) addSideQuad(TB,wx+(d[0]?0.004*d[0]:(islH(wx,wz,35)-0.5)*0.2),cy+(islH(wx,wz,36)-0.5)*0.15,wz+(d[1]?0.004*d[1]:(islH(wx,wz,35)-0.5)*0.2),d[0],d[1],0.16,0.16,c.clone().offsetHSL(0,0,rr<0.9?-0.06:0.08)); /* butir piksel */
+      }
+    }
+  });
 }
 function buildMcTerrain(TB,th){
   const mc=th.key==='minecraft',grassy=mc||th.key==='rumput',G=mc?0x4A8F33:th.ground,W=mc?0x98643B:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
@@ -2488,7 +2525,7 @@ function buildMcTerrain(TB,th){
   for(let ix=-7.5;ix<=7.5;ix+=1) for(let iz=-6.5;iz<=6.5;iz+=1){
     if(Math.abs(ix)<5&&Math.abs(iz)<5) continue;
     { const j=jit(G,0.08); /* jit tetap dipanggil agar urutan rnd() sama */
-      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,GRASS_PAL[2],{edge:false}); grassTile(TB,ix,iz,1,0.012); }
+      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,ix,iz,1,0.012); }
       else addBox(TB,ix,-0.1,iz,1,0.2,1,j); }
   }
   for(let gx=-33;gx<=33;gx+=2) for(let gz=-28;gz<=28;gz+=2){
@@ -2496,9 +2533,9 @@ function buildMcTerrain(TB,th){
     const h=mcH(gx,gz),hi=h>=1.5;
     { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
       addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
-      if(mc&&h<2.5) addBox(TB,gx,h-0.35,gz,2.02,0.3,2.02,ISL.moss[(Math.floor(gx/2)+Math.floor(gz/2))&1],{edge:false}); } /* rumput menetes di tepi */
+      if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
-      if(grassy&&h<2.5){ addBox(TB,gx,h-0.1,gz,2,0.2,2,GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.012); }
+      if(grassy&&h<2.5){ addBox(TB,gx,h-0.1,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.012); }
       else addBox(TB,gx,h-0.1,gz,2,0.2,2,j); }
   }
   for(let z=7;z<=28;z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
