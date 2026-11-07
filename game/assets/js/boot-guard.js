@@ -7,6 +7,7 @@
     var st = document.createElement('style');
     st.textContent = 'html{background:#000}body{animation:utPageIn .7s ease backwards}@keyframes utPageIn{from{opacity:0}to{opacity:1}}';
     document.documentElement.appendChild(st);
+    setTimeout(function () { if (st.parentNode) st.parentNode.removeChild(st); }, 900); /* lepas setelah fade supaya latar halaman normal kembali */
   } catch (e) {}
 })();
 /* Boot guard: halaman apa pun yang dibuka langsung (tanpa lewat splash) dialihkan ke splash.html dulu.

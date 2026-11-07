@@ -146,7 +146,7 @@ body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loa
 @media(prefers-reduced-motion:reduce){.intro img{animation:introLogoRm 2s linear forwards}@keyframes introLogoRm{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}}
 /* Fade in dari hitam saat layar naga dimulai */
 html.introfade{background:#000}
-html.introfade body{animation:utIn .7s ease backwards}
+html.introfade body{background:transparent;animation:utIn .7s ease backwards}
 @keyframes utIn{from{opacity:0}to{opacity:1}}
 /* Fade out ke hitam sebelum pindah ke lobby */
 .to-black{position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:all;transition:opacity .5s ease}
@@ -190,7 +190,7 @@ html.quick,html.quick body{background:#000}
   function play(){ if(played||!a) return; var p; try{ p=a.play(); }catch(e){ return; } played=true; if(p&&p.catch) p.catch(function(){ played=false; }); }
   play(); /* bila autoplay diblokir browser, ulang di sentuhan pertama */
   ['pointerdown','keydown','touchstart'].forEach(function(ev){ addEventListener(ev,play,{once:true,passive:true}); });
-  setTimeout(function(){ intro.classList.add('off'); setTimeout(function(){ intro.remove(); done(); },450); },DUR);
+  setTimeout(function(){ intro.classList.add('off'); setTimeout(function(){ intro.remove(); document.documentElement.classList.remove('introfade'); done(); },450); },DUR);
 })();
 </script>
 
