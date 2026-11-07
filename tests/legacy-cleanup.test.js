@@ -12,13 +12,14 @@ function boot(store, opts) {
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const BASE = 'ularTanggaBlok:player:v1';
 
-t('key legacy tanpa pembaca (shop/modeScreen/lobbyGift) dihapus setelah migrasi; inv & ut-dadu tetap', () => {
+t('key legacy tanpa pembaca (shop/modeScreen/lobbyGift) dihapus setelah migrasi; inv tetap, ut-dadu dihapus', () => {
   const { PD, store } = boot({ shop: '{"coins":5}', modeScreen: '{}', lobbyGift: '1', inv: '{"coins":10}', 'ut-dadu': 'standard' });
   PD.coins();
   assert.strictEqual('shop' in store, false);
   assert.strictEqual('modeScreen' in store, false);
   assert.strictEqual('lobbyGift' in store, false);
-  assert.ok('inv' in store && 'ut-dadu' in store);
+  assert.ok('inv' in store);
+  assert.strictEqual('ut-dadu' in store, false);
 });
 t('data shop lama tetap diimpor sebelum dihapus (saldo legacy tidak hilang)', () => {
   const { PD } = boot({ shop: '{"coins":4321,"gems":7}' });

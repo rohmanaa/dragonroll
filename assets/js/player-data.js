@@ -13,7 +13,7 @@
    dipertahankan sebagai sumber kompatibilitas sampai tahap cleanup di masa depan.
    Tidak ada localStorage.clear(). Pembersihan (Tahap 1 penghapusan localStorage) hanya menghapus key legacy yang
    TIDAK dibaca kode mana pun lagi ("shop", "modeScreen", "lobbyGift"), dan HANYA setelah migrasi v1 selesai;
-   "inv", "ut-dadu", "ut-tema2", "ut-malam" masih dipakai halaman lain dan dibiarkan. Cadangan ":corrupt:"
+   "ut-dadu", "ut-tema2" (Tahap 5a) ikut dihapus; "inv", "ut-malam" masih dipakai dan dibiarkan. Cadangan ":corrupt:"
    dipangkas ke yang terbaru saja per kunci. */
 (function (g) {
   'use strict';
@@ -210,18 +210,7 @@
     var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null, outfits: [],
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
-    if (!skipLegacy) migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan (hanya untuk tamu, bukan akun baru) */
     return st;
-  }
-
-  /* Migrasi lama Tahap-2: kunci pilihan dadu/tema gratis. */
-  function migrateLegacyEquip(st) {
-    [['dice', 'ut-dadu'], ['theme', 'ut-tema2']].forEach(function (p) {
-      var it = C.byGameKey(p[0], legacyGet(p[1]) || '');
-      if (!it) return;
-      if (!st.inventory[it.id]) st.inventory[it.id] = { qty: 1, acquiredAt: st.createdAt, seq: st.nextSeq++ };
-      st.equipped[p[0]] = it.id;
-    });
   }
 
   /* ---------- Validasi & normalisasi (tidak membuang data yang tak dikenal) ---------- */
@@ -277,12 +266,6 @@
     if (!rawSet(JSON.stringify(st))) return false;
     memState = null;
     return true;
-  }
-
-  function mirrorLegacy(st) { /* kompatibilitas: gameplay.html lama membaca kunci ini */
-    var d = C.byId(st.equipped.dice), t = C.byId(st.equipped.theme);
-    if (d) legacySet('ut-dadu', d.gameKey);
-    if (t) legacySet('ut-tema2', t.gameKey);
   }
 
   /* ---------- MIGRASI v1 (idempoten) ----------
@@ -349,7 +332,7 @@
      - Cadangan data rusak "<kunci>:corrupt:<ts>": simpan yang TERBARU saja per kunci, hapus yang lebih lama.
      Idempoten, sekali per muat halaman, aman bila localStorage tidak tersedia / tidak bisa dienumerasi. */
   var cleaned = false;
-  var DEAD_LEGACY_KEYS = ['shop', 'modeScreen', 'lobbyGift'];
+  var DEAD_LEGACY_KEYS = ['shop', 'modeScreen', 'lobbyGift', 'ut-dadu', 'ut-tema2']; /* Tahap 5a: pilihan dadu/tema kini dibaca dari PlayerData, bukan cermin lokal */
   function guestMigrated() {
     try {
       var raw = localStorage.getItem(BASE_KEY);
@@ -495,7 +478,7 @@
       if (!st.inventory[id]) return { ok: false, reason: 'belum-dimiliki' };
       st.equipped[it.slot] = id;
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      mirrorLegacy(st); notify('equip');
+      notify('equip');
       return { ok: true, item: it };
     },
 
@@ -654,7 +637,7 @@
         cleanGear(st, st.equipped, st.gearDye);   /* gear yang tidak ada di inventory server dilepas */
       }
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      mirrorLegacy(st); notify('server-wallet');
+      notify('server-wallet');
       return { ok: true, coins: st.coins, gems: st.gems };
     },
     /* Tampilan aktif untuk dikirim ke server (AppearanceService.pushAppearance): {look, equipped, gearDye}.
@@ -677,7 +660,7 @@
       });
       cleanGear(st, eq, o.gearDye);
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      mirrorLegacy(st); notify('server-appearance');
+      notify('server-appearance');
       return { ok: true };
     },
     /* Isi cermin outfit dari server: [{slot, name, data, updatedAt?}]. Hanya mode server. */

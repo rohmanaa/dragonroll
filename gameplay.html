@@ -4683,7 +4683,6 @@ function buildWorld(key){
   applyLook(th);
   const tb=$('btnTheme'); if(tb) tb.textContent='Maps: '+th.name;
   document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===th.key?'true':'false'));
-  try{ localStorage.setItem('ut-tema2',th.key); }catch(e){}
 }
 
 /* ---------- Pion ---------- */
@@ -6216,11 +6215,11 @@ function cycleMode(){ /* Siang -> Malam -> Auto -> Siang */
 function tickAuto(dt){ if(!autoDN||paused||gameOver) return; if(ONLINE_ROOM&&!ONLINE_HOST) return; phaseT+=dt; if(phaseT>=PHASE_SEC){ setNight(!night); if(ONLINE_ROOM) publishGameSnapshot(); } }
 $('btnNight').addEventListener('click',()=>{ cycleMode(); });
 const DICE=[{key:'klasik',name:'Klasik',bg:'#ffffff',pip:'#1b2a3b',edge:'#1b2a3b'},{key:'tnt',name:'TNT',bg:'#d63a2a',pip:'#ffffff',edge:'#4a0d07'},{key:'rumput',name:'Rumput',bg:'#5fae3e',pip:'#1f4a12',edge:'#2c5a1c'},{key:'diamond',name:'Diamond',bg:'#4aedd9',pip:'#0b4f4a',edge:'#0b4f4a'},{key:'emas',name:'Emas',bg:'#ffd23f',pip:'#6b4a00',edge:'#6b4a00'},{key:'obsidian',name:'Obsidian',bg:'#2a1747',pip:'#d3b4ff',edge:'#0d0618'}];
-let diceKey='klasik'; try{ diceKey=localStorage.getItem('ut-dadu')||'klasik'; }catch(e){}
+function equippedGameKey(slot){ try{ const it=window.ItemCatalog.byId(window.PlayerData.equippedId(slot)); return (it&&it.gameKey)||null; }catch(e){ return null; } } /* Tahap 5a: pilihan dadu/tema dari PlayerData, bukan key lokal */
+let diceKey=equippedGameKey('dice')||'klasik';
 function applyDice(k){
   const d=DICE.find(x=>x.key===k)||DICE[0]; diceKey=d.key; const rs=document.documentElement.style;
   rs.setProperty('--dbg',d.bg); rs.setProperty('--dpip',d.pip); rs.setProperty('--dedge',d.edge);
-  try{ localStorage.setItem('ut-dadu',d.key); }catch(e){}
   $('btnDice').textContent='Dadu: '+d.name;
   document.querySelectorAll('.dbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-d')===d.key)));
 }
@@ -6443,8 +6442,7 @@ function readLobbyConfig(){
 const CFG=readLobbyConfig();
 if(CFG.dice) applyDice(CFG.dice);
 if(CFG.night!==null) night=CFG.night==='1';
-let saved=null;
-try{ saved=localStorage.getItem('ut-tema2'); }catch(e){}
+const saved=equippedGameKey('theme');
 buildWorld(CFG.theme||saved||THEMES[0].key);
 lastSkins=CFG.skins.slice();
 /* Urutan audio Gameplay: init audio -> BGM -> SFX boleh. Browser (Android) hanya menganggap pointerup/touchend/click/keydown sebagai aktivasi untuk sentuhan,
