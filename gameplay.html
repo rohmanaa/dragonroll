@@ -2362,7 +2362,23 @@ function hsl2hex(h,s,l){ const a=s*Math.min(l,1-l),f=n=>{ const k=(n+h*12)%12; r
 const GRASS_PAL=GRASS_REF.l.map(l=>hsl2hex(GRASS_REF.h,GRASS_REF.s,l));
 const sgh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; return v-Math.floor(v); };
 function sgn(x,z,k){ const x0=Math.floor(x),z0=Math.floor(z),fx=x-x0,fz=z-z0,sx=fx*fx*(3-2*fx),sz=fz*fz*(3-2*fz),a=sgh(x0,z0,k),b=sgh(x0+1,z0,k),c=sgh(x0,z0+1,k),d=sgh(x0+1,z0+1,k); return a+(b-a)*sx+(c-a)*sz+(a-b-c+d)*sx*sz; }
+/* ===== Gaya detail pulau melayang (floating-island.js v2) untuk tanah World: palet zaitun/sage alami, tanah & tanah liat bervariasi, lumut menetes.
+   Deterministik per koordinat (TIDAK memakai rnd()/lr()), jadi urutan acak dunia tidak bergeser. ===== */
+const ISL={grass:[0x6a9440,0x5d8738,0x76a049,0x537c3a],olive:0x86973f,sage:0x5a8452,moss:[0x5a8744,0x4e7a3e],dirt:[0x8b5d3a,0x7d5233,0x96683f,0x6e4a2e],clay:0xa8794a,gravel:0x8c8b90,stone:[0x9a9ca6,0x868a96,0xaeb0b8,0x7c808c],flowers:[0xe58fa0,0xf0cf68,0xf2efe6,0xa99bd6,0xe9a35c]};
+function islH(a,b,k){ const h=Math.sin(a*127.1+b*311.7+(k||0)*74.7)*43758.5453; return h-Math.floor(h); }
+function islGrass(x,z){
+  const fx=Math.floor(x),fz=Math.floor(z),patch=islH(Math.floor(x/2),Math.floor(z/2),1),rr=islH(x,z,2);
+  const hex=patch>0.8?ISL.olive:patch<0.16?ISL.sage:ISL.grass[((fx+fz)&1)?(rr<0.2?2:0):(rr<0.2?3:1)];
+  return new THREE.Color(hex).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
+}
+function islSide(base,hi,x,z){ /* sisi tanah/batu kolom World: tanah coklat bervariasi + tanah liat + kerikil; kolom tinggi = batu abu-kebiruan */
+  const rr=islH(x,z,4);
+  if(hi) return new THREE.Color(ISL.stone[Math.floor(rr*4)&3]).offsetHSL(0,0,(islH(x,z,5)-0.5)*0.05);
+  const hex=rr<0.07?ISL.clay:rr<0.12?ISL.gravel:ISL.dirt[Math.floor(islH(x,z,6)*4)&3];
+  return new THREE.Color(hex).offsetHSL(0,0,(islH(x,z,5)-0.5)*0.05);
+}
 function grassShade(x,z){
+  if(themeKey==='minecraft') return islGrass(x,z);
   let v=sgn(x/3.4,z/3.4,5)*0.42+sgn(x/1.4,z/1.4,9)*0.18+sgh(x,z,2)*0.40; /* gerombol besar + sedang + acak per petak */
   v=Math.max(0,Math.min(0.999,(v-0.5)*1.9+0.5));
   return new THREE.Color(GRASS_PAL[Math.floor(v*5)]).offsetHSL(0,0,(sgh(x,z,3)-0.5)*0.012);
@@ -2420,6 +2436,17 @@ function addTuft(B,x,z,s,r){
   }
 }
 /* sebar batu + semak + rumpun di luar board (tema berumput). Menghindari board, sungai, gunung, peternakan, pertanian, rumah, jalan, dan pohon. */
+function addFlowerIsl(B,x,z,r){
+  const fh=0.26+r()*0.16,c=ISL.flowers[Math.floor(r()*ISL.flowers.length)];
+  addBox(B,x,fh/2,z,0.06,fh,0.06,0x4f7f33,{edge:false});
+  addBox(B,x,fh+0.05,z,0.2,0.14,0.2,c,{edge:false});
+  addBox(B,x,fh+0.14,z,0.07,0.05,0.07,0xf6e08a,{edge:false});
+}
+function addMushIsl(B,x,z){
+  addBox(B,x,0.1,z,0.13,0.2,0.13,0xe8dcc0,{edge:false});
+  addBox(B,x,0.24,z,0.34,0.12,0.34,0xc2503f,{edge:false});
+  addBox(B,x+0.08,0.31,z+0.06,0.08,0.03,0.08,0xffffff,{edge:false});
+}
 function addGrassScenery(DB,th){
   const mc=th.decor==='mc',r=mkRng(0x6A55+THEMES.indexOf(th)*131),placed=[];
   const ok=(x,z,pad)=>{
@@ -2448,6 +2475,10 @@ function addGrassScenery(DB,th){
   place(46,1600,0.5,(x,z)=>{ const big=r()<0.6,hx=addRockPix(DB,x,z,big,r); if(big) blockRect(x,z,hx[0],hx[1]); return Math.max(hx[0],hx[1]); });
   place(40,1600,0.5,(x,z)=>{ addBushPix(DB,x,z,r); return 0.55; });
   place(190,3000,0.3,(x,z)=>{ addTuft(DB,x,z,0.9+r()*0.5,r); return 0.35; });
+  if(mc){ /* dekor gaya pulau: bunga warna-warni + jamur (PRNG sendiri, dipanggil setelah dekor lama) */
+    place(70,2000,0.3,(x,z)=>{ addFlowerIsl(DB,x,z,r); return 0.3; });
+    place(10,800,0.4,(x,z)=>{ addMushIsl(DB,x,z); return 0.4; });
+  }
 }
 function buildMcTerrain(TB,th){
   const mc=th.key==='minecraft',grassy=mc||th.key==='rumput',G=mc?0x4A8F33:th.ground,W=mc?0x98643B:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
@@ -2463,7 +2494,9 @@ function buildMcTerrain(TB,th){
   for(let gx=-33;gx<=33;gx+=2) for(let gz=-28;gz<=28;gz+=2){
     if(Math.abs(gx)+1<=8&&Math.abs(gz)+1<=7) continue;
     const h=mcH(gx,gz),hi=h>=1.5;
-    addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,jit(hi?S:W,0.07),{edge:false});
+    { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
+      addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
+      if(mc&&h<2.5) addBox(TB,gx,h-0.35,gz,2.02,0.3,2.02,ISL.moss[(Math.floor(gx/2)+Math.floor(gz/2))&1],{edge:false}); } /* rumput menetes di tepi */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
       if(grassy&&h<2.5){ addBox(TB,gx,h-0.1,gz,2,0.2,2,GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.012); }
       else addBox(TB,gx,h-0.1,gz,2,0.2,2,j); }
