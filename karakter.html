@@ -232,6 +232,10 @@ html body #idesc{color:#cdd8ea}
 </style>
 <style id="karakter-ui">
 /* Karakter: tata letak & komponen mengikuti Inventory. Hanya tampilan; logika builder 3D tidak berubah. */
+html body .card .th{position:relative}
+html body .card .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;animation:thin .25s both}
+html body .card .th.ph .em,html body .card .th.ph .sq{visibility:hidden}
+@keyframes thin{from{opacity:0;transform:scale(.92)}}
 html body #gl{touch-action:none;cursor:grab}
 html body #gl:active{cursor:grabbing}
 html body #cats{overflow-y:auto;overflow-x:hidden;padding:.3rem .5rem .8rem .3rem;scrollbar-width:none}
@@ -999,7 +1003,8 @@ const find=(key,id)=>REG[key].find(i=>i.id===id)||REG[key][0];
    Item yang tidak ada di katalog (mata, rambut, 'none') adalah dasar penampilan: gratis. Harga/kepemilikan asli ada di server. */
 const IC=window.ItemCatalog,PD=window.PlayerData;
 const catItem=(key,it)=>IC.byId('gear.'+key+'.'+it.id);
-const owned=(key,it)=>{const c=catItem(key,it);return !c||PD.owns(c.id);};
+let previewAll=false; /* true hanya saat membuat thumbnail: item terkunci tetap dirender */
+const owned=(key,it)=>{if(previewAll)return true;const c=catItem(key,it);return !c||PD.owns(c.id);};
 
 /* ================================================================
    7. CONFIG (satu-satunya sumber kebenaran; bisa disimpan sebagai JSON)
@@ -1267,6 +1272,90 @@ function applyRig(){
 /* ================================================================
    10. UI
    ================================================================ */
+
+/* ================================================================
+   10a. THUMBNAIL ASLI: setiap kartu menampilkan render 3D sebenarnya dari item tsb
+   (rig yang sama, pose netral, kamera dekat). Dibuat bertahap per frame & di-cache.
+   ================================================================ */
+const THUMB={
+  ready:false,cache:new Map(),queue:[],epoch:0,busy:false,
+  FR:{full:{y:1.0,d:4.7,yaw:.5,pit:.12},bust:{y:1.3,d:3.0,yaw:.45,pit:.1},head:{y:1.75,d:2.1,yaw:.5,pit:.1},eyes:{y:1.75,d:1.35,yaw:.3,pit:.05},
+      legs:{y:.4,d:1.95,yaw:.5,pit:.1},boots:{y:.2,d:1.35,yaw:.55,pit:.15},back:{y:1.0,d:4.7,yaw:Math.PI+.5,pit:.12}},
+  init(){
+    if(this.ready)return true;
+    try{
+      const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+      r.setSize(160,160);r.setPixelRatio(1);r.setClearColor(0x000000,0);
+      this.r=r;this.cam=new THREE.PerspectiveCamera(30,1,0.1,60);this.ready=true;
+    }catch(e){this.ready=false;}
+    return this.ready;
+  },
+  sig(omit){const o=clone(cfg);omit.forEach(k=>delete o[k]);return JSON.stringify(o);},
+  setCfg(n){ /* ganti cfg tanpa listeners (tidak menyentuh PlayerData / UI), bangun ulang hanya slot yang berbeda */
+    const old=cfg;cfg=n;
+    const need={};
+    for(const k in KEYMAP){if(JSON.stringify(old[k])!==JSON.stringify(cfg[k]))KEYMAP[k].forEach(s=>need[s]=1);}
+    ORDER.forEach(s=>{if(need[s])BUILD[s]();});
+    const fm=cfg.gender==='f';
+    root.scale.set(cfg.body.build*(fm?0.95:1),cfg.body.height*(fm?0.97:1),cfg.body.build*(fm?0.95:1));
+  },
+  shoot(job){
+    const saved=clone(cfg),keep={P:Object.assign({},P),mode,level,phase,time,airborne,jumpY,vy,landT};
+    let url='';
+    previewAll=true;
+    try{
+      const keepCfg=cfg;cfg=clone(saved);
+      merge(cfg,job.part(saved));normalize();
+      const m=cfg;cfg=keepCfg;
+      this.setCfg(m);
+      mode='idle';level=0;airborne=false;jumpY=0;landT=0;time=0;Object.assign(P,computeTarget());applyRig();
+      const f=this.FR[job.fr]||this.FR.full,c=this.cam,t=f.y*cfg.body.height;
+      c.position.set(Math.sin(f.yaw)*Math.cos(f.pit)*f.d,t+Math.sin(f.pit)*f.d,Math.cos(f.yaw)*Math.cos(f.pit)*f.d);
+      c.lookAt(0,t,0);
+      const gv=ground.visible;ground.visible=false;
+      this.r.render(scene,c);
+      ground.visible=gv;
+      url=this.r.domElement.toDataURL('image/png');
+    }catch(e){url='';}
+    previewAll=false;
+    try{this.setCfg(saved);}catch(e){cfg=saved;}
+    Object.assign(P,keep.P);mode=keep.mode;level=keep.level;phase=keep.phase;time=keep.time;airborne=keep.airborne;jumpY=keep.jumpY;vy=keep.vy;landT=keep.landT;
+    applyRig();
+    return typeof url==='string'&&url.length>30?url:'';
+  },
+  put(el,url){
+    if(!el||!el.isConnected||!url)return;
+    const old=el.querySelector('img');if(old)old.remove();
+    const im=new Image();im.className='thimg';im.alt='';im.draggable=false;im.src=url;
+    im.addEventListener('load',()=>el.classList.add('ph'));
+    el.appendChild(im);
+  },
+  add(el,key,part,fr){
+    if(this.cache.has(key)){const u=this.cache.get(key);Promise.resolve().then(()=>this.put(el,u));return;} /* ditunda: kartu baru ditempel ke DOM setelah card() selesai */
+    if(!this.init())return;
+    this.queue.push({el,key,part,fr,epoch:this.epoch});
+    this.pump();
+  },
+  reset(){this.epoch++;this.queue=this.queue.filter(j=>j.epoch===this.epoch);},
+  pump(){
+    if(this.busy||!this.queue.length)return;
+    this.busy=true;
+    requestAnimationFrame(()=>{
+      this.busy=false;
+      const t0=performance.now();let n=0;
+      while(this.queue.length&&n<3&&performance.now()-t0<12){
+        const j=this.queue.shift();
+        if(j.epoch!==this.epoch||!j.el.isConnected)continue;
+        const url=this.shoot(j);n++;
+        if(url){
+          if(this.cache.size>400)this.cache.delete(this.cache.keys().next().value);
+          this.cache.set(j.key,url);this.put(j.el,url);
+        }
+      }
+      this.pump();
+    });
+  }
+};
 function jump(){if(!airborne){airborne=true;vy=7.2;}}
 const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
@@ -1308,6 +1397,7 @@ const CATS=[
 ];
 CATS.forEach(c=>{const i=c.label.indexOf(' ');c.ico=c.label.slice(0,i);c.name=c.label.slice(i+1);});
 let cat=0,accSel=null;
+const FRAME={eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
 const tabsEl=$('#cats'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
 let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),1800);}
@@ -1327,6 +1417,7 @@ function card(o){
   if(o.badge){const b=d.querySelector('.bt');b.textContent=o.badge;if(o.bg)b.classList.add(o.bg);}
   d.addEventListener('click',o.fn);
   d.addEventListener('keydown',e=>{if(e.key==='Enter')o.fn();});
+  if(o.tq)THUMB.add(d.querySelector('.th'),o.tq.key,o.tq.part,o.tq.fr);
   return d;
 }
 function dyeRow(it,cur,pick){
@@ -1395,13 +1486,17 @@ function renderTabs(){
 }
 function renderOpts(){
   optsEl.innerHTML='';dyesEl.innerHTML='';optsEl.classList.remove('flat');
+  THUMB.reset();
   const c=CATS[cat];let n=0;
   $('#bht').textContent=c.ico+' '+c.name;
   if(c.type==='gender'){
     [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=cfg.gender===a[0];
-      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,badge:on?'Dipakai':'Pilih',bg:on?BG.own:BG.def,fn:()=>setGender(a[0])}));});
+      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,badge:on?'Dipakai':'Pilih',bg:on?BG.own:BG.def,fn:()=>setGender(a[0]),
+        tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',
+          part:cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;}}}));});
   }else if(c.type==='skin'){
-    SKINS.forEach(s=>optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:s.id===cfg.skin,fn:()=>apply({skin:s.id})})));
+    SKINS.forEach(s=>optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:s.id===cfg.skin,fn:()=>apply({skin:s.id}),
+      tq:{key:'s|'+s.id+THUMB.sig(['skin']),fr:'bust',part:()=>({skin:s.id})}})));
   }else if(c.type==='body'){
     optsEl.classList.add('flat');
     slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
@@ -1409,7 +1504,8 @@ function renderOpts(){
     r.addEventListener('click',()=>{apply({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
   }else if(c.type==='preset'){
-    PRESETS.filter(p=>p.g===cfg.gender).forEach(p=>optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,badge:'Pakai',fn:()=>apply(clone(p.set))})));
+    PRESETS.filter(p=>p.g===cfg.gender).forEach(p=>optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,badge:'Pakai',fn:()=>apply(clone(p.set)),
+      tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body]),fr:'full',part:()=>clone(p.set)}})));
   }else if(c.type==='multi'){
     ACCS.filter(okG).forEach(it=>{
       const on=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
@@ -1419,7 +1515,8 @@ function renderOpts(){
           if(lock){needBuy(ci);return;}
           accSel=it.id;
           apply({accessories:on?cfg.accessories.filter(a=>a.id!==it.id):cfg.accessories.concat([{id:it.id,dye:it.def}])});
-        }}));
+        },
+        tq:{key:'a|'+it.id+THUMB.sig([]),fr:'full',part:cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.def}])}}}));
     });
     const cur=cfg.accessories.find(a=>a.id===accSel);
     if(cur)dyeRow(find('acc',cur.id),cur.dye,id=>apply({accessories:cfg.accessories.map(a=>a.id===cur.id?{id:a.id,dye:id}:a)}));
@@ -1427,9 +1524,10 @@ function renderOpts(){
     const cur=cfg[c.key];
     REG[c.reg].filter(okG).forEach(it=>{
       const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===cur.id;
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,
+      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,
         badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
-        fn:()=>lock?needBuy(ci):apply({[c.key]:{id:it.id}})}));
+        fn:()=>lock?needBuy(ci):apply({[c.key]:{id:it.id}}),
+        tq:it.id==='none'?null:{key:c.key+'|'+it.id+'|'+(cur.dye||'')+THUMB.sig([c.key]),fr:FRAME[c.key]||'full',part:()=>({[c.key]:{id:it.id}})}}));
     });
     dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
   }
