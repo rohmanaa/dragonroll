@@ -159,12 +159,68 @@
              body: { height: Math.min(1.1, Math.max(0.9, isFinite(h) && h > 0 ? h : 1)), build: Math.min(1.15, Math.max(0.9, isFinite(bd) && bd > 0 ? bd : 1)) } };
   }
 
+  /* ---------- Outfit pribadi (tab Set di builder) ----------
+     outfits = [{ slot:0..4, name, data, updatedAt }], maksimal OUTFIT_MAX, urut menurut slot.
+     data = { gender:'m'|'f', top|legs|boots|helm|chest|shoulder|cape|weapon: {id, dye?}, accessories:[{id, dye?}] }
+     (id = kunci builder, sama dengan ItemCatalog gameKey: 'gear.<bagian>.<id>'; 'none' = bagian kosong).
+     Hanya BENTUK data yang dibersihkan saat dimuat (outfit dengan item yang belum dimiliki tetap disimpan -> bisa
+     di-preview dan dibeli). Kepemilikan & gender item divalidasi saat MENYIMPAN (saveOutfit). */
+  var OUTFIT_MAX = 5, OUTFIT_NAME_MAX = 16, OUTFIT_ACC_MAX = 12;
+  var OUTFIT_PARTS = ['top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'];
+  function cleanOutfitName(n) {
+    if (typeof n !== 'string') return '';
+    return n.replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, OUTFIT_NAME_MAX);
+  }
+  function cleanOutfitData(d) {
+    if (!d || typeof d !== 'object' || Array.isArray(d)) return null;
+    if (d.gender !== 'm' && d.gender !== 'f') return null;
+    var out = { gender: d.gender };
+    var part = function (p) {
+      if (!p || typeof p !== 'object' || Array.isArray(p) || !LOOK_ID.test(p.id || '')) return { id: 'none' };
+      var o = { id: p.id };
+      if (typeof p.dye === 'string' && DYE_RE.test(p.dye)) o.dye = p.dye;
+      return o;
+    };
+    OUTFIT_PARTS.forEach(function (k) { out[k] = part(d[k]); });
+    var seen = {}; out.accessories = [];
+    (Array.isArray(d.accessories) ? d.accessories : []).forEach(function (a) {
+      var o = part(a);
+      if (o.id === 'none' || seen[o.id] || out.accessories.length >= OUTFIT_ACC_MAX) return;
+      seen[o.id] = true; out.accessories.push(o);
+    });
+    return out;
+  }
+  function cleanOutfits(list) {
+    var out = [], used = {};
+    (Array.isArray(list) ? list : []).forEach(function (e) {
+      if (!e || typeof e !== 'object') return;
+      var slot = Math.floor(+e.slot), name = cleanOutfitName(e.name), data = cleanOutfitData(e.data);
+      if (!(slot >= 0 && slot < OUTFIT_MAX) || used[slot] || !name || !data) return;
+      used[slot] = true;
+      out.push({ slot: slot, name: name, data: data, updatedAt: isFinite(e.updatedAt) ? +e.updatedAt : 0 });
+    });
+    return out.sort(function (a, b) { return a.slot - b.slot; });
+  }
+  /* Item outfit yang harus dimiliki & cocok gender: [{id:'gear.top.tee'}...]; mengembalikan {ok} atau {ok:false, reason, item?} */
+  function checkOutfitItems(st, data) {
+    var refs = [];
+    OUTFIT_PARTS.forEach(function (k) { refs.push([k, data[k].id]); });
+    data.accessories.forEach(function (a) { refs.push(['acc', a.id]); });
+    for (var i = 0; i < refs.length; i++) {
+      var it = C.byId('gear.' + refs[i][0] + '.' + refs[i][1]);
+      if (!it) { if (refs[i][1] === 'none') continue; return { ok: false, reason: 'item-tidak-dikenal' }; }
+      if (it.g && it.g !== data.gender) return { ok: false, reason: 'gender-tidak-cocok', item: it };
+      if (!st.inventory[it.id]) return { ok: false, reason: 'belum-dimiliki', item: it };
+    }
+    return { ok: true };
+  }
+
   /* ---------- Pembuatan data awal ---------- */
   function freshState(skipLegacy) {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
     var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
-               inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null,
+               inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null, outfits: [],
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     if (!skipLegacy) migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan (hanya untuk tamu, bukan akun baru) */
     return st;
@@ -224,6 +280,7 @@
     });
     cleanGear(st, eq, o.gearDye);
     st.look = cleanLook(o.look);
+    st.outfits = cleanOutfits(o.outfits);
     return st;
   }
 
@@ -455,6 +512,42 @@
         var id = st.equipped[slot]; if (id) out[slot] = { id: id, dye: st.gearDye[id] || null };
       });
       return out;
+    },
+
+    /* ----- Outfit pribadi (maks OUTFIT_MAX slot) ----- */
+    outfitLimit: OUTFIT_MAX,
+    outfitNameMax: OUTFIT_NAME_MAX,
+    outfits: function () { return clone(load().outfits); },
+    /* Simpan outfit baru ke slot kosong pertama. data = tampilan gear (lihat cleanOutfitData); semua item harus
+       dimiliki & cocok gender. Return {ok, slot} atau {ok:false, reason:'nama-kosong'|'data-tidak-valid'|'slot-penuh'|
+       'belum-dimiliki'|'gender-tidak-cocok'|'item-tidak-dikenal'|'gagal-simpan', item?} */
+    saveOutfit: function (name, data) {
+      var nm = cleanOutfitName(name); if (!nm) return { ok: false, reason: 'nama-kosong' };
+      var d = cleanOutfitData(data); if (!d) return { ok: false, reason: 'data-tidak-valid' };
+      var st = load(), used = {};
+      st.outfits.forEach(function (e) { used[e.slot] = true; });
+      var slot = -1; for (var i = 0; i < OUTFIT_MAX; i++) { if (!used[i]) { slot = i; break; } }
+      if (slot < 0) return { ok: false, reason: 'slot-penuh' };
+      var chk = checkOutfitItems(st, d); if (!chk.ok) return chk;
+      st.outfits.push({ slot: slot, name: nm, data: d, updatedAt: Date.now() });
+      st.outfits.sort(function (a, b) { return a.slot - b.slot; });
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('outfits'); return { ok: true, slot: slot };
+    },
+    renameOutfit: function (slot, name) {
+      var nm = cleanOutfitName(name); if (!nm) return { ok: false, reason: 'nama-kosong' };
+      var st = load(), e = st.outfits.filter(function (x) { return x.slot === slot; })[0];
+      if (!e) return { ok: false, reason: 'tidak-ada' };
+      e.name = nm; e.updatedAt = Date.now();
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('outfits'); return { ok: true };
+    },
+    deleteOutfit: function (slot) {
+      var st = load(), n = st.outfits.length;
+      st.outfits = st.outfits.filter(function (x) { return x.slot !== slot; });
+      if (st.outfits.length === n) return { ok: false, reason: 'tidak-ada' };
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('outfits'); return { ok: true };
     },
 
     /* Pembelian atomik (harga katalog = coins): validasi dulu, lalu saldo + inventory dalam SATU penulisan. */

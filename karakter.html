@@ -291,7 +291,7 @@ html body #bot{gap:.8rem}
 <div class="ab" id="sbs" aria-label="Gerakan"></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><button class="use" id="buy" style="display:none"></button></section>
 <section class="ab" id="bot">
- <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
+ <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="ofm" style="display:none">✏️ Kelola</button><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
  <div id="gwrap"><div id="grid"></div></div>
  <div id="dyes"></div>
 </section>
@@ -1603,13 +1603,18 @@ function renderOpts(){
     r.addEventListener('click',()=>{apply({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
   }else if(c.type==='preset'){
-    PRESETS.filter(p=>p.g===cfg.gender).forEach(p=>{
+    const presetCard=p=>{
       const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
       optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&pv.set&&pv.set.id===p.id),
         badge:lock?'🔒 '+(st.sellable?fmt(st.total)+' koin':'Tidak dijual'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
         fn:()=>lock?startPreview(st.miss[0],clone(p.set),{id:p.id,n:p.n,cis:st.miss,total:st.total}):apply(clone(p.set)),
-        tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body]),fr:'full',part:()=>clone(p.set)}}));
-    });
+        tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body])+(p.outfit!=null?JSON.stringify(p.set):''),fr:'full',part:()=>clone(p.set)}}));
+    };
+    PRESETS.filter(p=>p.g===cfg.gender).forEach(presetCard);
+    /* outfit pribadi: tampil di samping set bawaan (hanya yang sesuai gender), lalu kartu "Simpan tampilan" bila slot masih ada */
+    const outs=PD.outfits();
+    outs.filter(o=>o.data.gender===cfg.gender).forEach(o=>presetCard(outfitPreset(o)));
+    if(outs.length<PD.outfitLimit)optsEl.appendChild(card({i:n++,th:emo('➕'),nm:'Simpan tampilan',badge:outs.length+'/'+PD.outfitLimit,bg:BG.def,fn:openSaveOutfit}));
   }else if(c.type==='multi'){
     ACCS.filter(okG).forEach(it=>{
       const on=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
@@ -1635,8 +1640,70 @@ function renderOpts(){
     });
     dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
   }
+  $('#ofm').style.display=(c.type==='preset'&&PD.outfits().length)?'':'none';
   updateInfo();
 }
+/* ===== Outfit pribadi (tersimpan di PlayerData; maks PD.outfitLimit slot) ===== */
+const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const OMSG={'slot-penuh':'Slot outfit penuh.','nama-kosong':'Nama tidak boleh kosong.','belum-dimiliki':'Ada item yang belum dimiliki.','gender-tidak-cocok':'Ada item yang tidak cocok untuk gender ini.','item-tidak-dikenal':'Ada item yang tidak dikenal.','data-tidak-valid':'Tampilan tidak valid.','tidak-ada':'Outfit tidak ditemukan.','gagal-simpan':'Gagal menyimpan.'};
+/* outfit tersimpan -> bentuk set bawaan (id 'o<slot>'), supaya preview, harga, dan tombol beli memakai jalur set yang sama */
+function outfitPreset(o){
+  const set={accessories:clone(o.data.accessories)};
+  SLOTK.forEach(k=>{set[k]=clone(o.data[k]);});
+  return {id:'o'+o.slot,n:'💾 '+o.name,g:o.data.gender,set:gear(set),outfit:o.slot};
+}
+function curOutfitData(){
+  const d={gender:cfg.gender,accessories:cfg.accessories.map(a=>({id:a.id,dye:a.dye}))};
+  SLOTK.forEach(k=>{d[k]={id:cfg[k].id,dye:cfg[k].dye};});
+  return d;
+}
+function nameBox(title,val,okLabel,onOk,onCancel){
+  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no" id="no">Batal</button><button class="mb" id="yes">'+okLabel+'</button>',
+  ()=>{
+    const inp=$('#onm'),go=()=>onOk(inp.value);
+    $('#no').addEventListener('click',onCancel||closeModal);
+    $('#yes').addEventListener('click',go);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+    inp.focus();inp.select();
+  });
+}
+function openSaveOutfit(){
+  const used={};PD.outfits().forEach(o=>{used[o.slot]=1;});
+  let s=0;while(used[s])s++;
+  nameBox('Simpan Tampilan','Outfit '+(s+1),'Simpan',nm=>{
+    const r=PD.saveOutfit(nm,curOutfitData());
+    if(!r.ok){toast(OMSG[r.reason]||'Gagal menyimpan.');return;}
+    closeModal();renderOpts();toast('Tampilan disimpan.');
+  });
+}
+function openManageOutfits(){
+  const outs=PD.outfits();
+  if(!outs.length){closeModal();renderOpts();return;}
+  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb" id="ok" style="width:98%">Selesai</button>',
+  ()=>{
+    $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
+    $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
+      const slot=+b.dataset.ren,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
+      nameBox('Ganti Nama',o.name,'Simpan',nm=>{
+        const r=PD.renameOutfit(slot,nm);
+        if(!r.ok){toast(OMSG[r.reason]||'Gagal menyimpan.');return;}
+        openManageOutfits();
+      },openManageOutfits);
+    }));
+    $('#mb').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+      const slot=+b.dataset.del,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
+      openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Hapus</button>',()=>{
+        $('#no').addEventListener('click',openManageOutfits);
+        $('#yes').addEventListener('click',()=>{
+          const r=PD.deleteOutfit(slot);
+          if(!r.ok)toast(OMSG[r.reason]||'Gagal menghapus.');
+          openManageOutfits();
+        });
+      });
+    }));
+  });
+}
+$('#ofm').addEventListener('click',()=>{endPreview();openManageOutfits();});
 /* cfg -> PlayerData: hanya menulis yang berubah. Equip ditolak PlayerData bila item belum dimiliki. */
 function syncToPD(){
   if(previewAll)return;
