@@ -522,6 +522,7 @@
        dimiliki & cocok gender. Return {ok, slot} atau {ok:false, reason:'nama-kosong'|'data-tidak-valid'|'slot-penuh'|
        'belum-dimiliki'|'gender-tidak-cocok'|'item-tidak-dikenal'|'gagal-simpan', item?} */
     saveOutfit: function (name, data) {
+      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* akun server: lewat AppearanceService */
       var nm = cleanOutfitName(name); if (!nm) return { ok: false, reason: 'nama-kosong' };
       var d = cleanOutfitData(data); if (!d) return { ok: false, reason: 'data-tidak-valid' };
       var st = load(), used = {};
@@ -535,6 +536,7 @@
       notify('outfits'); return { ok: true, slot: slot };
     },
     renameOutfit: function (slot, name) {
+      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* akun server: lewat AppearanceService */
       var nm = cleanOutfitName(name); if (!nm) return { ok: false, reason: 'nama-kosong' };
       var st = load(), e = st.outfits.filter(function (x) { return x.slot === slot; })[0];
       if (!e) return { ok: false, reason: 'tidak-ada' };
@@ -543,6 +545,7 @@
       notify('outfits'); return { ok: true };
     },
     deleteOutfit: function (slot) {
+      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* akun server: lewat AppearanceService */
       var st = load(), n = st.outfits.length;
       st.outfits = st.outfits.filter(function (x) { return x.slot !== slot; });
       if (st.outfits.length === n) return { ok: false, reason: 'tidak-ada' };
@@ -668,6 +671,37 @@
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       mirrorLegacy(st); notify('server-wallet');
       return { ok: true, coins: st.coins, gems: st.gems };
+    },
+    /* Tampilan aktif untuk dikirim ke server (AppearanceService.pushAppearance): {look, equipped, gearDye}.
+       equipped hanya slot yang bisa di-equip (skin/dice/theme/frame + slot gear); validasi final ada di server. */
+    appearance: function () {
+      var st = load(), eq = {};
+      ['skin', 'dice', 'theme', 'frame'].concat(C.gearSlots()).forEach(function (s) { if (st.equipped[s]) eq[s] = st.equipped[s]; });
+      return { look: st.look ? clone(st.look) : null, equipped: eq, gearDye: clone(st.gearDye) };
+    },
+    /* Isi cermin tampilan dari server: {look, equipped, gearDye}. Hanya mode server. Item yang tidak ada di inventory
+       cermin tidak dipasang (skin/dadu/tema/frame tetap yang lama; gear dilepas). Tidak memicu push balik ('server-appearance'). */
+    applyServerAppearance: function (o) {
+      if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
+      o = o || {};
+      var st = load(), eq = (o.equipped && typeof o.equipped === 'object' && !Array.isArray(o.equipped)) ? o.equipped : {};
+      st.look = cleanLook(o.look);
+      ['skin', 'dice', 'theme', 'frame'].forEach(function (slot) {
+        var it = C.byId(eq[slot]);
+        if (it && it.slot === slot && st.inventory[it.id]) st.equipped[slot] = it.id;
+      });
+      cleanGear(st, eq, o.gearDye);
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      mirrorLegacy(st); notify('server-appearance');
+      return { ok: true };
+    },
+    /* Isi cermin outfit dari server: [{slot, name, data, updatedAt?}]. Hanya mode server. */
+    applyServerOutfits: function (list) {
+      if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
+      var st = load(); st.outfits = cleanOutfits(list);
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('server-outfits');
+      return { ok: true };
     },
     /* Tambah satu item hasil pembelian server ke cermin (tanpa menunggu inventory_get). */
     applyServerItem: function (id) {

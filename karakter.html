@@ -303,6 +303,7 @@ html body #bot{gap:.8rem}
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'karakter'});</script>
 <script>
@@ -1473,7 +1474,7 @@ function updateInfo(){
 }
 /* ===== Preview item terkunci + beli dengan coin (menggantikan Toko untuk item karakter) ===== */
 let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disimpan ke PlayerData */
-const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
+const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get(),AS=()=>window.UT&&UT.AppearanceService&&UT.AppearanceService.get();
 const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 const canSell=ci=>!!ci&&ci.price>0&&ci.source==='shop';
 function startPreview(ci,part,set){
@@ -1645,7 +1646,9 @@ function renderOpts(){
 }
 /* ===== Outfit pribadi (tersimpan di PlayerData; maks PD.outfitLimit slot) ===== */
 const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const OMSG={'slot-penuh':'Slot outfit penuh.','nama-kosong':'Nama tidak boleh kosong.','belum-dimiliki':'Ada item yang belum dimiliki.','gender-tidak-cocok':'Ada item yang tidak cocok untuk gender ini.','item-tidak-dikenal':'Ada item yang tidak dikenal.','data-tidak-valid':'Tampilan tidak valid.','tidak-ada':'Outfit tidak ditemukan.','gagal-simpan':'Gagal menyimpan.'};
+const OMSG={'slot-penuh':'Slot outfit penuh.','nama-kosong':'Nama tidak boleh kosong.','belum-dimiliki':'Ada item yang belum dimiliki.','gender-tidak-cocok':'Ada item yang tidak cocok untuk gender ini.','item-tidak-dikenal':'Ada item yang tidak dikenal.','data-tidak-valid':'Tampilan tidak valid.','tidak-ada':'Outfit tidak ditemukan.','gagal-simpan':'Gagal menyimpan.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','server-mode':'Tidak dapat menyimpan.','slot-tidak-cocok':'Tampilan tidak valid.'};
+/* akun server: lewat AppearanceService (server memvalidasi & menghitung); tamu/lokal: langsung PlayerData */
+const outCall=(m,...a)=>{if(SV()){const s=AS();return s?s[m](...a):Promise.resolve({ok:false,reason:'jaringan'});}return Promise.resolve(PD[m](...a));};
 /* outfit tersimpan -> bentuk set bawaan (id 'o<slot>'), supaya preview, harga, dan tombol beli memakai jalur set yang sama */
 function outfitPreset(o){
   const set={accessories:clone(o.data.accessories)};
@@ -1670,8 +1673,8 @@ function nameBox(title,val,okLabel,onOk,onCancel){
 function openSaveOutfit(){
   const used={};PD.outfits().forEach(o=>{used[o.slot]=1;});
   let s=0;while(used[s])s++;
-  nameBox('Simpan Tampilan','Outfit '+(s+1),'Simpan',nm=>{
-    const r=PD.saveOutfit(nm,curOutfitData());
+  nameBox('Simpan Tampilan','Outfit '+(s+1),'Simpan',async nm=>{
+    const r=await outCall('saveOutfit',nm,curOutfitData());
     if(!r.ok){toast(OMSG[r.reason]||'Gagal menyimpan.');return;}
     closeModal();renderOpts();toast('Tampilan disimpan.');
   });
@@ -1684,8 +1687,8 @@ function openManageOutfits(){
     $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
     $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
       const slot=+b.dataset.ren,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
-      nameBox('Ganti Nama',o.name,'Simpan',nm=>{
-        const r=PD.renameOutfit(slot,nm);
+      nameBox('Ganti Nama',o.name,'Simpan',async nm=>{
+        const r=await outCall('renameOutfit',slot,nm);
         if(!r.ok){toast(OMSG[r.reason]||'Gagal menyimpan.');return;}
         openManageOutfits();
       },openManageOutfits);
@@ -1694,8 +1697,8 @@ function openManageOutfits(){
       const slot=+b.dataset.del,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
       openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Hapus</button>',()=>{
         $('#no').addEventListener('click',openManageOutfits);
-        $('#yes').addEventListener('click',()=>{
-          const r=PD.deleteOutfit(slot);
+        $('#yes').addEventListener('click',async()=>{
+          const r=await outCall('deleteOutfit',slot);
           if(!r.ok)toast(OMSG[r.reason]||'Gagal menghapus.');
           openManageOutfits();
         });
@@ -1776,7 +1779,11 @@ function loadCfg(){
 }
 loadCfg();
 try{const WS=window.UT&&UT.WalletService&&UT.WalletService.get();
-  if(PD.serverMode()&&WS)WS.refresh().then(r=>{if(r&&r.ok)loadCfg();});}catch(e){}
+  if(PD.serverMode()&&WS)WS.refresh().then(async r=>{
+    if(!(r&&r.ok))return;
+    const A=AS();if(A)await A.refresh();   /* tampilan aktif + outfit dari server (server menang) */
+    loadCfg();
+  });}catch(e){}
 
 const camTarget=new THREE.Vector3(0,0.85,0);
 let last=performance.now(),lastPh=-1;
