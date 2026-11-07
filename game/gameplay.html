@@ -1310,6 +1310,7 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/dice-pad.js"></script>
 <script src="gameplay/audio.js"></script>
 <script src="gameplay/voxel-geom.js"></script>
+<script src="assets/js/floating-island.js"></script>
 <script src="gameplay/island-skin.js"></script>
 <script src="gameplay/fx.js"></script>
 <script src="gameplay/particle-fx.js"></script>
@@ -4421,7 +4422,7 @@ function buildWorld(key){
   }
   MCFLAT=(th.decor==='mc');
   if(BOARD_CUSTOM) buildCustomGround(TB,th); else buildMcTerrain(TB,th);
-  if(!BOARD_CUSTOM&&th.key==='minecraft'&&UT.Gameplay.IslandSkin) UT.Gameplay.IslandSkin.addUnderside(TB,addBox,{cx:0,cz:0,y0:-0.5,rx:8.6,rz:8.0,seed:5}); /* Pulau melayang tahap 1: sisi bawah (tak mengubah rnd() dunia; hanya terlihat dari bawah, ?under=1) */
+  if(!BOARD_CUSTOM&&th.key==='minecraft'&&UT.Gameplay.IslandSkin) UT.Gameplay.IslandSkin.mount(world,THREE,{y:-0.5,scale:2,seed:5}); /* Pulau melayang tahap 1: komponen pulau asli (floating-island.js) sebagai sisi bawah dunia; tak memakai rnd() dunia; terlihat dari bawah (?under=1) */
   if(!BOARD_CUSTOM){
     [[0,5.25,11.5,0.5],[0,-5.25,11.5,0.5],[5.25,0,0.5,10]].concat([[-5.25,0,0.5,10]]).forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1]; addBox(TB,f[0],0.1,f[1],f[2],0.7,f[3],jit(wb,0.08)); woodTop(TB,f[0],f[1],f[2],f[3],0.45,wb,41+fi); });
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],0.75,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.03,q[1],0.18,0.06,0.18,0x2E2E2E); });
@@ -4867,7 +4868,7 @@ let baseDist=22,isTopDown=false;
 var camRefit=null; /* 4.2.2: diisi setelah state kamera ada; dipanggil onResize agar framing LOCK responsif */
 const pan={x:0,z:0,y:0},panGoal={x:0,z:0,y:0},PAN_MAX=16; /* y = geser titik pandang ke atas (mis. menyorot puncak Tower); 0 = normal */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const UNDER_DBG=/[?&]under=1(&|$)/.test(location.search),PITCH_MIN=UNDER_DBG?-1.2:0.22; /* ?under=1: kamera boleh turun ke bawah pulau (cek sisi bawah dunia). Normal: 0.22 */
+const UNDER_DBG=(()=>{try{return /[?&]under=1(&|$)/.test(location.search)||sessionStorage.getItem('ut:under')==='1'}catch(e){return false}})(),PITCH_MIN=UNDER_DBG?-1.2:0.22; /* ?under=1 (atau sessionStorage ut:under=1): kamera boleh turun ke bawah pulau (cek sisi bawah dunia). Normal: 0.22 */
 function onResize(){
   const w=window.innerWidth,h=window.innerHeight;
   renderer.setSize(w,h,false);

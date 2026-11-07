@@ -4,7 +4,8 @@
    Permukaan atas pulau di y=0 (karakter berdiri di y=0).
    v2: palet alami (hijau zaitun/sage, BUKAN neon), tanah & tanah liat bervariasi, batu abu-kebiruan + lumut,
        butir emas & kristal biru, tepi rumput menetes, tekstur piksel per-balok (atlas 4x4, tile acak per instance),
-       dekor: bunga, jamur, semak, jumbai rumput, batu; AO voxel per-instance. */
+       dekor: bunga, jamur, semak, jumbai rumput, batu; AO voxel per-instance.
+   opts tambahan: decor:false (tanpa dekor puncak), noShadow:true (tanpa bayangan kontak). */
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
@@ -117,6 +118,7 @@
     var pick = function () { return top[(rnd() * top.length) | 0]; };
     var add = function (geom, mt, px, py, pz, cast) { var o = new THREE.Mesh(geom, mt); o.position.set(px, py, pz); if (cast !== false) o.castShadow = true; g.add(o); return o; };
     var i, c, h;
+    if (opts.decor !== false) {                                      /* opts.decor:false = tanpa dekor puncak (dipakai gameplay: pulau sebagai dasar dunia) */
     for (i = 0; i < 14 && top.length; i++) {                         /* jumbai rumput 3 warna */
       c = pick(); h = .28 + rnd() * .42;
       for (var kq = 0; kq < 3; kq++) add(new THREE.BoxGeometry(.12, h * (1 - kq * .22), .12), M(PAL.tuft[kq]), c[0] + (rnd() - .5) * .65, h * (1 - kq * .22) / 2, c[2] + (rnd() - .5) * .65);
@@ -141,6 +143,7 @@
     [[2.0, 1.3, .8, .32, .7, 0xb9a98c], [-1.7, -2.2, .5, .26, .5, 0x9c9ca2], [1.0, -2.6, .38, .2, .38, 0xb4a48a], [-2.3, .9, .42, .22, .4, 0xa8a7ad]].forEach(function (st) {
       var sm = add(new THREE.BoxGeometry(st[2], st[3], st[4]), M(st[5]), st[0], st[3] / 2, st[1]); sm.rotation.y = st[0];
     });
+    }
 
     /* ---- detail bawah: kristal biru bercahaya + kepingan batu melayang ---- */
     var cm = new THREE.MeshStandardMaterial({ color: PAL.crystal, emissive: 0x2a8fb8, emissiveIntensity: .7, roughness: .3 });
@@ -151,7 +154,7 @@
       add(new THREE.BoxGeometry(p[3], p[3], p[3]), M(0x70707c), p[0], p[1], p[2], false);
     });
 
-    var shadow = contactShadow(THREE, 9, 9, opts.shadow == null ? .38 : opts.shadow); shadow.position.y = -N - 3; g.add(shadow);
+    var shadow = contactShadow(THREE, 9, 9, opts.shadow == null ? .38 : opts.shadow); shadow.position.y = -N - 3; if (!opts.noShadow) g.add(shadow);
     var base = -N - 3, amp = opts.bob == null ? .16 : opts.bob;
     g.userData.update = function (t) {
       var b = Math.sin(t * 1.1) * amp;
