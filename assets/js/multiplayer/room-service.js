@@ -20,6 +20,8 @@ async function setSlots(roomId,max){await ensurePlayer();return rpc('set_game_ro
 async function exitRoom(roomId){await ensurePlayer();return rpc('exit_game_room',{p_room_id:roomId})}
 async function heartbeat(roomId){await ensurePlayer();return rpc('heartbeat_game_room',{p_room_id:roomId})}
 async function startRoom(roomId,gameState){await ensurePlayer();return rpc('start_game_room',{p_room_id:roomId,p_game_state:gameState||{}})}
+/* Resume: room 'playing' terbaru (<6 jam) milik pemain ini. RLS membatasi game_rooms ke room yang memuat id pemain, jadi tak perlu key lokal. null bila tidak ada. */
+async function activeRoom(){await ensurePlayer();const c=await MP.getClient();const since=new Date(Date.now()-6*3600*1000).toISOString();const {data,error}=await c.from('game_rooms').select('id,code,format,status,players,updated_at').eq('status','playing').gte('updated_at',since).order('updated_at',{ascending:false}).limit(1);if(error)throw error;const r=data&&data[0];return (r&&(r.players||[]).some(p=>p.id===MP._identity.id))?r:null}
 async function getRoom(roomId){await ensurePlayer();const c=await MP.getClient();const {data,error}=await c.from('game_rooms').select('*').eq('id',roomId).maybeSingle();if(error)throw error;if(!data)throw new Error('ROOM_NOT_FOUND');return data}
 function subscribe(roomId,onRoom){
  let channel,closed=false,heartbeatTimer=null;
@@ -34,4 +36,4 @@ function subscribe(roomId,onRoom){
 }
 async function submitMatchResult(o){await ensurePlayer();return rpc('submit_match_result',{p_match_id:o.matchId,p_won:!!o.won,p_name:o.name,p_xp_total:Math.max(0,Math.floor(+o.xpTotal||0)),p_room_id:o.roomId||null,p_mode:o.mode||null,p_players:o.players||null,p_stats:o.stats||null})}
 async function getLeaderboard(scope,limit){await ensurePlayer();return rpc('get_leaderboard',{p_scope:scope,p_limit:limit||50})}
-Object.assign(MP,{RoomService:{submitMatchResult,getLeaderboard,sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});
+Object.assign(MP,{RoomService:{activeRoom,submitMatchResult,getLeaderboard,sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});

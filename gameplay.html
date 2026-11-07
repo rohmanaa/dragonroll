@@ -5298,8 +5298,8 @@ let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
-/* Resume: simpan room online yang sedang dimainkan di localStorage (tahan tab ditutup/browser mati). Lobby membaca ini & mengalihkan pemain kembali ke game; dihapus saat keluar lewat menu atau game selesai. */
-if(ONLINE_ROOM){ try{ localStorage.setItem('ut-mp-active',JSON.stringify({id:ROOM_CFG.roomId,code:ROOM_CFG.code||'',format:ROOM_CFG.format==='team'?'team':'solo',t:Date.now()})); }catch(e){} }
+/* Resume: Tahap 5b — status 'sedang main' diambil lobby dari server (RoomService.activeRoom); tidak ada key lokal. Sisa key lama dibersihkan. */
+try{ localStorage.removeItem('ut-mp-active'); }catch(e){}
 let MP_SYNC=null,MP_ID=null,MP_CONNECTING=false,MP_APPLYING=false;
 const MP_LEFT=new Set(); /* networkId pemain yang keluar dari game: disembunyikan dari HUD & tidak ikut 'Main lagi' */
 if(ONLINE_ROOM) document.body.classList.add('mp-online');
@@ -5985,7 +5985,6 @@ function recordMatchResult(winner){
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
-  if(ONLINE_ROOM){ try{ localStorage.removeItem('ut-mp-active'); }catch(e){} } /* game selesai: tidak perlu resume */
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
