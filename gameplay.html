@@ -4824,7 +4824,7 @@ showDie(1,false);
 
 /* ---------- Konfeti ---------- */
 function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
-function spawnExplosion(pos){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos); else if(FX) FX.spawnConfetti(pos); } /* ledakan = api oranye-merah + asap, bukan konfeti */
+function spawnExplosion(pos,kind){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind); else if(FX) FX.spawnConfetti(pos); } /* ledakan = serpihan kecil + asap (kind 'creeper' = hijau Creeper, default = api), bukan konfeti */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
@@ -5047,9 +5047,9 @@ async function hitDragon(p,v){
 }
 async function explode(p){
   const pos=p.pawn.position.clone(); pos.y+=0.5;
-  const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xFF8A1E,transparent:true,opacity:0.9}));
-  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos);
-  await tween(0.45,k=>{ m.scale.setScalar(0.3+k*2.4); m.material.opacity=0.9*(1-k); });
+  const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xA8FF78,transparent:true,opacity:0.8,fog:false})); /* kilatan hijau Creeper (dulu kubus oranye besar) */
+  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos,'creeper');
+  await tween(0.32,k=>{ m.scale.setScalar(0.15+k*0.85); m.material.opacity=0.8*(1-k)*(1-k); });
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
 async function teleport(p,to,fire){
@@ -6014,7 +6014,7 @@ function mpRunFeedbackCue(c){
     if(c.k==='fb'){ const a=mpFixGid(c.a); if(c.f==='short'&&!fb0(c.f,...a)){ const o=a[3]||{}; hud0('showPower',a[0],a[1],a[2],o); } else if(c.f!=='short') fb0(c.f,...a); }
     else if(c.k==='seq'){ return mpRunSeq(c); }
     else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z)); }
-    else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z)); }
+    else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z),c.kind); }
     else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
     else if(c.k==='hud'){ hud0(c.f,...mpFixGid(c.a)); }
     else if(c.k==='dfx'){ return mpDragonFx(c.t); }

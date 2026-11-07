@@ -11,7 +11,7 @@
   var UT = win.UT = win.UT || {};
   if (UT.GameplayFX) return;
 
-  var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null;
+  var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, CREEP_MATS = null;
 
   function init(sc) {
     if (!sc || !win.THREE) return false;
@@ -22,6 +22,7 @@
       SPARK_GEO = new THREE.BoxGeometry(0.06, 0.06, 0.06);
       /* palet api: putih-kuning -> oranye -> merah (menyala, tidak kena cahaya) + asap abu gelap */
       FIRE_MATS = [0xFFF2A0, 0xFFC93C, 0xFF9A1A, 0xFF6A00, 0xE8340A].map(function (c) { return new THREE.MeshBasicMaterial({ color: c, fog: false }); });
+      CREEP_MATS = [0xA8FF78, 0x66CC5E, 0x4DB84A, 0x2F7F2E, 0x4DB84A, 0x101010].map(function (c) { return new THREE.MeshBasicMaterial({ color: c, fog: false }); }); /* palet Creeper */
       SMOKE_MATS = [0x26262B, 0x34343A, 0x4A4A52, 0x6B6B73].map(function (c) { return new THREE.MeshLambertMaterial({ color: c }); });
     }
     return true;
@@ -37,15 +38,16 @@
     }
   }
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
-  function spawnExplosion(pos) {
+  function spawnExplosion(pos, kind) {
     if (!scene) return;
-    for (let i = 0; i < 46; i++) {
-      const fire = i < 30, sz = fire ? 0.10 + Math.random() * 0.16 : 0.18 + Math.random() * 0.2;
-      const m = new THREE.Mesh(CONF_GEO, (fire ? FIRE_MATS : SMOKE_MATS)[Math.floor(Math.random() * (fire ? FIRE_MATS.length : SMOKE_MATS.length))]);
-      m.position.set(pos.x + (Math.random() - 0.5) * 0.3, pos.y + 0.5, pos.z + (Math.random() - 0.5) * 0.3);
+    const bits = kind === 'creeper' ? CREEP_MATS : FIRE_MATS, NB = 36, NS = 22;
+    for (let i = 0; i < NB + NS; i++) {
+      const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
+      const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : SMOKE_MATS[Math.floor(Math.random() * SMOKE_MATS.length)]);
+      m.position.set(pos.x + (Math.random() - 0.5) * 0.25, pos.y + 0.45, pos.z + (Math.random() - 0.5) * 0.25);
       m.scale.setScalar(sz / 0.14); scene.add(m);
-      const sp = fire ? 2.2 + Math.random() * 3 : 0.6 + Math.random() * 0.9, an = Math.random() * Math.PI * 2;
-      blasts.push({ m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.5 + Math.random() * 3.2 : 1 + Math.random() * 1.2, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.55 + Math.random() * 0.4 : 0.9 + Math.random() * 0.6, max: 1 });
+      const sp = fire ? 1.6 + Math.random() * 2.6 : 0.4 + Math.random() * 0.8, an = Math.random() * Math.PI * 2;
+      blasts.push({ m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.2 + Math.random() * 2.8 : 0.8 + Math.random() * 1.1, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.5 + Math.random() * 0.4 : 1.0 + Math.random() * 0.7, max: 1 });
       blasts[blasts.length - 1].max = blasts[blasts.length - 1].life;
     }
   }
