@@ -59,16 +59,6 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 #efk,#pwr,#lead{top:19.7rem}#efk{left:2.8rem}#pwr{left:10.2rem}#lead{left:17.6rem}
 .pnl{left:2.8rem;width:20.3rem;text-align:center;cursor:pointer;display:block}
 .pnl h3{margin:0;font-size:1.9rem;line-height:2.4rem;color:var(--gold);text-shadow:0 .15rem 0 #0b1220;letter-spacing:.04em}
-#event{top:27.1rem;width:21.8rem;height:15.6rem;padding:.6rem .7rem .7rem;overflow:hidden;border-radius:1rem}
-#event .eb{position:relative;margin-top:.4rem;height:11.6rem;border-radius:.6rem;overflow:hidden;background:#0e1626;box-shadow:inset 0 0 0 .15rem #0b1220}
-#evbg{position:absolute;inset:0;background:var(--bg,none) center/cover no-repeat}
-#evd{position:absolute;left:0;right:0;bottom:.1rem;display:flex;justify-content:center}
-.dt{width:2rem;height:1.6rem;display:grid;place-items:center;cursor:pointer}
-.dt::before{content:"";width:.9rem;height:.9rem;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 .1rem .3rem rgba(0,0,0,.6);transition:all .25s}
-.dt.on::before{background:#ffd23a;width:1.4rem}
-#evn{position:absolute;right:.2rem;top:50%;translate:0 -50%;width:3rem;height:4.4rem;display:grid;place-items:center;cursor:pointer}
-#evn svg{width:1.6rem;height:2.6rem;filter:drop-shadow(0 .1rem .25rem rgba(0,0,0,.7))}
-#event.one #evn,#event.one #evd{display:none}
 .box:has(.mimg){padding:.8rem;width:min(70rem,92vw)}
 .mimg{display:block;width:100%;max-height:80vh;object-fit:contain;border-radius:1.6rem}
 /* ===== bawah kiri: toko / teman / hadiah ===== */
@@ -142,12 +132,6 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
  <button class="ab pn sq lm" id="efk" data-act="efk" aria-label="Efek"><img class="ic" src="assets/Images/icon/items/efek.webp" alt="" draggable="false" decoding="async"><span class="tx">Efek</span></button>
  <button class="ab pn sq lm" id="pwr" data-act="pwr" aria-label="Power-up"><img class="ic" src="assets/Images/icon/items/power.webp" alt="" draggable="false" decoding="async"><span class="tx">Power-up</span></button>
  <button class="ab pn sq lm" id="lead" data-act="lead"><img class="ic" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false" decoding="async"><span class="tx">Leaderboard</span></button>
-
- <div class="ab pn pnl one" id="event" role="button" tabindex="0" data-act="event" aria-label="Event">
-  <h3>EVENT</h3>
-  <div class="eb"><div id="evbg"></div><div id="evd"></div>
-   <span id="evn" role="button" aria-label="Event berikutnya"><svg viewBox="0 0 14 24"><path d="m3 3 9 9-9 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
- </div>
 
  <button class="ab cd" id="toko" data-act="toko" aria-label="Toko"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async"><b class="tx" style="text-shadow:0 .16rem 0 #7a3f06">TOKO</b><span class="nw">BARU</span></button>
  <button class="ab pn cd" id="teman" data-act="teman" aria-label="Teman"><img class="ic" src="assets/Images/icon/lobby/hand.webp" alt="" draggable="false" decoding="async"><b class="tx">TEMAN</b><i class="dot">3</i></button>
@@ -237,28 +221,12 @@ let mi=-1;
 const setMode=i=>{mi=i};/* teks tombol selalu "Pilih Mode"; panah ❯ ikut membuka mode.html lewat klik #play */
 function startMode(i){closeModal();setMode(i);buzz();location.href='mode.html'}
 $('#play').addEventListener('click',()=>{buzz();location.href='mode.html'});
-/* ---------- event: gambar saja; klik membuka modal (gambar sendiri per event) ----------
-   img   = gambar kartu di lobby
-   modal = gambar yang tampil di modal saat kartu diklik (kosong = pakai img)
-   url   = (opsional) kalau diisi, klik langsung pindah halaman, bukan modal */
-const EVENTS=[
- {img:'promosi/placeholder.webp',modal:'promosi/placeholder.webp'}
- /* tambah event: ,{img:'promosi/event2.webp',modal:'promosi/event2_detail.webp'} */
-];
-let si=0;const ev=$('#event'),dts=$('#evd');
-ev.classList.toggle('one',EVENTS.length<2);
-dts.innerHTML=EVENTS.map((_,i)=>`<span class="dt" data-i="${i}" role="button" aria-label="Event ${i+1}"></span>`).join('');
-function renderEvent(){$('#evbg').style.setProperty('--bg',`url("${EVENTS[si].img}")`);dts.querySelectorAll('.dt').forEach((d,i)=>d.classList.toggle('on',i===si))}
-const goEv=i=>{si=(i+EVENTS.length)%EVENTS.length;renderEvent();clearInterval(goEv.t);if(EVENTS.length>1)goEv.t=setInterval(()=>{if(!mOpen)goEv(si+1)},6000)};
-$('#evn').addEventListener('click',e=>{e.stopPropagation();buzz();goEv(si+1)});
-dts.addEventListener('click',e=>{const d=e.target.closest('.dt');if(d){e.stopPropagation();goEv(+d.dataset.i)}});
-goEv(0);
+
 /* ---------- actions ---------- */
 const soon=n=>toast(n+' segera hadir');
 const ACT={
  chr(){location.href='karakter.html'},frm(){location.href='frame.html'},dad(){location.href='dadu.html'},efk(){location.href='efek.html'},pwr(){location.href='powerup.html'},
  lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},hadmisi(){location.href='hadiah-misi.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
- event(){const e=EVENTS[si];if(e.url){location.href=e.url;return}openModal(`<img class="mimg" src="${e.modal||e.img}" alt="Event">`)},
  free(){soon('Hadiah gratis')},buygem(){soon('Beli gem')},buycoin(){soon('Beli coin')},
  gear(){location.href='settings.html'}
 };
