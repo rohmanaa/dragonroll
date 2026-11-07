@@ -4824,7 +4824,7 @@ showDie(1,false);
 
 /* ---------- Konfeti ---------- */
 function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
-function spawnExplosion(pos,kind){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind); else if(FX) FX.spawnConfetti(pos); } /* ledakan = serpihan kecil + asap (kind 'creeper' = hijau Creeper, default = api), bukan konfeti */
+function spawnExplosion(pos,kind){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind); else if(FX) FX.spawnConfetti(pos); } /* ledakan = serpihan kecil + asap (kind 'ender' = ungu Enderman, default = api), bukan konfeti */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
@@ -5047,13 +5047,13 @@ async function hitDragon(p,v){
 }
 async function explode(p){
   const pos=p.pawn.position.clone(); pos.y+=0.5;
-  const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xA8FF78,transparent:true,opacity:0.8,fog:false})); /* kilatan hijau Creeper (dulu kubus oranye besar) */
-  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos,'creeper');
+  const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xFF9A2A,transparent:true,opacity:0.8,fog:false})); /* kilatan api kecil (dulu kubus oranye besar) */
+  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos);
   await tween(0.32,k=>{ m.scale.setScalar(0.15+k*0.85); m.material.opacity=0.8*(1-k)*(1-k); });
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
 async function teleport(p,to,fire){
-  const fx=fire?spawnExplosion:spawnConfetti; /* fire=true (kena TNT/ledakan) -> api; false (Enderman/Chest) -> konfeti */
+  const fx=fire==='ender'?(v=>spawnExplosion(v,'ender')):fire?spawnExplosion:spawnConfetti; /* 'ender' = ungu-hitam + asap; true (TNT) = api; false (Chest) = konfeti */
   fx(p.pawn.position);
   await tween(0.3,k=>p.pawn.scale.setScalar(1-k));
   p.pawn.position.copy(slotPos(p.idx,to)); fx(p.pawn.position);
@@ -5682,7 +5682,7 @@ async function resolveMobAt(p,gid){
     const to=ME.to;
     setMsg('Enderman! '+p.name+' teleport '+(to>p.pos?'maju':'mundur')+' ke '+to+'.'); fb('event','mob','Enderman! Teleport ke '+to,{gid});
     sfx.enderman();
-    await A(sleep(300)); await A(teleport(p,to)); p.pos=to;
+    await A(sleep(300)); await A(teleport(p,to,'ender')); p.pos=to;
   }else if(k==='villager'){
     const to=ME.to; setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.villager(); p.score+=5;
     await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
