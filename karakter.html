@@ -386,7 +386,7 @@ sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.left=-9;sun.shadow.camera.right=9;sun.shadow.camera.top=9;sun.shadow.camera.bottom=-9;
 sun.shadow.camera.near=1;sun.shadow.camera.far=40;
 sun.shadow.bias=-0.0006;
-sun.position.set(6,12,5);
+sun.position.set(0,14,0.01);
 scene.add(sun);scene.add(sun.target);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.3}));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
