@@ -5,11 +5,11 @@
 /* PWA terpasang (standalone/fullscreen): langsung ke layar loading, dijalankan paling awal agar halaman ini tidak sempat tampil. */
 (function(){try{var s=(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches))||navigator.standalone===true;if(s){location.replace('splash.html');}}catch(e){}})();
 </script>
-<script src="assets/js/landscape.js"></script><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#7a1612"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Dragon Roll"><link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<script src="assets/js/landscape.js"></script><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Dragon Roll"><link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{display:grid;place-items:center;background:linear-gradient(#b3281c,#5a0f0c);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+body{display:grid;place-items:center;background:#000;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
 /* Tata letak landscape di semua orientasi: logo kiri, teks + tombol kanan */
 main{width:min(600px,100%);display:grid;grid-template-columns:auto 1fr;column-gap:clamp(16px,4vw,28px);align-items:center;text-align:left}
 .logo{grid-row:1/4;width:clamp(96px,26vw,150px);height:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.25)) drop-shadow(0 14px 22px rgba(0,0,0,.3))}
