@@ -77,7 +77,7 @@ svg{display:block}
 #back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .flip{transform:scaleX(-1)}
 </style>
-<style>:root{--curbar-right:7.6rem;--curbar-top:2.05rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
+<style>:root{--curbar-right:2.6rem;--curbar-top:2.05rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
 <style>
 /* override shared-ui.css (dimuat sebelum blok ini): currency sama dengan lobi, modal gaya piksel; shared-ui.css sendiri tidak diubah */
 :root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
@@ -101,7 +101,6 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 <button class="ab blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
 <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/lobby/hand.webp" alt="" draggable="false" decoding="async">Teman</div>
 <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV">120</span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV">8.450</span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
-<button class="ab blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"></button>
 </div>
 <section id="hero" class="ab">
 <h2>Teman & Sosial</h2><p>Temukan teman, lihat siapa yang online, dan ajak mereka bermain bersama.</p>
@@ -169,7 +168,7 @@ function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain
 $('#search').addEventListener('input',e=>{query=e.target.value;render()});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.filter;render();load()}));
 $('#addBtn').onclick=addFriend;$('#mx').onclick=closeModal;$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))closeModal()});
-$('#back').onclick=()=>{location.href='lobby.html'};$('#gear').onclick=()=>{location.href='settings.html'};
+$('#back').onclick=()=>{location.href='lobby.html'};
 $('#friends').addEventListener('click',async e=>{const btn=e.target.closest('[data-action],.accept,.decline,.play');if(!btn)return;const card=btn.closest('.friend'),id=card&&card.dataset.id;if(!id)return;
  const f=[...viewFriends(),...viewRequests()].find(x=>x.id===id);if(!f)return;
  try{

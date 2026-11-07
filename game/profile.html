@@ -113,7 +113,7 @@ html{font-size:2.5vw}
 #show{width:auto!important;height:80vw!important}#sbs{flex-direction:row!important;justify-content:center}
 .pn{width:auto!important;height:auto!important}.pr,.lvc{height:auto}.sk2{padding:.6rem 1rem}.qt{min-height:7rem}
 }
-</style><style>:root{--curbar-right:7.6rem;--curbar-top:1.8rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
+</style><style>:root{--curbar-right:2.6rem;--curbar-top:1.8rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
 <style id="profile-layout-refine">
 /* Layout disusun ulang mengikuti referensi profil terbaru.
    Area renderer 3D (#show/#gl) dan seluruh logika model sengaja tidak diubah. */
@@ -355,7 +355,6 @@ html body .in,html body .st{background:linear-gradient(var(--sl3),var(--sl4));bo
  <button class="ab blue" id="back" aria-label="Kembali"><img class="ic" src="assets/Images/icon/ui/back.webp" alt="" draggable="false" decoding="async"></button>
  <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/mode/kontak.webp" alt="" draggable="false" decoding="async">Profil</div>
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
- <button class="ab blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"></button>
 </div>
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
 <div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
@@ -429,7 +428,7 @@ shirt:'M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.7
 dice:'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM8 6.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM16 14.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM12 10.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM8 14.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM16 6.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3Z'};
 const CH=sv('<path d="m9 5 7 7-7 7"/>'),GLOBE=sv('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>');
 const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><image href="assets/Images/icon/${p}.webp" x="12" y="13" width="24" height="24"/></svg>`;
-const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal],['set','Pengaturan',G]];
+const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal]];
 const pcn=()=>PROF.play?Math.floor(PROF.win/PROF.play*100):0;
 /* ---- Achievement: definisi dari referensi (15 achievement x 3 bintang). Progress dibaca dari STAT() (server; skin & emerald dari perangkat). Klaim divalidasi server lewat claim_achievement. */
 const ACH=[
@@ -562,7 +561,7 @@ function pickSkin(id){const t=IC.byId(id);if(t){sel=t;render();buildModels();if(
 function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');return}const r=PD.equip(sel.id);
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
- if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
+ if(DT[a])DT[a]();else if(a==='name')editName();
  else if(a==='logout'){if(!confirm('Keluar dari akun ini? Koin, item, dan progres akun ini tetap tersimpan dan kembali saat kamu login lagi.'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
  else if(a==='copy'){navigator.clipboard?.writeText(PROF.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
@@ -582,7 +581,6 @@ function buy(type){if(type==='gem'){location.href='shop.html?emerald=1';return}c
    if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}
    renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
-$('#gear').addEventListener('click',()=>{try{playSound('click');buzz()}catch(e){}location.href='settings.html'});
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
 // ---- 3D

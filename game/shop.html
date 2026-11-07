@@ -386,7 +386,6 @@ html body #idesc{color:#cdd8ea}
         <div class="cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
         <div class="cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
       </div>
-      <button class="blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"></button>
     </div>
   </header>
 
@@ -578,7 +577,6 @@ $('#gift').addEventListener('click',()=>{if(SV()){toast('Hadiahkan item belum te
    if(!r.ok){toast('Coin tidak cukup.');playSound('error');return}
    closeModal();renderInfo();pulse('#coin');playSound('purchase');toast('Hadiah terkirim ke '+fr[pick]+'!')})})});
 
-$('#gear').addEventListener('click',()=>{try{playSound('click');buzz()}catch(e){}location.href='settings.html'});
 
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
