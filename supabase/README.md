@@ -2,7 +2,7 @@
 
 ## Required Supabase project settings
 
-1. Use the supplied Supabase project (`fxtecbxuoyavdvpcylht`).
+1. Use the supplied Supabase project (`lusyvfqgrxurcrhigkal`).
 2. In **Authentication → Providers → Anonymous**, enable anonymous sign-ins.
 3. Apply `supabase/migrations/202611050001_multiplayer.sql` in the SQL Editor (or with Supabase CLI).
 4. Confirm `public.game_rooms` is enabled for Realtime. The migration attempts to add it to `supabase_realtime`; if publication permissions prevent that, enable it from Database → Publications / Realtime settings.

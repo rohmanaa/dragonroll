@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_REF: fxtecbxuoyavdvpcylht
+  PROJECT_REF: lusyvfqgrxurcrhigkal
   LOCAL_DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 jobs:
