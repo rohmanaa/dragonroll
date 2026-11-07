@@ -1,5 +1,5 @@
 // Supabase browser client bootstrap for the static Ular Tangga frontend.
-// Uses anonymous Supabase Auth so every browser gets an auth.uid() without a registration UI.
+// Tahap 3b: hanya akun login (username+password, lihat auth.js); sesi anonim tidak dibuat lagi.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 let clientPromise = null;
@@ -26,7 +26,7 @@ async function getClient() {
   catch (error) { clientPromise = null; throw error; }
 }
 
-// Nama pemain: akun login (username+password) memakai username-nya; tamu memakai displayName atau Player-XXXX.
+// Nama pemain: akun login (username+password) memakai username-nya.
 function resolvePlayerName(user, displayName) {
   const meta = (user && user.user_metadata) || {};
   const isGuest = !user || !!user.is_anonymous;
@@ -36,21 +36,13 @@ function resolvePlayerName(user, displayName) {
 
 async function ensureAnonymousPlayer(displayName) {
   const supabase = await getClient();
-  let { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { session }, error } = await supabase.auth.getSession();
   if (error) throw error;
-  if (!session) {
-    const result = await supabase.auth.signInAnonymously();
-    if (result.error) throw result.error;
-    session = result.data.session;
-  }
-  const isGuest = !!session.user.is_anonymous;
+  /* Tahap 3b: wajib login. Tidak ada lagi sesi anonim otomatis (sesi habis tidak boleh diam-diam
+     berganti identitas). Layar login ada di splash.html (UT.Auth.signIn/signUp). */
+  if (!session || !session.user || session.user.is_anonymous) throw new Error('AUTH_REQUIRED: belum login');
   const name = resolvePlayerName(session.user, displayName);
-  const current = session.user.user_metadata || {};
-  if (isGuest && current.display_name !== name) { // akun login tidak diubah metadata-nya
-    const result = await supabase.auth.updateUser({ data: { display_name: name } });
-    if (result.error) throw result.error;
-  }
-  return { id: session.user.id, name: name, isAnonymous: isGuest };
+  return { id: session.user.id, name: name, isAnonymous: false };
 }
 
 window.UT = window.UT || {};
