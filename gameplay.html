@@ -323,6 +323,22 @@ body .hud #btnAngle[aria-pressed=true]{background:linear-gradient(#ffc24d,#f08a1
 body .hud #btnAngle[aria-pressed=false]{background:linear-gradient(#4aa8ff,#1f6fe0);color:#fff}
 body.cam-lock #c{touch-action:none}
 .camgrp{display:inline-flex;align-items:center;gap:6px;flex-wrap:nowrap}.camgrp[hidden]{display:none}
+/* Popover pilihan sudut kamera (custom, bukan <select>): sama di desktop & mobile. Menempel di bawah tombol #btnPreset, position:fixed di body agar tidak terpotong HUD. */
+#camMenu{position:fixed;z-index:75;min-width:132px;max-width:min(240px,calc(100vw - 16px));max-height:min(60vh,calc(100vh - 24px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:6px;border-radius:14px;background:#12337f;border:2px solid #0b1f55;box-shadow:0 10px 24px rgba(0,0,0,.4),inset 0 0 0 2px rgba(255,255,255,.14);transform-origin:top center;animation:camMenuIn .16s ease-out both;touch-action:pan-y}
+#camMenu[hidden]{display:none}
+#camMenu::before{content:"";position:absolute;top:-7px;left:var(--ax,24px);width:12px;height:12px;background:#12337f;border-left:2px solid #0b1f55;border-top:2px solid #0b1f55;transform:translateX(-50%) rotate(45deg);border-radius:3px 0 0 0}
+#camMenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:8px 10px;margin:0;border:0;border-radius:9px;background:transparent;color:#fff;font:700 13px/1.1 inherit;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#camMenu button+button{margin-top:2px}
+#camMenu button:hover,#camMenu button:focus-visible{background:rgba(255,255,255,.16);outline:none}
+#camMenu button[aria-checked=true]{background:#ffd23a;color:#12337f}
+#camMenu button .ck{margin-left:auto;font-size:14px;visibility:hidden}
+#camMenu button[aria-checked=true] .ck{visibility:visible}
+body.th-nether #camMenu{background:#4a1414;border-color:#2a0707}
+body.th-nether #camMenu::before{background:#4a1414;border-color:#2a0707}
+body.th-nether #camMenu button[aria-checked=true]{background:#ff9a2a;color:#3a0d0d}
+@keyframes camMenuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#camMenu{animation:none}}
+
 /* ANGLE ON: tiga kontrol tambahan di baris sendiri di bawah toolbar (toolbar lama tidak melebar/terpotong) */
 /* ANGLE ON: semua kontrol kamera tetap SATU baris bersama ANGLE; Suara/Menu menjadi ikon agar muat di layar sempit */
 body.cam-angle #hud .tools{flex-wrap:nowrap!important;gap:5px}
@@ -5127,6 +5143,7 @@ function camUI(){
   const a=$('btnAngle'); if(!a) return;
   a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));
   a.setAttribute('aria-label',camCfg.angle?'Kamera bebas (ANGLE)':'Kamera terkunci (LOCK)');
+  if(!camCfg.angle) camMenuClose();
   $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=camCfg.angle?'grab':'default';
   $('btnPreset').innerHTML=ICON_CAM+CAM_NAMES[camCfg.preset];
   const f=$('btnFollow'); f.setAttribute('aria-pressed',String(camCfg.follow));
@@ -5159,6 +5176,35 @@ function camSetPreset(k){
   if(camCfg.angle) resetCam();
   camSave(); camUI();
 }
+/* ---------- Popover pilihan sudut kamera (custom) ----------
+   Klik tombol preset -> daftar sudut muncul di bawah tombol; pilih = camSetPreset(k). Tutup: pilih item, tap di luar, Esc, resize/rotasi, atau ANGLE dimatikan. Satu implementasi untuk desktop & mobile (tanpa <select> native). */
+var camMenuEl=null; /* var: aman dipanggil camUI() sebelum baris ini dieksekusi */
+function camMenuClose(){ if(camMenuEl){ camMenuEl.hidden=true; } const b=$('btnPreset'); if(b) b.setAttribute('aria-expanded','false'); }
+function camMenuOpen(){
+  const b=$('btnPreset'); if(!b||AWK.running) return;
+  if(!camMenuEl){
+    camMenuEl=document.createElement('div'); camMenuEl.id='camMenu'; camMenuEl.setAttribute('role','menu'); camMenuEl.setAttribute('aria-label','Pilih sudut kamera'); camMenuEl.hidden=true;
+    camMenuEl.addEventListener('click',e=>{ const it=e.target.closest&&e.target.closest('button[data-k]'); if(!it) return; ensureAudio(); camSetPreset(it.getAttribute('data-k')); camMenuClose(); b.focus&&b.focus(); });
+    camMenuEl.addEventListener('keydown',e=>{
+      const its=[...camMenuEl.querySelectorAll('button')],i=its.indexOf(document.activeElement);
+      if(e.key==='ArrowDown'){ e.preventDefault(); its[(i+1)%its.length].focus(); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); its[(i-1+its.length)%its.length].focus(); }
+      else if(e.key==='Escape'||e.key==='Tab'){ if(e.key==='Escape') e.preventDefault(); camMenuClose(); b.focus&&b.focus(); }
+    });
+    document.body.appendChild(camMenuEl);
+    document.addEventListener('pointerdown',e=>{ if(!camMenuEl||camMenuEl.hidden) return; if(camMenuEl.contains(e.target)||(b.contains&&b.contains(e.target))) return; camMenuClose(); },true);
+    window.addEventListener('resize',camMenuClose); window.addEventListener('orientationchange',camMenuClose);
+  }
+  camMenuEl.innerHTML=CAM_ORDER.map(k=>'<button type="button" role="menuitemradio" data-k="'+k+'" aria-checked="'+(k===camCfg.preset)+'"><span>'+CAM_NAMES[k]+'</span><span class="ck" aria-hidden="true">&#10003;</span></button>').join('');
+  camMenuEl.hidden=false;
+  /* posisi: tepat di bawah tombol, rata kiri tombol, dijaga tetap di dalam layar (mobile) */
+  const r=b.getBoundingClientRect(),w=camMenuEl.offsetWidth,vw=document.documentElement.clientWidth;
+  let left=Math.max(8,Math.min(r.left,vw-w-8)); camMenuEl.style.left=left+'px'; camMenuEl.style.top=(r.bottom+10)+'px';
+  camMenuEl.style.setProperty('--ax',Math.max(16,Math.min(w-16,r.left+r.width/2-left))+'px');
+  b.setAttribute('aria-expanded','true'); b.setAttribute('aria-haspopup','menu');
+  const act=camMenuEl.querySelector('[aria-checked=true]'); if(act&&act.focus) act.focus({preventScroll:true});
+}
+function camMenuToggle(){ if(camMenuEl&&!camMenuEl.hidden) camMenuClose(); else camMenuOpen(); }
 function camNextPreset(){ camSetPreset(CAM_ORDER[(CAM_ORDER.indexOf(camCfg.preset)+1)%CAM_ORDER.length]); }
 /* ---------- POV Bidak (orang pertama) ----------
    Kamera di mata bidak pemain; geser layar = tengok kiri/kanan/atas/bawah, cubit/roda = zoom (FOV).
@@ -6212,7 +6258,7 @@ camLoad(); camUI();
 camRefit=()=>{ if(camLocked()) goal.zoom=WF.cam?fortZoom(true):(WF.shot?fortZoom(false):lockZoom()); };
 if(camLocked()){ resetCam(); cam.yaw=goal.yaw; cam.pitch=goal.pitch; cam.zoom=goal.zoom; camTarget.set(lockCenter.x,LOCK_BOX.y,lockCenter.z); } /* mulai langsung di LOCK tanpa gerakan kamera */
 $('btnAngle').addEventListener('click',()=>camSetAngle(!camCfg.angle));
-$('btnPreset').addEventListener('click',camNextPreset);
+$('btnPreset').addEventListener('click',camMenuToggle);
 $('btnFollow').addEventListener('click',()=>camSetFollow(!camCfg.follow));
 $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
