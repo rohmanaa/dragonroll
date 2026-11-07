@@ -1478,7 +1478,14 @@ function slotPos(pi,n){
   const o=SLOT[pi];
   if(n===0) return new THREE.Vector3(PAD.x+o[0]*2.2,PAD.y,PAD.z+o[1]*2.2); /* duduk di 4 kayu mengelilingi api unggun */
   const t=TILES[n];
-  return new THREE.Vector3(t.x+o[0],t.h,t.z+o[1]);
+  /* Bidak di TENGAH petak. Bila ada pemain lain di petak yang sama, semua berbagi cincin kecil (radius 0.2) agar tidak menumpuk. */
+  let PL=[]; try{ PL=players||[]; }catch(e){}
+  const grp=PL.filter(q=>q&&(q.idx===pi||q.pos===n)).map(q=>q.idx);
+  if(grp.indexOf(pi)<0) grp.push(pi);
+  grp.sort((a,b)=>a-b);
+  if(grp.length<=1) return new THREE.Vector3(t.x,t.h,t.z);
+  const k=grp.indexOf(pi),a=Math.PI*0.25+k*(Math.PI*2/grp.length),r=grp.length===2?0.18:0.22;
+  return new THREE.Vector3(t.x+Math.cos(a)*r,t.h,t.z+Math.sin(a)*r);
 }
 
 /* ---------- Tema ---------- */
@@ -2308,9 +2315,39 @@ function addEnderman(B,x,z,h){
   [[-0.2,0.5,0.06],[0.21,0.82,-0.05],[0.16,0.3,0.1],[-0.17,1.12,0]].forEach(a=>q(a[0],a[1],a[2],0.03,0.03,0.03,e,F));
 }
 function addMcHouse(B,x,z){
-  const w=0xB98A4E,r=0x7A4A2A;
-  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05)); addBox(B,x,1.0,z,1.7,0.2,1.4,r); addBox(B,x,1.2,z,1.3,0.2,1.0,r); addBox(B,x,1.4,z,0.9,0.2,0.6,r);
-  addBox(B,x,0.3,z+0.61,0.3,0.6,0.04,0x5B3A1E); addBox(B,x+0.45,0.55,z+0.61,0.25,0.25,0.04,0x9ADFF5); addBox(B,x-0.45,0.55,z+0.61,0.25,0.25,0.04,0x9ADFF5); addBox(B,x+0.5,1.45,z-0.2,0.22,0.55,0.22,0x6E6E6E);
+  /* Rumah detail: pondasi batu, tiang sudut kayu, papan, atap bertingkat + bubungan, pintu berbingkai, jendela berbingkai + daun jendela + kotak bunga, cerobong. Footprint & posisi jendela/pintu sama dengan versi lama (glow jendela & blockRect tetap pas). Tanpa rnd() ekstra agar seed dunia tidak bergeser. */
+  const w=0xB98A4E,r=0x7A4A2A,F={edge:false},wd=0x3E2612,Q=(dx,dy,dz,ww,hh,dd,c,f)=>addBox(B,x+dx,dy,z+dz,ww,hh,dd,c,f);
+  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05));                       /* dinding (1x jit seperti dulu) */
+  Q(0,0.06,0,1.57,0.12,1.27,0x8A8A8A); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
+  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,0x5A3A1E))); /* tiang sudut */
+  [0.3,0.62].forEach(y=>{ Q(0,y,0.603,1.38,0.025,0.01,0xA07840,F); Q(0,y,-0.603,1.38,0.025,0.01,0xA07840,F); }); /* garis papan depan & belakang */
+  [0.3,0.62].forEach(y=>{ Q(0.753,y,0,0.01,0.025,1.1,0xA07840,F); Q(-0.753,y,0,0.01,0.025,1.1,0xA07840,F); });
+  /* atap */
+  Q(0,0.91,0,1.74,0.04,1.44,0x4A2E18,F);
+  Q(0,1.0,0,1.7,0.2,1.4,r); Q(0,1.2,0,1.3,0.2,1.0,r); Q(0,1.4,0,0.9,0.2,0.6,r);
+  Q(0,1.535,0,0.96,0.07,0.66,0x5E3820); Q(0,1.58,0,0.5,0.04,0.3,0x4A2E18,F);
+  [1.0,1.2,1.4].forEach((y,k)=>{ const ww=[1.71,1.31,0.91][k],dd=[1.41,1.01,0.61][k]; Q(0,y-0.085,0,ww,0.03,dd,0x6A3F22,F); }); /* garis genteng */
+  /* pintu */
+  Q(0,0.32,0.605,0.38,0.66,0.02,wd); Q(0,0.3,0.61,0.3,0.6,0.04,0x5B3A1E);
+  Q(0,0.3,0.633,0.01,0.56,0.01,0x3E2612,F); Q(0,0.46,0.633,0.26,0.01,0.01,0x3E2612,F); Q(0,0.2,0.633,0.26,0.01,0.01,0x3E2612,F);
+  Q(0.09,0.3,0.636,0.035,0.035,0.02,0xFFD23F,F); Q(0,0.03,0.74,0.46,0.06,0.2,0x9A9A9A); Q(0,0.065,0.7,0.4,0.01,0.1,0xB0B0B0,F);
+  /* jendela depan (posisi sama dengan glow) */
+  [-1,1].forEach(a=>{ const cx=a*0.45;
+    Q(cx,0.55,0.603,0.33,0.33,0.02,wd);
+    Q(cx,0.55,0.61,0.25,0.25,0.04,0x9ADFF5);
+    Q(cx,0.55,0.645,0.012,0.25,0.012,wd,F); Q(cx,0.55,0.645,0.25,0.012,0.012,wd,F);
+    Q(cx+a*0.2,0.55,0.62,0.07,0.31,0.03,0x2F6B3A); Q(cx-a*0.2,0.55,0.62,0.07,0.31,0.03,0x2F6B3A);
+    Q(cx,0.36,0.66,0.34,0.07,0.1,0x6A4220);
+    [[-0.1,0xE24A4A],[-0.03,0xFFD23F],[0.04,0xFF8FC8],[0.1,0xE24A4A]].forEach(f=>Q(cx+f[0],0.415,0.665,0.045,0.05,0.045,f[1],F));
+    Q(cx+0.0,0.39,0.665,0.3,0.02,0.06,0x2F7F2E,F);
+  });
+  /* jendela samping */
+  [-1,1].forEach(a=>{ Q(a*0.753,0.55,0,0.02,0.3,0.3,wd); Q(a*0.762,0.55,0,0.02,0.22,0.22,0x9ADFF5); Q(a*0.772,0.55,0,0.012,0.22,0.012,wd,F); Q(a*0.772,0.55,0,0.012,0.012,0.22,wd,F); });
+  /* cerobong */
+  Q(0.5,1.45,-0.2,0.22,0.55,0.22,0x6E6E6E); [1.3,1.45,1.6].forEach((y,k)=>Q(0.5,y,-0.087,0.22,0.03,0.01,0x5A5A5A,F));
+  Q(0.5,1.75,-0.2,0.3,0.06,0.3,0x4E4E4E); Q(0.5,1.8,-0.2,0.16,0.05,0.16,0x1A1A1A,F);
+  /* peti kayu kecil di samping */
+  Q(-0.98,0.12,0.5,0.24,0.24,0.24,0xA8742E); Q(-0.98,0.12,0.5,0.25,0.03,0.25,0x6A4220,F); Q(-0.98,0.2,0.5,0.25,0.03,0.25,0x6A4220,F);
 }
 function addPortal(B,x,z,y0){
   for(let i=0;i<4;i++) for(let j=0;j<5;j++){
@@ -3255,20 +3292,68 @@ function addGhastTile(B,x,z,h){ /* Ghast mini yang melayang di atas petak */
 }
 function addHoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0xA8714A,dk:0x7A4E30,mane:0x5A3A20,snout:0xD9A07A}); }
 function addZoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0x6F8F6A,dk:0x4A6A48,mane:0x3A4A38,snout:0x8FA878,zombie:true}); }
+/* Chest detail + SHARED: geometri & material dibangun SEKALI (CHEST_PROTO), tiap chest di papan hanya clone ringan yang berbagi geometri/material (hemat memori & draw call). Hanya grup tutup (lid) yang terpisah per chest agar animasi buka/tutup tetap independen. */
+let CHEST_PROTO=null;
+function buildChestProto(){
+  const B=makeBatch(),L=makeBatch(),F={edge:false},iron=0x3A3A42,gold=0xFFD23F;
+  /* badan: alas gelap + 3 papan bersusun + strap besi + tiang sudut */
+  addBox(B,0,0.015,0,0.31,0.03,0.23,0x4A2E14,F);
+  addBox(B,0,0.05,0,0.30,0.04,0.22,0xB07C34); addBox(B,0,0.09,0,0.30,0.04,0.22,0xA06E2C); addBox(B,0,0.125,0,0.30,0.03,0.22,0xB88340);
+  [-1,1].forEach(a=>{ addBox(B,a*0.1,0.075,0,0.03,0.15,0.226,iron,F); [0.04,0.11].forEach(y=>addBox(B,a*0.1,y,0.1135,0.018,0.018,0.004,0xB9B9C4,F)); });
+  [-1,1].forEach(a=>[-1,1].forEach(b=>addBox(B,a*0.15,0.075,b*0.11,0.026,0.15,0.026,0x5A3A18)));
+  /* rongga dalam + isi emas/permata (terlihat saat tutup terbuka) */
+  addBox(B,0,0.139,0,0.27,0.006,0.19,0x24160A,F);
+  addBox(B,-0.06,0.147,0.03,0.05,0.012,0.05,gold,F); addBox(B,0.05,0.147,0.0,0.05,0.012,0.045,0xFFE070,F); addBox(B,0.0,0.152,-0.04,0.03,0.022,0.03,0x5BE0E8,F); addBox(B,0.09,0.15,0.05,0.03,0.016,0.03,0xE24A4A,F);
+  /* plat kunci depan */
+  addBox(B,0,0.1,0.113,0.05,0.07,0.012,gold,F); addBox(B,0,0.095,0.12,0.012,0.026,0.004,0x3A2A00,F);
+  /* tutup: papan + atas melengkung + strap + braket + kait emas */
+  addBox(L,0,0.025,0.11,0.30,0.05,0.22,0x7A4E1C); addBox(L,0,0.06,0.11,0.30,0.02,0.17,0x8A5A24); addBox(L,0,0.0,0.225,0.05,0.08,0.02,gold,F); addBox(L,0,0.0,0.236,0.012,0.026,0.004,0x3A2A00,F);
+  [-1,1].forEach(a=>{ addBox(L,a*0.1,0.035,0.11,0.03,0.072,0.226,iron,F); addBox(L,a*0.15,0.035,0.0,0.026,0.07,0.026,0x5A3A18,F); addBox(L,a*0.15,0.035,0.22,0.026,0.07,0.026,0x5A3A18,F); });
+  const body=buildBatch(B),lid=buildBatch(L);
+  return {body,lid};
+}
 function makeChest(){
-  const g=new THREE.Group(),B=makeBatch(),L=makeBatch();
-  addBox(B,0,0.07,0,0.3,0.14,0.22,0xA8742E);
-  g.add(buildBatch(B));
+  if(!CHEST_PROTO) CHEST_PROTO=buildChestProto();
+  const g=new THREE.Group();
+  g.add(CHEST_PROTO.body.clone()); /* clone() berbagi geometry & material */
   const lid=new THREE.Group(); lid.position.set(0,0.14,-0.11);
-  addBox(L,0,0.035,0.11,0.3,0.07,0.22,0x7A4E1C); addBox(L,0,0.0,0.225,0.05,0.08,0.02,0xFFD23F,{edge:false});
-  lid.add(buildBatch(L)); g.add(lid); g.userData.lid=lid; return g;
+  lid.add(CHEST_PROTO.lid.clone()); g.add(lid); g.userData.lid=lid; return g;
 }
 const CHEST_SCALE=1.8; /* ukuran final Chest */
 const RMQ=matchMedia('(prefers-reduced-motion: reduce)'); /* dibaca live: idle Chest berhenti otomatis saat reduced-motion aktif */
 let MOBOBJ={},CHESTOBJ={};
+/* Detail tambahan mob (tanpa rnd()/jit() agar seed dunia tidak bergeser). Dipanggil setelah builder dasar. */
+function detailCreeper(B,x,z,h){
+  const d=0x2F7F2E,m=0x3B9A3A,l=0x78D870,F={edge:false},q=(dx,dy,dz,w,hh,dd,c)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,F);
+  [-1,1].forEach(a=>{ q(a*0.121,0.62,0.02,0.01,0.06,0.06,m); q(a*0.121,0.55,-0.05,0.01,0.05,0.05,d); q(a*0.121,0.68,-0.06,0.01,0.04,0.04,l); q(a*0.101,0.34,0.0,0.01,0.07,0.05,d); q(a*0.101,0.27,0.03,0.01,0.05,0.04,l); });
+  q(0,0.62,-0.121,0.06,0.06,0.01,m); q(-0.07,0.56,-0.121,0.05,0.05,0.01,d); q(0.06,0.68,-0.121,0.05,0.04,0.01,l);
+  q(0,0.47,0,0.245,0.025,0.245,d); q(0,0.2,0.0,0.19,0.02,0.1,d);
+  [-1,1].forEach(a=>[-1,1].forEach(b=>q(a*0.06,0.02,b*0.07,0.095,0.03,0.095,0x20601F)));
+}
+function detailEnderman(B,x,z,h){
+  const k2=0x241C30,k3=0x30244A,F={edge:false},q=(dx,dy,dz,w,hh,dd,c)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,F);
+  [0.58,0.66,0.74].forEach(y=>q(0,y,0.052,0.14,0.018,0.008,k2)); q(0,0.8,0,0.1,0.08,0.085,k2);
+  q(0,0.65,-0.052,0.1,0.26,0.008,k3);
+  [-1,1].forEach(a=>{ q(a*0.115,0.31,0.02,0.05,0.035,0.045,k2); q(a*0.115,0.62,0.03,0.02,0.04,0.02,k3); q(a*0.045,0.1,0.052,0.05,0.04,0.008,k3); });
+  q(0,0.955,-0.103,0.14,0.05,0.008,k3); q(0,1.04,0,0.16,0.01,0.16,k3);
+}
+function detailSkeleton(B,x,z,h){
+  const w=0xDADADA,w2=0xBEBEBE,F={edge:false},q=(dx,dy,dz,ww,hh,dd,c)=>addBox(B,x+dx,h+dy,z+dz,ww,hh,dd,c,F);
+  [0.38,0.45,0.52,0.59].forEach(y=>q(0,y,-0.05,0.19,0.03,0.02,w));
+  q(0,0.47,-0.05,0.025,0.28,0.02,w2);
+  q(0.08,0.5,-0.08,0.075,0.3,0.05,0x6A4A2A); q(0.08,0.5,-0.08,0.085,0.02,0.06,0x4A3018); q(0.065,0.68,-0.08,0.015,0.05,0.015,0xF0F0F0); q(0.09,0.68,-0.08,0.015,0.05,0.015,0xC03030); q(0.08,0.66,-0.08,0.015,0.04,0.015,0xF0F0F0);
+  [-1,1].forEach(a=>{ q(a*0.17,0.29,0,0.06,0.035,0.06,w2); q(a*0.06,0.3,0.0,0.075,0.03,0.075,w2); q(a*0.111,0.72,0,0.01,0.12,0.14,w2); });
+}
+function detailZombie(B,x,z,h){
+  const sk=0x5E9E4A,sk2=0x4A8A38,hr=0x2E5A24,F={edge:false},q=(dx,dy,dz,w,hh,dd,c)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,F);
+  q(0,0.31,0,0.27,0.035,0.145,0x1A6F7A);
+  [-1,1].forEach(a=>{ q(a*0.06,0.775,0.127,0.07,0.02,0.01,hr); q(a*0.125,0.72,0,0.02,0.06,0.04,sk2); q(a*0.19,0.5,0.1,0.11,0.025,0.13,0x137F8C); });
+  q(-0.06,0.3,0.074,0.06,0.04,0.01,sk2); q(0.07,0.29,0.074,0.05,0.03,0.01,sk2);
+  q(0,0.6,0.0,0.14,0.03,0.145,0x137F8C); q(0,0.835,-0.14,0.24,0.04,0.02,hr);
+}
 function buildMobs(th){
   MOBOBJ={}; CHESTOBJ={};
-  const mk={creeper:addCreeper,ender:addEnderman,skeleton:addSkeleton,zombie:addZombie,warden:addWarden,villager:addVillager,
+  const mk={creeper:(B,x,z,h)=>{ addCreeper(B,x,z,h); detailCreeper(B,x,z,h); },ender:(B,x,z,h)=>{ addEnderman(B,x,z,h); detailEnderman(B,x,z,h); },skeleton:(B,x,z,h)=>{ addSkeleton(B,x,z,h); detailSkeleton(B,x,z,h); },zombie:(B,x,z,h)=>{ addZombie(B,x,z,h); detailZombie(B,x,z,h); },warden:addWarden,villager:addVillager,
     strider:addStrider,magma_cube:addMagmaCube,piglin:addPiglin,piglin_brute:addPiglinBrute,zombified_piglin:addZombifiedPiglin,hoglin:addHoglin,zoglin:addZoglin,ghast:addGhastTile};
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],k=mobOn(n,th.key);
@@ -4738,6 +4823,7 @@ showDie(1,false);
 
 /* ---------- Konfeti ---------- */
 function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
+function spawnExplosion(pos){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos); else if(FX) FX.spawnConfetti(pos); } /* ledakan = api oranye-merah + asap, bukan konfeti */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
@@ -4961,14 +5047,15 @@ async function hitDragon(p,v){
 async function explode(p){
   const pos=p.pawn.position.clone(); pos.y+=0.5;
   const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xFF8A1E,transparent:true,opacity:0.9}));
-  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnConfetti(pos);
+  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos);
   await tween(0.45,k=>{ m.scale.setScalar(0.3+k*2.4); m.material.opacity=0.9*(1-k); });
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
-async function teleport(p,to){
-  spawnConfetti(p.pawn.position);
+async function teleport(p,to,fire){
+  const fx=fire?spawnExplosion:spawnConfetti; /* fire=true (kena TNT/ledakan) -> api; false (Enderman/Chest) -> konfeti */
+  fx(p.pawn.position);
   await tween(0.3,k=>p.pawn.scale.setScalar(1-k));
-  p.pawn.position.copy(slotPos(p.idx,to)); spawnConfetti(p.pawn.position);
+  p.pawn.position.copy(slotPos(p.idx,to)); fx(p.pawn.position);
   await tween(0.3,k=>p.pawn.scale.setScalar(k)); p.pawn.scale.setScalar(1);
 }
 
@@ -5358,7 +5445,7 @@ async function usePU(k,cpu){
   const oldL=L?L.pos:0,oldS=SW?SW.pos:0; let blocked=false,hit=false; /* blocked = korban menahan serangan dengan Totem */ /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
   try{
     if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-2); hit=true; powerFxPawn('sword',SW); powerHitCard(p,SW,k,SW.name+(SW.pos-to>0?' mundur '+(SW.pos-to)+' petak':' tidak bergerak')); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
-    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerFxPawn('tnt',L); powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to); L.pos=to; } }
+    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerFxPawn('tnt',L); powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to,true); L.pos=to; } }
     if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; hit=true; powerFxPawn('grass',p); powerFxPawn('grass',L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
   }catch(e){ console.error(e); }
   if(gid!==gameId) return;
@@ -5468,7 +5555,11 @@ function startTurnTimer(){
     doRoll({afk:true});
   },tick);
 }
-function nextTurn(){ cur=(cur+1)%players.length; busy=false; beginTurn(); }
+/* Rapikan bidak di petak yang sama (berbagi cincin kecil) setelah ada yang datang/pergi; sendirian = tepat di tengah. */
+function settlePawns(){
+  try{ players.forEach(q=>{ if(!q.pawn||!(q.pos>0)||q.pos>=GOAL) return; const to=slotPos(q.idx,q.pos),pw=q.pawn,from=pw.position.clone(); if(from.distanceTo(to)<0.03||Math.abs(from.y-to.y)>0.6) return; tween(0.25,k=>pw.position.lerpVectors(from,to,k)); }); }catch(e){}
+}
+function nextTurn(){ settlePawns(); cur=(cur+1)%players.length; busy=false; beginTurn(); }
 
 async function walk(p,from,to){
   if(ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'walk',pid:p.networkId,from:from,to:to});
@@ -5904,7 +5995,7 @@ function startGame(m,keys){
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
-const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1,confetti:1,dmusic:1,hud:1,dfx:1,seq:1};
+const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
 function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
@@ -5922,6 +6013,7 @@ function mpRunFeedbackCue(c){
     if(c.k==='fb'){ const a=mpFixGid(c.a); if(c.f==='short'&&!fb0(c.f,...a)){ const o=a[3]||{}; hud0('showPower',a[0],a[1],a[2],o); } else if(c.f!=='short') fb0(c.f,...a); }
     else if(c.k==='seq'){ return mpRunSeq(c); }
     else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z)); }
+    else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z)); }
     else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
     else if(c.k==='hud'){ hud0(c.f,...mpFixGid(c.a)); }
     else if(c.k==='dfx'){ return mpDragonFx(c.t); }

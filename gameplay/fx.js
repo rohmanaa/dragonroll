@@ -11,7 +11,7 @@
   var UT = win.UT = win.UT || {};
   if (UT.GameplayFX) return;
 
-  var scene = null, confetti = [], sparks = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null;
+  var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null;
 
   function init(sc) {
     if (!sc || !win.THREE) return false;
@@ -20,6 +20,9 @@
       CONF_GEO = new THREE.BoxGeometry(0.14, 0.14, 0.14);
       CONF_MATS = [0xF0453A, 0x2F80FF, 0xFFC21A, 0xA855F7, 0x45C94B, 0xFFFFFF].map(function (c) { return new THREE.MeshLambertMaterial({ color: c }); });
       SPARK_GEO = new THREE.BoxGeometry(0.06, 0.06, 0.06);
+      /* palet api: putih-kuning -> oranye -> merah (menyala, tidak kena cahaya) + asap abu gelap */
+      FIRE_MATS = [0xFFF2A0, 0xFFC93C, 0xFF9A1A, 0xFF6A00, 0xE8340A].map(function (c) { return new THREE.MeshBasicMaterial({ color: c, fog: false }); });
+      SMOKE_MATS = [0x26262B, 0x34343A, 0x4A4A52, 0x6B6B73].map(function (c) { return new THREE.MeshLambertMaterial({ color: c }); });
     }
     return true;
   }
@@ -33,9 +36,35 @@
       confetti.push({m,v:new THREE.Vector3((Math.random()-0.5)*6,4+Math.random()*5,(Math.random()-0.5)*6),r:new THREE.Vector3(Math.random()*6,Math.random()*6,Math.random()*6),life:2.6+Math.random()*1.4});
     }
   }
-  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; }
+  /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
+  function spawnExplosion(pos) {
+    if (!scene) return;
+    for (let i = 0; i < 46; i++) {
+      const fire = i < 30, sz = fire ? 0.10 + Math.random() * 0.16 : 0.18 + Math.random() * 0.2;
+      const m = new THREE.Mesh(CONF_GEO, (fire ? FIRE_MATS : SMOKE_MATS)[Math.floor(Math.random() * (fire ? FIRE_MATS.length : SMOKE_MATS.length))]);
+      m.position.set(pos.x + (Math.random() - 0.5) * 0.3, pos.y + 0.5, pos.z + (Math.random() - 0.5) * 0.3);
+      m.scale.setScalar(sz / 0.14); scene.add(m);
+      const sp = fire ? 2.2 + Math.random() * 3 : 0.6 + Math.random() * 0.9, an = Math.random() * Math.PI * 2;
+      blasts.push({ m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.5 + Math.random() * 3.2 : 1 + Math.random() * 1.2, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.55 + Math.random() * 0.4 : 0.9 + Math.random() * 0.6, max: 1 });
+      blasts[blasts.length - 1].max = blasts[blasts.length - 1].life;
+    }
+  }
+  function updateBlasts(dt) {
+    for (let i = blasts.length - 1; i >= 0; i--) {
+      const b = blasts[i]; b.life -= dt;
+      b.v.y += (b.fire ? -9 : 1.2) * dt; /* api jatuh, asap naik */
+      b.m.position.addScaledVector(b.v, dt);
+      b.m.rotation.x += b.r.x * dt; b.m.rotation.y += b.r.y * dt;
+      const k = Math.max(0, b.life / b.max);
+      b.m.scale.setScalar(b.s0 * (b.fire ? k : 0.6 + (1 - k) * 0.9)); /* api mengecil, asap membesar lalu hilang */
+      if (!b.fire && k < 0.25) b.m.scale.setScalar(b.s0 * 1.5 * (k / 0.25));
+      if (b.life <= 0) { scene.remove(b.m); blasts.splice(i, 1); }
+    }
+  }
+  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; }
   function updateConfetti(dt) {
     if (!scene) return;
+    updateBlasts(dt);
     for(let i=confetti.length-1;i>=0;i--){
       const c=confetti[i]; c.life-=dt; c.v.y-=14*dt;
       c.m.position.addScaledVector(c.v,dt);
@@ -61,5 +90,5 @@
     }
   }
 
-  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
 })(window);
