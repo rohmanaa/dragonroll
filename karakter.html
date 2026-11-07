@@ -236,6 +236,9 @@ html body .card .th{position:relative}
 html body .card .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;animation:thin .25s both}
 html body .card .th.ph .em,html body .card .th.ph .sq{visibility:hidden}
 @keyframes thin{from{opacity:0;transform:scale(.92)}}
+html body #buy{position:absolute;right:1.4rem;top:50%;translate:0 -50%;height:5.2rem;min-width:14rem;width:auto;font-size:2.2rem;gap:.8rem}
+html body #buy img{width:3rem;height:3rem;display:block}
+html body #info.hasbuy #iname,html body #info.hasbuy #idesc{padding-right:15rem}
 html body #gl{touch-action:none;cursor:grab}
 html body #gl:active{cursor:grabbing}
 html body #cats{overflow-y:auto;overflow-x:hidden;padding:.3rem .5rem .8rem .3rem;scrollbar-width:none}
@@ -286,7 +289,7 @@ html body #bot{gap:.8rem}
 <nav class="ab" id="cats" aria-label="Kategori"></nav>
 <div class="ab" id="show"><canvas id="gl"></canvas></div>
 <div class="ab" id="sbs" aria-label="Gerakan"></div>
-<section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
+<section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><button class="use" id="buy" style="display:none"></button></section>
 <section class="ab" id="bot">
  <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
  <div id="gwrap"><div id="grid"></div></div>
@@ -294,6 +297,7 @@ html body #bot{gap:.8rem}
 </section>
 </div>
 <div id="toast"></div>
+<div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/item-catalog.js"></script>
@@ -1302,7 +1306,7 @@ const THUMB={
   shoot(job){
     const saved=clone(cfg),keep={P:Object.assign({},P),mode,level,phase,time,airborne,jumpY,vy,landT};
     let url='';
-    previewAll=true;
+    const pa=previewAll;previewAll=true;
     try{
       const keepCfg=cfg;cfg=clone(saved);
       merge(cfg,job.part(saved));normalize();
@@ -1317,7 +1321,7 @@ const THUMB={
       ground.visible=gv;
       url=this.r.domElement.toDataURL('image/png');
     }catch(e){url='';}
-    previewAll=false;
+    previewAll=pa;
     try{this.setCfg(saved);}catch(e){cfg=saved;}
     Object.assign(P,keep.P);mode=keep.mode;level=keep.level;phase=keep.phase;time=keep.time;airborne=keep.airborne;jumpY=keep.jumpY;vy=keep.vy;landT=keep.landT;
     applyRig();
@@ -1369,7 +1373,7 @@ MODES.forEach(m=>{
 const jb=document.createElement('button');jb.className='blue';jb.textContent='⬆️';jb.title='Loncat';jb.setAttribute('aria-label','Loncat');
 jb.addEventListener('click',jump);sbs.appendChild(jb);
 $('#back').addEventListener('click',()=>{location.href='profile.html';});
-$('#rnd').addEventListener('click',()=>randomize());
+$('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{location.href='shop.html';});
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html';}));
 function setMode(m){mode=m;for(const k in btns)btns[k].classList.toggle('on',k===m);}
@@ -1409,14 +1413,14 @@ const sq=c=>'<i class="sq" style="background:'+hex(c)+'"></i>';
 /* kartu opsi gaya Inventory: {th, nm, on, lock, badge, bg, fn, i} */
 function card(o){
   const d=document.createElement('div');
-  d.className='card'+(o.on?' sel':'')+(o.lock?' lk':'');
+  d.className='card'+(o.on||o.sel?' sel':'')+(o.lock?' lk':'');
   d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
   d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
   d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.badge?'<button class="bt"></button>':'');
   d.querySelector('.nm').textContent=o.nm;
   if(o.badge){const b=d.querySelector('.bt');b.textContent=o.badge;if(o.bg)b.classList.add(o.bg);}
-  d.addEventListener('click',o.fn);
-  d.addEventListener('keydown',e=>{if(e.key==='Enter')o.fn();});
+  d.addEventListener('click',()=>{endPreview();o.fn();});
+  d.addEventListener('keydown',e=>{if(e.key==='Enter'){endPreview();o.fn();}});
   if(o.tq)THUMB.add(d.querySelector('.th'),o.tq.key,o.tq.part,o.tq.fr);
   return d;
 }
@@ -1456,6 +1460,8 @@ function importCfg(){
 function setInfo(name,desc){$('#irar').textContent=CATS[cat].name;$('#iname').textContent=name||'';$('#idesc').textContent=desc||'';}
 function updateInfo(){
   const c=CATS[cat];
+  updateBuy();
+  if(pv){setInfo(pv.ci.name,canSell(pv.ci)?'Belum dimiliki. Ini hanya preview, beli untuk memakainya.':'Belum dimiliki dan tidak dijual (hadiah/event). Hanya preview.');return;}
   if(c.type==='gender')setInfo(cfg.gender==='m'?'Laki-laki':'Perempuan','Pilih gender karakter. Pakaian menyesuaikan gender.');
   else if(c.type==='skin'){const s=SKINS.find(x=>x.id===cfg.skin);setInfo(s?s.n:'Warna kulit','Pilih warna kulit karakter.');}
   else if(c.type==='body')setInfo('Ukuran tubuh','Atur tinggi dan besar badan karakter.');
@@ -1463,6 +1469,54 @@ function updateInfo(){
   else if(c.type==='multi')setInfo('Aksesori ('+cfg.accessories.length+' dipakai)','Beberapa aksesori boleh dipakai bersamaan. Ikon gembok = beli di Toko.');
   else{const it=find(c.reg,cfg[c.key].id);setInfo(it&&it.id!=='none'?it.n:'Tidak dipakai','Ketuk kartu untuk mengganti. Ikon gembok = beli di Toko.');}
 }
+/* ===== Preview item terkunci + beli dengan coin (menggantikan Toko untuk item karakter) ===== */
+let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disimpan ke PlayerData */
+const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
+const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const canSell=ci=>!!ci&&ci.price>0&&ci.source==='shop';
+function startPreview(ci,part){
+  endPreview();
+  pv={saved:clone(cfg),ci:ci};previewAll=true;
+  apply(part);
+}
+function endPreview(){
+  if(!pv)return;
+  const s=pv.saved;pv=null;previewAll=false;
+  cfg=clone(s);apply(null,true);
+}
+function updateBuy(){
+  const b=$('#buy'),inf=$('#info');
+  if(!pv){b.style.display='none';inf.classList.remove('hasbuy');return;}
+  const ok=canSell(pv.ci);
+  b.style.display='';inf.classList.add('hasbuy');
+  b.className='use'+(ok?'':' no');
+  b.innerHTML=ok?'<img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">'+fmt(pv.ci.price):'Tidak dijual';
+}
+const modal=$('#modal');let mOpen=false;
+function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
+function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing');},250);}
+$('#mx').addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function confirmBuy(ci){
+  const coins=PD.coins(),ok=coins>=ci.price;
+  openModal(ok
+    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+  ()=>{
+    $('#no').addEventListener('click',closeModal);
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    $('#yes').addEventListener('click',async()=>{
+      const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
+      closeModal();
+      if(!r||!r.ok){toast(WMSG[r&&r.reason]||'Pembelian gagal.');return;}
+      /* sekarang dimiliki: pertahankan tampilan yang dicoba, lalu simpan & pakai lewat jalur normal */
+      const keep=clone(cfg);pv=null;previewAll=false;cfg=keep;apply(null,true);
+      renderCurrency();toast('Pembelian berhasil!');
+    });
+  });
+}
+$('#buy').addEventListener('click',()=>{if(!pv)return;if(!canSell(pv.ci)){toast('Item ini tidak dijual.');return;}confirmBuy(pv.ci);});
 function slider(label,key,min,max){
   const w=document.createElement('div');w.className='slrow';
   const t=document.createElement('span');
@@ -1479,7 +1533,7 @@ function renderTabs(){
     b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
     b.setAttribute('aria-label',c.name);
-    b.addEventListener('click',()=>{cat=i;renderTabs();renderOpts();});
+    b.addEventListener('click',()=>{endPreview();cat=i;renderTabs();renderOpts();});
     tabsEl.appendChild(b);
   });
   tabsEl.scrollTop=st;tabsEl.scrollLeft=sl;
@@ -1509,10 +1563,10 @@ function renderOpts(){
   }else if(c.type==='multi'){
     ACCS.filter(okG).forEach(it=>{
       const on=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,
+      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,sel:!!(pv&&ci&&pv.ci===ci),
         badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
         fn:()=>{
-          if(lock){needBuy(ci);return;}
+          if(lock){startPreview(ci,{accessories:cfg.accessories.concat([{id:it.id,dye:it.def}])});return;}
           accSel=it.id;
           apply({accessories:on?cfg.accessories.filter(a=>a.id!==it.id):cfg.accessories.concat([{id:it.id,dye:it.def}])});
         },
@@ -1524,9 +1578,9 @@ function renderOpts(){
     const cur=cfg[c.key];
     REG[c.reg].filter(okG).forEach(it=>{
       const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===cur.id;
-      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,
+      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,sel:!!(pv&&ci&&pv.ci===ci),
         badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
-        fn:()=>lock?needBuy(ci):apply({[c.key]:{id:it.id}}),
+        fn:()=>lock?startPreview(ci,{[c.key]:{id:it.id}}):apply({[c.key]:{id:it.id}}),
         tq:it.id==='none'?null:{key:c.key+'|'+it.id+'|'+(cur.dye||'')+THUMB.sig([c.key]),fr:FRAME[c.key]||'full',part:()=>({[c.key]:{id:it.id}})}}));
     });
     dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
@@ -1535,6 +1589,7 @@ function renderOpts(){
 }
 /* cfg -> PlayerData: hanya menulis yang berubah. Equip ditolak PlayerData bila item belum dimiliki. */
 function syncToPD(){
+  if(previewAll)return;
   try{
     PD.setLook({gender:cfg.gender,skin:cfg.skin,eyes:cfg.eyes,hair:cfg.hair,body:cfg.body});
     const G=PD.gearLook();
