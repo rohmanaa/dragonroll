@@ -83,6 +83,25 @@
       });
     }
 
+    /* Beli satu SET gear: server menghitung total, memotong koin sekali, dan memasukkan semua item dalam satu
+       transaksi (semua berhasil atau semua gagal). Item yang sudah dimiliki dilewati dan tidak ditagih.
+       Memakai kunci 'buy' yang sama dengan buy(): dua pembelian tidak bisa berjalan bersamaan. */
+    function buySet(itemIds) {
+      return once('buy', async function () {
+        var ids = Array.isArray(itemIds) ? itemIds.map(function (x) { return String(x); }) : [];
+        var r = await rpc('buy_set', { p_item_ids: ids });
+        if (r && r.ok) {
+          mirror(r.coins, r.gems);
+          if (PD && PD.applyServerItem) {
+            /* items = baru dibeli; skipped = sudah dimiliki di server (menyembuhkan cermin yang usang) */
+            (Array.isArray(r.items) ? r.items : []).forEach(function (id) { PD.applyServerItem(id); });
+            (Array.isArray(r.skipped) ? r.skipped : []).forEach(function (id) { if (!PD.owns(id)) PD.applyServerItem(id); });
+          }
+        }
+        return r;
+      });
+    }
+
     /* ----- tukar gem -> koin (paket 0..2, nominal di server) ----- */
     function exchange(pack) {
       return once('exchange', async function () {
@@ -176,7 +195,7 @@
     }
 
     return {
-      enabled: enabled, refresh: refresh, buy: buy, exchange: exchange,
+      enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, exchange: exchange,
       dailyGet: dailyGet, claimDaily: claimDaily,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,

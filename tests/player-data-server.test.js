@@ -247,6 +247,94 @@ t('akun server: PD.addCurrency(0,5) tetap ditolak (emerald hanya lewat claimAd)'
   const { PD } = loginOn(); assert.strictEqual(PD.addCurrency(0, 5).reason, 'server-wallet'); assert.strictEqual(PD.gems(), 0);
 });
 
+/* ---------- Beli set atomik (tahap c): WalletService.buySet + PlayerData.purchaseSet ---------- */
+const gearBuyable = (IC, k) => IC.items.filter(i => i.kind === 'gear' && !i.starter && i.price > 0 && !i.stackable).slice(0, k);
+
+t('WS.buySet sukses: satu RPC buy_set, saldo + SEMUA item masuk cermin, server hanya dikirimi daftar id', async () => {
+  const e = svc({ buy_set: a => ({ ok: true, items: a.p_item_ids, skipped: [], spent: 220, coins: 780, gems: 0 }) });
+  const [a, b] = gearBuyable(e.IC, 2).map(i => i.id); const r = await e.S.buySet([a, b]);
+  assert.strictEqual(r.ok, true); assert.strictEqual(e.PD.coins(), 780);
+  assert.strictEqual(e.PD.owns(a), true); assert.strictEqual(e.PD.owns(b), true);
+  assert.deepStrictEqual(e.calls.map(c => c[0]), ['buy_set']);
+  assert.deepStrictEqual(e.calls[0][1], { p_item_ids: [a, b] });
+});
+t('WS.buySet: item "skipped" (sudah dimiliki di server) ikut menyembuhkan cermin usang', async () => {
+  const [a, b] = gearBuyable(boot().IC, 2).map(i => i.id);
+  const e = svc({ buy_set: () => ({ ok: true, items: [b], skipped: [a], spent: 80, coins: 920, gems: 0 }) });
+  assert.strictEqual(e.PD.owns(a), false); await e.S.buySet([a, b]);
+  assert.strictEqual(e.PD.owns(a), true); assert.strictEqual(e.PD.owns(b), true);
+});
+t('WS.buySet: ditolak server (saldo-kurang/tidak-tersedia/terlalu-banyak) -> cermin tak berubah sama sekali', async () => {
+  for (const resp of [{ ok: false, reason: 'saldo-kurang', kurang: 10 }, { ok: false, reason: 'tidak-tersedia' }, { ok: false, reason: 'terlalu-banyak' }]) {
+    const e = svc({ buy_set: () => resp }); e.PD.applyServerWallet({ coins: 5 });
+    const ids = gearBuyable(e.IC, 2).map(i => i.id); const r = await e.S.buySet(ids);
+    assert.strictEqual(r.reason, resp.reason); assert.strictEqual(e.PD.coins(), 5);
+    ids.forEach(id => assert.strictEqual(e.PD.owns(id), false));
+  }
+});
+t('WS.buySet: koneksi putus -> {ok:false, reason:jaringan}, tidak melempar, tidak ada item/saldo berubah', async () => {
+  const e = svc({ buy_set: () => ({ __err: 'Failed to fetch' }) }); e.PD.applyServerWallet({ coins: 50 });
+  const ids = gearBuyable(e.IC, 3).map(i => i.id); const r = await e.S.buySet(ids);
+  assert.strictEqual(r.reason, 'jaringan'); assert.strictEqual(e.PD.coins(), 50);
+  ids.forEach(id => assert.strictEqual(e.PD.owns(id), false));
+});
+t('WS.buySet: mode lokal tidak memanggil server; ditekan dua kali (atau bareng buy) -> hanya satu RPC', async () => {
+  const l = svc(base, false); assert.strictEqual((await l.S.buySet(['x'])).reason, 'mode-lokal'); assert.strictEqual(l.calls.length, 0);
+  let resolve; const gate = new Promise(r => { resolve = r; });
+  const e = svc({ buy_set: async a => { await gate; return { ok: true, items: a.p_item_ids, skipped: [], spent: 1, coins: 1, gems: 0 }; }, buy_item: () => ({ ok: true, item: 'x', coins: 1, gems: 0 }) });
+  const ids = gearBuyable(e.IC, 2).map(i => i.id);
+  const p1 = e.S.buySet(ids), p2 = e.S.buySet(ids), p3 = e.S.buy(ids[0]); resolve();
+  const rs = await Promise.all([p1, p2, p3]);
+  assert.strictEqual(e.calls.length, 1); assert.strictEqual(rs.filter(x => x.reason === 'sedang-diproses').length, 2);
+});
+t('WS.buySet: argumen bukan array -> dikirim sebagai daftar kosong (server yang menolak)', async () => {
+  const e = svc({ buy_set: a => ({ ok: false, reason: 'tidak-tersedia', got: a.p_item_ids }) });
+  await e.S.buySet(null); assert.deepStrictEqual(e.calls[0][1], { p_item_ids: [] });
+});
+
+t('PD.purchaseSet (tamu): sukses = satu penulisan, koin dipotong sekali, semua item masuk', () => {
+  const { PD, IC } = boot(); const its = gearBuyable(IC, 3), total = its.reduce((a, i) => a + i.price, 0);
+  const c0 = PD.coins(), r = PD.purchaseSet(its.map(i => i.id));
+  assert.strictEqual(r.ok, true); assert.strictEqual(r.spent, total); assert.strictEqual(PD.coins(), c0 - total);
+  its.forEach(i => assert.strictEqual(PD.owns(i.id), true));
+});
+t('PD.purchaseSet: saldo kurang tidak menulis apa pun (termasuk item yang terjangkau)', () => {
+  const { PD, IC } = boot(); const its = gearBuyable(IC, 40); PD.addCurrency(-PD.coins() + 100, 0);
+  const cheap = its.find(i => i.price <= 100), pricey = its.find(i => i.price > 300);
+  const r = PD.purchaseSet([cheap.id, pricey.id]);
+  assert.strictEqual(r.reason, 'saldo-kurang'); assert.strictEqual(r.kurang, cheap.price + pricey.price - 100);
+  assert.strictEqual(PD.coins(), 100); assert.strictEqual(PD.owns(cheap.id), false); assert.strictEqual(PD.owns(pricey.id), false);
+});
+t('PD.purchaseSet: dimiliki dilewati & tidak ditagih; semua dimiliki -> ok spent 0', () => {
+  const { PD, IC } = boot(); const [a, b] = gearBuyable(IC, 2); PD.purchase(a.id); const c0 = PD.coins();
+  const r = PD.purchaseSet([a.id, b.id]);
+  assert.strictEqual(r.ok, true); assert.strictEqual(r.spent, b.price); assert.strictEqual(JSON.stringify(r.skipped), JSON.stringify([a.id])); assert.strictEqual(JSON.stringify(r.items), JSON.stringify([b.id]));
+  assert.strictEqual(PD.coins(), c0 - b.price);
+  const again = PD.purchaseSet([a.id, b.id]);
+  assert.strictEqual(again.ok, true); assert.strictEqual(again.spent, 0); assert.strictEqual(PD.coins(), c0 - b.price);
+});
+t('PD.purchaseSet: satu item tidak dijual menolak seluruh set (bukan gear / starter / tak dikenal / null)', () => {
+  const { PD, IC } = boot(); const [a] = gearBuyable(IC, 1), c0 = PD.coins();
+  const starterGear = IC.items.find(i => i.kind === 'gear' && i.starter), dice = IC.items.find(i => i.kind === 'dice' && !i.starter && i.price > 0);
+  [[starterGear.id], [dice.id], ['gear.tidak-ada'], [null], [5]].forEach(bad => {
+    assert.strictEqual(PD.purchaseSet([a.id].concat(bad)).reason, 'tidak-tersedia');
+  });
+  assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.owns(a.id), false);
+});
+t('PD.purchaseSet: id berulang digabung; kosong/bukan array ditolak; batas 20 unik dan 200 mentah', () => {
+  const { PD, IC } = boot(); const its = gearBuyable(IC, 21), a = its[0];
+  const r = PD.purchaseSet([a.id, a.id, a.id]); assert.strictEqual(r.spent, a.price); assert.strictEqual(PD.qty(a.id), 1);
+  assert.strictEqual(PD.purchaseSet([]).reason, 'tidak-tersedia'); assert.strictEqual(PD.purchaseSet(null).reason, 'tidak-tersedia');
+  assert.strictEqual(PD.purchaseSet(its.map(i => i.id)).reason, 'terlalu-banyak');
+  assert.notStrictEqual(PD.purchaseSet(its.slice(0, 20).map(i => i.id)).reason, 'terlalu-banyak');
+  assert.strictEqual(PD.purchaseSet(new Array(201).fill(a.id)).reason, 'terlalu-banyak');
+  const r25 = boot().PD.purchaseSet(new Array(25).fill(0).map((_, i) => its[i % 3].id)); assert.strictEqual(r25.ok, true);
+});
+t('PD.purchaseSet: akun server ditolak (harus lewat WalletService.buySet)', () => {
+  const { PD, IC } = loginOn(); const c0 = PD.coins();
+  assert.strictEqual(PD.purchaseSet(gearBuyable(IC, 2).map(i => i.id)).reason, 'server-wallet'); assert.strictEqual(PD.coins(), c0);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');

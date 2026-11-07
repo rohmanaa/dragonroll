@@ -19,6 +19,7 @@
   var ACH_BASE = 'ularTanggaBlok:achClaimed:v1';   /* klaim achievement (dipakai profile.html) */
   var SCHEMA = 1;
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
+  var SET_MAX_UNIQUE = 20, SET_MAX_RAW = 200;   /* batas beli set: sama dengan buy_set di server */
   var START_COINS = 1000;      /* saldo awal SEKALI saat data dibuat; tidak ada koin gratis berulang */
   var START_GEMS = 0;
   var START_XP = 0;            /* Chest Feature 2: XP minimal (hanya angka tersimpan; tanpa level/progression) */
@@ -569,6 +570,37 @@
       if (!write(st)) return { ok: false, reason: 'gagal-simpan', item: it };
       notify('purchase');
       return { ok: true, item: it, coins: st.coins, gems: st.gems, spent: it.price };
+    },
+
+    /* Beli SET gear atomik untuk tamu/lokal: validasi + hitung total + cek saldo dulu, lalu saldo dan SEMUA item
+       dalam SATU penulisan (tidak ada set setengah jadi). Aturan SAMA dengan RPC buy_set di server
+       (supabase/migrations/202611140001_buy_set.sql): kosong/null -> tidak-tersedia; >200 elemen mentah atau >20 id unik
+       (setelah digabung) -> terlalu-banyak; elemen null/tak dikenal/bukan gear/starter/tanpa harga -> tidak-tersedia
+       (SATU item tidak dijual menolak seluruh set); item sudah dimiliki dilewati dan tidak ditagih;
+       total > koin -> saldo-kurang + kurang. Return {ok, items, skipped, spent, coins, gems}. */
+    purchaseSet: function (ids) {
+      if (serverMode()) return { ok: false, reason: 'server-wallet' };   /* akun server: WalletService.buySet */
+      if (!Array.isArray(ids) || ids.length === 0) return { ok: false, reason: 'tidak-tersedia' };
+      if (ids.length > SET_MAX_RAW) return { ok: false, reason: 'terlalu-banyak' };
+      if (ids.some(function (x) { return typeof x !== 'string'; })) return { ok: false, reason: 'tidak-tersedia' };
+      var uniq = ids.filter(function (x, i) { return ids.indexOf(x) === i; }).sort();
+      if (uniq.length > SET_MAX_UNIQUE) return { ok: false, reason: 'terlalu-banyak' };
+      var its = uniq.map(function (id) { return C.byId(id); });
+      if (its.some(function (it) { return !it || it.kind !== 'gear' || it.starter || it.stackable || !(it.price > 0); })) {
+        return { ok: false, reason: 'tidak-tersedia' };
+      }
+      var st = load(), skipped = [], fresh = [], total = 0;
+      its.forEach(function (it) {
+        if (st.inventory[it.id]) skipped.push(it.id); else { fresh.push(it); total += it.price; }
+      });
+      if (!fresh.length) return { ok: true, items: [], skipped: skipped, spent: 0, coins: st.coins, gems: st.gems };
+      if (st.coins < total) return { ok: false, reason: 'saldo-kurang', kurang: total - st.coins };
+      st.coins -= total;
+      var now = Date.now();
+      fresh.forEach(function (it) { st.inventory[it.id] = { qty: 1, acquiredAt: now, seq: st.nextSeq++ }; });
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };   /* load() mengembalikan salinan: tidak ada yang tersisa */
+      notify('purchase');
+      return { ok: true, items: fresh.map(function (it) { return it.id; }), skipped: skipped, spent: total, coins: st.coins, gems: st.gems };
     },
 
     /* Perubahan currency atomik: addCurrency(+500) / addCurrency(0, +10) / addCurrency(-200, -5).

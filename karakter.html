@@ -1475,7 +1475,7 @@ function updateInfo(){
 /* ===== Preview item terkunci + beli dengan coin (menggantikan Toko untuk item karakter) ===== */
 let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disimpan ke PlayerData */
 const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get(),AS=()=>window.UT&&UT.AppearanceService&&UT.AppearanceService.get();
-const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','terlalu-banyak':'Set terlalu besar.'};
 const canSell=ci=>!!ci&&ci.price>0&&ci.source==='shop';
 function startPreview(ci,part,set){
   endPreview();
@@ -1542,16 +1542,13 @@ function confirmBuySet(set){
     $('#no').addEventListener('click',closeModal);
     if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
     $('#yes').addEventListener('click',async()=>{
-      let done=0;
-      for(const ci of set.cis){
-        if(PD.owns(ci.id)){done++;continue;}
-        const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
-        if(!r||!r.ok){
-          closeModal();
-          toast((WMSG[r&&r.reason]||'Pembelian gagal.')+(done?' ('+done+'/'+set.cis.length+' item sudah dibeli)':''));
-          renderCurrency();endPreview();renderOpts();return;
-        }
-        done++;
+      /* atomik: server (buy_set) / PlayerData.purchaseSet memotong koin sekali dan memberi SEMUA item, atau tidak sama sekali */
+      const ids=set.cis.map(c=>c.id);
+      const r=SV()?await WS().buySet(ids):PD.purchaseSet(ids);
+      if(!r||!r.ok){
+        closeModal();
+        toast(WMSG[r&&r.reason]||'Pembelian gagal.');
+        renderCurrency();endPreview();renderOpts();return;
       }
       closeModal();
       /* semua item sudah dimiliki: pertahankan tampilan set, lalu simpan & pakai lewat jalur normal */
