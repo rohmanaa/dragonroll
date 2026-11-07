@@ -1,14 +1,14 @@
 /* SceneBackground — komponen latar reusable (Stage 4).
    Pakai:  UT.SceneBG.mount(container?, {preset:'full'|'soft', clouds:5, image, effects:{...}}) -> {el, destroy()}
    Otomatis: <script src="assets/js/scene-bg.js" data-auto data-preset="soft"></script> (dipasang saat <body> ada).
-   Isi: langit + bg.webp + 5 awan voxel 3D melayang kiri->kanan + fog cyan + sinar emas kanan-atas + volumetric + bloom lembut.
+   Isi: langit + gambar latar (opsional; tanpa gambar = hitam polos) + 5 awan voxel 3D melayang kiri->kanan + fog cyan + sinar emas kanan-atas + volumetric + bloom lembut.
    TIDAK memuat pulau melayang / karakter (komponen terpisah). Tanpa WebGL tambahan (murni DOM/CSS/canvas 2D). */
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
   var DEFAULTS = {
     preset: 'full',
-    image: 'assets/Images/background/bg.webp',
+    image: '',  /* kosong = latar hitam polos (CSS), tanpa gambar */
     clouds: 5,
     effects: { sky: true, fog: true, sun: true, rays: true, bloom: true }
   };
@@ -74,7 +74,8 @@
 
     var el = document.createElement('div'); el.className = 'sbg' + (o.preset === 'soft' ? ' soft' : '') + (lowEnd() ? ' lite' : '');
     el.setAttribute('aria-hidden', 'true');
-    var img = new Image(); img.className = 'sbg-img'; img.alt = ''; img.decoding = 'async'; img.draggable = false; img.src = o.image; el.appendChild(img);
+    if (o.image) { var img = new Image(); img.className = 'sbg-img'; img.alt = ''; img.decoding = 'async'; img.draggable = false; img.src = o.image; el.appendChild(img); }
+    else el.className += ' sbg-black';
     [['sky', 'sbg-sky'], ['fog', 'sbg-fog'], ['sun', 'sbg-sun'], ['rays', 'sbg-rays'], ['bloom', 'sbg-bloom']].forEach(function (p) {
       if (fx[p[0]]) { var d = document.createElement('div'); d.className = p[1]; el.appendChild(d); }
     });

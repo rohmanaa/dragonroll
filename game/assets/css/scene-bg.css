@@ -1,9 +1,9 @@
 /* SceneBackground — komponen latar reusable (Stage 4).
-   Hanya latar: langit + bg.webp + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
+   Hanya latar: langit + gambar latar (opsional) + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
    (itu komponen terpisah: assets/js/floating-island.js dan karakter milik tiap halaman).
    Dipasang lewat assets/js/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
 html.sbg-on body{background:transparent!important}
-html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman diganti oleh bg.webp */
+html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman diganti oleh latar scene-bg */
 
 .sbg{--sun-x:86%;--sun-y:-8%;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict;
   background:linear-gradient(#1f86f5 0%,#4db4ff 38%,#8fe9ff 72%,#c6faff 100%)}
@@ -87,3 +87,8 @@ html[data-graphics="low"] .sbg-rays,html[data-graphics="low"] .sbg-bloom{display
 html[data-graphics="low"] .sbg-stars{animation:none}
 html[data-graphics="low"] .sbg-cloud:nth-child(n+4){display:none}
 @media (prefers-reduced-motion:reduce){html[data-ambience="night"] .sbg-stars{animation:none}}
+
+
+/* Tanpa gambar (default): latar hitam polos, semua efek langit/awan/cahaya disembunyikan */
+html .sbg.sbg-black{background:#000!important}
+.sbg.sbg-black>*{display:none!important}
