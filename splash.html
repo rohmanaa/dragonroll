@@ -188,7 +188,7 @@ html.quick,html.quick body{background:#000}
     done(); return;
   }
   intro.classList.add('on'); document.documentElement.classList.add('introfade');
-  var a; try{ a=new Audio('assets/sfx/dragon/naga-bumper.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
+  var a; try{ a=new Audio('assets/sfx/dragon-studio.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
   var played=false;
   function play(){ if(played||!a) return; var p; try{ p=a.play(); }catch(e){ return; } played=true; if(p&&p.catch) p.catch(function(){ played=false; }); }
   play(); /* bila autoplay diblokir browser, ulang di sentuhan pertama */
