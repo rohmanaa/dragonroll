@@ -283,6 +283,13 @@ html body #bot{gap:.8rem}
   html body #bot{min-height:60vh}
   html body #grid{grid-auto-rows:19rem}
 }
+
+/* Lebar stage landscape: 120rem (sebelumnya 100rem). 1rem = lebar layar / 120, jadi seluruh elemen
+   berbasis rem mengecil proporsional dan panel kanan (#bot, left..right) melebar mengisi sisanya.
+   Berlaku hanya di halaman ini; halaman lain tetap 100rem dari shared-ui.css. */
+@media (min-aspect-ratio:1/1){
+  html.stage16{font-size:min(calc(1vw / 1.2),calc(1.85vh / 1.2))}
+}
 </style>
 </head>
 <body>
