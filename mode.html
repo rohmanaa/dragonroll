@@ -68,6 +68,12 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .fc{isolation:isolate}
 .fc::after{content:"";position:absolute;left:50%;top:50%;width:16rem;height:16rem;translate:-50% -50%;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff1a8 0,rgba(255,241,168,.5) 36%,transparent 70%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.32) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);animation:fcray 24s linear infinite}
 @keyframes fcray{to{rotate:360deg}}
+/* map terkunci (The End: SOON) */
+.map.lock{cursor:default}.map.lock .art>*{filter:grayscale(.6) brightness(.55)}
+.map .soon{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;pointer-events:none;background:rgba(10,12,28,.35)}
+.map .soon svg{width:5rem;height:5rem;filter:drop-shadow(0 .2rem 0 #0b1220)}
+.map .soon em{font-style:normal;font-size:2.4rem;line-height:1;letter-spacing:.2rem;padding:.2rem 1.2rem .3rem;border-radius:.8rem;color:#ffe9a8;background:linear-gradient(#3b3558,#231f3a);box-shadow:0 0 0 .2rem #0b1220,inset 0 0 0 .15rem #8a7bd0;text-shadow:0 .15rem 0 #0b1220}
+.map-locked #cards{opacity:.45;filter:grayscale(.6);pointer-events:none;transition:opacity .25s,filter .25s}
 /* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
 .bk{justify-content:center}
 .gl{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:100%;border:.3rem solid #0b1838;border-radius:1.4rem;color:#fff;line-height:1.05}
@@ -152,20 +158,27 @@ UT.Events.on('currencyChanged',money);money();
 (()=>{const sk=$('#sky');[[8,10,14],[40,6,10],[78,12,16],[66,70,14],[16,76,12]].forEach(p=>{const e=document.createElement('div');e.style.cssText=`position:absolute;left:${p[0]}%;top:${p[1]}%;width:${p[2]}rem;height:${p[2]/3}rem;border-radius:50%;background:#fff;opacity:.7;filter:blur(.6rem)`;sk.appendChild(e)})})();
 
 /* ---------- MAP CAROUSEL (loop tanpa ujung, bingkai 4:3) ---------- */
-const MAPS=RF.maps();const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getMap())),pos=idx;
+/* The End: belum rilis -> kartu terkunci bertanda SOON (tidak bisa dipilih untuk main) */
+const END_MAP={id:'theme.end',gameKey:'end',name:'Map The End',desc:'Segera hadir',locked:true};
+const ART_END='<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0618"/><stop offset=".6" stop-color="#241043"/><stop offset="1" stop-color="#3a1b66"/></linearGradient></defs><rect width="400" height="300" fill="url(#eg)"/><g fill="#fff" opacity=".7"><rect x="40" y="30" width="3" height="3"/><rect x="120" y="60" width="2" height="2"/><rect x="210" y="24" width="3" height="3"/><rect x="300" y="52" width="2" height="2"/><rect x="350" y="20" width="3" height="3"/><rect x="170" y="90" width="2" height="2"/></g><path d="M20 232h360l-30 28H60z" fill="#d9d39a"/><path d="M60 260h290l-30 22H90z" fill="#a9a272"/><g fill="#15101f"><rect x="70" y="120" width="22" height="112"/><rect x="150" y="90" width="22" height="142"/><rect x="236" y="110" width="22" height="122"/><rect x="316" y="140" width="22" height="92"/></g><g fill="#b36bff"><rect x="76" y="112" width="10" height="10"/><rect x="156" y="82" width="10" height="10"/><rect x="242" y="102" width="10" height="10"/><rect x="322" y="132" width="10" height="10"/></g><path d="M190 70l30 8 24-14-8 22 22 6-30 6-6 18-12-16-24 4 12-16z" fill="#05030b"/><g fill="#d36bff"><rect x="214" y="72" width="4" height="4"/><rect x="224" y="74" width="4" height="4"/></g></svg>';
+const LOCK_SVG='<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10.5" rx="2.2" fill="#ffd24d" stroke="#0b1220" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#0b1220" stroke-width="3.4" stroke-linecap="round"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#e8edf5" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1.6" fill="#0b1220"/></svg>';
+const MAPS=RF.maps().concat([END_MAP]);const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getMap())),pos=idx;
 const car=$('#car'),mod=(a,n)=>((a%n)+n)%n,els=new Map();
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
 const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
 $('#dots').innerHTML=MAPS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
 function mk(v){const i=mod(v,N),m=MAPS[i],e=document.createElement('div');e.className='map far';e.setAttribute('role','option');e.tabIndex=0;e.dataset.i=i;e.dataset.v=v;
- e.innerHTML=`<div class="art">${BANNER[m.gameKey]?`<img src="${BANNER[m.gameKey]}" alt="" draggable="false">`:ItemArt.theme(m.id)}</div><div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
+ e.classList.toggle('lock',!!m.locked);
+ e.innerHTML=`<div class="art">${m.locked?ART_END:BANNER[m.gameKey]?`<img src="${BANNER[m.gameKey]}" alt="" draggable="false">`:ItemArt.theme(m.id)}</div>${m.locked?`<div class="soon">${LOCK_SVG}<em>SOON</em></div>`:''}<div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
  e.style.setProperty('--o',v-pos);
  e.onclick=()=>go(+e.dataset.v);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(+e.dataset.v)}};car.appendChild(e);return e}
 function render(){if(!N)return;
  for(let v=pos-2;v<=pos+2;v++){if(!els.has(v)){if(N<2&&v!==pos)continue;els.set(v,mk(v))}}
  els.forEach((e,v)=>{const o=v-pos;if(Math.abs(o)>2){e.remove();els.delete(v);return}
   e.style.setProperty('--o',o);e.classList.toggle('far',Math.abs(o)>1);e.classList.toggle('on',o===0);e.setAttribute('aria-selected',o===0)})}
-function setActive(i){idx=i;RF.setMap(MAPS[i].gameKey);$('#dots').querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i))}
+function setActive(i){idx=i;
+ if(MAPS[i].locked){document.body.classList.add('map-locked');toast('The End: segera hadir (SOON)')}  /* map terkunci: pilihan map tersimpan tidak berubah */
+ else{document.body.classList.remove('map-locked');RF.setMap(MAPS[i].gameKey)}$('#dots').querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i))}
 function go(v){if(!N||v===pos)return;pos=v;render();setActive(mod(pos,N))}
 function goIdx(i){const d=mod(i-pos,N);go(pos+(d>N/2?d-N:d))}
 $('#dots').querySelectorAll('i').forEach(d=>d.onclick=()=>goIdx(+d.dataset.i));
