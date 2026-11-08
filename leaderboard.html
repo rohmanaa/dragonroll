@@ -335,6 +335,7 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
+<script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),hex=n=>'#'+n.toString(16).padStart(6,'0'),fmt=n=>n.toLocaleString('id-ID');
@@ -369,7 +370,9 @@ const CHARS=['steve','alex','creeper','zombie','skeleton','villager','ender'];
 const hash=s=>[...String(s)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
 const myKey=()=>{try{const it=ItemCatalog.byId(PlayerData.equippedId('skin'));return it&&it.gameKey||'steve'}catch(e){return'steve'}};
 /* wajah = UT.CharacterData (sama dengan gameplay). Pemain lain: karakter dipilih dari hash id (server belum menyimpan skin). 'Kamu' = skin yang sedang dipakai. */
-const face=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
+const oldFace=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
+/* 'Kamu' = kepala karakter baru (BlockyCharacter, sama dgn halaman Karakter); fallback ke skin lama bila WebGL tidak ada */
+const face=r=>(r.me&&UT.CharacterFace&&UT.CharacterFace.html())||oldFace(r);
 let tab='global';
 const CACHE={};   /* tab -> {state:'loading'|'ok'|'error', rows:[], at} */
 const pad=n=>n<10?'0'+n:''+n;
