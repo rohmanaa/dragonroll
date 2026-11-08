@@ -108,6 +108,7 @@ html body #bar .ut-curbar{position:static;translate:none;pointer-events:auto;mar
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/mine-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
@@ -244,9 +245,27 @@ function popAt(slotEl,txt){const bay=$('.bay',slotEl),p=document.createElement('
 /* ================= ADEGAN 3D per slot ================= */
 const bays={};let rafId=0,clock=null;
 function disposeBays(){for(const k in bays){try{bays[k].dispose()}catch(e){}delete bays[k]}}
-const NPC=['alex','zombie','skeleton'];     /* skin berbeda dari skin pemain; wajah tiap penambang berbeda */
+const NPC=['alex','zombie','skeleton'];
+/* penambang = karakter baru (UT.BlockyCharacter, sama dengan Lobby/Karakter/gameplay); tiap slot punya tampilan berbeda; kapak = objek pivot halaman ini (item Kapak katalog berbayar, tidak dipakai NPC).
+   Adaptor menyediakan userData.anim(t) & setEmote('mine'|'cheer'|'sit') seperti rig lama. Tinggi disamakan dengan penambang lama (5.87). */
+const MINER_LOOK=[{skin:'s2',hair:{id:'short',dye:'brown'},eyes:{id:'round',dye:'blue'}},{skin:'s4',hair:{id:'spiky',dye:'black'},eyes:{id:'sharp',dye:'brown'}},{skin:'s1',hair:{id:'buzz',dye:'silver'},eyes:{id:'dot',dye:'gray'}}];
+function makeMiner(i){
+ if(!UT.BlockyCharacter)return UT.CharacterView.make(THREE,NPC[i-1],'mine');
+ const ch=UT.BlockyCharacter.create(THREE);
+ ch.apply(Object.assign({gender:'m'},MINER_LOOK[(i-1)%MINER_LOOK.length]),true);
+ ch.tick(.016); /* pose rig terpasang setelah tick pertama: ukur SETELAH itu */
+ const g=new THREE.Group(),w=new THREE.Group();w.add(ch.root);g.add(w);g.updateMatrixWorld(true);
+ const bb=new THREE.Box3().setFromObject(ch.root),h=Math.max(.5,bb.max.y-bb.min.y),sc=5.87/h;
+ w.scale.setScalar(sc);w.position.y=.23-bb.min.y*sc;
+ let em='mine',lt=null,cyc=-1,nj=0;
+ g.userData.setEmote=e=>{em=e;cyc=-1;nj=0;ch.setMode('idle')};
+ g.userData.anim=t=>{const dt=lt==null||t<lt?.016:Math.min(.05,t-lt);lt=t;
+  if(em==='mine'){const c=Math.floor(t*2.4);if(c!==cyc){cyc=c;ch.act('attack',.42)}} /* ayunan tubuh tiap siklus (2.4x/detik), selaras dengan pivot kapak */
+  else if(em==='cheer'){const j=Math.floor(t*1.5);if(j!==nj){nj=j;ch.jump()}}
+  ch.tick(dt)};
+ return g}     /* skin berbeda dari skin pemain; wajah tiap penambang berbeda */
 function mountBays(){
-  if(typeof THREE==='undefined'||!UT.CharacterView)return;
+  if(typeof THREE==='undefined'||!(UT.BlockyCharacter||UT.CharacterView))return;
   [1,2,3].forEach(i=>{
     const e=$('.slot[data-s="'+i+'"]');if(!e)return;
     try{bays[i]=makeBay(i,$('canvas',e),e)}catch(err){console.warn('[tambang] 3D gagal slot',i,err)}
@@ -291,7 +310,7 @@ function makeBay(i,canvas,slotEl){
   const bar=new THREE.Group();bar.position.set(0,2.6,1.5);G.add(bar);
   [.5,-.5].forEach(a=>{const p=box(9,.7,.3,0x9a6a3a);p.rotation.z=a;bar.add(p)});bar.visible=false;
   /* penambang */
-  const miner=UT.CharacterView.make(THREE,NPC[i-1],'mine');miner.position.set(-1.0,0,.5);miner.rotation.y=1.35;G.add(miner);
+  const miner=makeMiner(i);miner.position.set(-1.0,0,.5);miner.rotation.y=1.35;G.add(miner);
   const bb=new THREE.Box3().setFromObject(miner),H=Math.max(1,bb.max.y-bb.min.y);
   const pivot=new THREE.Group();pivot.position.set(0,H*.74,H*.16);miner.add(pivot);
   const hd=box(.2,H*.62,.2,0x9a6a3a);hd.position.y=-H*.31;pivot.add(hd);
