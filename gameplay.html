@@ -1263,7 +1263,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
-<script src="assets/js/blocky-character.js"></script>
+<script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script>
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'gameplay'});</script>
 <script src="gameplay/module-bridge.js"></script>
@@ -5332,7 +5332,31 @@ const FRM={},FFURL={};
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
 function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
+/* Wajah pemain 1 (lokal, bukan CPU/online) = kepala karakter baru (UT.CharacterFace). Gambar dimuat sekali; sebelum siap dipakai wajah lama, lalu HUD di-render ulang. */
+const NFACE={url:'',img:null,n:0};
+function isMineP(p){ return !ONLINE_ROOM&&!!p&&!p.cpu&&p.idx===0; }
+function newFaceImg(){
+  try{
+    if(!(UT.CharacterFace&&UT.CharacterFace.url)) return null;
+    const u=UT.CharacterFace.url(); if(!u) return null;
+    if(NFACE.url!==u){ NFACE.url=u; NFACE.img=null; const n=++NFACE.n,im=new Image(); im.onload=()=>{ if(n!==NFACE.n) return; NFACE.img=im; refreshFaces(); }; im.src=u; }
+    return NFACE.img;
+  }catch(e){ return null; }
+}
+function framedFaceNew(p){
+  const ni=newFaceImg(); if(!ni) return '';
+  const fid=frameOf(p), fi=FRM[fid], ready=!!(fi&&fi.complete&&fi.naturalWidth), ck='new|'+NFACE.n+'|'+(ready?fid:'-');
+  if(FFURL[ck]) return FFURL[ck];
+  try{
+    const S=192,cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d');
+    x.fillStyle='#5aa8e8'; x.fillRect(S*.16,S*.16,S*.68,S*.68); /* latar biru di balik kepala (kepala PNG transparan) */
+    x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high'; x.drawImage(ni,S*.16,S*.16,S*.68,S*.68);
+    if(ready) x.drawImage(fi,0,0,S,S);
+    return FFURL[ck]=cv.toDataURL();
+  }catch(e){ return ''; }
+}
 function framedFace(p){
+  if(isMineP(p)){ const nf=framedFaceNew(p); if(nf) return nf; }
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;
   const ck=p.key+'|'+fid; if(FFURL[ck]) return FFURL[ck];
