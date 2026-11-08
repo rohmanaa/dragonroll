@@ -39,7 +39,7 @@
     if (!init()) return '';
     var T = R.T, out = '', ch = null;
     try {
-      ch = UT.BlockyCharacter.create(T); ch.loadFromPlayer();
+      ch = UT.BlockyCharacter.create(T); ch.loadFromPlayer(); ch.tick(0.016); /* pose rig baru terpasang setelah tick pertama */
       scene.add(ch.root); scene.updateMatrixWorld(true);
       var bb = new T.Box3().setFromObject(ch.root), h = bb.max.y - bb.min.y;
       var ty = bb.min.y + h * .885, d = h * 1.0, yaw = .28, pit = .06; /* kepala ~ 88% tinggi; bidikan sedikit serong */

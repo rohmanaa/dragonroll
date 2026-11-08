@@ -1263,6 +1263,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
+<script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'gameplay'});</script>
 <script src="gameplay/module-bridge.js"></script>
@@ -1416,6 +1417,21 @@ function loadSkin3D(k){
       SKIN_IMG[k]=r.image; return {tex:IA.makeSkinTexture(THREE,r.image),slim};
     }catch(e){ return null; }
   })().then(v=>{ if(v) refreshFaces(); return v; });
+}
+/* Pion pemain 1 (lokal, bukan CPU/online) = karakter baru dari halaman Karakter (UT.BlockyCharacter + PlayerData). Gagal/tak tersedia -> pion lama tetap dipakai. */
+function upgradePawnNew(g,pal){
+  try{
+    if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
+    const ch=UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
+    const w=new THREE.Group(); w.add(ch.root);
+    w.updateMatrixWorld(true);
+    const bb=new THREE.Box3().setFromObject(ch.root),h=bb.max.y-bb.min.y;
+    if(!(h>0.1)) return;
+    const sc=0.92/h; w.scale.setScalar(sc); w.position.y=-bb.min.y*sc; /* tinggi ~ pion lama (0.9), telapak di y=0 */
+    w.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=false; } });
+    g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch;
+    if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
+  }catch(e){ console.warn('karakter baru gagal dimuat, pakai pion lama',e); }
 }
 function upgradePawnPNG(g,pal,k){
   loadSkin3D(k).then(m=>{
@@ -4659,7 +4675,7 @@ function buildWorld(key){
 }
 
 /* ---------- Pion ---------- */
-function makePawn(d){
+function makePawn(d,mine){
   const b=makeBatch(),k=d.key,F={edge:false};
   const bx=(x,y,z,w,h,e,c,o)=>addBox(b,x,y,z,w,h,e,typeof c==='number'?jit(c,0.05):c,o);
   const head=(c,y)=>{ for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let l=-1;l<=1;l++) addBox(b,i*0.1,y+j*0.1,l*0.1,0.1,0.1,0.1,jit(c,0.09),F); };
@@ -4695,6 +4711,7 @@ function makePawn(d){
   const g=new THREE.Group();
   const pal=buildBatch(b); g.add(pal);
   if(d.png) upgradePawnPNG(g,pal,d.key); /* PNG gagal dimuat -> tetap palette (Steve) */
+  if(mine) upgradePawnNew(g,pal);
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
   marker.position.y=1.22; marker.visible=false;
   g.add(marker); g.userData.marker=marker;
@@ -5994,7 +6011,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
-    const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
+    const pawn=makePawn(d,!ONLINE_ROOM&&i===0&&!d.cpu); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
@@ -6333,6 +6350,7 @@ function frame(now){
     tw.fn(tw.ease?tw.ease(k):k);
     if(k>=1){ tweens.splice(i,1); tw.res(); }
   }
+  for(let i=0;i<players.length;i++){ const b=players[i].pawn&&players[i].pawn.userData.bc; if(b){ try{ b.tick(dt); }catch(e){ players[i].pawn.userData.bc=null; } } } /* karakter baru: animasi idle/kedip */
   const m=1-Math.exp(-dt*10);
   cam.yaw+=(goal.yaw-cam.yaw)*m; cam.pitch+=(goal.pitch-cam.pitch)*m; cam.zoom+=(goal.zoom-cam.zoom)*m;
   let tx=CAM_BASE.x,ty=CAM_BASE.y,tz=CAM_BASE.z;
