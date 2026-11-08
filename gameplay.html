@@ -5058,14 +5058,10 @@ const CAM_PITCH=0.62+5*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) din
 const CAM_PRESETS={
   free:{yaw:0,pitch:CAM_PITCH,zoom:1},     /* sudut default; diatur manual */
   front:{yaw:0,pitch:CAM_PITCH,zoom:1},
-  back:{yaw:Math.PI,pitch:CAM_PITCH,zoom:1},
-  left:{yaw:-Math.PI/2,pitch:CAM_PITCH,zoom:1},
-  right:{yaw:Math.PI/2,pitch:CAM_PITCH,zoom:1},
-  iso:{yaw:Math.PI/4,pitch:0.615,zoom:1},  /* isometrik 35,26 derajat */
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:1}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
-const CAM_ORDER=['free','front','back','left','right','iso','top','pov'],CAM_NAMES={free:'Free',front:'Front',back:'Back',left:'Left',right:'Right',iso:'Iso',top:'Top',pov:'POV'};
+const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
 const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
