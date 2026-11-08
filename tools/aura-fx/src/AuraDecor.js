@@ -200,7 +200,7 @@ export const DECOR = {
     const bms = [];
     for (const sd of [1, -1]) {
       const b = bitmapMesh(rows, v, 0.4, mat), pivot = new THREE.Group();
-      b.mesh.position.set(0.05 * ctx.u, -rows.length * v * 0.3, 0);
+      b.mesh.position.set(0.05 * ctx.u, -rows.length * v * 0.5, 0);
       pivot.add(b.mesh); pivot.position.set(sd * 0.14 * ctx.u, spec.y * ctx.u, spec.z * ctx.u); pivot.scale.x = sd;
       g.add(pivot); sides.push({ pivot, sd }); bms.push(b);
     }

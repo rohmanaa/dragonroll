@@ -330,7 +330,7 @@ const AURAS = [
   // ============ 14. DRAGON (Mythic / T6) ============
   { id: 'dragon', name: 'Dragon Aura', rarity: 'mythic', theme: 'Ender Dragon', colors: ['#ff2a3a', '#7a2aa8', '#0a0510'],
     fx: [{ type: 'ring', style: 'flame', r: 1.15, c1: '#ff2a3a', c2: '#7a2aa8' },
-         { type: 'wings', bitmap: 'dragon', vox: 0.115, c1: '#ff2a52', c2: '#7a2aa8', flap: 0.7, alpha: 0.75, y: 1.35, z: -0.2 },
+         { type: 'wings', bitmap: 'dragon', vox: 0.115, c1: '#ff2a52', c2: '#7a2aa8', flap: 0.7, alpha: 0.75, y: 1.05, z: -0.17 },
          { type: 'horns', c1: '#ff2a52', c2: '#7a2aa8' },
          { type: 'dragonShadow', period: 10, color: '#1a0510' }],
     emit: [
@@ -345,7 +345,7 @@ const AURAS = [
     fx: [{ type: 'ring', style: 'celestial', r: 1.2, c1: '#ffe9a0', c2: '#7fe6ff' },
          { type: 'halo', r: 0.5, y: 0.3, c1: '#fff2b0', c2: '#ffffff' },
          { type: 'backRing', style: 'celestial', r: 1.5, y: 1.4, dz: 0.6, spin: 0.12, c1: '#ffe9a0', c2: '#7fe6ff' },
-         { type: 'wings', bitmap: 'light', vox: 0.11, c1: '#ffffff', c2: '#9fe8ff', flap: 0.5, alpha: 0.5, cycle: 9, y: 1.35, z: -0.2 },
+         { type: 'wings', bitmap: 'light', vox: 0.11, c1: '#ffffff', c2: '#9fe8ff', flap: 0.5, alpha: 0.5, cycle: 9, y: 1.05, z: -0.17 },
          { type: 'glow', y: 1.4, z: -0.5, size: 2.6, color: '#fff0b0', pulse: 0.8, alpha: 0.3 }],
     emit: [
       E('body', 'orbit', 'cube', { rate: 8, size: 0.04, life: 5, speed: 0.7, radius: 0.85, h: [0.1, 1.8], colors: ['#ffffff', '#ffe9a0', '#9fe8ff'] }),
@@ -561,7 +561,7 @@ const DECOR = {
     const bms = [];
     for (const sd of [1, -1]) {
       const b = bitmapMesh(rows, v, 0.4, mat), pivot = new THREE.Group();
-      b.mesh.position.set(0.05 * ctx.u, -rows.length * v * 0.3, 0);
+      b.mesh.position.set(0.05 * ctx.u, -rows.length * v * 0.5, 0); // akar sayap (baris tengah bitmap) tepat di pivot = punggung atas
       pivot.add(b.mesh); pivot.position.set(sd * 0.14 * ctx.u, spec.y * ctx.u, spec.z * ctx.u); pivot.scale.x = sd;
       g.add(pivot); sides.push({ pivot, sd }); bms.push(b);
     }
