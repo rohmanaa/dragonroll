@@ -2922,6 +2922,7 @@ function makeSnakeHead(pal){
 }
 
 /* ular: tubuh meliuk menuruni teras, kepala di atas petak */
+const SNAKE_SCALE=0.7; /* ukuran ular (badan + kepala) relatif ke ukuran lama */
 function buildSnakes(th){
   const out={},SB=makeBatch(),dyn=new THREE.Group();
   let si=0;
@@ -2935,7 +2936,7 @@ function buildSnakes(th){
       const wob=0.33*Math.pow(Math.sin(Math.PI*t),0.8)*Math.sin(t*Math.PI*2*kw);
       const x=H.x+dx*t+px*wob,z=H.z+dz*t+pz*wob;
       const u=Math.min(1,Math.max(0,(dd-0.6)/Math.max(0.5,len-0.6)));
-      const s=0.32-0.17*t;
+      const s=(0.32-0.17*t)*SNAKE_SCALE;
       let y=yT+(yH-yT)*Math.pow(1-u,1.25);
       y=Math.max(y,topAt(x,z,s*0.5)+0.08+s/2);
       pts.push({x,y,z,s});
@@ -2948,7 +2949,7 @@ function buildSnakes(th){
     });
     const fx=-ux,fz=-uz,yaw=Math.atan2(fx,fz);
     const hd=makeSnakeHead(pal);
-    hd.head.position.set(H.x,yH,H.z); hd.head.rotation.y=yaw;
+    hd.head.position.set(H.x,yH,H.z); hd.head.rotation.y=yaw; hd.head.scale.setScalar(SNAKE_SCALE);
     dyn.add(hd.head);
     const bridge=[];
     const bm=new THREE.MeshLambertMaterial({color:pal[0]}),bg=new THREE.BoxGeometry(0.2,0.2,0.2);
