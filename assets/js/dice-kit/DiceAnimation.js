@@ -24,7 +24,8 @@ export class DiceAnimator {
   /**
    * @param {{mesh: THREE.Mesh, effects: import('./DiceEffects.js').DiceEffects, rng?: Function}} o
    */
-  constructor({ mesh, effects, rng, bounds, idleZ, drop, dieScale = 1 }) {
+  constructor({ mesh, effects, rng, bounds, idleZ, drop, dieScale = 1, speed = 1 }) {
+    this.speed = Math.max(0.5, Math.min(3, speed)); // pengali waktu simulasi: >1 = kocok, jatuh, dan mendarat lebih cepat (gameplay memakai ini)
     this.dieScale = dieScale; // ukuran dadu relatif (1 = kubus 1 unit); fisika + tinggi melayang ikut membesar
     this.drop = !!drop;
     this.mesh = mesh;
@@ -109,13 +110,28 @@ export class DiceAnimator {
     return true;
   }
 
+  /** Selesaikan lemparan SEKARANG: dadu langsung rebah di angka yang diminta game lalu hasil diumumkan. Dipakai bila game tidak mau menunggu lebih lama. */
+  finishNow() {
+    if (!this.pending || !['windup', 'rolling', 'settle'].includes(this.state)) return false;
+    const v = this.forced ?? this.physics.topFace().value;
+    const i = D6_FACES.findIndex((f) => f.value === v);
+    const flat = this.physics.quatForValue(v, this.q);
+    this.q = qnorm(flat);
+    this.physics.reset([this.pos[0], this.physics.h, this.pos[2]], this.q);
+    this.pos = [this.pos[0], this.physics.h, this.pos[2]];
+    this.faceIndex = i;
+    this.mesh.scale.setScalar(1);
+    this._land();
+    return true;
+  }
+
   _sync() {
     this.mesh.position.set(this.pos[0], this.pos[1], this.pos[2]);
     this.mesh.quaternion.set(this.q[0], this.q[1], this.q[2], this.q[3]);
   }
 
   update(dtReal) {
-    const dt = dtReal * this.effects.slowmo.scale;
+    const dt = dtReal * this.effects.slowmo.scale * this.speed;
     const e = this.die?.effect;
     if (!e) return;
 

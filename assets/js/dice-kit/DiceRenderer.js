@@ -85,7 +85,7 @@ export class DiceRenderer {
     this.materials = new MaterialCache(3);
     this.effects = new DiceEffects(scene, this.q, this.point);
     this.effects.sound.enabled = opts.sound !== false;
-    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop, dieScale: this.dieScale });
+    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop, dieScale: this.dieScale, speed: opts.speed });
     this.animator.onResult = (r) => opts.onResult?.(r);
     this.animator.onImpact = (ev) => { this._kick = Math.max(this._kick || 0, Math.min(1, ev.speed / 9)); opts.onImpact?.(ev); };
 
@@ -248,6 +248,8 @@ export class DiceRenderer {
   toIdle() { this.animator.toIdle(); }
   /** Dadu diam dengan angka v di atas (tanpa animasi). false bila lemparan sedang berjalan. */
   showFace(v) { return this.animator.showFace(v); }
+  /** Paksa lemparan yang sedang berjalan langsung mendarat di angka yang diminta. */
+  finish() { return this.animator.finishNow(); }
   get busy() { return this.animator.busy; }
 
   setQuality(name) {

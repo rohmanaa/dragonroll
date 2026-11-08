@@ -33,7 +33,7 @@
         quality: 'auto',
         sound: want.sound,
         pixelScale: zoomOf(),
-        pad: true, dieScale: 1.2, camScale: 0.5, lookY: 0.6, bounds: { x: 1.1, z: 0.95 } /* tatakan 3D asli di scene yang sama dengan dadu */
+        pad: true, dieScale: 1.2, speed: 1.7, camScale: 0.5, lookY: 0.6, bounds: { x: 1.1, z: 0.95 } /* tatakan 3D asli di scene yang sama dengan dadu */
       });
       kit.setVolume(want.volume);
       kit.showFace(want.face);
@@ -71,6 +71,9 @@
     return p ? p.then(function () { return v; }) : Promise.resolve(v);
   }
 
+  /* Paksa lemparan yang masih berjalan langsung mendarat di angkanya (dipanggil gameplay bila dadu terlalu lama). */
+  function finish() { return kit ? kit.finish() : false; }
+
   function setSkin(key) {
     if (!key) return;
     want.key = key;
@@ -84,6 +87,7 @@
     ready: false,
     init: init,
     setSkin: setSkin,
+    finish: finish,
     setSound: setSound,
     setVolume: setVolume,
     showDie: showDie,

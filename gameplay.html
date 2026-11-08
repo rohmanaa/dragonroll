@@ -4785,12 +4785,13 @@ const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||type
 function showDie(v,anim){ const D=window.UT&&UT.GameplayDiceUI; return D?D.showDie(v,anim):Promise.resolve(v); }
 function dice3dOn(){ const D=window.UT&&UT.GameplayDiceUI; return !!(D&&D.ready); }
 /* Lempar dadu 3D asli (Dice Kit): kocok + fisika berakhir di angka v (angka tetap dari gameplay). Selesai saat dadu mendarat dan angka tampil;
-   batas 7 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
+   dadu dipercepat (speed 1,7) dan dipaksa mendarat bila >3 dtk; batas 4,5 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
 function dieRoll(v){
   const p=showDie(v,!reduce);
   if(reduce) return sleep(250);
   if(!dice3dOn()) return sleep(1300);
-  return Promise.race([p,sleep(7000)]);
+  const D=window.UT.GameplayDiceUI, t=setTimeout(()=>{ try{ D.finish(); }catch(e){} },3000); /* dadu terlalu lama (FPS rendah/guling di tepi): paksa rebah di angkanya agar pion tidak mendahului */
+  return Promise.race([p,sleep(4500)]).then(()=>clearTimeout(t));
 }
 function syncDiceSound(){ try{ const D=window.UT&&UT.GameplayDiceUI; if(D){ D.setSound(!muted); D.setVolume(sfxVol/100); } }catch(e){} }
 try{ const D=window.UT&&UT.GameplayDiceUI; if(D) D.init(); }catch(e){ console.error(e); }
