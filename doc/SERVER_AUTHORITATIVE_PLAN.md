@@ -49,13 +49,14 @@ Celah yang ditemukan (nomor dipakai di tahap di bawah):
   sesuai jumlah skin yang dimiliki.
 - [ ] Migrasi sudah dijalankan di Supabase produksi.
 
-### S2 — Penghitung naik di dalam aksi server (tutup B)
-- Peti dibuka lewat RPC server (mis. `open_chest`) yang menaikkan `player_stats.chests`; klaim misi lewat RPC
-  yang menaikkan `missions_done`; ikut event menaikkan `events_joined`.
-- Hapus `bump_player_counter` dan `bumpCounter` di `assets/js/multiplayer/progress-service.js`
-  (pemanggil: `gameplay.html`, `misi.html`, `hadiah-misi.html`).
-- Verifikasi: tanpa memanggil RPC lama, penghitung tetap naik saat aksi dilakukan; memanggil RPC lama gagal.
-- [ ] Selesai
+### S2 — Penghitung naik di dalam aksi server (tutup B) — SELESAI (sebagian: peti tetap dilaporkan klien)
+- Migrasi `202611190004_server_derived_counters.sql`:
+  - `missions_done` naik di dalam `quest_claim` / `quest_claim_all` (server). `bumpMis` di `misi.html` dan
+    `hadiah-misi.html` dibuat no-op.
+  - `events_joined` dihapus dari `bump_player_counter` (tidak ada pemanggil).
+  - `chests` tetap dilaporkan klien (peti dibuka di game yang berjalan di browser), batas 150 per hari WIB.
+    Penutupan tuntas menunggu verifikasi game di server (opsi simulasi di S5).
+- [ ] Migrasi sudah dijalankan di Supabase produksi
 
 ### S3 — State lokal murni pindah ke server (E)
 - Tabel baru `player_profiles` (nama tampilan, pengaturan inti) + RPC `get_my_profile_settings` /
@@ -103,7 +104,7 @@ Keputusan: lawan CPU tetap memberi XP dan koin, tapi kecil.
 
 ## 4. Urutan yang disarankan
 
-S1, S5, S6 selesai (menunggu migrasi dijalankan) → S2 → S3 → S4 → S7.
+S1, S2, S5, S6 selesai (menunggu migrasi dijalankan) → S3 → S4 → S7.
 S2 dan S3 bisa dikerjakan paralel. S4 sebaiknya setelah S3, supaya tidak ada data yang kehilangan rumahnya.
 
 ## 5. Yang belum diketahui / perlu dicek saat mengerjakan
