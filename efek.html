@@ -455,7 +455,7 @@ function fxShow(R,it){
  if(!FX||!window.UT||!UT.BlockyCharacter||!isFX(it))return false;
  if(!R.fx){
   if(R.cur)R.holder.remove(R.cur);
-  const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();
+  const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();ch.setMode('idle');ch.tick(0.016); /* pose rig baru terpasang setelah tick pertama: ukur telapak kaki SETELAH itu, agar cincin aura tepat di kaki */
   const w=new THREE.Group();w.scale.setScalar(FXSCALE);w.add(ch.root);R.holder.add(w);R.cur=w;R.mc='effect';
   R.scene.updateMatrixWorld(true);
   /* ukur tinggi & telapak kaki NYATA dari model di dunia (bukan tebakan height()*skala): kaki tepat di y=0.14, aura memakai tinggi yang sama */
