@@ -27,8 +27,8 @@ serta memakai Percepat (boost) dengan Coin.
 Contoh: dibuka dari Karakter -> `tambang.html?from=karakter.html` -> Back kembali ke `karakter.html`. Dibuka dari Lobby -> Back ke `lobby.html`.
 `from` hanya diterima bila berupa nama file `.html` yang ada di daftar putih di klien (cegah open-redirect).
 
-Catatan: saat ini "+ Emerald" membuka `shop.html?emerald=1` (modal tonton iklan). Keputusan: "+ Emerald" ke Tambang atau tetap ke iklan
-dicatat di bagian **Keputusan terbuka**. Panel iklan tetap ada di Toko.
+Catatan: sebelumnya "+ Emerald" membuka `shop.html?emerald=1` (modal tonton iklan). Keputusan pemilik: mulai sekarang menuju Tambang.
+Panel iklan tetap ada di Toko. Dari Toko sendiri, "+ Emerald" tetap membuka modal iklan (bukan loncat ke Tambang).
 
 ## 4. Ekonomi (nilai awal, semua di SQL, mudah diubah)
 Acuan nilai saat ini: 10 Gem = 500 Coin (1 Gem ~ 50 Coin). Iklan = 5 Gem x maks 5/hari (25/hari). Boss CPU = 10 Gem x maks 5/hari.
@@ -55,7 +55,7 @@ Perkiraan hasil per hari (jika dikumpulkan tiap hari, tanpa boost):
 Batas keseimbangan yang dijaga: peti penuh berhenti produksi (tidak menumpuk tanpa batas), boost dibatasi per hari, semua pembelian idempoten di ledger.
 
 ## 5. Desain database (migrasi baru, urutan setelah `202611150001_player_prefs.sql`)
-File: `supabase/migrations/202611160001_tambang.sql`. Setelah itu wajib `sh tools/build-schema-snapshot.sh` (tes snapshot gagal bila lupa).
+File: `supabase/migrations/202611180001_tambang.sql`. Setelah itu wajib `sh tools/build-schema-snapshot.sh` (tes snapshot gagal bila lupa).
 
 Tabel `player_mines` (satu baris per user per slot):
 `user_id, slot (1..3), speed_lv, cap_lv, stock numeric (isi peti saat stock_at), stock_at timestamptz, boost_until timestamptz null, boost_day date, boost_count int, collect_seq int, created_at`.
@@ -87,11 +87,11 @@ Error mengikuti pola dompet: `{ok:false, reason:...}` untuk kasus normal (`terku
 - Saat tab kembali aktif dan tiap ~30 detik panggil `mine_get()` (sumber kebenaran); animasi hitungan isi peti hanya interpolasi tampilan dari angka server.
 
 ## 7. Berkas yang akan dibuat / diubah
-Baru: `tambang.html`, `assets/js/mine-service.js`, `supabase/migrations/202611160001_tambang.sql`, `supabase/tests/tambang_test.sql`, `tests/mine-service.test.js`, dokumen ini.
+Baru: `tambang.html`, `assets/js/mine-service.js`, `supabase/migrations/202611180001_tambang.sql`, `supabase/tests/tambang_test.sql`, `tests/mine-service.test.js`, dokumen ini.
 Ubah: `lobby.html` (tombol TAMBANG + ACT), halaman dengan `data-buy="gem"` (arah ke Tambang jika diputuskan), `assets/js/app.js` (daftar `UT.Router.toTambang`), `sw.js`/preload manifest bila halaman perlu masuk daftar, `supabase/snapshot/00_full_schema.sql`, `README.md` (baris halaman).
 
 ## 8. Keputusan terbuka (tanyakan ke pemilik sebelum diubah)
-- [ ] "+ Emerald" di semua halaman: pindah ke Tambang, atau tetap ke Toko (iklan)? Usulan: Tambang menjadi tujuan utama, Toko tetap punya panel iklan.
+- [x] "+ Emerald" di semua halaman: DIPUTUSKAN pemilik -> menuju Tambang (`tambang.html?from=<halaman>`). Panel iklan tetap ada di Toko (dibuka dari Toko saja).
 - [ ] Skin NPC final untuk 3 penambang (sementara: pilih dari `UT.CharacterData.list('player')` yang berbeda dari skin pemain). Opsi lanjutan: karakter baru `penambang` dengan helm tambang.
 - [ ] Angka ekonomi di bagian 4 (nilai awal usulan).
 - [ ] Terapkan migrasi ke proyek Supabase produksi (dilakukan pemilik, bukan AI).
@@ -103,25 +103,27 @@ Dokumentasi & desain
 - [x] Tulis prompt lanjutan (`PROMPT_LANJUTAN.md`)
 
 Server
-- [ ] Migrasi `202611160001_tambang.sql` (tabel `player_mines`, RLS, `_mine_settle`, 5 RPC)
-- [ ] Tes SQL `supabase/tests/tambang_test.sql` (buka, upgrade, boost, batas harian, kapasitas, collect idempoten, saldo kurang)
-- [ ] Perbarui snapshot (`sh tools/build-schema-snapshot.sh`) dan tes snapshot lulus
+- [x] Migrasi `202611180001_tambang.sql` (tabel `player_mines`, RLS, helper `_mine_*`, 5 RPC)
+- [x] Tes SQL `supabase/tests/tambang_test.sql` (buka, upgrade, boost, batas harian, kapasitas, collect idempoten, saldo kurang)
+- [x] Perbarui snapshot (`sh tools/build-schema-snapshot.sh`) dan tes snapshot lulus
 - [ ] Terapkan migrasi ke Supabase produksi (oleh pemilik)
 
 Klien
-- [ ] `mine-service.js` + `tests/mine-service.test.js`
-- [ ] `tambang.html`: layout, Back (asal) + Home, bar Coin/Emerald
-- [ ] Adegan 3D: 3 bilik terkunci, penambang menggali, efek emerald, emote senang, pose duduk saat peti penuh
-- [ ] Panel slot: collect, upgrade kecepatan/kapasitas, percepat, hitung mundur
-- [ ] Tombol TAMBANG di lobby
-- [ ] Perilaku Back berdasarkan `from` (daftar putih) + tombol Home
-- [ ] "+ Emerald" di halaman lain diarahkan sesuai keputusan
-- [ ] Tambah ke Router / service worker / README
+- [x] `mine-service.js` + `tests/mine-service.test.js`
+- [x] `tambang.html`: layout, Back (asal) + Home, bar Coin/Emerald
+- [x] Adegan 3D: 3 bilik terkunci, penambang menggali, efek emerald, emote senang, pose duduk saat peti penuh
+- [x] Panel slot: collect, upgrade kecepatan/kapasitas, percepat, hitung mundur
+- [x] Tombol TAMBANG di lobby
+- [x] Perilaku Back berdasarkan `from` (daftar putih) + tombol Home
+- [x] "+ Emerald" di halaman lain diarahkan sesuai keputusan
+- [x] Tambah ke daftar halaman `app.js` (UT.PAGES + presence) dan README
+- [ ] Cek apakah halaman perlu masuk daftar preload splash (belum diperiksa)
 
 Pengujian
 - [ ] Uji manual dua akun: waktu berjalan di server, tutup tab lalu buka lagi, peti terisi sesuai jam
 - [ ] Uji spam klik (Collect/Upgrade dua kali cepat) tidak dobel
-- [ ] Uji tampilan landscape ponsel
+- [x] Uji tampilan landscape (1280x720) dan portrait (390x844) di Chromium headless dengan layanan tiruan khusus uji (tidak ikut di repo)
+- [ ] Uji di perangkat sungguhan + akun login (butuh migrasi sudah diterapkan di Supabase)
 
 ## 10. Rencana ke depan (belum dijanjikan)
 - Slot 4+ atau jenis bijih lain (Coin dari tambang batu).
@@ -131,3 +133,5 @@ Pengujian
 
 ## 11. Log pekerjaan
 - 2026-11-08: dokumen dibuat; desain ekonomi & RPC disusun; belum ada kode.
+- 2026-11-08: migrasi `202611180001_tambang.sql` + tes `tambang_test.sql` selesai dan LULUS di Postgres 16 lokal (semua migrasi dimuat dengan stub auth Supabase); snapshot skema diperbarui (22 migrasi). Belum: klien (mine-service, tambang.html), tombol lobby, routing "+ Emerald". Migrasi BELUM diterapkan ke Supabase produksi.
+- 2026-11-08 (lanjutan): `mine-service.js` + tes, `tambang.html` (3 bilik 3D per slot, penambang skin NPC alex/zombie/skeleton, emote baru `mine` dan `sit` di `character-view.js`, efek emerald melayang, Zzz saat peti penuh, cheer saat Ambil), tombol TAMBANG di lobby, semua "+ Emerald" -> `tambang.html?from=<halaman>`, Back via `from`, Home ke lobby. Cabang ini sudah menggabungkan `fix/koin-ke-toko` (route "+ Coin" ke Toko). Belum: uji nyata dengan Supabase produksi, cek preload splash, wajah penambang khusus (helm tambang), suara.

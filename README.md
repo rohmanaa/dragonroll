@@ -14,6 +14,7 @@ Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `pyt
 | `hadiah-misi.html` | Hadiah Harian + Misi Harian, tab di kiri (memuat `dailyreward.html` & `misi.html` dengan `?embed=1`; keduanya transparan saat embed dan memakai satu latar milik `hadiah-misi.html`) |
 | `skins.html` | Pratinjau & terapkan skin karakter |
 | `shop.html` | Toko khusus beli Coin (tukar Emerald); Emerald (tonton iklan) di panel terpisah |
+| `tambang.html` | Tambang: 3 slot penambang emerald pasif (server-side). Buka/upgrade/percepat pakai Coin, Ambil Emerald dari peti. Back via `?from=`, tombol Home ke lobby. Lihat `doc/fitur/tambang/TAMBANG.md` |
 | `lobby.html` | Menu utama: Karakter, Frame, Dadu, Efek, Power-up, Leaderboard, Toko, Teman, Hadiah & Misi, Mulai -> mode |
 | `gameplay.html` | Game 3D (logika asli tidak diubah) |
 | `ular-tangga.html` | Versi monolit lama (tidak diubah, tidak ditautkan) |

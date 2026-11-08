@@ -18,7 +18,7 @@ ATURAN KERAS:
 - Semua data dan hitungan di SERVER (RPC Supabase). Dilarang localStorage sebagai sumber data, dilarang mockup, dilarang angka ekonomi di-hardcode di klien
   (klien membaca konfigurasi dari mine_get()). Waktu = now() server.
 - Perubahan saldo lewat _wallet_apply (idempoten per user, reason, ref_key). Tidak boleh ada jalan lain mengubah saldo.
-- Jangan ubah migrasi yang sudah ada. Migrasi baru = file baru bernama urut (202611160001_tambang.sql, dst).
+- Jangan ubah migrasi yang sudah ada. Migrasi baru = file baru bernama urut (202611180001_tambang.sql, dst).
 - Setelah menambah/mengubah migrasi: jalankan  sh tools/build-schema-snapshot.sh  dan commit snapshot (tests/schema-snapshot.test.js akan gagal bila lupa).
 - Jalankan semua tes Node di tests/ (node tests/<nama>.test.js) sebelum commit. Cek sintaks script inline di HTML yang diubah.
 - Jangan sentuh gameplay.html. Jangan terapkan migrasi ke produksi; beri tahu pemilik untuk menjalankannya di Supabase SQL Editor.

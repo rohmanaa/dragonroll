@@ -99,6 +99,19 @@
       p.hx = -0.25 + s * 0.07; p.hz = Math.sin(t * 7) * 0.04; p.sq = s * 0.02;
       p.alz = -0.9 + s * 0.05; p.arz = 0.9 - s * 0.05; p.alx = 0.25; p.arx = 0.25; /* tangan memegang perut */
     },
+    /* Tambang: mengayun beliung (dua tangan ke depan lalu menghantam) dan duduk lelah. Dipakai tambang.html. */
+    mine: function (t, p) {
+      var c = (t * 2.4) % 1, hit = c < 0.55 ? (c / 0.55) : Math.max(0, 1 - (c - 0.55) / 0.45);   /* naik pelan, turun cepat */
+      var sw = c < 0.55 ? Math.pow(c / 0.55, 2) : Math.max(0, 1 - (c - 0.55) / 0.2);
+      p.alx = p.arx = -(0.3 + 2.1 * sw); p.alz = -0.12; p.arz = 0.12;
+      p.hx = 0.12 + 0.2 * (1 - sw); p.bry = 0; p.brz = 0; p.sq = (hit > 0 ? 0 : 0) + 0.03 * (1 - sw);
+      p.llx = 0; p.lrx = 0; p.by = -0.01 * (1 - sw);
+    },
+    sit: function (t, p) {
+      var br = Math.sin(t * 1.6);
+      p.hop = -0.09; p.llx = p.lrx = -1.45; p.alx = p.arx = -0.5; p.alz = -0.25; p.arz = 0.25;
+      p.hx = 0.3 + br * 0.03; p.hy = Math.sin(t * 0.5) * 0.12; p.sq = br * 0.01; p.by = 0;
+    },
     celebrate: function (t, p) {
       var j = Math.abs(Math.sin(t * 5));
       p.hop = j * 0.11; p.sq = (j - 0.5) * 0.1; p.brz = Math.sin(t * 5) * 0.08; p.bry = Math.sin(t * 2.5) * 0.3; p.hx = -0.15;

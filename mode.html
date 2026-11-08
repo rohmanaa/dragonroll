@@ -242,7 +242,7 @@ function ranked(format,n){
   tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900))},2400))}
 $('#mmX').onclick=cancelMM;
 $('#back').onclick=()=>RF.navigate('back');
-document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{if(window.UT&&UT.Router&&UT.Router.toShop)UT.Router.toShop(b.dataset.buy==='gem'?{emerald:1}:{coin:1});else location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1'});
+document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{if(window.UT&&UT.Router&&UT.Router.toShop){if(b.dataset.buy==='gem')location.href='tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html');else UT.Router.toShop({coin:1})}else location.href=b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1'});
 document.documentElement.classList.add('ut-ready');
 })();
 </script>

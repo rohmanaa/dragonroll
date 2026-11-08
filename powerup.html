@@ -395,7 +395,7 @@ function confirmBuy(i){
   });
 }
 /* Top-up lewat PlayerData.addCurrency — tidak ada currency state kedua. */
-function buy(type){location.href=type==='gem'?'shop.html?emerald=1':'shop.html?coin=1'}
+function buy(type){location.href=type==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1'}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};

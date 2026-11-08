@@ -203,7 +203,7 @@ function loop3D(){requestAnimationFrame(loop3D);if(!R||!R.cv.offsetParent)return
 // ---- sky: pulau melayang buram (sama dengan inventory)
 (()=>{const sk=$('#sky');[[5,60,6],[18,30,4],[30,70,5],[62,16,5],[86,48,7],[92,12,4],[2,20,5],[75,75,6],[45,85,4]].forEach((p,i)=>{const e=document.createElement('div');e.className='isl';e.style.cssText=`left:${p[0]}%;top:${p[1]}%;animation-delay:${-i}s;filter:blur(${i%3}px)`;e.innerHTML=`<i style="width:${p[2]}rem;height:${p[2]*.4}rem"></i><b style="width:${p[2]*.7}rem;height:${p[2]*.6}rem"></b>`;sk.appendChild(e)})})();
 // tombol + mata uang -> toko (sama dengan daily reward)
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1'}));
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1'}));
 let ok3d=false;if(window.THREE){try{init3D();ok3d=true}catch(e){console.warn('WebGL unavailable',e)}}
 if(!ok3d)$('#character').innerHTML='<div class="noGL">👥</div>';
 render();
