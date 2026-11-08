@@ -3003,9 +3003,8 @@ const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexSt
 /* corak petak (4x4 blok): hanya 2 warna utama per petak = border (12 blok) lebih gelap + tengah (4 blok) sedikit lebih terang. Warna dasar petak tetap dari tileBlock(). */
 function tileShade(bc,n,t,i,j,themeKey){
   const k=(n===GOAL||LADDERS[n]||SNAKES[n]||mobOn(n,themeKey))?0.6:1;
-  const ring=(i===0||i===3||j===0||j===3);
+  const ring=(i===0||i===4||j===0||j===4);
   const d=ring?-0.06:0.03;
-  rnd(); /* tetap dipanggil agar urutan rnd() & seed dunia tidak bergeser */
   const c=new THREE.Color(bc); c.offsetHSL(0,0,d*k); return c;
 }
 function tileBlock(n,t,th){
@@ -4573,7 +4572,8 @@ function buildWorld(key){
     }
     {
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
-      for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,tileShade(bc,n,t,i,j,th.key),{edge:false});
+      for(let i=0;i<5;i++) for(let j=0;j<5;j++) addBox(TB,t.x+(i-2)*0.188,t.h-0.1,t.z+(j-2)*0.188,0.188,0.2,0.188,tileShade(bc,n,t,i,j,th.key),{edge:false}); /* grid 5x5: border 1 blok, tengah 3x3 (lebih besar dari 2x2) */
+      for(let k=0;k<16;k++) rnd(); /* pertahankan jumlah panggilan rnd() lama (16 blok) agar seed dunia/dekor tidak bergeser */
       /* dekor kecil di sudut petak dibuang bila petak ini berisi mob/chest (bentrok). Argumen tetap dievaluasi -> urutan rnd() & seed dunia tidak berubah. */
       const decorOK=!(mobOn(n,th.key)||CHESTS.has(n)),dbox=(x,y,z,w,h,d,c,o)=>{ if(decorOK) addBox(TB,x,y,z,w,h,d,c,o); };
       const cx=()=>t.x+(rnd()<0.5?-0.34:0.34),cz=()=>t.z+(rnd()<0.5?-0.34:0.34);
