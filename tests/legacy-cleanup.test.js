@@ -21,10 +21,11 @@ t('key legacy tanpa pembaca (shop/modeScreen/lobbyGift) dihapus setelah migrasi;
   assert.ok('inv' in store);
   assert.strictEqual('ut-dadu' in store, false);
 });
-t('data shop lama tetap diimpor sebelum dihapus (saldo legacy tidak hilang)', () => {
-  const { PD } = boot({ shop: '{"coins":4321,"gems":7}' });
-  assert.strictEqual(PD.coins(), 4321);
-  assert.strictEqual(PD.gems(), 7);
+t('Tahap 6c: data shop/inv lama TIDAK lagi diimpor (state tamu mulai bersih)', () => {
+  const { PD } = boot({ shop: '{"coins":4321,"gems":7}', inv: '{"coins":999,"own":{"dice":["emas"]}}' });
+  assert.notStrictEqual(PD.coins(), 4321);
+  assert.notStrictEqual(PD.coins(), 999);
+  assert.strictEqual(PD.owns('dice.emas'), false);
 });
 t('akun login punya data, tetapi data tamu belum termigrasi: key legacy TIDAK dihapus', () => {
   const auth = JSON.stringify({ id: 'abcdefgh-1234' });

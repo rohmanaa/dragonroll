@@ -8,12 +8,9 @@
    akun; akun login memakai dompet server (saldo awal dari server).
    Butuh: item-catalog.js dimuat lebih dulu.
 
-   MIGRASI (v1): data lama dari kunci legacy "inv", "shop", "modeScreen", "ut-dadu", "ut-tema2"
-   diimpor SEKALI secara idempoten. Kunci legacy TIDAK dihapus dan TIDAK ditimpa — tetap
-   dipertahankan sebagai sumber kompatibilitas sampai tahap cleanup di masa depan.
-   Tidak ada localStorage.clear(). Pembersihan (Tahap 1 penghapusan localStorage) hanya menghapus key legacy yang
-   TIDAK dibaca kode mana pun lagi ("shop", "modeScreen", "lobbyGift"), dan HANYA setelah migrasi v1 selesai;
-   "ut-dadu", "ut-tema2" (Tahap 5a) ikut dihapus; "inv", "ut-malam" masih dipakai dan dibiarkan. Cadangan ":corrupt:"
+   Tahap 6c: impor data legacy (kunci "inv", "shop", "modeScreen") sudah DIHAPUS — login wajib dan semua data akun datang dari server.
+   Pembersihan localStorage hanya menghapus key legacy tanpa pembaca ("shop", "modeScreen", "lobbyGift", "ut-dadu", "ut-tema2")
+   dan HANYA bila state tamu bertanda migration >= MIGRATION_VERSION; "inv" dibiarkan. Tidak ada localStorage.clear(). Cadangan ":corrupt:"
    dipangkas ke yang terbaru saja per kunci. */
 (function (g) {
   'use strict';
@@ -28,19 +25,6 @@
   var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high', ambience: 'day' }; /* ambience: 'day' | 'night' | 'system' (ikuti perangkat) */
   var DEFAULT_PROFILE = { name: 'OmanBogel' };   /* nama mock sementara (satu sumber: PlayerData.profile().name) */
 
-  /* ---------- Mapping legacy -> canonical (EKSPLISIT, bukan tebakan) ----------
-     Dice: hanya pasangan yang dapat DIBUKTIKAN dari project yang dipetakan.
-     - "standard" -> dice.klasik : deskripsi legacy "Dadu klasik untuk semua pemain.",
-       ditandai own:1 (starter) — persis peran dice.klasik di katalog/gameplay.
-     - "emas"     -> dice.emas   : kunci & nama sama ("Dadu Emas"), palet emas sama.
-     "ajaib", "crystal", "lava" dan SEMUA skin legacy (explorer-neon, snow-ranger,
-     red-warrior, purple-mystic, green-ranger, yellow-scout, shadow-ninja, future-hero)
-     TIDAK punya padanan yang dapat dipastikan -> UNMAPPED: tidak diimpor, tidak dihapus,
-     tetap tersimpan di storage legacy (lihat DATA_MIGRATION.md). */
-  var LEGACY_DICE_MAP = { standard: 'dice.klasik', emas: 'dice.emas' };
-  var LEGACY_SKIN_MAP = {};    /* kosong dengan sengaja — tidak ada padanan yang dapat dibuktikan */
-  var LEGACY_THEME_MAP = {};   /* ut-tema2 sudah memakai kunci tema canonical */
-  var LEGACY_MAPS = { skin: LEGACY_SKIN_MAP, dice: LEGACY_DICE_MAP, theme: LEGACY_THEME_MAP };
 
   /* Id akun yang sedang login (dari cache auth.js). '' = tamu. Divalidasi agar aman dipakai sebagai bagian nama kunci. */
   function accountId() {
@@ -64,12 +48,6 @@
   }
   function rawGet() { try { return localStorage.getItem(key()); } catch (e) { return null; } }
   function rawSet(s) { try { localStorage.setItem(key(), s); return true; } catch (e) { return false; } }
-  function legacyGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function legacySet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function legacyJSON(k) { /* baca key legacy tanpa pernah menulis/menghapusnya */
-    try { var v = legacyGet(k); if (!v) return null; var o = JSON.parse(v); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : null; }
-    catch (e) { return null; }
-  }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   /* UT.Prefs (prefs.js) dibaca malas-malasan: urutan muat skrip tidak penting. null bila tidak tersedia. */
   function prefsStore() { try { var U = g.UT; return (U && U.Prefs && typeof U.Prefs.get === 'function') ? U.Prefs : null; } catch (e) { return null; } }
@@ -208,10 +186,10 @@
   }
 
   /* ---------- Pembuatan data awal ---------- */
-  function freshState(skipLegacy) {
+  function freshState() {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
-    var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
+    var st = { schema: SCHEMA, migration: MIGRATION_VERSION, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null, outfits: [],
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     return st;
@@ -272,67 +250,11 @@
     return true;
   }
 
-  /* ---------- MIGRASI v1 (idempoten) ----------
-     Dijalankan hanya bila st.migration < MIGRATION_VERSION. Setelah sukses, versi disimpan,
-     sehingga pemanggilan berulang (refresh, pindah halaman) tidak menggandakan apa pun.
-     Pengaman tambahan: currency hanya diimpor bila saldo masih "pristine"
-     (belum pernah diubah sistem baru), item hanya ditambah bila belum dimiliki. */
-  function migrateV1(st) {
-    var inv = legacyJSON('inv'), shop = legacyJSON('shop'), mode = legacyJSON('modeScreen');
-
-    /* --- currency: default 1000 coins TIDAK BOLEH menimpa saldo legacy --- */
-    var pristine = st.coins === START_COINS && (st.gems | 0) === START_GEMS;
-    if (pristine) {
-      var cur = (inv && isFinite(inv.coins)) ? inv : ((shop && isFinite(shop.coins)) ? shop : null);
-      if (cur) {
-        var c = Math.floor(+cur.coins); if (c >= 0) st.coins = c;
-        if (isFinite(cur.gems)) { var gm = Math.floor(+cur.gems); if (gm >= 0) st.gems = gm; }
-      }
-    }
-
-    /* --- inventory: hanya ID canonical hasil mapping eksplisit; tidak pernah menduplikasi --- */
-    function importOwned(list, map) {
-      if (!Array.isArray(list)) return;
-      list.forEach(function (legacyId) {
-        var cid = map[legacyId] || (C.byId(legacyId) ? legacyId : null); /* id legacy yang ternyata canonical */
-        if (!cid) return; /* unmapped: dipertahankan di storage legacy, tidak diimpor */
-        if (!C.byId(cid)) return;
-        if (!st.inventory[cid]) st.inventory[cid] = { qty: 1, acquiredAt: st.createdAt, seq: st.nextSeq++ };
-      });
-    }
-    var own = (inv && inv.own) || (shop && shop.own) || {};
-    importOwned(own.dice, LEGACY_DICE_MAP);
-    importOwned(own.skin, LEGACY_SKIN_MAP);
-    importOwned(own.theme, LEGACY_THEME_MAP);
-
-    /* --- equipped: pulihkan pilihan legacy bila slot masih default --- */
-    var eq = (inv && inv.eq) || (shop && shop.eq) || {};
-    ['skin', 'dice', 'theme'].forEach(function (slot) {
-      var lid = eq[slot]; if (!lid) return;
-      var cid = LEGACY_MAPS[slot][lid] || (function () { var it = C.byId(lid); return (it && it.slot === slot) ? lid : null; })();
-      if (!cid) return;
-      if (st.inventory[cid] && st.equipped[slot] === C.defaultEquipped[slot]) st.equipped[slot] = cid;
-    });
-
-    /* --- settings & nama profil --- */
-    var srcSet = (inv && inv.set) || (shop && shop.set) || (mode && mode.set) || null;
-    if (srcSet) {
-      var merged = normSettings(Object.assign({}, st.settings, srcSet));
-      st.settings = merged;
-    }
-    if (inv && typeof inv.name === 'string' && inv.name.trim()) st.profile.name = inv.name.trim().slice(0, 16);
-  }
-
-  function ensureMigration(st) {
-    if (st.migration >= MIGRATION_VERSION) return st;
-    migrateV1(st);
-    st.migration = MIGRATION_VERSION;
-    return st;
-  }
+  /* Tahap 6c: impor data legacy (inv/shop/modeScreen) DIHAPUS. Akun login selalu mulai dari server; state tamu mulai bersih. */
 
   /* ---------- Pembersihan localStorage (Tahap 1) ----------
      - Key legacy tanpa pembaca: shop, modeScreen, lobbyGift. Hanya dihapus bila data tamu sudah termigrasi
-       (state tamu belum ada, atau migration >= MIGRATION_VERSION), karena migrateV1 masih membaca shop/modeScreen sekali.
+       (state tamu belum ada, atau migration >= MIGRATION_VERSION), (tanda bahwa blob tamu sudah dipakai sistem baru; blob lama bertanda 0 dibiarkan agar tidak ada data yang hilang tanpa disengaja).
      - Cadangan data rusak "<kunci>:corrupt:<ts>": simpan yang TERBARU saja per kunci, hapus yang lebih lama.
      Idempoten, sekali per muat halaman, aman bila localStorage tidak tersedia / tidak bisa dienumerasi. */
   var cleaned = false;
@@ -374,14 +296,13 @@
   /* ---------- Baca ---------- */
   function load() {
     if (!persistent) {
-      if (!memState) memState = ensureMigration(freshState());
+      if (!memState) memState = freshState();
       return clone(memState);
     }
     var raw = rawGet();
     if (raw === null) {
       /* Akun baru: mulai bersih (Tahap 3: saldo/data tamu lama tidak diimpor). */
-      var st0 = accountId() ? freshState(true) : ensureMigration(freshState());
-      if (accountId()) st0.migration = MIGRATION_VERSION;
+      var st0 = freshState();
       if (!write(st0)) { persistent = false; memState = clone(st0); }
       return st0;
     }
@@ -390,14 +311,10 @@
     var st = sanitize(parsed);
     if (!st) { /* rusak: cadangkan dulu, lalu mulai bersih — tidak menghapus apa pun */
       try { localStorage.setItem(key() + ':corrupt:' + Date.now(), raw); } catch (e) {}
-      st = accountId() ? freshState(true) : ensureMigration(freshState());
-      if (accountId()) st.migration = MIGRATION_VERSION;
+      st = freshState();
       write(st);
       return st;
     }
-    var before = st.migration;
-    st = ensureMigration(st);
-    if (st.migration !== before) write(st); /* hasil migrasi disimpan sekali */
     cleanupLegacy();
     return st;
   }
