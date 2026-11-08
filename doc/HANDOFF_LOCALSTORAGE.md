@@ -2,7 +2,7 @@
 
 > Dokumen hidup. **Setiap perubahan pada pekerjaan ini wajib memperbarui dokumen ini (bagian 5 dan 9) lalu di-push bersama kodenya.**
 > Path di repo: `doc/HANDOFF_LOCALSTORAGE.md` (repo `rohmanaa/ular-tangga`, branch `main`).
-> Terakhir diperbarui: setelah commit `4ab0e92` (Tahap 6e).
+> Terakhir diperbarui: setelah penambahan snapshot skema SQL (di atas commit `75827d8`).
 
 ## 1. Tujuan
 Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadiah, XP, statistik, achievement, misi) **hidup di server (Supabase)**, bukan di browser. `localStorage` hanya boleh berisi cache tampilan, preferensi perangkat, dan cache sesi.
@@ -25,7 +25,8 @@ Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadia
 - `gameplay.html` (monolit besar): `recordMatchServer()` mengirim hasil match lalu menyalin profil server ke cache.
 - `profile.html`: klaim achievement dari `SRV.claims` (server); menyalin statistik server saat dimuat; nama = username akun.
 - Dokumen terkait: `doc/WALLET_SERVER_PLAN.md`, `doc/DATA_MIGRATION.md`, `doc/OUTFIT_SERVER.md`, `README.md`.
-- Server: `supabase/migrations/*`, tes SQL `supabase/tests/*`. CI: `.github/workflows/db-migrate.yml`.
+- Server: `supabase/migrations/*` (20 migrasi, sumber kebenaran), tes SQL `supabase/tests/*`. CI: `.github/workflows/db-migrate.yml`.
+- `supabase/snapshot/00_full_schema.sql`: gabungan SEMUA migrasi jadi satu file untuk menyiapkan proyek Supabase BARU/kosong (tempel di SQL Editor). Dibuat otomatis: `sh tools/build-schema-snapshot.sh`. BUKAN migrasi, jangan taruh di `supabase/migrations/`. `tests/schema-snapshot.test.js` gagal bila snapshot kedaluwarsa.
 
 ## 4. Key storage yang masih ada (kode aktif)
 - **localStorage:** `ut-auth` (hanya via `UT.Session`), `ut:prefs:v1` (via `UT.Prefs`), blob `ularTanggaBlok:player:v1[:acct:<id>]` (cache `PlayerData`), cadangan `:corrupt:` (dipangkas otomatis).
@@ -65,7 +66,7 @@ Tes SQL (`supabase/tests/*_test.sql`) hanya jalan di CI (butuh Docker/Supabase l
 ## 7. Aturan kerja
 1. Satu tahap = satu commit kecil, pesan `Tahap N...: ringkasan`, tes baru untuk perilaku baru.
 2. Jangan membaca/menulis `localStorage['ut-auth']` langsung; pakai `UT.Session`. Jangan membaca blob pemain langsung; pakai `PlayerData`/`UT.Prefs`.
-3. Perubahan SQL: file baru di `supabase/migrations/` (jangan ubah migrasi lama) + tes di `supabase/tests/`. Migrasi ikut ter-deploy ke produksi saat push ke `main`, jadi hati-hati.
+3. Perubahan SQL: file baru di `supabase/migrations/` (jangan ubah migrasi lama) + tes di `supabase/tests/`. Migrasi ikut ter-deploy ke produksi saat push ke `main`, jadi hati-hati. Setelah menambah migrasi, jalankan `sh tools/build-schema-snapshot.sh` dan commit snapshot-nya (tes CI akan gagal kalau lupa).
 4. **Keamanan:** token GitHub/kunci yang ditempel di chat dianggap bocor. Minta pemilik mencabutnya dan membuat token baru yang dibatasi ke repo ini. Jangan menulis token ke berkas, konfigurasi git, atau memori.
 5. Setelah setiap perubahan: perbarui bagian 5 (status/commit) dan bagian 9 (catatan) dokumen ini, lalu push.
 
@@ -84,4 +85,6 @@ Tes SQL (`supabase/tests/*_test.sql`) hanya jalan di CI (butuh Docker/Supabase l
 - Nama akun ditentukan server dari username (trigger `player_stats_enforce_name`); UI "Ubah nama" ditolak untuk akun login.
 - Pengaturan kini milik PERANGKAT (sama untuk semua akun di perangkat itu), bukan per akun.
 - Impor legacy dihapus: data tamu lama tidak dipindah ke akun (saldo server mulai dari nol).
-- Riwayat log perubahan dokumen ini: dibuat setelah Tahap 6e; memuat status Tahap 1–6e.
+- Snapshot skema: 20 migrasi digabung ke `supabase/snapshot/00_full_schema.sql`. Diuji di Postgres tersemat dengan stub `auth.users`/`auth.uid()`/peran Supabase: 0 error di database kosong, jumlah objek identik dengan menjalankan 20 migrasi satu per satu (19 tabel, 135 kolom, 73 fungsi, 5 policy, 1 trigger, 30 indeks), dan menjalankannya ulang juga 0 error. Tes tersebut BUKAN pengganti CI (Supabase asli + `supabase/tests`). Snapshot sengaja di luar `supabase/migrations/` agar CI tidak menerapkan duplikat ke produksi.
+- Perubahan klien Tahap 1–6e tidak butuh tabel/fungsi SQL baru: semua RPC yang dipakai sudah ada di migrasi 202611050001–202611140001.
+- Riwayat log perubahan dokumen ini: dibuat setelah Tahap 6e (status Tahap 1–6e); menambah catatan snapshot skema.

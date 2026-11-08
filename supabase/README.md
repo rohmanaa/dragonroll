@@ -78,3 +78,7 @@ Terapkan setelah `202611060001_game_events.sql`. Menambah RPC `roll_game_dice(p_
 Terapkan setelah `202611100002_roll_game_dice.sql`. Mengganti `roll_game_dice` menjadi 5 argumen: `p_mode` (`normal`, `lucky`, `odd`, `even`, `special`) dan `p_value` (wajib 1-6 untuk `special`). Server mengundi di himpunan angka sesuai mode (lucky = 6, odd = 1/3/5, even = 2/4/6) dan mencatat `mode` di payload event `roll`. Klien (`doRoll`) mengirim mode dari flag Chest/Ramuan; bila RPC gagal, flag dikembalikan.
 
 - **Masih belum tertutup:** server tidak tahu apakah pemain benar-benar punya flag atau sedang di Block 100 (Special Dice); mode hanya tercatat di log. Server juga belum tahu aturan giliran, jadi host masih bisa meminta undian baru. Mencegah itu butuh server yang menjalankan aturan giliran (3C).
+
+
+## Snapshot skema lengkap (proyek baru)
+`supabase/snapshot/00_full_schema.sql` = gabungan semua migrasi dalam satu file, untuk menyiapkan proyek Supabase BARU/kosong lewat SQL Editor (sekali jalan). Dibuat otomatis: `sh tools/build-schema-snapshot.sh`. Jangan taruh di `supabase/migrations/` (produksi sudah memakai migrasi satu per satu). Setiap menambah migrasi, buat ulang snapshot dan commit; `tests/schema-snapshot.test.js` memeriksanya di CI.
