@@ -2387,8 +2387,8 @@ function mcH(x,z){
   return Math.max(0,Math.round(n*Math.min(1,d/14)*3.2)/2);
 }
 const hAt=(x,z)=>mcH(2*Math.floor(x/2)+1,2*Math.round(z/2));
-/* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, |z|<=ISLZ (blok pulau 2x2, tepi = batas + 1) */
-const ISLXL=24,ISLXR=22,ISLZ=14;
+/* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, z dari -ISLZT (atas, sampai gunung air) sampai ISLZB (bawah) (blok pulau 2x2, tepi = batas + 1). ISLZR = batas dekor/sungai di bawah (di luar itu: gunung selatan) */
+const ISLXL=24,ISLXR=22,ISLZT=22,ISLZB=14,ISLZR=14;
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
 const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
 function lift(B,fn,h){
@@ -2498,7 +2498,7 @@ function addMushIsl(B,x,z){
 function addGrassScenery(DB,th){
   const mc=th.decor==='mc',r=mkRng(0x6A55+THEMES.indexOf(th)*131),placed=th.decor==='mc'?DECOR_SEED.map(a=>a.slice()):[];
   const ok=(x,z,pad)=>{
-    if(mc&&(x<-ISLXL+1.5||x>ISLXR-1.5||Math.abs(z)>ISLZ-1.5)) return false; /* pulau World lebih kecil */
+    if(mc&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) return false; /* pulau World lebih kecil */
     if(Math.abs(x)<6.2&&Math.abs(z)<6.2) return false;                  /* board + pagar */
     if(Math.abs(x-PAD.x)<1.8&&Math.abs(z-PAD.z)<1.8) return false;     /* area start */
     if(x>4.6&&x<10.2&&z>-30) return false;                              /* sungai kanan + jembatan */
@@ -2536,9 +2536,9 @@ function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color){
   [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); });
   B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
 }
-function islDepth(gx,gz){ const c=Math.min(((gx<0?gx+ISLXL:ISLXR-gx))/2,(ISLZ-Math.abs(gz))/2); return Math.min(4.4,1.0+c*0.62); }
+function islDepth(gx,gz){ const c=Math.min(((gx<0?gx+ISLXL:ISLXR-gx))/2,((gz<0?gz+ISLZT:ISLZB-gz))/2); return Math.min(4.4,1.0+c*0.62); }
 function addIslUnder(TB){ /* alas pulau: tanah di tepi, makin ke tengah makin dalam & berbatu (melancip seperti pulau melayang) */
-  for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZ;gz<=ISLZ;gz+=2){
+  for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
     const dp=islDepth(gx,gz),rr=islH(gx,gz,41),edge=dp<1.7;
     const hex=rr<0.05?0xd9a441:rr<0.1?0xb09a78:edge?ISL.dirt[Math.floor(islH(gx,gz,42)*4)&3]:ISL.stone[Math.floor(islH(gx,gz,43)*4)&3];
     addBox(TB,gx,-0.4-dp/2,gz,2,dp,2,new THREE.Color(hex).offsetHSL(0,0,(islH(gx,gz,44)-0.5)*0.06),{edge:false});
@@ -2546,7 +2546,7 @@ function addIslUnder(TB){ /* alas pulau: tanah di tepi, makin ke tengah makin da
 }
 function addIslCliff(TB,gx,gz,h){
   [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
-    const ox=gx+d[0]*2,oz=gz+d[1]*2,out=ox<-ISLXL||ox>ISLXR||Math.abs(oz)>ISLZ;
+    const ox=gx+d[0]*2,oz=gz+d[1]*2,out=ox<-ISLXL||ox>ISLXR||oz<-ISLZT||oz>ISLZB;
     const nh=out?-0.4-islDepth(gx,gz):mcH(ox,oz); if(nh>=h-0.01) return;
     const rows=Math.max(1,Math.ceil((h-nh)/0.5-0.001));
     for(let sg=0;sg<4;sg++){
@@ -2578,7 +2578,7 @@ function buildMcTerrain(TB,th){
       if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,ix,iz,1,0.012); }
       else addBox(TB,ix,-0.1,iz,1,0.2,1,j); }
   }
-  for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZ;gz<=ISLZ;gz+=2){
+  for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
     if(Math.abs(gx)+1<=8&&Math.abs(gz)+1<=7) continue;
     const h=mcH(gx,gz),hi=h>=1.5;
     { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
@@ -2590,7 +2590,7 @@ function buildMcTerrain(TB,th){
       else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
   }
   if(mc) addIslUnder(TB);
-  for(let z=7;z<=(mc?ISLZ:28);z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
+  for(let z=7;z<=(mc?ISLZR:28);z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
   /* jembatan kayu melengkung di sungai kanan: di bawah board (z=9, ~3.5 dari tepi board) agar tidak menempel board */
   { const bz=9,bxc=7+0.5*Math.sin(bz*0.7),wr=1.8+bz*0.04,half=wr/2+0.8,x0=bxc-half,x1=bxc+half,len=x1-x0,Wd=1.1,n=Math.round(len/0.36),pw=len/n;
     const dY=i=>0.2+Math.round(Math.sin((i+0.5)/n*Math.PI)*3)*0.05;
@@ -2645,7 +2645,7 @@ function addMcFar(DB){
     const s=0.8+rnd()*0.7;
     if((x>-17&&x<-7.5&&z>-4&&z<4)||(x>4.4&&x<9.8&&z>-30)||(x>9.8&&x<20.4&&z>-8&&z<4)) continue; /* area gunung/sungai + dataran peternakan */
     const sn=snapB(DB); lift(DB,()=>addOak(DB,x,z,s),hAt(x,z)); n++;
-    if(themeKey==='minecraft'&&(x<-ISLXL+1.5||x>ISLXR-1.5||Math.abs(z)>ISLZ-1.5)) rollB(DB,sn); /* di luar pulau kecil: buang (rnd sudah terpakai, urutan acak aman) */
+    if(themeKey==='minecraft'&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) rollB(DB,sn); /* di luar pulau kecil: buang (rnd sudah terpakai, urutan acak aman) */
   }
   [[-13,-10],[-15,9]].forEach(q=>{ lift(DB,()=>addMcHouse(DB,q[0],q[1]),hAt(q[0],q[1])); addHouseExtras(DB,q[0],q[1],hAt(q[0],q[1])); });
   /* hewan ternak tidak lagi berkeliaran bebas: semuanya tinggal di kandang (lihat addRanch) */
