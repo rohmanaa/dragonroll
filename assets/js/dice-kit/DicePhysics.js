@@ -99,7 +99,7 @@ export class DicePhysics {
   }
 
   /** Lemparan: arah menjauhi kamera (−z) dengan variasi acak. Hasil angka murni dari fisika. */
-  throwDie(pos, q, spinAxisHint, drop = false) {
+  throwDie(pos, q, spinAxisHint, drop = false, vary = 0) {
     const r = this.rng;
     this.reset(pos, q);
     this.asleep = false;
@@ -114,8 +114,30 @@ export class DicePhysics {
     let ax = [r() * 2 - 1, r() * 2 - 1, r() * 2 - 1];
     if (spinAxisHint) ax = [ax[0] + spinAxisHint[0] * 1.5, ax[1] + spinAxisHint[1] * 1.5, ax[2] + spinAxisHint[2] * 1.5];
     const l = len(ax) || 1;
-    const mag = drop ? 9 + r() * 8 : 14 + r() * 10;
+    let mag = drop ? 9 + r() * 8 : 14 + r() * 10;
+    if (vary) { mag *= 0.6 + r() * 1.2; this.v[1] += vary * r() * (drop ? 4.5 : 2.5); } // variasi lebih lebar (hanya saat mencari lemparan ke angka target): lebih lama di udara = lebih banyak putaran
     this.w = [(ax[0] / l) * mag, (ax[1] / l) * mag, (ax[2] / l) * mag];
+  }
+
+  /**
+   * Lemparan yang DIJAMIN mendarat natural di `value` (tanpa diputar ulang di akhir).
+   * Simulasi memakai timestep tetap sehingga deterministik: lemparan dicoba dulu secara diam-diam,
+   * dan hanya yang berakhir di angka target dipakai untuk animasi sungguhan.
+   * Mengembalikan true bila ketemu; false (state = lemparan terakhir) bila tidak ada yang cocok.
+   */
+  throwTowards(value, pos, q, spinAxisHint, drop = false, maxTries = 40) {
+    for (let t = 0; t < maxTries; t++) {
+      this.throwDie(pos, q, spinAxisHint, drop, t < 4 ? 0 : 1);
+      const v0 = [...this.v], w0 = [...this.w];
+      let steps = 0;
+      while (!this.asleep && steps++ < 1500) this._sub(FIXED_DT, []);
+      const ok = this.asleep && this.topFace().value === value;
+      this.reset(pos, q); // kembalikan ke awal lemparan, lalu jalankan sungguhan
+      this.asleep = false;
+      this.v = v0; this.w = w0;
+      if (ok) return true;
+    }
+    return false;
   }
 
   /** Maju sebesar dt detik. Mengembalikan daftar event: impact / wall / settled. */

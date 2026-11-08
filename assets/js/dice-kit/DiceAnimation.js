@@ -4,7 +4,7 @@
  *
  * Semua gerak memakai delta time. Fisika memakai timestep tetap (lihat DicePhysics), sehingga
  * hasil konsisten di 30/60/120 FPS. Hasil angka berasal dari fisika (adil), atau dari RNG game
- * yang sudah ada bila `roll(forcedValue)` dipakai (tampilan lalu diselaraskan dengan hop singkat).
+ * yang sudah ada bila `roll(forcedValue)` dipakai (lemparan dipilih agar mendarat natural di angka itu; hop singkat hanya cadangan).
  */
 import * as THREE from '../vendor/three.r170.module.min.js';
 import { DicePhysics, randomQuat, qmul, qaxis, qnorm } from './DicePhysics.js';
@@ -174,7 +174,7 @@ export class DiceAnimator {
           this.pos = [this.idle[0] + sx, this.idle[1] + rise, this.idle[2] + sz];
           this.mesh.scale.setScalar(1);
           if (k >= 1) {
-            this.physics.throwDie(this.pos, this.q, this.spinAxis, true);
+            this._throw(true);
             this.effects.onRollStart([this.pos[0], 0.3, this.pos[2]]);
             this._set('rolling');
           }
@@ -188,7 +188,7 @@ export class DiceAnimator {
         this.mesh.scale.setScalar(1 + 0.05 * Math.sin(k * Math.PI));
         if (k >= 1) {
           this.mesh.scale.setScalar(1);
-          this.physics.throwDie(this.pos, this.q, this.spinAxis);
+          this._throw(false);
           this.effects.onRollStart(this.pos);
           this._set('rolling');
         }
@@ -245,6 +245,12 @@ export class DiceAnimator {
     }
     this.effects.setLightAt(this.pos);
     this._sync();
+  }
+
+  /** Lempar dadu. Bila game sudah menentukan angka (forced), pilih lemparan yang mendarat natural di angka itu. */
+  _throw(drop) {
+    if (this.forced != null) this.physics.throwTowards(this.forced, this.pos, this.q, this.spinAxis, drop);
+    else this.physics.throwDie(this.pos, this.q, this.spinAxis, drop);
   }
 
   _finishPhysics() {

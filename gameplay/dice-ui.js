@@ -33,7 +33,7 @@
         quality: 'auto',
         sound: want.sound,
         pixelScale: zoomOf(),
-        pad: true, dieScale: 1.2, speed: 1.7, camScale: 0.5, lookY: 0.6, bounds: { x: 1.1, z: 0.95 } /* tatakan 3D asli di scene yang sama dengan dadu */
+        pad: true, dieScale: 1.4, speed: 1.7, camScale: 0.5, lookY: 0.6, bounds: { x: 1.3, z: 1.1 } /* tatakan 3D asli di scene yang sama dengan dadu */
       });
       kit.setVolume(want.volume);
       kit.showFace(want.face);
