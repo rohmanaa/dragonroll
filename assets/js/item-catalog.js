@@ -88,7 +88,17 @@
     frame('default', 'Kayu', 'common', 0,   'Frame kayu sederhana berhias daun hijau. Terpasang sejak awal.', 'frame-default.webp'),
     frame('stone',   'Batu',    'common', 150, 'Frame batu abu-abu retak yang kokoh, langsung dari dasar tambang.', 'stone.webp'),
     frame('copper',  'Tembaga', 'rare',   350, 'Frame tembaga berkarat hijau dengan paku-paku kecil di setiap sudutnya.', 'copper.webp'),
-    frame('gold',    'Emas', 'epic',   800, 'Frame emas berkilau dengan daun rimbun untuk profil yang menonjol.', 'frame-gold.webp', { featured: true }),
+    frame('iron',    'Besi',    'rare',   500, 'Frame besi tempa dengan sudut baja dan baut merah yang kokoh.', 'iron.webp'),
+    frame('gold',    'Emas', 'epic',   800, 'Frame emas berkilau dengan permata biru di puncaknya untuk profil yang menonjol.', 'frame-gold.webp', { featured: true }),
+    frame('diamond', 'Berlian', 'epic', 1200, 'Frame berlian biru kristal dengan ujung-ujung tajam yang berkilau.', 'diamond.webp'),
+    frame('amethyst','Kecubung', 'epic', 1500, 'Frame kristal kecubung ungu dengan gugus permata di setiap sisinya.', 'amethyst.webp'),
+    frame('nether',  'Nether', 'epic', 2000, 'Frame batu nether gosong dengan bara lava yang menyala di sudutnya.', 'nether.webp'),
+    frame('ender',   'Ender', 'legendary', 2500, 'Frame obsidian dengan kristal ender ungu dan partikel dimensi lain.', 'ender.webp'),
+    frame('storm',   'Badai', 'legendary', 3000, 'Frame baja gelap yang dialiri petir biru dan percikan listrik.', 'storm.webp'),
+    frame('dragon',  'Naga', 'legendary', 4000, 'Frame merah gelap bertanduk dengan mata naga kuning yang mengawasi.', 'dragon.webp'),
+    frame('cosmic',  'Kosmik', 'legendary', 5000, 'Frame galaksi dengan bintang-bintang dan debu kosmik yang berputar.', 'cosmic.webp'),
+    frame('phoenix', 'Phoenix', 'legendary', 6500, 'Frame api dengan sayap phoenix menyala dan lidah api di atasnya.', 'phoenix.webp'),
+    frame('celestial','Surgawi', 'legendary', 8000, 'Frame emas bersayap putih dengan permata dan lingkaran cahaya surgawi.', 'celestial.webp'),
 
     /* ---- Skin karakter ---- */
     skin('steve',    'Steve',    'Default',   'common', 0,   'Petualang blok klasik. Siap melangkah ke petak mana pun.'),
