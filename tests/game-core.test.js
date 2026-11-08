@@ -16,12 +16,12 @@ t('gerak biasa & ganti giliran', () => {
   assert.strictEqual(r.state.players[0].pos, 4); assert.strictEqual(r.state.cur, 1);
 });
 t('tangga naik', () => {
-  const r = C.roll(C.create(), 3 - 0 === 3 ? 3 : 3); /* 0+3=3 -> tangga ke 22 */
-  assert.strictEqual(r.state.players[0].pos, 22); assert.ok(types(r).includes('ladder'));
+  const r = C.roll(at(C.create(), 0, 5), 3); /* 5+3=8 -> tangga ke 26 (papan sekarang: 8->26) */
+  assert.strictEqual(r.state.players[0].pos, 26); assert.ok(types(r).includes('ladder'));
 });
 t('ular turun', () => {
-  const r = C.roll(at(C.create(), 0, 14), 3); /* 17 -> 7 */
-  assert.strictEqual(r.state.players[0].pos, 7); assert.ok(types(r).includes('snake'));
+  const r = C.roll(at(C.create(), 0, 14), 3); /* 17 -> 4 (papan sekarang: 17->4) */
+  assert.strictEqual(r.state.players[0].pos, 4); assert.ok(types(r).includes('snake'));
 });
 t('enam = giliran tambahan', () => {
   const r = C.roll(C.create(), 6);
@@ -158,8 +158,8 @@ t('chestMove ekuivalen kode lama', () => {
     assert.strictEqual(C.chestMove(pos, d), Math.max(1, Math.min(99, pos + d)));
 });
 t('chestNearest: terdekat di depan, null bila tidak ada', () => {
-  assert.strictEqual(C.chestNearest(0, CFG.LADDERS), 3);
-  assert.strictEqual(C.chestNearest(3, CFG.LADDERS), 8);
+  assert.strictEqual(C.chestNearest(0, CFG.LADDERS), 8);   /* tangga 3-22 sudah dihapus dari papan */
+  assert.strictEqual(C.chestNearest(8, CFG.LADDERS), 20);
   assert.strictEqual(C.chestNearest(71, CFG.LADDERS), null);
   assert.strictEqual(C.chestNearest(50, CFG.SNAKES), 62);
   assert.strictEqual(C.chestNearest(98, CFG.SNAKES), null);

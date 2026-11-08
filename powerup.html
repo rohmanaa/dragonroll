@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<html lang="id" class="stage16"><head><script type="importmap">{"imports":{"three":"./assets/js/vendor/three.r170.module.min.js","three/addons/":"./assets/js/vendor/three-addons/"}}</script><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Power-up</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/inventory-bg.webp"></script><style>
@@ -29,6 +29,7 @@ svg{display:block}
 #show{left:15.5rem;top:7.5rem;width:24rem;height:31rem}
 #show>canvas{width:100%;height:100%;display:block}
 #show #art{display:none;position:absolute;inset:0;place-items:center}
+#show #p3d{display:none;position:absolute;inset:0}#show.p3d #p3d{display:block}#show.p3d>canvas,#show.p3d #art{display:none}
 #show #art svg{width:82%;height:82%}
 #show.art>canvas{display:none}#show.art #art{display:grid}
 #sbs{left:38.2rem;top:14.8rem;display:flex;flex-direction:column;gap:.9rem}
@@ -253,7 +254,7 @@ html body .use img{width:3rem;height:3rem}
  <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/items/power.webp" alt="" draggable="false" decoding="async">Power-up</div>
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
 </div>
-<div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
+<div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div><div id="p3d"></div></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
 <section class="ab" id="rec"><span id="rl"><svg viewBox="0 0 24 24"><path d="M3 18 2 7l5 4 5-7 5 7 5-4-1 11z" fill="#ffd24d"/></svg><b id="rlt"></b></span><button class="blue rarr" id="rp" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div id="rlist"></div><button class="blue rarr" id="rn" aria-label="Berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button></section>
 <section class="ab" id="bot"><div id="gwrap"><div id="grid"></div></div><button class="use" id="use"></button></section>
@@ -293,7 +294,7 @@ const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill=
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
 // ---- state: tidak ada let coins/gems/own/eq permanen. Key legacy 'inv' tidak ditulis lagi.
 /* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
-const PFX={at(i,el){try{if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
+const PFX={at(i,el){try{if(typeof P3D!=='undefined'&&P3D.on())return;if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
  note(i){try{const d=i&&i.kind==='powerup'&&window.UT&&UT.PowerFX&&UT.PowerFX.DATA[i.gameKey];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
 const PAGE='powerup';let cat=PAGE,sel=null;
 const SET=()=>PD.settings();
@@ -423,8 +424,23 @@ function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE
 let main,pv,spin=0;
 function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
 function showThemeArt(on){const s=$('#show');const sv=on&&sel?AR.forItem(sel.id):'';s.classList.toggle('art',!!sv);const a=$('#art');if(a)a.innerHTML=sv}
-function buildModels(){if(!CI[cat]||!sel){showThemeArt(false);return}
- if(cat==='theme'||cat==='powerup'||cat==='frame'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return} /* skin PNG: preview texture (pixel-art), bukan model 3D baru */
+/* Power-3D (assets/js/power3d): pratinjau 3D hidup untuk power-up yang punya model (Batch 1). Dimuat malas; gagal/WebGL mati = tampilan lama (ItemArt). */
+const P3D={inst:null,mod:null,state:0,
+ off(){$('#show').classList.remove('p3d')},
+ on(){return !!this.inst&&$('#show').classList.contains('p3d')},
+ sync(){const i=sel;if(cat!=='powerup'||!i||!this.inst||!this.mod.supports(i.gameKey)){this.off();return false}
+  try{if(this.inst.show(i.gameKey)){const sh=$('#show');sh.classList.remove('art');sh.classList.add('p3d');return true}}catch(e){console.warn('[power3d]',e)}
+  this.off();return false},
+ load(){if(this.state)return;this.state=1;
+  import('./assets/js/power3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
+   const sh=$('#show');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
+   sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.inst.activate()}); /* ketuk = aktifkan; geser = putar */
+   if(cat==='powerup'&&!this.sync())showThemeArt(true)
+  }).catch(e=>{this.state=3;console.warn('[power3d] tidak tersedia, memakai tampilan lama',e)})}};
+function buildModels(){if(!CI[cat]||!sel){P3D.off();showThemeArt(false);return}
+ if(cat==='powerup'){P3D.load();if(P3D.sync())return;showThemeArt(true);return}
+ P3D.off();
+ if(cat==='theme'||cat==='frame'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return} /* skin PNG: preview texture (pixel-art), bukan model 3D baru */
  showThemeArt(false);setModel(main,cat,sel);spin=1}
 function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}
 const clock=typeof THREE!=='undefined'?new THREE.Clock():null;
