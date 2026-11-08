@@ -50,4 +50,12 @@ t('idempoten: panggil berulang tidak mengubah data pemain', () => {
   const a = PD.coins(); PD.coins(); PD.coins();
   assert.strictEqual(PD.coins(), a);
 });
+t('Tahap 6a: key klaim achievement lokal (klaim/:paid/:intent, semua akun) dihapus, key lain tetap', () => {
+  const A = 'ularTanggaBlok:achClaimed:v1';
+  const { PD, store } = boot({ [A]: '{}', [A + ':paid']: '{}', [A + ':intent']: '{}', [A + ':acct:abcdefgh']: '{}', inv: '{\"coins\":1}' });
+  PD.coins();
+  Object.keys(store).forEach(k => assert.strictEqual(k.indexOf(A), -1, 'sisa: ' + k));
+  assert.ok('inv' in store);
+  assert.strictEqual(typeof PD.achKey, 'undefined');
+});
 console.log(n + ' tes lulus');

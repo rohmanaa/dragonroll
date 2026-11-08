@@ -19,7 +19,6 @@
   'use strict';
   var C = g.ItemCatalog;
   var BASE_KEY = 'ularTanggaBlok:player:v1';
-  var ACH_BASE = 'ularTanggaBlok:achClaimed:v1';   /* klaim achievement (dipakai profile.html) */
   var SCHEMA = 1;
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
   var SET_MAX_UNIQUE = 20, SET_MAX_RAW = 200;   /* batas beli set: sama dengan buy_set di server */
@@ -349,6 +348,11 @@
         DEAD_LEGACY_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
       }
       var n = localStorage.length, newest = {}, all = [], i, k, at, base, ts;
+      /* Tahap 6a: klaim achievement kini hanya dari server -> hapus key lokal lama (klaim/:paid/:intent, semua akun) */
+      var oldAch = [];
+      for (i = 0; i < n; i++) { k = localStorage.key(i); if (typeof k === 'string' && k.indexOf('ularTanggaBlok:achClaimed:v1') === 0) oldAch.push(k); }
+      oldAch.forEach(function (x) { try { localStorage.removeItem(x); } catch (e) {} });
+      n = localStorage.length;
       if (!isFinite(n) || typeof localStorage.key !== 'function') return;
       for (i = 0; i < n; i++) {
         k = localStorage.key(i);
@@ -411,7 +415,6 @@
     get key() { return key(); },
     /* Id akun aktif ('' = tamu) dan kunci klaim achievement untuk akun itu (dipakai profile.html). */
     scope: function () { return accountId(); },
-    achKey: function () { return keyFor(ACH_BASE); },
     startCoins: START_COINS,
     startGems: START_GEMS,
     migrationVersion: MIGRATION_VERSION, /* playerDataMigrationVersion */
