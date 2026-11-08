@@ -21,8 +21,8 @@ Celah yang ditemukan (nomor dipakai di tahap di bawah):
 |---|-------|---------|-------|
 | A | `claim_achievement` memercayai `p_client_value` untuk achievement `skin` dan `emerald` | Tinggi | S1 (selesai) |
 | B | `bump_player_counter` dipanggil klien (maks 20 per panggilan, tanpa batas) | Sedang | S1 (batas harian), S2 (tuntas) |
-| C | Game lawan CPU tidak bisa diverifikasi: XP +40/+120 per match (jeda 45 dtk) dan hadiah boss CPU (500 koin + 10 gem, 5 per hari, jeda 3 menit) bisa dipanggil lewat skrip | Sedang | S5 |
-| D | Hadiah boss online membaca pemenang dari `game_state` room yang ditulis klien (room palsu) | Rendah-sedang | S6 |
+| C | Game lawan CPU tidak bisa diverifikasi: XP +40/+120 per match (jeda 45 dtk) dan hadiah boss CPU (500 koin + 10 gem, 5 per hari, jeda 3 menit) bisa dipanggil lewat skrip | Sedang | S5 (selesai: nominal dikecilkan) |
+| D | Hadiah boss online membaca pemenang dari `game_state` room yang ditulis klien (room palsu) | Rendah-sedang | S6 (selesai: room diverifikasi lewat log server) |
 | E | State yang masih hanya lokal: `settings`, `profile.name`, `stats` dasar, data tamu | Rendah | S3, S4 |
 
 ## 2. Aturan yang berlaku di semua tahap
@@ -75,23 +75,25 @@ Celah yang ditemukan (nomor dipakai di tahap di bawah):
   devtools lalu muat ulang, nilai kembali ke nilai server.
 - [ ] Selesai
 
-### S5 — Hadiah game lawan CPU (tutup C) — butuh keputusan
-Pilih satu:
-1. **Tanpa hadiah dari CPU** (paling aman, paling sederhana): XP dan hadiah boss hanya dari match online.
-2. **Hadiah kecil dengan batas ketat**: turunkan nominal, batas harian lebih kecil, hanya setelah match berjalan
-   minimal N giliran yang tercatat di server.
-3. **Simulasi di server**: server menjalankan aturan game dari seed dan log aksi (ada `game-core.js` sebagai
-   aturan murni) sebelum memberi hadiah. Paling kuat, paling besar pekerjaannya.
-- [ ] Keputusan diambil
-- [ ] Selesai
+### S5 — Hadiah game lawan CPU (tutup C) — SELESAI (keputusan: hadiah kecil, batas ketat)
+Keputusan: lawan CPU tetap memberi XP dan koin, tapi kecil.
+- XP match CPU: menang +30, kalah +10 (online terverifikasi tetap +120 / +40). Tanpa poin leaderboard.
+- Hadiah boss CPU: 100 koin, 0 gem, 3 per hari WIB, jeda 3 menit (sebelumnya 500 koin + 10 gem, 5 per hari).
+- Migrasi `202611190003_cpu_reward_small_online_room_verified.sql`. Nominal UI dibaca dari balasan server.
+- Batasan: hasil CPU tetap tidak bisa dibuktikan (game jalan di browser), jadi pembatasnya hanya jumlah kecil + batas
+  harian + jeda. Opsi "simulasi di server" (aturan murni `game-core.js` + log aksi) tetap tersedia bila kelak diperlukan.
+- [x] Keputusan diambil
+- [ ] Migrasi sudah dijalankan di Supabase produksi
 
-### S6 — Hasil boss/match online dari server (tutup D)
-- `game_state` room hanya ditulis lewat `submit_game_action`; pemenang dan hadiah boss dihitung dari log aksi
-  yang divalidasi server (bukan snapshot dari host).
-- Syarat room sah: minimal 2 pemain berbeda yang benar-benar bergabung; satu pemain tidak bisa menjadi
-  semua peserta.
-- Verifikasi: room yang hanya berisi satu akun tidak bisa menghasilkan hadiah.
-- [ ] Selesai
+### S6 — Hasil boss/match online dari server (tutup D) — SELESAI (verifikasi room lewat log server)
+- Fungsi `_room_is_verified(room)`: minimal 16 event `roll` (hanya bisa dibuat server lewat `roll_game_dice`), minimal 2
+  akun berbeda punya event di room, dan rentang event minimal 90 detik.
+- `claim_boss_reward`: menolak `room_not_verified`. `submit_match_result`: room tak terverifikasi diperlakukan seperti
+  lawan CPU (XP kecil, tanpa poin leaderboard).
+- Batasan: dua akun milik orang yang sama yang bermain sungguhan masih lolos (dibatasi 10 hadiah boss per hari).
+  Langkah berikutnya bila perlu: pemenang dihitung dari log aksi, bukan dari `game_state.snapshot` yang ditulis host.
+- [ ] Migrasi sudah dijalankan di Supabase produksi
+- [ ] Diuji: room dengan satu akun tidak menghasilkan hadiah; game online 2 akun tetap mendapat hadiah
 
 ### S7 — Pengawasan dan tes
 - Tes SQL untuk setiap RPC hadiah (kunci idempoten, batas harian, nilai di luar batas).
@@ -101,7 +103,7 @@ Pilih satu:
 
 ## 4. Urutan yang disarankan
 
-S1 (selesai) → S2 → S3 → S4 → S5 (setelah keputusan) → S6 → S7.
+S1, S5, S6 selesai (menunggu migrasi dijalankan) → S2 → S3 → S4 → S7.
 S2 dan S3 bisa dikerjakan paralel. S4 sebaiknya setelah S3, supaya tidak ada data yang kehilangan rumahnya.
 
 ## 5. Yang belum diketahui / perlu dicek saat mengerjakan
