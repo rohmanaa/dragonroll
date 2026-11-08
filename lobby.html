@@ -274,13 +274,15 @@ const hiG=()=>!(UT.Ambience&&UT.Ambience.graphics()==='low');sun.castShadow=hiG(
 const anims=[];
 
 // pulau melayang dihapus: karakter berdiri di lantai batu pada latar lobby-bg.webp; latar+awan = SceneBackground (assets/js/scene-bg.js)
-const HERO_S=.9,HERO_Y=-1.95;/* skala & tinggi kaki: telapak pas di lantai batu bagian bawah-tengah latar */
+const HERO_S=.9,HERO_Y=-1.95,HERO_CS=4.8;/* HERO_CS = skala model karakter baru (sebelumnya 6.6: terlalu besar, kepala hampir keluar layar) *//* skala & tinggi kaki: telapak pas di lantai batu bagian bawah-tengah latar */
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
 const hero=new THREE.Group();let bc=null,bcW=null;/* karakter baru (halaman Karakter) = UT.BlockyCharacter, dimuat dari PlayerData */
-function buildHero(){if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bcW=new THREE.Group();bcW.scale.setScalar(6.6);bcW.add(bc.root);hero.add(bcW)}
+function buildHero(){if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bcW=new THREE.Group();bcW.scale.setScalar(HERO_CS);bcW.add(bc.root);hero.add(bcW)}
 buildHero();
 hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
-const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(0,HERO_Y+.03,.1);cs.scale.setScalar(HERO_S*1.2);scene.add(cs);/* AO kontak di bawah karakter */
+const cs=UT.FloatingIsland.contactShadow(THREE,5.4,3.8,.6);cs.position.set(0,HERO_Y+.04,.1);scene.add(cs);/* AO kontak di bawah karakter (ukuran mengikuti karakter baru) */
+/* lantai transparan penangkap bayangan: latar = gambar 2D, jadi bayangan matahari karakter jatuh di sini agar karakter menyatu dengan lantai batu latar */
+const floorCatch=new THREE.Mesh(new THREE.PlaneGeometry(60,40),new THREE.ShadowMaterial({opacity:.34,depthWrite:false}));floorCatch.rotation.x=-Math.PI/2;floorCatch.position.set(0,HERO_Y+.02,0);floorCatch.receiveShadow=true;scene.add(floorCatch);
 /* ---------- suasana siang/malam (Pengaturan > Suasana): lampu 3D berubah halus; malam = cahaya bulan dingin + lampu hangat di dekat karakter ---------- */
 const lamp=new THREE.PointLight(0xffb866,0,18,2);lamp.position.set(-4.5,HERO_Y+4.2,6.5);scene.add(lamp);
 const LP={day:{amb:[0xdff6ff,.42],hemi:[0xb4eeff,0x6a9a50,.5],sun:[0xffd88a,1.05],fog:0xa8ecff,lamp:0},
