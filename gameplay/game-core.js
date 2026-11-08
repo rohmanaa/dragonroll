@@ -21,7 +21,7 @@
   var DEFAULTS = {
     goal: 100,
     ladders: { 3: 22, 8: 26, 20: 41, 36: 55, 51: 72, 71: 91 },
-    snakes: { 17: 7, 32: 10, 48: 27, 62: 44, 79: 57, 94: 73, 98: 77 },
+    snakes: { 17: 7, 32: 10, 48: 27, 62: 44, 98: 77 },
     maxSixes: 3,
     onGoal: 'win' /* 'win' | 'stop' (berhenti di goal, fase boss dikelola luar) */
   };
