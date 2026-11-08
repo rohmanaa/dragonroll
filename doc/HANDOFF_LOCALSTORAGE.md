@@ -2,7 +2,7 @@
 
 > Dokumen hidup. **Setiap perubahan pada pekerjaan ini wajib memperbarui dokumen ini (bagian 5 dan 9) lalu di-push bersama kodenya.**
 > Path di repo: `doc/HANDOFF_LOCALSTORAGE.md` (repo `rohmanaa/ular-tangga`, branch `main`).
-> Terakhir diperbarui: setelah Tahap 6d, 7a, dan 7b (lihat bagian 5).
+> Terakhir diperbarui: setelah Tahap 6d, 7a, 7b, dan Power-3D Batch 1 (lihat bagian 5 dan 10).
 
 ## 1. Tujuan
 Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadiah, XP, statistik, achievement, misi) **hidup di server (Supabase)**, bukan di browser. `localStorage` hanya boleh berisi cache tampilan, preferensi perangkat, dan cache sesi.
@@ -58,6 +58,7 @@ Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadia
 | 6d | Blob `PlayerData` jadi cache murni: hapus saldo/XP awal lokal (1000 koin palsu); `walletReady()`; UI "—" sampai server membalas lalu otomatis diperbarui | SELESAI | `f0aa404` |
 | 7a | Hapus key legacy yatim (`inv`, `ut:quest`, dll) tanpa syarat dan blob tamu akun login; impor pengaturan tamu ke `UT.Prefs` sekali | SELESAI | `76b6f5e` |
 | 7b | Pengaturan lintas perangkat: migrasi `202611150001_player_prefs.sql` (tabel + RPC `get_my_prefs`/`set_my_prefs`, daftar putih kunci, maks 8 KB), `prefs-sync.js`, tes SQL + tes klien | SELESAI (kode); migrasi ikut deploy produksi saat push | lihat `git log` (commit "Tahap 7b") |
+| Power-3D B1 | 5 power pertama memakai model 3D baru + nama baru (lihat bagian 10) | SELESAI (kode, belum diuji visual) | lihat `git log` (commit "Power-3D Batch 1") |
 | 8 (opsional) | Tes browser otomatis (Playwright) untuk login, match, klaim; pindahkan state room di `sessionStorage` (`ut-room`, `ut-config`) ke server bila diinginkan | BELUM | - |
 
 ## 6. Cara menjalankan tes (sama dengan CI)
@@ -95,3 +96,14 @@ Tes SQL (`supabase/tests/*_test.sql`) hanya jalan di CI (butuh Docker/Supabase l
 - 7a: pembersihan menghapus `inv` dan blob tamu permanen; hanya berjalan untuk akun login (tanpa akun blob tamu dibiarkan karena dipakai halaman login).
 - 7b: preferensi = cache lokal + server. Konflik: nilai server menang saat pull; kunci yang hanya ada lokal naik ke server. Kunci klien `prefs-sync.js` harus sama dengan `c_keys` di migrasi (dijaga `tests/prefs-sync.test.js`). Snapshot skema sudah dibuat ulang (21 migrasi). Tes SQL `supabase/tests/player_prefs_test.sql` lulus di Postgres tersemat (stub auth); CI Supabase asli belum diverifikasi saat dokumen ini ditulis.
 - Riwayat log perubahan dokumen ini: dibuat setelah Tahap 6e; ditambah catatan snapshot skema; ditambah Tahap 6d, 7a, 7b.
+
+## 10. Pekerjaan paralel: Power-3D (mengganti 7 power-up lama dengan 15 item 3D) — dikerjakan per 5 item
+Sumber: `power-3d-fixed.zip` dari pemilik (penampil Three.js mandiri: 15 item, aura, partikel, animasi aktivasi). Keputusan pemilik: **ganti penuh 15 item, dikerjakan 5 demi 5, kemampuan mengikuti power lama dan disesuaikan seperlunya**.
+- Mesin: `assets/js/power3d/*.js` (+ `power-show.js` pembungkus). Three lokal: `assets/js/vendor/three.r170.module.min.js` dan addons `assets/js/vendor/three-addons/{utils,geometries,environments}/` (dari npm three@0.170.0). Importmap ada di `powerup.html` (`three` dan `three/addons/`).
+- Pemetaan `KEY_TO_POWER3D` di `power-show.js` (id gameplay → model 3D). **Batch 1 (SELESAI kode):** sword→iron_sword, feather→feather, tnt→tnt, totem→totem, grass→ender_pearl. Nama tampil diganti (Iron Sword, Feather, TNT, Totem, Ender Pearl) di `item-catalog.js`, `gameplay/config.js`, dan teks pesan `gameplay.html`.
+- **ID/gameKey lama sengaja TIDAK diganti** (`sword`, `feather`, `tnt`, `totem`, `grass`, `potion_odd`, `potion_even`): ID itu dipakai katalog server (`item_catalog`), inventori pemain, dan seluruh logika gameplay. Mengganti ID butuh migrasi SQL yang memindahkan inventori; lakukan hanya bila pemilik meminta.
+- Halaman Power memuat 3D secara malas; bila WebGL/impor gagal otomatis memakai tampilan lama (`ItemArt`). Ketuk pratinjau = aktifkan animasi, geser = putar. Efek partikel 2D lama dilewati saat 3D aktif.
+- **Belum dilakukan:** (1) pengujian visual di browser (lingkungan kerja AI tidak punya browser/WebGL); (2) ikon 2D di gameplay (`data/power/sm/*.webp`) masih gambar lama; (3) Batch 2 dan 3.
+- **Rencana Batch 2 (usulan, belum disetujui):** diamond_sword, netherite_sword, wooden_shield, golden_apple, fire_charge; **Batch 3:** ice_crystal, blaze_core, trident, dragon_crystal, nether_star. Item baru butuh aturan main (power lama hanya 7 aturan) + baris `item_catalog` di server + pemetaan; potion_odd/potion_even baru dihapus bila penggantinya sudah punya aturan yang disetujui.
+- Tes: `tests/power3d.test.js` (peta, jalur impor, nama, aturan lama utuh).
+- Catatan CI: tes `game-core.test.js` sempat usang karena papan diubah orang lain (tangga 3-22 dihapus, ekor ular 17 dipindah ke 4); sudah disesuaikan ke papan sekarang (tangga 8→26, ular 17→4).

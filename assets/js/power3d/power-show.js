@@ -1,0 +1,22 @@
+/* Power-3D untuk halaman Power (powerup.html): pratinjau 3D hidup per power-up.
+   Mesin = PowerRenderer (Three.js, modul ES). Modul ini dimuat malas lewat import() dari halaman; bila WebGL/impor gagal,
+   halaman memakai tampilan lama (ItemArt). KEY_TO_POWER3D memetakan gameKey power-up game -> id item 3D.
+   BATCH 1 (5 item): sword->iron_sword, feather->feather, tnt->tnt, totem->totem, grass->ender_pearl.
+   Batch berikutnya cukup menambah baris di peta ini (item 3D lain sudah ada di PowerCatalog.js). */
+import { PowerRenderer } from './PowerRenderer.js';
+
+export const KEY_TO_POWER3D = { sword: 'iron_sword', feather: 'feather', tnt: 'tnt', totem: 'totem', grass: 'ender_pearl' };
+export const supports = (gameKey) => Object.prototype.hasOwnProperty.call(KEY_TO_POWER3D, gameKey);
+
+/* host: elemen kosong tempat kanvas disisipkan. opts.quality: 'low'|'medium'|'high'. Melempar bila WebGL tidak tersedia. */
+export function mount(host, opts) {
+  const pr = new PowerRenderer(host, { transparent: true, quality: opts && opts.quality });
+  pr.start();
+  return {
+    show(gameKey) { return supports(gameKey) ? pr.show(KEY_TO_POWER3D[gameKey]) : false; },
+    activate() { return pr.activate(); },
+    start() { pr.start(); }, stop() { pr.stop(); },
+    destroy() { try { pr.stop(); pr.dispose && pr.dispose(); } catch (e) {} },
+    renderer: pr
+  };
+}
