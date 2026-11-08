@@ -456,10 +456,12 @@ function fxShow(R,it){
  if(!R.fx){
   if(R.cur)R.holder.remove(R.cur);
   const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();
-  const w=new THREE.Group();w.scale.setScalar(FXSCALE);w.position.y=.14;w.add(ch.root);R.holder.add(w);R.cur=w;R.mc='effect';
+  const w=new THREE.Group();w.scale.setScalar(FXSCALE);w.add(ch.root);R.holder.add(w);R.cur=w;R.mc='effect';
   R.scene.updateMatrixWorld(true);
+  /* ukur tinggi & telapak kaki NYATA dari model di dunia (bukan tebakan height()*skala): kaki tepat di y=0.14, aura memakai tinggi yang sama */
+  const bb=new THREE.Box3().setFromObject(ch.root),hh=bb.max.y-bb.min.y;w.position.y+=.14-bb.min.y;R.scene.updateMatrixWorld(true);
   const sys=new FX.AuraSystem(R.scene,R.cam,{quality:fxQ()});
-  R.fx={ch,sys,aura:sys.attach(ch.root,it.aura.id,{},{height:ch.height()*FXSCALE}),id:it.aura.id,walk:false};
+  R.fx={ch,sys,aura:sys.attach(ch.root,it.aura.id,{},{height:hh>0.1?hh:ch.height()*FXSCALE}),id:it.aura.id,walk:false};
   return true}
  if(R.fx.id!==it.aura.id){R.fx.aura.setAura(it.aura.id);R.fx.id=it.aura.id}
  return false}
