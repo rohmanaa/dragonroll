@@ -4591,7 +4591,7 @@ function buildWorld(key){
     const FT=TILES[1].h,FO=FT+0.4; /* FT = tinggi permukaan petak, FO = tinggi lapis luar */
     [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
      [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08)); woodTop(TB,f[0],f[1],f[2],f[3],top,wb,41+fi); });
-    [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],0.75,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.03,q[1],0.18,0.06,0.18,0x2E2E2E); });
+    [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],1.15,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.43,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
   // area mulai
   const SP=UT.Gameplay.Biomes.PALETTES.sandy,SPK=th.key==='salju'?SP.salju:SP.default,sandy=SPK[0],sandy2=SPK[1];
@@ -4614,7 +4614,7 @@ function buildWorld(key){
   /* obor di 4 sudut papan: api berkedip + lampu (menyala saat malam) */
   torchMeshes=[];
   (BOARD_CUSTOM?[]:[[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]]).forEach((q,i)=>{
-    const f=addFlame(q[0],1.06,q[1],1.2,{halo:2.0,hal:0.5}); f.lt=FLIGHTS[i]; f.li=1.25; f.lt.position.set(q[0],1.35,q[1]);
+    const f=addFlame(q[0],1.46,q[1],1.2,{halo:2.0,hal:0.5}); f.lt=FLIGHTS[i]; f.li=1.25; f.lt.position.set(q[0],1.75,q[1]);
   });
 
   const DB=makeBatch();

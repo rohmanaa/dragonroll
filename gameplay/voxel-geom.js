@@ -15,7 +15,7 @@
   function gridToTile(row, col) { return row * 10 + ((row % 2 === 0) ? col : 9 - col) + 1; }
 
   /* Daftar tile [null, {n,row,col,x,z,h}, ...]; x/z = posisi dunia, h = tinggi permukaan (semua petak sama: FLAT_H). */
-  var FLAT_H = 0.2; /* tinggi permukaan semua petak */
+  var FLAT_H = 0.6; /* tinggi permukaan semua petak */
   function buildTiles() {
     var TILES = [null];
     for (var n = 1; n <= 100; n++) {
