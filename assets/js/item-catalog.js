@@ -174,13 +174,13 @@
        tnt    -> pemain terdepan mundur 6 (teleport)    totem   -> p.shield=true (kebal 1 ular/mob; dulu ID 'apple', effect TIDAK berubah)
        potion_odd/potion_even -> p.odd/p.even=true (dadu berikutnya ganjil/genap)   grass -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
-    powerup('sword',   'Pedang',     'common', 'Serang musuh di petak yang sama, ia mundur 2.'),
-    powerup('feather', 'Bulu',       'common', 'Giliran tambahan sekali lempar.'),
+    powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.'),
+    powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
-    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, Pedang, TNT, atau Rumput, kamu bisa memilih memakai Totem untuk menahannya.'),
+    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, Iron Sword, TNT, atau Ender Pearl, kamu bisa memilih memakai Totem untuk menahannya.'),
     powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.'),
     powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.'),
-    powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
+    powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.')
   ];
 
 

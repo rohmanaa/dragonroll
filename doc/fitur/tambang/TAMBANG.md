@@ -30,32 +30,33 @@ Contoh: dibuka dari Karakter -> `tambang.html?from=karakter.html` -> Back kembal
 Catatan: sebelumnya "+ Emerald" membuka `shop.html?emerald=1` (modal tonton iklan). Keputusan pemilik: mulai sekarang menuju Tambang.
 Panel iklan tetap ada di Toko. Dari Toko sendiri, "+ Emerald" tetap membuka modal iklan (bukan loncat ke Tambang).
 
-## 4. Ekonomi (nilai awal, semua di SQL, mudah diubah)
-Acuan nilai saat ini: 10 Gem = 500 Coin (1 Gem ~ 50 Coin). Iklan = 5 Gem x maks 5/hari (25/hari). Boss CPU = 10 Gem x maks 5/hari.
-Penghasilan tambang dibuat lebih kecil dari iklan di awal dan baru mendekati setelah upgrade besar.
+## 4. Ekonomi (diseimbangkan ulang: peti awal 5, upgrade mahal)
+Alasan: Emerald adalah alat tukar tertinggi, jadi produksi dibuat kecil dan sink Coin dibuat berat.
+Acuan nilai: 10 Gem = 500 Coin (1 Gem ~ 50 Coin). Iklan = 5 Gem x maks 5/hari (25/hari). Boss CPU = 10 Gem x maks 5/hari.
+Semua angka ada di fungsi `_mine_*` (migrasi `202611180001_tambang.sql`, lalu ditimpa oleh `202611190001_tambang_rebalance.sql`).
 
 | Slot | Buka (Coin) | Dasar Emerald/jam (Lv1) | Penambang |
 |---|---|---|---|
-| 1 | 500 | 0.20 | skin NPC A |
-| 2 | 2.500 | 0.30 | skin NPC B |
-| 3 | 10.000 | 0.50 | skin NPC C |
+| 1 | 1.500 | 0.20 | skin NPC alex |
+| 2 | 7.500 | 0.30 | skin NPC zombie |
+| 3 | 30.000 | 0.50 | skin NPC skeleton |
 
-Kecepatan (upgrade `speed`, Lv1-Lv5): pengali `1.00 / 1.25 / 1.50 / 1.75 / 2.00`. Biaya naik ke Lv2..Lv5 (Coin): `400 / 1.000 / 2.500 / 6.000`, dikali `1.0 / 1.5 / 2.0` untuk slot 1/2/3.
+Kecepatan (upgrade `speed`, Lv1-Lv5): pengali `1.00 / 1.25 / 1.50 / 1.75 / 2.00`. Biaya naik ke Lv2..Lv5 (Coin): `1.200 / 3.500 / 9.000 / 20.000`, dikali `1.0 / 1.5 / 2.0` untuk slot 1/2/3.
 
-Kapasitas peti (upgrade `cap`, Lv1-Lv5): `15 / 20 / 25 / 30 / 40` Emerald. Biaya ke Lv2..Lv5 (Coin): `300 / 800 / 2.000 / 5.000`, dikali faktor slot yang sama.
+Kapasitas peti (upgrade `cap`, Lv1-Lv5): `5 / 8 / 12 / 16 / 20` Emerald. Biaya ke Lv2..Lv5 (Coin): `1.000 / 3.000 / 7.500 / 18.000`, dikali faktor slot yang sama.
 
-Percepat (boost): pengali 2x selama 4 jam, biaya `150 / 200 / 300` Coin untuk slot 1/2/3, tidak bisa ditumpuk (selagi aktif tidak bisa dibeli lagi), maks 2x per slot per hari WIB.
+Percepat (boost): pengali 2x selama 4 jam, biaya `400 / 600 / 900` Coin untuk slot 1/2/3, tidak bisa ditumpuk, maks 2x per slot per hari WIB.
 
-Perkiraan hasil per hari (jika dikumpulkan tiap hari, tanpa boost):
-- Semua Lv1: (0.2 + 0.3 + 0.5) x 24 = **24 Emerald/hari**, tapi peti penuh di 75 / 50 / 30 jam, jadi mengumpulkan sehari sekali sudah cukup.
-- Semua Lv5: 1.0 x 2.0 x 24 = **48 Emerald/hari** (peti 40 penuh di 100 / 67 / 40 jam).
-- Total Coin untuk memaksimalkan semuanya: buka 13.000 + speed 9.900 x 4,5 = 44.550 + kapasitas 8.100 x 4,5 = 36.450, kira-kira **94 ribu Coin** (sink Coin jangka panjang).
-- Emerald berbentuk bilangan bulat di dompet. Peti menghitung desimal (mis. 2,4), tombol Collect memindahkan bagian bulat saja, sisa pecahan tetap di peti.
+Perkiraan hasil per hari (dikumpulkan tiap hari, tanpa boost; peti membatasi hasil):
+- Semua Lv1: slot 1 = 4,8, slot 2 = 5 (peti penuh), slot 3 = 5 -> sekitar **15 Emerald/hari**. Peti 5 penuh dalam 25 / 17 / 10 jam, jadi ambil 1-2x sehari.
+- Semua Lv5: peti 20, laju 0.4 / 0.6 / 1.0 per jam -> 9,6 + 14,4 + 20 = sekitar **44 Emerald/hari**.
+- Total Coin untuk memaksimalkan semuanya: buka 39.000 + speed 33.700 x 4,5 = 151.650 + kapasitas 29.500 x 4,5 = 132.750, kira-kira **323 ribu Coin**.
+- Emerald berbentuk bilangan bulat di dompet. Peti menghitung desimal (mis. 2,4), tombol Ambil memindahkan bagian bulat, sisa pecahan tetap di peti.
 
-Batas keseimbangan yang dijaga: peti penuh berhenti produksi (tidak menumpuk tanpa batas), boost dibatasi per hari, semua pembelian idempoten di ledger.
+Batas keseimbangan: peti penuh berhenti produksi, boost dibatasi per hari, semua pembelian idempoten di ledger.
 
 ## 5. Desain database (migrasi baru, urutan setelah `202611150001_player_prefs.sql`)
-File: `supabase/migrations/202611180001_tambang.sql`. Setelah itu wajib `sh tools/build-schema-snapshot.sh` (tes snapshot gagal bila lupa).
+File: `supabase/migrations/202611180001_tambang.sql` (+ `202611190001_tambang_rebalance.sql` untuk angka ekonomi terbaru). Setelah itu wajib `sh tools/build-schema-snapshot.sh` (tes snapshot gagal bila lupa).
 
 Tabel `player_mines` (satu baris per user per slot):
 `user_id, slot (1..3), speed_lv, cap_lv, stock numeric (isi peti saat stock_at), stock_at timestamptz, boost_until timestamptz null, boost_day date, boost_count int, collect_seq int, created_at`.
@@ -93,7 +94,7 @@ Ubah: `lobby.html` (tombol TAMBANG + ACT), halaman dengan `data-buy="gem"` (arah
 ## 8. Keputusan terbuka (tanyakan ke pemilik sebelum diubah)
 - [x] "+ Emerald" di semua halaman: DIPUTUSKAN pemilik -> menuju Tambang (`tambang.html?from=<halaman>`). Panel iklan tetap ada di Toko (dibuka dari Toko saja).
 - [ ] Skin NPC final untuk 3 penambang (sementara: pilih dari `UT.CharacterData.list('player')` yang berbeda dari skin pemain). Opsi lanjutan: karakter baru `penambang` dengan helm tambang.
-- [ ] Angka ekonomi di bagian 4 (nilai awal usulan).
+- [x] Angka ekonomi di bagian 4: pemilik minta peti awal 5 dan harga lebih mahal (sudah diterapkan).
 - [ ] Terapkan migrasi ke proyek Supabase produksi (dilakukan pemilik, bukan AI).
 
 ## 9. Checklist pekerjaan
@@ -135,3 +136,4 @@ Pengujian
 - 2026-11-08: dokumen dibuat; desain ekonomi & RPC disusun; belum ada kode.
 - 2026-11-08: migrasi `202611180001_tambang.sql` + tes `tambang_test.sql` selesai dan LULUS di Postgres 16 lokal (semua migrasi dimuat dengan stub auth Supabase); snapshot skema diperbarui (22 migrasi). Belum: klien (mine-service, tambang.html), tombol lobby, routing "+ Emerald". Migrasi BELUM diterapkan ke Supabase produksi.
 - 2026-11-08 (lanjutan): `mine-service.js` + tes, `tambang.html` (3 bilik 3D per slot, penambang skin NPC alex/zombie/skeleton, emote baru `mine` dan `sit` di `character-view.js`, efek emerald melayang, Zzz saat peti penuh, cheer saat Ambil), tombol TAMBANG di lobby, semua "+ Emerald" -> `tambang.html?from=<halaman>`, Back via `from`, Home ke lobby. Cabang ini sudah menggabungkan `fix/koin-ke-toko` (route "+ Coin" ke Toko). Belum: uji nyata dengan Supabase produksi, cek preload splash, wajah penambang khusus (helm tambang), suara.
+- 2026-11-08 (rebalance): peti Lv1 = 5 (5/8/12/16/20), buka slot 1.500/7.500/30.000, upgrade kecepatan 1.200-20.000, kapasitas 1.000-18.000, boost 400/600/900. Migrasi baru `202611190001_tambang_rebalance.sql`, tes SQL diperbarui dan lulus.

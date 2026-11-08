@@ -71,13 +71,13 @@
   C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */
 
   C.PUN = C.PUN || {
-    sword: ['🗡️', 'Pedang', 'serang musuh di petak yang sama: mundur 2'],
-    feather: ['🪶', 'Bulu', 'giliran tambahan'],
+    sword: ['🗡️', 'Iron Sword', 'serang musuh di petak yang sama: mundur 2'],
+    feather: ['🪶', 'Feather', 'giliran tambahan'],
     tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
-    totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, Pedang, TNT, atau Rumput'],
+    totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, Iron Sword, TNT, atau Ender Pearl'],
     potion_odd: ['🧪', 'Ramuan Ganjil', 'dadu berikutnya ganjil (1, 3, atau 5)', 'Ganjil'],
     potion_even: ['🧪', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
-    grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
+    grass: ['🟩', 'Ender Pearl', 'tukar posisi dengan pemain terdepan']
   };
   /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
   /* Stage 4.1.19: path dibaca dari ItemCatalog (item-catalog.js, dimuat sebelum file ini) agar satu sumber data.
