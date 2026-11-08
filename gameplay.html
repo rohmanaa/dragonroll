@@ -2922,6 +2922,7 @@ function makeSnakeHead(pal){
 }
 
 /* ular: tubuh meliuk menuruni teras, kepala di atas petak */
+const SNAKE_HEAD_SCALE=0.5; /* kepala ular lebih kecil dari badan-scale */
 const SNAKE_SCALE=0.7; /* ukuran ular (badan + kepala) relatif ke ukuran lama */
 function buildSnakes(th){
   const out={},SB=makeBatch(),dyn=new THREE.Group();
@@ -2949,7 +2950,7 @@ function buildSnakes(th){
     });
     const fx=-ux,fz=-uz,yaw=Math.atan2(fx,fz);
     const hd=makeSnakeHead(pal);
-    hd.head.position.set(H.x,yH,H.z); hd.head.rotation.y=yaw; hd.head.scale.setScalar(SNAKE_SCALE);
+    hd.head.position.set(H.x,yH,H.z); hd.head.rotation.y=yaw; hd.head.scale.setScalar(SNAKE_HEAD_SCALE);
     dyn.add(hd.head);
     const bridge=[];
     const bm=new THREE.MeshLambertMaterial({color:pal[0]}),bg=new THREE.BoxGeometry(0.2,0.2,0.2);
