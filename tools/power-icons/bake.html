@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Bake ikon Power 3D</title>
+<script type="importmap">{"imports":{"three":"../../assets/js/vendor/three.r170.module.min.js","three/addons/":"../../assets/js/vendor/three-addons/"}}</script>
+<style>html,body{margin:0;background:transparent}#h{width:384px;height:384px}</style></head><body><div id="h"></div>
+<script type="module">
+import { PowerRenderer } from '../../assets/js/power3d/PowerRenderer.js';
+import { KEY_TO_POWER3D } from '../../assets/js/power3d/power-show.js';
+const pr = new PowerRenderer(document.getElementById('h'), { transparent: true, quality: 'high' });
+pr.stop(); pr.renderer.setPixelRatio(1); pr.renderer.setSize(384, 384, false); pr.camera.aspect = 1; pr.camera.updateProjectionMatrix();
+const POSE = { sword: { y: 0.55, z: 0.0 }, feather: { y: 0.5 }, tnt: { y: 0.6 }, totem: { y: 0.35 }, grass: { y: 0.4 }, potion_odd: { y: 0.5 }, potion_even: { y: 0.5 } };
+window.keys = Object.keys(KEY_TO_POWER3D);
+window.bake = (key) => {
+  pr.show(KEY_TO_POWER3D[key]);
+  for (let i = 0; i < 100; i++) pr._frame(pr._last + 16.7); pr.stop();
+  pr.aura && (pr.aura.halo.visible = false);
+  pr.lighting.floor.visible = false; pr.lighting.decal && (pr.lighting.decal.visible = false); /* tanpa bayangan lantai */
+  const ex = pr.model.userData.extent, mx = Math.max(ex.x, ex.y, ex.z); pr.holder.scale.setScalar(2.45 / mx); /* semua ikon sama besar */
+  pr.scene.traverse((o) => { if (o.isPoints || o.isSprite) o.visible = false; });
+  pr.orbit.dist = 5.3; pr.orbit.pol = 1.36; pr.orbit.az = 0; pr._updateCamera();
+  pr.holder.rotation.set(0, (POSE[key] || {}).y ?? 0.5, 0);
+  pr.holder.position.y = pr.baseY;
+  pr.renderer.render(pr.scene, pr.camera);
+  const out = document.createElement('canvas'); out.width = out.height = 192;
+  const g = out.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(pr.renderer.domElement, 0, 0, 192, 192);
+  return out.toDataURL('image/png');
+};
+window.ready = true;
+</script></body></html>

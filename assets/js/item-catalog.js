@@ -69,11 +69,11 @@
      — tanpa prefiks, agar tidak perlu bridge ID (lihat DATA_MIGRATION.md "Power-Up").
      price: null = EKONOMI BELUM DITENTUKAN — tidak dijual di shop, tidak boleh diarang.
      rarity 'common' = default netral untuk UI; gameplay sendiri tidak mengenal rarity power-up. */
-  /* Stage 4.1.19: SATU-SATUNYA sumber path ikon Power (versi 192px dari data/power). Dibaca oleh
-     gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power (identity), bukan nama effect. */
+  /* SATU-SATUNYA sumber path ikon Power: render 192px dari model 3D (assets/js/power3d), dibuat oleh tools/power-icons/bake.py
+     ke data/power/3d/<gameKey>.png. Dibaca oleh gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power. */
   var POWER_ICON = {
-    sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
-    totem: 'data/power/sm/totem.webp', potion_odd: 'data/power/sm/ramuan-merah.webp', potion_even: 'data/power/sm/ramuan-biru.webp', grass: 'data/power/sm/block.webp'
+    sword: 'data/power/3d/sword.png', feather: 'data/power/3d/feather.png', tnt: 'data/power/3d/tnt.png',
+    totem: 'data/power/3d/totem.png', potion_odd: 'data/power/3d/potion_odd.png', potion_even: 'data/power/3d/potion_even.png', grass: 'data/power/3d/grass.png'
   };
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */

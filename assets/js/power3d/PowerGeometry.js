@@ -192,6 +192,20 @@ const BUILDERS = {
     return g;
   },
 
+  potion(M) { // botol ramuan: badan labu (kaca) berisi cairan, leher, gabus. Warna cairan = M.main, kaca = M.accent
+    const g = new THREE.Group();
+    const body = [V2(0.001, -0.78), V2(0.3, -0.76), V2(0.58, -0.62), V2(0.74, -0.3), V2(0.74, 0.04), V2(0.6, 0.38), V2(0.34, 0.6), V2(0.22, 0.74), V2(0.22, 1.1), V2(0.26, 1.16), V2(0.26, 1.24), V2(0.001, 1.24)];
+    put(g, new THREE.LatheGeometry(body, 40), M.accent);
+    const liquid = [V2(0.001, -0.72), V2(0.28, -0.7), V2(0.53, -0.58), V2(0.68, -0.3), V2(0.68, 0.02), V2(0.001, 0.02)];
+    put(g, new THREE.LatheGeometry(liquid, 40), M.main);
+    put(g, cyl(0.66, 0.66, 0.02, 40), M.glow, 0, 0.02, 0);
+    put(g, cyl(0.2, 0.17, 0.3, 16), M.dark, 0, 1.36, 0);
+    put(g, tor(0.255, 0.035, 8, 24), M.dark, 0, 1.2, 0, Math.PI / 2);
+    for (const [x, y, z, r] of [[0.3, -0.35, 0.5, 0.07], [-0.25, -0.1, 0.55, 0.05], [0.1, -0.5, 0.58, 0.04]]) put(g, sph(r, 10, 8), M.glow, x, y, z);
+    g.userData.anchors = { tip: V(0, 1.55, 0), wing: V(0, 0.2, -0.7) };
+    return g;
+  },
+
   fireCharge(M) {
     const g = new THREE.Group();
     const R = prng(7), flames = [];

@@ -241,7 +241,7 @@
     return '<svg class="art-powerup" viewBox="0 0 500 500" role="img" aria-label="' + label + '">' + defs + b + '</svg>';
   }
 
-  /* Stage 4.1.19: ikon Power = gambar dari data/power (path dari katalog: it.icon). SVG blok di bawah (powerupSvg) dipertahankan
+  /* Stage 4.1.19: ikon Power = render 3D dari data/power/3d (path dari katalog: it.icon). SVG blok di bawah (powerupSvg) dipertahankan
      sebagai cadangan: tersembunyi secara default (inline style, karena CSS halaman seperti svg{display:block} mengalahkan atribut display) dan baru ditampilkan bila gambar GAGAL dimuat (onerror), sehingga SVG lama tidak pernah
      terlihat selama gambar masih dimuat.
      Tetap berupa <svg> agar CSS ukuran existing (.th svg, #art svg) tetap berlaku. */
@@ -270,7 +270,7 @@
       s += rect(16, 32, 6, 4, '#4a0d07') + rect(24, 32, 5, 4, '#4a0d07') + rect(31, 32, 6, 4, '#4a0d07') + rect(40, 32, 5, 4, '#4a0d07');
       s += rect(29, 8, 6, 8, '#8a5a2b') + rect(35, 4, 6, 4, '#ffb02e');
     } else if (k === 'totem') {
-      return totem(label || it.name); /* fallback SVG Totem (dipakai hanya bila data/power/sm/totem.webp gagal dimuat) */
+      return totem(label || it.name); /* fallback SVG Totem (dipakai hanya bila data/power/3d/totem.png gagal dimuat) */
     } else if (k === 'potion_odd' || k === 'potion_even') {
       s += rect(26, 4, 12, 6, '#8a5a2b') + rect(24, 10, 16, 8, '#b9c9e4');
       s += rect(14, 18, 36, 38, '#dff3ff') + rect(14, 36, 36, 20, '#c04fd0') + rect(18, 40, 8, 6, '#e08ae8');

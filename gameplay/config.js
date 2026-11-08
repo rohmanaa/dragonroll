@@ -79,7 +79,7 @@
     potion_even: ['🧪', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
     grass: ['🟩', 'Ender Pearl', 'tukar posisi dengan pemain terdepan']
   };
-  /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
+  /* Gambar ikon Power (render 3D 192px dari data/power/3d). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
   /* Stage 4.1.19: path dibaca dari ItemCatalog (item-catalog.js, dimuat sebelum file ini) agar satu sumber data.
      Bila katalog tidak ada, peta kosong -> setPuIcon otomatis memakai emoji cadangan. */
   C.PUIMG = C.PUIMG || (function () {

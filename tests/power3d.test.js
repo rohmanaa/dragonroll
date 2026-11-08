@@ -9,15 +9,15 @@ const IC = ctx.ItemCatalog, pus = IC.items.filter(i => i.kind === 'powerup');
 const showSrc = rd('assets/js/power3d/power-show.js');
 const map = {}; (showSrc.match(/KEY_TO_POWER3D\s*=\s*\{([^}]*)\}/)[1]).split(',').forEach(p => { const m = p.match(/(\w+)\s*:\s*'(\w+)'/); if (m) map[m[1]] = m[2]; });
 
-t('Batch 1 = 5 power: sword, feather, tnt, totem, grass', () => {
-  assert.deepStrictEqual(Object.keys(map).sort(), ['feather', 'grass', 'sword', 'tnt', 'totem']);
+t('7 power punya model 3D: sword, feather, tnt, totem, grass, potion_odd, potion_even', () => {
+  assert.deepStrictEqual(Object.keys(map).sort(), ['feather', 'grass', 'potion_even', 'potion_odd', 'sword', 'tnt', 'totem']);
 });
 t('setiap kunci peta adalah gameKey power-up yang ada di katalog game', () => {
   Object.keys(map).forEach(k => assert.ok(pus.some(p => p.gameKey === k), 'tidak ada power-up ' + k));
 });
 t('setiap id 3D di peta ada di PowerCatalog.js', () => {
   const ids = (rd('assets/js/power3d/PowerCatalog.js').match(/\bid:\s*'(\w+)'/g) || []).map(s => s.match(/'(\w+)'/)[1]);
-  assert.strictEqual(ids.length, 15);
+  assert.strictEqual(ids.length, 17);
   Object.values(map).forEach(v => assert.ok(ids.indexOf(v) >= 0, 'model 3D tidak ada: ' + v));
 });
 t('nama tampil 5 power sesuai item baru dan sama di katalog & gameplay/config.js', () => {
