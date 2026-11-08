@@ -40,6 +40,7 @@ export class DiceAnimator {
     this.pending = null;
     this.onResult = null;
     this.onState = null;
+    this.onImpact = null; // dipanggil tiap dadu menghantam lantai ({speed, point, index}); dipakai gameplay untuk efek tatakan
     this._idleQ();
   }
 
@@ -86,6 +87,25 @@ export class DiceAnimator {
     if (instant) { this._set('idle'); this.idleT = this.idleT || 0; this.mesh.scale.setScalar(1); return; }
     this.from = { pos: [...this.pos], q: [...this.q] };
     this._set('return');
+  }
+
+  /** Tampilkan dadu DIAM (tanpa animasi) dengan angka v di atas. Ditolak (false) bila lemparan sedang berjalan. */
+  showFace(v, yaw = 0.35) {
+    if (this.pending) return false;
+    const i = D6_FACES.findIndex((f) => f.value === v);
+    if (i < 0) return false;
+    this.queued = false;
+    const flat = this.physics.quatForValue(v, [0, 0, 0, 1]);
+    this.q = qnorm(qmul(qaxis([0, 1, 0], yaw), flat)); // putar di sumbu Y saja: muka v tetap di atas
+    this.restY = this.physics.h;
+    this.pos = [this.idle[0], this.restY, this.idle[2]];
+    this.faceIndex = i;
+    this.mesh.scale.setScalar(1);
+    this.view.scaleMul = 1;
+    this.physics.reset(this.pos, this.q);
+    this._set('rest');
+    this._sync();
+    return true;
   }
 
   _sync() {
@@ -163,7 +183,7 @@ export class DiceAnimator {
         const sp = Math.hypot(...this.physics.v);
         this.effects.onRollFrame(dt, this.pos, sp);
         for (const ev of events) {
-          if (ev.type === 'impact') this.effects.onImpact(ev.point, ev.speed, ev.index);
+          if (ev.type === 'impact') { this.effects.onImpact(ev.point, ev.speed, ev.index); this.onImpact?.(ev); }
           else if (ev.type === 'wall') this.effects.sound.play(e.soundEffect, Math.min(1, ev.speed / 10) * 0.5);
           else if (ev.type === 'settled') { this._finishPhysics(); break; }
         }

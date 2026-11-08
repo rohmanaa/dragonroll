@@ -1,82 +1,98 @@
-/* Gameplay Dice UI (Stage 4.1.10) — HANYA presentation dadu: bangun 6 muka, rotasi 3D, animasi gulir, reset tampilan.
-   TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Ramuan Ganjil-Genap/Pasti 6/6=giliran ekstra/tiga 6 tetap di sana).
+/* Gameplay Dice UI — dadu gameplay = DADU 3D ASLI dari Dice Kit (assets/js/dice-kit, modul bersama dengan preview Inventory dadu.html).
+   Kubus CSS lama sudah dihapus: fisika kocok-lempar, tekstur/material skin, efek partikel/aura, dan suara semuanya dari DiceKit.
+   TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Ramuan Ganjil-Genap/Pasti 6/6=giliran ekstra/tiga 6 tetap di sana);
+   kit hanya menampilkan lemparan yang berakhir di angka itu (roll(forcedValue)).
    Classic script. Namespace: UT.GameplayDiceUI.
    API:
-     init(dieEl?, sceneEl?)  — bangun muka dadu di #die (idempoten, tidak membuat DOM ganda)
-     showDie(v, anim)        — tampilkan muka v (1..6); anim=true -> gulir 1.05s + hop (persis perilaku lama)
-     roll(v)                 — = showDie(v, true)
-     setValue(v) / reset()   — = showDie(v, false) / showDie(1, false)
-   Guard gameId/STALE tetap di pemanggil (gameplay.html): modul ini tidak memegang timer/callback async. */
+     init(sceneEl?)       — pasang panggung 3D di #dieScene (idempoten; menunggu modul DiceKit bila belum siap)
+     showDie(v, anim)     — anim=true: kocok + lempar fisika yang berakhir di v, mengembalikan Promise (selesai saat dadu mendarat dan angka tampil)
+                            anim=false: dadu diam dengan muka v di atas (mengembalikan Promise yang sudah selesai)
+     roll(v) / setValue(v) / reset()  — = showDie(v,true) / showDie(v,false) / showDie(1,false)
+     setSkin(gameKey)     — ganti skin dadu (material 3D)
+     setSound(on) / setVolume(0..1) — ikuti pengaturan suara gameplay
+     ready                — true bila dadu 3D sudah terpasang
+   Guard gameId/STALE tetap di pemanggil (gameplay.html): modul ini tidak menahan state game. */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
   if (UT.GameplayDiceUI) return;
 
-  var PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-  var DIE_T = { 1: [0, 0], 2: [90, 0], 3: [0, -90], 4: [0, 90], 5: [-90, 0], 6: [0, 180] };
-  var dieEl = null, dieScene = null, dX = 0, dY = 0;
+  var scene = null, stage = null, kit = null, failed = false;
+  var want = { key: 'klasik', face: 1, sound: true, volume: 1 };
+  var SIZE = 230, CX = 32, CY = 44; /* panggung 230px; titik jatuh dadu = tengah tatakan (koordinat #dieScene 64x64) */
 
-  function init(die, scene) {
-    dieEl = die || doc.getElementById('die');
-    dieScene = scene || doc.getElementById('dieScene');
-    if (!dieEl) return false;
-    if (!dieEl.querySelector('.face')) { /* jangan buat muka ganda bila init dipanggil lagi */
-      for (var v = 1; v <= 6; v++) {
-        var f = doc.createElement('div'); f.className = 'face f' + v;
-        for (var i = 0; i < 9; i++) { var s = doc.createElement('i'); if (PIPS[v].indexOf(i) > -1) s.className = 'on'; f.appendChild(s); }
-        dieEl.appendChild(f);
-      }
+  function zoomOf() { /* skala CSS zoom dari induk (dock) agar canvas tidak buram */
+    try { var r = stage.getBoundingClientRect(); return r.width && stage.offsetWidth ? r.width / stage.offsetWidth : 1; } catch (e) { return 1; }
+  }
+
+  function pad(big) { try { var P = UT.DicePadFX; if (P && P.impact) P.impact(!!big); } catch (e) { /* abaikan */ } }
+
+  function mount() {
+    if (kit || failed || !stage || !win.DiceKit || !win.DiceKit.mount) return;
+    try {
+      var first = true;
+      kit = win.DiceKit.mount(stage, {
+        diceId: win.DiceKit.has(want.key) ? want.key : 'klasik',
+        quality: 'auto',
+        sound: want.sound,
+        pixelScale: zoomOf(),
+        onImpact: function (ev) { pad(first || ev.speed > 6); first = false; }
+      });
+      kit.setVolume(want.volume);
+      kit.showFace(want.face);
+      win.addEventListener('resize', function () { if (kit) kit.setPixelScale(zoomOf()); });
+      scene.classList.add('dice3d');
+      UT.GameplayDiceUI.ready = true;
+      win.dispatchEvent(new Event('ut:dice3d-ready'));
+    } catch (e) {
+      failed = true; kit = null;
+      console.error('[dice] Dice Kit gagal dipasang', e);
     }
+  }
+
+  function init(sceneEl) {
+    scene = sceneEl || doc.getElementById('dieScene');
+    if (!scene) return false;
+    if (!stage) {
+      try { if (win.getComputedStyle(scene).position === 'static') scene.style.position = 'relative'; } catch (e) { /* abaikan */ }
+      stage = doc.createElement('div');
+      stage.className = 'die3d';
+      stage.setAttribute('aria-hidden', 'true');
+      stage.style.cssText = 'position:absolute;pointer-events:none;z-index:2;width:' + SIZE + 'px;height:' + SIZE + 'px;' +
+        'left:' + Math.round(CX - SIZE / 2) + 'px;top:' + Math.round(CY - SIZE * 0.598) + 'px;';
+      scene.appendChild(stage);
+    }
+    if (win.DiceKit) mount(); else win.addEventListener('dicekit-ready', mount, { once: true });
     return true;
   }
 
-  /* Bayangan sisi KIRI: hitung normal tiap muka setelah rotasi akhir (tilt CSS rotateX(-28) rotateY(38) + rotasi dadu), muka yang menghadap kiri layar digelapkan. */
-  var TILT_X = -28, TILT_Y = 38, FACE_N = { 1: [0, 0, 1], 6: [0, 0, -1], 3: [1, 0, 0], 4: [-1, 0, 0], 5: [0, -1, 0], 2: [0, 1, 0] };
-  function rotX(n, d) { var a = d * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [n[0], n[1] * c - n[2] * s, n[1] * s + n[2] * c]; }
-  function rotY(n, d) { var a = d * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); return [n[0] * c + n[2] * s, n[1], -n[0] * s + n[2] * c]; }
-  function shade(fs, v) {
-    for (var k = 0; k < fs.length; k++) {
-      var f = fs[k], id = +f.className.match(/f([1-6])/)[1];
-      var n = rotX(rotY(rotX(rotY(FACE_N[id], dY), dX + 90), TILT_Y), TILT_X);
-      var left = n[2] > 0 ? Math.max(0, Math.min(0.5, -n[0] * 0.55)) : 0; /* x<0 = menghadap kiri */
-      f.style.setProperty('--sh', ((id === v ? 0 : 0.2) + left).toFixed(2));
-    }
-  }
-
-  /* Skin: muka dadu memakai tekstur asli dari DiceSkin (sama dengan preview Inventory); tanpa modul -> warna datar bawaan. */
-  function setSkin(key) {
-    if (!dieEl && !init()) return;
-    var S = win.UT && win.UT.DiceSkin, ok = false;
-    try { ok = !!(S && key && S.has(key)); } catch (e) { ok = false; }
-    var fs = dieEl.querySelectorAll('.face');
-    for (var k = 0; k < fs.length; k++) {
-      var id = +fs[k].className.match(/f([1-6])/)[1], url = '';
-      if (ok) { try { url = S.face(key, id); } catch (e) { url = ''; } }
-      fs[k].style.backgroundImage = url ? 'url(' + url + ')' : '';
-    }
-    dieEl.classList.toggle('tex', ok);
-  }
-
   function showDie(v, anim) {
-    if (!dieEl && !init()) return;
-    if (!DIE_T[v]) return; /* hanya 1..6; nilai lain diabaikan (hasil tetap ditentukan gameplay) */
-    var tx = DIE_T[v][0], ty = DIE_T[v][1];
-    var ax = Math.ceil((dX - tx) / 360) + (anim ? 2 : 0), ay = Math.ceil((dY - ty) / 360) + (anim ? 2 : 0);
-    dX = tx + 360 * ax; dY = ty + 360 * ay;
-    dieEl.style.transition = anim ? 'transform 1.18s cubic-bezier(.15,.7,.2,1)' : 'none';
-    dieEl.style.transform = 'rotateX(' + (dX + 90) + 'deg) rotateY(' + dY + 'deg)'; /* +90: muka hasil dibawa ke ATAS kubus (bukan depan/samping) */
-    var fs = dieEl.querySelectorAll('.face'); /* muka hasil tetap terang; muka lain digelapkan sedikit */
-    for (var k = 0; k < fs.length; k++) fs[k].classList.toggle('dim', !fs[k].classList.contains('f' + v));
-    shade(fs, v);
-    if (anim && dieScene) { dieScene.classList.remove('hop'); void dieScene.offsetWidth; dieScene.classList.add('hop'); }
+    if (!(v >= 1 && v <= 6)) return Promise.resolve(0); /* hanya 1..6; nilai lain diabaikan (hasil tetap ditentukan gameplay) */
+    want.face = v;
+    if (!kit) return Promise.resolve(v);
+    if (!anim) { kit.showFace(v); return Promise.resolve(v); }
+    var p = kit.roll(v);
+    return p ? p.then(function () { return v; }) : Promise.resolve(v);
   }
+
+  function setSkin(key) {
+    if (!key) return;
+    want.key = key;
+    if (kit && win.DiceKit.has(key)) kit.equip(key);
+  }
+
+  function setSound(on) { want.sound = !!on; if (kit) kit.setSound(want.sound); }
+  function setVolume(v) { v = +v; want.volume = isNaN(v) ? 1 : Math.max(0, Math.min(1, v)); if (kit) kit.setVolume(want.volume); }
 
   UT.GameplayDiceUI = {
+    ready: false,
     init: init,
     setSkin: setSkin,
+    setSound: setSound,
+    setVolume: setVolume,
     showDie: showDie,
-    roll: function (v) { showDie(v, true); },
-    setValue: function (v) { showDie(v, false); },
-    reset: function () { showDie(1, false); }
+    roll: function (v) { return showDie(v, true); },
+    setValue: function (v) { return showDie(v, false); },
+    reset: function () { return showDie(1, false); }
   };
 })(window, document);

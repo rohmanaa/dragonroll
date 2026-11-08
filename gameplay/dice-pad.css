@@ -11,17 +11,6 @@ html body #side .rcol .pnl.tn .die-dock .die-scene{
   position:absolute;left:43px;bottom:34px;top:auto;right:auto;margin:0;zoom:1;grid-area:auto;
   transform-origin:50% 100%;z-index:2;
 }
-html body #side .rcol .pnl.tn .die-dock .die-scene.hop{animation:dieDrop 1.4s both}
-@keyframes dieDrop{
-  0%{transform:translateY(-130px) scale(1.12);opacity:0;animation-timing-function:cubic-bezier(.55,0,.9,.6)}
-  8%{opacity:1}
-  40%{transform:translateY(0) scale(1.07,.88);opacity:1;animation-timing-function:cubic-bezier(.2,.6,.3,1)}
-  52%{transform:translateY(-24px) scale(.98,1.04);animation-timing-function:cubic-bezier(.55,0,.9,.6)}
-  66%{transform:translateY(0) scale(1.04,.94);animation-timing-function:cubic-bezier(.2,.6,.3,1)}
-  76%{transform:translateY(-7px) scale(1);animation-timing-function:cubic-bezier(.55,0,.9,.6)}
-  86%{transform:translateY(0) scale(1.01,.98)}
-  100%{transform:translateY(0) scale(1);opacity:1}
-}
 
 /* tatakan: glow, bayangan dadu, dan efek tertekan saat dadu menghantam */
 .die-dock .pad-glow{transform-box:fill-box;transform-origin:center;animation:padGlow 3.2s ease-in-out infinite}
@@ -106,7 +95,6 @@ html body #side .rcol .pnl.tn .die-dock .die-scene.hop{animation:dieDrop 1.4s bo
   #emoteDock{bottom:calc(205px + var(--slot,46px)*1.18 + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){
-  html body #side .rcol .pnl.tn .die-dock .die-scene.hop{animation:none}
   .die-dock .pad-glow,.die-dock.drop .pad-shadow,.die-dock.thud .pad-top,.die-dock.thud-s .pad-top,.die-dock .dp-ring.go{animation:none}
   .em-bubble{animation-duration:.01s}
 }

@@ -1,5 +1,5 @@
 /* Dice Pad FX + Emote (visual saja). Tidak menyentuh hasil dadu / giliran / logika game.
-   - Mendengarkan animasi 'hop' pada #dieScene (dipicu UT.GameplayDiceUI.showDie) lalu memunculkan efek tumbukan di tatakan.
+   - Efek tumbukan di tatakan dipicu dadu 3D asli (Dice Kit lewat UT.GameplayDiceUI -> UT.DicePadFX.impact) setiap dadu menghantam lantai.
    - Emote: tombol kiri bawah; memunculkan balon emoji dan mengirim CustomEvent 'ut:emote' (siap disambung ke multiplayer). */
 (function (win, doc) {
   'use strict';
@@ -7,10 +7,7 @@
 
   var reduce = win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var COLORS = ['rgba(235,242,255,.75)', 'rgba(190,215,255,.7)', 'rgba(255,225,140,.7)', 'rgba(170,180,200,.65)'];
-  var timers = [];
 
-  function clearTimers() { while (timers.length) clearTimeout(timers.pop()); }
-  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
   function restartClass(el, cls, ms) {
     el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
@@ -47,21 +44,14 @@
     burst(dock, layer, big ? 16 : 6, big ? 52 : 28, big ? 24 : 12);
   }
 
-  function initDice() {
-    var scene = doc.getElementById('dieScene');
+  /* Dipanggil UT.GameplayDiceUI tiap dadu 3D (Dice Kit) menghantam lantai: tatakan tertekan + cincin + partikel tipis. */
+  function impactNow(big) {
     var dock = doc.getElementById('dieDock');
-    if (!scene || !dock) return;
-    var layer = dock.querySelector('.dp-layer');
-    var ring = dock.querySelector('.dp-ring');
-    scene.addEventListener('animationstart', function (e) {
-      if (e.animationName !== 'dieDrop') return;
-      clearTimers();
-      restartClass(dock, 'drop');
-      /* waktu mengikuti keyframes dieDrop (1.4s): tumbukan 40% dan 66% */
-      later(function () { impact(dock, layer, ring, true); }, 560);
-      later(function () { impact(dock, layer, ring, false); }, 924);
-    });
-    scene.addEventListener('animationend', function (e) { if (e.animationName === 'dieDrop') dock.classList.remove('drop'); });
+    if (!dock) return;
+    var layer = dock.querySelector('.dp-layer'), ring = dock.querySelector('.dp-ring');
+    if (!layer || !ring) return;
+    if (big) { restartClass(dock, 'drop'); setTimeout(function () { dock.classList.remove('drop'); }, 1400); }
+    impact(dock, layer, ring, !!big);
   }
 
   function initEmote() {
@@ -90,7 +80,7 @@
     });
   }
 
-  function init() { initDice(); initEmote(); }
-  (win.UT = win.UT || {}).DicePadFX = { init: init };
+  function init() { initEmote(); }
+  (win.UT = win.UT || {}).DicePadFX = { init: init, impact: impactNow };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
 })(window, document);

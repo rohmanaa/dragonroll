@@ -31,11 +31,12 @@ export class DiceRenderer {
     this.qName = !opts.quality || opts.quality === 'auto' ? detectQuality() : opts.quality;
     this.q = QUALITY_PRESETS[this.qName];
     this._pending = {};
+    this.pixelScale = Math.max(1, Math.min(2, +opts.pixelScale || 1)); // kompensasi CSS zoom induk agar canvas tetap tajam
     this.opt = { transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
 
     const renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
     if (this.opt.transparent) renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, this.q.pixelRatio));
+    renderer.setPixelRatio(this._pr());
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -84,6 +85,7 @@ export class DiceRenderer {
     this.effects.sound.enabled = opts.sound !== false;
     this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop });
     this.animator.onResult = (r) => opts.onResult?.(r);
+    this.animator.onImpact = (ev) => opts.onImpact?.(ev);
 
     this._applyShadowSize();
     this.resize();
@@ -95,6 +97,17 @@ export class DiceRenderer {
     document.addEventListener('visibilitychange', this._onVis);
     if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(() => this.resize()); this._ro.observe(container); }
     this.start();
+  }
+
+  /** Pixel ratio efektif: DPR perangkat (dibatasi preset kualitas) x kompensasi zoom, maksimum 3. */
+  _pr() { return Math.min(3, Math.min(globalThis.devicePixelRatio || 1, this.q.pixelRatio) * (this.pixelScale || 1)); }
+
+  setPixelScale(s) {
+    s = Math.max(1, Math.min(2, +s || 1));
+    if (Math.abs(s - this.pixelScale) < 0.01) return;
+    this.pixelScale = s;
+    this.renderer.setPixelRatio(this._pr());
+    this.resize();
   }
 
   _buildArena() {
@@ -156,12 +169,15 @@ export class DiceRenderer {
   /** Lempar begitu siap: bila dadu sedang bergulir, tunggu selesai (dan pergantian dadu) lalu lempar. */
   rollWhenReady() { if (!this.animator.busy) return this.roll(); this._pending.roll = true; return null; }
   toIdle() { this.animator.toIdle(); }
+  /** Dadu diam dengan angka v di atas (tanpa animasi). false bila lemparan sedang berjalan. */
+  showFace(v) { return this.animator.showFace(v); }
+  get busy() { return this.animator.busy; }
 
   setQuality(name) {
     if (!QUALITY_PRESETS[name]) return;
     if (this.animator.busy) { this._pending.quality = name; return; }
     this.qName = name; this.q = QUALITY_PRESETS[name];
-    this.renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, this.q.pixelRatio));
+    this.renderer.setPixelRatio(this._pr());
     this._applyShadowSize();
     this.effects.setQuality(this.q);
     this.materials.clear();

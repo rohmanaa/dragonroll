@@ -7,8 +7,6 @@ html body.opp-turn #side #diceMeter{display:none!important} /* bar angka 1-6 (da
 html body #side .pr:not(.host) .pos::before{display:none}
 html body.mp-online #side .pr.host::after{content:none} /* satu mahkota saja (di samping posisi) */
 html body #side .pr:not(.host) .pos{gap:0}
-.face::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--sh,0);pointer-events:none;transition:opacity .25s}
-.face.dim::after{opacity:var(--sh,.2)}
 #turnToast{position:fixed;left:50%;top:44%;z-index:60;translate:-50% -50%;padding:10px 30px 12px;border:3px solid #7fd0ff;border-radius:999px;color:#fff;font:800 clamp(18px,2.4vw,30px)/1.1 "Baloo 2","Nunito",system-ui,sans-serif;text-shadow:0 2px 0 #0b1838;background:linear-gradient(#2e74e6,#123a94);box-shadow:0 0 0 3px #0b1838,0 6px 0 3px #0b1838,0 12px 16px rgba(0,0,0,.3);pointer-events:none;opacity:0;scale:.85;white-space:nowrap}
 #turnToast.show{animation:turnToast 1.3s ease both}
 @keyframes turnToast{0%{opacity:0;scale:.8}16%{opacity:1;scale:1.06}28%{scale:1}78%{opacity:1}100%{opacity:0;scale:.96}}
@@ -96,24 +94,8 @@ body.playing .side{display:block}
   #players{display:flex;gap:6px}.pr{margin:0;flex:1 1 0;min-width:0;padding:4px 6px;font-size:10px}
   .pnl{padding:8px}#pus{justify-content:center}
 }
-/* Dadu 3D */
-.die-scene{width:64px;height:64px;perspective:420px;flex:none}
-.die-scene.hop{animation:hop 1.1s}
-@keyframes hop{0%{transform:translateY(0)}30%{transform:translateY(-30px)}58%{transform:translateY(0)}72%{transform:translateY(-9px)}100%{transform:translateY(0)}}
-.die-tilt{width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(-28deg) rotateY(38deg)} /* miring seperti semula; muka ATAS (terang) = angka hasil, sisi lebih miring/gelap */
-.die{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.face{
-  position:absolute;inset:0;background:#fff;border:3px solid var(--ink);box-sizing:border-box;
-  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:7px;backface-visibility:hidden;
-}
-.face i{display:block}
-.face i.on{background:var(--ink);transform:scale(.82)}
-.f1{transform:translateZ(32px)}
-.f6{transform:rotateY(180deg) translateZ(32px)}
-.f3{transform:rotateY(90deg) translateZ(32px)}
-.f4{transform:rotateY(-90deg) translateZ(32px)}
-.f5{transform:rotateX(90deg) translateZ(32px)}
-.f2{transform:rotateX(-90deg) translateZ(32px)}
+/* Dadu = dadu 3D asli Dice Kit (canvas WebGL dipasang gameplay/dice-ui.js di #dieScene); kubus CSS lama sudah dihapus */
+.die-scene{width:64px;height:64px;flex:none}
 
 /* Overlay */
 .overlay{
@@ -143,7 +125,6 @@ body.playing .side{display:block}
   .msg{font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){
-  .die-scene.hop{animation:none}
   .chip,.btn{transition:none}
 }
 
@@ -215,11 +196,6 @@ body.hf-shake{animation:hfShake .35s}
 .pb:not(:disabled):hover{border-color:#fff}
 #pus{flex-wrap:wrap;max-width:min(420px,60vw)}
 .bf{flex:1 0 100%;font-size:11px}
-.face{background:var(--dbg,#fff);border-color:var(--dedge,var(--ink))}
-.face i.on{background:var(--dpip,var(--ink))}
-/* skin tekstur asli (DiceSkin): gambar sudah memuat titik, jadi titik CSS disembunyikan */
-.die.tex .face{background-size:100% 100%;background-repeat:no-repeat}
-.die.tex .face i{visibility:hidden}
 </style>
 <style>
 .col{top:calc(12px + env(safe-area-inset-top,0px))}
@@ -454,7 +430,7 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
         </g>
       </svg>
       <div class="dp-layer" aria-hidden="true"></div><i class="dp-ring"></i>
-      <div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div>
+      <div class="die-scene" id="dieScene"></div>
     </div></div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll</button>
@@ -1326,7 +1302,7 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/hud.js"></script>
 <link rel="stylesheet" href="gameplay/dice-pad.css">
 <script src="gameplay/dice-ui.js"></script>
-<script type="module" src="gameplay/dice-skin.js"></script>
+<script type="module" src="assets/js/dice-kit/index.js"></script>
 <script src="gameplay/dice-pad.js"></script>
 <script src="gameplay/audio.js"></script>
 <script src="gameplay/voxel-geom.js"></script>
@@ -4832,7 +4808,17 @@ const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||type
 
 /* ---------- Dadu ---------- */
 /* Presentation dadu = UT.GameplayDiceUI (gameplay/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
-function showDie(v,anim){ const D=window.UT&&UT.GameplayDiceUI; if(D) D.showDie(v,anim); }
+function showDie(v,anim){ const D=window.UT&&UT.GameplayDiceUI; return D?D.showDie(v,anim):Promise.resolve(v); }
+function dice3dOn(){ const D=window.UT&&UT.GameplayDiceUI; return !!(D&&D.ready); }
+/* Lempar dadu 3D asli (Dice Kit): kocok + fisika berakhir di angka v (angka tetap dari gameplay). Selesai saat dadu mendarat dan angka tampil;
+   batas 7 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
+function dieRoll(v){
+  const p=showDie(v,!reduce);
+  if(reduce) return sleep(250);
+  if(!dice3dOn()) return sleep(1300);
+  return Promise.race([p,sleep(7000)]);
+}
+function syncDiceSound(){ try{ const D=window.UT&&UT.GameplayDiceUI; if(D){ D.setSound(!muted); D.setVolume(sfxVol/100); } }catch(e){} }
 try{ const D=window.UT&&UT.GameplayDiceUI; if(D) D.init(); }catch(e){ console.error(e); }
 showDie(1,false);
 
@@ -5929,9 +5915,9 @@ async function doRoll(opt){
     if(spOK) v=opt.value;
     else{ const cv=chestDiceForce(p); if(cv) v=cv; try{ syncDiceGuide(); }catch(e){} } /* flag dadu (Pasti 6 / Ramuan Ganjil / Ramuan Genap) berlaku 1 roll */
   }
-  const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});
+  const rs=dice3dOn()?null:sfx.roll(); mpCue({k:'roll',pid:p.networkId,v:v}); /* dadu 3D punya suara sendiri (kocok, benturan) */
   try{
-    await sleep(reduce?250:1300); sfx.rollStop(rs); if(gid!==gameId) return;
+    await dieRoll(v); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
     const SX=UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* aturan tiga-6 = game-core.js */
     await sleep(300); if(gid!==gameId) return;
@@ -6047,7 +6033,7 @@ function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) re
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
   const p=mpPlayerByNet(c.pid); if(!p) return Promise.resolve();
-  if(c.k==='roll'){ const rs=sfx.roll(); showDie(c.v,!reduce); setMsg(p.name+' melempar dadu...'); return sleep(reduce?250:1300).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
+  if(c.k==='roll'){ const rs=dice3dOn()?null:sfx.roll(); setMsg(p.name+' melempar dadu...'); return dieRoll(c.v).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
   if(c.k==='walk') return walk(p,c.from,c.to);
   if(c.k==='climb') return climb(p,c.from,c.to);
   if(c.k==='bite') return bite(p,c.from,c.to,gameId);
@@ -6227,15 +6213,13 @@ if(!DICE.length) DICE.push({key:'klasik',name:'Klasik',bg:'#ffffff',pip:'#1b2a3b
 function equippedGameKey(slot){ try{ const it=window.ItemCatalog.byId(window.PlayerData.equippedId(slot)); return (it&&it.gameKey)||null; }catch(e){ return null; } } /* Tahap 5a: pilihan dadu/tema dari PlayerData, bukan key lokal */
 let diceKey=equippedGameKey('dice')||'klasik';
 function applyDice(k){
-  const d=DICE.find(x=>x.key===k)||DICE[0]; diceKey=d.key; const rs=document.documentElement.style;
-  rs.setProperty('--dbg',d.bg); rs.setProperty('--dpip',d.pip); rs.setProperty('--dedge',d.edge);
-  try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&D.setSkin) D.setSkin(d.key); }catch(e){} /* muka dadu = tekstur asli seperti preview Inventory */
+  const d=DICE.find(x=>x.key===k)||DICE[0]; diceKey=d.key;
+  try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&D.setSkin) D.setSkin(d.key); }catch(e){} /* skin = material dadu 3D asli (Dice Kit), sama dengan preview Inventory */
   $('btnDice').textContent='Dadu: '+d.name;
   document.querySelectorAll('.dbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-d')===d.key)));
 }
 $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.key===diceKey)+1)%DICE.length].key));
 applyDice(diceKey);
-window.addEventListener('ut:diceskin-ready',()=>{ try{ applyDice(diceKey); }catch(e){} }); /* modul skin dimuat setelah script ini -> pasang ulang */
 updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ submitRoll(); });
 /* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
@@ -6268,11 +6252,12 @@ $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
-$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/tabler/'+(muted?'volume-off':'volume')+'.svg" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
+$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/tabler/'+(muted?'volume-off':'volume')+'.svg" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
 let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
-function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} }
+function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} syncDiceSound(); }
 setSfxVol(sfxVol);
+window.addEventListener('ut:dice3d-ready',syncDiceSound); /* dadu 3D dimuat belakangan -> samakan suara */
 function syncMusicUI(){
   const v=$('pmVol'); if(v){ v.value=musicVol; paintRange(v); }
   const f=$('pmSfx'); if(f){ f.value=sfxVol; paintRange(f); }

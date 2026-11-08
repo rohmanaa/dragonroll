@@ -459,8 +459,7 @@ function mountKit(){
  const host=$('#show');if(!host)return;
  try{
   const k=sel&&window.DiceKit.has(sel.gameKey)?sel.gameKey:'klasik';
-  KIT=window.DiceKit.create(host,{diceId:k,transparent:true,arena:false,quality:SET().graphics==='high'?'high':'auto',
-   bounds:{x:1.3,z:1.1},idleZ:0,camScale:.42,lookY:.8,drop:true,sound:!!SET().sound});
+  KIT=window.DiceKit.mount(host,{diceId:k,quality:SET().graphics==='high'?'high':'auto',camScale:.42,sound:!!SET().sound}); /* mount = preset panggung BERSAMA dengan gameplay (DiceKit.STAGE) */
   const gl=$('#gl');if(gl)gl.style.display='none';
   host.style.cursor='pointer';host.style.touchAction='manipulation';
   host.addEventListener('click',()=>{if(!KIT)return;prepKitSound();KIT.roll()});
