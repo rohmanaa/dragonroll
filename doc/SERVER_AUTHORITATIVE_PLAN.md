@@ -23,7 +23,7 @@ Celah yang ditemukan (nomor dipakai di tahap di bawah):
 | B | `bump_player_counter` dipanggil klien (maks 20 per panggilan, tanpa batas) | Sedang | S1 (batas harian), S2 (tuntas) |
 | C | Game lawan CPU tidak bisa diverifikasi: XP +40/+120 per match (jeda 45 dtk) dan hadiah boss CPU (500 koin + 10 gem, 5 per hari, jeda 3 menit) bisa dipanggil lewat skrip | Sedang | S5 (selesai: nominal dikecilkan) |
 | D | Hadiah boss online membaca pemenang dari `game_state` room yang ditulis klien (room palsu) | Rendah-sedang | S6 (selesai: room diverifikasi lewat log server) |
-| E | State yang masih hanya lokal: `settings`, `profile.name`, `stats` dasar, data tamu | Rendah | S3, S4 |
+| E | State yang tampak hanya lokal: `settings`, `profile.name`, `stats` dasar, data tamu | Rendah | S3, S4 (ternyata sudah terpenuhi) |
 
 ## 2. Aturan yang berlaku di semua tahap
 
@@ -58,23 +58,26 @@ Celah yang ditemukan (nomor dipakai di tahap di bawah):
     Penutupan tuntas menunggu verifikasi game di server (opsi simulasi di S5).
 - [ ] Migrasi sudah dijalankan di Supabase produksi
 
-### S3 — State lokal murni pindah ke server (E)
-- Tabel baru `player_profiles` (nama tampilan, pengaturan inti) + RPC `get_my_profile_settings` /
-  `set_my_profile_settings` dengan validasi (panjang nama, nilai enum).
-- `stats` dasar dihitung dari `player_stats` server; tidak ada salinan yang bisa diedit di klien.
-- `equipped`, `gearDye`, `look`, `outfits`: sudah diatur lewat `appearance_save` dan `outfit_*`; pastikan
-  semua halaman membaca dari `appearance_get` (bukan `PlayerData` lokal) sebagai sumber.
-- Verifikasi: hapus localStorage lalu login; semua data kembali dari server.
-- [ ] Selesai
+### S3 — State lokal murni pindah ke server (E) — SUDAH TERPENUHI (hasil pemeriksaan kode)
+Setelah dibaca ulang, kondisi di `main` lebih maju dari perkiraan awal:
+- `profile.name`: diisi dari server (`auth.js` -> `setName`, dan `applyServerStats` dari `get_my_profile`).
+- `stats` dan `xp`: hanya berubah lewat `applyServerStats` (balasan server). `grant()` dan `recordMatch()` sudah dihapus.
+- `settings` (grafis, ambience, musik, suara, getar): preferensi perangkat di `UT.Prefs`, disinkronkan ke server oleh
+  `prefs-sync.js` (tabel `player_prefs`). Bukan data yang memengaruhi ekonomi atau ranking.
+- `equipped`, `gearDye`, `look`, `outfits`: kosmetik. Perubahan lokal dikirim ke server (`appearance_save`, `outfit_*`)
+  yang memvalidasi kepemilikan; server menang saat sinkron (`appearance-service.js`).
+- Tidak ada tabel baru yang perlu dibuat. Satu-satunya sisa: kosmetik lokal tampil dulu sebelum server membalas.
+- [x] Terpenuhi
 
-### S4 — `PlayerData` menjadi cache baca-saja
-- Hapus semua jalur tulis otoritatif di `assets/js/player-data.js` (tambah koin/XP/item lokal).
-  Semua perubahan lewat `wallet-service.js` / service RPC lain; hasilnya mengisi cache.
-- Mode tamu/offline: hanya melihat dan bermain latihan, tanpa hadiah dan tanpa penyimpanan.
-- Hapus key legacy dan dokumentasikan kunci yang tersisa.
-- Verifikasi: tes `tests/` untuk `PlayerData` diperbarui (tidak ada mutasi saldo lokal); ubah localStorage lewat
-  devtools lalu muat ulang, nilai kembali ke nilai server.
-- [ ] Selesai
+### S4 — `PlayerData` menjadi cache baca-saja — SUDAH TERPENUHI untuk data ekonomi
+- `purchase`, `purchaseSet`, dan `addCurrency` mengembalikan `walletDenied()`: saldo dan inventory hanya berubah lewat
+  `WalletService` lalu `applyServerWallet`/`applyServerItem` (Tahap 3c, 6b, 6c).
+- Koin, gem, XP, dan statistik hanya diisi dari balasan server; tidak ada jalur tambah lokal.
+- Mode tamu: saldo mulai 0 dan tidak ada jalur hadiah lokal.
+- Yang masih bisa ditulis lokal hanya kosmetik (equip, look, dye, outfit) dan pengaturan perangkat, keduanya divalidasi
+  atau disinkronkan server. Mengubah localStorage tidak menambah koin, gem, XP, atau item.
+- [x] Terpenuhi (data ekonomi). Opsional: bila kelak ingin kosmetik juga murni server, tunggu balasan server sebelum
+  menampilkan perubahan (kompromi: UI terasa lebih lambat).
 
 ### S5 — Hadiah game lawan CPU (tutup C) — SELESAI (keputusan: hadiah kecil, batas ketat)
 Keputusan: lawan CPU tetap memberi XP dan koin, tapi kecil.
@@ -104,7 +107,7 @@ Keputusan: lawan CPU tetap memberi XP dan koin, tapi kecil.
 
 ## 4. Urutan yang disarankan
 
-S1, S2, S5, S6 selesai (menunggu migrasi dijalankan) → S3 → S4 → S7.
+S1, S2, S5, S6 selesai (menunggu migrasi dijalankan). S3 dan S4 ternyata sudah terpenuhi di kode. Tinggal S7.
 S2 dan S3 bisa dikerjakan paralel. S4 sebaiknya setelah S3, supaya tidak ada data yang kehilangan rumahnya.
 
 ## 5. Yang belum diketahui / perlu dicek saat mengerjakan
