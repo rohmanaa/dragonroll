@@ -593,7 +593,7 @@ function show(t){
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab!==cur)show(b.dataset.tab)}));
 $('#back').addEventListener('click',()=>{location.href='lobby.html'});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href='shop.html'}));
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1'}));
 const q=new URLSearchParams(location.search).get('tab');
 show(q==='misi'?'misi':'hadiah');
 document.documentElement.classList.add('ut-ready');

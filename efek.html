@@ -395,11 +395,7 @@ function confirmBuy(i){
   });
 }
 /* Top-up lewat PlayerData.addCurrency — tidak ada currency state kedua. */
-function buy(type){if(type==='gem'){location.href='shop.html?emerald=1';return}const g=false,packs=g?[[10,'Rp 15.000'],[50,'Rp 59.000'],[120,'Rp 129.000']]:[[500,'10 Gem'],[2500,'40 Gem'],[10000,'120 Gem']];
- openModal(`<h2>Tambah ${g?'Gem':'Coin'}</h2>`+packs.map((p,i)=>`<button class="pack" data-i="${i}"><span>+${fmt(p[0])}</span><span>${p[1]}</span></button>`).join(''),()=>{
-  document.querySelectorAll('.pack').forEach(b=>b.addEventListener('click',async()=>{const i=+b.dataset.i,p=packs[i];const r=g?(SV()?{ok:false,reason:'tidak-tersedia'}:PD.addCurrency(0,p[0])):(SV()?await WS().exchange(i):PD.addCurrency(p[0],-[10,40,120][i]));
-   if(!r.ok){toast(WMSG[r.reason]||'Transaksi gagal.');playSound('error');return}
-   renderInfo();pulse(g?'#gem':'#coin');playSound('coin');toast(g?'Berhasil (mock)':'Berhasil');closeModal()}))})}
+function buy(type){location.href=type==='gem'?'shop.html?emerald=1':'shop.html?coin=1'}
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
 $('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
 window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
