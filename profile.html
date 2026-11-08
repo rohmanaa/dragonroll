@@ -474,7 +474,7 @@ const kcount=k=>PD.ownedItems().filter(o=>o.item.kind===k).length;
  PROF.uid='#'+data.session.user.id.slice(0,8).toUpperCase();
  await import('./assets/js/multiplayer/progress-service.js');
  const sp=await UT.Multiplayer.Progress.getMyProfile();
- if(sp&&sp.exists){SRV=sp;PROF.rank=sp.rank?Number(sp.rank):null;renderCurrency()}
+ if(sp&&sp.exists){SRV=sp;PROF.rank=sp.rank?Number(sp.rank):null;PD.applyServerStats({xp:sp.xp,plays:sp.plays,wins:sp.wins,streak:sp.streak,bestStreak:sp.best_streak,points:sp.points,weekPoints:sp.week_points,name:sp.name});renderCurrency()}
  render();
 }catch(e){console.warn('[profil] data server gagal',e)}})();
 function render(){

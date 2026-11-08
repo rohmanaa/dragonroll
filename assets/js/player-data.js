@@ -49,6 +49,9 @@
       return (a && typeof a.id === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(a.id)) ? a.id : '';
     } catch (e) { return ''; }
   }
+  function accountName() {
+    try { var a = JSON.parse(localStorage.getItem('ut-auth') || 'null'); return (a && typeof a.username === 'string') ? a.username : ''; } catch (e) { return ''; }
+  }
   function keyFor(base) { var id = accountId(); return id ? base + ':acct:' + id : base; }
   function key() { return keyFor(BASE_KEY); }
   var memState = null;     /* cadangan di memori jika localStorage tidak bisa dipakai */
@@ -620,6 +623,9 @@
     /* Nama profil (bagian dari player state). */
     setName: function (name) {
       if (typeof name !== 'string' || !name.trim()) return null;
+      /* Tahap 6b: akun login -> nama = username akun (server menentukan nama lewat trigger player_stats_enforce_name).
+         Nama lain ditolak supaya tampilan lokal tidak menyimpang dari leaderboard. */
+      if (serverMode() && name.trim().toLowerCase() !== accountName().toLowerCase()) return null;
       var st = load();
       st.profile.name = name.trim().slice(0, 16);
       if (!write(st)) return null;

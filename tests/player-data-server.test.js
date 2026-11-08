@@ -330,6 +330,17 @@ t('Tahap 6b: tanpa akun applyServerStats ditolak dan recordMatch lokal tetap jal
   assert.strictEqual(PD.recordMatch({ token: 'cpu:y', won: true }).ok, true);
 });
 
+t('Tahap 6b: akun login -> setName hanya menerima username akun; nama lain ditolak', () => {
+  const { PD } = boot({ store: { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 'Rohman_aa' }) }, flag: true });
+  assert.strictEqual(PD.setName('Hacker'), null);
+  assert.notStrictEqual(PD.profile().name, 'Hacker');
+  assert.strictEqual(PD.setName('rohman_AA').name, 'rohman_AA');
+});
+t('Tahap 6b: tanpa akun setName tetap bebas (jalur tamu)', () => {
+  const { PD } = boot({});
+  assert.strictEqual(PD.setName('Tamu').name, 'Tamu');
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');
