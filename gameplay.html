@@ -4623,7 +4623,7 @@ function buildWorld(key){
   if(BOSS==='dragon'){
   PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
-  MOUNT=buildMountain(); world.add(MOUNT.g); /* Feature 2: gunung batu penutup arena (menggantikan farm kiri) */
+  MOUNT=buildMountain(); MOUNT.g.visible=false; world.add(MOUNT.g); /* gunung batu kiri disembunyikan (logika fase Dragon tetap utuh) */ /* Feature 2: gunung batu penutup arena (menggantikan farm kiri) */
   }
   buildMobs(th);
 
