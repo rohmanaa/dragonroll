@@ -2999,14 +2999,13 @@ try{ autoDN=UT.Prefs.get('autoDN',false)===true; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
 try{ night=UT.Prefs.get('night',false)===true; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
-/* corak papan: petak genap = bingkai gelap + inti terang, petak ganjil = papan catur kecil */
+/* corak petak (4x4 blok): hanya 2 warna utama per petak = border (12 blok) lebih gelap + tengah (4 blok) sedikit lebih terang. Warna dasar petak tetap dari tileBlock(). */
 function tileShade(bc,n,t,i,j,themeKey){
   const k=(n===GOAL||LADDERS[n]||SNAKES[n]||mobOn(n,themeKey))?0.6:1;
-  const corner=(i%3===0&&j%3===0),inner=(i===1||i===2)&&(j===1||j===2),ring=(i===0||i===3||j===0||j===3);
-  let d;
-  if((t.col+t.row)%2===0) d=corner?-0.11:(inner?0.07:(ring?-0.02:0));
-  else d=(((i+j)&1)?0.06:-0.05)+(corner?-0.05:0);
-  const c=new THREE.Color(bc); c.offsetHSL(0,0,d*k+(rnd()-0.5)*0.07); return c;
+  const ring=(i===0||i===3||j===0||j===3);
+  const d=ring?-0.06:0.03;
+  rnd(); /* tetap dipanggil agar urutan rnd() & seed dunia tidak bergeser */
+  const c=new THREE.Color(bc); c.offsetHSL(0,0,d*k); return c;
 }
 function tileBlock(n,t,th){
   if(n===GOAL) return th.goalTile;
