@@ -2575,7 +2575,7 @@ function buildMcTerrain(TB,th){
   for(let ix=-7.5;ix<=7.5;ix+=1) for(let iz=-6.5;iz<=6.5;iz+=1){
     if(Math.abs(ix)<5&&Math.abs(iz)<5) continue;
     { const j=jit(G,0.08); /* jit tetap dipanggil agar urutan rnd() sama */
-      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,ix,iz,1,0.012); }
+      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); }
       else addBox(TB,ix,-0.1,iz,1,0.2,1,j); }
   }
   for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
@@ -2586,7 +2586,7 @@ function buildMcTerrain(TB,th){
       if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
       /* naik 0.02 agar tidak sebidang (z-fighting) dengan rumput 1x1 sekeliling board yang menimpa strip gz=+-7 */
-      if(grassy&&h<2.5){ addBox(TB,gx,h-0.08,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); grassTile(TB,gx,gz,2,h+0.032); }
+      if(grassy&&h<2.5){ addBox(TB,gx,h-0.08,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); }
       else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
   }
   if(mc) addIslUnder(TB);
