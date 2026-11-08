@@ -251,6 +251,12 @@ html body .use img{width:3rem;height:3rem}
 #fxbar button{pointer-events:auto;height:4rem;padding:0 1.8rem;font:inherit;font-size:1.8rem;color:#fff;cursor:pointer;border:.25rem solid #172033;border-radius:.8rem;background:linear-gradient(var(--sl3),var(--sl4));box-shadow:inset 0 .15rem 0 rgba(255,255,255,.25),0 .15rem 0 #0b1220;text-shadow:0 .12rem 0 #0b1220}
 #fxbar button.on{outline:.3rem solid #ffe36a;outline-offset:-.1rem}
 </style>
+<style id="efek-no-left-panel">
+/* Panel kiri (info nama/deskripsi) dihapus dan panel preview tanpa bingkai: karakter tampil lebih besar */
+html body #info{display:none!important}
+html body #show{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+@media (min-aspect-ratio:1/1){html body #show{bottom:1.6rem}}
+</style>
 </head>
 <body>
 <div id="sky"></div>
@@ -442,7 +448,7 @@ function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE
  rigs.push(R);return R}catch(e){ok=false;console.warn('WebGL unavailable',e);return null}}
 let main,pv,spin=0;
 /* Efek: karakter pemain (assets/js/blocky-character.js, diekstrak dari karakter.html) + AuraSystem. Karakter dibuat sekali per rig; ganti aura = setAura. */
-const FXSCALE=1.9;
+const FXSCALE=2.5; /* karakter lebih besar */
 const fxQ=()=>SET().graphics==='high'?FX.detectQuality():'low';
 function fxClear(R){if(R&&R.fx){try{R.fx.sys.dispose()}catch(e){}R.fx=null}}
 function fxShow(R,it){
@@ -474,7 +480,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Ma
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 setCat(PAGE); /* mengisi sel dari PlayerData + render grid/info/recent */
-if(ok){main=rig($('#gl'),false,1.8,19,36); /* tanpa pulau melayang 3D */if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(ok){main=rig($('#gl'),false,2.3,13,36); /* tanpa pulau melayang 3D */if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
