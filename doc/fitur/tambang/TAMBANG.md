@@ -1,0 +1,133 @@
+# Fitur Tambang (penambang emerald pasif)
+
+> Dokumen hidup. Setiap selesai satu pekerjaan, ubah `[ ]` jadi `[x]` di bagian **Checklist** lalu commit.
+> Prompt untuk AI lain yang melanjutkan ada di `PROMPT_LANJUTAN.md` (folder yang sama).
+> Catatan lokasi: folder dokumen repo ini bernama `doc/` (bukan `docs/`), jadi file ini ada di `doc/fitur/tambang/`.
+
+## 1. Ringkasan
+Halaman baru `tambang.html`: tiga slot tambang. Tiap slot berisi satu penambang (karakter voxel, wajah berbeda dari karakter pemain)
+yang menggali batu emerald, menghasilkan Emerald secara pasif per jam, disimpan di peti (chest) dengan kapasitas terbatas.
+Pemain mengumpulkan (collect) Emerald dari peti ke dompet, membuka slot dengan Coin, dan meng-upgrade kecepatan, kapasitas,
+serta memakai Percepat (boost) dengan Coin.
+
+## 2. Aturan wajib (dari permintaan)
+- **Semua data & hitungan di SERVER (Supabase).** Tanpa localStorage sebagai sumber data, tanpa mockup, tanpa angka hardcode di klien.
+  Klien hanya menampilkan hasil RPC. Angka ekonomi ada di konstanta SQL (`c_*`) dan dikirim balik lewat `mine_get()` supaya UI tidak punya salinan sendiri.
+- Waktu dipercaya dari server (`now()`), bukan jam perangkat. Penambahan Emerald memakai `_wallet_apply` (ledger idempoten), sama seperti dompet lain.
+- Semua slot **terkunci** di awal. Penambang hanya muncul setelah slot dibuka.
+
+## 3. Navigasi
+| Dari | Tombol | Tujuan |
+|---|---|---|
+| Lobby | tombol **TAMBANG** (baru) | `tambang.html?from=lobby` |
+| Semua halaman yang punya "+ Emerald" (`data-buy="gem"`) | `+` di samping Emerald | `tambang.html?from=<halaman asal>` (lihat catatan) |
+| Tambang | **Back** (kiri atas) | kembali ke halaman asal (`from`); bila tidak ada `from` -> `lobby.html` |
+| Tambang | **Home** (kanan atas, paling kanan) | `lobby.html` |
+
+Contoh: dibuka dari Karakter -> `tambang.html?from=karakter.html` -> Back kembali ke `karakter.html`. Dibuka dari Lobby -> Back ke `lobby.html`.
+`from` hanya diterima bila berupa nama file `.html` yang ada di daftar putih di klien (cegah open-redirect).
+
+Catatan: saat ini "+ Emerald" membuka `shop.html?emerald=1` (modal tonton iklan). Keputusan: "+ Emerald" ke Tambang atau tetap ke iklan
+dicatat di bagian **Keputusan terbuka**. Panel iklan tetap ada di Toko.
+
+## 4. Ekonomi (nilai awal, semua di SQL, mudah diubah)
+Acuan nilai saat ini: 10 Gem = 500 Coin (1 Gem ~ 50 Coin). Iklan = 5 Gem x maks 5/hari (25/hari). Boss CPU = 10 Gem x maks 5/hari.
+Penghasilan tambang dibuat lebih kecil dari iklan di awal dan baru mendekati setelah upgrade besar.
+
+| Slot | Buka (Coin) | Dasar Emerald/jam (Lv1) | Penambang |
+|---|---|---|---|
+| 1 | 500 | 0.20 | skin NPC A |
+| 2 | 2.500 | 0.30 | skin NPC B |
+| 3 | 10.000 | 0.50 | skin NPC C |
+
+Kecepatan (upgrade `speed`, Lv1-Lv5): pengali `1.00 / 1.25 / 1.50 / 1.75 / 2.00`. Biaya naik ke Lv2..Lv5 (Coin): `400 / 1.000 / 2.500 / 6.000`, dikali `1.0 / 1.5 / 2.0` untuk slot 1/2/3.
+
+Kapasitas peti (upgrade `cap`, Lv1-Lv5): `15 / 20 / 25 / 30 / 40` Emerald. Biaya ke Lv2..Lv5 (Coin): `300 / 800 / 2.000 / 5.000`, dikali faktor slot yang sama.
+
+Percepat (boost): pengali 2x selama 4 jam, biaya `150 / 200 / 300` Coin untuk slot 1/2/3, tidak bisa ditumpuk (selagi aktif tidak bisa dibeli lagi), maks 2x per slot per hari WIB.
+
+Perkiraan hasil per hari (jika dikumpulkan tiap hari, tanpa boost):
+- Semua Lv1: (0.2 + 0.3 + 0.5) x 24 = **24 Emerald/hari**, tapi peti penuh di 75 / 50 / 30 jam, jadi mengumpulkan sehari sekali sudah cukup.
+- Semua Lv5: 1.0 x 2.0 x 24 = **48 Emerald/hari** (peti 40 penuh di 100 / 67 / 40 jam).
+- Total Coin untuk memaksimalkan semuanya: buka 13.000 + speed 9.900 x 4,5 = 44.550 + kapasitas 8.100 x 4,5 = 36.450, kira-kira **94 ribu Coin** (sink Coin jangka panjang).
+- Emerald berbentuk bilangan bulat di dompet. Peti menghitung desimal (mis. 2,4), tombol Collect memindahkan bagian bulat saja, sisa pecahan tetap di peti.
+
+Batas keseimbangan yang dijaga: peti penuh berhenti produksi (tidak menumpuk tanpa batas), boost dibatasi per hari, semua pembelian idempoten di ledger.
+
+## 5. Desain database (migrasi baru, urutan setelah `202611150001_player_prefs.sql`)
+File: `supabase/migrations/202611160001_tambang.sql`. Setelah itu wajib `sh tools/build-schema-snapshot.sh` (tes snapshot gagal bila lupa).
+
+Tabel `player_mines` (satu baris per user per slot):
+`user_id, slot (1..3), speed_lv, cap_lv, stock numeric (isi peti saat stock_at), stock_at timestamptz, boost_until timestamptz null, boost_day date, boost_count int, collect_seq int, created_at`.
+RLS aktif, tanpa policy -> tabel tidak bisa diakses langsung; hanya lewat RPC `security definer`.
+
+Hitung produksi "malas" (lazy): saat ada aksi, server menyelesaikan (`_mine_settle`) isi peti = `min(kapasitas, stock + laju x jam_berlalu)`, dengan bagian waktu di dalam `boost_until` dihitung 2x. Tidak butuh cron.
+
+RPC (semua `authenticated`, `revoke` dari `public, anon`):
+| RPC | Fungsi |
+|---|---|
+| `mine_get()` | Konfigurasi ekonomi + status 3 slot: terkunci?, level, laju/jam efektif, isi peti, kapasitas, waktu boost, sisa jatah boost, biaya berikutnya. Menyelesaikan (settle) tanpa menulis. |
+| `mine_unlock(p_slot)` | Kurangi Coin (ledger `mine_unlock`, ref `slot:N`), buat baris slot. Idempoten. |
+| `mine_upgrade(p_slot, p_kind)` | `speed` atau `cap`. Kurangi Coin, naikkan level (ref `slot:N:kind:level` -> tidak bisa dobel). Settle dulu agar laju lama dihitung sampai saat ini. |
+| `mine_boost(p_slot)` | Kurangi Coin, set `boost_until`, batasi 2x/hari WIB dan tidak bisa saat masih aktif. |
+| `mine_collect(p_slot)` | Settle, ambil bagian bulat, tambah Emerald lewat `_wallet_apply` (reason `mine_collect`, ref `slot:N:seq`), sisakan pecahan. Return saldo baru. |
+
+Error mengikuti pola dompet: `{ok:false, reason:...}` untuk kasus normal (`terkunci`, `sudah-dibuka`, `level-maks`, `saldo-kurang`, `boost-aktif`, `batas-harian`, `peti-kosong`), `AUTH_REQUIRED` untuk belum login.
+
+## 6. Klien
+- `assets/js/mine-service.js` (`UT.MineService`): pembungkus RPC seperti `wallet-service.js` (satu permintaan per kunci, tidak melempar saat jaringan gagal, menyegarkan cermin saldo lewat `PlayerData.applyServerWallet`). Bisa dimuat di Node untuk tes.
+- `tambang.html`: pola halaman sama dengan `shop.html`/`karakter.html` (frame-guard, session, boot-guard, `ut-curbar` Coin/Emerald, tombol Back bergaya `#back`).
+- Adegan 3D (three.js lokal) memakai `UT.CharacterView.make(THREE, key, emote)`; tiga penambang memakai skin NPC berbeda dari skin yang dipakai pemain.
+  - Terkunci: bilik gelap + gembok + harga buka.
+  - Aktif: penambang berdiri, ayun beliung ke batu emerald; partikel emerald kecil dan ikon emerald melayang di atas kepala; emote `cheer` saat peti baru terisi / selesai collect.
+  - Peti penuh: penambang **duduk** istirahat dengan emote senang (animasi tambahan di halaman, bukan mengubah `character-view.js`; jika perlu pose duduk, tambahkan emote `sit` terpisah dan catat di dokumen ini).
+  - Batu: voxel batu abu + bijih emerald; pecah kecil tiap ayunan.
+- Panel tiap slot: Emerald/jam, isi peti `x / kapasitas`, bar peti, hitung mundur penuh, tombol Collect, Upgrade Kecepatan, Upgrade Kapasitas, Percepat (menampilkan sisa waktu boost).
+- Ringkasan atas: total Emerald/jam semua slot dan perkiraan Emerald/hari.
+- Saat tab kembali aktif dan tiap ~30 detik panggil `mine_get()` (sumber kebenaran); animasi hitungan isi peti hanya interpolasi tampilan dari angka server.
+
+## 7. Berkas yang akan dibuat / diubah
+Baru: `tambang.html`, `assets/js/mine-service.js`, `supabase/migrations/202611160001_tambang.sql`, `supabase/tests/tambang_test.sql`, `tests/mine-service.test.js`, dokumen ini.
+Ubah: `lobby.html` (tombol TAMBANG + ACT), halaman dengan `data-buy="gem"` (arah ke Tambang jika diputuskan), `assets/js/app.js` (daftar `UT.Router.toTambang`), `sw.js`/preload manifest bila halaman perlu masuk daftar, `supabase/snapshot/00_full_schema.sql`, `README.md` (baris halaman).
+
+## 8. Keputusan terbuka (tanyakan ke pemilik sebelum diubah)
+- [ ] "+ Emerald" di semua halaman: pindah ke Tambang, atau tetap ke Toko (iklan)? Usulan: Tambang menjadi tujuan utama, Toko tetap punya panel iklan.
+- [ ] Skin NPC final untuk 3 penambang (sementara: pilih dari `UT.CharacterData.list('player')` yang berbeda dari skin pemain). Opsi lanjutan: karakter baru `penambang` dengan helm tambang.
+- [ ] Angka ekonomi di bagian 4 (nilai awal usulan).
+- [ ] Terapkan migrasi ke proyek Supabase produksi (dilakukan pemilik, bukan AI).
+
+## 9. Checklist pekerjaan
+Dokumentasi & desain
+- [x] Riset pola repo (dompet server, RPC idempoten, navigasi, CharacterView)
+- [x] Tulis dokumen fitur + ekonomi + desain (file ini)
+- [x] Tulis prompt lanjutan (`PROMPT_LANJUTAN.md`)
+
+Server
+- [ ] Migrasi `202611160001_tambang.sql` (tabel `player_mines`, RLS, `_mine_settle`, 5 RPC)
+- [ ] Tes SQL `supabase/tests/tambang_test.sql` (buka, upgrade, boost, batas harian, kapasitas, collect idempoten, saldo kurang)
+- [ ] Perbarui snapshot (`sh tools/build-schema-snapshot.sh`) dan tes snapshot lulus
+- [ ] Terapkan migrasi ke Supabase produksi (oleh pemilik)
+
+Klien
+- [ ] `mine-service.js` + `tests/mine-service.test.js`
+- [ ] `tambang.html`: layout, Back (asal) + Home, bar Coin/Emerald
+- [ ] Adegan 3D: 3 bilik terkunci, penambang menggali, efek emerald, emote senang, pose duduk saat peti penuh
+- [ ] Panel slot: collect, upgrade kecepatan/kapasitas, percepat, hitung mundur
+- [ ] Tombol TAMBANG di lobby
+- [ ] Perilaku Back berdasarkan `from` (daftar putih) + tombol Home
+- [ ] "+ Emerald" di halaman lain diarahkan sesuai keputusan
+- [ ] Tambah ke Router / service worker / README
+
+Pengujian
+- [ ] Uji manual dua akun: waktu berjalan di server, tutup tab lalu buka lagi, peti terisi sesuai jam
+- [ ] Uji spam klik (Collect/Upgrade dua kali cepat) tidak dobel
+- [ ] Uji tampilan landscape ponsel
+
+## 10. Rencana ke depan (belum dijanjikan)
+- Slot 4+ atau jenis bijih lain (Coin dari tambang batu).
+- Event/boost iklan berhadiah untuk Percepat (butuh verifikasi iklan sisi server, lihat batas kepercayaan di `wallet_b6_ad_reward.sql`).
+- Notifikasi "peti penuh" dan misi harian "kumpulkan dari tambang".
+- Cosmetic penambang (helm) dari toko.
+
+## 11. Log pekerjaan
+- 2026-11-08: dokumen dibuat; desain ekonomi & RPC disusun; belum ada kode.
