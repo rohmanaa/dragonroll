@@ -476,7 +476,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Ma
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 setCat(PAGE); /* mengisi sel dari PlayerData + render grid/info/recent */
-if(ok){main=rig($('#gl'),true,1.8,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(ok){main=rig($('#gl'),false,1.8,19,36); /* tanpa pulau melayang 3D */if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
