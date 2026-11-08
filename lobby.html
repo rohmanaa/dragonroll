@@ -232,7 +232,7 @@ const soon=n=>toast(n+' segera hadir');
 const ACT={
  chr(){location.href='karakter.html'},frm(){location.href='frame.html'},dad(){location.href='dadu.html'},efk(){location.href='efek.html'},pwr(){location.href='powerup.html'},
  lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},hadmisi(){location.href='hadiah-misi.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
- free(){soon('Hadiah gratis')},buygem(){soon('Beli gem')},buycoin(){soon('Beli coin')},
+ free(){soon('Hadiah gratis')},buygem(){location.href='shop.html?emerald=1'},buycoin(){location.href='shop.html?coin=1'},
  gear(){location.href='settings.html'}
 };
 document.querySelectorAll('[data-act]').forEach(b=>{const f=()=>{buzz();ACT[b.dataset.act]()};b.addEventListener('click',f);if(b.getAttribute('role')==='button')b.addEventListener('keydown',e=>{if(e.key==='Enter')f()})});
