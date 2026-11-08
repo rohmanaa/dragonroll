@@ -68,6 +68,8 @@
     catch (e) { return null; }
   }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  /* UT.Prefs (prefs.js) dibaca malas-malasan: urutan muat skrip tidak penting. null bila tidak tersedia. */
+  function prefsStore() { try { var U = g.UT; return (U && U.Prefs && typeof U.Prefs.get === 'function') ? U.Prefs : null; } catch (e) { return null; } }
   function normSettings(s) {
     var out = clone(DEFAULT_SETTINGS);
     if (s && typeof s === 'object' && !Array.isArray(s)) {
@@ -451,7 +453,15 @@
       return { ok: true, duplicate: false, won: won, xpGain: gain, points: pts, level: after, levelUp: after > before,
                plays: s.plays, wins: s.wins, streak: s.streak, totalPoints: s.points, weekPoints: s.weekPoints };
     },
-    settings: function () { return clone(load().settings); },
+    /* Tahap 6b-3: pengaturan = preferensi PERANGKAT -> disimpan di UT.Prefs ('settings'), bukan di blob pemain/akun.
+       Impor sekali dari blob lama bila Prefs belum punya. Tanpa UT.Prefs (mis. tes node) jatuh ke blob seperti dulu. */
+    settings: function () {
+      var P = prefsStore();
+      if (!P) return clone(load().settings);
+      var v = P.get('settings', null);
+      if (!v || typeof v !== 'object') { v = normSettings(load().settings); P.set('settings', v); }
+      return normSettings(v);
+    },
     profile: function () { return clone(load().profile); },
     owns: function (id) { return !!load().inventory[id]; },
     qty: function (id) { var e = load().inventory[id]; return e ? e.qty : 0; },
@@ -592,15 +602,16 @@
 
     /* Pengaturan (bagian dari player state): whitelist field, satu penulisan. */
     setSettings: function (patch) {
-      var st = load();
+      var P = prefsStore();
       var p = (patch && typeof patch === 'object') ? patch : {};
-      var next = clone(st.settings);
+      var next = clone(API.settings());
       if (typeof p.music === 'boolean') next.music = p.music;
       if (typeof p.sound === 'boolean') next.sound = p.sound;
       if (typeof p.vibration === 'boolean') next.vibration = p.vibration;
       if (p.graphics === 'high' || p.graphics === 'low') next.graphics = p.graphics;
       if (p.ambience === 'day' || p.ambience === 'night' || p.ambience === 'system') next.ambience = p.ambience;
-      st.settings = next;
+      if (P) { P.set('settings', next); notify('settings'); return clone(next); }
+      var st = load(); st.settings = next;
       if (!write(st)) return null;
       notify('settings');
       return clone(next);
