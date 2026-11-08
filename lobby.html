@@ -160,6 +160,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
@@ -273,7 +274,10 @@ const anims=[];
 // pulau melayang dihapus: karakter berdiri di lantai batu pada latar lobby-bg.webp; latar+awan = SceneBackground (assets/js/scene-bg.js)
 const HERO_S=.9,HERO_Y=-1.95;/* skala & tinggi kaki: telapak pas di lantai batu bagian bawah-tengah latar */
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
-const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
+const hero=new THREE.Group();let bc=null,bcW=null;/* karakter baru (halaman Karakter) = UT.BlockyCharacter, dimuat dari PlayerData */
+function buildHero(){if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bcW=new THREE.Group();bcW.scale.setScalar(6.6);bcW.add(bc.root);hero.add(bcW)}
+buildHero();
+hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
 const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(0,HERO_Y+.03,.1);cs.scale.setScalar(HERO_S*1.2);scene.add(cs);/* AO kontak di bawah karakter */
 /* ---------- suasana siang/malam (Pengaturan > Suasana): lampu 3D berubah halus; malam = cahaya bulan dingin + lampu hangat di dekat karakter ---------- */
 const lamp=new THREE.PointLight(0xffb866,0,18,2);lamp.position.set(-4.5,HERO_Y+4.2,6.5);scene.add(lamp);
@@ -287,17 +291,18 @@ function setMood(m,instant){const p=LP[m]||LP.day;LT={c:{amb:p.amb[0],hemi:p.hem
 function moodStep(dt){if(moodT<=0||!LT)return;moodT-=dt;const a=1-Math.exp(-dt*5);for(const k in LT.c)LC[k].lerp(_c.set(LT.c[k]),a);for(const k in LT.n)LN[k]+=(LT.n[k]-LN[k])*a;lightApply()}
 setMood(UT.Ambience?UT.Ambience.resolved():'day',true);
 if(UT.Ambience)UT.Ambience.on(d=>{setMood(d.resolved);fit()});
-hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
+hero3d={rebuild(){buildHero()}};
+if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero()});
+addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 let cheer=0;
-cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.365&&x<.635&&yr>-21&&yr<17){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
+cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.365&&x<.635&&yr>-21&&yr<17){bc.jump();buzz()}});
 function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(hiG()?Math.min(devicePixelRatio,1.5):1);renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
 let lastT=0;
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;moodStep(dt);
  cam.position.set(0,5.5,26);cam.lookAt(0,3,0);
- if(cheer>0){cheer-=.016;if(cheer<=0){chI.visible=true;chC.visible=false}}
- (chC.visible?chC:chI).userData.anim(t);
+ bc.tick(dt);
  anims.forEach(f=>f(t));
    renderer.render(scene,cam)}
 loop();
