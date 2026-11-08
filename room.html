@@ -60,7 +60,7 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 .plr .blk svg{width:3.6rem;height:3.6rem;filter:drop-shadow(0 .12rem 0 rgba(60,30,0,.55))}
 .plr.c0 .blk{background:linear-gradient(#ff7a6b,#d4302a)}.plr.c1 .blk{background:linear-gradient(#58b6ff,#1f6fd6)}.plr.c2 .blk{background:linear-gradient(#ffd54a,#eea015)}.plr.c3 .blk{background:linear-gradient(#7fe35a,#2f9f2c)}
 .af{flex:none;height:4.4rem;aspect-ratio:4/3;padding:0;border-radius:.9rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;font-size:1rem;color:#fff;background:linear-gradient(#ff9fba,#d4506f);box-shadow:0 0 0 .18rem #7a2540,inset 0 .15rem .15rem rgba(255,255,255,.5);text-shadow:0 .1rem 0 #7a2540}.af b{font-size:1.9rem;line-height:.9}.af.sent{background:linear-gradient(#c5ccd8,#8794a8);box-shadow:0 0 0 .18rem #3b475a;text-shadow:none;color:#2a3548}
-.av{width:4.2rem;height:4.2rem;flex:none;border-radius:1rem;display:grid;place-items:center;font-size:2.2rem;background:linear-gradient(135deg,#b6e7ff,#7b9ed8);box-shadow:0 0 0 .2rem #60431e;color:#2b4a7a}.av img{width:80%;height:80%}
+.av-face img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}.av{width:4.2rem;height:4.2rem;flex:none;border-radius:1rem;display:grid;place-items:center;font-size:2.2rem;background:linear-gradient(135deg,#b6e7ff,#7b9ed8);box-shadow:0 0 0 .2rem #60431e;color:#2b4a7a}.av img{width:80%;height:80%}
 .pi{flex:1;min-width:0;line-height:1.15}.pi b{display:block;font-size:1.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pi small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.15rem;font-weight:700;color:#725c3d}
 .tg{font-size:.95rem;padding:.1rem .6rem;margin-left:.6rem;border-radius:.5rem;background:#ffce48;border:.1rem solid #83500b;color:#4a2c00;vertical-align:middle}.tg.me{background:#bfe3ff;border-color:#2a6aa8}
 .st{flex:none;font-size:1.2rem;padding:.2rem .9rem;border-radius:.8rem}.st.rd{background:#27992a;color:#fff}.st.wt{background:rgba(11,21,48,.15);color:#725c3d}
@@ -180,12 +180,13 @@ h2,#tt b,.box h2{-webkit-text-stroke:0;text-shadow:0 .16rem 0 #0b1220,0 0 .4rem 
  <div class="sc" id="drL"></div>
 </aside>
 <div id="toast"></div>
-<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
 <link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/frame-avatar.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script src="assets/js/room-flow.js"></script>
@@ -260,7 +261,7 @@ const EFFECT_ICON='assets/Images/icon/items/efek.webp';
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
 function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
- return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/character-face.js')).then(()=>{FACE_DONE=true;renderEq();if(UT.CharacterFace)UT.CharacterFace.watch(renderEq)})}
+ return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eqn').textContent=EQ.length+' ITEMS';
@@ -298,7 +299,12 @@ function renderMap(){
 }
 /* ---------- PLAYER ROOM ---------- */
 const me=()=>S.room.players.find(p=>p.id===(S.mpIdentity&&S.mpIdentity.id||'me'));
-function avatar(p){return p.kind==='bot'?'<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>':`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
+function avatar(p){
+ if(p.kind==='bot')return '<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>';
+ const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId;
+ /* pemain sendiri: foto profil = wajah karakter yang dipakai + frame yang sedang dipakai (sama dengan Lobby) */
+ if(isMe&&window.UT&&UT.CharacterFace&&window.FrameAvatar){const f=UT.CharacterFace.html('');if(f)return FrameAvatar.wrap('<span class="av av-face">'+f+'</span>','4.2rem',FrameAvatar.mine())}
+ return `<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
 const CROWN='<svg viewBox="0 0 24 24" aria-label="Host"><path d="M3 18.5h18l1-11.5-5.2 4.2L12 4 7.2 11.2 2 7z" fill="#ffe14d" stroke="#7a4a00" stroke-width="1.4" stroke-linejoin="round"/><rect x="3" y="18.5" width="18" height="2.6" rx="1" fill="#f0a010" stroke="#7a4a00" stroke-width="1.2"/></svg>';
 function prow(p,i){const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId,isHost=p.kind==='host',
  col=TEAM?(p.team===2?'c0':'c1'):'c'+((i||0)%4),blk=isHost?CROWN:(p.ready?'Ready':'Waiting'),
