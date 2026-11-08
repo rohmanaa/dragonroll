@@ -34,7 +34,7 @@
 
   C.MOB_POSITIONS = C.MOB_POSITIONS || [
     ['creeper', [30]], ['ender', [53]], ['skeleton', [38]], ['zombie', [2]],
-    ['villager', [5]], ['blaze', [66]]
+    ['villager', [85]], ['blaze', [66]]
   ];
   C.MOB_THEME_ONLY = C.MOB_THEME_ONLY || (G.Maps && G.Maps.list().length ? G.Maps.mobThemeOnly() : { blaze: 'nether' });
   C.MOB_BACK = C.MOB_BACK || { skeleton: 1, zombie: 1, warden: 10, blaze: 3, zombified_piglin: 1, magma_cube: 2, piglin: 2, hoglin: 3, zoglin: 5, piglin_brute: 6, ghast: 4 };
