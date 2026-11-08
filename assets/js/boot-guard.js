@@ -20,7 +20,7 @@
    Splash memuat semua data & aset, lalu kembali ke halaman tujuan. Flag disimpan per tab (sessionStorage). */
 (function () {
   try {
-    if (sessionStorage.getItem('ut:booted') === '1' && localStorage.getItem('ut-auth')) return; /* wajib sudah lewat splash DAN login */
+    if (sessionStorage.getItem('ut:booted') === '1' && window.UT && UT.Session && UT.Session.loggedIn()) return; /* wajib sudah lewat splash DAN login (tanpa session.js = dianggap belum login) */
   } catch (e) { return; }
   var page = location.pathname.split('/').pop() || 'index.html';
   if (page === 'splash.html') return;

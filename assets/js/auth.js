@@ -4,12 +4,12 @@
 import './multiplayer/client.js';
 const MP = window.UT.Multiplayer;
 const EMAIL_DOMAIN = 'dragonroll-game.com';
-const CACHE_KEY = 'ut-auth';
+const SS = window.UT.Session; if (!SS) throw new Error('session.js belum dimuat');
 const USER_RE = /^[A-Za-z0-9_]{3,16}$/;
 
 function emailOf(username) { return username.toLowerCase() + '@' + EMAIL_DOMAIN; }
-function readCache() { try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch (e) { return null; } }
-function writeCache(u) { try { u ? localStorage.setItem(CACHE_KEY, JSON.stringify(u)) : localStorage.removeItem(CACHE_KEY); } catch (e) {} }
+function readCache() { return SS.read(); }
+function writeCache(u) { u ? SS.write(u) : SS.clear(); }
 function applyName(username) { try { if (window.PlayerData && username) PlayerData.setName(username); } catch (e) {} }
 function userFrom(session) {
   if (!session || !session.user || session.user.is_anonymous) return null;

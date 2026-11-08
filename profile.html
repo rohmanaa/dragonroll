@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Profil</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/profile-bg.webp"></script><style>
@@ -487,7 +487,7 @@ function render(){
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
 <div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(PROF.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
-<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Akun</span><b>${(()=>{try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');return a&&a.username?'@'+esc(a.username):'-'}catch(e){return '-'}})()}</b><button class="ib" data-a="logout" aria-label="Keluar akun" title="Keluar akun">${RI('ui/exit','lt')}</button></div></div>`;
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Akun</span><b>${(()=>{const u=UT.Session.username();return u?'@'+esc(u):'-'})()}</b><button class="ib" data-a="logout" aria-label="Keluar akun" title="Keluar akun">${RI('ui/exit','lt')}</button></div></div>`;
  $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
  $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
 <button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>${RK()} ${RI('lobby/leader')}</b></div></button>
@@ -532,7 +532,7 @@ const DT={win:()=>rows('Rasio Kemenangan',[['Menang',PROF.win],['Kalah',PROF.pla
   try{await import('./assets/js/multiplayer/progress-service.js');const h=await UT.Multiplayer.Progress.getHistory(20);
    H(h&&h.length?h.map(r=>`<div class="row"><span>${r.won?'Menang':'Kalah'} · ${r.mode==='online'?'Online':'vs CPU'}</span><b>${new Date(r.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short'})} · +${r.points}</b></div>`).join(''):'<p>Belum ada pertandingan.</p>')}
   catch(e){H('<p>Riwayat belum bisa dimuat. Periksa koneksi.</p>')}}};
-function editName(){try{const a=JSON.parse(localStorage.getItem('ut-auth')||'null');if(a&&a.username){toast('Nama mengikuti username akunmu: '+a.username);return}}catch(e){}openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
+function editName(){const un=UT.Session.username();if(un){toast('Nama mengikuti username akunmu: '+un);return}openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
  const i=$('#ni');i.value=pname();setTimeout(()=>{i.focus();i.select()},60);
  const ok=()=>{const v=i.value.trim();if(v.length<3){toast('Nama minimal 3 karakter');return}PD.setName(v);closeModal();render();toast('Nama diperbarui')};
  $('#ns').addEventListener('click',ok);i.addEventListener('keydown',e=>{if(e.key==='Enter')ok()})})}
@@ -541,7 +541,7 @@ function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');r
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
  if(DT[a])DT[a]();else if(a==='name')editName();
- else if(a==='logout'){if(!confirm('Keluar dari akun ini? Koin, item, dan progres akun ini tetap tersimpan dan kembali saat kamu login lagi.'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted');localStorage.removeItem('ut-auth')}catch(e){}location.replace('splash.html')})}
+ else if(a==='logout'){if(!confirm('Keluar dari akun ini? Koin, item, dan progres akun ini tetap tersimpan dan kembali saat kamu login lagi.'))return;import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})}
  else if(a==='copy'){navigator.clipboard?.writeText(PROF.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
 $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;

@@ -36,7 +36,7 @@ function boot(opts) {
   const ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { addEventListener() {}, localStorage: ls }; if (opts.flag) w.UT_SERVER_WALLET = true; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ['session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog };
 }
 const gear = IC => IC.items.filter(i => i.kind === 'gear' && !i.starter && i.price > 0 && !i.stackable).map(i => i.id).sort();

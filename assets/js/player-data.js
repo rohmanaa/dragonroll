@@ -2,7 +2,7 @@
    Dibaca/ditulis oleh SEMUA halaman non-gameplay lewat objek ini.
    Penyimpanan: localStorage (hanya di browser ini, tanpa sinkronisasi server), TERPISAH PER AKUN:
    - tamu / belum login : "ularTanggaBlok:player:v1"
-   - akun login         : "ularTanggaBlok:player:v1:acct:<id akun>" (id dari cache "ut-auth")
+   - akun login         : "ularTanggaBlok:player:v1:acct:<id akun>" (id dari UT.Session / session.js)
    Logout tidak menghapus data akun; data kembali saat akun itu login lagi. Akun berikutnya di perangkat
    yang sama TIDAK mewarisi koin/inventory/XP akun sebelumnya. Tahap 3: data tamu TIDAK lagi dipindahkan ke
    akun; akun login memakai dompet server (saldo awal dari server).
@@ -27,15 +27,10 @@
 
 
   /* Id akun yang sedang login (dari cache auth.js). '' = tamu. Divalidasi agar aman dipakai sebagai bagian nama kunci. */
-  function accountId() {
-    try {
-      var a = JSON.parse(localStorage.getItem('ut-auth') || 'null');
-      return (a && typeof a.id === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(a.id)) ? a.id : '';
-    } catch (e) { return ''; }
-  }
-  function accountName() {
-    try { var a = JSON.parse(localStorage.getItem('ut-auth') || 'null'); return (a && typeof a.username === 'string') ? a.username : ''; } catch (e) { return ''; }
-  }
+  /* Sesi login: hanya lewat UT.Session (session.js). Tanpa itu = tamu/belum login. */
+  function sess() { try { return (g.UT && g.UT.Session) || null; } catch (e) { return null; } }
+  function accountId() { var S = sess(); return S ? S.id() : ''; }
+  function accountName() { var S = sess(); return S ? S.username() : ''; }
   function keyFor(base) { var id = accountId(); return id ? base + ':acct:' + id : base; }
   function key() { return keyFor(BASE_KEY); }
   var memState = null;     /* cadangan di memori jika localStorage tidak bisa dipakai */
@@ -615,7 +610,7 @@
   };
 
   g.addEventListener('storage', function (e) {
-    if (e.key === key() || e.key === 'ut-auth' || e.key === null) notify('storage');
+    if (e.key === key() || (sess() && e.key === sess().KEY) || e.key === null) notify('storage');
   });
   g.addEventListener('pageshow', function (e) { if (e.persisted) notify('pageshow'); }); /* bfcache saat tombol kembali */
 
