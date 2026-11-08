@@ -155,7 +155,7 @@ class DiceSound {
       try { // bus utama: dikuatkan + compressor agar keras tapi tidak pecah
         const comp = this.ctx.createDynamicsCompressor();
         comp.threshold.value = -20; comp.knee.value = 10; comp.ratio.value = 10; comp.attack.value = 0.003; comp.release.value = 0.2;
-        const mg = this.ctx.createGain(); mg.gain.value = 5.5;
+        const mg = this.ctx.createGain(); mg.gain.value = 3.5;
         mg.connect(comp); comp.connect(this.ctx.destination); this._master = mg;
       } catch { this._master = null; }
     }
