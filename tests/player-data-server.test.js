@@ -40,11 +40,11 @@ t('Tahap 3c: saklar darurat DIHAPUS: ut:serverWallet=0 / UT_SERVER_WALLET=false 
   assert.strictEqual(boot({ store: Object.assign({ 'ut:serverWallet': '0' }, ACCT) }).PD.serverMode(), true);
   assert.strictEqual(boot({ store: ACCT, flagOff: true }).PD.serverMode(), true);
 });
-t('Tahap 3: data tamu TIDAK dipindah ke akun baru; saldo awal akun bersih', () => {
+t('Tahap 3/7a: data tamu TIDAK dipindah ke akun baru; saldo awal akun bersih; blob tamu yatim dihapus', () => {
   const guest = JSON.stringify({ v: 1, coins: 99999, gems: 99, migration: 1 });
   const { PD, store } = boot({ store: Object.assign({ 'ularTanggaBlok:player:v1': guest }, ACCT) });
   assert.notStrictEqual(PD.coins(), 99999);
-  assert.strictEqual(store['ularTanggaBlok:player:v1'], guest, 'data tamu tidak disentuh');
+  assert.strictEqual('ularTanggaBlok:player:v1' in store, false, 'blob tamu yatim dihapus (Tahap 7a)');
 });
 t('akun login + flag: serverMode aktif', () => assert.strictEqual(loginOn().PD.serverMode(), true));
 t('mode server: purchase/addCurrency/grant(koin,gem,item) ditolak dan saldo tidak berubah', () => {

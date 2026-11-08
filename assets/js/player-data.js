@@ -252,26 +252,30 @@
      - Cadangan data rusak "<kunci>:corrupt:<ts>": simpan yang TERBARU saja per kunci, hapus yang lebih lama.
      Idempoten, sekali per muat halaman, aman bila localStorage tidak tersedia / tidak bisa dienumerasi. */
   var cleaned = false;
-  var DEAD_LEGACY_KEYS = ['shop', 'modeScreen', 'lobbyGift', 'ut-dadu', 'ut-tema2']; /* Tahap 5a: pilihan dadu/tema kini dibaca dari PlayerData, bukan cermin lokal */
-  function guestMigrated() {
-    try {
-      var raw = localStorage.getItem(BASE_KEY);
-      if (raw === null) return true;
-      var o = JSON.parse(raw);
-      return !!(o && isFinite(o.migration) && o.migration >= MIGRATION_VERSION);
-    } catch (e) { return false; }
-  }
+  /* Tahap 7a: key lama yang tidak punya pembaca lagi — DIHAPUS tanpa syarat (pemilik proyek menyetujui; login wajib, data tamu yatim).
+     inv/shop/modeScreen/lobbyGift = save lama; ut-dadu/ut-tema2 = cermin equip lama; ut:quest, ut-dragon-win, ut-mp-active, ut:serverWallet =
+     logika lokal yang sudah dipindah ke server (Tahap 3-5); ut:adLocal:* = simulasi iklan lokal. */
+  var DEAD_LEGACY_KEYS = ['inv', 'shop', 'modeScreen', 'lobbyGift', 'ut-dadu', 'ut-tema2', 'ut:quest', 'ut-dragon-win', 'ut-mp-active', 'ut:serverWallet'];
   function cleanupLegacy() {
     if (cleaned) return;
     cleaned = true;
     try {
-      if (guestMigrated()) {
-        DEAD_LEGACY_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+      DEAD_LEGACY_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+      /* Akun login: blob tamu (tanpa :acct:) yatim. Pengaturannya diimpor sekali ke UT.Prefs lalu blob dihapus. */
+      if (accountId()) {
+        try {
+          var rawGuest = localStorage.getItem(BASE_KEY), P0 = prefsStore();
+          if (rawGuest != null) {
+            if (P0 && !P0.get('settings', null)) { try { var og = JSON.parse(rawGuest); if (og && og.settings) P0.set('settings', normSettings(og.settings)); } catch (e1) {} }
+            localStorage.removeItem(BASE_KEY);
+          }
+        } catch (e) {}
       }
       var n = localStorage.length, newest = {}, all = [], i, k, at, base, ts;
       /* Tahap 6a: klaim achievement kini hanya dari server -> hapus key lokal lama (klaim/:paid/:intent, semua akun) */
       var oldAch = [];
       for (i = 0; i < n; i++) { k = localStorage.key(i); if (typeof k === 'string' && k.indexOf('ularTanggaBlok:achClaimed:v1') === 0) oldAch.push(k); }
+      for (i = 0; i < n; i++) { k = localStorage.key(i); if (typeof k === 'string' && (k.indexOf('ut:adLocal:') === 0 || (accountId() && k.indexOf(BASE_KEY + ':corrupt:') === 0))) oldAch.push(k); }
       oldAch.forEach(function (x) { try { localStorage.removeItem(x); } catch (e) {} });
       n = localStorage.length;
       if (!isFinite(n) || typeof localStorage.key !== 'function') return;

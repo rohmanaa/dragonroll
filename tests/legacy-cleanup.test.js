@@ -6,19 +6,19 @@ function boot(store, opts) {
   if (!(opts && opts.noEnumerate)) { Object.defineProperty(ls, 'length', { get: () => Object.keys(store).length }); ls.key = i => Object.keys(store)[i] || null; }
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
-  return { PD: ctx.PlayerData, store };
+  ['session.js', 'prefs.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  return { PD: ctx.PlayerData, store, ctx };
 }
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const BASE = 'ularTanggaBlok:player:v1';
 
-t('key legacy tanpa pembaca (shop/modeScreen/lobbyGift) dihapus setelah migrasi; inv tetap, ut-dadu dihapus', () => {
+t('Tahap 7a: semua key legacy tanpa pembaca dihapus tanpa syarat (termasuk inv)', () => {
   const { PD, store } = boot({ shop: '{"coins":5}', modeScreen: '{}', lobbyGift: '1', inv: '{"coins":10}', 'ut-dadu': 'standard' });
   PD.coins();
   assert.strictEqual('shop' in store, false);
   assert.strictEqual('modeScreen' in store, false);
   assert.strictEqual('lobbyGift' in store, false);
-  assert.ok('inv' in store);
+  assert.strictEqual('inv' in store, false);
   assert.strictEqual('ut-dadu' in store, false);
 });
 t('Tahap 6c: data shop/inv lama TIDAK lagi diimpor (state tamu mulai bersih)', () => {
@@ -27,14 +27,29 @@ t('Tahap 6c: data shop/inv lama TIDAK lagi diimpor (state tamu mulai bersih)', (
   assert.notStrictEqual(PD.coins(), 999);
   assert.strictEqual(PD.owns('dice.emas'), false);
 });
-t('akun login punya data, tetapi data tamu belum termigrasi: key legacy TIDAK dihapus', () => {
-  const auth = JSON.stringify({ id: 'abcdefgh-1234' });
-  const first = boot({ 'ut-auth': auth }); first.PD.coins();           /* membuat state akun (migration terisi) */
-  const acctKey = Object.keys(first.store).find(k => k.indexOf(BASE + ':acct:') === 0);
-  assert.ok(acctKey, 'state akun dibuat');
-  const { PD, store } = boot({ 'ut-auth': auth, [acctKey]: first.store[acctKey], [BASE]: JSON.stringify({ schema: 1, migration: 0, coins: 1000, gems: 0 }), shop: '{"coins":9}' });
+t('Tahap 7a: key logika lokal lama (ut:quest, ut-dragon-win, ut-mp-active, ut:serverWallet, ut:adLocal:*) dihapus', () => {
+  const { PD, store } = boot({ 'ut:quest': '{}', 'ut-dragon-win': '1', 'ut-mp-active': '{}', 'ut:serverWallet': '1', 'ut:adLocal:2026-11-08': '2', 'ut:prefs:v1': '{"x":1}' });
   PD.coins();
-  assert.ok('shop' in store, 'shop dipertahankan karena data tamu belum migrasi');
+  ['ut:quest', 'ut-dragon-win', 'ut-mp-active', 'ut:serverWallet', 'ut:adLocal:2026-11-08'].forEach(k => assert.strictEqual(k in store, false, k));
+  assert.ok('ut:prefs:v1' in store, 'preferensi tidak ikut terhapus');
+});
+t('Tahap 7a: akun login -> blob tamu dihapus, pengaturannya diimpor sekali ke UT.Prefs; state akun tidak tersentuh', () => {
+  const auth = JSON.stringify({ id: 'abcdefgh-1234', username: 'ab_cd' });
+  const first = boot({ 'ut-auth': auth }); first.PD.coins();
+  const acctKey = Object.keys(first.store).find(k => k.indexOf(BASE + ':acct:') === 0);
+  const guest = JSON.stringify({ schema: 1, migration: 1, coins: 777, gems: 0, settings: { music: false, sound: true, vibration: true, graphics: 'low', ambience: 'night' } });
+  const { PD, store, ctx } = boot({ 'ut-auth': auth, [acctKey]: first.store[acctKey], [BASE]: guest, [BASE + ':corrupt:5']: 'x' });
+  PD.coins();
+  assert.strictEqual(BASE in store, false, 'blob tamu dihapus');
+  assert.strictEqual((BASE + ':corrupt:5') in store, false, 'cadangan rusak tamu dihapus');
+  assert.ok(acctKey in store, 'state akun tetap ada');
+  const st = ctx.UT.Prefs.get('settings');
+  assert.deepStrictEqual([st.music, st.graphics, st.ambience], [false, 'low', 'night']);
+});
+t('Tahap 7a: tanpa akun blob tamu TIDAK dihapus (dipakai halaman login)', () => {
+  const { PD, store } = boot({ [BASE]: JSON.stringify({ schema: 1, migration: 1, coins: 0, gems: 0 }) });
+  PD.coins();
+  assert.ok(BASE in store);
 });
 t('cadangan :corrupt: dipangkas ke yang terbaru saja per kunci', () => {
   const { PD, store } = boot({ [BASE + ':corrupt:100']: 'a', [BASE + ':corrupt:300']: 'c', [BASE + ':corrupt:200']: 'b', [BASE + ':acct:abcdefgh:corrupt:50']: 'z' });
@@ -53,10 +68,10 @@ t('idempoten: panggil berulang tidak mengubah data pemain', () => {
 });
 t('Tahap 6a: key klaim achievement lokal (klaim/:paid/:intent, semua akun) dihapus, key lain tetap', () => {
   const A = 'ularTanggaBlok:achClaimed:v1';
-  const { PD, store } = boot({ [A]: '{}', [A + ':paid']: '{}', [A + ':intent']: '{}', [A + ':acct:abcdefgh']: '{}', inv: '{\"coins\":1}' });
+  const { PD, store } = boot({ [A]: '{}', [A + ':paid']: '{}', [A + ':intent']: '{}', [A + ':acct:abcdefgh']: '{}', 'ut:prefs:v1': '{}' });
   PD.coins();
   Object.keys(store).forEach(k => assert.strictEqual(k.indexOf(A), -1, 'sisa: ' + k));
-  assert.ok('inv' in store);
+  assert.ok('ut:prefs:v1' in store);
   assert.strictEqual(typeof PD.achKey, 'undefined');
 });
 console.log(n + ' tes lulus');
