@@ -69,6 +69,17 @@ t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importm
   assert.ok(g.indexOf('guard:!!p.guard,frozen:!!p.frozen') > 0 && g.indexOf("'shield','guard','frozen'") > 0);
   assert.ok(g.indexOf('function skipFrozen') > 0 && /function nextTurn\(\)\{[^}]*skipFrozen\(\)/.test(g));
 });
+t('takedown: Iron Sword & Netherite Sword off:true dengan catatan; data utuh (katalog, PUN/PUR, efek, ikon, migrasi server); Diamond Sword tetap aktif', () => {
+  ['sword', 'netherite_sword'].forEach(k => {
+    const it = IC.byId(k); assert.strictEqual(it.off, true, k); assert.ok(/TAKEDOWN|DITURUNKAN/i.test(it.offNote) && /JANGAN DIHAPUS/.test(it.offNote), k + ' catatan');
+    assert.ok(C.PUN[k] && C.PUR[k] && FX.has(k) && it.icon && ex(it.icon), k + ' data harus tetap ada');
+  });
+  assert.ok(!IC.byId('diamond_sword').off);
+  assert.deepStrictEqual(Array.from(pus.filter(i => i.off), i => i.gameKey).sort(), ['netherite_sword', 'sword']);
+  assert.ok(rd('supabase/migrations/202611210001_power_catalog_batch2.sql').indexOf("'netherite_sword'") > 0);
+  assert.ok(/KINDS\.forEach\(k=>CI\[k\]=IC\.items\.filter\(i=>i\.kind===k&&!i\.off\)\)/.test(rd('powerup.html')) && rd('room.html').indexOf("i.kind==='powerup'&&!i.off") > 0);
+  const g = rd('gameplay.html'); assert.ok(g.indexOf('const puOn=') > 0 && g.indexOf('||!puOn(k)) return false') > 0 && g.indexOf("if(!puOn(k)) return deny(") > 0);
+});
 t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   ['sword', 'grass', 'potion_odd', 'potion_even', 'feather', 'tnt', 'totem'].forEach(k => assert.strictEqual(IC.normalizePowerId(k), k));
   assert.strictEqual(IC.normalizePowerId('apple'), 'totem');

@@ -181,7 +181,8 @@
        tnt    -> pemain terdepan mundur 6 (teleport)    totem   -> p.shield=true (kebal 1 ular/mob; dulu ID 'apple', effect TIDAK berubah)
        potion_odd/potion_even -> p.odd/p.even=true (dadu berikutnya ganjil/genap)   grass -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
-    powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.'),
+    /* TAKEDOWN sementara: off:true = tidak tampil di halaman Power/Room, tidak dipilih, tidak dipakai CPU/pemain. Data tetap utuh (lihat offNote). */
+    powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.', { off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Iron Sword akan diganti item lain. JANGAN DIHAPUS: ID 'sword', baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
     powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
     powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, atau serangan Power dari pemain lain, kamu bisa memilih memakai Totem untuk menahannya.'),
@@ -190,7 +191,7 @@
     powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.'),
     /* Batch 2-3 (aturan: gameplay/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
     powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.'),
-    powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.'),
+    powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
     powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.'),
     powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.'),
     powerup('fire_charge',     'Fire Charge',     'common',    'Musuh terdekat di depanmu (maks. 6 petak) mundur 3 petak.'),

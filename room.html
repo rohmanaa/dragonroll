@@ -279,7 +279,7 @@ function renderChoice(){
 $('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)return;const r=PD.equip(b.dataset.id);if(!r.ok)return toast('Tidak bisa dipakai');renderEq();closeChoice();toast(IC.byId(b.dataset.id).name+' dipakai')};
 $('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeChoice()};
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
-const POWERS=IC.items.filter(i=>i.kind==='powerup'),PK='roomPowers';
+const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
 function loadP(){try{const d=UT.Prefs.get(PK,{});return{equipped:(d.equipped||[]).filter(id=>POWERS.some(p=>p.id===id)).slice(0,5)}}catch(e){return{equipped:[]}}}
 const PW=loadP();const saveP=()=>{try{UT.Prefs.set(PK,PW)}catch(e){}};
 function renderPower(){

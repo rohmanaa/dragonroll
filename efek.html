@@ -297,7 +297,7 @@ const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','
 const RN={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY',mythic:'MYTHIC',divine:'DIVINE'},RC={common:'var(--r0)',uncommon:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)',mythic:'var(--r3)',divine:'var(--r3)'};
 const BG={common:['#5a8aa8','#2f5f80'],rare:['#3a8ff0','#1b55c0'],epic:['#8a4ae0','#4a2aa8'],legendary:['#f0c040','#b98020']};
 const KINDS=['skin','frame','dice','powerup'];   /* Map bukan item inventory */
-const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k));
+const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k&&!i.off)); /* off:true = takedown sementara (item-catalog.js) */
 /* ---- Efek = Aura karakter (assets/js/aura-fx.js). Item katalog kind 'aura' (aura.<id>): harga, kepemilikan, dan pilihan aura
    aktif dikelola SERVER lewat PlayerData/WalletService (slot 'aura', opsional). Efek visual tetap dari aura-fx.js. */
 const FX=window.UT&&UT.AuraFX;
