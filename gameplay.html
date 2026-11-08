@@ -2388,7 +2388,7 @@ function mcH(x,z){
 }
 const hAt=(x,z)=>mcH(2*Math.floor(x/2)+1,2*Math.round(z/2));
 /* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, |z|<=ISLZ (blok pulau 2x2, tepi = batas + 1) */
-const ISLXL=24,ISLXR=10,ISLZ=14;
+const ISLXL=24,ISLXR=22,ISLZ=14;
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
 const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
 function lift(B,fn,h){
@@ -2670,7 +2670,7 @@ function addMcEnv(DB){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
     FL.push([x,z,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF])]); /* rnd tetap sama; dipasang setelah kandang/pohon ada */
   }
-  /* peternakan di sisi kanan dihapus bersama pulau kanan: addRanch(DB); */ /* kandang ternak + pohon + lebah (di kaki gunung kanan) & mob liar di bawah */
+  addRanch(DB); /* kandang ternak + pohon + lebah (di kaki gunung kanan) & mob liar di bawah */
   /* Bunga kecil: buang yang bentrok dengan benda (kandang/pagar, pohon, villager/pemancing) atau bunga lain yang terlalu dekat */
   FL.forEach(f=>{
     const x=f[0],z=f[1];
