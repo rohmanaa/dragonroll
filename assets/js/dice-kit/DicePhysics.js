@@ -67,6 +67,7 @@ export class DicePhysics {
     this.restitution = o.restitution ?? 0.42;
     this.friction = o.friction ?? 0.5;
     this.gravity = o.gravity ?? 24; // sedikit lebih ringan dari 30: jatuh terasa lebih melayang
+    this.groundDampMul = o.groundDampMul ?? 0.8; // porsi peredaman samping saat menyentuh lantai (cukup longgar agar dadu masih bisa terguling)
     this.lateralDamp = o.lateralDamp ?? 0; // mode jatuh dari atas: redam gerak samping (tanpa tarikan/snap) agar dadu jatuh lurus di tempat
     this.mass = 1;
     this.invI = 1.5 / (this.mass * this.h * this.h);
@@ -137,7 +138,8 @@ export class DicePhysics {
     const { v, w } = this;
     this.time += dt;
     v[1] -= this.gravity * dt;
-    if (this.lateralDamp) { const ld = Math.max(0, 1 - this.lateralDamp * dt); v[0] *= ld; v[2] *= ld; }
+    this._air = this.pos[1] > this.h * 1.9; // di udara (belum/antara menyentuh lantai)
+    if (this.lateralDamp) { const ld = Math.max(0, 1 - (this._air ? this.lateralDamp : this.lateralDamp * this.groundDampMul) * dt); v[0] *= ld; v[2] *= ld; }
     for (let i = 0; i < 3; i++) this.pos[i] += v[i] * dt;
 
     // Integrasi orientasi: q += ½·dt·(ω⊗q)
@@ -212,8 +214,16 @@ export class DicePhysics {
     }
 
     const lin = len(this.v), ang = len(this.w);
-    if (floorContacts > 0 && lin < 0.15 && ang < 0.45) this.sleepT += dt; else this.sleepT = 0;
-    if (this.sleepT > 0.3 || this.time > 8) {
+    if (floorContacts > 0 && lin < 0.15 && ang < 0.45) {
+      const top = this.topFace();
+      if (top.dot > 0.995) this.sleepT += dt; // baru boleh diam bila sudah rata (tanpa lompatan snap yang terlihat)
+      else { // bertumpu di tepi/sudut: dorong pelan agar terguling sendiri ke sisi terdekat
+        this.sleepT = 0;
+        const n = qrot(this.q, D6_FACES[top.index].normal), ax = cross(n, [0, 1, 0]), l = len(ax) || 1;
+        for (let i = 0; i < 3; i++) this.w[i] += (ax[i] / l) * 7 * dt;
+      }
+    } else this.sleepT = 0;
+    if (this.sleepT > 0.25 || this.time > 10) {
       this._snapFlat();
       events.push({ type: 'settled', value: this.topFace().value, point: [...this.pos] });
     }
