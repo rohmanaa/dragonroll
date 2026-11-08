@@ -244,6 +244,18 @@ html body .use img{width:3rem;height:3rem}
   html body #sbs{left:32.7rem}
 }
 </style>
+<style id="dadu-compact">
+/* Info (nama + deskripsi) dibuat lebih kecil, dipusatkan di bawah preview; preview/pad mendapat ruang lebih */
+#info{padding:.7rem 1.1rem!important}
+#info .badge{top:-1.2rem!important;font-size:.9rem!important;line-height:1.3rem!important}
+html body #iname{font-size:1.6rem!important;line-height:1.1!important}
+html body #idesc{font-size:.95rem!important;line-height:1.2!important}
+@media (min-aspect-ratio:1/1){
+  html body #info{left:8.05rem!important;width:28rem!important;height:6.6rem!important;bottom:1.6rem!important;top:auto!important}
+  html body #show{bottom:9.8rem!important}
+}
+@media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}}
+</style>
 </head>
 <body>
 <div id="sky"></div>
@@ -407,14 +419,30 @@ function diceTex(c,p){const cv=document.createElement('canvas');cv.width=cv.heig
 /* model hanya skin/dice canonical; tema memakai ItemArt overlay */
 function model(c,it){let g;
  if(c==='skin')g=character(AR.palette(it.id)||{hood:'#00a8a8',hair:'#4a2e13',pants:'#3b4fd8'},pose);
- else if(c==='dice'){g=new THREE.Group();const m=new THREE.MeshStandardMaterial({map:diceTex(it.art.bg,it.art.pip),roughness:.35});const d=bx(2.6,2.6,2.6,m,0,3,0,g);g.userData.anim=t=>{d.rotation.y=t*.8;d.rotation.x=.5+Math.sin(t)*.2;d.position.y=3+Math.sin(t*1.6)*.2}}
+ else if(c==='dice'){g=new THREE.Group();const m=new THREE.MeshStandardMaterial({map:diceTex(it.art.bg,it.art.pip),roughness:.35});const d=bx(2.6,2.6,2.6,m,0,PAD_Y+1.3,0,g);g.userData.anim=()=>{}} /* dadu diam di atas pad; hanya holder (putar pelan/seret) yang memutarnya */
  return g}
-function island(){return UT.FloatingIsland.create(THREE,{seed:5,bob:0,scale:.92})} /* komponen bersama: assets/js/floating-island.js */
+/* Pad (tatakan) dadu: versi 3D dari tatakan di gameplay (batu abu, cincin emas, pita biru, sumur di tengah).
+   STATIS: tidak melayang, tidak berputar, tidak bergoyang. Hanya dadu di atasnya yang berputar pelan / bisa diseret. */
+const PAD_Y=1.04; /* permukaan sumur pad; dadu (tinggi 2.6) berdiri di atasnya */
+function pad(){const g=new THREE.Group();
+ const mt=(c,r=.6)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+ const cyl=(rt,rb,h,m,y)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,48),m);o.position.y=y;o.castShadow=o.receiveShadow=true;g.add(o);return o};
+ const tor=(r,tube,m,y)=>{const o=new THREE.Mesh(new THREE.TorusGeometry(r,tube,8,64),m);o.rotation.x=Math.PI/2;o.position.y=y;g.add(o);return o};
+ cyl(4.5,4.9,1.4,mt(0x4a5468,.75),.1);                 /* badan batu */
+ cyl(4.97,4.97,.26,mt(0x2f6fe0,.5),-.3);               /* pita biru */
+ cyl(4.7,4.7,.2,mt(0x8d98ad,.55),.9);                  /* permukaan atas */
+ tor(4.25,.1,new THREE.MeshStandardMaterial({color:0xffd35a,roughness:.35,emissive:0x6a4a00,emissiveIntensity:.5}),1.02); /* cincin emas */
+ cyl(3,3,.08,mt(0x2f374b,.85),1.0);                    /* sumur tempat dadu mendarat */
+ tor(3.02,.06,mt(0x8c97b0,.5),1.05);
+ [[3.7,0],[-3.7,0],[0,3.7],[0,-3.7]].forEach(p=>{const b=new THREE.Mesh(new THREE.BoxGeometry(.55,.2,.55),mt(0x7c879c,.5));b.position.set(p[0],1.08,p[1]);b.castShadow=true;g.add(b)});
+ const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(111,210,255,.7)');gr.addColorStop(1,'rgba(46,116,230,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
+ const glow=new THREE.Mesh(new THREE.CircleGeometry(7,48),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=-.55;g.add(glow);
+ return g}
 let ok=true;const rigs=[];
 function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(fov,1,.1,100);scene.add(new THREE.AmbientLight(0xffffff,.6),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
  const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-8,right:8,top:10,bottom:-6});scene.add(sun);
- const holder=new THREE.Group();scene.add(holder);if(withIsland)holder.add(island());
+ const holder=new THREE.Group();scene.add(holder);if(withIsland)scene.add(pad());
  const R={r,scene,cam,holder,cv,cy,dist,rot:0,vel:0,cur:null,drag:false,fov};
  cv.addEventListener('pointerdown',e=>{R.drag=true;R.lx=e.clientX;cv.setPointerCapture(e.pointerId)});
  cv.addEventListener('pointermove',e=>{if(R.drag){R.vel=(e.clientX-R.lx)*.012;R.rot+=R.vel;R.lx=e.clientX}});
@@ -435,7 +463,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 setCat(PAGE); /* mengisi sel dari PlayerData + render grid/info/recent */
-if(ok){main=rig($('#gl'),true,1.8,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(ok){main=rig($('#gl'),true,2.1,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
