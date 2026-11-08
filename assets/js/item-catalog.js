@@ -85,6 +85,7 @@
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
   var LEGACY_POWER_ID = { apple: 'totem', potion: 'potion_odd' }; /* 'potion' (Ramuan 4-6) diganti Ramuan Ganjil/Genap: stok lama dibaca sebagai Ramuan Ganjil */
+  var MAP_NAMES = { minecraft: 'World', nether: 'Nether' }; /* key map (gameplay/maps/*.js) -> nama tampil */
   function normalizePowerId(id) { return Object.prototype.hasOwnProperty.call(LEGACY_POWER_ID, id) ? LEGACY_POWER_ID[id] : id; }
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
@@ -189,14 +190,15 @@
     powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.'),
     powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.'),
     powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.'),
+    /* maps: ['minecraft'|'nether'] = Power HANYA boleh dibawa/dipakai di map itu (tanpa 'maps' = semua map). Tidak boleh dipilih di Room dan ditolak di gameplay; stok pemain TIDAK berkurang. */
     /* Batch 2-3 (aturan: gameplay/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
     powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.'),
     powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
-    powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.'),
-    powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.'),
-    powerup('fire_charge',     'Fire Charge',     'common',    'Musuh terdekat di depanmu (maks. 6 petak) mundur 3 petak.'),
-    powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.'),
-    powerup('blaze_core',      'Blaze Core',      'epic',      'Semua musuh di depanmu terkena ledakan api dan mundur 2 petak.'),
+    powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.', { maps: ['minecraft'] }),
+    powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.', { maps: ['minecraft'] }),
+    powerup('fire_charge',     'Fire Charge',     'common',    'Musuh terdekat di depanmu (maks. 6 petak) mundur 3 petak.', { maps: ['nether'] }),
+    powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.', { maps: ['minecraft'] }),
+    powerup('blaze_core',      'Blaze Core',      'epic',      'Semua musuh di depanmu terkena ledakan api dan mundur 2 petak.', { maps: ['nether'] }),
     powerup('trident',         'Trident',         'legendary', 'Pemain terdepan mundur 4 petak dan kamu maju 2 petak.'),
     powerup('dragon_crystal',  'Dragon Crystal',  'legendary', 'Meluncur ke Tangga terdekat di depanmu; bila tidak ada, maju 6 petak.'),
     powerup('nether_star',     'Nether Star',     'legendary', 'Semua musuh mundur 3 petak dan kamu mendapat giliran tambahan.')
@@ -361,6 +363,11 @@
     byGameKey: function (kind, gameKey) { return BY_ID[kind + '.' + gameKey] || null; },
     /* ID Power lama ('apple') -> identity sekarang ('totem'); ID lain dikembalikan apa adanya. Untuk membaca data lama saja. */
     normalizePowerId: normalizePowerId,
+    /* Power per map: true bila Power boleh dibawa/dipakai di map itu (mapKey 'minecraft' = World, 'nether'). Tanpa maps = semua map; mapKey kosong = boleh. */
+    powerOnMap: function (id, mapKey) { var it = BY_ID[id]; return !it || it.kind !== 'powerup' || !it.maps || !mapKey || it.maps.indexOf(mapKey) >= 0; },
+    /* Label singkat untuk UI: 'Hanya di World' / 'Hanya di Nether' (kosong bila semua map). */
+    powerMapNote: function (id) { var it = BY_ID[id]; return it && it.maps ? 'Hanya di ' + it.maps.map(function (m) { return MAP_NAMES[m] || m; }).join(', ') : ''; },
+    mapName: function (mapKey) { return MAP_NAMES[mapKey] || mapKey; },
     /* Path texture PNG skin (relatif) atau null untuk skin legacy / path tidak valid */
     skinTexture: function (id) { var it = BY_ID[id]; return it && it.kind === 'skin' && it.textureValid ? it.texture : null; },
     /* Skin cadangan bila texture hilang/rusak (= skin default; selalu dimiliki sebagai starter) */

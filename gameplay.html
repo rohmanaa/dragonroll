@@ -5426,13 +5426,16 @@ const PUR=UT.Gameplay.Config.PUR||{}; /* aturan Power (data) — dipakai usePU/c
    Tanpa konfigurasi Room (null) = perilaku lama (semua Power). ID & efek Power tidak berubah. */
 /* Takedown sementara: Power dengan off:true di item-catalog.js tidak muncul, tidak dipilih, tidak dipakai (CPU & pemain). Stok/ID/aturan tetap utuh. */
 const puOn=k=>{ try{ const it=window.ItemCatalog&&ItemCatalog.byId(k); return !(it&&it.off); }catch(e){ return true; } };
+/* Power per map (item-catalog.js maps:[...]): tidak cocok dengan map aktif (themeKey) = tidak masuk HUD/stok awal/CPU, pemakaian ditolak sebelum konsumsi. themeKey dibaca saat dipakai (bukan saat load). */
+const puMapOk=k=>{ try{ return ItemCatalog.powerOnMap(k,themeKey); }catch(e){ return true; } };
+const puAvail=k=>puOn(k)&&puMapOk(k);
 const PU_SEL=(()=>{ try{ const r=JSON.parse(sessionStorage.getItem('ut-room')||'null'); if(r&&Array.isArray(r.powers)) return r.powers.filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i); }catch(e){} return null; })();
 /* online: tiap pemain membawa Power pilihannya sendiri (UT.Prefs 'roomPowers', sama dengan room.html); dikirim ke host lewat broadcast 'loadout' */
 const MY_SEL=(()=>{ try{ const d=UT.Prefs.get('roomPowers',{}); return (d.equipped||[]).filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i).slice(0,5); }catch(e){ return []; } })();
-const puKeys=()=>ONLINE_ROOM?MY_SEL:(PU_SEL||Object.keys(PUN).filter(puOn));
+const puKeys=()=>(ONLINE_ROOM?MY_SEL:(PU_SEL||Object.keys(PUN))).filter(puAvail);
 const puZero=()=>{ const o={}; Object.keys(PUN).forEach(k=>{ o[k]=0; }); return o; }; /* semua Power dari PUN (17), bukan daftar tetap */
-function loadoutPU(keys){ const o=puZero(); (keys||[]).filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i).slice(0,5).forEach(k=>{ o[k]=1; }); return o; }
-function startPU(){ if(ONLINE_ROOM) return loadoutPU([]); const o=puZero(); if(PU_SEL){ PU_SEL.forEach(k=>{ o[k]=1; }); return o; } const ks=Object.keys(o).filter(puOn).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
+function loadoutPU(keys){ const o=puZero(); (keys||[]).filter((k,i,a)=>PUN[k]&&puAvail(k)&&a.indexOf(k)===i).slice(0,5).forEach(k=>{ o[k]=1; }); return o; }
+function startPU(){ if(ONLINE_ROOM) return loadoutPU([]); const o=puZero(); if(PU_SEL){ PU_SEL.filter(puAvail).forEach(k=>{ o[k]=1; }); return o; } const ks=Object.keys(o).filter(puAvail).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
 /* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory; bobot Power di pool = 0).
    Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak.
    Chest Feature 2: Reward Pool (data: UT.Gameplay.Config.CHEST_POOL). resolveChestReward() -> applyChestReward(), dipanggil 1x di fase OPEN. */
@@ -5534,7 +5537,7 @@ const puBossBlocked=(p,k)=>!!(p&&p.pos===GOAL&&PUR[k]&&PUR[k].boss===false); /* 
 function puNoTargetMsg(k){ const R=PUR[k]||{},n=PUN[k][1]; return R.target==='same'?n+' butuh musuh di petak yang sama denganmu.':R.kind==='swap'?'Tidak ada pemain di depanmu.':(R.target==='near'||R.target==='ahead')?n+': tidak ada musuh dalam jangkauan.':n+' belum punya target.'; }
 /* CPU hanya memilih Power yang valid (aturan sama dengan usePU): punya stok, bukan Power khusus-papan di fase Dragon, target ada. */
 function cpuPUValid(p,k){
-  const R=PUR[k]; if(!p||!R||!p.pu[k]||!puOn(k)) return false;
+  const R=PUR[k]; if(!p||!R||!p.pu[k]||!puAvail(k)) return false;
   if(R.kind==='totem') return false; /* Totem diputuskan saat kena ular/mob/serangan (askTotem) */
   if(puBossBlocked(p,k)) return false;
   if(R.kind==='guard') return !p.guard;
@@ -5566,6 +5569,7 @@ async function usePU(k,cpu){
   if(puBossBlocked(p,k)){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0],local:true})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
   if(R.kind==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, atau serangan Power.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
   if(!puOn(k)) return deny(PUN[k][1]+' sedang dinonaktifkan sementara.'); /* takedown: ditolak sebelum konsumsi */
+  if(!puMapOk(k)) return deny(PUN[k][1]+': '+ItemCatalog.powerMapNote(k)+' — tidak bisa dipakai di map '+ItemCatalog.mapName(themeKey)+'.'); /* Power per map: stok tidak berkurang */
   const gid=gameId,T=puTargets(p,k);
   if(R.kind==='guard'&&p.guard) return deny('Wooden Shield sudah aktif.');
   if(R.kind==='dice'&&(p.odd||p.even||p.lucky)) return deny('Dadu berikutnya sudah ditentukan (Ramuan / Pasti 6). Lempar dulu.');

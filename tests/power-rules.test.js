@@ -78,7 +78,24 @@ t('takedown: Iron Sword & Netherite Sword off:true dengan catatan; data utuh (ka
   assert.deepStrictEqual(Array.from(pus.filter(i => i.off), i => i.gameKey).sort(), ['netherite_sword', 'sword']);
   assert.ok(rd('supabase/migrations/202611210001_power_catalog_batch2.sql').indexOf("'netherite_sword'") > 0);
   assert.ok(/KINDS\.forEach\(k=>CI\[k\]=IC\.items\.filter\(i=>i\.kind===k&&!i\.off\)\)/.test(rd('powerup.html')) && rd('room.html').indexOf("i.kind==='powerup'&&!i.off") > 0);
-  const g = rd('gameplay.html'); assert.ok(g.indexOf('const puOn=') > 0 && g.indexOf('||!puOn(k)) return false') > 0 && g.indexOf("if(!puOn(k)) return deny(") > 0);
+  const g = rd('gameplay.html'); assert.ok(g.indexOf('const puOn=') > 0 && g.indexOf('||!puAvail(k)) return false') > 0 && g.indexOf('const puAvail=k=>puOn(k)&&puMapOk(k)') > 0 && g.indexOf("if(!puOn(k)) return deny(") > 0);
+});
+t('Power per map: World = Ice Crystal/Wooden Shield/Golden Apple; Nether = Blaze Core/Fire Charge; sisanya semua map; label dan helper konsisten', () => {
+  const only = { minecraft: ['golden_apple', 'ice_crystal', 'wooden_shield'], nether: ['blaze_core', 'fire_charge'] };
+  Object.keys(only).forEach(m => only[m].forEach(k => { assert.deepStrictEqual(Array.from(IC.byId(k).maps), [m], k); assert.strictEqual(IC.powerOnMap(k, m), true); assert.strictEqual(IC.powerOnMap(k, m === 'nether' ? 'minecraft' : 'nether'), false, k); }));
+  const flat = Object.keys(only).reduce((a, m) => a.concat(only[m]), []);
+  pus.filter(i => flat.indexOf(i.gameKey) < 0).forEach(i => { assert.ok(!i.maps, i.gameKey); assert.ok(IC.powerOnMap(i.gameKey, 'minecraft') && IC.powerOnMap(i.gameKey, 'nether'), i.gameKey); });
+  assert.strictEqual(IC.powerMapNote('blaze_core'), 'Hanya di Nether'); assert.strictEqual(IC.powerMapNote('ice_crystal'), 'Hanya di World'); assert.strictEqual(IC.powerMapNote('tnt'), '');
+  assert.ok(IC.powerOnMap('blaze_core', null) && IC.powerOnMap('blaze_core', undefined), 'mapKey kosong = boleh');
+  const mapKeys = ['minecraft', 'nether']; Object.keys(only).forEach(m => assert.ok(mapKeys.indexOf(m) >= 0));
+  assert.ok(/key: 'minecraft'/.test(rd('gameplay/maps/world.js')) && /key: 'nether'/.test(rd('gameplay/maps/nether.js')), 'key map berubah?');
+});
+t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay (puAvail/puMapOk, tolak sebelum konsumsi) dan halaman Power (catatan)', () => {
+  const r = rd('room.html'), g = rd('gameplay.html');
+  assert.ok(r.indexOf('pOk=id=>IC.powerOnMap(id,MAPKEY)') > 0 && r.indexOf('PW.equipped.filter(pOk)') > 0 && r.indexOf('.pc.dis{') > 0 && r.indexOf('Dilepas (tidak bisa di') > 0);
+  assert.ok(g.indexOf('const puMapOk=') > 0 && g.indexOf('const puAvail=') > 0 && g.indexOf('if(!puMapOk(k)) return deny(') > 0);
+  assert.ok(/filter\(puAvail\)/.test(g) && g.indexOf('!p.pu[k]||!puAvail(k)') > 0);
+  assert.ok(rd('powerup.html').indexOf('IC.powerMapNote(i.id)') > 0);
 });
 t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   ['sword', 'grass', 'potion_odd', 'potion_even', 'feather', 'tnt', 'totem'].forEach(k => assert.strictEqual(IC.normalizePowerId(k), k));

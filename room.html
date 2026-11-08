@@ -43,6 +43,7 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 .pc{position:relative;cursor:pointer;min-width:0;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.9rem .2rem .5rem;border-radius:1rem;text-align:center;background:linear-gradient(145deg,#477fba,#1c477f 65%,#12345f);box-shadow:0 0 0 .2rem var(--ink)}
 .ck{position:absolute;top:.3rem;right:.3rem;width:1.8rem;height:1.8rem;border-radius:.45rem;display:grid;place-items:center;font-size:1.2rem;line-height:1;color:transparent;background:rgba(11,21,48,.5);box-shadow:0 0 0 .16rem rgba(255,255,255,.75)}.pc.sel .ck{color:#fff;background:linear-gradient(#75ed46,#19a32d);box-shadow:0 0 0 .16rem var(--ink);text-shadow:0 .1rem 0 #083c19}
 .pc.sel{box-shadow:0 0 0 .22rem var(--ink),0 0 0 .5rem #ffe15b}
+.pc.dis{opacity:.5;filter:grayscale(.75);cursor:not-allowed}.pc .pmn{font-size:.7rem;line-height:1;font-weight:800;color:#ffd9a0;text-shadow:0 1px 0 rgba(0,0,0,.6)}
 .pc img{width:3rem;height:3rem;object-fit:contain;image-rendering:pixelated}
 .pwn{font-size:1rem;line-height:1.05;min-height:2.1rem;display:grid;place-items:center;padding:0 .2rem}
 .pb{width:100%;padding:.3rem .2rem;margin-top:.2rem;border-radius:.8rem;font-size:1.15rem}.pb.on{background:linear-gradient(#75ed46,#19a32d);color:#083c19;text-shadow:none}
@@ -281,12 +282,15 @@ $('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeCh
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
 const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
 function loadP(){try{const d=UT.Prefs.get(PK,{});return{equipped:(d.equipped||[]).filter(id=>POWERS.some(p=>p.id===id)).slice(0,5)}}catch(e){return{equipped:[]}}}
+const MAPKEY=MAP&&MAP.gameKey,pOk=id=>IC.powerOnMap(id,MAPKEY);/* Power per map: tidak cocok dengan map = tidak bisa dipilih/dibawa (stok tidak berkurang) */
 const PW=loadP();const saveP=()=>{try{UT.Prefs.set(PK,PW)}catch(e){}};
+{const lost=PW.equipped.filter(id=>!pOk(id));if(lost.length){PW.equipped=PW.equipped.filter(pOk);saveP();setTimeout(()=>{try{toast('Dilepas (tidak bisa di '+IC.mapName(MAPKEY)+'): '+lost.map(id=>(IC.byId(id)||{}).name||id).join(', '))}catch(e){}},700)}}
 function renderPower(){
  $('#pcnt').textContent=PW.equipped.length+' / 5 DIPILIH';$('#psc').style.setProperty('--pn',POWERS.length);
- $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id);return `<div class="pc ${on?'sel':''}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-label="${esc(p.name)}" title="${esc(p.name+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div></div>`}).join('');
+ $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id);return `<div class="pc ${on?'sel':''}${ok?'':' dis'}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-disabled="${!ok}" aria-label="${esc(p.name+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}</div>`}).join('');
 }
 $('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id;
+ if(!pOk(id)){const pi=POWERS.find(x=>x.id===id);return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' — tidak bisa dibawa ke map '+IC.mapName(MAPKEY))}
  if(PW.equipped.includes(id))PW.equipped=PW.equipped.filter(x=>x!==id);
  else{if(PW.equipped.length>=5)return toast('Maksimal 5 jenis Power untuk satu pertandingan');PW.equipped.push(id);try{const pi=POWERS.find(x=>x.id===id);if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,b)}catch(er){}}
  saveP();renderPower()};
@@ -354,7 +358,7 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.slice(),
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.filter(pOk),
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?'klasik':(di&&di.gameKey)}}
 function launch(){clearT();RF.launch(cfg())}
 async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
