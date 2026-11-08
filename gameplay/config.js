@@ -29,7 +29,7 @@
   var C = G.Config = G.Config || {};
 
   C.LADDERS = C.LADDERS || { 3: 22, 8: 26, 20: 41, 36: 55, 51: 72, 71: 91 };
-  C.SNAKES = C.SNAKES || { 17: 7, 32: 10, 48: 27, 62: 44, 98: 77 };
+  C.SNAKES = C.SNAKES || { 17: 7, 32: 10, 47: 27, 62: 44, 98: 77 };
   C.CHESTS = C.CHESTS || new Set([6, 15, 34, 46, 59, 64, 82, 89]);
 
   C.MOB_POSITIONS = C.MOB_POSITIONS || [
