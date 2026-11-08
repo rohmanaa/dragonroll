@@ -5070,6 +5070,8 @@ const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
+/* geser/gulir/cubit/putar kamera HANYA di sudut Free; Front, Top, dan POV adalah sudut tetap (tanpa input kamera). LOCK juga tanpa input. */
+const camInputOff=()=>camLocked()||camCfg.preset!=='free';
 /* kotak yang harus terlihat utuh: papan 10x10 (x,z -5..5) + area Start (api unggun di PAD x=-7.2,z=4.5, radius sekitar 1.4). Dihitung sekali dari data, bukan angka ajaib per layar */
 const DEFAULT_VIEW={minX:-8.7,maxX:5.3,minZ:-5.3,maxZ:6.0}; /* map dengan papan sendiri mengisi def.view */
 const LOCK_BOX=Object.assign({y:0.5,margin:1.14},DEFAULT_VIEW);
@@ -5088,7 +5090,7 @@ function camLoad(){ try{ const o=UT.Prefs.get('cam',null); if(o&&typeof o==='obj
 function camHoldHere(){ camHold.x=camTarget.x-pan.x; camHold.y=camTarget.y; camHold.z=camTarget.z-pan.z; } /* bekukan titik pandang saat FOLLOW dimatikan (tanpa loncat) */
 function resetCam(P){
   if(!(P&&typeof P.yaw==='number')) P=camCfg.angle?CAM_PRESETS[camCfg.preset]:lockPreset();
-  if(camLocked()){ ptrs.clear(); pinch=0; rotating=false; }
+  if(camInputOff()){ ptrs.clear(); pinch=0; rotating=false; }
   isTopDown=!!P.top;
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
@@ -5101,7 +5103,7 @@ function camUI(){
   a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));
   a.setAttribute('aria-label',camCfg.angle?'Kamera bebas (ANGLE)':'Kamera terkunci (LOCK)');
   if(!camCfg.angle) camMenuClose();
-  $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=camCfg.angle?'grab':'default';
+  $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&camCfg.preset==='free')?'grab':'default';
   $('btnPreset').innerHTML=ICON_CAM+CAM_NAMES[camCfg.preset];
   const f=$('btnFollow'); f.setAttribute('aria-pressed',String(camCfg.follow));
 }
@@ -5223,7 +5225,7 @@ document.addEventListener('touchmove',e=>{ if(e.touches&&e.touches.length>1&&(ca
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('pointerdown',e=>{
-  if(camLocked()||AWK.running) return; /* LOCK: tidak ada drag/pan/rotate/pinch */
+  if(camInputOff()||AWK.running) return; /* LOCK atau sudut selain Free: tidak ada drag/pan/rotate/pinch */
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   rotating=(e.button===2||e.shiftKey);
@@ -5231,7 +5233,7 @@ cv.addEventListener('pointerdown',e=>{
   cv.style.cursor=rotating?'crosshair':'grabbing';
 });
 cv.addEventListener('pointermove',e=>{
-  if(camLocked()||AWK.running) return;
+  if(camInputOff()||AWK.running) return;
   const p=ptrs.get(e.pointerId); if(!p) return;
   const dx=e.clientX-p.x,dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
   if(povActive()){
@@ -5253,7 +5255,7 @@ cv.addEventListener('pointermove',e=>{
 });
 const endPtr=e=>{ ptrs.delete(e.pointerId); pinch=0; if(ptrs.size===1){ const q=Array.from(ptrs.values())[0]; } if(!ptrs.size){ rotating=false; cv.style.cursor='grab'; } };
 cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
-cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camLocked()||AWK.running) return; if(povActive()){ POV.fov=clamp(POV.fov*Math.exp(e.deltaY*0.001),45,95); return; } goal.zoom=clamp(goal.zoom*Math.exp(e.deltaY*0.001),0.4,1.5); },{passive:false});
+cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camInputOff()||AWK.running) return; if(povActive()){ POV.fov=clamp(POV.fov*Math.exp(e.deltaY*0.001),45,95); return; } goal.zoom=clamp(goal.zoom*Math.exp(e.deltaY*0.001),0.4,1.5); },{passive:false});
 
 /* ---------- Permainan ---------- */
 const STALE={};
