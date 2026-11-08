@@ -32,11 +32,10 @@
     frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' },
     gear:    { category: 'aksesori', noun: 'Gear',       slot: null }   /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
   };
-  /* Frame profil: gambar WebP transparan (badan frame = 68% lebar gambar) di game/data/frame/.
+  /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
+     Di halaman, <img> frame diganti canvas beranimasi oleh assets/js/frame-fx.js (WebP = fallback/statis).
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
   var FRAME_DIR = 'data/frame/';
-  /* Animasi frame (assets/css/frame-fx.css) dipasang otomatis di setiap halaman yang memuat katalog. */
-  try { if (typeof document !== 'undefined' && !document.getElementById('frame-fx-css')) { var fx = document.createElement('link'); fx.id = 'frame-fx-css'; fx.rel = 'stylesheet'; fx.href = 'assets/css/frame-fx.css?v=2'; document.head.appendChild(fx); } } catch (e) {}
   var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';
   function frame(gameKey, name, rarity, price, desc, file, extra) {
     return Object.assign({ id: 'frame.' + gameKey, kind: 'frame', gameKey: gameKey, name: 'Frame ' + name,
@@ -87,20 +86,20 @@
 
   var ITEMS = [
     /* ---- Frame profil (Aksesori) ---- */
-    frame('default', 'Kayu', 'common', 0,   'Frame kayu sederhana berhias daun hijau. Terpasang sejak awal.', 'frame-default.webp'),
-    frame('stone',   'Batu',    'common', 150, 'Frame batu abu-abu retak yang kokoh, langsung dari dasar tambang.', 'stone.webp'),
-    frame('copper',  'Tembaga', 'rare',   350, 'Frame tembaga berkarat hijau dengan paku-paku kecil di setiap sudutnya.', 'copper.webp'),
-    frame('iron',    'Besi',    'rare',   500, 'Frame besi tempa dengan sudut baja dan baut merah yang kokoh.', 'iron.webp'),
-    frame('gold',    'Emas', 'epic',   800, 'Frame emas berkilau dengan permata biru di puncaknya untuk profil yang menonjol.', 'frame-gold.webp', { featured: true }),
-    frame('diamond', 'Berlian', 'epic', 1200, 'Frame berlian biru kristal dengan ujung-ujung tajam yang berkilau.', 'diamond.webp'),
-    frame('amethyst','Kecubung', 'epic', 1500, 'Frame kristal kecubung ungu dengan gugus permata di setiap sisinya.', 'amethyst.webp'),
-    frame('nether',  'Nether', 'epic', 2000, 'Frame batu nether gosong dengan bara lava yang menyala di sudutnya.', 'nether.webp'),
-    frame('ender',   'Ender', 'legendary', 2500, 'Frame obsidian dengan kristal ender ungu dan partikel dimensi lain.', 'ender.webp'),
-    frame('storm',   'Badai', 'legendary', 3000, 'Frame baja gelap yang dialiri petir biru dan percikan listrik.', 'storm.webp'),
-    frame('dragon',  'Naga', 'legendary', 4000, 'Frame merah gelap bertanduk dengan mata naga kuning yang mengawasi.', 'dragon.webp'),
-    frame('cosmic',  'Kosmik', 'legendary', 5000, 'Frame galaksi dengan bintang-bintang dan debu kosmik yang berputar.', 'cosmic.webp'),
-    frame('phoenix', 'Phoenix', 'legendary', 6500, 'Frame api dengan sayap phoenix menyala dan lidah api di atasnya.', 'phoenix.webp'),
-    frame('celestial','Surgawi', 'legendary', 8000, 'Frame emas bersayap putih dengan permata dan lingkaran cahaya surgawi.', 'celestial.webp'),
+    frame('default', 'Kayu', 'common', 0,   'Frame kayu oak sederhana berhias daun hijau di sudutnya. Terpasang sejak awal.', 'frame-default.webp'),
+    frame('stone',   'Batu',    'common', 150, 'Frame batu kokoh dengan debu batu yang sesekali beterbangan.', 'stone.webp'),
+    frame('copper',  'Tembaga', 'rare',   350, 'Frame tembaga berkarat hijau dengan kilau tembaga yang lewat sesekali.', 'copper.webp'),
+    frame('iron',    'Besi',    'rare',   500, 'Frame besi tempa ala ksatria dengan kilatan metalik.', 'iron.webp'),
+    frame('gold',    'Emas', 'epic',   800, 'Frame emas kerajaan dengan permata biru dan kilau emas yang bergerak di pinggirannya.', 'frame-gold.webp', { featured: true }),
+    frame('diamond', 'Berlian', 'epic', 1200, 'Frame kristal berlian dengan kilauan dan partikel kecil yang berhamburan.', 'diamond.webp'),
+    frame('amethyst','Kecubung', 'epic', 1500, 'Frame kristal kecubung ungu yang berpendar dengan partikel arkana.', 'amethyst.webp'),
+    frame('nether',  'Nether', 'epic', 2000, 'Frame batu nether dengan bara api dan asap tipis yang naik.', 'nether.webp'),
+    frame('ender',   'Ender', 'legendary', 2500, 'Frame obsidian dimensi Ender; partikel ungu muncul dan menghilang di tepinya.', 'ender.webp'),
+    frame('storm',   'Badai', 'legendary', 3000, 'Frame baja badai dengan petir yang menyambar di tepinya.', 'storm.webp'),
+    frame('dragon',  'Naga', 'legendary', 4000, 'Frame sisik naga bertanduk dengan bara merah dan kilatan crimson.', 'dragon.webp'),
+    frame('phoenix', 'Phoenix', 'legendary', 5500, 'Frame api phoenix bersayap; lidah api hidup dan bulu membara naik ke atas.', 'phoenix.webp'),
+    frame('celestial','Surgawi', 'legendary', 7500, 'Frame surgawi bersayap dengan halo berputar, sinar emas, dan bintang berkilau.', 'celestial.webp'),
+    frame('cosmic',  'Kosmik', 'legendary', 8000, 'Frame kosmik dengan bintang yang mengorbit dan nebula warna-warni yang bergerak.', 'cosmic.webp'),
 
     /* ---- Skin karakter ---- */
     skin('steve',    'Steve',    'Default',   'common', 0,   'Petualang blok klasik. Siap melangkah ke petak mana pun.'),

@@ -25,8 +25,8 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 #ava{position:absolute;left:0;top:0;width:9rem;height:9rem;padding:1.25rem;z-index:2;overflow:hidden}
 #ava::before{content:"";position:absolute;inset:1rem;border-radius:.6rem;background:linear-gradient(#4a88c8,#2e6aa6)}
 #ava svg{position:relative;width:100%;height:100%;image-rendering:pixelated}
-/* frame profil (data/frame/*.webp, 500px; lubang frame = 26.8%-73.2% lebar gambar (6.1rem) -> wajah dipasang di lubang itu) */
-#avf{position:absolute;left:-2.12rem;top:-2.12rem;width:13.24rem;height:13.24rem;z-index:2;pointer-events:none;user-select:none;filter:drop-shadow(0 .25rem 0 rgba(11,18,32,.55))}
+/* frame profil (data/frame/*.webp, 500px; lubang frame = 61.9% lebar gambar (19.05% dari tiap sisi): gambar 10.5rem -> lubang 6.5rem pas dengan wajah (padding 1.25rem)) */
+#avf{position:absolute;left:-.75rem;top:-.75rem;width:10.5rem;height:10.5rem;z-index:2;pointer-events:none;user-select:none;filter:drop-shadow(0 .25rem 0 rgba(11,18,32,.55))}
 #pbox{position:absolute;left:8.6rem;top:.5rem;width:21.1rem;height:8.1rem}
 #shield{position:absolute;left:9.68rem;top:-1rem;width:6.4rem;height:6.4rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:.9rem}
 #shield img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 .2rem 0 #0b1220);pointer-events:none;user-select:none}
@@ -152,7 +152,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <div class="ov" id="modal"><div class="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 <div id="toast"></div>
 
-<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
