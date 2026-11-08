@@ -111,8 +111,8 @@ export class DiceRenderer {
     this.resize();
   }
 
-  /** Tatakan dadu 3D (batu voxel + pelat emas + kristal biru + sumur dasar kain). Lantai sumur = y 0 = lantai fisika dadu.
-   *  Semua mesh ikut pencahayaan/bayangan scene yang sama dengan dadu (dadu menjatuhkan bayangan asli ke sumur). */
+  /** Tatakan dadu 3D DATAR (pelat batu voxel + garis emas + kristal biru + alas kain). Permukaan atas = y 0 = lantai fisika dadu.
+   *  Semua mesh ikut pencahayaan/bayangan scene yang sama dengan dadu (dadu menjatuhkan bayangan asli ke permukaan pelat). */
   _buildPad() {
     const px = (draw, size = 128) => { // tekstur blok piksel (gaya voxel), filter nearest
       const cv = document.createElement('canvas'); cv.width = cv.height = size;
@@ -141,33 +141,23 @@ export class DiceRenderer {
     const steel = new THREE.MeshStandardMaterial({ color: '#c9d1e0', roughness: 0.35, metalness: 0.85 });
     const crystal = new THREE.MeshStandardMaterial({ color: '#4aa8ff', roughness: 0.15, metalness: 0.2, emissive: '#2e8dff', emissiveIntensity: 1.1 });
 
-    const OX = 1.25, OZ = 1.1, IX = 0.85, IZ = 0.7, TOP = 0.28; // luar / sumur (setengah ukuran) / tinggi bibir
+    const OX = 1.25, OZ = 1.1; // setengah ukuran pelat; permukaan atas = y 0 = lantai fisika (dadu mendarat rata di atasnya)
     const g = new THREE.Group();
     const meshes = [];
     const add = (geo, mat, x, y, z, cast = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; g.add(m); meshes.push(m); return m; };
     const box = (w, h, d, r = 0.05) => new RoundedBoxGeometry(w, h, d, 2, r);
 
-    add(box(OX * 2 + 0.34, 0.3, OZ * 2 + 0.34, 0.1), base, 0, -0.17, 0);                // alas bawah, sedikit lebih lebar
-    add(new THREE.PlaneGeometry(IX * 2 + 0.1, IZ * 2 + 0.1).rotateX(-Math.PI / 2), felt, 0, 0.002, 0, false); // lantai sumur (penerima bayangan dadu)
-    const rimH = TOP + 0.3, rimY = (TOP - 0.3) / 2;
-    add(box(OX * 2, rimH, OZ - IZ, 0.06), stone, 0, rimY, -(OZ + IZ) / 2);                // bibir belakang
-    add(box(OX * 2, rimH, OZ - IZ, 0.06), stone, 0, rimY, (OZ + IZ) / 2);                  // bibir depan
-    add(box(OX - IX, rimH, IZ * 2, 0.06), stone, -(OX + IX) / 2, rimY, 0);                 // bibir kiri
-    add(box(OX - IX, rimH, IZ * 2, 0.06), stone, (OX + IX) / 2, rimY, 0);                  // bibir kanan
-
-    // pelat emas di tepi dalam & luar bibir
-    const inlay = (w, d, x, z, y = TOP + 0.006) => add(new THREE.BoxGeometry(w, 0.025, d), gold, x, y, z, false);
+    add(box(OX * 2 + 0.3, 0.14, OZ * 2 + 0.3, 0.06), base, 0, -0.27, 0);                  // alas bawah, sedikit lebih lebar
+    add(box(OX * 2, 0.22, OZ * 2, 0.07), stone, 0, -0.11, 0);                              // pelat batu datar (atas di y 0)
+    const mw = OX * 2 - 0.5, md = OZ * 2 - 0.5;                                            // alas kain tempat dadu mendarat
+    add(new THREE.PlaneGeometry(mw, md).rotateX(-Math.PI / 2), felt, 0, 0.003, 0, false);
+    const inlay = (w, d, x, z) => add(new THREE.BoxGeometry(w, 0.012, d), gold, x, 0.006, z, false); // garis emas pembatas alas kain
     const gi = 0.05;
-    inlay(IX * 2 + 0.2, gi, 0, -IZ - 0.03); inlay(IX * 2 + 0.2, gi, 0, IZ + 0.03);
-    inlay(gi, IZ * 2 + 0.2, -IX - 0.03, 0); inlay(gi, IZ * 2 + 0.2, IX + 0.03, 0);
-    const go = 0.045, ox = OX - 0.1, oz = OZ - 0.1;
-    inlay(ox * 2, go, 0, -oz); inlay(ox * 2, go, 0, oz); inlay(go, oz * 2, -ox, 0); inlay(go, oz * 2, ox, 0);
-
-    // baut baja di sudut + kristal biru bercahaya di sisi depan
-    for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(box(0.2, 0.14, 0.2, 0.035), steel, sx * (OX - 0.13), TOP + 0.05, sz * (OZ - 0.13));
-    for (const sx of [-1, 1]) {
-      const c = add(new THREE.OctahedronGeometry(0.17), crystal, sx * 0.52, 0.02, OZ + 0.07, false);
-      c.scale.set(0.9, 1.45, 0.55);
+    inlay(mw + gi, gi, 0, -md / 2); inlay(mw + gi, gi, 0, md / 2); inlay(gi, md, -mw / 2, 0); inlay(gi, md, mw / 2, 0);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(box(0.16, 0.05, 0.16, 0.02), steel, sx * (OX - 0.16), 0.02, sz * (OZ - 0.16), false); // baut rendah di sudut
+    for (const sx of [-1, 1]) { // kristal biru di sisi depan pelat
+      const c = add(new THREE.OctahedronGeometry(0.1), crystal, sx * 0.55, -0.11, OZ + 0.02, false);
+      c.scale.set(0.9, 1.1, 0.4);
     }
 
     // cahaya biru lembut di bawah tatakan (berdenyut pelan)
@@ -179,7 +169,7 @@ export class DiceRenderer {
     this._padTex.push(glowTex);
     const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.6 });
     const glow = new THREE.Mesh(new THREE.PlaneGeometry(OX * 2 + 1.6, OZ * 2 + 1.6).rotateX(-Math.PI / 2), glowMat);
-    glow.position.y = -0.34; glow.renderOrder = -1;
+    glow.position.y = -0.36; glow.renderOrder = -1;
     this.scene.add(glow);
 
     this.scene.add(g);
