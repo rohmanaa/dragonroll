@@ -432,6 +432,7 @@
        o = {token, won:boolean}. Mengembalikan {ok, duplicate, won, xpGain, points, levelUp, ...stats}. */
     recordMatch: function (o) {
       o = o || {};
+      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* Tahap 6b: XP/statistik match hanya dari server (submit_match_result -> applyServerStats) */
       var token = String(o.token || '').slice(0, 80);
       if (!token) return { ok: false, reason: 'token-kosong' };
       var st = load(), s = normStats(st.stats);
@@ -642,6 +643,26 @@
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       notify('server-wallet');
       return { ok: true, coins: st.coins, gems: st.gems };
+    },
+    /* Isi cermin XP/statistik/nama dari server (get_my_profile): {xp, plays, wins, streak, bestStreak, points, weekPoints, name}.
+       Hanya mode server. Field yang tidak valid diabaikan; server adalah satu-satunya sumber. */
+    applyServerStats: function (o) {
+      if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
+      o = o || {};
+      var st = load(), s = normStats(st.stats), ok = function (v) { return isFinite(v) && v >= 0; };
+      if (ok(o.xp)) st.xp = Math.floor(o.xp);
+      if (ok(o.plays)) s.plays = Math.floor(o.plays);
+      if (ok(o.wins)) s.wins = Math.floor(o.wins);
+      if (ok(o.streak)) s.streak = Math.floor(o.streak);
+      if (ok(o.bestStreak)) s.bestStreak = Math.floor(o.bestStreak);
+      if (ok(o.points)) s.points = Math.floor(o.points);
+      if (ok(o.weekPoints)) s.weekPoints = Math.floor(o.weekPoints);
+      st.stats = s;
+      if (typeof o.name === 'string' && o.name.trim()) st.profile.name = o.name.trim().slice(0, 16);
+      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
+      notify('stats');
+      var li = levelInfo(st.xp);
+      return { ok: true, xp: st.xp, level: li.level, plays: s.plays, wins: s.wins };
     },
     /* Tampilan aktif untuk dikirim ke server (AppearanceService.pushAppearance): {look, equipped, gearDye}.
        equipped hanya slot yang bisa di-equip (skin/dice/theme/frame + slot gear); validasi final ada di server. */

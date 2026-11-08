@@ -309,6 +309,27 @@ t('PD.purchaseSet: akun server ditolak (harus lewat WalletService.buySet)', () =
   assert.strictEqual(PD.purchaseSet(gearBuyable(IC, 2).map(i => i.id)).reason, 'server-wallet'); assert.strictEqual(PD.coins(), c0);
 });
 
+t('Tahap 6b: akun login -> recordMatch ditolak; applyServerStats mengisi xp/statistik/nama dari server', () => {
+  const { PD } = loginOn();
+  const r = PD.recordMatch({ token: 'cpu:x', won: true });
+  assert.deepStrictEqual([r.ok, r.reason], [false, 'server-mode']);
+  assert.strictEqual(PD.stats().plays, 0);
+  const a = PD.applyServerStats({ xp: 540, plays: 7, wins: 4, streak: 2, bestStreak: 3, points: 410, weekPoints: 110, name: 'Rohman' });
+  assert.strictEqual(a.ok, true);
+  assert.strictEqual(PD.xp(), 540);
+  const st = PD.stats();
+  assert.deepStrictEqual([st.plays, st.wins, st.streak, st.bestStreak, st.points, st.weekPoints], [7, 4, 2, 3, 410, 110]);
+  assert.strictEqual(PD.profile().name, 'Rohman');
+  PD.applyServerStats({ xp: -5, plays: 'abc', name: '   ' });   /* nilai tidak valid diabaikan */
+  assert.strictEqual(PD.xp(), 540); assert.strictEqual(PD.stats().plays, 7); assert.strictEqual(PD.profile().name, 'Rohman');
+});
+t('Tahap 6b: tanpa akun applyServerStats ditolak dan recordMatch lokal tetap jalan (jalur tamu)', () => {
+  const { PD } = boot({});
+  assert.strictEqual(PD.applyServerStats({ xp: 999 }).ok, false);
+  assert.strictEqual(PD.xp(), 0);
+  assert.strictEqual(PD.recordMatch({ token: 'cpu:y', won: true }).ok, true);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');

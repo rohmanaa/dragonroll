@@ -5969,6 +5969,7 @@ function recordMatchResult(winner){
       won=!winner.cpu; token='cpu:'+MATCH_TOKEN;
     }else return;
     if(MATCH_DONE===token) return; MATCH_DONE=token;
+    if(PD.serverMode&&PD.serverMode()){ recordMatchServer(PD,{token,won,roomId}); return; } /* Tahap 6b: akun login -> server menghitung XP/poin, klien hanya menampilkan */
     const r=PD.recordMatch({token,won,noPoints:!ONLINE_ROOM}); /* lawan CPU: XP tetap, poin leaderboard 0 (server menegakkan hal yang sama) */
     if(!r||!r.ok||r.duplicate) return;
     try{ if(PD.serverMode&&PD.serverMode()){ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); } }catch(e){} /* B5: progres misi dihitung server (win juga menghitung play) */
@@ -5982,6 +5983,29 @@ function recordMatchResult(winner){
       return send(0);
     }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
   }catch(e){ console.error('[stats]',e); }
+}
+/* Tahap 6b: hasil match akun login. Server (submit_match_result) satu-satunya yang menghitung XP/poin/statistik;
+   setelah diterima, profil server dibaca ulang dan disalin ke cache PlayerData. Gagal/offline = tidak tercatat (tanpa tulis lokal). */
+async function recordMatchServer(PD,m){
+  try{
+    const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
+    const lvBefore=PD.levelInfo().level;
+    await import('./assets/js/multiplayer/room-service.js'); await import('./assets/js/multiplayer/progress-service.js');
+    const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
+    let r=null;
+    for(let n=0;n<=6;n++){
+      r=await RS.submitMatchResult({matchId:m.token,won:m.won,name:PD.profile().name,xpTotal:0,roomId:m.roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:ST});
+      if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6){ await new Promise(ok=>setTimeout(ok,1500)); continue; } /* server baru mencatat bila room sudah 'finished' */
+      break;
+    }
+    if(!r||r.ok===false||r.duplicate||r.ignored) return;
+    const sp=await UT.Multiplayer.Progress.getMyProfile();
+    if(!sp||!sp.exists) return;
+    const a=PD.applyServerStats({xp:sp.xp,plays:sp.plays,wins:sp.wins,streak:sp.streak,bestStreak:sp.best_streak,points:sp.points,weekPoints:sp.week_points,name:sp.name});
+    const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
+    try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
+    try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
+  }catch(e){ console.warn('[stats] gagal mencatat ke server',e); }
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
