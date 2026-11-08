@@ -1386,7 +1386,8 @@ $('#shp').addEventListener('click',()=>{location.href='shop.html';});
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html';}));
 function setMode(m){mode=m;for(const k in btns)btns[k].classList.toggle('on',k===m);}
 setMode('idle');
-function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins());}catch(e){}}
+function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 renderCurrency();
 try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
 

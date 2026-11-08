@@ -152,7 +152,8 @@ const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
 const buzz=()=>{try{if(PD.settings().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-function money(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function money(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{money()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 UT.Events.on('currencyChanged',money);money();
 /* sky ringan */
 (()=>{const sk=$('#sky');[[8,10,14],[40,6,10],[78,12,16],[66,70,14],[16,76,12]].forEach(p=>{const e=document.createElement('div');e.style.cssText=`position:absolute;left:${p[0]}%;top:${p[1]}%;width:${p[2]}rem;height:${p[2]/3}rem;border-radius:50%;background:#fff;opacity:.7;filter:blur(.6rem)`;sk.appendChild(e)})})();

@@ -409,7 +409,7 @@ function renderRows(){const c=cur(),box=$('#rows');
  document.querySelectorAll('.lr').forEach(r=>r.addEventListener('click',()=>{playSound('click');toast(r.dataset.n+' — peringkat #'+r.dataset.r)}))}
 
 function renderCur(){renderCurrency()}
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 function renderAll(){renderPodium();renderMe();renderRows();renderCur()}
 
 UT.Events.on('currencyChanged',renderCurrency);

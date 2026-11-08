@@ -148,7 +148,7 @@ function playSound(n){try{if(!PD.settings().sound)return;UT.Audio.play(SFX[n]||'
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
 function pulse(sel){const e=$(sel);if(!e)return;e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 
-function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}catch(e){}}
+function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}catch(e){}}
 function render(){
  const L=qList();
  $('#cntT').textContent=L.length+' Misi';

@@ -457,7 +457,7 @@ function renderDays(){
  for(let i=0;i<7;i++){const n=document.createElement('div');n.className='nd'+(i<D.claimed?' dn':'');tr.appendChild(n)}
  $('#fill').style.width=`calc((100% - 2.6rem) * ${Math.min(D.claimed,6)/6})`;
  renderCurrency()}
-function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}catch(e){}}
+function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}catch(e){}}
 // ---------- claim (semua reward lewat transaksi PlayerData: atomik, tidak bisa digandakan)
 function done(r,msg,el){playSound('purchase');buzz();sparkle(el,22);pulse(r.ty==='gem'?'#gem':'#coin');renderDays();
  openModal(`<h2>Hadiah Diklaim!</h2><div class="rw">${r.ic}</div><div>${msg}</div><button class="ok" id="okb">Mantap!</button>`,()=>$('#okb').addEventListener('click',()=>{playSound('click');closeModal()}))}
@@ -534,7 +534,7 @@ function playSound(n){try{if(!PD.settings().sound)return;UT.Audio.play(SFX[n]||'
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
 function pulse(sel){const e=$(sel);if(!e)return;e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 
-function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}catch(e){}}
+function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}catch(e){}}
 function render(){
  const L=qList();
  $('#cntT').textContent=L.length+' Misi';

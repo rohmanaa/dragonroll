@@ -513,7 +513,8 @@ async function claimAch(id){const a=achInfo().find(x=>x.id===id);if(!a||a.pend<1
   pulse('#coin');pulse('#gem');playSound('coin');buzz();sparkle($('#pg'),14);toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')
  }catch(e){console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.');playSound('error')}finally{claimAch.busy=0}}
 function achModal(){openModal(`<h2>Achievement</h2><div class="alm">${achInfo().map(achCard).join('')}</div>`,null,true)}
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function renderInfo(){renderCurrency()}
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 function init(){

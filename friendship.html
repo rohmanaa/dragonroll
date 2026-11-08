@@ -129,7 +129,8 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 const $=s=>document.querySelector(s);
 // currency dari PlayerData (single source of truth) — angka hardcoded di HTML hanya fallback noscript
 const PD=window.PlayerData,fmt=n=>n.toLocaleString('id-ID');
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 renderCurrency();
 UT.Events.on('currencyChanged',renderCurrency);
 const RS=()=>UT.Multiplayer&&UT.Multiplayer.RoomService,PR=()=>UT.Multiplayer&&UT.Multiplayer.Presence;

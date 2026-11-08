@@ -329,6 +329,22 @@ t('Tahap 6b: tanpa akun setName tetap bebas (jalur tamu)', () => {
   assert.strictEqual(PD.setName('Tamu').name, 'Tamu');
 });
 
+t('Tahap 6d: state baru akun mulai 0 (tanpa saldo awal lokal) dan walletReady false sampai server membalas', () => {
+  const { PD } = loginOn();
+  assert.deepStrictEqual([PD.coins(), PD.gems(), PD.xp()], [0, 0, 0]);
+  assert.strictEqual(PD.walletReady(), false);
+  assert.strictEqual(typeof PD.startCoins, 'undefined');
+  PD.applyServerWallet({ coins: 250, gems: 3 });
+  assert.strictEqual(PD.walletReady(), true);
+  assert.deepStrictEqual([PD.coins(), PD.gems()], [250, 3]);
+});
+t('Tahap 6d: walletReady tetap true setelah reload (cache sebelumnya valid) dan false tanpa akun', () => {
+  const a = loginOn(); a.PD.applyServerWallet({ coins: 10, gems: 0 });
+  const b = boot({ store: a.store, flag: true });
+  assert.strictEqual(b.PD.walletReady(), true);
+  assert.strictEqual(boot({}).PD.walletReady(), false);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');

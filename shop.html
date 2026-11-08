@@ -448,7 +448,8 @@ function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)}
 function sparkle(el,n=12){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;for(let i=0;i<n;i++){const s=document.createElement('i');s.className='sp';s.style.left=cx+'px';s.style.top=cy+'px';const a=Math.random()*6.28,d=30+Math.random()*60;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),850)}}
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 const modal=$('#modal');let mOpen=false,onClose=null;
 function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}

@@ -19,9 +19,7 @@
   var SCHEMA = 1;
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
   var SET_MAX_UNIQUE = 20, SET_MAX_RAW = 200;   /* batas beli set: sama dengan buy_set di server */
-  var START_COINS = 1000;      /* saldo awal SEKALI saat data dibuat; tidak ada koin gratis berulang */
-  var START_GEMS = 0;
-  var START_XP = 0;            /* Chest Feature 2: XP minimal (hanya angka tersimpan; tanpa level/progression) */
+  /* Tahap 6d: tidak ada saldo/XP awal lokal. Semua mulai 0 dan baru bermakna setelah server membalas (lihat walletReady). */
   var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high', ambience: 'day' }; /* ambience: 'day' | 'night' | 'system' (ikuti perangkat) */
   var DEFAULT_PROFILE = { name: 'OmanBogel' };   /* nama mock sementara (satu sumber: PlayerData.profile().name) */
 
@@ -184,7 +182,7 @@
   function freshState() {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
-    var st = { schema: SCHEMA, migration: MIGRATION_VERSION, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, stats: normStats(null), nextSeq: seq,
+    var st = { schema: SCHEMA, migration: MIGRATION_VERSION, createdAt: now, coins: 0, gems: 0, xp: 0, stats: normStats(null), walletSyncedAt: 0, nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped), gearDye: {}, look: null, outfits: [],
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     return st;
@@ -199,8 +197,9 @@
       migration: (isFinite(o.migration) && o.migration >= 0) ? Math.floor(o.migration) : 0,
       createdAt: isFinite(o.createdAt) ? +o.createdAt : now,
       coins: (isFinite(o.coins) && o.coins >= 0) ? Math.floor(o.coins) : 0,
-      gems: (isFinite(o.gems) && o.gems >= 0) ? Math.floor(o.gems) : START_GEMS,
-      xp: (isFinite(o.xp) && o.xp >= 0) ? Math.floor(o.xp) : START_XP, /* save lama tanpa xp -> 0 */
+      gems: (isFinite(o.gems) && o.gems >= 0) ? Math.floor(o.gems) : 0,
+      xp: (isFinite(o.xp) && o.xp >= 0) ? Math.floor(o.xp) : 0,
+      walletSyncedAt: (isFinite(o.walletSyncedAt) && o.walletSyncedAt > 0) ? +o.walletSyncedAt : 0,
       stats: normStats(o.stats),
       nextSeq: 0, inventory: {}, equipped: {},
       settings: normSettings(o.settings),
@@ -332,8 +331,6 @@
     get key() { return key(); },
     /* Id akun aktif ('' = tamu) dan kunci klaim achievement untuk akun itu (dipakai profile.html). */
     scope: function () { return accountId(); },
-    startCoins: START_COINS,
-    startGems: START_GEMS,
     migrationVersion: MIGRATION_VERSION, /* playerDataMigrationVersion */
     get persistent() { return persistent; },
     snapshot: function () { return load(); },
@@ -520,6 +517,7 @@
       var st = load(), now = Date.now();
       if (isFinite(o.coins) && o.coins >= 0) st.coins = Math.floor(o.coins);
       if (isFinite(o.gems) && o.gems >= 0) st.gems = Math.floor(o.gems);
+      if (isFinite(o.coins) || isFinite(o.gems)) st.walletSyncedAt = now;   /* cache saldo ini pernah diisi server */
       if (Array.isArray(o.inventory)) {
         var inv = {}, seq = 0;
         C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: (st.inventory[it.id] || {}).acquiredAt || st.createdAt, seq: seq++ }; });
@@ -539,6 +537,8 @@
       notify('server-wallet');
       return { ok: true, coins: st.coins, gems: st.gems };
     },
+    /* true bila saldo cache akun ini pernah diisi server. Sebelum itu UI menampilkan "—", bukan 0/angka palsu. */
+    walletReady: function () { return serverMode() && !!load().walletSyncedAt; },
     /* Isi cermin XP/statistik/nama dari server (get_my_profile): {xp, plays, wins, streak, bestStreak, points, weekPoints, name}.
        Hanya mode server. Field yang tidak valid diabaikan; server adalah satu-satunya sumber. */
     applyServerStats: function (o) {

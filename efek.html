@@ -358,7 +358,8 @@ function renderInfo(){const i=sel,u=$('#use');
  u.className='use'+(eq?' own':'');u.innerHTML=eq?CK+'Digunakan':SH+'Gunakan';
  $('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});
  renderCurrency()}
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 $('#use').addEventListener('click',e=>{if(sel){const w=isOwned(sel);act(sel);if(w)sparkle(e.currentTarget)}});
 $('#rp').addEventListener('click',()=>{off--;renderRecent()});$('#rn').addEventListener('click',()=>{off++;renderRecent()});

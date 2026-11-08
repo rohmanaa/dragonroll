@@ -368,7 +368,8 @@ function renderDays(){
  for(let i=0;i<7;i++){const n=document.createElement('div');n.className='nd'+(i<D.claimed?' dn':'');tr.appendChild(n)}
  $('#fill').style.width=`calc((100% - 2.6rem) * ${Math.min(D.claimed,6)/6})`;
  renderCurrency()}
-function renderCurrency(){try{$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}catch(e){}}
+function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}catch(e){}}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 // ---------- claim (semua reward lewat transaksi PlayerData: atomik, tidak bisa digandakan)
 function done(r,msg,el){playSound('purchase');buzz();sparkle(el,22);pulse(r.ty==='gem'?'#gem':'#coin');renderDays();
  openModal(`<h2>Hadiah Diklaim!</h2><div class="rw">${r.ic}</div><div>${msg}</div><button class="ok" id="okb">Mantap!</button>`,()=>$('#okb').addEventListener('click',()=>{playSound('click');closeModal()}))}

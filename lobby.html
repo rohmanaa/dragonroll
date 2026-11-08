@@ -190,7 +190,7 @@ const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1700)}
 /* ---------- HUD ---------- */
 function renderAvatar(){$('#ava').innerHTML=AR.face(PD.equippedId('skin'))||AR.face('skin.steve')} /* wajah dari UT.CharacterData lewat ItemArt.face */
-function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
+function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 /* nama panjang: font otomatis mengecil agar tidak keluar panel */
 function fitName(){const n=$('#pname');if(!n)return;const MAX=3.1,MIN=1.1;let sz=MAX;n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem';
  while(n.scrollWidth>n.clientWidth&&sz>MIN){sz=Math.max(MIN,+(sz-.1).toFixed(2));n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem'}}
