@@ -291,6 +291,15 @@
   }
 
   /* Gambar utama kartu. variant: 'full' (karakter penuh) | 'face' */
+  /* Aura (kategori Efek): thumbnail bulat dari 3 warna aura di katalog (it.colors). Efek hidup ada di aura-fx.js. */
+  function aura(itemId) {
+    var it = C.byId(itemId); if (!it || it.kind !== 'aura') return '';
+    var k = it.colors || ['#fff', '#fff'], a = k[0], b = k[1] || k[0], gid = 'aug-' + it.gameKey;
+    return '<svg class="art-aura" viewBox="0 0 40 40" role="img" aria-label="' + it.name + '"><defs><radialGradient id="' + gid + '"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".38" stop-color="' + b + '"/><stop offset="1" stop-color="' + a + '" stop-opacity=".12"/></radialGradient></defs>' +
+      '<circle cx="20" cy="20" r="17" fill="url(#' + gid + ')"/><circle cx="20" cy="20" r="14" fill="none" stroke="' + a + '" stroke-width="1.6" stroke-dasharray="3 3"/>' +
+      '<rect x="8" y="9" width="3" height="3" fill="' + b + '"/><rect x="29" y="11" width="2.5" height="2.5" fill="' + a + '"/><rect x="27" y="28" width="3" height="3" fill="' + b + '"/><rect x="10" y="27" width="2.5" height="2.5" fill="' + a + '"/></svg>';
+  }
+
   function forItem(itemId, variant) {
     var it = C.byId(itemId); if (!it) return '';
     if (it.kind === 'frame') return frame(itemId);
@@ -298,6 +307,7 @@
     if (it.kind === 'dice') return dice(itemId);
     if (it.kind === 'theme') return theme(itemId);
     if (it.kind === 'powerup') return powerup(itemId);
+    if (it.kind === 'aura') return aura(itemId);
     return '';
   }
 
@@ -313,6 +323,6 @@
     return pal;
   }
 
-  g.ItemArt = { character: character, face: face, frame: frame, dice: dice, theme: theme, powerup: powerup, forItem: forItem, palette: palette,
+  g.ItemArt = { character: character, face: face, frame: frame, dice: dice, theme: theme, powerup: powerup, aura: aura, forItem: forItem, palette: palette,
                 textureUrl: textureUrl, loadSkinTexture: loadSkinTexture, resolveSkinId: resolveSkinId, makeSkinTexture: makeSkinTexture };
 })(window);

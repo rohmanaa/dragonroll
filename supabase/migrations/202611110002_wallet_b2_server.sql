@@ -26,6 +26,21 @@ revoke all on public.item_catalog from anon, authenticated;
 
 -- BEGIN CATALOG SEED (dibuat oleh game/tools/wallet/gen-item-seed.js; jangan edit tangan)
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
+  ('aura.amethyst', 'aura', 1800, false, false),
+  ('aura.celestial', 'aura', 10000, false, false),
+  ('aura.dragon', 'aura', 6500, false, false),
+  ('aura.electric', 'aura', 1000, false, false),
+  ('aura.emerald', 'aura', 1000, false, false),
+  ('aura.ender', 'aura', 1800, false, false),
+  ('aura.flame', 'aura', 600, false, false),
+  ('aura.frost', 'aura', 600, false, false),
+  ('aura.nature', 'aura', 300, false, false),
+  ('aura.nether', 'aura', 1800, false, false),
+  ('aura.ocean', 'aura', 1800, false, false),
+  ('aura.sculk', 'aura', 3500, false, false),
+  ('aura.shadow', 'aura', 3500, false, false),
+  ('aura.solar', 'aura', 3500, false, false),
+  ('aura.stone', 'aura', 300, false, false),
   ('dice.amethyst', 'dice', 450, false, false),
   ('dice.copper', 'dice', 150, false, false),
   ('dice.diamond', 'dice', 450, false, false),

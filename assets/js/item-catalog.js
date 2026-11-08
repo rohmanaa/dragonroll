@@ -7,9 +7,12 @@
 
   var RARITY = {
     common:    { key: 'common',    label: 'Umum',       rank: 1, stars: '★' },
+    uncommon:  { key: 'uncommon',  label: 'Tak Biasa',  rank: 1.5, stars: '★' },
     rare:      { key: 'rare',      label: 'Langka',     rank: 2, stars: '★★' },
     epic:      { key: 'epic',      label: 'Epik',       rank: 3, stars: '★★★' },
-    legendary: { key: 'legendary', label: 'Legendaris', rank: 4, stars: '★★★★' }
+    legendary: { key: 'legendary', label: 'Legendaris', rank: 4, stars: '★★★★' },
+    mythic:    { key: 'mythic',    label: 'Mitos',      rank: 5, stars: '★★★★★' },
+    divine:    { key: 'divine',    label: 'Ilahi',      rank: 6, stars: '★★★★★★' }
   };
 
   var CATEGORIES = [
@@ -30,7 +33,8 @@
     theme:   { category: 'lainnya',  noun: 'Maps', slot: 'theme' },
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
     frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' },
-    gear:    { category: 'aksesori', noun: 'Gear',       slot: null }   /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
+    gear:    { category: 'aksesori', noun: 'Gear',       slot: null },  /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
+    aura:    { category: 'efek',     noun: 'Aura',       slot: 'aura' }  /* opsional (boleh kosong), satu aura aktif; efek visual: assets/js/aura-fx.js */
   };
   /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
      Di halaman, <img> frame diganti canvas beranimasi oleh assets/js/frame-fx.js (WebP = fallback/statis).
@@ -190,7 +194,7 @@
      source: 'starter' (gratis, dimiliki sejak awal) | 'shop' (dibeli dengan koin; HARGA ASLI ADA DI SERVER: tabel item_catalog,
      disalin lewat tools/wallet/gen-item-seed.js) | 'quest' | 'event' (price null: tidak dijual; diberikan server).
      g = 'm' | 'f' | null (null = semua gender). Mata, rambut, warna kulit & pewarna adalah dasar penampilan, bukan item dagangan.
-     Belum ada di builder (SENGAJA dilewati): aura, trail, spawn_effect, idle_animation, bundle. */
+     Belum ada di builder (SENGAJA dilewati): trail, spawn_effect, idle_animation, bundle. (Aura = kind 'aura', lihat AURAS.) */
   var GEAR_SLOTS = [
     { key: 'top', label: 'Baju' }, { key: 'legs', label: 'Celana' }, { key: 'boots', label: 'Sepatu' },
     { key: 'helm', label: 'Kepala' }, { key: 'chest', label: 'Zirah' }, { key: 'shoulder', label: 'Bahu' },
@@ -280,6 +284,33 @@
   ];
   ITEMS = ITEMS.concat(GEAR);
 
+  /* ---- Aura karakter (kategori Efek) ----
+     Efek visual di assets/js/aura-fx.js (id aura = gameKey). Dibeli dengan koin lewat server (item_catalog), dipakai satu per
+     karakter; slot 'aura' OPSIONAL (boleh kosong, lihat optionalSlots). Harga = usulan per rarity (T1 300 ... T7 10000);
+     ubah di sini lalu: node tools/wallet/gen-item-seed.js --write dan terapkan ulang migrasi aura. colors = 3 warna untuk thumbnail. */
+  function aura(gameKey, name, rarity, price, theme, colors) {
+    return { id: 'aura.' + gameKey, kind: 'aura', gameKey: gameKey, name: name, rarity: rarity, price: price,
+      desc: theme + '. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.', starter: false, colors: colors };
+  }
+  var AURAS = [
+    aura('nature', 'Nature Aura', 'common', 300, 'Nature / Forest', ['#4caf50', '#8bc34a', '#7a5230']),
+    aura('stone', 'Stone Aura', 'common', 300, 'Stone / Mountain', ['#9a9ea6', '#ffffff', '#c0c4cc']),
+    aura('flame', 'Flame Aura', 'uncommon', 600, 'Fire', ['#ff3a1a', '#ff7a18', '#ffd24a']),
+    aura('frost', 'Frost Aura', 'uncommon', 600, 'Ice', ['#9fe4ff', '#ffffff', '#5ac8ff']),
+    aura('electric', 'Electric Aura', 'rare', 1000, 'Lightning', ['#ffe94a', '#ffffff', '#5ac8ff']),
+    aura('emerald', 'Emerald Aura', 'rare', 1000, 'Emerald', ['#1fd16a', '#c6ff5a', '#ffffff']),
+    aura('ender', 'Ender Aura', 'epic', 1800, 'Enderman / End Dimension', ['#c24cff', '#ff40d8', '#14041f']),
+    aura('nether', 'Nether Aura', 'epic', 1800, 'Nether', ['#ff3a1a', '#ff7a18', '#1a0505']),
+    aura('amethyst', 'Amethyst Aura', 'epic', 1800, 'Amethyst Geode', ['#b266ff', '#d8b4ff', '#ff9ae6']),
+    aura('ocean', 'Ocean Aura', 'epic', 1800, 'Ocean / Prismarine', ['#27d8e6', '#8ff6ff', '#1a6fb8']),
+    aura('solar', 'Solar Aura', 'legendary', 3500, 'Sun / Solar Energy', ['#ffd24a', '#fff7c8', '#ffffff']),
+    aura('shadow', 'Shadow Aura', 'legendary', 3500, 'Dark Dimension', ['#0a0510', '#5a1a8a', '#c0182c']),
+    aura('sculk', 'Sculk Aura', 'legendary', 3500, 'Deep Dark / Sculk', ['#27e6ff', '#0a2a5a', '#1a5fbf']),
+    aura('dragon', 'Dragon Aura', 'mythic', 6500, 'Ender Dragon', ['#ff2a3a', '#7a2aa8', '#0a0510']),
+    aura('celestial', 'Celestial Aura', 'divine', 10000, 'Divine / Cosmic', ['#fff2b0', '#ffffff', '#7fe6ff'])
+  ];
+  ITEMS = ITEMS.concat(AURAS);
+
   var DEFAULT_EQUIPPED = Object.freeze({ skin: 'skin.steve', dice: 'dice.klasik', theme: 'theme.minecraft', frame: 'frame.default' });
   var BY_ID = {};
   ITEMS.forEach(function (it) {
@@ -307,6 +338,8 @@
     KIND_META: KIND_META,
     GEAR_SLOTS: Object.freeze(GEAR_SLOTS),
     /* Semua slot equipment gear yang dikenal ('g.top', ..., 'g.acc.belt', ...) */
+    /* Slot equipment yang boleh kosong: gear + 'aura' */
+    optionalSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).concat(['aura']); },
     gearSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }); },
     items: Object.freeze(ITEMS.slice()),
     byId: function (id) { return Object.prototype.hasOwnProperty.call(BY_ID, id) ? BY_ID[id] : null; },

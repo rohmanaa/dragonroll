@@ -97,7 +97,7 @@
   var DYE_RE = /^[a-z0-9_]{1,24}$/;
   function cleanGear(st, eq, dyes) {
     st.gearDye = {};
-    C.gearSlots().forEach(function (slot) {
+    C.optionalSlots().forEach(function (slot) {   /* gear + aura: slot kosong = tidak dipakai */
       var it = C.byId(eq && eq[slot]);
       if (it && it.slot === slot && st.inventory[it.id]) st.equipped[slot] = it.id; else delete st.equipped[slot];
     });
@@ -398,9 +398,9 @@
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       notify('equip'); return { ok: true };
     },
-    /* Lepas gear dari slot (hanya slot gear; skin/dadu/tema/frame selalu terpasang). */
+    /* Lepas gear/aura dari slot (hanya slot opsional; skin/dadu/tema/frame selalu terpasang). */
     unequip: function (slot) {
-      if (C.gearSlots().indexOf(slot) < 0) return { ok: false, reason: 'bukan-slot-gear' };
+      if (C.optionalSlots().indexOf(slot) < 0) return { ok: false, reason: 'bukan-slot-gear' };
       var st = load();
       if (st.equipped[slot]) { delete st.equipped[slot]; if (!write(st)) return { ok: false, reason: 'gagal-simpan' }; notify('equip'); }
       return { ok: true };
@@ -567,7 +567,7 @@
        equipped hanya slot yang bisa di-equip (skin/dice/theme/frame + slot gear); validasi final ada di server. */
     appearance: function () {
       var st = load(), eq = {};
-      ['skin', 'dice', 'theme', 'frame'].concat(C.gearSlots()).forEach(function (s) { if (st.equipped[s]) eq[s] = st.equipped[s]; });
+      ['skin', 'dice', 'theme', 'frame'].concat(C.optionalSlots()).forEach(function (s) { if (st.equipped[s]) eq[s] = st.equipped[s]; });
       return { look: st.look ? clone(st.look) : null, equipped: eq, gearDye: clone(st.gearDye) };
     },
     /* Isi cermin tampilan dari server: {look, equipped, gearDye}. Hanya mode server. Item yang tidak ada di inventory
