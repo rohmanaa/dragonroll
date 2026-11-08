@@ -166,17 +166,17 @@ const RAW = [
   {
     id: 'void', name: 'Void Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Crying Obsidian',
     material: { pattern: 'crying', base: '#0a0614', accent: '#9a3cff', roughness: 0.15, metalness: 0.35, emissive: '#9a3cff', glowMap: true, clearcoat: 1, pip: { color: '#d8a8ff', glow: true } },
-    effect: { particleType: 'void', colors: ['#9a3cff', '#5a1ab0', '#e0b0ff'], glowColor: '#a040ff', landingEffect: 'vortexPortal', idleEffect: 'void', rollEffect: 'trail', soundEffect: 'void' },
+    effect: { particleType: 'void', colors: ['#9a3cff', '#5a1ab0', '#e0b0ff'], glowColor: '#a040ff', landingEffect: 'vortexPortal', idleEffect: 'void', rollEffect: 'trail', soundEffect: 'void', soundGain: 1.2 },
   },
   {
     id: 'netherite', name: 'Netherite Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Netherite',
     material: { pattern: 'netherite', base: '#2e2a2c', accent: '#8a6a4a', roughness: 0.4, metalness: 0.95, emissive: '#a0602a', pip: { color: '#c8905a' } },
-    effect: { particleType: 'ember', colors: ['#6a3a1a', '#c8803a', '#2a1a10'], glowColor: '#b0602a', landingEffect: 'heavyImpact', idleEffect: 'embers', rollEffect: 'ember', soundEffect: 'heavy', impactIntensity: 2.2 },
+    effect: { particleType: 'ember', colors: ['#6a3a1a', '#c8803a', '#2a1a10'], glowColor: '#b0602a', landingEffect: 'heavyImpact', idleEffect: 'embers', rollEffect: 'ember', soundEffect: 'heavy', impactIntensity: 2.2, soundGain: 1.2 },
   },
   {
     id: 'sculk', name: 'Sculk Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Sculk',
     material: { pattern: 'sculk', base: '#0a1f3a', accent: '#22d3ee', roughness: 0.5, metalness: 0.05, emissive: '#22d3ee', glowMap: true, pip: { color: '#7af0ff', glow: true } },
-    effect: { particleType: 'energy', colors: ['#22d3ee', '#7af0ff', '#0e7490'], glowColor: '#22d3ee', landingEffect: 'sonic', idleEffect: 'float', rollEffect: 'trail', soundEffect: 'sonic' },
+    effect: { particleType: 'energy', colors: ['#22d3ee', '#7af0ff', '#0e7490'], glowColor: '#22d3ee', landingEffect: 'sonic', idleEffect: 'float', rollEffect: 'trail', soundEffect: 'sonic', soundGain: 1.2 },
   },
   {
     id: 'ender', name: 'Ender Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Ender Pearl',

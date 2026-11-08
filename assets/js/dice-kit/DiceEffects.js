@@ -181,9 +181,9 @@ class DiceSound {
     s.connect(f).connect(g).connect(this._master || c.destination); s.start(t); s.stop(t + dur + 0.02);
   }
   /** kind = die.effect.soundEffect; intensity 0..2 */
-  play(kind, intensity = 1) {
+  play(kind, intensity = 1, gain = 1) { // gain = die.effect.soundGain (Void/Sculk/Netherite 1.2x)
     if (!this._ensure()) return;
-    const i = Math.min(2, Math.max(0.5, intensity)), G = 1.3 * i;
+    const i = Math.min(2, Math.max(0.5, intensity)), G = 1.3 * i * (gain > 0 ? gain : 1);
     switch (kind) {
       case 'rattle': for (let n = 0; n < 9; n++) { this._noiseHit(1500 + Math.random() * 2200, 2.2, 0.055, 0.7 * G, 'bandpass', n * 0.085); this._tone(220 + Math.random() * 160, 120, 0.05, 0.25 * G, 'triangle', n * 0.085); } break;
       case 'wood':    this._noiseHit(500, 1.2, 0.09, G); this._tone(190, 90, 0.1, 0.5 * G, 'triangle'); break;
@@ -207,6 +207,7 @@ class DiceSound {
 }
 
 const easeOut = (t) => 1 - (1 - t) * (1 - t);
+const UNIFIED_SHAKE = 0.011; // getar kamera saat benturan pertama, sama untuk semua dadu
 
 // ---------------------------------------------------------------------------
 export class DiceEffects {
@@ -325,8 +326,9 @@ export class DiceEffects {
     const P = this.pillar; P.mesh.material.color.set(color || this.glowColor); P.h = h; P.r = r; P.dur = dur; P.op = op; P.t = 0; P.active = true; P.mesh.visible = true;
   }
   flash(intensity, decay = 6) { if (this.q.light) { this.flashI = intensity; this.flashDecay = decay; } this.auraFlare = Math.min(2, this.auraFlare + intensity * 0.25); }
-  shakeCam(a) { this.shake = Math.max(this.shake, a); }
-  slow(scale, dur) { this.slowmo.scale = scale; this.slowmo.t = dur; }
+  // Rasa benturan DISAMAKAN untuk semua dadu (paling ringan): getar kamera kecil & seragam, tanpa slow-mo.
+  shakeCam(a) { this.shake = Math.max(this.shake, Math.min(a, UNIFIED_SHAKE)); }
+  slow() { /* slow-mo dimatikan: semua dadu jatuh dengan tempo yang sama */ }
   later(delay, fn) { this.timers.push({ t: delay, fn }); }
   setLightAt(p) { if (this.light) this.light.position.set(p[0], p[1] + 1.2, p[2] + 0.4); }
 
@@ -334,7 +336,7 @@ export class DiceEffects {
   onRollStart(pos) {
     const e = this.die.effect, c = Math.round(e.particleCount * 0.25);
     this.emit(e.effectTier >= 4 ? STYLE_OF(e) : 'dust', pos, c, { mode: 'ring', speed: 1.4, up: 0.8, life: 0.5 });
-    this.sound.play(e.soundEffect, 0.35);
+    this.sound.play(e.soundEffect, 0.35, e.soundGain);
   }
 
   onRollFrame(dt, pos, speed) {
@@ -353,11 +355,11 @@ export class DiceEffects {
     const e = this.die.effect, p = [point[0], 0.05, point[2]];
     this.fxPos = p;
     const k = Math.min(1.6, speed / 9) * e.impactIntensity;
-    this.sound.play(e.soundEffect, Math.min(2, k));
+    this.sound.play(e.soundEffect, Math.min(2, k), e.soundGain);
     this.auraFlare = Math.min(2, this.auraFlare + 0.3 * k);
     if (index === 0) {
       (RECIPES[e.landingEffect] || RECIPES.puff)(this, p, e, k);
-      this.shakeCam(0.012 * e.impactIntensity);
+      this.shakeCam(UNIFIED_SHAKE);
     } else {
       this.emit(e.effectTier <= 2 ? e.particleType : 'dust', p, Math.round(e.particleCount * 0.22 * Math.min(1, k)), { mode: 'ring', speed: e.particleSpeed * 0.5, up: 0.6, life: e.particleLifetime * 0.6, size: e.particleSize * 0.8 });
     }
@@ -381,7 +383,7 @@ export class DiceEffects {
     if (r === 'pulse' || r === 'burst' || r === 'halo') this.ring(this.glowColor, 0.7, r === 'pulse' ? 1.8 : 2.6, 0.8, 0.7);
     if (r === 'burst' || r === 'halo') { this.ring(this.glowColor, 0.5, 3.2, 1.1, 0.5, 0.1); this.flash(1.2 * e.glowIntensity, 3); }
     if (r === 'halo') { this.pillarPos = p; this.pillarFx(this.glowColor, 2.2, 0.7, 1.1, 0.35); this.later(0.15, () => this.emit('flame', [p[0], 0.1, p[2]], 40, { mode: 'fountain', speed: 2.4, spread: 0.4, life: 1 })); }
-    this.sound.play(e.soundEffect, 0.4 + e.effectTier * 0.12);
+    this.sound.play(e.soundEffect, 0.4 + e.effectTier * 0.12, e.soundGain);
   }
 
   // ---------- per frame ----------
