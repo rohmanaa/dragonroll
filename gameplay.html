@@ -6374,7 +6374,12 @@ function frame(now){
     tw.fn(tw.ease?tw.ease(k):k);
     if(k>=1){ tweens.splice(i,1); tw.res(); }
   }
-  for(let i=0;i<players.length;i++){ const b=players[i].pawn&&players[i].pawn.userData.bc; if(b){ try{ b.tick(dt); }catch(e){ players[i].pawn.userData.bc=null; } } } /* karakter baru: animasi idle/kedip */
+  for(let i=0;i<players.length;i++){ const pw=players[i].pawn,b=pw&&pw.userData.bc; if(b){ try{
+    /* karakter baru: mode jalan otomatis dari kecepatan horizontal pion (lompat/tangga/ular), idle bila diam; teleport (terlalu cepat) = idle */
+    const u=pw.userData,lp=u.bcLast||(u.bcLast=pw.position.clone()),sp=dt>0?Math.hypot(pw.position.x-lp.x,pw.position.z-lp.z)/dt:0; lp.copy(pw.position);
+    if(sp>0.5&&sp<14) u.bcHold=0.15; else u.bcHold=Math.max(0,(u.bcHold||0)-dt);
+    const md=u.bcHold>0?'walk':'idle'; if(md!==u.bcMode){ u.bcMode=md; b.setMode(md); }
+    b.tick(dt); }catch(e){ players[i].pawn.userData.bc=null; } } }
   const m=1-Math.exp(-dt*10);
   cam.yaw+=(goal.yaw-cam.yaw)*m; cam.pitch+=(goal.pitch-cam.pitch)*m; cam.zoom+=(goal.zoom-cam.zoom)*m;
   let tx=CAM_BASE.x,ty=CAM_BASE.y,tz=CAM_BASE.z;
