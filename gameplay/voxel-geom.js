@@ -14,13 +14,14 @@
   function tileToGrid(n) { var i = n - 1, row = Math.floor(i / 10), k = i % 10; return { row: row, col: (row % 2 === 0) ? k : 9 - k }; }
   function gridToTile(row, col) { return row * 10 + ((row % 2 === 0) ? col : 9 - col) + 1; }
 
-  /* Daftar tile [null, {n,row,col,x,z,h}, ...]; x/z = posisi dunia, h = tinggi terrain (tile >= 99 = 1.0). */
+  /* Daftar tile [null, {n,row,col,x,z,h}, ...]; x/z = posisi dunia, h = tinggi permukaan (semua petak sama: FLAT_H). */
+  var FLAT_H = 0.2; /* tinggi permukaan semua petak */
   function buildTiles() {
     var TILES = [null];
     for (var n = 1; n <= 100; n++) {
       var g = tileToGrid(n), row = g.row, col = g.col;
-      var wv = Math.round((Math.sin(col * 0.8 + row * 0.55) * 0.5 + 0.5) * 3) * 0.2;
-      TILES.push({ n: n, row: row, col: col, x: col - 4.5, z: 4.5 - row, h: n >= 99 ? 1.0 : wv });
+      var wv = FLAT_H; /* semua petak rata (tanpa gundukan/lekukan) */
+      TILES.push({ n: n, row: row, col: col, x: col - 4.5, z: 4.5 - row, h: wv });
     }
     return TILES;
   }
