@@ -2,7 +2,7 @@
 
 > Dokumen hidup. **Setiap perubahan pada pekerjaan ini wajib memperbarui dokumen ini (bagian 5 dan 9) lalu di-push bersama kodenya.**
 > Path di repo: `doc/HANDOFF_LOCALSTORAGE.md` (repo `rohmanaa/ular-tangga`, branch `main`).
-> Terakhir diperbarui: setelah penambahan snapshot skema SQL (di atas commit `75827d8`).
+> Terakhir diperbarui: setelah Tahap 6d, 7a, dan 7b (lihat bagian 5).
 
 ## 1. Tujuan
 Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadiah, XP, statistik, achievement, misi) **hidup di server (Supabase)**, bukan di browser. `localStorage` hanya boleh berisi cache tampilan, preferensi perangkat, dan cache sesi.
@@ -12,26 +12,27 @@ Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadia
 - Kerjakan **bertahap**: satu tahap kecil per commit, dengan tes. Push **langsung ke `main`** (pemilik sudah mengizinkan). Push ke `main` memicu workflow `db-migrate` (tes lalu `supabase db push` ke produksi); tanpa file baru di `supabase/migrations/` deploy tidak mengubah database.
 - Server adalah sumber kebenaran. Kalau offline/server gagal: aksi tidak tercatat, jangan menulis ke lokal sebagai cadangan.
 - Bahasa: Indonesia, singkat, langsung ke inti.
-- Data lama yang yatim (key `inv`, blob tamu bertanda `migration: 0`) **sengaja tidak dihapus**. Menghapusnya butuh persetujuan pemilik.
+- Data lama yang yatim (key `inv`, blob tamu) sudah DIHAPUS pada Tahap 7a atas persetujuan pemilik ("lanjut tahap 6 dan 7"). Hapus data pemain lain tetap butuh persetujuan.
 
 ## 3. Peta kode
 - `assets/js/session.js` → `UT.Session`: **satu-satunya** pintu ke cache sesi `localStorage['ut-auth']` (`read/id/username/loggedIn/write/clear`). Dimuat PALING AWAL, sebelum `boot-guard.js`. Tanpa itu, semua pembaca menganggap belum login (gagal aman).
 - `assets/js/boot-guard.js`: paksa lewat splash dan login.
 - `assets/js/auth.js`: login Supabase; menulis sesi lewat `UT.Session`.
-- `assets/js/player-data.js` (`PlayerData`): **cermin/cache** akun. Koin, gem, inventori, equip, outfit, XP, statistik dan nama diisi dari server (`applyServerWallet/Appearance/Outfits/Stats`). `settings()/setSettings()` memakai `UT.Prefs`. `recordMatch`/`grant` sudah DIHAPUS.
-- `assets/js/prefs.js` (`UT.Prefs`, key `ut:prefs:v1`): preferensi perangkat (musik, suara, getar, grafis, ambience, dsb).
+- `assets/js/player-data.js` (`PlayerData`): **cermin/cache** akun. Koin, gem, inventori, equip, outfit, XP, statistik dan nama diisi dari server (`applyServerWallet/Appearance/Outfits/Stats`). Tanpa saldo/XP awal lokal; `walletReady()` false sampai server membalas (UI menampilkan "—"). `settings()/setSettings()` memakai `UT.Prefs`. `recordMatch`/`grant` sudah DIHAPUS.
+- `assets/js/prefs.js` (`UT.Prefs`, key `ut:prefs:v1`): preferensi (musik, suara, getar, grafis, ambience, dsb); salinan lokal = cache cepat.
+- `assets/js/prefs-sync.js` (`UT.PrefsSync`): sinkron `UT.Prefs` ↔ server (RPC `get_my_prefs`/`set_my_prefs`, tabel `player_prefs`). Pull maks. 1x/60 dtk per tab (sessionStorage `ut:prefs-pulled`), nilai server menang, kirim debounce 800 ms, flush saat `pagehide`. Otomatis hidup di halaman yang memuat `prefs.js` untuk akun login.
 - `assets/js/wallet-service.js` (`UT.WalletService`): satu-satunya pintu RPC dompet server (beli, hadiah harian, misi, iklan, boss, klaim achievement).
 - `assets/js/multiplayer/*`: `room-service.js` (`submitMatchResult`), `progress-service.js` (`getMyProfile`, `claimAchievement`).
 - `gameplay.html` (monolit besar): `recordMatchServer()` mengirim hasil match lalu menyalin profil server ke cache.
 - `profile.html`: klaim achievement dari `SRV.claims` (server); menyalin statistik server saat dimuat; nama = username akun.
 - Dokumen terkait: `doc/WALLET_SERVER_PLAN.md`, `doc/DATA_MIGRATION.md`, `doc/OUTFIT_SERVER.md`, `README.md`.
-- Server: `supabase/migrations/*` (20 migrasi, sumber kebenaran), tes SQL `supabase/tests/*`. CI: `.github/workflows/db-migrate.yml`.
+- Server: `supabase/migrations/*` (21 migrasi, sumber kebenaran), tes SQL `supabase/tests/*`. CI: `.github/workflows/db-migrate.yml`.
 - `supabase/snapshot/00_full_schema.sql`: gabungan SEMUA migrasi jadi satu file untuk menyiapkan proyek Supabase BARU/kosong (tempel di SQL Editor). Dibuat otomatis: `sh tools/build-schema-snapshot.sh`. BUKAN migrasi, jangan taruh di `supabase/migrations/`. `tests/schema-snapshot.test.js` gagal bila snapshot kedaluwarsa.
 
 ## 4. Key storage yang masih ada (kode aktif)
 - **localStorage:** `ut-auth` (hanya via `UT.Session`), `ut:prefs:v1` (via `UT.Prefs`), blob `ularTanggaBlok:player:v1[:acct:<id>]` (cache `PlayerData`), cadangan `:corrupt:` (dipangkas otomatis).
 - **sessionStorage:** `ut:booted`, `ut:fadein`, `ut-config`, `ut-room`, `ut-multiplayer-room`, `ut-mp-exited` (status navigasi sementara, bukan data pemain).
-- `audit-theme` hanya di halaman audit (abaikan). Key legacy yang masih dibersihkan `player-data.js`: `shop`, `modeScreen`, `lobbyGift`, `ut-dadu`, `ut-tema2`, `ularTanggaBlok:achClaimed:v1*`. `inv` dibiarkan.
+- `audit-theme` hanya di halaman audit (abaikan). `player-data.js` menghapus tanpa syarat key legacy: `inv`, `shop`, `modeScreen`, `lobbyGift`, `ut-dadu`, `ut-tema2`, `ut:quest`, `ut-dragon-win`, `ut-mp-active`, `ut:serverWallet`, `ut:adLocal:*`, `ularTanggaBlok:achClaimed:v1*`; untuk akun login juga blob tamu `ularTanggaBlok:player:v1` (tanpa `:acct:`) beserta cadangan `:corrupt:`-nya (pengaturan tamu diimpor sekali ke `UT.Prefs`).
 
 ## 5. Status tahap
 | Tahap | Isi | Status | Commit |
@@ -54,8 +55,10 @@ Game berjalan sebagai game profesional: data pemain (koin, gem, inventori, hadia
 | 6b-5 | Hapus `PlayerData.recordMatch/grant` dan jalur hasil match lokal | SELESAI | `0c2e710` |
 | 6c | Hapus impor data legacy (`inv/shop/modeScreen`) dari `PlayerData` | SELESAI | `a3614b3` |
 | 6e | `UT.Session` (`session.js`) satu pintu untuk `ut-auth` | SELESAI | `4ab0e92` |
-| **6d** | **Blob `PlayerData` jadi cache murni**: hapus `START_COINS/START_GEMS/START_XP` bawaan lokal, isi dari server, tampilkan keadaan "memuat" sebelum server membalas | **BELUM** | - |
-| 7 (opsional) | Hapus blob tamu dan key `inv` yatim (butuh persetujuan pemilik); `UT.Prefs.setBackend` agar pengaturan ikut lintas perangkat | BELUM | - |
+| 6d | Blob `PlayerData` jadi cache murni: hapus saldo/XP awal lokal (1000 koin palsu); `walletReady()`; UI "—" sampai server membalas lalu otomatis diperbarui | SELESAI | `f0aa404` |
+| 7a | Hapus key legacy yatim (`inv`, `ut:quest`, dll) tanpa syarat dan blob tamu akun login; impor pengaturan tamu ke `UT.Prefs` sekali | SELESAI | `76b6f5e` |
+| 7b | Pengaturan lintas perangkat: migrasi `202611150001_player_prefs.sql` (tabel + RPC `get_my_prefs`/`set_my_prefs`, daftar putih kunci, maks 8 KB), `prefs-sync.js`, tes SQL + tes klien | SELESAI (kode); migrasi ikut deploy produksi saat push | lihat `git log` (commit "Tahap 7b") |
+| 8 (opsional) | Tes browser otomatis (Playwright) untuk login, match, klaim; pindahkan state room di `sessionStorage` (`ut-room`, `ut-config`) ke server bila diinginkan | BELUM | - |
 
 ## 6. Cara menjalankan tes (sama dengan CI)
 ```
@@ -72,12 +75,13 @@ Tes SQL (`supabase/tests/*_test.sql`) hanya jalan di CI (butuh Docker/Supabase l
 
 ## 8. Uji manual yang belum dilakukan (audit statis dan tes node saja; belum dijalankan di browser)
 1. Tanpa login → semua halaman game mengalihkan ke splash. Cek konsol splash: tidak ada error "session.js belum dimuat".
-2. Login akun baru → saldo awal dari server, nama = username, avatar muncul.
+2. Login akun baru → saldo tampil "—" sebentar lalu 1000 dari server (bukan angka lokal), nama = username, avatar muncul.
 3. Main 1 match lawan CPU sampai selesai (jeda ≥ 45 detik antar match, kalau tidak server mengabaikan) → toast XP/poin, angka profil, dan leaderboard cocok.
 4. Klaim 1 achievement → saldo naik; reload profil → bintang tetap.
 5. Ubah pengaturan musik → pindah halaman → tetap; login akun lain di perangkat yang sama → pengaturan sama (preferensi perangkat).
 6. Logout dari profil → kembali ke splash; halaman game tidak bisa dibuka lagi.
-7. Reload di tiap halaman utama (lobi, toko, profil, room) → tetap login, data benar.
+7. Ubah pengaturan musik di perangkat A, login akun yang sama di perangkat/peramban B → pengaturan ikut (maks. 1 menit; reload B setelah menunggu). Cek tabel `player_prefs` terisi di Supabase.
+8. Reload di tiap halaman utama (lobi, toko, profil, room) → tetap login, data benar.
 
 ## 9. Catatan keputusan / temuan
 - `CHEST_POOL` aktif tidak punya hadiah Coin/XP/Emerald; cabang itu kode mati dan sudah dihapus. Peti tidak memberi currency.
@@ -87,4 +91,7 @@ Tes SQL (`supabase/tests/*_test.sql`) hanya jalan di CI (butuh Docker/Supabase l
 - Impor legacy dihapus: data tamu lama tidak dipindah ke akun (saldo server mulai dari nol).
 - Snapshot skema: 20 migrasi digabung ke `supabase/snapshot/00_full_schema.sql`. Diuji di Postgres tersemat dengan stub `auth.users`/`auth.uid()`/peran Supabase: 0 error di database kosong, jumlah objek identik dengan menjalankan 20 migrasi satu per satu (19 tabel, 135 kolom, 73 fungsi, 5 policy, 1 trigger, 30 indeks), dan menjalankannya ulang juga 0 error. Tes tersebut BUKAN pengganti CI (Supabase asli + `supabase/tests`). Snapshot sengaja di luar `supabase/migrations/` agar CI tidak menerapkan duplikat ke produksi.
 - Perubahan klien Tahap 1–6e tidak butuh tabel/fungsi SQL baru: semua RPC yang dipakai sudah ada di migrasi 202611050001–202611140001.
-- Riwayat log perubahan dokumen ini: dibuat setelah Tahap 6e (status Tahap 1–6e); menambah catatan snapshot skema.
+- 6d: server sudah memberi saldo awal 1000 koin akun baru (`c_start_coins` di `_wallet_ensure`); klien tidak lagi menyimpan angka itu sendiri. Halaman yang tidak memanggil `WalletService.refresh` (mode, friendship) memakai cache terakhir; halaman pertama setelah login (lobi) yang menyinkronkan.
+- 7a: pembersihan menghapus `inv` dan blob tamu permanen; hanya berjalan untuk akun login (tanpa akun blob tamu dibiarkan karena dipakai halaman login).
+- 7b: preferensi = cache lokal + server. Konflik: nilai server menang saat pull; kunci yang hanya ada lokal naik ke server. Kunci klien `prefs-sync.js` harus sama dengan `c_keys` di migrasi (dijaga `tests/prefs-sync.test.js`). Snapshot skema sudah dibuat ulang (21 migrasi). Tes SQL `supabase/tests/player_prefs_test.sql` lulus di Postgres tersemat (stub auth); CI Supabase asli belum diverifikasi saat dokumen ini ditulis.
+- Riwayat log perubahan dokumen ini: dibuat setelah Tahap 6e; ditambah catatan snapshot skema; ditambah Tahap 6d, 7a, 7b.
