@@ -31,7 +31,7 @@ export class DiceRenderer {
     this.qName = !opts.quality || opts.quality === 'auto' ? detectQuality() : opts.quality;
     this.q = QUALITY_PRESETS[this.qName];
     this._pending = {};
-    this.opt = { transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, lookY: opts.lookY ?? 0.2 };
+    this.opt = { transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
 
     const renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
     if (this.opt.transparent) renderer.setClearColor(0x000000, 0);
@@ -82,7 +82,7 @@ export class DiceRenderer {
     this.materials = new MaterialCache(3);
     this.effects = new DiceEffects(scene, this.q, this.point);
     this.effects.sound.enabled = opts.sound !== false;
-    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ });
+    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop });
     this.animator.onResult = (r) => opts.onResult?.(r);
 
     this._applyShadowSize();
@@ -168,6 +168,7 @@ export class DiceRenderer {
   }
 
   setSound(on) { this.effects.sound.enabled = !!on; }
+  setVolume(v) { this.effects.sound.volume = Math.max(0, Math.min(1.5, +v || 0)); }
 
   start() {
     if (this._running) return;

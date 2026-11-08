@@ -97,17 +97,22 @@ export class DicePhysics {
   }
 
   /** Lemparan: arah menjauhi kamera (−z) dengan variasi acak. Hasil angka murni dari fisika. */
-  throwDie(pos, q, spinAxisHint) {
+  throwDie(pos, q, spinAxisHint, drop = false) {
     const r = this.rng;
     this.reset(pos, q);
     this.asleep = false;
-    const speed = 4.4 + r() * 2.4;
-    const yaw = (r() - 0.5) * 1.1;
-    this.v = [Math.sin(yaw) * speed, 2.2 + r() * 2.6, -Math.cos(yaw) * speed];
+    if (drop) {
+      // jatuh dari atas: hampir lurus ke bawah, sedikit melenceng saja
+      this.v = [(r() - 0.5) * 0.9, -1.2 - r() * 1.0, (r() - 0.5) * 0.7];
+    } else {
+      const speed = 4.4 + r() * 2.4;
+      const yaw = (r() - 0.5) * 1.1;
+      this.v = [Math.sin(yaw) * speed, 2.2 + r() * 2.6, -Math.cos(yaw) * speed];
+    }
     let ax = [r() * 2 - 1, r() * 2 - 1, r() * 2 - 1];
     if (spinAxisHint) ax = [ax[0] + spinAxisHint[0] * 1.5, ax[1] + spinAxisHint[1] * 1.5, ax[2] + spinAxisHint[2] * 1.5];
     const l = len(ax) || 1;
-    const mag = 14 + r() * 10;
+    const mag = drop ? 9 + r() * 8 : 14 + r() * 10;
     this.w = [(ax[0] / l) * mag, (ax[1] / l) * mag, (ax[2] / l) * mag];
   }
 

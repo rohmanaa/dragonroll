@@ -253,9 +253,10 @@ html body #idesc{font-size:.95rem!important;line-height:1.2!important}
 @media (min-aspect-ratio:1/1){
   html body #info{left:8.05rem!important;width:28rem!important;height:6.6rem!important;bottom:1.6rem!important;top:auto!important}
   /* Dadu pendek (kanvas ringkas), tanpa pad: berdiri tepat di atas tepi atas panel info (8.2rem dari bawah) lalu dinaikkan 100px */
-  html body #show{top:auto!important;height:20rem!important;bottom:calc(8.2rem + 100px)!important}
+  html body #show{top:auto!important;left:5.05rem!important;width:34rem!important;height:26rem!important;bottom:calc(8.2rem + 100px)!important;z-index:1}
+  html body #back,html body #title,html body .ut-curbar,html body #gear{z-index:3}
 }
-@media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}html body #show{height:60vw!important}}
+@media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}html body #show{height:80vw!important}}
 </style>
 </head>
 <body>
@@ -445,10 +446,10 @@ function mountKit(){
  try{
   const k=sel&&window.DiceKit.has(sel.gameKey)?sel.gameKey:'klasik';
   KIT=window.DiceKit.create(host,{diceId:k,transparent:true,arena:false,quality:SET().graphics==='high'?'high':'auto',
-   bounds:{x:2.1,z:1.6},idleZ:.5,camScale:.55,lookY:1.6,sound:!!SET().sound});
+   bounds:{x:2.1,z:1.6},idleZ:.5,camScale:.45,lookY:1.35,drop:true,sound:!!SET().sound});
   const gl=$('#gl');if(gl)gl.style.display='none';
   host.style.cursor='pointer';host.style.touchAction='manipulation';
-  host.addEventListener('click',()=>{if(!KIT)return;KIT.setSound(!!SET().sound);KIT.roll()});
+  host.addEventListener('click',()=>{if(!KIT)return;let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}KIT.setSound(!!SET().sound&&v>0);KIT.setVolume(v);KIT.roll()});
  }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 window.addEventListener('dicekit-ready',()=>{mountKit();if(KIT)buildModels()});

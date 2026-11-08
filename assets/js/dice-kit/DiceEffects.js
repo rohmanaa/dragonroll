@@ -145,13 +145,19 @@ class ParticlePool {
 
 // ---------------------------------------------------------------------------
 class DiceSound {
-  constructor() { this.enabled = true; this.ctx = null; this.volume = 0.5; this._noise = null; }
+  constructor() { this.enabled = true; this.ctx = null; this.volume = 1; this._noise = null; this._master = null; }
   _ensure() {
     if (!this.enabled) return false;
     if (!this.ctx) {
       const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
       if (!AC) return false;
       try { this.ctx = new AC(); } catch { return false; }
+      try { // bus utama: dikuatkan + compressor agar keras tapi tidak pecah
+        const comp = this.ctx.createDynamicsCompressor();
+        comp.threshold.value = -12; comp.knee.value = 14; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.2;
+        const mg = this.ctx.createGain(); mg.gain.value = 2.4;
+        mg.connect(comp); comp.connect(this.ctx.destination); this._master = mg;
+      } catch { this._master = null; }
     }
     if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
     return true;
@@ -166,19 +172,20 @@ class DiceSound {
     const c = this.ctx, t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.setValueAtTime(f0, t); if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain * this.volume, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.02);
+    o.connect(g).connect(this._master || c.destination); o.start(t); o.stop(t + dur + 0.02);
   }
   _noiseHit(freq, q, dur, gain, type = 'bandpass', delay = 0) {
     const c = this.ctx, t = c.currentTime + delay, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = this._noiseBuf(); f.type = type; f.frequency.value = freq; f.Q.value = q;
     g.gain.setValueAtTime(gain * this.volume, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(f).connect(g).connect(c.destination); s.start(t); s.stop(t + dur + 0.02);
+    s.connect(f).connect(g).connect(this._master || c.destination); s.start(t); s.stop(t + dur + 0.02);
   }
   /** kind = die.effect.soundEffect; intensity 0..2 */
   play(kind, intensity = 1) {
     if (!this._ensure()) return;
-    const i = Math.min(2, Math.max(0.15, intensity)), G = 0.5 * i;
+    const i = Math.min(2, Math.max(0.5, intensity)), G = 0.85 * i;
     switch (kind) {
+      case 'rattle': for (let n = 0; n < 9; n++) { this._noiseHit(1500 + Math.random() * 2200, 2.2, 0.055, 0.7 * G, 'bandpass', n * 0.085); this._tone(220 + Math.random() * 160, 120, 0.05, 0.25 * G, 'triangle', n * 0.085); } break;
       case 'wood':    this._noiseHit(500, 1.2, 0.09, G); this._tone(190, 90, 0.1, 0.5 * G, 'triangle'); break;
       case 'stone':   this._noiseHit(900, 0.9, 0.12, G); this._tone(120, 60, 0.12, 0.4 * G, 'triangle'); break;
       case 'metal':   this._tone(2200, null, 0.25, 0.25 * G, 'sine'); this._tone(3300, null, 0.18, 0.15 * G); this._noiseHit(5000, 1, 0.04, 0.5 * G, 'highpass'); break;

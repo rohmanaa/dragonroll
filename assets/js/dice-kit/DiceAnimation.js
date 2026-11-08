@@ -24,7 +24,8 @@ export class DiceAnimator {
   /**
    * @param {{mesh: THREE.Mesh, effects: import('./DiceEffects.js').DiceEffects, rng?: Function}} o
    */
-  constructor({ mesh, effects, rng, bounds, idleZ }) {
+  constructor({ mesh, effects, rng, bounds, idleZ, drop }) {
+    this.drop = !!drop;
     this.mesh = mesh;
     this.effects = effects;
     this.rng = rng || Math.random;
@@ -52,7 +53,7 @@ export class DiceAnimator {
 
   get busy() { return this.state !== 'idle' && this.state !== 'rest'; }
 
-  _set(state) { this.state = state; this.t = 0; this.onState?.(state); }
+  _set(state) { this.state = state; this.t = 0; if (state === 'windup') this._rattled = false; this.onState?.(state); }
 
   _idleQ() {
     const t = this.idleT || 0;
@@ -124,8 +125,25 @@ export class DiceAnimator {
         break;
       }
       case 'windup': {
-        // Naik sedikit + akselerasi putaran sebelum dilempar
         this.t += dt;
+        if (this.drop) {
+          // Dikocok di udara tepat di atas posisi dadu (naik lurus, bergetar, berputar), lalu dilepas jatuh ke bawah
+          const k = Math.min(1, this.t / 0.85);
+          if (!this._rattled) { this._rattled = true; this.effects.sound.play('rattle', 1); }
+          const rise = ease.outCubic(Math.min(1, k * 1.6)) * 2.0;
+          const sx = Math.sin(this.t * 46) * 0.11 * k, sz = Math.cos(this.t * 39) * 0.09 * k;
+          const omega = 5 + 28 * k;
+          this.q = qnorm(qmul(qaxis(this.spinAxis, omega * dt), this.q));
+          this.pos = [this.idle[0] + sx, this.idle[1] + rise, this.idle[2] + sz];
+          this.mesh.scale.setScalar(1);
+          if (k >= 1) {
+            this.physics.throwDie(this.pos, this.q, this.spinAxis, true);
+            this.effects.onRollStart([this.pos[0], 0.3, this.pos[2]]);
+            this._set('rolling');
+          }
+          break;
+        }
+        // Naik sedikit + akselerasi putaran sebelum dilempar
         const k = Math.min(1, this.t / 0.34);
         const omega = 3 + 22 * k * k;
         this.q = qnorm(qmul(qaxis(this.spinAxis, omega * dt), this.q));

@@ -164,16 +164,26 @@
     return t;
   }
 
-  /* Dadu: muka angka 5 */
+  /* Dadu: kubus isometrik statis (muka atas 1, kiri 3, kanan 2), warna dari art.bg/accent/pip/edge. Tanpa animasi. */
+  function hexMix(h, to, k) {
+    var n = parseInt(String(h).replace('#', ''), 16); if (isNaN(n)) return h;
+    var t = to === 'w' ? 255 : 0, c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(function (v) { return Math.round(v + (t - v) * k); });
+    return '#' + c.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+  }
   function dice(itemId, label) {
     var it = C.byId(itemId); if (!it || it.kind !== 'dice') return '';
-    var a = it.art, s = '';
-    s += rect(4, 4, 56, 56, a.edge) + rect(8, 8, 48, 48, a.bg);
-    s += rect(8, 8, 48, 4, 'rgba(255,255,255,.28)') + rect(8, 52, 48, 4, 'rgba(0,0,0,.18)');
-    [[18, 18], [46, 18], [32, 32], [18, 46], [46, 46]].forEach(function (p) {
-      s += '<rect x="' + (p[0] - 5) + '" y="' + (p[1] - 5) + '" width="10" height="10" fill="' + a.pip + '"/>';
-    });
-    return '<svg class="art-dice" viewBox="0 0 64 64" shape-rendering="crispEdges" role="img" aria-label="' + (label || it.name) + '">' + s + '</svg>';
+    var a = it.art, edge = a.edge || hexMix(a.bg, 'k', 0.5);
+    var top = a.accent ? hexMix(a.accent, 'w', 0.12) : hexMix(a.bg, 'w', 0.3), left = a.bg, right = hexMix(a.bg, 'k', 0.28);
+    function face(pts, fill) { return '<polygon points="' + pts + '" fill="' + fill + '" stroke="' + edge + '" stroke-width="2.4" stroke-linejoin="round"/>'; }
+    function pips(m, list) {
+      return '<g transform="matrix(' + m + ')">' + list.map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r=".095" fill="' + a.pip + '"/>'; }).join('') + '</g>';
+    }
+    var s = '<ellipse cx="32" cy="58.5" rx="19" ry="3.2" fill="rgba(10,25,60,.28)"/>';
+    s += face('32,5 57,19 32,33 7,19', top) + face('7,19 32,33 32,59 7,45', left) + face('32,33 57,19 57,45 32,59', right);
+    s += pips('25 -14 25 14 7 19', [[.5, .5]]);
+    s += pips('25 14 0 26 7 19', [[.25, .25], [.5, .5], [.75, .75]]);
+    s += pips('25 -14 0 26 32 33', [[.28, .28], [.72, .72]]);
+    return '<svg class="art-dice" viewBox="0 0 64 64" role="img" aria-label="' + (label || it.name) + '">' + s + '</svg>';
   }
 
   /* Tema papan: langit + tanah blok */
