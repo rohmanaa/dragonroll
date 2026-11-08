@@ -57,9 +57,9 @@
       if (e.animationName !== 'dieDrop') return;
       clearTimers();
       restartClass(dock, 'drop');
-      /* waktu mengikuti keyframes dieDrop (1.25s): tumbukan 40% dan 66% */
-      later(function () { impact(dock, layer, ring, true); }, 500);
-      later(function () { impact(dock, layer, ring, false); }, 825);
+      /* waktu mengikuti keyframes dieDrop (1.4s): tumbukan 40% dan 66% */
+      later(function () { impact(dock, layer, ring, true); }, 560);
+      later(function () { impact(dock, layer, ring, false); }, 924);
     });
     scene.addEventListener('animationend', function (e) { if (e.animationName === 'dieDrop') dock.classList.remove('drop'); });
   }

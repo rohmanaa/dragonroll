@@ -65,13 +65,22 @@
   var warm=[];
   function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }
   /* Putar file SFX. fb = fallback sintetis bila file gagal/diblok. Mengembalikan elemen Audio (bisa di-fade/stop) atau null. Hormati tombol mute. */
-  function fileSfx(key,vol,fb){ if(muted||sfxV<=0) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=Math.min(1,vol*sfxV); a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
+  /* Penguat: elemen Audio maksimal volume 1, jadi untuk SFX yang harus lebih keras disalurkan lewat GainNode (>1) + kompresor agar tidak pecah. Gagal -> tetap volume biasa. */
+  var boostBus=null;
+  function amplify(a,gain){
+    try{
+      if(!actx) return;
+      if(!boostBus){ const comp=actx.createDynamicsCompressor(); comp.threshold.value=-18; comp.knee.value=10; comp.ratio.value=10; comp.attack.value=0.003; comp.release.value=0.2; comp.connect(actx.destination); boostBus=comp; }
+      const src=actx.createMediaElementSource(a),g=actx.createGain(); g.gain.value=gain; src.connect(g); g.connect(boostBus);
+    }catch(e){}
+  }
+  function fileSfx(key,vol,fb,boost){ if(muted||sfxV<=0) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=Math.min(1,vol*sfxV); if(boost>1) amplify(a,boost); a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
   function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
   const ladderBeeps=()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11));
 
   const sfx={
     /* ---------- DADU ---------- */
-    roll(){ return fileSfx('roll',0.8,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.035,i*0.13); }); },
+    roll(){ return fileSfx('roll',1,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.07,i*0.13); },3.2); }, /* dadu: dikeraskan (penguat 3.2x) agar setara suara preview Inventory */
     rollStop(a){ fadeOut(a,250); },
 
     /* ---------- PAPAN: gerak & kejadian di tile ---------- */

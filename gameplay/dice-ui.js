@@ -43,13 +43,27 @@
     }
   }
 
+  /* Skin: muka dadu memakai tekstur asli dari DiceSkin (sama dengan preview Inventory); tanpa modul -> warna datar bawaan. */
+  function setSkin(key) {
+    if (!dieEl && !init()) return;
+    var S = win.UT && win.UT.DiceSkin, ok = false;
+    try { ok = !!(S && key && S.has(key)); } catch (e) { ok = false; }
+    var fs = dieEl.querySelectorAll('.face');
+    for (var k = 0; k < fs.length; k++) {
+      var id = +fs[k].className.match(/f([1-6])/)[1], url = '';
+      if (ok) { try { url = S.face(key, id); } catch (e) { url = ''; } }
+      fs[k].style.backgroundImage = url ? 'url(' + url + ')' : '';
+    }
+    dieEl.classList.toggle('tex', ok);
+  }
+
   function showDie(v, anim) {
     if (!dieEl && !init()) return;
     if (!DIE_T[v]) return; /* hanya 1..6; nilai lain diabaikan (hasil tetap ditentukan gameplay) */
     var tx = DIE_T[v][0], ty = DIE_T[v][1];
     var ax = Math.ceil((dX - tx) / 360) + (anim ? 2 : 0), ay = Math.ceil((dY - ty) / 360) + (anim ? 2 : 0);
     dX = tx + 360 * ax; dY = ty + 360 * ay;
-    dieEl.style.transition = anim ? 'transform 1.05s cubic-bezier(.15,.7,.2,1)' : 'none';
+    dieEl.style.transition = anim ? 'transform 1.18s cubic-bezier(.15,.7,.2,1)' : 'none';
     dieEl.style.transform = 'rotateX(' + (dX + 90) + 'deg) rotateY(' + dY + 'deg)'; /* +90: muka hasil dibawa ke ATAS kubus (bukan depan/samping) */
     var fs = dieEl.querySelectorAll('.face'); /* muka hasil tetap terang; muka lain digelapkan sedikit */
     for (var k = 0; k < fs.length; k++) fs[k].classList.toggle('dim', !fs[k].classList.contains('f' + v));
@@ -59,6 +73,7 @@
 
   UT.GameplayDiceUI = {
     init: init,
+    setSkin: setSkin,
     showDie: showDie,
     roll: function (v) { showDie(v, true); },
     setValue: function (v) { showDie(v, false); },

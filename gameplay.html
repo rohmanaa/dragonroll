@@ -217,6 +217,9 @@ body.hf-shake{animation:hfShake .35s}
 .bf{flex:1 0 100%;font-size:11px}
 .face{background:var(--dbg,#fff);border-color:var(--dedge,var(--ink))}
 .face i.on{background:var(--dpip,var(--ink))}
+/* skin tekstur asli (DiceSkin): gambar sudah memuat titik, jadi titik CSS disembunyikan */
+.die.tex .face{background-size:100% 100%;background-repeat:no-repeat}
+.die.tex .face i{visibility:hidden}
 </style>
 <style>
 .col{top:calc(12px + env(safe-area-inset-top,0px))}
@@ -1323,6 +1326,7 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/hud.js"></script>
 <link rel="stylesheet" href="gameplay/dice-pad.css">
 <script src="gameplay/dice-ui.js"></script>
+<script type="module" src="gameplay/dice-skin.js"></script>
 <script src="gameplay/dice-pad.js"></script>
 <script src="gameplay/audio.js"></script>
 <script src="gameplay/voxel-geom.js"></script>
@@ -5927,7 +5931,7 @@ async function doRoll(opt){
   }
   const rs=sfx.roll(); showDie(v,!reduce); mpCue({k:'roll',pid:p.networkId,v:v});
   try{
-    await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
+    await sleep(reduce?250:1300); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
     const SX=UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* aturan tiga-6 = game-core.js */
     await sleep(300); if(gid!==gameId) return;
@@ -6043,7 +6047,7 @@ function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) re
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
   const p=mpPlayerByNet(c.pid); if(!p) return Promise.resolve();
-  if(c.k==='roll'){ const rs=sfx.roll(); showDie(c.v,!reduce); setMsg(p.name+' melempar dadu...'); return sleep(reduce?250:1150).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
+  if(c.k==='roll'){ const rs=sfx.roll(); showDie(c.v,!reduce); setMsg(p.name+' melempar dadu...'); return sleep(reduce?250:1300).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
   if(c.k==='walk') return walk(p,c.from,c.to);
   if(c.k==='climb') return climb(p,c.from,c.to);
   if(c.k==='bite') return bite(p,c.from,c.to,gameId);
@@ -6225,11 +6229,13 @@ let diceKey=equippedGameKey('dice')||'klasik';
 function applyDice(k){
   const d=DICE.find(x=>x.key===k)||DICE[0]; diceKey=d.key; const rs=document.documentElement.style;
   rs.setProperty('--dbg',d.bg); rs.setProperty('--dpip',d.pip); rs.setProperty('--dedge',d.edge);
+  try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&D.setSkin) D.setSkin(d.key); }catch(e){} /* muka dadu = tekstur asli seperti preview Inventory */
   $('btnDice').textContent='Dadu: '+d.name;
   document.querySelectorAll('.dbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-d')===d.key)));
 }
 $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.key===diceKey)+1)%DICE.length].key));
 applyDice(diceKey);
+window.addEventListener('ut:diceskin-ready',()=>{ try{ applyDice(diceKey); }catch(e){} }); /* modul skin dimuat setelah script ini -> pasang ulang */
 updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ submitRoll(); });
 /* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.

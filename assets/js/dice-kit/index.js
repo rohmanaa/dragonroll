@@ -3,7 +3,7 @@
    Kepemilikan, harga & equip tetap dari katalog SERVER; kit ini hanya tahu cara menampilkan dadu berdasarkan gameKey. */
 import { DiceRenderer } from './DiceRenderer.js';
 import { getDice, DICE_CATALOG } from './DiceCatalog.js';
-import { diceThumbDataURL } from './DiceMaterials.js';
+import { diceThumbDataURL } from './DiceTextures.js';
 
 window.DiceKit = {
   has: (key) => !!getDice(key),
