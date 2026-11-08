@@ -15,6 +15,7 @@ import { PowerAnimator } from './PowerAnimation.js';
 import { PowerParticles } from './PowerParticles.js';
 import { PowerEffects } from './PowerEffects.js';
 import { PowerLighting } from './PowerLighting.js';
+import { PowerSound } from './PowerSound.js';
 
 /** Ambil daftar item dari PowerCatalog.js (mendukung beberapa nama export / array / objek). */
 function readCatalog() {
@@ -54,6 +55,7 @@ export class PowerRenderer {
     this.orbit = { az: 0, pol: 1.38, dist: 7.6 };
     this.time = 0; this._raf = 0; this._last = 0; this.current = null;
 
+    this.soundOn = !!opts.sound;             /* suara sintetis per fase (spawn/activate/hit/disappear); default mati, halaman mengikuti Pengaturan Suara */
     this.transparent = !!opts.transparent;   /* Tahap Power-3D: latar transparan agar menyatu dengan halaman */
     this.renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, powerPreference: 'high-performance', alpha: this.transparent });
     if (this.transparent) this.renderer.setClearColor(0x000000, 0);
@@ -106,13 +108,15 @@ export class PowerRenderer {
     this.lighting.setItem(item);
     this.effects.bind(item, this.holder, this.model);
     const a = this.animator;
-    a.on.spawn = () => this.effects.onSpawn();
-    a.on.activate = () => this.effects.onActivate(a.act);
-    a.on.hit = () => this.effects.onHit();
-    a.on.disappear = () => this.effects.onDisappear();
+    a.on.spawn = () => { this.effects.onSpawn(); this._snd('spawn'); };
+    a.on.activate = () => { this.effects.onActivate(a.act); this._snd('activate'); };
+    a.on.hit = () => { this.effects.onHit(); this._snd('hit'); };
+    a.on.disappear = () => { this.effects.onDisappear(); this._snd('disappear'); };
     a.spawn();
     return true;
   }
+  _snd(phase) { if (this.soundOn && this.current) PowerSound.play(this.current.id, { phase, tier: this.current.tier }); }
+  setSound(on) { this.soundOn = !!on; if (on) PowerSound.ensure(); }
   next(d = 1) { const i = this.items.indexOf(this.current); this.show((i + d + this.items.length) % this.items.length); }
   activate() { return this.animator?.activate() || false; }
   disappear() { this.animator?.disappear(); }

@@ -9,8 +9,8 @@ const IC = ctx.ItemCatalog, pus = IC.items.filter(i => i.kind === 'powerup');
 const showSrc = rd('assets/js/power3d/power-show.js');
 const map = {}; (showSrc.match(/KEY_TO_POWER3D\s*=\s*\{([^}]*)\}/)[1]).split(',').forEach(p => { const m = p.match(/(\w+)\s*:\s*'(\w+)'/); if (m) map[m[1]] = m[2]; });
 
-t('7 power punya model 3D: sword, feather, tnt, totem, grass, potion_odd, potion_even', () => {
-  assert.deepStrictEqual(Object.keys(map).sort(), ['feather', 'grass', 'potion_even', 'potion_odd', 'sword', 'tnt', 'totem']);
+t('17 power punya model 3D: 7 lama + 10 Batch 2-3', () => {
+  assert.deepStrictEqual(Object.keys(map).sort(), ['blaze_core', 'diamond_sword', 'dragon_crystal', 'feather', 'fire_charge', 'golden_apple', 'grass', 'ice_crystal', 'nether_star', 'netherite_sword', 'potion_even', 'potion_odd', 'sword', 'tnt', 'totem', 'trident', 'wooden_shield']);
 });
 t('setiap kunci peta adalah gameKey power-up yang ada di katalog game', () => {
   Object.keys(map).forEach(k => assert.ok(pus.some(p => p.gameKey === k), 'tidak ada power-up ' + k));
@@ -28,9 +28,9 @@ t('nama tampil 5 power sesuai item baru dan sama di katalog & gameplay/config.js
     assert.ok(new RegExp(k + ":\\s*\\['[^']*',\\s*'" + want[k] + "'").test(cfg), 'config.js nama ' + k);
   });
 });
-t('aturan power lama tidak berubah (id/gameKey tetap, potion & ID server utuh)', () => {
+t('aturan power lama tidak berubah (id/gameKey tetap, potion & ID server utuh); ditambah 10 power baru', () => {
   ['sword', 'feather', 'tnt', 'totem', 'potion_odd', 'potion_even', 'grass'].forEach(k => assert.ok(IC.byId(k) && IC.byId(k).kind === 'powerup', k));
-  assert.strictEqual(pus.length, 7);
+  assert.strictEqual(pus.length, 17);
 });
 t('importmap powerup.html menunjuk file lokal yang ada', () => {
   const im = JSON.parse(rd('powerup.html').match(/<script type="importmap">([\s\S]*?)<\/script>/)[1]).imports;

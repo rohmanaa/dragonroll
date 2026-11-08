@@ -41,6 +41,8 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('aura.shadow', 'aura', 3500, false, false),
   ('aura.solar', 'aura', 3500, false, false),
   ('aura.stone', 'aura', 300, false, false),
+  ('blaze_core', 'powerup', null, false, true),
+  ('diamond_sword', 'powerup', null, false, true),
   ('dice.amethyst', 'dice', 450, false, false),
   ('dice.copper', 'dice', 150, false, false),
   ('dice.diamond', 'dice', 450, false, false),
@@ -64,7 +66,9 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('dice.tnt', 'dice', 200, false, false),
   ('dice.void', 'dice', 1800, false, false),
   ('dice.wood', 'dice', 100, false, false),
+  ('dragon_crystal', 'powerup', null, false, true),
   ('feather', 'powerup', null, false, true),
+  ('fire_charge', 'powerup', null, false, true),
   ('frame.amethyst', 'frame', 1500, false, false),
   ('frame.celestial', 'frame', 7500, false, false),
   ('frame.copper', 'frame', 350, false, false),
@@ -142,7 +146,11 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('gear.weapon.staff', 'gear', 350, false, false),
   ('gear.weapon.sword', 'gear', 300, false, false),
   ('gear.weapon.wand', 'gear', 300, false, false),
+  ('golden_apple', 'powerup', null, false, true),
   ('grass', 'powerup', null, false, true),
+  ('ice_crystal', 'powerup', null, false, true),
+  ('nether_star', 'powerup', null, false, true),
+  ('netherite_sword', 'powerup', null, false, true),
   ('potion_even', 'powerup', null, false, true),
   ('potion_odd', 'powerup', null, false, true),
   ('skin.alex', 'skin', null, true, false),
@@ -155,7 +163,9 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('theme.minecraft', 'theme', null, true, false),
   ('theme.nether', 'theme', null, false, false),
   ('tnt', 'powerup', null, false, true),
-  ('totem', 'powerup', null, false, true)
+  ('totem', 'powerup', null, false, true),
+  ('trident', 'powerup', null, false, true),
+  ('wooden_shield', 'powerup', null, false, true)
 on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
 -- END CATALOG SEED
 

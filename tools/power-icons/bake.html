@@ -6,7 +6,7 @@ import { PowerRenderer } from '../../assets/js/power3d/PowerRenderer.js';
 import { KEY_TO_POWER3D } from '../../assets/js/power3d/power-show.js';
 const pr = new PowerRenderer(document.getElementById('h'), { transparent: true, quality: 'high' });
 pr.stop(); pr.renderer.setPixelRatio(1); pr.renderer.setSize(384, 384, false); pr.camera.aspect = 1; pr.camera.updateProjectionMatrix();
-const POSE = { sword: { y: 0.55, z: 0.0 }, feather: { y: 0.5 }, tnt: { y: 0.6 }, totem: { y: 0.35 }, grass: { y: 0.4 }, potion_odd: { y: 0.5 }, potion_even: { y: 0.5 } };
+const POSE = { sword: { y: 0.55, z: 0.0 }, feather: { y: 0.5 }, tnt: { y: 0.6 }, totem: { y: 0.35 }, grass: { y: 0.4 }, potion_odd: { y: 0.5 }, potion_even: { y: 0.5 }, diamond_sword: { y: 0.55 }, netherite_sword: { y: 0.55 }, trident: { y: 0.55 } };
 window.keys = Object.keys(KEY_TO_POWER3D);
 window.bake = (key) => {
   pr.show(KEY_TO_POWER3D[key]);

@@ -103,8 +103,13 @@
     firework(){ fileSfx('firework',0.7); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
     defeat(){ return fileSfx('defeat',0.9); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
-       Feather/Potion/Totem/Grass: asset belum ada (BLOCKED) -> tetap pop() lama (bukan audio final). TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
-    power(k){ if(k==='sword') return fileSfx('swordUse',0.7); if(k==='tnt') return fileSfx('tntExplosion',0.7); sfx.pop(); return null; },
+       Power lain = suara sintetis UT.PowerSound (power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
+    power(k){
+      if(k==='sword'||k==='diamond_sword'||k==='netherite_sword') return fileSfx('swordUse',0.7); /* file nyata */
+      if(k==='tnt') return fileSfx('tntExplosion',0.7);
+      try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0){ if(PS.play(k,{phase:'use',ctx:actx,volume:sfxV})) return null; } }catch(e){} /* suara sintetis assets/js/power3d/PowerSound.js */
+      sfx.pop(); return null;
+    },
     win(){ fileSfx('win',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */
     victory(){ return fileSfx('victory',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* layar menang / celebrate (win2.mp3, ~16 dtk) */
     villager(){ fileSfx('villager',1,function(){ beep(300,0.12,'triangle',0.08,0,900); }); }, /* Villager membantu (maju 5 blok) */

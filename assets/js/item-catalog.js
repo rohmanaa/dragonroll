@@ -79,6 +79,9 @@
     sword: 'data/power/3d/sword.png', feather: 'data/power/3d/feather.png', tnt: 'data/power/3d/tnt.png',
     totem: 'data/power/3d/totem.png', potion_odd: 'data/power/3d/potion_odd.png', potion_even: 'data/power/3d/potion_even.png', grass: 'data/power/3d/grass.png'
   };
+  /* Batch 2-3: 10 Power baru. gameKey = id model 3D (assets/js/power3d/PowerCatalog.js); ikon = render 3D tools/power-icons/bake.py */
+  ['diamond_sword', 'netherite_sword', 'wooden_shield', 'golden_apple', 'fire_charge', 'ice_crystal', 'blaze_core', 'trident', 'dragon_crystal', 'nether_star']
+    .forEach(function (k) { POWER_ICON[k] = 'data/power/3d/' + k + '.png'; });
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
   var LEGACY_POWER_ID = { apple: 'totem', potion: 'potion_odd' }; /* 'potion' (Ramuan 4-6) diganti Ramuan Ganjil/Genap: stok lama dibaca sebagai Ramuan Ganjil */
@@ -181,10 +184,21 @@
     powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.'),
     powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
-    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, Iron Sword, TNT, atau Ender Pearl, kamu bisa memilih memakai Totem untuk menahannya.'),
+    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, atau serangan Power dari pemain lain, kamu bisa memilih memakai Totem untuk menahannya.'),
     powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.'),
     powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.'),
-    powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.')
+    powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.'),
+    /* Batch 2-3 (aturan: gameplay/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
+    powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.'),
+    powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.'),
+    powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.'),
+    powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.'),
+    powerup('fire_charge',     'Fire Charge',     'common',    'Musuh terdekat di depanmu (maks. 6 petak) mundur 3 petak.'),
+    powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.'),
+    powerup('blaze_core',      'Blaze Core',      'epic',      'Semua musuh di depanmu terkena ledakan api dan mundur 2 petak.'),
+    powerup('trident',         'Trident',         'legendary', 'Pemain terdepan mundur 4 petak dan kamu maju 2 petak.'),
+    powerup('dragon_crystal',  'Dragon Crystal',  'legendary', 'Meluncur ke Tangga terdekat di depanmu; bila tidak ada, maju 6 petak.'),
+    powerup('nether_star',     'Nether Star',     'legendary', 'Semua musuh mundur 3 petak dan kamu mendapat giliran tambahan.')
   ];
 
 

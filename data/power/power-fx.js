@@ -3,7 +3,7 @@
    Tanpa timer/rAF/listener; urutan lapisan dijadwalkan lewat delayMin (CSS animation-delay). Aman-gagal: modul/engine tak ada -> return 0, gameplay tetap jalan.
    Classic script. Namespace: UT.PowerFX.
    API: play(key, x, y[, o]) · playAtElement(key, el[, o]) · has(key) · DATA
-   key = ID canonical Power (sword · feather · tnt · totem · potion_odd · potion_even · grass) + efek tambahan: totem_block (Totem menahan serangan) · get (dapat Power).
+   key = ID canonical Power (sword · feather · tnt · totem · potion_odd · potion_even · grass · diamond_sword · netherite_sword · wooden_shield · golden_apple · fire_charge · ice_crystal · blaze_core · trident · dragon_crystal · nether_star) + efek tambahan: totem_block (Totem menahan serangan) · shield_block (Wooden Shield menahan) · get (dapat Power).
    o = { scale: pengali jumlah & jarak partikel (default 1) }.
    Tiap entri DATA = { name, note, layers[] }. Layer = opsi UT.ParticleFX.burstAt:
      count · colors[] · size · sizeJitter · distance · distanceJitter · duration · spread · angle (0=kanan, -90=atas) · gravity (+ turun, - naik)
@@ -20,7 +20,7 @@
   var DATA = {
     /* PEDANG — tebasan putih-baja menyilang + percikan logam */
     sword: {
-      name: 'Pedang', note: 'tebasan bar putih menyilang + percikan kuning kecil',
+      name: 'Iron Sword', note: 'tebasan bar putih menyilang + percikan kuning kecil',
       layers: [
         { count: 8, colors: ['#ffffff', '#dff3ff', '#bcd7ee'], shape: 'bar', size: 15, sizeJitter: 0.3, distance: 74, spread: 36, angle: -40, duration: 380, scale: 0.4, rotate: 20, ease: 'cubic-bezier(.1,.8,.2,1)' },
         { count: 7, colors: ['#ffffff', '#dff3ff', '#bcd7ee'], shape: 'bar', size: 15, sizeJitter: 0.3, distance: 74, spread: 36, angle: 140, duration: 380, scale: 0.4, rotate: 20, delayMin: 70, ease: 'cubic-bezier(.1,.8,.2,1)' },
@@ -30,7 +30,7 @@
 
     /* BULU — bulu putih melayang pelan + kilau halus */
     feather: {
-      name: 'Bulu', note: 'bulu putih kecil melayang naik lalu turun pelan + kilau',
+      name: 'Feather', note: 'bulu putih kecil melayang naik lalu turun pelan + kilau',
       layers: [
         { count: 10, colors: ['#ffffff', '#f1f6ff', '#dbe9ff'], shape: 'bar', size: 9, sizeJitter: 0.3, distance: 52, spread: 140, angle: -90, duration: 1150, gravity: 34, scale: 0.4, rotate: 140, ease: 'ease-out' },
         { count: 7, colors: ['#ffffff', '#fff3a3', '#cfeaff'], shape: 'round', size: 4, distance: 62, spread: 360, duration: 800, scale: 0.1, delayMin: 80 }
@@ -76,7 +76,7 @@
 
     /* RUMPUT / BLOCK — serpihan rumput & tanah + debu */
     grass: {
-      name: 'Rumput', note: 'serpihan hijau & tanah berputar + debu',
+      name: 'Ender Pearl', note: 'serpihan hijau & tanah berputar + debu',
       layers: [
         { count: 12, colors: ['#78d957', '#4aa83a', '#2f7d2a'], size: 7, distance: 66, spread: 360, gravity: 32, duration: 700, scale: 0.25, rotate: 180 },
         { count: 8, colors: ['#8b5a2b', '#6b4423', '#a06a38'], size: 6, distance: 52, spread: 360, gravity: 38, duration: 700, scale: 0.25, rotate: 180, delayMin: 30 },
@@ -85,6 +85,87 @@
     },
 
     /* TOTEM MENAHAN SERANGAN — kilatan emas + cincin hijau */
+    /* ---- Batch 2-3 (key = gameKey; warna/gaya mengikuti aura model 3D di assets/js/power3d/PowerCatalog.js) ---- */
+    diamond_sword: {
+      name: 'Diamond Sword', note: 'tebasan cyan menyilang + serpihan kristal',
+      layers: [
+        { count: 8, colors: ['#ffffff', '#b8f4ff', '#5fe3f5'], shape: 'bar', size: 15, sizeJitter: 0.3, distance: 78, spread: 36, angle: -40, duration: 380, scale: 0.4, rotate: 20, ease: 'cubic-bezier(.1,.8,.2,1)' },
+        { count: 10, colors: ['#e6fdff', '#7aeaff', '#3bd0e8'], size: 5, sizeJitter: 0.5, distance: 70, spread: 220, angle: -90, gravity: 22, duration: 700, scale: 0.2, delayMin: 60 }
+      ]
+    },
+    netherite_sword: {
+      name: 'Netherite Sword', note: 'tebasan berat gelap + bara oranye + debu',
+      layers: [
+        { count: 8, colors: ['#e9d9ff', '#9a7ab8', '#4a3a58'], shape: 'bar', size: 17, sizeJitter: 0.3, distance: 86, spread: 36, angle: -40, duration: 420, scale: 0.4, rotate: 20, ease: 'cubic-bezier(.1,.8,.2,1)' },
+        { count: 12, colors: ['#ffb02e', '#ff7a12', '#e8340a'], size: 4, distance: 96, spread: 260, gravity: 40, duration: 850, scale: 0.15, delayMin: 50 },
+        { count: 6, colors: SMOKE, shape: 'round', size: 12, distance: 40, spread: 160, angle: -90, gravity: -20, duration: 1000, scale: 1.7, delayMin: 100 }
+      ]
+    },
+    wooden_shield: {
+      name: 'Wooden Shield', note: 'cincin cokelat-emas + serpihan kayu',
+      layers: [
+        { count: 12, colors: ['#e8c07a', '#b9824a', '#7a4f26'], size: 6, sizeJitter: 0.4, distance: 54, spread: 360, duration: 600, scale: 0.3 },
+        { count: 8, colors: ['#fff3c0', '#ffd24d'], size: 4, distance: 40, spread: 200, angle: -90, gravity: -10, duration: 700, scale: 0.15, delayMin: 80 }
+      ]
+    },
+    golden_apple: {
+      name: 'Golden Apple', note: 'kilau emas naik berputar + percikan',
+      layers: [
+        { count: 14, colors: ['#fff6b0', '#ffd24d', '#f0a010'], size: 5, sizeJitter: 0.5, distance: 66, spread: 360, angle: -90, gravity: -16, duration: 900, scale: 0.15 },
+        { count: 8, colors: ['#ffffff', '#fff2a8'], size: 3, distance: 90, spread: 360, duration: 700, scale: 0.1, delayMin: 90 }
+      ]
+    },
+    fire_charge: {
+      name: 'Fire Charge', note: 'bola api: lidah api + bara + asap tipis',
+      layers: [
+        { count: 16, colors: FIRE, size: 8, sizeJitter: 0.5, distance: 70, spread: 280, angle: -90, gravity: -22, duration: 700, scale: 0.2 },
+        { count: 8, colors: SMOKE, shape: 'round', size: 11, distance: 44, spread: 120, angle: -90, gravity: -30, duration: 1000, scale: 1.6, delayMin: 120 },
+        { count: 8, colors: ['#ffd23c', '#ff7a12'], size: 3, distance: 100, spread: 360, gravity: 36, duration: 800, scale: 0.1, delayMin: 50 }
+      ]
+    },
+    ice_crystal: {
+      name: 'Ice Crystal', note: 'serpihan es biru-putih menyebar + kilau beku',
+      layers: [
+        { count: 14, colors: ['#ffffff', '#cfefff', '#7fd4ff', '#3aa8e8'], shape: 'bar', size: 9, sizeJitter: 0.4, distance: 76, spread: 360, rotate: 90, duration: 650, scale: 0.3 },
+        { count: 10, colors: ['#ffffff', '#bfe9ff'], size: 4, distance: 54, spread: 200, angle: -90, gravity: 14, duration: 900, scale: 0.15, delayMin: 100 }
+      ]
+    },
+    blaze_core: {
+      name: 'Blaze Core', note: 'ledakan api oranye 360 + asap + bara',
+      layers: [
+        { count: 20, colors: FIRE, size: 9, sizeJitter: 0.5, distance: 94, spread: 360, duration: 700, scale: 0.15 },
+        { count: 12, colors: SMOKE, shape: 'round', size: 14, sizeJitter: 0.4, distance: 56, spread: 140, angle: -90, gravity: -34, duration: 1300, scale: 2, delayMin: 110 },
+        { count: 12, colors: ['#ffd23c', '#ff7a12', '#ffffff'], size: 4, distance: 120, spread: 360, gravity: 44, duration: 950, scale: 0.15, delayMin: 40 }
+      ]
+    },
+    trident: {
+      name: 'Trident', note: 'sambaran cyan menusuk ke bawah + percikan listrik',
+      layers: [
+        { count: 6, colors: ['#ffffff', '#a8f0ff', '#2ed0e8'], shape: 'bar', size: 18, sizeJitter: 0.3, distance: 84, spread: 40, angle: 90, duration: 380, scale: 0.3, ease: 'cubic-bezier(.1,.8,.2,1)' },
+        { count: 12, colors: ['#ffffff', '#7aeaff', '#2ed0e8'], size: 4, distance: 80, spread: 360, gravity: 20, duration: 650, scale: 0.15, delayMin: 60 }
+      ]
+    },
+    dragon_crystal: {
+      name: 'Dragon Crystal', note: 'cincin kilau ungu-magenta naik + percikan kosmik',
+      layers: [
+        { count: 14, colors: ['#ffd6ff', '#e07aff', '#a23ad8'], size: 6, sizeJitter: 0.5, distance: 72, spread: 360, angle: -90, gravity: -18, duration: 900, scale: 0.2 },
+        { count: 10, colors: ['#ffffff', '#f0b8ff'], size: 3, distance: 100, spread: 360, duration: 750, scale: 0.1, delayMin: 80 }
+      ]
+    },
+    nether_star: {
+      name: 'Nether Star', note: 'ledakan bintang putih-emas + kilau melebar',
+      layers: [
+        { count: 18, colors: ['#ffffff', '#fff6b0', '#ffd24d', '#f0a010'], size: 7, sizeJitter: 0.5, distance: 108, spread: 360, duration: 850, scale: 0.15 },
+        { count: 12, colors: ['#ffffff', '#cfefff'], shape: 'bar', size: 12, distance: 90, spread: 360, rotate: 45, duration: 600, scale: 0.3, delayMin: 60 },
+        { count: 10, colors: ['#ffe9a8', '#ffffff'], size: 3, distance: 60, spread: 200, angle: -90, gravity: -14, duration: 1000, scale: 0.1, delayMin: 120 }
+      ]
+    },
+    shield_block: {
+      name: 'Wooden Shield menahan', note: 'kilatan cokelat-emas + serpihan kayu',
+      layers: [
+        { count: 12, colors: ['#fff3c0', '#e8c07a', '#b9824a'], size: 6, distance: 58, spread: 360, duration: 550, scale: 0.2 }
+      ]
+    },
     totem_block: {
       name: 'Totem menahan', note: 'kilatan emas-putih + cincin hijau',
       layers: [

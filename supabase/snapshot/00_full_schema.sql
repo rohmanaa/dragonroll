@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 29 migrasi, urut: 202611050001 s/d 202611200001
+-- Isi: 30 migrasi, urut: 202611050001 s/d 202611210001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -2020,6 +2020,8 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('aura.shadow', 'aura', 3500, false, false),
   ('aura.solar', 'aura', 3500, false, false),
   ('aura.stone', 'aura', 300, false, false),
+  ('blaze_core', 'powerup', null, false, true),
+  ('diamond_sword', 'powerup', null, false, true),
   ('dice.amethyst', 'dice', 450, false, false),
   ('dice.copper', 'dice', 150, false, false),
   ('dice.diamond', 'dice', 450, false, false),
@@ -2043,7 +2045,9 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('dice.tnt', 'dice', 200, false, false),
   ('dice.void', 'dice', 1800, false, false),
   ('dice.wood', 'dice', 100, false, false),
+  ('dragon_crystal', 'powerup', null, false, true),
   ('feather', 'powerup', null, false, true),
+  ('fire_charge', 'powerup', null, false, true),
   ('frame.amethyst', 'frame', 1500, false, false),
   ('frame.celestial', 'frame', 7500, false, false),
   ('frame.copper', 'frame', 350, false, false),
@@ -2121,7 +2125,11 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('gear.weapon.staff', 'gear', 350, false, false),
   ('gear.weapon.sword', 'gear', 300, false, false),
   ('gear.weapon.wand', 'gear', 300, false, false),
+  ('golden_apple', 'powerup', null, false, true),
   ('grass', 'powerup', null, false, true),
+  ('ice_crystal', 'powerup', null, false, true),
+  ('nether_star', 'powerup', null, false, true),
+  ('netherite_sword', 'powerup', null, false, true),
   ('potion_even', 'powerup', null, false, true),
   ('potion_odd', 'powerup', null, false, true),
   ('skin.alex', 'skin', null, true, false),
@@ -2134,7 +2142,9 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('theme.minecraft', 'theme', null, true, false),
   ('theme.nether', 'theme', null, false, false),
   ('tnt', 'powerup', null, false, true),
-  ('totem', 'powerup', null, false, true)
+  ('totem', 'powerup', null, false, true),
+  ('trident', 'powerup', null, false, true),
+  ('wooden_shield', 'powerup', null, false, true)
 on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
 -- END CATALOG SEED
 
@@ -4255,4 +4265,25 @@ language sql stable security definer set search_path = public as $$
   from public.item_catalog c where c.id = p_id;
 $$;
 revoke all on function public._item_equip_slot(text) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611210001_power_catalog_batch2.sql
+-- ---------------------------------------------------------------------------
+-- Power Batch 2-3: daftarkan 10 Power baru ke katalog SERVER (kind 'powerup', consumable ber-quantity, belum dijual: harga null).
+-- Terapkan SETELAH 202611110002_wallet_b2_server.sql. Aman diulang (upsert). Power lama (sword, feather, tnt, totem, grass, potion_odd, potion_even)
+-- tidak berubah: id dan stok pemain tetap. Aturan main Power ada di klien (gameplay/config.js C.PUR + usePU); server hanya memegang kepemilikan/jumlah.
+-- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
+  ('blaze_core', 'powerup', null, false, true),
+  ('diamond_sword', 'powerup', null, false, true),
+  ('dragon_crystal', 'powerup', null, false, true),
+  ('fire_charge', 'powerup', null, false, true),
+  ('golden_apple', 'powerup', null, false, true),
+  ('ice_crystal', 'powerup', null, false, true),
+  ('nether_star', 'powerup', null, false, true),
+  ('netherite_sword', 'powerup', null, false, true),
+  ('trident', 'powerup', null, false, true),
+  ('wooden_shield', 'powerup', null, false, true)
+on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
 
