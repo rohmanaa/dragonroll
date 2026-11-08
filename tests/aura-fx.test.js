@@ -68,6 +68,6 @@ t('efek.html terhubung: skrip dimuat berurutan setelah three, kategori Efek mema
   const h = read('efek.html');
   const i3 = h.indexOf('vendor/three.min.js'), ib = h.indexOf('blocky-character.js'), ia = h.indexOf('aura-fx.js');
   assert.ok(i3 > 0 && ib > i3 && ia > i3, 'urutan skrip');
-  assert.ok(/UT\.AuraFX/.test(h) && /id="fxj"/.test(h) && /id="fxw"/.test(h));
+  assert.ok(/UT\.AuraFX/.test(h) && !/id="fxj"/.test(h) && !/id="fxw"/.test(h)); /* tombol Lompat/Jalan sudah dihapus dari halaman */
 });
 console.log(n + ' tes lulus');
