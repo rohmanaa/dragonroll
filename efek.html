@@ -260,7 +260,7 @@ html body .use img{width:3rem;height:3rem}
  <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/items/efek.webp" alt="" draggable="false" decoding="async">Efek</div>
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
 </div>
-<div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div><div id="fxbar"><button type="button" id="fxj">Lompat</button><button type="button" id="fxw">Jalan</button></div></div>
+<div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
 <section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div></section>
 <section class="ab" id="rec"><span id="rl"><svg viewBox="0 0 24 24"><path d="M3 18 2 7l5 4 5-7 5 7 5-4-1 11z" fill="#ffd24d"/></svg><b id="rlt"></b></span><button class="blue rarr" id="rp" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div id="rlist"></div><button class="blue rarr" id="rn" aria-label="Berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button></section>
 <section class="ab" id="bot"><div id="gwrap"><div id="grid"></div></div><button class="use" id="use"></button></section>
@@ -381,8 +381,6 @@ function renderInfo(){const i=sel,u=$('#use');
 function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
-$('#fxj').addEventListener('click',()=>{if(main&&main.fx)main.fx.ch.jump()});
-$('#fxw').addEventListener('click',e=>{if(!(main&&main.fx))return;const f=main.fx;f.walk=!f.walk;f.ch.setMode(f.walk?'walk':'idle');e.currentTarget.classList.toggle('on',f.walk)});
 $('#use').addEventListener('click',e=>{if(sel){const w=isOwned(sel);act(sel);if(w)sparkle(e.currentTarget)}});
 $('#rp').addEventListener('click',()=>{off--;renderRecent()});$('#rn').addEventListener('click',()=>{off++;renderRecent()});
 // ---- event: ikut memperbarui UI saat state berubah (tanpa reload halaman)
