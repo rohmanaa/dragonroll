@@ -33,7 +33,7 @@
   C.CHESTS = C.CHESTS || new Set([6, 11, 34, 59, 64, 82, 89]);
 
   C.MOB_POSITIONS = C.MOB_POSITIONS || [
-    ['creeper', [29]], ['ender', [53]], ['skeleton', [38]], ['zombie', [2]],
+    ['creeper', [30]], ['ender', [53]], ['skeleton', [38]], ['zombie', [2]],
     ['villager', [45]], ['blaze', [66]]
   ];
   C.MOB_THEME_ONLY = C.MOB_THEME_ONLY || (G.Maps && G.Maps.list().length ? G.Maps.mobThemeOnly() : { blaze: 'nether' });
