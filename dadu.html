@@ -252,7 +252,7 @@ html body #iname{font-size:1.6rem!important;line-height:1.1!important}
 html body #idesc{font-size:.95rem!important;line-height:1.2!important}
 @media (min-aspect-ratio:1/1){
   html body #info{left:8.05rem!important;width:28rem!important;height:6.6rem!important;bottom:1.6rem!important;top:auto!important}
-  html body #show{bottom:9.8rem!important}
+  html body #show{bottom:8.3rem!important}
 }
 @media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}}
 </style>
@@ -421,22 +421,30 @@ function model(c,it){let g;
  if(c==='skin')g=character(AR.palette(it.id)||{hood:'#00a8a8',hair:'#4a2e13',pants:'#3b4fd8'},pose);
  else if(c==='dice'){g=new THREE.Group();const m=new THREE.MeshStandardMaterial({map:diceTex(it.art.bg,it.art.pip),roughness:.35});const d=bx(2.6,2.6,2.6,m,0,PAD_Y+1.3,0,g);g.userData.anim=()=>{}} /* dadu diam di atas pad; hanya holder (putar pelan/seret) yang memutarnya */
  return g}
-/* Pad (tatakan) dadu: versi 3D dari tatakan di gameplay (batu abu, cincin emas, pita biru, sumur di tengah).
-   STATIS: tidak melayang, tidak berputar, tidak bergoyang. Hanya dadu di atasnya yang berputar pelan / bisa diseret. */
-const PAD_Y=1.04; /* permukaan sumur pad; dadu (tinggi 2.6) berdiri di atasnya */
+/* Pad dadu = Crafting Table gaya Minecraft (balok 5x4x5, tekstur pixel 16x16 dibuat lewat canvas, filter Nearest).
+   STATIS: tidak melayang, tidak berputar. Dadu berdiri di permukaan atas meja; hanya dadu yang berputar pelan / bisa diseret. */
+const PAD_Y=0; /* permukaan atas meja */
+function mcTex(fn){const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');const px=(i,j,col)=>{x.fillStyle=col;x.fillRect(i,j,1,1)};fn(px);
+ const tx=new THREE.CanvasTexture(c);tx.magFilter=THREE.NearestFilter;tx.minFilter=THREE.NearestFilter;tx.generateMipmaps=false;return tx}
+const WOOD=['#b08c5a','#a58250','#9a7848','#bd9a68'],SEAM='#7d5d36',DARK='#5a3d20',LIP='#6b4a2b';
+function planks(px,i,j){const r=((i*7+j*13+i*j*3)%11);let col=WOOD[r%4];const row=(j/4)|0;if(j%4===3)col=SEAM;const off=row%2?8:3;if(i===off&&j%4!==3)col=SEAM;px(i,j,col)}
+function craftSide(tool){return mcTex(px=>{for(let j=0;j<16;j++)for(let i=0;i<16;i++)planks(px,i,j);
+ for(let i=0;i<16;i++){px(i,0,LIP);px(i,1,LIP);px(i,2,'#7a5230')}
+ for(let j=0;j<16;j++){px(0,j,DARK);px(15,j,DARK)}for(let i=0;i<16;i++)px(i,15,DARK);
+ if(tool==='saw'){for(let k=0;k<7;k++){px(3+k,5+k,'#c9ced6');px(4+k,5+k,'#8d949e')}px(10,12,'#6b4a2b');px(11,12,'#6b4a2b');for(let k=0;k<3;k++)px(10+k,11-k,'#8a5a2b')}
+ else if(tool==='hammer'){for(let i=4;i<10;i++){px(i,5,'#8d949e');px(i,6,'#c9ced6');px(i,7,'#8d949e')}for(let j=7;j<13;j++){px(7,j,'#8a5a2b');px(8,j,'#6b4a2b')}}
+ else{for(let j=5;j<13;j++){px(5,j,'#8a5a2b');px(11,j,'#8a5a2b')}for(let i=5;i<12;i++){px(i,5,'#c9ced6');px(i,12,'#8d949e')}}})}
 function pad(){const g=new THREE.Group();
- const mt=(c,r=.6)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
- const cyl=(rt,rb,h,m,y)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,48),m);o.position.y=y;o.castShadow=o.receiveShadow=true;g.add(o);return o};
- const tor=(r,tube,m,y)=>{const o=new THREE.Mesh(new THREE.TorusGeometry(r,tube,8,64),m);o.rotation.x=Math.PI/2;o.position.y=y;g.add(o);return o};
- cyl(4.5,4.9,1.4,mt(0x4a5468,.75),.1);                 /* badan batu */
- cyl(4.97,4.97,.26,mt(0x2f6fe0,.5),-.3);               /* pita biru */
- cyl(4.7,4.7,.2,mt(0x8d98ad,.55),.9);                  /* permukaan atas */
- tor(4.25,.1,new THREE.MeshStandardMaterial({color:0xffd35a,roughness:.35,emissive:0x6a4a00,emissiveIntensity:.5}),1.02); /* cincin emas */
- cyl(3,3,.08,mt(0x2f374b,.85),1.0);                    /* sumur tempat dadu mendarat */
- tor(3.02,.06,mt(0x8c97b0,.5),1.05);
- [[3.7,0],[-3.7,0],[0,3.7],[0,-3.7]].forEach(p=>{const b=new THREE.Mesh(new THREE.BoxGeometry(.55,.2,.55),mt(0x7c879c,.5));b.position.set(p[0],1.08,p[1]);b.castShadow=true;g.add(b)});
- const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(111,210,255,.7)');gr.addColorStop(1,'rgba(46,116,230,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
- const glow=new THREE.Mesh(new THREE.CircleGeometry(7,48),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=-.55;g.add(glow);
+ const top=mcTex(px=>{for(let j=0;j<16;j++)for(let i=0;i<16;i++)planks(px,i,j);
+  for(let k=0;k<16;k++){px(k,0,DARK);px(k,15,DARK);px(0,k,DARK);px(15,k,DARK)}
+  for(let k=1;k<15;k++){for(const q of[5,10]){px(q,k,LIP);px(k,q,LIP)}}
+  for(let j=1;j<15;j++)for(let i=1;i<15;i++){if(i!==5&&i!==10&&j!==5&&j!==10&&(i+j)%5===0)px(i,j,'#c8a672')}});
+ const bot=mcTex(px=>{for(let j=0;j<16;j++)for(let i=0;i<16;i++)planks(px,i,j)});
+ const mat=t=>new THREE.MeshStandardMaterial({map:t,color:0xb4b4b4,roughness:.95});
+ const m=[mat(craftSide('saw')),mat(craftSide('hammer')),mat(top),mat(bot),mat(craftSide('tools')),mat(craftSide('saw'))]; /* +x,-x,+y,-y,+z,-z */
+ const box=new THREE.Mesh(new THREE.BoxGeometry(5,4,5),m);box.position.y=-2;box.receiveShadow=box.castShadow=true;box.rotation.y=.5;g.add(box);
+ const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(10,25,60,.45)');gr.addColorStop(1,'rgba(10,25,60,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);
+ const sh=new THREE.Mesh(new THREE.CircleGeometry(5.2,32),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=-3.98;g.add(sh);
  return g}
 let ok=true;const rigs=[];
 function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -463,7 +471,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 setCat(PAGE); /* mengisi sel dari PlayerData + render grid/info/recent */
-if(ok){main=rig($('#gl'),true,2.1,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(ok){main=rig($('#gl'),true,1.5,19,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
