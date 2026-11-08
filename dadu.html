@@ -253,10 +253,18 @@ html body #idesc{font-size:.95rem!important;line-height:1.2!important}
 @media (min-aspect-ratio:1/1){
   html body #info{left:8.05rem!important;width:28rem!important;height:6.6rem!important;bottom:1.6rem!important;top:auto!important}
   /* Dadu pendek (kanvas ringkas), tanpa pad: berdiri tepat di atas tepi atas panel info (8.2rem dari bawah) lalu dinaikkan 100px */
-  html body #show{top:auto!important;left:5.05rem!important;width:34rem!important;height:26rem!important;bottom:calc(8.2rem + 100px)!important;z-index:1}
+  html body #show{top:auto!important;left:2.6rem!important;width:40rem!important;height:31rem!important;bottom:calc(8.2rem + 100px)!important;z-index:1}
   html body #back,html body #title,html body .ut-curbar,html body #gear{z-index:3}
 }
 @media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}html body #show{height:80vw!important}}
+</style>
+<style id="dadu-cards">
+/* Kartu dadu kanan: kotak preview pas mengikuti bentuk kubus (gambar statis berwarna asli), TANPA animasi */
+.card{animation:none!important}
+.card:hover .th,.card .th{animation:none!important;transition:none!important}
+.card .th{display:grid;place-items:center;width:100%;min-height:0}
+.card .th .dthumb{display:block;height:100%;width:auto;max-width:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.card.lk .th .dthumb{filter:grayscale(1) brightness(.55)}
 </style>
 </head>
 <body>
@@ -330,7 +338,9 @@ function sparkle(el,n=12){const r=el.getBoundingClientRect(),cx=r.left+r.width/2
 // ---- thumbs (ItemArt = satu sistem art)
 function thumb(c,it){
  if(c==='skin')return AR.face(it.id);
- if(c==='dice')return AR.dice(it.id);
+ if(c==='dice'){ /* warna asli = tekstur yang sama dengan preview 3D; fallback ke SVG bila kit belum siap */
+  try{if(window.DiceKit&&window.DiceKit.has(it.gameKey)){const u=window.DiceKit.thumb(it.gameKey,160);if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}
+  return AR.dice(it.id)}
  if(c==='theme')return AR.theme(it.id);
  if(c==='powerup')return AR.powerup(it.id);
  if(c==='frame')return AR.frame(it.id);
@@ -446,13 +456,13 @@ function mountKit(){
  try{
   const k=sel&&window.DiceKit.has(sel.gameKey)?sel.gameKey:'klasik';
   KIT=window.DiceKit.create(host,{diceId:k,transparent:true,arena:false,quality:SET().graphics==='high'?'high':'auto',
-   bounds:{x:2.1,z:1.6},idleZ:.5,camScale:.45,lookY:1.35,drop:true,sound:!!SET().sound});
+   bounds:{x:1.3,z:1.1},idleZ:0,camScale:.42,lookY:.6,drop:true,sound:!!SET().sound});
   const gl=$('#gl');if(gl)gl.style.display='none';
   host.style.cursor='pointer';host.style.touchAction='manipulation';
   host.addEventListener('click',()=>{if(!KIT)return;let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}KIT.setSound(!!SET().sound&&v>0);KIT.setVolume(v);KIT.roll()});
  }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
-window.addEventListener('dicekit-ready',()=>{mountKit();if(KIT)buildModels()});
+window.addEventListener('dicekit-ready',()=>{mountKit();if(KIT)buildModels();try{renderGrid();renderRecent()}catch(e){}}); /* kit siap -> thumbnail kanan diganti ke warna asli */
 function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
 function showThemeArt(on){const s=$('#show');const sv=on&&sel?AR.forItem(sel.id):'';s.classList.toggle('art',!!sv);const a=$('#art');if(a)a.innerHTML=sv}
 function buildModels(){if(!CI[cat]||!sel){showThemeArt(false);return}

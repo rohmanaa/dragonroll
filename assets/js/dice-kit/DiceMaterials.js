@@ -133,3 +133,40 @@ export class MaterialCache {
   /** Lindungi entry yang sedang dipakai agar tidak ter-dispose saat render. */
   clear() { this.map.forEach((v) => v.dispose()); this.map.clear(); }
 }
+
+/**
+ * Thumbnail kubus isometrik statis (tanpa animasi) memakai tekstur ASLI dadu yang sama dengan preview 3D
+ * (pola + warna + pip dari PATTERNS/drawPips), jadi warnanya persis sama, bukan warna perkiraan.
+ * Muka atas = 1, kiri = 3, kanan = 2. Kanvas dipotong rapat mengikuti bentuk kubus.
+ */
+const THUMB_CACHE = new Map();
+export function diceThumbDataURL(die, px = 160) {
+  const key = die.id + ':' + px;
+  if (THUMB_CACHE.has(key)) return THUMB_CACHE.get(key);
+  const S = 128, face = (value) => {
+    const i = D6_FACES.findIndex((f) => f.value === value);
+    const r = mulberry32(hashStr(die.id) + i * 7919), cv = makeCanvas(S), c = cv.getContext('2d');
+    PATTERNS[die.material.pattern](c, null, S, r, die.material);
+    drawPips(c, null, S, value, die.material.pip);
+    return cv;
+  };
+  // sistem koordinat 64x64 yang sama dengan ItemArt.dice; dipotong ke kotak pas kubus (x 6..58, y 4..60)
+  const X0 = 6, Y0 = 4, W = 52, H = 56, k = px / H;
+  const cv = document.createElement('canvas'); cv.width = Math.round(W * k); cv.height = px;
+  const c = cv.getContext('2d'); c.imageSmoothingQuality = 'high';
+  const paint = (img, a, b, cc, d, e, f, shade) => {
+    c.save(); c.setTransform(k * a / S, k * b / S, k * cc / S, k * d / S, k * (e - X0), k * (f - Y0)); c.drawImage(img, 0, 0);
+    if (shade) { c.fillStyle = shade; c.fillRect(0, 0, S, S); }
+    c.restore();
+  };
+  paint(face(1), 25, -14, 25, 14, 7, 19, 'rgba(255,255,255,0.10)');
+  paint(face(3), 25, 14, 0, 26, 7, 19, null);
+  paint(face(2), 25, -14, 0, 26, 32, 33, 'rgba(0,0,0,0.30)');
+  c.strokeStyle = 'rgba(0,0,0,0.55)'; c.lineWidth = Math.max(1.5, k * 1.4); c.lineJoin = 'round';
+  const P = (x, y) => [k * (x - X0), k * (y - Y0)];
+  const poly = (pts) => { c.beginPath(); pts.forEach(([x, y], n) => { const [X, Y] = P(x, y); n ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.closePath(); c.stroke(); };
+  poly([[32, 5], [57, 19], [32, 33], [7, 19]]); poly([[7, 19], [32, 33], [32, 59], [7, 45]]); poly([[32, 33], [57, 19], [57, 45], [32, 59]]);
+  const url = cv.toDataURL('image/png');
+  THUMB_CACHE.set(key, url);
+  return url;
+}

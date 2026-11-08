@@ -154,8 +154,8 @@ class DiceSound {
       try { this.ctx = new AC(); } catch { return false; }
       try { // bus utama: dikuatkan + compressor agar keras tapi tidak pecah
         const comp = this.ctx.createDynamicsCompressor();
-        comp.threshold.value = -12; comp.knee.value = 14; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.2;
-        const mg = this.ctx.createGain(); mg.gain.value = 2.4;
+        comp.threshold.value = -20; comp.knee.value = 10; comp.ratio.value = 10; comp.attack.value = 0.003; comp.release.value = 0.2;
+        const mg = this.ctx.createGain(); mg.gain.value = 5.5;
         mg.connect(comp); comp.connect(this.ctx.destination); this._master = mg;
       } catch { this._master = null; }
     }
@@ -183,7 +183,7 @@ class DiceSound {
   /** kind = die.effect.soundEffect; intensity 0..2 */
   play(kind, intensity = 1) {
     if (!this._ensure()) return;
-    const i = Math.min(2, Math.max(0.5, intensity)), G = 0.85 * i;
+    const i = Math.min(2, Math.max(0.5, intensity)), G = 1.3 * i;
     switch (kind) {
       case 'rattle': for (let n = 0; n < 9; n++) { this._noiseHit(1500 + Math.random() * 2200, 2.2, 0.055, 0.7 * G, 'bandpass', n * 0.085); this._tone(220 + Math.random() * 160, 120, 0.05, 0.25 * G, 'triangle', n * 0.085); } break;
       case 'wood':    this._noiseHit(500, 1.2, 0.09, G); this._tone(190, 90, 0.1, 0.5 * G, 'triangle'); break;
