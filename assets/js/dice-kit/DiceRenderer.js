@@ -153,6 +153,8 @@ export class DiceRenderer {
 
   /** Lempar dadu. forcedValue (1–6) = hasil dari RNG game yang sudah ada; kosong = hasil murni fisika. */
   roll(forcedValue = null) { return this.animator.roll(forcedValue); }
+  /** Lempar begitu siap: bila dadu sedang bergulir, tunggu selesai (dan pergantian dadu) lalu lempar. */
+  rollWhenReady() { if (!this.animator.busy) return this.roll(); this._pending.roll = true; return null; }
   toIdle() { this.animator.toIdle(); }
 
   setQuality(name) {
@@ -193,6 +195,7 @@ export class DiceRenderer {
     if (!this.animator.busy) {
       if (this._pending.quality) { const q = this._pending.quality; this._pending.quality = null; this.setQuality(q); }
       if (this._pending.dice) { const d = this._pending.dice; this._pending.dice = null; this.equip(d); }
+      if (this._pending.roll) { this._pending.roll = false; this.roll(); }
     }
   }
 

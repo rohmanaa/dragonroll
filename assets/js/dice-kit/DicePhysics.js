@@ -67,8 +67,7 @@ export class DicePhysics {
     this.restitution = o.restitution ?? 0.42;
     this.friction = o.friction ?? 0.5;
     this.gravity = o.gravity ?? 24; // sedikit lebih ringan dari 30: jatuh terasa lebih melayang
-    this.centerX = o.centerX ?? null; // bila diisi (mode jatuh dari atas): dadu ditarik & mendarat tepat di titik ini
-    this.centerZ = o.centerZ ?? null;
+    this.lateralDamp = o.lateralDamp ?? 0; // mode jatuh dari atas: redam gerak samping (tanpa tarikan/snap) agar dadu jatuh lurus di tempat
     this.mass = 1;
     this.invI = 1.5 / (this.mass * this.h * this.h);
     const h = this.h;
@@ -105,7 +104,7 @@ export class DicePhysics {
     this.asleep = false;
     if (drop) {
       // jatuh dari atas: hampir lurus ke bawah, sedikit melenceng saja
-      this.v = [(r() - 0.5) * 0.16, -1.2 - r() * 1.0, (r() - 0.5) * 0.12];
+      this.v = [0, -1.2 - r() * 1.0, 0]; // lurus ke bawah, tanpa gerak samping
     } else {
       const speed = 4.4 + r() * 2.4;
       const yaw = (r() - 0.5) * 1.1;
@@ -138,10 +137,7 @@ export class DicePhysics {
     const { v, w } = this;
     this.time += dt;
     v[1] -= this.gravity * dt;
-    if (this.centerX != null) { // tarik halus ke tengah + redam gerak samping agar tidak melenceng ke pinggir frame
-      v[0] += (this.centerX - this.pos[0]) * 26 * dt; v[2] += (this.centerZ - this.pos[2]) * 26 * dt;
-      const ld = Math.max(0, 1 - 7 * dt); v[0] *= ld; v[2] *= ld;
-    }
+    if (this.lateralDamp) { const ld = Math.max(0, 1 - this.lateralDamp * dt); v[0] *= ld; v[2] *= ld; }
     for (let i = 0; i < 3; i++) this.pos[i] += v[i] * dt;
 
     // Integrasi orientasi: q += ½·dt·(ω⊗q)
@@ -244,7 +240,6 @@ export class DicePhysics {
     const n = qrot(this.q, D6_FACES[top.index].normal);
     this.q = qnorm(qmul(qarc(n, [0, 1, 0]), this.q));
     this.pos[1] = this.h;
-    if (this.centerX != null) { this.pos[0] = this.centerX; this.pos[2] = this.centerZ; } // selalu berhenti tepat di tengah
     this.v = [0, 0, 0];
     this.w = [0, 0, 0];
     this.asleep = true;

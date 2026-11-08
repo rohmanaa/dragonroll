@@ -30,7 +30,7 @@ export class DiceAnimator {
     this.effects = effects;
     this.rng = rng || Math.random;
     this.idle = [0, drop ? 1.0 : 1.25, idleZ ?? 1.2]; // mode jatuh: melayang lebih rendah agar kocokan tetap di dalam frame
-    this.physics = new DicePhysics({ rng: this.rng, boundsX: bounds?.x, boundsZ: bounds?.z, centerX: drop ? this.idle[0] : null, centerZ: drop ? this.idle[2] : null });
+    this.physics = new DicePhysics({ rng: this.rng, boundsX: bounds?.x, boundsZ: bounds?.z, lateralDamp: drop ? 60 : 0 });
     this.state = 'idle';
     this.t = 0;
     this.pos = [...this.idle];
@@ -129,9 +129,9 @@ export class DiceAnimator {
         if (this.drop) {
           // Dikocok di udara tepat di atas posisi dadu (naik lurus, bergetar, berputar), lalu dilepas jatuh ke bawah
           const k = Math.min(1, this.t / 0.85);
-          if (!this._rattled) { this._rattled = true; this.effects.sound.play('rattle', 1.6); }
           const rise = ease.outCubic(Math.min(1, k * 1.6)) * 0.35; // naik secukupnya agar tetap terlihat di dalam frame
-          const sx = Math.sin(this.t * 46) * 0.08 * k, sz = Math.cos(this.t * 39) * 0.06 * k;
+          const fade = 1 - Math.min(1, Math.max(0, (k - 0.7) / 0.3)); // getaran mereda sebelum dilepas -> jatuh persis dari tengah
+          const sx = Math.sin(this.t * 46) * 0.08 * k * fade, sz = Math.cos(this.t * 39) * 0.06 * k * fade;
           const omega = 5 + 28 * k;
           this.q = qnorm(qmul(qaxis(this.spinAxis, omega * dt), this.q));
           this.pos = [this.idle[0] + sx, this.idle[1] + rise, this.idle[2] + sz];
