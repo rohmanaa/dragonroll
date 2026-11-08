@@ -1383,7 +1383,7 @@ jb.addEventListener('click',jump);sbs.appendChild(jb);
 $('#back').addEventListener('click',()=>{location.href='lobby.html';});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{location.href='shop.html';});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1';}));
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1';}));
 function setMode(m){mode=m;for(const k in btns)btns[k].classList.toggle('on',k===m);}
 setMode('idle');
 function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}

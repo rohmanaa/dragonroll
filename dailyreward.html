@@ -389,7 +389,7 @@ async function claimServer(i,el){if(busy)return;busy=true;
 $('#see').addEventListener('click',()=>{playSound('click');
  openModal('<h2>Semua Hadiah</h2>'+R.map((r,i)=>`<div class="row ${state(i)==='now'?'cl':''}"><div class="ri">${r.ic}</div><div>${r.h}<small>${r.t}</small></div><span class="tag">${state(i)==='done'?'Diklaim':state(i)==='now'?'Klaim!':'Menunggu'}</span></div>`).join(''))});
 // ---------- misc buttons
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})(b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1')}));
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})(b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(/embed=1/.test(location.search)?'hadiah-misi.html':location.pathname.split('/').pop()):'shop.html?coin=1')}));
 $('#back').addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})('lobby.html')});
 // ---------- countdown
 function tick(){

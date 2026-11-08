@@ -109,19 +109,21 @@ Server
 - [ ] Terapkan migrasi ke Supabase produksi (oleh pemilik)
 
 Klien
-- [ ] `mine-service.js` + `tests/mine-service.test.js`
-- [ ] `tambang.html`: layout, Back (asal) + Home, bar Coin/Emerald
-- [ ] Adegan 3D: 3 bilik terkunci, penambang menggali, efek emerald, emote senang, pose duduk saat peti penuh
-- [ ] Panel slot: collect, upgrade kecepatan/kapasitas, percepat, hitung mundur
-- [ ] Tombol TAMBANG di lobby
-- [ ] Perilaku Back berdasarkan `from` (daftar putih) + tombol Home
-- [ ] "+ Emerald" di halaman lain diarahkan sesuai keputusan
-- [ ] Tambah ke Router / service worker / README
+- [x] `mine-service.js` + `tests/mine-service.test.js`
+- [x] `tambang.html`: layout, Back (asal) + Home, bar Coin/Emerald
+- [x] Adegan 3D: 3 bilik terkunci, penambang menggali, efek emerald, emote senang, pose duduk saat peti penuh
+- [x] Panel slot: collect, upgrade kecepatan/kapasitas, percepat, hitung mundur
+- [x] Tombol TAMBANG di lobby
+- [x] Perilaku Back berdasarkan `from` (daftar putih) + tombol Home
+- [x] "+ Emerald" di halaman lain diarahkan sesuai keputusan
+- [x] Tambah ke daftar halaman `app.js` (UT.PAGES + presence) dan README
+- [ ] Cek apakah halaman perlu masuk daftar preload splash (belum diperiksa)
 
 Pengujian
 - [ ] Uji manual dua akun: waktu berjalan di server, tutup tab lalu buka lagi, peti terisi sesuai jam
 - [ ] Uji spam klik (Collect/Upgrade dua kali cepat) tidak dobel
-- [ ] Uji tampilan landscape ponsel
+- [x] Uji tampilan landscape (1280x720) dan portrait (390x844) di Chromium headless dengan layanan tiruan khusus uji (tidak ikut di repo)
+- [ ] Uji di perangkat sungguhan + akun login (butuh migrasi sudah diterapkan di Supabase)
 
 ## 10. Rencana ke depan (belum dijanjikan)
 - Slot 4+ atau jenis bijih lain (Coin dari tambang batu).
@@ -132,3 +134,4 @@ Pengujian
 ## 11. Log pekerjaan
 - 2026-11-08: dokumen dibuat; desain ekonomi & RPC disusun; belum ada kode.
 - 2026-11-08: migrasi `202611160001_tambang.sql` + tes `tambang_test.sql` selesai dan LULUS di Postgres 16 lokal (semua migrasi dimuat dengan stub auth Supabase); snapshot skema diperbarui (22 migrasi). Belum: klien (mine-service, tambang.html), tombol lobby, routing "+ Emerald". Migrasi BELUM diterapkan ke Supabase produksi.
+- 2026-11-08 (lanjutan): `mine-service.js` + tes, `tambang.html` (3 bilik 3D per slot, penambang skin NPC alex/zombie/skeleton, emote baru `mine` dan `sit` di `character-view.js`, efek emerald melayang, Zzz saat peti penuh, cheer saat Ambil), tombol TAMBANG di lobby, semua "+ Emerald" -> `tambang.html?from=<halaman>`, Back via `from`, Home ke lobby. Cabang ini sudah menggabungkan `fix/koin-ke-toko` (route "+ Coin" ke Toko). Belum: uji nyata dengan Supabase produksi, cek preload splash, wajah penambang khusus (helm tambang), suara.

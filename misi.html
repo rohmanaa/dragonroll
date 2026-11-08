@@ -179,7 +179,7 @@ $('#list').addEventListener('click',e=>{const b=e.target.closest('[data-claim]')
  srvClaim(w=>w.questClaim(b.dataset.claim),r=>{bumpMis(1);playSound('claim');pulse('#coin');toast('+'+fmt(r.coins)+' Coin diterima!')});});
 $('#claimAll').addEventListener('click',()=>{if(!SV()){toast('Silakan login untuk klaim misi.');return}srvClaim(w=>w.questClaimAll(),r=>{bumpMis(r.count||1);playSound('claim');pulse('#coin');toast('+'+fmt(r.coins)+' Coin diterima!')})});
 $('#claimBonus').addEventListener('click',()=>{if(!SV()){toast('Silakan login untuk klaim misi.');return}srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');pulse('#coin');toast('Bonus +'+fmt(r.coins)+' Coin diterima!')})});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})(b.dataset.buy==='gem'?'shop.html?emerald=1':'shop.html?coin=1')}));
+document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})(b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(/embed=1/.test(location.search)?'hadiah-misi.html':location.pathname.split('/').pop()):'shop.html?coin=1')}));
 $('#back').addEventListener('click',()=>{playSound('click');(window.__go||function(u){location.href=u})('lobby.html')});
 try{PD.subscribe(renderCurrency)}catch(e){}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(SV())reloadQ();else render()}});
