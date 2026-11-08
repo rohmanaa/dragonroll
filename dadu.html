@@ -253,9 +253,9 @@ html body #idesc{font-size:.95rem!important;line-height:1.2!important}
 @media (min-aspect-ratio:1/1){
   html body #info{left:8.05rem!important;width:28rem!important;height:6.6rem!important;bottom:1.6rem!important;top:auto!important}
   /* Dadu pendek (kanvas ringkas), tanpa pad: berdiri tepat di atas tepi atas panel info (8.2rem dari bawah) lalu dinaikkan 100px */
-  html body #show{top:auto!important;height:13rem!important;bottom:calc(8.2rem + 100px)!important}
+  html body #show{top:auto!important;height:20rem!important;bottom:calc(8.2rem + 100px)!important}
 }
-@media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}html body #show{height:42vw!important}}
+@media (max-aspect-ratio:1/1){html body #info{padding:.6rem 1rem!important}html body #show{height:60vw!important}}
 </style>
 </head>
 <body>
@@ -285,6 +285,7 @@ html body #idesc{font-size:.95rem!important;line-height:1.2!important}
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'dadu'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
+<script type="module" src="assets/js/dice-kit/index.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script>
 (()=>{
@@ -436,10 +437,26 @@ function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE
  const up=()=>R.drag=false;cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.style.touchAction='pan-y';
  rigs.push(R);return R}catch(e){ok=false;console.warn('WebGL unavailable',e);return null}}
 let main,pv,spin=0;
+/* DiceKit (assets/js/dice-kit): fisika kocok-lempar, material prosedural, partikel/aura/suara per dadu. Klik preview = lempar. */
+let KIT=null;
+function mountKit(){
+ if(KIT||!window.DiceKit||cat!=='dice')return;
+ const host=$('#show');if(!host)return;
+ try{
+  const k=sel&&window.DiceKit.has(sel.gameKey)?sel.gameKey:'klasik';
+  KIT=window.DiceKit.create(host,{diceId:k,transparent:true,arena:false,quality:SET().graphics==='high'?'high':'auto',
+   bounds:{x:2.1,z:1.6},idleZ:.5,camScale:.55,lookY:1.6,sound:!!SET().sound});
+  const gl=$('#gl');if(gl)gl.style.display='none';
+  host.style.cursor='pointer';host.style.touchAction='manipulation';
+  host.addEventListener('click',()=>{if(!KIT)return;KIT.setSound(!!SET().sound);KIT.roll()});
+ }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
+}
+window.addEventListener('dicekit-ready',()=>{mountKit();if(KIT)buildModels()});
 function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
 function showThemeArt(on){const s=$('#show');const sv=on&&sel?AR.forItem(sel.id):'';s.classList.toggle('art',!!sv);const a=$('#art');if(a)a.innerHTML=sv}
 function buildModels(){if(!CI[cat]||!sel){showThemeArt(false);return}
  if(cat==='theme'||cat==='powerup'||cat==='frame'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return} /* skin PNG: preview texture (pixel-art), bukan model 3D baru */
+ if(cat==='dice'&&KIT){showThemeArt(false);if(window.DiceKit.has(sel.gameKey))KIT.equip(sel.gameKey);return}
  showThemeArt(false);setModel(main,cat,sel);spin=1}
 function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}
 const clock=typeof THREE!=='undefined'?new THREE.Clock():null;
@@ -450,7 +467,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 setCat(PAGE); /* mengisi sel dari PlayerData + render grid/info/recent */
-if(ok){main=rig($('#gl'),false,1.26,4.9,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
+if(ok){main=rig($('#gl'),false,1.26,4.9,36);if(ok){mountKit();buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
