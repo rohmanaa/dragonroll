@@ -3,10 +3,12 @@
 \set ON_ERROR_STOP 1
 begin;
 insert into auth.users(id) values ('eeeeeeee-0000-0000-0000-000000000001'), ('eeeeeeee-0000-0000-0000-000000000002');
+select public._wallet_ensure('eeeeeeee-0000-0000-0000-000000000001');
 create temp table out(k text, v jsonb);
 grant all on out to authenticated;
 
--- ===== akun A: awal 1000 koin; semua slot terkunci =====
+-- ===== akun A: koin diisi 10.000; semua slot terkunci =====
+update public.player_wallet set coins = 10000 where user_id='eeeeeeee-0000-0000-0000-000000000001';
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'get0', public.mine_get();
 insert into out select 'u1', public.mine_unlock(1);
@@ -19,7 +21,7 @@ do $$ declare c bigint; begin
   assert (select jsonb_array_length(v->'slots') from out where k='get0') = 3;
   assert (select (v->'config'->>'boost_daily')::int from out where k='get0') = 2, 'konfigurasi dikirim server';
   assert (select v->>'ok' from out where k='u1') = 'true';
-  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 500, 'buka slot 1 = 500 koin';
+  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 8500, 'buka slot 1 = 1.500 koin';
   assert (select v->>'reason' from out where k='u1again') = 'sudah-dibuka';
   assert (select v->>'reason' from out where k='u3poor') = 'saldo-kurang';
   assert (select v->>'reason' from out where k='u9') = 'slot-tidak-valid';
@@ -49,12 +51,12 @@ set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000
 insert into out select 'gcap', public.mine_get();
 reset role;
 do $$ begin
-  assert (select (v->'slots'->0->>'stock')::numeric from out where k='gcap') = 15, 'peti dibatasi kapasitas 15';
+  assert (select (v->'slots'->0->>'stock')::numeric from out where k='gcap') = 5, 'peti dibatasi kapasitas 5';
   assert (select (v->'slots'->0->>'full_in_secs')::int from out where k='gcap') = 0;
 end $$;
 
 -- ===== upgrade: laju lama dihitung dulu; koin kurang; level maks; jenis salah; terkunci =====
-update public.player_wallet set coins = 500 where user_id='eeeeeeee-0000-0000-0000-000000000001';
+update public.player_wallet set coins = 2000 where user_id='eeeeeeee-0000-0000-0000-000000000001';
 update public.player_mines set stock = 0, stock_at = now() - interval '10 hours' where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1;
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'up1', public.mine_upgrade(1, 'speed');
@@ -64,7 +66,7 @@ insert into out select 'uplock', public.mine_upgrade(2, 'cap');
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='up1') = 'true';
-  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 100, 'speed Lv2 slot 1 = 400 koin';
+  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 800, 'speed Lv2 slot 1 = 1.200 koin';
   assert (select speed_lv from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) = 2;
   assert (select stock from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) between 1.99 and 2.01, '10 jam dihitung dengan laju LAMA 0.20';
   assert (select v->>'reason' from out where k='up2poor') = 'saldo-kurang';
@@ -82,7 +84,7 @@ insert into out select 'b1again', public.mine_boost(1);
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='b1') = 'true';
-  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 4850, 'boost slot 1 = 150 koin';
+  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 4600, 'boost slot 1 = 400 koin';
   assert (select v->>'reason' from out where k='b1again') = 'boost-aktif';
 end $$;
 -- 2 jam berlalu, boost masih aktif 1 jam lagi: 0.25/jam x (2 + 2x1... ) -> jam di dalam boost dihitung 2x
