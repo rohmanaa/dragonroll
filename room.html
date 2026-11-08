@@ -253,14 +253,20 @@ async function setupOnline(){
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
-const EQ=[['dice','DICE','DADU'],['skin','SKIN','SKIN'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
+const EQ=[['dice','DICE','DADU'],['skin','KARAKTER','KARAKTER'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
 /* Efek: belum ada item efek di katalog (Shop/Inventory masih "segera"), jadi slot ini baru placeholder */
 const EFFECT_ICON='assets/Images/icon/items/efek.webp';
+/* Slot KARAKTER = karakter baru (halaman Karakter): gambar kepala dari BlockyCharacter, dimuat malas (three.js hanya dipakai untuk ini). CHANGE -> karakter.html */
+let FACE_DONE=false;
+function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
+function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
+ return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/character-face.js')).then(()=>{FACE_DONE=true;renderEq();if(UT.CharacterFace)UT.CharacterFace.watch(renderEq)})}
+function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eqn').textContent=EQ.length+' ITEMS';
- $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?null:eqItem(k);const ar=k==='effect'?`<img src="${EFFECT_ICON}" alt="" draggable="false">`:(it?art(it):'');return `<div class="eqi" data-k="${k}" role="button" aria-label="Ganti ${l}"><span class="art">${ar}</span><b>${l}</b><small>${k==='effect'?'Segera':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-')}</small><button class="chg gold" data-k="${k}">CHANGE</button></div>`}).join('');
+ $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?null:eqItem(k);const ar=k==='effect'?`<img src="${EFFECT_ICON}" alt="" draggable="false">`:k==='skin'?skinArt(it):(it?art(it):'');return `<div class="eqi" data-k="${k}" role="button" aria-label="Ganti ${l}"><span class="art">${ar}</span><b>${l}</b><small>${k==='effect'?'Segera':k==='skin'?'Kustom':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-')}</small><button class="chg gold" data-k="${k}">CHANGE</button></div>`}).join('');
 }
-$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(b)openChoice(b.dataset.k)};
+$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;if(b.dataset.k==='skin')return skinGo();openChoice(b.dataset.k)};
 let CK=null;
 function openChoice(k){if(k==='effect')return toast('Efek segera hadir');CK=k;renderChoice();$('#cm').classList.add('show')}
 const closeChoice=()=>$('#cm').classList.remove('show');
@@ -390,7 +396,7 @@ $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;$('#d
 addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
-setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();
+setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
 if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
 document.documentElement.classList.add('ut-ready');
 })();
