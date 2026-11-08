@@ -19,7 +19,7 @@
 
   var scene = null, stage = null, kit = null, failed = false;
   var want = { key: 'klasik', face: 1, sound: true, volume: 1 };
-  var W = 210, H = 182, LEFT = -73, TOP = -47; /* panggung 210x182; tatakan 3D (Dice Kit, pad:true) terpusat di dock; koordinat relatif #dieScene 64x64 */
+  var W = 210, H = 182, LEFT = -73, TOP = -60; /* panggung 210x182; tatakan 3D (Dice Kit, pad:true) terpusat di dock; koordinat relatif #dieScene 64x64 */
 
   function zoomOf() { /* skala CSS zoom dari induk (dock) agar canvas tidak buram */
     try { var r = stage.getBoundingClientRect(); return r.width && stage.offsetWidth ? r.width / stage.offsetWidth : 1; } catch (e) { return 1; }
@@ -33,7 +33,7 @@
         quality: 'auto',
         sound: want.sound,
         pixelScale: zoomOf(),
-        pad: true, camScale: 0.5, lookY: 0.2, bounds: { x: 0.35, z: 0.2 } /* tatakan 3D asli di scene yang sama dengan dadu */
+        pad: true, dieScale: 1.2, camScale: 0.5, lookY: 0.6, bounds: { x: 1.1, z: 0.95 } /* tatakan 3D asli di scene yang sama dengan dadu */
       });
       kit.setVolume(want.volume);
       kit.showFace(want.face);

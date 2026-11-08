@@ -32,6 +32,7 @@ export class DiceRenderer {
     this.q = QUALITY_PRESETS[this.qName];
     this._pending = {};
     this.pixelScale = Math.max(1, Math.min(2, +opts.pixelScale || 1)); // kompensasi CSS zoom induk agar canvas tetap tajam
+    this.dieScale = Math.max(0.5, Math.min(3, +opts.dieScale || 1));
     this.opt = { pad: !!opts.pad, transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
 
     const renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
@@ -76,7 +77,7 @@ export class DiceRenderer {
     if (this.opt.pad) this._buildPad();
 
     // Satu geometri untuk semua dadu
-    this.geometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.13);
+    this.geometry = new RoundedBoxGeometry(this.dieScale, this.dieScale, this.dieScale, 4, 0.13 * this.dieScale);
     this.mesh = new THREE.Mesh(this.geometry, []);
     this.mesh.castShadow = true;
     scene.add(this.mesh);
@@ -84,7 +85,7 @@ export class DiceRenderer {
     this.materials = new MaterialCache(3);
     this.effects = new DiceEffects(scene, this.q, this.point);
     this.effects.sound.enabled = opts.sound !== false;
-    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop });
+    this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop, dieScale: this.dieScale });
     this.animator.onResult = (r) => opts.onResult?.(r);
     this.animator.onImpact = (ev) => { this._kick = Math.max(this._kick || 0, Math.min(1, ev.speed / 9)); opts.onImpact?.(ev); };
 

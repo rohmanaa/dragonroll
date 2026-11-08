@@ -24,13 +24,14 @@ export class DiceAnimator {
   /**
    * @param {{mesh: THREE.Mesh, effects: import('./DiceEffects.js').DiceEffects, rng?: Function}} o
    */
-  constructor({ mesh, effects, rng, bounds, idleZ, drop }) {
+  constructor({ mesh, effects, rng, bounds, idleZ, drop, dieScale = 1 }) {
+    this.dieScale = dieScale; // ukuran dadu relatif (1 = kubus 1 unit); fisika + tinggi melayang ikut membesar
     this.drop = !!drop;
     this.mesh = mesh;
     this.effects = effects;
     this.rng = rng || Math.random;
-    this.idle = [0, drop ? 1.0 : 1.25, idleZ ?? 1.2]; // mode jatuh: melayang lebih rendah agar kocokan tetap di dalam frame
-    this.physics = new DicePhysics({ rng: this.rng, boundsX: bounds?.x, boundsZ: bounds?.z, lateralDamp: drop ? 60 : 0 });
+    this.idle = [0, (drop ? 1.0 : 1.25) * dieScale, idleZ ?? 1.2]; // mode jatuh: melayang lebih rendah agar kocokan tetap di dalam frame
+    this.physics = new DicePhysics({ halfSize: 0.5 * dieScale, rng: this.rng, boundsX: bounds?.x, boundsZ: bounds?.z, lateralDamp: drop ? 60 : 0 });
     this.state = 'idle';
     this.t = 0;
     this.pos = [...this.idle];
