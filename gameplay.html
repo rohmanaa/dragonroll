@@ -5397,6 +5397,7 @@ async function applyChestReward(p,rw,gid){
   const PD=window.PlayerData,AMT=CHEST_CFG.CHEST_AMOUNT,MOVES=CHEST_CFG.CHEST_MOVE||[1,2,3];
   const grant=(o,label)=>{
     if(p.cpu) return label+' (CPU: tanpa currency)';
+    if(PD&&PD.serverMode&&PD.serverMode()) return 'Peti kosong'; /* Tahap 6b: akun login tidak menerima Coin/XP/Emerald dari Peti (CHEST_POOL aktif memang tidak memuatnya; cabang ini kode mati) */
     let r=null; try{ r=PD&&PD.grant(Object.assign({reason:'chest'},o)); }catch(e){ console.error(e); }
     return (r&&r.ok)?label:label+' (gagal disimpan)';
   };

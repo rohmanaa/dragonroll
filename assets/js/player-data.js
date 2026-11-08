@@ -582,6 +582,7 @@
       o = o || {};
       /* Tahap 3c: koin/gem/item hanya dari server (WalletService). Lewat sini hanya XP (lokal). */
       if (o.coins || o.gems || o.item) return walletDenied();
+      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* Tahap 6b: XP akun login hanya dari server (submit_match_result) */
       var st = load();
       st.xp += Math.max(0, Math.floor(+o.xp || 0));
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };

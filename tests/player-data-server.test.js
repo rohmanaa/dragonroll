@@ -58,9 +58,9 @@ t('mode server: purchase/addCurrency/grant(koin,gem,item) ditolak dan saldo tida
   assert.strictEqual(PD.grant({ item: it.id }).reason, 'server-wallet');
   assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.gems(), g0); assert.strictEqual(PD.owns(it.id), false);
 });
-t('mode server: grant hanya XP tetap boleh', () => {
+t('mode server: grant XP juga ditolak (Tahap 6b: XP hanya dari server)', () => {
   const { PD } = loginOn(); const r = PD.grant({ xp: 30 });
-  assert.strictEqual(r.ok, true); assert.strictEqual(PD.xp(), 30);
+  assert.strictEqual(r.ok, false); assert.strictEqual(r.reason, 'server-mode'); assert.strictEqual(PD.xp(), 0);
 });
 t('applyServerWallet mengisi cermin saldo + notifikasi', () => {
   const { PD } = loginOn(); const seen = []; PD.subscribe(r => seen.push(r));
