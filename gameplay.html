@@ -6217,7 +6217,9 @@ function cycleMode(){ /* Siang -> Malam -> Auto -> Siang */
 }
 function tickAuto(dt){ if(!autoDN||paused||gameOver) return; if(ONLINE_ROOM&&!ONLINE_HOST) return; phaseT+=dt; if(phaseT>=PHASE_SEC){ setNight(!night); if(ONLINE_ROOM) publishGameSnapshot(); } }
 $('btnNight').addEventListener('click',()=>{ cycleMode(); });
-const DICE=[{key:'klasik',name:'Klasik',bg:'#ffffff',pip:'#1b2a3b',edge:'#1b2a3b'},{key:'tnt',name:'TNT',bg:'#d63a2a',pip:'#ffffff',edge:'#4a0d07'},{key:'rumput',name:'Rumput',bg:'#5fae3e',pip:'#1f4a12',edge:'#2c5a1c'},{key:'diamond',name:'Diamond',bg:'#4aedd9',pip:'#0b4f4a',edge:'#0b4f4a'},{key:'emas',name:'Emas',bg:'#ffd23f',pip:'#6b4a00',edge:'#6b4a00'},{key:'obsidian',name:'Obsidian',bg:'#2a1747',pip:'#d3b4ff',edge:'#0d0618'}];
+/* Daftar dadu dibaca dari ItemCatalog (satu sumber; kepemilikan & harga di server), bukan array hardcode. */
+const DICE=(window.ItemCatalog?window.ItemCatalog.items.filter(i=>i.kind==='dice'&&i.art).map(i=>({key:i.gameKey,name:i.name.replace(/^Dadu /,''),bg:i.art.bg,pip:i.art.pip,edge:i.art.edge})):[]);
+if(!DICE.length) DICE.push({key:'klasik',name:'Klasik',bg:'#ffffff',pip:'#1b2a3b',edge:'#1b2a3b'}); /* cadangan bila katalog gagal dimuat */
 function equippedGameKey(slot){ try{ const it=window.ItemCatalog.byId(window.PlayerData.equippedId(slot)); return (it&&it.gameKey)||null; }catch(e){ return null; } } /* Tahap 5a: pilihan dadu/tema dari PlayerData, bukan key lokal */
 let diceKey=equippedGameKey('dice')||'klasik';
 function applyDice(k){
