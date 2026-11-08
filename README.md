@@ -31,6 +31,7 @@ Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
 - `assets/js/character-data.js` (`UT.CharacterData`) = model karakter pemain/mob gameplay; `character-view.js` = karakter 3D di halaman. Lihat `doc/CHARACTER_DATA.md`.
 - `assets/js/mob-view.js` (`UT.MobView`) = mob dekoratif reusable (kupu-kupu + bunga di Teman, ayam di Hadiah Harian). Lihat `doc/MOB_VIEW.md`.
 - Skin PNG sudah dihapus; semua skin memakai model voxel yang sama dengan gameplay.
+- `assets/js/blocky-character.js` (`UT.BlockyCharacter`) = karakter blocky halaman **Karakter** (rig + katalog gear + animasi) tanpa UI, DIHASILKAN dari `karakter.html`; `assets/js/aura-fx.js` (`UT.AuraFX`) = 15 aura voxel 3D. Keduanya dipakai halaman **Efek** (`efek.html`). Lihat `doc/EFEK_AURA.md`.
 
 ## Dadu 3D bersama (Dice Kit)
 - `assets/js/dice-kit/` = SATU mesin dadu 3D (fisika kocok-lempar, material/tekstur skin, partikel/aura, suara) yang dipakai `dadu.html` (preview Inventory) dan `gameplay.html` (dadu gameplay) lewat `window.DiceKit.mount()` dengan preset panggung yang sama (`DiceKit.STAGE`).
