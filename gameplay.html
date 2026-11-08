@@ -490,7 +490,7 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
       <p class="lm-note" id="pmCpu" hidden>Komputer menunggu sampai kamu melanjutkan.</p>
       <div class="lm-grid lm-pm">
         <button class="lm-mode lm-resume" type="button" id="pmResume"><img class="lm-ic lm-play" src="assets/Images/icon/ui/play.webp" alt="" draggable="false"><span>Lanjutkan</span></button>
-        <div class="lm-srow"><img class="lm-ic" src="assets/Images/icon/audio/music.webp" alt="" draggable="false"><span class="lm-lbl">Musik</span><input type="range" id="pmVol" min="0" max="100" value="60" aria-label="Volume musik"><img class="lm-ic lm-end" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false"></div>
+        <div class="lm-srow"><img class="lm-ic" src="assets/Images/icon/audio/music.webp" alt="" draggable="false"><span class="lm-lbl">Musik</span><input type="range" id="pmVol" min="0" max="100" value="30" aria-label="Volume musik"><img class="lm-ic lm-end" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false"></div>
         <div class="lm-srow lm-sfx"><img class="lm-ic" src="assets/Images/icon/audio/sfx.webp" alt="" draggable="false"><span class="lm-lbl">Suara</span><input type="range" id="pmSfx" min="0" max="100" value="100" aria-label="Volume suara efek"><img class="lm-ic lm-end" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false"></div>
         <button class="lm-mode lm-red lm-exit" type="button" id="pmExit"><img class="lm-ic" src="assets/Images/icon/ui/exit.webp" alt="" draggable="false"><span>Keluar</span></button>
         <div class="lm-modewrap"><span class="lm-chip">Suasana</span><button class="lm-mode lm-grey" type="button" id="pmMode" aria-pressed="false"><span class="lm-ic" id="pmModeIco" aria-hidden="true"></span><span id="pmModeTxt">Siang</span></button></div>
@@ -1350,8 +1350,8 @@ if(!window.THREE){ showBootErr(); return; }
 if(!(window.UT&&UT.GameplayVoxelGeom)){ showBootErr(); return; }
 
 /* ---------- Musik latar ---------- */
-let bgMusic=null,musicOn=true,musicVol=60;
-try{ musicVol=parseInt(UT.Prefs.get('musicVol',60),10)||60; musicOn=UT.Prefs.get('musicOn',true)!==false; }catch(e){}
+let bgMusic=null,musicOn=true,musicVol=30; /* volume musik bawaan 30% (bisa diubah di Pengaturan / menu jeda) */
+try{ const mv=parseInt(UT.Prefs.get('musicVol',30),10); musicVol=isNaN(mv)?30:Math.max(0,Math.min(100,mv)); musicOn=UT.Prefs.get('musicOn',true)!==false; }catch(e){}
 const MUSIC=['assets/music/first_light_particles.mp3','assets/music/community.mp3','assets/music/sunset_plains.mp3','assets/music/rainy.mp3']; /* playlist BGM gameplay: diputar berurutan, lalu ulang dari awal */
 let musicIdx=0;
 function ensureMusic(){

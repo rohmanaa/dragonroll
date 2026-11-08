@@ -189,7 +189,8 @@ window.UT = window.UT || {};
     }
     var a = UT.Audio.get(name); if (!a) return false;
     try {
-      a.volume = volume; a.currentTime = 0;
+      var sv = 1; try { var pv = parseInt(UT.Prefs.get('sfxVol', 100), 10); if (!isNaN(pv)) sv = Math.max(0, Math.min(100, pv)) / 100; } catch (e) {}   /* slider Efek suara di Pengaturan */
+      a.volume = volume * sv; a.currentTime = 0;
       var p = a.play(); if (p && p.catch) p.catch(function () {});
       return true;
     } catch (e) { return false; }

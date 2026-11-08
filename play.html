@@ -141,7 +141,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     try { var s = (f.contentWindow.PlayerData || window.PlayerData).settings(); return { music: s.music !== false, sound: s.sound !== false }; } catch (e) {}
     return { music: true, sound: true };
   }
-  function musicVol() { try { return Math.max(0, Math.min(100, parseInt(UT.Prefs.get('musicVol', 60), 10) || 60)) / 100; } catch (e) { return 0.6; } }
+  function musicVol() { try { var v = parseInt(UT.Prefs.get('musicVol', 30), 10); return (isNaN(v) ? 30 : Math.max(0, Math.min(100, v))) / 100; } catch (e) { return 0.3; } }   // bawaan 30%
+  function sfxVol() { try { var v = parseInt(UT.Prefs.get('sfxVol', 100), 10); return (isNaN(v) ? 100 : Math.max(0, Math.min(100, v))) / 100; } catch (e) { return 1; } }
 
   /* Musik latar untuk semua halaman selain gameplay (gameplay punya musiknya sendiri).
      Empat lagu di assets/music diputar bergantian. */
@@ -189,8 +190,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
   function playClick() {
     if (!settings().sound) return;
     try {
-      if (!clickPool.length) for (var i = 0; i < 4; i++) { var a = new Audio('assets/sfx/ui/button-click.mp3'); a.preload = 'auto'; a.volume = 0.7; clickPool.push(a); }
-      var el = clickPool[clickI++ % clickPool.length]; el.currentTime = 0;
+      if (!clickPool.length) for (var i = 0; i < 4; i++) { var a = new Audio('assets/sfx/ui/button-click.mp3'); a.preload = 'auto'; clickPool.push(a); }
+      var el = clickPool[clickI++ % clickPool.length]; el.currentTime = 0; el.volume = 0.7 * sfxVol();
       var p = el.play(); if (p && p.catch) p.catch(function () {});
     } catch (e) {}
   }
