@@ -25,11 +25,10 @@ t('Tahap 3c: tanpa akun (belum login): semua mutasi dompet ditolak, saldo tidak 
   assert.strictEqual(PD.serverMode(), false);
   const c0 = PD.coins(), g0 = PD.gems();
   assert.strictEqual(PD.addCurrency(0, 5).reason, 'belum-login');
-  assert.strictEqual(PD.grant({ coins: 10 }).reason, 'belum-login');
   assert.strictEqual(PD.purchase('gear.helm.straw').reason, 'belum-login');
   assert.strictEqual(PD.purchaseSet(['gear.helm.straw']).reason, 'belum-login');
   assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.gems(), g0);
-  assert.strictEqual(PD.grant({ xp: 5 }).ok, true);
+  assert.strictEqual(typeof PD.grant, 'undefined'); assert.strictEqual(typeof PD.recordMatch, 'undefined');
   assert.strictEqual(PD.applyServerWallet({ coins: 9 }).ok, false);
 });
 t('Tahap 3: akun login tanpa flag apa pun: mode server MENYALA bawaan', () => {
@@ -53,14 +52,7 @@ t('mode server: purchase/addCurrency/grant(koin,gem,item) ditolak dan saldo tida
   const it = buyable(IC); assert.ok(it, 'perlu item berbayar di katalog');
   assert.strictEqual(PD.purchase(it.id).reason, 'server-wallet');
   assert.strictEqual(PD.addCurrency(999, 99).reason, 'server-wallet');
-  assert.strictEqual(PD.grant({ coins: 999 }).reason, 'server-wallet');
-  assert.strictEqual(PD.grant({ gems: 9 }).reason, 'server-wallet');
-  assert.strictEqual(PD.grant({ item: it.id }).reason, 'server-wallet');
   assert.strictEqual(PD.coins(), c0); assert.strictEqual(PD.gems(), g0); assert.strictEqual(PD.owns(it.id), false);
-});
-t('mode server: grant XP juga ditolak (Tahap 6b: XP hanya dari server)', () => {
-  const { PD } = loginOn(); const r = PD.grant({ xp: 30 });
-  assert.strictEqual(r.ok, false); assert.strictEqual(r.reason, 'server-mode'); assert.strictEqual(PD.xp(), 0);
 });
 t('applyServerWallet mengisi cermin saldo + notifikasi', () => {
   const { PD } = loginOn(); const seen = []; PD.subscribe(r => seen.push(r));
@@ -309,10 +301,8 @@ t('PD.purchaseSet: akun server ditolak (harus lewat WalletService.buySet)', () =
   assert.strictEqual(PD.purchaseSet(gearBuyable(IC, 2).map(i => i.id)).reason, 'server-wallet'); assert.strictEqual(PD.coins(), c0);
 });
 
-t('Tahap 6b: akun login -> recordMatch ditolak; applyServerStats mengisi xp/statistik/nama dari server', () => {
+t('Tahap 6b: applyServerStats mengisi xp/statistik/nama dari server', () => {
   const { PD } = loginOn();
-  const r = PD.recordMatch({ token: 'cpu:x', won: true });
-  assert.deepStrictEqual([r.ok, r.reason], [false, 'server-mode']);
   assert.strictEqual(PD.stats().plays, 0);
   const a = PD.applyServerStats({ xp: 540, plays: 7, wins: 4, streak: 2, bestStreak: 3, points: 410, weekPoints: 110, name: 'Rohman' });
   assert.strictEqual(a.ok, true);
@@ -323,13 +313,11 @@ t('Tahap 6b: akun login -> recordMatch ditolak; applyServerStats mengisi xp/stat
   PD.applyServerStats({ xp: -5, plays: 'abc', name: '   ' });   /* nilai tidak valid diabaikan */
   assert.strictEqual(PD.xp(), 540); assert.strictEqual(PD.stats().plays, 7); assert.strictEqual(PD.profile().name, 'Rohman');
 });
-t('Tahap 6b: tanpa akun applyServerStats ditolak dan recordMatch lokal tetap jalan (jalur tamu)', () => {
+t('Tahap 6b: tanpa akun applyServerStats ditolak', () => {
   const { PD } = boot({});
   assert.strictEqual(PD.applyServerStats({ xp: 999 }).ok, false);
   assert.strictEqual(PD.xp(), 0);
-  assert.strictEqual(PD.recordMatch({ token: 'cpu:y', won: true }).ok, true);
 });
-
 t('Tahap 6b: akun login -> setName hanya menerima username akun; nama lain ditolak', () => {
   const { PD } = boot({ store: { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 'Rohman_aa' }) }, flag: true });
   assert.strictEqual(PD.setName('Hacker'), null);

@@ -433,29 +433,6 @@
     /* Statistik match (salinan). weekPoints otomatis 0 bila minggu sudah berganti. */
     stats: function () { var st = normStats(load().stats); delete st.seen; return st; },
     joinedAt: function () { return load().createdAt; },
-    /* Catat hasil 1 match. IDEMPOTEN per token: token yang sama tidak dihitung dua kali.
-       o = {token, won:boolean}. Mengembalikan {ok, duplicate, won, xpGain, points, levelUp, ...stats}. */
-    recordMatch: function (o) {
-      o = o || {};
-      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* Tahap 6b: XP/statistik match hanya dari server (submit_match_result -> applyServerStats) */
-      var token = String(o.token || '').slice(0, 80);
-      if (!token) return { ok: false, reason: 'token-kosong' };
-      var st = load(), s = normStats(st.stats);
-      if (s.seen.indexOf(token) >= 0) return { ok: true, duplicate: true };
-      var won = !!o.won, before = levelInfo(st.xp).level;
-      s.plays += 1;
-      if (won) { s.wins += 1; s.streak += 1; if (s.streak > s.bestStreak) s.bestStreak = s.streak; }
-      else { s.streak = 0; }
-      var pts = o.noPoints ? 0 : (won ? PTS_WIN : PTS_LOSS), gain = won ? XP_WIN : XP_LOSS;
-      s.points += pts; s.weekPoints += pts;
-      s.seen.push(token); s.seen = s.seen.slice(-SEEN_MAX);
-      st.stats = s; st.xp += gain;
-      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      notify('stats');
-      var after = levelInfo(st.xp).level;
-      return { ok: true, duplicate: false, won: won, xpGain: gain, points: pts, level: after, levelUp: after > before,
-               plays: s.plays, wins: s.wins, streak: s.streak, totalPoints: s.points, weekPoints: s.weekPoints };
-    },
     /* Tahap 6b-3: pengaturan = preferensi PERANGKAT -> disimpan di UT.Prefs ('settings'), bukan di blob pemain/akun.
        Impor sekali dari blob lama bila Prefs belum punya. Tanpa UT.Prefs (mis. tes node) jatuh ke blob seperti dulu. */
     settings: function () {
@@ -589,19 +566,7 @@
        Return {ok, coins, gems} atau {ok:false, reason:'saldo-kurang'|'gem-kurang', kurang} */
     addCurrency: function (dCoins, dGems) { return walletDenied(); },   /* Tahap 3c: saldo hanya dari server */
 
-    /* Hadiah/reward atomik (daily reward, event): {coins, gems, xp, item, duplicateCoins, duplicateGems, reason}.
-       Item non-stackable yang sudah dimiliki -> tidak diduplikasi; beri kompensasi duplicateCoins/duplicateGems. */
-    grant: function (o) {
-      o = o || {};
-      /* Tahap 3c: koin/gem/item hanya dari server (WalletService). Lewat sini hanya XP (lokal). */
-      if (o.coins || o.gems || o.item) return walletDenied();
-      if (serverMode()) return { ok: false, reason: 'server-mode' };   /* Tahap 6b: XP akun login hanya dari server (submit_match_result) */
-      var st = load();
-      st.xp += Math.max(0, Math.floor(+o.xp || 0));
-      if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
-      notify(o.reason || 'reward');
-      return { ok: true, duplicate: false, compensation: 0, coins: st.coins, gems: st.gems, xp: st.xp };
-    },
+    /* Tahap 6b: grant()/recordMatch() dihapus. Koin/gem/item = WalletService; XP/statistik = submit_match_result -> applyServerStats. */
 
     /* Pengaturan (bagian dari player state): whitelist field, satu penulisan. */
     setSettings: function (patch) {

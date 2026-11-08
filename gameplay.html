@@ -5394,17 +5394,8 @@ function chestDiceMode(p){ const m=p.lucky?'lucky':p.odd?'odd':p.even?'even':'no
 function chestFlag(p,k){ p.lucky=p.odd=p.even=false; p[k]=true; } /* flag dadu terbaru (Chest atau Ramuan) menggantikan flag sebelumnya */
 /* Terapkan reward -> {text}. Currency/XP hanya untuk pemain manusia (CPU tidak mendapat currency). Surprise hanya memindahkan pion (tanpa memicu event petak tujuan). */
 async function applyChestReward(p,rw,gid){
-  const PD=window.PlayerData,AMT=CHEST_CFG.CHEST_AMOUNT,MOVES=CHEST_CFG.CHEST_MOVE||[1,2,3];
-  const grant=(o,label)=>{
-    if(p.cpu) return label+' (CPU: tanpa currency)';
-    if(PD&&PD.serverMode&&PD.serverMode()) return 'Peti kosong'; /* Tahap 6b: akun login tidak menerima Coin/XP/Emerald dari Peti (CHEST_POOL aktif memang tidak memuatnya; cabang ini kode mati) */
-    let r=null; try{ r=PD&&PD.grant(Object.assign({reason:'chest'},o)); }catch(e){ console.error(e); }
-    return (r&&r.ok)?label:label+' (gagal disimpan)';
-  };
+  const MOVES=CHEST_CFG.CHEST_MOVE||[1,2,3];
   switch(rw.id){
-    case 'coin': return {text:grant({coins:AMT.coins},'+'+AMT.coins+' Coin')};
-    case 'xp': return {text:grant({xp:AMT.xp},'+'+AMT.xp+' XP')};
-    case 'gems': return {text:grant({gems:AMT.gems},'+'+AMT.gems+' Emerald')};
     case 'maju': case 'mundur':{
       const d=MOVES[Math.floor(Math.random()*MOVES.length)]*(rw.id==='mundur'?-1:1),to=UT.Gameplay.Core.chestMove(p.pos,d),mv=to-p.pos;
       /* gerak DITUNDA: giveChest menjalankannya setelah card tertutup & peti menutup */
@@ -5961,7 +5952,7 @@ let MATCH_DONE=''; /* token match yang sudah dicatat -> 1x per match walau finis
    Mode lokal gantian (2-4 pemain di 1 layar) tidak dicatat: tidak jelas siapa "kamu". Gagal = diam-diam, tidak mengganggu game. */
 function recordMatchResult(winner){
   try{
-    const PD=window.PlayerData; if(!PD||typeof PD.recordMatch!=='function') return;
+    const PD=window.PlayerData; if(!PD||typeof PD.applyServerStats!=='function') return;
     let token,won,roomId=null;
     if(ONLINE_ROOM){
       const me=players.find(q=>isLocalPlayer(q)); if(!me||me.left) return;
@@ -5970,19 +5961,7 @@ function recordMatchResult(winner){
       won=!winner.cpu; token='cpu:'+MATCH_TOKEN;
     }else return;
     if(MATCH_DONE===token) return; MATCH_DONE=token;
-    if(PD.serverMode&&PD.serverMode()){ recordMatchServer(PD,{token,won,roomId}); return; } /* Tahap 6b: akun login -> server menghitung XP/poin, klien hanya menampilkan */
-    const r=PD.recordMatch({token,won,noPoints:!ONLINE_ROOM}); /* lawan CPU: XP tetap, poin leaderboard 0 (server menegakkan hal yang sama) */
-    if(!r||!r.ok||r.duplicate) return;
-    try{ if(PD.serverMode&&PD.serverMode()){ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); } }catch(e){} /* B5: progres misi dihitung server (win juga menghitung play) */
-    const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
-    const bits=['+'+r.xpGain+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(r.levelUp) bits.push('LEVEL '+r.level+'!');
-    try{ setTimeout(()=>{ if(gameOver) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },900); }catch(e){}
-    /* kirim ke server (leaderboard). Gagal/offline: statistik lokal tetap tersimpan. */
-    import('./assets/js/multiplayer/room-service.js').then(()=>{
-      const RS=UT.Multiplayer&&UT.Multiplayer.RoomService; if(!RS||!RS.submitMatchResult) return;
-      const send=n=>RS.submitMatchResult({matchId:token,won,name:PD.profile().name,xpTotal:PD.xp(),roomId,mode:ONLINE_ROOM?'online':'cpu',players:players.length,stats:ST}).then(r=>{ if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6) return new Promise(ok=>setTimeout(ok,1500)).then(()=>send(n+1)); return r; }); /* server baru mencatat bila room sudah 'finished'; host bisa lebih cepat dari snapshot-nya */
-      return send(0);
-    }).catch(e=>console.warn('[stats] gagal kirim ke server',e));
+    if(PD.serverMode&&PD.serverMode()) recordMatchServer(PD,{token,won,roomId}); /* Tahap 6b: server menghitung XP/poin, klien hanya menampilkan. Tanpa akun login: tidak dicatat (login wajib). */
   }catch(e){ console.error('[stats]',e); }
 }
 /* Tahap 6b: hasil match akun login. Server (submit_match_result) satu-satunya yang menghitung XP/poin/statistik;
