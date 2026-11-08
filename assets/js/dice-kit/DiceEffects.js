@@ -207,7 +207,7 @@ class DiceSound {
 }
 
 const easeOut = (t) => 1 - (1 - t) * (1 - t);
-const UNIFIED_SHAKE = 0.011; // getar kamera saat benturan pertama, sama untuk semua dadu
+const UNIFIED_SHAKE = 0.005; // getar kamera saat benturan pertama, sama untuk semua dadu (diringankan: ~setengah getar TNT yang 0.011)
 
 // ---------------------------------------------------------------------------
 export class DiceEffects {
@@ -326,7 +326,7 @@ export class DiceEffects {
     const P = this.pillar; P.mesh.material.color.set(color || this.glowColor); P.h = h; P.r = r; P.dur = dur; P.op = op; P.t = 0; P.active = true; P.mesh.visible = true;
   }
   flash(intensity, decay = 6) { if (this.q.light) { this.flashI = intensity; this.flashDecay = decay; } this.auraFlare = Math.min(2, this.auraFlare + intensity * 0.25); }
-  // Rasa benturan DISAMAKAN untuk semua dadu (paling ringan): getar kamera kecil & seragam, tanpa slow-mo.
+  // Rasa benturan DISAMAKAN untuk semua dadu (acuan: TNT): tanpa slow-mo, getar kamera sangat kecil & seragam.
   shakeCam(a) { this.shake = Math.max(this.shake, Math.min(a, UNIFIED_SHAKE)); }
   slow() { /* slow-mo dimatikan: semua dadu jatuh dengan tempo yang sama */ }
   later(delay, fn) { this.timers.push({ t: delay, fn }); }
