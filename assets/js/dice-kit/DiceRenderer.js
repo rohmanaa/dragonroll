@@ -32,7 +32,7 @@ export class DiceRenderer {
     this.q = QUALITY_PRESETS[this.qName];
     this._pending = {};
     this.pixelScale = Math.max(1, Math.min(2, +opts.pixelScale || 1)); // kompensasi CSS zoom induk agar canvas tetap tajam
-    this.opt = { transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
+    this.opt = { pad: !!opts.pad, transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
 
     const renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
     if (this.opt.transparent) renderer.setClearColor(0x000000, 0);
@@ -73,6 +73,7 @@ export class DiceRenderer {
     scene.add(this.point);
 
     this._buildArena();
+    if (this.opt.pad) this._buildPad();
 
     // Satu geometri untuk semua dadu
     this.geometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.13);
@@ -85,7 +86,7 @@ export class DiceRenderer {
     this.effects.sound.enabled = opts.sound !== false;
     this.animator = new DiceAnimator({ mesh: this.mesh, effects: this.effects, rng: opts.rng, bounds: this.opt.bounds, idleZ: this.opt.idleZ, drop: this.opt.drop });
     this.animator.onResult = (r) => opts.onResult?.(r);
-    this.animator.onImpact = (ev) => opts.onImpact?.(ev);
+    this.animator.onImpact = (ev) => { this._kick = Math.max(this._kick || 0, Math.min(1, ev.speed / 9)); opts.onImpact?.(ev); };
 
     this._applyShadowSize();
     this.resize();
@@ -110,7 +111,92 @@ export class DiceRenderer {
     this.resize();
   }
 
+  /** Tatakan dadu 3D (batu voxel + pelat emas + kristal biru + sumur dasar kain). Lantai sumur = y 0 = lantai fisika dadu.
+   *  Semua mesh ikut pencahayaan/bayangan scene yang sama dengan dadu (dadu menjatuhkan bayangan asli ke sumur). */
+  _buildPad() {
+    const px = (draw, size = 128) => { // tekstur blok piksel (gaya voxel), filter nearest
+      const cv = document.createElement('canvas'); cv.width = cv.height = size;
+      const g = cv.getContext('2d'); draw(g, size);
+      const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 4;
+      t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+    };
+    let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const stoneTex = px((g, n) => { // paving abu-biru berpola blok 16px
+      g.fillStyle = '#8b96ac'; g.fillRect(0, 0, n, n);
+      for (let y = 0; y < n; y += 16) for (let x = 0; x < n; x += 16) { const k = rnd(); g.fillStyle = k < .33 ? '#7d889f' : k < .66 ? '#98a3b8' : '#8b96ac'; g.fillRect(x, y, 16, 16); }
+      g.fillStyle = 'rgba(20,28,48,.35)'; for (let i = 0; i <= n; i += 32) { g.fillRect(i, 0, 2, n); g.fillRect(0, i, n, 2); }
+    });
+    const feltTex = px((g, n) => { // kain biru tua bertekstur halus
+      g.fillStyle = '#2f3b5a'; g.fillRect(0, 0, n, n);
+      for (let i = 0; i < 700; i++) { g.fillStyle = rnd() < .5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.09)'; g.fillRect((rnd() * n) | 0, (rnd() * n) | 0, 3, 3); }
+    }, 64);
+    feltTex.repeat.set(3, 3);
+    stoneTex.repeat.set(2, 1);
+    this._padTex = [stoneTex, feltTex];
+
+    const stone = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.64, metalness: 0.12 });
+    const base = new THREE.MeshStandardMaterial({ color: '#39425a', roughness: 0.8, metalness: 0.1 });
+    const felt = new THREE.MeshStandardMaterial({ map: feltTex, roughness: 0.96, metalness: 0 });
+    const gold = new THREE.MeshStandardMaterial({ color: '#ffd35a', roughness: 0.28, metalness: 0.9, emissive: '#ff9d00', emissiveIntensity: 0.22 });
+    const steel = new THREE.MeshStandardMaterial({ color: '#c9d1e0', roughness: 0.35, metalness: 0.85 });
+    const crystal = new THREE.MeshStandardMaterial({ color: '#4aa8ff', roughness: 0.15, metalness: 0.2, emissive: '#2e8dff', emissiveIntensity: 1.1 });
+
+    const OX = 1.25, OZ = 1.1, IX = 0.85, IZ = 0.7, TOP = 0.28; // luar / sumur (setengah ukuran) / tinggi bibir
+    const g = new THREE.Group();
+    const meshes = [];
+    const add = (geo, mat, x, y, z, cast = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; g.add(m); meshes.push(m); return m; };
+    const box = (w, h, d, r = 0.05) => new RoundedBoxGeometry(w, h, d, 2, r);
+
+    add(box(OX * 2 + 0.34, 0.3, OZ * 2 + 0.34, 0.1), base, 0, -0.17, 0);                // alas bawah, sedikit lebih lebar
+    add(new THREE.PlaneGeometry(IX * 2 + 0.1, IZ * 2 + 0.1).rotateX(-Math.PI / 2), felt, 0, 0.002, 0, false); // lantai sumur (penerima bayangan dadu)
+    const rimH = TOP + 0.3, rimY = (TOP - 0.3) / 2;
+    add(box(OX * 2, rimH, OZ - IZ, 0.06), stone, 0, rimY, -(OZ + IZ) / 2);                // bibir belakang
+    add(box(OX * 2, rimH, OZ - IZ, 0.06), stone, 0, rimY, (OZ + IZ) / 2);                  // bibir depan
+    add(box(OX - IX, rimH, IZ * 2, 0.06), stone, -(OX + IX) / 2, rimY, 0);                 // bibir kiri
+    add(box(OX - IX, rimH, IZ * 2, 0.06), stone, (OX + IX) / 2, rimY, 0);                  // bibir kanan
+
+    // pelat emas di tepi dalam & luar bibir
+    const inlay = (w, d, x, z, y = TOP + 0.006) => add(new THREE.BoxGeometry(w, 0.025, d), gold, x, y, z, false);
+    const gi = 0.05;
+    inlay(IX * 2 + 0.2, gi, 0, -IZ - 0.03); inlay(IX * 2 + 0.2, gi, 0, IZ + 0.03);
+    inlay(gi, IZ * 2 + 0.2, -IX - 0.03, 0); inlay(gi, IZ * 2 + 0.2, IX + 0.03, 0);
+    const go = 0.045, ox = OX - 0.1, oz = OZ - 0.1;
+    inlay(ox * 2, go, 0, -oz); inlay(ox * 2, go, 0, oz); inlay(go, oz * 2, -ox, 0); inlay(go, oz * 2, ox, 0);
+
+    // baut baja di sudut + kristal biru bercahaya di sisi depan
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(box(0.2, 0.14, 0.2, 0.035), steel, sx * (OX - 0.13), TOP + 0.05, sz * (OZ - 0.13));
+    for (const sx of [-1, 1]) {
+      const c = add(new THREE.OctahedronGeometry(0.17), crystal, sx * 0.52, 0.02, OZ + 0.07, false);
+      c.scale.set(0.9, 1.45, 0.55);
+    }
+
+    // cahaya biru lembut di bawah tatakan (berdenyut pelan)
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128;
+    const gx = gc.getContext('2d'), gr = gx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(110,190,255,.85)'); gr.addColorStop(0.55, 'rgba(46,116,230,.35)'); gr.addColorStop(1, 'rgba(46,116,230,0)');
+    gx.fillStyle = gr; gx.fillRect(0, 0, 128, 128);
+    const glowTex = new THREE.CanvasTexture(gc); glowTex.colorSpace = THREE.SRGBColorSpace;
+    this._padTex.push(glowTex);
+    const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.6 });
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(OX * 2 + 1.6, OZ * 2 + 1.6).rotateX(-Math.PI / 2), glowMat);
+    glow.position.y = -0.34; glow.renderOrder = -1;
+    this.scene.add(glow);
+
+    this.scene.add(g);
+    this.padGroup = g; this.padGlow = glowMat; this._padT = 0; this._kick = 0;
+    this._arenaMats.push(stone, base, felt, gold, steel, crystal, glowMat);
+    this.arena.push(...meshes, glow);
+  }
+
+  _padFrame(dt) {
+    this._padT += dt;
+    if (this.padGlow) this.padGlow.opacity = 0.5 + 0.18 * Math.sin(this._padT * 1.9);
+    const k = this._kick = Math.max(0, (this._kick || 0) - dt * 3.2); // tatakan sedikit "tertekan" saat dadu menghantam
+    this.padGroup.scale.set(1 + 0.012 * k, 1 - 0.05 * k, 1 + 0.012 * k);
+  }
+
   _buildArena() {
+    if (this.opt.pad) { this.arena = []; this._arenaMats = []; return; } // tatakan 3D (_buildPad) menggantikan lantai bayangan
     if (!this.opt.arena) { /* tanpa pad/rel: hanya bayangan lembut di lantai transparan */
       const m = new THREE.ShadowMaterial({ opacity: 0.32 });
       const f = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), m);
@@ -201,6 +287,7 @@ export class DiceRenderer {
     this._last = now;
 
     this.animator.update(dt);
+    if (this.padGroup) this._padFrame(dt);
     this.effects.update(dt * this.effects.slowmo.scale, this.animator.view);
 
     // camera shake ringan (benturan berat / ledakan)
@@ -225,6 +312,7 @@ export class DiceRenderer {
     this.geometry.dispose();
     this._arenaMats.forEach((m) => m.dispose());
     this.arena.forEach((m) => m.geometry.dispose());
+    this._padTex?.forEach((t) => t.dispose());
     this.envTex.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();

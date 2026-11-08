@@ -34,5 +34,5 @@ Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
 ## Dadu 3D bersama (Dice Kit)
 - `assets/js/dice-kit/` = SATU mesin dadu 3D (fisika kocok-lempar, material/tekstur skin, partikel/aura, suara) yang dipakai `dadu.html` (preview Inventory) dan `gameplay.html` (dadu gameplay) lewat `window.DiceKit.mount()` dengan preset panggung yang sama (`DiceKit.STAGE`).
 - Di gameplay kubus CSS lama sudah dihapus. `gameplay/dice-ui.js` (`UT.GameplayDiceUI`) memasang canvas 3D di `#dieScene`; angka hasil tetap ditentukan `gameplay.html` dan dikirim ke kit (`roll(forcedValue)`), jadi aturan (Ramuan, Pasti 6, tiga 6, multiplayer) tidak berubah. `showDie(v,true)` mengembalikan Promise yang selesai saat dadu mendarat.
-- Efek tatakan (`dice-pad.js`) dipicu benturan dadu 3D (`UT.DicePadFX.impact`); suara dadu mengikuti tombol Suara & slider SFX gameplay.
+- Tatakan dadu juga objek 3D Three.js di scene yang sama (`DiceRenderer._buildPad`, opsi `pad:true`): bibir batu voxel, pelat emas, baut baja, kristal biru, sumur kain, cahaya biru berdenyut, dan tertekan sedikit saat dadu menghantam. Bayangan dadu jatuh ke sumur secara nyata. SVG tatakan lama sudah dihapus. Suara dadu mengikuti tombol Suara & slider SFX gameplay.
 

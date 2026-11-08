@@ -4,7 +4,7 @@
    kit hanya menampilkan lemparan yang berakhir di angka itu (roll(forcedValue)).
    Classic script. Namespace: UT.GameplayDiceUI.
    API:
-     init(sceneEl?)       — pasang panggung 3D di #dieScene (idempoten; menunggu modul DiceKit bila belum siap)
+     init(sceneEl?)       — pasang panggung 3D (dadu + tatakan) di #dieScene (idempoten; menunggu modul DiceKit bila belum siap)
      showDie(v, anim)     — anim=true: kocok + lempar fisika yang berakhir di v, mengembalikan Promise (selesai saat dadu mendarat dan angka tampil)
                             anim=false: dadu diam dengan muka v di atas (mengembalikan Promise yang sudah selesai)
      roll(v) / setValue(v) / reset()  — = showDie(v,true) / showDie(v,false) / showDie(1,false)
@@ -19,24 +19,21 @@
 
   var scene = null, stage = null, kit = null, failed = false;
   var want = { key: 'klasik', face: 1, sound: true, volume: 1 };
-  var SIZE = 230, CX = 32, CY = 44; /* panggung 230px; titik jatuh dadu = tengah tatakan (koordinat #dieScene 64x64) */
+  var W = 210, H = 182, LEFT = -73, TOP = -47; /* panggung 210x182; tatakan 3D (Dice Kit, pad:true) terpusat di dock; koordinat relatif #dieScene 64x64 */
 
   function zoomOf() { /* skala CSS zoom dari induk (dock) agar canvas tidak buram */
     try { var r = stage.getBoundingClientRect(); return r.width && stage.offsetWidth ? r.width / stage.offsetWidth : 1; } catch (e) { return 1; }
   }
 
-  function pad(big) { try { var P = UT.DicePadFX; if (P && P.impact) P.impact(!!big); } catch (e) { /* abaikan */ } }
-
   function mount() {
     if (kit || failed || !stage || !win.DiceKit || !win.DiceKit.mount) return;
     try {
-      var first = true;
       kit = win.DiceKit.mount(stage, {
         diceId: win.DiceKit.has(want.key) ? want.key : 'klasik',
         quality: 'auto',
         sound: want.sound,
         pixelScale: zoomOf(),
-        onImpact: function (ev) { pad(first || ev.speed > 6); first = false; }
+        pad: true, camScale: 0.5, lookY: 0.2, bounds: { x: 0.35, z: 0.2 } /* tatakan 3D asli di scene yang sama dengan dadu */
       });
       kit.setVolume(want.volume);
       kit.showFace(want.face);
@@ -58,8 +55,7 @@
       stage = doc.createElement('div');
       stage.className = 'die3d';
       stage.setAttribute('aria-hidden', 'true');
-      stage.style.cssText = 'position:absolute;pointer-events:none;z-index:2;width:' + SIZE + 'px;height:' + SIZE + 'px;' +
-        'left:' + Math.round(CX - SIZE / 2) + 'px;top:' + Math.round(CY - SIZE * 0.598) + 'px;';
+      stage.style.cssText = 'position:absolute;pointer-events:none;z-index:2;width:' + W + 'px;height:' + H + 'px;left:' + LEFT + 'px;top:' + TOP + 'px;';
       scene.appendChild(stage);
     }
     if (win.DiceKit) mount(); else win.addEventListener('dicekit-ready', mount, { once: true });
