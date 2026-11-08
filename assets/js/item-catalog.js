@@ -35,6 +35,8 @@
   /* Frame profil: gambar WebP transparan (badan frame = 68% lebar gambar) di game/data/frame/.
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
   var FRAME_DIR = 'data/frame/';
+  /* Animasi frame (assets/css/frame-fx.css) dipasang otomatis di setiap halaman yang memuat katalog. */
+  try { if (typeof document !== 'undefined' && !document.getElementById('frame-fx-css')) { var fx = document.createElement('link'); fx.id = 'frame-fx-css'; fx.rel = 'stylesheet'; fx.href = 'assets/css/frame-fx.css?v=1'; document.head.appendChild(fx); } } catch (e) {}
   var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';
   function frame(gameKey, name, rarity, price, desc, file, extra) {
     return Object.assign({ id: 'frame.' + gameKey, kind: 'frame', gameKey: gameKey, name: 'Frame ' + name,

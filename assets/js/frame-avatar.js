@@ -1,12 +1,12 @@
 /* Frame avatar bersama (Leaderboard, Teman, dll).
    Membungkus HTML avatar yang sudah ada dengan gambar frame (data/frame/*.webp dari ItemCatalog).
-   Badan frame = 68% lebar gambar -> wajah dibuat 85% dari ukuran avatar asli, kotak frame 125% (layout hanya melebar sedikit).
+   Lubang frame = 46.4% lebar gambar (26.8%-73.2%) -> wajah 50% kotak (sedikit masuk di bawah border), kotak frame 150% ukuran avatar.
    Butuh: item-catalog.js (dan player-data.js untuk FrameAvatar.mine()). */
 (function (g) {
   'use strict';
   var C = g.ItemCatalog, PD = g.PlayerData, DEFAULT = 'frame.default';
-  var css = '.fa{position:relative;display:inline-block;flex:none;width:calc(var(--fs,4rem)*1.25);height:calc(var(--fs,4rem)*1.25);line-height:0;vertical-align:middle}' +
-    '.fa-in{position:absolute;left:50%;top:50%;width:calc(var(--fs,4rem)*.85);height:calc(var(--fs,4rem)*.85);translate:-50% -50%}' +
+  var css = '.fa{position:relative;display:inline-block;flex:none;width:calc(var(--fs,4rem)*1.5);height:calc(var(--fs,4rem)*1.5);line-height:0;vertical-align:middle}' +
+    '.fa-in{position:absolute;left:50%;top:50%;width:calc(var(--fs,4rem)*.75);height:calc(var(--fs,4rem)*.75);translate:-50% -50%}' +
     '.fa-in>*{width:100%!important;height:100%!important;box-sizing:border-box}' +
     '.fa-img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}';
   try { var st = document.createElement('style'); st.id = 'frame-avatar-css'; st.textContent = css; document.head.appendChild(st); } catch (e) {}

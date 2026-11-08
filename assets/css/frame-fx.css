@@ -1,0 +1,26 @@
+/* Animasi frame profil. Dipasang otomatis oleh item-catalog.js ke semua halaman yang menampilkan frame.
+   Dipilih lewat nama file gambar (img[src$=...]) sehingga berlaku di lobby, profil, inventory, leaderboard, teman, dll.
+   Hanya transform/filter/opacity (ringan). Frame biasa (kayu/batu/tembaga/besi) sengaja statis. */
+:root{--fx-sh:drop-shadow(0 .15rem 0 rgba(11,18,32,.5))}
+img[src$="frame-gold.webp"]{animation:fxGold 2.8s ease-in-out infinite}
+img[src$="/diamond.webp"]{animation:fxDiamond 2.4s ease-in-out infinite}
+img[src$="/amethyst.webp"]{animation:fxAmethyst 2.6s ease-in-out infinite}
+img[src$="/nether.webp"]{animation:fxNether 1.9s steps(1,end) infinite}
+img[src$="/ender.webp"]{animation:fxEnder 3.2s ease-in-out infinite}
+img[src$="/storm.webp"]{animation:fxStorm 3.6s steps(1,end) infinite}
+img[src$="/dragon.webp"]{animation:fxDragon 2.2s ease-in-out infinite}
+img[src$="/cosmic.webp"]{animation:fxCosmic 9s linear infinite}
+img[src$="/phoenix.webp"]{animation:fxPhoenix 1.3s ease-in-out infinite}
+img[src$="/celestial.webp"]{animation:fxCelestial 3.4s ease-in-out infinite}
+
+@keyframes fxGold{0%,100%{filter:var(--fx-sh) brightness(1)}50%{filter:var(--fx-sh) brightness(1.3) drop-shadow(0 0 .45rem rgba(255,214,90,.9))}}
+@keyframes fxDiamond{0%,100%{filter:var(--fx-sh) brightness(1) hue-rotate(0)}50%{filter:var(--fx-sh) brightness(1.3) hue-rotate(-14deg) drop-shadow(0 0 .5rem rgba(110,240,255,.9))}}
+@keyframes fxAmethyst{0%,100%{filter:var(--fx-sh) brightness(1)}50%{filter:var(--fx-sh) brightness(1.25) drop-shadow(0 0 .55rem rgba(190,110,255,.95))}}
+@keyframes fxNether{0%{filter:var(--fx-sh) brightness(1) drop-shadow(0 0 .3rem rgba(255,110,20,.5))}20%{filter:var(--fx-sh) brightness(1.35) drop-shadow(0 0 .5rem rgba(255,130,30,.9))}35%{filter:var(--fx-sh) brightness(1.05) drop-shadow(0 0 .3rem rgba(255,110,20,.5))}60%{filter:var(--fx-sh) brightness(1.45) drop-shadow(0 0 .6rem rgba(255,150,40,.95))}80%{filter:var(--fx-sh) brightness(1.1) drop-shadow(0 0 .35rem rgba(255,110,20,.6))}}
+@keyframes fxEnder{0%,100%{filter:var(--fx-sh) brightness(1) hue-rotate(0)}50%{filter:var(--fx-sh) brightness(1.3) hue-rotate(25deg) drop-shadow(0 0 .6rem rgba(200,90,255,.95))}}
+@keyframes fxStorm{0%,100%{filter:var(--fx-sh) brightness(1)}6%{filter:var(--fx-sh) brightness(1.9) drop-shadow(0 0 .6rem rgba(150,210,255,1))}9%{filter:var(--fx-sh) brightness(1)}13%{filter:var(--fx-sh) brightness(1.6) drop-shadow(0 0 .5rem rgba(150,210,255,.9))}16%{filter:var(--fx-sh) brightness(1)}60%{filter:var(--fx-sh) brightness(1.15) drop-shadow(0 0 .3rem rgba(120,190,255,.6))}66%{filter:var(--fx-sh) brightness(1)}}
+@keyframes fxDragon{0%,100%{filter:var(--fx-sh) brightness(1)}50%{filter:var(--fx-sh) brightness(1.3) drop-shadow(0 0 .55rem rgba(255,50,40,.95))}}
+@keyframes fxCosmic{0%{filter:var(--fx-sh) brightness(1.1) hue-rotate(0)}100%{filter:var(--fx-sh) brightness(1.1) hue-rotate(360deg)}}
+@keyframes fxPhoenix{0%,100%{transform:translateY(0) scale(1);filter:var(--fx-sh) brightness(1) drop-shadow(0 0 .3rem rgba(255,120,20,.6))}50%{transform:translateY(-1.8%) scale(1.025);filter:var(--fx-sh) brightness(1.3) drop-shadow(0 0 .6rem rgba(255,160,40,1))}}
+@keyframes fxCelestial{0%,100%{transform:translateY(0);filter:var(--fx-sh) brightness(1) drop-shadow(0 0 .3rem rgba(255,235,150,.6))}50%{transform:translateY(-2%);filter:var(--fx-sh) brightness(1.2) drop-shadow(0 0 .65rem rgba(255,240,170,1))}}
+@media (prefers-reduced-motion:reduce){img[src$="frame-gold.webp"],img[src$="/diamond.webp"],img[src$="/amethyst.webp"],img[src$="/nether.webp"],img[src$="/ender.webp"],img[src$="/storm.webp"],img[src$="/dragon.webp"],img[src$="/cosmic.webp"],img[src$="/phoenix.webp"],img[src$="/celestial.webp"]{animation:none!important}}
