@@ -2977,7 +2977,7 @@ function labelTexture(text,w,h,fs,fill,line){
   return tex;
 }
 function buildLabels(th){
-  const geo=new THREE.PlaneGeometry(0.6,0.6);
+  const geo=new THREE.PlaneGeometry(0.72,0.72); /* nomor petak 1.2x (0.6 -> 0.72) */
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n];
     const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false})); /* fog:false: nomor tidak ikut memudar jadi warna langit saat kamera jauh */
