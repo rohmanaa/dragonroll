@@ -5094,13 +5094,14 @@ function onResize(){
 window.addEventListener('resize',onResize); window.addEventListener('orientationchange',onResize); onResize();
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
-const CAM_PITCH=0.62+5*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 5 derajat -> kamera lebih tinggi, pandangan lebih ke bawah */
+const CAM_PITCH=0.62+14*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 14 derajat (49.5 derajat): kamera lebih tinggi, pandangan lebih ke bawah */
+const CAM_ZOOM=1.1; /* sedikit lebih jauh agar papan tetap muat di layar (sudut lebih tinggi = papan terproyeksi lebih tinggi) */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:CAM_PITCH,zoom:1},     /* sudut default; diatur manual */
-  front:{yaw:0,pitch:CAM_PITCH,zoom:1},
+  free:{yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM},     /* sudut default; diatur manual */
+  front:{yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM},
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
-CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:1}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
+CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
 const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
 const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
