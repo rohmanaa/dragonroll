@@ -1427,6 +1427,8 @@ function loadSkin3D(k){
 /* Aksi karakter baru: 'attack' (ayun senjata) / 'block' (bertahan dgn perisai saat kena serang). Aman dipanggil untuk pion mana pun (diabaikan bila bukan karakter baru). */
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
 const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
+/* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
+function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) setTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850); }catch(e){} }
 function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
   try{
     if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
@@ -5746,6 +5748,7 @@ async function climb(p,from,to){
   const snd=sfx.ladder(); /* suara naik tangga mulai saat pion benar-benar naik & berhenti (fade) saat sampai atas */
   try{ await glide(p.pawn,L.path?L.path.map(v=>v.clone()):[L.p1.clone(),L.p2.clone()],1.7,null,0.07); } finally{ sfx.ladderStop(snd); }
   await hopTo(p.pawn,slotPos(p.idx,to),0.3,0.3);
+  pawnCheer(p.pawn,1.4); /* sampai di atas tangga */
 }
 
 /* kepala ular: posisi relatif terhadap posisi istirahat */
@@ -5772,6 +5775,7 @@ async function bite(p,from,to,gid){
   S.busy=true;
   const LUNGE=0.3; /* tinggi kepala saat menyambar (kepala kini rendah di atas petak, tanpa tiang) */
   await A(hopTo(p.pawn,S.bitePos.clone(),0.35,0.3));
+  pawnAct(p.pawn,'sad',1.8); /* digigit ular */
   p.pawn.rotation.y=Math.atan2(-S.f[0],-S.f[1]);
   focus=p.pawn;
   sfx.hiss();
@@ -6129,6 +6133,7 @@ function finishGame(p,fromRemote){
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
+  if(lost) pawnAct(p.pawn,'sad',2.4); else pawnCheer(p.pawn,2.6); /* karakter baru: sorak saat menang, sedih saat kalah */
   recordMatchResult(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
