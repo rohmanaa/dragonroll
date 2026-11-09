@@ -1426,17 +1426,18 @@ function loadSkin3D(k){
 /* Pion pemain 1 (lokal, bukan CPU/online) = karakter baru dari halaman Karakter (UT.BlockyCharacter + PlayerData). Gagal/tak tersedia -> pion lama tetap dipakai. */
 /* Aksi karakter baru: 'attack' (ayun senjata) / 'block' (bertahan dgn perisai saat kena serang). Aman dipanggil untuk pion mana pun (diabaikan bila bukan karakter baru). */
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
-function upgradePawnNew(g,pal){
+const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
+function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
   try{
     if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
-    const ch=UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
+    const ch=UT.BlockyCharacter.create(THREE); if(seed>=0) ch.loadPreset(seed); else ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
     const w=new THREE.Group(); w.add(ch.root);
     w.updateMatrixWorld(true);
-    const bb=new THREE.Box3().setFromObject(ch.root),h=bb.max.y-bb.min.y;
+    const bb=new THREE.Box3().setFromObject(ch.root),h=ch.height(); /* tinggi badan (tanpa topi) agar semua pion sama tinggi */
     if(!(h>0.1)) return;
     const sc=0.92/h; w.scale.setScalar(sc); w.position.y=-bb.min.y*sc; /* tinggi ~ pion lama (0.9), telapak di y=0 */
     w.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=false; } });
-    g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch;
+    g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch; g.userData.bcSeed=(seed==null?-1:seed);
     if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
   }catch(e){ console.warn('karakter baru gagal dimuat, pakai pion lama',e); }
 }
@@ -4683,7 +4684,7 @@ function buildWorld(key){
 }
 
 /* ---------- Pion ---------- */
-function makePawn(d,mine){
+function makePawn(d,nc){
   const b=makeBatch(),k=d.key,F={edge:false};
   const bx=(x,y,z,w,h,e,c,o)=>addBox(b,x,y,z,w,h,e,typeof c==='number'?jit(c,0.05):c,o);
   const head=(c,y)=>{ for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let l=-1;l<=1;l++) addBox(b,i*0.1,y+j*0.1,l*0.1,0.1,0.1,0.1,jit(c,0.09),F); };
@@ -4719,7 +4720,7 @@ function makePawn(d,mine){
   const g=new THREE.Group();
   const pal=buildBatch(b); g.add(pal);
   if(d.png) upgradePawnPNG(g,pal,d.key); /* PNG gagal dimuat -> tetap palette (Steve) */
-  if(mine) upgradePawnNew(g,pal);
+  if(nc!=null) upgradePawnNew(g,pal,nc);
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
   marker.position.y=1.22; marker.visible=false;
   g.add(marker); g.userData.marker=marker;
@@ -5373,19 +5374,19 @@ function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
 function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 /* Wajah pemain 1 (lokal, bukan CPU/online) = kepala karakter baru (UT.CharacterFace). Gambar dimuat sekali; sebelum siap dipakai wajah lama, lalu HUD di-render ulang. */
-const NFACE={url:'',img:null,n:0};
-function isMineP(p){ return !ONLINE_ROOM&&!!p&&!p.cpu&&p.idx===0; }
-function newFaceImg(){
+const NIMG={}; let NFN=0;
+function newFaceSrc(p){ const u=p&&p.pawn&&p.pawn.userData; if(!u||u.bcSeed==null||!UT.CharacterFace) return ''; return u.bcSeed<0?UT.CharacterFace.url():(UT.CharacterFace.urlPreset?UT.CharacterFace.urlPreset(u.bcSeed):''); }
+function newFaceImg(p){
   try{
-    if(!(UT.CharacterFace&&UT.CharacterFace.url)) return null;
-    const u=UT.CharacterFace.url(); if(!u) return null;
-    if(NFACE.url!==u){ NFACE.url=u; NFACE.img=null; const n=++NFACE.n,im=new Image(); im.onload=()=>{ if(n!==NFACE.n) return; NFACE.img=im; refreshFaces(); }; im.src=u; }
-    return NFACE.img;
+    const src=newFaceSrc(p); if(!src) return null;
+    let e=NIMG[src];
+    if(!e){ e=NIMG[src]={img:null,id:++NFN}; const im=new Image(); im.onload=()=>{ e.img=im; refreshFaces(); }; im.src=src; }
+    return e.img?{img:e.img,id:e.id}:null;
   }catch(e){ return null; }
 }
 function framedFaceNew(p){
-  const ni=newFaceImg(); if(!ni) return '';
-  const fid=frameOf(p), fi=FRM[fid], ready=!!(fi&&fi.complete&&fi.naturalWidth), ck='new|'+NFACE.n+'|'+(ready?fid:'-');
+  const nf=newFaceImg(p); if(!nf) return ''; const ni=nf.img;
+  const fid=frameOf(p), fi=FRM[fid], ready=!!(fi&&fi.complete&&fi.naturalWidth), ck='new|'+nf.id+'|'+(ready?fid:'-');
   if(FFURL[ck]) return FFURL[ck];
   try{
     const S=192,cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d');
@@ -5396,7 +5397,7 @@ function framedFaceNew(p){
   }catch(e){ return ''; }
 }
 function framedFace(p){
-  if(isMineP(p)){ const nf=framedFaceNew(p); if(nf) return nf; }
+  { const nf=framedFaceNew(p); if(nf) return nf; } /* pion karakter baru (pemain 1 / preset CPU & pemain lokal) */
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;
   const ck=p.key+'|'+fid; if(FFURL[ck]) return FFURL[ck];
@@ -6148,7 +6149,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
-    const pawn=makePawn(d,!ONLINE_ROOM&&i===0&&!d.cpu); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
+    const pawn=makePawn(d,ONLINE_ROOM?null:(i===0&&!d.cpu?-1:(d.cpu&&!NEW_CHAR_CPU?null:2+i*3))); /* online: tampilan pemain lain belum ada di server -> pion lama */ pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();

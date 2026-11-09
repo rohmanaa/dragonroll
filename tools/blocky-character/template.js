@@ -7,6 +7,7 @@
    const c = UT.BlockyCharacter.create(THREE);   // c.root = THREE.Group (kaki di y=0, menghadap +z, tinggi ~2 satuan)
    c.loadFromPlayer();                           // pakai penampilan + gear milik pemain (PlayerData)
    c.setMode('idle'|'walk'|'run'); c.jump();     // per frame: c.tick(dt)
+   c.loadPreset(n);                              // tampilan siap pakai deterministik (pemain lain/CPU), n = bilangan bulat
    c.act('attack'|'block'[,detik]);               // aksi sekali: ayun senjata / bertahan dengan perisai (kena serang)
 */
 (function(){
@@ -61,6 +62,14 @@ function tick(dt){
 }
 function jump(){if(!airborne){airborne=true;vy=7.2;}}
 function setMode(m){mode=m;}
+/* Tampilan siap pakai (preset gear + gaya rambut/kulit bervariasi) untuk pemain lain/CPU: n bilangan bulat, deterministik. */
+function loadPreset(n){
+  n=Math.abs(n|0);const p=PRESETS[n%PRESETS.length],f=p.g==='f';
+  const hairs=f?['bob','long','pony','twin','bun','braid','wavy']:['short','spiky','buzz'],dyes=['brown','black','blonde','red','brown'];
+  const o={gender:p.g,skin:'s'+(1+(n*2)%5),eyes:{id:f?'lash':'round',dye:'blue'},hair:{id:hairs[n%hairs.length],dye:dyes[n%dyes.length]}};
+  Object.assign(o,clone(p.set));
+  cfg=clone(DEFAULT);apply(o,true);
+}
 function loadFromPlayer(){
   const L=PD.look(),G=PD.gearLook();
   if(!L){cfg=clone(DEFAULT);apply(null,true);return;}
@@ -73,7 +82,7 @@ function loadFromPlayer(){
   cfg=clone(DEFAULT);apply(o,true);
 }
 apply(null,true);
-return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,loadFromPlayer:loadFromPlayer,apply:apply,
+return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,loadFromPlayer:loadFromPlayer,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};

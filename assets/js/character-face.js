@@ -3,6 +3,7 @@
    Butuh (dimuat lebih dulu): three.min.js, item-catalog.js, player-data.js, blocky-character.js.
    API:
      UT.CharacterFace.url()        -> data URL PNG kepala pemain ('' bila WebGL/THREE tidak ada -> pakai fallback lama)
+     UT.CharacterFace.urlPreset(n) -> idem untuk tampilan siap pakai n (pemain lain / CPU)
      UT.CharacterFace.html(cls)    -> '<img ...>' siap dipasang ('' bila gagal)
      UT.CharacterFace.mount(el,fb) -> isi el dengan wajah; fb() dipanggil (hasilnya HTML) bila gagal
      UT.CharacterFace.watch(fn)    -> panggil fn() saat tampilan/gear berubah (equip/pageshow/storage) */
@@ -10,7 +11,7 @@
   'use strict';
   var UT = win.UT = win.UT || {};
   if (UT.CharacterFace) return;
-  var SIZE = 192, R = null, scene, cam, last = { sig: null, url: '' };
+  var SIZE = 192, R = null, scene, cam;
 
   function init() {
     if (R) return R;
@@ -33,13 +34,13 @@
     try { return JSON.stringify([PD.look(), PD.gearLook()]); } catch (e) { return ''; }
   }
 
-  function url() {
-    var s = signature();
-    if (last.sig === s && last.url) return last.url;
+  var cache = {};
+  function render(sig, load) {
+    if (cache[sig]) return cache[sig];
     if (!init()) return '';
     var T = R.T, out = '', ch = null;
     try {
-      ch = UT.BlockyCharacter.create(T); ch.loadFromPlayer(); ch.tick(0.016); /* pose rig baru terpasang setelah tick pertama */
+      ch = UT.BlockyCharacter.create(T); load(ch); ch.tick(0.016); /* pose rig baru terpasang setelah tick pertama */
       scene.add(ch.root); scene.updateMatrixWorld(true);
       var bb = new T.Box3().setFromObject(ch.root), h = bb.max.y - bb.min.y;
       var ty = bb.min.y + h * .885, d = h * 1.0, yaw = .28, pit = .06; /* kepala ~ 88% tinggi; bidikan sedikit serong */
@@ -49,9 +50,16 @@
       out = R.r.domElement.toDataURL('image/png');
     } catch (e) { out = ''; }
     try { if (ch) scene.remove(ch.root); } catch (e) {}
-    if (typeof out === 'string' && out.length > 100) { last = { sig: s, url: out }; return out; }
+    if (typeof out === 'string' && out.length > 100) {
+      var ks = Object.keys(cache); if (ks.length > 24) delete cache[ks[0]]; /* batasi memori */
+      return (cache[sig] = out);
+    }
     return '';
   }
+  /* kepala pemain (PlayerData) */
+  function url() { return render('me|' + signature(), function (ch) { ch.loadFromPlayer(); }); }
+  /* kepala tampilan siap pakai n (pemain lain / CPU) */
+  function urlPreset(n) { n = Math.abs(n | 0); return render('p|' + n, function (ch) { ch.loadPreset(n); }); }
 
   function html(cls) {
     var u = url(); if (!u) return '';
@@ -65,5 +73,5 @@
     try { if (win.PlayerData && win.PlayerData.subscribe) win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fn(); }); } catch (e) {}
     win.addEventListener('pageshow', function (e) { if (e.persisted) fn(); });
   }
-  UT.CharacterFace = { url: url, html: html, mount: mount, watch: watch };
+  UT.CharacterFace = { url: url, urlPreset: urlPreset, html: html, mount: mount, watch: watch };
 })(window);
