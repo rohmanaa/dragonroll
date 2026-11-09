@@ -5590,7 +5590,7 @@ function trapTex(key){
   return (TRAPTEX[key]=tx);
 }
 /* Model jebakan: blok 3D yang DUDUK di petak (seperti chest), bukan sprite melayang. Geometri dibangun sekali per jenis (TRAPPROTO), dipakai ulang lewat clone. */
-const TRAPPROTO={},TRAP_SCALE=1.8; /* skala sama dengan Chest */
+const TRAPPROTO={},TRAP_SCALE=1.8/1.6; /* objek jebakan 1.6x lebih kecil dari ukuran Chest (1.8); cincin efek di petak tetap ukuran penuh */
 function buildTrapProto(key){
   const B=makeBatch(),F={edge:false},q=(x,y,z,w,h,d,c)=>addBox(B,x,y,z,w,h,d,c,F);
   if(key==='tnt'){ /* blok TNT: badan merah, 2 pita putih bertuliskan blok hitam, sumbu di atas */
