@@ -27,8 +27,9 @@ function overlay(size) {
 export function playAt(key, x, y, o) {
   const id = idOf(key); if (!id) return false;
   try {
-    const ov = overlay((o && o.size) || 300), pr = ov.pr;
+    const size = Math.round((o && o.size) || 300), ov = overlay(size), pr = ov.pr;
     clearTimeout(t1); clearTimeout(t2);
+    ov.host.style.width = size + 'px'; ov.host.style.height = size + 'px'; /* ukuran bisa berubah tiap pemakaian (layar/orientasi) */
     ov.host.style.left = x + 'px'; ov.host.style.top = y + 'px'; ov.host.style.display = 'block';
     pr.resize(); pr.show(id);
     const a = pr.animator; a.state = 'idle'; a.t = 0; a.holder.visible = true; a.activate(); /* lewati animasi muncul: langsung beraksi */

@@ -4868,10 +4868,10 @@ function powerFxPawn(key,pl){
   if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
   try{
     if(!pl||!pl.pawn||reduce) return;
-    const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
-    if(v.z>1) return;
-    const x=r.left+(v.x+1)/2*r.width,y=r.top+(1-v.y)/2*r.height;
-    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y)) return; /* 3D: model + aura + partikel */
+    /* Efek Power selalu di TENGAH layar (bukan di atas pion) dengan kotak besar (90% sisi pendek layar, 320-760px) agar tidak terpotong dan terlihat jelas */
+    const r=$('c').getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    const size=Math.round(Math.max(320,Math.min(760,Math.min(r.width,r.height)*0.9)));
+    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y,{size})) return; /* 3D: model + aura + partikel */
     const PF=window.UT&&UT.PowerFX; if(PF) PF.play(key,x,y); /* cadangan 2D */
   }catch(e){}
 }
