@@ -164,6 +164,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
@@ -297,7 +298,7 @@ function moodStep(dt){if(moodT<=0||!LT)return;moodT-=dt;const a=1-Math.exp(-dt*5
 setMood(UT.Ambience?UT.Ambience.resolved():'day',true);
 if(UT.Ambience)UT.Ambience.on(d=>{setMood(d.resolved);fit()});
 hero3d={rebuild(){buildHero()}};
-if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero()});
+if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();if(r==='server-appearance'){buildHero();renderAvatar();applyFrame()}}); /* tampilan dari server (appearance-service) masuk setelah halaman terbuka -> model, wajah, dan frame ikut diperbarui */
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 let cheer=0;
 /* ---------- animasi lobby: mata berkedip otomatis (BlockyCharacter); saat diam 6–13 dtk karakter beraksi sendiri, tap karakter = aksi acak ---------- */

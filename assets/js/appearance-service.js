@@ -107,8 +107,15 @@
       finally { pushing = false; }
     }
 
-    /* Ambil dari server: inventory dulu (agar item yang dipakai dikenali), lalu tampilan aktif dan outfit. */
-    async function refresh() {
+    /* Ambil dari server: inventory dulu (agar item yang dipakai dikenali), lalu tampilan aktif dan outfit.
+       Panggilan beruntun saat satu refresh masih berjalan memakai hasil yang sama (tidak dobel ke server). */
+    var refreshing = null;
+    function refresh() {
+      if (refreshing) return refreshing;
+      refreshing = doRefresh().then(function (r) { refreshing = null; return r; }, function (e) { refreshing = null; throw e; });
+      return refreshing;
+    }
+    async function doRefresh() {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };
       try {
         var inv = await rpc('inventory_get');
@@ -162,6 +169,7 @@
 
   /* Instans browser: dibuat malas; klien Supabase baru dimuat saat RPC pertama. */
   var SELF = (typeof document !== 'undefined' && document.currentScript && document.currentScript.src) || '';
+  var MANUAL = !!(typeof document !== 'undefined' && document.currentScript && document.currentScript.hasAttribute('data-manual'));
   var browser = null;
   function get() {
     if (browser) return browser;
@@ -175,6 +183,10 @@
       }
     });
     browser.autoSync();   /* halaman mana pun yang memuat file ini ikut mengirim perubahan equip (hanya mode server) */
+    /* Ambil juga tampilan aktif dari server sekali saat halaman dibuka, supaya Lobi/Room/Profil tidak menunggu pemain
+       membuka halaman Karakter dulu. PlayerData memberi tahu lewat 'server-appearance' -> halaman yang berlangganan
+       merender ulang. Halaman yang mengatur refresh sendiri (Karakter) memasang atribut data-manual pada <script>. */
+    if (!MANUAL) { try { browser.refresh(); } catch (e) {} }
     return browser;
   }
   if (typeof window !== 'undefined' && window.PlayerData) get();
