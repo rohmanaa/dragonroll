@@ -448,6 +448,7 @@ const hand=new THREE.Group();hand.position.y=-5.5*S;armR.el.add(hand);
    ================================================================ */
 const slots={head:[],hair:[],body:[],helm:[],chest:[],shoulder:[],cape:[],weapon:[],acc:[]};
 let torsoMesh=null,tails=[],wpg=null,wpBase=0;
+let headMesh=null,blinkMats=null,blinkT=2.5,blinkClose=0; /* kedip: wajah (+z kepala) ditukar ke tekstur mata terpejam sesaat */
 function add(slot,parent,obj){parent.add(obj);slots[slot].push([parent,obj]);return obj;}
 function clear(slot){
   slots[slot].forEach(([p,o])=>{
@@ -457,6 +458,7 @@ function clear(slot){
   slots[slot]=[];
   if(slot==='hair')tails=[];
   if(slot==='body')torsoMesh=null;
+  if(slot==='head'){headMesh=null;blinkMats=null;blinkClose=0;}
   if(slot==='weapon')wpg=null;
 }
 
@@ -1136,13 +1138,34 @@ function buildHead(){
     if(fem&&y===5&&m===1)return mix(sk,0xf08080,0.4);
     return sk;
   };
+  const lidC=shade(sk,0.5);
+  const faceC=(x,y)=>{ /* wajah mata terpejam: baris iris/putih jadi garis kelopak, bulu mata (baris atas) tetap */
+    const m=x<4?x:7-x;
+    if((m===1||m===2)&&y===4&&eye.px(m,y,ic)!==undefined)return fem?0x2a1a12:lidC;
+    if((m===1||m===2)&&y===3&&eye.px(m,y,ic)!==undefined&&eye.id!=='lash')return sk;
+    return faceF(x,y);
+  };
   const sideF=fz=>(x,y)=>{const f=fz?x:7-x;return((f===3||f===4)&&(y===4||y===5))?skD:sk;};
-  add('head',head,box(8,8,8,[
+  const faceOpen=mat(mkTex(8,8,faceF,0,25)),faceShut=mat(mkTex(8,8,faceC,0,25));
+  headMesh=add('head',head,box(8,8,8,[
     mat(mkTex(8,8,sideF(true),0,21)),mat(mkTex(8,8,sideF(false),0,22)),
     mat(mkTex(8,8,()=>hairC(),0,23)),mat(mkTex(8,8,()=>skD,0,24)),
-    mat(mkTex(8,8,faceF,0,25)),mat(mkTex(8,8,()=>sk,0,26))
+    faceOpen,mat(mkTex(8,8,()=>sk,0,26))
   ],0,4,0));
+  blinkMats={open:faceOpen,shut:faceShut};blinkClose=0;blinkT=1.5+Math.random()*3;
 }
+/* Kedip: dipanggil tiap frame. Mata terbuka 2–5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
+function blinkStep(dt){
+  if(!headMesh||!blinkMats||eyeIsClosedStyle())return;
+  if(blinkClose>0){
+    blinkClose-=dt;
+    if(blinkClose<=0){headMesh.material[4]=blinkMats.open;blinkT=Math.random()<0.2?0.18:2+Math.random()*3.5;}
+    return;
+  }
+  blinkT-=dt;
+  if(blinkT<=0){headMesh.material[4]=blinkMats.shut;blinkClose=0.11;}
+}
+function eyeIsClosedStyle(){return cfg&&cfg.eyes&&cfg.eyes.id==='closed';}
 
 function buildHair(){
   clear('hair');
@@ -1810,6 +1833,7 @@ function frame(now){
   const T=computeTarget();
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
+  blinkStep(dt);
 
   camTarget.set(0,0.85*cfg.body.height+root.position.y*0.5,0);
   camera.position.set(

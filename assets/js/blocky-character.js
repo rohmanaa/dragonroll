@@ -9,7 +9,9 @@
    c.setMode('idle'|'walk'|'run'); c.jump();     // per frame: c.tick(dt)
    c.loadFromData(look,equipped,gearDye);       // tampilan pemain lain dari server (room_appearance_get)
    c.loadPreset(n);                              // tampilan siap pakai deterministik (pemain lain/CPU), n = bilangan bulat
-   c.act('attack'|'block'|'sad'|'cheer'[,detik]);               // aksi sekali: ayun senjata / bertahan dengan perisai / sedih / bersorak
+   c.act('attack'|'block'|'sad'|'cheer'|'wave'|'flip'|'backflip'|'spin'|'roll'[,detik]);
+                                                 // aksi sekali: ayun senjata / bertahan / sedih / sorak / melambai / salto depan / salto belakang / putar di udara / berguling
+   Mata berkedip otomatis (tiap tick).
 */
 (function(){
 window.UT=window.UT||{};
@@ -118,6 +120,7 @@ const hand=new THREE.Group();hand.position.y=-5.5*S;armR.el.add(hand);
 
 const slots={head:[],hair:[],body:[],helm:[],chest:[],shoulder:[],cape:[],weapon:[],acc:[]};
 let torsoMesh=null,tails=[],wpg=null,wpBase=0;
+let headMesh=null,blinkMats=null,blinkT=2.5,blinkClose=0; /* kedip: wajah (+z kepala) ditukar ke tekstur mata terpejam sesaat */
 function add(slot,parent,obj){parent.add(obj);slots[slot].push([parent,obj]);return obj;}
 function clear(slot){
   slots[slot].forEach(([p,o])=>{
@@ -127,6 +130,7 @@ function clear(slot){
   slots[slot]=[];
   if(slot==='hair')tails=[];
   if(slot==='body')torsoMesh=null;
+  if(slot==='head'){headMesh=null;blinkMats=null;blinkClose=0;}
   if(slot==='weapon')wpg=null;
 }
 
@@ -803,13 +807,34 @@ function buildHead(){
     if(fem&&y===5&&m===1)return mix(sk,0xf08080,0.4);
     return sk;
   };
+  const lidC=shade(sk,0.5);
+  const faceC=(x,y)=>{ /* wajah mata terpejam: baris iris/putih jadi garis kelopak, bulu mata (baris atas) tetap */
+    const m=x<4?x:7-x;
+    if((m===1||m===2)&&y===4&&eye.px(m,y,ic)!==undefined)return fem?0x2a1a12:lidC;
+    if((m===1||m===2)&&y===3&&eye.px(m,y,ic)!==undefined&&eye.id!=='lash')return sk;
+    return faceF(x,y);
+  };
   const sideF=fz=>(x,y)=>{const f=fz?x:7-x;return((f===3||f===4)&&(y===4||y===5))?skD:sk;};
-  add('head',head,box(8,8,8,[
+  const faceOpen=mat(mkTex(8,8,faceF,0,25)),faceShut=mat(mkTex(8,8,faceC,0,25));
+  headMesh=add('head',head,box(8,8,8,[
     mat(mkTex(8,8,sideF(true),0,21)),mat(mkTex(8,8,sideF(false),0,22)),
     mat(mkTex(8,8,()=>hairC(),0,23)),mat(mkTex(8,8,()=>skD,0,24)),
-    mat(mkTex(8,8,faceF,0,25)),mat(mkTex(8,8,()=>sk,0,26))
+    faceOpen,mat(mkTex(8,8,()=>sk,0,26))
   ],0,4,0));
+  blinkMats={open:faceOpen,shut:faceShut};blinkClose=0;blinkT=1.5+Math.random()*3;
 }
+/* Kedip: dipanggil tiap frame. Mata terbuka 2–5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
+function blinkStep(dt){
+  if(!headMesh||!blinkMats||eyeIsClosedStyle())return;
+  if(blinkClose>0){
+    blinkClose-=dt;
+    if(blinkClose<=0){headMesh.material[4]=blinkMats.open;blinkT=Math.random()<0.2?0.18:2+Math.random()*3.5;}
+    return;
+  }
+  blinkT-=dt;
+  if(blinkT<=0){headMesh.material[4]=blinkMats.shut;blinkClose=0.11;}
+}
+function eyeIsClosedStyle(){return cfg&&cfg.eyes&&cfg.eyes.id==='closed';}
 
 function buildHair(){
   clear('hair');
@@ -955,8 +980,13 @@ const ACT_S={rArmS:-0.9,rElbow:-0.15,rWrist:-0.6,rArmZ:-0.05,lArmS:0.4,lElbow:-0
 const ACT_B={rArmS:-0.55,rElbow:-1.1,rWrist:0,rArmZ:0.3,lArmS:-0.55,lElbow:-1.1,lArmZ:-0.3,lean:-0.1,twist:0,headX:0.2,headY:0,rLegT:-0.45,rKnee:0.9,lLegT:-0.3,lKnee:0.8,cape:0.5,tail:0.6};
 const ACT_SAD={rArmS:0.05,rElbow:-0.1,rWrist:0,rArmZ:-0.05,lArmS:0.05,lElbow:-0.1,lArmZ:0.05,lean:0.3,twist:0,headX:0.5,headY:0,rLegT:-0.1,rKnee:0.25,lLegT:-0.05,lKnee:0.2,cape:0.1,tail:0.05};
 const ACT_CHEER={rArmS:-3.0,rElbow:-0.2,rWrist:0.5,rArmZ:-0.35,lArmS:-3.0,lElbow:-0.2,lArmZ:0.35,lean:-0.1,twist:0,headX:-0.25,headY:0,cape:0.5,tail:0.8};
-const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER};
-const ACT_DUR={attack:0.75,block:1.0,sad:1.6,cheer:2.4};
+const ACT_WAVE={rArmS:-2.85,rElbow:-0.4,rWrist:0.3,rArmZ:-0.55,lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:0.1,headX:-0.05,headY:0.25,cape:0.15,tail:0.3};
+const ACT_TUCK={rArmS:-1.3,rElbow:-1.5,rWrist:0.3,rArmZ:-0.3,lArmS:-1.3,lElbow:-1.5,lArmZ:0.3,lean:0.5,twist:0,headX:0.45,headY:0,rLegT:-1.5,rKnee:1.9,lLegT:-1.5,lKnee:1.9,rLegZ:-0.1,lLegZ:0.1,cape:0.9,tail:1.0};
+const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
+const ACT_DUR={attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
+const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
+const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
+const fx={rx:0,ry:0,py:1,lift:0}; /* rotasi badan utuh dari aksi: rx = salto (+ ke depan), ry = putar; py = tinggi poros (satuan lokal) */
 let act=null;
 const shield=new THREE.Group();shield.visible=false;
 (function(){ /* perisai kayu berbingkai besi di ujung lengan bawah kiri (normal = arah lengan bawah, yang menghadap depan saat siku ditekuk) */
@@ -965,13 +995,23 @@ const shield=new THREE.Group();shield.visible=false;
   armL.el.add(shield);
 })();
 const ease3=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
-function doAct(type,dur){if(!ACT_DUR[type])return;act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');}
+function doAct(type,dur){
+  if(!ACT_DUR[type])return;
+  if(ACT_AIR[type]){if(airborne)return;airborne=true;vy=8.3;} /* salto/putar butuh lompatan sendiri; sedang di udara = diabaikan */
+  act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');
+}
 function applyAct(T,dt){
   if(!act)return;
   act.t+=dt;const u=act.t/act.dur;
   if(u>=1){act=null;shield.visible=false;return;}
   let w,pose={};
-  if(act.type==='attack'){
+  if(act.type==='flip'||act.type==='backflip'||act.type==='spin'||act.type==='roll'){
+    const e=ease3(u),turn=Math.PI*2*e;
+    if(act.type==='spin')fx.ry=turn;
+    else{fx.rx=act.type==='backflip'?-turn:turn;fx.py=act.type==='roll'?ROLL_PY:1;if(act.type==='roll')fx.lift=ROLL_LIFT*Math.sin(Math.PI*u);}
+    if(act.type==='spin'){w=0;pose={};} /* putar: pose lompat bawaan, tanpa tuck */
+    else{w=ease3(Math.min(1,u/0.25))*(1-ease3(clamp((u-0.75)/0.25,0,1)));pose=Object.assign({},ACT_TUCK);}
+  }else if(act.type==='attack'){
     let m;
     if(u<0.4){m=0;w=ease3(u/0.4);}else if(u<0.55){m=(u-0.4)/0.15;w=1;}else{m=1;w=1-ease3((u-0.55)/0.45);}
     for(const k in ACT_W)pose[k]=lerp(ACT_W[k],ACT_S[k],m);
@@ -980,6 +1020,7 @@ function applyAct(T,dt){
     pose=Object.assign({},ACT_STATIC[act.type]);
     if(act.type==='block')pose.lean+=Math.sin(act.t*38)*0.05*Math.max(0,1-u*2); /* getar sesaat saat kena */
     else if(act.type==='sad')pose.headY=Math.sin(act.t*3)*0.25; /* menggeleng pelan */
+    else if(act.type==='wave')pose.rElbow=-0.4+Math.sin(act.t*11)*0.55; /* lengan bawah melambai */
     else pose.rArmZ+=Math.sin(act.t*9)*0.12,pose.lArmZ-=Math.sin(act.t*9)*0.12; /* lengan melambai saat bersorak */
   }
   for(const k in pose)T[k]=lerp(T[k],pose[k],w);
@@ -993,9 +1034,17 @@ function tick(dt){
   if(airborne){vy-=22*dt;jumpY+=vy*dt;if(jumpY<=0){jumpY=0;vy=0;airborne=false;landT=0.25;}}
   if(landT>0)landT-=dt;
   const k=1-Math.exp(-dt*(airborne?26:12));
+  fx.rx=0;fx.ry=0;fx.py=1;fx.lift=0;
   const T=computeTarget();applyAct(T,dt);
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
+  applyFx();blinkStep(dt);
+}
+/* Rotasi badan utuh (salto/guling/putar) mengelilingi titik tengah badan: posisi dikompensasi agar poros tetap di tempat. */
+function applyFx(){
+  root.rotation.set(fx.rx,fx.ry,0);
+  if(fx.rx!==0){const p=fx.py*root.scale.y;root.position.y+=p*(1-Math.cos(fx.rx))+fx.lift*root.scale.y;root.position.z=-p*Math.sin(fx.rx);}
+  else root.position.z=0;
 }
 function jump(){if(!airborne){airborne=true;vy=7.2;}}
 function setMode(m){mode=m;}

@@ -299,14 +299,35 @@ hero3d={rebuild(){buildHero()}};
 if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero()});
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 let cheer=0;
-cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.365&&x<.635&&yr>-21&&yr<17){bc.jump();buzz()}});
+/* ---------- animasi lobby: mata berkedip otomatis (BlockyCharacter); saat diam 6–13 dtk karakter beraksi sendiri, tap karakter = aksi acak ---------- */
+const LOBBY_ACTS=[ /* tiap aksi = urutan [detik, fungsi] */
+ [[0,()=>bc.act('attack')],[.85,()=>bc.act('attack')],[1.7,()=>bc.act('attack')]], /* tebas pedang 3x */
+ [[0,()=>bc.setMode('run')],[1.5,()=>bc.act('flip')],[2.5,()=>bc.setMode('idle')]], /* lari, loncat salto */
+ [[0,()=>bc.setMode('run')],[1.3,()=>bc.jump()],[2.2,()=>bc.act('roll')],[3.1,()=>bc.setMode('idle')]], /* lari, loncat, guling */
+ [[0,()=>bc.act('backflip')]],
+ [[0,()=>bc.act('spin')]],
+ [[0,()=>bc.act('roll')]],
+ [[0,()=>bc.act('wave')]],
+ [[0,()=>bc.act('cheer')]],
+ [[0,()=>bc.act('block')],[1.1,()=>bc.act('attack')]] /* bertahan lalu menebas */
+];
+const calmMotion=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let lq=null,lqT=0,lqI=0,lqIdle=5+Math.random()*4,lqLast=-1;
+const lobbyBusy=()=>!!lq||!!bc.acting||bc.airborne;
+function lobbyRandom(){let i;do{i=Math.floor(Math.random()*LOBBY_ACTS.length)}while(i===lqLast);lqLast=i;lq=LOBBY_ACTS[i];lqT=0;lqI=0;lqIdle=6+Math.random()*7}
+function lobbyStep(dt){
+ if(lq){lqT+=dt;while(lqI<lq.length&&lqT>=lq[lqI][0]){lq[lqI][1]();lqI++}if(lqI>=lq.length&&!bc.acting&&!bc.airborne)lq=null;return}
+ if(calmMotion||document.hidden||mOpen||lobbyBusy())return;
+ lqIdle-=dt;if(lqIdle<=0)lobbyRandom()}
+function lobbyTap(){if(lobbyBusy())return;if(Math.random()<.25){bc.jump();lqIdle=6+Math.random()*7}else lobbyRandom()}
+cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.365&&x<.635&&yr>-21&&yr<17){lobbyTap();buzz()}});
 function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(hiG()?Math.min(devicePixelRatio,1.5):1);renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
 let lastT=0;
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;moodStep(dt);
  cam.position.set(0,5.5,26);cam.lookAt(0,3,0);
- bc.tick(dt);
+ bc.tick(dt);lobbyStep(dt);
  anims.forEach(f=>f(t));
    renderer.render(scene,cam)}
 loop();

@@ -82,4 +82,63 @@ t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di 
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));
   assert.ok(/UT\.AppearanceService/.test(g) && /roomAppearance/.test(g));
 });
+
+const findHead = c => { let h = null; c.root.traverse(o => { const g = o.geometry && o.geometry.parameters; if (o.isMesh && Array.isArray(o.material) && g && g.width === 0.5 && g.height === 0.5 && g.depth === 0.5) h = o; }); return h; };
+t('mata berkedip sendiri: wajah ditukar ke mata terpejam sesaat (<0,2 dtk) lalu kembali, minimal 3x dalam 30 dtk', () => {
+  const c = make(); c.loadPreset(1); c.tick(0.016);
+  const h = findHead(c); assert.ok(h, 'kepala ditemukan'); const open = h.material[4];
+  let closedNow = false, since = 0, blinks = 0, maxClosed = 0;
+  for (let i = 0; i < Math.round(30 / 0.016); i++) {
+    c.tick(0.016);
+    const isClosed = h.material[4] !== open;
+    if (isClosed) { since += 0.016; maxClosed = Math.max(maxClosed, since); if (!closedNow) blinks++; } else since = 0;
+    closedNow = isClosed;
+  }
+  assert.ok(blinks >= 3, 'kedip ' + blinks + 'x'); assert.ok(maxClosed < 0.2, 'terpejam ' + maxClosed + ' dtk');
+  assert.strictEqual(h.material[4], open, 'berakhir dengan mata terbuka (atau kembali terbuka)');
+});
+t('mata gaya "Tertutup" tidak berkedip; ganti penampilan membangun ulang kepala tanpa error', () => {
+  const c = make(); c.loadPreset(1); c.apply({ eyes: { id: 'closed', dye: 'blue' } }); c.tick(0.016);
+  const h = findHead(c), m0 = h.material[4]; run(c, 12); assert.strictEqual(h.material[4], m0);
+  c.apply({ eyes: { id: 'round', dye: 'blue' } }); run(c, 1); assert.ok(findHead(c));
+});
+t('aksi baru wave/flip/backflip/spin/roll: selesai sendiri, badan kembali tegak di tempat, tidak menembus lantai', () => {
+  for (const type of ['wave', 'flip', 'backflip', 'spin', 'roll']) {
+    const c = make(); c.loadPreset(2); c.tick(0.016); assert.strictEqual(c.acting, null);
+    c.act(type); assert.strictEqual(c.acting, type, type);
+    let maxRx = 0, maxRy = 0, minY = 0;
+    for (let i = 0; i < Math.round((type === "wave" ? 2.3 : 1.4) / 0.016); i++) {
+      c.tick(0.016); maxRx = Math.max(maxRx, Math.abs(c.root.rotation.x)); maxRy = Math.max(maxRy, Math.abs(c.root.rotation.y));
+      if (type === 'roll' || type === 'flip' || type === 'backflip') minY = Math.min(minY, box(c).min.y);
+    }
+    assert.strictEqual(c.acting, null, type); assert.strictEqual(c.airborne, false, type);
+    assert.strictEqual(c.root.rotation.x, 0, type); assert.strictEqual(c.root.rotation.y, 0, type);
+    assert.ok(Math.abs(c.root.position.z) < 1e-9, type); assert.ok(Math.abs(c.root.position.y) < 1e-6, type);
+    if (type === 'flip' || type === 'backflip' || type === 'roll') assert.ok(maxRx > 5.5, type + ' putaran ' + maxRx);
+    if (type === 'spin') assert.ok(maxRy > 5.5, 'spin ' + maxRy);
+    assert.ok(minY > -0.2, type + ' menembus lantai ' + minY);
+    assert.ok(Math.abs(box(c).min.y) < 0.15, type + ' kaki kembali ke lantai');
+  }
+});
+t('arah salto: flip ke depan (rotasi x +), backflip ke belakang (rotasi x -); salto saat sedang di udara diabaikan', () => {
+  const a = make(), b = make(); a.tick(0.016); b.tick(0.016);
+  a.act('flip'); b.act('backflip'); run(a, 0.3); run(b, 0.3);
+  assert.ok(a.root.rotation.x > 0.5 && b.root.rotation.x < -0.5, a.root.rotation.x + ' / ' + b.root.rotation.x);
+  const c = make(); c.tick(0.016); c.jump(); c.tick(0.016); c.act('flip'); assert.strictEqual(c.acting, null);
+});
+t('lari lalu loncat lalu berguling (urutan lobby) stabil: tinggi badan ~2 dan tidak ada NaN', () => {
+  const c = make(); c.loadPreset(3); c.tick(0.016);
+  c.setMode('run'); run(c, 1.2); c.jump(); run(c, 0.9); c.act('roll'); run(c, 1.0); c.act('attack'); run(c, 0.4); c.setMode('idle'); run(c, 1.5);
+  const b = box(c); assert.ok(isFinite(b.min.y) && isFinite(b.max.y)); assert.ok(Math.abs(c.height() - 2) < 0.3);
+  assert.ok(Math.abs(b.min.y) < 0.15, 'kaki di lantai ' + b.min.y);
+});
+
+t('lobby.html: semua aksi yang dijadwalkan dikenal rig, dan jadwal dipanggil di loop', () => {
+  const l = read('lobby.html'), names = new Set(); let m; const re = /bc\.act\('([a-z]+)'\)/g;
+  while ((m = re.exec(l))) names.add(m[1]);
+  assert.ok(names.size >= 7, 'aksi lobby: ' + [...names]);
+  for (const nm of names) { const c = make(); c.tick(0.016); c.act(nm); assert.strictEqual(c.acting, nm, 'aksi lobby tidak dikenal: ' + nm); }
+  assert.ok(/bc\.tick\(dt\);lobbyStep\(dt\)/.test(l), 'lobbyStep dipanggil tiap frame');
+  assert.ok(/lobbyTap\(\);buzz\(\)/.test(l), 'tap karakter memicu aksi');
+});
 console.log(n + ' tes lulus');
