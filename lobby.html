@@ -154,10 +154,10 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 
 <script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
-<script src="assets/js/character-view.js"></script>
+<script src="assets/js/character-rig.js"></script><script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
-<script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/wallet-service.js"></script><script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
@@ -189,7 +189,7 @@ const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1700)}
 /* ---------- HUD ---------- */
-function renderAvatar(){$('#ava').innerHTML=AR.face(PD.equippedId('skin'))||AR.face('skin.steve')} /* wajah dari UT.CharacterData lewat ItemArt.face */
+function renderAvatar(){$('#ava').innerHTML=AR.myFace('')||AR.face(PD.equippedId('skin'))||AR.face('skin.steve')} /* potret kepala dari rig Karakter (PlayerData/server); wajah skin lama hanya cadangan bila WebGL/rig tidak ada */
 function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 /* nama panjang: font otomatis mengecil agar tidak keluar panel */
 function fitName(){const n=$('#pname');if(!n)return;const MAX=3.1,MIN=1.1;let sz=MAX;n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem';
@@ -212,6 +212,7 @@ if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get())UT.W
 /* sinkron XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0){SRV_XP=Math.floor(x);renderXp()}}).catch(()=>{});
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});
+PD.subscribe(r=>{if(r==='equip'||r==='server-appearance'||r==='storage'||r==='pageshow')renderAvatar()}); /* ganti rambut/warna/outfit di Karakter -> avatar lobby ikut berubah */
 /* frame profil = frame yang sedang dipakai (Inventory) */
 function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=document.getElementById('avf');if(im)im.src=(f&&f.image)||'data/frame/frame-default.webp'}
 applyFrame();UT.Events.on('frameChanged',applyFrame);
@@ -253,7 +254,7 @@ function tree(x,gy,z,h=3,w=1){for(let i=0;i<h;i++)B(x,gy+.5+i,z,0x7a4b2a);const 
  B(x,t+2.5,z,0x45b840);B(x+1,t+2.5,z,0x45b840,1,1,1);}
 function bush(x,gy,z){B(x,gy+.5,z,0x2c8a2c);if(rnd()<.6)B(x+1,gy+.5,z,0x257a28);if(rnd()<.5)B(x,gy+1.5,z,0x34993a)}
 function flower(x,gy,z){const c=[0xff7ab8,0xffffff,0xffe05a,0xc78bff][rnd()*4|0];B(x,gy+.2,z,0x2f9a34,.15,.4,.15,0);B(x,gy+.5,z,c,.45,.3,.45,0)}
-function character(sk,emote){return UT.CharacterView.make(THREE,sk,emote)} /* model = UT.CharacterData (sama dengan gameplay), bukan rig lama */
+function character(sk,emote){return UT.CharacterView.make(THREE,'mine',emote)} /* karakter pemain = rig halaman Karakter (PlayerData/server), live; sk lama diabaikan */
 function bx(w,h,d,m,x=0,y=0,z=0,p){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;p&&p.add(o);return o}
 function M(c,r=.7){return new THREE.MeshStandardMaterial({color:new THREE.Color(c),roughness:r})}
 

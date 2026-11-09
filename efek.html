@@ -263,7 +263,7 @@ html body .use img{width:3rem;height:3rem}
 <script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
 <link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
-<script src="assets/js/character-view.js"></script>
+<script src="assets/js/character-rig.js"></script><script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
@@ -402,7 +402,7 @@ window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').s
 // ---- 3D
 const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
 const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;p&&p.add(o);return o};
-function character(sk,emote){return UT.CharacterView.make(THREE,sk,emote)} /* model = UT.CharacterData (sama dengan gameplay), bukan rig lama */
+function character(sk,emote){return UT.CharacterView.make(THREE,'mine',emote)} /* karakter pemain = rig halaman Karakter (PlayerData/server), live; sk lama diabaikan */
 function diceTex(c,p){const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');x.fillStyle=c;x.fillRect(0,0,128,128);x.fillStyle=p;[[32,32],[96,32],[64,64],[32,96],[96,96]].forEach(a=>{x.beginPath();x.arc(a[0],a[1],12,0,6.3);x.fill()});return new THREE.CanvasTexture(cv)}
 /* model hanya skin/dice canonical; tema memakai ItemArt overlay */
 function model(c,it){let g;

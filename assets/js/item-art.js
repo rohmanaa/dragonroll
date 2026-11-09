@@ -286,7 +286,7 @@
   function frame(frameId, label) {
     var it = C.byId(frameId); if (!it || it.kind !== 'frame') return '';
     var skinId = (g.PlayerData && g.PlayerData.equippedId && g.PlayerData.equippedId('skin')) || C.fallbackSkinId();
-    return '<div class="fr-th" role="img" aria-label="' + (label || it.name) + '"><span class="fr-in">' + face(skinId) + '</span>' +
+    return '<div class="fr-th" role="img" aria-label="' + (label || it.name) + '"><span class="fr-in">' + (myFace() || face(skinId)) + '</span>' +
       '<img class="fr-img" src="' + it.image + '" alt="" draggable="false" decoding="async"></div>';
   }
 
@@ -301,6 +301,24 @@
     return '';
   }
 
+  /* Avatar 2D PEMAIN = potret dari rig halaman Karakter (UT.CharacterRig lewat UT.CharacterView.portrait), bukan wajah skin lama.
+     app = {look, equipped, gearDye} (default: tampilan pemain ini dari PlayerData; untuk pemain lain: baris server).
+     Mengembalikan '' bila rig/THREE/WebGL tidak tersedia -> pemanggil jatuh ke face() lama. */
+  function portraitHtml(app, frame, cls, label) {
+    var CV = g.UT && g.UT.CharacterView;
+    if (!CV || !g.THREE || !g.UT.CharacterRig) return '';
+    var u = CV.portrait(g.THREE, app, { frame: frame, size: frame === 'head' ? 128 : 192 });
+    return u ? '<img class="' + cls + ' ut-char" src="' + u + '" alt="' + String(label || '').replace(/[<>&"]/g, '') + '" draggable="false">' : '';
+  }
+  function myFace(label) {
+    var CV = g.UT && g.UT.CharacterView;
+    return portraitHtml(CV ? CV.mine() : null, 'head', 'art-face', label);
+  }
+  function myCharacter(label) {
+    var CV = g.UT && g.UT.CharacterView;
+    return portraitHtml(CV ? CV.mine() : null, 'full', 'art-char', label);
+  }
+
   /* Palet warna karakter untuk renderer 3D halaman (lobby/shop/inventory/profile).
      Satu sumber warna skin: dibaca dari FACES katalog, bukan database warna kedua. */
   function palette(skinId) {
@@ -313,6 +331,6 @@
     return pal;
   }
 
-  g.ItemArt = { character: character, face: face, frame: frame, dice: dice, theme: theme, powerup: powerup, forItem: forItem, palette: palette,
+  g.ItemArt = { character: character, face: face, myFace: myFace, myCharacter: myCharacter, portraitHtml: portraitHtml, frame: frame, dice: dice, theme: theme, powerup: powerup, forItem: forItem, palette: palette,
                 textureUrl: textureUrl, loadSkinTexture: loadSkinTexture, resolveSkinId: resolveSkinId, makeSkinTexture: makeSkinTexture };
 })(window);

@@ -1,7 +1,7 @@
 /* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
    Strategi: network-first (kode game selalu terbaru saat online), cadangan cache saat offline.
    Request Range (audio streaming) dan non-GET tidak disentuh. Naikkan VERSION untuk membersihkan cache lama. */
-const VERSION = 'ut-pwa-v47';
+const VERSION = 'ut-pwa-v48';
 const CORE = ['index.html', 'play.html', 'splash.html', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 

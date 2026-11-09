@@ -1259,8 +1259,9 @@ if (typeof THREE === 'undefined') {
 </script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
+<script src="assets/js/character-rig.js"></script><script src="assets/js/character-view.js"></script>
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/player-data.js"></script>
-<script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/wallet-service.js"></script><script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
 <script src="assets/js/app.js"></script>
@@ -1422,6 +1423,44 @@ function upgradePawnPNG(g,pal,k){
     if(!m) return;
     const mdl=UT.GameplaySkin.buildModel(THREE,m.tex,{slim:m.slim}); g.add(mdl); pal.visible=false; g.userData.png=mdl; if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
   }).catch(()=>{});
+}
+/* Karakter pemain = rig halaman Karakter (UT.CharacterRig). app = {look, equipped, gearDye}: milik sendiri dari PlayerData,
+   pemain online dari server (room_appearance_get). Aditif seperti upgradePawnPNG: gagal/tidak ada rig -> bidak lama tetap. */
+const RIG_PAWN_SCALE=0.83/2.0; /* tinggi bidak lama (0.83) / tinggi rig (2.0) -> hop/glide/kamera tetap sama */
+function upgradePawnRig(g,app){
+  try{
+    const CR=window.UT&&UT.CharacterRig, pal=g&&g.userData.pal; if(!CR||!pal) return false;
+    if(g.userData.rigHolder){ g.userData.rig.setAppearance(app); return true; }
+    const R=CR.create(THREE,{}), holder=new THREE.Group(); holder.scale.setScalar(RIG_PAWN_SCALE); holder.add(R.root);
+    R.setAppearance(app); R.update(0.0001);
+    g.add(holder); pal.visible=false; g.userData.png=holder; g.userData.rig=R; g.userData.rigHolder=holder;
+    if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
+    return true;
+  }catch(e){ return false; }
+}
+function setPlayerAppearance(p,app){
+  if(!p||!p.pawn) return;
+  p.appearance=app;
+  if(upgradePawnRig(p.pawn,app)) refreshFaces();
+}
+const PIMG={};
+function portraitImg(app){
+  try{
+    const CV=window.UT&&UT.CharacterView; if(!CV||!app) return null;
+    const u=CV.portrait(THREE,app,{frame:'head',size:192}); if(!u) return null;
+    let im=PIMG[u]; if(!im){ im=PIMG[u]=new Image(); im.onload=()=>refreshFaces(); im.src=u; }
+    return (im.complete&&im.naturalWidth)?im:null;
+  }catch(e){ return null; }
+}
+function myAppearance(){ try{ return window.PlayerData&&PlayerData.appearance?PlayerData.appearance():null; }catch(e){ return null; } }
+/* Online: ambil tampilan semua anggota room dari server dan pasang ke bidaknya (pemain tanpa data = tampilan awal builder). */
+async function loadRoomAppearances(gid){
+  try{
+    const AS=window.UT&&UT.AppearanceService&&UT.AppearanceService.get(); if(!AS||!ROOM_CFG||!ROOM_CFG.roomId) return;
+    const r=await AS.roomAppearance(ROOM_CFG.roomId); if(gid!==gameId||!r||!r.ok||!Array.isArray(r.players)) return;
+    const by={}; r.players.forEach(x=>{ by[String(x.user_id).toLowerCase()]={look:x.look||null,equipped:x.equipped||{},gearDye:x.gear_dye||{}}; });
+    players.forEach(p=>{ const id=p.networkId&&String(p.networkId).toLowerCase(); if(!id||p.cpu) return; if(by[id]) setPlayerAppearance(p,by[id]); else if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) setPlayerAppearance(p,{look:null,equipped:{},gearDye:{}}); });
+  }catch(e){}
 }
 /* Geometri papan murni (tile serpentine, tinggi terrain) = UT.GameplayVoxelGeom (gameplay/voxel-geom.js). Rumus dipindah apa adanya. */
 const GV=UT.GameplayVoxelGeom;
@@ -4693,7 +4732,7 @@ function makePawn(d){
     if(k==='steve') bx(0,0.57,0.152,0.1,0.03,0.02,0x5A3820,F); else bx(0,0.57,0.152,0.06,0.025,0.02,0xB0563A,F);
   }
   const g=new THREE.Group();
-  const pal=buildBatch(b); g.add(pal);
+  const pal=buildBatch(b); g.add(pal); g.userData.pal=pal;
   if(d.png) upgradePawnPNG(g,pal,d.key); /* PNG gagal dimuat -> tetap palette (Steve) */
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
   marker.position.y=1.22; marker.visible=false;
@@ -5314,8 +5353,15 @@ const FRM={},FFURL={};
 (function(){ try{ window.ItemCatalog.items.filter(i=>i.kind==='frame').forEach(i=>{ const im=new Image(); im.onload=()=>{ try{ if(typeof renderChips==='function'&&typeof players!=='undefined'&&players&&players.length) renderChips(); }catch(e){} }; im.src=i.image; FRM[i.id]=im; }); }catch(e){} })();
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
-function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
+function frameOf(p){ try{ const f=p&&p.appearance&&p.appearance.equipped&&p.appearance.equipped.frame; if(f&&FRM[f]) return f; }catch(e){} if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 function framedFace(p){
+  const pim=p.appearance?portraitImg(p.appearance):null;
+  if(pim){ /* wajah = potret rig Karakter (milik sendiri / dari server), digabung dengan frame pemain itu */
+    const fid=frameOf(p), fi=FRM[fid], ck='rig|'+pim.src.length+'|'+pim.src.slice(-40)+'|'+fid; if(FFURL[ck]) return FFURL[ck];
+    try{ const S=192,cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d');
+      x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high'; x.drawImage(pim,S*.16,S*.16,S*.68,S*.68);
+      if(fi&&fi.complete&&fi.naturalWidth) x.drawImage(fi,0,0,S,S); return FFURL[ck]=cv.toDataURL(); }catch(e){ return pim.src; }
+  }
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;
   const ck=p.key+'|'+fid; if(FFURL[ck]) return FFURL[ck];
@@ -5996,7 +6042,9 @@ function startGame(m,keys){
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
+    if(!ONLINE_ROOM&&i===0&&!d.cpu) setPlayerAppearance(players[players.length-1],myAppearance()||{look:null,equipped:{},gearDye:{}}); /* pemain lokal = karakter dari halaman Karakter */
   });
+  if(ONLINE_ROOM) loadRoomAppearances(gameId); /* pemain online: tampilan dari server */
   cur=0; resetCam();
   $('win').hidden=true;
   document.body.classList.add('playing');

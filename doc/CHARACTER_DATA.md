@@ -1,5 +1,7 @@
 # Character Data (data karakter bersama)
 
+> **Catatan:** model Steve/Alex di file ini kini hanya cadangan. Karakter PEMAIN di semua halaman memakai rig halaman Karakter — lihat `doc/CHARACTER_SYNC.md`.
+
 Satu sumber detail model voxel karakter & mob gameplay, agar halaman lain (lobby, leaderboard, profil, shop, inventory, dll.)
 memakai tampilan yang sama dengan gameplay — bukan lagi wajah 8×8 sederhana.
 

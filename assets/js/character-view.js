@@ -2,6 +2,16 @@
    Satu sumber model = UT.CharacterData (diekstrak dari gameplay.html), jadi karakter di semua halaman sama dengan gameplay.
    Butuh: assets/js/character-data.js (dan three.js yang dikirim lewat argumen THREE).
 
+   TAMPILAN PEMAIN (sumber kebenaran = halaman Karakter, tersimpan di PlayerData + server lewat AppearanceService):
+     UT.CharacterView.make(THREE, 'mine', emote)        karakter pemain ini (rambut, warna, outfit, tubuh) — ikut berubah LIVE saat
+                                                        PlayerData berubah (equip/look/server-appearance/tab lain) dan ditarik dari
+                                                        server saat halaman dibuka (akun login + mode server)
+     UT.CharacterView.make(THREE, {look,equipped,gearDye}, emote)   tampilan pemain lain (mis. baris server room_appearance_get)
+     userData.setAppearance(a) mengganti tampilan; userData.unwatch() berhenti berlangganan (hanya mode 'mine')
+     UT.CharacterView.mine() / refreshMine() / portrait(THREE, a, {frame:'head'|'bust'|'full', size}) -> dataURL (avatar 2D)
+   Rig = UT.CharacterRig (dibangun dari karakter.html lewat tools/character-rig/build.js).
+
+   Mode lama (UT.CharacterData, Steve/Alex bawaan gameplay) tetap ada hanya sebagai cadangan bila rig tidak dimuat:
    UT.CharacterView.make(THREE, skinIdOrKey, emote) -> THREE.Group, userData.anim(t) siap dipanggil tiap frame
      skinIdOrKey : 'skin.steve' | 'steve' | palet dari ItemArt.palette (memakai .gameKey); tak dikenal -> steve
      emote       : 'idle' (default) | 'wave' | 'dance' | 'victory' | 'cheer' | 'laugh' | 'celebrate'
@@ -107,7 +117,72 @@
     }
   };
 
+  /* ---------- Tampilan pemain (rig builder) ---------- */
+  var RIG_SCALE = 0.83 * SCALE / 2.0;   /* rig ±2 satuan tinggi; disamakan dengan tinggi Steve lama supaya tata letak halaman tidak bergeser */
+
+  function mine() {
+    var PD = win.PlayerData;
+    try { return PD && PD.appearance ? PD.appearance() : null; } catch (e) { return null; }
+  }
+
+  function makeAppearance(THREE, app, emote) {
+    var g = new THREE.Group(), CR = UT.CharacterRig;
+    g.userData.setAppearance = function () {}; g.userData.setEmote = function () {}; g.userData.anim = function () {};
+    if (!CR) return g;   /* rig tidak dimuat: kosong, bukan error */
+    var R = CR.create(THREE, {});
+    var holder = new THREE.Group(); holder.scale.setScalar(RIG_SCALE); holder.position.y = FEET; holder.add(R.root); g.add(holder);
+    var sig = null, lastT = null;
+    function set(a) {
+      var s = CR.signature(a);
+      if (s === sig) return;
+      sig = s; R.setAppearance(a);
+    }
+    set(app);
+    R.setEmote(EMOTES[emote] ? emote : 'idle');
+    g.userData.setAppearance = set;
+    g.userData.setEmote = function (n) { R.setEmote(EMOTES[n] ? n : 'idle'); };
+    g.userData.anim = function (t) {
+      var dt = lastT == null ? 0.016 : Math.min(0.1, Math.max(0, t - lastT)); lastT = t;
+      R.update(dt);
+    };
+    g.userData.dispose = function () { if (g.userData.unwatch) g.userData.unwatch(); R.dispose(); };
+    g.userData.anim(0);
+    return g;
+  }
+
+  /* Tarik tampilan aktif dari SERVER (akun login + mode server): AppearanceService.refresh() = inventory dulu, lalu tampilan (server menang), sama seperti
+     halaman Karakter. Hasilnya masuk ke PlayerData -> notify('server-appearance') -> semua karakter 'mine' di halaman ikut berubah. */
+  var refreshing = null, refreshedAt = 0;
+  function refreshMine(force) {
+    var PD = win.PlayerData;
+    if (!PD || !PD.serverMode || !PD.serverMode()) return Promise.resolve({ ok: false, reason: 'mode-lokal' });
+    if (refreshing) return refreshing;
+    if (!force && Date.now() - refreshedAt < 15000) return Promise.resolve({ ok: true, cached: true });
+    var AS = UT.AppearanceService && UT.AppearanceService.get && UT.AppearanceService.get();
+    if (!AS) return Promise.resolve({ ok: false, reason: 'tanpa-layanan' });
+    refreshing = AS.refresh().then(function (r) { if (r && r.ok) refreshedAt = Date.now(); return r || { ok: false }; },
+      function () { return { ok: false, reason: 'jaringan' }; })
+      .then(function (r) { refreshing = null; return r; });
+    return refreshing;
+  }
+
+  var WATCH = { equip: 1, 'server-appearance': 1, storage: 1, pageshow: 1 };
+  function makeMine(THREE, emote) {
+    var g = makeAppearance(THREE, mine(), emote), PD = win.PlayerData;
+    if (PD && PD.subscribe) {
+      g.userData.unwatch = PD.subscribe(function (reason) { if (WATCH[reason]) g.userData.setAppearance(mine()); });
+    }
+    refreshMine();
+    return g;
+  }
+
+  function portrait(THREE, app, o) { return UT.CharacterRig ? UT.CharacterRig.portrait(THREE, app, o) : ''; }
+
   function make(THREE, skin, emote) {
+    if (UT.CharacterRig) {
+      if (skin === 'mine') return makeMine(THREE, emote);
+      if (skin && typeof skin === 'object' && !skin.gameKey && ('look' in skin || 'equipped' in skin)) return makeAppearance(THREE, skin, emote);
+    }
     var CD = UT.CharacterData, g = new THREE.Group(), key = keyOf(skin);
     var d = CD && CD.get('player', key);
     function stub() { g.userData.anim = function () {}; g.userData.setEmote = function () {}; return g; }
@@ -182,5 +257,5 @@
     return g;
   }
 
-  UT.CharacterView = { make: make, keyOf: keyOf, SCALE: SCALE, emotes: Object.keys(EMOTES) };
+  UT.CharacterView = { make: make, makeMine: makeMine, makeAppearance: makeAppearance, mine: mine, refreshMine: refreshMine, portrait: portrait, keyOf: keyOf, SCALE: SCALE, emotes: Object.keys(EMOTES) };
 })(window);

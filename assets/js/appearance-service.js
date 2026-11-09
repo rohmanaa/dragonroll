@@ -140,8 +140,21 @@
       return function () { if (unsub) unsub(); unsub = null; if (timer) { clearT(timer); timer = null; } };
     }
 
+    /* Tampilan aktif pemain lain di leaderboard/teman (maks 50 id; server hanya mengembalikan pemain yang tampil di leaderboard + dirimu).
+       Mengembalikan {ok, byId:{<user_id huruf kecil>: {look, equipped, gearDye}}}. */
+    async function usersAppearance(ids) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      var list = Array.from(new Set((ids || []).map(String))).slice(0, 50);
+      if (!list.length) return { ok: true, byId: {} };
+      try {
+        var rows = await rpc('appearance_get_many', { p_user_ids: list }), byId = {};
+        (Array.isArray(rows) ? rows : []).forEach(function (x) { byId[String(x.user_id).toLowerCase()] = { look: x.look || null, equipped: x.equipped || {}, gearDye: x.gear_dye || {} }; });
+        return { ok: true, byId: byId };
+      } catch (e) { return fail(e); }
+    }
+
     return {
-      enabled: enabled, refresh: refresh,
+      enabled: enabled, refresh: refresh, usersAppearance: usersAppearance,
       saveOutfit: saveOutfit, renameOutfit: renameOutfit, deleteOutfit: deleteOutfit,
       pushAppearance: pushAppearance, roomAppearance: roomAppearance, autoSync: autoSync
     };
