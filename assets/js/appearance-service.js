@@ -122,6 +122,19 @@
       } catch (e) { return fail(e); }
     }
 
+    /* Tampilan aktif pemain lain (Teman/Leaderboard): maks 50 id. Server hanya mengembalikan diri sendiri, teman, pengirim permintaan,
+       dan pemain leaderboard. Hasil: {ok, byId:{<user_id huruf kecil>: {look, equipped, gear_dye}}} (bentuk sama dengan baris room_appearance_get). */
+    async function usersAppearance(ids) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      var list = Array.from(new Set((ids || []).map(String))).slice(0, 50);
+      if (!list.length) return { ok: true, byId: {} };
+      try {
+        var rows = await rpc('appearance_get_many', { p_user_ids: list }), byId = {};
+        (Array.isArray(rows) ? rows : []).forEach(function (x) { byId[String(x.user_id).toLowerCase()] = { look: x.look || null, equipped: x.equipped || {}, gear_dye: x.gear_dye || {} }; });
+        return { ok: true, byId: byId };
+      } catch (e) { return fail(e); }
+    }
+
     /* Tampilan aktif anggota room (untuk multiplayer): [{user_id, look, equipped, gear_dye}]. */
     async function roomAppearance(roomId) {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };
@@ -143,7 +156,7 @@
     return {
       enabled: enabled, refresh: refresh,
       saveOutfit: saveOutfit, renameOutfit: renameOutfit, deleteOutfit: deleteOutfit,
-      pushAppearance: pushAppearance, roomAppearance: roomAppearance, autoSync: autoSync
+      pushAppearance: pushAppearance, roomAppearance: roomAppearance, usersAppearance: usersAppearance, autoSync: autoSync
     };
   }
 

@@ -335,7 +335,7 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
-<script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script>
+<script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script><script src="assets/js/appearance-service.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),hex=n=>'#'+n.toString(16).padStart(6,'0'),fmt=n=>n.toLocaleString('id-ID');
@@ -372,7 +372,17 @@ const myKey=()=>{try{const it=ItemCatalog.byId(PlayerData.equippedId('skin'));re
 /* wajah = UT.CharacterData (sama dengan gameplay). Pemain lain: karakter dipilih dari hash id (server belum menyimpan skin). 'Kamu' = skin yang sedang dipakai. */
 const oldFace=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
 /* 'Kamu' = kepala karakter baru (BlockyCharacter, sama dgn halaman Karakter); fallback ke skin lama bila WebGL tidak ada */
-const face=r=>(r.me&&UT.CharacterFace&&UT.CharacterFace.html())||oldFace(r);
+/* Pemain lain = tampilan asli dari server (appearance_get_many, BlockyCharacter); belum punya data = tampilan awal builder */
+const APP={},EMPTY={look:null,equipped:{},gear_dye:{}};
+const appKey=r=>String(r.uid||'').toLowerCase();
+const face=r=>{const CF=UT.CharacterFace;if(!CF)return oldFace(r);
+ if(r.me){const h=CF.html();if(h)return h}
+ else{const u=CF.urlData(APP[appKey(r)]||EMPTY);if(u)return `<img src="${u}" alt="" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block">`}
+ return oldFace(r)};
+async function loadAppr(rows){
+ try{const AS=UT.AppearanceService&&UT.AppearanceService.get();if(!AS)return;
+  const ids=rows.filter(r=>!r.me&&r.uid&&!APP[appKey(r)]).map(r=>r.uid);if(!ids.length)return;
+  const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);renderAll()}catch(e){}}
 let tab='global';
 const CACHE={};   /* tab -> {state:'loading'|'ok'|'error', rows:[], at} */
 const pad=n=>n<10?'0'+n:''+n;
@@ -388,12 +398,21 @@ async function load(t,force){
   CACHE[t]={state:'ok',at:Date.now(),rows:(rows||[]).map(r=>({pos:Number(r.pos),uid:r.uid,name:r.pname,lv:r.lvl,score:Number(r.score),wins:r.wins,plays:r.plays,me:!!r.is_me}))};
  }catch(e){console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:[]}}
  if(t===tab)renderAll();
+ if(CACHE[t].state==='ok')loadAppr(CACHE[t].rows);
 }
 
 function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]===tab?'on':''}" data-t="${t[0]}"><img class="ci" src="assets/Images/icon/${t[2]}.webp" alt="" draggable="false">${t[1]}</button>`).join('');
  document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll();load(tab)}))}
 
-function renderPodium(){const rows=cur().rows,pl=i=>rows[i]?`<div class="pn">${esc(rows[i].name)}</div><div class="ps">${TR}${fmt(rows[i].score)}</div>`:`<div class="pn">—</div><div class="ps">${TR}0</div>`;
+function fillPodium(){if(!R||!UT.BlockyCharacter)return;const rows=cur().rows;
+ R.slots.forEach(s=>{const r=rows[s.c.row],key=r?(r.me?'me':appKey(r)+'|'+(APP[appKey(r)]?1:0)):'';
+  if(key===s.key)return;s.key=key;
+  if(s.bc){s.w.remove(s.bc.root);s.bc=null}
+  if(!r)return;
+  try{const bc=UT.BlockyCharacter.create(THREE),d=APP[appKey(r)]||EMPTY;
+   if(r.me)bc.loadFromPlayer();else bc.loadFromData(d.look,d.equipped,d.gear_dye);
+   bc.tick(.016);s.bc=bc;s.w.add(bc.root)}catch(e){}})}
+function renderPodium(){fillPodium();const rows=cur().rows,pl=i=>rows[i]?`<div class="pn">${esc(rows[i].name)}</div><div class="ps">${TR}${fmt(rows[i].score)}</div>`:`<div class="pn">—</div><div class="ps">${TR}0</div>`;
  $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
 
 function renderMe(){const mine=cur().rows.find(r=>r.me),L=PD.levelInfo(),nm=PD.profile().name;
@@ -492,22 +511,23 @@ function build(){const cv=$('#gl');
   scene.add(new THREE.AmbientLight(0xfff4e4,.58),new THREE.HemisphereLight(0xcfeaff,0x6a5a40,.42));
   const sun=new THREE.DirectionalLight(0xffe2b0,.78);sun.position.set(6,12,10);scene.add(sun);
   const holder=new THREE.Group();scene.add(holder);
-  const cfg=[{x:-3.3,h:1.9,n:2,wood:0x7b5b38,metal:0xa9b0ba,metalDk:0x7d838d,sk:{gameKey:NK.Zyrex},rot:.25},
-             {x:0,h:2.6,n:1,wood:0x8f6c3d,metal:0xc49b43,metalDk:0x8f6e2a,sk:{gameKey:NK.RizkyPro},rot:0,emote:'wave'},
-             {x:3.3,h:1.5,n:3,wood:0x5c4429,metal:0xad693f,metalDk:0x7d4a2b,sk:{gameKey:NK.Luna},rot:-.25}];
-  const chars=[];
+  const cfg=[{x:-3.3,h:1.9,n:2,wood:0x7b5b38,metal:0xa9b0ba,metalDk:0x7d838d,rot:.25,row:1},
+             {x:0,h:2.6,n:1,wood:0x8f6c3d,metal:0xc49b43,metalDk:0x8f6e2a,rot:0,row:0},
+             {x:3.3,h:1.5,n:3,wood:0x5c4429,metal:0xad693f,metalDk:0x7d4a2b,rot:-.25,row:2}];
+  const slots=[];
   cfg.forEach(c=>{const pd=podium(c,c.n);pd.position.x=c.x;holder.add(pd);
-   const w=new THREE.Group();w.position.set(c.x,c.h+.14,0);w.scale.setScalar(.46);w.rotation.y=c.rot;const ch=character(c.sk,c.emote);w.add(ch);holder.add(w);chars.push(ch)});
+   const w=new THREE.Group();w.position.set(c.x,c.h+.14,0);w.scale.setScalar(.46*2.74);w.rotation.y=c.rot;holder.add(w);slots.push({w,c,bc:null,key:''})});
   const ring=new THREE.Mesh(new THREE.RingGeometry(4.6,5.6,48),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.3,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.02;ring.scale.set(1.6,1,1);holder.add(ring);
-  R={r,scene,cam,chars,cv}}catch(e){ok=false;console.warn('WebGL unavailable',e)}}
+  R={r,scene,cam,slots,cv}}catch(e){ok=false;console.warn('WebGL unavailable',e)}}
 
 function fit(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;const hi=SET().graphics==='high';R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=w/h<1.2?36:30;R.cam.updateProjectionMatrix()}
-function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(!R.cv.offsetParent)return;R.chars.forEach(c=>c.userData.anim(t));R.cam.position.set(0,4.2,15);R.cam.lookAt(0,3.4,0);R.r.render(R.scene,R.cam)}
+function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(!R.cv.offsetParent)return;const dt=Math.min(.05,t-(R.t||t));R.t=t;R.slots.forEach(s=>s.bc&&s.bc.tick(dt));R.cam.position.set(0,4.2,15);R.cam.lookAt(0,3.4,0);R.r.render(R.scene,R.cam)}
 
 renderTabs();renderAll();load(tab);
 addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(tab,true)});
 PD.subscribe(()=>renderMe());
 if(ok)build();
+if(ok&&R)fillPodium();
 if(ok&&R){new ResizeObserver(fit).observe($('#pod'));fit();requestAnimationFrame(loop)}
 else $('#pod').insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>');
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */

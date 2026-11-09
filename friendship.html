@@ -123,6 +123,7 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'friendship'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
+<script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script><script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script>
 (()=>{
@@ -139,6 +140,16 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const COLORS=[0x22b8d8,0x9a4ae0,0xf0b030,0x4acb58,0xd23a32,0x5a75d6,0x35d3f0,0xff7ad0];
 const colorOf=n=>COLORS[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
 function avatar(color){return `<svg viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#a9dcf8"/><ellipse cx="50" cy="82" rx="31" ry="9" fill="#6fbf4a" opacity=".75"/><rect x="31" y="27" width="38" height="31" rx="3" fill="#f1c49b"/><rect x="27" y="23" width="46" height="13" rx="3" fill="#7a4a2a"/><rect x="26" y="50" width="48" height="32" rx="3" fill="${'#'+color.toString(16).padStart(6,'0')}"/><rect x="39" y="38" width="6" height="6" fill="#24335a"/><rect x="55" y="38" width="6" height="6" fill="#24335a"/><rect x="42" y="49" width="16" height="3" rx="1.5" fill="#a45a4d"/></svg>`}
+/* Avatar teman = kepala karakter ASLI mereka (tampilan tersimpan di server, appearance_get_many) — sama dengan halaman Karakter.
+   Teman yang belum pernah membuka Karakter = tampilan awal. Tanpa WebGL/layanan -> avatar lama. */
+const APP={},EMPTY={look:null,equipped:{},gear_dye:{}};
+function avatarOf(f){const CF=UT.CharacterFace,u=CF&&CF.urlData(APP[String(f.id).toLowerCase()]||EMPTY);
+ return u?`<img src="${u}" alt="" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block">`:avatar(f.skin)}
+const frameOfF=f=>{const a=APP[String(f.id).toLowerCase()];return a&&a.equipped&&a.equipped.frame||undefined};
+async function loadAppr(){
+ try{const AS=UT.AppearanceService&&UT.AppearanceService.get();if(!AS)return;
+  const ids=[...friends.map(f=>f.friend_id),...requests.map(r=>r.from_id)].filter(Boolean).filter(i=>!APP[String(i).toLowerCase()]);if(!ids.length)return;
+  const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);render()}catch(e){}}
 function presMap(){const m={};try{(PR()?PR().list():[]).forEach(p=>m[p.id]=p.status)}catch(e){}return m}
 function viewFriends(){const pm=presMap();return friends.map(f=>{const st=pm[f.friend_id];return{id:f.friend_id,name:f.friend_name,status:!st?'offline':st==='lobby'?'online':'busy',mode:st==='lobby'?'Di lobi':st==='room'?'Di room':st==='game'?'Sedang bermain':'Offline',skin:colorOf(f.friend_name)}})}
 function viewRequests(){return requests.map(r=>({id:r.from_id,name:r.from_name,status:'online',mode:'Mengirim permintaan',skin:colorOf(r.from_name)}))}
@@ -146,7 +157,7 @@ function render(){
  const fv=viewFriends(),rv=viewRequests(),source=filter==='request'?rv:fv;
  const arr=source.filter(f=>f.name.toLowerCase().includes(query.toLowerCase())).filter(f=>filter!=='online'||f.status!=='offline');
  const emptyMsg=authed===false?'Masuk ke akunmu untuk melihat teman.':!loaded?'Memuat...':filter==='request'?'Belum ada permintaan teman.':filter==='online'?'Tidak ada teman yang sedang online.':'Belum ada teman. Tekan ＋ Tambah untuk mengirim permintaan.';
- $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${esc(f.id)}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatar(f.skin)+'</div>','5.2rem',f.frame)}<div class="finfo"><div class="name">${esc(f.name)}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>${esc(f.mode)}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button><button class="act remove" data-action="remove">Hapus</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>${emptyMsg}</p></div></div>`;
+ $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${esc(f.id)}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatarOf(f)+'</div>','5.2rem',frameOfF(f))}<div class="finfo"><div class="name">${esc(f.name)}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>${esc(f.mode)}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button><button class="act remove" data-action="remove">Hapus</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>${emptyMsg}</p></div></div>`;
  $('#onlineCount').textContent=fv.filter(x=>x.status!=='offline').length;
  $('#reqCount').textContent=requests.length;
 }
@@ -160,7 +171,7 @@ async function load(){
  try{await ready;const c=await UT.Multiplayer.getClient();const {data}=await c.auth.getSession();authed=!!data.session;
   if(authed){const [f,r]=await Promise.all([RS().listFriends(),RS().listRequests()]);friends=f;requests=r}
  }catch(e){console.warn('[friends] gagal memuat',e)}
- loaded=true;render();
+ loaded=true;render();loadAppr();
 }
 const ready=import('./assets/js/multiplayer/presence.js').then(()=>{PR().start({status:'lobby',requireSession:true});PR().onChange(render)}).catch(e=>console.warn('[friends] presence gagal',e));
 function addFriend(){openModal(`<h2>Tambah Teman</h2><p>Masukkan username pemain yang ingin kamu tambahkan.</p><label class="search" style="height:4.2rem;width:100%;display:flex;margin:1rem 0"><input id="friendName" placeholder="Username teman" style="text-align:center"></label><div class="modalBtns"><button class="modalBtn no" id="cancel">Batal</button><button class="modalBtn" id="send">Kirim Permintaan</button></div>`);$('#cancel').onclick=closeModal;
