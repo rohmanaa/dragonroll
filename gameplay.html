@@ -5119,12 +5119,12 @@ window.addEventListener('resize',onResize); window.addEventListener('orientation
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
 const CAM_PITCH=0.62+14*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 14 derajat (49.5 derajat): kamera lebih tinggi, pandangan lebih ke bawah */
-const CAM_PITCH_HIGH=CAM_PITCH+18*Math.PI/180; /* Default (Free) & Front dinaikkan 18 derajat lagi (67.5 derajat): kamera lebih tinggi; POV tetap memakai CAM_PITCH */
+const CAM_PITCH_HIGH=0.833; /* Default (Free) & Front = 47.7 derajat, dipilih pemilik dari log kamera (sebelumnya 67.5); POV tetap memakai CAM_PITCH */
 const CAM_ZOOM_HIGH=0.95; /* lebih dekat (1.16 -> 0.95); papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
 const CAM_ZOOM=1.1; /* sedikit lebih jauh agar papan tetap muat di layar (sudut lebih tinggi = papan terproyeksi lebih tinggi) */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH},     /* sudut default; diatur manual */
-  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH},
+  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,pz:0.15},     /* sudut default (dari log kamera: yaw 0, pitch 0.833, zoom 0.95, pan z 0.15); diatur manual */
+  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,pz:0.15},
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
@@ -5184,7 +5184,7 @@ function resetCam(P){
   isTopDown=!!P.top;
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
-  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0; panGoal.y=0;
+  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=P.px||0; panGoal.z=P.pz||0; panGoal.y=0; /* px/pz opsional di preset (geser titik pandang) */
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
