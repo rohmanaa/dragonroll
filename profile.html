@@ -402,7 +402,8 @@ const pname=()=>PD.profile().name;
 const eqSkin=()=>IC.byId(PD.equippedId('skin'))||IC.byId('skin.steve');
 const ownedSkins=()=>PD.ownedItems().filter(o=>o.item.kind==='skin').map(o=>o.item);
 const SET=()=>PD.settings();
-let sel=eqSkin(),pose='pose1';const POSES=['idle','pose1','pose2','pose3']; /* pose karakter baru (BlockyCharacter) */
+let sel=eqSkin(),pose='pose1';const POSES=['idle','pose1','pose2','pose3','jump','attack','block']; /* pose karakter baru (BlockyCharacter); jump/attack/block = aksi berulang */
+const POSE_NAME={idle:'Diam',pose1:'Siap',pose2:'Lambai',pose3:'Pahlawan',jump:'Lompat',attack:'Serang',block:'Bertahan'};
 const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
 function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
@@ -528,7 +529,7 @@ const DT={win:()=>rows('Rasio Kemenangan',[['Menang',PROF.win],['Kalah',PROF.pla
  ach:()=>rows('Pencapaian',[['Skin',ownedSkins().length],['Dadu',kcount('dice')],['Misi',MIS()]]),
  mis:()=>rows('Misi',[['Misi selesai',MIS()]]),
  wl:()=>rows('Win / Lose',[['Menang',PROF.win],['Kalah',PROF.play-PROF.win],['Win streak',PROF.streak]]),
- achall:()=>achModal(),skins:()=>skinModal(),
+ achall:()=>achModal(),skins:()=>{location.href='karakter.html'}, /* tampilan karakter diatur di halaman Karakter (bukan pemilih skin lama) */
  stat:()=>rows('Statistik',[['Level',PROF.lvl],['Rasio kemenangan',pcn()+'%'],['Total main',PROF.play],['Peringkat global',RK()]]),
  hist:async()=>{openModal('<h2>Riwayat</h2><p>Memuat…</p>');const H=t=>{$('#mb').innerHTML='<h2>Riwayat</h2>'+t};
   try{await import('./assets/js/multiplayer/progress-service.js');const h=await UT.Multiplayer.Progress.getHistory(20);
@@ -549,7 +550,7 @@ $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 $('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
  if(a==='pick'){playSound('click');pickSkin(b.dataset.id)}else if(a==='chg'){playSound('click');changeSkin()}});
 $('#b0').addEventListener('click',()=>{if(!main)return;main.r.render(main.scene,main.cam);const l=document.createElement('a');l.href=main.cv.toDataURL('image/png');l.download='profil-'+pname()+'.png';l.click();toast('Foto disimpan')});
-$('#b1').addEventListener('click',()=>{pose=POSES[(POSES.indexOf(pose)+1)%POSES.length];buildModels();toast('Pose: '+pose)});
+$('#b1').addEventListener('click',()=>{pose=POSES[(POSES.indexOf(pose)+1)%POSES.length];buildModels();toast('Pose: '+(POSE_NAME[pose]||pose))});
 $('#b3').addEventListener('click',()=>{spin=1;playSound('select')});
 // ---- modal
 const modal=$('#modal');let mOpen=false,onClose=null;
@@ -572,7 +573,11 @@ function model(c,it){let g;
   if(UT.BlockyCharacter){ /* karakter baru = sama dengan Lobby/Karakter/gameplay, dimuat dari PlayerData */
    const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();ch.setMode(pose);ch.tick(.016); /* pose rig terpasang setelah tick pertama */
    const w=new THREE.Group();w.scale.setScalar(PCS);w.position.y=.3;w.add(ch.root);g=new THREE.Group();g.add(w);
-   let lt=null;g.userData.anim=t=>{const dt=lt==null?.016:Math.min(.05,Math.max(0,t-lt));lt=t;ch.tick(dt)};
+   let lt=null,sp=null,sa=-9;g.userData.anim=t=>{const dt=lt==null?.016:Math.min(.05,Math.max(0,t-lt));lt=t;
+    if(sp!==pose){sp=pose;sa=-9;ch.setMode(pose==='idle'||/^pose/.test(pose)?pose:'idle')}
+    if((pose==='attack'||pose==='block')&&!ch.acting&&t-sa>.5){sa=t;ch.act(pose,pose==='block'?1.5:undefined)} /* ayun senjata / bertahan dgn perisai, diulang */
+    if(pose==='jump'&&!ch.airborne&&t-sa>1){sa=t;ch.jump()}
+    ch.tick(dt)};
   }else g=character(AR.palette(it.id)||{hood:'#00a8a8',hair:'#4a2e13',pants:'#3b4fd8'},pose); /* fallback rig lama bila modul baru gagal */
  }
  return g}
@@ -589,7 +594,7 @@ function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE
  rigs.push(R);return R}catch(e){ok=false;console.warn('WebGL unavailable',e);return null}}
 let main,pv,spin=0;
 function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
-function buildModels(){const png=!!sel&&sel.renderer==='png';$('#show').classList.toggle('art',png);$('#art').innerHTML=png?AR.forItem(sel.id):'';if(png)return; /* skin PNG: preview texture, bukan model 3D baru */
+function buildModels(){$('#show').classList.remove('art');$('#art').innerHTML=''; /* selalu model 3D karakter baru; preview PNG skin lama tidak lagi menutupinya */
  setModel(main,'skin',sel);spin=1}
 function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}
 const clock=typeof THREE!=='undefined'?new THREE.Clock():null;
