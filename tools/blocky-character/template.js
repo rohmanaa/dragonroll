@@ -7,6 +7,7 @@
    const c = UT.BlockyCharacter.create(THREE);   // c.root = THREE.Group (kaki di y=0, menghadap +z, tinggi ~2 satuan)
    c.loadFromPlayer();                           // pakai penampilan + gear milik pemain (PlayerData)
    c.setMode('idle'|'walk'|'run'); c.jump();     // per frame: c.tick(dt)
+   c.loadFromData(look,equipped,gearDye);       // tampilan pemain lain dari server (room_appearance_get)
    c.loadPreset(n);                              // tampilan siap pakai deterministik (pemain lain/CPU), n = bilangan bulat
    c.act('attack'|'block'|'sad'|'cheer'[,detik]);               // aksi sekali: ayun senjata / bertahan dengan perisai / sedih / bersorak
 */
@@ -75,8 +76,7 @@ function loadPreset(n){
   Object.assign(o,clone(p.set));
   cfg=clone(DEFAULT);apply(o,true);
 }
-function loadFromPlayer(){
-  const L=PD.look(),G=PD.gearLook();
+function loadLook(L,G){
   if(!L){cfg=clone(DEFAULT);apply(null,true);return;}
   const o={gender:L.gender,skin:L.skin,eyes:L.eyes,hair:L.hair,body:L.body,accessories:[]};
   ['top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
@@ -86,8 +86,15 @@ function loadFromPlayer(){
   ACCS.forEach(a=>{const g=G['g.acc.'+a.id];if(g)o.accessories.push({id:a.id,dye:g.dye||undefined});});
   cfg=clone(DEFAULT);apply(o,true);
 }
+function loadFromPlayer(){loadLook(PD.look(),PD.gearLook());}
+/* Tampilan pemain lain dari server (AppearanceService.roomAppearance): look + equipped {slot:itemId} + gearDye {itemId:warna}. */
+function loadFromData(look,equipped,gearDye){
+  const G={},eq=equipped||{},gd=gearDye||{};
+  for(const k in eq){if(k.indexOf('g.')===0&&eq[k])G[k]={id:eq[k],dye:gd[eq[k]]||null};}
+  try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
+}
 apply(null,true);
-return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,loadFromPlayer:loadFromPlayer,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};

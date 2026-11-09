@@ -58,6 +58,8 @@
   }
   /* kepala pemain (PlayerData) */
   function url() { return render('me|' + signature(), function (ch) { ch.loadFromPlayer(); }); }
+  /* kepala pemain lain dari server: d = {look, equipped, gear_dye} (baris room_appearance_get) */
+  function urlData(d) { if (!d) return ''; var k; try { k = JSON.stringify([d.look, d.equipped, d.gear_dye || d.gearDye]); } catch (e) { return ''; } return render('d|' + k, function (ch) { ch.loadFromData(d.look, d.equipped, d.gear_dye || d.gearDye); }); }
   /* kepala tampilan siap pakai n (pemain lain / CPU) */
   function urlPreset(n) { n = Math.abs(n | 0); return render('p|' + n, function (ch) { ch.loadPreset(n); }); }
 
@@ -73,5 +75,5 @@
     try { if (win.PlayerData && win.PlayerData.subscribe) win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fn(); }); } catch (e) {}
     win.addEventListener('pageshow', function (e) { if (e.persisted) fn(); });
   }
-  UT.CharacterFace = { url: url, urlPreset: urlPreset, html: html, mount: mount, watch: watch };
+  UT.CharacterFace = { url: url, urlPreset: urlPreset, urlData: urlData, html: html, mount: mount, watch: watch };
 })(window);

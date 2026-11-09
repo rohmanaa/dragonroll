@@ -1259,7 +1259,7 @@ if (typeof THREE === 'undefined') {
 </script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
-<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/player-data.js"></script>
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/player-data.js"></script><script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
@@ -1426,13 +1426,26 @@ function loadSkin3D(k){
 /* Pion pemain 1 (lokal, bukan CPU/online) = karakter baru dari halaman Karakter (UT.BlockyCharacter + PlayerData). Gagal/tak tersedia -> pion lama tetap dipakai. */
 /* Aksi karakter baru: 'attack' (ayun senjata) / 'block' (bertahan dgn perisai saat kena serang). Aman dipanggil untuk pion mana pun (diabaikan bila bukan karakter baru). */
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
+/* Ganti model pion (mis. setelah tampilan pemain lain dari server tiba). spec: <0 = milik sendiri, >=0 = preset, objek = baris room_appearance_get. */
+function repawnNew(pawn,spec){ try{ const u=pawn&&pawn.userData,pal=u&&u.pal; if(!pal) return; if(u.png){ pawn.remove(u.png); u.png=null; u.bc=null; u.bcLast=null; u.bcMode=null; } pal.visible=true; upgradePawnNew(pawn,pal,spec); }catch(e){} }
+/* Online: pemain lokal = tampilannya sendiri; pemain lain = tampilan dari server (room_appearance_get), tanpa data = preset. */
+async function applyOnlineLooks(gid){
+  if(!ONLINE_ROOM) return;
+  const me=MP_ID?players.find(q=>q.networkId===MP_ID):null; if(me&&me.pawn) repawnNew(me.pawn,-1);
+  const by={};
+  try{ const AS=UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();
+    if(AS&&AS.roomAppearance){ const r=await AS.roomAppearance(ROOM_CFG.roomId); if(r&&r.ok&&Array.isArray(r.players)) r.players.forEach(x=>{ by[x.user_id]=x; }); } }catch(e){}
+  if(gid!==gameId) return;
+  players.forEach(p=>{ if(p===me||!p.pawn) return; if(p.cpu){ if(NEW_CHAR_CPU) repawnNew(p.pawn,2+p.idx*3); return; } const a=p.networkId&&by[p.networkId]; repawnNew(p.pawn,a||(2+p.idx*3)); });
+  refreshFaces();
+}
 const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
 /* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
 function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) setTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850); }catch(e){} }
 function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
   try{
     if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
-    const ch=UT.BlockyCharacter.create(THREE); if(seed>=0) ch.loadPreset(seed); else ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
+    const ch=UT.BlockyCharacter.create(THREE); if(seed&&typeof seed==='object') ch.loadFromData(seed.look,seed.equipped,seed.gear_dye||seed.gearDye); else if(seed>=0) ch.loadPreset(seed); else ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
     const w=new THREE.Group(); w.add(ch.root);
     w.updateMatrixWorld(true);
     const bb=new THREE.Box3().setFromObject(ch.root),h=ch.height(); /* tinggi badan (tanpa topi) agar semua pion sama tinggi */
@@ -4720,7 +4733,7 @@ function makePawn(d,nc){
     if(k==='steve') bx(0,0.57,0.152,0.1,0.03,0.02,0x5A3820,F); else bx(0,0.57,0.152,0.06,0.025,0.02,0xB0563A,F);
   }
   const g=new THREE.Group();
-  const pal=buildBatch(b); g.add(pal);
+  const pal=buildBatch(b); g.add(pal); g.userData.pal=pal;
   if(d.png) upgradePawnPNG(g,pal,d.key); /* PNG gagal dimuat -> tetap palette (Steve) */
   if(nc!=null) upgradePawnNew(g,pal,nc);
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
@@ -5377,7 +5390,7 @@ function myProfileName(){ try{ return window.PlayerData.profile().name||''; }cat
 function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 /* Wajah pemain 1 (lokal, bukan CPU/online) = kepala karakter baru (UT.CharacterFace). Gambar dimuat sekali; sebelum siap dipakai wajah lama, lalu HUD di-render ulang. */
 const NIMG={}; let NFN=0;
-function newFaceSrc(p){ const u=p&&p.pawn&&p.pawn.userData; if(!u||u.bcSeed==null||!UT.CharacterFace) return ''; return u.bcSeed<0?UT.CharacterFace.url():(UT.CharacterFace.urlPreset?UT.CharacterFace.urlPreset(u.bcSeed):''); }
+function newFaceSrc(p){ const u=p&&p.pawn&&p.pawn.userData; if(!u||u.bcSeed==null||!UT.CharacterFace) return ''; const sd=u.bcSeed; if(sd&&typeof sd==='object') return UT.CharacterFace.urlData?UT.CharacterFace.urlData(sd):''; return sd<0?UT.CharacterFace.url():(UT.CharacterFace.urlPreset?UT.CharacterFace.urlPreset(sd):''); }
 function newFaceImg(p){
   try{
     const src=newFaceSrc(p); if(!src) return null;
@@ -6154,7 +6167,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
-    const pawn=makePawn(d,ONLINE_ROOM?null:(i===0&&!d.cpu?-1:(d.cpu&&!NEW_CHAR_CPU?null:2+i*3))); /* online: tampilan pemain lain belum ada di server -> pion lama */ pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
+    const pawn=makePawn(d,ONLINE_ROOM?null:(i===0&&!d.cpu?-1:(d.cpu&&!NEW_CHAR_CPU?null:2+i*3))); /* online: pion lama dulu, diganti applyOnlineLooks setelah identitas & tampilan dari server tiba */ pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
@@ -6324,7 +6337,7 @@ function initMultiplayerBridge(){
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
   onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[]); p.loadout=true; renderChips(); publishGameSnapshot(); },
   onSnapshot:applyGameSnapshot
- }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);
+ }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);applyOnlineLooks(gameId); /* pion karakter baru: milik sendiri + tampilan pemain lain dari server */
    const me=mpPlayerByNet(MP_ID);
    if(ONLINE_HOST){ if(me&&!me.loadout){ me.pu=loadoutPU(MY_SEL); me.loadout=true; } if(!sync.initialSnapshot)publishGameSnapshot(); }
    else if(sync.sendLoadout){ /* tamu: kirim ulang sampai host mengakui lewat snapshot */ let n=0; const t=setInterval(()=>{ const q=mpPlayerByNet(MP_ID); if(!q||q.loadout||++n>40){ clearInterval(t); return; } sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); },1500); sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); }
