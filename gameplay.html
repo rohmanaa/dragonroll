@@ -5118,6 +5118,27 @@ function onResize(){
 window.addEventListener('resize',onResize); window.addEventListener('orientationchange',onResize); onResize();
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
+/* CAM_LOG (sementara, untuk uji kamera): panel kecil di pojok kiri bawah berisi nilai kamera, ketuk panel untuk menyalin ke clipboard. Hapus dengan set CAM_LOG=false atau buang blok ini. */
+const CAM_LOG=true; let camLogEl=null,camLogT=0,camLogTxt='';
+function camLogUpdate(now,dist){
+  if(!CAM_LOG||now-camLogT<200) return; camLogT=now;
+  const f=v=>(Math.round(v*1000)/1000);
+  camLogTxt=['CAMLOG','preset='+camCfg.preset+' angle='+camCfg.angle+' follow='+camCfg.follow+' top='+isTopDown+' pov='+POV.on,
+    'yaw='+f(cam.yaw)+' pitch='+f(cam.pitch)+' ('+f(cam.pitch*180/Math.PI)+'deg) zoom='+f(cam.zoom),
+    'goal yaw='+f(goal.yaw)+' pitch='+f(goal.pitch)+' zoom='+f(goal.zoom),
+    'baseDist='+f(baseDist)+' dist='+f(dist)+' near='+f(camera.near)+' fov='+f(camera.fov)+' aspect='+f(camera.aspect),
+    'camPos='+f(camera.position.x)+','+f(camera.position.y)+','+f(camera.position.z),
+    'target='+f(camTarget.x)+','+f(camTarget.y)+','+f(camTarget.z),
+    'pan='+f(pan.x)+','+f(pan.y)+','+f(pan.z)+' panGoal='+f(panGoal.x)+','+f(panGoal.y)+','+f(panGoal.z),
+    'screen='+window.innerWidth+'x'+window.innerHeight+' dpr='+f(window.devicePixelRatio||1)].join('\n');
+  if(!camLogEl){
+    camLogEl=document.createElement('pre'); camLogEl.id='camLog';
+    camLogEl.style.cssText='position:fixed;left:6px;bottom:6px;z-index:99999;margin:0;padding:6px 8px;max-width:92vw;font:10px/1.35 monospace;color:#0f0;background:rgba(0,0,0,.72);border-radius:6px;white-space:pre-wrap;pointer-events:auto';
+    camLogEl.addEventListener('click',()=>{ try{ navigator.clipboard.writeText(camLogTxt); camLogEl.style.outline='1px solid #0f0'; setTimeout(()=>{camLogEl.style.outline='';},400); }catch(e){} });
+    document.body.appendChild(camLogEl);
+  }
+  camLogEl.textContent=camLogTxt+'\n(ketuk untuk salin)';
+}
 const CAM_PITCH=0.62+14*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 14 derajat (49.5 derajat): kamera lebih tinggi, pandangan lebih ke bawah */
 const CAM_PITCH_HIGH=1.0; /* Default (Free) & Front = 57.3 derajat, dinaikkan lagi dari 0.833 (47.7 derajat): kamera lebih tinggi; POV tetap memakai CAM_PITCH */
 const CAM_ZOOM_HIGH=0.18; /* lebih dekat (1.16 -> 0.95 -> 0.85 -> 0.71 -> 0.36 -> 0.18, maju 2x lagi); papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
@@ -6505,7 +6526,7 @@ function frame(now){
   const dist=baseDist*cam.zoom,cp=Math.cos(cam.pitch);
   camera.position.set(camTarget.x+dist*Math.sin(cam.yaw)*cp,camTarget.y+dist*Math.sin(cam.pitch),camTarget.z+dist*Math.cos(cam.yaw)*cp);
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
-  camera.lookAt(camTarget);
+  camera.lookAt(camTarget); camLogUpdate(now,dist);
   /* Presisi depth: near 0.1 terlalu dekat -> permukaan nyaris sebidang (rumput/air/pulau) berkedip (z-fighting) saat kamera bergerak. near ikut jarak kamera; mode POV tetap near kecil. */
   if(!POV.on){ const nn=clamp(dist*0.3,0.8,5); if(Math.abs(camera.near-nn)>0.02){ camera.near=nn; camera.updateProjectionMatrix(); } }
   { const pw=povActive()?povPawn():null; if(pw) povUpdate(pw,dt,now); else povRelease(); } /* POV Bidak menimpa posisi/arah kamera di atas */
