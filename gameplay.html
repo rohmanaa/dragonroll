@@ -5130,33 +5130,6 @@ const CAM_PRESETS={
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
 const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
 const camCfg={angle:true,preset:'free',follow:false},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
-/* DEBUG log posisi kamera (sementara): SELALU tampil di bawah layar (tambahkan ?camlog=0 di URL untuk menyembunyikan; tidak disimpan di perangkat).
-   Panel menampilkan yaw/pitch/zoom/pan/target/posisi kamera + ukuran layar; ketuk panel = salin baris siap-tempel ke clipboard + console.log. Tidak mengubah perilaku kamera. */
-const camLog=(()=>{
-  let on=true; try{ if(new URLSearchParams(location.search).get('camlog')==='0') on=false; localStorage.removeItem('ut-camlog'); }catch(e){}
-  if(!on) return null;
-  const el=document.createElement('div'); el.id='camLog';
-  el.style.cssText='position:fixed;left:6px;bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:70;padding:5px 8px;border-radius:8px;background:rgba(0,0,0,.66);color:#9dffb0;font:10px/1.3 ui-monospace,Menlo,monospace;white-space:pre;pointer-events:none;user-select:none;-webkit-user-select:none';/* pojok kiri bawah & tidak menangkap sentuhan: tidak menghalangi tombol game; untuk screenshot */
-  document.body.appendChild(el);
-  let line='',txt='',last=0,flash=0;
-  const copy=()=>{ console.log('[camlog] '+line); const ok=()=>{ flash=performance.now()+1200; };
-    const fb=()=>{ try{ const t=document.createElement('textarea'); t.value=line; t.style.cssText='position:fixed;opacity:0'; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); ok(); }catch(e){} };
-    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(line).then(ok,fb); else fb(); };
-  el.addEventListener('pointerdown',e=>{ e.stopPropagation(); copy(); });
-  return { tick(dist){
-    const n=performance.now(); if(n-last<120) return; last=n;
-    const f=(v,d=3)=>v.toFixed(d),dg=v=>(v*180/Math.PI).toFixed(1),yaw=goal.yaw-Math.PI*2*Math.round(goal.yaw/(Math.PI*2)),P=camera.position;
-    line='{preset:\''+camCfg.preset+'\',yaw:'+f(yaw)+',pitch:'+f(goal.pitch)+',zoom:'+f(goal.zoom)+',px:'+f(panGoal.x)+',pz:'+f(panGoal.z)+',py:'+f(panGoal.y)+',screen:\''+innerWidth+'x'+innerHeight+'\'}';
-    txt='CAM '+camCfg.preset+(camCfg.angle?' ANGLE':' LOCK')+(camCfg.follow?' follow':' hold')+'\n'
-      +'yaw '+f(yaw)+' ('+dg(yaw)+'\u00b0)  pitch '+f(goal.pitch)+' ('+dg(goal.pitch)+'\u00b0)\n'
-      +'zoom '+f(goal.zoom)+'  dist '+f(dist,2)+'\n'
-      +'pan x '+f(panGoal.x,2)+' z '+f(panGoal.z,2)+' y '+f(panGoal.y,2)+'\n'
-      +'target '+f(camTarget.x,2)+', '+f(camTarget.y,2)+', '+f(camTarget.z,2)+'\n'
-      +'cam    '+f(P.x,2)+', '+f(P.y,2)+', '+f(P.z,2)+'\n'
-      +'layar '+innerWidth+'x'+innerHeight+' @'+(window.devicePixelRatio||1).toFixed(2)+'  '+(innerWidth>=innerHeight?'landscape':'portrait')+'\n'
-      +'LOG KAMERA (sementara)';
-    el.textContent=txt; } };
-})();
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
@@ -6533,7 +6506,6 @@ function frame(now){
   camera.position.set(camTarget.x+dist*Math.sin(cam.yaw)*cp,camTarget.y+dist*Math.sin(cam.pitch),camTarget.z+dist*Math.cos(cam.yaw)*cp);
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
   camera.lookAt(camTarget);
-  if(camLog) camLog.tick(dist);
   /* Presisi depth: near 0.1 terlalu dekat -> permukaan nyaris sebidang (rumput/air/pulau) berkedip (z-fighting) saat kamera bergerak. near ikut jarak kamera; mode POV tetap near kecil. */
   if(!POV.on){ const nn=clamp(dist*0.3,0.8,5); if(Math.abs(camera.near-nn)>0.02){ camera.near=nn; camera.updateProjectionMatrix(); } }
   { const pw=povActive()?povPawn():null; if(pw) povUpdate(pw,dt,now); else povRelease(); } /* POV Bidak menimpa posisi/arah kamera di atas */
