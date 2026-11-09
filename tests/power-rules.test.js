@@ -21,11 +21,12 @@ t('nama di katalog = nama di PUN; tiap PUN punya [emoji, nama, deskripsi]', () =
   pus.forEach(p => { assert.strictEqual(C.PUN[p.gameKey][1], p.name === 'Totem' ? 'Totem' : p.name, p.gameKey); assert.ok(C.PUN[p.gameKey][0] && C.PUN[p.gameKey][2], p.gameKey); });
 });
 t('aturan PUR valid: kind dikenal, strike/area punya target & back, strike/area/swap/freeze punya target', () => {
-  const kinds = ['strike', 'area', 'swap', 'freeze', 'guard', 'totem', 'dice', 'self'], tg = ['same', 'near', 'ahead', 'leader', 'allAhead', 'all'];
+  const kinds = ['strike', 'area', 'swap', 'freeze', 'guard', 'totem', 'dice', 'self', 'trap'], tg = ['same', 'near', 'ahead', 'leader', 'allAhead', 'all'];
   Object.keys(C.PUR).forEach(k => {
     const R = C.PUR[k]; assert.ok(kinds.indexOf(R.kind) >= 0, k + ' kind');
     if (['strike', 'area', 'swap', 'freeze'].indexOf(R.kind) >= 0) assert.ok(tg.indexOf(R.target) >= 0, k + ' target');
     if (R.kind === 'strike' || R.kind === 'area') assert.ok(R.back > 0, k + ' back');
+    if (R.kind === 'trap') { assert.ok(R.back > 0 && R.range > 0 && Number.isInteger(R.radius) && R.radius >= 0, k + ' trap'); assert.strictEqual(R.boss, false, k + ' jebakan butuh papan (bukan fase Naga)'); }
     if (R.target === 'near' || R.target === 'ahead') assert.ok(R.range > 0, k + ' range');
   });
 });
@@ -41,8 +42,8 @@ t('angka aturan = deskripsi: pedang 2/3/5, TNT 6, Fire Charge 3 (<=6), Blaze Cor
     .forEach(([k, s]) => assert.ok(C.PUN[k][2].indexOf(s) >= 0, k + ' deskripsi: ' + C.PUN[k][2]));
 });
 t('fase Dragon: Power khusus papan (pedang, Golden Apple, Dragon Crystal, Totem) boss:false; serangan terarah/TNT/Ender Pearl/Feather boleh', () => {
-  ['sword', 'diamond_sword', 'netherite_sword', 'golden_apple', 'dragon_crystal', 'totem'].forEach(k => assert.strictEqual(C.PUR[k].boss, false, k));
-  ['tnt', 'grass', 'feather', 'wooden_shield', 'ice_crystal', 'blaze_core', 'trident', 'nether_star', 'fire_charge'].forEach(k => assert.strictEqual(C.PUR[k].boss, true, k));
+  ['sword', 'diamond_sword', 'netherite_sword', 'golden_apple', 'dragon_crystal', 'totem', 'tnt', 'fire_charge', 'blaze_core'].forEach(k => assert.strictEqual(C.PUR[k].boss, false, k));
+  ['grass', 'feather', 'wooden_shield', 'ice_crystal', 'trident', 'nether_star'].forEach(k => assert.strictEqual(C.PUR[k].boss, true, k));
 });
 t('tiap Power punya ikon 3D (file ada), efek 2D, dan peta model 3D', () => {
   const map = {}; (rd('assets/js/power3d/power-show.js').match(/KEY_TO_POWER3D\s*=\s*\{([\s\S]*?)\};/)[1]).replace(/\/\*[\s\S]*?\*\//g, '').split(',').forEach(p => { const m = p.match(/(\w+)\s*:\s*'(\w+)'/); if (m) map[m[1]] = m[2]; });
@@ -96,6 +97,15 @@ t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay
   assert.ok(g.indexOf('const puMapOk=') > 0 && g.indexOf('const puAvail=') > 0 && g.indexOf('if(!puMapOk(k)) return deny(') > 0);
   assert.ok(/filter\(puAvail\)/.test(g) && g.indexOf('!p.pu[k]||!puAvail(k)') > 0);
   assert.ok(rd('powerup.html').indexOf('IC.powerMapNote(i.id)') > 0);
+});
+t('Jebakan di petak: TNT radius 1 mundur 6, Fire Charge radius 0 mundur 3, Blaze Core radius 2 mundur 2; jangkauan pasang 6; terpasang di gameplay (pilih petak, pemicu saat mendarat, snapshot, tamu kirim petak)', () => {
+  const R = C.PUR; [['tnt', 1, 6], ['fire_charge', 0, 3], ['blaze_core', 2, 2]].forEach(([k, rad, back]) => { assert.strictEqual(R[k].kind, 'trap', k); assert.strictEqual(R[k].radius, rad, k); assert.strictEqual(R[k].back, back, k); assert.strictEqual(R[k].range, 6, k); assert.ok(/jebakan/i.test(C.PUN[k][2]) && /jebakan/i.test(IC.byId(k).desc), k + ' deskripsi'); });
+  ['sword', 'diamond_sword', 'netherite_sword', 'trident', 'nether_star', 'ice_crystal', 'grass'].forEach(k => assert.notStrictEqual(R[k].kind, 'trap', k + ' tetap serangan langsung'));
+  const g = rd('gameplay.html');
+  assert.ok(g.indexOf('async function trapCheck(p,gid)') > 0 && g.indexOf('if(await trapCheck(p,gid)) return;') > 0, 'pemicu di resolveTileAt');
+  assert.ok(g.indexOf('function trapPick(p,k)') > 0 && g.indexOf('id="trapBar"') > 0 && g.indexOf('requestPower({playerId:MP_ID,power:k,tile:tile})') > 0 && g.indexOf('Number.isInteger(payload.tile)') > 0, 'UI pilih petak + tamu kirim petak');
+  assert.ok(g.indexOf('traps:TRAPS.map(') > 0 && g.indexOf('trapsSync(s.traps)') > 0 && g.indexOf('trapsClear(); applyPendingTheme()') > 0, 'snapshot + reset');
+  assert.ok(g.indexOf('const TRAP_MAX=2') > 0 && g.indexOf('q.idx!==t.owner') > 0, 'batas + pemasang kebal');
 });
 t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   ['sword', 'grass', 'potion_odd', 'potion_even', 'feather', 'tnt', 'totem'].forEach(k => assert.strictEqual(IC.normalizePowerId(k), k));

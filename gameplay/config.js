@@ -73,7 +73,7 @@
   C.PUN = C.PUN || {
     sword: ['🗡️', 'Iron Sword', 'serang musuh di petak yang sama: mundur 2', 'Iron'],
     feather: ['🪶', 'Feather', 'giliran tambahan'],
-    tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
+    tnt: ['🧨', 'TNT', 'jebakan di petak 1–6 di depan: musuh yang mendarat (dan 1 petak sekitarnya) mundur 6'],
     totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, atau serangan Power'],
     potion_odd: ['🧪', 'Ramuan Ganjil', 'dadu berikutnya ganjil (1, 3, atau 5)', 'Ganjil'],
     potion_even: ['🧪', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
@@ -82,15 +82,15 @@
     netherite_sword: ['🗡️', 'Netherite Sword', 'musuh dalam jarak 4 petak mundur 5', 'Netherite'],
     wooden_shield: ['🛡️', 'Wooden Shield', 'menahan 1 serangan Power dari pemain lain otomatis', 'Shield'],
     golden_apple: ['🍎', 'Golden Apple', 'dadu berikutnya bonus +3 petak', 'Apple'],
-    fire_charge: ['🔥', 'Fire Charge', 'musuh terdekat di depan (maks. 6 petak) mundur 3', 'Fire'],
+    fire_charge: ['🔥', 'Fire Charge', 'jebakan api di petak 1–6 di depan: musuh yang mendarat mundur 3', 'Fire'],
     ice_crystal: ['🧊', 'Ice Crystal', 'pemain terdepan membeku: lewati giliran berikutnya', 'Ice'],
-    blaze_core: ['🔶', 'Blaze Core', 'semua musuh di depanmu mundur 2', 'Blaze'],
+    blaze_core: ['🔶', 'Blaze Core', 'jebakan ledakan di petak 1–6 di depan: musuh yang mendarat (dan 2 petak sekitarnya) mundur 2', 'Blaze'],
     trident: ['🔱', 'Trident', 'pemain terdepan mundur 4, kamu maju 2', 'Trident'],
     dragon_crystal: ['💎', 'Dragon Crystal', 'meluncur ke Tangga terdekat di depan, atau maju 6', 'Crystal'],
     nether_star: ['⭐', 'Nether Star', 'semua musuh mundur 3 dan kamu dapat giliran tambahan', 'Star']
   };
   /* Aturan Power (DATA, bukan kode per Power; dibaca usePU/cpuPUValid di gameplay.html). Angka di sini = SATU sumber.
-     kind: strike (satu target mundur) · area (banyak target mundur) · swap (tukar posisi) · freeze (target lewati giliran) · guard (tahan 1 serangan Power)
+     kind: trap (JEBAKAN di petak: range = pilihan petak 1..range di depan, radius = petak sekitar ikut kena, back = mundur; musuh yang MENDARAT memicu, pemasang kebal, sekali pakai) · strike (satu target mundur) · area (banyak target mundur) · swap (tukar posisi) · freeze (target lewati giliran) · guard (tahan 1 serangan Power)
            · totem (diputuskan saat kena) · dice (flag dadu berikutnya) · self (efek ke diri)
      target: 'same' petak sama · 'near' terdekat dalam range (dua arah) · 'ahead' terdekat DI DEPAN dalam range · 'leader' pemain terdepan · 'allAhead' semua di depan · 'all' semua musuh
      back = petak mundur · self = maju untuk diri bila kena · bonus = tambah bonus dadu · extra = giliran tambahan · ladder/fallback = ke tangga terdekat atau maju fallback
@@ -100,16 +100,16 @@
     diamond_sword:   { kind: 'strike', target: 'near',   range: 2, back: 3, boss: false },
     netherite_sword: { kind: 'strike', target: 'near',   range: 4, back: 5, boss: false },
     wooden_shield:   { kind: 'guard',  boss: true },
-    tnt:             { kind: 'strike', target: 'leader', back: 6, boss: true },
+    tnt:             { kind: 'trap',   range: 6, radius: 1, back: 6, boss: false },
     feather:         { kind: 'self',   extra: true, boss: true },
     golden_apple:    { kind: 'self',   bonus: 3, boss: false },
     totem:           { kind: 'totem',  boss: false },
     grass:           { kind: 'swap',   target: 'leader', boss: true },
     potion_odd:      { kind: 'dice',   flag: 'odd', boss: true },
     potion_even:     { kind: 'dice',   flag: 'even', boss: true },
-    fire_charge:     { kind: 'strike', target: 'ahead',  range: 6, back: 3, boss: true },
+    fire_charge:     { kind: 'trap',   range: 6, radius: 0, back: 3, boss: false },
     ice_crystal:     { kind: 'freeze', target: 'leader', boss: true },
-    blaze_core:      { kind: 'area',   target: 'allAhead', back: 2, boss: true },
+    blaze_core:      { kind: 'trap',   range: 6, radius: 2, back: 2, boss: false },
     trident:         { kind: 'strike', target: 'leader', back: 4, self: 2, boss: true },
     dragon_crystal:  { kind: 'self',   ladder: true, fallback: 6, boss: false },
     nether_star:     { kind: 'area',   target: 'all', back: 3, extra: true, boss: true }
