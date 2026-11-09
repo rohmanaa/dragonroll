@@ -107,6 +107,25 @@ t('Jebakan di petak: TNT radius 1 mundur 6, Fire Charge radius 0 mundur 3, Blaze
   assert.ok(g.indexOf('traps:TRAPS.map(') > 0 && g.indexOf('trapsSync(s.traps)') > 0 && g.indexOf('trapsClear(); applyPendingTheme()') > 0, 'snapshot + reset');
   assert.ok(g.indexOf('const TRAP_MAX=2') > 0 && g.indexOf('q.idx!==t.owner') > 0, 'batas + pemasang kebal');
 });
+t('Jebakan di petak: TNT (radius 1, mundur 6), Fire Charge (radius 0, mundur 3), Blaze Core (radius 2, mundur 2); range 6; fase Naga ditolak; deskripsi sesuai angka', () => {
+  const R = C.PUR;
+  [['tnt', 1, 6], ['fire_charge', 0, 3], ['blaze_core', 2, 2]].forEach(([k, rad, back]) => {
+    assert.strictEqual(R[k].kind, 'trap', k); assert.strictEqual(R[k].range, 6, k); assert.strictEqual(R[k].radius, rad, k); assert.strictEqual(R[k].back, back, k); assert.strictEqual(R[k].boss, false, k);
+    assert.ok(C.PUN[k][2].indexOf('jebakan') >= 0 && C.PUN[k][2].indexOf('mundur ' + back) >= 0, k + ' PUN: ' + C.PUN[k][2]);
+    assert.ok(/[Jj]ebakan/.test(IC.byId(k).desc) && IC.byId(k).desc.indexOf('mundur ' + back) >= 0, k + ' katalog: ' + IC.byId(k).desc);
+  });
+  ['trident', 'ice_crystal', 'nether_star', 'dragon_crystal', 'grass', 'feather'].forEach(k => assert.notStrictEqual(R[k].kind, 'trap', k + ' tetap serangan langsung'));
+});
+t('Jebakan terpasang di gameplay: bar pilih petak, pemicu saat mendarat (resolveTileAt), pemasang kebal, Shield/Totem menahan, snapshot + permintaan tamu membawa petak, bersih saat game baru', () => {
+  const g = rd('gameplay.html');
+  assert.ok(g.indexOf('id="trapBar"') > 0 && g.indexOf('function trapPick(') > 0 && g.indexOf('const TRAP_MAX=2') > 0);
+  assert.ok(g.indexOf('q.owner!==p.idx') > 0, 'pemasang harus kebal');
+  assert.ok(/async function resolveTileAt[\s\S]{0,400}await trapCheck\(p,gid\)/.test(g), 'trapCheck harus dipanggil dari resolveTileAt');
+  assert.ok(/async function trapCheck[\s\S]*await puDefend\(q,gid/.test(g), 'korban bisa menahan');
+  assert.ok(g.indexOf('traps:TRAPS.map(') > 0 && g.indexOf('trapsSync(s.traps)') > 0 && g.indexOf('tile:tile') > 0 && g.indexOf('payload.tile') > 0);
+  assert.ok(g.indexOf('trapsClear(); applyPendingTheme()') > 0);
+  assert.ok(g.indexOf("R.kind==='trap') return p.pos<GOAL-1") > 0, 'CPU hanya memasang bila ada petak di depan');
+});
 t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   ['sword', 'grass', 'potion_odd', 'potion_even', 'feather', 'tnt', 'totem'].forEach(k => assert.strictEqual(IC.normalizePowerId(k), k));
   assert.strictEqual(IC.normalizePowerId('apple'), 'totem');
