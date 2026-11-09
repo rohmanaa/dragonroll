@@ -1264,7 +1264,7 @@ if (typeof THREE === 'undefined') {
 </script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
-<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/player-data.js"></script>
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/player-data.js"></script><script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
@@ -1431,17 +1431,33 @@ function loadSkin3D(k){
 /* Pion pemain 1 (lokal, bukan CPU/online) = karakter baru dari halaman Karakter (UT.BlockyCharacter + PlayerData). Gagal/tak tersedia -> pion lama tetap dipakai. */
 /* Aksi karakter baru: 'attack' (ayun senjata) / 'block' (bertahan dgn perisai saat kena serang). Aman dipanggil untuk pion mana pun (diabaikan bila bukan karakter baru). */
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
-function upgradePawnNew(g,pal){
+/* Ganti model pion (mis. setelah tampilan pemain lain dari server tiba). spec: <0 = milik sendiri, >=0 = preset, objek = baris room_appearance_get. */
+function repawnNew(pawn,spec){ try{ const u=pawn&&pawn.userData,pal=u&&u.pal; if(!pal) return; if(u.png){ pawn.remove(u.png); u.png=null; u.bc=null; u.bcLast=null; u.bcMode=null; } pal.visible=true; upgradePawnNew(pawn,pal,spec); }catch(e){} }
+/* Online: pemain lokal = tampilannya sendiri; pemain lain = tampilan dari server (room_appearance_get), tanpa data = preset. */
+async function applyOnlineLooks(gid){
+  if(!ONLINE_ROOM) return;
+  const me=MP_ID?players.find(q=>q.networkId===MP_ID):null; if(me&&me.pawn) repawnNew(me.pawn,-1);
+  const by={};
+  try{ const AS=UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();
+    if(AS&&AS.roomAppearance){ const r=await AS.roomAppearance(ROOM_CFG.roomId); if(r&&r.ok&&Array.isArray(r.players)) r.players.forEach(x=>{ by[x.user_id]=x; }); } }catch(e){}
+  if(gid!==gameId) return;
+  players.forEach(p=>{ if(p===me||!p.pawn) return; if(p.cpu){ if(NEW_CHAR_CPU) repawnNew(p.pawn,2+p.idx*3); return; } const a=p.networkId&&by[p.networkId]; repawnNew(p.pawn,a||(2+p.idx*3)); });
+  refreshFaces();
+}
+const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
+/* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
+function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) setTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850); }catch(e){} }
+function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
   try{
     if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
-    const ch=UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
+    const ch=UT.BlockyCharacter.create(THREE); if(seed&&typeof seed==='object') ch.loadFromData(seed.look,seed.equipped,seed.gear_dye||seed.gearDye); else if(seed>=0) ch.loadPreset(seed); else ch.loadFromPlayer(); ch.tick(0.016); /* satu tick: pose rig terpasang sebelum diukur */
     const w=new THREE.Group(); w.add(ch.root);
     w.updateMatrixWorld(true);
-    const bb=new THREE.Box3().setFromObject(ch.root),h=bb.max.y-bb.min.y;
+    const bb=new THREE.Box3().setFromObject(ch.root),h=ch.height(); /* tinggi badan (tanpa topi) agar semua pion sama tinggi */
     if(!(h>0.1)) return;
     const sc=0.92/h; w.scale.setScalar(sc); w.position.y=-bb.min.y*sc; /* tinggi ~ pion lama (0.9), telapak di y=0 */
     w.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=false; } });
-    g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch;
+    g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch; g.userData.bcSeed=(seed==null?-1:seed);
     if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
   }catch(e){ console.warn('karakter baru gagal dimuat, pakai pion lama',e); }
 }
@@ -4688,7 +4704,7 @@ function buildWorld(key){
 }
 
 /* ---------- Pion ---------- */
-function makePawn(d,mine){
+function makePawn(d,nc){
   const b=makeBatch(),k=d.key,F={edge:false};
   const bx=(x,y,z,w,h,e,c,o)=>addBox(b,x,y,z,w,h,e,typeof c==='number'?jit(c,0.05):c,o);
   const head=(c,y)=>{ for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)for(let l=-1;l<=1;l++) addBox(b,i*0.1,y+j*0.1,l*0.1,0.1,0.1,0.1,jit(c,0.09),F); };
@@ -4722,9 +4738,9 @@ function makePawn(d,mine){
     if(k==='steve') bx(0,0.57,0.152,0.1,0.03,0.02,0x5A3820,F); else bx(0,0.57,0.152,0.06,0.025,0.02,0xB0563A,F);
   }
   const g=new THREE.Group();
-  const pal=buildBatch(b); g.add(pal);
+  const pal=buildBatch(b); g.add(pal); g.userData.pal=pal;
   if(d.png) upgradePawnPNG(g,pal,d.key); /* PNG gagal dimuat -> tetap palette (Steve) */
-  if(mine) upgradePawnNew(g,pal);
+  if(nc!=null) upgradePawnNew(g,pal,nc);
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
   marker.position.y=1.22; marker.visible=false;
   g.add(marker); g.userData.marker=marker;
@@ -4857,10 +4873,10 @@ function powerFxPawn(key,pl){
   if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
   try{
     if(!pl||!pl.pawn||reduce) return;
-    const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
-    if(v.z>1) return;
-    const x=r.left+(v.x+1)/2*r.width,y=r.top+(1-v.y)/2*r.height;
-    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y)) return; /* 3D: model + aura + partikel */
+    /* Efek Power selalu di TENGAH layar (bukan di atas pion) dengan kotak besar (90% sisi pendek layar, 320-760px) agar tidak terpotong dan terlihat jelas */
+    const r=$('c').getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    const size=Math.round(Math.max(320,Math.min(760,Math.min(r.width,r.height)*0.9)));
+    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y,{size})) return; /* 3D: model + aura + partikel */
     const PF=window.UT&&UT.PowerFX; if(PF) PF.play(key,x,y); /* cadangan 2D */
   }catch(e){}
 }
@@ -5108,43 +5124,17 @@ window.addEventListener('resize',onResize); window.addEventListener('orientation
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
 const CAM_PITCH=0.62+14*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 14 derajat (49.5 derajat): kamera lebih tinggi, pandangan lebih ke bawah */
-const CAM_PITCH_HIGH=CAM_PITCH+18*Math.PI/180; /* Default (Free) & Front dinaikkan 18 derajat lagi (67.5 derajat): kamera lebih tinggi; POV tetap memakai CAM_PITCH */
+const CAM_PITCH_HIGH=0.833; /* Default (Free) & Front = 47.7 derajat, dipilih pemilik dari log kamera (sebelumnya 67.5); POV tetap memakai CAM_PITCH */
 const CAM_ZOOM_HIGH=0.95; /* lebih dekat (1.16 -> 0.95); papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
 const CAM_ZOOM=1.1; /* sedikit lebih jauh agar papan tetap muat di layar (sudut lebih tinggi = papan terproyeksi lebih tinggi) */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH},     /* sudut default; diatur manual */
-  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH},
+  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},     /* sudut default (dari log kamera: yaw 0, pitch 0.833, zoom 0.95, pan x -0.01 z 0.15); default awal = ANGLE aktif, FOLLOW mati (hold) */
+  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
 const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
-const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
-/* DEBUG log posisi kamera (sementara): buka gameplay.html?...&camlog=1 (tersimpan di localStorage 'ut-camlog'; &camlog=0 mematikan).
-   Panel kecil di tengah atas menampilkan yaw/pitch/zoom/pan/target/posisi kamera; ketuk panel = salin baris siap-tempel ke clipboard + console.log. Tidak mengubah perilaku kamera. */
-const camLog=(()=>{
-  let on=false; try{ const q=new URLSearchParams(location.search).get('camlog'); if(q==='1') localStorage.setItem('ut-camlog','1'); else if(q==='0') localStorage.removeItem('ut-camlog'); on=localStorage.getItem('ut-camlog')==='1'; }catch(e){}
-  if(!on) return null;
-  const el=document.createElement('div'); el.id='camLog';
-  el.style.cssText='position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:70;padding:6px 9px;border-radius:8px;background:rgba(0,0,0,.62);color:#9dffb0;font:11px/1.35 ui-monospace,Menlo,monospace;white-space:pre;pointer-events:auto;user-select:none;-webkit-user-select:none';
-  document.body.appendChild(el);
-  let line='',txt='',last=0,flash=0;
-  const copy=()=>{ console.log('[camlog] '+line); const ok=()=>{ flash=performance.now()+1200; };
-    const fb=()=>{ try{ const t=document.createElement('textarea'); t.value=line; t.style.cssText='position:fixed;opacity:0'; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); ok(); }catch(e){} };
-    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(line).then(ok,fb); else fb(); };
-  el.addEventListener('pointerdown',e=>{ e.stopPropagation(); copy(); });
-  return { tick(dist){
-    const n=performance.now(); if(n-last<120) return; last=n;
-    const f=(v,d=3)=>v.toFixed(d),dg=v=>(v*180/Math.PI).toFixed(1),yaw=goal.yaw-Math.PI*2*Math.round(goal.yaw/(Math.PI*2)),P=camera.position;
-    line='{yaw:'+f(yaw)+',pitch:'+f(goal.pitch)+',zoom:'+f(goal.zoom)+',px:'+f(panGoal.x)+',pz:'+f(panGoal.z)+',py:'+f(panGoal.y)+'}';
-    txt='CAM '+camCfg.preset+(camCfg.angle?' ANGLE':' LOCK')+(camCfg.follow?' follow':' hold')+'\n'
-      +'yaw '+f(yaw)+' ('+dg(yaw)+'\u00b0)  pitch '+f(goal.pitch)+' ('+dg(goal.pitch)+'\u00b0)\n'
-      +'zoom '+f(goal.zoom)+'  dist '+f(dist,2)+'\n'
-      +'pan x '+f(panGoal.x,2)+' z '+f(panGoal.z,2)+' y '+f(panGoal.y,2)+'\n'
-      +'target '+f(camTarget.x,2)+', '+f(camTarget.y,2)+', '+f(camTarget.z,2)+'\n'
-      +'cam    '+f(P.x,2)+', '+f(P.y,2)+', '+f(P.z,2)+'\n'
-      +(n<flash?'TERSALIN':'ketuk = salin');
-    el.textContent=txt; } };
-})();
+const camCfg={angle:true,preset:'free',follow:false},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
@@ -5172,7 +5162,7 @@ function resetCam(P){
   isTopDown=!!P.top;
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
-  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0; panGoal.y=0;
+  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=P.px||0; panGoal.z=P.pz||0; panGoal.y=0; /* px/pz opsional di preset (geser titik pandang) */
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
@@ -5378,19 +5368,19 @@ function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
 function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 /* Wajah pemain 1 (lokal, bukan CPU/online) = kepala karakter baru (UT.CharacterFace). Gambar dimuat sekali; sebelum siap dipakai wajah lama, lalu HUD di-render ulang. */
-const NFACE={url:'',img:null,n:0};
-function isMineP(p){ return !ONLINE_ROOM&&!!p&&!p.cpu&&p.idx===0; }
-function newFaceImg(){
+const NIMG={}; let NFN=0;
+function newFaceSrc(p){ const u=p&&p.pawn&&p.pawn.userData; if(!u||u.bcSeed==null||!UT.CharacterFace) return ''; const sd=u.bcSeed; if(sd&&typeof sd==='object') return UT.CharacterFace.urlData?UT.CharacterFace.urlData(sd):''; return sd<0?UT.CharacterFace.url():(UT.CharacterFace.urlPreset?UT.CharacterFace.urlPreset(sd):''); }
+function newFaceImg(p){
   try{
-    if(!(UT.CharacterFace&&UT.CharacterFace.url)) return null;
-    const u=UT.CharacterFace.url(); if(!u) return null;
-    if(NFACE.url!==u){ NFACE.url=u; NFACE.img=null; const n=++NFACE.n,im=new Image(); im.onload=()=>{ if(n!==NFACE.n) return; NFACE.img=im; refreshFaces(); }; im.src=u; }
-    return NFACE.img;
+    const src=newFaceSrc(p); if(!src) return null;
+    let e=NIMG[src];
+    if(!e){ e=NIMG[src]={img:null,id:++NFN}; const im=new Image(); im.onload=()=>{ e.img=im; refreshFaces(); }; im.src=src; }
+    return e.img?{img:e.img,id:e.id}:null;
   }catch(e){ return null; }
 }
 function framedFaceNew(p){
-  const ni=newFaceImg(); if(!ni) return '';
-  const fid=frameOf(p), fi=FRM[fid], ready=!!(fi&&fi.complete&&fi.naturalWidth), ck='new|'+NFACE.n+'|'+(ready?fid:'-');
+  const nf=newFaceImg(p); if(!nf) return ''; const ni=nf.img;
+  const fid=frameOf(p), fi=FRM[fid], ready=!!(fi&&fi.complete&&fi.naturalWidth), ck='new|'+nf.id+'|'+(ready?fid:'-');
   if(FFURL[ck]) return FFURL[ck];
   try{
     const S=192,cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d');
@@ -5401,7 +5391,7 @@ function framedFaceNew(p){
   }catch(e){ return ''; }
 }
 function framedFace(p){
-  if(isMineP(p)){ const nf=framedFaceNew(p); if(nf) return nf; }
+  { const nf=framedFaceNew(p); if(nf) return nf; } /* pion karakter baru (pemain 1 / preset CPU & pemain lokal) */
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;
   const ck=p.key+'|'+fid; if(FFURL[ck]) return FFURL[ck];
@@ -5851,6 +5841,7 @@ async function climb(p,from,to){
   const snd=sfx.ladder(); /* suara naik tangga mulai saat pion benar-benar naik & berhenti (fade) saat sampai atas */
   try{ await glide(p.pawn,L.path?L.path.map(v=>v.clone()):[L.p1.clone(),L.p2.clone()],1.7,null,0.07); } finally{ sfx.ladderStop(snd); }
   await hopTo(p.pawn,slotPos(p.idx,to),0.3,0.3);
+  pawnCheer(p.pawn,1.4); /* sampai di atas tangga */
 }
 
 /* kepala ular: posisi relatif terhadap posisi istirahat */
@@ -5877,6 +5868,7 @@ async function bite(p,from,to,gid){
   S.busy=true;
   const LUNGE=0.3; /* tinggi kepala saat menyambar (kepala kini rendah di atas petak, tanpa tiang) */
   await A(hopTo(p.pawn,S.bitePos.clone(),0.35,0.3));
+  pawnAct(p.pawn,'sad',1.8); /* digigit ular */
   p.pawn.rotation.y=Math.atan2(-S.f[0],-S.f[1]);
   focus=p.pawn;
   sfx.hiss();
@@ -6235,6 +6227,7 @@ function finishGame(p,fromRemote){
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
+  if(lost) pawnAct(p.pawn,'sad',2.4); else pawnCheer(p.pawn,2.6); /* karakter baru: sorak saat menang, sedih saat kalah */
   recordMatchResult(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
@@ -6255,7 +6248,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
-    const pawn=makePawn(d,!ONLINE_ROOM&&i===0&&!d.cpu); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
+    const pawn=makePawn(d,ONLINE_ROOM?null:(i===0&&!d.cpu?-1:(d.cpu&&!NEW_CHAR_CPU?null:2+i*3))); /* online: pion lama dulu, diganti applyOnlineLooks setelah identitas & tampilan dari server tiba */ pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
     players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
@@ -6426,7 +6419,7 @@ function initMultiplayerBridge(){
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
   onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[]); p.loadout=true; renderChips(); publishGameSnapshot(); },
   onSnapshot:applyGameSnapshot
- }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);
+ }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);applyOnlineLooks(gameId); /* pion karakter baru: milik sendiri + tampilan pemain lain dari server */
    const me=mpPlayerByNet(MP_ID);
    if(ONLINE_HOST){ if(me&&!me.loadout){ me.pu=loadoutPU(MY_SEL); me.loadout=true; } if(!sync.initialSnapshot)publishGameSnapshot(); }
    else if(sync.sendLoadout){ /* tamu: kirim ulang sampai host mengakui lewat snapshot */ let n=0; const t=setInterval(()=>{ const q=mpPlayerByNet(MP_ID); if(!q||q.loadout||++n>40){ clearInterval(t); return; } sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); },1500); sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); }
@@ -6478,14 +6471,14 @@ updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ submitRoll(); });
 /* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
    Pemain lokal = pemain non-CPU dengan idx 0 (pemilik profil PlayerData; konvensi sama dengan frameOf). Sistem turn/ID tetap players[]+cur+p.idx.
-   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di UT.Prefs 'autoRoll'. */
+   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF TIDAK disimpan (selalu OFF saat game dibuka). */
 const AUTO_ROLL_DELAY=900; let autoRoll=false,autoSince=0,autoGid=-1;
-try{ autoRoll=UT.Prefs.get('autoRoll',false)===true; }catch(e){}
+try{ localStorage.removeItem('ut-autoroll'); }catch(e){} /* AUTO selalu mulai OFF dan tidak disimpan di perangkat (bersihkan sisa nilai lama) */
 function localPlayerIdx(){ return ONLINE_ROOM?players.findIndex(p=>p.networkId===MP_ID):0; }
 function isLocalPlayer(p){ return !!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===localPlayerIdx()); }
 function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
-function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ UT.Prefs.set('autoRoll',autoRoll); }catch(e){} syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
 syncAutoBtn();
 setInterval(()=>{
@@ -6622,7 +6615,6 @@ function frame(now){
   camera.position.set(camTarget.x+dist*Math.sin(cam.yaw)*cp,camTarget.y+dist*Math.sin(cam.pitch),camTarget.z+dist*Math.cos(cam.yaw)*cp);
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
   camera.lookAt(camTarget);
-  if(camLog) camLog.tick(dist);
   /* Presisi depth: near 0.1 terlalu dekat -> permukaan nyaris sebidang (rumput/air/pulau) berkedip (z-fighting) saat kamera bergerak. near ikut jarak kamera; mode POV tetap near kecil. */
   if(!POV.on){ const nn=clamp(dist*0.3,0.8,5); if(Math.abs(camera.near-nn)>0.02){ camera.near=nn; camera.updateProjectionMatrix(); } }
   { const pw=povActive()?povPawn():null; if(pw) povUpdate(pw,dt,now); else povRelease(); } /* POV Bidak menimpa posisi/arah kamera di atas */
