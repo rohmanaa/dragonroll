@@ -5589,13 +5589,38 @@ function trapTex(key){
   if(THREE.SRGBColorSpace) tx.colorSpace=THREE.SRGBColorSpace; else if(THREE.sRGBEncoding) tx.encoding=THREE.sRGBEncoding;
   return (TRAPTEX[key]=tx);
 }
+/* Model jebakan: blok 3D yang DUDUK di petak (seperti chest), bukan sprite melayang. Geometri dibangun sekali per jenis (TRAPPROTO), dipakai ulang lewat clone. */
+const TRAPPROTO={},TRAP_SCALE=1.8; /* skala sama dengan Chest */
+function buildTrapProto(key){
+  const B=makeBatch(),F={edge:false},q=(x,y,z,w,h,d,c)=>addBox(B,x,y,z,w,h,d,c,F);
+  if(key==='tnt'){ /* blok TNT: badan merah, 2 pita putih bertuliskan blok hitam, sumbu di atas */
+    q(0,0.09,0,0.2,0.18,0.2,0xD8322A);
+    [0.045,0.135].forEach(y=>q(0,y,0,0.206,0.02,0.206,0xB02620));
+    q(0,0.09,0,0.208,0.06,0.208,0xF2F2EC);
+    [-0.05,-0.017,0.017,0.05].forEach((x,i)=>{ q(x,0.09,0.1045,i%2?0.022:0.026,0.034,0.004,0x2A2A2A); q(x,0.09,-0.1045,i%2?0.022:0.026,0.034,0.004,0x2A2A2A); });
+    q(0,0.19,0,0.02,0.03,0.02,0x5A3A18); q(0,0.212,0,0.014,0.014,0.014,0xFFB93A);
+  } else if(key==='fire_charge'){ /* Fire Charge: bola api bersudut di atas alas hitam */
+    q(0,0.015,0,0.19,0.03,0.19,0x2B2420);
+    q(0,0.09,0,0.14,0.12,0.14,0xE8541C); q(0,0.095,0,0.17,0.07,0.1,0xF27A1E); q(0,0.095,0,0.1,0.07,0.17,0xF27A1E);
+    q(0,0.12,0,0.07,0.1,0.07,0xFFC040); q(0,0.16,0,0.04,0.06,0.04,0xFFE27A);
+  } else { /* blaze_core: inti kuning-emas berbingkai batang Blaze di atas alas */
+    q(0,0.015,0,0.2,0.03,0.2,0x3A2C14);
+    q(0,0.1,0,0.13,0.13,0.13,0xF2B01E); q(0,0.1,0,0.085,0.085,0.145,0xFFD84A); q(0,0.1,0,0.145,0.085,0.085,0xFFD84A);
+    q(0,0.1,0,0.05,0.05,0.15,0xFFF3B0);
+    [-1,1].forEach(a=>[-1,1].forEach(b=>q(a*0.085,0.1,b*0.085,0.03,0.15,0.03,0xE8761A)));
+  }
+  return buildBatch(B);
+}
 function trapGroup(key,hex,ghost){
   const g=new THREE.Group(),op=ghost?0.55:1;
+  /* cincin warna pemain rata di permukaan petak (penanda pemilik) */
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.34,0.46,32),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.9*op,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
   ring.rotation.x=-Math.PI/2; ring.position.y=0.03; g.add(ring);
-  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:trapTex(key),transparent:true,opacity:op,depthWrite:false,toneMapped:false}));
-  sp.scale.set(0.9,0.9,0.9); sp.position.y=0.62; g.add(sp);
-  g.userData={ring:ring,sp:sp,y0:0.62,ph:Math.random()*6,born:performance.now()};
+  if(!TRAPPROTO[key]) TRAPPROTO[key]=buildTrapProto(key);
+  const m=TRAPPROTO[key].clone(); m.scale.setScalar(TRAP_SCALE);
+  if(ghost) m.traverse(o=>{ if(o.isMesh){ o.material=o.material.clone(); o.material.transparent=true; o.material.opacity=0.55; o.material.depthWrite=false; } o.castShadow=false; });
+  g.add(m);
+  g.userData={ring:ring,sp:m,y0:0,ph:Math.random()*6,born:performance.now()};
   return g;
 }
 function trapShow(t){
@@ -5612,7 +5637,7 @@ function trapRemove(t){ const i=TRAPS.indexOf(t); if(i>=0) TRAPS.splice(i,1); co
 function trapsClear(){ TRAPS.slice().forEach(trapRemove); TRAPS=[]; TRAP_SEQ=0; }
 function trapTick(now){ /* melayang + cincin berputar + muncul membesar (dipanggil frame()) */
   for(const id in TRAPM){ const g=TRAPM[id],u=g.userData,age=Math.min(1,(performance.now()-u.born)/320);
-    u.sp.position.y=u.y0+Math.sin(now/1000*2.2+u.ph)*0.08; u.ring.rotation.z+=0.012; g.scale.setScalar(0.4+0.6*age*(2-age)); }
+    u.ring.rotation.z+=0.012; g.scale.setScalar(0.4+0.6*age*(2-age)); } /* tidak melayang: model tetap di permukaan petak */
 }
 function trapsSync(list){ /* guest: samakan dengan snapshot host */
   const key=a=>a.map(t=>t.id+':'+t.tile+':'+t.key).join('|');
