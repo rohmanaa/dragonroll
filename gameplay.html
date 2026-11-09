@@ -5123,13 +5123,13 @@ const CAM_PITCH_HIGH=0.833; /* Default (Free) & Front = 47.7 derajat, dipilih pe
 const CAM_ZOOM_HIGH=0.95; /* lebih dekat (1.16 -> 0.95); papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
 const CAM_ZOOM=1.1; /* sedikit lebih jauh agar papan tetap muat di layar (sudut lebih tinggi = papan terproyeksi lebih tinggi) */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,pz:0.15},     /* sudut default (dari log kamera: yaw 0, pitch 0.833, zoom 0.95, pan z 0.15); diatur manual */
-  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,pz:0.15},
+  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},     /* sudut default (dari log kamera: yaw 0, pitch 0.833, zoom 0.95, pan x -0.01 z 0.15); default awal = ANGLE aktif, FOLLOW mati (hold) */
+  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
 const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
-const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
+const camCfg={angle:true,preset:'free',follow:false},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* DEBUG log posisi kamera (sementara): SELALU tampil di bawah layar (tambahkan ?camlog=0 di URL untuk menyembunyikan; tidak disimpan di perangkat).
    Panel menampilkan yaw/pitch/zoom/pan/target/posisi kamera + ukuran layar; ketuk panel = salin baris siap-tempel ke clipboard + console.log. Tidak mengubah perilaku kamera. */
 const camLog=(()=>{
