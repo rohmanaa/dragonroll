@@ -178,6 +178,20 @@ t('roomAppearance: id room dikirim, daftar pemain dikembalikan', async () => {
   const bad = Svc.create({ PlayerData: PD, getClient: fakeClient({ room_appearance_get: () => { throw new Error('NOT_ROOM_MEMBER'); } }).getClient });
   assert.deepStrictEqual((await bad.roomAppearance('x')).ok, false);
 });
+t('usersAppearance: id unik (maks 50) dikirim, hasil dipetakan per user_id huruf kecil', async () => {
+  const { PD } = loginOn();
+  const fc = fakeClient({ appearance_get_many: a => [{ user_id: 'AB-1', look: { gender: 'f' }, equipped: { 'g.top': 'gear.top.tee' }, gear_dye: { 'gear.top.tee': 'red' } }] });
+  const s = Svc.create({ PlayerData: PD, getClient: fc.getClient });
+  const ids = []; for (let i = 0; i < 70; i++) ids.push('u' + (i % 60));
+  const r = await s.usersAppearance(ids);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(fc.calls[0].args.p_user_ids.length, 50);
+  assert.strictEqual(r.byId['ab-1'].look.gender, 'f');
+  assert.strictEqual(r.byId['ab-1'].gear_dye['gear.top.tee'], 'red');
+  assert.deepStrictEqual((await s.usersAppearance([])).byId, {});
+  const bad = Svc.create({ PlayerData: PD, getClient: fakeClient({ appearance_get_many: () => { throw new Error('AUTH_REQUIRED'); } }).getClient });
+  assert.strictEqual((await bad.usersAppearance(['x'])).ok, false);
+});
 t('PlayerData.appearance(): hanya slot equip, salinan; applyServerAppearance hanya mode server', async () => {
   const g = boot({ flag: true });
   assert.strictEqual(g.PD.applyServerAppearance({}).reason, 'bukan-mode-server');
