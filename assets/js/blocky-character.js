@@ -1000,8 +1000,13 @@ const ACT_TUCK={rArmS:-1.3,rElbow:-1.5,rWrist:0.3,rArmZ:-0.3,lArmS:-1.3,lElbow:-
 /* Menambang: angkat beliung dengan dua tangan (MU) -> hantam ke depan-bawah (MH) -> tarik kembali; berulang tanpa kembali ke pose netral */
 const ACT_MU={rArmS:-2.6,rElbow:-0.9,rWrist:1.0,rArmZ:-0.1,lArmS:-2.3,lElbow:-0.9,lArmZ:0.25,lean:-0.28,twist:-0.2,headX:-0.15,headY:0,rLegT:0.25,rKnee:0.15,lLegT:-0.25,lKnee:0.2,cape:0.3,tail:0.4};
 const ACT_MH={rArmS:-0.75,rElbow:-0.1,rWrist:-0.7,rArmZ:-0.05,lArmS:-0.95,lElbow:-0.25,lArmZ:0.2,lean:0.5,twist:0.15,headX:0.3,headY:0,rLegT:-0.45,rKnee:0.55,lLegT:0.4,lKnee:0.05,cape:0.7,tail:0.7};
+/* Main dadu di lobby: lempar-tangkap (toss), pantul ke lantai (dribble), lempar ke depan lalu dipanggil kembali (throw). Gerak dadunya diatur halaman lewat bc.hand. */
+const TS_LOW={rArmS:-0.9,rElbow:-0.5,rWrist:0.3,rArmZ:-0.12,lArmS:0.3,lElbow:-0.3,lArmZ:0.2,lean:0.05,twist:0.1,headX:-0.1,headY:0,rLegT:-0.1,rKnee:0.15,lLegT:0.1,lKnee:0.1};
+const TS_UP={rArmS:-2.7,rElbow:-0.2,rWrist:0.5,rArmZ:-0.2,lArmS:0.2,lElbow:-0.3,lArmZ:0.25,lean:-0.18,twist:0,headX:-0.35,headY:0,rLegT:-0.2,rKnee:0.2,lLegT:0.15,lKnee:0.1};
+const DR_LOW={rArmS:-0.35,rElbow:-0.3,rWrist:0.4,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.3,twist:0.05,headX:0.35,headY:0,rLegT:-0.35,rKnee:0.55,lLegT:0.25,lKnee:0.35};
+const DR_HI={rArmS:-0.8,rElbow:-0.45,rWrist:0.3,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.22,twist:0.05,headX:0.3,headY:0,rLegT:-0.3,rKnee:0.45,lLegT:0.2,lKnee:0.3};
 const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
-const ACT_DUR={mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
+const ACT_DUR={toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
 const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
 let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') — dibaca halaman untuk percikan batu */
 const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
@@ -1038,6 +1043,18 @@ function applyAct(T,dt){
   }else if(act.type==='attack'){
     let m;
     if(u<0.4){m=0;w=ease3(u/0.4);}else if(u<0.55){m=(u-0.4)/0.15;w=1;}else{m=1;w=1-ease3((u-0.55)/0.45);}
+    for(const k in ACT_W)pose[k]=lerp(ACT_W[k],ACT_S[k],m);
+  }else if(act.type==='toss'){
+    const c=act.t%1,a=c<0.22?ease3(c/0.22):1-0.75*ease3((c-0.22)/0.78);
+    w=Math.min(1,act.t/0.15)*Math.min(1,(act.dur-act.t)/0.15);
+    for(const k in TS_LOW)pose[k]=lerp(TS_LOW[k],TS_UP[k],a);
+  }else if(act.type==='dribble'){
+    const a=Math.abs(Math.cos(Math.PI*((act.t%0.6)/0.6)));
+    w=Math.min(1,act.t/0.2)*Math.min(1,(act.dur-act.t)/0.2);
+    for(const k in DR_LOW)pose[k]=lerp(DR_LOW[k],DR_HI[k],a);
+  }else if(act.type==='throw'){
+    const t=act.t,m=clamp((t-0.5)/0.15,0,1);
+    w=Math.min(1,t/0.4)*(t<1.7?1:1-ease3((t-1.7)/0.8));
     for(const k in ACT_W)pose[k]=lerp(ACT_W[k],ACT_S[k],m);
   }else{
     w=Math.min(1,u/0.12)*Math.min(1,(1-u)/0.2);
@@ -1098,7 +1115,7 @@ function loadFromData(look,equipped,gearDye){
   try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
 }
 apply(null,true);
-return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};

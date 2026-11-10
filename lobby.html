@@ -306,17 +306,42 @@ hero3d={rebuild(){buildHero()}};
 if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();else if(r==='server-appearance'||r==='server-outfits'){renderAvatar();buildHero()}});
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 let cheer=0;
+/* ---------- dadu di tangan kanan karakter (dadu yang dipakai pemain): dipegang saat diam, dimainkan lewat aksi toss/dribble/throw ---------- */
+const D_SZ=1.25,D_FLOOR=HERO_Y+D_SZ/2+.05;let dDie=null;
+function dieFace(n,bg,pip,edge){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle=edge;g.fillRect(0,0,128,128);g.fillStyle=bg;g.fillRect(6,6,116,116);g.fillStyle=pip;
+ ({1:[[1,1]],2:[[0,0],[2,2]],3:[[0,0],[1,1],[2,2]],4:[[0,0],[2,0],[0,2],[2,2]],5:[[0,0],[2,0],[1,1],[0,2],[2,2]],6:[[0,0],[2,0],[0,1],[2,1],[0,2],[2,2]]})[n].forEach(q=>{g.beginPath();g.arc(32+q[0]*32,32+q[1]*32,10,0,7);g.fill()});
+ const t=new THREE.CanvasTexture(c);if(THREE.SRGBColorSpace)t.colorSpace=THREE.SRGBColorSpace;return t}
+function buildDie(){if(dDie){scene.remove(dDie);dDie.material.forEach(m=>{if(m.map)m.map.dispose();m.dispose()});dDie.geometry.dispose();dDie=null}
+ const it=window.ItemCatalog.byId(PD.equippedId('dice')),a=(it&&it.kind==='dice'&&it.art)||{bg:'#f4f4f4',pip:'#222222',edge:'#9a9a9a'};
+ const bg=a.bg||'#f4f4f4',pip=a.pip||'#222',edge=a.edge||'#555',top=a.accent||bg;
+ const f=[2,5,1,6,3,4].map((n,i)=>new THREE.MeshLambertMaterial({map:dieFace(n,i===2?top:bg,pip,edge)}));
+ dDie=new THREE.Mesh(new THREE.BoxGeometry(D_SZ,D_SZ,D_SZ),f);dDie.castShadow=true;scene.add(dDie)}
+buildDie();UT.Events.on('diceChanged',buildDie);UT.Events.on('inventoryChanged',buildDie);
+const dc={kind:null,t:0,rel:null,H:new THREE.Vector3(),
+ start(k){this.kind=k;this.t=0;this.rel=null},
+ update(dt){if(!dDie||!bc)return;hero.updateMatrixWorld(true);bc.hand.getWorldPosition(this.H);const H=this.H,P=dDie.position;
+  if(!this.kind){P.copy(H);P.y+=.15;dDie.rotation.y+=dt*.8;return}
+  this.t+=dt;const t=this.t,k=this.kind;let held=false;
+  if(k==='toss'){const c=t%1;if(t>=3)held=true;else if(c<.22){P.copy(H);this.rel=null}else{const s=(c-.22)/.78;if(!this.rel)this.rel=H.clone();P.lerpVectors(this.rel,H,s);P.y+=5*4*s*(1-s);dDie.rotation.x+=dt*9;dDie.rotation.z+=dt*5}}
+  else if(k==='dribble'){if(t>=2.4)held=true;else{const h=Math.abs(Math.cos(Math.PI*((t%.6)/.6)));P.set(H.x,D_FLOOR+(H.y-D_FLOOR)*h,H.z);dDie.rotation.y+=dt*3}}
+  else if(k==='throw'){const L=new THREE.Vector3(H.x+2,D_FLOOR,6.5),B=new THREE.Vector3(L.x+.8,D_FLOOR,L.z+.5);
+   if(t>=2.4)held=true;
+   else if(t<.6)P.copy(H);
+   else if(t<1.3){const s=(t-.6)/.7;if(!this.rel)this.rel=H.clone();P.lerpVectors(this.rel,L,s);P.y+=3.2*4*s*(1-s);dDie.rotation.x+=dt*10;dDie.rotation.z+=dt*6}
+   else if(t<1.6){const s=(t-1.3)/.3;P.lerpVectors(L,B,s);P.y=D_FLOOR+.8*4*s*(1-s);dDie.rotation.x+=dt*5}
+   else{const s=(t-1.6)/.8;P.lerpVectors(B,H,s);P.y+=2.5*4*s*(1-s);dDie.rotation.x+=dt*8;dDie.rotation.z+=dt*4}}
+  if(held){this.kind=null;P.copy(H)}}};
 /* ---------- animasi lobby: mata berkedip otomatis (BlockyCharacter); saat diam 6–13 dtk karakter beraksi sendiri, tap karakter = aksi acak ---------- */
-const LOBBY_ACTS=[ /* tiap aksi = urutan [detik, fungsi] */
- [[0,()=>bc.act('attack')],[.85,()=>bc.act('attack')],[1.7,()=>bc.act('attack')]], /* tebas pedang 3x */
+const LOBBY_ACTS=[ /* tiap aksi = urutan [detik, fungsi]; tebas pedang & perisai dihapus (tangan kanan memegang dadu) */
  [[0,()=>bc.setMode('run')],[1.5,()=>bc.act('flip')],[2.5,()=>bc.setMode('idle')]], /* lari, loncat salto */
  [[0,()=>bc.setMode('run')],[1.3,()=>bc.jump()],[2.2,()=>bc.act('roll')],[3.1,()=>bc.setMode('idle')]], /* lari, loncat, guling */
  [[0,()=>bc.act('backflip')]],
  [[0,()=>bc.act('spin')]],
- [[0,()=>bc.act('roll')]],
  [[0,()=>bc.act('wave')]],
  [[0,()=>bc.act('cheer')]],
- [[0,()=>bc.act('block')],[1.1,()=>bc.act('attack')]] /* bertahan lalu menebas */
+ [[0,()=>{bc.act('toss');dc.start('toss')}]], /* lempar-tangkap dadu ke atas */
+ [[0,()=>{bc.act('dribble');dc.start('dribble')}]], /* memantulkan dadu ke lantai seperti bola */
+ [[0,()=>{bc.act('throw');dc.start('throw')}]] /* melempar dadu ke depan, lalu dadu kembali ke tangan */
 ];
 const calmMotion=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 let lq=null,lqT=0,lqI=0,lqIdle=5+Math.random()*4,lqLast=-1;
@@ -334,7 +359,7 @@ const clock=new THREE.Clock();
 let lastT=0;
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;moodStep(dt);
  cam.position.set(0,5.5,26);cam.lookAt(0,3,0);
- bc.tick(dt);lobbyStep(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);
+ bc.tick(dt);lobbyStep(dt);dc.update(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);
  anims.forEach(f=>f(t));
    renderer.render(scene,cam)}
 loop();
