@@ -80,7 +80,7 @@ button:focus-visible{outline:.3rem solid #fff}
 svg{display:block}
 #back>.ci{width:3.6rem;height:3.6rem}
 #me .bk .ci{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .14rem 0 var(--ol))}
-.plate .ci{width:2.6rem;height:2.6rem;flex:none}
+.plate .ci{width:1.9rem;height:1.9rem;flex:none}
 .mysc .ci{width:3.8rem;height:3.8rem;flex:none}
 .tb .ci{width:2.6rem;height:2.6rem;flex:none}
 .lr .sc .ci{width:3rem;height:3rem;flex:none}
@@ -120,6 +120,7 @@ svg{display:block}
   min-height: 0;
 }
 
+#gl{position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:0;pointer-events:none;display:block}
 #pod{
   position: relative;
   width: 100%;
@@ -127,24 +128,17 @@ svg{display:block}
   min-height: 24rem;
   overflow: hidden;
 }
-#glow{position:absolute;left:25%;top:0;width:50%;height:80%;background:radial-gradient(ellipse at 50% 55%,rgba(255,240,150,.85),rgba(255,240,150,0) 65%);pointer-events:none}
-#pod canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-
-.med{position:absolute;translate:-50% 0;pointer-events:none;filter:drop-shadow(0 .3rem 0 rgba(8,17,43,.55));animation:fl 4s ease-in-out infinite}
-.med svg{width:100%;height:100%}
-.med img.mi{display:block;width:100%;height:100%;object-fit:contain;-webkit-user-drag:none;user-select:none}
-
 /* papan nama juara: panel gelap bersudut piksel */
-.plate{position:absolute;translate:-50% 0;bottom:.9rem;text-align:center;padding:.5rem .6rem .5rem;line-height:1.15;border:0;border-radius:0;
+.plate{position:fixed;z-index:2;translate:-50% -100%;pointer-events:none;text-align:center;padding:.5rem .6rem .5rem;line-height:1.15;border:0;border-radius:0;
   background:linear-gradient(#3b414d,#222630);box-shadow:var(--bevs),var(--px)}
-.plate .pn{font-size:1.6rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 .14rem 0 var(--ol)}
-.plate .ps{display:flex;gap:.4rem;justify-content:center;align-items:center;font-size:1.8rem;text-shadow:0 .14rem 0 var(--ol)}
-.plate svg{width:2rem;height:2rem}
+.plate .pn{font-size:1.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 .14rem 0 var(--ol)}
+.plate .ps{display:flex;gap:.4rem;justify-content:center;align-items:center;font-size:1.5rem;text-shadow:0 .14rem 0 var(--ol)}
+.plate svg{width:1.7rem;height:1.7rem}
 
-#p1{left:50%;width:15rem;bottom:1.9rem;background:linear-gradient(#4b4a2a,#2a2915);box-shadow:var(--bevs),0 -.3rem 0 0 #ffc83a,0 .3rem 0 0 #ffc83a,-.3rem 0 0 0 #ffc83a,.3rem 0 0 0 #ffc83a,0 -.5rem 0 0 var(--ol),0 .5rem 0 0 var(--ol),-.5rem 0 0 0 var(--ol),.5rem 0 0 0 var(--ol)}
-#p1 .pn{font-size:1.9rem}#p1 .ps{font-size:2.2rem;color:#ffe36a}
-#p2{left:21%;width:11rem;background:linear-gradient(#444a57,#272b35)}
-#p3{left:79%;width:11rem;background:linear-gradient(#5a3a2c,#34211a)}
+#p1{width:11.5rem;background:linear-gradient(#4b4a2a,#2a2915);box-shadow:var(--bevs),0 -.3rem 0 0 #ffc83a,0 .3rem 0 0 #ffc83a,-.3rem 0 0 0 #ffc83a,.3rem 0 0 0 #ffc83a,0 -.5rem 0 0 var(--ol),0 .5rem 0 0 var(--ol),-.5rem 0 0 0 var(--ol),.5rem 0 0 0 var(--ol)}
+#p1 .pn{font-size:1.55rem}#p1 .ps{font-size:1.8rem;color:#ffe36a}
+#p2{width:9rem;background:linear-gradient(#444a57,#272b35)}
+#p3{width:9rem;background:linear-gradient(#5a3a2c,#34211a)}
 
 /* Player Info Bar */
 #me{
@@ -294,11 +288,6 @@ html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
   <!-- Left Column Section (Podium & Player Info) -->
   <div class="left-section">
     <div id="pod">
-      <div id="glow"></div>
-      <canvas id="gl"></canvas>
-      <div class="med" id="m1" style="left:50%;top:0;width:8rem;height:8rem"></div>
-      <div class="med" id="m2" style="left:21%;top:17%;width:6.4rem;height:6.4rem;animation-delay:-1s"></div>
-      <div class="med" id="m3" style="left:79%;top:22%;width:6.4rem;height:6.4rem;animation-delay:-2s"></div>
       <div class="plate" id="p2"></div>
       <div class="plate" id="p1"></div>
       <div class="plate" id="p3"></div>
@@ -360,7 +349,6 @@ const TABS=[['global','Global','profile/globe'],['teman','Teman','mode/kontak'],
 
 const MEDAL=['1st','2nd','3rd'];
 const medal=n=>`<img class="mi" src="assets/Images/icon/rank/${MEDAL[n-1]}.webp" alt="Peringkat ${n}" draggable="false" decoding="async">`;
-$('#m1').innerHTML=medal(1);$('#m2').innerHTML=medal(2);$('#m3').innerHTML=medal(3);
 
 /* ---- Data leaderboard NYATA dari Supabase (RPC get_leaderboard). Tidak ada data contoh. ---- */
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -414,7 +402,7 @@ function fillPodium(){if(!R||!UT.BlockyCharacter)return;const rows=cur().rows;
   if(!r)return;
   try{const bc=UT.BlockyCharacter.create(THREE),d=APP[appKey(r)]||EMPTY;
    if(r.me)bc.loadFromPlayer();else bc.loadFromData(d.look,d.equipped,d.gear_dye);
-   bc.tick(.016);s.bc=bc;s.w.add(bc.root)}catch(e){}})}
+   bc.tick(.016);s.bc=bc;s.w.add(bc.root)}catch(e){}});placeChars()}
 function renderPodium(){fillPodium();const rows=cur().rows,pl=i=>rows[i]?`<div class="pn">${esc(rows[i].name)}</div><div class="ps">${TR}${fmt(rows[i].score)}</div>`:`<div class="pn">—</div><div class="ps">${TR}0</div>`;
  $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
 
@@ -462,76 +450,45 @@ const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(
 
 function character(sk,emote){return UT.CharacterView.make(THREE,sk,emote)} /* model = UT.CharacterData (sama dengan gameplay), bukan rig lama */
 
-/* ===== Podium kayu ala Minecraft: papan kayu + tiang log + trim logam (emas/perak/tembaga, kalem — bukan neon) ===== */
-function pxTex(kind,seed){
- let q=seed*7919+13;const rn=()=>(q=(q*16807)%2147483647)/2147483647;
- const c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d');
- const put=(x,y,v)=>{v=Math.max(0,Math.min(255,v|0));g.fillStyle=`rgb(${v},${v},${v})`;g.fillRect(x,y,1,1)};
- for(let y=0;y<16;y++)for(let x=0;x<16;x++){
-  let v;
-  if(kind==='plank'){const row=y>>2,base=222-(row%2)*10+((row*37+seed)%3)*5;v=base+(rn()-.5)*16;
-   if((y&3)===3)v-=46;                                    /* celah antar papan */
-   if(((x+row*5+seed*3)%11)===0&&(y&3)!==3)v-=26;           /* sambungan ujung papan */
-   if((y&3)===1&&rn()<.18)v-=14;                            /* serat */}
-  else if(kind==='log'){v=206+((x*5+seed)%4)*7-((x&3)===0?32:0)+(rn()-.5)*24;if(rn()<.06)v-=40}
-  else {v=232+(rn()-.5)*16;if(rn()<.05)v-=34;if(x===0||y===0)v-=14}
-  put(x,y,v)}
- const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
-function repTex(t,rx,ry){const k=t.clone();k.needsUpdate=true;k.repeat.set(rx,ry);return k}
-function plaqueTex(n,metal){
- const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
- g.fillStyle='#'+metal.toString(16).padStart(6,'0');g.fillRect(0,0,64,64);
- g.fillStyle='rgba(0,0,0,.28)';g.fillRect(0,0,64,4);g.fillRect(0,60,64,4);g.fillRect(0,0,4,64);g.fillRect(60,0,4,64);   /* tepi gelap */
- g.fillStyle='rgba(255,255,255,.14)';g.fillRect(4,4,56,3);g.fillRect(4,4,3,56);                                          /* tepi terang */
- g.font='900 44px "Baloo 2",Arial Black,sans-serif';g.textAlign='center';g.textBaseline='middle';
- g.fillStyle='rgba(255,255,255,.18)';g.fillText(n,33,35);g.fillStyle='#3a2a18';g.fillText(n,32,33);                      /* angka terukir */
- const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;return t}
-const PT={plank:pxTex('plank',3),log:pxTex('log',5),metal:pxTex('metal',9)};
-function podium(c,n){
- const W=3.1,H=c.h,g=new THREE.Group();
- const wood=new THREE.Color(c.wood),logC=new THREE.Color(c.wood).multiplyScalar(.62),dark=new THREE.Color(c.wood).multiplyScalar(.55);
- const M2=(col,tex,r=.9,m=0)=>new THREE.MeshStandardMaterial({color:col,map:tex||null,roughness:r,metalness:m});
- const metal=(col,tex)=>new THREE.MeshStandardMaterial({color:col,map:tex||null,roughness:.5,metalness:.3});
- const side=M2(wood,repTex(PT.plank,W,H)),topb=M2(wood,repTex(PT.plank,W,W));
- const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,W),[side,side,topb,topb,side,side]);body.position.y=H/2;g.add(body);
- const plinth=new THREE.Mesh(new THREE.BoxGeometry(W+.34,.22,W+.34),M2(dark,repTex(PT.plank,W+.34,.22)));plinth.position.y=.11;g.add(plinth);
- const pm=M2(logC,repTex(PT.log,.34,H/.34*.2));
- [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{
-  const p=new THREE.Mesh(new THREE.BoxGeometry(.36,H+.02,.36),pm);p.position.set(sx*(W/2-.02),H/2+.01,sz*(W/2-.02));g.add(p);
-  const st=new THREE.Mesh(new THREE.BoxGeometry(.44,.18,.44),metal(c.metalDk,repTex(PT.metal,1,1)));st.position.set(sx*(W/2-.02),H+.09,sz*(W/2-.02));g.add(st)});
- const band=new THREE.Mesh(new THREE.BoxGeometry(W+.06,.1,W+.06),metal(c.metalDk,repTex(PT.metal,W,.2)));band.position.y=Math.max(.45,H*.3);g.add(band);
- const slab=new THREE.Mesh(new THREE.BoxGeometry(W+.3,.1,W+.3),metal(c.metal,repTex(PT.metal,W,W)));slab.position.y=H+.05;g.add(slab);
- const inset=new THREE.Mesh(new THREE.BoxGeometry(W-.5,.04,W-.5),M2(dark,repTex(PT.plank,W,W)));inset.position.y=H+.12;g.add(inset);
- const ps=.56,py=H-.37,pl=new THREE.Mesh(new THREE.PlaneGeometry(ps,ps),new THREE.MeshStandardMaterial({map:plaqueTex(n,c.metal),roughness:.5,metalness:.25}));
- pl.position.set(0,py,W/2+.012);g.add(pl);
- [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy])=>{const rv=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,.05),metal(c.metalDk));rv.position.set(sx*(ps/2-.06),py+sy*(ps/2-.06),W/2+.03);g.add(rv)});
- return g}
-
 let ok=typeof THREE!=='undefined',R=null;
-function build(){const cv=$('#gl');
- try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
-  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1.45,.1,100);
-  scene.add(new THREE.AmbientLight(0xfff4e4,.58),new THREE.HemisphereLight(0xcfeaff,0x6a5a40,.42));
-  const sun=new THREE.DirectionalLight(0xffe2b0,.78);sun.position.set(6,12,10);scene.add(sun);
-  const holder=new THREE.Group();scene.add(holder);
-  const cfg=[{x:-3.3,h:1.9,n:2,wood:0x7b5b38,metal:0xa9b0ba,metalDk:0x7d838d,rot:.25,row:1},
-             {x:0,h:2.6,n:1,wood:0x8f6c3d,metal:0xc49b43,metalDk:0x8f6e2a,rot:0,row:0},
-             {x:3.3,h:1.5,n:3,wood:0x5c4429,metal:0xad693f,metalDk:0x7d4a2b,rot:-.25,row:2}];
-  const slots=[];
-  cfg.forEach(c=>{const pd=podium(c,c.n);pd.position.x=c.x;holder.add(pd);
-   const w=new THREE.Group();w.position.set(c.x,c.h+.14,0);w.scale.setScalar(.46*2.74);w.rotation.y=c.rot;holder.add(w);slots.push({w,c,bc:null,key:''})});
-  const ring=new THREE.Mesh(new THREE.RingGeometry(4.6,5.6,48),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.3,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.02;ring.scale.set(1.6,1,1);holder.add(ring);
+/* Tanpa podium 3D: podium sudah ada di gambar latar (leaderboard-bg.webp). Karakter digambar di kanvas layar penuh
+   (kamera ortografik dalam piksel) lalu ditempatkan di atas balok juara 2 / 1 / 3 pada gambar itu.
+   Posisi balok = pecahan gambar (u kiri-kanan, v atas-bawah, titik pijak kaki); dipetakan ke layar sesuai object-fit:cover. */
+const BG_W=1672,BG_H=941,BG_POS_Y=.72;                        /* ukuran gambar & object-position .sbg-img (50% 72%) */
+const SPOTS=[{u:.284,v:.535,h:.205,rot:0,row:0},               /* juara 1: balok emas */
+             {u:.1755,v:.580,h:.190,rot:.25,row:1},            /* juara 2: balok perak */
+             {u:.395,v:.592,h:.190,rot:-.25,row:2}];           /* juara 3: balok perunggu */
+function bgMap(){const vw=innerWidth,vh=innerHeight,s=Math.max(vw/BG_W,vh/BG_H),W=BG_W*s,H=BG_H*s,ox=(vw-W)*.5,oy=(vh-H)*BG_POS_Y;
+ return {vw,vh,H,pt:(u,v)=>({x:ox+u*W,y:oy+v*H})}}
+function build(){
+ try{const cv=document.createElement('canvas');cv.id='gl';document.body.appendChild(cv);
+  const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  const scene=new THREE.Scene(),cam=new THREE.OrthographicCamera(0,1,1,0,-2000,2000);
+  scene.add(new THREE.AmbientLight(0xfff4e4,.7),new THREE.HemisphereLight(0xcfeaff,0x6a5a40,.45));
+  const sun=new THREE.DirectionalLight(0xffe2b0,.85);sun.position.set(.4,1,1.2);scene.add(sun);
+  const slots=SPOTS.map(c=>{const w=new THREE.Group();w.rotation.y=c.rot;scene.add(w);return {w,c,bc:null,key:'',sc:1}});
   R={r,scene,cam,slots,cv}}catch(e){ok=false;console.warn('WebGL unavailable',e)}}
-
-function fit(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;const hi=SET().graphics==='high';R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=w/h<1.2?36:30;R.cam.updateProjectionMatrix()}
-function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(!R.cv.offsetParent)return;const dt=Math.min(.05,t-(R.t||t));R.t=t;R.slots.forEach(s=>s.bc&&s.bc.tick(dt));R.cam.position.set(0,4.2,15);R.cam.lookAt(0,3.4,0);R.r.render(R.scene,R.cam)}
+/* skala karakter dari tinggi nyata modelnya, kaki tepat di titik pijak balok */
+function placeChars(){if(!R)return;const m=bgMap();
+ R.slots.forEach(s=>{const c=s.c,P=m.pt(c.u,c.v);s.P=P;
+  if(s.bc){const b=new THREE.Box3().setFromObject(s.bc.root),hh=b.max.y-b.min.y;
+   if(hh>0){const k=(c.h*m.H)/hh;s.w.scale.setScalar(k);s.w.position.set(P.x,m.vh-P.y-b.min.y*k,0)}}});
+ placePlates(m)}
+/* papan nama: melayang di atas kepala karakter */
+function placePlates(m){const hide=x=>x<-40||x>m.vw+40,tb=document.getElementById('top-bar'),minTop=tb?tb.getBoundingClientRect().bottom+6:0;
+ R.slots.forEach(s=>{const e=$('#p'+(s.c.row===0?1:s.c.row===1?2:3));if(!e||!s.P)return;
+  e.style.display=hide(s.P.x)?'none':'';e.style.left=s.P.x+'px';e.style.top=Math.max(s.P.y-s.c.h*m.H-6,minTop+e.offsetHeight)+'px'})}
+function fit(){if(!R)return;const w=innerWidth,h=innerHeight;if(!w||!h)return;const hi=SET().graphics==='high';
+ R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);
+ R.cam.left=0;R.cam.right=w;R.cam.top=h;R.cam.bottom=0;R.cam.updateProjectionMatrix();placeChars()}
+function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(document.hidden)return;const dt=Math.min(.05,t-(R.t||t));R.t=t;R.slots.forEach(s=>s.bc&&s.bc.tick(dt));R.r.render(R.scene,R.cam)}
 
 renderTabs();renderAll();load(tab);
 addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(tab,true)});
 PD.subscribe(()=>renderMe());
 if(ok)build();
 if(ok&&R)fillPodium();
-if(ok&&R){new ResizeObserver(fit).observe($('#pod'));fit();requestAnimationFrame(loop)}
+if(ok&&R){addEventListener('resize',fit);fit();requestAnimationFrame(loop)}
 else $('#pod').insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>');
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderCurrency()}}); /* B5: saldo & inventory dari server */
