@@ -254,6 +254,7 @@ async function setupOnline(){
  try{
   const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
   S.mpIdentity=await MP.ensurePlayer();loadFriends();let row;
+  try{const AS0=window.UT&&UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();if(AS0&&AS0.pushAppearance)AS0.pushAppearance().catch(()=>{})}catch(e){} /* pastikan tampilan kita ada di server sebelum game dimulai */
   if(HOST){
    let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
    if(saved&&saved.id){try{row=await MP.getRoom(saved.id);if(!row||row.status!=='waiting'||row.host_id!==S.mpIdentity.id)row=null}catch(_){row=null} }
