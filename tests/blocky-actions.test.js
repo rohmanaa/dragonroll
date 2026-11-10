@@ -95,7 +95,8 @@ t('mata berkedip sendiri: wajah ditukar ke mata terpejam sesaat (<0,2 dtk) lalu 
     closedNow = isClosed;
   }
   assert.ok(blinks >= 3, 'kedip ' + blinks + 'x'); assert.ok(maxClosed < 0.2, 'terpejam ' + maxClosed + ' dtk');
-  assert.strictEqual(h.material[4], open, 'berakhir dengan mata terbuka (atau kembali terbuka)');
+  let reopened = false; for (let k = 0; k < 20 && !reopened; k++) { c.tick(0.016); reopened = h.material[4] === open; } /* kedip paling lama 0,11 dtk: pasti terlihat terbuka lagi dalam 0,3 dtk */
+  assert.ok(reopened, 'mata kembali terbuka');
 });
 t('mata gaya "Tertutup" tidak berkedip; ganti penampilan membangun ulang kepala tanpa error', () => {
   const c = make(); c.loadPreset(1); c.apply({ eyes: { id: 'closed', dye: 'blue' } }); c.tick(0.016);
