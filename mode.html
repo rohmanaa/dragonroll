@@ -235,7 +235,7 @@ function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#mm').classList.re
 function ranked(format,n){
  const map=RF.getMap(),cfg={type:'ranked',mode:'online',format,privacy:'public',host:true,count:n,
   players:Array.from({length:n},(_,i)=>({name:i?'Lawan '+i:(PD.profile().name||'Kamu'),team:format==='team'?(i<2?1:2):0,kind:i?'friend':'host'})),
-  skin:(IC.byId(PD.equippedId('skin'))||{}).gameKey,dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
+  dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
  mm=cfg;$('#mmSpin').classList.remove('done');$('#mmT').textContent='MENCARI LAWAN...';
  $('#mmP').textContent='Ranked • '+(format==='team'?'Team 2 vs 2':'Solo '+n+' pemain')+' • '+(map?map.name:'');$('#mmX').hidden=false;$('#mm').classList.add('show');
  tm.push(setTimeout(()=>{if(mm!==cfg)return;$('#mmSpin').classList.add('done');$('#mmT').textContent='LAWAN DITEMUKAN!';$('#mmX').hidden=true;
