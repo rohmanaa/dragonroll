@@ -5656,7 +5656,7 @@ function buildTrapProto(key){
   }
   return buildBatch(B);
 }
-const TRAPTEX3={};
+const TRAPTEX3={},TRAP_AURA={tnt:0xff5a3c,fire_charge:0xff8a1e,blaze_core:0xffc83a}; /* aura = warna power, outline = warna pemain */
 function trapTex3(key){ if(TRAPTEX3[key]) return TRAPTEX3[key]; const t=new THREE.TextureLoader().load('data/power/3d/'+key+'.png'); if(THREE.SRGBColorSpace) t.colorSpace=THREE.SRGBColorSpace; return (TRAPTEX3[key]=t); }
 function trapGroup(key,hex,ghost){
   const g=new THREE.Group(),op=ghost?0.55:1;
@@ -5674,8 +5674,8 @@ function trapGroup(key,hex,ghost){
   for(let i=0;i<8;i++){ const q=new THREE.Mesh(pg,sil),an=i*Math.PI/4; q.position.set(Math.cos(an)*OL,Math.sin(an)*OL,-0.002); q.renderOrder=2; m.add(q); }
   const face=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false}));
   face.renderOrder=3; m.add(face);
-  /* aura dari objek: halo berwarna pemain, berdenyut (opasitas saja, tidak bergerak naik-turun) */
-  const aura=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:hex,transparent:true,opacity:0.4*op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
+  /* aura dari objek: halo berwarna power, berdenyut (opasitas saja, tidak bergerak naik-turun) */
+  const aura=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:TRAP_AURA[key]||0xffa040,transparent:true,opacity:0.4*op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
   aura.scale.setScalar(1.5); aura.position.y=0.28; g.add(aura);
   g.add(m);
   g.userData={ring:ring,sp:m,aura:aura,op:op,y0:0,ph:Math.random()*6,born:performance.now()};
