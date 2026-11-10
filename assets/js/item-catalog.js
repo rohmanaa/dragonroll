@@ -183,25 +183,25 @@
        potion_odd/potion_even -> p.odd/p.even=true (dadu berikutnya ganjil/genap)   grass -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
     /* TAKEDOWN sementara: off:true = tidak tampil di halaman Power/Room, tidak dipilih, tidak dipakai CPU/pemain. Data tetap utuh (lihat offNote). */
-    powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.', { off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Iron Sword akan diganti item lain. JANGAN DIHAPUS: ID 'sword', baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
-    powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.'),
-    powerup('tnt',     'TNT',        'common', 'Jebakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 1 petak sekitarnya) mundur 6 petak.'),
-    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, atau serangan Power dari pemain lain, kamu bisa memilih memakai Totem untuk menahannya.'),
-    powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.'),
-    powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.'),
-    powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.'),
+    powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.', { price: 120, off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Iron Sword akan diganti item lain. JANGAN DIHAPUS: ID 'sword', baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
+    powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.', { price: 80 }),
+    powerup('tnt',     'TNT',        'common', 'Jebakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 1 petak sekitarnya) mundur 6 petak.', { price: 150 }),
+    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, atau serangan Power dari pemain lain, kamu bisa memilih memakai Totem untuk menahannya.', { price: 200 }),
+    powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.', { price: 60 }),
+    powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.', { price: 60 }),
+    powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.', { price: 100 }),
     /* maps: ['minecraft'|'nether'] = Power HANYA boleh dibawa/dipakai di map itu (tanpa 'maps' = semua map). Tidak boleh dipilih di Room dan ditolak di gameplay; stok pemain TIDAK berkurang. */
     /* Batch 2-3 (aturan: gameplay/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
-    powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.'),
-    powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
-    powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.', { maps: ['minecraft'] }),
-    powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.', { maps: ['minecraft'] }),
-    powerup('fire_charge',     'Fire Charge',     'common',    'Jebakan api: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana mundur 3 petak.', { maps: ['nether'] }),
-    powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.', { maps: ['minecraft'] }),
-    powerup('blaze_core',      'Blaze Core',      'epic',      'Jebakan ledakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 2 petak sekitarnya) mundur 2 petak.', { maps: ['nether'] }),
-    powerup('trident',         'Trident',         'legendary', 'Pemain terdepan mundur 4 petak dan kamu maju 2 petak.'),
-    powerup('dragon_crystal',  'Dragon Crystal',  'legendary', 'Meluncur ke Tangga terdekat di depanmu; bila tidak ada, maju 6 petak.'),
-    powerup('nether_star',     'Nether Star',     'legendary', 'Semua musuh mundur 3 petak dan kamu mendapat giliran tambahan.')
+    powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.', { price: 250 }),
+    powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { price: 450, off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
+    powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.', { price: 90, maps: ['minecraft'] }),
+    powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.', { price: 200, maps: ['minecraft'] }),
+    powerup('fire_charge',     'Fire Charge',     'common',    'Jebakan api: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana mundur 3 petak.', { price: 120, maps: ['nether'] }),
+    powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.', { price: 250, maps: ['minecraft'] }),
+    powerup('blaze_core',      'Blaze Core',      'epic',      'Jebakan ledakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 2 petak sekitarnya) mundur 2 petak.', { price: 400, maps: ['nether'] }),
+    powerup('trident',         'Trident',         'legendary', 'Pemain terdepan mundur 4 petak dan kamu maju 2 petak.', { price: 600 }),
+    powerup('dragon_crystal',  'Dragon Crystal',  'legendary', 'Meluncur ke Tangga terdekat di depanmu; bila tidak ada, maju 6 petak.', { price: 800 }),
+    powerup('nether_star',     'Nether Star',     'legendary', 'Semua musuh mundur 3 petak dan kamu mendapat giliran tambahan.', { price: 1000 })
   ];
 
 
@@ -348,6 +348,8 @@
 
   g.ItemCatalog = Object.freeze({
     version: 1,
+    POWER_CARRY_MAX: 3,   /* maks. unit per jenis Power yang boleh DIBAWA ke satu pertandingan (stok tetap di Inventory; baru berkurang saat dipakai) */
+    POWER_TYPES_MAX: 5,   /* maks. jenis Power per pertandingan */
     RARITY: RARITY,
     CATEGORIES: CATEGORIES,
     SKIN_GROUPS: SKIN_GROUPS,

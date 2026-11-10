@@ -27,11 +27,11 @@ end $$;
 
 set role authenticated;
 insert into out select 'unknown', public.buy_item('dice.tidak-ada');
-insert into out select 'powerup', public.buy_item((select v #>> '{}' from out where k='powerup_id')); -- price null
+insert into out select 'powerup', public.buy_item((select v #>> '{}' from out where k='powerup_id')); -- power-up: ditolak buy_item
 reset role;
 do $$ begin
   assert (select v->>'reason' from out where k='unknown') = 'tidak-tersedia';
-  assert (select v->>'reason' from out where k='powerup') = 'tidak-tersedia', 'powerup tanpa harga tidak dijual';
+  assert (select v->>'reason' from out where k='powerup') = 'tidak-tersedia', 'power-up tidak dijual lewat buy_item (dibeli per jumlah via buy_powerup, lihat powerup_stock_test)';
 end $$;
 
 -- saldo kurang: beli dice.emas (900) -> sisa 0, lalu dice.tnt (200) ditolak dengan kurang=200

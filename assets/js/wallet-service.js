@@ -82,6 +82,26 @@
       });
     }
 
+    /* ----- Power-up berstok (server: buy_powerup / use_powerup) -----
+       buyPowerup: beli N unit (1..99). opId unik per pembelian: kirim ulang opId yang sama tidak menagih dua kali.
+       usePower: stok -1 saat Power benar-benar dipakai (useId unik per pemakaian). Loadout di Room TIDAK memotong stok. */
+    function newOpId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+    function buyPowerup(itemId, qty, opId) {
+      return once('buy', async function () {
+        var r = await rpc('buy_powerup', { p_item_id: String(itemId || ''), p_qty: Math.floor(Number(qty) || 0), p_op_id: String(opId || newOpId('op-')) });
+        if (r && r.ok) { mirror(r.coins, r.gems); await refreshInventory(); }
+        return r;
+      });
+    }
+    async function usePower(itemId, useId) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try {
+        var r = await rpc('use_powerup', { p_item_id: String(itemId || ''), p_use_id: String(useId || '') });
+        if (r && r.ok) refreshInventory();   /* cermin stok lokal ikut turun; tidak ditunggu */
+        return r;
+      } catch (e) { return fail(e); }
+    }
+
     /* Beli satu SET gear: server menghitung total, memotong koin sekali, dan memasukkan semua item dalam satu
        transaksi (semua berhasil atau semua gagal). Item yang sudah dimiliki dilewati dan tidak ditagih.
        Memakai kunci 'buy' yang sama dengan buy(): dua pembelian tidak bisa berjalan bersamaan. */
@@ -194,7 +214,7 @@
     }
 
     return {
-      enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, exchange: exchange,
+      enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, buyPowerup: buyPowerup, usePower: usePower, exchange: exchange,
       dailyGet: dailyGet, claimDaily: claimDaily,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,

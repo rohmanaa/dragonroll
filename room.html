@@ -50,6 +50,8 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 .pc.dis{opacity:.5;filter:grayscale(.75);cursor:not-allowed}.pc .pmn{font-size:.7rem;line-height:1;font-weight:800;color:#ffd9a0;text-shadow:0 1px 0 rgba(0,0,0,.6)}
 .pc img{width:3rem;height:3rem;object-fit:contain;image-rendering:pixelated}
 .pwn{font-size:1rem;line-height:1.05;min-height:2.1rem;display:grid;place-items:center;padding:0 .2rem}
+.pst{display:flex;align-items:center;justify-content:center;gap:.35rem;margin-top:.15rem}.pst b{min-width:1.7rem;font-size:1.05rem;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.6)}.pst button{width:1.9rem;height:1.9rem;padding:0;border:0;border-radius:.5rem;font:inherit;font-weight:900;font-size:1.2rem;line-height:1;color:#fff;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 .15rem 0 #7a3d08;cursor:pointer}
+.pin{font-size:.72rem;line-height:1.05;font-weight:800;color:#d8ecff;text-shadow:0 1px 0 rgba(0,0,0,.6)}.pin.zero{color:#ffb4a0}
 .pb{width:100%;padding:.3rem .2rem;margin-top:.2rem;border-radius:.8rem;font-size:1.15rem}.pb.on{background:linear-gradient(#75ed46,#19a32d);color:#083c19;text-shadow:none}
 .hint{text-align:center;font-size:1rem;font-weight:700;color:#d9ecff;margin-top:-.5rem}
 .mc{display:flex;gap:1rem;align-items:center;padding:.5rem .9rem;border-radius:1.2rem;color:#3c250d;background:linear-gradient(120deg,#f5c35b,#db8525);box-shadow:0 0 0 .22rem var(--ink)}
@@ -284,18 +286,37 @@ $('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)re
 $('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeChoice()};
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
 const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
-function loadP(){try{const d=UT.Prefs.get(PK,{});return{equipped:(d.equipped||[]).filter(id=>POWERS.some(p=>p.id===id)).slice(0,5)}}catch(e){return{equipped:[]}}}
+const TMAX=IC.POWER_TYPES_MAX||5,CMAX=IC.POWER_CARRY_MAX||3; /* maks. jenis per match; maks. unit per jenis yang DIBAWA */
+function loadP(){try{const d=UT.Prefs.get(PK,{}),eq=(d.equipped||[]).filter((id,i,a)=>POWERS.some(p=>p.id===id)&&a.indexOf(id)===i).slice(0,TMAX),cy={};eq.forEach(id=>{const n=Math.floor(Number(d.carry&&d.carry[id]));cy[id]=n>=1?n:1});return{equipped:eq,carry:cy}}catch(e){return{equipped:[],carry:{}}}}
 const MAPKEY=MAP&&MAP.gameKey,pOk=id=>IC.powerOnMap(id,MAPKEY);/* Power per map: tidak cocok dengan map = tidak bisa dipilih/dibawa (stok tidak berkurang) */
 const PW=loadP();const saveP=()=>{try{UT.Prefs.set(PK,PW)}catch(e){}};
+/* Stok Power = Inventory akun yang sedang bergabung (server). Loadout hanya MEMILIH jumlah yang dibawa: stok TIDAK berkurang di sini,
+   baru berkurang saat Power benar-benar dipakai di pertandingan; sisanya tetap di Inventory. */
+const stockOf=id=>{try{return PD.qty(id)||0}catch(e){return 0}},carryMax=id=>Math.max(0,Math.min(CMAX,stockOf(id)));
+const invReady=()=>{try{return !PD.serverMode()||PD.walletReady()}catch(e){return true}};
+function fitP(){ /* Power tidak otomatis dimiliki: lepas yang stoknya 0, dan dibawa tidak boleh melebihi stok / batas */
+ if(!invReady())return;let ch=false;
+ PW.equipped=PW.equipped.filter(id=>{if(carryMax(id)>0)return true;ch=true;delete PW.carry[id];return false});
+ PW.equipped.forEach(id=>{const m=carryMax(id),c=PW.carry[id];if(!(c>=1&&c<=m)){PW.carry[id]=Math.max(1,Math.min(c||1,m));ch=true}});
+ if(ch)saveP()}
 {const lost=PW.equipped.filter(id=>!pOk(id));if(lost.length){PW.equipped=PW.equipped.filter(pOk);saveP();setTimeout(()=>{try{toast('Dilepas (tidak bisa di '+IC.mapName(MAPKEY)+'): '+lost.map(id=>(IC.byId(id)||{}).name||id).join(', '))}catch(e){}},700)}}
 function renderPower(){
- $('#pcnt').textContent=PW.equipped.length+' / 5 DIPILIH';$('#psc').style.setProperty('--pn',POWERS.length);
- $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id);return `<div class="pc ${on?'sel':''}${ok?'':' dis'}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-disabled="${!ok}" aria-label="${esc(p.name+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}</div>`}).join('');
+ fitP();
+ const units=PW.equipped.reduce((n,id)=>n+(PW.carry[id]||1),0);
+ $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';$('#psc').style.setProperty('--pn',POWERS.length);
+ $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=PW.carry[p.id]||1,none=invReady()&&st<=0;
+  const info=on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa">−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa">+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:`<div class="pin${none?' zero':''}">Stok ${st}</div>`;
+  return `<div class="pc ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — stok '+st+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${info}</div>`}).join('');
 }
-$('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id;
- if(!pOk(id)){const pi=POWERS.find(x=>x.id===id);return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' — tidak bisa dibawa ke map '+IC.mapName(MAPKEY))}
- if(PW.equipped.includes(id))PW.equipped=PW.equipped.filter(x=>x!==id);
- else{if(PW.equipped.length>=5)return toast('Maksimal 5 jenis Power untuk satu pertandingan');PW.equipped.push(id);try{const pi=POWERS.find(x=>x.id===id);if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,b)}catch(er){}}
+$('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id,pi=POWERS.find(x=>x.id===id),sb=e.target.closest('[data-d]');
+ if(sb){ /* stepper jumlah yang dibawa (1..min(stok, batas)); menghapus Power = ketuk kartunya */
+  if(!PW.equipped.includes(id))return;const m=carryMax(id),cur=PW.carry[id]||1,d=Number(sb.dataset.d);
+  if(d>0&&cur>=m)return toast(stockOf(id)<=cur?'Stok '+(pi?pi.name:'Power')+' hanya '+stockOf(id):'Maksimal '+CMAX+' unit per jenis untuk satu pertandingan');
+  PW.carry[id]=Math.max(1,Math.min(m,cur+d));saveP();renderPower();return}
+ if(!pOk(id))return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' — tidak bisa dibawa ke map '+IC.mapName(MAPKEY));
+ if(PW.equipped.includes(id)){PW.equipped=PW.equipped.filter(x=>x!==id);delete PW.carry[id]}
+ else{if(invReady()&&stockOf(id)<=0)return toast((pi?pi.name:'Power')+': stok 0. Beli dulu di halaman Power-up');
+  if(PW.equipped.length>=TMAX)return toast('Maksimal '+TMAX+' jenis Power untuk satu pertandingan');PW.equipped.push(id);PW.carry[id]=1;try{if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,b)}catch(er){}}
  saveP();renderPower()};
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
@@ -361,7 +382,7 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.filter(pOk),
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.filter(pOk),carry:ONLINE?{}:PW.carry,
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?null:(di&&di.gameKey)}} /* online: dadu = milik masing-masing pemain (equipped), bukan 'klasik' paksa */
 function launch(){clearT();RF.launch(cfg())}
 async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
@@ -410,6 +431,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
+try{UT.Events.on('inventoryChanged',()=>renderPower())}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
 if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
 document.documentElement.classList.add('ut-ready');
 })();

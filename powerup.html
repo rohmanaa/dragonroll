@@ -301,7 +301,7 @@ const SET=()=>PD.settings();
 /* Item yang dimiliki utk kategori: [{item, equipped}] — langsung dari PlayerData */
 const isPU=i=>i&&i.kind==='powerup';
 const isOwned=i=>isPU(i)?PD.qty(i.id)>0:PD.owns(i.id);
-const canSell=i=>!!i&&!isPU(i)&&typeof i.price==='number'&&i.price>0&&!i.starter;
+const canSell=i=>!!i&&typeof i.price==='number'&&i.price>0&&!i.starter;
 const COIN='<img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">';
 /* semua item kategori: yang belum dimiliki tetap tampil (terkunci) dan bisa di-preview */
 const ownedList=c=>(CI[c]||[]).map(i=>({item:i,owned:isOwned(i),equipped:!isPU(i)&&PD.isEquipped(i.id)}));
@@ -334,25 +334,25 @@ function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();pl
 function renderGrid(){const g=$('#grid');g.innerHTML='';
  if(!CI[cat]){g.innerHTML=`<div style="grid-column:1/-1;grid-row:1/-1;display:grid;place-items:center;font-size:2.4rem;text-align:center;line-height:1.3">${SOON[cat]||''}<br><small style="font-size:1.5rem;opacity:.8">Segera hadir</small></div>`;return}
  ownedList(cat).forEach((o,n)=>{const i=o.item,eq=o.equipped,own=o.owned,pw=isPU(i),lock=!own&&!pw,b=document.createElement('div');
-  const btn=pw?`<button class="bt ${own?'own':'no'}">${own?'Dimiliki ×'+PD.qty(i.id):'×0'}</button>`
+  const btn=pw?`<button class="bt ${canSell(i)?'gd':'no'}">${canSell(i)?COIN+fmt(i.price):'Tidak dijual'}</button>`
     :lock?`<button class="bt ${canSell(i)?'gd':'no'}">${canSell(i)?COIN+fmt(i.price):'Tidak dijual'}</button>`
     :`<button class="bt ${eq?'own':i.rarity==='legendary'?'gd':''}">${eq?'Digunakan':'Gunakan'}</button>`;
   b.className='card '+(i.rarity==='legendary'&&!lock?'lg':'')+(lock?' lk':'')+(i===sel?' sel':'');b.tabIndex=0;b.setAttribute('role','button');b.setAttribute('aria-label',i.name+(pw?' ×'+PD.qty(i.id):lock?' (terkunci)':''));b.style.animationDelay=n*25+'ms';
-  b.innerHTML=`${eq?`<span class="ck">${CK}</span>`:''}${lock?`<span class="lkb"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false" style="width:2.2rem;height:2.2rem"></span>`:''}<div class="th">${thumb(cat,i)}</div><span class="nm">${i.name}</span>${badge(i.rarity)}${btn}`;
-  b.addEventListener('click',e=>{pick(i);if(e.target.closest('.bt')&&own&&!pw)act(i);else if(e.target.closest('.bt')&&lock&&canSell(i))act(i)});b.addEventListener('keydown',e=>{if(e.key==='Enter')b.click()});g.appendChild(b)})}
+  b.innerHTML=`${eq?`<span class="ck">${CK}</span>`:''}${lock?`<span class="lkb"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false" style="width:2.2rem;height:2.2rem"></span>`:''}<div class="th">${thumb(cat,i)}</div><span class="nm">${i.name}${pw&&own?' ×'+PD.qty(i.id):''}</span>${badge(i.rarity)}${btn}`;
+  b.addEventListener('click',e=>{pick(i);if(e.target.closest('.bt')&&own&&!pw)act(i);else if(e.target.closest('.bt')&&(lock||pw)&&canSell(i))act(i)});b.addEventListener('keydown',e=>{if(e.key==='Enter')b.click()});g.appendChild(b)})}
 function renderRecent(){const l=ownedList(cat).filter(o=>o.owned).map(o=>o.item);off=Math.max(0,Math.min(off,Math.max(0,l.length-5)));$('#rlist').innerHTML=l.length?l.slice(off,off+5).map(i=>`<button class="rt ${i===sel?'on':''}" data-id="${i.id}" aria-label="${i.name}">${thumb(cat,i)}</button>`).join(''):'<div style="align-self:center;font-size:1.4rem;width:100%;text-align:center">'+(CI[cat]?'Belum ada item dimiliki':'Segera hadir')+'</div>';
  document.querySelectorAll('.rt').forEach(b=>b.addEventListener('click',()=>pick(l.find(i=>i.id===b.dataset.id))))}
 /* Equip lewat PlayerData; UI langsung di-refresh dan event inventory/skin/dice ikut dipancarkan oleh bridge.
    Power-Up = consumable (slot null): tidak di-equip; PlayerData.equip menolak dengan 'bukan-equipment'. */
-function act(i){if(i.kind==='powerup'){toast(canSellInfo(i));playSound('select');return}
+function act(i){if(i.kind==='powerup'){if(canSell(i)){confirmBuyPower(i);return}toast(canSellInfo(i));playSound('select');return} /* Power = consumable: beli per JUMLAH (stok bertambah), bukan item permanen */
  if(!isOwned(i)){if(!canSell(i)){toast('Item ini tidak dijual.');playSound('error');return}confirmBuy(i);return}
  const r=PD.equip(i.id);
  if(r.ok){toast('Berhasil digunakan!');playSound('select');buzz()}else{toast('Gagal memakai item.');playSound('error')}
  renderGrid();renderInfo();renderRecent();buildModels()}
-function canSellInfo(i){return PD.qty(i.id)>0?'Power tersimpan — dipakai saat bermain.':'Power-up belum dijual. Dapatkan dari gameplay/hadiah.'}
+function canSellInfo(i){return PD.qty(i.id)>0?'Power tersimpan — dipakai saat bermain.':'Power-up ini tidak dijual.'}
 function renderInfo(){const i=sel,u=$('#use');
  if(!i){$('#irar').textContent='SOON';$('#irar').style.background=bg('common');$('#iname').textContent=SOON[cat];$('#idesc').textContent='Belum ada item efek di game ini. Halaman ini disiapkan untuk nanti.';u.className='use no';u.innerHTML='Segera hadir';renderCurrency();return}
- if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+(IC.powerMapNote(i.id)?' ['+IC.powerMapNote(i.id)+']':'')+PFX.note(i)+(PD.qty(i.id)>0?' (Dimiliki ×'+PD.qty(i.id)+')':' (Belum dimiliki)');u.className='use no';u.innerHTML=PD.qty(i.id)>0?'Dimiliki ×'+PD.qty(i.id):'Belum dijual';$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
+ if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+(IC.powerMapNote(i.id)?' ['+IC.powerMapNote(i.id)+']':'')+PFX.note(i)+(PD.qty(i.id)>0?' (Stok ×'+PD.qty(i.id)+')':' (Stok 0)')+' Stok baru berkurang saat dipakai di pertandingan.';const ok=canSell(i);u.className='use'+(ok?'':' no');u.innerHTML=ok?COIN+fmt(i.price)+' · Beli':'Tidak dijual';$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
  if(!isOwned(i)){const r=$('#irar'),ok=canSell(i);r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+(ok?' Belum dimiliki — ini hanya preview, beli untuk memakainya.':' Belum dimiliki dan tidak dijual. Hanya preview.');
   u.className='use'+(ok?'':' no');u.innerHTML=ok?COIN+fmt(i.price):'Tidak dijual';$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
  const eq=PD.isEquipped(i.id),r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc;
@@ -362,7 +362,7 @@ function renderInfo(){const i=sel,u=$('#use');
 function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
-$('#use').addEventListener('click',e=>{if(sel){const w=isOwned(sel);act(sel);if(w)sparkle(e.currentTarget)}});
+$('#use').addEventListener('click',e=>{if(sel){const w=isOwned(sel)&&!isPU(sel);act(sel);if(w)sparkle(e.currentTarget)}});
 $('#rp').addEventListener('click',()=>{off--;renderRecent()});$('#rn').addEventListener('click',()=>{off++;renderRecent()});
 // ---- event: ikut memperbarui UI saat state berubah (tanpa reload halaman)
 UT.Events.on('currencyChanged',renderCurrency);
@@ -376,7 +376,30 @@ function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.to
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');onClose&&onClose();onClose=null;setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
 $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 /* ---- Beli dengan coin langsung di halaman (menggantikan Toko untuk item) ---- */
-const WMSG2={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const WMSG2={'jumlah-tidak-valid':'Jumlah tidak valid.','stok-penuh':'Stok sudah penuh (maks. 999).','op-id-tidak-valid':'Pembelian gagal, coba lagi.','saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+/* Beli Power per jumlah: stepper 1..99, total = harga x jumlah. Server (buy_powerup) yang menagih & menambah stok; opId unik per pembelian. */
+function confirmBuyPower(i){
+  let n=1;const have=PD.qty(i.id),coins=()=>PD.coins(),cap=Math.max(1,Math.min(99,999-have));
+  openModal(`<h2>Beli ${i.name}</h2><p>Stok sekarang ×${have}</p><div class="row" style="justify-content:center;gap:1.2rem;font-size:3rem"><button class="mb no" id="qm" style="width:5.2rem;min-width:0;padding:0">−</button><b id="qn" style="min-width:4rem;text-align:center">1</b><button class="mb no" id="qp" style="width:5.2rem;min-width:0;padding:0">+</button></div><div class="row" style="justify-content:center;gap:.8rem;font-size:2.8rem"><span style="width:2.8rem;display:grid">${COIN}</span><span id="qt"></span></div><p id="qs" style="font-size:1.8rem;opacity:.85"></p><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>`,
+  ()=>{
+    const upd=()=>{const tot=i.price*n,ok=coins()>=tot;$('#qn').textContent=n;$('#qt').textContent=fmt(tot);$('#qt').style.color=ok?'#ffe36a':'#ff8a8a';$('#qs').textContent=ok?'Stok jadi ×'+(have+n):'Kurang '+fmt(tot-coins())+' coin';$('#yes').style.opacity=ok?1:.55};
+    $('#qm').addEventListener('click',()=>{n=Math.max(1,n-1);upd();playSound('click')});
+    $('#qp').addEventListener('click',()=>{n=Math.min(cap,n+1);upd();playSound('click')});
+    $('#no').addEventListener('click',closeModal);
+    upd();
+    let opId=null;
+    $('#yes').addEventListener('click',async()=>{
+      if(coins()<i.price*n){toast('Coin tidak cukup.');playSound('error');return}
+      let r;
+      if(SV()){opId=opId||('op-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));r=await WS().buyPowerup(i.id,n,opId)}
+      else{r={ok:true};for(let k=0;k<n&&r.ok;k++)r=PD.purchase(i.id)} /* mode lokal (tanpa server) */
+      closeModal();
+      if(!r||!r.ok){toast(WMSG2[r&&r.reason]||'Pembelian gagal.');playSound('error');return}
+      playSound('purchase');buzz();toast('Berhasil membeli ×'+n+' '+i.name+'!');
+      renderCurrency();setCat(cat);
+    });
+  });
+}
 function confirmBuy(i){
   const coins=PD.coins(),ok=coins>=i.price;
   openModal(ok

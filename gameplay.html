@@ -5446,11 +5446,46 @@ const puOn=k=>{ try{ const it=window.ItemCatalog&&ItemCatalog.byId(k); return !(
 const puMapOk=k=>{ try{ return ItemCatalog.powerOnMap(k,themeKey); }catch(e){ return true; } };
 const puAvail=k=>puOn(k)&&puMapOk(k);
 const PU_SEL=(()=>{ try{ const r=JSON.parse(sessionStorage.getItem('ut-room')||'null'); if(r&&Array.isArray(r.powers)) return r.powers.filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i); }catch(e){} return null; })();
+/* ---- Stok Power = SERVER (Inventory akun) ----
+   Room hanya memilih jumlah yang DIBAWA (PU_CARRY / roomPowers.carry); stok TIDAK berkurang di loadout. Stok dikurangi SERVER
+   (UT.WalletService.usePower -> use_powerup) tepat saat Power benar-benar dipakai; unit yang tidak terpakai tetap di Inventory.
+   Yang membayar hanya pemilik akun di perangkat ini: offline = pemain 1 manusia (bukan CPU); online = pemain ber-networkId == MP_ID.
+   CPU / pemain lain di perangkat yang sama tidak mengurangi stok akun ini. Server tak terjangkau = power TIDAK dipakai.
+   Mode lokal / tanpa akun server: tanpa cek stok. Batas jujur: dadu & aksi masih diputuskan klien/host (Tahap 2: validasi server),
+   jadi klien yang dimodifikasi bisa melewati pembayaran; stok yang sah tetap tidak bisa dipakai melebihi isi Inventory-nya. */
+const PU_CARRY_MAX=(window.ItemCatalog&&ItemCatalog.POWER_CARRY_MAX)||3;
+const wsPower=()=>{ try{ const W=window.UT&&UT.WalletService&&UT.WalletService.get(); return (W&&W.enabled&&W.enabled())?W:null; }catch(e){ return null; } };
+const stockOfPower=k=>{ try{ return Math.max(0,Number(window.PlayerData&&PlayerData.qty(k))||0); }catch(e){ return 0; } };
+const cleanCarry=(m,k)=>{ const n=Math.floor(Number(m&&m[k])); return Math.max(1,Math.min(PU_CARRY_MAX,n>=1?n:1)); };
+const carriedFor=(k,m)=>{ const n=cleanCarry(m,k); return wsPower()?Math.min(n,stockOfPower(k)):n; }; /* dibawa <= stok milik akun ini */
+const PU_CARRY=(()=>{ try{ const r=JSON.parse(sessionStorage.getItem('ut-room')||'null'); return (r&&r.carry&&typeof r.carry==='object')?r.carry:{}; }catch(e){ return {}; } })();
+const powerPaidHere=p=>!!p&&!p.cpu&&(ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):p.idx===0);
+const PU_NONCE=Math.random().toString(36).slice(2,8); let PU_SEQ=0; const PU_PAID={}; let PU_START=null;
+const PU_DENY={'stok-habis':'Stok power habis. Beli lagi di halaman Power-up.','jaringan':'Tidak dapat terhubung ke server, power tidak dipakai.','belum-login':'Sesi berakhir, login ulang untuk memakai power.'};
+async function spendPower(k){
+  const W=wsPower(); if(!W) return {ok:true,local:true};
+  const base=ONLINE_ROOM?String((ROOM_CFG&&ROOM_CFG.roomId)||'room')+'-'+gameId:MATCH_TOKEN;
+  try{ const r=await W.usePower(k,'pu:'+base+':'+k+':'+PU_NONCE+(++PU_SEQ)); return (r&&r.ok)?r:{ok:false,reason:(r&&r.reason)||'jaringan'}; }
+  catch(e){ return {ok:false,reason:'jaringan'}; }
+}
+function powerDenied(r){ const m=PU_DENY[r&&r.reason]||'Power tidak dapat dipakai.'; try{ fb('event','info',m); }catch(e){} setMsg(m); }
+/* tamu online: host yang memutuskan pemakaian, jadi stok dibayar SETELAH snapshot host menunjukkan unit berkurang (selisih dari loadout awal; PU_PAID = ledger anti-dobel) */
+function puSettle(v){
+  if(!v||!v.loadout||!v.pu) return; if(!PU_START){ PU_START=Object.assign({},v.pu); return; }
+  Object.keys(PUN).forEach(k=>{ const used=Math.max(0,(PU_START[k]||0)-(v.pu[k]||0)); while((PU_PAID[k]||0)<used){ PU_PAID[k]=(PU_PAID[k]||0)+1; spendPower(k).then(r=>{ if(!r.ok) powerDenied(r); }); } });
+}
 /* online: tiap pemain membawa Power pilihannya sendiri (UT.Prefs 'roomPowers', sama dengan room.html); dikirim ke host lewat broadcast 'loadout' */
-const MY_SEL=(()=>{ try{ const d=UT.Prefs.get('roomPowers',{}); return (d.equipped||[]).filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i).slice(0,5); }catch(e){ return []; } })();
+const MY_CARRY=(()=>{ try{ const d=UT.Prefs.get('roomPowers',{}); return (d.carry&&typeof d.carry==='object')?d.carry:{}; }catch(e){ return {}; } })();
+const MY_SEL=(()=>{ try{ const d=UT.Prefs.get('roomPowers',{}); return (d.equipped||[]).filter((k,i,a)=>PUN[k]&&puOn(k)&&a.indexOf(k)===i).slice(0,5).filter(k=>!wsPower()||stockOfPower(k)>0); }catch(e){ return []; } })();
+const MY_FIT=(()=>{ const o={}; MY_SEL.forEach(k=>{ o[k]=carriedFor(k,MY_CARRY); }); return o; })(); /* jumlah yang dibawa, sudah dibatasi stok akun ini */
 const puKeys=()=>(ONLINE_ROOM?MY_SEL:(PU_SEL||Object.keys(PUN))).filter(puAvail);
 const puZero=()=>{ const o={}; Object.keys(PUN).forEach(k=>{ o[k]=0; }); return o; }; /* semua Power dari PUN (17), bukan daftar tetap */
-function loadoutPU(keys){ const o=puZero(); (keys||[]).filter((k,i,a)=>PUN[k]&&puAvail(k)&&a.indexOf(k)===i).slice(0,5).forEach(k=>{ o[k]=1; }); return o; }
+function loadoutPU(keys,carry){ const o=puZero(); (keys||[]).filter((k,i,a)=>PUN[k]&&puAvail(k)&&a.indexOf(k)===i).slice(0,5).forEach(k=>{ o[k]=cleanCarry(carry,k); }); return o; } /* carry = jumlah dibawa per jenis (1..PU_CARRY_MAX) */
+function seatPU(i,d){ /* pemain 1 (pemilik akun) membawa jumlah pilihannya dan hanya yang DIMILIKI; CPU / pemain lain: seperti semula */
+  const o=startPU(); if(ONLINE_ROOM||i!==0||d.cpu||!wsPower()) return o;
+  Object.keys(o).forEach(k=>{ if(o[k]>0) o[k]=PU_SEL?carriedFor(k,PU_CARRY):Math.min(1,stockOfPower(k)); });
+  return o;
+}
 function startPU(){ if(ONLINE_ROOM) return loadoutPU([]); const o=puZero(); if(PU_SEL){ PU_SEL.filter(puAvail).forEach(k=>{ o[k]=1; }); return o; } const ks=Object.keys(o).filter(puAvail).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
 /* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory; bobot Power di pool = 0).
    Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak.
@@ -5715,6 +5750,11 @@ async function usePU(k,cpu,tileArg){
     if(tile==null) return;
     if(gid!==gameId||busy||gameOver||players[cur]!==p) return; /* kondisi berubah selama memilih */
     if(!trapTileOk(p,k,tile)) return deny('Petak '+tile+' tidak valid untuk jebakan.');
+  }
+  if(!cpu&&powerPaidHere(p)){ /* bayar stok di SERVER dulu; gagal = power tidak dipakai & tanpa efek */
+    busy=true; let r; try{ r=await spendPower(k); }catch(e){ r={ok:false,reason:'jaringan'}; }
+    if(gid!==gameId||gameOver) return;
+    if(!r.ok){ busy=false; powerDenied(r); return; }
   }
   busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; msBump(p,'skills',k); sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   const offense=R.kind==='strike'||R.kind==='area'||R.kind==='swap'||R.kind==='freeze'||R.kind==='trap';
@@ -6042,6 +6082,7 @@ async function askTotem(p,gid,what){
   } else if(ONLINE_ROOM&&p.networkId&&p.networkId!==MP_ID){ use=true; } /* tamu keluar/AUTO: otomatis pakai */
   else use=await totemModal(p,what,gid);
   if(gid!==gameId) throw STALE;
+  if(use&&powerPaidHere(p)){ const r=await spendPower('totem'); if(gid!==gameId) throw STALE; if(!r.ok){ use=false; powerDenied(r); } } /* pemilik Totem di perangkat ini membayar stok saat memutuskan memakai */
   if(use) p.pu.totem--; else { setMsg(p.name+' memilih tidak memakai Totem.'); try{ fb('event','info',p.name+' memilih tidak memakai Totem',{gid,ttl:1800}); }catch(e){} }
   return use;
 }
@@ -6295,7 +6336,7 @@ function startGame(m,keys){
   if(ONLINE_ROOM&&MP_LEFT.size){ const stay=defs.filter(d=>!d.networkId||!MP_LEFT.has(d.networkId)); if(stay.length) defs=stay; } /* 'Main lagi': pemain yang sudah keluar tidak ikut lagi */
   defs.forEach((d,i)=>{
     const pawn=makePawn(d,ONLINE_ROOM?null:(i===0&&!d.cpu?-1:(d.cpu&&!NEW_CHAR_CPU?null:2+i*3))); /* online: pion lama dulu, diganti applyOnlineLooks setelah identitas & tampilan dari server tiba */ pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
+    players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:seatPU(i,d)});
   });
   cur=0; resetCam();
   $('win').hidden=true;
@@ -6427,7 +6468,7 @@ function applyGameSnapshot(s){
   s.players.forEach((v,i)=>{const p=players[i];if(!p)return;
    ['pos','sixes','dhp','hpMax','crystal','dragonReady','inArena','score','bonus','extra','odd','even','lucky','shield','guard','frozen','turnOrder','loadout','auto','left','afkMiss'].forEach(k=>{if(v[k]!==undefined)p[k]=v[k]});
    p.cdone=Array.isArray(v.cdone)?v.cdone.slice():new Array(CRYSTAL_N).fill(false);
-   if(v.pu&&typeof v.pu==='object')p.pu=Object.assign({},v.pu);
+   if(v.pu&&typeof v.pu==='object'){p.pu=Object.assign({},v.pu);if(!ONLINE_HOST&&powerPaidHere(p))puSettle(v);}
    if(v.ms&&typeof v.ms==='object')p.ms=v.ms;
    if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
   });
@@ -6463,12 +6504,12 @@ function initMultiplayerBridge(){
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
   onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
-  onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[]); p.loadout=true; renderChips(); publishGameSnapshot(); },
+  onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[],pl.carry); p.loadout=true; renderChips(); publishGameSnapshot(); },
   onSnapshot:applyGameSnapshot
  }).then(sync=>{MP_SYNC=sync;MP_ID=sync.identity.id;if(sync.initialSnapshot)applyGameSnapshot(sync.initialSnapshot);applyOnlineLooks(gameId); /* pion karakter baru: milik sendiri + tampilan pemain lain dari server */
    const me=mpPlayerByNet(MP_ID);
-   if(ONLINE_HOST){ if(me&&!me.loadout){ me.pu=loadoutPU(MY_SEL); me.loadout=true; } if(!sync.initialSnapshot)publishGameSnapshot(); }
-   else if(sync.sendLoadout){ /* tamu: kirim ulang sampai host mengakui lewat snapshot */ let n=0; const t=setInterval(()=>{ const q=mpPlayerByNet(MP_ID); if(!q||q.loadout||++n>40){ clearInterval(t); return; } sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); },1500); sync.sendLoadout({playerId:MP_ID,powers:MY_SEL}).catch(()=>{}); }
+   if(ONLINE_HOST){ if(me&&!me.loadout){ me.pu=loadoutPU(MY_SEL,MY_FIT); me.loadout=true; } if(!sync.initialSnapshot)publishGameSnapshot(); }
+   else if(sync.sendLoadout){ /* tamu: kirim ulang sampai host mengakui lewat snapshot */ let n=0; const t=setInterval(()=>{ const q=mpPlayerByNet(MP_ID); if(!q||q.loadout||++n>40){ clearInterval(t); return; } sync.sendLoadout({playerId:MP_ID,powers:MY_SEL,carry:MY_FIT}).catch(()=>{}); },1500); sync.sendLoadout({playerId:MP_ID,powers:MY_SEL,carry:MY_FIT}).catch(()=>{}); }
    mpBroadcastAutoRoll(); beginTurn()})
  .catch(e=>{MP_CONNECTING=false;console.error('[multiplayer] game sync connection failed',e);setMsg('Koneksi multiplayer terputus. Muat ulang untuk mencoba kembali.')});
 }
