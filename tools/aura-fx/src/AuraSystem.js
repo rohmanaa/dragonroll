@@ -24,8 +24,8 @@ class CharacterAura {
     this.sys = sys; this.ch = character; this.opts = { facing: 0, ...opts };
     this.settings = { intensity: 1, size: 1, speed: 1, tint: null, tintMix: 0.75, ...settings };
     this._tint = this.settings.tint ? new THREE.Color(this.settings.tint) : null;
-    this.flat = new THREE.Group(); this.yaw = new THREE.Group();
-    sys.scene.add(this.flat, this.yaw);
+    this.flat = new THREE.Group(); this.yaw = new THREE.Group(); this.floor = new THREE.Group(); /* floor = cincin & kabut: tetap di lantai saat melompat */
+    sys.scene.add(this.flat, this.yaw, this.floor);
     this.anchor = new THREE.Vector3(); this.vel = new THREE.Vector3(); this._prev = new THREE.Vector3(); this._has = false;
     this._p = new THREE.Vector3(); this._q = new THREE.Quaternion(); this._e = new THREE.Euler();
     this.t = 0; this.env = 0; this.phase = 'spawn'; this.air = 0; this.airborne = false; this.pulse = 0; this.tintV = 0; this.lod = 1; this.removeOnDone = true;
@@ -60,7 +60,7 @@ class CharacterAura {
     for (const spec of this.def.fx) {
       if ((EXTRA.has(spec.type) && !q.extras) || (spec.type === 'fog' && !q.fog) || !DECOR[spec.type]) continue;
       const d = DECOR[spec.type](spec, ctx);
-      (d.follow === 'yaw' ? this.yaw : this.flat).add(d.obj);
+      (d.ground ? this.floor : d.follow === 'yaw' ? this.yaw : this.flat).add(d.obj);
       this.decor.push(d);
     }
   }
@@ -135,7 +135,7 @@ class CharacterAura {
     ch.getWorldPosition(this._p);
     this.anchor.set(this._p.x, this._p.y + this.footOff, this._p.z);
     ch.getWorldQuaternion(this._q); this._e.setFromQuaternion(this._q, 'YXZ');
-    this.flat.position.copy(this.anchor); this.yaw.position.copy(this.anchor); this.yaw.rotation.y = this._e.y + this.opts.facing;
+    this.flat.position.copy(this.anchor); this.yaw.position.copy(this.anchor); this.floor.position.set(this.anchor.x, this.ground, this.anchor.z); this.yaw.rotation.y = this._e.y + this.opts.facing;
     // kecepatan, lompat / mendarat
     if (this._has) this.vel.copy(this.anchor).sub(this._prev).divideScalar(Math.max(dt, 1e-4));
     if (this.vel.length() > 60 * u) this.vel.set(0, 0, 0);
@@ -144,7 +144,7 @@ class CharacterAura {
     const air = this.anchor.y - this.ground > 0.12 * u;
     if (air && !this.airborne) this._onJump();
     if (!air && this.airborne) this._onLand();
-    if (!air) this.ground += (this.anchor.y - this.ground) * 0.2;
+    if (!air && Math.abs(this.vel.y) < 0.6 * u) this.ground += (this.anchor.y - this.ground) * 0.2; /* lantai tidak ikut terangkat saat awal lompatan */
     this.airborne = air; this.air += ((air ? 1 : 0) - this.air) * Math.min(1, dt * 8);
     this.pulse *= Math.exp(-3 * dt);
     // LOD jarak kamera
@@ -165,7 +165,7 @@ class CharacterAura {
 
   dispose() {
     this._clearDecor();
-    this.sys.scene.remove(this.flat, this.yaw);
+    this.sys.scene.remove(this.flat, this.yaw, this.floor);
     const i = this.sys.auras.indexOf(this); if (i >= 0) this.sys.auras.splice(i, 1);
     this.phase = 'dead';
   }

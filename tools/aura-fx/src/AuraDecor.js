@@ -2,7 +2,8 @@
  * AuraDecor.js — elemen non-partikel aura, semuanya dikontrol data katalog (fx[]):
  *   ring (cincin kaki berlapis, 15 gaya shader), fog, halo, backRing, glow, wings (voxel bitmap), horns,
  *   silhouette, dragonShadow, arcs (petir voxel), distort.
- * Builder: (spec, ctx) -> { follow:'pos'|'yaw', obj, update(t, dt, s), dispose() }
+ * Builder: (spec, ctx) -> { follow:'pos'|'yaw', ground?:true, obj, update(t, dt, s), dispose() }
+ * ground:true = menempel ke LANTAI (cincin & kabut): tetap di lantai saat karakter melompat, tidak ikut terangkat.
  *   ctx = { u, q, layers, paint(colorObj, hex) }   s = { env, inten, size, air, pulse, tintV }
  */
 import * as THREE from 'three';
@@ -132,13 +133,13 @@ export const DECOR = {
       const m = new THREE.Mesh(PLANE, decalMat(spec.style, spec.dark));
       m.rotation.x = -Math.PI / 2; m.position.y = (0.03 + L * 0.004) * ctx.u; m.renderOrder = 1 + L; g.add(m); meshes.push(m);
     }
-    return { follow: 'pos', obj: g,
+    return { follow: 'pos', ground: true, obj: g,
       update(t, dt, s) {
         meshes.forEach((m, L) => {
           const u = m.material.uniforms;
           ctx.paint(u.uC1.value, spec.c1); ctx.paint(u.uC2.value, spec.c2);
           u.uTime.value = t; u.uLayer.value = L; u.uRot.value = t * (0.15 + 0.12 * L) * (L % 2 ? -1 : 1);
-          u.uAlpha.value = (s.env * Math.min(1.4, s.inten) * (1 - 0.85 * s.air) * (spec.alpha ?? 1)) / (1 + L * 0.35);
+          u.uAlpha.value = (s.env * Math.min(1.4, s.inten) * (1 - 0.35 * s.air) * (spec.alpha ?? 1)) / (1 + L * 0.35);
           m.scale.setScalar(spec.r * ctx.u * s.size * (1 + L * 0.28) * (1 + s.pulse * 0.35));
         });
       },
@@ -150,10 +151,10 @@ export const DECOR = {
     const mat = new THREE.ShaderMaterial({ uniforms: { uC1: { value: new THREE.Color() }, uC2: { value: new THREE.Color() }, uTime: { value: 0 }, uAlpha: { value: 0 } },
       vertexShader: DECAL_V, fragmentShader: FOG_F, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: spec.dark ? THREE.NormalBlending : ADD });
     const m = new THREE.Mesh(geo, mat); m.renderOrder = 1;
-    return { follow: 'pos', obj: m,
+    return { follow: 'pos', ground: true, obj: m,
       update(t, dt, s) {
         ctx.paint(mat.uniforms.uC1.value, spec.c1); ctx.paint(mat.uniforms.uC2.value, spec.c2);
-        mat.uniforms.uTime.value = t; mat.uniforms.uAlpha.value = s.env * Math.min(1.3, s.inten) * (spec.alpha ?? 0.4) * (1 - 0.6 * s.air);
+        mat.uniforms.uTime.value = t; mat.uniforms.uAlpha.value = s.env * Math.min(1.3, s.inten) * (spec.alpha ?? 0.4) * (1 - 0.3 * s.air);
         m.scale.set(spec.r * ctx.u * s.size, spec.h * ctx.u * s.size, spec.r * ctx.u * s.size);
       },
       dispose() { geo.dispose(); mat.dispose(); } };

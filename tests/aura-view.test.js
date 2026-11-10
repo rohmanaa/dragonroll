@@ -49,6 +49,23 @@ t('tinggi dari opsi height dipakai (pion kecil di gameplay) & tanpa AuraFX tidak
   const B = AV.create(scene, cam); B.set(c.root, auras[0].gameKey); B.update(.016); B.clearAll();
   assert.strictEqual(AV.equippedKey(), null); UT.AuraFX = saved;
 });
+t('lompat: cincin & kabut aura tetap di lantai, dekor badan ikut naik; mendarat kembali normal (semua aura)', () => {
+  for (const def of FX.AURAS) {
+    const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, .1, 100), sys = new FX.AuraSystem(scene, cam, { quality: 'low' });
+    const c = UT.BlockyCharacter.create(THREE); c.loadFromPlayer(); c.setMode('idle'); c.tick(.016);
+    const g = new THREE.Group(); g.add(c.root); scene.add(g); scene.updateMatrixWorld(true);
+    const a = sys.attach(c.root, def.id, {}, { height: 2 });
+    for (let i = 0; i < 20; i++) { c.tick(.016); sys.update(.016); }
+    const y0 = a.floor.position.y; c.jump(); let maxFlat = -1, maxFloor = -1, sawAir = false;
+    for (let i = 0; i < 60; i++) { c.tick(.016); sys.update(.016); maxFlat = Math.max(maxFlat, a.flat.position.y - y0); maxFloor = Math.max(maxFloor, a.floor.position.y - y0); sawAir = sawAir || a.airborne; }
+    assert.ok(sawAir, def.id + ': lompat terdeteksi');
+    assert.ok(maxFlat > 0.3, def.id + ': dekor badan ikut naik ' + maxFlat);
+    assert.ok(maxFloor < 0.02, def.id + ': lantai tidak ikut naik ' + maxFloor);
+    for (let i = 0; i < 80; i++) { c.tick(.016); sys.update(.016); }
+    assert.ok(Math.abs(a.floor.position.y - y0) < 0.03 && !a.airborne, def.id + ': normal setelah mendarat');
+    sys.dispose();
+  }
+});
 t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-fx -> aura-view) dan memakai UT.AuraView', () => {
   for (const f of ['lobby.html', 'profile.html', 'gameplay.html']) {
     const g = read(f), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
