@@ -6763,7 +6763,7 @@ function frame(now){
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
   camera.lookAt(camTarget); camLogUpdate(now,dist);
   /* Presisi depth: near 0.1 terlalu dekat -> permukaan nyaris sebidang (rumput/air/pulau) berkedip (z-fighting) saat kamera bergerak. near ikut jarak kamera; mode POV tetap near kecil. */
-  if(!POV.on){ const nn=clamp(dist*0.3,0.8,5); if(Math.abs(camera.near-nn)>0.02){ camera.near=nn; camera.updateProjectionMatrix(); } }
+  if(!POV.on){ const nn=clamp(dist*0.15,0.4,2); /* near besar (hingga 5) memotong aura/efek yang dekat kamera = aura pion sendiri (yang diikuti kamera) tampak tidak lengkap */ if(Math.abs(camera.near-nn)>0.02){ camera.near=nn; camera.updateProjectionMatrix(); } }
   { const pw=povActive()?povPawn():null; if(pw) povUpdate(pw,dt,now); else povRelease(); } /* POV Bidak menimpa posisi/arah kamera di atas */
   skyDome.position.copy(camera.position);
   if(!reduce){
