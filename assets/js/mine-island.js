@@ -3,11 +3,12 @@
    Slot terkunci = mulut gua dipalang papan + gembok.
    Hanya membangun adegan (THREE.Scene + kamera); renderer, DOM, dan data server dipegang tambang.html.
 
-   const I = UT.MineIsland.create(THREE, { makeMiner: i => Group });   // makeMiner: userData.setEmote(e) & userData.anim(t), tinggi ~5,87
+   const I = UT.MineIsland.create(THREE, { makeMiner: (i, k) => Group });   // makeMiner: userData.setEmote(e) & userData.anim(t), tinggi ~5,87
    I.scene, I.cam                      // render: renderer.render(I.scene, I.cam)
    I.fit(w, h)                         // atur kamera agar seluruh pulau muat di layar sebesar w x h
    I.frame(dt, states, speeds)         // states[1..3] = 'locked'|'work'|'full'|'cheer'; speeds[1..3] = pengali animasi
    I.setFill(i, 0..1)  I.burst(i, 'emerald'|'mix', n)  I.select(i)
+   I.setCrew(i, 1..3)                  // jumlah penambang di gua i (makin cepat = makin banyak)
    I.pick(ndcX, ndcY) -> 0..3          // gua yang kena ketuk (0 = tidak ada)
    I.project(i, 'head'|'chip') -> {x,y} // posisi layar (NDC -1..1) di atas kepala penambang / label
    I.dispose()
@@ -85,7 +86,7 @@
       });
 
       /* ---- pohon, awan (dekor pulau) ---- */
-      var trees = [[-5.5, 3], [5.5, 3], [-5.5, 6], [5.5, 6], [-16, 2], [16, 2]], tl = [];
+      var trees = [[-6.2, 6], [6.2, 6], [-16, 2], [16, 2]], tl = [];
       trees.forEach(function (t) {
         for (var h = 0; h < 3; h++) tl.push([t[0], h, t[1], '#7b5330']);
         for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) for (var c2 = 0; c2 < 2; c2++) tl.push([t[0] + a, 3 + c2, t[1] + b, pick(['#3f9d3a', '#4aae43', '#358f33'])]);
@@ -147,12 +148,16 @@
         uv.push([-5.5, 0.8, 0.2, '#7a4a22', 1.3, 1.6, 1.3], [-5.5, 0.35, 0.2, '#2b2b33', 1.38, 0.16, 1.38], [-5.5, 1.25, 0.2, '#2b2b33', 1.38, 0.16, 1.38]); /* tong */
         for (var pb = 0; pb < 8; pb++) uv.push([5 + rnd() * 3, 0.1, -2.6 + rnd() * 3, pick(STONE), 0.4, 0.3, 0.4]);  /* serpihan batu */
         U.add(vox(uv));
-        /* batu bijih emerald */
+        /* balok bijih emerald (3D): penambang bisa menghadapinya dari sisi kiri, depan, dan kanan */
         var rock = new THREE.Group(); rock.position.set(6.7, 0, -0.5); U.add(rock);
-        var rs = []; for (var a = 0; a < 3; a++) for (var b = 0; b < 3 - (a === 2 ? 1 : 0); b++) rs.push([(a - 1) * 1.05, b * 1.05 + 0.52, 0, pick(STONE), 1.02]);
+        var rs = [];
+        for (var ra = -1; ra <= 1; ra++) for (var rb = -1; rb <= 1; rb++) for (var rh = 0; rh < 3; rh++) { if (rh === 2 && Math.abs(ra) + Math.abs(rb) > 1) continue; rs.push([ra * 1.05, rh * 1.05 + 0.52, rb * 1.05, pick(STONE), 1.02]); }
         rock.add(vox(rs));
-        var ore = [[-0.55, 0.55, 0.55], [0.35, 1.5, 0.55], [-0.2, 1.75, 0.4], [1.05, 0.45, 0.5], [0.4, 0.5, 0.55], [-0.7, 1.6, 0.5]].map(function (p) {
-          var o = box(0.46, 0.46, 0.3, 0x2ee86a, 0x16b84a); o.position.set(p[0] - 0.55, p[1], p[2] - 0.55); o.rotation.y = -1.4; rock.add(o); return o;
+        var ore = [];
+        [[-1.62, 0.55, -0.5, 0], [-1.62, 1.6, 0.6, 0], [-1.62, 1.1, 1.0, 0], [1.62, 0.55, 0.5, 0], [1.62, 1.6, -0.6, 0], [1.62, 1.1, -1.0, 0],
+         [-0.6, 0.55, 1.62, 1], [0.5, 1.6, 1.62, 1], [0.9, 0.7, 1.62, 1], [-0.2, 3.2, 0.1, 2], [0.5, 3.15, -0.5, 2]].forEach(function (p) {
+          var o = p[3] === 0 ? box(0.3, 0.46, 0.46, 0x2ee86a, 0x16b84a) : (p[3] === 1 ? box(0.46, 0.46, 0.3, 0x2ee86a, 0x16b84a) : box(0.46, 0.3, 0.46, 0x2ee86a, 0x16b84a));
+          o.position.set(p[0], p[1], p[2]); rock.add(o); ore.push(o);
         });
         /* kereta tambang: badan besi, roda, muatan emerald (= isi tambang) */
         var cart = new THREE.Group(); cart.position.set(0, 0, 1.4); U.add(cart);
@@ -172,20 +177,28 @@
         /* beliung bersandar di peti (hiasan) */
         var lean = new THREE.Group(); lean.position.set(-2.0, 1.2, -1.4); lean.rotation.z = -0.35; U.add(lean);
         var lh = box(0.2, 2.2, 0.2, 0x8a5a2b); lean.add(lh); var lhd = box(0.2, 0.2, 1.3, 0x959eae); lhd.position.y = 1.05; lean.add(lhd);
-        /* penambang */
-        var miner = opts.makeMiner(i); miner.position.set(2.5, 0, -0.5); miner.rotation.y = 1.45; U.add(miner);
+        /* kru penambang: 1 di sisi kiri balok (utama), tambahan di sisi depan & kanan; jumlah diatur setCrew (kecepatan tinggi = lebih banyak orang) */
+        var SPOT = [{ x: 2.5, z: -0.5, ry: 1.45, sx: 5.1, sz: -0.5 }, { x: 6.7, z: 3.3, ry: Math.PI, sx: 6.7, sz: 1.2 }, { x: 10.9, z: -0.5, ry: -1.45, sx: 8.3, sz: -0.5 }];
+        var crew = [];
+        function addWorker(k) {
+          var mn = opts.makeMiner(i, k); mn.position.set(SPOT[k].x, 0, SPOT[k].z); mn.rotation.y = SPOT[k].ry; mn.visible = false; U.add(mn);
+          var w = { m: mn, t: k * 0.37, emote: 'mine', lastStrike: 0 }; crew[k] = w; return w;
+        }
+        var miner = addWorker(0).m; miner.visible = true;
         U.updateMatrixWorld(true); /* ukur setelah skala unit berlaku */
         var bb = new THREE.Box3().setFromObject(miner), H = Math.max(1, (bb.max.y - bb.min.y) / UNIT_S);
         var P = [], pg = new THREE.BoxGeometry(0.22, 0.22, 0.22);
         for (var n = 0; n < 14; n++) { var pm = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({ color: 0x2ee86a, emissive: 0x12a844 })); pm.visible = false; U.add(pm); P.push({ m: pm, vx: 0, vy: 0, vz: 0, life: 0 }); }
-        var u = { U: U, C: C, miner: miner, lock: lock, cart: cart, h: m.h, H: H, t: 0, lastStrike: 0, emote: 'mine', hit: 0 };
+        var u = { U: U, C: C, miner: miner, crew: crew, crewN: 1, lock: lock, cart: cart, h: m.h, H: H, t: 0, hit: 0 };
         u.chest = cart; /* nama lama tetap bisa dibaca */
-        u.burst = function (kind, n2) {
-          var c = 0;
+        u.setCrew = function (n) { n = clamp(Math.round(n) || 1, 1, 3); for (var k = 0; k < n; k++) if (!crew[k]) addWorker(k); u.crewN = n; };
+        u.burst = function (kind, n2, who) {
+          var c = 0, sp0 = SPOT[who || 0];
           for (var j = 0; j < P.length; j++) {
             var pp = P[j]; if (pp.life > 0) continue;
-            pp.life = 0.7 + rnd() * 0.4; pp.m.position.set(5.3 + (rnd() - 0.5) * 0.4, 1.5 + rnd() * 0.5, -0.1);
-            pp.vx = 1 + rnd() * 2.6; pp.vy = 2 + rnd() * 3; pp.vz = (rnd() - 0.4) * 2.2;
+            pp.life = 0.7 + rnd() * 0.4; pp.m.position.set(sp0.sx + (rnd() - 0.5) * 0.4, 1.5 + rnd() * 0.5, sp0.sz + (rnd() - 0.5) * 0.4);
+            var dirx = who === 2 ? 1 : (who === 1 ? 0 : -1), dirz = who === 1 ? -1 : 0;
+            pp.vx = dirx * (1 + rnd() * 2.2) + (rnd() - 0.5) * 1.2; pp.vy = 2 + rnd() * 3; pp.vz = dirz * (1 + rnd() * 2.2) + (rnd() - 0.5) * 1.6;
             var gr = kind === 'emerald' || rnd() < 0.55;
             pp.m.material.color.set(gr ? 0x2ee86a : 0x8b93a3); pp.m.material.emissive.set(gr ? 0x12a844 : 0x000000); pp.m.visible = true;
             if (++c >= (n2 || 8)) break;
@@ -194,30 +207,33 @@
         u.setFill = function (f) { var n3 = Math.min(15, Math.round(clamp(f, 0, 1) * 15)); pile.forEach(function (g, j) { g.visible = j < n3 && !u.locked; }); u.fill = f; };
         u.frame = function (dt, state, sp) {
           var locked = state === 'locked'; u.locked = locked;
-          miner.visible = !locked; lock.visible = locked; cart.visible = !locked; if (locked) pile.forEach(function (g) { g.visible = false; });
+          lock.visible = locked; cart.visible = !locked; if (locked) pile.forEach(function (g) { g.visible = false; });
           else u.setFill(u.fill || 0);
           flames.forEach(function (fl, j) { fl.visible = !locked; fl.scale.y = 1 + Math.sin(u.t * 14 + j * 2) * 0.18; fl.material.emissiveIntensity = 0.9 + Math.sin(u.t * 11 + j) * 0.3; });
           lanternBody.material.emissiveIntensity = locked ? 0.1 : 0.9 + Math.sin(u.t * 5) * 0.15;
           hang.rotation.z = Math.sin(u.t * 1.3) * 0.06;
           crystals.forEach(function (cr, j) { cr.material.emissiveIntensity = 0.55 + Math.sin(u.t * 2 + j * 1.7) * 0.3; cr.rotation.y += dt * 0.6; });
           fb.rotation.y = Math.sin(u.t * 2.2) * 0.25;
-          if (!locked) {
-            var em = state === 'cheer' ? 'cheer' : state === 'full' ? 'sit' : 'mine';
-            if (em !== u.emote) { u.emote = em; miner.userData.setEmote(em); }
-            u.t += dt * sp; miner.userData.anim(u.t);
-            var sk = miner.userData.strikes; /* hantaman beliung dihitung rig (tepat saat kena batu) */
-            if (typeof sk === 'number' && sk !== u.lastStrike) { u.lastStrike = sk; if (em === 'mine') { u.burst('mix', 6); u.hit = 0.14; } }
-          } else u.t += dt;
+          var em = state === 'cheer' ? 'cheer' : state === 'full' ? 'sit' : 'mine';
+          crew.forEach(function (w, k) {
+            var on = !locked && k < u.crewN; w.m.visible = on; if (!on) return;
+            if (em !== w.emote) { w.emote = em; w.m.userData.setEmote(em); }
+            w.t += dt * sp; w.m.userData.anim(w.t);
+            var sk = w.m.userData.strikes; /* hantaman beliung dihitung rig (tepat saat kena batu) */
+            if (typeof sk === 'number' && sk !== w.lastStrike) { w.lastStrike = sk; if (em === 'mine') { u.burst('mix', 5, k); u.hit = 0.14; } }
+          });
+          u.t += dt * (locked ? 1 : sp);
           rock.position.x = 6.7 + (u.hit > 0 ? Math.sin(u.t * 80) * 0.035 : 0); u.hit = Math.max(0, u.hit - dt);
           ore.forEach(function (o) { o.material.emissiveIntensity = 1 + (u.hit > 0 ? 1.4 : 0) + Math.sin(u.t * 3 + o.position.x * 4) * 0.25; });
           lamp.material.emissiveIntensity = 0.9 + Math.sin(u.t * 5) * 0.15;
-          cart.position.y = (u.emote === 'mine' && u.hit > 0) ? 0.04 : 0; /* kereta bergetar sedikit saat batu dihantam */
+          cart.position.y = (em === 'mine' && u.hit > 0) ? 0.04 : 0; /* kereta bergetar sedikit saat batu dihantam */
           P.forEach(function (pp) {
             if (pp.life <= 0) return; pp.life -= dt; if (pp.life <= 0) { pp.m.visible = false; return; }
             pp.vy -= 9 * dt; pp.m.position.x += pp.vx * dt; pp.m.position.y += pp.vy * dt; pp.m.position.z += pp.vz * dt; pp.m.rotation.x += dt * 6; pp.m.scale.setScalar(Math.max(0.2, pp.life));
           });
         };
         u.dispose = function () {};
+        u.setCrew(1);
         /* kotak ketuk (tak tampak): tebing + area kerja */
         var hb = new THREE.Mesh(new THREE.BoxGeometry(12, m.h + 4, 13), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
         hb.material.visible = false; hb.position.set(m.x, (m.h + 4) / 2 - 0.5, m.fz + 0.5); hb.userData.slot = i; G.add(hb); hits.push(hb);
@@ -246,7 +262,8 @@
         rings.forEach(function (r, j) { if (r) r.visible = (j === sel); });
       };
       I.setFill = function (i, f) { if (units[i]) units[i].setFill(f); };
-      I.burst = function (i, kind, n) { if (units[i]) units[i].burst(kind, n); };
+      I.setCrew = function (i, n) { if (units[i]) units[i].setCrew(n); };
+      I.burst = function (i, kind, n, who) { if (units[i]) units[i].burst(kind, n, who); };
       I.frame = function (dt, states, speeds) {
         dt = clamp(dt || 0, 0, 0.1); time += dt;
         G.position.y = Math.sin(time * 0.9) * 0.35; G.rotation.y = Math.sin(time * 0.25) * 0.05; /* pulau melayang pelan */

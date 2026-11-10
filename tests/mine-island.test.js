@@ -59,11 +59,34 @@ t('percikan batu muncul tepat saat rig melaporkan hantaman (strikes), bukan berd
   for (let k = 0; k < 120; k++) I.frame(0.016, st, sp); assert.strictEqual(vis(), 0, 'tanpa hantaman: tanpa percikan');
   strikes++; I.frame(0.016, st, sp); assert.ok(vis() >= 5, 'hantaman: percikan muncul ' + vis());
 });
+t('kru penambang: 1..3 orang per gua, hilang semua saat terkunci, tiap orang punya hantaman & percikan sendiri', () => {
+  const strikes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; let made = 0;
+  const mk = (i, k) => { const g = miner(), id = made++; Object.defineProperty(g.userData, 'strikes', { get: () => strikes[id] }); g.userData.id = id; return g; };
+  const I = UT.MineIsland.create(THREE, { makeMiner: mk }), st = [null, 'work', 'work', 'work'], sp = [0, 1, 1, 1];
+  const shown = i => I.units[i].crew.filter(w => w && w.m.visible).length;
+  I.frame(0.016, st, sp); assert.strictEqual(shown(1), 1, 'awal: 1 orang'); assert.strictEqual(made, 3, 'hanya penambang utama dibuat (lazy)');
+  I.setCrew(1, 3); I.frame(0.016, st, sp); assert.strictEqual(shown(1), 3); assert.strictEqual(made, 5, 'dua tambahan dibuat sekali');
+  I.setCrew(1, 2); I.frame(0.016, st, sp); assert.strictEqual(shown(1), 2); I.setCrew(1, 3); I.frame(0.016, st, sp); assert.strictEqual(made, 5, 'naik-turun tidak membuat ulang');
+  I.setCrew(1, 99); I.frame(0.016, st, sp); assert.strictEqual(shown(1), 3, 'maks 3'); I.setCrew(1, 0); I.frame(0.016, st, sp); assert.strictEqual(shown(1), 1, 'min 1');
+  I.setCrew(1, 3); const xs = I.units[1].crew.map(w => w.m.position.x), zs = I.units[1].crew.map(w => w.m.position.z);
+  assert.ok(new Set(xs.map((x, k) => x + '/' + zs[k])).size === 3, 'tiga orang di tiga sisi balok yang berbeda');
+  I.frame(0.016, [null, 'locked', 'work', 'work'], sp); assert.strictEqual(shown(1), 0, 'terkunci: semua hilang');
+  const vis = () => { let c = 0; I.units[1].U.traverse(o => { if (o.isMesh && o.geometry.parameters && o.geometry.parameters.width === 0.22 && o.visible) c++; }); return c; };
+  I.frame(0.016, st, sp); for (let k = 0; k < 80; k++) I.frame(0.016, [null, 'full', 'work', 'work'], sp); assert.strictEqual(vis(), 0);
+  I.frame(0.016, st, sp);
+  for (let w = 0; w < 3; w++) { const id = I.units[1].crew[w].m.userData.id, before = vis(); strikes[id]++; I.frame(0.016, st, sp); assert.ok(vis() > before, 'orang ke-' + (w + 1) + ' memicu percikan'); for (let k = 0; k < 90; k++) I.frame(0.016, [null, 'full', 'work', 'work'], sp); }
+});
 t('tambang.html memakai pulau 3D: satu kanvas, skrip dimuat sebelum dipakai, tanpa kanvas per slot', () => {
   const h = read('tambang.html');
   assert.ok(h.indexOf('mine-island.js') > h.indexOf('three.min.js') && h.indexOf('mine-island.js') > 0);
   assert.ok(/id="stage"/.test(h) && /id="cv"/.test(h) && /UT\.MineIsland\.create/.test(h));
   assert.ok(!/<div class="bay">/.test(h) && !/makeBay/.test(h), 'adegan gua per slot sudah dihapus');
   assert.ok(/isl\.pick\(/.test(h) && /isl\.select\(/.test(h));
+  assert.ok(/isl\.setCrew\(i,crewOf\(s\)\)/.test(h) && /const crewOf=/.test(h), 'jumlah penambang mengikuti kecepatan/Percepat');
+  const crew = new Function('boostLeft', h.match(/const crewOf=[^\n]*/)[0] + ';return crewOf;')(s => s.boostSecs || 0);
+  const sl = (lv, boost, unlocked = true) => ({ unlocked, speed_lv: lv, boostSecs: boost });
+  assert.deepStrictEqual([sl(1, 0), sl(2, 0), sl(3, 0), sl(4, 0), sl(5, 0)].map(crew), [1, 1, 2, 2, 3]);
+  assert.deepStrictEqual([sl(1, 9), sl(3, 9), sl(5, 9)].map(crew), [2, 3, 3], 'Percepat +1, maks 3');
+  assert.strictEqual(crew(sl(5, 9, false)), 1); assert.strictEqual(crew(null), 1);
 });
 console.log(n + ' tes lulus');

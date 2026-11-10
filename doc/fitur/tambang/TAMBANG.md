@@ -137,3 +137,11 @@ Pengujian
 - 2026-11-08: migrasi `202611180001_tambang.sql` + tes `tambang_test.sql` selesai dan LULUS di Postgres 16 lokal (semua migrasi dimuat dengan stub auth Supabase); snapshot skema diperbarui (22 migrasi). Belum: klien (mine-service, tambang.html), tombol lobby, routing "+ Emerald". Migrasi BELUM diterapkan ke Supabase produksi.
 - 2026-11-08 (lanjutan): `mine-service.js` + tes, `tambang.html` (3 bilik 3D per slot, penambang skin NPC alex/zombie/skeleton, emote baru `mine` dan `sit` di `character-view.js`, efek emerald melayang, Zzz saat peti penuh, cheer saat Ambil), tombol TAMBANG di lobby, semua "+ Emerald" -> `tambang.html?from=<halaman>`, Back via `from`, Home ke lobby. Cabang ini sudah menggabungkan `fix/koin-ke-toko` (route "+ Coin" ke Toko). Belum: uji nyata dengan Supabase produksi, cek preload splash, wajah penambang khusus (helm tambang), suara.
 - 2026-11-08 (rebalance): peti Lv1 = 5 (5/8/12/16/20), buka slot 1.500/7.500/30.000, upgrade kecepatan 1.200-20.000, kapasitas 1.000-18.000, boost 400/600/900. Migrasi baru `202611190001_tambang_rebalance.sql`, tes SQL diperbarui dan lulus.
+
+## Tampilan 3D (pulau + 3 gua)
+- Halaman `tambang.html` memakai satu adegan Three.js (`assets/js/mine-island.js`): satu pulau melayang dengan 3 gua (slot 1-3). Ketuk gua atau label angkanya untuk memilih slot; kartu (Collect, Upgrade, Percepat) tampil untuk slot terpilih.
+- Tiap gua: mulut gua berrangka kayu, obor, lampu gantung, kristal, jamur, bendera, rel + kereta tambang (muatan emerald = isi peti), balok bijih, peti, tong. Slot terkunci = mulut gua dipalang papan + gembok.
+- Beliung dipegang di tangan karakter (`setTool('pickaxe')`, aksi `mine`); percikan batu muncul tepat saat hantaman (`strikes`).
+- Jumlah penambang yang tampak (hanya visual): kecepatan Lv1-2 = 1 orang, Lv3-4 = 2, Lv5 = 3, Percepat aktif = +1 (maks 3).
+- Tes: `tests/mine-island.test.js`, `tests/blocky-actions.test.js`.
+

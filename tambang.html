@@ -157,6 +157,8 @@ function stamp(s){s.at=performance.now();return s}
 /* Perkiraan TAMPILAN antar-sinkronisasi (server tetap sumber kebenaran saat Ambil/Upgrade). */
 function est(s){if(!s.unlocked)return 0;const el=(performance.now()-s.at)/1000,b=Math.min(el,s.boost.left_secs);return Math.min(s.cap,s.stock+s.rate*(el+b*(ST.config.boost_mult-1))/3600)}
 const boostLeft=s=>Math.max(0,s.boost.left_secs-(performance.now()-s.at)/1000);
+/* jumlah penambang yang tampak (visual): kecepatan Lv1-2 = 1, Lv3-4 = 2, Lv5 = 3, Percepat aktif = +1 (maks 3) */
+const crewOf=s=>!s||!s.unlocked?1:Math.min(3,1+((s.speed_lv||1)>=3?1:0)+((s.speed_lv||1)>=5?1:0)+(boostLeft(s)>0?1:0));
 function status(i){const s=ST.slots[i-1];if(!s.unlocked)return 'locked';if(cheer[i]>performance.now())return 'cheer';return est(s)>=s.cap-1e-6?'full':'work'}
 
 async function load(){
@@ -219,7 +221,7 @@ function tick(force){
     e.classList.toggle('locked',st==='locked');e.classList.toggle('work',st==='work'||st==='cheer');e.classList.toggle('full',st==='full');
     const fw=$('.fxw[data-s="'+i+'"]'),ch=$('.chip[data-s="'+i+'"]');
     if(fw)['locked','work','full'].forEach(c=>fw.classList.toggle(c,e.classList.contains(c)));
-    if(ch){ch.dataset.st=st;$('.cs',ch).textContent=st==='locked'?'🔒':st==='full'?'📦':st==='cheer'?'🎉':'⛏️';$('.cb u',ch).style.width=s.unlocked?Math.min(100,est(s)/s.cap*100)+'%':'0'}
+    if(ch){ch.dataset.st=st;const nc=crewOf(s);$('.cs',ch).textContent=st==='locked'?'🔒':st==='full'?'📦':st==='cheer'?'🎉':'⛏️'+(nc>1?'×'+nc:'');$('.cb u',ch).style.width=s.unlocked?Math.min(100,est(s)/s.cap*100)+'%':'0'}
     if(!s.unlocked){if(fw)fw.classList.remove('boost');return}
     const bl=boostLeft(s),bOn=bl>0;
     if(s.boost.active&&!bOn&&!tick.re){tick.re=1;load().finally(()=>{tick.re=0})}   /* boost habis: sinkron ulang dari server */
@@ -275,10 +277,11 @@ const NPC=['alex','zombie','skeleton'];
 /* penambang = karakter baru (UT.BlockyCharacter, sama dengan Lobby/Karakter/gameplay); tiap slot punya tampilan berbeda; beliung = alat di tangan karakter (rig setTool), bukan item katalog.
    Adaptor menyediakan userData.anim(t) & setEmote('mine'|'cheer'|'sit') seperti rig lama. Tinggi disamakan dengan penambang lama (5.87). */
 const MINER_LOOK=[{skin:'s2',hair:{id:'short',dye:'brown'},eyes:{id:'round',dye:'blue'}},{skin:'s4',hair:{id:'spiky',dye:'black'},eyes:{id:'sharp',dye:'brown'}},{skin:'s1',hair:{id:'buzz',dye:'silver'},eyes:{id:'dot',dye:'gray'}}];
-function makeMiner(i){
- if(!UT.BlockyCharacter)return UT.CharacterView.make(THREE,NPC[i-1],'mine');
+function makeMiner(i,k){
+ k=k||0;   /* k = urutan penambang di gua (0 utama, 1-2 tambahan) → tampilan berbeda */
+ if(!UT.BlockyCharacter)return UT.CharacterView.make(THREE,NPC[(i-1+k)%NPC.length],'mine');
  const ch=UT.BlockyCharacter.create(THREE);
- ch.apply(Object.assign({gender:'m'},MINER_LOOK[(i-1)%MINER_LOOK.length]),true);
+ ch.apply(Object.assign({gender:'m'},MINER_LOOK[(i-1+k)%MINER_LOOK.length]),true);
  ch.setTool('pickaxe');   /* beliung di tangan kanan: ikut lengan & pergelangan (bukan objek lepas) */
  ch.tick(.016); /* pose rig terpasang setelah tick pertama: ukur SETELAH itu */
  const g=new THREE.Group(),w=new THREE.Group();w.add(ch.root);g.add(w);g.updateMatrixWorld(true);
@@ -320,7 +323,7 @@ function loop(){
   rafId=requestAnimationFrame(loop);
   if(document.hidden||!isl)return;
   const dt=Math.min(.1,clock.getDelta()),sts=[null],sp=[0];
-  for(let i=1;i<=3;i++){const s=ST&&ST.slots[i-1];sts[i]=ST?status(i):'locked';sp[i]=s&&s.unlocked&&boostLeft(s)>0?1.7:1}
+  for(let i=1;i<=3;i++){const s=ST&&ST.slots[i-1];sts[i]=ST?status(i):'locked';sp[i]=s&&s.unlocked&&boostLeft(s)>0?1.7:1;isl.setCrew(i,crewOf(s))}
   isl.frame(dt,sts,sp);renderer.render(isl.scene,isl.cam);placeOverlay();
 }
 addEventListener('pagehide',()=>{cancelAnimationFrame(rafId);try{isl&&isl.dispose();renderer&&renderer.dispose()}catch(e){}});
