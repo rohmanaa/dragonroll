@@ -155,10 +155,12 @@ body.hf-shake{animation:hfShake .35s}
 .tm-bt button:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
 .tm-box .tm-t{display:block;margin-top:7px;opacity:.7;font-size:11px}
 @media(prefers-reduced-motion:reduce){.tm-box{animation:none}}
-#trapBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 7.2rem);z-index:58;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center;max-width:min(94vw,34rem);padding:.55rem .7rem;background:rgba(20,30,52,.94);border:.18rem solid #0c1424;border-radius:.8rem;box-shadow:0 .3rem 0 rgba(0,0,0,.45);color:#fff;font-weight:800}
-#trapBar[hidden]{display:none}#trapTxt{flex:1 1 100%;text-align:center;font-size:.95rem}
-#trapBar button{min-width:2.6rem;min-height:2.6rem;padding:.2rem .8rem;font:inherit;font-weight:900;color:#fff;background:#3a7be0;border:.16rem solid #0c1424;border-radius:.6rem;cursor:pointer}
-#trapBar button#trapOk{background:#2fa84f}#trapBar button#trapNo{background:#8a3a3a}#trapBar button:disabled{opacity:.45;cursor:not-allowed}
+#trapBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 7.2rem);z-index:58;display:flex;flex-direction:column;align-items:center;gap:.35rem;width:max-content;max-width:min(94vw,30rem);padding:.65rem .9rem .7rem;background:linear-gradient(180deg,rgba(26,38,64,.88),rgba(14,22,40,.92));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:.12rem solid rgba(92,255,140,.55);border-radius:1.1rem;box-shadow:0 .5rem 1.6rem rgba(0,0,0,.45),0 0 1.2rem rgba(61,255,122,.22);color:#fff;font-weight:800}
+#trapBar[hidden]{display:none}#trapTxt{text-align:center;font-size:.98rem;line-height:1.25}#trapHint{font-size:.78rem;font-weight:700;color:#9ff5bd;letter-spacing:.02em}#trapHint b{color:#3dff7a}
+#trapBar .trapAct{display:flex;gap:.55rem;margin-top:.15rem}
+#trapBar button{min-width:5.2rem;min-height:2.5rem;padding:.2rem 1.1rem;font:inherit;font-weight:900;color:#fff;background:rgba(255,255,255,.12);border:.1rem solid rgba(255,255,255,.28);border-radius:999px;cursor:pointer;transition:transform .08s,filter .12s}
+#trapBar button:active{transform:scale(.95)}
+#trapBar button#trapOk{background:linear-gradient(180deg,#3fd467,#25a24b);border-color:#1b7a38;box-shadow:0 .15rem 0 #176a30}#trapBar button#trapNo{background:rgba(255,255,255,.1)}#trapBar button:disabled{opacity:.45;cursor:not-allowed}
 </style>
 
 <style>
@@ -423,7 +425,7 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
 
 <div id="puCard" class="pucard" hidden role="status" aria-live="polite"><p id="pcWho"></p><div id="pcEmoji"></div><h4 id="pcName"></h4><p id="pcDesc"></p></div>
 
-<div id="trapBar" hidden role="group" aria-label="Pasang jebakan"><span id="trapTxt"></span><button id="trapMinus" type="button" aria-label="Petak sebelumnya">−</button><button id="trapPlus" type="button" aria-label="Petak berikutnya">+</button><button id="trapOk" type="button">Pasang</button><button id="trapNo" type="button">Batal</button></div>
+<div id="trapBar" hidden role="group" aria-label="Pasang jebakan"><span id="trapTxt"></span><span id="trapHint">Tap petak <b>hijau</b> untuk memilih</span><div class="trapAct"><button id="trapNo" type="button">Batal</button><button id="trapOk" type="button">Pasang</button></div></div>
 <section class="overlay lm-ov" id="win" data-state="win" role="dialog" aria-modal="true" aria-labelledby="winTitle" hidden>
   <div class="lm-box">
     <div class="res-ico" aria-hidden="true"><img class="ico-win" src="assets/Images/icon/lobby/leader.webp" alt="" draggable="false"><svg class="ico-lose" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path fill="#FFCB4C" d="M35 18.619a6.869 6.869 0 0 0-6.869-6.869c-.979 0-2.752.578-2.752.578l-13.126 1.384s-2.717-1.581-4.383-1.581a6.869 6.869 0 0 0-6.835 7.571C1.406 28.763 8.849 36 18 36c9.389 0 17-7.611 17-17 0-.052-.009-.101-.012-.153.003-.076.012-.151.012-.228z"/><path fill="#F19020" d="M30.126 13.751c-.941-.244-1.009.386-2.202.246c-1.168-.137.429-.739-.195-1.092c-.21-.119-.511-.144-.882-.098c-1.052.129-16.954.544-17.547.83c-.527.254-.839.548-1.318.101c-.603-.562-1.466-.238-1.716-.051c-.322.242-.389.722.234 1.277c.621.42 1.673.859 3.465 1.159c.197.033.365.046.522.052c1.227.041 1.397-1.67 3.13-1.716c1.136-.03 11.153 1.07 11.978.958a2.34 2.34 0 0 1 .329-.024c1.563 0 1.926 1.45 3.589.316c.705-.573 1.811-1.648.613-1.958z"/><path fill="#F36C24" d="M5.938 9.115c1.523 1.527 2.604 3.145 3.362 4.523a20.465 20.465 0 0 1 1.187 2.538c1.227.041 1.397-.67 3.13-.716c1.136-.03 1.783.769 2.623 1.229c1.502.822 2.569-.73 3.719-.73c.85 0 2.219 1.207 3.176.764c1.387-.643 1.635-1.191 2.46-1.304c.322-.791.741-1.696 1.252-2.609c.74-1.324 1.678-2.665 2.841-3.693H5.938z"/><path fill="#CE5C1F" d="M29.306 9.435c1.281-1.263-23.039.016-22.341.788c.988 1.094 2.2 3.153 2.2 3.153s4.757 2.405 8.351-.626c2.5 1.5 6 .969 7.562-1.609c0 0 1.217.453 2.451.531c0 0 .953-1.425 1.777-2.237z"/><ellipse fill="#65471B" cx="18" cy="28.638" rx="4.332" ry="4.95"/><path fill="#65471B" d="M14 20.606c0 1.473-.896 2.667-2 2.667c-1.105 0-2-1.194-2-2.667c0-1.473.895-2.667 2-2.667c1.104 0 2 1.194 2 2.667zm12-.001c0 1.473-.895 2.667-2 2.667s-2-1.194-2-2.667c0-1.472.896-2.667 2-2.667c1.105.001 2 1.195 2 2.667z"/><path fill="#CCD6DD" d="M31.125 3.725c-.24 0-.467.045-.686.109a3.728 3.728 0 0 0-2.898-1.396c-.087 0-.169.02-.255.026a3.983 3.983 0 0 0-2.987-1.359c-1.505 0-2.8.839-3.486 2.066a2.236 2.236 0 0 0-3.825-.492a3.738 3.738 0 0 0-3.53-2.532c-1.323 0-2.48.689-3.148 1.723c-.184-.029-.368-.058-.56-.058c-1.432 0-2.661.812-3.293 1.992a3.377 3.377 0 0 0-.624-.063a3.375 3.375 0 1 0 0 6.75a3.31 3.31 0 0 0 1.614-.425c.376.282.838.456 1.345.456c.145 0 .285-.016.422-.043a4.825 4.825 0 0 0 4.109 2.303a4.852 4.852 0 0 0 4.073-2.217a3.901 3.901 0 0 0 3.029 1.457a3.914 3.914 0 0 0 3.776-2.911c.034.001.065.01.099.01c.283 0 .559-.031.826-.087a3.718 3.718 0 0 0 2.417.904c1.174 0 2.21-.551 2.897-1.396c.219.064.446.109.686.109a2.463 2.463 0 1 0-.001-4.926z"/><circle fill="#E1E8ED" cx="27.795" cy="5.767" r="2.121"/><path fill="#E1E8ED" d="M19.876 5.903a2.16 2.16 0 0 0-2.16-2.161c-.368 0-.71.101-1.013.263a1.665 1.665 0 0 0-2.905-.306a3.73 3.73 0 0 0-2.548-1.013a3.741 3.741 0 0 0-3.625 2.838a2.012 2.012 0 1 0-1.429 3.429c.703 0 1.319-.361 1.679-.907a3.74 3.74 0 0 0 2.749 2.079a2.24 2.24 0 0 0 4.131-.635c.324.18.691.292 1.087.292c1.07 0 1.962-.749 2.19-1.75a2.155 2.155 0 0 0 1.844-2.129z"/></svg></div>
@@ -5640,7 +5642,7 @@ function skipFrozen(){
    dalam `radius` petak (selain pemasang) mundur `back`; Wooden Shield/Totem bisa menahan per korban. Pemasang kebal. Sekali pakai, kelihatan semua pemain.
    State TRAPS ikut snapshot multiplayer (host = sumber kebenaran). Aturan/angka = UT.Gameplay.Config.PUR (kind:'trap'). */
 const TRAP_MAX=2; /* jebakan aktif per pemain */
-let TRAPS=[],TRAP_SEQ=0,TRAP_PICK=null; const TRAPM={},TRAPTEX={};
+let PICK_GUARD=0,TRAPS=[],TRAP_SEQ=0,TRAP_PICK=null; const TRAPM={},TRAPTEX={};
 function trapTex(key){
   if(TRAPTEX[key]) return TRAPTEX[key];
   let url=''; try{ url=ItemCatalog.byId(key).icon; }catch(e){}
@@ -5743,23 +5745,37 @@ function cpuTrapTile(p,k){ /* CPU: 2–5 petak di depan, hindari petak yang suda
   const r=trapRange(p,k),c=[]; for(let n=Math.min(r.hi,r.lo+1);n<=Math.min(r.hi,r.lo+4);n++) if(trapTileOk(p,k,n)) c.push(n);
   return c.length?c[Math.floor(Math.random()*c.length)]:null;
 }
-/* Pilih petak (manusia): bar bawah dengan −/+; pratinjau jebakan transparan di petak terpilih, kamera mengikuti. Resolve(petak) atau null (batal). */
+/* Pilih petak (manusia): petak yang BOLEH diberi outline hijau (yang tidak boleh = tanpa outline, mis. sudah ada jebakan); tap petak hijau untuk memilih,
+   pratinjau jebakan transparan di petak terpilih, kamera mengikuti. Resolve(petak) atau null (batal).
+   Online tamu: host diberi tahu (phase 'pick'/'cancel') supaya timer auto roll giliran ini berhenti selama tamu memilih. */
+function trapPickNotify(k,phase){ try{ if(MP_SYNC&&MP_ID) MP_SYNC.requestPower({playerId:MP_ID,power:k,phase:phase}).catch(()=>{}); }catch(e){} }
 function trapPick(p,k){
   return new Promise(res=>{
     if(TRAP_PICK){ res(null); return; }
-    const r=trapRange(p,k); if(r.hi<r.lo){ res(null); return; }
-    const remote=ONLINE_ROOM&&!ONLINE_HOST; /* tamu: host yang menjalankan; jangan ubah busy/timer lokal */
-    if(!remote){ busy=true; setRoll(false); clearTurnTimer(); }
-    let tile=Math.min(r.hi,r.lo+2); while(tile>r.lo&&TRAPS.some(t=>t.tile===tile)) tile--;
+    const r=trapRange(p,k),allowed=[]; for(let n=r.lo;n<=r.hi;n++) if(trapTileOk(p,k,n)&&TILES[n]) allowed.push(n);
+    if(!allowed.length){ res(null); return; }
+    const remote=ONLINE_ROOM&&!ONLINE_HOST; /* tamu: host yang menjalankan; jangan ubah busy lokal */
+    if(!remote){ busy=true; setRoll(false); clearTurnTimer(); } else { clearTurnTimer(); trapPickNotify(k,'pick'); }
+    let tile=allowed.indexOf(Math.min(r.hi,r.lo+2))>=0?Math.min(r.hi,r.lo+2):allowed[0];
     const ghost=trapGroup(k,p.hex||0xffffff,true); scene.add(ghost); TRAP_PICK=ghost;
-    const bar=$('trapBar'),txt=$('trapTxt'),ok=$('trapOk');
-    const upd=()=>{ const tl=TILES[tile]; ghost.position.set(tl.x,tl.h,tl.z); const bad=TRAPS.some(t=>t.tile===tile);
-      txt.textContent=PUN[k][1]+' → petak '+tile+' ('+(tile-p.pos)+' di depan)'+(bad?' · sudah ada jebakan':''); ok.disabled=bad; $('trapMinus').disabled=tile<=r.lo; $('trapPlus').disabled=tile>=r.hi; focus=ghost; };
-    const cleanup=()=>{ scene.remove(ghost); TRAP_PICK=null; bar.hidden=true; $('trapMinus').onclick=$('trapPlus').onclick=ok.onclick=$('trapNo').onclick=null; focus=p.pawn; };
-    $('trapMinus').onclick=()=>{ if(tile>r.lo){ tile--; sfx.pop&&sfx.pop(); upd(); } };
-    $('trapPlus').onclick=()=>{ if(tile<r.hi){ tile++; sfx.pop&&sfx.pop(); upd(); } };
-    ok.onclick=()=>{ if(TRAPS.some(t=>t.tile===tile)) return; cleanup(); if(!remote) busy=false; res(tile); };
-    $('trapNo').onclick=()=>{ cleanup(); if(!remote){ busy=false; setRoll(true); startTurnTimer(); } res(null); };
+    /* outline hijau di setiap petak yang boleh + kotak tak terlihat sebagai sasaran tap */
+    const marks=new THREE.Group(),hits=[],lineMat=new THREE.LineBasicMaterial({color:0x3dff7a,transparent:true,opacity:0.95,depthTest:false}),hitMat=new THREE.MeshBasicMaterial({visible:false});
+    allowed.forEach(n=>{ const tl=TILES[n];
+      const e=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.94,0.04,0.94)),lineMat); e.position.set(tl.x,tl.h+0.03,tl.z); e.renderOrder=999; marks.add(e);
+      const h=new THREE.Mesh(new THREE.BoxGeometry(1,0.5,1),hitMat); h.position.set(tl.x,tl.h,tl.z); h.userData.tile=n; marks.add(h); hits.push(h); });
+    scene.add(marks);
+    const bar=$('trapBar'),txt=$('trapTxt'),ok=$('trapOk'),cv=$('c');
+    const upd=()=>{ const tl=TILES[tile]; ghost.position.set(tl.x,tl.h,tl.z); txt.textContent=PUN[k][1]+' → petak '+tile+' ('+(tile-p.pos)+' di depan)'; ok.disabled=false; focus=ghost; };
+    let down=null;
+    const onDown=e=>{ down={x:e.clientX,y:e.clientY}; };
+    const onUp=e=>{ if(!down) return; const dx=e.clientX-down.x,dy=e.clientY-down.y; down=null; if(dx*dx+dy*dy>64) return; /* geser kamera = bukan tap */
+      const rc=cv.getBoundingClientRect(),m=new THREE.Vector2(((e.clientX-rc.left)/rc.width)*2-1,-((e.clientY-rc.top)/rc.height)*2+1),rcs=new THREE.Raycaster();
+      rcs.setFromCamera(m,camera); const hit=rcs.intersectObjects(hits,false)[0];
+      if(hit&&hit.object.userData.tile!==tile){ tile=hit.object.userData.tile; sfx.pop&&sfx.pop(); upd(); } };
+    cv.addEventListener('pointerdown',onDown); cv.addEventListener('pointerup',onUp);
+    const cleanup=()=>{ scene.remove(ghost); scene.remove(marks); lineMat.dispose(); marks.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); TRAP_PICK=null; bar.hidden=true; cv.removeEventListener('pointerdown',onDown); cv.removeEventListener('pointerup',onUp); ok.onclick=$('trapNo').onclick=null; focus=p.pawn; };
+    ok.onclick=()=>{ if(!trapTileOk(p,k,tile)) return; cleanup(); if(!remote) busy=false; res(tile); };
+    $('trapNo').onclick=()=>{ cleanup(); if(!remote){ busy=false; setRoll(true); startTurnTimer(); } else { trapPickNotify(k,'cancel'); startTurnTimer(); } res(null); };
     bar.hidden=false; upd();
   });
 }
@@ -6554,7 +6570,10 @@ function initMultiplayerBridge(){
  if(!G){console.error('[multiplayer] game sync module missing');return;}
  G.connect({roomId:ROOM_CFG.roomId,isHost:ONLINE_HOST,roomConfig:ROOM_CFG,
   onRollRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId)return;ensureAudio();doRoll(Number.isInteger(payload.value)?{value:payload.value}:undefined)},
-  onPowerRequest:payload=>{if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false,Number.isInteger(payload.tile)?payload.tile:null)},
+  onPowerRequest:payload=>{if(ONLINE_HOST&&payload&&payload.phase){ /* tamu sedang memilih petak jebakan: tahan timer auto roll (pengaman 45 dtk bila tamu putus) */
+    if(busy||paused||gameOver)return;const q=players[cur];if(!q||q.networkId!==payload.playerId)return;
+    clearTimeout(PICK_GUARD);if(payload.phase==='pick'){clearTurnTimer();PICK_GUARD=setTimeout(()=>{if(!busy&&!gameOver&&players[cur]===q)startTurnTimer();},45000);}else startTurnTimer();return;}
+    if(!ONLINE_HOST||!payload||busy||paused||gameOver||AWK.running)return;clearTimeout(PICK_GUARD);const p=players[cur];if(!p||p.networkId!==payload.playerId||!p.pu[payload.power])return;usePU(payload.power,false,Number.isInteger(payload.tile)?payload.tile:null)},
   onCue:onMpCue,
   onPeerLeft:key=>{ if(!key||key===MP_ID) return; MP_LEFT.add(key); const q=mpPlayerByNet(key); if(q&&!q.cpu) q.left=true; try{ renderChips(); }catch(e){} }, /* semua klien (host/tamu, juga saat game over) */
   onPeerJoin:key=>{ if(!key||key===MP_ID) return; MP_LEFT.delete(key); const q=mpPlayerByNet(key); if(q&&q.left){ q.left=false; try{ renderChips(); }catch(e){} } mpBroadcastAutoRoll(); }, /* pemain (re)join: kirim ulang status Auto milik kita agar chip-nya benar */
