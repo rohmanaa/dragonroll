@@ -5664,12 +5664,21 @@ function trapGroup(key,hex,ghost){
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.34,0.46,32),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.9*op,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
   ring.rotation.x=-Math.PI/2; ring.position.y=0.03; g.add(ring);
   /* objek = gambar 3D asli power (data/power/3d), berdiri di petak sebagai sprite */
-  /* bidang gambar: sisi bawah gambar menempel di petak, badan rebah condong ke belakang (bukan tegak menghadap samping); yaw mengikuti kamera di trapTick */
-  const pg=new THREE.PlaneGeometry(1,1); pg.translate(0,0.5,0);
-  const m=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:trapTex3(key),transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false}));
-  m.rotation.order='YXZ'; m.rotation.x=-1.05; m.scale.setScalar(TRAP_SIZE); m.position.set(0,0.04,0); m.renderOrder=2;
+  /* gambar power rebah di petak (arah tetap, tidak ikut kamera); sisi bawah gambar menempel petak. Outline = salinan siluet berwarna pemain. */
+  const col=new THREE.Color(hex),pg=new THREE.PlaneGeometry(1,1); pg.translate(0,0.5,0);
+  const m=new THREE.Group(); m.rotation.order='YXZ'; m.rotation.x=-1.05; m.scale.setScalar(TRAP_SIZE); m.position.set(0,0.04,0);
+  const tex=trapTex3(key),OL=0.022;
+  const sil=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{map:{value:tex},c:{value:col},o:{value:0.95*op}},
+    vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'uniform sampler2D map;uniform vec3 c;uniform float o;varying vec2 v;void main(){float a=texture2D(map,v).a;if(a<.05)discard;gl_FragColor=vec4(c,o);}'});
+  for(let i=0;i<8;i++){ const q=new THREE.Mesh(pg,sil),an=i*Math.PI/4; q.position.set(Math.cos(an)*OL,Math.sin(an)*OL,-0.002); q.renderOrder=2; m.add(q); }
+  const face=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false}));
+  face.renderOrder=3; m.add(face);
+  /* aura dari objek: halo berwarna pemain, berdenyut (opasitas saja, tidak bergerak naik-turun) */
+  const aura=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:hex,transparent:true,opacity:0.4*op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
+  aura.scale.setScalar(1.5); aura.position.y=0.28; g.add(aura);
   g.add(m);
-  g.userData={ring:ring,sp:m,y0:0,ph:Math.random()*6,born:performance.now()};
+  g.userData={ring:ring,sp:m,aura:aura,op:op,y0:0,ph:Math.random()*6,born:performance.now()};
   return g;
 }
 function trapShow(t){
@@ -5686,7 +5695,7 @@ function trapRemove(t){ const i=TRAPS.indexOf(t); if(i>=0) TRAPS.splice(i,1); co
 function trapsClear(){ TRAPS.slice().forEach(trapRemove); TRAPS=[]; TRAP_SEQ=0; }
 function trapTick(now){ /* melayang + cincin berputar + muncul membesar (dipanggil frame()) */
   for(const id in TRAPM){ const g=TRAPM[id],u=g.userData,age=Math.min(1,(performance.now()-u.born)/320);
-    u.ring.rotation.z+=0.012; u.sp.rotation.y=Math.atan2(camera.position.x-g.position.x,camera.position.z-g.position.z); g.scale.setScalar(0.4+0.6*age*(2-age)); } /* tidak melayang: model tetap di permukaan petak */
+    u.ring.rotation.z+=0.012; u.aura.material.opacity=u.op*(0.32+0.16*Math.sin(performance.now()/380+u.ph)); g.scale.setScalar(0.4+0.6*age*(2-age)); } /* tidak melayang: model tetap di permukaan petak */
 }
 function trapsSync(list){ /* guest: samakan dengan snapshot host */
   const key=a=>a.map(t=>t.id+':'+t.tile+':'+t.key).join('|');
