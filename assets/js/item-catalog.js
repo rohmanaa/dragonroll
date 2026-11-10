@@ -85,7 +85,7 @@
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
   var LEGACY_POWER_ID = { apple: 'totem', potion: 'potion_odd' }; /* 'potion' (Ramuan 4-6) diganti Ramuan Ganjil/Genap: stok lama dibaca sebagai Ramuan Ganjil */
-  var MAP_NAMES = { minecraft: 'World', nether: 'Nether', rimba: 'Rimba' }; /* key map (gameplay/maps/*.js) -> nama tampil */
+  var MAP_NAMES = { minecraft: 'World', nether: 'Nether' }; /* key map (gameplay/maps/*.js) -> nama tampil */
   function normalizePowerId(id) { return Object.prototype.hasOwnProperty.call(LEGACY_POWER_ID, id) ? LEGACY_POWER_ID[id] : id; }
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
@@ -175,8 +175,6 @@
           { skyTop: '#6EC6FF', skyBot: '#E6F7FF', a: '#5FAE3E', b: '#8A5B33' }),
     theme('nether',    'Nether',    'epic',   600, 'Dunia api dan batu merah yang berbahaya.',
           { skyTop: '#2a0606', skyBot: '#8a2410', a: '#8A2B2B', b: '#3A0D0D' }, { featured: true }),
-    theme('rimba',     'Rimba',     'rare',   0,   'Hutan rimba dengan sungai, jembatan, dan kuil pasir.',
-          { skyTop: '#5BAAD8', skyBot: '#C4E3D0', a: '#3F8F36', b: '#8D5F3A' }),
 
     /* ---- Power-Up (Tahap 3.1) ----
        Metadata & efek = hasil audit gameplay.html (PUN + usePU), TIDAK diarang:
