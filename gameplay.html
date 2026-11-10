@@ -1447,7 +1447,7 @@ async function applyOnlineLooks(gid,attempt){
   try{ const AS=UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();
     if(AS){
       /* kirim tampilan sendiri dulu (baris tampilan di server bisa belum ada / usang) agar pemain lain melihat outfit kita */
-      if(attempt===0&&AS.pushAppearance){ try{ await Promise.race([AS.pushAppearance(),new Promise(r=>setTimeout(r,4000))]); }catch(e){} }
+      if((attempt===0||attempt===2||attempt===5)&&AS.pushAppearance){ try{ const pr=await Promise.race([AS.pushAppearance(),new Promise(r=>setTimeout(r,4000))]); if(pr&&pr.ok===false) console.warn('[tampilan] gagal dikirim ke server',pr); }catch(e){} } /* kirim ulang beberapa kali: pemain lain harus melihat outfit/aksesoris kita */
       if(AS.roomAppearance){ const r=await AS.roomAppearance(ROOM_CFG.roomId); if(r&&r.ok&&Array.isArray(r.players)) r.players.forEach(x=>{ by[String(x.user_id).toLowerCase()]=x; }); }
     } }catch(e){}
   if(gid!==gameId) return;
@@ -1460,7 +1460,8 @@ async function applyOnlineLooks(gid,attempt){
   });
   refreshFaces();
   /* tampilan pemain lain belum ada di server (belum sempat terkirim): coba lagi beberapa kali, tidak menunggu refresh */
-  if(missing&&attempt<8) setTimeout(()=>applyOnlineLooks(gid,attempt+1),2500);
+  /* tarik ulang berkala (bukan hanya saat data belum ada): tampilan pemain lain yang baru dikirim/berubah ikut terpasang; hanya dipasang ulang bila isinya berubah */
+  if(attempt<14) setTimeout(()=>applyOnlineLooks(gid,attempt+1),attempt<6?2500:8000);
 }
 const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
 /* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
