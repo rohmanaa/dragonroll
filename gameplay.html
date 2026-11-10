@@ -5766,17 +5766,19 @@ function trapPick(p,k){
 /* Dipanggil resolveTileAt: pemain p baru mendarat. true = p terpental mundur (lewati efek petak lama: tangga/ular/mob). */
 async function trapCheck(p,gid){
   const t=TRAPS.find(q=>q.tile===p.pos&&q.owner!==p.idx); if(!t) return false;
+  const bp=TRAPM[t.id]&&TRAPM[t.id].position.clone(); /* posisi objek di papan = titik ledakan */
   trapRemove(t); /* sekali pakai: hapus dulu agar tidak terpicu ganda */
   const owner=players[t.owner],key=t.key,nm=PUN[key]?PUN[key][1]:'Jebakan';
   const vs=players.filter(q=>q.idx!==t.owner&&q.pos>0&&q.pos<GOAL&&Math.abs(q.pos-t.tile)<=t.radius).sort((a,b)=>(b===p)-(a===p));
   setMsg(nm+(owner?' milik '+owner.name:'')+' meledak di petak '+t.tile+'!'); fb('event','info',nm+' meledak di petak '+t.tile+'!',{gid});
-  sfx.power(key); await sleep(reduce?100:320); if(gid!==gameId) throw STALE;
+  sfx.power(key); if(bp&&!reduce){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan HANYA di papan (petak jebakan), tidak ada efek di tengah layar */
+  await sleep(reduce?100:320); if(gid!==gameId) throw STALE;
   let moved=false; const parts=[];
   for(const q of vs){
     const by=await puDefend(q,gid,nm+(owner?' '+owner.name:'')); if(gid!==gameId) throw STALE;
     if(by){ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q); parts.push(q.name+' menahan'); continue; }
     const from=q.pos,to=Math.max(1,from-t.back);
-    powerFxPawn(key,q); sfx.playerHurt(); pawnAct(q.pawn,'block');
+    sfx.playerHurt(); pawnAct(q.pawn,'block'); /* tanpa efek tengah layar (TNT/Fire Charge/Blaze Core: cukup di papan) */
     await teleport(q,to,true); if(gid!==gameId) throw STALE; q.pos=to; if(q===p) moved=true; renderChips();
     parts.push(q.name+(from-to>0?' mundur '+(from-to):' tidak bergerak'));
   }
