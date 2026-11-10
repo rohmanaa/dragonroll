@@ -348,7 +348,7 @@
 
   g.ItemCatalog = Object.freeze({
     version: 1,
-    POWER_CARRY_MAX: 3,   /* maks. unit per jenis Power yang boleh DIBAWA ke satu pertandingan (stok tetap di Inventory; baru berkurang saat dipakai) */
+    POWER_CARRY_MAX: 1,   /* maks. unit per jenis Power yang boleh DIBAWA ke satu pertandingan (aturan sekarang: 1) (stok tetap di Inventory; baru berkurang saat dipakai) */
     POWER_TYPES_MAX: 5,   /* maks. jenis Power per pertandingan */
     RARITY: RARITY,
     CATEGORIES: CATEGORIES,
