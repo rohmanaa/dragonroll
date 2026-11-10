@@ -166,7 +166,7 @@ const LOCK_SVG='<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height=
 const MAPS=RF.maps().concat([END_MAP]);const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getMap())),pos=idx;
 const car=$('#car'),mod=(a,n)=>((a%n)+n)%n,els=new Map();
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
-const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
+const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp',rimba:'gameplay/maps/banner-maps/rimba.webp'};
 $('#dots').innerHTML=MAPS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
 function mk(v){const i=mod(v,N),m=MAPS[i],e=document.createElement('div');e.className='map far';e.setAttribute('role','option');e.tabIndex=0;e.dataset.i=i;e.dataset.v=v;
  e.classList.toggle('lock',!!m.locked);
