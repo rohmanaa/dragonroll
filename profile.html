@@ -382,6 +382,7 @@ html body .in,html body .st{background:linear-gradient(var(--sl3),var(--sl4));bo
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script>
+<script src="assets/js/aura-fx.js"></script><script src="assets/js/aura-view.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -594,15 +595,17 @@ function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE
  const up=()=>R.drag=false;cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.style.touchAction='pan-y';
  rigs.push(R);return R}catch(e){ok=false;console.warn('WebGL unavailable',e);return null}}
 let main,pv,spin=0;
-function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c}
+function setModel(R,c,it,y){if(!R)return;if(R.cur)R.holder.remove(R.cur);const m=model(c,it);R.holder.add(m);R.cur=m;R.mc=c;
+ /* Aura yang dipakai (halaman Efek) menempel ke karakter 3D profil */
+ try{if(UT.AuraView&&UT.AuraFX){if(!R.aura)R.aura=UT.AuraView.create(R.scene,R.cam);const bc=m.userData&&m.userData.bc;R.scene.updateMatrixWorld(true);if(bc)R.aura.only(bc.root,UT.AuraView.equippedKey());else R.aura.clearAll()}}catch(e){}}
 function buildModels(){$('#show').classList.remove('art');$('#art').innerHTML=''; /* selalu model 3D karakter baru; preview PNG skin lama tidak lagi menutupinya */
  setModel(main,'skin',sel);spin=1}
 function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}
 const clock=typeof THREE!=='undefined'?new THREE.Clock():null;
-function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
+function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(.05,Math.max(0,t-(loop.lt==null?t:loop.lt)));loop.lt=t;
  rigs.forEach(R=>{if(!R.cur||!R.cv.offsetParent)return;const el=R.cv.getBoundingClientRect();if(!el.width)return;
   if(!R.drag){R.vel*=.95;R.rot+=R.vel+.004}if(spin>0&&R===main){}R.holder.rotation.y=R.rot+(spin>0?(1-spin)*6.28:0);
-  R.cur.userData.anim&&R.cur.userData.anim(t);R.cam.position.set(0,R.cy+1,R.dist);R.cam.lookAt(0,R.cy,0);R.r.render(R.scene,R.cam)});
+  R.cur.userData.anim&&R.cur.userData.anim(t);if(R.aura)R.aura.update(dt);R.cam.position.set(0,R.cy+1,R.dist);R.cam.lookAt(0,R.cy,0);R.r.render(R.scene,R.cam)});
  if(spin>0)spin=Math.max(0,spin-.012)}
 if(typeof THREE==='undefined')ok=false;
 /* event: profil ikut memperbarui UI saat currency/skin berubah (tanpa reload halaman) */

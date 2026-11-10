@@ -183,6 +183,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 </script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/character-face.js"></script>
+<script src="assets/js/aura-fx.js"></script><script src="assets/js/aura-view.js"></script>
 <script src="assets/js/floating-island.js"></script>
 <script>
 (()=>{
@@ -281,7 +282,10 @@ const anims=[];
 const HERO_S=.9,HERO_Y=-1.95,HERO_CS=4.8;/* HERO_CS = skala model karakter baru (sebelumnya 6.6: terlalu besar, kepala hampir keluar layar) *//* skala & tinggi kaki: telapak pas di lantai batu bagian bawah-tengah latar */
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
 const hero=new THREE.Group();let bc=null,bcW=null;/* karakter baru (halaman Karakter) = UT.BlockyCharacter, dimuat dari PlayerData */
-function buildHero(){if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bcW=new THREE.Group();bcW.scale.setScalar(HERO_CS);bcW.add(bc.root);hero.add(bcW)}
+let AUR=null,auraQ=false;
+function buildHero(){if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bcW=new THREE.Group();bcW.scale.setScalar(HERO_CS);bcW.add(bc.root);hero.add(bcW);auraQ=true}
+/* Aura yang dipakai (slot 'aura', dipilih di halaman Efek) menempel ke karakter lobby; dipasang di loop setelah hero ada di scene */
+function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey())}catch(e){}}
 buildHero();
 hero.position.set(0,HERO_Y,0);hero.scale.setScalar(HERO_S);hero.rotation.y=-.3;scene.add(hero);
 const cs=UT.FloatingIsland.contactShadow(THREE,5.4,3.8,.6);cs.position.set(0,HERO_Y+.04,.1);scene.add(cs);/* AO kontak di bawah karakter (ukuran mengikuti karakter baru) */
@@ -331,7 +335,7 @@ const clock=new THREE.Clock();
 let lastT=0;
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;moodStep(dt);
  cam.position.set(0,5.5,26);cam.lookAt(0,3,0);
- bc.tick(dt);lobbyStep(dt);
+ bc.tick(dt);lobbyStep(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);
  anims.forEach(f=>f(t));
    renderer.render(scene,cam)}
 loop();
