@@ -5635,7 +5635,7 @@ function trapTex(key){
   return (TRAPTEX[key]=tx);
 }
 /* Model jebakan: blok 3D yang DUDUK di petak (seperti chest), bukan sprite melayang. Geometri dibangun sekali per jenis (TRAPPROTO), dipakai ulang lewat clone. */
-const TRAPPROTO={},TRAP_SCALE=1.8/1.6; /* objek jebakan 1.6x lebih kecil dari ukuran Chest (1.8); cincin efek di petak tetap ukuran penuh */
+const TRAPPROTO={},TRAPTEX={},TRAP_SIZE=0.95,TRAP_SCALE=1.8/1.6; /* objek jebakan 1.6x lebih kecil dari ukuran Chest (1.8); cincin efek di petak tetap ukuran penuh */
 function buildTrapProto(key){
   const B=makeBatch(),F={edge:false},q=(x,y,z,w,h,d,c)=>addBox(B,x,y,z,w,h,d,c,F);
   if(key==='tnt'){ /* blok TNT: badan merah, 2 pita putih bertuliskan blok hitam, sumbu di atas */
@@ -5661,9 +5661,10 @@ function trapGroup(key,hex,ghost){
   /* cincin warna pemain rata di permukaan petak (penanda pemilik) */
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.34,0.46,32),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.9*op,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
   ring.rotation.x=-Math.PI/2; ring.position.y=0.03; g.add(ring);
-  if(!TRAPPROTO[key]) TRAPPROTO[key]=buildTrapProto(key);
-  const m=TRAPPROTO[key].clone(); m.scale.setScalar(TRAP_SCALE);
-  if(ghost) m.traverse(o=>{ if(o.isMesh){ o.material=o.material.clone(); o.material.transparent=true; o.material.opacity=0.55; o.material.depthWrite=false; } o.castShadow=false; });
+  /* objek = gambar 3D asli power (data/power/3d), berdiri di petak sebagai sprite */
+  if(!TRAPTEX[key]){ const t=new THREE.TextureLoader().load('data/power/3d/'+key+'.png'); t.colorSpace=THREE.SRGBColorSpace; TRAPTEX[key]=t; }
+  const m=new THREE.Sprite(new THREE.SpriteMaterial({map:TRAPTEX[key],transparent:true,opacity:op,depthWrite:false,fog:false,toneMapped:false}));
+  m.center.set(0.5,0.14); m.scale.setScalar(TRAP_SIZE); m.position.y=0.04;
   g.add(m);
   g.userData={ring:ring,sp:m,y0:0,ph:Math.random()*6,born:performance.now()};
   return g;
