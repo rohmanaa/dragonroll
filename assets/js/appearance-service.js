@@ -127,14 +127,21 @@
     /* refresh() dengan batas waktu: dipakai halaman yang menampilkan karakter sendiri (Lobi, Profil, Efek, Leaderboard) agar tampilan/outfit
        aktif dari server ikut tanpa membuka halaman Karakter dulu. Penanda waktu bersama lintas halaman (sessionStorage 'ut:app-sync'),
        jadi berpindah halaman dalam ttl tidak menarik ulang. Kembali {ok:true, skipped:true} bila masih dalam ttl. */
+    var tInflight = null;
     async function refreshThrottled(ttl) {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };
       ttl = (ttl == null) ? 20000 : ttl;
+      if (tInflight) return tInflight;                       /* satu penarikan sekaligus per halaman */
       var last = 0, t = nowFn();
       try { last = store ? (+store.getItem('ut:app-sync') || 0) : 0; } catch (e) { last = 0; }
       if (t - last < ttl) return { ok: true, skipped: true };
-      try { if (store) store.setItem('ut:app-sync', String(t)); } catch (e) {}
-      return refresh();
+      /* Penanda waktu ditulis HANYA setelah penarikan BERHASIL: bila halaman ditinggalkan di tengah jalan atau jaringan gagal,
+         halaman berikutnya tetap menarik (bukan melewatinya karena penanda sudah terlanjur terisi). */
+      tInflight = refresh().then(function (r) {
+        try { if (r && r.ok && store) store.setItem('ut:app-sync', String(nowFn())); } catch (e) {}
+        tInflight = null; return r;
+      }, function (e) { tInflight = null; throw e; });
+      return tInflight;
     }
 
     /* Tampilan aktif pemain lain (Teman/Leaderboard): maks 50 id. Server hanya mengembalikan diri sendiri, teman, pengirim permintaan,

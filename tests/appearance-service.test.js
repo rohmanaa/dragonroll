@@ -216,6 +216,20 @@ t('refreshThrottled: tarik dari server sekali, lalu lewati dalam ttl; setelah tt
   assert.strictEqual((await off.refreshThrottled()).reason, 'mode-lokal');
 });
 
+t('refreshThrottled: penarikan gagal TIDAK mengisi penanda waktu (halaman berikutnya tetap menarik); satu penarikan sekaligus', async () => {
+  const b = loginOn(); const mem = {};
+  const storage = { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); } };
+  let fail = true;
+  const fc = fakeClient({ inventory_get: () => { if (fail) throw new Error('offline'); return []; }, appearance_get: () => ({ found: false }), appearance_set: () => ({ ok: true }), outfit_list: () => [] }, 5);
+  const s = Svc.create({ PlayerData: b.PD, getClient: fc.getClient, storage, now: () => 5000000 });
+  const r1 = await s.refreshThrottled(20000); assert.strictEqual(r1.ok, false);
+  assert.strictEqual(mem['ut:app-sync'], undefined, 'gagal tidak boleh mengisi penanda');
+  fail = false;
+  const [x, y] = await Promise.all([s.refreshThrottled(20000), s.refreshThrottled(20000)]);   /* dua panggilan bersamaan = satu penarikan */
+  assert.strictEqual(x.ok, true); assert.strictEqual(x, y);
+  assert.ok(mem['ut:app-sync'], 'sukses harus mengisi penanda');
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok - ' + name); }
   console.log('\n' + n + ' tes lulus');
