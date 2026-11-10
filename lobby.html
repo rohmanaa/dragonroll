@@ -163,6 +163,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
@@ -215,6 +216,12 @@ UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()});
 if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp();renderCurrency()});
 /* B5: akun login + flag -> saldo & inventory dari server */
 if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh();
+/* Karakter di lobi = tampilan aktif akun di SERVER (outfit/set yang sudah dibeli & dipakai), tanpa harus membuka halaman Karakter dulu.
+   refresh() menarik inventory + tampilan + outfit (server menang); hasilnya memicu 'server-appearance' -> karakter & avatar dibangun ulang. Maks 1x/20 dtk. */
+(function(){const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(!A)return;
+ let last=0;try{last=+sessionStorage.getItem('ut:app-sync')||0}catch(e){}
+ const now=Date.now();if(now-last<20000)return;try{sessionStorage.setItem('ut:app-sync',String(now))}catch(e){}
+ A.refresh().catch(()=>{})})();
 /* sinkron XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0){SRV_XP=Math.floor(x);renderXp()}}).catch(()=>{});
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});
@@ -296,7 +303,7 @@ function moodStep(dt){if(moodT<=0||!LT)return;moodT-=dt;const a=1-Math.exp(-dt*5
 setMood(UT.Ambience?UT.Ambience.resolved():'day',true);
 if(UT.Ambience)UT.Ambience.on(d=>{setMood(d.resolved);fit()});
 hero3d={rebuild(){buildHero()}};
-if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero()});
+if(PD.subscribe)PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();else if(r==='server-appearance'||r==='server-outfits'){PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();buildHero()}});
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 let cheer=0;
 /* ---------- animasi lobby: mata berkedip otomatis (BlockyCharacter); saat diam 6–13 dtk karakter beraksi sendiri, tap karakter = aksi acak ---------- */

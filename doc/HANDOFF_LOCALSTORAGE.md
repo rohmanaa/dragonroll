@@ -133,3 +133,9 @@ Keputusan pemilik: arah tema HUD terinspirasi paket **GUI Pro - Fantasy RPG (Lay
 - Temuan audit HUD: gaya lama sudah cukup konsisten (panel navy di atas latar voxel) tetapi menyimpang di Profil (panel biru terang), Misi (judul besar bergaya lain, daftar hampir hitam), ikon grid Power; 14 halaman punya `renderCurrency` sendiri dan 17 halaman punya markup/CSS mata uang sendiri.
 - Rencana pemasangan (menunggu persetujuan pemilik atas tampilan draf): (1) jadikan `fantasy.css` lapisan tema yang dimuat terakhir; (2) petakan komponen `hud/components/*` dan kelas halaman ke `.ft-*` atau berikan variabel yang sama; (3) pasang bertahap per halaman (mulai Toko dan Power), cek visual dengan Chromium headless (`?noframe=1`), push per halaman; (4) rapikan duplikasi `renderCurrency` ke satu komponen.
 
+## 12. Perbaikan: karakter lobi tidak sinkron dengan outfit/set yang sudah dibeli
+- Gejala: set outfit sudah dibeli dan dipakai (benar di server), tetapi lobi menampilkan karakter lama sampai pemain membuka halaman Karakter.
+- Penyebab: lobi membangun karakter dari cache lokal `PlayerData` dan hanya memanggil `WalletService.refresh()`. Penarikan tampilan aktif + outfit (`AppearanceService.refresh()`, "server menang") hanya terjadi saat halaman Karakter dibuka.
+- Perbaikan (`lobby.html`): memuat `assets/js/appearance-service.js`, memanggil `AppearanceService.get().refresh()` untuk akun server (maks. 1x/20 dtk per tab via `sessionStorage['ut:app-sync']`), dan membangun ulang karakter 3D + avatar saat `PlayerData` mengirim `server-appearance`/`server-outfits`. Tes: `tests/lobby-appearance.test.js`; diverifikasi di Chromium headless (layanan termuat, refresh dicoba, karakter dibangun ulang saat event tiba, tanpa error halaman). Belum diuji dengan server Supabase asli.
+- Halaman lain yang menampilkan karakter (mis. room, leaderboard) memakai jalur sendiri (`appearance_get_many`); belum diperiksa untuk masalah yang sama.
+
