@@ -5669,28 +5669,49 @@ function buildTrapProto(key){
   }
   return buildBatch(B);
 }
-const TRAPTEX3={},TRAP_AURA={tnt:0xff5a3c,fire_charge:0xff8a1e,blaze_core:0xffc83a}; /* aura = warna power, outline = warna pemain */
-function trapTex3(key){ if(TRAPTEX3[key]) return TRAPTEX3[key]; const t=new THREE.TextureLoader().load('data/power/3d/'+key+'.png'); if(THREE.SRGBColorSpace) t.colorSpace=THREE.SRGBColorSpace; return (TRAPTEX3[key]=t); }
+const TRAP_AURA={tnt:0xff5a3c,fire_charge:0xff8a1e,blaze_core:0xffc83a}; /* aura = warna power, outline = warna pemain */
+const TRAPTX={};
+function cvTex(w,h,draw){ const c=document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'),w,h); const t=new THREE.CanvasTexture(c); if(THREE.SRGBColorSpace) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=4; return t; }
+function tntBricks(g,w,h){ g.fillStyle='#c94632'; g.fillRect(0,0,w,h); const bh=h/8,bw=w/4; for(let r=0;r<8;r++) for(let c=-1;c<5;c++){ g.fillStyle=((r+c+8)%3)?'#e2644a':'#d24d36'; g.fillRect(c*bw+(r%2?bw/2:0)+2,r*bh+2,bw-4,bh-4); } }
+function tntSideTex(){ return TRAPTX.tS||(TRAPTX.tS=cvTex(256,256,(g,w,h)=>{ tntBricks(g,w,h); g.fillStyle='#f5f0e6'; g.fillRect(0,92,w,76); g.fillStyle='#1b1b1b'; g.fillRect(0,80,w,13); g.fillRect(0,167,w,13); g.font='bold 62px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('TNT',w/2,131); })); }
+function tntTopTex(){ return TRAPTX.tT||(TRAPTX.tT=cvTex(256,256,(g,w,h)=>{ tntBricks(g,w,h); g.fillStyle='#1b1b1b'; g.beginPath(); g.arc(w/2,h/2,22,0,7); g.fill(); })); }
+function fireTex(){ return TRAPTX.fi||(TRAPTX.fi=cvTex(128,128,(g,w,h)=>{ g.fillStyle='#e8541c'; g.fillRect(0,0,w,h); for(let i=0;i<70;i++){ g.fillStyle=['#f58a24','#ffc040','#c83c12','#ffd870'][i%4]; g.globalAlpha=.55; g.beginPath(); g.arc(Math.random()*w,Math.random()*h,6+Math.random()*14,0,7); g.fill(); } g.globalAlpha=1; })); }
+function coreTex(){ return TRAPTX.co||(TRAPTX.co=cvTex(128,128,(g,w,h)=>{ const r=g.createRadialGradient(w/2,h/2,4,w/2,h/2,w*.7); r.addColorStop(0,'#fff0a0'); r.addColorStop(.6,'#f6bd2a'); r.addColorStop(1,'#d98a12'); g.fillStyle=r; g.fillRect(0,0,w,h); g.strokeStyle='rgba(120,60,0,.35)'; g.lineWidth=3; g.strokeRect(6,6,w-12,h-12); })); }
+/* Model 3D jebakan (bukan gambar pipih): TNT = kubus bata + pita putih + sumbu; Fire Charge = bola api berlidah api; Blaze Core = inti emas dikelilingi batang Blaze. body = mesh yang diberi outline warna pemain. */
+function trapModel(key){
+  const g=new THREE.Group(),L=(c,e)=>new THREE.MeshLambertMaterial(Object.assign({color:c},e||{})); let body;
+  if(key==='tnt'){
+    const S=tntSideTex(),m=[new THREE.MeshLambertMaterial({map:S}),new THREE.MeshLambertMaterial({map:S}),new THREE.MeshLambertMaterial({map:tntTopTex()}),L(0xb83c2a),new THREE.MeshLambertMaterial({map:S}),new THREE.MeshLambertMaterial({map:S})];
+    body=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),m); body.position.y=.25; g.add(body);
+    const cu=new THREE.CatmullRomCurve3([new THREE.Vector3(0,.5,0),new THREE.Vector3(0,.58,.02),new THREE.Vector3(.07,.66,.05),new THREE.Vector3(.13,.68,.04)]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(cu,10,.014,6),L(0x3a2a1a)));
+    const sp=new THREE.Mesh(new THREE.SphereGeometry(.034,8,6),new THREE.MeshBasicMaterial({color:0xffb93a,fog:false})); sp.position.set(.13,.68,.04); g.add(sp);
+    g.rotation.y=.55;
+  }else if(key==='fire_charge'){
+    body=new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),new THREE.MeshLambertMaterial({map:fireTex(),emissive:0x5a1c00})); body.position.y=.24; g.add(body);
+    const fm=new THREE.MeshLambertMaterial({color:0xffe9a0,emissive:0x8a6a20});
+    for(let i=0;i<7;i++){ const a=i*Math.PI*2/7,pv=new THREE.Group(); pv.rotation.y=a; const cg=new THREE.ConeGeometry(.075,.34,6); cg.translate(0,.17,0); const c=new THREE.Mesh(cg,fm); c.position.set(.13,.26,0); c.rotation.z=-1.05; pv.add(c); g.add(pv); }
+  }else{
+    body=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,.3),new THREE.MeshLambertMaterial({map:coreTex(),emissive:0x7a4a00})); body.position.y=.3; body.rotation.set(.35,.6,.1); g.add(body);
+    const rm=new THREE.MeshLambertMaterial({color:0xf08a1c,emissive:0x8a3a00});
+    for(let i=0;i<6;i++){ const a=i*Math.PI/3,r=new THREE.Mesh(new THREE.BoxGeometry(.055,.34,.055),rm); r.position.set(Math.cos(a)*.34,.3+(i%2?.06:-.04),Math.sin(a)*.34); g.add(r); }
+  }
+  return {g:g,body:body};
+}
 function trapGroup(key,hex,ghost){
   const g=new THREE.Group(),op=ghost?0.55:1;
   /* cincin warna pemain rata di permukaan petak (penanda pemilik) */
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.34,0.46,32),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.9*op,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
   ring.rotation.x=-Math.PI/2; ring.position.y=0.03; g.add(ring);
-  /* objek = gambar 3D asli power (data/power/3d), berdiri di petak sebagai sprite */
-  /* gambar power rebah di petak (arah tetap, tidak ikut kamera); sisi bawah gambar menempel petak. Outline = salinan siluet berwarna pemain. */
-  const col=new THREE.Color(hex),pg=new THREE.PlaneGeometry(1,1); pg.translate(0,0.5,0);
-  const m=new THREE.Group(); m.rotation.order='YXZ'; m.rotation.x=-1.05; m.scale.setScalar(TRAP_SIZE); m.position.set(0,0.04,0);
-  const tex=trapTex3(key),OL=0.022;
-  const sil=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{map:{value:tex},c:{value:col},o:{value:0.95*op}},
-    vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'uniform sampler2D map;uniform vec3 c;uniform float o;varying vec2 v;void main(){float a=texture2D(map,v).a;if(a<.05)discard;gl_FragColor=vec4(c,o);}'});
-  for(let i=0;i<8;i++){ const q=new THREE.Mesh(pg,sil),an=i*Math.PI/4; q.position.set(Math.cos(an)*OL,Math.sin(an)*OL,-0.002); q.renderOrder=2; m.add(q); }
-  const face=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false}));
-  face.renderOrder=3; m.add(face);
+  const M=trapModel(key),m=M.g; m.position.y=0.03; g.add(m);
+  /* outline warna pemain: salinan badan yang diperbesar, hanya sisi belakang (inverted hull) */
+  const ol=new THREE.Mesh(M.body.geometry,new THREE.MeshBasicMaterial({color:hex,side:THREE.BackSide,fog:false,toneMapped:false}));
+  ol.position.copy(M.body.position); ol.rotation.copy(M.body.rotation); ol.scale.setScalar(1.09); m.add(ol);
+  if(ghost) m.traverse(o=>{ if(o.isMesh&&o.material&&!Array.isArray(o.material)){ o.material=o.material.clone(); o.material.transparent=true; o.material.opacity=0.55; o.material.depthWrite=false; } else if(o.isMesh&&Array.isArray(o.material)){ o.material=o.material.map(q=>{ const c=q.clone(); c.transparent=true; c.opacity=0.55; c.depthWrite=false; return c; }); } o.castShadow=false; });
+  else m.traverse(o=>{ if(o.isMesh&&o!==ol) o.castShadow=true; });
   /* aura dari objek: halo berwarna power, berdenyut (opasitas saja, tidak bergerak naik-turun) */
   const aura=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:TRAP_AURA[key]||0xffa040,transparent:true,opacity:0.4*op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
-  aura.scale.setScalar(1.5); aura.position.y=0.28; g.add(aura);
-  g.add(m);
+  aura.scale.setScalar(1.5); aura.position.y=0.32; g.add(aura);
   g.userData={ring:ring,sp:m,aura:aura,op:op,y0:0,ph:Math.random()*6,born:performance.now()};
   return g;
 }
