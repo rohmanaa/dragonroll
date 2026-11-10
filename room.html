@@ -271,7 +271,7 @@ const EFFECT_ICON='assets/Images/icon/items/efek.webp';
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
 function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
- return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
+ return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eqn').textContent=EQ.length+' ITEMS';
@@ -434,14 +434,26 @@ function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-
 function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
 const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
 async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}renderPlayers();if(root.classList.contains('dro'))renderDrawer()}
+/* foto profil di drawer: wajah karakter asli (appearance_get_many; server hanya memberi diri sendiri, teman, pengirim permintaan, pemain leaderboard) + frame; sebelum data tiba / tanpa data = huruf awal */
+S.dApp=S.dApp||{};S.dTry=S.dTry||{};
+function drAvatar(id,name){const base=`<span class="av">${esc(name[0]||'?').toUpperCase()}</span>`,k=String(id).toLowerCase(),d=S.dApp[k];
+ if(!d||!FACE_DONE||!window.UT||!UT.CharacterFace||!UT.CharacterFace.urlData)return base;
+ const u=UT.CharacterFace.urlData(d);if(!u)return base;
+ const face='<span class="av av-face"><img class="cface" src="'+u+'" alt="" draggable="false"></span>',pf=d.equipped&&typeof d.equipped.frame==='string'?d.equipped.frame:'',ci=pf&&IC.byId(pf);
+ return(ci&&ci.kind==='frame'&&window.FrameAvatar)?FrameAvatar.wrap(face,'4.2rem',pf):face}
+async function loadDrawerLooks(ids){try{const AS=window.UT&&UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();if(!AS||!AS.usersAppearance)return;
+ const need=ids.filter(i=>i&&!S.dTry[i]);if(!need.length)return;need.forEach(i=>{S.dTry[i]=1});
+ const r=await AS.usersAppearance(need);
+ if(r&&r.ok){need.forEach(i=>{S.dApp[String(i).toLowerCase()]=r.byId[String(i).toLowerCase()]||EMPTY_LOOK});if(root.classList.contains('dro'))renderDrawer()}else need.forEach(i=>{delete S.dTry[i]})}catch(e){}}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
- return `<div class="fr"><span class="av">${esc(name[0]||'?').toUpperCase()}</span><div class="pi"><b>${esc(name)}</b><small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="sm" data-add="${esc(id)}" data-nm="${esc(name)}">＋ TEMAN</button>`}<button class="bt ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}
+ return `<div class="fr">${drAvatar(id,name)}<div class="pi"><b>${esc(name)}</b><small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="sm" data-add="${esc(id)}" data-nm="${esc(name)}">＋ TEMAN</button>`}<button class="bt ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</button></div>`}
 /* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
 const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
 function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}
 function renderDrawer(){
  const r=S.room,left=cap()-r.players.length,P=UT.Multiplayer.Presence,on=P?P.list():[],fr=S.friends||[],fids=new Set(fr.map(f=>f.friend_id));
  $('#drCnt').textContent=r.players.length+'/'+cap()+' pemain';
+ loadDrawerLooks(on.map(p=>p.id));
  $('#dTf').classList.toggle('on',S.drTab==='friends');$('#dTp').classList.toggle('on',S.drTab==='public');
  const full=left<=0?'<div class="emp">Slot penuh. Buka slot terkunci untuk mengundang lebih banyak pemain.</div>':'';
  if(S.drTab==='friends'){
