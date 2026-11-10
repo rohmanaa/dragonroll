@@ -129,15 +129,10 @@
         var miner = opts.makeMiner(i); miner.position.set(-1.0, 0, 0.5); miner.rotation.y = 1.35; U.add(miner);
         U.updateMatrixWorld(true); /* ukur setelah skala unit berlaku */
         var bb = new THREE.Box3().setFromObject(miner), H = Math.max(1, (bb.max.y - bb.min.y) / UNIT_S);
-        var pivot = new THREE.Group(); pivot.position.set(0, H * 0.74, H * 0.16); miner.add(pivot);
-        var hd = box(0.2, H * 0.62, 0.2, 0x9a6a3a); hd.position.y = -H * 0.31; pivot.add(hd);
-        var ph = box(H * 0.5, 0.28, 0.28, 0xc9d1de); ph.position.y = -H * 0.62; pivot.add(ph);
-        var pt = box(0.16, 0.34, 0.3, 0x8995a8); pt.position.set(H * 0.27, -H * 0.62, 0); pivot.add(pt);
-        var pt2 = pt.clone(); pt2.position.x = -H * 0.27; pivot.add(pt2);
         /* partikel kepingan batu/emerald */
         var P = [], pg = new THREE.BoxGeometry(0.22, 0.22, 0.22);
         for (var n = 0; n < 22; n++) { var pm = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({ color: 0x2ee86a, emissive: 0x12a844 })); pm.visible = false; U.add(pm); P.push({ m: pm, vx: 0, vy: 0, vz: 0, life: 0 }); }
-        var u = { U: U, miner: miner, pivot: pivot, lock: lock, chest: chest, H: H, t: 0, angle: 0, lastC: 0, emote: 'mine', hit: 0 };
+        var u = { U: U, miner: miner, lock: lock, chest: chest, H: H, t: 0, lastStrike: 0, emote: 'mine', hit: 0 };
         u.burst = function (kind, n2) {
           var c = 0;
           for (var j = 0; j < P.length; j++) {
@@ -157,13 +152,9 @@
           if (!locked) {
             var em = state === 'cheer' ? 'cheer' : state === 'full' ? 'sit' : 'mine';
             if (em !== u.emote) { u.emote = em; miner.userData.setEmote(em); }
-            u.t += dt * sp; miner.userData.anim(u.t); pivot.visible = em === 'mine';
-            if (em === 'mine') {
-              var c = (u.t * 2.4) % 1, sw = c < 0.55 ? Math.pow(c / 0.55, 2) : Math.max(0, 1 - (c - 0.55) / 0.2), tgt = -(0.3 + 2.1 * sw);
-              u.angle += (tgt - u.angle) * (1 - Math.exp(-dt * 14)); pivot.rotation.x = u.angle;
-              if (u.lastC < 0.74 && c >= 0.74) { u.burst('mix', 5); u.hit = 0.12; }
-              u.lastC = c;
-            }
+            u.t += dt * sp; miner.userData.anim(u.t);
+            var sk = miner.userData.strikes; /* hantaman beliung dihitung rig (tepat saat kena batu) */
+            if (typeof sk === 'number' && sk !== u.lastStrike) { u.lastStrike = sk; if (em === 'mine') { u.burst('mix', 6); u.hit = 0.14; } }
           } else u.t += dt;
           rock.position.x = 3.1 + (u.hit > 0 ? Math.sin(u.t * 80) * 0.035 : 0); u.hit = Math.max(0, u.hit - dt);
           ore.forEach(function (o) { o.material.emissiveIntensity = 1 + (u.hit > 0 ? 1.4 : 0) + Math.sin(u.t * 3 + o.position.x * 4) * 0.25; });

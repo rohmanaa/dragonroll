@@ -141,4 +141,24 @@ t('lobby.html: semua aksi yang dijadwalkan dikenal rig, dan jadwal dipanggil di 
   assert.ok(/bc\.tick\(dt\);lobbyStep\(dt\)/.test(l), 'lobbyStep dipanggil tiap frame');
   assert.ok(/lobbyTap\(\);buzz\(\)/.test(l), 'tap karakter memicu aksi');
 });
+
+const meshCount = c => { let k = 0; c.root.traverse(o => { if (o.isMesh) k++; }); return k; };
+const groupsOf = c => { const out = new Set(); c.root.traverse(o => { if (o.isGroup) out.add(o); }); return out; };
+t('beliung (setTool) menempel di tangan kanan, ikut pergelangan, bisa dilepas, dan bertahan saat penampilan diganti', () => {
+  const c = make(); c.loadPreset(1); c.tick(0.016); const base = meshCount(c), g0 = groupsOf(c);
+  c.setTool('pickaxe'); assert.strictEqual(meshCount(c) - base, 7, 'beliung = 7 balok');
+  const tg = [...groupsOf(c)].find(g => !g0.has(g)); assert.ok(tg && tg.children.length === 7, 'grup beliung baru ada'); const r0 = tg.rotation.x;
+  c.act('mine'); run(c, 0.2); assert.notStrictEqual(tg.rotation.x, r0, 'beliung ikut pergelangan saat menambang');
+  c.apply({ hair: { id: 'short', dye: 'brown' } }); c.tick(0.016); assert.ok(tg.parent, 'beliung tetap terpasang setelah ganti penampilan');
+  c.setTool(null); assert.strictEqual(tg.parent, null, 'terlepas'); assert.strictEqual(meshCount(c) <= base + 3, true);
+  const gone = meshCount(c); c.setTool('apapun'); assert.strictEqual(meshCount(c), gone, 'alat tak dikenal diabaikan');
+});
+t('aksi mine: berulang tanpa pose netral, tiap siklus 1 hantaman, tangan kanan terangkat saat angkat dan turun saat hantam', () => {
+  const c = make(); c.loadPreset(2); c.tick(0.016); c.setTool('pickaxe');
+  assert.strictEqual(c.strikes, 0); let hits = 0, last = 0, upMin = 0, downMax = -9;
+  for (let k = 0; k < Math.round(5 / 0.016); k++) { if (!c.acting) c.act('mine'); c.tick(0.016); if (c.strikes !== last) { hits += c.strikes - last; last = c.strikes; } }
+  assert.ok(hits >= 5 && hits <= 7, 'hantaman dalam 5 dtk: ' + hits + ' (~1,2x per dtk)');
+  c.setMode('idle'); run(c, 1.2); assert.strictEqual(c.acting, null, 'aksi selesai bila tidak diulang');
+  const box2 = new THREE.Box3().setFromObject(c.root); assert.ok(Math.abs(box2.min.y) < 0.15, 'kaki tetap di lantai');
+});
 console.log(n + ' tes lulus');

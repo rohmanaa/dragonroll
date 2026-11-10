@@ -9,7 +9,9 @@
    c.setMode('idle'|'walk'|'run'); c.jump();     // per frame: c.tick(dt)
    c.loadFromData(look,equipped,gearDye);       // tampilan pemain lain dari server (room_appearance_get)
    c.loadPreset(n);                              // tampilan siap pakai deterministik (pemain lain/CPU), n = bilangan bulat
-   c.act('attack'|'block'|'sad'|'cheer'|'wave'|'flip'|'backflip'|'spin'|'roll'[,detik]);
+   c.setTool('pickaxe'|null);                       // alat di tangan kanan (tidak tersimpan di data pemain)
+   c.strikes                                         // jumlah hantaman aksi 'mine' sejauh ini (untuk percikan batu)
+   c.act('attack'|'block'|'sad'|'cheer'|'wave'|'flip'|'backflip'|'spin'|'roll'|'mine'[,detik]);
                                                  // aksi sekali: ayun senjata / bertahan / sedih / sorak / melambai / salto depan / salto belakang / putar di udara / berguling
    Mata berkedip otomatis (tiap tick).
 */
@@ -28,9 +30,13 @@ const ACT_SAD={rArmS:0.05,rElbow:-0.1,rWrist:0,rArmZ:-0.05,lArmS:0.05,lElbow:-0.
 const ACT_CHEER={rArmS:-3.0,rElbow:-0.2,rWrist:0.5,rArmZ:-0.35,lArmS:-3.0,lElbow:-0.2,lArmZ:0.35,lean:-0.1,twist:0,headX:-0.25,headY:0,cape:0.5,tail:0.8};
 const ACT_WAVE={rArmS:-2.85,rElbow:-0.4,rWrist:0.3,rArmZ:-0.55,lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:0.1,headX:-0.05,headY:0.25,cape:0.15,tail:0.3};
 const ACT_TUCK={rArmS:-1.3,rElbow:-1.5,rWrist:0.3,rArmZ:-0.3,lArmS:-1.3,lElbow:-1.5,lArmZ:0.3,lean:0.5,twist:0,headX:0.45,headY:0,rLegT:-1.5,rKnee:1.9,lLegT:-1.5,lKnee:1.9,rLegZ:-0.1,lLegZ:0.1,cape:0.9,tail:1.0};
+/* Menambang: angkat beliung dengan dua tangan (MU) -> hantam ke depan-bawah (MH) -> tarik kembali; berulang tanpa kembali ke pose netral */
+const ACT_MU={rArmS:-2.6,rElbow:-0.9,rWrist:1.0,rArmZ:-0.1,lArmS:-2.3,lElbow:-0.9,lArmZ:0.25,lean:-0.28,twist:-0.2,headX:-0.15,headY:0,rLegT:0.25,rKnee:0.15,lLegT:-0.25,lKnee:0.2,cape:0.3,tail:0.4};
+const ACT_MH={rArmS:-0.75,rElbow:-0.1,rWrist:-0.7,rArmZ:-0.05,lArmS:-0.95,lElbow:-0.25,lArmZ:0.2,lean:0.5,twist:0.15,headX:0.3,headY:0,rLegT:-0.45,rKnee:0.55,lLegT:0.4,lKnee:0.05,cape:0.7,tail:0.7};
 const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
-const ACT_DUR={attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
+const ACT_DUR={mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
 const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
+let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') — dibaca halaman untuk percikan batu */
 const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
 const fx={rx:0,ry:0,py:1,lift:0}; /* rotasi badan utuh dari aksi: rx = salto (+ ke depan), ry = putar; py = tinggi poros (satuan lokal) */
 let act=null;
@@ -57,6 +63,11 @@ function applyAct(T,dt){
     else{fx.rx=act.type==='backflip'?-turn:turn;fx.py=act.type==='roll'?ROLL_PY:1;if(act.type==='roll')fx.lift=ROLL_LIFT*Math.sin(Math.PI*u);}
     if(act.type==='spin'){w=0;pose={};} /* putar: pose lompat bawaan, tanpa tuck */
     else{w=ease3(Math.min(1,u/0.25))*(1-ease3(clamp((u-0.75)/0.25,0,1)));pose=Object.assign({},ACT_TUCK);}
+  }else if(act.type==='mine'){
+    let m;
+    if(u<0.3)m=0;else if(u<0.42)m=ease3((u-0.3)/0.12);else if(u<0.6)m=1;else m=1-ease3((u-0.6)/0.4);
+    if(!act.hit&&u>=0.4){act.hit=true;strikeN++;}
+    w=1;for(const k in ACT_MU)pose[k]=lerp(ACT_MU[k],ACT_MH[k],m);
   }else if(act.type==='attack'){
     let m;
     if(u<0.4){m=0;w=ease3(u/0.4);}else if(u<0.55){m=(u-0.4)/0.15;w=1;}else{m=1;w=1-ease3((u-0.55)/0.45);}
@@ -120,7 +131,7 @@ function loadFromData(look,equipped,gearDye){
   try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
 }
 apply(null,true);
-return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};

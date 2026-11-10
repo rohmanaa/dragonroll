@@ -272,23 +272,26 @@ function popAt(i,txt){
 /* ================= ADEGAN 3D: satu pulau, tiga gundukan (assets/js/mine-island.js) ================= */
 const bays={};let rafId=0,clock=null,isl=null,renderer=null;
 const NPC=['alex','zombie','skeleton'];
-/* penambang = karakter baru (UT.BlockyCharacter, sama dengan Lobby/Karakter/gameplay); tiap slot punya tampilan berbeda; kapak = objek pivot halaman ini (item Kapak katalog berbayar, tidak dipakai NPC).
+/* penambang = karakter baru (UT.BlockyCharacter, sama dengan Lobby/Karakter/gameplay); tiap slot punya tampilan berbeda; beliung = alat di tangan karakter (rig setTool), bukan item katalog.
    Adaptor menyediakan userData.anim(t) & setEmote('mine'|'cheer'|'sit') seperti rig lama. Tinggi disamakan dengan penambang lama (5.87). */
 const MINER_LOOK=[{skin:'s2',hair:{id:'short',dye:'brown'},eyes:{id:'round',dye:'blue'}},{skin:'s4',hair:{id:'spiky',dye:'black'},eyes:{id:'sharp',dye:'brown'}},{skin:'s1',hair:{id:'buzz',dye:'silver'},eyes:{id:'dot',dye:'gray'}}];
 function makeMiner(i){
  if(!UT.BlockyCharacter)return UT.CharacterView.make(THREE,NPC[i-1],'mine');
  const ch=UT.BlockyCharacter.create(THREE);
  ch.apply(Object.assign({gender:'m'},MINER_LOOK[(i-1)%MINER_LOOK.length]),true);
+ ch.setTool('pickaxe');   /* beliung di tangan kanan: ikut lengan & pergelangan (bukan objek lepas) */
  ch.tick(.016); /* pose rig terpasang setelah tick pertama: ukur SETELAH itu */
  const g=new THREE.Group(),w=new THREE.Group();w.add(ch.root);g.add(w);g.updateMatrixWorld(true);
  const bb=new THREE.Box3().setFromObject(ch.root),h=Math.max(.5,bb.max.y-bb.min.y),sc=5.87/h;
  w.scale.setScalar(sc);w.position.y=.23-bb.min.y*sc;
- let em='mine',lt=null,cyc=-1,nj=0;
- g.userData.setEmote=e=>{em=e;cyc=-1;nj=0;ch.setMode('idle')};
+ let em='mine',lt=null,nj=0,wt=0;
+ g.userData.setEmote=e=>{em=e;nj=0;wt=0;ch.setMode('idle')};
  g.userData.anim=t=>{const dt=lt==null||t<lt?.016:Math.min(.05,t-lt);lt=t;
-  if(em==='mine'){const c=Math.floor(t*2.4);if(c!==cyc){cyc=c;ch.act('attack',.42)}} /* ayunan tubuh tiap siklus (2.4x/detik), selaras dengan pivot kapak */
+  if(em==='mine'){if(!ch.acting)ch.act('mine')}   /* angkat-hantam-tarik berulang; hantaman dihitung rig (strikes) */
   else if(em==='cheer'){const j=Math.floor(t*1.5);if(j!==nj){nj=j;ch.jump()}}
+  else if(em==='sit'){wt+=dt;if(wt>3.2&&!ch.acting){wt=0;ch.act('wave')}}   /* peti penuh: melambai memanggil pemain */
   ch.tick(dt)};
+ Object.defineProperty(g.userData,'strikes',{get:()=>ch.strikes});
  return g}     /* skin berbeda dari skin pemain; wajah tiap penambang berbeda */
 function mountIsland(){
   if(isl||typeof THREE==='undefined'||!UT.MineIsland||!(UT.BlockyCharacter||UT.CharacterView))return;

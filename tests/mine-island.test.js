@@ -51,6 +51,13 @@ t('burst memunculkan partikel lalu hilang sendiri; dispose tidak error', () => {
   const I = make(); I.burst(2, 'emerald', 10); const vis = () => { let c = 0; I.units[2].U.traverse(o => { if (o.isMesh && o.geometry.parameters && o.geometry.parameters.width === 0.22 && o.visible) c++; }); return c; };
   assert.ok(vis() >= 8); for (let k = 0; k < 80; k++) I.frame(0.016, [null, 'full', 'full', 'full'], [0, 1, 1, 1]); assert.strictEqual(vis(), 0, 'partikel habis saat penambang diam'); I.dispose();
 });
+t('percikan batu muncul tepat saat rig melaporkan hantaman (strikes), bukan berdasar waktu', () => {
+  let strikes = 0; const mk = () => { const g = miner(); Object.defineProperty(g.userData, 'strikes', { get: () => strikes }); return g; };
+  const I = UT.MineIsland.create(THREE, { makeMiner: mk }); const st = [null, 'work', 'work', 'work'], sp = [0, 1, 1, 1];
+  const vis = () => { let c = 0; I.units[1].U.traverse(o => { if (o.isMesh && o.geometry.parameters && o.geometry.parameters.width === 0.22 && o.visible) c++; }); return c; };
+  for (let k = 0; k < 120; k++) I.frame(0.016, st, sp); assert.strictEqual(vis(), 0, 'tanpa hantaman: tanpa percikan');
+  strikes++; I.frame(0.016, st, sp); assert.ok(vis() >= 5, 'hantaman: percikan muncul ' + vis());
+});
 t('tambang.html memakai pulau 3D: satu kanvas, skrip dimuat sebelum dipakai, tanpa kanvas per slot', () => {
   const h = read('tambang.html');
   assert.ok(h.indexOf('mine-island.js') > h.indexOf('three.min.js') && h.indexOf('mine-island.js') > 0);
