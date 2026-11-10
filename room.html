@@ -238,7 +238,8 @@ function renderRoomHeader(){
  $('#cCode').textContent='KODE '+(S.room.code||'------');
 }
 function applyRemoteRoom(row){
- if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
+ if(!row)return;S.mpRoomId=row.id;const wasHost=HOST;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
+ if(HOST&&!wasHost&&S.room){toast('Host keluar. Kamu sekarang menjadi host');closeDrawer()} /* host baru dipilih acak oleh server; UI langsung berganti lewat realtime, tanpa refresh */
  S.room={id:row.id,max:Number(row.max_players)||0,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player',pub:p.public_profile||null}))};
  renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
  $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
