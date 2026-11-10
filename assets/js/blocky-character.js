@@ -1006,7 +1006,7 @@ const TS_UP={rArmS:-2.7,rElbow:-0.2,rWrist:0.5,rArmZ:-0.2,lArmS:0.2,lElbow:-0.3,
 const DR_LOW={rArmS:-0.35,rElbow:-0.3,rWrist:0.4,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.3,twist:0.05,headX:0.35,headY:0,rLegT:-0.35,rKnee:0.55,lLegT:0.25,lKnee:0.35};
 const DR_HI={rArmS:-0.8,rElbow:-0.45,rWrist:0.3,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.22,twist:0.05,headX:0.3,headY:0,rLegT:-0.3,rKnee:0.45,lLegT:0.2,lKnee:0.3};
 const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
-const ACT_DUR={toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
+const ACT_DUR={spinball:3.0,toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
 const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
 let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') — dibaca halaman untuk percikan batu */
 const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
@@ -1048,6 +1048,9 @@ function applyAct(T,dt){
     const c=act.t%1,a=c<0.22?ease3(c/0.22):1-0.75*ease3((c-0.22)/0.78);
     w=Math.min(1,act.t/0.15)*Math.min(1,(act.dur-act.t)/0.15);
     for(const k in TS_LOW)pose[k]=lerp(TS_LOW[k],TS_UP[k],a);
+  }else if(act.type==='spinball'){
+    w=Math.min(1,act.t/0.35)*Math.min(1,(act.dur-act.t)/0.3);
+    for(const k in TS_UP)pose[k]=TS_UP[k];pose.rArmS=-2.45;pose.rWrist=0.9;pose.rArmZ=-0.3+Math.sin(act.t*2.2)*0.05; /* lengan terangkat, dadu berputar di atas telapak */
   }else if(act.type==='dribble'){
     const a=Math.abs(Math.cos(Math.PI*((act.t%0.6)/0.6)));
     w=Math.min(1,act.t/0.2)*Math.min(1,(act.dur-act.t)/0.2);
