@@ -302,7 +302,7 @@ function mountIsland(){
     [1,2,3].forEach(i=>{bays[i]={setFill:f=>isl.setFill(i,f),burst:(k,n)=>isl.burst(i,k,n)}});
     const fit=()=>{const w=cv.clientWidth||600,h=cv.clientHeight||360;renderer.setSize(w,h,false);isl.fit(w,h)};
     fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(cv);else addEventListener('resize',fit);
-    /* ketuk gundukan = pilih slot */
+    /* ketuk gua = pilih slot */
     cv.addEventListener('click',ev=>{const r=cv.getBoundingClientRect(),n=isl.pick(((ev.clientX-r.left)/r.width)*2-1,-(((ev.clientY-r.top)/r.height)*2-1));if(n){select(n);playSound();buzz()}});
     select(SEL,true);
     clock=new THREE.Clock();loop();
