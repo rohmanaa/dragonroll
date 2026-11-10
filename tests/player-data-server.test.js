@@ -345,6 +345,55 @@ t('Tahap 6d: walletReady tetap true setelah reload (cache sebelumnya valid) dan 
   assert.strictEqual(boot({}).PD.walletReady(), false);
 });
 
+/* ---------- Power-up berstok + riwayat dompet (WalletService) ---------- */
+t('WS.history: kirim p_limit terbatas 1..100, hasil array terbaru dulu; mode lokal tidak memanggil server', async () => {
+  const rows = [{ id: 9, coins: -120, gems: 0, reason: 'buy_power', at: '2026-11-23T10:00:00Z' }, { id: 8, coins: 100, gems: 0, reason: 'boss_cpu', at: '2026-11-23T09:00:00Z' }];
+  const e = svc({ wallet_history: () => rows });
+  const r = await e.S.history(500); assert.strictEqual(r.ok, true); assert.deepStrictEqual(r.items, rows);
+  assert.deepStrictEqual(e.calls[0], ['wallet_history', { p_limit: 100 }]);
+  await e.S.history(0); assert.deepStrictEqual(e.calls[1], ['wallet_history', { p_limit: 20 }]);   /* kosong/0 -> default 20 */
+  const none = svc({ wallet_history: () => null }); assert.deepStrictEqual((await none.S.history(5)).items, []);
+  const lokal = svc(base, false); assert.strictEqual((await lokal.S.history(5)).reason, 'mode-lokal'); assert.strictEqual(lokal.calls.length, 0);
+});
+t('WS.history: gagal jaringan / belum login tidak melempar dan tidak mengubah saldo', async () => {
+  const e = svc({ wallet_history: () => ({ __err: 'Failed to fetch' }) }); e.PD.applyServerWallet({ coins: 77, gems: 1 });
+  assert.strictEqual((await e.S.history(5)).reason, 'jaringan'); assert.strictEqual(e.PD.coins(), 77);
+  const a = svc({ wallet_history: () => ({ __err: 'AUTH_REQUIRED' }) }); assert.strictEqual((await a.S.history(5)).reason, 'belum-login');
+});
+t('WS.buyPowerup: kirim item+jumlah+op_id; sukses memperbarui saldo & stok; op_id yang diberikan dipakai apa adanya', async () => {
+  const e = svc({ buy_powerup: a => ({ ok: true, item: a.p_item_id, bought: a.p_qty, spent: 120 * a.p_qty, qty: a.p_qty, coins: 640, gems: 0 }),
+                  inventory_get: () => [{ id: 'sword', qty: 5 }] });
+  const r = await e.S.buyPowerup('sword', 5, 'op-test-0001'); assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(e.calls[0], ['buy_powerup', { p_item_id: 'sword', p_qty: 5, p_op_id: 'op-test-0001' }]);
+  assert.strictEqual(e.PD.coins(), 640); assert.strictEqual(e.PD.qty('sword'), 5);
+});
+t('WS.buyPowerup: op_id dibuat otomatis (>=8 huruf) bila tidak diberikan; jumlah dibulatkan ke bawah; ditolak server = cermin tak berubah', async () => {
+  const e = svc({ buy_powerup: () => ({ ok: false, reason: 'saldo-kurang', kurang: 50 }) }); e.PD.applyServerWallet({ coins: 10, gems: 0 });
+  const r = await e.S.buyPowerup('tnt', 2.9); assert.strictEqual(r.reason, 'saldo-kurang');
+  assert.strictEqual(e.calls[0][1].p_qty, 2); assert.ok(String(e.calls[0][1].p_op_id).length >= 8);
+  assert.strictEqual(e.PD.coins(), 10); assert.strictEqual(e.PD.qty('tnt'), 0);
+});
+t('WS.usePower: kirim item+use_id; sukses menyegarkan stok lokal; stok-habis/jaringan dikembalikan apa adanya; mode lokal tidak memanggil server', async () => {
+  const inv = [{ id: 'sword', qty: 4 }];
+  const e = svc({ use_powerup: a => ({ ok: true, item: a.p_item_id, qty: 3 }), inventory_get: () => inv });
+  const r = await e.S.usePower('sword', 'pu:test:sword:1'); assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(e.calls[0], ['use_powerup', { p_item_id: 'sword', p_use_id: 'pu:test:sword:1' }]);
+  await new Promise(r => setTimeout(r, 20));   /* refreshInventory jalan di latar belakang */
+  assert.ok(e.calls.some(c => c[0] === 'inventory_get'));
+  const habis = svc({ use_powerup: () => ({ ok: false, reason: 'stok-habis', qty: 0 }) }); assert.strictEqual((await habis.S.usePower('sword', 'pu:test:sword:2')).reason, 'stok-habis');
+  const down = svc({ use_powerup: () => ({ __err: 'Failed to fetch' }) }); assert.strictEqual((await down.S.usePower('sword', 'pu:test:sword:3')).reason, 'jaringan');
+  const lokal = svc(base, false); assert.strictEqual((await lokal.S.usePower('sword', 'pu:test:sword:4')).reason, 'mode-lokal'); assert.strictEqual(lokal.calls.length, 0);
+});
+t('Katalog: harga power-up klien = harga migrasi server (202611230001) dan buy_item tidak menjual power-up', () => {
+  const sql = fs.readFileSync(path.join(__dirname, '../supabase/migrations/202611230001_powerup_stock.sql'), 'utf8');
+  const block = sql.slice(sql.indexOf('from (values'), sql.indexOf(') as v(id, p)'));
+  const srv = {}; for (const m of block.matchAll(/\('([a-z_]+)',\s*(\d+)\)/g)) srv[m[1]] = Number(m[2]);
+  const IC = boot().IC; const pw = IC.items.filter(i => i.kind === 'powerup');
+  assert.ok(pw.length >= 17); pw.forEach(i => assert.strictEqual(i.price, srv[i.id], 'harga ' + i.id));
+  assert.strictEqual(Object.keys(srv).length, pw.length, 'semua power-up berharga di server');
+  assert.ok(IC.POWER_CARRY_MAX >= 1 && IC.POWER_TYPES_MAX >= 1);
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');

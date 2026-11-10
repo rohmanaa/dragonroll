@@ -82,6 +82,16 @@
       });
     }
 
+    /* Riwayat transaksi dompet (server: wallet_history, terbaru dulu, maks. 100). Hanya baca; tidak mengubah saldo/cermin.
+       Hasil: {ok:true, items:[{id, coins, gems, reason, at}]} | {ok:false, reason:'mode-lokal'|'belum-login'|'jaringan'} */
+    async function history(limit) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try {
+        var r = await rpc('wallet_history', { p_limit: Math.max(1, Math.min(100, Math.floor(Number(limit) || 20))) });
+        return { ok: true, items: Array.isArray(r) ? r : [] };
+      } catch (e) { return fail(e); }
+    }
+
     /* ----- Power-up berstok (server: buy_powerup / use_powerup) -----
        buyPowerup: beli N unit (1..99). opId unik per pembelian: kirim ulang opId yang sama tidak menagih dua kali.
        usePower: stok -1 saat Power benar-benar dipakai (useId unik per pemakaian). Loadout di Room TIDAK memotong stok. */
@@ -214,7 +224,7 @@
     }
 
     return {
-      enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, buyPowerup: buyPowerup, usePower: usePower, exchange: exchange,
+      enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, buyPowerup: buyPowerup, usePower: usePower, history: history, exchange: exchange,
       dailyGet: dailyGet, claimDaily: claimDaily,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,

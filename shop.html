@@ -386,6 +386,12 @@ html body #idesc{color:#cdd8ea}
 #gemPanel .gbig{width:11rem;height:11rem;object-fit:contain;display:block;margin:auto;filter:drop-shadow(0 .3rem .3rem rgba(0,0,0,.35))}
 #adbtn{display:flex;align-items:center;justify-content:center;gap:1rem;height:6rem;border-radius:3rem;font-size:2.4rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .4rem 0 #c96a0c,inset 0 .25rem .25rem rgba(255,255,255,.6);text-shadow:0 .12rem 0 #8a4a0a}
 #adbtn img{width:3.2rem;height:3.2rem;display:block}
+#histbtn{display:flex;align-items:center;justify-content:center;height:5.4rem;padding:0 2.4rem;margin:0 auto;border-radius:2.7rem;font-size:2.2rem;color:#fff;border:0;font-family:inherit;background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 .4rem 0 #2f5090,inset 0 .2rem .2rem rgba(255,255,255,.5);text-shadow:0 .12rem 0 rgba(0,0,0,.4);cursor:pointer}
+#histlist{display:flex;flex-direction:column;gap:.6rem;margin-top:1rem}
+.hr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.2rem;border-radius:1.2rem;background:rgba(10,20,40,.45);font-size:1.7rem}
+.hr .hl{min-width:0}.hr .hl b{display:block;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hr .hl small{font-size:1.2rem;color:#a9b9d3;font-weight:700}
+.hr .ha{display:flex;gap:1rem;font-weight:900;flex:none}.hr .ha span{display:flex;align-items:center;gap:.3rem}.hr .ha img{width:2rem;height:2rem}.hr .up{color:#7dff8a}.hr .dn{color:#ff9a9a}
+.hempty{text-align:center;font-size:1.6rem;color:#cdd8ea;padding:1rem}
 #adinfo{font-size:1.4rem;font-weight:700;color:#cdd8ea;text-align:center;min-height:1.8rem}
 .pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
 .panel-hl{animation:phl .9s}@keyframes phl{30%{box-shadow:0 0 0 .4rem #ffe36a,0 0 2.4rem #ffd24d}}
@@ -422,6 +428,12 @@ html body #idesc{color:#cdd8ea}
       <button id="adbtn"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M7 4l13 8-13 8z" fill="#fff"/></svg>Tonton Iklan</button>
       <div id="adinfo"></div>
     </section>
+    <section class="spanel" id="histPanel" aria-label="Riwayat transaksi">
+      <h2>Riwayat</h2>
+      <p>20 transaksi Coin dan Emerald terakhir.</p>
+      <button id="histbtn" type="button">Lihat Riwayat</button>
+      <div id="histlist" role="list"></div>
+    </section>
   </main>
 </div>
 
@@ -448,6 +460,22 @@ function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)}
 function sparkle(el,n=12){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;for(let i=0;i<n;i++){const s=document.createElement('i');s.className='sp';s.style.left=cx+'px';s.style.top=cy+'px';const a=Math.random()*6.28,d=30+Math.random()*60;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),850)}}
+/* Riwayat dompet (server). Label per alasan ledger; alasan tak dikenal ditampilkan apa adanya. */
+const HLAB={buy:'Beli item',buy_set:'Beli set gear',buy_power:'Beli power-up',daily:'Hadiah harian',boss:'Hadiah Ender Dragon',boss_cpu:'Hadiah lawan CPU',mine_unlock:'Buka tambang',mine_upgrade:'Upgrade tambang',mine_collect:'Hasil tambang',mine_boost:'Boost tambang',exchange:'Tukar Emerald ke Coin',ad:'Hadiah iklan',quest:'Hadiah misi',quest_bonus:'Bonus misi',achievement:'Pencapaian'};
+const hEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function hAmt(n,ic){n=Number(n)||0;if(!n)return'';return`<span class="${n>0?'up':'dn'}"><img src="assets/Images/icon/currency/${ic}.webp" alt="" draggable="false">${n>0?'+':'−'}${fmt(Math.abs(n))}</span>`}
+async function loadHistory(){
+  const box=$('#histlist'),btn=$('#histbtn');
+  if(!SV()||!WS()){box.innerHTML='<div class="hempty">Riwayat tersedia setelah login ke akun.</div>';return}
+  btn.disabled=true;btn.textContent='Memuat…';
+  const r=await WS().history(20);
+  btn.disabled=false;btn.textContent='Muat Ulang';
+  if(!r||!r.ok){box.innerHTML='<div class="hempty">'+(r&&r.reason==='belum-login'?'Sesi berakhir, login ulang.':'Tidak dapat terhubung ke server.')+'</div>';return}
+  if(!r.items.length){box.innerHTML='<div class="hempty">Belum ada transaksi.</div>';return}
+  box.innerHTML=r.items.map(x=>{const d=new Date(x.at),t=isNaN(d)?'':d.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return`<div class="hr" role="listitem"><div class="hl"><b>${hEsc(HLAB[x.reason]||x.reason)}</b><small>${hEsc(t)}</small></div><div class="ha">${hAmt(x.coins,'coin')}${hAmt(x.gems,'emerald')}</div></div>`}).join('');
+}
+$('#histbtn').addEventListener('click',()=>{loadHistory();playSound&&playSound('click')});
 function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
