@@ -238,13 +238,16 @@ function renderRoomHeader(){
 }
 function applyRemoteRoom(row){
  if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
- S.room={id:row.id,max:Number(row.max_players)||0,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
+ S.room={id:row.id,max:Number(row.max_players)||0,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player',pub:p.public_profile||null}))};
  renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
  $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
  renderPlayers();renderBottom();
  if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched&&!(sessionStorage.getItem('ut-mp-exited')===String(row.id))){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
 }
+/* Profil publik (flexing): hanya ID kosmetik yang sedang dipakai. Gagal = diabaikan (kosmetik, tidak boleh mengganggu room). */
+function pubProfile(){const o={};[['characterSkinId','skin'],['diceId','dice'],['frameId','frame'],['effectId','effect']].forEach(([k,slot])=>{try{const v=PD.equippedId(slot);if(typeof v==='string'&&v&&v.length<=48)o[k]=v}catch(e){}});return o}
+function publishProfile(){try{if(ONLINE&&S.mpRoomId&&UT.Multiplayer.RoomService&&UT.Multiplayer.RoomService.setPublicProfile)UT.Multiplayer.RoomService.setPublicProfile(S.mpRoomId,pubProfile()).catch(()=>{})}catch(e){}}
 async function setupOnline(){
  try{
   const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
@@ -255,7 +258,7 @@ async function setupOnline(){
    if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:TEAM?4:2,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
-  applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
+  applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);publishProfile();
   try{const PR=UT.Multiplayer.Presence;if(PR){const INV=HOST?q.get('invite'):null;PR.start({status:'room'}).then(()=>{if(INV&&/^[0-9a-f-]{36}$/i.test(INV)&&row.code)return PR.invite(INV,{code:row.code,format:FORMAT}).then(()=>toast('Undangan terkirim'))}).catch(()=>{});PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()})}}catch(_){}
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
@@ -282,7 +285,7 @@ function renderChoice(){
  $('#cmT').textContent='🎒 PILIH '+EQ.find(x=>x[0]===CK)[2];
  $('#cmL').innerHTML=own.map(it=>`<div class="co"><span class="cp">${art(it)}</span><div class="pi"><b>${esc(it.name)}</b><small>${esc(it.desc||'')}</small></div><button class="bt ${cur===it.id?'sent':''}" data-id="${it.id}" ${cur===it.id?'disabled':''}>${cur===it.id?'✓ DIPAKAI':'PAKAI'}</button></div>`).join('')||'<div class="emp">Belum ada item.</div>';
 }
-$('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)return;const r=PD.equip(b.dataset.id);if(!r.ok)return toast('Tidak bisa dipakai');renderEq();closeChoice();toast(IC.byId(b.dataset.id).name+' dipakai')};
+$('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)return;const r=PD.equip(b.dataset.id);if(!r.ok)return toast('Tidak bisa dipakai');renderEq();publishProfile();closeChoice();toast(IC.byId(b.dataset.id).name+' dipakai')};
 $('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeChoice()};
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
 const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
@@ -332,7 +335,9 @@ function avatar(p){
  const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId;
  /* pemain sendiri: foto profil = wajah karakter yang dipakai + frame yang sedang dipakai (sama dengan Lobby) */
  if(isMe&&window.UT&&UT.CharacterFace&&window.FrameAvatar){const f=UT.CharacterFace.html('');if(f)return FrameAvatar.wrap('<span class="av av-face">'+f+'</span>','4.2rem',FrameAvatar.mine())}
- return `<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`}
+ const base=`<span class="av">${esc(p.name[0]||'?').toUpperCase()}</span>`,pf=p.pub&&typeof p.pub.frameId==='string'?p.pub.frameId:'';
+ if(pf&&window.FrameAvatar&&IC.byId(pf)&&IC.byId(pf).kind==='frame')return FrameAvatar.wrap(base,'4.2rem',pf); /* profil publik pemain lain (frame yang dipakai) */
+ return base}
 const CROWN='<svg viewBox="0 0 24 24" aria-label="Host"><path d="M3 18.5h18l1-11.5-5.2 4.2L12 4 7.2 11.2 2 7z" fill="#ffe14d" stroke="#7a4a00" stroke-width="1.4" stroke-linejoin="round"/><rect x="3" y="18.5" width="18" height="2.6" rx="1" fill="#f0a010" stroke="#7a4a00" stroke-width="1.2"/></svg>';
 function prow(p,i){const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId,isHost=p.kind==='host',
  col=TEAM?(p.team===2?'c0':'c1'):'c'+((i||0)%4),blk=isHost?CROWN:(p.ready?'Ready':'Waiting'),
@@ -382,7 +387,7 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:ONLINE?[]:PW.equipped.filter(pOk),carry:ONLINE?{}:PW.carry,
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind,pub:p.pub||null})),powers:ONLINE?[]:PW.equipped.filter(pOk),carry:ONLINE?{}:PW.carry,
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?null:(di&&di.gameKey)}} /* online: dadu = milik masing-masing pemain (equipped), bukan 'klasik' paksa */
 function launch(){clearT();RF.launch(cfg())}
 async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}

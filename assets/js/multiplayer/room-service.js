@@ -16,6 +16,8 @@ async function listRequests(){await ensurePlayer();const c=await MP.getClient();
 async function removeFriend(id){await ensurePlayer();return rpc('remove_friend',{p_friend_id:id})}
 async function listFriends(){await ensurePlayer();const c=await MP.getClient();let r=await c.rpc('list_my_friends'); /* nama = username akun saat ini (202611100004); migrasi belum diterapkan -> pakai salinan lama */
  if(r.error)r=await c.from('friendships').select('friend_id,friend_name').order('friend_name');if(r.error)throw r.error;return r.data||[]}
+/* Profil publik = hanya ID kosmetik yang sedang dipakai (characterSkinId, diceId, frameId, effectId; string <=48). Server menyaring kunci lain dan menolak non-anggota room. */
+async function setPublicProfile(roomId,profile){await ensurePlayer();return rpc('set_game_public_profile',{p_room_id:roomId,p_profile:profile||{}})}
 async function setSlots(roomId,max){await ensurePlayer();return rpc('set_game_room_slots',{p_room_id:roomId,p_max_players:max})}
 async function exitRoom(roomId){await ensurePlayer();return rpc('exit_game_room',{p_room_id:roomId})}
 async function heartbeat(roomId){await ensurePlayer();return rpc('heartbeat_game_room',{p_room_id:roomId})}
@@ -36,4 +38,4 @@ function subscribe(roomId,onRoom){
 }
 async function submitMatchResult(o){await ensurePlayer();return rpc('submit_match_result',{p_match_id:o.matchId,p_won:!!o.won,p_name:o.name,p_xp_total:Math.max(0,Math.floor(+o.xpTotal||0)),p_room_id:o.roomId||null,p_mode:o.mode||null,p_players:o.players||null,p_stats:o.stats||null})}
 async function getLeaderboard(scope,limit){await ensurePlayer();return rpc('get_leaderboard',{p_scope:scope,p_limit:limit||50})}
-Object.assign(MP,{RoomService:{activeRoom,submitMatchResult,getLeaderboard,sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});
+Object.assign(MP,{RoomService:{setPublicProfile,activeRoom,submitMatchResult,getLeaderboard,sendFriendRequest,acceptFriendRequest,declineFriendRequest,listRequests,removeFriend,listFriends,setSlots,exitRoom,ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,startRoom,getRoom,heartbeat,subscribe}});

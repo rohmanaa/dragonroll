@@ -5387,9 +5387,13 @@ const FRM={},FFURL={};
 (function(){ try{ window.ItemCatalog.items.filter(i=>i.kind==='frame').forEach(i=>{ const im=new Image(); im.onload=()=>{ try{ if(typeof renderChips==='function'&&typeof players!=='undefined'&&players&&players.length) renderChips(); }catch(e){} }; im.src=i.image; FRM[i.id]=im; }); }catch(e){} })();
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
 function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
-function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
-/* Wajah pemain 1 (lokal, bukan CPU/online) = kepala karakter baru (UT.CharacterFace). Gambar dimuat sekali; sebelum siap dipakai wajah lama, lalu HUD di-render ulang. */
-const NIMG={}; let NFN=0;
+function frameOf(p){ if(ONLINE_ROOM){ /* online: frame = profil publik pemain itu (server: set_game_public_profile); diri sendiri = yang sedang dipakai; tak ada / tak dikenal = default */
+    try{ let f=null;
+      if(p&&MP_ID&&p.networkId===MP_ID) f=window.PlayerData.equippedId('frame');
+      else { const x=((ROOM_CFG&&ROOM_CFG.players)||[]).find(q=>q.id===(p&&p.networkId)); f=x&&x.pub&&x.pub.frameId; }
+      if(f&&FRM[f]) return f; }catch(e){}
+    return 'frame.default'; }
+  try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 function newFaceSrc(p){ const u=p&&p.pawn&&p.pawn.userData; if(!u||u.bcSeed==null||!UT.CharacterFace) return ''; const sd=u.bcSeed; if(sd&&typeof sd==='object') return UT.CharacterFace.urlData?UT.CharacterFace.urlData(sd):''; return sd<0?UT.CharacterFace.url():(UT.CharacterFace.urlPreset?UT.CharacterFace.urlPreset(sd):''); }
 function newFaceImg(p){
   try{
