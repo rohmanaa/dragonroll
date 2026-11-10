@@ -5664,8 +5664,10 @@ function trapGroup(key,hex,ghost){
   const ring=new THREE.Mesh(new THREE.RingGeometry(0.34,0.46,32),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.9*op,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
   ring.rotation.x=-Math.PI/2; ring.position.y=0.03; g.add(ring);
   /* objek = gambar 3D asli power (data/power/3d), berdiri di petak sebagai sprite */
-  const m=new THREE.Sprite(new THREE.SpriteMaterial({map:trapTex3(key),transparent:true,opacity:op,depthWrite:false,fog:false,toneMapped:false}));
-  m.center.set(0.5,0.14); m.scale.setScalar(TRAP_SIZE); m.position.y=0.04;
+  /* bidang gambar: sisi bawah gambar menempel di petak, badan rebah condong ke belakang (bukan tegak menghadap samping); yaw mengikuti kamera di trapTick */
+  const pg=new THREE.PlaneGeometry(1,1); pg.translate(0,0.5,0);
+  const m=new THREE.Mesh(pg,new THREE.MeshBasicMaterial({map:trapTex3(key),transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false}));
+  m.rotation.order='YXZ'; m.rotation.x=-1.05; m.scale.setScalar(TRAP_SIZE); m.position.set(0,0.04,0); m.renderOrder=2;
   g.add(m);
   g.userData={ring:ring,sp:m,y0:0,ph:Math.random()*6,born:performance.now()};
   return g;
@@ -5684,7 +5686,7 @@ function trapRemove(t){ const i=TRAPS.indexOf(t); if(i>=0) TRAPS.splice(i,1); co
 function trapsClear(){ TRAPS.slice().forEach(trapRemove); TRAPS=[]; TRAP_SEQ=0; }
 function trapTick(now){ /* melayang + cincin berputar + muncul membesar (dipanggil frame()) */
   for(const id in TRAPM){ const g=TRAPM[id],u=g.userData,age=Math.min(1,(performance.now()-u.born)/320);
-    u.ring.rotation.z+=0.012; g.scale.setScalar(0.4+0.6*age*(2-age)); } /* tidak melayang: model tetap di permukaan petak */
+    u.ring.rotation.z+=0.012; u.sp.rotation.y=Math.atan2(camera.position.x-g.position.x,camera.position.z-g.position.z); g.scale.setScalar(0.4+0.6*age*(2-age)); } /* tidak melayang: model tetap di permukaan petak */
 }
 function trapsSync(list){ /* guest: samakan dengan snapshot host */
   const key=a=>a.map(t=>t.id+':'+t.tile+':'+t.key).join('|');
