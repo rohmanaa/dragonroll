@@ -309,6 +309,7 @@ html body #bot{gap:.8rem}
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/aura-fx.js"></script><script src="assets/js/aura-view.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
@@ -1828,6 +1829,15 @@ try{const WS=window.UT&&UT.WalletService&&UT.WalletService.get();
 
 const camTarget=new THREE.Vector3(0,0.85,0);
 let last=performance.now(),lastPh=-1;
+/* Aura yang sedang dipakai (dipilih di halaman Efek) tampil di pratinjau karakter; dicek ~tiap 20 frame (ganti aura / tinggi badan) */
+let AUR=null,auraKey,auraH=-1,auraTick=0;
+function auraSync(){try{
+  if(!(window.UT&&UT.AuraView&&UT.AuraFX))return;
+  const k=UT.AuraView.equippedKey()||null,h=cfg.body.height;
+  if(k===auraKey&&h===auraH)return;
+  auraKey=k;auraH=h;if(!AUR)AUR=UT.AuraView.create(scene,camera);
+  AUR.clear(root);scene.updateMatrixWorld(true);AUR.set(root,k);
+}catch(e){}}
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,0.05);last=now;time+=dt;
@@ -1854,6 +1864,7 @@ function frame(now){
     camTarget.y+Math.sin(camPitch)*camDist,
     camTarget.z+Math.cos(camYaw)*Math.cos(camPitch)*camDist);
   camera.lookAt(camTarget);
+  if((auraTick++%20)===0)auraSync();if(AUR)AUR.update(dt);
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);

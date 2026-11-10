@@ -75,4 +75,9 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   }
   assert.ok(/keyFromEquipped\(seed\.equipped\)/.test(read('gameplay.html')), 'pemain lain: aura dari data server');
 });
+t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
+  const g = read('karakter.html'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
+  assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('aura-fx.js') && i('aura-fx.js') < i('aura-view.js'));
+  assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(g) && /AUR\.update\(dt\)/.test(g) && /auraSync\(\)/.test(g) && /AUR\.clear\(root\)/.test(g));
+});
 console.log(n + ' tes lulus');
