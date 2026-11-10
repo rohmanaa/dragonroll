@@ -49,4 +49,13 @@ t('tinggi dari opsi height dipakai (pion kecil di gameplay) & tanpa AuraFX tidak
   const B = AV.create(scene, cam); B.set(c.root, auras[0].gameKey); B.update(.016); B.clearAll();
   assert.strictEqual(AV.equippedKey(), null); UT.AuraFX = saved;
 });
+t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-fx -> aura-view) dan memakai UT.AuraView', () => {
+  for (const f of ['lobby.html', 'profile.html', 'gameplay.html']) {
+    const g = read(f), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
+    assert.ok(i('vendor/three.min.js') < i('blocky-character.js') || f === 'lobby.html', f);
+    assert.ok(i('three.min.js') < i('aura-fx.js') && i('blocky-character.js') < i('aura-fx.js') && i('aura-fx.js') < i('aura-view.js'), f);
+    assert.ok(/UT\.AuraView\.create\(/.test(g) && /\.update\(dt\)/.test(g), f);
+  }
+  assert.ok(/keyFromEquipped\(seed\.equipped\)/.test(read('gameplay.html')), 'pemain lain: aura dari data server');
+});
 console.log(n + ' tes lulus');

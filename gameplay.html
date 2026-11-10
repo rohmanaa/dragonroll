@@ -1269,6 +1269,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
 <script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script>
+<script src="assets/js/aura-fx.js"></script><script src="assets/js/aura-view.js"></script>
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'gameplay'});</script>
 <script src="gameplay/module-bridge.js"></script>
@@ -1432,7 +1433,11 @@ function loadSkin3D(k){
 /* Aksi karakter baru: 'attack' (ayun senjata) / 'block' (bertahan dgn perisai saat kena serang). Aman dipanggil untuk pion mana pun (diabaikan bila bukan karakter baru). */
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
 /* Ganti model pion (mis. setelah tampilan pemain lain dari server tiba). spec: <0 = milik sendiri, >=0 = preset, objek = baris room_appearance_get. */
-function repawnNew(pawn,spec){ try{ const u=pawn&&pawn.userData,pal=u&&u.pal; if(!pal) return; if(u.png){ pawn.remove(u.png); u.png=null; u.bc=null; u.bcLast=null; u.bcMode=null; } pal.visible=true; upgradePawnNew(pawn,pal,spec); }catch(e){} }
+/* Aura (slot 'aura', dipilih di halaman Efek) menempel ke pion karakter baru: milik sendiri = aura yang dipakai; pemain lain = aura dari data server.
+   Satu AuraSystem untuk seluruh scene; dipasang malas di loop frame setelah pion masuk scene. Kualitas dibatasi 'medium' (banyak pion). */
+let PAURA=null;
+function pawnAuraCtl(){ if(!PAURA&&UT.AuraView&&UT.AuraFX){ try{ const q=UT.AuraView.quality(); PAURA=UT.AuraView.create(scene,camera,{quality:q==='high'?'medium':q}); }catch(e){} } return PAURA; }
+function repawnNew(pawn,spec){ try{ const u=pawn&&pawn.userData,pal=u&&u.pal; if(!pal) return; if(u.bc&&PAURA) PAURA.clear(u.bc.root); u.auraOn=false; if(u.png){ pawn.remove(u.png); u.png=null; u.bc=null; u.bcLast=null; u.bcMode=null; } pal.visible=true; upgradePawnNew(pawn,pal,spec); }catch(e){} }
 /* Online: pemain lokal = tampilannya sendiri; pemain lain = tampilan dari server (room_appearance_get), tanpa data = preset. */
 async function applyOnlineLooks(gid){
   if(!ONLINE_ROOM) return;
@@ -1458,6 +1463,7 @@ function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData);
     const sc=0.92/h; w.scale.setScalar(sc); w.position.y=-bb.min.y*sc; /* tinggi ~ pion lama (0.9), telapak di y=0 */
     w.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=false; } });
     g.add(w); pal.visible=false; g.userData.png=w; g.userData.bc=ch; g.userData.bcSeed=(seed==null?-1:seed);
+    { const AVw=UT.AuraView; g.userData.auraKey=AVw?((seed&&typeof seed==='object')?AVw.keyFromEquipped(seed.equipped):((seed==null||seed<0)?AVw.equippedKey():null)):null; g.userData.auraOn=false; g.userData.auraH=0.92; } /* tinggi dunia pion = 0.92 */
     if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
   }catch(e){ console.warn('karakter baru gagal dimuat, pakai pion lama',e); }
 }
@@ -6331,7 +6337,7 @@ function finishGame(p,fromRemote){
 function startGame(m,keys){
   mode=m; gameId++; MATCH_TOKEN=Date.now().toString(36)+Math.random().toString(36).slice(2,8); msReset(); busy=false; gameOver=false; winnerIndex=-1; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
-  players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
+  if(PAURA) PAURA.clearAll(); players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
   trapsClear(); applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
@@ -6685,7 +6691,10 @@ function frame(now){
     const u=pw.userData,lp=u.bcLast||(u.bcLast=pw.position.clone()),sp=dt>0?Math.hypot(pw.position.x-lp.x,pw.position.z-lp.z)/dt:0; lp.copy(pw.position);
     if(sp>0.5&&sp<14) u.bcHold=0.15; else u.bcHold=Math.max(0,(u.bcHold||0)-dt);
     const md=u.bcHold>0?(u.bcStyle==='run'?'run':'walk'):'idle'; if(md!==u.bcMode){ u.bcMode=md; b.setMode(md); }
-    b.tick(dt); }catch(e){ players[i].pawn.userData.bc=null; } } }
+    b.tick(dt);
+    if(u.auraKey&&!u.auraOn&&pw.parent){ const A=pawnAuraCtl(); if(A){ A.set(b.root,u.auraKey,{height:u.auraH}); u.auraOn=true; } } /* aura menempel setelah pion masuk scene */
+    }catch(e){ players[i].pawn.userData.bc=null; } } }
+  if(PAURA) PAURA.update(dt);
   const m=1-Math.exp(-dt*10);
   cam.yaw+=(goal.yaw-cam.yaw)*m; cam.pitch+=(goal.pitch-cam.pitch)*m; cam.zoom+=(goal.zoom-cam.zoom)*m;
   let tx=CAM_BASE.x,ty=CAM_BASE.y,tz=CAM_BASE.z;
