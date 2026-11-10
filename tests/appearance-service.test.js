@@ -201,6 +201,21 @@ t('PlayerData.appearance(): hanya slot equip, salinan; applyServerAppearance han
   assert.strictEqual(g.PD.appearance().look, null);
 });
 
+t('refreshThrottled: tarik dari server sekali, lalu lewati dalam ttl; setelah ttl menarik lagi; tanpa akun = mode-lokal', async () => {
+  const b = loginOn(); let clock = 1000000; const mem = {};
+  const storage = { getItem: k => (k in mem ? mem[k] : null), setItem: (k, v) => { mem[k] = String(v); } };
+  const fc = fakeClient({ inventory_get: () => [], appearance_get: () => ({ found: false }), appearance_set: () => ({ ok: true }), outfit_list: () => [] });
+  const s = Svc.create({ PlayerData: b.PD, getClient: fc.getClient, storage, now: () => clock });
+  const r1 = await s.refreshThrottled(20000); assert.strictEqual(r1.ok, true); assert.notStrictEqual(r1.skipped, true);
+  const calls1 = fc.calls.length; assert.ok(calls1 > 0, 'harus memanggil server');
+  clock += 5000; const r2 = await s.refreshThrottled(20000);
+  assert.strictEqual(r2.skipped, true); assert.strictEqual(fc.calls.length, calls1, 'dalam ttl tidak boleh memanggil server');
+  clock += 20000; const r3 = await s.refreshThrottled(20000);
+  assert.notStrictEqual(r3.skipped, true); assert.ok(fc.calls.length > calls1, 'setelah ttl harus menarik lagi');
+  const off = Svc.create({ PlayerData: boot({}).PD, getClient: fakeClient({}).getClient, storage: null });
+  assert.strictEqual((await off.refreshThrottled()).reason, 'mode-lokal');
+});
+
 (async () => {
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok - ' + name); }
   console.log('\n' + n + ' tes lulus');

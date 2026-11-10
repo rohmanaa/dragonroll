@@ -6,9 +6,17 @@ t('lobi memuat appearance-service.js setelah wallet-service.js', () => {
   const w = h.indexOf('assets/js/wallet-service.js'), a = h.indexOf('assets/js/appearance-service.js');
   assert.ok(w > 0 && a > w, 'urutan skrip salah');
 });
-t('lobi memanggil AppearanceService.refresh() untuk akun server (dibatasi 1x/20 dtk)', () => {
-  assert.ok(/UT\.AppearanceService\.get\(\)/.test(h)); assert.ok(/A\.refresh\(\)/.test(h)); assert.ok(h.indexOf("'ut:app-sync'") > 0);
+t('lobi memanggil AppearanceService.refreshThrottled() hanya untuk akun server', () => {
+  assert.ok(/UT\.AppearanceService\.get\(\)/.test(h)); assert.ok(/A\.refreshThrottled\(\)/.test(h));
   assert.ok(/PD\.serverMode&&PD\.serverMode\(\)&&UT\.AppearanceService/.test(h), 'hanya akun server');
+});
+t('profil, efek, dan leaderboard juga menarik tampilan aktif dari server dan menggambar ulang', () => {
+  ['profile', 'efek', 'leaderboard'].forEach(f => {
+    const x = fs.readFileSync(path.join(__dirname, '../' + f + '.html'), 'utf8');
+    assert.ok(/refreshThrottled\(\)/.test(x), f + ': tidak memanggil refreshThrottled');
+    assert.ok(/r==='server-appearance'\|\|r==='server-outfits'/.test(x), f + ': tidak menggambar ulang saat tampilan dari server masuk');
+    assert.ok(x.indexOf('assets/js/appearance-service.js') > 0, f + ': appearance-service.js tidak dimuat');
+  });
 });
 t('karakter & avatar dibangun ulang saat tampilan/outfit dari server masuk', () => {
   const m = h.match(/PD\.subscribe\(r=>\{if\(r==='equip'[^\n]*\}\);/);

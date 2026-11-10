@@ -373,7 +373,7 @@ const myKey=()=>{try{const it=ItemCatalog.byId(PlayerData.equippedId('skin'));re
 const oldFace=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
 /* 'Kamu' = kepala karakter baru (BlockyCharacter, sama dgn halaman Karakter); fallback ke skin lama bila WebGL tidak ada */
 /* Pemain lain = tampilan asli dari server (appearance_get_many, BlockyCharacter); belum punya data = tampilan awal builder */
-const APP={},EMPTY={look:null,equipped:{},gear_dye:{}};
+const APP={},EMPTY={look:null,equipped:{},gear_dye:{}}; let MEV=0; /* versi tampilan sendiri: naik saat tampilan dari server masuk -> slot 3D 'me' dibangun ulang */
 const appKey=r=>String(r.uid||'').toLowerCase();
 const face=r=>{const CF=UT.CharacterFace;if(!CF)return oldFace(r);
  if(r.me){const h=CF.html();if(h)return h}
@@ -383,6 +383,9 @@ async function loadAppr(rows){
  try{const AS=UT.AppearanceService&&UT.AppearanceService.get();if(!AS)return;
   const ids=rows.filter(r=>!r.me&&r.uid&&!APP[appKey(r)]).map(r=>r.uid);if(!ids.length)return;
   const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);renderAll()}catch(e){}}
+/* baris sendiri memakai PlayerData: tarik tampilan/outfit aktif dari server dulu (tanpa membuka halaman Karakter) */
+try{const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{});
+ if(PD.subscribe)PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){MEV++;try{renderAll()}catch(e){}}})}catch(e){}
 let tab='global';
 const CACHE={};   /* tab -> {state:'loading'|'ok'|'error', rows:[], at} */
 const pad=n=>n<10?'0'+n:''+n;
@@ -405,7 +408,7 @@ function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]==
  document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll();load(tab)}))}
 
 function fillPodium(){if(!R||!UT.BlockyCharacter)return;const rows=cur().rows;
- R.slots.forEach(s=>{const r=rows[s.c.row],key=r?(r.me?'me':appKey(r)+'|'+(APP[appKey(r)]?1:0)):'';
+ R.slots.forEach(s=>{const r=rows[s.c.row],key=r?(r.me?'me'+MEV:appKey(r)+'|'+(APP[appKey(r)]?1:0)):'';
   if(key===s.key)return;s.key=key;
   if(s.bc){s.w.remove(s.bc.root);s.bc=null}
   if(!r)return;

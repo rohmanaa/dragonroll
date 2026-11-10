@@ -483,6 +483,9 @@ if(ok){main=rig($('#gl'),false,2.3,13,36); /* tanpa pulau melayang 3D */if(ok){b
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderGrid();renderInfo();renderRecent()}}); /* B5: saldo & inventory dari server */
+/* karakter pratinjau efek = tampilan/outfit aktif akun di SERVER (tanpa membuka halaman Karakter dulu) */
+try{const A=SV()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{})}catch(e){}
+PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){try{if(main)fxClear(main);buildModels()}catch(e){}}});
 })();
 </script>
 </body></html>

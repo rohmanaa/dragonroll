@@ -608,6 +608,9 @@ if(typeof THREE==='undefined')ok=false;
 /* event: profil ikut memperbarui UI saat currency/skin berubah (tanpa reload halaman) */
 UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('skinChanged',()=>{sel=eqSkin();render();buildModels()});
+/* karakter profil = tampilan/outfit aktif akun di SERVER (tanpa harus membuka halaman Karakter dulu) */
+try{const A=PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{})}catch(e){}
+PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){sel=eqSkin();render();buildModels()}});
 UT.Events.on('frameChanged',render);
 if(UT.CharacterFace)UT.CharacterFace.watch(()=>{render();buildModels()}); /* wajah & model ikut berubah saat karakter diganti */
 init();

@@ -218,10 +218,7 @@ if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp();renderCurrency()});
 if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh();
 /* Karakter di lobi = tampilan aktif akun di SERVER (outfit/set yang sudah dibeli & dipakai), tanpa harus membuka halaman Karakter dulu.
    refresh() menarik inventory + tampilan + outfit (server menang); hasilnya memicu 'server-appearance' -> karakter & avatar dibangun ulang. Maks 1x/20 dtk. */
-(function(){const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(!A)return;
- let last=0;try{last=+sessionStorage.getItem('ut:app-sync')||0}catch(e){}
- const now=Date.now();if(now-last<20000)return;try{sessionStorage.setItem('ut:app-sync',String(now))}catch(e){}
- A.refresh().catch(()=>{})})();
+(function(){const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{})})();
 /* sinkron XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 import('./assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0){SRV_XP=Math.floor(x);renderXp()}}).catch(()=>{});
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});

@@ -25,6 +25,8 @@
     var setT = deps.setTimeout || (typeof setTimeout !== 'undefined' ? setTimeout : null);
     var clearT = deps.clearTimeout || (typeof clearTimeout !== 'undefined' ? clearTimeout : null);
     var inflight = Object.create(null);
+    var store = deps.storage !== undefined ? deps.storage : (typeof sessionStorage !== 'undefined' ? sessionStorage : null);
+    var nowFn = deps.now || Date.now;
     var timer = null, pushing = false, dirty = false, unsub = null;
 
     function enabled() {
@@ -122,6 +124,19 @@
       } catch (e) { return fail(e); }
     }
 
+    /* refresh() dengan batas waktu: dipakai halaman yang menampilkan karakter sendiri (Lobi, Profil, Efek, Leaderboard) agar tampilan/outfit
+       aktif dari server ikut tanpa membuka halaman Karakter dulu. Penanda waktu bersama lintas halaman (sessionStorage 'ut:app-sync'),
+       jadi berpindah halaman dalam ttl tidak menarik ulang. Kembali {ok:true, skipped:true} bila masih dalam ttl. */
+    async function refreshThrottled(ttl) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      ttl = (ttl == null) ? 20000 : ttl;
+      var last = 0, t = nowFn();
+      try { last = store ? (+store.getItem('ut:app-sync') || 0) : 0; } catch (e) { last = 0; }
+      if (t - last < ttl) return { ok: true, skipped: true };
+      try { if (store) store.setItem('ut:app-sync', String(t)); } catch (e) {}
+      return refresh();
+    }
+
     /* Tampilan aktif pemain lain (Teman/Leaderboard): maks 50 id. Server hanya mengembalikan diri sendiri, teman, pengirim permintaan,
        dan pemain leaderboard. Hasil: {ok, byId:{<user_id huruf kecil>: {look, equipped, gear_dye}}} (bentuk sama dengan baris room_appearance_get). */
     async function usersAppearance(ids) {
@@ -154,7 +169,7 @@
     }
 
     return {
-      enabled: enabled, refresh: refresh,
+      enabled: enabled, refresh: refresh, refreshThrottled: refreshThrottled,
       saveOutfit: saveOutfit, renameOutfit: renameOutfit, deleteOutfit: deleteOutfit,
       pushAppearance: pushAppearance, roomAppearance: roomAppearance, usersAppearance: usersAppearance, autoSync: autoSync
     };
