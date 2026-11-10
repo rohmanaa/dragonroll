@@ -326,7 +326,7 @@ $('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const i
  saveP();renderPower()};
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
-const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp',rimba:'gameplay/maps/banner-maps/rimba.webp'};
+const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
 function renderMap(){
  $('#mArt').innerHTML=MAP?(BANNER[MAP.gameKey]?`<img src="${BANNER[MAP.gameKey]}" alt="" draggable="false">`:ItemArt.theme(MAP.id)):'';
  $('#mTxt').innerHTML=`Game Mode: ${MODE_LABEL[MODE]}<br>Map: ${MAP?esc(MAP.name.replace(/^Map /,'')):'-'}<br>Number of Tiles: ${TILES}`;

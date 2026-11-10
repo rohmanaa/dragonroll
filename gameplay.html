@@ -1277,7 +1277,6 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/maps/registry.js"></script>
 <script src="gameplay/maps/world.js"></script>
 <script src="gameplay/maps/nether.js"></script>
-<script src="gameplay/maps/rimba.js"></script>
 <script src="gameplay/themes.js"></script>
 <script src="gameplay/config.js"></script>
 <script src="gameplay/biomes.js"></script>
@@ -4687,7 +4686,7 @@ function decorateRimba(DB,th){
     addBox(DB,x,RB_G+0.12,z,0.06,0.24,0.06,pick([0x3FA33A,0x57B84B]),F); if(R()<0.12) addBox(DB,x,RB_G+0.3,z,0.1,0.1,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6]),F); }
 }
 function buildCustomGround(TB,th){
-  if(th.key==='rimba'){ buildRimbaGround(TB,th); return; }
+  if(th.key==='minecraft'){ buildRimbaGround(TB,th); return; }
   const LAV=[0xFF8A1A,0xFFA02A,0xFF7A12,0xFFC03A],S=th.deep[0],W=th.wall[0]; /* lava cerah oranye dengan bercak kuning */
   const hsh=(x,z)=>(Math.imul(Math.floor(x*4)*73+19,0x9E3779B1)^Math.imul(Math.floor(z*4)*131+7,0x85EBCA6B))>>>0;
   /* lava dalam: sel 2x2 (x -12..16, z -11..9) */
@@ -4742,7 +4741,7 @@ function updateLavafalls(t){
   }
 }
 function decorateCustom(DB,th){
-  if(th.key==='rimba'){ decorateRimba(DB,th); return; }
+  if(th.key==='minecraft'){ decorateRimba(DB,th); return; }
   addWideFar(DB,th);
   if(th.key==='nether'){ buildLavafalls(); if(TILES.island) decorateNetherIslands(DB,th); }
   const D=MAPDEF||{},B=jit(th.wall[1],0.05);
