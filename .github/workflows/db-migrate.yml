@@ -30,7 +30,7 @@ jobs:
         run: for f in tests/*.test.js; do echo "== $f"; node "$f" || exit 1; done
 
       - uses: supabase/setup-cli@v1
-        with: { version: latest }
+        with: { version: 2.120.0 }
       - name: Supabase lokal (menerapkan semua migrasi)
         run: |
           [ -f supabase/config.toml ] || supabase init
@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
-        with: { version: latest }
+        with: { version: 2.120.0 }
       - name: Hubungkan ke proyek
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
