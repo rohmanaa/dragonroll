@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 33 migrasi, urut: 202611050001 s/d 202611240001
+-- Isi: 34 migrasi, urut: 202611050001 s/d 202611250001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -4558,4 +4558,25 @@ end;
 $$;
 
 grant execute on function public.leave_game_room(uuid) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611250001_revoke_public_rpc.sql
+-- ---------------------------------------------------------------------------
+-- Hardening: RPC sosial & room hanya untuk pengguna login (authenticated). Default Postgres memberi EXECUTE ke PUBLIC,
+-- sehingga role anon masih bisa memanggilnya. Fungsi sudah memeriksa auth.uid(); ini lapisan tambahan. Idempoten.
+revoke all on function public.add_friend(uuid, text, text) from public, anon;
+revoke all on function public.remove_friend(uuid) from public, anon;
+revoke all on function public.send_friend_request(uuid, text, text, text) from public, anon;
+revoke all on function public.accept_friend_request(uuid, text) from public, anon;
+revoke all on function public.decline_friend_request(uuid) from public, anon;
+revoke all on function public.exit_game_room(uuid) from public, anon;
+revoke all on function public.set_game_room_slots(uuid, integer) from public, anon;
+grant execute on function public.add_friend(uuid, text, text) to authenticated;
+grant execute on function public.remove_friend(uuid) to authenticated;
+grant execute on function public.send_friend_request(uuid, text, text, text) to authenticated;
+grant execute on function public.accept_friend_request(uuid, text) to authenticated;
+grant execute on function public.decline_friend_request(uuid) to authenticated;
+grant execute on function public.exit_game_room(uuid) to authenticated;
+grant execute on function public.set_game_room_slots(uuid, integer) to authenticated;
 
