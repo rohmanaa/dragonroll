@@ -2308,6 +2308,7 @@ function updateFX(dt,t){
   if(skyStars) skyStars.material.opacity=0.8+0.2*Math.sin(t*2.1);
   for(let i=0;i<FIRES.length;i++){
     const f=FIRES[i],fl=0.86+0.14*Math.sin(t*13+f.ph)+0.07*Math.sin(t*29+f.ph*1.7);
+    if(f.out){ if(f.lt) f.lt.intensity=0; continue; } /* api sudut papan padam: digantikan tower (Dragon Awakening) */
     f.g.scale.set(f.s*(0.92+0.08*fl),f.s*fl,f.s*(0.92+0.08*fl));
     f.halo.material.opacity=f.hal*(night?1:0.1)*fl;
     if(f.lt) f.lt.intensity=night?f.li*(0.8+0.2*fl):0;
@@ -3572,7 +3573,7 @@ function updatePortal(dt,now){
 }
 
 /* ---------- Dragon Feature 2: Dragon Awakening ----------
-   Pemain pertama tiba di Block 100 -> Arena naik (menggantikan farm kiri board) -> Tower naik -> End Crystal muncul & aktif -> Dragon spawn -> gameplay unlock.
+   Pemain pertama tiba di Block 100 -> gempa -> kayu bingkai jadi bedrock -> 4 End Crystal di tengah -> 6 tower kecil (pengganti api sudut) -> Dragon spawn, crystal menyetrum -> naga terbang di atas papan -> gameplay unlock.
    Hanya 1x per game (AWK.done). Selama AWK.running semua kontrol gameplay dikunci. Tanpa Crystal progression / Dragon attack (fitur berikutnya). */
 const AWK={done:false,running:false};
 var ARENA=null,MOUNT=null;
@@ -3624,91 +3625,113 @@ function waterDetail(B,cx,cz,y,w,d,seed,nx,nz){
   for(let i=0;i<nx;i++) for(let j=0;j<nz;j++)
     addBox(B,cx-w/2+sx*(i+0.5),y+0.006,cz-d/2+sz*(j+0.5),sx*0.98,0.012,sz*0.98,vcol(palAt(WATERPAL,hrn(i,j,seed,4)),seed,i,j,0.04),E);
 }
-const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): 4 di sudut arena + 2 di tengah sisi kiri/kanan */
+const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): sekarang di puncak 6 tower kecil di pinggir papan */
+/* ---------- Dragon Awakening versi papan ----------
+   Tidak ada lagi arena kiri / tower besar. Alur: bidak 100 -> gempa -> kayu bingkai papan jadi bedrock -> 4 End Crystal pembangkit muncul
+   di tengah papan -> 6 tower kecil (menggantikan 4 api sudut + 2 di tengah sisi kiri/kanan) muncul dengan End Crystal -> naga bangkit,
+   crystal menyetrum naga (regenerasi) -> naga terbang di atas area papan World. Petak & dekor papan TIDAK berubah. */
+const TOWER_SPOTS=[[-5.25,-5.25],[5.25,-5.25],[5.25,5.25],[-5.25,5.25],[-5.25,0],[5.25,0]]; /* urutan = End Crystal 1..6 */
+const TOWER_BASE=1.15,TOWER_H=2.15,TOWER_CRY=TOWER_BASE+TOWER_H+0.55; /* dasar = permukaan bingkai luar; crystal melayang di atas kepala tower */
+const CC_N=4,CC_R=1.5,CC_Y=1.9,CC_TOP=3.7; /* 4 crystal pembangkit: cincin di tengah papan; titik naga bangkit di atasnya */
+const FLY={on:false,a:0,blend:0,cx:0,cz:0.8,rx:4.6,rz:2.8,y:4.2,spd:0.2}; /* jalur terbang naga: angka delapan di atas area papan; blend 0 = melayang di titik bangkit, 1 = di jalur */
+const QUAKE={amp:0}; /* getar kamera saat gempa */
+var CORNERF=[]; /* api 4 sudut papan: diganti tower saat Awakening */
+const ease3=k=>k*k*(3-2*k);
+const _bv=new THREE.Vector3();
+function placeBeam(m,a,b,w){ _bv.copy(b).sub(a); const L=_bv.length(); m.position.copy(a).addScaledVector(_bv,0.5); m.lookAt(b); m.scale.set(w,w,Math.max(0.001,L)); }
+function crystalMesh(cs,ss){
+  const cg=new THREE.Group();
+  const cc=new THREE.Mesh(new THREE.BoxGeometry(cs,cs,cs),new THREE.MeshBasicMaterial({color:0xE040FF}));
+  const sh=new THREE.Mesh(new THREE.BoxGeometry(ss,ss,ss),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
+  cc.rotation.set(0.6155,0,Math.PI/4); sh.rotation.copy(cc.rotation); cg.add(cc,sh); return {cg,cc,sh};
+}
 function buildArena(){
-  const g=new THREE.Group(); g.position.set(ARENA_POS.x,-1,ARENA_POS.z); g.visible=false;
-  const B=makeBatch(),W=ARENA_SIZE.w,D=ARENA_SIZE.d,E={edge:false};
-  voxShell(B,0,-0.02,0,W,1.6,D,0.4,[0x1A1426,0x221A30,0x2B2140,0x15101F,0x302548,0x120C1B],11,E); /* slab (obsidian bertekstur): y -0.82..0.78 — puncak sengaja 0.02 di bawah lantai petak (puncak 0.80) agar tidak z-fighting (sebelumnya sebidang di 0.80 -> bercak berkedip) */
-  const nx=8,nz=9,cw=W/nx,cd=D/nz;
-  /* Lantai: tepi = end stone kusam (bukan putih/krem terang, nyaman di mata), tengah = obsidian ungu gelap; tiap petak dipecah 3x3 sub-kotak dengan warna beda */
-  const RINGPAL=[0xA9A277,0x9B9469,0x8F885F,0xB4AD82,0x857E58,0xA2996C],INPAL=[0x15101F,0x1C1428,0x241A36,0x120C1B,0x2D2046,0x1A1228];
-  for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){
-    const ring=(i===0||j===0||i===nx-1||j===nz-1),pal=ring?RINGPAL:INPAL,sw=cw/3,sd=cd/3;
-    for(let a=0;a<3;a++) for(let b=0;b<3;b++){
-      let hx=palAt(pal,hrn(i*3+a,j*3+b,21,5));
-      if(!ring&&hrn(i*3+a,j*3+b,22,6)>0.93) hx=0x4B2A7A; /* urat ungu langka */
-      addBox(B,-W/2+cw*i+sw*(a+0.5),0.78,-D/2+cd*j+sd*(b+0.5),sw*0.985,0.04,sd*0.985,vcol(hx,23,i*3+a,j*3+b,0.045),E);
-    }
-  }
-  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(q=>{ const x=q[0]*(W/2-0.2),z=q[1]*(D/2-0.2); addBox(B,x,1.15,z,0.4,0.7,0.4,0x14101C); addBox(B,x,1.55,z,0.28,0.1,0.28,0xE040FF,E); });
-  for(let i=0;i<nx;i+=2){ [-1,1].forEach(sz=>addBox(B,-W/2+cw*(i+0.5),1.0,sz*(D/2-0.1),cw*0.9,0.4,0.2,0x1A1426)); }
-  for(let j=1;j<nz;j+=2){ [-1,1].forEach(sx=>addBox(B,sx*(W/2-0.1),1.0,-D/2+cd*(j+0.5),0.2,0.4,cd*0.9,0x1A1426)); }
-  g.add(buildBatch(B));
-  /* tower (naik dari bawah platform) */
-  const tw=new THREE.Group(),TB=makeBatch();
-  /* tower BEDROCK: voxel kecil, palet abu-hitam bertekstur (bukan satu warna); kaki lebar, batang, kepala lebar */
-  voxShell(TB,0,0.25,0,1.3,0.5,1.3,0.13,BEDROCK,31,E); voxShell(TB,0,1.7,0,0.9,2.4,0.9,0.12,BEDROCK,32,E); voxShell(TB,0,3.15,0,1.15,0.3,1.15,0.115,BEDROCK,33,E);
-  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(q=>addBox(TB,q[0]*0.5,3.38,q[1]*0.5,0.16,0.16,0.16,0xE040FF,E));
-  tw.add(buildBatch(TB)); tw.position.y=-2.8; g.add(tw);
-  /* End Crystal di atas tower */
-  const cr=new THREE.Group(); cr.position.y=0.8+ARENA_TOWER_H+0.6; cr.visible=false; cr.scale.setScalar(0.001);
-  const core=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.34,0.34),new THREE.MeshBasicMaterial({color:0xE040FF}));
-  const shell=new THREE.Mesh(new THREE.BoxGeometry(0.56,0.56,0.56),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
-  core.rotation.set(0.6155,0,Math.PI/4); shell.rotation.copy(core.rotation); cr.add(core,shell); g.add(cr);
-  /* efek energi: partikel spiral (1 InstancedMesh), beam, glow, ring */
+  const g=new THREE.Group(); g.visible=false;
+  const E={edge:false};
+  const glowTex=(()=>{ const c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d'),gr=x.createRadialGradient(32,32,2,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,0.9)'); gr.addColorStop(0.4,'rgba(255,255,255,0.35)'); gr.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=gr; x.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); })();
+  const mkSprite=(col)=>{ const m=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.visible=false; m.frustumCulled=false; g.add(m); return m; };
+  const mkBeam=(col)=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.visible=false; m.frustumCulled=false; g.add(m); return m; };
+  /* kayu bingkai -> bedrock: lapisan bedrock sedikit lebih besar dari bingkai kayu, tumbuh dari bawah menutupi kayu */
+  const FB=makeBatch(),FT=TILES[1].h,FO=FT+0.4;
+  [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
+   [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const top=f[4]; voxShell(FB,f[0],(top-0.25)/2,f[1],f[2]+0.03,top+0.27,f[3]+0.03,0.22,BEDROCK,40+fi,E); });
+  const frame=buildBatch(FB); frame.scale.y=0.001; frame.visible=false; g.add(frame);
+  /* 6 tower kecil bedrock di pinggir papan (kaki lebar, batang, kepala lebar) */
+  const towers=TOWER_SPOTS.map((q,i)=>{
+    const tg=new THREE.Group(),TB=makeBatch(); tg.position.set(q[0],TOWER_BASE,q[1]); tg.visible=false;
+    voxShell(TB,0,0.2,0,0.95,0.4,0.95,0.16,BEDROCK,50+i,E); voxShell(TB,0,1.15,0,0.62,1.5,0.62,0.155,BEDROCK,60+i,E); voxShell(TB,0,2.025,0,0.86,0.25,0.86,0.14,BEDROCK,70+i,E);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(c=>addBox(TB,c[0]*0.34,2.2,c[1]*0.34,0.1,0.1,0.1,0xE040FF,E));
+    tg.add(buildBatch(TB)); g.add(tg); return tg; });
+  /* 4 End Crystal pembangkit naga di tengah papan */
+  const cm=[]; for(let i=0;i<CC_N;i++){ const m=crystalMesh(0.42,0.7); m.cg.visible=false; m.cg.scale.setScalar(0.001); g.add(m.cg); m.bm=mkBeam(0xE040FF); cm.push(m); }
+  const burstS=mkSprite(0xE8B8FF);
+  /* partikel energi spiral yang naik ke titik bangkit */
   const N=40,inst=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:0.95,depthWrite:false,blending:THREE.AdditiveBlending}),N);
   inst.frustumCulled=false; let sd=2468; const lr2=()=>(sd=(sd*16807)%2147483647)/2147483647,pal=[0x4AEDD9,0xE040FF,0xB59CFF,0xFFFFFF],pt=[];
-  for(let i=0;i<N;i++) pt.push({ph:lr2()*6.283,sp:0.5+lr2()*0.9,r:0.9+lr2()*1.3,c:new THREE.Color(pal[i%4])});
+  for(let i=0;i<N;i++) pt.push({ph:lr2()*6.283,sp:0.5+lr2()*0.9,r:0.6+lr2()*1.3,c:new THREE.Color(pal[i%4])});
   inst.setColorAt(0,pt[0].c); g.add(inst);
-  const cv2=document.createElement('canvas'); cv2.width=cv2.height=64; const x2=cv2.getContext('2d'),gr=x2.createRadialGradient(32,32,2,32,32,32);
-  gr.addColorStop(0,'rgba(255,255,255,0.9)'); gr.addColorStop(0.4,'rgba(255,255,255,0.35)'); gr.addColorStop(1,'rgba(255,255,255,0)'); x2.fillStyle=gr; x2.fillRect(0,0,64,64);
-  const tex=new THREE.CanvasTexture(cv2);
-  const mkPlane=(col,sz,y)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:tex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.rotation.x=-Math.PI/2; m.position.y=y; m.frustumCulled=false; g.add(m); return m; };
-  const glowP=mkPlane(0x7A4DFF,4.2,0.85),glowC=mkPlane(0xE040FF,2.4,cr.position.y),ring=mkPlane(0x4AEDD9,3,0.88);
-  const beam=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xE040FF,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); beam.visible=false; beam.frustumCulled=false; g.add(beam);
-  /* Feature 3: 6 End Crystal progression: 1-4 di 4 sudut arena (searah jarum jam dari kiri-atas), 5 di tengah sisi kiri, 6 di tengah sisi kanan. Tampilan mengikuti progress pemain yang sedang giliran. */
-  const cvs=[[-1,-1],[1,-1],[1,1],[-1,1],[-1,0],[1,0]].map((q,i)=>{
-    const cg=new THREE.Group(); cg.position.set(q[0]*(W/2-0.2),2.25,q[1]*(D/2-0.2)); cg.visible=false;
-    const cc=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshBasicMaterial({color:0xE040FF}));
-    const cs2=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
-    cc.rotation.set(0.6155,0,Math.PI/4); cs2.rotation.copy(cc.rotation); cg.add(cc,cs2); g.add(cg);
+  /* End Crystal progression 1..6: melayang di atas tiap tower; tampilan mengikuti pemain yang sedang giliran */
+  const cvs=TOWER_SPOTS.map((q,i)=>{
+    const m=crystalMesh(0.42,0.7),cg=m.cg; cg.position.set(q[0],TOWER_CRY,q[1]); cg.visible=false; g.add(cg);
     const c3=document.createElement('canvas'); c3.width=c3.height=64; const x3=c3.getContext('2d'); x3.fillStyle='rgba(10,6,20,0.7)'; x3.fillRect(8,8,48,48); x3.strokeStyle='#4AEDD9'; x3.lineWidth=3; x3.strokeRect(8,8,48,48); x3.fillStyle='#FFFFFF'; x3.font='bold 36px sans-serif'; x3.textAlign='center'; x3.textBaseline='middle'; x3.fillText(String(i+1),32,34);
-    const lab=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c3),transparent:true,opacity:0,depthWrite:false})); lab.rotation.x=-Math.PI/2; lab.position.set(cg.position.x,2.9,cg.position.z); lab.visible=false; g.add(lab);
-    const fl=mkPlane(0xFFFFFF,1.8,2.25); fl.position.set(cg.position.x,2.25,cg.position.z); fl.rotation.x=-Math.PI/2;
-    return {cg,cc,cs2,lab,fl,s:0,want:0,flash:0};
+    const lab=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c3),transparent:true,opacity:0,depthWrite:false})); lab.rotation.x=-Math.PI/2; lab.position.set(q[0],TOWER_CRY+0.62,q[1]); lab.visible=false; g.add(lab);
+    const fl=mkSprite(0xFFFFFF);
+    return {cg,cc:m.cc,cs2:m.sh,lab,fl,s:0,want:0,flash:0,hb:mkBeam(0xE040FF),hb2:mkBeam(0x9FFFF4)};
   });
-  return {cv:cvs,act:-1,g,tw,cr,core,shell,inst,pt,glowP,glowC,ring,beam,rise:0,tower:0,crystal:0,energy:0,burst:0,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),p:new THREE.Vector3(),sc:new THREE.Vector3(),col:new THREE.Color()};
+  /* paket energi yang mengalir dari crystal ke naga (gimik regenerasi) */
+  const HP=CRYSTAL_N*3,hp=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xB8FFF6,transparent:true,opacity:0.95,depthWrite:false,blending:THREE.AdditiveBlending}),HP); hp.frustumCulled=false; hp.visible=false; g.add(hp);
+  return {cv:cvs,act:-1,g,frame,towers,cm,burstS,inst,pt,hp,bed:0,tower:0,cc:0,ccE:0,burst:0,heal:0,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),p:new THREE.Vector3(),sc:new THREE.Vector3(),col:new THREE.Color(),ca:new THREE.Vector3(),cb:new THREE.Vector3(),ct:new THREE.Vector3()};
 }
-const ease3=k=>k*k*(3-2*k);
 function updateArena(dt,now){
   const A=ARENA; if(!A||!A.g.visible) return;
-  const t=now*0.001,en=A.energy;
-  A.g.position.y=-1+ease3(A.rise); A.tw.position.y=-2.8+3.6*ease3(A.tower);
-  const cs=ease3(A.crystal); A.cr.visible=cs>0.01; A.cr.scale.setScalar(Math.max(0.001,cs));
-  const cy=0.8+ARENA_TOWER_H+0.6+Math.sin(t*2.2)*0.08; A.cr.position.y=cy; A.cr.rotation.y=t*(1.1+2.4*en);
-  A.core.material.color.setHex(en>0.5?0xFF6AFF:0xE040FF); A.shell.material.opacity=0.28+0.25*en+0.15*Math.sin(t*4);
-  A.glowP.material.opacity=(0.1+0.45*en)*A.crystal*(0.85+0.15*Math.sin(t*3)); A.glowP.scale.setScalar(1+0.1*Math.sin(t*1.7)+0.3*en);
-  A.glowC.position.y=cy; A.glowC.material.opacity=(0.25+0.6*en+A.burst)*A.crystal; A.glowC.scale.setScalar(1+0.5*en+2.5*A.burst);
-  const rk=(t*(0.4+0.8*en))%1; A.ring.scale.setScalar(0.5+rk*1.5); A.ring.material.opacity=(1-rk)*(0.05+0.5*en)*A.crystal+A.burst*0.4;
-  const bh=7,bo=en*A.crystal*(0.35+0.15*Math.sin(t*9)); A.beam.visible=bo>0.02; A.beam.material.opacity=bo; A.beam.scale.set(0.12+0.1*en,bh,0.12+0.1*en); A.beam.position.y=cy+bh/2;
-  const on=en>0.02&&A.crystal>0.5;
+  const t=now*0.001,en=A.ccE,cs=ease3(A.cc);
+  /* bingkai: kayu -> bedrock */
+  A.frame.visible=A.bed>0.005; A.frame.scale.y=Math.max(0.001,ease3(A.bed));
+  /* tower tumbuh bergantian dari pinggir papan; api sudut mengecil lalu padam */
+  for(let i=0;i<A.towers.length;i++){ const k=ease3(clamp(A.tower*1.7-i*0.14,0,1)),tg=A.towers[i]; tg.visible=k>0.005; tg.scale.set(1,Math.max(0.001,k),1); }
+  if(A.tower>0){ const k=clamp(A.tower*2.2,0,1); for(const f of CORNERF){ f.s=f.s0*Math.max(0.001,1-k); if(k>=1&&!f.out){ f.out=true; f.g.visible=false; f.halo.visible=false; } } }
+  /* 4 crystal pembangkit: mengorbit pelan, beam menyatu di titik bangkit naga */
+  A.ct.set(0,CC_TOP,0);
+  for(let i=0;i<CC_N;i++){
+    const m=A.cm[i],ang=i*Math.PI/2+Math.PI/4+t*(0.25+0.5*en);
+    m.cg.visible=cs>0.01; m.cg.scale.setScalar(Math.max(0.001,cs));
+    m.cg.position.set(Math.cos(ang)*CC_R,CC_Y+Math.sin(t*2+i)*0.1,Math.sin(ang)*CC_R); m.cg.rotation.y=t*(1.1+2.4*en);
+    m.cc.material.color.setHex(en>0.5?0xFF6AFF:0xE040FF); m.sh.material.opacity=0.28+0.25*en+0.15*Math.sin(t*4);
+    const bo=en*cs*(0.4+0.2*Math.sin(t*9+i)); m.bm.visible=bo>0.02; if(m.bm.visible){ m.bm.material.opacity=bo; placeBeam(m.bm,m.cg.position,A.ct,0.05+0.08*en); }
+  }
+  const bs=A.burstS; bs.visible=A.burst>0.01; if(bs.visible){ bs.position.set(0,CC_TOP,0); bs.material.opacity=Math.min(1,A.burst); bs.scale.setScalar(1+5.5*A.burst); }
+  const on=en>0.02&&cs>0.5;
   for(let i=0;i<A.pt.length;i++){
     const o=A.pt[i];
     if(!on){ A.p.set(0,-9,0); A.sc.set(0.001,0.001,0.001); }
-    else{ const k=((t*0.35*o.sp+o.ph)%1),ang=o.ph+t*(1.2+o.sp)+k*5,r=o.r*(1-k)+0.12,s=(0.05+0.05*en)*(1-0.6*k); A.p.set(Math.cos(ang)*r,0.9+k*(cy-0.9),Math.sin(ang)*r); A.sc.set(s,s,s); }
+    else{ const k=((t*0.35*o.sp+o.ph)%1),ang=o.ph+t*(1.2+o.sp)+k*5,r=o.r*(1-k)+0.12,s2=(0.05+0.05*en)*(1-0.6*k); A.p.set(Math.cos(ang)*r,CC_Y-0.3+k*(CC_TOP-CC_Y+0.3),Math.sin(ang)*r); A.sc.set(s2,s2,s2); }
     A.m4.compose(A.p,A.q,A.sc); A.inst.setMatrixAt(i,A.m4); A.inst.setColorAt(i,A.col.copy(o.c).multiplyScalar(0.4+0.6*en));
   }
   A.inst.instanceMatrix.needsUpdate=true; if(A.inst.instanceColor) A.inst.instanceColor.needsUpdate=true;
+  /* End Crystal progression di puncak tower + beam penyetrum ke naga */
+  const dOK=A.heal>0.01&&dragon.visible&&!DRG.defeated; A.ct.set(dragon.position.x,dragon.position.y+0.15,dragon.position.z);
+  let hn=0;
   for(let i=0;i<A.cv.length;i++){
     const c=A.cv[i],act=(i===A.act);
     c.s+=(c.want-c.s)*Math.min(1,dt*(c.want?4:9)); if(Math.abs(c.want-c.s)<0.004) c.s=c.want;
     c.flash=Math.max(0,c.flash-dt*1.6);
     c.cg.visible=c.s>0.02; c.cg.scale.setScalar(Math.max(0.001,c.s*(act?1.18+0.1*Math.sin(t*5):1)));
-    c.cg.position.y=2.25+Math.sin(t*2+i)*0.07; c.cg.rotation.y=t*(act?2.4:1);
+    c.cg.position.y=TOWER_CRY+Math.sin(t*2+i)*0.07; c.cg.rotation.y=t*(act?2.4:1);
     c.cs2.material.opacity=act?0.5:0.22; c.cc.material.color.setHex(act?0xFF8CFF:0xB030D0);
     c.lab.visible=c.s>0.5; c.lab.material.opacity=act?1:0.45;
-    c.fl.material.opacity=c.flash*0.8+(act?0.12+0.08*Math.sin(t*5):0); c.fl.scale.setScalar(0.6+(1-c.flash)*(c.flash>0?2.2:0.4));
+    c.fl.visible=c.flash>0.01||act; c.fl.material.opacity=Math.min(1,c.flash*0.9+(act?0.12+0.08*Math.sin(t*5):0)); c.fl.scale.setScalar(0.8+(1-c.flash)*(c.flash>0?2.6:0.5)); c.fl.position.copy(c.cg.position);
+    const live=dOK&&c.want&&c.s>0.5,bo=live?A.heal*(0.5+0.22*Math.sin(t*8+i*1.3)):0;
+    c.hb.visible=c.hb2.visible=bo>0.02;
+    if(c.hb.visible){ c.hb.material.opacity=bo*0.32; c.hb2.material.opacity=bo*0.7; A.ca.copy(c.cg.position); placeBeam(c.hb,A.ca,A.ct,0.09+0.03*Math.sin(t*11+i)); placeBeam(c.hb2,A.ca,A.ct,0.028); }
+    for(let j=0;j<3;j++){ /* 3 paket per beam, mengalir crystal -> naga */
+      const idx=i*3+j;
+      if(live){ const k=(t*0.8+j/3+i*0.17)%1; A.p.copy(c.cg.position).lerp(A.ct,k); const sz=0.1*(0.5+0.5*Math.sin(k*Math.PI)); A.sc.set(sz,sz,sz); hn++; }
+      else{ A.p.set(0,-9,0); A.sc.set(0.001,0.001,0.001); }
+      A.m4.compose(A.p,A.q,A.sc); A.hp.setMatrixAt(idx,A.m4);
+    }
   }
+  A.hp.visible=hn>0; A.hp.instanceMatrix.needsUpdate=true;
 }
 /* ---------- Dragon Feature 2 (Mountain Collapse): gunung batu penutup Dragon Arena ----------
    Menggantikan farm kiri board. Formasi voxel (tebing barat, gunung kecil, bebatuan di kaki) berdiri tepat di atas arena yang tersembunyi.
@@ -3799,26 +3822,24 @@ function updateMountain(dt,now){
   M.ds.instanceMatrix.needsUpdate=true;
 }
 function applyMountainState(){ const M=MOUNT; if(!M) return; const fin=AWK.done; M.shake=0; M.crack=0; M.collapse=fin?1:0; M.dust=fin?1:0; M.sig=-1; } /* selesai = rubble diam; belum = gunung utuh */
-/* state arena sesuai AWK: dipanggil setelah world dibangun ulang (ganti tema) & saat game baru */
+/* state Awakening sesuai AWK: dipanggil setelah world dibangun ulang (ganti tema) & saat game baru */
+function flamesOut(out){ for(const f of CORNERF){ f.out=!!out; f.s=out?0.001:f.s0; f.g.visible=!out; f.halo.visible=!out; } }
 function applyArenaState(){
   applyMountainState(); applyFortState(); /* map Nether: benteng/jembatan/skeleton/Wither (no-op bila FORT tak ada) */
+  FLY.on=false; FLY.blend=0; FLY.a=0; QUAKE.amp=0;
   const A=ARENA; if(!A) return;
   const fin=AWK.done;
-  A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=0; A.energy=0; A.burst=0; /* crystal tower diganti 6 End Crystal progression setelah awakening */
-  A.cv.forEach(c=>{ c.want=0; c.s=0; c.flash=0; }); A.act=-1; if(fin) syncCrystals();
+  A.g.visible=fin; A.bed=fin?1:0; A.tower=fin?1:0; A.cc=0; A.ccE=0; A.burst=0; A.heal=fin?1:0; /* selesai: bingkai bedrock + 6 tower + crystal menyetrum naga */
+  A.cv.forEach(c=>{ c.want=0; c.s=0; c.flash=0; }); A.act=-1;
+  flamesOut(fin);
+  if(fin){ FLY.on=true; FLY.blend=1; syncCrystals(); }
 }
-/* Bidak yang sudah mencapai target 100 berdiri di Dragon Arena, mengelilingi tower (bersama naga). */
-function arenaSlot(pi){ const o=SLOT[pi]; return new THREE.Vector3(ARENA_POS.x+o[0]*3.6,0.82,ARENA_POS.z+o[1]*3.6); }
+/* Bidak yang sudah mencapai target 100 tetap di petak 100 (tidak ada arena kiri lagi); hanya ditandai siap melawan boss dan menghadap tengah papan. */
 async function gatherArena(gid){
   if(!AWK.done) return;
   for(const pl of players){
     if(pl.pos!==GOAL||pl.inArena||!pl.pawn) continue;
-    pl.inArena=true;
-    const a=pl.pawn.position.clone(),b=arenaSlot(pl.idx),o=SLOT[pl.idx];
-    sfx.pop&&sfx.pop();
-    await tween(reduce?0.2:0.9,k=>{ pl.pawn.position.lerpVectors(a,b,k); pl.pawn.position.y+=Math.sin(k*Math.PI)*1.6; });
-    if(gid!==gameId) throw STALE;
-    pl.pawn.position.copy(b); pl.pawn.rotation.y=Math.atan2(-o[0],-o[1]);
+    pl.inArena=true; pl.pawn.rotation.y=Math.atan2(-pl.pawn.position.x,-pl.pawn.position.z);
   }
 }
 function resetAwakening(){
@@ -3909,59 +3930,62 @@ async function crystalRoll(p,v,gid){
   if(p.crystal>=CRYSTAL_N){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
   return true;
 }
-/* Kamera saat Dragon bangkit: menyorot BAGIAN ATAS Tower (tempat End Crystal & Dragon muncul), sedikit lebih jauh. Pergeseran dihitung seperti fortCamPan (mode LOCK / ANGLE). */
-const ARENA_CAM={zoomK:1.22,topY:0.8+ARENA_TOWER_H+0.35}; /* zoomK >1 = lebih jauh; topY = tinggi titik sorot (puncak tower) */
-function arenaCamPan(){
+/* Kamera saat Dragon bangkit: menyorot tengah papan (tempat 4 crystal & naga muncul), sedikit lebih jauh agar 6 tower di pinggir ikut terlihat. Pergeseran dihitung seperti fortCamPan (mode LOCK / ANGLE). */
+const AWK_CAM={zoomK:1.12,topY:2.2}; /* zoomK >1 = lebih jauh; topY = tinggi titik sorot */
+function awakenCamPan(){
   let bx=CAM_BASE.x,bz=CAM_BASE.z,by=CAM_BASE.y;
   if(camLocked()){ bx=lockCenter.x; bz=lockCenter.z; by=LOCK_BOX.y; }
   else if(isTopDown){ bx=0; bz=0; by=3.5; }
   else if(!camFollowing()){ bx=camHold.x; bz=camHold.z; by=camHold.y; }
   else if(focus){ bx+=focus.position.x*0.35; bz+=focus.position.z*0.35; by+=(focus.position.y-CAM_BASE.y)*0.45; }
-  return {x:clamp(ARENA_POS.x-bx,-PAN_MAX,PAN_MAX),z:clamp(ARENA_POS.z-bz,-PAN_MAX,PAN_MAX),y:Math.max(0,ARENA_CAM.topY-by)};
+  return {x:clamp(-bx,-PAN_MAX,PAN_MAX),z:clamp(-bz,-PAN_MAX,PAN_MAX),y:Math.max(0,AWK_CAM.topY-by)};
 }
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
-  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[GOAL],Dd=dragon.userData;
+  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,Dd=dragon.userData;
+  const QW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke state game lain */
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
   const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
-    setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
-    panGoal.x=pg.x-6; /* kamera menggeser ke Arena (kosmetik; dipulihkan di akhir) */
-    if(!A){ await S(sleep(700*F)); Dd.dy=0; dragon.position.x=T.x; dragon.position.z=T.z; dragon.visible=true; finished=true; return; }
-    const M=MOUNT,MW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke gunung milik game lain */
-    if(M){
-      await MW(1.3*F,k=>{ M.shake=k; });                                             /* getaran menguat */
-      setMsg('Retakan menjalar di gunung...'); await MW(1.1*F,k=>{ M.crack=k; });    /* retakan muncul bertahap, mulai bercahaya ungu */
-      setMsg('Gunung runtuh!'); await MW(2.3*F,k=>{ M.collapse=k; M.dust=0.6*k; });  /* batu jatuh/bergulir + debu */
-    }else await S(sleep(700*F));
-    setMsg('Dragon Arena terbuka...'); A.g.visible=true; ar=sfx.arenaUp(); /* bangunan (arena) muncul setelah gempa */
-    { const c=arenaCamPan(); panGoal.x=c.x; panGoal.z=c.z; panGoal.y=c.y; goal.zoom=pg.zoom*ARENA_CAM.zoomK; } /* kamera menyorot puncak Tower, agak menjauh */
-    await S(Promise.all([tween(1.7*F,k=>{ A.rise=k; }),M?tween(1.4*F,k=>{ if(gid===gameId) M.dust=0.6+0.4*k; }):null])); /* arena naik dari bawah reruntuhan, debu menipis */
-    sfx.quakeStop(qk); qk=null;
-    await S(sleep(250*F));
-    setMsg('Tower muncul dari bawah...'); tw=sfx.towerRise(); await S(tween(1.5*F,k=>{ A.tower=k; }));
-    setMsg('End Crystal aktif!'); sfx.crystalAppear(); await S(tween(0.7*F,k=>{ A.crystal=k; }));
-    await S(tween(1.4*F,k=>{ A.energy=k; })); /* energi spiral + beam menguat */
-    setMsg('Energi Crystal membangunkan Dragon...');
-    await S(tween(0.5*F,k=>{ A.burst=Math.sin(k*Math.PI)*0.8; }));
-    /* Dragon spawn dari crystal, tumbuh, lalu bertengger di atas tower di Dragon Arena (tidak pindah ke Block 100) */
-    const ax=A.g.position.x,az=A.g.position.z,ay=0.8+ARENA_TOWER_H+0.6,hd=Math.atan2(T.x-ax,T.z-az);
-    sfx.dragonSpawn();
-    dragon.visible=true; dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(0.05);
-    await S(tween(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); }));
-    sfx.towerStop(tw); tw=null;
-    await S(tween(1.2*F,k=>{ Dd.dy=ay-Dd.y0+Math.sin(k*Math.PI)*0.5; A.energy=1-0.65*k; }));
-    dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(1.3);
-    const e0=A.energy; await S(tween(0.8*F,k=>{ A.crystal=1-k; A.energy=e0*(1-k); }));
-    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; sfx.crystalAppear(); /* 6 End Crystal progression muncul; progress per player ditentukan saat giliran */
-    await S(sleep(600*F));
+    setMsg('Block 100 aktif! Papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
+    if(!A){ await S(sleep(700*F)); FLY.on=true; FLY.blend=1; dragon.position.set(0,FLY.y,0); dragon.visible=true; finished=true; return; }
+    A.g.visible=true;
+    { const c=awakenCamPan(); panGoal.x=c.x; panGoal.z=c.z; panGoal.y=c.y; goal.zoom=pg.zoom*AWK_CAM.zoomK; } /* kamera menyorot tengah papan (kosmetik; dipulihkan di akhir) */
+    /* 2. gempa */
+    await QW(1.3*F,k=>{ QUAKE.amp=0.2*k; });
+    /* 3. kayu bingkai papan berubah jadi bedrock */
+    setMsg('Kayu papan berubah menjadi bedrock...'); ar=sfx.arenaUp();
+    await QW(2.0*F,k=>{ A.bed=k; QUAKE.amp=0.2; });
+    sfx.arenaStop(ar); ar=null;
+    await QW(0.6*F,k=>{ QUAKE.amp=0.2*(1-k); }); sfx.quakeStop(qk); qk=null; QUAKE.amp=0;
+    /* 4. 4 End Crystal pembangkit naga muncul di tengah papan */
+    setMsg('4 End Crystal pembangkit muncul di tengah papan...'); sfx.crystalAppear();
+    await QW(0.9*F,k=>{ A.cc=k; });
+    setMsg('Energi Crystal berkumpul...'); await QW(1.3*F,k=>{ A.ccE=k; });
+    /* 5. 6 tower kecil (menggantikan api di pinggir papan) muncul dengan End Crystal */
+    setMsg('6 Tower Crystal muncul di pinggir papan...'); tw=sfx.towerRise();
+    await QW(1.7*F,k=>{ A.tower=k; });
+    sfx.crystalAppear(); A.cv.forEach(c=>{ c.want=1; c.flash=0.7; }); A.act=0; /* progress per pemain ditentukan saat giliran (syncCrystals) */
+    await S(sleep(500*F));
+    /* 6. naga muncul di atas tengah papan; 4 crystal pembangkit habis, 6 crystal tower menyetrum naga (regenerasi) */
+    setMsg('Ender Dragon bangkit!'); sfx.dragonSpawn();
+    dragon.visible=true; FLY.on=true; FLY.blend=0; FLY.a=0; Dd.dy=0; Dd.shk=0; Dd.hd=0; Dd.roll=0; dragon.position.set(0,CC_TOP,0); dragon.scale.setScalar(0.05);
+    await QW(0.6*F,k=>{ A.burst=Math.sin(k*Math.PI*0.5); });
+    await QW(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); A.burst=1-k; });
+    sfx.towerStop(tw); tw=null; dragon.scale.setScalar(1.3);
+    await QW(0.8*F,k=>{ A.cc=1-k; A.ccE=1-k; });
+    setMsg('Crystal menyetrum Dragon: regenerasi aktif!'); sfx.crystalAppear();
+    await QW(0.9*F,k=>{ A.heal=k; });
+    /* 7. naga lepas landas dan terbang di atas area papan World */
+    setMsg('Ender Dragon terbang di atas papan!');
+    await QW(2.4*F,k=>{ FLY.blend=ease3(k); });
     finished=true;
   }finally{
     sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
-      if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
-      panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
+      if(!finished&&A){ A.bed=1; A.tower=1; A.cc=0; A.ccE=0; A.burst=0; A.heal=1; A.cv.forEach(c=>{ c.want=1; }); flamesOut(true); dragon.visible=true; FLY.on=true; FLY.blend=1; dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
+      QUAKE.amp=0; panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState();
     }
   }
 }
@@ -4637,7 +4661,7 @@ function buildWorld(key){
   applyMapRules(UT.Gameplay.Maps&&UT.Gameplay.Maps.get(th.key));
   const tk=++worldToken;
   seed=20241022+THEMES.indexOf(th)*977;
-  PORTAL=null; ARENA=null; MOUNT=null; WITHER=null; FORT=null; disposeGroup(world); disposeGroup(sky);
+  PORTAL=null; ARENA=null; MOUNT=null; WITHER=null; FORT=null; CORNERF.length=0; disposeGroup(world); disposeGroup(sky);
   clouds=[]; snow=null; LADINFO={}; SNAKEINFO={}; fades.length=0; TREEPOS.length=0; GHASTS.length=0; LAVAFALLS.length=0; clearFX();
   const rs=document.documentElement.style;
   rs.setProperty('--sky-top',th.skyTop); rs.setProperty('--sky-bot',th.skyBot);
@@ -4690,14 +4714,14 @@ function buildWorld(key){
   if(BOSS==='dragon'){
   PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
-  MOUNT=buildMountain(); MOUNT.g.visible=false; world.add(MOUNT.g); /* gunung batu kiri disembunyikan (logika fase Dragon tetap utuh) */ /* Feature 2: gunung batu penutup arena (menggantikan farm kiri) */
+  /* arena kiri & gunung batu dihapus: Dragon Awakening kini terjadi di papan (bingkai bedrock + 6 tower menggantikan api sudut) */
   }
   buildMobs(th);
 
   /* obor di 4 sudut papan: api berkedip + lampu (menyala saat malam) */
   torchMeshes=[];
   (BOARD_CUSTOM?[]:[[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]]).forEach((q,i)=>{
-    const f=addFlame(q[0],1.46,q[1],1.2,{halo:2.0,hal:0.5}); f.lt=FLIGHTS[i]; f.li=1.25; f.lt.position.set(q[0],1.75,q[1]);
+    const f=addFlame(q[0],1.46,q[1],1.2,{halo:2.0,hal:0.5}); f.lt=FLIGHTS[i]; f.li=1.25; f.lt.position.set(q[0],1.75,q[1]); f.s0=f.s; CORNERF.push(f);
   });
 
   const DB=makeBatch();
@@ -5089,7 +5113,39 @@ function updateDragonFire(dt,now){
   }
   DFX.step(dt,{fire:DFIRE.on?fire:0,smoke:ok||(dragon.visible&&!reduce&&!document.hidden&&AWK.done&&!AWK.running&&!DRG.defeated&&!gameOver)});
 }
-function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
+/* ---------- Naga terbang di atas papan World ----------
+   Jalur = angka delapan di atas area papan (FLY). Heading mengikuti arah gerak (dihaluskan), miring (roll) saat berbelok.
+   Transparan seperti awan bila naga dekat kamera / memotong garis pandang kamera ke titik sorot, supaya tidak menutupi papan & bidak. */
+function dragonFlight(dt,now){
+  const D=dragon.userData,b=FLY.blend;
+  if(D.hd===undefined){ D.hd=0; D.roll=0; }
+  if(b>0) FLY.a+=dt*FLY.spd*b;
+  const a=FLY.a,px=FLY.cx+FLY.rx*Math.sin(a),pz=FLY.cz+FLY.rz*Math.sin(2*a),py=FLY.y+0.5*Math.sin(a*1.7+0.6);
+  dragon.position.x=px*b; dragon.position.z=pz*b;
+  dragon.position.y=CC_TOP+(py-CC_TOP)*b+Math.sin(now*0.003)*0.18+D.dy;
+  if(b>0.03){
+    const th=Math.atan2(FLY.rx*Math.cos(a),2*FLY.rz*Math.cos(2*a)); let df=th-D.hd; df=Math.atan2(Math.sin(df),Math.cos(df));
+    D.hd+=df*Math.min(1,dt*3); D.roll+=(-clamp(df*1.4,-0.55,0.55)-D.roll)*Math.min(1,dt*3);
+  } else { D.roll+=(0-D.roll)*Math.min(1,dt*3); }
+  dragon.rotation.y=D.hd+D.shk+Math.sin(now*0.0015)*0.05; dragon.rotation.z=D.roll;
+}
+const _fa=new THREE.Vector3(),_fb=new THREE.Vector3(),_fc=new THREE.Vector3();
+function dragonFade(dt){
+  const D=dragon.userData; if(!D.fm){ D.fm=D.mats.map(m=>({m,o:m.opacity,t:m.transparent,dw:m.depthWrite})); D.op=1; D.opA=1; }
+  let target=1;
+  if(FLY.on&&dragon.visible&&FLY.blend>0.05){
+    const cd=baseDist*cam.zoom,dc=camera.position.distanceTo(dragon.position);
+    target=Math.min(target,0.22+0.78*clamp((dc-cd*0.62)/(cd*0.3),0,1)); /* dekat kamera -> memudar */
+    _fb.copy(camTarget).sub(camera.position); const L=_fb.length()||1; _fb.divideScalar(L);
+    _fc.copy(dragon.position).sub(camera.position); const along=_fc.dot(_fb);
+    if(along>0&&along<L){ _fa.copy(_fc).addScaledVector(_fb,-along); target=Math.min(target,0.22+0.78*clamp((_fa.length()-1.6)/2.2,0,1)); } /* memotong garis pandang -> memudar */
+  }
+  D.op+=(target-D.op)*Math.min(1,dt*6);
+  if(Math.abs(D.op-D.opA)<0.004&&!(D.op>=0.999&&D.opA<0.999)) return;
+  D.opA=D.op; const op=D.op;
+  D.fm.forEach(e=>{ const tr=op<0.995||e.t; if(e.m.transparent!==tr){ e.m.transparent=tr; e.m.needsUpdate=true; } e.m.opacity=e.o*op; e.m.depthWrite=op>0.9&&e.dw; });
+}
+function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragon.userData.hd=0; dragon.userData.roll=0; dragon.rotation.z=0; FLY.on=false; FLY.blend=0; FLY.a=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
 async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
@@ -6782,6 +6838,7 @@ function frame(now){
   camTarget.x+=(tx-camTarget.x)*f; camTarget.y+=(ty-camTarget.y)*f; camTarget.z+=(tz-camTarget.z)*f;
   const dist=baseDist*cam.zoom,cp=Math.cos(cam.pitch);
   camera.position.set(camTarget.x+dist*Math.sin(cam.yaw)*cp,camTarget.y+dist*Math.sin(cam.pitch),camTarget.z+dist*Math.cos(cam.yaw)*cp);
+  if(QUAKE.amp>0.001&&!POV.on){ const qa=QUAKE.amp; camera.position.x+=(Math.random()-0.5)*qa; camera.position.y+=(Math.random()-0.5)*qa*0.8; camera.position.z+=(Math.random()-0.5)*qa; } /* gempa Dragon Awakening */
   camera.up.set(-Math.sin(cam.yaw),0,-Math.cos(cam.yaw)); /* setara up (0,1,0) untuk pitch<90, tetapi tidak degenerate di 90 derajat */
   camera.lookAt(camTarget); camLogUpdate(now,dist);
   /* Presisi depth: near 0.1 terlalu dekat -> permukaan nyaris sebidang (rumput/air/pulau) berkedip (z-fighting) saat kamera bergerak. near ikut jarak kamera; mode POV tetap near kecil. */
@@ -6807,11 +6864,12 @@ function frame(now){
     }
   }
   updatePortal(dt,now); updateArena(dt,now); updateMountain(dt,now);
-  { const D=dragon.userData,wr=Math.sin(now*0.006)*0.55,wo=Math.sin(now*0.006-0.7)*0.3;
+  { const D=dragon.userData,fy=(FLY.on&&dragon.visible)?1:0,wf=0.006+0.003*fy,wr=Math.sin(now*wf)*(0.55+0.4*fy),wo=Math.sin(now*wf-0.7)*(0.3+0.25*fy); /* terbang: kepak lebih cepat & lebar */
     D.wR.rotation.z=wr; D.wL.rotation.z=-wr; D.wRo.rotation.z=wo; D.wLo.rotation.z=-wo; /* ujung sayap melentur sedikit tertinggal */
-    D.tail.rotation.y=Math.sin(now*0.0022)*0.28; D.rig.rotation.x=Math.sin(now*0.006)*0.03;
+    D.tail.rotation.y=Math.sin(now*0.0022)*(0.28+0.2*fy); D.rig.rotation.x=Math.sin(now*wf)*0.03;
     D.head.rotation.x=Math.sin(now*0.0027)*0.05-0.32*(D.open||0); D.head.rotation.y=Math.sin(now*0.0013)*0.12; D.jaw.rotation.x=0.04+0.5*(D.open||0);
-    dragon.position.y=D.y0+Math.sin(now*0.003)*0.18+D.dy; dragon.rotation.y=Math.sin(now*0.0015)*0.2+D.shk;
+    if(FLY.on) dragonFlight(dt,now); else{ dragon.position.y=D.y0+Math.sin(now*0.003)*0.18+D.dy; dragon.rotation.y=Math.sin(now*0.0015)*0.2+D.shk; dragon.rotation.z=0; }
+    try{ dragonFade(dt); }catch(e){ console.error(e); }
     try{ updateDragonFire(dt,now); }catch(e){ console.error(e); } }
   if(FBK) FBK.updateTurnMarkers(players,now,dt);
   try{ updateEmotes(now); }catch(er){}
