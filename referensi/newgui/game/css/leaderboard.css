@@ -1,0 +1,37 @@
+/* leaderboard.html — kiri: podium + kartu posisi kamu; kanan: tab + tabel */
+#podium{position:absolute;left:260px;top:150px;width:560px;height:520px;display:flex;align-items:flex-end;justify-content:center;gap:20px}
+.pd{position:relative;display:flex;flex-direction:column;align-items:center;width:170px}
+.pd .md{width:70px;height:70px;object-fit:contain;margin-bottom:-14px;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
+.pd.p1 .md{width:92px;height:92px}
+.pd .pn{font-size:32px;margin-top:10px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd .ps{font:800 26px var(--font-body);color:#ffe08a;margin-bottom:8px}
+.pd .blk{width:100%;display:grid;place-items:center;border-radius:10px 10px 0 0;border:4px solid rgba(0,0,0,.4);border-bottom:0;box-shadow:inset 0 6px 0 rgba(255,255,255,.3)}
+.pd .blk b{font:400 80px var(--font-title);color:rgba(0,0,0,.35)}
+.p1 .blk{height:200px;background:linear-gradient(180deg,#ffd45a,#c78a14)}
+.p2 .blk{height:140px;background:linear-gradient(180deg,#dfe3ee,#8d93a8)}
+.p3 .blk{height:100px;background:linear-gradient(180deg,#e0a26a,#9a5f2c)}
+#mycard{position:absolute;left:250px;top:720px;width:540px;height:130px}
+#mycard .row{height:130px}
+#mycard .lbl{position:absolute;left:30px;top:-26px;font-size:28px;color:#ffe08a;background:#2b2550;padding:2px 18px;border-radius:10px;border:3px solid #6d6590}
+#mycard .nm{font-size:40px;line-height:1}#mycard .sb{font:800 24px var(--font-body);margin-top:6px}
+#mycard .big{font-size:64px;color:#ffe08a}
+#reward{position:absolute;left:350px;top:900px;width:340px;height:100px}
+#reward span{font-size:40px;color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+#board{position:absolute;left:820px;top:0;width:1060px;height:1080px}
+#th{position:absolute;left:30px;right:30px;top:140px;display:grid;grid-template-columns:90px 1fr 190px 200px;font:400 26px var(--font-title);color:#b9b1d3;text-align:left}
+#th span:nth-child(3),#th span:nth-child(4){text-align:right}
+#rows{position:absolute;left:10px;right:10px;top:190px;height:860px;display:flex;flex-direction:column;gap:14px;padding:6px 4px}
+.rw{flex:none;height:82px}
+.rw .no{width:70px;font:400 40px var(--font-title);color:#d8d2ee;text-align:center}
+.rw .nm{font:800 32px var(--font-body)}
+.rw .sc{width:190px;text-align:right;font:400 36px var(--font-title);color:#ffe08a}
+.rw .rk{width:180px;text-align:right;font:400 30px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.5)}
+
+/* tab kiri bergaya layar Ranking (OLGF1N): baris penuh, ikon + label, penanda garis emas diputar tegak */
+#ltabs{position:absolute;left:0;top:130px;width:230px;border-top:2px solid rgba(255,255,255,.18)}
+.lt{position:relative;width:100%;height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-bottom:2px solid rgba(255,255,255,.18)}
+.lt .ic{width:64px;height:64px;object-fit:contain;opacity:.8;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
+.lt span{font:400 24px/1 var(--font-title);color:#d8d2ee;text-shadow:0 2px 0 rgba(10,6,24,.7)}
+.lt .ul{display:none;position:absolute;left:-56px;top:57px;width:150px;height:36px;object-fit:fill;transform:rotate(-90deg)}
+.lt.on{background:linear-gradient(90deg,rgba(255,212,90,.16),transparent)}
+.lt.on .ul{display:block}.lt.on .ic{opacity:1}.lt.on span{color:#ffd45a}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dragon Roll — Game Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/room.css">
+<link rel="stylesheet" href="css/bg.css">
+</head>
+<body>
+<div id="wrap"><div id="stage">
+  <div id="sun"></div><div id="vig"></div>
+
+  <button id="back" aria-label="Kembali"><img src="assets/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><svg viewBox="0 0 24 24" fill="#fff"><path d="M15 4L7 12l8 8V4z"/></svg></button>
+  <div id="title" class="ttl">GAME ROOM</div>
+  <div id="chips"></div>
+  <button class="btn" id="leave"><img src="assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt="" onerror="this.src='assets/komponen/tombol-dan-kontrol/tombol-merah.webp'"><span>KELUAR</span></button>
+
+  <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eqgrid"></div></section>
+  <section class="panel" id="power"><h3>POWER LOADOUT</h3><div class="row" id="prow"></div><div class="info" id="pinfo"></div></section>
+  <section class="panel" id="mapi"><h3>MAP INFORMATION</h3><div class="pic" id="mpic"></div><div class="txt" id="mtxt"></div></section>
+
+  <section class="panel" id="players"><h3>PLAYER ROOM</h3>
+    <div id="bar"></div>
+    <div id="list"></div>
+    <div id="foot"><div id="why"></div>
+      <div id="acts">
+        <button class="btn" id="ready"><img src="assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>READY</span></button>
+        <button class="btn gold" id="start"><img src="assets/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp" alt=""><span>START GAME</span></button>
+      </div></div>
+  </section>
+
+  <div class="modal" id="pick"><div class="box"><h2 class="ttl" id="ptitle"></h2><div class="igrid" id="pgrid"></div>
+    <div class="mfoot"><span class="hint" id="phint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
+
+  <div class="modal" id="invite"><div class="box" style="width:900px"><h2 class="ttl">UNDANG TEMAN</h2>
+    <div class="sw" id="acc"><button data-v="private">PRIVAT</button><button data-v="public">PUBLIK</button></div>
+    <div class="row2"><div class="field" id="icode"></div><button class="btn cp" data-copy="code"><img src="assets/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><span>SALIN</span></button></div>
+    <div class="row2"><div class="field" id="ilink"></div><button class="btn cp" data-copy="link"><img src="assets/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><span>SALIN</span></button></div>
+    <div class="fl" id="friends"></div>
+    <div class="mfoot"><button class="btn" id="idone" style="width:240px;height:84px"><img src="assets/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+
+  <div id="toast"></div>
+</div></div>
+
+<div id="fade"></div>
+<script src="js/room.js"></script>
+</body>
+</html>

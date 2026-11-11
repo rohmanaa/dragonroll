@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/page.css">
+<title>Dragon Roll — Toko</title>
+<link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/bg.css">
+</head>
+<body class="shop">
+<div id="wrap"><div id="stage">
+  <!-- tata letak mengikuti layar Shop Gold (assets/penerapan/1OMg+6.png) -->
+  <button id="back" aria-label="Kembali"><img src="assets/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Toko</div>
+  <div class="cur" id="cur-em"><img src="assets/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co"><img src="assets/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <button id="home" aria-label="Lobby"><img src="assets/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
+
+  <nav id="tabs">
+    <button class="tabb" data-k="chest">CHEST</button>
+    <button class="tabb" data-k="coin">COIN</button>
+    <button class="tabb" data-k="emerald">EMERALD</button>
+  </nav>
+  <main id="cards"></main>
+
+  <!-- dialog konfirmasi / info -->
+  <div id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t"><div id="dbox">
+    <div id="dlg-t" class="ttl"></div><div id="dlg-s"></div>
+    <div class="dbtns">
+      <button class="btn" id="dlg-no"><img src="assets/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
+      <button class="btn" id="dlg-ok"><img id="dlg-okimg" src="assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span id="dlg-oktx">OK</span></button>
+    </div>
+  </div></div>
+
+  <!-- hasil buka chest -->
+  <div id="rw" role="dialog" aria-modal="true"><div id="rbox">
+    <img id="rw-chest" alt="">
+    <div id="rw-res">
+      <div id="rw-tag"></div>
+      <div id="rw-ico"><img id="rw-img" alt=""></div>
+      <div id="rw-nm"></div><div id="rw-rar"></div>
+      <div id="rw-sub"></div>
+      <div id="rw-coin"><img src="assets/komponen/hud/ikon-koin-emas.webp" alt=""><b id="rw-cv"></b></div>
+      <button class="btn" id="rw-ok"><img src="assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>OK</span></button>
+    </div>
+  </div></div>
+
+  <!-- iklan (simulasi) -->
+  <div id="ad"><div id="adbox"><div class="ttl" id="ad-t">IKLAN (SIMULASI)</div><div id="ad-n">3</div><div id="ad-s">Hadiah dikirim setelah hitung mundur selesai</div></div></div>
+  <div id="toast"></div>
+</div></div>
+<div id="fade"></div>
+<script src="js/shop.js"></script>
+</body></html>
