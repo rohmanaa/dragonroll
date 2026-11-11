@@ -1,0 +1,215 @@
+/* =========================================================================
+   DRAGON ROLL — LOBBY  (berdasarkan README bagian 4: lobby.html)
+   Kanvas desain 1920x1080 landscape, diskalakan agar muat di layar.
+   Aset: assets/komponen/** (kit Fantasy RPG, webp transparan).
+   ========================================================================= */
+:root{
+  --ink:#1b1430; --panel:rgba(38,31,62,.82); --panel-line:#6d6590; --panel-hi:#a79fd0;
+  --gold:#ffd45a; --white:#fff; --teal:#5f8da0; --teal-d:#3f6577; --red:#e8334a;
+  --font-title:'Lilita One','Baloo 2',Impact,sans-serif;
+  --font-body:'Nunito','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:#0e0b1c;overflow:hidden;font-family:var(--font-body);color:var(--white)}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;overflow:hidden;
+  background:linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%)}
+img{display:block;-webkit-user-drag:none;pointer-events:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.t-title{font-family:var(--font-title);letter-spacing:.5px;
+  text-shadow:0 3px 0 rgba(20,10,40,.55);-webkit-text-stroke:1.5px rgba(20,10,40,.55);paint-order:stroke fill}
+
+/* ---------- langit & dunia ---------- */
+#sun{position:absolute;left:-180px;top:-260px;width:900px;height:900px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,235,.9) 0%,rgba(255,250,200,.35) 38%,transparent 68%)}
+.cloud{position:absolute;opacity:.95;animation:drift linear infinite}
+.cloud i{position:absolute;background:#fff;border-radius:6px;box-shadow:0 8px 0 #d3ecfb inset}
+@keyframes drift{from{transform:translateX(-340px)}to{transform:translateX(2300px)}}
+#world{position:absolute;left:0;top:0;width:1920px;height:1080px}
+#island{animation:float 5.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+#hero{cursor:pointer;pointer-events:all}
+#herotag .svt{font-family:var(--font-title);fill:#fff;stroke:rgba(20,10,40,.7);stroke-width:5px;paint-order:stroke fill;stroke-linejoin:round}
+#herotag .svb{font-family:var(--font-body);font-weight:800;fill:#fff;stroke:rgba(20,10,40,.7);stroke-width:4px;paint-order:stroke fill;stroke-linejoin:round}
+#hero .bob{animation:bob 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes bob{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.015) translateY(-2px)}}
+#hero.jump{animation:jump .55s cubic-bezier(.3,.7,.4,1)}
+#hero.spin .bob{animation:spin .7s ease-in-out}
+@keyframes jump{0%{transform:translateY(0)}40%{transform:translateY(-120px)}100%{transform:translateY(0)}}
+@keyframes spin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+#hint{position:absolute;left:50%;top:250px;transform:translateX(-50%);padding:8px 20px;border-radius:99px;
+  background:rgba(20,16,44,.55);font-weight:800;font-size:22px;opacity:.9;pointer-events:none;animation:hint 2.4s ease-in-out infinite}
+@keyframes hint{0%,100%{opacity:.35}50%{opacity:.95}}
+
+/* ---------- profil ---------- */
+#profile{position:absolute;left:22px;top:16px;width:640px;height:150px;cursor:pointer;transition:transform .12s}
+#profile:active{transform:scale(.98)}
+#avatar{position:absolute;left:30px;top:12px;width:128px;height:128px;border-radius:50%;
+  background:radial-gradient(circle at 50% 35%,#8d78d6,#43377a);
+  border:6px solid #f2b844;box-shadow:0 0 0 3px #7a4a0b,0 6px 12px rgba(0,0,0,.4),inset 0 0 18px rgba(0,0,0,.35);overflow:hidden}
+#avatar img{position:absolute;left:-150px;top:-6px;width:370px;max-width:none}
+#lvl{position:absolute;left:0;top:76px;width:74px;height:86px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45));z-index:2}
+#lvl b{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:10px;font:400 38px/1 var(--font-title);
+  -webkit-text-stroke:2px #0b2b57;paint-order:stroke fill}
+#pname{position:absolute;left:176px;top:10px;display:flex;align-items:center;gap:12px;font-size:40px;line-height:1}
+#pname img{width:52px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+#pname span{text-shadow:0 3px 0 rgba(20,10,40,.6)}
+#xp{position:absolute;left:176px;top:70px;width:440px;height:46px;border-radius:10px;background:#1b1631;
+  border:4px solid #4c4468;box-shadow:inset 0 3px 6px rgba(0,0,0,.6),0 3px 0 #2a2342;overflow:hidden}
+#xpfill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(180deg,#59b4ff,#1f6fe0 55%,#1856b6);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.45);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+#xptxt{position:absolute;inset:0;display:grid;place-items:center;font:800 26px var(--font-body);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#xpnote{position:absolute;left:176px;top:120px;font-size:20px;font-weight:800;color:#fff;text-shadow:0 2px 0 rgba(20,10,50,.75),0 0 6px rgba(20,10,50,.5)}
+
+/* ---------- mata uang ---------- */
+.cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;
+  background:linear-gradient(180deg,#6f9db0,#55879b 55%,#4a7789);
+  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);
+  filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
+.cur::before{content:"";position:absolute;inset:4px;background:linear-gradient(180deg,#5b8a9d,#46758a);
+  clip-path:polygon(19px 0,calc(100% - 19px) 0,100% 50%,calc(100% - 19px) 100%,19px 100%,0 50%)}
+.cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;width:auto;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+.cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding-left:44px;padding-right:44px;
+  text-shadow:0 3px 0 rgba(10,30,45,.6)}
+.cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--font-body);color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.cur:active{filter:brightness(1.12) drop-shadow(0 4px 3px rgba(0,0,0,.35))}
+#cur-em{left:1000px}
+#cur-co{left:1304px}
+.cur.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.07)}}
+
+/* ---------- tombol bulat kanan atas ---------- */
+.round{position:absolute;top:18px;width:92px;height:92px;transition:transform .1s}
+.round>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.round>img.ic{position:absolute;left:50%;top:50%;width:54px;transform:translate(-50%,-52%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.round:active{transform:scale(.92)}
+#b-mail{left:1612px}
+#b-lead{left:1712px}
+#b-set{left:1812px}
+.dot{position:absolute;right:-6px;top:-6px;width:34px;height:34px;border-radius:9px;transform:rotate(45deg);background:radial-gradient(circle at 35% 30%,#ff7b8b,#e8334a 55%,#b0182d);
+  border:3px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.4);font:800 17px/28px var(--font-body);text-align:center;z-index:5}.dot>*{display:block}
+.dot.sm{width:26px;height:26px;border-radius:7px;font-size:0}
+
+/* ---------- panel kartu / tile ---------- */
+.panel{position:absolute;background:var(--panel);border-radius:22px;border:4px solid var(--panel-line);
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.35),0 8px 18px rgba(10,6,30,.4);backdrop-filter:blur(3px)}
+.panel>h3{position:absolute;left:50%;top:-22px;transform:translateX(-50%);margin:0;padding:3px 28px 6px;font:400 28px var(--font-title);
+  background:linear-gradient(180deg,#8e6df0,#5b3bc4);border-radius:12px;border:3px solid #2b1a70;white-space:nowrap;
+  text-shadow:0 2px 0 rgba(20,5,70,.7)}
+#quest{left:22px;top:176px;width:636px;height:74px;display:flex;align-items:center;gap:16px;padding:0 20px;cursor:pointer}
+#quest img{height:56px;width:auto}
+#quest .q1{font:400 28px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#quest .q2{font-weight:800;font-size:20px;color:#d7d1f2}
+#quest .qb{margin-left:auto;width:150px;height:22px;border-radius:8px;background:#1b1631;border:3px solid #4c4468;overflow:hidden}
+#quest .qb i{display:block;height:100%;width:33%;background:linear-gradient(180deg,#ffd76a,#f39a12)}
+#koleksi{left:22px;top:292px;width:636px;height:170px;padding:34px 12px 10px;display:flex;gap:10px;justify-content:center}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  border-radius:16px;background:linear-gradient(180deg,rgba(78,68,112,.95),rgba(52,44,82,.95));border:3px solid #7d75a6;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -6px 12px rgba(0,0,0,.28),0 5px 0 rgba(20,12,45,.55);
+  transition:transform .1s,filter .1s}
+.tile:hover{filter:brightness(1.12)}
+.tile:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 2px 0 rgba(20,12,45,.55)}
+.tile .ico{flex:1;display:grid;place-items:center;width:100%}
+.tile .ico img{max-width:74%;max-height:92%;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+.tile .ico img.glyph{filter:drop-shadow(0 3px 2px rgba(0,0,0,.5)) opacity(.95)}
+.tile .lb{font:400 24px/1 var(--font-title);padding:0 4px 9px;white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.65)}
+.small{width:114px;height:122px}
+.small .lb{font-size:22px}
+.big{width:200px;height:150px;margin-top:34px;border-radius:14px}
+.big .lb{font-size:32px;padding-bottom:8px;position:relative;z-index:1}
+.big .ico{position:absolute;left:0;right:0;top:-40px;height:110px}.big .ico img{max-width:none;max-height:112px;width:auto}.big .ico img.glyph{max-height:80px;margin-top:18px}.big .ico img.fr{max-height:156px;margin-top:-4px}
+#nav{position:absolute;left:30px;top:880px;align-items:flex-end;display:flex;gap:34px}
+.tile.locked{filter:saturate(.35) brightness(.8)}
+
+/* ---------- panel kanan: hadiah gratis & event ---------- */
+#side{position:absolute;right:0;top:238px;width:236px;display:flex;flex-direction:column;gap:14px;align-items:flex-end}
+.sidecard{position:relative;width:236px;height:196px;cursor:pointer;
+  background:linear-gradient(90deg,rgba(30,24,56,0) 0%,rgba(30,24,56,.78) 30%);border-radius:18px 0 0 18px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding-left:24px;transition:transform .1s}
+.sidecard:active{transform:scale(.97)}
+.sidecard img{height:130px;width:auto;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45))}
+.sidecard .tag{position:absolute;left:34px;top:-8px;z-index:2;padding:2px 12px;font:400 22px var(--font-title);background:#f48a12;border-radius:8px;border:2px solid #7a3c00;
+  text-shadow:0 2px 0 rgba(90,40,0,.7)}
+.sidecard .tm{font-weight:800;font-size:22px;margin-top:6px;text-align:center;line-height:1.15;color:#f2eefc;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+
+/* ---------- tombol MULAI ---------- */
+#go{position:absolute;right:30px;bottom:28px;width:470px;height:166px;transition:transform .1s;animation:pulse 2.2s ease-in-out infinite}
+#go img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:drop-shadow(0 8px 6px rgba(20,10,0,.5))}
+#go span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:14px;padding-bottom:10px;
+  font:400 78px/1 var(--font-title);color:#4d2300;text-shadow:0 3px 0 rgba(255,236,160,.65);letter-spacing:2px}
+#go span svg{width:54px;height:54px}
+#go:active{animation:none;transform:scale(.95)}
+#go:hover img{filter:brightness(1.1) drop-shadow(0 8px 6px rgba(20,10,0,.5))}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+
+/* ---------- toast & transisi ---------- */
+#toast{position:absolute;left:50%;bottom:250px;transform:translate(-50%,30px);opacity:0;pointer-events:none;
+  padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);border:3px solid #8f86bf;font-weight:800;font-size:28px;
+  transition:.28s;z-index:50;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:60}
+#fade.on{opacity:1;pointer-events:all}
+
+/* ---------- polish: vignette, animasi masuk, kilau ---------- */
+#vig{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,20,60,.28) 0,transparent 20%,transparent 70%,rgba(10,10,50,.45) 100%)}
+.spark{position:absolute;width:10px;height:10px;background:#fff;opacity:0;transform:rotate(45deg);animation:tw 4s ease-in-out infinite;box-shadow:0 0 12px #fff}
+@keyframes tw{0%,100%{opacity:0;scale:.4}50%{opacity:.9;scale:1}}
+#profile,#quest,#koleksi{animation:inL .6s cubic-bezier(.2,.9,.2,1) both}
+#quest{animation-delay:.08s}#koleksi{animation-delay:.16s}
+.cur,.round{animation:inT .6s cubic-bezier(.2,.9,.2,1) both}
+#cur-co{animation-delay:.07s}#b-mail{animation-delay:.14s}#b-lead{animation-delay:.18s}#b-set{animation-delay:.22s}
+#nav .tile{animation:inB .6s cubic-bezier(.2,.9,.2,1) both}
+#nav .tile:nth-child(2){animation-delay:.07s}#nav .tile:nth-child(3){animation-delay:.14s}#nav .tile:nth-child(4){animation-delay:.21s}
+#side{animation:inR .6s .2s cubic-bezier(.2,.9,.2,1) both}
+@keyframes inL{from{opacity:0;transform:translateX(-80px)}}
+@keyframes inT{from{opacity:0;transform:translateY(-60px)}}
+@keyframes inB{from{opacity:0;transform:translateY(80px)}}
+@keyframes inR{from{opacity:0;transform:translateX(120px)}}
+#go::after{content:"";position:absolute;inset:14px 20px;overflow:hidden;border-radius:10px;pointer-events:none;
+  background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);background-size:250% 100%;background-position:150% 0;animation:shine 3.2s 1s infinite}
+@keyframes shine{to{background-position:-50% 0}}
+.sidecard .tm b{color:#ffd45a}
+/* ---- bingkai dari kit (9-slice) ---- */
+.panel{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
+.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.tile{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
+.tile::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+/* tile besar navigasi bawah (TOKO, TEMAN, HADIAH & MISI, TAMBANG): bingkai webp kit, bukan panel CSS */
+#nav .tile.big::before{inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
+#quest{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
+#quest::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+/* ---- pita judul dari kit ---- */
+.panel>h3{background:url(../komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* ---- latar full-bleed: langit menutupi SELURUH layar; isi lobby tetap di kontainer landscape 1920x1080 ---- */
+html,body{background:linear-gradient(180deg,rgba(10,20,60,.28) 0,transparent 20%,transparent 70%,rgba(10,10,50,.45) 100%),linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%) fixed #8bd5fa!important}
+#stage{background:none!important;overflow:visible!important}
+#vig{display:none}
+
+/* ===== gaya mengikuti referensi 5vR06g ===== */
+#koleksi{width:636px;gap:8px;padding-left:10px;padding-right:10px}
+#koleksi .small{width:auto;flex:1 1 0;min-width:0}
+#koleksi .tile .lb{font-size:19px;padding:0 0 9px}
+/* tile menu bawah: bentuk tile ungu dipotong dari referensi */
+#nav{gap:40px}
+.big{width:188px;height:136px;margin-top:40px;border-radius:0}
+#nav .tile.big::before{inset:0;border:0;border-image:none;background:url(../komponen/tombol-dan-kontrol/tile-menu-bawah.webp) center/100% 100% no-repeat;filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
+.big .lb{font-size:30px;padding-bottom:10px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.7);-webkit-text-stroke:1px rgba(20,10,40,.6);paint-order:stroke fill}
+.big .lk{position:absolute;right:8px;bottom:4px;width:34px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+#nav .tile.locked{filter:saturate(.5) brightness(.85)}
+#nav .tile:nth-child(5){animation-delay:.28s}
+/* tombol PLAY dari referensi */
+#go{right:14px;bottom:6px;width:420px;height:240px}
+#go img{filter:drop-shadow(0 6px 5px rgba(20,10,0,.45))}
+#go span{padding-bottom:6px;font:400 84px/1 var(--font-title);color:#3a1236;text-shadow:none;letter-spacing:1px}
+#go::after{inset:42px 62px 52px;border-radius:12px}
+/* kartu kanan: Chest & Celengan (soon) */
+#side{top:226px;gap:10px}
+.sidecard{height:178px}
+.sidecard img{height:112px}
+.sidecard .tag.pk{left:auto;right:8px;top:30px;background:#e8334a;border-color:#7a0f20;text-shadow:0 2px 0 rgba(80,0,10,.7)}
+.sidecard .tag.sn{left:34px;background:#6e69a0;border-color:#2d2a58;text-shadow:0 2px 0 rgba(10,8,40,.7)}
+.sidecard.soon img{filter:drop-shadow(0 5px 4px rgba(0,0,0,.45)) saturate(.7)}
+.sidecard.soon .tm b{color:#cfc8ea}

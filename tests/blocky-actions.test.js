@@ -137,7 +137,7 @@ t('lari lalu loncat lalu berguling (urutan lobby) stabil: tinggi badan ~2 dan ti
 t('lobby.html: semua aksi yang dijadwalkan dikenal rig, dan jadwal dipanggil di loop', () => {
   const l = read('lobby.html'), names = new Set(); let m; const re = /bc\.act\('([a-z]+)'\)/g;
   while ((m = re.exec(l))) names.add(m[1]);
-  assert.ok(names.size >= 7, 'aksi lobby: ' + [...names]);
+  assert.ok(names.size >= 6, 'aksi lobby: ' + [...names]);
   for (const nm of names) { const c = make(); c.tick(0.016); c.act(nm); assert.strictEqual(c.acting, nm, 'aksi lobby tidak dikenal: ' + nm); }
   assert.ok(/bc\.tick\(dt\);lobbyStep\(dt\)/.test(l), 'lobbyStep dipanggil tiap frame');
   assert.ok(/lobbyTap\(\);buzz\(\)/.test(l), 'tap karakter memicu aksi');
