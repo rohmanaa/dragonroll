@@ -1,248 +1,205 @@
-<!DOCTYPE html>
-<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<!doctype html>
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pilih Mode</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/mode-bg.webp"></script>
-
-<style>:root{--curbar-right:2.6rem;--curbar-top:2rem;--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1"><script src="assets/js/landscape.js"></script><style>
-:root{--bk:max(5rem,44px)}
-:root{--bd:#12337f;--ink:#0b1530}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html{font-size:min(1vw,1.78vh)}
-html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Arial Rounded MT Bold',Arial,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
-button{font:inherit;color:inherit;border:0;cursor:pointer;transition:transform .15s,filter .15s}
-button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focus-visible{outline:.3rem solid #fff}
-#sky{position:fixed;inset:0}
-#stage{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);display:flex;flex-direction:column;gap:1.2rem}
-.blue{background:linear-gradient(#3f93f4,#1d58c6);border-radius:1rem;box-shadow:0 0 0 .22rem var(--ink),0 .5rem 0 .22rem var(--ink),inset 0 .2rem .2rem rgba(255,255,255,.55),inset 0 0 0 .25rem rgba(150,205,255,.45)}
-#hd{flex:none;position:relative;display:flex;align-items:flex-start;justify-content:flex-start;gap:1.4rem;padding:1.6rem 2.4rem 0;height:7.4rem}
-.ib{width:max(5rem,44px);height:max(5rem,44px);padding:0;display:grid;place-items:center}.ib img,.ib svg{width:3.2rem;height:3.2rem;pointer-events:none}
-#title{position:relative;flex:none;height:max(5rem,44px);padding:0 2.4rem;display:flex;align-items:center;gap:1.2rem;font-size:3.2rem;white-space:nowrap;-webkit-text-stroke:.2rem var(--ink);paint-order:stroke fill;text-shadow:0 .2rem 0 var(--ink)}
-#title img{width:3.8rem;height:3.8rem}
-/* ===== select map: horizontal carousel, scroll-snap ===== */
-#mapsec{flex:none;position:relative;margin-top:.8rem}
-:root{--mw:17.4rem;--mstep:21.5rem}
-#car{position:relative;height:calc(var(--mw)*.75 + 3.4rem);overflow:hidden;touch-action:pan-y;user-select:none}
-.map{position:absolute;left:50%;top:1.6rem;margin-left:calc(var(--mw)/-2);width:var(--mw);aspect-ratio:4/3;translate:calc(var(--o,0)*var(--mstep)) 0;border-radius:1.4rem;overflow:hidden;cursor:pointer;opacity:.72;scale:.88;transition:translate .35s cubic-bezier(.3,.9,.3,1),scale .25s,opacity .3s,box-shadow .25s;box-shadow:0 0 0 .3rem var(--ink)}
-.map.far{opacity:0;pointer-events:none}
-.map.on{opacity:1;scale:1;box-shadow:0 0 0 .3rem var(--ink),0 0 0 .75rem #ffd73a,0 0 2.6rem 1rem rgba(255,225,70,.6)}
-.map .art{position:absolute;inset:0}.map .art>*{width:100%;height:100%;display:block;object-fit:cover}
-.map .mt{z-index:1;position:absolute;left:1rem;right:1rem;bottom:1.2rem;display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;text-align:left;pointer-events:none}
-.map .mt b{font-size:2.4rem;line-height:1;white-space:nowrap;-webkit-text-stroke:.3rem var(--ink);paint-order:stroke fill;text-shadow:0 .15rem 0 var(--ink)}
-.map .mt small{font-size:1.15rem;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;-webkit-text-stroke:.22rem var(--ink);paint-order:stroke fill;text-shadow:0 .1rem 0 var(--ink)}
-.arr,.arr.blue{position:absolute;top:calc(1.6rem + var(--mw)*.375);translate:0 -50%;z-index:3;width:5rem;height:5rem;padding:0 0 .3rem;display:grid;place-items:center;font-size:3.6rem;line-height:1;border-radius:1.1rem;background:linear-gradient(#fff,#dfe8f5);box-shadow:0 0 0 .22rem var(--ink),0 .35rem 0 .22rem var(--ink),inset 0 -.25rem 0 rgba(120,150,200,.4);color:var(--ink);text-shadow:none;-webkit-text-stroke:0}
-.arr:active:not(:disabled){transform:scale(.88)}
-#prev{left:max(.4rem,calc(50% - var(--mstep) - var(--mw)*.44 - 6.8rem))}#next{right:max(.4rem,calc(50% - var(--mstep) - var(--mw)*.44 - 6.8rem))}
-#dots{display:flex;justify-content:center;gap:.9rem;margin-top:-.4rem;height:1.4rem}
-#dots i{width:1.2rem;height:1.2rem;border-radius:50%;background:rgba(11,21,48,.35);cursor:pointer;transition:.2s}#dots i.on{background:#ffd73a;width:3rem;border-radius:.7rem}
-/* ===== dua card besar (tidak flip) ===== */
-#cards{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.5fr;gap:2.4rem;padding:0 4.6rem 2rem}
-.card{position:relative;min-height:0;display:flex;flex-direction:column;padding:1.2rem 1.6rem 1.6rem;border-radius:1.6rem;background:linear-gradient(var(--p1),var(--p2));box-shadow:0 0 0 .3rem #0b0c10,0 .7rem 0 .3rem #0b0c10,inset 0 0 0 .38rem var(--c)}
-#qs{--p1:#4a2b8c;--p2:#35205f;--c:#8a6ad8}#cr{--p1:#2f6a3c;--p2:#25472d;--c:#47b866}
-.card h2{margin:0;font-size:3.4rem;line-height:1;-webkit-text-stroke:.5rem #0b0c10;paint-order:stroke fill;text-shadow:0 .3rem 0 #0b0c10}
-.card>p{margin:.3rem 0 1rem;font-size:1.5rem;font-weight:700;color:#e5ecf8}
-.tiles{flex:1;min-height:0;display:grid;gap:1.4rem;grid-auto-flow:column;grid-auto-columns:1fr}
-/* tile kecil = yang flip */
-.tile{position:relative;min-height:0;perspective:90rem}
-.ti{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,1.2,.5,1)}
-.tile.flipped .ti{transform:rotateY(180deg)}
-.fc,.bk{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:.8rem;text-align:center;box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.45)}
-.fc{width:100%}
-.tile.flipped .fc{pointer-events:none}.tile:not(.flipped) .bk{pointer-events:none}
-.bk{transform:rotateY(180deg);justify-content:center;gap:.5rem;padding:.6rem .8rem}
-/* gambar memenuhi kartu; judul+keterangan menempel di kaki bawah gambar */
-.fc{padding:0;gap:0}
-.tc1 .fc,.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
-.tc2 .fc,.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
-.tc3 .fc,.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
-.fc>b{position:absolute;left:.5rem;right:.5rem;bottom:2rem;z-index:1;font-size:2.3rem;line-height:1;-webkit-text-stroke:.35rem #0b0c10;paint-order:stroke fill;text-shadow:none}
-.fc>small{position:absolute;left:.5rem;right:.5rem;bottom:.7rem;z-index:1;font-size:1.25rem;font-weight:700;line-height:1.15;opacity:.95;-webkit-text-stroke:.16rem #0b0c10;paint-order:stroke fill}
-.fc svg{width:5rem;height:5rem}
-.fc .tart{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-/* hover kartu: cahaya glow membesar & lebih terang (tanpa partikel) */
-.fc::after{transition:filter .25s,scale .25s}
-.tile .fc:hover::after{filter:brightness(1.5);scale:1.15}
-/* cahaya radial berputar di balik gambar tile, gaya #chest di dailyreward */
-.fc{isolation:isolate}
-.fc::after{content:"";position:absolute;left:50%;top:50%;width:16rem;height:16rem;translate:-50% -50%;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff1a8 0,rgba(255,241,168,.5) 36%,transparent 70%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.32) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);animation:fcray 24s linear infinite}
-@keyframes fcray{to{rotate:360deg}}
-/* map terkunci (The End: SOON) */
-.map.lock{cursor:default}.map.lock .art>*{filter:grayscale(.6) brightness(.55)}
-.map .soon{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;pointer-events:none;background:rgba(10,12,28,.35)}
-.map .soon svg{width:5rem;height:5rem;filter:drop-shadow(0 .2rem 0 #0b1220)}
-.map .soon em{font-style:normal;font-size:2.4rem;line-height:1;letter-spacing:.2rem;padding:.2rem 1.2rem .3rem;border-radius:.8rem;color:#ffe9a8;background:linear-gradient(#3b3558,#231f3a);box-shadow:0 0 0 .2rem #0b1220,inset 0 0 0 .15rem #8a7bd0;text-shadow:0 .15rem 0 #0b1220}
-.map-locked #cards{opacity:.45;filter:grayscale(.6);pointer-events:none;transition:opacity .25s,filter .25s}
-/* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
-.bk{justify-content:center}
-.gl{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:100%;border:.3rem solid #0b1838;border-radius:1.4rem;color:#fff;line-height:1.05}
-.gl::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:1rem 1rem 1.6rem 1.6rem;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
-.gl>*{position:relative}
-.gl-gold{background:linear-gradient(#ffe36e,#ffc21c 50%,#f7a50c 52%,#ffb81c);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.55),inset 0 -.4rem 0 rgba(160,85,0,.35),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #a8590b,0 0 .4rem #a8590b}
-.gl-blue{background:linear-gradient(#6fa6ff,#2f64d6 50%,#2455c4 52%,#2c63d4);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(8,25,90,.45),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #0b1838}
-.gl-grey{background:linear-gradient(#a3add0,#6d79a4 50%,#5a668f 52%,#66719b);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(25,35,80,.4),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #26305a}
-.bk .opt{flex:1;min-height:2.6rem;max-height:5rem;width:100%;border-radius:.9rem;font-size:1.8rem;line-height:1.05;color:#fff;border:.3rem solid var(--ink);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ink);text-shadow:0 .15rem 0 #8a4a0a}
-.bk .opt:hover{filter:brightness(1.08)}
-.bk .bx{flex:none;min-height:2.6rem;height:2.6rem;font-size:1.5rem}
-.tc1 .bk .opt{background:linear-gradient(#58b6ff,#1f86ee);box-shadow:inset 0 0 0 .15rem #a5d8ff,inset 0 -.3rem 0 rgba(8,25,90,.45),0 .3rem 0 var(--ink);text-shadow:0 .15rem 0 #0b2a78}
-/* card glossy: kilap putih di bagian atas */
-.fc,.bk{overflow:hidden}
-.fc::before,.bk::before{content:"";position:absolute;left:4%;right:4%;top:5%;height:40%;border-radius:1rem 1rem 1.8rem 1.8rem;background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.06));pointer-events:none}
-.fc>*,.bk>*{position:relative}
-#mm{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.55);backdrop-filter:blur(6px);z-index:50}
-#mm.show{display:grid}
-.mbox{width:min(46rem,90vw);padding:2.4rem;text-align:center;border-radius:2rem}
-.mbox h3{margin:0 0 .6rem;font-size:3rem;text-shadow:0 .2rem 0 var(--bd)}.mbox p{margin:0 0 1.4rem;font-size:1.8rem;color:#e8f5ff}
-.spin{width:6rem;height:6rem;margin:0 auto 1.2rem;border-radius:1rem;background:#ffd73a;animation:sp 1s linear infinite;box-shadow:0 0 0 .3rem var(--ink)}.spin.done{animation:none;background:#4fd24a}
-@keyframes sp{to{rotate:360deg}}
-.cx{height:4.4rem;padding:0 3rem;border-radius:1rem;background:linear-gradient(#ff6a6a,#d63a3a);font-size:2rem;box-shadow:0 0 0 .2rem var(--ink)}
-#toast{position:fixed;left:50%;bottom:3rem;translate:-50% 2rem;background:var(--bd);padding:.8rem 2.4rem;border-radius:2rem;font-size:2rem;opacity:0;transition:.3s;z-index:60;pointer-events:none}#toast.on{opacity:1;translate:-50% 0}
-@media(max-aspect-ratio:1/1){
-html{font-size:2.6vw}html,body{overflow:auto}
-#stage{position:relative;inset:auto;min-height:100%}
-#cards{grid-template-columns:1fr;padding:0 1.6rem 2.4rem;gap:2rem}.card{height:34rem}
-:root{--mw:22rem;--mstep:30rem}.ut-curbar{display:none}
-#title{font-size:2.8rem;padding:0 2rem}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
-html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
-
-/* ===== seragam lobby ===== */
-.card,#qs,#cr{background:linear-gradient(var(--sl1),var(--sl2));box-shadow:var(--slf)}
-.card h2,#title,.map .mt b{-webkit-text-stroke:0;text-shadow:0 .16rem 0 #0b1220,0 0 .4rem rgba(11,18,32,.5)}
-.card>p,.mbox p{color:#cdd8ea}
-.arr,.arr.blue{color:#fff;text-shadow:0 .15rem 0 #0b1220}
-.tc2 .fc,.tc2 .bk,.tc1 .bk .opt{background:linear-gradient(#6b82a6,#43587a)}
-@media(min-aspect-ratio:1/1){html{font-size:min(1vw,1.85vh)}#stage{inset:0 auto 0 50%;width:100rem;translate:-50% 0}#hd{padding-left:2.6rem;padding-right:2.6rem}}
-</style><link rel="stylesheet" href="assets/css/lobby-theme.css"></head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/mode.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
+<style>#mcancel[hidden]{display:none}.cur{cursor:pointer}.cur .v.bump{animation:bump .5s ease-out}@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}</style>
+</head>
 <body>
-<div id="sky"></div>
+<div id="wrap">
 <div id="stage">
- <header id="hd">
-  <button class="blue ib" id="back" aria-label="Kembali"><img src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
-  <div class="blue" id="title"><img src="assets/Images/icon/mode/console.webp" alt="" draggable="false">Pilih Mode</div>
-  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
- </header>
- <section id="mapsec" aria-label="Pilih map">
-  <button class="blue arr" id="prev" aria-label="Map sebelumnya">‹</button>
-  <div id="car" role="listbox" aria-label="Daftar map"></div>
-  <button class="blue arr" id="next" aria-label="Map berikutnya">›</button>
-  <div id="dots"></div>
- </section>
- <section id="cards">
-  <article class="card" id="qs"><h2>QUICK START</h2><p>Main cepat lewat matchmaking.</p><div class="tiles" id="qsT"></div></article>
-  <article class="card" id="cr"><h2>CREATE ROOM</h2><p>Buat pertandingan dengan pengaturan sendiri.</p><div class="tiles" id="crT"></div></article>
- </section>
+
+  <!-- header -->
+  <button id="back" aria-label="Kembali ke lobby"><img class="bg" src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""></button>
+  <div id="title" class="ttl">PILIH MODE</div>
+  <div class="cur" id="cur-em" role="button" aria-label="Emerald, buka Tambang"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+
+  <!-- peta -->
+  <section id="maps">
+    <h3>PILIH PETA</h3>
+    <div id="view"><div id="track"></div></div>
+    <button class="arrow" id="prev" aria-label="Peta sebelumnya"><img src="assets/ng/komponen/stage-chapter/panah-chapter-kiri.webp" alt=""></button>
+    <button class="arrow" id="next" aria-label="Peta berikutnya"><img src="assets/ng/komponen/stage-chapter/panah-chapter-kanan.webp" alt=""></button>
+    <div id="dots"></div>
+    <div id="mapinfo"></div>
+  </section>
+
+  <!-- quick start -->
+  <section class="card" id="quick">
+    <div class="hd ttl">QUICK START</div><div class="desc">Cari lawan otomatis</div>
+    <div class="tiles">
+      <div class="flip" data-id="q-solo">
+        <div class="face front"><div class="ic"><img src="assets/ng/komponen/new-icon/solo.webp" alt=""></div><div class="nm ttl">SOLO</div><div class="sb">Semua melawan semua</div></div>
+        <div class="face back"><button class="close">×</button><div class="q ttl">Berapa pemain?</div><div class="opts" data-kind="quick" data-format="solo"></div></div>
+      </div>
+      <div class="flip" data-id="q-team">
+        <div class="face front"><div class="ic xl"><img src="assets/ng/komponen/new-icon/teamvsteam.webp" alt=""></div><div class="nm ttl">TEAM</div><div class="sb">2 vs 2</div></div>
+        <div class="face back"><button class="close">×</button><div class="q ttl">Mode Team 2 vs 2</div><div class="opts" data-kind="quick" data-format="team" data-counts="4"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- create room -->
+  <section class="card" id="create">
+    <div class="hd ttl">CREATE ROOM</div><div class="desc">Atur permainanmu sendiri</div>
+    <div class="tiles">
+      <div class="flip" data-id="c-vsc">
+        <div class="face front"><div class="ic xl"><img src="assets/ng/komponen/new-icon/vscomputer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">VS COMPUTER</div><div class="sb">Lawan bot</div></div>
+        <div class="face back"><button class="close">×</button><div class="q ttl">Jumlah peserta</div><div class="opts" data-kind="room" data-mode="vsc" data-format="solo"></div></div>
+      </div>
+      <div class="flip" data-id="c-local">
+        <div class="face front"><div class="ic"><img src="assets/ng/komponen/new-icon/multiplayer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">MULTI PLAYER</div><div class="sb">Satu perangkat, gantian</div></div>
+        <div class="face back"><button class="close">×</button><div class="q ttl">Jumlah pemain</div><div class="opts" data-kind="room" data-mode="local" data-format="solo"></div></div>
+      </div>
+      <div class="flip" data-id="c-online">
+        <div class="face front"><div class="ic"><img src="assets/ng/komponen/ikon-item/gerbang-dungeon.webp" alt=""></div><div class="nm ttl" style="font-size:36px">CREATE ROOM</div><div class="sb">Online dengan teman</div></div>
+        <div class="face back"><button class="close">×</button><div class="q ttl">Format room online</div>
+          <div class="opts" data-kind="room" data-mode="online" data-pairs="solo:4:SOLO:Maks. 4 pemain|team:4:TEAM:2 vs 2"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal"><div id="mbox">
+    <div id="mt" class="ttl">MENCARI LAWAN…</div><div id="ms"></div>
+    <div class="spin" id="spin"></div><div id="mplayers"></div>
+    <button id="mcancel"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
+  </div></div>
+  <div id="toast"></div>
 </div>
-<div id="mm"><div class="mbox blue" role="dialog" aria-modal="true"><div class="spin" id="mmSpin"></div><h3 id="mmT">MENCARI LAWAN...</h3><p id="mmP"></p><button class="cx" id="mmX">BATAL</button></div></div>
-<div id="toast"></div>
+</div>
+
+<div id="fade"></div>
+
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script src="assets/js/room-flow.js"></script>
+<script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'mode'});</script>
 <script>
 (()=>{
-const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow,fmt=n=>n.toLocaleString('id-ID');
-const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow,fmt=n=>Number(n).toLocaleString('id-ID');
 const buzz=()=>{try{if(PD.settings().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-function money(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{money()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
-UT.Events.on('currencyChanged',money);money();
-/* sky ringan */
-(()=>{const sk=$('#sky');[[8,10,14],[40,6,10],[78,12,16],[66,70,14],[16,76,12]].forEach(p=>{const e=document.createElement('div');e.style.cssText=`position:absolute;left:${p[0]}%;top:${p[1]}%;width:${p[2]}rem;height:${p[2]/3}rem;border-radius:50%;background:#fff;opacity:.7;filter:blur(.6rem)`;sk.appendChild(e)})})();
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2000)}
+function nav(fn){$('#fade').classList.add('on');setTimeout(fn,330)}
+addEventListener('pageshow',e=>{if(e.persisted){$('#fade').classList.remove('on');closeAll();cancelMM()}});
 
-/* ---------- MAP CAROUSEL (loop tanpa ujung, bingkai 4:3) ---------- */
-/* The End: belum rilis -> kartu terkunci bertanda SOON (tidak bisa dipilih untuk main) */
-const END_MAP={id:'theme.end',gameKey:'end',name:'Map The End',desc:'Segera hadir',locked:true};
-const ART_END='<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0618"/><stop offset=".6" stop-color="#241043"/><stop offset="1" stop-color="#3a1b66"/></linearGradient></defs><rect width="400" height="300" fill="url(#eg)"/><g fill="#fff" opacity=".7"><rect x="40" y="30" width="3" height="3"/><rect x="120" y="60" width="2" height="2"/><rect x="210" y="24" width="3" height="3"/><rect x="300" y="52" width="2" height="2"/><rect x="350" y="20" width="3" height="3"/><rect x="170" y="90" width="2" height="2"/></g><path d="M20 232h360l-30 28H60z" fill="#d9d39a"/><path d="M60 260h290l-30 22H90z" fill="#a9a272"/><g fill="#15101f"><rect x="70" y="120" width="22" height="112"/><rect x="150" y="90" width="22" height="142"/><rect x="236" y="110" width="22" height="122"/><rect x="316" y="140" width="22" height="92"/></g><g fill="#b36bff"><rect x="76" y="112" width="10" height="10"/><rect x="156" y="82" width="10" height="10"/><rect x="242" y="102" width="10" height="10"/><rect x="322" y="132" width="10" height="10"/></g><path d="M190 70l30 8 24-14-8 22 22 6-30 6-6 18-12-16-24 4 12-16z" fill="#05030b"/><g fill="#d36bff"><rect x="214" y="72" width="4" height="4"/><rect x="224" y="74" width="4" height="4"/></g></svg>';
-const LOCK_SVG='<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10.5" rx="2.2" fill="#ffd24d" stroke="#0b1220" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#0b1220" stroke-width="3.4" stroke-linecap="round"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#e8edf5" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1.6" fill="#0b1220"/></svg>';
-const MAPS=RF.maps().concat([END_MAP]);const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getMap())),pos=idx;
-const car=$('#car'),mod=(a,n)=>((a%n)+n)%n,els=new Map();
-/* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
-const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
-$('#dots').innerHTML=MAPS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
-function mk(v){const i=mod(v,N),m=MAPS[i],e=document.createElement('div');e.className='map far';e.setAttribute('role','option');e.tabIndex=0;e.dataset.i=i;e.dataset.v=v;
- e.classList.toggle('lock',!!m.locked);
- e.innerHTML=`<div class="art">${m.locked?ART_END:BANNER[m.gameKey]?`<img src="${BANNER[m.gameKey]}" alt="" draggable="false">`:ItemArt.theme(m.id)}</div>${m.locked?`<div class="soon">${LOCK_SVG}<em>SOON</em></div>`:''}<div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
- e.style.setProperty('--o',v-pos);
- e.onclick=()=>go(+e.dataset.v);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(+e.dataset.v)}};car.appendChild(e);return e}
-function render(){if(!N)return;
- for(let v=pos-2;v<=pos+2;v++){if(!els.has(v)){if(N<2&&v!==pos)continue;els.set(v,mk(v))}}
- els.forEach((e,v)=>{const o=v-pos;if(Math.abs(o)>2){e.remove();els.delete(v);return}
-  e.style.setProperty('--o',o);e.classList.toggle('far',Math.abs(o)>1);e.classList.toggle('on',o===0);e.setAttribute('aria-selected',o===0)})}
-function setActive(i){idx=i;
- if(MAPS[i].locked){document.body.classList.add('map-locked');toast('The End: segera hadir (SOON)')}  /* map terkunci: pilihan map tersimpan tidak berubah */
- else{document.body.classList.remove('map-locked');RF.setMap(MAPS[i].gameKey)}$('#dots').querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i))}
-function go(v){if(!N||v===pos)return;pos=v;render();setActive(mod(pos,N))}
-function goIdx(i){const d=mod(i-pos,N);go(pos+(d>N/2?d-N:d))}
-$('#dots').querySelectorAll('i').forEach(d=>d.onclick=()=>goIdx(+d.dataset.i));
-$('#prev').onclick=()=>go(pos-1);$('#next').onclick=()=>go(pos+1);
-if(N<2){$('#prev').hidden=$('#next').hidden=true}
-let sx=null;car.addEventListener('pointerdown',e=>{sx=e.clientX});
-addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)go(pos+(dx<0?1:-1))});
-car.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(pos-1);if(e.key==='ArrowRight')go(pos+1)});
-if(N){render();setActive(idx)}
-
-/* ---------- TILE (yang flip hanya tile kecil; hanya satu terbuka) ---------- */
-const IC_={solo:'<img class="tart" src="assets/Images/icon/mode/vsolo.webp" alt="" draggable="false">',
-team:'<img class="tart" src="assets/Images/icon/mode/teamvsteam.webp" alt="" draggable="false">',
-bot:'<img class="tart" src="assets/Images/icon/mode/vsrobot.webp" alt="" draggable="false">',
-loc:'<img class="tart" src="assets/Images/icon/mode/multiplayer.webp" alt="" draggable="false">',
-room:'<img class="tart" src="assets/Images/icon/mode/createroom.webp" alt="" draggable="false">'};
-const TILES={
- qs:[{id:'solo',c:'tc1',ic:'solo',t:'SOLO',d:'Ranked 2 / 3 / 4 pemain',flip:{h:'JUMLAH PEMAIN',o:[['2 PEMAIN',()=>ranked('solo',2)],['3 PEMAIN',()=>ranked('solo',3)],['4 PEMAIN',()=>ranked('solo',4)]]}},
-     {id:'team',c:'tc2',ic:'team',t:'TEAM',d:'2 vs 2 • langsung cari tim',go:()=>ranked('team',4)}],
- cr:[{id:'vsc',c:'tc2',ic:'bot',t:'VS COMPUTER',d:'Lawan AI',flip:{h:'JUMLAH PESERTA',o:[2,3,4].map(n=>[n+' PESERTA',()=>room('vsc','solo',n)])}},
-     {id:'local',c:'tc1',ic:'loc',t:'MULTI PLAYER',d:'Satu perangkat, gantian',flip:{h:'JUMLAH PEMAIN',o:[2,3,4].map(n=>[n+' PEMAIN',()=>room('local','solo',n)])}},
-     {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['SOLO',()=>room('online','solo',4)],['TEAM',()=>room('online','team',4)]]}}]};
-Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
- <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
- <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
-const ALL=[...TILES.qs,...TILES.cr];
-function closeAll(){document.querySelectorAll('.tile.flipped').forEach(t=>t.classList.remove('flipped'))}
-ALL.forEach(t=>{const el=$('#t_'+t.id),fc=el.querySelector('.fc');
- fc.onclick=()=>{buzz();if(t.go){closeAll();t.go();return}const was=el.classList.contains('flipped');closeAll();if(!was)el.classList.add('flipped')};
- el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{buzz();t.flip.o[+b.dataset.o][1]()});
- });
-/* tanpa tombol kembali: ketuk di luar kartu flip untuk menutup */
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.tile.flipped'))closeAll()});
-addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
-addEventListener('pageshow',()=>{closeAll();cancelMM()});
-
-/* ---------- alur ---------- */
-async function quickJoin(format){
- try{
-  const ready=()=>new Promise(resolve=>{if(UT.Multiplayer&&UT.Multiplayer.RoomService)return resolve();addEventListener('ut:multiplayer-ready',resolve,{once:true})});
-  await ready();
-  const MP=UT.Multiplayer.RoomService,player=await MP.ensurePlayer();
-  UT.UI.toast('Mencari room publik...');
-  const joined=await MP.quickJoin({name:player.name,format});
-  location.href='room.html?mode=online&format='+encodeURIComponent(format)+'&count='+joined.max_players+'&role=guest&code='+encodeURIComponent(joined.code);
- }catch(e){console.error('[multiplayer] quick join failed',e);UT.UI.toast(e.message==='NO_PUBLIC_ROOM_AVAILABLE'?'Belum ada room publik yang tersedia.':'Quick Join gagal: '+(e.message||'Periksa koneksi'),3000)}
+/* ---- saldo: PlayerData; "—" sampai server membalas; ikut berubah tanpa refresh ---- */
+function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
+function money(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
+UT.Events.on('currencyChanged',money);
+try{PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')money()})}catch(e){}
+money();
+$('#cur-em').onclick=()=>{buzz();nav(()=>{location.href='tambang.html?from=mode.html'})};
+$('#cur-co').onclick=()=>{buzz();nav(()=>{location.href='shop.html?coin=1'})};
+if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){
+  UT.WalletService.get().refresh();
+  if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}
 }
 
-function room(mode,format,count){RF.navigate('room',{mode,format,count})}
+/* ---- peta: dari RoomFlow.maps() (ItemCatalog, kind:'theme') + The End (terkunci). Ilustrasi = gaya GUI baru ---- */
+const META={
+  minecraft:{id:'world',name:'WORLD',sub:'Minecraft · Finis Block 100 · Ender Dragon',sky:['#6cc4ff','#c8ecff'],ground:['#78cc4e','#58a33a','#8d6038']},
+  nether:{id:'nether',name:'NETHER',sub:'Finis Block 120 · Wither',sky:['#4a0d12','#a1301a'],ground:['#a33a3a','#7a2828','#4b2020']}
+};
+const MAPS=RF.maps().map(m=>{const x=META[m.gameKey]||{};return{id:x.id||m.gameKey,key:m.gameKey,name:x.name||String(m.name||m.gameKey).replace(/^Map /,'').toUpperCase(),sub:x.sub||m.desc||'',sky:x.sky||['#6cc4ff','#c8ecff'],ground:x.ground||['#78cc4e','#58a33a','#8d6038']}})
+ .concat([{id:'end',key:null,name:'THE END',sub:'Segera hadir',sky:['#120b25','#2b1a52'],ground:['#d9d9a8','#a8a87a','#6e6e50'],locked:true}]);
+const SOONMSG='The End segera hadir';
+let cur=Math.max(0,MAPS.findIndex(m=>m.key&&m.key===(RF.getMap()||{}).gameKey));
+function mapSVG(m){
+  const [s1,s2]=m.sky,[g1,g2,g3]=m.ground;
+  const tile=(cx,cy,w,d,t,l,r)=>{const h=w/2;return `<polygon points="${cx-w/2},${cy} ${cx},${cy+h/2} ${cx},${cy+h/2+d} ${cx-w/2},${cy+d}" fill="${l}"/><polygon points="${cx},${cy+h/2} ${cx+w/2},${cy} ${cx+w/2},${cy+d} ${cx},${cy+h/2+d}" fill="${r}"/><polygon points="${cx},${cy-h/2} ${cx+w/2},${cy} ${cx},${cy+h/2} ${cx-w/2},${cy}" fill="${t}"/>`};
+  let deco='';
+  if(m.id==='world') deco=tile(300,285,40,60,'#a8794a','#7e5530','#684526')+tile(300,235,120,46,'#4caf3a','#368a2a','#2b7222')+tile(480,330,36,40,'#a8794a','#7e5530','#684526')+tile(480,295,90,36,'#5cc443','#3f9a30','#318028');
+  if(m.id==='nether') deco=tile(330,300,70,90,'#2d2020','#241818','#1a1010')+tile(480,330,56,60,'#ff8a1f','#d9620f','#b84a08')+tile(260,340,44,40,'#ffb21f','#ea8a12','#c46d0a');
+  if(m.id==='end') deco=tile(300,285,80,120,'#3a2a6e','#2c2058','#21184a')+tile(300,250,24,26,'#c77dff','#a24fe0','#8238c0');
+  const stars=m.id==='end'?Array.from({length:30},(_,i)=>`<rect x="${(i*97)%600}" y="${(i*53)%260}" width="4" height="4" fill="#fff" opacity=".8"/>`).join(''):'';
+  const lava=m.id==='nether'?'<rect x="0" y="560" width="600" height="130" fill="#ff6a1a" opacity=".85"/><rect x="0" y="560" width="600" height="14" fill="#ffd45a" opacity=".8"/>':'';
+  return `<svg viewBox="0 0 600 690" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk${m.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s1}"/><stop offset="1" stop-color="${s2}"/></linearGradient></defs>
+   <rect width="600" height="690" fill="url(#sk${m.id})"/>${stars}${lava}
+   <g transform="translate(0,80)">${tile(300,320,360,70,g1,g2,g3)}
+   ${deco}</g></svg>`;
+}
+
+const track=$('#track');
+MAPS.forEach(m=>{
+  const d=document.createElement('div');d.className='map'+(m.locked?' locked':'');
+  d.innerHTML=`<div class="pic">${mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/ng/komponen/ikon-item/gembok.webp" alt=""></div></div>`;
+  track.appendChild(d);
+});
+const dots=$('#dots');MAPS.forEach((_,i)=>{const e=document.createElement('i');e.onclick=()=>show(i);dots.appendChild(e)});
+function show(i,instant){
+  cur=(i+MAPS.length)%MAPS.length;
+  track.style.transition=instant?'none':'';track.style.transform=`translateX(${-cur*100}%)`;
+  [...dots.children].forEach((e,k)=>e.classList.toggle('on',k===cur));
+  const m=MAPS[cur];
+  $('#mapinfo').innerHTML=m.locked?`<b>${m.name}</b> — ${m.sub}`:`<b>${m.name}</b><br>${m.sub}`;
+  if(m.locked){toast(SOONMSG)}else RF.setMap(m.key);   /* map terkunci: pilihan tersimpan tidak berubah */
+}
+$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
+{ let x0=null;const v=$('#view');
+  v.addEventListener('pointerdown',e=>{x0=e.clientX});
+  addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1))});
+  addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1);if(e.key==='Escape')closeAll()}); }
+show(cur,true);
+
+/* ---- tile flip: satu terbuka dalam satu waktu ---- */
+const flips=[...document.querySelectorAll('.flip')];
+function closeAll(){flips.forEach(f=>f.classList.remove('open'))}
+function selectedMap(){const m=MAPS[cur];if(m.locked){toast(SOONMSG);return null}return m}
+flips.forEach(f=>{
+  f.querySelector('.front').addEventListener('click',()=>{buzz();if(!selectedMap())return;const was=f.classList.contains('open');closeAll();if(!was)f.classList.add('open')});
+  f.querySelector('.close').addEventListener('click',e=>{e.stopPropagation();f.classList.remove('open')});
+});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.flip.open'))closeAll()});
+/* isi tombol opsi */
+document.querySelectorAll('.opts').forEach(o=>{
+  const pairs=o.dataset.pairs?o.dataset.pairs.split('|').map(p=>p.split(':')):null;
+  const counts=o.dataset.counts?o.dataset.counts.split(','):['2','3','4'];
+  const list=pairs?pairs.map(([f,c,l,s])=>({format:f,count:c,label:l,sub:s})):counts.map(c=>({format:o.dataset.format,count:c,label:o.dataset.format==='team'?'2 vs 2':c,sub:o.dataset.format==='team'?'4 pemain':'pemain'}));
+  const color=o.closest('#quick')?'ungu':'hijau';
+  list.forEach(it=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<img src="assets/ng/komponen/tombol-dan-kontrol/tombol-${pairs&&it.format==='team'?'kuning':color}-polos.webp" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
+    b.onclick=e=>{e.stopPropagation();buzz();pick(o.dataset,it)};o.appendChild(b);
+  });
+});
+function pick(ds,it){
+  const m=selectedMap();if(!m)return;
+  const format=it.format,count=+it.count;
+  if(ds.kind==='quick')ranked(format,count);
+  else nav(()=>RF.navigate('room',{mode:ds.mode,format:format,count:count}));
+}
+
+/* ---- Quick Start ---- (SIMULASI pencarian lawan, sama seperti mode.html lama; matchmaking realtime belum ada) */
 let mm=null,tm=[];
-function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#mm').classList.remove('show')}
-/* SIMULASI: ganti dengan layanan matchmaking realtime (WebSocket) */
+function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#modal').classList.remove('on')}
 function ranked(format,n){
- const map=RF.getMap(),cfg={type:'ranked',mode:'online',format,privacy:'public',host:true,count:n,
-  players:Array.from({length:n},(_,i)=>({name:i?'Lawan '+i:(PD.profile().name||'Kamu'),team:format==='team'?(i<2?1:2):0,kind:i?'friend':'host'})),
-  dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
- mm=cfg;$('#mmSpin').classList.remove('done');$('#mmT').textContent='MENCARI LAWAN...';
- $('#mmP').textContent='Ranked • '+(format==='team'?'Team 2 vs 2':'Solo '+n+' pemain')+' • '+(map?map.name:'');$('#mmX').hidden=false;$('#mm').classList.add('show');
- tm.push(setTimeout(()=>{if(mm!==cfg)return;$('#mmSpin').classList.add('done');$('#mmT').textContent='LAWAN DITEMUKAN!';$('#mmX').hidden=true;
-  tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900))},2400))}
-$('#mmX').onclick=cancelMM;
-$('#back').onclick=()=>RF.navigate('back');
-document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{if(window.UT&&UT.Router&&UT.Router.toShop){if(b.dataset.buy==='gem')location.href='tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html');else UT.Router.toShop({coin:1})}else location.href=b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1'});
+  const map=RF.getMap(),cfg={type:'ranked',mode:'online',format:format,privacy:'public',host:true,count:n,
+    players:Array.from({length:n},(_,i)=>({name:i?'Lawan '+i:(PD.profile().name||'Kamu'),team:format==='team'?(i<2?1:2):0,kind:i?'friend':'host'})),
+    dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
+  mm=cfg;const modal=$('#modal');modal.classList.add('on');
+  $('#mt').textContent='MENCARI LAWAN…';$('#ms').textContent=(format==='team'?'Team 2 vs 2':'Solo '+n+' pemain')+' · '+(MAPS[cur].name);
+  $('#spin').style.display='';$('#mplayers').innerHTML='';$('#mcancel').hidden=false;
+  tm.push(setTimeout(()=>{if(mm!==cfg)return;
+    $('#mt').textContent='LAWAN DITEMUKAN!';$('#spin').style.display='none';$('#mcancel').hidden=true;
+    $('#mplayers').innerHTML=cfg.players.map(p=>`<div></div>`).join('');[...$('#mplayers').children].forEach((d,i)=>{d.textContent=cfg.players[i].name});
+    tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900));
+  },2400));
+}
+$('#mcancel').onclick=cancelMM;
+$('#back').onclick=()=>{buzz();nav(()=>RF.navigate('back'))};
+
+/* ---- skala kanvas ---- */
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
+addEventListener('resize',fit);fit();
 document.documentElement.classList.add('ut-ready');
 })();
 </script>

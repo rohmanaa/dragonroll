@@ -36,7 +36,8 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 1. Aset UI + CSS ke `assets/ng/` | Selesai untuk lobby (27 file). Halaman lain: salin aset yang dipakai saja |
 | 2. `lobby` (commit `5f3ad06`) | **Selesai, belum dicek visual di browser** |
 | 3. `live-sync.js` | Selesai (7 tes) |
-| 4. `mode`, `room` | Berikutnya |
+| 4a. `mode` | **Selesai (belum dicek visual di browser)** — peta dari `RoomFlow.maps()` + The End terkunci; Quick Start masih simulasi (sama seperti sebelumnya); Create Room -> `RoomFlow.navigate('room',...)` |
+| 4b. `room` | Berikutnya |
 | 5. `settings`, `shop`, `splash`(login asli) | Belum |
 | 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum |
 | 7. profile, leaderboard, friendship, misi (hadiah-misi), tambang | Belum |
