@@ -3633,6 +3633,7 @@ const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): sekarang
 const TOWER_SPOTS=[[-5.25,-5.25],[5.25,-5.25],[5.25,5.25],[-5.25,5.25],[-5.25,0],[5.25,0]]; /* urutan = End Crystal 1..6 */
 const TOWER_BASE=1.15,TOWER_H=2.15,TOWER_CRY=TOWER_BASE+TOWER_H+0.55; /* dasar = permukaan bingkai luar; crystal melayang di atas kepala tower */
 const CC_N=4,CC_R=1.5,CC_Y=1.9,CC_TOP=3.7; /* 4 crystal pembangkit: cincin di tengah papan; titik naga bangkit di atasnya */
+const DRAGON_S=2.2; /* skala naga (dulu 1.3; dibesarkan agar terlihat jelas di ketinggian awan) */
 const FLY={on:false,a:0,blend:0,cx:0,cz:0.8,rx:4.6,rz:2.8,y:9.5,spd:0.2}; /* tinggi y 9.5 = setinggi awan (awan y 7.5-12). jalur terbang naga: angka delapan di atas area papan; blend 0 = melayang di titik bangkit, 1 = di jalur */
 const QUAKE={amp:0}; /* getar kamera saat gempa */
 var CORNERF=[]; /* api 4 sudut papan: diganti tower saat Awakening */
@@ -3972,8 +3973,8 @@ async function awakenDragon(p,gid){
     setMsg('Ender Dragon bangkit!'); sfx.dragonSpawn();
     dragon.visible=true; FLY.on=true; FLY.blend=0; FLY.a=0; Dd.dy=0; Dd.shk=0; Dd.hd=0; Dd.roll=0; dragon.position.set(0,CC_TOP,0); dragon.scale.setScalar(0.05);
     await QW(0.6*F,k=>{ A.burst=Math.sin(k*Math.PI*0.5); });
-    await QW(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); A.burst=1-k; });
-    sfx.towerStop(tw); tw=null; dragon.scale.setScalar(1.3);
+    await QW(1.0*F,k=>{ dragon.scale.setScalar(0.05+(DRAGON_S-0.05)*k); A.burst=1-k; });
+    sfx.towerStop(tw); tw=null; dragon.scale.setScalar(DRAGON_S);
     await QW(0.8*F,k=>{ A.cc=1-k; A.ccE=1-k; });
     setMsg('Crystal menyetrum Dragon: regenerasi aktif!'); sfx.crystalAppear();
     await QW(0.9*F,k=>{ A.heal=k; });
@@ -3984,7 +3985,7 @@ async function awakenDragon(p,gid){
   }finally{
     sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
-      if(!finished&&A){ A.bed=1; A.tower=1; A.cc=0; A.ccE=0; A.burst=0; A.heal=1; A.cv.forEach(c=>{ c.want=1; }); flamesOut(true); dragon.visible=true; FLY.on=true; FLY.blend=1; dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
+      if(!finished&&A){ A.bed=1; A.tower=1; A.cc=0; A.ccE=0; A.burst=0; A.heal=1; A.cv.forEach(c=>{ c.want=1; }); flamesOut(true); dragon.visible=true; FLY.on=true; FLY.blend=1; dragon.scale.setScalar(DRAGON_S); } /* error tak terduga: jangan sampai game macet */
       QUAKE.amp=0; panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState();
     }
   }
@@ -5138,14 +5139,14 @@ function dragonFade(dt){
     target=Math.min(target,0.22+0.78*clamp((dc-cd*0.62)/(cd*0.3),0,1)); /* dekat kamera -> memudar */
     _fb.copy(camTarget).sub(camera.position); const L=_fb.length()||1; _fb.divideScalar(L);
     _fc.copy(dragon.position).sub(camera.position); const along=_fc.dot(_fb);
-    if(along>0&&along<L){ _fa.copy(_fc).addScaledVector(_fb,-along); target=Math.min(target,0.22+0.78*clamp((_fa.length()-1.6)/2.2,0,1)); } /* memotong garis pandang -> memudar */
+    if(along>0&&along<L){ _fa.copy(_fc).addScaledVector(_fb,-along); target=Math.min(target,0.22+0.78*clamp((_fa.length()-1.6*DRAGON_S/1.3)/(2.2*DRAGON_S/1.3),0,1)); } /* memotong garis pandang -> memudar */
   }
   D.op+=(target-D.op)*Math.min(1,dt*6);
   if(Math.abs(D.op-D.opA)<0.004&&!(D.op>=0.999&&D.opA<0.999)) return;
   D.opA=D.op; const op=D.op;
   D.fm.forEach(e=>{ const tr=op<0.995||e.t; if(e.m.transparent!==tr){ e.m.transparent=tr; e.m.needsUpdate=true; } e.m.opacity=e.o*op; e.m.depthWrite=op>0.9&&e.dw; });
 }
-function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragon.userData.hd=0; dragon.userData.roll=0; dragon.rotation.z=0; FLY.on=false; FLY.blend=0; FLY.a=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
+function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(DRAGON_S); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragon.userData.hd=0; dragon.userData.roll=0; dragon.rotation.z=0; FLY.on=false; FLY.blend=0; FLY.a=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
 async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
@@ -5163,7 +5164,7 @@ async function hitDragon(p,v){
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
-   await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); });
+   await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(DRAGON_S*(1-k*0.85)); });
    dragon.visible=false;
 }
 async function explode(p){
@@ -6542,7 +6543,7 @@ function mpRunSeq(c){
 async function mpDragonFx(t){
   const D=dragon&&dragon.userData; if(!D) return;
   if(t==='hurt'){ await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); }); D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF)); }
-  else if(t==='death'){ spawnConfetti(dragon.position); await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); }); dragon.visible=false; }
+  else if(t==='death'){ spawnConfetti(dragon.position); await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(DRAGON_S*(1-k*0.85)); }); dragon.visible=false; }
 }
 /* Bungkus sequence: host kirim cue 'seq' lalu jalankan aslinya (MP_SEQ>0 menahan mirror suara/FX di dalamnya). */
 function mpWrapSeq(name,fn,withPid){
