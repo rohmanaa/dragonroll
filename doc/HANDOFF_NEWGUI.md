@@ -1,15 +1,15 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
 
 ---
 
 ## 0. Ringkas (baca ini dulu)
 
 - **Tugas:** pindahkan tampilan `newgui` ke `dragonroll`, satu halaman per commit, di branch **`ui-newgui`** (jangan push ke `main`: CI deploy DB ke produksi).
-- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings` (semua belum dicek visual di browser — minta pemilik kirim screenshot).
-- **Berikutnya:** `shop`, `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/friendship/misi, Chest/Pet/Mail, terakhir HUD gameplay.
+- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings`, `shop`, `friendship` (verifikasi visual shop dan uji transaksi Supabase nyata masih perlu dilakukan).
+- **Berikutnya:** `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/misi, Chest/Pet/Mail, terakhir HUD gameplay.
 - **Cara kerja yang terbukti:** pertahankan skrip logika lama halaman dragonroll (RPC, PlayerData, tes), ganti hanya markup + CSS + fungsi render ke gaya newgui. Detail di bagian 5.
 - **Sebelum push:** `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`, bump `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`.
 - **Pemilik:** rohmanaa, bahasa kerja Indonesia. Jangan pernah menulis token GitHub ke repo atau dokumen.
@@ -44,16 +44,18 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 
 | Langkah | Status | Commit / catatan |
 |---|---|---|
-| 1. Aset UI + CSS ke `assets/ng/` | Berjalan: salin hanya aset yang dipakai halaman | CSS bersama: `common.css`, `bg.css`, `page.css`, `sub.css`; per halaman: `lobby.css`, `mode.css`, `room.css`, `tambang.css` |
+| 1. Aset UI + CSS ke `assets/ng/` | Berjalan: salin hanya aset yang dipakai halaman | CSS bersama: `common.css`, `bg.css`, `page.css`, `sub.css`; per halaman: `lobby.css`, `mode.css`, `room.css`, `tambang.css`, `shop.css`, `friendship.css` |
 | 2. `lobby` | **Selesai** | `5f3ad06` |
 | 3. `live-sync.js` | Selesai (7 tes) | — |
 | 4a. `mode` | **Selesai** | `af2b477` |
 | 4b. `room` | **Selesai** | `7a63258`, sw v65 |
 | 5a. `settings` | **Selesai** (belum dites di browser; pemilik menguji manual) | `100cb08` + penyempurnaan, sw v68. Desain newgui + pilihan bahasa (pref `lang`, hanya menyimpan pilihan). Tanpa `LiveSync` (tidak menampilkan saldo/XP); repaint lewat `UT.Prefs.on` supaya pref hasil `PrefsSync.pull` ikut tampil. `ambience.js` tetap dimuat karena dipakai `UT.Ambience` (grafik/suasana) |
-| 5b. `shop`, `splash` (login asli) | **Berikutnya** | — |
+| 5b. `shop` | **Selesai** | Coin lewat `WalletService.exchange`; riwayat lewat `WalletService.history`; saldo memakai `LiveSync`. Chest dan iklan Emerald tetap nonaktif sampai dukungan server siap; sw v73 |
+| 5c. `splash` (login asli) | **Berikutnya** | — |
 | 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum | — |
 | 7a. `tambang` | **Selesai** | `99e098a`, sw v66 |
-| 7b. profile, leaderboard, friendship, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
+| 7b. profile, leaderboard, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
+| 7c. `friendship` | **Selesai** | Tampilan NewGUI; teman, permintaan, ajakan bermain, avatar, saldo, dan statistik posisi/level/kemenangan memakai layanan Dragon Roll. Like nonaktif sampai tersedia dukungan server; tidak ada statistik tiruan. sw v74 |
 | 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum | — |
 | 9. gameplay: hanya HUD/feedback | Terakhir | — |
 
@@ -64,14 +66,18 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 
 ### Catatan per halaman yang sudah dipasang
 
-**`lobby`** — belum diverifikasi: karakter 3D di atas pedestal (posisi/ukuran) dan tampilan di HP (dites hanya lewat jsdom tanpa WebGL). Sisa: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
+**`lobby`** — frame avatar profil memakai `FrameFX` agar glow dan partikel animasi muncul seperti di halaman Profil. Belum diverifikasi: karakter 3D di atas pedestal (posisi/ukuran) dan tampilan di HP (dites hanya lewat jsdom tanpa WebGL). Sisa: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
 
 **`mode`** — peta dari `RoomFlow.maps()` + The End terkunci; Create Room -> `RoomFlow.navigate('room', ...)`. **Quick Start masih simulasi** (2,4 dtk "mencari lawan" lalu pemain palsu), sama seperti halaman lama. Menyambungkan ke `RoomService.quickJoin` mengubah alur main, jadi butuh keputusan pemilik (lihat "Pertanyaan terbuka").
 
-**`room`** — logika lama dipertahankan utuh (RoomService, Presence, PlayerData, RoomFlow, power per map, avatar wajah+frame dari server, `loadLooks`). Perubahan tampilan: drawer "Undang Teman" jadi modal (`#dr`, kelas `html.dro` tetap dipakai), modal pilih item pakai kisi `.it`, tombol KELUAR menggantikan tombol ✕ (-> lobby), tombol kembali -> mode. `wallet-service.js` + `LiveSync` ditambah supaya stok power ikut segar. Panel Power Loadout tidak dinonaktifkan di mode online (perilaku lama); `cfg()` tetap mengirim `powers: []` untuk online.
+**`room`** — logika lama dipertahankan utuh (RoomService, Presence, PlayerData, RoomFlow, power per map, avatar wajah+frame dari server, `loadLooks`). Perubahan tampilan: drawer "Undang Teman" jadi modal (`#dr`, kelas `html.dro` tetap dipakai), modal pilih item pakai kisi `.it`, tombol KELUAR menggantikan tombol ✕ (-> lobby), tombol kembali -> mode. Power Loadout memakai lima slot; slot membuka modal pilihan gaya NewGUI, dengan stok inventori, batas bawa, dan batas map tetap mengikuti Dragon Roll. Ikon Efek memakai kristal api seperti referensi. Pilihan disimpan saat tombol SELESAI ditekan. `wallet-service.js` + `LiveSync` ditambah supaya stok power ikut segar. Panel Power Loadout tetap aktif di mode online (perilaku lama); `cfg()` tetap mengirim `powers: []` untuk online.
 - **Bug lama (belum diperbaiki):** `skinGo()` memanggil `RF.navigate('karakter.html')`, tetapi `RoomFlow.navigate` hanya mengenal `'room'|'mode'|'back'|'home'`, jadi tombol ganti Karakter di room jatuh ke `lobby.html`. Perbaiki saat porting `karakter`.
 
-**`tambang`** — **pulau 3D asli (`mine-island.js`) dipertahankan** di atas tiga kartu gaya newgui (newgui tidak punya adegan ini; dipertahankan supaya fitur dan `tests/mine-island.test.js` tidak hilang). Wadah 3D bernama `#isl` (id `#stage` dipakai kanvas 1920x1080). Semua aksi lewat `MineService` (server menentukan hasil). Tambahan: modal konfirmasi biaya untuk Buka/Upgrade dan dialog "Coin tidak cukup" -> Toko; Percepat/Ambil tetap langsung. `ambience.js` tidak dimuat (mengikuti halaman newgui lain).
+**`tambang`** — **pulau 3D asli (`mine-island.js`) dipertahankan** di atas tiga kartu gaya newgui (newgui tidak punya adegan ini; dipertahankan supaya fitur dan `tests/mine-island.test.js` tidak hilang). Wadah 3D bernama `#isl` (id `#stage` dipakai kanvas 1920x1080). Semua aksi lewat `MineService` (server menentukan hasil). Tambahan: modal konfirmasi biaya untuk Buka/Upgrade dan dialog "Coin tidak cukup" -> Toko; Percepat/Ambil tetap langsung. Latar gua memakai `assets/Images/background/tambang-kristal-bercahaya-nan-mistis.webp` dengan opacity 30% (1672x941, sekitar 105 KB). `ambience.js` tidak dimuat (mengikuti halaman newgui lain).
+
+**`shop`** — tampilan dari newgui; saldo tetap dari `PlayerData`, pertukaran paket Emerald→Coin dan riwayat tetap memakai `WalletService` server. Tab Chest hanya placeholder nonaktif (undian butuh RPC server); iklan Emerald tetap “Segera hadir”, tanpa simulasi reward lokal. Saldo disegarkan lewat `LiveSync`.
+
+**`friendship`** — tampilan dari newgui; daftar teman/permintaan, accept/decline/remove, pencarian, Presence, ajakan bermain, dan avatar aktif tetap memakai RoomService, Presence, AppearanceService, dan FrameAvatar asli. Posisi, level, dan kemenangan berasal dari leaderboard teman server; statistik tanpa pertandingan ditampilkan `—`. Saldo memakai PlayerData + LiveSync. Tombol like nonaktif (`—`) sampai dukungan server tersedia; tidak ada data teman tiruan.
 
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?

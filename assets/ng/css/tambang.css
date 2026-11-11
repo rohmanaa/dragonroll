@@ -1,4 +1,5 @@
 /* tambang.html — pulau 3D (adegan asli dragonroll) di atas + 3 kartu tambang berdampingan (gaya newgui). Kanvas 1920x1080. */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/tambang-kristal-bercahaya-nan-mistis.webp) center/cover no-repeat;opacity:.08}
 #sum{position:absolute;left:140px;top:112px;font:800 30px var(--font-body);color:#cfc8ea}#sum b{color:#6be04a;font:400 38px var(--font-title)}
 /* adegan 3D */
 #isl{position:absolute;left:60px;top:160px;width:1800px;height:396px;border-radius:26px;overflow:hidden;border:5px solid var(--line);background:linear-gradient(#4aa8f5 0%,#8fd4ff 55%,#d6f2ff 100%);box-shadow:0 8px 18px rgba(10,6,30,.4)}

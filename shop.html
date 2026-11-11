@@ -1,546 +1,62 @@
-<!DOCTYPE html>
-<html lang="id" class="stage16">
-<head><script src="assets/js/frame-guard.js"></script>
-<script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script>
+<!doctype html>
+<html lang="id">
+<head>
+<script src="assets/js/frame-guard.js"></script>
+<script src="assets/js/session.js"></script>
+<script src="assets/js/boot-guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Toko</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}#back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
-.flip{transform:scaleX(-1)}
-.arr .ci{width:2.6rem;height:2.6rem;display:block;object-fit:contain;pointer-events:none}
-</style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/shop-bg.webp"></script>
-<style>
-:root{
-  --bd:#12337f;
-  --y1:#ffd24d;
-  --y2:#ff9a1f;
-  --g:#3cc23c;
-  --r0:#6f8aa8;
-  --r1:#2f8cf0;
-  --r2:#9a4ae0;
-  --r3:#f0b030;
-  --panel-bg: rgba(120,195,255,.85);
-}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html{font-size:min(1vw,1.78vh)}
-html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
-
-#sky{position:fixed;inset:0;overflow:hidden;z-index:0}
-.isl{position:absolute;opacity:.75;animation:fl 6s ease-in-out infinite}
-.isl i{display:block;background:#6fbf4a}.isl b{display:block;background:#8a5a3a;margin:0 auto}
-@keyframes fl{50%{translate:0 -.8rem}}
-
-.ab{position:relative}
-
-/* Container Utama Grid Layout */
-#ui{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  display:grid;
-  grid-template-columns: 14rem 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 1rem 1.5rem;
-  padding: 1.5rem;
-}
-
-/* Header Section */
-#top-bar{
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  z-index: 10;
-}
-
-.header-left{
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-}
-
-.header-right{
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-}
-
-.ut-curbar {
-  position: relative !important;
-  inset: auto !important;
-  transform: none !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  margin: 0 !important;
-}
-
-.ut-curbar .cur {
-  position: relative !important;
-  left: auto !important;
-  top: auto !important;
-  right: auto !important;
-}
-
-button{font:inherit;color:inherit;border:0;cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
-button:hover{transform:scale(1.05);filter:brightness(1.08)}
-button:active{transform:scale(.94)}
-button:focus-visible{outline:.3rem solid #fff}
-
-.blue{background:linear-gradient(#4aa8ff,#1f6fe0);box-shadow:0 .5rem 0 var(--bd),0 1rem 1.4rem rgba(18,51,127,.4),inset 0 .2rem .2rem rgba(255,255,255,.6)}
-svg{display:block}
-
-#back{width:4.5rem;height:4.5rem;border-radius:1.4rem;padding:0;display:grid;place-items:center;flex-shrink:0}
-#back svg{width:2.8rem;height:2.8rem}
-
-#title{
-  height:4.5rem;
-  border-radius:2.2rem;
-  display:flex;
-  align-items:center;
-  gap:1rem;
-  padding: 0 2rem;
-  font-size:3rem;
-  text-shadow:0 .2rem 0 var(--bd);
-}
-#title svg{width:3.2rem;height:3.2rem}
-
-#gear{width:4.5rem;height:4.5rem;border-radius:1.4rem;padding:0;display:grid;place-items:center;flex-shrink:0}
-#gear svg{width:2.8rem;height:2.8rem}
-#gear>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-
-/* Sidebar Kategori Kiri */
-#cats{
-  grid-column: 1;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: max(.8rem, 8px);
-  overflow-y: auto;
-  /* ruang untuk shadow/glow/scale tombol agar tidak terpotong oleh overflow;
-     margin negatif menjaga posisi & lebar tombol tetap sama */
-  padding: 1.4rem 1.4rem 1.8rem;
-  margin: -1.4rem -1.4rem -1.4rem;
-  pointer-events: none;
-  scrollbar-width: none;
-}
-#cats::-webkit-scrollbar{display:none}
-#cats .cat{pointer-events:auto}
-
-.cat{
-  min-height:44px;
-  height:4.4rem;
-  border-radius:1.5rem;
-  display:flex;
-  align-items:center;
-  gap:max(.8rem, 8px);
-  padding-block:10px;
-  padding-inline:max(1.2rem, 14px);
-  font-size:2rem;
-  text-shadow:0 .15rem 0 var(--bd);
-  border:.25rem solid transparent;
-  width: 100%;
-  white-space:nowrap;
-}
-.cat svg{width:2.6rem;height:2.6rem}
-.cat .ci{width:2.6rem;height:2.6rem;flex:none}
-.cat.on{border-color:#ffe36a;background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 .4rem 0 #b9740c,0 0 1.5rem #ffd24d;transform:scale(1.02);text-shadow:0 .2rem 0 #a35f08}
-
-/* Right Content Section */
-.right-section{
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-height: 0;
-}
-
-/* Top Showcase & Info Area */
-.shop-top-panel{
-  display: grid;
-  grid-template-columns: 26rem 1fr;
-  gap: 1.2rem;
-  height: 24rem;
-  flex-shrink: 0;
-}
-
-#show{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 2rem;
-  overflow: hidden;
-  background: rgba(40,130,240,.3);
-}
-#show>canvas{width:100%;height:100%;display:block}
-#show #art{display:none;position:absolute;inset:0;place-items:center}
-#show #art svg{width:82%;height:82%}
-#show.art>canvas{display:none}#show.art #art{display:grid}
-
-.arr-wrap{
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 .8rem;
-  pointer-events: none;
-  z-index: 5;
-}
-.arr{width:3.8rem;height:4.6rem;border-radius:1.3rem;padding:0;display:grid;place-items:center;pointer-events: auto}
-.arr svg{width:2.2rem;height:2.2rem}
-
-#info{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 2rem;
-  padding: 1.8rem 1.8rem 1.2rem;
-  background: linear-gradient(#3b95f4,#1c62d4);
-  box-shadow: 0 .5rem 0 var(--bd),0 1.2rem 2rem rgba(18,51,127,.4),inset 0 .2rem .3rem rgba(255,255,255,.55),inset 0 0 0 .25rem #5cb4ff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.badge{display:inline-block;padding:0 1rem;border-radius:1rem;font-size:1.5rem;line-height:2.2rem;background:var(--rc,var(--r1));box-shadow:inset 0 .15rem .2rem rgba(255,255,255,.5)}
-#info .badge{position:absolute;left:1.2rem;top:-1.2rem}
-#iname{font-size:3rem;line-height:1.1;margin:0}
-#idesc{font-size:1.5rem;line-height:1.2;font-weight:700;color:#e0f2ff}
-#iprice{display:flex;align-items:center;gap:.6rem;font-size:2.4rem;color:#ffe36a;margin:0}
-#iprice svg{width:2.6rem;height:2.6rem}
-
-.cta{width:100%;height:4.2rem;border-radius:2.1rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .35rem 0 #c96a0c,inset 0 .25rem .25rem rgba(255,255,255,.6);font-size:2.6rem;display:flex;align-items:center;justify-content:center;gap:.8rem;text-shadow:0 .15rem 0 #8a4a0a;padding:0}
-.cta svg{width:2.6rem;height:2.6rem}
-.cta.own{background:linear-gradient(#6fe06f,#2faa2f);box-shadow:0 .35rem 0 #1c6d1c,inset 0 .25rem .25rem rgba(255,255,255,.5);text-shadow:0 .15rem 0 #1c6d1c}
-.cta:disabled{filter:saturate(.8);cursor:default;transform:none}
-
-#gift{width:100%;height:3.6rem;border-radius:1.8rem;font-size:2.2rem;display:flex;align-items:center;justify-content:center;gap:.8rem;padding:0;background:linear-gradient(#4aa8ff,#1f78e8);box-shadow:0 .3rem 0 var(--bd),inset 0 .15rem .2rem rgba(255,255,255,.6)}
-#gift svg{width:2.2rem;height:2.2rem}
-/* icon gambar menggantikan svg judul & tombol Hadiah */
-#title>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-#gift>.ic{width:2.2rem;height:2.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-
-.pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
-
-/* Bottom Shop Grid Panel */
-#bot{
-  width: 100%;
-  flex: 1;
-  border-radius: 2.2rem;
-  padding: 1rem 1.2rem;
-  background: var(--panel-bg);
-  backdrop-filter: blur(5px);
-  box-shadow: 0 .6rem 2rem rgba(18,51,127,.35),inset 0 .2rem .3rem rgba(255,255,255,.8),inset 0 0 0 .25rem rgba(80,160,240,.7);
-  display: flex;
-  flex-direction: column;
-  gap: .8rem;
-  min-height: 0;
-}
-
-#grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,1fr);gap:.8rem;overflow-y:auto}
-
-.card{position:relative;border-radius:1.4rem;padding:.4rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;background:linear-gradient(var(--c1),var(--c2));box-shadow:0 .25rem 0 rgba(10,30,100,.5),inset 0 0 0 .2rem rgba(255,255,255,.25);animation:pop .35s both;cursor:pointer;overflow:hidden}
-@keyframes pop{from{opacity:0;transform:scale(.85)}}
-.card .badge{position:absolute;left:.5rem;top:.4rem;font-size:1.1rem;line-height:1.5rem;padding:0 .6rem;z-index:1}
-.card.sel{box-shadow:0 0 0 .3rem #ffe36a,0 0 1.4rem #ffe36a}
-.card .th{flex:1;min-height:0;width:70%}.card .th svg{width:100%;height:100%}
-.card:hover .th{animation:wig .8s}@keyframes wig{50%{rotate:8deg;scale:1.1}}
-.card .nm{font-size:1.4rem;line-height:1.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.card .pr{display:flex;align-items:center;gap:.3rem;font-size:1.5rem;line-height:1.6rem;color:#ffe36a}.card .pr.soon{font-size:1.2rem;color:#dceaff}.card .pr svg{width:1.5rem;height:1.5rem}
-.card .bt{width:88%;height:2.2rem;margin:.2rem 0 .2rem;border-radius:1.1rem;font-size:1.4rem;line-height:2.2rem;padding:0;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .18rem 0 #c96a0c;text-shadow:0 .1rem 0 #8a4a0a}
-.card .bt.own{background:linear-gradient(#6fe06f,#2faa2f);box-shadow:0 .18rem 0 #1c6d1c}
-.ck{position:absolute;right:.5rem;top:50%;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--g);border:.18rem solid #fff;display:grid;place-items:center}.ck svg{width:1.2rem;height:1.2rem}
-
-.sp{position:fixed;width:1.2rem;height:1.2rem;background:#fff6a0;rotate:45deg;pointer-events:none;z-index:99;animation:spk .8s forwards}
-@keyframes spk{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-
-/* Modal Styling */
-.ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.4);backdrop-filter:blur(6px);z-index:50;opacity:0;transition:opacity .25s}
-.ov.show{opacity:1}.ov>.box{transform:scale(.85);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}.ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.9)}
-.box{position:relative;width:min(44rem,92vw);max-height:90vh;overflow:auto;background:linear-gradient(#7cc2ff,#4a9ae8);border-radius:2.2rem;padding:2.5rem 2rem 2rem;box-shadow:0 1rem 0 var(--bd),0 2rem 3rem rgba(0,0,0,.3);font-size:2.2rem;text-align:center}
-.box.big{width:min(56rem,92vw)}
-.box h2{margin:0 0 1rem;font-size:3rem;text-shadow:0 .2rem 0 var(--bd)}
-.x{position:absolute;right:-.8rem;top:-.8rem;width:4.2rem;height:4.2rem;border-radius:50%;background:#ee4a4a;box-shadow:0 .3rem 0 #8e1d1d;font-size:2.2rem;padding:0}
-.row{display:flex;justify-content:space-between;align-items:center;background:rgba(18,51,127,.25);border-radius:1.2rem;padding:.8rem 1.2rem;margin:.6rem 0;gap:1rem}
-.row.sel{outline:.3rem solid #ffe36a}
-.tg{min-width:7rem;height:3.5rem;border-radius:1.8rem;background:#7b8aa8;box-shadow:inset 0 .2rem .4rem rgba(0,0,0,.3);font-size:1.8rem;padding:0 1rem}.tg.on{background:var(--g)}
-.pack,.mb{width:100%;display:flex;justify-content:space-between;align-items:center;margin:.6rem 0;padding:1rem 1.4rem;border-radius:1.2rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .35rem 0 #c96a0c;font-size:2.2rem;text-shadow:0 .15rem 0 rgba(107,53,17,.7)}
-.mb{justify-content:center;width:48%;display:inline-flex;margin:1rem 1% 0}.mb.no{background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 .35rem 0 #2f5090;text-shadow:none}
-
-#toast{position:fixed;left:50%;bottom:2.5rem;translate:-50% 2rem;background:var(--bd);padding:.7rem 2rem;border-radius:1.8rem;font-size:2.2rem;opacity:0;transition:opacity .3s,translate .35s cubic-bezier(.3,1.8,.5,1);z-index:99;pointer-events:none;white-space:nowrap}
-#toast.on{opacity:1;translate:-50% 0}
-
-/* Media Query Responsif Mobile */
-@media(max-aspect-ratio:1/1){
-  html{font-size:2.2vw}
-  #ui{
-    display:flex;
-    flex-direction:column;
-    overflow-y:auto;
-    gap:1.2rem;
-    padding:1rem;
-  }
-  #cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px;overflow:visible;flex-shrink:0;padding:0 0 6px;margin:0}
-  .cat{padding-inline:8px;justify-content:center;gap:6px;min-width:0}
-  .right-section{width:100%}
-  .shop-top-panel{grid-template-columns: 1fr; height: auto; gap: 1rem}
-  #show{height:55vw}
-  #info{height:auto}
-  #bot{height:auto;min-height:45rem}
-  #grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:18rem}
-}
-</style>
-<link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
-<style id="shop-pixel">
-/* Toko: restyle gaya pixel Minecraft mengikuti redesign-hud/toko.webp.
-   HANYA tampilan. Markup, id, class, dan JS tidak berubah (tombol tidak ditambah/dihapus). Dimuat setelah shared-ui.css. */
-:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
-html body #ui{padding:1.1rem 1.5rem 1.1rem;gap:1rem 1.4rem}
-html body .shop-top-panel{height:23rem}
-
-/* tombol biru (Back, Gear, panah) */
-html body .blue,html body #gift{background:linear-gradient(var(--rb1),var(--rb2));border:.3rem solid var(--ol);border-radius:.9rem;box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
-html body #back,html body #gear{width:5rem;height:5rem}
-html body #title{height:5rem;border-radius:.9rem;padding:0 2rem;font-size:3.2rem;text-shadow:none;background:linear-gradient(var(--nv1),var(--nv2))}
-
-/* currency: disamakan dengan Lobby */
-:root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
-html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
-html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
-
-/* kategori kiri */
-html body .cat{height:4.6rem;border-radius:.9rem;border:.3rem solid var(--ol);font-size:2.2rem;text-shadow:0 .2rem 0 var(--ol)}
-html body .cat.on{border-color:var(--ol);background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,90,0,.5),0 .35rem 0 var(--ol);transform:none;text-shadow:0 .2rem 0 #8a5a08}
-
-/* preview 3D */
-html body #show{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#5aa9f5,#a2d6fb);box-shadow:inset 0 0 0 .3rem #3a74e0,0 .35rem 0 var(--ol)}
-
-/* panel info */
-html body #info{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
-html body #info .badge{left:1.6rem;top:-1.6rem}
-html body .badge{border:.2rem solid var(--ol);border-radius:.7rem;box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35)}
-html body #iname{font-size:3.4rem;text-shadow:none}
-html body #idesc{font-size:1.5rem;color:#fff}
-html body .cta{height:4.6rem;border-radius:.9rem;border:.3rem solid var(--ol);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
-html body .cta.own{background:linear-gradient(#4fd24c,#259a2e);box-shadow:inset 0 0 0 .15rem #8cf08a,inset 0 -.3rem 0 rgba(0,70,10,.45),0 .3rem 0 var(--ol);text-shadow:0 .15rem 0 #0d4a14}
-html body #gift{height:3.8rem}
-
-/* grid item */
-html body #bot{border-radius:1rem;border:.3rem solid var(--ol);padding:.7rem .9rem;background:linear-gradient(#3a74e0,#2a58c4);backdrop-filter:none;box-shadow:inset 0 0 0 .25rem #5e90f0,0 .35rem 0 var(--ol)}
-html body #grid{gap:.6rem}
-html body .card{border-radius:.8rem;border:.3rem solid var(--ol);padding:.4rem .5rem .5rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18)}
-html body .card.sel{border-color:#f1d04a;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 0 0 .15rem #f1d04a}
-html body .card .badge{left:.4rem;top:.3rem;border-radius:.5rem;border-width:.15rem}
-html body .card .th{position:absolute;top:.35rem;right:.5rem;width:2.6rem;height:2.6rem;flex:none}
-html body .card .nm{font-size:1.5rem;line-height:1.5rem}
-html body .card .bt{width:94%;height:2.3rem;margin:.1rem 0 0;border-radius:.6rem;border:.2rem solid var(--ol);font-size:1.5rem;line-height:1.9rem;background:linear-gradient(#ffb133,#f08a14);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.4),0 .15rem 0 var(--ol);text-shadow:0 .1rem 0 rgba(90,45,0,.6)}
-html body .card .bt.own{background:linear-gradient(#3fc545,#23952c);text-shadow:0 .1rem 0 #0d4a14}
-html body .ck{top:auto;bottom:3.6rem;right:.3rem;width:2.4rem;height:2.4rem;border:.2rem solid #fff;box-shadow:0 0 0 .15rem var(--ol)}
-/* modal & toast: disamakan gaya pixel (tidak pill) */
-html body .box{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .6rem 0 var(--ol),0 2rem 3rem rgba(0,0,0,.3)}
-html body .x{border-radius:.6rem;border:.2rem solid var(--ol);box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35),0 .2rem 0 var(--ol)}
-html body .row{border-radius:.7rem;border:.2rem solid var(--ol);background:rgba(10,30,100,.35)}
-html body .tg{border-radius:.6rem;border:.2rem solid var(--ol)}
-html body .pack,html body .mb{border-radius:.9rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
-html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
-</style>
-<script src="assets/js/landscape.js"></script><style id="frame-tab">
-/* tab Frame: frame + wajah skin terpasang */
-.fr-th{position:relative;width:100%;height:100%}
-.fr-th .fr-in{position:absolute;inset:19%;display:block;overflow:hidden;border-radius:.2rem;background:linear-gradient(#bfe6ff,#6cb8f0)}
-.fr-th .fr-in svg{width:100%;height:100%;display:block}
-.fr-th .fr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
-#show #art .fr-th{width:min(34rem,70%);height:auto;aspect-ratio:1/1}
-#show #art .fr-th .fr-in svg{width:100%;height:100%}
-</style>
-<link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
-/* ===== seragam lobby: slate, tanah grid + daun ===== */
-html body .blue,html body #gift{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
-html body #title{background:linear-gradient(var(--sl1),var(--sl2))!important}
-html body .cat:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
-html body #info,html body #bot,html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
-html body #show{border-color:#172033;box-shadow:inset 0 0 0 .3rem #8696ad,0 .35rem 0 #0b1220}
-html body .row{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
-html body #toast{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033}
-html body .mb.no{background:linear-gradient(var(--sl3),var(--sl4));box-shadow:0 .3rem 0 #0b1220}
-html body #idesc{color:#cdd8ea}
-</style>
-<style id="shop-coin">
-#ui{grid-template-columns:1fr}
-#shopmain{display:grid;grid-template-columns:1.75fr 1fr;gap:2rem;padding:1.2rem 3rem 3rem;min-height:0}
-.spanel{border-radius:2.6rem;padding:1.8rem 2.2rem 2.2rem;background:linear-gradient(var(--sl1,#3f506b),var(--sl2,#26344c));box-shadow:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);display:flex;flex-direction:column;gap:1.4rem;min-height:0}
-.spanel h2{margin:0;font-size:3.2rem;display:flex;align-items:center;gap:1rem;text-shadow:0 .2rem 0 #0b1220;font-weight:800}
-.spanel h2 img{width:4.2rem;height:4.2rem;display:block}
-.spanel>p{margin:0;font-size:1.7rem;font-weight:700;color:#cdd8ea;line-height:1.3}
-#packs{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem}
-.cp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.4rem 1rem;border-radius:2rem;background:linear-gradient(var(--sl3,#52647f),var(--sl4,#33445f));box-shadow:inset 0 0 0 .2rem #8696ad,0 .4rem 0 #0b1220;position:relative}
-.cp .big{width:9.5rem;height:9.5rem;display:block;object-fit:contain;filter:drop-shadow(0 .3rem .3rem rgba(0,0,0,.35))}
-.cp .amt{font-size:3.6rem;line-height:1;color:#ffe36a;text-shadow:0 .2rem 0 #7a4a06}
-.cp .cost{display:flex;align-items:center;justify-content:center;gap:.7rem;min-width:11rem;height:4.4rem;padding:0 1.4rem;border-radius:2.2rem;font-size:2.4rem;background:linear-gradient(#58d85a,#1f9a2a);box-shadow:0 .3rem 0 #136b1c,inset 0 .2rem .2rem rgba(255,255,255,.5);text-shadow:0 .12rem 0 rgba(0,40,0,.6)}
-.cp .cost img{width:2.8rem;height:2.8rem;display:block}
-.cp.best::before{content:"HEMAT";position:absolute;right:1rem;top:1rem;padding:.1rem 1rem;border-radius:1rem;font-size:1.1rem;background:linear-gradient(#ffd24d,#ff9a1f);color:#5a3200;text-shadow:none}
-#gemPanel .gbig{width:11rem;height:11rem;object-fit:contain;display:block;margin:auto;filter:drop-shadow(0 .3rem .3rem rgba(0,0,0,.35))}
-#adbtn{display:flex;align-items:center;justify-content:center;gap:1rem;height:6rem;border-radius:3rem;font-size:2.4rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .4rem 0 #c96a0c,inset 0 .25rem .25rem rgba(255,255,255,.6);text-shadow:0 .12rem 0 #8a4a0a}
-#adbtn img{width:3.2rem;height:3.2rem;display:block}
-#histbtn{display:flex;align-items:center;justify-content:center;height:5.4rem;padding:0 2.4rem;margin:0 auto;border-radius:2.7rem;font-size:2.2rem;color:#fff;border:0;font-family:inherit;background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 .4rem 0 #2f5090,inset 0 .2rem .2rem rgba(255,255,255,.5);text-shadow:0 .12rem 0 rgba(0,0,0,.4);cursor:pointer}
-#histlist{display:flex;flex-direction:column;gap:.6rem;margin-top:1rem}
-.hr{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.2rem;border-radius:1.2rem;background:rgba(10,20,40,.45);font-size:1.7rem}
-.hr .hl{min-width:0}.hr .hl b{display:block;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hr .hl small{font-size:1.2rem;color:#a9b9d3;font-weight:700}
-.hr .ha{display:flex;gap:1rem;font-weight:900;flex:none}.hr .ha span{display:flex;align-items:center;gap:.3rem}.hr .ha img{width:2rem;height:2rem}.hr .up{color:#7dff8a}.hr .dn{color:#ff9a9a}
-.hempty{text-align:center;font-size:1.6rem;color:#cdd8ea;padding:1rem}
-#adinfo{font-size:1.4rem;font-weight:700;color:#cdd8ea;text-align:center;min-height:1.8rem}
-.pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
-.panel-hl{animation:phl .9s}@keyframes phl{30%{box-shadow:0 0 0 .4rem #ffe36a,0 0 2.4rem #ffd24d}}
-</style>
+<title>Toko — Dragon Roll</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css">
+<link rel="stylesheet" href="assets/ng/css/page.css">
+<link rel="stylesheet" href="assets/ng/css/sub.css">
+<link rel="stylesheet" href="assets/ng/css/bg.css">
+<link rel="stylesheet" href="assets/ng/css/shop.css">
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/prefs-sync.js"></script>
 </head>
-<body>
-<div id="sky"></div>
-<div id="ui">
-  <header id="top-bar">
-    <div class="header-left">
-      <button class="blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
-      <div class="blue" id="title"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async">Toko</div>
+<body class="sub">
+<div id="wrap"><div id="stage">
+  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Toko</div>
+  <div class="cur" id="cur-em" role="button" tabindex="0" aria-label="Emerald, buka tab Emerald">
+    <img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
+  </div>
+  <div class="cur" id="cur-co" role="button" tabindex="0" aria-label="Coin, buka tab Coin">
+    <img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
+  </div>
+  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
+
+  <nav id="tabs" role="tablist" aria-label="Kategori toko">
+    <button class="tabb" data-k="chest" role="tab">CHEST</button>
+    <button class="tabb" data-k="coin" role="tab">COIN</button>
+    <button class="tabb" data-k="emerald" role="tab">EMERALD</button>
+    <button class="tabb" data-k="history" role="tab">RIWAYAT</button>
+  </nav>
+  <main id="cards"></main>
+
+  <div class="ov" id="modal">
+    <div class="box" id="box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="x" id="mx" aria-label="Tutup">×</button>
+      <div id="mb"></div>
     </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+</div></div>
+<div id="fade"></div>
 
-    <!-- Kelompok Kanan: Gem + Coin + Gear -->
-    <div class="header-right">
-      <div class="ut-curbar">
-        <div class="cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
-        <div class="cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
-      </div>
-    </div>
-  </header>
-
-  <main id="shopmain">
-    <section class="spanel" id="coinPanel" aria-label="Beli Coin">
-      <h2><img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">Beli Coin</h2>
-      <p>Tukar Emerald dengan Coin. Coin dipakai untuk membeli item di halaman Karakter, Frame, dan Dadu.</p>
-      <div id="packs"></div>
-    </section>
-    <section class="spanel" id="gemPanel" aria-label="Emerald">
-      <h2><img src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">Emerald</h2>
-      <p id="adtxt">Segera hadir.</p>
-      <img class="gbig" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">
-      <button id="adbtn"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M7 4l13 8-13 8z" fill="#fff"/></svg>Soon</button>
-      <div id="adinfo"></div>
-    </section>
-    <section class="spanel" id="histPanel" aria-label="Riwayat transaksi">
-      <h2>Riwayat</h2>
-      <p>20 transaksi Coin dan Emerald terakhir.</p>
-      <button id="histbtn" type="button">Lihat Riwayat</button>
-      <div id="histlist" role="list"></div>
-    </section>
-  </main>
-</div>
-
-<div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
-<div id="toast"></div>
-
-<script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
+<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/frame-fx.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
-<script src="assets/js/ads-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
+<script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'shop'});</script>
-<script>
-(()=>{
-const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
-const PD=window.PlayerData;
-const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* B5: akun login + flag = dompet server */
-const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
-const SET=()=>PD.settings();
-const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
-
-function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
-const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
-function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)}
-function sparkle(el,n=12){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;for(let i=0;i<n;i++){const s=document.createElement('i');s.className='sp';s.style.left=cx+'px';s.style.top=cy+'px';const a=Math.random()*6.28,d=30+Math.random()*60;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),850)}}
-/* Riwayat dompet (server). Label per alasan ledger; alasan tak dikenal ditampilkan apa adanya. */
-const HLAB={buy:'Beli item',buy_set:'Beli set gear',buy_power:'Beli power-up',daily:'Hadiah harian',boss:'Hadiah Ender Dragon',boss_cpu:'Hadiah lawan CPU',mine_unlock:'Buka tambang',mine_upgrade:'Upgrade tambang',mine_collect:'Hasil tambang',mine_boost:'Boost tambang',exchange:'Tukar Emerald ke Coin',ad:'Hadiah iklan',quest:'Hadiah misi',quest_bonus:'Bonus misi',achievement:'Pencapaian'};
-const hEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function hAmt(n,ic){n=Number(n)||0;if(!n)return'';return`<span class="${n>0?'up':'dn'}"><img src="assets/Images/icon/currency/${ic}.webp" alt="" draggable="false">${n>0?'+':'−'}${fmt(Math.abs(n))}</span>`}
-async function loadHistory(){
-  const box=$('#histlist'),btn=$('#histbtn');
-  if(!SV()||!WS()){box.innerHTML='<div class="hempty">Riwayat tersedia setelah login ke akun.</div>';return}
-  btn.disabled=true;btn.textContent='Memuat…';
-  const r=await WS().history(20);
-  btn.disabled=false;btn.textContent='Muat Ulang';
-  if(!r||!r.ok){box.innerHTML='<div class="hempty">'+(r&&r.reason==='belum-login'?'Sesi berakhir, login ulang.':'Tidak dapat terhubung ke server.')+'</div>';return}
-  if(!r.items.length){box.innerHTML='<div class="hempty">Belum ada transaksi.</div>';return}
-  box.innerHTML=r.items.map(x=>{const d=new Date(x.at),t=isNaN(d)?'':d.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    return`<div class="hr" role="listitem"><div class="hl"><b>${hEsc(HLAB[x.reason]||x.reason)}</b><small>${hEsc(t)}</small></div><div class="ha">${hAmt(x.coins,'coin')}${hAmt(x.gems,'emerald')}</div></div>`}).join('');
-}
-$('#histbtn').addEventListener('click',()=>{loadHistory();playSound&&playSound('click')});
-function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
-function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
-const modal=$('#modal');let mOpen=false,onClose=null;
-function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
-function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');onClose&&onClose();onClose=null;setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
-$('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-
-/* ---------- Toko Coin: tukar Emerald -> Coin (10->500, 40->2.500, 120->10.000). Akun server: WalletService.exchange(i) ---------- */
-const PACKS=[{coins:500,gems:10},{coins:2500,gems:40},{coins:10000,gems:120}];
-function renderPacks(){
-  $('#packs').innerHTML=PACKS.map((p,i)=>`<button class="cp${i===2?' best':''}" data-i="${i}" aria-label="Tukar ${p.gems} Emerald jadi ${p.coins} Coin"><img class="big" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false"><span class="amt">+${fmt(p.coins)}</span><span class="cost"><img src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">${p.gems}</span></button>`).join('');
-  document.querySelectorAll('.cp').forEach(b=>b.addEventListener('click',()=>exchange(+b.dataset.i)));
-}
-let busy=false;
-async function exchange(i){
-  if(busy)return;busy=true;
-  try{
-    const p=PACKS[i];
-    const r=SV()?await WS().exchange(i):PD.addCurrency(p.coins,-p.gems);
-    if(!r||!r.ok){toast(WMSG[r&&r.reason]||'Transaksi gagal.');playSound('error');if(r&&r.reason==='gem-kurang'){setTimeout(gemShop,300)}return}
-    renderCurrency();pulse('#coin');playSound('coin');buzz();toast('Berhasil! +'+fmt(p.coins)+' Coin');
-  }finally{busy=false}
-}
-/* ---------- Toko Emerald: emerald didapat dengan menonton iklan berhadiah (tombol Iklan) ----------
-   Tahap 4: nominal, batas harian & jeda ditentukan SERVER (claim_ad_reward); tidak ada lagi simulasi lokal (key ut:adLocal:* dihapus). */
-const AD={gems:5,cap:5,gap:60};
-const ADS_ENABLED=false;   /* iklan (simulasi) dinonaktifkan sementara -> tampil "Soon". Ubah ke true setelah SDK iklan nyata + verifikasi server terpasang. */
-try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('ut:adLocal:')===0)localStorage.removeItem(k)}}catch(e){}   /* bersihkan sisa simulasi iklan lokal lama */
-const AMSG={'daily_cap':'Batas iklan hari ini tercapai. Kembali besok (00.00 WIB).','tidak-tersedia':'Iklan belum tersedia.','dibatalkan':'Iklan belum selesai, hadiah tidak diberikan.','gagal':'Iklan gagal dimuat.','token-tidak-valid':'Klaim tidak valid.'};
-async function gemShop(){
- if(!ADS_ENABLED){openModal('<h2>Tambah Emerald</h2><p style="margin:0 0 1rem">Segera hadir.</p><button class="pack" id="adb" disabled><span>Soon</span><span>&#9203;</span></button>');return}
- const srv=SV()&&WS();let st=srv?await WS().adGet():null;if(st&&!st.ok)st=null;   /* Tahap 4: iklan hanya lewat server; tanpa akun = status tidak tersedia */
- const info=s=>s?(s.left<1?'Batas iklan hari ini tercapai':'Sisa hari ini: '+s.left+'/'+s.cap)+(s.left>0&&s.tunggu_detik>0?' · tunggu '+s.tunggu_detik+' dtk':''):'Status iklan tidak tersedia';
- const gems=(st&&st.gems)||AD.gems,sim=window.UT&&UT.Ads&&UT.Ads.isMock()?'<small style="display:block;opacity:.7;margin-top:.6rem">Iklan simulasi (mode pengembangan)</small>':'';
- openModal(`<h2>Tambah Emerald</h2><p style="margin:0 0 1rem">Tonton iklan, dapat +${gems} Emerald</p><button class="pack" id="adb"><span>&#9654; Tonton Iklan</span><span>+${gems} Emerald</span></button><small id="adn" style="display:block;margin-top:.8rem">${info(st)}</small>${sim}`,()=>{
-  const b=$('#adb');if(!st||st.left<1)b.disabled=true;
-  b.addEventListener('click',async()=>{b.disabled=true;playSound('click');
-   const a=window.UT&&UT.Ads?await UT.Ads.show():{ok:false,reason:'tidak-tersedia'};
-   if(!a.ok){toast(AMSG[a.reason]||'Iklan gagal.');playSound('error');b.disabled=false;return}
-   const r=srv?await WS().claimAd(a.token):{ok:false,reason:'belum-login'};
-   if(!r.ok){toast(r.reason==='terlalu-cepat'?'Tunggu '+(r.tunggu_detik||'')+' detik lagi.':(AMSG[r.reason]||WMSG[r.reason]||'Klaim gagal.'));playSound('error')}
-   else{renderCurrency();pulse('#gem');playSound('coin');buzz();toast('+'+fmt(r.reward_gems||gems)+' Emerald')}
-   const n=srv?await WS().adGet():{ok:false};if(mOpen&&$('#adn')){st=n.ok?n:st;$('#adn').textContent=info(st);b.disabled=!st||st.left<1}})})}
-
-
-/* panel Emerald (terpisah dari Coin): tombol memakai alur iklan yang sama */
-if(!ADS_ENABLED){const ab=$('#adbtn');ab.disabled=true;ab.style.opacity='.6';ab.style.filter='grayscale(.6)';ab.style.cursor='not-allowed'}
-$('#adbtn').addEventListener('click',()=>{playSound('click');gemShop()});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{
-  if(b.dataset.buy==='gem'){gemShop();return}
-  const e=$('#coinPanel');e.classList.remove('panel-hl');void e.offsetWidth;e.classList.add('panel-hl');playSound('select');
-}));
-const QS=new URLSearchParams(location.search);
-function hlCoin(){const e=$('#coinPanel');if(!e)return;e.scrollIntoView({block:'center',behavior:'smooth'});e.classList.remove('panel-hl');void e.offsetWidth;e.classList.add('panel-hl')}
-if(QS.has('emerald')||QS.get('tab')==='gem')setTimeout(gemShop,400); /* dari halaman lain: ?emerald=1 */
-else if(QS.has('coin')||QS.get('tab')==='coin')setTimeout(hlCoin,400); /* dari halaman lain: ?coin=1 */
-
-$('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
-window.openShop=()=>{$('#ui').style.display=''};window.closeShop=()=>{$('#ui').style.display='none'};
-UT.Events.on('currencyChanged',renderCurrency);
-renderPacks();renderCurrency();
-document.documentElement.classList.add('ut-ready');
-if(SV()&&WS())WS().refresh().then(r=>{if(r.ok)renderCurrency()}); /* B5: saldo dari server */
-})();
-</script>
+<script src="assets/js/shop-page.js"></script>
 </body>
 </html>

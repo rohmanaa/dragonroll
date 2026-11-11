@@ -10,6 +10,12 @@ t('lobi memanggil AppearanceService.refreshThrottled() hanya untuk akun server',
   assert.ok(/UT\.AppearanceService\.get\(\)/.test(h)); assert.ok(/A\.refreshThrottled\(\)/.test(h));
   assert.ok(/PD\.serverMode&&PD\.serverMode\(\)&&UT\.AppearanceService/.test(h), 'hanya akun server');
 });
+t('frame profil di lobi dimuat dan di-upgrade ke animasi FrameFX', () => {
+  assert.ok(h.indexOf('assets/js/frame-fx.js') > 0, 'frame-fx.js tidak dimuat');
+  assert.ok(/function applyFrame\(\)[\s\S]*?FrameFX\.upgrade\(im\)/.test(h), 'frame lobi tidak di-upgrade');
+  const profile = fs.readFileSync(path.join(__dirname, '../profile.html'), 'utf8');
+  assert.ok(/FrameFX\.upgrade\(profileFrame\)/.test(profile), 'frame profil tidak di-upgrade');
+});
 t('profil, efek, dan leaderboard juga menarik tampilan aktif dari server dan menggambar ulang', () => {
   ['profile', 'efek', 'leaderboard'].forEach(f => {
     const x = fs.readFileSync(path.join(__dirname, '../' + f + '.html'), 'utf8');

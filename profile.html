@@ -488,6 +488,7 @@ function render(){
  K=[['Skin',ownedSkins().length,'items/skin'],['Dadu',kcount('dice'),'items/dadu'],['Frame',kcount('frame'),'items/skin'],['Tema',kcount('theme'),'items/skin']],
  AI=achInfo(),top=AI.filter(a=>!a.done).sort((a,b)=>b.r-a.r).concat(AI.filter(a=>a.done)).slice(0,5),got=AI.filter(a=>a.st>0).length;
  $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${PROF.lvl}</div>${bar}</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
+ const profileFrame=$('#pc .frm');if(profileFrame&&window.FrameFX)FrameFX.upgrade(profileFrame);
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
 <div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(PROF.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>

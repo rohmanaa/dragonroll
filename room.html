@@ -14,22 +14,36 @@
 .slot .art>*,.it .art>*{display:block;width:100%;height:100%}.slot .art img,.it .art img{object-fit:contain;filter:none;max-width:none;height:100%}
 .slot .chg{font-size:16px}
 .it:disabled{cursor:default}
-/* power loadout: kartu dari ItemCatalog (stok & jumlah dibawa dari PlayerData) */
+/* power loadout: lima slot membuka modal pemilihan dari ItemCatalog */
 #power{padding-bottom:14px}
 #pcnt{position:absolute;right:26px;top:8px;font-weight:800;font-size:20px;color:#ddd7f7}
-#psc{display:flex;flex-wrap:nowrap;gap:12px;height:100%;padding:4px 4px 8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;touch-action:pan-x;scroll-snap-type:x proximity;scrollbar-width:thin}
-.pc{position:relative;flex:0 0 128px;height:100%;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;border-radius:14px;text-align:center;cursor:pointer;scroll-snap-align:start;
-  background:linear-gradient(180deg,#5b5288,#40386a);border:3px solid #8077ad;box-shadow:0 4px 0 rgba(20,12,45,.55)}
-.pc.sel{border-color:var(--gold);box-shadow:0 0 0 2px #7a4a00,0 0 14px rgba(255,212,90,.5),0 4px 0 rgba(20,12,45,.55)}
+#prow{display:flex;gap:14px;height:112px}
+#power .ps{position:relative;flex:1;min-width:0;border-radius:16px;background:#2a2347;border:3px dashed #6d6590}
+#power .ps.full{border-style:solid;background:linear-gradient(180deg,#5b5288,#40386a);border-color:#8077ad}
+#power .ps-main{position:absolute;inset:0;width:100%;display:grid;place-items:center;background:none}
+#power .ps-main img{height:68px;max-width:90%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+#power .ps-main b{font:400 40px var(--font-title);opacity:.45}
+#power .ps .pn{position:absolute;left:4px;right:4px;bottom:4px;font-size:14px;font-weight:800;line-height:1.05;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#power .ps .x{position:absolute;right:-6px;top:-8px;width:28px;height:28px;border-radius:50%;background:#e8334a;border:2px solid #fff;font:800 18px/24px var(--font-body);text-align:center}
+#power .info{margin-top:14px;font-weight:800;font-size:18px;color:#ddd7f7;line-height:1.3}
+.pc{position:relative;height:178px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px;border-radius:16px;text-align:center;cursor:pointer;
+  background:linear-gradient(180deg,#5b5288,#40386a);border:3px solid #8077ad;box-shadow:0 5px 0 rgba(20,12,45,.55)}
+.pc.sel{border-color:var(--gold);box-shadow:0 0 0 2px #7a4a00,0 0 14px rgba(255,212,90,.5),0 5px 0 rgba(20,12,45,.55)}
 .pc.dis{opacity:.5;filter:grayscale(.75);cursor:not-allowed}
-.pc img{width:58px;height:58px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
-.pc .ck{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:16px;line-height:1;color:transparent;background:rgba(11,21,48,.5);border:2px solid rgba(255,255,255,.6)}
+.pc img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.pc .ck{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:16px;line-height:1;color:transparent;background:rgba(11,21,48,.5);border:2px solid rgba(255,255,255,.6)}
 .pc.sel .ck{color:#fff;background:#2cb02c;border-color:#0b3a0b}
-.pwn{font-size:15px;line-height:1.05;min-height:32px;display:grid;place-items:center;padding:0 2px}
-.pmn{font-size:12px;line-height:1;color:#ffd9a0}
+.pwn{font-size:17px;line-height:1.05;min-height:24px;display:grid;place-items:center;padding:0 2px}
+.pmn{font-size:13px;line-height:1;color:#ffd9a0}
 .pin{font-size:13px;line-height:1.1;color:#d8ecff}.pin.zero{color:#ffb4a0}
 .pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
 .pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
+.pst button:disabled{opacity:.45;cursor:not-allowed}
+#pm .box{width:1080px}
+#pmL{grid-template-columns:repeat(5,minmax(0,1fr));max-height:560px}
+#pm .mfoot{justify-content:space-between}
+#pm .mfoot .hint{flex:1}
+#power.dis .ps{pointer-events:none}
 /* peta */
 #mapi .pic img{width:100%;height:100%;object-fit:cover}#mapi .pic svg{width:100%;height:100%;display:block}
 /* pemain: avatar asli (wajah karakter + frame), lencana, tombol kecil */
@@ -62,7 +76,7 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
   <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
 
   <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eq"></div></section>
-  <section class="panel" id="power"><h3>POWER LOADOUT</h3><div id="pcnt"></div><div id="psc"></div></section>
+  <section class="panel" id="power"><h3>POWER LOADOUT</h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
   <section class="panel" id="mapi"><h3>MAP INFORMATION</h3><div class="pic" id="mArt"></div><div class="txt" id="mTxt"></div></section>
 
   <section class="panel" id="players"><h3>PLAYER ROOM</h3>
@@ -82,6 +96,9 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
 
   <div class="modal" id="cm"><div class="box" role="dialog" aria-modal="true" aria-label="Pilih item"><h2 class="ttl" id="cmT"></h2><div class="igrid" id="cmL"></div>
     <div class="mfoot"><button class="btn" id="cmX" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+
+  <div class="modal" id="pm"><div class="box" role="dialog" aria-modal="true" aria-labelledby="pmT"><h2 class="ttl" id="pmT">PILIH POWER LOADOUT</h2><div class="igrid" id="pmL"></div>
+    <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
 
   <div class="modal" id="inv"><div class="box" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ttl">AKSES ROOM</h2>
     <div class="sw"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div>
@@ -187,7 +204,7 @@ async function setupOnline(){
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
 const EQ=[['dice','DICE','DADU'],['skin','KARAKTER','KARAKTER'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
 /* Efek: belum ada item efek di katalog (Shop/Inventory masih "segera"), jadi slot ini baru placeholder */
-const EFFECT_ICON='assets/Images/icon/items/efek.webp';
+const EFFECT_ICON='assets/ng/komponen/ikon-gem-medali/kristal-api.webp';
 /* Slot KARAKTER = karakter baru (halaman Karakter): gambar kepala dari BlockyCharacter, dimuat malas (three.js hanya dipakai untuk ini). CHANGE -> karakter.html */
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
@@ -230,21 +247,61 @@ function fitP(){ /* Power tidak otomatis dimiliki: lepas yang stoknya 0, dan dib
 function renderPower(){
  fitP();
  const units=PW.equipped.reduce((n,id)=>n+(PW.carry[id]||1),0);
- $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';$('#psc').style.setProperty('--pn',POWERS.length);
- $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=PW.carry[p.id]||1,none=invReady()&&st<=0;
-  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa">−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa">+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:`<div class="pin${none?' zero':''}">Stok ${st}</div>`;
-  return `<div class="pc ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — stok '+st+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${info}</div>`}).join('');
+ $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';
+ $('#prow').innerHTML=Array.from({length:TMAX},(_,i)=>{
+  const id=PW.equipped[i],p=id&&IC.byId(id);
+  return p?`<div class="ps full"><button type="button" class="ps-main" data-slot="${i}" aria-label="Ganti ${esc(p.name)}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="pn">${esc(p.name)}</span></button><button type="button" class="x" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
+   :`<div class="ps"><button type="button" class="ps-main" data-slot="${i}" aria-label="Pilih Power"><b>+</b></button></div>`;
+ }).join('');
+ $('#pinfo').textContent=ONLINE?'Mode online: pilihan Power tidak dikirim ke room.':(PW.equipped.length?PW.equipped.map(id=>(IC.byId(id)||{}).name).filter(Boolean).join(' · '):'Pilih hingga '+TMAX+' Power untuk dibawa.');
 }
-$('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id,pi=POWERS.find(x=>x.id===id),sb=e.target.closest('[data-d]');
- if(sb){ /* stepper jumlah yang dibawa (1..min(stok, batas)); menghapus Power = ketuk kartunya */
-  if(!PW.equipped.includes(id))return;const m=carryMax(id),cur=PW.carry[id]||1,d=Number(sb.dataset.d);
-  if(d>0&&cur>=m)return toast(stockOf(id)<=cur?'Stok '+(pi?pi.name:'Power')+' hanya '+stockOf(id):'Maksimal '+CMAX+' unit per jenis untuk satu pertandingan');
-  PW.carry[id]=Math.max(1,Math.min(m,cur+d));saveP();renderPower();return}
+$('#prow').onclick=e=>{
+ const remove=e.target.closest('[data-remove]');
+ if(remove){const id=PW.equipped[Number(remove.dataset.remove)];PW.equipped.splice(Number(remove.dataset.remove),1);if(id)delete PW.carry[id];saveP();renderPower();return}
+ if(e.target.closest('[data-slot]'))openPowerPick();
+};
+let powerDraft=null;
+function renderPowerPick(){
+ if(!powerDraft)return;
+ if(invReady()){
+  const previous=powerDraft.equipped.slice();
+  powerDraft.equipped=powerDraft.equipped.filter(id=>pOk(id)&&carryMax(id)>0);
+  previous.forEach(id=>{if(!powerDraft.equipped.includes(id))delete powerDraft.carry[id]});
+  powerDraft.equipped.forEach(id=>{const max=carryMax(id);powerDraft.carry[id]=Math.max(1,Math.min(powerDraft.carry[id]||1,max))});
+ }
+ const units=powerDraft.equipped.reduce((n,id)=>n+(powerDraft.carry[id]||1),0);
+ $('#pmHint').textContent='Dipilih '+powerDraft.equipped.length+'/'+TMAX+' jenis · '+units+' unit'+(ONLINE?' · Tidak dikirim dalam mode online':'');
+ $('#pmL').innerHTML=POWERS.map(p=>{
+  const on=powerDraft.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=powerDraft.carry[p.id]||1,none=invReady()&&st<=0,max=carryMax(p.id);
+  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:`<div class="pin${none?' zero':''}">Stok ${st}</div>`;
+  const fx=UT.PowerFX&&UT.PowerFX.DATA[p.gameKey];
+  return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — stok '+st+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${info}</div>`;
+ }).join('');
+}
+function openPowerPick(){powerDraft={equipped:PW.equipped.slice(),carry:Object.assign({},PW.carry)};renderPowerPick();$('#pm').classList.add('on')}
+function closePowerPick(){powerDraft=null;$('#pm').classList.remove('on')}
+$('#pmL').onclick=e=>{
+ const card=e.target.closest('.pc[data-id]');if(!card||!powerDraft)return;
+ const id=card.dataset.id,pi=IC.byId(id),sb=e.target.closest('[data-d]');
+ if(sb){
+  if(!powerDraft.equipped.includes(id))return;
+  const max=carryMax(id),cur=powerDraft.carry[id]||1,d=Number(sb.dataset.d);
+  if(d>0&&cur>=max)return toast(stockOf(id)<=cur?'Stok '+(pi?pi.name:'Power')+' hanya '+stockOf(id):'Maksimal '+CMAX+' unit per jenis untuk satu pertandingan');
+  powerDraft.carry[id]=Math.max(1,Math.min(max,cur+d));renderPowerPick();return;
+ }
  if(!pOk(id))return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' — tidak bisa dibawa ke map '+IC.mapName(MAPKEY));
- if(PW.equipped.includes(id)){PW.equipped=PW.equipped.filter(x=>x!==id);delete PW.carry[id]}
- else{if(invReady()&&stockOf(id)<=0)return toast((pi?pi.name:'Power')+': stok 0. Beli dulu di halaman Power-up');
-  if(PW.equipped.length>=TMAX)return toast('Maksimal '+TMAX+' jenis Power untuk satu pertandingan');PW.equipped.push(id);PW.carry[id]=1;try{if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,b)}catch(er){}}
- saveP();renderPower()};
+ if(powerDraft.equipped.includes(id)){powerDraft.equipped=powerDraft.equipped.filter(x=>x!==id);delete powerDraft.carry[id]}
+ else{
+  if(invReady()&&stockOf(id)<=0)return toast((pi?pi.name:'Power')+': stok 0. Beli dulu di halaman Power-up');
+  if(powerDraft.equipped.length>=TMAX)return toast('Maksimal '+TMAX+' jenis Power untuk satu pertandingan');
+  powerDraft.equipped.push(id);powerDraft.carry[id]=1;
+  try{if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,card)}catch(er){}
+ }
+ renderPowerPick();
+};
+$('#pmL').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pc[data-id]')){e.preventDefault();e.target.click()}};
+$('#pdone').onclick=()=>{if(!powerDraft)return;PW.equipped=powerDraft.equipped;PW.carry=powerDraft.carry;saveP();closePowerPick();renderPower()};
+$('#pm').onclick=e=>{if(e.target.id==='pm')closePowerPick()};
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
 const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
@@ -392,11 +449,11 @@ async function invitePlayer(id){if(!HOST||!S.room.code)return;try{await UT.Multi
 $('#dr').onclick=async e=>{if(e.target.id==='dr'){closeDrawer();return}const p=e.target.closest('[data-pinv]'),a=e.target.closest('[data-add]');if(p&&!p.disabled)invitePlayer(p.dataset.pinv);else if(a){try{const res=await UT.Multiplayer.RoomService.sendFriendRequest({id:a.dataset.add,name:a.dataset.nm,myName:S.mpIdentity.name});toast(res==='accepted'?'Kalian sekarang berteman':'Permintaan teman dikirim ke '+a.dataset.nm);loadFriends()}catch(er){toast(er.message==='ALREADY_FRIENDS'?'Sudah berteman':'Gagal mengirim permintaan teman')}}};
 $('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
 $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;
-addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closeDrawer()}});
+addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closePowerPick();closeDrawer()}});
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
-try{UT.Events.on('inventoryChanged',()=>renderPower())}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
+try{UT.Events.on('inventoryChanged',()=>{renderPower();if(powerDraft)renderPowerPick()})}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
 if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
 addEventListener('resize',fit);fit();

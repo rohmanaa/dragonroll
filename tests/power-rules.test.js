@@ -98,6 +98,15 @@ t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay
   assert.ok(/filter\(puAvail\)/.test(g) && g.indexOf('!p.pu[k]||!puAvail(k)') > 0);
   assert.ok(rd('powerup.html').indexOf('IC.powerMapNote(i.id)') > 0);
 });
+t('Room: lima slot membuka modal Power dan loadout baru disimpan saat dikonfirmasi', () => {
+  const r = rd('room.html');
+  assert.ok(r.indexOf('id="prow"') > 0 && r.indexOf('id="pmL"') > 0);
+  assert.ok(r.indexOf("const EFFECT_ICON='assets/ng/komponen/ikon-gem-medali/kristal-api.webp'") > 0);
+  assert.ok(r.indexOf('Array.from({length:TMAX}') > 0 && r.indexOf('function openPowerPick()') > 0);
+  assert.ok(r.indexOf('if(powerDraft.equipped.length>=TMAX)') > 0);
+  assert.ok(r.indexOf('function closePowerPick(){powerDraft=null;') > 0);
+  assert.ok(r.indexOf('PW.equipped=powerDraft.equipped;PW.carry=powerDraft.carry;saveP()') > 0);
+});
 t('Jebakan di petak: TNT radius 1 mundur 6, Fire Charge radius 0 mundur 3, Blaze Core radius 2 mundur 2; jangkauan pasang 6; terpasang di gameplay (pilih petak, pemicu saat mendarat, snapshot, tamu kirim petak)', () => {
   const R = C.PUR; [['tnt', 1, 6], ['fire_charge', 0, 3], ['blaze_core', 2, 2]].forEach(([k, rad, back]) => { assert.strictEqual(R[k].kind, 'trap', k); assert.strictEqual(R[k].radius, rad, k); assert.strictEqual(R[k].back, back, k); assert.strictEqual(R[k].range, 6, k); assert.ok(/jebakan/i.test(C.PUN[k][2]) && /jebakan/i.test(IC.byId(k).desc), k + ' deskripsi'); });
   ['sword', 'diamond_sword', 'netherite_sword', 'trident', 'nether_star', 'ice_crystal', 'grass'].forEach(k => assert.notStrictEqual(R[k].kind, 'trap', k + ' tetap serangan langsung'));

@@ -117,6 +117,7 @@
 <div id="fade"></div>
 
 <script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/frame-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
@@ -141,7 +142,7 @@ let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on
 let SRV_XP=0;
 function lvInfo(xp){let L=1,left=Math.max(0,Math.floor(+xp)||0);while(left>=400+100*(L-1)&&L<999){left-=400+100*(L-1);L++}return{level:L,xpIn:left,xpMax:400+100*(L-1)}}
 function renderAvatar(){const fb=()=>(AR&&(AR.face(PD.equippedId('skin'))||AR.face('skin.steve')))||'';if(UT.CharacterFace)UT.CharacterFace.mount($('#ava'),fb);else $('#ava').innerHTML=fb()}
-function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=$('#avf');if(im)im.src=(f&&f.image)||'data/frame/frame-default.webp'}
+function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=$('#avf');if(im){im.src=(f&&f.image)||'data/frame/frame-default.webp';if(window.FrameFX)FrameFX.upgrade(im)}}
 function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
 function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
 function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';$('#nm').textContent=n;const h=$('#ht-name');if(h)h.textContent=n}
