@@ -11,7 +11,7 @@
 #avatar{overflow:hidden}
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 #avf{position:absolute;left:-8px;top:-6px;width:164px;height:164px;object-fit:contain;pointer-events:none;z-index:1}
-#gl3d{position:absolute;left:680px;top:80px;width:560px;height:560px;transform-origin:280px 520px;touch-action:manipulation}
+#gl3d{position:absolute;left:600px;top:-96px;width:720px;height:1000px;transform-origin:360px 960px;touch-action:manipulation}
 #hshadow{position:absolute;left:0;top:0;width:340px;height:70px;margin:-35px 0 0 -170px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(15,20,45,.5) 0,rgba(15,20,45,.28) 45%,rgba(15,20,45,0) 72%);pointer-events:none}
 .dot[hidden]{display:none!important}
 .cur .v.bump{animation:bump .5s ease-out}
@@ -23,7 +23,7 @@
 
   <!-- ===== dunia: latar = SceneBackground (scene-bg.js, lobby-bg.webp), karakter berdiri di lantai batu latar ===== -->
   <div id="hshadow"></div>
-  <canvas id="gl3d" width="560" height="560" aria-label="Karakter pemain"></canvas>
+  <canvas id="gl3d" width="720" height="1000" aria-label="Karakter pemain"></canvas>
   <div id="hint" class="t-title">Ketuk karakter!</div>
 
   <!-- ===== profil ===== -->
@@ -166,30 +166,32 @@ addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')
 /* ---------- skala kanvas ---------- */
 /* Karakter berdiri di lantai batu latar (lobby-bg.webp 1672x941, object-fit:cover, posisi 50% 72%, sama dengan .sbg-img).
    Titik pijak = (50%,80%) gambar; posisi & skala karakter dihitung dari transformasi cover itu supaya tetap menempel di lantai di rasio layar apa pun. */
-const BG_W=1672,BG_H=941,FLOOR_X=.5,FLOOR_Y=.8,REF_K=1920/BG_W;
+const BG_W=1672,BG_H=941,FLOOR_X=.5,FLOOR_Y=.79,REF_K=1920/BG_W;
 function placeHero(s){
  const vw=innerWidth,vh=innerHeight,k=Math.max(vw/BG_W,vh/BG_H);
  const px=vw/2+(FLOOR_X-.5)*BG_W*k,py=(vh-BG_H*k)*.72+FLOOR_Y*BG_H*k;
  const x=(px-vw/2)/s+960,y=(py-vh/2)/s+540,m=k/s/REF_K;
  const c=$('#gl3d'),sh=$('#hshadow');
- c.style.left=(x-280)+'px';c.style.top=(y-520)+'px';c.style.transform='scale('+m+')';
+ c.style.left=(x-CW/2)+'px';c.style.top=(y-FY)+'px';c.style.transform='scale('+m+')';
  sh.style.left=x+'px';sh.style.top=(y+6)+'px';sh.style.transform='scale('+m+')'}
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';fit3d(s);placeHero(s)}
 
 
 /* ================= 3D: karakter ASLI pemain (UT.BlockyCharacter, sama dengan halaman Karakter) di atas pedestal =================
    Kanvas 560x560 (satuan stage), kaki di y~600. Kamera perspektif sempit ~ ortografis: 1 satuan model = 200 px. */
+/* Kanvas karakter tinggi (ruang lompat/salto) supaya tidak terpotong; kamera dimundurkan (CD) dan karakter diperbesar sedikit (K px per unit; dulu 200). Kaki tetap di (CW/2,FY). */
+const CW=720,CH=1000,FY=960,K=224,CD=13.5,CAMY=(FY-CH/2)/K;
 const cv=$('#gl3d');let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false;
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&cv){
   renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setClearColor(0x000000,0);
   scene=new THREE.Scene();scene.add(new THREE.AmbientLight(0xffffff,.8),new THREE.HemisphereLight(0xcfeaff,0x7a9a60,.55));
   const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(2,4,5);scene.add(sun);
-  cam=new THREE.PerspectiveCamera(2*Math.atan(1.4/12)*180/Math.PI,1,.1,100);cam.position.set(0,1.2,12);cam.lookAt(0,1.2,0);
+  cam=new THREE.PerspectiveCamera(2*Math.atan((CH/2)/(K*CD))*180/Math.PI,CW/CH,.1,100);cam.position.set(0,CAMY,CD);cam.lookAt(0,CAMY,0);
   hero=new THREE.Group();hero.rotation.y=-.2;scene.add(hero);G3=true;
  }
 }catch(e){G3=false;renderer=null}
-function fit3d(s){if(!G3)return;renderer.setPixelRatio(Math.min(2,Math.max(1,(devicePixelRatio||1)*s)));renderer.setSize(560,560,false)}
+function fit3d(s){if(!G3)return;renderer.setPixelRatio(Math.min(2,Math.max(1,(devicePixelRatio||1)*s)));renderer.setSize(CW,CH,false)}
 function buildHero(){if(!G3)return;if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bcW=new THREE.Group();bcW.add(bc.root);hero.add(bcW);auraQ=true}
 /* Aura yang dipakai (slot 'aura', dipilih di halaman Efek) menempel ke karakter lobby; dipasang di loop setelah hero ada di scene */
 function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey())}catch(e){}}
@@ -215,7 +217,7 @@ function lobbyStep(dt){
  if(calmMotion||document.hidden||lobbyBusy())return;
  lqIdle-=dt;if(lqIdle<=0)lobbyRandom()}
 function lobbyTap(){if(lobbyBusy())return;if(Math.random()<.25){bc.jump();lqIdle=6+Math.random()*7}else lobbyRandom();const h=$('#hint');if(h)h.style.display='none'}
-cv.addEventListener('pointerdown',e=>{if(!G3)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x>.25&&x<.75&&y>.08&&y<.95){lobbyTap();buzz()}});
+cv.addEventListener('pointerdown',e=>{if(!G3)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;if(x>.3&&x<.7&&y>.4&&y<.97){lobbyTap();buzz()}});
 if(G3){const clock=new THREE.Clock();let lastT=0;
  (function loop(){requestAnimationFrame(loop);if(document.hidden)return;const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;
   bc.tick(dt);lobbyStep(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);renderer.render(scene,cam)})()}
