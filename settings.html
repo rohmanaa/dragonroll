@@ -1,58 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dragon Roll — Pengaturan</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/settings.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
-<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script>
-</head>
-<body class="sub">
-<div id="wrap"><div id="stage">
-  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""></button>
-  <div id="title" class="ttl">PENGATURAN</div>
+<title>Pengaturan</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><style id="ut-vt">@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/lobby-bg.webp"></script><style>
+:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f;--pn1:#27489a;--pn2:#1c3678;--gold:#ffd23e;--ok:#3cc23c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html{font-size:min(1vw,2vh)}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:#5db4f5}
+.ab{position:absolute}
+button{font:inherit;color:inherit;border:0;padding:0;cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
+button:hover{transform:scale(1.03);filter:brightness(1.08)}button:active{transform:scale(.96)}button:focus-visible{outline:.3rem solid #fff}
+img.ic{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+#stage{position:absolute;left:0;top:50%;width:100%;height:50rem;translate:0 -50%}
+.blue{background:linear-gradient(var(--rb1),var(--rb2));border:.3rem solid var(--ol);border-radius:.9rem;box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
+#back{left:2.7rem;top:2rem;width:5.2rem;height:5.2rem;padding:0;display:grid;place-items:center}
+#back>.ic{width:3.4rem;height:3.4rem}
+#title{left:10.4rem;top:1.8rem;height:5.8rem;white-space:nowrap;border-radius:.9rem;padding:0 2.4rem 0 10.6rem;display:flex;align-items:center;background:linear-gradient(var(--nv1),var(--nv2));border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
+#title h1{margin:0;font-size:3.9rem;line-height:1;font-style:italic;color:var(--gold);text-shadow:-.2rem 0 #3a2200,.2rem 0 #3a2200,0 -.2rem #3a2200,0 .2rem #3a2200,0 .35rem 0 #3a2200}
+#tic{position:absolute;left:1.2rem;top:-1.6rem;width:8rem;height:8rem;filter:drop-shadow(0 .4rem 0 rgba(8,24,56,.55));rotate:-6deg}
+#tic .ic{width:100%;height:100%}
+.pix{background:linear-gradient(var(--pn1),var(--pn2));border:.35rem solid var(--ol);border-radius:1.1rem;box-shadow:inset 0 0 0 .2rem var(--rb-hi),inset 0 -.35rem 0 rgba(8,25,90,.45),0 .45rem 0 var(--ol),0 1rem 1.6rem rgba(10,30,90,.35)}
+.txo{text-shadow:-.18rem 0 var(--ol),.18rem 0 var(--ol),0 -.18rem var(--ol),0 .18rem var(--ol),0 .3rem 0 var(--ol)}
+/* tiga kolom: Grafik | Suara | Suasana (grid; panel sama tinggi, isi mengisi penuh) */
+#cols{position:absolute;left:5rem;right:5rem;top:11rem;height:35rem;display:grid;grid-template-columns:22rem 28rem minmax(0,1fr);gap:1.6rem}
+.col{position:relative;display:flex;flex-direction:column;min-width:0;padding:1.4rem 1.6rem 1.6rem}
+.col h2{margin:0 0 1.2rem;font-size:2.8rem;line-height:1;color:var(--gold);display:flex;align-items:center;gap:.9rem;white-space:nowrap;text-shadow:-.16rem 0 #3a2200,.16rem 0 #3a2200,0 -.16rem #3a2200,0 .16rem #3a2200,0 .28rem 0 #3a2200}
+.col h2 svg{width:3rem;height:3rem;flex:none}
+.hint{font-size:1.5rem;font-weight:700;line-height:1.25;color:#cfe0ff;margin-top:1.2rem;text-shadow:0 .12rem 0 var(--ol)}
+.box{flex:1;min-height:0;display:flex;flex-direction:column;background:#162d6e;border-radius:.9rem;box-shadow:inset 0 .3rem 0 rgba(0,0,0,.35),inset 0 0 0 .2rem #0f1f52;padding:.8rem}
+/* pilihan Tinggi / Rendah */
+.seg{flex:1;display:grid;grid-template-rows:1fr 1fr;gap:.8rem}
+.opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;padding:0 .8rem;border-radius:.8rem;font-size:2.6rem;line-height:1;background:linear-gradient(#34519a,#25407f);border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .13rem #5d83d6,0 .3rem 0 var(--ol)}
+.opt small{font-size:1.4rem;font-weight:700;line-height:1.1;color:#bcd2ff}
+.opt.on{background:linear-gradient(#58d64a,#2fa51f);box-shadow:inset 0 0 0 .13rem #a8ff8a,inset 0 -.25rem 0 rgba(8,70,8,.4),0 .3rem 0 var(--ol)}
+.opt.on small{color:#eaffdf}
+/* baris toggle */
+.row{flex:1;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:0 .8rem 0 1.3rem;border-radius:.8rem;background:#1e3a82;margin-bottom:.8rem;font-size:2.2rem;white-space:nowrap;box-shadow:inset 0 0 0 .13rem #2f54ad}
+.row:last-child{margin-bottom:0}
+/* baris volume: label + persen + toggle di atas, slider penuh di bawah */
+.row.vr{flex-wrap:wrap;align-content:center;row-gap:.4rem;padding-top:.6rem;padding-bottom:.6rem}
+.row.vr>span{margin-right:auto}
+.vp{flex:none;min-width:5.6rem;text-align:right;font-size:2rem;color:#ffe9a0;text-shadow:0 .12rem 0 var(--ol)}
+.vol{flex:1 1 100%;order:5;width:100%;height:2.6rem;margin:0;accent-color:#58d64a;touch-action:pan-y}
+.tg{flex:none;width:8.8rem;height:4.4rem;border-radius:2.2rem;font-size:2rem;line-height:1;background:linear-gradient(#6a748c,#4a546c);border:.28rem solid var(--ol);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.3),0 .25rem 0 var(--ol)}
+.tg.on{background:linear-gradient(#58d64a,#2fa51f);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.5),0 .25rem 0 var(--ol)}
+/* kartu suasana */
+.amb{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.card{position:relative;height:100%;border-radius:1rem;border:.32rem solid var(--ol);overflow:hidden;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;font-size:2.4rem;box-shadow:inset 0 0 0 .13rem rgba(255,255,255,.35),0 .35rem 0 var(--ol)}
+.card .pv{position:absolute;inset:0;z-index:0}
+.card .ic{position:relative;z-index:1;width:9rem;height:9rem;margin-bottom:.4rem;filter:drop-shadow(0 .3rem 0 rgba(8,24,56,.45))}
+.card b{position:relative;z-index:1;display:block;padding-bottom:1.1rem;line-height:1}
+.card.on{border-color:var(--gold);box-shadow:inset 0 0 0 .16rem #fff3b0,0 0 0 .22rem #3a2200,0 0 1.8rem rgba(255,210,62,.75),0 .35rem 0 var(--ol)}
+.card .ck{position:absolute;z-index:2;right:.5rem;top:.5rem;width:3.2rem;height:3.2rem;border-radius:50%;background:radial-gradient(#7af07a,#2cb02c);border:.2rem solid #1c7d1c;display:none;place-items:center}
+.card.on .ck{display:grid}.card .ck svg{width:62%;height:62%}
+#pvD{background:linear-gradient(#3d9bfd,#8fe9ff 70%,#d8f7ff);}
+#pvD::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 8%,rgba(255,226,140,.95),rgba(255,206,104,0) 55%)}
+#pvN{background:linear-gradient(#040a26,#14307a 70%,#2a5a9c)}
+#pvN::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(205,222,255,.8),rgba(150,182,255,0) 50%),radial-gradient(1px 1px at 20% 25%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 12%,#fff,transparent),radial-gradient(1px 1px at 62% 30%,#fff,transparent),radial-gradient(1.5px 1.5px at 12% 55%,#fff,transparent),radial-gradient(1px 1px at 88% 48%,#fff,transparent)}
+#pvS{background:linear-gradient(105deg,#3d9bfd 0%,#8fe9ff 49%,#14307a 51%,#040a26 100%)}
+.sysic{position:relative;z-index:1;width:9rem;height:9rem;margin-bottom:.4rem;filter:drop-shadow(0 .3rem 0 rgba(8,24,56,.45))}
+#sysn{margin-top:1.3rem;min-height:2rem;font-size:1.6rem;font-weight:700;color:#cfe0ff;text-align:center;line-height:1.25;text-shadow:0 .12rem 0 var(--ol)}
+#sysn b{color:var(--gold)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+<div id="stage">
+ <button class="ab blue" id="back" aria-label="Kembali"><img class="ic" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+ <div class="ab" id="title"><span id="tic"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"></span><h1>Pengaturan</h1></div>
 
-  <!-- kolom kiri: suara & getar -->
-  <section id="rows">
-    <div class="row"><img class="ic" id="ic-sfx" src="assets/ng/komponen/ikon-pengaturan/ikon-speaker.webp" alt=""><em>Efek suara</em>
-      <input type="range" id="sfxVol" min="0" max="100" step="5" aria-label="Volume efek suara"><span class="val" id="sfxVolV"></span><button class="tg" data-tg="sound" aria-label="Efek suara"></button></div>
-    <div class="row"><img class="ic" id="ic-music" src="assets/ng/komponen/ikon-pengaturan/ikon-musik-mati.webp" alt=""><em>Musik</em>
-      <input type="range" id="musicVol" min="0" max="100" step="5" aria-label="Volume musik"><span class="val" id="musicVolV"></span><button class="tg" data-tg="music" aria-label="Musik"></button></div>
-    <div class="row"><img class="ic" src="assets/ng/komponen/ikon-pengaturan/ikon-getar.webp" alt=""><em>Getar</em>
-      <span class="sp"></span><button class="tg" data-tg="vibration" aria-label="Getar"></button></div>
-  </section>
-
-  <!-- kolom kanan: pilihan -->
-  <section id="opts">
-    <div class="grp"><div class="cap">GRAFIK</div><div class="seg" id="seg-gfx"><button data-gfx="high">Tinggi</button><button data-gfx="low">Rendah</button></div>
-      <div id="gfxn" class="note">Pilih Rendah bila game terasa berat di HP kamu.</div></div>
-    <div class="grp"><div class="cap">SUASANA</div><div class="seg" id="seg-amb"><button data-amb="day">Siang</button><button data-amb="night">Malam</button><button data-amb="system">Sistem</button></div>
-      <div id="sysn"></div></div>
-    <div class="grp"><div class="cap">BAHASA</div>
-      <button class="btn" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/ng/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
-  </section>
-
-  <div id="line"></div>
-  <button class="btn" id="logout"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>KELUAR AKUN</span></button>
-
-  <!-- konfirmasi keluar -->
-  <div id="confirm" role="dialog" aria-modal="true" aria-labelledby="cf-t"><div id="cbox">
-    <div id="cf-t" class="ttl">KELUAR AKUN?</div>
-    <div id="cf-s">Koin, item, dan progres tetap tersimpan dan kembali saat kamu login lagi.</div>
-    <div class="cbtns">
-      <button class="btn" id="cf-no"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
-      <button class="btn" id="cf-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
-    </div>
+ <div id="cols">
+ <section class="col pix" id="cg" aria-label="Grafik">
+  <h2><svg viewBox="0 0 24 24" fill="none" stroke="#ffd23e" stroke-width="2.4" stroke-linejoin="round"><path d="m12 3 2.4 5.6L20 9l-4.2 3.9L17 19l-5-3-5 3 1.2-6.1L4 9l5.6-.4z"/></svg>Grafik</h2>
+  <div class="box"><div class="seg">
+   <button class="opt" data-gfx="high">Tinggi <small>Bayangan &amp; cahaya penuh</small></button>
+   <button class="opt" data-gfx="low">Rendah <small>Hemat baterai</small></button>
   </div></div>
-  <!-- pilih bahasa -->
-  <div id="lang" role="dialog" aria-modal="true" aria-labelledby="lg-t"><div id="lbox">
-    <div id="lg-t" class="ttl">PILIH BAHASA</div>
-    <button id="lg-x" aria-label="Tutup"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp" alt=""></button>
-    <div id="lgrid"></div>
-  </div></div>
-  <div id="toast"></div>
-</div></div>
-<div id="fade"></div>
+  <div class="hint">Pilih Rendah bila game terasa berat di HP kamu.</div>
+ </section>
+
+ <section class="col pix" id="cs" aria-label="Suara">
+  <h2><svg viewBox="0 0 24 24" fill="none" stroke="#ffd23e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>Suara</h2>
+  <div class="box">
+   <div class="row vr"><span>Musik</span><b class="vp" id="pMusic"></b><button class="tg" data-tg="music"></button><input type="range" class="vol" id="vMusic" min="0" max="100" step="5" aria-label="Volume musik"></div>
+   <div class="row vr"><span>Efek suara</span><b class="vp" id="pSfx"></b><button class="tg" data-tg="sound"></button><input type="range" class="vol" id="vSfx" min="0" max="100" step="5" aria-label="Volume efek suara"></div>
+   <div class="row"><span>Getar</span><button class="tg" data-tg="vibration"></button></div>
+  </div>
+ </section>
+
+ <section class="col pix" id="ca" aria-label="Suasana">
+  <h2><svg viewBox="0 0 24 24" fill="none" stroke="#ffd23e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3 7 7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></svg>Suasana</h2>
+  <div class="amb">
+   <button class="card" data-amb="day"><span class="pv" id="pvD"></span><span class="ck"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><img class="ic" src="assets/Images/icon/ui/day.webp" alt="" draggable="false"><b class="txo">Siang</b></button>
+   <button class="card" data-amb="night"><span class="pv" id="pvN"></span><span class="ck"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><img class="ic" src="assets/Images/icon/ui/night.webp" alt="" draggable="false"><b class="txo">Malam</b></button>
+   <button class="card" data-amb="system"><span class="pv" id="pvS"></span><span class="ck"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><svg class="sysic" viewBox="0 0 64 64"><rect x="10" y="9" width="44" height="32" rx="5" fill="#dfe8fb" stroke="#0b1838" stroke-width="4"/><rect x="15" y="14" width="34" height="22" rx="2" fill="#3d9bfd"/><path d="M15 14h17v22H15z" fill="#8fe9ff"/><path d="M32 14h17v22H32z" fill="#14307a"/><path d="M24 54h16M32 41v13" stroke="#0b1838" stroke-width="5" stroke-linecap="round"/></svg><b class="txo">Sistem</b></button>
+  </div>
+  <div id="sysn"></div>
+ </section>
+ </div>
+</div>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
@@ -66,70 +111,28 @@ const S=()=>PD.settings();
 const buzz=()=>{try{if(S().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 const PF=()=>UT.Prefs;
 const vol=(k,d)=>{const v=parseInt(PF().get(k,d),10);return isNaN(v)?d:Math.max(0,Math.min(100,v))};
-function paintVol(){[['musicVol','musicVolV','musicVol',30],['sfxVol','sfxVolV','sfxVol',100]].forEach(([i,p,k,d])=>{const v=vol(k,d),el=$('#'+i);if(el&&document.activeElement!==el)el.value=v;$('#'+p).textContent=v+'%'})}
+function paintVol(){[['vMusic','pMusic','musicVol',30],['vSfx','pSfx','sfxVol',100]].forEach(([i,p,k,d])=>{const v=vol(k,d),el=$('#'+i);if(el&&document.activeElement!==el)el.value=v;$('#'+p).textContent=v+'%'})}
 const shellSync=()=>{try{if(parent&&parent!==window&&parent.UTShell)parent.UTShell.syncMusic()}catch(e){}};
-$('#musicVol').addEventListener('input',e=>{PF().set('musicVol',+e.target.value);$('#musicVolV').textContent=e.target.value+'%';shellSync()});
-$('#sfxVol').addEventListener('input',e=>{PF().set('sfxVol',+e.target.value);$('#sfxVolV').textContent=e.target.value+'%'});
-$('#sfxVol').addEventListener('change',()=>{try{UT.Audio.play('button')}catch(e){}});
-const IC='assets/ng/komponen/';
+$('#vMusic').addEventListener('input',e=>{PF().set('musicVol',+e.target.value);$('#pMusic').textContent=e.target.value+'%';shellSync()});
+$('#vSfx').addEventListener('input',e=>{PF().set('sfxVol',+e.target.value);$('#pSfx').textContent=e.target.value+'%'});
+$('#vSfx').addEventListener('change',()=>{try{UT.Audio.play('button')}catch(e){}});
 function render(){
  paintVol();
  const T=S();
- $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+ $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.textContent=on?'ON':'OFF';b.setAttribute('aria-pressed',on)});
  $$('[data-gfx]').forEach(b=>{const on=T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $$('[data-amb]').forEach(b=>{const on=T.ambience===b.dataset.amb;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
- $('#ic-sfx').src=IC+(T.sound?'ikon-pengaturan/ikon-speaker.webp':'glyph-putih/speaker-mati.webp');
- $('#ic-music').src=IC+(T.music?'glyph-putih/nada.webp':'ikon-pengaturan/ikon-musik-mati.webp');
- $('#sysn').innerHTML=T.ambience==='system'?'Mengikuti perangkat — sekarang: <b>'+(A.resolved()==='night'?'Malam':'Siang')+'</b>':T.ambience==='night'?'Malam: bintang, bulan &amp; cahaya bulan di lobby.':'Siang: matahari &amp; sinar emas di lobby.';
+ const n=$('#sysn');
+ n.innerHTML=T.ambience==='system'?'Mengikuti perangkat — sekarang: <b>'+(A.resolved()==='night'?'Malam':'Siang')+'</b>':T.ambience==='night'?'Malam: bintang, bulan &amp; cahaya bulan di lobby.':'Siang: matahari &amp; sinar emas di lobby.';
 }
 $$('[data-tg]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tg;PD.setSettings({[k]:!S()[k]});buzz();render()}));
 $$('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{A.set({graphics:b.dataset.gfx});buzz();render()}));
 $$('[data-amb]').forEach(b=>b.addEventListener('click',()=>{A.set({ambience:b.dataset.amb});buzz();render()}));
 A.on(render);
 /* kembali ke halaman asal (profil, toko, dll.); bila tidak ada, ke lobby */
-const go=u=>{$('#fade').classList.add('on');setTimeout(()=>{location.href=u},330)};
-const home=()=>{let to='lobby.html';try{const r=new URL(document.referrer);if(r.origin===location.origin){const n=r.pathname.split('/').pop();if(/^[a-z0-9_-]+\.html$/i.test(n)&&!/^(settings|splash|index|play)\.html$/i.test(n))to=n+r.search}}catch(e){}go(to)};
-$('#back').addEventListener('click',()=>{buzz();home()});
-/* keluar akun: wajib konfirmasi (logika sama dengan profil) */
-const cf=$('#confirm'),openCf=()=>cf.classList.add('on'),closeCf=()=>cf.classList.remove('on');
-$('#logout').onclick=openCf;$('#cf-no').onclick=closeCf;
-cf.addEventListener('click',e=>{if(e.target===cf)closeCf()});
-addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(lgModal.classList.contains('on'))closeLang();else if(cf.classList.contains('on'))closeCf();else home()});
-$('#cf-ok').onclick=()=>{closeCf();import('./assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})};
-/* bahasa: pilihan disimpan di pref 'lang' (teks game belum diterjemahkan; hanya menyimpan pilihan) */
-const BF=IC+'bendera-bahasa/',GLB=IC+'glyph-putih/bola-dunia-garis.webp';
-const LANGS=[
- {id:'en',name:'English',flag:BF+'bendera-inggris.webp'},
- {id:'id',name:'Indonesia',flag:BF+'bendera-indonesia.webp'},
- {id:'de',name:'Deutsch',flag:BF+'bendera-jerman.webp'},
- {id:'fr',name:'Français',flag:BF+'bendera-prancis.webp'},
- {id:'es',name:'Español',flag:BF+'bendera-spanyol.webp'},
- {id:'pt',name:'Português',flag:BF+'bendera-portugal.webp'},
- {id:'ru',name:'Русский',flag:BF+'bendera-rusia.webp'},
- {id:'hi',name:'हिन्दी',flag:BF+'bendera-india.webp'},
- {id:'zh',name:'简体中文',flag:BF+'bendera-cina.webp'}
-];
-const lgModal=$('#lang'),lgrid=$('#lgrid');
-const curLang=()=>LANGS.find(l=>l.id===PF().get('lang','en'))||LANGS[0];
-let tt;const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)};
-function drawLangBtn(){const l=curLang(),f=$('#langFlag');f.src=l.flag||GLB;f.classList.toggle('glb',!l.flag);$('#langName').textContent=l.name}
-function closeLang(){lgModal.classList.remove('on')}
-function drawLangGrid(){
- lgrid.innerHTML='';
- LANGS.forEach(l=>{
-  const b=document.createElement('button');b.className='kcard lc'+(l.id===curLang().id?' sel':'');
-  b.innerHTML='<img class="'+(l.flag?'':'glb')+'" src="'+(l.flag||GLB)+'" alt=""><b>'+l.name+'</b>';
-  b.onclick=()=>{PF().set('lang',l.id);buzz();drawLangBtn();closeLang();toast('Bahasa: '+l.name)};
-  lgrid.appendChild(b);
- });
-}
-$('#langBtn').onclick=()=>{buzz();drawLangGrid();lgModal.classList.add('on')};
-$('#lg-x').onclick=closeLang;
-lgModal.addEventListener('click',e=>{if(e.target===lgModal)closeLang()});
-drawLangBtn();
-/* skala kanvas 1920x1080 */
-function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}
-addEventListener('resize',fit);fit();
+const home=()=>{let to='lobby.html';try{const r=new URL(document.referrer);if(r.origin===location.origin){const n=r.pathname.split('/').pop();if(/^[a-z0-9_-]+\.html$/i.test(n)&&!/^(settings|splash|index|play)\.html$/i.test(n))to=n+r.search}}catch(e){}location.href=to};
+$('#back').addEventListener('click',home);
+addEventListener('keydown',e=>{if(e.key==='Escape')home()});
 render();
 document.documentElement.classList.add('ut-ready');
 })();

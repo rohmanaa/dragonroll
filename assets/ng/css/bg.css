@@ -1,6 +1,0 @@
-/* Latar bersama semua halaman KECUALI lobby (lobby tetap langit biru sendiri).
-   Latar menutupi seluruh lebar/tinggi layar (full-bleed); isi halaman tetap di dalam kontainer landscape 1920x1080 (#stage)
-   yang diskalakan dan berada di tengah. */
-html,body{background:#231d37 radial-gradient(ellipse at 22% 8%,#4b4163 0%,#352d4b 50%,#231d37 100%) fixed!important}
-#stage{background:none!important}
-#sun,#vig,.cloud,.spark{display:none!important}
