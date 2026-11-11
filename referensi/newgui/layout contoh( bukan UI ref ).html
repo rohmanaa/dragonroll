@@ -1,0 +1,999 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* =========================================================
+   REFINEMENT PASS — world centerpiece + cleaner premium HUD
+   Semua komponen dan handler asli dipertahankan.
+   ========================================================= */
+#stage{
+  background:
+    radial-gradient(ellipse 420px 250px at 51% 56%,rgba(215,245,255,.30),transparent 72%),
+    radial-gradient(ellipse 260px 150px at 73% 18%,rgba(255,255,255,.16),transparent 75%),
+    linear-gradient(180deg,#66bdff 0%,#438fe7 43%,#2c68c6 76%,#204d9c 100%);
+}
+.panel{
+  box-shadow:
+    0 0 0 2px #102653,
+    0 0 0 3.5px rgba(115,177,255,.9),
+    inset 0 1px 0 rgba(220,238,255,.32),
+    inset 0 -8px 18px rgba(0,10,45,.32),
+    0 8px 18px rgba(0,20,65,.28);
+}
+#profile-bar,.cur,#quick,#nav{
+  box-shadow:
+    0 0 0 2px #102653,
+    0 0 0 3.5px rgba(115,177,255,.9),
+    inset 0 1px 0 rgba(220,238,255,.3),
+    0 7px 16px rgba(0,20,65,.26);
+}
+#side{background:linear-gradient(180deg,rgba(17,48,105,.97),rgba(7,28,72,.97))}
+.side-item{font-size:24px}
+.side-item:not(.active)+.side-item:not(.active){border-top:1px solid rgba(140,180,245,.18)}
+.side-item.active{
+  box-shadow:0 0 0 1.5px #ffe9a3,inset 0 1px 0 rgba(255,255,230,.85),inset 0 -4px 8px rgba(150,80,0,.25),0 3px 8px rgba(0,0,0,.25)
+}
+.sq,.qbtn,.tab{filter:saturate(.96)}
+.sq{
+  box-shadow:0 0 0 2px #102653,0 0 0 3.5px rgba(115,177,255,.9),inset 0 1px 0 rgba(220,238,255,.38),0 5px 10px rgba(0,20,65,.28)
+}
+#event{
+  box-shadow:0 0 0 2px #282078,0 0 0 3.5px #a8c5ff,inset 0 1px 0 rgba(255,255,255,.42),inset 0 -8px 16px rgba(20,10,90,.3),0 8px 16px rgba(0,8,40,.28)
+}
+#nav{
+  padding-left:14px;padding-right:14px;gap:10px;
+  background:linear-gradient(180deg,#15377d,#0a1e4d)
+}
+.tab.fr{box-shadow:0 3px 5px #0006!important}
+.tab.fr.active{box-shadow:0 0 0 1.5px #fff3a8,0 0 12px rgba(255,214,60,.45),0 3px 5px #0006!important}
+#go.btn-start{
+  box-shadow:0 0 0 4px #ffd34d,0 0 0 6px #9a5f0a,inset 0 2px 0 rgba(230,255,200,.8),inset 0 -5px 0 #65d64a,0 8px 22px rgba(0,50,10,.38)
+}
+#go .mulai{text-shadow:0 4px 0 #6e3300,0 6px 5px rgba(0,50,10,.38)}
+#go:hover{box-shadow:0 0 0 4px #ffe27a,0 0 0 6px #9a5f0a,inset 0 2px 0 rgba(230,255,200,.8),inset 0 -5px 0 #65d64a,0 0 25px rgba(255,214,60,.38),0 10px 24px rgba(0,50,10,.42)}
+
+</style><style>
+
+/* =========================================================
+   HUD REFINEMENT — clean premium game lobby
+   Fokus: komposisi asli dipertahankan, ornamen berlebih dibuang.
+   ========================================================= */
+#stage{
+  background:
+    radial-gradient(ellipse 620px 390px at 50% 48%,rgba(190,230,255,.22),transparent 72%),
+    radial-gradient(ellipse 380px 240px at 84% 18%,rgba(255,255,255,.10),transparent 75%),
+    linear-gradient(180deg,#62b6f5 0%,#438de0 43%,#2e69c3 76%,#204b96 100%);
+}
+/* Remove heavy Uiverse rotating beams; retain a crisp, stable frame. */
+.uvc>.uv-bg::before{animation:none!important;opacity:.18}
+.uvc>.uv-in{box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important}
+.panel,#profile-bar,.cur,#quick,#nav{
+  box-shadow:0 0 0 2px #102653,0 0 0 3px rgba(130,185,255,.82),
+    inset 0 1px 0 rgba(225,240,255,.28),0 7px 16px rgba(0,20,65,.24)!important;
+}
+#side{background:linear-gradient(180deg,rgba(18,48,99,.97),rgba(8,29,70,.98))}
+.side-item{font-size:24px;letter-spacing:.05px}
+.side-item:not(.active)+.side-item:not(.active){border-top:1px solid rgba(150,190,245,.17)}
+.side-item.active{
+  box-shadow:0 0 0 1.5px rgba(255,239,180,.9),inset 0 1px 0 rgba(255,255,235,.72),
+    inset 0 -4px 8px rgba(125,65,0,.22),0 3px 8px rgba(0,0,0,.2)!important;
+}
+/* Text remains readable without the thick cartoon-like outline. */
+.t{-webkit-text-stroke:2px #10285f;text-shadow:0 2px 2px rgba(4,14,48,.34)}
+#uname{-webkit-text-stroke:2px #10285f}
+#lvl{-webkit-text-stroke:1.5px #10285f}
+#xp-text{-webkit-text-stroke:2px #0b4d1c}
+.side-item.active .t{-webkit-text-stroke:2px #784000}
+.qbtn .t,.tab .t{-webkit-text-stroke:2px #10285f}
+.tab.active .t{-webkit-text-stroke:2px #6a3300}
+.tab.special .t{-webkit-text-stroke:2px #2a0f80}
+#go .mulai{-webkit-text-stroke:6px #6e3300;text-shadow:0 3px 0 #6e3300,0 5px 5px rgba(0,50,10,.35)}
+#go .mode{-webkit-text-stroke:2.5px #0a5a14}
+/* Controls: less stacked bevel, clearer shape and softer depth. */
+.sq,.qbtn,.tab{filter:saturate(1.02)}
+.sq{box-shadow:0 0 0 2px #102653,0 0 0 3px rgba(130,185,255,.82),inset 0 1px 0 rgba(220,238,255,.3),0 4px 9px rgba(0,20,65,.24)!important}
+.qbtn{box-shadow:inset 0 0 0 1.5px rgba(130,180,255,.7),inset 0 1px 0 rgba(220,238,255,.28),0 3px 5px rgba(0,8,35,.3)!important}
+.tab.fr{box-shadow:0 3px 6px rgba(0,0,0,.28)!important}
+.tab.fr .inner::before{opacity:.32;animation-duration:5s}
+.tab.fr.active{box-shadow:0 0 0 1.5px #fff0b0,0 0 10px rgba(255,214,60,.35),0 3px 6px rgba(0,0,0,.28)!important}
+#event{box-shadow:0 0 0 2px #282078,0 0 0 3px #a8c5ff,inset 0 1px 0 rgba(255,255,255,.38),0 7px 14px rgba(0,8,40,.25)!important}
+#go.btn-start{
+  box-shadow:0 0 0 4px #ffd34d,0 0 0 6px #9a5f0a,
+    inset 0 2px 0 rgba(230,255,200,.78),inset 0 -4px 0 rgba(0,90,10,.22),
+    0 8px 20px rgba(0,50,10,.34)!important;
+}
+#go.btn-start:hover{box-shadow:0 0 0 4px #ffe27a,0 0 0 6px #9a5f0a,inset 0 2px 0 rgba(230,255,200,.78),0 0 22px rgba(255,214,60,.32),0 10px 22px rgba(0,50,10,.38)!important}
+#nav{gap:10px}
+@media (prefers-reduced-motion:reduce){.tab.fr .inner::before{animation:none!important}}
+
+</style>
+
+<style id="profile-alignment-fix">
+/* Profile: avatar and player information share one consistent 100px row. */
+#profile-bar{top:38px!important;height:100px!important;}
+#avatar{left:56px!important;top:38px!important;width:112px!important;height:100px!important;}
+#avatar .face{left:15px!important;top:9px!important;width:82px!important;height:82px!important;border-radius:15px!important;}
+#rank{left:190px!important;top:50px!important;width:68px!important;height:76px!important;}
+#uname{left:274px!important;top:47px!important;font-size:28px!important;line-height:36px!important;}
+#flag{left:444px!important;top:53px!important;width:38px!important;height:25px!important;}
+#lvl{left:274px!important;top:96px!important;font-size:19px!important;line-height:25px!important;}
+#xp{left:337px!important;top:99px!important;width:247px!important;height:25px!important;}
+#xp-text{font-size:18px!important;}
+@media (max-width:760px){
+  /* The fixed stage is rotated/scaled on narrow screens; keep the same aligned geometry. */
+  #avatar{top:38px!important;height:100px!important;}
+}
+</style>
+
+<style id="bottom-nav-equal-spacing-fix">
+/* Bottom navigation: equal top/bottom inset inside its outer panel. */
+#nav{
+  box-sizing:border-box!important;
+  padding:0 18px!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+#nav>.tab.fr{
+  box-sizing:border-box!important;
+  height:100px!important;
+  min-height:100px!important;
+  align-self:center!important;
+  margin:0!important;
+}
+#nav>.tab.fr>.inner{
+  box-sizing:border-box!important;
+  height:100%!important;
+}
+</style>
+
+<style id="bottom-nav-icon-refinement">
+/* Refine icon/label proportions while preserving the existing button and panel design. */
+#nav > .tab.fr > .inner{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+  padding:0!important;
+}
+#nav > .tab.fr .ti{
+  display:block!important;
+  flex:0 0 44px!important;
+  width:48px!important;
+  height:44px!important;
+  margin:0!important;
+  object-fit:contain;
+}
+#nav > .tab.fr .t{
+  display:block!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:0 3px!important;
+  font-size:20px!important;
+  line-height:27px!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#nav > .tab.fr > .dot{
+  top:7px!important;
+  right:27px!important;
+}
+@media (max-width:760px){
+  #nav > .tab.fr .ti{width:46px!important;height:42px!important;flex-basis:42px!important;}
+  #nav > .tab.fr .t{font-size:19px!important;line-height:26px!important;}
+}
+</style>
+
+
+<style id="currency-and-profile-layout-v14">
+/* Profil kiri menjadi panel utama yang lebih lebar. */
+#stage>#profile-bar{width:520px!important;height:100px!important}
+
+/* Urutan kanan atas: mata uang di baris pertama, tiga tombol utilitas di bawahnya. */
+#stage>.cur{top:28px!important;height:52px!important;width:160px!important;border-radius:18px!important}
+#stage>.cur[style*="left:1440px"]{left:1430px!important}
+#stage>.cur[style*="left:1640px"]{left:1600px!important}
+#stage>.cur .cur-ico{width:48px!important;height:52px!important;left:0!important;top:0!important}
+#stage>.cur .cur-val{left:43px!important;right:39px!important;font-size:23px!important}
+#stage>.cur .plus{width:34px!important;height:34px!important;right:4px!important;top:9px!important}
+#stage>.cur .plus svg{width:21px!important;height:21px!important}
+#stage>.sq{top:19px!important;left:1775px!important}
+@media (max-width:760px){
+  #stage>.cur{height:52px!important}
+  #stage>.sq{top:19px!important;left:1775px!important}
+}
+</style>
+
+<style id="profile-photo-event-spacing-v15">
+/* Kembalikan lebar panel profil seperti ukuran sebelumnya; fokus pembesaran pada foto. */
+#stage>#profile-bar{width:464px!important;height:100px!important}
+#stage>#avatar{left:56px!important;top:32px!important;width:132px!important;height:112px!important}
+#stage>#avatar .face{
+  left:17px!important;top:7px!important;width:98px!important;height:98px!important;
+  border-radius:17px!important;
+}
+
+/* Beri jarak yang jelas antara tiga tombol utilitas dan banner event. */
+#stage>#event{top:126px!important}
+#stage>#ev-dots{top:252px!important}
+
+@media (max-width:760px){
+  #stage>#avatar{top:32px!important;height:112px!important}
+  #stage>#event{top:126px!important}
+  #stage>#ev-dots{top:252px!important}
+}
+</style>
+
+</head><body>
+<title>Beranda HUD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap">
+<style>
+/* Layout: kanvas desain tetap 1893x831 (sama dengan referensi), tiap panel diposisikan absolut lalu seluruh kanvas diskalakan agar muat lebar layar. */
+:root{
+  --bg:#0a1a40;
+  --navy-hi:#1c4299;
+  --navy-lo:#0a1f4d;
+  --edge:#5aa2ff;
+  --gold:#ffcb3d;
+  --gold-lo:#b8780f;
+  --green-hi:#58ea42;
+  --green-lo:#0d981b;
+  --red:#ff3d3d;
+  --violet-hi:#8a55ff;
+  --violet-lo:#4620b4;
+  --ink:#ffffff;
+  --f-display:'Lilita One','Nunito',system-ui,sans-serif;
+  --f-ui:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{
+  margin:0;color:var(--ink);font-family:var(--f-ui);
+  padding-block:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent;
+}
+#wrap{position:relative;width:100%;max-width:1893px;margin:16px auto;overflow:hidden;border-radius:14px}
+#stage{
+  position:absolute;left:0;top:0;width:1893px;height:831px;transform-origin:0 0;overflow:hidden;
+  background:
+    radial-gradient(ellipse 520px 620px at 946px 380px,rgba(160,225,255,.55),rgba(160,225,255,0) 70%),
+    linear-gradient(180deg,#63b9ff 0%,#3f8ce8 42%,#2a63c4 72%,#1b4592 100%);
+  user-select:none;-webkit-user-select:none;
+}
+.abs{position:absolute}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cursor:pointer;text-align:inherit}
+button:focus-visible{outline:4px solid #fff;outline-offset:3px}
+svg{display:block}
+.ico{width:100%;height:100%}
+
+/* teks umum */
+.t{font-family:var(--f-ui);font-weight:800;color:#fff;-webkit-text-stroke:4px #0b1c5c;paint-order:stroke fill;text-shadow:0 3px 0 rgba(4,14,58,.55);white-space:nowrap;letter-spacing:.1px;font-synthesis:none}
+
+/* panel dasar */
+.panel{
+  position:absolute;
+  background:linear-gradient(180deg,var(--navy-hi) 0%,#12306f 45%,var(--navy-lo) 100%);
+  box-shadow:0 0 0 3px #0a1a45,0 0 0 5px var(--edge),inset 0 2px 0 rgba(170,210,255,.5),inset 0 -12px 24px rgba(0,10,50,.55),0 12px 24px rgba(0,8,40,.45);
+}
+
+/* ===== profil ===== */
+#profile-bar{left:157px;top:38px;width:464px;height:100px;border-radius:30px 36px 36px 30px}
+#avatar{left:56px;top:28px;width:145px;height:124px}
+#avatar .wreath{position:absolute;inset:0;width:145px;height:124px}
+#avatar .face{
+  position:absolute;left:17px;top:5px;width:95px;height:89px;border-radius:18px;overflow:hidden;
+  background:#3f8de8;box-shadow:0 0 0 4px #ffcf4a,0 0 0 6px #9a5f0a,0 4px 10px rgba(0,0,0,.4);
+}
+#avatar .face svg{width:100%;height:100%}
+#rank{left:205px;top:44px;width:76px;height:86px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
+#uname{left:295px;top:46px;font-size:29px;line-height:40px}
+#flag{left:467px;top:56px;width:40px;height:26px;border-radius:5px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 3px 5px rgba(0,0,0,.4)}
+#lvl{left:295px;top:99px;font-size:20px;line-height:26px;-webkit-text-stroke:3.5px #0b1c5c}
+#xp{
+  left:356px;top:100px;width:228px;height:25px;border-radius:13px;
+  background:#08234a;box-shadow:inset 0 3px 5px rgba(0,0,0,.6),0 0 0 2px #0a1a45,0 0 0 3.5px #4a9bff;overflow:hidden;
+}
+#xp-fill{
+  position:absolute;left:0;top:0;bottom:0;width:90%;border-radius:13px;
+  background:linear-gradient(180deg,#9bff6a 0%,#3fd335 45%,#16a526 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55);
+  overflow:hidden;
+}
+#xp-fill::after{
+  content:"";position:absolute;top:0;bottom:0;width:60px;left:-80px;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+  animation:sheen 3.6s ease-in-out infinite;
+}
+#xp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;font-variant-numeric:tabular-nums;-webkit-text-stroke:3px #0b4d1c;paint-order:stroke fill;text-shadow:none}
+@keyframes sheen{0%,55%{left:-80px}100%{left:260px}}
+#profile-wreath{left:549px;top:34px;width:84px;height:108px;pointer-events:none}
+
+/* ===== mata uang ===== */
+.cur{
+  position:absolute;top:38px;height:52px;border-radius:26px;
+  background:linear-gradient(180deg,#14337c,#071a46);
+  box-shadow:0 0 0 3px #0a1a45,0 0 0 5px #4a9bff,inset 0 2px 0 rgba(150,200,255,.4),0 6px 12px rgba(0,8,40,.4);
+}
+.cur-ico{position:absolute;left:-2px;top:-5px;width:58px;height:62px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4))}
+.cur-val{position:absolute;left:56px;right:52px;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;font-variant-numeric:tabular-nums}
+.plus{
+  position:absolute;right:4px;top:4px;width:44px;height:44px;border-radius:50%;
+  background:radial-gradient(circle at 50% 28%,#79f55a,#18a82a 80%);
+  box-shadow:0 0 0 3px #0c5a1c,inset 0 2px 0 rgba(255,255,255,.55),0 3px 5px rgba(0,0,0,.4);
+  display:grid;place-items:center;transition:transform .12s ease,filter .12s ease;
+}
+.plus svg{width:28px;height:28px;stroke:#fff;filter:drop-shadow(0 1px 0 rgba(0,70,10,.8))}
+.plus:hover{filter:brightness(1.12);transform:scale(1.07)}
+.plus:active{transform:scale(.92)}
+.float-n{position:absolute;font-family:var(--f-ui);font-weight:900;font-size:26px;color:#9bff7a;text-shadow:0 2px 0 #0c4a1a;pointer-events:none;animation:floatup .9s ease-out forwards}
+@keyframes floatup{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-38px)}}
+
+/* ===== tombol sudut ===== */
+.sq{
+  position:absolute;top:28px;width:70px;height:70px;border-radius:20px;
+  background:linear-gradient(180deg,#1f4aa8,#0b2254);
+  box-shadow:0 0 0 3px #0a1a45,0 0 0 5px #4a9bff,inset 0 2px 0 rgba(160,205,255,.5),0 6px 12px rgba(0,8,40,.4);
+  display:grid;place-items:center;transition:transform .12s ease,filter .12s ease;
+}
+.sq svg{width:38px;height:38px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 0 rgba(0,10,50,.7))}
+.sq:hover{filter:brightness(1.18);transform:translateY(-2px)}
+.sq:active{transform:scale(.93)}
+.sq:hover svg.spin{animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dot{
+  position:absolute;width:23px;height:23px;border-radius:50%;
+  background:radial-gradient(circle at 40% 30%,#ff8a7a,#e8201f 70%);
+  box-shadow:0 0 0 2.5px #fff,0 2px 4px rgba(0,0,0,.45);
+  display:grid;place-items:center;font-family:var(--f-ui);font-weight:900;font-size:15px;line-height:1;color:#fff;
+}
+.dot.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.dot[hidden]{display:none!important}
+
+/* ===== menu kiri ===== */
+#side{left:56px;top:178px;width:276px;height:410px;border-radius:28px 46px 34px 28px;padding:15px 14px}
+.side-item{
+  position:relative;display:flex;align-items:center;width:100%;height:76px;padding-left:22px;padding-right:22px;border-radius:15px;
+  font-size:25px;transition:background .15s ease,transform .12s ease;
+}
+.side-item .si{width:52px;height:52px;flex:none;margin-right:26px;filter:drop-shadow(0 3px 2px rgba(0,10,50,.5));transition:transform .15s ease}
+.side-item:hover{background:rgba(120,175,255,.18)}
+.side-item:hover .si{transform:scale(1.1) rotate(-4deg)}
+.side-item:active{transform:scale(.97)}
+.side-item:not(.active)+.side-item:not(.active){border-top:0;border-radius:15px}
+.side-item:not(.active)+.side-item:not(.active)::before{content:"";position:absolute;left:14px;right:14px;top:-2px;height:2px;border-radius:2px;background:rgba(110,150,230,.22);pointer-events:none}
+.side-item:hover::before,.side-item:hover+.side-item::before{opacity:0}
+.side-item.first{height:67px;margin-bottom:4px}
+.side-item.active{
+  background:linear-gradient(180deg,#ffd75e 0%,#e9a321 55%,#c27a10 100%);
+  box-shadow:0 0 0 2.5px #ffe9a3,inset 0 2px 0 rgba(255,255,230,.9),inset 0 -6px 10px rgba(150,80,0,.35),0 4px 10px rgba(0,0,0,.35);
+  border-top:0;
+}
+.side-item.active .t{-webkit-text-stroke:4px #7a3d00;text-shadow:0 3px 0 rgba(90,40,0,.45)}
+.side-item .dot{left:auto;right:12px;top:6px;width:23px;height:23px}
+
+/* ===== banner event ===== */
+#event{
+  position:absolute;left:1409px;top:178px;width:428px;height:129px;border-radius:28px 40px 28px 28px;overflow:hidden;cursor:pointer;text-align:left;
+  background:
+    radial-gradient(circle at 18% 60%,rgba(190,140,255,.75),transparent 55%),
+    linear-gradient(100deg,#4b34cf 0%,#7a45ec 55%,#4a2bb0 100%);
+  box-shadow:0 0 0 3px #1a1670,0 0 0 5px #8fb6ff,inset 0 2px 0 rgba(255,255,255,.45),inset 0 -10px 20px rgba(20,10,90,.45),0 10px 20px rgba(0,8,40,.4);
+  transition:transform .15s ease,filter .15s ease;
+}
+#event:hover{transform:translateY(-2px);filter:brightness(1.08)}
+#event:active{transform:scale(.985)}
+#event .spark{position:absolute;width:14px;height:14px;opacity:.9;animation:twinkle 2.6s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+.slide{position:absolute;inset:0;opacity:0;transform:translateX(18px);transition:opacity .35s ease,transform .35s ease;pointer-events:none}
+.slide.on{opacity:1;transform:none}
+.slide .ev-art{position:absolute;left:42px;top:15px;width:116px;height:93px;filter:drop-shadow(0 6px 4px rgba(10,0,60,.55))}
+.slide .ev-title{position:absolute;left:186px;top:27px;font-size:26px;line-height:38px;-webkit-text-stroke:4px #24106e}
+.slide .ev-sub{position:absolute;left:186px;top:70px;font-size:18px;line-height:26px;-webkit-text-stroke:3.5px #24106e}
+#ev-next{position:absolute;left:383px;top:44px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:background .3s ease}
+#event:hover #ev-next{background:rgba(255,255,255,.3)}
+#ev-next svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 0 rgba(20,0,90,.7))}
+#ev-dots{
+  position:absolute;left:1580px;top:304px;width:86px;height:20px;border-radius:0 0 14px 14px;
+  background:linear-gradient(180deg,#3a2aa8,#2a1c82);
+  box-shadow:0 0 0 2.5px #8fb6ff,0 3px 5px rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;gap:17px;padding:0 8px;
+}
+#ev-dots button{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.45);transition:background .2s ease,transform .2s ease}
+#ev-dots button.on{background:#fff;transform:scale(1.15)}
+
+/* ===== aksi cepat ===== */
+#quick{left:1409px;top:286px;width:428px;height:125px;border-radius:26px 40px 26px 26px;padding:13px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qbtn{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9px;
+  border-radius:18px;background:linear-gradient(180deg,#2a5cc4 0%,#1a3f96 55%,#13306f 100%);
+  box-shadow:inset 0 0 0 2px #3f83ec,inset 0 2px 0 rgba(170,210,255,.45),0 3px 0 #091a45;
+  transition:transform .12s ease,filter .12s ease;
+}
+.qbtn .qi{width:56px;height:56px;filter:drop-shadow(0 3px 2px rgba(0,10,50,.5));transition:transform .15s ease}
+.qbtn .t{font-size:16px;line-height:20px;margin-top:6px;letter-spacing:-.1px;-webkit-text-stroke:3px #0b1c5c}
+.qbtn:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.qbtn:hover .qi{transform:scale(1.1) rotate(-5deg)}
+.qbtn:active{transform:scale(.95)}
+.qbtn .dot{right:-8px;top:-8px;left:auto;width:23px;height:23px}
+
+/* ===== tombol mulai ===== */
+#go{
+  left:1409px;top:653px;width:423px;height:137px;border-radius:70px;overflow:hidden;text-align:left;
+  background:linear-gradient(180deg,#7cf24a 0%,#2fd02d 38%,#0f9b1a 100%);
+  box-shadow:0 0 0 4px #0b5a16,0 0 0 8px #ffd34d,0 0 0 10px #9a5f0a,inset 0 4px 0 rgba(220,255,190,.85),inset 0 -14px 20px rgba(0,80,10,.5),0 12px 26px rgba(0,50,10,.5);
+  position:absolute;transition:transform .14s ease,filter .14s ease;
+  animation:glow 2.8s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.1)}}
+#go::before{
+  content:"";position:absolute;left:14px;right:14px;top:6px;height:46%;border-radius:60px 60px 40px 40px;
+  background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0));
+}
+#go::after{
+  content:"";position:absolute;top:-10px;bottom:-10px;width:90px;left:-140px;transform:skewX(-22deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  animation:goshine 4.2s ease-in-out infinite;
+}
+@keyframes goshine{0%,60%{left:-140px}100%{left:520px}}
+
+#go:active{transform:scale(.975)}
+#go .pad{position:absolute;left:50px;top:36px;width:90px;height:68px;filter:drop-shadow(0 4px 3px rgba(0,50,10,.6))}
+#go .mulai{
+  position:absolute;left:148px;top:12px;width:225px;text-align:center;font-family:var(--f-display);font-weight:900;font-synthesis:none;font-size:60px;line-height:66px;letter-spacing:1px;
+  color:#ffd62e;-webkit-text-stroke:9px #6e3300;paint-order:stroke fill;text-shadow:0 5px 0 #6e3300,0 8px 6px rgba(0,50,10,.5);
+}
+#go .mode{position:absolute;left:158px;top:80px;width:205px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:24px;line-height:30px;-webkit-text-stroke:4px #0a5a14}
+#go .mode svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 0 rgba(0,60,10,.7))}
+
+/* ===== navigasi bawah ===== */
+#nav{
+  left:56px;top:665px;width:840px;height:125px;border-radius:40px;padding:7px 18px 0;display:flex;gap:13px;
+  background:linear-gradient(180deg,#14337c,#0a1d4b);
+  box-shadow:0 0 0 3px #0a1a45,0 0 0 6px #e5b53a,0 0 0 8px #8a5a0a,inset 0 2px 0 rgba(170,210,255,.4),0 10px 20px rgba(0,8,40,.45);
+}
+.tab{
+  position:relative;flex:1;height:100px;border-radius:24px;display:flex;flex-direction:column;align-items:center;padding-top:3px;
+  background:linear-gradient(180deg,#2658bb,#173a8e 60%,#122e72);
+  box-shadow:inset 0 0 0 2px #3777e0,inset 0 2px 0 rgba(170,210,255,.4);
+  transition:transform .12s ease,filter .12s ease;
+}
+.tab .ti{width:62px;height:54px;filter:drop-shadow(0 3px 2px rgba(0,10,50,.5));transition:transform .15s ease}
+.tab .t{font-size:22px;line-height:30px;margin-top:4px}
+.tab:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.tab:hover .ti{transform:scale(1.1) translateY(-2px)}
+.tab:active{transform:scale(.96)}
+.tab.special{background:linear-gradient(180deg,#8a58ff,#6a35e0 55%,#4a22b8);box-shadow:inset 0 0 0 2px #b08aff,inset 0 2px 0 rgba(230,210,255,.6)}
+.tab.active .t{-webkit-text-stroke:4px #6a3300}
+.tab.special .t{-webkit-text-stroke:4px #2a0f80}
+.tab.active{
+  background:linear-gradient(180deg,#ffd65c 0%,#e0980f 55%,#6a3f06 100%);
+  box-shadow:inset 0 0 0 2px #ffe08a,inset 0 2px 0 rgba(255,255,220,.8),0 0 14px rgba(255,200,60,.45);
+}
+.tab .dot{left:auto;right:36px;top:3px}
+#baru{
+  -webkit-text-stroke:3px #8a0f0f;left:129px;top:641px;width:82px;height:31px;border-radius:16px;display:grid;place-items:center;font-size:19px;line-height:1;
+  background:linear-gradient(180deg,#ff6b5a,#e0281f);box-shadow:0 0 0 2.5px #fff,0 3px 5px rgba(0,0,0,.45);pointer-events:none;z-index:3;
+  animation:bob 2s ease-in-out infinite;
+}
+#baru[hidden]{display:none!important}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* ===== toast ===== */
+#toast{
+  left:946px;top:150px;transform:translate(-50%,-20px);opacity:0;padding:10px 22px;border-radius:22px;font-size:22px;
+  background:linear-gradient(180deg,#14337c,#0a1d4b);box-shadow:0 0 0 3px #0a1a45,0 0 0 5px var(--edge),0 8px 18px rgba(0,0,0,.4);
+  transition:opacity .2s ease,transform .2s ease;pointer-events:none;z-index:9;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+
+/* =====================================================================
+   CARD — Uiverse by iconicchandu, diadaptasi ke HUD
+   latar gelap + 6 radial-gradient (glow di bawah), bayangan inset putih,
+   bingkai gradien 2px dengan berkas cahaya cyan yang berputar
+   ===================================================================== */
+.uvc{background:none!important;
+  --c-base:hsl(222,62%,15%);--c-g1:hsl(212,95%,34%);--c-g2:hsl(200,95%,40%);--c-g3:hsl(222,90%,16%);--c-beam:hsl(189,100%,50%);--bh:100px}
+.uvc>.uv-bg{position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;overflow:hidden;
+  background-image:linear-gradient(0deg,hsl(0,0%,100%) -50%,hsl(0,0%,40%) 100%)}
+.uvc>.uv-bg::before{content:"";position:absolute;left:50%;top:50%;width:200%;height:var(--bh);margin-top:calc(var(--bh)/-2);
+  transform-origin:0 50%;pointer-events:none;
+  background-image:linear-gradient(0deg,hsla(0,0%,100%,0) 0%,var(--c-beam) 40%,var(--c-beam) 60%,hsla(0,0%,40%,0) 100%);
+  animation:uvrot 8s linear infinite}
+@keyframes uvrot{to{rotate:360deg}}
+.uv-in{position:absolute;inset:2px;border-radius:inherit;overflow:hidden;
+  background-color:var(--c-base);
+  background-image:radial-gradient(at 88% 40%,var(--c-base) 0,transparent 85%),radial-gradient(at 49% 30%,var(--c-base) 0,transparent 85%),radial-gradient(at 14% 26%,var(--c-base) 0,transparent 85%),radial-gradient(at 0% 64%,var(--c-g1) 0,transparent 85%),radial-gradient(at 41% 94%,var(--c-g2) 0,transparent 85%),radial-gradient(at 100% 99%,var(--c-g3) 0,transparent 85%);
+  box-shadow:0 -12px 20px 0 rgba(255,255,255,.16) inset}
+.cur{--c-base:hsl(222,70%,11%);--bh:44px}
+#profile-bar{--bh:90px}
+#event{--c-base:hsl(256,62%,24%);--c-g1:hsl(268,90%,42%);--c-g2:hsl(284,85%,52%);--c-g3:hsl(250,80%,20%)}
+#nav{--bh:120px}
+
+/* =====================================================================
+   BUTTON — Uiverse by Spacious74 (lazy-dragonfly-64), diadaptasi
+   gradient + inset shadow + cincin conic yang menyala saat hover
+   (tanpa transform/filter pada tombol agar ::before z-index:-1 tetap di belakang)
+   ===================================================================== */
+.uvb{--b1:#3d7ae0;--b2:#6fb0ff;--b3:#3d7ae0;--bs:#0b2254;--uvo:-34px;--uvb:22px;
+  background:linear-gradient(90deg,var(--b1),var(--b2),var(--b3))!important;
+  transform:none!important;filter:none!important;
+  transition:margin .15s ease,box-shadow .3s ease}
+.uvb:hover,.uvb:active{transform:none!important;filter:none!important}
+.uvb::before{content:"";position:absolute;inset:0;margin:auto;border-radius:inherit;z-index:-1;filter:blur(0);
+  background:conic-gradient(#00000000 80deg,#40baf7,#f34ad7,#5bfcc4,#00000000 280deg);
+  transition:all .3s ease;pointer-events:none}
+.uvb:hover::before{filter:blur(15px)}
+.uvb:active::before{filter:blur(5px);translate:0 1px}
+.uvb:active{margin-top:3px}
+.sq.uvb{box-shadow:inset 0 0 6px #ffffffaa,inset 0 var(--uvo) var(--uvb) var(--bs),0 0 0 3px #0a1a45,0 0 0 5px #4a9bff,0 6px 12px rgba(0,8,40,.4)}
+.plus.uvb{--b1:#a6ff82;--b2:#6bf24c;--b3:#a6ff82;--bs:#10a022;--uvo:-24px;--uvb:12px;
+  box-shadow:inset 0 0 4px #ffffffaa,inset 0 var(--uvo) var(--uvb) var(--bs),0 0 0 3px #0c5a1c,0 3px 5px rgba(0,0,0,.4)}
+.qbtn.uvb{--b1:#2f66d0;--b2:#4f90f2;--b3:#2f66d0;--bs:#13306f;--uvo:-62px;--uvb:34px;
+  box-shadow:inset 0 0 6px #ffffffaa,inset 0 var(--uvo) var(--uvb) var(--bs),inset 0 0 0 2px #3f83ec,0 3px 0 #091a45}
+.tab.uvb{--b1:#2f66d0;--b2:#4f90f2;--b3:#2f66d0;--bs:#122e72;--uvo:-66px;--uvb:34px;
+  box-shadow:inset 0 0 6px #ffffffaa,inset 0 var(--uvo) var(--uvb) var(--bs),inset 0 0 0 2px #3777e0,0 3px 0 #0a1a45}
+.tab.special.uvb{--b1:#a07aff;--b2:#c6a8ff;--b3:#a07aff;--bs:#4a22b8;
+  box-shadow:inset 0 0 6px #ffffffaa,inset 0 var(--uvo) var(--uvb) var(--bs),inset 0 0 0 2px #b08aff,0 3px 0 #2a1170}
+.tab.active.uvb{--b1:#ffe27a;--b2:#fff0a0;--b3:#ffd65c;--bs:#c27a10;--uvo:-46px;--uvb:30px;
+  box-shadow:inset 0 0 6px #fffbd0,inset 0 var(--uvo) var(--uvb) var(--bs),inset 0 0 0 2px #ffe08a,0 0 14px rgba(255,200,60,.45)}
+
+/* =====================================================================
+   TOMBOL BESAR — Uiverse by Awais142 (wise-robin-67), diadaptasi
+   border-2 transparan -> menyala saat hover, naik saat "checked",
+   titik berdenyut, garis bawah melebar 0 -> penuh
+   ===================================================================== */
+#go{border:2px solid transparent;transition:transform .3s ease,filter .14s ease,border-color .3s ease,box-shadow .3s ease}
+#go:hover{transform:translateY(-3px);border-color:#fff3a8;
+  box-shadow:0 0 0 4px #0b5a16,0 0 0 8px #ffd34d,0 0 0 10px #9a5f0a,inset 0 4px 0 rgba(220,255,190,.85),inset 0 -14px 20px rgba(0,80,10,.5),0 0 34px rgba(255,214,60,.5),0 12px 26px rgba(0,50,10,.5)}
+#go.on{transform:translateY(-8px);border-color:#fff3a8}
+.go-bar{position:absolute;left:50%;bottom:7px;height:5px;width:0;border-radius:3px;translate:-50% 0;
+  background:linear-gradient(90deg,#fff3a8,#ffd34d);transition:width .3s ease;z-index:2}
+#go:hover .go-bar,#go.on .go-bar{width:62%}
+.go-dot{position:absolute;left:132px;top:30px;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.55);opacity:0;transition:background .3s ease,opacity .3s ease;z-index:2}
+#go:hover .go-dot,#go.on .go-dot{opacity:1;background:#ffe27a;animation:uvpulse 2s cubic-bezier(.4,0,.6,1) infinite}
+@keyframes uvpulse{50%{opacity:.35}}
+
+/* =====================================================================
+   DAUN — Uiverse by MuhammadHasann (lucky-mouse-99): SVG asli (3 ranting),
+   animasi slay-1/2/3 asli; warna diubah hijau, posisi di sudut/tepi panel
+   ===================================================================== */
+.lv{position:absolute;width:64px;height:90px;pointer-events:none;z-index:-2;--s:1}
+.lv.up{transform-origin:0 0;transform:rotate(180deg)}
+.lv.flip{transform-origin:0 0;transform:scaleX(-1)}
+.lv>div{position:absolute;top:0;transform-origin:0 0;filter:drop-shadow(2px 2px 3px rgba(0,0,0,.3));transition:all .5s ease-in-out}
+.lv svg{display:block;width:100%;height:auto;fill:url(#g-leaf)}
+.lv .icon-1{left:calc(36px*var(--s));width:calc(25px*var(--s));transform:rotate(10deg);animation:slay-1 3s cubic-bezier(.52,0,.58,1) infinite}
+.lv .icon-2{left:calc(24px*var(--s));width:calc(12px*var(--s));transform:rotate(10deg);animation:slay-2 3s cubic-bezier(.52,0,.58,1) 1s infinite;transform-origin:50% 0}
+.lv .icon-3{left:0;width:calc(18px*var(--s));transform:rotate(-5deg);animation:slay-3 2s cubic-bezier(.52,0,.58,1) 1s infinite;transform-origin:50% 0}
+@keyframes slay-1{0%{transform:rotate(10deg)}50%{transform:rotate(-5deg)}100%{transform:rotate(10deg)}}
+@keyframes slay-2{0%{transform:rotate(0deg)}50%{transform:rotate(15deg)}100%{transform:rotate(0)}}
+@keyframes slay-3{0%{transform:rotate(0deg)}50%{transform:rotate(-5deg)}100%{transform:rotate(0)}}
+#stage:has(#go:hover) .lv-go>div,#stage:has(#event:hover) .lv-ev>div,#stage:has(#side:hover) .lv-side>div{animation-duration:1.6s}
+
+/* =====================================================================
+   TAB BAWAH — Uiverse by SelfMadeSystem (Frutiger button), diadaptasi
+   warna tiap tab mengikuti warna ikonnya
+   ===================================================================== */
+.tab.fr{padding:2px;border-radius:24px;display:block;cursor:pointer;
+  background:linear-gradient(var(--e1),var(--e2))!important;
+  box-shadow:0 4px 6px 0 #0008!important;
+  transition:.3s all}
+.tab.fr:hover{transform:translateY(-2px);filter:none;box-shadow:0 8px 14px 0 #0009!important}
+.tab.fr:active{transform:translateY(1px);box-shadow:0 0 0 0 #0000!important}
+.tab.fr .inner{position:relative;width:100%;height:100%;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;align-items:center;padding-top:5px;transition:inherit;
+  background:radial-gradient(circle at 50% 100%,var(--glow) 10%,transparent 55%),linear-gradient(var(--b1),var(--b2))}
+.tab.fr .inner::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(-65deg,#0000 40%,#fff7 50%,#0000 70%);background-size:200% 100%;background-repeat:no-repeat;
+  animation:fr-sheen 3s ease infinite;z-index:2}
+.tab.fr:nth-child(2) .inner::before{animation-delay:.6s}.tab.fr:nth-child(3) .inner::before{animation-delay:1.2s}.tab.fr:nth-child(4) .inner::before{animation-delay:1.8s}
+@keyframes fr-sheen{0%{background-position:130%;opacity:1}to{background-position:-166%;opacity:0}}
+.tab.fr .top-white{position:absolute;border-radius:inherit;inset:0 -8em;transition:inherit;pointer-events:none;
+  background:radial-gradient(circle at 50% -270%,#fff 45%,#fff6 60%,#fff0 60%)}
+.tab.fr .inner::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;transition:inherit;box-shadow:inset 0 2px 8px -2px #0000}
+.tab.fr:active .inner::after{box-shadow:inset 0 2px 8px -2px #000a}
+.tab.fr .ti,.tab.fr .t{position:relative;z-index:1}
+.tab.fr .t{-webkit-text-stroke:4px var(--stroke)}
+.tab.fr.c-orange{--e1:#a85a00;--e2:#ffbe3a;--b1:#8a3f00;--b2:#e8861a;--glow:#ffd95a;--stroke:#6a3300}
+.tab.fr.c-blue{--e1:#0a3f9a;--e2:#6ab4ff;--b1:#0b3a8a;--b2:#2f7ae0;--glow:#6fe0ff;--stroke:#0b2a6e}
+.tab.fr.c-violet{--e1:#3d1a94;--e2:#c0a0ff;--b1:#3a1a8a;--b2:#7a48ec;--glow:#d2b4ff;--stroke:#2a0f80}
+.tab.fr.c-green{--e1:#05652a;--e2:#5cf088;--b1:#07552a;--b2:#18a85a;--glow:#8dffae;--stroke:#04401f}
+.tab.fr.active{transform:translateY(-3px);box-shadow:0 0 0 2px #fff3a8,0 0 16px 2px rgba(255,214,60,.65),0 4px 6px 0 #0008!important}
+.tab.fr.active:hover{transform:translateY(-4px)}
+
+/* =====================================================================
+   TOMBOL START — Uiverse by Spacious74 (Generate button), diadaptasi
+   bingkai gelap tanpa sisi atas + bagian dalam bergradien bergaris terang
+   di bawah + dua bintang berkilau; warna hijau + ring emas sesuai gambar
+   ===================================================================== */
+#go.btn-start{border:4px solid #0a3a10;border-top:none;border-radius:70px;
+  background:linear-gradient(180deg,#8cf75a 0%,#2fd02d 40%,#0a6a16 100%);
+  box-shadow:0 0 0 5px #ffd34d,0 0 0 8px #9a5f0a,inset 0 3px 0 rgba(230,255,200,.8),inset 0 -5px 0 #7be25a,0 4px 10px #00000062,0 10px 40px -10px #000000a6,0 12px 45px -15px #00000071;
+  transition:all .3s ease}
+#go.btn-start:hover{transform:translateY(-3px);border-color:#0a3a10;
+  box-shadow:0 0 0 5px #ffe27a,0 0 0 8px #9a5f0a,inset 0 3px 0 rgba(230,255,200,.8),inset 0 -5px 0 #8cee6a,0 0 34px rgba(255,214,60,.5),0 14px 40px -8px #000000b0}
+#go.btn-start:active{transform:scale(.975);box-shadow:0 0 0 5px #ffd34d,0 0 0 8px #9a5f0a,inset 0 3px 0 rgba(230,255,200,.6),inset 0 -5px 0 #7be25a}
+#go.btn-start.on{transform:translateY(-8px)}
+#go.btn-start .pad{left:48px;top:38px}
+#go.btn-start .mulai{left:146px;top:14px;text-shadow:0 5px 0 #6e3300,0 8px 6px rgba(0,50,10,.5),0 0 12px rgba(255,240,150,.55)}
+#go.btn-start .mode{left:156px;top:82px}
+#go .svgs{position:absolute;left:94px;top:28px;z-index:3;font-size:26px;color:#fff;pointer-events:none;width:1em;height:1em}
+#go .svgs>*{display:block;width:1em;height:1em;filter:drop-shadow(0 0 6px #fff) drop-shadow(1px 1px 0 #0a3a10);fill:currentColor}
+#go .svgs .svg-s{position:absolute;width:.62em;height:.62em;left:20px;top:-8px;animation:uvpulse 2s cubic-bezier(.4,0,.6,1) infinite}
+
+.si,.qi,.ti,.cur-ico,.ev-art,.pad{filter:url(#bevel) drop-shadow(0 4px 3px rgba(0,10,50,.5))!important}
+
+
+/* tombol mulai: sisi bawah lebih pendek (sudut bawah lebih lebar) */
+#go.btn-start{border-radius:60px 60px 84px 84px / 68px 68px 68px 68px;
+  box-shadow:0 0 0 3px #1a6a14,0 0 0 7px #ffd34d,0 0 0 9px #b8760f,inset 0 4px 0 rgba(230,255,200,.85),inset 0 -6px 0 #6fd84a,0 8px 14px rgba(0,40,10,.4)}
+#go .svgs{display:none}
+#go.btn-start .pad{left:42px;top:30px;width:104px;height:78px}
+/* tombol mulai: desain kartu seperti panel event, warna hijau */
+#go.btn-start{
+  --c-base:hsl(140,62%,15%);--c-g1:hsl(128,82%,34%);--c-g2:hsl(104,86%,44%);--c-g3:hsl(150,80%,12%);--c-beam:hsl(95,100%,60%);
+  border:0;
+  box-shadow:0 0 0 2px #0b3a1c,0 0 0 3.5px #a8f5b8,inset 0 1px 0 rgba(255,255,255,.42),inset 0 -8px 16px rgba(5,60,20,.3),0 8px 16px rgba(0,30,10,.35)!important}
+#go.btn-start:hover{box-shadow:0 0 0 2px #0b3a1c,0 0 0 3.5px #d2ffd9,inset 0 1px 0 rgba(255,255,255,.5),inset 0 -8px 16px rgba(5,60,20,.3),0 0 22px rgba(120,255,140,.45),0 10px 20px rgba(0,30,10,.4)!important}
+#go.btn-start:active{box-shadow:0 0 0 2px #0b3a1c,0 0 0 3.5px #a8f5b8,inset 0 1px 0 rgba(255,255,255,.3)!important}
+#go.btn-start .pad{left:46px}
+#go.btn-start .mulai{left:150px}
+#go.btn-start .mode{left:160px}
+
+
+/* tab bawah: dasar gelap, warna hanya ±10% di tepi bawah, lebih lembut */
+.tab.fr .inner{background:
+  radial-gradient(125% 24% at 50% 106%,color-mix(in srgb,var(--glow) 72%,transparent) 0%,transparent 100%),
+  linear-gradient(180deg,var(--b1),var(--b2))}
+.tab.fr .top-white{opacity:.28}
+.tab.fr.c-orange{--b1:#7a5718;--b2:#5c3f12;--glow:#ffc83a}
+.tab.fr.c-blue{--b1:#1b3f89;--b2:#122f6c;--glow:#58b4ff}
+.tab.fr.c-violet{--b1:#7d53f3;--b2:#6038d0;--glow:#d3b8ff}
+.tab.fr.c-green{--b1:#15416b;--b2:#0e3358;--glow:#43e08a}
+#wrap{touch-action:pan-y}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<!-- Sprite ikon: bergaya Tabler (garis 24px) untuk ikon UI, ilustrasi warna untuk ikon menu -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="spk" d="M240 128a15.79 15.79 0 0 1-10.5 15l-63.44 23.07L143 229.5a16 16 0 0 1-30 0l-23.06-63.44L26.5 143a16 16 0 0 1 0-30l63.44-23.06L113 26.5a16 16 0 0 1 30 0l23.07 63.44L229.5 113a15.79 15.79 0 0 1 10.5 15"/><linearGradient id="g-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c4ff86"/><stop offset=".5" stop-color="#63d84c"/><stop offset="1" stop-color="#2a9a3a"/></linearGradient><path id="lf-p1" d="M13.98 52.87c0.37,-0.8 0.6,-1.74 0.67,-2.74 1.01,1.1 2.23,2.68 1.24,3.87 -0.22,0.26 -0.41,0.61 -0.59,0.97 -2.95,5.89 3.44,10.87 2.98,0.78 0.29,0.23 0.73,0.82 1.03,1.18 0.33,0.4 0.7,0.77 1,1.15 0.29,0.64 -0.09,2.68 1.77,4.91 5.42,6.5 5.67,-2.38 0.47,-4.62 -0.41,-0.18 -0.95,-0.26 -1.28,-0.54 -0.5,-0.41 -1.23,-1.37 -1.66,-1.9 0.03,-0.43 -0.17,-0.13 0.11,-0.33 4.98,1.72 8.4,-1.04 2.38,-3.16 -1.98,-0.7 -2.9,-0.36 -4.72,0.16 -0.63,-0.58 -2.38,-3.82 -2.82,-4.76 1.21,0.56 1.72,1.17 3.47,1.3 6.5,0.5 2.31,-4.21 -2.07,-4.04 -1.12,0.04 -1.62,0.37 -2.49,0.62l-1.25 -3.11c0.03,-0.26 0.01,-0.18 0.1,-0.28 1.35,0.86 1.43,1 3.25,1.45 2.35,0.15 3.91,-0.15 1.75,-2.4 -1.22,-1.27 -2.43,-2.04 -4.22,-2.23l-2.08 0.13c-0.35,-0.58 -0.99,-2.59 -1.12,-3.3l-0.01 -0.01 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0c-0.24,-0.36 1.88,1.31 2.58,1.57 1.32,0.49 2.6,0.33 3.82,0 -0.37,-1.08 -1.17,-2.31 -2.13,-3.11 -1.79,-1.51 -3.07,-1.41 -5.22,-1.38l-0.93 -4.07c0.41,-0.57 1.41,0.9 2.82,1.36 0.96,0.31 1.94,0.41 3,0.14 2,-0.52 -2.25,-4.4 -4.53,-4.71 -0.7,-0.1 -1.23,-0.04 -1.92,-0.03 -0.46,-0.82 -0.68,-3.61 -0.92,-4.74 0.8,0.88 1.15,1.54 2.25,2.23 0.8,0.5 1.58,0.78 2.57,0.85 2.54,0.18 -0.1,-3.47 -0.87,-4.24 -1.05,-1.05 -2.34,-1.59 -4.32,-1.78l-0.33 -3.49c0.83,0.67 1.15,1.48 2.3,2.16 1.07,0.63 2.02,0.89 3.58,0.79 0.15,-1.34 -1.07,-3.39 -2.03,-4.3 -1.05,-0.99 -2.08,-1.47 -3.91,-1.68l-0.07 -3.27 0.32 -0.65c0.44,0.88 1.4,1.74 2.24,2.22 0.69,0.39 2.4,1.1 3.44,0.67 0.31,-1.92 -1.84,-4.49 -3.5,-5.29 -0.81,-0.39 -1.61,-0.41 -2.18,-0.68 -0.12,-1.28 0.27,-3.23 0.37,-4.55l-0.89 0c-0.06,1.28 -0.35,3.12 -0.34,4.31 -0.44,0.45 -0.37,0.42 -0.96,0.64 -3.88,1.49 -4.86,6.38 -3.65,7.34 1.42,-0.31 3.69,-2.14 4.16,-3.66 0.23,0.5 0.1,2.36 0.05,3.05 -1.23,0.4 -2.19,1.05 -2.92,1.82 -1.17,1.24 -2.36,4.04 -1.42,5.69 1.52,0.09 4.07,-2.49 4.49,-4.07l0.29 3.18c-2.81,0.96 -5.01,3.68 -4.18,7.43 2.06,-0.09 3.78,-2.56 4.66,-4.15 0.23,1.45 0.67,3.06 0.74,4.52 -1.26,0.93 -2.37,1.8 -2.97,3.55 -0.48,1.4 -0.49,3.72 0.19,4.55 0.59,0.71 2.06,-1.17 2.42,-1.67 1,-1.35 0.81,-1.92 1.29,-2.46l0.7 3.44c-0.49,0.45 -0.94,0.55 -1.5,1.19 -1.93,2.23 -2.14,4.33 -1.01,6.92 0.72,0.09 2.04,-1.4 2.49,-2.06 0.65,-0.95 0.79,-1.68 1.14,-2.88l0.97 2.92c-0.2,0.55 -1.84,1.32 -2.6,3.62 -0.54,1.62 -0.37,3.86 0.67,4.93 0.58,-0.09 1.85,-1.61 2.2,-2.19 0.66,-1.09 0.66,-1.64 1,-2.93l1.32 3.18c-0.23,0.72 -1.63,1.72 -1.82,4.18 -0.17,2.16 1.11,6.88 3.13,2.46zm-4.09 -16.89l-0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 -0 0.01 0.01z"/><path id="lf-p2" d="M7.63 35.26c-0.02,0.13 0.01,0.05 -0.06,0.14 -0,0 -0.08,0.07 -0.11,0.1 -0.42,0.25 -0.55,0.94 -0.23,1.4 0.68,0.95 2.66,0.91 3.75,0.21 0.2,-0.13 0.47,-0.3 0.57,-0.49 0.09,-0.02 0.04,0.03 0.11,-0.07l-1.35 -1.24c-0.78,-0.78 -1.25,-1.9 -2.07,-0.62 -0.11,0.18 -0.06,0.16 -0.22,0.26 -0.4,-0.72 -0.95,-1.79 -1.26,-2.59 0.82,0.02 1.57,-0.12 2.16,-0.45 0.49,-0.27 1.15,-0.89 1.33,-1.4 0.1,-0.06 0.02,0.01 0.06,-0.1 -0.24,-0.16 -0.87,-0.37 -1.19,-0.52 -0.4,-0.19 -0.73,-0.39 -1.09,-0.62 -0.25,-0.16 -0.85,-0.6 -1.18,-0.3 -0.35,0.32 -0.32,0.83 -0.53,1.17 -0.71,-0.3 -0.55,-0.26 -0.84,-1.22 -0.15,-0.5 -0.31,-1.12 -0.41,-1.66l0.03 -0.13c0.56,0.23 1.28,0.37 1.99,0.28 0.56,-0.07 1.33,-0.42 1.62,-0.71l0.1 -0.1c-0.74,-0.68 -1.09,-1.2 -1.65,-1.99 -1.09,-1.52 -1.2,-0.28 -1.92,0.17 -0.26,-0.79 -0.73,0.2 -0.12,-2.76 0.06,-0.3 0.19,-0.7 0.2,-0.98 0.18,0.08 0.01,-0.01 0.11,0.08 0.05,0.05 0.07,0.07 0.1,0.12 0.94,1.17 3.63,0.82 4.21,0.01 0.13,-0.02 0.06,0.03 0.1,-0.1 -1.14,-0.81 -1.91,-2.89 -2.58,-2.67 -0.29,0.09 -0.78,0.63 -0.93,0.87 -0.54,-0.48 -0.36,-0.63 -0.38,-0.81 0.01,-0.01 0.03,-0.04 0.03,-0.03 0.01,0.02 0.36,-0.35 0.45,-0.6 0.13,-0.35 0.04,-0.65 -0.05,-0.95 0.06,-0.41 0.33,-1.33 0.28,-1.71 0.22,-0.05 0.19,0.05 0.45,0.17 0.47,0.23 1.17,0.33 1.7,0.32 0.62,-0 1.74,-0.39 1.94,-0.75 0.14,-0.02 0.05,0.06 0.13,-0.09 -1.05,-1.1 -0.7,-0.64 -1.62,-1.92 -0.58,-0.81 -0.9,-1.27 -1.9,0.12 -0.44,-0.5 -0.64,-0.69 -0.66,-1.24 0.02,-0.31 0.15,-0.36 0.08,-0.73 -0.04,-0.24 -0.14,-0.41 -0.29,-0.59l-0.47 -2.54c0.09,-0.14 -0.09,-0.1 0.2,-0.05 0.06,0.01 0.19,0.05 0.3,0.07 0.54,0.09 1.47,0.01 1.95,-0.15 0.57,-0.19 1.53,-0.8 1.68,-1.18 0.16,-0.07 0.05,0.02 0.15,-0.13 -0.12,-0.15 -0.95,-0.65 -1.15,-0.8 -1.43,-1.08 -2.21,-2.77 -3.16,-0.38 -0.2,-0.1 -0.75,-0.55 -0.83,-0.74 -0.15,-0.35 -0.21,-0.81 -0.37,-1.15l-0.1 -0.25c-0.03,-0.3 -0.44,-1.33 -0.57,-1.64 -0.2,-0.51 -0.47,-1.09 -0.64,-1.6l-0.55 0c0.14,0.42 0.36,0.84 0.53,1.28 0.12,0.3 0.19,0.35 0.06,0.66l-0.21 0.52c-0.01,0.01 -0.01,0.02 -0.02,0.03 -0.06,0.1 -0.03,0.05 -0.06,0.09 -1.44,-1.03 -1.66,-0.73 -2.07,0.46 -0.16,0.46 -0.3,0.93 -0.5,1.36l-0.64 1.28c0.06,0.07 -0,0.03 0.1,0.03 0.05,0.05 0.02,0.03 0.1,0.08l0.49 0.14c0.23,0.05 0.44,0.09 0.66,0.1 0.55,0.04 0.94,-0.06 1.35,-0.19 0.54,-0.18 1.09,-0.44 1.5,-0.82 0.15,-0.14 0.24,-0.3 0.4,-0.41l0.46 1.66c0.03,0.74 -0.09,0.6 0.27,1.21 0.01,0.01 0.01,0.02 0.02,0.03 0.01,0.01 0.01,0.02 0.02,0.04l0.07 0.11c-0.02,0.22 0.19,1.01 0.24,1.29 0.09,0.46 -0.21,0.79 -0.3,1.2 -0.55,-0.23 -1.25,-1.06 -1.66,-0.23 -0.12,0.25 -0.17,0.36 -0.26,0.62 -0.33,1.01 -0.63,1.61 -1.06,2.43l0.12 0.04 0.23 0.11c0.06,0.02 0.17,0.04 0.25,0.06 0.17,0.04 0.34,0.08 0.52,0.09 0.29,0.02 0.93,0.07 1.12,-0.13 0.42,0.01 1.24,-0.49 1.51,-0.71 0.01,0.01 0.03,0 0.04,0.02l0.09 0.06c-0.04,0.29 0.02,0.41 0.03,0.7l-0.05 1.41c-0.06,1.12 -0.29,1.06 -0.76,1.69 -0.08,-0.07 -0.03,-0.01 -0.11,-0.11 -0.03,-0.03 -0.06,-0.08 -0.09,-0.11 -0.2,-0.25 -0.38,-0.54 -0.7,-0.69 -0.7,-0.32 -1.52,1.73 -2.82,2.61 0.04,0.2 -0.01,0.06 0.1,0.11 0.25,0.3 1,0.67 1.5,0.78 0.35,0.08 0.71,0.08 1.09,0.05 0.25,-0.02 0.82,-0.16 0.92,-0.13 -0.16,0.69 -0.35,1.35 -0.52,2.03 -0.25,1 -0.03,0.77 -0.98,1.53 -0.3,-0.31 -0.33,-0.77 -0.77,-1.02 -0.42,-0.25 -0.91,0.35 -1.12,0.55 -0.33,0.32 -0.58,0.6 -0.97,0.89 -0.19,0.14 -0.34,0.26 -0.53,0.4 -0.14,0.11 -0.43,0.29 -0.53,0.4 0.1,0.15 -0.02,0.06 0.15,0.13 0.09,0.22 0.35,0.38 0.54,0.52 0.22,0.16 0.43,0.29 0.69,0.39 0.43,0.17 1.32,0.31 1.87,0.23l0.23 -0.05c0.01,-0 0.03,-0.02 0.04,-0.02 0.01,-0 0.02,-0.01 0.03,-0.02 0.32,0.05 0.52,-0.18 0.79,-0.24l-0.02 0.66c0,0.77 -0.24,0.75 0.16,1.51l0.04 0.07c0,0.01 0.01,0.03 0.02,0.04 -0.05,0.35 0.18,1.03 0.24,1.4 -0.23,0.18 -0.34,0.33 -0.51,0.41 -0.75,-1.17 -0.82,-1.52 -1.92,-0.43 -0.32,0.31 -0.59,0.57 -0.95,0.86 -0.23,0.19 -0.95,0.65 -1.05,0.81l0.13 0.1c0.88,1.15 3.14,1.5 4.1,0.82 0.47,-0.34 0.54,-0.56 0.52,-1.34l0.67 1.84c0.03,0.16 0.06,0.28 0.12,0.42 0.03,0.06 0.05,0.12 0.09,0.17 0.1,0.15 0.03,0.06 0.13,0.14 -0,0.29 0.14,0.22 0.06,0.56 -0.03,0.13 -0.14,0.43 -0.19,0.53 -1.94,-1.27 -1.57,-0.02 -2.28,1.76 -0.16,0.41 -0.37,0.77 -0.53,1.2 0.09,0.08 0.01,0.03 0.15,0.03 0.29,0.33 1.66,0.28 2.36,-0.01 0.48,-0.2 0.96,-0.46 1.3,-0.82 0.15,-0.16 0.16,-0.3 0.38,-0.33 0.14,0.08 0.17,0.19 0.27,0.36zm-3.62 -12.85c0.13,-0.01 0.31,-0.15 0.55,-0.19 -0.01,0.45 0.02,0.74 -0.34,0.45 -0.06,-0.05 -0.09,-0.06 -0.12,-0.09 -0.09,-0.1 -0.04,-0.01 -0.09,-0.17zm1.92 -12.29l-0.04 0.13c-0.07,-0.02 -0.17,-0.02 -0.21,-0.03 -0.27,-0.08 -0.09,0.04 -0.16,-0.16 0.12,-0.08 0.18,-0.23 0.34,-0.35l0.08 0.4zm1.33 3.05l-0.4 0.17c-0,-0.08 -0,-0.15 -0.02,-0.23 -0.02,-0.09 -0.03,-0.07 -0.05,-0.11l0.07 -0.16c0.21,0.11 0.28,0.16 0.4,0.32zm-1.54 6.48l0.16 -0.51c0.17,0.07 0.25,0.14 0.36,0.29l-0.52 0.22zm0.28 10.88l-0.09 -0.38 0.37 0.07c-0.02,0.1 -0.03,0.13 -0.09,0.19 -0.13,0.15 0.01,0.06 -0.19,0.12zm-1.05 -5.97c0.06,0.12 0.16,0.16 0.26,0.23 -0.09,0.14 -0.22,0.18 -0.37,0.21 -0,-0.02 -0.02,-0.27 -0.02,-0.27 0.04,-0.19 -0.06,-0.09 0.13,-0.16zm1.03 -8.01c-0.09,-0.02 -0.15,-0.02 -0.22,-0.07 -0.21,-0.13 -0.08,-0.02 -0.14,-0.18 0.15,-0.05 0.21,-0.15 0.45,-0.24l-0.08 0.48zm0.57 16.58l-0.45 -0c0.02,-0.18 0.12,-0.3 0.26,-0.42l0.18 0.42zm-1.45 -3.7l-0.19 -0.23c-0.06,-0.07 -0.1,-0.13 -0.17,-0.19 -0.24,-0.23 -0.29,-0.14 -0.36,-0.36l0.46 -0.19c0.07,0.14 0.25,0.78 0.26,0.97zm0.37 -23.67l-0.12 -0.57 0.54 0.21c-0.07,0.16 -0.27,0.31 -0.41,0.36zm-1.46 -3.02c-0.07,0.01 -0.19,-0.04 -0.3,-0.06 -0.04,-0.01 -0.14,-0.02 -0.18,-0.03 -0.15,-0.07 -0.06,0.04 -0.14,-0.13 0.11,-0.07 0.2,-0.27 0.37,-0.4 0.13,0.13 0.2,0.43 0.24,0.62z"/><path id="lf-p3" d="M19.14 6.58c0.09,0.1 -0.02,0.03 0.17,0.15 0.04,0.03 0.19,0.09 0.27,0.13l0.16 0.02c0.12,0.14 0.02,0.06 0.22,0.18 0.63,0.37 1.81,0.52 2.51,0.53 0.42,-0.26 0.61,-1.58 0.55,-2.27 -0.11,-1.17 -1.02,-3.42 -2.17,-3.76 -0.84,-0.25 -1.19,0.02 -1.4,0.7 -0.03,0.1 -0.05,0.19 -0.09,0.28l-0.18 0.25c-0.18,-0.36 -0.77,-0.97 -1.2,-1.18 -0.64,-0.31 -0.36,-0.26 -0.84,-1.59l-0.75 0c0.2,0.63 0.44,1.27 0.61,1.92 0.17,0.64 0.47,1.46 0.58,2.05 -0.21,0.36 -0.43,0.5 -0.31,1.1 0.11,0.51 0.35,0.71 0.76,0.9 0.13,0.31 0.36,1.33 0.39,1.78 -0.68,0.24 -1.38,0.85 -1.62,1.43 -0.45,-0.47 -0.29,-1.59 -1.59,-1.22 -0.8,0.22 -1.09,0.8 -1.45,1.52 -0.58,1.18 -0.96,2.15 -0.6,3.58 0.04,0.17 0.13,0.4 0.19,0.55 0.11,0.29 0.09,0.34 0.35,0.44 1.74,-0.01 2.96,-0.82 4.13,-1.55 0.22,-0.13 0.65,-0.39 0.79,-0.62 0.74,-1.2 -0.74,-2.14 -1.7,-2.43 -0.01,-0.51 1.07,-0.87 1.7,-0.82 0.21,1.74 0.56,3.5 0.61,5.33 0.05,2.05 0.01,3.68 -0.08,5.71 -1.2,0.52 -0.99,0.65 -1.77,1.46 -0.39,-0.45 -0.22,-1.6 -1.59,-1.18 -0.79,0.24 -0.91,0.63 -1.42,1.55 -0.78,1.41 -0.95,2.66 -0.36,4.15 0.14,0.35 0.06,0.36 0.36,0.37 0.78,-0 1.47,-0.18 2.09,-0.43 0.51,-0.2 1.26,-0.76 1.69,-0.86 -0.18,0.3 -0.34,0.91 -0.48,1.25l-1.54 3.5c-1.75,0.08 -1.26,0.29 -2.27,0.59 0.1,-1.15 0.1,-1.69 -1.1,-1.78 -0.7,-0.05 -1.5,0.65 -1.91,0.96 -1.04,0.82 -1.93,1.81 -1.94,3.77 0.09,0.22 -0.03,0.09 0.18,0.11 0.24,0.36 1.4,0.49 1.94,0.58l0.19 -0.01 0.71 -0.01 0.08 -0.02 1.74 -0.17c0.25,0.04 0.03,-0.07 0.19,0.09l-2.62 4.74c-0.28,0.51 -0.56,1.2 -0.86,1.61 -0.44,-0.02 -0.69,-0.14 -1.18,-0.08 -0.38,0.04 -0.72,0.17 -1.08,0.22 0.1,-0.53 0.78,-1.5 -0.62,-1.96 -0.79,-0.26 -1.74,0.32 -2.33,0.6 -2.12,1.02 -2.81,3.28 -2.36,3.38 0.01,0.01 0.03,0.02 0.03,0.04l0.11 0.1c0.42,0.34 1.16,0.64 1.66,0.79 0.65,0.19 1.73,0.31 2.43,0.38 3,0.28 1.16,-2.8 1.09,-3.14 0.86,0.12 1.3,-0.05 1.81,0.56 -0.08,0.35 -0.53,1.2 -0.71,1.6 -0.74,1.61 -1.24,3.24 -1.73,4.96 -0.92,0.11 -1.11,0.44 -1.77,0.69 0.01,-1.08 0.1,-1.68 -1.14,-1.71 -0.55,-0.01 -0.8,0.17 -1.11,0.41 -1.43,1.08 -2.52,2.24 -2.53,4.15 -0,0.62 0.11,0.48 0.22,0.54 0.63,0.38 1.79,0.44 2.67,0.35 0.47,-0.05 0.97,-0.11 1.43,-0.2l0.98 -0.22c0.38,-0.08 0.14,-0.15 0.26,0.06 -0.08,0.78 -0.66,2.6 -0.56,3.29 -0.13,0.14 -0.07,0.08 -0.17,0.29 -0.06,0.13 -0.08,0.18 -0.12,0.33 -0.07,0.3 -0.02,0.6 -0.03,0.92 -0.09,0.94 -0.17,0.52 -0.78,0.94 -0.32,0.22 -0.57,0.55 -0.86,0.82 -0.29,-0.69 -0.22,-1.44 -1.39,-1.13 -0.93,0.25 -1.93,2.19 -2.03,3.16 -0.06,0.56 0.02,1.84 0.39,2.08 2,0.02 2.64,-0.6 4.08,-1.25l-0.01 0.28c-0.06,0.58 -0.22,2.09 -0.14,2.62 -0.44,0.37 -0.46,1.03 -0.12,1.49 -0.08,3.97 0.16,2.73 -0.77,3.57 -0.24,0.21 -0.37,0.4 -0.62,0.62 -0.36,-0.53 -0.09,-1.43 -1.37,-1.13 -0.98,0.23 -1.92,2.22 -2.06,3.14 -0.07,0.47 -0.07,1.79 0.41,2.09 0.86,0.04 1.94,-0.12 2.51,-0.52l0.16 -0.08c0.6,-0.17 1.39,-0.67 1.84,-0.94 0.12,0.18 0.04,0.07 0.14,0.1 -0.18,0.38 -0.31,0.07 -0.71,0.58 -0.67,0.86 0.33,1.72 0.89,2.31 0.6,0.64 1.71,1.63 2.94,1.88 0.38,-0.11 0.92,-1.2 1.04,-1.69 0.21,-0.86 0.15,-1.53 -0.05,-2.41 -0.22,-0.94 -0.24,-1.38 -1.01,-1.81 -0.93,-0.52 -1.19,0.28 -1.59,0.76 -0.21,-0.33 -0.33,-0.79 -0.58,-1.12 -0.48,-0.62 -0.48,-0.13 -0.5,-1.22 -0.02,-1.09 0.05,-2.25 0.01,-3.32 0.37,0.22 0.89,0.86 1.37,1.21 0.51,0.37 1.05,0.65 1.76,0.82 0.32,-0.02 0.92,-1.21 1.04,-1.68 0.22,-0.87 0.15,-1.53 -0.04,-2.41 -0.19,-0.86 -0.3,-1.41 -0.96,-1.79 -1.06,-0.6 -1.26,0.38 -1.71,0.74 -0.22,-0.8 -0.65,-1.34 -1.19,-1.71l0.5 -4.35 0.38 0.28c0.23,0.25 0.6,0.67 0.87,0.82 0.07,0.1 0.05,0.1 0.19,0.21 0.18,0.23 0.66,0.57 0.92,0.6 0.1,0.13 -0.01,0.03 0.16,0.16 0.08,0.06 0.1,0.07 0.18,0.11 0.14,0.07 0.26,0.1 0.44,0.15l0.45 0.17c0.35,0.08 0.75,-0.74 0.91,-1.05 0.21,-0.4 0.41,-1.07 0.43,-1.57 -0,-0.28 0.04,-0.67 -0.1,-0.85l0.03 -0.17c-0,-0.04 -0.01,-0.13 -0.01,-0.15 -0.05,-0.13 -0.03,-0.1 -0.09,-0.17 0.06,-0.51 -0.25,-1.75 -0.94,-2.22 -1.11,-0.74 -1.37,0.09 -1.86,0.69l-0.12 -0.2c-0.28,-0.56 -0.41,-1.06 -1,-1.45 0.04,-1.21 1.29,-5.03 1.31,-5.65 0.07,0.06 0.05,0.04 0.12,0.13 0.63,0.83 0.41,0.6 1.22,1.38 0.76,0.74 1.67,1.73 2.95,1.92 0.28,0.13 0.55,-0.41 0.69,-0.64 0.21,-0.34 0.36,-0.64 0.47,-1.02 0.36,-1.24 0.14,-3.92 -1.03,-4.6 -1.23,-0.72 -1.67,0.89 -1.75,0.72 -0.01,-0.01 -0.03,0.02 -0.04,0.03 -0.19,-0.33 -0.3,-0.68 -0.49,-1 -0.22,-0.38 -0.47,-0.51 -0.68,-0.79 0.39,-1.04 1.05,-2.29 1.59,-3.3 0.57,-1.06 1.2,-2.15 1.7,-3.17 1.43,-0.02 1.51,0.55 1.8,0.6 -0.1,0.19 -0.02,0.07 -0.16,0.2 -0.01,0.01 -0.21,0.13 -0.23,0.15 -0.8,0.47 -1.8,0.96 -1.37,2.09 0.14,0.37 0.42,0.53 0.75,0.73 1.23,0.73 2.46,1.53 4.32,1.53 0.28,-0.08 0.25,-0.15 0.35,-0.44 0.22,-0.63 0.33,-1.22 0.26,-1.93 -0.11,-1.05 -1.06,-3.33 -2.21,-3.65 -1.31,-0.37 -1.17,0.6 -1.56,1.21l-0.2 -0.19c-0.84,-0.96 -0.61,-0.56 -1.27,-1.09 0.16,-0.47 0.7,-1.32 0.98,-1.82 1.05,-1.91 1.94,-3.59 2.84,-5.61 0.73,0.01 1.23,0.31 1.57,0.68 -0.26,0.25 -1.37,0.7 -1.67,1.19 -0.51,0.8 -0.07,1.45 0.63,1.87 1.15,0.7 2.56,1.58 4.34,1.55 0.33,-0.09 0.46,-0.67 0.52,-0.98 0.28,-1.4 -0.01,-2.34 -0.66,-3.5 -0.49,-0.87 -0.67,-1.3 -1.44,-1.54 -1.15,-0.36 -1.27,0.44 -1.56,1.23 -0.65,-0.55 0.03,-0.23 -1.38,-1.25 0.22,-0.6 1.08,-2.59 1.06,-3.14 0.38,-0.35 0.52,-0.78 0.43,-1.4 0.22,-0.75 0.67,-4.16 0.53,-5 0.32,0.09 0.75,0.4 1.06,0.57 0.35,0.2 0.71,0.39 1.06,0.57 0.73,0.38 1.61,0.62 2.65,0.61 0.58,-0.21 0.64,-1.82 0.61,-2.32 -0.04,-0.79 -0.45,-1.64 -0.77,-2.19 -0.39,-0.68 -0.64,-1.3 -1.45,-1.52 -1.33,-0.36 -1.16,0.63 -1.55,1.24 -0.67,-0.66 -0.61,-0.87 -1.64,-1.37 -0.06,-2.55 -0.87,-5.97 -0.9,-6.74l0.15 -0.03 0.01 -0.03zm-14.34 62.71l-0.02 1.23c-0.17,-0.13 -0.38,-0.3 -0.62,-0.45 -0.2,-0.13 -0.4,-0.21 -0.59,-0.39 0.26,-0.28 0.65,-0.51 1.16,-0.55l0.07 0.15zm14.26 -66.46c-0.03,0.28 0.03,0.13 -0.15,0.29 -0.01,0.01 -0.24,0.12 -0.24,0.13 -0.22,0.12 -0.24,0.17 -0.54,0.21 0.01,-0.4 -0.17,-0.77 -0.25,-1.14 0.63,0.03 0.9,0.46 1.18,0.51zm-14.86 55.33c0.15,-0.05 0.34,-0.22 0.51,-0.31 0.29,-0.15 0.4,-0.14 0.78,-0.16 -0.03,0.41 -0.14,0.81 -0.08,1.19 -0.26,0.14 -0.08,0.13 -0.34,-0.03 -0.26,-0.16 -0.76,-0.47 -0.88,-0.69zm2.5 -3.73c0.16,-0.41 0.11,-0.97 0.32,-1.32 0.3,0.08 0.44,0.22 0.64,0.41 0.2,0.19 0.27,0.36 0.41,0.49 -0.16,0.21 0.06,0.08 -0.33,0.21 -0.1,0.03 -0.26,0.05 -0.36,0.08 -0.23,0.05 -0.43,0.12 -0.68,0.14zm0.14 8.74l-1.08 0.27c-0.09,-0.08 -0.07,0.14 -0.08,-0.17l0.07 -1.1c0.51,0.12 0.97,0.57 1.09,1.01zm-0.43 8.78c-0.17,0.02 -0.31,0.07 -0.44,0.1 -0.01,0 -0.23,0.03 -0.24,0.03 -0.22,-0.04 0,0.16 -0.14,-0.1l-0.01 -0.9c0.37,0.15 0.68,0.48 0.83,0.88zm7.48 -41.68c0.31,-0.02 0.51,-0.13 0.93,-0.12 0.35,0 0.54,0.09 0.82,0.17 -0.11,0.53 -0.59,0.91 -0.64,1.43 -0.25,-0.04 -0.12,0.01 -0.27,-0.15l-0.84 -1.31zm4.93 -8.23c-0.27,-0 -0.43,-0.17 -0.68,-0.32 -0.41,-0.23 -0.51,-0.16 -0.64,-0.47 0.15,-0.04 0.4,-0.31 0.62,-0.42 0.29,-0.15 0.49,-0.18 0.85,-0.23 0.05,0.51 -0.12,0.95 -0.14,1.43zm-12.94 26.21c0.63,-0.04 0.61,-0.21 1.47,-0.11l-0.33 1.55c-0.33,-0.14 -0.22,-0.21 -0.62,-0.71 -0.32,-0.39 -0.42,-0.39 -0.52,-0.74zm15.47 -33.38c-0.15,0.29 -0.36,0.33 -0.67,0.51 -0.26,0.15 -0.4,0.29 -0.69,0.42 -0.01,-0.23 0.02,-0.53 -0.08,-0.67l0.03 -0.86c0.33,0.01 0.6,0.1 0.83,0.21 0.22,0.11 0.42,0.34 0.58,0.38zm-12.41 30.37c0.14,-0.37 0.45,-1.36 0.68,-1.6 0.66,0.19 1.09,0.56 1.31,1.14 -0.34,0.04 -0.75,0.16 -1.08,0.25 -0.9,0.24 -0.77,0.49 -0.91,0.21z"/>
+    <filter id="bevel" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="5" specularConstant=".9" specularExponent="26" lighting-color="#ffffff" result="spec"><feDistantLight azimuth="235" elevation="52"/></feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="spec2"/>
+      <feComposite in="SourceGraphic" in2="spec2" operator="arithmetic" k1="0" k2="1" k3=".9" k4="0"/>
+    </filter>
+    <linearGradient id="g-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset=".5" stop-color="#ffc83a"/><stop offset="1" stop-color="#d98c10"/></linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8dffa0"/><stop offset=".5" stop-color="#26c85a"/><stop offset="1" stop-color="#087a34"/></linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset=".5" stop-color="#5eb0ff"/><stop offset="1" stop-color="#2468d8"/></linearGradient>
+    <linearGradient id="g-white" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#b9d4f5"/></linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a4ff"/><stop offset=".5" stop-color="#8b57f0"/><stop offset="1" stop-color="#5a2ac4"/></linearGradient>
+    <linearGradient id="g-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a"/><stop offset=".5" stop-color="#ff9c33"/><stop offset="1" stop-color="#d95f10"/></linearGradient>
+    <linearGradient id="g-bronze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6a444"/><stop offset=".55" stop-color="#c8641c"/><stop offset="1" stop-color="#8a3a0c"/></linearGradient>
+    <linearGradient id="g-yellow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6a0"/><stop offset=".5" stop-color="#ffd21f"/><stop offset="1" stop-color="#f29a05"/></linearGradient>
+    <linearGradient id="g-grey" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#aab6d2"/></linearGradient>
+  </defs>
+
+  <symbol id="i-home" viewBox="0 0 64 64">
+    <path d="M13 31v23a2.5 2.5 0 0 0 2.5 2.5H26V41h12v15.5h10.5A2.5 2.5 0 0 0 51 54V31L32 14z" fill="#fff3d2" stroke="#e8791a" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M5 33 32 9l27 24-4 4.5L32 17 9 37.5z" fill="url(#g-orange)" stroke="#a8480a" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M44 14h7v13l-7-6z" fill="#ef7b1c" stroke="#a8480a" stroke-width="2.5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-shirt" viewBox="0 0 64 64">
+    <path d="M22 8 6 16l6 14 8-3v29h24V27l8 3 6-14-16-8c-1 4-5 7-10 7s-9-3-10-7z" fill="url(#g-white)" stroke="#2a74d6" stroke-width="3.2" stroke-linejoin="round"/>
+    <path d="M22 8c1 4 5 7 10 7s9-3 10-7" fill="none" stroke="#2a74d6" stroke-width="3" stroke-linecap="round"/>
+    <path d="M12 30l-6-14M52 30l6-14" stroke="#7cc2ff" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-frame" viewBox="0 0 64 64">
+    <rect x="5" y="7" width="54" height="50" rx="11" fill="url(#g-yellow)" stroke="#a8670a" stroke-width="3"/>
+    <rect x="13" y="15" width="38" height="34" rx="6" fill="url(#g-blue)" stroke="#1b5bc0" stroke-width="3"/>
+    <path d="M18 24c4-4 9-5 14-5" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7" fill="none"/>
+  </symbol>
+  <symbol id="i-dice" viewBox="0 0 64 64">
+    <rect x="7" y="7" width="50" height="50" rx="11" fill="#f6eeff" stroke="#9b6be0" stroke-width="3.2"/>
+    <path d="M7 40h50v6a11 11 0 0 1-11 11H18A11 11 0 0 1 7 46z" fill="#d9c4f7"/>
+    <g fill="#7a3fd0"><circle cx="20" cy="20" r="4.6"/><circle cx="44" cy="20" r="4.6"/><circle cx="32" cy="32" r="4.6"/><circle cx="20" cy="44" r="4.6"/><circle cx="44" cy="44" r="4.6"/></g>
+  </symbol>
+  <symbol id="i-sparkle" viewBox="0 0 64 64">
+    <path d="M30 3c2 15 7 24 27 29-20 5-25 14-27 29-2-15-7-24-27-29C23 27 28 18 30 3z" fill="url(#g-yellow)" stroke="#c77700" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 6c.8 5 2.4 8 7 9.5-4.6 1.5-6.200 4.500-7 9.500-.8-5-2.400-8-7-9.500 4.600-1.500 6.200-4.500 7-9.500z" fill="#fff3a0" stroke="#e09a10" stroke-width="2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-bolt" viewBox="0 0 64 64">
+    <path d="M37 3 11 37h17l-5 24 30-36H35z" fill="url(#g-yellow)" stroke="#d17a05" stroke-width="3.2" stroke-linejoin="round"/>
+    <path d="M36 9 20 31" stroke="#fffbd0" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  </symbol>
+  <symbol id="i-trophy" viewBox="0 0 64 64">
+    <path d="M17 9h30v14c0 10-7 17-15 17S17 33 17 23z" fill="url(#g-yellow)" stroke="#b86e07" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M17 13H8c0 11 4 17 11 19M47 13h9c0 11-4 17-11 19" fill="none" stroke="#e6a312" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 39h8v8h-8z" fill="#e6a312" stroke="#b86e07" stroke-width="2.5"/>
+    <path d="M19 48h26a2 2 0 0 1 2 2v6H17v-6a2 2 0 0 1 2-2z" fill="url(#g-orange)" stroke="#a8480a" stroke-width="3" stroke-linejoin="round"/>
+    <path d="m32 14 2.700 5.500 6 .9-4.400 4.200 1 6-5.300-2.800-5.300 2.800 1-6-4.400-4.200 6-.9z" fill="#fff6c0" stroke="#d58a0c" stroke-width="1.800" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-mail" viewBox="0 0 64 64">
+    <rect x="5" y="12" width="54" height="40" rx="7" fill="url(#g-white)" stroke="#2f80e0" stroke-width="3.200"/>
+    <path d="m7 17 25 19 25-19" fill="none" stroke="#2f80e0" stroke-width="3.200" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 49l17-16M56 49 39 33" stroke="#8cc2ff" stroke-width="2.500" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-calendar" viewBox="0 0 64 64">
+    <rect x="7" y="10" width="50" height="48" rx="9" fill="#fff4dc" stroke="#d98a3a" stroke-width="3"/>
+    <path d="M7 19a9 9 0 0 1 9-9h32a9 9 0 0 1 9 9v8H7z" fill="#ec4a3a" stroke="#b8241a" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="19" y="4" width="6" height="14" rx="3" fill="#6a7794" stroke="#3f4a66" stroke-width="2"/>
+    <rect x="39" y="4" width="6" height="14" rx="3" fill="#6a7794" stroke="#3f4a66" stroke-width="2"/>
+    <path d="m20 42 8 8 16-17" fill="none" stroke="#e8352a" stroke-width="5.500" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-shop" viewBox="0 0 64 64">
+    <path d="M9 24h46v31a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2z" fill="url(#g-orange)" stroke="#a8480a" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="15" y="32" width="22" height="25" rx="2" fill="#bfe6ff" stroke="#a8480a" stroke-width="2.500"/>
+    <rect x="42" y="32" width="8" height="12" rx="1.500" fill="#fff3d2" stroke="#a8480a" stroke-width="2.500"/>
+    <g stroke="#7a1c14" stroke-width="2" stroke-linejoin="round">
+      <path d="M10 8h7.300l-4 16H4z" fill="#ff4a3d"/><path d="M17.300 8h7.400l-2 16h-9.400z" fill="#fff"/>
+      <path d="M24.700 8H32v16H22.700z" fill="#ff4a3d"/><path d="M32 8h7.300l2 16H32z" fill="#fff"/>
+      <path d="M39.300 8h7.400l4 16h-9.400z" fill="#ff4a3d"/><path d="M46.700 8H54l6 16h-9.300z" fill="#fff"/>
+    </g>
+    <path d="M4 24h56" stroke="#7a1c14" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-people" viewBox="0 0 64 64">
+    <g fill="#3f86e8" stroke="#1b4fb0" stroke-width="2.500" stroke-linejoin="round">
+      <circle cx="13" cy="25" r="7.500"/><path d="M2 52c0-9 5-14 11-14s11 5 11 14z"/>
+      <circle cx="51" cy="25" r="7.500"/><path d="M40 52c0-9 5-14 11-14s11 5 11 14z"/>
+    </g>
+    <circle cx="32" cy="20" r="10" fill="url(#g-blue)" stroke="#1b4fb0" stroke-width="3"/>
+    <path d="M13 56c0-12 8-19 19-19s19 7 19 19z" fill="url(#g-blue)" stroke="#1b4fb0" stroke-width="3" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-gift" viewBox="0 0 64 64">
+    <rect x="9" y="29" width="46" height="28" rx="5" fill="url(#g-violet)" stroke="#3d1a94" stroke-width="3"/>
+    <rect x="5" y="20" width="54" height="13" rx="5" fill="#a77aff" stroke="#3d1a94" stroke-width="3"/>
+    <rect x="27.500" y="20" width="9" height="37" fill="url(#g-yellow)" stroke="#b86e07" stroke-width="2.500"/>
+    <path d="M32 20c-4-14-18-14-15-7 2 5 9 7 15 7zM32 20c4-14 18-14 15-7-2 5-9 7-15 7z" fill="url(#g-yellow)" stroke="#b86e07" stroke-width="2.800" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-gem" viewBox="0 0 64 64">
+    <path d="M20 7h24l15 17-27 33L5 24z" fill="url(#g-green)" stroke="#05652a" stroke-width="3.200" stroke-linejoin="round"/>
+    <path d="M5 24h54M20 7l7 17 5 33M44 7l-7 17-5 33" fill="none" stroke="#05652a" stroke-width="2.200" stroke-linejoin="round" opacity=".55"/>
+    <path d="M22 11h8l-5 11-13 0z" fill="#d6ffe0" opacity=".65"/>
+  </symbol>
+  <symbol id="i-coin" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="28" fill="url(#g-yellow)" stroke="#a8670a" stroke-width="3.500"/>
+    <circle cx="32" cy="32" r="21" fill="none" stroke="#d98c10" stroke-width="3"/>
+    <path d="m17 41-2-16 9 8 8-13 8 13 9-8-2 16z" fill="#fff6c8" stroke="#b86e07" stroke-width="2.600" stroke-linejoin="round"/>
+    <path d="M17 46h30" stroke="#b86e07" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-gamepad" viewBox="0 0 64 64">
+    <path d="M19 15h26c9 0 13 7 15 20 1.500 10-1.500 17-8.500 17-5 0-7.500-4.500-11-9H23.500c-3.500 4.500-6 9-11 9C5.500 52 2.500 45 4 35 6 22 10 15 19 15z" fill="url(#g-grey)" stroke="#5f6d8c" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M18 25v12M12 31h12" stroke="#3b4764" stroke-width="4.500" stroke-linecap="round"/>
+    <circle cx="46" cy="24" r="3.600" fill="#34c759"/><circle cx="52" cy="30" r="3.600" fill="#ff4a4a"/><circle cx="40" cy="30" r="3.600" fill="#3b82f6"/><circle cx="46" cy="36" r="3.600" fill="#ffc933"/>
+    <path d="M13 21c4-3 9-4 14-4" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8" fill="none"/>
+  </symbol>
+  <symbol id="i-chest" viewBox="0 0 130 104">
+    <ellipse cx="66" cy="97" rx="54" ry="6" fill="#1a0a50" opacity=".35"/>
+    <rect x="12" y="52" width="106" height="42" rx="8" fill="#4a1fb0" stroke="#2d1070" stroke-width="3.5"/>
+    <path d="M12 56V42C12 20 34 8 65 8s53 12 53 34v14z" fill="url(#g-violet)" stroke="#2d1070" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M12 54h106" stroke="#2d1070" stroke-width="3.5"/>
+    <g fill="url(#g-yellow)" stroke="#9a5f0a" stroke-width="2.5" stroke-linejoin="round">
+      <rect x="28" y="17" width="14" height="77" rx="2"/><rect x="88" y="17" width="14" height="77" rx="2"/>
+      <rect x="53" y="42" width="24" height="26" rx="6"/>
+    </g>
+    <circle cx="65" cy="52" r="3.600" fill="#6e3300"/><rect x="63.500" y="52" width="3" height="9" rx="1.500" fill="#6e3300"/>
+    <path d="M22 34C28 22 42 16 58 14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+    <g stroke-linejoin="round" stroke-width="2.400">
+      <path d="M18 74h15l9 11-17 19L9 85z" fill="url(#g-green)" stroke="#05652a"/>
+      <path d="M12 85h30M18 74l7 11 8-11" fill="none" stroke="#05652a" stroke-width="1.600" opacity=".6"/>
+      <path d="M98 82h10l6 9-11 12-9-12z" fill="#4fd8ff" stroke="#0a5a8a"/>
+      <circle cx="78" cy="97" r="8" fill="url(#g-yellow)" stroke="#9a5f0a"/>
+      <circle cx="58" cy="99" r="7" fill="url(#g-yellow)" stroke="#9a5f0a"/>
+      <path d="m44 90 7-8 7 8-7 9z" fill="url(#g-green)" stroke="#05652a"/>
+    </g>
+    <path d="M118 22l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff"/>
+  </symbol>
+  <symbol id="i-rank" viewBox="0 0 68 76">
+    <path d="M34 14 4 22v22c0 14 12 24 30 30 18-6 30-16 30-30V22z" fill="url(#g-bronze)" stroke="#ffd36a" stroke-width="3.500" stroke-linejoin="round"/>
+    <path d="M34 20 11 27v16c0 10 9 18 23 23" fill="none" stroke="#ffb866" stroke-width="2.500" opacity=".55" stroke-linecap="round"/>
+    <path d="M14 20 10 5l10 8 14-12 14 12 10-8-4 15z" fill="url(#g-yellow)" stroke="#a8670a" stroke-width="2.800" stroke-linejoin="round"/>
+    <text x="34" y="57" text-anchor="middle" font-family="'Lilita One','Nunito',sans-serif" font-weight="900" font-size="34" fill="#fff" stroke="#6a2a06" stroke-width="3.500" paint-order="stroke">1</text>
+  </symbol>
+</svg>
+
+<div id="wrap">
+<div id="stage">
+
+  <!-- profil -->
+  <div class="panel uvc" id="profile-bar"></div>
+  <div class="abs" id="avatar">
+    <div class="face">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-label="Avatar pemain">
+        <rect width="16" height="16" fill="#4a97ee"/><rect y="9" width="16" height="7" fill="#2f78d8"/>
+        <rect x="4" y="1" width="8" height="3" fill="#ffc83a"/><rect x="4" y="0" width="2" height="1" fill="#ffc83a"/><rect x="7" y="0" width="2" height="1" fill="#ffc83a"/><rect x="10" y="0" width="2" height="1" fill="#ffc83a"/><rect x="7" y="2" width="2" height="1" fill="#e33a3a"/>
+        <rect x="3" y="4" width="10" height="3" fill="#7a4a24"/><rect x="3" y="7" width="1" height="2" fill="#7a4a24"/><rect x="12" y="7" width="1" height="2" fill="#7a4a24"/>
+        <rect x="4" y="7" width="8" height="5" fill="#e8b88a"/>
+        <rect x="5" y="8" width="2" height="1" fill="#fff"/><rect x="9" y="8" width="2" height="1" fill="#fff"/><rect x="6" y="8" width="1" height="1" fill="#2c6ed6"/><rect x="10" y="8" width="1" height="1" fill="#2c6ed6"/>
+        <rect x="7" y="10" width="2" height="1" fill="#c8705a"/>
+        <rect x="2" y="12" width="12" height="4" fill="#1c2f6b"/><rect x="7" y="12" width="2" height="1" fill="#fff"/><rect x="7" y="13" width="2" height="3" fill="#ffc83a"/>
+      </svg>
+    </div>
+  </div>
+  <svg class="abs" id="rank" viewBox="0 0 68 76" aria-label="Peringkat 1"><use href="#i-rank"/></svg>
+  <div class="abs t" id="uname">omanbogel</div>
+  <div class="abs" id="flag" aria-label="Indonesia">
+    <svg viewBox="0 0 40 26" width="40" height="26"><rect width="40" height="13" fill="#ec2b2b"/><rect y="13" width="40" height="13" fill="#fff"/></svg>
+  </div>
+  <div class="abs t" id="lvl">Lv. 1</div>
+  <div class="abs" id="xp" role="progressbar" aria-valuemin="0" aria-valuemax="400" aria-valuenow="360" aria-label="XP">
+    <div id="xp-fill"></div>
+    <div class="t" id="xp-text">360 / 400 XP</div>
+  </div>
+
+  <!-- mata uang -->
+  <div class="cur uvc" style="left:1640px;top:116px;width:180px">
+    <span class="cur-ico"><svg class="ico"><use href="#i-gem"/></svg></span>
+    <span class="cur-val t" id="gems">20</span>
+    <button class="plus uvb" data-add="gems" data-amt="10" aria-label="Tambah permata"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg></button>
+  </div>
+  <div class="cur uvc" style="left:1440px;top:116px;width:180px">
+    <span class="cur-ico"><svg class="ico"><use href="#i-coin"/></svg></span>
+    <span class="cur-val t" id="coins">420</span>
+    <button class="plus uvb" data-add="coins" data-amt="50" aria-label="Tambah koin"><svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg></button>
+  </div>
+
+  <!-- tombol sudut -->
+  <button class="sq uvb" id="btn-setting" data-toast="Pengaturan" aria-label="Pengaturan">
+    <svg class="spin" viewBox="0 0 24 24"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+  </button>
+
+  <!-- menu kiri -->
+  <div class="panel uvc" id="side">
+    <button class="side-item" data-side><svg class="si"><use href="#i-shirt"/></svg><span class="t">Karakter</span><span class="dot" style="right:0;top:6px" data-clear></span></button>
+    <button class="side-item" data-side><svg class="si"><use href="#i-frame"/></svg><span class="t">Frame</span></button>
+    <button class="side-item" data-side><svg class="si"><use href="#i-dice"/></svg><span class="t">Dadu</span></button>
+    <button class="side-item" data-side><svg class="si"><use href="#i-sparkle"/></svg><span class="t">Efek</span></button>
+    <button class="side-item" data-side><svg class="si"><use href="#i-bolt"/></svg><span class="t">Power-up</span></button>
+  </div>
+
+  <!-- banner event -->
+  <button id="event" class="uvc" aria-label="Event spesial">
+    <svg class="spark" style="left:150px;top:14px" viewBox="0 0 24 24"><path d="M12 0c1 8 4 11 12 12-8 1-11 4-12 12-1-8-4-11-12-12C8 11 11 8 12 0z" fill="#fff"/></svg>
+    <svg class="spark" style="left:340px;top:100px;animation-delay:.9s;width:10px;height:10px" viewBox="0 0 24 24"><path d="M12 0c1 8 4 11 12 12-8 1-11 4-12 12-1-8-4-11-12-12C8 11 11 8 12 0z" fill="#fff"/></svg>
+    <svg class="spark" style="left:36px;top:96px;animation-delay:1.6s;width:11px;height:11px" viewBox="0 0 24 24"><path d="M12 0c1 8 4 11 12 12-8 1-11 4-12 12-1-8-4-11-12-12C8 11 11 8 12 0z" fill="#fff"/></svg>
+    <div class="slide on">
+      <svg class="ev-art" viewBox="0 0 130 104"><use href="#i-chest"/></svg>
+      <div class="ev-title t">Event Spesial</div>
+      <div class="ev-sub t">Hadiah Melimpah!</div>
+    </div>
+    <div class="slide">
+      <svg class="ev-art" viewBox="0 0 64 64"><use href="#i-trophy"/></svg>
+      <div class="ev-title t">Turnamen Mingguan</div>
+      <div class="ev-sub t">Juara dapat 500 permata</div>
+    </div>
+    <div class="slide">
+      <svg class="ev-art" viewBox="0 0 64 64"><use href="#i-gift"/></svg>
+      <div class="ev-title t">Diskon Toko</div>
+      <div class="ev-sub t">Hingga 50% hari ini</div>
+    </div>
+    <span id="ev-next"><svg viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6"/></svg></span>
+  </button>
+  <div id="ev-dots"><button class="on" aria-label="Slide 1"></button><button aria-label="Slide 2"></button><button aria-label="Slide 3"></button></div>
+
+  <!-- aksi cepat -->
+  <div class="panel uvc" id="quick">
+    <button class="qbtn uvb" data-toast="Leaderboard"><svg class="qi"><use href="#i-trophy"/></svg><span class="t">Leaderboard</span></button>
+    <button class="qbtn uvb" data-toast="Kotak surat"><svg class="qi"><use href="#i-mail"/></svg><span class="t">Mail</span><span class="dot" id="mail-badge" style="right:-5px;top:-8px">1</span></button>
+    <button class="qbtn uvb" data-toast="Misi harian"><svg class="qi"><use href="#i-calendar"/></svg><span class="t">Misi Harian</span><span class="dot pulse" style="right:-7px;top:-8px;width:21px;height:21px" data-clear></span></button>
+  </div>
+
+  <!-- mulai -->
+  <button id="go" class="btn-start uvc" aria-label="Mulai, pilih mode">
+    <svg class="pad"><use href="#i-gamepad"/></svg><span class="svgs" aria-hidden="true"><svg viewBox="0 0 256 256" class="svg-l"><use href="#spk"/></svg><svg viewBox="0 0 256 256" class="svg-s"><use href="#spk"/></svg></span>
+    <span class="mulai">MULAI!</span>
+    <span class="mode t">Pilih Mode <svg viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6"/></svg></span>
+  </button>
+
+  <!-- navigasi bawah -->
+  <div class="panel uvc" id="nav">
+    <button class="tab fr c-orange active" data-tab="Toko"><span class="inner"><i class="top-white"></i><svg class="ti"><use href="#i-shop"/></svg><span class="t">Toko</span></span></button>
+    <button class="tab fr c-blue" data-tab="Teman"><span class="inner"><i class="top-white"></i><svg class="ti"><use href="#i-people"/></svg><span class="t">Teman</span></span></button>
+    <button class="tab fr c-violet special" data-tab="Hadiah &amp; Misi"><span class="inner"><i class="top-white"></i><svg class="ti"><use href="#i-gift"/></svg><span class="t">Hadiah &amp; Misi</span></span><span class="dot pulse" style="right:34px;top:2px;width:22px;height:22px" data-clear></span></button>
+    <button class="tab fr c-green" data-tab="Tambang"><span class="inner"><i class="top-white"></i><svg class="ti"><use href="#i-gem"/></svg><span class="t">Tambang</span></span></button>
+  </div>
+  <div class="abs t" id="baru">BARU</div>
+
+  <!-- daun (lucky-mouse-99): rambatan sudut atas + semak sudut bawah, mengikuti gambar -->
+<div class="abs t" id="toast" role="status" aria-live="polite"></div>
+</div>
+</div>
+
+<script>
+(function(){
+  var wrap=document.getElementById('wrap'),stage=document.getElementById('stage');
+  function fit(){
+    var w=wrap.clientWidth,vh=window.innerHeight||0,vw=window.innerWidth||w;
+    var portrait=vw<760&&vh>vw*1.15;
+    if(portrait){
+      var s=Math.min(w/831,(vh-48)/1893);
+      stage.style.transform='translate('+((w+831*s)/2).toFixed(1)+'px,0) rotate(90deg) scale('+s+')';
+      wrap.style.height=(1893*s)+'px';
+    }else{
+      var k=w/1893;stage.style.transform='scale('+k+')';wrap.style.height=(831*k)+'px';
+    }
+  }
+  fit();
+  if(window.ResizeObserver){new ResizeObserver(fit).observe(wrap)}
+  addEventListener('resize',fit);addEventListener('orientationchange',fit);
+
+  /* lapisan card (curly-moth-56) */
+  document.querySelectorAll('.uvc').forEach(function(c){c.insertAdjacentHTML('afterbegin','<i class="uv-bg"><i class="uv-in"></i></i>')});
+
+  /* karangan daun emas */
+  function wreath(cx,cy,rx,ry,a0,a1,n,L,W){
+    var s='';
+    for(var i=0;i<n;i++){
+      var t=i/(n-1),th=(a0+(a1-a0)*t)*Math.PI/180;
+      var x=cx+rx*Math.cos(th),y=cy+ry*Math.sin(th);
+      var head=th*180/Math.PI+(a1>a0?90:-90);
+      var k=0.7+0.5*Math.sin(Math.PI*(0.12+0.76*t));
+      [-40,40].forEach(function(off){
+        s+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+(head+off).toFixed(1)+') scale('+k.toFixed(2)+')"><path class="lf lf'+((i+(off>0?1:0))%3+1)+'" d="M0 0Q'+(L/2)+' '+(-W)+' '+L+' 0Q'+(L/2)+' '+W+' 0 0Z"/></g>';
+      });
+    }
+    return '<g fill="url(#g-gold)" stroke="#8a520a" stroke-width=".9" stroke-linejoin="round">'+s+'</g>';
+  }
+
+  /* toast */
+  var toast=document.getElementById('toast'),tt;
+  function say(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},1400)}
+
+  /* menu kiri */
+  var side=[].slice.call(document.querySelectorAll('[data-side]'));
+  side.forEach(function(b){b.addEventListener('click',function(){
+    side.forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+    var d=b.querySelector('.dot');if(d)d.hidden=true;
+  })});
+
+  /* navigasi bawah */
+  var tabs=[].slice.call(document.querySelectorAll('.tab')),baru=document.getElementById('baru');
+  tabs.forEach(function(b){b.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+    if(b.dataset.tab==='Toko')baru.hidden=true;
+    say(b.dataset.tab);
+  })});
+
+  /* titik merah & lencana */
+  var mailBadge=document.getElementById('mail-badge');
+  document.addEventListener('click',function(e){
+    var host=e.target.closest('button');if(!host)return;
+    var d=host.querySelector('[data-clear]');if(d)d.hidden=true;
+    if(host.contains(mailBadge))mailBadge.hidden=true;
+  });
+  document.querySelectorAll('[data-toast]').forEach(function(b){b.addEventListener('click',function(){say(b.dataset.toast)})});
+
+  /* penambah mata uang */
+  var vals={gems:20,coins:420};
+  function countTo(id,to){
+    var el=document.getElementById(id),from=vals[id],t0=performance.now(),dur=420;
+    (function step(t){var p=Math.min(1,(t-t0)/dur);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)})(t0);
+    vals[id]=to;
+  }
+  document.querySelectorAll('.plus').forEach(function(b){b.addEventListener('click',function(){
+    var id=b.dataset.add,amt=+b.dataset.amt;countTo(id,vals[id]+amt);
+    var f=document.createElement('span');f.className='float-n';f.textContent='+'+amt;
+    f.style.left=(b.offsetLeft+6)+'px';f.style.top=(b.offsetTop-30)+'px';
+    b.parentElement.appendChild(f);setTimeout(function(){f.remove()},900);
+  })});
+
+  /* carousel event */
+  var slides=[].slice.call(document.querySelectorAll('.slide')),dots=[].slice.call(document.querySelectorAll('#ev-dots button')),cur=0,auto;
+  function show(i){cur=(i+slides.length)%slides.length;slides.forEach(function(s,k){s.classList.toggle('on',k===cur)});dots.forEach(function(d,k){d.classList.toggle('on',k===cur)})}
+  function restart(){clearInterval(auto);auto=setInterval(function(){show(cur+1)},5000)}
+  dots.forEach(function(d,k){d.addEventListener('click',function(){show(k);restart()})});
+  document.getElementById('event').addEventListener('click',function(){show(cur+1);restart()});
+  restart();
+
+  var goBtn=document.getElementById('go');goBtn.addEventListener('click',function(){say('Pilih mode permainan');goBtn.classList.add('on');setTimeout(function(){goBtn.classList.remove('on')},1600)});
+})();
+</script>
+
+</body></html>

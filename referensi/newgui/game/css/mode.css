@@ -1,0 +1,144 @@
+/* =========================================================================
+   DRAGON ROLL — PILIH MODE  (README bagian 4: mode.html)
+   Kanvas 1920x1080. Gaya sama dengan lobby.html. Aset: assets/komponen/**
+   ========================================================================= */
+:root{--panel-line:#6d6590;--font-title:'Lilita One','Baloo 2',Impact,sans-serif;--font-body:'Nunito','Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:#0e0b1c;overflow:hidden;font-family:var(--font-body);color:#fff}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;overflow:hidden;
+  background:linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%)}
+img{display:block;-webkit-user-drag:none;pointer-events:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.ttl{font-family:var(--font-title);letter-spacing:.5px;text-shadow:0 3px 0 rgba(20,10,40,.55);-webkit-text-stroke:1.5px rgba(20,10,40,.55);paint-order:stroke fill}
+#sun{position:absolute;left:-180px;top:-260px;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,235,.9),rgba(255,250,200,.3) 40%,transparent 68%)}
+#vig{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,20,60,.3),transparent 22%,transparent 72%,rgba(10,10,50,.4))}
+.cloud{position:absolute;animation:drift linear infinite;opacity:.9}
+.cloud i{position:absolute;background:#fff;border-radius:6px;box-shadow:0 8px 0 #d3ecfb inset}
+@keyframes drift{from{transform:translateX(-340px)}to{transform:translateX(2300px)}}
+
+/* ---------- header ---------- */
+#back{position:absolute;left:24px;top:18px;width:96px;height:96px}
+#back img.bg{position:absolute;inset:0;width:100%;height:100%}
+#back:active{transform:scale(.92)}
+#title{position:absolute;left:140px;top:26px;font-size:64px;line-height:1}
+.cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;
+  background:linear-gradient(180deg,#6f9db0,#4a7789);
+  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
+.cur::before{content:"";position:absolute;inset:4px;background:linear-gradient(180deg,#5b8a9d,#46758a);clip-path:polygon(19px 0,calc(100% - 19px) 0,100% 50%,calc(100% - 19px) 100%,19px 100%,0 50%)}
+.cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+.cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding:0 44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
+.cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--font-body);color:#a9cad8}
+#cur-em{left:1300px}#cur-co{left:1606px}
+
+/* ---------- carousel peta ---------- */
+#maps{position:absolute;left:40px;top:150px;width:800px;height:890px;border-radius:26px;background:rgba(38,31,62,.82);
+  border:4px solid var(--panel-line);box-shadow:inset 0 0 0 3px rgba(0,0,0,.35),0 8px 18px rgba(10,6,30,.4)}
+#maps h3{position:absolute;left:50%;top:-24px;transform:translateX(-50%);margin:0;padding:3px 34px 7px;font:400 32px var(--font-title);
+  background:linear-gradient(180deg,#8e6df0,#5b3bc4);border-radius:12px;border:3px solid #2b1a70;text-shadow:0 2px 0 rgba(20,5,70,.7);white-space:nowrap}
+#view{position:absolute;left:92px;right:92px;top:44px;height:690px;overflow:hidden;touch-action:pan-y}
+#track{display:flex;height:100%;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.map{flex:none;width:100%;padding:0 10px;position:relative}
+.map .pic{position:relative;height:100%;border-radius:20px;overflow:hidden;border:4px solid #8d85b8;box-shadow:0 6px 0 rgba(20,12,45,.55)}
+.map .pic svg{position:absolute;inset:0;width:100%;height:100%}
+.map .nm{position:absolute;left:0;right:0;bottom:0;padding:70px 0 20px;text-align:center;font-size:54px;background:linear-gradient(180deg,transparent,rgba(10,8,30,.78))}
+.map .sub{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-weight:800;font-size:22px;color:#e3defa}
+.map .tag{position:absolute;right:18px;top:18px;padding:6px 18px;border-radius:10px;font:400 26px var(--font-title);background:#f1b21f;border:3px solid #7a4a00;color:#4d2300}
+.map.locked .pic{filter:grayscale(.85) brightness(.55)}
+.map.locked .lock{display:grid}
+.lock{display:none;position:absolute;inset:0;place-items:center;z-index:3}
+.lock img{width:130px}
+.map.locked .tag{background:#cfc7ee;border-color:#4a4270;color:#2b2550}
+.arrow{position:absolute;top:340px;width:76px;height:96px;display:grid;place-items:center;transition:transform .1s,filter .1s;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+.arrow:active{transform:scale(.9);filter:brightness(1.15) drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.arrow img{width:auto;height:96px}
+#prev{left:8px}#next{right:8px}
+#dots{position:absolute;left:0;right:0;top:750px;display:flex;justify-content:center;gap:16px}
+#dots i{width:20px;height:20px;border-radius:50%;background:#3c3460;border:3px solid #8d85b8;transition:.2s}
+#dots i.on{background:#ffd45a;border-color:#7a4a00;transform:scale(1.25)}
+#mapinfo{position:absolute;left:30px;right:30px;top:790px;text-align:center;font-weight:800;font-size:24px;line-height:1.3;color:#ddd7f7}
+#mapinfo b{color:#ffd45a}
+
+/* ---------- kartu mode ---------- */
+.card{position:absolute;left:890px;width:990px;border-radius:26px;border:5px solid;box-shadow:inset 0 0 0 3px rgba(0,0,0,.3),0 10px 20px rgba(10,6,30,.45)}
+#quick{top:150px;height:420px;background:linear-gradient(180deg,#6b3fd1,#442095);border-color:#a98af5}
+#create{top:610px;height:430px;background:linear-gradient(180deg,#3fa13a,#27701f);border-color:#8bdc63}
+.card .hd{position:absolute;left:30px;top:-26px;padding:4px 42px 8px;font-size:46px;border-radius:14px;border:4px solid;box-shadow:0 5px 0 rgba(0,0,0,.35)}
+#quick .hd{background:linear-gradient(180deg,#9b78ff,#6b3fd1);border-color:#2b1a70}
+#create .hd{background:linear-gradient(180deg,#7be04a,#3fa13a);border-color:#12400e}
+.card .desc{position:absolute;right:34px;top:14px;font-weight:800;font-size:22px;color:rgba(255,255,255,.85)}
+.tiles{position:absolute;left:28px;right:28px;top:62px;bottom:26px;display:flex;gap:22px}
+.flip{position:relative;flex:1;perspective:1200px}
+.face{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;transition:transform .55s cubic-bezier(.3,.8,.3,1);
+  border:4px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.front{transform:rotateY(0)}
+.back{transform:rotateY(180deg);padding:18px 16px;gap:12px}
+.flip.open .front{transform:rotateY(-180deg)}
+.flip.open .back{transform:rotateY(0)}
+.flip.nopick{cursor:pointer}
+#quick .face{background:linear-gradient(180deg,#8a63e8,#5c34b8);border-color:#2b1a70;box-shadow:inset 0 3px 0 rgba(255,255,255,.28),0 6px 0 #2b1a70}
+#create .face{background:linear-gradient(180deg,#58b84a,#37852c);border-color:#12400e;box-shadow:inset 0 3px 0 rgba(255,255,255,.28),0 6px 0 #12400e}
+.front:active{filter:brightness(1.1)}
+.front .ic{height:176px;display:grid;place-items:center}
+.front .ic img{height:176px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45))}
+.front .ic.xl{height:196px;width:100%}
+.front .ic.xl img{height:auto;width:auto;max-height:196px;max-width:84%}
+.front .nm{font-size:44px;line-height:1}
+.front .sb{font-weight:800;font-size:20px;opacity:.85}
+.back .q{font-size:30px;line-height:1.05;text-align:center;padding:0 40px}
+.opts{display:flex;gap:10px;width:100%;flex:1;align-items:center}
+.opt{position:relative;flex:1;height:118px;display:grid;place-items:center;transition:transform .1s}
+.opt img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.opt span{position:relative;z-index:1;font:400 40px/1 var(--font-title);margin-top:-14px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.opt small{position:absolute;z-index:1;bottom:18px;left:0;right:0;text-align:center;font-weight:800;font-size:17px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.opt:active{transform:scale(.94)}
+.opt.col{flex-direction:column}
+.close{position:absolute;right:10px;top:8px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.35);font:800 26px/42px var(--font-body);text-align:center;z-index:3}
+
+/* ---------- modal cari lawan ---------- */
+#modal{position:absolute;inset:0;background:rgba(10,8,30,.7);display:none;place-items:center;z-index:40}
+#modal.on{display:grid}
+#mbox{width:760px;padding:46px 40px 40px;border-radius:26px;background:linear-gradient(180deg,#4a4272,#2c2547);border:5px solid #8d85b8;text-align:center;
+  box-shadow:0 14px 30px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#mt{font-size:56px}
+#ms{font-weight:800;font-size:26px;margin-top:14px;color:#ddd7f7}
+.spin{width:90px;height:90px;margin:28px auto 6px;border-radius:50%;border:10px solid #5a5180;border-top-color:#ffd45a;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#mplayers{display:flex;gap:18px;justify-content:center;margin-top:24px}
+#mplayers div{padding:10px 22px;border-radius:12px;background:#1b1631;border:3px solid #6d6590;font-weight:800;font-size:24px}
+#mcancel{position:relative;width:240px;height:84px;margin:28px auto 0;display:block}
+#mcancel img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#mcancel span{position:relative;font:400 38px/84px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);
+  border:3px solid #8f86bf;font-weight:800;font-size:28px;transition:.28s;z-index:60;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:70}
+#fade.on{opacity:1;pointer-events:all}
+/* animasi masuk */
+#maps{animation:inL .6s cubic-bezier(.2,.9,.2,1) both}
+#quick{animation:inR .6s .08s cubic-bezier(.2,.9,.2,1) both}#create{animation:inR .6s .18s cubic-bezier(.2,.9,.2,1) both}
+@keyframes inL{from{opacity:0;transform:translateX(-90px)}}@keyframes inR{from{opacity:0;transform:translateX(120px)}}
+/* ---- bingkai dari kit (9-slice) ---- */
+#maps{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
+#maps::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../assets/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.card{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
+.card::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../assets/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#quick .face{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
+#quick .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../assets/komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+#create .face{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
+#create .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../assets/komponen/hud/kartu-kosong-hijau.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+.card .tiles{left:34px;right:34px}
+/* ---- pita judul dari kit ---- */
+#maps h3{background:url(../assets/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+#quick .hd{background:url(../assets/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
+#create .hd{background:url(../assets/komponen/banner-label/banner-judul-hijau-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* pilihan jumlah peserta: tersusun BARIS (atas-bawah), bukan kolom */
+.opts{flex-direction:column;gap:10px;align-items:stretch;justify-content:center}
+.opt{flex:none;width:100%;height:68px;display:flex;align-items:center;justify-content:center;gap:14px}
+.opt span{margin-top:0;font-size:38px}
+.opt small{position:relative;bottom:auto;left:auto;right:auto;width:auto;font-size:20px}
+.back{padding:14px 16px 16px;gap:8px}
+.back .q{font-size:28px}

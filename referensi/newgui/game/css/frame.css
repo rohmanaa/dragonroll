@@ -1,0 +1,43 @@
+/* frame.html — memakai template karakter.css (bar atas, tab, grid, tombol). Hanya bagian khusus frame di sini. */
+
+/* preview besar + komposisi frame (bingkai kit di bawah, foto profil di dalamnya) */
+#fpv{position:absolute;left:270px;top:150px;width:420px;height:420px}
+.fr{position:relative;display:block}
+.fr .fb{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.fr .av{position:absolute;inset:13%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#5a4f82,#2c2547);clip-path:polygon(0 0,90% 0,100% 10%,100% 100%,10% 100%,0 90%)}
+.fr .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 14%}
+.fr .av img.ico{inset:14%;width:72%;height:72%;object-fit:contain}
+#fpv .fr{width:100%;height:100%;filter:drop-shadow(0 12px 10px rgba(0,0,0,.45));animation:bob2 2.4s ease-in-out infinite}
+@keyframes bob2{50%{transform:translateY(-8px)}}
+#nm{top:612px}
+#rar{position:absolute;left:190px;width:600px;top:696px;text-align:center;font:400 36px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.5)}
+#ds{position:absolute;left:190px;width:600px;top:762px;margin:0;text-align:center;font:700 26px/1.4 var(--font-body);color:#d8d2ee}
+
+/* kartu frame di grid (class sendiri supaya aturan .slot img di karakter.css tidak ikut) */
+.fslot{position:relative;width:130px;height:130px;background:url(../assets/komponen/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+.fslot:hover{filter:brightness(1.15)}
+.fslot:active{transform:scale(.95)}
+.fslot.sel{background-image:url(../assets/komponen/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.fslot .fr{position:absolute;left:50%;top:12px;width:78px;height:78px;transform:translateX(-50%)}
+.fslot.lk .fr{opacity:.55}
+.fslot .tag{z-index:2;position:absolute;right:6px;top:6px;padding:1px 7px;border-radius:5px;background:#2c9a3a;border:2px solid #9be86a;font:400 15px/1.2 var(--font-title);text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.fslot .pr{position:absolute;left:0;right:0;bottom:7px;display:flex;justify-content:center;align-items:center;gap:4px;font:400 22px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.7)}
+.fslot .pr img{width:26px;height:26px;object-fit:contain}
+.fslot .pr.no img{width:22px;height:22px;opacity:.8}
+
+/* tombol aksi */
+#use{width:340px}
+#use span{display:flex;align-items:center;justify-content:center;gap:8px}
+#use span img{position:static;inset:auto;width:46px;height:46px;object-fit:contain}
+
+/* modal */
+#md{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:none;align-items:center;justify-content:center}
+#md.on{display:flex}
+#box{position:relative;width:820px;height:440px;margin-top:20px}
+#box>h3{font-size:40px}
+#mx{position:absolute;left:50px;right:50px;top:90px;margin:0;text-align:center;font:700 34px/1.4 var(--font-body);color:#fff}
+#mbtns{position:absolute;left:0;right:0;bottom:36px;display:flex;justify-content:center;gap:40px}
+#mbtns .btn{width:330px;height:100px}
+#mbtns .btn span{font-size:32px}
+/* tanpa tab kategori (frame, dadu): grid naik ke atas */
+body.notabs #grid{top:150px}

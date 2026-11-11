@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dragon Roll — Lobby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/lobby.css">
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+
+  <!-- ===== dunia: langit + pulau melayang + karakter ===== -->
+  <div id="sun"></div>
+  <div class="cloud" style="top:340px;animation-duration:95s;animation-delay:-30s"><i style="left:0;top:30px;width:150px;height:36px"></i><i style="left:30px;top:6px;width:96px;height:36px"></i></div>
+  <div class="cloud" style="top:560px;animation-duration:130s;animation-delay:-90s"><i style="left:0;top:30px;width:210px;height:40px"></i><i style="left:50px;top:4px;width:120px;height:40px"></i></div>
+  <div class="cloud" style="top:760px;animation-duration:110s;animation-delay:-10s"><i style="left:0;top:26px;width:130px;height:30px"></i><i style="left:24px;top:2px;width:80px;height:30px"></i></div>
+  <div class="cloud" style="top:150px;animation-duration:150s;animation-delay:-60s"><i style="left:0;top:30px;width:180px;height:36px"></i><i style="left:36px;top:6px;width:100px;height:36px"></i></div>
+
+  <div id="vig"></div>
+  <svg id="world" viewBox="0 0 1920 1080" aria-label="Pulau melayang dengan karakter pemain">
+    <ellipse cx="960" cy="1010" rx="260" ry="34" fill="rgba(20,60,110,.18)"/>
+    <g id="island"></g>
+  </svg>
+  <div id="hint" class="t-title">Ketuk karakter!</div>
+
+  <!-- ===== profil ===== -->
+  <div id="profile" data-act="profil" role="button" aria-label="Profil">
+    <div id="avatar"><img id="avatarImg" src="assets/komponen/karakter-monster/hero-shuri-pemanah.webp" alt=""></div>
+    <svg id="lvl" viewBox="0 0 74 86">
+      <defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4d8fe6"/><stop offset="1" stop-color="#1b4aa8"/></linearGradient></defs>
+      <path d="M37 2 L70 12 V44 C70 62 54 76 37 84 C20 76 4 62 4 44 V12 Z" fill="#cfd5e3" stroke="#222a45" stroke-width="3"/>
+      <path d="M37 9 L63 17 V44 C63 58 50 69 37 76 C24 69 11 58 11 44 V17 Z" fill="url(#gs)" stroke="#12285e" stroke-width="2"/>
+    </svg>
+    <div id="lvl" style="pointer-events:none"><b class="t-title" id="lvnum">1</b></div>
+    <div id="pname" class="t-title"><span id="nm">Pemain</span><img src="assets/komponen/bendera-bahasa/bendera-inggris.webp" alt="bendera"></div>
+    <div id="xp"><div id="xpfill"></div><div id="xptxt">—</div></div>
+    <div id="xpnote"></div>
+  </div>
+
+  <!-- ===== Emerald & Coin ===== -->
+  <div class="cur" id="cur-em" data-act="tambang" role="button" aria-label="Emerald, buka Tambang">
+    <img src="assets/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
+  </div>
+  <div class="cur" id="cur-co" data-act="beliCoin" role="button" aria-label="Coin, buka Toko">
+    <img src="assets/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
+  </div>
+
+  <!-- ===== MAIL, LEADERBOARD, SETTINGS ===== -->
+  <button class="round" id="b-mail" data-act="mail" aria-label="Mail">
+    <img class="bg" src="assets/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/komponen/ikon-item/surat-segel.webp" alt="">
+    <span class="dot sm" id="mailDot"></span>
+  </button>
+  <button class="round" id="b-lead" data-act="leaderboard" aria-label="Leaderboard">
+    <img class="bg" src="assets/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/komponen/ikon-item/podium.webp" alt="">
+  </button>
+  <button class="round" id="b-set" data-act="settings" aria-label="Pengaturan">
+    <img class="bg" src="assets/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/komponen/ikon-item/gir.webp" alt="">
+  </button>
+
+  <!-- ===== misi harian ===== -->
+  <div class="panel" id="quest" data-act="hadiahMisi" role="button">
+    <img src="assets/komponen/ikon-item/gulungan-misi.webp" alt="">
+    <div><div class="q1">Misi Harian</div><div class="q2">Raih 3 kemenangan &middot; 1/3</div></div>
+    <div class="qb"><i></i></div>
+  </div>
+
+  <!-- ===== grup koleksi ===== -->
+  <div class="panel" id="koleksi">
+    <h3>KOLEKSI</h3>
+    <button class="tile small" data-act="karakter"><div class="ico"><img src="assets/komponen/ikon-item/helm-ksatria.webp" alt=""></div><div class="lb">Karakter</div></button>
+    <button class="tile small" data-act="frame"><div class="ico"><img src="assets/komponen/new-icon/frame.webp" alt=""></div><div class="lb">Frame</div></button>
+    <button class="tile small" data-act="dadu"><div class="ico"><img src="assets/komponen/new-icon/dadu.webp" alt=""></div><div class="lb">Dadu</div></button>
+    <button class="tile small" data-act="efek"><div class="ico"><img src="assets/komponen/ikon-gem-medali/kristal-api.webp" alt=""></div><div class="lb">Efek</div></button>
+    <button class="tile small" data-act="powerup"><div class="ico"><img src="assets/komponen/ikon-gem-medali/petir-ungu.webp" alt=""></div><div class="lb">Power-up</div></button>
+    <button class="tile small" data-act="pet"><div class="ico"><img class="glyph" src="assets/komponen/glyph-putih/telapak-kaki.webp" alt=""></div><div class="lb">Pet</div></button>
+  </div>
+
+  <!-- ===== hadiah gratis (kanan) ===== -->
+  <div id="side">
+    <div class="sidecard" data-act="hadiahGratis" role="button">
+      <span class="tag">GRATIS</span>
+      <img src="assets/komponen/ikon-gem-medali/televisi.webp" alt=""><div class="tm">Hadiah gratis<br><b id="fgT">2j 59m</b></div>
+    </div>
+    <div class="sidecard" data-act="chest" role="button">
+      <span class="tag">GRATIS</span>
+      <img src="assets/komponen/ikon-gem-medali/peti-biru-gem.webp" alt=""><div class="tm">Chest<br><b>Buka sekarang</b></div>
+    </div>
+    <div class="sidecard soon" data-act="babi" role="button">
+      <span class="tag pk">FULL</span><span class="tag sn">SOON</span>
+      <img src="assets/komponen/ikon-gem-medali/celengan-babi.webp" alt=""><div class="tm">Celengan<br><b>Segera hadir</b></div>
+    </div>
+  </div>
+
+  <!-- ===== navigasi bawah ===== -->
+  <div id="nav">
+    <button class="tile big" data-act="toko"><div class="ico"><img src="assets/komponen/ikon-item/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
+    <button class="tile big" data-act="teman"><div class="ico"><img class="fr" src="assets/komponen/new-icon/freinds.webp" alt=""></div><div class="lb">TEMAN</div><span class="dot sm" id="friendDot" hidden></span></button>
+    <button class="tile big" data-act="hadiahMisi"><div class="ico"><img src="assets/komponen/ikon-item/gulungan-misi.webp" alt=""></div><div class="lb" style="font-size:22px">HADIAH &amp; MISI</div><span class="dot sm" id="questDot"></span></button>
+    <button class="tile big" data-act="tambang"><div class="ico"><img src="assets/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""></div><div class="lb">TAMBANG</div></button>
+    <button class="tile big locked" data-act="guild"><div class="ico"><img src="assets/komponen/ikon-item/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/komponen/glyph-putih/gembok.webp" alt=""></button>
+  </div>
+
+  <!-- ===== MULAI! ===== -->
+  <button id="go" data-act="mulai" aria-label="Mulai">
+    <img src="assets/komponen/tombol-dan-kontrol/tombol-play-lobby.webp" alt="">
+    <span>MULAI!</span>
+  </button>
+
+  <div id="toast"></div>
+  
+</div>
+</div>
+
+<div id="fade"></div>
+<script src="js/heroes.js"></script>
+<script src="js/lobby.js"></script>
+</body>
+</html>
