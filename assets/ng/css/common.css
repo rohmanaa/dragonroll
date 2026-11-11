@@ -1,0 +1,30 @@
+/* Gaya bersama halaman game/ (kanvas 1920x1080 yang diskalakan) */
+:root{--ink:#1b1430;--panel:rgba(38,31,62,.88);--panel-line:#6d6590;--gold:#ffd45a;--font-title:'Lilita One',Impact,sans-serif;--font-body:'Nunito','Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:#0e0b1c;overflow:hidden;font-family:var(--font-body);color:#fff}
+#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;overflow:hidden}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.t-title{font-family:var(--font-title);letter-spacing:.5px;text-shadow:0 3px 0 rgba(20,10,40,.55);-webkit-text-stroke:1.5px rgba(20,10,40,.55);paint-order:stroke fill}
+.gbtn{border-radius:18px;border:4px solid rgba(0,0,0,.45);font-size:40px;padding:12px 0;box-shadow:inset 0 4px 0 rgba(255,255,255,.35),0 6px 0 rgba(20,12,45,.6);transition:transform .1s,filter .1s}
+.gbtn:active{transform:translateY(4px);box-shadow:inset 0 4px 0 rgba(255,255,255,.35),0 2px 0 rgba(20,12,45,.6)}
+.gbtn.green{background:linear-gradient(180deg,#78e36b,#2f9f3d)}
+.gbtn.blue{background:linear-gradient(180deg,#6cb7ff,#2f67c7)}
+.gbtn.red{background:linear-gradient(180deg,#ff7a8a,#c9283f)}
+.gbtn:disabled{filter:grayscale(.8) brightness(.7);cursor:not-allowed}
+.round{width:84px;height:84px;border-radius:50%;background:linear-gradient(180deg,#8e6df0,#5b3bc4);border:4px solid #2b1a70;font-size:38px}
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .3s;z-index:99}
+#fade.on{opacity:1;pointer-events:all}
+/* Penengah kanvas: tetap di tengah walau layar lebih kecil dari 1920x1080 (grid "safe" align membuatnya bergeser) */
+#wrap{display:block!important}
+#stage{position:absolute!important;left:50%!important;top:50%!important;margin:-540px 0 0 -960px!important;transform-origin:center center!important}
+
+/* overlay transisi: di luar #stage (yang di-scale) supaya menutupi SELURUH layar, bukan hanya kontainer */
+#fade{position:fixed!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:auto!important;height:auto!important;z-index:9999!important;background:#000;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1;pointer-events:all}
+
+/* Latar modal PENUH layar: overlay modal hanya menutupi #stage (1920x1080 yang diskalakan), sehingga di layar dengan rasio lain
+   tepi kiri/kanan atau atas/bawah tetap terang. Overlay ini berada di bawah #wrap dan menggelapkan seluruh viewport selama modal terbuka (alpha lebih tinggi agar sama gelap dengan area #stage yang kena dua lapis). */
+#wrap{z-index:1}
+body:has(.modal.on,#modal.on,#confirm.on,#lang.on,#dlg.on,#authmodal.on,#md.on)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(10,8,30,.93)}
+body:has(#ad.on)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(0,0,0,.92)}
