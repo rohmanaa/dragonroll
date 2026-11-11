@@ -3633,7 +3633,7 @@ const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): sekarang
 const TOWER_SPOTS=[[-5.25,-5.25],[5.25,-5.25],[5.25,5.25],[-5.25,5.25],[-5.25,0],[5.25,0]]; /* urutan = End Crystal 1..6 */
 const TOWER_BASE=1.15,TOWER_H=2.15,TOWER_CRY=TOWER_BASE+TOWER_H+0.55; /* dasar = permukaan bingkai luar; crystal melayang di atas kepala tower */
 const CC_N=4,CC_R=1.5,CC_Y=1.9,CC_TOP=3.7; /* 4 crystal pembangkit: cincin di tengah papan; titik naga bangkit di atasnya */
-const FLY={on:false,a:0,blend:0,cx:0,cz:0.8,rx:4.6,rz:2.8,y:4.2,spd:0.2}; /* jalur terbang naga: angka delapan di atas area papan; blend 0 = melayang di titik bangkit, 1 = di jalur */
+const FLY={on:false,a:0,blend:0,cx:0,cz:0.8,rx:4.6,rz:2.8,y:9.5,spd:0.2}; /* tinggi y 9.5 = setinggi awan (awan y 7.5-12). jalur terbang naga: angka delapan di atas area papan; blend 0 = melayang di titik bangkit, 1 = di jalur */
 const QUAKE={amp:0}; /* getar kamera saat gempa */
 var CORNERF=[]; /* api 4 sudut papan: diganti tower saat Awakening */
 const ease3=k=>k*k*(3-2*k);
