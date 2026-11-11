@@ -1,125 +1,45 @@
 <!DOCTYPE html>
-<html lang="id" class="stage16">
-<head><script src="assets/js/frame-guard.js"></script>
-<script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script>
-<meta charset="utf-8">
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script>
+<script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tambang — Voxel Game</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script>
-<style>
-:root{--ol:#08112b;--nv1:#2d62c8;--nv2:#173c94;--g1:#6fd45a;--g2:#3f9d3a;--y1:#ffc83a;--y2:#f08215;--curbar-top:0;--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.2rem;--cur-minw:11rem;--cur-gap:2.4rem}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html{font-size:min(1vw,1.78vh)}
-html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:radial-gradient(ellipse at 50% 30%,#2b3a63,#141b33 70%,#0b1020)}
-button{font:inherit;color:inherit;cursor:pointer}
-#page{position:absolute;inset:0;display:flex;flex-direction:column;padding:1.6rem 2rem 2rem;gap:1.2rem}
-#bar{display:flex;align-items:center;gap:1.4rem;flex:none;min-height:5rem}
-.ib{width:4.8rem;height:4.8rem;padding:0;border-radius:1.4rem;display:grid;place-items:center;border:.25rem solid var(--ol);background:linear-gradient(#4a8cf0,#2255c0);box-shadow:0 .35rem 0 var(--ol),inset 0 .2rem .2rem rgba(255,255,255,.35);flex:none}
-.ib:active{translate:0 .2rem;box-shadow:0 .15rem 0 var(--ol)}
-.ib img{width:3.4rem;height:3.4rem;object-fit:contain;pointer-events:none}
-.ib svg{width:3rem;height:3rem}
-#title{display:flex;align-items:center;gap:1rem;font-size:2.8rem;line-height:1;padding:.7rem 2rem;border-radius:1.4rem;border:.25rem solid var(--ol);background:linear-gradient(#3d7be0,#1d4aae);box-shadow:0 .35rem 0 var(--ol);text-shadow:0 .18rem 0 var(--ol)}
-#title img{width:3.6rem;height:3.6rem}
-#sum{font-size:1.8rem;padding:.5rem 1.6rem;border-radius:1.2rem;background:rgba(8,17,43,.55);border:.18rem solid rgba(255,255,255,.18);white-space:nowrap}
-#sum b{color:#7dff9a}
-#sp{flex:1}
-html body #bar .ut-curbar{position:static;translate:none;pointer-events:auto;margin-right:.6rem}
-#main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 36rem;gap:1.8rem}
-#stage{position:relative;min-width:0;min-height:0;border-radius:1.6rem;overflow:hidden;border:.3rem solid var(--ol);background:linear-gradient(#4aa8f5 0%,#8fd4ff 55%,#d6f2ff 100%);box-shadow:0 .4rem 0 var(--ol)}
-#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
-.chip{position:absolute;z-index:3;translate:-50% -100%;display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:5.6rem;padding:.4rem 1rem .5rem;border-radius:1.2rem;border:.2rem solid var(--ol);background:linear-gradient(#3d7be0,#1d4aae);box-shadow:0 .25rem 0 var(--ol);font-size:1.7rem;line-height:1;transition:scale .15s}
-.chip.on{background:linear-gradient(var(--y1),var(--y2));scale:1.14}
-.chip .cs{font-size:1.7rem}
-.chip .cb{width:4.4rem;height:.8rem;border-radius:.4rem;background:#0a1740;overflow:hidden;display:block}
-.chip .cb u{display:block;height:100%;width:0;background:linear-gradient(#6fe86f,#2ea82e)}
-.chip[data-st=full] .cb u{background:linear-gradient(#ffd24d,#f08215)}
-.chip[data-st=locked] .cb{display:none}
-.fxw{position:absolute;width:0;height:0;pointer-events:none;z-index:2}
-#panel{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:auto}
-.slot{display:none;min-width:0;min-height:0;flex-direction:column;gap:.8rem;position:relative}
-.slot.sel{display:flex}
-.fx{position:absolute;width:0;height:0;pointer-events:none;z-index:2;display:none}
-.fxw.work .fx.w,.fxw.full .fx.z{display:block}
-.fx.w img{position:absolute;left:0;bottom:0;width:2.6rem;height:2.6rem;opacity:0;object-fit:contain;animation:rise 2.2s ease-out infinite;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.4))}
-.fx.w img:nth-child(2){animation-delay:.73s;--dx:1.6rem}.fx.w img:nth-child(3){animation-delay:1.46s;--dx:-1.4rem}.fx.w img:nth-child(1){--dx:.2rem}
-.fxw.boost .fx.w img{animation-duration:1.1s}
-@keyframes rise{0%{transform:translate(-50%,0) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx,0)),-6.5rem) scale(1.15) rotate(24deg);opacity:0}}
-.fx.z b{position:absolute;left:0;bottom:0;font-size:2.6rem;color:#cfe3ff;text-shadow:0 .18rem 0 var(--ol);opacity:0;animation:zz 2.6s ease-in-out infinite}
-.fx.z b:nth-child(2){animation-delay:.9s;font-size:2rem}.fx.z b:nth-child(3){animation-delay:1.8s;font-size:1.6rem}
-@keyframes zz{0%{transform:translate(0,0);opacity:0}20%{opacity:1}100%{transform:translate(2.4rem,-5rem);opacity:0}}
-.pop{position:absolute;z-index:4;pointer-events:none;font-size:3rem;color:#7dff9a;text-shadow:0 .2rem 0 var(--ol);animation:pop 1.3s ease-out forwards;display:flex;align-items:center;gap:.4rem;translate:-50% 0}
-.pop img{width:3.2rem;height:3.2rem}
-@keyframes pop{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:1;transform:translateY(-1.2rem) scale(1.15)}100%{transform:translateY(-8rem) scale(1);opacity:0}}
-.card{flex:none;border-radius:1.6rem;border:.3rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2));box-shadow:0 .4rem 0 var(--ol),inset 0 .2rem .2rem rgba(255,255,255,.3);padding:1.1rem 1.3rem 1.3rem;display:flex;flex-direction:column;gap:.7rem;min-height:18rem}
-.hd{display:flex;justify-content:space-between;align-items:center;gap:.6rem;font-size:2rem;line-height:1;white-space:nowrap}
-.hd small{font-size:1.3rem;opacity:.85;text-align:right}
-.rt{display:flex;align-items:center;gap:.7rem;font-size:2.2rem;line-height:1}
-.rt img{width:3rem;height:3rem}
-.rt small{font-size:1.5rem;opacity:.85}
-.bst{margin-left:auto;font-size:1.5rem;padding:.2rem .9rem;border-radius:.9rem;background:linear-gradient(var(--y1),var(--y2));border:.16rem solid var(--ol);text-shadow:0 .1rem 0 rgba(0,0,0,.4);display:none}
-.slot.boost .bst{display:block;animation:bs .9s ease-in-out infinite}
-@keyframes bs{50%{scale:1.1}}
-.bar{position:relative;height:3rem;border-radius:1.5rem;background:#0a1740;border:.2rem solid var(--ol);overflow:hidden}
-.bar i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(#6fe86f,#2ea82e);transition:width .4s}
-.slot.full .bar i{background:linear-gradient(#ffd24d,#f08215)}
-.bar span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.7rem;text-shadow:0 .12rem 0 rgba(0,0,0,.6)}
-.eta{font-size:1.4rem;opacity:.9;text-align:center;line-height:1;white-space:nowrap}
-.btn{border:.25rem solid var(--ol);border-radius:1.1rem;padding:.5rem .6rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;text-shadow:0 .14rem 0 rgba(0,0,0,.4);box-shadow:0 .3rem 0 var(--ol),inset 0 .15rem .15rem rgba(255,255,255,.4)}
-.btn:active:not(:disabled){translate:0 .2rem;box-shadow:0 .1rem 0 var(--ol)}
-.btn b{font-size:1.6rem}.btn small{font-size:1.4rem;display:flex;align-items:center;gap:.3rem}.btn small img{width:1.8rem;height:1.8rem}
-.take{height:4.8rem;font-size:2.2rem;flex-direction:row;gap:.8rem;background:linear-gradient(var(--g1),var(--g2))}
-.take img{width:3rem;height:3rem}
-.row{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
-.row .btn{height:5.6rem}
-.y{background:linear-gradient(var(--y1),var(--y2))}.bl{background:linear-gradient(#5aa0ff,#2b62d4)}
-.btn:disabled{filter:grayscale(.85) brightness(.8);cursor:default}
-.btn.poor:not(:disabled) small{color:#ffb3b3}
-.opn{height:5.4rem;font-size:2rem;flex-direction:row;gap:.8rem;background:linear-gradient(var(--y1),var(--y2))}
-.opn img{width:2.8rem;height:2.8rem}
-.msg{text-align:center;font-size:1.9rem;line-height:1.3;padding:1rem}
-#toast{position:fixed;left:50%;bottom:2.5rem;translate:-50% 2rem;background:linear-gradient(var(--nv1),var(--nv2));padding:.7rem 2rem;border-radius:.9rem;border:.25rem solid var(--ol);font-size:2.2rem;opacity:0;transition:opacity .3s,translate .35s;pointer-events:none;z-index:50;white-space:nowrap}
-#toast.on{opacity:1;translate:-50% 0}
-@media (max-aspect-ratio:1/1){
-  html{font-size:2.5vw}
-  html,body{overflow:auto}
-  #page{position:relative;inset:auto;min-height:100%}
-  #bar{flex-wrap:wrap}#sp{display:none}#sum{order:9;width:100%;text-align:center}
-  #main{grid-template-columns:1fr;flex:none}
-  #stage{flex:none;aspect-ratio:10/7.2;min-height:0}
-  #panel{overflow:visible}
-}
-@media (prefers-reduced-motion:reduce){.fx.w img,.fx.z b,.bst{animation:none!important}.chip{transition:none}}
-</style>
-<link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
+<title>Tambang — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/sub.css"><link rel="stylesheet" href="assets/ng/css/tambang.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
 </head>
-<body>
-<div id="page">
-  <header id="bar">
-    <button class="ib" id="back" aria-label="Kembali"><img src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
-    <div id="title"><img src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">Tambang</div>
-    <div id="sum" aria-live="polite">Memuat…</div>
-    <div id="sp"></div>
-    <div class="ut-curbar">
-      <div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false"><span id="gemV"></span></div>
-      <div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false"><span id="coinV"></span><button class="plus" id="plusCoin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
+<body class="dm">
+<div id="wrap"><div id="stage">
+  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Tambang</div>
+  <div class="cur" id="cur-em"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
+  <div id="sum" aria-live="polite">Memuat…</div>
+  <div id="isl"><canvas id="cv"></canvas></div>
+  <div id="slots"></div>
+  <div id="md"><div class="panel" id="box">
+    <h3 id="mt"></h3><p id="mx"></p>
+    <div id="mbtns">
+      <button class="btn" id="m-no"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span></span></button>
+      <button class="btn" id="m-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span></span></button>
     </div>
-    <button class="ib" id="home" aria-label="Beranda (lobby)"><svg viewBox="0 0 24 24" fill="none"><path d="M3.6 11.4 12 4l8.4 7.4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.4V19a1 1 0 0 0 1 1h3.4v-5.2h3.2V20H17a1 1 0 0 0 1-1v-8.6" fill="#fff"/></svg></button>
-  </header>
-  <main id="main"><div id="stage"><canvas id="cv"></canvas></div><div id="panel"></div></main>
-</div>
-<div id="toast" role="status"></div>
+  </div></div>
+  <div id="toast" role="status"></div>
+</div></div>
+<div id="fade"></div>
 
-<script src="assets/js/landscape.js"></script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/blocky-character.js"></script>
 <script src="assets/js/mine-island.js"></script>
 <script src="assets/js/mine-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
+<script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'tambang'});</script>
 <script>
 (()=>{
@@ -141,10 +61,10 @@ const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','lea
 const FROM=(()=>{const f=new URLSearchParams(location.search).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
 $('#back').addEventListener('click',()=>{playSound();location.href=FROM});
 $('#home').addEventListener('click',()=>{playSound();location.href='lobby.html'});
-$('#plusCoin').addEventListener('click',()=>{playSound();location.href='shop.html?coin=1'});
+$('#cur-co').addEventListener('click',()=>{playSound();location.href='shop.html?coin=1'});
 
 /* ---------- saldo ---------- */
-function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
+function renderCurrency(){$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();tick(true)}catch(e){}})}}catch(e){}
 renderCurrency();
 
@@ -170,36 +90,37 @@ async function load(){
 }
 function showErr(reason){
   $('#sum').textContent='—';
-  $('#panel').innerHTML='<div class="card" style="align-items:center"><div class="msg">'+(MSG[reason]||'Gagal memuat tambang.')+'</div><button class="btn y" id="retry" style="height:5rem;padding:0 2.4rem;font-size:2rem">Coba lagi</button></div>';
+  $('#slots').innerHTML='<section class="slot err"><div class="msg">'+(MSG[reason]||'Gagal memuat tambang.')+'</div><button class="btn y" id="retry" style="width:300px;height:84px"><img src="'+BG+'tombol-biru-polos.webp" alt=""><span>Coba lagi</span></button></section>';
   $('#retry').onclick=()=>{$('#sum').textContent='Memuat…';load()};
 }
 
 /* ---------- UI slot ---------- */
-const EM='assets/Images/icon/currency/emerald.webp',CN='assets/Images/icon/currency/coin.webp',LK='assets/Images/icon/ui/lock.webp';
+const EM='assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp',CN='assets/ng/komponen/hud/ikon-koin-emas.webp',LK='assets/ng/komponen/glyph-putih/gembok.webp',BG='assets/ng/komponen/tombol-dan-kontrol/';
 function slotHTML(i){
   const s=ST.slots[i-1];
-  if(!s.unlocked)return '<div class="card"><div class="hd"><b>Penambang '+i+'</b><small>'+f2(s.base_rate)+' /jam (Lv1)</small></div><div class="msg" style="padding:.4rem">Buka supaya penambang mulai menggali.</div>'
-    +'<button class="btn opn" data-a="unlock"><span>Buka</span><img src="'+CN+'" alt=""><span>'+fmt(s.unlock_cost)+'</span></button></div>';
+  if(!s.unlocked)return '<div class="hd ttl">TAMBANG '+i+'</div><img class="big" src="'+LK+'" alt=""><div class="msg">Buka supaya penambang mulai menggali.<br><small>'+f2(s.base_rate)+' /jam (Lv1)</small></div>'
+    +'<button class="btn opn" data-a="unlock"><img src="'+BG+'tombol-kuning-polos.webp" alt=""><span><img src="'+CN+'" alt="">'+fmt(s.unlock_cost)+'</span></button>';
   const mx=ST.config,b=s.boost;
-  const up=(a,label,lv,cost)=>cost==null?'<button class="btn bl" data-a="'+a+'" disabled><b>'+label+' MAX</b><small>Lv '+lv+'/5</small></button>'
-    :'<button class="btn bl" data-a="'+a+'"><b>'+label+' Lv '+(lv+1)+'</b><small><img src="'+CN+'" alt="">'+fmt(cost)+'</small></button>';
-  return '<div class="card"><div class="hd"><b>Penambang '+i+'</b><small>Kec. Lv '+s.speed_lv+' · Peti Lv '+s.cap_lv+'</small></div>'
+  const up=(a,label,lv,cost)=>cost==null?'<button class="btn up bl" data-a="'+a+'" disabled><b>'+label+' MAKS</b><small>Lv '+lv+'/5</small></button>'
+    :'<button class="btn up bl" data-a="'+a+'"><b>'+label+' Lv '+(lv+1)+'</b><small><img src="'+CN+'" alt="">'+fmt(cost)+'</small></button>';
+  return '<div class="hd ttl">TAMBANG '+i+'</div><div class="sb">Kec. Lv '+s.speed_lv+' · Peti Lv '+s.cap_lv+'</div>'
     +'<div class="rt"><img src="'+EM+'" alt=""><b class="rv"></b><small>/jam</small><span class="bst">⚡ x'+mx.boost_mult+'</span></div>'
     +'<div class="bar"><i></i><span class="bt"></span></div><div class="eta"></div>'
-    +'<button class="btn take" data-a="collect"><img src="'+EM+'" alt=""><span class="tk"></span></button>'
-    +'<div class="row"><button class="btn y" data-a="boost"><b class="bl2">Percepat</b><small class="bs"></small></button>'+up('speed','Kecepatan',s.speed_lv,s.next_speed_cost)+up('cap','Peti',s.cap_lv,s.next_cap_cost)+'</div></div>';
+    +'<div class="acts"><button class="btn take" data-a="collect"><img src="'+BG+'tombol-hijau-polos.webp" alt=""><span><img src="'+EM+'" alt=""><span class="tk"></span></span></button>'
+    +'<button class="btn y" data-a="boost"><img src="'+BG+'tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
+    +'<div class="ups">'+up('speed','Kecepatan',s.speed_lv,s.next_speed_cost)+up('cap','Peti',s.cap_lv,s.next_cap_cost)+'</div>';
 }
 function buildAll(){
-  const p=$('#panel');p.innerHTML='';
+  const p=$('#slots');p.innerHTML='';
   [1,2,3].forEach(i=>{const e=document.createElement('section');e.className='slot'+(i===SEL?' sel':'');e.dataset.s=i;e.innerHTML=slotHTML(i);p.appendChild(e)});
   $$('.slot').forEach(e=>{
-    e.addEventListener('click',ev=>{const b=ev.target.closest('[data-a]');if(b&&!b.disabled)act(+e.dataset.s,b.dataset.a,b)});
+    e.addEventListener('click',ev=>{const b=ev.target.closest('[data-a]');if(b&&!b.disabled)pre(+e.dataset.s,b.dataset.a,b)});
   });
   buildOverlay();mountIsland();select(SEL,true);tick(true);
 }
 /* label di atas tiap gundukan (ketuk = pilih slot) + wadah efek DOM (ikon emerald naik / Zzz) di atas kepala penambang */
 function buildOverlay(){
-  const st=$('#stage');if($('.chip',st))return;
+  const st=$('#isl');if($('.chip',st))return;
   [1,2,3].forEach(i=>{
     const fw=document.createElement('div');fw.className='fxw';fw.dataset.s=i;
     fw.innerHTML='<div class="fx w">'+('<img src="'+EM+'" alt="">').repeat(3)+'</div><div class="fx z"><b>Z</b><b>z</b><b>z</b></div>';st.appendChild(fw);
@@ -246,6 +167,18 @@ function tick(force){
   $('#sum').innerHTML=open?'Total <b>'+f2(total)+'</b>/jam · ≈ <b>'+f1(total*24)+'</b>/hari':'Buka tambang pertamamu';
 }
 
+/* modal konfirmasi: Buka & Upgrade memakai Coin; Percepat/Ambil langsung seperti sebelumnya. Server tetap yang memutuskan (saldo-kurang dll). */
+let okFn=null;
+function ask(t,x,noL,okL,ok){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#md').classList.add('on')}
+const closeM=()=>$('#md').classList.remove('on');
+$('#m-no').onclick=closeM;$('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};$('#md').onclick=e=>{if(e.target.id==='md')closeM()};
+function pre(i,a,btn){
+  if(a==='collect'||a==='boost'){act(i,a,btn);return}
+  const s=ST.slots[i-1],c=a==='unlock'?s.unlock_cost:a==='speed'?s.next_speed_cost:s.next_cap_cost,nm=a==='speed'?'Kecepatan':'Peti';
+  if(c==null){act(i,a,btn);return}
+  if(PD.walletReady()&&PD.coins()<c){ask('Coin tidak cukup','Butuh '+fmt(c)+' Coin'+(a==='unlock'?' untuk membuka tambang ini.':' untuk upgrade '+nm+'.')+'<br>Saldo kamu '+fmt(PD.coins())+' Coin.','TUTUP','DAPATKAN COIN',()=>{location.href='shop.html?coin=1'});return}
+  ask('Konfirmasi',a==='unlock'?'Buka Tambang '+i+'<br>seharga '+fmt(c)+' Coin?':'Upgrade '+nm+' ke Lv '+((a==='speed'?s.speed_lv:s.cap_lv)+1)+'<br>seharga '+fmt(c)+' Coin?','BATAL',a==='unlock'?'BUKA':'UPGRADE',()=>act(i,a,btn));
+}
 async function act(i,a,btn){
   playSound();buzz();
   const M=MS();if(!M)return;
@@ -267,7 +200,7 @@ async function act(i,a,btn){
   renderCurrency();tick(true);
 }
 function popAt(i,txt){
-  const st=$('#stage'),p=document.createElement('div');p.className='pop';p.innerHTML='<img src="'+EM+'" alt=""><b>'+txt+'</b>';
+  const st=$('#isl'),p=document.createElement('div');p.className='pop';p.innerHTML='<img src="'+EM+'" alt=""><b>'+txt+'</b>';
   const q=isl?isl.project(i,'head'):{x:0,y:0},w=st.clientWidth,h=st.clientHeight;
   p.style.left=((q.x+1)/2*w)+'px';p.style.top=((1-q.y)/2*h-20)+'px';st.appendChild(p);setTimeout(()=>p.remove(),1400)}
 
@@ -331,8 +264,12 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ST)load()
 setInterval(()=>{if(!document.hidden&&ST)load()},30000);
 setInterval(()=>tick(),500);
 
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
+addEventListener('resize',fit);fit();
+try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}}}catch(e){}
 if(!MS()){showErr('mode-lokal')}else load();
 })();
+
 </script>
 </body>
 </html>

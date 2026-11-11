@@ -40,7 +40,8 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 4b. `room` | **Selesai (belum dicek visual di browser)** — logika room lama dipertahankan (RoomService/Presence/PlayerData/RoomFlow, power per map, avatar wajah+frame); tampilan newgui; drawer undang teman jadi modal; semua tes lulus; sw v65 |
 | 5. `settings`, `shop`, `splash`(login asli) | Belum |
 | 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum |
-| 7. profile, leaderboard, friendship, misi (hadiah-misi), tambang | Belum |
+| 7a. `tambang` | **Selesai (belum dicek visual di browser)** — pulau 3D asli (mine-island) di atas + 3 kartu gaya newgui; data/aksi lewat `MineService`; konfirmasi biaya untuk Buka/Upgrade; sw v66. Aset bersama `page.css`/`sub.css` sudah ada di `assets/ng/css/` |
+| 7b. profile, leaderboard, friendship, misi (hadiah-misi) | Belum |
 | 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum |
 | 9. gameplay: hanya HUD/feedback | Terakhir |
 
