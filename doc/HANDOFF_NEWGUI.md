@@ -1,7 +1,18 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 11 Nov 2026 (room selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+
+---
+
+## 0. Ringkas (baca ini dulu)
+
+- **Tugas:** pindahkan tampilan `newgui` ke `dragonroll`, satu halaman per commit, di branch **`ui-newgui`** (jangan push ke `main`: CI deploy DB ke produksi).
+- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang` (semua belum dicek visual di browser — minta pemilik kirim screenshot).
+- **Berikutnya:** `settings`, `shop`, `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/friendship/misi, Chest/Pet/Mail, terakhir HUD gameplay.
+- **Cara kerja yang terbukti:** pertahankan skrip logika lama halaman dragonroll (RPC, PlayerData, tes), ganti hanya markup + CSS + fungsi render ke gaya newgui. Detail di bagian 5.
+- **Sebelum push:** `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`, bump `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`.
+- **Pemilik:** rohmanaa, bahasa kerja Indonesia. Jangan pernah menulis token GitHub ke repo atau dokumen.
 
 ---
 
@@ -31,22 +42,40 @@ Pekerjaan = **memindahkan tampilan newgui ke dragonroll halaman demi halaman**, 
 Branch kerja: **`ui-newgui`** di repo dragonroll (dibuat dari `main` commit `e8b422c`). **Jangan push ke `main` langsung.**
 CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PRODUKSI** saat push ke `main` (setelah tes lulus). Branch lain & PR hanya menjalankan tes. Jangan menyentuh `supabase/migrations/` kecuali memang perlu RPC baru, dan itu harus melalui review.
 
-| Langkah | Status |
-|---|---|
-| 1. Aset UI + CSS ke `assets/ng/` | Selesai untuk lobby (27 file). Halaman lain: salin aset yang dipakai saja |
-| 2. `lobby` (commit `5f3ad06`) | **Selesai, belum dicek visual di browser** |
-| 3. `live-sync.js` | Selesai (7 tes) |
-| 4a. `mode` | **Selesai (belum dicek visual di browser)** — peta dari `RoomFlow.maps()` + The End terkunci; Quick Start masih simulasi (sama seperti sebelumnya); Create Room -> `RoomFlow.navigate('room',...)` |
-| 4b. `room` | **Selesai (belum dicek visual di browser)** — logika room lama dipertahankan (RoomService/Presence/PlayerData/RoomFlow, power per map, avatar wajah+frame); tampilan newgui; drawer undang teman jadi modal; semua tes lulus; sw v65 |
-| 5. `settings`, `shop`, `splash`(login asli) | Belum |
-| 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum |
-| 7a. `tambang` | **Selesai (belum dicek visual di browser)** — pulau 3D asli (mine-island) di atas + 3 kartu gaya newgui; data/aksi lewat `MineService`; konfirmasi biaya untuk Buka/Upgrade; sw v66. Aset bersama `page.css`/`sub.css` sudah ada di `assets/ng/css/` |
-| 7b. profile, leaderboard, friendship, misi (hadiah-misi) | Belum |
-| 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum |
-| 9. gameplay: hanya HUD/feedback | Terakhir |
+| Langkah | Status | Commit / catatan |
+|---|---|---|
+| 1. Aset UI + CSS ke `assets/ng/` | Berjalan: salin hanya aset yang dipakai halaman | CSS bersama: `common.css`, `bg.css`, `page.css`, `sub.css`; per halaman: `lobby.css`, `mode.css`, `room.css`, `tambang.css` |
+| 2. `lobby` | **Selesai** | `5f3ad06` |
+| 3. `live-sync.js` | Selesai (7 tes) | — |
+| 4a. `mode` | **Selesai** | `af2b477` |
+| 4b. `room` | **Selesai** | `7a63258`, sw v65 |
+| 5. `settings`, `shop`, `splash` (login asli) | **Berikutnya** | — |
+| 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum | — |
+| 7a. `tambang` | **Selesai** | `99e098a`, sw v66 |
+| 7b. profile, leaderboard, friendship, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
+| 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum | — |
+| 9. gameplay: hanya HUD/feedback | Terakhir | — |
 
 Yang belum diverifikasi pada lobby: karakter 3D di atas pedestal (posisi/ukuran), tampilan di HP. Dites hanya lewat jsdom tanpa WebGL (tanpa error JS).
 Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
+
+---
+
+### Catatan per halaman yang sudah dipasang
+
+**`lobby`** — belum diverifikasi: karakter 3D di atas pedestal (posisi/ukuran) dan tampilan di HP (dites hanya lewat jsdom tanpa WebGL). Sisa: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
+
+**`mode`** — peta dari `RoomFlow.maps()` + The End terkunci; Create Room -> `RoomFlow.navigate('room', ...)`. **Quick Start masih simulasi** (2,4 dtk "mencari lawan" lalu pemain palsu), sama seperti halaman lama. Menyambungkan ke `RoomService.quickJoin` mengubah alur main, jadi butuh keputusan pemilik (lihat "Pertanyaan terbuka").
+
+**`room`** — logika lama dipertahankan utuh (RoomService, Presence, PlayerData, RoomFlow, power per map, avatar wajah+frame dari server, `loadLooks`). Perubahan tampilan: drawer "Undang Teman" jadi modal (`#dr`, kelas `html.dro` tetap dipakai), modal pilih item pakai kisi `.it`, tombol KELUAR menggantikan tombol ✕ (-> lobby), tombol kembali -> mode. `wallet-service.js` + `LiveSync` ditambah supaya stok power ikut segar. Panel Power Loadout tidak dinonaktifkan di mode online (perilaku lama); `cfg()` tetap mengirim `powers: []` untuk online.
+- **Bug lama (belum diperbaiki):** `skinGo()` memanggil `RF.navigate('karakter.html')`, tetapi `RoomFlow.navigate` hanya mengenal `'room'|'mode'|'back'|'home'`, jadi tombol ganti Karakter di room jatuh ke `lobby.html`. Perbaiki saat porting `karakter`.
+
+**`tambang`** — **pulau 3D asli (`mine-island.js`) dipertahankan** di atas tiga kartu gaya newgui (newgui tidak punya adegan ini; dipertahankan supaya fitur dan `tests/mine-island.test.js` tidak hilang). Wadah 3D bernama `#isl` (id `#stage` dipakai kanvas 1920x1080). Semua aksi lewat `MineService` (server menentukan hasil). Tambahan: modal konfirmasi biaya untuk Buka/Upgrade dan dialog "Coin tidak cukup" -> Toko; Percepat/Ambil tetap langsung. `ambience.js` tidak dimuat (mengikuti halaman newgui lain).
+
+### Pertanyaan terbuka untuk pemilik
+1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?
+2. **Pulau 3D di tambang:** tetap dipakai (keputusan saat ini) atau diganti kartu saja seperti newgui?
+3. **Ambience/suara latar:** halaman newgui yang sudah dipasang tidak memuat `assets/js/ambience.js`. Apakah suara latar harus dikembalikan?
 
 ---
 
@@ -95,8 +124,18 @@ Solusi: **`assets/js/live-sync.js`** (`UT.LiveSync`) — polling RPC yang sudah 
 7. Jalankan semua tes: `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`.
 8. Commit + push ke `ui-newgui`.
 
+### Cara praktis yang dipakai di room & tambang
+- Ambil skrip halaman lama apa adanya, lalu ganti hanya: markup, selektor id (`$('#xxx')`), dan fungsi render (HTML string). Jangan menulis ulang alur RPC/state. Cara paling aman: skrip kecil (Python) yang membaca skrip lama, memakai `replace` yang **gagal keras** bila pola tidak ditemukan tepat sekali, lalu merakit `head + markup + skrip`.
+- Kanvas newgui 1920x1080 diskalakan dengan `fit()` (`transform: scale`). Wadah canvas/3D yang butuh ukuran sendiri jangan memakai id `#stage` (sudah dipakai kanvas utama).
+- Modal memakai kelas `on` (bukan `show`). Elemen `[hidden]` butuh `[hidden]{display:none!important}` karena `.btn` memakai `display:grid`.
+- Kelas ikon di dalam `.btn`: `.btn img` menimpa semua gambar (absolute, isi penuh). Untuk ikon kecil di dalam label pakai `.btn span img{position:static;...}`.
+- Aset: salin dari `newgui/assets/komponen/` (sumber utama) ke `assets/ng/komponen/<subfolder>/`; path di CSS `url(../komponen/...)`. Jangan membuat panah/tombol sendiri.
+- Uji asap tanpa browser: jalankan `python3 -m http.server`, buka halaman dengan jsdom (`runScripts:'dangerously'`, `resources:'usable'`, `?noframe=1`), stub `HTMLCanvasElement.getContext` dan `UT.MineService`/`RoomService` bila perlu, lalu cek jumlah elemen yang dirender dan galat. Galat WebGL/"navigation not implemented" di jsdom normal.
+- Push dari sesi AI: repo harus ada di scope sesi (proxy git menolak push dengan 403 bila belum). Token pribadi **jangan** ditulis di dokumen atau commit.
+
 ### Jebakan yang sudah ditemui
 - Beberapa tes **membaca teks `lobby.html`** (mis. `tests/lobby-appearance.test.js`, `blocky-actions.test.js`, `aura-view.test.js`): urutan skrip, baris `PD.subscribe(r=>{if(r==='equip'...buildHero()...renderAvatar()...})`, `bc.tick(dt);lobbyStep(dt)`, `lobbyTap();buzz()`, `UT.AuraView.create(`. Ubah tes hanya bila maksudnya memang berubah, dan catat. Halaman lain (`profile`, `efek`, `leaderboard`, `karakter`, `gameplay`) juga dicek tes serupa.
+- Tes yang membaca **teks `room.html`**: `tests/room-looks.test.js` (urutan skrip `player-data` -> `appearance-service` -> `app.js`; fungsi `avatar(p)`, `loadLooks`, `const CROWN=`; baris `renderPlayers();renderBottom();loadLooks();` dan `FACE_DONE=true;renderEq();renderPlayers();loadLooks();`) dan `tests/power-rules.test.js` (`pOk=id=>IC.powerOnMap(id,MAPKEY)`, `PW.equipped.filter(pOk)`, `.pc.dis{`, `Dilepas (tidak bisa di`, `i.kind==='powerup'&&!i.off`). `tests/mine-island.test.js` membaca `tambang.html` (`id="stage"`, `id="cv"`, `UT.MineIsland.create`, `isl.pick(`, `isl.select(`, `isl.setCrew(i,crewOf(s))`, `const crewOf=` satu baris). Jaga string-string ini tetap ada.
 - Saldo/inventory **tidak boleh** diubah klien; selalu lewat RPC. Item katalog dari `ItemCatalog`, bukan hardcode.
 - Peti newgui mengundi hadiah di klien -> harus diganti RPC server sebelum dipakai sungguhan.
 - Kunci/token: **jangan pernah** commit token GitHub atau `service_role`. Klien hanya memakai kunci publishable (`assets/js/multiplayer/config.example.js`).
