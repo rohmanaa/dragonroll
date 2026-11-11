@@ -12,7 +12,9 @@ document.querySelectorAll('.seg').forEach(s=>{
 document.querySelectorAll('.tg').forEach(t=>{const k=t.dataset.k,draw=()=>t.classList.toggle('on',get(k)==='1');t.onclick=()=>{set(k,get(k)==='1'?'0':'1');draw()};draw()});
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
 const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
-$('#back').onclick=()=>nav('lobby.html');
+/* kembali ke halaman asal (profil, toko, dll.); bila tidak ada, ke lobby */
+const home=()=>{let to='lobby.html';try{const r=new URL(document.referrer);if(r.origin===location.origin){const n=r.pathname.split('/').pop();if(/^[a-z0-9_-]+\.html$/i.test(n)&&!/^(settings|splash|index|play)\.html$/i.test(n))to=n+r.search}}catch(e){}nav(to)};
+$('#back').onclick=home;
 /* ikon mengikuti status toggle */
 const IC='assets/komponen/';
 function icons(){
@@ -63,3 +65,11 @@ $('#langBtn').onclick=openLang;$('#lg-x').onclick=closeLang;
 lgModal.addEventListener('click',e=>{if(e.target===lgModal)closeLang()});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeLang()});
 drawLangBtn();
+
+/* catatan suasana */
+function drawAmb(){
+  const t=get('theme'),n=$('#sysn');
+  const night=matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;
+  n.innerHTML=t==='system'?'Mengikuti perangkat — sekarang: <b>'+(night?'Malam':'Siang')+'</b>':t==='night'?'Malam: bintang, bulan &amp; cahaya bulan di lobby.':'Siang: matahari &amp; sinar emas di lobby.';
+}
+document.querySelectorAll('[data-k="theme"]').forEach(s=>s.addEventListener('click',drawAmb));drawAmb();
