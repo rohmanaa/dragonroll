@@ -8,8 +8,8 @@ Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang selesai). Pemilik p
 ## 0. Ringkas (baca ini dulu)
 
 - **Tugas:** pindahkan tampilan `newgui` ke `dragonroll`, satu halaman per commit, di branch **`ui-newgui`** (jangan push ke `main`: CI deploy DB ke produksi).
-- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang` (semua belum dicek visual di browser — minta pemilik kirim screenshot).
-- **Berikutnya:** `settings`, `shop`, `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/friendship/misi, Chest/Pet/Mail, terakhir HUD gameplay.
+- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings` (semua belum dicek visual di browser — minta pemilik kirim screenshot).
+- **Berikutnya:** `shop`, `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/friendship/misi, Chest/Pet/Mail, terakhir HUD gameplay.
 - **Cara kerja yang terbukti:** pertahankan skrip logika lama halaman dragonroll (RPC, PlayerData, tes), ganti hanya markup + CSS + fungsi render ke gaya newgui. Detail di bagian 5.
 - **Sebelum push:** `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`, bump `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`.
 - **Pemilik:** rohmanaa, bahasa kerja Indonesia. Jangan pernah menulis token GitHub ke repo atau dokumen.
@@ -49,7 +49,8 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 3. `live-sync.js` | Selesai (7 tes) | — |
 | 4a. `mode` | **Selesai** | `af2b477` |
 | 4b. `room` | **Selesai** | `7a63258`, sw v65 |
-| 5. `settings`, `shop`, `splash` (login asli) | **Berikutnya** | — |
+| 5a. `settings` | **Selesai** (belum dites di browser; pemilik menguji manual) | `100cb08` + penyempurnaan, sw v68. Desain newgui + pilihan bahasa (pref `lang`, hanya menyimpan pilihan). Tanpa `LiveSync` (tidak menampilkan saldo/XP); repaint lewat `UT.Prefs.on` supaya pref hasil `PrefsSync.pull` ikut tampil. `ambience.js` tetap dimuat karena dipakai `UT.Ambience` (grafik/suasana) |
+| 5b. `shop`, `splash` (login asli) | **Berikutnya** | — |
 | 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum | — |
 | 7a. `tambang` | **Selesai** | `99e098a`, sw v66 |
 | 7b. profile, leaderboard, friendship, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |

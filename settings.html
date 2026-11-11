@@ -131,6 +131,8 @@ drawLangBtn();
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}
 addEventListener('resize',fit);fit();
 render();
+/* pref berubah dari luar (prefs-sync menarik pengaturan lintas perangkat setelah halaman tampil) -> gambar ulang */
+try{if(typeof PF().on==='function')PF().on(()=>{render();drawLangBtn()})}catch(e){}
 document.documentElement.classList.add('ut-ready');
 })();
 </script>
