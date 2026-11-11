@@ -94,13 +94,23 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
   function stage(c, text) { if (c > cap) cap = c; if (text && lbl) lbl.textContent = text; }
   function resetP() { pct = 0; cap = 60; bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; bar.style.transition = ''; if (lbl) lbl.textContent = 'Memuat halaman'; setP(6); }
   function creep() { cancelAnimationFrame(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.03); creepRaf = requestAnimationFrame(tick); })(); }
-  function showOv(quiet) {
-    clearTimeout(hideT);
-    if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
+  /* Tirai awan TERTUNDA: pindah halaman yang cepat (aset sudah di cache dari splash) tidak menampilkan loading sama sekali.
+     Tirai baru muncul bila halaman tujuan belum siap setelah SHOW_DELAY. Selama menunggu, iframe polos (warna sama dengan latar) agar tidak ada kilatan baru. */
+  var SHOW_DELAY = 320, armed = false, showT = 0;
+  function doShow(quiet) {
     shown = true; shownAt = Date.now(); ov.classList.toggle('quiet', !!quiet);
     ov.classList.remove('hide'); resetP(); creep();
   }
+  function showOv(quiet) {
+    clearTimeout(hideT);
+    if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
+    if (quiet) { armed = false; clearTimeout(showT); doShow(true); return; }
+    if (armed) return;
+    armed = true; clearTimeout(showT);
+    showT = setTimeout(function () { armed = false; doShow(false); }, SHOW_DELAY);
+  }
   function hideOv() {
+    if (armed) { armed = false; clearTimeout(showT); return; }   // halaman siap sebelum tirai sempat muncul
     if (!shown) return;
     shown = false; clearTimeout(hideT);
     setP(100);   // bar penuh dulu, baru awan menyibak
