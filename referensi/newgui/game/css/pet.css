@@ -1,6 +1,0 @@
-/* pet.html — memakai karakter.css + frame.css + efek.css; bagian khusus pet (emoji) */
-.dice.petv .glow{position:absolute;left:12%;right:12%;bottom:6%;height:18%;border-radius:50%;background:radial-gradient(ellipse,var(--c),transparent 70%);opacity:.55;filter:blur(8px)}
-.dice.petv .em{position:absolute;inset:0;display:grid;place-items:center;font-size:230px;line-height:1;z-index:2;filter:drop-shadow(0 10px 8px rgba(0,0,0,.4))}
-.dice.petv.burst .em{animation:hop 1s ease-out}
-@keyframes hop{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-70px) scale(1.12) rotate(-8deg)}60%{transform:translateY(0) scale(.94,1.06)}80%{transform:translateY(-24px) rotate(6deg)}}
-.fslot .dc .em{display:block;text-align:center;font-size:58px;line-height:84px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
