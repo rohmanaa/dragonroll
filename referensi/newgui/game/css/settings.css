@@ -47,7 +47,3 @@
 .lc img{height:72px;width:auto}
 .lc img.glb{height:48px;margin:12px 0;opacity:.9}
 .lc b{font:800 28px var(--font-body);line-height:1}
-.note{margin-top:14px;min-height:40px;font:700 28px/1.3 var(--font-body);color:#cfc8ea}
-.row .ic{object-fit:contain}
-#toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:80;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);font:800 30px var(--font-body);color:#fff;transition:.25s}
-#toast.on{opacity:1;transform:translate(-50%,0)}

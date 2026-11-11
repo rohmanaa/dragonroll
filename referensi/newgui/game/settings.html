@@ -18,19 +18,17 @@
   <!-- kolom kiri: suara & getar (mengikuti orsWF1) -->
   <section id="rows">
     <div class="row"><img class="ic" id="ic-sfx" src="assets/komponen/ikon-pengaturan/ikon-speaker.webp" alt=""><em>Efek suara</em>
-      <input type="range" id="sfxVol" min="0" max="100" step="5" aria-label="Volume efek suara"><span class="val" id="sfxVolV"></span><button class="tg" data-k="sfxOn" aria-label="Efek suara"></button></div>
+      <input type="range" id="sfxVol" min="0" max="100"><span class="val" id="sfxVolV"></span><button class="tg" data-k="sfxOn" aria-label="Efek suara"></button></div>
     <div class="row"><img class="ic" id="ic-music" src="assets/komponen/ikon-pengaturan/ikon-musik-mati.webp" alt=""><em>Musik</em>
-      <input type="range" id="musicVol" min="0" max="100" step="5" aria-label="Volume musik"><span class="val" id="musicVolV"></span><button class="tg" data-k="musicOn" aria-label="Musik"></button></div>
+      <input type="range" id="musicVol" min="0" max="100"><span class="val" id="musicVolV"></span><button class="tg" data-k="musicOn" aria-label="Musik"></button></div>
     <div class="row"><img class="ic" src="assets/komponen/ikon-pengaturan/ikon-getar.webp" alt=""><em>Getar</em>
       <span class="sp"></span><button class="tg" data-k="vibrate" aria-label="Getar"></button></div>
   </section>
 
   <!-- kolom kanan: pilihan -->
   <section id="opts">
-    <div class="grp"><div class="cap">GRAFIK</div><div class="seg" data-k="graphics"><button data-v="high">Tinggi</button><button data-v="low">Rendah</button></div>
-      <div id="gfxn" class="note">Pilih Rendah bila game terasa berat di HP kamu.</div></div>
-    <div class="grp"><div class="cap">SUASANA</div><div class="seg" data-k="theme"><button data-v="day">Siang</button><button data-v="night">Malam</button><button data-v="system">Sistem</button></div>
-      <div id="sysn" class="note"></div></div>
+    <div class="grp"><div class="cap">GRAFIK</div><div class="seg" data-k="graphics"><button data-v="high">Tinggi</button><button data-v="low">Rendah</button></div></div>
+    <div class="grp"><div class="cap">SUASANA</div><div class="seg" data-k="theme"><button data-v="day">Siang</button><button data-v="night">Malam</button><button data-v="system">Sistem</button></div></div>
     <div class="grp"><div class="cap">BAHASA</div>
       <button class="btn" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
   </section>
@@ -41,7 +39,7 @@
   <!-- konfirmasi keluar -->
   <div id="confirm" role="dialog" aria-modal="true" aria-labelledby="cf-t"><div id="cbox">
     <div id="cf-t" class="ttl">KELUAR AKUN?</div>
-    <div id="cf-s">Koin, item, dan progres tetap tersimpan dan kembali saat kamu login lagi.</div>
+    <div id="cf-s">Kamu perlu masuk lagi untuk bermain.</div>
     <div class="cbtns">
       <button class="btn" id="cf-no"><img src="assets/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
       <button class="btn" id="cf-ok"><img src="assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
