@@ -423,9 +423,9 @@ html body #idesc{color:#cdd8ea}
     </section>
     <section class="spanel" id="gemPanel" aria-label="Emerald">
       <h2><img src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">Emerald</h2>
-      <p id="adtxt">Emerald didapat dengan menonton iklan berhadiah.</p>
+      <p id="adtxt">Segera hadir.</p>
       <img class="gbig" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">
-      <button id="adbtn"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M7 4l13 8-13 8z" fill="#fff"/></svg>Tonton Iklan</button>
+      <button id="adbtn"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M7 4l13 8-13 8z" fill="#fff"/></svg>Soon</button>
       <div id="adinfo"></div>
     </section>
     <section class="spanel" id="histPanel" aria-label="Riwayat transaksi">
@@ -503,9 +503,11 @@ async function exchange(i){
 /* ---------- Toko Emerald: emerald didapat dengan menonton iklan berhadiah (tombol Iklan) ----------
    Tahap 4: nominal, batas harian & jeda ditentukan SERVER (claim_ad_reward); tidak ada lagi simulasi lokal (key ut:adLocal:* dihapus). */
 const AD={gems:5,cap:5,gap:60};
+const ADS_ENABLED=false;   /* iklan (simulasi) dinonaktifkan sementara -> tampil "Soon". Ubah ke true setelah SDK iklan nyata + verifikasi server terpasang. */
 try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('ut:adLocal:')===0)localStorage.removeItem(k)}}catch(e){}   /* bersihkan sisa simulasi iklan lokal lama */
 const AMSG={'daily_cap':'Batas iklan hari ini tercapai. Kembali besok (00.00 WIB).','tidak-tersedia':'Iklan belum tersedia.','dibatalkan':'Iklan belum selesai, hadiah tidak diberikan.','gagal':'Iklan gagal dimuat.','token-tidak-valid':'Klaim tidak valid.'};
 async function gemShop(){
+ if(!ADS_ENABLED){openModal('<h2>Tambah Emerald</h2><p style="margin:0 0 1rem">Segera hadir.</p><button class="pack" id="adb" disabled><span>Soon</span><span>&#9203;</span></button>');return}
  const srv=SV()&&WS();let st=srv?await WS().adGet():null;if(st&&!st.ok)st=null;   /* Tahap 4: iklan hanya lewat server; tanpa akun = status tidak tersedia */
  const info=s=>s?(s.left<1?'Batas iklan hari ini tercapai':'Sisa hari ini: '+s.left+'/'+s.cap)+(s.left>0&&s.tunggu_detik>0?' · tunggu '+s.tunggu_detik+' dtk':''):'Status iklan tidak tersedia';
  const gems=(st&&st.gems)||AD.gems,sim=window.UT&&UT.Ads&&UT.Ads.isMock()?'<small style="display:block;opacity:.7;margin-top:.6rem">Iklan simulasi (mode pengembangan)</small>':'';
@@ -521,6 +523,7 @@ async function gemShop(){
 
 
 /* panel Emerald (terpisah dari Coin): tombol memakai alur iklan yang sama */
+if(!ADS_ENABLED){const ab=$('#adbtn');ab.disabled=true;ab.style.opacity='.6';ab.style.filter='grayscale(.6)';ab.style.cursor='not-allowed'}
 $('#adbtn').addEventListener('click',()=>{playSound('click');gemShop()});
 document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{
   if(b.dataset.buy==='gem'){gemShop();return}
