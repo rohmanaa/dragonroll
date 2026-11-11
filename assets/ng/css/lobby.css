@@ -184,7 +184,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 /* ---- latar full-bleed: langit menutupi SELURUH layar; isi lobby tetap di kontainer landscape 1920x1080 ---- */
-html,body{background:linear-gradient(180deg,rgba(10,20,60,.28) 0,transparent 20%,transparent 70%,rgba(10,10,50,.45) 100%),linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%) fixed #8bd5fa!important}
+html,body{background:#0e0b1c!important} /* latar lobby = scene-bg.js (lobby-bg.webp) */
 #stage{background:none!important;overflow:visible!important}
 #vig{display:none}
 

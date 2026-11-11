@@ -5,12 +5,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/lobby.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
+<link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-bg.webp"></script>
 <style>
 /* GUI baru di dragonroll: avatar = wajah karakter asli + frame yang dipakai; karakter 3D di atas pedestal */
 #avatar{overflow:hidden}
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 #avf{position:absolute;left:12px;top:-6px;width:164px;height:164px;object-fit:contain;pointer-events:none;z-index:1}
-#gl3d{position:absolute;left:680px;top:80px;width:560px;height:560px;animation:float 5.5s ease-in-out infinite;touch-action:manipulation}
+#gl3d{position:absolute;left:680px;top:80px;width:560px;height:560px;transform-origin:280px 520px;touch-action:manipulation}
+#hshadow{position:absolute;left:0;top:0;width:340px;height:70px;margin:-35px 0 0 -170px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(15,20,45,.5) 0,rgba(15,20,45,.28) 45%,rgba(15,20,45,0) 72%);pointer-events:none}
 .dot[hidden]{display:none!important}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
@@ -19,18 +21,8 @@
 <div id="wrap">
 <div id="stage">
 
-  <!-- ===== dunia: langit + pulau melayang + karakter ===== -->
-  <div id="sun"></div>
-  <div class="cloud" style="top:340px;animation-duration:95s;animation-delay:-30s"><i style="left:0;top:30px;width:150px;height:36px"></i><i style="left:30px;top:6px;width:96px;height:36px"></i></div>
-  <div class="cloud" style="top:560px;animation-duration:130s;animation-delay:-90s"><i style="left:0;top:30px;width:210px;height:40px"></i><i style="left:50px;top:4px;width:120px;height:40px"></i></div>
-  <div class="cloud" style="top:760px;animation-duration:110s;animation-delay:-10s"><i style="left:0;top:26px;width:130px;height:30px"></i><i style="left:24px;top:2px;width:80px;height:30px"></i></div>
-  <div class="cloud" style="top:150px;animation-duration:150s;animation-delay:-60s"><i style="left:0;top:30px;width:180px;height:36px"></i><i style="left:36px;top:6px;width:100px;height:36px"></i></div>
-
-  <div id="vig"></div>
-  <svg id="world" viewBox="0 0 1920 1080" aria-label="Pulau melayang dengan karakter pemain">
-    <ellipse cx="960" cy="1010" rx="260" ry="34" fill="rgba(20,60,110,.18)"/>
-    <g id="island"></g>
-  </svg>
+  <!-- ===== dunia: latar = SceneBackground (scene-bg.js, lobby-bg.webp), karakter berdiri di lantai batu latar ===== -->
+  <div id="hshadow"></div>
   <canvas id="gl3d" width="560" height="560" aria-label="Karakter pemain"></canvas>
   <div id="hint" class="t-title">Ketuk karakter!</div>
 
@@ -172,72 +164,18 @@ document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
 
 /* ---------- skala kanvas ---------- */
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';fit3d(s)}
+/* Karakter berdiri di lantai batu latar (lobby-bg.webp 1672x941, object-fit:cover, posisi 50% 72%, sama dengan .sbg-img).
+   Titik pijak = (50%,80%) gambar; posisi & skala karakter dihitung dari transformasi cover itu supaya tetap menempel di lantai di rasio layar apa pun. */
+const BG_W=1672,BG_H=941,FLOOR_X=.5,FLOOR_Y=.8,REF_K=1920/BG_W;
+function placeHero(s){
+ const vw=innerWidth,vh=innerHeight,k=Math.max(vw/BG_W,vh/BG_H);
+ const px=vw/2+(FLOOR_X-.5)*BG_W*k,py=(vh-BG_H*k)*.72+FLOOR_Y*BG_H*k;
+ const x=(px-vw/2)/s+960,y=(py-vh/2)/s+540,m=k/s/REF_K;
+ const c=$('#gl3d'),sh=$('#hshadow');
+ c.style.left=(x-280)+'px';c.style.top=(y-520)+'px';c.style.transform='scale('+m+')';
+ sh.style.left=x+'px';sh.style.top=(y+6)+'px';sh.style.transform='scale('+m+')'}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';fit3d(s);placeHero(s)}
 
-/* ---- pulau voxel melayang (SVG isometrik) ---- */
-const NS='http://www.w3.org/2000/svg';
-const isl=document.getElementById('island');
-function poly(pts,fill,extra){const p=document.createElementNS(NS,'polygon');p.setAttribute('points',pts.map(q=>q.join(',')).join(' '));p.setAttribute('fill',fill);
-  p.setAttribute('stroke','rgba(20,30,10,.35)');p.setAttribute('stroke-width','2');p.setAttribute('stroke-linejoin','round');if(extra)for(const k in extra)p.setAttribute(k,extra[k]);isl.appendChild(p)}
-function slab(cx,cy,w,d,c){ // cy = pusat diamond atas
-  const h=w/2,N=[cx,cy-h/2],E=[cx+w/2,cy],S=[cx,cy+h/2],W=[cx-w/2,cy];
-  poly([W,S,[S[0],S[1]+d],[W[0],W[1]+d]],c.l);
-  poly([S,E,[E[0],E[1]+d],[S[0],S[1]+d]],c.r);
-  poly([N,E,S,W],c.t);
-}
-const DIRT={t:'#8d6038',l:'#9b6a40',r:'#7b5230'}, STONE={t:'#7d808c',l:'#8a8d99',r:'#666975'}, DEEP={t:'#5d606c',l:'#6a6d79',r:'#4e515c'};
-const GRASS={t:'#78cc4e',l:'#58a33a',r:'#478a2e'};
-slab(960,872,150,70,DEEP);
-slab(960,800,290,76,DEEP);
-slab(960,728,430,76,STONE);
-slab(960,654,560,80,DIRT);
-// sisi tanah + pita rumput di atas
-{const cx=960,cy=580,w=640,h=w/2,d=84,g=28;
-  const W=[cx-w/2,cy],S=[cx,cy+h/2],E=[cx+w/2,cy],N=[cx,cy-h/2];
-  poly([W,S,[S[0],S[1]+d],[W[0],W[1]+d]],DIRT.l);
-  poly([S,E,[E[0],E[1]+d],[S[0],S[1]+d]],DIRT.r);
-  poly([W,S,[S[0],S[1]+g],[W[0],W[1]+g]],GRASS.l);
-  poly([S,E,[E[0],E[1]+g],[S[0],S[1]+g]],GRASS.r);
-  poly([N,E,S,W],GRASS.t);
-  // petak kotak-kotak di permukaan
-  for(let i=1;i<8;i++){const a=i/8;
-    const l=document.createElementNS(NS,'line');l.setAttribute('x1',W[0]+(N[0]-W[0])*a);l.setAttribute('y1',W[1]+(N[1]-W[1])*a);
-    l.setAttribute('x2',S[0]+(E[0]-S[0])*a);l.setAttribute('y2',S[1]+(E[1]-S[1])*a);l.setAttribute('stroke','rgba(40,100,20,.22)');isl.appendChild(l);
-    const m=document.createElementNS(NS,'line');m.setAttribute('x1',W[0]+(S[0]-W[0])*a);m.setAttribute('y1',W[1]+(S[1]-W[1])*a);
-    m.setAttribute('x2',N[0]+(E[0]-N[0])*a);m.setAttribute('y2',N[1]+(E[1]-N[1])*a);m.setAttribute('stroke','rgba(40,100,20,.22)');isl.appendChild(m);}
-}
-// pohon & semak voxel (urut dari belakang ke depan)
-const LEAF={t:'#4caf3a',l:'#368a2a',r:'#2b7222'}, LEAF2={t:'#5cc443',l:'#3f9a30',r:'#318028'}, WOOD={t:'#a8794a',l:'#7e5530',r:'#684526'};
-function tree(x,y,s){slab(x,y,34*s,64*s,WOOD);slab(x,y-58*s,120*s,46*s,LEAF);slab(x,y-100*s,80*s,40*s,LEAF2)}
-tree(830,545,1);
-tree(1090,525,.85);
-slab(1180,600,70,30,LEAF);
-slab(760,622,56,24,LEAF2);
-// batu kecil
-slab(1115,650,56,26,STONE);
-
-
-/* nama + level + bar XP di bawah pedestal (tidak ikut melompat) */
-{const tag=document.createElementNS(NS,'g');tag.id='herotag';tag.setAttribute('pointer-events','none');
- const ty=608+96,bw=330;
- tag.innerHTML=`
- <text id="ht-name" x="960" y="${ty}" text-anchor="middle" class="svt" font-size="54"></text>
- <text id="ht-lv" x="${960-bw/2-16}" y="${ty+58}" text-anchor="end" class="svt" font-size="64">1</text>
- <text x="${960-bw/2}" y="${ty+30}" class="svb" font-size="26">Level</text>
- <text id="ht-pct" x="${960+bw/2}" y="${ty+30}" text-anchor="end" class="svb" font-size="22">0.0%</text>
- <rect x="${960-bw/2}" y="${ty+38}" width="${bw}" height="18" rx="3" fill="#1c1730" stroke="#0e0a1c" stroke-width="2"/>
- <rect id="ht-fill" x="${960-bw/2+2}" y="${ty+40}" width="0" height="14" rx="2" fill="#b9c3ff"/>`;
- isl.appendChild(tag)}
-/* pedestal batu */
-function cyl(cx,cy,rx,ry,h,top,side,line){
-  return `<path d="M${cx-rx},${cy} v${h} a${rx},${ry} 0 0 0 ${rx*2},0 v${-h} Z" fill="${side}" stroke="${line}" stroke-width="3" stroke-linejoin="round"/>`+
-         `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${top}" stroke="${line}" stroke-width="3"/>`;
-}
-{const FEET=608,ped=document.createElementNS(NS,'g');ped.setAttribute('transform','translate(960,0)');
- ped.innerHTML=`<ellipse cx="0" cy="${FEET+32}" rx="190" ry="36" fill="rgba(10,25,50,.28)"/>
-  ${cyl(0,FEET+12,162,39,24,'#4b4370','#2f2949','#17122b')}${cyl(0,FEET+1,128,31,20,'#5d5486','#3b3459','#17122b')}${cyl(0,FEET-8,95,23,16,'#6f66a0','#463e6b','#17122b')}
-  <ellipse cx="0" cy="${FEET-8}" rx="74" ry="17" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="3"/>`;
- isl.appendChild(ped)}
 
 /* ================= 3D: karakter ASLI pemain (UT.BlockyCharacter, sama dengan halaman Karakter) di atas pedestal =================
    Kanvas 560x560 (satuan stage), kaki di y~600. Kamera perspektif sempit ~ ortografis: 1 satuan model = 200 px. */
@@ -282,12 +220,6 @@ if(G3){const clock=new THREE.Clock();let lastT=0;
  (function loop(){requestAnimationFrame(loop);if(document.hidden)return;const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;
   bc.tick(dt);lobbyStep(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);renderer.render(scene,cam)})()}
 else{const h=$('#hint');if(h)h.style.display='none'}
-
-/* ---- kilau ---- */
-{const st=document.getElementById('stage');
- for(let i=0;i<14;i++){const e=document.createElement('i');e.className='spark';
-  e.style.left=(560+Math.random()*800)+'px';e.style.top=(300+Math.random()*520)+'px';e.style.animationDelay=(Math.random()*4)+'s';
-  e.style.scale=.5+Math.random();st.insertBefore(e,document.getElementById('hint'))}}
 
 addEventListener('resize',fit);fit();
 
