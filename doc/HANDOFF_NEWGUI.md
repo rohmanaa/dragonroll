@@ -1,7 +1,7 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 11 Nov 2026. Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 11 Nov 2026 (room selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
 
 ---
 
@@ -37,7 +37,7 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 2. `lobby` (commit `5f3ad06`) | **Selesai, belum dicek visual di browser** |
 | 3. `live-sync.js` | Selesai (7 tes) |
 | 4a. `mode` | **Selesai (belum dicek visual di browser)** — peta dari `RoomFlow.maps()` + The End terkunci; Quick Start masih simulasi (sama seperti sebelumnya); Create Room -> `RoomFlow.navigate('room',...)` |
-| 4b. `room` | Berikutnya |
+| 4b. `room` | **Selesai (belum dicek visual di browser)** — logika room lama dipertahankan (RoomService/Presence/PlayerData/RoomFlow, power per map, avatar wajah+frame); tampilan newgui; drawer undang teman jadi modal; semua tes lulus; sw v65 |
 | 5. `settings`, `shop`, `splash`(login asli) | Belum |
 | 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum |
 | 7. profile, leaderboard, friendship, misi (hadiah-misi), tambang | Belum |
