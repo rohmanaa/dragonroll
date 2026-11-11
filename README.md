@@ -1,40 +1,54 @@
-# Ular Tangga Blok
+# DRAGON ROLL (Ular Tangga Blok)
 
-Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `python3 -m http.server`) lalu buka `index.html`.
+Game ular tangga bertema voxel/Minecraft dengan mode solo, vs robot, dan multiplayer online (Supabase). Situs statis, tanpa build step, dan dipasang sebagai PWA.
+
+## Menjalankan lokal
+
+```sh
+python3 -m http.server 8000
+```
+
+Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash.html`). Service worker (`sw.js`) butuh `http://localhost` atau HTTPS, jadi jangan buka lewat `file://`.
 
 ## Halaman
+
 | File | Fungsi |
 |---|---|
-| `index.html` | Halaman pembuka. "Main Sekarang" -> `splash.html` |
-| `ular tangga.html` | Beranda aplikasi (profil, koin, ringkasan, pintasan) |
-| `karakter.html` | Karakter: baju, celana, sepatu, helm, zirah, bahu, jubah, senjata, aksesori. Item terkunci bisa di-preview, beli pakai coin |
-| `frame.html` / `dadu.html` | Frame profil & skin dadu: semua item tampil, terkunci bisa di-preview, beli pakai coin |
-| `efek.html` | Efek/aura: kerangka kosong (belum ada item efek di game) |
-| `powerup.html` | Power-up (pedang, bulu, TNT, dll): jumlah yang dimiliki |
-| `hadiah-misi.html` | Hadiah Harian + Misi Harian, tab di kiri (memuat `dailyreward.html` & `misi.html` dengan `?embed=1`; keduanya transparan saat embed dan memakai satu latar milik `hadiah-misi.html`) |
-| `skins.html` | Pratinjau & terapkan skin karakter |
-| `shop.html` | Toko khusus beli Coin (tukar Emerald); Emerald (tonton iklan) di panel terpisah |
-| `tambang.html` | Tambang: 3 slot penambang emerald pasif (server-side). Buka/upgrade/percepat pakai Coin, Ambil Emerald dari peti. Back via `?from=`, tombol Home ke lobby. Lihat `doc/fitur/tambang/TAMBANG.md` |
-| `lobby.html` | Menu utama: Karakter, Frame, Dadu, Efek, Power-up, Leaderboard, Toko, Teman, Hadiah & Misi, Mulai -> mode |
-| `gameplay.html` | Game 3D (logika asli tidak diubah) |
-| `ular-tangga.html` | Versi monolit lama (tidak diubah, tidak ditautkan) |
+| `index.html` | Pintu masuk, langsung ke splash lewat `play.html` |
+| `play.html` | Pembungkus (frame) tempat halaman lain dimuat |
+| `splash.html` | Layar naga + pramuat aset |
+| `lobby.html` | Beranda: profil, koin, pintasan |
+| `mode.html` | Pilih mode permainan |
+| `room.html` | Game room multiplayer |
+| `gameplay.html` | Game 3D (logika di `gameplay/`) |
+| `karakter.html`, `dadu.html`, `efek.html`, `frame.html`, `powerup.html` | Koleksi & kustomisasi item |
+| `shop.html` | Toko (koin/emerald virtual, bukan uang sungguhan) |
+| `tambang.html` | Mini-game tambang |
+| `misi.html`, `hadiah-misi.html`, `dailyreward.html` | Misi & hadiah |
+| `friendship.html`, `leaderboard.html`, `profile.html`, `settings.html` | Sosial, peringkat, profil, pengaturan |
+| `laporan-audit.html`, `floatingsample.html` | Dokumen audit / sampel (bukan bagian game) |
 
-## Kode bersama (`assets/js/`, gaya di `assets/css/`)
-- `item-catalog.js` : satu-satunya sumber harga & metadata item.
-- `player-data.js` : saldo, inventory, item aktif; `localStorage["ularTanggaBlok:player:v1"]`.
-- `item-art.js`, `app-ui.js`, `navigation.js` : gambar SVG item, toast/modal, bottom nav.
-- `game-integration.js` : memastikan gameplay hanya memakai skin/tema/dadu yang dimiliki.
+## Struktur kode
 
-Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
+- `assets/js/` : layanan bersama (`player-data`, `wallet-service`, `item-catalog`, `auth`, `session`, `prefs`, dll.), `dice-kit/`, `power3d/`, `multiplayer/`, dan `vendor/` (three.js).
+- `assets/css/` : gaya bersama.
+- `gameplay/` : modul game (core, HUD, audio, efek, peta, AFK, dadu).
+- `hud/` : komponen & tema HUD.
+- `supabase/` : migrasi, snapshot skema, dan tes SQL. Lihat `supabase/README.md`.
+- `tests/` : tes Node (`for f in tests/*.test.js; do node "$f"; done`).
+- `tools/` : skrip bantu (snapshot skema, manifes pramuat, dll.).
+- `doc/`, `MULTIPLAYER_PLAN.md`, `MULTIPLAYER_STATE.md` : catatan desain.
 
-## Karakter & mob
-- `assets/js/character-data.js` (`UT.CharacterData`) = model karakter pemain/mob gameplay; `character-view.js` = karakter 3D di halaman. Lihat `doc/CHARACTER_DATA.md`.
-- `assets/js/mob-view.js` (`UT.MobView`) = mob dekoratif reusable (kupu-kupu + bunga di Teman, ayam di Hadiah Harian). Lihat `doc/MOB_VIEW.md`.
-- Skin PNG sudah dihapus; semua skin memakai model voxel yang sama dengan gameplay.
-- `assets/js/blocky-character.js` (`UT.BlockyCharacter`) = karakter blocky halaman **Karakter** (rig + katalog gear + animasi) tanpa UI, DIHASILKAN dari `karakter.html`; `assets/js/aura-fx.js` (`UT.AuraFX`) = 15 aura voxel 3D. Keduanya dipakai halaman **Efek** (`efek.html`). Lihat `doc/EFEK_AURA.md`.
+## Backend (Supabase)
 
-## Dadu 3D bersama (Dice Kit)
-- `assets/js/dice-kit/` = SATU mesin dadu 3D (fisika kocok-lempar, material/tekstur skin, partikel/aura, suara) yang dipakai `dadu.html` (preview Inventory) dan `gameplay.html` (dadu gameplay) lewat `window.DiceKit.mount()` dengan preset panggung yang sama (`DiceKit.STAGE`).
-- Di gameplay kubus CSS lama sudah dihapus. `gameplay/dice-ui.js` (`UT.GameplayDiceUI`) memasang canvas 3D di `#dieScene`; angka hasil tetap ditentukan `gameplay.html` dan dikirim ke kit (`roll(forcedValue)`), jadi aturan (Ramuan, Pasti 6, tiga 6, multiplayer) tidak berubah. `showDie(v,true)` mengembalikan Promise yang selesai saat dadu mendarat.
-- Tatakan dadu juga objek 3D Three.js di scene yang sama (`DiceRenderer._buildPad`, opsi `pad:true`): pelat batu voxel DATAR (permukaan atas rata dengan lantai fisika, tanpa bibir/sumur), garis emas, baut rendah, kristal biru, alas kain, cahaya biru berdenyut, dan tertekan sedikit saat dadu menghantam. Bayangan dadu jatuh ke permukaan pelat secara nyata. SVG tatakan lama sudah dihapus. Suara dadu mengikuti tombol Suara & slider SFX gameplay.
-- Kecepatan: gameplay memakai `speed:1.7` (kocok, jatuh, mendarat lebih cepat) dan `UT.GameplayDiceUI.finish()` memaksa dadu rebah di angkanya bila >3 dtk, supaya pion tidak mendahului dadu.
+Semua mutasi lewat RPC dengan pengecekan di sisi server; klien hanya memakai kunci publishable/anon (`assets/js/multiplayer/config.example.js`). Jangan pernah menaruh kunci `service_role` di repo.
+
+Alur migrasi:
+
+1. Tambah file di `supabase/migrations/` dengan timestamp yang **lebih besar** dari migrasi terakhir.
+2. Jalankan `sh tools/build-schema-snapshot.sh` lalu commit snapshot-nya (tes `schema-snapshot` akan gagal kalau lupa).
+3. Push ke `main`: CI (`.github/workflows/db-migrate.yml`) menjalankan tes lalu `supabase db push` ke produksi.
+
+## Cache PWA
+
+Setelah mengubah aset/kode yang harus segera segar, naikkan `VERSION` di `sw.js`.
