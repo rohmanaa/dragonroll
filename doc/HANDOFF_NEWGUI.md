@@ -79,6 +79,8 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 
 **`friendship`** — tampilan dari newgui; daftar teman/permintaan, accept/decline/remove, pencarian, Presence, ajakan bermain, dan avatar aktif tetap memakai RoomService, Presence, AppearanceService, dan FrameAvatar asli. Posisi, level, dan kemenangan berasal dari leaderboard teman server; statistik tanpa pertandingan ditampilkan `—`. Saldo memakai PlayerData + LiveSync. Tombol like nonaktif (`—`) sampai dukungan server tersedia; tidak ada data teman tiruan.
 
+**`frame`** — GUI baru (kolom kiri preview + nama/rarity/deskripsi, kanan grid kartu 6 kolom + tombol aksi, modal konfirmasi beli). Data dari `ItemCatalog` (kind `frame`, tanpa item `off`) + `PlayerData` (`owns`/`isEquipped`/`equip`); beli lewat `WalletService.buy` (mode server) atau `PD.purchase`; gambar frame dari `ItemArt.frame()` (wajah skin yang dipakai di dalam bingkai). Item belum dimiliki tetap tampil (terkunci) dan bisa di-preview. `UT.Events` + `LiveSync` (saldo). CSS: `assets/ng/css/karakter.css` (template koleksi, dipakai juga nanti oleh karakter/dadu/efek) + `frame.css`. Dites jsdom (14 kartu, tanpa galat JS); belum dicek visual di browser. sw v67.
+
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?
 2. **Pulau 3D di tambang:** tetap dipakai (keputusan saat ini) atau diganti kartu saja seperti newgui?
