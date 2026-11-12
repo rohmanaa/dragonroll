@@ -3080,7 +3080,18 @@ const PHASE_SEC=12*60;                         /* mode auto: tiap fase siang/mal
 let autoDN=false,phaseT=0;
 try{ autoDN=UT.Prefs.get('autoDN',false)===true; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
-try{ night=UT.Prefs.get('night',false)===true; }catch(e){}
+/* SINKRON dengan Pengaturan > Suasana (PlayerData.settings().ambience: day | night | system; cermin di UT.Prefs 'ambience'): itulah sumber siang/malam saat game dibuka. Kunci lama 'night' hanya cadangan bila Suasana belum ada. */
+function ambienceNight(){
+  try{
+    let m=null; const PD=window.PlayerData; if(PD&&PD.settings) m=(PD.settings()||{}).ambience;
+    if(m!=='day'&&m!=='night'&&m!=='system'){ const a=UT.Prefs.get('ambience',null); m=a&&a.mode; }
+    if(m==='night') return true; if(m==='day') return false;
+    if(m==='system') return !!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+  }catch(e){}
+  return null;
+}
+function ambienceWrite(v){ try{ const PD=window.PlayerData; if(PD&&PD.setSettings) PD.setSettings({ambience:v?'night':'day'}); }catch(e){} } /* ubah manual di game -> Pengaturan & lobby ikut */
+try{ const an=ambienceNight(); night=(an===null)?(UT.Prefs.get('night',false)===true):an; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
 /* corak petak (4x4 blok): hanya 2 warna utama per petak = border (12 blok) lebih gelap + tengah (4 blok) sedikit lebih terang. Warna dasar petak tetap dari tileBlock(). */
 function tileShade(bc,n,t,i,j,themeKey){
@@ -6689,6 +6700,7 @@ function cycleMode(){ /* Siang -> Malam -> Auto -> Siang */
   if(autoDN){ setAuto(false); setNight(false); }
   else if(night){ setAuto(true); setNight(night); }
   else setNight(true);
+  if(!autoDN) ambienceWrite(night); /* Siang/Malam manual = menyimpan pilihan Suasana; mode Auto tidak mengubahnya */
   if(ONLINE_ROOM) publishGameSnapshot();
 }
 function tickAuto(dt){ if(!autoDN||paused||gameOver) return; if(ONLINE_ROOM&&!ONLINE_HOST) return; phaseT+=dt; if(phaseT>=PHASE_SEC){ setNight(!night); if(ONLINE_ROOM) publishGameSnapshot(); } }
