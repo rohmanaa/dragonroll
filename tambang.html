@@ -57,7 +57,7 @@ const MSG={'saldo-kurang':'Coin tidak cukup.','sudah-dibuka':'Tambang sudah dibu
 const say=r=>toast(MSG[r&&r.reason]||'Gagal. Coba lagi.');
 
 /* ---------- navigasi: Back ke halaman asal (?from=), Home ke lobby ---------- */
-const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','leaderboard','friendship','shop','mode','misi','hadiah-misi','dailyreward','settings'];
+const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','leaderboard','friendship','shop','mode','misi','hadiah-misi','dailyreward','settings','mail'];
 const FROM=(()=>{const f=new URLSearchParams(location.search).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
 $('#back').addEventListener('click',()=>{playSound();location.href=FROM});
 $('#home').addEventListener('click',()=>{playSound();location.href='lobby.html'});

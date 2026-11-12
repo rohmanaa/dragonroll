@@ -1,15 +1,15 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship selesai; tambang: gua di dalam kartu). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 12 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship, mail selesai; tambang: gua di dalam kartu). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
 
 ---
 
 ## 0. Ringkas (baca ini dulu)
 
 - **Tugas:** pindahkan tampilan `newgui` ke `dragonroll`, satu halaman per commit, di branch **`ui-newgui`** (jangan push ke `main`: CI deploy DB ke produksi).
-- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings`, `shop`, `friendship` (verifikasi visual shop dan uji transaksi Supabase nyata masih perlu dilakukan).
-- **Berikutnya:** `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/misi, Chest/Pet/Mail, terakhir HUD gameplay.
+- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings`, `shop`, `friendship`, `mail` (verifikasi visual shop dan uji transaksi Supabase nyata masih perlu dilakukan).
+- **Berikutnya:** `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/misi, Chest/Pet, terakhir HUD gameplay.
 - **Cara kerja yang terbukti:** pertahankan skrip logika lama halaman dragonroll (RPC, PlayerData, tes), ganti hanya markup + CSS + fungsi render ke gaya newgui. Detail di bagian 5.
 - **Sebelum push:** `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`, bump `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`.
 - **Pemilik:** rohmanaa, bahasa kerja Indonesia. Jangan pernah menulis token GitHub ke repo atau dokumen.
@@ -60,17 +60,18 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 7a. `tambang` | **Selesai** | `99e098a` lalu diubah: gua 3D masuk ke dalam tiap kartu (sw v84) |
 | 7b. profile, leaderboard, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
 | 7c. `friendship` | **Selesai** | Tampilan NewGUI; teman, permintaan, ajakan bermain, avatar, saldo, dan statistik posisi/level/kemenangan memakai layanan Dragon Roll. Like nonaktif sampai tersedia dukungan server; tidak ada statistik tiruan. sw v74 |
-| 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum | — |
+| 8a. `mail` | **Selesai** (migrasi `202611260001_player_mail.sql` BELUM diterapkan ke Supabase mana pun; lihat catatan) | sw v88 |
+| 8b. Chest (butuh RPC server), Pet (butuh data+server) | Belum | — |
 | 9. gameplay: hanya HUD/feedback | Terakhir | — |
 
 Yang belum diverifikasi pada lobby: karakter 3D di atas pedestal (posisi/ukuran), tampilan di HP. Dites hanya lewat jsdom tanpa WebGL (tanpa error JS).
-Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
+Sisa di lobby: Hadiah gratis, Chest, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
 
 ---
 
 ### Catatan per halaman yang sudah dipasang
 
-**`lobby`** — frame avatar profil memakai `FrameFX` agar glow dan partikel animasi muncul seperti di halaman Profil. Belum diverifikasi: karakter 3D di atas pedestal (posisi/ukuran) dan tampilan di HP (dites hanya lewat jsdom tanpa WebGL). Sisa: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
+**`lobby`** — frame avatar profil memakai `FrameFX` agar glow dan partikel animasi muncul seperti di halaman Profil. Titik merah Mail (`#mailDot`) dari `MailService.summary()` lewat `LiveSync` (`pullMail`, minGap 40 dtk). Belum diverifikasi: karakter 3D di atas pedestal (posisi/ukuran) dan tampilan di HP (dites hanya lewat jsdom tanpa WebGL). Sisa: Hadiah gratis, Chest, Pet = toast "segera hadir"; teks misi netral "Buka untuk lihat progres" (progres asli belum disambung); dadu di tangan karakter (aksi toss/dribble/dll.) belum ada, aksi lobby tinggal 6.
 
 **`mode`** — peta dari `RoomFlow.maps()` + The End terkunci; Create Room -> `RoomFlow.navigate('room', ...)`. **Quick Start masih simulasi** (2,4 dtk "mencari lawan" lalu pemain palsu), sama seperti halaman lama. Menyambungkan ke `RoomService.quickJoin` mengubah alur main, jadi butuh keputusan pemilik (lihat "Pertanyaan terbuka").
 
@@ -90,6 +91,8 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 **`efek`** — template sama dengan `frame`/`dadu`, tanpa tombol coba. Data: `ItemCatalog` kind `aura` (15 aura, tanpa item `off`, hanya yang ada di `UT.AuraFX.AURAS`) + kartu pertama **Tanpa Efek** (pseudo-item `__none`, selalu dimiliki; dipakai = slot `aura` kosong; GUNAKAN pada kartu ini = `PD.unequip('aura')`). Pakai/beli seperti frame (`PD.equip`, `WalletService.buy`/`PD.purchase`, langsung dipakai). Preview = karakter pemain 3D (`UT.BlockyCharacter.loadFromPlayer`, tampilan akun dari `AppearanceService`) + `UT.AuraFX.AuraSystem`, berputar pelan, geser = putar, ketuk = aura melompat; memilih kartu hanya `setAura`/`despawn` (karakter tidak dibuat ulang). Tanpa WebGL: preview SVG `ItemArt.aura`. Rarity aura memakai 7 tingkat (uncommon/mythic/divine ditambahkan ke peta label). Kartu = `ItemArt.aura`. CSS: `assets/ng/css/efek.css`; aset baru `glyph-putih/bintang-kilau.webp`. Dites jsdom (16 kartu; jalur dengan stub THREE/AuraFX); posisi/ukuran karakter dan efek aura asli belum dicek di browser (konstanta `FXSCALE`, `CY`, `DIST` di `efek.html`). sw v83.
 
 **`powerup`** — template sama dengan `frame`/`dadu`/`efek`. Data: `ItemCatalog` kind `powerup` tanpa item `off` (baris `KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k&&!i.off))` dan `IC.powerMapNote(i.id)` tetap ada karena dibaca `tests/power-rules.test.js`); stok dari `PlayerData.qty` (kartu ×N, ×0 = terkunci). Beli per jumlah (stepper 1–99) lewat `WalletService.buyPowerup` (mode server, opId unik) atau `PD.purchase` (lokal); item tanpa harga = "TIDAK DIJUAL" (tetap bisa diketuk -> toast). Preview 3D `assets/js/power3d/power-show.js` dimuat malas ke `#p3d` di dalam `#fpv` (importmap tetap di head, dibaca `tests/power3d.test.js`); gagal/tanpa WebGL -> ikon 2D katalog + animasi putar efek + `UT.PowerFX`. Ikon kartu = `item.icon` katalog (bukan ikon contoh newgui). Dompet: + gem -> tambang, + coin -> shop. Id `#art` sengaja tidak dipakai (bentrok dengan `karakter.css`); wadah preview `#pa`.
+
+**`mail`** — kotak masuk **otoritatif server**: `supabase/migrations/202611260001_player_mail.sql` (tabel `player_mail`, RLS tanpa akses langsung, semua lewat RPC `mail_summary/list/read/read_all/claim/claim_all/delete`; hadiah masuk dompet lewat `_wallet_apply` dengan kunci idempoten `('mail', <id surat>)` -> klaim ganda mustahil). Klien: `assets/js/mail-service.js` (`UT.MailService`, pola sama dengan `MineService`: `{ok,reason}`, tidak melempar, klaim/klaim-semua berbagi satu kunci `inflight`, saldo hasil klaim -> `PD.applyServerWallet`; tes `tests/mail-service.test.js`). Halaman `mail.html` + `assets/ng/css/mail.css`: tab Semua/Hadiah/Sistem, Baca Semua, Klaim Semua, modal isi surat, hapus (surat berhadiah yang belum diklaim tidak bisa dihapus), muat ulang tiap 30 dtk saat terlihat. **Tanpa akun login halaman hanya menampilkan ajakan masuk; tidak ada surat/dompet tiruan.** Lobby: tombol Mail -> `mail.html?from=lobby.html`; `tambang.html` menerima `?from=mail.html`. Aset baru: `ikon-item/kado-merah.webp`, `glyph-putih/surat-terbuka.webp`. Surat dibuat hanya oleh server/admin: `select public._mail_send(<user_id>,'reward'|'system',judul,isi,coin,gem,dedupe_key,kedaluwarsa)` atau `_mail_send_all(...)` (dedupe_key wajib) lewat SQL Editor; surat sambutan dibuat otomatis sekali per akun saat `mail_list` pertama. **PENTING:** migrasi baru ikut deploy ke PRODUKSI saat masuk `main` (CI `db-migrate.yml`); review dulu. `supabase/snapshot/00_full_schema.sql` sudah dibangun ulang. Diverifikasi lewat Chromium dengan `MailService` tiruan (3 surat, modal, klaim semua, tanpa galat JS); **belum dites terhadap Supabase nyata** (RPC belum ada di server). `mail` ditambahkan ke `UT.PAGES`, presence, dan suara tombol di `app.js`.
 
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?

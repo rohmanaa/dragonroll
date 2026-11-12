@@ -126,6 +126,7 @@
 <script src="assets/js/character-face.js"></script>
 <script src="assets/js/aura-fx.js"></script><script src="assets/js/aura-view.js"></script>
 <script src="assets/js/wallet-service.js"></script>
+<script src="assets/js/mail-service.js"></script>
 <script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
@@ -157,9 +158,9 @@ UT.Events.on('skinChanged',()=>{renderAvatar();buildHero()});
 UT.Events.on('frameChanged',applyFrame);
 
 /* ---------- navigasi (peta ACT) ---------- */
-const ACT={profil:'profile.html',karakter:'karakter.html',frame:'frame.html',dadu:'dadu.html',efek:'efek.html',powerup:'powerup.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mulai:'mode.html'};
+const ACT={profil:'profile.html',karakter:'karakter.html',frame:'frame.html',dadu:'dadu.html',efek:'efek.html',powerup:'powerup.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
-const SOON={guild:'Guild segera hadir',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir',mail:'Mail segera hadir',pet:'Pet segera hadir',chest:'Chest segera hadir'};
+const SOON={guild:'Guild segera hadir',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir',pet:'Pet segera hadir',chest:'Chest segera hadir'};
 function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
@@ -241,6 +242,9 @@ pullXp();
 /* titik merah Teman = ada permintaan pertemanan masuk */
 const pullFriends=()=>import('./assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{const d=$('#friendDot');if(d)d.hidden=!(r&&r.length);return {ok:true}}).catch(()=>({ok:false}));
 pullFriends();
+/* titik merah Mail = ada surat belum dibaca / hadiah belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
+const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{const d=$('#mailDot');if(d)d.hidden=!(r&&r.ok&&(r.unread||r.pending));return {ok:!!(r&&r.ok)}}):{ok:true}};
+pullMail();
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */
 if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
@@ -248,6 +252,7 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('xp',pullXp);
  LS.add('appearance',()=>{const A=UT.AppearanceService&&UT.AppearanceService.get();return A?A.refreshThrottled().then(()=>({ok:true}),()=>({ok:false})):{ok:true}},{minGap:20000});
  LS.add('friends',pullFriends,{minGap:40000});
+ LS.add('mail',pullMail,{minGap:40000});
  LS.start({interval:20000});
 }
 </script>

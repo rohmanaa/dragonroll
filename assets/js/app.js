@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'room', 'settings', 'karakter', 'tambang'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -225,7 +225,7 @@ window.UT = window.UT || {};
     UT.App.options = options;
     UT.App.page = options.page || null;
     /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
-    if (['lobby','shop','frame','dadu','efek','powerup','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang'].indexOf(UT.App.page) >= 0) {
+    if (['lobby','shop','frame','dadu','efek','powerup','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
       try { import('./multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
     }
     if (UT.App.page && UT.PAGES.indexOf(UT.App.page) < 0 && win.console) console.warn('[UT.App] page tidak dikenal:', UT.App.page);
@@ -251,7 +251,7 @@ window.UT = window.UT || {};
     }
     /* Suara ketukan tombol otomatis untuk halaman yang belum punya playSound sendiri (halaman lain sudah memanggil UT.Audio.play('button')).
        Hanya bunyi bila pengaturan "Suara" aktif. */
-    if (['lobby', 'mode', 'friendship', 'settings'].indexOf(UT.App.page) > -1) {
+    if (['lobby', 'mode', 'friendship', 'settings', 'mail'].indexOf(UT.App.page) > -1) {
       doc.addEventListener('click', function (e) {
         var t = e.target && e.target.closest ? e.target.closest('button,[role="button"],a[href],[data-act]') : null;
         if (!t || t.disabled) return;
