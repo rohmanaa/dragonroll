@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>CSS sun rays through a window</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <div class="container">
+  <div class="photo">
+    <img src="https://images.unsplash.com/photo-1509177532812-b41c8305705a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=960&h=640&q=80" width="960" height="640" alt="">
+  </div>
+  <div class="sunrays r1">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+  <div class="sunrays r2">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
+  </div>
+  <div class="sun"></div>
+
+  <div class="mask"></div>
+</div>
+<div class="attribution">Photo by <a href="https://unsplash.com/@anthonytran" target="_blank">Anthony Tran</a> on <a href="https://unsplash.com/" target="_blank">Unsplash</a></div>
+
+
+<div class="buttons">
+  <button type="button" id="reset-btn" class="btn">Reset</button>
+  <button type="button" id="css-btn" class="btn">CSS</button>
+  <button type="button" id="play-btn" class="btn">Play</button>
+</div>
+<div class="css-code"></div>
+<div class="panel">
+  <div class="column">
+    <div class="rows">
+      <p>Sun rays: </p>
+      <div id="var-sunrays" class="cb-list"></div>
+      <label for="cb-ol"><input type="checkbox" id="cb-ol"> outlines</label>
+    </div>
+    <div class="rows" id="var-position">
+      <p>position:</p>
+    </div>
+    <div class="rows" id="var-angle">
+      <p>angle:</p>
+    </div>
+    <div class="rows" id="var-perspective">
+      <p>perspective:</p>
+    </div>
+    <div class="rows" id="var-opacity">
+      <p>opacity:</p>
+    </div>
+  </div>
+  <div class="column">
+    <div class="rows" id="var-sun">
+      <p>sun:</p>
+    </div>
+    <div class="rows" id="var-sun-shadow">
+      <p>sun shadow:</p>
+      <label for="sun-color">color: <input type="color" id="sun-color" value="#ffffff"></label>
+    </div>
+    <div class="rows" id="var-light-height">
+      <p>light height:</p>
+    </div>
+    <div class="rows" id="var-light-shadow">
+      <p>light shadow:</p>
+    </div>
+  </div>
+  <div class="column">
+    <div class="rows" id="var-light-origin">
+      <p>transform-origin:</p>
+    </div>
+    <div class="rows" id="var-light-transform">
+      <p>transform:</p>
+    </div>
+    <div class="rows" id="var-filter">
+      <p>filter:</p>
+    </div>
+    <div class="rows" id="var-mask">
+      <p>mask:</p>
+    </div>
+  </div>
+</div>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
