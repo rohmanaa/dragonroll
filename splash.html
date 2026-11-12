@@ -7,14 +7,14 @@
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/splash.css">
 <style>
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
-body.quick #loadbox,body.quick #hero,body.quick #spin{visibility:hidden}
+body.quick #loadbox,body.quick #spin{visibility:hidden}
 .btn[disabled]{opacity:.6;pointer-events:none}
 </style>
 </head>
 <body class="splash">
 <div id="scene">
   <div id="cave"><i id="beam"></i><i id="floor"></i></div>
-  <img id="hero" src="assets/ng/komponen/karakter-monster/hero-shuri-pemanah.webp" alt="">
+  <canvas id="splashfx" aria-hidden="true"></canvas>
   <img id="spin" src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt="">
   <div id="vig"></div>
 
@@ -57,6 +57,7 @@ body.quick #loadbox,body.quick #hero,body.quick #spin{visibility:hidden}
   </div></div>
 </div>
 <div id="fade"></div>
+<script src="assets/js/splash-fx.js"></script><script>UT.SplashFX&&UT.SplashFX.mount()</script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/preloader.js"></script>

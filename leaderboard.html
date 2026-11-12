@@ -15,7 +15,9 @@
   <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
   <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
   <nav id="ltabs" aria-label="Kategori"></nav>
+  <div id="pfxb" aria-hidden="true"><i class="pg g2"></i><i class="pg g3"></i><i class="pg g1"></i></div>
   <section id="podium"></section>
+  <div id="pfxf" aria-hidden="true"><i class="pshine"></i><canvas id="pfxc"></canvas></div>
   <div id="mycard"></div>
   <button class="btn" id="reward"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp" alt=""><span>HADIAH</span></button>
   <section id="board">
@@ -39,6 +41,7 @@
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script src="assets/js/live-sync.js"></script>
+<script src="assets/js/podium-fx.js"></script><script>UT.PodiumFX&&UT.PodiumFX.mount()</script>
 <script>UT.App.init({page:'leaderboard'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script><script src="assets/js/appearance-service.js"></script>

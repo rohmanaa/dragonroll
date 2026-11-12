@@ -5,16 +5,13 @@ html{font-size:min(calc(100vw/120),calc(100vh/67.5))}
 html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:hidden}
 #scene{position:fixed;inset:0;overflow:hidden}
 #cave{position:absolute;inset:0;
-  background:
-   radial-gradient(ellipse 34% 62% at 38% 0%,rgba(222,150,40,.78),rgba(150,95,25,.35) 55%,transparent 80%),
-   radial-gradient(ellipse 30% 60% at 70% 34%,rgba(96,60,34,.85),transparent 78%),
-   radial-gradient(ellipse 22% 44% at 11% 58%,rgba(40,98,120,.38),transparent 80%),
-   radial-gradient(ellipse 18% 56% at 56% 46%,rgba(38,22,16,.95),transparent 85%),
-   linear-gradient(180deg,#2a1d17 0%,#1b141b 60%,#120d14 100%)}
-#beam{position:absolute;left:24%;top:-4%;width:22%;height:72%;transform:skewX(-8deg);background:linear-gradient(180deg,rgba(255,214,120,.38),transparent);filter:blur(2rem)}
-#floor{position:absolute;left:3%;right:3%;top:72%;height:12%;background:radial-gradient(ellipse 52% 46% at 46% 38%,#f6edaa 0%,#d9cc86 45%,rgba(150,140,90,.2) 72%,transparent 80%);filter:blur(.2rem);opacity:.95}
+  background:url(../../Images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
+/* setelah loading selesai (TAP TO START): crossfade ke foto gerbang portal */
+#cave::after{content:'';position:absolute;inset:0;background:url(../../Images/background/splash-portal.jpg) center/cover no-repeat;opacity:0;transition:opacity .6s ease}
+body.ready #cave::after{opacity:1}
+#beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
+#splashfx{position:absolute;inset:0;pointer-events:none}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 78% 78% at 50% 46%,transparent 40%,rgba(8,5,10,.75) 100%),linear-gradient(180deg,transparent 80%,rgba(8,5,10,.85))}
-#hero{position:absolute;left:30vw;bottom:21vh;width:23.75rem;height:auto;filter:drop-shadow(0 .6rem .5rem rgba(0,0,0,.55))}
 #spin{position:absolute;left:calc(50vw - 3.4rem);top:calc(42vh - 3.4rem);width:6.9rem;height:auto;animation:spin 1.6s steps(12) infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
@@ -72,7 +69,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 /* ===== TAP TO START (mengikuti gmyIel) ===== */
 #intro{position:absolute;inset:0;display:none;z-index:5}
 body.ready #intro{display:block;animation:fin .6s ease both}
-body.ready #hero,body.ready #spin,body.ready #loadbox,body.ready #loginbtn{display:none!important}
+body.ready #spin,body.ready #loadbox,body.ready #loginbtn{display:none!important}
 @keyframes fin{from{opacity:0}}
 #lg{position:absolute;left:50%;top:3.4rem;transform:translateX(-50%);width:46rem}
 #lg .rb{position:relative;width:34.75rem;margin:0 auto .1rem;z-index:2}
@@ -87,4 +84,4 @@ body.ready #hero,body.ready #spin,body.ready #loadbox,body.ready #loginbtn{displ
 #tapbox span{font:800 3.4rem/1 var(--font-body);letter-spacing:.25rem;color:#fff;text-shadow:0 .15rem .3rem rgba(0,0,0,.7);animation:blink 1.4s ease-in-out infinite}
 #hi{position:absolute;left:0;right:0;bottom:3.2rem;text-align:center;font:800 1.9rem var(--font-body);color:#d8d2ee;text-shadow:0 .1rem .2rem rgba(0,0,0,.7)}
 @keyframes blink{50%{opacity:.35}}
-body.ready #cave{filter:hue-rotate(95deg) saturate(1.1) brightness(.95)}
+body.ready #cave{filter:saturate(1.1) brightness(.92)}
