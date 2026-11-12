@@ -58,15 +58,15 @@ html[data-ambience="night"] .sbg-img{filter:brightness(.4) saturate(.8) hue-rota
 html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(3,8,40,.86) 0%,rgba(10,26,88,.5) 38%,rgba(20,50,120,0) 72%)}
 html[data-ambience="night"] .sbg-fog{background:linear-gradient(180deg,rgba(40,84,176,0) 36%,rgba(40,84,176,.2) 60%,rgba(30,62,150,.55) 100%)}
 /* matahari -> cahaya bulan (biru pucat dingin) */
-html[data-ambience="night"] .sbg-sun{opacity:.4;background:radial-gradient(circle at var(--sun-x) var(--sun-y),rgba(205,222,255,.8) 0,rgba(150,182,255,.34) 13%,rgba(120,160,255,.12) 32%,rgba(120,160,255,0) 56%)}
-html[data-ambience="night"] .sbg-rays{opacity:.18;
+html[data-ambience="night"] .sbg-sun{opacity:0;background:radial-gradient(circle at var(--sun-x) var(--sun-y),rgba(205,222,255,.8) 0,rgba(150,182,255,.34) 13%,rgba(120,160,255,.12) 32%,rgba(120,160,255,0) 56%)}
+html[data-ambience="night"] .sbg-rays{opacity:0;
   background:conic-gradient(from 188deg at var(--sun-x) var(--sun-y),
     transparent 0 2deg,rgba(170,200,255,.26) 5deg,transparent 9deg,
     transparent 14deg,rgba(160,192,255,.2) 18deg,transparent 24deg,
     transparent 30deg,rgba(176,204,255,.22) 35deg,transparent 41deg,
     transparent 48deg,rgba(150,185,255,.16) 53deg,transparent 60deg,
     transparent 68deg,rgba(170,200,255,.14) 73deg,transparent 80deg,transparent 360deg)}
-html[data-ambience="night"] .sbg-bloom{background:radial-gradient(circle at calc(var(--sun-x) - 1%) 12%,rgba(200,220,255,.14) 0,rgba(200,220,255,0) 28%),radial-gradient(ellipse at 50% 38%,rgba(110,150,255,.12) 0,rgba(110,150,255,0) 62%)}
+html[data-ambience="night"] .sbg-bloom{background:radial-gradient(ellipse at 50% 38%,rgba(110,150,255,.12) 0,rgba(110,150,255,0) 62%)}
 /* bintang: kedip pelan, memudar ke bawah (tidak menutupi pulau/karakter) */
 html[data-ambience="night"] .sbg-stars{display:block;background-size:1280px 720px;opacity:.5;animation:sbg-twinkle 5s ease-in-out infinite alternate;
   -webkit-mask-image:linear-gradient(#000 0,#000 18%,transparent 48%);mask-image:linear-gradient(#000 0,#000 18%,transparent 48%)}
@@ -74,7 +74,7 @@ html[data-ambience="night"] .sbg-stars{display:block;background-size:1280px 720p
 /* bulan sabit-penuh bergaya piksel lembut */
 html[data-ambience="night"] .sbg .sbg-moon{display:block;inset:auto;left:var(--sun-x);top:var(--sun-y);width:4.6vh;height:4.6vh;translate:-50% -50%;border-radius:50%;
   background:radial-gradient(circle at 34% 32%,#fff 0,#eef3ff 42%,#c4d2f2 100%);
-  box-shadow:0 0 1.2vh .3vh rgba(190,212,255,.4),0 0 5vh 1.4vh rgba(140,176,255,.12),inset -.7vh -.6vh 0 rgba(120,140,190,.28)}
+  box-shadow:inset -.7vh -.6vh 0 rgba(120,140,190,.28)} /* tanpa halo/cahaya luar */
 html[data-ambience="night"] .sbg .sbg-moon::before{content:"";position:absolute;left:24%;top:30%;width:22%;height:22%;border-radius:50%;background:rgba(120,140,190,.28);box-shadow:2.4vh 2.2vh 0 -.2vh rgba(120,140,190,.22),.6vh 3.4vh 0 -.4vh rgba(120,140,190,.2)}
 /* awan malam: redup & kebiruan */
 html[data-ambience="night"] .sbg-cloud{filter:brightness(.42) saturate(.7) blur(var(--b,0px));opacity:calc(var(--o)*.78)}
