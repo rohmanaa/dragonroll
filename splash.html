@@ -1,311 +1,182 @@
-<!DOCTYPE html>
-<html lang="id">
-<head><script src="assets/js/frame-guard.js"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DRAGON ROLL</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Lilita+One&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!doctype html>
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DRAGON ROLL</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/splash.css">
 <style>
-:root{--lime:#7dff2e;--navy:#09152b;--blue:#1763b9}
-*{box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;overflow:hidden}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
-
-
-.splash{position:relative;width:100%;height:100%;min-height:560px;overflow:hidden;isolation:isolate;background:none}
-
-
-
-
-.brand{position:absolute;top:5%;left:50%;transform:translateX(-50%);text-align:center;z-index:6;text-shadow:0 4px 12px rgba(5,29,67,.28);white-space:nowrap}
-.brand .small{font-size:12px;font-weight:800;letter-spacing:.28em;color:#e5f7ff}
-.brand h1{font:400 clamp(32px,4vw,54px)/.9 'Lilita One',sans-serif;margin:9px 0 0;letter-spacing:.03em}
-.brand h1 span{color:var(--lime)}
-
-.bottom-ui{position:absolute;z-index:7;left:50%;bottom:5.5%;transform:translateX(-50%);width:min(420px,88vw);text-align:center}
-.status{font:400 23px 'Lilita One',sans-serif;letter-spacing:.04em;text-shadow:0 3px 8px rgba(6,36,74,.25);margin-bottom:14px}
-.loading-track{height:13px;padding:3px;border-radius:99px;background:rgba(7,35,75,.28);border:1px solid rgba(255,255,255,.5);box-shadow:0 5px 16px rgba(8,37,76,.16);overflow:hidden}
-.loading-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#b8ff63,#65ed26);box-shadow:0 0 14px rgba(125,255,46,.7);transition:width .15s linear}
-.load-meta{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;font-weight:800;letter-spacing:.12em;color:#eaf7ff;text-shadow:0 2px 5px rgba(6,36,74,.3)}
-
-@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(35deg)}}
-
-
-@media(max-width:700px){
-  .brand{top:7%}
-  .bottom-ui{bottom:6%}
-}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:0.01ms!important;animation-iteration-count:1!important}}
-/* Stage 1.85:1 (Stage 4.1.19): di landscape konten jadi kotak 1.85:1 di tengah; min-height portrait dilepas agar tidak terpotong di HP landscape */
-@media (min-aspect-ratio:1/1){
-  .splash{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(100vw,185vh);height:min(100vh,54.054vw);min-height:0;background:none;overflow:visible;container-type:size}
-  .brand{top:4cqh}
-  .brand h1{font-size:clamp(22px,7cqh,54px)}
-  .bottom-ui{bottom:3cqh;width:min(420px,60cqw)}
-  .status{font-size:18px;margin-bottom:8px}
-}
+/* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
+body.quick #loadbox,body.quick #hero,body.quick #spin{visibility:hidden}
+.btn[disabled]{opacity:.6;pointer-events:none}
 </style>
-<style id="progress-pixel">
-/* Progres loading: gaya piksel mengikuti redesign-hud/progres.webp (bar hijau bersegmen, outline hitam tebal, teks emas).
-   HANYA tampilan; id/markup/JS tidak berubah. Dimuat paling akhir. */
-.track,.loading-track{height:30px;padding:4px;border-radius:0;background:#0b140b;border:0;overflow:hidden;
-  box-shadow:inset 0 3px 0 rgba(0,0,0,.65),0 -4px 0 0 #000,0 4px 0 0 #000,-4px 0 0 0 #000,4px 0 0 0 #000,0 8px 0 0 #000}
-.fill,.loading-fill{border-radius:0;
-  background:repeating-linear-gradient(90deg,transparent 0 27px,#0b2a0b 27px 30px),linear-gradient(#86f04f,#38c22d 55%,#239a25);
-  box-shadow:inset 0 4px 0 rgba(255,255,255,.4),inset 0 -4px 0 rgba(0,0,0,.22)}
-.meta,.load-meta{margin-top:20px;font:400 18px 'Lilita One',sans-serif;letter-spacing:.04em;color:#ffd23e;
-  text-shadow:-2px 0 #3a2200,2px 0 #3a2200,0 -2px #3a2200,0 2px #3a2200,-2px -2px #3a2200,2px -2px #3a2200,-2px 2px #3a2200,2px 2px #3a2200,0 4px 0 #3a2200}
-.status{text-shadow:-2px 0 #0b1838,2px 0 #0b1838,0 -2px #0b1838,0 2px #0b1838,-2px -2px #0b1838,2px -2px #0b1838,-2px 2px #0b1838,2px 2px #0b1838,0 4px 0 #0b1838}
-@media(max-width:700px){.meta,.load-meta{font-size:15px}}
-</style>
-<style id="hero-dice">
-/* Dadu besar berputar di tengah (pengganti pulau melayang). Ukuran lewat --sz; semua bagian dadu mengikuti. */
-.hero-dice{--sz:56px;position:relative;width:var(--sz);height:var(--sz);margin:0 auto 26px}
-.hero-dice .bob{position:absolute;inset:0;perspective:1000px;animation:diceBob 5s ease-in-out infinite;filter:drop-shadow(0 24px 22px rgba(8,35,74,.28))}
-@keyframes diceBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
-.hero-dice .dice{position:absolute;inset:0;transform-style:preserve-3d;animation:diceSpin 8s linear infinite}
-@keyframes diceSpin{0%{transform:rotateX(-26deg) rotateY(-30deg) rotateZ(0)}100%{transform:rotateX(-26deg) rotateY(330deg) rotateZ(0)}}
-.hero-dice .face{position:absolute;inset:0;border:calc(var(--sz)*.06) solid #1b2a3b;border-radius:0;background:#fff;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:calc(var(--sz)*.12);box-shadow:inset 0 calc(var(--sz)*.06) 0 rgba(255,255,255,.28),inset 0 calc(var(--sz)*-.06) 0 rgba(0,0,0,.18);backface-visibility:hidden}
-.hero-dice .face i{width:calc(var(--sz)*.17);height:calc(var(--sz)*.17);border-radius:0;background:#1b2a3b;place-self:center}
-.hero-dice .face i.o{visibility:hidden}
-.hero-dice .f1 i:nth-child(5){background:#1b2a3b}
-.hero-dice .f1{transform:translateZ(calc(var(--sz)/2))}
-.hero-dice .f6{transform:rotateY(180deg) translateZ(calc(var(--sz)/2))}
-.hero-dice .f2{transform:rotateY(90deg) translateZ(calc(var(--sz)/2))}
-.hero-dice .f5{transform:rotateY(-90deg) translateZ(calc(var(--sz)/2))}
-.hero-dice .f3{transform:rotateX(90deg) translateZ(calc(var(--sz)/2))}
-.hero-dice .f4{transform:rotateX(-90deg) translateZ(calc(var(--sz)/2))}
-.hero-dice .shadow{position:absolute;left:12%;right:12%;bottom:-14%;height:9%;border-radius:50%;background:rgba(8,35,74,.28);filter:blur(10px);animation:diceShadow 5s ease-in-out infinite}
-@keyframes diceShadow{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(.86);opacity:.6}}
-.hero-dice .spark{position:absolute;color:#edffb0;font-size:calc(var(--sz)*.1);animation:twinkle 2.4s ease-in-out infinite}
-.hero-dice .sp1{left:-14%;top:4%}.hero-dice .sp2{right:-16%;top:30%;animation-delay:.8s}
-@media (min-aspect-ratio:1/1){.hero-dice{--sz:44px;margin-bottom:20px}}
-@media(prefers-reduced-motion:reduce){.hero-dice .dice{animation:none;transform:rotateX(-26deg) rotateY(-30deg)}}
-</style>
-<style id="progress-small">
-/* Bar loading splash diperkecil (tetap di bawah). HANYA tampilan. */
-.bottom-ui{width:min(260px,60vw)}
-.track,.loading-track{height:18px;padding:3px;box-shadow:inset 0 2px 0 rgba(0,0,0,.65),0 -3px 0 0 #000,0 3px 0 0 #000,-3px 0 0 0 #000,3px 0 0 0 #000,0 6px 0 0 #000}
-.fill,.loading-fill{background:repeating-linear-gradient(90deg,transparent 0 17px,#0b2a0b 17px 19px),linear-gradient(#86f04f,#38c22d 55%,#239a25)}
-.meta,.load-meta{margin-top:14px;font-size:13px}
-@media (min-aspect-ratio:1/1){.bottom-ui{width:min(260px,34cqw)}}
-</style>
-<style id="progress-match">
-/* Bar splash disamakan dengan bar layar awan antar-halaman (play.html #ov .ldb): lintasan bulat putih, isi hijau mulus + kilau, teks biru. HANYA tampilan. */
-.bottom-ui,html body .bottom-ui{width:min(320px,60vw)}
-@media (min-aspect-ratio:1/1){.bottom-ui,html body .bottom-ui{width:min(320px,34cqw)}}
-.track,.loading-track{height:14px;padding:0;border-radius:7px;background:rgba(255,255,255,.7);border:2px solid #fff;box-sizing:content-box;
-  box-shadow:0 2px 0 rgba(42,95,147,.28),inset 0 2px 3px rgba(42,95,147,.18);overflow:hidden}
-.fill,.loading-fill{position:relative;overflow:hidden;height:100%;border-radius:5px;background:linear-gradient(#9be15a,#4fb83a);box-shadow:none;transition:width .35s ease-out}
-.fill::after,.loading-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);transform:translateX(-100%);animation:ldsh 1.1s linear infinite}
-@keyframes ldsh{to{transform:translateX(100%)}}
-.meta,.load-meta{display:flex;justify-content:center;gap:10px;margin-top:8px;font:800 15px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:0;color:#2a5f93;text-shadow:0 1px 0 #fff;white-space:nowrap}
-@media(max-width:700px){.meta,.load-meta{font-size:15px}}
-@media(prefers-reduced-motion:reduce){.fill::after,.loading-fill::after{animation:none}}
-</style>
-<style id="auth-ui">
-/* Gerbang login: tombol LOGIN setelah loading + modal Daftar/Masuk. Warna & font disamakan dengan lobby (biru + hijau + slate, Baloo 2). */
-.login-btn{display:none;margin:14px auto 0;min-width:120px;padding:7px 22px;font:800 16px 'Baloo 2','Fredoka',system-ui,sans-serif;letter-spacing:.04em;color:#fff;text-shadow:0 2px 0 #1b5a14;background:linear-gradient(#6fd45a 0%,#58bb48 55%,#3f9d3a 56%,#3f9d3a 100%);border:0;border-radius:10px;box-shadow:inset 0 0 0 2px #a8ec8f,inset 0 0 0 4px #1b2a44,0 4px 0 #1b2a44,0 8px 12px rgba(10,60,20,.4);cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
-.login-btn.show{display:block}
-body.login-ready .loading-track,body.login-ready .load-meta{display:none} /* loading disembunyikan setelah tombol LOGIN muncul */
-.login-btn:hover{transform:scale(1.05);filter:brightness(1.08)}
-.login-btn:active{transform:scale(.94)}
-.auth-ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(18,51,127,.4);backdrop-filter:blur(6px);padding:16px}
-.auth-ov.show{display:flex}
-.auth-card{width:min(320px,100%);max-height:100%;overflow:auto;background:linear-gradient(#7cc2ff,#4a9ae8);border-radius:20px;box-shadow:0 8px 0 #12337f,0 16px 28px rgba(0,0,0,.3);padding:18px 18px 16px;color:#fff;font-family:'Baloo 2','Fredoka',system-ui,sans-serif;font-weight:800}
-.auth-card h2{margin:0 0 2px;font:800 24px 'Baloo 2','Fredoka',system-ui,sans-serif;letter-spacing:.02em;text-align:center;text-shadow:0 2px 0 #12337f}
-.auth-card h2 span{color:#f4cd5c}
-.auth-sub{margin:0 0 12px;text-align:center;font-size:12px;font-weight:700;color:#e8f4ff;text-shadow:0 1px 0 rgba(18,51,127,.6)}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
-.auth-tab{padding:6px 0;font:800 14px 'Baloo 2','Fredoka',system-ui,sans-serif;letter-spacing:.03em;color:#e8f4ff;background:rgba(18,51,127,.25);border:0;border-radius:12px;cursor:pointer}
-.auth-tab[aria-selected=true]{color:#fff;text-shadow:0 2px 0 #1b5a14;background:linear-gradient(#6fd45a,#3f9d3a);box-shadow:0 3px 0 #1b5a14}
-.auth-card label{display:block;margin:8px 0 3px;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;text-shadow:0 1px 0 rgba(18,51,127,.6)}
-.auth-card input{width:100%;padding:8px 10px;font:700 14px 'Plus Jakarta Sans',sans-serif;color:#fff;background:rgba(18,51,127,.45);border:2px solid #12337f;border-radius:10px;outline:none}
-.auth-card input:focus{border-color:#f4cd5c}
-.pw-wrap{position:relative}.pw-wrap input{padding-right:42px}
-.pw-eye{position:absolute;right:3px;top:50%;translate:0 -50%;width:34px;height:34px;padding:0;display:grid;place-items:center;border:0;border-radius:8px;background:none;color:#cfe6ff;cursor:pointer}
-.pw-eye:hover,.pw-eye:focus-visible{color:#f4cd5c;outline:none}.pw-eye svg{width:20px;height:20px}
-.pw-eye .eye-off{display:none}.pw-eye.on .eye-on{display:none}.pw-eye.on .eye-off{display:block}
-.auth-hint{margin-top:3px;font-size:10.5px;font-weight:700;color:#e8f4ff;opacity:.85}
-.auth-err{min-height:16px;margin:8px 0 0;font-size:12px;font-weight:800;color:#fff;text-align:center}
-.auth-err:not(:empty){background:#ee4a4a;border-radius:10px;padding:4px 8px;box-shadow:0 3px 0 #8e1d1d}
-.auth-go{width:100%;margin-top:10px;padding:8px;font:800 17px 'Baloo 2','Fredoka',system-ui,sans-serif;letter-spacing:.04em;color:#fff;text-shadow:0 2px 0 #1b5a14;background:linear-gradient(#6fd45a 0%,#58bb48 55%,#3f9d3a 56%,#3f9d3a 100%);border:0;border-radius:12px;box-shadow:inset 0 0 0 2px #a8ec8f,inset 0 0 0 4px #1b2a44,0 4px 0 #1b2a44;cursor:pointer}
-.auth-go:disabled{opacity:.6;cursor:wait}
-.auth-sw{margin:10px 0 0;text-align:center;font-size:12px;font-weight:700;color:#e8f4ff}
-.auth-sw button{background:none;border:0;padding:0;font:800 12px 'Baloo 2','Fredoka',system-ui,sans-serif;color:#f4cd5c;text-decoration:underline;cursor:pointer}
-</style>
-<style id="intro-logo">
-/* Intro logo (gaya Clash of Clans): latar hitam, logo fade in lalu fade out + suara naga, baru layar loading. */
-.intro{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:#000;opacity:1;transition:opacity .5s ease}
-.intro.on{display:flex}
-.intro.off{opacity:0;pointer-events:none}
-.intro img{width:min(78vw,62vh,560px);height:auto;opacity:0;transform:scale(.94);animation:introLogo 2.4s ease-in-out forwards}
-@keyframes introLogo{0%{opacity:0;transform:scale(.94)}30%{opacity:1;transform:scale(1)}72%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:scale(1.04)}}
-@media(prefers-reduced-motion:reduce){.intro img{animation:introLogoRm 2s linear forwards}@keyframes introLogoRm{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}}
-/* Fade in dari hitam saat layar naga dimulai */
-html.introfade{background:#000}
-html.introfade body{background:transparent;animation:utIn .7s ease backwards}
-@keyframes utIn{from{opacity:0}to{opacity:1}}
-/* Fade out ke hitam sebelum pindah ke lobby */
-.to-black{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at center,rgba(0,0,0,.55) 0%,#000 78%);opacity:0;pointer-events:all;transition:opacity 1.5s cubic-bezier(.45,0,.25,1)}
-.to-black.on{opacity:1}
-/* sinematik: UI loading memudar duluan, latar zoom pelan (transform di .loading-bg saja, bukan di body) */
-html.leaving .loading-bg{transition:transform 2s cubic-bezier(.2,.6,.3,1);transform:scale(1.08)}
-html.leaving .splash{transition:opacity .7s ease;opacity:0}
-@media(prefers-reduced-motion:reduce){html.introfade body{animation:none}.to-black{transition:none}html.leaving .loading-bg,html.leaving .splash{transition:none;transform:none}}
-</style>
-<link rel="preload" as="image" href="assets/Images/background/loading-bg.webp">
-<style id="loading-bg">
-/* Latar layar loading: pulau melayang + naga (loading-bg.webp). Menggantikan SceneBackground di halaman ini. */
-body{background:#1b3fb4}
-.loading-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#1b3fb4 url(assets/Images/background/loading-bg.webp) 50% 50%/cover no-repeat}
-/* gradasi gelap lembut di bawah agar bar progres & teks tetap terbaca */
-.loading-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,60,0) 55%,rgba(8,16,60,.55) 100%)}
-/* Teks status loading: putih, lebih kecil, huruf biasa (bukan kapital semua), tetap terbaca di atas latar lewat bayangan lembut */
-.meta,.load-meta{font:700 13px/1.2 'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.01em;text-transform:none;color:#fff;text-shadow:0 1px 2px rgba(5,20,60,.75),0 0 8px rgba(5,20,60,.45);opacity:1}
-.load-meta span{color:#fff}
-/* Mode cepat: dipakai saat intro naga tidak ditampilkan (pindah halaman dalam sesi yang sama). Latar hitam polos seperti layar naga, tanpa bar & dadu. */
-html.quick .loading-bg,html.quick .hero-dice,html.quick .loading-track,html.quick .load-meta{display:none!important}
-html.quick,html.quick body{background:#000}
-</style>
-<link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/session.js"></script><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><script src="assets/js/scene-bg.js"></script>
-<script src="assets/js/landscape.js"></script></head>
-<body>
-<div class="intro" id="intro" aria-hidden="true"><img src="assets/Images/logo/dragon-roll-logo.webp" alt="DRAGON ROLL" decoding="async"></div>
-<script>
-/* Intro logo: hanya saat start dingin (tanpa ?next). Loading baru jalan setelah intro selesai (window.UT_introDone). */
-(function(){
-  var DUR=2400, intro=document.getElementById('intro'), done;
-  window.UT_introDone=new Promise(function(r){done=r;});
-  var hasNext=!!new URLSearchParams(location.search).get('next'), booted=false;
-  try{ booted=sessionStorage.getItem('ut:booted')==='1'; }catch(e){}
-  /* Naga selalu tampil di awal sesi baru, walau game dibuka lewat halaman lain (boot-guard mengalihkan ke sini dengan ?next).
-     Hanya bila sesi sudah berjalan (sudah lewat splash) dan dialihkan lagi -> layar hitam polos tanpa bar. */
-  if(hasNext && booted){
-    intro.remove(); document.documentElement.classList.add('quick');
-    done(); return;
-  }
-  intro.classList.add('on'); document.documentElement.classList.add('introfade');
-  var a; try{ a=new Audio('assets/sfx/dragon-studio.mp3'); a.preload='auto'; a.volume=1; }catch(e){}
-  var played=false;
-  function play(){ if(played||!a) return; var p; try{ p=a.play(); }catch(e){ return; } played=true; if(p&&p.catch) p.catch(function(){ played=false; }); }
-  play(); /* bila autoplay diblokir browser, ulang di sentuhan pertama */
-  ['pointerdown','keydown','touchstart'].forEach(function(ev){ addEventListener(ev,play,{once:true,passive:true}); });
-  setTimeout(function(){ intro.classList.add('off'); setTimeout(function(){ intro.remove(); document.documentElement.classList.remove('introfade'); done(); },450); },DUR);
-})();
-</script>
+</head>
+<body class="splash">
+<div id="scene">
+  <div id="cave"><i id="beam"></i><i id="floor"></i></div>
+  <img id="hero" src="assets/ng/komponen/karakter-monster/hero-shuri-pemanah.webp" alt="">
+  <img id="spin" src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt="">
+  <div id="vig"></div>
 
-<div class="loading-bg" aria-hidden="true"></div>
-<main class="splash" aria-label="Layar memuat DRAGON ROLL">
-  <section class="bottom-ui">
-    <!-- dadu berputar kecil di atas bar -->
-    <div class="hero-dice" aria-hidden="true">
-      <span class="spark sp1">✦</span><span class="spark sp2">✧</span>
-      <div class="bob"><div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div><div class="shadow"></div></div>
+  <div id="loadbox">
+    <img class="frm" src="assets/ng/komponen/logo/bar-loading-bingkai-kosong.webp" alt="">
+    <div id="bar"><i id="fill"></i></div>
+    <div id="lbl">Loading… 0%</div>
+  </div>
+  <!-- TAP TO START: muncul setelah loading selesai & sudah login -->
+  <div id="intro">
+    <div id="lg"><div class="rb"><img src="assets/ng/komponen/logo/pita-merah-kosong.webp" alt=""><b>DRAGON ROLL</b></div>
+      <img class="fa" src="assets/ng/komponen/logo/logo-kata-fantasy.webp" alt=""><img class="rp" src="assets/ng/komponen/logo/logo-kata-rpg.webp" alt=""></div>
+    <button id="tapbox" aria-label="Tap to start"><span>TAP TO START</span></button>
+    <div id="hi"></div>
+  </div>
+  <button class="btn" id="loginbtn" hidden><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>Login</span></button>
+
+  <!-- LOGIN (username + password; akun asli lewat UT.Auth) -->
+  <div class="amodal" id="m-login"><div class="dlg">
+    <div class="dh"><span>Login</span><button class="x" data-close aria-label="Tutup"><img src="assets/ng/komponen/glyph-putih/silang.webp" alt=""></button></div>
+    <div class="df">
+      <label class="inp"><img src="assets/ng/komponen/glyph-putih/pengguna.webp" alt=""><input id="li-id" maxlength="16" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label class="inp"><img src="assets/ng/komponen/glyph-putih/gembok.webp" alt=""><input id="li-pw" type="password" placeholder="Password" autocomplete="current-password"></label>
+      <div class="err" id="li-err"></div>
+      <button class="btn blue" id="li-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>Login</span></button>
+      <div class="foot c">Belum punya akun? <a id="to-signup" href="#">Sign up</a></div>
     </div>
+  </div></div>
 
-    <div class="loading-track"><div class="loading-fill" id="fill"></div></div>
-    <div class="load-meta"><span id="label">Menyiapkan dunia</span><span id="percent">0%</span></div>
-    <button type="button" class="login-btn" id="loginBtn">LOGIN</button>
-  </section>
-</main>
-
-
-<div class="auth-ov" id="authOv" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-  <form class="auth-card" id="authForm" autocomplete="on" novalidate>
-    <h2 id="authTitle">DRAGON <span>ROLL</span></h2>
-    <p class="auth-sub" id="authSub">Buat akun untuk mulai bermain</p>
-    <div class="auth-tabs" role="tablist">
-      <button type="button" class="auth-tab" id="tabReg" role="tab" aria-selected="true">DAFTAR</button>
-      <button type="button" class="auth-tab" id="tabLog" role="tab" aria-selected="false">MASUK</button>
+  <!-- SIGN UP -->
+  <div class="amodal" id="m-signup"><div class="dlg">
+    <div class="dh"><span>Sign up</span><button class="x" data-close aria-label="Tutup"><img src="assets/ng/komponen/glyph-putih/silang.webp" alt=""></button></div>
+    <div class="df">
+      <label class="inp"><img src="assets/ng/komponen/glyph-putih/pengguna.webp" alt=""><input id="su-us" maxlength="16" placeholder="Username (3–16: huruf, angka, _)" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label class="inp"><img src="assets/ng/komponen/glyph-putih/gembok.webp" alt=""><input id="su-pw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="new-password"></label>
+      <div class="err" id="su-err"></div>
+      <button class="btn blue" id="su-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>Sign up</span></button>
+      <div class="foot c">Sudah punya akun? <a id="to-login" href="#">Log in</a></div>
     </div>
-    <label for="auUser">USERNAME</label>
-    <input id="auUser" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="16" placeholder="username">
-    <div class="auth-hint" id="auUserHint">3-16 karakter: huruf, angka, underscore</div>
-    <label for="auPass">PASSWORD</label>
-    <div class="pw-wrap"><input id="auPass" name="password" type="password" autocomplete="new-password" placeholder="********"><button type="button" class="pw-eye" id="pwEye" aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.5 17.5 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div>
-    <div class="auth-err" id="authErr" role="alert"></div>
-    <button type="submit" class="auth-go" id="authGo">DAFTAR</button>
-    <p class="auth-sw" id="authSw">Sudah punya akun? <button type="button" id="swBtn">Masuk</button></p>
-  </form>
+  </div></div>
 </div>
-<script>
-/* Gerbang login (dipanggil setelah loading selesai) */
-window.UT_afterLoad = function (go) {
-  const lab = document.getElementById('label'), btn = document.getElementById('loginBtn');
-  const ready = new Promise(res => { if (window.UT && UT.Auth) return res(true); addEventListener('ut:auth-module-ready', () => res(true), { once: true }); setTimeout(() => res(false), 8000); });
-  lab.textContent = 'Memeriksa akun';
-  ready.then(ok => ok ? UT.Auth.check() : null).then(user => {
-    if (user) { lab.textContent = 'Halo, ' + String(user.username); go(); return; }
-    lab.textContent = 'Siap!'; document.body.classList.add('login-ready'); btn.classList.add('show'); btn.focus();
-    btn.onclick = () => openAuth(go);
-  });
-};
-function openAuth(go) {
-  const $ = id => document.getElementById(id), ov = $('authOv'), f = $('authForm'), err = $('authErr'), goB = $('authGo');
-  let mode = 'reg';
-  function setMode(m) {
-    mode = m; err.textContent = '';
-    $('tabReg').setAttribute('aria-selected', String(m === 'reg')); $('tabLog').setAttribute('aria-selected', String(m === 'log'));
-    $('authSub').textContent = m === 'reg' ? 'Buat akun untuk mulai bermain' : 'Masuk dengan akun kamu';
-    goB.textContent = m === 'reg' ? 'DAFTAR' : 'MASUK';
-    $('auPass').autocomplete = m === 'reg' ? 'new-password' : 'current-password';
-    $('auUserHint').style.display = m === 'reg' ? '' : 'none';
-    $('authSw').innerHTML = m === 'reg' ? 'Sudah punya akun? <button type="button" id="swBtn">Masuk</button>' : 'Belum punya akun? <button type="button" id="swBtn">Daftar</button>';
-    $('swBtn').onclick = () => setMode(m === 'reg' ? 'log' : 'reg');
-  }
-  $('tabReg').onclick = () => setMode('reg'); $('tabLog').onclick = () => setMode('log');
-  const eye = $('pwEye'), pw = $('auPass');
-  eye.onclick = () => { const show = pw.type === 'password'; pw.type = show ? 'text' : 'password'; eye.classList.toggle('on', show); eye.setAttribute('aria-pressed', String(show)); eye.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password'); pw.focus(); };
-  setMode('reg'); ov.classList.add('show'); setTimeout(() => $('auUser').focus(), 50);
-  f.onsubmit = async e => {
-    e.preventDefault(); err.textContent = ''; goB.disabled = true; const t = goB.textContent; goB.textContent = 'TUNGGU...';
-    try {
-      if (!(window.UT && UT.Auth)) throw new Error('Modul akun belum siap. Muat ulang halaman.');
-      const u = $('auUser').value, p = $('auPass').value;
-      const user = mode === 'reg' ? await UT.Auth.signUp(u, p) : await UT.Auth.signIn(u, p);
-      ov.classList.remove('show'); document.getElementById('label').textContent = 'Halo, ' + String(user.username); go();
-    } catch (e2) { err.textContent = e2.message || 'Gagal. Coba lagi.'; goB.disabled = false; goB.textContent = t; }
-  };
-}
-</script>
-<script src="assets/js/preloader.js"></script>
+<div id="fade"></div>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/preloader.js"></script>
+<script type="module" src="assets/js/auth.js"></script>
 <script>
-(() => {
-  /* ---------- preload data & aset, lalu masuk ke lobby ---------- */
-  const out = document.getElementById('percent'), fill = document.getElementById('fill'), lab = document.getElementById('label');
-  const LABELS = { kode: 'Memuat game', gambar: 'Memuat gambar', audio: 'Memuat musik & suara', data: 'Menyiapkan dunia' };
-  const ASSETS=[
-    'assets/css/base.css','assets/css/shared-ui.css','assets/css/scene-bg.css','assets/js/scene-bg.js','assets/js/floating-island.js','assets/js/character-data.js','assets/js/character-view.js','assets/js/mob-view.js','assets/js/landscape.js','assets/js/boot-guard.js','assets/js/item-catalog.js','assets/js/item-art.js','assets/js/player-data.js','assets/js/app.js','assets/js/game-integration.js','hud/ui-core.js','hud/components/button.css','hud/components/button.js',
-    'assets/sfx/ui/button-click.mp3','assets/sfx/ui/chest-reward.mp3','assets/sfx/ui/game-lose.mp3','assets/sfx/ui/power-claim.mp3',
-    'data/dice/8301a59a-c606-46bb-bf0c-50203a8a407d.webp',
-    'shop.html','karakter.html','frame.html','dadu.html','efek.html','powerup.html','hadiah-misi.html','profile.html','lobby.html','mode.html','room.html','gameplay.html','settings.html','leaderboard.html','misi.html','friendship.html','tambang.html','dailyreward.html','promosi/placeholder.webp','data/power/3d/sword.png','data/power/3d/feather.png','data/power/3d/tnt.png','data/power/3d/totem.png','data/power/3d/potion_odd.png','data/power/3d/potion_even.png','data/power/3d/grass.png',
-    'assets/js/vendor/three.min.js',
-    'https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap'
-  ];
-  /* tujuan: halaman yang sedang dibuka (guard) atau lobby; hanya file .html lokal yang diizinkan */
-  const nx = new URLSearchParams(location.search).get('next') || 'lobby.html';
-  const dest = /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx) && !/^(splash|loading)\.html/i.test(nx) ? nx : 'lobby.html';
-  ASSETS.unshift(dest.split('?')[0]);
-  try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
-  (window.UT_introDone||Promise.resolve()).then(() => UT_Preload.runAuto(ASSETS, (p, kind) => { out.textContent = p + '%'; fill.style.width = p + '%'; if (p < 100 && lab && LABELS[kind]) lab.textContent = LABELS[kind]; else if (lab && p >= 100) lab.textContent = 'Siap!'; }).then(() => {
-    const go = () => {
-      try { sessionStorage.setItem('ut:booted', '1'); sessionStorage.setItem('ut:fadein', '1'); } catch (e) {}
-      /* fade out ke hitam, lalu pindah halaman (halaman tujuan fade in dari hitam lewat boot-guard.js) */
-      const v = document.createElement('div'); v.className = 'to-black'; document.body.appendChild(v);
-      const rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-      document.documentElement.classList.add('leaving');
-      requestAnimationFrame(() => requestAnimationFrame(() => v.classList.add('on')));
-      setTimeout(() => location.replace(dest), rm ? 150 : 1700);
-    };
-    window.UT_afterLoad(go); /* cek login dulu; belum login -> tombol LOGIN + modal */
-  }));
+(()=>{
+const $=s=>document.querySelector(s);
+const q=new URLSearchParams(location.search);
+/* tujuan: halaman yang sedang dibuka (guard) atau lobby; hanya file .html lokal */
+const nx=q.get("next")||"lobby.html";
+const dest=/^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx)&&!/^(splash|loading)\.html/i.test(nx)?nx:"lobby.html";
+let booted=false;try{booted=sessionStorage.getItem("ut:booted")==="1"}catch(e){}
+const quick=!!q.get("next")&&booted; /* dialihkan guard di tengah sesi: tanpa bar, langsung masuk bila sudah login */
+const ASSETS=[
+  'assets/css/base.css',
+  'assets/css/shared-ui.css',
+  'assets/css/scene-bg.css',
+  'assets/js/scene-bg.js',
+  'assets/js/floating-island.js',
+  'assets/js/character-data.js',
+  'assets/js/character-view.js',
+  'assets/js/mob-view.js',
+  'assets/js/landscape.js',
+  'assets/js/boot-guard.js',
+  'assets/js/item-catalog.js',
+  'assets/js/item-art.js',
+  'assets/js/player-data.js',
+  'assets/js/app.js',
+  'assets/js/game-integration.js',
+  'hud/ui-core.js',
+  'hud/components/button.css',
+  'hud/components/button.js',
+  'assets/sfx/ui/button-click.mp3',
+  'assets/sfx/ui/chest-reward.mp3',
+  'assets/sfx/ui/game-lose.mp3',
+  'assets/sfx/ui/power-claim.mp3',
+  'shop.html',
+  'karakter.html',
+  'frame.html',
+  'dadu.html',
+  'efek.html',
+  'powerup.html',
+  'hadiah-misi.html',
+  'profile.html',
+  'lobby.html',
+  'mode.html',
+  'room.html',
+  'gameplay.html',
+  'settings.html',
+  'leaderboard.html',
+  'misi.html',
+  'friendship.html',
+  'tambang.html',
+  'dailyreward.html',
+  'promosi/placeholder.webp',
+  'data/power/3d/sword.png',
+  'data/power/3d/feather.png',
+  'data/power/3d/tnt.png',
+  'data/power/3d/totem.png',
+  'data/power/3d/potion_odd.png',
+  'data/power/3d/potion_even.png',
+  'data/power/3d/grass.png',
+  'assets/js/vendor/three.min.js',
+  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap'
+];
+ASSETS.unshift(dest.split("?")[0]);
+let pct=0;
+function setPct(p){pct=p;$("#fill").style.width=p+"%";$("#lbl").textContent="Loading… "+Math.round(p)+"%"}
+let leaving=false;
+function go(){
+  if(leaving)return;leaving=true;
+  try{sessionStorage.setItem("ut:booted","1");sessionStorage.setItem("ut:fadein","1")}catch(e){}
+  $("#fade").classList.add("on");
+  const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  setTimeout(()=>location.replace(dest),rm?150:700);
+}
+/* TAP TO START: muncul setelah loading selesai & sudah login; sentuh layar -> tujuan */
+let tapped=false;
+function showTap(username){
+  if(quick){go();return}
+  document.body.classList.add("ready");$("#hi").textContent=username?"Halo, "+username:"";
+  const t0=Date.now(),start=()=>{if(tapped||Date.now()-t0<600)return;tapped=true;go()};
+  $("#intro").onclick=start;
+  addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")start()});
+}
+/* tunggu modul akun (ES module) siap, lalu cek sesi tersimpan */
+function authReady(){return new Promise(res=>{if(window.UT&&UT.Auth)return res(true);addEventListener("ut:auth-module-ready",()=>res(true),{once:true});setTimeout(()=>res(false),8000)})}
+function afterLoad(){
+  authReady().then(ok=>ok?UT.Auth.check():null).then(user=>{
+    if(user)showTap(user.username);else openLogin();
+  }).catch(()=>openLogin());
+}
+try{window.PlayerData&&PlayerData.snapshot()}catch(e){} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
+if(quick){document.body.classList.add("quick");afterLoad()}
+else UT_Preload.runAuto(ASSETS,p=>{setPct(p)}).then(()=>{setPct(100);setTimeout(afterLoad,300)});
+
+/* ---- dialog login / sign up ---- */
+const ML=$("#m-login"),MS=$("#m-signup");
+function show(m){ML.classList.toggle("on",m===ML);MS.classList.toggle("on",m===MS);$("#loginbtn").hidden=!!m||document.body.classList.contains("ready")}
+function setErr(id,t,info){const e=$(id);e.textContent=t||"";e.classList.toggle("info",!!info)}
+function openLogin(prefill){show(ML);setErr("#li-err","");$("#li-pw").value="";if(prefill)$("#li-id").value=prefill;setTimeout(()=>(prefill?$("#li-pw"):$("#li-id")).focus(),60)}
+function openSignup(){show(MS);setErr("#su-err","");setTimeout(()=>$("#su-us").focus(),60)}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>show(null));
+$("#loginbtn").onclick=()=>openLogin();
+$("#to-signup").onclick=e=>{e.preventDefault();openSignup()};
+$("#to-login").onclick=e=>{e.preventDefault();openLogin()};
+document.querySelectorAll(".inp input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter"){(i.closest("#m-login")?$("#li-ok"):$("#su-ok")).click()}}));
+
+/* aksi akun asli: validasi & pesan galat dari UT.Auth (username 3–16, password min. 6) */
+async function submit(btn,errId,fn){
+  setErr(errId,"");btn.disabled=true;const lbl=btn.querySelector("span"),t=lbl.textContent;lbl.textContent="Tunggu...";
+  try{
+    if(!(window.UT&&UT.Auth))throw new Error("Modul akun belum siap. Muat ulang halaman.");
+    const user=await fn();show(null);showTap(user.username);
+  }catch(e){setErr(errId,(e&&e.message)||"Gagal. Coba lagi.")}
+  btn.disabled=false;lbl.textContent=t;
+}
+$("#li-ok").onclick=()=>submit($("#li-ok"),"#li-err",()=>UT.Auth.signIn($("#li-id").value,$("#li-pw").value));
+$("#su-ok").onclick=()=>submit($("#su-ok"),"#su-err",()=>UT.Auth.signUp($("#su-us").value,$("#su-pw").value));
+document.documentElement.classList.add("ut-ready");
 })();
 </script>
-<script type="module" src="assets/js/auth.js"></script>
-</body>
-</html>
+</body></html>
