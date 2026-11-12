@@ -371,7 +371,6 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
 
 <header class="hud" id="hud">
   <div class="tools">
-    <button class="btn small light" id="btnAngle" type="button" aria-pressed="false" aria-label="Kamera terkunci"></button>
     <span class="camgrp" id="camGrp" hidden>
     <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"></button>
     <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/tabler/focus-2.svg" alt="" draggable="false"></button>
@@ -5256,8 +5255,8 @@ const camCfg={angle:true,preset:'free',follow:false},camHold={x:CAM_BASE.x,y:CAM
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
-/* geser/gulir/cubit/putar kamera HANYA di sudut Free; Front, Top, dan POV adalah sudut tetap (tanpa input kamera). LOCK juga tanpa input. */
-const camInputOff=()=>camLocked()||camCfg.preset!=='free';
+/* geser/gulir/cubit/putar kamera di sudut Free; POV: geser = tengok sekeliling; Front dan Top = sudut tetap (tanpa input kamera). */
+const camInputOff=()=>camLocked()||(camCfg.preset!=='free'&&camCfg.preset!=='pov'); /* POV: geser = tengok sekeliling, cubit/gulir = zoom (FOV) */
 /* kotak yang harus terlihat utuh: papan 10x10 (x,z -5..5) + area Start (api unggun di PAD x=-7.2,z=4.5, radius sekitar 1.4). Dihitung sekali dari data, bukan angka ajaib per layar */
 const DEFAULT_VIEW={minX:-8.7,maxX:5.3,minZ:-5.3,maxZ:6.0}; /* map dengan papan sendiri mengisi def.view */
 const LOCK_BOX=Object.assign({y:0.5,margin:1.14},DEFAULT_VIEW);
@@ -5273,7 +5272,7 @@ function lockZoom(){
 const lockPreset=()=>({yaw:0,pitch:Math.PI/2,zoom:lockZoom()});
 let camSnap=null; /* konfigurasi ANGLE yang disimpan saat masuk LOCK */
 function camSave(){ try{ UT.Prefs.set('cam',{angle:camCfg.angle,preset:camCfg.preset,follow:camCfg.follow,snap:camSnap}); }catch(e){} }
-function camLoad(){ try{ const o=UT.Prefs.get('cam',null); if(o&&typeof o==='object'){ camCfg.angle=o.angle===true; camCfg.preset=CAM_PRESETS[o.preset]?o.preset:'free'; camCfg.follow=o.follow!==false; const q=o.snap,ok=v=>typeof v==='number'&&isFinite(v); if(q&&ok(q.yaw)&&ok(q.pitch)&&ok(q.zoom)&&ok(q.px)&&ok(q.pz)&&q.hold&&ok(q.hold.x)&&ok(q.hold.y)&&ok(q.hold.z)) camSnap={yaw:q.yaw,pitch:clamp(q.pitch,0.22,Math.PI/2),zoom:clamp(q.zoom,0.4,1.5),px:q.px,pz:q.pz,top:q.top===true,hold:{x:q.hold.x,y:q.hold.y,z:q.hold.z}}; } }catch(e){} }
+function camLoad(){ try{ const o=UT.Prefs.get('cam',null); if(o&&typeof o==='object'){ camCfg.angle=true; /* LOCK dihapus: pengaturan lama yang tersimpan LOCK diabaikan */ camCfg.preset=CAM_PRESETS[o.preset]?o.preset:'free'; camCfg.follow=o.follow!==false; const q=o.snap,ok=v=>typeof v==='number'&&isFinite(v); if(q&&ok(q.yaw)&&ok(q.pitch)&&ok(q.zoom)&&ok(q.px)&&ok(q.pz)&&q.hold&&ok(q.hold.x)&&ok(q.hold.y)&&ok(q.hold.z)) camSnap={yaw:q.yaw,pitch:clamp(q.pitch,0.22,Math.PI/2),zoom:clamp(q.zoom,0.4,1.5),px:q.px,pz:q.pz,top:q.top===true,hold:{x:q.hold.x,y:q.hold.y,z:q.hold.z}}; } }catch(e){} }
 function camHoldHere(){ camHold.x=camTarget.x-pan.x; camHold.y=camTarget.y; camHold.z=camTarget.z-pan.z; } /* bekukan titik pandang saat FOLLOW dimatikan (tanpa loncat) */
 function resetCam(P){
   if(!(P&&typeof P.yaw==='number')) P=camCfg.angle?CAM_PRESETS[camCfg.preset]:lockPreset();
@@ -5286,11 +5285,9 @@ function resetCam(P){
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
 function camUI(){
-  const a=$('btnAngle'); if(!a) return;
-  a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));
-  a.setAttribute('aria-label',camCfg.angle?'Kamera bebas (ANGLE)':'Kamera terkunci (LOCK)');
+  /* tombol LOCK/ANGLE sudah dihapus: kamera selalu mode ANGLE */
   if(!camCfg.angle) camMenuClose();
-  $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&camCfg.preset==='free')?'grab':'default';
+  $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&(camCfg.preset==='free'||camCfg.preset==='pov'))?'grab':'default';
   $('btnPreset').innerHTML=ICON_CAM+CAM_NAMES[camCfg.preset];
   const f=$('btnFollow'); f.setAttribute('aria-pressed',String(camCfg.follow));
 }
@@ -6734,7 +6731,6 @@ $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
 camRefit=()=>{ if(camLocked()) goal.zoom=WF.cam?fortZoom(true):(WF.shot?fortZoom(false):lockZoom()); };
 if(camLocked()){ resetCam(); cam.yaw=goal.yaw; cam.pitch=goal.pitch; cam.zoom=goal.zoom; camTarget.set(lockCenter.x,LOCK_BOX.y,lockCenter.z); } /* mulai langsung di LOCK tanpa gerakan kamera */
-$('btnAngle').addEventListener('click',()=>camSetAngle(!camCfg.angle));
 $('btnPreset').addEventListener('click',camMenuToggle);
 $('btnFollow').addEventListener('click',()=>camSetFollow(!camCfg.follow));
 $('btnTheme').addEventListener('click',()=>{
