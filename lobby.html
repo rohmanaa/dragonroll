@@ -5,8 +5,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/lobby.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><!-- Suasana siang/malam: memasang html[data-ambience]; tanpa ini tungku & lentera latar tidak menyala -->
-<link rel="stylesheet" href="assets/css/scene-bg.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-day.webp" data-image-day="assets/Images/background/lobby-day.webp" data-image-night="assets/Images/background/lobby-night.webp" data-clouds-set="far" data-cloud-slow="1.8" data-lights="lobby"></script>
+<!-- latar = komponen Lobby Backdrop (assets/lobby-backdrop/, iframe); siang/malam & hemat grafik dikirim lewat postMessage -->
 <style>
+body{background:transparent!important} /* iframe latar (z-index -1) harus terlihat di atas warna html */
+#bdrop{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:-1;pointer-events:none;background:#0b0d16}
 /* GUI baru di dragonroll: avatar = wajah karakter asli + frame yang dipakai; karakter 3D di atas pedestal */
 #avatar{overflow:hidden}
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
@@ -15,18 +17,19 @@
 #hshadow{position:absolute;left:0;top:0;width:260px;height:54px;margin:-27px 0 0 -130px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(15,20,45,.46) 0,rgba(15,20,45,.24) 45%,rgba(15,20,45,0) 72%);pointer-events:none}
 html[data-ambience="night"] #hshadow{opacity:.55}
 /* latar siang tidak pucat: lapisan cahaya (mode screen) dikurangi, warna gambar dipertegas */
-html:not([data-ambience="night"]) .sbg-img{filter:saturate(1.3) contrast(1.12) brightness(.95)}
-html:not([data-ambience="night"]) .sbg-rays{opacity:.32}html:not([data-ambience="night"]) .sbg-bloom{opacity:.3}html:not([data-ambience="night"]) .sbg-sun{opacity:.6}
-html:not([data-ambience="night"]) .sbg::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 52%,rgba(8,16,44,.34) 100%)} /* bayangan kontak tipis di bawah kaki; bayangan arah matahari = 3D (applyLights) */
 .dot[hidden]{display:none!important}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
 </style></head>
 <body>
+<iframe id="bdrop" title="Latar lobby" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
+<script>(function(){var R=document.documentElement,f=document.getElementById("bdrop"),n=R.getAttribute("data-ambience")==="night",l=R.getAttribute("data-graphics")==="low";f.src="assets/lobby-backdrop/backdrop.html?embed&"+(n?"night":"day")+(l?"&eco":"");
+function send(){try{f.contentWindow.postMessage({ut:"backdrop",night:R.getAttribute("data-ambience")==="night",eco:R.getAttribute("data-graphics")==="low"},"*")}catch(e){}}
+f.addEventListener("load",send);addEventListener("ut-ambience",send)})();</script>
 <div id="wrap">
 <div id="stage">
 
-  <!-- ===== dunia: latar = SceneBackground (scene-bg.js, lobby-bg.webp), karakter berdiri di lantai batu latar ===== -->
+  <!-- ===== dunia: latar = Lobby Backdrop (iframe di atas, assets/lobby-backdrop), karakter berdiri di lantai batu latar ===== -->
   <div id="hshadow"></div>
   <canvas id="gl3d" width="720" height="1000" aria-label="Karakter pemain"></canvas>
   <div id="hint" class="t-title">Ketuk karakter!</div>
@@ -278,7 +281,4 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.start({interval:20000});
 }
 </script>
-<script src="assets/js/night-fog.js"></script>
-<script>/* kabut gelap malam di belakang karakter (di atas latar, di bawah karakter); hanya tampil saat Suasana = malam */
-(function(){var h=(UT.SceneBG&&UT.SceneBG.instance&&UT.SceneBG.instance.el)||document.querySelector(".sbg");if(h&&UT.NightFog)UT.NightFog.mount(h,{variant:"player",after:h.querySelector(".sbg-img")})})();</script>
 </body></html>
