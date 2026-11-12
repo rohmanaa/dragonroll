@@ -20,7 +20,6 @@
     <div id="nm" class="ttl"></div>
     <div id="rar"></div>
     <p id="ds"></p>
-    <button class="btn" id="roll"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>COBA LEMPAR</span></button>
   </section>
 
   <section id="right">
@@ -67,8 +66,12 @@ const isOwned=i=>PD.owns(i.id),isUsed=i=>PD.isEquipped(i.id);
 const canSell=i=>!!i&&typeof i.price==='number'&&i.price>0&&!i.starter;
 const kitOK=i=>!!(window.DiceKit&&i&&window.DiceKit.has(i.gameKey));
 /* kartu: warna asli = tekstur yang sama dengan preview 3D; cadangan SVG bila kit belum siap */
+/* deskripsi singkat: kalimat pertama saja, maks ~64 karakter */
+const brief=d=>{d=String(d||'').trim();const first=d.split(/(?<=[.!?])\s+/)[0]||d;if(first.length<=64)return first;const cut=first.slice(0,62),i=cut.lastIndexOf(' ');return (i>30?cut.slice(0,i):cut)+'…'};
 const art=i=>{try{if(kitOK(i)){const u=window.DiceKit.thumb(i.gameKey,160);if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
 /* ---- DiceKit: dadu 3D asli (fisika kocok-lempar, material, partikel, suara); angka lempar hanya visual ---- */
+/* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas 700px dengan camScale .628 = dadu 1,3x dari versi 360px/.42. */
+const CAM_SCALE=.628;
 let KIT=null;
 function prepKitSound(){let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}KIT.setSound(!!SET().sound&&v>0);KIT.setVolume(v)}
 function rollPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.roll()}
@@ -80,7 +83,7 @@ function mountKit(){
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
     host.innerHTML='';
-    KIT=window.DiceKit.mount(host,{diceId:k,quality:SET().graphics==='high'?'high':'auto',camScale:.42,sound:!!SET().sound});
+    KIT=window.DiceKit.mount(host,{diceId:k,quality:SET().graphics==='high'?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound});
   }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 let sel=null;
@@ -116,7 +119,7 @@ function draw(){
   if(KIT)syncKit();else $('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
   $('#nm').textContent=f.name;
   $('#rar').textContent=r[0];$('#rar').style.color=r[1];
-  $('#ds').textContent=f.desc+(mine?'':(canSell(f)?' Belum dimiliki — ini hanya preview, beli untuk memakainya.':' Belum dimiliki dan tidak dijual. Hanya preview.'));
+  $('#ds').textContent=brief(f.desc);
   if(mine){sp.textContent=on?'DIGUNAKAN':'GUNAKAN';b.classList.toggle('off',on)}
   else if(!canSell(f)){sp.textContent='TIDAK DIJUAL';b.classList.add('off')}
   else sp.innerHTML=`<img src="${KOIN}" alt="">${fmt(f.price)}`;
@@ -160,8 +163,8 @@ $('#use').onclick=()=>{
   else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
 };
 
-/* ---- coba lempar ---- */
-$('#roll').onclick=rollPreview;$('#fpv').onclick=rollPreview;
+/* ---- klik preview = lempar ---- */
+$('#fpv').onclick=rollPreview;
 
 /* ---- navigasi ---- */
 $('#back').onclick=$('#home').onclick=()=>{snd('button');nav('lobby.html')};
