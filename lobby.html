@@ -12,7 +12,8 @@
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 #avf{position:absolute;left:-8px;top:-6px;width:164px;height:164px;object-fit:contain;pointer-events:none;z-index:1}
 #gl3d{position:absolute;left:600px;top:-96px;width:720px;height:1000px;transform-origin:360px 960px;touch-action:manipulation}
-#hshadow{position:absolute;left:0;top:0;width:340px;height:70px;margin:-35px 0 0 -170px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(15,20,45,.5) 0,rgba(15,20,45,.28) 45%,rgba(15,20,45,0) 72%);pointer-events:none}
+#hshadow{position:absolute;left:0;top:0;width:260px;height:54px;margin:-27px 0 0 -130px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(15,20,45,.46) 0,rgba(15,20,45,.24) 45%,rgba(15,20,45,0) 72%);pointer-events:none}
+html[data-ambience="night"] #hshadow{opacity:.55} /* bayangan kontak tipis di bawah kaki; bayangan arah matahari = 3D (applyLights) */
 .dot[hidden]{display:none!important}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
@@ -183,18 +184,35 @@ function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').st
    Kanvas 560x560 (satuan stage), kaki di y~600. Kamera perspektif sempit ~ ortografis: 1 satuan model = 200 px. */
 /* Kanvas karakter tinggi (ruang lompat/salto) supaya tidak terpotong; kamera dimundurkan (CD) dan karakter diperbesar sedikit (K px per unit; dulu 200). Kaki tetap di (CW/2,FY). */
 const CW=720,CH=1000,FY=960,K=224,CD=13.5,CAMY=(FY-CH/2)/K;
-const cv=$('#gl3d');let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false;
+const cv=$('#gl3d');let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,LT=null;
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&cv){
   renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setClearColor(0x000000,0);
-  scene=new THREE.Scene();scene.add(new THREE.AmbientLight(0xffffff,.8),new THREE.HemisphereLight(0xcfeaff,0x7a9a60,.55));
-  const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(2,4,5);scene.add(sun);
+  /* pencahayaan siang/malam (applyLights): intensitas sengaja moderat agar wajah/tangan tidak 'terbakar' putih; siang = bayangan sungguhan di lantai (ShadowMaterial) */
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  scene=new THREE.Scene();
+  const amb=new THREE.AmbientLight(0xffffff,.4),hemi=new THREE.HemisphereLight(0xcfeaff,0x7a9a60,.3);scene.add(amb,hemi);
+  const sun=new THREE.DirectionalLight(0xfff2d8,.66);sun.position.set(2,4,5);scene.add(sun);
+  const torchL=new THREE.PointLight(0xff9a3a,0,10),torchR=new THREE.PointLight(0xff9a3a,0,10);torchL.position.set(-3.4,1.6,1.8);torchR.position.set(3.4,1.6,1.8);scene.add(torchL,torchR); /* cahaya obor kiri/kanan (malam) */
+  const shd=new THREE.DirectionalLight(0xffffff,.001);shd.position.set(3,8,-1.2);shd.castShadow=true;shd.shadow.mapSize.set(1024,1024);
+  Object.assign(shd.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:.5,far:25});shd.shadow.camera.updateProjectionMatrix();shd.shadow.bias=-.0006;scene.add(shd);
+  const plane=new THREE.Mesh(new THREE.PlaneGeometry(14,14),new THREE.ShadowMaterial({opacity:.42}));plane.rotation.x=-Math.PI/2;plane.position.y=.01;plane.receiveShadow=true;scene.add(plane);
+  LT={amb,hemi,sun,torchL,torchR,shd,plane};
   cam=new THREE.PerspectiveCamera(2*Math.atan((CH/2)/(K*CD))*180/Math.PI,CW/CH,.1,100);cam.position.set(0,CAMY,CD);cam.lookAt(0,CAMY,0);
   hero=new THREE.Group();hero.rotation.y=-.2;scene.add(hero);G3=true;
  }
 }catch(e){G3=false;renderer=null}
+function applyLights(){
+ if(!LT)return;const R=document.documentElement,night=R.getAttribute('data-ambience')==='night',low=R.getAttribute('data-graphics')==='low';
+ if(night){LT.amb.color.setHex(0x6378c0);LT.amb.intensity=.34;LT.hemi.color.setHex(0x8aa0ea);LT.hemi.groundColor.setHex(0x151b3a);LT.hemi.intensity=.26;
+  LT.sun.color.setHex(0x93a9ff);LT.sun.intensity=.3;LT.torchL.intensity=LT.torchR.intensity=.85}
+ else{LT.amb.color.setHex(0xffffff);LT.amb.intensity=.4;LT.hemi.color.setHex(0xcfeaff);LT.hemi.groundColor.setHex(0x7a9a60);LT.hemi.intensity=.3;
+  LT.sun.color.setHex(0xfff2d8);LT.sun.intensity=.66;LT.torchL.intensity=LT.torchR.intensity=0}
+ const sh=!night&&!low;LT.shd.castShadow=sh;LT.plane.visible=sh; /* bayangan di lantai: hanya siang & grafik tinggi */
+}
+addEventListener('ut-ambience',applyLights);applyLights();
 function fit3d(s){if(!G3)return;renderer.setPixelRatio(Math.min(2,Math.max(1,(devicePixelRatio||1)*s)));renderer.setSize(CW,CH,false)}
-function buildHero(){if(!G3)return;if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bcW=new THREE.Group();bcW.add(bc.root);hero.add(bcW);auraQ=true}
+function buildHero(){if(!G3)return;if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bc.root.traverse(o=>{if(o.isMesh)o.receiveShadow=false}); /* karakter hanya MELEMPAR bayangan ke lantai (tanpa bayangan diri/garis diagonal di badan) */bcW=new THREE.Group();bcW.add(bc.root);hero.add(bcW);auraQ=true}
 /* Aura yang dipakai (slot 'aura', dipilih di halaman Efek) menempel ke karakter lobby; dipasang di loop setelah hero ada di scene */
 function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey())}catch(e){}}
 buildHero();

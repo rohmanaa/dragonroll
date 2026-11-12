@@ -81,7 +81,7 @@ html[data-ambience="night"] .sbg .sbg-moon::before{content:"";position:absolute;
 html[data-ambience="night"] .sbg-cloud{filter:brightness(.42) saturate(.7) blur(var(--b,0px));opacity:calc(var(--o)*.78)}
 /* halaman dengan 3D sendiri (profil, toko, inventory, dst.): kanvas diredupkan saat malam; lobby memakai lampu 3D sungguhan */
 html[data-ambience="night"] body canvas:not(.sbg-cloud){filter:brightness(.66) saturate(.88) contrast(1.05) hue-rotate(-6deg)}
-html[data-ambience="night"] body #gl{filter:none}
+html[data-ambience="night"] body #gl,html[data-ambience="night"] body #gl3d{filter:none} /* lobby: karakter diredupkan lewat lampu 3D (lobby.html applyLights), bukan filter */
 
 /* grafik rendah: matikan efek cahaya berat */
 html[data-graphics="low"] .sbg-rays,html[data-graphics="low"] .sbg-bloom{display:none}
