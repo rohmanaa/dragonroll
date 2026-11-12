@@ -1,0 +1,87 @@
+/* karakter.html — editor karakter 3D asli dalam GUI newgui (kanvas 1920x1080). Menimpa tata letak karakter.css. */
+body.kr{--g:#2c9a3a}
+body.kr #left{width:960px}
+/* ---- kiri: pedestal + kanvas 3D + tombol gerakan ---- */
+#ped{position:absolute;left:190px;top:110px;width:600px;height:500px;pointer-events:none}
+#ped svg{position:absolute;left:50px;bottom:-150px;width:500px;height:190px}
+#show{position:absolute;left:150px;top:120px;width:680px;height:640px}
+#show>canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#show>canvas:active{cursor:grabbing}
+#sbs{position:absolute;left:836px;top:150px;display:flex;flex-direction:column;gap:14px}
+#sbs button{width:88px;height:80px;border-radius:14px;display:grid;place-items:center;font-size:40px;line-height:1;
+  background:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#sbs button:hover{filter:brightness(1.15)}#sbs button:active{transform:scale(.94)}
+#sbs button.on{background-image:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp)}
+/* info + beli */
+body.kr #info{position:absolute;left:70px;top:800px;width:820px;height:200px;padding:30px 34px 20px;border:20px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;display:block}
+#info .badge{position:absolute;left:24px;top:-24px;padding:2px 22px;border-radius:10px;background:#6a3fc4;border:3px solid #b79cff;font:400 26px/1.2 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#iname{font:400 42px/1.1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#idesc{margin-top:6px;font:700 24px/1.3 var(--font-body);color:#d8d2ee}
+#info.hasbuy #iname,#info.hasbuy #idesc{padding-right:250px}
+#buy{position:absolute;right:20px;top:50%;translate:0 -50%;height:96px;min-width:230px;padding:0 26px;display:flex;align-items:center;justify-content:center;gap:10px;font:400 36px var(--font-title);color:#fff;
+  background:url(../komponen/tombol-dan-kontrol/tombol-kuning-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#buy img{width:44px;height:44px;object-fit:contain;position:static}
+#buy.own{background-image:url(../komponen/tombol-dan-kontrol/tombol-hijau-polos.webp)}
+#buy.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp);color:#d0d0e0}
+#buy:active{transform:translateY(-50%) scale(.96)}
+/* ---- kanan: kategori (2 baris), header, grid ---- */
+#cats{position:absolute;left:0;top:124px;width:900px;display:grid;grid-template-columns:repeat(8,1fr);gap:10px 8px}
+.cat{position:relative;height:92px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:url(../komponen/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+.cat .ce{font-size:38px;line-height:1}
+.cat .cl{font:400 21px/1 var(--font-title);color:#d8d2ee;text-shadow:0 2px 0 rgba(0,0,0,.6);white-space:nowrap}
+.cat:hover{filter:brightness(1.15)}.cat:active{transform:scale(.95)}
+.cat.on{background-image:url(../komponen/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.cat.on .cl{color:#ffd45a}
+#bh{position:absolute;left:0;top:340px;width:900px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,.18)}
+#bht{font:400 40px var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+.bha{display:flex;gap:12px}
+#bh .bt{width:auto;height:54px;padding:0 24px;border-radius:12px;font:400 26px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
+#gwrap{position:absolute;left:0;top:416px;width:920px;height:500px;overflow-y:auto;overflow-x:hidden;padding:6px 8px 6px 0;scrollbar-width:thin;scrollbar-color:#6d6590 transparent}
+#grid{position:static;left:auto;top:auto;width:900px;display:grid;grid-template-columns:repeat(6,140px);grid-auto-rows:236px;gap:14px 12px}
+#grid.flat{grid-template-columns:1fr;grid-auto-rows:auto;gap:16px}
+.card{position:relative;width:140px;height:236px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:8px 6px 8px;cursor:pointer;animation:pop .35s both;transition:transform .1s}
+.card::before{content:'';position:absolute;inset:-2px;border:16px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;z-index:-1;pointer-events:none}
+.card{isolation:isolate}
+.card.sel::before{border-image-source:url(../komponen/hud/kartu-kosong-oranye.webp)}
+.card:hover{transform:translateY(-3px)}
+@keyframes pop{from{opacity:0;transform:scale(.88)}}
+.card .th{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center}
+.card .th .em{font-size:64px;line-height:1}
+.card .th .sq{display:block;width:62%;aspect-ratio:1;border-radius:8px;border:4px solid #17122b;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.card .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;animation:thin .25s both}
+.card .th.ph .em,.card .th.ph .sq{visibility:hidden}
+@keyframes thin{from{opacity:0;transform:scale(.92)}}
+.card .nm{font:400 22px/1.1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .bt{width:100%;height:42px;border-radius:10px;overflow:hidden;white-space:nowrap;font:400 20px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
+.card .bt.own{background-image:url(../komponen/tombol-dan-kontrol/tombol-hijau-polos.webp)}
+.card .bt.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp);color:#d0d0e0}
+.card.lk .th{filter:grayscale(1) brightness(.55);opacity:.8}
+.card .ck{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;background:var(--g);border:3px solid #fff;display:grid;place-items:center;z-index:2}
+.card .ck svg{width:18px;height:18px}
+/* slider tubuh + tombol reset */
+.slrow{display:flex;flex-direction:column;gap:10px;padding:18px 24px;border:16px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;font:800 28px var(--font-body)}
+.slrow input{width:100%;margin:0}
+#grid.flat>.bt{width:260px;height:64px;align-self:center;justify-self:center;font:400 30px var(--font-title);background:url(../komponen/tombol-dan-kontrol/tombol-kuning-polos.webp) center/100% 100% no-repeat;color:#4d2300}
+/* warna (dye) */
+#dyes{position:absolute;left:0;top:930px;width:900px;min-height:72px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(14,10,26,.55);border:3px solid #4c4468}
+#dyes:empty{display:none}
+#dyes .lbl{font:400 28px var(--font-title);margin-right:8px;color:#ffd45a}
+#dyes .sw{width:46px;height:46px;border-radius:10px;border:4px solid #17122b;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);flex:none}
+#dyes .sw.on{outline:4px solid #ffd45a;outline-offset:2px}
+/* modal (beli / outfit) */
+.ov{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,6,24,.6);z-index:60;opacity:0;transition:opacity .25s}
+.ov.show{opacity:1}
+.ov>.box{position:relative;width:760px;max-height:900px;overflow:auto;padding:70px 60px 54px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;font:800 32px/1.3 var(--font-body);text-align:center;transform:scale(.88);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.92)}
+.box h2{margin:0 0 18px;font:400 52px var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.6)}
+.box p{margin:8px 0}
+.box .row{display:flex;align-items:center;justify-content:center;gap:12px}
+.box .row img{width:56px;height:56px;object-fit:contain;position:static}
+.box .x{position:absolute;right:14px;top:10px;width:64px;height:64px;font:400 44px var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.box .mb,.box .pack{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:260px;height:90px;margin:18px 10px 0;padding:0 28px;font:400 38px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);
+  background:url(../komponen/tombol-dan-kontrol/tombol-hijau-polos.webp) center/100% 100% no-repeat}
+.box .mb.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-merah-polos.webp)}
+.box input[type=text]{width:100%;font:800 34px var(--font-body);padding:12px 18px;border-radius:10px;border:4px solid #4c4468;background:#1b1631;color:#fff;margin:10px 0;user-select:text}
+.box .bt{height:56px;min-width:64px;border-radius:10px;font:400 28px var(--font-title);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
+.box .bt.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-merah-polos.webp)}

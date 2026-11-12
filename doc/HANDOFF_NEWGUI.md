@@ -213,3 +213,5 @@ Setelah mengganti gambar: `python3 tools/gen-preload-manifest.py`, naikkan `VERS
 
 - Lobby siang: bayangan karakter dipertajam (PCFShadowMap, matahari lebih miring, opacity ShadowMaterial .66) dan background siang dibuat lebih pekat (saturate/contrast + vignette, sinar/bloom dikurangi).
 - Shop: kilau tipis (.sp) melayang di sekitar gambar Coin & Chest (CSS saja, .pic di shop-page.js).
+
+**`karakter`** — GUI newgui: kiri = kanvas 3D asli (UT blocky editor) di atas pedestal + 7 tombol gerakan + panel info/beli; kanan = 15 kategori (2 baris), header (Kelola/Acak/Toko), grid kartu (thumbnail 3D asli), baris warna. Seluruh JS lama (preview item terkunci, beli, set, outfit, aksesori multi-pilih, slider tubuh) dipertahankan; hanya markup + CSS (`assets/ng/css/kredit.css`) yang diganti. Kolom slot equipment newgui tidak dipakai (diganti kategori). Belum diverifikasi: modal beli/outfit secara visual, tampilan HP. Bug lama `RF.navigate('karakter.html')` di room masih ada.
