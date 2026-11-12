@@ -5243,8 +5243,9 @@ const camInputOff=()=>camLocked()||camCfg.preset!=='free';
 /* kotak yang harus terlihat utuh: papan 10x10 (x,z -5..5) + area Start (api unggun di PAD x=-7.2,z=4.5, radius sekitar 1.4). Dihitung sekali dari data, bukan angka ajaib per layar */
 const DEFAULT_VIEW={minX:-8.7,maxX:5.3,minZ:-5.3,maxZ:6.0}; /* map dengan papan sendiri mengisi def.view */
 const LOCK_BOX=Object.assign({y:0.5,margin:1.14},DEFAULT_VIEW);
-const lockCenter={x:(LOCK_BOX.minX+LOCK_BOX.maxX)/2,z:(LOCK_BOX.minZ+LOCK_BOX.maxZ)/2};
-function applyView(v){ LOCK_BOX.minX=v.minX; LOCK_BOX.maxX=v.maxX; LOCK_BOX.minZ=v.minZ; LOCK_BOX.maxZ=v.maxZ; lockCenter.x=(v.minX+v.maxX)/2; lockCenter.z=(v.minZ+v.maxZ)/2; }
+const LOCK_UP=0.5; /* LOCK: papan digeser naik di layar (titik pandang turun ke +z sebesar ini); ubah angka ini untuk naik/turun lagi */
+const lockCenter={x:(LOCK_BOX.minX+LOCK_BOX.maxX)/2,z:(LOCK_BOX.minZ+LOCK_BOX.maxZ)/2+LOCK_UP};
+function applyView(v){ LOCK_BOX.minX=v.minX; LOCK_BOX.maxX=v.maxX; LOCK_BOX.minZ=v.minZ; LOCK_BOX.maxZ=v.maxZ; lockCenter.x=(v.minX+v.maxX)/2; lockCenter.z=(v.minZ+v.maxZ)/2+LOCK_UP; }
 function lockZoom(){
   /* framing responsif: jarak kamera agar kotak (lebar x tinggi) + margin muat di viewport apa pun (portrait/landscape/tablet/desktop) */
   const t=Math.tan(camera.fov*Math.PI/360),a=camera.aspect||1;
