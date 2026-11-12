@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/lobby.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><!-- Suasana siang/malam: memasang html[data-ambience]; tanpa ini tungku & lentera latar tidak menyala -->
-<link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-day.webp" data-image-day="assets/Images/background/lobby-day.webp" data-image-night="assets/Images/background/lobby-night.webp" data-clouds-set="far" data-cloud-slow="1.8" data-lights="lobby"></script>
+<link rel="stylesheet" href="assets/css/scene-bg.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full" data-image="assets/Images/background/lobby-day.webp" data-image-day="assets/Images/background/lobby-day.webp" data-image-night="assets/Images/background/lobby-night.webp" data-clouds-set="far" data-cloud-slow="1.8" data-lights="lobby"></script>
 <style>
 /* GUI baru di dragonroll: avatar = wajah karakter asli + frame yang dipakai; karakter 3D di atas pedestal */
 #avatar{overflow:hidden}
@@ -256,4 +256,7 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.start({interval:20000});
 }
 </script>
+<script src="assets/js/night-fog.js"></script>
+<script>/* kabut gelap malam di belakang karakter (di atas latar, di bawah karakter); hanya tampil saat Suasana = malam */
+(function(){var h=(UT.SceneBG&&UT.SceneBG.instance&&UT.SceneBG.instance.el)||document.querySelector(".sbg");if(h&&UT.NightFog)UT.NightFog.mount(h,{variant:"player",after:h.querySelector(".sbg-img")})})();</script>
 </body></html>

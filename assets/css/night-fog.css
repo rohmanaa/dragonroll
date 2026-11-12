@@ -1,0 +1,31 @@
+/* Kabut malam (referensi/fog.html: 3 lapis tekstur fog1/fog2 bergeser pelan + opacity berdenyut). Hanya tampil saat html[data-ambience="night"].
+   Warna kabut = warna latar elemen (var(--fc)) yang dipotong tekstur kabut (mask) -> bisa gelap (lobby) atau pucat (splash).
+   Varian:  .nfog-bottom  = pita tipis di dasar layar (TAP TO START)   |   .nfog-player = kabut gelap di belakang karakter (lobby). Pasang: UT.NightFog.mount(host,{variant}). */
+.nfog{display:none;position:absolute;left:0;right:0;pointer-events:none;overflow:hidden;--fc:#cfc6ee}
+html[data-ambience="night"] .nfog{display:block}
+.nfog .nfl{position:absolute;top:0;height:100%;width:200%;left:0;animation:nf-op1 10s linear infinite,nf-move 15s linear infinite}
+.nfog .nfl.l2,.nfog .nfl.l3{animation:nf-op2 21s linear infinite,nf-move 13s linear infinite}
+.nfog .nfl.l3{animation-delay:-6s,-6.5s}
+.nfog .nfl i{float:left;width:50%;height:100%;background:var(--fc);
+  -webkit-mask:url(../Images/fx/fog1.webp) center/100% 100% no-repeat;mask:url(../Images/fx/fog1.webp) center/100% 100% no-repeat}
+.nfog .nfl.l2 i,.nfog .nfl.l3 i{-webkit-mask-image:url(../Images/fx/fog2.webp);mask-image:url(../Images/fx/fog2.webp)}
+@keyframes nf-move{0%{left:0}100%{left:-100%}}
+@keyframes nf-op1{0%{opacity:.1}22%{opacity:.5}40%{opacity:.28}58%{opacity:.4}80%{opacity:.16}100%{opacity:.1}}
+@keyframes nf-op2{0%{opacity:.5}25%{opacity:.2}50%{opacity:.1}80%{opacity:.3}100%{opacity:.5}}
+/* varian lebih pekat (kabut gelap lobby: harus terbaca di atas latar terang) */
+@keyframes nf-op1p{0%{opacity:.3}22%{opacity:.85}40%{opacity:.55}58%{opacity:.75}80%{opacity:.4}100%{opacity:.3}}
+@keyframes nf-op2p{0%{opacity:.8}25%{opacity:.45}50%{opacity:.3}80%{opacity:.6}100%{opacity:.8}}
+
+/* TAP TO START: kabut tipis pucat di dasar layar, memudar ke atas */
+.nfog-bottom{bottom:0;height:24vh;opacity:.62;--fc:#d4cbf2;
+  -webkit-mask-image:linear-gradient(0deg,#000 0,rgba(0,0,0,.8) 38%,transparent 100%);mask-image:linear-gradient(0deg,#000 0,rgba(0,0,0,.8) 38%,transparent 100%)}
+
+/* LOBBY: kabut gelap di belakang karakter (di atas latar, di bawah karakter). --fy = telapak kaki karakter (px), --fh = tinggi badan (px); dipasang oleh night-fog.js */
+.nfog-player{--fc:#050a1f;top:calc(var(--fy,70vh) - var(--fh,45vh)*1.15);height:calc(var(--fh,45vh)*1.5);opacity:.92;
+  -webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 52%,#000 0,rgba(0,0,0,.75) 45%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 52%,#000 0,rgba(0,0,0,.75) 45%,transparent 100%)}
+
+.nfog-player .nfl{animation-name:nf-op1p,nf-move}
+.nfog-player .nfl.l2,.nfog-player .nfl.l3{animation-name:nf-op2p,nf-move}
+html[data-graphics="low"] .nfog .nfl.l3{display:none}
+html[data-graphics="low"] .nfog .nfl{animation-duration:30s,40s}
+@media (prefers-reduced-motion:reduce){.nfog .nfl{animation:none;opacity:.3}}

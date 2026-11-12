@@ -4,7 +4,7 @@
 <title>DRAGON ROLL</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/splash.css">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/splash.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/prefs.js"></script><script src="assets/js/ambience.js"></script>
 <style>
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
 body.quick #loadbox,body.quick #spin{visibility:hidden}
@@ -57,6 +57,8 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 </div>
 <div id="fade"></div>
 <script src="assets/js/splash-fx.js"></script><script>UT.SplashFX&&UT.SplashFX.mount()</script>
+<script src="assets/js/night-fog.js"></script><script>/* TAP TO START malam: kabut tipis di dasar layar (di atas latar & vinyet, di bawah tombol/UI) */
+(function(){var h=document.getElementById("scene");if(h&&UT.NightFog)UT.NightFog.mount(h,{variant:"bottom",after:document.getElementById("vig")})})();</script>
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/preloader.js"></script>
@@ -75,6 +77,10 @@ const ASSETS=[
   'assets/css/shared-ui.css',
   'assets/css/scene-bg.css',
   'assets/js/ambience.js',
+  'assets/css/night-fog.css',
+  'assets/js/night-fog.js',
+  'assets/Images/fx/fog1.webp',
+  'assets/Images/fx/fog2.webp',
   'assets/js/scene-bg.js',
   'assets/js/floating-island.js',
   'assets/js/character-data.js',
