@@ -18,6 +18,7 @@
     <div id="ped"><svg viewBox="0 0 500 190" aria-hidden="true"><ellipse cx="250" cy="168" rx="236" ry="22" fill="rgba(8,4,20,.35)"/><path d="M28,104 v30 a222,46 0 0 0 444,0 v-30 Z" fill="#2f2949" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="104" rx="222" ry="46" fill="#4b4370" stroke="#17122b" stroke-width="3"/><path d="M74,82 v24 a176,36 0 0 0 352,0 v-24 Z" fill="#3b3459" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="82" rx="176" ry="36" fill="#5d5486" stroke="#17122b" stroke-width="3"/></svg></div>
     <div id="show"><canvas id="gl"></canvas></div>
     <div id="sbs" aria-label="Gerakan"></div>
+    <div id="eqs" aria-label="Yang sedang dipakai"></div>
     <section id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><button class="use" id="buy" style="display:none"></button></section>
   </section>
 
@@ -1173,7 +1174,7 @@ const CATS=[
   {key:'preset',label:'🎭 Set',type:'preset'}
 ];
 CATS.forEach(c=>{const i=c.label.indexOf(' ');c.ico=c.label.slice(0,i);c.name=c.label.slice(i+1);});
-let cat=0,accSel=null;
+let cat=0,accSel=null,eqSel=null; /* eqSel: slot "sedang dipakai" yang dipilih (kolom kiri); tombol #buy berubah jadi Lepas */
 const FRAME={eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
 const tabsEl=$('#cats'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
 let toastT=0;
@@ -1234,6 +1235,7 @@ function setInfo(name,desc){$('#irar').textContent=CATS[cat].name;$('#iname').te
 function updateInfo(){
   const c=CATS[cat];
   updateBuy();
+  if(eqSel&&!pv){setInfo(eqSel.name,'Sedang dipakai. Tekan Lepas untuk melepasnya.');$('#irar').textContent=eqSel.cat;return;}
   if(pv&&pv.draft){setInfo(pv.name,'Pratinjau. Tekan Gunakan untuk memakai; tanda centang menunjukkan yang sedang dipakai.');return;}
   if(pv&&pv.set){const ss=pv.set,sok=ss.cis.every(canSell),nm=ss.cis.map(x=>x.name).join(', ');
     setInfo(ss.n.replace(/^\S+\s/,'')+' (Set)',sok?ss.cis.length+' item belum dimiliki: '+nm+'. Beli semua untuk memakai set ini.':'Set ini berisi item yang tidak dijual ('+nm+'). Hanya preview.');return;}
@@ -1293,6 +1295,8 @@ function commitDraft(){
 }
 function updateBuy(){
   const b=$('#buy'),inf=$('#info');
+  if(pv)eqSel=null;
+  if(eqSel){b.style.display='';inf.classList.add('hasbuy');b.className='use rel';b.textContent='Lepas';return;}
   if(pv&&pv.draft){b.style.display='';inf.classList.add('hasbuy');b.className='use';b.textContent='Gunakan';return;}
   if(!pv){b.style.display='none';inf.classList.remove('hasbuy');return;}
   const ok=pv.set?pv.set.cis.every(canSell):canSell(pv.ci),price=pv.set?pv.set.total:pv.ci.price;
@@ -1369,7 +1373,7 @@ function renderTabs(){
     b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
     b.setAttribute('aria-label',c.name);
-    b.addEventListener('click',()=>{endPreview();cat=i;renderTabs();renderOpts();});
+    b.addEventListener('click',()=>{endPreview();eqSel=null;cat=i;renderTabs();renderOpts();});
     tabsEl.appendChild(b);
   });
   tabsEl.scrollTop=st;tabsEl.scrollLeft=sl;
@@ -1432,6 +1436,7 @@ function renderOpts(){
     dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
   }
   $('#ofm').style.display=(c.type==='preset'&&PD.outfits().length)?'':'none';
+  renderEq();
   updateInfo();
 }
 /* ===== Outfit pribadi (tersimpan di PlayerData; maks PD.outfitLimit slot) ===== */
@@ -1516,6 +1521,50 @@ listeners.push(()=>{
   if(CATS[cat].type!=='body')renderOpts();
   syncToPD();
 });
+
+/* ================================================================
+   KOLOM SLOT "SEDANG DIPAKAI" (kiri karakter)
+   Hanya yang bisa dilepas (punya opsi "tanpa"): Kepala, Zirah, Bahu, Jubah, Senjata, Sepatu + semua Aksesori. Gender, kulit, mata,
+   rambut, tubuh, serta Baju & Celana dasar (selalu dipakai, tidak punya opsi "tanpa") tidak ditampilkan. Minimal 6 slot; bila yang dipakai lebih banyak,
+   slot bertambah otomatis (kolom baru ke kanan). Ketuk slot -> info item + tombol bawah (#buy) jadi "Lepas".
+   ================================================================ */
+const EQK=['helm','chest','shoulder','cape','weapon','boots'];
+function eqItems(){
+  const c=B(),out=[];
+  EQK.forEach(k=>{const o=c[k];if(!o||o.id==='none')return;const it=find(k,o.id);if(!it||it.id==='none')return;
+    const cc=CATS.find(x=>x.key===k);out.push({k:k,id:it.id,name:it.n,cat:cc.name,ico:cc.ico,dye:o.dye||'',acc:false});});
+  (c.accessories||[]).forEach(a=>{const it=find('acc',a.id);if(!it)return;out.push({k:'acc',id:it.id,name:it.n,cat:'Aksesori',ico:'🎒',dye:a.dye||'',acc:true});});
+  return out;
+}
+const sameEq=(a,b)=>!!a&&!!b&&a.k===b.k&&a.id===b.id;
+function renderEq(){
+  const el=$('#eqs');if(!el)return;
+  const items=eqItems();
+  if(eqSel){const f=items.find(x=>sameEq(x,eqSel));eqSel=f||null;} /* item sudah tidak dipakai (diganti/dilepas) -> pilihan dibatalkan */
+  el.innerHTML='';
+  const n=Math.max(6,items.length);
+  for(let i=0;i<n;i++){
+    const it=items[i],d=document.createElement('button');
+    if(!it){d.className='eq empty';d.disabled=true;d.setAttribute('aria-hidden','true');el.appendChild(d);continue;}
+    d.className='eq'+(sameEq(it,eqSel)?' sel':'');
+    d.setAttribute('aria-label',it.cat+': '+it.name);
+    d.innerHTML='<div class="th"><span class="em">'+it.ico+'</span></div><span class="en"></span>';
+    d.querySelector('.en').textContent=it.name;
+    d.addEventListener('click',()=>{endPreview();eqSel=sameEq(it,eqSel)?null:it;renderEq();updateInfo();});
+    el.appendChild(d);
+    const th=d.querySelector('.th');
+    if(it.acc)THUMB.add(th,'a|'+it.id+THUMB.sig([]),cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.dye}])},'full');
+    else THUMB.add(th,it.k+'|'+it.id+'|'+it.dye+THUMB.sig([it.k]),()=>({[it.k]:{id:it.id}}),FRAME[it.k]||'full');
+  }
+}
+function unequip(it){
+  endPreview();
+  if(it.acc)apply({accessories:cfg.accessories.filter(a=>a.id!==it.id)});
+  else apply({[it.k]:{id:'none'}});   /* apply -> listeners -> syncToPD: tersimpan seperti ganti item biasa */
+  eqSel=null;renderEq();updateInfo();
+  toast(it.name+' dilepas');
+}
+$('#buy').addEventListener('click',()=>{if(pv||!eqSel)return;unequip(eqSel);});
 renderTabs();
 
 /* ================================================================
