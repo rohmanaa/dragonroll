@@ -106,10 +106,10 @@ if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){
 
 /* ---- peta: dari RoomFlow.maps() (ItemCatalog, kind:'theme') + The End (terkunci). Ilustrasi = gaya GUI baru ---- */
 const META={
-  minecraft:{id:'world',name:'WORLD',sub:'Minecraft · Finis Block 100 · Ender Dragon',sky:['#6cc4ff','#c8ecff'],ground:['#78cc4e','#58a33a','#8d6038']},
-  nether:{id:'nether',name:'NETHER',sub:'Finis Block 120 · Wither',sky:['#4a0d12','#a1301a'],ground:['#a33a3a','#7a2828','#4b2020']}
+  minecraft:{id:'world',img:'assets/Images/background/map-world.webp',name:'WORLD',sub:'Minecraft · Finis Block 100 · Ender Dragon',sky:['#6cc4ff','#c8ecff'],ground:['#78cc4e','#58a33a','#8d6038']},
+  nether:{id:'nether',img:'assets/Images/background/map-nether.webp',name:'NETHER',sub:'Finis Block 120 · Wither',sky:['#4a0d12','#a1301a'],ground:['#a33a3a','#7a2828','#4b2020']}
 };
-const MAPS=RF.maps().map(m=>{const x=META[m.gameKey]||{};return{id:x.id||m.gameKey,key:m.gameKey,name:x.name||String(m.name||m.gameKey).replace(/^Map /,'').toUpperCase(),sub:x.sub||m.desc||'',sky:x.sky||['#6cc4ff','#c8ecff'],ground:x.ground||['#78cc4e','#58a33a','#8d6038']}})
+const MAPS=RF.maps().map(m=>{const x=META[m.gameKey]||{};return{id:x.id||m.gameKey,img:x.img||'',key:m.gameKey,name:x.name||String(m.name||m.gameKey).replace(/^Map /,'').toUpperCase(),sub:x.sub||m.desc||'',sky:x.sky||['#6cc4ff','#c8ecff'],ground:x.ground||['#78cc4e','#58a33a','#8d6038']}})
  .concat([{id:'end',key:null,name:'THE END',sub:'Segera hadir',sky:['#120b25','#2b1a52'],ground:['#d9d9a8','#a8a87a','#6e6e50'],locked:true}]);
 const SOONMSG='The End segera hadir';
 let cur=Math.max(0,MAPS.findIndex(m=>m.key&&m.key===(RF.getMap()||{}).gameKey));
@@ -131,7 +131,7 @@ function mapSVG(m){
 const track=$('#track');
 MAPS.forEach(m=>{
   const d=document.createElement('div');d.className='map'+(m.locked?' locked':'');
-  d.innerHTML=`<div class="pic">${mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/ng/komponen/ikon-item/gembok.webp" alt=""></div></div>`;
+  d.innerHTML=`<div class="pic">${m.img?`<img class="mimg" src="${m.img}" alt="${m.name}" draggable="false">`:mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/ng/komponen/ikon-item/gembok.webp" alt=""></div></div>`;
   track.appendChild(d);
 });
 const dots=$('#dots');MAPS.forEach((_,i)=>{const e=document.createElement('i');e.onclick=()=>show(i);dots.appendChild(e)});

@@ -7,7 +7,7 @@ html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:
 #cave{position:absolute;inset:0;
   background:url(../../Images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
 /* setelah loading selesai (TAP TO START): crossfade ke foto gerbang portal */
-#cave::after{content:'';position:absolute;inset:0;background:url(../../Images/background/splash-portal.jpg) center/cover no-repeat;opacity:0;transition:opacity .6s ease}
+#cave::after{content:'';position:absolute;inset:0;background:url(../../Images/background/splash-portal.webp) center/cover no-repeat;opacity:0;transition:opacity .6s ease}
 body.ready #cave::after{opacity:1}
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}

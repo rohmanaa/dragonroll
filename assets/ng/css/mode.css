@@ -41,6 +41,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .map{flex:none;width:100%;padding:0 10px;position:relative}
 .map .pic{position:relative;height:100%;border-radius:20px;overflow:hidden;border:4px solid #8d85b8;box-shadow:0 6px 0 rgba(20,12,45,.55)}
 .map .pic svg{position:absolute;inset:0;width:100%;height:100%}
+.map .pic .mimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;display:block}
 .map .nm{position:absolute;left:0;right:0;bottom:0;padding:70px 0 20px;text-align:center;font-size:54px;background:linear-gradient(180deg,transparent,rgba(10,8,30,.78))}
 .map .sub{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-weight:800;font-size:22px;color:#e3defa}
 .map .tag{position:absolute;right:18px;top:18px;padding:6px 18px;border-radius:10px;font:400 26px var(--font-title);background:#f1b21f;border:3px solid #7a4a00;color:#4d2300}

@@ -190,3 +190,11 @@ Remote branch dragonroll: `main` + ±50 branch fitur (a.l. `stage4-chest-feature
 ## Catatan 12 Nov 2026 — aset baru lobby & podium (sw v101)
 - `assets/Images/background/lobby-bg.webp` diganti dengan latar kastil voxel baru (sumber: `referensi/newgui/assets/lobby.png`, 1713x918). Titik pijak karakter di `lobby.html` disesuaikan (`BG_W=1713,BG_H=918,FLOOR_Y=.80`).
 - `leaderboard.html`: podium 3 teratas memakai satu gambar `assets/ng/komponen/leaderboard/podium-juara-voxel.webp` (sumber: `referensi/newgui/Podium Juara Voxel Berkilau.png`; avatar/nama contoh sudah dibuang). Avatar, nama, skor diposisikan di atas tiap pedestal lewat `.pd.p1/.p2/.p3` di `assets/ng/css/leaderboard.css`. `podium-1/2/3.webp` lama tidak dipakai lagi di halaman ini.
+
+## Latar baru (branch ui-newgui) — loading, tap-to-start, lobby, peta Mode
+Gambar sumber (jpg) diubah ke WebP; yang lama dihapus. Semua di `assets/Images/background/`:
+- `splash-loading.webp` (1920x1072) — latar layar loading (naga menyembur api). Dipakai `assets/ng/css/splash.css` (`#cave`).
+- `splash-portal.webp` (1920x1072) — latar TAP TO START (portal ungu), crossfade saat `body.ready`. Menggantikan `splash-portal.jpg` (dihapus).
+- `lobby-bg.webp` (2752x1536) — latar lobby baru (kastil + panggung batu). Titik pijak karakter di `lobby.html`: `FLOOR_X=.50, FLOOR_Y=.79`.
+- `map-world.webp`, `map-nether.webp` (900x1206) — ilustrasi kartu peta di `mode.html` (`META[...].img`, kelas `.mimg`). THE END (terkunci) tetap SVG.
+Setelah mengganti gambar: `python3 tools/gen-preload-manifest.py`, naikkan `VERSION` di `sw.js` (sekarang `ut-pwa-v102`).

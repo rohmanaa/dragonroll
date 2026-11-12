@@ -167,8 +167,8 @@ addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')
 
 /* ---------- skala kanvas ---------- */
 /* Karakter berdiri di panggung batu bundal latar (lobby-bg.webp 2752x1536, object-fit:cover, posisi 50% 72%, sama dengan .sbg-img).
-   Titik pijak = (51%,78%) gambar (tengah panggung bundal, agak mundur); posisi & skala karakter dihitung dari transformasi cover itu supaya tetap menempel di lantai di rasio layar apa pun. */
-const BG_W=2752,BG_H=1536,FLOOR_X=.51,FLOOR_Y=.78,REF_K=1920/BG_W;
+   Titik pijak = (50%,79%) gambar (pusat atas panggung batu bundar, latar baru newlobby); posisi & skala karakter dihitung dari transformasi cover itu supaya tetap menempel di lantai di rasio layar apa pun. */
+const BG_W=2752,BG_H=1536,FLOOR_X=.50,FLOOR_Y=.79,REF_K=1920/BG_W;
 function placeHero(s){
  const vw=innerWidth,vh=innerHeight,k=Math.max(vw/BG_W,vh/BG_H);
  const px=vw/2+(FLOOR_X-.5)*BG_W*k,py=(vh-BG_H*k)*.72+FLOOR_Y*BG_H*k;
