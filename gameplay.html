@@ -5224,12 +5224,12 @@ function camLogUpdate(now,dist){
   camLogEl.textContent=camLogTxt+'\n(ketuk untuk salin)';
 }
 const CAM_PITCH=0.62+14*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 14 derajat (49.5 derajat): kamera lebih tinggi, pandangan lebih ke bawah */
-const CAM_PITCH_HIGH=1.0; /* Default (Free) & Front = 57.3 derajat, dinaikkan lagi dari 0.833 (47.7 derajat): kamera lebih tinggi; POV tetap memakai CAM_PITCH */
-const CAM_ZOOM_HIGH=0.905; /* lebih dekat (1.16 -> 0.95 -> 0.905), nilai final dari log kamera yang diatur pemilik; papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
+const CAM_PITCH_HIGH=0.73; /* Default (Free) & Front = 41.8 derajat, nilai final dari log kamera pemilik (layar 1920x945); POV tetap memakai CAM_PITCH */
+const CAM_ZOOM_HIGH=1.105; /* nilai final dari log kamera pemilik; papan diikuti kamera (Follow) sehingga tidak perlu muat utuh */
 const CAM_ZOOM=1.1; /* sedikit lebih jauh agar papan tetap muat di layar (sudut lebih tinggi = papan terproyeksi lebih tinggi) */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},     /* sudut default (yaw 0, pitch 1.0, zoom 0.905, pan x -0.01 z 0.15); default awal = ANGLE aktif, FOLLOW mati (hold) */
-  front:{yaw:0,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},
+  free:{yaw:0.006,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},     /* sudut default (yaw 0.006, pitch 0.73, zoom 1.105, pan x -0.01 z 0.15); default awal = ANGLE aktif, FOLLOW mati (hold) */
+  front:{yaw:0.006,pitch:CAM_PITCH_HIGH,zoom:CAM_ZOOM_HIGH,px:-0.01,pz:0.15},
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
