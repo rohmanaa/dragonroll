@@ -101,8 +101,8 @@ function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems())
 function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt'+(t[0]===tab?' on':'')+'" data-k="'+t[0]+'"><img class="ul" src="'+IC+'ikon-navigasi/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+'glyph-putih/'+t[2]+'.webp" alt=""><span>'+t[1]+'</span></button>').join('')}
 function drawPodium(rows){
  const order=[1,0,2];
- $('#podium').innerHTML=order.map(i=>{const p=rows[i];
-  const sz=i===0?136:104;return '<div class="pd p'+(i+1)+(p?'':' empty')+'">'+(p?avatar(p,sz):'<span class="emp" style="width:'+sz+'px;height:'+sz+'px">?</span>')+'<div class="pn ttl">'+(p?esc(p.name)+(p.me?' ★':''):'Belum ada')+'</div><div class="ps">'+(p?fmt(p.score):'&nbsp;')+'</div><img class="ped" src="'+IC+'leaderboard/podium-'+(i+1)+'.webp" alt="'+(i+1)+'"></div>'}).join('')}
+ $('#podium').innerHTML='<img class="pimg" src="'+IC+'leaderboard/podium-juara-voxel.webp" alt="">'+order.map(i=>{const p=rows[i];
+  const sz=i===0?136:104;return '<div class="pd p'+(i+1)+(p?'':' empty')+'">'+(p?avatar(p,sz):'<span class="emp" style="width:'+sz+'px;height:'+sz+'px">?</span>')+'<div class="pn ttl">'+(p?esc(p.name)+(p.me?' ★':''):'Belum ada')+'</div><div class="ps">'+(p?fmt(p.score):'&nbsp;')+'</div></div>'}).join('')}
 function drawMe(rows){
  const mine=rows.find(r=>r.me),L=PD.levelInfo(),nm=mine&&mine.name||PD.profile().name;
  const me=mine||{me:true,name:nm,uid:''};

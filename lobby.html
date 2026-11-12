@@ -166,9 +166,9 @@ document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
 
 /* ---------- skala kanvas ---------- */
-/* Karakter berdiri di lantai batu latar (lobby-bg.webp 1672x941, object-fit:cover, posisi 50% 72%, sama dengan .sbg-img).
+/* Karakter berdiri di lantai batu latar (lobby-bg.webp 1713x918, object-fit:cover, posisi 50% 72%, sama dengan .sbg-img).
    Titik pijak = (50%,80%) gambar; posisi & skala karakter dihitung dari transformasi cover itu supaya tetap menempel di lantai di rasio layar apa pun. */
-const BG_W=1672,BG_H=941,FLOOR_X=.5,FLOOR_Y=.79,REF_K=1920/BG_W;
+const BG_W=1713,BG_H=918,FLOOR_X=.5,FLOOR_Y=.80,REF_K=1920/BG_W;
 function placeHero(s){
  const vw=innerWidth,vh=innerHeight,k=Math.max(vw/BG_W,vh/BG_H);
  const px=vw/2+(FLOOR_X-.5)*BG_W*k,py=(vh-BG_H*k)*.72+FLOOR_Y*BG_H*k;

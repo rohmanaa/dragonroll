@@ -184,3 +184,9 @@ python3 -m http.server 8000        # buka http://localhost:8000/ (service worker
 node tests/live-sync.test.js
 ```
 Remote branch dragonroll: `main` + ±50 branch fitur (a.l. `stage4-chest-feature-02-reward-pool`, `profile-real-data`, `tahap-6a-achievement-server`). Remote newgui: `main`, `lobby-panel-webp-karakter-fcubia`.
+
+---
+
+## Catatan 12 Nov 2026 — aset baru lobby & podium (sw v101)
+- `assets/Images/background/lobby-bg.webp` diganti dengan latar kastil voxel baru (sumber: `referensi/newgui/assets/lobby.png`, 1713x918). Titik pijak karakter di `lobby.html` disesuaikan (`BG_W=1713,BG_H=918,FLOOR_Y=.80`).
+- `leaderboard.html`: podium 3 teratas memakai satu gambar `assets/ng/komponen/leaderboard/podium-juara-voxel.webp` (sumber: `referensi/newgui/Podium Juara Voxel Berkilau.png`; avatar/nama contoh sudah dibuang). Avatar, nama, skor diposisikan di atas tiap pedestal lewat `.pd.p1/.p2/.p3` di `assets/ng/css/leaderboard.css`. `podium-1/2/3.webp` lama tidak dipakai lagi di halaman ini.

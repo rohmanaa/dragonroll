@@ -1,10 +1,9 @@
 /* leaderboard.html — kiri: podium + kartu posisi kamu; kanan: tab + tabel */
-#podium{position:absolute;left:190px;top:130px;width:660px;height:540px;display:flex;align-items:flex-end;justify-content:center;gap:10px}
-.pd{position:relative;display:flex;flex-direction:column;align-items:center;width:190px}
-.pd.p1{width:196px}
-.pd.p3{width:176px}
-.pd .ped{display:block;width:100%;height:auto;filter:drop-shadow(0 8px 8px rgba(0,0,0,.45))}
-.pd .pn{font-size:32px;margin-top:8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#podium{position:absolute;left:190px;top:130px;width:660px;height:540px}
+#podium .pimg{position:absolute;left:0;bottom:0;width:100%;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.45))}
+.pd{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)}
+.pd.p1{left:49.9%;bottom:290px}.pd.p2{left:23.7%;bottom:210px}.pd.p3{left:77%;bottom:204px}
+.pd .pn{font-size:32px;margin-top:8px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pd .emp{display:grid;place-items:center;border-radius:50%;border:5px dashed rgba(255,255,255,.28);background:rgba(255,255,255,.06);font:400 52px var(--font-title);color:rgba(255,255,255,.35)}
 .pd.empty .pn{font-size:26px;color:#8f89aa;text-shadow:none;-webkit-text-stroke:0}
 .pd .ps{font:800 26px var(--font-body);color:#ffe08a;margin-bottom:8px}
