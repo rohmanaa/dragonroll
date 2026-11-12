@@ -5,7 +5,7 @@
    Hanya presentasi. Classic script, aman bila dimuat lebih dari sekali. */
 (function (win, doc) {
   'use strict';
-  var root = doc.documentElement, raf = 0, last = 0;
+  var root = doc.documentElement, raf = 0, last = 0, lastStage = 0;
   function clamp(n, a, b) { return Math.min(b, Math.max(a, n)); }
 
   /* Acuan ukuran per kelas layout (sesuai media query yang sudah ada di gameplay.html):
@@ -24,6 +24,11 @@
     raf = 0;
     var W = win.innerWidth || root.clientWidth || 0, H = win.innerHeight || root.clientHeight || 0;
     if (!W || !H) return;
+    var stage = Math.round(Math.min(W / 1920, H / 1080) * 1000) / 1000;
+    if (stage !== lastStage) {
+      lastStage = stage;
+      root.style.setProperty('--ghud-stage-scale', String(stage));
+    }
     var s = Math.round(scaleFor(W, H) * 1000) / 1000;
     if (s === last) return;
     last = s;

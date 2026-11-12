@@ -372,32 +372,32 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
 <header class="hud" id="hud">
   <div class="tools">
     <span class="camgrp" id="camGrp" hidden>
-    <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"></button>
-    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/tabler/focus-2.svg" alt="" draggable="false"></button>
-    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/tabler/refresh.svg" alt="" draggable="false"></button>
+    <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/kamera.webp" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/lokasi-pin.webp" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/ulang.webp" alt="" draggable="false"></button>
     </span>
     <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
-    <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/tabler/volume.svg" alt="" draggable="false">Suara: nyala</button>
-    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="assets/Images/icon/tabler/menu-2.svg" alt="" draggable="false">Menu</button>
+    <button class="btn small light" id="btnSnd" type="button" aria-label="Suara: nyala"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/speaker-suara.webp" alt="" draggable="false">Suara: nyala</button>
+    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/menu-garis.webp" alt="" draggable="false">Menu</button>
   </div>
 </header>
 
 <aside class="side" id="side">
 <div class="emote-dock" id="emoteDock">
   <button class="em-main" type="button" aria-label="Emote">
-    <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#ffd93b" stroke="#a35f00" stroke-width="3"/><circle cx="14" cy="16" r="2.6" fill="#4a2a00"/><circle cx="26" cy="16" r="2.6" fill="#4a2a00"/><path d="M11 24c2 6 16 6 18 0" fill="none" stroke="#4a2a00" stroke-width="3" stroke-linecap="round"/></svg>
+    <img class="em-icon" src="referensi/newgui/game/assets/komponen/glyph-putih/kotak-chat.webp" alt="">
     <span>Emote</span>
   </button>
   <button class="em-tab" type="button" aria-label="Buka daftar emote" aria-expanded="false"><i>&#9656;</i></button>
   <div class="em-list" role="group" aria-label="Pilih emote">
-    <button type="button" data-e="&#128512;">&#128512;</button>
-    <button type="button" data-e="&#128514;">&#128514;</button>
-    <button type="button" data-e="&#128526;">&#128526;</button>
-    <button type="button" data-e="&#128545;">&#128545;</button>
-    <button type="button" data-e="&#128557;">&#128557;</button>
-    <button type="button" data-e="&#128077;">&#128077;</button>
+    <button type="button" data-e="&#128512;" aria-label="Senang"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-senang.webp" alt=""></button>
+    <button type="button" data-e="&#128514;" aria-label="Tertawa"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-tersenyum.webp" alt=""></button>
+    <button type="button" data-e="&#128526;" aria-label="Keren"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-datar.webp" alt=""></button>
+    <button type="button" data-e="&#128545;" aria-label="Marah"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-kaget.webp" alt=""></button>
+    <button type="button" data-e="&#128557;" aria-label="Sedih"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-sedih.webp" alt=""></button>
+    <button type="button" data-e="&#128077;" aria-label="Jempol"><img src="referensi/newgui/game/assets/komponen/glyph-putih/jempol-atas.webp" alt=""></button>
   </div>
 </div>
 <div class="col">
@@ -408,9 +408,14 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
   <div class="pnl tn">
     <h3>Giliran</h3>
     <div class="tn-av" id="tnAv" aria-hidden="true"><img id="tnAvImg" alt=""></div>
-    <div class="trow"><span id="turnName"></span><div class="die-dock" id="dieDock">
+    <div class="trow"><span id="turnName"></span></div>
+    <div class="die-dock" id="dieDock">
+      <div class="gh-dice" role="img" aria-label="Dadu belum dilempar">
+        <img src="referensi/newgui/game/assets/komponen/new-icon/dadu.webp" alt="">
+        <b id="ghDieResult" hidden></b>
+      </div>
       <div class="die-scene" id="dieScene"></div>
-    </div></div>
+    </div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll</button>
     <button class="btn" id="btnAuto" type="button" aria-pressed="false" aria-label="Auto roll">Auto</button>
@@ -4904,7 +4909,12 @@ const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||type
 
 /* ---------- Dadu ---------- */
 /* Presentation dadu = UT.GameplayDiceUI (gameplay/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
-function showDie(v,anim){ const D=window.UT&&UT.GameplayDiceUI; return D?D.showDie(v,anim):Promise.resolve(v); }
+function showDie(v,anim){
+  const result=$('ghDieResult'),visual=document.querySelector('#dieDock .gh-dice');
+  if(result&&Number.isInteger(v)&&v>=1&&v<=6){ result.textContent=String(v); result.hidden=false; }
+  if(visual&&Number.isInteger(v)&&v>=1&&v<=6) visual.setAttribute('aria-label','Hasil dadu '+v);
+  const D=window.UT&&UT.GameplayDiceUI; return D?D.showDie(v,anim):Promise.resolve(v);
+}
 function dice3dOn(){ const D=window.UT&&UT.GameplayDiceUI; return !!(D&&D.ready); }
 /* Lempar dadu 3D asli (Dice Kit): kocok + fisika berakhir di angka v (angka tetap dari gameplay). Selesai saat dadu mendarat dan angka tampil;
    dadu dipercepat (speed 1,7) dan dipaksa mendarat bila >3 dtk; batas 4,5 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
@@ -5978,8 +5988,24 @@ function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan gi
 function syncOppTurn(){ const c=players[cur]; document.body.classList.toggle('opp-turn',!!(c&&!canControlPlayer(c)&&!gameOver)); } /* Roll & Auto disembunyikan saat bukan giliran pemain ini (CPU / pemain online lain) */
 let TOAST_P=null;
 function showTurnToast(){
-  let t=document.getElementById('turnToast'); if(!t){ t=document.createElement('div'); t.id='turnToast'; t.setAttribute('role','status'); t.textContent='Giliran kamu'; document.body.appendChild(t); }
+  let t=document.getElementById('turnToast'); if(!t){ t=document.createElement('div'); t.id='turnToast'; t.setAttribute('role','status'); t.textContent='Giliran kamu'; }
+  const host=document.getElementById('hud')||document.body; if(t.parentElement!==host) host.appendChild(t);
   t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+}
+const GAME_HUD_ASSETS='referensi/newgui/game/assets/komponen/';
+const GAME_HUD_POWER_ART={
+  feather:['glyph-putih','bulu'],tnt:['ikon-item','bom'],totem:['ikon-item','helm-sayap'],
+  potion_odd:['ikon-item','ramuan-hijau'],potion_even:['ikon-item','ramuan-ungu'],
+  ender_pearl:['ikon-gem-medali','berlian-ungu'],diamond_sword:['ikon-item','pedang'],
+  wooden_shield:['ikon-item','perisai-kayu'],golden_apple:['glyph-putih','apple'],
+  ice_crystal:['glyph-putih','kepingan-salju'],trident:['ikon-gem-medali','panah-tombak'],
+  dragon_crystal:['ikon-gem-medali','gem-heksagon-ungu'],nether_star:['ikon-gem-medali','petir-emas']
+};
+function gameHudAsset(group,name){ return GAME_HUD_ASSETS+group+'/'+name+'.webp'; }
+function gameHudImage(group,name,className,alt){
+  const im=document.createElement('img'); im.src=gameHudAsset(group,name); im.alt=alt||''; im.draggable=false;
+  if(className) im.className=className;
+  return im;
 }
 function renderChips(){
   try{ syncOppTurn(); }catch(e){}
@@ -5987,15 +6013,65 @@ function renderChips(){
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   const autoOn=(()=>{ try{ return !!autoRoll; }catch(e){ return false; } })(); /* tombol Auto milik pemain lokal -> chip AUTO (try: autoRoll dideklarasi setelah fungsi ini) */
   players.forEach((p,i)=>{
-    /* pemain yang keluar/terputus tetap tampil di HUD (ditandai AUTO) agar profilnya tidak hilang & kembali normal saat ia masuk lagi */
-    const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css); /* mahkota hanya untuk host */
-    const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
-    const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
-    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos));
-    const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); if(p.auto||(ONLINE_ROOM&&p.left&&!p.cpu)||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p))))){ const at=document.createElement('i'); at.className='atag'; at.textContent='AUTO'; av.appendChild(at); d.classList.add('is-auto'); } d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
-    const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':'',p.guard?'🛡️ perisai':'',p.frozen?'🧊 beku':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
-    if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=(p.dhp/(p.hpMax||100)*100)+'%'; hp.appendChild(b); d.appendChild(hp); }
-    box.appendChild(d);
+    const group=document.createElement('div'); group.className='pg p'+i+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
+    const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
+    const avatar=document.createElement('div'); avatar.className='av';
+    const im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name;
+    const order=document.createElement('span'); order.className='tn'; order.setAttribute('aria-label','Giliran ke-'+(p.turnOrder||i+1));
+    order.appendChild(gameHudImage('hud',i%2?'lencana-hex-merah':'lencana-hex-hijau'));
+    const orderNumber=document.createElement('b'); orderNumber.textContent=String(p.turnOrder||i+1); order.appendChild(orderNumber);
+    avatar.appendChild(im); avatar.appendChild(order);
+    const content=document.createElement('div'); content.className='mid';
+    const head=document.createElement('div'); head.className='r1';
+    const name=document.createElement('span'); name.className='nm';
+    if((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))) name.appendChild(gameHudImage('ikon-item','mahkota','cr'));
+    name.appendChild(document.createTextNode(p.name)); head.appendChild(name);
+    const isLocal=ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):(p.idx===0&&!p.cpu);
+    const isAuto=!!(p.cpu||p.auto||(ONLINE_ROOM&&p.left&&!p.cpu)||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p)))));
+    if(isLocal||isAuto||p.left){
+      const tag=document.createElement('span'); tag.className='tag '+(isAuto?'auto':'local');
+      tag.appendChild(gameHudImage('banner-label',isAuto?'label-hijau-polos':'label-biru-polos'));
+      const tagText=document.createElement('span'); tagText.textContent=isAuto?'AUTO':'AKU'; tag.appendChild(tagText); head.appendChild(tag);
+    }
+    content.appendChild(head);
+    const row=document.createElement('div'); row.className='r2';
+    const position=document.createElement('span'); position.className='ps';
+    position.textContent=ONLINE_ROOM&&p.left?'Terputus':(p.pos===0?'Mulai':(p.pos===GOAL?(BOSS==='wither'?(p.dragonReady?'Wither '+p.dhp:'Skeleton '+p.crystal+'/'+CRYSTAL_N):(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N)):String(p.pos)));
+    row.appendChild(position);
+    const buffs=document.createElement('span'); buffs.className='bf';
+    function addBuff(groupName,icon,label,count){
+      const item=document.createElement('span'); item.className='bi'; item.title=label; item.setAttribute('aria-label',label);
+      item.appendChild(gameHudImage(groupName,icon));
+      if(count){ const amount=document.createElement('em'); amount.textContent=count; item.appendChild(amount); }
+      buffs.appendChild(item);
+    }
+    if(p.bonus) addBuff('ikon-item','sepatu-sayap','Bonus langkah +'+p.bonus,'+'+p.bonus);
+    if(p.extra) addBuff('glyph-putih','bulu','Giliran tambahan');
+    if(p.odd) addBuff('ikon-item','ramuan-hijau','Dadu ganjil berikutnya');
+    if(p.even) addBuff('ikon-item','ramuan-ungu','Dadu genap berikutnya');
+    if(p.lucky) addBuff('ikon-gem-medali','semanggi','Dadu pasti enam');
+    if(p.shield) addBuff('ikon-item','batu-rune','Kebal serangan');
+    if(p.guard) addBuff('ikon-item','perisai-kayu','Perisai');
+    if(p.frozen) addBuff('glyph-putih','kepingan-salju','Beku');
+    row.appendChild(buffs); content.appendChild(row);
+    card.appendChild(avatar); card.appendChild(content);
+    const extra=document.createElement('div'); extra.className='px';
+    if(p.pos===GOAL&&!p.dragonReady){
+      const crystals=document.createElement('div'); crystals.className='cx'; crystals.setAttribute('role','img'); crystals.setAttribute('aria-label',(BOSS==='wither'?'Skeleton':'Crystal')+' '+p.crystal+' dari '+CRYSTAL_N);
+      const gem=gameHudImage('glyph-putih','kristal-heksagon','cg'); crystals.appendChild(gem);
+      const count=document.createElement('b'); count.className='ttl cn'+(p.crystal>=CRYSTAL_N?' ok':''); count.textContent=p.crystal+'/'+CRYSTAL_N; crystals.appendChild(count);
+      const skulls=document.createElement('div'); skulls.className='sks';
+      for(let n=0;n<CRYSTAL_N;n++){ const skull=document.createElement('span'); skull.className='sk6'+(p.cdone&&p.cdone[n]?' d':''); skull.setAttribute('aria-hidden','true'); const icon=document.createElement('i'); skull.appendChild(icon); skulls.appendChild(skull); }
+      crystals.appendChild(skulls); extra.appendChild(crystals);
+    }
+    if(p.pos===GOAL&&p.dragonReady){
+      const hp=document.createElement('div'); hp.className='hpb'; hp.setAttribute('role','img'); hp.setAttribute('aria-label',(BOSS==='wither'?'Wither':'Ender Dragon')+' '+p.dhp+' dari '+(p.hpMax||100)+' HP');
+      hp.appendChild(gameHudImage('hud','bar-hp-boss'));
+      const track=document.createElement('s'),fill=document.createElement('u'); fill.style.width=Math.max(0,Math.min(100,(p.dhp/(p.hpMax||100))*100))+'%'; track.appendChild(fill); hp.appendChild(track); extra.appendChild(hp);
+    }
+    if(extra.childNodes.length){ if(i===1||i===2){ group.appendChild(card); group.appendChild(extra); } else { group.appendChild(extra); group.appendChild(card); } }
+    else group.appendChild(card);
+    box.appendChild(group);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';
     const n2=document.createElement('span'); n2.textContent=p.name;
@@ -6003,15 +6079,19 @@ function renderChips(){
     r.appendChild(im2); r.appendChild(n2); r.appendChild(sv); sc.appendChild(r);
   });
   const c=players[cur];
-  $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=turnTag(); if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
+  $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=c.name; if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
+  if(c){ const tnAv=$('tnAv'),tnImg=$('tnAvImg'),tnStatus=$('tnSt'); tnImg.src=framedFace(c); tnImg.alt=c.name; tnAv.style.setProperty('--pc',c.css||'#ffd45a'); tnStatus.textContent=c.left?'Terputus':(c.cpu?'AUTO':(ONLINE_ROOM?'Online':'Lokal')); $('tnLv').hidden=true; }
   const pw=(ONLINE_ROOM&&MP_ID)?(players.find(q=>q.networkId===MP_ID)||c):c; /* online: panel Power = milik pemain lokal, aktif hanya saat gilirannya */
   const pwTurn=!ONLINE_ROOM||(pw===c);
-  puKeys().forEach(k=>{
+  const keys=puKeys(); pu.style.setProperty('--gh-pu-cols',String(Math.max(1,Math.min(9,keys.length)))); keys.forEach(k=>{
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
-    bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][3]||PUN[k][1].split(' ')[0]; bt.appendChild(lb);
+    bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k);
+    const art=GAME_HUD_POWER_ART[k],icon=bt.querySelector('.puimg'); if(art&&icon) icon.src=gameHudAsset(art[0],art[1]);
+    const lb=document.createElement('em'); lb.textContent=PUN[k][3]||PUN[k][1].split(' ')[0]; bt.appendChild(lb);
     const n=document.createElement('b'); n.textContent=pw?pw.pu[k]:0; bt.appendChild(n);
     bt.disabled=!pw||!pwTurn||pw.cpu||busy||gameOver||!pw.pu[k]||puBossBlocked(pw,k)||(PUR[k]&&PUR[k].kind==='totem'&&pw.pos===GOAL);
     bt.dataset.state=(!pw||!pw.pu[k])?'empty':(bt.disabled?'locked':'ready'); /* HUD: ready/locked/empty utk styling */ if(pw) puFxApply(bt,'pb:'+pw.idx+':'+k);
+    bt.insertBefore(gameHudImage('slot-equipment',bt.dataset.state==='locked'?'slot-terkunci':'slot-coklat','gh-pu-frame'),bt.firstChild);
     bt.addEventListener('click',()=>{ ensureAudio(); usePU(k); });
     pu.appendChild(bt);
   });
@@ -6749,7 +6829,7 @@ $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
-$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/tabler/'+(muted?'volume-off':'volume')+'.svg" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
+$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/'+(muted?'speaker-mati':'speaker-suara')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').setAttribute('aria-label','Suara: '+t); $('btnSnd').classList.toggle('muted',muted); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
 let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
 function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} syncDiceSound(); }
@@ -7112,6 +7192,7 @@ html body:is(.th-world,.th-nether) .dm-bar{background:var(--tp-dm-bg);box-shadow
 html body:is(.th-world,.th-nether) .dm-bar i{border-left-color:var(--tp-dm-seg);text-shadow:0 1px 0 var(--tp-ol)}
 html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
 </style>
+<link rel="stylesheet" href="gameplay/hud-mockup.css">
 <script type="module">
 import './assets/js/multiplayer/game-sync.js';
 window.dispatchEvent(new Event('ut:multiplayer-game-sync-ready'));

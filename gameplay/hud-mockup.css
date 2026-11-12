@@ -1,0 +1,1193 @@
+:root {
+  --gh-ink: #1b1430;
+  --gh-panel: rgba(38, 31, 62, .92);
+  --gh-line: #6d6590;
+  --gh-gold: #ffd45a;
+  --gh-title: "Lilita One", Impact, "Baloo 2", sans-serif;
+  --gh-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+
+#hud,
+#side {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 1920px !important;
+  height: 1080px !important;
+  margin: 0 !important;
+  zoom: 1 !important;
+  transform: scale(var(--ghud-stage-scale, 1)) translate(-50%, -50%) !important;
+  transform-origin: top left !important;
+  box-sizing: border-box !important;
+}
+
+#hud {
+  z-index: 26 !important;
+  display: block !important;
+  pointer-events: none !important;
+}
+
+#hud [hidden],
+#side [hidden] {
+  display: none !important;
+}
+
+#side {
+  z-index: 24 !important;
+  display: block !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}
+
+#utGameplayHud {
+  top: 20px !important;
+  width: 820px !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+.pucard {
+  left: 50% !important;
+  top: 50% !important;
+  width: 640px !important;
+  max-width: none !important;
+  border: 4px solid var(--gh-gold) !important;
+  border-radius: 22px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5), 0 0 28px rgba(255, 212, 90, .3) !important;
+  font-family: var(--gh-body) !important;
+  transform: translate(-50%, -50%) !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+#trapBar {
+  top: 150px !important;
+  bottom: auto !important;
+  width: max-content !important;
+  max-width: 900px !important;
+  border: 3px solid var(--gh-line) !important;
+  border-radius: 22px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
+  font: 800 28px var(--gh-body) !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+.tm-ov {
+  background: rgba(0, 0, 0, .72) !important;
+  backdrop-filter: none !important;
+}
+
+.tm-box {
+  width: 900px !important;
+  max-width: none !important;
+  padding: 32px !important;
+  border: 4px solid var(--gh-line) !important;
+  border-radius: 22px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
+  font: 800 30px var(--gh-body) !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+.tm-box h4 { color: var(--gh-gold) !important; font: 56px var(--gh-title) !important; }
+.tm-box p,
+.tm-box small { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
+.tm-bt button {
+  min-width: 240px !important;
+  min-height: 76px !important;
+  border: 4px solid rgba(0, 0, 0, .45) !important;
+  border-radius: 18px !important;
+  color: #fff !important;
+  background: linear-gradient(#6cb7ff, #2f67c7) !important;
+  font: 32px var(--gh-title) !important;
+}
+.tm-bt .tm-y { background: linear-gradient(#78e36b, #2f9f3d) !important; }
+
+.lm-ov {
+  --mu: 9px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, .72) !important;
+  backdrop-filter: none !important;
+  font-family: var(--gh-body) !important;
+}
+
+.lm-ov .lm-box {
+  width: 820px !important;
+  max-width: none !important;
+  border: 4px solid var(--gh-line) !important;
+  border-radius: 22px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+.lm-ov .lm-body { padding: 34px !important; }
+.lm-ov .lm-box h2 { color: var(--gh-gold) !important; font: 64px/1.1 var(--gh-title) !important; }
+.lm-ov .lm-eyebrow,
+.lm-ov .lm-note { color: #efe9ff !important; font: 28px/1.3 var(--gh-body) !important; }
+.lm-ov .lm-mode {
+  min-height: 76px !important;
+  border: 4px solid rgba(0, 0, 0, .45) !important;
+  border-radius: 18px !important;
+  color: #fff !important;
+  background: linear-gradient(#78e36b, #2f9f3d) !important;
+  font: 30px var(--gh-title) !important;
+}
+.lm-ov .lm-mode.lm-blue,
+.lm-ov .lm-mode.lm-grey { background: linear-gradient(#6cb7ff, #2f67c7) !important; }
+.lm-ov .lm-mode.lm-red { background: linear-gradient(#ff7a8a, #c9283f) !important; }
+.lm-ov .lm-x { color: #fff !important; background: #6546ba !important; }
+
+#readyScreen {
+  background: rgba(0, 0, 0, .72) !important;
+  font-family: var(--gh-body) !important;
+}
+
+#readyScreen .rd-box {
+  width: 900px !important;
+  max-width: none !important;
+  padding: 28px !important;
+  border: 4px solid var(--gh-line) !important;
+  border-radius: 22px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
+  font-size: 24px !important;
+  zoom: var(--ghud-stage-scale, 1) !important;
+}
+
+#readyScreen h2 { color: var(--gh-gold) !important; font-size: 44px !important; }
+#readyScreen .rd-sub { font-size: 22px !important; }
+#readyScreen .rk-grid { grid-template-columns: repeat(var(--n, 2), 190px) !important; gap: 24px !important; }
+#readyScreen .rk { width: 190px !important; height: 260px !important; }
+#readyScreen .rk-f,
+#readyScreen .rk-b { border-color: var(--gh-line) !important; border-radius: 18px !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  #players .pr,
+  #players .gh-hp i { transition: none !important; }
+}
+
+#players {
+  --gh-skull: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp");
+}
+
+#side #playersPanel,
+#side .col,
+#side .rcol {
+  position: static !important;
+  display: contents !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+#side #players {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+}
+
+#players .pg {
+  position: absolute !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 400px !important;
+  pointer-events: none !important;
+}
+#players .pg.p0 { right: 24px !important; bottom: 24px !important; }
+#players .pg.p1 { left: 24px !important; top: 20px !important; }
+#players .pg.p2 { right: 24px !important; top: 20px !important; }
+#players .pg.p3 { left: 24px !important; bottom: 24px !important; }
+#players .pg.off { filter: grayscale(1); opacity: .55; }
+
+#players .pg .pr {
+  position: relative !important;
+  inset: auto !important;
+  display: grid !important;
+  grid-template-columns: 84px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 400px !important;
+  min-width: 0 !important;
+  height: 132px !important;
+  min-height: 132px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  overflow: visible !important;
+  border: 4px solid var(--gh-line) !important;
+  border-radius: 20px !important;
+  color: #fff !important;
+  background: var(--gh-panel) !important;
+  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
+  font: inherit !important;
+  text-transform: none !important;
+  opacity: 1;
+  pointer-events: auto !important;
+}
+#players .pg .pr.act,
+#players .pg .pr.on {
+  border-color: var(--gh-gold) !important;
+  box-shadow: 0 0 26px rgba(255, 212, 90, .6), 0 8px 0 rgba(10, 6, 25, .5) !important;
+}
+#players .pg .pr.off { filter: grayscale(1); opacity: .55; }
+#players .pg .av { position: relative !important; width: 84px !important; height: 84px !important; overflow: visible !important; }
+#players .pg .av > img {
+  display: block !important;
+  width: 84px !important;
+  height: 84px !important;
+  max-width: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  image-rendering: auto !important;
+}
+#players .pg .tn {
+  position: absolute !important;
+  left: -10px !important;
+  top: -10px !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+#players .pg .tn img { position: absolute; inset: 0; width: 100%; height: 100%; }
+#players .pg .tn b {
+  position: relative;
+  color: #fff3d0;
+  font: 22px/1 var(--gh-title);
+  text-shadow: 0 2px 0 var(--gh-ink);
+}
+#players .pg .mid { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#players .pg .r1,
+#players .pg .r2 { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#players .pg .r1 { justify-content: flex-start; }
+#players .pg .nm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--pc, #fff);
+  font: 30px/1.1 var(--gh-title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#players .pg .nm .cr { width: 30px; height: 30px; max-width: none; }
+#players .pg .tag {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 64px;
+  height: 28px;
+  font: 800 16px/1 var(--gh-title);
+}
+#players .pg .tag img { position: absolute; inset: 0; width: 100%; height: 100%; }
+#players .pg .tag span { position: relative; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+#players .pg .ps {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  color: #e6dfff !important;
+  font: 800 24px/1.1 var(--gh-body) !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#players .pg .bf { display: flex; gap: 6px; min-width: 0; }
+#players .pg .bi { position: relative; display: block; flex: none; width: 40px; height: 40px; }
+#players .pg .bi img { display: block; width: 100%; height: 100%; max-width: none; }
+#players .pg .bi em {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  padding: 0 4px;
+  border-radius: 8px;
+  color: var(--gh-gold);
+  background: var(--gh-ink);
+  font: 800 15px/1.2 var(--gh-body);
+  font-style: normal;
+}
+#players .pg .px { display: flex; flex-direction: column; gap: 10px; }
+#players .pg .cx { display: flex; align-items: center; gap: 10px; cursor: default; }
+#players .pg .cx > img.cg { display: block; width: 36px; height: 40px; }
+#players .pg .cn { min-width: 62px; color: #ffe9a0; font: 30px/1 var(--gh-title); }
+#players .pg .cn.ok { color: #7be05a; }
+#players .pg .sks { display: flex; gap: 6px; margin-left: auto; }
+#players .pg .sk6 {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 3px solid #7be05a;
+  border-radius: 10px;
+  color: #7be05a;
+  background: #123a1c;
+  box-shadow: 0 0 12px rgba(123, 224, 90, .5);
+}
+#players .pg .sk6 i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background: currentColor;
+  -webkit-mask: var(--gh-skull) center / contain no-repeat;
+  mask: var(--gh-skull) center / contain no-repeat;
+}
+#players .pg .sk6.d {
+  border-color: #ff5a6c;
+  color: #ff5a6c;
+  background: #3a1020;
+  box-shadow: 0 0 12px rgba(255, 90, 108, .5);
+}
+#players .pg .hpb { position: relative; width: 300px; margin-top: -6px; }
+#players .pg .hpb > img { display: block; width: 100%; height: auto; max-width: none; }
+#players .pg .hpb > s {
+  position: absolute;
+  left: 13%;
+  right: 8%;
+  top: 31%;
+  bottom: 27%;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #1d0f12;
+}
+#players .pg .hpb > s > u {
+  display: block;
+  height: 100%;
+  background: linear-gradient(#ff7a82, #c61f2f);
+  transition: width .6s;
+}
+
+#side .pnl.pu {
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 20px !important;
+  display: block !important;
+  width: max-content !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+}
+#side .pnl.pu h3 { display: none !important; }
+#side #pus {
+  display: grid !important;
+  grid-template-columns: repeat(var(--gh-pu-cols, 9), 64px) !important;
+  justify-content: center !important;
+  gap: 14px 12px !important;
+  width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+#side #pus .pb {
+  position: relative !important;
+  display: block !important;
+  width: 64px !important;
+  min-width: 64px !important;
+  height: 86px !important;
+  min-height: 86px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font: 800 15px/1 var(--gh-body) !important;
+  text-shadow: 0 2px 0 #000;
+}
+#side #pus .pb .gh-pu-frame { position: absolute; inset: 0 auto auto 0; z-index: 0; width: 64px; height: 64px; }
+#side #pus .pb .puimg {
+  position: absolute !important;
+  left: 10px !important;
+  top: 10px !important;
+  z-index: 1;
+  display: block !important;
+  width: 44px !important;
+  height: 44px !important;
+  object-fit: contain;
+  filter: none !important;
+}
+#side #pus .pb em {
+  position: absolute !important;
+  left: -6px;
+  right: -6px;
+  top: 67px;
+  z-index: 1;
+  display: block;
+  max-width: none;
+  overflow: hidden;
+  color: #fff !important;
+  font: 800 15px/1 var(--gh-body) !important;
+  font-style: normal;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#side #pus .pb b {
+  position: absolute !important;
+  top: -10px !important;
+  right: -8px !important;
+  z-index: 2;
+  display: grid !important;
+  place-items: center !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  background: url("../referensi/newgui/game/assets/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp") center / contain no-repeat !important;
+  font: 20px/1 var(--gh-title) !important;
+  text-shadow: 0 1px 0 #1b1430 !important;
+}
+#side #pus .pb[data-state="locked"],
+#side #pus .pb[data-state="empty"] { filter: grayscale(.9) brightness(.7) !important; }
+#side #pus .pb:disabled { cursor: not-allowed !important; }
+#side #pus .pb:not(:disabled) { cursor: pointer; }
+#side #pus .pb:not(:disabled):active { transform: translateY(4px); }
+
+#side .rcol .pnl.tn {
+  position: absolute !important;
+  top: 50% !important;
+  right: 24px !important;
+  left: auto !important;
+  bottom: auto !important;
+  display: grid !important;
+  grid-template-columns: 190px 360px !important;
+  grid-template-areas:
+    ". die"
+    "auto roll"
+    "hint hint"
+    "msg msg"
+    "meter meter" !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  gap: 14px !important;
+  width: 574px !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+}
+#side .rcol .pnl.tn > h3,
+#side .rcol .pnl.tn .tn-av,
+#side .rcol .pnl.tn .trow,
+#side .rcol .pnl.tn #tnMeta { display: none !important; }
+#side .rcol .pnl.tn #dieDock {
+  grid-area: die !important;
+  grid-row: 1 !important;
+  grid-column: 2 !important;
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  align-self: center !important;
+  justify-self: end !important;
+  width: 360px !important;
+  height: 200px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#side .rcol .pnl.tn .gh-dice {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+}
+#side .rcol .pnl.tn .gh-dice img { display: block; width: 100%; height: 100%; max-width: none; object-fit: contain; }
+#side .rcol .pnl.tn .gh-dice b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #2b1a00;
+  font: 104px/1 var(--gh-title);
+  text-shadow: 0 2px 0 rgba(255,255,255,.5);
+}
+#side .rcol .pnl.tn #dieScene {
+  position: absolute !important;
+  top: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 0 !important;
+  z-index: -1;
+  width: 64px !important;
+  height: 64px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  zoom: 1 !important;
+  transform: none !important;
+}
+#side .rcol .pnl.tn #btnAuto,
+#side .rcol .pnl.tn #btnRoll {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  color: #fff !important;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  font-family: var(--gh-title) !important;
+  text-shadow: 0 3px 0 rgba(20,10,40,.6) !important;
+  pointer-events: auto !important;
+}
+#side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 2 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; width: 360px !important; height: 124px !important; min-height: 124px !important; font-size: 56px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+#side .rcol .pnl.tn #btnRoll:disabled,
+#side .rcol .pnl.tn #btnAuto:disabled { filter: grayscale(.8) brightness(.7) !important; cursor: not-allowed !important; }
+#side .rcol .pnl.tn #btnRoll::before,
+#side .rcol .pnl.tn #btnRoll::after { display: none !important; content: none !important; }
+#side .rcol .pnl.tn #rollHint,
+#side .rcol .pnl.tn .msg {
+  display: block !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  color: #efe9ff !important;
+  font: 800 20px/1.2 var(--gh-body) !important;
+  text-align: right;
+  text-shadow: 0 2px 0 var(--gh-ink);
+}
+#side .rcol .pnl.tn #rollHint { grid-area: hint !important; grid-column: 1 / -1 !important; }
+#side .rcol .pnl.tn .msg { grid-area: msg !important; grid-column: 1 / -1 !important; }
+#side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-column: 2 !important; width: 360px !important; margin-left: auto !important; }
+#side .rcol .pnl.tn #diceMeter .dm-bar { width: 100%; }
+#side .rcol .pnl.tn #diceMeter .dm-bar i { height: 22px; background: #1b1430; border: 2px solid #6d6590; border-radius: 4px; }
+#side .rcol .pnl.tn #diceMeter .dm-bar i.on { background: var(--c, #ffd45a); }
+
+#hud .tools {
+  position: absolute !important;
+  left: 24px !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  transform: translateY(-50%) !important;
+  pointer-events: auto !important;
+}
+#hud .tools .camgrp { display: flex !important; flex-direction: column !important; gap: 12px !important; }
+#hud .btn.small {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  font-size: 0 !important;
+}
+#hud .btn.small .hi { width: 32px !important; height: 32px !important; max-width: none !important; margin: 0 !important; filter: brightness(0) invert(1) !important; }
+#hud #btnMenu {
+  width: 46px !important;
+  min-width: 46px !important;
+  height: 150px !important;
+  min-height: 150px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: #fff3d0 !important;
+  font: 22px var(--gh-title) !important;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+#hud #btnMenu .hi { display: none !important; }
+
+#side .emote-dock {
+  position: absolute !important;
+  right: 24px !important;
+  bottom: 214px !important;
+  left: auto !important;
+  z-index: 7 !important;
+  display: flex !important;
+  pointer-events: auto !important;
+}
+#emoteDock .em-main {
+  border-color: #2b1a70 !important;
+  background: url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+#emoteDock .em-main .em-icon { width: 34px !important; height: 34px !important; filter: brightness(0) invert(1) drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
+#emoteDock .em-list { border-color: #2b1a70 !important; background: #1b4ab0 !important; }
+#emoteDock .em-list button { display: grid; place-items: center; }
+#emoteDock .em-list button img { width: 30px; height: 30px; filter: brightness(0) invert(1); }
+
+#turnToast {
+  top: 150px !important;
+  zoom: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  width: max-content !important;
+  min-height: 0 !important;
+  padding: 18px 70px !important;
+  border: 0 !important;
+  border-top: 3px solid var(--gh-gold) !important;
+  border-bottom: 3px solid var(--gh-gold) !important;
+  border-radius: 0 !important;
+  color: var(--gh-gold) !important;
+  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
+  font: 800 36px var(--gh-body) !important;
+  text-shadow: none !important;
+  translate: -50% 0 !important;
+}
+#turnToast::before {
+  content: "";
+  display: block;
+  flex: none;
+  width: 50px;
+  height: 50px;
+  background: url("../referensi/newgui/game/assets/komponen/glyph-putih/segitiga-kanan.webp") center / contain no-repeat;
+}
+
+#utGameplayHud,
+#trapBar,
+#puCard {
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-family: var(--gh-body) !important;
+}
+#trapBar { padding: 18px 26px !important; }
+#puCard { padding: 28px !important; }
+
+.lm-ov,
+.tm-ov { background: rgba(10, 8, 30, .93) !important; backdrop-filter: none !important; }
+.lm-ov .lm-box,
+.tm-box {
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+.lm-ov .lm-box { padding: 28px !important; }
+.lm-ov .lm-body { padding: 34px !important; }
+.lm-ov .lm-box h2 { color: #ffd45a !important; font-family: var(--gh-title) !important; }
+.lm-ov .lm-mode,
+.tm-bt button {
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-family: var(--gh-title) !important;
+}
+.lm-ov .lm-mode.lm-blue,
+.lm-ov .lm-mode.lm-grey { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+.lm-ov .lm-mode.lm-red { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important; }
+#pauseMenu .lm-box { width: 900px !important; padding: 24px !important; }
+#pauseMenu .lm-body { display: grid !important; grid-template-columns: repeat(4, 170px) !important; justify-content: center; align-items: center; gap: 16px; }
+#pauseMenu #pmSub { grid-column: 1 / -1; margin: 0; color: #efe9ff; text-align: center; }
+#pauseMenu #pmTitle {
+  grid-column: 1 / -1;
+  width: 400px;
+  height: 92px;
+  margin: 0 auto;
+  overflow: hidden;
+  color: transparent !important;
+  background: url("../referensi/newgui/game/assets/komponen/menu-pause/teks-pause-krem.webp") center / contain no-repeat;
+  font-size: 0 !important;
+}
+#pauseMenu #pmCpu { grid-column: 1 / -1; margin: 0; text-align: center; }
+#pauseMenu .lm-grid.lm-pm { display: contents !important; }
+#pauseMenu .lm-srow { grid-column: 1 / 3; }
+#pauseMenu .lm-srow.lm-sfx { grid-column: 3 / 5; }
+#pauseMenu .lm-mode,
+#pauseMenu .lm-modewrap { width: 170px; min-height: 0 !important; height: 190px; text-align: center; }
+#pauseMenu .lm-mode {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 8px 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/menu-pause/tombol-bulat-kosong.webp") center / contain no-repeat !important;
+  box-shadow: none !important;
+  font: 800 20px/1.1 var(--gh-body) !important;
+}
+#pauseMenu .lm-mode .lm-ic,
+#pauseMenu .lm-srow > img { display: none !important; }
+#pauseMenu #pmModeIco { display: block !important; }
+#pauseMenu .lm-resume::before,
+#pauseMenu .lm-exit::before,
+#pauseMenu #pmModeIco {
+  content: "";
+  display: block !important;
+  width: 88px;
+  height: 88px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+#pauseMenu .lm-resume::before { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-lanjut.webp"); }
+#pauseMenu .lm-exit::before { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-menyerah.webp"); }
+#pauseMenu #pmModeIco { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-pengaturan.webp"); }
+#pauseMenu .lm-mode span { color: #fff3d0; text-shadow: 0 2px 0 var(--gh-ink); }
+#pauseMenu .lm-modewrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+#pauseMenu .lm-chip { color: #efe9ff; font: 800 18px var(--gh-body); }
+#pauseMenu .lm-x {
+  width: 64px !important;
+  height: 64px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: transparent !important;
+  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp") center / contain no-repeat !important;
+}
+#pauseMenu .lm-srow { display: flex; align-items: center; gap: 10px; color: #fff3d0; font: 800 20px var(--gh-body); }
+#pauseMenu .lm-srow input[type="range"] { flex: 1; accent-color: #ffd45a; }
+#pauseMenu .lm-srow input[type="range"]::-webkit-slider-thumb { background: url("../referensi/newgui/game/assets/komponen/ikon-pengaturan/knob-slider.webp") center / contain no-repeat; }
+
+#readyScreen .rd-box {
+  border: 0 !important;
+  border-radius: 22px !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+}
+#readyScreen .rk-b,
+#readyScreen .rk-f { border: 0 !important; border-radius: 18px !important; }
+#readyScreen .rk-b { background: url("../referensi/newgui/game/assets/komponen/hud/kartu-kosong-ungu.webp") center / 100% 100% no-repeat !important; }
+html body #readyScreen .rd-box {
+  zoom: 1 !important;
+  margin: 0 auto !important;
+  transform: scale(var(--ghud-stage-scale, 1)) !important;
+  transform-origin: center center !important;
+}
+#hud .tools #btnMenu { order: -1; }
+#hud .tools .camgrp[hidden],
+#hud .tools .btn.small[hidden],
+#side .rcol .pnl.tn #rollHint[hidden],
+#side .rcol .pnl.tn .msg[hidden] { display: none !important; }
+html body #hud { max-width: none !important; }
+html body #hud #btnSnd { display: none !important; }
+html body #hud .tools .camgrp { display: none !important; }
+html body #side .rcol .pnl.tn {
+  grid-template-columns: 360px !important;
+  grid-template-areas: "die" "roll" "hint" "msg" "meter" !important;
+  width: 360px !important;
+  transform: translateY(calc(-50% + 36px)) !important;
+}
+html body #side .rcol .pnl.tn > h3,
+html body #side .rcol .pnl.tn .tn-av,
+html body #side .rcol .pnl.tn #turnName,
+html body #side .rcol .pnl.tn #tnMeta,
+html body #side .rcol .pnl.tn #btnAuto { display: none !important; }
+html body #side .rcol .pnl.tn #dieDock {
+  grid-area: die !important;
+  grid-row: 1 !important;
+  grid-column: 1 !important;
+  justify-self: center !important;
+}
+html body #side .rcol .pnl.tn #btnRoll {
+  grid-area: roll !important;
+  grid-row: 2 !important;
+  grid-column: 1 !important;
+}
+html body #side .rcol .pnl.tn #rollHint { grid-area: hint !important; grid-column: 1 !important; }
+html body #side .rcol .pnl.tn .msg { grid-area: msg !important; grid-column: 1 !important; }
+html body #side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-column: 1 !important; }
+html body #side .emote-dock {
+  right: 24px !important;
+  bottom: 214px !important;
+  left: auto !important;
+  z-index: 7 !important;
+  width: max-content !important;
+  height: auto !important;
+  zoom: 1 !important;
+  flex-direction: row-reverse !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+#emoteDock .em-main { width: 72px !important; height: 72px !important; }
+#emoteDock .em-main > span,
+#emoteDock .em-tab { display: none !important; }
+#emoteDock .em-list { display: none !important; }
+#emoteDock.open .em-list { display: flex !important; }
+#players .pg.p0 { bottom: 18px !important; }
+#players .pg.p1 { top: 22px !important; }
+html body #pauseMenu .lm-box,
+html body #exitConfirm .lm-box {
+  zoom: 1 !important;
+  margin: 0 auto !important;
+  transform: scale(var(--ghud-stage-scale, 1)) !important;
+  transform-origin: center center !important;
+}
+html body .tm-ov .tm-box {
+  zoom: 1 !important;
+  transform: scale(var(--ghud-stage-scale, 1)) !important;
+  transform-origin: center center !important;
+}
+html body #puCard.pucard {
+  zoom: 1 !important;
+  transform: translate(-50%, -50%) scale(var(--ghud-stage-scale, 1)) !important;
+  transform-origin: center center !important;
+}
+
+#utGameplayHud .feedback-stack { gap: 12px !important; }
+#utGameplayHud .ut-ghud-b {
+  --gh-event-color: #e0dccf;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-height: 86px !important;
+  max-width: none !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  padding: 18px 70px !important;
+  border: 0 !important;
+  border-top: 3px solid var(--gh-event-color) !important;
+  border-bottom: 3px solid var(--gh-event-color) !important;
+  border-radius: 0 !important;
+  color: var(--gh-event-color) !important;
+  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
+  box-shadow: none !important;
+  font: 800 36px/1.2 var(--gh-body) !important;
+  text-align: center !important;
+  text-shadow: none !important;
+}
+#utGameplayHud .ut-ghud-b[data-k="turn"],
+#utGameplayHud .ut-ghud-b[data-k="extra"],
+#utGameplayHud .ut-ghud-b[data-k="ladder"],
+#utGameplayHud .ut-ghud-b[data-k="shield"] { --gh-event-color: #7be05a; }
+#utGameplayHud .ut-ghud-b[data-k="snake"],
+#utGameplayHud .ut-ghud-b[data-k="mob"],
+#utGameplayHud .ut-ghud-b[data-k="dragon"] { --gh-event-color: #ff5a6c; }
+#utGameplayHud .ut-ghud-b[data-k="power"] { --gh-event-color: #5ab0ff; }
+#utGameplayHud .ut-ghud-b[data-k="three6"],
+#utGameplayHud .ut-ghud-b[data-k="bounce"],
+#utGameplayHud .ut-ghud-b[data-k="info"] { --gh-event-color: #c08cff; }
+#utGameplayHud .ut-ghud-b[data-k="chest"] { --gh-event-color: #ffd45a; }
+#utGameplayHud .ut-ghud-b i {
+  flex: none !important;
+  width: 50px !important;
+  height: 50px !important;
+  color: transparent !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  font-size: 0 !important;
+}
+#utGameplayHud .ut-ghud-b:not(.ut-ghud-pw) i > img { display: none !important; }
+#utGameplayHud .ut-ghud-b[data-k="turn"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/segitiga-kanan.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="extra"] i,
+#utGameplayHud .ut-ghud-b[data-k="power"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/petir.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="ladder"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/panah-atas.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="snake"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/tongkat-ular.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="mob"] i,
+#utGameplayHud .ut-ghud-b[data-k="dragon"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="chest"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/peti-harta.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="three6"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/dadu.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="bounce"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/ulang-maju.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="shield"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/perisai-lambang.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="info"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/info-bulat.webp"); }
+#utGameplayHud .ut-ghud-pw > i { color: #fff !important; background: none !important; font-size: 26px !important; }
+#utGameplayHud .ut-ghud-pw > i > img,
+#utGameplayHud .ut-ghud-pw > i .puimg { display: block !important; width: 50px !important; height: 50px !important; object-fit: contain !important; }
+#utGameplayHud .ut-ghud-pw .w { color: var(--gh-gold) !important; }
+#utGameplayHud .ut-ghud-pw .e { color: #cfc8ea !important; }
+#utGameplayHud .ut-ghud-c:not([hidden]) {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding: 4px 30px 18px !important;
+  border: 0 !important;
+  border-top: 3px solid #ff5a6c !important;
+  border-bottom: 3px solid #ff5a6c !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .94) 14%, rgba(26, 14, 34, .94) 86%, transparent) !important;
+  box-shadow: none !important;
+}
+#utGameplayHud .ut-ghud-c::before {
+  content: "BOSS";
+  display: grid;
+  place-items: center;
+  width: 300px;
+  height: 70px;
+  margin: -4px auto 0;
+  color: #ffe9d0;
+  background: url("../referensi/newgui/game/assets/komponen/banner-label/label-merah-polos.webp") center / 100% 100% no-repeat;
+  font: 40px/1 var(--gh-title);
+}
+#utGameplayHud .ut-ghud-cw {
+  color: #ffe9a0 !important;
+  font: 800 28px/1.2 var(--gh-body) !important;
+  text-align: center !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+#utGameplayHud .ut-ghud-c > p:not(.ut-ghud-cw):not(.ut-ghud-hp) {
+  color: #cfc8ea !important;
+  font: 700 24px/1.2 var(--gh-body) !important;
+  text-align: center !important;
+}
+#utGameplayHud .ut-ghud-bar {
+  position: relative !important;
+  width: 100% !important;
+  height: 58px !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/hud/bar-hp-boss.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+#utGameplayHud .ut-ghud-bar b {
+  position: absolute !important;
+  top: 30% !important;
+  left: 5% !important;
+  height: 40% !important;
+  border-radius: 4px !important;
+  background: linear-gradient(#ff7a82, #c61f2f) !important;
+  box-shadow: none !important;
+  transform: scaleX(.9);
+  transform-origin: left center;
+}
+#utGameplayHud .ut-ghud-hp {
+  color: #ffe9a0 !important;
+  font: 800 22px/1.2 var(--gh-body) !important;
+  text-align: center !important;
+}
+#utGameplayHud .ut-ghud-p {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding: 18px 70px !important;
+  border: 0 !important;
+  border-top: 3px solid var(--gh-gold) !important;
+  border-bottom: 3px solid var(--gh-gold) !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .94) 14%, rgba(26, 14, 34, .94) 86%, transparent) !important;
+  box-shadow: none !important;
+}
+#utGameplayHud .ut-ghud-p h4 { color: var(--gh-gold) !important; font: 48px/1.1 var(--gh-title) !important; }
+#utGameplayHud .ut-ghud-p p { color: #cfc8ea !important; font: 700 26px/1.3 var(--gh-body) !important; }
+
+#puCard.pucard {
+  box-sizing: border-box !important;
+  min-height: 300px !important;
+  padding: 30px 48px !important;
+  text-align: center !important;
+}
+#puCard #pcWho { margin: 0 0 8px !important; color: #cfc8ea !important; font: 800 26px/1.2 var(--gh-body) !important; }
+#puCard #pcEmoji { min-height: 92px; margin: 4px 0 8px; color: var(--gh-gold); font: 80px/1 var(--gh-title); }
+#puCard #pcEmoji img { width: 100px !important; height: 100px !important; object-fit: contain !important; }
+#puCard #pcName { margin: 4px 0 !important; color: var(--gh-gold) !important; font: 56px/1.1 var(--gh-title) !important; }
+#puCard #pcDesc { margin: 6px 0 0 !important; color: #efe9ff !important; font: 700 28px/1.3 var(--gh-body) !important; }
+#puCard.pucard.chest { min-height: 0 !important; }
+#puCard.chest #pcEmoji {
+  width: 100px;
+  height: 100px;
+  min-height: 0;
+  margin: 12px auto;
+  color: transparent;
+  background: url("../referensi/newgui/game/assets/komponen/hud/ikon-kado-merah.webp") center / contain no-repeat;
+  font-size: 0;
+}
+#puCard.chest #pcName { font-size: 48px !important; }
+
+#trapBar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-areas: "text actions" "hint actions" !important;
+  align-items: center !important;
+  gap: 8px 24px !important;
+  width: 900px !important;
+  max-width: none !important;
+  padding: 20px 30px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+#trapBar[hidden] { display: none !important; }
+#trapTxt { grid-area: text; text-align: left !important; font: 800 30px/1.2 var(--gh-body) !important; }
+#trapHint { grid-area: hint; color: #cfc8ea !important; font: 700 22px/1.2 var(--gh-body) !important; }
+#trapHint b { color: #7be05a !important; }
+#trapBar .trapAct { grid-area: actions; gap: 16px !important; margin: 0 !important; }
+#trapBar button {
+  min-width: 190px !important;
+  min-height: 76px !important;
+  padding: 0 24px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font: 30px var(--gh-title) !important;
+}
+#trapBar button#trapOk { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+
+.tm-box {
+  box-sizing: border-box !important;
+  width: 900px !important;
+  max-width: none !important;
+  padding: 36px 48px !important;
+  text-align: center !important;
+}
+.tm-box .tm-ic { display: grid !important; place-items: center !important; width: 110px !important; height: 110px !important; margin: 0 auto 8px !important; }
+.tm-box .tm-ic img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+.tm-box h4 { margin: 8px 0 !important; color: var(--gh-gold) !important; font: 56px/1.1 var(--gh-title) !important; }
+.tm-box .tm-d,
+.tm-box .tm-t { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
+.tm-box .tm-t { display: block !important; margin-top: 12px !important; color: var(--gh-gold) !important; }
+.tm-bt { justify-content: center !important; gap: 24px !important; margin-top: 16px !important; }
+.tm-bt button {
+  flex: none !important;
+  width: 280px !important;
+  min-height: 76px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  font: 30px var(--gh-title) !important;
+}
+.tm-bt .tm-n { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+
+#readyScreen .rd-box {
+  width: 1000px !important;
+  padding: 30px 40px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+#readyScreen h2 {
+  display: grid !important;
+  place-items: center !important;
+  width: 760px !important;
+  height: 170px !important;
+  margin: 0 auto 8px !important;
+  color: #fff3d0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
+  font: 64px/1.1 var(--gh-title) !important;
+  text-shadow: 0 4px 0 var(--gh-ink) !important;
+}
+#readyScreen .rd-sub { color: #efe9ff !important; font: 26px/1.25 var(--gh-body) !important; }
+#readyScreen .rd-time { border: 0 !important; border-radius: 12px !important; background: rgba(27, 20, 48, .9) !important; color: var(--gh-gold) !important; font: 800 38px/1.2 var(--gh-title) !important; }
+#readyScreen .rk-grid { grid-template-columns: repeat(var(--n, 2), 190px) !important; gap: 24px !important; }
+#readyScreen .rk { width: 190px !important; height: 260px !important; }
+#readyScreen .rk-f,
+#readyScreen .rk-b {
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: url("../referensi/newgui/game/assets/komponen/hud/kartu-kosong-ungu.webp") center / 100% 100% no-repeat !important;
+}
+#readyScreen .rk-q,
+#readyScreen .rk-no { color: #fff3d0 !important; font: 800 72px/1 var(--gh-title) !important; text-shadow: 0 4px 0 var(--gh-ink) !important; }
+#readyScreen .rk-nm,
+#readyScreen .rk-wn { color: #fff3d0 !important; font: 800 22px/1.2 var(--gh-body) !important; }
+#readyScreen .rk-av { width: 96px !important; height: 96px !important; border: 0 !important; background: transparent !important; }
+#readyScreen .rk.picked .rk-f { box-shadow: 0 0 28px var(--pc, var(--gh-gold)) !important; }
+
+#win.lm-ov .lm-box {
+  width: 1100px !important;
+  padding: 28px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+}
+#win .lm-body { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 18px !important; padding: 32px 48px !important; }
+#win .res-ico { display: none !important; }
+#win .lm-eyebrow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 18px !important;
+  margin: 0 !important;
+  color: #cfc8ea !important;
+  font: 800 26px/1.2 var(--gh-body) !important;
+}
+#win #winTitle {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-height: 170px !important;
+  margin: 0 !important;
+  color: #fff3d0 !important;
+  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
+  font: 76px/1.1 var(--gh-title) !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 5px 0 var(--gh-ink) !important;
+}
+#win .lm-note { max-width: 900px !important; margin: 0 !important; color: #efe9ff !important; font: 700 28px/1.3 var(--gh-body) !important; }
+#win .lm-grid { width: 720px !important; gap: 24px !important; }
+#win[data-state="lose"] .lm-eyebrow {
+  padding: 22px 10px !important;
+  border-top: 3px solid #ff5a6c !important;
+  border-bottom: 3px solid #ff5a6c !important;
+  color: #ff5a6c !important;
+  background: linear-gradient(90deg, transparent, rgba(160, 24, 42, .65) 30%, rgba(160, 24, 42, .65) 70%, transparent) !important;
+  font: 900 60px/1 var(--gh-title) !important;
+  text-transform: uppercase !important;
+}
+#win[data-state="lose"] .lm-eyebrow::before,
+#win[data-state="lose"] .lm-eyebrow::after { content: ""; width: 110px; height: 70px; background-position: center; background-repeat: no-repeat; background-size: contain; }
+#win[data-state="lose"] .lm-eyebrow::before { background-image: url("../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kiri.webp"); }
+#win[data-state="lose"] .lm-eyebrow::after { background-image: url("../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kanan.webp"); }
+#win[data-state="lose"] #winTitle { background-image: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-merah-polos.webp"); }
+#win[data-state="lose"] .lm-note { color: #efe9ff !important; }
+
+@media (max-width: 699px) {
+  #utGameplayHud .ut-ghud-b { gap: 12px !important; padding: 12px 30px !important; font-size: 28px !important; }
+  #utGameplayHud .ut-ghud-b i { width: 40px !important; height: 40px !important; }
+  #trapBar { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "text" "hint" "actions" !important; }
+  #trapBar .trapAct { justify-content: center !important; }
+  #readyScreen h2 { width: 760px !important; }
+  #win .lm-grid { width: 100% !important; }
+}
