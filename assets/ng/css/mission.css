@@ -110,8 +110,7 @@
 #mbtns .btn{width:330px;height:100px}#mbtns .btn span{font-size:32px}
 
 /* ---- achievement ---- */
-.alist{position:absolute;left:0;top:0;width:1480px;height:930px;padding:4px 20px 20px 0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#6d6590 transparent}
-.alist::-webkit-scrollbar{width:10px}.alist::-webkit-scrollbar-thumb{background:#6d6590;border-radius:5px}.alist::-webkit-scrollbar-track{background:transparent}
+.alist{position:absolute;left:0;top:0;width:1480px;height:930px;padding:4px 20px 20px 0}
 .alist .row.ach{position:relative;left:auto;top:auto;margin-bottom:14px}
 .row.ach h3{top:18px}.row.ach .ds{top:60px;font-size:26px}
 .ach .stars{position:absolute;left:164px;top:90px;display:flex;gap:4px}
@@ -125,3 +124,6 @@
 .rbox.two.done{flex-direction:row}.rbox.two.done b{font-size:34px}
 .ach .pb{left:790px;top:63px}
 .ach .pt{left:1000px;top:52px;width:170px;font-size:26px}
+
+.alist{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
+.alist::-webkit-scrollbar{display:none}
