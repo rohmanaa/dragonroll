@@ -56,7 +56,8 @@ html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman digant
 html[data-ambience="night"] .sbg{--sun-x:82%;--sun-y:9%;background:linear-gradient(#040a26 0%,#0c1d52 40%,#18397d 75%,#25508f 100%)}
 html[data-ambience="night"] .sbg-img{filter:brightness(.4) saturate(.8) hue-rotate(10deg) contrast(1.06)}
 html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(3,8,40,.86) 0%,rgba(10,26,88,.5) 38%,rgba(20,50,120,0) 72%)}
-html[data-ambience="night"] .sbg-fog{background:linear-gradient(180deg,rgba(40,84,176,0) 36%,rgba(40,84,176,.2) 60%,rgba(30,62,150,.55) 100%)}
+/* kabut malam = pita tipis di tengah (di belakang pedestal/karakter & bagian depan), bukan menutupi bawah layar */
+html[data-ambience="night"] .sbg-fog{background:linear-gradient(180deg,rgba(110,140,225,0) 24%,rgba(110,140,225,.34) 44%,rgba(110,140,225,.26) 57%,rgba(110,140,225,0) 70%)}
 /* matahari -> cahaya bulan (biru pucat dingin) */
 html[data-ambience="night"] .sbg-sun{opacity:0;background:radial-gradient(circle at var(--sun-x) var(--sun-y),rgba(205,222,255,.8) 0,rgba(150,182,255,.34) 13%,rgba(120,160,255,.12) 32%,rgba(120,160,255,0) 56%)}
 html[data-ambience="night"] .sbg-rays{opacity:0;
@@ -110,4 +111,4 @@ html[data-graphics="low"] .sbg-light{animation:none}html[data-graphics="low"] .s
 
 /* gambar malam tersendiri (data-image-night): gambarnya sudah malam & lampu/tungku menyala di dalamnya -> tanpa redup, bintang, bulan, sinar, dan lampu tambahan */
 html[data-ambience="night"] .sbg.sbg-ownnight .sbg-img{filter:none}
-.sbg.sbg-ownnight .sbg-sky,.sbg.sbg-ownnight .sbg-fog,.sbg.sbg-ownnight .sbg-sun,.sbg.sbg-ownnight .sbg-rays,.sbg.sbg-ownnight .sbg-bloom,.sbg.sbg-ownnight .sbg-stars,.sbg.sbg-ownnight .sbg-moon,.sbg.sbg-ownnight .sbg-lights{display:none!important}
+.sbg.sbg-ownnight .sbg-sky,.sbg.sbg-ownnight .sbg-sun,.sbg.sbg-ownnight .sbg-rays,.sbg.sbg-ownnight .sbg-bloom,.sbg.sbg-ownnight .sbg-stars,.sbg.sbg-ownnight .sbg-moon,.sbg.sbg-ownnight .sbg-lights{display:none!important}
