@@ -12,7 +12,7 @@ body.ready #cave::after{opacity:1}
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 78% 78% at 50% 46%,transparent 40%,rgba(8,5,10,.75) 100%),linear-gradient(180deg,transparent 80%,rgba(8,5,10,.85))}
-#spin{position:absolute;left:calc(50vw - 3.4rem);top:calc(42vh - 3.4rem);width:6.9rem;height:auto;animation:spin 1.6s steps(12) infinite}
+#spin{position:absolute;left:calc(50vw - 3.4rem);bottom:8.6rem;width:6.9rem;height:auto;animation:spin 1.6s steps(12) infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
 
@@ -75,8 +75,6 @@ body.ready #spin,body.ready #loadbox,body.ready #loginbtn{display:none!important
 #lg .rb{position:relative;width:34.75rem;margin:0 auto .1rem;z-index:2}
 #lg .rb img{width:100%;height:auto}
 #lg .rb b{position:absolute;inset:0;display:grid;place-items:center;font:400 2.4rem/1 var(--font-title);letter-spacing:.12rem;text-shadow:0 .14rem 0 rgba(70,0,10,.7);margin-top:-.2rem}
-#lg .fa,#lg .rp{display:block;height:auto;margin:0 auto;filter:drop-shadow(0 .5rem .4rem rgba(0,0,0,.5))}
-#lg .fa{width:45.9rem}#lg .rp{width:20.1rem;margin-top:-1rem}
 #tapbox{position:absolute;left:0;right:0;bottom:7rem;height:8.5rem;display:grid;place-items:center;cursor:pointer;border:0;background:none;width:100%}
 #tapbox::before,#tapbox::after{content:'';position:absolute;left:50%;width:min(62rem,80vw);height:.14rem;transform:translateX(-50%);
   background:linear-gradient(90deg,transparent,#e8d9a0 20%,#e8d9a0 80%,transparent)}
