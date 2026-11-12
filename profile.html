@@ -15,6 +15,15 @@
 #avatar.fr .fc svg{width:100%;height:100%;display:block}
 #avatar.fr .frm{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .ir.tap{cursor:pointer}
+/* panel kanan = aset bingkai-dialog.webp; baris = aset baris-ranking.webp (sama dengan halaman lain), bukan kotak CSS */
+#right::before{content:"";position:absolute;left:-30px;right:-30px;top:96px;bottom:46px;border:22px solid transparent;border-image:url(assets/ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.kr,.sr{background:none;border:0;isolation:isolate}
+.kr::before,.sr::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(assets/ng/komponen/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+.sr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sr .v{flex:none;min-width:0;white-space:nowrap}
+.sr .v small{white-space:nowrap}
+/* karakter turun & lebih besar (tanpa pedestal/teks nama) */
+#art{top:250px;height:720px}
 </style>
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script>
 </head>
@@ -30,8 +39,6 @@
 
   <section id="mid">
     <div id="art"></div>
-    <div id="mnm" class="ttl"></div>
-    <div id="mcls"></div>
   </section>
 
   <section id="right">
@@ -112,15 +119,13 @@ $("#menu").onclick=e=>{const b=e.target.closest(".mb");if(b){snd();tab(b.dataset
 tab("akun");
 
 /* ---- tengah: karakter 3D terpasang (BlockyCharacter dari PlayerData, sama dengan Lobby/Karakter) di atas pedestal ---- */
-const cyl=(cx,cy,rx,ry,hh,top,side)=>`<path d="M${cx-rx},${cy} v${hh} a${rx},${ry} 0 0 0 ${rx*2},0 v${-hh} Z" fill="${side}" stroke="#17122b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${top}" stroke="#17122b" stroke-width="3"/>`;
-const PED=`<svg viewBox="0 0 500 190" aria-hidden="true"><ellipse cx="250" cy="168" rx="236" ry="22" fill="rgba(8,4,20,.35)"/>${cyl(250,104,222,46,30,"#4b4370","#2f2949")}${cyl(250,82,176,36,24,"#5d5486","#3b3459")}${cyl(250,62,128,27,20,"#6f66a0","#463f6b")}</svg>`;
 let R=null,webOk=typeof THREE!=="undefined"&&!!(window.UT&&UT.BlockyCharacter);
 function buildChar(){
   const art=$("#art");
-  if(!webOk){art.innerHTML=PED+`<div class="noweb">${AR.face(eqSkin().id)}</div>`;return}
+  if(!webOk){art.innerHTML=`<div class="noweb">${AR.face(eqSkin().id)}</div>`;return}
   if(!R){
     try{
-      art.innerHTML=PED;const cv=document.createElement("canvas");art.appendChild(cv);
+      art.innerHTML="";const cv=document.createElement("canvas");art.appendChild(cv);
       const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true}),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(36,1,.1,100);
       scene.add(new THREE.AmbientLight(0xffffff,.7),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
       const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);scene.add(sun);
@@ -133,8 +138,8 @@ function buildChar(){
     }catch(e){webOk=false;R=null;console.warn("[profil] WebGL tidak tersedia",e);buildChar();return}
   }
   if(R.ch)R.holder.remove(R.ch.root);
-  const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();ch.setMode("pose1");ch.tick(.016);
-  const w=new THREE.Group();w.scale.setScalar(3.7);w.position.y=.3;w.add(ch.root);R.holder.add(w);R.ch=ch;R.w=w;
+  const ch=UT.BlockyCharacter.create(THREE);ch.loadFromPlayer();ch.setMode("idle");ch.tick(.016);
+  const w=new THREE.Group();w.scale.setScalar(3.7);w.position.y=0;w.add(ch.root);R.holder.add(w);R.ch=ch;R.w=w;
   try{if(UT.AuraView&&UT.AuraFX){if(!R.aura)R.aura=UT.AuraView.create(R.scene,R.cam);R.scene.updateMatrixWorld(true);R.aura.only(ch.root,UT.AuraView.equippedKey())}}catch(e){}
 }
 function sizeGL(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(SET().graphics==="high"?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.updateProjectionMatrix()}
@@ -146,7 +151,6 @@ function loop(t){
   R.holder.rotation.y=R.rot;R.ch.tick(dt);if(R.aura)R.aura.update(dt);
   R.cam.position.set(0,2.8,19);R.cam.lookAt(0,1.8,0);R.r.render(R.scene,R.cam);
 }
-function drawMid(){$("#mnm").textContent=eqSkin().name;$("#mcls").textContent="Level "+PD.levelInfo().level}
 
 /* ---- kanan: AKUN ---- */
 function drawAvatar(){
@@ -190,16 +194,16 @@ function drawStat(){
   const row=(ic,label,v,u,bar)=>`<${u?"button":"div"} class="sr"${u?` data-u="${u}"`:""}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div>${bar!=null?`<i class="bar"><b data-w="${bar}"></b></i>`:""}<div class="v">${v}</div></${u?"button":"div"}>`;
   const rk=PROF.rank?"#"+fmt(PROF.rank)+(PROF.rank===1?`<img src="${K}ikon-item/mahkota.webp" alt="">`:""):"—";
   $("#sg").innerHTML=
-    row(G+"globe-meja.webp","Peringkat Global",rk,"leaderboard.html")+
-    row(G+"pedang-silang.webp","Rasio Kemenangan",wr+"%<small>"+w+"/"+p+"</small>",null,wr)+
-    row(G+"target-panah.webp","Misi",MIS()+`<img class="go" src="${G}segitiga-kanan.webp" alt="">`,"hadiah-misi.html")+
+    row(K+"ikon-item/podium.webp","Peringkat Global",rk,"leaderboard.html")+
+    row(K+"ikon-item/pedang-silang.webp","Rasio Kemenangan",wr+"%<small>"+w+"/"+p+"</small>",null,wr)+
+    row(K+"ikon-item/gulungan-misi.webp","Misi",MIS()+`<img class="go" src="${G}segitiga-kanan.webp" alt="">`,"hadiah-misi.html")+
     row(K+"ikon-item/piala.webp","Win / Lose",w+" / "+Math.max(0,p-w))+
-    row(G+"api.webp","Win Streak",PROF.streak);
+    row(K+"ikon-gem-medali/petir-emas.webp","Win Streak",PROF.streak);
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".sr i.bar b").forEach(b=>{b.style.width=b.dataset.w+"%"})));
 }
 $("#sg").onclick=e=>{const b=e.target.closest("button.sr");if(b){snd();go(b.dataset.u)}};
 
-function draw(){drawMid();drawAkun();drawKol();drawStat();showWallet()}
+function draw(){drawAkun();drawKol();drawStat();showWallet()}
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
 UT.Events.on("currencyChanged",showWallet);
