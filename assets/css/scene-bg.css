@@ -111,6 +111,8 @@ html[data-graphics="low"] .sbg-light{animation:none}html[data-graphics="low"] .s
 
 /* gambar malam tersendiri (data-image-night): gambarnya sudah malam & lampu/tungku menyala di dalamnya -> tanpa redup, bintang, bulan, sinar, dan lampu tambahan */
 html[data-ambience="night"] .sbg.sbg-ownnight .sbg-img{filter:none}
-.sbg.sbg-ownnight .sbg-sky,.sbg.sbg-ownnight .sbg-fog,.sbg.sbg-ownnight .sbg-sun,.sbg.sbg-ownnight .sbg-rays,.sbg.sbg-ownnight .sbg-bloom,.sbg.sbg-ownnight .sbg-stars,.sbg.sbg-ownnight .sbg-moon,.sbg.sbg-ownnight .sbg-lights{display:none!important}
+.sbg.sbg-ownnight .sbg-fog,.sbg.sbg-ownnight .sbg-sun,.sbg.sbg-ownnight .sbg-rays,.sbg.sbg-ownnight .sbg-bloom,.sbg.sbg-ownnight .sbg-stars,.sbg.sbg-ownnight .sbg-moon,.sbg.sbg-ownnight .sbg-lights{display:none!important}
 /* suasana malam gambar sendiri: tepi layar sedikit gelap (vinyet halus), tanpa cahaya bulan/pita kabut terang; kabut gelap di belakang karakter = night-fog.js (varian player) */
 html[data-ambience="night"] .sbg.sbg-ownnight::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 88% 82% at 50% 54%,transparent 50%,rgba(3,7,28,.5) 100%)}
+/* langit gambar malam digelapkan: gradasi biru tua dikalikan (multiply) ke gambar -> langit jadi malam, obor/tungku & bagian bawah tetap terang */
+html[data-ambience="night"] .sbg.sbg-ownnight .sbg-sky{display:block;mix-blend-mode:multiply;background:linear-gradient(180deg,#070d34 0%,#0f1c58 16%,#2a3e86 30%,#6f7fbc 44%,#c5cce6 56%,#fff 68%)}
