@@ -203,3 +203,6 @@ Setelah mengganti gambar: `python3 tools/gen-preload-manifest.py`, naikkan `VERS
 - `lobby.html` memasang scene-bg dengan `data-clouds-set="far" data-cloud-slow="1.8" data-lights="lobby"`: hanya 2 awan kecil di kejauhan (awan besar/dekat dihapus), durasi melintas x1.8 (lebih lambat).
 - `data-lights="lobby"` = set lampu di `assets/js/scene-bg.js` (`LIGHTSETS.lobby`, posisi = pecahan gambar `lobby-bg.webp`): 2 tungku batu bara (api bergoyang + cahaya lebar) dan 6 lentera di dinding kastil. Menyala hanya saat `html[data-ambience="night"]` (transisi 1,2 dtk), berkedip pelan; mati saat grafis "low"/reduced-motion. CSS di `assets/css/scene-bg.css` (`.sbg-light`).
 - Halaman lain tidak berubah (default awan tetap 5). Tambah titik lampu = edit `LIGHTSETS`; sw `ut-pwa-v103`.
+
+## Perpindahan halaman: senyap (tanpa "Menyiapkan tampilan")
+`play.html` (pembungkus iframe): overlay antar-halaman kini SELALU mode `quiet` — layar hitam polos yang menyatu dengan fade hitam tiap halaman (`#fade`), lalu terbuka begitu halaman tujuan siap (font + latar ter-decode + body terlihat). Tirai awan biru-putih, bar progres, dan teks "Memuat halaman / Menyiapkan tampilan" tidak lagi tampil saat pindah halaman (kodenya dibiarkan, tidak terpakai). Splash tetap punya layar muatnya sendiri. sw `ut-pwa-v104`.

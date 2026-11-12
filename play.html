@@ -102,6 +102,9 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     ov.classList.remove('hide'); resetP(); creep();
   }
   function showOv(quiet) {
+    /* Antar-halaman SELALU senyap: layar hitam polos (sama dengan fade hitam tiap halaman), tanpa tirai awan / teks "Menyiapkan tampilan" / bar.
+       Sebelumnya tirai awan biru-putih muncul bila halaman tujuan belum siap dalam 320 ms, sehingga berpindah halaman terasa tersendat dan tidak sinkron. */
+    quiet = true;
     clearTimeout(hideT);
     if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
     if (quiet) { armed = false; clearTimeout(showT); doShow(true); return; }
@@ -114,7 +117,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     if (!shown) return;
     shown = false; clearTimeout(hideT);
     setP(100);   // bar penuh dulu, baru awan menyibak
-    var wait = ov.classList.contains('quiet') ? 120 : Math.max(380, MIN_SHOW - (Date.now() - shownAt));
+    var wait = 60;   // senyap: begitu halaman siap, langsung buka
     hideT = setTimeout(function () { ov.classList.add('hide'); }, wait);
   }
   ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
