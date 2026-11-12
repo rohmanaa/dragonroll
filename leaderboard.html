@@ -1,498 +1,153 @@
 <!DOCTYPE html>
-<html lang="id" class="stage16">
-<head><script src="assets/js/frame-guard.js"></script>
-<script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script>
-<meta charset="utf-8">
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script>
+<script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Leaderboard</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/leaderboard-bg.webp"></script>
-<style>
-:root{
-  --ol:#08112b;            /* outline hitam-navy */
-  --bd:#08112b;
-  --g:#3cc23c;
-  --navy:#10286a;
-  --px:0 -.3rem 0 0 var(--ol),0 .3rem 0 0 var(--ol),-.3rem 0 0 0 var(--ol),.3rem 0 0 0 var(--ol);       /* outline piksel (sudut bertakik) */
-  --pxs:0 -.2rem 0 0 var(--ol),0 .2rem 0 0 var(--ol),-.2rem 0 0 0 var(--ol),.2rem 0 0 0 var(--ol);
-  --bev:inset .24rem .24rem 0 rgba(255,255,255,.34),inset -.24rem -.24rem 0 rgba(0,0,0,.3);              /* bevel terang atas-kiri, gelap bawah-kanan */
-  --bevs:inset .18rem .18rem 0 rgba(255,255,255,.16),inset -.18rem -.18rem 0 rgba(0,0,0,.35);
-  --lip:0 .6rem 0 0 var(--ol);
-}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html{font-size:min(1vw,1.78vh)}
-html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
-
-#sky{position:fixed;inset:0;overflow:hidden;z-index:0}
-.isl{position:absolute;opacity:.75;animation:fl 6s ease-in-out infinite}
-.isl i{display:block;background:#6fbf4a}.isl b{display:block;background:#8a5a3a;margin:0 auto}
-@keyframes fl{50%{translate:0 -.8rem}}
-
-.ab{position:relative}
-
-/* Container Utama Grid Layout */
-#ui{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  display:grid;
-  grid-template-columns: 46rem 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 1.2rem 1.8rem;
-  padding: 1.8rem 1.8rem 2.2rem;
-}
-
-/* Header Section */
-#top-bar{
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  z-index: 10;
-}
-.header-left{display:flex;align-items:center;gap:1.4rem}
-.header-right{display:flex;align-items:center;gap:1.4rem}
-
-.ut-curbar {
-  position: relative !important;
-  inset: auto !important;
-  transform: none !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 1.2rem !important;
-  margin: 0 !important;
-}
-.ut-curbar .cur {
-  position: relative !important;
-  left: auto !important;
-  top: auto !important;
-  right: auto !important;
-}
-
-/* Tombol dasar: gaya piksel, ditekan = turun */
-button{font:inherit;color:inherit;border:0;border-radius:0;cursor:pointer;transition:transform .1s,filter .1s}
-button:hover{transform:translateY(-.1rem);filter:brightness(1.1)}
-button:active{transform:translateY(.3rem);filter:brightness(.95)}
-button:focus-visible{outline:.3rem solid #fff}
-
-.blue{background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .18rem 0 var(--ol)}
-svg{display:block}
-#back>.ci{width:3.6rem;height:3.6rem}
-#me .bk .ci{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .14rem 0 var(--ol))}
-.plate .ci{width:1.9rem;height:1.9rem;flex:none}
-.mysc .ci{width:3.8rem;height:3.8rem;flex:none}
-.tb .ci{width:2.6rem;height:2.6rem;flex:none}
-.lr .sc .ci{width:3rem;height:3rem;flex:none}
-.lr .rk .ci{width:2.8rem;height:2.8rem}
-#ft>.ci{width:4.2rem;height:4.2rem;flex:none}
-#rw .ci{width:3.2rem;height:3.2rem;flex:none}
-.row .ci{width:3rem;height:3rem;flex:none}
-
-#back{width:4.5rem;height:4.5rem;padding:0;display:grid;place-items:center;flex-shrink:0}
-#back svg{width:2.8rem;height:2.8rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
-
-#title{
-  height:4.5rem;
-  display:flex;
-  align-items:center;
-  gap:1rem;
-  padding: 0 2.2rem 0 1.6rem;
-  font-size:3rem;
-  text-shadow:0 .22rem 0 var(--ol);
-}
-#title svg{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
-#title>.ic{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .18rem 0 var(--ol));display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-
-#gear{width:4.5rem;height:4.5rem;padding:0;display:grid;place-items:center;flex-shrink:0}
-#gear svg{width:2.8rem;height:2.8rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
-#gear>.ic{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .18rem 0 var(--ol));display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-
-.pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
-
-/* Left Column: Podium & Player Info */
-.left-section{
-  grid-column: 1;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-  min-height: 0;
-}
-
-#gl{position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:0;pointer-events:none;display:block}
-#pod{
-  position: relative;
-  width: 100%;
-  flex: 1;
-  min-height: 24rem;
-  overflow: hidden;
-}
-/* papan nama juara: panel gelap bersudut piksel */
-.plate{position:fixed;z-index:2;translate:-50% -100%;pointer-events:none;text-align:center;padding:.5rem .6rem .5rem;line-height:1.15;border:0;border-radius:0;
-  background:linear-gradient(#3b414d,#222630);box-shadow:var(--bevs),var(--px)}
-.plate .pn{font-size:1.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 .14rem 0 var(--ol)}
-.plate .ps{display:flex;gap:.4rem;justify-content:center;align-items:center;font-size:1.5rem;text-shadow:0 .14rem 0 var(--ol)}
-.plate svg{width:1.7rem;height:1.7rem}
-
-#p1{width:11.5rem;background:linear-gradient(#4b4a2a,#2a2915);box-shadow:var(--bevs),0 -.3rem 0 0 #ffc83a,0 .3rem 0 0 #ffc83a,-.3rem 0 0 0 #ffc83a,.3rem 0 0 0 #ffc83a,0 -.5rem 0 0 var(--ol),0 .5rem 0 0 var(--ol),-.5rem 0 0 0 var(--ol),.5rem 0 0 0 var(--ol)}
-#p1 .pn{font-size:1.55rem}#p1 .ps{font-size:1.8rem;color:#ffe36a}
-#p2{width:9rem;background:linear-gradient(#444a57,#272b35)}
-#p3{width:9rem;background:linear-gradient(#5a3a2c,#34211a)}
-
-/* Player Info Bar */
-#me{
-  position: relative;
-  width: 100%;
-  height: 7.8rem;
-  padding: .8rem 1.4rem;
-  background: linear-gradient(#2f6fe2,#1d4cb8);
-  box-shadow: var(--bev),var(--px),var(--lip);
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  flex-shrink: 0;
-  margin-bottom:.6rem;
-}
-#me .bk{width:3.6rem;height:5.4rem;padding:0;display:grid;place-items:center;flex:none}#me .bk svg{width:2rem;height:2rem;filter:drop-shadow(0 .14rem 0 var(--ol))}
-.pos{background:var(--navy);padding:.4rem 1rem .3rem;text-align:center;line-height:1;box-shadow:inset 0 .2rem 0 rgba(0,0,0,.4),var(--pxs);flex:none;min-width:8.5rem}
-.pos small{display:block;font-size:1rem;color:#dff0ff}.pos b{font-size:2.8rem;color:#ffd24d;text-shadow:0 .18rem 0 #8a4a06}
-.av{display:block;width:4.8rem;height:4.8rem;border:.2rem solid var(--ol);box-shadow:0 0 0 .2rem #8aa8e0;overflow:hidden;background:#7cc2ff;flex:none}.av svg{width:100%;height:100%}
-#me .inf{flex:1;min-width:0;line-height:1.1}#me .nm{font-size:1.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 .14rem 0 var(--ol)}#me .lv{font-size:1.2rem;color:#ffd24d;text-shadow:0 .12rem 0 var(--ol)}
-.xp{position:relative;height:1.6rem;background:#0a1a45;margin-top:.3rem;overflow:hidden;box-shadow:0 0 0 .18rem var(--ol),inset 0 .15rem 0 rgba(0,0,0,.5)}
-.xp i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#5adcff,#1f9fe6);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.5)}.xp span{position:absolute;inset:0;text-align:center;font-size:.95rem;line-height:1.6rem;text-shadow:0 .1rem 0 var(--ol)}
-.mysc{display:flex;align-items:center;gap:.5rem;font-size:2.4rem;flex:none;padding-right:.4rem;text-shadow:0 .16rem 0 var(--ol)}.mysc svg{width:3rem;height:3rem}
-
-/* Right Column: Contains Tabs & Table Panel */
-.right-section{
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-  min-height: 0;
-}
-
-/* Navigation Tabs */
-#tb{display:flex;gap:1.2rem;height:4.4rem;flex-shrink:0;padding-left:.3rem}
-.tb{height:4.4rem;display:flex;align-items:center;justify-content:center;gap:1rem;font-size:1.9rem;padding:0 2rem;background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .16rem 0 var(--ol)}
-.tb svg{width:2.6rem;height:2.6rem}
-.tb.on{background:linear-gradient(#fff6cf,#f2d77a);color:#4a3200;text-shadow:none;box-shadow:inset .24rem .24rem 0 rgba(255,255,255,.7),inset -.24rem -.24rem 0 rgba(160,110,10,.35),var(--px),var(--lip)}
-.tb.on svg{fill:#fff;stroke:#4a3200}
-
-/* Leaderboard Table Panel */
-#rt{
-  width: 100%;
-  flex: 1;
-  padding: 1.1rem;
-  background: linear-gradient(#2a62d6,#1a449f);
-  box-shadow: var(--bev),var(--px),var(--lip);
-  display: flex;
-  flex-direction: column;
-  gap: .9rem;
-  min-height: 0;
-  margin-bottom:.6rem;
-}
-
-.gc{display:grid;grid-template-columns:5.5rem 1fr 13rem 6rem;align-items:center}
-#hd{height:3.2rem;background:var(--navy);font-size:1.5rem;text-align:center;flex:none;box-shadow:inset 0 .2rem 0 rgba(0,0,0,.4),var(--pxs);text-shadow:0 .12rem 0 var(--ol)}
-#hd span:nth-child(2){text-align:left;padding-left:4.5rem}
-
-#rows{flex:1;min-height:0;display:flex;flex-direction:column;gap:.6rem;overflow-y:auto;padding:.3rem .4rem .5rem}
-.lr{flex:1;min-height:4.8rem;background:linear-gradient(#173a88,#0f2a68);box-shadow:var(--bevs),var(--pxs);animation:pop .35s both;cursor:pointer;text-shadow:0 .14rem 0 var(--ol)}
-@keyframes pop{from{opacity:0;transform:scale(.93)}}
-.lr.me{background:linear-gradient(#2a62d6,#1a4cb8);box-shadow:var(--bevs),0 -.2rem 0 0 #ffd24d,0 .2rem 0 0 #ffd24d,-.2rem 0 0 0 #ffd24d,.2rem 0 0 0 #ffd24d,0 -.4rem 0 0 var(--ol),0 .4rem 0 0 var(--ol),-.4rem 0 0 0 var(--ol),.4rem 0 0 0 var(--ol)}
-.lr .no{text-align:center;font-size:2rem}
-.lr .who{display:flex;align-items:center;gap:1rem;min-width:0}.lr .av{width:4rem;height:4rem}
-.lr .nm2{font-size:1.7rem;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lr .lv2{font-size:1.1rem;color:#cfe6ff;line-height:1}
-.lr .sc{display:flex;align-items:center;gap:.5rem;font-size:1.8rem}.lr .sc svg{width:2.4rem;height:2.4rem}
-.lr .rk{display:grid;place-items:center}.lr .rk svg{width:2.8rem;height:2.8rem}
-
-#ft{height:6.2rem;background:var(--navy);display:flex;align-items:center;gap:1.2rem;padding:0 1.2rem;flex:none;box-shadow:inset 0 .2rem 0 rgba(0,0,0,.4),var(--pxs)}
-#ft>svg{width:4.2rem;height:4.2rem;flex:none}#ft p{margin:0;flex:1;font-size:1.3rem;line-height:1.25;font-weight:700;color:#e0f2ff}
-.gold{background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .16rem 0 #8a4a06}
-#rw{height:4.4rem;padding:0 1.6rem;font-size:2rem;display:flex;align-items:center;gap:.8rem}#rw svg{width:2.6rem;height:2.6rem}
-
-/* Modal Styling (gaya piksel) */
-.ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(8,17,43,.5);z-index:50;opacity:0;transition:opacity .25s}
-.ov.show{opacity:1}.ov>.box{transform:scale(.9);transition:transform .2s}.ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.94)}
-.box{position:relative;width:min(44rem,92vw);max-height:90vh;overflow:auto;background:linear-gradient(#2f6fe2,#1d4cb8);padding:2.5rem 2rem 2rem;box-shadow:var(--bev),var(--px),0 .9rem 0 0 var(--ol);font-size:2.2rem;text-align:center}
-.box h2{margin:0 0 1rem;font-size:3rem;text-shadow:0 .22rem 0 var(--ol)}
-.x{position:absolute;right:-.8rem;top:-.8rem;width:4.2rem;height:4.2rem;background:linear-gradient(#f4705f,#c4291f);box-shadow:var(--bev),var(--px);font-size:2.2rem;padding:0;text-shadow:0 .16rem 0 #6a120c}
-.row{display:flex;justify-content:space-between;align-items:center;background:var(--navy);box-shadow:inset 0 .2rem 0 rgba(0,0,0,.4),var(--pxs);padding:.8rem 1.2rem;margin:.8rem .3rem;gap:1rem}
-.row b{display:flex;align-items:center;gap:.5rem}.row svg{width:2.4rem;height:2.4rem}
-.tg{min-width:7rem;height:3.5rem;background:linear-gradient(#8a96ad,#5a667e);box-shadow:var(--bevs),var(--pxs);font-size:1.8rem;padding:0 1rem;text-shadow:0 .12rem 0 var(--ol)}.tg.on{background:linear-gradient(#4fd25a,#23932f)}
-.pack{width:calc(100% - .6rem);margin:.8rem .3rem;display:flex;justify-content:space-between;align-items:center;padding:1rem 1.4rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);font-size:2.2rem;text-shadow:0 .16rem 0 #8a4a06}
-#toast{position:fixed;left:50%;bottom:2.5rem;translate:-50% 2rem;background:var(--navy);padding:.7rem 2rem;box-shadow:var(--bevs),var(--px);font-size:2.2rem;opacity:0;transition:opacity .3s,translate .3s;z-index:99;pointer-events:none;white-space:nowrap;text-shadow:0 .14rem 0 var(--ol)}
-#toast.on{opacity:1;translate:-50% 0}
-
-/* Media Query Responsif Mobile */
-@media(max-aspect-ratio:1/1){
-  html{font-size:2.2vw}
-  #ui{
-    display:flex;
-    flex-direction:column;
-    overflow-y:auto;
-    gap:1.4rem;
-    padding:1.2rem;
-  }
-  #top-bar{
-    flex-wrap: wrap;
-  }
-  #tb{overflow-x:auto;width:100%;padding:.4rem .4rem .8rem}.tb{flex:none}
-  .left-section{width:100%}
-  .right-section{width:100%}
-  #pod{height:65vw;min-height:0}
-  #rt{height:auto}
-  #rows{max-height:40rem}
-}
-</style>
-<link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
-<style>
-/* override shared-ui.css (dimuat sebelum blok ini): currency sama dengan lobi, modal gaya piksel; shared-ui.css sendiri tidak diubah */
-:root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
-html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
-html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
-html body .ov>.box>#mb{border-radius:0}
-html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f);box-shadow:var(--bev),var(--px);text-shadow:0 .16rem 0 #6a120c}
-</style>
-<script src="assets/js/landscape.js"></script><link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
-/* ===== seragam lobby: slate, tanah grid + daun ===== */
-.blue,html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
-.tab:not(.on),.tb:not(.on){background:linear-gradient(var(--sl3),var(--sl4))}
-html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
-html body .ov .row{background:linear-gradient(var(--sl3),var(--sl4))}
-.lr.me{background:linear-gradient(var(--sl3),var(--sl4))}
-.lr:not(.me){background:linear-gradient(var(--sl1),var(--sl2))}
-</style></head>
-<body>
-<div id="sky"></div>
-
-<div id="ui">
-  <!-- Top Header Bar -->
-  <header id="top-bar">
-    <div class="header-left">
-      <button class="blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
-      <div class="blue" id="title"><img class="ic" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false" decoding="async">Leaderboard</div>
+<title>Peringkat — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/sub.css"><link rel="stylesheet" href="assets/ng/css/leaderboard.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
+</head>
+<body class="dm">
+<div id="wrap"><div id="stage">
+  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Peringkat</div>
+  <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
+  <nav id="ltabs" aria-label="Kategori"></nav>
+  <section id="podium"></section>
+  <div id="mycard"></div>
+  <button class="btn" id="reward"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp" alt=""><span>HADIAH</span></button>
+  <section id="board">
+    <div id="th"><span>#</span><span>PEMAIN</span><span>SKOR</span><span>MENANG</span></div>
+    <div id="rows" class="scr"></div>
+  </section>
+  <div id="md"><div class="panel" id="box">
+    <h3 id="mt"></h3><div id="mx"></div>
+    <div id="mbtns">
+      <button class="btn" id="m-no"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>TUTUP</span></button>
     </div>
-
-    <!-- Kelompok Kanan: Gem + Coin + Gear -->
-    <div class="header-right">
-      <div class="ut-curbar">
-        <div class="cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
-        <div class="cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Left Column Section (Podium & Player Info) -->
-  <div class="left-section">
-    <div id="pod">
-      <div class="plate" id="p2"></div>
-      <div class="plate" id="p1"></div>
-      <div class="plate" id="p3"></div>
-    </div>
-
-    <section id="me"></section>
-  </div>
-
-  <!-- Right Column Section (Tabs + Table List Panel) -->
-  <div class="right-section">
-    <nav id="tb" aria-label="Kategori"></nav>
-    <section id="rt">
-      <div class="gc" id="hd"><span>#</span><span>Pemain</span><span>Skor</span><span>Rank</span></div>
-      <div id="rows"></div>
-      <div id="ft">
-        <img class="ci" src="assets/Images/icon/lobby/leader.webp" alt="" draggable="false">
-        <p>Tantang temanmu<br>dan raih peringkat tertinggi!</p>
-        <button class="gold" id="rw"></button>
-      </div>
-    </section>
-  </div>
-</div>
-
-<div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
-<div id="toast"></div>
-
-<script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
+  </div></div>
+  <div id="toast" role="status"></div>
+</div></div>
+<div id="fade"></div>
+<script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/character-data.js"></script>
-<script src="assets/js/character-view.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/frame-avatar.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
+<script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/blocky-character.js"></script><script src="assets/js/character-face.js"></script><script src="assets/js/appearance-service.js"></script>
 <script>
 (()=>{
-const $=s=>document.querySelector(s),hex=n=>'#'+n.toString(16).padStart(6,'0'),fmt=n=>n.toLocaleString('id-ID');
-const PD=window.PlayerData;
-const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* B5: akun login + flag = dompet server */
-const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Gem tidak cukup.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
+function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
+/* Data = SERVER (RoomService.getLeaderboard -> RPC get_leaderboard). Tidak ada data contoh. Avatar pemain lain = tampilan asli dari server (AppearanceService). */
+const PD=window.PlayerData,IC='assets/ng/komponen/';
+const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const SET=()=>PD.settings();
-const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
-
-function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
-function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)}
-
-// Background sky islands
-(()=>{const sk=$('#sky');[[5,60,6],[18,30,4],[30,70,5],[62,16,5],[86,48,7],[92,12,4],[2,20,5],[75,75,6],[45,85,4]].forEach((p,i)=>{const e=document.createElement('div');e.className='isl';e.style.cssText=`left:${p[0]}%;top:${p[1]}%;animation-delay:${-i}s;filter:blur(${i%3}px)`;e.innerHTML=`<i style="width:${p[2]}rem;height:${p[2]*.4}rem"></i><b style="width:${p[2]*.7}rem;height:${p[2]*.6}rem"></b>`;sk.appendChild(e)})})();
-
-// Icons & Helpers
-const DM='<img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">';
-const TR='<img class="ci" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false">';
-const SHD='<img class="ci" src="assets/Images/icon/ui/start.webp" alt="" draggable="false">';
-const TABS=[['global','Global','profile/globe'],['teman','Teman','mode/kontak'],['mingguan','Mingguan','mode/calndar']];
-
-const MEDAL=['1st','2nd','3rd'];
-const medal=n=>`<img class="mi" src="assets/Images/icon/rank/${MEDAL[n-1]}.webp" alt="Peringkat ${n}" draggable="false" decoding="async">`;
-
-/* ---- Data leaderboard NYATA dari Supabase (RPC get_leaderboard). Tidak ada data contoh. ---- */
-const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const FA=window.FrameAvatar;
+const TABS=[['global','GLOBAL','bola-dunia-garis'],['teman','TEMAN','grup-pengguna'],['mingguan','MINGGUAN','jam-bulat']];
 const SCOPE={global:'global',teman:'friends',mingguan:'weekly'};
 const CHARS=['steve','alex','creeper','zombie','skeleton','villager','ender'];
 const hash=s=>[...String(s)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
 const myKey=()=>{try{const it=ItemCatalog.byId(PlayerData.equippedId('skin'));return it&&it.gameKey||'steve'}catch(e){return'steve'}};
-/* wajah = UT.CharacterData (sama dengan gameplay). Pemain lain: karakter dipilih dari hash id (server belum menyimpan skin). 'Kamu' = skin yang sedang dipakai. */
+/* wajah lama (UT.CharacterData) hanya cadangan bila CharacterFace tidak tersedia */
 const oldFace=r=>UT.CharacterData.face('player',r.me?myKey():CHARS[hash(r.uid)%CHARS.length],{label:r.name});
-/* 'Kamu' = kepala karakter baru (BlockyCharacter, sama dgn halaman Karakter); fallback ke skin lama bila WebGL tidak ada */
-/* Pemain lain = tampilan asli dari server (appearance_get_many, BlockyCharacter); belum punya data = tampilan awal builder */
-const APP={},EMPTY={look:null,equipped:{},gear_dye:{}}; let MEV=0; /* versi tampilan sendiri: naik saat tampilan dari server masuk -> slot 3D 'me' dibangun ulang */
+/* Pemain lain = tampilan asli dari server (appearance_get_many); belum punya data = tampilan awal builder. 'Kamu' = tampilan aktif sendiri. */
+const APP={},EMPTY={look:null,equipped:{},gear_dye:{}};let MEV=0;
 const appKey=r=>String(r.uid||'').toLowerCase();
 const face=r=>{const CF=UT.CharacterFace;if(!CF)return oldFace(r);
  if(r.me){const h=CF.html();if(h)return h}
- else{const u=CF.urlData(APP[appKey(r)]||EMPTY);if(u)return `<img src="${u}" alt="" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block">`}
+ else{const u=CF.urlData(APP[appKey(r)]||EMPTY);if(u)return '<img src="'+u+'" alt="" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block">'}
  return oldFace(r)};
+const avatar=(r,sz)=>{const fid=r.me?FA.mine():(APP[appKey(r)]&&APP[appKey(r)].equipped&&APP[appKey(r)].equipped.frame)||undefined;
+ return FA.wrap('<span class="av">'+face(r)+'</span>',sz+'px',fid)};
 async function loadAppr(rows){
  try{const AS=UT.AppearanceService&&UT.AppearanceService.get();if(!AS)return;
   const ids=rows.filter(r=>!r.me&&r.uid&&!APP[appKey(r)]).map(r=>r.uid);if(!ids.length)return;
-  const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);renderAll()}catch(e){}}
+  const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);draw()}catch(e){}}
 /* baris sendiri memakai PlayerData: tarik tampilan/outfit aktif dari server dulu (tanpa membuka halaman Karakter) */
 try{const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{});
- if(PD.subscribe)PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){MEV++;try{renderAll()}catch(e){}}})}catch(e){}
+ if(PD.subscribe)PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){MEV++;try{draw()}catch(e){}}})}catch(e){}
+
+/* ---- state ---- */
 let tab='global';
 const CACHE={};   /* tab -> {state:'loading'|'ok'|'error', rows:[], at} */
-const pad=n=>n<10?'0'+n:''+n;
 const cur=()=>CACHE[tab]||{state:'loading',rows:[]};
-
 async function load(t,force){
  const c=CACHE[t];
  if(c&&c.state==='ok'&&!force&&Date.now()-c.at<20000)return;
- CACHE[t]={state:'loading',rows:(c&&c.rows)||[]};if(t===tab)renderAll();
+ CACHE[t]={state:'loading',rows:(c&&c.rows)||[]};if(t===tab)draw();
  try{
   await import('./assets/js/multiplayer/room-service.js');
   const rows=await UT.Multiplayer.RoomService.getLeaderboard(SCOPE[t],50);
   CACHE[t]={state:'ok',at:Date.now(),rows:(rows||[]).map(r=>({pos:Number(r.pos),uid:r.uid,name:r.pname,lv:r.lvl,score:Number(r.score),wins:r.wins,plays:r.plays,me:!!r.is_me}))};
- }catch(e){console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:[]}}
- if(t===tab)renderAll();
+ }catch(e){console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:(c&&c.rows)||[]}}
+ if(t===tab)draw();
  if(CACHE[t].state==='ok')loadAppr(CACHE[t].rows);
 }
 
-function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]===tab?'on':''}" data-t="${t[0]}"><img class="ci" src="assets/Images/icon/${t[2]}.webp" alt="" draggable="false">${t[1]}</button>`).join('');
- document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll();load(tab)}))}
+/* ---- render ---- */
+function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt'+(t[0]===tab?' on':'')+'" data-k="'+t[0]+'"><img class="ul" src="'+IC+'ikon-navigasi/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+'glyph-putih/'+t[2]+'.webp" alt=""><span>'+t[1]+'</span></button>').join('')}
+function drawPodium(rows){
+ const order=[1,0,2];
+ $('#podium').innerHTML=order.map(i=>{const p=rows[i];
+  return '<div class="pd p'+(i+1)+'"><img class="md" src="'+IC+'ikon-gem-medali/medali-'+(i+1)+'.webp" alt="">'+(p?avatar(p,i===0?120:96):'')+'<div class="pn ttl">'+(p?esc(p.name)+(p.me?' ★':''):'—')+'</div><div class="ps">'+(p?fmt(p.score):'')+'</div><div class="blk"><b>'+(i+1)+'</b></div></div>'}).join('')}
+function drawMe(rows){
+ const mine=rows.find(r=>r.me),L=PD.levelInfo(),nm=mine&&mine.name||PD.profile().name;
+ const me=mine||{me:true,name:nm,uid:''};
+ $('#mycard').innerHTML='<div class="row me"><div class="lbl ttl">POSISI KAMU</div>'+avatar(me,84)+'<div class="grow"><div class="nm ttl">'+esc(nm)+'</div><div class="sb">Lv. '+(mine&&mine.lv!=null?mine.lv:L.level)+' · '+(mine?fmt(mine.score)+' poin':'Belum masuk peringkat')+'</div></div><div class="big ttl">'+(mine?'#'+fmt(mine.pos):'—')+'</div></div>'}
+function drawRows(c){
+ const box=$('#rows'),note=t=>{box.innerHTML='<div class="empty">'+t+'</div>'};
+ if(c.state==='loading'&&!c.rows.length)return note('Memuat peringkat…');
+ if(c.state==='error'&&!c.rows.length)return note('Tidak dapat terhubung ke server.<br><small>Ketuk untuk coba lagi</small>');
+ if(!c.rows.length)return note(tab==='teman'?'Belum ada temanmu yang bermain.<br><small>Tambah teman lewat menu Teman</small>':tab==='mingguan'?'Belum ada yang bermain minggu ini.':'Belum ada pemain di peringkat.<br><small>Selesaikan satu pertandingan untuk masuk</small>');
+ box.innerHTML=c.rows.map(o=>'<div class="row rw'+(o.me?' me':'')+'" data-n="'+esc(o.name)+'" data-r="'+o.pos+'"><span class="no">'+fmt(o.pos)+'</span>'+avatar(o,64)+'<div class="grow"><div class="nm">'+esc(o.name)+(o.me?' (Kamu)':'')+'</div><div class="lv">Lv. '+esc(o.lv==null?'—':o.lv)+'</div></div><span class="sc">'+fmt(o.score)+'</span><span class="wn">'+(o.wins==null?'—':fmt(o.wins))+'</span></div>').join('')}
+function draw(){
+ const c=cur();drawTabs();drawPodium(c.rows);drawMe(c.rows);drawRows(c);renderCurrency()}
 
-function fillPodium(){if(!R||!UT.BlockyCharacter)return;const rows=cur().rows;
- R.slots.forEach(s=>{const r=rows[s.c.row],key=r?(r.me?'me'+MEV:appKey(r)+'|'+(APP[appKey(r)]?1:0)):'';
-  if(key===s.key)return;s.key=key;
-  if(s.bc){s.w.remove(s.bc.root);s.bc=null}
-  if(!r)return;
-  try{const bc=UT.BlockyCharacter.create(THREE),d=APP[appKey(r)]||EMPTY;
-   if(r.me)bc.loadFromPlayer();else bc.loadFromData(d.look,d.equipped,d.gear_dye);
-   bc.tick(.016);s.bc=bc;s.w.add(bc.root)}catch(e){}});placeChars()}
-function renderPodium(){fillPodium();const rows=cur().rows,pl=i=>rows[i]?`<div class="pn">${esc(rows[i].name)}</div><div class="ps">${TR}${fmt(rows[i].score)}</div>`:`<div class="pn">—</div><div class="ps">${TR}0</div>`;
- $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
+/* ---- aksi ---- */
+$('#ltabs').addEventListener('click',e=>{const b=e.target.closest('.lt');if(!b||tab===b.dataset.k)return;tab=b.dataset.k;buzz();draw();load(tab)});
+$('#rows').addEventListener('click',e=>{
+ const r=e.target.closest('.rw');if(r){buzz();toast(r.dataset.n+' — peringkat #'+r.dataset.r);return}
+ if(cur().state==='error'&&!cur().rows.length)load(tab,true)});
+let okFn=null,mOpen=false;
+function modal(t,x){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#md').classList.add('on');mOpen=true}
+const closeM=()=>{$('#md').classList.remove('on');mOpen=false};
+$('#m-no').addEventListener('click',closeM);
+$('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&mOpen)closeM()});
+$('#reward').addEventListener('click',()=>{buzz();modal('Hadiah Peringkat','Hadiah peringkat musiman<br>segera hadir.')});
 
-function renderMe(){const mine=cur().rows.find(r=>r.me),L=PD.levelInfo(),nm=PD.profile().name;
- const rank=mine?'#'+fmt(mine.pos):'—',score=mine?mine.score:0;
- $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>${rank}</b></div>${FA.wrap('<span class="av">'+face({me:1,name:nm,uid:''})+'</span>','4.4rem',FA.mine())}<div class="inf"><div class="nm">${esc(nm)}</div><div class="lv">Lv. ${L.level}</div><div class="xp"><i style="width:${L.xpIn/L.xpMax*100}%"></i><span>${fmt(L.xpIn)} / ${fmt(L.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(score)}</div>`;
- $('#bk').addEventListener('click',()=>{playSound('click');toast(mine?'Posisi kamu: '+rank:'Selesaikan pertandingan untuk masuk peringkat')})}
-
-function renderRows(){const c=cur(),box=$('#rows');
- const note=t=>{box.innerHTML=`<div class="gc" style="padding:2rem;text-align:center;justify-content:center;font-size:1.6rem;line-height:1.3;min-height:8rem">${t}</div>`};
- if(c.state==='loading'&&!c.rows.length)return note('Memuat peringkat...');
- if(c.state==='error')return note('Gagal memuat peringkat. Periksa koneksi, lalu buka tab ini lagi.');
- const rest=c.rows.slice(3);
- if(!c.rows.length)return note(tab==='teman'?'Belum ada temanmu yang bermain. Tambah teman lewat menu Teman.':tab==='mingguan'?'Belum ada yang bermain minggu ini. Jadilah yang pertama!':'Belum ada pemain di peringkat. Selesaikan satu pertandingan untuk masuk.');
- if(!rest.length)return note('Hanya ada '+c.rows.length+' pemain. Ajak temanmu main!');
- box.innerHTML=rest.map((o,i)=>`<div class="gc lr ${o.me?'me':''}" style="animation-delay:${Math.min(i,10)*40}ms" data-n="${esc(o.name)}" data-r="${o.pos}"><span class="no">${pad(o.pos)}</span><div class="who">${FA.wrap('<span class="av">'+face(o)+'</span>','4rem',o.me?FA.mine():undefined)}<div><div class="nm2">${esc(o.name)}</div><div class="lv2">Lv. ${o.lv}</div></div></div><div class="sc">${TR}${fmt(o.score)}</div><div class="rk">${o.me?SHD:DM}</div></div>`).join('');
- document.querySelectorAll('.lr').forEach(r=>r.addEventListener('click',()=>{playSound('click');toast(r.dataset.n+' — peringkat #'+r.dataset.r)}))}
-
-function renderCur(){renderCurrency()}
-function renderCurrency(){$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
-function renderAll(){renderPodium();renderMe();renderRows();renderCur()}
-
+/* ---- navigasi + dompet ---- */
+$('#back').addEventListener('click',()=>nav('lobby.html'));
+$('#home').addEventListener('click',()=>nav('lobby.html'));
+$('#cur-em').addEventListener('click',()=>nav('tambang.html?from=leaderboard.html'));
+$('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}
 UT.Events.on('currencyChanged',renderCurrency);
-UT.Events.on('frameChanged',()=>renderAll());
-$('#rw').innerHTML=TR+'Lihat Hadiah';
+UT.Events.on('frameChanged',()=>draw());
 
-// Modals
-const modal=$('#modal');let mOpen=false;
-function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
-function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
-$('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-
-function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
-$('#rw').addEventListener('click',()=>{playSound('click');
- const R=[['Peringkat 1','500',DM],['Peringkat 2','300',DM],['Peringkat 3','200',DM],['Top 10','100',DM],['Top 100','50',DM]];
- openModal('<h2>Hadiah Musim Ini</h2><p style="font-size:1.3rem;margin:.2rem 0 .8rem;opacity:.85">Belum aktif — segera hadir.</p>'+R.map(r=>`<div class="row"><span>${r[0]}</span><b>+${r[1]}${r[2]}</b></div>`).join(''))});
-
-function buy(type){location.href=type==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1'}
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
-$('#back').addEventListener('click',()=>{playSound('click');location.href='lobby.html'});
-
-// 3D Podium Render
-const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
-const bx=(w,h,d,m,x=0,y=0,z=0,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);p&&p.add(o);return o};
-
-function character(sk,emote){return UT.CharacterView.make(THREE,sk,emote)} /* model = UT.CharacterData (sama dengan gameplay), bukan rig lama */
-
-let ok=typeof THREE!=='undefined',R=null;
-/* Tanpa podium 3D: podium sudah ada di gambar latar (leaderboard-bg.webp). Karakter digambar di kanvas layar penuh
-   (kamera ortografik dalam piksel) lalu ditempatkan di atas balok juara 2 / 1 / 3 pada gambar itu.
-   Posisi balok = pecahan gambar (u kiri-kanan, v atas-bawah, titik pijak kaki); dipetakan ke layar sesuai object-fit:cover. */
-const BG_W=1672,BG_H=941,BG_POS_Y=.72;                        /* ukuran gambar & object-position .sbg-img (50% 72%) */
-const SPOTS=[{u:.284,v:.535,h:.205,rot:0,row:0},               /* juara 1: balok emas */
-             {u:.1755,v:.580,h:.190,rot:.25,row:1},            /* juara 2: balok perak */
-             {u:.395,v:.592,h:.190,rot:-.25,row:2}];           /* juara 3: balok perunggu */
-function bgMap(){const vw=innerWidth,vh=innerHeight,s=Math.max(vw/BG_W,vh/BG_H),W=BG_W*s,H=BG_H*s,ox=(vw-W)*.5,oy=(vh-H)*BG_POS_Y;
- return {vw,vh,H,pt:(u,v)=>({x:ox+u*W,y:oy+v*H})}}
-function build(){
- try{const cv=document.createElement('canvas');cv.id='gl';document.body.appendChild(cv);
-  const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
-  const scene=new THREE.Scene(),cam=new THREE.OrthographicCamera(0,1,1,0,-2000,2000);
-  scene.add(new THREE.AmbientLight(0xfff4e4,.7),new THREE.HemisphereLight(0xcfeaff,0x6a5a40,.45));
-  const sun=new THREE.DirectionalLight(0xffe2b0,.85);sun.position.set(.4,1,1.2);scene.add(sun);
-  const slots=SPOTS.map(c=>{const w=new THREE.Group();w.rotation.y=c.rot;scene.add(w);return {w,c,bc:null,key:'',sc:1}});
-  R={r,scene,cam,slots,cv}}catch(e){ok=false;console.warn('WebGL unavailable',e)}}
-/* skala karakter dari tinggi nyata modelnya, kaki tepat di titik pijak balok */
-function placeChars(){if(!R)return;const m=bgMap();
- R.slots.forEach(s=>{const c=s.c,P=m.pt(c.u,c.v);s.P=P;
-  if(s.bc){const b=new THREE.Box3().setFromObject(s.bc.root),hh=b.max.y-b.min.y;
-   if(hh>0){const k=(c.h*m.H)/hh;s.w.scale.setScalar(k);s.w.position.set(P.x,m.vh-P.y-b.min.y*k,0)}}});
- placePlates(m)}
-/* papan nama: melayang di atas kepala karakter */
-function placePlates(m){const hide=x=>x<-40||x>m.vw+40,tb=document.getElementById('top-bar'),minTop=tb?tb.getBoundingClientRect().bottom+6:0;
- R.slots.forEach(s=>{const e=$('#p'+(s.c.row===0?1:s.c.row===1?2:3));if(!e||!s.P)return;
-  e.style.display=hide(s.P.x)?'none':'';e.style.left=s.P.x+'px';e.style.top=Math.max(s.P.y-s.c.h*m.H-6,minTop+e.offsetHeight)+'px'})}
-function fit(){if(!R)return;const w=innerWidth,h=innerHeight;if(!w||!h)return;const hi=SET().graphics==='high';
- R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);
- R.cam.left=0;R.cam.right=w;R.cam.top=h;R.cam.bottom=0;R.cam.updateProjectionMatrix();placeChars()}
-function loop(t0){requestAnimationFrame(loop);const t=t0/1000;if(document.hidden)return;const dt=Math.min(.05,t-(R.t||t));R.t=t;R.slots.forEach(s=>s.bc&&s.bc.tick(dt));R.r.render(R.scene,R.cam)}
-
-renderTabs();renderAll();load(tab);
-addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(tab,true)});
-PD.subscribe(()=>renderMe());
-if(ok)build();
-if(ok&&R)fillPodium();
-if(ok&&R){addEventListener('resize',fit);fit();requestAnimationFrame(loop)}
-else $('#pod').insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>');
-document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
-if(SV()&&WS())WS().refresh().then(r=>{if(r.ok){renderCurrency()}}); /* B5: saldo & inventory dari server */
+draw();load(tab);
+addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!mOpen)load(tab,true)});
+if(SV()&&UT.LiveSync){const LS=UT.LiveSync;
+ LS.add('wallet',()=>{const W=WS();return W?W.refresh():{ok:true}});
+ LS.add('board',()=>load(tab,true).then(()=>({ok:cur().state==='ok'})),{minGap:20000});
+ LS.start({interval:20000});
+}
+document.documentElement.classList.add('ut-ready');
+if(SV()&&WS())WS().refresh().then(renderCurrency); /* saldo dari server */
 })();
 </script>
-</body>
-</html>
+</body></html>

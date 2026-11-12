@@ -1,15 +1,15 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 12 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship, mail selesai; tambang: gua di dalam kartu). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 12 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship, mail, leaderboard selesai; tambang: gua di dalam kartu). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
 
 ---
 
 ## 0. Ringkas (baca ini dulu)
 
 - **Tugas:** pindahkan tampilan `newgui` ke `dragonroll`, satu halaman per commit, di branch **`ui-newgui`** (jangan push ke `main`: CI deploy DB ke produksi).
-- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings`, `shop`, `friendship`, `mail` (verifikasi visual shop dan uji transaksi Supabase nyata masih perlu dilakukan).
-- **Berikutnya:** `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/leaderboard/misi, Chest/Pet, terakhir HUD gameplay.
+- **Sudah selesai:** `lobby`, `mode`, `room`, `tambang`, `settings`, `shop`, `friendship`, `mail`, `leaderboard` (verifikasi visual shop dan uji transaksi Supabase nyata masih perlu dilakukan).
+- **Berikutnya:** `splash` (login asli), lalu karakter/frame/dadu/efek/powerup, profile/misi, Chest/Pet, terakhir HUD gameplay.
 - **Cara kerja yang terbukti:** pertahankan skrip logika lama halaman dragonroll (RPC, PlayerData, tes), ganti hanya markup + CSS + fungsi render ke gaya newgui. Detail di bagian 5.
 - **Sebelum push:** `for f in tests/*.test.js tests/multiplayer/*.test.js; do node "$f" || echo FAIL $f; done`, bump `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`.
 - **Pemilik:** rohmanaa, bahasa kerja Indonesia. Jangan pernah menulis token GitHub ke repo atau dokumen.
@@ -58,7 +58,8 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 6d. `powerup` | **Selesai** (belum dicek visual & belum dites di browser) | sw v87. Tampilan newgui (template frame/dadu/efek, CSS sendiri `assets/ng/css/powerup.css`) |
 | 6e. karakter (slot aksesoris) | Belum | — |
 | 7a. `tambang` | **Selesai** | `99e098a` lalu diubah: gua 3D masuk ke dalam tiap kartu (sw v84) |
-| 7b. profile, leaderboard, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
+| 7b. `leaderboard` | **Selesai** (belum dicek di browser pengguna) | sw v89 |
+| 7b'. profile, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
 | 7c. `friendship` | **Selesai** | Tampilan NewGUI; teman, permintaan, ajakan bermain, avatar, saldo, dan statistik posisi/level/kemenangan memakai layanan Dragon Roll. Like nonaktif sampai tersedia dukungan server; tidak ada statistik tiruan. sw v74 |
 | 8a. `mail` | **Selesai** (migrasi `202611260001_player_mail.sql` BELUM diterapkan ke Supabase mana pun; lihat catatan) | sw v88 |
 | 8b. Chest (butuh RPC server), Pet (butuh data+server) | Belum | — |
@@ -93,6 +94,8 @@ Sisa di lobby: Hadiah gratis, Chest, Pet = toast "segera hadir"; teks misi netra
 **`powerup`** — template sama dengan `frame`/`dadu`/`efek`. Data: `ItemCatalog` kind `powerup` tanpa item `off` (baris `KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k&&!i.off))` dan `IC.powerMapNote(i.id)` tetap ada karena dibaca `tests/power-rules.test.js`); stok dari `PlayerData.qty` (kartu ×N, ×0 = terkunci). Beli per jumlah (stepper 1–99) lewat `WalletService.buyPowerup` (mode server, opId unik) atau `PD.purchase` (lokal); item tanpa harga = "TIDAK DIJUAL" (tetap bisa diketuk -> toast). Preview 3D `assets/js/power3d/power-show.js` dimuat malas ke `#p3d` di dalam `#fpv` (importmap tetap di head, dibaca `tests/power3d.test.js`); gagal/tanpa WebGL -> ikon 2D katalog + animasi putar efek + `UT.PowerFX`. Ikon kartu = `item.icon` katalog (bukan ikon contoh newgui). Dompet: + gem -> tambang, + coin -> shop. Id `#art` sengaja tidak dipakai (bentrok dengan `karakter.css`); wadah preview `#pa`.
 
 **`mail`** — kotak masuk **otoritatif server**: `supabase/migrations/202611260001_player_mail.sql` (tabel `player_mail`, RLS tanpa akses langsung, semua lewat RPC `mail_summary/list/read/read_all/claim/claim_all/delete`; hadiah masuk dompet lewat `_wallet_apply` dengan kunci idempoten `('mail', <id surat>)` -> klaim ganda mustahil). Klien: `assets/js/mail-service.js` (`UT.MailService`, pola sama dengan `MineService`: `{ok,reason}`, tidak melempar, klaim/klaim-semua berbagi satu kunci `inflight`, saldo hasil klaim -> `PD.applyServerWallet`; tes `tests/mail-service.test.js`). Halaman `mail.html` + `assets/ng/css/mail.css`: tab Semua/Hadiah/Sistem, Baca Semua, Klaim Semua, modal isi surat, hapus (surat berhadiah yang belum diklaim tidak bisa dihapus), muat ulang tiap 30 dtk saat terlihat. **Tanpa akun login halaman hanya menampilkan ajakan masuk; tidak ada surat/dompet tiruan.** Lobby: tombol Mail -> `mail.html?from=lobby.html`; `tambang.html` menerima `?from=mail.html`. Aset baru: `ikon-item/kado-merah.webp`, `glyph-putih/surat-terbuka.webp`. Surat dibuat hanya oleh server/admin: `select public._mail_send(<user_id>,'reward'|'system',judul,isi,coin,gem,dedupe_key,kedaluwarsa)` atau `_mail_send_all(...)` (dedupe_key wajib) lewat SQL Editor; surat sambutan dibuat otomatis sekali per akun saat `mail_list` pertama. **PENTING:** migrasi baru ikut deploy ke PRODUKSI saat masuk `main` (CI `db-migrate.yml`); review dulu. `supabase/snapshot/00_full_schema.sql` sudah dibangun ulang. Diverifikasi lewat Chromium dengan `MailService` tiruan (3 surat, modal, klaim semua, tanpa galat JS); **belum dites terhadap Supabase nyata** (RPC belum ada di server). `mail` ditambahkan ke `UT.PAGES`, presence, dan suara tombol di `app.js`.
+
+**`leaderboard`** — tampilan newgui (tab kiri Global/Teman/Mingguan, podium 3 teratas, kartu "Posisi Kamu", tabel `# | Pemain | Skor | Menang`, tombol Hadiah). Data tetap dari `RoomService.getLeaderboard(scope,50)` (RPC `get_leaderboard`), avatar pemain lain dari `AppearanceService.usersAppearance`, baris sendiri dari `PlayerData`; cache per tab 20 dtk, `LiveSync` (`wallet`, `board`). **Perbedaan dari halaman lama:** podium 3D (karakter `BlockyCharacter` di atas gambar latar + papan nama) diganti podium HTML dengan avatar wajah + bingkai (`FrameAvatar`), seperti desain newgui; kolom "Rank" tier (Bronze…Master) di mockup TIDAK dipakai karena tier tiruan, diganti kolom Menang dari server. Tombol Hadiah = "segera hadir" tanpa nominal. Aset baru: `ikon-gem-medali/medali-1..3`, `glyph-putih/grup-pengguna`, `jam-bulat`. `tests/lobby-appearance.test.js` (membaca teks `leaderboard.html`: `refreshThrottled()`, handler `server-appearance/outfits`, `appearance-service.js`) tetap lulus. Diverifikasi lewat Chromium dengan `getLeaderboard` tiruan (12 baris, tanpa galat JS).
 
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?
