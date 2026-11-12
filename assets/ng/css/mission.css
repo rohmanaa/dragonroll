@@ -108,3 +108,19 @@
 #mx .mi{display:block;width:120px;height:120px;margin:0 auto 16px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 #mbtns{position:absolute;left:0;right:0;bottom:36px;display:flex;justify-content:center;gap:40px}
 #mbtns .btn{width:330px;height:100px}#mbtns .btn span{font-size:32px}
+
+/* ---- achievement ---- */
+.alist{position:absolute;left:0;top:0;width:1480px;height:930px;padding:4px 20px 20px 0}
+.alist .row.ach{position:relative;left:auto;top:auto;margin-bottom:14px}
+.row.ach h3{top:18px}.row.ach .ds{top:60px;font-size:26px}
+.ach .stars{position:absolute;left:164px;top:90px;display:flex;gap:4px}
+.ach .stars img{width:30px;height:30px;object-fit:contain}
+.rinl2{position:absolute;left:1030px;top:20px;width:140px}
+.rinl2 span,.rbox.two span{display:flex;align-items:center;gap:6px}
+.rinl2 img{width:34px;height:34px;object-fit:contain}
+.rinl2 b{font:400 28px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.7)}
+.rbox.two{flex-direction:column;gap:2px}
+.rbox.two img{width:36px;height:36px}.rbox.two b{font-size:28px}
+.rbox.two.done{flex-direction:row}.rbox.two.done b{font-size:34px}
+.ach .pb{left:790px;top:63px}
+.ach .pt{left:1000px;top:52px;width:170px;font-size:26px}

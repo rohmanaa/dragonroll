@@ -2,7 +2,7 @@
    Strategi: kode/HTML = network-first (selalu terbaru saat online), cadangan cache saat offline.
    Media (gambar/font/suara, sudah diunduh splash) = cache dulu lalu diperbarui diam-diam di belakang (pindah halaman tidak menunggu jaringan).
    Request Range (audio streaming) dan non-GET tidak disentuh. Naikkan VERSION untuk membersihkan cache lama. */
-const VERSION = 'ut-pwa-v91';
+const VERSION = 'ut-pwa-v92';
 const CORE = ['index.html', 'play.html', 'splash.html', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
