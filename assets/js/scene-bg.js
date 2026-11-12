@@ -22,6 +22,21 @@
     { k: 1.0,  t: '7%',  o: .9,  d: 135, b: 0,   ph: .72, seed: 13 }
   ];
 
+  /* Lampu latar (menyala hanya saat malam, CSS html[data-ambience="night"]). Posisi = pecahan gambar latar (x,y 0..1); r = radius cahaya (pecahan lebar gambar);
+     t: 'brazier' (tungku batu bara: api + cahaya lebar) | 'lamp' (lentera kecil). Dipakai lewat data-lights="lobby" (gambar lobby-bg.webp 2752x1536). */
+  var LIGHTSETS = {
+    lobby: { w: 2752, h: 1536, items: [
+      { x: .087, y: .600, r: .085, t: 'brazier', dl: 0 },
+      { x: .917, y: .600, r: .085, t: 'brazier', dl: -.7 },
+      { x: .151, y: .254, r: .036, t: 'lamp', dl: -.3 },
+      { x: .411, y: .276, r: .034, t: 'lamp', dl: -1.1 },
+      { x: .451, y: .313, r: .022, t: 'lamp', dl: -.5 },
+      { x: .213, y: .568, r: .030, t: 'lamp', dl: -1.4 },
+      { x: .279, y: .579, r: .036, t: 'lamp', dl: -.9 },
+      { x: .429, y: .592, r: .028, t: 'lamp', dl: -.2 }
+    ] }
+  };
+
   function rng(seed) { var s = seed * 9301 + 49297; return function () { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
 
   /* awan voxel bergaya 3D: tiap balok punya sisi atas (hangat kena matahari), depan (putih), kanan (bayangan biru-cyan) */
@@ -84,7 +99,28 @@
     var layer = document.createElement('div'); layer.className = 'sbg-clouds';
     /* fase berbasis jam dinding -> awan melanjutkan posisinya saat pindah halaman (tidak "reset") */
     var now = Date.now() / 1000;
-    CLOUDS.slice(0, Math.max(0, Math.min(CLOUDS.length, o.clouds | 0))).forEach(function (c, n) {
+    /* lights (opsional) */
+    var lightsEl = null, LS = o.lights && LIGHTSETS[o.lights];
+    if (LS) {
+      lightsEl = document.createElement('div'); lightsEl.className = 'sbg-lights';
+      LS.items.forEach(function (it) {
+        var d = document.createElement('i'); d.className = 'sbg-light ' + it.t; d.style.setProperty('--dl', it.dl + 's');
+        d.appendChild(document.createElement('b')); lightsEl.appendChild(d); it.el = d;
+      });
+      el.appendChild(lightsEl);
+      var place = function () {
+        var vw = el.clientWidth || innerWidth, vh = el.clientHeight || innerHeight, k = Math.max(vw / LS.w, vh / LS.h);
+        LS.items.forEach(function (it) {
+          var px = vw / 2 + (it.x - .5) * LS.w * k, py = (vh - LS.h * k) * .72 + it.y * LS.h * k, sz = it.r * LS.w * k * 2;
+          it.el.style.cssText += ';left:' + px.toFixed(1) + 'px;top:' + py.toFixed(1) + 'px;width:' + sz.toFixed(1) + 'px;height:' + sz.toFixed(1) + 'px';
+        });
+      };
+      place(); window.addEventListener('resize', place);
+    }
+    var slow = +o.cloudSlow || 1;
+    var cloudList = o.cloudSet === 'far' ? CLOUDS.filter(function (c) { return c.k <= .5; }) : CLOUDS;   /* far = hanya awan kecil di kejauhan */
+    cloudList.slice(0, Math.max(0, Math.min(cloudList.length, o.clouds | 0))).forEach(function (c0, n) {
+      var c = {}; for (var kk in c0) c[kk] = c0[kk]; c.d = c0.d * slow;
       var cv = cloudSprite(c.seed); cv.className = 'sbg-cloud';
       var st = cv.style, pos = ((now + c.ph * c.d) % c.d);
       st.setProperty('--k', c.k); st.setProperty('--t', c.t); st.setProperty('--o', c.o); st.setProperty('--d', c.d + 's');
@@ -106,6 +142,9 @@
   var isEmbed = /[?&]embed=1/.test(location.search);
   if (me && me.hasAttribute('data-auto') && !isEmbed) {
     var cfg = { preset: me.getAttribute('data-preset') || 'full' };
+    if (me.getAttribute('data-lights')) cfg.lights = me.getAttribute('data-lights');
+    if (me.getAttribute('data-clouds-set')) cfg.cloudSet = me.getAttribute('data-clouds-set');
+    if (me.getAttribute('data-cloud-slow')) cfg.cloudSlow = me.getAttribute('data-cloud-slow');
     if (me.getAttribute('data-image')) cfg.image = me.getAttribute('data-image');
     var go = function () { if (!document.body) return false; UT.SceneBG.instance = mount(document.body, cfg); return true; };
     if (!go()) {

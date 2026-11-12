@@ -198,3 +198,8 @@ Gambar sumber (jpg) diubah ke WebP; yang lama dihapus. Semua di `assets/Images/b
 - `lobby-bg.webp` (2752x1536) — latar lobby baru (kastil + panggung batu). Titik pijak karakter di `lobby.html`: `FLOOR_X=.50, FLOOR_Y=.79`.
 - `map-world.webp`, `map-nether.webp` (900x1206) — ilustrasi kartu peta di `mode.html` (`META[...].img`, kelas `.mimg`). THE END (terkunci) tetap SVG.
 Setelah mengganti gambar: `python3 tools/gen-preload-manifest.py`, naikkan `VERSION` di `sw.js` (sekarang `ut-pwa-v102`).
+
+## Lobby: awan jauh saja (pelan) + lampu malam
+- `lobby.html` memasang scene-bg dengan `data-clouds-set="far" data-cloud-slow="1.8" data-lights="lobby"`: hanya 2 awan kecil di kejauhan (awan besar/dekat dihapus), durasi melintas x1.8 (lebih lambat).
+- `data-lights="lobby"` = set lampu di `assets/js/scene-bg.js` (`LIGHTSETS.lobby`, posisi = pecahan gambar `lobby-bg.webp`): 2 tungku batu bara (api bergoyang + cahaya lebar) dan 6 lentera di dinding kastil. Menyala hanya saat `html[data-ambience="night"]` (transisi 1,2 dtk), berkedip pelan; mati saat grafis "low"/reduced-motion. CSS di `assets/css/scene-bg.css` (`.sbg-light`).
+- Halaman lain tidak berubah (default awan tetap 5). Tambah titik lampu = edit `LIGHTSETS`; sw `ut-pwa-v103`.
