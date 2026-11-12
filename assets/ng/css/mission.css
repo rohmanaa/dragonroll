@@ -124,3 +124,6 @@
 .rbox.two.done{flex-direction:row}.rbox.two.done b{font-size:34px}
 .ach .pb{left:790px;top:63px}
 .ach .pt{left:1000px;top:52px;width:170px;font-size:26px}
+
+.alist{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
+.alist::-webkit-scrollbar{display:none}

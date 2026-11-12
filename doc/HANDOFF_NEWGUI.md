@@ -56,7 +56,7 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 6b. `dadu` | **Selesai** (belum dicek visual di browser) | sw v82 |
 | 6c. `efek` | **Selesai** (belum dicek visual di browser) | sw v83 |
 | 6d. `powerup` | **Selesai** (belum dicek visual & belum dites di browser) | sw v87. Tampilan newgui (template frame/dadu/efek, CSS sendiri `assets/ng/css/powerup.css`) |
-| 6e. karakter (slot aksesoris) | Belum | — |
+| 6e. karakter | Selesai (sw v93) | `karakter.html` + `assets/ng/css/karakter.css`. Pose dihapus; 8 slot (kiri: kepala, baju, celana, sepatu; kanan: zirah, jubah, senjata, aksesori) dengan tombol LEPAS; 11 tab bisa digeser (SEMUA, TAMPILAN=gender/kulit/mata/rambut/tubuh, per jenis, SET). Aksesori = 1 slot (pertama + jumlah, Lepas = hapus semua). Ketuk karakter = loncat. Belum dites manual: alur beli/Lepas di Chromium (hanya render + tab + tanpa error JS), tampilan HP. Bug room `skinGo()` belum diperbaiki. |
 | 7a. `tambang` | **Selesai** | `99e098a` lalu diubah: gua 3D masuk ke dalam tiap kartu (sw v84) |
 | 7b. `leaderboard` | **Selesai** (belum dicek di browser pengguna) | sw v89 |
 | 7b'. `hadiah-misi` | **Selesai** (tab Hadiah + Misi + Pencapaian) | sw v92 |

@@ -1,310 +1,49 @@
 <!DOCTYPE html>
-<html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Karakter - Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script><script src="assets/js/ambience.js"></script><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/profile-bg.webp"></script><style>
-:root{--bd:#12337f;--y1:#ffd24d;--y2:#ff9a1f;--g:#3cc23c;--r0:#6f8aa8;--r1:#2f8cf0;--r2:#9a4ae0;--r3:#f0b030}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html{font-size:min(1vw,1.78vh)}
-html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
-#sky{position:fixed;inset:0;overflow:hidden}
-.isl{position:absolute;opacity:.75;animation:fl 6s ease-in-out infinite}
-.isl i{display:block;background:#6fbf4a}.isl b{display:block;background:#8a5a3a;margin:0 auto}
-@keyframes fl{50%{translate:0 -.8rem}}
-.ab{position:absolute}
-button{font:inherit;color:inherit;border:0;cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
-button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transform:scale(.94)}button:focus-visible{outline:.3rem solid #fff}
-.blue{background:linear-gradient(#4aa8ff,#1f6fe0);box-shadow:0 .5rem 0 var(--bd),0 1rem 1.4rem rgba(18,51,127,.4),inset 0 .2rem .2rem rgba(255,255,255,.6)}
-svg{display:block}
-#back{left:1.4rem;top:1.5rem;width:4.7rem;height:4.7rem;border-radius:1.4rem;padding:0;display:grid;place-items:center}
-#back svg{width:3rem;height:3rem}
-#title{left:7rem;top:1.3rem;width:25.8rem;height:5rem;border-radius:2.5rem;display:flex;align-items:center;gap:1.4rem;padding-left:2.6rem;font-size:3.6rem;text-shadow:0 .2rem 0 var(--bd)}
-#title svg{width:3.8rem;height:3.8rem}
-#title>.ic{width:3.8rem;height:3.8rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-#cats{left:1.6rem;top:7.9rem;width:13.2rem;display:flex;flex-direction:column;gap:.55rem}
-.cat{height:4.8rem;border-radius:1.6rem;display:flex;align-items:center;gap:1.1rem;padding:0 1.3rem;font-size:2rem;text-shadow:0 .15rem 0 var(--bd);border:.25rem solid transparent}
-.cat svg{width:3rem;height:3rem}
-.cat .ci{width:3rem;height:3rem;flex:none}
-.cat.on{border-color:#ffe36a;background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 .4rem 0 #b9740c,0 0 1.8rem #ffd24d;transform:scale(1.06);text-shadow:0 .2rem 0 #a35f08}
-#show{left:15.5rem;top:7.5rem;width:24rem;height:31rem}
-#show>canvas{width:100%;height:100%;display:block}
-#show #art{display:none;position:absolute;inset:0;place-items:center}
-#show #art svg{width:82%;height:82%}
-#show.art>canvas{display:none}#show.art #art{display:grid}
-#sbs{left:38.2rem;top:14.8rem;display:flex;flex-direction:column;gap:.9rem}
-#sbs button{width:4.4rem;height:3.5rem;border-radius:1.2rem;padding:0;display:grid;place-items:center;font-size:1.3rem;line-height:1}
-#sbs svg{width:2.4rem;height:2.4rem}
-#info{left:15rem;top:37.8rem;width:27.4rem;height:7.7rem;padding:1.3rem 1.6rem;border-radius:2rem;background:linear-gradient(90deg,rgba(40,130,240,.95),rgba(40,130,240,.4));box-shadow:inset 0 .2rem .3rem rgba(255,255,255,.4)}
-#info .badge{position:absolute;left:1.2rem;top:-1.5rem}
-.badge{display:inline-block;padding:0 1.1rem;border-radius:1rem;font-size:1rem;line-height:1.5rem;box-shadow:inset 0 .15rem .2rem rgba(255,255,255,.5),0 .15rem 0 rgba(10,30,100,.4)}
-#iname{font-size:2.2rem;line-height:1.1}#idesc{font-size:1.15rem;line-height:1.25;font-weight:700;color:#e0f2ff}
-#rec{left:1.7rem;top:45.9rem;width:40.7rem;height:8.6rem;border-radius:2.2rem;padding:1.4rem 1.6rem .6rem;background:linear-gradient(#4aa8ff,#2a86ee);box-shadow:0 .4rem 0 var(--bd),inset 0 .2rem .3rem rgba(255,255,255,.5),inset 0 0 0 .25rem rgba(120,195,255,.7);display:flex;align-items:center;gap:1rem}
-#rl{position:absolute;left:3.6rem;top:-.1rem;display:flex;align-items:center;gap:.5rem;font-size:1.1rem;padding:.1rem 1.4rem;border-radius:0 0 1rem 1rem;background:#1f6fe0}#rl svg{width:1.6rem;height:1.6rem}
-.rarr{width:3.4rem;height:4.8rem;border-radius:1.2rem;padding:0;display:grid;place-items:center;flex:none}.rarr svg{width:2rem;height:2rem}
-#rlist{flex:1;display:flex;gap:1.1rem;justify-content:center}
-.rt{width:5.3rem;height:5.3rem;border-radius:1.4rem;padding:.2rem;background:linear-gradient(#3a8ff0,#1b55c0);box-shadow:0 .25rem 0 var(--bd),inset 0 0 0 .2rem rgba(255,255,255,.25)}
-.rt.on{box-shadow:0 0 0 .3rem #ffe36a,0 0 1.2rem #ffd24d}.rt svg{width:100%;height:100%}
-.pulse{animation:pu .4s}@keyframes pu{50%{transform:scale(1.15)}}
-#gear{right:1.4rem;top:1.7rem;width:4.4rem;height:4.4rem;border-radius:1.4rem;padding:0;display:grid;place-items:center}#gear svg{width:2.8rem;height:2.8rem}
-#gear>.ic{width:3.2rem;height:3.2rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
-#bot{left:45.1rem;top:8rem;width:53.5rem;height:45.9rem;border-radius:2.6rem;padding:1rem 1.1rem;background:linear-gradient(#3b9cf8,#2a86ee);box-shadow:0 .6rem 0 var(--bd),0 1.4rem 2.4rem rgba(18,51,127,.35),inset 0 .2rem .3rem rgba(255,255,255,.6),inset 0 0 0 .3rem #6cc0ff;display:flex;flex-direction:column;gap:.9rem}
-#gwrap{flex:1;min-height:0;border-radius:2rem;padding:.9rem;background:linear-gradient(#2a7ce0,#2f90f2);box-shadow:inset 0 .3rem .6rem rgba(10,40,120,.35)}
-#grid{height:100%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:1rem}
-.card{position:relative;border-radius:1.6rem;padding:.3rem .7rem .7rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.3rem;min-height:0;background:linear-gradient(#3f9bff,#1c55c0);box-shadow:0 .25rem 0 rgba(10,30,100,.5),inset 0 0 0 .25rem rgba(120,190,255,.55);animation:pop .35s both;cursor:pointer}
-@keyframes pop{from{opacity:0;transform:scale(.85)}}
-.card.lg{background:linear-gradient(#ffc83a,#b87818);box-shadow:0 0 0 .3rem #ffc23a,0 0 1.4rem rgba(255,200,60,.7),0 .25rem 0 rgba(10,30,100,.5)}
-.card.lk{background:linear-gradient(#6a7f9c,#3d4f6a);box-shadow:0 .25rem 0 rgba(10,30,100,.5),inset 0 0 0 .25rem rgba(200,215,240,.3)}
-.card.sel{box-shadow:0 0 0 .3rem #ffe36a,0 0 1.6rem #ffe36a,0 .25rem 0 rgba(10,30,100,.5)}
-.card .th{flex:1;min-height:0;width:74%}.card .th svg{width:100%;height:100%}
-.card.lk .th{filter:grayscale(1) brightness(.5);opacity:.7}
-.card:hover .th{animation:wig .8s}@keyframes wig{50%{rotate:8deg;scale:1.1}}
-.card .nm{font-size:1.15rem;line-height:1.3rem;white-space:nowrap}
-.card .badge{font-size:.95rem;line-height:1.4rem}
-.bt,.use{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:0;background:linear-gradient(#58b6ff,#1f86ee);box-shadow:0 .2rem 0 #14449f,inset 0 .15rem .15rem rgba(255,255,255,.5);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
-.bt{width:100%;height:2.5rem;border-radius:1.2rem;font-size:1.3rem}.bt svg{width:1.3rem;height:1.3rem}
-.bt.own,.use.own{background:linear-gradient(#4fd44f,#1f9a2a);box-shadow:0 .2rem 0 #136b1c,inset 0 .15rem .15rem rgba(255,255,255,.5)}
-.bt.gd,.use{background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .2rem 0 #c96a0c,inset 0 .15rem .15rem rgba(255,255,255,.6);text-shadow:0 .1rem 0 #8a4a0a}
-.bt.no,.use.no{background:linear-gradient(#7d8da8,#58698a);box-shadow:0 .2rem 0 #2c3a56;color:#d0dbee;text-shadow:none}
-.use{flex:none;align-self:center;width:17.6rem;height:4.5rem;border-radius:2.3rem;font-size:2.2rem;gap:1rem;box-shadow:0 .4rem 0 #c96a0c,inset 0 .25rem .25rem rgba(255,255,255,.6)}
-.use.own{box-shadow:0 .4rem 0 #136b1c,inset 0 .25rem .25rem rgba(255,255,255,.5)}.use.no{box-shadow:0 .4rem 0 #2c3a56}.use svg{width:2.8rem;height:2.8rem}
-.ck{position:absolute;right:.7rem;top:.7rem;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--g);border:.2rem solid #fff;display:grid;place-items:center;z-index:1}.ck svg{width:1.2rem;height:1.2rem}
-.lkb{position:absolute;right:.9rem;top:42%;z-index:1}.lkb svg{width:2.2rem;height:2.2rem}
-.sp{position:fixed;width:1.3rem;height:1.3rem;background:#fff6a0;rotate:45deg;pointer-events:none;z-index:99;animation:spk .8s forwards}
-@keyframes spk{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-.ov{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.4);backdrop-filter:blur(6px);z-index:50;opacity:0;transition:opacity .25s}
-.ov.show{opacity:1}.ov>.box{transform:scale(.85);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}.ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.9)}
-.box{position:relative;width:min(48rem,92vw);max-height:92vh;overflow:auto;background:linear-gradient(#7cc2ff,#4a9ae8);border-radius:2.4rem;padding:3rem 2.4rem 2.4rem;box-shadow:0 1rem 0 var(--bd),0 2rem 3rem rgba(0,0,0,.3);font-size:2.6rem;text-align:center}
-.box.big{width:min(60rem,92vw)}
-.box h2{margin:0 0 1.2rem;font-size:3.4rem;text-shadow:0 .2rem 0 var(--bd)}
-.x{position:absolute;right:-1rem;top:-1rem;width:4.6rem;height:4.6rem;border-radius:50%;background:#ee4a4a;box-shadow:0 .3rem 0 #8e1d1d;font-size:2.4rem;padding:0}
-.row{display:flex;justify-content:space-between;align-items:center;background:rgba(18,51,127,.25);border-radius:1.4rem;padding:1rem 1.4rem;margin:.8rem 0;gap:1rem}
-.row.sel{outline:.3rem solid #ffe36a}
-.tg{min-width:7.6rem;height:3.8rem;border-radius:2rem;background:#7b8aa8;box-shadow:inset 0 .2rem .4rem rgba(0,0,0,.3);font-size:2rem;padding:0 1rem}.tg.on{background:var(--g)}
-.pack,.mb{width:100%;display:flex;justify-content:space-between;align-items:center;margin:.8rem 0;padding:1.2rem 1.6rem;border-radius:1.4rem;background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .4rem 0 #c96a0c;font-size:2.6rem;text-shadow:0 .2rem 0 rgba(107,53,17,.7)}
-.mb{justify-content:center;width:48%;display:inline-flex;margin:1rem 1% 0}.mb.no{background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 .4rem 0 #2f5090;text-shadow:none}
-#bigc{width:100%;aspect-ratio:1;border-radius:1.6rem;background:linear-gradient(#5db4f5,#a9dcf8);display:block;margin-bottom:1rem}
-#toast{position:fixed;left:50%;bottom:3rem;translate:-50% 2rem;background:var(--bd);padding:.8rem 2.4rem;border-radius:2rem;font-size:2.6rem;opacity:0;transition:opacity .3s,translate .35s cubic-bezier(.3,1.8,.5,1);z-index:99;pointer-events:none;white-space:nowrap}
-#toast.on{opacity:1;translate:-50% 0}
-#top{display:contents}#mid{display:contents}
-@media(max-aspect-ratio:1/1){
-html{font-size:2.5vw}
-#ui{position:fixed;inset:0;overflow:auto;display:flex;flex-direction:column;gap:1.4rem;padding:1.2rem}
-.ab{position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important}
-#top{display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem 3rem}
-#title{order:-1}#cats{order:1;flex-direction:row!important;overflow-x:auto;width:auto!important;padding-bottom:.6rem}.cat{flex:0 0 auto;height:4.4rem}
-#show{width:auto!important;height:75vw!important;order:1}
-#sbs{order:2;flex-direction:row!important;justify-content:center}
-#info{order:3;width:auto!important;height:auto!important;margin-top:1.4rem}
-#rec{order:4;width:auto!important}
-#bot{order:5;width:auto!important;height:auto!important}
-#gwrap,#grid{height:auto}#grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:22rem}
-}
-#back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
-.flip{transform:scaleX(-1)}
-.rarr .ci{width:2.4rem;height:2.4rem;display:block;object-fit:contain;pointer-events:none}
-</style><style>:root{--curbar-right:2.6rem;--curbar-top:1.8rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
-
-<style id="inventory-fluid-layout">
-/* LANDSCAPE: stage dasar 100rem x 56.25rem menempel di kiri-atas. Panel kanan (#bot) sekarang
-   ditarik sampai tepi kanan layar, dan kolom kiri ditambatkan ke bawah layar, jadi tidak ada
-   ruang kosong di rasio layar apa pun (4:3, 16:9, 21:9). Portrait memakai aturan mobile di atas. */
-@media (min-aspect-ratio:1/1){
-  #show{height:auto;bottom:17.7rem}
-  #info{top:auto;bottom:10.6rem}
-  #rec{top:auto;bottom:1.6rem}
-  #bot{
-    left:45.1rem;right:1.4rem;top:8rem;bottom:1.6rem;
-    width:auto;height:auto;
-    container-type:inline-size;
-  }
-  /* grid: jumlah kolom menyesuaikan lebar panel, kartu tetap proporsional, scroll bila item banyak */
-  #gwrap{overflow:hidden}
-  #grid{
-    height:100%;padding:.6rem;
-    overflow-x:hidden;overflow-y:auto;
-    grid-template-columns:repeat(auto-fill,minmax(11.4rem,1fr));
-    grid-template-rows:none;grid-auto-rows:16.4rem;align-content:start;
-    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.5) transparent;
-  }
-  .card{min-width:0}
-  .card .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis}
-}
-/* PORTRAIT: thumbnail "terbaru" menyusut agar panah kanan tidak terpotong */
-@media (max-aspect-ratio:1/1){
-  #rlist{min-width:0;gap:.6rem}
-  .rt{flex:1 1 0;min-width:0;max-width:5.3rem;height:auto;aspect-ratio:1}
-}
-</style>
-<style id="inventory-pixel">
-/* Inventory: restyle gaya pixel Minecraft mengikuti redesign-hud/inventory.webp (selaras dengan Toko/Lobby/Mode).
-   HANYA tampilan. Markup, id, class, dan JS tidak berubah (tombol tidak ditambah/dihapus). Dimuat paling akhir. */
-:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
-
-/* tombol biru (Back, Gear, 360/pose, panah Skin Terbaru) */
-html body .blue{background:linear-gradient(var(--rb1),var(--rb2));border:.3rem solid var(--ol);border-radius:.9rem;box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
-html body #back,html body #gear{width:5rem;height:5rem}
-html body #title{height:5rem;border-radius:.9rem;font-size:3.4rem;text-shadow:none;background:linear-gradient(var(--nv1),var(--nv2))}
-
-/* currency: disamakan dengan Lobby */
-:root{--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}
-html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
-html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
-
-/* kategori kiri */
-html body .cat{border-radius:.9rem;border:.3rem solid var(--ol);text-shadow:0 .2rem 0 var(--ol)}
-html body .cat.on{border-color:var(--ol);background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,90,0,.5),0 .35rem 0 var(--ol);transform:none;text-shadow:0 .2rem 0 #8a5a08}
-
-/* tombol samping preview (pose, pakai, 360) */
-html body #sbs button{border-radius:.8rem}
-
-/* kartu info item */
-html body #info{border-radius:.9rem;border:.3rem solid var(--ol)} /* warna/transparansi: lihat blok "Panel kaca" di bawah */
-html body .badge{border:.2rem solid var(--ol);border-radius:.7rem;box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35)}
-html body #iname{text-shadow:none}
-html body #idesc{color:#fff}
-
-/* strip "Skin Terbaru" */
-html body #rec{border-radius:.9rem;border:.3rem solid var(--ol)}
-html body #rl{border:.2rem solid var(--ol);border-top:0;border-radius:0 0 .7rem .7rem;background:linear-gradient(var(--nv1),var(--nv2))}
-html body .rt{border-radius:.6rem;border:.25rem solid var(--ol);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.2)}
-html body .rt.on{border-color:#f1d04a;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.2),0 0 0 .15rem #f1d04a}
-
-/* panel grid kanan */
-html body #bot{border-radius:1rem;border:.3rem solid var(--ol)}
-html body #gwrap{border-radius:.7rem;border:.25rem solid var(--ol)}
-
-/* kartu item */
-html body .card{border-radius:.8rem;border:.3rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
-html body .card.lg{background:linear-gradient(#e9b32f,#a8701a);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.3),0 .2rem 0 var(--ol)}
-html body .card.lk{background:linear-gradient(#5b6b86,#38465f)}
-html body .card.sel{border-color:#f1d04a;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 0 0 .15rem #f1d04a,0 0 1.2rem rgba(241,208,74,.7)}
-html body .card .badge{border-width:.15rem;border-radius:.5rem}
-html body .bt{border:.2rem solid var(--ol);border-radius:.6rem;background:linear-gradient(#58a0ff,#2a6fe0);box-shadow:inset 0 .15rem 0 rgba(255,255,255,.4),0 .15rem 0 var(--ol)}
-html body .bt.own{background:linear-gradient(#3fc545,#23952c);text-shadow:0 .1rem 0 #0d4a14}
-html body .bt.gd{background:linear-gradient(#ffb133,#f08a14);text-shadow:0 .1rem 0 rgba(90,45,0,.6)}
-html body .bt.no{background:linear-gradient(#7d8da8,#58698a)}
-
-/* tombol utama bawah ("Digunakan"/"Gunakan") */
-html body .use{border:.3rem solid var(--ol);border-radius:.9rem;background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
-html body .use.own{background:linear-gradient(#4fd24c,#259a2e);box-shadow:inset 0 0 0 .15rem #8cf08a,inset 0 -.3rem 0 rgba(0,70,10,.45),0 .3rem 0 var(--ol);text-shadow:0 .15rem 0 #0d4a14}
-html body .use.no{background:linear-gradient(#7d8da8,#58698a);box-shadow:inset 0 0 0 .15rem #a6b4cc,0 .3rem 0 var(--ol)}
-html body .ck{border:.2rem solid #fff;box-shadow:0 0 0 .15rem var(--ol);border-radius:.5rem}
-
-/* Panel "Skin Terbaru" disembunyikan; panel info (COMMON + nama + deskripsi) menempati posisinya di bawah. */
-html body #rec{display:none}
-@media (min-aspect-ratio:1/1){
-  html body #info{left:1.7rem;width:40.7rem;top:auto;bottom:1.6rem;height:9.6rem}
-  html body #show{bottom:13rem}
-}
-html body #title{width:auto;min-width:25.8rem;padding-right:2.4rem}
-html body .use{width:auto;min-width:17.6rem;padding:0 2rem}
-@media (min-aspect-ratio:1/1){html body #grid{grid-auto-rows:15.4rem}}
-/* modal & toast: disamakan gaya pixel (tidak pill) */
-html body .box{border-radius:1rem;border:.3rem solid var(--ol);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .6rem 0 var(--ol),0 2rem 3rem rgba(0,0,0,.3)}
-html body .x{border-radius:.6rem;border:.2rem solid var(--ol);box-shadow:inset 0 .12rem 0 rgba(255,255,255,.35),0 .2rem 0 var(--ol)}
-html body .row{border-radius:.7rem;border:.2rem solid var(--ol);background:rgba(10,30,100,.35)}
-html body .tg{border-radius:.6rem;border:.2rem solid var(--ol)}
-html body .pack,html body .mb{border-radius:.9rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
-html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
-</style>
-<script src="assets/js/landscape.js"></script><style id="frame-tab">
-/* tab Frame: frame + wajah skin terpasang */
-.fr-th{position:relative;width:100%;height:100%}
-.fr-th .fr-in{position:absolute;inset:19%;display:block;overflow:hidden;border-radius:.2rem;background:linear-gradient(#bfe6ff,#6cb8f0)}
-.fr-th .fr-in svg{width:100%;height:100%;display:block}
-.fr-th .fr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
-#show #art .fr-th{width:min(34rem,70%);height:auto;aspect-ratio:1/1}
-#show #art .fr-th .fr-in svg{width:100%;height:100%}
-</style>
-<link rel="stylesheet" href="assets/css/lobby-theme.css"><style>
-/* ===== seragam lobby: slate, tanah grid + daun ===== */
-html body .blue{background:linear-gradient(var(--sl1),var(--sl2))!important;border-color:#172033;box-shadow:var(--slf)!important;text-shadow:0 .16rem 0 #0b1220}
-html body #title{background:linear-gradient(var(--sl1),var(--sl2))!important}
-html body .cat:not(.on){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 0 0 .15rem #8696ad,0 .35rem 0 #0b1220}
-/* Panel kaca: #info, #bot (grid kanan), #gwrap, #dyes dibuat agak transparan + blur latar.
-   Atur seberapa transparan lewat --pn-a (0 = bening, 1 = solid). Modal (.box) tetap solid. */
-:root{--pn-a:.62;--pn-in-a:.5;--card-a:.92;--pn-blur:.6rem}
-html body #info,html body #bot,html body #rec{
-  background:linear-gradient(rgba(63,80,107,var(--pn-a)),rgba(38,52,76,var(--pn-a)));
-  border-color:rgba(23,32,51,.85);box-shadow:var(--slf);
-  -webkit-backdrop-filter:blur(var(--pn-blur));backdrop-filter:blur(var(--pn-blur))}
-html body .ov>.box,html body .box{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033;box-shadow:var(--slf)}
-html body #gwrap{background:linear-gradient(rgba(38,52,76,var(--pn-in-a)),rgba(51,68,95,var(--pn-in-a)));border-color:rgba(23,32,51,.85);box-shadow:inset 0 0 0 .12rem rgba(134,150,173,.8)}
-html body .card:not(.lg):not(.lk){background:linear-gradient(rgba(82,100,127,var(--card-a)),rgba(51,68,95,var(--card-a)));border-color:#172033}
-html body .bt:not(.own):not(.gd):not(.no){background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033;box-shadow:inset 0 .15rem 0 rgba(255,255,255,.25),0 .15rem 0 #0b1220}
-html body #rl{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
-html body .row{background:linear-gradient(var(--sl3),var(--sl4));border-color:#172033}
-html body #toast{background:linear-gradient(var(--sl1),var(--sl2));border-color:#172033}
-html body #idesc{color:#cdd8ea}
-</style>
-<style id="karakter-ui">
-/* Karakter: tata letak & komponen mengikuti Inventory. Hanya tampilan; logika builder 3D tidak berubah. */
-html body .card .th{position:relative}
-html body .card .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;animation:thin .25s both}
-html body .card .th.ph .em,html body .card .th.ph .sq{visibility:hidden}
-@keyframes thin{from{opacity:0;transform:scale(.92)}}
-html body #buy{position:absolute;right:1.4rem;top:50%;translate:0 -50%;height:5.2rem;min-width:14rem;width:auto;font-size:2.2rem;gap:.8rem}
-html body #buy img{width:3rem;height:3rem;display:block}
-html body #info.hasbuy #iname,html body #info.hasbuy #idesc{padding-right:15rem}
-html body #gl{touch-action:none;cursor:grab}
-html body #gl:active{cursor:grabbing}
-html body #cats{overflow-y:auto;overflow-x:hidden;padding:.3rem .5rem .8rem .3rem;scrollbar-width:none}
-html body #cats::-webkit-scrollbar{display:none}
-html body .cat{flex:none}
-html body .cat .ce{font-size:2.3rem;line-height:1;width:3rem;text-align:center;flex:none;text-shadow:none}
-html body .cat .cl{white-space:nowrap}
-html body #sbs button{font-size:2rem}
-html body #sbs button.on{outline:.3rem solid #ffe36a;outline-offset:-.1rem}
-html body #bot{gap:.8rem}
-#bh{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.2rem .6rem 0;font-size:2.3rem;text-shadow:0 .15rem 0 #0b1220}
-#bh .bha{display:flex;gap:.8rem}
-#bh .bt{width:auto;padding:0 1.6rem}
-#grid.flat{grid-template-columns:1fr!important;grid-auto-rows:auto!important;gap:1rem}
-.card .th{display:grid;place-items:center;width:100%}
-.card .th .em{font-size:4.4rem;line-height:1}
-.card .th .sq{display:block;width:62%;aspect-ratio:1;border-radius:.6rem;border:.3rem solid #172033;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35)}
-.card .bt{overflow:hidden;white-space:nowrap}
-.card.lk .th .em{filter:grayscale(1);opacity:.55}
-.slrow{display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.4rem;border-radius:.8rem;border:.3rem solid #172033;background:linear-gradient(var(--sl3),var(--sl4));font-size:1.9rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
-.slrow input{width:100%;margin:0;accent-color:#ffd24d;height:2rem}
-.slrow+.bt,#grid.flat>.bt{width:auto;align-self:center;padding:0 2.4rem}
-#dyes{flex:none;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:center;padding:.7rem .9rem;border-radius:.7rem;border:.25rem solid rgba(23,32,51,.85);background:linear-gradient(rgba(38,52,76,var(--pn-in-a,.5)),rgba(51,68,95,var(--pn-in-a,.5)));box-shadow:inset 0 0 0 .12rem rgba(134,150,173,.8)}
-#dyes:empty{display:none}
-#dyes .lbl{font-size:1.5rem;margin-right:.4rem}
-#dyes .sw{width:3.4rem;height:3.4rem;padding:0;border-radius:.6rem;border:.25rem solid #172033;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.35);flex:none}
-#dyes .sw.on{outline:.3rem solid #ffe36a;outline-offset:.1rem}
-@media (min-aspect-ratio:1/1){
-  html body #cats{width:13.2rem;bottom:13rem}
-    html body #sbs{top:8rem}
-}
-@media (max-aspect-ratio:1/1){
-  html body #cats{overflow-x:auto;overflow-y:hidden}
-  html body #sbs button{width:4.4rem;height:3.6rem}
-  html body #bot{min-height:60vh}
-  html body #grid{grid-auto-rows:19rem}
-}
-</style>
+<title>Karakter — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/karakter.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
 </head>
-<body>
-<div id="sky"></div>
-<div id="ui">
-<div id="top">
- <button class="ab blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
- <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/lobby/inventory.webp" alt="" draggable="false" decoding="async">Karakter</div>
- <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
-</div>
-<nav class="ab" id="cats" aria-label="Kategori"></nav>
-<div class="ab" id="show"><canvas id="gl"></canvas></div>
-<div class="ab" id="sbs" aria-label="Gerakan"></div>
-<section class="ab" id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><button class="use" id="buy" style="display:none"></button></section>
-<section class="ab" id="bot">
- <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="ofm" style="display:none">✏️ Kelola</button><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
- <div id="gwrap"><div id="grid"></div></div>
- <div id="dyes"></div>
-</section>
-</div>
-<div id="toast"></div>
-<div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
+<body class="kr">
+<div id="wrap"><div id="stage">
+  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Karakter</div>
+  <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
+
+  <section id="left">
+    <div class="eqs" id="eqL"></div>
+    <div id="ped"><svg viewBox="0 0 500 190" aria-hidden="true"><ellipse cx="250" cy="168" rx="236" ry="22" fill="rgba(8,4,20,.35)"/>
+<path d="M28,104 v30 a222,46 0 0 0 444,0 v-30 Z" fill="#2f2949" stroke="#17122b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="250" cy="104" rx="222" ry="46" fill="#4b4370" stroke="#17122b" stroke-width="3"/>
+<path d="M74,82 v24 a176,36 0 0 0 352,0 v-24 Z" fill="#3b3459" stroke="#17122b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="250" cy="82" rx="176" ry="36" fill="#5d5486" stroke="#17122b" stroke-width="3"/>
+<path d="M122,62 v20 a128,27 0 0 0 256,0 v-20 Z" fill="#463e6b" stroke="#17122b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="250" cy="62" rx="128" ry="27" fill="#6f66a0" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="62" rx="100" ry="20" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="3"/></svg></div>
+    <div id="show"><canvas id="gl"></canvas></div>
+    <div class="eqs" id="eqR"></div>
+    <div id="nm" class="ttl"></div>
+    <div id="lv"><b class="ttl" id="lvn">1</b><div class="lvr"><span class="l">Level</span><span class="p" id="lvp"></span><i><u id="lvf"></u></i></div></div>
+    <div id="sep"></div>
+    <div id="info"><span id="irar"></span><div id="iname"></div><div id="idesc"></div></div>
+  </section>
+
+  <section id="right">
+    <nav id="tabs" aria-label="Kategori"></nav>
+    <div id="grid"></div>
+    <div id="dyes"></div>
+    <div id="acts">
+      <button class="btn sm" id="rnd"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>ACAK</span></button>
+      <button class="btn sm" id="ofm" hidden><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp" alt=""><span>KELOLA</span></button>
+      <button class="btn sm" id="lepas" hidden><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>LEPAS</span></button>
+      <button class="btn" id="buy" hidden><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>GUNAKAN</span></button>
+    </div>
+  </section>
+
+  <div id="modal"><div id="box" role="dialog" aria-modal="true"><button id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
+  <div id="toast" role="status"></div>
+</div></div>
+<div id="fade"></div>
 
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/item-catalog.js"></script><script src="assets/js/frame-fx.js"></script>
@@ -313,6 +52,7 @@ html body #bot{gap:.8rem}
 <script src="assets/js/wallet-service.js"></script>
 <script src="assets/js/appearance-service.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'karakter'});</script>
 <script>
 (function(){
@@ -1254,11 +994,6 @@ const BUILD={head:buildHead,hair:buildHair,body:buildBody,helm:buildHelm,chest:b
 /* ================================================================
    9. POSE & ANIMASI (rig yang sama untuk semua kombinasi item)
    ================================================================ */
-const POSES={
-  pose1:{rLegT:-0.55,rKnee:0.5,lLegT:0.45,lKnee:0.05,rLegZ:-0.12,lLegZ:0.15,rArmS:-0.95,rElbow:-0.75,rWrist:1.0,rArmZ:-0.12,lArmS:-0.7,lElbow:-1.1,lArmZ:0.35,lean:0.18,twist:0.25,headX:0.05,headY:-0.2,cape:0.2,tail:0.3},
-  pose2:{rLegT:-0.15,rKnee:0.05,lLegT:0.1,lKnee:0.05,rLegZ:-0.25,lLegZ:0.25,rArmS:-3.05,rElbow:-0.15,rWrist:1.55,rArmZ:-0.25,lArmS:0.1,lElbow:-1.3,lArmZ:0.55,lean:-0.12,twist:-0.1,headX:-0.2,headY:0,cape:0.35,tail:0.5},
-  pose3:{rLegT:-0.95,rKnee:0.95,lLegT:0.7,lKnee:0.05,rLegZ:-0.15,lLegZ:0.2,rArmS:-1.5,rElbow:-0.05,rWrist:1.5,rArmZ:-0.05,lArmS:0.5,lElbow:-0.4,lArmZ:0.9,lean:0.28,twist:0.5,headX:0.1,headY:-0.45,cape:0.5,tail:0.6}
-};
 const CROUCH={rLegT:-0.75,rKnee:1.35,lLegT:-0.55,lKnee:1.2,rArmS:-0.2,rArmZ:-0.35,lArmS:-0.3,lArmZ:0.4,lean:0.35,headX:-0.15,cape:0.1};
 const AIR_UP={rLegT:-1.0,rKnee:1.2,lLegT:0.35,lKnee:0.9,rLegZ:-0.1,lLegZ:0.12,rArmS:-2.7,rElbow:-0.15,rWrist:1.3,rArmZ:-0.15,lArmS:-2.5,lElbow:-0.2,lArmZ:0.35,lean:0.05,twist:0,headX:-0.1,headY:0,cape:0.2,tail:1.0};
 const AIR_DN={rLegT:-0.5,rKnee:0.4,lLegT:0.35,lKnee:0.3,rLegZ:-0.15,lLegZ:0.15,rArmS:-0.5,rElbow:-0.4,rWrist:0.4,rArmZ:-0.9,lArmS:-0.5,lElbow:-0.3,lArmZ:1.0,lean:0.08,twist:0,headX:0.05,headY:0,cape:0.7,tail:1.2};
@@ -1283,7 +1018,6 @@ function computeTarget(){
     T.headY=0;T.headX=-0.04*w-0.12*ra;
     T.cape=0.1+0.25*w+0.45*ra;T.tail=0.25+0.4*w+0.45*ra;
   }
-  if(mode.indexOf('pose')===0&&level<0.3&&!airborne)Object.assign(T,POSES[mode]);
   if(airborne){
     const u=(clamp(vy/6,-1,1)+1)/2;
     for(const k in AIR_UP)T[k]=lerp(AIR_DN[k],AIR_UP[k],u);
@@ -1408,77 +1142,6 @@ const THUMB={
 function jump(){if(!airborne){airborne=true;vy=7.2;}}
 const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
-const MODES=[['idle','🧍','Diam'],['walk','🚶','Jalan'],['run','🏃','Lari'],['pose1','🛡️','Siaga'],['pose2','🦸','Pahlawan'],['pose3','🤺','Serang']];
-const sbs=$('#sbs'),btns={};
-MODES.forEach(m=>{
-  const b=document.createElement('button');b.className='blue';b.textContent=m[1];b.title=m[2];b.setAttribute('aria-label',m[2]);
-  b.addEventListener('click',()=>setMode(m[0]));
-  sbs.appendChild(b);btns[m[0]]=b;
-});
-const jb=document.createElement('button');jb.className='blue';jb.textContent='⬆️';jb.title='Loncat';jb.setAttribute('aria-label','Loncat');
-jb.addEventListener('click',jump);sbs.appendChild(jb);
-$('#back').addEventListener('click',()=>{location.href='lobby.html';});
-$('#rnd').addEventListener('click',()=>{endPreview();randomize();});
-$('#shp').addEventListener('click',()=>{location.href='shop.html';});
-document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{location.href=b.dataset.buy==='gem'?'tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html'):'shop.html?coin=1';}));
-function setMode(m){mode=m;for(const k in btns)btns[k].classList.toggle('on',k===m);}
-setMode('idle');
-function renderCurrency(){try{$('#gemV').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#coinV').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
-renderCurrency();
-try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
-
-const CATS=[
-  {key:'gender',label:'⚧ Gender',type:'gender'},
-  {key:'skin',label:'🎨 Kulit',type:'skin'},
-  {key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true},
-  {key:'hair',label:'💇 Rambut',reg:'hair',keepDye:true},
-  {key:'top',label:'👕 Baju',reg:'top'},
-  {key:'legs',label:'👖 Celana',reg:'legs'},
-  {key:'boots',label:'👢 Sepatu',reg:'boots'},
-  {key:'helm',label:'⛑️ Kepala',reg:'helm'},
-  {key:'chest',label:'🛡️ Zirah',reg:'chest'},
-  {key:'shoulder',label:'🦾 Bahu',reg:'shoulder'},
-  {key:'cape',label:'🧣 Jubah',reg:'cape'},
-  {key:'weapon',label:'⚔️ Senjata',reg:'weapon'},
-  {key:'accessories',label:'🎒 Aksesori',type:'multi'},
-  {key:'body',label:'📏 Tubuh',type:'body'},
-  {key:'preset',label:'🎭 Set',type:'preset'}
-];
-CATS.forEach(c=>{const i=c.label.indexOf(' ');c.ico=c.label.slice(0,i);c.name=c.label.slice(i+1);});
-let cat=0,accSel=null;
-const FRAME={eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
-const tabsEl=$('#cats'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
-let toastT=0;
-function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),1800);}
-const hex=c=>'#'+('000000'+c.toString(16)).slice(-6);
-const BG={own:'own',def:'',lock:'no'};
-const CKSVG='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const emo=e=>'<span class="em">'+e+'</span>';
-const sq=c=>'<i class="sq" style="background:'+hex(c)+'"></i>';
-/* kartu opsi gaya Inventory: {th, nm, on, lock, badge, bg, fn, i} */
-function card(o){
-  const d=document.createElement('div');
-  d.className='card'+(o.on||o.sel?' sel':'')+(o.lock?' lk':'');
-  d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
-  d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
-  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.badge?'<button class="bt"></button>':'');
-  d.querySelector('.nm').textContent=o.nm;
-  if(o.badge){const b=d.querySelector('.bt');b.textContent=o.badge;if(o.bg)b.classList.add(o.bg);}
-  d.addEventListener('click',()=>{endPreview();o.fn();});
-  d.addEventListener('keydown',e=>{if(e.key==='Enter'){endPreview();o.fn();}});
-  if(o.tq)THUMB.add(d.querySelector('.th'),o.tq.key,o.tq.part,o.tq.fr);
-  return d;
-}
-function dyeRow(it,cur,pick){
-  if(!it||!it.dyes)return;
-  const l=document.createElement('span');l.className='lbl';l.textContent='Warna';dyesEl.appendChild(l);
-  DYES[it.dyes].forEach(d=>{
-    const b=document.createElement('button');b.className='sw'+(d.id===cur?' on':'');
-    b.style.background=hex(d.c);b.title=d.n;b.setAttribute('aria-label',d.n);
-    b.addEventListener('click',()=>pick(d.id));dyesEl.appendChild(b);
-  });
-}
 function needBuy(ci){toast(ci.name+' belum dimiliki - beli di Toko'+(ci.price>0?' ('+ci.price+' koin)':''));}
 function randomize(){
   const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -1503,7 +1166,83 @@ function importCfg(){
   try{const o=JSON.parse(s);cfg=clone(DEFAULT);apply(o,true);toast('Config dimuat');}catch(e){toast('JSON tidak valid');}
 }
 
-function setInfo(name,desc){$('#irar').textContent=CATS[cat].name;$('#iname').textContent=name||'';$('#idesc').textContent=desc||'';}
+/* ================================================================
+   UI (layar Equipment newgui): slot samping, tab, grid kartu, aksi.
+   Mesin 3D, katalog, beli, dan outfit di atas/bawah bagian ini tidak berubah.
+   ================================================================ */
+let STAGE_SCALE=1;
+function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';STAGE_SCALE=s;}
+fitStage();
+const SETT=()=>{try{return PD.settings();}catch(e){return {};}};
+const buzz=()=>{if(SETT().vibration&&navigator.vibrate)navigator.vibrate(15);};
+const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>{location.href=u;},330);};
+const FROM=(()=>{const f=new URLSearchParams(location.search).get('from');return f&&['lobby.html','room.html','profile.html','shop.html','mode.html'].includes(f.split('?')[0])?f:'lobby.html';})();
+$('#back').addEventListener('click',()=>nav(FROM));
+$('#home').addEventListener('click',()=>nav('lobby.html'));
+$('#cur-em').addEventListener('click',()=>nav('tambang.html?from=karakter.html'));
+$('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
+$('#rnd').addEventListener('click',()=>{endPreview();randomize();buzz();});
+function setMode(m){mode=m;}
+function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
+function renderHead(){try{
+  $('#nm').textContent=PD.profile().name;
+  const L=PD.levelInfo(),pct=Math.min(100,L.xpIn/L.xpMax*100);
+  $('#lvn').textContent=L.level;$('#lvp').textContent=pct.toFixed(1)+'%';$('#lvf').style.width=pct+'%';
+}catch(e){}}
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();renderHead()}catch(e){}})}}catch(e){} /* saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
+renderCurrency();renderHead();
+try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
+
+/* tab: satu per jenis (bisa digeser). Gender/kulit/mata/rambut/tubuh digabung di tab "Tampilan". */
+const CATS=[
+  {key:'all',name:'SEMUA',title:'Semua',type:'all'},
+  {key:'look',name:'TAMPILAN',title:'Tampilan',type:'look'},
+  {key:'helm',name:'KEPALA',title:'Kepala',reg:'helm',slot:'helm'},
+  {key:'top',name:'BAJU',title:'Baju',reg:'top',slot:'top'},
+  {key:'chest',name:'ZIRAH',title:'Zirah',reg:'chest',slot:'chest'},
+  {key:'legs',name:'CELANA',title:'Celana',reg:'legs',slot:'legs'},
+  {key:'boots',name:'SEPATU',title:'Sepatu',reg:'boots',slot:'boots'},
+  {key:'cape',name:'JUBAH',title:'Jubah',reg:'cape',slot:'cape'},
+  {key:'weapon',name:'SENJATA',title:'Senjata',reg:'weapon',slot:'weapon'},
+  {key:'accessories',name:'AKSESORI',title:'Aksesori',type:'multi',slot:'acc'},
+  {key:'preset',name:'SET',title:'Set',type:'preset'}
+];
+const TABICON={weapon:'tab-pedang',chest:'tab-perisai',boots:'tab-sepatu',accessories:'tab-cincin'};
+const EMO={eyes:'👁️',hair:'💇',top:'👕',legs:'👖',boots:'👢',helm:'⛑️',chest:'🛡️',shoulder:'🦾',cape:'🧣',weapon:'⚔️',acc:'🎒',preset:'🎭'};
+let cat=0,accSel=null,sliding=false,selSlot=null;
+const FRAME={eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
+const tabsEl=$('#tabs'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
+let toastT=0;
+function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),1800);}
+const hex=c=>'#'+('000000'+c.toString(16)).slice(-6);
+const BG={own:'own',def:'',lock:'no'};
+const IMG='assets/ng/komponen/';
+const emo=e=>'<span class="em">'+e+'</span>';
+const sq=c=>'<i class="sq" style="background:'+hex(c)+'"></i>';
+/* kartu opsi: {th, nm, on, lock, badge, fn, tq} -> kotak slot 130px; centang = sedang dipakai, gembok+harga = belum dimiliki */
+function card(o){
+  const d=document.createElement('button');
+  d.className='slot'+(o.sel?' sel':'')+(o.lock?' lk':'');
+  d.setAttribute('aria-label',o.nm);
+  d.innerHTML='<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.on?'<img class="ck" src="'+IMG+'glyph-putih/centang.webp" alt="">':'')+(o.lock&&o.badge?'<span class="pr"></span>':'');
+  d.querySelector('.nm').textContent=o.nm;
+  const pr=d.querySelector('.pr');if(pr)pr.textContent=String(o.badge).replace('🔒 ','').replace(' koin','');
+  d.addEventListener('click',()=>{endPreview();buzz();o.fn();});
+  if(o.tq)THUMB.add(d.querySelector('.th'),o.tq.key,o.tq.part,o.tq.fr);
+  return d;
+}
+function dyeRow(it,cur,pick,label){
+  if(!it||!it.dyes)return;
+  const l=document.createElement('span');l.className='lbl';l.textContent=label||'Warna';dyesEl.appendChild(l);
+  DYES[it.dyes].forEach(d=>{
+    const b=document.createElement('button');b.className='sw'+(d.id===cur?' on':'');
+    b.style.background=hex(d.c);b.title=d.n;b.setAttribute('aria-label',d.n);
+    b.addEventListener('click',()=>pick(d.id));dyesEl.appendChild(b);
+  });
+  const sp=document.createElement('span');sp.className='sp';dyesEl.appendChild(sp);
+}
+
+function setInfo(name,desc){$('#irar').textContent=CATS[cat].title;$('#iname').textContent=name||'';$('#idesc').textContent=desc||'';}
 function updateInfo(){
   const c=CATS[cat];
   updateBuy();
@@ -1511,13 +1250,13 @@ function updateInfo(){
   if(pv&&pv.set){const ss=pv.set,sok=ss.cis.every(canSell),nm=ss.cis.map(x=>x.name).join(', ');
     setInfo(ss.n.replace(/^\S+\s/,'')+' (Set)',sok?ss.cis.length+' item belum dimiliki: '+nm+'. Beli semua untuk memakai set ini.':'Set ini berisi item yang tidak dijual ('+nm+'). Hanya preview.');return;}
   if(pv){setInfo(pv.ci.name,canSell(pv.ci)?'Belum dimiliki. Ini hanya preview, beli untuk memakainya.':'Belum dimiliki dan tidak dijual (hadiah/event). Hanya preview.');return;}
-  if(c.type==='gender')setInfo(cfg.gender==='m'?'Laki-laki':'Perempuan','Pilih gender karakter. Pakaian menyesuaikan gender.');
-  else if(c.type==='skin'){const s=SKINS.find(x=>x.id===cfg.skin);setInfo(s?s.n:'Warna kulit','Pilih warna kulit karakter.');}
-  else if(c.type==='body')setInfo('Ukuran tubuh','Atur tinggi dan besar badan karakter.');
+  if(c.type==='all')setInfo('Semua item','Ketuk item untuk mencoba. Gembok = belum dimiliki.');
+  else if(c.type==='look')setInfo('Tampilan dasar','Atur gender, kulit, mata, rambut, dan ukuran tubuh.');
   else if(c.type==='preset')setInfo('Set siap pakai','Ketuk set untuk preview. Item yang belum dimiliki bisa dibeli sekaligus per set.');
-  else if(c.type==='multi')setInfo('Aksesori ('+cfg.accessories.length+' dipakai)','Beberapa aksesori boleh dipakai bersamaan. Ikon gembok = beli di Toko.');
-  else{const it=find(c.reg,cfg[c.key].id);setInfo(it&&it.id!=='none'?it.n:'Tidak dipakai','Ketuk kartu untuk mengganti. Ikon gembok = beli di Toko.');}
+  else if(c.type==='multi')setInfo('Aksesori ('+cfg.accessories.length+' dipakai)','Beberapa aksesori boleh dipakai bersamaan. Gembok = beli.');
+  else{const it=find(c.reg,cfg[c.key].id);setInfo(it&&it.id!=='none'?it.n:'Tidak dipakai','Ketuk item untuk mencoba, lalu tekan Gunakan. Gembok = beli.');}
 }
+
 /* ===== Preview item terkunci + beli dengan coin (menggantikan Toko untuk item karakter) ===== */
 let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disimpan ke PlayerData */
 const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get(),AS=()=>window.UT&&UT.AppearanceService&&UT.AppearanceService.get();
@@ -1565,14 +1304,14 @@ function commitDraft(){
   toast('Tampilan dipakai!');
 }
 function updateBuy(){
-  const b=$('#buy'),inf=$('#info');
-  if(pv&&pv.draft){b.style.display='';inf.classList.add('hasbuy');b.className='use';b.textContent='Gunakan';return;}
-  if(!pv){b.style.display='none';inf.classList.remove('hasbuy');return;}
+  const b=$('#buy'),sp=b.querySelector('span');
+  if(pv&&pv.draft){b.hidden=false;b.classList.remove('no');sp.textContent='GUNAKAN';return;}
+  if(!pv){b.hidden=true;return;}
   const ok=pv.set?pv.set.cis.every(canSell):canSell(pv.ci),price=pv.set?pv.set.total:pv.ci.price;
-  b.style.display='';inf.classList.add('hasbuy');
-  b.className='use'+(ok?'':' no');
-  b.innerHTML=ok?'<img src="assets/Images/icon/currency/coin.webp" alt="" draggable="false">'+fmt(price):'Tidak dijual';
+  b.hidden=false;b.classList.toggle('no',!ok);
+  sp.innerHTML=ok?'<img class="coin" src="'+IMG+'hud/ikon-koin-emas.webp" alt="">'+fmt(price):'TIDAK DIJUAL';
 }
+
 const modal=$('#modal');let mOpen=false;
 function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing');},250);}
@@ -1582,11 +1321,11 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 function confirmBuy(ci){
   const coins=PD.coins(),ok=coins>=ci.price;
   openModal(ok
-    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:10px;color:#ffe36a;font-size:36px"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="" style="width:39px;height:39px">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html?coin=1';});return;}
     $('#yes').addEventListener('click',async()=>{
       const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
       closeModal();
@@ -1599,13 +1338,13 @@ function confirmBuy(ci){
 }
 function confirmBuySet(set){
   const coins=PD.coins(),ok=coins>=set.total,nm=set.n.replace(/^\S+\s/,'');
-  const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2rem;margin:.4rem 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
+  const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:10px;font-size:26px;margin:5px 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
   openModal(ok
-    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:10px;color:#ffe36a;font-size:36px"><span style="color:#fff">Total</span><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="" style="width:39px;height:39px">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html?coin=1';});return;}
     $('#yes').addEventListener('click',async()=>{
       /* atomik: server (buy_set) / PlayerData.purchaseSet memotong koin sekali dan memberi SEMUA item, atau tidak sama sekali */
       const ids=set.cis.map(c=>c.id);
@@ -1631,82 +1370,127 @@ function slider(label,key,min,max){
   const t=document.createElement('span');
   const r=document.createElement('input');r.type='range';r.min=min;r.max=max;r.step=0.01;r.value=cfg.body[key];
   const upd=()=>{t.textContent=label+' '+Math.round(cfg.body[key]*100)+'%';};
-  r.addEventListener('input',()=>{apply({body:{[key]:+r.value}});upd();});
+  r.addEventListener('input',()=>{sliding=true;try{apply({body:{[key]:+r.value}});}finally{sliding=false;}upd();});
   upd();w.appendChild(t);w.appendChild(r);optsEl.appendChild(w);
 }
+/* ---- slot samping: 4 kiri (kepala, baju, celana, sepatu) + 4 kanan (zirah, jubah, senjata, aksesori) ---- */
+const SLOTS={L:[['helm','Kepala'],['top','Baju'],['legs','Celana'],['boots','Sepatu']],R:[['chest','Zirah'],['cape','Jubah'],['weapon','Senjata'],['acc','Aksesori']]};
+const hasNone=k=>k==='acc'||REG[k].some(i=>i.id==='none');
+const wornOf=k=>{const c=B();if(k==='acc')return c.accessories.length?c.accessories:null;return c[k].id!=='none'?c[k]:null;};
+function slotBtn(k,label){
+  const w=wornOf(k),d=document.createElement('button');
+  d.className='eq'+(selSlot===k?' sel':'')+(w?'':' empty');d.setAttribute('aria-label',label);
+  d.innerHTML=(w?'<div class="th"></div><span class="lb"></span>':'<span class="lb"></span>')+(k==='acc'&&w&&w.length>1?'<span class="cn">×'+w.length+'</span>':'');
+  d.querySelector('.lb').textContent=label;
+  d.addEventListener('click',()=>{endPreview();buzz();selSlot=k;cat=CATS.findIndex(c=>c.slot===k);renderTabs();renderOpts();});
+  if(w){
+    const th=d.querySelector('.th');
+    if(k==='acc'){const it=find('acc',w[0].id);THUMB.add(th,'a|'+it.id+THUMB.sig([]),cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.def}])},'full');}
+    else{const cu=cfg[k];THUMB.add(th,k+'|'+w.id+'|'+(cu.dye||'')+THUMB.sig([k]),()=>({[k]:{id:w.id}}),FRAME[k]||'full');}
+  }
+  return d;
+}
+function renderSlots(){
+  [['#eqL',SLOTS.L],['#eqR',SLOTS.R]].forEach(a=>{const el=$(a[0]);el.innerHTML='';a[1].forEach(s=>el.appendChild(slotBtn(s[0],s[1])));});
+  $('#lepas').hidden=!(selSlot&&wornOf(selSlot)&&hasNone(selSlot));
+}
+$('#lepas').addEventListener('click',()=>{
+  const k=selSlot;if(!k||!wornOf(k))return;
+  endPreview();buzz();
+  if(k==='acc')apply({accessories:[]});else if(hasNone(k))apply({[k]:{id:'none'}});else{toast('Bagian ini tidak bisa dilepas.');return;}
+  toast('Dilepas');
+});
+
+/* ---- tab ---- */
 function renderTabs(){
-  const st=tabsEl.scrollTop,sl=tabsEl.scrollLeft;
-  tabsEl.innerHTML='';
-  CATS.forEach((c,i)=>{
-    const b=document.createElement('button');b.className='blue cat'+(i===cat?' on':'');
-    b.innerHTML='<span class="ce"></span><span class="cl"></span>';
-    b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
-    b.setAttribute('aria-label',c.name);
-    b.addEventListener('click',()=>{endPreview();cat=i;renderTabs();renderOpts();});
-    tabsEl.appendChild(b);
+  const sl=tabsEl.scrollLeft;
+  tabsEl.innerHTML=CATS.map((c,i)=>'<button class="tab'+(i===cat?' on':'')+'" data-i="'+i+'" aria-label="'+c.title+'">'+(TABICON[c.key]?'<img class="ic" src="'+IMG+'ikon-navigasi/'+TABICON[c.key]+'.webp" alt="">':'<span>'+c.name+'</span>')+'<img class="ul" src="'+IMG+'ikon-navigasi/garis-bawah-tab-emas.webp" alt=""></button>').join('');
+  tabsEl.scrollLeft=sl;
+  const t=tabsEl.querySelector('.tab.on');if(t){const L=t.offsetLeft-(tabsEl.clientWidth-t.offsetWidth)/2;if(t.offsetLeft<sl||t.offsetLeft+t.offsetWidth>sl+tabsEl.clientWidth)tabsEl.scrollLeft=Math.max(0,L);}
+}
+tabsEl.addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;const i=+b.dataset.i;if(i===cat)return;buzz();endPreview();cat=i;selSlot=CATS[i].slot||null;renderTabs();renderOpts();optsEl.scrollTop=0;});
+tabsEl.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){tabsEl.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
+
+/* ---- grid ---- */
+const hdr=t=>{const h=document.createElement('div');h.className='sh';h.textContent=t;optsEl.appendChild(h);};
+let cnt=0;
+function gearCards(key,skipNone){
+  const cur=cfg[key];
+  REG[key].filter(okG).forEach(it=>{
+    if(skipNone&&it.id==='none')return;
+    const ci=catItem(key,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===B()[key].id;
+    optsEl.appendChild(card({i:cnt++,th:emo(it.id==='none'?'🚫':EMO[key]),nm:it.n,on:on,lock:lock,sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+key+it.id))),
+      badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):'',
+      fn:()=>lock?startPreview(ci,{[key]:{id:it.id}}):stage('i'+key+it.id,it.n,{[key]:{id:it.id}}),
+      tq:it.id==='none'?null:{key:key+'|'+it.id+'|'+(cur.dye||'')+THUMB.sig([key]),fr:FRAME[key]||'full',part:()=>({[key]:{id:it.id}})}}));
   });
-  tabsEl.scrollTop=st;tabsEl.scrollLeft=sl;
+}
+function accCards(){
+  ACCS.filter(okG).forEach(it=>{
+    const on=B().accessories.some(a=>a.id===it.id),onD=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
+    optsEl.appendChild(card({i:cnt++,th:emo(EMO.acc),nm:it.n,on:on,lock:lock,sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
+      badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):'',
+      fn:()=>{
+        if(lock){startPreview(ci,{accessories:cfg.accessories.concat([{id:it.id,dye:it.def}])});return;}
+        accSel=it.id;
+        stage('a'+it.id,it.n,{accessories:onD?cfg.accessories.filter(a=>a.id!==it.id):cfg.accessories.concat([{id:it.id,dye:it.def}])});
+      },
+      tq:{key:'a|'+it.id+THUMB.sig([]),fr:'full',part:cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.def}])}}}));
+  });
+  const cur=cfg.accessories.find(a=>a.id===accSel);
+  if(cur)dyeRow(find('acc',cur.id),cur.dye,id=>apply({accessories:cfg.accessories.map(a=>a.id===cur.id?{id:a.id,dye:id}:a)}),'Warna aksesori');
+}
+function presetCards(){
+  const presetCard=p=>{
+    const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
+    optsEl.appendChild(card({i:cnt++,th:emo(EMO.preset),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
+      badge:lock?'🔒 '+(st.sellable?fmt(st.total):'—'):'',
+      fn:()=>lock?startPreview(st.miss[0],clone(p.set),{id:p.id,n:p.n,cis:st.miss,total:st.total}):stage('p'+p.id,p.n.replace(/^\S+\s/,''),clone(p.set)),
+      tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body])+(p.outfit!=null?JSON.stringify(p.set):''),fr:'full',part:()=>clone(p.set)}}));
+  };
+  PRESETS.filter(p=>p.g===cfg.gender).forEach(presetCard);
+  /* outfit pribadi: tampil di samping set bawaan (hanya yang sesuai gender), lalu kartu "Simpan tampilan" bila slot masih ada */
+  const outs=PD.outfits();
+  outs.filter(o=>o.data.gender===cfg.gender).forEach(o=>presetCard(outfitPreset(o)));
+  if(outs.length<PD.outfitLimit)optsEl.appendChild(card({i:cnt++,th:emo('➕'),nm:'Simpan ('+outs.length+'/'+PD.outfitLimit+')',fn:openSaveOutfit}));
+}
+function lookCards(){
+  hdr('Gender');
+  [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
+    optsEl.appendChild(card({i:cnt++,th:emo(a[1]),nm:a[2],on:on,sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),fn:()=>stageGender(a[0]),
+      tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',
+        part:cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;}}}));});
+  hdr('Kulit');
+  SKINS.forEach(s=>optsEl.appendChild(card({i:cnt++,th:sq(s.c),nm:s.n,on:s.id===cfg.skin,fn:()=>apply({skin:s.id}),
+    tq:{key:'s|'+s.id+THUMB.sig(['skin']),fr:'bust',part:()=>({skin:s.id})}})));
+  hdr('Mata');gearCards('eyes',false);
+  hdr('Rambut');gearCards('hair',false);
+  hdr('Tubuh');
+  slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
+  const r=document.createElement('button');r.className='rst';r.textContent='Atur ulang tubuh';
+  r.addEventListener('click',()=>{apply({body:{height:1,build:1}});});
+  optsEl.appendChild(r);
+  dyeRow(find('eyes',cfg.eyes.id),cfg.eyes.dye,id=>apply({eyes:{dye:id}}),'Warna mata');
+  dyeRow(find('hair',cfg.hair.id),cfg.hair.dye,id=>apply({hair:{dye:id}}),'Warna rambut');
 }
 function renderOpts(){
-  optsEl.innerHTML='';dyesEl.innerHTML='';optsEl.classList.remove('flat');
+  const keep=optsEl.scrollTop;
+  optsEl.innerHTML='';dyesEl.innerHTML='';cnt=0;
   THUMB.reset();
-  const c=CATS[cat];let n=0;
-  $('#bht').textContent=c.ico+' '+c.name;
-  if(c.type==='gender'){
-    [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
-      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,badge:on?'Dipakai':'Pilih',bg:on?BG.own:BG.def,sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),fn:()=>stageGender(a[0]),
-        tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',
-          part:cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;}}}));});
-  }else if(c.type==='skin'){
-    SKINS.forEach(s=>optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:s.id===cfg.skin,fn:()=>apply({skin:s.id}),
-      tq:{key:'s|'+s.id+THUMB.sig(['skin']),fr:'bust',part:()=>({skin:s.id})}})));
-  }else if(c.type==='body'){
-    optsEl.classList.add('flat');
-    slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
-    const r=document.createElement('button');r.className='bt gd';r.textContent='Atur ulang';
-    r.addEventListener('click',()=>{apply({body:{height:1,build:1}});renderOpts();});
-    optsEl.appendChild(r);
-  }else if(c.type==='preset'){
-    const presetCard=p=>{
-      const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
-        badge:lock?'🔒 '+(st.sellable?fmt(st.total)+' koin':'Tidak dijual'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
-        fn:()=>lock?startPreview(st.miss[0],clone(p.set),{id:p.id,n:p.n,cis:st.miss,total:st.total}):stage('p'+p.id,p.n.replace(/^\S+\s/,''),clone(p.set)),
-        tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body])+(p.outfit!=null?JSON.stringify(p.set):''),fr:'full',part:()=>clone(p.set)}}));
-    };
-    PRESETS.filter(p=>p.g===cfg.gender).forEach(presetCard);
-    /* outfit pribadi: tampil di samping set bawaan (hanya yang sesuai gender), lalu kartu "Simpan tampilan" bila slot masih ada */
-    const outs=PD.outfits();
-    outs.filter(o=>o.data.gender===cfg.gender).forEach(o=>presetCard(outfitPreset(o)));
-    if(outs.length<PD.outfitLimit)optsEl.appendChild(card({i:n++,th:emo('➕'),nm:'Simpan tampilan',badge:outs.length+'/'+PD.outfitLimit,bg:BG.def,fn:openSaveOutfit}));
-  }else if(c.type==='multi'){
-    ACCS.filter(okG).forEach(it=>{
-      const on=B().accessories.some(a=>a.id===it.id),onD=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
-        badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
-        fn:()=>{
-          if(lock){startPreview(ci,{accessories:cfg.accessories.concat([{id:it.id,dye:it.def}])});return;}
-          accSel=it.id;
-          stage('a'+it.id,it.n,{accessories:onD?cfg.accessories.filter(a=>a.id!==it.id):cfg.accessories.concat([{id:it.id,dye:it.def}])});
-        },
-        tq:{key:'a|'+it.id+THUMB.sig([]),fr:'full',part:cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.def}])}}}));
-    });
-    const cur=cfg.accessories.find(a=>a.id===accSel);
-    if(cur)dyeRow(find('acc',cur.id),cur.dye,id=>apply({accessories:cfg.accessories.map(a=>a.id===cur.id?{id:a.id,dye:id}:a)}));
-  }else{
-    const cur=cfg[c.key];
-    REG[c.reg].filter(okG).forEach(it=>{
-      const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===B()[c.key].id;
-      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
-        badge:lock?'🔒 '+(ci.price>0?ci.price+' koin':'Toko'):(on?'Dipakai':'Pakai'),bg:lock?BG.lock:(on?BG.own:BG.def),
-        fn:()=>lock?startPreview(ci,{[c.key]:{id:it.id}}):stage('i'+c.key+it.id,it.n,{[c.key]:{id:it.id}}),
-        tq:it.id==='none'?null:{key:c.key+'|'+it.id+'|'+(cur.dye||'')+THUMB.sig([c.key]),fr:FRAME[c.key]||'full',part:()=>({[c.key]:{id:it.id}})}}));
-    });
-    dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
-  }
-  $('#ofm').style.display=(c.type==='preset'&&PD.outfits().length)?'':'none';
+  const c=CATS[cat];
+  if(c.type==='all'){
+    [['helm','Kepala'],['top','Baju'],['chest','Zirah'],['shoulder','Bahu'],['legs','Celana'],['boots','Sepatu'],['cape','Jubah'],['weapon','Senjata']].forEach(a=>{hdr(a[1]);gearCards(a[0],true);});
+    hdr('Aksesori');accCards();
+  }else if(c.type==='look')lookCards();
+  else if(c.type==='preset')presetCards();
+  else if(c.type==='multi')accCards();
+  else{gearCards(c.key,false);dyeRow(find(c.reg,cfg[c.key].id),cfg[c.key].dye,id=>apply({[c.key]:{dye:id}}));}
+  optsEl.scrollTop=keep;
+  $('#ofm').hidden=!(c.type==='preset'&&PD.outfits().length);
+  renderSlots();
   updateInfo();
 }
+
 /* ===== Outfit pribadi (tersimpan di PlayerData; maks PD.outfitLimit slot) ===== */
 const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const OMSG={'slot-penuh':'Slot outfit penuh.','nama-kosong':'Nama tidak boleh kosong.','belum-dimiliki':'Ada item yang belum dimiliki.','gender-tidak-cocok':'Ada item yang tidak cocok untuk gender ini.','item-tidak-dikenal':'Ada item yang tidak dikenal.','data-tidak-valid':'Tampilan tidak valid.','tidak-ada':'Outfit tidak ditemukan.','gagal-simpan':'Gagal menyimpan.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','server-mode':'Tidak dapat menyimpan.','slot-tidak-cocok':'Tampilan tidak valid.'};
@@ -1724,7 +1508,7 @@ function curOutfitData(){
   return d;
 }
 function nameBox(title,val,okLabel,onOk,onCancel){
-  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no" id="no">Batal</button><button class="mb" id="yes">'+okLabel+'</button>',
+  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:34px;padding:10px 16px;border-radius:13px;border:4px solid #172033;margin:10px 0"><button class="mb no" id="no">Batal</button><button class="mb" id="yes">'+okLabel+'</button>',
   ()=>{
     const inp=$('#onm'),go=()=>onOk(inp.value);
     $('#no').addEventListener('click',onCancel||closeModal);
@@ -1745,7 +1529,7 @@ function openSaveOutfit(){
 function openManageOutfits(){
   const outs=PD.outfits();
   if(!outs.length){closeModal();renderOpts();return;}
-  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb" id="ok" style="width:98%">Selesai</button>',
+  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:10px;font-size:31px;margin:8px 0"><span>'+esc(o.name)+'</span><span><button class="bt" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 16px">✏️</button> <button class="bt no" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 16px">🗑️</button></span></div>').join('')+'<button class="mb" id="ok" style="width:98%">Selesai</button>',
   ()=>{
     $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
     $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
@@ -1786,10 +1570,10 @@ function syncToPD(){
   }catch(e){}
 }
 listeners.push(()=>{
-  if(CATS[cat].type!=='body')renderOpts();
+  if(!sliding)renderOpts();
   syncToPD();
 });
-renderTabs();
+renderCurrency();renderHead();renderTabs();renderOpts();
 
 /* ================================================================
    11. KAMERA
@@ -1797,31 +1581,22 @@ renderTabs();
 /* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
 let camYaw=0.4,camPitch=0.18;const camDist=3.6;
 const ptrs=new Map();
-cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});});
 cv.addEventListener('pointermove',e=>{
   const p=ptrs.get(e.pointerId);if(!p)return;
   const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
   if(ptrs.size===1){camYaw-=dx*0.007;camPitch=clamp(camPitch+dy*0.005,-0.05,1.3);}
 });
 const ptrEnd=e=>{ptrs.delete(e.pointerId);};
-cv.addEventListener('pointerup',ptrEnd);cv.addEventListener('pointercancel',ptrEnd);
+cv.addEventListener('pointerup',e=>{const p=ptrs.get(e.pointerId);if(p&&ptrs.size===1&&Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<6)jump();ptrEnd(e);}); /* ketuk karakter = loncat */
+cv.addEventListener('pointercancel',ptrEnd);
 cv.addEventListener('wheel',e=>{e.preventDefault();},{passive:false}); /* scroll tidak lagi zoom */
 let viewDirty=true;
 function fit(){
   const w=showEl.clientWidth,h=showEl.clientHeight;if(!w||!h)return;
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.setPixelRatio(Math.min((devicePixelRatio||1)*STAGE_SCALE,2));
   renderer.setSize(w,h,false);
   camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.clearViewOffset();camera.updateProjectionMatrix();
-  /* landscape: turunkan karakter 3D sampai kakinya sejajar dengan dasar tombol Loncat (dihitung dari posisi tombol, ikut ukuran layar) */
-  try{
-    if(matchMedia('(min-aspect-ratio:1/1)').matches&&jb.offsetHeight){
-      const jr=jb.getBoundingClientRect(),sr=showEl.getBoundingClientRect(),ty=0.85;
-      camera.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,ty+Math.sin(camPitch)*camDist,Math.cos(camYaw)*Math.cos(camPitch)*camDist);
-      camera.lookAt(0,ty,0);camera.updateMatrixWorld(true);
-      const v=new THREE.Vector3(0,0,0).project(camera),feet=(1-v.y)/2*h,dy=(jr.bottom-sr.top)-feet;
-      if(isFinite(dy)&&Math.abs(dy)<h*0.45)camera.setViewOffset(w,h,0,-dy,w,h);
-    }
-  }catch(e){}
 }
 try{new ResizeObserver(fit).observe(showEl);}catch(e){addEventListener('resize',fit);}
 fit();
