@@ -68,6 +68,7 @@ t("empat slot outfit di kiri dan empat slot equipment/aksesori di kanan memakai 
   assert.ok(/#eqL\{left:64px\}/.test(css) && /#eqR\{left:772px\}/.test(css));
   assert.ok(/\.card \.bt\{[^}]*display:flex;[^}]*width:100%;height:56px/.test(css), "aksi kartu berukuran cukup dan ikon-harga sejajar");
   assert.ok(/\.eq\.empty \.th \.em\{[^}]*filter:grayscale\(1\) brightness\(0\) invert\(1\)/.test(css));
+  assert.ok(/\.eq \.th \.thimg\{[^}]*transform:none;opacity:1/.test(css), "thumbnail equipment tidak mewarisi translasi dan opacity ikon kosong");
 });
 t("tab memakai garis bawah NewGUI dan tetap mengelompokkan semua kategori editor", () => {
   const m = html.match(/const GROUPS=\[([\s\S]*?)\n\];/); assert.ok(m);
