@@ -116,7 +116,7 @@ function vMisi(){
 
 /* ---- achievement (server: get_my_profile + claim_achievement) ---- */
 let SP=null,SPS='loading',abusy=false;   /* SP = get_my_profile; SPS: loading | ok | error */
-const AI={peti:'paket-chest/peti-emas',naga:'ikon-gem-medali/kristal-api',aktif:'ikon-item/gerbang-dungeon',menang:'ikon-item/piala',tangga:'ikon-item/panji-pedang',ular:'ikon-item/gembok',skill:'ikon-gem-medali/petir-ungu',dadu:'glyph-putih/dadu',papan:'glyph-putih/bola-dunia-garis',login:'ikon-item/kalender',streak:'ikon-item/podium',skin:'ikon-item/helm-ksatria',emerald:'ikon-gem-medali/berlian-hijau',strategi:'ikon-item/gulungan-pena',legenda:'ikon-gem-medali/medali-1'};
+const AI={peti:'paket-chest/peti-emas',naga:'achievement/ach-naga',aktif:'ikon-item/gerbang-dungeon',menang:'achievement/ach-piala',tangga:'achievement/ach-tangga',ular:'achievement/ach-ular',skill:'achievement/ach-pedang',dadu:'new-icon/dadu',papan:'achievement/ach-bumi',login:'achievement/ach-kalender',streak:'ikon-item/podium',skin:'achievement/ach-buku',emerald:'ikon-gem-medali/berlian-hijau',strategi:'achievement/ach-kuda',legenda:'ikon-gem-medali/medali-1'};
 const ownedSkinN=()=>{try{return PD.ownedItems().filter(o=>o.item.kind==='skin').length}catch(e){return 0}};
 const aList=()=>AC.info(SP,{skins:ownedSkinN(),emerald:PD.gems?PD.gems():0});
 async function loadSP(){

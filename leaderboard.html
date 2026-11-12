@@ -102,7 +102,7 @@ function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt'+(t[0]=
 function drawPodium(rows){
  const order=[1,0,2];
  $('#podium').innerHTML=order.map(i=>{const p=rows[i];
-  return '<div class="pd p'+(i+1)+'"><img class="md" src="'+IC+'ikon-gem-medali/medali-'+(i+1)+'.webp" alt="">'+(p?avatar(p,i===0?120:96):'')+'<div class="pn ttl">'+(p?esc(p.name)+(p.me?' ★':''):'—')+'</div><div class="ps">'+(p?fmt(p.score):'')+'</div><div class="blk"><b>'+(i+1)+'</b></div></div>'}).join('')}
+  return '<div class="pd p'+(i+1)+'">'+(p?avatar(p,i===0?120:96):'')+'<div class="pn ttl">'+(p?esc(p.name)+(p.me?' ★':''):'—')+'</div><div class="ps">'+(p?fmt(p.score):'')+'</div><img class="ped" src="'+IC+'leaderboard/podium-'+(i+1)+'.webp" alt="'+(i+1)+'"></div>'}).join('')}
 function drawMe(rows){
  const mine=rows.find(r=>r.me),L=PD.levelInfo(),nm=mine&&mine.name||PD.profile().name;
  const me=mine||{me:true,name:nm,uid:''};
