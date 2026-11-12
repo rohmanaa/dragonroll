@@ -1,7 +1,7 @@
 # HANDOFF — Memindahkan GUI baru (newgui) ke game Dragon Roll (dragonroll)
 
 Dokumen ini untuk AI/developer yang melanjutkan pekerjaan. Baca seluruhnya sebelum menyentuh kode.
-Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship selesai). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
+Terakhir diperbarui: 11 Nov 2026 (lobby, mode, room, tambang, settings, shop, friendship selesai; tambang: gua di dalam kartu). Pemilik proyek: rohmanaa (bahasa kerja: Indonesia).
 
 ---
 
@@ -56,7 +56,7 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 6b. `dadu` | **Selesai** (belum dicek visual di browser) | sw v82 |
 | 6c. `efek` | **Selesai** (belum dicek visual di browser) | sw v83 |
 | 6d. karakter (slot aksesoris), powerup | Belum | — |
-| 7a. `tambang` | **Selesai** | `99e098a`, sw v66 |
+| 7a. `tambang` | **Selesai** | `99e098a` lalu diubah: gua 3D masuk ke dalam tiap kartu (sw v84) |
 | 7b. profile, leaderboard, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
 | 7c. `friendship` | **Selesai** | Tampilan NewGUI; teman, permintaan, ajakan bermain, avatar, saldo, dan statistik posisi/level/kemenangan memakai layanan Dragon Roll. Like nonaktif sampai tersedia dukungan server; tidak ada statistik tiruan. sw v74 |
 | 8. Chest (butuh RPC server), Pet (butuh data+server), Mail | Belum | — |
@@ -76,7 +76,7 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 **`room`** — logika lama dipertahankan utuh (RoomService, Presence, PlayerData, RoomFlow, power per map, avatar wajah+frame dari server, `loadLooks`). Perubahan tampilan: drawer "Undang Teman" jadi modal (`#dr`, kelas `html.dro` tetap dipakai), modal pilih item pakai kisi `.it`, tombol KELUAR menggantikan tombol ✕ (-> lobby), tombol kembali -> mode. Power Loadout memakai lima slot; slot membuka modal pilihan gaya NewGUI, dengan stok inventori, batas bawa, dan batas map tetap mengikuti Dragon Roll. Ikon Efek memakai kristal api seperti referensi. Pilihan disimpan saat tombol SELESAI ditekan. `wallet-service.js` + `LiveSync` ditambah supaya stok power ikut segar. Panel Power Loadout tetap aktif di mode online (perilaku lama); `cfg()` tetap mengirim `powers: []` untuk online.
 - **Bug lama (belum diperbaiki):** `skinGo()` memanggil `RF.navigate('karakter.html')`, tetapi `RoomFlow.navigate` hanya mengenal `'room'|'mode'|'back'|'home'`, jadi tombol ganti Karakter di room jatuh ke `lobby.html`. Perbaiki saat porting `karakter`.
 
-**`tambang`** — **pulau 3D asli (`mine-island.js`) dipertahankan** di atas tiga kartu gaya newgui (newgui tidak punya adegan ini; dipertahankan supaya fitur dan `tests/mine-island.test.js` tidak hilang). Wadah 3D bernama `#isl` (id `#stage` dipakai kanvas 1920x1080). Semua aksi lewat `MineService` (server menentukan hasil). Tambahan: modal konfirmasi biaya untuk Buka/Upgrade dan dialog "Coin tidak cukup" -> Toko; Percepat/Ambil tetap langsung. Latar gua memakai `assets/Images/background/tambang-kristal-bercahaya-nan-mistis.webp` dengan opacity 30% (1672x941, sekitar 105 KB). `ambience.js` tidak dimuat (mengikuti halaman newgui lain).
+**`tambang`** — 3 kartu gaya newgui; **gua 3D asli (`mine-island.js`) ditaruh DI DALAM tiap kartu** (keputusan pemilik: bukan satu pulau di atas). Satu renderer WebGL tersembunyi (`#cv`, `display:none`) merender 3 viewport berjajar lewat `isl.renderViews(renderer,vw,vh)` (kamera tiap viewport menghadap guanya, unit gua lain disembunyikan sementara), lalu tiap potongan disalin dengan `drawImage` ke kanvas 2D `.cvv` di jendela `.win` kartunya (satu konteks WebGL, bukan tiga). Ukuran buffer mengikuti skala layar (`viewSize()`/`bindViews()`). Pemilihan slot (`isl.pick/select`, chip label, efek DOM emerald/Zzz) dihapus karena tiap kartu punya gua sendiri; `+N Emerald` muncul di jendela kartu. Semua aksi lewat `MineService` (server menentukan hasil). Modal konfirmasi biaya untuk Buka/Upgrade dan dialog "Coin tidak cukup" -> Toko; Percepat/Ambil langsung. `ambience.js` tidak dimuat. Tes `mine-island.test.js` diubah mengikuti ini (cek `renderViews` + `drawImage`, tambah tes viewport). Terverifikasi lewat Chromium (WebGL swiftshader) dengan `MineService` tiruan.
 
 **`shop`** — tampilan dari newgui; saldo tetap dari `PlayerData`, pertukaran paket Emerald→Coin dan riwayat tetap memakai `WalletService` server. Tab Chest hanya placeholder nonaktif (undian butuh RPC server); iklan Emerald tetap “Segera hadir”, tanpa simulasi reward lokal. Saldo disegarkan lewat `LiveSync`.
 
@@ -90,8 +90,7 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?
-2. **Pulau 3D di tambang:** tetap dipakai (keputusan saat ini) atau diganti kartu saja seperti newgui?
-3. **Ambience/suara latar:** halaman newgui yang sudah dipasang tidak memuat `assets/js/ambience.js`. Apakah suara latar harus dikembalikan?
+2. **Ambience/suara latar:** halaman newgui yang sudah dipasang tidak memuat `assets/js/ambience.js`. Apakah suara latar harus dikembalikan?
 
 ---
 
@@ -147,6 +146,7 @@ Solusi: **`assets/js/live-sync.js`** (`UT.LiveSync`) — polling RPC yang sudah 
 - Kelas ikon di dalam `.btn`: `.btn img` menimpa semua gambar (absolute, isi penuh). Untuk ikon kecil di dalam label pakai `.btn span img{position:static;...}`.
 - Aset: salin dari `newgui/assets/komponen/` (sumber utama) ke `assets/ng/komponen/<subfolder>/`; path di CSS `url(../komponen/...)`. Jangan membuat panah/tombol sendiri.
 - Uji asap tanpa browser: jalankan `python3 -m http.server`, buka halaman dengan jsdom (`runScripts:'dangerously'`, `resources:'usable'`, `?noframe=1`), stub `HTMLCanvasElement.getContext` dan `UT.MineService`/`RoomService` bila perlu, lalu cek jumlah elemen yang dirender dan galat. Galat WebGL/"navigation not implemented" di jsdom normal.
+- Uji visual nyata tanpa browser pengguna: Playwright Chromium sudah ada (`chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']})`), `page.addInitScript` untuk melewati splash (`sessionStorage ut:booted=1`, `localStorage ut-auth={id:'test-user-0001',username:'t'}`), lalu `?noframe=1` dan screenshot. Cocok untuk halaman WebGL (tambang, lobby).
 - Push dari sesi AI: repo harus ada di scope sesi (proxy git menolak push dengan 403 bila belum). Token pribadi **jangan** ditulis di dokumen atau commit.
 
 ### Jebakan yang sudah ditemui

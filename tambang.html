@@ -15,7 +15,7 @@
   <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
   <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
   <div id="sum" aria-live="polite">Memuat…</div>
-  <div id="isl"><canvas id="cv"></canvas></div>
+  <canvas id="cv" aria-hidden="true" style="display:none"></canvas>
   <div id="slots"></div>
   <div id="md"><div class="panel" id="box">
     <h3 id="mt"></h3><p id="mx"></p>
@@ -70,7 +70,6 @@ renderCurrency();
 
 /* ---------- state dari SERVER (tidak ada angka ekonomi di sini) ---------- */
 let ST=null;                       /* hasil mine_get(): slots[], config */
-let SEL=1,selInit=false;           /* slot yang kartunya tampil (dipilih lewat ketuk gundukan / label) */
 const cheer=[0,0,0,0];             /* detik performance.now() sampai emote senang selesai */
 const dur=s=>{s=Math.max(0,Math.round(s));if(s<60)return s<=1?'<1m':s+'d';const m=Math.floor(s/60),h=Math.floor(m/60);return h>=24?Math.floor(h/24)+' hr '+(h%24)+'j':h?h+'j '+(m%60)+'m':m+'m'};
 function stamp(s){s.at=performance.now();return s}
@@ -85,7 +84,6 @@ async function load(){
   const r=await MS().get();
   if(!r||!r.ok){showErr(r&&r.reason);return false}
   r.slots.forEach(stamp);ST=r;
-  if(!selInit){selInit=true;const f=r.slots.findIndex(s=>s.unlocked);SEL=f<0?1:f+1}   /* awal: slot terbuka pertama */
   buildAll();renderCurrency();return true
 }
 function showErr(reason){
@@ -96,42 +94,28 @@ function showErr(reason){
 
 /* ---------- UI slot ---------- */
 const EM='assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp',CN='assets/ng/komponen/hud/ikon-koin-emas.webp',LK='assets/ng/komponen/glyph-putih/gembok.webp',BG='assets/ng/komponen/tombol-dan-kontrol/';
+const WIN=(i,pill)=>'<div class="win"><canvas class="cvv" data-v="'+i+'"></canvas>'+(pill?'<div class="pill"><img src="'+EM+'" alt=""><b class="bt"></b></div>':'')+'</div>';
 function slotHTML(i){
   const s=ST.slots[i-1];
-  if(!s.unlocked)return '<div class="hd ttl">TAMBANG '+i+'</div><img class="big" src="'+LK+'" alt=""><div class="msg">Buka supaya penambang mulai menggali.<br><small>'+f2(s.base_rate)+' /jam (Lv1)</small></div>'
+  if(!s.unlocked)return '<div class="hd ttl">TAMBANG '+i+'</div>'+WIN(i,false)+'<div class="msg">Buka supaya penambang mulai menggali.<small>'+f2(s.base_rate)+' /jam (Lv1)</small></div>'
     +'<button class="btn opn" data-a="unlock"><img src="'+BG+'tombol-kuning-polos.webp" alt=""><span><img src="'+CN+'" alt="">'+fmt(s.unlock_cost)+'</span></button>';
   const mx=ST.config,b=s.boost;
   const up=(a,label,lv,cost)=>cost==null?'<button class="btn up bl" data-a="'+a+'" disabled><b>'+label+' MAKS</b><small>Lv '+lv+'/5</small></button>'
     :'<button class="btn up bl" data-a="'+a+'"><b>'+label+' Lv '+(lv+1)+'</b><small><img src="'+CN+'" alt="">'+fmt(cost)+'</small></button>';
-  return '<div class="hd ttl">TAMBANG '+i+'</div><div class="sb">Kec. Lv '+s.speed_lv+' · Peti Lv '+s.cap_lv+'</div>'
+  return '<div class="hd ttl">TAMBANG '+i+'</div>'+WIN(i,true)+'<div class="sb">Kec. Lv '+s.speed_lv+' · Peti Lv '+s.cap_lv+'</div>'
     +'<div class="rt"><img src="'+EM+'" alt=""><b class="rv"></b><small>/jam</small><span class="bst">⚡ x'+mx.boost_mult+'</span></div>'
-    +'<div class="bar"><i></i><span class="bt"></span></div><div class="eta"></div>'
+    +'<div class="bar"><i></i></div><div class="eta"></div>'
     +'<div class="acts"><button class="btn take" data-a="collect"><img src="'+BG+'tombol-hijau-polos.webp" alt=""><span><img src="'+EM+'" alt=""><span class="tk"></span></span></button>'
     +'<button class="btn y" data-a="boost"><img src="'+BG+'tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
     +'<div class="ups">'+up('speed','Kecepatan',s.speed_lv,s.next_speed_cost)+up('cap','Peti',s.cap_lv,s.next_cap_cost)+'</div>';
 }
 function buildAll(){
   const p=$('#slots');p.innerHTML='';
-  [1,2,3].forEach(i=>{const e=document.createElement('section');e.className='slot'+(i===SEL?' sel':'');e.dataset.s=i;e.innerHTML=slotHTML(i);p.appendChild(e)});
+  [1,2,3].forEach(i=>{const e=document.createElement('section');e.className='slot';e.dataset.s=i;e.innerHTML=slotHTML(i);p.appendChild(e)});
   $$('.slot').forEach(e=>{
     e.addEventListener('click',ev=>{const b=ev.target.closest('[data-a]');if(b&&!b.disabled)pre(+e.dataset.s,b.dataset.a,b)});
   });
-  buildOverlay();mountIsland();select(SEL,true);tick(true);
-}
-/* label di atas tiap gundukan (ketuk = pilih slot) + wadah efek DOM (ikon emerald naik / Zzz) di atas kepala penambang */
-function buildOverlay(){
-  const st=$('#isl');if($('.chip',st))return;
-  [1,2,3].forEach(i=>{
-    const fw=document.createElement('div');fw.className='fxw';fw.dataset.s=i;
-    fw.innerHTML='<div class="fx w">'+('<img src="'+EM+'" alt="">').repeat(3)+'</div><div class="fx z"><b>Z</b><b>z</b><b>z</b></div>';st.appendChild(fw);
-    const c=document.createElement('button');c.className='chip';c.dataset.s=i;c.setAttribute('aria-label','Tambang '+i);
-    c.innerHTML='<b>'+i+'</b><span class="cs"></span><i class="cb"><u></u></i>';
-    c.addEventListener('click',ev=>{ev.stopPropagation();select(i);playSound();buzz()});st.appendChild(c);
-  });
-}
-function select(i,quiet){
-  SEL=i;$$('.slot').forEach(e=>e.classList.toggle('sel',+e.dataset.s===i));$$('.chip').forEach(c=>c.classList.toggle('on',+c.dataset.s===i));
-  if(isl)isl.select(i);
+  mountIsland();bindViews();tick(true);
 }
 function tick(force){
   if(!ST)return;
@@ -140,13 +124,10 @@ function tick(force){
     const s=ST.slots[i-1],e=$('.slot[data-s="'+i+'"]');if(!e)return;
     const st=status(i);
     e.classList.toggle('locked',st==='locked');e.classList.toggle('work',st==='work'||st==='cheer');e.classList.toggle('full',st==='full');
-    const fw=$('.fxw[data-s="'+i+'"]'),ch=$('.chip[data-s="'+i+'"]');
-    if(fw)['locked','work','full'].forEach(c=>fw.classList.toggle(c,e.classList.contains(c)));
-    if(ch){ch.dataset.st=st;const nc=crewOf(s);$('.cs',ch).textContent=st==='locked'?'🔒':st==='full'?'📦':st==='cheer'?'🎉':'⛏️'+(nc>1?'×'+nc:'');$('.cb u',ch).style.width=s.unlocked?Math.min(100,est(s)/s.cap*100)+'%':'0'}
-    if(!s.unlocked){if(fw)fw.classList.remove('boost');return}
+    if(!s.unlocked)return;
     const bl=boostLeft(s),bOn=bl>0;
     if(s.boost.active&&!bOn&&!tick.re){tick.re=1;load().finally(()=>{tick.re=0})}   /* boost habis: sinkron ulang dari server */
-    e.classList.toggle('boost',bOn);if(fw)fw.classList.toggle('boost',bOn);
+    e.classList.toggle('boost',bOn);
     const rate=bOn?s.rate*ST.config.boost_mult:s.rate;total+=rate;
     const v=est(s),fill=v/s.cap;
     $('.rv',e).textContent=f2(rate);
@@ -199,10 +180,7 @@ async function act(i,a,btn){
   else toast('Upgrade berhasil!');
   renderCurrency();tick(true);
 }
-function popAt(i,txt){
-  const st=$('#isl'),p=document.createElement('div');p.className='pop';p.innerHTML='<img src="'+EM+'" alt=""><b>'+txt+'</b>';
-  const q=isl?isl.project(i,'head'):{x:0,y:0},w=st.clientWidth,h=st.clientHeight;
-  p.style.left=((q.x+1)/2*w)+'px';p.style.top=((1-q.y)/2*h-20)+'px';st.appendChild(p);setTimeout(()=>p.remove(),1400)}
+function popAt(i,txt){const w=$('.slot[data-s="'+i+'"] .win');if(!w)return;const p=document.createElement('div');p.className='pop';p.innerHTML='<img src="'+EM+'" alt=""><b>'+txt+'</b>';w.appendChild(p);setTimeout(()=>p.remove(),1400)}
 
 /* ================= ADEGAN 3D: satu pulau, tiga gundukan (assets/js/mine-island.js) ================= */
 const bays={};let rafId=0,clock=null,isl=null,renderer=null;
@@ -229,42 +207,36 @@ function makeMiner(i,k){
   ch.tick(dt)};
  Object.defineProperty(g.userData,'strikes',{get:()=>ch.strikes});
  return g}     /* skin berbeda dari skin pemain; wajah tiap penambang berbeda */
+const VW0=472,VH0=360;let SC=1,vw=0,vh=0,ctxs={};
+const viewSize=()=>{const k=Math.max(.7,Math.min(1.6,SC*Math.min(devicePixelRatio||1,2)));return[Math.round(VW0*k),Math.round(VH0*k)]};
+/* kanvas 2D tiap kartu dibuat ulang saat kartu dibangun ulang; ukuran buffer mengikuti skala layar */
+function bindViews(){ctxs={};if(!isl||!renderer)return;[vw,vh]=viewSize();renderer.setSize(vw*3,vh,false);$$('.cvv').forEach(c=>{c.width=vw;c.height=vh;ctxs[c.dataset.v]=c.getContext('2d')})}
 function mountIsland(){
   if(isl||typeof THREE==='undefined'||!UT.MineIsland||!(UT.BlockyCharacter||UT.CharacterView))return;
   try{
-    const cv=$('#cv');
-    renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
+    renderer=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:true,alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(1);
     isl=UT.MineIsland.create(THREE,{makeMiner});
     [1,2,3].forEach(i=>{bays[i]={setFill:f=>isl.setFill(i,f),burst:(k,n)=>isl.burst(i,k,n)}});
-    const fit=()=>{const w=cv.clientWidth||600,h=cv.clientHeight||360;renderer.setSize(w,h,false);isl.fit(w,h)};
-    fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(cv);else addEventListener('resize',fit);
-    /* ketuk gua = pilih slot */
-    cv.addEventListener('click',ev=>{const r=cv.getBoundingClientRect(),n=isl.pick(((ev.clientX-r.left)/r.width)*2-1,-(((ev.clientY-r.top)/r.height)*2-1));if(n){select(n);playSound();buzz()}});
-    select(SEL,true);
     clock=new THREE.Clock();loop();
   }catch(err){console.warn('[tambang] 3D gagal',err);isl=null}
-}
-function placeOverlay(){
-  const cv=$('#cv'),w=cv.clientWidth,h=cv.clientHeight;if(!w||!isl)return;
-  [1,2,3].forEach(i=>{
-    const hd=isl.project(i,'head'),cp=isl.project(i,'chip'),fw=$('.fxw[data-s="'+i+'"]'),ch=$('.chip[data-s="'+i+'"]');
-    if(fw){fw.style.left=((hd.x+1)/2*w)+'px';fw.style.top=((1-hd.y)/2*h)+'px'}
-    if(ch){ch.style.left=((cp.x+1)/2*w)+'px';ch.style.top=((1-cp.y)/2*h)+'px'}
-  });
 }
 function loop(){
   rafId=requestAnimationFrame(loop);
   if(document.hidden||!isl)return;
   const dt=Math.min(.1,clock.getDelta()),sts=[null],sp=[0];
   for(let i=1;i<=3;i++){const s=ST&&ST.slots[i-1];sts[i]=ST?status(i):'locked';sp[i]=s&&s.unlocked&&boostLeft(s)>0?1.7:1;isl.setCrew(i,crewOf(s))}
-  isl.frame(dt,sts,sp);renderer.render(isl.scene,isl.cam);placeOverlay();
+  isl.frame(dt,sts,sp);
+  if(!vw)return;
+  isl.renderViews(renderer,vw,vh);   /* gua i dirender ke viewport i, lalu disalin ke kanvas kartu i */
+  const src=renderer.domElement;
+  for(let i=1;i<=3;i++){const x=ctxs[i];if(x){x.clearRect(0,0,vw,vh);x.drawImage(src,(i-1)*vw,0,vw,vh,0,0,vw,vh)}}
 }
 addEventListener('pagehide',()=>{cancelAnimationFrame(rafId);try{isl&&isl.dispose();renderer&&renderer.dispose()}catch(e){}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ST)load()});
 setInterval(()=>{if(!document.hidden&&ST)load()},30000);
 setInterval(()=>tick(),500);
 
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);SC=s;$('#stage').style.transform='scale('+s+')';if(isl&&vw){const n=viewSize();if(n[0]!==vw||n[1]!==vh)bindViews()}}
 addEventListener('resize',fit);fit();
 try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}}}catch(e){}
 if(!MS()){showErr('mode-lokal')}else load();

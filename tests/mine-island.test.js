@@ -81,12 +81,26 @@ t('tambang.html memakai pulau 3D: satu kanvas, skrip dimuat sebelum dipakai, tan
   assert.ok(h.indexOf('mine-island.js') > h.indexOf('three.min.js') && h.indexOf('mine-island.js') > 0);
   assert.ok(/id="stage"/.test(h) && /id="cv"/.test(h) && /UT\.MineIsland\.create/.test(h));
   assert.ok(!/<div class="bay">/.test(h) && !/makeBay/.test(h), 'adegan gua per slot sudah dihapus');
-  assert.ok(/isl\.pick\(/.test(h) && /isl\.select\(/.test(h));
+  assert.ok(/isl\.renderViews\(renderer,vw,vh\)/.test(h) && /drawImage\(src,/.test(h) && /class="cvv"/.test(h), 'gua tiap slot dirender ke kanvas di DALAM kartunya (satu renderer, tiga viewport)');
+  assert.ok(!/isl\.pick\(/.test(h) && !/id="isl"/.test(h), 'tidak ada lagi pulau tunggal di atas kartu');
   assert.ok(/isl\.setCrew\(i,crewOf\(s\)\)/.test(h) && /const crewOf=/.test(h), 'jumlah penambang mengikuti kecepatan/Percepat');
   const crew = new Function('boostLeft', h.match(/const crewOf=[^\n]*/)[0] + ';return crewOf;')(s => s.boostSecs || 0);
   const sl = (lv, boost, unlocked = true) => ({ unlocked, speed_lv: lv, boostSecs: boost });
   assert.deepStrictEqual([sl(1, 0), sl(2, 0), sl(3, 0), sl(4, 0), sl(5, 0)].map(crew), [1, 1, 2, 2, 3]);
   assert.deepStrictEqual([sl(1, 9), sl(3, 9), sl(5, 9)].map(crew), [2, 3, 3], 'Percepat +1, maks 3');
   assert.strictEqual(crew(sl(5, 9, false)), 1); assert.strictEqual(crew(null), 1);
+});
+t('renderViews: satu renderer, 3 viewport berjajar, kamera tiap viewport menghadap guanya, unit lain disembunyikan lalu dipulihkan', () => {
+  const I = make(), calls = [], seen = [];
+  const rd = { setScissorTest: v => calls.push(['st', v]), setViewport: (x, y, w, h) => calls.push(['vp', x, y, w, h]), setScissor: (x, y, w, h) => calls.push(['sc', x, y, w, h]),
+    render: (sc, cam) => { calls.push(['r']); seen.push({ x: cam.position.x, asp: cam.aspect, vis: [1, 2, 3].map(i => I.units[i].U.visible && I.units[i].C.visible) }); } };
+  I.renderViews(rd, 200, 100);
+  assert.deepStrictEqual(calls.filter(c => c[0] === 'vp').map(c => c.slice(1)), [[0, 0, 200, 100], [200, 0, 200, 100], [400, 0, 200, 100]]);
+  assert.deepStrictEqual(calls.filter(c => c[0] === 'sc').map(c => c.slice(1)), [[0, 0, 200, 100], [200, 0, 200, 100], [400, 0, 200, 100]]);
+  assert.deepStrictEqual(seen.map(v => v.x), [-11, 0, 11], 'kamera di atas gua 1, 2, 3');
+  assert.ok(seen.every(v => Math.abs(v.asp - 2) < 1e-9));
+  assert.deepStrictEqual(seen.map(v => v.vis), [[true, false, false], [false, true, false], [false, false, true]], 'hanya gua yang dirender yang tampak');
+  assert.ok([1, 2, 3].every(i => I.units[i].U.visible && I.units[i].C.visible), 'semua unit tampak lagi sesudahnya');
+  assert.deepStrictEqual(calls[0], ['st', true]); assert.deepStrictEqual(calls[calls.length - 1], ['st', false]);
 });
 console.log(n + ' tes lulus');

@@ -287,6 +287,28 @@
         v.set(2.5, u.H * (kind === 'chip' ? 1.42 : 1.02), -0.5); u.U.localToWorld(v); v.project(cam);
         return { x: v.x, y: v.y };
       };
+      /* ---- tampilan per kartu: satu renderer, tiga viewport berjajar (gua i saja; unit lain disembunyikan) ----
+         Dipakai halaman Tambang: tiap kartu menyalin potongannya dari satu kanvas WebGL (satu konteks, bukan tiga). */
+      var vcam = new THREE.PerspectiveCamera(30, 1.2, 0.5, 400);
+      function placeView(i, asp) {
+        var m = MP[i], th = Math.tan(vcam.fov * Math.PI / 360), ph = 0.3;
+        var top = m.h + 4.5, bot = -2.2, cy = (top + bot) / 2;
+        var d = Math.max((top - bot) / 2 / th, 6.6 / (th * asp)) * 1.04;
+        vcam.aspect = asp; vcam.updateProjectionMatrix();
+        vcam.position.set(m.x, cy + Math.sin(ph) * d, Math.cos(ph) * d); vcam.lookAt(m.x, cy, 0); vcam.updateMatrixWorld(true);
+      }
+      I.viewCam = function (i, asp) { placeView(i, asp || 1.2); return vcam; };
+      I.renderViews = function (rd, vw, vh) {
+        var i, j; G.updateMatrixWorld(true); rd.setScissorTest(true);
+        for (i = 1; i <= 3; i++) {
+          for (j = 1; j <= 3; j++) { units[j].C.visible = units[j].U.visible = (j === i); }
+          placeView(i, vw / Math.max(1, vh));
+          rd.setViewport((i - 1) * vw, 0, vw, vh); rd.setScissor((i - 1) * vw, 0, vw, vh);
+          rd.render(scene, vcam);
+        }
+        for (j = 1; j <= 3; j++) { units[j].C.visible = units[j].U.visible = true; }
+        rd.setScissorTest(false);
+      };
       I.dispose = function () {
         scene.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); });
       };
