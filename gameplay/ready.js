@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/ready.js (Ready Screen pra-game: PILIH KARTU urutan giliran)
+/* Ular Tangga Blok — gameplay/ready.js (Ready Screen pra-game: ACAK GILIRAN)
    Skrip klasik. Dimuat SETELAH gameplay/afk.js. Hanya presentasi + state urutan; tidak memuat logic gameplay.
      UT.GameplayReady.show(players, opts) -> Promise
         players: array objek pemain existing ({name,key,css,cpu,...}); modul menulis p.turnOrder (1..n), p.ready, p.autoReady.
@@ -92,16 +92,53 @@
       var nums = players.map(function (p, i) { return i + 1; });
       for (var j = nums.length - 1; j > 0; j--) { var r = Math.floor(rng() * (j + 1)), t = nums[j]; nums[j] = nums[r]; nums[r] = t; }
 
-      root = el('section'); root.id = 'readyScreen'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Pilih kartu urutan giliran');
+      root = el('section'); root.id = 'readyScreen'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Acak giliran');
       var box = el('div', 'rd-box'); root.appendChild(box);
-      var title = el('h2', '', 'Pilih kartu'); box.appendChild(title);
-      var sub = el('p', 'rd-sub', ''); sub.setAttribute('aria-live', 'polite'); box.appendChild(sub);
-      var time = el('div', 'rd-time', String(secs)); box.appendChild(time);
+      var title = el('h2', '', 'ACAK GILIRAN'); box.appendChild(title);
+      var sub = el('div', 'rd-sub'); sub.setAttribute('aria-live', 'polite');
+      var message = el('p', 'rd-msg'); sub.appendChild(message); box.appendChild(sub);
+      var time = el('div', 'rd-time'); time.setAttribute('role', 'timer'); sub.appendChild(time);
       var grid = el('div', 'rk-grid'); grid.style.setProperty('--n', n); box.appendChild(grid);
+      var roster = el('div', 'rd-players'); roster.setAttribute('role', 'group'); roster.setAttribute('aria-label', 'Pemain dan urutan giliran'); box.appendChild(roster);
+      var footer = el('p', 'rd-note', 'Host tidak mendapat keuntungan — urutan murni keberuntungan'); box.appendChild(footer);
+      var rosterItems = [];
+
+      players.forEach(function (p) {
+        var card = el('div', 'rd-player'), avatar = el('img', 'rd-player-av'), details = el('div', 'rd-player-info');
+        avatar.alt = '';
+        try { avatar.src = opts.face ? opts.face(p) : ''; } catch (e) {}
+        var name = el('span', 'rd-player-name', p.name), status = el('span', 'rd-player-state', 'Menunggu');
+        details.appendChild(name); details.appendChild(status);
+        card.appendChild(avatar); card.appendChild(details); roster.appendChild(card);
+        rosterItems.push({ player: p, node: card, status: status });
+      });
+
+      function setMessage(text) { message.textContent = text; }
+
+      function renderRoster(active, ordered) {
+        var list = ordered ? players.slice().sort(function (a, b) { return a.turnOrder - b.turnOrder; }) : players;
+        list.forEach(function (p) { roster.appendChild(rosterItems[players.indexOf(p)].node); });
+        rosterItems.forEach(function (item) {
+          var picked = item.player.turnOrder > 0, current = !ordered && item.player === active;
+          item.node.classList.toggle('act', current);
+          item.status.classList.toggle('ok', picked);
+          item.status.textContent = picked ? 'Giliran ' + item.player.turnOrder : current ? 'Memilih…' : 'Menunggu';
+        });
+      }
+
+      function updateTimer(s) {
+        time.setAttribute('aria-label', 'Sisa waktu memilih ' + s + ' detik');
+        time.style.setProperty('--rd-progress', Math.max(0, Math.min(100, s / secs * 100)) + '%');
+      }
+      updateTimer(secs);
 
       for (var i = 0; i < n; i++) {
         (function (si) {
           var b = el('button', 'rk'); b.type = 'button'; b.disabled = true; b.setAttribute('aria-label', 'Kartu ' + (si + 1) + ', belum dipilih');
+          b.style.setProperty('--shuffle-x', (((n - 1) / 2 - si) * 224) + 'px');
+          b.style.setProperty('--shuffle-y', (-si * 5) + 'px');
+          b.style.setProperty('--shuffle-swing', (si % 2 ? -70 : 70) + 'px');
+          b.style.setProperty('--shuffle-rotation', (si % 2 ? -7 : 7) + 'deg');
           var inner = el('div', 'rk-in');
           var f = el('div', 'rk-f'), q = el('div', 'rk-q', '?'), who = el('div', 'rk-who'), av = el('img', 'rk-av'), wn = el('div', 'rk-wn');
           av.alt = ''; who.appendChild(av); who.appendChild(wn); f.appendChild(q); f.appendChild(who);
@@ -132,18 +169,18 @@
         if (turn >= n) { allPicked(); return; }
         var p = players[turn], f = free();
         if (f.length === 1) { /* tinggal satu kartu: otomatis, tanpa menunggu pemain */
-          setAvail(false); time.style.visibility = 'hidden'; sub.textContent = 'Kartu terakhir untuk ' + p.name;
+          setAvail(false); time.classList.remove('active'); setMessage('Kartu terakhir untuk ' + p.name); renderRoster(p, false);
           A().start(reg('pick-auto'), 700, function () { take(f[0], p, true); }); return;
         }
         if (p.cpu) {
-          setAvail(false); time.style.visibility = 'hidden'; sub.textContent = p.name + ' sedang memilih...';
+          setAvail(false); time.classList.remove('active'); setMessage(p.name + ' sedang memilih…'); renderRoster(p, false);
           A().start(reg('pick-cpu'), 700 + Math.floor(rng() * 500), function () { take(randomFree(), p, true); }); return;
         }
-        sub.textContent = 'Giliran memilih: ' + p.name; time.style.visibility = ''; time.textContent = String(secs); time.classList.remove('low');
+        setMessage('Giliran kamu memilih — ketuk satu kartu'); time.classList.add('active'); updateTimer(secs); time.classList.remove('low'); renderRoster(p, false);
         setAvail(true);
         var fs = f[0]; if (fs) { try { fs.b.focus({ preventScroll: true }); } catch (e) {} }
         A().start(reg('pick'), secs * 1000, function () { take(randomFree(), p, true); }, function (s) {
-          time.textContent = String(s); time.classList.toggle('low', s <= 3);
+          updateTimer(s); time.classList.toggle('low', s <= 3);
         });
       }
 
@@ -156,13 +193,14 @@
         s.wn.textContent = p.name; s.nm.textContent = p.name;
         s.b.setAttribute('aria-label', 'Kartu ' + (s.i + 1) + ', dipilih ' + p.name);
         if (!auto) sfx('pop'); else sfx('shuffleTick');
+        renderRoster(null, false);
         turn++;
         A().start(reg('pick-next'), 450, nextPicker); /* jeda singkat: kartu terangkat terlihat dulu */
       }
 
       function allPicked() {
-        if (finished) return; finished = true; setAvail(false); time.style.display = 'none';
-        title.textContent = 'Semua sudah memilih'; sub.textContent = 'Membuka kartu...';
+        if (finished) return; finished = true; setAvail(false); time.classList.remove('active'); renderRoster(null, true);
+        setMessage('Membuka kartu…');
         A().start(reg('pick-flip'), 600, function () {
           if (ctx.cancelled) return;
           var ordered = players.slice().sort(function (a, b) { return a.turnOrder - b.turnOrder; });
@@ -172,14 +210,25 @@
             s.b.setAttribute('aria-label', 'Giliran ' + s.num + ': ' + s.owner.name);
           });
           sfx('revealFirst');
-          title.textContent = 'Urutan giliran';
-          sub.textContent = ordered.map(function (p, i) { return (i + 1) + '. ' + p.name; }).join('   ');
+          setMessage('Urutan giliran sudah ditentukan!');
+          renderRoster(null, true);
           A().start(reg('pick-done'), (n - 1) * 140 + 500 + 1400, function () { if (ctx.cancelled) return; cancel(); resolve(ordered); });
         });
       }
 
       doc.body.appendChild(root);
-      nextPicker();
+      renderRoster(null, false);
+      var animateShuffle = true;
+      try { animateShuffle = !(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) {}
+      if (animateShuffle) {
+        setMessage('Kartu diacak…');
+        grid.classList.add('shuf');
+        A().start(reg('shuffle'), 3100, function () {
+          if (ctx.cancelled) return;
+          grid.classList.remove('shuf');
+          nextPicker();
+        });
+      } else nextPicker();
     });
   }
   UT.GameplayReady = { show: show, cancel: cancel };
