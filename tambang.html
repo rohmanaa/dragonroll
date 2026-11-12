@@ -207,7 +207,7 @@ function makeMiner(i,k){
   ch.tick(dt)};
  Object.defineProperty(g.userData,'strikes',{get:()=>ch.strikes});
  return g}     /* skin berbeda dari skin pemain; wajah tiap penambang berbeda */
-const VW0=472,VH0=360;let SC=1,vw=0,vh=0,ctxs={};
+const VW0=532,VH0=360;let SC=1,vw=0,vh=0,ctxs={};
 const viewSize=()=>{const k=Math.max(.7,Math.min(1.6,SC*Math.min(devicePixelRatio||1,2)));return[Math.round(VW0*k),Math.round(VH0*k)]};
 /* kanvas 2D tiap kartu dibuat ulang saat kartu dibangun ulang; ukuran buffer mengikuti skala layar */
 function bindViews(){ctxs={};if(!isl||!renderer)return;[vw,vh]=viewSize();renderer.setSize(vw*3,vh,false);$$('.cvv').forEach(c=>{c.width=vw;c.height=vh;ctxs[c.dataset.v]=c.getContext('2d')})}
@@ -215,7 +215,7 @@ function mountIsland(){
   if(isl||typeof THREE==='undefined'||!UT.MineIsland||!(UT.BlockyCharacter||UT.CharacterView))return;
   try{
     renderer=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:true,alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(1);
-    isl=UT.MineIsland.create(THREE,{makeMiner});
+    isl=UT.MineIsland.create(THREE,{makeMiner});isl.still=true;   /* tidak goyang: pulau diam, lampu tidak berayun */
     [1,2,3].forEach(i=>{bays[i]={setFill:f=>isl.setFill(i,f),burst:(k,n)=>isl.burst(i,k,n)}});
     clock=new THREE.Clock();loop();
   }catch(err){console.warn('[tambang] 3D gagal',err);isl=null}

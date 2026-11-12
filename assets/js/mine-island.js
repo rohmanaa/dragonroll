@@ -1,5 +1,5 @@
 /* assets/js/mine-island.js — adegan 3D TAMBANG: satu pulau melayang dengan tiga gua tambang (slot 1..3).
-   Tiap gua: tebing batu + mulut gua berrangka kayu, obor, lampu gantung, rel, kereta tambang (muatan emerald = isi tambang), batu bijih, peti, tong, kristal, bendera.
+   Tiap gua: tebing batu + mulut gua berrangka kayu, obor, lampu gantung, rel, kereta tambang (muatan emerald = isi tambang), batu bijih, peti, tong, kristal.
    Slot terkunci = mulut gua dipalang papan + gembok.
    Hanya membangun adegan (THREE.Scene + kamera); renderer, DOM, dan data server dipegang tambang.html.
 
@@ -24,7 +24,7 @@
       var pick = function (a) { return a[(rnd() * a.length) | 0]; };
       var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
 
-      var GRASS = ['#6fcf4f', '#62c046', '#76d655', '#58b53f'];
+      var GRASS = ['#7b8190', '#6f7685', '#848b99', '#697080']; /* nama lama dipertahankan; kini batu abu-abu, bukan rumput */
       var DIRT = ['#7a5a3a', '#6b4f33', '#5d4630', '#6a5035'];
       var STONE = ['#6b7280', '#5b6270', '#4b5563', '#737a88', '#565d6c'];
 
@@ -50,12 +50,12 @@
 
       /* ---- pulau: permukaan rumput elips + lapisan tanah/batu yang menyempit ke bawah ---- */
       var RX = 17.5, RZ = 8.5, land = [], x, z, k;
-      var PATH = ['#9a7b52', '#8d6f49', '#a38358'], pathCx = [-11, 0, 11], pathFz = [-1, -3, -1];
+      var PATH = ['#5d6472', '#566070', '#646b79'], pathCx = [-11, 0, 11], pathFz = [-1, -3, -1];
       var onPath = function (px, pz) { for (var pi = 0; pi < 3; pi++) if (Math.abs(px - pathCx[pi]) <= 3 && pz >= pathFz[pi] + 1 && pz <= pathFz[pi] + 7) return true; return false; };
       for (x = -17; x <= 17; x++) for (z = -8; z <= 8; z++) if (Math.pow(x / RX, 2) + Math.pow(z / RZ, 2) <= 1) land.push([x, -1, z, onPath(x, z) ? pick(PATH) : pick(GRASS)]);
       for (k = 1; k <= 8; k++) {
         var s = 1 - k * 0.105;
-        for (x = -17; x <= 17; x++) for (z = -8; z <= 8; z++) if (Math.pow(x / (RX * s), 2) + Math.pow(z / (RZ * s), 2) <= 1) land.push([x, -1 - k, z, k <= 2 ? pick(DIRT) : pick(STONE)]);
+        for (x = -17; x <= 17; x++) for (z = -8; z <= 8; z++) if (Math.pow(x / (RX * s), 2) + Math.pow(z / (RZ * s), 2) <= 1) land.push([x, -1 - k, z, pick(STONE)]);
       }
       for (k = 0; k < 7; k++) { /* batu menggantung di bawah pulau */
         var sx = Math.round((rnd() - 0.5) * 14), sz = Math.round((rnd() - 0.5) * 6), len = 2 + ((rnd() * 3) | 0);
@@ -78,7 +78,7 @@
             var col;
             if (inOpen(dx, y) && dz === -3) col = rnd() < 0.14 ? '#2ee86a' : (rnd() < 0.3 ? '#262633' : '#17171f'); /* dinding dalam gua: gelap + urat emerald */
             else if (y === m.h - 1) col = pick(GRASS);
-            else { var r = rnd(); col = r < 0.05 ? '#2ee86a' : (r < 0.1 ? '#22232b' : (r < 0.18 && dz === 0 ? '#6d8f4e' : pick(STONE))); }
+            else { var r = rnd(); col = r < 0.05 ? '#2ee86a' : (r < 0.1 ? '#22232b' : pick(STONE)); }
             cells.push([m.x + dx, y, m.fz + dz, col]);
           }
         }
@@ -86,12 +86,12 @@
       });
 
       /* ---- pohon, awan (dekor pulau) ---- */
-      var trees = [[-6.2, 6], [6.2, 6], [-16, 2], [16, 2]], tl = [];
+      var trees = [], tl = []; /* tanpa pohon: pulau serba batu */
       trees.forEach(function (t) {
         for (var h = 0; h < 3; h++) tl.push([t[0], h, t[1], '#7b5330']);
         for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) for (var c2 = 0; c2 < 2; c2++) tl.push([t[0] + a, 3 + c2, t[1] + b, pick(['#3f9d3a', '#4aae43', '#358f33'])]);
       });
-      G.add(vox(tl));
+      if (tl.length) G.add(vox(tl));
       var clouds = [];
       [[-22, 15, -10, 1.3], [12, 17, -14, 1.7], [26, 13, -6, 1.0], [-6, 19, -18, 1.5]].forEach(function (c) {
         var g = new THREE.Group(), n = 4 + ((rnd() * 3) | 0);
@@ -104,7 +104,7 @@
       var WOOD = '#8a5a2b', WOOD_D = '#6a4220', IRON = '#5a6270', IRON_D = '#3f4651';
       function makeUnit(i) {
         var m = MP[i];
-        /* C = hiasan mulut gua (skala dunia): rangka kayu, obor, lampu gantung, kristal, jamur, bendera, papan terkunci */
+        /* C = hiasan mulut gua (skala dunia): rangka kayu, obor, lampu gantung, kristal, jamur, papan terkunci */
         var C = new THREE.Group(); C.position.set(m.x, -0.5, m.fz); G.add(C);
         var cv = [
           [-2.7, 1.8, 1, WOOD, 0.7, 4.2, 0.7], [2.7, 1.8, 1, WOOD, 0.7, 4.2, 0.7],         /* tiang rangka */
@@ -127,9 +127,6 @@
           var oc = new THREE.Mesh(new THREE.OctahedronGeometry(0.55 + j * 0.1), new THREE.MeshLambertMaterial({ color: cr[1], emissive: cr[1], emissiveIntensity: 0.7 }));
           oc.scale.y = 1.7; oc.position.set(cr[0], m.h + 0.9, -1.2 - j * 1.1); C.add(oc); crystals.push(oc);   /* berdiri di puncak tebing */
         });
-        var flag = new THREE.Group(); flag.position.set(m.x > 0 ? 1.6 : -1.6, m.h, -2.8); C.add(flag);
-        var fp = box(0.25, 3.6, 0.25, 0xcdd2da); fp.position.y = 1.8; flag.add(fp);
-        var fb = box(0.12, 1.1, 1.8, BANNER[i], BANNER[i] === 0xf0b429 ? 0x6a4a00 : 0x222222); fb.position.set(0, 3.0, 0.95); flag.add(fb);
         /* terkunci: papan bersilang + gembok di mulut gua */
         var lock = new THREE.Group(); lock.position.set(0, 1.9, 1.6); C.add(lock);
         [0.55, -0.55].forEach(function (an) { var pl = box(7, 0.7, 0.3, 0x9a6a3a); pl.rotation.z = an; lock.add(pl); });
@@ -211,9 +208,8 @@
           else u.setFill(u.fill || 0);
           flames.forEach(function (fl, j) { fl.visible = !locked; fl.scale.y = 1 + Math.sin(u.t * 14 + j * 2) * 0.18; fl.material.emissiveIntensity = 0.9 + Math.sin(u.t * 11 + j) * 0.3; });
           lanternBody.material.emissiveIntensity = locked ? 0.1 : 0.9 + Math.sin(u.t * 5) * 0.15;
-          hang.rotation.z = Math.sin(u.t * 1.3) * 0.06;
+          hang.rotation.z = I.still ? 0 : Math.sin(u.t * 1.3) * 0.06;
           crystals.forEach(function (cr, j) { cr.material.emissiveIntensity = 0.55 + Math.sin(u.t * 2 + j * 1.7) * 0.3; cr.rotation.y += dt * 0.6; });
-          fb.rotation.y = Math.sin(u.t * 2.2) * 0.25;
           var em = state === 'cheer' ? 'cheer' : state === 'full' ? 'sit' : 'mine';
           crew.forEach(function (w, k) {
             var on = !locked && k < u.crewN; w.m.visible = on; if (!on) return;
@@ -223,10 +219,10 @@
             if (typeof sk === 'number' && sk !== w.lastStrike) { w.lastStrike = sk; if (em === 'mine') { u.burst('mix', 5, k); u.hit = 0.14; } }
           });
           u.t += dt * (locked ? 1 : sp);
-          rock.position.x = 6.7 + (u.hit > 0 ? Math.sin(u.t * 80) * 0.035 : 0); u.hit = Math.max(0, u.hit - dt);
+          rock.position.x = 6.7 + (u.hit > 0 && !I.still ? Math.sin(u.t * 80) * 0.035 : 0); u.hit = Math.max(0, u.hit - dt);
           ore.forEach(function (o) { o.material.emissiveIntensity = 1 + (u.hit > 0 ? 1.4 : 0) + Math.sin(u.t * 3 + o.position.x * 4) * 0.25; });
           lamp.material.emissiveIntensity = 0.9 + Math.sin(u.t * 5) * 0.15;
-          cart.position.y = (em === 'mine' && u.hit > 0) ? 0.04 : 0; /* kereta bergetar sedikit saat batu dihantam */
+          cart.position.y = (em === 'mine' && u.hit > 0 && !I.still) ? 0.04 : 0; /* kereta bergetar sedikit saat batu dihantam */
           P.forEach(function (pp) {
             if (pp.life <= 0) return; pp.life -= dt; if (pp.life <= 0) { pp.m.visible = false; return; }
             pp.vy -= 9 * dt; pp.m.position.x += pp.vx * dt; pp.m.position.y += pp.vy * dt; pp.m.position.z += pp.vz * dt; pp.m.rotation.x += dt * 6; pp.m.scale.setScalar(Math.max(0.2, pp.life));
@@ -266,7 +262,7 @@
       I.burst = function (i, kind, n, who) { if (units[i]) units[i].burst(kind, n, who); };
       I.frame = function (dt, states, speeds) {
         dt = clamp(dt || 0, 0, 0.1); time += dt;
-        G.position.y = Math.sin(time * 0.9) * 0.35; G.rotation.y = Math.sin(time * 0.25) * 0.05; /* pulau melayang pelan */
+        if (I.still) { G.position.y = 0; G.rotation.y = 0; } else { G.position.y = Math.sin(time * 0.9) * 0.35; G.rotation.y = Math.sin(time * 0.25) * 0.05; } /* pulau melayang pelan (I.still = diam) */
         clouds.forEach(function (c, j) { c.position.x += dt * (0.6 + j * 0.25); if (c.position.x > 36) c.position.x = -36; });
         for (var i = 1; i <= 3; i++) units[i].frame(dt, (states && states[i]) || 'work', (speeds && speeds[i]) || 1);
         rings.forEach(function (r) { if (r && r.visible) r.material.opacity = 0.6 + Math.sin(time * 4) * 0.3; });
