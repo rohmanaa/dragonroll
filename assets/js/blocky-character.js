@@ -1005,29 +1005,65 @@ const TS_LOW={rArmS:-0.9,rElbow:-0.5,rWrist:0.3,rArmZ:-0.12,lArmS:0.3,lElbow:-0.
 const TS_UP={rArmS:-2.7,rElbow:-0.2,rWrist:0.5,rArmZ:-0.2,lArmS:0.2,lElbow:-0.3,lArmZ:0.25,lean:-0.18,twist:0,headX:-0.35,headY:0,rLegT:-0.2,rKnee:0.2,lLegT:0.15,lKnee:0.1};
 const DR_LOW={rArmS:-0.35,rElbow:-0.3,rWrist:0.4,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.3,twist:0.05,headX:0.35,headY:0,rLegT:-0.35,rKnee:0.55,lLegT:0.25,lKnee:0.35};
 const DR_HI={rArmS:-0.8,rElbow:-0.45,rWrist:0.3,rArmZ:-0.1,lArmS:0.2,lElbow:-0.4,lArmZ:0.25,lean:0.22,twist:0.05,headX:0.3,headY:0,rLegT:-0.3,rKnee:0.45,lLegT:0.2,lKnee:0.3};
+/* Memanah (aksi 'bow'): badan berputar menyamping (twist -90 derajat) sehingga kedua lengan sejajar garis bahu = arah panah = arah hadap pion; tangan kiri memegang busur, tangan kanan menarik tali ke dagu lalu melepas. BOW0 = siap bidik, BOW1 = tarik penuh. Bidik ke atas = badan condong ke belakang (lean). */
+const BOW0={rArmS:-0.3,rElbow:-0.6,rWrist:0,rArmZ:-1.2,lArmS:0,lElbow:0,lArmZ:1.45,lean:0,twist:-1.5708,headX:0,headY:0.47,rLegT:-0.3,rKnee:0.15,lLegT:0.3,lKnee:0.1,cape:0.3,tail:0.4};
+const BOW1={rArmS:-1.2,rElbow:-2.8,rWrist:0,rArmZ:-0.5,lArmS:0,lElbow:0,lArmZ:1.45,lean:0,twist:-1.5708,headX:0,headY:0.47,rLegT:-0.3,rKnee:0.15,lLegT:0.3,lKnee:0.1,cape:0.3,tail:0.4};
+const BOW_REL=0.74; /* saat tali dilepas (bagian dari durasi aksi) */
 const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
-const ACT_DUR={spinball:3.0,toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
+const ACT_DUR={spinball:3.0,toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,bow:1.2,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
 const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
 let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') — dibaca halaman untuk percikan batu */
 const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
 const fx={rx:0,ry:0,py:1,lift:0}; /* rotasi badan utuh dari aksi: rx = salto (+ ke depan), ry = putar; py = tinggi poros (satuan lokal) */
-let act=null;
+let act=null,bowAim=0; /* bowAim = sudut bidik ke atas (rad), diatur pemanggil sebelum act('bow') */
 const shield=new THREE.Group();shield.visible=false;
 (function(){ /* perisai kayu berbingkai besi di ujung lengan bawah kiri (normal = arah lengan bawah, yang menghadap depan saat siku ditekuk) */
   const L=(w,h,d,c,y)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w*S,h*S,d*S),new THREE.MeshLambertMaterial({color:c}));m.position.y=y*S;shield.add(m);};
   L(11,1.6,13,0x8a8f98,-7);L(9,1.9,11,0x8a5a2b,-7.2);L(3,2.4,3,0xc9ced6,-7.5);L(9,2.0,1.4,0x6a4220,-7.25);
   armL.el.add(shield);
 })();
+/* Busur kayu bergaya blok di tangan kiri: batang melintang di atas-bawah saat lengan lurus ke depan, perut busur ke depan, tali + anak panah ikut ditarik */
+const bowG=new THREE.Group(),arrowG=new THREE.Group(),bowStr=[];
+(function(){
+  const WD=solid(0x7a4a22),WD2=solid(0x5a3516),ST=solid(0xece6d4);
+  bowG.visible=false;arrowG.visible=false;bowG.position.y=-5.5*S;bowG.rotation.y=Math.PI/2; /* batang busur tegak saat lengan lurus ke samping */
+  bowG.add(box(2.4,2.4,4,solid(0x3a2a1a),0,0,0));
+  [1,-1].forEach(sd=>{
+    bowG.add(box(1.6,1.6,4.6,WD,0,-1.0,sd*4.3));
+    bowG.add(box(1.5,1.5,4,WD2,0,0.2,sd*8.2));
+    bowG.add(box(1.4,1.4,2.6,WD,0,1.6,sd*11.3));
+    const sg=box(0.5,0.5,1,ST,0,0,0);bowG.add(sg);bowStr.push(sg);
+  });
+  arrowG.add(box(0.6,24,0.6,solid(0xc9a56a),0,-12,0));
+  arrowG.add(box(1.7,2.4,1.7,solid(0x8a8f98),0,-25.2,0));
+  arrowG.add(box(0.3,3.2,2.4,solid(0xf1f1f1),0,-1.8,0));arrowG.add(box(2.4,3.2,0.3,solid(0xf1f1f1),0,-1.8,0)); /* bulu pengarah silang */
+  bowG.add(arrowG); /* dipasang ke tangan kiri HANYA saat memanah (bowAttach): bila selalu terpasang, kotak ukuran badan ikut menghitungnya dan pion terangkat dari petak */
+})();
+function bowAttach(on){if(on){if(!bowG.parent)armL.el.add(bowG);}else if(bowG.parent)bowG.parent.remove(bowG);}
+const _bv=new THREE.Vector3();
+function bowDraw(ny,nz){ /* tali dua segmen dari ujung busur ke titik pasang panah (ny,nz dalam px, koordinat busur); anak panah ikut di titik itu */
+  const ty=1.6;
+  bowStr.forEach((sg,i)=>{const sd=i?-1:1,dy=ny-ty,dz=nz-sd*11.3,len=Math.hypot(dy,dz);
+    sg.scale.z=len;sg.position.set(0,((ty+ny)/2)*S,((sd*11.3+nz)/2)*S);sg.rotation.x=Math.atan2(-dy,dz);});
+  arrowG.position.set(0,ny*S,nz*S);
+}
+function bowFollow(){ /* dipanggil setelah pose diterapkan: titik pasang panah mengikuti TANGAN KANAN (tali tertarik ke tangan); setelah lepas, tali bergetar lalu diam */
+  const u=act.t/act.dur;let ny=1.6,nz=0;
+  if(u<BOW_REL){root.updateMatrixWorld(true);hand.getWorldPosition(_bv);bowG.worldToLocal(_bv);ny=clamp(_bv.y/S,1.6,30);nz=clamp(_bv.z/S,-3,3);}
+  else{const r=(u-BOW_REL)*act.dur;ny=1.6+Math.sin(r*60)*1.4*Math.exp(-r*14);}
+  bowDraw(ny,nz);
+}
+bowDraw(1.6,0);
 const ease3=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
 function doAct(type,dur){
   if(!ACT_DUR[type])return;
   if(ACT_AIR[type]){if(airborne)return;airborne=true;vy=8.3;} /* salto/putar butuh lompatan sendiri; sedang di udara = diabaikan */
-  act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');
+  act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');bowAttach(type==='bow');bowG.visible=(type==='bow');if(type!=='bow')arrowG.visible=false;if(wpg)wpg.visible=(type!=='bow'); /* memanah: senjata tangan kanan disembunyikan */
 }
 function applyAct(T,dt){
   if(!act)return;
   act.t+=dt;const u=act.t/act.dur;
-  if(u>=1){act=null;shield.visible=false;return;}
+  if(u>=1){act=null;shield.visible=false;bowAttach(false);bowG.visible=false;arrowG.visible=false;if(wpg)wpg.visible=true;return;}
   let w,pose={};
   if(act.type==='flip'||act.type==='backflip'||act.type==='spin'||act.type==='roll'){
     const e=ease3(u),turn=Math.PI*2*e;
@@ -1044,6 +1080,13 @@ function applyAct(T,dt){
     let m;
     if(u<0.4){m=0;w=ease3(u/0.4);}else if(u<0.55){m=(u-0.4)/0.15;w=1;}else{m=1;w=1-ease3((u-0.55)/0.45);}
     for(const k in ACT_W)pose[k]=lerp(ACT_W[k],ACT_S[k],m);
+  }else if(act.type==='bow'){
+    const m=u<0.22?0:u<0.66?ease3((u-0.22)/0.44):u<BOW_REL?1:1-ease3((u-BOW_REL)/0.08); /* siap -> tarik -> tahan -> lepas (tali menjepret balik) */
+    w=ease3(Math.min(1,u/0.2))*(1-ease3(clamp((u-0.88)/0.12,0,1)));
+    for(const k in BOW0)pose[k]=lerp(BOW0[k],BOW1[k],m);
+    pose.lean=-bowAim;pose.headX=-bowAim*0.6; /* bidik ke atas: badan condong ke belakang, kepala mengikuti arah panah */
+    pose.lean+=(u>=BOW_REL&&u<BOW_REL+0.06)?0.1:0; /* sentak kecil saat melepas */
+    arrowG.visible=(u<BOW_REL);
   }else if(act.type==='toss'){
     const c=act.t%1,a=c<0.22?ease3(c/0.22):1-0.75*ease3((c-0.22)/0.78);
     w=Math.min(1,act.t/0.15)*Math.min(1,(act.dur-act.t)/0.15);
@@ -1083,6 +1126,7 @@ function tick(dt){
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
   applyFx();blinkStep(dt);
+  if(act&&act.type==='bow')bowFollow();
 }
 /* Rotasi badan utuh (salto/guling/putar) mengelilingi titik tengah badan: posisi dikompensasi agar poros tetap di tempat. */
 function applyFx(){
@@ -1118,7 +1162,7 @@ function loadFromData(look,equipped,gearDye){
   try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
 }
 apply(null,true);
-return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,bow:bowG,arrow:arrowG,bowReleaseAt:function(dur){return BOW_REL*(dur||ACT_DUR.bow);},setBowAim:function(v){bowAim=clamp(+v||0,0,1.1);},get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};
