@@ -52,7 +52,9 @@ CI (`.github/workflows/db-migrate.yml`) menjalankan `supabase db push` ke **PROD
 | 5a. `settings` | **Selesai** (belum dites di browser; pemilik menguji manual) | `100cb08` + penyempurnaan, sw v68. Desain newgui + pilihan bahasa (pref `lang`, hanya menyimpan pilihan). Tanpa `LiveSync` (tidak menampilkan saldo/XP); repaint lewat `UT.Prefs.on` supaya pref hasil `PrefsSync.pull` ikut tampil. `ambience.js` tetap dimuat karena dipakai `UT.Ambience` (grafik/suasana) |
 | 5b. `shop` | **Selesai** | Coin lewat `WalletService.exchange`; riwayat lewat `WalletService.history`; saldo memakai `LiveSync`. Chest dan iklan Emerald tetap nonaktif sampai dukungan server siap; sw v73 |
 | 5c. `splash` (login asli) | **Berikutnya** | — |
-| 6. karakter (slot aksesoris), frame, dadu, efek, powerup | Belum | — |
+| 6a. `frame` | **Selesai** | `b605864`; animasi `FrameFX` aktif + sayap Phoenix/Surgawi tidak kepotong (sw v79–v80) |
+| 6b. `dadu` | **Selesai** (belum dicek visual di browser) | sw v81 |
+| 6c. karakter (slot aksesoris), efek, powerup | Belum | — |
 | 7a. `tambang` | **Selesai** | `99e098a`, sw v66 |
 | 7b. profile, leaderboard, misi (`hadiah-misi`) | Belum | `page.css`/`sub.css` (kerangka leaderboard/friendship/tambang) sudah siap dipakai |
 | 7c. `friendship` | **Selesai** | Tampilan NewGUI; teman, permintaan, ajakan bermain, avatar, saldo, dan statistik posisi/level/kemenangan memakai layanan Dragon Roll. Like nonaktif sampai tersedia dukungan server; tidak ada statistik tiruan. sw v74 |
@@ -80,6 +82,8 @@ Sisa di lobby: Hadiah gratis, Chest, Mail, Pet = toast "segera hadir"; teks misi
 **`friendship`** — tampilan dari newgui; daftar teman/permintaan, accept/decline/remove, pencarian, Presence, ajakan bermain, dan avatar aktif tetap memakai RoomService, Presence, AppearanceService, dan FrameAvatar asli. Posisi, level, dan kemenangan berasal dari leaderboard teman server; statistik tanpa pertandingan ditampilkan `—`. Saldo memakai PlayerData + LiveSync. Tombol like nonaktif (`—`) sampai dukungan server tersedia; tidak ada data teman tiruan.
 
 **`frame`** — GUI baru (kolom kiri preview + nama/rarity/deskripsi, kanan grid kartu 6 kolom + tombol aksi, modal konfirmasi beli). Data dari `ItemCatalog` (kind `frame`, tanpa item `off`) + `PlayerData` (`owns`/`isEquipped`/`equip`); beli lewat `WalletService.buy` (mode server) atau `PD.purchase`; gambar frame dari `ItemArt.frame()` (wajah skin yang dipakai di dalam bingkai). Item belum dimiliki tetap tampil (terkunci) dan bisa di-preview. `UT.Events` + `LiveSync` (saldo). CSS: `assets/ng/css/karakter.css` (template koleksi, dipakai juga nanti oleh karakter/dadu/efek) + `frame.css`. Dites jsdom (14 kartu, tanpa galat JS); belum dicek visual di browser. sw v67.
+
+**`dadu`** — template sama dengan `frame` (kolom kiri preview + nama/rarity/deskripsi + tombol **COBA LEMPAR**, kanan grid kartu + tombol aksi, modal beli). Data dari `ItemCatalog` (kind `dice`, tanpa item `off`) + `PlayerData`; beli lewat `WalletService.buy`/`PD.purchase`, langsung dipakai. Preview = dadu 3D asli `DiceKit.mount` di `#fpv` (fisika kocok-lempar, suara mengikuti pref `sfxVol`/`sound`); klik preview, tombol Coba Lempar, atau klik kartu = lempar (angka hanya visual). Kartu = `DiceKit.thumb` (warna asli); bila kit belum siap/gagal dimuat dipakai `ItemArt.dice` (SVG) dan preview SVG statis. `draw()` tidak menyentuh `#fpv` selama `KIT` aktif. CSS: `assets/ng/css/dadu.css` (+ karakter.css, frame.css). Dites jsdom dengan dan tanpa stub `DiceKit` (23 kartu, tanpa galat JS); fisika/WebGL asli belum dicek di browser. sw v81.
 
 ### Pertanyaan terbuka untuk pemilik
 1. **Quick Start `mode`:** setelah ketemu room -> masuk `room.html` sebagai tamu atau langsung gameplay? Bila tak ada room publik -> buat room baru atau pakai bot setelah waktu tunggu? Dihitung ranked (XP online hanya untuk room terverifikasi) atau tidak?
