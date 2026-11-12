@@ -212,3 +212,4 @@ Setelah mengganti gambar: `python3 tools/gen-preload-manifest.py`, naikkan `VERS
 `play.html` (pembungkus iframe): overlay antar-halaman kini SELALU mode `quiet` — layar hitam polos yang menyatu dengan fade hitam tiap halaman (`#fade`), lalu terbuka begitu halaman tujuan siap (font + latar ter-decode + body terlihat). Tirai awan biru-putih, bar progres, dan teks "Memuat halaman / Menyiapkan tampilan" tidak lagi tampil saat pindah halaman (kodenya dibiarkan, tidak terpakai). Splash tetap punya layar muatnya sendiri. sw `ut-pwa-v104`.
 
 - Lobby siang: bayangan karakter dipertajam (PCFShadowMap, matahari lebih miring, opacity ShadowMaterial .66) dan background siang dibuat lebih pekat (saturate/contrast + vignette, sinar/bloom dikurangi).
+- Shop: kilau tipis (.sp) melayang di sekitar gambar Coin & Chest (CSS saja, .pic di shop-page.js).
