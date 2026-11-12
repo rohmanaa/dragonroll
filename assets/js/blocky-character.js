@@ -1037,8 +1037,9 @@ const bowG=new THREE.Group(),arrowG=new THREE.Group(),bowStr=[];
   arrowG.add(box(0.6,24,0.6,solid(0xc9a56a),0,-12,0));
   arrowG.add(box(1.7,2.4,1.7,solid(0x8a8f98),0,-25.2,0));
   arrowG.add(box(0.3,3.2,2.4,solid(0xf1f1f1),0,-1.8,0));arrowG.add(box(2.4,3.2,0.3,solid(0xf1f1f1),0,-1.8,0)); /* bulu pengarah silang */
-  bowG.add(arrowG);armL.el.add(bowG);
+  bowG.add(arrowG); /* dipasang ke tangan kiri HANYA saat memanah (bowAttach): bila selalu terpasang, kotak ukuran badan ikut menghitungnya dan pion terangkat dari petak */
 })();
+function bowAttach(on){if(on){if(!bowG.parent)armL.el.add(bowG);}else if(bowG.parent)bowG.parent.remove(bowG);}
 const _bv=new THREE.Vector3();
 function bowDraw(ny,nz){ /* tali dua segmen dari ujung busur ke titik pasang panah (ny,nz dalam px, koordinat busur); anak panah ikut di titik itu */
   const ty=1.6;
@@ -1057,12 +1058,12 @@ const ease3=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
 function doAct(type,dur){
   if(!ACT_DUR[type])return;
   if(ACT_AIR[type]){if(airborne)return;airborne=true;vy=8.3;} /* salto/putar butuh lompatan sendiri; sedang di udara = diabaikan */
-  act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');bowG.visible=(type==='bow');if(type!=='bow')arrowG.visible=false;if(wpg)wpg.visible=(type!=='bow'); /* memanah: senjata tangan kanan disembunyikan */
+  act={type:type,t:0,dur:dur||ACT_DUR[type]};shield.visible=(type==='block');bowAttach(type==='bow');bowG.visible=(type==='bow');if(type!=='bow')arrowG.visible=false;if(wpg)wpg.visible=(type!=='bow'); /* memanah: senjata tangan kanan disembunyikan */
 }
 function applyAct(T,dt){
   if(!act)return;
   act.t+=dt;const u=act.t/act.dur;
-  if(u>=1){act=null;shield.visible=false;bowG.visible=false;arrowG.visible=false;if(wpg)wpg.visible=true;return;}
+  if(u>=1){act=null;shield.visible=false;bowAttach(false);bowG.visible=false;arrowG.visible=false;if(wpg)wpg.visible=true;return;}
   let w,pose={};
   if(act.type==='flip'||act.type==='backflip'||act.type==='spin'||act.type==='roll'){
     const e=ease3(u),turn=Math.PI*2*e;

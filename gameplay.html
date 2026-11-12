@@ -5221,7 +5221,7 @@ window.addEventListener('resize',onResize); window.addEventListener('orientation
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
 /* CAM_LOG (sementara, untuk uji kamera): panel kecil di pojok kiri bawah berisi nilai kamera, ketuk panel untuk menyalin ke clipboard. Hapus dengan set CAM_LOG=false atau buang blok ini. */
-const CAM_LOG=true; let camLogEl=null,camLogT=0,camLogTxt='';
+const CAM_LOG=false; let camLogEl=null,camLogT=0,camLogTxt='';
 function camLogUpdate(now,dist){
   if(!CAM_LOG||now-camLogT<200) return; camLogT=now;
   const f=v=>(Math.round(v*1000)/1000);
