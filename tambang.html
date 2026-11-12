@@ -13,7 +13,6 @@
   <div id="title" class="ttl">Tambang</div>
   <div class="cur" id="cur-em"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
   <div id="sum" aria-live="polite">Memuat…</div>
   <canvas id="cv" aria-hidden="true" style="display:none"></canvas>
   <div id="slots"></div>
@@ -60,7 +59,6 @@ const say=r=>toast(MSG[r&&r.reason]||'Gagal. Coba lagi.');
 const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','leaderboard','friendship','shop','mode','misi','hadiah-misi','dailyreward','settings','mail'];
 const FROM=(()=>{const f=new URLSearchParams(location.search).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
 $('#back').addEventListener('click',()=>{playSound();location.href=FROM});
-$('#home').addEventListener('click',()=>{playSound();location.href='lobby.html'});
 $('#cur-co').addEventListener('click',()=>{playSound();location.href='shop.html?coin=1'});
 
 /* ---------- saldo ---------- */

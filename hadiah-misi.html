@@ -12,7 +12,6 @@
   <div id="title" class="ttl">Hadiah Harian</div>
   <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
   <nav id="tabs"></nav>
   <main id="body"></main>
   <div id="md"><div class="panel" id="box">
@@ -189,7 +188,6 @@ $('#body').addEventListener('click',e=>{
 
 /* ---- navigasi + dompet ---- */
 $('#back').addEventListener('click',()=>nav('lobby.html'));
-$('#home').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=hadiah-misi.html'));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}

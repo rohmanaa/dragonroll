@@ -24,7 +24,6 @@
 
   <section id="right">
     <div id="grid"></div>
-    <button class="btn" id="use"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span></span></button>
   </section>
 
   <!-- modal konfirmasi beli / coin kurang -->
@@ -58,6 +57,7 @@ const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString('id-ID');
+const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 const KOIN='assets/ng/komponen/hud/ikon-koin-emas.webp',LOCK='assets/ng/komponen/glyph-putih/gembok.webp',STAR='assets/ng/komponen/glyph-putih/bintang-kilau.webp';
 const RAR={common:['Biasa','#cfc8ea'],uncommon:['Tidak Biasa','#6fe08a'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a'],mythic:['Mitos','#ff6a5e'],divine:['Ilahi','#fff2b0']};
 const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
@@ -154,23 +154,34 @@ function pickDefault(){
 function draw(){
   pickDefault();
   let html=FR.map(x=>{
-    const m=isOwned(x),sell=canSell(x);
-    const pr=m?'':(sell?`<div class="pr"><img src="${KOIN}" alt="">${fmt(x.price)}</div>`:`<div class="pr no"><img src="${LOCK}" alt=""></div>`);
-    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name}${m?'':' (belum dimiliki)'}">${isUsed(x)?'<span class="tag">DIPAKAI</span>':''}<div class="th${x.none?' none':''}">${art(x)}</div>${pr}</button>`}).join('');
+    const m=isOwned(x),on=isUsed(x),sell=canSell(x),state=m?`<span class="pr ${on?'used':'owned'}"${on?(x.none?'':' data-action="unequip"'):' data-action="equip"'}>${on?'DIPAKAI':'DIMILIKI'}</span>`
+      :sell?`<span class="pr buy" data-action="buy"><img src="${KOIN}" alt="">${fmtPrice(x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
+    const label=on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.price):'tidak dijual';
+    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${label}"><div class="th${x.none?' none':''}">${art(x)}</div>${state}</button>`}).join('');
   for(let i=FR.length;i<18;i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
-  const b=$('#use'),sp=b.querySelector('span');
-  b.classList.remove('off');
-  const f=sel,mine=isOwned(f),on=isUsed(f),r=RAR[f.rarity]||RAR.common;
+  const f=sel,r=RAR[f.rarity]||RAR.common;
   $('#nm').textContent=f.name;
   $('#rar').textContent=f.none?'':r[0];$('#rar').style.color=r[1];
   $('#ds').textContent=f.desc;
-  if(mine){sp.textContent=on?'DIGUNAKAN':'GUNAKAN';b.classList.toggle('off',on)}
-  else if(!canSell(f)){sp.textContent='TIDAK DIJUAL';b.classList.add('off')}
-  else sp.innerHTML=`<img src="${KOIN}" alt="">${fmt(f.price)}`;
   syncPreview();showWallet();
 }
-$('#grid').onclick=e=>{const c=e.target.closest('.fslot');if(!c)return;sel=FR.find(x=>x.id===c.dataset.id)||sel;snd('button');draw()};
+function buySelected(f){
+  if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
+  const coins=PD.coins();
+  if(coins<f.price)modal('Coin tidak cukup',`Kamu butuh ${fmt(f.price-coins)} Coin lagi.<br>Saldo kamu ${fmt(coins)} Coin.`,'TUTUP','DAPATKAN COIN',()=>nav('shop.html?coin=1'));
+  else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
+}
+$('#grid').onclick=e=>{
+  const c=e.target.closest('.fslot');if(!c)return;
+  const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
+  const action=e.target.closest('[data-action]'),act=action&&action.dataset.action;
+  sel=f;
+  if(act==='buy'){snd('button');draw();buySelected(f);return}
+  if(act==='equip'){equip(f);return}
+  if(act==='unequip'){equip(NONE);return}
+  snd('button');draw();
+};
 
 /* ---- modal ---- */
 let okFn=null;
@@ -199,16 +210,6 @@ async function buy(f){
   try{PD.equip(f.id)}catch(e){} /* langsung dipakai, sama seperti halaman Karakter */
   showWallet(true);draw();
 }
-$('#use').onclick=()=>{
-  const f=sel;if(!f)return;
-  if(isOwned(f)){if(!isUsed(f))equip(f);return}
-  if(!canSell(f)){toast('Item ini tidak dijual.');return}
-  const coins=PD.coins();
-  if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
-  if(coins<f.price)modal('Coin tidak cukup',`Kamu butuh ${fmt(f.price-coins)} Coin lagi.<br>Saldo kamu ${fmt(coins)} Coin.`,'TUTUP','DAPATKAN COIN',()=>nav('shop.html?coin=1'));
-  else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
-};
-
 /* ---- navigasi ---- */
 $('#back').onclick=$('#home').onclick=()=>{snd('button');nav('lobby.html')};
 $('#cur-co').onclick=()=>nav('shop.html?coin=1');

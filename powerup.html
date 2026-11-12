@@ -14,7 +14,6 @@
   <div id="title" class="ttl">Power-up</div>
   <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
 
   <section id="left">
     <div id="fpv"><div id="pa"></div><div id="p3d"></div></div>
@@ -26,7 +25,6 @@
 
   <section id="right">
     <div id="grid"></div>
-    <button class="btn" id="use"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span></span></button>
   </section>
 
   <!-- modal beli per jumlah -->
@@ -68,6 +66,7 @@ const PFX={at(i,el){try{if(P3D.on())return;if(i&&i.kind==='powerup'&&window.UT&&
 const canSell=i=>!!i&&typeof i.price==='number'&&i.price>0&&!i.starter;
 const qty=i=>PD.qty(i.id);
 const COIN='<img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="">';
+const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
 function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
@@ -81,8 +80,11 @@ const thumb=i=>i.icon?'<img src="'+i.icon+'" alt="">':(AR&&AR.powerup?AR.powerup
 // ---- render
 function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function renderGrid(){
-  let html=LIST.map(i=>{const k=qty(i);
-    return '<button class="fslot'+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' ×'+k+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><div class="pr cn">×'+k+'</div></button>'}).join('');
+  let html=LIST.map(i=>{
+    const k=qty(i),sell=canSell(i),status='<span class="tag">STOK ×'+k+'</span>';
+    const buy=sell?'<span class="pr cn buy" data-action="buy" aria-label="Beli '+fmtPrice(i.price)+' koin">'+COIN+fmtPrice(i.price)+'</span>':'<span class="pr cn no">TIDAK DIJUAL</span>';
+    const label='stok ×'+k+(sell?' — beli '+fmtPrice(i.price):' — tidak dijual');
+    return '<button class="fslot'+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+status+buy+'</button>'}).join('');
   for(let n=LIST.length;n<Math.max(18,Math.ceil(LIST.length/6)*6);n++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
 }
@@ -91,16 +93,19 @@ function renderInfo(){
   const c=RC[i.rarity],n=qty(i);
   $('#pa').innerHTML='<div class="dice pw" id="die" style="--c:'+c+'"><i class="ring"></i>'+thumb(i)+'</div>';
   $('#nm').textContent=i.name;
-  const r=$('#rar');r.textContent=RN[i.rarity]+' · dimiliki ×'+n;r.style.color=c;
+  const r=$('#rar');r.textContent=RN[i.rarity]+' · stok ×'+n;r.style.color=c;
   $('#ds').textContent=i.desc+(IC.powerMapNote(i.id)?' ['+IC.powerMapNote(i.id)+']':'')+PFX.note(i)+' Stok baru berkurang saat dipakai di pertandingan.';
-  const u=$('#use'),ok=canSell(i);
-  u.classList.toggle('dim',!ok);
-  u.querySelector('span').innerHTML=ok?COIN+fmt(i.price):'TIDAK DIJUAL';
   renderCurrency();
 }
 function refresh(){if(!sel||!LIST.includes(sel))sel=LIST.find(i=>qty(i)>0)||LIST[0]||null;renderGrid();renderInfo();P3D.sync()}
 function pick(i){sel=i;renderGrid();renderInfo();P3D.load();P3D.sync();playSound('select');PFX.at(i)}
-$('#grid').addEventListener('click',e=>{const c=e.target.closest('.fslot');if(c)pick(LIST.find(i=>i.id===c.dataset.id))});
+$('#grid').addEventListener('click',e=>{
+  const c=e.target.closest('.fslot');if(!c)return;
+  const i=LIST.find(x=>x.id===c.dataset.id);if(!i)return;
+  const action=e.target.closest('[data-action]');
+  pick(i);
+  if(action&&action.dataset.action==='buy'&&canSell(i))confirmBuy(i);
+});
 
 /* ---- pratinjau 3D hidup (assets/js/power3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */
 function showThemeArt(on){$('#fpv').classList.toggle('art2d',!!on)}
@@ -155,16 +160,10 @@ function confirmBuy(i){
     renderCurrency();refresh();
   };
 }
-$('#use').addEventListener('click',()=>{
-  if(!sel)return;
-  if(canSell(sel)){confirmBuy(sel);return}
-  toast(qty(sel)>0?'Power tersimpan — dipakai saat bermain.':'Power-up ini tidak dijual.');playSound('select');
-});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&mOpen)closeM()});
 
 /* ---- navigasi + dompet */
 $('#back').addEventListener('click',()=>{playSound('click');nav('lobby.html')});
-$('#home').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html')));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();if(r!=='pageshow')refresh()}catch(e){}})}}catch(e){} /* saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */

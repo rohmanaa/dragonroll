@@ -36,6 +36,11 @@
 .pwn{font-size:17px;line-height:1.05;min-height:24px;display:grid;place-items:center;padding:0 2px}
 .pmn{font-size:13px;line-height:1;color:#ffd9a0}
 .pin{font-size:13px;line-height:1.1;color:#d8ecff}.pin.zero{color:#ffb4a0}
+.pstate{font-size:13px;font-weight:800;line-height:1;color:#d8ecff;white-space:nowrap}
+.pstate.owned{color:#bfcfe0}.pstate.installed{color:#9be86a}.pstate.zero{color:#ffb4a0}
+.pc .pstate img{width:16px;height:16px;object-fit:contain;position:static;vertical-align:-3px}
+.pc img{width:60px;height:60px}
+.pc .pwn{min-height:20px}
 .pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
 .pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
 .pst button:disabled{opacity:.45;cursor:not-allowed}
@@ -134,6 +139,8 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
 (()=>{
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':Number(n).toLocaleString('id-ID');
+const PCOIN='<img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="">';
 const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1900)}
 /* ---------- URL -> konfigurasi room (URL tidak valid -> Mode Selection) ---------- */
@@ -236,7 +243,7 @@ const MAPKEY=MAP&&MAP.gameKey,pOk=id=>IC.powerOnMap(id,MAPKEY);/* Power per map:
 const PW=loadP();const saveP=()=>{try{UT.Prefs.set(PK,PW)}catch(e){}};
 /* Stok Power = Inventory akun yang sedang bergabung (server). Loadout hanya MEMILIH jumlah yang dibawa: stok TIDAK berkurang di sini,
    baru berkurang saat Power benar-benar dipakai di pertandingan; sisanya tetap di Inventory. */
-const stockOf=id=>{try{return PD.qty(id)||0}catch(e){return 0}},carryMax=id=>Math.max(0,Math.min(CMAX,stockOf(id)));
+const stockOf=id=>{try{return PD.qty(id)||0}catch(e){return 0}},carryMax=id=>Math.max(0,Math.min(CMAX,stockOf(id))),canBuyPower=p=>!!p&&typeof p.price==='number'&&p.price>0&&!p.starter;
 const invReady=()=>{try{return !PD.serverMode()||PD.walletReady()}catch(e){return true}};
 function fitP(){ /* Power tidak otomatis dimiliki: lepas yang stoknya 0, dan dibawa tidak boleh melebihi stok / batas */
  if(!invReady())return;let ch=false;
@@ -273,9 +280,10 @@ function renderPowerPick(){
  $('#pmHint').textContent='Dipilih '+powerDraft.equipped.length+'/'+TMAX+' jenis · '+units+' unit'+(ONLINE?' · Tidak dikirim dalam mode online':'');
  $('#pmL').innerHTML=POWERS.map(p=>{
   const on=powerDraft.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=powerDraft.carry[p.id]||1,none=invReady()&&st<=0,max=carryMax(p.id);
-  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:`<div class="pin${none?' zero':''}">Stok ${st}</div>`;
+  const state=on?'<div class="pstate installed">DIPASANG</div>':st>0?`<div class="pstate owned">DIMILIKI ×${st}</div>`:canBuyPower(p)?`<div class="pstate" data-buy="1">${PCOIN}${fmtPrice(p.price)}</div>`:'<div class="pstate zero">TIDAK DIJUAL</div>';
+  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:'';
   const fx=UT.PowerFX&&UT.PowerFX.DATA[p.gameKey];
-  return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — stok '+st+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${info}</div>`;
+  return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — '+(on?'dipasang':st?'dimiliki '+st:canBuyPower(p)?'beli '+fmtPrice(p.price):'tidak dijual')+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${state}${info}</div>`;
  }).join('');
 }
 function openPowerPick(){powerDraft={equipped:PW.equipped.slice(),carry:Object.assign({},PW.carry)};renderPowerPick();$('#pm').classList.add('on')}
@@ -283,6 +291,7 @@ function closePowerPick(){powerDraft=null;$('#pm').classList.remove('on')}
 $('#pmL').onclick=e=>{
  const card=e.target.closest('.pc[data-id]');if(!card||!powerDraft)return;
  const id=card.dataset.id,pi=IC.byId(id),sb=e.target.closest('[data-d]');
+ if(e.target.closest('[data-buy]')){nav('powerup.html');return}
  if(sb){
   if(!powerDraft.equipped.includes(id))return;
   const max=carryMax(id),cur=powerDraft.carry[id]||1,d=Number(sb.dataset.d);

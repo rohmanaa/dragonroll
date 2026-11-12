@@ -32,7 +32,6 @@
   <div id="title" class="ttl">Profil</div>
   <div class="cur" id="cur-em"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
 
   <nav id="menu"></nav>
 
@@ -107,7 +106,7 @@ const frameSrc=()=>{const f=IC.byId(PD.equippedId("frame"));return f&&f.image?f.
 function showWallet(){const ok=PD.walletReady();$("#v-em").textContent=ok?fmt(PD.gems()):"—";$("#v-co").textContent=ok?fmt(PD.coins()):"—"}
 $("#cur-co").onclick=()=>nav("shop.html?coin=1");
 $("#cur-em").onclick=()=>nav("tambang.html?from=profile.html");
-$("#back").onclick=$("#home").onclick=()=>{snd();nav("lobby.html")};
+$("#back").onclick=()=>{snd();nav("lobby.html")};
 addEventListener("keydown",e=>{if(e.key==="Escape")nav("lobby.html")});
 
 /* ---- kiri: tab ---- */
