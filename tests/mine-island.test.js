@@ -15,7 +15,7 @@ const ndc = (I, x, y, z) => { const v = new THREE.Vector3(x, y, z); I.scene.chil
 t('adegan dibuat: satu pulau (satu grup) dengan 3 unit gua', () => {
   const I = make(); assert.strictEqual(I.units.length, 4); [1, 2, 3].forEach(i => assert.ok(I.units[i] && I.units[i].miner));
   const xs = [1, 2, 3].map(i => I.units[i].U.position.x); assert.ok(xs[0] < xs[1] && xs[1] < xs[2], 'gua kiri-tengah-kanan');
-  const hs = [1, 2, 3].map(i => I.units[i].h); assert.ok(hs[0] < hs[1] && hs[1] < hs[2], 'tebing makin tinggi ke slot 3');
+  const hs = [1, 2, 3].map(i => I.units[i].h); assert.ok(hs[0] === hs[1] && hs[1] === hs[2], 'ketiga tebing sama tinggi (rata seperti gua tengah)');
   [1, 2, 3].forEach(i => { assert.ok(I.units[i].cart && I.units[i].C, 'kereta + hiasan mulut gua ada'); assert.ok(I.units[i].C.children.length >= 8, 'hiasan: obor, lampu gantung, kristal, bendera, papan'); });
 });
 t('seluruh pulau + penambang muat di layar untuk rasio 1.1 sampai 2.4 (tak terpotong)', () => {

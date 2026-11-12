@@ -50,7 +50,7 @@
 
       /* ---- pulau: permukaan rumput elips + lapisan tanah/batu yang menyempit ke bawah ---- */
       var RX = 17.5, RZ = 8.5, land = [], x, z, k;
-      var PATH = ['#5d6472', '#566070', '#646b79'], pathCx = [-11, 0, 11], pathFz = [-1, -3, -1];
+      var PATH = ['#5d6472', '#566070', '#646b79'], pathCx = [-11, 0, 11], pathFz = [-3, -3, -3];
       var onPath = function (px, pz) { for (var pi = 0; pi < 3; pi++) if (Math.abs(px - pathCx[pi]) <= 3 && pz >= pathFz[pi] + 1 && pz <= pathFz[pi] + 7) return true; return false; };
       for (x = -17; x <= 17; x++) for (z = -8; z <= 8; z++) if (Math.pow(x / RX, 2) + Math.pow(z / RZ, 2) <= 1) land.push([x, -1, z, onPath(x, z) ? pick(PATH) : pick(GRASS)]);
       for (k = 1; k <= 8; k++) {
@@ -64,12 +64,12 @@
       G.add(vox(land));
 
       /* ---- tiga gua (tebing batu dengan mulut gua menghadap kamera) ---- */
-      var MP = [null, { x: -11, fz: -1, h: 5 }, { x: 0, fz: -3, h: 6 }, { x: 11, fz: -1, h: 7 }];
+      var MP = [null, { x: -11, fz: -3, h: 6 }, { x: 0, fz: -3, h: 6 }, { x: 11, fz: -3, h: 6 }];   /* ketiga gua sama tinggi & sejajar (seperti gua tengah) */
+      var FLANK = [{ x: -22, fz: -3, h: 6 }, { x: 22, fz: -3, h: 6 }];   /* tebing pembatas di luar gua 1 & 3, supaya tiap gua diapit tebing tinggi kiri-kanan */
       var BANNER = [null, 0xe0533d, 0x3d7be0, 0xf0b429];
       var cliffTop = function (m) { return m.h - 0.5; };
       var inOpen = function (dx, y) { return Math.abs(dx) <= 2 && y <= (Math.abs(dx) === 2 ? 2 : 3); };
-      MP.forEach(function (m, i) {
-        if (!m) return;
+      function cliffCells(m) {
         var cells = [], y, dx, dz;
         for (y = 0; y < m.h; y++) {
           var W = 5 - Math.floor(y * 0.5), back = 6 - Math.floor(y / 3);
@@ -82,8 +82,14 @@
             cells.push([m.x + dx, y, m.fz + dz, col]);
           }
         }
-        G.add(vox(cells));
-      });
+        return cells;
+      }
+      MP.forEach(function (m) { if (m) G.add(vox(cliffCells(m))); });
+      FLANK.forEach(function (m) { G.add(vox(cliffCells(m))); });
+      /* lantai + dasar batu di bawah tebing pembatas (di luar elips pulau) */
+      var ext = [];
+      for (x = 18; x <= 28; x++) for (z = -8; z <= 8; z++) for (k = 0; k < 3; k++) { ext.push([x, -1 - k, z, k === 0 ? pick(GRASS) : pick(STONE)]); ext.push([-x, -1 - k, z, k === 0 ? pick(GRASS) : pick(STONE)]); }
+      G.add(vox(ext));
 
       /* ---- pohon, awan (dekor pulau) ---- */
       var trees = [], tl = []; /* tanpa pohon: pulau serba batu */
