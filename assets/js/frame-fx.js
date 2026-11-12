@@ -176,7 +176,7 @@ class Inst{
   }
   mkBolt(){const e=(Math.random()*4)|0,p=O,q=O+B,pts=[];const n=18;for(let i=0;i<=n;i++){const u=i/n,j=(Math.random()-.5)*5*(i===0||i===n?0:1);let x,y;if(e===0){x=p+u*B;y=p-2+j}else if(e===1){x=q+2+j;y=p+u*B}else if(e===2){x=q-u*B;y=q+2+j}else{x=p-2+j;y=q-u*B}pts.push([x,y])}return pts}
   draw(){
-    const cp=!!this.opts.compact,M=cp?5:O,off=O-M,reg=B+2*M;const x=this.x,cv=this.cv,W=cv.width,sc=W/(reg*S),f=this.def.fx||{},img=cp?this.def.imgC:this.def.img;
+    const cp=!!this.opts.compact,M=cp?(this.def.mC||5):O,off=O-M,reg=B+2*M;const x=this.x,cv=this.cv,W=cv.width,sc=W/(reg*S),f=this.def.fx||{},img=cp?this.def.imgC:this.def.img;
     x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,W);x.imageSmoothingEnabled=false;
     const k=sc*S,FW=G*k; // px per cell
     let pop=1;if(this.eq)pop=1+.12*Math.sin(Math.PI*Math.min(1,this.eq.t/.5));
@@ -222,6 +222,9 @@ class Inst{
 }
 
   var FRAMES = {}; FR.forEach(function (f) { FRAMES[f.id] = f; });
+  /* Margin jendela mode ringkas per frame (default 5 sel). Sayap Phoenix/Surgawi melebar sampai 1 sel di luar jendela -> kepotong;
+     jendela diperlebar, lalu kanvas diskalakan (setKey) sehingga badan frame & lubang avatar tetap sama ukurannya. */
+  var MARGIN_C = { phoenix: 7, celestial: 7, storm: 6 }; FR.forEach(function (f) { if (MARGIN_C[f.id]) f.mC = MARGIN_C[f.id]; });
   /* nama file gambar -> id desain */
   var FILE2KEY = { 'frame-default': 'wood', 'stone': 'stone', 'copper': 'copper', 'iron': 'iron', 'frame-gold': 'gold', 'diamond': 'diamond', 'amethyst': 'amethyst',
     'nether': 'nether', 'ender': 'ender', 'storm': 'storm', 'dragon': 'dragon', 'phoenix': 'phoenix', 'celestial': 'celestial', 'cosmic': 'cosmic' };
@@ -244,7 +247,7 @@ class Inst{
     var inst = cv.__ffx;
     if (!inst) { inst = cv.__ffx = new Inst(f, cv, { compact: true, lite: cv.__lite }); inst.vis = true; inst.fps = cv.__lite ? 12 : 30; inst.acc2 = 0; live.push(inst); ensureIO(); if (io) io.observe(cv); }
     else { inst.def = f; inst.parts = []; }
-    inst.key = key; inst.draw();
+    inst.key = key; cv.style.scale = f.mC ? String((B + 2 * f.mC) / (B + 10)) : ''; inst.draw();
     start();
   }
   function start() { if (running || reduce) return; running = true; last = performance.now(); g.requestAnimationFrame(loop); }
@@ -281,7 +284,7 @@ class Inst{
   }
   function dataURL(key, full) {
     var f = FRAMES[keyOf(key) || 'wood']; ensure(f);
-    var c = document.createElement('canvas'); c.width = c.height = (full ? G : B + 10) * S;
+    var c = document.createElement('canvas'); c.width = c.height = (full ? G : B + 2 * (f.mC || 5)) * S;
     var i = new Inst(f, c, { clean: true, compact: !full }); i.draw(); return c.toDataURL();
   }
   g.FrameFX = { keyOf: keyOf, upgrade: scan, dataURL: dataURL, frames: FRAMES, ready: true };
