@@ -31,12 +31,26 @@ t("Lepas lewat apply() -> listeners -> syncToPD (jalur simpan yang sama dengan g
   const i = html.indexOf("function unequip(it)"); const seg = html.slice(i, i + 400);
   assert.ok(/apply\(\{accessories:cfg\.accessories\.filter/.test(seg) && /apply\(\{\[it\.k\]:\{id:'none'\}\}\)/.test(seg));
 });
-t("slot minimal 6 dan bertambah otomatis (grid kolom, 6 baris)", () => {
-  assert.ok(/Math\.max\(6,items\.length\)/.test(html));
-  assert.ok(/#eqs\{[^}]*grid-template-rows:repeat\(6,98px\)[^}]*grid-auto-flow:column/.test(css));
+t("6 slot outfit TETAP (kosong tetap tampil) + slot kecil aksesori di samping (#eqa)", () => {
+  assert.ok(/<div id="eqa"/.test(html));
+  assert.ok(/E\.main\.forEach\(it=>el\.appendChild\(eqSlot\(it,false\)\)\)/.test(html), "main selalu 6 (EQK)");
+  assert.ok(/Math\.max\(6,E\.acc\.length\+1\)/.test(html), "aksesori min 6 + 1 slot '+'");
+  assert.ok(/#eqs\{[^}]*grid-template-rows:repeat\(6,98px\)/.test(css));
+  assert.ok(/#eqa\{[^}]*grid-auto-flow:column/.test(css) && /\.eq\.sm\{width:64px/.test(css));
 });
-t("pilihan slot dibatalkan saat pindah kategori / memilih pratinjau; kode lama tidak dirombak", () => {
-  assert.ok(/endPreview\(\);eqSel=null;cat=i;renderTabs\(\);renderOpts\(\);/.test(html));
+t("tab kanan dikelompokkan: Gender | Penampilan | Outfit | Aksesori | Set (+ sub-tab)", () => {
+  const m = html.match(/const GROUPS=\[([\s\S]*?)\n\];/); assert.ok(m);
+  const names = [...m[1].matchAll(/name:'([^']+)'/g)].map(x => x[1]);
+  assert.deepStrictEqual(names, ["Gender", "Penampilan", "Outfit", "Aksesori", "Set"]);
+  const keys = [...m[1].matchAll(/keys:\[([^\]]*)\]/g)].map(x => x[1].replace(/'/g, "").split(","));
+  const all = keys.flat().sort(), cats = [...regBlock("CATS").matchAll(/key:'(\w+)'/g)].map(x => x[1]).sort();
+  assert.deepStrictEqual(all, cats, "semua kategori masuk tepat satu grup");
+  assert.ok(/<nav id="subs"/.test(html));
+});
+t("klik slot: kosong -> buka tab kategori; terisi -> pilih (Lepas) + buka tab; pindah tab membatalkan pilihan", () => {
+  assert.ok(/function goCat\(k,keepSel\)\{[^}]*if\(!keepSel\)eqSel=null/.test(html));
+  assert.ok(/if\(it\.empty\)\{goCat\(small\?'accessories':it\.k\);return;\}/.test(html));
+  assert.ok(/eqSel=it;goCat\(it\.acc\?'accessories':it\.k,true\)/.test(html));
   assert.ok(/if\(pv\)eqSel=null;/.test(html));
   assert.ok(/renderEq\(\);\s*updateInfo\(\);\s*\}/.test(html), "renderEq dipanggil di akhir renderOpts");
 });

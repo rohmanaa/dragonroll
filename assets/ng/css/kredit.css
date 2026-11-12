@@ -25,7 +25,8 @@ body.kr #info{position:absolute;left:70px;top:800px;width:820px;height:200px;pad
 #buy.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp);color:#d0d0e0}
 #buy:active{transform:translateY(-50%) scale(.96)}
 /* ---- kanan: kategori (2 baris), header, grid ---- */
-#cats{position:absolute;left:0;top:124px;width:900px;display:grid;grid-template-columns:repeat(8,1fr);gap:10px 8px}
+#cats{position:absolute;left:0;top:124px;width:900px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px 10px}
+#subs{position:absolute;left:0;top:232px;width:900px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
 .cat{position:relative;height:92px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   background:url(../komponen/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 .cat .ce{font-size:38px;line-height:1}
@@ -33,11 +34,12 @@ body.kr #info{position:absolute;left:70px;top:800px;width:820px;height:200px;pad
 .cat:hover{filter:brightness(1.15)}.cat:active{transform:scale(.95)}
 .cat.on{background-image:url(../komponen/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
 .cat.on .cl{color:#ffd45a}
-#bh{position:absolute;left:0;top:340px;width:900px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,.18)}
+.cat.sub{height:72px;gap:0}.cat.sub .ce{font-size:28px}.cat.sub .cl{font-size:17px}
+#bh{position:absolute;left:0;top:318px;width:900px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,.18)}
 #bht{font:400 40px var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 .bha{display:flex;gap:12px}
 #bh .bt{width:auto;height:54px;padding:0 24px;border-radius:12px;font:400 26px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
-#gwrap{position:absolute;left:0;top:416px;width:920px;height:500px;overflow-y:auto;overflow-x:hidden;padding:6px 8px 6px 0;scrollbar-width:thin;scrollbar-color:#6d6590 transparent}
+#gwrap{position:absolute;left:0;top:392px;width:920px;height:526px;overflow-y:auto;overflow-x:hidden;padding:6px 8px 6px 0;scrollbar-width:thin;scrollbar-color:#6d6590 transparent}
 #grid{position:static;left:auto;top:auto;width:900px;display:grid;grid-template-columns:repeat(6,140px);grid-auto-rows:236px;gap:14px 12px}
 #grid.flat{grid-template-columns:1fr;grid-auto-rows:auto;gap:16px}
 .card{position:relative;width:140px;height:236px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:8px 6px 8px;cursor:pointer;animation:pop .35s both;transition:transform .1s}
@@ -86,15 +88,21 @@ body.kr #info{position:absolute;left:70px;top:800px;width:820px;height:200px;pad
 .box .bt{height:56px;min-width:64px;border-radius:10px;font:400 28px var(--font-title);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
 .box .bt.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-merah-polos.webp)}
 
-/* ---- kolom slot "sedang dipakai" di kiri karakter (minimal 6; bertambah otomatis ke kanan bila lebih) ---- */
-#eqs{position:absolute;left:44px;top:130px;display:grid;grid-template-rows:repeat(6,98px);grid-auto-flow:column;grid-auto-columns:98px;gap:10px;z-index:3}
+/* ---- kiri karakter: 6 slot OUTFIT tetap (#eqs) + slot kecil aksesori di sampingnya (#eqa, bisa >1) ---- */
+#eqs{position:absolute;left:44px;top:130px;display:grid;grid-template-rows:repeat(6,98px);grid-auto-flow:row;gap:10px;z-index:3}
+#eqa{position:absolute;left:152px;top:130px;display:grid;grid-template-rows:repeat(6,98px);grid-auto-flow:column;grid-auto-columns:64px;gap:10px 8px;align-items:center;z-index:3}
 .eq{position:relative;width:98px;height:98px;padding:0;background:url(../komponen/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 .eq:hover{filter:brightness(1.15)}.eq:active{transform:scale(.95)}
 .eq.sel{background-image:url(../komponen/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
-.eq.empty{opacity:.4;pointer-events:none}
+.eq.empty .th{opacity:.45}.eq.empty .en{color:#b9b2d6}
 .eq .th{position:absolute;left:8px;right:8px;top:6px;bottom:26px;display:grid;place-items:center}
 .eq .th .em{font-size:42px;line-height:1}
 .eq .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .eq .th.ph .em{visibility:hidden}
 .eq .en{position:absolute;left:4px;right:4px;bottom:5px;text-align:center;font:400 15px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* slot kecil aksesori */
+.eq.sm{width:64px;height:64px}
+.eq.sm .th{left:5px;right:5px;top:5px;bottom:5px}
+.eq.sm .th .em{font-size:28px}
+.eq.sm.empty .th .em{font:400 34px/1 var(--font-title);color:#d8d2ee}
 #buy.rel{background-image:url(../komponen/tombol-dan-kontrol/tombol-merah-polos.webp)}

@@ -18,12 +18,13 @@
     <div id="ped"><svg viewBox="0 0 500 190" aria-hidden="true"><ellipse cx="250" cy="168" rx="236" ry="22" fill="rgba(8,4,20,.35)"/><path d="M28,104 v30 a222,46 0 0 0 444,0 v-30 Z" fill="#2f2949" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="104" rx="222" ry="46" fill="#4b4370" stroke="#17122b" stroke-width="3"/><path d="M74,82 v24 a176,36 0 0 0 352,0 v-24 Z" fill="#3b3459" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="82" rx="176" ry="36" fill="#5d5486" stroke="#17122b" stroke-width="3"/></svg></div>
     <div id="show"><canvas id="gl"></canvas></div>
     <div id="sbs" aria-label="Gerakan"></div>
-    <div id="eqs" aria-label="Yang sedang dipakai"></div>
+    <div id="eqs" aria-label="Outfit yang sedang dipakai"></div><div id="eqa" aria-label="Aksesori yang sedang dipakai"></div>
     <section id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><button class="use" id="buy" style="display:none"></button></section>
   </section>
 
   <section id="right">
     <nav id="cats" aria-label="Kategori"></nav>
+    <nav id="subs" aria-label="Sub kategori"></nav>
     <div id="bh"><b id="bht"></b><span class="bha"><button class="bt" id="ofm" style="display:none">✏️ Kelola</button><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></span></div>
     <div id="gwrap"><div id="grid"></div></div>
     <div id="dyes"></div>
@@ -1365,18 +1366,37 @@ function slider(label,key,min,max){
   r.addEventListener('input',()=>{apply({body:{[key]:+r.value}});upd();});
   upd();w.appendChild(t);w.appendChild(r);optsEl.appendChild(w);
 }
+/* Tab kanan dikelompokkan: Gender | Penampilan | Outfit | Aksesori | Set. Grup dengan >1 kategori punya baris sub-tab (#subs). */
+const GROUPS=[
+  {name:'Gender',ico:'⚧',keys:['gender']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body']},
+  {name:'Outfit',ico:'👕',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
+  {name:'Aksesori',ico:'🎒',keys:['accessories']},
+  {name:'Set',ico:'🎭',keys:['preset']}
+];
+const subsEl=$('#subs');
+const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k));
+function goCat(k,keepSel){const i=CATS.findIndex(x=>x.key===k);if(i<0)return;endPreview();if(!keepSel)eqSel=null;cat=i;renderTabs();renderOpts();}
 function renderTabs(){
-  const st=tabsEl.scrollTop,sl=tabsEl.scrollLeft;
-  tabsEl.innerHTML='';
-  CATS.forEach((c,i)=>{
-    const b=document.createElement('button');b.className='blue cat'+(i===cat?' on':'');
+  const gi=grpOf(CATS[cat].key),G=GROUPS[gi];
+  tabsEl.innerHTML='';subsEl.innerHTML='';
+  GROUPS.forEach((g,i)=>{
+    const b=document.createElement('button');b.className='blue cat'+(i===gi?' on':'');
+    b.innerHTML='<span class="ce"></span><span class="cl"></span>';
+    b.querySelector('.ce').textContent=g.ico;b.querySelector('.cl').textContent=g.name;
+    b.setAttribute('aria-label',g.name);
+    b.addEventListener('click',()=>{if(i!==gi)goCat(g.keys[0]);});
+    tabsEl.appendChild(b);
+  });
+  subsEl.style.display=G.keys.length>1?'':'none';
+  if(G.keys.length>1)G.keys.forEach(k=>{
+    const c=CATS.find(x=>x.key===k),b=document.createElement('button');b.className='blue cat sub'+(c===CATS[cat]?' on':'');
     b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
     b.setAttribute('aria-label',c.name);
-    b.addEventListener('click',()=>{endPreview();eqSel=null;cat=i;renderTabs();renderOpts();});
-    tabsEl.appendChild(b);
+    b.addEventListener('click',()=>{if(c!==CATS[cat])goCat(k);});
+    subsEl.appendChild(b);
   });
-  tabsEl.scrollTop=st;tabsEl.scrollLeft=sl;
 }
 function renderOpts(){
   optsEl.innerHTML='';dyesEl.innerHTML='';optsEl.classList.remove('flat');
@@ -1529,33 +1549,43 @@ listeners.push(()=>{
    slot bertambah otomatis (kolom baru ke kanan). Ketuk slot -> info item + tombol bawah (#buy) jadi "Lepas".
    ================================================================ */
 const EQK=['helm','chest','shoulder','cape','weapon','boots'];
+/* main = 6 slot outfit TETAP (urutan EQK, kosong tetap tampil); acc = aksesori terpasang (boleh >1) -> slot kecil di samping */
 function eqItems(){
-  const c=B(),out=[];
-  EQK.forEach(k=>{const o=c[k];if(!o||o.id==='none')return;const it=find(k,o.id);if(!it||it.id==='none')return;
-    const cc=CATS.find(x=>x.key===k);out.push({k:k,id:it.id,name:it.n,cat:cc.name,ico:cc.ico,dye:o.dye||'',acc:false});});
-  (c.accessories||[]).forEach(a=>{const it=find('acc',a.id);if(!it)return;out.push({k:'acc',id:it.id,name:it.n,cat:'Aksesori',ico:'🎒',dye:a.dye||'',acc:true});});
-  return out;
+  const c=B(),main=[],acc=[];
+  EQK.forEach(k=>{const cc=CATS.find(x=>x.key===k),o=c[k],it=(o&&o.id!=='none')?find(k,o.id):null;
+    main.push(it&&it.id!=='none'?{k:k,id:it.id,name:it.n,cat:cc.name,ico:cc.ico,dye:o.dye||'',acc:false,empty:false}:{k:k,cat:cc.name,ico:cc.ico,empty:true});});
+  (c.accessories||[]).forEach(a=>{const it=find('acc',a.id);if(!it)return;acc.push({k:'acc',id:it.id,name:it.n,cat:'Aksesori',ico:'🎒',dye:a.dye||'',acc:true,empty:false});});
+  return {main:main,acc:acc};
 }
-const sameEq=(a,b)=>!!a&&!!b&&a.k===b.k&&a.id===b.id;
-function renderEq(){
-  const el=$('#eqs');if(!el)return;
-  const items=eqItems();
-  if(eqSel){const f=items.find(x=>sameEq(x,eqSel));eqSel=f||null;} /* item sudah tidak dipakai (diganti/dilepas) -> pilihan dibatalkan */
-  el.innerHTML='';
-  const n=Math.max(6,items.length);
-  for(let i=0;i<n;i++){
-    const it=items[i],d=document.createElement('button');
-    if(!it){d.className='eq empty';d.disabled=true;d.setAttribute('aria-hidden','true');el.appendChild(d);continue;}
-    d.className='eq'+(sameEq(it,eqSel)?' sel':'');
-    d.setAttribute('aria-label',it.cat+': '+it.name);
-    d.innerHTML='<div class="th"><span class="em">'+it.ico+'</span></div><span class="en"></span>';
-    d.querySelector('.en').textContent=it.name;
-    d.addEventListener('click',()=>{endPreview();eqSel=sameEq(it,eqSel)?null:it;renderEq();updateInfo();});
-    el.appendChild(d);
+const sameEq=(a,b)=>!!a&&!!b&&!a.empty&&!b.empty&&a.k===b.k&&a.id===b.id;
+function eqSlot(it,small){
+  const d=document.createElement('button');
+  d.className='eq'+(small?' sm':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
+  d.setAttribute('aria-label',it.empty?(small?'Tambah aksesori':it.cat+' kosong'):it.cat+': '+it.name);
+  if(small)d.title=it.empty?'Tambah aksesori':it.name;
+  d.innerHTML='<div class="th"><span class="em">'+(it.empty&&small?'+':it.ico)+'</span></div>'+(small?'':'<span class="en"></span>');
+  if(!small)d.querySelector('.en').textContent=it.empty?it.cat:it.name;
+  d.addEventListener('click',()=>{
+    endPreview();
+    if(it.empty){goCat(small?'accessories':it.k);return;}   /* slot kosong -> buka tab kategorinya */
+    if(sameEq(it,eqSel)){eqSel=null;renderEq();updateInfo();return;}
+    eqSel=it;goCat(it.acc?'accessories':it.k,true);          /* slot terisi -> pilih (tombol Lepas) + buka tab kategorinya */
+  });
+  if(!it.empty){
     const th=d.querySelector('.th');
     if(it.acc)THUMB.add(th,'a|'+it.id+THUMB.sig([]),cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.dye}])},'full');
     else THUMB.add(th,it.k+'|'+it.id+'|'+it.dye+THUMB.sig([it.k]),()=>({[it.k]:{id:it.id}}),FRAME[it.k]||'full');
   }
+  return d;
+}
+function renderEq(){
+  const el=$('#eqs'),ea=$('#eqa');if(!el||!ea)return;
+  const E=eqItems(),all=E.main.filter(x=>!x.empty).concat(E.acc);
+  if(eqSel){eqSel=all.find(x=>sameEq(x,eqSel))||null;} /* item sudah tidak dipakai (diganti/dilepas) -> pilihan dibatalkan */
+  el.innerHTML='';ea.innerHTML='';
+  E.main.forEach(it=>el.appendChild(eqSlot(it,false)));
+  const n=Math.max(6,E.acc.length+1);                   /* aksesori: min 6 slot kecil, selalu ada 1 slot "+" sisa */
+  for(let i=0;i<n;i++)ea.appendChild(eqSlot(E.acc[i]||{empty:true,k:'acc',cat:'Aksesori',ico:'🎒',acc:true},true));
 }
 function unequip(it){
   endPreview();
