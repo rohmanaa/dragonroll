@@ -89,7 +89,18 @@
 
     var el = document.createElement('div'); el.className = 'sbg' + (o.preset === 'soft' ? ' soft' : '') + (lowEnd() ? ' lite' : '');
     el.setAttribute('aria-hidden', 'true');
-    if (o.image) { var img = new Image(); img.className = 'sbg-img'; img.alt = ''; img.decoding = 'async'; img.draggable = false; img.src = o.image; el.appendChild(img); }
+    if (o.image) {
+      var img = new Image(); img.className = 'sbg-img'; img.alt = ''; img.decoding = 'async'; img.draggable = false;
+      /* gambar siang & malam tersendiri (data-image-day / data-image-night): ganti otomatis mengikuti Suasana (html[data-ambience]); malam memakai gambar yang sudah menyala sendiri, jadi efek malam CSS (redup, bintang, bulan, lampu) dimatikan lewat .sbg-ownnight */
+      var dayUrl = o.imageDay || o.image, nightUrl = o.imageNight || null;
+      var applyImg = function () {
+        var night = !!nightUrl && document.documentElement.getAttribute('data-ambience') === 'night';
+        var u = night ? nightUrl : dayUrl; if (img.getAttribute('src') !== u) img.src = u;
+        el.classList.toggle('sbg-ownnight', night);
+      };
+      applyImg(); el.appendChild(img);
+      if (nightUrl) { try { var pre = new Image(); pre.src = (img.getAttribute('src') === nightUrl ? dayUrl : nightUrl); } catch (e) {} window.addEventListener('ut-ambience', applyImg); }
+    }
     else el.className += ' sbg-black';
     [['sky', 'sbg-sky'], ['fog', 'sbg-fog'], ['sun', 'sbg-sun'], ['rays', 'sbg-rays'], ['bloom', 'sbg-bloom']].forEach(function (p) {
       if (fx[p[0]]) { var d = document.createElement('div'); d.className = p[1]; el.appendChild(d); }
@@ -146,6 +157,8 @@
     if (me.getAttribute('data-clouds-set')) cfg.cloudSet = me.getAttribute('data-clouds-set');
     if (me.getAttribute('data-cloud-slow')) cfg.cloudSlow = me.getAttribute('data-cloud-slow');
     if (me.getAttribute('data-image')) cfg.image = me.getAttribute('data-image');
+    if (me.getAttribute('data-image-day')) cfg.imageDay = me.getAttribute('data-image-day');
+    if (me.getAttribute('data-image-night')) cfg.imageNight = me.getAttribute('data-image-night');
     var go = function () { if (!document.body) return false; UT.SceneBG.instance = mount(document.body, cfg); return true; };
     if (!go()) {
       var mo = new MutationObserver(function () { if (go()) mo.disconnect(); });
