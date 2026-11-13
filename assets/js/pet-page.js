@@ -110,28 +110,22 @@
     const body = $('#petInfoBody');
     body.replaceChildren();
 
-    const close = document.createElement('button');
-    close.id = 'petInfoClose';
-    close.className = 'pet-info-close';
-    close.type = 'button';
-    close.setAttribute('aria-label', 'Tutup detail Pet');
-    close.textContent = '×';
-    close.addEventListener('click', () => { $('#petInfo').open = false; });
-    body.appendChild(close);
-
+    const rarity = RARITY[item.rarity] || RARITY.common;
+    addInfoRow(body, 'Kelangkaan', rarity[0]);
+    addInfoRow(body, 'Tier', `Tier ${item.tier}`);
     const detail = metadata.get(item.gameKey);
     if (detail) {
       addInfoRow(body, 'Bahan', detail.material);
       addInfoRow(body, 'Identitas', detail.identity);
       addInfoRow(body, 'Peran', detail.role || item.role);
-      addInfoRow(body, 'Skill', detail.skill && detail.skill.name);
-      addInfoRow(body, 'Efek skill', detail.skill && detail.skill.effect);
-      addInfoRow(body, 'Batas', detail.skill && detail.skill.limit);
       addInfoRow(body, 'Keunggulan', detail.advantage);
       addInfoRow(body, 'Animasi', detail.animations);
       addInfoRow(body, 'Efek visual', detail.effects);
       addInfoRow(body, 'Suara', detail.sounds);
       addInfoRow(body, 'Cerita', detail.lore);
+      addInfoRow(body, 'Skill', detail.skill && detail.skill.name);
+      addInfoRow(body, 'Efek skill', detail.skill && detail.skill.effect);
+      addInfoRow(body, 'Batas', detail.skill && detail.skill.limit);
     } else {
       addInfoRow(body, 'Peran', item.role);
       addInfoRow(body, 'Deskripsi', item.desc);
@@ -376,9 +370,18 @@
   $('#md').addEventListener('click', (event) => {
     if (event.target.id === 'md') closeModal();
   });
+  $('#petInfoOpen').addEventListener('click', () => {
+    renderDetails(selected || PETS[0]);
+    $('#petInfo').showModal();
+  });
+  $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
+  $('#petInfo').addEventListener('click', (event) => {
+    if (event.target === $('#petInfo')) $('#petInfo').close();
+  });
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
     if ($('#md').classList.contains('on')) closeModal();
+    else if ($('#petInfo').open) return;
     else window.location.href = 'lobby.html';
   });
 
@@ -387,7 +390,6 @@
     setTimeout(() => { window.location.href = url; }, 330);
   }
   $('#back').addEventListener('click', () => navigate('lobby.html'));
-  $('#home').addEventListener('click', () => navigate('lobby.html'));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
 

@@ -23,9 +23,9 @@
   ];
 
   /* Lampu latar (menyala hanya saat malam, CSS html[data-ambience="night"]). Posisi = pecahan gambar latar (x,y 0..1); r = radius cahaya (pecahan lebar gambar);
-     t: 'brazier' (tungku batu bara: api + cahaya lebar) | 'lamp' (lentera kecil). Dipakai lewat data-lights="lobby" (gambar lobby-bg.webp 2752x1536). */
+     t: 'brazier' (tungku batu bara: api + cahaya lebar) | 'lamp' (lentera kecil). Dipakai lewat data-lights="lobby" (gambar lobby-kastel.webp 1764x891). */
   var LIGHTSETS = {
-    lobby: { w: 2752, h: 1536, items: [
+    lobby: { w: 1764, h: 891, items: [
       { x: .087, y: .600, r: .085, t: 'brazier', dl: 0 },
       { x: .917, y: .600, r: .085, t: 'brazier', dl: -.7 },
       { x: .151, y: .254, r: .036, t: 'lamp', dl: -.3 },

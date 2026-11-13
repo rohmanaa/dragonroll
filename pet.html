@@ -29,17 +29,15 @@
     <div id="title" class="ttl">Pet</div>
     <div class="cur" id="cur-em"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
     <div class="cur" id="cur-co"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-    <button id="home" aria-label="Lobby"><img src="assets/ng/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
 
     <section id="left">
       <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
-      <div id="nm" class="ttl"></div>
+      <div id="petTitle">
+        <div id="nm" class="ttl"></div>
+        <button id="petInfoOpen" type="button" aria-label="Informasi tier" aria-haspopup="dialog" title="Informasi tier"><img src="assets/ng/komponen/glyph-putih/seru-bulat.webp" alt=""></button>
+      </div>
       <div id="rar"></div>
       <p id="ds"></p>
-      <details id="petInfo">
-        <summary aria-label="Detail pet" title="Detail pet"><img src="assets/ng/komponen/glyph-putih/info-bulat.webp" alt=""></summary>
-        <div id="petInfoBody"></div>
-      </details>
     </section>
 
     <section id="right">
@@ -48,6 +46,13 @@
     </section>
 
     <div id="petStatus" class="pet-status" role="status" aria-live="polite" hidden></div>
+    <dialog id="petInfo" aria-labelledby="petInfoTitle">
+      <div class="pet-info-panel">
+        <button id="petInfoClose" type="button" aria-label="Tutup informasi tier">×</button>
+        <h2 id="petInfoTitle">Informasi Tier</h2>
+        <div id="petInfoBody"></div>
+      </div>
+    </dialog>
     <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
       <h3 id="mt"></h3><p id="mx"></p>
       <div id="mbtns">
