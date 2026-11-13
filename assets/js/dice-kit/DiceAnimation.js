@@ -4,7 +4,7 @@
  *
  * Semua gerak memakai delta time. Fisika memakai timestep tetap (lihat DicePhysics), sehingga
  * hasil konsisten di 30/60/120 FPS. Hasil angka berasal dari fisika (adil), atau dari RNG game
- * yang sudah ada bila `roll(forcedValue)` dipakai (lemparan dipilih agar mendarat natural di angka itu; hop singkat hanya cadangan).
+ * yang sudah ada bila `roll(forcedValue)` dipakai; mode drop menyelaraskan muka saat windup.
  */
 import * as THREE from '../vendor/three.r170.module.min.js';
 import { DicePhysics, randomQuat, qmul, qaxis, qnorm } from './DicePhysics.js';
@@ -40,6 +40,8 @@ export class DiceAnimator {
     this.view = { position: mesh.position, glow: 0, scaleMul: 1 }; // dibaca oleh DiceEffects (aura, light)
     this.faceIndex = 2;
     this.pending = null;
+    this.dropTarget = null;
+    this.dropAlignFrom = null;
     this.onResult = null;
     this.onState = null;
     this.onImpact = null; // dipanggil tiap dadu menghantam lantai ({speed, point, index}); dipakai gameplay untuk efek tatakan
@@ -70,6 +72,8 @@ export class DiceAnimator {
     if (this.queued) return this.pending.promise;
     if (forcedValue != null && !(forcedValue >= 1 && forcedValue <= 6)) forcedValue = null;
     this.forced = forcedValue;
+    this.dropTarget = this.drop && forcedValue != null ? this.physics.quatForValue(forcedValue, this.q) : null;
+    this.dropAlignFrom = null;
     let resolve;
     const promise = new Promise((r) => { resolve = r; });
     this.pending = { promise, resolve };
@@ -170,7 +174,12 @@ export class DiceAnimator {
           const fade = 1 - Math.min(1, Math.max(0, (k - 0.7) / 0.3)); // getaran mereda sebelum dilepas -> jatuh persis dari tengah
           const sx = Math.sin(this.t * 46) * 0.08 * k * fade, sz = Math.cos(this.t * 39) * 0.06 * k * fade;
           const omega = 5 + 28 * k;
-          this.q = qnorm(qmul(qaxis(this.spinAxis, omega * dt), this.q));
+          if (this.dropTarget && k >= 0.72) {
+            if (!this.dropAlignFrom) this.dropAlignFrom = [...this.q];
+            const align = ease.inOutCubic(Math.min(1, (k - 0.72) / 0.28));
+            tq.set(...this.dropAlignFrom).slerp(tq2.set(...this.dropTarget), align);
+            this.q = qnorm(qmul(qaxis([0, 1, 0], omega * dt), [tq.x, tq.y, tq.z, tq.w]));
+          } else this.q = qnorm(qmul(qaxis(this.spinAxis, omega * dt), this.q));
           this.pos = [this.idle[0] + sx, this.idle[1] + rise, this.idle[2] + sz];
           this.mesh.scale.setScalar(1);
           if (k >= 1) {
@@ -207,13 +216,13 @@ export class DiceAnimator {
         break;
       }
       case 'settle': {
-        // Selaraskan dengan hasil RNG game: hop singkat ke orientasi target
+        // Selaraskan muka di permukaan; jangan angkat dadu lagi setelah jatuh.
         this.t += dt / 0.4;
         const k = ease.inOutCubic(Math.min(1, this.t));
         tq.set(...this.from.q).slerp(tq2.set(...this.target), k);
         this.q = [tq.x, tq.y, tq.z, tq.w];
-        this.pos = [this.from.pos[0], this.from.pos[1] + Math.sin(k * Math.PI) * 0.32, this.from.pos[2]];
-        if (this.t >= 1) { this.q = [...this.target]; this.pos = [...this.from.pos]; this._land(); }
+        this.pos = [this.from.pos[0], this.restY, this.from.pos[2]];
+        if (this.t >= 1) { this.q = [...this.target]; this.pos = [this.from.pos[0], this.restY, this.from.pos[2]]; this._land(); }
         break;
       }
       case 'landed': {
@@ -247,10 +256,13 @@ export class DiceAnimator {
     this._sync();
   }
 
-  /** Drop gameplay avoids synchronous target search; mismatches ease to the forced result after physics settles. */
+  /** Drop gameplay aligns the forced face before release and keeps its spin vertical. */
   _throw(drop) {
     if (this.forced != null && !drop) this.physics.throwTowards(this.forced, this.pos, this.q, this.spinAxis, drop);
-    else this.physics.throwDie(this.pos, this.q, this.spinAxis, drop);
+    else {
+      this.physics.throwDie(this.pos, this.q, this.spinAxis, drop);
+      if (drop && this.forced != null) this.physics.w = [0, 4 + this.rng() * 4, 0];
+    }
   }
 
   _finishPhysics() {
