@@ -1,7 +1,8 @@
 /* Tes aturan Power (Batch 2-3): 17 Power punya nama (PUN), aturan (PUR), katalog, ikon, efek 2D, model 3D, suara, dan migrasi server.
    Jalankan: node tests/power-rules.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
+const PG = require("./_page");
+const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
 const gameplaySource = () => rd('gameplay.html') + rd('gameplay/js/main.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 

@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/mode.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
 <style>#mcancel[hidden]{display:none}.cur{cursor:pointer}.cur .v.bump{animation:bump .5s ease-out}@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}</style>
+
 </head>
 <body>
 <div id="wrap">
@@ -83,126 +84,7 @@
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'mode'});</script>
-<script>
-(()=>{
-const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow,fmt=n=>Number(n).toLocaleString('id-ID');
-const buzz=()=>{try{if(PD.settings().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2000)}
-function nav(fn){$('#fade').classList.add('on');setTimeout(fn,330)}
-addEventListener('pageshow',e=>{if(e.persisted){$('#fade').classList.remove('on');closeAll();cancelMM()}});
-
-/* ---- saldo: PlayerData; "—" sampai server membalas; ikut berubah tanpa refresh ---- */
-function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
-function money(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
-UT.Events.on('currencyChanged',money);
-try{PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')money()})}catch(e){}
-money();
-$('#cur-em').onclick=()=>{buzz();nav(()=>{location.href='tambang.html?from=mode.html'})};
-$('#cur-co').onclick=()=>{buzz();nav(()=>{location.href='shop.html?coin=1'})};
-if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){
-  UT.WalletService.get().refresh();
-  if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}
-}
-
-/* ---- peta: dari RoomFlow.maps() (ItemCatalog, kind:'theme') + The End (terkunci). Ilustrasi = gaya GUI baru ---- */
-const META={
-  minecraft:{id:'world',img:'assets/Images/background/map-world.webp',name:'WORLD',sub:'Minecraft · Finis Block 100 · Ender Dragon',sky:['#6cc4ff','#c8ecff'],ground:['#78cc4e','#58a33a','#8d6038']},
-  nether:{id:'nether',img:'assets/Images/background/map-nether.webp',name:'NETHER',sub:'Finis Block 120 · Wither',sky:['#4a0d12','#a1301a'],ground:['#a33a3a','#7a2828','#4b2020']}
-};
-const MAPS=RF.maps().map(m=>{const x=META[m.gameKey]||{};return{id:x.id||m.gameKey,img:x.img||'',key:m.gameKey,name:x.name||String(m.name||m.gameKey).replace(/^Map /,'').toUpperCase(),sub:x.sub||m.desc||'',sky:x.sky||['#6cc4ff','#c8ecff'],ground:x.ground||['#78cc4e','#58a33a','#8d6038']}})
- .concat([{id:'end',key:null,name:'THE END',sub:'Segera hadir',sky:['#120b25','#2b1a52'],ground:['#d9d9a8','#a8a87a','#6e6e50'],locked:true}]);
-const SOONMSG='The End segera hadir';
-let cur=Math.max(0,MAPS.findIndex(m=>m.key&&m.key===(RF.getMap()||{}).gameKey));
-function mapSVG(m){
-  const [s1,s2]=m.sky,[g1,g2,g3]=m.ground;
-  const tile=(cx,cy,w,d,t,l,r)=>{const h=w/2;return `<polygon points="${cx-w/2},${cy} ${cx},${cy+h/2} ${cx},${cy+h/2+d} ${cx-w/2},${cy+d}" fill="${l}"/><polygon points="${cx},${cy+h/2} ${cx+w/2},${cy} ${cx+w/2},${cy+d} ${cx},${cy+h/2+d}" fill="${r}"/><polygon points="${cx},${cy-h/2} ${cx+w/2},${cy} ${cx},${cy+h/2} ${cx-w/2},${cy}" fill="${t}"/>`};
-  let deco='';
-  if(m.id==='world') deco=tile(300,285,40,60,'#a8794a','#7e5530','#684526')+tile(300,235,120,46,'#4caf3a','#368a2a','#2b7222')+tile(480,330,36,40,'#a8794a','#7e5530','#684526')+tile(480,295,90,36,'#5cc443','#3f9a30','#318028');
-  if(m.id==='nether') deco=tile(330,300,70,90,'#2d2020','#241818','#1a1010')+tile(480,330,56,60,'#ff8a1f','#d9620f','#b84a08')+tile(260,340,44,40,'#ffb21f','#ea8a12','#c46d0a');
-  if(m.id==='end') deco=tile(300,285,80,120,'#3a2a6e','#2c2058','#21184a')+tile(300,250,24,26,'#c77dff','#a24fe0','#8238c0');
-  const stars=m.id==='end'?Array.from({length:30},(_,i)=>`<rect x="${(i*97)%600}" y="${(i*53)%260}" width="4" height="4" fill="#fff" opacity=".8"/>`).join(''):'';
-  const lava=m.id==='nether'?'<rect x="0" y="560" width="600" height="130" fill="#ff6a1a" opacity=".85"/><rect x="0" y="560" width="600" height="14" fill="#ffd45a" opacity=".8"/>':'';
-  return `<svg viewBox="0 0 600 690" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk${m.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s1}"/><stop offset="1" stop-color="${s2}"/></linearGradient></defs>
-   <rect width="600" height="690" fill="url(#sk${m.id})"/>${stars}${lava}
-   <g transform="translate(0,80)">${tile(300,320,360,70,g1,g2,g3)}
-   ${deco}</g></svg>`;
-}
-
-const track=$('#track');
-MAPS.forEach(m=>{
-  const d=document.createElement('div');d.className='map'+(m.locked?' locked':'');
-  d.innerHTML=`<div class="pic">${m.img?`<img class="mimg" src="${m.img}" alt="${m.name}" draggable="false">`:mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/ng/komponen/ikon-item/gembok.webp" alt=""></div></div>`;
-  track.appendChild(d);
-});
-const dots=$('#dots');MAPS.forEach((_,i)=>{const e=document.createElement('i');e.onclick=()=>show(i);dots.appendChild(e)});
-function show(i,instant){
-  cur=(i+MAPS.length)%MAPS.length;
-  track.style.transition=instant?'none':'';track.style.transform=`translateX(${-cur*100}%)`;
-  [...dots.children].forEach((e,k)=>e.classList.toggle('on',k===cur));
-  const m=MAPS[cur];
-  $('#mapinfo').innerHTML=m.locked?`<b>${m.name}</b> — ${m.sub}`:`<b>${m.name}</b><br>${m.sub}`;
-  if(m.locked){toast(SOONMSG)}else RF.setMap(m.key);   /* map terkunci: pilihan tersimpan tidak berubah */
-}
-$('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
-{ let x0=null;const v=$('#view');
-  v.addEventListener('pointerdown',e=>{x0=e.clientX});
-  addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1))});
-  addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1);if(e.key==='Escape')closeAll()}); }
-show(cur,true);
-
-/* ---- tile flip: satu terbuka dalam satu waktu ---- */
-const flips=[...document.querySelectorAll('.flip')];
-function closeAll(){flips.forEach(f=>f.classList.remove('open'))}
-function selectedMap(){const m=MAPS[cur];if(m.locked){toast(SOONMSG);return null}return m}
-flips.forEach(f=>{
-  f.querySelector('.front').addEventListener('click',()=>{buzz();if(!selectedMap())return;const was=f.classList.contains('open');closeAll();if(!was)f.classList.add('open')});
-  f.querySelector('.close').addEventListener('click',e=>{e.stopPropagation();f.classList.remove('open')});
-});
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.flip.open'))closeAll()});
-/* isi tombol opsi */
-document.querySelectorAll('.opts').forEach(o=>{
-  const pairs=o.dataset.pairs?o.dataset.pairs.split('|').map(p=>p.split(':')):null;
-  const counts=o.dataset.counts?o.dataset.counts.split(','):['2','3','4'];
-  const list=pairs?pairs.map(([f,c,l,s])=>({format:f,count:c,label:l,sub:s})):counts.map(c=>({format:o.dataset.format,count:c,label:o.dataset.format==='team'?'2 vs 2':c,sub:o.dataset.format==='team'?'4 pemain':'pemain'}));
-  const color=o.closest('#quick')?'ungu':'hijau';
-  list.forEach(it=>{
-    const b=document.createElement('button');b.className='opt';
-    b.innerHTML=`<img src="assets/ng/komponen/tombol-dan-kontrol/tombol-${pairs&&it.format==='team'?'kuning':color}-polos.webp" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
-    b.onclick=e=>{e.stopPropagation();buzz();pick(o.dataset,it)};o.appendChild(b);
-  });
-});
-function pick(ds,it){
-  const m=selectedMap();if(!m)return;
-  const format=it.format,count=+it.count;
-  if(ds.kind==='quick')ranked(format,count);
-  else nav(()=>RF.navigate('room',{mode:ds.mode,format:format,count:count}));
-}
-
-/* ---- Quick Start ---- (SIMULASI pencarian lawan, sama seperti mode.html lama; matchmaking realtime belum ada) */
-let mm=null,tm=[];
-function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#modal').classList.remove('on')}
-function ranked(format,n){
-  const map=RF.getMap(),cfg={type:'ranked',mode:'online',format:format,privacy:'public',host:true,count:n,
-    players:Array.from({length:n},(_,i)=>({name:i?'Lawan '+i:(PD.profile().name||'Kamu'),team:format==='team'?(i<2?1:2):0,kind:i?'friend':'host'})),
-    dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
-  mm=cfg;const modal=$('#modal');modal.classList.add('on');
-  $('#mt').textContent='MENCARI LAWAN…';$('#ms').textContent=(format==='team'?'Team 2 vs 2':'Solo '+n+' pemain')+' · '+(MAPS[cur].name);
-  $('#spin').style.display='';$('#mplayers').innerHTML='';$('#mcancel').hidden=false;
-  tm.push(setTimeout(()=>{if(mm!==cfg)return;
-    $('#mt').textContent='LAWAN DITEMUKAN!';$('#spin').style.display='none';$('#mcancel').hidden=true;
-    $('#mplayers').innerHTML=cfg.players.map(p=>`<div></div>`).join('');[...$('#mplayers').children].forEach((d,i)=>{d.textContent=cfg.players[i].name});
-    tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900));
-  },2400));
-}
-$('#mcancel').onclick=cancelMM;
-$('#back').onclick=()=>{buzz();nav(()=>RF.navigate('back'))};
-
-/* ---- skala kanvas ---- */
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
-addEventListener('resize',fit);fit();
-document.documentElement.classList.add('ut-ready');
-})();
-</script>
+<script src="assets/js/pages/mode.js"></script>
 <script type="module">
 import './assets/js/multiplayer/room-service.js';
 import './assets/js/multiplayer/presence.js';

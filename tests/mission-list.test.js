@@ -1,8 +1,9 @@
 const assert = require("assert");
 const fs = require("fs");
+const PG = require("./_page");
 const path = require("path");
 
-const read = file => fs.readFileSync(path.join(__dirname, "..", file), "utf8");
+const read = file => PG.readFileSync(path.join(__dirname, "..", file), "utf8");
 const html = read("hadiah-misi.html");
 const css = read("assets/ng/css/mission.css");
 

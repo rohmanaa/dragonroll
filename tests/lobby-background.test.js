@@ -1,8 +1,9 @@
 const assert = require('assert');
 const fs = require('fs');
+const PG = require("./_page");
 const path = require('path');
 const root = path.join(__dirname, '..');
-const lobby = fs.readFileSync(path.join(root, 'lobby.html'), 'utf8');
+const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
 assert.ok(lobby.includes('assets/ng/css/lobby.css'));
 assert.ok(lobby.includes('assets/css/scene-bg.css'));
@@ -35,11 +36,11 @@ assert.ok(lobby.includes('bc.tick(motionDt)'));
 assert.ok(lobby.includes('const lobbyActs='));
 assert.ok(!lobby.includes("$('#md').classList"));
 
-const background = fs.readFileSync(path.join(root, 'assets/Images/background/lobby-kastel.webp'));
+const background = PG.readFileSync(path.join(root, 'assets/Images/background/lobby-kastel.webp'));
 assert.strictEqual(background.toString('ascii', 0, 4), 'RIFF');
 assert.strictEqual(background.toString('ascii', 8, 12), 'WEBP');
 for (const icon of ['assets/Images/icon/currency/coin.webp', 'assets/Images/icon/mode/console.webp']) {
-  const image = fs.readFileSync(path.join(root, icon));
+  const image = PG.readFileSync(path.join(root, icon));
   assert.strictEqual(image.toString('ascii', 0, 4), 'RIFF');
   assert.strictEqual(image.toString('ascii', 8, 12), 'WEBP');
 }

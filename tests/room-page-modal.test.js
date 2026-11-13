@@ -1,8 +1,9 @@
 const assert = require('assert');
 const fs = require('fs');
+const PG = require("./_page");
 const path = require('path');
 const root = path.join(__dirname, '..');
-const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const read = (file) => PG.readFileSync(path.join(root, file), 'utf8');
 const room = read('room.html');
 let count = 0;
 

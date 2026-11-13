@@ -1,7 +1,8 @@
 /* Tes adegan 3D Tambang (satu pulau, tiga gua) tanpa browser: THREE asli, tanpa renderer.
    Jalankan: node tests/mine-island.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const R = path.join(__dirname, '..') + path.sep, read = f => fs.readFileSync(R + f, 'utf8');
+const PG = require("./_page");
+const R = path.join(__dirname, '..') + path.sep, read = f => PG.readFileSync(R + f, 'utf8');
 global.window = global; global.UT = {};
 const THREE = global.THREE = require(R + 'assets/js/vendor/three.min.js');
 vm.runInThisContext(read('assets/js/mine-island.js'), { filename: 'mine-island.js' });

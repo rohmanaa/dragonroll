@@ -1,0 +1,75 @@
+/* room.css — dipindah dari <style> inline (room.html). Path url() relatif ke folder ini. */
+[hidden]{display:none!important}
+.btn:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+.btn.sent{filter:saturate(.7)}
+/* equipment & modal pilih item: gambar item (SVG/IMG/canvas) mengisi kotak */
+.slot .art,.it .art{display:block;flex:none}.slot .art{width:96px;height:96px}.it .art{width:92px;height:92px}
+.slot .art>*,.it .art>*{display:block;width:100%;height:100%}.slot .art img,.it .art img{object-fit:contain;filter:none;max-width:none;height:100%}
+.slot .chg{font-size:16px}
+.it:disabled{cursor:default}
+/* power loadout: lima slot membuka modal pemilihan dari ItemCatalog */
+#power{padding-bottom:14px}
+#pcnt{position:absolute;right:26px;top:8px;font-weight:800;font-size:20px;color:#ddd7f7}
+#prow{display:flex;gap:14px;height:112px}
+#power .ps{position:relative;flex:1;min-width:0;border-radius:16px;background:#2a2347;border:3px dashed #6d6590}
+#power .ps.full{border-style:solid;background:linear-gradient(180deg,#5b5288,#40386a);border-color:#8077ad}
+#power .ps-main{position:absolute;inset:0;width:100%;display:grid;place-items:center;background:none}
+#power .ps-main img{height:68px;max-width:90%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+#power .ps-main b{font:400 40px var(--font-title);opacity:.45}
+#power .ps .pn{position:absolute;left:4px;right:4px;bottom:4px;font-size:14px;font-weight:800;line-height:1.05;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#power .ps .x{position:absolute;right:-6px;top:-8px;width:28px;height:28px;border-radius:50%;background:#e8334a;border:2px solid #fff;font:800 18px/24px var(--font-body);text-align:center}
+#power .info{margin-top:14px;font-weight:800;font-size:18px;color:#ddd7f7;line-height:1.3}
+#power h3{display:flex;align-items:center;gap:8px}
+#powerPage{display:grid;place-items:center;flex:none;width:36px;height:36px;padding:2px;border:2px solid #d6c9ff;border-radius:9px;background:#40386a}
+#powerPage img{width:28px;height:28px;object-fit:contain}
+#powerPage:active{transform:translateY(2px)}
+.pc{position:relative;height:178px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px;border-radius:16px;text-align:center;cursor:pointer;
+  background:linear-gradient(180deg,#5b5288,#40386a);border:3px solid #8077ad;box-shadow:0 5px 0 rgba(20,12,45,.55)}
+.pc.sel{border-color:var(--gold);box-shadow:0 0 0 2px #7a4a00,0 0 14px rgba(255,212,90,.5),0 5px 0 rgba(20,12,45,.55)}
+.pc.dis{opacity:.5;filter:grayscale(.75);cursor:not-allowed}
+.pc img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.pc .ck{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:16px;line-height:1;color:transparent;background:rgba(11,21,48,.5);border:2px solid rgba(255,255,255,.6)}
+.pc.sel .ck{color:#fff;background:#2cb02c;border-color:#0b3a0b}
+.pwn{font-size:17px;line-height:1.05;min-height:24px;display:grid;place-items:center;padding:0 2px}
+.pmn{font-size:13px;line-height:1;color:#ffd9a0}
+.pin{font-size:13px;line-height:1.1;color:#d8ecff}.pin.zero{color:#ffb4a0}
+.pstate{font-size:13px;font-weight:800;line-height:1;color:#d8ecff;white-space:nowrap}
+.pstate.owned{color:#bfcfe0}.pstate.installed{color:#9be86a}.pstate.zero{color:#ffb4a0}
+.pc .pstate img{width:16px;height:16px;object-fit:contain;position:static;vertical-align:-3px}
+.pc img{width:60px;height:60px}
+.pc .pwn{min-height:20px}
+.pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
+.pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
+.pst button:disabled{opacity:.45;cursor:not-allowed}
+#pm{padding:24px}
+#pm .box{width:100%;height:100%;max-height:none;display:flex;flex-direction:column}
+#pmL{grid-template-columns:repeat(5,minmax(0,1fr));max-height:none;min-height:0;flex:1;overflow:auto;align-content:start}
+#pm .mfoot{justify-content:space-between}
+#pm .mfoot .hint{flex:1}
+#power.dis .ps{pointer-events:none}
+#pageModal{position:fixed;inset:0;z-index:100;display:none;background:var(--room-backdrop)}
+#pageModal.on{display:block}
+#pageModal iframe{display:block;width:100%;height:100%;border:0;background:var(--room-backdrop)}
+#pageModalLoading{position:absolute;inset:0;z-index:1;display:none;place-items:center;background:var(--room-backdrop);pointer-events:none}
+#pageModal.loading #pageModalLoading{display:grid}
+#pageModalLoading img{width:110px;height:auto;animation:pageModalSpin 1.6s steps(12) infinite}
+@keyframes pageModalSpin{to{transform:rotate(360deg)}}
+/* peta */
+#mapi .pic img{width:100%;height:100%;object-fit:cover}#mapi .pic svg{width:100%;height:100%;display:block}
+/* pemain: avatar asli (wajah karakter + frame), lencana, tombol kecil */
+.av{background:#5a5180;border-color:#fff}.av img{width:80%;height:80%;object-fit:contain}.av.av-face{background:none;border:0;box-shadow:none}.av.av-face img{width:100%;height:100%}
+.fa .av{border:0;box-shadow:none;font-size:inherit}
+.pl .nm{max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge svg{width:26px;height:26px;vertical-align:-5px;margin-right:6px}
+.team .tc{font-size:20px;opacity:.8}
+.af{padding:6px 16px;border-radius:10px;background:linear-gradient(#ff9fba,#d4506f);border:3px solid #7a2540;font:400 22px var(--font-title);text-shadow:0 2px 0 #7a2540;white-space:nowrap}
+.af.sent{background:#5a5180;border-color:#2b2550;text-shadow:none;color:#d4cef0}
+button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:#e5defc}button.pl.empty:active{transform:scale(.98)}
+.pl.lock.static{cursor:default}
+#code>span{flex:none}#code b{margin-left:auto;margin-right:16px}
+#list{max-height:560px;overflow-y:auto;scrollbar-width:none}#list::-webkit-scrollbar{display:none}
+.emp{text-align:center;padding:24px;color:#cfc8ee;font-weight:800;font-size:24px;line-height:1.3}
+.on_{color:#7be04a}.wt_{color:#ffc857}
+.fr .btn.inv{flex:none}.fr .btn.inv:disabled{filter:grayscale(1) brightness(.7)}
+#dr{display:none}.dro #dr{display:grid}
+#dr .box{width:900px}#dr .fl{max-height:520px}

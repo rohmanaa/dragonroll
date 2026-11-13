@@ -1,8 +1,9 @@
 /* Tes API karakter blocky untuk gameplay: preset, tampilan dari server, aksi (serang/bertahan/sedih/sorak), mode jalan/lari.
    Jalankan: node tests/blocky-actions.test.js   (tanpa browser: canvas dipalsukan, tidak ada render WebGL) */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
+const PG = require("./_page");
 const R = path.join(__dirname, '..') + path.sep;
-const read = f => fs.readFileSync(R + f, 'utf8');
+const read = f => PG.readFileSync(R + f, 'utf8');
 const ctx = new Proxy({}, { get: (t, k) => k in t ? t[k] : (k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: (t, k, v) => { t[k] = v; return true; } });
 const store = {};
 global.window = global; global.self = global;

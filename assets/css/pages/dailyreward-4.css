@@ -1,0 +1,60 @@
+/* dailyreward-4.css — dipindah dari <style> inline (dailyreward.html). Path url() relatif ke folder ini. */
+/* Hadiah Harian: restyle gaya pixel Minecraft mengikuti redesign-hud/dailyreward.webp (selaras dengan Toko/Inventory/Profil).
+   HANYA tampilan. Markup, id, class, dan JS tidak berubah (tombol tidak ditambah/dihapus). Dimuat paling akhir. */
+:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
+
+/* tombol biru + judul */
+html body .blue{background:linear-gradient(var(--rb1),var(--rb2));border:.3rem solid var(--ol);border-radius:.9rem;box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol)}
+html body #title{border:.3rem solid var(--ol);border-radius:.9rem;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 .15rem var(--rb-hi),inset 0 -.3rem 0 rgba(8,25,90,.45),0 .35rem 0 var(--ol);rotate:0}
+html body #title h1{text-shadow:none}
+
+/* currency */
+html body .ut-curbar .cur{border-radius:.9rem;border:.3rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.35),0 .35rem 0 var(--ol)}
+html body .ut-curbar .plus{border-radius:.6rem;border:.25rem solid var(--ol);background:linear-gradient(#58d85a,#25a22c)}
+html body .ut-curbar #coin .plus{background:linear-gradient(#58d85a,#25a22c)}
+
+/* panel tengah */
+html body .panel{border:.3rem solid var(--ol);border-radius:1rem;backdrop-filter:none;background:linear-gradient(#3a74e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .4rem 0 var(--ol)}
+html body #lh{border:.25rem solid var(--ol);border-radius:.7rem;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3)}
+html body #days{border:.25rem solid var(--ol);border-radius:.7rem;background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3)}
+
+/* kartu hari */
+html body .day{border:.25rem solid var(--ol);border-radius:.8rem;background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.18),0 .2rem 0 var(--ol)}
+html body .day .hd{height:3.4rem;border-radius:.5rem .5rem 0 0;background:linear-gradient(#4a86ea,#2f66d0);box-shadow:inset 0 -.12rem 0 var(--ol);text-shadow:0 .12rem 0 var(--ol)}
+html body .day .am{color:#fff;text-shadow:0 .12rem 0 var(--ol)}
+html body .day .st{border:.2rem solid var(--ol);border-radius:.5rem;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 .12rem 0 rgba(255,255,255,.2)}
+html body .day.done{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 .12rem #ffe58a,0 .2rem 0 var(--ol)}
+html body .day.done .hd{background:linear-gradient(#ffd24d,#f0a21c);color:#fff}
+html body .day.done .am{color:#8a4a0a;text-shadow:none}
+html body .day.done .st{background:linear-gradient(#3fc545,#23952c);box-shadow:inset 0 .12rem 0 rgba(255,255,255,.4)}
+html body .day.now{background:linear-gradient(#4a86ea,#2a58c4);box-shadow:0 0 0 .25rem #f1d04a,0 0 1.4rem #f1d04a,0 .2rem 0 var(--ol)}
+html body .day.now .st{background:linear-gradient(#ffb133,#f08a14);box-shadow:inset 0 .12rem 0 rgba(255,255,255,.4)}
+html body .day.big{background:linear-gradient(#9a5ae0,#6a32b8);box-shadow:inset 0 0 0 .12rem rgba(220,180,255,.4),0 .2rem 0 var(--ol)}
+html body .day.big .hd{background:linear-gradient(#b878f4,#8a4ad8)}
+html body .day.big .am,html body .day.big .am small{color:#fff}
+html body .day.big.done{background:linear-gradient(#f7c940,#e0a21a)}
+html body .day.big.done .hd{background:linear-gradient(#ffd24d,#f0a21c)}
+html body .day.big.done .am,html body .day.big.done .am small{color:#8a4a0a}
+html body .day.big.now{background:linear-gradient(#a868ec,#7a3ccc)}
+
+/* jalur progres */
+html body #track:before{height:.7rem;margin-top:-.35rem;border-radius:0;background:var(--ol);box-shadow:none}
+html body #fill{height:.7rem;margin-top:-.35rem;border-radius:0}
+html body .nd{border-radius:50%;border:.25rem solid var(--ol);background:linear-gradient(#4a86ea,#2f66d0);box-shadow:inset 0 0 0 .12rem var(--rb-hi)}
+html body .nd.dn{background:linear-gradient(#ffd24d,#f0a21c);box-shadow:inset 0 0 0 .12rem #ffe58a}
+
+/* panel kanan (Hadiah Spesial) */
+html body #rt{border:.3rem solid var(--ol);border-radius:1rem;background:linear-gradient(#d18a1c,#a9690f);box-shadow:inset 0 0 0 .25rem #e8a83c,0 .4rem 0 var(--ol)}
+html body #rib{border:.3rem solid var(--ol);border-radius:.9rem;background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol);text-shadow:0 .15rem 0 #8a5a08}
+html body #chest{border:.25rem solid var(--ol);border-radius:.7rem;box-shadow:inset 0 0 0 .12rem rgba(255,255,255,.3)}
+html body #rtx{border:.25rem solid var(--ol);border-radius:.7rem;background:linear-gradient(#8a5410,#6e400a);box-shadow:inset 0 0 0 .12rem rgba(255,200,120,.25)}
+
+/* tombol Lihat Detail + modal */
+html body #see{border:.3rem solid var(--ol);border-radius:.9rem;background:linear-gradient(#a2a8b6,#767d90);box-shadow:inset 0 0 0 .15rem #c8ceda,inset 0 -.3rem 0 rgba(40,45,60,.45),0 .4rem 0 var(--ol)}
+html body .ok{border:.3rem solid var(--ol);border-radius:.9rem;background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
+html body .box{border:.3rem solid var(--ol);border-radius:1rem;background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 .25rem #5e90f0,0 .6rem 0 var(--ol)}
+html body .x{border:.25rem solid var(--ol);border-radius:.6rem;box-shadow:0 .25rem 0 var(--ol)}
+html body .day .st{font-size:.9rem;width:92%}
+html body .day .am{font-size:1.5rem}
+html body .day .am.s{font-size:1.3rem}
+html body #title small{font-size:1.2rem}

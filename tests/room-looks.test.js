@@ -1,6 +1,7 @@
 /* Tes statis room.html: avatar pemain online lain = wajah karakter dari server (room_appearance_get), bukan huruf awal. */
 const assert = require('assert'), fs = require('fs'), path = require('path');
-const g = fs.readFileSync(path.join(__dirname, '..', 'room.html'), 'utf8');
+const PG = require("./_page");
+const g = PG.readFileSync(path.join(__dirname, '..', 'room.html'), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 t('appearance-service.js dimuat sebelum app.js dan skrip room', () => {
   const a = g.indexOf('assets/js/appearance-service.js'), b = g.indexOf('assets/js/player-data.js'), c = g.indexOf('assets/js/app.js');

@@ -1,6 +1,7 @@
 /* Tes Power-3D (Batch 1): peta power-up -> model 3D, jalur impor, dan konsistensi nama. Jalankan: node tests/power3d.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
+const PG = require("./_page");
+const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const w = { addEventListener() {} }; w.window = w; const ctx = vm.createContext(w);
@@ -54,7 +55,7 @@ t('semua impor mesin 3D (relatif dan three/addons) menunjuk file yang ada', () =
 });
 t('powerup.html punya wadah #p3d dan cadangan ke tampilan lama (showThemeArt)', () => {
   const h = rd('powerup.html');
-  assert.ok(h.indexOf('id="p3d"') > 0); assert.ok(h.indexOf("import('./assets/js/power3d/power-show.js')") > 0);
+  assert.ok(h.indexOf('id="p3d"') > 0); assert.ok(h.indexOf("import('../../../assets/js/power3d/power-show.js')") > 0); /* path relatif ke assets/js/pages/powerup.js */
   assert.ok(/catch\(e=>\{this\.state=3/.test(h), 'tidak ada cadangan saat impor gagal');
 });
 console.log(n + ' tes lulus');

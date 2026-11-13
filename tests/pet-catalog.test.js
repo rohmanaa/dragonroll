@@ -2,7 +2,8 @@
    migrasi + seed server sinkron, dan beli/kepemilikan/pakai lewat jalur yang sama dengan aura.
    Jalankan: node tests/pet-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
-const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(root, p), 'utf8');
+const PG = require("./_page");
+const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w); const IC = w.ItemCatalog;
 const pets = IC.items.filter(i => i.kind === 'pet').sort((a, b) => a.tier - b.tier);

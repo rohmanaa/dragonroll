@@ -1,0 +1,8 @@
+/* misi-2.css — dipindah dari <style> inline (misi.html). Path url() relatif ke folder ini. */
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+:root{--ol:#172033;--rb1:#3f506b;--rb2:#26344c;--rb-hi:#8696ad;--nv1:#52647f;--nv2:#33445f;--pn1:#3f506b;--pn2:#26344c;--row1:#52647f;--row2:#33445f;--gold:#ffd23e}
+#cnt,.bar,.done-tag{background:#172033}
+#cnt{box-shadow:inset 0 0 0 .15rem #8696ad,0 .3rem 0 #0b1220}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
+#list,#tot{background:#1f2c44}

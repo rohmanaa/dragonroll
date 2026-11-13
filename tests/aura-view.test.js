@@ -1,6 +1,7 @@
 /* Tes UT.AuraView (assets/js/aura-view.js): kunci aura dari katalog/PlayerData/data server, dan siklus pasang-ganti-lepas pada karakter blocky. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const R = path.join(__dirname, '..') + path.sep, read = f => fs.readFileSync(R + f, 'utf8');
+const PG = require("./_page");
+const R = path.join(__dirname, '..') + path.sep, read = f => PG.readFileSync(R + f, 'utf8');
 const ctx = new Proxy({}, { get: (t, k) => k in t ? t[k] : (k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: (t, k, v) => { t[k] = v; return true; } });
 const store = {};
 global.window = global; global.self = global;

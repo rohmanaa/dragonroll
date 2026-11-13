@@ -1,0 +1,13 @@
+/* dailyreward-2.css — dipindah dari <style> inline (dailyreward.html). Path url() relatif ke folder ini. */
+/* ===== seragam lobby: slate, tanah grid + daun ===== */
+:root{--ol:#172033;--rb1:#3f506b;--rb2:#26344c;--rb-hi:#8696ad;--nv1:#52647f;--nv2:#33445f}
+html body .blue{text-shadow:0 .16rem 0 #0b1220}
+html body #title{background:linear-gradient(#3f506b,#26344c)}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border:0;box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .panel,html body .box{background:linear-gradient(var(--sl1),var(--sl2));box-shadow:var(--slf)}
+html body #days{background:linear-gradient(var(--sl2),var(--sl4));box-shadow:inset 0 0 0 .12rem #8696ad}
+html body .day{background:linear-gradient(var(--sl3),var(--sl4))}
+html body .day .hd,html body .nd{background:linear-gradient(#6b82a6,#43587a)}
+html body .day.now{background:linear-gradient(var(--sl3),var(--sl4))}
+html body .day.done .hd{background:linear-gradient(#ffd24d,#f0a21c)}
+html body .nd.dn{background:linear-gradient(#ffd24d,#f0a21c)}

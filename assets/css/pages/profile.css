@@ -1,0 +1,18 @@
+/* profile.css — dipindah dari <style> inline (profile.html). Path url() relatif ke folder ini. */
+/* tambahan khusus data asli (di luar profile.css newgui): karakter 3D, avatar berbingkai */
+#art canvas{position:absolute;inset:0;width:100%;height:100%;}
+#art .noweb{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);width:230px;height:230px}
+#art .noweb svg{position:static;width:100%;height:100%}
+#avatar.fr{border:0;background:none;box-shadow:none;overflow:visible;border-radius:0}
+#avatar.fr .fc{position:absolute;inset:19%;overflow:hidden;border-radius:6px;background:linear-gradient(#5a4f82,#2c2547)}
+#avatar.fr .fc svg{width:100%;height:100%;display:block}
+#avatar.fr .frm{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.ir.tap{cursor:pointer}
+/* baris Koleksi/Statistik = aset baris-ranking.webp (sama dengan halaman lain), bukan kotak CSS */
+.kr,.sr{background:none;border:0;isolation:isolate}
+.kr::before,.sr::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../../assets/ng/komponen/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+.sr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sr .v{flex:none;min-width:0;white-space:nowrap}
+.sr .v small{white-space:nowrap}
+/* karakter turun & lebih besar (tanpa pedestal/teks nama) */
+#art{top:250px;height:720px}
