@@ -49,6 +49,10 @@ const NOBOSS=['feather','odd','even'];/* tidak bisa dipakai di fase boss (boss:f
 const OWN_K='dragonroll:own:power';
 const cnt=LS(OWN_K,null)||(()=>{const o={};DC.forEach((x,i)=>o[x.id]=[3,2,1,2,2,3,2,1,1,2,2,1,1,1,1,0,0][i]);SAVE(OWN_K,JSON.stringify(o));return o})();
 let sel=DC[0].id;
+/* mode embed (dibuka dari Game Room): power bisa dipasang ke loadout, maks. 5 */
+const EMBED=new URLSearchParams(location.search).get('embed')==='1',LOAD_K='dragonroll:pref:powerLoadout';
+let loadout=EMBED?(LS(LOAD_K,[])||[]).filter(id=>DC.some(x=>x.id===id)&&(cnt[id]||0)>0).slice(0,5):[];
+const saveLoad=()=>SAVE(LOAD_K,JSON.stringify(loadout));
 const dieImg=f=>`<img ${f.g?'class="glyph" ':''}src="${IC}${f.ic}.webp" alt="">`;
 
 /* ---- tab kategori koleksi ---- */
@@ -57,7 +61,7 @@ const dieImg=f=>`<img ${f.g?'class="glyph" ':''}src="${IC}${f.ic}.webp" alt="">`
 function draw(){
   const f=DC.find(x=>x.id===sel),n=cnt[f.id]||0;
   let html=DC.map(x=>{const k=cnt[x.id]||0;
-    return `<button class="fslot${x.id===sel?' sel':''}${k?'':' lk'}" data-id="${x.id}"><div class="dc" style="--c:${x.c}">${dieImg(x)}</div><div class="pr cn">×${k}</div></button>`}).join('');
+    return `<button class="fslot${x.id===sel?' sel':''}${k?'':' lk'}" data-id="${x.id}">${EMBED&&loadout.includes(x.id)?'<span class="tag">DIPASANG</span>':''}<div class="dc" style="--c:${x.c}">${dieImg(x)}</div><div class="pr cn">×${k}</div></button>`}).join('');
   for(let i=DC.length;i<18;i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   $('#fpv').innerHTML=`<div class="dice pw" id="die" style="--c:${f.c}"><i class="ring"></i>${dieImg(f)}</div>`;
@@ -65,6 +69,7 @@ function draw(){
   $('#rar').textContent=RAR[f.r][0]+' · dimiliki ×'+n;$('#rar').style.color=RAR[f.r][1];
   $('#ds').textContent=f.d+(NOBOSS.includes(f.id)?' (Tidak bisa dipakai di fase boss.)':'');
   const b=$('#use');b.classList.add('off');b.querySelector('span').textContent='TIDAK DIJUAL';
+  if(EMBED){const on=loadout.includes(f.id);b.classList.toggle('off',!on&&n<=0);b.querySelector('span').textContent=on?'LEPAS':(n>0?'PASANG':'HABIS')}
 }
 $('#grid').onclick=e=>{const c=e.target.closest('.fslot');if(c){sel=c.dataset.id;draw();roll()}};
 
@@ -76,7 +81,14 @@ function roll(){
   setTimeout(()=>{d.classList.remove('burst');rolling=false},1000);
 }
 $('#roll').onclick=roll;$('#fpv').onclick=roll;
-$('#use').onclick=()=>toast('Power-up didapat dari gameplay atau hadiah');
+$('#use').onclick=()=>{
+  if(!EMBED){toast('Power-up didapat dari gameplay atau hadiah');return}
+  const f=DC.find(x=>x.id===sel),at=loadout.indexOf(f.id);
+  if(at>=0){loadout.splice(at,1);saveLoad();draw();toast(f.n+' dilepas ('+loadout.length+'/5)');return}
+  if((cnt[f.id]||0)<=0){toast('Power-up ini belum dimiliki');return}
+  if(loadout.length>=5){toast('Maksimal 5 power');return}
+  loadout.push(f.id);saveLoad();draw();toast(f.n+' dipasang ('+loadout.length+'/5)');
+};
 
 /* ---- modal ---- */
 let okFn=null;

@@ -22,28 +22,24 @@ const isHost=ROLE==='host';
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2000)}
 function nav(u){if(!NAVIGATE){toast('→ '+u);return}$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)}
 
-/* ---- katalog item (ItemCatalog tiruan) ---- */
+/* ---- ikon Equipment & Power: dibaca dari pilihan di halaman koleksi (localStorage), data ringkas sama dengan halamannya ---- */
 const K='assets/komponen/';
-const CAT={
- skin:[['Steve','ikon-item/helm-ksatria'],['Alex','ikon-item/helm-sayap'],['Zombie','ikon-gem-medali/tengkorak'],['Enderman','ikon-item/mahkota'],['Villager','ikon-item/tas-kulit'],['Knight','ikon-item/perisai-kayu']],
- frame:[['Frame Emas','ikon-gem-medali/medali-1'],['Frame Perak','ikon-gem-medali/medali-2'],['Frame Perunggu','ikon-gem-medali/medali-3'],['Frame Naga','ikon-item/panji-pedang']],
- dice:[['Dadu Putih','new-icon/dadu'],['Dadu Rumput','ikon-item/bintang'],['Dadu Emas','ikon-item/koin-tumpuk'],['Dadu Api','ikon-gem-medali/kristal-api']],
- fx:[['Tanpa Efek','glyph-putih/bintang-kilau',1],['Aura Api','ikon-gem-medali/kristal-api'],['Aura Petir','ikon-gem-medali/petir-emas'],['Aura Es','ikon-gem-medali/panji-es']]
-};
-const POWERS=[
- ['Iron Sword','ikon-item/pedang'],['Diamond Sword','ikon-item/pedang-silang'],['Netherite Sword','ikon-item/panji-pedang'],['Wooden Shield','ikon-item/perisai-kayu'],
- ['TNT','ikon-item/bom'],['Feather','glyph-putih/bulu',1],['Golden Apple','glyph-putih/apple',1],['Totem','ikon-item/piala'],
- ['Ender Pearl','ikon-gem-medali/berlian-ungu'],['Ramuan Ganjil','ikon-item/ramuan-ungu'],['Ramuan Genap','ikon-item/ramuan-biru'],['Fire Charge','ikon-gem-medali/kristal-api'],
- ['Ice Crystal','ikon-gem-medali/berlian-biru'],['Blaze Core','ikon-gem-medali/petir-emas'],['Trident','ikon-gem-medali/panah-tombak'],['Dragon Crystal','ikon-gem-medali/berlian-merah'],['Nether Star','ikon-item/bintang']
-];
+const LS=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const RAW=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const E_FRAME=[['perunggu','Frame Perunggu','slot-coklat'],['perak','Frame Perak','slot-biru'],['zamrud','Frame Zamrud','slot-hijau'],['ametis','Frame Ametis','slot-ungu'],['emas','Frame Emas','slot-terpilih'],['naga','Frame Naga','slot-merah']];
+const E_DICE=[['putih','Dadu Putih','grayscale(1) brightness(1.9) contrast(.9)'],['klasik','Dadu Klasik','none'],['rumput','Dadu Rumput','hue-rotate(110deg) saturate(1.1)'],['samudra','Dadu Samudra','hue-rotate(200deg) saturate(1.2)'],['zamrud','Dadu Zamrud','hue-rotate(160deg) saturate(1.3) brightness(1.15)'],['ametis','Dadu Ametis','hue-rotate(260deg) saturate(1.1)'],['api','Dadu Api','hue-rotate(40deg) saturate(2) brightness(1.3)'],['bayangan','Dadu Bayangan','grayscale(1) brightness(.45) contrast(1.2)']];
+const E_FX=[['none','Tanpa Efek','glyph-putih/bintang-kilau',1],['api','Aura Api','ikon-gem-medali/kristal-api'],['es','Aura Es','ikon-gem-medali/panji-es'],['petir','Aura Petir','ikon-gem-medali/petir-emas'],['zamrud','Aura Zamrud','ikon-gem-medali/berlian-hijau'],['ametis','Aura Ametis','ikon-gem-medali/berlian-ungu'],['darah','Aura Rubi','ikon-gem-medali/berlian-merah'],['naga','Aura Naga','ikon-gem-medali/petir-ungu']];
+const E_POWER=[['iron','Iron Sword','ikon-item/pedang'],['diamond','Diamond Sword','ikon-item/pedang-silang'],['netherite','Netherite Sword','ikon-item/panji-pedang'],['shield','Wooden Shield','ikon-item/perisai-kayu'],['tnt','TNT','ikon-item/bom'],['feather','Feather','glyph-putih/bulu',1],['apple','Golden Apple','glyph-putih/apple',1],['totem','Totem','ikon-item/piala'],['pearl','Ender Pearl','ikon-gem-medali/berlian-ungu'],['odd','Ramuan Ganjil','ikon-item/ramuan-ungu'],['even','Ramuan Genap','ikon-item/ramuan-biru'],['fire','Fire Charge','ikon-gem-medali/kristal-api'],['ice','Ice Crystal','ikon-gem-medali/berlian-biru'],['blaze','Blaze Core','ikon-gem-medali/petir-emas'],['trident','Trident','ikon-gem-medali/panah-tombak'],['dragon','Dragon Crystal','ikon-gem-medali/berlian-merah'],['star','Nether Star','ikon-item/bintang']];
 const KEYS={skin:'SKIN',frame:'FRAME',dice:'DADU',fx:'EFEK'};
-/* ikon slot FRAME, DADU & EFEK di room = ikon tile Dadu & Efek di lobby */
-const CATICON={frame:'new-icon/frame',dice:'new-icon/dadu',fx:'ikon-gem-medali/kristal-api'};
-const sel={skin:0,frame:0,dice:0,fx:0};let loadout=[];
+/* halaman koleksi yang dibuka di modal layar penuh */
+const PAGES={skin:'karakter.html',frame:'frame.html',dice:'dadu.html',fx:'efek.html',power:'powerup.html'};
+const LOAD_K='dragonroll:pref:powerLoadout';
+const pref=(key,list,def)=>{const id=RAW('dragonroll:pref:'+key),own=LS('dragonroll:own:'+key,[]);return list.find(x=>x[0]===id&&(x[0]===def||own.includes(id)))||list.find(x=>x[0]===def)};
+const readLoadout=()=>{const own=LS('dragonroll:own:power',{})||{},ids=LS(LOAD_K,[]);return (Array.isArray(ids)?ids:[]).map(id=>E_POWER.find(x=>x[0]===id)).filter(p=>p&&(own[p[0]]??1)>0).slice(0,5)};
 const MAP={world:{n:'WORLD',goal:'Ender Dragon di Block 100',end:100,c:['#6cc4ff','#c8ecff','#78cc4e','#58a33a','#8d6038']},
            nether:{n:'NETHER',goal:'Wither di Block 120',end:120,c:['#4a0d12','#a1301a','#a33a3a','#7a2828','#4b2020']}};
 const mapId=(()=>{try{const v=localStorage.getItem('dragonroll:pref:roomMap');return MAP[v]?v:'world'}catch(e){return 'world'}})();
-const img=(p,glyph)=>`<img ${glyph?'class="glyph" ':''}src="${K}${p}.webp" alt="">`;
+const img=(p,glyph,style)=>`<img ${glyph?'class="glyph" ':''}src="${K}${p}.webp" alt=""${style?` style="${style}"`:''}>`;
 
 /* ---- header ---- */
 const MODENAME={vsc:'VS COMPUTER',local:'MULTI PLAYER',online:'ONLINE'};
@@ -51,18 +47,29 @@ function drawChips(){$('#chips').innerHTML=`<span class="chip">${MODENAME[MODE]}
 drawChips();
 
 /* ---- equipment ---- */
+function equipItem(k){
+  if(k==='skin'){const h=getHero();return {n:h.name,html:`<img src="${heroIcon(h)}" alt="">`}}
+  if(k==='frame'){const f=pref('frame',E_FRAME,'perunggu'),h=getHero(),ph=RAW('dragonroll:profile:photo');
+    const av=ph?`<img src="${ph}" alt="">`:(h.art?`<img src="${h.art}" alt="">`:`<img class="ico" src="${heroIcon(h)}" alt="">`);
+    return {n:f[1],html:`<div class="fr"><img class="fb" src="${K}slot-equipment/${f[2]}.webp" alt=""><div class="av">${av}</div></div>`}}
+  if(k==='dice'){const d=pref('dice',E_DICE,'putih');return {n:d[1],html:img('new-icon/dadu',0,(d[2]==='none'?'':'filter:'+d[2]+' drop-shadow(0 4px 3px rgba(0,0,0,.45))'))}}
+  const x=pref('fx',E_FX,'none');return {n:x[1],html:img(x[2],x[3])};
+}
 function drawEquip(){
-  $('#eqgrid').innerHTML=Object.keys(KEYS).map(k=>{const it=CAT[k][sel[k]];
-   return `<button class="slot" data-k="${k}"><span class="chg">✎</span><div class="k">${KEYS[k]}</div>${CATICON[k]?img(CATICON[k]):img(it[1],it[2])}<div class="v">${it[0]}</div></button>`}).join('');
-  $$('#eqgrid .slot').forEach(b=>b.onclick=()=>openPick(b.dataset.k));
+  $('#eqgrid').innerHTML=Object.keys(KEYS).map(k=>{const it=equipItem(k);
+   return `<button class="slot" data-k="${k}"><span class="chg">✎</span><div class="k">${KEYS[k]}</div>${it.html}<div class="v">${it.n}</div></button>`}).join('');
+  $$('#eqgrid .slot').forEach(b=>b.onclick=()=>openPage(b.dataset.k));
 }
 /* ---- power loadout ---- */
 function drawPower(){
   if(ONLINE){$('#power').classList.add('dis')}
-  $('#prow').innerHTML=Array.from({length:5},(_,i)=>{const p=loadout[i]!=null?POWERS[loadout[i]]:null;
-    return p?`<div class="ps full" data-i="${i}">${img(p[1],p[2])}<span class="x" data-x="${i}">×</span></div>`:`<div class="ps" data-i="${i}"><b>+</b></div>`}).join('');
-  $('#pinfo').textContent=ONLINE?'Mode online: power loadout tidak dikirim, kamu memakai skin & dadu dari akunmu.':(loadout.length?loadout.map(i=>POWERS[i][0]).join(' · '):'Pilih sampai 5 power-up untuk dibawa.');
-  $$('#prow .ps').forEach(e=>e.onclick=ev=>{if(ev.target.dataset.x!=null){loadout.splice(+ev.target.dataset.x,1);drawPower();return}openPick('power')});
+  const ld=readLoadout();
+  $('#prow').innerHTML=Array.from({length:5},(_,i)=>{const p=ld[i];
+    return p?`<div class="ps full" data-i="${i}">${img(p[2],p[3])}<span class="x" data-x="${i}">×</span></div>`:`<div class="ps" data-i="${i}"><b>+</b></div>`}).join('');
+  $('#pinfo').textContent=ONLINE?'Mode online: power loadout tidak dikirim, kamu memakai skin & dadu dari akunmu.':(ld.length?ld.map(p=>p[1]).join(' · '):'Pilih sampai 5 power-up untuk dibawa.');
+  $$('#prow .ps').forEach(e=>e.onclick=ev=>{
+    if(ev.target.dataset.x!=null){const ids=ld.map(p=>p[0]);ids.splice(+ev.target.dataset.x,1);try{localStorage.setItem(LOAD_K,JSON.stringify(ids))}catch(e){}drawPower();return}
+    openPage('power')});
 }
 /* ---- map ---- */
 function drawMap(){
@@ -71,21 +78,21 @@ function drawMap(){
   $('#mpic').innerHTML=`<svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient></defs><rect width="300" height="150" fill="url(#mg)"/>${t(150,60,190,36,c[2],c[3],c[4])}</svg>`;
   $('#mtxt').innerHTML=`<div class="n ttl">${m.n}</div><div>Garis finis: <b>Block ${m.end}</b></div><div>Boss: <b>${m.goal.split(' di ')[0]}</b></div><div>Tangga 5 · Ular 5 · Peti 7</div>`;
 }
-/* ---- modal pilih item ---- */
-let pickKind=null;
-function openPick(kind){
-  pickKind=kind;const multi=kind==='power';
-  $('#ptitle').textContent=multi?'PILIH POWER LOADOUT':'PILIH '+KEYS[kind];
-  const list=multi?POWERS:CAT[kind];
-  $('#pgrid').innerHTML=list.map((it,i)=>{const on=multi?loadout.includes(i):sel[kind]===i;
-    return `<button class="it ${on?'sel':''}" data-i="${i}">${img(it[1],it[2])}<div class="n">${it[0]}</div>${on&&!multi?'<div class="u">DIPAKAI</div>':''}</button>`}).join('');
-  $('#phint').textContent=multi?`Dipilih ${loadout.length}/5`:'';
-  $('#pick').classList.add('on');
-  $$('#pgrid .it').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;
-    if(multi){const at=loadout.indexOf(i);if(at>=0)loadout.splice(at,1);else if(loadout.length<5)loadout.push(i);else toast('Maksimal 5 power');openPick('power');return}
-    sel[kind]=i;drawEquip();$('#pick').classList.remove('on')});
+/* ---- modal layar penuh: halaman koleksi (karakter/frame/dadu/efek/powerup) di iframe ---- */
+let pageFrame=null;
+function openPage(kind){
+  if(!PAGES[kind])return;
+  const box=$('#pageModal');
+  box.innerHTML=`<iframe id="pageFrame" src="${PAGES[kind]}?embed=1" title="${kind}"></iframe>`;
+  pageFrame=$('#pageFrame');
+  box.classList.add('on');
 }
-$('#pdone').onclick=()=>{$('#pick').classList.remove('on');drawPower()};
+function closePage(){
+  const box=$('#pageModal');box.classList.remove('on');box.innerHTML='';pageFrame=null;
+  drawEquip();drawPower();
+}
+addEventListener('message',e=>{if(pageFrame&&e.source===pageFrame.contentWindow&&e.data&&e.data.type==='room-close')closePage()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&pageFrame)closePage()});
 
 /* ---- pemain ---- */
 const COL=['#3d8bff','#ff5468','#43b63a','#f1b21f'];
