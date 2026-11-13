@@ -373,14 +373,15 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
   <div class="tools">
     <span class="camgrp" id="camGrp" hidden>
     <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/kamera.webp" alt="" draggable="false"></button>
+    <button class="btn small light" id="btnTheme" type="button" aria-label="Ganti peta" hidden>Maps</button>
     <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/lokasi-pin.webp" alt="" draggable="false"></button>
     <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/ulang.webp" alt="" draggable="false"></button>
     </span>
-    <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
-    <button class="btn small light" id="btnSnd" type="button" aria-label="Suara: nyala"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/speaker-suara.webp" alt="" draggable="false">Suara: nyala</button>
-    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/menu-garis.webp" alt="" draggable="false">Menu</button>
+    <button class="btn small light" id="btnSnd" type="button" aria-label="Suara: nyala" hidden><img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/speaker-suara.webp" alt="" draggable="false">Suara: nyala</button>
+    <button class="btn small light" id="btnPause" type="button" aria-label="Buka menu jeda" hidden><img class="hi" src="referensi/newgui/game/assets/komponen/menu-pause/ikon-pengaturan.webp" alt="" draggable="false"></button>
+    <button class="btn small light" id="btnMenu" type="button" aria-label="Tampilkan menu" aria-expanded="false" aria-controls="camGrp btnSnd btnPause">Menu</button>
   </div>
 </header>
 
@@ -3891,6 +3892,9 @@ function syncCrystals(){
    Hanya pemain yang sudah menghancurkan semua Crystal (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
 function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===GOAL&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
+function showDragonBoss(p,gid,text,ttl){
+  hud('showCombat',p.name,'Ender Dragon',text,{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl});
+}
 /* ---------- Dragon Feature 6: Dragon Defeat & Reward ----------
    Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
    Hadiah = PlayerData.grant existing (nominal: UT.Gameplay.Config.DRAGON_REWARD). Tidak ada currency/reward system baru.
@@ -3958,7 +3962,11 @@ async function crystalRoll(p,v,gid){
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
   setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/'+CRYSTAL_N+')'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/'+CRYSTAL_N,{gid,ttl:1800});
   await S(sleep(900)); renderChips();
-  if(p.crystal>=CRYSTAL_N){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
+  if(p.crystal>=CRYSTAL_N){
+    p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared();
+    showDragonBoss(p,gid,'Siap menyerang Ender Dragon!',4000);
+    renderChips(); await S(sleep(700));
+  }
   return true;
 }
 /* Kamera saat Dragon bangkit: menyorot tengah papan (tempat 4 crystal & naga muncul), sedikit lebih jauh agar 6 tower di pinggir ikut terlihat. Pergeseran dihitung seperti fortCamPan (mode LOCK / ANGLE). */
@@ -3980,7 +3988,7 @@ async function awakenDragon(p,gid){
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
     setMsg('Block 100 aktif! Papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
-    if(!A){ await S(sleep(700*F)); FLY.on=true; FLY.blend=1; dragon.position.set(0,FLY.y,0); dragon.visible=true; finished=true; return; }
+    if(!A){ await S(sleep(700*F)); FLY.on=true; FLY.blend=1; dragon.position.set(0,FLY.y,0); dragon.visible=true; showDragonBoss(p,gid,'Ender Dragon bangkit!',8000); finished=true; return; }
     A.g.visible=true;
     { const c=awakenCamPan(); panGoal.x=c.x; panGoal.z=c.z; panGoal.y=c.y; goal.zoom=pg.zoom*AWK_CAM.zoomK; } /* kamera menyorot tengah papan (kosmetik; dipulihkan di akhir) */
     /* 2. gempa */
@@ -4002,6 +4010,7 @@ async function awakenDragon(p,gid){
     /* 6. naga muncul di atas tengah papan; 4 crystal pembangkit habis, 6 crystal tower menyetrum naga (regenerasi) */
     setMsg('Ender Dragon bangkit!'); sfx.dragonSpawn();
     dragon.visible=true; FLY.on=true; FLY.blend=0; FLY.a=0; Dd.dy=0; Dd.shk=0; Dd.hd=0; Dd.roll=0; dragon.position.set(0,CC_TOP,0); dragon.scale.setScalar(0.05);
+    showDragonBoss(p,gid,'Ender Dragon bangkit!',8000);
     await QW(0.6*F,k=>{ A.burst=Math.sin(k*Math.PI*0.5); });
     await QW(1.0*F,k=>{ dragon.scale.setScalar(0.05+(DRAGON_S-0.05)*k); A.burst=1-k; });
     sfx.towerStop(tw); tw=null; dragon.scale.setScalar(DRAGON_S);
@@ -5288,6 +5297,7 @@ const CAM_PRESETS={
 CAM_PRESETS.pov={yaw:0,pitch:CAM_PITCH,zoom:CAM_ZOOM}; /* POV Bidak: kamera orang pertama dari mata bidak (lihat blok POV di bawah) */
 const CAM_ORDER=['free','front','top','pov'],CAM_NAMES={free:'Free',front:'Front',top:'Top',pov:'POV'}; /* hanya 4 sudut; preset lama (back/left/right/iso) dihapus, pilihan tersimpan lama jatuh ke Free */
 const camCfg={angle:true,preset:'free',follow:false},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
+let hudMenuOpen=false;
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
@@ -5323,9 +5333,18 @@ const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt
 function camUI(){
   /* tombol LOCK/ANGLE sudah dihapus: kamera selalu mode ANGLE */
   if(!camCfg.angle) camMenuClose();
-  $('camGrp').hidden=!camCfg.angle; document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&(camCfg.preset==='free'||camCfg.preset==='pov'))?'grab':'default';
+  $('camGrp').hidden=!(camCfg.angle||hudMenuOpen); document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&(camCfg.preset==='free'||camCfg.preset==='pov'))?'grab':'default';
   $('btnPreset').innerHTML=ICON_CAM+CAM_NAMES[camCfg.preset];
   const f=$('btnFollow'); f.setAttribute('aria-pressed',String(camCfg.follow));
+}
+function setHudMenuOpen(open){
+  hudMenuOpen=!!open;
+  const tools=document.querySelector('#hud .tools');
+  tools.classList.toggle('open',hudMenuOpen);
+  $('btnMenu').setAttribute('aria-expanded',String(hudMenuOpen));
+  $('camGrp').hidden=!(camCfg.angle||hudMenuOpen);
+  $('btnSnd').hidden=!hudMenuOpen;
+  $('btnPause').hidden=!hudMenuOpen;
 }
 function camSetAngle(v){
   v=!!v; if(v===camCfg.angle||AWK.running) return;
@@ -6877,6 +6896,7 @@ setInterval(()=>{
 },150);
 $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
+$('btnMenu').addEventListener('click',()=>setHudMenuOpen(!hudMenuOpen));
 camRefit=()=>{ if(camLocked()) goal.zoom=WF.cam?fortZoom(true):(WF.shot?fortZoom(false):lockZoom()); };
 if(camLocked()){ resetCam(); cam.yaw=goal.yaw; cam.pitch=goal.pitch; cam.zoom=goal.zoom; camTarget.set(lockCenter.x,LOCK_BOX.y,lockCenter.z); } /* mulai langsung di LOCK tanpa gerakan kamera */
 $('btnPreset').addEventListener('click',camMenuToggle);
@@ -6897,6 +6917,7 @@ UT.GameplayPause.bind({
   isReadyRunning:()=>AWK.running,
   isOnlineGuest:()=>ONLINE_ROOM&&!ONLINE_HOST,
   getMode:()=>mode,
+  closeHudMenu:()=>setHudMenuOpen(false),
   isNight:()=>night,
   isAutoDN:()=>autoDN,
   cycleMode:cycleMode,

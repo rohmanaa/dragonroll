@@ -674,9 +674,9 @@
   right: auto !important;
   bottom: auto !important;
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 14px !important;
   transform: translateY(-50%) !important;
   pointer-events: auto !important;
 }
@@ -704,13 +704,30 @@
   min-height: 150px !important;
   border: 0 !important;
   border-radius: 14px !important;
-  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   color: #fff3d0 !important;
-  font: 22px var(--gh-title) !important;
+  position: relative !important;
+  overflow: visible !important;
+  font-size: 0 !important;
+  transform: none !important;
+  background: none !important;
+}
+#hud #btnMenu::before {
+  content: "MENU";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 46px;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  border-radius: 14px;
+  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat;
+  color: #fff3d0;
+  font: 22px var(--gh-title);
   letter-spacing: 2px;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  text-shadow: 0 3px 0 rgba(20,10,40,.6);
 }
 #hud #btnMenu .hi { display: none !important; }
 
@@ -885,6 +902,14 @@ html body #readyScreen .rd-box {
 html body #hud { max-width: none !important; }
 html body #hud #btnSnd { display: none !important; }
 html body #hud .tools .camgrp { display: none !important; }
+html body #hud { z-index: 7 !important; }
+html body #hud .tools.open .camgrp {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 12px !important;
+}
+html body #hud .tools.open #btnSnd { display: inline-flex !important; }
+html body #hud .tools.open #btnMenu::before { filter: brightness(1.2); }
 html body #side .rcol .pnl.tn {
   grid-template-columns: 360px !important;
   grid-template-areas: "die" "roll" "hint" "msg" "meter" !important;

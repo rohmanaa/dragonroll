@@ -29,6 +29,7 @@
 
     function openPause() {
       if (ops.isPaused() || ops.isReadyRunning()) return;
+      if (ops.closeHudMenu) ops.closeHudMenu();
       ops.setPaused(true);
       ops.clearTurnTimer();
       $('pmSub').textContent = ops.getMode() === 'cpu'
@@ -63,7 +64,7 @@
       syncNight();
       ops.setMusicOn(true);
     });
-    $('btnMenu').addEventListener('click', openPause);
+    $('btnPause').addEventListener('click', openPause);
     $('pmResume').addEventListener('click', closePause);
     $('pmClose').addEventListener('click', closePause);
     $('pmRestart').addEventListener('click', function () {
