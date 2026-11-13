@@ -98,7 +98,6 @@
       var time = el('div', 'rd-time'); time.setAttribute('role', 'timer'); sub.appendChild(time);
       var grid = el('div', 'rk-grid'); grid.style.setProperty('--n', n); box.appendChild(grid);
       var roster = el('div', 'rd-players'); roster.setAttribute('role', 'group'); roster.setAttribute('aria-label', 'Pemain dan urutan giliran'); box.appendChild(roster);
-      var footer = el('p', 'rd-note', 'Host tidak mendapat keuntungan — urutan murni keberuntungan'); box.appendChild(footer);
       var rosterItems = [];
 
       players.forEach(function (p) {
@@ -114,6 +113,7 @@
       function setMessage(text) {
         message.textContent = text;
         sub.classList.toggle('rd-picking', text.indexOf('Giliran kamu memilih') === 0);
+        sub.classList.toggle('rd-shuffling', text.indexOf('Kartu diacak') === 0);
       }
 
       function renderRoster(active, ordered) {
