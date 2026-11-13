@@ -127,3 +127,6 @@
 
 .alist{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
 .alist::-webkit-scrollbar{display:none}
+.qlist{position:absolute;left:0;top:243px;width:1480px;bottom:106px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
+.qlist::-webkit-scrollbar{display:none}
+.qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}

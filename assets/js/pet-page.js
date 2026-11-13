@@ -110,18 +110,11 @@
     const body = $('#petInfoBody');
     body.replaceChildren();
 
-    const rarity = RARITY[item.rarity] || RARITY.common;
-    addInfoRow(body, 'Kelangkaan', rarity[0]);
-    addInfoRow(body, 'Tier', `Tier ${item.tier}`);
     const detail = metadata.get(item.gameKey);
     if (detail) {
-      addInfoRow(body, 'Bahan', detail.material);
       addInfoRow(body, 'Identitas', detail.identity);
       addInfoRow(body, 'Peran', detail.role || item.role);
       addInfoRow(body, 'Keunggulan', detail.advantage);
-      addInfoRow(body, 'Animasi', detail.animations);
-      addInfoRow(body, 'Efek visual', detail.effects);
-      addInfoRow(body, 'Suara', detail.sounds);
       addInfoRow(body, 'Cerita', detail.lore);
       addInfoRow(body, 'Skill', detail.skill && detail.skill.name);
       addInfoRow(body, 'Efek skill', detail.skill && detail.skill.effect);
@@ -202,8 +195,7 @@
       const client = await window.UT.Multiplayer.getClient();
       const { data, error } = await client
         .from('pet_catalog')
-        .select('id,tier,tier_name,name,material,identity,role,skill,advantage,visual,animations,effects,sounds,lore')
-        .order('tier', { ascending: true });
+        .select('id,identity,role,skill,advantage,lore');
       if (error) throw error;
       const next = new Map((data || []).map((row) => [row.id, row]));
       const missing = PETS.filter((item) => !next.has(item.gameKey));
@@ -373,6 +365,7 @@
   $('#petInfoOpen').addEventListener('click', () => {
     renderDetails(selected || PETS[0]);
     $('#petInfo').showModal();
+    requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
   });
   $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
   $('#petInfo').addEventListener('click', (event) => {

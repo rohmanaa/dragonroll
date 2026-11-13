@@ -4,7 +4,7 @@
    Kanvas 1920x1080. Aset: assets/komponen/**
    ========================================================================= */
 :root{--line:#6d6590;--font-title:'Lilita One','Baloo 2',Impact,sans-serif;--font-body:'Nunito','Segoe UI',system-ui,sans-serif;
-  --blue:#3d8bff;--red:#ff5468;--gold:#ffd45a}
+  --blue:#3d8bff;--red:#ff5468;--gold:#ffd45a;--room-backdrop:#4b4162}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html,body{margin:0;height:100%;background:#0e0b1c;overflow:hidden;font-family:var(--font-body);color:#fff}
 #wrap{position:fixed;inset:0;display:grid;place-items:center}

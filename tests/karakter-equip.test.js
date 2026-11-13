@@ -23,6 +23,25 @@ t("kontrol pose dan lompat tidak ditampilkan", () => {
   assert.ok(!/<div id="sbs"/.test(html));
   assert.ok(!/const MODES=/.test(html));
 });
+t("karakter dipratinjau tanpa podium dan tidak bergerak naik-turun", () => {
+  assert.ok(!/id="ped"/.test(html));
+  assert.ok(!/#ped/.test(css));
+  const rig = html.match(/function applyRig\(\)\{[\s\S]*?\n\}/)[0];
+  assert.ok(/hips\.position\.y=1\.5/.test(rig));
+  assert.ok(/root\.position\.y=0/.test(rig));
+  assert.ok(!/Math\.sin/.test(rig), "rig pratinjau tidak menjalankan gerakan naik-turun otomatis");
+  assert.ok(/root\.position\.y=-0\.75\*cfg\.body\.height\*\(cfg\.gender==='f'\?0\.97:1\)/.test(html), "karakter diturunkan tetap sampai kakinya menyentuh garis dasar");
+  assert.ok(/camTarget\.set\(0,0\.85,0\)/.test(html), "kamera tidak mengimbangi penurunan rig");
+  assert.ok(/camYaw-=dx\*0\.007/.test(html), "drag tetap memutar tampilan karakter");
+});
+t("kaki karakter sejajar dengan batas bawah baris keempat slot", () => {
+  const slots = css.match(/#eqL,#eqR\{[^}]*top:(\d+)px[^}]*grid-template-rows:repeat\(4,(\d+)px\)[^}]*gap:(\d+)px/);
+  const showTop = css.match(/#show\{[^}]*top:(\d+)px/);
+  const feetY = html.match(/const FEET_Y=(\d+)/);
+  assert.ok(slots && showTop && feetY, "posisi slot, kanvas, dan kaki tersedia");
+  const target = Number(slots[1]) + 4 * Number(slots[2]) + 3 * Number(slots[3]) - Number(showTop[1]);
+  assert.strictEqual(Number(feetY[1]), target);
+});
 t("tombol Acak dan Toko berada di dalam panel kiri bawah", () => {
   const info = html.indexOf('<section id="info">'),close = html.indexOf('</section>', info);
   assert.ok(info > html.indexOf('<section id="left">') && info < html.indexOf('<section id="right">'));

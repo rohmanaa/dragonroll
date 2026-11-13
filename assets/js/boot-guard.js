@@ -1,6 +1,7 @@
 /* Fade in dari hitam setelah layar loading (flag ut:fadein diset splash.html, sekali pakai). */
 (function () {
   try {
+    if (new URLSearchParams(location.search).get('from') === 'room') return;
     if (sessionStorage.getItem('ut:fadein') !== '1') return;
     sessionStorage.removeItem('ut:fadein');
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;

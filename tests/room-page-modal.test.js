@@ -30,6 +30,20 @@ test('equipment slots open their corresponding full-screen page modal', () => {
   assert.ok(room.includes("classList.add('on','loading')"));
 });
 
+test('equipment modal fills the viewport with an opaque backdrop outside the Room stage', () => {
+  assert.ok(/#pageModal\{position:fixed;inset:0;[^}]*background:var\(--room-backdrop\)/.test(room));
+  assert.ok(/#pageModal iframe\{[^}]*background:var\(--room-backdrop\)/.test(room));
+  assert.ok(/#pageModalLoading\{[^}]*background:var\(--room-backdrop\)/.test(room));
+  assert.ok(/<div id="toast"><\/div>\s*<\/div>\s*<div id="pageModal"/.test(room), 'modal is outside the scaled Room stage');
+  const bridge = read('assets/js/room-modal-bridge.js');
+  assert.ok(bridge.includes('background:#4b4162!important'));
+  assert.ok(bridge.includes('background:#483e60!important'));
+  assert.ok(!bridge.includes('background:transparent'), 'embedded page uses an opaque Room background');
+  assert.ok(read('assets/ng/css/room.css').includes('--room-backdrop:#4b4162'));
+  const bootGuard = read('assets/js/boot-guard.js');
+  assert.ok(bootGuard.includes("get('from') === 'room'"), 'embedded pages skip the cinematic black fade');
+});
+
 test('embedded pages close the parent modal from their back controls', () => {
   for (const file of ['dadu.html', 'karakter.html', 'frame.html', 'efek.html', 'powerup.html']) {
     assert.ok(read(file).includes('assets/js/room-modal-bridge.js'), `${file} bridge`);

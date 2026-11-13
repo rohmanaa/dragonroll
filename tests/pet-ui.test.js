@@ -22,11 +22,21 @@ assert.ok(css.includes('#petTitle{position:absolute;left:190px;top:660px;width:6
 assert.ok(css.includes('#rar{position:absolute;left:190px;top:744px;width:600px;text-align:center;font-size:26px}'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
+assert.ok(css.includes('border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
 assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 120px);overflow-y:auto;'));
 assert.ok(page.includes("$('#petInfo').showModal()"));
+assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
 assert.ok(page.includes("$('#petInfoClose').addEventListener('click', () => $('#petInfo').close())"));
 assert.ok(!page.includes("$('#home').addEventListener"));
-assert.ok(page.includes("addInfoRow(body, 'Kelangkaan', rarity[0])"));
-assert.ok(page.includes("addInfoRow(body, 'Tier', `Tier ${item.tier}`)"));
-assert.ok(page.indexOf("addInfoRow(body, 'Skill'") > page.indexOf("addInfoRow(body, 'Cerita'"));
+for (const label of ['Kelangkaan', 'Tier', 'Bahan', 'Animasi', 'Efek visual', 'Suara']) {
+  assert.ok(!page.includes(`addInfoRow(body, '${label}'`), `${label} tidak ditampilkan dalam panel`);
+}
+for (const label of ['Identitas', 'Peran', 'Keunggulan', 'Cerita', 'Skill', 'Efek skill', 'Batas']) {
+  assert.ok(page.includes(`addInfoRow(body, '${label}'`), `${label} tetap ditampilkan dalam panel`);
+}
+assert.ok(page.includes(".select('id,identity,role,skill,advantage,lore')"));
+assert.deepStrictEqual(
+  fs.readFileSync(path.join(root, 'assets/ng/komponen/panel-dialog/bingkai-dialog.webp')),
+  fs.readFileSync(path.join(root, 'referensi/newgui/assets/komponen/panel-dialog/bingkai-dialog.webp'))
+);
 console.log('ok - Pet uses an accessible tier modal, removes the duplicate home icon, and keeps skills at the bottom');

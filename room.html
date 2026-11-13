@@ -54,10 +54,10 @@
 #pm .mfoot{justify-content:space-between}
 #pm .mfoot .hint{flex:1}
 #power.dis .ps{pointer-events:none}
-#pageModal{position:absolute;inset:0;z-index:100;display:none;background:#0e0b1c}
+#pageModal{position:fixed;inset:0;z-index:100;display:none;background:var(--room-backdrop)}
 #pageModal.on{display:block}
-#pageModal iframe{display:block;width:100%;height:100%;border:0;background:#0e0b1c}
-#pageModalLoading{position:absolute;inset:0;z-index:1;display:none;place-items:center;background:#0e0b1c;pointer-events:none}
+#pageModal iframe{display:block;width:100%;height:100%;border:0;background:var(--room-backdrop)}
+#pageModalLoading{position:absolute;inset:0;z-index:1;display:none;place-items:center;background:var(--room-backdrop);pointer-events:none}
 #pageModal.loading #pageModalLoading{display:grid}
 #pageModalLoading img{width:110px;height:auto;animation:pageModalSpin 1.6s steps(12) infinite}
 @keyframes pageModalSpin{to{transform:rotate(360deg)}}
@@ -114,11 +114,6 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
   <div class="modal" id="pm"><div class="box" role="dialog" aria-modal="true" aria-labelledby="pmT"><h2 class="ttl" id="pmT">PILIH POWER</h2><div class="igrid" id="pmL"></div>
     <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
 
-  <div id="pageModal" role="dialog" aria-modal="true" aria-label="Halaman equipment" aria-hidden="true" aria-busy="false">
-    <div id="pageModalLoading" role="status" aria-label="Memuat"><img src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt=""></div>
-    <iframe id="pageModalFrame" title="Equipment" tabindex="0" allow="fullscreen; autoplay"></iframe>
-  </div>
-
   <div class="modal" id="inv"><div class="box" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ttl">AKSES ROOM</h2>
     <div class="sw"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div>
     <div class="row2"><div class="field" id="icode"></div><button class="btn cp" id="cCode"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><span>KODE</span></button></div>
@@ -132,6 +127,10 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
     <div class="mfoot"><span class="hint" id="drCnt"></span><button class="btn" id="drX" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
 
   <div id="toast"></div>
+</div>
+<div id="pageModal" role="dialog" aria-modal="true" aria-label="Halaman equipment" aria-hidden="true" aria-busy="false">
+  <div id="pageModalLoading" role="status" aria-label="Memuat"><img src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt=""></div>
+  <iframe id="pageModalFrame" title="Equipment" tabindex="0" allow="fullscreen; autoplay"></iframe>
 </div>
 </div>
 

@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/mission.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
-<style>.qlist{position:absolute;left:0;top:243px;width:1480px;height:430px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}.qlist::-webkit-scrollbar{display:none}.qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}</style></head>
+</head>
 <body class="ms">
 <div id="wrap"><div id="stage">
   <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
@@ -159,9 +159,10 @@ function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems())
 function render(){
  const L=[['hadiah','HADIAH','ikon-item/kado-merah'],['misi','MISI','misi/ikon-tab-harian-centang'],['ach','PENCAPAIAN','misi/ikon-tab-pencapaian-medali']];
  $('#tabs').innerHTML=L.map(a=>'<button class="tab'+(tab===a[0]?' on':'')+'" data-k="'+a[0]+'"><img class="ul" src="'+IC+'ikon-navigasi/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
- const sc=($('#alist')||{}).scrollTop||0;
+ const sc=($('#alist')||{}).scrollTop||0, qsc=($('#qlist')||{}).scrollTop||0;
  $('#body').innerHTML=tab==='misi'?vMisi():tab==='ach'?vAch():vHadiah();
  const al=$('#alist');if(al)al.scrollTop=sc;
+ const ql=$('#qlist');if(ql)ql.scrollTop=qsc;
  $('#title').textContent=tab==='misi'?'Misi Harian':tab==='ach'?'Pencapaian':'Hadiah Harian';
  renderCurrency()}
 

@@ -14,7 +14,6 @@
   <div class="cur" id="cur-co"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
 
   <section id="left">
-    <div id="ped"><svg viewBox="0 0 500 190" aria-hidden="true"><ellipse cx="250" cy="168" rx="236" ry="22" fill="rgba(8,4,20,.35)"/><path d="M28,104 v30 a222,46 0 0 0 444,0 v-30 Z" fill="#2f2949" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="104" rx="222" ry="46" fill="#4b4370" stroke="#17122b" stroke-width="3"/><path d="M74,82 v24 a176,36 0 0 0 352,0 v-24 Z" fill="#3b3459" stroke="#17122b" stroke-width="3"/><ellipse cx="250" cy="82" rx="176" ry="36" fill="#5d5486" stroke="#17122b" stroke-width="3"/></svg></div>
     <div id="show"><canvas id="gl"></canvas></div>
     <div id="eqL" aria-label="Perlengkapan sisi kiri"></div><div id="eqR" aria-label="Perlengkapan sisi kanan"></div>
     <section id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><div id="extraAcc" aria-label="Aksesori tambahan"></div><div id="panelActions"><button class="bt" id="rnd">🎲 Acak</button><button class="bt" id="shp">🛒 Toko</button></div></section>
@@ -996,9 +995,7 @@ let jumpY=0,vy=0,airborne=false,landT=0;
 function computeTarget(){
   const T={rLegT:0,rKnee:0,lLegT:0,lKnee:0,rLegZ:-0.05,lLegZ:0.05,rArmS:-0.35,rElbow:-0.6,rWrist:0,rArmZ:-0.1,
     lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:0,headX:0,headY:0,cape:0.1,tail:0.25};
-  const w=clamp(level,0,1),ra=clamp(level-1,0,1),idleW=1-w;
-  const b=Math.sin(time*2.2);
-  T.rArmS+=b*0.025*idleW;T.lArmS+=-b*0.03*idleW;T.headX+=b*0.02*idleW;T.headY+=Math.sin(time*0.7)*0.3*idleW;
+  const w=clamp(level,0,1),ra=clamp(level-1,0,1);
   if(w>0.01){
     const A=(0.62+0.45*ra)*w,Aa=(0.55+0.5*ra)*w,kb=0.55+0.95*ra;
     const s=Math.sin(phase),c=Math.cos(phase);
@@ -1034,15 +1031,12 @@ function applyRig(){
   if(toolG)toolG.rotation.x=1.6+P.rWrist*1.35;
   upper.rotation.set(P.lean,P.twist,0);
   head.rotation.set(P.headX-P.lean*0.6,P.headY-P.twist*0.7,0);
-  const act=clamp(level,0,2)*0.5+(airborne?0.6:0)+0.1;
-  cape1.rotation.x=P.cape+Math.sin(time*6)*0.03*act;
-  cape2.rotation.x=P.cape*0.6+Math.sin(time*7+1.2)*0.08*act;
-  tails.forEach((g,i)=>{g.rotation.x=0.2+P.tail*0.5+Math.sin(time*6+i)*0.08*act;g.rotation.z=Math.sin(time*3.1+i)*0.05*act;});
-  if(torsoMesh)torsoMesh.scale.y=1+Math.sin(time*2.2)*0.012*(1-clamp(level,0,1));
-  const hipY=Math.max(reach(P.rLegT,P.rKnee,P.rLegZ),reach(P.lLegT,P.lKnee,P.lLegZ));
-  const af=clamp(jumpY/0.15,0,1);
-  hips.position.y=lerp(hipY,0.75,af);
-  root.position.y=jumpY;
+  cape1.rotation.x=P.cape;
+  cape2.rotation.x=P.cape*0.6;
+  tails.forEach(g=>{g.rotation.x=0.2+P.tail*0.5;g.rotation.z=0;});
+  if(torsoMesh)torsoMesh.scale.y=1;
+  hips.position.y=1.5;
+  root.position.y=0;
 }
 
 /* ================================================================
@@ -1612,13 +1606,13 @@ const ptrEnd=e=>{ptrs.delete(e.pointerId);};
 cv.addEventListener('pointerup',ptrEnd);cv.addEventListener('pointercancel',ptrEnd);
 cv.addEventListener('wheel',e=>{e.preventDefault();},{passive:false}); /* scroll tidak lagi zoom */
 let viewDirty=true;
-const FEET_Y=520; /* kaki karakter di atas pedestal (px dari atas kanvas #show) */
+const FEET_Y=594; /* sejajarkan kaki dengan batas bawah slot baris keempat */
 function fit(){
   const w=showEl.clientWidth,h=showEl.clientHeight;if(!w||!h)return;
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
   renderer.setSize(w,h,false);
   camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.clearViewOffset();camera.updateProjectionMatrix();
-  /* landscape: turunkan karakter 3D sampai kakinya sejajar dengan dasar tombol Loncat (dihitung dari posisi tombol, ikut ukuran layar) */
+  /* Selaraskan titik dasar karakter dengan batas bawah slot equipment. */
   try{
     {
       const ty=0.85;
@@ -1685,9 +1679,8 @@ function frame(now){
   const T=computeTarget();
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
-  blinkStep(dt);
-
-  camTarget.set(0,0.85*cfg.body.height+root.position.y*0.5,0);
+  root.position.y=-0.75*cfg.body.height*(cfg.gender==='f'?0.97:1);
+  camTarget.set(0,0.85,0);
   camera.position.set(
     camTarget.x+Math.sin(camYaw)*Math.cos(camPitch)*camDist,
     camTarget.y+Math.sin(camPitch)*camDist,

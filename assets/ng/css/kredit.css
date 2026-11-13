@@ -1,9 +1,7 @@
 /* karakter.html — editor karakter 3D asli dalam GUI newgui (kanvas 1920x1080). Menimpa tata letak karakter.css. */
 body.kr{--g:#2c9a3a}
 body.kr #left{width:960px}
-/* ---- kiri: pedestal + kanvas 3D ---- */
-#ped{position:absolute;left:190px;top:110px;width:600px;height:500px;pointer-events:none}
-#ped svg{position:absolute;left:50px;bottom:-150px;width:500px;height:190px}
+/* ---- kiri: karakter 3D yang dapat diputar ---- */
 #show{position:absolute;left:150px;top:120px;width:680px;height:640px}
 #show>canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #show>canvas:active{cursor:grabbing}

@@ -10,6 +10,9 @@ assert.ok(!css.includes('pita-sudut-nila.webp'));
 assert.ok(css.includes('margin-top:4px'));
 assert.ok(!css.includes('.pd.p1 .ps{bottom:'));
 assert.ok(html.includes('fmt(p.score)'));
+assert.ok(!html.includes('id="home"'), 'redundant Home button must not overlap the coin balance');
+assert.ok(!html.includes("$('#home').addEventListener"), 'leaderboard has no duplicate Home navigation');
+assert.ok(html.includes('id="cur-co"') && html.includes('ikon-koin-emas.webp'));
 
 const frameFx = html.indexOf('assets/js/frame-fx.js');
 const frameAvatar = html.indexOf('assets/js/frame-avatar.js');

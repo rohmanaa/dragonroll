@@ -13,9 +13,9 @@
 #ds{top:806px;font-size:19px;line-height:1.25;max-height:104px;overflow:hidden;padding:0 12px}
 .fslot .pr.emt{color:#4ee08a}
 .cur{z-index:6}
-#petInfo{position:fixed;inset:0;width:min(820px,calc(100vw - 32px));max-width:none;max-height:82vh;margin:auto;padding:0;border:0;background:transparent;color:#eaf0ff;overflow:visible}
+#petInfo{position:fixed;inset:0;width:min(760px,calc(100vw - 32px));max-width:none;max-height:82vh;margin:auto;padding:0;border:0;background:transparent;color:#eaf0ff;overflow:visible}
 #petInfo::backdrop{background:rgba(8,4,20,.78);backdrop-filter:blur(3px)}
-.pet-info-panel{position:relative;display:flex;flex-direction:column;max-height:82vh;padding:28px 30px 26px;background:linear-gradient(180deg,rgba(37,49,82,.99),rgba(22,31,54,.99));border:4px solid #8277b4;border-radius:20px;box-shadow:0 10px 0 #21183d,0 18px 36px rgba(0,0,0,.55)}
+.pet-info-panel{position:relative;display:flex;flex-direction:column;max-height:82vh;padding:28px 30px 26px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
 #petInfoTitle{margin:0 56px 18px 0;color:#ffd45a;font:400 38px/1.15 var(--font-title);text-shadow:0 3px 0 rgba(10,6,24,.55)}
 #petInfoClose{position:absolute;right:16px;top:14px;width:42px;height:42px;padding:0;border:2px solid #aeb8db;border-radius:10px;background:#34447a;color:#fff;font:800 30px/1 var(--font-body);cursor:pointer}
 #petInfoClose:hover{filter:brightness(1.2)}

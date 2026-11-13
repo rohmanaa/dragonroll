@@ -282,7 +282,6 @@
     });
   });
   $('#back').addEventListener('click', () => { playSound('click'); location.href = 'lobby.html'; });
-  $('#home').addEventListener('click', () => { playSound('click'); location.href = 'lobby.html'; });
   $('#mx').addEventListener('click', closeModal);
   modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
   addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
