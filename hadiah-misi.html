@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/mission.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
 <script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
-</head>
+<style>.qlist{position:absolute;left:0;top:243px;width:1480px;height:430px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}.qlist::-webkit-scrollbar{display:none}.qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}</style></head>
 <body class="ms">
 <div id="wrap"><div id="stage">
   <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
@@ -54,13 +54,13 @@ let tab=(Q0==='misi'||Q0==='daily')?'misi':(Q0==='ach'||Q0==='achievement')?'ach
 /* ---- hadiah harian (server) ---- */
 let SD=null,DRESET=0,dbusy=false;
 const R=[
- {t:'50 Gem',ic:'ikon-gem-medali/berlian-biru'},
- {t:'1.000 Coin',ic:'ikon-gem-medali/kantong-koin'},
+ {t:'300 Coin',ic:'ikon-item/koin-tumpuk'},
+ {t:'500 Coin',ic:'ikon-gem-medali/kantong-koin'},
  {t:'Mystery Box ×1',ic:'paket-chest/peti-kayu'},
- {t:'Dadu Rumput ×1',ic:'glyph-putih/dadu',cls:'dice-g'},
- {t:'Dadu Emas ×1',ic:'glyph-putih/dadu',cls:'dice-y'},
- {t:'2.000 Coin',ic:'ikon-item/koin-tumpuk'},
- {t:'Skin Epic Enderman',ic:'ikon-item/helm-sayap'}];
+ {t:'5 Gem',ic:'ikon-gem-medali/berlian-biru'},
+ {t:'800 Coin',ic:'ikon-item/koin-tumpuk'},
+ {t:'10 Gem',ic:'ikon-gem-medali/berlian-biru'},
+ {t:'2.000 Coin + 15 Gem',ic:'ikon-gem-medali/kantong-koin'}];
 function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,today:!!r.claimed_today,box:+r.box||0};DRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const dState=i=>!SD?'wait':i<SD.claimed?'done':(i===SD.claimed&&!SD.today&&SD.claimed<7)?'now':'wait';
 const dayNow=()=>!!SD&&!SD.today&&SD.claimed<7;
@@ -71,7 +71,7 @@ async function claimDay(){
  try{const w=WS(),r=w?await w.claimDaily():{ok:false,reason:'jaringan'};
   if(!r.ok){toast(WM[r.reason]||'Klaim gagal.');await reloadD();return}
   const row=R[(r.day||1)-1]||R[0];let msg=row.t;
-  if(r.duplicate)msg=r.type==='skin'?'Skin (sudah punya) → +'+fmt(r.gems)+' Gem':'Dadu (sudah punya) → +'+fmt(r.coins)+' Coin';
+  if(r.type==='box')msg='Mystery Box ×1 diterima! Buka lewat halaman Hadiah Harian.';
   else if(r.type==='powerup')msg=row.t+' diterima (Power)';
   applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
   playSound('claim');buzz();bump();render();renderCurrency();
@@ -87,7 +87,7 @@ function vHadiah(){
 
 /* ---- misi harian (server) ---- */
 let QS=null,QRESET=0,qbusy=false;
-const QI={login:'ikon-item/kalender',play:'ikon-item/pedang-silang',win:'ikon-item/piala'};
+const QI={login:'ikon-item/kalender',play:'ikon-item/pedang-silang',win:'ikon-item/piala',dice:'glyph-putih/dadu',ladder:'achievement/ach-tangga',dragon:'achievement/ach-naga',chest:'paket-chest/peti-kayu',skill:'achievement/ach-pedang'};
 function applyQ(r){if(!r||!Array.isArray(r.quests))return false;QS=r;QRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const qList=()=>QS?QS.quests.map(q=>{const d=Q.DEFS.find(x=>x.id===q.id)||{};return{id:q.id,title:d.title||q.id,desc:d.desc||'',goal:q.goal,reward:q.reward,progress:Math.min(q.goal,q.progress),status:q.status}}):[];
 const bonusSt=()=>QS?QS.bonus.status:'locked',bonusRw=()=>QS?QS.bonus.reward:Q.BONUS;
@@ -102,22 +102,24 @@ function vMisi(){
   '<div class="rs"><img src="'+IC+'misi/ikon-jam-weker.webp" alt="">Reset dalam : <b id="rs">'+resetIn(QRESET)+'</b></div>'+
   (bs==='ready'?'<button class="btn cl sm gbtn2" data-bonus="1"><img src="'+IC+'tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+
   '<div class="rw g" style="right:46px;'+(bs==='claimed'?'opacity:.5':'')+'"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(bonusRw())+'</b></div></div>';
- L.forEach((q,i)=>{const ready=q.status==='ready',cl=q.status==='claimed',top=243+i*140;
-  h+='<div class="row '+(ready?'ready':'')+' '+(cl?'fin':'')+'" style="top:'+top+'px">'+(ready?'<div class="rbadge"><img src="'+IC+'misi/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
+ h+='<div class="qlist scr" id="qlist">';
+ L.forEach((q,i)=>{const ready=q.status==='ready',cl=q.status==='claimed';
+  h+='<div class="row '+(ready?'ready':'')+' '+(cl?'fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'misi/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
    '<img class="ri" src="'+IC+(QI[q.id]||'ikon-item/gulungan-pena')+'.webp" alt=""><h3>'+esc(q.title)+'</h3><div class="ds">'+esc(q.desc)+'</div>'+
    '<div class="pb"><i style="width:'+Math.max(q.progress?8:0,q.progress/q.goal*100)+'%"></i></div>'+(ready?'':'<div class="pt">'+q.progress+' / '+q.goal+'</div>')+
    (ready?'<div class="rinl"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(q.reward)+'</b></div><button class="btn cl" data-q="'+esc(q.id)+'"><img src="'+IC+'tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
     :'<div class="rbox '+(cl?'done':'')+'"><img src="'+IC+(cl?'glyph-putih/centang':'hud/ikon-koin-emas')+'.webp" alt=""><b>'+(cl?'SELESAI':fmt(q.reward))+'</b></div>')+'</div>'});
+ h+='</div>';
  const all=L.length&&L.every(q=>q.status==='claimed');
- h+='<div class="foot"><div class="note">'+(rdyN?rdyN+' misi siap diklaim':all?(bs==='claimed'?'Semua hadiah hari ini sudah diklaim':bs==='ready'?'Bonus siap diklaim!':''):'Selesaikan semua misi untuk bonus '+fmt(bonusRw())+' Coin')+'</div>'+
+ h+='<div class="foot"><div class="note">'+(rdyN?rdyN+' misi siap diklaim':all?(bs==='claimed'?'Semua hadiah hari ini sudah diklaim':bs==='ready'?'Bonus siap diklaim!':''):'Selesaikan semua misi untuk bonus '+fmt(bonusRw())+' Coin + 3 Emerald')+'</div>'+
   (rdyN?'<button class="btn cl wide" data-qall="1"><img src="'+IC+'tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>KLAIM SEMUA</span></button>':'')+'</div>';
  return h}
 
 /* ---- achievement (server: get_my_profile + claim_achievement) ---- */
 let SP=null,SPS='loading',abusy=false;   /* SP = get_my_profile; SPS: loading | ok | error */
-const AI={peti:'paket-chest/peti-emas',naga:'achievement/ach-naga',aktif:'ikon-item/gerbang-dungeon',menang:'achievement/ach-piala',tangga:'achievement/ach-tangga',ular:'achievement/ach-ular',skill:'achievement/ach-pedang',dadu:'new-icon/dadu',papan:'achievement/ach-bumi',login:'achievement/ach-kalender',streak:'ikon-item/podium',skin:'achievement/ach-buku',emerald:'ikon-gem-medali/berlian-hijau',strategi:'achievement/ach-kuda',legenda:'ikon-gem-medali/medali-1'};
+const AI={peti:'paket-chest/peti-emas',naga:'achievement/ach-naga',aktif:'ikon-item/gerbang-dungeon',menang:'achievement/ach-piala',tangga:'achievement/ach-tangga',ular:'achievement/ach-ular',skill:'achievement/ach-pedang',dadu:'new-icon/dadu',papan:'achievement/ach-bumi',login:'achievement/ach-kalender',streak:'ikon-item/podium',skin:'achievement/ach-buku',emerald:'ikon-gem-medali/berlian-hijau',strategi:'achievement/ach-kuda',legenda:'ikon-gem-medali/medali-1',boss:'ikon-gem-medali/medali-2',teman:'ikon-gem-medali/medali-3',level:'ikon-gem-medali/petir-emas'};
 const ownedSkinN=()=>{try{return PD.ownedItems().filter(o=>o.item.kind==='skin').length}catch(e){return 0}};
-const aList=()=>AC.info(SP,{skins:ownedSkinN(),emerald:PD.gems?PD.gems():0});
+const aList=()=>AC.info(SP);
 async function loadSP(){
  if(!SV())return;
  try{await import('./assets/js/multiplayer/progress-service.js');const sp=await UT.Multiplayer.Progress.getMyProfile();
@@ -127,11 +129,11 @@ async function loadSP(){
 async function claimAch(id){
  const a=aList().find(x=>x.id===id);if(!a||a.pend<1||abusy)return;abusy=true;
  try{await import('./assets/js/multiplayer/progress-service.js');
-  const r=await UT.Multiplayer.Progress.claimAchievement(id,(id==='skin'||id==='emerald')?a.v:null),stars=Math.min(3,+(r&&r.stars)||0);
+  const r=await UT.Multiplayer.Progress.claimAchievement(id,null),stars=Math.min(3,+(r&&r.stars)||0);
   if(!r||!r.ok){SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:Math.max(a.cl,+(r&&r.claimed)||0)})});toast('Belum ada reward untuk diklaim');return}
   SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:stars})});
   PD.applyServerWallet({coins:r.wallet_coins,gems:r.wallet_gems});
-  const rw=AC.reward(a.cl,stars);playSound('claim');buzz();bump();toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')}
+  const rw=AC.reward(a.cl,stars,a.rew);playSound('claim');buzz();bump();toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')}
  catch(e){console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.')}
  finally{abusy=false;render();renderCurrency()}}
 function vAch(){
@@ -139,7 +141,7 @@ function vAch(){
  if(SPS==='loading')return '<div class="msg">Memuat pencapaian…</div>';
  if(SPS==='error')return '<div class="msg">Tidak dapat terhubung ke server.<small>Ketuk untuk coba lagi</small></div>';
  return '<div class="alist scr" id="alist">'+aList().map(a=>{
-  const ready=a.pend>0,fin=a.done&&a.cl>=3,rw=ready?AC.reward(a.cl,a.st):AC.REW[Math.min(a.st,2)],g=a.tg;
+  const ready=a.pend>0,fin=a.done&&a.cl>=3,rw=ready?AC.reward(a.cl,a.st,a.rew):a.rew[Math.min(a.st,2)],g=a.tg;
   const two=(c,e)=>'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(c)+'</b></span><span><img src="'+IC+'ikon-gem-medali/berlian-hijau.webp" alt=""><b>'+fmt(e)+'</b></span>';
   return '<div class="row ach '+(ready?'ready':'')+' '+(fin?'fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'misi/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
    '<img class="ri" src="'+IC+(AI[a.id]||'ikon-item/piala')+'.webp" alt=""><h3>'+esc(a.name)+'</h3><div class="ds">'+esc(a.desc)+' '+fmt(g)+'×</div>'+
@@ -184,7 +186,7 @@ $('#body').addEventListener('click',e=>{
  else if(b.dataset.day)claimDay();
  else if(b.dataset.q)srvClaim(w=>w.questClaim(b.dataset.q),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!')});
  else if(b.dataset.qall)srvClaim(w=>w.questClaimAll(),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!')});
- else if(b.dataset.bonus)srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');buzz();bump();toast('Bonus +'+fmt(r.coins)+' Coin diterima!')})});
+ else if(b.dataset.bonus)srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');buzz();bump();toast('Bonus +'+fmt(r.coins)+' Coin +'+fmt(r.gems||0)+' Emerald diterima!')})});
 
 /* ---- navigasi + dompet ---- */
 $('#back').addEventListener('click',()=>nav('lobby.html'));
