@@ -312,17 +312,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
+  min-height: 26px;
   margin: 0;
-  padding: 0 16px;
+  padding: 0 10px;
   transform: none;
   border: 3px solid #c4ffad;
   border-radius: 999px;
   color: #fff;
   background: linear-gradient(135deg, #7ce96b, #278d3a);
   box-shadow: 0 4px 0 #123a1c, 0 0 14px rgba(111, 242, 106, .45);
-  font: 800 15px/1 var(--gh-title);
-  letter-spacing: .08em;
+  font: 800 13px/1 var(--gh-title);
+  letter-spacing: .05em;
   text-shadow: 0 2px 0 #154a22;
   pointer-events: none;
 }
@@ -335,7 +335,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   min-width: 0;
   overflow: hidden;
   color: #fff !important;
-  font: 30px/1.1 var(--gh-title);
+  font: 34px/1.1 var(--gh-title);
   text-overflow: ellipsis;
   white-space: nowrap;
   text-shadow: 0 2px 0 rgba(0, 0, 0, .55);
@@ -347,9 +347,9 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   display: inline-grid;
   flex: none;
   place-items: center;
-  min-width: 64px;
-  height: 28px;
-  padding: 0 10px;
+  min-width: 0;
+  height: 24px;
+  padding: 0 8px;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, .55);
   border-radius: 999px;
@@ -359,7 +359,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   background-repeat: no-repeat;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 2px 4px rgba(0, 0, 0, .35);
   animation: atagShine 2.2s ease-in-out infinite;
-  font: 800 16px/1 var(--gh-title);
+  font: 800 14px/1 var(--gh-title);
 }
 #players .pg .tag.cpu { border-color: #ddc5ff; background-image: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .8) 50%, transparent 65%), linear-gradient(135deg, #ad80f5, #6036a8); }
 #players .pg .tag.auto { border-color: #c4ffad; background-image: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .8) 50%, transparent 65%), linear-gradient(135deg, #7ce96b, #278d3a); }
@@ -1609,6 +1609,8 @@ html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp { display
 
 /* Penanda giliran: kursi bawah tepat di bawah frame, kursi atas (kiri/kanan) di atas frame/kepala. */
 #players .pg .turn-chip { margin-top: -4px; }
+/* Kursi bawah: chip melayang absolut tepat di bawah frame, tidak mendorong layout. */
+#players .pg.p0 .turn-chip, #players .pg.p3 .turn-chip { position: absolute; left: 50%; top: 100%; align-self: auto; margin: 0; transform: translate(-50%, -6px); white-space: nowrap; }
 #players .pg.p1 .turn-chip, #players .pg.p2 .turn-chip { margin-top: 0; margin-bottom: -4px; }
 #players .pg .turn-chip.opp { border-color: #ffe9a0; background: linear-gradient(135deg, #ffcf5a, #d98a1d); box-shadow: 0 4px 0 #5a3508, 0 0 14px rgba(255, 207, 90, .45); text-shadow: 0 2px 0 #6a410a; }
 
