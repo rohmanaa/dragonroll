@@ -1606,3 +1606,8 @@ html body #utGameplayHud .ut-ghud-c[data-awakening="true"] > p:not(.ut-ghud-hp) 
 html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-bar,
 html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp { display: none !important; }
 
+
+/* Penanda giliran: kursi bawah tepat di bawah frame, kursi atas (kiri/kanan) di atas frame/kepala. */
+#players .pg .turn-chip { margin-top: -4px; }
+#players .pg.p1 .turn-chip, #players .pg.p2 .turn-chip { margin-top: 0; margin-bottom: -4px; }
+#players .pg .turn-chip.opp { border-color: #ffe9a0; background: linear-gradient(135deg, #ffcf5a, #d98a1d); box-shadow: 0 4px 0 #5a3508, 0 0 14px rgba(255, 207, 90, .45); text-shadow: 0 2px 0 #6a410a; }

@@ -3669,14 +3669,13 @@ function dieRoll(v,pl){
      Indikator di dekat profil (#dieScene) menampilkan hasil saat dadu dunia mendarat. Modul/bidak tak ada atau reduce-motion -> dadu panel lama. */
   const T=window.UT&&UT.GameplayDiceThrow, pw=pl&&pl.pawn;
   if(!reduce&&T&&T.ready&&pw&&pw.visible!==false&&Number.isInteger(v)&&v>=1&&v<=6){
-    let rs=null;
-    const land=()=>{ try{ sfx.rollStop(rs); }catch(e){} showDie(v,false); try{ const el=$('dieScene'); if(el&&el.animate) el.animate([{transform:'scale(.6)'},{transform:'scale(1.25)',offset:.6},{transform:'scale(1)'}],{duration:360,easing:'ease-out'}); }catch(e){} };
-    const p=T.throwFrom(pw.position,v,{ camera:camera,
-      onThrow:()=>{ pawnAct(pw,'attack'); try{ rs=sfx.roll(); }catch(e){} },
-      onBounce:()=>{ try{ sfx.bounce(); }catch(e){} },
-      onLand:land });
-    const t=setTimeout(()=>{ try{ T.skip(); }catch(e){} },2500); /* terlalu lama (FPS rendah): paksa mendarat agar pion tidak mendahului */
-    return Promise.race([p,sleep(3500)]).then(()=>clearTimeout(t));
+    let rs=null; const ownSfx=!T.kitReady; /* DiceKit punya suara sendiri; suara game dipakai hanya untuk dadu cadangan */
+    const p=T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'),
+      onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
+      onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
+      onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} T.showNumber(v); } });
+    const t=setTimeout(()=>{ try{ T.skip(); }catch(e){} },2800); /* terlalu lama (FPS rendah): paksa mendarat agar pion tidak mendahului */
+    return Promise.race([p,sleep(3800)]).then(()=>clearTimeout(t));
   }
   const p=showDie(v,!reduce);
   if(reduce) return sleep(250);
@@ -3684,9 +3683,9 @@ function dieRoll(v,pl){
   const D=window.UT.GameplayDiceUI, t=setTimeout(()=>{ try{ D.finish(); }catch(e){} },3000); /* dadu terlalu lama (FPS rendah/guling di tepi): paksa rebah di angkanya agar pion tidak mendahului */
   return Promise.race([p,sleep(4500)]).then(()=>clearTimeout(t));
 }
-function syncDiceSound(){ try{ const D=window.UT&&UT.GameplayDiceUI; if(D){ D.setSound(!muted); D.setVolume(sfxVol/100); } }catch(e){} }
-try{ const D=window.UT&&UT.GameplayDiceUI; if(D) D.init(); }catch(e){ console.error(e); }
+function syncDiceSound(){ try{ const D=window.UT&&UT.GameplayDiceUI; if(D){ D.setSound(!muted); D.setVolume(sfxVol/100); } }catch(e){} try{ const T=window.UT&&UT.GameplayDiceThrow; if(T){ T.setSound(!muted); T.setVolume(sfxVol/100); } }catch(e){} }
 try{ const T=window.UT&&UT.GameplayDiceThrow; if(T) T.init(scene); }catch(e){ console.error(e); }
+try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&!(window.UT.GameplayDiceThrow&&UT.GameplayDiceThrow.ready)) D.init(); }catch(e){ console.error(e); } /* panel dadu lama hanya bila dadu lempar tak ada (hemat 1 WebGL context) */
 showDie(1,false);
 
 /* ---------- Konfeti ---------- */
@@ -4790,9 +4789,9 @@ function renderChips(){
   const localSeat=players.findIndex(p=>ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):(p.idx===0&&!p.cpu));
   players.forEach((p,i)=>{
     const isLocal=i===localSeat,slot=localSeat<0?i:(isLocal?0:(i<localSeat?i+1:i));
-    const showTurnChip=isLocal&&i===cur&&!gameOver&&!readyVisible;
+    const showTurnChip=i===cur&&!gameOver&&!readyVisible; /* penanda giliran untuk pemain aktif di semua kursi */
     const turnChip=showTurnChip?document.createElement('span'):null;
-    if(turnChip){ turnChip.className='turn-chip'; turnChip.textContent='YOUR TURN'; }
+    if(turnChip){ turnChip.className='turn-chip'+(isLocal?'':' opp'); turnChip.textContent=isLocal?'YOUR TURN':'GILIRAN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
     const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
     const avatar=document.createElement('div'); avatar.className='av';
@@ -4870,7 +4869,8 @@ function renderChips(){
       hp.appendChild(gameHudImage('hud','bar-hp-boss'));
       const track=document.createElement('s'),fill=document.createElement('u'); fill.style.width=Math.max(0,Math.min(100,(p.dhp/(p.hpMax||100))*100))+'%'; track.appendChild(fill); hp.appendChild(track); extra.appendChild(hp);
     }
-    const appendCard=()=>{ group.appendChild(card); if(turnChip) group.appendChild(turnChip); };
+    const topSeat=slot===1||slot===2; /* kursi atas: penanda di atas frame/kepala; kursi bawah: tepat di bawah frame */
+    const appendCard=()=>{ if(turnChip&&topSeat) group.appendChild(turnChip); group.appendChild(card); if(turnChip&&!topSeat) group.appendChild(turnChip); };
     if(extra.childNodes.length){
       if(slot===1||slot===2){ appendCard(); group.appendChild(extra); }
       else { group.appendChild(extra); appendCard(); }
@@ -5229,7 +5229,7 @@ function holdStart(id){
     if(DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
     const ph=((now-DH.t0)/DM_SWEEP_MS)%2,x=ph<1?ph:2-ph; /* ping-pong 0..1..0 */
     DH.x=x; dmDraw(x);
-    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); sfx.shuffleTick(); }
+    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); try{ UT.GameplayDiceThrow.showNumber(v); }catch(e){} sfx.shuffleTick(); }
     DH.raf=requestAnimationFrame(step);
   };
   DH.raf=requestAnimationFrame(step);
@@ -5664,7 +5664,7 @@ function equippedGameKey(slot){ try{ const it=window.ItemCatalog.byId(window.Pla
 let diceKey=equippedGameKey('dice')||'klasik';
 function applyDice(k){
   const d=DICE.find(x=>x.key===k)||DICE[0]; diceKey=d.key;
-  try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&D.setSkin) D.setSkin(d.key); }catch(e){} /* skin = material dadu 3D asli (Dice Kit), sama dengan preview Inventory */
+  try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&D.setSkin) D.setSkin(d.key); }catch(e){} try{ const T=window.UT&&UT.GameplayDiceThrow; if(T&&T.setSkin) T.setSkin(d.key); }catch(e){} /* skin = material dadu 3D asli (Dice Kit), sama dengan preview Inventory */
   $('btnDice').textContent='Dadu: '+d.name;
   document.querySelectorAll('.dbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-d')===d.key)));
 }

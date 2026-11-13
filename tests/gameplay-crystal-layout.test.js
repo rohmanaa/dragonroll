@@ -6,7 +6,7 @@ const root = path.join(__dirname, '..');
 const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
 const hud = fs.readFileSync(path.join(root, 'gameplay/css/hud-mockup.css'), 'utf8');
 
-assert.match(main, /const appendCard=\(\)=>\{\s*group\.appendChild\(card\);\s*if\(turnChip\) group\.appendChild\(turnChip\);\s*\}/);
+assert.match(main, /const appendCard=\(\)=>\{\s*if\(turnChip&&topSeat\) group\.appendChild\(turnChip\);\s*group\.appendChild\(card\);\s*if\(turnChip&&!topSeat\) group\.appendChild\(turnChip\);\s*\}/); /* kursi atas: penanda di atas frame; kursi bawah: tepat di bawah frame */
 assert.match(main, /if\(slot===1\|\|slot===2\)\{\s*appendCard\(\);\s*group\.appendChild\(extra\);\s*\}\s*else\s*\{\s*group\.appendChild\(extra\);\s*appendCard\(\);\s*\}/);
 assert.match(main, /extra\.appendChild\(crystals\)/, 'crystal progress belongs to the player extra panel');
 assert.match(main, /extra\.appendChild\(hp\)/, 'dragon attack progress belongs to the same player extra panel');

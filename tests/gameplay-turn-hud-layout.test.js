@@ -6,7 +6,7 @@ const root = path.join(__dirname, '..');
 const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
 const hud = fs.readFileSync(path.join(root, 'gameplay/css/hud-mockup.css'), 'utf8');
 
-assert.match(main, /const appendCard=\(\)=>\{\s*group\.appendChild\(card\);\s*if\(turnChip\) group\.appendChild\(turnChip\);\s*\}/);
+assert.match(main, /const appendCard=\(\)=>\{\s*if\(turnChip&&topSeat\) group\.appendChild\(turnChip\);\s*group\.appendChild\(card\);\s*if\(turnChip&&!topSeat\) group\.appendChild\(turnChip\);\s*\}/); /* kursi atas: penanda di atas frame; kursi bawah: tepat di bawah frame */
 assert.match(hud, /#players \.pg \.turn-chip\s*\{[^}]*position:\s*relative;[^}]*align-self:\s*center;/);
 assert.match(main, /dragonAttack\?'Serang':\(sp\?'Hancurkan':'Roll'\)/);
 

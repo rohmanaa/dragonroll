@@ -85,3 +85,9 @@ html body #side .pr.on .pos{
 .pawn-emote{position:fixed;z-index:40;left:0;top:0;pointer-events:none;padding:2px 10px 4px;font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;font-size:30px;line-height:1.15;background:#fff;border:3px solid #0b1838;border-radius:14px;box-shadow:0 3px 0 #0b1838;will-change:transform,opacity}
 .pawn-emote::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-8px;border:8px solid transparent;border-top:9px solid #0b1838;border-bottom:0}
 .pawn-emote::before{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-5px;z-index:1;border:5px solid transparent;border-top:6px solid #fff;border-bottom:0}
+
+/* Dadu lempar bidak: angka hasil di atas tombol emote; dadu panel lama disembunyikan (diganti angka). */
+#emoteDock .dice-num{position:absolute;right:0;bottom:calc(100% + 6px);width:72px;text-align:center;pointer-events:none;z-index:8;
+  font:900 52px/1 var(--gh-title,inherit);color:#fff;-webkit-text-stroke:3px #2b1a70;paint-order:stroke fill;text-shadow:0 4px 0 #2b1a70,0 0 16px rgba(255,214,90,.7)}
+#emoteDock .dice-num[hidden]{display:none}
+html body #side .rcol .pnl.tn #dieDock{display:none !important}

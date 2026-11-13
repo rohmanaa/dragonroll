@@ -5,7 +5,11 @@
    API:
      init(scene)                          — pasang ke scene dunia (idempoten)
      throwFrom(pawnPos, v, opt) -> Promise — lempar dari posisi bidak (THREE.Vector3), mendarat dengan muka atas = v.
-                                             opt: {onLand(), onBounce(speed), reduce, color, fade}
+                                             Utama: DiceKit asli (skin + efek aura/partikel/suara = sama dengan dadu.html) di panggung overlay yang
+                                             terbang dari bidak ke dekatnya. Cadangan (DiceKit belum siap): dadu kubus sederhana di dunia 3D.
+                                             opt: {camera, canvas, onThrow(), onBounce(speed), onLand(), reduce, hold}
+     setSkin(key) / setSound(on) / setVolume(0..1) — ikut pengaturan gameplay
+     showNumber(v) / hideNumber()         — angka hasil di atas tombol emote
      skip()                               — paksa dadu langsung rebah di angkanya (dipanggil bila terlalu lama)
      ready                                — true bila siap */
 (function (win, doc) {
@@ -69,11 +73,12 @@
     if (scene) return true;
     if (!sc || !win.THREE) return false;
     scene = sc; build();
+    if (win.DiceKit) kmount(); else win.addEventListener('dicekit-ready', kmount, { once: true });
     UT.GameplayDiceThrow.ready = true;
     return true;
   }
 
-  function throwFrom(pawnPos, v, opt) {
+  function worldThrow(pawnPos, v, opt) {
     opt = opt || {};
     if (!die || !(v >= 1 && v <= 6)) return Promise.resolve(v);
     if (busy) busy.finish();
@@ -153,7 +158,94 @@
     });
   }
 
-  function skip() { if (busy) busy.finish(); }
 
-  UT.GameplayDiceThrow = { ready: false, init: init, throwFrom: throwFrom, skip: skip };
+  /* ---------- Panggung DiceKit (dadu asli dadu.html) sebagai overlay layar ---------- */
+  var KW = 300, KH = 260, KDY = 8;
+  var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, khide = 0;
+
+  function kmount() {
+    if (kit || kfail || !win.DiceKit || !win.DiceKit.mount) return;
+    try {
+      kstage = doc.createElement('div');
+      kstage.id = 'diceThrowStage'; kstage.setAttribute('aria-hidden', 'true');
+      kstage.style.cssText = 'position:fixed;left:0;top:0;width:' + KW + 'px;height:' + KH + 'px;pointer-events:none;z-index:40;visibility:hidden;opacity:0;will-change:transform,opacity;';
+      doc.body.appendChild(kstage);
+      kit = win.DiceKit.mount(kstage, {
+        diceId: win.DiceKit.has(kwant.key) ? kwant.key : 'klasik', quality: 'auto', sound: kwant.sound,
+        pad: false, dieScale: 1.4, speed: 1.7, camScale: 0.5, lookY: 0.6, bounds: { x: 1.3, z: 1.1 }
+      });
+      kit.setVolume(kwant.volume);
+      kit.stop();                                             /* hemat GPU: jalan hanya saat lemparan */
+      UT.GameplayDiceThrow.kitReady = true;
+    } catch (e) { kfail = true; kit = null; console.error('[dice-throw] DiceKit gagal dipasang', e); }
+  }
+
+  function project(world, opt) {
+    var v = world.clone().project(opt.camera), r = (opt.canvas || doc.body).getBoundingClientRect();
+    return { x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height };
+  }
+
+  function kitThrow(pawnPos, v, opt) {
+    clearTimeout(khide);
+    if (kanim) { try { kanim.cancel(); } catch (e) { } }
+    var head = pawnPos.clone(); head.y += 0.9;
+    var spot = landSpot(pawnPos, opt.camera);
+    var a = project(head, opt), b = project(spot, opt);
+    var x0 = a.x - KW / 2, y0 = a.y - KH / 2 - KDY, x1 = b.x - KW / 2, y1 = b.y - KH / 2 - KDY;
+    var vw = win.innerWidth, vh = win.innerHeight;
+    x1 = Math.max(-40, Math.min(vw - KW + 40, x1)); y1 = Math.max(-40, Math.min(vh - KH + 40, y1));
+    kstage.style.visibility = 'visible'; kstage.style.opacity = '1';
+    kit.start();
+    var dur = opt.reduce ? 1 : 520;
+    kanim = kstage.animate ? kstage.animate([
+      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(.7)' },
+      { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 80) + 'px) scale(1)', offset: 0.5 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(1)' }
+    ], { duration: dur, easing: 'ease-out', fill: 'forwards' }) : null;
+    if (!kanim) kstage.style.transform = 'translate(' + x1 + 'px,' + y1 + 'px)';
+    try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
+    var p = kit.roll(v);
+    return (p ? p.then(function () { return v; }) : Promise.resolve(v)).then(function (r) {
+      try { opt.onLand && opt.onLand(); } catch (e) { console.error(e); }
+      khide = setTimeout(function () {
+        if (!kstage) return;
+        var f = kstage.animate ? kstage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }) : null;
+        setTimeout(function () { kstage.style.visibility = 'hidden'; kstage.style.opacity = '0'; try { kit.stop(); } catch (e) { } }, f ? 330 : 0);
+      }, opt.reduce ? 0 : (opt.hold == null ? 900 : opt.hold));
+      return r;
+    });
+  }
+
+  function throwFrom(pawnPos, v, opt) {
+    opt = opt || {};
+    if (!(v >= 1 && v <= 6)) return Promise.resolve(v);
+    if (!kit && win.DiceKit) kmount();
+    if (kit && opt.camera) return kitThrow(pawnPos, v, opt);
+    return worldThrow(pawnPos, v, opt);
+  }
+
+  function setSkin(key) { if (!key) return; kwant.key = key; if (kit && win.DiceKit.has(key)) kit.equip(key); }
+  function setSound(on) { kwant.sound = !!on; if (kit) kit.setSound(kwant.sound); }
+  function setVolume(v) { v = +v; kwant.volume = isNaN(v) ? 1 : Math.max(0, Math.min(1, v)); if (kit) kit.setVolume(kwant.volume); }
+
+  /* ---------- Angka hasil di atas tombol emote ---------- */
+  var numEl = null;
+  function numNode() {
+    if (numEl && numEl.isConnected) return numEl;
+    var dock = doc.getElementById('emoteDock'); if (!dock) return null;
+    numEl = doc.createElement('div'); numEl.className = 'dice-num'; numEl.setAttribute('role', 'status'); numEl.setAttribute('aria-live', 'polite'); numEl.hidden = true;
+    dock.appendChild(numEl);
+    return numEl;
+  }
+  function showNumber(v) {
+    var el = numNode(); if (!el || !(v >= 1 && v <= 6)) return;
+    el.textContent = String(v); el.hidden = false; el.setAttribute('aria-label', 'Hasil dadu ' + v);
+    try { el.animate([{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.35)', opacity: 1, offset: 0.55 }, { transform: 'scale(1)', opacity: 1 }], { duration: 380, easing: 'ease-out' }); } catch (e) { }
+  }
+  function hideNumber() { if (numEl) numEl.hidden = true; }
+
+  function skip() { if (busy) busy.finish(); if (kit && kit.busy) { try { kit.finish(); } catch (e) { } } }
+
+  UT.GameplayDiceThrow = { ready: false, kitReady: false, init: init, throwFrom: throwFrom, skip: skip,
+    setSkin: setSkin, setSound: setSound, setVolume: setVolume, showNumber: showNumber, hideNumber: hideNumber };
 })(window, document);
