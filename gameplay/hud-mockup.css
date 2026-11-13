@@ -163,7 +163,6 @@
   zoom: var(--ghud-stage-scale, 1) !important;
 }
 
-#readyScreen h2 { color: var(--gh-gold) !important; font-size: 44px !important; }
 #readyScreen .rd-sub { font-size: 22px !important; }
 #readyScreen .rk-grid { grid-template-columns: repeat(var(--n, 2), 190px) !important; gap: 24px !important; }
 #readyScreen .rk { width: 190px !important; height: 260px !important; }
@@ -1118,18 +1117,6 @@ html body #puCard.pucard {
   background: none !important;
   box-shadow: none !important;
 }
-#readyScreen h2 {
-  display: grid !important;
-  place-items: center !important;
-  width: 760px !important;
-  height: 170px !important;
-  flex: none !important;
-  margin: 0 !important;
-  color: #fff3d0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
-  font: 64px/1.1 var(--gh-title) !important;
-  text-shadow: 0 4px 0 var(--gh-ink) !important;
-}
 #readyScreen .rd-sub {
   display: flex !important;
   flex-direction: column !important;
@@ -1141,6 +1128,7 @@ html body #puCard.pucard {
   font: 800 30px/1.2 var(--gh-body) !important;
 }
 #readyScreen .rd-msg { margin: 0 !important; color: inherit !important; font: inherit !important; }
+#readyScreen .rd-sub.rd-picking { transform: translateY(-60px) !important; }
 #readyScreen .rd-time {
   display: none !important;
   position: relative !important;
@@ -1301,6 +1289,6 @@ html body #puCard.pucard {
   #utGameplayHud .ut-ghud-b i { width: 40px !important; height: 40px !important; }
   #trapBar { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "text" "hint" "actions" !important; }
   #trapBar .trapAct { justify-content: center !important; }
-  #readyScreen h2 { width: 760px !important; }
   #win .lm-grid { width: 100% !important; }
 }
+

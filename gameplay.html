@@ -449,15 +449,29 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
   <div class="lm-box">
     <button class="lm-x" type="button" id="pmClose" aria-label="Lanjutkan">&#10005;</button>
     <div class="lm-body">
+      <h2 id="pmTitle">PAUSE</h2>
       <p class="lm-eyebrow" id="pmSub">Permainan dijeda</p>
-      <h2 id="pmTitle">Menu</h2>
-      <p class="lm-note" id="pmCpu" hidden>Komputer menunggu sampai kamu melanjutkan.</p>
+      <div class="lm-sounds">
+        <div class="lm-srow"><span class="lm-lbl">Musik</span><input type="range" id="pmVol" min="0" max="100" value="30" aria-label="Volume musik"></div>
+        <div class="lm-srow lm-sfx"><span class="lm-lbl">Suara</span><input type="range" id="pmSfx" min="0" max="100" value="100" aria-label="Volume suara efek"></div>
+      </div>
       <div class="lm-grid lm-pm">
-        <button class="lm-mode lm-resume" type="button" id="pmResume"><img class="lm-ic lm-play" src="assets/Images/icon/ui/play.webp" alt="" draggable="false"><span>Lanjutkan</span></button>
-        <div class="lm-srow"><img class="lm-ic" src="assets/Images/icon/audio/music.webp" alt="" draggable="false"><span class="lm-lbl">Musik</span><input type="range" id="pmVol" min="0" max="100" value="30" aria-label="Volume musik"><img class="lm-ic lm-end" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false"></div>
-        <div class="lm-srow lm-sfx"><img class="lm-ic" src="assets/Images/icon/audio/sfx.webp" alt="" draggable="false"><span class="lm-lbl">Suara</span><input type="range" id="pmSfx" min="0" max="100" value="100" aria-label="Volume suara efek"><img class="lm-ic lm-end" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false"></div>
-        <button class="lm-mode lm-red lm-exit" type="button" id="pmExit"><img class="lm-ic" src="assets/Images/icon/ui/exit.webp" alt="" draggable="false"><span>Keluar</span></button>
-        <div class="lm-modewrap"><span class="lm-chip">Suasana</span><button class="lm-mode lm-grey" type="button" id="pmMode" aria-pressed="false"><span class="lm-ic" id="pmModeIco" aria-hidden="true"></span><span id="pmModeTxt">Siang</span></button></div>
+        <div class="lm-modewrap">
+          <button class="lm-mode lm-grey" type="button" id="pmMode" aria-label="Ubah suasana" aria-pressed="false"><span class="lm-ic" id="pmModeIco" aria-hidden="true"></span></button>
+          <span class="lm-chip">Suasana · <span id="pmModeTxt">Siang</span></span>
+        </div>
+        <div class="lm-modewrap">
+          <button class="lm-mode lm-resume" type="button" id="pmResume" aria-label="Lanjutkan"><img class="lm-ic" src="referensi/newgui/game/assets/komponen/menu-pause/ikon-lanjut.webp" alt="" draggable="false"></button>
+          <span class="lm-chip">Lanjutkan</span>
+        </div>
+        <div class="lm-modewrap">
+          <button class="lm-mode lm-restart" type="button" id="pmRestart" aria-label="Ulang"><img class="lm-ic" src="referensi/newgui/game/assets/komponen/menu-pause/ikon-ulang.webp" alt="" draggable="false"></button>
+          <span class="lm-chip">Ulang</span>
+        </div>
+        <div class="lm-modewrap">
+          <button class="lm-mode lm-red lm-exit" type="button" id="pmExit" aria-label="Keluar"><img class="lm-ic" src="referensi/newgui/game/assets/komponen/menu-pause/ikon-menyerah.webp" alt="" draggable="false"></button>
+          <span class="lm-chip">Keluar</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1307,6 +1321,7 @@ const go=()=>import('./assets/js/power3d/power-overlay.js').then(m=>{ window.UT=
 <script src="gameplay/feedback.js"></script>
 <script src="gameplay/afk.js"></script>
 <script src="gameplay/ready.js"></script>
+<script src="gameplay/pause.js"></script>
 <script>
     if (window.__NO_THREE) { throw new Error('Three.js tidak dimuat'); }
 (function(){
@@ -6835,36 +6850,29 @@ let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN
 function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} syncDiceSound(); }
 setSfxVol(sfxVol);
 window.addEventListener('ut:dice3d-ready',syncDiceSound); /* dadu 3D dimuat belakangan -> samakan suara */
-function syncMusicUI(){
-  const v=$('pmVol'); if(v){ v.value=musicVol; paintRange(v); }
-  const f=$('pmSfx'); if(f){ f.value=sfxVol; paintRange(f); }
-}
-$('pmVol')&&$('pmVol').addEventListener('input',e=>{ setMusicVol(+e.target.value); paintRange(e.target); });
-$('pmSfx')&&$('pmSfx').addEventListener('input',e=>{ setSfxVol(+e.target.value); paintRange(e.target); });
-$('pmSfx')&&$('pmSfx').addEventListener('change',()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} });
-const ICO_SUN='<img src="assets/Images/icon/ui/day.webp" alt="" draggable="false">';
-const ICO_MOON='<img src="assets/Images/icon/ui/night.webp" alt="" draggable="false">';
-$('pmMode').addEventListener('click',()=>{ cycleMode(); syncPauseNight(); setMusicOn(true); });
-/* ---------- Menu jeda: lanjutkan, siang/malam, keluar (dengan konfirmasi) ---------- */
-function syncPauseNight(){ $('pmMode').disabled=!!(ONLINE_ROOM&&!ONLINE_HOST); $('pmMode').setAttribute('aria-pressed',String(night)); $('pmModeTxt').textContent=autoDN?('Auto · '+(night?'Malam':'Siang')):(night?'Malam':'Siang'); $('pmModeIco').innerHTML=night?ICO_MOON:ICO_SUN; }
-function openPause(){
-  if(paused||AWK.running) return; paused=true; clearTurnTimer();
-  $('pmCpu').hidden=mode!=='cpu'; syncPauseNight(); syncMusicUI();
-  $('pauseMenu').hidden=false; $('pmResume').focus();
-}
-function closePause(){ paused=false; startTurnTimer(); $('exitConfirm').hidden=true; $('pauseMenu').hidden=true; $('btnMenu').focus(); }
-$('btnMenu').addEventListener('click',openPause);
-$('pmResume').addEventListener('click',closePause);
-$('pmClose').addEventListener('click',closePause);
-$('pauseMenu').addEventListener('click',e=>{ if(e.target===e.currentTarget) closePause(); });
-$('exitConfirm').addEventListener('click',e=>{ if(e.target===e.currentTarget){ $('exitConfirm').hidden=true; $('pmExit').focus(); } });
-$('pmExit').addEventListener('click',()=>{ $('exitConfirm').hidden=false; $('ecNo').focus(); });
-$('ecNo').addEventListener('click',()=>{ $('exitConfirm').hidden=true; $('pmExit').focus(); });
-$('ecYes').addEventListener('click',exitToRoom);
-document.addEventListener('keydown',e=>{
-  if(e.key!=='Escape'||document.body.classList.contains('playing')===false) return;
-  if(!$('exitConfirm').hidden){ $('exitConfirm').hidden=true; return; }
-  if(paused) closePause(); else if($('win').hidden) openPause();
+UT.GameplayPause.bind({
+  isPaused:()=>paused,
+  setPaused:value=>{ paused=value; },
+  isReadyRunning:()=>AWK.running,
+  isOnlineGuest:()=>ONLINE_ROOM&&!ONLINE_HOST,
+  getMode:()=>mode,
+  isNight:()=>night,
+  isAutoDN:()=>autoDN,
+  cycleMode:cycleMode,
+  setMusicOn:setMusicOn,
+  getMusicVol:()=>musicVol,
+  setMusicVol:setMusicVol,
+  getSfxVol:()=>sfxVol,
+  setSfxVol:setSfxVol,
+  paintRange:paintRange,
+  onSfxCommit:()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} },
+  clearTurnTimer:clearTurnTimer,
+  startTurnTimer:startTurnTimer,
+  ensureAudio:ensureAudio,
+  restart:()=>startGame(mode,lastSkins),
+  exitToRoom:exitToRoom,
+  isPlaying:()=>document.body.classList.contains('playing'),
+  isWinHidden:()=>$('win').hidden
 });
 $('btnAgain').addEventListener('click',()=>{ ensureAudio(); startGame(mode,lastSkins); });
 $('btnToMenu').addEventListener('click',exitToRoom);
@@ -7193,6 +7201,7 @@ html body:is(.th-world,.th-nether) .dm-bar i{border-left-color:var(--tp-dm-seg);
 html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
 </style>
 <link rel="stylesheet" href="gameplay/hud-mockup.css">
+<link rel="stylesheet" href="gameplay/pause.css">
 <script type="module">
 import './assets/js/multiplayer/game-sync.js';
 window.dispatchEvent(new Event('ut:multiplayer-game-sync-ready'));

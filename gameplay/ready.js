@@ -24,7 +24,6 @@
     'padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}' +
     '#readyScreen .rd-box{margin:auto;width:min(560px,100%);background:#2a211b;border:4px solid #0f0b08;border-radius:8px;padding:14px 12px 16px;text-align:center;color:#fff;' +
     'box-shadow:inset 0 0 0 3px #6b5440;font-family:var(--font-display,inherit)}' +
-    '#readyScreen h2{margin:0 0 4px;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#FFC21A}' +
     '#readyScreen .rd-sub{margin:0 0 10px;font-size:11px;opacity:.85;min-height:1.3em}' +
     '#readyScreen .rd-time{display:inline-block;min-width:54px;margin:0 0 10px;padding:6px 12px;font-size:22px;font-weight:700;background:#0f0b08;border:3px solid #6b5440;border-radius:6px;color:#fff}' +
     '#readyScreen .rd-time.low{color:#ff6b6b}' +
@@ -61,7 +60,7 @@
     '@media (prefers-reduced-motion:reduce){#readyScreen .rk.revealed .rk-f,#readyScreen .rk.revealed .rk-b{animation-duration:.01s}}' +
     '@media (prefers-reduced-motion:reduce){#readyScreen .rk-in{transition:none}}' +
     /* landscape pendek: kartu dikecilkan agar muat tanpa scroll */
-    '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen h2{font-size:14px;margin:0}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
+    '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
     '#readyScreen .rd-time{margin:0 0 4px;padding:2px 10px;font-size:16px}#readyScreen .rk-grid{gap:8px;padding-top:10px}#readyScreen .rk{height:clamp(96px,36vh,140px)}' +
     '#readyScreen .rk-no{font-size:clamp(40px,13vh,60px)}#readyScreen .rk-av{width:34px;height:34px}#readyScreen .rk-nm{font-size:11px}#readyScreen .rk-wn{font-size:10px}}';
 
@@ -94,7 +93,6 @@
 
       root = el('section'); root.id = 'readyScreen'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Acak giliran');
       var box = el('div', 'rd-box'); root.appendChild(box);
-      var title = el('h2', '', 'ACAK GILIRAN'); box.appendChild(title);
       var sub = el('div', 'rd-sub'); sub.setAttribute('aria-live', 'polite');
       var message = el('p', 'rd-msg'); sub.appendChild(message); box.appendChild(sub);
       var time = el('div', 'rd-time'); time.setAttribute('role', 'timer'); sub.appendChild(time);
@@ -113,7 +111,10 @@
         rosterItems.push({ player: p, node: card, status: status });
       });
 
-      function setMessage(text) { message.textContent = text; }
+      function setMessage(text) {
+        message.textContent = text;
+        sub.classList.toggle('rd-picking', text.indexOf('Giliran kamu memilih') === 0);
+      }
 
       function renderRoster(active, ordered) {
         var list = ordered ? players.slice().sort(function (a, b) { return a.turnOrder - b.turnOrder; }) : players;
