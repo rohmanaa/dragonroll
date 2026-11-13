@@ -8,6 +8,7 @@ const hud = fs.readFileSync(path.join(root, 'gameplay/css/hud-mockup.css'), 'utf
 
 assert.match(main, /const appendCard=\(\)=>\{\s*if\(turnChip&&topSeat\) group\.appendChild\(turnChip\);\s*group\.appendChild\(card\);\s*if\(turnChip&&!topSeat\) group\.appendChild\(turnChip\);\s*\}/); /* kursi atas: penanda di atas frame; kursi bawah: tepat di bawah frame */
 assert.match(hud, /#players \.pg \.turn-chip\s*\{[^}]*position:\s*relative;[^}]*align-self:\s*center;/);
+assert.match(main, /const turnChip=null;/); /* chip giliran dihapus */
 assert.match(main, /dragonAttack\?'Serang':\(sp\?'Hancurkan':'Roll'\)/);
 
 assert.match(hud, /grid-template-areas:\s*"\. die"\s*"meter meter"\s*"auto roll"/);
