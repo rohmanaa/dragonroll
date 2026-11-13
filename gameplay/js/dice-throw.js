@@ -84,7 +84,7 @@
     if (busy) busy.finish();
     var from = pawnPos.clone(); from.y += 0.75;                 /* tinggi tangan bidak */
     var floorY = pawnPos.y + S / 2;
-    var to = landSpot(pawnPos, opt.camera); to.y = floorY;
+    var to = opt.target ? new THREE.Vector3(opt.target.x + (Math.random() - 0.5) * 0.8, floorY, opt.target.z + (Math.random() - 0.5) * 0.8) : landSpot(pawnPos, opt.camera); to.y = floorY;
     var dur = opt.reduce ? 0.01 : 0.95;
     var yaw = Math.random() * 6.2832;
     var qEnd = quatForTop(v, yaw);
@@ -118,7 +118,7 @@
         die.position.set(to.x, floorY, to.z); die.quaternion.copy(qEnd);
         shadow.position.set(to.x, pawnPos.y + 0.02, to.z); shadow.material.opacity = 0.3; shadow.scale.setScalar(1);
         try { opt.onLand && opt.onLand(); } catch (e) { console.error(e); }
-        var hold = opt.reduce ? 0 : (opt.hold == null ? 650 : opt.hold);
+        var hold = opt.reduce ? 0 : (opt.hold == null ? 1500 : opt.hold);
         setTimeout(function () { fade(); }, hold);
         busy = null; resolve(v);                                /* pemanggil lanjut saat mendarat (bidak jalan sambil dadu memudar) */
       }
@@ -191,12 +191,16 @@
     var head = pawnPos.clone(); head.y += 0.9;
     var spot = landSpot(pawnPos, opt.camera);
     var a = project(head, opt), b = project(spot, opt);
+    if (opt.center !== false) {                                /* dadu dilempar ke TENGAH layar/papan, bukan dekat bidak */
+      var cr = (opt.canvas || doc.body).getBoundingClientRect();
+      b = { x: cr.left + cr.width / 2 + (Math.random() - 0.5) * 60, y: cr.top + cr.height / 2 + (Math.random() - 0.5) * 40 };
+    }
     var x0 = a.x - KW / 2, y0 = a.y - KH / 2 - KDY, x1 = b.x - KW / 2, y1 = b.y - KH / 2 - KDY;
     var vw = win.innerWidth, vh = win.innerHeight;
     x1 = Math.max(-40, Math.min(vw - KW + 40, x1)); y1 = Math.max(-40, Math.min(vh - KH + 40, y1));
     kstage.style.visibility = 'visible'; kstage.style.opacity = '1';
     kit.start();
-    var dur = opt.reduce ? 1 : 520;
+    var dur = opt.reduce ? 1 : 700;
     kanim = kstage.animate ? kstage.animate([
       { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(.7)' },
       { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 80) + 'px) scale(1)', offset: 0.5 },
@@ -211,7 +215,7 @@
         if (!kstage) return;
         var f = kstage.animate ? kstage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }) : null;
         setTimeout(function () { kstage.style.visibility = 'hidden'; kstage.style.opacity = '0'; try { kit.stop(); } catch (e) { } }, f ? 330 : 0);
-      }, opt.reduce ? 0 : (opt.hold == null ? 900 : opt.hold));
+      }, opt.reduce ? 0 : (opt.hold == null ? 1800 : opt.hold)); /* tahan lebih lama supaya angka terbaca sebelum memudar */
       return r;
     });
   }

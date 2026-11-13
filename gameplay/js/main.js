@@ -3670,7 +3670,7 @@ function dieRoll(v,pl){
   const T=window.UT&&UT.GameplayDiceThrow, pw=pl&&pl.pawn;
   if(!reduce&&T&&T.ready&&pw&&pw.visible!==false&&Number.isInteger(v)&&v>=1&&v<=6){
     let rs=null; const ownSfx=!T.kitReady; /* DiceKit punya suara sendiri; suara game dipakai hanya untuk dadu cadangan */
-    const p=T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'),
+    const p=T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget,
       onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
       onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
       onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} T.showNumber(v); } });
@@ -4790,7 +4790,7 @@ function renderChips(){
   players.forEach((p,i)=>{
     const isLocal=i===localSeat,slot=localSeat<0?i:(isLocal?0:(i<localSeat?i+1:i));
     const showTurnChip=i===cur&&!gameOver&&!readyVisible; /* penanda giliran untuk pemain aktif di semua kursi */
-    const turnChip=showTurnChip?document.createElement('span'):null;
+    const turnChip=null; /* chip YOUR TURN/GILIRAN dihapus: giliran aktif ditandai glow panel + bar waktu */
     if(turnChip){ turnChip.className='turn-chip'+(isLocal?'':' opp'); turnChip.textContent=isLocal?'YOUR TURN':'GILIRAN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
     const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
