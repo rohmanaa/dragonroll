@@ -18,7 +18,7 @@
   if (UT.GameplayDiceThrow) return;
 
   var S = 0.42;                 /* sisi dadu (unit dunia; 1 petak ~ 1 unit) */
-  var scene = null, die = null, shadow = null, mats = null, busy = null;
+  var scene = null, die = null, shadow = null, mats = null, busy = null, throwId = 0;
 
   /* urutan muka BoxGeometry three: +x, -x, +y, -y, +z, -z  -> angka standar (sisi berhadapan = 7) */
   var FACE_VAL = [3, 4, 1, 6, 2, 5];
@@ -82,6 +82,7 @@
     opt = opt || {};
     if (!die || !(v >= 1 && v <= 6)) return Promise.resolve(v);
     if (busy) busy.finish();
+    var id = ++throwId;
     var from = pawnPos.clone(); from.y += 0.75;                 /* tinggi tangan bidak */
     var floorY = pawnPos.y + S / 2;
     var to = opt.target ? new THREE.Vector3(opt.target.x + (Math.random() - 0.5) * 0.8, floorY, opt.target.z + (Math.random() - 0.5) * 0.8) : landSpot(pawnPos, opt.camera); to.y = floorY;
@@ -113,7 +114,7 @@
         if (k > 0.82) die.quaternion.slerp(qEnd, (k - 0.82) / 0.18);
       }
       function land() {
-        if (done) return; done = true;
+        if (done || id !== throwId) return; done = true;
         cancelAnimationFrame(raf);
         die.position.set(to.x, floorY, to.z); die.quaternion.copy(qEnd);
         shadow.position.set(to.x, pawnPos.y + 0.02, to.z); shadow.material.opacity = 0.3; shadow.scale.setScalar(1);
@@ -123,16 +124,21 @@
         busy = null; resolve(v);                                /* pemanggil lanjut saat mendarat (bidak jalan sambil dadu memudar) */
       }
       function fade() {
+        if (id !== throwId) return;
         var s0 = performance.now(), D = 350;
         (function f() {
-          if (!die || busy) { hide(); return; }                 /* lemparan baru dimulai -> jangan ganggu */
+          if (id !== throwId) return;
+          if (!die || busy) return;
           var k = Math.min(1, (performance.now() - s0) / D);
           mats.forEach(function (m) { m.transparent = true; m.opacity = 1 - k; });
           shadow.material.opacity = 0.3 * (1 - k); die.scale.setScalar(1 - 0.25 * k);
           if (k < 1) requestAnimationFrame(f); else hide();
         })();
       }
-      function hide() { die.visible = false; shadow.visible = false; mats.forEach(function (m) { m.opacity = 1; m.transparent = false; }); die.scale.setScalar(1); }
+      function hide() {
+        if (id !== throwId) return;
+        die.visible = false; shadow.visible = false; mats.forEach(function (m) { m.opacity = 1; m.transparent = false; }); die.scale.setScalar(1);
+      }
       function frame() {
         if (done) return;
         var k = Math.min(1, (performance.now() - t0) / 1000 / dur);
@@ -152,7 +158,7 @@
         }
         raf = requestAnimationFrame(frame);
       }
-      busy = { finish: function () { if (!done) land(); } };
+      busy = { finish: function () { if (!done && id === throwId) land(); } };
       try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
       raf = requestAnimationFrame(frame);
     });
@@ -161,7 +167,7 @@
 
   /* ---------- Panggung DiceKit (dadu asli dadu.html) sebagai overlay layar ---------- */
   var KW = 300, KH = 260, KDY = 8;
-  var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, khide = 0;
+  var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, kfadeAnim = null, khide = 0, kfade = 0, kitThrowId = 0;
 
   function kmount() {
     if (kit || kfail || !win.DiceKit || !win.DiceKit.mount) return;
@@ -187,7 +193,16 @@
 
   function kitThrow(pawnPos, v, opt) {
     clearTimeout(khide);
+    clearTimeout(kfade);
+    var id = ++kitThrowId;
+    if (kit && kit.busy) { try { kit.finish(); } catch (e) { } }
+    if (kfadeAnim) { try { kfadeAnim.cancel(); } catch (e) { } kfadeAnim = null; }
     if (kanim) { try { kanim.cancel(); } catch (e) { } }
+    if (kstage && kstage.getAnimations) {
+      kstage.getAnimations().forEach(function (anim) { try { anim.cancel(); } catch (e) { } });
+    }
+    kanim = null;
+    kfadeAnim = null;
     var head = pawnPos.clone(); head.y += 0.9;
     var spot = landSpot(pawnPos, opt.camera);
     var a = project(head, opt), b = project(spot, opt);
@@ -210,11 +225,18 @@
     try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
     var p = kit.roll(v);
     return (p ? p.then(function () { return v; }) : Promise.resolve(v)).then(function (r) {
+      if (id !== kitThrowId) return r;
       try { opt.onLand && opt.onLand(); } catch (e) { console.error(e); }
       khide = setTimeout(function () {
-        if (!kstage) return;
-        var f = kstage.animate ? kstage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }) : null;
-        setTimeout(function () { kstage.style.visibility = 'hidden'; kstage.style.opacity = '0'; try { kit.stop(); } catch (e) { } }, f ? 330 : 0);
+        if (!kstage || id !== kitThrowId) return;
+        kfadeAnim = kstage.animate ? kstage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }) : null;
+        kfade = setTimeout(function () {
+          if (id !== kitThrowId) return;
+          kstage.style.visibility = 'hidden'; kstage.style.opacity = '0';
+          try { kit.stop(); } catch (e) { }
+          if (kfadeAnim) { try { kfadeAnim.cancel(); } catch (e) { } }
+          kfadeAnim = null;
+        }, kfadeAnim ? 330 : 0);
       }, opt.reduce ? 0 : (opt.hold == null ? 1800 : opt.hold)); /* tahan lebih lama supaya angka terbaca sebelum memudar */
       return r;
     });

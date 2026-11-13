@@ -360,3 +360,10 @@ body:has(#win.win-result:not([hidden])) #utGameplayHud { visibility: hidden !imp
   #win.win-result .win-result__stars img { animation: none; }
   #win.win-result .win-result__xp-fill { transition: none; }
 }
+
+#win[data-state="lose"].win-result .lm-eyebrow {
+  box-sizing: border-box !important;
+  width: fit-content !important;
+  max-width: calc(100vw - 32px) !important;
+  padding: clamp(12px, 2vh, 28px) clamp(18px, 3vw, 40px) !important;
+}

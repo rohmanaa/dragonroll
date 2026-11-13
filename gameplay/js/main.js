@@ -2573,7 +2573,7 @@ function bossFxRoot(){
   let root=document.getElementById('bossFx');
   if(root) return root;
   root=document.createElement('div'); root.id='bossFx'; root.setAttribute('aria-hidden','true');
-  const label=document.createElement('b'); label.className='boss-hit-label'; label.textContent='BOSS';
+  const label=document.createElement('b'); label.className='boss-hit-label'; label.textContent='Critical';
   const damage=document.createElement('span'); damage.className='boss-hit-damage';
   root.appendChild(label); root.appendChild(damage); document.body.appendChild(root);
   return root;
@@ -2585,12 +2585,26 @@ function setBossFightFx(active){
   if(active) root.classList.add('active');
   else if(!root.classList.contains('hit')) root.classList.remove('active');
 }
-function bossHitFx(damage,remote){
-  if(!remote&&MP_SEQ===0) mpCue({k:'bosshfx',dmg:damage});
-  const root=bossFxRoot(),label=root.querySelector('.boss-hit-damage');
-  label.textContent='-'+Math.max(0,Number(damage)||0);
+function bossCinemaHit(){
+  if(reduce) return;
+  let layer=document.getElementById('hitFx');
+  if(!layer){ layer=document.createElement('div'); layer.id='hitFx'; document.body.appendChild(layer); }
+  const add=(cls,style)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,style||{}); layer.appendChild(e); setTimeout(()=>e.remove(),800); };
+  add('hf-cinema');
+  add('hf-wave',{left:(window.innerWidth/2)+'px',top:(window.innerHeight/2)+'px'});
+  [-26,-8,10,28].forEach((d,i)=>add('hf-wind',{left:(window.innerWidth/2-20+i*6)+'px',top:(window.innerHeight/2+d)+'px',animationDelay:(i*40)+'ms'}));
+  add('hf-flash');
+  document.body.classList.add('hf-shake'); setTimeout(()=>document.body.classList.remove('hf-shake'),360);
+}
+function bossHitFx(damage,remote,keepVignette){
+  if(!remote&&MP_SEQ===0) mpCue({k:'bosshfx',dmg:damage,fight:!!keepVignette});
+  const root=bossFxRoot(),damageEl=root.querySelector('.boss-hit-damage');
+  damageEl.textContent='-'+Math.max(0,Number(damage)||0);
+  root.classList.toggle('critical',!!keepVignette);
+  if(keepVignette) root.classList.add('fight');
   root.classList.add('active');
   root.classList.remove('hit'); void root.offsetWidth; root.classList.add('hit');
+  bossCinemaHit();
   clearTimeout(BOSS_FX_TIMER);
   BOSS_FX_TIMER=setTimeout(()=>{
     BOSS_FX_TIMER=0; root.classList.remove('hit');
@@ -2600,7 +2614,7 @@ function bossHitFx(damage,remote){
 function clearBossFx(){
   clearTimeout(BOSS_FX_TIMER); BOSS_FX_TIMER=0;
   const root=document.getElementById('bossFx');
-  if(root) root.classList.remove('active','fight','hit');
+  if(root) root.classList.remove('active','fight','hit','critical');
 }
 function showDragonBoss(p,gid,text,ttl){
   const awakening=AWK.running;
@@ -2687,7 +2701,7 @@ async function crystalRoll(p,v,gid){
   await S(sleep(900)); renderChips();
   if(p.crystal>=CRYSTAL_N){
     p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared();
-    showDragonBoss(p,gid,'Siap menyerang Ender Dragon!',4000);
+    hud('hideCombat');
     renderChips(); await S(sleep(700));
   }
   return true;
@@ -3005,7 +3019,7 @@ async function hitWither(p,v){
     await hopTo(pw,slot,0.4*Fk,0.45); pw.rotation.y=Math.PI/2;
   }finally{ pw.rotation.order='XYZ'; pw.rotation.x=0; w.shk=0; }
   if(gid!==gameId) throw STALE;
-  p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg); hud('showCombat','','','',{hp:p.dhp,maxHp:p.hpMax,bossName:'Wither',owner:p.name,gid,ttl:900}); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
+  p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg,false,false); hud('showCombat','','','',{hp:p.dhp,maxHp:p.hpMax,bossName:'Wither',owner:p.name,gid,ttl:900}); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
   if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
   sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
@@ -3946,13 +3960,14 @@ async function bowShootDragon(p,gid){
 async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId;
+   hud('hideCombat');
    if(!(await bowShootDragon(p,gid))){ pawnAct(p.pawn,'attack'); await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6); } /* panah mendarat -> naga kena */
    if(gid!==gameId) return;
    sfx.dragonHurt(); mpCue({k:'dfx',t:'hurt'});
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
-   p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg); hud('showCombat','','','',{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl:900}); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
+   p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg,false,true); msBump(p,'dragon_hits'); renderChips();
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
@@ -4641,12 +4656,12 @@ function trapPick(p,k){
 /* Dipanggil resolveTileAt: pemain p baru mendarat. true = p terpental mundur (lewati efek petak lama: tangga/ular/mob). */
 async function trapCheck(p,gid){
   const t=TRAPS.find(q=>q.tile===p.pos&&q.owner!==p.idx); if(!t) return false;
-  const bp=TRAPM[t.id]&&TRAPM[t.id].position.clone(); /* posisi objek di papan = titik ledakan */
+  const tl=TILES[t.tile],bp=TRAPM[t.id]?TRAPM[t.id].position.clone():(tl?new THREE.Vector3(tl.x,tl.h,tl.z):null); /* gunakan petak jebakan bila model visual belum terpasang */
   trapRemove(t); /* sekali pakai: hapus dulu agar tidak terpicu ganda */
   const owner=trapOwner(t.owner),key=t.key,nm=PUN[key]?PUN[key][1]:'Jebakan';
   const vs=players.filter(q=>q.idx!==t.owner&&q.pos>0&&q.pos<GOAL&&Math.abs(q.pos-t.tile)<=t.radius).sort((a,b)=>(b===p)-(a===p));
   setMsg(nm+(owner?' milik '+owner.name:'')+' meledak di petak '+t.tile+'!'); fb('event','info',nm+' meledak di petak '+t.tile+'!',{gid});
-  sfx.power(key); if(bp&&!reduce){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan HANYA di papan (petak jebakan), tidak ada efek di tengah layar */
+  sfx.power(key); if(bp){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan selalu terlihat di papan, termasuk mode reduce-motion */
   await sleep(reduce?100:320); if(gid!==gameId) throw STALE;
   let moved=false; const parts=[];
   for(const q of vs){
@@ -5502,7 +5517,7 @@ function mpRunFeedbackCue(c){
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
-    else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true); }
+    else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
     else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }
     else if(c.k==='pufx'){ puFx(c.key,c.cls); }
   }catch(e){ console.error('[multiplayer] feedback cue failed',e); }

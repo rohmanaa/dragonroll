@@ -25,6 +25,7 @@ for (const [, asset] of css.matchAll(/url\(["']?([^"')]+\.webp)["']?\)/g)) {
 
 assert.match(css, /#win\.win-result #btnToMenu\s*\{[^}]*tombol-biru-polos\.webp/s);
 assert.match(css, /display:\s*contents\s*!important/);
+assert.match(css, /#win\[data-state="lose"\]\.win-result \.lm-eyebrow\s*\{[^}]*width:\s*fit-content\s*!important/s);
 assert.match(main, /setWinReward\(m\.gameId,'xp',r\.xp_gain\)/);
 assert.match(main, /setWinReward\(m\.gameId,'points',r\.points\)/);
 assert.match(main, /setWinReward\(gid,'coins',r\.reward_coins\)/);

@@ -131,14 +131,14 @@ body.hf-shake{animation:hfShake .35s}
 #bossFx.active{display:block}
 #bossFx::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.12) 72%,rgba(255,0,0,.45) 100%);box-shadow:inset 0 0 260px rgba(255,0,0,.73);animation:bossVignette 1s ease-in-out infinite alternate}
 #bossFx .boss-hit-label,#bossFx .boss-hit-damage{position:absolute;left:50%;z-index:1;display:block;opacity:0;text-align:center;white-space:nowrap;transform:translate(-50%,-50%)}
-#bossFx .boss-hit-label{top:46%;color:#ff263b;font:900 clamp(58px,9vw,140px)/.9 var(--gh-title);letter-spacing:.08em;text-shadow:0 0 24px rgba(255,0,0,.85),0 4px 0 rgba(50,0,0,.7)}
-#bossFx .boss-hit-damage{top:58%;color:#fff;font:900 clamp(30px,5vw,72px)/1 var(--gh-title);text-shadow:0 3px 0 #1b1430,0 0 12px rgba(255,255,255,.55)}
-#bossFx.hit .boss-hit-label{animation:bossHitBlink .7s linear both}
+#bossFx .boss-hit-label{top:43%;color:#fff3d0;font:900 clamp(44px,8vw,112px)/.9 var(--gh-title);letter-spacing:.04em;text-shadow:0 0 24px rgba(255,0,0,.85),0 4px 0 rgba(50,0,0,.7)}
+#bossFx .boss-hit-damage{top:57%;color:#fff;font:900 clamp(30px,5vw,72px)/1 var(--gh-title);text-shadow:0 3px 0 #1b1430,0 0 12px rgba(255,255,255,.55)}
+#bossFx.critical.hit .boss-hit-label{animation:bossCriticalFlash .7s ease-out both}
 #bossFx.hit .boss-hit-damage{animation:bossDamageFloat .7s ease-out both}
 @keyframes bossVignette{to{background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.08) 72%,rgba(255,0,0,.3) 100%);box-shadow:inset 0 0 120px rgba(255,0,0,.47)}}
-@keyframes bossHitBlink{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.82)}12%,38%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}24%,58%{opacity:.12;transform:translate(-50%,-50%) scale(.98)}}
+@keyframes bossCriticalFlash{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.75)}14%,45%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}70%{opacity:.5;transform:translate(-50%,-50%) scale(1)}}
 @keyframes bossDamageFloat{0%,100%{opacity:0;transform:translate(-50%,10px)}18%{opacity:1;transform:translate(-50%,0)}}
-@media (prefers-reduced-motion:reduce){#bossFx::before{animation:none}#bossFx.hit .boss-hit-label,#bossFx.hit .boss-hit-damage{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){#bossFx::before{animation:none}#bossFx.critical.hit .boss-hit-label,#bossFx.hit .boss-hit-damage{animation:none;opacity:1}}
 
 /* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
 .tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
