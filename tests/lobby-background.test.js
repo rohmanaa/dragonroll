@@ -29,7 +29,7 @@ assert.ok(lobby.includes('assets/Images/background/lobby-kastel.webp'));
 assert.ok(!lobby.includes('lobby-bg.webp'));
 assert.ok(lobby.includes('assets/Images/icon/currency/coin.webp'));
 assert.ok(lobby.includes('assets/Images/icon/mode/console.webp'));
-assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey())'));
+assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})'));
 assert.ok(lobby.includes('AUR.update(motionDt)'));
 assert.ok(lobby.includes('bc.tick(motionDt)'));
 assert.ok(lobby.includes('const lobbyActs='));
