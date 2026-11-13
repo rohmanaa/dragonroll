@@ -258,7 +258,7 @@ function buildHero(){
  bc.root.traverse(o=>{if(o.isMesh)o.receiveShadow=false});
  bcW=new THREE.Group();bcW.scale.setScalar(4.8);bcW.add(bc.root);hero.add(bcW);auraQ=true;
 }
-function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey())}catch(e){console.error('[lobby] gagal memasang efek aura',e)}}
+function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})}catch(e){console.error('[lobby] gagal memasang efek aura',e)}}
 buildHero();
 PD.subscribe&&PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();else if(r==='server-appearance'||r==='server-outfits'){renderAvatar();buildHero()}});
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});

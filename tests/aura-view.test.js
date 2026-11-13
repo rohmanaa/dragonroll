@@ -71,7 +71,7 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
     const g = read(f), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
     assert.ok(i('vendor/three.min.js') < i('blocky-character.js') || f === 'lobby.html', f);
     assert.ok(i('three.min.js') < i('aura-fx.js') && i('blocky-character.js') < i('aura-fx.js') && i('aura-fx.js') < i('aura-view.js'), f);
-    assert.ok(/UT\.AuraView\.create\(/.test(g) && /\.update\(dt\)/.test(g), f);
+    assert.ok(/UT\.AuraView\.create\(/.test(g) && /\.update\(\w+\)/.test(g), f);
   }
   assert.ok(/keyFromEquipped\(seed\.equipped\)/.test(read('gameplay.html')), 'pemain lain: aura dari data server');
 });

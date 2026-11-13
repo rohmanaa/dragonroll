@@ -6,7 +6,7 @@
      UT.AuraView.keyFromEquipped(eq)     -> id aura dari data 'equipped' server (pemain lain), atau null
      UT.AuraView.quality()               -> 'low' kecuali pengaturan grafis 'high' (lalu deteksi perangkat)
      const A = UT.AuraView.create(scene, camera[, {quality}])
-       A.only(root, key[, {height, settings}])  // aura hanya untuk root ini (yang lain dilepas); key null = tanpa aura
+       A.only(root, key[, {height, settings, facing}])  // aura hanya untuk root ini (yang lain dilepas); key null = tanpa aura
        A.set(root, key[, {height, settings}])   // tambah/ubah aura untuk root (banyak karakter sekaligus)
        A.clear(root) / A.clearAll()             // lepas dengan memudar
        A.update(dt)                             // tiap frame (setelah posisi karakter diperbarui)
@@ -57,7 +57,8 @@
         if (it) { if (it.key !== key) { it.a.setAura(key); it.key = key; } return; }
         scene.updateMatrixWorld(true);
         var h = o.height; if (!(h > 0.05)) { var bb = new win.THREE.Box3().setFromObject(root); h = bb.max.y - bb.min.y; }
-        var a = s.attach(root, key, o.settings || {}, { height: h > 0.05 ? h : undefined });
+        var ao = { height: h > 0.05 ? h : undefined }; if (typeof o.facing === 'number') ao.facing = o.facing; /* facing: putar aura relatif arah hadap karakter (lobby: -yaw hero agar halo tepat di belakang) */
+        var a = s.attach(root, key, o.settings || {}, ao);
         items.push({ root: root, key: key, a: a });
       } catch (e) { /* aura gagal: karakter tetap tampil tanpa aura */ }
     }
