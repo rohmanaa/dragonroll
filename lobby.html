@@ -292,7 +292,7 @@ $('#stage').addEventListener('pointerdown',event=>{
  const rect=$('#stage').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width;
  if(x>.36&&x<.64){if(Math.random()<.25)bc.jump();else startLobbyAct();buzz()}
 });
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';fit3d()}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';st.style.setProperty('--ex',Math.max(0,(innerWidth/s-1920)/2)+'px'); /* layar lebih lebar dari 16:9: grup kiri/kanan menempel ke tepi layar (tanpa jarak) */fit3d()}
 if(G3){
  let lastFrame=null,frameDebt=0;
  document.addEventListener('visibilitychange',()=>{lastFrame=null;frameDebt=0});
