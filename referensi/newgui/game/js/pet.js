@@ -40,14 +40,6 @@ let owned=LS(OWN_K,[]);if(!Array.isArray(owned))owned=[];owned=owned.filter(id=>
 let used=RAW(USE_K);if(!DC.some(f=>f.id===used&&owned.includes(f.id)))used=null;
 let sel=used||DC[0].id;
 const has=id=>owned.includes(id);
-const petViewer=$('#petViewer');
-let petViewerReady=false;
-window.addEventListener('message',event=>{
-  if(event.source!==petViewer.contentWindow||!event.data||event.data.type!=='pet-viewer-ready')return;
-  petViewerReady=true;
-  petViewer.contentWindow.postMessage({type:'pet-select',id:sel},'*');
-});
-
 /* ---- tab kategori koleksi ---- */
 
 /* ---- gambar ulang ---- */
@@ -61,8 +53,7 @@ function draw(){
     return `<button class="fslot${x.id===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}">${tag}<div class="dc"><img src="assets/pet3d/${x.id}.png" alt="${x.n}" loading="lazy"></div>${pr}</button>`}).join('');
   for(let i=DC.length;i<18;i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
-  petViewer.title=`Pratinjau 3D ${f.n}`;
-  if(petViewerReady)petViewer.contentWindow.postMessage({type:'pet-select',id:f.id},'*');
+  if(window.PetViewer)PetViewer.select(f.id);
   $('#nm').textContent=f.n;
   $('#rar').textContent=TIERS[f.tier-1]+' · Tier '+f.tier;$('#rar').style.color=TC[f.tier-1];
   $('#ds').textContent=f.lore;

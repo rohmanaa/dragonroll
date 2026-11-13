@@ -23,7 +23,7 @@
   <button id="home" aria-label="Lobby"><img src="assets/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
 
   <section id="left">
-    <div id="fpv"><iframe id="petViewer" src="data%20pet.html?embed=1" title="Pratinjau 3D pet" loading="eager"></iframe></div>
+    <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
     <div id="nm" class="ttl"></div>
     <div id="rar"></div>
     <p id="ds"></p>
@@ -50,5 +50,7 @@
   <div id="toast"></div>
 </div></div>
 <div id="fade"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/pet-viewer.js"></script>
 <script src="js/pet.js"></script>
 </body></html>

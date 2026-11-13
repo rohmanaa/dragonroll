@@ -1,127 +1,7 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Pet Tiers 3D</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700&display=swap">
-<style>
-/* Layout: large 3D stage with info panel beside it, 7 tier cards below. Dark game-UI, same look as Character Frames. */
-:root{
-  --bg:#0f1424; --panel:#1b2540; --panel2:#243256; --line:#34447a; --fg:#eaf0ff; --mute:#9aa8d0; --gold:#ffd24a;
-  --t1:#2fa84a; --t2:#22b8a4; --t3:#3a86f0; --t4:#a24ae8; --t5:#f0a020; --t6:#ee3a4e; --t7:#ffe08a;
-  --tc:#2fa84a;
-  --font-d:"Lilita One","Trebuchet MS",sans-serif; --font-b:"Nunito","Segoe UI",system-ui,sans-serif;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html,body{background:var(--bg);color:var(--fg);font-family:var(--font-b)}
-body{margin:0;padding-block:14px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-h1{font:400 26px/1 var(--font-d);margin:0;letter-spacing:.02em}
-.sub{color:var(--mute);margin:6px 0 0;font-size:13px;line-height:1.45}
-.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:14px;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:12px}
-.view{position:relative;height:clamp(340px,64vh,620px);border-radius:8px;overflow:hidden;min-width:0;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--tc) 38%,#1a2447),#0b1020 78%);touch-action:none;cursor:grab}
-.view:active{cursor:grabbing}
-.view canvas{width:100%;height:100%;display:block;touch-action:none}
-.hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;color:#cfd8f5;background:#0b1020aa;padding:5px 10px;border-radius:99px;pointer-events:none;transition:opacity .6s;white-space:nowrap}
-.hint.off{opacity:0}
-.info{min-width:0;display:flex;flex-direction:column;gap:10px}
-.chip{display:inline-block;font:400 11px/1 var(--font-d);letter-spacing:.06em;padding:5px 9px;border-radius:4px;color:#fff;text-transform:uppercase;width:max-content;background:var(--tc)}
-.nm{font:400 26px/1.05 var(--font-d);margin:0;text-wrap:balance}
-dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:13px;line-height:1.4}
-dt{color:var(--mute)} dd{margin:0;min-width:0}
-.lore{margin:0;font-size:13px;line-height:1.55;color:#c4cff0;border-top:1px solid var(--line);padding-top:10px}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
-button{font:400 14px/1 var(--font-d);border:0;border-radius:6px;padding:11px 14px;color:#fff;cursor:pointer;border-bottom:3px solid rgba(0,0,0,.35)}
-button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.b1{background:#e48a14}.b2{background:#2f9a44}.b2[aria-pressed=false]{background:#3a4a80}.b3{background:#3a4a80}
-.tiers{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.card{background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:9px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--fg);text-align:center;border-bottom:3px solid rgba(0,0,0,.35);min-width:0}
-.card i{font:400 11px/1 var(--font-d);font-style:normal;letter-spacing:.06em;padding:4px 7px;border-radius:4px;background:var(--c);color:#fff;text-transform:uppercase}
-.card b{font:400 14px/1.1 var(--font-d);text-wrap:balance}
-.card small{font-size:11px;color:var(--mute)}
-.card[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px #ffd24a55;background:var(--panel2)}
-.std{background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--mute);line-height:1.55}
-.std b{color:var(--fg)}
-.spec{background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.spec h3{font:400 18px/1 var(--font-d);margin:0}
-.spec .sub{margin:0}
-.spec .btns{margin-top:0}
-pre{margin:0;background:#0b1020;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#cfe0ff;overflow:auto;max-height:340px;white-space:pre-wrap;word-break:break-word}
-.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
-input[type=number]{font:700 14px var(--font-b);background:#0b1020;color:var(--fg);border:2px solid var(--line);border-radius:6px;padding:9px 10px;min-width:0;width:100%}
-input[type=number]:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-button:disabled{opacity:.45;cursor:not-allowed}
-.srows{display:flex;flex-direction:column;gap:6px}
-.srow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) minmax(0,1.7fr) auto;gap:10px;align-items:center;background:#141c34;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
-.srow b{font:400 15px/1.1 var(--font-d);margin-right:8px}
-.srow .tg{font:400 10px/1 var(--font-d);padding:3px 6px;border-radius:4px;color:#fff;letter-spacing:.06em}
-.srow .pr{font-weight:700;font-size:13px}
-.srow.own{opacity:.65}
-.stat{font-size:12px;color:var(--mute);line-height:1.4}
-.stat.ok{color:#7be08a}
-.emt{color:#4ee08a}
-.card small.emt{color:#4ee08a}
-.sum{font-size:13px;line-height:1.55;color:#c4cff0;display:flex;flex-direction:column;gap:4px}
-@media (max-width:620px){.srow{grid-template-columns:minmax(0,1fr) auto}.srow .pr,.srow .stat{grid-column:1/-1}}
-@media (max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}.tiers{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media (max-width:520px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}.nm{font-size:22px}.view{height:clamp(320px,58vh,460px)}}
-html.embed,html.embed body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:transparent}
-html.embed .wrap{width:100%;height:100%;max-width:none;margin:0;gap:0}
-html.embed .wrap>header,html.embed .info,html.embed #tiers,html.embed .spec,html.embed .std{display:none}
-html.embed .stage{display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent}
-html.embed .view{width:100%;height:100%;min-height:0;border-radius:0;background:transparent}
-html.embed .hint{display:none}
-</style>
-
-<div class="wrap">
-  <header>
-    <h1>Pet Tiers 3D</h1>
-    <p class="sub">7 tier, 1 pet per tier. Seret untuk memutar, scroll atau cubit untuk zoom, ketuk dua kali untuk reset kamera.</p>
-  </header>
-  <section class="stage" aria-live="polite">
-    <div class="view" id="view"><canvas id="gl" aria-label="Pratinjau 3D pet"></canvas><div class="hint" id="hint">Seret untuk memutar. Ketuk sekali untuk menyalakan suara.</div></div>
-    <div class="info">
-      <span class="chip" id="chip"></span>
-      <h2 class="nm" id="nm"></h2>
-      <dl id="dl"></dl>
-      <p class="lore" id="lore"></p>
-      <div class="btns">
-        <button class="b1" id="bFx" type="button">Preview Efek</button>
-        <button class="b2" id="bRot" type="button" aria-pressed="true">Putar Otomatis</button>
-        <button class="b2" id="bSnd" type="button" aria-pressed="true">Suara: Nyala</button>
-        <button class="b3" id="bReset" type="button">Reset Kamera</button>
-      </div>
-    </div>
-  </section>
-  <nav id="tiers" class="tiers" aria-label="Pilih pet"></nav>
-  <section class="spec">
-    <h3>Spesifikasi untuk AI dan server</h3>
-    <p class="sub">Data pet yang sedang dipilih. Salin untuk ditempel ke prompt AI atau dikirim ke server. Isinya: peran, skill beserta parameternya, keunggulan, tampilan, animasi, dan suara.</p>
-    <div class="btns"><button class="b1" id="bCopyOne" type="button">Salin pet ini (JSON)</button><button class="b3" id="bCopyAll" type="button">Salin semua 7 pet (JSON)</button></div>
-    <pre id="specOut" tabindex="0"></pre>
-  </section>
-  <section class="spec sim">
-    <h3>Simulasi harga dan pembelian</h3>
-    <p class="sub">Semua angka bisa diubah. Ini simulasi, bukan transaksi sungguhan. Semua pet dibeli dengan koin (di atas 100.000), kecuali Celestial Kitsune, pet paling kuat, yang hanya bisa dibeli dengan emerald.</p>
-    <div class="fields">
-      <label for="sCoin">Saldo koin<input id="sCoin" type="number" min="0" step="10000" value="500000"></label>
-      <label for="sEm">Saldo emerald<input id="sEm" type="number" min="0" step="100" value="1000"></label>
-      <label for="sIncome">Koin per game<input id="sIncome" type="number" min="0" step="100" value="1500"></label>
-      <label for="sGames">Game per hari<input id="sGames" type="number" min="0" step="1" value="8"></label>
-      <label for="sEmDay">Emerald per hari<input id="sEmDay" type="number" min="0" step="1" value="20"></label>
-    </div>
-    <div class="srows" id="simRows"></div>
-    <div class="sum" id="simSum"></div>
-    <div class="btns"><button class="b3" id="sReset" type="button">Reset simulasi</button></div>
-  </section>
-  <section class="std"><b>Standar yang dipakai.</b> Semua pet dibangun dari blok seperti gaya Character Frames. Tier naik, ukuran, ornamen, cahaya, dan partikel bertambah: T1 hampir statis, T2 mekanik, T3 kristal, T4 rune arcane, T5 petir, T6 api dan sayap, T7 sembilan ekor tebal dan bintang.</section>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+/* Viewer 3D pet (dipindah dari 'data pet.html'; data pet sudah ada di supabase/pet_catalog.sql).
+   Latar transparan, tanpa pad, tanpa zoom. API: PetViewer.select(id). */
+(function(){
 "use strict";
-const EMBED=new URLSearchParams(location.search).get('embed')==='1';
-document.documentElement.classList.toggle('embed',EMBED);
 const T=THREE;
 let _s=11;
 const rnd=()=>((_s=(Math.imul(_s,1664525)+1013904223)>>>0)/4294967296);
@@ -808,117 +688,6 @@ const SND=[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
-// ================= spesifikasi untuk AI dan server (peran di game ular tangga)
-const SPEC=[
- {id:'forest_pup',role:'Pengendus',
-  skill:{name:'Hidung Penuntun',type:'passive',effect:'Saat digigit ular, mundur 1 kotak lebih sedikit (minimal tetap mundur 1).',limit:'Tanpa batas',params:{snake_penalty_reduction:1}},
-  adv:'Stabil dan mudah dipakai pemula. Mengurangi kerugian kecil secara konsisten.',
-  visual:'Anak anjing hutan berbulu cokelat dan krem, kalung kulit dengan papan kayu, ranting daun di kepala.',
-  anim:['bernapas','kepala miring','ekor mengibas','telinga bergoyang','lidah terjulur','berkedip'],
-  fx:'Daun hijau jatuh pelan, jarang.',
-  sounds:['guk guk','yip pendek','rengekan'],palette:['#b8803f','#f0dcb0','#3fa04a']},
- {id:'copper_golem',role:'Pelindung',
-  skill:{name:'Perisai Tembaga',type:'active',effect:'Menahan 1 gigitan ular sehingga pemain tidak turun.',limit:'1 kali per game',params:{snake_bites_blocked:1,uses_per_game:1}},
-  adv:'Pertahanan yang pasti. Cocok untuk menyelamatkan posisi di dekat garis akhir.',
-  visual:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, roda gigi di punggung, antena berlampu oranye.',
-  anim:['roda gigi berputar','jarum pengukur bergerak','lengan mengayun','kepala menoleh','lampu antena berdenyut'],
-  fx:'Uap putih dari pipa bahu, percikan tembaga.',
-  sounds:['denting logam','desis uap','bunyi servo'],palette:['#c8703a','#3fbf9f','#ffb040']},
- {id:'crystal_axolotl',role:'Penyembuh',
-  skill:{name:'Regenerasi Kristal',type:'passive',effect:'Setelah turun karena ular, otomatis maju +2 kotak di giliran berikutnya.',limit:'Tanpa batas',params:{bonus_move_after_snake:2}},
-  adv:'Memperkecil kerugian dari ular. Kuat untuk permainan panjang.',
-  visual:'Axolotl biru es dengan insang merah muda berujung kristal, kristal tumbuh di punggung, permata di dahi.',
-  anim:['mengambang naik turun','ekor berombak','insang bergetar','kristal berdenyut','berkedip'],
-  fx:'Gelembung dan kilau kristal naik ke atas.',
-  sounds:['gelembung','lonceng air','cicit pendek'],palette:['#8fe8f2','#d8fbff','#ff9ad8','#40e8f4']},
- {id:'arcane_owl',role:'Peramal',
-  skill:{name:'Mata Ramalan',type:'active',effect:'Melihat hasil dadu berikutnya dan boleh menggesernya 1 angka ke atas atau ke bawah.',limit:'Jeda 3 giliran',params:{dice_adjust:1,cooldown_turns:3}},
-  adv:'Bisa mengatur langkah dengan perhitungan, misalnya menghindari kotak ular atau mengejar tangga.',
-  visual:'Burung hantu ungu bertengger di gugus amethyst, mata emas bercahaya, dua cincin rune di belakang kepala.',
-  anim:['kepala menoleh lebar','sayap berkedip','cincin rune berputar berlawanan','kristal mengorbit','berkedip'],
-  fx:'Kilau ungu naik pelan.',
-  sounds:['hu-hu','denting arcane','kepakan sayap'],palette:['#6a4a7a','#b46af0','#ffd24a']},
- {id:'storm_wolf',role:'Penyerang',
-  skill:{name:'Sambaran Badai',type:'active',effect:'Pilih salah satu: lawan terdekat mundur 3 kotak, atau lempar dadu dua kali dan ambil yang terbesar.',limit:'3 kali per game, jeda 4 giliran',params:{push_back:3,alt_roll_twice_take_max:true,uses_per_game:3,cooldown_turns:4}},
-  adv:'Satu-satunya pet yang menekan lawan. Bisa membalik keadaan saat tertinggal.',
-  visual:'Serigala baja kebiruan dengan surai duri petir kuning, mata biru menyala, garis listrik di kaki. Awan badai melayang di atasnya.',
-  anim:['bernapas','kepala menoleh','ekor bergelombang','telinga bergerak','surai berdenyut','petir menyambar dari awan'],
-  fx:'Percikan listrik dari surai, kilat dari awan ke tanah atau surai.',
-  sounds:['lolongan','guntur','setrum'],palette:['#5a6a8a','#e8f4ff','#7fd0ff','#fff2a0']},
- {id:'inferno_dragon',role:'Pembakar Ular',
-  skill:{name:'Napas Api',type:'active',effect:'Menghanguskan 1 ular di jalurmu. Ular itu tidak aktif selama 3 giliran.',limit:'1 kali per game',params:{burn_snake_turns:3,uses_per_game:1}},
-  adv:'Mematikan ancaman terbesar di papan, dan efeknya juga menguntungkan pemain lain yang lewat.',
-  visual:'Naga obsidian dengan sisik merah tua, retakan lava di dada, tanduk gading, sayap lebar, ekor berujung api.',
-  anim:['bernapas','leher bergoyang','sayap mengepak','ekor bergelombang','rahang terbuka menyemburkan api tiap beberapa detik'],
-  fx:'Bara api naik, semburan api dari mulut.',
-  sounds:['raungan','semburan api','kepakan sayap'],palette:['#1b0a10','#a0182c','#ff7a18','#ffd24a']},
- {id:'celestial_kitsune',role:'Pengubah Takdir',
-  skill:{name:'Sembilan Ekor',type:'active',effect:'Membuat tangga bayangan dari posisimu ke kotak mana pun dalam 9 kotak di depan.',limit:'1 kali per game',params:{shadow_ladder_range:9,uses_per_game:1}},
-  adv:'Lompatan terbesar dan bisa dipakai kapan saja, termasuk untuk melewati ular.',
-  visual:'Rubah putih dan emas yang melayang di atas lingkaran sihir. Sembilan ekor tebal mengembang seperti kipas, ujungnya bintang bercahaya.',
-  anim:['melayang naik turun','sembilan ekor bergelombang','telinga bergerak','bintang mengorbit','api roh biru melayang'],
-  fx:'Bintang putih, emas, dan biru naik ke atas.',
-  sounds:['lonceng arpeggio','lengkingan rubah','kilau'],palette:['#fdfbf4','#ffcf4a','#6ae8ff']}
-];
-// harga: semua koin di atas 100.000. Pet paling kuat hanya bisa dibeli dengan emerald.
-const PRICE=[{c:'coin',a:100000},{c:'coin',a:250000},{c:'coin',a:600000},{c:'coin',a:1500000},{c:'coin',a:4000000},{c:'coin',a:10000000},{c:'emerald',a:3000}];
-const fmt=n=>Number(n).toLocaleString('id-ID');
-const priceText=i=>fmt(PRICE[i].a)+(PRICE[i].c==='coin'?' koin':' emerald');
-function specOf(i){
-  const d=PETS[i],s=SPEC[i];
-  return{id:s.id,price:{currency:PRICE[i].c,amount:PRICE[i].a},tier:d.tier,tier_name:TIERS[i],name:d.name,material:d.mat,identity:d.ident,role:s.role,skill:s.skill,advantage:s.adv,visual:s.visual,animations:s.anim,particles:s.fx,sounds:s.sounds,palette:s.palette};
-}
-function allSpec(){
-  return{game:'ular-tangga',note:'Nilai skill dan harga adalah usulan awal. Sesuaikan setelah simulasi dan playtest.',pricing_note:'Semua harga koin di atas 100.000. Celestial Kitsune (pet paling kuat) hanya bisa dibeli dengan emerald.',economy_assumption:{coin_per_game:1500,games_per_day:8,emerald_per_day:20,note:'Asumsi untuk simulasi, bukan data server.'},pets:PETS.map((_,i)=>specOf(i))};
-}
-// ================= simulasi harga dan pembelian (bukan transaksi sungguhan)
-function initSim(){
-  const $=id=>document.getElementById(id);
-  const num=id=>Math.max(0,Number($(id).value)||0);
-  const owned=new Set(),spent={c:0,e:0};
-  const rowsEl=$('simRows'),sumEl=$('simSum');
-  function render(){
-    const coin=num('sCoin')-spent.c,em=num('sEm')-spent.e,income=num('sIncome'),perDay=income*num('sGames'),emDay=num('sEmDay');
-    rowsEl.innerHTML='';
-    let needC=0,needE=0;
-    PETS.forEach((d,i)=>{
-      const pr=PRICE[i],isE=pr.c==='emerald',have=isE?em:coin,short=pr.a-have;
-      if(!owned.has(i)){if(isE)needE+=pr.a;else needC+=pr.a}
-      const r=document.createElement('div');r.className='srow'+(owned.has(i)?' own':'');
-      let stat,cls='stat';
-      if(owned.has(i)){stat='Dimiliki'}
-      else if(short<=0){stat='Saldo cukup';cls+=' ok'}
-      else{
-        const rate=isE?emDay:perDay;
-        const unit=isE?'emerald':'koin';
-        stat='Kurang '+fmt(short)+' '+unit+(rate>0?', sekitar '+fmt(Math.ceil(short/rate))+' hari'+(isE?'':' ('+(income>0?fmt(Math.ceil(short/income)):'0')+' game)'):', belum ada pemasukan');
-      }
-      r.innerHTML='<div><b></b><span class="tg"></span></div><div class="pr"></div><div class="'+cls+'"></div><button type="button" class="b2"></button>';
-      r.querySelector('b').textContent=d.name;
-      const tg=r.querySelector('.tg');tg.textContent='T'+d.tier;tg.style.background=TC[d.tier];if(d.tier===7)tg.style.color='#3a2a00';
-      const p=r.querySelector('.pr');p.textContent=priceText(i);if(isE)p.classList.add('emt');
-      r.querySelector('.stat').textContent=stat;
-      const b=r.querySelector('button');
-      b.textContent=owned.has(i)?'Dimiliki':'Simulasi beli';
-      b.disabled=owned.has(i)||short>0;
-      b.onclick=()=>{if(owned.has(i))return;if(isE)spent.e+=pr.a;else spent.c+=pr.a;owned.add(i);render()};
-      rowsEl.appendChild(r);
-    });
-    const dayC=perDay>0?Math.ceil(Math.max(0,needC-coin)/perDay):null,dayE=emDay>0?Math.ceil(Math.max(0,needE-em)/emDay):null;
-    sumEl.innerHTML='';
-    const l1=document.createElement('div');l1.textContent='Saldo sekarang: '+fmt(coin)+' koin dan '+fmt(em)+' emerald. Pemasukan: '+fmt(perDay)+' koin per hari.';
-    const l2=document.createElement('div');
-    l2.textContent='Sisa pet yang belum dimiliki butuh '+fmt(needC)+' koin dan '+fmt(needE)+' emerald. Estimasi melengkapi koleksi: '+(dayC===null?'koin tidak mungkin (pemasukan 0)':fmt(dayC)+' hari untuk koin')+', '+(dayE===null?'emerald tidak mungkin (pemasukan 0)':fmt(dayE)+' hari untuk emerald')+'.';
-    sumEl.appendChild(l1);sumEl.appendChild(l2);
-  }
-  ['sCoin','sEm','sIncome','sGames','sEmDay'].forEach(id=>$(id).addEventListener('input',render));
-  $('sReset').onclick=()=>{owned.clear();spent.c=0;spent.e=0;render()};
-  render();
-}
-// ================= data
-const TIERS=['Common','Uncommon','Rare','Epic','Legendary','Mythic','Divine'];
-const TC={1:'#2fa84a',2:'#22b8a4',3:'#3a86f0',4:'#a24ae8',5:'#f0a020',6:'#ee3a4e',7:'linear-gradient(90deg,#ffe08a,#fff,#9ae8ff)'};
-const TS=['#2fa84a','#22b8a4','#3a86f0','#a24ae8','#f0a020','#ee3a4e','#ffe08a'];
 const PETS=[
  {id:'forest_pup',tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:petPup},
  {id:'copper_golem',tier:2,name:'Copper Golem',mat:'Copper Block dan Verdigris',ident:'Industrial dan rajin',efek:'Roda gigi berputar, uap, lampu antena berdenyut',lore:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',color:'#ff9a30',build:petGolem},
@@ -929,58 +698,39 @@ const PETS=[
  {id:'celestial_kitsune',tier:7,name:'Celestial Kitsune',mat:'Divine Crystal dan Gold',ident:'Celestial Guardian',efek:'Sembilan ekor tebal bergelombang, bintang mengorbit',lore:'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.',color:'#ffe08a',build:petKitsune}
 ];
 
-// ================= scene
-const view=document.getElementById('view'),canvas=document.getElementById('gl'),hint=document.getElementById('hint');
+/* ================= scene: latar transparan, tanpa pad, kanvas besar, tanpa zoom ================= */
+const view=document.getElementById('fpv'),canvas=document.getElementById('petGl');
 let renderer=null;
-try{renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:true});}catch(err){
-  view.insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#9aa8d0">WebGL tidak tersedia di perangkat ini, jadi pratinjau 3D tidak bisa ditampilkan.</div>');
+try{renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:true,premultipliedAlpha:true})}catch(err){
+  view.insertAdjacentHTML('beforeend','<div class="gl-fail">WebGL tidak tersedia, pratinjau 3D tidak bisa ditampilkan.</div>');
 }
 const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let pendingId=null,selectFn=null;
 if(renderer){
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setClearColor(0x000000,0);
 const scene=new T.Scene();
 const camera=new T.PerspectiveCamera(40,1,.1,100);
-const hemi=new T.HemisphereLight(0xcfe0ff,0x201838,.8);scene.add(hemi);
+scene.add(new T.HemisphereLight(0xcfe0ff,0x201838,.8));
 const key=new T.DirectionalLight(0xffffff,.85);key.position.set(4,7,5);scene.add(key);
 const rim=new T.DirectionalLight(0xffffff,.8);rim.position.set(-5,3,-5);scene.add(rim);
 const fill=new T.PointLight(0xffffff,.5,12);fill.position.set(0,.6,3.5);scene.add(fill);
 P=new Particles(scene,900);
 
-// pedestal
-const ped=(()=>{
-  const g=new T.Group();
-  cyl(g,2.5,.45,'#1c2440',0,-.225,0,{r:.7,j:.02},40);
-  cyl(g,2.3,.08,'#2a3560',0,-.04,0,{r:.5,j:0},40);
-  const ring=torus(g,2.15,.05,'#ffffff',0,.01,0,{e:'#ffffff',ei:1.2,j:0});ring.rotation.x=Math.PI/2;
-  const runes=[];
-  for(let i=0;i<18;i++){const a=i/18*6.283;runes.push(bx(g,.22,.16,.05,'#ffffff',Math.cos(a)*2.52,-.22,Math.sin(a)*2.52,{e:'#ffffff',ei:1,j:0,ry:Math.PI/2-a}))}
-  const sc=document.createElement('canvas');sc.width=sc.height=128;const x=sc.getContext('2d');
-  const gr=x.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(0,0,0,.8)');gr.addColorStop(.6,'rgba(0,0,0,.3)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
-  const sh=new T.Mesh(new T.PlaneGeometry(4.4,4.4),new T.MeshBasicMaterial({map:new T.CanvasTexture(sc),transparent:true,opacity:.6,depthWrite:false}));
-  sh.rotation.x=-Math.PI/2;sh.position.y=.012;g.add(sh);
-  scene.add(g);
-  return{ring,runes,setColor(h){ring.material.color.set(h);ring.material.emissive.set(h);runes.forEach(r=>{r.material.color.set(h);r.material.emissive.set(h)})}};
-})();
-const pulse=new T.Mesh(new T.TorusGeometry(1,.04,6,48),new T.MeshBasicMaterial({color:0xffffff,blending:T.AdditiveBlending,transparent:true,depthWrite:false,opacity:0}));
-pulse.rotation.x=Math.PI/2;pulse.position.y=.06;scene.add(pulse);
-
-// ================= camera controls
+/* kamera: hanya putar (seret). Tanpa zoom: roda mouse dan cubit tidak mengubah jarak. */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-let az=.6,azT=.6,pol=1.3,polT=1.3,dist=9,distT=9,ty=1.5,tyT=1.5,camD=9,idle=0,autoRot=!RM,pop=0;
-const ptrs=new Map();let pinch0=1,dist0=9;
-const pd=()=>{const a=[...ptrs.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1};
+let az=.6,azT=.6,pol=1.3,polT=1.3,dist=9,distT=9,ty=1.5,tyT=1.5,camD=9,idle=0,autoRot=!RM,pop=0,drag=null;
 function resetCam(){azT=.6;polT=1.3;distT=camD}
-view.addEventListener('pointerdown',e=>{try{view.setPointerCapture(e.pointerId)}catch(_){}ptrs.set(e.pointerId,[e.clientX,e.clientY]);idle=2.5;if(ptrs.size===2){pinch0=pd();dist0=distT}hint.classList.add('off')});
-view.addEventListener('pointermove',e=>{
-  const p=ptrs.get(e.pointerId);if(!p)return;
-  if(ptrs.size===1){azT-=(e.clientX-p[0])*.009;polT=clamp(polT-(e.clientY-p[1])*.006,.4,1.65)}
-  p[0]=e.clientX;p[1]=e.clientY;
-  if(ptrs.size===2)distT=clamp(dist0*pinch0/pd(),camD*.5,camD*1.8);
+canvas.addEventListener('pointerdown',e=>{try{canvas.setPointerCapture(e.pointerId)}catch(_){}if(drag===null)drag={id:e.pointerId,x:e.clientX,y:e.clientY};idle=2.5});
+canvas.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  azT-=(e.clientX-drag.x)*.009;polT=clamp(polT-(e.clientY-drag.y)*.006,.4,1.65);
+  drag.x=e.clientX;drag.y=e.clientY;
 });
-const up=e=>{ptrs.delete(e.pointerId);idle=2.5};
-view.addEventListener('pointerup',up);view.addEventListener('pointercancel',up);
-view.addEventListener('wheel',e=>{e.preventDefault();distT=clamp(distT*Math.exp(e.deltaY*.0012),camD*.5,camD*1.8);idle=2.5;hint.classList.add('off')},{passive:false});
-view.addEventListener('dblclick',resetCam);
+const up=e=>{if(drag&&e.pointerId===drag.id)drag=null;idle=2.5};
+canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
+canvas.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+canvas.addEventListener('dblclick',resetCam);
 
 function resize(){
   const w=Math.max(1,view.clientWidth),h=Math.max(1,view.clientHeight);
@@ -989,102 +739,48 @@ function resize(){
 }
 new ResizeObserver(resize).observe(view);resize();
 
-// ================= UI
-const tiersEl=document.getElementById('tiers'),chip=document.getElementById('chip'),nm=document.getElementById('nm'),dl=document.getElementById('dl'),lore=document.getElementById('lore');
-const bRot=document.getElementById('bRot');
-const cards=PETS.map((d,i)=>{
-  const b=document.createElement('button');b.type='button';b.className='card';b.setAttribute('aria-pressed','false');
-  b.innerHTML='<i></i><b></b><small></small>';
-  const ic=b.querySelector('i');ic.textContent='T'+d.tier+' · '+TIERS[i];ic.style.setProperty('--c',TC[d.tier]);ic.style.background=TC[d.tier];if(d.tier===7)ic.style.color='#3a2a00';
-  b.querySelector('b').textContent=d.name;const sm=b.querySelector('small');sm.textContent=priceText(i);if(PRICE[i].c==='emerald')sm.classList.add('emt');
-  b.onclick=()=>select(i);tiersEl.appendChild(b);return b;
-});
+let pet=null,cur=-1;
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
-let pet=null,cur=-1,soundOn=!EMBED,sndT=1,sndBag=[],bagLast=-1;
+let soundOn=false,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
   if(!soundOn||!AC||AC.state!=='running'||cur<0)return;
   if(!sndBag.length){sndBag=[0,1,2].sort(()=>Math.random()-.5);if(sndBag[sndBag.length-1]===bagLast)sndBag.reverse()}
   const k=sndBag.pop();bagLast=k;
   try{SND[cur][k]()}catch(e){}
 }
-function select(i){
+selectFn=function(i){
   const d=PETS[i];cur=i;
   if(pet){scene.remove(pet.root);disposeObj(pet.root)}
   P.clear();
   pet=d.build();scene.add(pet.root);
-  ped.setColor(d.color);rim.color.set(d.color);fill.color.set(d.color);pulse.material.color.set(d.color);
-  document.documentElement.style.setProperty('--tc',TS[d.tier-1]);
+  rim.color.set(d.color);fill.color.set(d.color);
   camD=pet.cam.d;tyT=pet.cam.y;resetCam();pop=.1;sndT=.9;sndBag=[];
-  chip.textContent=TIERS[i]+' · Tier '+d.tier;chip.style.background=TC[d.tier];chip.style.color=d.tier===7?'#3a2a00':'#fff';
-  nm.textContent=d.name;
-  const sp=SPEC[i];
-  dl.innerHTML='<dt>Peran</dt><dd>'+sp.role+'</dd><dt>Skill</dt><dd><b>'+sp.skill.name+'</b>: '+sp.skill.effect+' ('+sp.skill.limit+')</dd><dt>Unggul</dt><dd>'+sp.adv+'</dd><dt>Harga</dt><dd'+(PRICE[i].c==='emerald'?' class="emt"':'')+'>'+priceText(i)+(PRICE[i].c==='emerald'?' (hanya lewat emerald)':'')+'</dd><dt>Material</dt><dd>'+d.mat+'</dd><dt>Identitas</dt><dd>'+d.ident+'</dd><dt>Efek</dt><dd>'+d.efek+'</dd>';
-  document.getElementById('specOut').textContent=JSON.stringify(specOf(i),null,2);
-  lore.textContent=d.lore;
-  cards.forEach((c,k)=>c.setAttribute('aria-pressed',k===i?'true':'false'));
-}
-window.addEventListener('message',event=>{
-  if(!EMBED||event.source!==window.parent||!event.data||event.data.type!=='pet-select'||typeof event.data.id!=='string')return;
-  const index=PETS.findIndex(d=>d.id===event.data.id);
-  if(index>=0)select(index);
-});
-let pulseT=2;
-function fx(){if(pet)pet.burst();pulseT=0;pop=.08;playPetSound();sndT=rr(3,5.5)}
-const bSnd=document.getElementById('bSnd');
-const sndLabel=()=>{bSnd.textContent=soundOn?'Suara: Nyala':'Suara: Mati';bSnd.setAttribute('aria-pressed',soundOn?'true':'false')};
-bSnd.onclick=()=>{audioInit();soundOn=!soundOn;sndLabel();if(soundOn)sndT=.3};
-function copyText(text,btn){
-  const specOut=document.getElementById('specOut');
-  const label=btn.dataset.l||btn.textContent;btn.dataset.l=label;
-  const done=()=>{btn.textContent='Tersalin';setTimeout(()=>{btn.textContent=label},1400)};
-  const fallback=()=>{
-    const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();
-    let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();
-    if(ok)done();else{const r=document.createRange();r.selectNodeContents(specOut);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Teks dipilih, tekan Ctrl+C';setTimeout(()=>{btn.textContent=label},2500)}
-  };
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fallback);else fallback();
-}
-document.getElementById('bCopyOne').onclick=e=>copyText(JSON.stringify(specOf(cur),null,2),e.currentTarget);
-document.getElementById('bCopyAll').onclick=e=>copyText(JSON.stringify(allSpec(),null,2),e.currentTarget);
-const unlock=()=>{audioInit()};
-window.addEventListener('pointerdown',unlock,{passive:true});window.addEventListener('keydown',unlock,{passive:true});
-document.getElementById('bFx').onclick=fx;
-document.getElementById('bReset').onclick=resetCam;
-bRot.setAttribute('aria-pressed',autoRot?'true':'false');
-bRot.onclick=()=>{autoRot=!autoRot;bRot.setAttribute('aria-pressed',autoRot?'true':'false')};
-window.addEventListener('keydown',e=>{if(e.key==='ArrowRight')select((cur+1)%PETS.length);else if(e.key==='ArrowLeft')select((cur+PETS.length-1)%PETS.length)});
-const initialPet=new URLSearchParams(location.search).get('pet');
-const initialIndex=PETS.findIndex(d=>d.id===initialPet);
-select(initialIndex<0?0:initialIndex);
-dist=distT;az=azT;pol=polT;ty=tyT;
+  canvas.setAttribute('aria-label','Pratinjau 3D '+d.name);
+};
 
-// ================= loop
 let last=performance.now(),t=0;
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
   if(idle>0)idle-=dt;
   sndT-=dt;if(sndT<=0){sndT=rr(3,5.5);playPetSound()}
-  if(autoRot&&ptrs.size===0&&idle<=0)azT+=dt*.4;
+  if(autoRot&&!drag&&idle<=0)azT+=dt*.4;
   const k=1-Math.exp(-dt*9);
   az+=(azT-az)*k;pol+=(polT-pol)*k;dist+=(distT-dist)*k;ty+=(tyT-ty)*k;
   const asp=camera.aspect,dd=dist*(asp<1?1+(1-asp)*.8:1);
   camera.position.set(Math.sin(pol)*Math.sin(az)*dd,ty+Math.cos(pol)*dd*.9-dd*.18,Math.sin(pol)*Math.cos(az)*dd);
   camera.lookAt(0,ty,0);
-  if(pet){
-    pet.tick(t,dt);
-    pop*=Math.exp(-dt*5);pet.root.scale.setScalar(1+pop);
-  }
+  if(pet){pet.tick(t,dt);pop*=Math.exp(-dt*5);pet.root.scale.setScalar(1+pop)}
   P.update(dt);
-  ped.ring.material.emissiveIntensity=.9+.5*Math.sin(t*2);
-  ped.runes.forEach((r,i)=>{r.material.emissiveIntensity=.5+.8*Math.max(0,Math.sin(t*2.2-i*.45))});
-  if(pulseT<1.1){pulseT+=dt;const u=pulseT/1.1;pulse.scale.setScalar(1+u*2.2);pulse.material.opacity=Math.max(0,1-u)}else pulse.material.opacity=0;
   renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);
 }
-initSim();
-if(EMBED&&window.parent!==window)window.parent.postMessage({type:'pet-viewer-ready'},'*');
-</script>
 
-</body></html>
+window.PetViewer={
+  select(id){
+    const i=PETS.findIndex(d=>d.id===id);if(i<0)return;
+    if(selectFn){selectFn(i);}
+  }
+};
+})();

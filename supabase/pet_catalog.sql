@@ -1,4 +1,4 @@
--- Katalog 7 pet dari referensi/newgui/game/data pet.html.
+-- Katalog 7 pet (sumber data lama: data pet.html, sudah dihapus; data pet sekarang di pet.js dan tabel ini).
 -- Jalankan seluruh file ini di Supabase SQL Editor. Aman dijalankan ulang.
 
 create table if not exists public.pet_catalog (
