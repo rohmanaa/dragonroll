@@ -91,7 +91,7 @@ if(embed) addEventListener('message',e=>{ const d=e.data; if(!d||d.ut!=='backdro
 
   function banner(k,m,t){
     const ph=seedOf[k], h=m.sy1-m.sy0, w=m.sx1-m.sx0, PAD=24;
-    const A=BANNER_SWAY*h*gust(t+ph*.3);
+    const A=BANNER_SWAY*h*(window.lobbyEco ? .5 : 1)*gust(t+ph*.3);
     const tw=w+PAD*2; tctx.clearRect(0,0,tmp.width,tmp.height);
     let prev=0;
     const off=v=>A*Math.pow(v,1.25)*(0.72*Math.sin(1.45*t-2.3*v+ph)+0.28*Math.sin(3.1*t-4.6*v+ph*1.7));
@@ -111,8 +111,9 @@ if(embed) addEventListener('message',e=>{ const d=e.data; if(!d||d.ut!=='backdro
   }
   function flame(k,m,t){
     const ph=seedOf[k]*1.7, h=m.sy1-m.sy0, w=m.sx1-m.sx0, base=m.sy1;
-    const A=FLAME_SWAY*h;
-    const sy=1+0.045*Math.sin(5.1*t+ph)+0.025*Math.sin(8.3*t+ph*2);  // tinggi api berdenyut halus
+    const A=FLAME_SWAY*h*(window.lobbyEco ? .45 : 1);
+    const sway=window.lobbyEco ? .5 : 1;
+    const sy=1+0.045*sway*Math.sin(5.1*t+ph)+0.025*sway*Math.sin(8.3*t+ph*2);  // tinggi api berdenyut halus
     for(let y=0;y<h;y+=STEP){
       const v=1-(y+STEP/2)/h;                                         // 0 di dasar, 1 di ujung
       const dx=A*Math.pow(v,1.4)*(0.7*Math.sin(2.1*t+ph-1.6*v)+0.3*Math.sin(4.7*t+ph*2+3*v));
@@ -145,6 +146,20 @@ if(embed) addEventListener('message',e=>{ const d=e.data; if(!d||d.ut!=='backdro
     const redraw=t=>{ frame(t); new MutationObserver(()=>frame(t)).observe(s,{attributes:true,attributeFilter:['class']}); };   // gambar ulang saat siang/malam berganti
     if(still!==null){ redraw(parseFloat(still)||3); return; }
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){ redraw(3); return; }
-    let t0=null,last=-1e9; (function tick(ts){ requestAnimationFrame(tick); if(t0===null) t0=ts; if(ts-last<(window.lobbyEco?50:33)) return; last=ts; frame((ts-t0)/1000+1); })(performance.now());
+    let t0=null,last=-1e9,ecoDrawn=false;
+    new MutationObserver(()=>{ if(window.lobbyEco){ frame(3); ecoDrawn=true; } }).observe(s,{attributes:true,attributeFilter:['class']});
+    (function tick(ts){
+      requestAnimationFrame(tick);
+      if(document.hidden) return;
+      if(window.lobbyEco){
+        if(t0===null) t0=ts;
+        if(!ecoDrawn||ts-last>=125){ last=ts; frame((ts-t0)/1000+1); ecoDrawn=true; }
+        return;
+      }
+      ecoDrawn=false;
+      if(t0===null) t0=ts;
+      if(ts-last<33) return;
+      last=ts; frame((ts-t0)/1000+1);
+    })(performance.now());
   }
 })();

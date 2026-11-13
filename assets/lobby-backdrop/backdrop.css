@@ -253,10 +253,17 @@ body{min-height:100vh;overflow:hidden}
 .stage.sf .sun,.stage.sf .flare,.stage.sf .shafts,.stage.sf .sunrays{opacity:0!important}
 .stage.sft .sun,.stage.sft .flare,.stage.sft .shafts,.stage.sft .sunrays{transition:opacity 1.4s ease}
 
-/* ===== MODE HEMAT (.eco): hentikan efek berat yang bergerak ===== */
+/* ===== MODE HEMAT (.eco): kurangi lapisan dan intensitas, gerak utama tetap ada ===== */
 .stage.eco .fogA,.stage.eco .fogB,.stage.eco .fogC{display:none!important}
-.stage.eco .fogm,.stage.eco .water .fl,.stage.eco .water .sp,.stage.eco .dust i,.stage.eco .torch,.stage.eco.night .stars circle{animation:none!important}
-.stage.eco .water .fl{display:none}
+.stage.eco .fogm,.stage.eco .amb-mist,.stage.eco .smoke,.stage.eco .dust,
+.stage.eco .sunrays,.stage.eco .shafts,.stage.eco .flare{display:none!important}
+.stage.eco .water{opacity:.45}
+.stage.eco .water .fl.f2,.stage.eco .water .fl.f3,.stage.eco .water .sp{display:none!important}
+.stage.eco .water .fl.f1{animation-duration:.7s}
+.stage.eco .torch{animation-duration:4s}
+.stage.eco.night .fogd{animation:eco-fog-drift 48s ease-in-out infinite alternate}
+.stage.eco .stars circle{animation:none!important}
+@keyframes eco-fog-drift{from{transform:translateX(-8px)}to{transform:translateX(10px)}}
 .modebar button[data-eco][aria-pressed="true"]{background:rgba(255,214,102,.92);color:#2a1f00}
 @media (prefers-reduced-motion: reduce){
   .fogA,.fogB,.fogC{display:none!important}
