@@ -182,7 +182,7 @@ $("#info").onclick=e=>{
 };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","ikon-item/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","new-icon/frame.webp","#e89a52","frame.html"],["Dadu","dice","new-icon/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","ikon-gem-medali/kristal-api.webp","#d26f9c","efek.html"],["Power-up","powerup","ikon-gem-medali/petir-ungu.webp","#4db3e6","powerup.html"]];
+const KOL=[["Karakter","skin","ikon-item/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","new-icon/frame.webp","#e89a52","frame.html"],["Dadu","dice","new-icon/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","ikon-gem-medali/kristal-api.webp","#d26f9c","efek.html"],["Power-up","powerup","ikon-gem-medali/petir-ungu.webp","#4db3e6","powerup.html"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol(){
   $("#kol").innerHTML=KOL.map(([n,k,ic,c,u])=>{const a=owned(k),t=Math.max(total(k),a);return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><i><b data-w="${t?Math.min(100,a/t*100):0}"></b></i><em>${a}/${t}</em></button>`}).join("");
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".kr b").forEach(b=>{b.style.width=b.dataset.w+"%"})));

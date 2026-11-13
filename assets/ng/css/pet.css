@@ -1,0 +1,27 @@
+/* pet.html — memakai karakter.css + frame.css + efek.css; bagian khusus pet */
+/* kanvas 3D besar + transparan: aura/efek tidak terpotong, tanpa zoom */
+#fpv{left:20px;top:96px;width:920px;height:520px;overflow:visible;background:none;z-index:1;pointer-events:none}
+#petGl{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent;touch-action:none;pointer-events:auto;cursor:grab}
+#petGl:active{cursor:grabbing}
+#fpv .gl-fail{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#d8d2ee;font:700 20px var(--font-body)}
+.fslot .dc img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+#nm{font-size:48px}
+#rar{font-size:26px}
+#ds{font-size:19px;line-height:1.25;max-height:104px;overflow:hidden;padding:0 12px}
+.fslot .pr.emt{color:#4ee08a}
+#home,.cur{z-index:5}
+#petInfo{position:absolute;left:842px;top:746px;z-index:30}
+#petInfo>summary{width:48px;height:48px;cursor:pointer;list-style:none}
+#petInfo>summary::-webkit-details-marker{display:none}
+#petInfo>summary img{width:100%;height:100%;object-fit:contain}
+#petInfoBody{position:absolute;right:0;top:56px;width:650px;max-height:270px;overflow-y:auto;padding:46px 16px 12px;background:rgba(27,37,64,.98);border:2px solid #34447a;border-radius:10px;color:#eaf0ff;font:600 17px/1.35 var(--font-body);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.pet-info-close{position:absolute;right:8px;top:6px;width:36px;height:36px;padding:0;border:0;border-radius:6px;background:#34447a;color:#fff;font-size:24px;cursor:pointer}
+.pet-info-row{display:grid;grid-template-columns:132px 1fr;gap:12px;padding:6px 2px;border-bottom:1px solid rgba(154,168,208,.2)}
+.pet-info-row:last-child{border-bottom:0}
+.pet-info-row b{color:#9aa8d0}
+.fslot .tag.own{background:#3659a7;border-color:#94b8ff}
+.pet-status{position:absolute;left:1030px;top:104px;width:830px;min-height:28px;z-index:8;text-align:center;color:#ffdca0;font:700 19px/1.3 var(--font-body);text-shadow:0 2px 3px #100a22}
+.pet-status[hidden]{display:none}
+.pet-info-status{margin:12px 0 4px;color:#ffdca0}
+.pet-info-retry{padding:7px 16px;border:1px solid #7188c4;border-radius:6px;background:#34447a;color:#fff;font:700 15px var(--font-body);cursor:pointer}
+#mx{white-space:pre-line}

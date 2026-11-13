@@ -9,7 +9,7 @@ const pets = IC.items.filter(i => i.kind === 'pet').sort((a, b) => a.tier - b.ti
 const MIG = 'supabase/migrations/202611290001_pet_catalog.sql';
 
 /* ---- sumber metadata: supabase/pet_catalog.sql (id, tier, harga) ---- */
-const meta = [...rd('supabase/pet_catalog.sql').matchAll(/^\s{2}\(\s*\n\s*'(\w+)', (\d), '(\w+)', '([^']+)'[\s\S]*?\n\s*'(coin|emerald)', (\d+)\n\s*\)/gm)]
+const meta = [...rd('supabase/pet_catalog.sql').matchAll(/\(\s*'(\w+)',\s*(\d+),\s*'(\w+)',\s*'([^']+)'[\s\S]*?'\s*,\s*'(coin|emerald)'\s*,\s*(\d+)\s*\)/g)]
   .map(m => ({ id: m[1], tier: +m[2], tierName: m[3], name: m[4], cur: m[5], amount: +m[6] }));
 
 t('tabel metadata memuat 7 pet (pengurai tes bekerja)', () => { assert.strictEqual(meta.length, 7); });
@@ -97,5 +97,20 @@ t('pembelian pet lokal tanpa akun ditolak (harga dipegang server), koin maupun e
   const { PD } = boot();
   assert.strictEqual(PD.purchase('pet.forest_pup').ok, false);
   assert.strictEqual(PD.purchase('pet.storm_wolf').ok, false);
+});
+t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dompet localStorage demo', () => {
+  const html = rd('pet.html'), page = rd('assets/js/pet-page.js');
+  assert.ok(html.includes('assets/js/pet-viewer.js'));
+  assert.ok(html.includes('assets/js/pet-page.js'));
+  assert.ok(html.includes('UT.App.init({page:\'pet\'})'));
+  assert.ok(page.includes(".from('pet_catalog')"));
+  assert.ok(page.includes('WalletService'));
+  assert.ok(!/localStorage/.test(page));
+  pets.forEach(p => assert.ok(fs.existsSync(path.join(root, 'assets/ng/pet3d', p.gameKey + '.png')), p.gameKey));
+});
+t('lobby dan profil mengarah ke halaman Pet root', () => {
+  assert.ok(rd('lobby.html').includes("pet:'pet.html'"));
+  assert.ok(rd('profile.html').includes('"Pet","pet","lobby/pet.webp"'));
+  assert.ok(!rd('lobby.html').includes('referensi/newgui/game/pet.html'));
 });
 console.log(n + ' tes lulus');

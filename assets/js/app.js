@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -25,7 +25,7 @@ window.UT = window.UT || {};
 
   /* ================= Events (event bus) ================= */
   var handlers = {};
-  UT.Events.NAMES = ['skinChanged', 'diceChanged', 'currencyChanged', 'inventoryChanged', 'settingsChanged', 'modeChanged', 'frameChanged', 'auraChanged'];
+  UT.Events.NAMES = ['skinChanged', 'diceChanged', 'currencyChanged', 'inventoryChanged', 'settingsChanged', 'modeChanged', 'frameChanged', 'auraChanged', 'petChanged'];
   UT.Events.on = function (name, fn) {
     if (typeof fn !== 'function') return function () {};
     (handlers[name] = handlers[name] || []).push(fn);
@@ -112,7 +112,7 @@ window.UT = window.UT || {};
     try { new URLSearchParams(win.location.search).forEach(function (v, k) { out[k] = v; }); } catch (e) {}
     return out;
   };
-  ['lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'tambang'].forEach(function (p) {
+  ['lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'tambang'].forEach(function (p) {
     UT.Router['to' + p.charAt(0).toUpperCase() + p.slice(1)] = function (params) { return UT.Router.go(p + '.html', params); };
   });
 
@@ -225,7 +225,7 @@ window.UT = window.UT || {};
     UT.App.options = options;
     UT.App.page = options.page || null;
     /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
-    if (['lobby','shop','frame','dadu','efek','powerup','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
+    if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
       try { import('./multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
     }
     if (UT.App.page && UT.PAGES.indexOf(UT.App.page) < 0 && win.console) console.warn('[UT.App] page tidak dikenal:', UT.App.page);
@@ -243,6 +243,7 @@ window.UT = window.UT || {};
           if (now.equipped.dice !== last.equipped.dice) UT.Events.emit('diceChanged', { id: now.equipped.dice });
           if (now.equipped.frame !== last.equipped.frame) UT.Events.emit('frameChanged', { id: now.equipped.frame });
           if (now.equipped.aura !== last.equipped.aura) UT.Events.emit('auraChanged', { id: now.equipped.aura || null });
+          if (now.equipped.pet !== last.equipped.pet) UT.Events.emit('petChanged', { id: now.equipped.pet || null });
           if (JSON.stringify(now.settings) !== JSON.stringify(last.settings)) UT.Events.emit('settingsChanged', { settings: now.settings, reason: reason });
           if (JSON.stringify(now.profile) !== JSON.stringify(last.profile)) UT.Events.emit('profileChanged', { profile: now.profile, reason: reason });
         }
