@@ -61,8 +61,7 @@ function draw(){
     ['Peran',f.role],
     ['Skill',f.skill.name+' ('+f.skill.type+'): '+f.skill.effect],
     ['Batas',f.skill.limit],
-    ['Keunggulan',f.adv],
-    ['Harga',fmt(f.price_amount)+' '+(f.price_currency==='emerald'?'Emerald':'Coin')]
+    ['Keunggulan',f.adv]
   ];
   const info=$('#petInfoBody'),close=document.createElement('button');info.replaceChildren();close.id='petInfoClose';close.type='button';close.className='pet-info-close';close.setAttribute('aria-label','Tutup detail pet');close.textContent='×';close.onclick=()=>$('#petInfo').open=false;info.appendChild(close);
   for(const [label,value] of rows){
