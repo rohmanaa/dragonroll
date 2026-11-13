@@ -34,7 +34,8 @@
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
     frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' },
     gear:    { category: 'aksesori', noun: 'Gear',       slot: null },  /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
-    aura:    { category: 'efek',     noun: 'Aura',       slot: 'aura' }  /* opsional (boleh kosong), satu aura aktif; efek visual: assets/js/aura-fx.js */
+    aura:    { category: 'efek',     noun: 'Aura',       slot: 'aura' },  /* opsional (boleh kosong), satu aura aktif; efek visual: assets/js/aura-fx.js */
+    pet:     { category: 'lainnya',  noun: 'Pet',        slot: 'pet' }    /* opsional (boleh kosong), satu pet aktif; punya skill (data skill: supabase/pet_catalog.sql) */
   };
   /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
      Di halaman, <img> frame diganti canvas beranimasi oleh assets/js/frame-fx.js (WebP = fallback/statis).
@@ -328,7 +329,34 @@
   ];
   ITEMS = ITEMS.concat(AURAS);
 
-  /* ===== HARGA TIER (Fase 3 ekonomi) — satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura).
+  /* ---- Pet (kategori Lainnya) ----
+     7 pet, satu per tier (T1 Common ... T7 Divine). Dibeli lewat server (item_catalog + buy_item, koin untuk T1-T4, emerald untuk T5-T7),
+     dipakai satu per pemain; slot 'pet' OPSIONAL (boleh kosong, lihat optionalSlots) dan tersimpan di player_appearance.equipped['pet']
+     seperti aura. id pet = gameKey = id di supabase/pet_catalog.sql (tabel metadata + skill). Harga di TIER_PRICE di bawah (bukan di sini).
+     colors = 3 warna palet untuk thumbnail; accent = warna aksen pet. */
+  function pet(gameKey, name, rarity, tier, role, accent, colors, desc) {
+    return { id: 'pet.' + gameKey, kind: 'pet', gameKey: gameKey, name: name, rarity: rarity, tier: tier, role: role,
+      price: null, desc: desc, starter: false, accent: accent, colors: colors };
+  }
+  var PETS = [
+    pet('forest_pup', 'Forest Pup', 'common', 1, 'Pengendus', '#6fd05a', ['#b8803f', '#f0dcb0', '#3fa04a'],
+      'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.'),
+    pet('copper_golem', 'Copper Golem', 'uncommon', 2, 'Pelindung', '#ff9a30', ['#c8703a', '#3fbf9f', '#ffb040'],
+      'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.'),
+    pet('crystal_axolotl', 'Crystal Axolotl', 'rare', 3, 'Penyembuh', '#40e8f4', ['#8fe8f2', '#d8fbff', '#ff9ad8'],
+      'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.'),
+    pet('arcane_owl', 'Arcane Owl', 'epic', 4, 'Peramal', '#b46af0', ['#6a4a7a', '#b46af0', '#ffd24a'],
+      'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.'),
+    pet('storm_wolf', 'Storm Wolf', 'legendary', 5, 'Penyerang', '#7fd0ff', ['#5a6a8a', '#e8f4ff', '#7fd0ff'],
+      'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.'),
+    pet('inferno_dragon', 'Inferno Dragon', 'mythic', 6, 'Pembakar Ular', '#ff4a3a', ['#1b0a10', '#a0182c', '#ff7a18'],
+      'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.'),
+    pet('celestial_kitsune', 'Celestial Kitsune', 'divine', 7, 'Pengubah Takdir', '#ffe08a', ['#fdfbf4', '#ffcf4a', '#6ae8ff'],
+      'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.')
+  ];
+  ITEMS = ITEMS.concat(PETS);
+
+  /* ===== HARGA TIER (Fase 3 ekonomi) — satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura, pet).
      Harga naik tiap tier (koin curam di T3-T4, emerald T5-T7 = target jangka panjang). Tier bawah = koin; tier atas = EMERALD saja (gems).
      Aturan: harga emerald tier pertama >= nilai koin tier koin terakhir / 50 (kurs seragam 50 koin per emerald),
      supaya tidak ada jalan pintas menukar koin -> emerald -> item. Ubah angka di sini, lalu:
@@ -353,7 +381,10 @@
     'aura.electric': [5000, null], 'aura.emerald': [5000, null],
     'aura.ender': [15000, null], 'aura.nether': [15000, null], 'aura.amethyst': [15000, null], 'aura.ocean': [15000, null],
     'aura.solar': [null, 500], 'aura.shadow': [null, 500], 'aura.sculk': [null, 500],
-    'aura.dragon': [null, 1500], 'aura.celestial': [null, 3000]
+    'aura.dragon': [null, 1500], 'aura.celestial': [null, 3000],
+    /* Pet: 3.000 / 9.000 / 25.000 / 60.000 koin; lalu 1.500 / 3.000 / 6.000 emerald (sama dengan supabase/pet_catalog.sql; pet memberi skill, jadi lebih mahal dari kosmetik) */
+    'pet.forest_pup': [3000, null], 'pet.copper_golem': [9000, null], 'pet.crystal_axolotl': [25000, null], 'pet.arcane_owl': [60000, null],
+    'pet.storm_wolf': [null, 1500], 'pet.inferno_dragon': [null, 3000], 'pet.celestial_kitsune': [null, 6000]
   };
   ITEMS.forEach(function (it) {
     var t = TIER_PRICE[it.id];
@@ -390,8 +421,8 @@
     KIND_META: KIND_META,
     GEAR_SLOTS: Object.freeze(GEAR_SLOTS),
     /* Semua slot equipment gear yang dikenal ('g.top', ..., 'g.acc.belt', ...) */
-    /* Slot equipment yang boleh kosong: gear + 'aura' */
-    optionalSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).concat(['aura']); },
+    /* Slot equipment yang boleh kosong: gear + 'aura' + 'pet' */
+    optionalSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).concat(['aura', 'pet']); },
     gearSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }); },
     /* Harga satu item: {coins, gems} (salah satu null) atau null bila tidak dijual */
     cost: function (it) { return it && it.gems > 0 ? { coins: null, gems: it.gems } : it && it.price > 0 ? { coins: it.price, gems: null } : null; },

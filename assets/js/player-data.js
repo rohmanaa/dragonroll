@@ -97,7 +97,7 @@
   var DYE_RE = /^[a-z0-9_]{1,24}$/;
   function cleanGear(st, eq, dyes) {
     st.gearDye = {};
-    C.optionalSlots().forEach(function (slot) {   /* gear + aura: slot kosong = tidak dipakai */
+    C.optionalSlots().forEach(function (slot) {   /* gear + aura + pet: slot kosong = tidak dipakai */
       var it = C.byId(eq && eq[slot]);
       if (it && it.slot === slot && st.inventory[it.id]) st.equipped[slot] = it.id; else delete st.equipped[slot];
     });

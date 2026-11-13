@@ -45,7 +45,7 @@ Migrasi `202611280001_economy_phase3_gems.sql`. Harga naik tiap tier; tier atas 
 - Tambang dibeli EMERALD: buka 20/60/150; kecepatan Lv2-5 20/40/70/120; peti 15/30/55/95 (x1,0/1,5/2,0 per slot). Boost tetap koin, diturunkan 150/200/300.
 - Kurs tukar seragam 50 koin/emerald (10->500, 40->2.000, 120->6.000). Hadiah boss online emerald 10 -> 2 (`claim_boss_reward`, `Config.DRAGON_REWARD`).
 - `buy_item` mendukung `price_gems` (alasan gagal baru `gem-kurang`). UI emerald: dadu, frame, efek, tambang. Skin, tema, gear, power-up, pet tidak diubah.
-- Pet (`supabase/pet_catalog.sql`, belum ada UI beli): T1-T4 koin 3.000/9.000/25.000/60.000; T5-T7 emerald 1.500/3.000/6.000. Jalankan ulang file di SQL Editor.
+- Pet: metadata+skill di `supabase/pet_catalog.sql` (tabel hanya-baca); jual-beli & pakai lewat item katalog `pet.<id>` (kind `pet`, slot opsional `pet`, seperti aura): `assets/js/item-catalog.js` (PETS + TIER_PRICE) -> migrasi `202611290001_pet_catalog.sql` (seed digenerate `tools/wallet/gen-item-seed.js`, `_item_equip_slot` + 'pet'). T1-T4 koin 3.000/9.000/25.000/60.000; T5-T7 emerald 1.500/3.000/6.000. Tes: `node tests/pet-catalog.test.js`. Halaman `pet.html` di root (dompet asli) = langkah berikutnya; versi referensi masih di `referensi/newgui/game/`.
 - Sisa: Chest di toko, fase 4 (invite), kabut malam. Boss CPU tetap 100 koin.
 
 ## 4. Keputusan ekonomi yang sudah dikunci
