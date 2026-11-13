@@ -14,10 +14,10 @@ assert.ok(lobby.includes('html[data-ambience="night"] .sbg-img{filter:brightness
 assert.ok(lobby.includes('#gl3d{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none}'));
 assert.ok(lobby.includes('#wrap{z-index:2}'));
 assert.ok(lobby.includes('.sbg{z-index:0!important}'));
-assert.ok(lobby.includes('floor.position.set(0,-2.50,0)'));
-assert.ok(lobby.includes('hero.position.set(0,-2.48,0)'));
-assert.ok(lobby.includes('UT.FloatingIsland.contactShadow(THREE,4.2,2.6,.72)'));
-assert.ok(lobby.includes('contact.position.set(0,-2.50,.1)'));
+assert.ok(lobby.includes('floor.position.set(0,-2.62,0)'));
+assert.ok(lobby.includes('hero.position.set(0,-2.60,0)'));
+assert.ok(lobby.includes('UT.FloatingIsland.contactShadow(THREE,3.6,2.2,.9)'));
+assert.ok(lobby.includes('contact.position.set(0,-2.62,.12)'));
 assert.ok(lobby.includes('const LOBBY_MOTION_SCALE=.72;'));
 assert.ok(lobby.includes('bc.tick(motionDt);stepLobby(motionDt);'));
 assert.ok(lobby.includes('id="gl3d"'));
