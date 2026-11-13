@@ -45,7 +45,8 @@ Migrasi `202611280001_economy_phase3_gems.sql`. Harga naik tiap tier; tier atas 
 - Tambang dibeli EMERALD: buka 20/60/150; kecepatan Lv2-5 20/40/70/120; peti 15/30/55/95 (x1,0/1,5/2,0 per slot). Boost tetap koin, diturunkan 150/200/300.
 - Kurs tukar seragam 50 koin/emerald (10->500, 40->2.000, 120->6.000). Hadiah boss online emerald 10 -> 2 (`claim_boss_reward`, `Config.DRAGON_REWARD`).
 - `buy_item` mendukung `price_gems` (alasan gagal baru `gem-kurang`). UI emerald: dadu, frame, efek, tambang. Skin, tema, gear, power-up, pet tidak diubah.
-- Sisa: Chest di toko, skala pet, fase 4 (invite), kabut malam. Boss CPU tetap 100 koin.
+- Pet (`supabase/pet_catalog.sql`, belum ada UI beli): T1-T4 koin 3.000/9.000/25.000/60.000; T5-T7 emerald 1.500/3.000/6.000. Jalankan ulang file di SQL Editor.
+- Sisa: Chest di toko, fase 4 (invite), kabut malam. Boss CPU tetap 100 koin.
 
 ## 4. Keputusan ekonomi yang sudah dikunci
 Rencana lengkap: lampiran `EKONOMI_PLAN.md` (tabel harga, estimasi, fase).
@@ -60,7 +61,7 @@ Rencana lengkap: lampiran `EKONOMI_PLAN.md` (tabel harga, estimasi, fase).
 1. **Fase 3 (terbesar):** kolom `price_gems` di `item_catalog`, ubah RPC `buy_item`/`buy_set`, harga baru dadu/frame/aura (tier atas emerald), UI toko, tambang dibeli emerald (`_mine_*`, `mine_unlock/upgrade`), turunkan emerald boss, seragamkan kurs tukar. Perhatikan: harga emerald-only harus >= nilai tukar koin tier sebelumnya.
 2. **Fase 4:** fitur invite/gabung (tabel referral, hadiah setelah yang diundang main pertama kali, batas jumlah), achievement Undangan.
 3. Chest di toko belum punya harga/isi.
-4. Skala pet (100.000 sampai 10 juta koin) belum diseragamkan dengan dadu/frame/aura.
+4. Skala pet sudah diseragamkan (lihat Fase 3); UI beli pet belum ada.
 5. **Kabut malam:** pasang animasi 3 lapis dari `referensi/fog.html` ke `splash.html` dan `lobby.html`, hanya saat `html[data-ambience="night"]`. Tekstur lokal sudah ada di `assets/Images/fog/` (fog1.webp, fog2.webp, tileable horizontal). Rencana: `assets/css/night-fog.css` + `assets/js/night-fog.js` (`UT.NightFog.mount`), di lobby dipasang di dalam `.sbg`, di splash perlu memuat `prefs.js` dan `ambience.js` lalu mount ke `#scene` sebelum `#vig`. Matikan di `data-graphics="low"` dan `prefers-reduced-motion`.
 6. Migrasi 202611270001 dan 202611270002 **belum dijalankan ke Supabase produksi**; fitur baru belum aktif sebelum itu.
 
