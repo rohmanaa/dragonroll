@@ -41,4 +41,4 @@
 #mbtns .btn span{font-size:32px}
 #toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:80;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);font:800 30px var(--font-body);color:#fff;transition:.25s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
-body.notabs #grid{top:150px}
+body.notabs #grid{top:120px;max-height:728px}

@@ -88,7 +88,7 @@ function draw(){
     const on=isUsed(x),state=m?`<span class="pr ${on?'used':'owned'}"${on?'':' data-action="equip"'}>${on?'DIPAKAI':'DIMILIKI'}</span>`
       :sell?`<span class="pr buy" data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
     return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${state}</button>`}).join('');
-  for(let i=FR.length;i<18;i++)html+='<div class="slot empty"></div>';
+  for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   if(!sel){$('#fpv').innerHTML='';$('#nm').textContent='Frame';$('#rar').textContent='';$('#ds').textContent='Belum ada frame di game ini.';showWallet();return}
   const f=sel,mine=isOwned(f),on=isUsed(f),r=RAR[f.rarity]||RAR.common;

@@ -85,7 +85,7 @@ function renderGrid(){
     const buy=sell?'<span class="pr cn buy" data-action="buy" aria-label="Beli '+fmtPrice(i.price)+' koin">'+COIN+fmtPrice(i.price)+'</span>':'<span class="pr cn no">TIDAK DIJUAL</span>';
     const label='stok ×'+k+(sell?' — beli '+fmtPrice(i.price):' — tidak dijual');
     return '<button class="fslot'+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+status+buy+'</button>'}).join('');
-  for(let n=LIST.length;n<Math.max(18,Math.ceil(LIST.length/6)*6);n++)html+='<div class="slot empty"></div>';
+  for(let n=LIST.length;n<Math.max(20,Math.ceil(LIST.length/5)*5);n++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
 }
 function renderInfo(){

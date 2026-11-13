@@ -157,7 +157,7 @@ function draw(){
       :sell?`<span class="pr buy" data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
     const label=on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual';
     return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${label}"><div class="th${x.none?' none':''}">${art(x)}</div>${state}</button>`}).join('');
-  for(let i=FR.length;i<18;i++)html+='<div class="slot empty"></div>';
+  for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   const f=sel,r=RAR[f.rarity]||RAR.common;
   $('#nm').textContent=f.name;

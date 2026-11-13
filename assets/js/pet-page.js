@@ -90,7 +90,7 @@
       const badge = used ? '<span class="tag">DIPAKAI</span>' : owned ? '<span class="tag own">DIMILIKI</span>' : '';
       return `<button class="fslot${selected && item.id === selected.id ? ' sel' : ''}${owned ? '' : ' lk'}" type="button" data-id="${item.id}" aria-pressed="${!!selected && item.id === selected.id}" aria-label="${item.name}, tier ${item.tier}${used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki'}">${badge}<div class="dc"><img src="${IMAGE_ROOT + item.gameKey}.png" alt="${item.name}" loading="lazy"></div>${owned ? '' : priceMarkup(item)}</button>`;
     }).join('');
-    for (let i = PETS.length; i < 18; i++) html += '<div class="slot empty" aria-hidden="true"></div>';
+    for (let i = PETS.length; i < Math.max(20, Math.ceil(PETS.length / 5) * 5); i++) html += '<div class="slot empty" aria-hidden="true"></div>';
     $('#grid').innerHTML = html;
   }
 
