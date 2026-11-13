@@ -3,12 +3,11 @@
 #podium .pimg{position:absolute;left:0;bottom:0;width:100%;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.45))}
 .pd{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)}
 .pd.p1{left:49.9%;bottom:290px}.pd.p2{left:23.7%;bottom:210px}.pd.p3{left:77%;bottom:204px}
-.pd .pn{font:400 20px/34px var(--font-title);height:38px;padding:0 48px;margin-top:10px;max-width:248px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:url(../komponen/banner-label/pita-sudut-nila.webp) center/100% 100% no-repeat;color:#fff}
+.pd .pn{font:400 20px/34px var(--font-title);height:38px;padding:0 48px;margin-top:10px;max-width:248px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:url(../komponen/banner-label/banner-judul-nila-polos.webp) center/100% 100% no-repeat;color:#fff}
 .pd .emp{display:grid;place-items:center;border-radius:50%;border:5px dashed rgba(255,255,255,.28);background:rgba(255,255,255,.06);font:400 52px var(--font-title);color:rgba(255,255,255,.35)}
 .pd.empty .pn{background:none;padding:0;height:auto;line-height:1.2;font-size:22px;color:#8f89aa;text-shadow:none;-webkit-text-stroke:0}
-/* angka skor duduk tepat di puncak tiap pedestal podium */
-.pd .ps{position:absolute;left:50%;transform:translateX(-50%);font:800 15px/24px var(--font-body);height:26px;padding:0 32px;white-space:nowrap;background:url(../komponen/banner-label/label-kuning-polos.webp) center/100% 100% no-repeat;color:#fff}
-.pd.p1 .ps{bottom:-92px}.pd.p2 .ps{bottom:-26px}.pd.p3 .ps{bottom:-28px}
+/* Skor selalu tepat di bawah pita nama, tidak bergantung pada tinggi podium. */
+.pd .ps{font:800 15px/24px var(--font-body);height:26px;margin-top:4px;padding:0 32px;white-space:nowrap;background:url(../komponen/banner-label/label-kuning-polos.webp) center/100% 100% no-repeat;color:#fff}
 .pd.empty .ps{display:none}
 #mycard{position:absolute;left:250px;top:720px;width:540px;height:130px}
 #mycard .row{height:130px}

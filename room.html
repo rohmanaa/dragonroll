@@ -26,6 +26,10 @@
 #power .ps .pn{position:absolute;left:4px;right:4px;bottom:4px;font-size:14px;font-weight:800;line-height:1.05;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #power .ps .x{position:absolute;right:-6px;top:-8px;width:28px;height:28px;border-radius:50%;background:#e8334a;border:2px solid #fff;font:800 18px/24px var(--font-body);text-align:center}
 #power .info{margin-top:14px;font-weight:800;font-size:18px;color:#ddd7f7;line-height:1.3}
+#power h3{display:flex;align-items:center;gap:8px}
+#powerPage{display:grid;place-items:center;flex:none;width:36px;height:36px;padding:2px;border:2px solid #d6c9ff;border-radius:9px;background:#40386a}
+#powerPage img{width:28px;height:28px;object-fit:contain}
+#powerPage:active{transform:translateY(2px)}
 .pc{position:relative;height:178px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px;border-radius:16px;text-align:center;cursor:pointer;
   background:linear-gradient(180deg,#5b5288,#40386a);border:3px solid #8077ad;box-shadow:0 5px 0 rgba(20,12,45,.55)}
 .pc.sel{border-color:var(--gold);box-shadow:0 0 0 2px #7a4a00,0 0 14px rgba(255,212,90,.5),0 5px 0 rgba(20,12,45,.55)}
@@ -44,11 +48,19 @@
 .pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
 .pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
 .pst button:disabled{opacity:.45;cursor:not-allowed}
-#pm .box{width:1080px}
-#pmL{grid-template-columns:repeat(5,minmax(0,1fr));max-height:560px}
+#pm{padding:24px}
+#pm .box{width:100%;height:100%;max-height:none;display:flex;flex-direction:column}
+#pmL{grid-template-columns:repeat(5,minmax(0,1fr));max-height:none;min-height:0;flex:1;overflow:auto;align-content:start}
 #pm .mfoot{justify-content:space-between}
 #pm .mfoot .hint{flex:1}
 #power.dis .ps{pointer-events:none}
+#pageModal{position:absolute;inset:0;z-index:100;display:none;background:#0e0b1c}
+#pageModal.on{display:block}
+#pageModal iframe{display:block;width:100%;height:100%;border:0;background:#0e0b1c}
+#pageModalLoading{position:absolute;inset:0;z-index:1;display:none;place-items:center;background:#0e0b1c;pointer-events:none}
+#pageModal.loading #pageModalLoading{display:grid}
+#pageModalLoading img{width:110px;height:auto;animation:pageModalSpin 1.6s steps(12) infinite}
+@keyframes pageModalSpin{to{transform:rotate(360deg)}}
 /* peta */
 #mapi .pic img{width:100%;height:100%;object-fit:cover}#mapi .pic svg{width:100%;height:100%;display:block}
 /* pemain: avatar asli (wajah karakter + frame), lencana, tombol kecil */
@@ -81,7 +93,7 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
   <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
 
   <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eq"></div></section>
-  <section class="panel" id="power"><h3>POWER LOADOUT</h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
+  <section class="panel" id="power"><h3>POWER <button type="button" id="powerPage" aria-label="Buka Power-up" title="Power-up"><img src="assets/ng/komponen/ikon-gem-medali/petir-ungu.webp" alt=""></button></h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
   <section class="panel" id="mapi"><h3>MAP INFORMATION</h3><div class="pic" id="mArt"></div><div class="txt" id="mTxt"></div></section>
 
   <section class="panel" id="players"><h3>PLAYER ROOM</h3>
@@ -99,11 +111,13 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
     <span id="cnt" hidden></span>
   </section>
 
-  <div class="modal" id="cm"><div class="box" role="dialog" aria-modal="true" aria-label="Pilih item"><h2 class="ttl" id="cmT"></h2><div class="igrid" id="cmL"></div>
-    <div class="mfoot"><button class="btn" id="cmX" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
-
-  <div class="modal" id="pm"><div class="box" role="dialog" aria-modal="true" aria-labelledby="pmT"><h2 class="ttl" id="pmT">PILIH POWER LOADOUT</h2><div class="igrid" id="pmL"></div>
+  <div class="modal" id="pm"><div class="box" role="dialog" aria-modal="true" aria-labelledby="pmT"><h2 class="ttl" id="pmT">PILIH POWER</h2><div class="igrid" id="pmL"></div>
     <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
+
+  <div id="pageModal" role="dialog" aria-modal="true" aria-label="Halaman equipment" aria-hidden="true" aria-busy="false">
+    <div id="pageModalLoading" role="status" aria-label="Memuat"><img src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt=""></div>
+    <iframe id="pageModalFrame" title="Equipment" tabindex="0" allow="fullscreen; autoplay"></iframe>
+  </div>
 
   <div class="modal" id="inv"><div class="box" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ttl">AKSES ROOM</h2>
     <div class="sw"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div>
@@ -135,6 +149,7 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/live-sync.js"></script>
 <script>UT.App.init({page:'room'});</script>
+<script type="module" src="assets/js/room-dice-art.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow;
@@ -156,7 +171,7 @@ const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>PD.levelInfo().level; /* satu rumus dengan profil (PlayerData.levelInfo) */
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
 const S={invTab:'online',timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
-const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
+const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:it.kind==='dice'&&window.RoomDiceArt?`<img src="${window.RoomDiceArt.thumb(it.gameKey,96)}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null}
 /* ---------- navigasi ---------- */
 const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
@@ -224,17 +239,31 @@ function renderEq(){
   const nm=k==='effect'?'Segera':k==='skin'?'Kustom':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-');
   return `<button class="slot" data-k="${k}" aria-label="Ganti ${l}"><span class="chg">✎</span><div class="k">${l}</div><span class="art">${ar}</span><div class="v">${nm}</div></button>`}).join('');
 }
-$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;if(b.dataset.k==='skin')return skinGo();openChoice(b.dataset.k)};
-let CK=null;
-function openChoice(k){if(k==='effect')return toast('Efek segera hadir');CK=k;renderChoice();$('#cm').classList.add('on')}
-const closeChoice=()=>$('#cm').classList.remove('on');
-function renderChoice(){
- const cur=PD.equippedId(CK),own=IC.items.filter(i=>i.kind===CK&&PD.owns(i.id));
- $('#cmT').textContent='PILIH '+EQ.find(x=>x[0]===CK)[2];
- $('#cmL').innerHTML=own.map(it=>`<button class="it ${cur===it.id?'sel':''}" data-id="${it.id}" ${cur===it.id?'disabled':''}><span class="art">${art(it)}</span><div class="n">${esc(it.name)}</div>${cur===it.id?'<div class="u">DIPAKAI</div>':''}</button>`).join('')||'<div class="emp">Belum ada item.</div>';
+const PAGE_VIEWS={dice:['dadu.html','Dadu'],skin:['karakter.html','Karakter'],frame:['frame.html','Frame'],effect:['efek.html','Efek'],power:['powerup.html','Power-up']};
+let pageTrigger=null;
+function openPageModal(key){
+  const page=PAGE_VIEWS[key];if(!page)return;
+  pageTrigger=document.activeElement;
+  $('#pageModalFrame').title=page[1];
+  $('#pageModal').classList.add('on','loading');$('#pageModal').setAttribute('aria-busy','true');
+  $('#pageModalFrame').src=page[0]+'?from=room';
+  $('#pageModal').setAttribute('aria-label',page[1]);$('#pageModal').setAttribute('aria-hidden','false');
+  $('#pageModalFrame').focus();
 }
-$('#cmL').onclick=e=>{const b=e.target.closest('[data-id]');if(!b||b.disabled)return;const r=PD.equip(b.dataset.id);if(!r.ok)return toast('Tidak bisa dipakai');renderEq();publishProfile();closeChoice();toast(IC.byId(b.dataset.id).name+' dipakai')};
-$('#cmX').onclick=closeChoice;$('#cm').onclick=e=>{if(e.target.id==='cm')closeChoice()};
+function closePageModal(){
+  const modal=$('#pageModal');if(!modal.classList.contains('on'))return false;
+  modal.classList.remove('on','loading');modal.setAttribute('aria-hidden','true');modal.setAttribute('aria-busy','false');
+  $('#pageModalFrame').src='about:blank';
+  renderEq();renderPower();if(powerDraft)renderPowerPick();if(ONLINE)publishProfile();
+  if(pageTrigger&&pageTrigger.isConnected)pageTrigger.focus();pageTrigger=null;
+  return true;
+}
+$('#pageModalFrame').addEventListener('load',()=>{const modal=$('#pageModal');if(!modal.classList.contains('on'))return;modal.classList.remove('loading');modal.setAttribute('aria-busy','false')});
+$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(b)openPageModal(b.dataset.k)};
+$('#powerPage').onclick=()=>openPageModal('power');
+$('#power').onclick=e=>{if(!e.target.closest('#prow, #powerPage'))openPageModal('power')};
+addEventListener('message',e=>{if(e.source===$('#pageModalFrame').contentWindow&&e.data&&e.data.type==='ut-room-modal-close')closePageModal()});
+addEventListener('room-dice-art-ready',renderEq);
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
 const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
 const TMAX=IC.POWER_TYPES_MAX||5,CMAX=IC.POWER_CARRY_MAX||3; /* maks. jenis per match; maks. unit per jenis yang DIBAWA */
@@ -291,7 +320,7 @@ function closePowerPick(){powerDraft=null;$('#pm').classList.remove('on')}
 $('#pmL').onclick=e=>{
  const card=e.target.closest('.pc[data-id]');if(!card||!powerDraft)return;
  const id=card.dataset.id,pi=IC.byId(id),sb=e.target.closest('[data-d]');
- if(e.target.closest('[data-buy]')){nav('powerup.html');return}
+ if(e.target.closest('[data-buy]')){openPageModal('power');return}
  if(sb){
   if(!powerDraft.equipped.includes(id))return;
   const max=carryMax(id),cur=powerDraft.carry[id]||1,d=Number(sb.dataset.d);
@@ -458,7 +487,7 @@ async function invitePlayer(id){if(!HOST||!S.room.code)return;try{await UT.Multi
 $('#dr').onclick=async e=>{if(e.target.id==='dr'){closeDrawer();return}const p=e.target.closest('[data-pinv]'),a=e.target.closest('[data-add]');if(p&&!p.disabled)invitePlayer(p.dataset.pinv);else if(a){try{const res=await UT.Multiplayer.RoomService.sendFriendRequest({id:a.dataset.add,name:a.dataset.nm,myName:S.mpIdentity.name});toast(res==='accepted'?'Kalian sekarang berteman':'Permintaan teman dikirim ke '+a.dataset.nm);loadFriends()}catch(er){toast(er.message==='ALREADY_FRIENDS'?'Sudah berteman':'Gagal mengirim permintaan teman')}}};
 $('#dTf').onclick=()=>{S.drTab='friends';renderDrawer()};$('#dTp').onclick=()=>{S.drTab='public';renderDrawer()};
 $('#invD').onclick=()=>openDrawer('friends');$('#drX').onclick=closeDrawer;
-addEventListener('keydown',e=>{if(e.key==='Escape'){closeInvite();closeChoice();closePowerPick();closeDrawer()}});
+addEventListener('keydown',e=>{if(e.key==='Escape'){if(closePageModal())return;closeInvite();closePowerPick();closeDrawer()}});
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
