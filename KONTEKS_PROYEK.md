@@ -38,11 +38,11 @@ Migrasi `202611270002_economy_phase2_quests_achievements.sql`:
 - Tes SQL: `supabase/tests/economy_phase12_test.sql` (lulus di Postgres 16 lokal setelah semua migrasi diterapkan).
 
 ### Ekonomi fase 3 (dibuat, BELUM dites manual, migrasi BELUM di produksi)
-Migrasi `202611280001_economy_phase3_gems.sql`. Kurva harga landai (tiap tier naik ~x1,3-1,4); tier atas hanya emerald. Harga ada di `TIER_PRICE` (`assets/js/item-catalog.js`), seed server dijaga `node tools/wallet/gen-item-seed.js --write/--check`.
-- Dadu: T1 500, T2 700, T3 1.000, T4 1.400 koin; T5 45, T6 65, T7 90 emerald.
-- Frame: 500/700/1.000/1.400/2.000/2.800/4.000 koin (Batu..Nether); Ender 100, Badai 130, Naga 170, Phoenix 220, Surgawi 290, Kosmik 380 emerald.
-- Aura: 500/700/1.000/1.400 koin; Solar/Shadow/Sculk 50, Dragon 70, Celestial 95 emerald.
-- Tambang dibeli EMERALD: buka 5/15/35; kecepatan Lv2-5 6/8/11/15; peti 5/7/10/14 (x1,0/1,5/2,0 per slot). Boost tetap koin, diturunkan 150/200/300.
+Migrasi `202611280001_economy_phase3_gems.sql`. Kurva harga bertahap (koin ~x1,45-2 per tier, emerald ~x1,3-1,45); tier atas hanya emerald. Harga ada di `TIER_PRICE` (`assets/js/item-catalog.js`), seed server dijaga `node tools/wallet/gen-item-seed.js --write/--check`.
+- Dadu: T1 500, T2 1.000, T3 2.000, T4 4.000 koin; T5 150, T6 220, T7 320 emerald.
+- Frame: 1.000/1.500/2.200/3.200/4.600/6.600/9.500 koin (Batu..Nether); Ender 250, Badai 320, Naga 410, Phoenix 520, Surgawi 660, Kosmik 840 emerald.
+- Aura: 1.000/1.800/3.200/5.600 koin; Solar/Shadow/Sculk 150, Dragon 220, Celestial 320 emerald.
+- Tambang dibeli EMERALD: buka 10/30/70; kecepatan Lv2-5 12/17/24/34; peti 10/15/21/30 (x1,0/1,5/2,0 per slot). Boost tetap koin, diturunkan 150/200/300.
 - Kurs tukar seragam 50 koin/emerald (10->500, 40->2.000, 120->6.000). Hadiah boss online emerald 10 -> 2 (`claim_boss_reward`, `Config.DRAGON_REWARD`).
 - `buy_item` mendukung `price_gems` (alasan gagal baru `gem-kurang`). UI emerald: dadu, frame, efek, tambang. Skin, tema, gear, power-up, pet tidak diubah.
 - Sisa: Chest di toko, skala pet, fase 4 (invite), kabut malam. Boss CPU tetap 100 koin.

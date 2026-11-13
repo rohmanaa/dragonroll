@@ -14,56 +14,56 @@ end $$;
 -- BEGIN TIER PRICE SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)
 update public.item_catalog c set price_coins = v.c, price_gems = v.g
 from (values
-  ('aura.amethyst', 1400, null),
-  ('aura.celestial', null, 95),
-  ('aura.dragon', null, 70),
-  ('aura.electric', 1000, null),
-  ('aura.emerald', 1000, null),
-  ('aura.ender', 1400, null),
-  ('aura.flame', 700, null),
-  ('aura.frost', 700, null),
-  ('aura.nature', 500, null),
-  ('aura.nether', 1400, null),
-  ('aura.ocean', 1400, null),
-  ('aura.sculk', null, 50),
-  ('aura.shadow', null, 50),
-  ('aura.solar', null, 50),
-  ('aura.stone', 500, null),
-  ('dice.amethyst', 1400, null),
-  ('dice.copper', 700, null),
-  ('dice.diamond', 1400, null),
-  ('dice.dragon', null, 90),
-  ('dice.emas', 1000, null),
-  ('dice.emerald', 1400, null),
-  ('dice.ender', null, 65),
-  ('dice.frost', null, 45),
-  ('dice.iron', 700, null),
-  ('dice.lapis', 1000, null),
-  ('dice.magma', null, 45),
-  ('dice.netherite', null, 65),
-  ('dice.obsidian', 1400, null),
-  ('dice.prismarine', null, 45),
-  ('dice.quartz', null, 45),
-  ('dice.redstone', 1400, null),
+  ('aura.amethyst', 5600, null),
+  ('aura.celestial', null, 320),
+  ('aura.dragon', null, 220),
+  ('aura.electric', 3200, null),
+  ('aura.emerald', 3200, null),
+  ('aura.ender', 5600, null),
+  ('aura.flame', 1800, null),
+  ('aura.frost', 1800, null),
+  ('aura.nature', 1000, null),
+  ('aura.nether', 5600, null),
+  ('aura.ocean', 5600, null),
+  ('aura.sculk', null, 150),
+  ('aura.shadow', null, 150),
+  ('aura.solar', null, 150),
+  ('aura.stone', 1000, null),
+  ('dice.amethyst', 4000, null),
+  ('dice.copper', 1000, null),
+  ('dice.diamond', 4000, null),
+  ('dice.dragon', null, 320),
+  ('dice.emas', 2000, null),
+  ('dice.emerald', 4000, null),
+  ('dice.ender', null, 220),
+  ('dice.frost', null, 150),
+  ('dice.iron', 1000, null),
+  ('dice.lapis', 2000, null),
+  ('dice.magma', null, 150),
+  ('dice.netherite', null, 220),
+  ('dice.obsidian', 4000, null),
+  ('dice.prismarine', null, 150),
+  ('dice.quartz', null, 150),
+  ('dice.redstone', 4000, null),
   ('dice.rumput', 500, null),
-  ('dice.sculk', null, 65),
+  ('dice.sculk', null, 220),
   ('dice.stone', 500, null),
-  ('dice.tnt', 700, null),
-  ('dice.void', null, 65),
+  ('dice.tnt', 1000, null),
+  ('dice.void', null, 220),
   ('dice.wood', 500, null),
-  ('frame.amethyst', 2800, null),
-  ('frame.celestial', null, 290),
-  ('frame.copper', 700, null),
-  ('frame.cosmic', null, 380),
-  ('frame.diamond', 2000, null),
-  ('frame.dragon', null, 170),
-  ('frame.ender', null, 100),
-  ('frame.gold', 1400, null),
-  ('frame.iron', 1000, null),
-  ('frame.nether', 4000, null),
-  ('frame.phoenix', null, 220),
-  ('frame.stone', 500, null),
-  ('frame.storm', null, 130)
+  ('frame.amethyst', 6600, null),
+  ('frame.celestial', null, 660),
+  ('frame.copper', 1500, null),
+  ('frame.cosmic', null, 840),
+  ('frame.diamond', 4600, null),
+  ('frame.dragon', null, 410),
+  ('frame.ender', null, 250),
+  ('frame.gold', 3200, null),
+  ('frame.iron', 2200, null),
+  ('frame.nether', 9500, null),
+  ('frame.phoenix', null, 520),
+  ('frame.stone', 1000, null),
+  ('frame.storm', null, 320)
 ) as v(id, c, g)
 where c.id = v.id;
 -- END TIER PRICE SEED
@@ -123,15 +123,15 @@ grant execute on function public.buy_item(text) to authenticated;
 
 -- buy_set (gear) memakai koin saja; gear tidak punya harga emerald, jadi tidak diubah.
 
--- 4. Tambang dibeli EMERALD. Naik tier landai (x1,3-1,4). Slot 1/2/3: buka 5 / 15 / 35.
---    Kecepatan Lv2..5 = 6 / 8 / 11 / 15, Peti Lv2..5 = 5 / 7 / 10 / 14, dikali 1,0 / 1,5 / 2,0 per slot. Boost tetap KOIN.
+-- 4. Tambang dibeli EMERALD. Naik tier landai (x1,3-1,4). Slot 1/2/3: buka 10 / 30 / 70.
+--    Kecepatan Lv2..5 = 12 / 17 / 24 / 34, Peti Lv2..5 = 10 / 15 / 21 / 30, dikali 1,0 / 1,5 / 2,0 per slot. Boost tetap KOIN.
 create or replace function public._mine_unlock_cost(p_slot int) returns bigint
-language sql immutable as $$ select (array[5, 15, 35]::bigint[])[p_slot] $$;
+language sql immutable as $$ select (array[10, 30, 70]::bigint[])[p_slot] $$;
 create or replace function public._mine_up_cost(p_kind text, p_slot int, p_to int) returns bigint
 language sql immutable as $$
   select round(
-    case p_kind when 'speed' then (array[0, 6, 8, 11, 15]::numeric[])[p_to]
-                when 'cap'   then (array[0, 5, 7, 10, 14]::numeric[])[p_to] end
+    case p_kind when 'speed' then (array[0, 12, 17, 24, 34]::numeric[])[p_to]
+                when 'cap'   then (array[0, 10, 15, 21, 30]::numeric[])[p_to] end
     * (array[1.0, 1.5, 2.0]::numeric[])[p_slot])::bigint
 $$;
 -- Boost: lebih murah karena satu boost hanya menambah sedikit emerald (tetap koin).
