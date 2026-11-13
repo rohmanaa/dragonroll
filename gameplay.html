@@ -135,6 +135,18 @@ body.playing .side{display:block}
 body.hf-shake{animation:hfShake .35s}
 @keyframes hfShake{25%{transform:translate(-6px,3px)}50%{transform:translate(6px,-3px)}75%{transform:translate(-4px,2px)}}
 @media (prefers-reduced-motion:reduce){#hitFx .hf-wave,#hitFx .hf-wind,body.hf-shake{animation:none}}
+#bossFx{position:fixed;inset:0;z-index:25;display:none;overflow:hidden;pointer-events:none}
+#bossFx.active{display:block}
+#bossFx::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.12) 72%,rgba(255,0,0,.45) 100%);box-shadow:inset 0 0 260px rgba(255,0,0,.73);animation:bossVignette 1s ease-in-out infinite alternate}
+#bossFx .boss-hit-label,#bossFx .boss-hit-damage{position:absolute;left:50%;z-index:1;display:block;opacity:0;text-align:center;white-space:nowrap;transform:translate(-50%,-50%)}
+#bossFx .boss-hit-label{top:46%;color:#ff263b;font:900 clamp(58px,9vw,140px)/.9 var(--gh-title);letter-spacing:.08em;text-shadow:0 0 24px rgba(255,0,0,.85),0 4px 0 rgba(50,0,0,.7)}
+#bossFx .boss-hit-damage{top:58%;color:#fff;font:900 clamp(30px,5vw,72px)/1 var(--gh-title);text-shadow:0 3px 0 #1b1430,0 0 12px rgba(255,255,255,.55)}
+#bossFx.hit .boss-hit-label{animation:bossHitBlink .7s linear both}
+#bossFx.hit .boss-hit-damage{animation:bossDamageFloat .7s ease-out both}
+@keyframes bossVignette{to{background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.08) 72%,rgba(255,0,0,.3) 100%);box-shadow:inset 0 0 120px rgba(255,0,0,.47)}}
+@keyframes bossHitBlink{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.82)}12%,38%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}24%,58%{opacity:.12;transform:translate(-50%,-50%) scale(.98)}}
+@keyframes bossDamageFloat{0%,100%{opacity:0;transform:translate(-50%,10px)}18%{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){#bossFx::before{animation:none}#bossFx.hit .boss-hit-label,#bossFx.hit .boss-hit-damage{animation:none;opacity:1}}
 
 /* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
 .tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
@@ -3872,6 +3884,7 @@ async function gatherArena(gid){
 }
 function resetAwakening(){
   AWK.done=false; AWK.running=false; document.body.classList.remove('awk-lock');
+  clearBossFx();
   applyArenaState();
 }
 /* ---------- Dragon Feature 3: End Crystal progression (per player) ----------
@@ -3888,6 +3901,40 @@ function syncCrystals(){
    Hanya pemain yang sudah menghancurkan semua Crystal (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
 function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===GOAL&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
+let BOSS_FX_TIMER=0;
+function bossFxRoot(){
+  let root=document.getElementById('bossFx');
+  if(root) return root;
+  root=document.createElement('div'); root.id='bossFx'; root.setAttribute('aria-hidden','true');
+  const label=document.createElement('b'); label.className='boss-hit-label'; label.textContent='BOSS';
+  const damage=document.createElement('span'); damage.className='boss-hit-damage';
+  root.appendChild(label); root.appendChild(damage); document.body.appendChild(root);
+  return root;
+}
+function setBossFightFx(active){
+  const root=active?bossFxRoot():document.getElementById('bossFx');
+  if(!root) return;
+  root.classList.toggle('fight',!!active);
+  if(active) root.classList.add('active');
+  else if(!root.classList.contains('hit')) root.classList.remove('active');
+}
+function bossHitFx(damage,remote){
+  if(!remote&&MP_SEQ===0) mpCue({k:'bosshfx',dmg:damage});
+  const root=bossFxRoot(),label=root.querySelector('.boss-hit-damage');
+  label.textContent='-'+Math.max(0,Number(damage)||0);
+  root.classList.add('active');
+  root.classList.remove('hit'); void root.offsetWidth; root.classList.add('hit');
+  clearTimeout(BOSS_FX_TIMER);
+  BOSS_FX_TIMER=setTimeout(()=>{
+    BOSS_FX_TIMER=0; root.classList.remove('hit');
+    if(!root.classList.contains('fight')) root.classList.remove('active');
+  },700);
+}
+function clearBossFx(){
+  clearTimeout(BOSS_FX_TIMER); BOSS_FX_TIMER=0;
+  const root=document.getElementById('bossFx');
+  if(root) root.classList.remove('active','fight','hit');
+}
 function showDragonBoss(p,gid,text,ttl){
   const awakening=AWK.running;
   hud('showCombat',awakening?'':p.name,awakening?'':'Ender Dragon',awakening?'':text,{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl:awakening?30000:ttl,awakening});
@@ -3980,7 +4027,7 @@ async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,Dd=dragon.userData;
   const QW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke state game lain */
-  AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
+  AWK.running=true; document.body.classList.add('awk-lock'); setBossFightFx(true); setRoll(false); clearTurnTimer(); dragonMusicStart();
   showDragonBoss(p,gid,'',30000);
   const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
   try{
@@ -3999,6 +4046,7 @@ async function awakenDragon(p,gid){
     /* 4. 4 End Crystal pembangkit naga muncul di tengah papan */
     setMsg('4 End Crystal pembangkit muncul di tengah papan...'); sfx.crystalAppear();
     await QW(0.9*F,k=>{ A.cc=k; });
+    hud('hideCombat'); setBossFightFx(false);
     setMsg('Energi Crystal berkumpul...'); await QW(1.3*F,k=>{ A.ccE=k; });
     /* 5. 6 tower kecil (menggantikan api di pinggir papan) muncul dengan End Crystal */
     setMsg('6 Tower Crystal muncul di pinggir papan...'); tw=sfx.towerRise();
@@ -4008,7 +4056,6 @@ async function awakenDragon(p,gid){
     /* 6. naga muncul di atas tengah papan; 4 crystal pembangkit habis, 6 crystal tower menyetrum naga (regenerasi) */
     setMsg('Ender Dragon bangkit!'); sfx.dragonSpawn();
     dragon.visible=true; FLY.on=true; FLY.blend=0; FLY.a=0; Dd.dy=0; Dd.shk=0; Dd.hd=0; Dd.roll=0; dragon.position.set(0,CC_TOP,0); dragon.scale.setScalar(0.05);
-    showDragonBoss(p,gid,'Ender Dragon bangkit!',8000);
     await QW(0.6*F,k=>{ A.burst=Math.sin(k*Math.PI*0.5); });
     await QW(1.0*F,k=>{ dragon.scale.setScalar(0.05+(DRAGON_S-0.05)*k); A.burst=1-k; });
     sfx.towerStop(tw); tw=null; dragon.scale.setScalar(DRAGON_S);
@@ -4184,7 +4231,7 @@ async function awakenWither(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const F=FORT; if(!F){ AWK.done=true; return; }
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },Fk=reduce?0.35:1;
-  AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart(); /* musik boss (sama seperti pertarungan naga di World) */
+  AWK.running=true; document.body.classList.add('awk-lock'); setBossFightFx(true); setRoll(false); clearTurnTimer(); dragonMusicStart(); /* musik boss (sama seperti pertarungan naga di World) */
   const sv={px:panGoal.x,pz:panGoal.z,zoom:goal.zoom}; let qk=null,finished=false;
   try{
     while(paused) await S(sleep(200));
@@ -4266,9 +4313,7 @@ async function witherRise(p,gid){
 /* Serangan ke Wither: bidak melompat ke depan altar & memukul; damage = angka dadu x DMG dari HP 120 per pemain (pola sama dgn hitDragon) */
 async function hitWither(p,v){
   if(!canAttackDragon(p)) return;
-  const w=WITHER,F=FORT,pw=p.pawn,dmg=v*DMG,gid=gameId,Fk=reduce?0.4:1,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!',H=window.UT&&UT.GameplayHUD,slot=fortSlot(p.idx);
-  if(H&&typeof H.showCombat==='function') hud('showCombat',p.name,'Wither',atk,{hp:p.dhp,maxHp:p.hpMax,bossName:'Wither',owner:p.name,gid});
-  else setMsg(p.name+' menyerang Wither: '+v+' x '+DMG+' = '+dmg+' damage!');
+  const w=WITHER,F=FORT,pw=p.pawn,dmg=v*DMG,gid=gameId,Fk=reduce?0.4:1,slot=fortSlot(p.idx);
   const dir=new THREE.Vector3(w.x-pw.position.x,0,w.z-pw.position.z); if(dir.lengthSq()<1e-4) dir.set(1,0,0); dir.normalize();
   const hit=new THREE.Vector3(w.x-dir.x*1.35,F.fl,w.z-dir.z*1.35);
   focus=pw; sfx.dragonHurt();
@@ -4281,7 +4326,7 @@ async function hitWither(p,v){
     await hopTo(pw,slot,0.4*Fk,0.45); pw.rotation.y=Math.PI/2;
   }finally{ pw.rotation.order='XYZ'; pw.rotation.x=0; w.shk=0; }
   if(gid!==gameId) throw STALE;
-  p.dhp=Math.max(0,p.dhp-dmg); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
+  p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg); hud('showCombat','','','',{hp:p.dhp,maxHp:p.hpMax,bossName:'Wither',owner:p.name,gid,ttl:900}); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
   if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
   sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
@@ -5209,18 +5254,14 @@ async function bowShootDragon(p,gid){
 }
 async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
-   const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
-   /* 4.1.9: 1 serangan = 1 presentation utama (combat strip HUD, dengan guard gid). setMsg + attack card hanya FALLBACK bila HUD combat tidak tersedia, agar tidak jadi 3 notifikasi yang sama. */
-   const H=window.UT&&UT.GameplayHUD;
-   if(H&&typeof H.showCombat==='function') hud('showCombat',p.name,'Ender Dragon',atk,{hp:p.dhp,owner:p.name,gid});
-   else{ setMsg(p.name+' menyerang Ender Dragon: '+v+' x '+DMG+' = '+dmg+' damage!'); showAttackCard(p.name,'Ender Dragon','hit','Menyerang naga '+v+' x '+DMG+' = '+dmg+' damage!'); }
+   const D=dragon.userData,dmg=v*DMG,gid=gameId;
    if(!(await bowShootDragon(p,gid))){ pawnAct(p.pawn,'attack'); await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6); } /* panah mendarat -> naga kena */
    if(gid!==gameId) return;
    sfx.dragonHurt(); mpCue({k:'dfx',t:'hurt'});
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
-   p.dhp=Math.max(0,p.dhp-dmg); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
+   p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg); hud('showCombat','','','',{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl:900}); msBump(p,'dragon_hits'); renderChips(); hud('updatePlayer',p);
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
@@ -5716,9 +5757,9 @@ try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
 const FBK=(window.UT&&UT.GameplayFeedback)||null; /* modul tak termuat -> presentasi visual dilewati, gameplay tetap jalan */
 if(FBK) FBK.init({sfx,sleep,reduce});
 async function showPUCard(p,k){ if(FBK) return FBK.showPUCard(p,k); }
-function showAttackCard(attacker,defender,weapon,desc,o){ mpCue({k:'atk',a:[attacker,defender,weapon,desc]}); if(FBK) FBK.showAttackCard(attacker,defender,weapon,desc,o); }
+function showAttackCard(attacker,defender,weapon,desc,o){ mpCue({k:'atk',a:[attacker,defender,weapon,desc],powerHit:!!(o&&o.powerHit)}); if(FBK) FBK.showAttackCard(attacker,defender,weapon,desc,o); }
 /* Power Hit: card tengah (#puCard) dipanggil dari titik target BENAR-BENAR kena (tidak diblok Totem). Suara hit dimainkan pemanggil (sfx.playerHurt), jadi card dibisukan agar tidak dobel. */
-function powerHitCard(p,T,k,effect){ showAttackCard(p.name,T.name,k,'Kena! '+effect,{silent:true}); }
+function powerHitCard(p,T,k,effect){ showAttackCard(p.name,T.name,k,'Kena! '+effect,{silent:true,powerHit:true}); }
 /* CPU hanya memilih Power yang valid (aturan sama dengan usePU): punya stok, bukan Pedang/Totem di fase Dragon, TNT wajib punya target. */
 /* ---------- Aturan Power (data di UT.Gameplay.Config.PUR; 17 Power) ----------
    Target dihitung HANYA dari pemain yang masih di papan (pos>0 && pos<GOAL). CPU & manusia memakai fungsi yang sama (puTargets/cpuPUValid/usePU). */
@@ -6061,6 +6102,7 @@ function renderChips(){
     if(turnChip){ turnChip.className='turn-chip'; turnChip.textContent='YOUR TURN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
     const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
+    if(turnChip) card.appendChild(turnChip);
     const avatar=document.createElement('div'); avatar.className='av';
     const im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name;
     const order=document.createElement('span'); order.className='tn'; order.setAttribute('aria-label','Giliran ke-'+(p.turnOrder||i+1));
@@ -6137,9 +6179,9 @@ function renderChips(){
       const track=document.createElement('s'),fill=document.createElement('u'); fill.style.width=Math.max(0,Math.min(100,(p.dhp/(p.hpMax||100))*100))+'%'; track.appendChild(fill); hp.appendChild(track); extra.appendChild(hp);
     }
     if(extra.childNodes.length){
-      if(i===1||i===2){ if(turnChip) group.appendChild(turnChip); group.appendChild(card); group.appendChild(extra); }
-      else { group.appendChild(extra); if(turnChip) group.appendChild(turnChip); group.appendChild(card); }
-    }else{ if(turnChip) group.appendChild(turnChip); group.appendChild(card); }
+      if(i===1||i===2){ group.appendChild(card); group.appendChild(extra); }
+      else { group.appendChild(extra); group.appendChild(card); }
+    }else group.appendChild(card);
     box.appendChild(group);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';
@@ -6625,6 +6667,7 @@ async function recordMatchServer(PD,m){
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
+  clearBossFx();
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
@@ -6675,7 +6718,7 @@ function startGame(m,keys){
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
-const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
+const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,bosshfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
 function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
@@ -6699,11 +6742,12 @@ function mpRunFeedbackCue(c){
     else if(c.k==='dfx'){ return mpDragonFx(c.t); }
     else if(c.k==='sfx'){ const f=sfx0[c.n]; if(typeof f==='function'){ /* suara aksi pemain lain: lebih pelan (MP_SFX_GAIN) dari suara aksi sendiri; volume dibaca saat dipanggil, jadi cukup diturunkan sesaat lalu dikembalikan */
         const base=sfxVol/100; try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(base*MP_SFX_GAIN); f.apply(sfx0,c.a||[]); } finally{ try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(base); }catch(e){} } } }
-    else if(c.k==='atk'){ if(FBK) FBK.showAttackCard(c.a[0],c.a[1],c.a[2],c.a[3],{silent:true}); }
+    else if(c.k==='atk'){ if(FBK) FBK.showAttackCard(c.a[0],c.a[1],c.a[2],c.a[3],{silent:true,powerHit:!!c.powerHit}); }
     else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
+    else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true); }
     else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }
     else if(c.k==='pufx'){ puFx(c.key,c.cls); }
   }catch(e){ console.error('[multiplayer] feedback cue failed',e); }

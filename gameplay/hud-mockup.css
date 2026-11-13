@@ -219,6 +219,7 @@
   position: relative !important;
   inset: auto !important;
   display: grid !important;
+  box-sizing: border-box !important;
   grid-template-columns: 84px minmax(0, 1fr) !important;
   align-items: center !important;
   gap: 14px !important;
@@ -250,6 +251,7 @@
 #players .pg .pr.on {
   border-color: var(--gh-gold) !important;
   box-shadow: 0 0 26px rgba(255, 212, 90, .6), 0 8px 0 rgba(10, 6, 25, .5) !important;
+  transform: none !important;
 }
 #players .pg .pr.off { filter: grayscale(1); opacity: .55; }
 #players .pg .av { position: relative !important; width: 84px !important; height: 84px !important; overflow: visible !important; }
@@ -303,13 +305,19 @@
   transition: width 1s linear;
 }
 #players .pg .turn-chip {
-  align-self: flex-end;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  right: auto;
+  z-index: 2;
+  align-self: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 38px;
-  margin: 0 -38px -2px 0;
+  margin: 0;
   padding: 0 20px;
+  transform: translate(calc(-100% - 12px), -50%);
   border: 3px solid #c4ffad;
   border-radius: 999px;
   color: #fff;
@@ -1109,6 +1117,16 @@ html body #puCard.pucard {
   padding: 30px 48px !important;
   text-align: center !important;
 }
+html body #puCard.pucard.power-hit {
+  width: min(640px, 90vw) !important;
+  max-width: 90vw !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
 #puCard #pcWho { margin: 0 0 8px !important; color: #cfc8ea !important; font: 800 26px/1.2 var(--gh-body) !important; }
 #puCard #pcEmoji { min-height: 92px; margin: 4px 0 8px; color: var(--gh-gold); font: 80px/1 var(--gh-title); }
 #puCard #pcEmoji img { width: 100px !important; height: 100px !important; object-fit: contain !important; }
@@ -1605,13 +1623,6 @@ html body #utGameplayHud .ut-ghud-c[data-awakening="true"]::after {
   background: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp") center / contain no-repeat;
 }
 html body #utGameplayHud .ut-ghud-c[data-awakening="true"] > p:not(.ut-ghud-hp) { display: none !important; }
-html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-bar {
-  width: min(520px, 78vw) !important;
-  height: 58px !important;
-}
-html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp {
-  color: #fff !important;
-  font: 800 24px/1.1 var(--gh-body) !important;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, .7) !important;
-}
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-bar,
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp { display: none !important; }
 

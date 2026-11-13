@@ -39,7 +39,7 @@
      const PUN=getPUN();
      const c=$('puCard'),em=$('pcEmoji'),keys=Object.keys(PUN);
      $('pcWho').textContent=p.name+' membuka peti'; $('pcName').textContent='...'; $('pcDesc').textContent='';
-     c.classList.remove('pop','chest'); c.hidden=false;
+     c.classList.remove('pop','chest','power-hit'); c.hidden=false;
      if(!reduce) for(let i=0;i<9;i++){ setIco(em,keys[i%keys.length]); await sleep(75); }
      sfx.rewardpower();
      setIco(em,k); $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
@@ -53,7 +53,7 @@
      $('pcName').textContent=PUN[weapon]?PUN[weapon][1]:weapon;
      $('pcDesc').textContent=desc;
      setIco(em,weapon,'⚔️');
-     c.classList.remove('pop','chest'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
+     c.classList.remove('pop','chest'); c.classList.toggle('power-hit',!!(o&&o.powerHit)); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
      clearTimeout(atkTimer); atkTimer=setTimeout(()=>c.hidden=true,1600); /* timer lama dibatalkan: card baru tidak ikut tertutup timer card sebelumnya */
   }
   /* Kartu reward Chest (compact, tengah layar): reuse #puCard + kelas 'chest'. Tidak ada SFX di sini: pemanggil (giveChest) memutar SFX Chest/Reward 1x. Ditutup lewat hideChestRewardCard. */
@@ -62,9 +62,9 @@
      clearTimeout(atkTimer);
      $('pcWho').textContent=who+' membuka peti'; $('pcName').textContent=text; $('pcDesc').textContent='';
      em.textContent='🎁';
-     c.classList.remove('pop'); c.classList.add('chest'); c.hidden=false; c.classList.add('pop');
+     c.classList.remove('pop','power-hit'); c.classList.add('chest'); c.hidden=false; c.classList.add('pop');
   }
-  function hideChestRewardCard(){ const c=$('puCard'); if(!c||!c.classList.contains('chest')) return; c.hidden=true; c.classList.remove('chest','pop'); }
+  function hideChestRewardCard(){ const c=$('puCard'); if(!c||!c.classList.contains('chest')) return; c.hidden=true; c.classList.remove('chest','pop','power-hit'); }
 
   UT.GameplayFeedback = { init: init, setCurrentMarker: setCurrentMarker, hideMarker: hideMarker, updateTurnMarkers: updateTurnMarkers, showPUCard: showPUCard, showAttackCard: showAttackCard, showChestRewardCard: showChestRewardCard, hideChestRewardCard: hideChestRewardCard };
 })(window, document);
