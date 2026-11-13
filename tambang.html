@@ -52,7 +52,7 @@ const SET=()=>{try{return PD.settings()}catch(e){return {}}};
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 function playSound(){if(!SET().sound)return;try{UT.Audio.play('button')}catch(e){}}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1900)}
-const MSG={'saldo-kurang':'Coin tidak cukup.','sudah-dibuka':'Tambang sudah dibuka.','level-maks':'Sudah level maksimum.','boost-aktif':'Percepat masih aktif.','batas-harian':'Batas Percepat hari ini habis.','peti-kosong':'Peti belum ada isinya.','terkunci':'Buka tambang dulu.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses…','mode-lokal':'Tambang butuh akun login.','slot-tidak-valid':'Slot tidak valid.'};
+const MSG={'saldo-kurang':'Emerald tidak cukup.','sudah-dibuka':'Tambang sudah dibuka.','level-maks':'Sudah level maksimum.','boost-aktif':'Percepat masih aktif.','batas-harian':'Batas Percepat hari ini habis.','peti-kosong':'Peti belum ada isinya.','terkunci':'Buka tambang dulu.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses…','mode-lokal':'Tambang butuh akun login.','slot-tidak-valid':'Slot tidak valid.'};
 const say=r=>toast(MSG[r&&r.reason]||'Gagal. Coba lagi.');
 
 /* ---------- navigasi: Back ke halaman asal (?from=), Home ke lobby ---------- */
@@ -96,10 +96,10 @@ const WIN=(i,pill)=>'<div class="win"><canvas class="cvv" data-v="'+i+'"></canva
 function slotHTML(i){
   const s=ST.slots[i-1];
   if(!s.unlocked)return '<div class="hd ttl">TAMBANG '+i+'</div>'+WIN(i,false)+'<div class="msg">Buka supaya penambang mulai menggali.<small>'+f2(s.base_rate)+' /jam (Lv1)</small></div>'
-    +'<button class="btn opn" data-a="unlock"><img src="'+BG+'tombol-kuning-polos.webp" alt=""><span><img src="'+CN+'" alt="">'+fmt(s.unlock_cost)+'</span></button>';
+    +'<button class="btn opn" data-a="unlock"><img src="'+BG+'tombol-kuning-polos.webp" alt=""><span><img src="'+EM+'" alt="">'+fmt(s.unlock_cost)+'</span></button>';
   const mx=ST.config,b=s.boost;
   const up=(a,label,lv,cost)=>cost==null?'<button class="btn up bl" data-a="'+a+'" disabled><b>'+label+' MAKS</b><small>Lv '+lv+'/5</small></button>'
-    :'<button class="btn up bl" data-a="'+a+'"><b>'+label+' Lv '+(lv+1)+'</b><small><img src="'+CN+'" alt="">'+fmt(cost)+'</small></button>';
+    :'<button class="btn up bl" data-a="'+a+'"><b>'+label+' Lv '+(lv+1)+'</b><small><img src="'+EM+'" alt="">'+fmt(cost)+'</small></button>';
   return '<div class="hd ttl">TAMBANG '+i+'</div>'+WIN(i,true)+'<div class="sb">Kec. Lv '+s.speed_lv+' · Peti Lv '+s.cap_lv+'</div>'
     +'<div class="rt"><img src="'+EM+'" alt=""><b class="rv"></b><small>/jam</small><span class="bst">⚡ x'+mx.boost_mult+'</span></div>'
     +'<div class="bar"><i></i></div><div class="eta"></div>'
@@ -138,15 +138,15 @@ function tick(force){
     if(bOn){bb.disabled=true;$('.bl2',e).textContent='Aktif';$('.bs',e).textContent='⚡ '+dur(bl)}
     else if(s.boost.left_today<=0){bb.disabled=true;$('.bl2',e).textContent='Percepat';$('.bs',e).textContent='Habis hari ini'}
     else{bb.disabled=false;$('.bl2',e).textContent='Percepat';$('.bs',e).innerHTML='<img src="'+CN+'" alt="">'+fmt(s.boost.cost)}
-    const co=PD.walletReady()?PD.coins():Infinity;
-    $$('.btn.y,.btn.bl',e).forEach(b=>{const a=b.dataset.a,c=a==='boost'?s.boost.cost:a==='speed'?s.next_speed_cost:s.next_cap_cost;b.classList.toggle('poor',c!=null&&co<c)});
+    const co=PD.walletReady()?PD.coins():Infinity,gm=PD.walletReady()?PD.gems():Infinity;
+    $$('.btn.y,.btn.bl',e).forEach(b=>{const a=b.dataset.a,c=a==='boost'?s.boost.cost:a==='speed'?s.next_speed_cost:s.next_cap_cost;b.classList.toggle('poor',c!=null&&(a==='boost'?co:gm)<c)});
     if(bays[i])bays[i].setFill(fill);
   });
   const open=ST.slots.filter(s=>s.unlocked).length;
   $('#sum').innerHTML=open?'Total <b>'+f2(total)+'</b>/jam · ≈ <b>'+f1(total*24)+'</b>/hari':'Buka tambang pertamamu';
 }
 
-/* modal konfirmasi: Buka & Upgrade memakai Coin; Percepat/Ambil langsung seperti sebelumnya. Server tetap yang memutuskan (saldo-kurang dll). */
+/* modal konfirmasi: Buka & Upgrade memakai Emerald (Percepat tetap Coin); Percepat/Ambil langsung seperti sebelumnya. Server tetap yang memutuskan (saldo-kurang dll). */
 let okFn=null;
 function ask(t,x,noL,okL,ok){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#md').classList.add('on')}
 const closeM=()=>$('#md').classList.remove('on');
@@ -155,8 +155,8 @@ function pre(i,a,btn){
   if(a==='collect'||a==='boost'){act(i,a,btn);return}
   const s=ST.slots[i-1],c=a==='unlock'?s.unlock_cost:a==='speed'?s.next_speed_cost:s.next_cap_cost,nm=a==='speed'?'Kecepatan':'Peti';
   if(c==null){act(i,a,btn);return}
-  if(PD.walletReady()&&PD.coins()<c){ask('Coin tidak cukup','Butuh '+fmt(c)+' Coin'+(a==='unlock'?' untuk membuka tambang ini.':' untuk upgrade '+nm+'.')+'<br>Saldo kamu '+fmt(PD.coins())+' Coin.','TUTUP','DAPATKAN COIN',()=>{location.href='shop.html?coin=1'});return}
-  ask('Konfirmasi',a==='unlock'?'Buka Tambang '+i+'<br>seharga '+fmt(c)+' Coin?':'Upgrade '+nm+' ke Lv '+((a==='speed'?s.speed_lv:s.cap_lv)+1)+'<br>seharga '+fmt(c)+' Coin?','BATAL',a==='unlock'?'BUKA':'UPGRADE',()=>act(i,a,btn));
+  if(PD.walletReady()&&PD.gems()<c){ask('Emerald tidak cukup','Butuh '+fmt(c)+' Emerald'+(a==='unlock'?' untuk membuka tambang ini.':' untuk upgrade '+nm+'.')+'<br>Saldo kamu '+fmt(PD.gems())+' Emerald.','TUTUP','',null);return}
+  ask('Konfirmasi',a==='unlock'?'Buka Tambang '+i+'<br>seharga '+fmt(c)+' Emerald?':'Upgrade '+nm+' ke Lv '+((a==='speed'?s.speed_lv:s.cap_lv)+1)+'<br>seharga '+fmt(c)+' Emerald?','BATAL',a==='unlock'?'BUKA':'UPGRADE',()=>act(i,a,btn));
 }
 async function act(i,a,btn){
   playSound();buzz();

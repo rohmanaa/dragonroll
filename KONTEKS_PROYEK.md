@@ -37,6 +37,16 @@ Migrasi `202611270002_economy_phase2_quests_achievements.sql`:
 - Klien: `quest-data.js`, `achievement-data.js`, `misi.html` (daftar bisa di-scroll), `hadiah-misi.html` (daftar misi scroll `.qlist`).
 - Tes SQL: `supabase/tests/economy_phase12_test.sql` (lulus di Postgres 16 lokal setelah semua migrasi diterapkan).
 
+### Ekonomi fase 3 (dibuat, BELUM dites manual, migrasi BELUM di produksi)
+Migrasi `202611280001_economy_phase3_gems.sql`. Kurva harga landai (tiap tier naik ~x1,3-1,4); tier atas hanya emerald. Harga ada di `TIER_PRICE` (`assets/js/item-catalog.js`), seed server dijaga `node tools/wallet/gen-item-seed.js --write/--check`.
+- Dadu: T1 500, T2 700, T3 1.000, T4 1.400 koin; T5 45, T6 65, T7 90 emerald.
+- Frame: 500/700/1.000/1.400/2.000/2.800/4.000 koin (Batu..Nether); Ender 100, Badai 130, Naga 170, Phoenix 220, Surgawi 290, Kosmik 380 emerald.
+- Aura: 500/700/1.000/1.400 koin; Solar/Shadow/Sculk 50, Dragon 70, Celestial 95 emerald.
+- Tambang dibeli EMERALD: buka 5/15/35; kecepatan Lv2-5 6/8/11/15; peti 5/7/10/14 (x1,0/1,5/2,0 per slot). Boost tetap koin, diturunkan 150/200/300.
+- Kurs tukar seragam 50 koin/emerald (10->500, 40->2.000, 120->6.000). Hadiah boss online emerald 10 -> 2 (`claim_boss_reward`, `Config.DRAGON_REWARD`).
+- `buy_item` mendukung `price_gems` (alasan gagal baru `gem-kurang`). UI emerald: dadu, frame, efek, tambang. Skin, tema, gear, power-up, pet tidak diubah.
+- Sisa: Chest di toko, skala pet, fase 4 (invite), kabut malam. Boss CPU tetap 100 koin.
+
 ## 4. Keputusan ekonomi yang sudah dikunci
 Rencana lengkap: lampiran `EKONOMI_PLAN.md` (tabel harga, estimasi, fase).
 - Tier tertentu hanya bisa dibeli dengan emerald (semua koleksi); tambang dibeli emerald, makin tinggi level makin mahal; boost tambang tetap pakai koin.

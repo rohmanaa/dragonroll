@@ -56,13 +56,13 @@ const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletServic
 const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
-const KOIN='assets/ng/komponen/hud/ikon-koin-emas.webp',LOCK='assets/ng/komponen/glyph-putih/gembok.webp';
+const GEM='assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp',KOIN='assets/ng/komponen/hud/ikon-koin-emas.webp',LOCK='assets/ng/komponen/glyph-putih/gembok.webp';
 const RAR={common:['Biasa','#cfc8ea'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a']};
-const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
+const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Emerald tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 /* data dari ItemCatalog + PlayerData (bukan data sendiri); off:true = takedown sementara */
 const FR=IC.items.filter(i=>i.kind==='dice'&&!i.off);
 const isOwned=i=>PD.owns(i.id),isUsed=i=>PD.isEquipped(i.id);
-const canSell=i=>!!i&&typeof i.price==='number'&&i.price>0&&!i.starter;
+const canSell=i=>!!i&&((typeof i.price==='number'&&i.price>0)||(typeof i.gems==='number'&&i.gems>0))&&!i.starter;
 const kitOK=i=>!!(window.DiceKit&&i&&window.DiceKit.has(i.gameKey));
 /* kartu: warna asli = tekstur yang sama dengan preview 3D; cadangan SVG bila kit belum siap */
 /* deskripsi singkat: kalimat pertama saja, maks ~64 karakter */
@@ -108,8 +108,8 @@ function draw(){
   let html=FR.map(x=>{
     const m=isOwned(x),sell=canSell(x);
     const on=isUsed(x),state=m?`<span class="pr ${on?'used':'owned'}"${on?'':' data-action="equip"'}>${on?'DIPASANG':'DIMILIKI'}</span>`
-      :sell?`<span class="pr buy" data-action="buy"><img src="${KOIN}" alt="">${fmtPrice(x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
-    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipasang':m?'dimiliki':sell?'beli '+fmtPrice(x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${state}</button>`}).join('');
+      :sell?`<span class="pr buy" data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
+    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipasang':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${state}</button>`}).join('');
   for(let i=FR.length;i<18;i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='Belum ada dadu di game ini.';showWallet();return}
@@ -123,6 +123,12 @@ function draw(){
 function buySelected(f){
   if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
   const coins=PD.coins();
+  if(f.gems>0){
+    const gems=PD.gems();
+    if(gems<f.gems)modal('Emerald tidak cukup',`Kamu butuh ${fmt(f.gems-gems)} Emerald lagi.<br>Saldo kamu ${fmt(gems)} Emerald.`,'TUTUP','DAPATKAN EMERALD',()=>nav('tambang.html?from=dadu.html'));
+    else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.gems)} Emerald?`,'BATAL','BELI',()=>buy(f));
+    return;
+  }
   if(coins<f.price)modal('Coin tidak cukup',`Kamu butuh ${fmt(f.price-coins)} Coin lagi.<br>Saldo kamu ${fmt(coins)} Coin.`,'TUTUP','DAPATKAN COIN',()=>nav('shop.html?coin=1'));
   else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
 }

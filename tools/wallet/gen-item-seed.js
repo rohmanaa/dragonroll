@@ -19,7 +19,12 @@ const priceRows = items.map(i => '  (' + [q(i.id), q(i.kind), i.price > 0 ? i.pr
 const gearItems = items.filter(i => i.kind === 'gear');
 const genderRows = gearItems.map(i => '  (' + q(i.id) + ', ' + (i.g ? q(i.g) : 'null') + ')');
 
+const tierItems = items.filter(i => ['dice', 'frame', 'aura'].indexOf(i.kind) >= 0 && !i.starter && (i.price > 0 || i.gems > 0));
+const tierRows = tierItems.map(i => '  (' + [q(i.id), i.price > 0 ? i.price : 'null', i.gems > 0 ? i.gems : 'null'].join(', ') + ')');
+
 const BLOCKS = [
+  { file: '202611280001_economy_phase3_gems.sql', begin: '-- BEGIN TIER PRICE SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)', end: '-- END TIER PRICE SEED',
+    body: 'update public.item_catalog c set price_coins = v.c, price_gems = v.g\nfrom (values\n' + tierRows.join(',\n') + '\n) as v(id, c, g)\nwhere c.id = v.id;' },
   { file: '202611110002_wallet_b2_server.sql', begin: '-- BEGIN CATALOG SEED (dibuat oleh game/tools/wallet/gen-item-seed.js; jangan edit tangan)', end: '-- END CATALOG SEED',
     body: 'insert into public.item_catalog(id, kind, price_coins, starter, stackable) values\n' + priceRows.join(',\n') +
       '\non conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;' },

@@ -10,8 +10,8 @@
   const TABS = ['chest', 'coin', 'emerald', 'history'];
   const PACKS = [
     { coins: 500, gems: 10, name: 'Koin Kecil', image: 'gold-koin-sedikit.webp', color: '#ffd04a' },
-    { coins: 2500, gems: 40, name: 'Tumpukan Koin', image: 'gold-tumpukan.webp', color: '#ffb02a' },
-    { coins: 10000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f', best: true }
+    { coins: 2000, gems: 40, name: 'Tumpukan Koin', image: 'gold-tumpukan.webp', color: '#ffb02a' },
+    { coins: 6000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f' }
   ];
   const CHESTS = [
     { name: 'Peti Kayu', image: 'paket-chest/peti-kayu.webp' },

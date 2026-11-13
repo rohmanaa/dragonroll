@@ -328,6 +328,39 @@
   ];
   ITEMS = ITEMS.concat(AURAS);
 
+  /* ===== HARGA TIER (Fase 3 ekonomi) — satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura).
+     Tiap naik tier harga naik TIPIS (~x1,3-1,4). Tier bawah = koin; tier atas = EMERALD saja (gems).
+     Aturan: harga emerald tier pertama >= nilai koin tier koin terakhir / 50 (kurs seragam 50 koin per emerald),
+     supaya tidak ada jalan pintas menukar koin -> emerald -> item. Ubah angka di sini, lalu:
+       node tools/wallet/gen-item-seed.js --write   (dan terapkan ulang migrasi fase 3).
+     Format: id -> [koin, emerald]; salah satunya null. */
+  var TIER_PRICE = {
+    /* Dadu: T1 500, T2 700, T3 1.000, T4 1.400 koin; T5 45, T6 65, T7 90 emerald */
+    'dice.wood': [500, null], 'dice.stone': [500, null], 'dice.rumput': [500, null],
+    'dice.copper': [700, null], 'dice.iron': [700, null], 'dice.tnt': [700, null],
+    'dice.lapis': [1000, null], 'dice.emas': [1000, null],
+    'dice.diamond': [1400, null], 'dice.emerald': [1400, null], 'dice.amethyst': [1400, null], 'dice.redstone': [1400, null], 'dice.obsidian': [1400, null],
+    'dice.magma': [null, 45], 'dice.frost': [null, 45], 'dice.prismarine': [null, 45], 'dice.quartz': [null, 45],
+    'dice.void': [null, 65], 'dice.netherite': [null, 65], 'dice.sculk': [null, 65], 'dice.ender': [null, 65],
+    'dice.dragon': [null, 90],
+    /* Frame: 500 / 700 / 1.000 / 1.400 / 2.000 / 2.800 / 4.000 koin; lalu 100 / 130 / 170 / 220 / 290 / 380 emerald */
+    'frame.stone': [500, null], 'frame.copper': [700, null], 'frame.iron': [1000, null], 'frame.gold': [1400, null],
+    'frame.diamond': [2000, null], 'frame.amethyst': [2800, null], 'frame.nether': [4000, null],
+    'frame.ender': [null, 100], 'frame.storm': [null, 130], 'frame.dragon': [null, 170],
+    'frame.phoenix': [null, 220], 'frame.celestial': [null, 290], 'frame.cosmic': [null, 380],
+    /* Aura: 500 / 700 / 1.000 / 1.400 koin; lalu 50 / 70 / 95 emerald */
+    'aura.nature': [500, null], 'aura.stone': [500, null], 'aura.flame': [700, null], 'aura.frost': [700, null],
+    'aura.electric': [1000, null], 'aura.emerald': [1000, null],
+    'aura.ender': [1400, null], 'aura.nether': [1400, null], 'aura.amethyst': [1400, null], 'aura.ocean': [1400, null],
+    'aura.solar': [null, 50], 'aura.shadow': [null, 50], 'aura.sculk': [null, 50],
+    'aura.dragon': [null, 70], 'aura.celestial': [null, 95]
+  };
+  ITEMS.forEach(function (it) {
+    var t = TIER_PRICE[it.id];
+    if (!t) { it.gems = null; return; }
+    it.price = t[0]; it.gems = t[1];
+  });
+
   var DEFAULT_EQUIPPED = Object.freeze({ skin: 'skin.steve', dice: 'dice.klasik', theme: 'theme.minecraft', frame: 'frame.default' });
   var BY_ID = {};
   ITEMS.forEach(function (it) {
@@ -360,6 +393,8 @@
     /* Slot equipment yang boleh kosong: gear + 'aura' */
     optionalSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).concat(['aura']); },
     gearSlots: function () { return GEAR.map(function (i) { return i.slot; }).filter(function (v, i, a) { return a.indexOf(v) === i; }); },
+    /* Harga satu item: {coins, gems} (salah satu null) atau null bila tidak dijual */
+    cost: function (it) { return it && it.gems > 0 ? { coins: null, gems: it.gems } : it && it.price > 0 ? { coins: it.price, gems: null } : null; },
     items: Object.freeze(ITEMS.slice()),
     byId: function (id) { return Object.prototype.hasOwnProperty.call(BY_ID, id) ? BY_ID[id] : null; },
     byGameKey: function (kind, gameKey) { return BY_ID[kind + '.' + gameKey] || null; },

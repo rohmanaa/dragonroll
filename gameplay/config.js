@@ -53,7 +53,7 @@
   C.DMG = C.DMG || 5;
   /* Dragon Feature 6: hadiah mengalahkan Ender Dragon. Hanya NOMINAL; diberikan lewat PlayerData.grant existing
      (bukan currency/reward system baru). Diberikan 1x per game ke pemain manusia yang menang. */
-  C.DRAGON_REWARD = C.DRAGON_REWARD || { coins: 500, gems: 10 };
+  C.DRAGON_REWARD = C.DRAGON_REWARD || { coins: 500, gems: 2 };
 
   /* Chest Feature 2: Reward Pool. Persentase x10 supaya 0.5% dan 7.5% jadi bilangan bulat; total WAJIB 1000.
      Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
