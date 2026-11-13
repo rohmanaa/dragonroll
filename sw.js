@@ -1,8 +1,9 @@
 /* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
    Strategi: kode/HTML = network-first (selalu terbaru saat online), cadangan cache saat offline.
-   Media (gambar/font/suara, sudah diunduh splash) = cache dulu lalu diperbarui diam-diam di belakang (pindah halaman tidak menunggu jaringan).
-   Request Range (audio streaming) dan non-GET tidak disentuh. Naikkan VERSION untuk membersihkan cache lama. */
-const VERSION = 'ut-pwa-v119';
+   Media (gambar/font/suara, diunduh sekali oleh splash) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang sampai VERSION dinaikkan.
+   Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh.
+   Ganti/tambah aset => naikkan VERSION (cache lama otomatis dibuang). */
+const VERSION = 'ut-pwa-v120';
 const CORE = ['index.html', 'play.html', 'splash.html', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -15,16 +16,24 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   const r = e.request;
-  if (r.method !== 'GET' || r.headers.has('range')) return;
+  if (r.method !== 'GET') return;
   const u = new URL(r.url);
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
   const same = u.origin === self.location.origin;
   if (!same && !EXTRA_HOSTS.includes(u.hostname)) return;
-  if (same && MEDIA.test(u.pathname)) { /* stale-while-revalidate: tampil dari cache seketika, perbarui di belakang */
-    e.respondWith(caches.open(VERSION).then(c => c.match(r).then(hit => {
-      const net = fetch(r).then(res => { if (res && res.ok) c.put(r, res.clone()).catch(() => {}); return res; }).catch(() => hit || Response.error());
-      return hit || net;
-    })));
+  if (same && MEDIA.test(u.pathname)) {
+    const range = r.headers.get('range');
+    e.respondWith(caches.open(VERSION).then(async c => {
+      const key = new Request(r.url); /* kunci tanpa header Range */
+      const hit = await c.match(key);
+      if (hit) return range ? sliceRange(hit, range) : hit;
+      if (range) return fetch(r); /* belum tersimpan penuh: biarkan jaringan melayani */
+      try {
+        const res = await fetch(r);
+        if (res && res.status === 200) c.put(key, res.clone()).catch(() => {});
+        return res;
+      } catch (err) { return Response.error(); }
+    }));
     return;
   }
   e.respondWith(
@@ -34,3 +43,17 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(r, { ignoreSearch: r.mode === 'navigate' }).then(hit => hit || (r.mode === 'navigate' ? caches.match('index.html') : Response.error())))
   );
 });
+
+/* Layani request Range (audio/video) dari respons penuh di cache */
+async function sliceRange(res, range) {
+  const m = /bytes=(\d*)-(\d*)/.exec(range);
+  if (!m) return res;
+  const buf = await res.arrayBuffer(), size = buf.byteLength;
+  let start = m[1] === '' ? Math.max(0, size - parseInt(m[2], 10)) : parseInt(m[1], 10);
+  let end = m[1] === '' || m[2] === '' ? size - 1 : Math.min(parseInt(m[2], 10), size - 1);
+  if (start >= size || start > end) return new Response(null, { status: 416, headers: { 'Content-Range': 'bytes */' + size } });
+  return new Response(buf.slice(start, end + 1), { status: 206, headers: {
+    'Content-Type': res.headers.get('Content-Type') || 'application/octet-stream',
+    'Content-Range': 'bytes ' + start + '-' + end + '/' + size,
+    'Content-Length': String(end - start + 1), 'Accept-Ranges': 'bytes' } });
+}
