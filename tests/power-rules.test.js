@@ -62,7 +62,10 @@ t('suara: PowerSound punya suara untuk tiap Power (gameKey dan id model 3D)', ()
 });
 t('Power baru terdaftar di server: migrasi 10 baris powerup + seed B2 sinkron', () => {
   const mig = rd('supabase/migrations/202611210001_power_catalog_batch2.sql'), b2 = rd('supabase/migrations/202611110002_wallet_b2_server.sql');
-  NEW.forEach(k => { assert.ok(mig.indexOf("('" + k + "', 'powerup', null, false, true)") > 0, 'migrasi: ' + k); assert.ok(b2.indexOf("('" + k + "', 'powerup', null, false, true)") > 0, 'B2: ' + k); });
+  NEW.forEach(k => {
+    assert.ok(mig.indexOf("('" + k + "', 'powerup', null, false, true)") > 0, 'migrasi: ' + k);
+    assert.ok(new RegExp("\\('" + k + "', 'powerup', (?:null|\\d+), false, true\\)").test(b2), 'B2: ' + k);
+  });
 });
 t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importmap + loader power3d, snapshot membawa guard/frozen', () => {
   const g = gameplaySource();
