@@ -4781,7 +4781,6 @@ function renderChips(){
     if(turnChip){ turnChip.className='turn-chip'; turnChip.textContent='YOUR TURN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
     const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
-    if(turnChip) card.appendChild(turnChip);
     const avatar=document.createElement('div'); avatar.className='av';
     const im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name;
     const order=document.createElement('span'); order.className='tn'; order.setAttribute('aria-label','Giliran ke-'+(p.turnOrder||i+1));
@@ -4857,10 +4856,11 @@ function renderChips(){
       hp.appendChild(gameHudImage('hud','bar-hp-boss'));
       const track=document.createElement('s'),fill=document.createElement('u'); fill.style.width=Math.max(0,Math.min(100,(p.dhp/(p.hpMax||100))*100))+'%'; track.appendChild(fill); hp.appendChild(track); extra.appendChild(hp);
     }
+    const appendCard=()=>{ group.appendChild(card); if(turnChip) group.appendChild(turnChip); };
     if(extra.childNodes.length){
-      if(slot===1||slot===2){ group.appendChild(card); group.appendChild(extra); }
-      else { group.appendChild(extra); group.appendChild(card); }
-    }else group.appendChild(card);
+      if(slot===1||slot===2){ appendCard(); group.appendChild(extra); }
+      else { group.appendChild(extra); appendCard(); }
+    }else appendCard();
     box.appendChild(group);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';
@@ -5194,7 +5194,7 @@ function specialHint(p){
 function syncRollLabel(){
   const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=!!(sp&&BOSS==='dragon'&&p.dragonReady);
   b.classList.toggle('special',sp); b.classList.toggle('boss-attack',dragonAttack); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?(dragonAttack?'Lepas untuk menyerang':'Lepas untuk memilih'):(dragonAttack?'Serang':(sp?'Tahan & lepas':'Roll'));
+  b.textContent=DH.on?(dragonAttack?'Lepas untuk menyerang':'Lepas untuk memilih'):(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
   dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */

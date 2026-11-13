@@ -305,25 +305,23 @@
   transition: width 1s linear;
 }
 #players .pg .turn-chip {
-  position: absolute;
-  top: auto;
-  right: 0;
-  bottom: calc(100% + 8px);
+  position: relative;
+  inset: auto;
   z-index: 2;
-  align-self: auto;
+  align-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  min-height: 32px;
   margin: 0;
-  padding: 0 20px;
+  padding: 0 16px;
   transform: none;
   border: 3px solid #c4ffad;
   border-radius: 999px;
   color: #fff;
   background: linear-gradient(135deg, #7ce96b, #278d3a);
   box-shadow: 0 4px 0 #123a1c, 0 0 14px rgba(111, 242, 106, .45);
-  font: 800 17px/1 var(--gh-title);
+  font: 800 15px/1 var(--gh-title);
   letter-spacing: .08em;
   text-shadow: 0 2px 0 #154a22;
   pointer-events: none;
@@ -577,10 +575,10 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   grid-template-columns: 190px 360px !important;
   grid-template-areas:
     ". die"
+    "meter meter"
     "auto roll"
     "hint hint"
-    "msg msg"
-    "meter meter" !important;
+    "msg msg" !important;
   align-items: center !important;
   justify-items: stretch !important;
   gap: 14px !important;
@@ -649,8 +647,8 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   text-shadow: 0 3px 0 rgba(20,10,40,.6) !important;
   pointer-events: auto !important;
 }
-#side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 2 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
-#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; justify-self: center !important; width: 200px !important; height: 76px !important; min-height: 76px !important; font-size: 36px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+#side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 3 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 3 !important; grid-column: 2 !important; justify-self: center !important; width: 200px !important; height: 76px !important; min-height: 76px !important; font-size: 36px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
 #side .rcol .pnl.tn #btnRoll:disabled,
 #side .rcol .pnl.tn #btnAuto:disabled { filter: grayscale(.8) brightness(.7) !important; cursor: not-allowed !important; }
 #side .rcol .pnl.tn #btnRoll::before,
@@ -667,10 +665,12 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 }
 #side .rcol .pnl.tn #rollHint { grid-area: hint !important; grid-column: 1 / -1 !important; }
 #side .rcol .pnl.tn .msg { grid-area: msg !important; grid-column: 1 / -1 !important; }
-#side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-column: 2 !important; width: 360px !important; margin-left: auto !important; }
+#side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-row: 2 !important; grid-column: 1 / -1 !important; width: 100% !important; margin: 0 !important; }
 #side .rcol .pnl.tn #diceMeter .dm-bar { width: 100%; }
-#side .rcol .pnl.tn #diceMeter .dm-bar i { height: 22px; background: #1b1430; border: 2px solid #6d6590; border-radius: 4px; }
-#side .rcol .pnl.tn #diceMeter .dm-bar i.on { background: var(--c, #ffd45a); }
+#side .rcol .pnl.tn #diceMeter .dm-bar { height: 12px !important; border-radius: 999px !important; box-shadow: inset 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.35) !important; }
+#side .rcol .pnl.tn #diceMeter .dm-bar i { height: 100% !important; color: transparent !important; font-size: 0 !important; text-shadow: none !important; background: transparent !important; border: 0 !important; border-radius: 0 !important; }
+#side .rcol .pnl.tn #diceMeter .dm-bar i.on { background: var(--c, #ffd45a) !important; }
+#side .rcol .pnl.tn #diceMeter .dm-needle { top: 0 !important; bottom: 0 !important; width: 2px !important; margin-left: -1px !important; }
 
 #hud .tools {
   position: absolute !important;
@@ -893,7 +893,7 @@ html body #hud .tools.open #btnSnd { display: inline-flex !important; }
 html body #hud .tools.open #btnMenu::before { filter: brightness(1.2); }
 html body #side .rcol .pnl.tn {
   grid-template-columns: 360px !important;
-  grid-template-areas: "die" "roll" "hint" "msg" "meter" !important;
+  grid-template-areas: "die" "meter" "roll" "hint" "msg" !important;
   width: 360px !important;
   transform: translateY(calc(-50% + 36px)) !important;
 }
@@ -910,12 +910,12 @@ html body #side .rcol .pnl.tn #dieDock {
 }
 html body #side .rcol .pnl.tn #btnRoll {
   grid-area: roll !important;
-  grid-row: 2 !important;
+  grid-row: 3 !important;
   grid-column: 1 !important;
 }
 html body #side .rcol .pnl.tn #rollHint { grid-area: hint !important; grid-column: 1 !important; }
 html body #side .rcol .pnl.tn .msg { grid-area: msg !important; grid-column: 1 !important; }
-html body #side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-column: 1 !important; }
+html body #side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-row: 2 !important; grid-column: 1 !important; width: 100% !important; }
 html body #side .emote-dock {
   right: 24px !important;
   bottom: 280px !important;
