@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — gameplay/biomes.js (Stage 4.1.14.5: extract biome data)
-   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/themes.js dan config.js
+/* Ular Tangga Blok — gameplay/js/biomes.js (Stage 4.1.14.5: extract biome data)
+   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/js/themes.js dan config.js
    dan SEBELUM blok skrip gameplay inline.
    HANYA data biome statis. Tidak ada THREE, DOM, RNG, localStorage, timer, atau state gameplay di sini.
    Dipindahkan APA ADANYA dari gameplay.html (nilai, key, dan URUTAN tidak diubah):

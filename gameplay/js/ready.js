@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — gameplay/ready.js (Ready Screen pra-game: ACAK GILIRAN)
-   Skrip klasik. Dimuat SETELAH gameplay/afk.js. Hanya presentasi + state urutan; tidak memuat logic gameplay.
+/* Ular Tangga Blok — gameplay/js/ready.js (Ready Screen pra-game: ACAK GILIRAN)
+   Skrip klasik. Dimuat SETELAH gameplay/js/afk.js. Hanya presentasi + state urutan; tidak memuat logic gameplay.
      UT.GameplayReady.show(players, opts) -> Promise
         players: array objek pemain existing ({name,key,css,cpu,...}); modul menulis p.turnOrder (1..n), p.ready, p.autoReady.
         opts.face(p) -> url wajah (faceURL existing) ; opts.sfx(name) opsional ; opts.seconds (batas waktu memilih per pemain, default 10)

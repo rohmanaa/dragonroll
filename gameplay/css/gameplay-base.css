@@ -1,0 +1,9 @@
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+.flip{transform:scaleX(-1)}
+
+/* giliran lawan (CPU): tombol Roll & Auto disembunyikan (bukan disabled); mahkota HUD hanya untuk host; sisi dadu non-hasil lebih gelap */
+html body.opp-turn #side #btnRoll,html body.opp-turn #side #btnAuto{visibility:hidden!important;pointer-events:none!important}
+html body.opp-turn #side #diceMeter{display:none!important} /* bar angka 1-6 (dadu khusus) juga hanya untuk pemain yang sedang main */
+html body #side .pr:not(.host) .pos::before{display:none}
+html body.mp-online #side .pr.host::after{content:none} /* satu mahkota saja (di samping posisi) */
+html body #side .pr:not(.host) .pos{gap:0}

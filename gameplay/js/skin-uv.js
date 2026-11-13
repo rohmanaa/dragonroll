@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/skin-uv.js (Stage 4.1.14.9: PNG skin 64x64 -> UV box Minecraft)
+/* Ular Tangga Blok — gameplay/js/skin-uv.js (Stage 4.1.14.9: PNG skin 64x64 -> UV box Minecraft)
    Skrip klasik (tanpa import/export/type=module). Dimuat SEBELUM blok skrip gameplay.
    Isi: matematika UV murni + (CP2) perakit model 3D bertekstur. TANPA rnd(), TANPA state gameplay,
    TANPA mengubah aset PNG. Palette renderer lama di gameplay.html tetap fallback.

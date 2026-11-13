@@ -1,0 +1,1077 @@
+/* Layout: kanvas 3D memenuhi layar. HUD di atas (pemain + alat), dock di bawah (pesan + dadu), menu dan hasil sebagai kartu di tengah. Warna langit berganti sesuai tema. */
+:root{
+  --sky-top:#5EC1FF;
+  --sky-bot:#DDF4FF;
+  --ink:#1B2A3B;
+  --paper:#FFFDF2;
+  --sun:#FFC21A;
+  --ladder-tile:#FFE27A;
+  --snake-tile:#FF8F7A;
+  --font-display:'Silkscreen','Courier New',monospace;
+  --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+html{height:100%;overflow:hidden;box-sizing:border-box}
+body{
+  height:100%;margin:0;overflow:hidden;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 78%);
+  color:var(--ink);font-family:var(--font-body);font-weight:600;
+  -webkit-tap-highlight-color:transparent;
+}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
+#c:active{cursor:grabbing}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+.panel{background:var(--paper);border:3px solid var(--ink);border-radius:6px;box-shadow:0 4px 0 var(--ink)}
+.btn{
+  font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  font-size:14px;line-height:1.1;color:var(--ink);background:var(--sun);
+  border:3px solid var(--ink);border-radius:6px;padding:12px 16px;cursor:pointer;
+  box-shadow:0 5px 0 var(--ink);transition:transform .08s,box-shadow .08s;
+  -webkit-user-select:none;user-select:none;
+}
+.btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{background:#D7DCE2;color:#6B7886;cursor:default;box-shadow:0 2px 0 var(--ink);transform:translateY(3px)}
+.btn.light{background:var(--paper)}
+.btn.small{font-size:11px;padding:8px 10px;box-shadow:0 3px 0 var(--ink)}
+.btn.small:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.big{font-size:16px;padding:14px 20px}
+
+/* HUD: panel kiri (pemain, giliran, skor) + bar power-up, alat di kanan atas */
+.hud,.side{display:none}
+body.playing .hud{display:flex}
+body.playing .side{display:block}
+.hud{position:fixed;top:0;right:0;z-index:5;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 12px;pointer-events:none;max-width:100%}
+.hud>*{pointer-events:auto}
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.side{position:fixed;inset:0;z-index:5;pointer-events:none}
+.col{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));width:204px;display:flex;flex-direction:column;gap:10px;pointer-events:auto}
+.pnl{background:rgba(27,42,59,.9);color:#fff;border:3px solid var(--ink);border-radius:8px;box-shadow:0 4px 0 var(--ink);padding:10px}
+.pnl h3{margin:0 0 8px;font-family:var(--font-display);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.pr{display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:6px;border:3px solid transparent;border-radius:6px;font-family:var(--font-display);font-size:12px;text-transform:uppercase;opacity:.65;flex-wrap:wrap}
+.pr:last-child{margin-bottom:0}
+.pr.on{border-color:#fff;opacity:1}
+.pr img,.sr img{width:24px;height:24px;image-rendering:pixelated;border:2px solid rgba(0,0,0,.45);flex:none}
+.pr .pos{margin-left:auto;opacity:.85}
+.hp{flex:1 0 100%;height:8px;background:#4a1010;border:2px solid var(--ink)}.hp i{display:block;height:100%;background:#E53935}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+#turnName{font-family:var(--font-display);font-size:14px;text-transform:uppercase}
+.tn .btn{width:100%;box-sizing:border-box}
+.msg{margin:10px 0 0;font-size:13px;font-weight:800;line-height:1.3;text-align:center;min-height:2.6em}
+.sr{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-family:var(--font-display);font-size:12px;text-transform:uppercase}
+.sr b{margin-left:auto}
+.pu{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto}
+#pus{display:flex;gap:8px}
+.pb{width:46px;height:46px;font-size:24px;background:#312b26;border:3px solid #574d44;border-radius:6px;position:relative;cursor:pointer;padding:0;box-shadow:0 3px 0 #110e0c}
+.pb:disabled{opacity:.35;cursor:default}
+.pb b{position:absolute;right:2px;bottom:-2px;font:10px var(--font-display);color:#fff;text-shadow:1px 1px #000}
+
+@media(max-width:699px) and (orientation:portrait){
+  .col{left:8px;right:8px;top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;gap:8px}
+  .sc,.pl h3,.pu h3{display:none}
+  .pl{order:1}.pu{order:2;position:static;transform:none}.tn{order:3}
+  #players{display:flex;gap:6px}.pr{margin:0;flex:1 1 0;min-width:0;padding:4px 6px;font-size:10px}
+  .pnl{padding:8px}#pus{justify-content:center}
+}
+/* Dadu = dadu 3D asli Dice Kit (canvas WebGL dipasang gameplay/js/dice-ui.js di #dieScene); kubus CSS lama sudah dihapus */
+.die-scene{width:64px;height:64px;flex:none}
+
+/* Overlay */
+.overlay{
+  position:fixed;inset:0;z-index:20;display:flex;overflow:auto;background:rgba(27,42,59,.42);
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+}
+.overlay.soft{background:rgba(27,42,59,.12);align-items:flex-end}
+.card{
+  width:min(480px,100%);margin:auto;background:var(--paper);border:4px solid var(--ink);border-radius:8px;
+  box-shadow:0 8px 0 var(--ink);padding:20px 20px 22px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box;
+}
+.card h1,.card h2{
+  margin:0;font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.02em;
+  font-size:clamp(26px,8vw,38px);line-height:1.05;text-shadow:3px 3px 0 var(--sun);text-wrap:balance;
+}
+.card p{margin:0;font-size:15px;line-height:1.45}
+.eyebrow{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px}
+
+.lbl{margin:0;font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding-bottom:5px}
+.err{color:#9B1C1C;font-weight:800}
+.center{text-align:center;align-items:stretch}
+
+@media (max-width:420px){
+  .roller{gap:12px;padding:8px 10px}
+  .btn.big{font-size:14px;padding:13px 14px}
+  .msg{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .chip,.btn{transition:none}
+}
+
+/* Efek hit Warden/mob berat: tiupan + gelombang kejut 2D (CSS saja) */
+#hitFx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+#hitFx .hf-wave{position:absolute;width:24px;height:24px;border-radius:50%;border:5px solid rgba(255,255,255,.9);transform:translate(-50%,-50%);animation:hfWave .6s ease-out forwards}
+#hitFx .hf-wind{position:absolute;height:3px;width:140px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff,transparent);animation:hfWind .55s ease-out forwards}
+#hitFx .hf-flash{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,40,40,.45));animation:hfFlash .45s ease-out forwards}
+@keyframes hfWave{to{width:300px;height:300px;opacity:0;border-width:1px}}
+@keyframes hfWind{from{transform:translateX(60px);opacity:1}to{transform:translateX(-200px);opacity:0}}
+@keyframes hfFlash{to{opacity:0}}
+body.hf-shake{animation:hfShake .35s}
+@keyframes hfShake{25%{transform:translate(-6px,3px)}50%{transform:translate(6px,-3px)}75%{transform:translate(-4px,2px)}}
+@media (prefers-reduced-motion:reduce){#hitFx .hf-wave,#hitFx .hf-wind,body.hf-shake{animation:none}}
+#bossFx{position:fixed;inset:0;z-index:25;display:none;overflow:hidden;pointer-events:none}
+#bossFx.active{display:block}
+#bossFx::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.12) 72%,rgba(255,0,0,.45) 100%);box-shadow:inset 0 0 260px rgba(255,0,0,.73);animation:bossVignette 1s ease-in-out infinite alternate}
+#bossFx .boss-hit-label,#bossFx .boss-hit-damage{position:absolute;left:50%;z-index:1;display:block;opacity:0;text-align:center;white-space:nowrap;transform:translate(-50%,-50%)}
+#bossFx .boss-hit-label{top:46%;color:#ff263b;font:900 clamp(58px,9vw,140px)/.9 var(--gh-title);letter-spacing:.08em;text-shadow:0 0 24px rgba(255,0,0,.85),0 4px 0 rgba(50,0,0,.7)}
+#bossFx .boss-hit-damage{top:58%;color:#fff;font:900 clamp(30px,5vw,72px)/1 var(--gh-title);text-shadow:0 3px 0 #1b1430,0 0 12px rgba(255,255,255,.55)}
+#bossFx.hit .boss-hit-label{animation:bossHitBlink .7s linear both}
+#bossFx.hit .boss-hit-damage{animation:bossDamageFloat .7s ease-out both}
+@keyframes bossVignette{to{background:radial-gradient(ellipse at center,transparent 48%,rgba(255,0,0,.08) 72%,rgba(255,0,0,.3) 100%);box-shadow:inset 0 0 120px rgba(255,0,0,.47)}}
+@keyframes bossHitBlink{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.82)}12%,38%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}24%,58%{opacity:.12;transform:translate(-50%,-50%) scale(.98)}}
+@keyframes bossDamageFloat{0%,100%{opacity:0;transform:translate(-50%,10px)}18%{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){#bossFx::before{animation:none}#bossFx.hit .boss-hit-label,#bossFx.hit .boss-hit-damage{animation:none;opacity:1}}
+
+/* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
+.tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
+.tm-box{width:min(250px,78vw);text-align:center;padding:12px 14px 12px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:10px;color:#f1e8d6;transform-origin:center center;animation:tmin .22s ease-out}
+@keyframes tmin{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.tm-ic{font-size:30px;line-height:1;display:flex;justify-content:center}
+.tm-ic .puimg{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.tm-box h4{margin:4px 0 3px;font-size:16px}
+.tm-box .tm-d{margin:0 0 9px;font-size:12px;line-height:1.35}
+.tm-bt{display:flex;gap:8px}
+.tm-bt button{flex:1;min-height:36px;border:0;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.45)}
+.tm-bt .tm-y{background:#2fa84f}
+.tm-bt .tm-n{background:#c0392b}
+.tm-bt button:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.tm-box .tm-t{display:block;margin-top:7px;opacity:.7;font-size:11px}
+@media(prefers-reduced-motion:reduce){.tm-box{animation:none}}
+#trapBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 7.2rem);z-index:58;display:flex;flex-direction:column;align-items:center;gap:.35rem;width:max-content;max-width:min(94vw,30rem);padding:.65rem .9rem .7rem;background:linear-gradient(180deg,rgba(26,38,64,.88),rgba(14,22,40,.92));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:.12rem solid rgba(92,255,140,.55);border-radius:1.1rem;box-shadow:0 .5rem 1.6rem rgba(0,0,0,.45),0 0 1.2rem rgba(61,255,122,.22);color:#fff;font-weight:800}
+#trapBar[hidden]{display:none}#trapTxt{text-align:center;font-size:.98rem;line-height:1.25}#trapHint{font-size:.78rem;font-weight:700;color:#9ff5bd;letter-spacing:.02em}#trapHint b{color:#3dff7a}
+#trapBar .trapAct{display:flex;gap:.55rem;margin-top:.15rem}
+#trapBar button{min-width:5.2rem;min-height:2.5rem;padding:.2rem 1.1rem;font:inherit;font-weight:900;color:#fff;background:rgba(255,255,255,.12);border:.1rem solid rgba(255,255,255,.28);border-radius:999px;cursor:pointer;transition:transform .08s,filter .12s}
+#trapBar button:active{transform:scale(.95)}
+#trapBar button#trapOk{background:linear-gradient(180deg,#3fd467,#25a24b);border-color:#1b7a38;box-shadow:0 .15rem 0 #176a30}#trapBar button#trapNo{background:rgba(255,255,255,.1)}#trapBar button:disabled{opacity:.45;cursor:not-allowed}
+:root{--hud-bg:#2a211b;--hud-edge:#6b5440;--ttl:#5FAE3E}
+.pnl{background:var(--hud-bg);background:color-mix(in srgb,var(--hud-bg) 93%,transparent);border:3px solid #0f0b08;box-shadow:inset 0 0 0 2px var(--hud-edge),0 4px 0 rgba(0,0,0,.45);border-radius:4px;padding:12px;color:#f1e8d6}
+.pnl h3{color:#efe4cf;font-size:12px;margin-bottom:10px}
+.pr{border:3px solid rgba(0,0,0,.55);border-radius:3px;padding:9px 10px;margin-bottom:8px;opacity:.82;box-shadow:inset 0 3px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.25);color:#fff}
+.pr.on{border-color:#fff;opacity:1}
+.pr img,.sr img{width:26px;height:26px}
+.tn .btn{background:#2f7fe6;color:#fff;box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -4px 0 rgba(0,0,0,.3),0 4px 0 #0f0b08;width:100%}
+.tn .btn:disabled{background:#4b5563;color:#9aa3ad}
+.tn .msg{font-size:12px;color:#d8ccb6;font-weight:600}
+#turnName{color:#9cc8ff}
+.ttl{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));font-family:var(--font-display);text-transform:uppercase;line-height:.95;pointer-events:none}
+.ttl b{display:block;font-size:clamp(24px,3.3vw,46px);color:#ececec;text-shadow:3px 3px 0 #111,-2px -2px 0 #111,2px -2px 0 #111,-2px 2px 0 #111}
+.ttl b+b{color:var(--ttl)}
+.ttl span{display:inline-block;margin-top:12px;padding:9px 16px;background:#7a4f2b;border:3px solid #0f0b08;box-shadow:inset 0 0 0 2px #a8773f;color:#fff3d6;font-size:13px}
+.col{top:calc(150px + env(safe-area-inset-top,0px));width:218px}
+.rcol{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(54px + env(safe-area-inset-top,0px));bottom:12px;width:224px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.rcol .pnl{pointer-events:auto}
+.rl ol{margin:0;padding-left:22px;font-size:13px;line-height:1.75}
+.rl h3{text-align:left;font-size:15px}
+.pu{left:max(12px,env(safe-area-inset-left,0px));transform:none;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.pu h3{text-align:left}
+.pb{width:50px;height:50px;background:#3a3029;border-color:#0f0b08;box-shadow:inset 0 0 0 2px var(--hud-edge),0 3px 0 #0f0b08}
+.hud{left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:52vw;padding-left:0;padding-right:0}
+.hud .btn.light{background:var(--hud-bg);color:#efe4cf;border-color:#0f0b08;box-shadow:inset 0 0 0 2px var(--hud-edge),0 3px 0 #0f0b08}
+.tools{justify-content:center;flex-wrap:nowrap}.hud{max-width:none}.hud .btn.small{font-size:10px;padding:7px 8px;white-space:nowrap}
+@media(max-height:760px){.ttl{transform:scale(.72);transform-origin:top left}.col{top:calc(104px + env(safe-area-inset-top,0px))}.pnl{padding:9px}.pr{padding:6px 8px;margin-bottom:6px}.tn .msg{display:none}}
+@media(max-width:1060px){.rl{display:none}.hud{max-width:70vw}}
+@media(max-width:699px) and (orientation:portrait){.ttl{display:none}.hud{left:0;transform:none;max-width:100%;padding-left:8px}.tools{justify-content:flex-start}.pu{position:static;left:auto;bottom:auto}.col{top:auto;width:auto}}
+.btn.light[aria-pressed=true]{background:var(--sun)}
+.rcol{top:auto}
+.pb{width:58px;height:58px;font-size:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.pb em{font:normal 8px var(--font-display);color:#e9dcc3;margin-top:3px;text-transform:uppercase}
+.pb b{top:2px;bottom:auto;right:4px}
+.pb:not(:disabled):hover{border-color:#fff}
+#pus{flex-wrap:wrap;max-width:min(420px,60vw)}
+.bf{flex:1 0 100%;font-size:11px}
+.col{top:calc(12px + env(safe-area-inset-top,0px))}
+.rcol{justify-content:flex-end}
+.hud{left:auto;right:0;transform:none;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 12px}
+.tools{justify-content:flex-end}
+.tn .msg{display:block!important;min-height:2.6em}.tn .trow{padding-right:12px}
+@media(max-width:699px) and (orientation:portrait){.rcol{left:8px;right:8px;width:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}.col{top:auto;bottom:calc(185px + env(safe-area-inset-bottom,0px))}#pus{flex-wrap:nowrap;max-width:none;justify-content:center}.pb{width:46px;height:46px}.pb em{display:none}.tn h3{display:none}.tn .msg{min-height:0;font-size:11px}.hud{left:0;padding-left:8px}.tools{justify-content:flex-start}}
+.pucard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;pointer-events:none;min-width:250px;max-width:86vw;text-align:center;padding:16px 26px 18px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:6px;color:#f1e8d6;animation:pcin .22s ease-out}
+.pucard p{margin:0;font-size:13px}
+#pcWho{font-family:var(--font-display);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#d8ccb6}
+#pcEmoji{font-size:64px;line-height:1.15;margin:8px 0 4px}
+.puimg{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;image-rendering:auto}
+#pcEmoji .puimg{width:84px;height:84px;margin:0 auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.pb .puimg{width:62%;height:auto;aspect-ratio:1;margin:0 auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+#side .pb .puimg{width:calc(var(--slot)*.62)}
+#pcName{margin:0 0 4px;font-family:var(--font-display);font-size:20px;color:#ffd23f;text-transform:uppercase}
+.pucard.pop{animation:pcpop .35s ease-out}
+@keyframes pcin{from{opacity:0;transform:translate(-50%,-50%) scale(.7)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes pcpop{0%{transform:translate(-50%,-50%) scale(.85)}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1)}}
+@media(prefers-reduced-motion:reduce){.pucard,.pucard.pop{animation:none}}
+/* ===== HUD bergaya Inventory: panel biru glossy, tombol permen berbayang navy, kartu aktif emas ===== */
+:root{--bd:#12337f;--font-display:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;--font-body:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif}
+body{font-weight:800}
+/* panel */
+body .pnl{background:linear-gradient(#3b9cf8,#2a86ee);border:0;border-radius:22px;color:#fff;box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(18,51,127,.35),inset 0 2px 3px rgba(255,255,255,.6),inset 0 0 0 3px #6cc0ff}
+  body .pm-vol{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  body .pm-vol input[type=range]{width:100%;accent-color:#ffd23f}
+  body .pm-row{display:flex;gap:8px}
+  body .pm-row .btn{flex:1}
+  body .pm-time{display:flex;gap:8px;margin-top:10px}
+body .pnl h3{color:#fff;font-size:17px;font-weight:800;letter-spacing:0;text-transform:none;text-shadow:0 2px 0 var(--bd)}
+/* kartu pemain */
+body .pr{font-family:var(--font-display);font-size:15px;font-weight:800;text-transform:none;border:0;border-radius:16px;padding:7px 10px;opacity:1;color:#fff;text-shadow:0 2px 0 var(--bd);background:linear-gradient(#3f9bff,#1c55c0);box-shadow:0 3px 0 rgba(10,30,100,.5),inset 0 0 0 3px rgba(120,190,255,.55)}
+body .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 4px 0 #b9740c,0 0 18px #ffd24d;text-shadow:0 2px 0 #a35f08;transform:scale(1.04)}
+body .pr img,body .sr img{width:30px;height:30px;border:3px solid var(--pc,#fff);border-radius:9px;background:#fff}
+body .pr .pos{padding:0 10px;border-radius:10px;background:rgba(10,40,120,.45);font-size:13px;opacity:1;text-shadow:none}
+body .pr.on .pos{background:rgba(163,95,8,.35)}
+body .hp{height:10px;border:0;border-radius:6px;overflow:hidden;background:rgba(10,30,100,.55)}
+body .hp i{background:linear-gradient(#ff8a7a,#e53935)}
+body .bf{font-size:12px;text-shadow:none}
+body .sr{font-family:var(--font-display);text-transform:none;font-size:14px}
+/* tombol: dasar emas, varian .light biru */
+body .btn{font-family:var(--font-display);font-size:18px;font-weight:800;text-transform:none;letter-spacing:0;color:#fff;border:0;border-radius:20px;padding:10px 20px;background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 2px 0 #8a4a0a;box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
+body .btn:hover:not(:disabled){filter:brightness(1.08)}
+body .btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
+body .btn:disabled{background:linear-gradient(#8a9bb8,#5a6b8c);color:#d0dbee;text-shadow:none;box-shadow:0 3px 0 #2c3a56;transform:translateY(2px)}
+body .btn.light,body .hud .btn.light{color:#fff;background:linear-gradient(#4aa8ff,#1f6fe0);text-shadow:0 2px 0 var(--bd);box-shadow:0 5px 0 var(--bd),0 10px 14px rgba(18,51,127,.35),inset 0 2px 2px rgba(255,255,255,.6)}
+body .btn.light:active:not(:disabled){box-shadow:0 1px 0 var(--bd),inset 0 2px 2px rgba(255,255,255,.6)}
+body .btn.small,body .hud .btn.small{font-size:14px;padding:8px 14px;border-radius:15px;white-space:nowrap}
+body .btn.light[aria-pressed=true]{background:linear-gradient(#ffd24d,#f4a81f);text-shadow:0 2px 0 #a35f08;box-shadow:0 4px 0 #b9740c,0 0 14px #ffd24d}
+/* panel giliran */
+body .tn .btn{width:100%;font-size:22px;border-radius:999px;padding:8px 16px;color:#fff;background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 2px 0 #8a4a0a;box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
+body .tn .btn:disabled{background:linear-gradient(#8a9bb8,#5a6b8c);color:#d0dbee;text-shadow:none;box-shadow:0 3px 0 #2c3a56}
+body #turnName{font-size:20px;text-transform:none;text-shadow:0 2px 0 var(--bd)}
+body .tn .msg{font-size:14px;font-weight:700;color:#e0f2ff;text-shadow:none}
+/* power-up */
+body .pb{background:linear-gradient(#3f9bff,#1c55c0);border:0;border-radius:16px;color:#fff;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s;box-shadow:0 4px 0 var(--bd),inset 0 0 0 3px rgba(120,190,255,.55),inset 0 2px 2px rgba(255,255,255,.4)}
+body .pb:not(:disabled):hover{transform:scale(1.07);filter:brightness(1.1)}
+body .pb:not(:disabled):active{transform:scale(.94)}
+body .pb:disabled{opacity:.5;filter:grayscale(.5)}
+body .pb em{color:#fff;font:800 11px var(--font-display);text-transform:none;text-shadow:0 1px 0 var(--bd)}
+body .pb b{top:-7px;right:-7px;bottom:auto;min-width:22px;height:22px;padding:0 4px;box-sizing:border-box;display:grid;place-items:center;border-radius:11px;background:#3cc23c;border:2px solid #fff;font:800 12px var(--font-display);color:#fff;text-shadow:none}
+body .pb:disabled b{background:#7a8fb0}
+/* kartu pop-up power-up */
+body .pucard{background:linear-gradient(#3b9cf8,#2a86ee);border:0;border-radius:26px;color:#fff;box-shadow:0 8px 0 var(--bd),0 0 28px rgba(255,210,77,.65),inset 0 3px 3px rgba(255,255,255,.55),inset 0 0 0 4px #ffe36a}
+body #pcName{font-size:26px;text-transform:none;color:#ffe36a;text-shadow:0 3px 0 var(--bd)}
+body #pcWho{color:#e0f2ff;font-size:15px;text-transform:none}
+body .pucard p{font-weight:700}
+/* menu, jeda, hasil */
+body .card{background:linear-gradient(#7cc2ff,#4a9ae8);border:0;border-radius:26px;color:#fff;box-shadow:0 10px 0 var(--bd),0 22px 30px rgba(0,0,0,.3),inset 0 3px 3px rgba(255,255,255,.55)}
+body .card h1,body .card h2,body #pauseMenu .card h2,body #exitConfirm .card h2{color:#fff;text-transform:none;letter-spacing:0;font-size:clamp(30px,8vw,42px);text-shadow:0 4px 0 var(--bd)}
+body .card p{color:#eaf6ff;font-weight:700}
+/* hasil: menang biru / kalah merah; mahkota di tengah garis atas card (tanpa chip) */
+#win .card{position:relative;padding-top:58px}
+#win .res-ico{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);width:88px;height:88px;pointer-events:none;color:#ffc93c;filter:drop-shadow(0 4px 0 #b86a0b) drop-shadow(0 8px 8px rgba(0,0,0,.28))}
+#win .res-ico svg{display:block;width:100%;height:100%}
+#win .res-ico img{display:block;width:100%;height:100%;object-fit:contain;-webkit-user-drag:none}
+#win .res-ico{animation:ico-float 2.4s ease-in-out infinite}
+#win[data-state=lose] .res-ico{animation-duration:3.2s}
+@keyframes ico-float{0%,100%{translate:0 0;rotate:-4deg}50%{translate:0 -7px;rotate:4deg}}
+@media (prefers-reduced-motion:reduce){#win .res-ico{animation:none}}
+#win .res-ico .ico-lose{display:none}
+#win .res-ico .ico-win path{stroke:#fff3b0;stroke-width:.7;stroke-linejoin:round;paint-order:stroke}
+#win[data-state=lose] .card{background:linear-gradient(#ff9a9a,#e54848);box-shadow:0 10px 0 #8f1620,0 22px 30px rgba(0,0,0,.3),inset 0 3px 3px rgba(255,255,255,.55)}
+#win[data-state=lose] .card h2{text-shadow:0 4px 0 #8f1620}
+#win[data-state=lose] .res-ico{filter:drop-shadow(0 4px 0 #8f1620) drop-shadow(0 8px 8px rgba(0,0,0,.28))}
+#win[data-state=lose] .res-ico .ico-win{display:none}
+#win[data-state=lose] .res-ico .ico-lose{display:block}
+#win[data-state=lose] .btn.light{background:linear-gradient(#ff8f8f,#d93434);text-shadow:0 2px 0 #8f1620;box-shadow:0 5px 0 #8f1620,0 10px 14px rgba(120,10,20,.35),inset 0 2px 2px rgba(255,255,255,.6)}
+body .eyebrow,body .lbl{color:#d7ecff;text-transform:none;letter-spacing:.02em;font-size:15px}
+body #pauseMenu,body #exitConfirm{background:rgba(18,51,127,.5);backdrop-filter:blur(6px)}
+@media(max-width:699px) and (orientation:portrait){body .tn .msg{font-size:12px}body .btn.small,body .hud .btn.small{font-size:12px;padding:6px 10px}}
+/* 4.2.1 Camera Part 1: grup kontrol ANGLE (satu baris, compact) */
+body .hud .btn.ico{display:inline-flex;align-items:center;justify-content:center;width:36px;padding:6px 0}
+body .hud .btn.ico[aria-pressed=false]{background:rgba(255,255,255,.16);color:rgba(255,255,255,.7);box-shadow:none;border-color:rgba(255,255,255,.3)}
+body .hud .btn.ico[aria-pressed=true]{background:linear-gradient(#ffc24d,#f08a1c);color:#fff}
+body .hud #btnAngle{display:inline-flex;align-items:center;gap:5px}
+body .hud #btnAngle[aria-pressed=true]{background:linear-gradient(#ffc24d,#f08a1c);color:#fff}
+body .hud #btnAngle[aria-pressed=false]{background:linear-gradient(#4aa8ff,#1f6fe0);color:#fff}
+body.cam-lock #c{touch-action:none}
+.camgrp{display:inline-flex;align-items:center;gap:6px;flex-wrap:nowrap}.camgrp[hidden]{display:none}
+/* Popover pilihan sudut kamera (custom, bukan <select>): sama di desktop & mobile. Menempel di bawah tombol #btnPreset, position:fixed di body agar tidak terpotong HUD. */
+#camMenu{position:fixed;z-index:75;min-width:132px;max-width:min(240px,calc(100vw - 16px));max-height:min(60vh,calc(100vh - 24px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:6px;border-radius:14px;background:#12337f;border:2px solid #0b1f55;box-shadow:0 10px 24px rgba(0,0,0,.4),inset 0 0 0 2px rgba(255,255,255,.14);transform-origin:top center;animation:camMenuIn .16s ease-out both;touch-action:pan-y}
+#camMenu[hidden]{display:none}
+#camMenu::before{content:"";position:absolute;top:-7px;left:var(--ax,24px);width:12px;height:12px;background:#12337f;border-left:2px solid #0b1f55;border-top:2px solid #0b1f55;transform:translateX(-50%) rotate(45deg);border-radius:3px 0 0 0}
+#camMenu button{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:8px 10px;margin:0;border:0;border-radius:9px;background:transparent;color:#fff;font:700 13px/1.1 inherit;font-family:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#camMenu button+button{margin-top:2px}
+#camMenu button:hover,#camMenu button:focus-visible{background:rgba(255,255,255,.16);outline:none}
+#camMenu button[aria-checked=true]{background:#ffd23a;color:#12337f}
+#camMenu button .ck{margin-left:auto;font-size:14px;visibility:hidden}
+#camMenu button[aria-checked=true] .ck{visibility:visible}
+body.th-nether #camMenu{background:#4a1414;border-color:#2a0707}
+body.th-nether #camMenu::before{background:#4a1414;border-color:#2a0707}
+body.th-nether #camMenu button[aria-checked=true]{background:#ff9a2a;color:#3a0d0d}
+@keyframes camMenuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#camMenu{animation:none}}
+
+/* ANGLE ON: tiga kontrol tambahan di baris sendiri di bawah toolbar (toolbar lama tidak melebar/terpotong) */
+/* ANGLE ON: semua kontrol kamera tetap SATU baris bersama ANGLE; Suara/Menu menjadi ikon agar muat di layar sempit */
+body.cam-angle #hud .tools{flex-wrap:nowrap!important;gap:5px}
+body.cam-angle #hud .camgrp{order:0;flex:0 0 auto;gap:5px}
+body.cam-angle #hud #btnSnd,body.cam-angle #hud #btnMenu{font-size:0;gap:0;padding-left:9px;padding-right:9px}
+body.cam-angle #hud #btnSnd svg,body.cam-angle #hud #btnMenu svg{margin:0!important}
+body.cam-angle #hud .btn.small{padding-left:8px;padding-right:8px}
+body.cam-angle #hud .btn.ico{width:34px;padding-left:0;padding-right:0}
+body .hud select.camsel{appearance:none;-webkit-appearance:none;font-family:inherit;line-height:1.2;cursor:pointer;padding-right:24px;max-width:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center/10px 10px,linear-gradient(#4aa8ff,#1f6fe0)}
+body .hud select.camsel option{color:#12337f;background:#fff;text-shadow:none}
+#btnRoll.holding{transform:scale(.97);filter:brightness(1.12);box-shadow:0 0 0 3px rgba(74,237,217,.8)}
+#btnRoll.special{touch-action:none;-webkit-user-select:none;user-select:none}
+body.awk-lock button,body.awk-lock select,body.awk-lock canvas{pointer-events:none}
+body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.35)}
+/* ===== HUD tema Nether: merah crimson / bata Nether + oranye lava (aktif lewat body.th-nether, diset di applyLook) ===== */
+body.th-nether{--bd:#3a0d0d}
+body.th-nether .pnl{background:linear-gradient(#a33a2a,#6e1f1a);box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(40,5,5,.45),inset 0 2px 3px rgba(255,200,150,.45),inset 0 0 0 3px #d9663a}
+body.th-nether .pr{background:linear-gradient(#b0453a,#6a1e1e);box-shadow:0 3px 0 rgba(40,5,5,.6),inset 0 0 0 3px rgba(255,150,90,.5)}
+body.th-nether .pr.on{background:linear-gradient(#ffc04d,#ee8a1a);box-shadow:0 4px 0 #a8420c,0 0 18px #ff9a3a}
+body.th-nether .pr .pos{background:rgba(40,5,5,.5)}
+body.th-nether .hp{background:rgba(40,5,5,.6)}
+body.th-nether .btn,body.th-nether .tn .btn{background:linear-gradient(#ffc04d,#ee6a1a);text-shadow:0 2px 0 #7a2a08;box-shadow:0 5px 0 #a8420c,inset 0 3px 3px rgba(255,255,255,.55)}
+body.th-nether .btn:active:not(:disabled){box-shadow:0 1px 0 #a8420c,inset 0 3px 3px rgba(255,255,255,.55)}
+body.th-nether .btn:disabled,body.th-nether .tn .btn:disabled{background:linear-gradient(#7a5a50,#4a3430);color:#d8bfb0;box-shadow:0 3px 0 #2a1814}
+body.th-nether .btn.light,body.th-nether .hud .btn.light{background:linear-gradient(#b8423a,#7a1e1e);text-shadow:0 2px 0 var(--bd);box-shadow:0 5px 0 var(--bd),0 10px 14px rgba(40,5,5,.4),inset 0 2px 2px rgba(255,200,150,.5)}
+body.th-nether .btn.light[aria-pressed=true],body.th-nether .hud .btn.light[aria-pressed=true],body.th-nether .hud .btn.ico[aria-pressed=true],body.th-nether .hud #btnAngle[aria-pressed=true]{background:linear-gradient(#ffc04d,#ee8a1a);text-shadow:0 2px 0 #7a2a08;box-shadow:0 4px 0 #a8420c,0 0 14px #ff9a3a}
+body.th-nether .hud #btnAngle[aria-pressed=false]{background:linear-gradient(#b8423a,#7a1e1e)}
+body.th-nether .hud select.camsel{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center/10px 10px,linear-gradient(#b8423a,#7a1e1e)}
+body.th-nether .hud select.camsel option{color:#3a0d0d}
+body.th-nether .tn .msg,body.th-nether .card p,body.th-nether #pcWho{color:#ffe3b0}
+body.th-nether .eyebrow,body.th-nether .lbl{color:#ffd0a0}
+body.th-nether .pb{background:linear-gradient(#b0453a,#6a1e1e);box-shadow:0 4px 0 var(--bd),inset 0 0 0 3px rgba(255,150,90,.5),inset 0 2px 2px rgba(255,255,255,.35)}
+body.th-nether .pb b{background:#e8941a;color:#3a0d0d}
+body.th-nether .pb:disabled b{background:#8a6a5a}
+body.th-nether .pucard{background:linear-gradient(#a33a2a,#6e1f1a);box-shadow:0 8px 0 var(--bd),0 0 28px rgba(255,140,40,.65),inset 0 3px 3px rgba(255,200,150,.5),inset 0 0 0 4px #ffb85a}
+body.th-nether #pcName{color:#ffd27a}
+body.th-nether .card{background:linear-gradient(#c0502e,#8a2a1e);box-shadow:0 10px 0 var(--bd),0 22px 30px rgba(0,0,0,.35),inset 0 3px 3px rgba(255,200,150,.5)}
+body.th-nether #pauseMenu,body.th-nether #exitConfirm{background:rgba(42,6,6,.55)}
+body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
+/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.webp; lihat assets/css/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
+.lm-ov{--mu:clamp(5.2px,min(1vw,1.85vh),9px);align-items:center;justify-content:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff}
+body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.lm-ov:not([hidden]){animation:lmFade .25s both}
+.lm-ov:not([hidden]) .lm-box{animation:lmPop .3s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes lmFade{from{opacity:0}}
+@keyframes lmPop{from{transform:scale(.85)}}
+.lm-box{position:relative;box-sizing:border-box;width:min(calc(var(--mu)*48),90vw);margin:auto;text-align:center;font-size:calc(var(--mu)*2.4);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #5e90f0,0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+.lm-body{box-sizing:border-box;max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overflow-x:hidden;padding:calc(var(--mu)*2.6) calc(var(--mu)*2.4) calc(var(--mu)*2.4);border-radius:calc(var(--mu)*1)}
+.lm-box h2{margin:0 0 calc(var(--mu)*1.2);font-size:calc(var(--mu)*3.4);line-height:1.1;font-weight:800;color:#fff;text-transform:none;letter-spacing:0;text-shadow:0 calc(var(--mu)*.2) 0 #0b1838}
+.lm-eyebrow{margin:0 0 calc(var(--mu)*.2);font-size:calc(var(--mu)*1.8);line-height:1.2;color:#cfe3ff;text-transform:none;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-note{margin:calc(var(--mu)*.4) 0 calc(var(--mu)*1);font-size:calc(var(--mu)*1.8);line-height:1.3;color:#eaf6ff;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-note[hidden]{display:none}
+.lm-x{position:absolute;z-index:5;top:calc(var(--mu)*-1.8);right:calc(var(--mu)*-1.8);display:grid;place-items:center;width:calc(var(--mu)*4.6);height:calc(var(--mu)*4.6);min-width:34px;min-height:34px;padding:0;line-height:1;border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.7);background:linear-gradient(#f06a5a,#d03a30);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2.4);cursor:pointer}
+.lm-grid{display:grid;gap:calc(var(--mu)*.9)}
+.lm-two{grid-template-columns:1fr 1fr}
+.lm-mode{width:100%;min-height:44px;margin:0;padding:calc(var(--mu)*1.1) calc(var(--mu)*1.6);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.9);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2.4);line-height:1.1;text-shadow:0 calc(var(--mu)*.15) 0 #8a5a08;cursor:pointer}
+.lm-mode.lm-red{background:linear-gradient(#f06a5a,#d03a30);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #6e0a0a}
+.lm-mode.lm-blue{background:linear-gradient(#4f8cf0,#2a5bc8);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #74a4f7,inset 0 calc(var(--mu)*-.3) 0 rgba(8,25,90,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-mode:active,.lm-tg:active{transform:translateY(calc(var(--mu)*.2))}
+.lm-row{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--mu)*1);margin:0;padding:calc(var(--mu)*1) calc(var(--mu)*1.4);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);background:linear-gradient(#24418a,#1d3470);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+.lm-lbl{flex:none;font-size:calc(var(--mu)*2.2);text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-tg{flex:1;min-width:0;min-height:40px;height:calc(var(--mu)*3.8);padding:0 calc(var(--mu)*1);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.6);background:linear-gradient(#7b8aa8,#58698a);box-shadow:inset 0 calc(var(--mu)*.15) 0 rgba(255,255,255,.35),0 calc(var(--mu)*.2) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2);text-shadow:0 calc(var(--mu)*.12) 0 #0b1838;cursor:pointer}
+.lm-tg[aria-pressed=true]{background:linear-gradient(#3fd45a,#1fa83c);box-shadow:inset 0 calc(var(--mu)*.15) 0 rgba(255,255,255,.45),0 calc(var(--mu)*.2) 0 #0b1838}
+.lm-row input[type=range]{flex:1;min-width:0;height:28px;accent-color:#ffd23f}
+.lm-box button:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a;outline-offset:calc(var(--mu)*.15)}
+@media (orientation:landscape) and (max-height:430px){
+  .lm-box{width:min(calc(var(--mu)*70),90vw)}
+  .lm-body{padding-top:calc(var(--mu)*2);padding-bottom:calc(var(--mu)*2)}
+  .lm-box h2{margin-bottom:calc(var(--mu)*.6)}
+  #pauseMenu .lm-grid{grid-template-columns:1fr 1fr}
+  #pauseMenu .lm-mode{min-height:40px}
+}
+@media (prefers-reduced-motion:reduce){.lm-ov:not([hidden]),.lm-ov:not([hidden]) .lm-box{animation:none}}
+/* Layar Ready/Shuffle ("Siap main?") = modal pixel (sama dengan Menu/Jeda & lobby; redesign-hud/modal.webp).
+   HANYA tampilan. gameplay/js/ready.js (logika, DOM, id) tidak berubah; ukuran kartu/avatar tetap dari ready.js. */
+body #readyScreen{--mu:clamp(5.2px,min(1vw,1.85vh),9px);background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif}
+body #readyScreen .rd-box{border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #5e90f0,0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+body #readyScreen h2{color:#fff;text-transform:none;letter-spacing:0;font-weight:800;text-shadow:0 calc(var(--mu)*.2) 0 #0b1838}
+body #readyScreen .rd-sub{color:#eaf6ff;opacity:1;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+body #readyScreen .rd-time{background:linear-gradient(#24418a,#1d3470);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);color:#ffd23f;box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25);text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+body #readyScreen .rd-time.low{color:#ff8a7a}
+body #readyScreen .rd-card{background:linear-gradient(#24418a,#1d3470);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+body #readyScreen .rd-card.lock{border-color:#f1d04a}
+body #readyScreen .rd-ord{background:#0e1b3d;border:calc(var(--mu)*.25) dashed #5e90f0;border-radius:calc(var(--mu)*.5);color:#ffd23f;text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-ord.set{border-style:solid;border-color:#f1d04a}
+body #readyScreen .rd-ord.scr{color:#8fd3ff;border-style:solid;border-color:#4aa8ff}
+body #readyScreen .rd-ord.first{box-shadow:0 0 0 calc(var(--mu)*.2) #f1d04a,0 0 calc(var(--mu)*1.2) #f1d04a}
+body #readyScreen .rd-av{background:#0e1b3d;border-width:calc(var(--mu)*.3);border-color:var(--pc,#0b1838)}
+body #readyScreen .rd-st{color:#ffb0a8;text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-card.ok .rd-st{color:#7af07a}
+body #readyScreen .rd-nm{text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-btn{border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.9);background:linear-gradient(#ffcf47,#f09a1c);color:#fff;font-weight:800;box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #8a5a08}
+body #readyScreen .rd-card.ok .rd-btn{background:linear-gradient(#4fd24c,#259a2e);color:#fff;box-shadow:inset 0 0 0 calc(var(--mu)*.15) #8cf08a,inset 0 calc(var(--mu)*-.3) 0 rgba(0,70,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #0d4a14}
+body #readyScreen .rd-btn:active:not(:disabled){transform:translateY(calc(var(--mu)*.2))}
+body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a;outline-offset:calc(var(--mu)*.15)}
+/* ===== HUD UPGRADE v2 (mengikuti referensi) — CSS scoped ke #side; canvas/scene 3D tidak disentuh =====
+   Sistem: panel biru glossy, pill header navy bertumpuk di tepi atas panel, outline terang 3px, tombol utama emas. */
+#side{--slot:clamp(54px,4.7vw,76px);--ok:#3cc23c;--warn:#ffb62a;--off:#7a8fb0;--navy:#0d3a9a;--rim:#6cc0ff}
+#side .pnl{position:relative;overflow:visible}
+@media(max-width:699px) and (orientation:portrait){#side .pnl.pu{position:relative}}
+/* pill header */
+#side .pnl>h3{position:absolute;top:-17px;margin:0;padding:3px 18px 4px;border-radius:999px;font-size:clamp(15px,1.15vw,18px);line-height:1.15;white-space:nowrap;
+  background:linear-gradient(#2d78e0,var(--navy));box-shadow:0 3px 0 var(--bd),inset 0 0 0 2px var(--rim),inset 0 2px 2px rgba(255,255,255,.35);display:flex;align-items:center;gap:8px;text-align:center}
+
+/* --- Player status --- */
+#side .pnl.pl{padding:12px;background:transparent;box-shadow:none;border:none}
+#side #players{display:flex;flex-direction:column;gap:6px}
+#side .pr{position:relative;margin:0;gap:8px;min-height:clamp(40px,3vw,48px);padding:4px 8px;border-radius:12px;line-height:1.1;font-size:clamp(13px,1vw,15px);opacity:.95;
+  background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.15)}
+#side .pr img{width:clamp(30px,2.4vw,36px);height:clamp(30px,2.4vw,36px);border-radius:6px;border-width:2px}
+#side .pr>span:first-of-type{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#side .pr .pos{min-width:2em;padding:0 8px;text-align:center;font-size:clamp(12px,.9vw,14px);line-height:1.4;border-radius:999px;background:rgba(10,40,120,.6)}
+#side .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 2px 0 #b9740c,inset 0 0 0 2px rgba(255,255,255,.8);animation:hud-on .25s ease-out}
+#side .pr.on .pos{background:rgba(163,95,8,.45)}
+@keyframes hud-on{from{transform:scale(.97)}to{transform:none}}
+
+/* --- Power-up (kiri bawah): pill header + panah + slot --- */
+#side .pnl.pu{display:flex;align-items:center;gap:6px;width:clamp(380px,36vw,600px);padding:24px 10px 10px}
+#side .pu>h3{left:14px}
+#side .pu>h3::before{content:"";flex:none;width:1.4em;height:1.4em;background:url("../../assets/Images/icon/items/power.webp") center/contain no-repeat;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+#side #pus{flex:1;min-width:0;display:flex;flex-wrap:nowrap;gap:2px;max-width:none;overflow-x:auto;overflow-y:visible;scroll-snap-type:x proximity;scrollbar-width:none;padding:12px 4px 0;margin-top:-6px}
+#side #pus::-webkit-scrollbar{display:none}
+#side .pb{flex:1 0 var(--slot);min-width:var(--slot);height:calc(var(--slot)*1.18);scroll-snap-align:start;font-size:calc(var(--slot)*.52);border-radius:14px;overflow:visible;
+  background:transparent;box-shadow:none;transition:transform .15s cubic-bezier(.3,1.6,.5,1),background .15s,opacity .15s}
+#side .pb em{margin-top:3px;font-size:clamp(11px,.85vw,13px);line-height:1}
+#side .pb b{top:0;right:2px;min-width:22px;height:22px;font-size:12px;border:2px solid #fff;box-shadow:0 2px 0 rgba(10,30,100,.4)}
+#side .pb[data-state=ready]{background:rgba(255,255,255,.1)}
+#side .pb[data-state=locked]{opacity:.8}
+#side .pb[data-state=locked] b{background:var(--warn);color:#6b3a05}
+#side .pb[data-state=empty]{opacity:.6;filter:grayscale(.45)}
+#side .pb[data-state=empty] b{background:var(--off)}
+#side .pb:disabled{cursor:not-allowed}
+#side .pb:not(:disabled):hover{transform:translateY(-3px) scale(1.06);background:rgba(255,255,255,.2)}
+#side .pb:not(:disabled):active{transform:translateY(1px) scale(.93)}
+#side .pb:focus-visible{outline:3px solid #ffe36a;outline-offset:1px}
+
+/* --- Stage 4.1.21: feedback Power (perolehan / aktivasi / shield). Class toggle + @keyframes, HANYA transform/opacity, <=.6s,
+       pointer-events:none, tidak mengubah layout. Class dipasang oleh puFxApply() (renderChips) dan hilang sendiri saat DOM dibangun ulang. --- */
+.pb[class*="pfx-"],.pr[class*="pfx-"]{position:relative}
+.pb[class*="pfx-"]::after,.pr[class*="pfx-"]::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:3px solid var(--fxc,#ffd24d);opacity:0;pointer-events:none;animation:pfx-ring .55s ease-out var(--fx-d,0ms)}
+.pb[class*="pfx-"] b{animation:pfx-badge .45s ease-out var(--fx-d,0ms)}
+.pb.pfx-get{--fxc:#ffd24d;animation:pfx-pop .55s cubic-bezier(.3,1.6,.5,1) var(--fx-d,0ms)}
+.pb.pfx-sword{--fxc:#dff3ff;animation:pfx-slash .42s cubic-bezier(.2,1.4,.4,1) var(--fx-d,0ms)}
+.pb.pfx-feather{--fxc:#ffffff;animation:pfx-float .55s ease-out var(--fx-d,0ms)}
+.pb.pfx-tnt{--fxc:#ff5a3c;animation:pfx-shake .5s linear var(--fx-d,0ms)}
+.pb.pfx-totem{--fxc:#ffd24d;animation:pfx-pulse .6s ease-out var(--fx-d,0ms)}
+.pb.pfx-potion_odd{--fxc:#e04a3c;animation:pfx-pulse .55s ease-out var(--fx-d,0ms)}
+.pb.pfx-potion_even{--fxc:#4fb0d0;animation:pfx-pulse .55s ease-out var(--fx-d,0ms)}
+.pb.pfx-grass{--fxc:#78d957;animation:pfx-hop .5s ease-out var(--fx-d,0ms)}
+.pr.pfx-shield{--fxc:#ffd24d}
+.pr.pfx-hit{--fxc:#ffffff}
+.pr.shielded{outline:2px solid #ffd24d;outline-offset:-2px} /* shield aktif: indikator statis ringan, tanpa animasi */
+@keyframes pfx-ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.28)}}
+@keyframes pfx-badge{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes pfx-pop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes pfx-slash{0%{transform:scale(1) rotate(0)}35%{transform:scale(1.16) rotate(-10deg)}60%{transform:scale(1.08) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes pfx-float{0%{transform:translateY(0)}40%{transform:translateY(-6px) scale(1.06)}100%{transform:translateY(0)}}
+@keyframes pfx-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-3px) scale(1.06)}30%{transform:translateX(3px)}45%{transform:translateX(-2px)}60%{transform:translateX(2px)}80%{transform:translateX(0) scale(1.04)}}
+@keyframes pfx-pulse{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes pfx-hop{0%{transform:translateY(0)}35%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.pb[class*="pfx-"],.pb[class*="pfx-"] b,.pb[class*="pfx-"]::after,.pr[class*="pfx-"]::after{animation:none}}
+
+/* --- Panel giliran (kanan bawah): transparan, hanya nama + dadu + tombol Roll --- */
+#side .rcol .pnl.tn{
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-areas:"name die" "btn btn" "hint hint";
+  column-gap:12px;
+  align-items:center;
+  margin-top:clamp(70px,7vw,110px);
+  padding:14px 16px 12px;
+  background:transparent;
+  box-shadow:none;
+  border:none;
+}
+#side .tn>h3{display:none}
+.tn-av{display:none}
+#side #turnName{
+  grid-area:name;
+  display:block;
+  color:#fff;
+  font-size:clamp(22px,1.8vw,28px);
+  line-height:1.1;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#side .tn .die-scene{
+  grid-area:die;
+  position:relative;
+  zoom:1.05;
+  margin:0;
+}
+#side .tn-meta{display:none}
+#side .tn .msg{display:none}
+#side .tn #btnRoll{
+  grid-area:btn;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  height:clamp(54px,4.4vw,70px);
+  padding:0 24px;
+  font-size:clamp(22px,1.9vw,30px);
+  line-height:1;
+  white-space:nowrap;
+  color:#fff;
+  text-shadow:0 2px 0 #0d4a14;
+  border:3px solid var(--ol);
+  border-radius:999px;
+  background:linear-gradient(#4fd24c,#259a2e 50%,#1fa83c 52%,#2faa2f);
+  box-shadow:
+    inset 0 0 0 2px #8cf08a,
+    inset 0 -4px 0 rgba(0,70,10,.45),
+    0 4px 0 var(--ol),
+    0 0 0 0 rgba(79,210,76,.55);
+  transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s,box-shadow .1s;
+  position:relative;
+  overflow:hidden;
+}
+#side .tn #btnRoll::before{
+  content:"";
+  position:absolute;
+  left:4%; right:4%; top:6%;
+  height:44%;
+  border-radius:999px 999px 9999px 9999px;
+  background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));
+  pointer-events:none;
+}
+#side .tn #btnRoll::after{
+  content:"";
+  flex:none;
+  width:1.5em;
+  height:1.5em;
+  background:url("../../assets/Images/icon/items/dadu.webp") center/contain no-repeat;
+  filter:drop-shadow(0 2px 0 rgba(120,60,0,.35));
+}
+#side .tn #btnRoll:disabled::after{filter:grayscale(1) opacity(.7)}
+#side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
+#side .tn #btnRoll:not(:disabled):active{transform:translateY(3px) scale(.98);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
+#side .tn #btnRoll:disabled{cursor:not-allowed;background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
+#side .tn #rollHint{
+  grid-area:hint;
+  margin:8px 0 0;
+  padding:0;
+  font-size:clamp(12px,.95vw,14px);
+  line-height:1.25;
+  color:#d8ecff;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  text-align:center;
+  font-weight:700;
+}
+#side .tn.swap #turnName,#side .tn.swap .tn-av{animation:hud-swap .4s ease-out}
+@keyframes hud-swap{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+/* bila modul HUD eksternal sudah menambah avatar/meta sendiri, versi bawaan ini disembunyikan agar tidak dobel */
+#side .tn.ext .tn-av,#side .tn.ext .tn-meta{display:none}
+
+/* --- Kartu hadiah / power-up --- */
+body .pucard{min-width:clamp(250px,22vw,340px);padding:18px 30px 20px}
+#pcName{font-size:clamp(22px,2vw,30px)}
+body .pucard.chest{min-width:220px;max-width:min(300px,86vw);padding:10px 18px 12px}
+body .pucard.chest #pcEmoji{font-size:40px;margin:4px 0 2px}
+body .pucard.chest #pcName{font-size:clamp(18px,1.6vw,24px);margin:0;overflow-wrap:anywhere}
+body .pucard.chest #pcDesc:empty{display:none}
+
+/* --- Layout desktop: area aman 14px --- */
+@media(min-width:700px){
+  #side .col{left:max(14px,env(safe-area-inset-left,0px));top:calc(26px + env(safe-area-inset-top,0px));width:clamp(228px,17vw,280px);gap:12px}
+  #side .pnl.pu{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  #side .rcol{right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:clamp(268px,23vw,370px)}
+}
+@media(min-width:700px) and (max-height:720px){
+  #side{--slot:clamp(48px,4.2vw,60px)}
+  #side .pr{min-height:42px;padding-top:4px;padding-bottom:4px}
+  #side .rcol .pnl.tn{margin-top:56px;padding-top:10px}
+  #side .tn .trow{margin-top:40px}
+  #side .tn .die-scene{zoom:.85;top:18px}
+  #side .tn-av{width:96px;bottom:calc(100% - 34px)}
+  #side .tn #btnRoll{height:50px;font-size:22px}
+  #side .tn .msg{min-height:2.4em}
+}
+/* --- Mobile: kolom bertumpuk di bawah --- */
+@media(max-width:699px) and (orientation:portrait){
+  #side .col{bottom:calc(262px + env(safe-area-inset-bottom,0px))}
+  #hud .tools{flex-wrap:wrap;justify-content:flex-start;gap:6px}
+  #side .pnl.pl{padding-top:24px}
+  #side .pnl.pu{width:auto;padding:22px 8px 8px}
+  #side .pb{flex-basis:44px;min-width:44px;height:52px;font-size:22px}
+  #side .pb em{display:none}
+  #side .rcol .pnl.tn{margin-top:48px;padding:8px 12px 12px}
+  #side .tn .trow{margin-top:34px}
+  #side .tn .die-scene{zoom:.7;top:16px}
+  #side .tn-av{width:84px;bottom:calc(100% - 30px)}
+  #side .tn-meta{margin-bottom:6px}
+  #side .tn .msg{min-height:0;margin-top:6px}
+  #side .tn #btnRoll{height:48px;font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  #side .tn #btnRoll:not(:disabled),#side .pr.on,#side .tn.swap #turnName,#side .tn.swap .tn-av{animation:none}
+  #side .pb,#side .pr,#side .tn #btnRoll{transition:none}
+}
+/* Panel giliran (kanan bawah) — layout grid, transparan, hanya nama + dadu + tombol Roll */
+#side{--tav:clamp(62px,5.2vw,80px)}
+body #side .rcol .pnl.tn{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"name die" "btn btn";
+  column-gap:12px;
+  align-items:center;
+  margin-top:22px;
+  padding:18px 14px 12px;
+  background:transparent;
+  box-shadow:none;
+  border:none;
+}
+body #side .tn-av{display:none}
+body #side .tn .trow{display:none}
+body #side #turnName{
+  grid-area:name;
+  max-width:100%;
+  min-width:0;
+  align-self:center;
+  font-size:clamp(20px,1.6vw,24px);
+  line-height:1.1;
+  color:#fff;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+}
+body #side .tn-meta{display:none}
+body #side .tn .die-scene{
+  grid-area:die;
+  position:relative;
+  top:auto;
+  right:auto;
+  zoom:1.2;
+  margin:6px 6px 6px 0;
+  align-self:center;
+  justify-self:end;
+}
+body #side .tn #btnRoll{
+  grid-area:btn;
+  height:clamp(46px,3.8vw,56px);
+  margin-top:12px;
+  font-size:clamp(20px,1.7vw,24px);
+  gap:10px;
+  border-radius:999px;
+}
+body #side .tn .msg{display:none}
+@media(min-width:700px){body #side .rcol{width:clamp(240px,19vw,300px)}}
+@media(max-width:699px) and (orientation:portrait){
+  #side{--tav:54px}
+  body #side .rcol .pnl.tn{padding:14px 12px 8px}
+  body #side .tn-av{display:none}
+  body #side .tn .die-scene{zoom:1}
+  body #side .tn #btnRoll{height:44px;margin-top:6px}
+  body #side .tn .msg{display:none}
+}
+@media(min-width:700px) and (max-height:560px){
+  #side{--tav:54px}
+  body #side .rcol .pnl.tn{padding:14px 12px 8px;margin-top:18px}
+  body #side .tn .die-scene{zoom:1;margin:2px 4px 2px 0}
+  body #side .tn #btnRoll{height:42px;margin-top:8px;font-size:20px}
+  body #side .tn .msg{display:none}
+}
+
+/* --- Panel giliran (kanan bawah) mengikuti warna pemain yang sedang main. --tnc diisi skrip HUD di akhir body (p.css = warna kursi);
+   tanpa dukungan color-mix, panel tetap transparan seperti sebelumnya. */
+@supports (color:color-mix(in srgb,red,blue)){
+  #side .rcol .pnl.tn{background:transparent}
+  #side .tn .msg,#side .tn .tn-meta{display:none}
+}
+/* Special Dice: bar 6 segmen (1-6) di bawah tombol Roll. Jarum bolak-balik saat tombol ditahan; angka dadu = segmen tempat jarum berhenti. */
+body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
+.dmeter[hidden]{display:none!important}
+.dm-bar{position:relative;display:grid;grid-template-columns:repeat(6,1fr);height:30px;border-radius:9px;overflow:hidden;background:rgba(0,0,0,.28);box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.45)}
+.dm-bar i{display:flex;align-items:center;justify-content:center;font-style:normal;font:800 15px/1 "Baloo 2","Nunito",sans-serif;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.45);border-left:2px solid rgba(255,255,255,.35);transition:background .08s}
+.dm-bar i:first-child{border-left:0}
+.dm-bar i.on{background:rgba(255,255,255,.38);color:#fff}
+.dm-needle{position:absolute;top:-2px;bottom:-2px;left:0;width:4px;margin-left:-2px;border-radius:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.55),0 0 8px 2px rgba(255,255,255,.9);pointer-events:none;will-change:left}
+@media(max-width:699px) and (orientation:portrait){.dm-bar{height:26px}.dm-bar i{font-size:13px}}
+/* 4.1.17C: landscape pendek (HP): aturan "mobile" (max-width:699px) kini hanya untuk portrait; di sini layout landscape kompak
+   (kolom pemain kiri, power kiri-bawah, panel giliran kanan-bawah, tombol atas kanan). Hanya presentasi; papan/kamera tidak diubah. */
+@media (orientation:landscape) and (max-height:430px){
+  .ttl{display:none}
+  body .hud,.hud{left:auto;right:0;transform:none;max-width:calc(100vw - 8px);padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) 0 8px}
+  #hud .tools{flex-wrap:wrap;justify_content:flex-end;gap:6px}
+  body .btn.small,body .hud .btn.small{font-size:11px;padding:6px 10px;min-height:40px}
+  #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(136px,24vw,176px);gap:6px}
+  #side .pnl.pl{padding:6px}#side .pnl.pl h3,.sc{display:none}
+  #side .pr{min-height:30px;margin:0 0 4px;padding:3px 6px;font-size:10px;flex-wrap:nowrap;gap:4px}
+  body #side .pr img{width:24px;height:24px;border-width:2px;border-radius:6px}
+  body #side .pr span:not(.pos):not(.bf){flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+  body #side .pr .pos{flex:none;padding:0 5px;font-size:9px}
+  #side .pnl.pu{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;max-width:calc(100vw - clamp(190px,34vw,250px) - 24px);padding:16px 6px 6px}
+  #side .pnl.pu h3{display:none}
+  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify_content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
+  #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
+  #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn" "hint hint"}
+  body #side .tn-av,body #side .tn-meta{display:none}
+  body #side #turnName{font-size:16px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+  body #side .tn .die-scene{zoom:.55;margin:0 2px 0 0}
+  body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px;border-radius:999px}
+  body #side .tn .msg{display:none}
+  body #side .tn #rollHint{font-size:10px;margin-top:4px}
+}
+/* HUD responsif terhadap ukuran perangkat. --hs dihitung gameplay/js/hud-scale.js (default 1 bila skrip tidak jalan).
+   zoom hanya dipasang di tiga wadah teratas (jangan di anak-anaknya, karena zoom bersifat berlapis).
+   Catatan: di dalam elemen ber-zoom, satuan vw tetap berarti lebar layar penuh, jadi lebar "satu layar" ditulis 100vw / --hs. */
+:root{--hs:1}
+#hud,#side .col,#side .rcol{zoom:var(--hs)}
+#hud{max-width:calc((100vw - 16px) / var(--hs))}
+@media (orientation:landscape) and (max-height:430px){
+  body .hud,.hud{max-width:calc((100vw - 8px) / var(--hs))}
+  #side .pnl.pu{max-width:calc(100vw / var(--hs) - clamp(190px,34vw,250px) - 24px)}
+}
+/* Warna pemain (Merah/Biru/Kuning/Hijau) di HUD: wajah diberi cincin putih tipis lalu cincin warna, agar tetap terbaca di panel biru. */
+body .pr img,body .sr img{border:2px solid #fff;box-shadow:0 0 0 3px var(--pc,#fff),0 2px 0 3px rgba(18,51,127,.45)}
+/* chip posisi ikut berwarna pemain agar identitas warna terbaca sekilas */
+body #side .pr .pos{background:var(--pc,rgba(10,40,120,.6));box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);text-shadow:0 1px 0 rgba(0,0,0,.45)}
+/* HUD gameplay: gaya pixel Minecraft mengikuti redesign-hud/gameplay.webp (disamakan dengan Toko/Profil/Inventory).
+   HANYA tampilan: markup, id, class, JS, kanvas 3D, dan posisi layout tidak diubah. Dimuat paling akhir agar menimpa gaya glossy sebelumnya. */
+:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
+/* tombol atas kanan (Kunci/Angle, kamera, suara, menu) */
+body #hud .btn.small{color:#fff;text-shadow:0 2px 0 var(--ol);background:linear-gradient(var(--rb1),var(--rb2));border:3px solid var(--ol);border-radius:7px;
+  box-shadow:inset 0 0 0 2px var(--rb-hi),inset 0 -3px 0 rgba(8,25,90,.45),0 3px 0 var(--ol)}
+body #hud .btn.small:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--rb-hi),inset 0 -3px 0 rgba(8,25,90,.45),0 1px 0 var(--ol)}
+body #hud #btnAngle{background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,80,0,.4),0 3px 0 var(--ol);text-shadow:0 2px 0 #8a4a0a}
+body #hud .btn.small[aria-pressed=true]:not(#btnAngle){background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,90,0,.5),0 3px 0 var(--ol);text-shadow:0 2px 0 #8a5a08}
+/* panel */
+body #side .pnl{border:3px solid var(--ol);border-radius:8px;background:linear-gradient(#3a76e0,#2a58c4);
+  box-shadow:inset 0 0 0 3px #5e90f0,0 4px 0 var(--ol),0 10px 16px rgba(10,30,90,.3)}
+body #side .pnl>h3{border:3px solid var(--ol);border-radius:5px;padding:2px 16px 3px;background:linear-gradient(var(--nv1),var(--nv2));
+  box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol);text-shadow:0 2px 0 var(--ol)}
+body #side .pnl.pl{background:transparent;border:none;box-shadow:none;padding:8px}
+body #side .pnl.pl>h3{display:none}
+body #side .pnl.tn>h3{display:none}
+body #side .rcol .pnl.tn{border:none;background:transparent;box-shadow:none;border-radius:12px}
+/* baris pemain - compact transparent */
+body #side .pr{border:2px solid var(--ol);border-radius:6px;background:rgba(10,30,90,.3);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 2px 0 var(--ol)}
+body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -2px 0 rgba(150,90,0,.5),0 2px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
+body #side .pr img{border-radius:3px}
+body #side .pr .pos{border-radius:4px;border:2px solid var(--ol);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+body #side .pr.on .pos{background:rgba(120,70,5,.55)}
+/* power-up: panah + slot */
+body #side #pus .pb{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol);margin-bottom:3px}
+body #side #pus .pb[data-state=ready]{background:linear-gradient(#3a6ac0,#2a4a94)}
+body #side #pus .pb:not(:disabled):hover{background:linear-gradient(#4a80dc,#2f58b0)}
+body #side #pus .pb b{border:2px solid var(--ol);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+body #side #pus .pb[data-state=locked] b{color:#4a2a05;text-shadow:none}
+/* panel giliran: tombol Roll glossy seperti tombol Lanjutkan di menu */
+body #side .tn-av{display:none}
+body #side .tn #btnRoll{color:#fff;text-shadow:0 2px 0 #0d4a14;border:3px solid var(--ol);border-radius:999px;background:linear-gradient(#4fd24c,#259a2e 50%,#1fa83c 52%,#2faa2f);
+  box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 0 rgba(79,210,76,.55);
+  position:relative;overflow:hidden}
+body #side .tn #btnRoll::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:999px 999px 9999px 9999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
+body #side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
+body #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
+body #side .tn #btnRoll:disabled{background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
+.dm-bar{border-radius:4px;box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 3px var(--ol)}
+/* Revisi HUD mengikuti referensi HUD baru (tab judul panel, baris pemain + panah giliran + badge posisi, tombol ikon, kartu power-up berlabel, panel dadu).
+   HANYA tampilan (+ teks tab giliran = nama pemain). Dimuat paling akhir. */
+/* ---- toolbar kanan atas: Suara & Menu selalu ikon ---- */
+body #hud #btnSnd,body #hud #btnMenu{font-size:0;gap:0;display:inline-flex;align-items:center;justify-content:center;width:42px;min-width:42px;padding:0}
+body #hud #btnSnd svg,body #hud #btnMenu svg{width:20px;height:20px;margin:0!important;vertical-align:0!important}
+/* Ikon HUD dari aset webp (pengganti SVG inline) */
+.hud .hi{width:20px;height:20px;object-fit:contain;display:block;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.35))}
+.hud .hi.sm{width:18px;height:18px;display:inline-block;vertical-align:-4px;margin-right:4px}
+body #hud #btnSnd .hi,body #hud #btnMenu .hi{width:26px;height:26px;margin:0}
+body .hud .btn.ico[aria-pressed=false] .hi{opacity:.6;filter:grayscale(.4)}
+body #hud #btnSnd.muted{background:linear-gradient(#8a93a6,#5d6679);color:#e8ecf5;text-shadow:0 2px 0 #2a3144;box-shadow:inset 0 0 0 2px #b9c0cf,inset 0 -3px 0 rgba(30,35,50,.45),0 3px 0 var(--ol)}
+/* ---- baris pemain: avatar | nama | (mahkota giliran) | badge posisi ---- */
+body #side .pr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;column-gap:6px;row-gap:1px}
+body #side .pr>.pav{grid-column:1;grid-row:1}
+body #side .pr>span:first-of-type{grid-column:2;grid-row:1;font-weight:800;text-shadow:0 2px 0 var(--ol)}
+body #side .pr .pos{grid-column:4;grid-row:1;flex:none;color:#fff;border:2px solid var(--ol);border-radius:6px;background:linear-gradient(#1b3270,#12235a);box-shadow:inset 0 0 0 2px rgba(120,160,235,.3);text-shadow:0 2px 0 #000;font-weight:800;text-align:center}
+body #side .pr .bf{grid-column:2 / -1;grid-row:2;justify-self:start;margin:0;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body #side .pr.on>span:first-of-type{text-shadow:0 2px 0 #8a5a08}
+body #side .pr.on::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
+body #side .pr.on::before{content:"";position:absolute;left:-13px;top:50%;translate:0 -50%;border-left:9px solid #ffc83d;border-top:8px solid transparent;border-bottom:8px solid transparent;filter:drop-shadow(0 2px 0 var(--ol))}
+/* ---- panel giliran: sembunyikan pesan & header lama ---- */
+body #side .tn .msg{display:none}
+body #side .tn>h3{display:none}
+@media (orientation:landscape) and (max-height:430px){
+  #side .col{top:calc(20px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px))}
+  body #side .pnl.pl{padding:15px 6px 7px}
+  body #side .pnl.pl>h3,body #side .pnl.pu>h3{display:flex;top:-12px;font-size:12px;padding:1px 12px 2px;border-radius:5px}
+  body #side .pnl.pl>h3{min-width:62%}
+  body #side #players{gap:5px}
+  body #side .pr{min-height:32px;padding:3px 6px 3px 4px;margin:0;border-radius:6px;font-size:11px}
+  body #side .pr .pav>img{width:24px;height:24px;border-radius:3px;box-shadow:0 0 0 2px var(--pc,#fff)}
+  body #side .pr span:not(.pos):not(.bf){font-size:11px}
+  body #side .pr .pos{min-width:28px;padding:0 4px;font-size:11px;line-height:1.35}
+  body #side .pr .bf{font-size:9px}
+  #side .pnl.pu{padding:15px 6px 6px}
+  body #side .pnl.pu>h3{left:10px}
+  #side .pb{flex:0 0 46px;min-width:46px;width:46px;height:56px;padding:2px 0 3px}
+  body #side .pb em{display:block;font-size:9px;line-height:1;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  body #side .rcol .pnl.tn{margin-top:18px;padding:11px 10px 8px;background:transparent;box-shadow:none;border:none}
+  body #side .tn>h3{display:none}
+  body #side .tn .msg{display:none}
+  #side .col{width:clamp(160px,27vw,212px)}
+  body #side .tn .die-scene{zoom:.55;margin:4px 8px 4px 0}
+  body #side .rcol .pnl.tn{grid-template-areas:"name die" "btn btn"}
+}
+/* online: mahkota hanya untuk host (bukan penanda giliran); pemain lokal diberi outline */
+body.mp-online #side .pr.on::after{content:none}
+body.mp-online #side .pr.host::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
+body.mp-online #side .pr.me{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 5px var(--pc,#ffc83d),0 0 14px 4px var(--pc,#ffc83d)}
+body #pauseMenu #pmMode:disabled{opacity:.55;cursor:not-allowed}
+/* urutan giliran = chip angka kecil di pojok foto profil (kiri: daftar Pemain; kanan: panel Giliran) */
+body #side .pr .pav{position:relative;display:flex;flex:none}
+body #side .pr .pav>.atag{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;justify-content:center;height:1.45em;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:8px;line-height:1;letter-spacing:.04em;white-space:nowrap;color:#fff;border-radius:999px;border:1.5px solid #0d4a14;background:linear-gradient(#6ff26a,#1fa83c);text-shadow:0 1px 0 #0d4a14;pointer-events:none}
+@keyframes atagGlow{0%,100%{box-shadow:0 0 3px 0 rgba(111,242,106,.55),0 0 6px 1px rgba(111,242,106,.25);filter:brightness(1)}50%{box-shadow:0 0 7px 2px rgba(150,255,140,.95),0 0 14px 4px rgba(111,242,106,.55);filter:brightness(1.22)}}
+@keyframes atagShine{0%{background-position:160% 0,0 0}60%,100%{background-position:-60% 0,0 0}}
+body #side .pr .pav>.atag{background-image:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%),linear-gradient(#6ff26a,#1fa83c);background-size:250% 100%,100% 100%;background-repeat:no-repeat;animation:atagGlow 1.4s ease-in-out infinite,atagShine 2.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){body #side .pr .pav>.atag{animation:none;box-shadow:0 0 6px 1px rgba(111,242,106,.7)}}
+body #side .pr .pav>.ord{position:absolute;right:-7px;top:-9px;z-index:2;display:flex;align-items:center;justify-content:center;min-width:1.55em;height:1.55em;margin:0;padding:0 4px;box-sizing:border-box;font-style:normal;font-weight:800;font-size:11px;line-height:1;border-radius:999px;border:2px solid var(--pc,#fff);background:linear-gradient(#1b3270,#12235a);color:#fff;text-shadow:0 1px 0 #000;pointer-events:none}
+/* chip panel Giliran (kanan bawah): tanpa mahkota, isi 1st/2nd/3rd/4th (atau Selesai) */
+body #side .tn>h3::before{display:none}
+body #side .rcol .pnl.tn>h3{padding-left:14px;padding-right:14px;min-width:3.4em;justify-content:center;text-align:center}
+/* panel Giliran rasio 1:1 (tidak untuk HP portrait yang lebarnya penuh layar) */
+@media not all and (max-width:699px) and (orientation:portrait){
+  body #side .rcol .pnl.tn{aspect-ratio:1/1;align-content:space-between}
+}
+/* label urutan giliran (1st/2nd/3rd/4th) sebelum nama pemain; warna pemain tetap jadi acuan (border label + avatar) */
+body #side .pr .ord{display:inline-block;font-style:normal;font-weight:800;font-size:.8em;line-height:1.35;letter-spacing:.02em;padding:0 5px;margin-right:5px;vertical-align:1px;border-radius:5px;border:2px solid var(--pc,#fff);background:linear-gradient(#1b3270,#12235a);color:#fff;text-shadow:0 1px 0 #000}
+/* Panel giliran (kanan bawah): warna panel = warna pemain aktif (--tnc diisi renderChips), tampilan glossy dua-nada seperti tombol MULAI/SHOP di lobby. */
+@supports (color:color-mix(in srgb,red,blue)){
+  body #side .rcol .pnl.tn{background:transparent;border:none;box-shadow:none}
+  body #side .rcol .pnl.tn>h3{display:none}
+  body #side .rcol .pnl.tn .msg{display:none}
+  body #side .rcol .pnl.tn #turnName{text-shadow:0 2px 4px rgba(0,0,0,.5)}
+}
+/* Modal menang/kalah = modal pixel (sama dengan Menu/Jeda & lobby). Menang: biru; Kalah: merah. id & JS tidak berubah. */
+body #win.lm-ov{background:rgba(11,24,56,.32);backdrop-filter:none;-webkit-backdrop-filter:none}
+#win .lm-box{width:min(calc(var(--mu)*52),90vw);overflow:visible}
+#win .lm-body{padding-top:calc(var(--mu)*6.4);overflow:visible;max-height:none}
+#win .res-ico{width:clamp(56px,calc(var(--mu)*10),88px);height:clamp(56px,calc(var(--mu)*10),88px);top:0}
+#win .lm-note:empty{display:none}
+#win[data-state=lose] .lm-box{background:linear-gradient(#e8665c,#b83a34);border-color:#3a0c10;box-shadow:inset 0 0 0 calc(var(--mu)*.25) #f48c82,0 calc(var(--mu)*.5) 0 #3a0c10,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+#win[data-state=lose] .lm-box h2,#win[data-state=lose] .lm-eyebrow,#win[data-state=lose] .lm-note{text-shadow:0 calc(var(--mu)*.2) 0 #3a0c10}
+#win[data-state=lose] .lm-eyebrow{color:#ffd9d4}
+@media (orientation:landscape) and (max-height:430px){
+  #win .lm-box{width:min(calc(var(--mu)*66),90vw)}
+  #win .lm-body{padding-top:calc(var(--mu)*5.2);padding-bottom:calc(var(--mu)*2)}
+  #win .res-ico{width:56px;height:56px}
+}
+/* Menu jeda: tombol & layout mengikuti referensi (Lanjutkan emas glossy + ikon play, baris Musik/Suara dengan slider, Keluar merah, tombol Suasana siang/malam). Panel tetap gaya pixel lobby. */
+#pauseMenu .lm-box{width:min(calc(var(--mu)*58),92vw)}
+#pauseMenu .lm-grid{grid-template-columns:1fr 1fr;gap:calc(var(--mu)*1)}
+#pauseMenu .lm-ic{flex:none;width:calc(var(--mu)*2.8);height:calc(var(--mu)*2.8);min-width:20px;min-height:20px;display:inline-grid;place-items:center;color:#fff;filter:drop-shadow(0 calc(var(--mu)*.2) 0 rgba(0,0,0,.35))}
+#pauseMenu .lm-ic svg{width:100%;height:100%;display:block}
+#pauseMenu .lm-ic img,#pauseMenu img.lm-ic{width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+#pauseMenu img.lm-ic{width:calc(var(--mu)*2.8);height:calc(var(--mu)*2.8)}
+#pauseMenu .lm-resume img.lm-play{width:calc(var(--mu)*3.6);height:calc(var(--mu)*3.6)}
+/* tombol glossy */
+#pauseMenu .lm-mode{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:calc(var(--mu)*1.2);min-height:calc(var(--mu)*6);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1.6)}
+#pauseMenu .lm-mode::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:calc(var(--mu)*1.2) calc(var(--mu)*1.2) calc(var(--mu)*2) calc(var(--mu)*2);background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
+#pauseMenu .lm-mode>*{position:relative}
+#pauseMenu .lm-resume{grid-column:1/-1;min-height:calc(var(--mu)*7.4);font-size:calc(var(--mu)*3);background:linear-gradient(#ffe36e,#ffc21c 50%,#f7a50c 52%,#ffb81c);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.55),inset 0 calc(var(--mu)*-.4) 0 rgba(160,85,0,.35),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #a8590b,0 0 calc(var(--mu)*.4) #a8590b}
+#pauseMenu .lm-resume .lm-play{width:calc(var(--mu)*3.6);height:calc(var(--mu)*3.6)}
+#pauseMenu .lm-exit{background:linear-gradient(#ff7a68,#ea3027 50%,#d81f1a 52%,#e8302a);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.45),inset 0 calc(var(--mu)*-.4) 0 rgba(110,10,10,.4),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #7a0e0a}
+#pauseMenu .lm-grey{width:100%;background:linear-gradient(#a3add0,#6d79a4 50%,#5a668f 52%,#66719b);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.45),inset 0 calc(var(--mu)*-.4) 0 rgba(25,35,80,.4),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #26305a}
+#pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(#8a85d8,#5a50b8 50%,#4a3fa6 52%,#5548b0);text-shadow:0 calc(var(--mu)*.25) 0 #231a63}
+#pauseMenu .lm-exit,#pauseMenu .lm-modewrap{margin-top:calc(var(--mu)*.6)}
+#pauseMenu .lm-modewrap{position:relative;display:flex}
+#pauseMenu .lm-modewrap .lm-mode{min-height:calc(var(--mu)*6)}
+#pauseMenu .lm-chip{position:absolute;z-index:3;top:0;left:50%;translate:-50% -55%;padding:calc(var(--mu)*.1) calc(var(--mu)*1.4) calc(var(--mu)*.3);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.12) #74a4f7;color:#fff;font-size:max(10px,calc(var(--mu)*1.6));line-height:1.2;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838;white-space:nowrap;pointer-events:none}
+/* baris slider */
+#pauseMenu .lm-srow{grid-column:1/-1;display:flex;align-items:center;gap:calc(var(--mu)*1.2);padding:calc(var(--mu)*.9) calc(var(--mu)*1.6);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*1.6);background:linear-gradient(#24418a,#1d3470);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+#pauseMenu .lm-srow .lm-lbl{flex:none;min-width:calc(var(--mu)*7);text-align:left;font-size:calc(var(--mu)*2.1)}
+#pauseMenu .lm-srow input[type=range]{--c:#ffc21c;--p:60%;flex:1;min-width:0;height:max(26px,calc(var(--mu)*3));margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+#pauseMenu .lm-sfx input[type=range]{--c:#5ee03a;--p:100%}
+#pauseMenu .lm-srow input[type=range]::-webkit-slider-runnable-track{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:linear-gradient(90deg,var(--c) var(--p),#0c1c4c var(--p));box-shadow:inset 0 2px 0 rgba(0,0,0,.35)}
+#pauseMenu .lm-srow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:max(22px,calc(var(--mu)*3));height:max(22px,calc(var(--mu)*3));margin-top:calc((max(10px,var(--mu)*1.5) - max(22px,var(--mu)*3))/2);border-radius:50%;border:2px solid #fff;background:radial-gradient(circle at 35% 30%,#fff7c8,var(--c) 62%);box-shadow:0 2px 0 rgba(0,0,0,.4)}
+#pauseMenu .lm-srow input[type=range]::-moz-range-track{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:#0c1c4c}
+#pauseMenu .lm-srow input[type=range]::-moz-range-progress{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:var(--c)}
+#pauseMenu .lm-srow input[type=range]::-moz-range-thumb{width:max(22px,calc(var(--mu)*3));height:max(22px,calc(var(--mu)*3));border-radius:50%;border:2px solid #fff;background:var(--c)}
+/* landscape pendek (HP): modal rasio 4:3, susunan bertumpuk seperti portrait */
+@media (orientation:landscape) and (max-height:430px){
+  #pauseMenu .lm-box{box-sizing:border-box;display:flex;aspect-ratio:4/3;width:min(calc((100dvh - 56px)*4/3),90vw)}
+  #pauseMenu .lm-body{display:flex;flex-direction:column;justify-content:center;width:100%;padding-top:calc(var(--mu)*1.6);padding-bottom:calc(var(--mu)*1.8)}
+  #pauseMenu .lm-srow{padding:calc(var(--mu)*.8) calc(var(--mu)*1.4)}
+  #pauseMenu .lm-srow .lm-lbl{min-width:calc(var(--mu)*6.5);font-size:calc(var(--mu)*2)}
+  #pauseMenu .lm-resume{min-height:calc(var(--mu)*6.4)}
+  #pauseMenu .lm-grid{gap:calc(var(--mu)*.8)}
+  #pauseMenu .lm-mode{min-height:40px}
+}
+/* wajah + frame sudah digabung jadi satu gambar (pixel-art dibuat tajam di canvas) -> pakai scaling halus agar frame tidak bergerigi */
+.pr img,.sr img,.tn-av img,#readyScreen .rd-av{image-rendering:auto}
+.pr img,.sr img{border-width:0;background:rgba(0,0,0,.18)}
+/* ===== HUD bersih + tema silver (dimuat paling akhir; HANYA tampilan, JS/logika/id tidak berubah) =====
+   1) Panel gameplay (Pemain kiri atas, Power-up kiri bawah, Giliran kanan bawah): transparan, lebih kecil, proporsi 1:1
+      (panel Giliran persegi; slot Power-up persegi).
+   2) Perbaikan dadu hilang: .trow (pembungkus nama + dadu) sebelumnya di-display:none oleh #turn-panel-v2, sehingga dadu 0x0 dan grid panel berantakan.
+      Sekarang .trow = display:contents agar nama & dadu menjadi anak grid panel Giliran.
+   3) (Modal Menu/Keluar/Ready kini kembali ke gaya modal lobby biru; lihat style lobby-modal, pause-ref, ready-pixel.) */
+
+/* --- ukuran HUD (satu tempat; ubah angka di sini untuk memperbesar/memperkecil) --- */
+html body #side{--tn-w:clamp(150px,12.5vw,188px);--pl-w:clamp(168px,13.5vw,204px);--die-z:.8;--roll-h:40px;--roll-fs:20px;--name-fs:16px;--slot:clamp(42px,3.6vw,52px)}
+@media (max-height:720px){html body #side{--tn-w:clamp(140px,11.5vw,170px);--pl-w:clamp(160px,13vw,188px);--die-z:.7;--roll-h:36px;--roll-fs:18px;--name-fs:15px;--slot:clamp(40px,3.4vw,48px)}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--tn-w:clamp(112px,17vw,148px);--pl-w:clamp(138px,21vw,168px);--die-z:.5;--roll-h:30px;--roll-fs:15px;--name-fs:12px;--slot:clamp(36px,5.2vw,44px)}}
+@media not all and (max-width:699px) and (orientation:portrait){
+  html body #side .rcol{width:var(--tn-w)}
+  html body #side .col{width:var(--pl-w)}
+  html body #side .rcol .pnl.tn{aspect-ratio:1/1}
+}
+
+/* --- Panel Giliran (kanan bawah): transparan, nama + dadu + tombol Roll --- */
+html body #side .rcol .pnl.tn .trow{display:contents}
+html body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name die" "btn btn";align-content:center;align-items:center;column-gap:8px;row-gap:8px;box-sizing:border-box;margin:0;padding:10px;background:transparent;border:0;box-shadow:none;pointer-events:none}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;display:block;min-width:0;max-width:100%;font-size:var(--name-fs);line-height:1.1;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;position:relative;top:auto;right:auto;margin:0;zoom:var(--die-z);justify-self:end;align-self:center}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:100%;height:var(--roll-h);margin:0;padding:0 10px;box-sizing:border-box;font-size:var(--roll-fs);gap:6px;pointer-events:none}
+html body:not(.awk-lock) #side .rcol .pnl.tn #btnRoll{pointer-events:auto}
+html body #side .rcol .pnl.tn #btnRoll::after{width:1.25em;height:1.25em}
+html body #side .rcol .pnl.tn #btnRoll.special{font-size:calc(var(--roll-fs)*.7);padding:0 6px}
+html body #side .rcol .pnl.tn #btnRoll.special::after{display:none}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;margin-top:0}
+html body #side .rcol .pnl.tn #rollHint,html body #side .rcol .pnl.tn .msg{display:none!important} /* .msg sebelumnya dipaksa tampil oleh aturan lama ".tn .msg{display:block!important}" -> penyebab panel melar & teks melayang */
+
+/* --- Panel Pemain (kiri atas): transparan, ringkas --- */
+html body #side .pnl.pl{padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side #players{gap:4px}
+html body #side .pr{min-height:clamp(30px,2.4vw,34px);padding:2px 6px 2px 4px;column-gap:5px;border:2px solid rgba(11,24,56,.55);border-radius:8px;background:rgba(10,30,90,.22);box-shadow:none;font-size:clamp(11px,.9vw,13px)}
+html body #side .pr img,html body #side .pr .pav>img{width:clamp(22px,1.9vw,28px);height:clamp(22px,1.9vw,28px)}
+html body #side .pr .pos{padding:0 6px;font-size:clamp(10px,.8vw,12px);line-height:1.35}
+html body #side .pr .bf{font-size:clamp(8px,.65vw,10px)}
+html body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 1px #ffe58a}
+html body #side .pr.on::after{width:14px;height:14px}
+
+/* --- Panel Power-up (kiri bawah): transparan, slot persegi 1:1 --- */
+html body #side .pnl.pu{width:auto;max-width:calc(100vw / var(--hs) - var(--tn-w) - 44px);padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side .pnl.pu>h3{display:none}
+html body #side #pus{flex:0 1 auto;gap:4px;padding:6px 4px 2px;margin-top:0}
+html body #side #pus .pb{flex:0 0 var(--slot);width:var(--slot);min-width:var(--slot);height:var(--slot);aspect-ratio:1/1;padding:0;border:2px solid rgba(11,24,56,.85);border-radius:8px;background:rgba(18,38,92,.42);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+html body #side #pus .pb[data-state=ready]{background:rgba(40,74,150,.55)}
+html body #side #pus .pb:not(:disabled):hover{background:rgba(60,100,190,.6)}
+html body #side #pus .pb em{font-size:clamp(8px,.62vw,10px);margin-top:1px}
+html body #side #pus .pb b{top:-5px;right:-5px;min-width:16px;height:16px;font-size:10px;border-width:2px}
+
+/* --- Tombol atas (kanan atas): silver --- */
+html body #hud .btn.small[class]:not(#sv){color:#14223f;text-shadow:0 1px 0 rgba(255,255,255,.8);background:linear-gradient(#f4f6fa,#c6cdda 52%,#aab4c6);border:3px solid var(--ol);border-radius:7px;box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud .btn.small[class]:not(#sv):active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 1px 0 var(--ol)}
+html body #hud .btn.small[aria-pressed=true][class]:not(#sv){background:linear-gradient(#aab4c6,#d3d9e4);box-shadow:inset 0 0 0 2px #e8ecf3,inset 0 3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud #btnSnd.muted[class]:not(#sv){color:#3a4560;background:linear-gradient(#d6dbe4,#98a2b5)}
+
+/* --- Menang: biru tua + tekstur pixel ala Minecraft; Kalah: merah bertekstur sama. Teks tetap putih. --- */
+html body #win .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACTUlEQVR42kWRzU7bQBDHB3ud9QL2bghKIIWkQaJKJSIFqVK5lV54B96gx75V34FTb82NSqlEpLRCCSpNDQ7rdYh37YnpYVs6h9HoPx+a+c1as/8RcxXUe2k09IMWGom58oOWTqfWA4AftMKdbjS+IJXQIVSgiYssIZVwcX+JuaofnqGRAKDTKamEQb2HRqrZyA9aAODyvdNyVWCeOC4NGn3H8R/j74QKQjnAExNtAECdOMQHALHXdzzGSSVEE2OuiizxGMdc2fG2usiSrfYJGukxrmYjp8gSQkXz6BxNDP/MYzyo9x5uPgMAGjmfDJhop9EQAFzKDzBPHuc/ePPt8mFcFtpxadh4/XDzZb3aLdEs5VXQ6DO+axZ3DvFd/uJdvrwtVxmaFAAclwJAoReEcjQyz6L1ajd//F3oxVJebdS6hFCxSY89xtNoiCYO6j3Gd7PkVyYnzxtirjBXftBJo6GDRup0avcjtJbJSTS+YHyXUIG5IpUQjSSVEAC22idoYodQYQEDgE3UD8+i8YVOp2jiv21UAICajQDA3X/zoVwV9lbM1UbtVSZ/MtEqC01olQaN5fxq++C9Q9Zdz2f8pUvYHjytlStt8ZeFLlfa88Xi7qsfdtRsAABp9A2e1lAnqBNiSRMqdHrdPDpXs5HHuL3HBtX9U/s+NJKJtgMATLQX95d+0JlPBov7SwCwDKy3QbjT1ek1ABDbTWgNc4Umru6fFlmCJt7cPg53ugAwnwxIJZxPBn7QKbLE+Q/bxFZ6Vm6/fVKzEaHimRUa+QfrtlBkdYjriwAAAABJRU5ErkJggg==") 0 0/48px 48px #1a3070;image-rendering:pixelated;border-color:#060d24;border-radius:calc(var(--mu)*.5);box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(120,160,255,.5),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #060d24,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body #win[data-state=lose] .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACAklEQVR42j1SzWrbQBAeac2UNSOjrmVFFj2kAdsEDDn4EHwqpY+Qd+rb5CF8yik9OYfGEEwxkuooSxJPrHSKSA/TGPa0u998fxN8H48BYOn91DkAAAAWIUQAiBBX3hMii4ycA4CV9+YoCLZNM88yaduKmUWctRWzIqVtnbWE+PljVOxeCDGcOjfPsp0Ii9QitcgkiUfvbIRYMUeI18V2ksQsYo6C4DxPb7Y1GvMoMnVusSk6AErVt1aZ0Zir8vepc+ZrHD/sX6VtpW3PBgPfNJ+I0BgA6Fu78t5Zq+CuMSwS1iJDIkKsRUpmAJgksRq4qqqDYxbRyzBB3IkAgKZEiJe3dwCQEV2MTw7IIZG+hiPnlt5rsrM8VWTFXDErcuTcMVHe62rWZtTpnA0GFXNq7e7P30kSP+xfAaBommMiTZYQb7Y1i6AxYUak7ayZl94Xz/sIkRATRNW9Zo4Qa5H/kpRUUz/4WXo/ck4PAJTM8yzTisy3fv+DMZMkNm8BvU9Nrf319ITG/Li/vxifwFtQMp86V+xeQgDIe93FehMhVszq7LA8U+cub+9KZhYpmSPEkEUW641KzIiW3rPIkEg7iRABYJanhEiIJXOHRTKiL0kMAMWzeoGV9xkRi7DI1Lmf9aOqneVpqLMX681ivcl73QRxSKS/h0QsoptbMc/y9LrY/gO48junLbQ4OQAAAABJRU5ErkJggg==") 0 0/48px 48px #7a2020;border-color:#2a0608;box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(255,140,130,.45),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #2a0608,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+/* ===== Panel Giliran (kanan bawah): dadu lebih besar + tombol Roll persegi 1:1, teks hanya "Roll", sejajar dasar dengan baris Power-up di kiri =====
+   HANYA tampilan (id/JS tidak berubah). Dimuat paling akhir agar menimpa semua aturan lama di semua ukuran layar. */
+html body #side{--die-z:1.35;--roll-sq:64px;--roll-fs:19px;--tn-pb:8px}
+@media (max-height:720px){html body #side{--die-z:1.1;--roll-sq:56px;--roll-fs:17px}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--die-z:.95;--roll-sq:52px;--roll-fs:16px;--tn-pb:8px}}
+html body #side .rcol{justify-content:flex-end}
+html body #side .rcol .pnl.tn{aspect-ratio:auto;display:grid;grid-template-columns:auto auto;grid-template-areas:"name name" "die btn";justify-content:end;justify-items:end;align-items:end;align-content:end;column-gap:8px;row-gap:2px;margin:0;padding:0 var(--tn-pb) var(--tn-pb) 0;width:auto}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;justify-self:end;max-width:calc(var(--tn-w) + 40px);font-size:var(--name-fs);text-align:right}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;zoom:var(--die-z);margin:0;align-self:end;justify-self:end}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:var(--roll-sq);height:var(--roll-sq);aspect-ratio:1/1;padding:0;margin:0;font-size:var(--roll-fs);gap:0;border-radius:12px;justify-content:center;align-self:end}
+html body #side .rcol .pnl.tn #btnRoll::before{border-radius:9px 9px 40% 40%}
+html body #side .rcol .pnl.tn #btnRoll::after{display:none}
+html body #side .rcol .pnl.tn #btnRoll.special{white-space:normal;text-align:center;line-height:1.05;padding:0 4px;font-size:calc(var(--roll-fs)*.5)}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;grid-row:3;justify-self:stretch;margin-top:4px}
+/* ===== HUD v3: mengikuti referensi baru (kartu pemain biru/kuning + mahkota, banner event pill, tombol biru, inventori gelap, dadu + Roll emas).
+   Dimuat paling akhir; HANYA tampilan (id, class, JS, logika, kanvas 3D, dan posisi layout tidak diubah). Untuk membatalkan: hapus blok <style id="hud-ref-v3"> ini. ===== */
+html body #side{--pl-w:clamp(212px,16.8vw,270px);--pr-h:clamp(46px,3.7vw,58px);--pr-fs:clamp(15px,1.25vw,19px);--av:clamp(34px,2.9vw,42px);
+  --slot:clamp(46px,4vw,62px);--roll-w:clamp(112px,9.4vw,150px);--roll-h:clamp(52px,4.6vw,68px);--roll-fs:clamp(22px,2vw,32px);--die-z:1.2;--hud-edge-gap:14px}
+@media (max-height:720px){html body #side{--pl-w:clamp(200px,16vw,236px);--pr-h:clamp(42px,3.5vw,50px);--pr-fs:15px;--av:34px;--slot:clamp(42px,3.8vw,52px);--roll-w:clamp(104px,9vw,126px);--roll-h:clamp(48px,4.2vw,58px);--roll-fs:clamp(20px,1.8vw,26px);--die-z:1}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--pl-w:clamp(160px,24vw,192px);--pr-h:36px;--pr-fs:12px;--av:26px;--slot:clamp(36px,5.2vw,44px);--roll-w:clamp(88px,13vw,108px);--roll-h:42px;--roll-fs:18px;--die-z:.78}}
+
+/* --- Kiri atas: kartu pemain (aktif = biru, lainnya = emas; mahkota + nilai di kanan) --- */
+html body #side .pnl.pl{padding:0;background:transparent;border:0;box-shadow:none}
+html body #side #players{gap:clamp(6px,.7vw,10px)}
+html body #side .pr{min-height:var(--pr-h);padding:3px 12px 3px 6px;column-gap:8px;border:3px solid #0b1838;border-radius:16px;opacity:1;
+  font-size:var(--pr-fs);font-weight:800;color:#fff;text-shadow:0 2px 0 #7a3d00;
+  background:linear-gradient(#ffcb47,#e48a0e);
+  box-shadow:inset 0 0 0 2px #ffe9a3,inset 0 -4px 0 rgba(150,75,0,.35),0 3px 0 #0b1838,0 8px 12px rgba(0,0,0,.22)}
+html body #side .pr.on{background:linear-gradient(#4a9bff,#1a4cbd);text-shadow:0 2px 0 #0b1838;
+  box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.45),0 3px 0 #0b1838,0 8px 12px rgba(0,0,0,.22)}
+html body #side .pr.on:not([class*="pfx-"])::after,html body #side .pr.on::before{content:none}
+html body #side .pr img,html body #side .pr .pav>img{width:var(--av);height:var(--av);border-radius:9px}
+html body #side .pr .pav>.ord{right:-8px;top:-10px;min-width:1.7em;height:1.7em;font-size:max(11px,.78em)}
+html body #side .pr>span:first-of-type{font-size:1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body #side .pr .pos{display:inline-flex;align-items:center;gap:5px;min-width:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;
+  font-size:1.12em;font-weight:800;line-height:1;color:#fff;text-shadow:inherit}
+html body #side .pr .pos::before{content:"";flex:none;width:1.3em;height:1.3em;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(11,24,56,.65))}
+html body #side .pr .bf{color:#fff;text-shadow:0 1px 0 rgba(11,24,56,.7)}
+
+/* --- Kanan atas: tombol biru bergaya candy, ikon putih --- */
+html body #hud .tools{gap:8px}
+html body #hud .btn.small[class]:not(#sv){min-height:clamp(40px,3.4vw,46px);padding:0 14px;color:#fff;text-shadow:0 2px 0 #0b1838;
+  background:linear-gradient(#4a9bff,#1a4cbd);border:3px solid #0b1838;border-radius:12px;
+  box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 3px 0 #0b1838,0 7px 10px rgba(0,0,0,.2)}
+html body #hud .btn.small[class]:not(#sv):active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 1px 0 #0b1838}
+html body #hud .btn.small[aria-pressed=true][class]:not(#sv){color:#fff;text-shadow:0 2px 0 #8a4a05;background:linear-gradient(#ffd44f,#f0960f);
+  box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -4px 0 rgba(150,75,0,.35),0 3px 0 #0b1838,0 7px 10px rgba(0,0,0,.2)}
+html body #hud #btnSnd.muted[class]:not(#sv){color:#e8ecf5;background:linear-gradient(#98a2b8,#5f6a82);text-shadow:0 2px 0 #2a3144;
+  box-shadow:inset 0 0 0 2px #c3cadb,inset 0 -4px 0 rgba(30,35,50,.4),0 3px 0 #0b1838}
+html body #hud #btnSnd[class]:not(#sv),html body #hud #btnMenu[class]:not(#sv),html body #hud .btn.ico[class]:not(#sv){width:clamp(40px,3.4vw,46px);min-width:clamp(40px,3.4vw,46px);padding:0;gap:0}
+html body #hud .btn .hi{width:clamp(22px,1.9vw,26px);height:clamp(22px,1.9vw,26px);max-width:none;margin:0;filter:brightness(0) invert(1) drop-shadow(0 2px 0 rgba(11,24,56,.7))}
+html body #hud #btnAngle .hi{width:clamp(18px,1.5vw,22px);height:clamp(18px,1.5vw,22px);margin-right:6px}
+
+/* --- Tengah atas: banner event berbentuk pill (UT.GameplayHUD.showEvent) --- */
+html body .ut-ghud{top:calc(10px + env(safe-area-inset-top,0px));width:min(50vw,520px)}
+@media (max-width:820px){html body .ut-ghud{top:calc(54px + env(safe-area-inset-top,0px));width:min(64vw,420px)}}
+html body .ut-ghud-b{justify-content:center;gap:10px;padding:8px 26px 9px;border:3px solid #7fd0ff;border-radius:999px;color:#fff;text-align:center;
+  font-size:clamp(14px,1.5vw,22px);text-shadow:0 2px 0 #0b1838;background:linear-gradient(#2e74e6,#123a94);
+  box-shadow:0 0 0 3px #0b1838,0 6px 0 3px #0b1838,0 12px 16px rgba(0,0,0,.25)}
+html body .ut-ghud-b i{font-size:1.5em}
+html body .ut-ghud-b i>img{width:1.7em;height:1.7em}
+html body .ut-ghud-b[data-k=ladder]{background:linear-gradient(#2e74e6,#123a94)}
+html body .ut-ghud-b[data-k=snake]{border-color:#ffb3a6;background:linear-gradient(#f0605a,#b02b2b)}
+html body .ut-ghud-b[data-k=mob]{border-color:#dcc0ff;background:linear-gradient(#a86ee8,#6f3cc0)}
+html body .ut-ghud-b[data-k=three6],html body .ut-ghud-b[data-k=bounce]{border-color:#ffe28a;background:linear-gradient(#ffb23f,#e5780c);text-shadow:0 2px 0 #7a3d00}
+html body .ut-ghud-b[data-k=turn],html body .ut-ghud-b[data-k=extra]{font-size:clamp(13px,1.2vw,17px);padding:6px 20px 7px}
+html body .ut-ghud-b.ut-ghud-pw{justify-content:flex-start;gap:12px;border-radius:24px;padding:8px 20px;text-align:left}
+
+/* --- Kiri bawah: inventori power-up = panel gelap semi-transparan, slot + badge jumlah --- */
+html body #side .pnl.pu{padding:6px 10px 6px;border:2px solid rgba(255,255,255,.1);border-radius:20px;background:rgba(12,24,36,.82);
+  box-shadow:0 5px 0 rgba(0,0,0,.35),0 10px 18px rgba(0,0,0,.25)}
+html body #side .pnl.pu>h3{display:none}
+html body #side #pus{gap:clamp(6px,.7vw,10px);padding:10px 8px 4px}
+html body #side #pus .pb{flex:0 0 var(--slot);width:var(--slot);min-width:var(--slot);height:var(--slot);padding:0;margin:0;border:0;border-radius:12px;
+  background:rgba(255,255,255,.07);box-shadow:none}
+html body #side #pus .pb[data-state=ready]{background:rgba(255,255,255,.15)}
+html body #side #pus .pb:not(:disabled):hover{background:rgba(255,255,255,.24)}
+html body #side #pus .pb em{display:none}
+html body #side #pus .pb b{top:-8px;right:-8px;min-width:22px;height:22px;padding:0 3px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;border-radius:7px;background:#1f64d6;color:#fff;font-size:12px;line-height:1;text-shadow:0 1px 0 rgba(0,0,0,.5);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+html body #side #pus .pb[data-state=locked] b{background:#ffb62a;color:#5a3000;text-shadow:none}
+html body #side #pus .pb[data-state=empty] b{background:#5f6f90}
+html body #side #pus .pb[data-state=empty]{opacity:.78;filter:grayscale(.25)}
+
+/* --- Kanan bawah: dadu di kiri + tombol Roll emas besar --- */
+html body #side .rcol .pnl.tn #btnRoll{width:var(--roll-w);height:var(--roll-h);aspect-ratio:auto;padding:0 8px;border:4px solid #d4720c;border-radius:20px;
+  color:#fff;font-size:var(--roll-fs);letter-spacing:.02em;
+  text-shadow:0 3px 0 #a45500,2px 0 0 #a45500,-2px 0 0 #a45500,0 -2px 0 #a45500,2px 2px 0 #a45500,-2px 2px 0 #a45500;
+  background:linear-gradient(#ffe56f,#ffc61f 50%,#f8a80d 52%,#ffbb1e);
+  box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -5px 0 rgba(160,80,0,.35),0 5px 0 #8f4a05,0 10px 14px rgba(0,0,0,.28)}
+html body #side .rcol .pnl.tn #btnRoll::before{border-radius:14px 14px 40% 40%}
+html body #side .rcol .pnl.tn #btnRoll:not(:disabled):hover{filter:brightness(1.07)}
+html body #side .rcol .pnl.tn #btnRoll:not(:disabled):active{transform:translateY(4px);box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -5px 0 rgba(160,80,0,.35),0 1px 0 #8f4a05}
+html body #side .rcol .pnl.tn #btnRoll:disabled{border-color:#4a5878;color:#e6ebf5;text-shadow:0 2px 0 #2a3550;background:linear-gradient(#9aa7c0,#5f6e8d);
+  box-shadow:inset 0 0 0 2px #b9c4da,inset 0 -5px 0 rgba(20,30,60,.35),0 4px 0 #1f2a46}
+html body #side .rcol .pnl.tn #turnName{font-weight:800;text-shadow:0 2px 0 rgba(11,24,56,.8)}
+html body #side{--auto-w:calc(var(--roll-h)*1.15);--tn-w:calc(var(--roll-w) + var(--auto-w) + 10px)}
+html body #side .rcol .pnl.tn{grid-template-columns:auto auto;grid-template-areas:"name name" ". die" "auto btn";column-gap:10px;row-gap:4px;padding-bottom:var(--tn-pb,8px)}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;justify-self:center;align-self:end}
+html body #side .rcol .pnl.tn .dmeter{grid-row:4;grid-column:1/-1}
+/* tombol Auto roll (kiri Roll): biru = mati, hijau menyala = aktif */
+html body #side .rcol .pnl.tn #btnAuto{grid-area:auto;align-self:end;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:var(--auto-w);height:var(--roll-h);padding:0;margin:0;
+  border:4px solid #0b1838;border-radius:18px;font:inherit;font-weight:800;line-height:1;font-size:calc(var(--roll-fs)*.6);color:#fff;text-shadow:0 2px 0 #0b1838;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(#4a9bff,#1a4cbd);box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 5px 0 #0b1838,0 10px 14px rgba(0,0,0,.25)}
+html body #side .rcol .pnl.tn #btnAuto::after{content:"OFF";font-size:.78em;opacity:.85}
+html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]{background:linear-gradient(#6ff26a,#1fa83c);text-shadow:0 2px 0 #0d4a14;
+  box-shadow:inset 0 0 0 2px #b8ffb0,inset 0 -4px 0 rgba(0,70,10,.4),0 5px 0 #0b1838,0 0 0 3px rgba(111,242,106,.55),0 10px 14px rgba(0,0,0,.25)}
+html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]::after{content:"ON";opacity:1}
+html body #side .rcol .pnl.tn #btnAuto:active{transform:translateY(3px)}
+html body.awk-lock #btnAuto{opacity:.55;filter:grayscale(.35)}
+html body #side .rcol .pnl.tn #btnAuto:disabled{opacity:.45;filter:grayscale(.6);cursor:not-allowed;pointer-events:none;transform:none}
+
+/* --- Modal "Pilih kartu": lebar mengikuti jumlah pemain (bukan selalu lebar) --- */
+body #readyScreen .rd-box{width:fit-content;min-width:min(250px,100%);max-width:100%;padding-left:calc(var(--mu)*2.6);padding-right:calc(var(--mu)*2.6);box-sizing:border-box}

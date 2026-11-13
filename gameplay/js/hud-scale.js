@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/hud-scale.js
+/* Ular Tangga Blok — gameplay/js/hud-scale.js
    HUD gameplay responsif: menghitung faktor skala --hs dari ukuran layar perangkat (innerWidth x innerHeight).
    CSS (blok #hud-responsive di gameplay.html) memakai --hs lewat `zoom` pada #hud, #side .col, dan #side .rcol,
    sehingga seluruh HUD mengecil di HP kecil dan membesar di layar lebar tanpa mengubah layout/logika game.

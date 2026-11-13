@@ -1,5 +1,5 @@
 const assert = require('assert');
-const C = require('../gameplay/game-core.js');
+const C = require('../gameplay/js/game-core.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 const at = (s, i, pos, sixes) => { const x = JSON.parse(JSON.stringify(s)); x.cfg = s.cfg; x.players[i].pos = pos; if (sixes != null) x.players[i].sixes = sixes; return x; };
 const types = r => r.events.map(e => e.type);
@@ -99,8 +99,8 @@ console.log('\n' + n + ' tes lulus');
   console.log('ok - ekuivalen rumus lama (' + k + ' kombinasi)');
 })();
 
-/* ===== Tahap 2: mob & peti, memakai data ASLI gameplay/config.js ===== */
-global.window = global; require('../gameplay/config.js');
+/* ===== Tahap 2: mob & peti, memakai data ASLI gameplay/js/config.js ===== */
+global.window = global; require('../gameplay/js/config.js');
 const CFG = global.UT.Gameplay.Config;
 const seeded = seed => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
 

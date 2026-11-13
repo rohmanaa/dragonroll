@@ -1,6 +1,6 @@
-/* Ular Tangga Blok - gameplay/maps/world.js
-   Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH gameplay/maps/registry.js
-   dan SEBELUM gameplay/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
+/* Ular Tangga Blok - gameplay/js/maps/world.js
+   Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH gameplay/js/maps/registry.js
+   dan SEBELUM gameplay/js/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
    Isi definisi:
      goal      petak akhir / fase boss (World = 100, Ender Dragon)
      theme     data tampilan (warna, langit, dekor, ...) - isi PERSIS seperti yang dulu di themes.js

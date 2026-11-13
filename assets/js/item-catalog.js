@@ -85,7 +85,7 @@
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
   var LEGACY_POWER_ID = { apple: 'totem', potion: 'potion_odd' }; /* 'potion' (Ramuan 4-6) diganti Ramuan Ganjil/Genap: stok lama dibaca sebagai Ramuan Ganjil */
-  var MAP_NAMES = { minecraft: 'World', nether: 'Nether' }; /* key map (gameplay/maps/*.js) -> nama tampil */
+  var MAP_NAMES = { minecraft: 'World', nether: 'Nether' }; /* key map (gameplay/js/maps/*.js) -> nama tampil */
   function normalizePowerId(id) { return Object.prototype.hasOwnProperty.call(LEGACY_POWER_ID, id) ? LEGACY_POWER_ID[id] : id; }
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
@@ -191,7 +191,7 @@
     powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.', { price: 60 }),
     powerup('grass',   'Ender Pearl','common', 'Tukar posisi dengan pemain terdepan.', { price: 100 }),
     /* maps: ['minecraft'|'nether'] = Power HANYA boleh dibawa/dipakai di map itu (tanpa 'maps' = semua map). Tidak boleh dipilih di Room dan ditolak di gameplay; stok pemain TIDAK berkurang. */
-    /* Batch 2-3 (aturan: gameplay/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
+    /* Batch 2-3 (aturan: gameplay/js/config.js C.PUR). Rarity UI 4 tingkat: uncommon -> common, mythic -> legendary. */
     powerup('diamond_sword',   'Diamond Sword',   'rare',      'Musuh dalam jarak 2 petak mundur 3 petak.', { price: 250 }),
     powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { price: 450, off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
     powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.', { price: 90, maps: ['minecraft'] }),

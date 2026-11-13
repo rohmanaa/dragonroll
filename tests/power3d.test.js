@@ -20,9 +20,9 @@ t('setiap id 3D di peta ada di PowerCatalog.js', () => {
   assert.strictEqual(ids.length, 17);
   Object.values(map).forEach(v => assert.ok(ids.indexOf(v) >= 0, 'model 3D tidak ada: ' + v));
 });
-t('nama tampil 5 power sesuai item baru dan sama di katalog & gameplay/config.js', () => {
+t('nama tampil 5 power sesuai item baru dan sama di katalog & gameplay/js/config.js', () => {
   const want = { sword: 'Iron Sword', feather: 'Feather', tnt: 'TNT', totem: 'Totem', grass: 'Ender Pearl' };
-  const cfg = rd('gameplay/config.js');
+  const cfg = rd('gameplay/js/config.js');
   Object.keys(want).forEach(k => {
     assert.strictEqual(pus.find(p => p.gameKey === k).name, want[k]);
     assert.ok(new RegExp(k + ":\\s*\\['[^']*',\\s*'" + want[k] + "'").test(cfg), 'config.js nama ' + k);

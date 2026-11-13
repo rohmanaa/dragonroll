@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const css = fs.readFileSync(path.join(__dirname, '../gameplay/pause.css'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '../gameplay/css/pause.css'), 'utf8');
 const gridRule = css.match(/html body #exitConfirm \.lm-grid\.lm-two\s*\{([^}]*)\}/);
 const buttonRule = css.match(/html body #exitConfirm \.lm-grid\.lm-two \.lm-mode\s*\{([^}]*)\}/);
 const cancelRule = css.match(/html body #exitConfirm #ecNo\s*\{([^}]*)\}/);

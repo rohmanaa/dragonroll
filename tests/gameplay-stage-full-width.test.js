@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const scaleScript = fs.readFileSync(path.join(__dirname, '../gameplay/hud-scale.js'), 'utf8');
-const hudCss = fs.readFileSync(path.join(__dirname, '../gameplay/hud-mockup.css'), 'utf8');
+const scaleScript = fs.readFileSync(path.join(__dirname, '../gameplay/js/hud-scale.js'), 'utf8');
+const hudCss = fs.readFileSync(path.join(__dirname, '../gameplay/css/hud-mockup.css'), 'utf8');
 const properties = {};
 const root = {
   clientWidth: 740,

@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — gameplay/afk.js (Stage 4.1.15: timer AFK / auto-action; CP4b: hold + pending action)
-   Skrip klasik (tanpa import/export). Dimuat SEBELUM gameplay/ready.js dan blok skrip gameplay inline.
+/* Ular Tangga Blok — gameplay/js/afk.js (Stage 4.1.15: timer AFK / auto-action; CP4b: hold + pending action)
+   Skrip klasik (tanpa import/export). Dimuat SEBELUM gameplay/js/ready.js dan blok skrip gameplay inline.
    HANYA manajer timer: satu timer aktif per id (start dengan id yang sama menggantikan yang lama),
    tidak ada state gameplay, tidak menyentuh DOM selain MEMBACA status overlay. Aman bila dimuat berkali-kali.
      UT.GameplayAFK.start(id, ms, onTimeout, onTick) -> id   (onTick(detikSisa) tiap detik berubah)

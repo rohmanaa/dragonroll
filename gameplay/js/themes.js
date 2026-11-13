@@ -1,7 +1,7 @@
-/* Ular Tangga Blok — gameplay/themes.js (Stage 4.1.14.3: extract gameplay themes data)
-   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/module-bridge.js
+/* Ular Tangga Blok — gameplay/js/themes.js (Stage 4.1.14.3: extract gameplay themes data)
+   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/js/module-bridge.js
    dan SEBELUM blok skrip gameplay inline.
-   Sekarang data tiap tema ada di gameplay/maps/<map>.js (world, nether); file ini hanya merakit LIST dari UT.Gameplay.Maps.
+   Sekarang data tiap tema ada di gameplay/js/maps/<map>.js (world, nether); file ini hanya merakit LIST dari UT.Gameplay.Maps.
    HANYA data tema statis. Tidak ada THREE, DOM, RNG, localStorage, timer, atau state gameplay di sini.
    Dipindahkan APA ADANYA dari gameplay.html (isi object, property, nilai, dan URUTAN array tidak diubah).
    CATATAN: tema aktif sementara hanya World & Nether (rumput/gurun/salju/hutan dihapus sementara, ada di git history).

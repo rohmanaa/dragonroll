@@ -1,5 +1,5 @@
 /* Power FX — DATA efek visual tiap Power (partikel kecil, asap, percikan, gelembung, dll).
-   Hanya memakai engine UT.ParticleFX.burstAt (gameplay/particle-fx.js): layer #fx-layer, batas partikel, cleanup animationend, otomatis mati saat reduced-motion.
+   Hanya memakai engine UT.ParticleFX.burstAt (gameplay/js/particle-fx.js): layer #fx-layer, batas partikel, cleanup animationend, otomatis mati saat reduced-motion.
    Tanpa timer/rAF/listener; urutan lapisan dijadwalkan lewat delayMin (CSS animation-delay). Aman-gagal: modul/engine tak ada -> return 0, gameplay tetap jalan.
    Classic script. Namespace: UT.PowerFX.
    API: play(key, x, y[, o]) · playAtElement(key, el[, o]) · has(key) · DATA

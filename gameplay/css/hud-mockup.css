@@ -175,7 +175,7 @@
 }
 
 #players {
-  --gh-skull: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp");
+  --gh-skull: url("../../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp");
 }
 
 #side #playersPanel,
@@ -557,7 +557,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   border: 0 !important;
   border-radius: 0 !important;
   color: #fff !important;
-  background: url("../referensi/newgui/game/assets/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp") center / contain no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp") center / contain no-repeat !important;
   font: 20px/1 var(--gh-title) !important;
   text-shadow: 0 1px 0 #1b1430 !important;
 }
@@ -649,8 +649,8 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   text-shadow: 0 3px 0 rgba(20,10,40,.6) !important;
   pointer-events: auto !important;
 }
-#side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 2 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
-#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; justify-self: center !important; width: 200px !important; height: 76px !important; min-height: 76px !important; font-size: 36px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+#side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 2 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; justify-self: center !important; width: 200px !important; height: 76px !important; min-height: 76px !important; font-size: 36px !important; background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
 #side .rcol .pnl.tn #btnRoll:disabled,
 #side .rcol .pnl.tn #btnAuto:disabled { filter: grayscale(.8) brightness(.7) !important; cursor: not-allowed !important; }
 #side .rcol .pnl.tn #btnRoll::before,
@@ -697,7 +697,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   padding: 0 !important;
   border: 0 !important;
   border-radius: 50% !important;
-  background: url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   font-size: 0 !important;
 }
@@ -728,7 +728,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   height: 46px;
   transform: translate(-50%, -50%) rotate(-90deg);
   border-radius: 14px;
-  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat;
+  background: url("../../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat;
   color: #fff3d0;
   font: 22px var(--gh-title);
   letter-spacing: 2px;
@@ -747,7 +747,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 }
 #emoteDock .em-main {
   border-color: #2b1a70 !important;
-  background: url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
 #emoteDock .em-main .em-icon { width: 34px !important; height: 34px !important; filter: brightness(0) invert(1) drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
@@ -765,7 +765,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 #puCard {
   border: 0 !important;
   border-radius: 20px !important;
-  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   color: #fff !important;
   font-family: var(--gh-body) !important;
@@ -779,7 +779,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 .tm-box {
   border: 0 !important;
   border-radius: 24px !important;
-  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
 .lm-ov .lm-box { padding: 28px !important; }
@@ -789,14 +789,14 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 .tm-bt button {
   border: 0 !important;
   border-radius: 18px !important;
-  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   color: #fff !important;
   font-family: var(--gh-title) !important;
 }
 .lm-ov .lm-mode.lm-blue,
-.lm-ov .lm-mode.lm-grey { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
-.lm-ov .lm-mode.lm-red { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important; }
+.lm-ov .lm-mode.lm-grey { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+.lm-ov .lm-mode.lm-red { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important; }
 #pauseMenu .lm-box { width: 900px !important; padding: 24px !important; }
 #pauseMenu .lm-body { display: grid !important; grid-template-columns: repeat(4, 170px) !important; justify-content: center; align-items: center; gap: 16px; }
 #pauseMenu #pmSub { grid-column: 1 / -1; margin: 0; color: #efe9ff; text-align: center; }
@@ -807,7 +807,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   margin: 0 auto;
   overflow: hidden;
   color: transparent !important;
-  background: url("../referensi/newgui/game/assets/komponen/menu-pause/teks-pause-krem.webp") center / contain no-repeat;
+  background: url("../../referensi/newgui/game/assets/komponen/menu-pause/teks-pause-krem.webp") center / contain no-repeat;
   font-size: 0 !important;
 }
 #pauseMenu #pmCpu { grid-column: 1 / -1; margin: 0; text-align: center; }
@@ -825,7 +825,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   padding: 0 8px 10px !important;
   border: 0 !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/menu-pause/tombol-bulat-kosong.webp") center / contain no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/menu-pause/tombol-bulat-kosong.webp") center / contain no-repeat !important;
   box-shadow: none !important;
   font: 800 20px/1.1 var(--gh-body) !important;
 }
@@ -843,9 +843,9 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   background-repeat: no-repeat;
   background-size: contain;
 }
-#pauseMenu .lm-resume::before { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-lanjut.webp"); }
-#pauseMenu .lm-exit::before { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-menyerah.webp"); }
-#pauseMenu #pmModeIco { background-image: url("../referensi/newgui/game/assets/komponen/menu-pause/ikon-pengaturan.webp"); }
+#pauseMenu .lm-resume::before { background-image: url("../../referensi/newgui/game/assets/komponen/menu-pause/ikon-lanjut.webp"); }
+#pauseMenu .lm-exit::before { background-image: url("../../referensi/newgui/game/assets/komponen/menu-pause/ikon-menyerah.webp"); }
+#pauseMenu #pmModeIco { background-image: url("../../referensi/newgui/game/assets/komponen/menu-pause/ikon-pengaturan.webp"); }
 #pauseMenu .lm-mode span { color: #fff3d0; text-shadow: 0 2px 0 var(--gh-ink); }
 #pauseMenu .lm-modewrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 #pauseMenu .lm-chip { color: #efe9ff; font: 800 18px var(--gh-body); }
@@ -855,20 +855,20 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   border: 0 !important;
   border-radius: 0 !important;
   color: transparent !important;
-  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp") center / contain no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp") center / contain no-repeat !important;
 }
 #pauseMenu .lm-srow { display: flex; align-items: center; gap: 10px; color: #fff3d0; font: 800 20px var(--gh-body); }
 #pauseMenu .lm-srow input[type="range"] { flex: 1; accent-color: #ffd45a; }
-#pauseMenu .lm-srow input[type="range"]::-webkit-slider-thumb { background: url("../referensi/newgui/game/assets/komponen/ikon-pengaturan/knob-slider.webp") center / contain no-repeat; }
+#pauseMenu .lm-srow input[type="range"]::-webkit-slider-thumb { background: url("../../referensi/newgui/game/assets/komponen/ikon-pengaturan/knob-slider.webp") center / contain no-repeat; }
 
 #readyScreen .rd-box {
   border: 0 !important;
   border-radius: 22px !important;
-  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
 }
 #readyScreen .rk-b,
 #readyScreen .rk-f { border: 0 !important; border-radius: 18px !important; }
-#readyScreen .rk-b { background: url("../referensi/newgui/game/assets/komponen/hud/kartu-kosong-ungu.webp") center / 100% 100% no-repeat !important; }
+#readyScreen .rk-b { background: url("../../referensi/newgui/game/assets/komponen/hud/kartu-kosong-ungu.webp") center / 100% 100% no-repeat !important; }
 html body #readyScreen .rd-box {
   zoom: 1 !important;
   margin: 0 auto !important;
@@ -997,18 +997,18 @@ html body #puCard.pucard {
   font-size: 0 !important;
 }
 #utGameplayHud .ut-ghud-b:not(.ut-ghud-pw) i > img { display: none !important; }
-#utGameplayHud .ut-ghud-b[data-k="turn"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/segitiga-kanan.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="turn"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/segitiga-kanan.webp"); }
 #utGameplayHud .ut-ghud-b[data-k="extra"] i,
-#utGameplayHud .ut-ghud-b[data-k="power"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/petir.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="ladder"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/panah-atas.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="snake"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/tongkat-ular.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="power"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/petir.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="ladder"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/panah-atas.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="snake"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/tongkat-ular.webp"); }
 #utGameplayHud .ut-ghud-b[data-k="mob"] i,
-#utGameplayHud .ut-ghud-b[data-k="dragon"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="chest"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/peti-harta.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="three6"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/dadu.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="bounce"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/ulang-maju.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="shield"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/perisai-lambang.webp"); }
-#utGameplayHud .ut-ghud-b[data-k="info"] i { background-image: url("../referensi/newgui/game/assets/komponen/glyph-putih/info-bulat.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="dragon"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="chest"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/peti-harta.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="three6"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/dadu.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="bounce"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/ulang-maju.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="shield"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/perisai-lambang.webp"); }
+#utGameplayHud .ut-ghud-b[data-k="info"] i { background-image: url("../../referensi/newgui/game/assets/komponen/glyph-putih/info-bulat.webp"); }
 #utGameplayHud .ut-ghud-pw > i { color: #fff !important; background: none !important; font-size: 26px !important; }
 #utGameplayHud .ut-ghud-pw > i > img,
 #utGameplayHud .ut-ghud-pw > i .puimg { display: block !important; width: 50px !important; height: 50px !important; object-fit: contain !important; }
@@ -1035,7 +1035,7 @@ html body #puCard.pucard {
   height: 70px;
   margin: -4px auto 0;
   color: #ffe9d0;
-  background: url("../referensi/newgui/game/assets/komponen/banner-label/label-merah-polos.webp") center / 100% 100% no-repeat;
+  background: url("../../referensi/newgui/game/assets/komponen/banner-label/label-merah-polos.webp") center / 100% 100% no-repeat;
   font: 40px/1 var(--gh-title);
 }
 #utGameplayHud .ut-ghud-cw {
@@ -1055,7 +1055,7 @@ html body #puCard.pucard {
   width: 100% !important;
   height: 58px !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/hud/bar-hp-boss.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/hud/bar-hp-boss.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
 #utGameplayHud .ut-ghud-bar b {
@@ -1119,7 +1119,7 @@ html body #puCard.pucard.mob-hit {
   min-height: 0;
   margin: 12px auto;
   color: transparent;
-  background: url("../referensi/newgui/game/assets/komponen/hud/ikon-kado-merah.webp") center / contain no-repeat;
+  background: url("../../referensi/newgui/game/assets/komponen/hud/ikon-kado-merah.webp") center / contain no-repeat;
   font-size: 0;
 }
 #puCard.chest #pcName { font-size: 48px !important; }
@@ -1135,7 +1135,7 @@ html body #puCard.pucard.mob-hit {
   padding: 20px 30px !important;
   border: 0 !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
 #trapBar[hidden] { display: none !important; }
@@ -1149,12 +1149,12 @@ html body #puCard.pucard.mob-hit {
   padding: 0 24px !important;
   border: 0 !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   color: #fff !important;
   font: 30px var(--gh-title) !important;
 }
-#trapBar button#trapOk { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+#trapBar button#trapOk { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
 
 .tm-box {
   box-sizing: border-box !important;
@@ -1176,11 +1176,11 @@ html body #puCard.pucard.mob-hit {
   min-height: 76px !important;
   border: 0 !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
   font: 30px var(--gh-title) !important;
 }
-.tm-bt .tm-n { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+.tm-bt .tm-n { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
 
 #readyScreen {
   background: rgba(0, 0, 0, .72) !important;
@@ -1346,7 +1346,7 @@ html body #puCard.pucard.mob-hit {
   padding: 28px !important;
   border: 0 !important;
   border-radius: 0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
 #win .lm-body { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 18px !important; padding: 32px 48px !important; }
@@ -1367,7 +1367,7 @@ html body #puCard.pucard.mob-hit {
   min-height: 170px !important;
   margin: 0 !important;
   color: #fff3d0 !important;
-  background: url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
   font: 76px/1.1 var(--gh-title) !important;
   text-transform: uppercase !important;
   text-shadow: 0 5px 0 var(--gh-ink) !important;
@@ -1394,8 +1394,8 @@ html body #puCard.pucard.mob-hit {
 }
 #win[data-state="lose"] .lm-eyebrow::before,
 #win[data-state="lose"] .lm-eyebrow::after { content: ""; flex: none; width: 150px; height: 150px; background-position: center; background-repeat: no-repeat; background-size: contain; }
-#win[data-state="lose"] .lm-eyebrow::before { background-image: url("../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kiri.webp"); }
-#win[data-state="lose"] .lm-eyebrow::after { background-image: url("../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kanan.webp"); }
+#win[data-state="lose"] .lm-eyebrow::before { background-image: url("../../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kiri.webp"); }
+#win[data-state="lose"] .lm-eyebrow::after { background-image: url("../../referensi/newgui/game/assets/komponen/hud/ornamen-sirip-kanan.webp"); }
 #win[data-state="lose"].lm-ov { padding: 0 !important; background: rgba(60, 0, 10, .75) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 body:has(#win[data-state="lose"]:not([hidden])) #hud,
 body:has(#win[data-state="lose"]:not([hidden])) #side,
@@ -1460,8 +1460,8 @@ body:has(#win[data-state="lose"]:not([hidden])) #utGameplayHud { visibility: hid
   font: 34px/1 var(--gh-title) !important;
   text-shadow: 0 3px 0 rgba(20, 10, 40, .6) !important;
 }
-#win[data-state="lose"] #btnAgain { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
-#win[data-state="lose"] #btnToMenu { background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp") !important; }
+#win[data-state="lose"] #btnAgain { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+#win[data-state="lose"] #btnToMenu { background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp") !important; }
 
 @media (max-width: 699px) {
   #utGameplayHud .ut-ghud-b { gap: 12px !important; padding: 12px 30px !important; font-size: 28px !important; }
@@ -1501,7 +1501,7 @@ html body #hud .tools.open #btnPreset[aria-expanded="true"],
 html body #hud .tools.open #btnSnd.muted {
   background-image:
     linear-gradient(rgba(255, 212, 79, .72), rgba(240, 150, 15, .72)),
-    url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") !important;
+    url("../../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") !important;
   background-position: center, center !important;
   background-size: 100% 100%, 100% 100% !important;
   background-repeat: no-repeat, no-repeat !important;
@@ -1510,14 +1510,14 @@ html body #hud .tools.open #btnMenu::before {
   filter: none !important;
   background-image:
     linear-gradient(rgba(255, 212, 79, .58), rgba(240, 150, 15, .58)),
-    url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") !important;
+    url("../../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") !important;
   background-position: center, center !important;
   background-size: 100% 100%, 100% 100% !important;
   background-repeat: no-repeat, no-repeat !important;
 }
 
 html body #side .rcol .pnl.tn #btnRoll.boss-attack {
-  background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important;
+  background-image: url("../../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important;
   color: #fff !important;
   text-shadow: 0 3px 0 #7a0e0a !important;
   text-transform: uppercase !important;
@@ -1600,7 +1600,7 @@ html body #utGameplayHud .ut-ghud-c[data-awakening="true"]::after {
   width: 48px;
   height: 48px;
   transform: translateX(-50%);
-  background: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp") center / contain no-repeat;
+  background: url("../../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp") center / contain no-repeat;
 }
 html body #utGameplayHud .ut-ghud-c[data-awakening="true"] > p:not(.ut-ghud-hp) { display: none !important; }
 html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-bar,

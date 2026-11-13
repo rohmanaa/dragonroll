@@ -2,7 +2,7 @@
  * PowerSound.js — suara Power sintetis (WebAudio, tanpa file audio). 17 Power x 4 fase: spawn · activate · hit · disappear.
  * Dipakai: PowerRenderer (pratinjau halaman Power, otomatis lewat callback animator) dan gameplay (audio.js sfx.power -> UT.PowerSound.play(key)).
  * Key = gameKey Power (sword, grass, potion_odd, ...) ATAU id model 3D (iron_sword, ender_pearl, potion_red, ...).
- * Kontrol: setEnabled(bool) · setVolume(0..1) · ensure([ctx]) (buat/resume AudioContext; boleh meminjam ctx milik gameplay/audio.js).
+ * Kontrol: setEnabled(bool) · setVolume(0..1) · ensure([ctx]) (buat/resume AudioContext; boleh meminjam ctx milik gameplay/js/audio.js).
  * Semua kegagalan audio ditelan (try/catch): suara tidak pernah menghentikan game.
  */
 let ctx = null, enabled = true, volume = 1;

@@ -1,5 +1,5 @@
 /* Particle FX 2D (Stage 4.1.22) — fondasi overlay DOM/CSS ringan. Hanya transform + opacity; tanpa blur/shadow/filter; tanpa animasi infinite.
-   Partikel dibuat oleh gameplay/particle-fx.js (UT.ParticleFX) dan dihapus otomatis saat animationend. */
+   Partikel dibuat oleh gameplay/js/particle-fx.js (UT.ParticleFX) dan dihapus otomatis saat animationend. */
 #fx-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60;contain:strict}
 .fx-particle{position:absolute;left:0;top:0;width:var(--fx-size,8px);height:var(--fx-size,8px);margin:calc(var(--fx-size,8px) / -2) 0 0 calc(var(--fx-size,8px) / -2);
   background:var(--fx-color,#fff);opacity:0;pointer-events:none;will-change:transform,opacity;

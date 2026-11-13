@@ -30,10 +30,10 @@ html body #exitConfirm .lm-grid.lm-two .lm-mode {
   box-shadow: none !important;
 }
 html body #exitConfirm #ecNo {
-  background: url("../assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
 }
 html body #exitConfirm #ecYes {
-  background: url("../assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") center / 100% 100% no-repeat !important;
 }
 html body #pauseMenu .lm-box {
   position: relative !important;

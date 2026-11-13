@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/hud.js (Stage 4.0.9: Gameplay HUD + event feedback)
+/* Ular Tangga Blok — gameplay/js/hud.js (Stage 4.0.9: Gameplay HUD + event feedback)
    Skrip klasik (tanpa import/export/type=module). Dimuat dari gameplay.html SEBELUM blok skrip gameplay.
    Hanya PRESENTASI: tidak mengubah state, dadu, gerak, aturan, power, atau perhitungan naga.
    gameplay.html tetap source of truth; HUD mengikuti event yang sudah ada (bukan sebaliknya).

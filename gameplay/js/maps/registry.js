@@ -1,5 +1,5 @@
-/* Ular Tangga Blok - gameplay/maps/registry.js
-   Registry map. Dimuat SEBELUM gameplay/maps/*.js dan gameplay/themes.js.
+/* Ular Tangga Blok - gameplay/js/maps/registry.js
+   Registry map. Dimuat SEBELUM gameplay/js/maps/*.js dan gameplay/js/themes.js.
    API: UT.Gameplay.Maps.register(def)  def = {key, theme, goal?, rules?, onlyMobs?}
         goal  = petak akhir (default 100). rules = {ladders, snakes, chests:[], mobs:[[nama,[petak]]]};
         yang tidak diisi memakai UT.Gameplay.Config (dibaca gameplay.html -> applyMapRules)  (key unik; duplikat diabaikan)

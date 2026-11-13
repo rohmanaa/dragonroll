@@ -13,7 +13,7 @@
      Hanya skin 'palette' (legacy) yang diteruskan; skin PNG yang dipakai/dimiliki jatuh ke skin cadangan,
      TANPA mengubah kepemilikan atau skin terpasang di PlayerData. */
   var FALLBACK_KEY = (IC.byId(IC.fallbackSkinId()) || {}).gameKey || 'steve';
-  function playable(k) { var it = IC.byGameKey('skin', k); return !!it && (it.renderer === 'palette' || it.renderer === 'png'); } /* 4.1.14.9: PNG punya renderer 3D (gameplay/skin-uv.js); gagal muat -> palette Steve di gameplay */
+  function playable(k) { var it = IC.byGameKey('skin', k); return !!it && (it.renderer === 'palette' || it.renderer === 'png'); } /* 4.1.14.9: PNG punya renderer 3D (gameplay/js/skin-uv.js); gagal muat -> palette Steve di gameplay */
   function eqSkinKey() { var it = IC.byId(PD.equippedId('skin')); return !it ? null : ((it.renderer === 'palette' || it.renderer === 'png') ? it.gameKey : FALLBACK_KEY); }
   function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
 

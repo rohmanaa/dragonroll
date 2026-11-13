@@ -1,0 +1,1 @@
+UT.App.init({page:'gameplay'});

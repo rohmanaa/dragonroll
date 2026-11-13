@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/module-bridge.js (Stage 4.1.2: Gameplay module bridge)
+/* Ular Tangga Blok — gameplay/js/module-bridge.js (Stage 4.1.2: Gameplay module bridge)
    Skrip klasik (tanpa import/export/type=module). Dimuat dari gameplay.html SETELAH app.js
-   dan SEBELUM gameplay/hud.js serta blok skrip gameplay inline.
+   dan SEBELUM gameplay/js/hud.js serta blok skrip gameplay inline.
    HANYA namespace: tidak ada logic, data, atau state gameplay di sini.
    gameplay.html tetap source of truth; extraction dilakukan di sub-step berikutnya.
    Idempotent: aman dimuat lebih dari sekali, tidak menimpa object yang sudah ada

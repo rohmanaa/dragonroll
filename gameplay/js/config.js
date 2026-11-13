@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/config.js (Stage 4.1.3: extract gameplay config)
-   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/module-bridge.js
-   dan SEBELUM gameplay/hud.js serta blok skrip gameplay inline.
+/* Ular Tangga Blok — gameplay/js/config.js (Stage 4.1.3: extract gameplay config)
+   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/js/module-bridge.js
+   dan SEBELUM gameplay/js/hud.js serta blok skrip gameplay inline.
    HANYA data/konfigurasi statis. Tidak ada logic, closure state, atau akses DOM/THREE di sini.
    Satu-satunya sumber (single source of truth) untuk data di bawah; gameplay.html membacanya lewat
    UT.Gameplay.Config.* dan tidak menyimpan salinan.
