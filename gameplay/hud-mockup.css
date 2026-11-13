@@ -302,6 +302,25 @@
   background: linear-gradient(90deg, #ffd45a, #ff8a3a);
   transition: width 1s linear;
 }
+#players .pg .turn-chip {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  margin: 0 -38px -2px 0;
+  padding: 0 20px;
+  border: 3px solid #c4ffad;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, #7ce96b, #278d3a);
+  box-shadow: 0 4px 0 #123a1c, 0 0 14px rgba(111, 242, 106, .45);
+  font: 800 17px/1 var(--gh-title);
+  letter-spacing: .08em;
+  text-shadow: 0 2px 0 #154a22;
+  pointer-events: none;
+}
+html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; }
 #players .pg .nm {
   display: flex;
   flex: 1 1 auto;
@@ -747,36 +766,12 @@
 }
 #emoteDock .em-main .em-icon { width: 34px !important; height: 34px !important; filter: brightness(0) invert(1) drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
 #emoteDock .em-list { border-color: #2b1a70 !important; background: #1b4ab0 !important; }
-#emoteDock .em-list button { display: grid; place-items: center; }
-#emoteDock .em-list button img { width: 30px; height: 30px; filter: brightness(0) invert(1); }
-
-#turnToast {
-  top: 150px !important;
-  zoom: 1 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 16px !important;
-  width: max-content !important;
-  min-height: 0 !important;
-  padding: 18px 70px !important;
-  border: 0 !important;
-  border-top: 3px solid var(--gh-gold) !important;
-  border-bottom: 3px solid var(--gh-gold) !important;
-  border-radius: 0 !important;
-  color: var(--gh-gold) !important;
-  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
-  font: 800 36px var(--gh-body) !important;
-  text-shadow: none !important;
-  translate: -50% 0 !important;
-}
-#turnToast::before {
-  content: "";
-  display: block;
-  flex: none;
-  width: 50px;
-  height: 50px;
-  background: url("../referensi/newgui/game/assets/komponen/glyph-putih/segitiga-kanan.webp") center / contain no-repeat;
+#emoteDock .em-list button {
+  display: grid;
+  place-items: center;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 28px;
+  line-height: 1;
 }
 
 #utGameplayHud,
@@ -1493,5 +1488,130 @@ body:has(#win[data-state="lose"]:not([hidden])) #utGameplayHud { visibility: hid
   #win[data-state="lose"] .lm-note { font-size: clamp(16px, 4vh, 28px) !important; }
   #win[data-state="lose"] .lm-grid { gap: 12px !important; }
   #win[data-state="lose"] .lm-mode { height: clamp(48px, 10vh, 72px) !important; }
+}
+
+html body #hud .tools.open .btn.small .hi {
+  opacity: 1 !important;
+  filter: brightness(0) invert(1) !important;
+}
+html body #hud .tools.open .btn.small {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+html body #hud .tools.open .btn.small[aria-pressed="true"],
+html body #hud .tools.open #btnPreset[aria-expanded="true"],
+html body #hud .tools.open #btnSnd.muted {
+  background-image:
+    linear-gradient(rgba(255, 212, 79, .72), rgba(240, 150, 15, .72)),
+    url("../referensi/newgui/game/assets/komponen/hud/tombol-bulat-kosong-ungu.webp") !important;
+  background-position: center, center !important;
+  background-size: 100% 100%, 100% 100% !important;
+  background-repeat: no-repeat, no-repeat !important;
+}
+html body #hud .tools.open #btnMenu::before {
+  filter: none !important;
+  background-image:
+    linear-gradient(rgba(255, 212, 79, .58), rgba(240, 150, 15, .58)),
+    url("../referensi/newgui/game/assets/komponen/banner-label/banner-judul-ungu-polos.webp") !important;
+  background-position: center, center !important;
+  background-size: 100% 100%, 100% 100% !important;
+  background-repeat: no-repeat, no-repeat !important;
+}
+
+html body #side .rcol .pnl.tn #btnRoll.boss-attack {
+  background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") !important;
+  color: #fff !important;
+  text-shadow: 0 3px 0 #7a0e0a !important;
+  text-transform: uppercase !important;
+}
+html body #side .rcol .pnl.tn #btnRoll.boss-attack.holding { font-size: 24px !important; }
+
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"]) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  transform: none !important;
+  zoom: 1 !important;
+  z-index: 60 !important;
+  display: block !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"])::before,
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"])::after {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  color: #ff263b;
+  font: italic 900 clamp(22px, 4vw, 48px)/1 var(--gh-title);
+  letter-spacing: .08em;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(255, 24, 50, .65), 0 2px 0 rgba(50, 0, 0, .6);
+  white-space: nowrap;
+}
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"])::before {
+  content: "WARNING!  WARNING!  WARNING!  WARNING!  WARNING!";
+  top: 12px;
+}
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"])::after {
+  content: "WARNING!  WARNING!  WARNING!  WARNING!  WARNING!";
+  bottom: 12px;
+}
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"]) .feedback-stack,
+html body #utGameplayHud:has(.ut-ghud-c[data-awakening="true"]) .ut-ghud-p { display: none !important; }
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: min(80vw, 780px) !important;
+  max-width: none !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"]::before {
+  content: "BOSS";
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0;
+  color: #ff273c;
+  background: none;
+  font: 900 clamp(64px, 12vw, 150px)/.9 var(--gh-title);
+  text-shadow: 0 0 18px rgba(255, 35, 55, .8), 0 5px 0 rgba(85, 0, 10, .5);
+}
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"]::after {
+  content: "";
+  position: absolute;
+  top: -58px;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translateX(-50%);
+  background: url("../referensi/newgui/game/assets/komponen/glyph-putih/tengkorak.webp") center / contain no-repeat;
+}
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] > p:not(.ut-ghud-hp) { display: none !important; }
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-bar {
+  width: min(520px, 78vw) !important;
+  height: 58px !important;
+}
+html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp {
+  color: #fff !important;
+  font: 800 24px/1.1 var(--gh-body) !important;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .7) !important;
 }
 

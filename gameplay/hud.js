@@ -10,7 +10,8 @@
      UT.GameplayHUD.showTurn(player, {extra})           — "Giliran X" / "Giliran Computer" / "Giliran tambahan!"
      UT.GameplayHUD.showEvent(kind, text, {ttl, gid})   — LEVEL 1: banner kecil non-blocking (role=status)
      UT.GameplayHUD.showPower(key, name, who, {icon,desc,gid,text})  LEVEL 1: kartu Power (ikon, pemain, nama Power, efek) di stack; text = pesan satu baris
-     UT.GameplayHUD.showCombat(att, def, text, {hp,maxHp,ttl,gid}) — strip combat + bar HP naga (opsional)
+     UT.GameplayHUD.showCombat(att, def, text, {hp,maxHp,ttl,gid,awakening}) — strip combat + bar HP naga (opsional)
+     UT.GameplayHUD.hideCombat()                        — sembunyikan strip combat dan hentikan timer
      UT.GameplayHUD.showResult(title, text, {ttl, gid}) — LEVEL 2: panel penting non-blocking (role=status)
      UT.GameplayHUD.updatePlayer(player)                — sinkronkan bar HP naga bila sedang tampil
    Feedback stack (Stage 4.1.14): semua feedback LEVEL 1 masuk ke SATU .feedback-stack (kolom, gap tetap => tidak overlap).
@@ -177,7 +178,7 @@
     if (eff) el('span', 'e', c).textContent = eff;
   }
   function hidePanel() { clearTimeout(tPanel); tPanel = 0; if (panel) panel.hidden = true; }
-  function hideCombat() { clearTimeout(tCombat); tCombat = 0; combatOwner = null; if (combat) combat.hidden = true; }
+  function hideCombat() { clearTimeout(tCombat); tCombat = 0; combatOwner = null; if (combat) { combat.hidden = true; combat.removeAttribute('data-awakening'); } }
 
   function retrigger(node) { node.hidden = true; void node.offsetWidth; node.hidden = false; }
 
@@ -191,6 +192,10 @@
     },
     reset: function () {
       clearStack(); hidePanel(); hideCombat();
+      return H;
+    },
+    hideCombat: function () {
+      hideCombat();
       return H;
     },
     showEvent: function (kind, text, o) {
@@ -218,6 +223,8 @@
     },
     showCombat: function (att, def, text, o) {
       if (stale(o) || !build()) return H;
+      if (o && o.awakening) combat.setAttribute('data-awakening', 'true');
+      else combat.removeAttribute('data-awakening');
       cWho.textContent = (att || '') + (def ? ' → ' + def : '');
       cText.textContent = text ? String(text) : '';
       var mx = (o && o.maxHp) || 100, hp = o && typeof o.hp === 'number' ? Math.max(0, Math.min(mx, o.hp)) : null;

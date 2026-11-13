@@ -7,10 +7,6 @@ html body.opp-turn #side #diceMeter{display:none!important} /* bar angka 1-6 (da
 html body #side .pr:not(.host) .pos::before{display:none}
 html body.mp-online #side .pr.host::after{content:none} /* satu mahkota saja (di samping posisi) */
 html body #side .pr:not(.host) .pos{gap:0}
-#turnToast{position:fixed;left:50%;top:44%;z-index:60;translate:-50% -50%;padding:10px 30px 12px;border:3px solid #7fd0ff;border-radius:999px;color:#fff;font:800 clamp(18px,2.4vw,30px)/1.1 "Baloo 2","Nunito",system-ui,sans-serif;text-shadow:0 2px 0 #0b1838;background:linear-gradient(#2e74e6,#123a94);box-shadow:0 0 0 3px #0b1838,0 6px 0 3px #0b1838,0 12px 16px rgba(0,0,0,.3);pointer-events:none;opacity:0;scale:.85;white-space:nowrap}
-#turnToast.show{animation:turnToast 1.3s ease both}
-@keyframes turnToast{0%{opacity:0;scale:.8}16%{opacity:1;scale:1.06}28%{scale:1}78%{opacity:1}100%{opacity:0;scale:.96}}
-@media (prefers-reduced-motion:reduce){#turnToast.show{animation:turnToastR 1.3s ease both}@keyframes turnToastR{0%{opacity:0}15%,80%{opacity:1}100%{opacity:0}}}
 </style><title>Ular Tangga Blok</title><script src="assets/js/landscape.js"></script></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -393,12 +389,12 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
   </button>
   <button class="em-tab" type="button" aria-label="Buka daftar emote" aria-expanded="false"><i>&#9656;</i></button>
   <div class="em-list" role="group" aria-label="Pilih emote">
-    <button type="button" data-e="&#128512;" aria-label="Senang"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-senang.webp" alt=""></button>
-    <button type="button" data-e="&#128514;" aria-label="Tertawa"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-tersenyum.webp" alt=""></button>
-    <button type="button" data-e="&#128526;" aria-label="Keren"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-datar.webp" alt=""></button>
-    <button type="button" data-e="&#128545;" aria-label="Marah"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-kaget.webp" alt=""></button>
-    <button type="button" data-e="&#128557;" aria-label="Sedih"><img src="referensi/newgui/game/assets/komponen/glyph-putih/wajah-sedih.webp" alt=""></button>
-    <button type="button" data-e="&#128077;" aria-label="Jempol"><img src="referensi/newgui/game/assets/komponen/glyph-putih/jempol-atas.webp" alt=""></button>
+    <button type="button" data-e="&#128512;" aria-label="Senang">&#128512;</button>
+    <button type="button" data-e="&#128514;" aria-label="Tertawa">&#128514;</button>
+    <button type="button" data-e="&#128526;" aria-label="Keren">&#128526;</button>
+    <button type="button" data-e="&#128545;" aria-label="Marah">&#128545;</button>
+    <button type="button" data-e="&#128557;" aria-label="Sedih">&#128557;</button>
+    <button type="button" data-e="&#128077;" aria-label="Jempol">&#128077;</button>
   </div>
 </div>
 <div class="col">
@@ -3893,7 +3889,8 @@ function syncCrystals(){
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
 function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===GOAL&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
 function showDragonBoss(p,gid,text,ttl){
-  hud('showCombat',p.name,'Ender Dragon',text,{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl});
+  const awakening=AWK.running;
+  hud('showCombat',awakening?'':p.name,awakening?'':'Ender Dragon',awakening?'':text,{hp:p.dhp,maxHp:p.hpMax,bossName:'Ender Dragon',owner:p.name,gid,ttl:awakening?30000:ttl,awakening});
 }
 /* ---------- Dragon Feature 6: Dragon Defeat & Reward ----------
    Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
@@ -3984,6 +3981,7 @@ async function awakenDragon(p,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,Dd=dragon.userData;
   const QW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke state game lain */
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
+  showDragonBoss(p,gid,'',30000);
   const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
@@ -4025,6 +4023,7 @@ async function awakenDragon(p,gid){
     sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
       if(!finished&&A){ A.bed=1; A.tower=1; A.cc=0; A.ccE=0; A.burst=0; A.heal=1; A.cv.forEach(c=>{ c.want=1; }); flamesOut(true); dragon.visible=true; FLY.on=true; FLY.blend=1; dragon.scale.setScalar(DRAGON_S); } /* error tak terduga: jangan sampai game macet */
+      hud('hideCombat');
       QUAKE.amp=0; panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState();
     }
   }
@@ -5511,7 +5510,7 @@ if(ONLINE_ROOM) document.body.classList.add('mp-online');
 
 function setMsg(t){ $('msg').textContent=t; }
 /* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (gameplay/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
-const HUD_MIRROR={showCombat:1,showResult:1};
+const HUD_MIRROR={showCombat:1,showResult:1,hideCombat:1};
 function hud(f,...a){ try{ if(HUD_MIRROR[f]&&MP_SEQ===0&&ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'hud',f:f,a:JSON.parse(JSON.stringify(a))}); }catch(e){} return hud0(f,...a); }
 function hud0(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](...a); }catch(e){ console.error(e); } }
 function mpFbMirrorable(k,a){ const o=a[a.length-1]; if(k==='short') return !(o&&typeof o==='object'&&o.local); return k==='event'&&o&&typeof o==='object'&&o.gid!==undefined&&!o.local; }
@@ -6019,12 +6018,6 @@ function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performanc
 function turnTag(){ return gameOver?'Selesai':ORD(cur); } /* teks chip panel Giliran: 1st/2nd/... atau Selesai saat game berakhir */
 function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
 function syncOppTurn(){ const c=players[cur]; document.body.classList.toggle('opp-turn',!!(c&&!canControlPlayer(c)&&!gameOver)); } /* Roll & Auto disembunyikan saat bukan giliran pemain ini (CPU / pemain online lain) */
-let TOAST_P=null;
-function showTurnToast(){
-  let t=document.getElementById('turnToast'); if(!t){ t=document.createElement('div'); t.id='turnToast'; t.setAttribute('role','status'); t.textContent='Giliran kamu'; }
-  const host=document.getElementById('hud')||document.body; if(t.parentElement!==host) host.appendChild(t);
-  t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
-}
 const GAME_HUD_ASSETS='referensi/newgui/game/assets/komponen/';
 const GAME_HUD_POWER_ART={
   feather:['glyph-putih','bulu'],tnt:['ikon-item','bom'],totem:['ikon-item','helm-sayap'],
@@ -6058,10 +6051,14 @@ function renderChips(){
   try{ syncOppTurn(); }catch(e){}
   try{ syncDiceGuide(); }catch(e){ console.error(e); }
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
+  const readyScreen=$('readyScreen'),readyVisible=!!(readyScreen&&!readyScreen.hidden);
   const autoOn=(()=>{ try{ return !!autoRoll; }catch(e){ return false; } })(); /* tombol Auto milik pemain lokal -> chip AUTO (try: autoRoll dideklarasi setelah fungsi ini) */
   const localSeat=players.findIndex(p=>ONLINE_ROOM?!!(MP_ID&&p.networkId===MP_ID):(p.idx===0&&!p.cpu));
   players.forEach((p,i)=>{
     const isLocal=i===localSeat,slot=localSeat<0?i:(isLocal?0:(i<localSeat?i+1:i));
+    const showTurnChip=isLocal&&i===cur&&!gameOver&&!readyVisible;
+    const turnChip=showTurnChip?document.createElement('span'):null;
+    if(turnChip){ turnChip.className='turn-chip'; turnChip.textContent='YOUR TURN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
     const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
     const avatar=document.createElement('div'); avatar.className='av';
@@ -6139,8 +6136,10 @@ function renderChips(){
       hp.appendChild(gameHudImage('hud','bar-hp-boss'));
       const track=document.createElement('s'),fill=document.createElement('u'); fill.style.width=Math.max(0,Math.min(100,(p.dhp/(p.hpMax||100))*100))+'%'; track.appendChild(fill); hp.appendChild(track); extra.appendChild(hp);
     }
-    if(extra.childNodes.length){ if(i===1||i===2){ group.appendChild(card); group.appendChild(extra); } else { group.appendChild(extra); group.appendChild(card); } }
-    else group.appendChild(card);
+    if(extra.childNodes.length){
+      if(i===1||i===2){ if(turnChip) group.appendChild(turnChip); group.appendChild(card); group.appendChild(extra); }
+      else { group.appendChild(extra); if(turnChip) group.appendChild(turnChip); group.appendChild(card); }
+    }else{ if(turnChip) group.appendChild(turnChip); group.appendChild(card); }
     box.appendChild(group);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';
@@ -6180,7 +6179,6 @@ function beginTurn(extra){
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
   specialHint(p); setRoll(ONLINE_ROOM?canControlPlayer(p):!p.cpu); startTurnTimer();
-  if(!canControlPlayer(p)) TOAST_P=null; else if(!document.getElementById('readyScreen')&&(extra||TOAST_P!==p)){ TOAST_P=p; showTurnToast(); } /* toast tengah "Giliran kamu": sekali per giliran (snapshot online memanggil beginTurn lagi) */
   if(ONLINE_ROOM)publishGameSnapshot();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=Object.keys(PUN).filter(k=>cpuPUValid(p,k)).sort(()=>Math.random()-0.5); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
@@ -6468,11 +6466,12 @@ function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===GOAL&&AWK.done&&!gam
 function specialHint(p){
   if(!specialDiceActive(p)||AWK.running) return;
   if(BOSS==='wither') setMsg(p.dragonReady?p.name+': tahan Roll, lepas untuk memilih angka serangan ke Wither.':p.name+': tahan Roll, lepas di angka 1-6 untuk mengalahkan Skeleton bernomor sama.');
-  else setMsg(p.dragonReady?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas di angka 1-4 untuk menghancurkan Crystal bernomor sama.');
+  else setMsg(p.dragonReady?'Serang Ender Dragon!':p.name+': tahan Roll, lepas di angka 1-4 untuk menghancurkan Crystal bernomor sama.');
 }
 function syncRollLabel(){
-  const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll');
+  const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=!!(sp&&BOSS==='dragon'&&p.dragonReady);
+  b.classList.toggle('special',sp); b.classList.toggle('boss-attack',dragonAttack); b.classList.toggle('holding',DH.on);
+  b.textContent=DH.on?(dragonAttack?'Lepas untuk menyerang':'Lepas untuk memilih'):(dragonAttack?'Serang':(sp?'Tahan & lepas':'Roll'));
   dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
@@ -6943,6 +6942,7 @@ $('btnToMenu').addEventListener('click',exitToRoom);
 let last=performance.now();
 /* ---------- Emote di atas pion (lokal + sinkron online) ---------- */
 const EMOTE_OK=['\u{1F600}','\u{1F602}','\u{1F60E}','\u{1F621}','\u{1F62D}','\u{1F44D}'], EM_LIVE=[];
+const EMOTE_PAWN_GAP_PX=100;
 function showEmote(p,emoji){
   if(!p||!p.pawn||EMOTE_OK.indexOf(emoji)<0) return;
   const old=EM_LIVE.findIndex(e=>e.p===p); if(old>=0){ EM_LIVE[old].el.remove(); EM_LIVE.splice(old,1); }
@@ -6955,9 +6955,9 @@ function updateEmotes(now){
   for(let i=EM_LIVE.length-1;i>=0;i--){
     const e=EM_LIVE[i],age=now-e.t0;
     if(age>2400){ e.el.remove(); EM_LIVE.splice(i,1); continue; }
-    const v=e.p.pawn.position.clone(); v.y+=3.0; v.project(camera);
+    const v=e.p.pawn.position.clone(); v.project(camera);
     if(v.z>1){ e.el.style.opacity='0'; continue; }
-    const x=r.left+(v.x*0.5+0.5)*r.width, y=r.top+(-v.y*0.5+0.5)*r.height;
+    const x=r.left+(v.x*0.5+0.5)*r.width, y=r.top+(-v.y*0.5+0.5)*r.height-EMOTE_PAWN_GAP_PX;
     const pop=Math.min(1,age/160), fade=age>2000?Math.max(0,1-(age-2000)/400):1, rise=reduce?0:Math.min(14,age/60);
     e.el.style.opacity=String(pop*fade);
     e.el.style.transform='translate('+x.toFixed(1)+'px,'+(y-rise).toFixed(1)+'px) translate(-50%,-100%) scale('+(0.6+0.4*pop).toFixed(3)+')';
