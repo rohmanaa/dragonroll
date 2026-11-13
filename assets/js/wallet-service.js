@@ -153,6 +153,8 @@
       });
     }
 
+    function openBox() { return claimAndRefresh('box', 'open_mystery_box'); }
+
     /* ----- misi ----- */
     async function questGet() {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };
@@ -225,7 +227,7 @@
 
     return {
       enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, buyPowerup: buyPowerup, usePower: usePower, history: history, exchange: exchange,
-      dailyGet: dailyGet, claimDaily: claimDaily,
+      dailyGet: dailyGet, claimDaily: claimDaily, openBox: openBox,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,
       claimAchievement: claimAchievement

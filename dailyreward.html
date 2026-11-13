@@ -333,13 +333,13 @@ let SD=null,RESET_AT=0,busy=false;
 const SRV=()=>SV()&&!!SD;
 function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,claimed_today:!!r.claimed_today,box:+r.box||0};D.claimed=SD.claimed;BAG.box=SD.box;RESET_AT=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const R=[
- {h:'Hari 1',a:'x50',t:'50 Gem',ic:I.gem,ty:'gem',n:50},
- {h:'Hari 2',a:'x1.000',t:'1.000 Coin',ic:I.coin,ty:'coin',n:1000},
+ {h:'Hari 1',a:'x300',t:'300 Coin',ic:I.coin,ty:'coin',n:300},
+ {h:'Hari 2',a:'x500',t:'500 Coin',ic:I.coin,ty:'coin',n:500},
  {h:'Hari 3',a:'x1',t:'Mystery Box x1',ic:I.box,ty:'box',n:1},
- {h:'Hari 4',a:'x1',t:'Dadu Rumput x1',ic:I.dice,ty:'dice',id:'rumput',dup:100},
- {h:'Hari 5',a:'x1',t:'Dadu Emas x1',ic:I.dice,ty:'dice',id:'emas',dup:300},
- {h:'Hari 6',a:'x2.000',t:'2.000 Coin',ic:I.coins,ty:'coin',n:2000},
- {h:'Hari 7',a:'Skin Epic',sub:'(Permanen)',t:'Skin Epic Enderman (Permanen)',ic:I.skin('#141414','#222222'),ty:'skin',id:'skin.ender',big:1}];
+ {h:'Hari 4',a:'x5',t:'5 Gem',ic:I.gem,ty:'gem',n:5},
+ {h:'Hari 5',a:'x800',t:'800 Coin',ic:I.coin,ty:'coin',n:800},
+ {h:'Hari 6',a:'x10',t:'10 Gem',ic:I.gem,ty:'gem',n:10},
+ {h:'Hari 7',a:'2.000+15',sub:'Coin + Gem',t:'2.000 Coin + 15 Gem',ic:I.coins,ty:'mix',big:1}];
 // ---------- state: currency/ownership dari PlayerData. Status klaim harian HANYA dari server (daily_reward_get); key 'inv' tidak dibaca/ditulis lagi.
 let D={claimed:0};
 let BAG={box:0};
@@ -380,10 +380,19 @@ async function claimServer(i,el){if(busy)return;busy=true;
   if(!r.ok){const m={'sudah-klaim':'Sudah klaim hari ini, kembali besok!','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.'};
    toast(m[r.reason]||'Klaim gagal.');playSound('error');const d=await w.dailyGet();if(applyDaily(d)){renderDays();tick()}return}
   const row=R[(r.day||i+1)-1]||R[i];let msg=row.t;
-  if(r.duplicate)msg=r.type==='skin'?'Skin (sudah punya) → +'+fmt(r.gems)+' Gem':'Dadu (sudah punya) → +'+fmt(r.coins)+' Coin';
-  else if(r.type==='powerup')msg=row.t+' ×1 diterima (Power)';
+  if(r.type==='box')msg='Mystery Box x1 diterima! Buka lewat tombol "Buka Box".';
   applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
-  done(row,msg,el)}
+  done(row,msg,el);renderBox()}
+ finally{busy=false}}
+/* Mystery Box: hadiah diundi server (open_mystery_box). Tombol muncul di panel kanan selama punya box. */
+function renderBox(){let b=$('#openbox');if(!b){b=document.createElement('button');b.id='openbox';b.className='ok';b.style.cssText='position:absolute;left:.8rem;width:18.3rem;top:26.2rem;margin:0;height:4.4rem;font-size:1.9rem';b.addEventListener('click',openBox);$('#rt').appendChild(b)}
+ const n=BAG.box|0;b.style.display=n>0&&SV()?'block':'none';b.textContent='Buka Box ('+n+')'}
+async function openBox(){if(busy)return;busy=true;
+ try{const w=WS(),r=w?await w.openBox():{ok:false,reason:'jaringan'};
+  if(!r.ok){toast(r.reason==='tidak-ada-box'?'Tidak ada Mystery Box.':'Gagal membuka box.');playSound('error');const d=w&&await w.dailyGet();if(d&&applyDaily(d))renderBox();return}
+  BAG.box=+r.box||0;const parts=[];if(r.coins)parts.push('+'+fmt(r.coins)+' Coin');if(r.gems)parts.push('+'+fmt(r.gems)+' Gem');
+  playSound('purchase');buzz();renderCurrency();renderBox();
+  openModal('<h2>Mystery Box!</h2><div class="rw">'+(r.gems?I.gem:I.coin)+'</div><div>'+parts.join(' ')+'</div><button class="ok" id="okb">Mantap!</button>',()=>$('#okb').addEventListener('click',()=>{playSound('click');closeModal()}))}
  finally{busy=false}}
 // ---------- list modal
 $('#see').addEventListener('click',()=>{playSound('click');
@@ -424,8 +433,8 @@ if(ok){rig($('#glh'),hero,1.6,19,38,1.4,3,.72);rig($('#glc'),chest,2.3,18,34)}
 if(ok&&rigs.length){clock=new THREE.Clock();new ResizeObserver(fit).observe(document.body);fit();requestAnimationFrame(loop)}
 else{$('#hero').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:6rem">🧑‍🚀</div>';$('#chest').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:8rem">🎁</div>'}
 // ---------- init
-renderDays();tick();setInterval(tick,1000);
-if(SV()&&WS()){const sm=document.querySelector('#rst small');if(sm)sm.textContent='Reset 00.00 WIB:';WS().refresh().then(()=>renderCurrency());WS().dailyGet().then(d=>{if(applyDaily(d)){renderDays();tick()}})} /* B5: status dari server */
+renderDays();renderBox();tick();setInterval(tick,1000);
+if(SV()&&WS()){const sm=document.querySelector('#rst small');if(sm)sm.textContent='Reset 00.00 WIB:';WS().refresh().then(()=>renderCurrency());WS().dailyGet().then(d=>{if(applyDaily(d)){renderDays();renderBox();tick()}})} /* B5: status dari server */
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
