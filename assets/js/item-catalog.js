@@ -329,31 +329,31 @@
   ITEMS = ITEMS.concat(AURAS);
 
   /* ===== HARGA TIER (Fase 3 ekonomi) — satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura).
-     Tiap naik tier harga naik bertahap (koin ~x1,45-2, emerald ~x1,3-1,45). Tier bawah = koin; tier atas = EMERALD saja (gems).
+     Harga naik tiap tier (koin curam di T3-T4, emerald T5-T7 = target jangka panjang). Tier bawah = koin; tier atas = EMERALD saja (gems).
      Aturan: harga emerald tier pertama >= nilai koin tier koin terakhir / 50 (kurs seragam 50 koin per emerald),
      supaya tidak ada jalan pintas menukar koin -> emerald -> item. Ubah angka di sini, lalu:
        node tools/wallet/gen-item-seed.js --write   (dan terapkan ulang migrasi fase 3).
      Format: id -> [koin, emerald]; salah satunya null. */
   var TIER_PRICE = {
-    /* Dadu: T1 500, T2 1.000, T3 2.000, T4 4.000 koin (x2); T5 150, T6 220, T7 320 emerald (x1,45) */
+    /* Dadu: T1 500, T2 1.500, T3 9.000, T4 30.000 koin; T5 600, T6 1.500, T7 3.000 emerald */
     'dice.wood': [500, null], 'dice.stone': [500, null], 'dice.rumput': [500, null],
-    'dice.copper': [1000, null], 'dice.iron': [1000, null], 'dice.tnt': [1000, null],
-    'dice.lapis': [2000, null], 'dice.emas': [2000, null],
-    'dice.diamond': [4000, null], 'dice.emerald': [4000, null], 'dice.amethyst': [4000, null], 'dice.redstone': [4000, null], 'dice.obsidian': [4000, null],
-    'dice.magma': [null, 150], 'dice.frost': [null, 150], 'dice.prismarine': [null, 150], 'dice.quartz': [null, 150],
-    'dice.void': [null, 220], 'dice.netherite': [null, 220], 'dice.sculk': [null, 220], 'dice.ender': [null, 220],
-    'dice.dragon': [null, 320],
-    /* Frame: 1.000 / 1.500 / 2.200 / 3.200 / 4.600 / 6.600 / 9.500 koin (x1,45); lalu 250 / 320 / 410 / 520 / 660 / 840 emerald (x1,28) */
-    'frame.stone': [1000, null], 'frame.copper': [1500, null], 'frame.iron': [2200, null], 'frame.gold': [3200, null],
-    'frame.diamond': [4600, null], 'frame.amethyst': [6600, null], 'frame.nether': [9500, null],
-    'frame.ender': [null, 250], 'frame.storm': [null, 320], 'frame.dragon': [null, 410],
-    'frame.phoenix': [null, 520], 'frame.celestial': [null, 660], 'frame.cosmic': [null, 840],
-    /* Aura: 1.000 / 1.800 / 3.200 / 5.600 koin; lalu 150 / 220 / 320 emerald */
-    'aura.nature': [1000, null], 'aura.stone': [1000, null], 'aura.flame': [1800, null], 'aura.frost': [1800, null],
-    'aura.electric': [3200, null], 'aura.emerald': [3200, null],
-    'aura.ender': [5600, null], 'aura.nether': [5600, null], 'aura.amethyst': [5600, null], 'aura.ocean': [5600, null],
-    'aura.solar': [null, 150], 'aura.shadow': [null, 150], 'aura.sculk': [null, 150],
-    'aura.dragon': [null, 220], 'aura.celestial': [null, 320]
+    'dice.copper': [1500, null], 'dice.iron': [1500, null], 'dice.tnt': [1500, null],
+    'dice.lapis': [9000, null], 'dice.emas': [9000, null],
+    'dice.diamond': [30000, null], 'dice.emerald': [30000, null], 'dice.amethyst': [30000, null], 'dice.redstone': [30000, null], 'dice.obsidian': [30000, null],
+    'dice.magma': [null, 600], 'dice.frost': [null, 600], 'dice.prismarine': [null, 600], 'dice.quartz': [null, 600],
+    'dice.void': [null, 1500], 'dice.netherite': [null, 1500], 'dice.sculk': [null, 1500], 'dice.ender': [null, 1500],
+    'dice.dragon': [null, 3000],
+    /* Frame: 500 / 1.500 / 2.500 / 6.000 / 9.000 / 12.000 / 20.000 koin; lalu 450 / 600 / 800 / 1.100 / 1.500 / 2.000 emerald */
+    'frame.stone': [500, null], 'frame.copper': [1500, null], 'frame.iron': [2500, null], 'frame.gold': [6000, null],
+    'frame.diamond': [9000, null], 'frame.amethyst': [12000, null], 'frame.nether': [20000, null],
+    'frame.ender': [null, 450], 'frame.storm': [null, 600], 'frame.dragon': [null, 800],
+    'frame.phoenix': [null, 1100], 'frame.celestial': [null, 1500], 'frame.cosmic': [null, 2000],
+    /* Aura: 600 / 2.000 / 5.000 / 15.000 koin; lalu 500 / 1.500 / 3.000 emerald */
+    'aura.nature': [600, null], 'aura.stone': [600, null], 'aura.flame': [2000, null], 'aura.frost': [2000, null],
+    'aura.electric': [5000, null], 'aura.emerald': [5000, null],
+    'aura.ender': [15000, null], 'aura.nether': [15000, null], 'aura.amethyst': [15000, null], 'aura.ocean': [15000, null],
+    'aura.solar': [null, 500], 'aura.shadow': [null, 500], 'aura.sculk': [null, 500],
+    'aura.dragon': [null, 1500], 'aura.celestial': [null, 3000]
   };
   ITEMS.forEach(function (it) {
     var t = TIER_PRICE[it.id];
