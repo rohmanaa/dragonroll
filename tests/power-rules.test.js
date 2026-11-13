@@ -121,6 +121,8 @@ t('Jebakan di petak: TNT radius 1 mundur 6, Fire Charge radius 0 mundur 3, Blaze
   assert.ok(g.indexOf('function trapPick(p,k)') > 0 && g.indexOf('id="trapBar"') > 0 && g.indexOf('requestPower({playerId:MP_ID,power:k,tile:tile})') > 0 && g.indexOf('Number.isInteger(payload.tile)') > 0, 'UI pilih petak + tamu kirim petak');
   assert.ok(g.indexOf('traps:TRAPS.map(') > 0 && g.indexOf('trapsSync(s.traps)') > 0 && g.indexOf('trapsClear(); applyPendingTheme()') > 0, 'snapshot + reset');
   assert.ok(g.indexOf('const TRAP_MAX=2') > 0 && g.indexOf('q.idx!==t.owner') > 0, 'batas + pemasang kebal');
+  assert.ok(/function trapOwner\(id\)\{\s*return players\.find\(q=>q\.idx===id\)\|\|null;\s*\}/.test(g), 'warna dan nama jebakan memakai ID pemain, bukan urutan giliran');
+  assert.ok(g.indexOf('trapOwner(t.owner)') > 0 && !/players\[t\.owner\]/.test(g), 'pemilik jebakan tetap benar setelah urutan pemain diacak');
 });
 t('Jebakan di petak: TNT (radius 1, mundur 6), Fire Charge (radius 0, mundur 3), Blaze Core (radius 2, mundur 2); range 6; fase Naga ditolak; deskripsi sesuai angka', () => {
   const R = C.PUR;

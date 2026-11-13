@@ -42,4 +42,11 @@ assert.ok(!elements.puCard.classList.contains('mob-hit'));
 
 const css = fs.readFileSync(path.join(__dirname, '../gameplay/css/hud-mockup.css'), 'utf8');
 assert.match(css, /html body #puCard\.pucard\.mob-hit\s*\{[^}]*background:\s*none\s*!important;[^}]*box-shadow:\s*none\s*!important;/s);
+
+const main = fs.readFileSync(path.join(__dirname, '../gameplay/js/main.js'), 'utf8');
+const hitCss = fs.readFileSync(path.join(__dirname, '../gameplay/css/gameplay.css'), 'utf8');
+assert.ok(main.includes("add('hf-cinema')"), 'hit effect should add the cinematic screen overlay');
+assert.ok(main.includes("sfx.playerHurt(); hitBlastFx(q); pawnAct(q.pawn,'block')"), 'trap victims should receive the screen hit effect');
+assert.ok(hitCss.includes('#hitFx .hf-cinema::before,#hitFx .hf-cinema::after'), 'hit overlay should add brief cinematic bars');
+assert.ok(hitCss.includes('@keyframes hfCinema') && hitCss.includes('@keyframes hfLetterbox'), 'cinematic overlay should fade out');
 console.log('ok - mob hit notification appears without its panel background');
