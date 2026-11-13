@@ -1,6 +1,6 @@
 // Supabase browser client bootstrap for the static Ular Tangga frontend.
 // Tahap 3b: hanya akun login (username+password, lihat auth.js); sesi anonim tidak dibuat lagi.
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from '../vendor/supabase-js-2.119.0.mjs'; // lokal, versi dikunci (bundle esbuild dari @supabase/supabase-js@2.119.0)
 
 let clientPromise = null;
 

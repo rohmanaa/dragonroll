@@ -1,0 +1,9 @@
+/* Font lokal (tanpa Google Fonts): Lilita One 400, Nunito 600/800, Baloo 2 600/700/800, Silkscreen 400/700. Subset latin, sumber @fontsource (OFL). */
+@font-face{font-family:'Lilita One';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/lilita-one-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/nunito-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/nunito-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/baloo-2-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/baloo-2-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/baloo-2-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Silkscreen';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/silkscreen-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Silkscreen';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/silkscreen-latin-700-normal.woff2) format('woff2')}
