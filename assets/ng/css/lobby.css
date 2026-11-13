@@ -228,12 +228,6 @@ html[data-graphics="low"] .sidecard img,html[data-graphics="low"] #go img,html[d
 html[data-graphics="low"] #nav .tile.big::before,html[data-graphics="low"] .big .lk{filter:none!important}
 html[data-graphics="low"] .sidecard.soon img{filter:saturate(.7)!important}
 
-/* ===== tanpa container: panel kiri (Misi Harian, Koleksi) dan kartu kanan tampil langsung di atas background ===== */
-.panel::before{display:none!important}
-.sidecard{background:none!important;border-radius:0}
-#quest .q1,#quest .q2,#koleksi .tile .lb,.sidecard .tm{text-shadow:0 2px 0 rgba(10,6,24,.85),0 0 6px rgba(10,6,24,.7)}
-#koleksi .tile .ico img,#quest>img{filter:drop-shadow(0 4px 3px rgba(0,0,0,.55))}
-
 /* ===== layar lebih lebar dari 16:9: UI kiri & kanan menempel ke tepi layar, bukan ke tepi kotak 1920 (--ex diisi fit() di lobby.html) ===== */
 #stage{overflow:visible!important}
 #profile,#quest,#koleksi,#nav{translate:calc(var(--ex,0px)*-1) 0}
