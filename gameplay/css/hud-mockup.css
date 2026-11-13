@@ -400,6 +400,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+#players .pg .ps[hidden] { display: none !important; }
 #players .pg .bf { display: flex; gap: 6px; min-width: 0; }
 #players .pg .bi { position: relative; display: block; flex: none; width: 40px; height: 40px; }
 #players .pg .bi img { display: block; width: 100%; height: 100%; max-width: none; }
@@ -448,7 +449,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   background: #3a1020;
   box-shadow: 0 0 12px rgba(255, 90, 108, .5);
 }
-#players .pg .hpb { position: relative; width: 300px; margin-top: -6px; }
+#players .pg .hpb { position: relative; width: 240px; max-width: 100%; margin-top: -6px; }
 #players .pg .hpb > img { display: block; width: 100%; height: auto; max-width: none; }
 #players .pg .hpb > s {
   position: absolute;
@@ -1640,5 +1641,21 @@ html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"])::
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-cw { font-size: 24px !important; }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) > p:not(.ut-ghud-cw):not(.ut-ghud-hp) { font-size: 20px !important; }
-html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-bar { height: 44px !important; }
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"])::before {
+  background: none !important;
+}
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-bar {
+  width: min(495px, 92vw) !important;
+  height: auto !important;
+  aspect-ratio: 495 / 83;
+  margin: 0 auto;
+  background-size: 100% 100% !important;
+}
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-hp { font-size: 20px !important; }

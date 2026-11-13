@@ -4834,6 +4834,7 @@ function renderChips(){
     content.appendChild(head);
     const row=document.createElement('div'); row.className='r2';
     const position=document.createElement('span'); position.className='ps';
+    position.hidden=BOSS==='dragon'&&p.pos===GOAL&&p.dragonReady;
     const goalStatus=p.pos===GOAL&&p.dragonReady?(BOSS==='wither'?'Wither ':'Naga ')+p.dhp:'';
     position.textContent=ONLINE_ROOM&&p.left?'Terputus':(p.pos===0?'Mulai':'Petak '+p.pos+(goalStatus?' - '+goalStatus:''));
     row.appendChild(position);
