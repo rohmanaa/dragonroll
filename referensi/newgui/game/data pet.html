@@ -65,6 +65,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media (max-width:620px){.srow{grid-template-columns:minmax(0,1fr) auto}.srow .pr,.srow .stat{grid-column:1/-1}}
 @media (max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}.tiers{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:520px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}.nm{font-size:22px}.view{height:clamp(320px,58vh,460px)}}
+html.embed,html.embed body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:transparent}
+html.embed .wrap{width:100%;height:100%;max-width:none;margin:0;gap:0}
+html.embed .wrap>header,html.embed .info,html.embed #tiers,html.embed .spec,html.embed .std{display:none}
+html.embed .stage{display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent}
+html.embed .view{width:100%;height:100%;min-height:0;border-radius:0;background:transparent}
+html.embed .hint{display:none}
 </style>
 
 <div class="wrap">
@@ -114,6 +120,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
+const EMBED=new URLSearchParams(location.search).get('embed')==='1';
+document.documentElement.classList.toggle('embed',EMBED);
 const T=THREE;
 let _s=11;
 const rnd=()=>((_s=(Math.imul(_s,1664525)+1013904223)>>>0)/4294967296);
@@ -912,13 +920,13 @@ const TIERS=['Common','Uncommon','Rare','Epic','Legendary','Mythic','Divine'];
 const TC={1:'#2fa84a',2:'#22b8a4',3:'#3a86f0',4:'#a24ae8',5:'#f0a020',6:'#ee3a4e',7:'linear-gradient(90deg,#ffe08a,#fff,#9ae8ff)'};
 const TS=['#2fa84a','#22b8a4','#3a86f0','#a24ae8','#f0a020','#ee3a4e','#ffe08a'];
 const PETS=[
- {tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:petPup},
- {tier:2,name:'Copper Golem',mat:'Copper Block dan Verdigris',ident:'Industrial dan rajin',efek:'Roda gigi berputar, uap, lampu antena berdenyut',lore:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',color:'#ff9a30',build:petGolem},
- {tier:3,name:'Crystal Axolotl',mat:'Diamond Crystal',ident:'Tenang dan berkilau',efek:'Insang bergetar, ekor berombak, gelembung kristal',lore:'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.',color:'#40e8f4',build:petAxolotl},
- {tier:4,name:'Arcane Owl',mat:'Amethyst dan Rune',ident:'Bijak dan arcane',efek:'Cincin rune berputar, kristal mengorbit, kilau ungu',lore:'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.',color:'#b46af0',build:petOwl},
- {tier:5,name:'Storm Wolf',mat:'Storm Steel dan Lightning Crystal',ident:'Thunder Lord',efek:'Petir menyambar dari awan, surai listrik',lore:'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.',color:'#7fd0ff',build:petWolf},
- {tier:6,name:'Inferno Dragon',mat:'Dragon Scale dan Obsidian',ident:'Dragon Lord',efek:'Kepakan sayap, napas api, bara menyala',lore:'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.',color:'#ff4a3a',build:petDragon},
- {tier:7,name:'Celestial Kitsune',mat:'Divine Crystal dan Gold',ident:'Celestial Guardian',efek:'Sembilan ekor tebal bergelombang, bintang mengorbit',lore:'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.',color:'#ffe08a',build:petKitsune}
+ {id:'forest_pup',tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:petPup},
+ {id:'copper_golem',tier:2,name:'Copper Golem',mat:'Copper Block dan Verdigris',ident:'Industrial dan rajin',efek:'Roda gigi berputar, uap, lampu antena berdenyut',lore:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',color:'#ff9a30',build:petGolem},
+ {id:'crystal_axolotl',tier:3,name:'Crystal Axolotl',mat:'Diamond Crystal',ident:'Tenang dan berkilau',efek:'Insang bergetar, ekor berombak, gelembung kristal',lore:'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.',color:'#40e8f4',build:petAxolotl},
+ {id:'arcane_owl',tier:4,name:'Arcane Owl',mat:'Amethyst dan Rune',ident:'Bijak dan arcane',efek:'Cincin rune berputar, kristal mengorbit, kilau ungu',lore:'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.',color:'#b46af0',build:petOwl},
+ {id:'storm_wolf',tier:5,name:'Storm Wolf',mat:'Storm Steel dan Lightning Crystal',ident:'Thunder Lord',efek:'Petir menyambar dari awan, surai listrik',lore:'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.',color:'#7fd0ff',build:petWolf},
+ {id:'inferno_dragon',tier:6,name:'Inferno Dragon',mat:'Dragon Scale dan Obsidian',ident:'Dragon Lord',efek:'Kepakan sayap, napas api, bara menyala',lore:'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.',color:'#ff4a3a',build:petDragon},
+ {id:'celestial_kitsune',tier:7,name:'Celestial Kitsune',mat:'Divine Crystal dan Gold',ident:'Celestial Guardian',efek:'Sembilan ekor tebal bergelombang, bintang mengorbit',lore:'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.',color:'#ffe08a',build:petKitsune}
 ];
 
 // ================= scene
@@ -992,7 +1000,7 @@ const cards=PETS.map((d,i)=>{
   b.onclick=()=>select(i);tiersEl.appendChild(b);return b;
 });
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
-let pet=null,cur=-1,soundOn=true,sndT=1,sndBag=[],bagLast=-1;
+let pet=null,cur=-1,soundOn=!EMBED,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
   if(!soundOn||!AC||AC.state!=='running'||cur<0)return;
   if(!sndBag.length){sndBag=[0,1,2].sort(()=>Math.random()-.5);if(sndBag[sndBag.length-1]===bagLast)sndBag.reverse()}
@@ -1015,6 +1023,11 @@ function select(i){
   lore.textContent=d.lore;
   cards.forEach((c,k)=>c.setAttribute('aria-pressed',k===i?'true':'false'));
 }
+window.addEventListener('message',event=>{
+  if(!EMBED||event.source!==window.parent||!event.data||event.data.type!=='pet-select'||typeof event.data.id!=='string')return;
+  const index=PETS.findIndex(d=>d.id===event.data.id);
+  if(index>=0)select(index);
+});
 let pulseT=2;
 function fx(){if(pet)pet.burst();pulseT=0;pop=.08;playPetSound();sndT=rr(3,5.5)}
 const bSnd=document.getElementById('bSnd');
@@ -1040,7 +1053,9 @@ document.getElementById('bReset').onclick=resetCam;
 bRot.setAttribute('aria-pressed',autoRot?'true':'false');
 bRot.onclick=()=>{autoRot=!autoRot;bRot.setAttribute('aria-pressed',autoRot?'true':'false')};
 window.addEventListener('keydown',e=>{if(e.key==='ArrowRight')select((cur+1)%PETS.length);else if(e.key==='ArrowLeft')select((cur+PETS.length-1)%PETS.length)});
-select(0);
+const initialPet=new URLSearchParams(location.search).get('pet');
+const initialIndex=PETS.findIndex(d=>d.id===initialPet);
+select(initialIndex<0?0:initialIndex);
 dist=distT;az=azT;pol=polT;ty=tyT;
 
 // ================= loop
@@ -1069,6 +1084,7 @@ function frame(now){
 requestAnimationFrame(frame);
 }
 initSim();
+if(EMBED&&window.parent!==window)window.parent.postMessage({type:'pet-viewer-ready'},'*');
 </script>
 
 </body></html>

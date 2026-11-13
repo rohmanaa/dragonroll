@@ -1,6 +1,19 @@
-/* pet.html — memakai karakter.css + frame.css + efek.css; bagian khusus pet (emoji) */
-.dice.petv .glow{position:absolute;left:12%;right:12%;bottom:6%;height:18%;border-radius:50%;background:radial-gradient(ellipse,var(--c),transparent 70%);opacity:.55;filter:blur(8px)}
-.dice.petv .em{position:absolute;inset:0;display:grid;place-items:center;font-size:230px;line-height:1;z-index:2;filter:drop-shadow(0 10px 8px rgba(0,0,0,.4))}
-.dice.petv.burst .em{animation:hop 1s ease-out}
-@keyframes hop{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-70px) scale(1.12) rotate(-8deg)}60%{transform:translateY(0) scale(.94,1.06)}80%{transform:translateY(-24px) rotate(6deg)}}
-.fslot .dc .em{display:block;text-align:center;font-size:58px;line-height:84px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+/* pet.html — memakai karakter.css + frame.css + efek.css; bagian khusus pet */
+#fpv{left:270px;top:150px;width:420px;height:420px;overflow:hidden;border-radius:12px;background:radial-gradient(circle at 50% 40%,#5a4f82,#2c2547)}
+#petViewer{position:absolute;inset:0;width:100%;height:100%;border:0}
+.fslot .dc img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+#nm{font-size:48px}
+#rar{font-size:26px}
+#ds{font-size:19px;line-height:1.25;max-height:104px;overflow:hidden;padding:0 12px}
+.fslot .pr.emt{color:#4ee08a}
+#home,.cur{z-index:5}
+#petInfo{position:absolute;left:842px;top:746px;z-index:30}
+#petInfo>summary{width:48px;height:48px;cursor:pointer;list-style:none}
+#petInfo>summary::-webkit-details-marker{display:none}
+#petInfo>summary img{width:100%;height:100%;object-fit:contain}
+#petInfoBody{position:absolute;right:0;top:56px;width:650px;max-height:270px;overflow-y:auto;padding:46px 16px 12px;background:rgba(27,37,64,.98);border:2px solid #34447a;border-radius:10px;color:#eaf0ff;font:600 17px/1.35 var(--font-body);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.pet-info-close{position:absolute;right:8px;top:6px;width:36px;height:36px;padding:0;border:0;border-radius:6px;background:#34447a;color:#fff;font-size:24px;cursor:pointer}
+.pet-info-row{display:grid;grid-template-columns:132px 1fr;gap:12px;padding:6px 2px;border-bottom:1px solid rgba(154,168,208,.2)}
+.pet-info-row:last-child{border-bottom:0}
+.pet-info-row b{color:#9aa8d0}
+.fslot .tag.own{background:#3659a7;border-color:#94b8ff}

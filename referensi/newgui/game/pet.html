@@ -23,11 +23,14 @@
   <button id="home" aria-label="Lobby"><img src="assets/komponen/ikon-navigasi/ikon-home.webp" alt=""></button>
 
   <section id="left">
-    <div id="fpv"></div>
+    <div id="fpv"><iframe id="petViewer" src="data%20pet.html?embed=1" title="Pratinjau 3D pet" loading="eager"></iframe></div>
     <div id="nm" class="ttl"></div>
     <div id="rar"></div>
     <p id="ds"></p>
-    <button class="btn" id="roll"><img src="assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>SAPA PET</span></button>
+    <details id="petInfo">
+      <summary aria-label="Detail pet" title="Detail pet"><img src="assets/komponen/glyph-putih/info-bulat.webp" alt=""></summary>
+      <div id="petInfoBody"><button id="petInfoClose" type="button" aria-label="Tutup detail pet">×</button></div>
+    </details>
   </section>
 
   <section id="right">
