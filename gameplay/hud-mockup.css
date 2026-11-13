@@ -306,9 +306,9 @@
 }
 #players .pg .turn-chip {
   position: absolute;
-  left: 0;
-  top: 50%;
-  right: auto;
+  top: auto;
+  right: 0;
+  bottom: calc(100% + 8px);
   z-index: 2;
   align-self: auto;
   display: inline-flex;
@@ -317,7 +317,7 @@
   min-height: 38px;
   margin: 0;
   padding: 0 20px;
-  transform: translate(calc(-100% - 12px), -50%);
+  transform: none;
   border: 3px solid #c4ffad;
   border-radius: 999px;
   color: #fff;
