@@ -1611,3 +1611,32 @@ html body #utGameplayHud .ut-ghud-c[data-awakening="true"] .ut-ghud-hp { display
 #players .pg .turn-chip { margin-top: -4px; }
 #players .pg.p1 .turn-chip, #players .pg.p2 .turn-chip { margin-top: 0; margin-bottom: -4px; }
 #players .pg .turn-chip.opp { border-color: #ffe9a0; background: linear-gradient(135deg, #ffcf5a, #d98a1d); box-shadow: 0 4px 0 #5a3508, 0 0 14px rgba(255, 207, 90, .45); text-shadow: 0 2px 0 #6a410a; }
+
+/* ---------- Boss combat (lawan naga): kartu ringkas, tanpa bingkai ganda ----------
+   Sebelumnya wadah #utGameplayHud (bingkai dialog batu) membungkus strip combat yang punya garis merah atas/bawah sendiri
+   + banner BOSS besar -> kotak 547x171 yang menutupi papan & naga dan garis merahnya memotong tengah kartu.
+   Sekarang: bingkai wadah dimatikan saat combat tampil, strip jadi satu kartu kecil (garis merah = border kartu). Fase Awakening tidak disentuh. */
+#utGameplayHud:has(.ut-ghud-c:not([hidden]):not([data-awakening="true"])) {
+  background: none !important;
+  box-shadow: none !important;
+  width: 600px !important;
+}
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) {
+  width: 100% !important;
+  gap: 2px !important;
+  padding: 8px 28px 12px !important;
+  border: 3px solid #ff5a6c !important;
+  border-radius: 20px !important;
+  background: rgba(26, 14, 34, .92) !important;
+  box-shadow: 0 6px 0 rgba(10, 6, 25, .45), 0 0 22px rgba(255, 90, 108, .28) !important;
+}
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"])::before {
+  width: 150px;
+  height: 38px;
+  margin: 0 auto;
+  font-size: 26px;
+}
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-cw { font-size: 24px !important; }
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) > p:not(.ut-ghud-cw):not(.ut-ghud-hp) { font-size: 20px !important; }
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-bar { height: 44px !important; }
+html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-hp { font-size: 20px !important; }
