@@ -1,13 +1,21 @@
 html body #pauseMenu {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483646 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   overflow: hidden !important;
-  background: rgba(0, 0, 0, .72) !important;
+  background: rgba(6, 4, 18, .9) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 html body #pauseMenu[hidden] { display: none !important; }
+html body #exitConfirm {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+}
 html body #pauseMenu .lm-box {
   position: relative !important;
   box-sizing: border-box !important;
