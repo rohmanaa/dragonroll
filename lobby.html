@@ -107,7 +107,7 @@ body{background:transparent!important}
   <!-- ===== MULAI! ===== -->
   <button id="go" data-act="mulai" aria-label="Mulai">
     <img src="assets/ng/komponen/tombol-dan-kontrol/tombol-play-lobby.webp" alt="">
-    <span>MULAI!</span>
+    <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
   </button>
 
   <div id="toast"></div>
@@ -207,7 +207,8 @@ function applyLights(){
  const sh=!low;LT.shd.castShadow=sh;LT.plane.visible=sh;
 }
 addEventListener('ut-ambience',applyLights);applyLights();
-function fit3d(s){if(!G3)return;renderer.setPixelRatio(Math.min(.75,Math.max(.4,(devicePixelRatio||1)*s)));renderer.setSize(CW,CH,false)}
+const isLow=()=>document.documentElement.getAttribute('data-graphics')==='low';
+function fit3d(s){if(!G3)return;renderer.setPixelRatio(Math.min(isLow()?.5:.75,Math.max(.4,(devicePixelRatio||1)*s)));renderer.setSize(CW,CH,false)}
 function buildHero(){if(!G3)return;if(bcW)hero.remove(bcW);bc=UT.BlockyCharacter.create(THREE);bc.loadFromPlayer();bc.tick(.016);bc.root.traverse(o=>{if(o.isMesh)o.receiveShadow=false}); /* karakter hanya MELEMPAR bayangan ke lantai (tanpa bayangan diri/garis diagonal di badan) */bcW=new THREE.Group();bcW.add(bc.root);hero.add(bcW);auraQ=true}
 /* Aura yang dipakai (slot 'aura', dipilih di halaman Efek) menempel ke karakter lobby; dipasang di loop setelah hero ada di scene */
 function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey())}catch(e){}}
@@ -217,10 +218,10 @@ addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 
 /* Lobby memakai gerakan idle bawaan saja; aksi lari, roll, dan lompat tidak dipicu otomatis atau saat disentuh. */
 if(G3){const clock=new THREE.Clock();let lastT=0,lastFrame=0;
- (function loop(ts){requestAnimationFrame(loop);if(document.hidden||ts-lastFrame<50)return;lastFrame=ts;const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;
+ (function loop(ts){requestAnimationFrame(loop);if(document.hidden||ts-lastFrame<(isLow()?66:50))return;lastFrame=ts;const t=clock.getElapsedTime(),dt=Math.min(t-lastT,.05);lastT=t;
   bc.tick(dt);if(auraQ){auraQ=false;syncAura()}if(AUR)AUR.update(dt);renderer.render(scene,cam)})()}
 
-addEventListener('resize',fit);fit();
+addEventListener('resize',fit);addEventListener('ut-ambience',()=>fit());fit();
 
 /* ---------- init + sinkron server ---------- */
 renderAvatar();if(UT.CharacterFace)UT.CharacterFace.watch(renderAvatar);applyFrame();renderName();renderCurrency();renderXp();

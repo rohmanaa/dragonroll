@@ -211,3 +211,19 @@ html,body{background:#0e0b1c!important} /* latar lobby = scene-bg.js (lobby-bg.w
 .sidecard .tag.sn{left:34px;background:#6e69a0;border-color:#2d2a58;text-shadow:0 2px 0 rgba(10,8,40,.7)}
 .sidecard.soon img{filter:drop-shadow(0 5px 4px rgba(0,0,0,.45)) saturate(.7)}
 .sidecard.soon .tm b{color:#cfc8ea}
+
+/* ===== performa lobby ===== */
+/* Kilau tombol Play: dulu menganimasikan background-position (repaint tiap frame); sekarang elemen .shc/b digeser pakai transform (diproses GPU). */
+#go{will-change:transform}
+#go::after{content:none!important;animation:none!important}
+#go .shc{position:absolute;inset:42px 62px 52px;border-radius:12px;overflow:hidden;pointer-events:none}
+#go .shc b{position:absolute;top:0;bottom:0;left:0;width:50%;background:linear-gradient(110deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 100%);transform:translateX(-100%);animation:shine2 3.2s 1s infinite;will-change:transform}
+@keyframes shine2{to{transform:translateX(300%)}}
+/* Grafik "low" (Pengaturan): tanpa animasi tak berujung, tanpa filter bayangan (drop-shadow) */
+html[data-graphics="low"] #go{animation:none;will-change:auto}
+html[data-graphics="low"] #go .shc{display:none}
+html[data-graphics="low"] #lvl,html[data-graphics="low"] #pname img,html[data-graphics="low"] .cur,html[data-graphics="low"] .cur img,
+html[data-graphics="low"] .round>img.ic,html[data-graphics="low"] .tile .ico img,html[data-graphics="low"] .tile .ico img.glyph,
+html[data-graphics="low"] .sidecard img,html[data-graphics="low"] #go img,html[data-graphics="low"] #go:hover img,
+html[data-graphics="low"] #nav .tile.big::before,html[data-graphics="low"] .big .lk{filter:none!important}
+html[data-graphics="low"] .sidecard.soon img{filter:saturate(.7)!important}
