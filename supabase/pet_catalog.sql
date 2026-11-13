@@ -1,4 +1,5 @@
 -- Katalog 7 pet (sumber data lama: data pet.html, sudah dihapus; data pet sekarang di pet.js dan tabel ini).
+-- Harga pet disejajarkan dengan skala dadu/frame/aura (Fase 3 ekonomi): T1-T4 koin 3.000 / 9.000 / 25.000 / 60.000; T5-T7 emerald 1.500 / 3.000 / 6.000. Pet memberi skill, jadi lebih mahal dari kosmetik. Jalankan ulang file ini di SQL Editor (upsert).
 -- Jalankan seluruh file ini di Supabase SQL Editor. Aman dijalankan ulang.
 
 create table if not exists public.pet_catalog (
@@ -50,7 +51,7 @@ insert into public.pet_catalog (
     array['#b8803f','#f0dcb0','#3fa04a'],
     '#6fd05a',
     'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',
-    'coin', 100000
+    'coin', 3000
   ),
   (
     'copper_golem', 2, 'Uncommon', 'Copper Golem', 'Copper Block dan Verdigris', 'Industrial dan rajin', 'Pelindung',
@@ -63,7 +64,7 @@ insert into public.pet_catalog (
     array['#c8703a','#3fbf9f','#ffb040'],
     '#ff9a30',
     'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',
-    'coin', 250000
+    'coin', 9000
   ),
   (
     'crystal_axolotl', 3, 'Rare', 'Crystal Axolotl', 'Diamond Crystal', 'Tenang dan berkilau', 'Penyembuh',
@@ -76,7 +77,7 @@ insert into public.pet_catalog (
     array['#8fe8f2','#d8fbff','#ff9ad8','#40e8f4'],
     '#40e8f4',
     'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.',
-    'coin', 600000
+    'coin', 25000
   ),
   (
     'arcane_owl', 4, 'Epic', 'Arcane Owl', 'Amethyst dan Rune', 'Bijak dan arcane', 'Peramal',
@@ -89,7 +90,7 @@ insert into public.pet_catalog (
     array['#6a4a7a','#b46af0','#ffd24a'],
     '#b46af0',
     'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.',
-    'coin', 1500000
+    'coin', 60000
   ),
   (
     'storm_wolf', 5, 'Legendary', 'Storm Wolf', 'Storm Steel dan Lightning Crystal', 'Thunder Lord', 'Penyerang',
@@ -102,7 +103,7 @@ insert into public.pet_catalog (
     array['#5a6a8a','#e8f4ff','#7fd0ff','#fff2a0'],
     '#7fd0ff',
     'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.',
-    'coin', 4000000
+    'emerald', 1500
   ),
   (
     'inferno_dragon', 6, 'Mythic', 'Inferno Dragon', 'Dragon Scale dan Obsidian', 'Dragon Lord', 'Pembakar Ular',
@@ -115,7 +116,7 @@ insert into public.pet_catalog (
     array['#1b0a10','#a0182c','#ff7a18','#ffd24a'],
     '#ff4a3a',
     'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.',
-    'coin', 10000000
+    'emerald', 3000
   ),
   (
     'celestial_kitsune', 7, 'Divine', 'Celestial Kitsune', 'Divine Crystal dan Gold', 'Celestial Guardian', 'Pengubah Takdir',
@@ -128,7 +129,7 @@ insert into public.pet_catalog (
     array['#fdfbf4','#ffcf4a','#6ae8ff'],
     '#ffe08a',
     'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.',
-    'emerald', 3000
+    'emerald', 6000
   )
 on conflict (id) do update set
   tier = excluded.tier,
