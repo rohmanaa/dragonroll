@@ -1,0 +1,20 @@
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const css = fs.readFileSync(path.join(__dirname, '../gameplay/pause.css'), 'utf8');
+const gridRule = css.match(/html body #exitConfirm \.lm-grid\.lm-two\s*\{([^}]*)\}/);
+const buttonRule = css.match(/html body #exitConfirm \.lm-grid\.lm-two \.lm-mode\s*\{([^}]*)\}/);
+const cancelRule = css.match(/html body #exitConfirm #ecNo\s*\{([^}]*)\}/);
+const confirmRule = css.match(/html body #exitConfirm #ecYes\s*\{([^}]*)\}/);
+
+assert.ok(gridRule, 'expected a two-column exit confirmation layout rule');
+assert.match(gridRule[1], /repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+assert.ok(buttonRule, 'expected a contained exit confirmation button rule');
+assert.match(buttonRule[1], /box-sizing:\s*border-box/);
+assert.match(buttonRule[1], /min-width:\s*0/);
+assert.match(buttonRule[1], /aspect-ratio:\s*3\s*\/\s*1/);
+assert.ok(cancelRule, 'expected the blue cancel button asset');
+assert.match(cancelRule[1], /assets\/ng\/komponen\/tombol-dan-kontrol\/tombol-biru-polos\.webp/);
+assert.ok(confirmRule, 'expected the red exit button asset');
+assert.match(confirmRule[1], /assets\/ng\/komponen\/tombol-dan-kontrol\/tombol-merah-polos\.webp/);
+console.log('ok - gameplay exit confirmation uses equal, proportional button assets');

@@ -16,6 +16,25 @@ html body #exitConfirm {
   inset: 0 !important;
   z-index: 2147483647 !important;
 }
+html body #exitConfirm .lm-grid.lm-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+html body #exitConfirm .lm-grid.lm-two .lm-mode {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  aspect-ratio: 3 / 1 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html body #exitConfirm #ecNo {
+  background: url("../assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
+}
+html body #exitConfirm #ecYes {
+  background: url("../assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp") center / 100% 100% no-repeat !important;
+}
 html body #pauseMenu .lm-box {
   position: relative !important;
   box-sizing: border-box !important;

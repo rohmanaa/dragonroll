@@ -419,11 +419,7 @@ body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
     <div class="tn-av" id="tnAv" aria-hidden="true"><img id="tnAvImg" alt=""></div>
     <div class="trow"><span id="turnName"></span></div>
     <div class="die-dock" id="dieDock">
-      <div class="gh-dice" role="img" aria-label="Dadu belum dilempar">
-        <img src="referensi/newgui/game/assets/komponen/new-icon/dadu.webp" alt="">
-        <b id="ghDieResult" hidden></b>
-      </div>
-      <div class="die-scene" id="dieScene"></div>
+      <div class="die-scene" id="dieScene" role="img" aria-label="Dadu"></div>
     </div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll</button>
@@ -4978,8 +4974,7 @@ const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||type
 /* ---------- Dadu ---------- */
 /* Presentation dadu = UT.GameplayDiceUI (gameplay/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
 function showDie(v,anim){
-  const result=$('ghDieResult'),visual=document.querySelector('#dieDock .gh-dice');
-  if(result&&Number.isInteger(v)&&v>=1&&v<=6){ result.textContent=String(v); result.hidden=false; }
+  const visual=$('dieScene');
   if(visual&&Number.isInteger(v)&&v>=1&&v<=6) visual.setAttribute('aria-label','Hasil dadu '+v);
   const D=window.UT&&UT.GameplayDiceUI; return D?D.showDie(v,anim):Promise.resolve(v);
 }

@@ -7,8 +7,8 @@ html body #side .rcol .pnl.tn .die-dock{
   position:relative;width:150px;height:120px;zoom:var(--die-z,1.2);margin:0;pointer-events:none;
 }
 html body #side .rcol .pnl.tn .die-dock .die-scene{
-  position:absolute;left:43px;bottom:34px;top:auto;right:auto;margin:0;zoom:1;grid-area:auto;
-  transform-origin:50% 100%;z-index:2;
+  position:absolute;left:calc(50% - 32px);top:calc(50% - 32px);bottom:auto;right:auto;margin:0;zoom:1;grid-area:auto;
+  transform-origin:50% 50%;z-index:2;
 }
 
 /* ===== Emote (kiri bawah, di atas Power-up) ===== */

@@ -247,9 +247,9 @@ export class DiceAnimator {
     this._sync();
   }
 
-  /** Lempar dadu. Bila game sudah menentukan angka (forced), pilih lemparan yang mendarat natural di angka itu. */
+  /** Drop gameplay avoids synchronous target search; mismatches ease to the forced result after physics settles. */
   _throw(drop) {
-    if (this.forced != null) this.physics.throwTowards(this.forced, this.pos, this.q, this.spinAxis, drop);
+    if (this.forced != null && !drop) this.physics.throwTowards(this.forced, this.pos, this.q, this.spinAxis, drop);
     else this.physics.throwDie(this.pos, this.q, this.spinAxis, drop);
   }
 

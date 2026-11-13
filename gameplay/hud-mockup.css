@@ -15,7 +15,7 @@
   right: auto !important;
   bottom: auto !important;
   width: 1920px !important;
-  height: 1080px !important;
+  height: var(--ghud-stage-height, 1080px) !important;
   margin: 0 !important;
   zoom: 1 !important;
   transform: scale(var(--ghud-stage-scale, 1)) translate(-50%, -50%) !important;
@@ -610,7 +610,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   display: grid !important;
   place-items: center !important;
   align-self: center !important;
-  justify-self: end !important;
+  justify-self: center !important;
   width: 360px !important;
   height: 200px !important;
   margin: 0 !important;
@@ -618,34 +618,12 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   zoom: 1 !important;
   transform: none !important;
 }
-#side .rcol .pnl.tn .gh-dice {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  pointer-events: none;
-}
-#side .rcol .pnl.tn .gh-dice img { display: block; width: 100%; height: 100%; max-width: none; object-fit: contain; }
-#side .rcol .pnl.tn .gh-dice b {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #2b1a00;
-  font: 104px/1 var(--gh-title);
-  text-shadow: 0 2px 0 rgba(255,255,255,.5);
-}
 #side .rcol .pnl.tn #dieScene {
-  position: absolute !important;
-  top: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: 0 !important;
-  z-index: -1;
   width: 64px !important;
   height: 64px !important;
   margin: 0 !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
+  overflow: visible !important;
+  opacity: 1 !important;
   pointer-events: none !important;
   zoom: 1 !important;
   transform: none !important;
@@ -672,7 +650,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   pointer-events: auto !important;
 }
 #side .rcol .pnl.tn #btnAuto { grid-area: auto !important; grid-row: 2 !important; grid-column: 1 !important; width: 190px !important; height: 64px !important; font-size: 24px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
-#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; width: 360px !important; height: 124px !important; min-height: 124px !important; font-size: 56px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
+#side .rcol .pnl.tn #btnRoll { grid-area: roll !important; grid-row: 2 !important; grid-column: 2 !important; justify-self: center !important; width: 200px !important; height: 76px !important; min-height: 76px !important; font-size: 36px !important; background-image: url("../referensi/newgui/game/assets/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
 #side .rcol .pnl.tn #btnRoll:disabled,
 #side .rcol .pnl.tn #btnAuto:disabled { filter: grayscale(.8) brightness(.7) !important; cursor: not-allowed !important; }
 #side .rcol .pnl.tn #btnRoll::before,
@@ -761,7 +739,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 #side .emote-dock {
   position: absolute !important;
   right: 24px !important;
-  bottom: 214px !important;
+  bottom: 280px !important;
   left: auto !important;
   z-index: 7 !important;
   display: flex !important;
@@ -940,7 +918,7 @@ html body #side .rcol .pnl.tn .msg { grid-area: msg !important; grid-column: 1 !
 html body #side .rcol .pnl.tn #diceMeter { grid-area: meter !important; grid-column: 1 !important; }
 html body #side .emote-dock {
   right: 24px !important;
-  bottom: 214px !important;
+  bottom: 280px !important;
   left: auto !important;
   z-index: 7 !important;
   width: max-content !important;
@@ -1117,9 +1095,11 @@ html body #puCard.pucard {
   padding: 30px 48px !important;
   text-align: center !important;
 }
-html body #puCard.pucard.power-hit {
+html body #puCard.pucard.power-hit,
+html body #puCard.pucard.mob-hit {
   width: min(640px, 90vw) !important;
   max-width: 90vw !important;
+  min-width: 0 !important;
   min-height: 0 !important;
   padding: 0 !important;
   border: 0 !important;
