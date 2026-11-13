@@ -3664,7 +3664,20 @@ function showDie(v,anim){
 function dice3dOn(){ const D=window.UT&&UT.GameplayDiceUI; return !!(D&&D.ready); }
 /* Lempar dadu 3D asli (Dice Kit): kocok + fisika berakhir di angka v (angka tetap dari gameplay). Selesai saat dadu mendarat dan angka tampil;
    dadu dipercepat (speed 1,7) dan dipaksa mendarat bila >3 dtk; batas 4,5 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
-function dieRoll(v){
+function dieRoll(v,pl){
+  /* Dadu DILEMPAR bidak giliran dan jatuh di dekatnya (UT.GameplayDiceThrow, gameplay/js/dice-throw.js). Angka v tetap dari gameplay.
+     Indikator di dekat profil (#dieScene) menampilkan hasil saat dadu dunia mendarat. Modul/bidak tak ada atau reduce-motion -> dadu panel lama. */
+  const T=window.UT&&UT.GameplayDiceThrow, pw=pl&&pl.pawn;
+  if(!reduce&&T&&T.ready&&pw&&pw.visible!==false&&Number.isInteger(v)&&v>=1&&v<=6){
+    let rs=null;
+    const land=()=>{ try{ sfx.rollStop(rs); }catch(e){} showDie(v,false); try{ const el=$('dieScene'); if(el&&el.animate) el.animate([{transform:'scale(.6)'},{transform:'scale(1.25)',offset:.6},{transform:'scale(1)'}],{duration:360,easing:'ease-out'}); }catch(e){} };
+    const p=T.throwFrom(pw.position,v,{ camera:camera,
+      onThrow:()=>{ pawnAct(pw,'attack'); try{ rs=sfx.roll(); }catch(e){} },
+      onBounce:()=>{ try{ sfx.bounce(); }catch(e){} },
+      onLand:land });
+    const t=setTimeout(()=>{ try{ T.skip(); }catch(e){} },2500); /* terlalu lama (FPS rendah): paksa mendarat agar pion tidak mendahului */
+    return Promise.race([p,sleep(3500)]).then(()=>clearTimeout(t));
+  }
   const p=showDie(v,!reduce);
   if(reduce) return sleep(250);
   if(!dice3dOn()) return sleep(1300);
@@ -3673,6 +3686,7 @@ function dieRoll(v){
 }
 function syncDiceSound(){ try{ const D=window.UT&&UT.GameplayDiceUI; if(D){ D.setSound(!muted); D.setVolume(sfxVol/100); } }catch(e){} }
 try{ const D=window.UT&&UT.GameplayDiceUI; if(D) D.init(); }catch(e){ console.error(e); }
+try{ const T=window.UT&&UT.GameplayDiceThrow; if(T) T.init(scene); }catch(e){ console.error(e); }
 showDie(1,false);
 
 /* ---------- Konfeti ---------- */
@@ -5286,7 +5300,7 @@ async function doRoll(opt){
   }
   const rs=dice3dOn()?null:sfx.roll(); mpCue({k:'roll',pid:p.networkId,v:v}); /* dadu 3D punya suara sendiri (kocok, benturan) */
   try{
-    await dieRoll(v); sfx.rollStop(rs); if(gid!==gameId) return;
+    await dieRoll(v,p); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
     const SX=UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* aturan tiga-6 = game-core.js */
     await sleep(300); if(gid!==gameId) return;
@@ -5463,7 +5477,7 @@ function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) re
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
   const p=mpPlayerByNet(c.pid); if(!p) return Promise.resolve();
-  if(c.k==='roll'){ const rs=dice3dOn()?null:sfx.roll(); setMsg(p.name+' melempar dadu...'); return dieRoll(c.v).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
+  if(c.k==='roll'){ const rs=dice3dOn()?null:sfx.roll(); setMsg(p.name+' melempar dadu...'); return dieRoll(c.v,p).then(()=>{ try{ sfx.rollStop(rs); }catch(e){} setMsg(p.name+' melempar '+c.v+'.'); }); }
   if(c.k==='walk') return walk(p,c.from,c.to);
   if(c.k==='climb') return climb(p,c.from,c.to);
   if(c.k==='bite') return bite(p,c.from,c.to,gameId);
