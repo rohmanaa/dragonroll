@@ -3955,7 +3955,7 @@ function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(DRAGON_S); 
 /* Serangan ke Ender Dragon = memanah (naga terbang, jadi jarak jauh): pion berdiri menyamping menghadap naga, membidik ke atas, menarik busur, lalu anak panah melesat ke naga.
    Mengembalikan true bila animasi busur dimainkan; false (pion lama tanpa rig busur) -> pemanggil memakai animasi serang biasa. */
 const BOWA_GEO=new THREE.BoxGeometry(0.05,0.05,0.75),BOWA_MAT=new THREE.MeshLambertMaterial({color:0xC9A56A});
-async function bowShootDragon(p,gid){
+async function bowShootDragon(p,gid,onShoot){
   const pw=p.pawn,bc=pw&&pw.userData&&pw.userData.bc; if(!(bc&&bc.act&&bc.bow&&bc.bowReleaseAt)||!dragon.visible) return false;
   const dur=reduce?0.7:1.2,t0=performance.now(),oldYaw=pw.rotation.y,tg=new THREE.Vector3();
   const aimAt=()=>tg.copy(dragon.position); aimAt();
@@ -3963,6 +3963,7 @@ async function bowShootDragon(p,gid){
   pw.rotation.y=Math.atan2(dx,dz); bc.setBowAim(Math.max(0,Math.min(1.1,el))); bc.act('bow',dur);
   await sleep(bc.bowReleaseAt(dur)*1000); if(gid!==gameId){ pw.rotation.y=oldYaw; return true; }
   try{ sfx.skeltonSh(); }catch(e){}
+  try{ if(onShoot) onShoot(); }catch(e){} /* overlay merah/Critical muncul tepat saat bidak melepas panah */
   const a=new THREE.Mesh(BOWA_GEO,BOWA_MAT),s0=new THREE.Vector3(); bc.bow.getWorldPosition(s0); aimAt(); a.position.copy(s0); a.lookAt(tg); world.add(a);
   const fl=Math.max(0.18,Math.min(0.5,s0.distanceTo(tg)/22)),to=new THREE.Vector3();
   try{ await tween(fl,k=>{ aimAt(); to.copy(s0).lerp(tg,k); to.y+=Math.sin(k*Math.PI)*0.35; a.position.copy(to); a.lookAt(tg); }); }finally{ world.remove(a); }
@@ -3973,13 +3974,14 @@ async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId;
    hud('hideCombat');
-   if(!(await bowShootDragon(p,gid))){ pawnAct(p.pawn,'attack'); await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6); } /* panah mendarat -> naga kena */
+   let fxDone=false; const fireFx=()=>{ if(fxDone||gid!==gameId) return; fxDone=true; bossHitFx(dmg,false,true); }; /* overlay merah sekali, bersamaan dengan bidak menembak */
+   if(!(await bowShootDragon(p,gid,fireFx))){ fireFx(); pawnAct(p.pawn,'attack'); await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.6); } /* panah mendarat -> naga kena */
    if(gid!==gameId) return;
    sfx.dragonHurt(); mpCue({k:'dfx',t:'hurt'});
    sfx.hundred();
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
-   p.dhp=Math.max(0,p.dhp-dmg); bossHitFx(dmg,false,true); msBump(p,'dragon_hits'); renderChips();
+   p.dhp=Math.max(0,p.dhp-dmg); fireFx(); msBump(p,'dragon_hits'); renderChips();
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
@@ -5236,7 +5238,7 @@ function specialHint(p){
 function syncRollLabel(){
   const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=!!(sp&&BOSS==='dragon'&&p.dragonReady);
   b.classList.toggle('special',sp); b.classList.toggle('boss-attack',dragonAttack); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?(dragonAttack?'Lepas untuk menyerang':'Lepas untuk memilih'):(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
+  b.textContent=DH.on?'Lepas':(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
   dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
@@ -5244,7 +5246,7 @@ function dmSeg(x){ return Math.max(1,Math.min(6,Math.floor(x*6)+1)); }
 function dmShow(on){ const m=$('diceMeter'); if(m) m.hidden=!on; }
 function dmDraw(x){
   const n=$('dmNeedle'),m=$('diceMeter'); if(!n||!m) return;
-  n.style.left=(x*100)+'%';
+  n.style.left=(x*100)+'%'; const bar=m.querySelector('.dm-bar'); if(bar) bar.style.setProperty('--dm-x',x.toFixed(4)); /* isi bar halus mengikuti jarum (bolak-balik) */
   const k=dmSeg(x); m.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i+1===k));
 }
 function holdStart(id){

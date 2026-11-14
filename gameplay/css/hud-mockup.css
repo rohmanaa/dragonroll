@@ -670,7 +670,9 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 #side .rcol .pnl.tn #diceMeter .dm-bar { width: 100%; }
 #side .rcol .pnl.tn #diceMeter .dm-bar { height: 12px !important; border-radius: 999px !important; box-shadow: inset 0 1px 3px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.35) !important; }
 #side .rcol .pnl.tn #diceMeter .dm-bar i { height: 100% !important; color: transparent !important; font-size: 0 !important; text-shadow: none !important; background: transparent !important; border: 0 !important; border-radius: 0 !important; }
-#side .rcol .pnl.tn #diceMeter .dm-bar i.on { background: var(--c, #ffd45a) !important; }
+#side .rcol .pnl.tn #diceMeter .dm-bar i.on { background: transparent !important; }
+/* isi bar mengikuti jarum secara kontinu (bolak-balik, tanpa snap per segmen) */
+#side .rcol .pnl.tn #diceMeter .dm-bar::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: calc(var(--dm-x, 0) * 100%); background: var(--c, #ffd45a); pointer-events: none; }
 #side .rcol .pnl.tn #diceMeter .dm-needle { top: 0 !important; bottom: 0 !important; width: 2px !important; margin-left: -1px !important; }
 
 #hud .tools {
