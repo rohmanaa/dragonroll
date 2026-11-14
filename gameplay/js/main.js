@@ -1413,7 +1413,8 @@ function addMcFar(DB){
     const sn=snapB(DB); lift(DB,()=>addOak(DB,x,z,s),hAt(x,z)); n++;
     if(themeKey==='minecraft'&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) rollB(DB,sn); /* di luar pulau kecil: buang (rnd sudah terpakai, urutan acak aman) */
   }
-  [[-13,-10],[-15,9]].forEach(q=>{ lift(DB,()=>addMcHouse(DB,q[0],q[1]),hAt(q[0],q[1])); addHouseExtras(DB,q[0],q[1],hAt(q[0],q[1])); });
+  [[-13,-10],[-15,9]].forEach(q=>{ let gh=0; for(let gx=2*Math.floor((q[0]-1.3)/2)+2*0;gx<=q[0]+1.3;gx+=2) for(let gz=2*Math.floor((q[1]-1.3)/2);gz<=q[1]+1.3;gz+=2) gh=Math.max(gh,mcH(gx,gz)); /* rumah di tanah tertinggi di bawah jejaknya (tidak lelap) */
+    lift(DB,()=>addMcHouse(DB,q[0],q[1]),gh); addHouseExtras(DB,q[0],q[1],gh); });
   /* hewan ternak tidak lagi berkeliaran bebas: semuanya tinggal di kandang (lihat addRanch) */
 }
 /* gunung batu di sisi bawah (selatan) pulau: +3 blok besar (z 15..18), bentuk seperti gunung kiri: batu abu-abu berlumut, tebing tinggi di tepi luar dan turun ke arah board. Tanpa rnd() (deterministik) agar seed dunia tidak bergeser. */
@@ -1453,14 +1454,15 @@ function addMcEnv(DB){
   blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-22.9,-20.5,5.2,8.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau */
   for(let z=-19.0;z<=6.0;z+=1){ addBox(DB,7,RIVER_Y-0.08,z,4.0,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7,z,RIVER_Y,4.0,1,Math.round(z*4)+100,8,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
-  const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(z<-5.5&&x>-6.4&&x<2)||(Math.abs(x+6.9)<1.2&&Math.abs(z+3.6)<1.2)||(Math.abs(x-4.2)<1.2&&Math.abs(z+6.3)<1.2);
-  item(-6.9,-3.6,1.6,1.3,b=>addMcHouse(b,-6.9,-3.6)); item(4.2,-6.3,1.6,1.3,b=>addMcHouse(b,4.2,-6.3));
-  item(0.2,-6.4,2.3,1.4,b=>addPortal(b,0.2,-6.4));
-  blockRect(PAD.x,PAD.z,1.3,1.3); blockRect(0.2,-6.4,1.3,1.0);
-  addHouseExtras(DB,-6.9,-3.6,0); addHouseExtras(DB,4.2,-6.3,0);
+  const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(Math.abs(x-PORTAL_P.x)<1.6&&Math.abs(z-PORTAL_P.z)<1.4)||(Math.abs(x-HOUSE_A.x)<1.2&&Math.abs(z-HOUSE_A.z)<1.2)||(Math.abs(x-HOUSE_B.x)<1.2&&Math.abs(z-HOUSE_B.z)<1.2);
+  const HOUSE_A={x:-10.8,z:-2.4},HOUSE_B={x:-10.8,z:2.2},PORTAL_P={x:2.0,z:-11.5}; /* 2 rumah dipindah ke lahan datar kiri board; portal Nether mundur ke dataran datar di belakang (x 0..4, z -13..-7) */
+  item(HOUSE_A.x,HOUSE_A.z,1.6,1.3,b=>addMcHouse(b,HOUSE_A.x,HOUSE_A.z)); item(HOUSE_B.x,HOUSE_B.z,1.6,1.3,b=>addMcHouse(b,HOUSE_B.x,HOUSE_B.z));
+  item(PORTAL_P.x,PORTAL_P.z,2.3,1.4,b=>addPortal(b,PORTAL_P.x,PORTAL_P.z));
+  blockRect(PAD.x,PAD.z,1.3,1.3); blockRect(PORTAL_P.x,PORTAL_P.z,1.3,1.0);
+  addHouseExtras(DB,HOUSE_A.x,HOUSE_A.z,0); addHouseExtras(DB,HOUSE_B.x,HOUSE_B.z,0);
   addFarm(DB);
   /* hewan dekat board dihapus -> pindah ke kandang (addRanch) */
-  queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(4.5,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
+  queueAnimal(-9.0,-0.1,0.4,'villager'); queueAnimal(4.5,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
   const FL=[]; DECOR_SEED.length=0;
   for(let i=0;i<90;i++){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
@@ -1472,7 +1474,7 @@ function addMcEnv(DB){
     const x=f[0],z=f[1];
     if(penBlocked(x,z)) return;
     if(TREEPOS.some(t=>Math.hypot(x-t[0],z-t[1])<0.8*t[2]+0.15)) return;
-    if([[-6.9,-2.0],[5.85,2.2]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
+    if([[-9.0,-0.1],[4.5,2.2]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
     if(DECOR_SEED.some(k=>Math.hypot(x-k[0],z-k[1])<0.22)) return;
     DECOR_SEED.push([x,z,0.16]);
     addBox(DB,x,0.07,z,0.14,0.14,0.14,f[2],{edge:false});
