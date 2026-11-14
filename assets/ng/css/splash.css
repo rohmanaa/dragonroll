@@ -6,9 +6,7 @@ html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:
 #scene{position:fixed;inset:0;overflow:hidden}
 #cave{position:absolute;inset:0;
   background:url(../../Images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
-/* setelah loading selesai (TAP TO START): crossfade ke foto gerbang portal */
-#cave::after{content:'';position:absolute;inset:0;background:url(../../Images/background/splash-portal.webp) center/cover no-repeat;opacity:0;transition:opacity .6s ease}
-body.ready #cave::after{opacity:1}
+/* TAP TO START: latar sama persis dengan saat loading (splash-loading.webp) */
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 78% 78% at 50% 46%,transparent 40%,rgba(8,5,10,.75) 100%),linear-gradient(180deg,transparent 80%,rgba(8,5,10,.85))}
@@ -82,4 +80,3 @@ body.ready #spin,body.ready #loadbox,body.ready #loginbtn{display:none!important
 #tapbox span{font:800 3.4rem/1 var(--font-body);letter-spacing:.25rem;color:#fff;text-shadow:0 .15rem .3rem rgba(0,0,0,.7);animation:blink 1.4s ease-in-out infinite}
 #hi{position:absolute;left:0;right:0;bottom:3.2rem;text-align:center;font:800 1.9rem var(--font-body);color:#d8d2ee;text-shadow:0 .1rem .2rem rgba(0,0,0,.7)}
 @keyframes blink{50%{opacity:.35}}
-body.ready #cave{filter:saturate(1.1) brightness(.92)}
