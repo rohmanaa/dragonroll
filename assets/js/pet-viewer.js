@@ -689,9 +689,12 @@ const SND=[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
-/* Suara Forest Pup = rekaman anjing asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
-   Urutan sama dengan SND[0]: 0 gonggongan beruntun, 1 satu gonggongan, 2 rengekan. Sintesis lama jadi cadangan bila file belum dimuat/gagal. */
-const PET_FILES={0:['assets/sfx/pet/forest-pup-bark-burst.mp3','assets/sfx/pet/forest-pup-bark.mp3','assets/sfx/pet/forest-pup-whimper.mp3']};
+/* Suara Forest Pup (anjing) dan Copper Golem (logam/uap/servo) = rekaman asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
+   Urutan sama dengan SND[indeks pet]. Forest Pup: gonggongan beruntun, satu gonggongan, rengekan. Sintesis lama jadi cadangan bila file belum dimuat/gagal. */
+const PET_FILES={
+ 0:['assets/sfx/pet/forest-pup-bark-burst.mp3','assets/sfx/pet/forest-pup-bark.mp3','assets/sfx/pet/forest-pup-whimper.mp3'],
+ 1:['assets/sfx/pet/copper-golem-clang.mp3','assets/sfx/pet/copper-golem-steam.mp3','assets/sfx/pet/copper-golem-servo.mp3'] /* denting logam, uap, servo */
+};
 const petBuf={},petLoading={};
 function petLoad(url){
   if(petBuf[url]||petLoading[url]||!AC)return;
