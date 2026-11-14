@@ -227,8 +227,3 @@ html[data-graphics="low"] .round>img.ic,html[data-graphics="low"] .tile .ico img
 html[data-graphics="low"] .sidecard img,html[data-graphics="low"] #go img,html[data-graphics="low"] #go:hover img,
 html[data-graphics="low"] #nav .tile.big::before,html[data-graphics="low"] .big .lk{filter:none!important}
 html[data-graphics="low"] .sidecard.soon img{filter:saturate(.7)!important}
-
-/* ===== layar lebih lebar dari 16:9: UI kiri & kanan menempel ke tepi layar, bukan ke tepi kotak 1920 (--ex diisi fit() di lobby.html) ===== */
-#stage{overflow:visible!important}
-#profile,#quest,#koleksi,#nav{translate:calc(var(--ex,0px)*-1) 0}
-#cur-em,#cur-co,#b-mail,#b-lead,#b-set,#side,#go{translate:var(--ex,0px) 0}
