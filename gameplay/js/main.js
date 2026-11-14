@@ -3684,8 +3684,8 @@ function dieRoll(v,pl){
   const T=window.UT&&UT.GameplayDiceThrow, pw=pl&&pl.pawn;
   if(!reduce&&T&&T.ready&&pw&&pw.visible!==false&&Number.isInteger(v)&&v>=1&&v<=6){
     let rs=null; const ownSfx=!T.kitReady; /* DiceKit punya suara sendiri; suara game dipakai hanya untuk dadu cadangan */
-    /* titik jatuh: DI PAPAN, di depan bidak, 2-3 petak dari tempat lempar (tak pernah lebih dari 3 petak) */
-    let land=null; try{ const k=2+Math.floor(Math.random()*2), ti=Math.min(GOAL,(pl.pos||0)+k), tt=TILES[ti]; if(tt&&ti>(pl.pos||0)) land=new THREE.Vector3(tt.x,tt.h,tt.z); }catch(e){}
+    /* titik jatuh: DI PAPAN, tepat 1 petak di depan bidak */
+    let land=null; try{ const k=1, ti=Math.min(GOAL,(pl.pos||0)+k), tt=TILES[ti]; if(tt&&ti>(pl.pos||0)) land=new THREE.Vector3(tt.x,tt.h,tt.z); }catch(e){}
     const p=T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget, land:land,
       onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
       onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
