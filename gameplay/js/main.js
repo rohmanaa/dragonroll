@@ -5213,7 +5213,7 @@ async function playTurn(p,v,gid,bn){
     return;
   }
   const PM=UT.Gameplay.Core.planMove(p.pos,v+(bn||0),GOAL); /* aturan gerak/pantulan = game-core.js */
-  await A(walk(p,p.pos,PM.to)); p.pos=PM.to;
+  await A(walk(p,p.pos,PM.to)); if(!PM.over) p.pos=PM.to; /* kelebihan: hanya LEWAT petak GOAL lalu memantul, jadi p.pos tidak boleh jadi GOAL (bila tidak, panel Crystal/portal muncul padahal tidak berhenti di 100) */
   if(PM.over){
     renderChips();
     setMsg('Kelebihan '+PM.over+'. '+p.name+' memantul mundur ke '+PM.bounceTo+'.'); fb('event','bounce','Kelebihan '+PM.over+'! Memantul ke '+PM.bounceTo,{gid}); sfx.bounce();
