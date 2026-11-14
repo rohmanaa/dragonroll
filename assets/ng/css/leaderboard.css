@@ -63,3 +63,5 @@
   background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.4) 50%,transparent 58%) 130% 0/300% 100% no-repeat;animation:pshine 8s ease-in-out infinite}
 @keyframes pshine{0%{background-position:130% 0}55%,100%{background-position:-30% 0}}
 @media(prefers-reduced-motion:reduce){.pg,.pshine{animation:none}.pshine{display:none}}
+/* latar voxel kastel (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/leaderboard-voxel-kastel.webp) center/cover no-repeat;opacity:.35}
