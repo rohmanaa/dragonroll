@@ -1,8 +1,8 @@
 /* Ular Tangga Blok — assets/js/character-data.js
    DATA KARAKTER BERSAMA (voxel) — satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
    (lobby, leaderboard, profil, shop, inventory, dll). Skrip klasik (tanpa import/export), global: UT.CharacterData.
-   - Data di bawah diekstrak apa adanya dari gameplay.html (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
-     addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model di gameplay.html berubah). gameplay.html TIDAK diubah.
+   - Data di bawah diekstrak apa adanya dari gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
+     addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model Gameplay berubah).
    - Satu box = [x, y, z, w, h, d, '#rrggbb', noEdge, tag]. Pusat box; satuan dunia gameplay; dasar kaki di y=0;
      karakter menghadap +z; kanan karakter = -x. noEdge=1: detail tanpa garis tepi (mata, mulut, dll).
      tag: 0 biasa | 2 batang Blaze (berputar di gameplay) | 3 blok kepala 0.3 (di gameplay = 27 kubus 0.1 dengan variasi warna 0.09).
@@ -11,10 +11,12 @@
      metadata + fallback ke 'steve'.
    API:
      UT.CharacterData.list(group)                 -> ['steve', ...]
-     UT.CharacterData.get(group, key)             -> {group,key,name,hex,css,boxes,bounds,png?,fallback?}
+     UT.CharacterData.get(group, key)             -> {group,key,name,hex,css,boxes,bounds,rig?,png?,fallback?}
      UT.CharacterData.svg(group, key, opts)       -> string SVG (opts: view 'front'|'iso'|'back'|'side', yaw, pitch, bust, size, edge, label)
      UT.CharacterData.face(group, key, opts)      -> SVG kepala saja (depan)
      UT.CharacterData.mesh(THREE, group, key, o)  -> THREE.Group (satu mesh, vertex color); o.scale, o.dither (default true)
+     UT.CharacterRigAdapter.resolve(key)           -> validasi definisi rig CharacterData tanpa membuat mesh
+     UT.CharacterRigAdapter.create(THREE, key, opts) -> rig ber-pivot; fallback hanya bila opts.fallbackKey dinyatakan
      UT.CharacterData.SEATS                       -> warna kursi pemain (Merah/Biru/Kuning/Hijau) */
 (function (win) {
   'use strict';
@@ -48,7 +50,7 @@
     creeper: [[-0.06,0.075,-0.07,0.09,0.15,0.09,"#2f7f2e",1,0],[0.06,0.075,-0.07,0.09,0.15,0.09,"#2f7f2e",1,0],[-0.06,0.075,0.07,0.09,0.15,0.09,"#2f7f2e",1,0],[0.06,0.075,0.07,0.09,0.15,0.09,"#2f7f2e",1,0],[0,0.32,0,0.2,0.34,0.13,"#4db84a",0,0],[0,0.62,0,0.24,0.24,0.24,"#4db84a",0,0],[-0.05,0.65,0.125,0.05,0.05,0.02,"#101010",1,0],[0.05,0.65,0.125,0.05,0.05,0.02,"#101010",1,0],[0,0.59,0.125,0.06,0.08,0.02,"#101010",1,0],[0,0.54,0.125,0.1,0.04,0.02,"#101010",1,0]],
   },
 };
-  var META = {"player":{"steve":{"name":"Steve","hex":"#2F80FF","css":"#2a78d6"},"alex":{"name":"Alex","hex":"#FF8A1A","css":"#d9791c"},"creeper":{"name":"Creeper","hex":"#4DB84A","css":"#3f9f2a"},"ender":{"name":"Enderman","hex":"#A855F7","css":"#3a2a52"},"zombie":{"name":"Zombie","hex":"#2DB5A6","css":"#2b8f87"},"skeleton":{"name":"Skeleton","hex":"#D0D0D0","css":"#6f7378"},"villager":{"name":"Villager","hex":"#C9A24A","css":"#a8832f"}},"mob":{"creeper":{"name":"Creeper","hex":"#3E8E3A","css":"#3f9f2a"},"ender":{"name":"Enderman","hex":"#3A1F5C","css":"#3a2a52"},"skeleton":{"name":"Skeleton","hex":"#B8B8B8","css":"#6f7378"},"zombie":{"name":"Zombie","hex":"#4F8F3F","css":"#2b8f87"},"warden":{"name":"Warden","hex":"#0E3A44","css":"#1f7f7a"},"villager":{"name":"Villager","hex":"#C9A24A","css":"#a8832f"},"blaze":{"name":"Blaze","hex":"#E0561A","css":"#e0561a"}},"wild":{"golem":{"name":"Iron Golem","hex":"#C9C9C2","css":"#9a9a92"},"spider":{"name":"Spider","hex":"#2A2024","css":"#3a2e32"},"zombie":{"name":"Zombie","hex":"#5E9E4A","css":"#2b8f87"},"skeleton":{"name":"Skeleton","hex":"#DADADA","css":"#6f7378"},"creeper":{"name":"Creeper","hex":"#4DB84A","css":"#3f9f2a"}}};
+  var META = {"player":{"steve":{"name":"Steve","hex":"#2F80FF","css":"#2a78d6","rig":{"baseModelKey":"steve","type":"humanoid","parts":{"head":{"boxIndices":[9,10,11,12,13,14,15,16,17,18,19,20],"pivot":[0,0.49,0]},"torso":{"boxIndices":[8],"pivot":[0,0.5,0]},"rightArm":{"boxIndices":[2,3],"pivot":[-0.15,0.505,0]},"leftArm":{"boxIndices":[6,7],"pivot":[0.15,0.505,0]},"rightLeg":{"boxIndices":[0,1],"pivot":[-0.07,0.22,0]},"leftLeg":{"boxIndices":[4,5],"pivot":[0.07,0.22,0]}},"anchors":{"head":[0,0.83,0],"torso":[0,0.36,0],"back":[0,0.36,-0.09],"rightHand":[-0.2,0.27,0],"leftHand":[0.2,0.27,0],"rightFoot":[-0.07,0.025,0.012],"leftFoot":[0.07,0.025,0.012]},"capabilities":{"locomotion":{"gait":"biped","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":true,"handAnchors":true,"twoHandedPoses":true}},"gearConstraints":{"availableAnchors":["head","torso","back","rightHand","leftHand","rightFoot","leftFoot"]}}},"alex":{"name":"Alex","hex":"#FF8A1A","css":"#d9791c","rig":{"baseModelKey":"alex","type":"humanoid","parts":{"head":{"boxIndices":[9,10,11,12,13,14,15,16,17,18,19,20],"pivot":[0,0.49,0]},"torso":{"boxIndices":[8],"pivot":[0,0.5,0]},"rightArm":{"boxIndices":[2,3],"pivot":[-0.15,0.505,0]},"leftArm":{"boxIndices":[6,7],"pivot":[0.15,0.505,0]},"rightLeg":{"boxIndices":[0,1],"pivot":[-0.07,0.22,0]},"leftLeg":{"boxIndices":[4,5],"pivot":[0.07,0.22,0]}},"anchors":{"head":[0,0.83,0],"torso":[0,0.36,0],"back":[0,0.36,-0.09],"rightHand":[-0.2,0.27,0],"leftHand":[0.2,0.27,0],"rightFoot":[-0.07,0.025,0.012],"leftFoot":[0.07,0.025,0.012]},"capabilities":{"locomotion":{"gait":"biped","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":true,"handAnchors":true,"twoHandedPoses":true}},"gearConstraints":{"availableAnchors":["head","torso","back","rightHand","leftHand","rightFoot","leftFoot"]}}},"creeper":{"name":"Creeper","hex":"#4DB84A","css":"#3f9f2a","rig":{"baseModelKey":"creeper","type":"creeper","parts":{"head":{"boxIndices":[7,8,9,10,11,12,13],"pivot":[0,0.49,0]},"torso":{"boxIndices":[4,5,6],"pivot":[0,0.565,0]},"frontRightLeg":{"boxIndices":[1],"pivot":[-0.09,0.18,0.08]},"rearRightLeg":{"boxIndices":[0],"pivot":[-0.09,0.18,-0.08]},"frontLeftLeg":{"boxIndices":[3],"pivot":[0.09,0.18,0.08]},"rearLeftLeg":{"boxIndices":[2],"pivot":[0.09,0.18,-0.08]}},"anchors":{"head":[0,0.79,0],"torso":[0,0.38,0],"back":[0,0.38,-0.1],"frontRightFoot":[-0.09,0.02,0.08],"rearRightFoot":[-0.09,0.02,-0.08],"frontLeftFoot":[0.09,0.02,0.08],"rearLeftFoot":[0.09,0.02,-0.08]},"capabilities":{"locomotion":{"gait":"four-leg-hop","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":false,"handAnchors":false,"twoHandedPoses":false}},"gearConstraints":{"availableAnchors":["head","torso","back","frontRightFoot","rearRightFoot","frontLeftFoot","rearLeftFoot"]}}},"ender":{"name":"Enderman","hex":"#A855F7","css":"#3a2a52","rig":{"baseModelKey":"ender","type":"ender","parts":{"head":{"boxIndices":[5,6,7,8,9],"pivot":[0,0.82,0]},"torso":{"boxIndices":[4],"pivot":[0,0.8,0]},"rightArm":{"boxIndices":[1],"pivot":[-0.1,0.88,0]},"leftArm":{"boxIndices":[3],"pivot":[0.1,0.88,0]},"rightLeg":{"boxIndices":[0],"pivot":[-0.04,0.5,0]},"leftLeg":{"boxIndices":[2],"pivot":[0.04,0.5,0]}},"anchors":{"head":[0,1.12,0],"torso":[0,0.65,0],"back":[0,0.65,-0.05],"rightHand":[-0.1,0.32,0],"leftHand":[0.1,0.32,0],"rightFoot":[-0.04,0.02,0],"leftFoot":[0.04,0.02,0]},"capabilities":{"locomotion":{"gait":"long-biped","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":true,"handAnchors":true,"twoHandedPoses":true}},"gearConstraints":{"availableAnchors":["head","torso","back","rightHand","leftHand","rightFoot","leftFoot"]}}},"zombie":{"name":"Zombie","hex":"#2DB5A6","css":"#2b8f87","rig":{"baseModelKey":"zombie","type":"humanoid","parts":{"head":{"boxIndices":[9,10,11,12,13,14,15,16,17,18,19,20],"pivot":[0,0.49,0]},"torso":{"boxIndices":[8],"pivot":[0,0.5,0]},"rightArm":{"boxIndices":[2,3],"pivot":[-0.15,0.505,0]},"leftArm":{"boxIndices":[6,7],"pivot":[0.15,0.505,0]},"rightLeg":{"boxIndices":[0,1],"pivot":[-0.07,0.22,0]},"leftLeg":{"boxIndices":[4,5],"pivot":[0.07,0.22,0]}},"anchors":{"head":[0,0.83,0],"torso":[0,0.36,0],"back":[0,0.36,-0.09],"rightHand":[-0.2,0.27,0],"leftHand":[0.2,0.27,0],"rightFoot":[-0.07,0.025,0.012],"leftFoot":[0.07,0.025,0.012]},"capabilities":{"locomotion":{"gait":"biped","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":true,"handAnchors":true,"twoHandedPoses":true}},"gearConstraints":{"availableAnchors":["head","torso","back","rightHand","leftHand","rightFoot","leftFoot"]}}},"skeleton":{"name":"Skeleton","hex":"#D0D0D0","css":"#6f7378","rig":{"baseModelKey":"skeleton","type":"humanoid","parts":{"head":{"boxIndices":[9,10,11,12,13,14,15,16,17,18,19,20],"pivot":[0,0.49,0]},"torso":{"boxIndices":[8],"pivot":[0,0.5,0]},"rightArm":{"boxIndices":[2,3],"pivot":[-0.15,0.505,0]},"leftArm":{"boxIndices":[6,7],"pivot":[0.15,0.505,0]},"rightLeg":{"boxIndices":[0,1],"pivot":[-0.07,0.22,0]},"leftLeg":{"boxIndices":[4,5],"pivot":[0.07,0.22,0]}},"anchors":{"head":[0,0.83,0],"torso":[0,0.36,0],"back":[0,0.36,-0.09],"rightHand":[-0.2,0.27,0],"leftHand":[0.2,0.27,0],"rightFoot":[-0.07,0.025,0.012],"leftFoot":[0.07,0.025,0.012]},"capabilities":{"locomotion":{"gait":"biped","articulatedLegs":true,"verticalOffset":true},"actionRig":{"articulatedArms":true,"handAnchors":true,"twoHandedPoses":true}},"gearConstraints":{"availableAnchors":["head","torso","back","rightHand","leftHand","rightFoot","leftFoot"]}}},"villager":{"name":"Villager","hex":"#C9A24A","css":"#a8832f"}},"mob":{"creeper":{"name":"Creeper","hex":"#3E8E3A","css":"#3f9f2a"},"ender":{"name":"Enderman","hex":"#3A1F5C","css":"#3a2a52"},"skeleton":{"name":"Skeleton","hex":"#B8B8B8","css":"#6f7378"},"zombie":{"name":"Zombie","hex":"#4F8F3F","css":"#2b8f87"},"warden":{"name":"Warden","hex":"#0E3A44","css":"#1f7f7a"},"villager":{"name":"Villager","hex":"#C9A24A","css":"#a8832f"},"blaze":{"name":"Blaze","hex":"#E0561A","css":"#e0561a"}},"wild":{"golem":{"name":"Iron Golem","hex":"#C9C9C2","css":"#9a9a92"},"spider":{"name":"Spider","hex":"#2A2024","css":"#3a2e32"},"zombie":{"name":"Zombie","hex":"#5E9E4A","css":"#2b8f87"},"skeleton":{"name":"Skeleton","hex":"#DADADA","css":"#6f7378"},"creeper":{"name":"Creeper","hex":"#4DB84A","css":"#3f9f2a"}}};
   var SEATS = [{"name":"Merah","hex":"#E5484D","css":"#e5484d"},{"name":"Biru","hex":"#3B7DDD","css":"#3b7ddd"},{"name":"Kuning","hex":"#F2B632","css":"#f2b632"},{"name":"Hijau","hex":"#3FB36B","css":"#3fb36b"}];
 
   function bounds(boxes) {
@@ -66,6 +68,7 @@
     var m = (META[group] || {})[key]; if (!m) return null;
     var boxes = DATA[group] && DATA[group][m.fallback || key];
     var o = { group: group, key: key, name: m.name, hex: m.hex, css: m.css, png: !!m.png, fallback: m.fallback || null,
+              rig: m.rig || null,
               boxes: boxes || [], bounds: boxes ? bounds(boxes) : null };
     return (cache[ck] = o);
   }
@@ -156,5 +159,109 @@
     return grp;
   }
 
+  function cloneMetadata(value) { return JSON.parse(JSON.stringify(value)); }
+  function vector3(value) {
+    return Array.isArray(value) && value.length === 3 && value.every(function (n) { return typeof n === 'number' && isFinite(n); });
+  }
+  function validateRigDefinition(d) {
+    var errors = [], rig = d && d.rig, seen = {};
+    if (!rig || rig.baseModelKey !== d.key) return ['baseModelKey or rig metadata missing'];
+    if (!rig.parts || !Object.keys(rig.parts).length) return ['parts missing'];
+    Object.keys(rig.parts).forEach(function (name) {
+      var part = rig.parts[name];
+      if (!Array.isArray(part.boxIndices) || !part.boxIndices.length) errors.push('parts.' + name + '.boxIndices missing');
+      if (!vector3(part.pivot)) errors.push('parts.' + name + '.pivot invalid');
+      (part.boxIndices || []).forEach(function (index) {
+        if (typeof index !== 'number' || index % 1 || index < 0 || index >= d.boxes.length) errors.push('parts.' + name + '.box index invalid');
+        else if (seen[index]) errors.push('box index duplicated: ' + index);
+        else seen[index] = true;
+      });
+    });
+    for (var i = 0; i < d.boxes.length; i++) if (!seen[i]) errors.push('box index unmapped: ' + i);
+    ['head', 'torso', 'back'].forEach(function (name) {
+      if (!rig.anchors || !vector3(rig.anchors[name])) errors.push('anchors.' + name + ' invalid');
+    });
+    if (!rig.capabilities || !rig.capabilities.locomotion || !rig.capabilities.locomotion.gait ||
+        !rig.capabilities.actionRig || typeof rig.capabilities.actionRig.handAnchors !== 'boolean') errors.push('capabilities invalid');
+    if (!rig.gearConstraints || !Array.isArray(rig.gearConstraints.availableAnchors)) errors.push('gearConstraints invalid');
+    else rig.gearConstraints.availableAnchors.forEach(function (name) {
+      if (!rig.anchors || !vector3(rig.anchors[name])) errors.push('gear anchor missing: ' + name);
+    });
+    if (rig.anchors) Object.keys(rig.anchors).forEach(function (name) {
+      if (!vector3(rig.anchors[name])) errors.push('anchors.' + name + ' invalid');
+    });
+    return errors;
+  }
+  function resolveRig(baseModelKey) {
+    var d = get('player', baseModelKey);
+    if (!d) return { ok: false, reason: 'unknown-model', baseModelKey: baseModelKey };
+    if (!d.rig) return { ok: false, reason: 'rig-unavailable', baseModelKey: baseModelKey };
+    var errors = validateRigDefinition(d);
+    if (errors.length) return { ok: false, reason: 'invalid-rig', baseModelKey: baseModelKey, errors: errors };
+    return {
+      ok: true, baseModelKey: d.rig.baseModelKey, type: d.rig.type,
+      definition: cloneMetadata(d.rig), bounds: cloneMetadata(d.bounds), boxCount: d.boxes.length
+    };
+  }
+  function partBounds(boxes) {
+    var b = bounds(boxes);
+    var min = [b.minX, b.minY, b.minZ], max = [b.maxX, b.maxY, b.maxZ];
+    return { min: min, max: max, size: [max[0] - min[0], max[1] - min[1], max[2] - min[2]] };
+  }
+  function createRig(THREE, baseModelKey, opts) {
+    opts = opts || {};
+    var requestedModelKey = baseModelKey, result = resolveRig(baseModelKey), fallback = null;
+    if (!result.ok && opts.fallbackKey) {
+      var reason = result.reason, fallbackResult = resolveRig(opts.fallbackKey);
+      if (!fallbackResult.ok) return { ok: false, reason: 'invalid-fallback', baseModelKey: requestedModelKey, fallbackKey: opts.fallbackKey, fallbackReason: fallbackResult.reason };
+      result = fallbackResult;
+      fallback = { requestedModelKey: requestedModelKey, usedModelKey: result.baseModelKey, reason: reason };
+    }
+    if (!result.ok) return result;
+    if (!THREE || typeof THREE.Group !== 'function') return { ok: false, reason: 'three-unavailable', baseModelKey: result.baseModelKey };
+
+    var d = get('player', result.baseModelKey), definition = result.definition;
+    var root = new THREE.Group(), parts = {}, disposed = false;
+    root.name = 'character-base-' + result.baseModelKey;
+
+    function dispose() {
+      if (disposed) return;
+      root.traverse(function (object) {
+        if (object.geometry && object.geometry.dispose) object.geometry.dispose();
+        if (Array.isArray(object.material)) object.material.forEach(function (material) { if (material && material.dispose) material.dispose(); });
+        else if (object.material && object.material.dispose) object.material.dispose();
+      });
+      while (root.children.length) root.remove(root.children[0]);
+      disposed = true;
+    }
+
+    var partNames = Object.keys(definition.parts);
+    for (var i = 0; i < partNames.length; i++) {
+      var name = partNames[i], part = definition.parts[name];
+      var boxes = part.boxIndices.map(function (index) { return d.boxes[index]; });
+      var extent = partBounds(boxes), pivot = part.pivot;
+      var node = new THREE.Group();
+      node.name = name;
+      node.position.set(pivot[0], pivot[1], pivot[2]);
+      var geometryGroup = mesh(THREE, 'player', result.baseModelKey, { boxes: boxes, dither: opts.dither });
+      if (!geometryGroup) {
+        dispose();
+        return { ok: false, reason: 'geometry-unavailable', baseModelKey: result.baseModelKey, part: name };
+      }
+      geometryGroup.position.set(-pivot[0], -pivot[1], -pivot[2]);
+      node.add(geometryGroup);
+      root.add(node);
+      parts[name] = { node: node, boxIndices: part.boxIndices.slice(), pivot: pivot.slice(), bounds: extent, size: extent.size.slice() };
+    }
+    root.userData.characterRig = { baseModelKey: result.baseModelKey, type: result.type, partNames: partNames.slice() };
+    return {
+      ok: true, requestedModelKey: requestedModelKey, baseModelKey: result.baseModelKey, type: result.type,
+      root: root, parts: parts, anchors: cloneMetadata(definition.anchors),
+      capabilities: cloneMetadata(definition.capabilities), gearConstraints: cloneMetadata(definition.gearConstraints),
+      bounds: result.bounds, fallback: fallback, dispose: dispose
+    };
+  }
+
   UT.CharacterData = { version: 1, list: list, get: get, svg: svg, face: face, mesh: mesh, SEATS: SEATS, groups: Object.keys(META) };
+  UT.CharacterRigAdapter = { resolve: resolveRig, create: createRig };
 })(window);

@@ -1,7 +1,9 @@
-/* Mengekstrak data box karakter/mob dari gameplay.html (tanpa menjalankan game). Dipanggil oleh build.js. */
+/* Mengekstrak data box dari modul Gameplay aktif (tanpa menjalankan game). Dipanggil oleh build.js. */
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..','..'); /* = folder game/ */
-const src=fs.readFileSync(path.join(ROOT,'gameplay.html'),'utf8');
+const page=fs.readFileSync(path.join(ROOT,'gameplay.html'),'utf8');
+if(!page.includes('src="gameplay/js/main.js"')) throw new Error('gameplay.html tidak memuat gameplay/js/main.js');
+const src=fs.readFileSync(path.join(ROOT,'gameplay','js','main.js'),'utf8').replace(/\r\n/g,'\n');
 function fn(name){ const i=src.indexOf('function '+name+'('); if(i<0) throw new Error('no '+name);
   let d=0,j=src.indexOf('{',i),k=j; for(;k<src.length;k++){ if(src[k]==='{')d++; else if(src[k]==='}'){ d--; if(d===0) break; } } return src.slice(i,k+1); }
 // makePawn: potong sebelum pembuatan THREE.Group akhir

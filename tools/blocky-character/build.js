@@ -7,6 +7,7 @@ const SOURCE = path.join(__dirname, 'template.js');
 const TARGET = path.join(ROOT, 'assets', 'js', 'blocky-character.js');
 const ACTIONS = ['spinball', 'toss', 'dribble', 'throw', 'mine', 'attack', 'bow', 'block', 'sad', 'cheer', 'wave', 'flip', 'backflip', 'spin', 'roll'];
 const API = [
+  'createBaseRig:function',
   'root:root', 'hand:hand', 'tick:tick', 'jump:jump', 'setMode:setMode', 'act:doAct', 'setTool:setTool',
   'bow:bowG', 'arrow:arrowG', 'bowReleaseAt:function', 'setBowAim:function', 'get strikes(){', 'loadFromPlayer:',
   'loadFromData:', 'loadPreset:', 'presetCount:', 'apply:apply', 'acting', 'config', 'airborne', 'height:function'
@@ -16,7 +17,7 @@ function validateSource(source) {
   if (typeof source !== 'string' || source.indexOf('/* BLOCKY-CHARACTER-SOURCE:v1') !== 0) {
     throw new Error('Marker source kanonis BlockyCharacter tidak ditemukan');
   }
-  if (!source.includes('UT.BlockyCharacter={create:function(THREE,opts){')) {
+  if (!source.includes('UT.BlockyCharacter={') || !source.includes('create:function(THREE,opts){')) {
     throw new Error('Factory UT.BlockyCharacter.create tidak ditemukan');
   }
   const actionMatch = source.match(/const ACT_DUR\s*=\s*\{([^}]+)\}/);

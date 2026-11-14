@@ -17,7 +17,13 @@
 */
 (function(){
 window.UT=window.UT||{};
-UT.BlockyCharacter={create:function(THREE,opts){
+UT.BlockyCharacter={
+createBaseRig:function(THREE,baseModelKey,opts){
+  const adapter=window.UT&&window.UT.CharacterRigAdapter;
+  if(!adapter||typeof adapter.create!=='function')return{ok:false,reason:'rig-adapter-unavailable'};
+  return adapter.create(THREE,baseModelKey,opts);
+},
+create:function(THREE,opts){
 opts=opts||{};
 
 const S=1/16;

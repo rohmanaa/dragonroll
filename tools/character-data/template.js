@@ -1,8 +1,8 @@
 /* Ular Tangga Blok — assets/js/character-data.js
    DATA KARAKTER BERSAMA (voxel) — satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
    (lobby, leaderboard, profil, shop, inventory, dll). Skrip klasik (tanpa import/export), global: UT.CharacterData.
-   - Data di bawah diekstrak apa adanya dari gameplay.html (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
-     addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model di gameplay.html berubah). gameplay.html TIDAK diubah.
+   - Data di bawah diekstrak apa adanya dari gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
+     addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model Gameplay berubah).
    - Satu box = [x, y, z, w, h, d, '#rrggbb', noEdge, tag]. Pusat box; satuan dunia gameplay; dasar kaki di y=0;
      karakter menghadap +z; kanan karakter = -x. noEdge=1: detail tanpa garis tepi (mata, mulut, dll).
      tag: 0 biasa | 2 batang Blaze (berputar di gameplay) | 3 blok kepala 0.3 (di gameplay = 27 kubus 0.1 dengan variasi warna 0.09).
@@ -11,10 +11,12 @@
      metadata + fallback ke 'steve'.
    API:
      UT.CharacterData.list(group)                 -> ['steve', ...]
-     UT.CharacterData.get(group, key)             -> {group,key,name,hex,css,boxes,bounds,png?,fallback?}
+     UT.CharacterData.get(group, key)             -> {group,key,name,hex,css,boxes,bounds,rig?,png?,fallback?}
      UT.CharacterData.svg(group, key, opts)       -> string SVG (opts: view 'front'|'iso'|'back'|'side', yaw, pitch, bust, size, edge, label)
      UT.CharacterData.face(group, key, opts)      -> SVG kepala saja (depan)
      UT.CharacterData.mesh(THREE, group, key, o)  -> THREE.Group (satu mesh, vertex color); o.scale, o.dither (default true)
+     UT.CharacterRigAdapter.resolve(key)           -> validasi definisi rig CharacterData tanpa membuat mesh
+     UT.CharacterRigAdapter.create(THREE, key, opts) -> rig ber-pivot; fallback hanya bila opts.fallbackKey dinyatakan
      UT.CharacterData.SEATS                       -> warna kursi pemain (Merah/Biru/Kuning/Hijau) */
 (function (win) {
   'use strict';
@@ -40,6 +42,7 @@
     var m = (META[group] || {})[key]; if (!m) return null;
     var boxes = DATA[group] && DATA[group][m.fallback || key];
     var o = { group: group, key: key, name: m.name, hex: m.hex, css: m.css, png: !!m.png, fallback: m.fallback || null,
+              rig: m.rig || null,
               boxes: boxes || [], bounds: boxes ? bounds(boxes) : null };
     return (cache[ck] = o);
   }
@@ -130,5 +133,109 @@
     return grp;
   }
 
+  function cloneMetadata(value) { return JSON.parse(JSON.stringify(value)); }
+  function vector3(value) {
+    return Array.isArray(value) && value.length === 3 && value.every(function (n) { return typeof n === 'number' && isFinite(n); });
+  }
+  function validateRigDefinition(d) {
+    var errors = [], rig = d && d.rig, seen = {};
+    if (!rig || rig.baseModelKey !== d.key) return ['baseModelKey or rig metadata missing'];
+    if (!rig.parts || !Object.keys(rig.parts).length) return ['parts missing'];
+    Object.keys(rig.parts).forEach(function (name) {
+      var part = rig.parts[name];
+      if (!Array.isArray(part.boxIndices) || !part.boxIndices.length) errors.push('parts.' + name + '.boxIndices missing');
+      if (!vector3(part.pivot)) errors.push('parts.' + name + '.pivot invalid');
+      (part.boxIndices || []).forEach(function (index) {
+        if (typeof index !== 'number' || index % 1 || index < 0 || index >= d.boxes.length) errors.push('parts.' + name + '.box index invalid');
+        else if (seen[index]) errors.push('box index duplicated: ' + index);
+        else seen[index] = true;
+      });
+    });
+    for (var i = 0; i < d.boxes.length; i++) if (!seen[i]) errors.push('box index unmapped: ' + i);
+    ['head', 'torso', 'back'].forEach(function (name) {
+      if (!rig.anchors || !vector3(rig.anchors[name])) errors.push('anchors.' + name + ' invalid');
+    });
+    if (!rig.capabilities || !rig.capabilities.locomotion || !rig.capabilities.locomotion.gait ||
+        !rig.capabilities.actionRig || typeof rig.capabilities.actionRig.handAnchors !== 'boolean') errors.push('capabilities invalid');
+    if (!rig.gearConstraints || !Array.isArray(rig.gearConstraints.availableAnchors)) errors.push('gearConstraints invalid');
+    else rig.gearConstraints.availableAnchors.forEach(function (name) {
+      if (!rig.anchors || !vector3(rig.anchors[name])) errors.push('gear anchor missing: ' + name);
+    });
+    if (rig.anchors) Object.keys(rig.anchors).forEach(function (name) {
+      if (!vector3(rig.anchors[name])) errors.push('anchors.' + name + ' invalid');
+    });
+    return errors;
+  }
+  function resolveRig(baseModelKey) {
+    var d = get('player', baseModelKey);
+    if (!d) return { ok: false, reason: 'unknown-model', baseModelKey: baseModelKey };
+    if (!d.rig) return { ok: false, reason: 'rig-unavailable', baseModelKey: baseModelKey };
+    var errors = validateRigDefinition(d);
+    if (errors.length) return { ok: false, reason: 'invalid-rig', baseModelKey: baseModelKey, errors: errors };
+    return {
+      ok: true, baseModelKey: d.rig.baseModelKey, type: d.rig.type,
+      definition: cloneMetadata(d.rig), bounds: cloneMetadata(d.bounds), boxCount: d.boxes.length
+    };
+  }
+  function partBounds(boxes) {
+    var b = bounds(boxes);
+    var min = [b.minX, b.minY, b.minZ], max = [b.maxX, b.maxY, b.maxZ];
+    return { min: min, max: max, size: [max[0] - min[0], max[1] - min[1], max[2] - min[2]] };
+  }
+  function createRig(THREE, baseModelKey, opts) {
+    opts = opts || {};
+    var requestedModelKey = baseModelKey, result = resolveRig(baseModelKey), fallback = null;
+    if (!result.ok && opts.fallbackKey) {
+      var reason = result.reason, fallbackResult = resolveRig(opts.fallbackKey);
+      if (!fallbackResult.ok) return { ok: false, reason: 'invalid-fallback', baseModelKey: requestedModelKey, fallbackKey: opts.fallbackKey, fallbackReason: fallbackResult.reason };
+      result = fallbackResult;
+      fallback = { requestedModelKey: requestedModelKey, usedModelKey: result.baseModelKey, reason: reason };
+    }
+    if (!result.ok) return result;
+    if (!THREE || typeof THREE.Group !== 'function') return { ok: false, reason: 'three-unavailable', baseModelKey: result.baseModelKey };
+
+    var d = get('player', result.baseModelKey), definition = result.definition;
+    var root = new THREE.Group(), parts = {}, disposed = false;
+    root.name = 'character-base-' + result.baseModelKey;
+
+    function dispose() {
+      if (disposed) return;
+      root.traverse(function (object) {
+        if (object.geometry && object.geometry.dispose) object.geometry.dispose();
+        if (Array.isArray(object.material)) object.material.forEach(function (material) { if (material && material.dispose) material.dispose(); });
+        else if (object.material && object.material.dispose) object.material.dispose();
+      });
+      while (root.children.length) root.remove(root.children[0]);
+      disposed = true;
+    }
+
+    var partNames = Object.keys(definition.parts);
+    for (var i = 0; i < partNames.length; i++) {
+      var name = partNames[i], part = definition.parts[name];
+      var boxes = part.boxIndices.map(function (index) { return d.boxes[index]; });
+      var extent = partBounds(boxes), pivot = part.pivot;
+      var node = new THREE.Group();
+      node.name = name;
+      node.position.set(pivot[0], pivot[1], pivot[2]);
+      var geometryGroup = mesh(THREE, 'player', result.baseModelKey, { boxes: boxes, dither: opts.dither });
+      if (!geometryGroup) {
+        dispose();
+        return { ok: false, reason: 'geometry-unavailable', baseModelKey: result.baseModelKey, part: name };
+      }
+      geometryGroup.position.set(-pivot[0], -pivot[1], -pivot[2]);
+      node.add(geometryGroup);
+      root.add(node);
+      parts[name] = { node: node, boxIndices: part.boxIndices.slice(), pivot: pivot.slice(), bounds: extent, size: extent.size.slice() };
+    }
+    root.userData.characterRig = { baseModelKey: result.baseModelKey, type: result.type, partNames: partNames.slice() };
+    return {
+      ok: true, requestedModelKey: requestedModelKey, baseModelKey: result.baseModelKey, type: result.type,
+      root: root, parts: parts, anchors: cloneMetadata(definition.anchors),
+      capabilities: cloneMetadata(definition.capabilities), gearConstraints: cloneMetadata(definition.gearConstraints),
+      bounds: result.bounds, fallback: fallback, dispose: dispose
+    };
+  }
+
   UT.CharacterData = { version: 1, list: list, get: get, svg: svg, face: face, mesh: mesh, SEATS: SEATS, groups: Object.keys(META) };
+  UT.CharacterRigAdapter = { resolve: resolveRig, create: createRig };
 })(window);
