@@ -1432,7 +1432,7 @@ function addMcEnv(DB){
   addSouthMountain(DB);
   /* gunung hulu dimundurkan: kiri ke arah hutan, kanan ke belakang (utara). Sungai menyambung tanpa celah dari hulu sampai terrain z>=7. */
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
-  blockRect(-11.6,-0.2,3.2,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
+  blockRect(-11.6+MT_SHIFT,-0.2,3.2,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-22.9,-20.5,5.2,8.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau */
   for(let z=-20.0;z<=6.0;z+=1){ addBox(DB,7+0.5*Math.sin(z*0.7),-0.04,z,1.6,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7+0.5*Math.sin(z*0.7),z,0.04,1.6,1,Math.round(z*4)+100,4,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
   const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(z<-5.5&&x>-6.4&&x<2)||(Math.abs(x+6.9)<1.2&&Math.abs(z+3.6)<1.2)||(Math.abs(x-4.2)<1.2&&Math.abs(z+6.3)<1.2);
@@ -2284,6 +2284,7 @@ function updatePortal(dt,now){
    Hanya 1x per game (AWK.done). Selama AWK.running semua kontrol gameplay dikunci. Tanpa Crystal progression / Dragon attack (fitur berikutnya). */
 const AWK={done:false,running:false};
 var ARENA=null,MOUNT=null;
+const MT_SHIFT=0.8; /* gunung batu kiri board digeser ke kanan (mendekati board) agar tidak memakan sisi kiri pulau */
 const ARENA_POS={x:-11.6,z:-0.2},ARENA_SIZE={w:5.2,d:5.6},ARENA_TOWER_H=3.3;
 /* ---------- Tekstur voxel dekoratif (arena, tower bedrock, kayu papan, air) ----------
    Deterministik (hash lokal) dan TIDAK memakai rnd(): urutan acak dunia (pohon/hewan/rumah) tidak bergeser. Hanya menambah kotak kecil di atas geometri lama. */
@@ -2447,7 +2448,7 @@ function updateArena(dt,now){
    Pose runtuh per batu deterministik (awal -> akhir), jadi state akhir (rubble) mudah dipulihkan setelah ganti tema. PRNG lokal: urutan rnd() dunia tidak terganggu. */
 const MT_CELL=0.8,MT_NX=7,MT_NZ=8,MT_MAXH=6;
 function buildMountain(){
-  const g=new THREE.Group(); g.position.set(ARENA_POS.x,-0.04,ARENA_POS.z);
+  const g=new THREE.Group(); g.position.set(ARENA_POS.x+MT_SHIFT,-0.04,ARENA_POS.z);
   let sd=7919; const r=()=>(sd=(sd*16807)%2147483647)/2147483647,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   const hx=MT_NX*MT_CELL/2,hz=MT_NZ*MT_CELL/2,H=[];
   for(let i=0;i<MT_NX;i++){ H.push([]); for(let j=0;j<MT_NZ;j++){
@@ -2456,7 +2457,7 @@ function buildMountain(){
     H[i].push(cl(Math.round(h),1,MT_MAXH));
   } }
   /* titik jatuh dibatasi: tidak ke papan/Start (api unggun) */
-  const okAt=(x,z)=>{ const wx=ARENA_POS.x+x,wz=ARENA_POS.z+z; return wx<=-8.3&&Math.hypot(wx-PAD.x,wz-PAD.z)>2.5; };
+  const okAt=(x,z)=>{ const wx=ARENA_POS.x+MT_SHIFT+x,wz=ARENA_POS.z+z; return wx<=-8.3&&Math.hypot(wx-PAD.x,wz-PAD.z)>2.5; };
   const SINK_X=2.6+0.55,SINK_Z=2.8+0.55; /* mendarat di atas jejak arena (+margin) -> tertelan lubang arena, bukan jadi rubble */
   const ch=[],stones=[0x7F7F7F,0x777777,0x898989,0x707070,0x8E8E8E],moss=[0x6E8F5A,0x5F8A4A],dirt=[0x7A5A3A,0x8A6A44];
   function mk(x0,y0,z0,s,hex,stat){
