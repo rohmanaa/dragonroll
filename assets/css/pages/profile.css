@@ -16,3 +16,6 @@
 .sr .v small{white-space:nowrap}
 /* karakter turun & lebih besar (tanpa pedestal/teks nama) */
 #art{top:250px;height:720px}
+
+/* Latar halaman profil: kastel melayang + podium (assets/Images/background/profile-bg.webp). Menimpa gradien bersama bg.css. */
+html,body.pf{background:#150f2e url(../../Images/background/profile-bg.webp) center/cover no-repeat fixed!important}
