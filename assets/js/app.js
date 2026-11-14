@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'inventory', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };

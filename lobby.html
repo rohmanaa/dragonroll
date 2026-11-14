@@ -36,18 +36,6 @@
     <img src="assets/Images/icon/currency/coin.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
   </div>
 
-  <!-- ===== MAIL, LEADERBOARD, SETTINGS ===== -->
-  <button class="round" id="b-mail" data-act="mail" aria-label="Mail">
-    <img class="bg" src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/ng/komponen/ikon-item/surat-segel.webp" alt="">
-    <span class="dot sm" id="mailDot" hidden></span>
-  </button>
-  <button class="round" id="b-lead" data-act="leaderboard" aria-label="Leaderboard">
-    <img class="bg" src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/ng/komponen/ikon-item/podium.webp" alt="">
-  </button>
-  <button class="round" id="b-set" data-act="settings" aria-label="Pengaturan">
-    <img class="bg" src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""><img class="ic" src="assets/ng/komponen/ikon-item/gir.webp" alt="">
-  </button>
-
   <!-- ===== misi harian ===== -->
   <div class="panel" id="quest" data-act="hadiahMisi" role="button">
     <img src="assets/ng/komponen/ikon-item/gulungan-misi.webp" alt="">
@@ -55,15 +43,13 @@
     <div class="qb"><i></i></div>
   </div>
 
-  <!-- ===== grup koleksi ===== -->
-  <div class="panel" id="koleksi">
-    <h3>KOLEKSI</h3>
-    <button class="tile small" data-act="karakter"><div class="ico"><img src="assets/ng/komponen/ikon-item/helm-ksatria.webp" alt=""></div><div class="lb">Karakter</div></button>
-    <button class="tile small" data-act="frame"><div class="ico"><img src="assets/ng/komponen/new-icon/frame.webp" alt=""></div><div class="lb">Frame</div></button>
-    <button class="tile small" data-act="dadu"><div class="ico"><img src="assets/ng/komponen/new-icon/dadu.webp" alt=""></div><div class="lb">Dadu</div></button>
-    <button class="tile small" data-act="efek"><div class="ico"><img src="assets/ng/komponen/ikon-gem-medali/kristal-api.webp" alt=""></div><div class="lb">Efek</div></button>
-    <button class="tile small" data-act="powerup"><div class="ico"><img src="assets/ng/komponen/ikon-gem-medali/petir-ungu.webp" alt=""></div><div class="lb">Power-up</div></button>
-    <button class="tile small" data-act="pet"><div class="ico"><img src="assets/ng/komponen/lobby/pet.webp" alt=""></div><div class="lb">Pet</div></button>
+  <!-- ===== menu ikon (kotak abu transparan) ===== -->
+  <div id="menu">
+    <button class="mbtn" data-act="leaderboard" aria-label="Ranking"><img src="assets/ng/komponen/ikon-item/podium.webp" alt=""><span>Ranking</span></button>
+    <button class="mbtn" data-act="hadiahMisi" aria-label="Misi & Hadiah"><img src="assets/ng/komponen/ikon-item/gulungan-misi.webp" alt=""><span>Misi &amp; Hadiah</span><span class="dot sm" hidden id="questDot"></span></button>
+    <button class="mbtn" data-act="mail" aria-label="Pesan"><img src="assets/ng/komponen/ikon-item/surat-segel.webp" alt=""><span>Pesan</span><span class="dot sm" id="mailDot" hidden></span></button>
+    <button class="mbtn" data-act="teman" aria-label="Teman"><img src="assets/ng/komponen/new-icon/freinds.webp" alt=""><span>Teman</span><span class="dot sm" id="friendDot" hidden></span></button>
+    <button class="mbtn" data-act="settings" aria-label="Pengaturan"><img src="assets/ng/komponen/ikon-item/gir.webp" alt=""><span>Pengaturan</span></button>
   </div>
 
   <!-- ===== hadiah gratis (kanan) ===== -->
@@ -85,8 +71,8 @@
   <!-- ===== navigasi bawah ===== -->
   <div id="nav">
     <button class="tile big" data-act="toko"><div class="ico"><img src="assets/ng/komponen/ikon-item/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
-    <button class="tile big" data-act="teman"><div class="ico"><img class="fr" src="assets/ng/komponen/new-icon/freinds.webp" alt=""></div><div class="lb">TEMAN</div><span class="dot sm" id="friendDot" hidden></span></button>
-    <button class="tile big" data-act="hadiahMisi"><div class="ico"><img src="assets/ng/komponen/ikon-item/gulungan-misi.webp" alt=""></div><div class="lb" style="font-size:22px">HADIAH &amp; MISI</div><span class="dot sm" hidden id="questDot"></span></button>
+    <button class="tile big" data-act="karakter"><div class="ico"><img src="assets/ng/komponen/ikon-item/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
+    <button class="tile big" data-act="inventory"><div class="ico"><img class="bag" src="assets/Images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
     <button class="tile big" data-act="tambang"><div class="ico"><img src="assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp" alt=""></div><div class="lb">TAMBANG</div></button>
     <button class="tile big locked" data-act="guild"><div class="ico"><img src="assets/ng/komponen/ikon-item/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/ng/komponen/glyph-putih/gembok.webp" alt=""></button>
   </div>

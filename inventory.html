@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/session.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dragon Roll — Inventory</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/css/pages/inventory.css">
+<script src="assets/js/prefs.js"></script><script src="assets/js/prefs-sync.js"></script>
+</head>
+<body>
+<iframe id="view" title="Isi Inventory" allow="autoplay"></iframe>
+<div id="wrap"><div id="stage">
+  <button id="back" type="button" aria-label="Kembali ke lobby"><img src="assets/ng/komponen/ikon-navigasi/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl t-title">Inventory</div>
+  <nav id="tabs" aria-label="Kategori inventory"></nav>
+</div></div>
+<div id="fade"></div>
+<script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>UT.App.init({page:'inventory'});</script>
+<script src="assets/js/pages/inventory.js"></script>
+</body></html>

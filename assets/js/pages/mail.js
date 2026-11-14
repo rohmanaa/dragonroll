@@ -13,7 +13,7 @@ const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
-const BUILT=['lobby.html','shop.html','profile.html','tambang.html','friendship.html','settings.html','powerup.html','frame.html','dadu.html','efek.html','karakter.html','mode.html','room.html','leaderboard.html','hadiah-misi.html'];
+const BUILT=['lobby.html','shop.html','profile.html','tambang.html','friendship.html','settings.html','powerup.html','frame.html','dadu.html','efek.html','karakter.html','mode.html','room.html','leaderboard.html','hadiah-misi.html','inventory.html'];
 const FROM=(()=>{const f=new URLSearchParams(location.search).get('from');return f&&BUILT.includes(f.split('?')[0])?f:'lobby.html'})();
 
 /* ---- state ---- */
