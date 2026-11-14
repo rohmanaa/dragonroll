@@ -5358,7 +5358,7 @@ async function askTotem(p,gid,what){
   return use;
 }
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
-async function resolveTileAt(p,gid){
+async function resolveTileAt(p,gid,depth){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   const posBefore=p.pos;
   if(await trapCheck(p,gid)){ /* jebakan di petak ini: bila p terpental mundur, efek petak lama (tangga/ular/mob) dilewati, TAPI petak tempat ia mendarat (mis. ada mob) tetap diproses */
@@ -5379,6 +5379,10 @@ async function resolveTileAt(p,gid){
     p.pos=to;
   }else if(mobOn(p.pos,themeKey)){
     await A(resolveMobAt(p,gid));
+    /* Mob memindahkan pion (Enderman teleport, Creeper/Skeleton mundur, Villager/Strider maju): petak tempat ia MENDARAT tetap diproses
+       (kepala ular, dasar tangga, atau mob lain). Tanpa ini pion diam di kepala ular setelah teleport. depth membatasi rantai mob. */
+    const d=depth||0;
+    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL&&d<6){ renderChips(); await A(resolveTileAt(p,gid,d+1)); }
   }
 }
 async function resolveAfterChestMove(p,gid){ await resolveTileAt(p,gid); renderChips(); }
