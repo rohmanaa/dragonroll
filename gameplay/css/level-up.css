@@ -83,15 +83,18 @@
 
 .lu-modal__continue {
   position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  min-width: clamp(120px, 22vw, 210px); padding: .7em 1.4em; cursor: pointer;
-  font-family: "Lilita One", Impact, sans-serif; font-size: clamp(16px, 3.4vw, 28px); letter-spacing: .02em; color: #8a4a05;
-  border: 2px solid #e9890c; border-radius: 6px;
-  background: linear-gradient(180deg, #ffd24d, #f5b11f 55%, #e99a12);
-  box-shadow: 0 4px 0 #c46d08, 0 8px 14px rgba(0, 0, 0, .45), inset 0 2px 0 rgba(255, 255, 255, .5);
-  opacity: 0; transition: opacity .4s .9s, transform .1s;
+  box-sizing: border-box; width: clamp(130px, 24vw, 220px); aspect-ratio: 320 / 108; /* tombol-kuning-polos.webp */
+  padding: 0 0 .1em; border: 0; border-radius: 0; cursor: pointer;
+  display: grid; place-items: center;
+  font-family: "Lilita One", Impact, sans-serif; font-size: clamp(17px, 3.4vw, 28px); letter-spacing: .02em; color: #8a4a05;
+  text-shadow: 0 1px 0 rgba(255, 235, 160, .6);
+  background: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp") center / 100% 100% no-repeat transparent;
+  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, .45));
+  opacity: 0; transition: opacity .4s .9s, transform .1s, filter .12s;
 }
-.lu-modal__continue:active { transform: translateY(2px); box-shadow: 0 2px 0 #c46d08, 0 4px 8px rgba(0, 0, 0, .45), inset 0 2px 0 rgba(255, 255, 255, .5); }
-.lu-modal__continue:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.lu-modal__continue:hover { filter: brightness(1.08) drop-shadow(0 5px 6px rgba(0, 0, 0, .45)); }
+.lu-modal__continue:active { transform: translateY(2px); }
+.lu-modal__continue:focus-visible { outline: none; filter: brightness(1.1) drop-shadow(0 0 8px #fff) drop-shadow(0 5px 6px rgba(0, 0, 0, .45)); } /* cahaya, bukan kotak (tombol berbingkai miring) */
 
 .lu-modal.is-in .lu-modal__title { transform: none; opacity: 1; }
 .lu-modal.is-in .lu-modal__badge { transform: none; opacity: 1; }
