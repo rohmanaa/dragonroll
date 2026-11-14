@@ -5641,6 +5641,7 @@ async function recordMatchServer(PD,m){
     const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
     try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
     try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
+    if(a&&a.ok&&a.level>lvBefore){ try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId&&UT.LevelUp) UT.LevelUp.show({level:a.level}); },900); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil) */
   }catch(e){ console.warn('[stats] gagal mencatat ke server',e); setWinRewardStatus(m.gameId,'Hasil pertandingan gagal dimuat.'); }
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */

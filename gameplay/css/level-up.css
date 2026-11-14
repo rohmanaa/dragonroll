@@ -1,0 +1,109 @@
+/* Modal "Naik Level" — referensi: referensi/newgui/assets/penerapan/CyJ1Oe.png
+   z-index sengaja sangat tinggi: harus di atas layar hasil (#win = 10000), toast (9100) dan HUD.
+   Di bawah pause (2147483646) agar overlay pause tetap menang bila dibuka bersamaan. */
+:root { --lu-z: 2147483000; }
+
+.lu-modal {
+  position: fixed; inset: 0; z-index: var(--lu-z);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-sizing: border-box; overflow: hidden;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  color: #fff; text-align: center;
+  background:
+    radial-gradient(ellipse 55% 42% at 50% 38%, rgba(124, 58, 190, .55), rgba(124, 58, 190, 0) 70%),
+    linear-gradient(180deg, #241d3d 0%, #241d3d 40%, #17142a 40%, #17142a 100%);
+  opacity: 0; transition: opacity .28s ease;
+  font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+.lu-modal[hidden] { display: none !important; }
+.lu-modal.is-in { opacity: 1; }
+
+.lu-modal__spark { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lu-modal__spark i {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background: #b36bff; box-shadow: 0 0 8px #b36bff; opacity: 0;
+  animation: lu-twinkle 3.2s ease-in-out infinite;
+}
+
+.lu-modal__title {
+  margin: 0 0 clamp(4px, 1.5vh, 16px);
+  font-family: "Lilita One", Impact, "Baloo 2", sans-serif; font-weight: 400;
+  font-size: clamp(22px, 5.2vw, 52px); line-height: 1.05; letter-spacing: .01em;
+  color: #ff9a1f; text-transform: uppercase; text-shadow: 0 2px 0 rgba(0, 0, 0, .35);
+  transform: translateY(-14px); opacity: 0; transition: transform .45s .1s cubic-bezier(.2, .9, .3, 1.2), opacity .35s .1s;
+}
+
+.lu-modal__badge {
+  position: relative; width: min(62vw, 46vh, 340px); aspect-ratio: 580 / 440;
+  transform: scale(.4); opacity: 0;
+  transition: transform .6s .15s cubic-bezier(.2, 1.3, .35, 1), opacity .3s .15s;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .5));
+}
+.lu-modal__badge svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.lu-modal__lvl-label {
+  position: absolute; left: 0; right: 0; top: 27%;
+  font-family: "Lilita One", Impact, sans-serif; font-size: clamp(11px, 2.6vw, 24px);
+  letter-spacing: .06em; color: #ff8aa0; text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+}
+.lu-modal__lvl-num {
+  position: absolute; left: 0; right: 0; top: 33%;
+  font-family: "Lilita One", Impact, sans-serif; font-size: clamp(44px, 12vw, 112px); line-height: 1;
+  color: #fff; text-shadow: 0 3px 0 rgba(120, 0, 30, .55), 0 0 18px rgba(255, 255, 255, .25);
+}
+
+.lu-modal__rewards { margin-top: clamp(4px, 1.6vh, 18px); transform: translateY(12px); opacity: 0; transition: transform .4s .55s, opacity .4s .55s; }
+.lu-modal__rewards[hidden] { display: none; }
+.lu-modal__rewards h3 {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 10px;
+  font-size: clamp(11px, 2.2vw, 16px); font-weight: 800; letter-spacing: .08em; color: #f3d98b; text-transform: uppercase;
+}
+.lu-modal__rewards h3::before, .lu-modal__rewards h3::after {
+  content: ""; width: clamp(40px, 12vw, 150px); height: 2px; background: rgba(243, 217, 139, .35);
+}
+.lu-modal__slots { display: flex; gap: clamp(8px, 2vw, 18px); justify-content: center; flex-wrap: wrap; }
+.lu-modal__slot {
+  position: relative; width: clamp(56px, 11vw, 84px); aspect-ratio: 1; border-radius: 12px;
+  display: grid; place-items: center; border: 2px solid rgba(255, 255, 255, .16);
+  background: linear-gradient(160deg, #2c2556, #1b1738); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35);
+}
+.lu-modal__slot:first-child { border-color: #ffe27a; box-shadow: 0 0 14px rgba(255, 226, 122, .55), inset 0 0 0 2px rgba(0, 0, 0, .35); }
+.lu-modal__slot img { width: 64%; height: 64%; object-fit: contain; }
+.lu-modal__slot b {
+  position: absolute; left: 0; right: 0; bottom: 1px; font-size: clamp(11px, 2.2vw, 16px); font-weight: 800;
+  text-shadow: 0 0 3px #000, 0 1px 2px #000;
+}
+
+.lu-modal__note {
+  min-height: 1.4em; margin: clamp(8px, 2vh, 22px) 0 0; font-size: clamp(14px, 3vw, 28px); font-weight: 600; color: #38e1ef;
+  opacity: 0; transition: opacity .4s .7s;
+}
+
+.lu-modal__continue {
+  position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  min-width: clamp(120px, 22vw, 210px); padding: .7em 1.4em; cursor: pointer;
+  font-family: "Lilita One", Impact, sans-serif; font-size: clamp(16px, 3.4vw, 28px); letter-spacing: .02em; color: #8a4a05;
+  border: 2px solid #e9890c; border-radius: 6px;
+  background: linear-gradient(180deg, #ffd24d, #f5b11f 55%, #e99a12);
+  box-shadow: 0 4px 0 #c46d08, 0 8px 14px rgba(0, 0, 0, .45), inset 0 2px 0 rgba(255, 255, 255, .5);
+  opacity: 0; transition: opacity .4s .9s, transform .1s;
+}
+.lu-modal__continue:active { transform: translateY(2px); box-shadow: 0 2px 0 #c46d08, 0 4px 8px rgba(0, 0, 0, .45), inset 0 2px 0 rgba(255, 255, 255, .5); }
+.lu-modal__continue:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+.lu-modal.is-in .lu-modal__title { transform: none; opacity: 1; }
+.lu-modal.is-in .lu-modal__badge { transform: none; opacity: 1; }
+.lu-modal.is-in .lu-modal__rewards { transform: none; opacity: 1; }
+.lu-modal.is-in .lu-modal__note, .lu-modal.is-in .lu-modal__continue { opacity: 1; }
+.lu-modal.is-in .lu-modal__badge { animation: lu-float 3.4s 1s ease-in-out infinite; }
+
+@keyframes lu-twinkle { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: .9; transform: scale(1.2); } }
+@keyframes lu-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+
+@media (max-height: 420px) {
+  .lu-modal { flex-direction: row; flex-wrap: wrap; gap: 0 16px; }
+  .lu-modal__title { flex: 1 0 100%; font-size: 20px; margin: 0; }
+  .lu-modal__badge { width: min(34vw, 62vh); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lu-modal, .lu-modal * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
+}
