@@ -689,14 +689,15 @@ const SND=[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
-/* Suara Forest Pup (anjing), Copper Golem (logam/uap/servo), dan Crystal Axolotl (gelembung/lonceng air/cicit), Arcane Owl (hu-hu/denting arcane/kepakan), dan Storm Wolf (lolongan/guntur/setrum) = rekaman asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
+/* Suara Forest Pup (anjing), Copper Golem (logam/uap/servo), dan Crystal Axolotl (gelembung/lonceng air/cicit), Arcane Owl (hu-hu/denting arcane/kepakan), Storm Wolf (lolongan/guntur/setrum), dan Inferno Dragon (raungan/semburan api/kepakan sayap) = rekaman asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
    Urutan sama dengan SND[indeks pet]. Forest Pup: gonggongan beruntun, satu gonggongan, rengekan. Sintesis lama jadi cadangan bila file belum dimuat/gagal. */
 const PET_FILES={
  0:['assets/sfx/pet/forest-pup-bark-burst.mp3','assets/sfx/pet/forest-pup-bark.mp3','assets/sfx/pet/forest-pup-whimper.mp3'],
  1:['assets/sfx/pet/copper-golem-clang.mp3','assets/sfx/pet/copper-golem-steam.mp3','assets/sfx/pet/copper-golem-servo.mp3'], /* denting logam, uap, servo */
  2:['assets/sfx/pet/crystal-axolotl-bubble.mp3','assets/sfx/pet/crystal-axolotl-chime.mp3','assets/sfx/pet/crystal-axolotl-squeak.mp3'], /* gelembung, lonceng air, cicit */
  3:['assets/sfx/pet/arcane-owl-hoot.mp3','assets/sfx/pet/arcane-owl-sparkle.mp3','assets/sfx/pet/arcane-owl-flap.mp3'], /* hu-hu, denting arcane, kepakan */
- 4:['assets/sfx/pet/storm-wolf-howl.mp3','assets/sfx/pet/storm-wolf-thunder.mp3','assets/sfx/pet/storm-wolf-zap.mp3'] /* lolongan, guntur, setrum */
+ 4:['assets/sfx/pet/storm-wolf-howl.mp3','assets/sfx/pet/storm-wolf-thunder.mp3','assets/sfx/pet/storm-wolf-zap.mp3'], /* lolongan, guntur, setrum */
+ 5:['assets/sfx/pet/inferno-dragon-roar.mp3','assets/sfx/pet/inferno-dragon-fire.mp3','assets/sfx/pet/inferno-dragon-wings.mp3'] /* raungan, semburan api, kepakan sayap */
 };
 const petBuf={},petLoading={};
 function petLoad(url){
