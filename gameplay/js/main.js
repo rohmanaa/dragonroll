@@ -4867,17 +4867,19 @@ async function trapCheck(p,gid){
   setMsg(nm+(owner?' milik '+owner.name:'')+' meledak di petak '+t.tile+'!'); fb('event','info',nm+' meledak di petak '+t.tile+'!',{gid});
   sfx.power(key,'trigger'); if(bp){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan selalu terlihat di papan, termasuk mode reduce-motion */
   await sleep(reduce?100:320); if(gid!==gameId) throw STALE;
-  let moved=false; const parts=[];
+  let moved=false; const parts=[],pushedOthers=[];
   for(const q of vs){
     const by=await puDefend(q,gid,nm+(owner?' '+owner.name:'')); if(gid!==gameId) throw STALE;
     if(by){ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q); parts.push(q.name+' menahan'); continue; }
     const from=q.pos,to=Math.max(1,from-t.back);
     sfx.playerHurt(); hitBlastFx(q); pawnAct(q.pawn,'block');
-    await teleport(q,to,true); if(gid!==gameId) throw STALE; q.pos=to; if(q===p) moved=true; renderChips();
+    await teleport(q,to,true); if(gid!==gameId) throw STALE; q.pos=to; if(q===p) moved=true; else if(to!==from) pushedOthers.push(q); renderChips();
     parts.push(q.name+(from-to>0?' mundur '+(from-to):' tidak bergerak'));
   }
   const po={gid,icon:PUN[key][0],desc:parts.join(', ')||'tidak ada korban'}; fb('short',key,nm,owner?owner.name:'',po)||hud('showPower',key,nm,owner?owner.name:'',po);
   if(ONLINE_ROOM&&ONLINE_HOST) try{ publishTurnState(); }catch(e){}
+  /* korban lain terdorong ke petak baru: proses petak pendaratannya. Pemilik giliran (p) diproses pemanggil (resolveTileAt melihat moved=true). */
+  for(const q of pushedOthers){ if(q.pos>0&&q.pos<GOAL){ await resolveTileAt(q,gid); if(gid!==gameId) throw STALE; renderChips(); } }
   return moved;
 }
 const PU_PFX={sword:'pfx-sword',diamond_sword:'pfx-sword',netherite_sword:'pfx-sword',trident:'pfx-sword',tnt:'pfx-tnt',fire_charge:'pfx-tnt',blaze_core:'pfx-tnt',feather:'pfx-feather',totem:'pfx-totem',wooden_shield:'pfx-totem',golden_apple:'pfx-totem',grass:'pfx-grass',potion_odd:'pfx-potion_odd',potion_even:'pfx-potion_even'};
@@ -4919,7 +4921,7 @@ async function usePU(k,cpu,tileArg){
   puFx('pb:'+p.idx+':'+k,PU_PFX[k]||'pfx-totem'); if(offense) pawnAct(p.pawn,'attack'); if(R.kind==='guard') pawnAct(p.pawn,'block');
   if(R.kind==='guard'||R.kind==='dice'||(R.kind==='self'&&!R.ladder)) powerFxPawn(k,p); /* serang: efek keluar di target saat KENA (bukan saat diblok) */
   renderChips();
-  const old={}; T.forEach(q=>{ old[q.idx]=q.pos; }); const oldP=p.pos; let hit=false; const blocked=[],hits=[]; /* blocked = [{q,by}] korban yang menahan */
+  const old={},pushed={}; T.forEach(q=>{ old[q.idx]=q.pos; }); const oldP=p.pos; let hit=false; const blocked=[],hits=[]; /* blocked = [{q,by}] korban yang menahan */
   const melee=/sword$/.test(k)&&k!=='trident';
   try{
     if(R.kind==='strike'||R.kind==='area'){
@@ -4931,14 +4933,18 @@ async function usePU(k,cpu,tileArg){
         powerFxPawn(k,q); if(R.kind==='strike') powerHitCard(p,q,k,q.name+(from-to>0?' mundur '+(from-to)+' petak':' tidak bergerak'));
         hitBlastFx(q); sfx.playerHurt(); pawnAct(q.pawn,'block');
         if(melee) await fly(q,to,0.45,1.1); else await teleport(q,to,true);
-        q.pos=to; renderChips();
+        q.pos=to; pushed[q.idx]=to; renderChips();
       }
       if(R.self&&hits.length){ const to=Math.min(GOAL-1,p.pos+R.self); if(to>p.pos){ await teleport(p,to); p.pos=to; renderChips(); } } /* Trident: kamu maju bila kena */
+      /* Semua pion yang dipindah Power (korban terdorong mundur + pemakai Trident) MENDARAT di petak baru: proses jebakan/tangga/ular/mob
+         lewat resolveTileAt (satu jalur yang sama dengan dadu). Tanpa ini pion diam di kepala ular / dasar tangga. */
+      for(const q of hits){ if(q.pos>0&&q.pos<GOAL){ await resolveTileAt(q,gid); if(gid!==gameId) throw STALE; renderChips(); } }
+      if(R.self&&hits.length&&p.pos!==oldP&&p.pos>0&&p.pos<GOAL){ await resolveTileAt(p,gid); if(gid!==gameId) throw STALE; renderChips(); }
     }
     if(R.kind==='swap'){ const L=T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
       if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); hitBlastFx(L); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; renderChips();
-        /* Bertukar = mendarat di petak baru: jebakan di petak tujuan ikut terpicu (dulu dilewati, jadi TNT di petak itu tidak meledak) */
-        await trapCheck(p,gid); if(gid!==gameId) throw STALE; await trapCheck(L,gid); if(gid!==gameId) throw STALE; } }
+        /* Bertukar = mendarat di petak baru: jebakan, ular, tangga, dan mob di petak tujuan ikut diproses (resolveTileAt) */
+        for(const q of [p,L]){ if(q.pos>0&&q.pos<GOAL){ await resolveTileAt(q,gid); if(gid!==gameId) throw STALE; renderChips(); } } } }
     if(R.kind==='freeze'){ const L=T.find(q=>!q.frozen)||T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
       if(by) blocked.push({q:L,by}); else { L.frozen=true; hit=true; hits.push(L); powerFxPawn(k,L); powerHitCard(p,L,k,L.name+' membeku: giliran berikutnya dilewati'); hitBlastFx(L); sfx.playerHurt(); pawnAct(L.pawn,'block'); } }
     if(R.kind==='trap'){ await sleep(reduce?60:200); trapAdd(p,k,tile); sfx.pop(); if(ONLINE_ROOM&&ONLINE_HOST) try{ publishTurnState(); }catch(e){} }
@@ -4953,7 +4959,7 @@ async function usePU(k,cpu,tileArg){
   if(gid!==gameId) return;
   blocked.forEach(({q,by})=>{ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q); }); if(blocked.length){ sfx.pop(); renderChips(); }
   /* Feedback: Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Power self/area/diblok = banner HUD singkat. Urutan: pakai → efek → feedback → lanjut. */
-  const mv=q=>{ const d=old[q.idx]-q.pos; return q.name+(d>0?' mundur '+d+' petak':' tidak bergerak'); };
+  const mv=q=>{ const d=old[q.idx]-(pushed[q.idx]!=null?pushed[q.idx]:q.pos); return q.name+(d>0?' mundur '+d+' petak':' tidak bergerak'); };
   if(offense&&R.kind!=='trap'){
     const parts=hits.map(q=>R.kind==='swap'?'Bertukar posisi dengan '+q.name:R.kind==='freeze'?q.name+' membeku':mv(q)).concat(blocked.map(b=>b.q.name+' menahan dengan '+(b.by==='guard'?'Wooden Shield':'Totem')));
     setMsg(p.name+' → '+PUN[k][1]+' → '+parts.join(', '));
