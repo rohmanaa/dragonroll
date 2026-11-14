@@ -9,6 +9,9 @@
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
 body.quick #loadbox,body.quick #spin{visibility:hidden}
 .btn[disabled]{opacity:.6;pointer-events:none}
+/* TAP TO START memakai latar yang sama dengan loading (gua + hero); hanya spinner & bar yang disembunyikan */
+body.ready #cave{filter:none}
+body.ready #hero{display:block!important}
 </style>
 </head>
 <body class="splash">
