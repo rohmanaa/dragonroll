@@ -3699,7 +3699,7 @@ function dieRoll(v,pl){
     const p=Promise.resolve(sk).then(()=>T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget, land:land,
       onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
       onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
-      onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} T.showNumber(v); } }));
+      onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} if(!specialDiceActive(pl)||isLocalPlayer(pl)) T.showNumber(v); /* mode serang Crystal/Boss: angka di atas emoji hanya untuk pemilik */ } }));
     const t=setTimeout(()=>{ try{ T.skip(); }catch(e){} },2800); /* terlalu lama (FPS rendah): paksa mendarat agar pion tidak mendahului */
     return Promise.race([p,sleep(3800)]).then(()=>clearTimeout(t));
   }
@@ -5254,7 +5254,7 @@ function dmDraw(x){
 }
 function holdStart(id){
   if(DH.on||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])) return false;
-  DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); sfx.shuffleTick(); syncRollLabel();
+  DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); syncRollLabel();
   dmShow(true); DH.t0=performance.now(); DH.x=0; dmDraw(0); showDie(1,false);
   const step=now=>{
     if(!DH.on) return;
@@ -5262,7 +5262,7 @@ function holdStart(id){
     if(DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
     const ph=((now-DH.t0)/DM_SWEEP_MS)%2,x=ph<1?ph:2-ph; /* ping-pong 0..1..0 */
     DH.x=x; dmDraw(x);
-    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); try{ UT.GameplayDiceThrow.showNumber(v); }catch(e){} sfx.shuffleTick(); }
+    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); try{ UT.GameplayDiceThrow.showNumber(v); }catch(e){} }
     DH.raf=requestAnimationFrame(step);
   };
   DH.raf=requestAnimationFrame(step);
