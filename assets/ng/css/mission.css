@@ -130,3 +130,5 @@
 .qlist{position:absolute;left:0;top:243px;width:1480px;bottom:106px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
 .qlist::-webkit-scrollbar{display:none}
 .qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}
+/* latar voxel papan misi (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.ms::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/misi-voxel-papan.webp) center/cover no-repeat;opacity:.35}
