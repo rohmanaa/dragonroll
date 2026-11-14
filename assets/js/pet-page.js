@@ -45,6 +45,10 @@
     return;
   }
 
+  function snd(name) {
+    try { if (PD.settings().sound) window.UT.Audio.play(name || 'button'); } catch (e) {}
+  }
+
   function format(value) {
     return Number(value || 0).toLocaleString('id-ID');
   }
@@ -291,6 +295,7 @@
         toast(explainFailure(result));
         return;
       }
+      snd('power');
       const equipped = PD.equip(item.id);
       if (!equipped.ok) {
         draw();
@@ -342,10 +347,12 @@
     const card = event.target.closest('.fslot');
     if (!card) return;
     selected = PETS.find((item) => item.id === card.dataset.id) || selected;
+    snd('button');
     draw();
   });
   $('#use').addEventListener('click', () => {
     if (busy || !selected) return;
+    snd('button');
     if (!PD.owns(selected.id)) {
       buySelected(selected);
       return;

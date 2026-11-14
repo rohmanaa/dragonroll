@@ -618,12 +618,16 @@ function petKitsune(){
 }
 // ================= audio (synthesized, no files)
 let AC=null,MASTER=null,noiseBuf=null;
+/* Suara pet ikut pengaturan: tombol Suara (PlayerData.settings().sound) + slider Efek suara (Prefs sfxVol), sama seperti UT.Audio. */
+function sfxVolume(){let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}return v}
+function sfxEnabled(){try{return !!window.PlayerData.settings().sound&&sfxVolume()>0&&!(UT.Audio&&UT.Audio.isMuted&&UT.Audio.isMuted())}catch(e){return true}}
+function applyMaster(){if(MASTER)MASTER.gain.value=.55*sfxVolume()}
 function audioInit(){
-  if(AC){if(AC.state==='suspended')AC.resume();return true}
+  if(AC){if(AC.state==='suspended')AC.resume();applyMaster();return true}
   const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
   try{
     AC=new C();const comp=AC.createDynamicsCompressor();
-    MASTER=AC.createGain();MASTER.gain.value=.55;MASTER.connect(comp);comp.connect(AC.destination);
+    MASTER=AC.createGain();MASTER.gain.value=.55*sfxVolume();MASTER.connect(comp);comp.connect(AC.destination);
     if(AC.state==='suspended')AC.resume();
   }catch(e){AC=null;return false}
   try{petPreloadFiles()}catch(e){}
@@ -768,18 +772,21 @@ let pet=null,cur=-1;
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
 let soundOn=false,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
-  if(!soundOn||!AC||AC.state!=='running'||cur<0)return;
+  applyMaster();if(!soundOn||!sfxEnabled()||!AC||AC.state!=='running'||cur<0)return;
   if(!sndBag.length){sndBag=[0,1,2].sort(()=>Math.random()-.5);if(sndBag[sndBag.length-1]===bagLast)sndBag.reverse()}
   const k=sndBag.pop();bagLast=k;
   try{SND[cur][k]()}catch(e){}
 }
+function unlockAudio(){if(audioInit())soundOn=true}
+['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,unlockAudio,{passive:true}));
 selectFn=function(i){
-  const d=PETS[i];cur=i;
+  const d=PETS[i];const changed=cur!==i;cur=i;
   if(pet){scene.remove(pet.root);disposeObj(pet.root)}
   P.clear();
   pet=d.build();scene.add(pet.root);
   rim.color.set(d.color);fill.color.set(d.color);
   camD=pet.cam.d;tyT=pet.cam.y;resetCam();pop=.1;sndT=.9;sndBag=[];
+  if(changed&&soundOn)setTimeout(playPetSound,120);
   canvas.setAttribute('aria-label','Pratinjau 3D '+d.name);
 };
 
