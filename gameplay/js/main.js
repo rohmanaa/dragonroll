@@ -5391,14 +5391,14 @@ async function playTurn(p,v,gid,bn){
     await A(gatherArena(gid));
     if(!p.dragonReady){ /* Feature 3: belum READY -> lawan End Crystal, bukan Dragon */
       await A(crystalRoll(p,v,gid));
-      if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
+      if(p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
       return;
     }
     if(!canAttackDragon(p)){ nextTurn(); return; } /* guard Feature 5 */
     sfx.dragonIdle();
     await A(hitDragon(p,v));
     if(p.dhp<=0){ await A(celebrate(p)); await A(dragonDefeatReward(p,gid)); finishGame(p); return; } /* Feature 6: efek menang -> hadiah -> layar menang */
-    if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
+    if(p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
     return;
   }
   const PM=UT.Gameplay.Core.planMove(p.pos,v+(bn||0),GOAL); /* aturan gerak/pantulan = game-core.js */
@@ -5426,14 +5426,18 @@ async function playTurn(p,v,gid,bn){
    (fase End Crystal dan fase serang Dragon). Tahan tombol Roll: angka berputar 1>2>3>4>5>6>1...; lepas: angka saat itu dipilih dan diteruskan ke doRoll({value}).
    Dadu normal (di luar Block 100, CPU, AFK auto-roll) tidak berubah. Pointer Events: pointerdown/up/cancel (+lostpointercapture, blur, visibilitychange, watchdog) agar tombol tidak stuck. */
 const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
-function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===GOAL&&AWK.done&&!gameOver); }
+/* Tahan-lepas HANYA untuk fase Crystal (dan Skeleton/Wither di map Nether). Menyerang Ender Dragon = lempar acak biasa. */
+function dragonStrike(p){ return !!(p&&!p.cpu&&BOSS==='dragon'&&p.dragonReady&&p.pos===GOAL&&AWK.done&&!gameOver); }
+function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===GOAL&&AWK.done&&!gameOver&&!(BOSS==='dragon'&&p.dragonReady)); }
 function specialHint(p){
-  if(!specialDiceActive(p)||AWK.running) return;
+  if(AWK.running) return;
+  if(dragonStrike(p)){ setMsg('Serang Ender Dragon!'); return; }
+  if(!specialDiceActive(p)) return;
   if(BOSS==='wither') setMsg(p.dragonReady?p.name+': tahan Roll, lepas untuk memilih angka serangan ke Wither.':p.name+': tahan Roll, lepas di angka 1-6 untuk mengalahkan Skeleton bernomor sama.');
   else setMsg(p.dragonReady?'Serang Ender Dragon!':p.name+': tahan Roll, lepas di angka 1-4 untuk menghancurkan Crystal bernomor sama.');
 }
 function syncRollLabel(){
-  const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=!!(sp&&BOSS==='dragon'&&p.dragonReady);
+  const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=dragonStrike(p);
   b.classList.toggle('special',sp); b.classList.toggle('boss-attack',dragonAttack); b.classList.toggle('holding',DH.on);
   b.textContent=DH.on?'Lepas':(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
   dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
@@ -5449,14 +5453,14 @@ function dmDraw(x){
 function holdStart(id){
   if(DH.on||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])) return false;
   DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); syncRollLabel();
-  dmShow(true); DH.t0=performance.now(); DH.x=0; dmDraw(0); showDie(1,false);
+  dmShow(true); DH.t0=performance.now(); DH.x=0; dmDraw(0); showDie(1,false); try{ UT.GameplayDiceThrow.hideNumber(); }catch(e){}
   const step=now=>{
     if(!DH.on) return;
     /* watchdog: bila kondisi berubah saat ditahan (game baru, jeda, tombol nonaktif, giliran lain) -> batal, tidak stuck */
     if(DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
     const ph=((now-DH.t0)/DM_SWEEP_MS)%2,x=ph<1?ph:2-ph; /* ping-pong 0..1..0 */
     DH.x=x; dmDraw(x);
-    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); try{ UT.GameplayDiceThrow.showNumber(v); }catch(e){} }
+    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); } /* angka TIDAK ditampilkan di atas emote: itu spoiler hasil */
     DH.raf=requestAnimationFrame(step);
   };
   DH.raf=requestAnimationFrame(step);
@@ -5529,7 +5533,7 @@ async function doRoll(opt){
   try{
     await dieRoll(v,p); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.'); msBump(p,'dice');
-    const SX=UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* aturan tiga-6 = game-core.js */
+    const SX=(p.pos===GOAL&&BOSS==='dragon')?{sixes:0,forfeit:false}:UT.Gameplay.Core.sixesAfter(p.sixes,v,3); p.sixes=SX.sixes; /* lawan Crystal/Naga: 6 bukan giliran tambahan, jadi tidak dihitung tiga-6 */ /* aturan tiga-6 = game-core.js */
     await sleep(300); if(gid!==gameId) return;
     if(SX.forfeit){
       sfx.bounce();
