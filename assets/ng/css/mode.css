@@ -143,3 +143,5 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .opt small{position:relative;bottom:auto;left:auto;right:auto;width:auto;font-size:20px}
 .back{padding:14px 16px 16px;gap:8px}
 .back .q{font-size:28px}
+/* latar voxel langit (sama caranya dengan tambang.css: lapisan tetap di belakang #wrap, agak transparan di atas gradien ungu bg.css) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/mode-voxel-langit.webp) center/cover no-repeat;opacity:.35}
