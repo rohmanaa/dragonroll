@@ -4747,7 +4747,9 @@ async function usePU(k,cpu,tileArg){
       if(R.self&&hits.length){ const to=Math.min(GOAL-1,p.pos+R.self); if(to>p.pos){ await teleport(p,to); p.pos=to; renderChips(); } } /* Trident: kamu maju bila kena */
     }
     if(R.kind==='swap'){ const L=T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
-      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); hitBlastFx(L); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
+      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); hitBlastFx(L); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; renderChips();
+        /* Bertukar = mendarat di petak baru: jebakan di petak tujuan ikut terpicu (dulu dilewati, jadi TNT di petak itu tidak meledak) */
+        await trapCheck(p,gid); if(gid!==gameId) throw STALE; await trapCheck(L,gid); if(gid!==gameId) throw STALE; } }
     if(R.kind==='freeze'){ const L=T.find(q=>!q.frozen)||T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
       if(by) blocked.push({q:L,by}); else { L.frozen=true; hit=true; hits.push(L); powerFxPawn(k,L); powerHitCard(p,L,k,L.name+' membeku: giliran berikutnya dilewati'); hitBlastFx(L); sfx.playerHurt(); pawnAct(L.pawn,'block'); } }
     if(R.kind==='trap'){ await sleep(reduce?60:200); trapAdd(p,k,tile); sfx.pop(); if(ONLINE_ROOM&&ONLINE_HOST) try{ publishTurnState(); }catch(e){} }
