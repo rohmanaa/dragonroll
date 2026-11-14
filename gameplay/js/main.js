@@ -160,7 +160,7 @@ async function applyOnlineLooks(gid,attempt){
   /* tarik ulang berkala (bukan hanya saat data belum ada): tampilan pemain lain yang baru dikirim/berubah ikut terpasang; hanya dipasang ulang bila isinya berubah */
   if(attempt<14) setTimeout(()=>applyOnlineLooks(gid,attempt+1),attempt<6?2500:8000);
 }
-const NEW_CHAR_CPU=true; /* false = pion CPU tetap model lama (Villager) */
+const NEW_CHAR_CPU=false; /* false = pion CPU tetap Villager (bukan karakter preset/skin pemain) */
 /* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
 function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) setTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850); }catch(e){} }
 function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
@@ -3686,10 +3686,12 @@ function dieRoll(v,pl){
     let rs=null; const ownSfx=!T.kitReady; /* DiceKit punya suara sendiri; suara game dipakai hanya untuk dadu cadangan */
     /* titik jatuh: DI PAPAN, tepat 1 petak di depan bidak */
     let land=null; try{ const k=1, ti=Math.min(GOAL,(pl.pos||0)+k), tt=TILES[ti]; if(tt&&ti>(pl.pos||0)) land=new THREE.Vector3(tt.x,tt.h,tt.z); }catch(e){}
-    const p=T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget, land:land,
+    /* Dadu CPU = dadu default (klasik), bukan dadu yang dipakai pemain; setSkin menunggu skin terpasang sebelum dilempar */
+    const sk=(T.setSkin&&T.setSkin(pl.cpu?'klasik':diceKey))||Promise.resolve();
+    const p=Promise.resolve(sk).then(()=>T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget, land:land,
       onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
       onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
-      onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} T.showNumber(v); } });
+      onLand:()=>{ try{ sfx.rollStop(rs); }catch(e){} T.showNumber(v); } }));
     const t=setTimeout(()=>{ try{ T.skip(); }catch(e){} },2800); /* terlalu lama (FPS rendah): paksa mendarat agar pion tidak mendahului */
     return Promise.race([p,sleep(3800)]).then(()=>clearTimeout(t));
   }

@@ -79,7 +79,7 @@
     return kmods;
   }
   /* Studio env kecil (kubus gradasi + softbox) supaya logam/emas/permata/clearcoat punya pantulan seperti RoomEnvironment DiceKit — hanya dipasang ke material dadu, bukan ke scene */
-  var envTex = null;
+  var envTex = null, skinKey = null, skinP = null;
   function envCube() {
     if (envTex !== null) return envTex || null;
     try {
@@ -204,7 +204,7 @@
   function init(sc) {
     if (scene) return true;
     if (!sc || !win.THREE) return false;
-    scene = sc; build(); applySkin(kwant.key); initFx();
+    scene = sc; build(); skinKey = kwant.key; skinP = applySkin(kwant.key); initFx();
     UT.GameplayDiceThrow.ready = true;
     return true;
   }
@@ -402,7 +402,15 @@
     return worldThrow(pawnPos, v, opt);                         /* dadu 3D di dunia game (bukan overlay layar) */
   }
 
-  function setSkin(key) { if (!key) return; kwant.key = key; if (die) applySkin(key); }
+  /* Mengembalikan Promise yang selesai saat skin terpasang. Skin yang sama dengan yang sedang terpasang tidak dilukis ulang (CPU <-> pemain bergantian tiap giliran). */
+  function setSkin(key) {
+    if (!key) return Promise.resolve();
+    kwant.key = key;
+    if (!die) return Promise.resolve();
+    if (key === skinKey) return skinP || Promise.resolve();
+    skinKey = key;
+    return (skinP = applySkin(key).catch(function (e) { skinKey = null; console.error(e); }));
+  }
   function setSound(on) { kwant.sound = !!on; if (kit) kit.setSound(kwant.sound); if (fx) fx.sound.enabled = kwant.sound; }
   function setVolume(v) { v = +v; kwant.volume = isNaN(v) ? 1 : Math.max(0, Math.min(1, v)); if (kit) kit.setVolume(kwant.volume); if (fx) fx.sound.volume = kwant.volume; }
 
