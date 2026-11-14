@@ -144,3 +144,5 @@ body:has(#modal.show)::after{content:'';position:fixed;inset:0;z-index:0;pointer
 .sp.e{left:50%;top:8%;animation-delay:2.9s;width:9px;height:9px}
 @keyframes spk{0%{opacity:0;transform:translateY(8px) scale(.3) rotate(0)}30%{opacity:.95;transform:translateY(-4px) scale(1) rotate(45deg)}60%{opacity:.5;transform:translateY(-16px) scale(.7) rotate(90deg)}100%{opacity:0;transform:translateY(-26px) scale(.2) rotate(135deg)}}
 @media (prefers-reduced-motion:reduce){.card .pic .sp{animation:none;display:none}}
+/* latar voxel pasar (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/shop-voxel-pasar.webp) center/cover no-repeat;opacity:.35}
