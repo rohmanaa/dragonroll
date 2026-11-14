@@ -3715,10 +3715,10 @@ function powerFxPawn(key,pl){
   if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
   try{
     if(!pl||!pl.pawn||reduce) return;
-    /* Efek Power selalu di TENGAH layar (bukan di atas pion) dengan kotak besar (90% sisi pendek layar, 320-760px) agar tidak terpotong dan terlihat jelas */
+    /* Efek Power selalu di TENGAH layar (bukan di atas pion). Canvas 3D = sebesar canvas game (1 layar) agar aura/partikel tidak terpotong; model power sendiri diperkecil 1,5x (SHRINK di power-overlay.js) dari ukuran dasar 90% sisi pendek layar (320-760px) */
     const r=$('c').getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
     const size=Math.round(Math.max(320,Math.min(760,Math.min(r.width,r.height)*0.9)));
-    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y,{size})) return; /* 3D: model + aura + partikel */
+    const O=window.UT&&UT.PowerOverlay; if(O&&O.supports(key)&&O.playAt(key,x,y,{size,rect:{left:r.left,top:r.top,width:r.width,height:r.height}})) return; /* 3D: model + aura + partikel */
     const PF=window.UT&&UT.PowerFX; if(PF) PF.play(key,x,y); /* cadangan 2D */
   }catch(e){}
 }
