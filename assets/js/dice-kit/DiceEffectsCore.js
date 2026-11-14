@@ -177,6 +177,7 @@ export function createDiceEffects(THREE) {
     }
     _tone(f0, f1, dur, gain, type = 'sine', delay = 0) {
       const c = this.ctx, t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain();
+      const pj = this._pj || 1; f0 *= pj; if (f1) f1 *= pj; /* variasi nada per pemutaran */
       o.type = type; o.frequency.setValueAtTime(f0, t); if (f1) o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain * this.volume, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.connect(g).connect(this._master || c.destination); o.start(t); o.stop(t + dur + 0.02);
@@ -185,11 +186,27 @@ export function createDiceEffects(THREE) {
       const c = this.ctx, t = c.currentTime + delay, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
       s.buffer = this._noiseBuf(); f.type = type; f.frequency.value = freq; f.Q.value = q;
       g.gain.setValueAtTime(gain * this.volume, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      s.connect(f).connect(g).connect(this._master || c.destination); s.start(t); s.stop(t + dur + 0.02);
+      s.connect(f).connect(g).connect(this._master || c.destination); s.start(t, Math.random() * Math.max(0, s.buffer.duration - dur - 0.03)); s.stop(t + dur + 0.02); /* offset acak: tiap ketukan punya tekstur noise berbeda */
+    }
+    /** Benturan ke papan: lapisan tersendiri di atas bunyi material. index 0 = berat, index 1 = lebih ringan & tinggi. */
+    thud(index = 0, intensity = 1, gain = 1) {
+      if (!this._ensure()) return;
+      const pj = 1 + (Math.random() - 0.5) * 0.18, G = 1.0 * Math.min(1.6, Math.max(0.4, intensity)) * (gain > 0 ? gain : 1);
+      this._pj = pj;
+      if (index === 0) { this._noiseHit(240 * pj, 0.8, 0.11, 0.9 * G, 'lowpass'); this._tone(120, 55, 0.15, 0.45 * G, 'triangle'); }
+      else { this._noiseHit(1100 * pj, 1.1, 0.05, 0.5 * G, 'bandpass'); this._tone(260, 150, 0.07, 0.22 * G, 'triangle'); }
+    }
+    /** Dadu lepas dari tangan: desis udara, beda dari bunyi benturan. */
+    whoosh(gain = 1) {
+      if (!this._ensure()) return;
+      this._pj = 1 + (Math.random() - 0.5) * 0.14;
+      const G = gain > 0 ? gain : 1;
+      this._noiseHit(1400 * this._pj, 0.7, 0.22, 0.32 * G, 'bandpass'); this._tone(500, 900, 0.18, 0.06 * G, 'sine');
     }
     /** kind = die.effect.soundEffect; intensity 0..2 */
     play(kind, intensity = 1, gain = 1) { // gain = die.effect.soundGain (Void/Sculk/Netherite 1.2x)
       if (!this._ensure()) return;
+      this._pj = 1 + (Math.random() - 0.5) * 0.14; /* +-7%: dua ketukan berurutan tidak pernah identik */
       const i = Math.min(2, Math.max(0.5, intensity)), G = 1.3 * i * (gain > 0 ? gain : 1);
       switch (kind) {
         case 'rattle': for (let n = 0; n < 9; n++) { this._noiseHit(1500 + Math.random() * 2200, 2.2, 0.055, 0.7 * G, 'bandpass', n * 0.085); this._tone(220 + Math.random() * 160, 120, 0.05, 0.25 * G, 'triangle', n * 0.085); } break;
@@ -345,7 +362,7 @@ export function createDiceEffects(THREE) {
     onRollStart(pos) {
       const e = this.die.effect, c = Math.round(e.particleCount * 0.25);
       this.emit(e.effectTier >= 4 ? STYLE_OF(e) : 'dust', pos, c, { mode: 'ring', speed: 1.4, up: 0.8, life: 0.5 });
-      this.sound.play(e.soundEffect, 0.35, e.soundGain);
+      this.sound.whoosh(e.soundGain); /* lepas tangan = desis (bukan bunyi material yang sama dengan benturan) */
     }
 
     onRollFrame(dt, pos, speed) {
@@ -365,6 +382,7 @@ export function createDiceEffects(THREE) {
       this.fxPos = p;
       const k = Math.min(1.6, speed / 9) * e.impactIntensity;
       this.sound.play(e.soundEffect, Math.min(2, k), e.soundGain);
+      this.sound.thud(index, k, e.soundGain); /* lapisan benturan papan, beda tiap pantulan */
       this.auraFlare = Math.min(2, this.auraFlare + 0.3 * k);
       if (index === 0) {
         (RECIPES[e.landingEffect] || RECIPES.puff)(this, p, e, k);
