@@ -689,12 +689,13 @@ const SND=[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
-/* Suara Forest Pup (anjing), Copper Golem (logam/uap/servo), dan Crystal Axolotl (gelembung/lonceng air/cicit) = rekaman asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
+/* Suara Forest Pup (anjing), Copper Golem (logam/uap/servo), dan Crystal Axolotl (gelembung/lonceng air/cicit), dan Arcane Owl (hu-hu/denting arcane/kepakan) = rekaman asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
    Urutan sama dengan SND[indeks pet]. Forest Pup: gonggongan beruntun, satu gonggongan, rengekan. Sintesis lama jadi cadangan bila file belum dimuat/gagal. */
 const PET_FILES={
  0:['assets/sfx/pet/forest-pup-bark-burst.mp3','assets/sfx/pet/forest-pup-bark.mp3','assets/sfx/pet/forest-pup-whimper.mp3'],
  1:['assets/sfx/pet/copper-golem-clang.mp3','assets/sfx/pet/copper-golem-steam.mp3','assets/sfx/pet/copper-golem-servo.mp3'], /* denting logam, uap, servo */
- 2:['assets/sfx/pet/crystal-axolotl-bubble.mp3','assets/sfx/pet/crystal-axolotl-chime.mp3','assets/sfx/pet/crystal-axolotl-squeak.mp3'] /* gelembung, lonceng air, cicit */
+ 2:['assets/sfx/pet/crystal-axolotl-bubble.mp3','assets/sfx/pet/crystal-axolotl-chime.mp3','assets/sfx/pet/crystal-axolotl-squeak.mp3'], /* gelembung, lonceng air, cicit */
+ 3:['assets/sfx/pet/arcane-owl-hoot.mp3','assets/sfx/pet/arcane-owl-sparkle.mp3','assets/sfx/pet/arcane-owl-flap.mp3'] /* hu-hu, denting arcane, kepakan */
 };
 const petBuf={},petLoading={};
 function petLoad(url){
