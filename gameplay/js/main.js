@@ -1422,8 +1422,8 @@ function addSouthMountain(DB){
     const x=ix-0.5+0.5, ridge=1+0.45*Math.sin(ix*0.31)+0.3*Math.sin(ix*0.77+1.3); /* punggung bergelombang: puncak + lembah */
     for(let jz=0;jz<3;jz++){
       const z=15.5+jz,u=(jz+1)/3,base=hAt(x,z);
-      const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(ix,jz)-0.5)*0.9)*2)/2); /* makin ke tepi luar makin tinggi (tebing) */
-      const top=base+hgt,q=Math.floor(hs(ix+3,jz+7)*5)%5;
+      const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(ix,jz)-0.5)*0.9)*2)/2); /* makin ke tepi luar makin tinggi (tebing); tinggi total diturunkan & dibatasi 4.5 agar setara bukit kiri/atas */
+      const top=Math.min(4.5,base+hgt*0.55),q=Math.floor(hs(ix+3,jz+7)*5)%5;
       addBox(DB,x,(top-0.1)/2,z,1,top+0.1,1,st[q],{edge:false});
       if(hs(ix+9,jz+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(ix+jz)&1],{edge:false}); /* lumut di puncak */
     }
