@@ -142,3 +142,5 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .pl.lock span{font:400 30px var(--font-title);color:#b7b0d9;letter-spacing:1px}
 .pl.lock b{padding:6px 20px;border-radius:10px;background:#5a5180;border:3px solid #2b2550;font:400 24px var(--font-title);color:#fff}
 .pl.lock:hover{filter:brightness(1.2)}.pl.lock:active{transform:scale(.98)}
+/* latar voxel malam (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/room-voxel-malam.webp) center/cover no-repeat;opacity:.35}
