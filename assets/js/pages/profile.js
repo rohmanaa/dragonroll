@@ -162,11 +162,14 @@ if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok)showWallet()});
 }catch(e){console.warn("[profil] data server gagal",e)}})();
 
 /* skala kanvas 1920x1080 */
+/* gambar latar: n = 16:9 (profile-bg.webp), w = layar lebar (profile-bg-wide.webp). x,y = titik tengah permukaan atas podium (px gambar), pw = lebar podium */
+const BG={n:{w:1672,h:941,x:628,y:676,pw:517},w:{w:1893,h:831,x:792,y:618,pw:525}};
 function fit(){
-  const vw=innerWidth,vh=innerHeight,k=Math.min(vw/1920,vh/1080);
+  const vw=innerWidth,vh=innerHeight,k=Math.min(vw/1920,vh/1080),wide=vw/vh>=2,B=wide?BG.w:BG.n;
   $("#stage").style.transform="scale("+k+")";
-  /* latar = cover penuh layar; titik tengah permukaan podium di gambar (628,676 dari 1672x941) dihitung ke koordinat stage */
-  const sc=Math.max(vw/1672,vh/941),sx=(628-836)*sc/k+960,sy=(676-470.5)*sc/k+540,r=sc/(k*1.1483);
+  document.documentElement.classList.toggle("pf-wide",wide);
+  /* latar = cover penuh layar; titik podium dihitung ke koordinat stage supaya kaki karakter tepat di atas batu */
+  const sc=Math.max(vw/B.w,vh/B.h),sx=(B.x-B.w/2)*sc/k+960,sy=(B.y-B.h/2)*sc/k+540,r=B.pw*sc/k/594;
   const art=$("#art");art.style.left=(sx-400-290)+"px";art.style.top=(sy-678)+"px";
   PODIUM.h=430*r;if(R&&R.w)frameCam();
 }
