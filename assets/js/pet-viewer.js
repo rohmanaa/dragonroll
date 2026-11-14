@@ -626,6 +626,7 @@ function audioInit(){
     MASTER=AC.createGain();MASTER.gain.value=.55;MASTER.connect(comp);comp.connect(AC.destination);
     if(AC.state==='suspended')AC.resume();
   }catch(e){AC=null;return false}
+  try{petPreloadFiles()}catch(e){}
   return true;
 }
 // f0 -> f1 over dur. o: attack, lp (lowpass hz), vib (hz), vibd (depth hz), then (extra target hz at the end)
@@ -688,6 +689,22 @@ const SND=[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
+/* Suara Forest Pup = rekaman anjing asli (assets/sfx/pet/, kekerasan diseragamkan oleh tools/normalize-sfx.py).
+   Urutan sama dengan SND[0]: 0 gonggongan beruntun, 1 satu gonggongan, 2 rengekan. Sintesis lama jadi cadangan bila file belum dimuat/gagal. */
+const PET_FILES={0:['assets/sfx/pet/forest-pup-bark-burst.mp3','assets/sfx/pet/forest-pup-bark.mp3','assets/sfx/pet/forest-pup-whimper.mp3']};
+const petBuf={},petLoading={};
+function petLoad(url){
+  if(petBuf[url]||petLoading[url]||!AC)return;
+  petLoading[url]=1;
+  fetch(url).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no))).then(buf=>{petBuf[url]=buf}).catch(()=>{}).then(()=>{delete petLoading[url]});
+}
+function petPlayFile(url,fallback){
+  const b=petBuf[url];
+  if(!b||!AC){petLoad(url);try{fallback&&fallback()}catch(e){}return}
+  const s=AC.createBufferSource();s.buffer=b;s.connect(MASTER);s.start();
+}
+function petPreloadFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(petLoad))}
+Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach((url,i)=>{const synth=SND[k][i];SND[k][i]=()=>petPlayFile(url,synth)}));
 const PETS=[
  {id:'forest_pup',tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:petPup},
  {id:'copper_golem',tier:2,name:'Copper Golem',mat:'Copper Block dan Verdigris',ident:'Industrial dan rajin',efek:'Roda gigi berputar, uap, lampu antena berdenyut',lore:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',color:'#ff9a30',build:petGolem},
