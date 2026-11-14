@@ -41,7 +41,7 @@ t('ItemCatalog: kategori non-Frame identik dengan baseline', () => {
 });
 t('ItemCatalog: semua API publik baseline tetap ada (tipe sama); sumber Registry kategori tetap tersedia', () => {
   const cur = Object.keys(ICr).sort(); base.api.forEach(k => { assert.ok(k in ICr, k); assert.strictEqual(typeof ICr[k], typeof ICl[k], k); });
-  assert.deepStrictEqual(cur.filter(k => base.api.indexOf(k) < 0), ['auraSource', 'diceSource', 'frameSource', 'petSource', 'powerSource']);
+  assert.deepStrictEqual(cur.filter(k => base.api.indexOf(k) < 0), ['auraSource', 'diceSource', 'frameSource', 'petSource', 'powerSource', 'skinSource']);
   assert.ok(Object.isFrozen(ICr) && Object.isFrozen(ICr.items));
 });
 t('ItemCatalog: byId/byGameKey/cost/starters/defaultEquipped/FRAME_TAB_ICON sama di kedua jalur', () => {

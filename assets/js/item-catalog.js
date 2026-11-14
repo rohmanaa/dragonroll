@@ -16,7 +16,7 @@
   };
 
   var CATEGORIES = [
-    { key: 'skin',     label: 'Skin' },
+    { key: 'skin',     label: 'Karakter' },
     { key: 'aksesori', label: 'Aksesori' },
     { key: 'efek',     label: 'Efek' },
     { key: 'emote',    label: 'Emote' },
@@ -28,7 +28,7 @@
   /* kind: skin -> bidak karakter | dice -> skin dadu | theme -> tema papan | powerup -> power-up gameplay
      slot powerup = null: consumable (quantity), BUKAN equipment — tidak masuk defaultEquipped. */
   var KIND_META = {
-    skin:    { category: 'skin',     noun: 'Skin',       slot: 'skin' },
+    skin:    { category: 'skin',     noun: 'Karakter',   slot: 'skin' },
     dice:    { category: 'aksesori', noun: 'Skin dadu',  slot: 'dice' },
     theme:   { category: 'lainnya',  noun: 'Maps', slot: 'theme' },
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
@@ -389,8 +389,13 @@
     it.price = t[0]; it.gems = t[1];
   });
 
-  /* Metadata Frame/Aura/Pet/Dice/Power diadopsi dari Registry hanya jika semua manifest kategori cocok.
+  /* Metadata Character/Frame/Aura/Pet/Dice/Power diadopsi dari Registry hanya jika semua manifest kategori cocok.
      Tanpa rantai Registry lengkap, builder legacy di atas tetap menjadi fallback; tes paritas menjaga hasil katalog sama. */
+  function skinFromManifest(m) {
+    var extra = { starter: !!m.starter, gems: m.gems == null ? null : m.gems };
+    if (m.featured) extra.featured = true;
+    return skin(m.gameKey, m.name, m.group, m.rarity, m.price, m.desc, extra);
+  }
   function frameFromManifest(m) {
     var it = { id: m.id, kind: 'frame', gameKey: m.gameKey, name: m.name, rarity: m.rarity, price: m.price == null ? null : m.price,
       desc: m.desc, starter: !!m.starter, image: m.assets.image, gems: m.gems == null ? null : m.gems };
@@ -444,6 +449,7 @@
       return 'registry';
     } catch (e) { if (g.console) g.console.error('[ItemCatalog] ItemRegistry ' + kind + ' gagal; memakai jalur cadangan: ' + (e && e.message)); return 'legacy'; }
   }
+  var SKIN_SOURCE = adoptFromRegistry('skin', skinFromManifest);   /* Stage 8.2: metadata karakter; ID/kind/slot tetap skin */
   var FRAME_SOURCE = adoptFromRegistry('frame', frameFromManifest);
   var AURA_SOURCE = adoptFromRegistry('aura', auraFromManifest);   /* Stage 7: 15 Aura dari manifest; bentuk katalog lama tetap */
   var PET_SOURCE = adoptFromRegistry('pet', petFromManifest);   /* Stage 4: 7 Pet dari manifest (data/inventory/pet/) */
@@ -476,6 +482,7 @@
     CATEGORIES: CATEGORIES,
     SKIN_GROUPS: SKIN_GROUPS,
     FRAME_TAB_ICON: FRAME_TAB_ICON,
+    skinSource: function () { return SKIN_SOURCE; },   /* 'registry' | 'legacy' (diagnostik) */
     frameSource: function () { return FRAME_SOURCE; },   /* 'registry' | 'legacy' (diagnostik) */
     auraSource: function () { return AURA_SOURCE; },     /* idem, untuk Aura */
     petSource: function () { return PET_SOURCE; },       /* idem, untuk Pet */
