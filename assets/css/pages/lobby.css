@@ -17,7 +17,6 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .dot[hidden]{display:none!important}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
-#go span .go-icon{width:54px;height:54px;object-fit:contain;flex:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 
 /* ===== menu ikon kotak abu transparan (di bawah panel Misi Harian) ===== */
 #menu{position:absolute;left:22px;top:272px;width:636px;display:flex;flex-wrap:wrap;gap:14px;animation:inL .6s .16s cubic-bezier(.2,.9,.2,1) both}
@@ -27,7 +26,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .mbtn span:not(.dot){font:400 21px/1 var(--font-title);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 .mbtn:hover{filter:brightness(1.15)}.mbtn:active{transform:scale(.94)}
 .mbtn .dot{right:-8px;top:-8px}
-#nav .tile .ico img.bag{max-height:104px}
+#nav .tile .ico img.bag{max-height:146px;max-width:none}
 html[data-graphics="low"] .mbtn img{filter:none!important}
 
 /* ===== panel Misi Harian: latar abu transparan (sama dengan tombol menu) + lebih tinggi ===== */
