@@ -12,7 +12,7 @@ const snd=n=>{try{if(SET().sound)UT.Audio.play(n||"button")}catch(e){}};
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),1800)}
 const nav=u=>{$("#fade").classList.add("on");setTimeout(()=>{location.href=u},330)};
 /* halaman yang sudah ada (sama dengan BUILT di lobby); lainnya = toast */
-const BUILT=["karakter.html","mode.html","settings.html","room.html","hadiah-misi.html","shop.html","profile.html","frame.html","dadu.html","efek.html","powerup.html","leaderboard.html","friendship.html","tambang.html","mail.html","pet.html"];
+const BUILT=["karakter.html","mode.html","settings.html","room.html","hadiah-misi.html","shop.html","profile.html","frame.html","dadu.html","efek.html","powerup.html","leaderboard.html","friendship.html","tambang.html","mail.html","inventory.html?tab=pet"];
 const go=u=>BUILT.includes(u.split("?")[0])?nav(u):toast("Segera hadir");
 
 /* ---- data: PlayerData (level/XP/skin/koleksi) + server get_my_profile (menang/main/streak, peringkat, misi) ---- */
@@ -108,7 +108,7 @@ $("#info").onclick=e=>{
 };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","ikon-item/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","new-icon/frame.webp","#e89a52","frame.html"],["Dadu","dice","new-icon/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","ikon-gem-medali/kristal-api.webp","#d26f9c","efek.html"],["Power-up","powerup","ikon-gem-medali/petir-ungu.webp","#4db3e6","powerup.html"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","ikon-item/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","new-icon/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","new-icon/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","ikon-gem-medali/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","ikon-gem-medali/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","inventory.html?tab=pet"]];
 function drawKol(){
   $("#kol").innerHTML=KOL.map(([n,k,ic,c,u])=>{const a=owned(k),t=Math.max(total(k),a);return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><i><b data-w="${t?Math.min(100,a/t*100):0}"></b></i><em>${a}/${t}</em></button>`}).join("");
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".kr b").forEach(b=>{b.style.width=b.dataset.w+"%"})));

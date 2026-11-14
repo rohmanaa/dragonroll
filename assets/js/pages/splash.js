@@ -37,6 +37,7 @@ const ASSETS=[
   'assets/sfx/ui/power-claim.mp3',
   'shop.html',
   'karakter.html',
+  'inventory.html',
   'frame.html',
   'dadu.html',
   'efek.html',
