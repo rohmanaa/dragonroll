@@ -17,11 +17,11 @@
   var UT = win.UT = win.UT || {};
   if (UT.GameplayDiceThrow) return;
 
-  var S = 0.42;                 /* sisi dadu (unit dunia; 1 petak ~ 1 unit) */
+  var S = 0.5;                  /* sisi dadu (unit dunia; 1 petak ~ 1 unit): dadu = objek 3D di dunia game, ikut zoom/kamera seperti bidak */
   var scene = null, die = null, shadow = null, mats = null, busy = null, throwId = 0;
 
   /* urutan muka BoxGeometry three: +x, -x, +y, -y, +z, -z  -> angka standar (sisi berhadapan = 7) */
-  var FACE_VAL = [3, 4, 1, 6, 2, 5];
+  var FACE_VAL = [2, 5, 1, 6, 3, 4];   /* sama dengan D6_FACES DiceKit: +x,-x,+y,-y,+z,-z */
   var PIPS = {
     1: [[.5, .5]], 2: [[.27, .27], [.73, .73]], 3: [[.25, .25], [.5, .5], [.75, .75]],
     4: [[.27, .27], [.73, .27], [.27, .73], [.73, .73]],
@@ -41,14 +41,57 @@
     return t;
   }
 
+  /* kubus bersudut membulat (tanpa addon): titik dijepit ke kotak dalam lalu didorong keluar sejauh radius; UV & 6 grup muka tetap */
+  function roundedCube(size, r, seg) {
+    var g = new THREE.BoxGeometry(size, size, size, seg, seg, seg), pos = g.attributes.position, nor = g.attributes.normal, h = size / 2 - r;
+    var v = new THREE.Vector3(), c = new THREE.Vector3(), d = new THREE.Vector3();
+    for (var i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      c.set(Math.max(-h, Math.min(h, v.x)), Math.max(-h, Math.min(h, v.y)), Math.max(-h, Math.min(h, v.z)));
+      d.copy(v).sub(c);
+      if (d.lengthSq() > 1e-10) { d.normalize(); nor.setXYZ(i, d.x, d.y, d.z); pos.setXYZ(i, c.x + d.x * r, c.y + d.y * r, c.z + d.z * r); }
+    }
+    return g;
+  }
+
   function build(color) {
-    mats = FACE_VAL.map(function (n) { return new THREE.MeshLambertMaterial({ map: faceTex(n, color || '#f4efe4') }); });
-    die = new THREE.Mesh(new THREE.BoxGeometry(S, S, S), mats);
+    mats = FACE_VAL.map(function (n) { return new THREE.MeshStandardMaterial({ map: faceTex(n, color || '#f4efe4'), roughness: 0.55, metalness: 0 }); });
+    die = new THREE.Mesh(roundedCube(S, S * 0.11, 12), mats);
     die.castShadow = true; die.visible = false; die.renderOrder = 5;
     shadow = new THREE.Mesh(new THREE.CircleGeometry(S * 0.62, 20),
       new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false }));
     shadow.rotation.x = -Math.PI / 2; shadow.visible = false;
     scene.add(die); scene.add(shadow);
+  }
+
+  /* ---------- Skin dadu: tekstur/material PERSIS DiceKit (paintFace + katalog), dipasang ke mesh 3D dunia ---------- */
+  var kmods = null;
+  function loadMods() {
+    if (!kmods) {
+      var b = doc.baseURI;
+      kmods = Promise.all([import(new URL('assets/js/dice-kit/DiceTextures.js', b).href), import(new URL('assets/js/dice-kit/DiceCatalog.js', b).href)])
+        .catch(function (e) { console.error('[dice-throw] skin DiceKit gagal dimuat', e); return null; });
+    }
+    return kmods;
+  }
+  function applySkin(key) {
+    return loadMods().then(function (m) {
+      if (!m || !die) return;
+      var T = m[0], C = m[1], d = C.getDice(key) || C.getDice('klasik');
+      if (!d) return;
+      var mm = d.material, ee = d.effect || {};
+      var nm = C.D6_FACES.map(function (face) {
+        var pf = T.paintFace(d, face.value, 256, true);
+        var map = new THREE.CanvasTexture(pf.canvas); map.anisotropy = 4;
+        var em = pf.glow ? new THREE.CanvasTexture(pf.glow) : map;
+        return new THREE.MeshStandardMaterial({
+          map: map, roughness: mm.roughness == null ? 0.6 : mm.roughness, metalness: Math.min(mm.metalness || 0, 0.4),
+          emissive: new THREE.Color(mm.emissive || ee.glowColor || '#ffffff'), emissiveMap: em, emissiveIntensity: Math.min(ee.emissiveIntensity || 0, 0.5)
+        });
+      });
+      var old = mats; die.material = nm; mats = nm;
+      old.forEach(function (o) { if (o.map) o.map.dispose(); o.dispose(); });
+    });
   }
 
   /* quaternion yang membuat muka bernilai v menghadap ke atas (+y) */
@@ -72,52 +115,62 @@
   function init(sc) {
     if (scene) return true;
     if (!sc || !win.THREE) return false;
-    scene = sc; build();
-    if (win.DiceKit) kmount(); else win.addEventListener('dicekit-ready', kmount, { once: true });
+    scene = sc; build(); applySkin(kwant.key);
     UT.GameplayDiceThrow.ready = true;
     return true;
   }
 
+  /* Dadu = objek 3D di dunia game (Three.js scene), dilempar dari tangan bidak, terbang melengkung, memantul 2x, rebah di PAPAN
+     (opt.land = titik petak di depan bidak). Ikut kamera/zoom/geser seperti bidak, tertutup objek di depannya (depth test). */
   function worldThrow(pawnPos, v, opt) {
     opt = opt || {};
     if (!die || !(v >= 1 && v <= 6)) return Promise.resolve(v);
     if (busy) busy.finish();
     var id = ++throwId;
     var from = pawnPos.clone(); from.y += 0.75;                 /* tinggi tangan bidak */
-    var floorY = pawnPos.y + S / 2;
-    var to = opt.target ? new THREE.Vector3(opt.target.x + (Math.random() - 0.5) * 0.8, floorY, opt.target.z + (Math.random() - 0.5) * 0.8) : landSpot(pawnPos, opt.camera); to.y = floorY;
-    var dur = opt.reduce ? 0.01 : 0.95;
+    var base = opt.land ? opt.land.clone() : landSpot(pawnPos, opt.camera);
+    var floorY = base.y + S / 2, groundY = base.y + 0.02;
+    var to = new THREE.Vector3(base.x + (Math.random() - 0.5) * 0.16, floorY, base.z + (Math.random() - 0.5) * 0.16);
+    var dx = to.x - from.x, dz = to.z - from.z, dl = Math.hypot(dx, dz) || 1, ux = dx / dl, uz = dz / dl;
+    var p1 = { x: to.x - ux * 0.55, z: to.z - uz * 0.55 }, p2 = { x: to.x - ux * 0.18, z: to.z - uz * 0.18 };
+    var f = opt.reduce ? 0.02 : 1;
+    var segs = [
+      { x0: from.x, z0: from.z, y0: from.y, x1: p1.x, z1: p1.z, y1: floorY, H: 0.95, t: 0.64 * f },   /* terbang dari tangan */
+      { x0: p1.x, z0: p1.z, y0: floorY, x1: p2.x, z1: p2.z, y1: floorY, H: 0.34, t: 0.26 * f },       /* pantul 1 */
+      { x0: p2.x, z0: p2.z, y0: floorY, x1: to.x, z1: to.z, y1: floorY, H: 0.1, t: 0.17 * f }          /* pantul 2 lalu diam */
+    ];
+    var total = segs[0].t + segs[1].t + segs[2].t;
     var yaw = Math.random() * 6.2832;
     var qEnd = quatForTop(v, yaw);
-    var qStart = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.random() * 6, Math.random() * 6, Math.random() * 6));
     var spin = new THREE.Quaternion(); var axis = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
     var turns = 3 + Math.random() * 1.5;
-    var peak = from.y + 1.1;
-    var bounced = false, done = false, t0 = performance.now(), raf = 0;
+    var lastSeg = -1, done = false, t0 = performance.now(), raf = 0;
 
     die.visible = true; shadow.visible = true;
     die.scale.setScalar(1); mats.forEach(function (m) { m.transparent = false; m.opacity = 1; });
 
     return new Promise(function (resolve) {
-      function place(k) {                                       /* k 0..1 sepanjang lemparan */
-        var x = from.x + (to.x - from.x) * k, z = from.z + (to.z - from.z) * k;
-        var y = from.y + (floorY - from.y) * k + Math.sin(Math.PI * k) * (peak - from.y) * 1.0;
-        die.position.set(x, Math.max(y, floorY), z);
-        shadow.position.set(x, pawnPos.y + 0.02, z);
-        var h = Math.max(0, die.position.y - floorY);
-        shadow.material.opacity = 0.32 * (1 - Math.min(1, h / 1.4));
+      function place(el) {
+        var g = Math.min(1, el / total), si = el < segs[0].t ? 0 : (el < segs[0].t + segs[1].t ? 1 : 2);
+        var s0 = segs[si], st = si === 0 ? 0 : (si === 1 ? segs[0].t : segs[0].t + segs[1].t);
+        var k = Math.min(1, (el - st) / s0.t);
+        if (si !== lastSeg) { if (si > 0) { try { opt.onBounce && opt.onBounce(1); } catch (e) { console.error(e); } } lastSeg = si; }
+        var x = s0.x0 + (s0.x1 - s0.x0) * k, z = s0.z0 + (s0.z1 - s0.z0) * k;
+        var y = Math.max(floorY, s0.y0 + (s0.y1 - s0.y0) * k + Math.sin(Math.PI * k) * s0.H);
+        die.position.set(x, y, z);
+        var h = Math.max(0, y - floorY);
+        shadow.position.set(x, groundY, z);
+        shadow.material.opacity = 0.34 * (1 - Math.min(1, h / 1.5));
         shadow.scale.setScalar(1 + h * 0.25);
-        /* putaran: acak -> menyatu ke qEnd di akhir */
-        var spinK = 1 - ease(k);
+        var spinK = (1 - g) * (1 - g);                            /* putaran melambat lalu menyatu ke muka v di atas */
         spin.setFromAxisAngle(axis, spinK * turns * 6.2832);
         die.quaternion.copy(qEnd).premultiply(spin);
-        if (k > 0.82) die.quaternion.slerp(qEnd, (k - 0.82) / 0.18);
       }
       function land() {
         if (done || id !== throwId) return; done = true;
         cancelAnimationFrame(raf);
         die.position.set(to.x, floorY, to.z); die.quaternion.copy(qEnd);
-        shadow.position.set(to.x, pawnPos.y + 0.02, to.z); shadow.material.opacity = 0.3; shadow.scale.setScalar(1);
+        shadow.position.set(to.x, groundY, to.z); shadow.material.opacity = 0.3; shadow.scale.setScalar(1);
         try { opt.onLand && opt.onLand(); } catch (e) { console.error(e); }
         var hold = opt.reduce ? 0 : (opt.hold == null ? 1500 : opt.hold);
         setTimeout(function () { fade(); }, hold);
@@ -141,21 +194,9 @@
       }
       function frame() {
         if (done) return;
-        var k = Math.min(1, (performance.now() - t0) / 1000 / dur);
-        place(k);
-        if (!bounced && k >= 0.999) {
-          bounced = true;
-          try { opt.onBounce && opt.onBounce(1); } catch (e) { console.error(e); }
-        }
-        if (k >= 1) {                                           /* satu pantulan kecil lalu diam */
-          var b0 = performance.now(), B = opt.reduce ? 1 : 180;
-          (function bounce() {
-            var u = Math.min(1, (performance.now() - b0) / B);
-            die.position.y = floorY + Math.sin(Math.PI * u) * 0.12 * (1 - u * 0.4);
-            if (u < 1 && !done) requestAnimationFrame(bounce); else land();
-          })();
-          return;
-        }
+        var el = (performance.now() - t0) / 1000;
+        place(Math.min(el, total));
+        if (el >= total) { land(); return; }
         raf = requestAnimationFrame(frame);
       }
       busy = { finish: function () { if (!done && id === throwId) land(); } };
@@ -254,12 +295,10 @@
   function throwFrom(pawnPos, v, opt) {
     opt = opt || {};
     if (!(v >= 1 && v <= 6)) return Promise.resolve(v);
-    if (!kit && win.DiceKit) kmount();
-    if (kit && opt.camera) return kitThrow(pawnPos, v, opt);
-    return worldThrow(pawnPos, v, opt);
+    return worldThrow(pawnPos, v, opt);                         /* dadu 3D di dunia game (bukan overlay layar) */
   }
 
-  function setSkin(key) { if (!key) return; kwant.key = key; if (kit && win.DiceKit.has(key)) kit.equip(key); }
+  function setSkin(key) { if (!key) return; kwant.key = key; if (die) applySkin(key); }
   function setSound(on) { kwant.sound = !!on; if (kit) kit.setSound(kwant.sound); }
   function setVolume(v) { v = +v; kwant.volume = isNaN(v) ? 1 : Math.max(0, Math.min(1, v)); if (kit) kit.setVolume(kwant.volume); }
 
