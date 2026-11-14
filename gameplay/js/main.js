@@ -1151,7 +1151,7 @@ function mcH(x,z){
 }
 const hAt=(x,z)=>mcH(2*Math.floor(x/2)+1,2*Math.round(z/2));
 /* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, z dari -ISLZT (atas, sampai gunung air) sampai ISLZB (bawah) (blok pulau 2x2, tepi = batas + 1). ISLZR = batas dekor/sungai di bawah (di luar itu: gunung selatan) */
-const ISLXL=24,ISLXR=22,ISLZT=22,ISLZB=18,ISLZR=14; /* bawah: +3 blok besar berbentuk gunung batu (addSouthMountain), z 15..18 */
+const ISLXL=22,ISLXR=22,ISLZT=22,ISLZB=18,ISLZR=14; /* bawah: +3 blok besar berbentuk gunung batu (addSouthMountain), z 15..18 */
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
 const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
 function lift(B,fn,h){
