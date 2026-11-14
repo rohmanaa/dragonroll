@@ -152,7 +152,8 @@ async function applyOnlineLooks(gid,attempt){
   players.forEach(p=>{ if(p===me||!p.pawn) return;
     if(p.cpu){ if(attempt===0&&NEW_CHAR_CPU) repawnNew(p.pawn,2+p.idx*3); return; }
     const a=p.networkId&&by[String(p.networkId).toLowerCase()];
-    if(a){ if(!p.pawn.userData.lookFromServer||p.pawn.userData.lookRev!==JSON.stringify([a.look,a.equipped,a.gear_dye])){ p.pawn.userData.lookFromServer=true; p.pawn.userData.lookRev=JSON.stringify([a.look,a.equipped,a.gear_dye]); repawnNew(p.pawn,a); } }
+    if(a){ try{ const di=a.equipped&&a.equipped.dice, it=di&&window.ItemCatalog.byId(di); p.diceKey=(it&&it.gameKey)||null; }catch(e){} /* dadu yang dipasang pemain lain (dari server) -> dilempar dengan dadunya sendiri */
+      if(!p.pawn.userData.lookFromServer||p.pawn.userData.lookRev!==JSON.stringify([a.look,a.equipped,a.gear_dye])){ p.pawn.userData.lookFromServer=true; p.pawn.userData.lookRev=JSON.stringify([a.look,a.equipped,a.gear_dye]); repawnNew(p.pawn,a); } }
     else{ missing++; if(attempt===0) repawnNew(p.pawn,2+p.idx*3); }
   });
   refreshFaces();
@@ -3678,6 +3679,13 @@ function showDie(v,anim){
 function dice3dOn(){ const D=window.UT&&UT.GameplayDiceUI; return !!(D&&D.ready); }
 /* Lempar dadu 3D asli (Dice Kit): kocok + fisika berakhir di angka v (angka tetap dari gameplay). Selesai saat dadu mendarat dan angka tampil;
    dadu dipercepat (speed 1,7) dan dipaksa mendarat bila >3 dtk; batas 4,5 dtk agar game tidak macet. Tanpa dadu 3D (modul gagal) / reduce-motion: jeda singkat seperti dulu. */
+/* Dadu yang dilempar = dadu milik pelempar: CPU = klasik; online: diri sendiri = dadu terpasang, pemain lain = dadu terpasang mereka (dari server, cadangan klasik);
+   offline: pemain 1 (akun ini) = dadu terpasang, pemain manusia lain (hotseat) = klasik. */
+function diceKeyFor(p){
+  if(!p||p.cpu) return 'klasik';
+  if(ONLINE_ROOM) return (MP_ID&&p.networkId===MP_ID)?diceKey:(p.diceKey||'klasik');
+  return p.idx===0?diceKey:'klasik';
+}
 function dieRoll(v,pl){
   /* Dadu DILEMPAR bidak giliran dan jatuh di dekatnya (UT.GameplayDiceThrow, gameplay/js/dice-throw.js). Angka v tetap dari gameplay.
      Indikator di dekat profil (#dieScene) menampilkan hasil saat dadu dunia mendarat. Modul/bidak tak ada atau reduce-motion -> dadu panel lama. */
@@ -3686,8 +3694,8 @@ function dieRoll(v,pl){
     let rs=null; const ownSfx=!T.kitReady; /* DiceKit punya suara sendiri; suara game dipakai hanya untuk dadu cadangan */
     /* titik jatuh: DI PAPAN, tepat 1 petak di depan bidak */
     let land=null; try{ const k=1, ti=Math.min(GOAL,(pl.pos||0)+k), tt=TILES[ti]; if(tt&&ti>(pl.pos||0)) land=new THREE.Vector3(tt.x,tt.h,tt.z); }catch(e){}
-    /* Dadu CPU = dadu default (klasik), bukan dadu yang dipakai pemain; setSkin menunggu skin terpasang sebelum dilempar */
-    const sk=(T.setSkin&&T.setSkin(pl.cpu?'klasik':diceKey))||Promise.resolve();
+    /* Tiap pemain melempar dadunya sendiri (diceKeyFor); setSkin menunggu skin terpasang sebelum dilempar */
+    const sk=(T.setSkin&&T.setSkin(diceKeyFor(pl)))||Promise.resolve();
     const p=Promise.resolve(sk).then(()=>T.throwFrom(pw.position,v,{ camera:camera, canvas:$('c'), target:camTarget, land:land,
       onThrow:()=>{ try{ T.hideNumber(); }catch(e){} pawnAct(pw,'attack'); if(ownSfx){ try{ rs=sfx.roll(); }catch(e){} } },
       onBounce:()=>{ if(ownSfx){ try{ sfx.bounce(); }catch(e){} } },
