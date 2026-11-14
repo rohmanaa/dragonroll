@@ -5726,6 +5726,20 @@ camRefit=()=>{ if(camLocked()) goal.zoom=WF.cam?fortZoom(true):(WF.shot?fortZoom
 if(camLocked()){ resetCam(); cam.yaw=goal.yaw; cam.pitch=goal.pitch; cam.zoom=goal.zoom; camTarget.set(lockCenter.x,LOCK_BOX.y,lockCenter.z); } /* mulai langsung di LOCK tanpa gerakan kamera */
 $('btnPreset').addEventListener('click',camMenuToggle);
 $('btnFollow').addEventListener('click',()=>camSetFollow(!camCfg.follow));
+/* Pintasan keyboard (desktop): 1 = ganti sudut kamera, 2 = ikuti bidak (nyala/mati), 3 = reset kamera. Esc = menu jeda (pause.js). */
+document.addEventListener('keydown',e=>{
+  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey) return;
+  if(e.key!=='1'&&e.key!=='2'&&e.key!=='3') return;
+  const t=e.target,tag=t&&t.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable)) return;
+  if(!document.body.classList.contains('playing')||paused||AWK.running) return;
+  const win=$('win'); if(win&&!win.hidden) return;
+  const pm=$('pauseMenu'); if(pm&&!pm.hidden) return;
+  e.preventDefault(); ensureAudio();
+  if(e.key==='1'){ camMenuClose(); camNextPreset(); }
+  else if(e.key==='2') camSetFollow(!camCfg.follow);
+  else resetCam();
+});
 $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);

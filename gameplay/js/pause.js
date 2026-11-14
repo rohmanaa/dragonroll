@@ -94,7 +94,7 @@
     });
     $('ecYes').addEventListener('click', ops.exitToRoom);
     doc.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape' || !ops.isPlaying()) return;
+      if (e.key !== 'Escape' || e.defaultPrevented || !ops.isPlaying()) return;
       if (!$('exitConfirm').hidden) {
         $('exitConfirm').hidden = true;
         return;
