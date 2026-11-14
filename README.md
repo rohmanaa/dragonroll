@@ -24,7 +24,7 @@ Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash
 | `karakter.html`, `dadu.html`, `efek.html`, `frame.html`, `powerup.html` | Koleksi & kustomisasi item |
 | `shop.html` | Toko (koin/emerald virtual, bukan uang sungguhan) |
 | `tambang.html` | Mini-game tambang |
-| `misi.html`, `hadiah-misi.html`, `dailyreward.html` | Misi & hadiah |
+| `hadiah-misi.html` | Hadiah harian, misi & pencapaian (versi lama `misi.html`/`dailyreward.html` diarsipkan di `old/`) |
 | `friendship.html`, `leaderboard.html`, `profile.html`, `settings.html` | Sosial, peringkat, profil, pengaturan |
 | `laporan-audit.html`, `floatingsample.html` | Dokumen audit / sampel (bukan bagian game) |
 
