@@ -56,3 +56,27 @@ Dirujuk di `gameplay/audio.js` lewat `NS='../new sound/'`. Fungsi sintetis lama 
 | `win2.mp3` | `victory` | layar menang (`celebrate`) |
 | `shuffle.mp3` | `shuffleTick` | tiap pergantian angka di meter dadu spesial |
 | `villager.mp3` | `villager` | Villager membantu (maju 5 blok) |
+
+## Suara Power (`gameplay/js/audio.js`: `POWER_SND`, `POWER_TRIG`, `POWER_OPT`)
+
+Memakai ulang file yang sudah ada (sudah diseragamkan). File gagal/tidak ada -> suara sintetis `PowerSound.js`, lalu `pop`.
+
+| Power | Dipakai/dipasang | Terpicu / menahan |
+|---|---|---|
+| Ramuan Ganjil / Genap | `new sound/gulp.mp3` | — |
+| Ender Pearl | `mob/enderman-teleport.mp3` | — |
+| Trident | `pet/storm-wolf-zap.mp3` | — |
+| Dragon Crystal | `dragon/crystal-appear.mp3` (maks 1,8 dtk) | — |
+| Ice Crystal | `dragon/crystal-break.mp3` (maks 1,4 dtk) | — |
+| Nether Star | `pet/celestial-kitsune-bell.mp3` (maks 2,2 dtk) | — |
+| Totem | `pet/celestial-kitsune-shine.mp3` (maks 1,8 dtk) | menahan: sama |
+| TNT | `mob/creeper-fuse.mp3` (maks 1,5 dtk) | ledak: `mob/creeper-explosion.mp3` |
+| Fire Charge | sintetis (pasang) | `pet/inferno-dragon-fire.mp3` (maks 1,2 dtk) |
+| Blaze Core | sintetis (pasang) | `mob/creeper-explosion.mp3` |
+| Wooden Shield | slot opsional `powerup/shield-up.mp3` | menahan: `mob/mob-punch.mp3` |
+| Iron Sword | `powerup/sword-use.mp3` | — |
+| Diamond / Netherite Sword | slot opsional `powerup/diamond-sword-use.mp3` / `powerup/netherite-sword-use.mp3`, cadangan `sword-use.mp3` | — |
+| Feather | slot opsional `powerup/feather.mp3` | — |
+| Golden Apple | slot opsional `powerup/golden-apple.mp3` | — |
+
+Slot opsional: taruh file bernama itu di `assets/sfx/powerup/` (jalankan `tools/normalize-sfx.py` agar kerasnya seragam) -> langsung terpakai tanpa ubah kode.

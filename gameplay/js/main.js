@@ -3723,6 +3723,7 @@ function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
 function powerFxPawn(key,pl){
   if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
+  if(key==='shield_block'||key==='totem_block'){ try{ sfx.powerBlock(key); }catch(e){} } /* suara menahan serangan: juga saat reduce-motion */
   try{
     if(!pl||!pl.pawn||reduce) return;
     /* Efek Power selalu di TENGAH layar (bukan di atas pion). Canvas 3D = sebesar canvas game (1 layar) agar aura/partikel tidak terpotong; model power sendiri diperkecil 1,5x (SHRINK di power-overlay.js) dari ukuran dasar 90% sisi pendek layar (320-760px) */
@@ -4675,7 +4676,7 @@ async function trapCheck(p,gid){
   const owner=trapOwner(t.owner),key=t.key,nm=PUN[key]?PUN[key][1]:'Jebakan';
   const vs=players.filter(q=>q.idx!==t.owner&&q.pos>0&&q.pos<GOAL&&Math.abs(q.pos-t.tile)<=t.radius).sort((a,b)=>(b===p)-(a===p));
   setMsg(nm+(owner?' milik '+owner.name:'')+' meledak di petak '+t.tile+'!'); fb('event','info',nm+' meledak di petak '+t.tile+'!',{gid});
-  sfx.power(key); if(bp){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan selalu terlihat di papan, termasuk mode reduce-motion */
+  sfx.power(key,'trigger'); if(bp){ bp.y+=0.4; spawnExplosion(bp); } /* ledakan selalu terlihat di papan, termasuk mode reduce-motion */
   await sleep(reduce?100:320); if(gid!==gameId) throw STALE;
   let moved=false; const parts=[];
   for(const q of vs){

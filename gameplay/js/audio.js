@@ -51,6 +51,7 @@
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUse:'powerup/sword-use.mp3', tntExplosion:'mob/creeper-explosion.mp3', /* tntExplosion = asset ledakan bersama dengan Creeper (Stage C C14) */
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
+    /* power (memakai ulang file pet/dragon yang sudah ada) */ stormZap:'pet/storm-wolf-zap.mp3', infernoFire:'pet/inferno-dragon-fire.mp3', kitsuneBell:'pet/celestial-kitsune-bell.mp3', kitsuneShine:'pet/celestial-kitsune-shine.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
     /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonSpawn:'dragon/dragon-spawn.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
                earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
@@ -78,6 +79,31 @@
      Jangan menambal suara keras/pelan lewat angka vol/boost di sini; koreksi lewat OFFSETS di skrip lalu jalankan ulang, supaya slider Efek suara adil untuk semua suara. */
   function fileSfx(key,vol,fb,boost){ if(muted||sfxV<=0) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=Math.min(1,vol*sfxV); if(boost>1) amplify(a,boost); a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
   function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
+  /* ---------- Suara Power ----------
+     POWER_SND   = suara saat Power dipakai/dipasang {f: kunci FILE, ms: batas putar (fade keluar) untuk file panjang}
+     POWER_TRIG  = suara saat jebakan meledak (fase 'trigger', dipanggil trapCheck)
+     POWER_OPT   = slot file OPSIONAL di assets/sfx/powerup/: taruh file dengan nama itu -> otomatis dipakai, tanpa ubah kode. Belum ada/gagal -> cadangan lama.
+     Tidak ada di tabel -> suara sintetis UT.PowerSound, lalu pop(). */
+  const POWER_SND={
+    potion_odd:{f:'gulp'}, potion_even:{f:'gulp'}, grass:{f:'endermanTp'}, trident:{f:'stormZap'},
+    dragon_crystal:{f:'crystalAppear',ms:1800}, ice_crystal:{f:'crystalBreak',ms:1400},
+    nether_star:{f:'kitsuneBell',ms:2200}, totem:{f:'kitsuneShine',ms:1800},
+    tnt:{f:'creeperFuse',ms:1500} /* dipasang = sumbu menyala; ledakan hanya saat terpicu */
+  };
+  const POWER_TRIG={ tnt:{f:'tntExplosion'}, fire_charge:{f:'infernoFire',ms:1200}, blaze_core:{f:'tntExplosion'} };
+  const POWER_OPT={ feather:'powerup/feather.mp3', golden_apple:'powerup/golden-apple.mp3', wooden_shield:'powerup/shield-up.mp3', diamond_sword:'powerup/diamond-sword-use.mp3', netherite_sword:'powerup/netherite-sword-use.mp3' };
+  const isSword=k=>k==='sword'||k==='diamond_sword'||k==='netherite_sword';
+  function limited(def,fb){ const a=fileSfx(def.f,1,fb); if(a&&def.ms) setTimeout(function(){ fadeOut(a,250); },def.ms); return a; }
+  function powerSynth(k){
+    const trap=(k==='fire_charge'||k==='blaze_core'); /* jebakan: saat dipasang hanya fase 'activate'; ledakan menyusul saat terpicu */
+    try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0&&PS.play(k,{phase:trap?'activate':'use',ctx:actx,volume:sfxV})) return true; }catch(e){}
+    return false;
+  }
+  function powerBase(k){ /* cadangan: file lama / sintetis / pop */
+    if(isSword(k)) return fileSfx('swordUse',1);
+    if(powerSynth(k)) return null;
+    sfx.pop(); return null;
+  }
   const ladderBeeps=()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11));
 
   const sfx={
@@ -106,11 +132,19 @@
     defeat(){ return fileSfx('defeat',1); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
        Power lain = suara sintetis UT.PowerSound (power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
-    power(k){
-      if(k==='sword'||k==='diamond_sword'||k==='netherite_sword') return fileSfx('swordUse',1); /* file nyata */
-      if(k==='tnt') return fileSfx('tntExplosion',1);
-      try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0){ if(PS.play(k,{phase:'use',ctx:actx,volume:sfxV})) return null; } }catch(e){} /* suara sintetis assets/js/power3d/PowerSound.js */
-      sfx.pop(); return null;
+    power(k,phase){
+      if(phase==='trigger'&&POWER_TRIG[k]) return limited(POWER_TRIG[k],function(){ sfx.pop(); });
+      if(POWER_OPT[k]){ /* slot opsional: file belum ada -> cadangan lama */
+        if(muted||sfxV<=0) return null;
+        try{ const a=new Audio(SFX_DIR+POWER_OPT[k]); a.volume=Math.min(1,sfxV); a.play().catch(function(){ powerBase(k); }); return a; }catch(e){ return powerBase(k); }
+      }
+      if(POWER_SND[k]) return limited(POWER_SND[k],function(){ if(!powerSynth(k)) sfx.pop(); });
+      return powerBase(k);
+    },
+    /* Shield/Totem menahan serangan (dipanggil powerFxPawn: 'shield_block' | 'totem_block') */
+    powerBlock(key){
+      if(key==='shield_block') return fileSfx('punch',1,function(){ beep(160,0.14,'square',0.08,0,70); });
+      return limited({f:'kitsuneShine',ms:1800},function(){ beep(1568,0.4,'sine',0.06); });
     },
     win(){ fileSfx('win',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */
     victory(){ return fileSfx('victory',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* layar menang / celebrate (win2.mp3, ~16 dtk) */
