@@ -27,7 +27,8 @@
 
 /* ---- tengah: karakter ---- */
 #mid{position:absolute;left:290px;top:0;width:880px;height:1080px}
-#art{position:absolute;left:90px;top:150px;width:700px;height:620px}
+/* kanvas karakter 800x900 (stage 1920x1080): tengah x=721 = tengah podium di latar; kaki dipasang ke y=778 oleh frameCam() di profile.js */
+#art{position:absolute;left:31px;top:100px;width:800px;height:900px}
 #art svg{position:absolute;left:100px;bottom:0;width:500px;height:190px}
 #art img{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);max-width:none;filter:drop-shadow(0 10px 8px rgba(0,0,0,.45));animation:bob 2.2s ease-in-out infinite}
 @keyframes bob{50%{transform:translateX(-50%) translateY(-10px)}}

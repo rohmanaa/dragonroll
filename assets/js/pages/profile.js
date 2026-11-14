@@ -63,12 +63,21 @@ function buildChar(){
   const w=new THREE.Group();w.scale.setScalar(3.7);w.position.y=0;w.add(ch.root);R.holder.add(w);R.ch=ch;R.w=w;frameCam();
   try{if(UT.AuraView&&UT.AuraFX){if(!R.aura)R.aura=UT.AuraView.create(R.scene,R.cam);R.scene.updateMatrixWorld(true);R.aura.only(ch.root,UT.AuraView.equippedKey())}}catch(e){}
 }
-/* kamera menyesuaikan tinggi model sebenarnya (+margin), supaya kepala/kaki tidak terpotong */
+/* kamera: karakter setinggi PODIUM.h px (ukuran stage 1920x1080) dengan TAPAK KAKI tepat di PODIUM.y — titik tengah permukaan atas podium
+   pada latar profile-bg.webp (pusat x=721,y=778). Aura mengikuti kotak model sehingga ikut berdiri di atas batu. */
+const PODIUM={y:778,h:430};
 function frameCam(){
   if(!R||!R.w)return;R.scene.updateMatrixWorld(true);
-  const b=new THREE.Box3().setFromObject(R.w),s=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());
-  const d=(s.y*1.3/2)/Math.tan(THREE.MathUtils.degToRad(R.cam.fov/2));
-  R.cam.position.set(0,c.y,d+s.z*.5);R.cam.lookAt(0,c.y,0);R.cam.updateProjectionMatrix();
+  const b=new THREE.Box3().setFromObject(R.w),s=b.getSize(new THREE.Vector3());
+  const art=$("#art"),H=R.cv.clientHeight||art.clientHeight||900;
+  const f=(PODIUM.y-(art.offsetTop+(art.offsetParent?art.offsetParent.offsetTop:0)))/H;   /* posisi tapak kaki di kanvas (0 atas..1 bawah) */
+  const tn=Math.tan(THREE.MathUtils.degToRad(R.cam.fov/2));
+  const vis=s.y*H/PODIUM.h,d=(vis/2)/tn,z=d+s.z*.5;
+  let ly=b.min.y+(f-.5)*vis;
+  const put=()=>{R.cam.position.set(0,ly,z);R.cam.lookAt(0,ly,0);R.cam.updateProjectionMatrix();R.cam.updateMatrixWorld(true)};
+  put();
+  const p=new THREE.Vector3(0,b.min.y,0).project(R.cam);   /* koreksi perspektif: tapak berada di kedalaman z=0 */
+  ly+=(p.y-(1-2*f))*(z*tn);put();
 }
 function sizeGL(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(SET().graphics==="high"?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.updateProjectionMatrix()}
 let lt=null;
@@ -153,7 +162,7 @@ if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok)showWallet()});
 }catch(e){console.warn("[profil] data server gagal",e)}})();
 
 /* skala kanvas 1920x1080 */
-function fit(){$("#stage").style.transform="scale("+Math.min(innerWidth/1920,innerHeight/1080)+")"}
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$("#stage").style.transform="scale("+k+")";document.documentElement.style.setProperty("--pf-s",k)}
 addEventListener("resize",fit);fit();
 draw();buildChar();
 document.documentElement.classList.add("ut-ready");
