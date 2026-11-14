@@ -52,7 +52,7 @@
     /* power */  swordUse:'powerup/sword-use.mp3', tntExplosion:'mob/creeper-explosion.mp3', /* tntExplosion = asset ledakan bersama dengan Creeper (Stage C C14) */
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
-    /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
+    /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonSpawn:'dragon/dragon-spawn.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
                earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
                /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua Crystal hancur */
                arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3',
@@ -127,7 +127,7 @@
     dragonIdle(){ fileSfx('dragonIdle',1); },
     dragonHurt(){ fileSfx('dragonHurt',1,function(){ beep(523,0.2,'square',0.05); }); },
     dragonDeath(){ fileSfx('dragonDeath',1,function(){ beep(1047,0.4,'square',0.08); }); },
-    dragonSpawn(){ return fileSfx('dragonIdle',1); },
+    dragonSpawn(){ return fileSfx('dragonSpawn',1,function(){ fileSfx('dragonIdle',1); }); }, /* growl + roar (dragon-spawn.mp3); gagal -> dragon-idle lama */
     /* Dragon Awakening: file placeholder (lihat FILE_AWAKENING); fallback sintetis = retak + gema. Tidak dipakai lagi oleh gameplay (diganti quakeStart). */
     dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio(SFX_DIR+FILE_AWAKENING); a.volume=Math.min(1,sfxV); a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
     quakeStart(){ return fileSfx('earthquake',1,function(){ noise(0.6,0.1,0,900); }); },
