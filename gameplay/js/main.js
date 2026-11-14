@@ -1137,7 +1137,9 @@ function addAnimal(B,x,z,yaw,cow,cc,dd){
   if(cow) addBox(B,x,0.44,z,0.2,0.04,0.22,d,o);
 }
 function addBamboo(B,x,z){ for(let i=0;i<5;i++){ const h=1.2+rnd()*1.4,bx=x+(rnd()-0.5)*0.7,bz=z+(rnd()-0.5)*0.7; for(let y=0;y<h;y+=0.3) addBox(B,bx,y+0.15,bz,0.09,0.3,0.09,jit(0x6FBF3A,0.08),{edge:false}); } }
+const MC_GAPX=-11.6,MC_GAPW=3; /* celah kiri board: x < MC_GAPX digeser MC_GAPW ke timur (lihat mcH) */
 function mcH(x,z){
+  if(x<MC_GAPX) x-=MC_GAPW; /* celah kosong kiri board (bekas gunung batu Dragon) dibuang selebar MC_GAPW: medan di sebelah kirinya digeser MC_GAPW ke timur (mendekat ke board) */
   if(MCFLAT){
     if(x>0&&x<4&&z<-7&&z>-13) return 0;      /* tanah datar lama (di belakang portal), dibiarkan */
     if(x>10&&x<20&&z>-7.6&&z<3) return RB;   /* tanah dasar peternakan berundak di lereng kanan (kandang diangkat sendiri-sendiri); gunung lain tetap */
@@ -1265,7 +1267,7 @@ function addGrassScenery(DB,th){
     if(Math.abs(x)<6.2&&Math.abs(z)<6.2) return false;                  /* board + pagar */
     if(Math.abs(x-PAD.x)<1.8&&Math.abs(z-PAD.z)<1.8) return false;     /* area start */
     if(x>4.6&&x<10.2&&z>-30) return false;                              /* sungai kanan + jembatan */
-    if(x>-17&&x<-7&&z>-5&&z<5) return false;                            /* gunung/sungai kiri */
+    if(x>-14&&x<-7&&z>-5&&z<5) return false;                            /* area kosong kiri board (sudah dipersempit 3 unit) */
     if(x>9.6&&x<21&&z>-8.6&&z<4.4) return false;                        /* peternakan */
     if(x>-14&&x<-8&&z>6&&z<12.5) return false;                          /* pertanian */
     if(mc&&x>-8.5&&x<4.8&&z>6&&z<13.5) return false;                    /* zona mob liar di bawah board */
@@ -1406,7 +1408,7 @@ function addMcFar(DB){
     const x=(rnd()-0.5)*64,z=(rnd()-0.5)*56;
     if(Math.abs(x)<14&&Math.abs(z)<12) continue;
     const s=0.8+rnd()*0.7;
-    if((x>-17&&x<-7.5&&z>-4&&z<4)||(x>4.4&&x<9.8&&z>-30)||(x>9.8&&x<20.4&&z>-8&&z<4)) continue; /* area gunung/sungai + dataran peternakan */
+    if((x>-14&&x<-7.5&&z>-4&&z<4)||(x>4.4&&x<9.8&&z>-30)||(x>9.8&&x<20.4&&z>-8&&z<4)) continue; /* area gunung/sungai + dataran peternakan */
     const sn=snapB(DB); lift(DB,()=>addOak(DB,x,z,s),hAt(x,z)); n++;
     if(themeKey==='minecraft'&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) rollB(DB,sn); /* di luar pulau kecil: buang (rnd sudah terpakai, urutan acak aman) */
   }
@@ -1432,7 +1434,7 @@ function addMcEnv(DB){
   addSouthMountain(DB);
   /* gunung hulu dimundurkan: kiri ke arah hutan, kanan ke belakang (utara). Sungai menyambung tanpa celah dari hulu sampai terrain z>=7. */
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
-  blockRect(-11.6+MT_SHIFT,-0.2,3.2,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
+  blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-22.9,-20.5,5.2,8.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau */
   for(let z=-20.0;z<=6.0;z+=1){ addBox(DB,7+0.5*Math.sin(z*0.7),-0.04,z,1.6,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7+0.5*Math.sin(z*0.7),z,0.04,1.6,1,Math.round(z*4)+100,4,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
   const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(z<-5.5&&x>-6.4&&x<2)||(Math.abs(x+6.9)<1.2&&Math.abs(z+3.6)<1.2)||(Math.abs(x-4.2)<1.2&&Math.abs(z+6.3)<1.2);
