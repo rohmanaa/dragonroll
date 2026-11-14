@@ -40,3 +40,5 @@
 .fc .avc img{width:100%;height:100%;object-fit:contain}
 #mx .field{height:76px;font-size:26px}
 #mbtns .btn[hidden]{display:none!important}
+/* latar voxel hati (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/friendship-voxel-hati.webp) center/cover no-repeat;opacity:.35}
