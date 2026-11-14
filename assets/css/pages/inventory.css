@@ -1,12 +1,13 @@
 /* inventory.css — halaman Inventory: tab atas (Frame, Dadu, Efek, Power-up, Pet) + isi tab dimuat di iframe. */
 html,body{background:#4b4162!important;overflow:hidden}
-#wrap{position:fixed;inset:0;display:grid;place-items:center}
+#wrap{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:3!important}
 #stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;background:none!important;overflow:visible!important;pointer-events:none;z-index:3}
 #views{position:fixed;inset:0;z-index:1;background:#4b4162}
 .view{position:absolute;inset:0;width:100%;height:100%;border:0;background:#4b4162;display:none;opacity:0;transition:opacity .18s}
 .view.on{display:block}
 .view.on.ready{opacity:1}
 #stage #back,#stage #title,#tabs{pointer-events:auto}
+#stage{pointer-events:none}
 #back{position:absolute;left:40px;top:30px;width:64px;height:72px;z-index:5}
 #back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
 #title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);color:#fff}
