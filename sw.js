@@ -3,7 +3,7 @@
    Media (gambar/font/suara, diunduh sekali oleh splash) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang sampai VERSION dinaikkan.
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh.
    Ganti/tambah aset => naikkan VERSION (cache lama otomatis dibuang). */
-const VERSION = 'ut-pwa-v155';
+const VERSION = 'ut-pwa-v156';
 const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/splash.js', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];

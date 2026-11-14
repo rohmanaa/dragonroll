@@ -15,13 +15,6 @@
 .sr .v{flex:none;min-width:0;white-space:nowrap}
 .sr .v small{white-space:nowrap}
 /* karakter turun & lebih besar (tanpa pedestal/teks nama) */
-#art{top:250px;height:720px}
 
-/* Latar halaman profil: kastel melayang + podium (assets/Images/background/profile-bg.webp).
-   Lapis atas = gambar selaras #stage (1920x1080 x skala --pf-s dari fit() di profile.js) agar podium tepat di bawah kaki karakter di semua rasio layar;
-   lapis bawah = gambar cover yang digelapkan untuk area kosong di kiri/kanan atau atas/bawah stage. Menimpa gradien bersama bg.css. */
-html,body.pf{background:
- url(../../Images/background/profile-bg.webp) center/calc(1920px*var(--pf-s,1)) calc(1080px*var(--pf-s,1)) no-repeat fixed,
- linear-gradient(rgba(10,6,30,.6),rgba(10,6,30,.6)) fixed,
- url(../../Images/background/profile-bg.webp) center/cover no-repeat fixed,
- #150f2e!important}
+/* Latar halaman profil: SATU gambar cover penuh layar (assets/Images/background/profile-bg.webp). Posisi karakter menyesuaikan podium lewat fit() di profile.js. */
+html,body.pf{background:#150f2e url(../../Images/background/profile-bg.webp) center/cover no-repeat fixed!important}

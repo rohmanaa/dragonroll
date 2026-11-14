@@ -65,12 +65,12 @@ function buildChar(){
 }
 /* kamera: karakter setinggi PODIUM.h px (ukuran stage 1920x1080) dengan TAPAK KAKI tepat di PODIUM.y — titik tengah permukaan atas podium
    pada latar profile-bg.webp (pusat x=721,y=778). Aura mengikuti kotak model sehingga ikut berdiri di atas batu. */
-const PODIUM={y:778,h:430};
+const PODIUM={f:678/900,h:430};   /* f = posisi tapak di kanvas 900px (0 atas..1 bawah); h dan posisi #art diatur ulang oleh fit() mengikuti skala latar */
 function frameCam(){
   if(!R||!R.w)return;R.scene.updateMatrixWorld(true);
   const b=new THREE.Box3().setFromObject(R.w),s=b.getSize(new THREE.Vector3());
   const art=$("#art"),H=R.cv.clientHeight||art.clientHeight||900;
-  const f=(PODIUM.y-(art.offsetTop+(art.offsetParent?art.offsetParent.offsetTop:0)))/H;   /* posisi tapak kaki di kanvas (0 atas..1 bawah) */
+  const f=PODIUM.f;
   const tn=Math.tan(THREE.MathUtils.degToRad(R.cam.fov/2));
   const vis=s.y*H/PODIUM.h,d=(vis/2)/tn,z=d+s.z*.5;
   let ly=b.min.y+(f-.5)*vis;
@@ -162,7 +162,14 @@ if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok)showWallet()});
 }catch(e){console.warn("[profil] data server gagal",e)}})();
 
 /* skala kanvas 1920x1080 */
-function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$("#stage").style.transform="scale("+k+")";document.documentElement.style.setProperty("--pf-s",k)}
+function fit(){
+  const vw=innerWidth,vh=innerHeight,k=Math.min(vw/1920,vh/1080);
+  $("#stage").style.transform="scale("+k+")";
+  /* latar = cover penuh layar; titik tengah permukaan podium di gambar (628,676 dari 1672x941) dihitung ke koordinat stage */
+  const sc=Math.max(vw/1672,vh/941),sx=(628-836)*sc/k+960,sy=(676-470.5)*sc/k+540,r=sc/(k*1.1483);
+  const art=$("#art");art.style.left=(sx-400-290)+"px";art.style.top=(sy-678)+"px";
+  PODIUM.h=430*r;if(R&&R.w)frameCam();
+}
 addEventListener("resize",fit);fit();
 draw();buildChar();
 document.documentElement.classList.add("ut-ready");
