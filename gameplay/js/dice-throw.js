@@ -167,7 +167,7 @@
 
   /* ---------- Panggung DiceKit (dadu asli dadu.html) sebagai overlay layar ---------- */
   var KW = 300, KH = 260, KDY = 8, KSC = 1 / 1.2; /* KSC: dadu 1,2x lebih kecil */
-  var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, kfadeAnim = null, khide = 0, kfade = 0, kitThrowId = 0;
+  var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, kfadeAnim = null, khide = 0, kfade = 0, kitThrowId = 0, ktrack = 0;
 
   function kmount() {
     if (kit || kfail || !win.DiceKit || !win.DiceKit.mount) return;
@@ -212,18 +212,25 @@
       var cr = (opt.canvas || doc.body).getBoundingClientRect();
       b = { x: cr.left + cr.width / 2 + (Math.random() - 0.5) * 60, y: cr.top + cr.height / 2 + (Math.random() - 0.5) * 40 };
     }
-    var x0 = a.x - KW / 2, y0 = a.y - KH / 2 - KDY, x1 = b.x - KW / 2, y1 = b.y - KH / 2 - KDY;
-    var vw = win.innerWidth, vh = win.innerHeight;
-    x1 = Math.max(-40, Math.min(vw - KW + 40, x1)); y1 = Math.max(-40, Math.min(vh - KH + 40, y1));
+    var fixedB = b, vw = win.innerWidth, vh = win.innerHeight;
     kstage.style.visibility = 'visible'; kstage.style.opacity = '1';
     kit.start();
-    var dur = opt.reduce ? 1 : 700;
-    kanim = kstage.animate ? kstage.animate([
-      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(' + (0.7 * KSC) + ')' },
-      { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 80) + 'px) scale(' + KSC + ')', offset: 0.5 },
-      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(' + KSC + ')' }
-    ], { duration: dur, easing: 'ease-out', fill: 'forwards' }) : null;
-    if (!kanim) kstage.style.transform = 'translate(' + x1 + 'px,' + y1 + 'px) scale(' + KSC + ')';
+    var dur = opt.reduce ? 1 : 700, t0 = performance.now();
+    cancelAnimationFrame(ktrack);
+    /* Posisi dadu dihitung ulang tiap frame dari titik di PAPAN (dunia 3D) -> bila layar/kamera digeser, dadu tetap di papan, bukan menempel di layar */
+    (function track() {
+      if (id !== kitThrowId || !kstage || kstage.style.visibility === 'hidden') return;
+      var k = Math.min(1, (performance.now() - t0) / dur), e = 1 - Math.pow(1 - k, 2);
+      var pa = project(head, opt), pb = opt.land ? project(opt.land, opt) : fixedB;
+      var ax = (opt.land ? pa.x : a.x), ay = (opt.land ? pa.y : a.y);
+      if (k >= 1) { ax = pb.x; ay = pb.y; }                    /* sudah mendarat: ikuti titik papan saja */
+      var x = (k >= 1 ? pb.x : ax + (pb.x - ax) * e) - KW / 2;
+      var y = (k >= 1 ? pb.y : ay + (pb.y - ay) * e) - KH / 2 - KDY - (k >= 1 ? 0 : Math.sin(Math.PI * e) * 80);
+      if (!opt.land) { x = Math.max(-40, Math.min(vw - KW + 40, x)); y = Math.max(-40, Math.min(vh - KH + 40, y)); }
+      var sc = KSC * (0.7 + 0.3 * Math.min(1, k * 2));
+      kstage.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + sc + ')';
+      ktrack = requestAnimationFrame(track);
+    })();
     try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
     var p = kit.roll(v);
     return (p ? p.then(function () { return v; }) : Promise.resolve(v)).then(function (r) {
