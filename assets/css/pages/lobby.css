@@ -35,3 +35,12 @@ html[data-graphics="low"] .mbtn img{filter:none!important}
 #quest::before{inset:0;border:0;border-image:none;background:url(../../ng/komponen/slot-equipment/slot-transparan.webp) center/100% 100% no-repeat;filter:none}
 #quest img{height:68px}
 #menu{top:296px}
+
+/* ===== emerald & coin rata kanan; kartu Hadiah gratis/Chest/Celengan tepat di bawahnya, panel abu transparan ===== */
+#cur-em{left:1300px}
+#cur-co{left:1604px}
+#side{top:124px;right:26px;gap:8px}
+.sidecard{background:none!important;border-radius:0}
+.sidecard::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:url(../../ng/komponen/slot-equipment/slot-transparan.webp) center/100% 100% no-repeat}
+.sidecard{isolation:isolate;padding-left:0}
