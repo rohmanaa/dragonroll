@@ -1,18 +1,55 @@
-/* Jalankan dari akar repo:  node tools/blocky-character/build.js
-   Membaca karakter.html (bagian 1 UTIL, 3–9: data, rig, slot, katalog, config, builder, pose) lalu menulis assets/js/blocky-character.js.
-   karakter.html TIDAK diubah. Bagian 2 (scene), 10+ (UI, kamera, loop) sengaja tidak ikut. */
-const fs=require('fs'),path=require('path'),ROOT=path.join(__dirname,'..','..');
-const src=fs.readFileSync(path.join(ROOT,'karakter.html'),'utf8');
-const re=/\/\* =+\n\s+(\d+)\. [^\n]*\n\s+=+ \*\//g,marks=[];let m;
-while((m=re.exec(src)))marks.push({n:+m[1],start:m.index,end:m.index+m[0].length});
-const sec=n=>{const i=marks.findIndex(x=>x.n===n);if(i<0)throw new Error('bagian '+n+' tidak ditemukan');const e=marks[i+1];
-  if(!e&&n!==marks[marks.length-1].n)throw new Error('bagian '+n+' tanpa penutup');return src.slice(marks[i].end,e?e.start:src.length);};
-const util=sec(1);
-let body=[3,4,5,6,7,8,9].map(sec).join('\n');
-if(!/scene\.add\(root\)/.test(body))throw new Error('scene.add(root) tidak ditemukan — struktur karakter.html berubah');
-body=body.replace('scene.add(root)','/* root tidak ditambahkan ke scene: pemakai yang menempatkan */');
-for(const bad of ['renderer','camera','showEl','getElementById'])
-  if(new RegExp('\\b'+bad+'\\b').test(body))throw new Error('referensi "'+bad+'" bocor ke builder — perbarui build.js');
-const out=fs.readFileSync(path.join(__dirname,'template.js'),'utf8').replace('/*UTIL*/',()=>util).replace('/*BODY*/',()=>body);
-fs.writeFileSync(path.join(ROOT,'assets/js/blocky-character.js'),out);
-console.log('assets/js/blocky-character.js',out.length,'bytes');
+/* Jalankan dari akar repo: node tools/blocky-character/build.js
+   template.js adalah source kanonis; asset runtime dihasilkan verbatim setelah validasi kontrak. */
+const fs = require('fs');
+const path = require('path');
+const ROOT = path.join(__dirname, '..', '..');
+const SOURCE = path.join(__dirname, 'template.js');
+const TARGET = path.join(ROOT, 'assets', 'js', 'blocky-character.js');
+const ACTIONS = ['spinball', 'toss', 'dribble', 'throw', 'mine', 'attack', 'bow', 'block', 'sad', 'cheer', 'wave', 'flip', 'backflip', 'spin', 'roll'];
+const API = [
+  'root:root', 'hand:hand', 'tick:tick', 'jump:jump', 'setMode:setMode', 'act:doAct', 'setTool:setTool',
+  'bow:bowG', 'arrow:arrowG', 'bowReleaseAt:function', 'setBowAim:function', 'get strikes(){', 'loadFromPlayer:',
+  'loadFromData:', 'loadPreset:', 'presetCount:', 'apply:apply', 'acting', 'config', 'airborne', 'height:function'
+];
+
+function validateSource(source) {
+  if (typeof source !== 'string' || source.indexOf('/* BLOCKY-CHARACTER-SOURCE:v1') !== 0) {
+    throw new Error('Marker source kanonis BlockyCharacter tidak ditemukan');
+  }
+  if (!source.includes('UT.BlockyCharacter={create:function(THREE,opts){')) {
+    throw new Error('Factory UT.BlockyCharacter.create tidak ditemukan');
+  }
+  const actionMatch = source.match(/const ACT_DUR\s*=\s*\{([^}]+)\}/);
+  if (!actionMatch) throw new Error('Daftar ACT_DUR tidak ditemukan');
+  const availableActions = new Set(Array.from(actionMatch[1].matchAll(/(?:^|,)\s*([a-z][a-z0-9]*):/g), match => match[1]));
+  const missingActions = ACTIONS.filter(action => !availableActions.has(action));
+  if (missingActions.length) throw new Error('Action BlockyCharacter hilang: ' + missingActions.join(', '));
+  const missingApi = API.filter(api => !source.includes(api));
+  if (missingApi.length) throw new Error('API BlockyCharacter hilang: ' + missingApi.join(', '));
+  if (/\bdocument\.getElementById\b/.test(source)) throw new Error('UI DOM lookup tidak boleh masuk ke renderer reusable');
+  return true;
+}
+
+function build(checkOnly) {
+  const source = fs.readFileSync(SOURCE, 'utf8');
+  validateSource(source);
+  if (checkOnly) {
+    const generated = fs.readFileSync(TARGET, 'utf8');
+    if (generated !== source) throw new Error('assets/js/blocky-character.js tidak sama dengan template kanonis');
+    return { bytes: Buffer.byteLength(source), checked: true };
+  }
+  fs.writeFileSync(TARGET, source, 'utf8');
+  return { bytes: Buffer.byteLength(source), checked: false };
+}
+
+if (require.main === module) {
+  try {
+    const result = build(process.argv.includes('--check'));
+    console.log('assets/js/blocky-character.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
+  } catch (error) {
+    console.error('BlockyCharacter build failed:', error.message);
+    process.exitCode = 1;
+  }
+}
+
+module.exports = { build, validateSource };

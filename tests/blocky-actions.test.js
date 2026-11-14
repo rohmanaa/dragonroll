@@ -74,14 +74,15 @@ t('mode jalan/lari/idle: tick stabil dan kembali ke idle; lompat selesai', () =>
   c.setMode('idle'); c.jump(); assert.strictEqual(c.airborne, true); run(c, 1); assert.strictEqual(c.airborne, false);
 });
 t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di rig', () => {
-  const g = read('gameplay.html');
+  const g = read('gameplay.html'), main = read('gameplay/js/main.js');
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
   assert.ok(idx('vendor/three.min.js') < idx('blocky-character.js'));
   assert.ok(idx('player-data.js') < idx('blocky-character.js'));
   assert.ok(idx('blocky-character.js') < idx('character-face.js'));
+  assert.ok(idx('gameplay/js/main.js') > idx('blocky-character.js'));
   const used = ['loadFromPlayer', 'loadPreset', 'loadFromData', 'setMode', 'act', 'jump', 'tick', 'height'];
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));
-  assert.ok(/UT\.AppearanceService/.test(g) && /roomAppearance/.test(g));
+  assert.ok(/UT\.AppearanceService/.test(main) && /roomAppearance/.test(main));
 });
 
 const findHead = c => { let h = null; c.root.traverse(o => { const g = o.geometry && o.geometry.parameters; if (o.isMesh && Array.isArray(o.material) && g && g.width === 0.5 && g.height === 0.5 && g.depth === 0.5) h = o; }); return h; };
@@ -122,6 +123,18 @@ t('aksi baru wave/flip/backflip/spin/roll: selesai sendiri, badan kembali tegak 
     assert.ok(Math.abs(box(c).min.y) < 0.15, type + ' kaki kembali ke lantai');
   }
 });
+t('aksi dadu spinball/toss/dribble/throw dan bow tetap tersedia pada API gameplay', () => {
+  const c = make();
+  assert.ok(c.bow && c.arrow);
+  assert.strictEqual(c.bowReleaseAt(1), 0.74);
+  assert.strictEqual(typeof c.setBowAim, 'function');
+  for (const type of ['spinball', 'toss', 'dribble', 'throw', 'bow']) {
+    c.act(type);
+    assert.strictEqual(c.acting, type, type);
+    run(c, 4);
+    assert.strictEqual(c.acting, null, type);
+  }
+});
 t('arah salto: flip ke depan (rotasi x +), backflip ke belakang (rotasi x -); salto saat sedang di udara diabaikan', () => {
   const a = make(), b = make(); a.tick(0.016); b.tick(0.016);
   a.act('flip'); b.act('backflip'); run(a, 0.3); run(b, 0.3);
@@ -136,12 +149,12 @@ t('lari lalu loncat lalu berguling (urutan lobby) stabil: tinggi badan ~2 dan ti
 });
 
 t('lobby.html: semua aksi yang dijadwalkan dikenal rig, dan jadwal dipanggil di loop', () => {
-  const l = read('lobby.html'), names = new Set(); let m; const re = /bc\.act\('([a-z]+)'\)/g;
+  const l = read('assets/js/pages/lobby.js'), names = new Set(); let m; const re = /bc\.act\('([a-z]+)'\)/g;
   while ((m = re.exec(l))) names.add(m[1]);
   assert.ok(names.size >= 6, 'aksi lobby: ' + [...names]);
   for (const nm of names) { const c = make(); c.tick(0.016); c.act(nm); assert.strictEqual(c.acting, nm, 'aksi lobby tidak dikenal: ' + nm); }
-  assert.ok(/bc\.tick\(dt\);lobbyStep\(dt\)/.test(l), 'lobbyStep dipanggil tiap frame');
-  assert.ok(/lobbyTap\(\);buzz\(\)/.test(l), 'tap karakter memicu aksi');
+  assert.ok(/bc\.tick\(motionDt\);stepLobby\(motionDt\)/.test(l), 'stepLobby dipanggil tiap frame');
+  assert.ok(/startLobbyAct\(\);buzz\(\)/.test(l), 'tap karakter memicu aksi');
 });
 
 const meshCount = c => { let k = 0; c.root.traverse(o => { if (o.isMesh) k++; }); return k; };

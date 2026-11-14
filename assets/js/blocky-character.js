@@ -1,7 +1,7 @@
-/* assets/js/blocky-character.js — GENERATED dari karakter.html oleh tools/blocky-character/build.js. JANGAN edit manual.
-   Karakter blocky (rig + katalog item + builder + animasi) yang SAMA dengan halaman Karakter, tanpa UI/scene/kamera.
-   Dipakai halaman lain (mis. efek.html) agar menampilkan karakter pemain yang sebenarnya.
-   Regenerasi bila karakter.html berubah:  node tools/blocky-character/build.js
+/* BLOCKY-CHARACTER-SOURCE:v1
+   Source kanonis renderer reusable UT.BlockyCharacter; build.js menyalin template ini ke asset runtime.
+   Editor Karakter berada di assets/js/pages/karakter.js dan bukan source generator renderer reusable.
+   Jangan mengedit assets/js/blocky-character.js secara langsung; regenerasi dengan node tools/blocky-character/build.js.
    Perlu: global THREE (r128), ItemCatalog, PlayerData (dimuat sebelum create() dipanggil).
 
    const c = UT.BlockyCharacter.create(THREE);   // c.root = THREE.Group (kaki di y=0, menghadap +z, tinggi ~2 satuan)
@@ -988,7 +988,7 @@ function applyRig(){
 }
 
 
-/* ---- Aksi sekali pakai (tidak ada di karakter.html): attack = ayun senjata, block = pose bertahan + perisai ----
+/* ---- Aksi sekali pakai: attack = ayun senjata, block = pose bertahan + perisai ----
    Ditumpuk di atas pose normal (jalan/lari/idle) lewat applyAct di tick, lalu memudar kembali. */
 const ACT_W={rArmS:-2.9,rElbow:-0.5,rWrist:1.2,rArmZ:-0.15,lArmS:-0.4,lElbow:-0.5,lArmZ:0.4,lean:-0.2,twist:-0.45,headX:-0.1,headY:-0.3,rLegT:0.3,rKnee:0.1,lLegT:-0.35,lKnee:0.25,cape:0.4,tail:0.5};
 const ACT_S={rArmS:-0.9,rElbow:-0.15,rWrist:-0.6,rArmZ:-0.05,lArmS:0.4,lElbow:-0.3,lArmZ:0.5,lean:0.35,twist:0.4,headX:0.1,headY:0.28,rLegT:-0.5,rKnee:0.6,lLegT:0.5,lKnee:0.05,cape:0.7,tail:0.7};
@@ -1112,7 +1112,7 @@ function applyAct(T,dt){
   }
   for(const k in pose)T[k]=lerp(T[k],pose[k],w);
 }
-/* ---- API (loop & loadCfg disalin dari bagian 12 karakter.html) ---- */
+/* ---- API renderer reusable ---- */
 function tick(dt){
   dt=Math.min(Math.max(dt,0),0.05);time+=dt;
   const tl=mode==='walk'?1:(mode==='run'?2:0);
