@@ -29,3 +29,9 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .mbtn .dot{right:-8px;top:-8px}
 #nav .tile .ico img.bag{max-height:104px}
 html[data-graphics="low"] .mbtn img{filter:none!important}
+
+/* ===== panel Misi Harian: latar abu transparan (sama dengan tombol menu) + lebih tinggi ===== */
+#quest{height:98px;gap:18px}
+#quest::before{inset:0;border:0;border-image:none;background:url(../../ng/komponen/slot-equipment/slot-transparan.webp) center/100% 100% no-repeat;filter:none}
+#quest img{height:68px}
+#menu{top:296px}
