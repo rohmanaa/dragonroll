@@ -166,7 +166,7 @@
 
 
   /* ---------- Panggung DiceKit (dadu asli dadu.html) sebagai overlay layar ---------- */
-  var KW = 300, KH = 260, KDY = 8;
+  var KW = 300, KH = 260, KDY = 8, KSC = 1 / 1.2; /* KSC: dadu 1,2x lebih kecil */
   var kit = null, kstage = null, kfail = false, kwant = { key: 'klasik', sound: true, volume: 1 }, kanim = null, kfadeAnim = null, khide = 0, kfade = 0, kitThrowId = 0;
 
   function kmount() {
@@ -206,7 +206,9 @@
     var head = pawnPos.clone(); head.y += 0.9;
     var spot = landSpot(pawnPos, opt.camera);
     var a = project(head, opt), b = project(spot, opt);
-    if (opt.center !== false) {                                /* dadu dilempar ke TENGAH layar/papan, bukan dekat bidak */
+    if (opt.land) {                                            /* jatuh di PAPAN, di depan bidak (maks 3 petak dari titik lempar) */
+      b = project(opt.land, opt);
+    } else if (opt.center !== false) {                         /* cadangan: tengah layar bila titik depan bidak tak diberikan */
       var cr = (opt.canvas || doc.body).getBoundingClientRect();
       b = { x: cr.left + cr.width / 2 + (Math.random() - 0.5) * 60, y: cr.top + cr.height / 2 + (Math.random() - 0.5) * 40 };
     }
@@ -217,11 +219,11 @@
     kit.start();
     var dur = opt.reduce ? 1 : 700;
     kanim = kstage.animate ? kstage.animate([
-      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(.7)' },
-      { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 80) + 'px) scale(1)', offset: 0.5 },
-      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(1)' }
+      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(' + (0.7 * KSC) + ')' },
+      { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 80) + 'px) scale(' + KSC + ')', offset: 0.5 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(' + KSC + ')' }
     ], { duration: dur, easing: 'ease-out', fill: 'forwards' }) : null;
-    if (!kanim) kstage.style.transform = 'translate(' + x1 + 'px,' + y1 + 'px)';
+    if (!kanim) kstage.style.transform = 'translate(' + x1 + 'px,' + y1 + 'px) scale(' + KSC + ')';
     try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
     var p = kit.roll(v);
     return (p ? p.then(function () { return v; }) : Promise.resolve(v)).then(function (r) {
