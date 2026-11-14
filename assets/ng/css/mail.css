@@ -31,3 +31,5 @@
 #mx .rw{justify-content:center;margin-top:22px}
 #mx .tmx{display:block;margin-top:18px;text-align:right;font:800 20px var(--font-body);color:#b9b1d3}
 #mbtns .btn[hidden]{display:none!important}
+/* latar voxel pesan (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/mail-voxel-pesan.webp) center/cover no-repeat;opacity:.35}
