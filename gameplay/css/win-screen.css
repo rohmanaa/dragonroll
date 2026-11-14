@@ -55,7 +55,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
 
 #win.win-result .lm-body::before {
   content: "";
-  display: block;
+  display: none; /* banner hasil baru (emas bermahkota / merah) sudah membawa ornamennya sendiri */
   flex: none;
   width: clamp(38px, 6vh, 66px);
   height: clamp(38px, 6vh, 66px);
@@ -82,22 +82,32 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
 #win.win-result .lm-eyebrow::after { content: none !important; display: none !important; }
 
 #win.win-result #winTitle {
+  --wt-w: min(720px, 94vw, 69vh);               /* lebar banner; tinggi banner <= ~22vh */
   display: grid !important;
   place-items: center !important;
   box-sizing: border-box !important;
-  width: min(860px, 96vw) !important;
-  min-height: clamp(72px, 14vh, 142px) !important;
+  width: var(--wt-w) !important;
+  aspect-ratio: 1400 / 446 !important;       /* rasio banner-hasil-menang-emas.webp */
+  min-height: 0 !important;
   margin: 0 !important;
-  padding: 12px 8% !important;
-  color: #fff3d0 !important;
-  background: url("../../assets/ng/komponen/banner-label/pita-sudut-biru-polos.webp") center / 100% 100% no-repeat !important;
-  font: 800 clamp(30px, 5.2vw, 66px)/1.05 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
+  padding: calc(var(--wt-w) * .08) calc(var(--wt-w) * .12) 0 !important; /* teks di antara dua garis banner (persen padding mengacu ke induk, jadi pakai lebar banner) */
+  color: #fff7dc !important;
+  background: url("../../assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp") center / 100% 100% no-repeat !important;
+  font: 800 40px/1.05 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
+  font-size: calc(var(--wt-w) * .076) !important; /* satu baris; nama panjang membungkus rapi */
+  text-wrap: balance;
+  text-align: center !important;
   text-transform: uppercase !important;
-  text-shadow: 0 4px 0 rgba(10, 30, 80, .85) !important;
+  text-shadow: 0 3px 0 #7a3b00, 0 0 14px rgba(120, 50, 0, .85) !important;
 }
 
 #win[data-state="lose"].win-result #winTitle {
-  background-image: url("../../assets/ng/komponen/banner-label/banner-judul-merah-polos.webp") !important;
+  --wt-w: min(760px, 94vw, 85vh);
+  aspect-ratio: 1400 / 363 !important;       /* rasio banner-hasil-kalah-merah.webp */
+  padding: 0 calc(var(--wt-w) * .12) !important;
+  color: #ffe3e3 !important;
+  background-image: url("../../assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp") !important;
+  text-shadow: 0 3px 0 #3a0008, 0 0 14px rgba(255, 30, 50, .75) !important;
 }
 
 #win.win-result .lm-note {
@@ -339,7 +349,8 @@ body:has(#win.win-result:not([hidden])) #utGameplayHud { visibility: hidden !imp
 
 @media (max-width: 600px) {
   #win.win-result .lm-body { width: 100% !important; gap: 8px !important; }
-  #win.win-result #winTitle { width: 100% !important; min-height: clamp(64px, 12vh, 92px) !important; }
+  #win.win-result #winTitle { --wt-w: min(94vw, 69vh); }
+  #win[data-state="lose"].win-result #winTitle { --wt-w: min(94vw, 85vh); }
   #win.win-result .win-result__rewards { gap: 4px; }
   #win.win-result .win-result__progress { width: min(430px, 100%); gap: 8px; }
   #win.win-result .win-result__level-badge { width: 48px; height: 48px; }

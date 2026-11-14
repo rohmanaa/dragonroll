@@ -1030,17 +1030,39 @@ html body #puCard.pucard {
   background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .94) 14%, rgba(26, 14, 34, .94) 86%, transparent) !important;
   box-shadow: none !important;
 }
-#utGameplayHud .ut-ghud-c::before {
+/* Banner boss bertengkorak (banner-boss-tengkorak.webp, rasio 1400:638). Hanya combat biasa; fase Awakening tidak disentuh.
+   ::after = gambar banner (agak transparan, atur lewat --boss-banner-opacity); ::before = teks "BOSS" tepat di tengah panelnya. */
+#utGameplayHud .ut-ghud-c:not([data-awakening="true"]) { --boss-banner-w: 360px; --boss-banner-h: 164px; --boss-banner-opacity: .88; }
+#utGameplayHud .ut-ghud-c:not([data-awakening="true"])::before {
   content: "BOSS";
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
-  width: 300px;
-  height: 70px;
-  margin: -4px auto 0;
+  box-sizing: border-box;
+  width: var(--boss-banner-w);
+  height: var(--boss-banner-h);
+  margin: 0 auto;
+  padding-bottom: 6px; /* panel tengah banner sedikit di atas titik tengah gambar */
   color: #ffe9d0;
-  background: url("../../referensi/newgui/game/assets/komponen/banner-label/label-merah-polos.webp") center / 100% 100% no-repeat;
-  font: 40px/1 var(--gh-title);
+  text-shadow: 0 0 12px #ff2a2a, 0 3px 0 #3a0000;
+  font: 34px/1 var(--gh-title);
+  letter-spacing: .06em;
 }
+#utGameplayHud .ut-ghud-c:not([data-awakening="true"])::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 0;
+  width: var(--boss-banner-w);
+  height: var(--boss-banner-h);
+  transform: translateX(-50%);
+  background: url("../../assets/ng/komponen/banner-label/banner-boss-tengkorak.webp") center / 100% 100% no-repeat;
+  opacity: var(--boss-banner-opacity);
+  pointer-events: none;
+}
+#utGameplayHud .ut-ghud-c:not([data-awakening="true"]) > * { position: relative; z-index: 1; }
 #utGameplayHud .ut-ghud-cw {
   color: #ffe9a0 !important;
   font: 800 28px/1.2 var(--gh-body) !important;
@@ -1636,10 +1658,10 @@ html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) {
   box-shadow: 0 6px 0 rgba(10, 6, 25, .45), 0 0 22px rgba(255, 90, 108, .28) !important;
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"])::before {
-  width: 150px;
-  height: 38px;
-  margin: 0 auto;
-  font-size: 26px;
+  width: var(--boss-banner-w);
+  height: var(--boss-banner-h);
+  margin: 0 auto -14px; /* ruang transparan bawah banner dipakai teks di bawahnya */
+  font-size: 34px;
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-cw { font-size: 24px !important; }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) > p:not(.ut-ghud-cw):not(.ut-ghud-hp) { font-size: 20px !important; }

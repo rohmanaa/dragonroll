@@ -20,25 +20,9 @@
     return n;
   }
 
-  /* Lencana perisai merah + sayap + panji + pita (SVG vektor: tajam di ukuran besar). */
-  var BADGE_SVG =
-    '<svg viewBox="0 0 580 440" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-    '<defs>' +
-    '<linearGradient id="luWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfc6c0"/></linearGradient>' +
-    '<linearGradient id="luGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset=".6" stop-color="#f5a623"/><stop offset="1" stop-color="#d9760f"/></linearGradient>' +
-    '<linearGradient id="luRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5233f"/><stop offset="1" stop-color="#a3122c"/></linearGradient>' +
-    '</defs>' +
-    '<g id="luWingL" fill="url(#luWing)" stroke="#a89c96" stroke-width="3" stroke-linejoin="round">' +
-    '<path d="M215 215 L20 20 L50 175 L8 150 L60 232 L18 235 L90 290 L60 308 L150 335 L215 300Z"/>' +
-    '</g>' +
-    '<use href="#luWingL" transform="translate(580 0) scale(-1 1)"/>' +
-    '<path d="M205 70 L240 30 L262 120 L215 130Z" fill="#2b5cc4" stroke="#17327a" stroke-width="3"/>' +
-    '<path d="M375 70 L340 30 L318 120 L365 130Z" fill="#2b5cc4" stroke="#17327a" stroke-width="3"/>' +
-    '<path d="M240 330 L290 440 L340 330 L335 250 L245 250Z" fill="url(#luRed)" stroke="url(#luGold)" stroke-width="10" stroke-linejoin="round"/>' +
-    '<path d="M290 40 C350 75 415 80 440 85 C440 190 425 275 290 345 C155 275 140 190 140 85 C165 80 230 75 290 40Z" fill="url(#luGold)" stroke="#b86a0c" stroke-width="4"/>' +
-    '<path d="M290 70 C340 98 392 104 414 108 C414 195 402 258 290 318 C178 258 166 195 166 108 C188 104 240 98 290 70Z" fill="url(#luRed)" stroke="#ffe27a" stroke-width="5"/>' +
-    '<path d="M290 12 L325 40 L308 72 L272 72 L255 40Z" fill="#e5233f" stroke="url(#luGold)" stroke-width="8" stroke-linejoin="round"/>' +
-    '</svg>';
+  /* Lencana perisai merah bersayap (webp). Alamat dihitung dari base dokumen agar benar di halaman mana pun. */
+  var BADGE_SRC = 'assets/ng/komponen/hud/lencana-level-sayap.webp';
+  function badgeUrl() { try { return new win.URL(BADGE_SRC, doc.baseURI).href; } catch (e) { return BADGE_SRC; } }
 
   function sparks(host) {
     for (var i = 0; i < 18; i++) {
@@ -79,9 +63,9 @@
     var t = mk('h2', 'lu-modal__title', 'Kamu naik level!'); t.id = 'luTitle'; m.appendChild(t);
 
     var b = mk('div', 'lu-modal__badge');
-    b.innerHTML = BADGE_SVG; /* konstanta statis milik kita, bukan input pengguna */
+    var bi = doc.createElement('img'); bi.src = badgeUrl(); bi.alt = ''; bi.draggable = false; b.appendChild(bi);
     b.appendChild(mk('div', 'lu-modal__lvl-label', 'LEVEL'));
-    b.appendChild(mk('div', 'lu-modal__lvl-num', String(lv)));
+    b.appendChild(mk('div', 'lu-modal__lvl-num' + (lv >= 100 ? ' is-long' : ''), String(lv)));
     m.appendChild(b);
 
     var rw = Array.isArray(opts.rewards) ? opts.rewards.filter(function (r) { return r && r.icon; }).slice(0, 5) : [];
