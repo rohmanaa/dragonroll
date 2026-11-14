@@ -498,7 +498,8 @@ function blockRect(cx,cz,hx,hz){ NOWALK.push([cx-hx,cx+hx,cz-hz,cz+hz]); }
 function penBlocked(x,z){ for(let i=0;i<NOWALK.length;i++){ const r=NOWALK[i]; if(x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]) return true; } return false; } /* hewan kandang: di atas dataran, hanya terhalang benda (palung, jerami, pohon), bukan tinggi gunung */
 function walkBlocked(x,z){
   if(Math.abs(x)<5.9&&Math.abs(z)<5.9) return true;
-  if(x>4.9&&x<9.1&&z>-30) return true; /* air sungai kanan (termasuk hilir yang melebar) */
+  if(themeKey==='minecraft'){ if(nearRiver(x,z,0.15)) return true; }
+  else if(x>4.9&&x<9.1&&z>-30) return true; /* air sungai kanan (termasuk hilir yang melebar) */
   if(hAt(x,z)>0) return true;
   if(TILES.cells&&(TILES.cells[Math.floor(x)+','+Math.floor(z)]!==undefined||(TILES.fort&&x>TILES.fort.x0-1&&x<TILES.fort.x1+1&&z>TILES.fort.z0-1&&z<TILES.fort.z1+1))) return true; /* papan Nether: pulau & benteng */
   for(let i=0;i<NOWALK.length;i++){ const r=NOWALK[i]; if(x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]) return true; }
@@ -733,11 +734,11 @@ function addRanch(DB){
   lift(DB,()=>{ /* pohon, sarang lebah, bunga: di tanah dasar */
   /* pohon + sarang lebah di pinggir peternakan, di luar pagar */
   const hive=(x,y,z)=>{ addBox(DB,x,y,z,0.28,0.28,0.28,W(0xE2B24A,0.05)); addBox(DB,x,y-0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y+0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y-0.04,z+0.145,0.1,0.06,0.02,0x2A0A0A,F); };
-  [[10.9,1.8,0.7],[19.0,2.3,0.75]].forEach(o=>{ addOak(DB,o[0],o[1],o[2]); blockRect(o[0],o[1],0.5,0.5); hive(o[0]+0.28,0.78,o[1]); RANCH.bees.push({cx:o[0]+0.28,cy:0.95,cz:o[1],r:0.5},{cx:o[0]+0.28,cy:1.2,cz:o[1],r:0.7}); });
+  [[20.2,-0.9,0.7],[19.0,2.3,0.75]].forEach(o=>{ addOak(DB,o[0],o[1],o[2]); blockRect(o[0],o[1],0.5,0.5); hive(o[0]+0.28,0.78,o[1]); RANCH.bees.push({cx:o[0]+0.28,cy:0.95,cz:o[1],r:0.5},{cx:o[0]+0.28,cy:1.2,cz:o[1],r:0.7}); });
   addBox(DB,17.3,0.3,2.3,0.08,0.6,0.08,W(0x6B4423,0.05),F); hive(17.3,0.74,2.3); RANCH.bees.push({cx:17.3,cy:0.9,cz:2.3,r:0.5},{cx:17.3,cy:0.85,cz:2.3,r:0.7});
   addOak(DB,11.2,-6.2,0.8); blockRect(11.2,-6.2,0.5,0.5); /* pohon di pojok atas kiri lereng */
   /* bunga di sekitar sarang */
-  for(let i=0;i<14;i++){ const x=10.6+lr()*8.4,z=2.0+lr()*0.7; if(x>13.4&&x<17.0) continue; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
+  for(let i=0;i<14;i++){ const x=11.2+lr()*9.0,z=2.0+lr()*0.7; if(x>13.4&&x<17.0) continue; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
   },RB);
   TORCH.forEach(t=>addTorch(DB,t[0],t[1],t[2])); RANCH.bees.forEach(b=>{ b.cy+=RB; });
   /* mob liar di bawah board, di pinggir pohon (1 golem saja). Mob jahat hanya muncul malam: lihat syncHostNight */
@@ -1047,21 +1048,30 @@ function addEnderman(B,x,z,h){
   q(0,0.88,0.103,0.12,0.015,0.02,0x0A0810,F);
   [[-0.2,0.5,0.06],[0.21,0.82,-0.05],[0.16,0.3,0.1],[-0.17,1.12,0]].forEach(a=>q(a[0],a[1],a[2],0.03,0.03,0.03,e,F));
 }
-function addMcHouse(B,x,z){
-  /* Rumah detail: pondasi batu, tiang sudut kayu, papan, atap bertingkat + bubungan, pintu berbingkai, jendela berbingkai + daun jendela + kotak bunga, cerobong. Footprint & posisi jendela/pintu sama dengan versi lama (glow jendela & blockRect tetap pas). Tanpa rnd() ekstra agar seed dunia tidak bergeser. */
-  const w=0xB98A4E,r=0x7A4A2A,F={edge:false},wd=0x3E2612,Q=(dx,dy,dz,ww,hh,dd,c,f)=>addBox(B,x+dx,dy,z+dz,ww,hh,dd,c,f);
+function addMcHouse(B,x,z,v){
+  /* Rumah detail: pondasi batu, tiang sudut kayu, papan, atap bertingkat + bubungan, pintu berbingkai, jendela berbingkai + daun jendela, cerobong.
+     Footprint & posisi jendela/pintu sama untuk semua varian (glow jendela & blockRect tetap pas). v = varian 0..3 (palet + ciri khas): 0 kayu oak, 1 kayu spruce + atap slate + tumpukan kayu, 2 plester birch + atap bata + kanopi pintu, 3 batu berlumut + atap rumput + gudang belakang.
+     Tanpa rnd() ekstra agar seed dunia tidak bergeser. */
+  v=(v|0)&3;
+  const P=[
+    {w:0xB98A4E,r:0x7A4A2A,cp:0x5A3A1E,ln:0xA07840,rt:0x4A2E18,rl:0x6A3F22,rg:0x5E3820,door:0x5B3A1E,sh:0x2F6B3A,fnd:0x8A8A8A,ch:0x6E6E6E},
+    {w:0x7A5230,r:0x4A5663,cp:0x2E1E10,ln:0x5E3D22,rt:0x2C343E,rl:0x3B4552,rg:0x38424E,door:0x3A2412,sh:0x3A4E6B,fnd:0x6E6E6E,ch:0x59595C},
+    {w:0xE6DCC0,r:0xB5483A,cp:0x5A3A1E,ln:0xCFC3A2,rt:0x7A2E26,rl:0x9A3C30,rg:0x8A3328,door:0x6A4222,sh:0xA33A3A,fnd:0x9A9A92,ch:0x8A6A5A},
+    {w:0x8E908B,r:0x4D7A3E,cp:0x6B6D68,ln:0x7C7E79,rt:0x2F5128,rl:0x3E6633,rg:0x3A6030,door:0x4A3320,sh:0x5A5A5A,fnd:0x73736E,ch:0x5E5E5A}
+  ][v];
+  const w=P.w,r=P.r,F={edge:false},wd=0x3E2612,Q=(dx,dy,dz,ww,hh,dd,c,f)=>addBox(B,x+dx,dy,z+dz,ww,hh,dd,c,f);
   addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05));                       /* dinding (1x jit seperti dulu) */
-  Q(0,0.06,0,1.57,0.12,1.27,0x8A8A8A); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
-  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,0x5A3A1E))); /* tiang sudut */
-  [0.3,0.62].forEach(y=>{ Q(0,y,0.603,1.38,0.025,0.01,0xA07840,F); Q(0,y,-0.603,1.38,0.025,0.01,0xA07840,F); }); /* garis papan depan & belakang */
-  [0.3,0.62].forEach(y=>{ Q(0.753,y,0,0.01,0.025,1.1,0xA07840,F); Q(-0.753,y,0,0.01,0.025,1.1,0xA07840,F); });
+  Q(0,0.06,0,1.57,0.12,1.27,P.fnd); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
+  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,P.cp))); /* tiang sudut */
+  [0.3,0.62].forEach(y=>{ Q(0,y,0.603,1.38,0.025,0.01,P.ln,F); Q(0,y,-0.603,1.38,0.025,0.01,P.ln,F); }); /* garis papan depan & belakang */
+  [0.3,0.62].forEach(y=>{ Q(0.753,y,0,0.01,0.025,1.1,P.ln,F); Q(-0.753,y,0,0.01,0.025,1.1,P.ln,F); });
   /* atap */
-  Q(0,0.91,0,1.74,0.04,1.44,0x4A2E18,F);
+  Q(0,0.91,0,1.74,0.04,1.44,P.rt,F);
   Q(0,1.0,0,1.7,0.2,1.4,r); Q(0,1.2,0,1.3,0.2,1.0,r); Q(0,1.4,0,0.9,0.2,0.6,r);
-  Q(0,1.535,0,0.96,0.07,0.66,0x5E3820); Q(0,1.58,0,0.5,0.04,0.3,0x4A2E18,F);
-  [1.0,1.2,1.4].forEach((y,k)=>{ const ww=[1.71,1.31,0.91][k],dd=[1.41,1.01,0.61][k]; Q(0,y-0.085,0,ww,0.03,dd,0x6A3F22,F); }); /* garis genteng */
+  Q(0,1.535,0,0.96,0.07,0.66,P.rg); Q(0,1.58,0,0.5,0.04,0.3,P.rt,F);
+  [1.0,1.2,1.4].forEach((y,k)=>{ const ww=[1.71,1.31,0.91][k],dd=[1.41,1.01,0.61][k]; Q(0,y-0.085,0,ww,0.03,dd,P.rl,F); }); /* garis genteng */
   /* pintu */
-  Q(0,0.32,0.605,0.38,0.66,0.02,wd); Q(0,0.3,0.61,0.3,0.6,0.04,0x5B3A1E);
+  Q(0,0.32,0.605,0.38,0.66,0.02,wd); Q(0,0.3,0.61,0.3,0.6,0.04,P.door);
   Q(0,0.3,0.633,0.01,0.56,0.01,0x3E2612,F); Q(0,0.46,0.633,0.26,0.01,0.01,0x3E2612,F); Q(0,0.2,0.633,0.26,0.01,0.01,0x3E2612,F);
   Q(0.09,0.3,0.636,0.035,0.035,0.02,0xFFD23F,F); Q(0,0.03,0.74,0.46,0.06,0.2,0x9A9A9A); Q(0,0.065,0.7,0.4,0.01,0.1,0xB0B0B0,F);
   /* jendela depan (posisi sama dengan glow) */
@@ -1069,18 +1079,32 @@ function addMcHouse(B,x,z){
     Q(cx,0.55,0.603,0.33,0.33,0.02,wd);
     Q(cx,0.55,0.61,0.25,0.25,0.04,0x9ADFF5);
     Q(cx,0.55,0.645,0.012,0.25,0.012,wd,F); Q(cx,0.55,0.645,0.25,0.012,0.012,wd,F);
-    Q(cx+a*0.2,0.55,0.62,0.07,0.31,0.03,0x2F6B3A); Q(cx-a*0.2,0.55,0.62,0.07,0.31,0.03,0x2F6B3A);
-    Q(cx,0.36,0.66,0.34,0.07,0.1,0x6A4220);
-    [[-0.1,0xE24A4A],[-0.03,0xFFD23F],[0.04,0xFF8FC8],[0.1,0xE24A4A]].forEach(f=>Q(cx+f[0],0.415,0.665,0.045,0.05,0.045,f[1],F));
-    Q(cx+0.0,0.39,0.665,0.3,0.02,0.06,0x2F7F2E,F);
+    Q(cx+a*0.2,0.55,0.62,0.07,0.31,0.03,P.sh); Q(cx-a*0.2,0.55,0.62,0.07,0.31,0.03,P.sh);
+    if(v===0||v===2){ /* kotak bunga di bawah jendela */
+      Q(cx,0.36,0.66,0.34,0.07,0.1,0x6A4220);
+      [[-0.1,0xE24A4A],[-0.03,0xFFD23F],[0.04,0xFF8FC8],[0.1,0xE24A4A]].forEach(f=>Q(cx+f[0],0.415,0.665,0.045,0.05,0.045,f[1],F));
+      Q(cx+0.0,0.39,0.665,0.3,0.02,0.06,0x2F7F2E,F);
+    }else{ Q(cx,0.37,0.655,0.38,0.05,0.07,P.cp); } /* ambang jendela polos */
   });
   /* jendela samping */
   [-1,1].forEach(a=>{ Q(a*0.753,0.55,0,0.02,0.3,0.3,wd); Q(a*0.762,0.55,0,0.02,0.22,0.22,0x9ADFF5); Q(a*0.772,0.55,0,0.012,0.22,0.012,wd,F); Q(a*0.772,0.55,0,0.012,0.012,0.22,wd,F); });
-  /* cerobong */
-  Q(0.5,1.45,-0.2,0.22,0.55,0.22,0x6E6E6E); [1.3,1.45,1.6].forEach((y,k)=>Q(0.5,y,-0.087,0.22,0.03,0.01,0x5A5A5A,F));
-  Q(0.5,1.75,-0.2,0.3,0.06,0.3,0x4E4E4E); Q(0.5,1.8,-0.2,0.16,0.05,0.16,0x1A1A1A,F);
-  /* peti kayu kecil di samping */
-  Q(-0.98,0.12,0.5,0.24,0.24,0.24,0xA8742E); Q(-0.98,0.12,0.5,0.25,0.03,0.25,0x6A4220,F); Q(-0.98,0.2,0.5,0.25,0.03,0.25,0x6A4220,F);
+  /* cerobong (v1 & v3 di sisi kiri) */
+  const cx=(v===1||v===3)?-0.5:0.5;
+  Q(cx,1.45,-0.2,0.22,0.55,0.22,P.ch); [1.3,1.45,1.6].forEach(y=>Q(cx,y,-0.087,0.22,0.03,0.01,0x5A5A5A,F));
+  Q(cx,1.75,-0.2,0.3,0.06,0.3,0x4E4E4E); Q(cx,1.8,-0.2,0.16,0.05,0.16,0x1A1A1A,F);
+  /* ciri khas per varian */
+  if(v===1){ /* tumpukan kayu bakar di sisi kanan + lentera di samping pintu */
+    Q(1.0,0.1,0.3,0.28,0.2,0.8,0x7A4E2A); Q(1.0,0.3,0.3,0.28,0.2,0.7,0x6B4423); Q(1.0,0.46,0.3,0.26,0.12,0.6,0x7A4E2A);
+    Q(-0.3,0.78,0.64,0.07,0.1,0.07,0x2E2E2E); Q(-0.3,0.74,0.64,0.05,0.05,0.05,0xFFD23F,F);
+  }else if(v===2){ /* balok kayu bingkai + kanopi kecil di atas pintu */
+    [-0.72,0.72].forEach(xx=>Q(xx,0.45,0.607,0.07,0.9,0.012,P.cp,F)); Q(0,0.88,0.607,1.5,0.06,0.012,P.cp,F);
+    Q(0,0.8,0.8,0.74,0.05,0.34,r); [-0.33,0.33].forEach(xx=>Q(xx,0.4,0.94,0.06,0.8,0.06,P.cp));
+  }else if(v===3){ /* lumut di dinding batu + gudang kecil di belakang */
+    [[-0.52,0.2],[0.28,0.12],[0.6,0.34]].forEach(m=>Q(m[0],m[1],0.606,0.22,0.14,0.012,0x5F8A4A,F));
+    Q(0,0.3,-0.95,1.0,0.6,0.7,jit(w,0.04)); Q(0,0.64,-0.95,1.16,0.08,0.86,r); Q(0,0.7,-0.95,0.8,0.06,0.5,P.rt,F);
+  }
+  /* peti kayu kecil di samping (v0, v2, v3) */
+  if(v!==1){ Q(-0.98,0.12,0.5,0.24,0.24,0.24,0xA8742E); Q(-0.98,0.12,0.5,0.25,0.03,0.25,0x6A4220,F); Q(-0.98,0.2,0.5,0.25,0.03,0.25,0x6A4220,F); }
 }
 function addPortal(B,x,z,y0){
   for(let i=0;i<4;i++) for(let j=0;j<5;j++){
@@ -1139,20 +1163,36 @@ function addAnimal(B,x,z,yaw,cow,cc,dd){
 function addBamboo(B,x,z){ for(let i=0;i<5;i++){ const h=1.2+rnd()*1.4,bx=x+(rnd()-0.5)*0.7,bz=z+(rnd()-0.5)*0.7; for(let y=0;y<h;y+=0.3) addBox(B,bx,y+0.15,bz,0.09,0.3,0.09,jit(0x6FBF3A,0.08),{edge:false}); } }
 const MC_GAPX=-11.6,MC_GAPW=3; /* celah kiri board: x < MC_GAPX digeser MC_GAPW ke timur (lihat mcH) */
 const RIVER_BED=-0.5,RIVER_Y=-0.25; /* dasar sungai & permukaan air World (tanah datar = 0) */
+/* lahan datar untuk rumah jauh & pertanian kiri (supaya bangunan tidak melayang / terkubur di lereng): [x,z,setengah-lebar x,setengah-lebar z] (koordinat asli sebelum geser celah) */
+const MC_PADS=[[-13,-10,2.6,2.2],[-15,9,2.6,2.2],[-10.6,9.2,3.0,3.4]];
 function mcH(x,z){
+  const ox=x;
   if(x<MC_GAPX) x-=MC_GAPW; /* celah kosong kiri board (bekas gunung batu Dragon) dibuang selebar MC_GAPW: medan di sebelah kirinya digeser MC_GAPW ke timur (mendekat ke board) */
   if(MCFLAT){
+    for(let i=0;i<MC_PADS.length;i++){ const p=MC_PADS[i]; if(Math.abs(ox-p[0])<p[2]&&Math.abs(z-p[1])<p[3]) return 0; }
     if(x>0&&x<4&&z<-7&&z>-13) return 0;      /* tanah datar lama (di belakang portal), dibiarkan */
-    if(x>10&&x<20&&z>-7.6&&z<3) return RB;   /* tanah dasar peternakan berundak di lereng kanan (kandang diangkat sendiri-sendiri); gunung lain tetap */
-    if(x>-8&&x<4&&z>6&&z<13) return 0;       /* strip datar di bawah board untuk mob liar */
+    if(x>10&&x<21&&z>-7.6&&z<3) return RB;   /* tanah dasar peternakan berundak di lereng kanan (kandang diangkat sendiri-sendiri) */
+    if(x>10&&x<21&&z>=3&&z<11) return 0;     /* dataran rendah di depan peternakan: jalan dari jembatan ke tangga peternakan */
+    if(x>10&&x<21&&z<=-7.6&&z>-23) return Math.min(4.5,3+0.5*Math.round((-7.6-z)/2)); /* dinding bukit di belakang kandang sapi: dataran y=3 (sejajar lantai kandang sapi) lalu naik bertingkat ke 4.5 */
+    if(x>-8&&x<5&&z>6&&z<15) return 0;       /* strip datar di bawah board untuk mob liar (sampai kaki jembatan) */
   }
-  if(x>4.8&&x<9.8&&z>-30) return (MCFLAT&&z>-19.5)?RIVER_BED:0; /* koridor sungai kanan: dasar sungai DITURUNKAN (RIVER_BED) agar air berada di bawah permukaan tanah; di hulu (z<=-19.5) tetap rata di bawah gunung air */
+  if(x>4.8&&x<11.2&&z>-30) return 0; /* koridor sungai kanan: tanah rata; alur sungai dibuat halus oleh buildRiverWorld (bukan lewat kolom 2x2) */
   if(x>-16.6&&x<-7.4&&z>-4.6&&z<4.6) return 0; /* gunung + sungai kiri di dekat hutan */
   const d=Math.max(Math.abs(x)-8,Math.abs(z)-7); if(d<=0) return 0;
   const n=Math.sin(x*0.22)+Math.cos(z*0.27)+Math.sin((x+z)*0.13)*1.2+0.4;
   return Math.max(0,Math.round(n*Math.min(1,d/14)*3.2)/2);
 }
-const hAt=(x,z)=>mcH(2*Math.floor(x/2)+1,2*Math.round(z/2));
+const hAt=(x,z)=>mcH(2*Math.round(x/2),2*Math.round(z/2)); /* kolom terrain berpusat di koordinat GENAP (loop gx/gz mulai -ISLXL, step 2); dulu memakai pusat ganjil -> dekor melayang/terkubur */
+/* ---- Sungai World: garis tengah berkelok tapi lebar nyaris tetap (menyempit alami hanya di kaki air terjun) ---- */
+const RV_Z0=-20.5,RV_Z1=15.0,RV_BASE=7.7,RV_W=3.2;
+const sstep=(a,b,v)=>{ const t=Math.max(0,Math.min(1,(v-a)/(b-a))); return t*t*(3-2*t); };
+function RVC(z){ return RV_BASE+sstep(-7,-13,z)*(0.2+1.0*Math.sin((z+20.5)*0.34))+sstep(7,12,z)*(0.5+1.0*Math.sin((z-6)*0.45)); }
+function RVW(z){ return RV_W*(0.65+0.35*sstep(RV_Z0,RV_Z0+4,z))+0.1*Math.sin(z*0.9+1); }
+function nearRiver(x,z,pad){ return z>RV_Z0-pad&&z<RV_Z1+pad&&Math.abs(x-RVC(z))<RVW(z)/2+pad; }
+const BRIDGE={z:9.0,x0:0,x1:0}; /* diisi buildRiverWorld */
+/* cell jalan tanah (0.5x0.5): key 'i,j' -> 2 inti, 1 tepi; diisi planRoads() */
+const ROADCELLS=new Map();
+function roadAt(x,z,pad){ const r=Math.ceil(pad/0.5),i0=Math.floor(x/0.5),j0=Math.floor(z/0.5); for(let a=-r;a<=r;a++) for(let b=-r;b<=r;b++) if(ROADCELLS.get((i0+a)+','+(j0+b))) return true; return false; }
 /* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, z dari -ISLZT (atas, sampai gunung air) sampai ISLZB (bawah) (blok pulau 2x2, tepi = batas + 1). ISLZR = batas dekor/sungai di bawah (di luar itu: gunung selatan) */
 const ISLXL=22,ISLXR=22,ISLZT=22,ISLZB=18,ISLZR=14; /* bawah: +3 blok besar berbentuk gunung batu (addSouthMountain), z 15..18 */
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
@@ -1170,14 +1210,16 @@ const sgh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; r
 function sgn(x,z,k){ const x0=Math.floor(x),z0=Math.floor(z),fx=x-x0,fz=z-z0,sx=fx*fx*(3-2*fx),sz=fz*fz*(3-2*fz),a=sgh(x0,z0,k),b=sgh(x0+1,z0,k),c=sgh(x0,z0+1,k),d=sgh(x0+1,z0+1,k); return a+(b-a)*sx+(c-a)*sz+(a-b-c+d)*sx*sz; }
 /* ===== Gaya detail pulau melayang (floating-island.js v2) untuk tanah World: palet zaitun/sage alami, tanah & tanah liat bervariasi, lumut menetes.
    Deterministik per koordinat (TIDAK memakai rnd()/lr()), jadi urutan acak dunia tidak bergeser. ===== */
-const ISL={grass:[0x6a9440,0x5d8738,0x76a049,0x537c3a],olive:0x86973f,sage:0x5a8452,moss:[0x5a8744,0x4e7a3e],dirt:[0x8b5d3a,0x7d5233,0x96683f,0x6e4a2e],clay:0xa8794a,gravel:0x8c8b90,stone:[0x9a9ca6,0x868a96,0xaeb0b8,0x7c808c],flowers:[0xc97b8a,0xd8b95a,0xdedacc,0x8f84b8,0xc98a4e]};
+const ISL={grass:[0x6a9440,0x5d8738,0x76a049,0x537c3a],grassDk:[0x45752f,0x3e6b2a,0x4c7c34,0x376226],grassMd:[0x588238,0x4f7a34,0x609040,0x487030],olive:0x86973f,sage:0x5a8452,moss:[0x5a8744,0x4e7a3e],dirt:[0x8b5d3a,0x7d5233,0x96683f,0x6e4a2e],clay:0xa8794a,gravel:0x8c8b90,stone:[0x9a9ca6,0x868a96,0xaeb0b8,0x7c808c],flowers:[0xc97b8a,0xd8b95a,0xdedacc,0x8f84b8,0xc98a4e]};
 function islH(a,b,k){ const h=Math.sin(a*127.1+b*311.7+(k||0)*74.7)*43758.5453; return h-Math.floor(h); }
 function islGrass(x,z){
   const fx=Math.floor(x),fz=Math.floor(z),patch=islH(Math.floor(x/2),Math.floor(z/2),1),rr=islH(x,z,2);
-  const soil=sgn(x/4.2,z/4.2,13); /* tambalan tanah terbuka / tanah liat / kerikil di tengah rumput */
-  if(soil>0.8){ const q=islH(x,z,8); return new THREE.Color(q<0.18?ISL.gravel:q<0.4?ISL.clay:ISL.dirt[Math.floor(islH(x,z,9)*4)&3]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.05); }
-  if(soil>0.74&&rr<0.55) return new THREE.Color(ISL.moss[(fx+fz)&1]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.04); /* tepi tambalan: lumut */
-  const hex=patch>0.8?ISL.olive:patch<0.16?ISL.sage:ISL.grass[((fx+fz)&1)?(rr<0.2?2:0):(rr<0.2?3:1)];
+  /* hamparan rumput tua BESAR (garis tengah ~6-7 unit, tepi tak beraturan) + zona peralihan, bukan bintik kecil.
+     Tanah terbuka kini hanya lewat jalan tanah (buildRoads), bukan tambalan acak. */
+  const bl=sgn(x/7+4.7,z/7+1.9,31)*0.78+sgn(x/3+0.5,z/3+8.1,32)*0.22,pk=((fx+fz)&1)?(rr<0.2?2:0):(rr<0.2?3:1);
+  if(bl>0.6) return new THREE.Color(ISL.grassDk[pk]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
+  if(bl>0.53) return new THREE.Color(ISL.grassMd[pk]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
+  const hex=patch>0.8?ISL.olive:patch<0.16?ISL.sage:ISL.grass[pk];
   return new THREE.Color(hex).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
 }
 function islSide(base,hi,x,z){ /* sisi tanah/batu kolom World: tanah coklat bervariasi + tanah liat + kerikil; kolom tinggi = batu abu-kebiruan */
@@ -1267,28 +1309,63 @@ function addGrassScenery(DB,th){
     if(mc&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) return false; /* pulau World lebih kecil */
     if(Math.abs(x)<6.2&&Math.abs(z)<6.2) return false;                  /* board + pagar */
     if(Math.abs(x-PAD.x)<1.8&&Math.abs(z-PAD.z)<1.8) return false;     /* area start */
-    if(x>4.6&&x<10.2&&z>-30) return false;                              /* sungai kanan + jembatan */
+    if(mc){ if(nearRiver(x,z,0.9+pad)) return false; if(Math.abs(z-BRIDGE.z)<1.8&&x>3.6&&x<12.4) return false; if(roadAt(x,z,0.5+pad)) return false; if(x>=BRIDGE.x1-1&&x<21.5&&z>2.4&&z<4.8&&Math.abs(x-PATHX)<1.6) return false; }
+    else if(x>4.6&&x<10.2&&z>-30) return false;                         /* sungai kanan + jembatan */
     if(x>-14&&x<-7&&z>-5&&z<5) return false;                            /* area kosong kiri board (sudah dipersempit 3 unit) */
-    if(x>9.6&&x<21&&z>-8.6&&z<4.4) return false;                        /* peternakan */
+    if(x>9.6&&x<21.5&&z>-9&&z<4.4) return false;                        /* peternakan + dinding bukit */
+    if(x>9.6&&x<21.5&&z<=-9&&z>-23) return false;                       /* lereng bukit di belakang kandang (sengaja bersih) */
     if(x>-14&&x<-8&&z>6&&z<12.5) return false;                          /* pertanian */
     if(mc&&x>-8.5&&x<4.8&&z>6&&z<13.5) return false;                    /* zona mob liar di bawah board */
     if(mc&&x>-1.5&&x<5&&z<-5.5&&z>-14) return false;                    /* portal */
+    if(mc&&((Math.abs(x+13)<2.6&&Math.abs(z+10)<2.4)||(Math.abs(x+15)<2.6&&Math.abs(z-9)<2.4))) return false; /* lahan rumah jauh */
     if(penBlocked(x,z)) return false;
     for(let i=0;i<TREEPOS.length;i++){ const t=TREEPOS[i]; if(Math.hypot(x-t[0],z-t[1])<0.8*t[2]+pad) return false; }
     for(let i=0;i<placed.length;i++){ const p=placed[i]; if(Math.hypot(x-p[0],z-p[1])<p[2]+pad) return false; }
     return true;
   };
+  /* tanah rata di bawah jejak benda (tidak melayang di tepi lereng / tidak setengah terkubur) */
+  const flat=(x,z,rd)=>{ const h=hAt(x,z); return hAt(x+rd,z+rd)===h&&hAt(x-rd,z+rd)===h&&hAt(x+rd,z-rd)===h&&hAt(x-rd,z-rd)===h; };
   const place=(count,tries,pad,build)=>{
     let n=0,t=0;
     while(n<count&&t++<tries){
       const x=(r()-0.5)*62,z=(r()-0.5)*54,dd=Math.hypot(x,z*1.1);
       if(r()>1-0.65*Math.min(1,Math.max(0,(dd-12)/32))) continue;      /* lebih rapat di dekat board, makin jarang ke kejauhan */
-      const h=hAt(x,z); if(h>=2.5||!ok(x,z,pad)) continue;
+      const h=hAt(x,z); if(h>=2.5||!ok(x,z,pad)||!flat(x,z,Math.max(0.45,pad))) continue;
       let rad=pad; lift(DB,()=>{ rad=build(x,z)||pad; },h); placed.push([x,z,rad]); n++;
     }
   };
-  place(46,1600,0.5,(x,z)=>{ const big=r()<0.6,hx=addRockPix(DB,x,z,big,r); if(big) blockRect(x,z,hx[0],hx[1]); return Math.max(hx[0],hx[1]); });
-  place(40,1600,0.5,(x,z)=>{ addBushPix(DB,x,z,r); return 0.55; });
+  if(mc){
+    /* World: batu & semak ditata berkelompok rapi (1 batu besar + 1-3 pendamping kecil / semak), bukan sebaran acak tunggal */
+    const group=(count,tries,mk)=>{
+      let n=0,t=0;
+      while(n<count&&t++<tries){
+        const x=(r()-0.5)*60,z=(r()-0.5)*52,dd=Math.hypot(x,z*1.1);
+        if(r()>1-0.55*Math.min(1,Math.max(0,(dd-12)/32))) continue;
+        const h=hAt(x,z); if(h>=2.5||!ok(x,z,1.1)||!flat(x,z,0.9)) continue;
+        mk(x,z,h); n++;
+      }
+    };
+    const sat=(x,z,h,k,mkSat)=>{ /* pendamping rapat di sekeliling pusat kelompok, hanya di tanah rata yang sama tinggi */
+      for(let i=0;i<k;i++){
+        const a=r()*6.283,d=0.6+r()*0.35,px=x+Math.cos(a)*d,pz=z+Math.sin(a)*d;
+        if(!ok(px,pz,0.1)||!flat(px,pz,0.35)||hAt(px,pz)!==h) continue;
+        lift(DB,()=>mkSat(px,pz),h); placed.push([px,pz,0.35]);
+      }
+    };
+    group(13,900,(x,z,h)=>{ /* kelompok batu */
+      let hx=[0.6,0.6]; lift(DB,()=>{ hx=addRockPix(DB,x,z,true,r); },h);
+      sat(x,z,h,1+Math.floor(r()*3),(px,pz)=>{ if(r()<0.7) addRockPix(DB,px,pz,false,r); else addBushPix(DB,px,pz,r); });
+      placed.push([x,z,Math.max(hx[0],hx[1])]); blockRect(x,z,hx[0],hx[1]);
+    });
+    group(11,900,(x,z,h)=>{ /* kelompok semak + bunga */
+      lift(DB,()=>addBushPix(DB,x,z,r),h);
+      sat(x,z,h,1+Math.floor(r()*2),(px,pz)=>{ if(r()<0.75) addBushPix(DB,px,pz,r); else addFlowerIsl(DB,px,pz,r); });
+      placed.push([x,z,0.55]);
+    });
+  }else{
+    place(46,1600,0.5,(x,z)=>{ const big=r()<0.6,hx=addRockPix(DB,x,z,big,r); if(big) blockRect(x,z,hx[0],hx[1]); return Math.max(hx[0],hx[1]); });
+    place(40,1600,0.5,(x,z)=>{ addBushPix(DB,x,z,r); return 0.55; });
+  }
   place(190,3000,0.3,(x,z)=>{ addTuft(DB,x,z,0.9+r()*0.5,r); return 0.35; });
   if(mc){ /* dekor gaya pulau: bunga warna-warni + jamur (PRNG sendiri, dipanggil setelah dekor lama) */
     place(80,3000,0.28,(x,z)=>{ addFlowerIsl(DB,x,z,r); return 0.28; });
@@ -1341,22 +1418,27 @@ function buildMcTerrain(TB,th){
   for(let ix=-7.5;ix<=7.5;ix+=1) for(let iz=-6.5;iz<=6.5;iz+=1){
     if(Math.abs(ix)<5&&Math.abs(iz)<5) continue;
     { const j=jit(G,0.08); /* jit tetap dipanggil agar urutan rnd() sama */
-      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); }
+      if(mc&&ix>5) continue; /* x>5 di World = alur sungai (dibuat buildRiverWorld), bukan rumput */
+      if(grassy){ addBox(TB,ix,-0.1,iz,1,0.2,1,mc?islGrass(ix,iz):GRASS_PAL[2],{edge:false}); }
       else addBox(TB,ix,-0.1,iz,1,0.2,1,j); }
   }
   for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
     if(Math.abs(gx)+1<=8&&Math.abs(gz)+1<=7) continue;
+    if(mc&&gx>=6&&gx<=10&&gz>=-20&&gz<=14){ jit(W,0.07); jit(G,0.08); continue; } /* kolom koridor sungai: digantikan buildRiverWorld (jit tetap dipanggil agar urutan rnd() sama) */
     const h=mcH(gx,gz),hi=h>=1.5;
     { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
       addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
       if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
       /* naik 0.02 agar tidak sebidang (z-fighting) dengan rumput 1x1 sekeliling board yang menimpa strip gz=+-7 */
-      if(grassy&&h<2.5){ addBox(TB,gx,h-0.08,gz,2,0.2,2,mc?ISL.grass[1]:GRASS_PAL[2],{edge:false}); }
+      if(grassy&&h<2.5){
+        if(mc){ [[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]].forEach(q=>addBox(TB,gx+q[0],h-0.08,gz+q[1],1,0.2,1,islGrass(gx+q[0],gz+q[1]),{edge:false})); } /* rumput per 1x1 dengan hamparan tua besar (islGrass) */
+        else addBox(TB,gx,h-0.08,gz,2,0.2,2,GRASS_PAL[2],{edge:false}); }
       else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
   }
   if(mc) addIslUnder(TB);
-  for(let z=7;z<=(mc?ISLZR+1:28);z+=1){ if(mc) addBox(TB,7,RIVER_Y-0.08,z,4.0,0.16,1,jit(R,0.06),{edge:false}); else addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false}); } /* World: air mengisi seluruh palung (x 5..9), permukaan di bawah tanah */
+  if(mc){ buildRiverWorld(TB,R); return; }
+  for(let z=7;z<=28;z+=1){ addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false}); } /* tema lain: sungai kecil */
   /* jembatan kayu melengkung di sungai kanan: di bawah board (z=9, ~3.5 dari tepi board) agar tidak menempel board */
   { const bz=9,bxc=7+0.5*Math.sin(bz*0.7),wr=1.8+bz*0.04,half=wr/2+0.8,x0=bxc-half,x1=bxc+half,len=x1-x0,Wd=1.1,n=Math.round(len/0.36),pw=len/n;
     const dY=i=>0.2+Math.round(Math.sin((i+0.5)/n*Math.PI)*3)*0.05;
@@ -1375,6 +1457,45 @@ function buildMcTerrain(TB,th){
     addTorch(TB,x0-0.2,0,bz-0.75); addTorch(TB,x0-0.2,0,bz+0.75); addTorch(TB,x1+0.2,0,bz-0.75); addTorch(TB,x1+0.2,0,bz+0.75);
   }
 }
+/* ===== Sungai World (halus) =====
+   Irisan 0.5 sepanjang z dari kaki air terjun (RV_Z0) sampai gunung selatan (RV_Z1). Tiap irisan: tanah tepi barat | dasar pasir + air | tanah tepi timur.
+   Garis tengah berkelok (RVC), lebar nyaris tetap (RVW), tepi bertingkat per 0.25 -> alur terlihat alami, bukan balok 2x2. Deterministik (tanpa rnd()). */
+function buildRiverWorld(TB,R){
+  const F={edge:false},q=0.25,X0=5.0,X1=11.0,GT=0.02,BED=-0.5,BTOP=-0.38,WTOP=-0.25,SAND=[0xC9B98A,0xBBAA7A,0xD3C595,0xB09F72];
+  const bank=(xa,xb,zc)=>{
+    if(xb-xa<0.01) return;
+    addBox(TB,(xa+xb)/2,(BED+0.01)/2,zc,xb-xa,0.51,0.5,new THREE.Color(ISL.dirt[Math.floor(islH(xa*3,zc*3,71)*4)&3]),F);
+    for(let x=xa;x<xb-0.001;x+=0.5){ const w2=Math.min(0.5,xb-x),cxm=x+w2/2; addTopQuad(TB,cxm,GT,zc,w2,0.5,islGrass(cxm,zc)); }
+  };
+  for(let i=0;i<72;i++){
+    const zc=-21+0.25+i*0.5;
+    if(zc<RV_Z0){ bank(X0,X1,zc); continue; }
+    const c=RVC(zc),w=RVW(zc);
+    const xl=Math.max(X0+0.25,Math.round((c-w/2)/q)*q),xr=Math.min(X1-0.25,Math.round((c+w/2)/q)*q);
+    bank(X0,xl,zc); bank(xr,X1,zc);
+    addBox(TB,(xl+xr)/2,(BED+BTOP)/2,zc,xr-xl,BTOP-BED,0.5,new THREE.Color(SAND[Math.floor(islH(i,1,74)*4)&3]),F); /* dasar pasir */
+    addBox(TB,(xl+xr)/2,(BTOP+WTOP)/2,zc,xr-xl,WTOP-BTOP,0.5,new THREE.Color(R).offsetHSL(0,0,(islH(i,2,72)-0.5)*0.04),F); /* air */
+    waterDetail(TB,(xl+xr)/2,zc,WTOP,xr-xl,0.5,i+300,Math.max(2,Math.round((xr-xl)/0.8)),1);
+    addBox(TB,xl-0.06,-0.03,zc,0.12,0.09,0.5,ISL.moss[i&1],F); addBox(TB,xr+0.06,-0.03,zc,0.12,0.09,0.5,ISL.moss[(i+1)&1],F); /* lumut tepi */
+    if(islH(i,3,73)<0.12) addBox(TB,(islH(i,4,73)<0.5?xl-0.3:xr+0.3),0.07,zc,0.14,0.1,0.14,ISL.stone[i&3],F); /* kerikil di tepi */
+  }
+  /* jembatan kayu melengkung: melintang di BRIDGE.z, melewati kedua tepi + tangga kecil, tiang penyangga sampai dasar sungai */
+  { const bz=BRIDGE.z,bxc=RVC(bz),wr=RVW(bz),half=wr/2+0.9,x0=bxc-half,x1=bxc+half,len=x1-x0,Wd=1.2,n=Math.round(len/0.36),pw=len/n;
+    BRIDGE.x0=x0; BRIDGE.x1=x1;
+    const dY=i=>0.24+Math.round(Math.sin((i+0.5)/n*Math.PI)*3)*0.05;
+    for(let i=0;i<n;i++){ const x=x0+pw*(i+0.5),y=dY(i);
+      addBox(TB,x,y,bz,pw*0.94,0.06,Wd,i%2?0x9A6B3A:0xB07A42); /* papan */
+      addBox(TB,x,(0.06+y-0.03)/2,bz,pw,y-0.09,Wd-0.3,0x5A3A1E,F); /* balok di bawah papan */
+      [-1,1].forEach(sd=>addBox(TB,x,y+0.2,bz+sd*0.55,pw,0.06,0.07,0x6B4423)); /* pagar */
+      if(i%3===1) [-1,1].forEach(sd=>addBox(TB,x,y+0.14,bz+sd*0.55,0.09,0.28,0.09,0x5A3A1E));
+    }
+    [bxc-wr/2+0.45,bxc,bxc+wr/2-0.45].forEach(px=>[-1,1].forEach(sd=>addBox(TB,px,(BED+0.2)/2,bz+sd*0.5,0.16,0.2-BED,0.16,0x4A2F1A,F))); /* tiang di air */
+    [[x0+0.06,0],[x1-0.06,n-1]].forEach(e=>[-1,1].forEach(sd=>{ const y=dY(e[1]); addBox(TB,e[0],y+0.26,bz+sd*0.55,0.13,0.52,0.13,0x4A2F1A); addBox(TB,e[0],y+0.54,bz+sd*0.55,0.18,0.05,0.18,0x2E2E2E); }));
+    [[x0-0.45,0.09],[x0-0.17,0.17],[x1+0.17,0.17],[x1+0.45,0.09]].forEach(st=>addBox(TB,st[0],st[1]/2,bz,0.3,st[1],Wd,0x8A5B33)); /* undakan di kedua ujung */
+    [bxc-wr/2-0.1,bxc+wr/2+0.1].forEach(px=>[-1,1].forEach(sd=>addBox(TB,px,0.14,bz+sd*0.45,0.28,0.36,0.28,0x8A8A8A))); /* pilar batu di tepi air */
+    addTorch(TB,x0-0.2,GT,bz-0.85); addTorch(TB,x0-0.2,GT,bz+0.85); addTorch(TB,x1+0.2,GT,bz-0.85); addTorch(TB,x1+0.2,GT,bz+0.85);
+  }
+}
 const BIO=UT.Gameplay.Biomes.BIO;
 function addWideFar(DB,th){
   const d=th.decor,A=({oak:[addOak,addOak],desert:[addCactus,addPalm],snow:[addPine,addPine],jungle:[addJungleTree,addJungleTree],nether:[addNetherTree,addNetherTree]})[d]||[addOak,addOak];
@@ -1385,7 +1506,7 @@ function addWideFar(DB,th){
     const sc=0.8+rnd()*0.7,f=rnd()<0.3?A[1]:A[0]; lift(DB,()=>f(DB,x,z,sc),hAt(x,z)); n++;
   }
   [[-13,-10],[12,-12],[16,10],[-15,9],[22,-4]].forEach((q,i)=>lift(DB,()=>{
-    if(d==='oak') addMcHouse(DB,q[0],q[1]);
+    if(d==='oak') addMcHouse(DB,q[0],q[1],i);
     else if(d==='desert') addPyramid(DB,q[0],q[1],i%2?3:2.2,0.4);
     else if(d==='snow') (i%2?addSnowman:addIgloo)(DB,q[0],q[1]);
     else if(d==='nether') (i%2?addPortal(DB,q[0],q[1],hAt(q[0],q[1])):(NBC&&nOnLava(q[0],q[1],0.5)?0:addPillar(DB,q[0],q[1],3))); /* tiang tidak di atas lava */
@@ -1409,12 +1530,15 @@ function addMcFar(DB){
     const x=(rnd()-0.5)*64,z=(rnd()-0.5)*56;
     if(Math.abs(x)<14&&Math.abs(z)<12) continue;
     const s=0.8+rnd()*0.7;
-    if((x>-14&&x<-7.5&&z>-4&&z<4)||(x>4.4&&x<9.8&&z>-30)||(x>9.8&&x<20.4&&z>-8&&z<4)) continue; /* area gunung/sungai + dataran peternakan */
+    if((x>-14&&x<-7.5&&z>-4&&z<4)||nearRiver(x,z,1.4)||(x>9.6&&x<21.5&&z>-9&&z<4.6)||roadAt(x,z,1.2)||(Math.abs(z-BRIDGE.z)<2&&x>3.5&&x<12.5)) continue; /* area gunung/sungai/jalan + dataran peternakan */
+    { const h0=hAt(x,z),rd=0.6*s; if(h0>=2.5||hAt(x+rd,z)!==h0||hAt(x-rd,z)!==h0||hAt(x,z+rd)!==h0||hAt(x,z-rd)!==h0) continue; } /* pohon hanya di tanah rata (tidak melayang di tepi lereng) */
     const sn=snapB(DB); lift(DB,()=>addOak(DB,x,z,s),hAt(x,z)); n++;
     if(themeKey==='minecraft'&&(x<-ISLXL+1.5||x>ISLXR-1.5||z<-ISLZT+1.5||z>ISLZR-1.5)) rollB(DB,sn); /* di luar pulau kecil: buang (rnd sudah terpakai, urutan acak aman) */
   }
-  [[-13,-10],[-15,9]].forEach(q=>{ let gh=0; for(let gx=2*Math.floor((q[0]-1.3)/2)+2*0;gx<=q[0]+1.3;gx+=2) for(let gz=2*Math.floor((q[1]-1.3)/2);gz<=q[1]+1.3;gz+=2) gh=Math.max(gh,mcH(gx,gz)); /* rumah di tanah tertinggi di bawah jejaknya (tidak lelap) */
-    lift(DB,()=>addMcHouse(DB,q[0],q[1]),gh); addHouseExtras(DB,q[0],q[1],gh); });
+  /* beberapa pohon sengaja di dataran depan peternakan & dekat jalan (tanah rata y=0) */
+  [[12.8,8.9,0.95],[18.2,7.4,1.05],[19.2,10.0,0.9],[13.8,10.4,0.85],[-4.2,-8.2,1.0],[-6.6,-9.4,0.9]].forEach(t=>{ if(hAt(t[0],t[1])===0&&!roadAt(t[0],t[1],1.0)) lift(DB,()=>addOak(DB,t[0],t[1],t[2]),0); });
+  /* rumah jauh: tiap rumah beda bentuk/warna; lahannya sudah diratakan di mcH (MC_PADS) -> y=0, tidak melayang */
+  [[-13,-10,3],[-15,9,0]].forEach(q=>{ addMcHouse(DB,q[0],q[1],q[2]); addHouseExtras(DB,q[0],q[1],0); });
   /* hewan ternak tidak lagi berkeliaran bebas: semuanya tinggal di kandang (lihat addRanch) */
 }
 /* gunung batu di sisi bawah (selatan) pulau: +3 blok besar (z 15..18), bentuk seperti gunung kiri: batu abu-abu berlumut, tebing tinggi di tepi luar dan turun ke arah board. Tanpa rnd() (deterministik) agar seed dunia tidak bergeser. */
@@ -1445,27 +1569,71 @@ function addEastMountain(DB){
     }
   }
 }
+/* ===== Jalan tanah World =====
+   Garis jalan (x,z) -> cell 0.5: inti (tanah) + tepi tak beraturan (campur rumput). Dipakai juga untuk menghindarkan dekor/pohon/bunga. Tanpa rnd(). */
+function planRoads(){
+  ROADCELLS.clear();
+  const bz=BRIDGE.z,L=[
+    [[-10.8,-1.25],[-9.3,-0.6],[-8.7,1.4],[-9.6,3.1],[-10.2,4.7],[-10.7,6.4]],            /* pintu rumah A -> rumah B -> gerbang pertanian */
+    [[-10.8,3.5],[-9.9,3.4],[-9.6,3.1]],                                                    /* pintu rumah B */
+    [[-9.6,3.1],[-8.9,4.0],[-8.4,4.5]],                                                     /* ke api unggun (area mulai) */
+    [[-10.2,4.7],[-9.4,6.0],[-6.5,6.3],[-2.5,6.4],[1.0,6.5],[3.2,7.3],[4.3,8.5],[BRIDGE.x0-0.75,bz]], /* jalan selatan board -> jembatan */
+    [[BRIDGE.x1+0.75,bz],[11.6,8.5],[13.2,6.6],[14.6,5.2],[15.2,4.4]],                      /* jembatan -> tangga peternakan */
+    [[0.2,-5.9],[0.6,-8.0],[1.8,-10.1]]                                                     /* board -> portal Nether */
+  ];
+  L.forEach((pl,li)=>{
+    for(let s=0;s<pl.length-1;s++){
+      const a=pl[s],b=pl[s+1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(len/0.2));
+      for(let i=0;i<=n;i++){
+        const t=i/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t,hw=0.5+0.16*Math.sin(x*1.7+z*1.3+li*2)+0.08*Math.sin(z*3.1+x); /* setengah lebar 0.3..0.75 */
+        const i0=Math.floor((x-hw-0.6)/0.5),i1=Math.floor((x+hw+0.6)/0.5),j0=Math.floor((z-hw-0.6)/0.5),j1=Math.floor((z+hw+0.6)/0.5);
+        for(let ci=i0;ci<=i1;ci++) for(let cj=j0;cj<=j1;cj++){
+          const cx=(ci+0.5)*0.5,cz=(cj+0.5)*0.5,d=Math.hypot(cx-x,cz-z),k=ci+','+cj;
+          if(nearRiver(cx,cz,0.05)) continue;
+          let v=0; if(d<hw) v=2; else if(d<hw+0.4&&islH(ci,cj,81)<0.55) v=1;
+          if(v>(ROADCELLS.get(k)||0)) ROADCELLS.set(k,v);
+        }
+      }
+    }
+  });
+}
+function buildRoads(DB){
+  const F={edge:false};
+  ROADCELLS.forEach((v,k)=>{
+    const p=k.split(','),ci=+p[0],cj=+p[1],cx=(ci+0.5)*0.5,cz=(cj+0.5)*0.5,h=hAt(cx,cz);
+    const rr=islH(ci,cj,82),base=new THREE.Color(rr<0.1?ISL.gravel:rr<0.2?ISL.clay:ISL.dirt[Math.floor(islH(ci,cj,83)*4)&3]);
+    let c=base.offsetHSL(0,0,(islH(ci,cj,84)-0.5)*0.05);
+    if(v===1) c=c.lerp(islGrass(cx,cz),0.55); /* tepi jalan: campuran tanah & rumput */
+    addTopQuad(DB,cx,h+0.027,cz,0.5,0.5,c);
+    if(v===2&&islH(ci,cj,85)<0.07) addBox(DB,cx+(islH(ci,cj,86)-0.5)*0.3,h+0.06,cz+(islH(ci,cj,87)-0.5)*0.3,0.09,0.06,0.09,ISL.stone[(ci+cj)&3],F); /* kerikil */
+  });
+  /* undakan batu dari dataran rendah naik ke peternakan (jalan tanah berakhir di sini) */
+  addBox(DB,PATHX,0.25,3.25,PATHW,0.5,0.5,ljit(0x77776F,0.06),F); addBox(DB,PATHX,0.52,3.25,PATHW-0.04,0.04,0.46,ljit(0x9A9A90,0.08),F);
+  wallPix(DB,PATHX-PATHW/2-0.03,3.25,-1,0,0.5,0.48,0,PATHX); wallPix(DB,PATHX+PATHW/2+0.03,3.25,1,0,0.5,0.48,0,PATHX+3);
+}
 function addMcEnv(DB){
+  planRoads();
   addMcFar(DB);
   addSouthMountain(DB);
   addEastMountain(DB);
   /* gunung hulu dimundurkan: kiri ke arah hutan, kanan ke belakang (utara). Sungai menyambung tanpa celah dari hulu sampai terrain z>=7. */
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
   blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
-  cascadeHill(DB,'s',-22.9,-20.5,5.2,8.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau */
-  for(let z=-19.0;z<=6.0;z+=1){ addBox(DB,7,RIVER_Y-0.08,z,4.0,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7,z,RIVER_Y,4.0,1,Math.round(z*4)+100,8,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
-  const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(Math.abs(x-PORTAL_P.x)<1.6&&Math.abs(z-PORTAL_P.z)<1.4)||(Math.abs(x-HOUSE_A.x)<1.2&&Math.abs(z-HOUSE_A.z)<1.2)||(Math.abs(x-HOUSE_B.x)<1.2&&Math.abs(z-HOUSE_B.z)<1.2);
+  cascadeHill(DB,'s',-22.9,-20.5,RVC(RV_Z0)-1.8,RVC(RV_Z0)+1.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau; sejajar awal sungai (buildRiverWorld) */
   const HOUSE_A={x:-10.8,z:-2.4},HOUSE_B={x:-10.8,z:2.2},PORTAL_P={x:2.0,z:-11.5}; /* 2 rumah dipindah ke lahan datar kiri board; portal Nether mundur ke dataran datar di belakang (x 0..4, z -13..-7) */
-  item(HOUSE_A.x,HOUSE_A.z,1.6,1.3,b=>addMcHouse(b,HOUSE_A.x,HOUSE_A.z)); item(HOUSE_B.x,HOUSE_B.z,1.6,1.3,b=>addMcHouse(b,HOUSE_B.x,HOUSE_B.z));
+  const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||x>5.3||nearRiver(x,z,0.4)||roadAt(x,z,0.5)||(Math.abs(x-PORTAL_P.x)<1.6&&Math.abs(z-PORTAL_P.z)<1.4)||(Math.abs(x-HOUSE_A.x)<1.2&&Math.abs(z-HOUSE_A.z)<1.2)||(Math.abs(x-HOUSE_B.x)<1.2&&Math.abs(z-HOUSE_B.z)<1.2);
+  item(HOUSE_A.x,HOUSE_A.z,1.6,1.3,b=>addMcHouse(b,HOUSE_A.x,HOUSE_A.z,1)); item(HOUSE_B.x,HOUSE_B.z,1.6,1.3,b=>addMcHouse(b,HOUSE_B.x,HOUSE_B.z,2)); /* tiap rumah beda bentuk & warna */
   item(PORTAL_P.x,PORTAL_P.z,2.3,1.4,b=>addPortal(b,PORTAL_P.x,PORTAL_P.z));
   blockRect(PAD.x,PAD.z,1.3,1.3); blockRect(PORTAL_P.x,PORTAL_P.z,1.3,1.0);
   addHouseExtras(DB,HOUSE_A.x,HOUSE_A.z,0); addHouseExtras(DB,HOUSE_B.x,HOUSE_B.z,0);
   addFarm(DB);
+  buildRoads(DB); /* jalan tanah (cell dari planRoads) */
   /* hewan dekat board dihapus -> pindah ke kandang (addRanch) */
-  queueAnimal(-9.0,-0.1,0.4,'villager'); queueAnimal(4.5,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
+  const FSH_Z=2.2,FSH_X=RVC(FSH_Z)-RVW(FSH_Z)/2-0.2; /* pemancing berdiri di tepi barat sungai, joran menghadap air (dulu x=4.5 = di dalam board) */
+  queueAnimal(-9.0,-0.1,0.4,'villager'); queueAnimal(FSH_X,FSH_Z,Math.PI/2,'fisher');
   const FL=[]; DECOR_SEED.length=0;
   for(let i=0;i<90;i++){
-    const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
+    const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)) continue;
     FL.push([x,z,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF])]); /* rnd tetap sama; dipasang setelah kandang/pohon ada */
   }
   addRanch(DB); /* kandang ternak + pohon + lebah (di kaki gunung kanan) & mob liar di bawah */
@@ -1474,7 +1642,7 @@ function addMcEnv(DB){
     const x=f[0],z=f[1];
     if(penBlocked(x,z)) return;
     if(TREEPOS.some(t=>Math.hypot(x-t[0],z-t[1])<0.8*t[2]+0.15)) return;
-    if([[-9.0,-0.1],[4.5,2.2]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
+    if([[-9.0,-0.1],[FSH_X,FSH_Z]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
     if(DECOR_SEED.some(k=>Math.hypot(x-k[0],z-k[1])<0.22)) return;
     DECOR_SEED.push([x,z,0.16]);
     addBox(DB,x,0.07,z,0.14,0.14,0.14,f[2],{edge:false});
