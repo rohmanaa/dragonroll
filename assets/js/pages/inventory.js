@@ -20,7 +20,7 @@
   function nav(u) { $('#fade').classList.add('on'); setTimeout(function () { location.href = u; }, 330); }
 
   tabsEl.innerHTML = TABS.map(function (t) {
-    return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img src="assets/ng/komponen/' + t.icon + '" alt=""><span>' + t.label + '</span></button>';
+    return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/ng/komponen/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/ng/komponen/ikon-navigasi/garis-bawah-tab-emas.webp" alt=""></button>';
   }).join('');
 
   function open(k, quiet) {

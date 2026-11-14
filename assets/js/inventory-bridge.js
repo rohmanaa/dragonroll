@@ -13,7 +13,7 @@
   }
   document.documentElement.classList.add('ut-inv-embed');
   var st = document.createElement('style');
-  st.textContent = 'html.ut-inv-embed #back,html.ut-inv-embed #title{display:none!important}';
+  st.textContent = 'html.ut-inv-embed #back,html.ut-inv-embed #title{display:none!important}html.ut-inv-embed body.notabs #grid{top:250px!important;max-height:500px!important}';
   document.head.appendChild(st);
 
   function toParent(url) { try { parent.postMessage({ type: 'ut-inv-nav', url: url }, '*'); } catch (e) {} }
