@@ -74,73 +74,75 @@
       const src=actx.createMediaElementSource(a),g=actx.createGain(); g.gain.value=gain; src.connect(g); g.connect(boostBus);
     }catch(e){}
   }
+  /* Kekerasan SEMUA file SFX sudah diseragamkan (tools/normalize-sfx.py, sumber asli di referensi/sfx-asli): vol di bawah = 1 untuk semua.
+     Jangan menambal suara keras/pelan lewat angka vol/boost di sini; koreksi lewat OFFSETS di skrip lalu jalankan ulang, supaya slider Efek suara adil untuk semua suara. */
   function fileSfx(key,vol,fb,boost){ if(muted||sfxV<=0) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=Math.min(1,vol*sfxV); if(boost>1) amplify(a,boost); a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
   function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
   const ladderBeeps=()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11));
 
   const sfx={
     /* ---------- DADU ---------- */
-    roll(){ return fileSfx('roll',1,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.07,i*0.13); },3.2); }, /* dadu: dikeraskan (penguat 3.2x) agar setara suara preview Inventory */
+    roll(){ return fileSfx('roll',1,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.07,i*0.13); }); }, /* dadu: kekerasan file sudah diseragamkan (tools/normalize-sfx.py); tanpa penguat 3.2x lagi */
     rollStop(a){ fadeOut(a,250); },
 
     /* ---------- PAPAN: gerak & kejadian di tile ---------- */
-    hop(){ fileSfx('hop',0.5,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
-    naiktangga(){ fileSfx('ladder',0.7,ladderBeeps); },
+    hop(){ fileSfx('hop',1,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
+    naiktangga(){ fileSfx('ladder',1,ladderBeeps); },
     ladder(){ return fileSfx('ladderClimb',1,ladderBeeps); }, /* mengembalikan elemen Audio agar bisa dihentikan tepat saat pion sampai (ladder.mp3 ~9,5 dtk, lebih lama dari animasi naik) */
     ladderStop(a){ fadeOut(a,220); },
-    caplokular(){ fileSfx('snakeBite',0.8,function(){ beep(200,0.12,'square',0.09,0,60); }); },
-    hundred(){ fileSfx('block100',0.7,function(){ beep(523,0.2,'square',0.05); }); },
-    hiss(){ fileSfx('hiss',0.8,function(){ noise(0.55,0.09,0,4500); }); },
-    chomp(){ fileSfx('chomp',0.9,function(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); }); },
-    gulp(){ fileSfx('gulp',0.9,function(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); }); },
-    pop(){ fileSfx('pop',0.8,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
-    bounce(){ fileSfx('bounce',0.8,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
+    caplokular(){ fileSfx('snakeBite',1,function(){ beep(200,0.12,'square',0.09,0,60); }); },
+    hundred(){ fileSfx('block100',1,function(){ beep(523,0.2,'square',0.05); }); },
+    hiss(){ fileSfx('hiss',1,function(){ noise(0.55,0.09,0,4500); }); },
+    chomp(){ fileSfx('chomp',1,function(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); }); },
+    gulp(){ fileSfx('gulp',1,function(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); }); },
+    pop(){ fileSfx('pop',1,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
+    bounce(){ fileSfx('bounce',1,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
 
     /* ---------- HADIAH & PETI ---------- */
-    chest(){ fileSfx('chestOpen',0.7,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
-    chestClose(){ fileSfx('chestClose',0.6,function(){ beep(200,0.1,'square',0.05); }); },
-    rewardpower(){ fileSfx('powerReward',0.6,function(){ beep(523,0.12,'square',0.05,0,784); }); },
-    firework(){ fileSfx('firework',0.7); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
-    defeat(){ return fileSfx('defeat',0.9); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
+    chest(){ fileSfx('chestOpen',1,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
+    chestClose(){ fileSfx('chestClose',1,function(){ beep(200,0.1,'square',0.05); }); },
+    rewardpower(){ fileSfx('powerReward',1,function(){ beep(523,0.12,'square',0.05,0,784); }); },
+    firework(){ fileSfx('firework',1); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
+    defeat(){ return fileSfx('defeat',1); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
        Power lain = suara sintetis UT.PowerSound (power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
     power(k){
-      if(k==='sword'||k==='diamond_sword'||k==='netherite_sword') return fileSfx('swordUse',0.7); /* file nyata */
-      if(k==='tnt') return fileSfx('tntExplosion',0.7);
+      if(k==='sword'||k==='diamond_sword'||k==='netherite_sword') return fileSfx('swordUse',1); /* file nyata */
+      if(k==='tnt') return fileSfx('tntExplosion',1);
       try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0){ if(PS.play(k,{phase:'use',ctx:actx,volume:sfxV})) return null; } }catch(e){} /* suara sintetis assets/js/power3d/PowerSound.js */
       sfx.pop(); return null;
     },
-    win(){ fileSfx('win',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */
-    victory(){ return fileSfx('victory',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* layar menang / celebrate (win2.mp3, ~16 dtk) */
+    win(){ fileSfx('win',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */
+    victory(){ return fileSfx('victory',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* layar menang / celebrate (win2.mp3, ~16 dtk) */
     villager(){ fileSfx('villager',1,function(){ beep(300,0.12,'triangle',0.08,0,900); }); }, /* Villager membantu (maju 5 blok) */
 
     /* ---------- MOB DI BOARD ---------- */
-    hit(){ fileSfx('punch',0.7,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
-    playerHurt(){ return fileSfx('playerHurt',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
-    creeper(){ fileSfx('creeperFuse',0.7,function(){ beep(200,0.12,'square',0.09,0,60); }); },
-    skeltonSh(){ fileSfx('skeletonShoot',0.7,function(){ beep(400,0.1,'square',0.05); }); },
-    enderman(){ fileSfx('endermanTp',0.7,function(){ beep(700,0.2,'square',0.05,0,1000); }); },
+    hit(){ fileSfx('punch',1,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
+    playerHurt(){ return fileSfx('playerHurt',1,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
+    creeper(){ fileSfx('creeperFuse',1,function(){ beep(200,0.12,'square',0.09,0,60); }); },
+    skeltonSh(){ fileSfx('skeletonShoot',1,function(){ beep(400,0.1,'square',0.05); }); },
+    enderman(){ fileSfx('endermanTp',1,function(){ beep(700,0.2,'square',0.05,0,1000); }); },
 
     /* ---------- DRAGON ---------- */
-    dragonIdle(){ fileSfx('dragonIdle',0.5); },
-    dragonHurt(){ fileSfx('dragonHurt',0.8,function(){ beep(523,0.2,'square',0.05); }); },
-    dragonDeath(){ fileSfx('dragonDeath',0.9,function(){ beep(1047,0.4,'square',0.08); }); },
-    dragonSpawn(){ return fileSfx('dragonIdle',0.8); },
+    dragonIdle(){ fileSfx('dragonIdle',1); },
+    dragonHurt(){ fileSfx('dragonHurt',1,function(){ beep(523,0.2,'square',0.05); }); },
+    dragonDeath(){ fileSfx('dragonDeath',1,function(){ beep(1047,0.4,'square',0.08); }); },
+    dragonSpawn(){ return fileSfx('dragonIdle',1); },
     /* Dragon Awakening: file placeholder (lihat FILE_AWAKENING); fallback sintetis = retak + gema. Tidak dipakai lagi oleh gameplay (diganti quakeStart). */
-    dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio(SFX_DIR+FILE_AWAKENING); a.volume=0.9; a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
-    quakeStart(){ return fileSfx('earthquake',0.9,function(){ noise(0.6,0.1,0,900); }); },
+    dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio(SFX_DIR+FILE_AWAKENING); a.volume=Math.min(1,sfxV); a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
+    quakeStart(){ return fileSfx('earthquake',1,function(){ noise(0.6,0.1,0,900); }); },
     quakeStop(a){ fadeOut(a,700); },
-    towerRise(){ return fileSfx('tower',0.8); },
+    towerRise(){ return fileSfx('tower',1); },
     towerStop(a){ fadeOut(a,600); },
-    crystalAppear(){ return fileSfx('crystalAppear',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
-    crystalDestroyed(){ fileSfx('crystalDestroyed',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); }, /* angka dadu = Crystal yang SUDAH hancur (bukan bounce); fallback = beep bounce lama */
-    crystalBreak(){ fileSfx('crystalBreak',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
-    arenaUp(){ return fileSfx('arenaUp',0.8); }, /* Awakening: Dragon Arena naik setelah gempa, sebelum tower/crystal. Tanpa fallback sintetis (senyap bila file gagal) */
+    crystalAppear(){ return fileSfx('crystalAppear',1,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
+    crystalDestroyed(){ fileSfx('crystalDestroyed',1,function(){ beep(330,0.2,'triangle',0.07,0,140); }); }, /* angka dadu = Crystal yang SUDAH hancur (bukan bounce); fallback = beep bounce lama */
+    crystalBreak(){ fileSfx('crystalBreak',1,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
+    arenaUp(){ return fileSfx('arenaUp',1); }, /* Awakening: Dragon Arena naik setelah gempa, sebelum tower/crystal. Tanpa fallback sintetis (senyap bila file gagal) */
     arenaStop(a){ fadeOut(a,600); },
-    crystalsCleared(){ fileSfx('crystalsDone',0.9,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* semua Crystal hancur (READY). Fallback = fanfare sintetis lama (sama dengan sfx.win) bila file gagal */
+    crystalsCleared(){ fileSfx('crystalsDone',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* semua Crystal hancur (READY). Fallback = fanfare sintetis lama (sama dengan sfx.win) bila file gagal */
 
     /* ---------- READY SCREEN (acak urutan giliran) — sintetis ---------- */
-    shuffleTick(){ fileSfx('shuffle',0.5,function(){ beep(700+Math.random()*700,0.03,'square',0.03); }); },
+    shuffleTick(){ fileSfx('shuffle',1,function(){ beep(700+Math.random()*700,0.03,'square',0.03); }); },
     revealTick(){ beep(660,0.07,'square',0.05); },
     revealFirst(){ beep(660,0.07,'square',0.05); beep(990,0.14,'square',0.05,0.08); }
   };
