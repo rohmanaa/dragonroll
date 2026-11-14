@@ -90,10 +90,10 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   margin: 0 !important;
   padding: 12px 8% !important;
   color: #fff3d0 !important;
-  background: url("../../assets/ng/komponen/banner-label/banner-judul-ungu-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../assets/ng/komponen/banner-label/banner-judul-biru-polos.webp") center / 100% 100% no-repeat !important;
   font: 800 clamp(30px, 5.2vw, 66px)/1.05 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
   text-transform: uppercase !important;
-  text-shadow: 0 4px 0 rgba(35, 18, 75, .85) !important;
+  text-shadow: 0 4px 0 rgba(10, 30, 80, .85) !important;
 }
 
 #win[data-state="lose"].win-result #winTitle {
