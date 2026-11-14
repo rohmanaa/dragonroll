@@ -1564,13 +1564,23 @@ const ptrEnd=e=>{ptrs.delete(e.pointerId);};
 cv.addEventListener('pointerup',ptrEnd);cv.addEventListener('pointercancel',ptrEnd);
 cv.addEventListener('wheel',e=>{e.preventDefault();},{passive:false}); /* scroll tidak lagi zoom */
 let viewDirty=true;
-const FEET_Y=594; /* sejajarkan kaki dengan batas bawah slot baris keempat */
+/* Kaki karakter berdiri di PODIUM latar (karakter-bg.webp, 1893x831; titik tengah permukaan atas = 665,632; lebar podium 540px gambar).
+   Latar = cover penuh layar, jadi posisi podium dihitung ke koordinat stage 1920x1080 lalu kanvas #show (760x820) dipusatkan di sana;
+   zoom kamera menjaga ukuran karakter relatif terhadap lebar podium (di 16:9 = 1). */
+const BGK={w:1893,h:831,x:665,y:632,pw:540},SHOW_W=760,SHOW_H=820,FEET_Y=700;
+function layoutShow(){
+  const vw=innerWidth,vh=innerHeight,k=Math.min(vw/1920,vh/1080),sc=Math.max(vw/BGK.w,vh/BGK.h);
+  const sx=(BGK.x-BGK.w/2)*sc/k+960,sy=(BGK.y-BGK.h/2)*sc/k+540;
+  showEl.style.left=(sx-SHOW_W/2)+'px';showEl.style.top=(sy-FEET_Y)+'px';showEl.style.width=SHOW_W+'px';showEl.style.height=SHOW_H+'px';
+  return (BGK.pw*sc/k)/702;
+}
 function fit(){
+  const r=layoutShow();
   const w=showEl.clientWidth,h=showEl.clientHeight;if(!w||!h)return;
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
   renderer.setSize(w,h,false);
-  camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.clearViewOffset();camera.updateProjectionMatrix();
-  /* Selaraskan titik dasar karakter dengan batas bawah slot equipment. */
+  camera.aspect=w/h;camera.fov=(w/h<0.8)?48:40;camera.zoom=r*640/h;camera.clearViewOffset();camera.updateProjectionMatrix();
+  /* Selaraskan titik dasar karakter (kaki) dengan titik tengah podium. */
   try{
     {
       const ty=0.85;
@@ -1581,7 +1591,8 @@ function fit(){
     }
   }catch(e){}
 }
-try{new ResizeObserver(fit).observe(showEl);}catch(e){addEventListener('resize',fit);}
+try{new ResizeObserver(fit).observe(showEl);}catch(e){}
+addEventListener('resize',fit);
 function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')'}
 addEventListener('resize',fitStage);fitStage();
 fit();
