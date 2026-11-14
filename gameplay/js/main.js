@@ -1138,6 +1138,7 @@ function addAnimal(B,x,z,yaw,cow,cc,dd){
 }
 function addBamboo(B,x,z){ for(let i=0;i<5;i++){ const h=1.2+rnd()*1.4,bx=x+(rnd()-0.5)*0.7,bz=z+(rnd()-0.5)*0.7; for(let y=0;y<h;y+=0.3) addBox(B,bx,y+0.15,bz,0.09,0.3,0.09,jit(0x6FBF3A,0.08),{edge:false}); } }
 const MC_GAPX=-11.6,MC_GAPW=3; /* celah kiri board: x < MC_GAPX digeser MC_GAPW ke timur (lihat mcH) */
+const RIVER_BED=-0.5,RIVER_Y=-0.25; /* dasar sungai & permukaan air World (tanah datar = 0) */
 function mcH(x,z){
   if(x<MC_GAPX) x-=MC_GAPW; /* celah kosong kiri board (bekas gunung batu Dragon) dibuang selebar MC_GAPW: medan di sebelah kirinya digeser MC_GAPW ke timur (mendekat ke board) */
   if(MCFLAT){
@@ -1145,7 +1146,7 @@ function mcH(x,z){
     if(x>10&&x<20&&z>-7.6&&z<3) return RB;   /* tanah dasar peternakan berundak di lereng kanan (kandang diangkat sendiri-sendiri); gunung lain tetap */
     if(x>-8&&x<4&&z>6&&z<13) return 0;       /* strip datar di bawah board untuk mob liar */
   }
-  if(x>4.8&&x<9.8&&z>-30) return 0; /* koridor sungai kanan sampai hulu: gunung air mentok di tepi belakang peta */
+  if(x>4.8&&x<9.8&&z>-30) return (MCFLAT&&z>-19.5)?RIVER_BED:0; /* koridor sungai kanan: dasar sungai DITURUNKAN (RIVER_BED) agar air berada di bawah permukaan tanah; di hulu (z<=-19.5) tetap rata di bawah gunung air */
   if(x>-16.6&&x<-7.4&&z>-4.6&&z<4.6) return 0; /* gunung + sungai kiri di dekat hutan */
   const d=Math.max(Math.abs(x)-8,Math.abs(z)-7); if(d<=0) return 0;
   const n=Math.sin(x*0.22)+Math.cos(z*0.27)+Math.sin((x+z)*0.13)*1.2+0.4;
@@ -1355,7 +1356,7 @@ function buildMcTerrain(TB,th){
       else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
   }
   if(mc) addIslUnder(TB);
-  for(let z=7;z<=(mc?ISLZR:28);z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
+  for(let z=7;z<=(mc?ISLZR+1:28);z+=1){ if(mc) addBox(TB,7,RIVER_Y-0.08,z,4.0,0.16,1,jit(R,0.06),{edge:false}); else addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false}); } /* World: air mengisi seluruh palung (x 5..9), permukaan di bawah tanah */
   /* jembatan kayu melengkung di sungai kanan: di bawah board (z=9, ~3.5 dari tepi board) agar tidak menempel board */
   { const bz=9,bxc=7+0.5*Math.sin(bz*0.7),wr=1.8+bz*0.04,half=wr/2+0.8,x0=bxc-half,x1=bxc+half,len=x1-x0,Wd=1.1,n=Math.round(len/0.36),pw=len/n;
     const dY=i=>0.2+Math.round(Math.sin((i+0.5)/n*Math.PI)*3)*0.05;
@@ -1424,19 +1425,34 @@ function addSouthMountain(DB){
       const z=15.5+jz,u=(jz+1)/3,base=hAt(x,z);
       const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(ix,jz)-0.5)*0.9)*2)/2); /* makin ke tepi luar makin tinggi (tebing); tinggi total diturunkan & dibatasi 4.5 agar setara bukit kiri/atas */
       const top=Math.min(4.5,base+hgt*0.55),q=Math.floor(hs(ix+3,jz+7)*5)%5;
-      addBox(DB,x,(top-0.1)/2,z,1,top+0.1,1,st[q],{edge:false});
+      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false}); /* dasar diturunkan: menutup palung sungai di bawahnya */
       if(hs(ix+9,jz+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(ix+jz)&1],{edge:false}); /* lumut di puncak */
+    }
+  }
+}
+/* gunung batu di sisi kanan (timur) pulau: 3 blok (x 20..23), tinggi & bentuk sama dengan gunung selatan (maks 4.5, makin ke tepi luar makin tinggi). Deterministik (tanpa rnd()). */
+function addEastMountain(DB){
+  const st=[0x7F7F7F,0x777777,0x898989,0x707070,0x8E8E8E],moss=[0x6E8F5A,0x5F8A4A],hs=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
+  for(let iz=-ISLZT;iz<=ISLZR+1;iz+=1){
+    const z=iz, ridge=1+0.45*Math.sin(iz*0.31)+0.3*Math.sin(iz*0.77+1.3);
+    for(let jx=0;jx<3;jx++){
+      const x=20.5+jx,u=(jx+1)/3,base=hAt(x,z);
+      const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(iz,jx)-0.5)*0.9)*2)/2);
+      const top=Math.min(4.5,base+hgt*0.55),q=Math.floor(hs(iz+3,jx+7)*5)%5;
+      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false});
+      if(hs(iz+9,jx+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(iz+jx)&1],{edge:false});
     }
   }
 }
 function addMcEnv(DB){
   addMcFar(DB);
   addSouthMountain(DB);
+  addEastMountain(DB);
   /* gunung hulu dimundurkan: kiri ke arah hutan, kanan ke belakang (utara). Sungai menyambung tanpa celah dari hulu sampai terrain z>=7. */
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
   blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-22.9,-20.5,5.2,8.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau */
-  for(let z=-20.0;z<=6.0;z+=1){ addBox(DB,7+0.5*Math.sin(z*0.7),-0.04,z,1.6,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7+0.5*Math.sin(z*0.7),z,0.04,1.6,1,Math.round(z*4)+100,4,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
+  for(let z=-19.0;z<=6.0;z+=1){ addBox(DB,7,RIVER_Y-0.08,z,4.0,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7,z,RIVER_Y,4.0,1,Math.round(z*4)+100,8,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
   const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(z<-5.5&&x>-6.4&&x<2)||(Math.abs(x+6.9)<1.2&&Math.abs(z+3.6)<1.2)||(Math.abs(x-4.2)<1.2&&Math.abs(z+6.3)<1.2);
   item(-6.9,-3.6,1.6,1.3,b=>addMcHouse(b,-6.9,-3.6)); item(4.2,-6.3,1.6,1.3,b=>addMcHouse(b,4.2,-6.3));
   item(0.2,-6.4,2.3,1.4,b=>addPortal(b,0.2,-6.4));
@@ -1444,7 +1460,7 @@ function addMcEnv(DB){
   addHouseExtras(DB,-6.9,-3.6,0); addHouseExtras(DB,4.2,-6.3,0);
   addFarm(DB);
   /* hewan dekat board dihapus -> pindah ke kandang (addRanch) */
-  queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(5.85,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
+  queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(4.5,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
   const FL=[]; DECOR_SEED.length=0;
   for(let i=0;i<90;i++){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
