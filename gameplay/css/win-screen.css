@@ -90,7 +90,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   margin: 0 !important;
   padding: 12px 8% !important;
   color: #fff3d0 !important;
-  background: url("../../assets/ng/komponen/banner-label/banner-judul-biru-polos.webp") center / 100% 100% no-repeat !important;
+  background: url("../../assets/ng/komponen/banner-label/pita-sudut-biru-polos.webp") center / 100% 100% no-repeat !important;
   font: 800 clamp(30px, 5.2vw, 66px)/1.05 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
   text-transform: uppercase !important;
   text-shadow: 0 4px 0 rgba(10, 30, 80, .85) !important;
@@ -234,7 +234,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   inset: 0;
   display: grid;
   place-items: center;
-  padding-top: 6%;
+  padding-top: 20%; /* angka di bagian biru terang lencana (teks LVL & angka bawaan gambar sudah dihapus) */
   color: #fff;
   font: 800 clamp(15px, 1.6vw, 21px)/1 'Baloo 2', 'Nunito', system-ui, sans-serif;
   text-shadow: 0 2px 0 #173870, 0 0 3px #173870;
@@ -270,7 +270,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   bottom: 20%;
   left: 3%;
   width: 0;
-  background: url("../../assets/ng/komponen/misi/isi-bar-progres-oranye.webp") left center / 100% 100% no-repeat;
+  background: url("../../assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp") left center / 100% 100% no-repeat;
   transition: width .45s ease-out;
 }
 
