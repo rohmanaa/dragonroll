@@ -5171,7 +5171,12 @@ async function askTotem(p,gid,what){
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
 async function resolveTileAt(p,gid){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
-  if(await trapCheck(p,gid)) return; /* jebakan di petak ini: bila p terpental mundur, efek petak lama (tangga/ular/mob) dilewati */
+  const posBefore=p.pos;
+  if(await trapCheck(p,gid)){ /* jebakan di petak ini: bila p terpental mundur, efek petak lama (tangga/ular/mob) dilewati, TAPI petak tempat ia mendarat (mis. ada mob) tetap diproses */
+    if(gid!==gameId) throw STALE;
+    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL){ renderChips(); await resolveTileAt(p,gid); }
+    return;
+  }
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
     msBump(p,'ladders'); await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
