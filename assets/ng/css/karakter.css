@@ -66,10 +66,10 @@
 #use{position:absolute;left:5px;top:940px;width:276px;height:104px}
 #use span{font-size:38px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
 
-/* Latar halaman Karakter: gambar voxel kastel cover penuh layar (assets/Images/background/karakter-voxel-kastel.webp). Bagian bawah digelapkan tipis
-   dengan linear-gradient supaya panel info tetap terbaca (karakter & panel info tetap di posisi semula); lapis paling bawah = gradient ungu gelap sebagai pengaman.
+/* Latar halaman Karakter: gambar voxel kastel cover penuh layar (assets/Images/background/karakter-voxel-kastel.webp), agak transparan seperti halaman lain:
+   lapisan gelap ungu .65 di atas gambar, di atas dasar ungu gelap (= setara opacity .35). Karakter & panel info tetap di posisi semula.
    body.kr lebih spesifik daripada html,body di bg.css; mode embed room (room-modal-bridge.js) tetap menimpanya. */
 html,body.kr{background:
- linear-gradient(180deg,rgba(11,8,38,0) 0%,rgba(11,8,38,0) 62%,rgba(11,8,38,.5) 100%) fixed,
+ linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,
  url(../../Images/background/karakter-voxel-kastel.webp) center/cover no-repeat fixed,
- #150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
+ #231d37!important}
