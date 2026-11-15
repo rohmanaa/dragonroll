@@ -110,5 +110,9 @@ The repository policy comment requires a cache-version increase when assets chan
 ## 8. Checkpoint and final verification
 
 - Implementation commit: `3bbea8016e86e7771aac85da9e121339b536fd1a`.
-- Audit-report commit and final remote/worktree/main verification are recorded in a separate report-only follow-up after the report is committed.
-- Final status is set after the implementation and audit commits are pushed and verified.
+- Audit-report commit: `887ad84b2139b57a251ce6c556c30ad879a0a1d3`.
+- At the audit checkpoint, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `887ad84b2139b57a251ce6c556c30ad879a0a1d3`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final results. Its own commit hash is provided in the completion message because a commit cannot contain its own object hash.
+
+**Status: COMPLETED — AURAFX RELOCATED, GENERATOR AND RUNTIME CONTRACT PRESERVED.**
