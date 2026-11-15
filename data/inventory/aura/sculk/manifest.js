@@ -6,5 +6,5 @@
   price: null, gems: 500, starter: false, stackable: false,
   desc: 'Deep Dark / Sculk. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'sculk', theme: 'Deep Dark / Sculk', colors: ['#27e6ff', '#0a2a5a', '#1a5fbf'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

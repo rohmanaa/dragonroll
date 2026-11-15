@@ -1,4 +1,4 @@
-/* Tes aura 3D (assets/js/aura-fx.js) + karakter blocky (assets/js/blocky-character.js) di three.js r128 yang dipakai halaman.
+/* Tes aura 3D (assets/js/renderers/aura-fx.js) + karakter blocky (assets/js/blocky-character.js) di three.js r128 yang dipakai halaman.
    Jalankan: node tests/aura-fx.test.js   (tanpa browser: canvas dipalsukan, tidak ada render WebGL) */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
@@ -16,7 +16,7 @@ global.sessionStorage = global.localStorage; global.addEventListener = () => {};
 global.UT = {};
 global.THREE = require(R + 'assets/js/vendor/three.min.js');
 const THREE = global.THREE;
-for (const f of ['item-catalog.js', 'player-data.js', 'aura-fx.js', 'blocky-character.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
+for (const f of ['item-catalog.js', 'player-data.js', 'renderers/aura-fx.js', 'blocky-character.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
 const FX = UT.AuraFX;
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -30,8 +30,8 @@ t('15 aura, id unik, rarity dikenal', () => {
   FX.AURAS.forEach(a => assert.ok(FX.RARITY[a.rarity] && a.name && a.colors.length, a.id));
 });
 t('shader tidak memakai include three r152+ (colorspace_fragment) yang tidak ada di r128', () => {
-  assert.ok(!/colorspace_fragment/.test(read('assets/js/aura-fx.js')));
-  assert.ok(!/^\s*(import|export)\s/m.test(read('assets/js/aura-fx.js')));
+  assert.ok(!/colorspace_fragment/.test(read('assets/js/renderers/aura-fx.js')));
+  assert.ok(!/^\s*(import|export)\s/m.test(read('assets/js/renderers/aura-fx.js')));
 });
 t('semua aura x 3 kualitas: attach, lompat, ganti aura, tint, despawn tanpa error', () => {
   for (const q of ['low', 'medium', 'high']) {
@@ -67,7 +67,7 @@ t('aura menempel ke karakter blocky: mengikuti lompat & menghasilkan partikel', 
 });
 t('efek.html terhubung: skrip dimuat berurutan setelah three, kategori Efek memakai UT.AuraFX', () => {
   const h = read('efek.html');
-  const i3 = h.indexOf('vendor/three.min.js'), ib = h.indexOf('blocky-character.js'), ia = h.indexOf('aura-fx.js');
+  const i3 = h.indexOf('vendor/three.min.js'), ib = h.indexOf('blocky-character.js'), ia = h.indexOf('assets/js/renderers/aura-fx.js');
   assert.ok(i3 > 0 && ib > i3 && ia > i3, 'urutan skrip');
   assert.ok(/UT\.AuraFX/.test(h) && !/id="fxj"/.test(h) && !/id="fxw"/.test(h)); /* tombol Lompat/Jalan sudah dihapus dari halaman */
 });

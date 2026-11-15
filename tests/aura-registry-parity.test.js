@@ -47,7 +47,7 @@ test('Manifest paritas dengan katalog fallback dan definisi AuraFX: nama, rarity
     assert.deepStrictEqual(clone(m.visual.colors), clone(b.colors), b.id + '.colors');
     assert.strictEqual(m.visual.effectKey, b.gameKey, b.id + '.effectKey');
   });
-  const fx = Array.from(rd('assets/js/aura-fx.js').matchAll(/\{ id: '([^']+)', name: '([^']+)', rarity: '([^']+)', theme: '([^']+)', colors: \[([^\]]+)\]/g), m => ({
+  const fx = Array.from(rd('assets/js/renderers/aura-fx.js').matchAll(/\{ id: '([^']+)', name: '([^']+)', rarity: '([^']+)', theme: '([^']+)', colors: \[([^\]]+)\]/g), m => ({
     id: m[1], name: m[2], rarity: m[3], theme: m[4], colors: Array.from(m[5].matchAll(/'([^']+)'/g), c => c[1])
   }));
   assert.strictEqual(fx.length, 15);
@@ -97,7 +97,7 @@ test('Shop, Inventory, Character, Lobby, Profile, Gameplay memuat Aura Registry 
   });
   ['lobby.html', 'profile.html', 'gameplay.html', 'karakter.html'].forEach(file => {
     const scripts = srcs(rd(file));
-    assert.ok(scripts.indexOf('assets/js/aura-fx.js') >= 0 && scripts.indexOf('assets/js/aura-fx.js') < scripts.indexOf('assets/js/renderers/aura-view.js'), file);
+    assert.ok(scripts.indexOf('assets/js/renderers/aura-fx.js') >= 0 && scripts.indexOf('assets/js/renderers/aura-fx.js') < scripts.indexOf('assets/js/renderers/aura-view.js'), file);
   });
   assert.ok(/k:\s*'efek',\s*page:\s*'efek\.html'/.test(rd('assets/js/pages/inventory.js')), 'Inventory membuka tab Efek/Aura yang menggunakan halaman shop');
 });
@@ -108,7 +108,7 @@ test('Service Worker version dan preload manifest mencakup semua berkas Aura bar
     const file = 'data/inventory/aura/' + (k === 'index' ? '' : k + '/') + (k === 'index' ? 'index.js' : 'manifest.js');
     assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file);
   });
-  assert.ok(/VERSION = 'ut-pwa-v189'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v192'/.test(rd('sw.js')));
 });
 
 test('PlayerData tetap mewajibkan ownership untuk equip dan menyimpan Aura di slot lama', () => {

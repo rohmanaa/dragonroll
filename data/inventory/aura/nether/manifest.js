@@ -6,5 +6,5 @@
   price: 15000, gems: null, starter: false, stackable: false,
   desc: 'Nether. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'nether', theme: 'Nether', colors: ['#ff3a1a', '#ff7a18', '#1a0505'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

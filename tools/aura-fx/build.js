@@ -1,6 +1,6 @@
 /* Jalankan dari akar repo:  node tools/aura-fx/build.js
    Sumber: tools/aura-fx/src/*.js (ES module, ditulis untuk three r169 — paket "aura-3d").
-   Hasil : assets/js/aura-fx.js — satu skrip klasik (global UT.AuraFX) untuk three.js r128 global (assets/js/vendor/three.min.js).
+   Hasil : assets/js/renderers/aura-fx.js — satu skrip klasik (global UT.AuraFX) untuk three.js r128 global (assets/js/vendor/three.min.js).
    Penyesuaian r128: tanpa import/export; shader pakai <encodings_fragment> (bukan <colorspace_fragment>); colorSpace tekstur di-guard. */
 const fs = require('fs'), path = require('path'), ROOT = path.join(__dirname, '..', '..'), SRC = path.join(__dirname, 'src');
 const MODS = [ // urutan = dependensi
@@ -11,7 +11,7 @@ const MODS = [ // urutan = dependensi
   ['System', 'AuraSystem', ['AuraSystem']],
 ];
 const VAR = { AuraConfig: 'Config', AuraParticles: 'Particles', AuraCatalog: 'Catalog', AuraDecor: 'Decor' };
-let out = `/* assets/js/aura-fx.js — GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
+let out = `/* assets/js/renderers/aura-fx.js — GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
    Aura karakter voxel 3D (15 aura, Common..Divine). Skrip klasik, global UT.AuraFX; perlu global THREE (r128).
      const sys = new UT.AuraFX.AuraSystem(scene, camera, {quality:'medium'});
      const aura = sys.attach(object3D, 'dragon', {intensity:1,size:1,speed:1,tint:null}, {height:2});
@@ -21,7 +21,7 @@ let out = `/* assets/js/aura-fx.js — GENERATED oleh tools/aura-fx/build.js dar
 window.UT=window.UT||{};
 `;
 for (const [name, file, exps] of MODS) {
-  let s = fs.readFileSync(path.join(SRC, file + '.js'), 'utf8');
+  let s = fs.readFileSync(path.join(SRC, file + '.js'), 'utf8').replace(/\r\n/g, '\n');
   s = s.replace(/^import \* as THREE from 'three';\n/m, '');
   s = s.replace(/^import \{([^}]*)\} from '\.\/(\w+)\.js';\n/gm, (_, names, f) => {
     if (!VAR[f]) throw new Error('import tak dikenal: ' + f);
@@ -40,5 +40,5 @@ for (const [name, file, exps] of MODS) {
   out += `const ${name} = (function(){\n${s}\nreturn { ${exps.join(', ')} };\n})();\n`;
 }
 out += `UT.AuraFX = { AuraSystem: System.AuraSystem, AURAS: Catalog.AURAS, getAura: Catalog.getAura, RARITY: Config.RARITY, TIER: Config.TIER, QUALITY: Config.QUALITY, detectQuality: Config.detectQuality };\n})();\n`;
-fs.writeFileSync(path.join(ROOT, 'assets/js/aura-fx.js'), out);
-console.log('assets/js/aura-fx.js', out.length, 'bytes');
+fs.writeFileSync(path.join(ROOT, 'assets/js/renderers/aura-fx.js'), out);
+console.log('assets/js/renderers/aura-fx.js', out.length, 'bytes');

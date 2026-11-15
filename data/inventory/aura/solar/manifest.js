@@ -6,5 +6,5 @@
   price: null, gems: 500, starter: false, stackable: false,
   desc: 'Sun / Solar Energy. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'solar', theme: 'Sun / Solar Energy', colors: ['#ffd24a', '#fff7c8', '#ffffff'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

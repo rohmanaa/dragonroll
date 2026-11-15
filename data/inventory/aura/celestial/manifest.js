@@ -6,5 +6,5 @@
   price: null, gems: 3000, starter: false, stackable: false,
   desc: 'Divine / Cosmic. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'celestial', theme: 'Divine / Cosmic', colors: ['#fff2b0', '#ffffff', '#7fe6ff'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

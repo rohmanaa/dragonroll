@@ -6,5 +6,5 @@
   price: 15000, gems: null, starter: false, stackable: false,
   desc: 'Ocean / Prismarine. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'ocean', theme: 'Ocean / Prismarine', colors: ['#27d8e6', '#8ff6ff', '#1a6fb8'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

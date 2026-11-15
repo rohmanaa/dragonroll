@@ -34,7 +34,7 @@
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
     frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' },
     gear:    { category: 'aksesori', noun: 'Gear',       slot: null },  /* slot per item: 'g.<bagian>' (lihat GEAR_SLOTS) */
-    aura:    { category: 'efek',     noun: 'Aura',       slot: 'aura' },  /* opsional (boleh kosong), satu aura aktif; efek visual: assets/js/aura-fx.js */
+    aura:    { category: 'efek',     noun: 'Aura',       slot: 'aura' },  /* opsional (boleh kosong), satu aura aktif; efek visual: assets/js/renderers/aura-fx.js */
     pet:     { category: 'lainnya',  noun: 'Pet',        slot: 'pet' }    /* opsional (boleh kosong), satu pet aktif; punya skill (data skill: supabase/pet_catalog.sql) */
   };
   /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
@@ -300,7 +300,7 @@
   ITEMS = ITEMS.concat(GEAR);
 
   /* ---- Aura karakter (kategori Efek) ----
-     Efek visual di assets/js/aura-fx.js (id aura = gameKey). Dibeli dengan koin lewat server (item_catalog), dipakai satu per
+     Efek visual di assets/js/renderers/aura-fx.js (id aura = gameKey). Dibeli dengan koin lewat server (item_catalog), dipakai satu per
      karakter; slot 'aura' OPSIONAL (boleh kosong, lihat optionalSlots). Harga = usulan per rarity (T1 300 ... T7 10000);
      ubah di sini lalu: node tools/wallet/gen-item-seed.js --write dan terapkan ulang migrasi aura. colors = 3 warna untuk thumbnail. */
   function aura(gameKey, name, rarity, price, theme, colors) {

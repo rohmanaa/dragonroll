@@ -6,5 +6,5 @@
   price: null, gems: 1500, starter: false, stackable: false,
   desc: 'Ender Dragon. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'dragon', theme: 'Ender Dragon', colors: ['#ff2a3a', '#7a2aa8', '#0a0510'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(roo
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w); const IC = w.ItemCatalog;
 const auras = IC.items.filter(i => i.kind === 'aura');
-const fxIds = [...rd('assets/js/aura-fx.js').matchAll(/\{ id: '(\w+)', name: '[^']+', rarity: '(\w+)'/g)].map(m => [m[1], m[2]]);
+const fxIds = [...rd('assets/js/renderers/aura-fx.js').matchAll(/\{ id: '(\w+)', name: '[^']+', rarity: '(\w+)'/g)].map(m => [m[1], m[2]]);
 t('15 aura di katalog, id & rarity sama dengan aura-fx.js', () => {
   assert.strictEqual(auras.length, 15); assert.strictEqual(fxIds.length, 15);
   fxIds.forEach(([id, r]) => { const it = IC.byId('aura.' + id); assert.ok(it, id); assert.strictEqual(it.rarity, r); assert.strictEqual(it.gameKey, id); });

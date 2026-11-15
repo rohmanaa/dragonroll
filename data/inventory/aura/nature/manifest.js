@@ -6,5 +6,5 @@
   price: 600, gems: null, starter: false, stackable: false,
   desc: 'Nature / Forest. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'nature', theme: 'Nature / Forest', colors: ['#4caf50', '#8bc34a', '#7a5230'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

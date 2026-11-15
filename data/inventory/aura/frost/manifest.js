@@ -6,5 +6,5 @@
   price: 2000, gems: null, starter: false, stackable: false,
   desc: 'Ice. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'frost', theme: 'Ice', colors: ['#9fe4ff', '#ffffff', '#5ac8ff'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

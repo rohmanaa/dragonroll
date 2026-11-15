@@ -6,5 +6,5 @@
   price: 600, gems: null, starter: false, stackable: false,
   desc: 'Stone / Mountain. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'stone', theme: 'Stone / Mountain', colors: ['#9a9ea6', '#ffffff', '#c0c4cc'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

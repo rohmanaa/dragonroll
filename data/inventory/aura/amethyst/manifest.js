@@ -6,5 +6,5 @@
   price: 15000, gems: null, starter: false, stackable: false,
   desc: 'Amethyst Geode. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'amethyst', theme: 'Amethyst Geode', colors: ['#b266ff', '#d8b4ff', '#ff9ae6'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });

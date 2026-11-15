@@ -6,5 +6,5 @@
   price: 2000, gems: null, starter: false, stackable: false,
   desc: 'Fire. Aura mengikuti karakter saat berjalan, melompat, dan mendarat.',
   visual: { effectKey: 'flame', theme: 'Fire', colors: ['#ff3a1a', '#ff7a18', '#ffd24a'] },
-  assets: { renderer: 'assets/js/aura-fx.js' }
+  assets: { renderer: 'assets/js/renderers/aura-fx.js' }
 });
