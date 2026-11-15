@@ -121,7 +121,7 @@ No test source was changed. `tests/pet-ui.test.js` still reads a reference-folde
 ## Git checkpoint
 
 - Required implementation commit: `refactor(assets): relocate active gameplay UI assets`
-- Commit hash: recorded after the atomic checkpoint commit.
-- Final `HEAD == origin/restruktur`: verified after push.
+- Implementation commit hash: `365ed8634bf482c2fdc9d976fd7030b5c46dcb3c`
+- Final `HEAD == origin/restruktur`: verified after the checkpoint and audit metadata were pushed.
 - Worktree clean after push.
 - `main` and `origin/main` remain at `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
