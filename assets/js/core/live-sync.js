@@ -1,4 +1,4 @@
-/* assets/js/live-sync.js — penyegar data server supaya halaman selalu mutakhir TANPA refresh halaman.
+/* assets/js/core/live-sync.js — penyegar data server supaya halaman selalu mutakhir TANPA refresh halaman.
    Tanpa Realtime & tanpa migrasi: hanya memanggil ulang RPC yang sudah ada (wallet_get, profil/XP, tampilan, ...).
    Hasil tiap tugas masuk lewat PlayerData seperti biasa, jadi event currencyChanged/skinChanged/... otomatis memperbarui UI.
    API:

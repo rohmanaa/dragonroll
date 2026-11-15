@@ -1,6 +1,6 @@
 /* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const src = fs.readFileSync(path.join(__dirname, '../assets/js/live-sync.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '../assets/js/core/live-sync.js'), 'utf8');
 function env() {
   const L = {}, dl = {};
   const doc = { hidden: false, addEventListener: (n, f) => { (dl[n] = dl[n] || []).push(f); } };
