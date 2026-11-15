@@ -85,7 +85,7 @@
     },
 
     /* TOTEM MENAHAN SERANGAN — kilatan emas + cincin hijau */
-    /* ---- Batch 2-3 (key = gameKey; warna/gaya mengikuti aura model 3D di assets/js/power3d/PowerCatalog.js) ---- */
+    /* ---- Batch 2-3 (key = gameKey; warna/gaya mengikuti aura model 3D di assets/js/renderers/power3d/PowerCatalog.js) ---- */
     diamond_sword: {
       name: 'Diamond Sword', note: 'tebasan cyan menyilang + serpihan kristal',
       layers: [

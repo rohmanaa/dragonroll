@@ -31,7 +31,7 @@ Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
 | `assets/js/` | Modul bersama: `player-data`, `wallet-service`, `appearance-service`, `auth`, `session`, `prefs`, `prefs-sync`, `item-catalog`, `room-flow`, dll. |
 | `assets/js/multiplayer/` | `client`, `room-service`, `presence`, `game-sync`, `progress-service`, `event-log` |
 | `assets/js/renderers/dice-kit/` | Mesin dadu 3D bersama (dipakai `dadu.html` dan `gameplay.html`) |
-| `assets/js/power3d/` | Renderer ikon power 3D |
+| `assets/js/renderers/power3d/` | Renderer ikon power 3D |
 | `gameplay/` | Modul khusus gameplay: `game-core` (aturan murni), `config`, `hud`, `ready`, `afk`, `dice-ui`, `audio`, `maps/` (world, nether), dll. |
 | `hud/` | Komponen UI bersama (`button`, `card`, `currency`, `modal`, `toast`, `badge`) dan tema `fantasy` |
 | `data/` | Gambar frame, ikon power 3D, `power-fx.js` |

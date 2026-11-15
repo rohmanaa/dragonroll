@@ -131,7 +131,7 @@
     firework(){ fileSfx('firework',1); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
     defeat(){ return fileSfx('defeat',1); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
-       Power lain = suara sintetis UT.PowerSound (power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
+       Power lain = suara sintetis UT.PowerSound (assets/js/renderers/power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
     power(k,phase){
       if(phase==='trigger'&&POWER_TRIG[k]) return limited(POWER_TRIG[k],function(){ sfx.pop(); });
       if(POWER_OPT[k]){ /* slot opsional: file belum ada -> cadangan lama */

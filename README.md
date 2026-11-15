@@ -30,7 +30,7 @@ Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash
 
 ## Struktur kode
 
-- `assets/js/` : layanan bersama (`player-data`, `wallet-service`, `item-catalog`, `auth`, `session`, `prefs`, dll.), `dice-kit/`, `power3d/`, `multiplayer/`, dan `vendor/` (three.js).
+- `assets/js/` : layanan bersama (`player-data`, `wallet-service`, `item-catalog`, `auth`, `session`, `prefs`, dll.), `dice-kit/`, `renderers/power3d/`, `multiplayer/`, dan `vendor/` (three.js).
 - `assets/css/` : CSS bersama; `base.css` mempertahankan path lama dan mengimpor `base/`, `components/`, serta `utilities/`. Font lokal tetap di `fonts.css`, gaya halaman di `pages/`.
 - `gameplay/` : modul game (core, HUD, audio, efek, peta, AFK, dadu).
 - `hud/` : komponen & tema HUD.

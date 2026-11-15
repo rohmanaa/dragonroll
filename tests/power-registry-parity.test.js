@@ -123,9 +123,9 @@ t('Shop/Inventory/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCa
 });
 t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama yang benar-benar tersedia', async () => {
   const [{ POWER_ITEMS }, { PowerSound }, powerRegistry] = await Promise.all([
-    import(pathToFileURL(path.join(ROOT, 'assets/js/power3d/PowerCatalog.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/power3d/PowerSound.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/power3d/PowerRegistry.js')).href)
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerCatalog.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerSound.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerRegistry.js')).href)
   ]);
   const modelById = Object.fromEntries(POWER_ITEMS.map(m => [m.id, m]));
   const expectedMap = {};
@@ -229,7 +229,7 @@ t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual 
     const file = 'data/inventory/power/' + (k === 'index' ? '' : k + '/') + (k === 'index' ? 'index.js' : 'manifest.js');
     assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file);
   });
-  assert.ok(/VERSION = 'ut-pwa-v182'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v187'/.test(rd('sw.js')));
 });
 
 (async () => {
