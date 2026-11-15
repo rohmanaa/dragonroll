@@ -304,7 +304,7 @@
     return loadInFlight;
   }
 
-  const ready = import('./multiplayer/presence.js').then(async () => {
+  const ready = import('../multiplayer/presence.js').then(async () => {
     if (!PR()) throw new Error('Presence tidak tersedia.');
     await PR().start({ status: 'lobby', requireSession: true });
     PR().onChange(render);
