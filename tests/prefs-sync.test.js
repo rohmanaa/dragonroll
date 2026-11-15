@@ -3,7 +3,7 @@ const assert = require('assert'), fs = require('fs'), path = require('path'), vm
 const SYNC = require('../assets/js/prefs-sync.js');
 function mkPrefs(init) {
   const w = { localStorage: (function () { const st = Object.assign({}, init ? { 'ut:prefs:v1': JSON.stringify(init) } : {}); return { getItem: k => (k in st ? st[k] : null), setItem: (k, v) => { st[k] = String(v); }, removeItem: k => { delete st[k]; } }; })() };
-  w.window = w; vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js/prefs.js'), 'utf8'), vm.createContext(w));
+  w.window = w; vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js/core/prefs.js'), 'utf8'), vm.createContext(w));
   return w.UT.Prefs;
 }
 function mkServer(initial) {
