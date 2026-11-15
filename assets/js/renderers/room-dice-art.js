@@ -1,5 +1,5 @@
-import { getDice } from './dice-kit/DiceCatalog.js';
-import { diceThumbDataURL } from './dice-kit/DiceTextures.js';
+import { getDice } from '../dice-kit/DiceCatalog.js';
+import { diceThumbDataURL } from '../dice-kit/DiceTextures.js';
 
 window.RoomDiceArt = {
   thumb(gameKey, px) {
