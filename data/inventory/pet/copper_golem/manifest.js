@@ -1,5 +1,5 @@
 /* Manifest pet.copper_golem — dibuat dari ItemCatalog (data existing; tidak ada data baru). Paritas dijaga tests/pet-registry-parity.test.js.
-   tier/role/accent/colors = field katalog existing. assets.image = gambar yang dibangun pet-page.js (IMAGE_ROOT + gameKey + '.png').
+   tier/role/accent/colors = field katalog existing. assets.image = gambar kartu pet-page.js di data/inventory/pet/<gameKey>/<gameKey>.png.
    Visual 3D (assets/js/pet-viewer.js) tidak diduplikasi di sini. assets.sfx (Stage 4.1) = sumber path 3 SFX Pet, urutan = slot 0,1,2 yang diacak pet-viewer.js (playPetSound). */
 (function (g, m) {
   if (typeof module === 'object' && module.exports) module.exports = m;
@@ -17,5 +17,5 @@
     starter: false,
     desc: "Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.",
     visual: {"accent":"#ff9a30","colors":["#c8703a","#3fbf9f","#ffb040"]},
-    assets: { image: "assets/ng/pet3d/copper_golem.png", sfx: ["assets/sfx/pet/copper-golem-clang.mp3", "assets/sfx/pet/copper-golem-steam.mp3", "assets/sfx/pet/copper-golem-servo.mp3"] }
+    assets: { image: "data/inventory/pet/copper_golem/copper_golem.png", sfx: ["assets/sfx/pet/copper-golem-clang.mp3", "assets/sfx/pet/copper-golem-steam.mp3", "assets/sfx/pet/copper-golem-servo.mp3"] }
 });

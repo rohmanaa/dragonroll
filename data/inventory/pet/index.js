@@ -1,6 +1,6 @@
 /* Kategori Pet (Stage 4) — mendaftarkan kategori + 7 manifest ke ItemRegistry (pola sama dengan data/inventory/frame/index.js).
    Urutan KEYS = urutan di ItemCatalog (assets/js/item-catalog.js, tier 1..7). Satu item = satu folder (nama folder = gameKey).
-   Asset & audio TIDAK dipindah (assets/ng/pet3d/, assets/sfx/pet/). Tanpa fallbackId: slot pet opsional, tidak ada pet bawaan.
+   Gambar Pet berada di folder item masing-masing; audio tetap di assets/sfx/pet/. Tanpa fallbackId: slot pet opsional, tidak ada pet bawaan.
    Node : require('data/inventory/pet/index.js').register(registry)
    Browser: muat tiap <folder>/manifest.js (mengisi UT.ItemManifests) lalu berkas ini; ItemCatalog memanggil register() sendiri. */
 (function (root, factory) {

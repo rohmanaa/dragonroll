@@ -115,11 +115,11 @@ t('PlayerData: kepemilikan/equipped/pembelian identik antara jalur cadangan dan 
   const a = strip(snap(boot([]))), b = strip(snap(boot(PET_CHAIN.concat(FRAME_CHAIN)))); assert.deepStrictEqual(b, a);
   assert.deepStrictEqual(b.owns, [false, false, false, false, false, false, false]);
 });
-t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = IMAGE_ROOT + gameKey + .png = manifest assets.image', () => {
-  const pg = rd('assets/js/pages/pet-page.js'); assert.ok(/IMAGE_ROOT = 'assets\/ng\/pet3d\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey\}\.png/.test(pg));
+t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = data/inventory/pet/gameKey/gameKey.png = manifest assets.image', () => {
+  const pg = rd('assets/js/pages/pet-page.js'); assert.ok(/IMAGE_ROOT = 'data\/inventory\/pet\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey \+ '\/' \+ item\.gameKey \+ '\.png'/.test(pg));
   assert.ok(/item\.kind === 'pet'\)\.sort\(\(a, b\) => a\.tier - b\.tier\)/.test(pg));
   const sorted = clone(viaPet.ItemCatalog.items.filter(i => i.kind === 'pet')).sort((a, b) => a.tier - b.tier); assert.deepStrictEqual(sorted.map(i => i.id), bp.map(i => i.id));
-  items.forEach(m => assert.strictEqual(m.assets.image, 'assets/ng/pet3d/' + m.gameKey + '.png'));
+  items.forEach(m => assert.strictEqual(m.assets.image, 'data/inventory/pet/' + m.gameKey + '/' + m.gameKey + '.png'));
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
   const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
@@ -134,7 +134,13 @@ t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) da
 
 /* ---- aset & audio: lapisan dipisah ---- */
 t('A. manifest valid (validateManifest) 7/7', () => { items.forEach(m => assert.deepStrictEqual(IR.validateManifest(m, PetCat.category), { ok: true, errors: [] }, m.id)); });
-t('B. FORMAT path gambar valid 7/7 (bukan bukti file ada / termuat)', () => { items.forEach(m => assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id)); assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 7); });
+t('B. FORMAT path gambar canonical valid 7/7 dan unik (bukan bukti file ada / termuat)', () => {
+  items.forEach(m => {
+    assert.strictEqual(m.assets.image, 'data/inventory/pet/' + m.gameKey + '/' + m.gameKey + '.png', m.id);
+    assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id);
+  });
+  assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 7);
+});
 t('C. file gambar ADA, tidak kosong, header PNG (BUKAN pemuatan di browser)', () => {
   items.forEach(m => { const f = path.join(ROOT, m.assets.image); assert.ok(fs.existsSync(f), m.assets.image); const b = fs.readFileSync(f); assert.ok(b.length > 1000, m.assets.image); assert.strictEqual(b.slice(1, 4).toString(), 'PNG', m.assets.image); });
 });
@@ -198,10 +204,16 @@ t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong a
   ['sndBag=[0,1,2].sort(()=>Math.random()-.5)', 'SND[cur][k]()', 'sndT=rr(3,5.5);playPetSound()', 'setTimeout(playPetSound,120)', 'MASTER.gain.value=.55*sfxVolume()',
    'function petPlayFile(url,fallback){', "s.buffer=b;s.connect(MASTER);s.start();"].forEach(x => assert.ok(PV.indexOf(x) >= 0, x));
 });
-t('SFX: pet.html memuat manifest + pet/index.js SEBELUM pet-viewer.js; ke-21 mp3 sudah terdaftar di preload-manifest.json (path sama, tidak perlu didaftarkan ulang)', () => {
+t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan byte count aktual', () => {
+  const pm = JSON.parse(rd('assets/preload-manifest.json'));
+  items.forEach(m => {
+    assert.strictEqual(pm[m.assets.image], fs.statSync(path.join(ROOT, m.assets.image)).size, m.assets.image);
+    m.assets.sfx.forEach(u => assert.ok(pm[u] > 1000, u));
+  });
+});
+t('SFX: pet.html memuat manifest + pet/index.js SEBELUM pet-viewer.js', () => {
   const s = srcs(rd('pet.html')), pv = s.indexOf('assets/js/pet-viewer.js'); assert.ok(pv > 0);
   PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.ok(s.indexOf(f) >= 0 && s.indexOf(f) < pv, f));
-  const pm = JSON.parse(rd('assets/preload-manifest.json')); items.forEach(m => m.assets.sfx.forEach(u => assert.ok(pm[u] > 1000, u)));
 });
 t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes ini)', () => { assert.ok(true); });
 

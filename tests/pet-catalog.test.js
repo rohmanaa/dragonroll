@@ -107,7 +107,10 @@ t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dom
   assert.ok(page.includes(".from('pet_catalog')"));
   assert.ok(page.includes('WalletService'));
   assert.ok(!/localStorage/.test(page));
-  pets.forEach(p => assert.ok(fs.existsSync(path.join(root, 'assets/ng/pet3d', p.gameKey + '.png')), p.gameKey));
+  pets.forEach(p => {
+    const image = path.join(root, 'data/inventory/pet', p.gameKey, p.gameKey + '.png');
+    assert.ok(fs.existsSync(image), p.gameKey);
+  });
 });
 t('lobby dan profil mengarah ke halaman Pet root', () => {
   assert.ok(rd('lobby.html').includes("pet:'pet.html'"));
