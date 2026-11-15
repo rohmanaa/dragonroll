@@ -98,4 +98,14 @@ Implementation commit `9fda0a69e9a1e281e4dfbe7fb44c42f3676f1626` changes 31 path
 
 ## 8. Audit checkpoint and final Git verification
 
-The audit report is committed separately from implementation. Its audit commit hash and final remote verification are recorded in the report-only follow-up; the follow-up does not include its own hash.
+The audit report commit is `b682a81244168529bd89f839db26279362fc7d0a` (`docs(audit): record Phase 30 Power3D relocation`), following implementation commit `9fda0a69e9a1e281e4dfbe7fb44c42f3676f1626`.
+
+Post-push verification at the audit checkpoint:
+
+- Branch: `restruktur`.
+- `HEAD == origin/restruktur == b682a81244168529bd89f839db26279362fc7d0a`; remote `refs/heads/restruktur` matched.
+- `main == origin/main == aeb11acf130df4ade4acc9417f01470e40a33dbb`; remote `refs/heads/main` matched.
+- Worktree clean; `git diff --check` passed.
+- Implementation commit contains the 31 implementation paths summarized above; audit commit contains only this report.
+
+A separate report-only follow-up records these hashes and verification. It does not include its own hash.
