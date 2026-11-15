@@ -78,8 +78,9 @@ No unresolved relocation risk was found.
 ## Git checkpoints and verification
 
 - Implementation commit: `b1dde7a33464af6f772f592e1fdf4934be928377`; pushed to `origin/restruktur`.
-- Audit commit: to be recorded in the report-only follow-up.
-- After the implementation push, `HEAD` and `origin/restruktur` both pointed to `b1dde7a33464af6f772f592e1fdf4934be928377`; the worktree was clean.
+- Audit commit: `f6776773925bf387a8ee7369dc8599a4ac2b889c`; pushed to `origin/restruktur`.
+- After the audit push, `HEAD` and `origin/restruktur` both pointed to `f6776773925bf387a8ee7369dc8599a4ac2b889c`; the worktree was clean.
 - `main` and `origin/main` remain `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
-- `git ls-remote origin refs/heads/restruktur refs/heads/main` returned the implementation commit for `restruktur` and the unchanged baseline for `main`.
-- Final post-audit synchronization, audit commit hash, and any report-only follow-up hash will be recorded after those commits are pushed.
+- `git ls-remote origin refs/heads/restruktur refs/heads/main` returned `f6776773925bf387a8ee7369dc8599a4ac2b889c` for `restruktur` and the unchanged baseline for `main`.
+- Both the implementation and audit commits are ancestors of `origin/restruktur`.
+- The report-only follow-up commit hash and final post-follow-up synchronization are reported in the phase completion message; a commit cannot include its own hash in its tree.
