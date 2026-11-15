@@ -207,7 +207,7 @@ t('WS.dailyGet mengembalikan status server', async () => {
 });
 
 /* ---------- Iklan berhadiah ---------- */
-const ADS = require('../assets/js/ads-service.js');
+const ADS = require('../assets/js/services/ads-service.js');
 t('Ads: iklan selesai -> token valid untuk server, unik tiap tayangan', async () => {
   const A = ADS.create({ provider: { show: async () => ({ completed: true }) } });
   const a = await A.show(), b = await A.show();
