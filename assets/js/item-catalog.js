@@ -38,7 +38,7 @@
     pet:     { category: 'lainnya',  noun: 'Pet',        slot: 'pet' }    /* opsional (boleh kosong), satu pet aktif; punya skill (data skill: supabase/pet_catalog.sql) */
   };
   /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
-     Di halaman, <img> frame diganti canvas beranimasi oleh assets/js/frame-fx.js (WebP = fallback/statis).
+     Di halaman, <img> frame diganti canvas beranimasi oleh assets/js/renderers/frame-fx.js (WebP = fallback/statis).
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
   var FRAME_DIR = 'data/frame/';
   var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';

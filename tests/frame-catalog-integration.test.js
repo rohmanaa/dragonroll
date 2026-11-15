@@ -122,7 +122,7 @@ t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catal
     assert.ok(indexes.every(x => x >= 0 && x < i), p);
     assert.deepStrictEqual(indexes, indexes.slice().sort((a, b) => a - b), p);
     CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, p + ' ' + f));
-    const fx = s.indexOf('assets/js/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
+    const fx = s.indexOf('assets/js/renderers/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
 });
 t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 16); });
 t('Halaman lain memakai jalur fallback Frame tanpa manifest Frame; Registry kategori lain tidak mengubahnya', () => {
