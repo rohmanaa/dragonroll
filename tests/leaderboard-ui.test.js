@@ -16,6 +16,6 @@ assert.ok(!html.includes("$('#home').addEventListener"), 'leaderboard has no dup
 assert.ok(html.includes('id="cur-co"') && html.includes('ikon-koin-emas.webp'));
 
 const frameFx = html.indexOf('assets/js/frame-fx.js');
-const frameAvatar = html.indexOf('assets/js/frame-avatar.js');
+const frameAvatar = html.indexOf('assets/js/renderers/frame-avatar.js');
 assert.ok(frameFx >= 0 && frameFx < frameAvatar, 'FrameFX must load before FrameAvatar');
 console.log('ok - leaderboard banners, scores, and animated frames');
