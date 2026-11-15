@@ -129,9 +129,20 @@ t('Equip->Gameplay: tiap gameKey Dice ada di DiceKit (DiceCatalog.js) sehingga d
   assert.ok(/window\.ItemCatalog\.byId\(di\)/.test(rd('gameplay/js/main.js')) && /p\.diceKey=\(it&&it\.gameKey\)/.test(rd('gameplay/js/main.js')));
   assert.ok(/DiceKit\.has\(want\.key\) \? want\.key : 'klasik'/.test(rd('gameplay/js/dice-ui.js')));
 });
-t('Gameplay implementation tidak disentuh: gameplay/, PlayerData, API server, dan aset audio identik dengan HEAD', () => {
-  const d = cp.execSync('git diff --name-only HEAD -- gameplay assets/js/player-data.js assets/js/game-integration.js assets/js/renderers/dice-kit supabase assets/sfx', { cwd: ROOT }).toString().trim();
+t('Gameplay implementation dan SFX non-Pet tidak disentuh; hanya SFX Pet-owned yang direlokasi', () => {
+  const d = cp.execSync('git diff --name-only HEAD -- gameplay assets/js/player-data.js assets/js/game-integration.js assets/js/renderers/dice-kit supabase', { cwd: ROOT }).toString().trim();
   assert.strictEqual(d, '');
+  const audio = cp.execSync('git diff --name-only HEAD -- assets/sfx', { cwd: ROOT }).toString().trim().split(/\r?\n/).filter(Boolean);
+  const moved = new Set([
+    'assets/sfx/README.md',
+    'assets/sfx/pet/arcane-owl-flap.mp3', 'assets/sfx/pet/arcane-owl-hoot.mp3', 'assets/sfx/pet/arcane-owl-sparkle.mp3',
+    'assets/sfx/pet/celestial-kitsune-cry.mp3', 'assets/sfx/pet/copper-golem-clang.mp3', 'assets/sfx/pet/copper-golem-servo.mp3',
+    'assets/sfx/pet/copper-golem-steam.mp3', 'assets/sfx/pet/crystal-axolotl-bubble.mp3', 'assets/sfx/pet/crystal-axolotl-chime.mp3',
+    'assets/sfx/pet/crystal-axolotl-squeak.mp3', 'assets/sfx/pet/forest-pup-bark-burst.mp3', 'assets/sfx/pet/forest-pup-bark.mp3',
+    'assets/sfx/pet/forest-pup-whimper.mp3', 'assets/sfx/pet/inferno-dragon-roar.mp3', 'assets/sfx/pet/inferno-dragon-wings.mp3',
+    'assets/sfx/pet/storm-wolf-howl.mp3', 'assets/sfx/pet/storm-wolf-thunder.mp3'
+  ]);
+  assert.ok(audio.every(file => moved.has(file)), audio.join('\n'));
 });
 
 /* ---- Server / kepemilikan ---- */
@@ -176,7 +187,7 @@ t('Halaman lain tidak diubah: gameplay/shop/inventory/lobby/profile memakai jalu
   ['gameplay.html', 'lobby.html', 'shop.html', 'inventory.html', 'mode.html', 'profile.html', 'karakter.html', 'pet.html'].forEach(h => assert.ok(rd(h).indexOf('data/inventory/dice/') < 0, h));
 });
 t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice dengan ukuran benar', () => {
-  assert.ok(/VERSION = 'ut-pwa-v196'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v197'/.test(rd('sw.js')));
   const pm = JSON.parse(rd('assets/preload-manifest.json')), want = DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js').concat(['data/inventory/dice/index.js']);
   assert.strictEqual(want.length, 24); want.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
   DICEKIT_FILES.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));

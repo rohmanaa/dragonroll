@@ -7,10 +7,10 @@ const MODULES=Object.freeze({
   forest_pup:{url:'data/inventory/pet/forest_pup/model.js',active:true},
   copper_golem:{url:'data/inventory/pet/copper_golem/model.js',active:true},
   crystal_axolotl:{url:'data/inventory/pet/crystal_axolotl/model.js',active:true},
-  arcane_owl:{url:'data/inventory/pet/arcane_owl/model.js',active:false},
-  storm_wolf:{url:'data/inventory/pet/storm_wolf/model.js',active:false},
-  inferno_dragon:{url:'data/inventory/pet/inferno_dragon/model.js',active:false},
-  celestial_kitsune:{url:'data/inventory/pet/celestial_kitsune/model.js',active:false}
+  arcane_owl:{url:'data/inventory/pet/arcane_owl/model.js',active:true},
+  storm_wolf:{url:'data/inventory/pet/storm_wolf/model.js',active:true},
+  inferno_dragon:{url:'data/inventory/pet/inferno_dragon/model.js',active:true},
+  celestial_kitsune:{url:'data/inventory/pet/celestial_kitsune/model.js',active:true}
 });
 const KEYS=Object.freeze(Object.keys(MODULES));
 const builders=Object.create(null),pending=Object.create(null);

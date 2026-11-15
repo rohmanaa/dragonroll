@@ -40,6 +40,19 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 
 Catatan: semua sfx file menghormati tombol mute dan punya fallback bunyi sintetis bila file gagal diputar.
 
+## Audio Pet
+
+Tujuh belas SFX yang hanya dipakai Pet berada di `data/inventory/pet/<gameKey>/sfx/`; path kanonisnya tercatat di manifest Pet. Empat SFX yang juga dipakai Gameplay Power tetap satu file shared di `assets/sfx/pet/`:
+
+| File | Pemakaian shared |
+|---|---|
+| `storm-wolf-zap.mp3` | Storm Wolf + Trident |
+| `inferno-dragon-fire.mp3` | Inferno Dragon + Fire Charge |
+| `celestial-kitsune-bell.mp3` | Celestial Kitsune + Nether Star |
+| `celestial-kitsune-shine.mp3` | Celestial Kitsune + Totem |
+
+`tools/normalize-sfx.py` mencakup SFX shared, SFX Pet-owned, dan SFX gameplay. Musik tetap di `assets/music/` karena tidak ada musik khusus Pet.
+
 ## Folder `assets/new sound/` (pengganti SFX sintetis)
 
 Dirujuk di `gameplay/audio.js` lewat `NS='../new sound/'`. Fungsi sintetis lama tetap jadi fallback bila file gagal diputar.

@@ -1,6 +1,6 @@
 /* Manifest pet.crystal_axolotl — dibuat dari ItemCatalog (data existing; tidak ada data baru). Paritas dijaga tests/pet-registry-parity.test.js.
    tier/role/accent/colors = field katalog existing. assets.image = gambar kartu pet-page.js di data/inventory/pet/<gameKey>/<gameKey>.png.
-   Visual 3D (assets/js/pet-viewer.js) tidak diduplikasi di sini. assets.sfx (Stage 4.1) = sumber path 3 SFX Pet, urutan = slot 0,1,2 yang diacak pet-viewer.js (playPetSound). */
+   Visual 3D (assets/js/renderers/pet-viewer.js) tidak diduplikasi di sini. assets.sfx = sumber path 3 SFX Pet, urutan = slot 0,1,2 yang diacak PetViewer (playPetSound). */
 (function (g, m) {
   if (typeof module === 'object' && module.exports) module.exports = m;
   else ((g.UT = g.UT || {}).ItemManifests = g.UT.ItemManifests || []).push(m);
@@ -17,5 +17,5 @@
     starter: false,
     desc: "Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.",
     visual: {"accent":"#40e8f4","colors":["#8fe8f2","#d8fbff","#ff9ad8"]},
-    assets: { image: "data/inventory/pet/crystal_axolotl/crystal_axolotl.png", sfx: ["assets/sfx/pet/crystal-axolotl-bubble.mp3", "assets/sfx/pet/crystal-axolotl-chime.mp3", "assets/sfx/pet/crystal-axolotl-squeak.mp3"] }
+    assets: { image: "data/inventory/pet/crystal_axolotl/crystal_axolotl.png", sfx: ["data/inventory/pet/crystal_axolotl/sfx/crystal-axolotl-bubble.mp3", "data/inventory/pet/crystal_axolotl/sfx/crystal-axolotl-chime.mp3", "data/inventory/pet/crystal_axolotl/sfx/crystal-axolotl-squeak.mp3"] }
 });

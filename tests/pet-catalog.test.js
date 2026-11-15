@@ -101,11 +101,11 @@ t('pembelian pet lokal tanpa akun ditolak (harga dipegang server), koin maupun e
 });
 t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dompet localStorage demo', () => {
   const html = rd('pet.html'), page = rd('assets/js/pages/pet-page.js');
-  assert.ok(html.includes('assets/js/pet-viewer.js'));
+  assert.ok(html.includes('assets/js/renderers/pet-viewer.js'));
   assert.ok(html.includes('assets/js/renderers/pet-model-registry.js'));
   assert.ok(html.indexOf('assets/js/vendor/three.min.js') < html.indexOf('assets/js/renderers/pet-model-registry.js'));
-  assert.ok(html.indexOf('assets/js/renderers/pet-model-registry.js') < html.indexOf('assets/js/pet-viewer.js'));
-  assert.ok(html.indexOf('assets/js/pet-viewer.js') < html.indexOf('assets/js/pages/pet-page.js'));
+  assert.ok(html.indexOf('assets/js/renderers/pet-model-registry.js') < html.indexOf('assets/js/renderers/pet-viewer.js'));
+  assert.ok(html.indexOf('assets/js/renderers/pet-viewer.js') < html.indexOf('assets/js/pages/pet-page.js'));
   assert.ok(html.includes('assets/js/pages/pet-page.js'));
   assert.ok(html.includes('UT.App.init({page:\'pet\'})'));
   assert.ok(page.includes(".from('pet_catalog')"));

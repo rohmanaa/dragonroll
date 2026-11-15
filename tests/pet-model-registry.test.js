@@ -10,9 +10,13 @@ const REGISTRY_PATH = 'assets/js/renderers/pet-model-registry.js';
 const MODEL_PATHS = {
   forest_pup: 'data/inventory/pet/forest_pup/model.js',
   copper_golem: 'data/inventory/pet/copper_golem/model.js',
-  crystal_axolotl: 'data/inventory/pet/crystal_axolotl/model.js'
+  crystal_axolotl: 'data/inventory/pet/crystal_axolotl/model.js',
+  arcane_owl: 'data/inventory/pet/arcane_owl/model.js',
+  storm_wolf: 'data/inventory/pet/storm_wolf/model.js',
+  inferno_dragon: 'data/inventory/pet/inferno_dragon/model.js',
+  celestial_kitsune: 'data/inventory/pet/celestial_kitsune/model.js'
 };
-const VIEWER_PATH = 'assets/js/pet-viewer.js';
+const VIEWER_PATH = 'assets/js/renderers/pet-viewer.js';
 const tests = [];
 const test = (name, fn) => tests.push([name, fn]);
 
@@ -63,16 +67,29 @@ function harness(mode, key) {
 function modelContext() {
   let groups = 0, emitted = 0;
   const node = () => ({
-    position: { set() {} },
+    children: [],
+    position: { x: 0, y: 0, z: 0, set(x, y, z) { this.x = x; this.y = y; this.z = z; } },
     rotation: {},
-    scale: { y: 1 },
+    scale: { x: 1, y: 1, z: 1, setScalar(value) { this.x = this.y = this.z = value; } },
     material: { emissiveIntensity: 0, opacity: 1 },
-    add() {},
-    traverse() {}
+    add(child) { this.children.push(child); },
+    traverse(fn) { fn(this); this.children.forEach(child => child.traverse(fn)); },
+    updateMatrixWorld() {},
+    getWorldPosition(target) { return target.set(0, 0, 0); },
+    getWorldQuaternion(target) { return target; }
   });
   class Group {
     constructor() { groups++; Object.assign(this, node()); }
   }
+  class PointLight {
+    constructor() { Object.assign(this, node()); }
+  }
+  class Vector3 {
+    set() { return this; }
+    applyQuaternion() { return this; }
+  }
+  class Quaternion {}
+  class Color {}
   const helpers = {
     bx(parent) { const result = node(); parent.add(result); return result; },
     cone(parent) { const result = node(); parent.add(result); return result; },
@@ -82,33 +99,34 @@ function modelContext() {
     glow(parent) { const result = node(); parent.add(result); return result; },
     oct(parent) { const result = node(); parent.add(result); return result; },
     sph(parent) { const result = node(); parent.add(result); return result; },
+    torus(parent) { const result = node(); parent.add(result); return result; },
+    mk(parent) { const result = node(); parent.add(result); return result; },
+    fan() { return node(); },
+    makeBolt() { return { set() {}, hide() {} }; },
+    zig() { return []; },
     rate() { return () => {}; },
     pick(values) { return values[0]; },
     rr(min) { return min; }
   };
   return {
-    context: { THREE: { Group }, helpers, emit() { emitted++; } },
+    context: { THREE: { Group, PointLight, Vector3, Quaternion, Color }, helpers, emit() { emitted++; } },
     stats: () => ({ groups, emitted })
   };
 }
 
-test('allowlist contains all seven keys with Forest Pup, Copper Golem, and Crystal Axolotl active', () => {
+test('allowlist contains all seven active Pet model keys', () => {
   const { registry } = harness();
   assert.deepStrictEqual(Array.from(registry.keys()), KEYS);
-  assert.deepStrictEqual(KEYS.filter(key => registry.hasModule(key)), ['forest_pup', 'copper_golem', 'crystal_axolotl']);
+  assert.deepStrictEqual(KEYS.filter(key => registry.hasModule(key)), KEYS);
   KEYS.forEach(key => assert.strictEqual(registry.isKnownKey(key), true, key));
   const source = read(REGISTRY_PATH);
   KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js'"), key));
-  assert.ok(source.includes("forest_pup:{url:'data/inventory/pet/forest_pup/model.js',active:true}"));
-  assert.ok(source.includes("copper_golem:{url:'data/inventory/pet/copper_golem/model.js',active:true}"));
-  assert.ok(source.includes("crystal_axolotl:{url:'data/inventory/pet/crystal_axolotl/model.js',active:true}"));
-  KEYS.slice(3).forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js',active:false}"), key));
+  KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js',active:true}"), key));
 });
 
-test('unknown and inactive keys reject without creating a script or deriving a URL', async () => {
+test('unknown keys reject without creating a script or deriving a URL', async () => {
   const { registry, state } = harness();
   await assert.rejects(registry.load('../forest_pup'), /Unknown Pet model key/);
-  await assert.rejects(registry.load('arcane_owl'), /not active/);
   assert.strictEqual(state.creates, 0);
   assert.strictEqual(state.appends, 0);
 });
@@ -182,7 +200,24 @@ test('Crystal Axolotl loads lazily and its builder preserves the model handle co
   assert.strictEqual(await registry.load('crystal_axolotl'), builder);
   assert.strictEqual(state.appends, 1);
   assert.throws(() => registry.register('crystal_axolotl', builder), /already registered/);
-  assert.ok(read(VIEWER_PATH).includes('const modelHelpers=Object.freeze({bx,cone,cyl,oct,sph,gp,eye,glow,rate,pick,rr})'));
+  assert.ok(read(VIEWER_PATH).includes('const modelHelpers=Object.freeze({bx,cone,cyl,oct,torus,sph,gp,eye,glow,fan,mk,makeBolt,zig,rate,pick,rr})'));
+});
+
+test('Arcane Owl, Storm Wolf, Inferno Dragon, and Celestial Kitsune load their Pet-owned builders', async () => {
+  for (const key of KEYS.slice(3)) {
+    const { registry, state } = harness(null, key);
+    const builder = await registry.load(key), model = modelContext();
+    assert.strictEqual(state.scripts[0].src, MODEL_PATHS[key]);
+    assert.strictEqual(typeof builder, 'function');
+    const handle = builder(model.context);
+    assert.ok(handle.root && handle.cam);
+    assert.strictEqual(typeof handle.tick, 'function');
+    assert.strictEqual(typeof handle.burst, 'function');
+    handle.tick(0, 1 / 60);
+    handle.burst();
+    assert.ok(model.stats().groups > 0, key);
+    assert.ok(model.stats().emitted > 0, key);
+  }
 });
 
 test('a module that registers a different key is rejected', async () => {
@@ -191,20 +226,18 @@ test('a module that registers a different key is rejected', async () => {
   assert.strictEqual(state.registrationErrors.length, 1);
 });
 
-test('Forest Pup, Copper Golem, and Crystal Axolotl are extracted; the four remaining builders stay inline', () => {
-  const viewer = read(VIEWER_PATH), model = read(MODEL_PATHS.forest_pup), copper = read(MODEL_PATHS.copper_golem), crystal = read(MODEL_PATHS.crystal_axolotl);
-  assert.ok(!viewer.includes('function petPup('));
-  assert.ok(!viewer.includes('function petGolem('));
-  assert.ok(!viewer.includes('function petAxolotl('));
-  assert.ok(viewer.includes("id:'forest_pup'") && viewer.includes("color:'#6fd05a',build:null"));
-  assert.ok(viewer.includes("id:'copper_golem'") && viewer.includes("color:'#ff9a30',build:null"));
-  assert.ok(viewer.includes("id:'crystal_axolotl'") && viewer.includes("color:'#40e8f4',build:null"));
-  ['petOwl', 'petWolf', 'petDragon', 'petKitsune'].forEach(name => {
-    assert.ok(viewer.includes('function ' + name + '()'), name);
+test('all seven Pet builders have one canonical model.js and none remain inline in PetViewer', () => {
+  const viewer = read(VIEWER_PATH);
+  const names = ['ForestPup', 'CopperGolem', 'CrystalAxolotl', 'ArcaneOwl', 'StormWolf', 'InfernoDragon', 'CelestialKitsune'];
+  KEYS.forEach((key, index) => {
+    const model = read(MODEL_PATHS[key]);
+    assert.ok(model.includes('function build' + names[index] + '(context)'), key);
+    assert.ok(!viewer.includes('function pet' + names[index]), key);
   });
-  assert.ok(model.includes('function buildForestPup(context)'));
-  assert.ok(copper.includes('function buildCopperGolem(context)'));
-  assert.ok(crystal.includes('function buildCrystalAxolotl(context)'));
+  assert.ok(viewer.includes("catalogItems.filter(item=>item.kind==='pet')"));
+  assert.ok(viewer.includes("map(item=>({id:item.gameKey,name:item.name,color:item.accent}))"));
+  assert.ok(!/function pet(?:Pup|Golem|Axolotl|Owl|Wolf|Dragon|Kitsune)\(/.test(viewer), 'viewer must not retain Pet model builders');
+  assert.strictEqual((viewer.match(/function pet(?:Pup|Golem|Axolotl|Owl|Wolf|Dragon|Kitsune)\(/g) || []).length, 0);
 });
 
 test('script load errors reject explicitly', async () => {
@@ -224,14 +257,15 @@ test('a later selection invalidates an older Copper Golem load before its builde
 
   const viewer = read(VIEWER_PATH);
   const selectAt = viewer.indexOf('selectFn=function(i){');
-  assert.ok(viewer.includes('if((cur===i&&pet)||pendingId===i)return;'));
+  assert.ok(viewer.includes('if(pendingId===i)return;'));
+  assert.ok(viewer.includes('if(cur===i&&pet){if(pendingId!==null){selectionGuard.begin();pendingId=null}return}'));
   assert.ok(viewer.includes('const token=selectionGuard.begin(),changed=cur!==i;'));
   const loadAt = viewer.indexOf('registry.load(d.id).then');
   const currentGuard = viewer.indexOf('if(!selectionGuard.isCurrent(token))return;', loadAt);
   const buildAt = viewer.indexOf('builder({THREE:T,helpers:modelHelpers,emit})', loadAt);
   assert.ok(selectAt >= 0 && loadAt > selectAt && currentGuard > loadAt && currentGuard < buildAt);
   assert.ok(viewer.includes('catch(error){failed(error)}'));
-  assert.ok(viewer.includes('window.PetViewer={\n  select(id){'));
+  assert.ok(viewer.includes('window.PetViewer={\n  select(gameKey){'));
   assert.ok(viewer.includes("console.error('[PetViewer] Failed to load or build '+d.id+'.',error)"));
 });
 
