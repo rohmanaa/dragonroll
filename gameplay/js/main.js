@@ -4978,7 +4978,7 @@ function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performanc
 function turnTag(){ return gameOver?'Selesai':ORD(cur); } /* teks chip panel Giliran: 1st/2nd/... atau Selesai saat game berakhir */
 function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
 function syncOppTurn(){ const c=players[cur]; document.body.classList.toggle('opp-turn',!!(c&&!canControlPlayer(c)&&!gameOver)); } /* Roll & Auto disembunyikan saat bukan giliran pemain ini (CPU / pemain online lain) */
-const GAME_HUD_ASSETS='referensi/newgui/game/assets/komponen/';
+const GAME_HUD_ASSETS='assets/ng/komponen/';
 const GAME_HUD_POWER_ART={
   feather:['glyph-putih','bulu'],tnt:['ikon-item','bom'],totem:['ikon-item','helm-sayap'],
   potion_odd:['ikon-item','ramuan-hijau'],potion_even:['ikon-item','ramuan-ungu'],
@@ -5958,7 +5958,7 @@ $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
-$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="referensi/newgui/game/assets/komponen/glyph-putih/'+(muted?'speaker-mati':'speaker-suara')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').setAttribute('aria-label','Suara: '+t); $('btnSnd').classList.toggle('muted',muted); });
+$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/ng/komponen/glyph-putih/'+(muted?'speaker-mati':'speaker-suara')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').setAttribute('aria-label','Suara: '+t); $('btnSnd').classList.toggle('muted',muted); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
 let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
 function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} syncDiceSound(); }
