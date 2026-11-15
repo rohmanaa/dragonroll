@@ -70,6 +70,9 @@ No Copper Golem manifest, PNG, SFX, catalog metadata, Pet page, or other Pet mod
 ## 8. Git checkpoints
 
 - Implementation commit: `32f1a100e239836a0fb9629e09e84b8258e6613d`.
-- Audit report is committed separately. Its commit hash and final branch verification are recorded in the completion message or a report-only follow-up.
+- Audit commit: `65e31a714d0878bb411d9b44582128273afb8971`.
+- After pushing, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `65e31a714d0878bb411d9b44582128273afb8971`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final verification results. Its own hash is included in the completion message because a commit cannot contain its own object hash.
 
 **Target status: COMPLETED — COPPER GOLEM MODEL EXTRACTED, REGISTRY CONTRACT PRESERVED.**
