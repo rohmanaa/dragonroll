@@ -74,5 +74,9 @@ This is the only service-worker change. `CORE`, cache strategies, fetch handling
 ## 7. Checkpoint and final verification
 
 - Implementation commit: `8c0133433c8d51cab5db447653139dd50766c0c5`.
-- The audit-report commit hash and final remote/worktree/main verification are recorded in a separate report-only follow-up after the report is committed.
-- Final status is set after the implementation and audit commits are pushed and verified.
+- Audit-report commit: `f259d0994064e68507873afa8587fbf49be72730`.
+- At the audit checkpoint, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `f259d0994064e68507873afa8587fbf49be72730`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final results. Its own commit hash is provided in the completion message because a commit cannot contain its own object hash.
+
+**Status: COMPLETED — FRAMEFX RELOCATED, API AND RUNTIME BEHAVIOR PRESERVED.**
