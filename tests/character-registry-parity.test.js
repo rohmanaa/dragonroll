@@ -2,10 +2,10 @@
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const CharacterCat = require(path.join(ROOT, 'data/inventory/character/index.js'));
 const baseline = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
-const BASE_CHAIN = ['assets/js/item-registry.js']
+const BASE_CHAIN = ['assets/js/core/item-registry.js']
   .concat(CharacterCat.keys.map(k => 'data/inventory/character/' + k + '/manifest.js'), ['data/inventory/character/index.js']);
 const PAGES = ['karakter.html', 'lobby.html', 'profile.html', 'room.html', 'gameplay.html', 'mode.html', 'leaderboard.html', 'hadiah-misi.html'];
 const srcs = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
@@ -148,7 +148,7 @@ test('Halaman konsumen memuat Registry, enam manifest, index, lalu ItemCatalog t
   PAGES.forEach(file => {
     const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' tidak boleh memuat skrip ganda');
-    const registry = scripts.indexOf('assets/js/item-registry.js'), index = scripts.indexOf('data/inventory/character/index.js');
+    const registry = scripts.indexOf('assets/js/core/item-registry.js'), index = scripts.indexOf('data/inventory/character/index.js');
     assert.ok(registry >= 0 && registry < index && index < cat, file);
     CharacterCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/character/' + k + '/manifest.js');

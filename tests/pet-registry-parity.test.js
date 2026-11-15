@@ -3,7 +3,7 @@
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada + header PNG  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
@@ -20,7 +20,7 @@ function boot(chains) {
   chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
-const PET_CHAIN = ['assets/js/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);
+const PET_CHAIN = ['assets/js/core/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaPet = boot(PET_CHAIN), viaBoth = boot(PET_CHAIN.concat(FRAME_CHAIN));
 
@@ -82,7 +82,7 @@ t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) — ben
   assert.deepStrictEqual(Object.keys(viaPet.ItemCatalog.byId('pet.storm_wolf')).sort(), Object.keys(bp[4]).sort());
   const c2 = boot([]); /* VM bersih dengan manifest storm_wolf termutasi */
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
-  const x = vm.createContext(Object.assign(w, { console, Date, JSON, Math })); vm.runInContext(rd('assets/js/item-registry.js'), x);
+  const x = vm.createContext(Object.assign(w, { console, Date, JSON, Math })); vm.runInContext(rd('assets/js/core/item-registry.js'), x);
   PetCat.keys.forEach(k => { let s = rd('data/inventory/pet/' + k + '/manifest.js'); if (k === 'storm_wolf') s = s.replace('"Storm Wolf"', '"Storm Wolf UJI"').replace('gems: 1500', 'gems: 1501'); vm.runInContext(s, x); });
   vm.runInContext(rd('data/inventory/pet/index.js'), x); vm.runInContext(rd('assets/js/item-catalog.js'), x);
   const s = x.ItemCatalog.byId('pet.storm_wolf'); assert.strictEqual(x.ItemCatalog.petSource(), 'registry'); assert.strictEqual(s.name, 'Storm Wolf UJI'); assert.strictEqual(s.gems, 1501);
@@ -98,7 +98,7 @@ t('ItemCatalog: semua API lama tetap ada; cost/byId/byGameKey/optionalSlots/KIND
 t('Ketahanan: Registry + index.js ada tetapi manifest belum dimuat -> jalur cadangan, katalog identik baseline', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
-  ['assets/js/item-registry.js', 'data/inventory/pet/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
+  ['assets/js/core/item-registry.js', 'data/inventory/pet/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'legacy'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali tidak menggandakan registrasi', () => {
@@ -220,6 +220,6 @@ t('Halaman lain tidak memuat manifest Pet; gameplay.html tidak berubah', () => {
   fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && f !== 'pet.html').forEach(f => assert.ok(!/inventory\/pet/.test(rd(f)), f));
 });
 t('Loader lama dibuang: tidak ada document.write di berkas Registry/manifest/index/katalog', () => {
-  ['assets/js/item-registry.js', 'assets/js/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
+  ['assets/js/core/item-registry.js', 'assets/js/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
 });
 console.log('\n' + n + ' tes lulus');

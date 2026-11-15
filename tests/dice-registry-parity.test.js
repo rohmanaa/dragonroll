@@ -4,7 +4,7 @@
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8'), ex = p => fs.existsSync(path.join(ROOT, p));
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
@@ -22,7 +22,7 @@ function boot(chains) {
   chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
-const DICE_CHAIN = ['assets/js/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
+const DICE_CHAIN = ['assets/js/core/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
 const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaDice = boot(DICE_CHAIN), viaAll = boot(DICE_CHAIN.concat(PET_CHAIN, FRAME_CHAIN));
@@ -164,7 +164,7 @@ t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan sel
 /* ---- Halaman ---- */
 t('Halaman: dadu/room memuat rantai Dice berurutan (registry -> 23 manifest -> index -> item-catalog), tanpa skrip ganda, semua berkas ada', () => {
   ['dadu.html', 'room.html'].forEach(h => { const s = srcs(rd(h)); assert.strictEqual(new Set(s).size, s.length, h + ' skrip ganda');
-    const iReg = s.indexOf('assets/js/item-registry.js'), iIdx = s.indexOf('data/inventory/dice/index.js'), iCat = s.indexOf('assets/js/item-catalog.js');
+    const iReg = s.indexOf('assets/js/core/item-registry.js'), iIdx = s.indexOf('data/inventory/dice/index.js'), iCat = s.indexOf('assets/js/item-catalog.js');
     assert.ok(iReg >= 0 && iReg < iIdx && iIdx < iCat, h);
     DiceCat.keys.forEach(k => { const i = s.indexOf('data/inventory/dice/' + k + '/manifest.js'); assert.ok(i > iReg && i < iIdx, h + ' ' + k); });
     s.filter(x => /^data\/inventory\/dice\/|^assets\/js\/item-(registry|catalog)\.js$/.test(x)).forEach(x => assert.ok(ex(x), h + ' 404: ' + x)); });   /* hanya berkas rantai Dice/Registry/Catalog (room.html punya 404 lama di luar lingkup: gameplay/particle-fx.js, lihat audit) */

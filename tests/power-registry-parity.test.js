@@ -4,7 +4,7 @@ const assert = require('assert'), fs = require('fs'), path = require('path'), vm
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const ex = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const PowerCat = require(path.join(ROOT, 'data/inventory/power/index.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
@@ -12,7 +12,7 @@ const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
 const baseline = base.items.filter(i => i.kind === 'powerup');
 const srcs = html => (html.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
-const POWER_CHAIN = ['assets/js/item-registry.js']
+const POWER_CHAIN = ['assets/js/core/item-registry.js']
   .concat(PowerCat.keys.map(k => 'data/inventory/power/' + k + '/manifest.js'), ['data/inventory/power/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
@@ -79,8 +79,8 @@ t('ItemCatalog: jalur Registry/legacy/gabungan identik dengan baseline dan API l
   assert.strictEqual(viaPower.ItemCatalog.byId('sword').slot, null);
 });
 t('Fallback: manifest kosong atau tidak lengkap mempertahankan seluruh katalog legacy', () => {
-  const empty = boot(['assets/js/item-registry.js', 'data/inventory/power/index.js']);
-  const one = boot(['assets/js/item-registry.js', 'data/inventory/power/sword/manifest.js', 'data/inventory/power/index.js']);
+  const empty = boot(['assets/js/core/item-registry.js', 'data/inventory/power/index.js']);
+  const one = boot(['assets/js/core/item-registry.js', 'data/inventory/power/sword/manifest.js', 'data/inventory/power/index.js']);
   [empty, one].forEach(ctx => {
     assert.strictEqual(ctx.ItemCatalog.powerSource(), 'legacy');
     assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
@@ -106,7 +106,7 @@ t('Shop/Inventory/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCa
   ['shop.html', 'inventory.html', 'room.html', 'gameplay.html', 'powerup.html'].forEach(file => {
     const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' script ganda');
-    assert.ok(scripts.indexOf('assets/js/item-registry.js') >= 0, file + ' Registry');
+    assert.ok(scripts.indexOf('assets/js/core/item-registry.js') >= 0, file + ' Registry');
     assert.ok(scripts.indexOf('data/inventory/power/index.js') < cat, file + ' power index');
     PowerCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/power/' + k + '/manifest.js');

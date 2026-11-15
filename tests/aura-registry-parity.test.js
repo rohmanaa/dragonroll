@@ -2,9 +2,9 @@
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const AuraCat = require(path.join(ROOT, 'data/inventory/aura/index.js'));
-const BASE_CHAIN = ['assets/js/item-registry.js']
+const BASE_CHAIN = ['assets/js/core/item-registry.js']
   .concat(AuraCat.keys.map(k => 'data/inventory/aura/' + k + '/manifest.js'), ['data/inventory/aura/index.js']);
 const srcs = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
 
@@ -87,7 +87,7 @@ test('Shop, Inventory, Character, Lobby, Profile, Gameplay memuat Aura Registry 
   ['efek.html', 'inventory.html', 'karakter.html', 'lobby.html', 'profile.html', 'gameplay.html'].forEach(file => {
     const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' tidak boleh memuat skrip ganda');
-    const registry = scripts.indexOf('assets/js/item-registry.js'), index = scripts.indexOf('data/inventory/aura/index.js');
+    const registry = scripts.indexOf('assets/js/core/item-registry.js'), index = scripts.indexOf('data/inventory/aura/index.js');
     assert.ok(registry >= 0 && registry < index, file + ' ItemRegistry sebelum manifest');
     AuraCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/aura/' + k + '/manifest.js');

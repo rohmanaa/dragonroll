@@ -15,7 +15,7 @@ function boot(registry, extra) {
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   const files = [];
-  if (registry) { files.push('assets/js/item-registry.js'); FrameCat.keys.forEach(k => files.push('data/inventory/frame/' + k + '/manifest.js')); files.push('data/inventory/frame/index.js'); }
+  if (registry) { files.push('assets/js/core/item-registry.js'); FrameCat.keys.forEach(k => files.push('data/inventory/frame/' + k + '/manifest.js')); files.push('data/inventory/frame/index.js'); }
   files.push('assets/js/core/session.js', 'assets/js/item-catalog.js'); (extra || []).forEach(f => files.push(f));
   files.forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
@@ -60,12 +60,12 @@ t('Frame: 14/14 metadata (id, name, kind, rarity, price, gems, starter, desc, fe
 });
 t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) — nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
   /* Bukti sumber: ubah satu manifest di salinan lalu muat ulang -> katalog mengikuti manifest, bukan literal/TIER_PRICE. */
-  const IR = require(path.join(ROOT, 'assets/js/item-registry.js')), reg = IR.create(); FrameCat.register(reg);
+  const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js')), reg = IR.create(); FrameCat.register(reg);
   const m = JSON.parse(JSON.stringify(reg.getItem('frame.stone'))); m.name = 'Frame Batu UJI'; m.gems = 77; m.price = null;
   const ctx = boot(false); /* VM bersih lalu pasang Registry tiruan dengan manifest termutasi */
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const c2 = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  vm.runInContext(rd('assets/js/item-registry.js'), c2);
+  vm.runInContext(rd('assets/js/core/item-registry.js'), c2);
   FrameCat.keys.forEach(k => { let src = rd('data/inventory/frame/' + k + '/manifest.js'); if (k === 'stone') src = src.replace('"Frame Batu"', '"Frame Batu UJI"').replace('price: 500', 'price: null').replace(/gems: null/, 'gems: 77'); vm.runInContext(src, c2); });
   vm.runInContext(rd('data/inventory/frame/index.js'), c2); vm.runInContext(rd('assets/js/item-catalog.js'), c2);
   const s = c2.ItemCatalog.byId('frame.stone'); assert.strictEqual(c2.ItemCatalog.frameSource(), 'registry');
@@ -85,7 +85,7 @@ t('Pemuatan ganda: item-catalog.js dimuat dua kali di VM sama tidak menggandakan
 t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 147 item identik baseline', () => {
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
-  ['assets/js/item-registry.js', 'data/inventory/frame/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
+  ['assets/js/core/item-registry.js', 'data/inventory/frame/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.frameSource(), 'legacy'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Ketahanan: jalur Registry tidak bergantung pada DOM (tanpa document/localStorage global)', () => { assert.strictEqual(typeof viaReg.document, 'undefined'); });
@@ -114,7 +114,7 @@ t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL f
 
 /* ---- pemuatan skrip: tag <script> klasik statis, urutan di halaman ---- */
 const WIRED = ['shop', 'inventory', 'karakter', 'profile', 'frame'];
-const CHAIN = ['assets/js/item-registry.js'].concat(FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js'), ['data/inventory/frame/index.js']);
+const CHAIN = ['assets/js/core/item-registry.js'].concat(FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js'), ['data/inventory/frame/index.js']);
 const srcs = h => (h.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
 t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catalog.js', () => {
   WIRED.forEach(p => { const s = srcs(rd(p + '.html')), i = s.indexOf('assets/js/item-catalog.js');

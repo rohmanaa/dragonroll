@@ -4,7 +4,7 @@
      A. manifest valid   B. FORMAT path aset   C. file ada di disk + header WebP valid   D. pemuatan aset di browser = TIDAK diuji di sini. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const IR = require(path.join(ROOT, 'assets/js/item-registry.js'));
+const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
@@ -112,7 +112,7 @@ t('manifest.js bagian dari data dibekukan registry; ID folder = gameKey = bagian
 /* ---- jalur browser (tanpa require): antrean UT.ItemManifests ---- */
 t('jalur browser: manifest.js + index.js dimuat di vm tanpa require -> 14 terdaftar identik dengan jalur Node', () => {
   const ctx = { console }; ctx.window = ctx; ctx.window.window = ctx; vm.createContext(ctx);
-  vm.runInContext(rd('assets/js/item-registry.js'), ctx);
+  vm.runInContext(rd('assets/js/core/item-registry.js'), ctx);
   FrameCat.keys.forEach(k => vm.runInContext(rd('data/inventory/frame/' + k + '/manifest.js'), ctx, { filename: k + '/manifest.js' }));
   vm.runInContext(rd('data/inventory/frame/index.js'), ctx);
   assert.strictEqual(ctx.UT.ItemManifests.length, 14);
@@ -139,7 +139,7 @@ t('ItemCatalog tidak berubah: 147 item, 14 frame, byId/byGameKey/defaultEquipped
   assert.strictEqual(IC.defaultEquipped.frame, 'frame.default'); assert.strictEqual(IC.byId('frame.gold').slot, 'frame');
 });
 t('registry berdiri sendiri: ItemCatalog/PlayerData tidak diubah atau dimuat olehnya', () => {
-  const src = rd('assets/js/item-registry.js');
+  const src = rd('assets/js/core/item-registry.js');
   assert.ok(!/ItemCatalog|PlayerData|localStorage|document\.|window\.[a-z]/i.test(src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/typeof window[^;]*/g, '').replace(/root\.UT[^;]*;/g, '')));
 });
 console.log('\n' + n + ' tes lulus');
