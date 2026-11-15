@@ -127,4 +127,21 @@ No unresolved caller, indirect initialization, worker/WASM dependency, or module
 
 ## 8. Audit checkpoint
 
-The report-only audit commit and final remote/worktree verification are recorded after checkpointing. `main` and `origin/main` must remain at the hashes in Section 1.
+The report-only audit commit is `9ae17febfa95cdd86f6e4c8a8ce7b643d08a66a1`.
+
+Post-push verification:
+
+| Check | Verified value |
+|---|---|
+| Branch | `restruktur` |
+| `HEAD` | `9ae17febfa95cdd86f6e4c8a8ce7b643d08a66a1` |
+| `origin/restruktur` | `9ae17febfa95cdd86f6e4c8a8ce7b643d08a66a1` |
+| Remote `refs/heads/restruktur` | `9ae17febfa95cdd86f6e4c8a8ce7b643d08a66a1` |
+| `main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
+| `origin/main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
+| Remote `refs/heads/main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
+| Worktree | Clean |
+| Audit commit scope | This report only |
+| Runtime changes | None |
+
+`git diff --check` passed for the audit commit. The report was pushed to `origin/restruktur`; no operation changed or merged into `main`.
