@@ -75,6 +75,18 @@ No unresolved relocation risk was found. Full behavioral testing remains deferre
 ## Git checkpoints and verification
 
 - Implementation commit: `c214f90499f622222417ee56f78763878c53f066`; pushed to `origin/restruktur`.
-- Audit report creation commit: its full hash and the verification snapshot at that checkpoint will be recorded by the required report-only follow-up commit.
+- Audit report creation commit: `842f8ed5909dacb5823c10b98369acb0c9e0aa5a`; pushed to `origin/restruktur`.
 - Preflight baseline `main` and `origin/main`: `aeb11acf130df4ade4acc9417f01470e40a33dbb`; neither was changed.
-- Final `HEAD`, `origin/restruktur`, clean worktree, remote tips, and commit availability will be recorded in the follow-up verification snapshot. The final report-only follow-up's own hash is reported separately because it cannot be embedded in the commit that creates it.
+
+Verification snapshot at the audit report creation commit, before the report-only hash-record follow-up:
+
+- Branch: `restruktur`.
+- `HEAD` and `origin/restruktur`: both `842f8ed5909dacb5823c10b98369acb0c9e0aa5a`.
+- Worktree: clean.
+- `main` and `origin/main`: both `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- `git ls-remote origin refs/heads/restruktur refs/heads/main` returned:
+  - `842f8ed5909dacb5823c10b98369acb0c9e0aa5a refs/heads/restruktur`
+  - `aeb11acf130df4ade4acc9417f01470e40a33dbb refs/heads/main`
+- `git merge-base --is-ancestor` confirmed both implementation commit `c214f90499f622222417ee56f78763878c53f066` and audit report commit `842f8ed5909dacb5823c10b98369acb0c9e0aa5a` are available on `origin/restruktur`.
+
+The report-only hash-record follow-up is required because a commit cannot include its own hash. Its full hash and the final post-push synchronization status are reported in the completion result.
