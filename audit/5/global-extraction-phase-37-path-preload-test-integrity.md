@@ -11,9 +11,9 @@ Status: **COMPLETED**
 | Baseline remote `refs/heads/restruktur` | `2f8c982d11e38c363dcfbfd5662056cbf851b374` |
 | Baseline local `main`, `origin/main`, remote `refs/heads/main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
 | Implementation commit | `e3ff11178c72f2711fd96e37b04ce0459f6ca5d1` |
-| Audit report commit | To be recorded in the report-only follow-up after the audit commit is created. |
+| Initial audit report commit | `440863ab97cf6a3c0341c201247a7ece7a44876d` |
 
-The implementation was committed separately from this report. Both commits are intended for `origin/restruktur`; no work was applied to `main`.
+The implementation and initial audit report were committed and pushed separately. After both commits, `HEAD` and `origin/restruktur` matched `440863ab97cf6a3c0341c201247a7ece7a44876d`, and the worktree was clean. Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`. This report-only follow-up records the audit commit hash; it does not change the implementation.
 
 ## 2. Changed files
 
@@ -115,4 +115,4 @@ All required static checks completed:
 
 **COMPLETED**
 
-Phase 37 implementation is isolated in commit `e3ff11178c72f2711fd96e37b04ce0459f6ca5d1`. The report is committed separately. Hash verification, push synchronization, final clean-worktree status, and unchanged `main` are recorded in the report-only follow-up.
+Phase 37 implementation is isolated in commit `e3ff11178c72f2711fd96e37b04ce0459f6ca5d1`; the initial audit report is commit `440863ab97cf6a3c0341c201247a7ece7a44876d`. The report-only follow-up records the audit commit hash and the verified synchronization/branch state.
