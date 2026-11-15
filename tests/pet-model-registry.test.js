@@ -9,7 +9,8 @@ const KEYS = ['forest_pup', 'copper_golem', 'crystal_axolotl', 'arcane_owl', 'st
 const REGISTRY_PATH = 'assets/js/renderers/pet-model-registry.js';
 const MODEL_PATHS = {
   forest_pup: 'data/inventory/pet/forest_pup/model.js',
-  copper_golem: 'data/inventory/pet/copper_golem/model.js'
+  copper_golem: 'data/inventory/pet/copper_golem/model.js',
+  crystal_axolotl: 'data/inventory/pet/crystal_axolotl/model.js'
 };
 const VIEWER_PATH = 'assets/js/pet-viewer.js';
 const tests = [];
@@ -74,10 +75,12 @@ function modelContext() {
   }
   const helpers = {
     bx(parent) { const result = node(); parent.add(result); return result; },
+    cone(parent) { const result = node(); parent.add(result); return result; },
     cyl(parent) { const result = node(); parent.add(result); return result; },
     gp(parent) { const result = node(); parent.add(result); return result; },
     eye(parent) { const result = node(); parent.add(result); return result; },
     glow(parent) { const result = node(); parent.add(result); return result; },
+    oct(parent) { const result = node(); parent.add(result); return result; },
     sph(parent) { const result = node(); parent.add(result); return result; },
     rate() { return () => {}; },
     pick(values) { return values[0]; },
@@ -89,22 +92,23 @@ function modelContext() {
   };
 }
 
-test('allowlist contains all seven keys with Forest Pup and Copper Golem active', () => {
+test('allowlist contains all seven keys with Forest Pup, Copper Golem, and Crystal Axolotl active', () => {
   const { registry } = harness();
   assert.deepStrictEqual(Array.from(registry.keys()), KEYS);
-  assert.deepStrictEqual(KEYS.filter(key => registry.hasModule(key)), ['forest_pup', 'copper_golem']);
+  assert.deepStrictEqual(KEYS.filter(key => registry.hasModule(key)), ['forest_pup', 'copper_golem', 'crystal_axolotl']);
   KEYS.forEach(key => assert.strictEqual(registry.isKnownKey(key), true, key));
   const source = read(REGISTRY_PATH);
   KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js'"), key));
   assert.ok(source.includes("forest_pup:{url:'data/inventory/pet/forest_pup/model.js',active:true}"));
   assert.ok(source.includes("copper_golem:{url:'data/inventory/pet/copper_golem/model.js',active:true}"));
-  KEYS.slice(2).forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js',active:false}"), key));
+  assert.ok(source.includes("crystal_axolotl:{url:'data/inventory/pet/crystal_axolotl/model.js',active:true}"));
+  KEYS.slice(3).forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/" + key + "/model.js',active:false}"), key));
 });
 
 test('unknown and inactive keys reject without creating a script or deriving a URL', async () => {
   const { registry, state } = harness();
   await assert.rejects(registry.load('../forest_pup'), /Unknown Pet model key/);
-  await assert.rejects(registry.load('copper_golem'), /not active/);
+  await assert.rejects(registry.load('arcane_owl'), /not active/);
   assert.strictEqual(state.creates, 0);
   assert.strictEqual(state.appends, 0);
 });
@@ -157,23 +161,50 @@ test('Copper Golem load is deduplicated and its builder preserves the model hand
   assert.throws(() => registry.register('copper_golem', builder), /already registered/);
 });
 
+test('Crystal Axolotl loads lazily and its builder preserves the model handle contract', async () => {
+  const { registry, state } = harness(null, 'crystal_axolotl');
+  const first = registry.load('crystal_axolotl'), second = registry.load('crystal_axolotl');
+  assert.strictEqual(first, second);
+  const builder = await first, model = modelContext();
+  assert.strictEqual(state.appends, 1);
+  assert.strictEqual(state.scripts[0].src, MODEL_PATHS.crystal_axolotl);
+  assert.deepStrictEqual(model.stats(), { groups: 0, emitted: 0 });
+  assert.throws(() => builder(null), /requires the shared PetViewer context/);
+  const handle = builder(model.context);
+  assert.ok(handle.root && handle.cam);
+  assert.deepStrictEqual([handle.cam.y, handle.cam.d], [.95, 6.6]);
+  assert.strictEqual(typeof handle.tick, 'function');
+  assert.strictEqual(typeof handle.burst, 'function');
+  handle.tick(0, 1 / 60);
+  handle.burst();
+  assert.ok(model.stats().groups > 0);
+  assert.strictEqual(model.stats().emitted, 70);
+  assert.strictEqual(await registry.load('crystal_axolotl'), builder);
+  assert.strictEqual(state.appends, 1);
+  assert.throws(() => registry.register('crystal_axolotl', builder), /already registered/);
+  assert.ok(read(VIEWER_PATH).includes('const modelHelpers=Object.freeze({bx,cone,cyl,oct,sph,gp,eye,glow,rate,pick,rr})'));
+});
+
 test('a module that registers a different key is rejected', async () => {
   const { registry, state } = harness('wrong-key', 'copper_golem');
   await assert.rejects(registry.load('copper_golem'), /did not register the requested key/);
   assert.strictEqual(state.registrationErrors.length, 1);
 });
 
-test('Forest Pup and Copper Golem are extracted; the five remaining builders stay inline', () => {
-  const viewer = read(VIEWER_PATH), model = read(MODEL_PATHS.forest_pup), copper = read(MODEL_PATHS.copper_golem);
+test('Forest Pup, Copper Golem, and Crystal Axolotl are extracted; the four remaining builders stay inline', () => {
+  const viewer = read(VIEWER_PATH), model = read(MODEL_PATHS.forest_pup), copper = read(MODEL_PATHS.copper_golem), crystal = read(MODEL_PATHS.crystal_axolotl);
   assert.ok(!viewer.includes('function petPup('));
   assert.ok(!viewer.includes('function petGolem('));
+  assert.ok(!viewer.includes('function petAxolotl('));
   assert.ok(viewer.includes("id:'forest_pup'") && viewer.includes("color:'#6fd05a',build:null"));
   assert.ok(viewer.includes("id:'copper_golem'") && viewer.includes("color:'#ff9a30',build:null"));
-  ['petAxolotl', 'petOwl', 'petWolf', 'petDragon', 'petKitsune'].forEach(name => {
+  assert.ok(viewer.includes("id:'crystal_axolotl'") && viewer.includes("color:'#40e8f4',build:null"));
+  ['petOwl', 'petWolf', 'petDragon', 'petKitsune'].forEach(name => {
     assert.ok(viewer.includes('function ' + name + '()'), name);
   });
   assert.ok(model.includes('function buildForestPup(context)'));
   assert.ok(copper.includes('function buildCopperGolem(context)'));
+  assert.ok(crystal.includes('function buildCrystalAxolotl(context)'));
 });
 
 test('script load errors reject explicitly', async () => {
