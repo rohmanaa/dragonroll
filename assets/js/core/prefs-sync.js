@@ -86,7 +86,8 @@
       Prefs: w.UT.Prefs,
       enabled: function () { return w.UT.Session.loggedIn(); },
       getClient: async function () {
-        if (!(w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL('multiplayer/client.js', SELF || w.location.href).href);
+        var clientPath = SELF ? '../multiplayer/client.js' : 'multiplayer/client.js';
+        if (!(w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL(clientPath, SELF || w.location.href).href);
         return w.UT.Multiplayer.getClient();
       }
     });

@@ -1,6 +1,6 @@
 /* Tes Tahap 7b: UT.PrefsSync (UT.Prefs <-> server). Jalankan: node tests/prefs-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const SYNC = require('../assets/js/prefs-sync.js');
+const SYNC = require('../assets/js/core/prefs-sync.js');
 function mkPrefs(init) {
   const w = { localStorage: (function () { const st = Object.assign({}, init ? { 'ut:prefs:v1': JSON.stringify(init) } : {}); return { getItem: k => (k in st ? st[k] : null), setItem: (k, v) => { st[k] = String(v); }, removeItem: k => { delete st[k]; } }; })() };
   w.window = w; vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js/core/prefs.js'), 'utf8'), vm.createContext(w));
