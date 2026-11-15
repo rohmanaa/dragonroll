@@ -106,7 +106,7 @@ No test suite, test-file execution, or browser test was performed, as required. 
 |---|---|---|
 | Module relocation and direct references | `7f70c1e8344ed21dee945bd33fa97fc0c4c11950` (`refactor(js): relocate preferences module`) | Pushed to `origin/restruktur` |
 
-At the migration checkpoint push, `HEAD` and `origin/restruktur` both resolved to `7f70c1e8344ed21dee945bd33fa97fc0c4c11950`. `main` and `origin/main` remained unchanged at `aeb11acf130df4ade4acc9417f01470e40a33dbb`. This audit is committed separately after the migration checkpoint; final branch/worktree verification is recorded in the delivery summary.
+At the migration checkpoint push, `HEAD` and `origin/restruktur` both resolved to `7f70c1e8344ed21dee945bd33fa97fc0c4c11950`. Final post-push verification also confirms the `restruktur` branch has `HEAD == origin/restruktur` and a clean worktree. `main` and `origin/main` remain unchanged at `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
 
 ## 7. Remaining risk and follow-up
 
