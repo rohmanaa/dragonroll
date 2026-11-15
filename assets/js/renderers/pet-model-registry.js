@@ -5,7 +5,7 @@ if(UT.PetModelRegistry)return;
 
 const MODULES=Object.freeze({
   forest_pup:{url:'data/inventory/pet/forest_pup/model.js',active:true},
-  copper_golem:{url:'data/inventory/pet/copper_golem/model.js',active:false},
+  copper_golem:{url:'data/inventory/pet/copper_golem/model.js',active:true},
   crystal_axolotl:{url:'data/inventory/pet/crystal_axolotl/model.js',active:false},
   arcane_owl:{url:'data/inventory/pet/arcane_owl/model.js',active:false},
   storm_wolf:{url:'data/inventory/pet/storm_wolf/model.js',active:false},
