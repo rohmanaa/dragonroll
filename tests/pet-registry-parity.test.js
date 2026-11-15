@@ -151,6 +151,29 @@ const SFX_BASELINE = {
   storm_wolf: ['storm-wolf-howl', 'storm-wolf-thunder', 'storm-wolf-zap'], inferno_dragon: ['inferno-dragon-roar', 'inferno-dragon-fire', 'inferno-dragon-wings'],
   celestial_kitsune: ['celestial-kitsune-bell', 'celestial-kitsune-cry', 'celestial-kitsune-shine'] };
 const sfxPath = n => 'assets/sfx/pet/' + n + '.mp3', PV = rd('assets/js/pet-viewer.js');
+function viewerAudioProbe(itemRegistry) {
+  const calls = [], SND = PetCat.keys.map((_, i) => [0, 1, 2].map(k => () => calls.push([i, k])));
+  const view = { insertAdjacentHTML() {} }, canvas = {};
+  const context2d = { createRadialGradient() { return { addColorStop() {} }; }, fillRect() {} };
+  const document = {
+    createElement() { return { getContext() { return context2d; } }; },
+    getElementById(id) { return id === 'fpv' ? view : canvas; }
+  };
+  const window = { UT: itemRegistry ? { ItemRegistry: { shared: () => itemRegistry } } : {}, __synthesizedSnd: SND };
+  window.window = window;
+  const ctx = vm.createContext({
+    window, document,
+    THREE: { CanvasTexture: function(){}, WebGLRenderer: function(){throw new Error('WebGL disabled in audio contract probe')} },
+    console: { error() {} }, Date, JSON, Math
+  });
+  let source = PV.replace('const SND=[', 'const SND=window.__synthesizedSnd;');
+  assert.notStrictEqual(source, PV, 'synthetic fallback functions must be injectable');
+  const end = /\}\)\(\);\s*$/;
+  assert.ok(end.test(source), 'PetViewer IIFE terminator');
+  source = source.replace(end, 'window.__petAudioProbe={PET_FILES,SND};\n})();');
+  vm.runInContext(source, ctx, { filename: 'assets/js/pet-viewer.js' });
+  return { PET_FILES: clone(window.__petAudioProbe.PET_FILES), SND: window.__petAudioProbe.SND, calls };
+}
 t('SFX manifest (4.1): 7 Pet x 3 = 21 referensi, tepat 3 per Pet, tanpa duplikat', () => {
   const all = []; items.forEach(m => { assert.ok(Array.isArray(m.assets.sfx) && m.assets.sfx.length === 3, m.id); all.push.apply(all, m.assets.sfx); });
   assert.strictEqual(all.length, 21); assert.strictEqual(new Set(all).size, 21);
@@ -174,31 +197,45 @@ t('Pet Viewer: tidak lagi punya path mp3 hardcoded; membaca dari UT.ItemRegistry
   assert.ok(PV.indexOf('assets/sfx/pet/') < 0 || !/['"]assets\/sfx\/pet\/[^'"]+\.mp3['"]/.test(PV), 'masih ada literal path mp3');
   assert.ok(/UT\.ItemRegistry/.test(PV) && /getItem\('pet\.'\+id\)/.test(PV) && /assets\.sfx/.test(PV));
 });
-/* Jalankan potongan nyata pet-viewer.js (PET_FILES..wiring) di VM dgn Registry + manifest asli; AC=null -> hanya jalur cadangan sintesis. */
-function viewerSlice(reg) {
-  const a = PV.indexOf('const PET_FILES={}'), b = PV.indexOf('const PETS=['), w = PV.indexOf('PETS.forEach((d,i)=>{const f=petSfxFromManifest');
-  assert.ok(a > 0 && b > a && w > b, 'penanda potongan');
-  const wEnd = PV.indexOf('\n', w), ids = PetCat.keys, calls = [];
-  const SND = ids.map((_, i) => [0, 1, 2].map(k => () => calls.push([i, k])));
-  const win = { UT: reg ? { ItemRegistry: { shared: () => reg } } : {} }, ctx = vm.createContext({ window: win, SND, AC: null, MASTER: null, fetch() { throw new Error('tak boleh fetch tanpa AC'); }, console, calls });
-  vm.runInContext(PV.slice(a, b) + 'const PETS=' + JSON.stringify(ids.map(id => ({ id }))) + ';\n' + PV.slice(w, wEnd) + '\nthis.PET_FILES=PET_FILES;this.SND=SND;', ctx);
-  return { PET_FILES: clone(ctx.PET_FILES), SND: ctx.SND, calls, ids };
-}
-t('Pet Viewer (kode nyata di VM): PET_FILES diambil dari manifest = baseline per indeks tier; SND[pet][slot] tetap fungsi; cadangan sintesis jalan', () => {
-  const r = viewerSlice(reg); assert.strictEqual(Object.keys(r.PET_FILES).length, 7);
-  r.ids.forEach((id, i) => assert.deepStrictEqual(r.PET_FILES[i], SFX_BASELINE[id].map(sfxPath), id));
-  r.ids.forEach((id, i) => [0, 1, 2].forEach(k => { const before = r.calls.length; r.SND[i][k](); assert.strictEqual(r.calls.length, before + 1, id + ' slot ' + k + ' cadangan sintesis'); }));
+t('Pet Viewer: SFX dibaca dari manifest ItemRegistry dan dipasangkan ke fallback sintesis per Pet/slot', () => {
+  assert.ok(PV.includes("IR.shared().getItem('pet.'+id)"));
+  assert.ok(PV.includes('m&&m.assets&&m.assets.sfx'));
+  assert.ok(PV.includes('PETS.forEach((d,i)=>{const f=petSfxFromManifest(d.id);if(!f)return;PET_FILES[i]=f;'));
+  assert.ok(PV.includes('const synth=SND[i][k];SND[i][k]=()=>petPlayFile(url,synth)'));
+  assert.ok(!/['"]assets\/sfx\/pet\/[^'"]+\.mp3['"]/.test(PV), 'viewer tidak boleh memiliki pemetaan SFX kedua');
 });
-t('Pet Viewer: manifest adalah sumber — mengubah assets.sfx di manifest mengubah yang dibaca viewer; urutan Registry tidak berpengaruh', () => {
-  const r2 = IR.create(); r2.registerCategory(PetCat.category); PetCat.keys.forEach(k => { const mm = clone(require(path.join(ROOT, 'data/inventory/pet/' + k + '/manifest.js'))); if (k === 'storm_wolf') mm.assets.sfx[0] = 'assets/sfx/pet/ZZ.mp3'; assert.ok(r2.registerItem(mm).ok); });
-  assert.strictEqual(viewerSlice(r2).PET_FILES[4][0], 'assets/sfx/pet/ZZ.mp3');
-  const r3 = IR.create(); r3.registerCategory(PetCat.category); PetCat.keys.slice().reverse().forEach(k => r3.registerItem(require(path.join(ROOT, 'data/inventory/pet/' + k + '/manifest.js'))));
-  assert.deepStrictEqual(viewerSlice(r3).PET_FILES, viewerSlice(reg).PET_FILES);
+t('Pet Viewer (full source in VM): manifest SFX maps to the baseline Pet/slot and preserves all synth fallbacks', () => {
+  const result = viewerAudioProbe(reg); assert.strictEqual(Object.keys(result.PET_FILES).length, 7);
+  PetCat.keys.forEach((key, i) => assert.deepStrictEqual(result.PET_FILES[i], SFX_BASELINE[key].map(sfxPath), key));
+  PetCat.keys.forEach((key, i) => [0, 1, 2].forEach(k => {
+    const before = result.calls.length; result.SND[i][k](); assert.strictEqual(result.calls.length, before + 1, key + ' slot ' + k);
+  }));
 });
-t('Pet Viewer: tanpa Registry / tanpa sfx di manifest -> tidak melempar, tetap memakai sintesis (tanpa pemetaan kedua)', () => {
-  assert.deepStrictEqual(viewerSlice(null).PET_FILES, {});
-  const r4 = IR.create(); r4.registerCategory(PetCat.category); const m = clone(require(path.join(ROOT, 'data/inventory/pet/forest_pup/manifest.js'))); delete m.assets.sfx; r4.registerItem(m);
-  const r = viewerSlice(r4); assert.strictEqual(r.PET_FILES[0], undefined); r.SND[0][0](); assert.strictEqual(r.calls.length, 1);
+t('Pet Viewer: manifest remains the source when assets.sfx changes and Registry order is reversed', () => {
+  const changed = IR.create(); changed.registerCategory(PetCat.category);
+  PetCat.keys.forEach(key => {
+    const manifest = clone(require(path.join(ROOT, 'data/inventory/pet/' + key + '/manifest.js')));
+    if (key === 'storm_wolf') manifest.assets.sfx[0] = 'assets/sfx/pet/ZZ.mp3';
+    assert.ok(changed.registerItem(manifest).ok);
+  });
+  assert.strictEqual(viewerAudioProbe(changed).PET_FILES[4][0], 'assets/sfx/pet/ZZ.mp3');
+  const reversed = IR.create(); reversed.registerCategory(PetCat.category);
+  PetCat.keys.slice().reverse().forEach(key => reversed.registerItem(require(path.join(ROOT, 'data/inventory/pet/' + key + '/manifest.js'))));
+  assert.deepStrictEqual(viewerAudioProbe(reversed).PET_FILES, viewerAudioProbe(reg).PET_FILES);
+});
+t('Pet Viewer: missing Registry or manifest SFX keeps the synthesized fallback without throwing', () => {
+  const absent = viewerAudioProbe(null);
+  assert.deepStrictEqual(absent.PET_FILES, {});
+  absent.SND[0][0](); assert.strictEqual(absent.calls.length, 1);
+  const missing = IR.create(); missing.registerCategory(PetCat.category);
+  PetCat.keys.forEach(key => {
+    const manifest = clone(require(path.join(ROOT, 'data/inventory/pet/' + key + '/manifest.js')));
+    if (key === 'forest_pup') delete manifest.assets.sfx;
+    assert.ok(missing.registerItem(manifest).ok);
+  });
+  const result = viewerAudioProbe(missing);
+  assert.strictEqual(result.PET_FILES[0], undefined);
+  result.SND[0][0](); assert.strictEqual(result.calls.length, 1);
 });
 t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong acak 0-2, timer 3..5.5s, 120ms saat ganti Pet, sfxVol/master .55)', () => {
   ['sndBag=[0,1,2].sort(()=>Math.random()-.5)', 'SND[cur][k]()', 'sndT=rr(3,5.5);playPetSound()', 'setTimeout(playPetSound,120)', 'MASTER.gain.value=.55*sfxVolume()',
@@ -206,6 +243,10 @@ t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong a
 });
 t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan byte count aktual', () => {
   const pm = JSON.parse(rd('assets/preload-manifest.json'));
+  assert.strictEqual(Object.keys(pm).length, 832);
+  ['assets/js/renderers/pet-model-registry.js', 'data/inventory/pet/forest_pup/model.js'].forEach(f => {
+    assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f);
+  });
   items.forEach(m => {
     assert.strictEqual(pm[m.assets.image], fs.statSync(path.join(ROOT, m.assets.image)).size, m.assets.image);
     m.assets.sfx.forEach(u => assert.ok(pm[u] > 1000, u));
@@ -213,6 +254,9 @@ t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan
 });
 t('SFX: pet.html memuat manifest + pet/index.js SEBELUM pet-viewer.js', () => {
   const s = srcs(rd('pet.html')), pv = s.indexOf('assets/js/pet-viewer.js'); assert.ok(pv > 0);
+  const catalog = s.indexOf('assets/js/item-catalog.js'), playerData = s.indexOf('assets/js/player-data.js');
+  const three = s.indexOf('assets/js/vendor/three.min.js'), registry = s.indexOf('assets/js/renderers/pet-model-registry.js');
+  assert.ok(catalog >= 0 && catalog < playerData && playerData < three && three < registry && registry < pv);
   PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.ok(s.indexOf(f) >= 0 && s.indexOf(f) < pv, f));
 });
 t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes ini)', () => { assert.ok(true); });
@@ -221,6 +265,11 @@ t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes in
 t('pet.html: item-registry.js -> 7 manifest -> pet/index.js -> item-catalog.js -> skrip halaman; tepat satu kali; tanpa document.write', () => {
   const html = rd('pet.html'), s = srcs(html), i = s.indexOf('assets/js/item-catalog.js'); assert.deepStrictEqual(s.slice(i - PET_CHAIN.length, i), PET_CHAIN);
   PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('assets/js/pages/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
+  assert.strictEqual(s.filter(x => x === 'assets/js/renderers/pet-model-registry.js').length, 1);
+  assert.ok(s.indexOf('assets/js/vendor/three.min.js') < s.indexOf('assets/js/renderers/pet-model-registry.js'));
+  assert.ok(s.indexOf('assets/js/item-catalog.js') < s.indexOf('assets/js/player-data.js'));
+  assert.ok(s.indexOf('assets/js/player-data.js') < s.indexOf('assets/js/vendor/three.min.js'));
+  assert.ok(s.indexOf('assets/js/renderers/pet-model-registry.js') < s.indexOf('assets/js/pet-viewer.js'));
   PET_CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f));
 });
 t('pet.html: simulasi urutan tag -> petSource = registry, katalog = baseline', () => {

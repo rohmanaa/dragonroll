@@ -229,7 +229,7 @@ t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual 
     const file = 'data/inventory/power/' + (k === 'index' ? '' : k + '/') + (k === 'index' ? 'index.js' : 'manifest.js');
     assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file);
   });
-  assert.ok(/VERSION = 'ut-pwa-v193'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v194'/.test(rd('sw.js')));
 });
 
 (async () => {

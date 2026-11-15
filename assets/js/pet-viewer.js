@@ -71,6 +71,7 @@ function zig(a,b,n,amp){
   return pts;
 }
 const rate=r=>{let a=0;return(dt,fn)=>{a+=r*dt;let n=0;while(a>=1&&n++<10){a--;fn()}}};
+const modelHelpers=Object.freeze({bx,gp,eye,rate,pick,rr});
 
 // ---------- particle system (one Points object, additive)
 class Particles{
@@ -112,64 +113,6 @@ class Particles{
 }
 let P=null;
 const emit=(p,v,l,s,c,g)=>{if(P)P.emit(p,v,l,s,c,g)};
-// ================= T1 Forest Pup (Common)
-function petPup(){
-  const R=new T.Group();
-  const fur='#b8803f',dark='#8a5a2a',cream='#f0dcb0',leaf=['#3fa04a','#2c7a35','#6fd05a'];
-  for(const[sx,sz]of[[-1,1],[1,1],[-1,-1],[1,-1]]){
-    const l=gp(R,sx*.3,.55,sz*.45);
-    bx(l,.3,.5,.3,fur,0,-.27,0);
-    bx(l,.34,.12,.4,cream,0,-.5,.05);
-    bx(l,.06,.05,.06,'#4a2c12',-.08,-.52,.26,{j:0});bx(l,.06,.05,.06,'#4a2c12',.08,-.52,.26,{j:0});
-  }
-  const body=gp(R,0,0,0);
-  bx(body,.92,.72,1.4,fur,0,.91,0);
-  bx(body,.94,.1,.8,dark,0,1.28,-.1);
-  bx(body,.5,.1,.5,dark,.2,1.24,.4);
-  bx(body,.64,.5,.12,cream,0,.85,.7);
-  bx(body,.7,.14,1.0,cream,0,.57,.05);
-  bx(body,.2,.2,.2,dark,-.5,.9,-.3);bx(body,.2,.2,.2,dark,.5,1.05,.1);
-  // collar and wooden tag
-  bx(R,.98,.12,.5,'#6a3a1a',0,1.12,.62);
-  bx(R,.22,.22,.05,'#b07a40',0,.98,.9,{j:.1});
-  bx(R,.08,.08,.06,'#2a1608',0,.99,.93,{j:0});
-  // head
-  const head=gp(R,0,1.5,.8);
-  bx(head,.86,.76,.8,fur,0,0,0);
-  bx(head,.48,.32,.44,cream,0,-.14,.5);
-  bx(head,.16,.12,.1,'#1a1020',0,0,.74,{j:0,r:.3});
-  bx(head,.3,.06,.06,'#4a2c12',0,-.3,.72,{j:0});
-  const tongue=bx(head,.12,.05,.2,'#e8607a',0,-.31,.62,{j:0});
-  bx(head,.5,.14,.1,dark,0,.38,.3);
-  bx(head,.1,.28,.1,dark,0,.52,.3);
-  const eL=eye(head,-.22,.1,.41,.2,'#2a1608'),eR=eye(head,.22,.1,.41,.2,'#2a1608');
-  bx(head,.22,.05,.05,'#4a2c12',-.22,.27,.41,{j:0,rz:.15});bx(head,.22,.05,.05,'#4a2c12',.22,.27,.41,{j:0,rz:-.15});
-  bx(head,.12,.12,.1,'#a07040',-.46,-.16,.2);bx(head,.12,.12,.1,'#a07040',.46,-.16,.2);
-  const earL=gp(head,-.4,.34,0),earR=gp(head,.4,.34,0);
-  bx(earL,.22,.5,.3,dark,-.04,-.2,0);bx(earL,.1,.34,.18,'#d49a70',.02,-.2,.08,{j:.02});
-  bx(earR,.22,.5,.3,dark,.04,-.2,0);bx(earR,.1,.34,.18,'#d49a70',-.02,-.2,.08,{j:.02});
-  // leaf sprig on head
-  const sp=gp(head,.18,.4,-.05);
-  bx(sp,.05,.28,.05,'#4a8a3a',0,.14,0,{j:0});
-  bx(sp,.22,.1,.14,leaf[0],.12,.3,0,{rz:.4});bx(sp,.2,.1,.14,leaf[1],-.12,.22,0,{rz:-.4});bx(sp,.16,.1,.12,leaf[2],.02,.4,0);
-  // tail
-  const tail=gp(R,0,1.1,-.7);
-  bx(tail,.2,.2,.6,fur,0,.2,-.2,{rx:.5});
-  bx(tail,.22,.22,.22,cream,0,.46,-.46);
-  const rate1=rate(1.6);
-  return{root:R,cam:{y:1.3,d:6.4},
-    tick(t,dt){
-      body.scale.y=1+Math.sin(t*2)*.015;head.position.y=1.5+Math.sin(t*2)*.012;
-      head.rotation.z=Math.sin(t*.8)*.07;head.rotation.y=Math.sin(t*.6)*.2;
-      tail.rotation.y=Math.sin(t*7)*.5;
-      earL.rotation.z=.12+Math.sin(t*3)*.05;earR.rotation.z=-.12-Math.sin(t*3+1)*.05;
-      tongue.scale.y=1+Math.max(0,Math.sin(t*5))*.8;tongue.position.y=-.31-Math.max(0,Math.sin(t*5))*.03;
-      const b=(t%4)<.12?.1:1;eL.scale.y=eR.scale.y=b;
-      rate1(dt,()=>{const c=pick([[.25,.65,.3],[.4,.8,.3],[.2,.5,.25]]);emit([rr(-1.3,1.3),rr(2.4,3.2),rr(-1.3,1.3)],[rr(-.1,.1),-.1,rr(-.1,.1)],rr(3,4),.12,c,-.05)});
-    },
-    burst(){for(let i=0;i<50;i++){const a=rr(0,6.28);emit([Math.cos(a)*.9,rr(.4,2),Math.sin(a)*.9],[Math.cos(a)*rr(.5,1.6),rr(.5,1.8),Math.sin(a)*rr(.5,1.6)],rr(1.2,2),.14,pick([[.25,.65,.3],[.5,.85,.35],[.9,.7,.3]]),-.5)}}
-  };
-}
 
 // ================= T2 Copper Golem (Uncommon)
 function petGolem(){
@@ -717,7 +660,7 @@ function petPlayFile(url,fallback){
 }
 function petPreloadFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(petLoad))}
 const PETS=[
- {id:'forest_pup',tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:petPup},
+ {id:'forest_pup',tier:1,name:'Forest Pup',mat:'Oak Wood dan Daun',ident:'Ramah dan setia',efek:'Ekor bergoyang, daun jatuh pelan',lore:'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.',color:'#6fd05a',build:null},
  {id:'copper_golem',tier:2,name:'Copper Golem',mat:'Copper Block dan Verdigris',ident:'Industrial dan rajin',efek:'Roda gigi berputar, uap, lampu antena berdenyut',lore:'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.',color:'#ff9a30',build:petGolem},
  {id:'crystal_axolotl',tier:3,name:'Crystal Axolotl',mat:'Diamond Crystal',ident:'Tenang dan berkilau',efek:'Insang bergetar, ekor berombak, gelembung kristal',lore:'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.',color:'#40e8f4',build:petAxolotl},
  {id:'arcane_owl',tier:4,name:'Arcane Owl',mat:'Amethyst dan Rune',ident:'Bijak dan arcane',efek:'Cincin rune berputar, kristal mengorbit, kilau ungu',lore:'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.',color:'#b46af0',build:petOwl},
@@ -770,7 +713,10 @@ function resize(){
 }
 new ResizeObserver(resize).observe(view);resize();
 
-let pet=null,cur=-1;
+let pet=null,cur=-1,selectionVersion=0;
+const selectionGuard=window.UT&&window.UT.PetModelRegistry&&window.UT.PetModelRegistry.createSelectionGuard
+  ?window.UT.PetModelRegistry.createSelectionGuard()
+  :{begin(){return ++selectionVersion},isCurrent(token){return token===selectionVersion}};
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
 let soundOn=false,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
@@ -782,14 +728,43 @@ function playPetSound(){
 function unlockAudio(){if(audioInit())soundOn=true}
 ['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,unlockAudio,{passive:true}));
 selectFn=function(i){
-  const d=PETS[i];const changed=cur!==i;cur=i;
+  const d=PETS[i];
+  if((cur===i&&pet)||pendingId===i)return;
+  const token=selectionGuard.begin(),changed=cur!==i;
+  pendingId=i;cur=i;
   if(pet){scene.remove(pet.root);disposeObj(pet.root)}
+  pet=null;
   P.clear();
-  pet=d.build();scene.add(pet.root);
-  rim.color.set(d.color);fill.color.set(d.color);
-  camD=pet.cam.d;tyT=pet.cam.y;resetCam();pop=.1;sndT=.9;sndBag=[];
-  if(changed&&soundOn)setTimeout(playPetSound,120);
-  canvas.setAttribute('aria-label','Pratinjau 3D '+d.name);
+  const install=model=>{
+    if(!selectionGuard.isCurrent(token))return;
+    if(!model||!model.root||typeof model.root.traverse!=='function'||!model.cam||
+      typeof model.cam.y!=='number'||typeof model.cam.d!=='number'||
+      typeof model.tick!=='function'||typeof model.burst!=='function'){
+      throw new TypeError('Invalid Pet model handle: '+d.id);
+    }
+    pendingId=null;pet=model;scene.add(pet.root);
+    rim.color.set(d.color);fill.color.set(d.color);
+    camD=pet.cam.d;tyT=pet.cam.y;resetCam();pop=.1;sndT=.9;sndBag=[];
+    if(changed&&soundOn)setTimeout(playPetSound,120);
+    canvas.setAttribute('aria-label','Pratinjau 3D '+d.name);
+  };
+  const failed=error=>{
+    if(!selectionGuard.isCurrent(token))return;
+    pendingId=null;
+    console.error('[PetViewer] Failed to load or build '+d.id+'.',error);
+  };
+  if(d.id==='forest_pup'){
+    const registry=window.UT&&window.UT.PetModelRegistry;
+    if(!registry){failed(new Error('PetModelRegistry is unavailable'));return}
+    registry.load(d.id).then(builder=>{
+      if(!selectionGuard.isCurrent(token))return;
+      try{install(builder({THREE:T,helpers:modelHelpers,emit}))}
+      catch(error){failed(error)}
+    },failed);
+    return;
+  }
+  try{install(d.build())}
+  catch(error){failed(error)}
 };
 
 let last=performance.now(),t=0;
