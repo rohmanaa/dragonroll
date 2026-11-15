@@ -272,8 +272,11 @@ No test suite, browser test, benchmark, or runtime test was run.
 ## 9. Git checkpoint and final status
 
 - Audit report path: `audit/40/global-extraction-phase-40-root-renderer-candidates-preflight-audit.md`.
-- Audit commit: pending report creation.
-- Final `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur`: to be recorded by the permitted report-only follow-up after the audit commit is pushed.
-- Final worktree status and `main`/`origin/main` verification: to be recorded by that follow-up.
+- Audit report creation commit: `8ef92a64b95bac6d3aa8e261cc40bec8a8d9df68`; pushed to `origin/restruktur`.
+- A report-only follow-up records the audit commit hash and this final verification:
+  - Branch remains `restruktur`; `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` are synchronized.
+  - Worktree is clean.
+  - Local `main`, `origin/main`, and remote `refs/heads/main` remain `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- The report-only follow-up's own hash is reported in the phase completion message because a commit cannot contain its own final object hash.
 
 **Status: AUDIT COMPLETE — NO RUNTIME CHANGES.**
