@@ -207,7 +207,7 @@ The seven model builders are selected directly by IDs held in the viewer's inter
 
 The active root application has one script consumer, `pet.html`. It loads ItemRegistry, all seven Pet manifests and the Pet index, ItemCatalog, PlayerData/services, Three.js, PetViewer, and then `assets/js/pages/pet-page.js`. The page controller calls `window.PetViewer.select(selected.gameKey)`.
 
-The viewer performs page-specific work at evaluation: it looks up `#fpv` and `#petGl`, attempts WebGL renderer creation, registers pointer/audio listeners and a ResizeObserver, and schedules an animation frame when the renderer is available. It therefore is not a side-effect-free module that can be preloaded or included on arbitrary pages. No `document.currentScript`, module-relative URL, or dynamic import is present. SFX `fetch()` URLs come from Pet manifests and are document-relative.
+The viewer performs page-specific work at evaluation: it looks up `#fpv` and `#petGl`, attempts WebGL renderer creation, registers pointer/audio listeners and a ResizeObserver, and schedules an animation frame when the renderer is available. It is not a side-effect-free script to execute on arbitrary pages; its existing preload-manifest entry is URL-level prefetch, not an instruction to evaluate it. No `document.currentScript`, module-relative URL, or dynamic import is present. SFX `fetch()` URLs come from Pet manifests and are document-relative.
 
 `referensi/newgui/game/pet.html` is a separate legacy/reference application that loads its own `js/pet-viewer.js` and `js/pet.js`; it is not a consumer of the root candidate and should not be repointed to it. Seven active Pet manifest comments mention the root path.
 
