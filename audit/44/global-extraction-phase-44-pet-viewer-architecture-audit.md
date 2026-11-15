@@ -249,4 +249,11 @@ Do not change the seven PNGs, manifest data, `data/inventory/pet/index.js`, Item
 
 **READY WITH CONDITIONS** — the ownership boundary and a safe explicit lazy-loader design are established. Implementation is ready only when it preserves the injected builder contract, `PetViewer.select(gameKey)`, manifest-backed audio, cleanup, and the current preload/offline policy, and replaces the source-slicing assertions without reducing contract coverage.
 
+## 12. Git checkpoint
+
+- Audit-only commit: `e42254ce85f3d1fa0799c082ec34937ad718ef5d`.
+- After pushing, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `e42254ce85f3d1fa0799c082ec34937ad718ef5d`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final verification results. Its own commit hash is provided in the completion message because a commit cannot contain its own object hash.
+
 **Target status: COMPLETED — PETVIEWER ARCHITECTURE AUDITED, IMPLEMENTATION PLAN READY.**
