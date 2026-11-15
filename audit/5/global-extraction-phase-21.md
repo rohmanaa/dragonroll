@@ -89,6 +89,18 @@ No unresolved relocation risk was found. The archived page's stale URL is a pre-
 ## Git checkpoints and verification
 
 - Implementation commit: `6c4f492338084d7ab9c37cca6b546ef7609485b4`; pushed to `origin/restruktur`.
-- Audit report creation commit: its full hash and verification snapshot will be recorded by the required report-only follow-up commit.
+- Audit report creation commit: `837bf384bd87ad8c057e52c6aef84fee7b8513fb`; pushed to `origin/restruktur`.
 - Preflight baseline `main` and `origin/main`: `aeb11acf130df4ade4acc9417f01470e40a33dbb`; neither was changed.
-- Final `HEAD`, `origin/restruktur`, clean worktree, remote tips, and implementation/audit remote availability will be recorded in the follow-up verification snapshot. The final report-only follow-up's own hash is reported separately because it cannot be embedded in the commit that creates it.
+
+Verification snapshot at the audit report creation commit, before the report-only hash-record follow-up:
+
+- Branch: `restruktur`.
+- `HEAD` and `origin/restruktur`: both `837bf384bd87ad8c057e52c6aef84fee7b8513fb`.
+- Worktree: clean.
+- `main` and `origin/main`: both `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- `git ls-remote origin refs/heads/restruktur refs/heads/main` returned:
+  - `837bf384bd87ad8c057e52c6aef84fee7b8513fb refs/heads/restruktur`
+  - `aeb11acf130df4ade4acc9417f01470e40a33dbb refs/heads/main`
+- `git merge-base --is-ancestor` confirmed implementation commit `6c4f492338084d7ab9c37cca6b546ef7609485b4` and audit report commit `837bf384bd87ad8c057e52c6aef84fee7b8513fb` are available on `origin/restruktur`.
+
+The report-only hash-record follow-up is required because a commit cannot include its own hash. Its full hash and the final post-push synchronization status are reported in the completion result.
