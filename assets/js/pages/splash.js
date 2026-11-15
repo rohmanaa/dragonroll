@@ -19,7 +19,7 @@ const ASSETS=[
   'assets/js/scene-bg.js',
   'assets/js/floating-island.js',
   'assets/js/character-data.js',
-  'assets/js/character-view.js',
+  'assets/js/renderers/character-view.js',
   'assets/js/mob-view.js',
   'assets/js/landscape.js',
   'assets/js/boot-guard.js',
