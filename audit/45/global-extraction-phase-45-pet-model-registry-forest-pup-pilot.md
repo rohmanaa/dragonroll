@@ -94,6 +94,9 @@ The registry exposes only key recognition, active-module status, builder registr
 ## 10. Git checkpoints
 
 - Implementation commit: `288ba5f78b8124f42193fa4120ce216b69318155`.
-- Audit report is committed separately. Its commit hash and final remote/worktree verification are recorded in the completion message because a commit cannot contain its own object hash.
+- Audit commit: `666c87c2faa6caef7a21b510ad6e999ab92103c4`.
+- After pushing, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `666c87c2faa6caef7a21b510ad6e999ab92103c4`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final verification results. Its own hash is included in the completion message because a commit cannot contain its own object hash.
 
 **Target status: COMPLETED — PET MODEL REGISTRY ESTABLISHED, FOREST PUP PILOT EXTRACTED.**
