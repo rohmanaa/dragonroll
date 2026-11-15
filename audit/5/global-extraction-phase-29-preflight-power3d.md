@@ -137,4 +137,13 @@ No unresolved import target, dynamic loader, worker/WASM dependency, or external
 
 ## 9. Audit checkpoint
 
-The audit-only commit and final remote/worktree verification are recorded below after checkpointing. `main` and `origin/main` must remain at the baseline hashes in Section 1.
+The audit-only commit is `d13fd18f476c52a71748671ed3fe2f67dc4c7cdb` (`docs(audit): preflight Power3D relocation`). It contains only this report and was pushed to `origin/restruktur`.
+
+Post-push verification at that checkpoint:
+
+- Branch: `restruktur`.
+- `HEAD == origin/restruktur == d13fd18f476c52a71748671ed3fe2f67dc4c7cdb`; the remote `refs/heads/restruktur` matched.
+- `main == origin/main == aeb11acf130df4ade4acc9417f01470e40a33dbb`; the remote `refs/heads/main` matched.
+- Worktree clean.
+
+A separate report-only follow-up records this hash and verification. It changes no runtime or test files. The final post-follow-up verification is reported with task completion; no operation targets `main`.
