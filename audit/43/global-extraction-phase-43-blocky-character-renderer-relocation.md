@@ -86,7 +86,9 @@ The service-worker policy comment requires a cache-version increase when assets 
 ## 8. Checkpoint and final verification
 
 - Implementation commit: `13a9b88d147aa90b94be04e62cce5233d169565a`.
-- The audit-report commit and post-push remote verification will be recorded in a report-only follow-up.
-- Baseline `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- Audit-report commit: `f63aa0796101d4b73967927e4470fe96a7c49b6c`.
+- After pushing the audit checkpoint, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `f63aa0796101d4b73967927e4470fe96a7c49b6c`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final checkpoint results. Its own commit hash is provided in the completion message because a commit cannot contain its own object hash.
 
 **Status: IMPLEMENTATION COMPLETE — BLOCKYCHARACTER RELOCATED, GENERATOR AND RUNTIME CONTRACT PRESERVED.**
