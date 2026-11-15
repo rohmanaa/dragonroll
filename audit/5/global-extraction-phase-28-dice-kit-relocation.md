@@ -93,6 +93,8 @@ The six three.js import path changes each add three characters; the other module
 ## 7. Checkpoint and final Git verification
 
 - Implementation commit `93bb824f3101bd9bcdd92b647e3a2c6359e60e28` contains the complete relocation and related runtime/reference updates, with no audit report.
-- The separate audit commit and post-push Git verification are recorded in the report-only follow-up and completion summary.
+- Audit commit `301414d160fde2879b4b4df460a2a1ce0b84e954` contains this report and was pushed to `origin/restruktur`.
+- At the audit checkpoint, `HEAD == origin/restruktur == 301414d160fde2879b4b4df460a2a1ce0b84e954`, the worktree was clean, and `git ls-remote` confirmed the branch tip.
 - Baseline `main` and `origin/main`: `aeb11acf130df4ade4acc9417f01470e40a33dbb`; neither was changed.
+- A report-only follow-up records the audit hash. Its hash and the final post-push verification are stated in the completion summary.
 - No Phase 29 work was started.
