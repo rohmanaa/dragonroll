@@ -1,5 +1,5 @@
 const assert = require('assert');
-const A = require('../assets/js/achievement-data.js');
+const A = require('../assets/js/data/achievement-data.js');
 assert.strictEqual(A.ACH.length, 18);
 A.ACH.forEach(a => { assert.strictEqual(a[4].length, 3); assert.ok(a[4][0] < a[4][1] && a[4][1] < a[4][2], a[0]); });
 // tanpa data server: semua nol, tidak ada yang bisa diklaim
