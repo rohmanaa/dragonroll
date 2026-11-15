@@ -2,7 +2,7 @@
    Skrip klasik (tanpa import/export/type=module). Dimuat SEBELUM blok skrip gameplay.
    Isi: matematika UV murni + (CP2) perakit model 3D bertekstur. TANPA rnd(), TANPA state gameplay,
    TANPA mengubah aset PNG. Palette renderer lama di gameplay.html tetap fallback.
-   Tata letak = skin Minecraft modern 64x64 (sama dengan crop di assets/js/item-art.js):
+   Tata letak = skin Minecraft modern 64x64 (sama dengan crop di assets/js/renderers/item-art.js):
      kepala  (0,0)  overlay (32,0)     badan   (16,16) overlay (16,32)
      lengan kanan (40,16) overlay (40,32)   lengan kiri (32,48) overlay (48,48)
      kaki kanan   (0,16)  overlay (0,32)    kaki kiri   (16,48) overlay (0,48)

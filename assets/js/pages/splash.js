@@ -24,7 +24,7 @@ const ASSETS=[
   'assets/js/landscape.js',
   'assets/js/boot-guard.js',
   'assets/js/item-catalog.js',
-  'assets/js/item-art.js',
+  'assets/js/renderers/item-art.js',
   'assets/js/player-data.js',
   'assets/js/core/app.js',
   'assets/js/game-integration.js',

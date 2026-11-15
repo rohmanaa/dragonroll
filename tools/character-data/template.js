@@ -7,7 +7,7 @@
      karakter menghadap +z; kanan karakter = -x. noEdge=1: detail tanpa garis tepi (mata, mulut, dll).
      tag: 0 biasa | 2 batang Blaze (berputar di gameplay) | 3 blok kepala 0.3 (di gameplay = 27 kubus 0.1 dengan variasi warna 0.09).
    - Grup: 'player' (skin palette gameplay), 'mob' (mob di petak papan), 'wild' (mob liar di luar papan, mis. Golem).
-   - Skin PNG (hero, knight, ...) memakai tekstur: lihat ItemArt.character()/face() (assets/js/item-art.js). Di sini hanya
+   - Skin PNG (hero, knight, ...) memakai tekstur: lihat ItemArt.character()/face() (assets/js/renderers/item-art.js). Di sini hanya
      metadata + fallback ke 'steve'.
    API:
      UT.CharacterData.list(group)                 -> ['steve', ...]
