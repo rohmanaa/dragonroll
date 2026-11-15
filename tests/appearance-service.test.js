@@ -13,7 +13,7 @@ function boot(opts) {
   ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
-const Svc = require('../assets/js/appearance-service.js');
+const Svc = require('../assets/js/services/appearance-service.js');
 const ACCT = { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 'tester' }) };
 const loginOn = () => boot({ store: ACCT, flag: true });
 const tick = ms => new Promise(r => setTimeout(r, ms || 0));

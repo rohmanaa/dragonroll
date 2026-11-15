@@ -122,7 +122,7 @@ t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar 
   items.forEach(m => assert.strictEqual(m.assets.image, 'assets/ng/pet3d/' + m.gameKey + '.png'));
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
-  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
+  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
 });
 t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) dan supabase/pet_catalog.sql (tanpa mengubah SQL)', () => {
   const seed = /BEGIN PET SEED[\s\S]*?END PET SEED/.exec(rd('supabase/migrations/202611290001_pet_catalog.sql'))[0]; let seen = 0;

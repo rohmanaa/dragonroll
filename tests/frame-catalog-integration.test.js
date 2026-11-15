@@ -100,7 +100,7 @@ t('PlayerData: perilaku sama di kedua jalur (kepemilikan starter, equip, pemasan
   assert.strictEqual(b.eq, 'frame.default'); assert.strictEqual(b.owns[0], true); assert.strictEqual(b.owns[1], false);
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error', () => {
-  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
+  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
 });
 t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL fase 3) dan frame.default starter (harga server null)', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), blk = /BEGIN TIER PRICE SEED[\s\S]*?END TIER PRICE SEED/.exec(sql)[0];

@@ -68,7 +68,7 @@ Gear tetap `kind: gear` dengan slot `g.*`; validasi server saat ini menilai kepe
 
 ### Appearance server dan transaksi
 
-[appearance-service.js](../../assets/js/appearance-service.js) mengambil `inventory_get`, lalu `appearance_get`, dan memuat Outfit. Jika Appearance belum ada di server, klien mengirim keadaan lokal melalui `appearance_save(p_look, p_equipped, p_gear_dye)`. Perubahan equip lokal disinkronkan dengan debounce; PlayerData tetap menjadi cermin state client, sedangkan server memvalidasi.
+[appearance-service.js](../../assets/js/services/appearance-service.js) mengambil `inventory_get`, lalu `appearance_get`, dan memuat Outfit. Jika Appearance belum ada di server, klien mengirim keadaan lokal melalui `appearance_save(p_look, p_equipped, p_gear_dye)`. Perubahan equip lokal disinkronkan dengan debounce; PlayerData tetap menjadi cermin state client, sedangkan server memvalidasi.
 
 Di Supabase:
 
