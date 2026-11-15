@@ -161,7 +161,9 @@ No code, HTML, CSS, data, manifest, preload, service-worker, configuration, or t
 
 ## 10. Audit checkpoint and final Git verification
 
-- Audit-only commit: to be recorded in the report-only follow-up.
+- Audit-only commit containing this report: `acf29d1fbcd7962b1bff35a23d1e4c7867e02096`.
+- The audit commit was pushed to `origin/restruktur`; `git ls-remote` confirmed the remote branch at that hash.
+- At that checkpoint, `HEAD == origin/restruktur == acf29d1fbcd7962b1bff35a23d1e4c7867e02096` and the worktree was clean.
 - Baseline `main` and `origin/main`: `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
-- Final audit commit, `HEAD`, `origin/restruktur`, worktree status, and `git ls-remote` verification will be recorded after the report is committed and pushed.
+- A report-only follow-up records this audit hash and the checkpoint verification. Its hash and the final post-push branch/worktree verification are included in the completion report.
 - No implementation commit is expected; no runtime files were changed.
