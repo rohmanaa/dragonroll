@@ -90,4 +90,9 @@ No unresolved relocation risk was found. Full visual and behavioral testing rema
 
 - Preflight baseline `main` and `origin/main`: `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
 - Implementation commit: `21a1f495e3f8d5d3d17c6c829d9e80d4f1143221`; pushed to `origin/restruktur`.
-- Audit report creation commit and final verification snapshot will be recorded in a report-only follow-up. The follow-up's own hash is reported in the phase completion message because a commit cannot include its own hash in its tree.
+- Audit report creation commit: `3400d8becb56ac90c9e1799aeac05b1046cfc8db`; pushed to `origin/restruktur`.
+- Verified after pushing the audit commit: `HEAD` and `origin/restruktur` both `3400d8becb56ac90c9e1799aeac05b1046cfc8db`; worktree clean; branch `restruktur`.
+- `main` and `origin/main` both remain `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- `git ls-remote origin refs/heads/restruktur refs/heads/main` returned `3400d8becb56ac90c9e1799aeac05b1046cfc8db` for `restruktur` and `aeb11acf130df4ade4acc9417f01470e40a33dbb` for `main`.
+- `git merge-base --is-ancestor` confirmed implementation commit `21a1f495e3f8d5d3d17c6c829d9e80d4f1143221` and audit commit `3400d8becb56ac90c9e1799aeac05b1046cfc8db` are available on `origin/restruktur`.
+- A report-only follow-up records the audit hash and this verification snapshot. Its own hash is reported in the phase completion message because a commit cannot include its own hash in its tree.
