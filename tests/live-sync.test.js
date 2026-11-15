@@ -1,6 +1,9 @@
 /* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const src = fs.readFileSync(path.join(__dirname, '../assets/js/core/live-sync.js'), 'utf8');
+const ROOT = path.join(__dirname, '..');
+const pageSource = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
+const pageScriptSources = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
 function env() {
   const L = {}, dl = {};
   const doc = { hidden: false, addEventListener: (n, f) => { (dl[n] = dl[n] || []).push(f); } };
@@ -12,6 +15,25 @@ function env() {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let n = 0; const T = async (name, fn) => { await fn(); n++; console.log('ok - ' + name); };
 (async () => {
+  await T('Shop dan Tambang memuat LiveSync canonical tepat sekali sebelum init/controller', async () => {
+    const canonical = 'assets/js/core/live-sync.js';
+    const legacy = 'assets/js/live-sync.js';
+    assert.ok(fs.existsSync(path.join(ROOT, canonical)), 'implementasi canonical tersedia');
+    [
+      { file: 'shop.html', controller: 'assets/js/pages/shop-page.js', page: 'shop' },
+      { file: 'tambang.html', controller: 'assets/js/pages/tambang.js', page: 'tambang' }
+    ].forEach(({ file, controller, page }) => {
+      const html = pageSource(file);
+      const sources = pageScriptSources(html);
+      assert.strictEqual(sources.filter(source => source === canonical).length, 1, file + ' harus memuat LiveSync canonical tepat sekali');
+      assert.strictEqual(sources.includes(legacy), false, file + ' tidak boleh memakai path lama');
+      const liveSyncTag = html.indexOf('<script src="' + canonical + '"></script>');
+      const appInit = html.indexOf("UT.App.init({page:'" + page + "'})");
+      const pageController = html.indexOf('<script src="' + controller + '"></script>');
+      assert.ok(liveSyncTag >= 0 && liveSyncTag < appInit, file + ' LiveSync harus sebelum UT.App.init()');
+      assert.ok(appInit >= 0 && appInit < pageController, file + ' UT.App.init() harus sebelum controller');
+    });
+  });
   await T('timer menjalankan semua tugas berulang', async () => {
     const e = env(); let a = 0, b = 0; e.LS.add('a', () => { a++; }); e.LS.add('b', async () => { b++; });
     e.LS.start({ interval: 15, minGap: 1 }); await sleep(120); e.LS.stop();

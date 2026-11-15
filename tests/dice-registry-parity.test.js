@@ -176,7 +176,7 @@ t('Halaman lain tidak diubah: gameplay/shop/inventory/lobby/profile memakai jalu
   ['gameplay.html', 'lobby.html', 'shop.html', 'inventory.html', 'mode.html', 'profile.html', 'karakter.html', 'pet.html'].forEach(h => assert.ok(rd(h).indexOf('data/inventory/dice/') < 0, h));
 });
 t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice dengan ukuran benar', () => {
-  assert.ok(/VERSION = 'ut-pwa-v187'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v189'/.test(rd('sw.js')));
   const pm = JSON.parse(rd('assets/preload-manifest.json')), want = DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js').concat(['data/inventory/dice/index.js']);
   assert.strictEqual(want.length, 24); want.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
   DICEKIT_FILES.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
