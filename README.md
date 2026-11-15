@@ -39,6 +39,18 @@ Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash
 - `tools/` : skrip bantu (snapshot skema, manifes pramuat, dll.).
 - `doc/`, `MULTIPLAYER_PLAN.md`, `MULTIPLAYER_STATE.md` : catatan desain.
 
+## Aturan aset referensi
+
+Folder `referensi/` hanya untuk bahan baku, aset mentah, inspirasi desain, mockup, prototype, dan arsip pengembangan. Folder ini **bukan sumber aset runtime** dan aplikasi tidak boleh bergantung pada keberadaannya.
+
+- Jangan memakai path `referensi/` dari HTML, CSS, JavaScript, JSON, atau konfigurasi runtime, maupun memuat aset/data dari sana saat aplikasi berjalan.
+- Jika aset di `referensi/` diperlukan aplikasi, salin dahulu ke direktori permanen yang sesuai fungsinya. Utamakan struktur yang sudah ada, misalnya `assets/ng/komponen/` untuk komponen Gameplay.
+- Jangan mengubah isi aset saat menyalin. Verifikasi ukuran dan SHA-256 sumber serta salinan; pertahankan nama dan subfolder yang relevan.
+- Hindari duplikasi jika aset identik sudah tersedia di lokasi permanen. Jangan menghapus bahan baku dari `referensi/` setelah penyalinan.
+- Dalam audit atau restrukturisasi, cari semua referensi runtime ke `referensi/` dan bedakan pemakaian aktif dari dokumentasi, contoh, dan arsip. Tidak ditemukannya pemanggil bukan alasan untuk menghapus aset.
+
+Aturan ini berlaku untuk semua jenis aset, halaman, dan sistem Gameplay. `referensi/` adalah arsip/bahan baku; `assets/` atau direktori data permanen adalah sumber aset aplikasi.
+
 ## Backend (Supabase)
 
 Semua mutasi lewat RPC dengan pengecekan di sisi server; klien hanya memakai kunci publishable/anon (`assets/js/multiplayer/config.example.js`). Jangan pernah menaruh kunci `service_role` di repo.
