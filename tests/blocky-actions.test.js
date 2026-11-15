@@ -78,7 +78,7 @@ t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di 
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
   assert.ok(idx('vendor/three.min.js') < idx('blocky-character.js'));
   assert.ok(idx('player-data.js') < idx('blocky-character.js'));
-  assert.ok(idx('blocky-character.js') < idx('character-face.js'));
+  assert.ok(idx('blocky-character.js') < idx('assets/js/renderers/character-face.js'));
   assert.ok(idx('gameplay/js/main.js') > idx('blocky-character.js'));
   const used = ['loadFromPlayer', 'loadPreset', 'loadFromData', 'setMode', 'act', 'jump', 'tick', 'height'];
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));

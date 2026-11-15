@@ -1,4 +1,4 @@
-/* assets/js/character-face.js — wajah/kepala karakter pemain (UT.BlockyCharacter, sama dengan halaman Karakter) sebagai gambar PNG.
+/* assets/js/renderers/character-face.js — wajah/kepala karakter pemain (UT.BlockyCharacter, sama dengan halaman Karakter) sebagai gambar PNG.
    Pengganti AR.face(equippedId('skin')) untuk avatar HUD. Render sekali per tampilan (cache by look+gear), satu renderer bersama.
    Butuh (dimuat lebih dulu): three.min.js, item-catalog.js, player-data.js, blocky-character.js.
    API:
