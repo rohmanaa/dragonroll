@@ -101,7 +101,7 @@
     browser = create({
       PlayerData: w.PlayerData,
       getClient: async function () {
-        if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL('multiplayer/client.js', SELF || w.location.href).href);
+        if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL('../multiplayer/client.js', SELF || w.location.href).href);
         return w.UT.Multiplayer.getClient();
       }
     });

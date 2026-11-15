@@ -67,7 +67,7 @@ Halaman root (kecuali `gameplay.html`, yang punya struktur sendiri di `gameplay/
 
 ## Mail: Catatan Perbaikan Bug (skema)
 
-Status: **rancangan** (belum ada kode/migrasi). Dasarnya memakai sistem Mail yang sudah ada (`supabase/migrations/202611260001_player_mail.sql`, `assets/js/mail-service.js`, `mail.html`). Surat hanya dibuat server; hadiah masuk dompet lewat `_wallet_apply` dengan kunci idempoten per surat.
+Status: **rancangan** (belum ada kode/migrasi). Dasarnya memakai sistem Mail yang sudah ada (`supabase/migrations/202611260001_player_mail.sql`, `assets/js/services/mail-service.js`, `mail.html`). Surat hanya dibuat server; hadiah masuk dompet lewat `_wallet_apply` dengan kunci idempoten per surat.
 
 ### Aturan
 - **Satu surat per rilis** berjudul "Catatan Perbaikan #N" berisi **maksimal 15 bug** (satu baris per bug: area + masalah singkat). Bug berlebih menunggu rilis berikutnya.
