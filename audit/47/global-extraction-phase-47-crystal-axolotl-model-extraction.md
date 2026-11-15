@@ -66,7 +66,10 @@
 
 ## 8. Git checkpoints
 
-- Implementation and audit are committed separately.
-- Final commit hashes and post-push branch verification are recorded in the report-only follow-up when available.
+- Implementation commit: `cbf27caa8f1af44b7c8b1525d37223fed4925383`.
+- Audit commit: `41e13dedb3edda07c7eb15dca72ce301c1bab0d0`.
+- After pushing the audit commit, `HEAD`, `origin/restruktur`, and remote `refs/heads/restruktur` matched at `41e13dedb3edda07c7eb15dca72ce301c1bab0d0`; the worktree was clean.
+- Local `main`, `origin/main`, and remote `refs/heads/main` remained `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- A report-only follow-up records these final verification results. Its own hash is included in the completion message because a commit cannot contain its own object hash.
 
 **Target status: COMPLETED — CRYSTAL AXOLOTL MODEL EXTRACTED, REGISTRY CONTRACT PRESERVED.**
