@@ -20,7 +20,7 @@ function boot(chain, withPlayerData) {
   };
   const w = { addEventListener() {}, localStorage }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math, localStorage }));
-  chain.concat(['assets/js/session.js', 'assets/js/item-catalog.js'])
+  chain.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js'])
     .forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   if (withPlayerData) vm.runInContext(rd('assets/js/player-data.js'), ctx, { filename: 'assets/js/player-data.js' });
   return { ctx, store };
@@ -106,7 +106,7 @@ test('ItemCatalog mengambil metadata Karakter dari manifest saat Registry lengka
     if (f.endsWith('/ender/manifest.js')) source = source.replace("name: 'Enderman'", "name: 'Manifest Enderman'").replace('price: 700', 'price: 701');
     vm.runInContext(source, ctx, { filename: f });
   });
-  ['assets/js/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.skinSource(), 'registry');
   assert.strictEqual(ctx.ItemCatalog.byId('skin.ender').name, 'Manifest Enderman');
   assert.strictEqual(ctx.ItemCatalog.byId('skin.ender').price, 701);

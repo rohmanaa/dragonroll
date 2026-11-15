@@ -10,7 +10,7 @@ function boot(opts) {
   if (opts.flag) w.UT_SERVER_WALLET = true;
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
 const Svc = require('../assets/js/appearance-service.js');

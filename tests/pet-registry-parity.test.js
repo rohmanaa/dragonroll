@@ -17,7 +17,7 @@ const reg = IR.create(), res = PetCat.register(reg), items = reg.getCategory('pe
 function boot(chains) {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  chains.concat(['assets/js/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
 const PET_CHAIN = ['assets/js/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);

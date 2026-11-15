@@ -16,7 +16,7 @@ function boot(registry, extra) {
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   const files = [];
   if (registry) { files.push('assets/js/item-registry.js'); FrameCat.keys.forEach(k => files.push('data/inventory/frame/' + k + '/manifest.js')); files.push('data/inventory/frame/index.js'); }
-  files.push('assets/js/session.js', 'assets/js/item-catalog.js'); (extra || []).forEach(f => files.push(f));
+  files.push('assets/js/core/session.js', 'assets/js/item-catalog.js'); (extra || []).forEach(f => files.push(f));
   files.forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }

@@ -19,7 +19,7 @@ const reg = IR.create(), res = DiceCat.register(reg), items = reg.getCategory('d
 function boot(chains) {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  chains.concat(['assets/js/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
 const DICE_CHAIN = ['assets/js/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
@@ -96,14 +96,14 @@ t('ItemCatalog: sumber = manifest (mutasi manifest pada VM bersih mengubah katal
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
   DICE_CHAIN.forEach(f => { let s = rd(f); if (f.endsWith('dragon/manifest.js')) s = s.replace('gems: 3000', 'gems: 3001'); vm.runInContext(s, ctx, { filename: f }); });
-  ['assets/js/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.byId('dice.dragon').gems, 3001); assert.strictEqual(ctx.ItemCatalog.diceSource(), 'registry');
 });
 t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, katalog tetap utuh', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {}, warn() {} }, Date, JSON, Math }));
   DICE_CHAIN.filter(f => !f.endsWith('/tnt/manifest.js')).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  ['assets/js/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 147); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 

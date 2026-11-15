@@ -31,7 +31,7 @@ function boot(chains, playerData) {
   const w = { addEventListener() {}, localStorage };
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math, localStorage }));
-  chains.concat(['assets/js/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   if (playerData) vm.runInContext(rd('assets/js/player-data.js'), ctx, { filename: 'assets/js/player-data.js' });
   return ctx;
 }

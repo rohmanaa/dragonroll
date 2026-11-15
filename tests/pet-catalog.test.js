@@ -71,7 +71,7 @@ function boot() {
   const store = {}, ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const win = { addEventListener() {}, localStorage: ls }; win.window = win;
   const ctx = vm.createContext(Object.assign(win, { localStorage: ls, console, Date, JSON, Math }));
-  ['session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(rd('assets/js/' + f), ctx));
+  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(rd('assets/js/' + f), ctx));
   return { PD: ctx.PlayerData, store };
 }
 const own = (PD, store, ...ids) => { PD.coins(); const st = JSON.parse(store[PD.key]); ids.forEach(id => { st.inventory[id] = { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ }; }); store[PD.key] = JSON.stringify(st); };
