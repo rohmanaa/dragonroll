@@ -66,6 +66,10 @@ There is no URL-base fallback in the controller; conditional import failures con
 
 ## Git verification and checkpoints
 
-The implementation commit is `194c7dacfc2ee219000740d6a4cd467917fd60eb` and was pushed to `origin/restruktur`.
+- Implementation commit: `194c7dacfc2ee219000740d6a4cd467917fd60eb`, pushed to `origin/restruktur`.
+- Audit report creation commit: `47fd9830d27c98b741f624254283f4d21c0e2648`, pushed to `origin/restruktur`.
+- Verification immediately after that audit commit was pushed: `HEAD` and `origin/restruktur` both equaled `47fd9830d27c98b741f624254283f4d21c0e2648`; the worktree was clean.
+- At that verification, `main` and `origin/main` both equaled the stable baseline `aeb11acf130df4ade4acc9417f01470e40a33dbb`.
+- `git ls-remote` reported `refs/heads/restruktur` at `47fd9830d27c98b741f624254283f4d21c0e2648` and `refs/heads/main` at `aeb11acf130df4ade4acc9417f01470e40a33dbb`. `git merge-base --is-ancestor` returned exit code `0` for both the implementation and audit commits against `origin/restruktur`.
 
-The audit report is committed separately. Its full commit hash and final Git verification are added in the post-commit hash-record update so the report does not contain an incorrect self-referential hash.
+The audit commit hash is recorded by this separate report-only follow-up. A Git commit cannot contain its own final object hash without changing that hash; the follow-up therefore records the audit report creation commit above rather than claiming a self-referential value. The final follow-up commit and its synchronized branch state are verified and reported in the completion result.
