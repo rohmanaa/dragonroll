@@ -13,6 +13,7 @@ Status: inventory and dependency audit complete. No JavaScript file was moved: t
 | Starting `origin/restruktur` after fetch | `834cddeb284fe285f1e97629bd8fda75159d2e34` |
 | `main` and `origin/main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
 | Starting worktree | Clean |
+| Phase 4 audit checkpoint | `27fd5d0` (`docs(audit): record JavaScript extraction phase 4`), pushed to `origin/restruktur` |
 
 `main` was not checked out or modified. The baseline was fetched and verified against `origin/restruktur`; final hashes and worktree state are recorded in the delivery summary.
 
