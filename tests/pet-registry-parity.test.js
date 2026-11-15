@@ -116,7 +116,7 @@ t('PlayerData: kepemilikan/equipped/pembelian identik antara jalur cadangan dan 
   assert.deepStrictEqual(b.owns, [false, false, false, false, false, false, false]);
 });
 t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = IMAGE_ROOT + gameKey + .png = manifest assets.image', () => {
-  const pg = rd('assets/js/pet-page.js'); assert.ok(/IMAGE_ROOT = 'assets\/ng\/pet3d\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey\}\.png/.test(pg));
+  const pg = rd('assets/js/pages/pet-page.js'); assert.ok(/IMAGE_ROOT = 'assets\/ng\/pet3d\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey\}\.png/.test(pg));
   assert.ok(/item\.kind === 'pet'\)\.sort\(\(a, b\) => a\.tier - b\.tier\)/.test(pg));
   const sorted = clone(viaPet.ItemCatalog.items.filter(i => i.kind === 'pet')).sort((a, b) => a.tier - b.tier); assert.deepStrictEqual(sorted.map(i => i.id), bp.map(i => i.id));
   items.forEach(m => assert.strictEqual(m.assets.image, 'assets/ng/pet3d/' + m.gameKey + '.png'));
@@ -208,7 +208,7 @@ t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes in
 /* ---- pemuatan skrip ---- */
 t('pet.html: item-registry.js -> 7 manifest -> pet/index.js -> item-catalog.js -> skrip halaman; tepat satu kali; tanpa document.write', () => {
   const html = rd('pet.html'), s = srcs(html), i = s.indexOf('assets/js/item-catalog.js'); assert.deepStrictEqual(s.slice(i - PET_CHAIN.length, i), PET_CHAIN);
-  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('assets/js/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
+  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('assets/js/pages/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
   PET_CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f));
 });
 t('pet.html: simulasi urutan tag -> petSource = registry, katalog = baseline', () => {

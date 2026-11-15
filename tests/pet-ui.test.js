@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const html = read('pet.html');
 const css = read('assets/ng/css/pet.css');
-const page = read('assets/js/pet-page.js');
+const page = read('assets/js/pages/pet-page.js');
 
 assert.ok(html.includes('<div id="petTitle">'));
 assert.ok(html.includes('id="petInfoOpen" type="button" aria-label="Informasi tier" aria-haspopup="dialog"'));

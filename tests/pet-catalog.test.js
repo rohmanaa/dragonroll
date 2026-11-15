@@ -100,9 +100,9 @@ t('pembelian pet lokal tanpa akun ditolak (harga dipegang server), koin maupun e
   assert.strictEqual(PD.purchase('pet.storm_wolf').ok, false);
 });
 t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dompet localStorage demo', () => {
-  const html = rd('pet.html'), page = rd('assets/js/pet-page.js');
+  const html = rd('pet.html'), page = rd('assets/js/pages/pet-page.js');
   assert.ok(html.includes('assets/js/pet-viewer.js'));
-  assert.ok(html.includes('assets/js/pet-page.js'));
+  assert.ok(html.includes('assets/js/pages/pet-page.js'));
   assert.ok(html.includes('UT.App.init({page:\'pet\'})'));
   assert.ok(page.includes(".from('pet_catalog')"));
   assert.ok(page.includes('WalletService'));
