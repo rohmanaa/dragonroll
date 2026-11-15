@@ -12,7 +12,7 @@
     key: 'aura',
     kind: 'aura',
     label: 'Aura',
-    assets: { renderer: 'assets/js/aura-fx.js', view: 'assets/js/aura-view.js' }
+    assets: { renderer: 'assets/js/aura-fx.js', view: 'assets/js/renderers/aura-view.js' }
   };
 
   function manifests() {

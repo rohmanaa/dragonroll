@@ -97,7 +97,7 @@ test('Shop, Inventory, Character, Lobby, Profile, Gameplay memuat Aura Registry 
   });
   ['lobby.html', 'profile.html', 'gameplay.html', 'karakter.html'].forEach(file => {
     const scripts = srcs(rd(file));
-    assert.ok(scripts.indexOf('assets/js/aura-fx.js') >= 0 && scripts.indexOf('assets/js/aura-fx.js') < scripts.indexOf('assets/js/aura-view.js'), file);
+    assert.ok(scripts.indexOf('assets/js/aura-fx.js') >= 0 && scripts.indexOf('assets/js/aura-fx.js') < scripts.indexOf('assets/js/renderers/aura-view.js'), file);
   });
   assert.ok(/k:\s*'efek',\s*page:\s*'efek\.html'/.test(rd('assets/js/pages/inventory.js')), 'Inventory membuka tab Efek/Aura yang menggunakan halaman shop');
 });
