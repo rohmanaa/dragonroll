@@ -219,7 +219,7 @@ t('PlayerData dan server: Power tetap consumable non-equip; RPC use/buy dan harg
     assert.strictEqual(prices[m.gameKey], m.price, m.gameKey + ' harga server Coin');
     assert.strictEqual(m.gems, null, m.gameKey + ' tidak memakai Emerald');
   });
-  const wallet = rd('assets/js/wallet-service.js');
+  const wallet = rd('assets/js/services/wallet-service.js');
   assert.ok(/rpc\('buy_powerup'/.test(wallet) && /rpc\('use_powerup'/.test(wallet));
   assert.ok(/p_item_id: String\(itemId \|\| ''\)/.test(wallet));
 });

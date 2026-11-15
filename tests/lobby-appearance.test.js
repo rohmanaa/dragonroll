@@ -4,7 +4,7 @@ const PG = require("./_page");
 const h = PG.readFileSync(path.join(__dirname, '../lobby.html'), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 t('lobi memuat appearance-service.js setelah wallet-service.js', () => {
-  const w = h.indexOf('assets/js/wallet-service.js'), a = h.indexOf('assets/js/appearance-service.js');
+  const w = h.indexOf('assets/js/services/wallet-service.js'), a = h.indexOf('assets/js/appearance-service.js');
   assert.ok(w > 0 && a > w, 'urutan skrip salah');
 });
 t('lobi memanggil AppearanceService.refreshThrottled() hanya untuk akun server', () => {

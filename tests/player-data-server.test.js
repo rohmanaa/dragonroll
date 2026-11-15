@@ -100,7 +100,7 @@ t('edit devtools pada saldo lokal ditimpa server saat refresh', () => {
 });
 
 /* ---------- WalletService dengan klien Supabase palsu ---------- */
-const WS = require('../assets/js/wallet-service.js');
+const WS = require('../assets/js/services/wallet-service.js');
 function svc(handlers, flag) {
   const env = flag === false ? boot() : loginOn();   /* mode lokal = belum login */
   const calls = [];

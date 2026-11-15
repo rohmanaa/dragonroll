@@ -7,7 +7,7 @@ const assert = require('assert');
 const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const WS = require('../assets/js/wallet-service.js');
+const WS = require('../assets/js/services/wallet-service.js');
 
 function q(sql) {
   return new Promise((res, rej) => {
