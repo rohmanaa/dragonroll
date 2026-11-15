@@ -26,7 +26,7 @@ const ASSETS=[
   'assets/js/item-catalog.js',
   'assets/js/item-art.js',
   'assets/js/player-data.js',
-  'assets/js/app.js',
+  'assets/js/core/app.js',
   'assets/js/game-integration.js',
   'hud/ui-core.js',
   'hud/components/button.css',

@@ -4,7 +4,7 @@ const PG = require("./_page");
 const g = PG.readFileSync(path.join(__dirname, '..', 'room.html'), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 t('appearance-service.js dimuat sebelum app.js dan skrip room', () => {
-  const a = g.indexOf('assets/js/appearance-service.js'), b = g.indexOf('assets/js/player-data.js'), c = g.indexOf('assets/js/app.js');
+  const a = g.indexOf('assets/js/appearance-service.js'), b = g.indexOf('assets/js/player-data.js'), c = g.indexOf('assets/js/core/app.js');
   assert.ok(b > 0 && a > b && a < c);
 });
 t('avatar() memakai UT.CharacterFace.urlData + frame pemain; fallback huruf awal & karakter bawaan', () => {
