@@ -65,4 +65,18 @@ No file remains at the old JavaScript paths and no compatibility copies were cre
 
 Implementation commit: `008d8997452c35741ef09fa954732a14e53bc8a3`.
 
-The audit report is committed separately. Its commit hash and final push verification are recorded in the report-only follow-up checkpoint.
+Audit report commit: `d7e485cbc5f772514929dd4d3339c0974bff24d7`.
+
+Post-push verification at the audit checkpoint:
+
+| Check | Verified value |
+|---|---|
+| Branch | `restruktur` |
+| `HEAD` | `d7e485cbc5f772514929dd4d3339c0974bff24d7` |
+| `origin/restruktur` | `d7e485cbc5f772514929dd4d3339c0974bff24d7` |
+| Remote `refs/heads/restruktur` | `d7e485cbc5f772514929dd4d3339c0974bff24d7` |
+| `main`, `origin/main`, and remote `refs/heads/main` | `aeb11acf130df4ade4acc9417f01470e40a33dbb` |
+| Worktree | Clean |
+| `git diff --check` | Passed |
+
+Both implementation and audit commits were pushed to `origin/restruktur`. No operation changed or merged into `main`.
