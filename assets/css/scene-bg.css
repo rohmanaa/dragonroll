@@ -1,7 +1,7 @@
 /* SceneBackground — komponen latar reusable (Stage 4).
    Hanya latar: langit + gambar latar (opsional) + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
    (itu komponen terpisah: assets/js/floating-island.js dan karakter milik tiap halaman).
-   Dipasang lewat assets/js/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
+   Dipasang lewat assets/js/renderers/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
 html.sbg-on body{background:transparent!important}
 html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman diganti oleh latar scene-bg */
 
@@ -49,7 +49,7 @@ html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman digant
   .sbg-cloud{animation:none;transform:translate3d(calc(var(--x)*1vw),0,0)}.sbg-rays{animation:none}}
 
 
-/* ================= SUASANA MALAM (assets/js/ambience.js memasang html[data-ambience="night"]) =================
+/* ================= SUASANA MALAM (assets/js/systems/ambience.js memasang html[data-ambience="night"]) =================
    Siang = tampilan di atas. Malam: langit navy, bintang, bulan + cahaya bulan dingin, awan redup, gambar latar digelapkan. */
 .sbg-stars,.sbg-moon{display:none}
 .sbg-img{transition:filter .6s ease}

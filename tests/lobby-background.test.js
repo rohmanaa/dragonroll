@@ -7,7 +7,7 @@ const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
 assert.ok(lobby.includes('assets/ng/css/lobby.css'));
 assert.ok(lobby.includes('assets/css/scene-bg.css'));
-assert.ok(lobby.includes('assets/js/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/lobby-kastel.webp" data-lights="lobby"'));
+assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/lobby-kastel.webp" data-lights="lobby"'));
 assert.ok(lobby.includes('.sbg-clouds{display:none!important}'));
 assert.ok(lobby.includes('.sbg-stars,.sbg-moon,.sbg-fog,.sbg-rays{display:none!important}'));
 assert.ok(lobby.includes('.sbg-lights{opacity:.3}'));
