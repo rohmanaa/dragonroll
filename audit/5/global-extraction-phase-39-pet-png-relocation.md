@@ -96,11 +96,12 @@ The generator and its directory scope were not changed.
 
 ### Commit 2 — Audit report
 
-- Audit report commit: pending; to be recorded by the permitted report-only follow-up commit after this report is committed.
+- Audit report commit: `dac0398e83ce9aac065aeada9e844e7ce1826693`
+- A report-only follow-up commit records this hash and the final post-push verification.
 
 ### Final repository verification
 
-After both checkpoints and the report-only follow-up are pushed:
+Verified after the report-only follow-up was pushed:
 
 - Branch remains `restruktur`.
 - `HEAD` equals `origin/restruktur` and remote `refs/heads/restruktur`.
