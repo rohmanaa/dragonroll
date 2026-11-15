@@ -1,0 +1,2 @@
+/* UT.UI.setLoading toggles this state on <html>. */
+html.ut-loading, html.ut-loading body { cursor: progress; }

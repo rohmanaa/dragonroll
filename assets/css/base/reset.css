@@ -1,0 +1,4 @@
+/* Shared low-specificity element defaults. */
+:where(button) { -webkit-tap-highlight-color: transparent; }
+:where(a) { -webkit-tap-highlight-color: transparent; }
+:where(input, textarea, select) { font: inherit; }
