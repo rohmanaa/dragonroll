@@ -10,7 +10,7 @@ global.navigator = { userAgent: 'node', hardwareConcurrency: 8, deviceMemory: 8 
 global.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
 global.sessionStorage = global.localStorage; global.addEventListener = () => {}; global.location = { href: '', search: '', pathname: '/' };
 global.UT = {}; global.THREE = require(R + 'assets/js/vendor/three.min.js');
-for (const f of ['item-catalog.js', 'player-data.js', 'blocky-character.js', 'renderers/aura-fx.js', 'renderers/aura-view.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
+for (const f of ['item-catalog.js', 'player-data.js', 'renderers/blocky-character.js', 'renderers/aura-fx.js', 'renderers/aura-view.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
 const AV = UT.AuraView, FX = UT.AuraFX;
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const auras = ItemCatalog.items.filter(i => i.kind === 'aura');
@@ -75,8 +75,8 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   ];
   pages.forEach(({ html: f, source, update }) => {
     const g = read(f), js = read(source), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
-    assert.ok(i('vendor/three.min.js') < i('blocky-character.js'), f);
-    assert.ok(i('three.min.js') < i('assets/js/renderers/aura-fx.js') && i('blocky-character.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'), f);
+    assert.ok(i('vendor/three.min.js') < i('assets/js/renderers/blocky-character.js'), f);
+    assert.ok(i('three.min.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/blocky-character.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'), f);
     assert.ok(/UT\.AuraView\.create\(/.test(js) && update.test(js), source);
   });
   const gameplay = read('gameplay/js/main.js');

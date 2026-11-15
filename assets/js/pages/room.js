@@ -79,7 +79,7 @@ const EFFECT_ICON='assets/ng/komponen/ikon-gem-medali/kristal-api.webp';
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
 function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
- return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/blocky-character.js')).then(()=>L('assets/js/renderers/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
+ return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/renderers/blocky-character.js')).then(()=>L('assets/js/renderers/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?null:eqItem(k);

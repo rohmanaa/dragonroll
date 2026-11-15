@@ -14,7 +14,7 @@ global.sessionStorage = global.localStorage; global.addEventListener = () => {};
 global.UT = {};
 global.THREE = require(R + 'assets/js/vendor/three.min.js');
 const THREE = global.THREE;
-for (const f of ['item-catalog.js', 'player-data.js', 'blocky-character.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
+for (const f of ['item-catalog.js', 'player-data.js', 'renderers/blocky-character.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
 const BC = UT.BlockyCharacter;
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -76,10 +76,10 @@ t('mode jalan/lari/idle: tick stabil dan kembali ke idle; lompat selesai', () =>
 t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di rig', () => {
   const g = read('gameplay.html'), main = read('gameplay/js/main.js');
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
-  assert.ok(idx('vendor/three.min.js') < idx('blocky-character.js'));
-  assert.ok(idx('player-data.js') < idx('blocky-character.js'));
-  assert.ok(idx('blocky-character.js') < idx('assets/js/renderers/character-face.js'));
-  assert.ok(idx('gameplay/js/main.js') > idx('blocky-character.js'));
+  assert.ok(idx('vendor/three.min.js') < idx('assets/js/renderers/blocky-character.js'));
+  assert.ok(idx('player-data.js') < idx('assets/js/renderers/blocky-character.js'));
+  assert.ok(idx('assets/js/renderers/blocky-character.js') < idx('assets/js/renderers/character-face.js'));
+  assert.ok(idx('gameplay/js/main.js') > idx('assets/js/renderers/blocky-character.js'));
   const used = ['loadFromPlayer', 'loadPreset', 'loadFromData', 'setMode', 'act', 'jump', 'tick', 'height'];
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));
   assert.ok(/UT\.AppearanceService/.test(main) && /roomAppearance/.test(main));

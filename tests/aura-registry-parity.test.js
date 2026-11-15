@@ -108,7 +108,7 @@ test('Service Worker version dan preload manifest mencakup semua berkas Aura bar
     const file = 'data/inventory/aura/' + (k === 'index' ? '' : k + '/') + (k === 'index' ? 'index.js' : 'manifest.js');
     assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file);
   });
-  assert.ok(/VERSION = 'ut-pwa-v192'/.test(rd('sw.js')));
+  assert.ok(/VERSION = 'ut-pwa-v193'/.test(rd('sw.js')));
 });
 
 test('PlayerData tetap mewajibkan ownership untuk equip dan menyimpan Aura di slot lama', () => {
