@@ -4,7 +4,7 @@ const path = require('path');
 
 /* Keluhan: suara pantulan dadu ke papan terdengar berpola sama untuk semua dadu.
    Penyebab: buffer noise di-cache dan selalu diputar dari sampel 0, nada tetap, bunyi pantulan = bunyi material yang sama. */
-const src = fs.readFileSync(path.join(__dirname, '..', 'assets/js/dice-kit/DiceEffectsCore.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '..', 'assets/js/renderers/dice-kit/DiceEffectsCore.js'), 'utf8');
 assert.ok(/s\.start\(t, Math\.random\(\)/.test(src), 'noise dimulai dari offset acak');
 assert.ok(!/s\.start\(t\);/.test(src), 'tidak ada lagi start(t) tanpa offset');
 assert.ok(/this\._pj = 1 \+ \(Math\.random\(\) - 0\.5\) \* 0\.14/.test(src) && /f0 \*= pj/.test(src), 'nada divariasikan per pemutaran');

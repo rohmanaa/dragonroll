@@ -3,7 +3,7 @@
  *
  * Satu RoundedBoxGeometry dipakai bersama oleh 20 dadu; identitas dadu hanya dari material + efek.
  */
-import * as THREE from '../vendor/three.r170.module.min.js';
+import * as THREE from '../../vendor/three.r170.module.min.js';
 import { RoundedBoxGeometry } from './RoundedBoxGeometry.js';
 import { RoomEnvironment } from './RoomEnvironment.js';
 import { DICE_CATALOG, QUALITY_PRESETS, getDice } from './DiceCatalog.js';

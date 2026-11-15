@@ -1,7 +1,7 @@
 /* Kategori Dice (Stage 5) — mendaftarkan kategori + 23 manifest ke ItemRegistry (pola sama dengan data/inventory/frame|pet/index.js).
    Urutan KEYS = urutan di ItemCatalog (assets/js/item-catalog.js). Satu item = satu folder (nama folder = gameKey = id DiceKit).
    fallbackId 'dice.klasik' = dadu bawaan (DEFAULT_EQUIPPED.dice di ItemCatalog; starter).
-   Asset TIDAK dipindah: render/material/efek/suara dadu tetap di assets/js/dice-kit/ (DiceCatalog.js = sumber material & efek; efek suara prosedural di DiceEffectsCore.js);
+   Asset TIDAK dipindah: render/material/efek/suara dadu tetap di assets/js/renderers/dice-kit/ (DiceCatalog.js = sumber material & efek; efek suara prosedural di DiceEffectsCore.js);
    assets.renderKit di bawah hanya REFERENSI ke sumber render itu (bukan salinan). Berkas SFX dice-roll.mp3 dimiliki peta audio gameplay (gameplay/js/audio.js) — tidak diduplikasi di sini.
    Node : require('data/inventory/dice/index.js').register(registry)
    Browser: muat tiap <folder>/manifest.js (mengisi UT.ItemManifests) lalu berkas ini; ItemCatalog memanggil register() sendiri. */
@@ -14,7 +14,7 @@
 
   var KEYS = ['klasik', 'rumput', 'tnt', 'wood', 'stone', 'copper', 'iron', 'emas', 'diamond', 'emerald', 'lapis', 'amethyst', 'redstone', 'obsidian', 'magma', 'frost', 'prismarine', 'quartz', 'void', 'netherite', 'sculk', 'ender', 'dragon'];
   var CATEGORY = { key: 'dice', kind: 'dice', label: 'Dadu', fallbackId: 'dice.klasik',
-                   assets: { renderKit: 'assets/js/dice-kit/DiceCatalog.js' } };
+                   assets: { renderKit: 'assets/js/renderers/dice-kit/DiceCatalog.js' } };
 
   /* Manifest kategori ini: Node = require per folder; browser = antrean UT.ItemManifests yang diisi tiap manifest.js. */
   function manifests() {

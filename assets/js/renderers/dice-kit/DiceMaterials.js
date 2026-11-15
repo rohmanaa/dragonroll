@@ -4,7 +4,7 @@
  * Tidak butuh aset gambar. Setiap dadu: 6 material (satu per face) agar pip 1–6 tepat.
  * Hasil di-cache dan dibuang (dispose) saat dadu tidak dipakai agar hemat memori GPU di Android.
  */
-import * as THREE from '../vendor/three.r170.module.min.js';
+import * as THREE from '../../vendor/three.r170.module.min.js';
 import { D6_FACES } from './DiceCatalog.js';
 import { paintFace } from './DiceTextures.js';
 

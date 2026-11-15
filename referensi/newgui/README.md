@@ -30,7 +30,7 @@ Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
 | `*.html` (root) | 22 halaman produksi (lihat bagian 3 sampai 7) |
 | `assets/js/` | Modul bersama: `player-data`, `wallet-service`, `appearance-service`, `auth`, `session`, `prefs`, `prefs-sync`, `item-catalog`, `room-flow`, dll. |
 | `assets/js/multiplayer/` | `client`, `room-service`, `presence`, `game-sync`, `progress-service`, `event-log` |
-| `assets/js/dice-kit/` | Mesin dadu 3D bersama (dipakai `dadu.html` dan `gameplay.html`) |
+| `assets/js/renderers/dice-kit/` | Mesin dadu 3D bersama (dipakai `dadu.html` dan `gameplay.html`) |
 | `assets/js/power3d/` | Renderer ikon power 3D |
 | `gameplay/` | Modul khusus gameplay: `game-core` (aturan murni), `config`, `hud`, `ready`, `afk`, `dice-ui`, `audio`, `maps/` (world, nether), dll. |
 | `hud/` | Komponen UI bersama (`button`, `card`, `currency`, `modal`, `toast`, `badge`) dan tema `fantasy` |
@@ -180,7 +180,7 @@ Lima halaman ini berbagi satu template (tab navigasi `NAV` antar kategori: Karak
 - Frame foto profil. Kategori aktif `frame`. Preview gambar `.webp` frame.
 
 ### `dadu.html`
-- Skin dadu. Preview memakai **Dice Kit** (`DiceKit.thumb` untuk kartu, `DiceKit.mount` untuk preview 3D dengan fisika kocok-lempar). Ada 20 dadu (katalog di `assets/js/dice-kit/DiceCatalog.js`).
+- Skin dadu. Preview memakai **Dice Kit** (`DiceKit.thumb` untuk kartu, `DiceKit.mount` untuk preview 3D dengan fisika kocok-lempar). Ada 20 dadu (katalog di `assets/js/renderers/dice-kit/DiceCatalog.js`).
 
 ### `efek.html`
 - Efek/aura. Memakai `BlockyCharacter` dan `AuraFX` (aura voxel 3D) untuk preview di karakter. (README lama menyebut halaman ini kosong; sekarang sudah berisi aura.)

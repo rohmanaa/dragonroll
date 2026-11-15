@@ -6,7 +6,7 @@
  * hasil konsisten di 30/60/120 FPS. Hasil angka berasal dari fisika (adil), atau dari RNG game
  * yang sudah ada bila `roll(forcedValue)` dipakai; mode drop menyelaraskan muka saat windup.
  */
-import * as THREE from '../vendor/three.r170.module.min.js';
+import * as THREE from '../../vendor/three.r170.module.min.js';
 import { DicePhysics, randomQuat, qmul, qaxis, qnorm } from './DicePhysics.js';
 import { D6_FACES } from './DiceCatalog.js';
 

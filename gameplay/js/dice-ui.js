@@ -1,4 +1,4 @@
-/* Gameplay Dice UI — dadu gameplay = DADU 3D ASLI dari Dice Kit (assets/js/dice-kit, modul bersama dengan preview Inventory dadu.html).
+/* Gameplay Dice UI — dadu gameplay = DADU 3D ASLI dari Dice Kit (assets/js/renderers/dice-kit, modul bersama dengan preview Inventory dadu.html).
    Kubus CSS lama sudah dihapus: fisika kocok-lempar, tekstur/material skin, efek partikel/aura, dan suara semuanya dari DiceKit.
    TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Ramuan Ganjil-Genap/Pasti 6/6=giliran ekstra/tiga 6 tetap di sana);
    kit hanya menampilkan lemparan yang berakhir di angka itu (roll(forcedValue)).
