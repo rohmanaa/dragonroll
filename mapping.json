@@ -15740,6 +15740,27 @@
       "reason": "The green invite button remains frozen with Gameplay."
     },
     {
+      "referrer": "assets/js/pages/lobby.js",
+      "old": "../../../assets/js/pages/",
+      "new": "",
+      "phase": 2,
+      "reason": "Navigation page URLs resolve from the document, not the moved script."
+    },
+    {
+      "referrer": "assets/js/pages/frame.js",
+      "old": "../../../assets/js/pages/",
+      "new": "",
+      "phase": 2,
+      "reason": "Navigation page URLs resolve from the document, not the moved script."
+    },
+    {
+      "referrer": "assets/js/pages/powerup.js",
+      "old": "../../../assets/js/pages/",
+      "new": "",
+      "phase": 2,
+      "reason": "Navigation page URLs resolve from the document, not the moved script."
+    },
+    {
       "referrer": "assets/js/pages/pet-page.js",
       "old": "const ITEM_ROOT = 'assets/ng/komponen/';",
       "new": "const ITEM_ROOT = 'assets/images/ui/';",

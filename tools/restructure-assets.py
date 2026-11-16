@@ -139,6 +139,11 @@ def reference_rewriter(text, origin, post_referrer, mapping):
 
     for match in TOKEN_RE.finditer(text):
         value = match.group("value")
+        if (
+            Path(origin).suffix.lower() in {".js", ".mjs"}
+            and Path(re.split(r"[?#]", value, maxsplit=1)[0]).suffix.lower() == ".html"
+        ):
+            continue
         if not value or not (
             Path(re.split(r"[?#]", value, maxsplit=1)[0]).suffix.lower() in PATH_SUFFIXES
             or value.startswith(("./", "../", "/assets/", "/data/", "assets/", "data/", "gameplay/"))
@@ -315,6 +320,16 @@ def refresh_mapping(data):
             "phase": 1,
             "reason": "The green invite button remains frozen with Gameplay.",
         },
+    ] + [
+        {
+            "referrer": "assets/js/pages/{}.js".format(page),
+            "old": "../../../assets/js/pages/",
+            "new": "",
+            "phase": 2,
+            "reason": "Navigation page URLs resolve from the document, not the moved script.",
+        }
+        for page in ("lobby", "frame", "powerup")
+    ] + [
         {
             "referrer": "assets/js/pages/pet-page.js",
             "old": "const ITEM_ROOT = 'assets/ng/komponen/';",
@@ -494,7 +509,8 @@ def rewrite_files(data, dry_run, phase, moved_sources=()):
             origin = current
             post_referrer = current
         updated, count = reference_rewriter(text, origin, post_referrer, mapping)
-        updated, dynamic_count = apply_mapping_rules(data, current, origin, updated, phase)
+        rule_origin = reverse.get(current, origin)
+        updated, dynamic_count = apply_mapping_rules(data, current, rule_origin, updated, phase)
         count += dynamic_count
         if updated != text:
             changes.append((current, updated, count))

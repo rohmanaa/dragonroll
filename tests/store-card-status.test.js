@@ -13,14 +13,14 @@ const pages = {
   room: read("room.html")
 };
 const scripts = {
-  frame: read("assets/js/pages/frame.js"),
+  frame: read("frame.html"),
   dadu: read("assets/js/pages/dadu.js"),
   room: read("assets/js/pages/room.js")
 };
 const headers = ["karakter.html", "frame.html", "dadu.html", "powerup.html", "shop.html", "friendship.html", "hadiah-misi.html", "tambang.html", "profile.html"];
 const pageCss = read("assets/css/page.css");
-const frameCss = read("assets/ng/css/frame.css");
-const powerCss = read("assets/ng/css/powerup.css");
+const frameCss = read("data/frame/css/frame.css");
+const powerCss = read("data/power/css/powerup.css");
 let n = 0;
 const test = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 
@@ -49,8 +49,8 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
 });
 
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/images\/tombol\/tombol-abu-polos\.webp\)/.test(frameCss));
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/images\/tombol\/tombol-abu-polos\.webp\)/.test(powerCss));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/tombol\/tombol-abu-polos\.webp\)/.test(frameCss));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/tombol\/tombol-abu-polos\.webp\)/.test(powerCss));
   assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/images\/tombol\/tombol-abu-polos\.webp\)/.test(read("assets/ng/css/kredit.css")));
   assert.ok(/on\?'DIPAKAI':'DIMILIKI'/.test(scripts.frame));
   assert.ok(/on\?'DIPASANG':'DIMILIKI'/.test(scripts.dadu));

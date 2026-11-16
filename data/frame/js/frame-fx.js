@@ -4,7 +4,7 @@
 
    Cara pakai: tidak perlu mengubah halaman. Setiap <img src="data/frame/<nama>.webp"> otomatis diganti <canvas> beranimasi
    (class/id/style dipertahankan, dan properti .src tetap bisa diganti seperti <img>). Satu loop rAF bersama; canvas di luar layar dilewati.
-   API: FrameFX.keyOf(frameId|path), FrameFX.dataURL(key), FrameFX.upgrade(root). prefers-reduced-motion: digambar sekali (statis). */
+   API: FrameFX.keyOf(frameId|path), FrameFX.dataURL(../../../assets/js/renderers/key), FrameFX.upgrade(root). prefers-reduced-motion: digambar sekali (statis). */
 (function (g) {
   'use strict';
   if (g.FrameFX) return;

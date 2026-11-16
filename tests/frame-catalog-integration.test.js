@@ -52,7 +52,7 @@ t('ItemCatalog: byId/byGameKey/cost/starters/defaultEquipped/FRAME_TAB_ICON sama
   assert.strictEqual(ICr.byId('frame.tidak-ada'), null); assert.strictEqual(ICr.byId('__proto__'), null);
   assert.deepStrictEqual(clone(ICr.starters().map(i => i.id)), clone(ICl.starters().map(i => i.id))); assert.ok(ICr.starters().some(i => i.id === 'frame.default'));
   assert.deepStrictEqual(clone(ICr.defaultEquipped), clone(ICl.defaultEquipped)); assert.strictEqual(ICr.defaultEquipped.frame, 'frame.default');
-  assert.strictEqual(ICr.FRAME_TAB_ICON, 'data/frame/icon-frame.webp');
+  assert.strictEqual(ICr.FRAME_TAB_ICON, 'data/frame/img/icon-frame.webp');
 });
 t('Frame: 14/14 metadata (id, name, kind, rarity, price, gems, starter, desc, featured, image) dari manifest = baseline', () => {
   const fr = ICr.items.filter(i => i.kind === 'frame'), bf = base.items.filter(i => i.kind === 'frame'); assert.strictEqual(fr.length, 14);
@@ -122,7 +122,7 @@ t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catal
     assert.ok(indexes.every(x => x >= 0 && x < i), p);
     assert.deepStrictEqual(indexes, indexes.slice().sort((a, b) => a - b), p);
     CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, p + ' ' + f));
-    const fx = s.indexOf('assets/js/renderers/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
+    const fx = s.indexOf('data/frame/js/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
 });
 t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 16); });
 t('Halaman lain memakai jalur fallback Frame tanpa manifest Frame; Registry kategori lain tidak mengubahnya', () => {

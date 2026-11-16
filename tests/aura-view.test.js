@@ -69,7 +69,7 @@ t('lompat: cincin & kabut aura tetap di lantai, dekor badan ikut naik; mendarat 
 });
 t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-fx -> aura-view) dan memakai UT.AuraView', () => {
   const pages = [
-    { html: 'lobby.html', source: 'assets/js/pages/lobby.js', update: /AUR\.update\(motionDt\)/ },
+    { html: 'lobby.html', source: 'data/lobby/js/lobby.js', update: /AUR\.update\(motionDt\)/ },
     { html: 'profile.html', source: 'assets/js/pages/profile.js', update: /R\.aura\.update\(dt\)/ },
     { html: 'gameplay.html', source: 'gameplay/js/main.js', update: /PAURA\.update\(dt\)/ }
   ];
