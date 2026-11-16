@@ -4,7 +4,7 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-const source = fs.readFileSync(path.join(ROOT, 'assets/js/renderers/pet-viewer.js'), 'utf8');
+const source = fs.readFileSync(path.join(ROOT, 'data/pet/js/pet-viewer.js'), 'utf8');
 const rafs = new Map(), timeouts = new Map(), fetches = [], scenes = [], renderers = [], observers = [], audioContexts = [], bufferSources = [];
 const windowListeners = new Map(), canvasListeners = new Map();
 const runtimeErrors = [];
@@ -108,7 +108,7 @@ const window = {
       shared() {
         return { getItem(id) {
           const key = id.slice('pet.'.length);
-          return { assets: { sfx: [0, 1, 2].map(n => 'data/inventory/pet/' + key + '/sfx/' + n + '.mp3') } };
+          return { assets: { sfx: [0, 1, 2].map(n => 'data/pet/items/' + key + '/sfx/' + n + '.mp3') } };
         } };
       }
     },
@@ -157,7 +157,7 @@ const context = vm.createContext({
   }
 });
 
-vm.runInContext(source, context, { filename: 'assets/js/renderers/pet-viewer.js' });
+vm.runInContext(source, context, { filename: 'data/pet/js/pet-viewer.js' });
 
 function model() {
   const geometry = { disposed: false, dispose() { this.disposed = true; } };

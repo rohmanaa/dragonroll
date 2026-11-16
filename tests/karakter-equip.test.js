@@ -4,7 +4,7 @@
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const PG = require("./_page");
 const rd = f => PG.readFileSync(path.join(__dirname, "..", f), "utf8");
-const html = rd("karakter.html"), css = rd("assets/ng/css/kredit.css");
+const html = rd("karakter.html"), css = rd("data/karakter/css/kredit.css");
 let n = 0; const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 const regBlock = name => { const i = html.indexOf("const " + name + "=["); assert.ok(i > 0, name); const j = html.indexOf("\n];", i); return html.slice(i, j); };
 

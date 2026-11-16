@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const raw = require('./extract.js');
 const ROOT = path.join(__dirname, '..', '..');
-const TARGET = path.join(ROOT, 'assets', 'js', 'character-data.js');
+const TARGET = path.join(ROOT, 'data', 'karakter', 'js', 'character-data.js');
 const CHARACTER_KEYS = ['steve', 'alex', 'creeper', 'zombie', 'skeleton', 'ender'];
 
 function merge(boxes) {
@@ -214,7 +214,7 @@ function generate() {
 function build(checkOnly) {
   const output = generate();
   if (checkOnly) {
-    if (fs.readFileSync(TARGET, 'utf8') !== output) throw new Error('assets/js/character-data.js tidak sama dengan hasil generator');
+    if (fs.readFileSync(TARGET, 'utf8') !== output) throw new Error('data/karakter/js/character-data.js tidak sama dengan hasil generator');
     return { bytes: Buffer.byteLength(output), checked: true };
   }
   fs.writeFileSync(TARGET, output, 'utf8');
@@ -224,7 +224,7 @@ function build(checkOnly) {
 if (require.main === module) {
   try {
     const result = build(process.argv.includes('--check'));
-    console.log('assets/js/character-data.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
+    console.log('data/karakter/js/character-data.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
   } catch (error) {
     console.error('CharacterData build failed:', error.message);
     process.exitCode = 1;

@@ -54,7 +54,7 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0,
       texture: null, renderer: 'palette' }, extra || {});
   }
-  /* Skin PNG sudah dihapus: semua skin memakai model voxel UT.CharacterData (assets/js/character-data.js). */
+  /* Skin PNG sudah dihapus: semua skin memakai model voxel UT.CharacterData (data/karakter/js/character-data.js). */
   /* Path texture harus relatif, berakhiran .png, tanpa skema/URL, drive Windows, '..' atau spasi. */
   function validTexturePath(p) {
     return typeof p === 'string' && /^[A-Za-z0-9_\-]+(\/[A-Za-z0-9_\-]+)*\.png$/.test(p);

@@ -356,7 +356,7 @@ def refresh_mapping(data):
     ] + [
         {
             "referrer": "data/inventory/{}/index.js".format(domain),
-            "old": "req('./",
+            "old": "req('../inventory/pet",
             "new": "req('./items/",
             "phase": 3,
             "reason": "The category index imports manifests from its new items/ directory.",

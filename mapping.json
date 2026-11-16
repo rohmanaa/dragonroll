@@ -15825,7 +15825,7 @@
     },
     {
       "referrer": "data/inventory/pet/index.js",
-      "old": "req('./",
+      "old": "req('../inventory/pet",
       "new": "req('./items/",
       "phase": 3,
       "reason": "The category index imports manifests from its new items/ directory."

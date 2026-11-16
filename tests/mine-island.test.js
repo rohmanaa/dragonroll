@@ -5,7 +5,7 @@ const PG = require("./_page");
 const R = path.join(__dirname, '..') + path.sep, read = f => PG.readFileSync(R + f, 'utf8');
 global.window = global; global.UT = {};
 const THREE = global.THREE = require(R + 'assets/js/vendor/three.min.js');
-vm.runInThisContext(read('assets/js/mine-island.js'), { filename: 'mine-island.js' });
+vm.runInThisContext(read('data/tambang/js/mine-island.js'), { filename: 'mine-island.js' });
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const miner = () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(1, 5.87, 1), new THREE.MeshBasicMaterial()); b.position.y = 2.9; g.add(b);

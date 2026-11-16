@@ -75,9 +75,9 @@ test('power uses a compact icon action and concise label', () => {
 
 test('room dice art uses the same procedural thumbnail source as the preview', () => {
   assert.ok(room.includes('RoomDiceArt.thumb(it.gameKey,96)'));
-  const module = read('assets/js/renderers/room-dice-art.js');
-  assert.ok(module.includes("from './dice-kit/DiceCatalog.js'"));
-  assert.ok(module.includes("from './dice-kit/DiceTextures.js'"));
+  const module = read('data/dice/js/room-dice-art.js');
+  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/DiceCatalog.js'"));
+  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/DiceTextures.js'"));
   assert.ok(module.includes('diceThumbDataURL(die, px)'));
 });
 

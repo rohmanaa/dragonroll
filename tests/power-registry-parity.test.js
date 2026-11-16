@@ -6,7 +6,7 @@ const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROO
 const ex = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
 const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const PowerCat = require(path.join(ROOT, 'data/inventory/power/index.js'));
-const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
+const PetCat = require(path.join(ROOT, 'data/pet/index.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
@@ -15,7 +15,7 @@ const srcs = html => (html.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /
 const POWER_CHAIN = ['assets/js/core/item-registry.js']
   .concat(PowerCat.keys.map(k => 'data/inventory/power/' + k + '/manifest.js'), ['data/inventory/power/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
-const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
+const PET_CHAIN = PetCat.keys.map(k => 'data/pet/items/' + k + '/manifest.js').concat(['data/pet/index.js']);
 const DICE_CHAIN = DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js').concat(['data/inventory/dice/index.js']);
 const cloneManifest = key => clone(require(path.join(ROOT, 'data/inventory/power', key, 'manifest.js')));
 

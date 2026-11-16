@@ -4,8 +4,8 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const html = read('pet.html');
-const css = read('assets/ng/css/pet.css');
-const page = read('assets/js/pages/pet-page.js');
+const css = read('data/pet/css/pet.css');
+const page = read('data/pet/js/pet-page.js');
 
 assert.ok(html.includes('<div id="petTitle">'));
 assert.ok(html.includes('id="petInfoOpen" type="button" aria-label="Informasi tier" aria-haspopup="dialog"'));
@@ -22,7 +22,7 @@ assert.ok(css.includes('#petTitle{position:absolute;left:190px;top:660px;width:6
 assert.ok(css.includes('#rar{position:absolute;left:190px;top:744px;width:600px;text-align:center;font-size:26px}'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
-assert.ok(css.includes('border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
+assert.ok(css.includes('border-image:url(../../../assets/ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
 assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 120px);overflow-y:auto;'));
 assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
