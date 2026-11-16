@@ -38,7 +38,9 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 .card{position:relative;width:140px;height:236px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:8px 6px 8px;cursor:pointer;animation:pop .35s both;transition:transform .1s}
 .card::before{content:'';position:absolute;inset:-2px;border:16px solid transparent;border-image:url(../../../../../assets/images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;z-index:-1;pointer-events:none}
 .card{isolation:isolate}
-.card.sel::before{border-image-source:url(../../../../../assets/images/ui/hud/kartu-kosong-oranye.webp)}
+.card.st-lock::before{filter:grayscale(1) brightness(.78)}
+.card.st-used::before{border-image-source:url(../../../../../assets/images/ui/hud/kartu-kosong-hijau.webp)}
+.card.sel{outline:3px solid #ffd45a;outline-offset:3px;filter:drop-shadow(0 0 8px rgba(255,220,110,.55))}
 .card:hover{transform:translateY(-3px)}
 @keyframes pop{from{opacity:0;transform:scale(.88)}}
 .card .th{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center}
@@ -61,11 +63,13 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 .slrow input{width:100%;margin:0}
 #grid.flat>.bt{width:260px;height:64px;align-self:center;justify-self:center;font:400 30px var(--font-title);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp) center/100% 100% no-repeat;color:#4d2300}
 /* warna (dye) */
-#dyes{position:absolute;left:0;top:930px;width:900px;min-height:72px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(14,10,26,.55);border:3px solid #4c4468}
+#dyes{position:absolute;left:0;top:930px;width:580px;min-height:72px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(14,10,26,.55);border:3px solid #4c4468}
 #dyes:empty{display:none}
 #dyes .lbl{font:400 28px var(--font-title);margin-right:8px;color:#ffd45a}
 #dyes .sw{width:46px;height:46px;border-radius:10px;border:4px solid #17122b;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);flex:none}
 #dyes .sw.on{outline:4px solid #ffd45a;outline-offset:2px}
+#act{position:absolute;right:0;top:930px;width:280px;height:78px;display:none;align-items:center;justify-content:center;z-index:5;font:400 30px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
+#act:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
 /* modal (beli / outfit) */
 .ov{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,6,24,.6);z-index:60;opacity:0;transition:opacity .25s}
 .ov.show{opacity:1}

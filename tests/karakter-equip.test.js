@@ -8,17 +8,33 @@ const html = rd("karakter.html"), css = rd("data/inventory/character/_shared/css
 let n = 0; const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 const regBlock = name => { const i = html.indexOf("const " + name + "=["); assert.ok(i > 0, name); const j = html.indexOf("\n];", i); return html.slice(i, j); };
 
-t("slot equipment berada di kedua sisi karakter tanpa tombol aksi di panel", () => {
+t("slot equipment tetap di sisi karakter dan aksi kartu terpusat di kanan bawah", () => {
   assert.ok(/<div id="eqL" aria-label="Perlengkapan sisi kiri"><\/div>/.test(html));
   assert.ok(/<div id="eqR" aria-label="Perlengkapan sisi kanan"><\/div>/.test(html));
   assert.ok(!/id="buy"/.test(html), "aksi pembelian/pemakaian tidak diletakkan di panel");
+  assert.ok(/<button class="bt" id="act"[^>]*><span><\/span><\/button>/.test(html), "tersedia tombol aksi tunggal");
   assert.ok(/fmtPrice\(ci\.price\)/.test(html));
   assert.ok(/const KOIN='assets\/images\/ui\/hud\/ikon-koin-emas\.webp'/.test(html));
-  assert.ok(html.includes("badgeHtml:lock&&canSell(ci)?'<img class=\"coin\" src=\"'+KOIN+'\" alt=\"\"><span>'+fmtPrice(ci.price)+'</span>':null"), "status beli menampilkan ikon koin dan harga ringkas");
-  assert.ok(/on\?'Dipakai':'Dimiliki'/.test(html));
-  assert.ok(/startPreview\(ci,part\);confirmBuy\(ci\)/.test(html), "Beli pada kartu membuka pembelian item");
-  assert.ok(/stage\('i'\+c\.key\+it\.id,it\.n,\{\[c\.key\]:\{id:it\.id\}\}\);commitDraft\(\)/.test(html), "Dimiliki pada kartu menerapkan item");
-  assert.ok(/e\.stopPropagation\(\);o\.buttonFn\(\)/.test(html), "aksi kartu tidak menjalankan klik preview parent");
+  assert.ok(html.includes("label:'BELI '+fmtPrice(ci.price)+' COIN'"), "harga item tampil pada tombol aksi");
+  assert.ok(/function renderAct\(\)/.test(html) && /cardActions\.get\(selectedActionKey\)/.test(html));
+  assert.ok(/selectedActionKey=o\.actionKey\|\|null/.test(html), "tombol aksi mengikuti kartu terpilih");
+  assert.ok(!/buttonFn|badgeHtml/.test(html), "kartu item tidak lagi memiliki tombol aksi atau badge harga");
+});
+t("Gender dan Kulit tetap langsung dipilih tanpa tombol aksi", () => {
+  assert.ok(/nm:a\[2\],on:on,status:on\?'used':'own',fn:\(\)=>setGender\(a\[0\]\)/.test(html));
+  assert.ok(/nm:s\.n,on:on,status:on\?'used':'own',fn:\(\)=>apply\(\{skin:s\.id\}\)/.test(html));
+  assert.ok(/function setGender\(g\)/.test(html));
+});
+t("aksesori multi-pakai memakai centang hijau dan aksi PAKAI/LEPAS", () => {
+  assert.ok(/status:lock\?'lock':on\?'used':'own'/.test(html));
+  assert.ok(/label:'LEPAS',disabled:false/.test(html));
+  assert.ok(/label:'PAKAI',disabled:false/.test(html));
+  assert.ok(/if\(on\)\{const equipped=eqItems\(\)\.acc\.find\(a=>a\.id===it\.id\);if\(equipped\)unequip\(equipped\);return;\}/.test(html));
+});
+t("set menampilkan BELI SET atau PAKAI SET pada tombol aksi tunggal", () => {
+  assert.ok(/label:'BELI SET '\+fmtPrice\(st\.total\)\+' COIN'/.test(html));
+  assert.ok(/label:'PAKAI SET'/.test(html));
+  assert.ok(/keepBadge:true/.test(html), "kartu Simpan tampilan tetap mempertahankan penghitung slot");
 });
 t("kontrol pose dan lompat tidak ditampilkan", () => {
   assert.ok(!/<div id="sbs"/.test(html));
@@ -113,9 +129,9 @@ t("klik slot: kosong -> buka tab kategori; terisi -> buka kategorinya untuk mele
   assert.ok(/function goCat\(k,keepSel\)\{[^}]*if\(!keepSel\)eqSel=null/.test(html));
   assert.ok(/if\(it\.empty\)\{goCat\(it\.acc\?'accessories':it\.k\);return;\}/.test(html));
   assert.ok(/eqSel=it;goCat\(it\.acc\?'accessories':it\.k,true\)/.test(html));
-  assert.ok(/Tekan Dipakai pada kartunya untuk melepas/.test(html), "panel mengarahkan ke kartu yang memuat aksi lepas");
-  assert.ok(/if\(on\)\{const equipped=eqItems\(\)\.main\.find\(a=>a\.k===c\.key&&a\.id===it\.id\);if\(equipped\)unequip\(equipped\);return;\}/.test(html));
-  assert.ok(/renderEq\(\);\s*updateInfo\(\);\s*\}/.test(html), "renderEq dipanggil di akhir renderOpts");
+  assert.ok(/gunakan tombol kanan bawah untuk melepas/.test(html), "panel mengarahkan ke tombol aksi tunggal");
+  assert.ok(/if\(on&&removable&&it\.id!=='none'\)\{const equipped=eqItems\(\)\.main\.find\(a=>a\.k===c\.key&&a\.id===it\.id\);if\(equipped\)unequip\(equipped\);return;\}/.test(html));
+  assert.ok(/renderEq\(\);\s*updateInfo\(\);\s*renderAct\(\);\s*\}/.test(html), "slot dan tombol aksi diperbarui di akhir renderOpts");
 });
 t("aset slot ada", () => {
   ["slot-ungu", "slot-terpilih"].forEach(a => assert.ok(fs.existsSync(path.join(__dirname, "../assets/images/ui/slot-equipment", a + ".webp")), a));

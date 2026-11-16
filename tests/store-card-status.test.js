@@ -43,7 +43,8 @@ test("harga ringkas pada kartu konsisten untuk semua halaman", () => {
 });
 
 test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => {
-  assert.ok(pages.karakter.includes("'<img class=\"coin\" src=\"'+KOIN+'\" alt=\"\"><span>'+fmtPrice(ci.price)+'</span>'"));
+  assert.ok(pages.karakter.includes("label:'BELI '+fmtPrice(ci.price)+' COIN'"), "karakter: harga item ada pada tombol aksi kanan bawah");
+  assert.ok(pages.karakter.includes("label:'BELI SET '+fmtPrice(st.total)+' COIN'"), "karakter: harga set ada pada tombol aksi kanan bawah");
   assert.ok(!/Beli <img class="coin"/.test(pages.karakter));
   const currencyPrice = 'data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}';
   assert.ok(scripts.frame.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'frame: harga beli ada di tombol aksi #act');
