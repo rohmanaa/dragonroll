@@ -12,10 +12,71 @@
   if (UT.GameplayFX) return;
 
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
+  var currentQuality = null, reducedMq = null, tracked = [];
+  var QUALITY = { low: { scale: 0.5, cap: 120 }, medium: { scale: 1.0, cap: 220 }, high: { scale: 1.3, cap: 320 }, ultra: { scale: 1.6, cap: 450 } };
+
+  function detectQuality() {
+    try {
+      var nav = win.navigator || {};
+      var user = nav.userAgent || '';
+      var mobile = /Android|iPhone|iPad|Mobile/i.test(user);
+      var mem = nav.deviceMemory || 4;
+      var cores = nav.hardwareConcurrency || 4;
+      if (mem <= 2 || (cores <= 2 && mobile)) return 'low';
+      if (mobile || cores <= 4 || mem <= 4) return 'medium';
+      if (cores >= 8 && mem >= 8) return 'ultra';
+      return 'high';
+    } catch (e) { return 'medium'; }
+  }
+
+  function reduced() {
+    try {
+      if (!reducedMq && win.matchMedia) {
+        reducedMq = win.matchMedia('(prefers-reduced-motion: reduce)');
+        if (reducedMq && reducedMq.addEventListener) reducedMq.addEventListener('change', function () {});
+      }
+      return !!(reducedMq && reducedMq.matches);
+    } catch (e) { return false; }
+  }
+
+  function quality() {
+    if (!currentQuality) currentQuality = detectQuality();
+    return currentQuality;
+  }
+
+  function n(base) {
+    var val = +base || 0;
+    var scale = QUALITY[quality()] ? QUALITY[quality()].scale : 1;
+    var multi = reduced() ? 0.4 : 1;
+    return Math.max(1, Math.round(val * scale * multi));
+  }
+
+  function applyParticlePreset() {
+    try {
+      if (!win.UT || !win.UT.ParticleFX || typeof win.UT.ParticleFX.configure !== 'function') return;
+      var q = QUALITY[quality()] || QUALITY.medium;
+      win.UT.ParticleFX.configure({ maxParticles: Math.max(60, q.cap), maxBurst: Math.max(8, Math.min(20, Math.round(q.cap / 6))) });
+    } catch (e) {}
+  }
+
+  function track(item) {
+    if (!item || typeof item.update !== 'function') return null;
+    tracked.push(item);
+    return item;
+  }
+
+  function stopAll() {
+    for (var i = tracked.length - 1; i >= 0; i--) {
+      try { if (tracked[i] && typeof tracked[i].stop === 'function') tracked[i].stop(); } catch (e) {}
+      try { if (tracked[i] && typeof tracked[i].dispose === 'function') tracked[i].dispose(); } catch (e) {}
+    }
+    tracked.length = 0;
+  }
 
   function init(sc) {
     if (!sc || !win.THREE) return false;
     scene = sc;
+    applyParticlePreset();
     if (!CONF_GEO) { /* sumber daya dibuat sekali, nilai sama dengan kode lama */
       CONF_GEO = new THREE.BoxGeometry(0.14, 0.14, 0.14);
       CONF_MATS = [0xF0453A, 0x2F80FF, 0xFFC21A, 0xA855F7, 0x45C94B, 0xFFFFFF].map(function (c) { return new THREE.MeshLambertMaterial({ color: c }); });
@@ -31,17 +92,20 @@
 
   function spawnConfetti(pos) {
     if (!scene) return;
-    for(let i=0;i<110;i++){
-      const m=new THREE.Mesh(CONF_GEO,CONF_MATS[i%CONF_MATS.length]);
-      m.position.set(pos.x,pos.y+0.8,pos.z);
+    var count = n(110);
+    for (let i = 0; i < count; i++) {
+      const m = new THREE.Mesh(CONF_GEO, CONF_MATS[i % CONF_MATS.length]);
+      m.position.set(pos.x, pos.y + 0.8, pos.z);
       scene.add(m);
-      confetti.push({m,v:new THREE.Vector3((Math.random()-0.5)*6,4+Math.random()*5,(Math.random()-0.5)*6),r:new THREE.Vector3(Math.random()*6,Math.random()*6,Math.random()*6),life:2.6+Math.random()*1.4});
+      confetti.push({ m, v: new THREE.Vector3((Math.random() - 0.5) * 6, 4 + Math.random() * 5, (Math.random() - 0.5) * 6), r: new THREE.Vector3(Math.random() * 6, Math.random() * 6, Math.random() * 6), life: 2.6 + Math.random() * 1.4 });
     }
   }
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
   function spawnExplosion(pos, kind) {
     if (!scene) return;
-    const en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = 36, NS = 22;
+    var baseFire = 36, baseSmoke = 22;
+    var q = QUALITY[quality()] || QUALITY.medium;
+    var en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = Math.max(10, n(baseFire)), NS = Math.max(8, n(baseSmoke));
     for (let i = 0; i < NB + NS; i++) {
       const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
       const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : smk[Math.floor(Math.random() * smk.length)]);
@@ -50,6 +114,14 @@
       const sp = fire ? 1.6 + Math.random() * 2.6 : 0.4 + Math.random() * 0.8, an = Math.random() * Math.PI * 2;
       blasts.push({ m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.2 + Math.random() * 2.8 : 0.8 + Math.random() * 1.1, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.5 + Math.random() * 0.4 : 1.0 + Math.random() * 0.7, max: 1 });
       blasts[blasts.length - 1].max = blasts[blasts.length - 1].life;
+    }
+    if (blasts.length > q.cap) {
+      var overflow = blasts.length - q.cap;
+      while (overflow > 0 && blasts.length) {
+        var stale = blasts.shift();
+        if (stale && stale.m && scene) scene.remove(stale.m);
+        overflow--;
+      }
     }
   }
   function updateBlasts(dt) {
@@ -64,7 +136,7 @@
       if (b.life <= 0) { scene.remove(b.m); blasts.splice(i, 1); }
     }
   }
-  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; }
+  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; sparks.forEach(q=>{ try { scene.remove(q.m); if (q.m.material) q.m.material.dispose(); } catch (e) {} }); sparks.length=0; }
   function updateConfetti(dt) {
     if (!scene) return;
     updateBlasts(dt);
@@ -77,8 +149,9 @@
   }
 
   function sparkle(pos) {
-    if (!scene) return;
-    for(let i=0;i<14;i++){
+    if (!scene || reduced()) return;
+    var count = Math.max(1, n(14));
+    for(let i=0;i<count;i++){
       const m=new THREE.Mesh(SPARK_GEO,new THREE.MeshBasicMaterial({color:i%3?0xFFE58A:0xFFFFFF,transparent:true,fog:false}));
       m.position.set(pos.x+(Math.random()-0.5)*0.3,pos.y,pos.z+(Math.random()-0.5)*0.3); scene.add(m);
       sparks.push({m,v:new THREE.Vector3((Math.random()-0.5)*0.9,0.7+Math.random()*0.9,(Math.random()-0.5)*0.9),life:1,max:1});
@@ -93,5 +166,5 @@
     }
   }
 
-  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { quality: quality, n: n, reduced: reduced, track: track, stopAll: stopAll, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
 })(window);

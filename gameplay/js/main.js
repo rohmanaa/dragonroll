@@ -5713,6 +5713,9 @@ async function recordMatchServer(PD,m){
 /* Hadiah naik level: server (claim_level_rewards) membayar koin/emerald dan mengembalikan nominalnya; modal hanya menampilkan.
    Gagal/offline -> modal tetap tampil tanpa hadiah (hadiah yang terlewat dibayar pada klaim berikutnya). */
 async function showLevelUpWithRewards(level,gid){
+  if(!Number.isFinite(level)||level<1) return;
+  if(LAST_LEVELUP_SHOWN >= level) return;
+  LAST_LEVELUP_SHOWN = level;
   let rewards=[],note='';
   try{
     const W=UT.WalletService&&UT.WalletService.get(), r=W&&W.claimLevelRewards?await W.claimLevelRewards():null;
@@ -5725,12 +5728,16 @@ async function showLevelUpWithRewards(level,gid){
   setTimeout(()=>{ if(gameOver&&gameId===gid&&UT.LevelUp) UT.LevelUp.show({level,rewards,note}); },900);
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
+let LAST_LEVELUP_SHOWN = 0; /* hanya tampilkan modal reward sekali per level baru; untuk level yang sama, jangan dobel saat match rekam ulang */
 function finishGame(p,fromRemote){
   clearBossFx();
   gameOver=true; winnerIndex=players.indexOf(p); clearTurnTimer(); if(!fromRemote)p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
-  if(lost) pawnAct(p.pawn,'sad',2.4); else pawnCheer(p.pawn,2.6); /* karakter baru: sorak saat menang, sedih saat kalah */
+  if(lost){
+    pawnAct(p.pawn,'sad',2.4);
+    try{ if(p&&p.pawn&&p.pawn.position) spawnExplosion(p.pawn.position.clone().add(new THREE.Vector3(0,0.4,0)),'ender'); }catch(e){}
+  }else pawnCheer(p.pawn,2.6); /* karakter baru: sorak saat menang, sedih saat kalah */
   resetWinResultDetails();
   updateWinLevelProgress(gameId);
   $('winRewardsTitle').textContent=lost?'PROGRES PERTANDINGAN':'HADIAH';

@@ -632,12 +632,13 @@ body #side .rcol .pnl.tn{
   border:none;
 }
 body #side .tn-av{display:none}
-body #side .tn .trow{display:none}
+body #side .tn .trow{display:flex;justify-content:center;align-items:center;min-height:28px;margin:0 0 2px;grid-area:name}
 body #side #turnName{
-  grid-area:name;
+  display:block;
   max-width:100%;
   min-width:0;
   align-self:center;
+  text-align:center;
   font-size:clamp(20px,1.6vw,24px);
   line-height:1.1;
   color:#fff;
