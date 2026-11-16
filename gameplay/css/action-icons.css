@@ -1,12 +1,16 @@
 html body #side{--roll-w:var(--roll-h);--tn-w:calc(var(--roll-w) + var(--auto-w) + 10px)}
 
+/* #side adalah panggung desain 1920px yang diskalakan (hud-mockup.css: scale = lebar layar / 1920), jadi ukuran di sini = piksel DESAIN.
+   Dulu memakai --roll-h (30-40px desain) -> di HP landscape (skala ~0,45) tombol Roll hanya ~14px. 160px desain -> ~72px di HP, 160px di desktop. */
 html body #side .rcol .pnl.tn #btnRoll{
+  --roll-size:160px;
   display:grid!important;
   place-items:center!important;
-  width:var(--roll-h)!important;
-  min-width:var(--roll-h)!important;
-  height:var(--roll-h)!important;
-  min-height:var(--roll-h)!important;
+  justify-self:center!important;
+  width:var(--roll-size)!important;
+  min-width:var(--roll-size)!important;
+  height:var(--roll-size)!important;
+  min-height:var(--roll-size)!important;
   padding:0!important;
   border:0!important;
   border-radius:0!important;
