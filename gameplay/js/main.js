@@ -5659,8 +5659,23 @@ async function recordMatchServer(PD,m){
     const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
     try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
     try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
-    if(a&&a.ok&&a.level>lvBefore){ try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId&&UT.LevelUp) UT.LevelUp.show({level:a.level}); },900); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil) */
+    if(a&&a.ok&&a.level>lvBefore){ try{ showLevelUpWithRewards(a.level,m.gameId); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil); hadiah dihitung & dibayar server */
   }catch(e){ console.warn('[stats] gagal mencatat ke server',e); setWinRewardStatus(m.gameId,'Hasil pertandingan gagal dimuat.'); }
+}
+/* Hadiah naik level: server (claim_level_rewards) membayar koin/emerald dan mengembalikan nominalnya; modal hanya menampilkan.
+   Gagal/offline -> modal tetap tampil tanpa hadiah (hadiah yang terlewat dibayar pada klaim berikutnya). */
+const LEVELUP_ICON={coins:'assets/ng/komponen/hud/ikon-koin-emas.webp',gems:'assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp'};
+async function showLevelUpWithRewards(level,gid){
+  let rewards=[],note='';
+  try{
+    const W=UT.WalletService&&UT.WalletService.get(), r=W&&W.claimLevelRewards?await W.claimLevelRewards():null;
+    if(r&&r.ok){
+      if(r.reward_coins>0) rewards.push({icon:LEVELUP_ICON.coins,amount:'+'+r.reward_coins,label:'Koin'});
+      if(r.reward_gems>0) rewards.push({icon:LEVELUP_ICON.gems,amount:'+'+r.reward_gems,label:'Emerald'});
+      const lv=Array.isArray(r.levels)?r.levels:[]; if(lv.length>1) note='Hadiah level '+lv[0].level+'–'+lv[lv.length-1].level;
+    }
+  }catch(e){ console.warn('[level-up] klaim hadiah gagal',e); }
+  setTimeout(()=>{ if(gameOver&&gameId===gid&&UT.LevelUp) UT.LevelUp.show({level,rewards,note}); },900);
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p,fromRemote){
