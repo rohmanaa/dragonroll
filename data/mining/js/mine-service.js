@@ -83,7 +83,7 @@
         if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) {
           var clientUrl = SELF
             ? new URL('../../../assets/js/multiplayer/client.js', SELF)
-            : new URL('../../../assets/js/services/multiplayer/client.js', w.location.href);
+            : new URL('assets/js/multiplayer/client.js', w.location.href);
           await import(clientUrl.href);
         }
         return w.UT.Multiplayer.getClient();

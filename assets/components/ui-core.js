@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — hud/ui-core.js (Stage 4.0.2: HUD foundation)
+/* Ular Tangga Blok — assets/components/ui-core.js (Stage 4.0.2: HUD foundation)
    Registry/facade untuk komponen UI reusable. Skrip klasik (tanpa import/export/type=module).
-   Urutan muat: item-catalog.js -> [item-art.js] -> player-data.js -> app.js -> hud/ui-core.js -> kode halaman.
+   Urutan muat: item-catalog.js -> [item-art.js] -> player-data.js -> app.js -> assets/components/ui-core.js -> kode halaman.
    Aturan:
    - Layer di atas window.UT (UT.UI / UT.Audio / UT.App tidak diganti atau diduplikasi).
    - TIDAK menyimpan data pemain (coins, gems, inventory, skin, nama, statistik); sumbernya tetap PlayerData.

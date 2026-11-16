@@ -81,7 +81,7 @@
     const cost = costOf(item);
     if (!cost) return '<span class="pr no">TIDAK DIJUAL</span>';
     const gems = cost.gems > 0;
-    const icon = gems ? '../../../assets/js/pages/ikon-gem-medali/berlian-hijau.webp' : '../../../assets/js/pages/hud/ikon-koin-emas.webp';
+    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
     const amount = gems ? cost.gems : cost.coins;
     return `<span class="pr buy"><img src="${ITEM_ROOT + icon}" alt="">${format(amount)}</span>`;
   }
@@ -165,7 +165,7 @@
       return;
     }
     const gems = cost.gems > 0;
-    const icon = gems ? '../../../assets/js/pages/ikon-gem-medali/berlian-hijau.webp' : '../../../assets/js/pages/hud/ikon-koin-emas.webp';
+    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
     const amount = gems ? cost.gems : cost.coins;
     label.innerHTML = `<img src="${ITEM_ROOT + icon}" alt="">${format(amount)}`;
   }
@@ -382,7 +382,7 @@
     if (event.key !== 'Escape') return;
     if ($('#md').classList.contains('on')) closeModal();
     else if ($('#petInfo').open) return;
-    else window.location.href = '../../../assets/js/pages/lobby.html';
+    else window.location.href = 'lobby.html';
   });
 
   function navigate(url) {

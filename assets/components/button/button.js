@@ -1,11 +1,11 @@
-/* Ular Tangga Blok — hud/components/button.js (Stage 4.0.3: komponen Button reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/button.js.
+/* Ular Tangga Blok — assets/components/button/button.js (Stage 4.0.3: komponen Button reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/button/button.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('button', { label:'Main', variant:'primary', size:'md', onClick:fn });
            parent.appendChild(el);
    Opsi: label, variant (primary|secondary|ghost|danger), size (sm|md|lg), disabled, type (button|submit|reset),
          onClick, className, ariaLabel. Hasil: HTMLButtonElement dengan kelas ut-btn ut-btn-<variant> ut-btn-<size>.
-   Stylesheet hud/components/button.css dimuat otomatis (di samping button.js) bila belum ada;
+   Stylesheet assets/components/button/button.css dimuat otomatis (di samping button.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-btn-css". */
 (function (win, doc) {
   'use strict';
@@ -14,7 +14,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] button.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/button.js.');
+      win.console.error('[UT.Hud] button.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/button/button.js.');
     }
     return;
   }

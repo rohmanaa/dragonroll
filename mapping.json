@@ -1605,7 +1605,7 @@
       "file": "assets/Images/background/mode-bg.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "hud/theme/preview.html"
+        "assets/components/theme/preview.html"
       ],
       "status": "referenced",
       "proposed_target": "assets/images/background/mode-bg.webp",

@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — hud/components/modal.css (Stage 4.0.6)
+/* Ular Tangga Blok — assets/components/modal/modal.css (Stage 4.0.6)
    Semua selector berawalan .ut-modal*; tidak menyentuh .ov/.box/.x/#modal/#mx/#mb milik halaman & shared-ui.css.
    Elemen .ut-modal hanya ada di DOM saat modal terbuka, jadi memuat file ini tidak mengubah UI halaman existing.
    Tampilan mengikuti modal existing (audit): kotak biru gradasi, radius 2.4rem, bayangan 3D (var --bd bila ada), tombol tutup merah

@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — hud/components/card.css (Stage 4.0.4)
+/* Ular Tangga Blok — assets/components/card/card.css (Stage 4.0.4)
    Semua selector berawalan .ut-card*; tidak menyentuh .card/.gc/.friend/.row/.panel/.pack/.box milik halaman.
    Ukuran memakai em (mengikuti font-size induk) agar card ikut skala halaman mana pun dan bisa mengecil.
    Variabel halaman (--bd) dipakai bila ada, dengan fallback. */

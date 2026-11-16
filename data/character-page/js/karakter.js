@@ -1088,10 +1088,10 @@ function jump(){if(!airborne){airborne=true;vy=7.2;}}
 const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
-$('#back').addEventListener('click',()=>{location.href='../../../assets/js/pages/lobby.html';});
+$('#back').addEventListener('click',()=>{location.href='lobby.html';});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
-$('#shp').addEventListener('click',()=>{location.href='../../../assets/js/pages/shop.html';});
-$('#cur-em').addEventListener('click',()=>{location.href='../../../assets/js/pages/tambang.html?from=karakter.html'});$('#cur-co').addEventListener('click',()=>{location.href='../../../assets/js/pages/shop.html?coin=1'});
+$('#shp').addEventListener('click',()=>{location.href='shop.html';});
+$('#cur-em').addEventListener('click',()=>{location.href='tambang.html?from=karakter.html'});$('#cur-co').addEventListener('click',()=>{location.href='shop.html?coin=1'});
 function setMode(m){mode=m;}
 function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
 try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
@@ -1255,7 +1255,7 @@ function confirmBuy(ci){
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='../../../assets/js/pages/shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
     $('#yes').addEventListener('click',async()=>{
       const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
       closeModal();
@@ -1274,7 +1274,7 @@ function confirmBuySet(set){
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='../../../assets/js/pages/shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
     $('#yes').addEventListener('click',async()=>{
       /* atomik: server (buy_set) / PlayerData.purchaseSet memotong koin sekali dan memberi SEMUA item, atau tidak sama sekali */
       const ids=set.cis.map(c=>c.id);

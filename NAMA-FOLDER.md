@@ -5,6 +5,7 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 ## assets/
 - `assets/audio/music/` — musik halaman dan gameplay; nama lama: `assets/music/`.
 - `assets/audio/sfx/` — efek suara `board/`, `dice/`, `dragon/`, `mob/`, `pet/`, `powerup/`, `reward/`, `ui/`, dan `win/`; nama lama: `assets/sfx/` dan `assets/new sound/`.
+- `assets/components/` — komponen UI reusable; dipakai: `ui-core.js`, `button/` (preload); belum dipakai: `badge/`, `card/`, `currency/`, `modal/`, `toast/`, `theme/` (dulu `hud/`).
 - `assets/css/base/` — reset dan aturan dasar semua halaman.
 - `assets/css/components/` — gaya komponen bersama.
 - `assets/css/pages/` — gaya khusus halaman; tiga file `*-legacy.css` berasal dari `legacy-pages/`.
@@ -51,3 +52,5 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 - `data/mining/`, `css/`, `js/` — data serta halaman Tambang; nama lama: `data/tambang/`.
 - `data/pet/`, `css/`, `items/`, `js/` — katalog, model, dan halaman Pet; nama item tetap berupa gameKey/ID.
 - `data/power/`, `3d/`, `css/`, `js/` — katalog, aset 3D, gaya, dan skrip Power; nama aset item tetap berupa gameKey/ID.
+
+referensi/ = mockup, tidak dipakai aplikasi, jangan diubah

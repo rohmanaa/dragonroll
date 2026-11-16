@@ -5,3 +5,7 @@
 *.mp3 binary
 *.ogg binary
 *.woff2 binary
+
+referensi/** -text -diff
+old/** -text -diff
+supabase/** -text -diff

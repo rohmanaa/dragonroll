@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — hud/components/badge.css (Stage 4.0.8)
+/* Ular Tangga Blok — assets/components/badge/badge.css (Stage 4.0.8)
    Semua selector berawalan .ut-badge*; tidak menyentuh .badge/.tag/.soon/.badgeCount milik halaman.
    Ukuran memakai rem (skala halaman) mengikuti audit: sm = kartu inventory/shop, md = mode/dailyreward, lg = panel info shop.
    Posisi (absolut di pojok kartu, margin-left:auto, dst.) sengaja TIDAK diatur di sini — itu urusan halaman. */

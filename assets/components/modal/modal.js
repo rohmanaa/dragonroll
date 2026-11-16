@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — hud/components/modal.js (Stage 4.0.6: komponen Modal reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/modal.js.
+/* Ular Tangga Blok — assets/components/modal/modal.js (Stage 4.0.6: komponen Modal reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/modal/modal.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var m = UT.Hud.create('modal', { title:'Reward', content: someElement });
            m.open();  m.isOpen();  m.close();
@@ -11,7 +11,7 @@
    Isolasi: tidak memakai #modal/#mx/#mb/.ov/.box milik halaman; tiap instance punya state sendiri dan ditempel ke <body>
    hanya saat terbuka (dilepas saat ditutup). Beberapa modal terbuka bertumpuk: Escape hanya menutup yang paling atas.
    Fokus (sederhana, tanpa focus trap): saat open -> tombol close (atau elemen fokusable pertama); saat close -> elemen pemicu.
-   Stylesheet hud/components/modal.css dimuat otomatis (di samping modal.js) bila belum ada;
+   Stylesheet assets/components/modal/modal.css dimuat otomatis (di samping modal.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-modal-css". */
 (function (win, doc) {
   'use strict';
@@ -20,7 +20,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] modal.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/modal.js.');
+      win.console.error('[UT.Hud] modal.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/modal/modal.js.');
     }
     return;
   }

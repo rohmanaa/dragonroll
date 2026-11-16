@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — hud/components/button.css (Stage 4.0.3)
+/* Ular Tangga Blok — assets/components/button/button.css (Stage 4.0.3)
    Semua selector berawalan .ut-btn*; tidak menyentuh .btn/.cta/.bt/.ab/.mb/.pack/.heroBtn/.bb milik halaman.
    Ukuran memakai em (mengikuti font-size tombol) + rem untuk font-size, selaras skala rem halaman.
    Variabel halaman (--bd, --y1, --y2) dipakai bila ada, dengan fallback. */

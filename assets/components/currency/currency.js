@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — hud/components/currency.js (Stage 4.0.5: komponen Currency reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/currency.js.
+/* Ular Tangga Blok — assets/components/currency/currency.js (Stage 4.0.5: komponen Currency reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/currency/currency.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('currency', { type:'coin', value:8450, size:'lg' });
            parent.appendChild(el);
@@ -10,7 +10,7 @@
    Komponen hanya MENAMPILKAN value yang diberikan (apa adanya, tanpa format ribuan; pemanggil yang memformat).
    Tidak membaca/menulis PlayerData maupun localStorage. Bukan elemen interaktif: tanpa tabindex, tanpa role.
    Semua isi dibuat lewat DOM/SVG API + textContent; tidak ada HTML string.
-   Stylesheet hud/components/currency.css dimuat otomatis (di samping currency.js) bila belum ada;
+   Stylesheet assets/components/currency/currency.css dimuat otomatis (di samping currency.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-currency-css". */
 (function (win, doc) {
   'use strict';
@@ -19,7 +19,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] currency.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/currency.js.');
+      win.console.error('[UT.Hud] currency.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/currency/currency.js.');
     }
     return;
   }

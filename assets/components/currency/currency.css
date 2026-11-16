@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — hud/components/currency.css (Stage 4.0.5)
+/* Ular Tangga Blok — assets/components/currency/currency.css (Stage 4.0.5)
    Semua selector berawalan .ut-currency*; tidak menyentuh .cur/.ab/.plus/#gem/#coin/.ut-curbar milik halaman & shared-ui.css.
    Proporsi diambil dari audit pill currency existing (shared-ui.css): tinggi = 2.1em, ikon = 2.6em, gradasi biru + bayangan 3D.
    Ukuran dasar (font-size) memakai rem seperti halaman existing: sm 1.6rem, md 2rem (default shared-ui), lg 2.6rem (mendekati shop).

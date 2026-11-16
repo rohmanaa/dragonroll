@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — hud/components/badge.js (Stage 4.0.8: komponen Badge / Tag reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/badge.js.
+/* Ular Tangga Blok — assets/components/badge/badge.js (Stage 4.0.8: komponen Badge / Tag reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/badge/badge.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat registry kedua.
    Pakai:  var el = UT.Hud.create('badge', { label:'Owned', variant:'success', size:'md' });
            parent.appendChild(el);
@@ -8,7 +8,7 @@
    Hasil: <span class="ut-badge ut-badge-<variant> ut-badge-<size>">label</span>.
    Badge hanya informasi: tanpa role, tanpa tabindex, tanpa click handler. Label selalu lewat textContent
    (tidak ada penyisipan HTML). Tidak ada state bersama: tiap panggilan create() membuat elemen baru.
-   Stylesheet hud/components/badge.css dimuat otomatis (di samping badge.js) bila belum ada;
+   Stylesheet assets/components/badge/badge.css dimuat otomatis (di samping badge.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-badge-css". */
 (function (win, doc) {
   'use strict';
@@ -17,7 +17,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] badge.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/badge.js.');
+      win.console.error('[UT.Hud] badge.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/badge/badge.js.');
     }
     return;
   }

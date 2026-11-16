@@ -17,7 +17,7 @@ const say=r=>toast(MSG[r&&r.reason]||'Gagal. Coba lagi.');
 const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','leaderboard','friendship','shop','mode','misi','hadiah-misi','dailyreward','settings','mail'];
 const FROM=(()=>{const f=new URLSearchParams(location.search).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
 $('#back').addEventListener('click',()=>{playSound();location.href=FROM});
-$('#cur-co').addEventListener('click',()=>{playSound();location.href='../../../assets/js/pages/shop.html?coin=1'});
+$('#cur-co').addEventListener('click',()=>{playSound();location.href='shop.html?coin=1'});
 
 /* ---------- saldo ---------- */
 function renderCurrency(){$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}

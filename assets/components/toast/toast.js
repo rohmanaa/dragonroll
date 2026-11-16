@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — hud/components/toast.js (Stage 4.0.7: komponen Toast reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/toast.js.
+/* Ular Tangga Blok — assets/components/toast/toast.js (Stage 4.0.7: komponen Toast reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/toast/toast.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem toast global kedua.
    Pakai:  var t = UT.Hud.create('toast', { message: 'Berhasil disimpan', variant: 'success' });
            t.show();  t.isVisible();  t.hide();
@@ -15,7 +15,7 @@
    Isolasi: tidak memakai #toast/.toast/.on milik halaman. Tiap instance punya akar, state, dan satu timer sendiri. Akar hanya ada
    di DOM saat tampil, di dalam SATU host bersama (.ut-toast-stack, dibuat saat toast pertama tampil, dibuang saat kosong).
    Tidak ada listener dokumen sama sekali, jadi tidak ada listener yang bisa menumpuk.
-   Stylesheet hud/components/toast.css dimuat otomatis (di samping toast.js) bila belum ada;
+   Stylesheet assets/components/toast/toast.css dimuat otomatis (di samping toast.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-toast-css". */
 (function (win, doc) {
   'use strict';
@@ -24,7 +24,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] toast.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/toast.js.');
+      win.console.error('[UT.Hud] toast.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/toast/toast.js.');
     }
     return;
   }

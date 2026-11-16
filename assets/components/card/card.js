@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — hud/components/card.js (Stage 4.0.4: komponen Card reusable)
-   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> hud/ui-core.js -> hud/components/button.js -> card.js.
+/* Ular Tangga Blok — assets/components/card/card.js (Stage 4.0.4: komponen Card reusable)
+   Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> assets/components/ui-core.js -> assets/components/button/button.js -> card.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('card', { variant:'elevated', padding:'md', children:[node1, node2] });
            parent.appendChild(el);
@@ -7,7 +7,7 @@
          children (HTMLElement atau HTMLElement[]). Hasil: HTMLElement kelas ut-card ut-card-<variant> ut-card-p-<padding>.
    Card bukan tombol: tidak clickable dan tidak diberi role otomatis. Tidak ada API HTML string / innerHTML;
    isi hanya lewat DOM (children). API title/description sengaja TIDAK ada (audit: layout isi tiap halaman berbeda).
-   Stylesheet hud/components/card.css dimuat otomatis (di samping card.js) bila belum ada;
+   Stylesheet assets/components/card/card.css dimuat otomatis (di samping card.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-card-css". */
 (function (win, doc) {
   'use strict';
@@ -16,7 +16,7 @@
   /* Dependensi wajib: gagal jelas & aman, tanpa membuat fallback registry. */
   if (!UT || !UT.Hud || typeof UT.Hud.register !== 'function') {
     if (win.console && win.console.error) {
-      win.console.error('[UT.Hud] card.js: UT.Hud belum tersedia. Muat hud/ui-core.js sebelum hud/components/card.js.');
+      win.console.error('[UT.Hud] card.js: UT.Hud belum tersedia. Muat assets/components/ui-core.js sebelum assets/components/card/card.js.');
     }
     return;
   }
