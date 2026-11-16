@@ -3906,7 +3906,7 @@ showDie(1,false);
 /* ---------- Konfeti ---------- */
 function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
 function spawnExplosion(pos,kind){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind); else if(FX) FX.spawnConfetti(pos); } /* ledakan = serpihan kecil + asap (kind 'ender' = ungu Enderman, default = api), bukan konfeti */
-function clearConfetti(){ if(FX) FX.clearConfetti(); }
+function clearConfetti(){ if(FX) FX.stopAll(); } /* 1.2: stopAll = konfeti + ledakan + sparkle + efek terdaftar (enderHole) */
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
@@ -4210,12 +4210,15 @@ function enderHole(pos,scale){
   const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(arr,3));
   const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xd9b3ff,size:0.08,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); pts.rotation.x=1.15; pts.frustumCulled=false;
   g.add(core,r1,r2,pts); scene.add(g);
+  const hh={dead:false,dispose(){ if(hh.dead) return; hh.dead=true; scene.remove(g); g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); }); }}; /* 1.2: didaftarkan ke FX agar ikut dibuang saat reset */
+  if(FX&&FX.track) FX.track(hh);
   tween(EH_LIFE,k=>{
+    if(hh.dead) return; /* sudah dibuang oleh stopAll: tween tetap selesai (di-await gameplay), visual berhenti */
     const t=k*EH_LIFE,env=t<0.7?ease3(t/0.7):(t>EH_LIFE-0.4?1-ease3((t-(EH_LIFE-0.4))/0.4):1);
     g.scale.setScalar(Math.max(0.001,scale*env)); r1.rotation.z=t*5; r2.rotation.z=-t*3.5;
     for(let i=0;i<N;i++){ const q=sd[i],f=1-((t*0.45*q.s+q.p)%1),a=q.a+t*q.s*2.4,r=q.r*f; arr[i*3]=Math.cos(a)*r; arr[i*3+1]=Math.sin(a)*r; arr[i*3+2]=q.y*f; }
     pg.attributes.position.needsUpdate=true;
-    if(k>=1){ scene.remove(g); g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); }); }
+    if(k>=1){ hh.dispose(); if(FX&&FX.untrack) FX.untrack(hh); }
   });
 }
 function enderVictimFx(L,p,from,to){ /* feedback untuk pemain yang DITUKAR: vignette ungu + teks (sebelum teleport) */
@@ -6104,6 +6107,7 @@ function mpBroadcastAutoRoll(){ try{ if(ONLINE_ROOM&&MP_SYNC&&MP_SYNC.sendAutoRo
 function onMpAutoRoll(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(!p||p.networkId===MP_ID) return; p.autoRoll=!!pl.on; try{ renderChips(); }catch(e){} }
 function onMpEmote(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(p&&p.networkId!==MP_ID) showEmote(p,pl.emoji); }
 
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) clearConfetti(); }); /* 1.2: tab tersembunyi -> bersihkan FX lepas (tween gameplay tidak disentuh) */
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(0.05,(now-last)/1000); last=now;

@@ -7,6 +7,8 @@
    Classic script. Namespace: UT.GameplayFX.
    API: init(scene) · spawnConfetti(pos) · updateConfetti(dt) · clearConfetti() · sparkle(pos) · updateSparks(dt)
    Core FX (audit/4 checkpoint 1.1): quality() · setQuality(q|'auto') · n(base) · cap() · reduced().
+   Lifecycle (checkpoint 1.2): track(handle) · stopAll() · activeCount(). handle = { dispose() } (opsional stop()). stopAll membuang konfeti/ledakan/sparkle + semua efek terdaftar.
+   stopAll TIDAK menyentuh tween gameplay yang di-await (p.pos / slotPos tetap diselesaikan oleh pemanggilnya).
    Kualitas 'medium' (bawaan) = jumlah partikel LAMA, tanpa perubahan visual. Skala hanya aktif di low/high/ultra atau saat reduced-motion. */
 (function (win) {
   'use strict';
@@ -49,6 +51,24 @@
   function n(base) { return Math.max(1, Math.round(base * Q_SCALE[quality()] * (reduced() ? REDUCE_MUL : 1))); }
   function cap() { return Q_CAP[quality()]; }
   function active() { return confetti.length + blasts.length + sparks.length; }
+
+  /* ---- Lifecycle (1.2): efek lepas (mis. lubang hitam Ender) didaftarkan agar ikut dibuang saat reset ---- */
+  var tracked = [];
+  function track(h) {
+    if (!h || typeof h.dispose !== 'function') return h;
+    if (tracked.indexOf(h) < 0) tracked.push(h);
+    return h;
+  }
+  function untrack(h) { var i = tracked.indexOf(h); if (i >= 0) tracked.splice(i, 1); }
+  function stopAll() {
+    clearConfetti();
+    var list = tracked.slice(); tracked.length = 0;
+    list.forEach(function (h) {
+      try { if (typeof h.stop === 'function') h.stop(); } catch (e) {}
+      try { h.dispose(); } catch (e) {}
+    });
+  }
+  function activeCount() { return active() + tracked.length; }
   function grant(want) { return Math.max(0, Math.min(want, cap() - active())); }
 
   function init(sc) {
@@ -134,5 +154,5 @@
     }
   }
 
-  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks, quality: quality, setQuality: setQuality, n: n, cap: cap, reduced: reduced };
+  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks, quality: quality, setQuality: setQuality, n: n, cap: cap, reduced: reduced, track: track, untrack: untrack, stopAll: stopAll, activeCount: activeCount };
 })(window);

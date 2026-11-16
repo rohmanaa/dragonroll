@@ -94,4 +94,43 @@ t('clearConfetti ikut membersihkan sparkle dan men-dispose materialnya (F2)', ()
   b.FX.clearConfetti(); assert.strictEqual(b.scene.kids.size, 0);
   b.FX.updateSparks(0.1); b.FX.updateConfetti(0.1); /* tidak error setelah bersih */
 });
+/* ---- Checkpoint 1.2: lifecycle ---- */
+t('API lifecycle ada: track, untrack, stopAll, activeCount', () => {
+  const { FX } = build();
+  ['track', 'untrack', 'stopAll', 'activeCount'].forEach(k => assert.strictEqual(typeof FX[k], 'function', k));
+});
+t('stopAll membuang konfeti, ledakan, sparkle sekaligus', () => {
+  const b = build(); b.FX.spawnConfetti(P); b.FX.spawnExplosion(P, 'ender'); b.FX.sparkle(P);
+  assert.ok(b.FX.activeCount() > 0);
+  b.FX.stopAll(); assert.strictEqual(b.scene.kids.size, 0); assert.strictEqual(b.FX.activeCount(), 0);
+  b.FX.updateConfetti(0.1); b.FX.updateSparks(0.1); /* aman setelah bersih */
+});
+t('efek terdaftar (track) di-dispose saat stopAll, hanya sekali', () => {
+  const b = build(); let stops = 0, disp = 0;
+  b.FX.track({ stop() { stops++; }, dispose() { disp++; } });
+  assert.strictEqual(b.FX.activeCount(), 1);
+  b.FX.stopAll(); b.FX.stopAll();
+  assert.deepStrictEqual([stops, disp], [1, 1]); assert.strictEqual(b.FX.activeCount(), 0);
+});
+t('untrack: efek yang selesai sendiri tidak di-dispose lagi oleh stopAll', () => {
+  const b = build(); let disp = 0; const h = { dispose() { disp++; } };
+  b.FX.track(h); b.FX.untrack(h); b.FX.stopAll(); assert.strictEqual(disp, 0);
+});
+t('track menolak handle tanpa dispose; handle yang melempar error tidak menghentikan yang lain', () => {
+  const b = build(); let ok = 0;
+  b.FX.track(null); b.FX.track({}); assert.strictEqual(b.FX.activeCount(), 0);
+  b.FX.track({ dispose() { throw new Error('x'); } }); b.FX.track({ dispose() { ok++; } });
+  b.FX.stopAll(); assert.strictEqual(ok, 1);
+});
+t('track handle sama dua kali hanya terdaftar sekali', () => {
+  const b = build(); let disp = 0; const h = { dispose() { disp++; } };
+  b.FX.track(h); b.FX.track(h); b.FX.stopAll(); assert.strictEqual(disp, 1);
+});
+t('main.js: enderHole terdaftar ke FX, tween tidak dibatalkan, clearConfetti=stopAll, visibilitychange', () => {
+  const M = fs.readFileSync(require('path').join(__dirname, '../gameplay/js/main.js'), 'utf8');
+  assert.ok(/FX\.track\(hh\)/.test(M), 'enderHole harus didaftarkan');
+  assert.ok(/if\(hh\.dead\) return;/.test(M), 'tween berhenti menggambar bila sudah dibuang');
+  assert.ok(/function clearConfetti\(\)\{ if\(FX\) FX\.stopAll\(\); \}/.test(M));
+  assert.ok(/visibilitychange',\(\)=>\{ if\(document\.hidden\) clearConfetti\(\); \}\)/.test(M));
+});
 console.log(n + ' test lulus (gameplay-fx-core)');
