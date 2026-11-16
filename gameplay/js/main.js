@@ -4194,6 +4194,54 @@ async function teleport(p,to,fire){
   await tween(0.3,k=>p.pawn.scale.setScalar(k)); p.pawn.scale.setScalar(1);
 }
 
+/* ---------- Ender Pearl: lubang hitam + tukar posisi ----------
+   enderHole(pos,scale): lubang hitam (inti hitam + 2 cincin ungu + partikel terhisap) di dekat pion; timeline TETAP 2,3 dtk: buka 0,7 · tahan · tutup 0,4 (dipakai juga oleh pemain online lewat cue 'eport').
+   enderSwapAnim(p,L,a,b): lubang membuka di dekat kedua pion -> keduanya terhisap (mengecil + berputar) -> posisi ditukar -> muncul dari lubang lawan -> lubang menutup.
+   Aset baru: tidak ada (geometri THREE + SFX enderman yang sudah ada). reduce-motion: tukar langsung seperti teleport biasa. */
+const EH_LIFE=2.3;
+function enderHole(pos,scale){
+  if(MP_SEQ===0) mpCue({k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale});
+  if(reduce) return;
+  const g=new THREE.Group(); g.position.set(pos.x,pos.y+0.95*scale,pos.z); g.scale.setScalar(0.001);
+  const core=new THREE.Mesh(new THREE.SphereGeometry(0.42,20,14),new THREE.MeshBasicMaterial({color:0x000000,fog:false}));
+  const ring=(r0,r1,col,op,tilt)=>{ const m=new THREE.Mesh(new THREE.RingGeometry(r0,r1,40),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); m.rotation.x=tilt; return m; };
+  const r1=ring(0.55,0.95,0x9b4dff,0.85,1.15),r2=ring(0.8,1.25,0x4b1d99,0.5,1.5);
+  const N=70,arr=new Float32Array(N*3),sd=[]; for(let i=0;i<N;i++) sd.push({a:Math.random()*6.283,r:0.6+Math.random()*1.1,y:(Math.random()-0.5)*0.5,s:0.6+Math.random()*1.2,p:Math.random()});
+  const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(arr,3));
+  const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xd9b3ff,size:0.08,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); pts.rotation.x=1.15; pts.frustumCulled=false;
+  g.add(core,r1,r2,pts); scene.add(g);
+  tween(EH_LIFE,k=>{
+    const t=k*EH_LIFE,env=t<0.7?ease3(t/0.7):(t>EH_LIFE-0.4?1-ease3((t-(EH_LIFE-0.4))/0.4):1);
+    g.scale.setScalar(Math.max(0.001,scale*env)); r1.rotation.z=t*5; r2.rotation.z=-t*3.5;
+    for(let i=0;i<N;i++){ const q=sd[i],f=1-((t*0.45*q.s+q.p)%1),a=q.a+t*q.s*2.4,r=q.r*f; arr[i*3]=Math.cos(a)*r; arr[i*3+1]=Math.sin(a)*r; arr[i*3+2]=q.y*f; }
+    pg.attributes.position.needsUpdate=true;
+    if(k>=1){ scene.remove(g); g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); }); }
+  });
+}
+function enderVictimFx(L,p,from,to){ /* feedback untuk pemain yang DITUKAR: vignette ungu + teks (sebelum teleport) */
+  try{
+    const old=document.getElementById('enderHit'); if(old) old.remove();
+    const d=document.createElement('div'); d.id='enderHit';
+    d.innerHTML='<div class="eh-vig"></div><div class="eh-txt"></div>'; d.querySelector('.eh-txt').textContent=L.name+' ditukar oleh '+p.name+' · petak '+from+' → '+to;
+    document.body.appendChild(d); setTimeout(()=>d.remove(),1700);
+  }catch(e){}
+}
+async function enderSwapAnim(p,L,a,b){ /* p (pemakai) pindah ke petak b milik L; L pindah ke petak a */
+  if(reduce){ await teleport(p,b,'ender'); await teleport(L,a,'ender'); return; }
+  const pa=p.pawn,la=L.pawn,pA=pa.position.clone(),lA=la.position.clone(),HY=0.95;
+  const cP=pA.clone(); cP.y+=HY*0.75; const cL=lA.clone(); cL.y+=HY; /* pusat lubang pemakai (kecil) & lubang target (besar) */
+  enderHole(lA,1); enderHole(pA,0.75); sfx.enderman();
+  const ry=[pa.rotation.y,la.rotation.y];
+  await tween(0.7,()=>{}); /* lubang membuka */
+  await tween(0.7,k=>{ const e=k*k; pa.position.lerpVectors(pA,cP,e); pa.scale.setScalar(Math.max(0.001,1-e)); pa.rotation.y=ry[0]+e*10; la.position.lerpVectors(lA,cL,e); la.scale.setScalar(Math.max(0.001,1-e)); la.rotation.y=ry[1]-e*10; }); /* terhisap */
+  p.pos=b; L.pos=a; /* tujuan dihitung setelah posisi tertukar: tiap pion di tengah petaknya, bukan berbagi cincin dgn lawan */
+  const pD=slotPos(p.idx,b).clone(),lD=slotPos(L.idx,a).clone();
+  await tween(0.5,k=>{ const e=ease3(k); pa.position.lerpVectors(cL,pD,e); pa.scale.setScalar(Math.max(0.001,e)); pa.rotation.y=ry[0]+(1-e)*6; la.position.lerpVectors(cP,lD,e); la.scale.setScalar(Math.max(0.001,e)); la.rotation.y=ry[1]-(1-e)*6; }); /* muncul dari lubang lawan */
+  pa.position.copy(pD); la.position.copy(lD); pa.scale.setScalar(1); la.scale.setScalar(1); pa.rotation.y=ry[0]; la.rotation.y=ry[1];
+  spawnExplosion(pD,'ender'); spawnExplosion(lD,'ender');
+  await tween(0.4,()=>{}); /* lubang menutup */
+}
+
 /* ---------- Kamera dan input ---------- */
 /* Titik pandang dasar = PUSAT papan di permukaan petak (tengah 4 petak 45,46,36,35). Dulu y=2.8 (melayang) membuat titik tengah layar jatuh ke ~petak 75/76/85/86 saat kamera miring. */
 const CAM_BASE={x:0,y:0.4,z:1};
@@ -4942,7 +4990,7 @@ async function usePU(k,cpu,tileArg){
       if(R.self&&hits.length&&p.pos!==oldP&&p.pos>0&&p.pos<GOAL){ await resolveTileAt(p,gid); if(gid!==gameId) throw STALE; renderChips(); }
     }
     if(R.kind==='swap'){ const L=T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
-      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); hitBlastFx(L); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; renderChips();
+      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); enderVictimFx(L,p,b,a); sfx.playerHurt(); await enderSwapAnim(p,L,a,b); if(gid!==gameId) throw STALE; p.pos=b; L.pos=a; renderChips();
         /* Bertukar = mendarat di petak baru: jebakan, ular, tangga, dan mob di petak tujuan ikut diproses (resolveTileAt) */
         for(const q of [p,L]){ if(q.pos>0&&q.pos<GOAL){ await resolveTileAt(q,gid); if(gid!==gameId) throw STALE; renderChips(); } } } }
     if(R.kind==='freeze'){ const L=T.find(q=>!q.frozen)||T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
@@ -5764,6 +5812,7 @@ function mpRunFeedbackCue(c){
     else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
+    else if(c.k==='eport'){ enderHole(new THREE.Vector3(c.x,c.y,c.z),c.s||1); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
     else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
     else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }

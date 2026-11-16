@@ -122,3 +122,9 @@ html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
   #hud .tools .btn[data-key]{position:relative}
   #hud .tools .btn[data-key]::after{content:attr(data-key);position:absolute;right:-4px;bottom:-6px;min-width:14px;padding:1px 4px;border-radius:4px;font:700 9px/12px system-ui,sans-serif;text-align:center;color:#fff;background:rgba(20,24,34,.85);box-shadow:0 0 0 1px rgba(255,255,255,.35);pointer-events:none}
 }
+
+/* Ender Pearl: feedback untuk pemain yang ditukar */
+#enderHit{position:fixed;inset:0;pointer-events:none;z-index:61;animation:ehLife 1.7s ease-out forwards}
+#enderHit .eh-vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(20,0,40,0) 35%,rgba(80,24,150,.5) 75%,rgba(0,0,0,.85) 100%)}
+#enderHit .eh-txt{position:absolute;left:50%;top:20%;transform:translateX(-50%);max-width:90vw;padding:8px 18px;border-radius:999px;background:rgba(24,8,48,.9);color:#f1ddff;font:800 clamp(13px,2.4vw,18px)/1.25 system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px #a65cff,0 0 24px #7b2cff}
+@keyframes ehLife{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0}}
