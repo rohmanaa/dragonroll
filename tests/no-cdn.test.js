@@ -7,7 +7,12 @@ t("halaman tidak memuat Google Fonts (fonts.googleapis/gstatic)", () => {
   htmls.forEach(f => assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(fs.readFileSync(path.join(root, f), "utf8")), f));
 });
 t("semua halaman yang memakai font lokal memuat assets/css/fonts.css", () => {
-  ["splash.html", "play.html", "lobby.html", "karakter.html", "gameplay.html"].forEach(f => assert.ok(/assets\/css\/fonts\.css/.test(fs.readFileSync(path.join(root, f), "utf8")), f));
+  ["splash.html", "play.html", "lobby.html", "karakter.html"].forEach(f => {
+    const html = fs.readFileSync(path.join(root, f), "utf8");
+    assert.ok(/assets\/js\/core\/page-shell\.js/.test(html) && /PageShell\.renderBase/.test(html), f);
+  });
+  assert.ok(/assets\/css\/fonts\.css/.test(fs.readFileSync(path.join(root, "assets/js/core/page-shell.js"), "utf8")));
+  assert.ok(/assets\/css\/fonts\.css/.test(fs.readFileSync(path.join(root, "gameplay.html"), "utf8")), "gameplay.html");
 });
 t("fonts.css merujuk file woff2 yang ada", () => {
   const css = fs.readFileSync(path.join(root, "assets/css/fonts.css"), "utf8");
