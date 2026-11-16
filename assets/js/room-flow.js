@@ -56,6 +56,7 @@
     if (dice) p.set('dice', dice);
     try { sessionStorage.setItem(CFG_KEY, JSON.stringify({ mode: mode, skins: skins, theme: cfg.map, dice: dice })); } catch (e) {}
     try { sessionStorage.setItem(ROOM_KEY, JSON.stringify(cfg)); } catch (e) {}   /* konfigurasi lengkap (tim, power, frame, host) untuk gameplay */
+    try { sessionStorage.setItem('ut:nav-heavy', '1'); } catch (e) {} /* pembungkus (play.html) menampilkan layar "Memuat" segera untuk gameplay */
     location.href = 'gameplay.html?' + p.toString();
   }
   /* Tujuan setelah keluar gameplay, sesuai cara pemain masuk tadi:

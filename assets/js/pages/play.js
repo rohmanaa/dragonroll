@@ -15,7 +15,7 @@
   function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
   /* Overlay antar-halaman: tirai awan (tanpa persen palsu; progres asli dihitung di splash).
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
-  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 700;   // awan minimal tampil 0,7 dtk (sempat melayang) sebelum menyibak
+  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 600;   // awan minimal tampil 0,7 dtk (sempat melayang) sebelum menyibak
   /* progres: tahap nyata (halaman dimuat -> font/latar/gambar siap) + merayap pelan menuju batas tahap, tidak pernah terlihat diam */
   var bar = ov.querySelector('.ldb b'), lbl = ov.querySelector('.ldt span'), pct = 0, cap = 60, creepRaf = 0;
   function setP(v) { if (v > pct) { pct = v; bar.style.width = pct + '%'; } }
@@ -24,18 +24,18 @@
   function creep() { cancelAnimationFrame(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.03); creepRaf = requestAnimationFrame(tick); })(); }
   /* Tirai awan TERTUNDA: pindah halaman yang cepat (aset sudah di cache dari splash) tidak menampilkan loading sama sekali.
      Tirai baru muncul bila halaman tujuan belum siap setelah SHOW_DELAY. Selama menunggu, iframe polos (warna sama dengan latar) agar tidak ada kilatan baru. */
-  var SHOW_DELAY = 320, armed = false, showT = 0;
+  var SHOW_DELAY = 450, armed = false, showT = 0;
   function doShow(quiet) {
     shown = true; shownAt = Date.now(); ov.classList.toggle('quiet', !!quiet);
     ov.classList.remove('hide'); resetP(); creep();
   }
-  function showOv(quiet) {
-    /* Antar-halaman SELALU senyap: layar hitam polos (sama dengan fade hitam tiap halaman), tanpa tirai awan / teks "Menyiapkan tampilan" / bar.
-       Sebelumnya tirai awan biru-putih muncul bila halaman tujuan belum siap dalam 320 ms, sehingga berpindah halaman terasa tersendat dan tidak sinkron. */
-    quiet = true;
+  /* kind: 'quiet' = senyap (layar hitam polos; dipakai saat meninggalkan splash); 'now' = tirai awan + bar SEGERA (halaman berat: gameplay);
+     selain itu = tirai awan TERTUNDA (SHOW_DELAY): pindah halaman yang cepat tidak menampilkan apa pun, yang lambat menampilkan "Memuat". */
+  function showOv(kind) {
     clearTimeout(hideT);
     if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
-    if (quiet) { armed = false; clearTimeout(showT); doShow(true); return; }
+    if (kind === 'quiet') { armed = false; clearTimeout(showT); doShow(true); return; }
+    if (kind === 'now') { armed = false; clearTimeout(showT); doShow(false); return; }
     if (armed) return;
     armed = true; clearTimeout(showT);
     showT = setTimeout(function () { armed = false; doShow(false); }, SHOW_DELAY);
@@ -45,7 +45,7 @@
     if (!shown) return;
     shown = false; clearTimeout(hideT);
     setP(100);   // bar penuh dulu, baru awan menyibak
-    var wait = 60;   // senyap: begitu halaman siap, langsung buka
+    var wait = ov.classList.contains('quiet') ? 60 : Math.max(60, MIN_SHOW - (Date.now() - shownAt));   // senyap: langsung buka; tirai awan: tampil minimal MIN_SHOW agar tidak berkedip
     hideT = setTimeout(function () { ov.classList.add('hide'); }, wait);
   }
   ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
@@ -149,7 +149,11 @@
     // layar memuat
     stage(84, 'Menyiapkan tampilan'); setP(70);   // dokumen sudah dimuat
     if (SELF_LOADING.test(name)) hideOv(); else whenReady(w, hideOv);
-    var leave = function () { showOv(SELF_LOADING.test(name)); };
+    var leave = function () {
+      var heavy = false;
+      try { heavy = name === 'gameplay.html' || sessionStorage.getItem('ut:nav-heavy') === '1'; sessionStorage.removeItem('ut:nav-heavy'); } catch (e) {}
+      showOv(SELF_LOADING.test(name) ? 'quiet' : heavy ? 'now' : 'delay');
+    };
     try {
       w.addEventListener('beforeunload', leave);
       w.addEventListener('pagehide', leave);
