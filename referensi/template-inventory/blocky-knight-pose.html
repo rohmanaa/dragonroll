@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Blocky Knight - Pose</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#fff;font-family:system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+  canvas{display:block}
+  #ui{position:fixed;top:8px;left:8px;right:8px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;pointer-events:none}
+  #ui button{pointer-events:auto;font:bold 13px/1 monospace;color:#fff;background:#3b3b3b;border:3px solid;border-color:#9a9a9a #2a2a2a #2a2a2a #9a9a9a;padding:8px 10px;cursor:pointer;text-shadow:1px 1px 0 #000}
+  #ui button.on{background:#4f8f2a;border-color:#8fd05a #2d5a14 #2d5a14 #8fd05a}
+  #ui button:active{background:#6b6b6b}
+</style>
+</head>
+<body>
+<div id="ui"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<p style="padding:20px;font:16px sans-serif">Three.js gagal dimuat. Pastikan koneksi internet aktif lalu muat ulang.</p>');return;}
+
+/* ================= util ================= */
+const S=1/16;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+function hash(x,y,s){
+  let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(s|0,982451653))|0;
+  h=Math.imul(h^(h>>>13),1274126177);
+  return ((h^(h>>>16))>>>0)/4294967295;
+}
+function mkTex(w,h,fn,yoff,seed,jit){
+  yoff=yoff||0;seed=seed||1;jit=(jit===undefined)?0.07:jit;
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const g=c.getContext('2d');
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const col=fn(x,y+yoff);
+    if(col===null||col===undefined)continue;
+    const k=1+(hash(x,y+yoff,seed)-0.5)*2*jit;
+    const r=clamp(((col>>16)&255)*k,0,255)|0,gg=clamp(((col>>8)&255)*k,0,255)|0,b=clamp((col&255)*k,0,255)|0;
+    g.fillStyle='rgb('+r+','+gg+','+b+')';
+    g.fillRect(x,y,1,1);
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;
+  return t;
+}
+function mat(t,alpha){return new THREE.MeshLambertMaterial({map:t,transparent:!!alpha,alphaTest:alpha?0.5:0});}
+function solid(col,extra){return new THREE.MeshLambertMaterial(Object.assign({color:col},extra||{}));}
+function phong(col,extra){return new THREE.MeshPhongMaterial(Object.assign({color:col,shininess:70,specular:0x777777},extra||{}));}
+function box(w,h,d,m,x,y,z){
+  const o=new THREE.Mesh(new THREE.BoxGeometry(w*S,h*S,d*S),m);
+  o.position.set((x||0)*S,(y||0)*S,(z||0)*S);
+  o.castShadow=true;o.receiveShadow=true;return o;
+}
+
+/* ================= palet ================= */
+const C={
+  skin:0xd8a070,skinD:0xc08a5c,
+  hair:0x4a2c17,hairL:0x6a4026,band:0xc23b32,
+  tunic:0xa83a34,tunicD:0x86292a,tunicL:0xc4524a,
+  leather:0x6a4527,leatherD:0x4a3019,leatherL:0x8b5e34,
+  steel:0xb7bcc4,steelD:0x868c96,steelL:0xe2e7ee,
+  gold:0xe8bb3c,pants:0x2f3a52,pantsD:0x252e43,boot:0x4d311c,
+  cape:0x9a2a2a,capeD:0x701c1c
+};
+
+/* ================= scene ================= */
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xffffff);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,200);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const cv=renderer.domElement;
+
+scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfcf,0.8));
+const sun=new THREE.DirectionalLight(0xfff0d0,0.55);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.left=-9;sun.shadow.camera.right=9;sun.shadow.camera.top=9;sun.shadow.camera.bottom=-9;
+sun.shadow.camera.near=1;sun.shadow.camera.far=40;
+sun.shadow.bias=-0.0006;
+sun.position.set(6,12,5);
+scene.add(sun);scene.add(sun.target);
+
+/* ================= tekstur karakter ================= */
+const headFront=(x,y)=>{
+  if(y===0)return C.hair;
+  if(y===1)return((x===3||x===4)&&hash(x,y,5)>0.5)?C.hairL:C.hair;
+  if(y===2)return C.band;
+  if(y===3)return(x===1||x===2||x===5||x===6)?0x3a2412:C.skin;
+  if(y===4){if(x===1||x===6)return 0xffffff;if(x===2||x===5)return 0x2b6cb0;return C.skin;}
+  if(y===5){if(x===3||x===4)return C.skinD;if(x===6)return 0xa8584a;if(x===1)return 0xdc8f6e;return C.skin;}
+  if(y===6){if(x===3||x===4)return 0x8c4a3c;if(x===6)return 0xa8584a;return C.skin;}
+  return 0xcf9564;
+};
+const headSide=(frontAtZero)=>(x,y)=>{
+  const f=frontAtZero?x:7-x;
+  if(y<=1)return C.hair;
+  if(y===2)return C.band;
+  if(f>=5&&y<=5)return hash(x,y,9)>0.7?C.hairL:C.hair;
+  if(f===0&&y===3)return C.hairL;
+  if((f===3||f===4)&&(y===4||y===5))return C.skinD;
+  return C.skin;
+};
+const headBack=(x,y)=>y===2?C.band:(y<=6?(hash(x,y,9)>0.7?C.hairL:C.hair):C.skin);
+const headTop=(x,y)=>hash(x,y,3)>0.65?C.hairL:C.hair;
+
+const torsoFront=(x,y)=>{
+  if(y===11)return C.tunicL;
+  if(y===9)return(x===3||x===4)?C.gold:C.leather;
+  if(y===10)return(x===3||x===4)?C.gold:C.leatherD;
+  if(x>=1&&x<=6&&y>=1&&y<=7){
+    if((x===1||x===6)&&(y===1||y===7))return C.steelL;
+    if(x===1||x===6||y===1||y===7)return C.steelD;
+    if((y===3&&(x===3||x===4))||(y===4&&x>=2&&x<=5)||(y===5&&(x===3||x===4)))return C.gold;
+    return C.steel;
+  }
+  if(y===0)return C.tunicD;
+  return C.tunic;
+};
+const torsoBack=(x,y)=>{
+  if(y===11)return C.tunicL;
+  if(y===9)return C.leather;
+  if(y===10)return C.leatherD;
+  if(y===0)return C.tunicD;
+  if(y<=8&&(x===y||x===7-y))return C.leather;
+  return C.tunic;
+};
+const torsoSide=(x,y)=>{
+  if(y===11)return C.tunicL;
+  if(y===9)return C.leather;
+  if(y===10)return C.leatherD;
+  if(y===0)return C.tunicD;
+  return C.tunic;
+};
+
+const armPaint=(x,y)=>{
+  if(y<=1)return C.tunicD;
+  if(y<=4)return C.tunic;
+  if(y===5)return C.tunicL;
+  if(y===6)return C.steelD;
+  if(y<=9)return(y===8&&(x===1||x===2))?C.gold:C.leather;
+  return C.leatherD;
+};
+const legPaint=(face)=>(x,y)=>{
+  if(y<=6)return C.pants;
+  if(y===7)return C.pantsD;
+  if(y===8)return C.leatherL;
+  if(y<=10)return(face==='pz'&&y===10&&(x===1||x===2))?C.leatherD:C.boot;
+  return 0x2a1a0e;
+};
+function limbMats(w,h,yoff,paint,topC,botC,seed){
+  const side=f=>mat(mkTex(w,h,(x,y)=>paint(x,y,f),yoff,seed));
+  return[side('px'),side('nx'),mat(mkTex(w,w,()=>topC,0,seed)),mat(mkTex(w,w,()=>botC,0,seed)),side('pz'),side('nz')];
+}
+
+/* ================= rig karakter ================= */
+const root=new THREE.Group();scene.add(root);
+const hips=new THREE.Group();root.add(hips);
+const upper=new THREE.Group();hips.add(upper);
+
+const torso=box(8,12,4,[
+  mat(mkTex(4,12,torsoSide,0,11)),mat(mkTex(4,12,torsoSide,0,12)),
+  mat(mkTex(8,4,()=>C.tunicD,0,13)),mat(mkTex(8,4,()=>C.pantsD,0,14)),
+  mat(mkTex(8,12,torsoFront,0,15)),mat(mkTex(8,12,torsoBack,0,16))
+],0,6,0);
+upper.add(torso);
+upper.add(box(8.5,2.2,4.5,solid(C.leather),0,2,0));
+upper.add(box(2.6,2.4,0.8,phong(C.gold),0,2,2.5));
+upper.add(box(0.8,1,0.9,solid(0x2a1a0e),0,2,2.95));
+upper.add(box(2.6,3,2.4,solid(C.leatherD),4.9,1.2,0.4));
+upper.add(box(2.8,0.8,2.6,solid(C.leatherL),4.9,2.7,0.4));
+upper.add(box(8.6,1.4,4.6,solid(C.tunicL),0,0.2,0));
+
+const head=new THREE.Group();head.position.y=12*S;upper.add(head);
+head.add(box(8,8,8,[
+  mat(mkTex(8,8,headSide(true),0,21)),mat(mkTex(8,8,headSide(false),0,22)),
+  mat(mkTex(8,8,headTop,0,23)),mat(mkTex(8,8,()=>C.skinD,0,24)),
+  mat(mkTex(8,8,headFront,0,25)),mat(mkTex(8,8,headBack,0,26))
+],0,4,0));
+const hairMat=mat(mkTex(8,8,(x,y)=>hash(x,y,31)>0.65?C.hairL:C.hair,0,31));
+head.add(box(8.7,1.7,8.7,hairMat,0,7.3,0));
+head.add(box(8.7,4,1.2,hairMat,0,3,-4.1));
+head.add(box(0.8,3,3,hairMat,4.25,3.6,-2.4));
+head.add(box(0.8,3,3,hairMat,-4.25,3.6,-2.4));
+[[-2.5,-1.5,2.4],[0,-0.5,3.2],[2.5,1,2.2],[-1,2,2.8],[1.8,-2.5,2]].forEach(p=>{
+  head.add(box(1.8,p[2],1.8,hairMat,p[0],8.2+p[2]/2-0.4,p[1]));
+});
+head.add(box(1.8,1.8,1.4,solid(C.band),0,5.5,-4.6));
+const tails=[-1,1].map(s=>{
+  const g=new THREE.Group();g.position.set(s*0.7*S,5.5*S,-5.1*S);head.add(g);
+  g.add(box(1.1,4.2,0.5,solid(C.band),0,-2.1,0));
+  return g;
+});
+
+function makeArm(side){
+  const sh=new THREE.Group();sh.position.set(side*6*S,10*S,0);upper.add(sh);
+  sh.add(box(4,6,4,limbMats(4,6,0,armPaint,C.tunic,C.tunic,31+side),0,-2,0));
+  sh.add(box(5.6,1.6,5.6,phong(C.steel),side*0.3,1.7,0));
+  sh.add(box(4.8,1,4.8,phong(C.steelL),side*0.3,2.8,0));
+  sh.add(box(1.1,1.1,1.1,phong(C.gold),side*0.3,3.6,0));
+  const el=new THREE.Group();el.position.y=-5*S;sh.add(el);
+  el.add(box(4,6,4,limbMats(4,6,6,armPaint,C.tunic,C.leatherD,41+side),0,-3,0));
+  return{sh,el};
+}
+const armL=makeArm(1),armR=makeArm(-1);
+
+function makeLeg(side){
+  const g=new THREE.Group();g.position.set(side*2*S,0,0);hips.add(g);
+  g.add(box(4,6,4,limbMats(4,6,0,(x,y,f)=>legPaint(f)(x,y),C.pants,C.pants,51+side),0,-3,0));
+  g.add(box(4.5,2.2,1,phong(C.steel),0,-5.2,2.3));
+  const knee=new THREE.Group();knee.position.y=-6*S;g.add(knee);
+  knee.add(box(4,6,4,limbMats(4,6,6,(x,y,f)=>legPaint(f)(x,y),C.pants,0x2a1a0e,61+side),0,-3,0));
+  return{g,knee};
+}
+const legL=makeLeg(1),legR=makeLeg(-1);
+
+function capeMats(yoff){
+  const outer=(x,y)=>{
+    if(y===11)return(x%2===1)?null:C.gold;
+    if(y===10)return C.gold;
+    if(x===0||x===7)return C.capeD;
+    if((y===4&&(x===3||x===4))||(y===5&&x>=2&&x<=5)||(y===6&&(x===3||x===4)))return C.gold;
+    return(x===2||x===5)?0x8a2222:C.cape;
+  };
+  const inner=(x,y)=>(y===11&&x%2===1)?null:C.capeD;
+  const edge=(x,y)=>(y===11)?null:C.capeD;
+  return[mat(mkTex(1,6,edge,yoff,71),true),mat(mkTex(1,6,edge,yoff,72),true),
+    mat(mkTex(8,1,()=>C.capeD,0,73),true),mat(mkTex(8,1,()=>C.capeD,0,74),true),
+    mat(mkTex(8,6,inner,yoff,75),true),mat(mkTex(8,6,outer,yoff,76),true)];
+}
+const cape1=new THREE.Group();cape1.position.set(0,11*S,-2.3*S);upper.add(cape1);
+cape1.add(box(8,6,1,capeMats(0),0,-3,-0.5));
+const cape2=new THREE.Group();cape2.position.y=-6*S;cape1.add(cape2);
+cape2.add(box(8,6,1,capeMats(6),0,-3,-0.5));
+
+const sword=new THREE.Group();sword.position.y=-5*S;armR.el.add(sword);
+const steelP=phong(0xdfe6ee,{shininess:110,specular:0xffffff});
+const goldP=phong(C.gold,{shininess:90});
+sword.add(box(1.4,1.4,6,solid(C.leatherD),0,0,0));
+[-1.6,0,1.6].forEach(z=>sword.add(box(1.7,1.7,0.5,solid(C.leatherL),0,0,z)));
+sword.add(box(2.3,2.3,1.6,goldP,0,0,-3.8));
+sword.add(box(1.4,6.2,1.2,goldP,0,0,3.5));
+sword.add(box(1.5,1.3,1.3,goldP,0,3.5,4.1));
+sword.add(box(1.5,1.3,1.3,goldP,0,-3.5,4.1));
+sword.add(box(1.7,1.9,1.5,new THREE.MeshPhongMaterial({color:0x3ba7ff,emissive:0x1677d6,emissiveIntensity:0.9,shininess:100}),0,0,3.5));
+sword.add(box(0.9,3.2,11.6,steelP,0,0,9.9));
+sword.add(box(0.8,2.4,1.6,steelP,0,0,16.5));
+sword.add(box(0.7,1.4,1.4,steelP,0,0,17.9));
+sword.add(box(0.6,0.6,1,steelP,0,0,19));
+sword.add(box(1.0,0.9,8.5,phong(C.steelD),0,0,9.5));
+[7,9.3,11.6].forEach(z=>sword.add(box(1.08,0.5,0.9,new THREE.MeshBasicMaterial({color:0x66ddff}),0,0,z)));
+
+const trail=new THREE.Mesh(
+  new THREE.RingGeometry(1.1,1.75,28,1,0,Math.PI*0.55),
+  new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false})
+);
+trail.position.set(0,1.5,0.1);trail.rotation.set(0,Math.PI/2,0);root.add(trail);
+
+/* ================= pose & animasi ================= */
+const POSES={
+  pose1:{rLegT:-0.55,rKnee:0.5,lLegT:0.45,lKnee:0.05,rLegZ:-0.12,lLegZ:0.15,rArmS:-0.95,rElbow:-0.75,rWrist:1.0,rArmZ:-0.12,lArmS:-0.7,lElbow:-1.1,lArmZ:0.35,lean:0.18,twist:0.25,headX:0.05,headY:-0.2,cape:0.2,tail:0.3},
+  pose2:{rLegT:-0.15,rKnee:0.05,lLegT:0.1,lKnee:0.05,rLegZ:-0.25,lLegZ:0.25,rArmS:-3.05,rElbow:-0.15,rWrist:1.55,rArmZ:-0.25,lArmS:0.1,lElbow:-1.3,lArmZ:0.55,lean:-0.12,twist:-0.1,headX:-0.2,headY:0,cape:0.35,tail:0.5},
+  pose3:{rLegT:-0.95,rKnee:0.95,lLegT:0.7,lKnee:0.05,rLegZ:-0.15,lLegZ:0.2,rArmS:-1.5,rElbow:-0.05,rWrist:1.5,rArmZ:-0.05,lArmS:0.5,lElbow:-0.4,lArmZ:0.9,lean:0.28,twist:0.5,headX:0.1,headY:-0.45,cape:0.5,tail:0.6}
+};
+const CROUCH={rLegT:-0.75,rKnee:1.35,lLegT:-0.55,lKnee:1.2,rArmS:-0.2,rArmZ:-0.35,lArmS:-0.3,lArmZ:0.4,lean:0.35,headX:-0.15,cape:0.1};
+const AIR_UP={rLegT:-1.0,rKnee:1.2,lLegT:0.35,lKnee:0.9,rLegZ:-0.1,lLegZ:0.12,rArmS:-2.7,rElbow:-0.15,rWrist:1.3,rArmZ:-0.15,lArmS:-2.5,lElbow:-0.2,lArmZ:0.35,lean:0.05,twist:0,headX:-0.1,headY:0,cape:0.2,tail:1.0};
+const AIR_DN={rLegT:-0.5,rKnee:0.4,lLegT:0.35,lKnee:0.3,rLegZ:-0.15,lLegZ:0.15,rArmS:-0.5,rElbow:-0.4,rWrist:0.4,rArmZ:-0.9,lArmS:-0.5,lElbow:-0.3,lArmZ:1.0,lean:0.08,twist:0,headX:0.05,headY:0,cape:0.7,tail:1.2};
+const SLASH_W={rArmS:-2.7,rElbow:-0.3,rWrist:1.0,rArmZ:-0.2,twist:0.55,lean:-0.12,lArmS:0.5,lArmZ:0.6,headY:-0.3};
+const SLASH_E={rArmS:-0.6,rElbow:-0.25,rWrist:1.0,rArmZ:-0.05,twist:-0.6,lean:0.38,lArmS:-0.6,lArmZ:0.35,headY:0.35};
+
+let mode='idle',level=0,phase=0,time=0;
+let jumpY=0,vy=0,airborne=false,landT=0,slashT=-1;
+
+function computeTarget(){
+  const T={rLegT:0,rKnee:0,lLegT:0,lKnee:0,rLegZ:-0.05,lLegZ:0.05,rArmS:-0.35,rElbow:-0.6,rWrist:0,rArmZ:-0.1,
+    lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:0,headX:0,headY:0,cape:0.1,tail:0.25};
+  const w=clamp(level,0,1),ra=clamp(level-1,0,1),idleW=1-w;
+  const b=Math.sin(time*2.2);
+  T.rArmS+=b*0.025*idleW;T.lArmS+=-b*0.03*idleW;T.headX+=b*0.02*idleW;T.headY+=Math.sin(time*0.7)*0.3*idleW;
+  if(w>0.01){
+    const A=(0.62+0.45*ra)*w,Aa=(0.55+0.5*ra)*w,kb=0.55+0.95*ra;
+    const s=Math.sin(phase),c=Math.cos(phase);
+    T.rLegT=A*s;T.lLegT=-A*s;
+    T.rKnee=kb*Math.max(0,-c)*w+0.05*w;T.lKnee=kb*Math.max(0,c)*w+0.05*w;
+    T.lArmS=Aa*s;T.lElbow=-(0.15+0.95*ra)*w;
+    T.rArmS=-0.4-0.25*ra*w-s*0.15*w*(1+ra);T.rElbow=-0.5-0.3*ra*w;T.rWrist=0.05;
+    T.lean=0.04*w+0.28*ra;T.twist=0.18*s*w;
+    T.headY=0;T.headX=-0.04*w-0.12*ra;
+    T.cape=0.1+0.25*w+0.45*ra;T.tail=0.25+0.4*w+0.45*ra;
+  }
+  if(mode.indexOf('pose')===0&&level<0.3&&!airborne)Object.assign(T,POSES[mode]);
+  if(airborne){
+    const u=(clamp(vy/6,-1,1)+1)/2;
+    for(const k in AIR_UP)T[k]=lerp(AIR_DN[k],AIR_UP[k],u);
+  }
+  if(landT>0){
+    const lw=clamp(landT/0.25,0,1);
+    for(const k in CROUCH)T[k]=lerp(T[k],CROUCH[k],lw);
+  }
+  if(slashT>=0){
+    const u=slashT;
+    let k=u<0.3?smooth(u/0.3):(u<0.6?smooth((u-0.3)/0.3):smooth((u-0.6)/0.4));
+    for(const key in SLASH_W){
+      const base=T[key];
+      const from=u<0.3?base:(u<0.6?SLASH_W[key]:SLASH_E[key]);
+      const to=u<0.3?SLASH_W[key]:(u<0.6?SLASH_E[key]:base);
+      T[key]=lerp(from,to,k);
+    }
+    const m=u<0.3?smooth(u/0.3):(u<0.6?1:1-smooth((u-0.6)/0.4));
+    const wl=(1-w)*(airborne?0:1)*m;
+    T.lLegT=lerp(T.lLegT,-0.6,wl);T.lKnee=lerp(T.lKnee,0.6,wl);
+    T.rLegT=lerp(T.rLegT,0.5,wl);T.rKnee=lerp(T.rKnee,0,wl);
+    T.tail=Math.max(T.tail,0.8);T.cape=Math.max(T.cape,0.5*m+T.cape*(1-m));
+  }
+  return T;
+}
+const P=computeTarget();
+
+function reach(t,k,z){return(0.375*Math.cos(t)+0.375*Math.cos(t+k))*Math.cos(z);}
+
+function applyRig(){
+  legR.g.rotation.set(P.rLegT,0,P.rLegZ);legR.knee.rotation.x=P.rKnee;
+  legL.g.rotation.set(P.lLegT,0,P.lLegZ);legL.knee.rotation.x=P.lKnee;
+  armR.sh.rotation.set(P.rArmS,0,P.rArmZ);armR.el.rotation.x=P.rElbow;sword.rotation.x=P.rWrist;
+  armL.sh.rotation.set(P.lArmS,0,P.lArmZ);armL.el.rotation.x=P.lElbow;
+  upper.rotation.set(P.lean,P.twist,0);
+  head.rotation.set(P.headX-P.lean*0.6,P.headY-P.twist*0.7,0);
+  const act=clamp(level,0,2)*0.5+(airborne?0.6:0)+(slashT>=0?0.6:0.1);
+  cape1.rotation.x=P.cape+Math.sin(time*6)*0.03*act;
+  cape2.rotation.x=P.cape*0.6+Math.sin(time*7+1.2)*0.08*act;
+  tails.forEach((t,i)=>{t.rotation.x=P.tail+Math.sin(time*14+i*1.7)*0.14*act;t.rotation.z=(i?1:-1)*(0.06+P.tail*0.1)*Math.sin(time*9+i);});
+  torso.scale.y=1+Math.sin(time*2.2)*0.012*(1-clamp(level,0,1));
+  const hipY=Math.max(reach(P.rLegT,P.rKnee,P.rLegZ),reach(P.lLegT,P.lKnee,P.lLegZ));
+  const af=clamp(jumpY/0.15,0,1);
+  hips.position.y=lerp(hipY,0.75,af);
+  root.position.y=jumpY;
+}
+
+/* ================= tombol ================= */
+function jump(){if(!airborne){airborne=true;vy=7.2;}}
+function slash(){if(slashT<0)slashT=0;}
+const MODES=[['idle','🧍 Diam'],['walk','🚶 Jalan'],['run','🏃 Lari'],['pose1','🛡️ Siaga'],['pose2','🦸 Pahlawan'],['pose3','🤺 Serang']];
+const ui=document.getElementById('ui');
+const btns={};
+MODES.forEach(m=>{
+  const b=document.createElement('button');b.textContent=m[1];
+  b.addEventListener('click',()=>setMode(m[0]));
+  ui.appendChild(b);btns[m[0]]=b;
+});
+[['⬆️ Loncat',jump],['⚔️ Tebas',slash]].forEach(a=>{
+  const b=document.createElement('button');b.textContent=a[0];
+  b.addEventListener('click',a[1]);ui.appendChild(b);
+});
+function setMode(m){mode=m;for(const k in btns)btns[k].classList.toggle('on',k===m);}
+setMode('idle');
+
+// kamera orbit (putar & zoom tampilan saja)
+let camYaw=0.55,camPitch=0.28,camDist=5.4;
+const ptrs=new Map();let pinch=0;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+cv.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===1){camYaw-=dx*0.007;camPitch=clamp(camPitch+dy*0.005,-0.05,1.3);}
+  else if(ptrs.size===2){
+    const a=Array.from(ptrs.values()),d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+    if(pinch)camDist=clamp(camDist*pinch/d,2.5,12);
+    pinch=d;
+  }
+});
+const ptrEnd=e=>{ptrs.delete(e.pointerId);pinch=0;};
+cv.addEventListener('pointerup',ptrEnd);cv.addEventListener('pointercancel',ptrEnd);
+cv.addEventListener('wheel',e=>{camDist=clamp(camDist*(1+e.deltaY*0.001),2.5,12);e.preventDefault();},{passive:false});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+/* ================= loop ================= */
+const camTarget=new THREE.Vector3(0,1.1,0);
+let last=performance.now();
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min((now-last)/1000,0.05);last=now;time+=dt;
+
+  // gerak di tempat (tanpa berpindah posisi)
+  const tl=mode==='walk'?1:(mode==='run'?2:0);
+  level+=(tl-level)*(1-Math.exp(-dt*7));
+  phase+=dt*(6.5+4.5*clamp(level-1,0,1));
+
+  if(airborne){
+    vy-=22*dt;jumpY+=vy*dt;
+    if(jumpY<=0){jumpY=0;vy=0;airborne=false;landT=0.25;}
+  }
+  if(landT>0)landT-=dt;
+  if(slashT>=0){slashT+=dt/0.65;if(slashT>=1)slashT=-1;}
+
+  const fast=slashT>=0||airborne;
+  const k=1-Math.exp(-dt*(fast?26:12));
+  const T=computeTarget();
+  for(const key in T)P[key]+=(T[key]-P[key])*k;
+  applyRig();
+
+  if(slashT>=0.28&&slashT<0.64){
+    const u=(slashT-0.3)/0.3;
+    const thb=lerp(0.4*Math.PI,Math.PI,smooth(u));
+    trail.rotation.z=thb-0.55*Math.PI;
+    trail.material.opacity=0.75*Math.sin(Math.PI*clamp((slashT-0.28)/0.36,0,1));
+  }else trail.material.opacity=0;
+
+  camTarget.set(0,1.1+root.position.y*0.5,0);
+  camera.position.set(
+    camTarget.x+Math.sin(camYaw)*Math.cos(camPitch)*camDist,
+    camTarget.y+Math.sin(camPitch)*camDist,
+    camTarget.z+Math.cos(camYaw)*Math.cos(camPitch)*camDist);
+  camera.lookAt(camTarget);
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

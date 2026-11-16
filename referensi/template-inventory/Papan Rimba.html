@@ -1,0 +1,385 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Papan Rimba</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: peta dari atas. Sungai vertikal di tengah, dua jembatan. START dan tempat dadu satu panel di kiri bawah,
+   menempel petak 1. Jalur 100 petak: lingkar luar searah jarum jam, lalu melingkar ke dalam di tepian kanan, berakhir di batu naga D. */
+:root{
+  --bg:#e9efe6; --fg:#16231a; --muted:#4d5e51; --card:#f6f9f4; --line:#c3d0bf; --chip:#dfe8db; --accent:#1f6feb;
+  --halo:rgba(10,25,15,.78);
+  --forest:#4a9a42; --forest-d:#357a33; --forest-l:#63b157; --leaf:#2d6e2c;
+  --dirt:#8d5f3a; --dirt-l:#b78555;
+  --water:#1f6a85; --water-d:#154c60; --water-l:#7cc3d9;
+  --wood:#c9934f; --wood-d:#7e5127;
+  --stone:#a3a9ac; --stone-d:#737a7e; --stone-l:#c6cbcd;
+  --sand:#e6d9a8; --sand-d:#c4b27a; --gate:#2a2118;
+  --m1:#8c6c47; --m2:#6f5437; --m3:#a58260;
+  --banana:#f3c431; --banana-d:#b98b10;
+  --tile-blue:#2b78f0; --tile-green:#25a455; --tile-red:#e0414a; --tile-gold:#f6c744; --tile-naga:#8b47d8;
+  --tile-shadow:rgba(0,0,0,.28); --tile-ink:#16231a;
+  --nest:#2a2230; --nest-ring:#c9a8f5; --dragon:#c58ff5; --tray:#a06a35; --tray-d:#5f3b1b; --felt:#2f6b46;
+  --pad:#f3d56b; --pad-d:#a8841a;
+  --font-display:'Lilita One','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1611; --fg:#e4ede4; --muted:#9db09f; --card:#161f19; --line:#2a3a2e; --chip:#1f2c23; --accent:#6aa5ff;
+    --forest:#2f6a2f; --forest-d:#214f23; --forest-l:#3f8140; --leaf:#1b4a1d;
+    --dirt:#6b4629; --dirt-l:#8a6038;
+    --water:#14485c; --water-d:#0c3140; --water-l:#4a97ad;
+    --wood:#a97839; --wood-d:#5c3a1b;
+    --stone:#7d8386; --stone-d:#565c5f; --stone-l:#9ba1a4;
+    --sand:#b9ad80; --sand-d:#968a62;
+    --m1:#6d5236; --m2:#54402a; --m3:#80633f;
+    --pad:#d9b744; --pad-d:#8c6c12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1611; --fg:#e4ede4; --muted:#9db09f; --card:#161f19; --line:#2a3a2e; --chip:#1f2c23; --accent:#6aa5ff;
+  --forest:#2f6a2f; --forest-d:#214f23; --forest-l:#3f8140; --leaf:#1b4a1d;
+  --dirt:#6b4629; --dirt-l:#8a6038;
+  --water:#14485c; --water-d:#0c3140; --water-l:#4a97ad;
+  --wood:#a97839; --wood-d:#5c3a1b;
+  --stone:#7d8386; --stone-d:#565c5f; --stone-l:#9ba1a4;
+  --sand:#b9ad80; --sand-d:#968a62;
+  --m1:#6d5236; --m2:#54402a; --m3:#80633f;
+  --pad:#d9b744; --pad-d:#8c6c12;
+  color-scheme: dark;
+}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:20px 32px;
+}
+.page{max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:16px}
+h1{font-family:var(--font-display); font-weight:400; font-size:clamp(28px,5vw,40px); line-height:1.05; margin:0; letter-spacing:.01em; text-wrap:balance}
+.lede{margin:6px 0 0; color:var(--muted); max-width:62ch}
+.controls{display:flex; flex-wrap:wrap; gap:8px}
+.chip{display:inline-flex; align-items:center; gap:8px; background:var(--chip); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-weight:800; font-size:13px; cursor:pointer; user-select:none}
+.chip input{accent-color:var(--accent); width:16px; height:16px; margin:0}
+.chip:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+.board-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--card)}
+#board{display:block; width:100%; min-width:760px; height:auto}
+.hint{display:none; margin:-6px 0 0; font-size:13px; color:var(--muted)}
+@media (max-width:820px){ .hint{display:block} }
+
+/* ---- isi SVG ---- */
+#board text{font-family:var(--font-body); font-weight:800}
+.base{fill:var(--forest)} .v1{fill:var(--forest-d); opacity:.55} .v2{fill:var(--forest-l); opacity:.5} .v3{fill:var(--forest-d); opacity:.95}
+.cn-a{fill:var(--forest-d); stroke:var(--leaf); stroke-width:2} .cn-b{fill:var(--leaf)} .cn-c{fill:var(--forest-l)}
+.dirt{fill:none; stroke:var(--dirt); stroke-width:40; stroke-linejoin:round; stroke-linecap:round}
+.dirt2{fill:none; stroke:var(--dirt-l); stroke-width:30; opacity:.35; stroke-dasharray:3 9; stroke-linejoin:round}
+.river{fill:var(--water)} .bank{fill:none; stroke:var(--water-d); stroke-width:3} .flow{fill:none; stroke:var(--water-l); stroke-width:2; stroke-dasharray:14 22; opacity:.75}
+.deck{fill:var(--wood); stroke:var(--wood-d); stroke-width:2} .plank{stroke:var(--wood-d); stroke-width:1.5; opacity:.65} .rail{fill:var(--wood-d)}
+.m1{fill:var(--m1)} .m2{fill:var(--m2)} .m3{fill:var(--m3)}
+.sand{fill:var(--sand)} .sandd{fill:var(--sand-d)} .gate{fill:var(--gate)}
+.sign{fill:var(--wood); stroke:var(--wood-d); stroke-width:2} .sign-t{fill:var(--gate); font-size:13px; letter-spacing:2px; text-anchor:middle}
+.sh{fill:rgba(0,0,0,.25)} .r1{fill:var(--stone-d)} .r2{fill:var(--stone)} .r3{fill:var(--stone-l)}
+.nest{fill:var(--nest); stroke:var(--nest-ring); stroke-width:2.5; stroke-dasharray:4 4}
+.badge{fill:var(--tile-naga); stroke:#fff; stroke-width:1.5} .badge-t{fill:#fff; font-size:12px; text-anchor:middle; dominant-baseline:central}
+.dg-tile{--dh:#fff; --de:var(--tile-naga)} .dg-nest{--dh:var(--dragon); --de:#fff}
+.dh{fill:var(--dh,#fff)} .de{fill:var(--de,#000)}
+.ban{fill:var(--banana); stroke:var(--banana-d); stroke-width:2}
+.barrier{fill:var(--wood-d)}
+.tray{fill:var(--tray); stroke:var(--tray-d); stroke-width:3} .felt{fill:var(--felt); stroke:var(--tray-d); stroke-width:2}
+.divider{stroke:var(--tray-d); stroke-width:4}
+.well{fill:rgba(0,0,0,.28); stroke:#f6e7c9; stroke-width:2; stroke-dasharray:4 3} .pip{fill:#f6e7c9; opacity:.5}
+.tray-t{fill:#f6e7c9; font-size:10px; letter-spacing:1.5px; text-anchor:middle}
+.startpad{fill:var(--pad); stroke:var(--tile-gold); stroke-width:3}
+#board .start-t{font-family:var(--font-display); font-weight:400; font-size:24px; letter-spacing:2px; fill:var(--tile-ink); text-anchor:middle; dominant-baseline:central}
+.start-s{fill:var(--tile-ink); font-size:9px; text-anchor:middle; dominant-baseline:central; letter-spacing:.5px}
+.slot{fill:rgba(0,0,0,.14); stroke:var(--pad-d); stroke-width:1.5; stroke-dasharray:3 2}
+.arrow{fill:var(--tile-ink)}
+.t-shadow{fill:var(--tile-shadow)} .shine{fill:#fff; opacity:.22}
+.tk-blue{fill:var(--tile-blue)} .tk-chance{fill:var(--tile-green)} .tk-trap{fill:var(--tile-red)} .tk-star{fill:var(--tile-gold)} .tk-naga{fill:var(--tile-naga)}
+.tk-finish{fill:var(--tile-naga); stroke:var(--tile-gold); stroke-width:3}
+.sym,.num,.kn{text-anchor:middle; dominant-baseline:central; fill:#fff}
+.sym{font-size:18px} .num{font-size:11px} .kn{font-size:11px} .kn-big{font-size:12px}
+.s-star,.n-star{fill:var(--tile-ink)}
+#board.show-num .symg{display:none} #board:not(.show-num) .num{display:none}
+.lbl{fill:#fff; font-size:11px; letter-spacing:2px; text-anchor:middle}
+.lbl-big{font-size:15px; letter-spacing:5px; opacity:.85}
+.halo{paint-order:stroke; stroke:var(--halo); stroke-width:3.5px; stroke-linejoin:round}
+#board.hide-zones .zone{display:none}
+
+/* ---- legenda ---- */
+.panel{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+.box{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; min-width:0}
+.box h2{font-family:var(--font-display); font-weight:400; font-size:19px; margin:0 0 10px}
+.legend{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:8px 12px}
+.legend li{display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; min-width:0}
+.sw{flex:none; width:26px; height:26px; border-radius:6px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:13px; box-shadow:0 2px 0 var(--tile-shadow)}
+.sw.blue{background:var(--tile-blue)} .sw.chance{background:var(--tile-green)} .sw.trap{background:var(--tile-red)}
+.sw.star{background:var(--tile-gold); color:var(--tile-ink)} .sw.naga{background:var(--tile-naga)}
+.sw.finish{background:var(--tile-naga); border:2px solid var(--tile-gold); font-size:9px}
+.sw.start{background:var(--pad); color:var(--tile-ink); border:2px solid var(--tile-gold); font-size:7px}
+.sw.rock{background:var(--stone); box-shadow:inset 0 0 0 5px var(--stone-l), 0 2px 0 var(--tile-shadow)}
+.sw.dice{background:var(--felt)}
+.notes{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:14px}
+.notes b{font-weight:800}
+@media (max-width:420px){ .legend{grid-template-columns:1fr} }
+</style>
+
+<main class="page">
+  <header>
+    <h1>Papan Rimba</h1>
+    <p class="lede">Skema layout 2D: START dan tempat dadu satu panel di kiri bawah, satu jalur 100 petak bernomor, berakhir di batu naga. Belum ada gameplay.</p>
+  </header>
+
+  <div class="controls">
+    <label class="chip" for="optNum"><input type="checkbox" id="optNum"> Nomor petak</label>
+    <label class="chip" for="optZone"><input type="checkbox" id="optZone" checked> Nama zona</label>
+  </div>
+
+  <div class="board-wrap">
+    <svg id="board" viewBox="0 0 1000 850" role="img" aria-label="Skema papan permainan: panel START dan tempat dadu di kiri bawah menempel petak 1, jalur 100 petak bernomor melewati jembatan atas di atas sungai lalu melingkar ke dalam di tepian kanan, petak 100 menempel di batu sarang naga terbesar. Ada tebing kiri dan kanan, hutan di bawah."></svg>
+  </div>
+  <p class="hint">Geser papan ke samping untuk melihat seluruhnya.</p>
+
+  <div class="panel">
+    <section class="box">
+      <h2>Legenda</h2>
+      <ul class="legend">
+        <li><span class="sw start">START</span>Area start, menempel petak 1</li>
+        <li><span class="sw dice"></span>Tempat dadu</li>
+        <li><span class="sw blue"></span>Petak biasa</li>
+        <li><span class="sw chance">?</span>Petak kejutan</li>
+        <li><span class="sw star">★</span>Petak bonus</li>
+        <li><span class="sw trap">!</span>Petak bahaya</li>
+        <li><span class="sw naga"><svg width="16" height="16" viewBox="-12 -12 24 24" aria-hidden="true"><path d="M-10 6 L-9 -9 L-4 -3 L4 -3 L9 -9 L10 6 Q0 14 -10 6Z" fill="#fff"/><circle cx="-4" cy="1" r="1.8" fill="#8b47d8"/><circle cx="4" cy="1" r="1.8" fill="#8b47d8"/></svg></span>Pintu sarang naga</li>
+        <li><span class="sw finish">100</span>Petak 100, di batu naga D</li>
+        <li><span class="sw rock"></span>Batu = sarang naga A–D</li>
+      </ul>
+    </section>
+    <section class="box">
+      <h2>Isi layout</h2>
+      <ul class="notes">
+        <li><b id="cAll">100</b> petak bernomor 1–100 dalam satu jalur.</li>
+        <li>START ada di panel kiri bawah, bagian bawahnya. Bagian atas panel untuk dadu.</li>
+        <li>Petak 1 sampai <b id="cRing">58</b> mengelilingi dua tepian lewat jembatan atas. Petak 59 sampai 100 melingkar ke dalam di tepian kanan.</li>
+        <li>Petak <b>100</b> menempel langsung di batu naga D, yang terbesar.</li>
+        <li>Pintu batu A, B, C ada di petak <b id="gA">21</b>, <b id="gB">29</b>, dan <b id="gC">14</b>.</li>
+        <li>Jenis petak hanya contoh sebaran warna, bisa diatur ulang.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+  var svg = document.getElementById('board');
+  var seed = 11;
+  function rnd(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+  var P = [], W = 1000, H = 850;
+
+  /* ---- jalur: grid 19 kolom x 15 baris, jarak 40 ---- */
+  var GX = 140, GY = 165, ST = 40;
+  function cell(c, r){ return [GX + ST * c, GY + ST * r]; }
+  var seq = [], c, r;
+  for (c = 3; c >= 0; c--) seq.push(cell(c, 14));      /* 1-4    dari START ke kiri */
+  for (r = 13; r >= 0; r--) seq.push(cell(0, r));      /* 5-18   kiri naik */
+  for (c = 1; c <= 18; c++) seq.push(cell(c, 0));      /* 19-36  atas, lewat jembatan atas */
+  for (r = 1; r <= 13; r++) seq.push(cell(18, r));     /* 37-49  kanan turun */
+  for (c = 18; c >= 10; c--) seq.push(cell(c, 14));    /* 50-58  bawah ke kiri */
+  for (r = 13; r >= 2; r--) seq.push(cell(10, r));     /* 59-70  spiral: naik */
+  for (c = 11; c <= 16; c++) seq.push(cell(c, 2));     /* 71-76  ke kanan */
+  for (r = 3; r <= 12; r++) seq.push(cell(16, r));     /* 77-86  turun */
+  for (c = 15; c >= 12; c--) seq.push(cell(c, 12));    /* 87-90  ke kiri */
+  for (r = 11; r >= 4; r--) seq.push(cell(12, r));     /* 91-98  naik */
+  for (c = 13; c <= 14; c++) seq.push(cell(c, 4));     /* 99-100 ke batu naga D */
+
+  var tileSet = {};
+  seq.forEach(function(p){ tileSet[p.join(',')] = 1; });
+
+  P.push('<defs><symbol id="dragon" viewBox="-12 -12 24 24"><path class="dh" d="M-10 6 L-9 -9 L-4 -3 L4 -3 L9 -9 L10 6 Q0 14 -10 6Z"/><circle class="de" cx="-4" cy="1" r="1.8"/><circle class="de" cx="4" cy="1" r="1.8"/></symbol></defs>');
+
+  /* 1. hutan dasar */
+  P.push('<rect class="base" x="0" y="0" width="' + W + '" height="' + H + '"/>');
+  for (var y = 0; y < H; y += 20) for (var x = 0; x < W; x += 20) {
+    var rr = rnd(), cl = rr < .26 ? 'v1' : rr < .48 ? 'v2' : rr < .58 ? 'v3' : '';
+    if (cl) P.push('<rect class="' + cl + '" x="' + x + '" y="' + y + '" width="20" height="20"/>');
+  }
+
+  /* 2. kanopi pohon: otomatis di sel kosong */
+  function canopy(cx, cy, s){
+    var h = s / 2;
+    return '<rect class="cn-a" x="' + (cx - h) + '" y="' + (cy - h) + '" width="' + s + '" height="' + s + '" rx="3"/>' +
+           '<rect class="cn-b" x="' + (cx - h * .6) + '" y="' + (cy - h * .6) + '" width="' + (s * .6) + '" height="' + (s * .6) + '" rx="2"/>' +
+           '<rect class="cn-c" x="' + (cx - h * .6) + '" y="' + (cy - h * .6) + '" width="' + (s * .26) + '" height="' + (s * .26) + '" rx="2"/>';
+  }
+  var reserved = [
+    [270, 530, 470, 765],  /* panel start + dadu */
+    [150, 290, 290, 395],  /* batu C */
+    [330, 205, 420, 305],  /* kebun pisang */
+    [635, 335, 770, 505],  /* batu D */
+    [650, 525, 765, 600],  /* pisang kanan */
+    [660, 270, 740, 312]   /* label finish */
+  ];
+  function isReserved(x, y){
+    return reserved.some(function(q){ return x >= q[0] - 16 && x <= q[2] + 16 && y >= q[1] - 16 && y <= q[3] + 16; });
+  }
+  for (c = 0; c <= 18; c++) for (r = 0; r <= 14; r++) {
+    if (c === 9) continue;
+    var cp = cell(c, r);
+    if (tileSet[cp.join(',')] || isReserved(cp[0], cp[1])) continue;
+    if (rnd() < .86) P.push(canopy(cp[0] + (rnd() - .5) * 8, cp[1] + (rnd() - .5) * 8, 22 + rnd() * 8));
+  }
+  [[130,112,28],[380,112,28],[700,108,26],[770,112,30],[850,112,28]].forEach(function(t){ P.push(canopy(t[0], t[1], t[2])); });
+  for (var i = 0; i < 36; i++) {
+    var tx = 20 + rnd() * 960; if (tx > 455 && tx < 545) continue;
+    P.push(canopy(tx, 782 + rnd() * 58, 26 + rnd() * 14));
+  }
+
+  /* 3. tanah jalur */
+  var pathD = 'M' + seq.map(function(p){ return p[0] + ' ' + p[1]; }).join(' L');
+  P.push('<path class="dirt" d="' + pathD + '"/>');
+  P.push('<path class="dirt2" d="' + pathD + '"/>');
+
+  /* 4. sungai */
+  P.push('<rect class="river" x="482" y="80" width="36" height="' + (H - 80) + '"/>');
+  P.push('<path class="bank" d="M482 80V' + H + ' M518 80V' + H + '"/>');
+  P.push('<path class="flow" d="M492 84V' + H + ' M508 96V' + H + '"/>');
+
+  /* 5. tebing kiri-kanan */
+  var bump = [0, 16, 30, 16, 6, 22], cls = ['m1', 'm2', 'm3'];
+  for (var b = 0, by = 80; by < 760; by += 36, b++) {
+    var w = 76 + bump[b % 6], hh = Math.min(36, 760 - by), k = cls[b % 3];
+    P.push('<rect class="' + k + '" x="0" y="' + by + '" width="' + w + '" height="' + hh + '"/>');
+    P.push('<rect class="' + k + '" x="' + (W - w) + '" y="' + by + '" width="' + w + '" height="' + hh + '"/>');
+  }
+
+  /* 6. dinding kuil */
+  P.push('<rect class="sand" x="0" y="0" width="1000" height="80"/>');
+  P.push('<rect class="sandd" x="0" y="68" width="1000" height="12"/>');
+  for (var cx = 0; cx < 1000; cx += 48) P.push('<rect class="sandd" x="' + (cx + 8) + '" y="0" width="26" height="12"/>');
+  [70, 200, 290, 710, 800, 930].forEach(function(px){
+    P.push('<rect class="sandd" x="' + (px - 13) + '" y="16" width="26" height="64"/>');
+    P.push('<rect class="sand" x="' + (px - 20) + '" y="12" width="40" height="10"/>');
+  });
+  P.push('<rect class="gate" x="478" y="22" width="44" height="58"/>');
+  P.push('<rect class="gate" x="486" y="14" width="28" height="10"/>');
+  P.push('<rect class="sign" x="345" y="32" width="100" height="28" rx="3"/><text class="sign-t" x="395" y="47" dominant-baseline="central">RIMBA</text>');
+  P.push('<rect class="sign" x="555" y="32" width="100" height="28" rx="3"/><text class="sign-t" x="605" y="47" dominant-baseline="central">RAYA</text>');
+
+  /* 7. jembatan */
+  function bridge(cy){
+    var s = '<rect class="deck" x="440" y="' + (cy - 20) + '" width="120" height="40" rx="3"/>';
+    for (var px = 452; px < 560; px += 14) s += '<line class="plank" x1="' + px + '" y1="' + (cy - 18) + '" x2="' + px + '" y2="' + (cy + 18) + '"/>';
+    s += '<rect class="rail" x="440" y="' + (cy - 22) + '" width="120" height="5"/><rect class="rail" x="440" y="' + (cy + 17) + '" width="120" height="5"/>';
+    return s;
+  }
+  var yBottom = cell(9, 14)[1];
+  P.push(bridge(GY)); P.push(bridge(yBottom));
+  P.push('<rect class="barrier" x="438" y="' + (yBottom - 20) + '" width="5" height="40" rx="1"/>');
+
+  /* 8. dekor pisang */
+  [[352,226],[374,226],[396,226],[363,248],[385,248],[374,270]].forEach(function(p){
+    P.push('<rect class="ban" x="' + p[0] + '" y="' + p[1] + '" width="22" height="22" rx="3"/>');
+  });
+  [[672,540],[694,540],[716,540],[683,562],[705,562]].forEach(function(p){
+    P.push('<rect class="ban" x="' + p[0] + '" y="' + p[1] + '" width="20" height="20" rx="3"/>');
+  });
+
+  /* 9. batu = sarang naga (diperbesar) */
+  var rocks = [
+    {id:'A', x:170, y:86,  w:130, h:61},
+    {id:'B', x:565, y:92,  w:90,  h:55},
+    {id:'C', x:166, y:300, w:110, h:86},
+    {id:'D', x:648, y:345, w:108, h:150}
+  ];
+  rocks.forEach(function(k){
+    var i1 = Math.min(9, k.h / 5), i2 = Math.min(20, k.h / 3);
+    var ncx = k.x + k.w / 2, ncy = k.y + k.h / 2, nr = Math.min(k.h * .32, 36);
+    P.push('<rect class="sh" x="' + (k.x + 3) + '" y="' + (k.y + 5) + '" width="' + k.w + '" height="' + k.h + '"/>');
+    P.push('<rect class="r1" x="' + k.x + '" y="' + k.y + '" width="' + k.w + '" height="' + k.h + '"/>');
+    P.push('<rect class="r1" x="' + (k.x - 8) + '" y="' + (k.y + k.h * .3) + '" width="10" height="16"/>');
+    P.push('<rect class="r1" x="' + (k.x + k.w - 2) + '" y="' + (k.y + k.h * .55) + '" width="10" height="16"/>');
+    P.push('<rect class="r2" x="' + (k.x + i1) + '" y="' + (k.y + i1) + '" width="' + (k.w - 2 * i1) + '" height="' + (k.h - 2 * i1) + '"/>');
+    P.push('<rect class="r3" x="' + (k.x + i2) + '" y="' + (k.y + i2) + '" width="' + (k.w - 2 * i2) + '" height="' + (k.h - 2 * i2) + '"/>');
+    P.push('<circle class="nest" cx="' + ncx + '" cy="' + ncy + '" r="' + nr + '"/>');
+    P.push('<use href="#dragon" class="dg-nest" x="' + (ncx - nr * .8) + '" y="' + (ncy - nr * .8) + '" width="' + (nr * 1.6) + '" height="' + (nr * 1.6) + '"/>');
+    P.push('<circle class="badge" cx="' + (k.x + k.w - 12) + '" cy="' + (k.y + 12) + '" r="10"/><text class="badge-t" x="' + (k.x + k.w - 12) + '" y="' + (k.y + 13) + '">' + k.id + '</text>');
+  });
+
+  /* 10. panel dua bagian: dadu (atas) dan START (bawah), menempel petak 1 */
+  P.push('<rect class="tray" x="284" y="540" width="152" height="205" rx="8"/>');
+  P.push('<rect class="felt" x="294" y="550" width="132" height="90" rx="5"/>');
+  function well(wx, wy, pips){
+    var s = '<rect class="well" x="' + wx + '" y="' + wy + '" width="40" height="40" rx="6"/>';
+    pips.forEach(function(p){ s += '<circle class="pip" cx="' + (wx + p[0]) + '" cy="' + (wy + p[1]) + '" r="3.4"/>'; });
+    return s;
+  }
+  P.push(well(310, 562, [[10,10],[30,10],[20,20],[10,30],[30,30]]));
+  P.push(well(370, 562, [[10,10],[20,20],[30,30]]));
+  P.push('<text class="tray-t" x="360" y="623">TEMPAT DADU</text>');
+  P.push('<line class="divider" x1="288" y1="647" x2="432" y2="647"/>');
+  P.push('<rect class="startpad" x="294" y="654" width="132" height="82" rx="5"/>');
+  P.push('<text class="start-t" x="360" y="676">START</text>');
+  P.push('<polygon class="arrow" points="304,697 316,690 316,704"/>');
+  P.push('<text class="start-s" x="352" y="697">menuju petak 1</text>');
+  [320, 347, 374, 401].forEach(function(sx){ P.push('<circle class="slot" cx="' + sx + '" cy="720" r="7"/>'); });
+
+  /* 11. petak */
+  var gates = {'260,165':'A', '580,165':'B', '140,325':'C'};
+  var gateNo = {};
+  function kind(n){ if (n % 9 === 4) return 'trap'; if (n % 7 === 3) return 'chance'; if (n % 11 === 6) return 'star'; return 'blue'; }
+  function tile(x, y, kd, n){
+    var s = '<g transform="translate(' + x + ' ' + y + ')">';
+    s += '<rect class="t-shadow" x="-16" y="-13" width="32" height="32" rx="6"/>';
+    s += '<rect class="tk-' + kd + '" x="-16" y="-16" width="32" height="32" rx="6"/>';
+    s += '<rect class="shine" x="-14" y="-14" width="28" height="11" rx="4"/>';
+    if (kd === 'finish') s += '<text class="kn kn-big" y="1">' + n + '</text>';
+    else {
+      if (kd === 'naga') s += '<g class="symg"><use href="#dragon" class="dg-tile" x="-10" y="-10" width="20" height="20"/></g>';
+      else if (kd === 'chance') s += '<text class="sym symg" y="1">?</text>';
+      else if (kd === 'star') s += '<text class="sym symg s-star" y="1">★</text>';
+      else if (kd === 'trap') s += '<text class="sym symg" y="1">!</text>';
+      if (n === 1) s += '<text class="kn" y="1">1</text>';
+      else s += '<text class="num n-' + kd + '" y="1">' + n + '</text>';
+    }
+    return s + '</g>';
+  }
+  var tiles = [];
+  seq.forEach(function(p, idx){
+    var n = idx + 1, key = p.join(','), kd;
+    if (n === seq.length) kd = 'finish';
+    else if (gates[key]) { kd = 'naga'; gateNo[gates[key]] = n; }
+    else kd = n === 1 ? 'blue' : kind(n);
+    tiles.push(tile(p[0], p[1], kd, n));
+  });
+  P.push(tiles.join(''));
+
+  /* 12. label zona */
+  var Z = [];
+  Z.push('<text class="zone lbl halo" transform="translate(500 450) rotate(90)">SUNGAI</text>');
+  Z.push('<text class="zone lbl halo" x="500" y="127" style="font-size:10px">JEMBATAN ATAS</text>');
+  Z.push('<text class="zone lbl halo" x="500" y="768" style="font-size:10px">JEMBATAN BAWAH</text>');
+  Z.push('<text class="zone lbl halo" transform="translate(42 420) rotate(-90)">TEBING KIRI</text>');
+  Z.push('<text class="zone lbl halo" transform="translate(958 420) rotate(90)">TEBING KANAN</text>');
+  Z.push('<text class="zone lbl halo" x="385" y="313" style="font-size:10px">KEBUN PISANG</text>');
+  Z.push('<text class="zone lbl halo" x="700" y="298" style="font-size:11px">FINISH 100</text>');
+  Z.push('<text class="zone lbl lbl-big halo" x="250" y="826">HUTAN</text>');
+  Z.push('<text class="zone lbl lbl-big halo" x="750" y="826">HUTAN</text>');
+  Z.push('<text class="zone lbl halo" x="150" y="48" style="font-size:12px">GERBANG KUIL</text>');
+  P.push(Z.join(''));
+
+  svg.innerHTML = P.join('');
+
+  document.getElementById('cAll').textContent = seq.length;
+  document.getElementById('cRing').textContent = 58;
+  document.getElementById('gA').textContent = gateNo.A;
+  document.getElementById('gB').textContent = gateNo.B;
+  document.getElementById('gC').textContent = gateNo.C;
+
+  document.getElementById('optNum').addEventListener('change', function(e){ svg.classList.toggle('show-num', e.target.checked); });
+  document.getElementById('optZone').addEventListener('change', function(e){ svg.classList.toggle('hide-zones', !e.target.checked); });
+})();
+</script>
+
+</body></html>
