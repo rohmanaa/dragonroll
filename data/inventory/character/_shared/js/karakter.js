@@ -1212,8 +1212,8 @@ function updateInfo(){
   if(pv&&pv.set){const ss=pv.set,sok=ss.cis.every(canSell),nm=ss.cis.map(x=>x.name).join(', ');
     setInfo(ss.n.replace(/^\S+\s/,'')+' (Set)',sok?ss.cis.length+' item belum dimiliki: '+nm+'. Beli semua untuk memakai set ini.':'Set ini berisi item yang tidak dijual ('+nm+'). Hanya preview.');return;}
   if(pv){setInfo(pv.ci.name,canSell(pv.ci)?'Belum dimiliki. Ini hanya preview, beli untuk memakainya.':'Belum dimiliki dan tidak dijual (hadiah/event). Hanya preview.');return;}
-  if(c.type==='gender')setInfo(cfg.gender==='m'?'Laki-laki':'Perempuan','Pilih gender karakter. Pakaian menyesuaikan gender.');
-  else if(c.type==='skin'){const s=SKINS.find(x=>x.id===cfg.skin);setInfo(s?s.n:'Warna kulit','Pilih warna kulit karakter.');}
+  if(c.type==='gender')setInfo(B().gender==='m'?'Laki-laki':'Perempuan','Ketuk kartu untuk pratinjau, lalu gunakan tombol kanan bawah untuk memakai. Pakaian menyesuaikan gender.');
+  else if(c.type==='skin'){const s=SKINS.find(x=>x.id===B().skin);setInfo(s?s.n:'Warna kulit','Ketuk kartu untuk pratinjau, lalu gunakan tombol kanan bawah untuk memakai.');}
   else if(c.type==='body')setInfo('Ukuran tubuh','Atur tinggi dan besar badan karakter.');
   else if(c.type==='preset')setInfo('Set siap pakai','Ketuk set untuk pratinjau, lalu gunakan tombol kanan bawah untuk membeli atau memakai seluruh set.');
   else if(c.type==='multi')setInfo('Aksesori ('+cfg.accessories.length+' dipakai)','Beberapa aksesori bisa dipakai bersamaan. Pilih kartu untuk pratinjau, lalu gunakan tombol kanan bawah untuk memakai, melepas, atau membeli.');
@@ -1355,11 +1355,17 @@ function renderOpts(){
   const c=CATS[cat];let n=0;
   if(c.type==='gender'){
     [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
-      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,status:on?'used':'own',fn:()=>setGender(a[0]),
-        tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',
-          part:cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;}}}));});
+      const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;};
+      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
+        actionKey:'gender:'+a[0],
+        action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
+        fn:()=>stage('g'+a[0],a[2],gpart(B())),
+        tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',part:gpart}}));});
   }else if(c.type==='skin'){
-    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:on,status:on?'used':'own',fn:()=>apply({skin:s.id}),
+    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='k'+s.id),
+      actionKey:'skin:'+s.id,
+      action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
+      fn:()=>stage('k'+s.id,s.n,{skin:s.id}),
       tq:{key:'s|'+s.id+THUMB.sig(['skin']),fr:'bust',part:()=>({skin:s.id})}}));
     });
   }else if(c.type==='body'){

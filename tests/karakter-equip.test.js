@@ -20,9 +20,11 @@ t("slot equipment tetap di sisi karakter dan aksi kartu terpusat di kanan bawah"
   assert.ok(/selectedActionKey=o\.actionKey\|\|null/.test(html), "tombol aksi mengikuti kartu terpilih");
   assert.ok(!/buttonFn|badgeHtml/.test(html), "kartu item tidak lagi memiliki tombol aksi atau badge harga");
 });
-t("Gender dan Kulit tetap langsung dipilih tanpa tombol aksi", () => {
-  assert.ok(/nm:a\[2\],on:on,status:on\?'used':'own',fn:\(\)=>setGender\(a\[0\]\)/.test(html));
-  assert.ok(/nm:s\.n,on:on,status:on\?'used':'own',fn:\(\)=>apply\(\{skin:s\.id\}\)/.test(html));
+t("Gender dan Kulit hanya pratinjau dulu; dipakai lewat tombol aksi PAKAI", () => {
+  assert.ok(/fn:\(\)=>stage\('g'\+a\[0\],a\[2\],gpart\(B\(\)\)\)/.test(html), "klik kartu gender = pratinjau (draft)");
+  assert.ok(/fn:\(\)=>stage\('k'\+s\.id,s\.n,\{skin:s\.id\}\)/.test(html), "klik kartu kulit = pratinjau (draft)");
+  assert.ok(!/fn:\(\)=>setGender\(a\[0\]\)/.test(html) && !/fn:\(\)=>apply\(\{skin:s\.id\}\)/.test(html), "klik kartu tidak langsung menerapkan");
+  assert.ok(/actionKey:'gender:'\+a\[0\]/.test(html) && /actionKey:'skin:'\+s\.id/.test(html), "ada tombol aksi");
   assert.ok(/function setGender\(g\)/.test(html));
 });
 t("aksesori multi-pakai memakai centang hijau dan aksi PAKAI/LEPAS", () => {
