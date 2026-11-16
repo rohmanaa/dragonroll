@@ -58,4 +58,13 @@ t('powerup.html punya wadah #p3d dan cadangan ke tampilan lama (showThemeArt)', 
   assert.ok(h.indexOf('id="p3d"') > 0); const pj = rd('data/inventory/power/_shared/js/powerup.js'); assert.ok(pj.indexOf("import('../../../../../assets/js/renderers/power-3d/power-show.js')") > 0); /* path relatif dari data/inventory/power/_shared/js/powerup.js */
   assert.ok(/catch\(e=>\{this\.state=3/.test(h), 'tidak ada cadangan saat impor gagal');
 });
+t('Power: klik pilihan tidak membangun ulang grid/FX, renderer dipakai ulang dan berhenti saat preview tersembunyi', () => {
+  const pj = rd('data/inventory/power/_shared/js/powerup.js');
+  const pick = pj.match(/function pick\(i\)\{([\s\S]*?)\n\}/);
+  assert.ok(pick && /if\(sel===i\)/.test(pick[1]), 'pilihan yang sama tidak perlu dirender ulang');
+  assert.ok(!/renderGrid\(\)|PFX\.at\(i\)/.test(pick[1]), 'pilih item tidak membangun ulang grid atau burst FX');
+  assert.ok(pj.includes('this.key===i.gameKey&&this.on()'), 'model yang sama tidak di-mount ulang');
+  assert.ok(pj.includes('P3D.setVisible(previewIntersecting&&!document.hidden)'), 'renderer mengikuti visibilitas preview');
+  assert.ok(pj.includes('if(this.inst)this.inst.stop()'), 'renderer dihentikan ketika preview tidak aktif');
+});
 console.log(n + ' tes lulus');

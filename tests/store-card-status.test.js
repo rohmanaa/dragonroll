@@ -21,6 +21,10 @@ const headers = ["karakter.html", "frame.html", "dadu.html", "powerup.html", "sh
 const pageCss = read("assets/css/page.css");
 const frameCss = read("data/inventory/frame/_shared/css/frame.css");
 const powerCss = read("data/inventory/power/_shared/css/powerup.css");
+const powerPageCss = read("data/inventory/power/_shared/css/powerup-page.css");
+const powerScript = read("data/inventory/power/_shared/js/powerup.js");
+const petCss = read("data/inventory/pet/_shared/css/pet-page.css");
+const petScript = read("data/inventory/pet/_shared/js/pet-page.js");
 let n = 0;
 const test = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 
@@ -46,8 +50,15 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
   assert.ok(!scripts.frame.includes(currencyPrice), 'frame: kartu slot tidak lagi memuat badge harga');
   assert.ok(scripts.dadu.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'dadu: harga beli ada di tombol aksi #act');
   assert.ok(!scripts.dadu.includes(currencyPrice), 'dadu: kartu slot tidak lagi memuat badge harga');
-  assert.ok(/sp\.textContent='BELI '\+fmtPrice\(i\.price\)\+' COIN'/.test(pages.powerup), 'power: tombol aksi tunggal BELI <harga> COIN');
+  assert.ok(powerScript.includes("sp.innerHTML='BELI '+fmtPrice(i.price)+' '+COIN"), 'power: tombol aksi menampilkan ikon Coin');
+  assert.ok(powerPageCss.includes('#act span img{position:static;'), 'power: ikon Coin ditata di dalam tombol aksi');
   assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(pages.room));
+});
+
+test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
+  assert.ok(/#use\{[^}]*left:auto;right:48px/.test(petCss), "pet: tombol aksi tidak mewarisi posisi kiri");
+  assert.ok(petScript.includes('label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;'), "pet: ikon harga memakai path aset langsung");
+  assert.ok(!petScript.includes("ITEM_ROOT + icon"), "pet: path ikon tidak menggandakan root aset");
 });
 
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {

@@ -34,7 +34,7 @@ function renderGrid(){
     const k=qty(i),sell=canSell(i),st=k?'st-own':'st-lock';
     const chip=k?'<span class="chip-n">'+k+'</span>':'';
     const label='stok ×'+k+(sell?' — beli '+fmtPrice(i.price):' — tidak dijual');
-    return '<button class="fslot '+st+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+chip+'</button>'}).join('');
+    return '<button class="fslot '+st+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-pressed="'+(i===sel)+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+chip+'</button>'}).join('');
   for(let n=LIST.length;n<Math.max(20,Math.ceil(LIST.length/5)*5);n++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   renderAct();
@@ -46,7 +46,7 @@ function renderAct(){
   if(!i){b.style.display='none';return}
   b.style.display='';
   const k=qty(i),sell=canSell(i);
-  if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(i.price)+' COIN'}
+  if(sell){b.dataset.mode='buy';b.disabled=false;sp.innerHTML='BELI '+fmtPrice(i.price)+' '+COIN}
   else {b.dataset.mode='no';b.disabled=true;sp.textContent=k?'DIMILIKI ×'+k:'TIDAK DIJUAL'}
 }
 $('#act').onclick=()=>{const i=sel; if(!i)return; if($('#act').dataset.mode==='buy'&&canSell(i))confirmBuy(i)};
@@ -61,7 +61,16 @@ function renderInfo(){
   renderCurrency();
 }
 function refresh(){if(!sel||!LIST.includes(sel))sel=LIST.find(i=>qty(i)>0)||LIST[0]||null;renderGrid();renderInfo();P3D.sync()}
-function pick(i){sel=i;renderGrid();renderInfo();P3D.load();P3D.sync();playSound('select');PFX.at(i)}
+function pick(i){
+  if(sel===i){playSound('select');return}
+  sel=i;
+  $('#grid').querySelectorAll('.fslot').forEach(card=>{
+    const active=card.dataset.id===i.id;
+    card.classList.toggle('sel',active);
+    card.setAttribute('aria-pressed',String(active));
+  });
+  renderAct();renderInfo();P3D.load();P3D.sync();playSound('select');
+}
 $('#grid').addEventListener('click',e=>{
   const c=e.target.closest('.fslot');if(!c)return;
   const i=LIST.find(x=>x.id===c.dataset.id);if(!i)return;
@@ -70,18 +79,31 @@ $('#grid').addEventListener('click',e=>{
 
 /* ---- pratinjau 3D hidup (assets/js/renderers/power-3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */
 function showThemeArt(on){$('#fpv').classList.toggle('art2d',!!on)}
-const P3D={inst:null,mod:null,state:0,
- off(){$('#fpv').classList.remove('p3d');showThemeArt(true)},
+const hasPreviewObserver=typeof IntersectionObserver==='function';
+let previewIntersecting=!hasPreviewObserver;
+const P3D={inst:null,mod:null,state:0,key:null,visible:previewIntersecting&&!document.hidden,
+ off(){$('#fpv').classList.remove('p3d');showThemeArt(true);this.key=null;if(this.inst)this.inst.stop()},
  on(){return !!this.inst&&$('#fpv').classList.contains('p3d')},
  sync(){const i=sel;if(!i||!this.inst||!this.mod.supports(i.gameKey)){this.off();return false}
-  try{if(this.inst.show(i.gameKey)){$('#fpv').classList.add('p3d');showThemeArt(false);return true}}catch(e){console.warn('[power3d]',e)}
+  if(!this.visible){this.inst.stop();return false}
+  if(this.key===i.gameKey&&this.on()){this.inst.start();return true}
+  try{if(this.inst.show(i.gameKey)){this.key=i.gameKey;$('#fpv').classList.add('p3d');showThemeArt(false);this.inst.start();return true}}catch(e){console.warn('[power3d]',e)}
   this.off();return false},
- load(){if(this.state)return;this.state=1;
-  import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
+ setVisible(visible){if(this.visible===visible)return;this.visible=visible;if(!visible){if(this.inst)this.inst.stop();return}if(this.inst)this.sync();else this.load()},
+ load(){if(this.state||!this.visible)return;this.state=1;
+  import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;const graphics=SET().graphics,scale=Math.min(innerWidth/1920,innerHeight/1080);const quality=graphics==='low'||scale<.7?'low':graphics==='high'?'high':undefined;this.inst=m.mount($('#p3d'),{quality});this.state=2;
    const sh=$('#fpv');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
    sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.inst.activate()}); /* ketuk = aktifkan; geser = putar */
    this.sync()
   }).catch(e=>{this.state=3;console.warn('[power3d] tidak tersedia, memakai tampilan lama',e)})}};
+const previewObserver=hasPreviewObserver?new IntersectionObserver(entries=>{
+  const entry=entries.find(item=>item.target===$('#fpv'));
+  if(!entry)return;
+  previewIntersecting=entry.isIntersecting&&entry.intersectionRatio>0;
+  P3D.setVisible(previewIntersecting&&!document.hidden);
+}):null;
+if(previewObserver)previewObserver.observe($('#fpv'));
+document.addEventListener('visibilitychange',()=>P3D.setVisible(previewIntersecting&&!document.hidden));
 
 /* ---- putar efek: 3D bila ada, bila tidak animasi 2D + partikel PowerFX */
 let rolling=false;
@@ -131,7 +153,7 @@ try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-walle
 UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('inventoryChanged',refresh);
 
-refresh();P3D.load();
+refresh();if(P3D.visible)P3D.load();
 document.documentElement.classList.add('ut-ready');
 if(SV()&&WS())WS().refresh().then(r=>{if(r.ok)refresh()}); /* saldo & inventory dari server */
 })();
