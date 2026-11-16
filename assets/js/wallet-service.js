@@ -153,6 +153,16 @@
       });
     }
 
+    /* ----- hadiah naik level ----- (server menghitung nominal; idempoten per level)
+       -> {ok, levels:[{level,coins,gems}], reward_coins, reward_gems, wallet_coins, wallet_gems} */
+    function claimLevelRewards() {
+      return once('levelup', async function () {
+        var r = await rpc('claim_level_rewards');
+        if (r && r.ok && (r.reward_coins > 0 || r.reward_gems > 0)) mirror(r.wallet_coins, r.wallet_gems);
+        return r;
+      });
+    }
+
     function openBox() { return claimAndRefresh('box', 'open_mystery_box'); }
 
     /* ----- misi ----- */
@@ -227,7 +237,7 @@
 
     return {
       enabled: enabled, refresh: refresh, buy: buy, buySet: buySet, buyPowerup: buyPowerup, usePower: usePower, history: history, exchange: exchange,
-      dailyGet: dailyGet, claimDaily: claimDaily, openBox: openBox,
+      dailyGet: dailyGet, claimDaily: claimDaily, claimLevelRewards: claimLevelRewards, openBox: openBox,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,
       claimAchievement: claimAchievement
