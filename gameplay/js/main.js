@@ -163,7 +163,7 @@ async function applyOnlineLooks(gid,attempt){
 }
 const NEW_CHAR_CPU=false; /* false = pion CPU tetap Villager (bukan karakter preset/skin pemain) */
 /* Bersorak: lengan terangkat + lompat berulang selama dur detik (menang / sampai di puncak tangga). */
-function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) setTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850); }catch(e){} }
+function pawnCheer(pawn,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(!b||!b.act) return; dur=dur||2.4; b.act('cheer',dur); b.jump(); for(let i=1;i<dur/0.85;i++) trackFxTimeout(()=>{ try{ if(b.acting==='cheer') b.jump(); }catch(e){} },i*850,'pawn-cheer'); }catch(e){} }
 function upgradePawnNew(g,pal,seed){ /* seed<0 = penampilan pemain (PlayerData); >=0 = tampilan siap pakai (CPU / pemain lokal lain) */
   try{
     if(!(UT.BlockyCharacter&&window.PlayerData&&window.ItemCatalog)) return;
@@ -238,6 +238,12 @@ const scene=new THREE.Scene();
 const FX=(window.UT&&UT.GameplayFX)||null; /* modul tak termuat -> efek visual dilewati, gameplay tetap jalan */
 if(FX) FX.init(scene);
 function fxReduced(){ return FX&&typeof FX.reduced==='function'?FX.reduced():reduce; }
+function trackFxTimeout(callback,delay,type,onStop){
+  if(FX&&typeof FX.timeout==='function') return FX.timeout(callback,delay,{type:type||'timeout',scope:'visual'},onStop);
+  let done=false;
+  const timer=setTimeout(()=>{ if(done) return; done=true; callback(); },delay);
+  return {id:null,timer:timer,clear:()=>{ if(done) return false; done=true; clearTimeout(timer); if(onStop) onStop(); return true; }};
+}
 const camera=new THREE.PerspectiveCamera(38,1,0.1,250);
 
 const hemi=new THREE.HemisphereLight(0xFFFFFF,0xB9D7A0,0.84);
@@ -2759,7 +2765,7 @@ function syncCrystals(){
    Hanya pemain yang sudah menghancurkan semua Crystal (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
 function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===GOAL&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
-let BOSS_FX_TIMER=0;
+let BOSS_FX_TIMER=null;
 function bossFxRoot(){
   let root=document.getElementById('bossFx');
   if(root) return root;
@@ -2780,12 +2786,12 @@ function bossCinemaHit(){
   if(fxReduced()) return;
   let layer=document.getElementById('hitFx');
   if(!layer){ layer=document.createElement('div'); layer.id='hitFx'; document.body.appendChild(layer); }
-  const add=(cls,style)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,style||{}); layer.appendChild(e); setTimeout(()=>e.remove(),800); };
+  const add=(cls,style)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,style||{}); layer.appendChild(e); trackFxTimeout(()=>e.remove(),800,'boss-hit-overlay',()=>e.remove()); };
   add('hf-cinema');
   add('hf-wave',{left:(window.innerWidth/2)+'px',top:(window.innerHeight/2)+'px'});
   [-26,-8,10,28].forEach((d,i)=>add('hf-wind',{left:(window.innerWidth/2-20+i*6)+'px',top:(window.innerHeight/2+d)+'px',animationDelay:(i*40)+'ms'}));
   add('hf-flash');
-  document.body.classList.add('hf-shake'); setTimeout(()=>document.body.classList.remove('hf-shake'),360);
+  document.body.classList.add('hf-shake'); trackFxTimeout(()=>document.body.classList.remove('hf-shake'),360,'boss-hit-shake',()=>document.body.classList.remove('hf-shake'));
 }
 function bossHitFx(damage,remote,keepVignette){
   if(!remote&&MP_SEQ===0) mpCue({k:'bosshfx',dmg:damage,fight:!!keepVignette});
@@ -2796,14 +2802,17 @@ function bossHitFx(damage,remote,keepVignette){
   root.classList.add('active');
   root.classList.remove('hit'); void root.offsetWidth; root.classList.add('hit');
   bossCinemaHit();
-  clearTimeout(BOSS_FX_TIMER);
-  BOSS_FX_TIMER=setTimeout(()=>{
-    BOSS_FX_TIMER=0; root.classList.remove('hit');
+  if(BOSS_FX_TIMER) BOSS_FX_TIMER.clear();
+  BOSS_FX_TIMER=trackFxTimeout(()=>{
+    BOSS_FX_TIMER=null; root.classList.remove('hit');
     if(!root.classList.contains('fight')) root.classList.remove('active');
-  },700);
+  },700,'boss-hit-state',()=>{
+    root.classList.remove('hit');
+    if(!root.classList.contains('fight')) root.classList.remove('active');
+  });
 }
 function clearBossFx(){
-  clearTimeout(BOSS_FX_TIMER); BOSS_FX_TIMER=0;
+  if(BOSS_FX_TIMER) BOSS_FX_TIMER.clear(); BOSS_FX_TIMER=null;
   const root=document.getElementById('bossFx');
   if(root) root.classList.remove('active','fight','hit','critical');
 }
@@ -3214,7 +3223,7 @@ async function hitWither(p,v){
   if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
   sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
-  fireBurst(w.x,w.y0+0.6,w.z,2.2,F.fl); setTimeout(()=>{ if(gid===gameId) fireBurst(w.x,w.y0+1.0,w.z,1.6,F.fl); },450);
+  fireBurst(w.x,w.y0+0.6,w.z,2.2,F.fl); trackFxTimeout(()=>{ if(gid===gameId) fireBurst(w.x,w.y0+1.0,w.z,1.6,F.fl); },450,'wither-death-burst');
   await tween(1.6*Fk,k=>{ w.dy=-k*2.6; w.sc=WF.SC*(1-0.8*k); w.shk=Math.sin(k*60)*0.05*(1-k); });
   w.g.visible=false; w.halo.visible=false; w.shk=0;
 }
@@ -3822,6 +3831,17 @@ lump.castShadow=true; lump.visible=false;
 /* ---------- Animasi dasar ---------- */
 const tweens=[];
 function tween(dur,fn,ease){ return new Promise(res=>{ tweens.push({t:0,dur:Math.max(0.01,dur),fn,ease,res}); }); }
+function tweenVisual(dur,fn,ease){
+  let resolve;
+  const tw={t:0,dur:Math.max(0.01,dur),fn,ease,res:null};
+  const promise=new Promise(res=>{ resolve=res; });
+  tw.res=resolve; tweens.push(tw);
+  return {promise:promise,cancel:()=>{
+    const index=tweens.indexOf(tw);
+    if(index<0) return false;
+    tweens.splice(index,1); tw.res(); return true;
+  }};
+}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let focus=null;
 function hopTo(pawn,to,dur,hop){
@@ -4173,7 +4193,7 @@ async function hitDragon(p,v){
    await tween(0.5,k=>{ D.shk=Math.sin(k*40)*0.3*(1-k); D.mats.forEach(m=>m.color.setHex(k<0.6?0xFF5555:0xFFFFFF)); });
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
    p.dhp=Math.max(0,p.dhp-dmg); fireFx(); msBump(p,'dragon_hits'); renderChips();
-   if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); setTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700); return; } /* semburan api = visual saja, tanpa damage */
+   if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); trackFxTimeout(()=>{ try{ dragonBreathe(); }catch(e){} },700,'dragon-breath-restart'); return; } /* semburan api = visual saja, tanpa damage */
    DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath(); mpCue({k:'dfx',t:'death'});
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
@@ -4211,20 +4231,41 @@ function enderHole(pos,scale){
   const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(arr,3));
   const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xd9b3ff,size:0.08,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); pts.rotation.x=1.15; pts.frustumCulled=false;
   g.add(core,r1,r2,pts); scene.add(g);
-  tween(EH_LIFE,k=>{
+  let active=true,cleaned=false,trackId=null,visualTween=null;
+  const cleanup=cancelVisual=>{
+    if(cleaned) return;
+    cleaned=true; active=false;
+    if(cancelVisual&&visualTween) visualTween.cancel();
+    if(g.parent) g.parent.remove(g);
+    g.traverse(o=>{
+      if(o.geometry&&typeof o.geometry.dispose==='function') o.geometry.dispose();
+      if(o.material){
+        const materials=Array.isArray(o.material)?o.material:[o.material];
+        materials.forEach(m=>{ if(m&&typeof m.dispose==='function') m.dispose(); });
+      }
+    });
+  };
+  if(FX&&typeof FX.track==='function') trackId=FX.track({stop:()=>{ active=false; cleanup(true); },cleanup:()=>cleanup(true)},{type:'ender-hole',scope:'visual',category:'transition'});
+  visualTween=tweenVisual(EH_LIFE,k=>{
+    if(!active) return;
     const t=k*EH_LIFE,env=t<0.7?ease3(t/0.7):(t>EH_LIFE-0.4?1-ease3((t-(EH_LIFE-0.4))/0.4):1);
     g.scale.setScalar(Math.max(0.001,scale*env)); r1.rotation.z=t*5; r2.rotation.z=-t*3.5;
     for(let i=0;i<N;i++){ const q=sd[i],f=1-((t*0.45*q.s+q.p)%1),a=q.a+t*q.s*2.4,r=q.r*f; arr[i*3]=Math.cos(a)*r; arr[i*3+1]=Math.sin(a)*r; arr[i*3+2]=q.y*f; }
     pg.attributes.position.needsUpdate=true;
-    if(k>=1){ scene.remove(g); g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); }); }
+    if(k>=1){ cleanup(false); if(trackId&&FX&&typeof FX.untrack==='function') FX.untrack(trackId); }
   });
 }
+let ENDER_HIT_TIMER=null;
 function enderVictimFx(L,p,from,to){ /* feedback untuk pemain yang DITUKAR: vignette ungu + teks (sebelum teleport) */
   try{
+    if(ENDER_HIT_TIMER) ENDER_HIT_TIMER.clear();
     const old=document.getElementById('enderHit'); if(old) old.remove();
     const d=document.createElement('div'); d.id='enderHit';
     d.innerHTML='<div class="eh-vig"></div><div class="eh-txt"></div>'; d.querySelector('.eh-txt').textContent=L.name+' ditukar oleh '+p.name+' · petak '+from+' → '+to;
-    document.body.appendChild(d); setTimeout(()=>d.remove(),1700);
+    document.body.appendChild(d);
+    let task=null;
+    task=trackFxTimeout(()=>{ d.remove(); if(ENDER_HIT_TIMER===task) ENDER_HIT_TIMER=null; },1700,'ender-hit-overlay',()=>{ d.remove(); if(ENDER_HIT_TIMER===task) ENDER_HIT_TIMER=null; });
+    ENDER_HIT_TIMER=task;
   }catch(e){}
 }
 async function enderSwapAnim(p,L,a,b){ /* p (pemakai) pindah ke petak b milik L; L pindah ke petak a */
@@ -5337,13 +5378,13 @@ function hitBlastFx(p){
     let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
     const r=$('c').getBoundingClientRect(),v=p.pawn.position.clone(); v.y+=0.6; v.project(camera);
     const x=r.left+(v.x*0.5+0.5)*r.width,y=r.top+(-v.y*0.5+0.5)*r.height;
-    const add=(cls,st,text)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,st||{}); if(text) e.textContent=text; L.appendChild(e); setTimeout(()=>e.remove(),800); };
+    const add=(cls,st,text)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,st||{}); if(text) e.textContent=text; L.appendChild(e); trackFxTimeout(()=>e.remove(),800,'hit-overlay',()=>e.remove()); };
     if(fxReduced()){ add('hf-static-hit',{left:x+'px',top:y+'px'},'TERKENA'); return; }
     add('hf-cinema');
     add('hf-wave',{left:x+'px',top:y+'px'});
     [-26,-8,10,28].forEach((d,i)=>add('hf-wind',{left:(x-20+i*6)+'px',top:(y+d)+'px',animationDelay:(i*40)+'ms'}));
     add('hf-flash');
-    document.body.classList.add('hf-shake'); setTimeout(()=>document.body.classList.remove('hf-shake'),360);
+    document.body.classList.add('hf-shake'); trackFxTimeout(()=>document.body.classList.remove('hf-shake'),360,'hit-shake',()=>document.body.classList.remove('hf-shake'));
   }catch(e){ console.error(e); }
 }
 async function resolveMobAt(p,gid){
@@ -5553,8 +5594,12 @@ function holdEnd(select){
   const up=e=>{ if(DH.on&&e.pointerId===DH.id) holdEnd(true); },cancel=e=>{ if(DH.on&&e.pointerId===DH.id) holdEnd(false); };
   b.addEventListener('pointerup',up); b.addEventListener('pointercancel',cancel); b.addEventListener('lostpointercapture',cancel);
   window.addEventListener('pointerup',up,true); window.addEventListener('pointercancel',cancel,true); /* fallback bila capture gagal (lepas di luar tombol) */
-  window.addEventListener('blur',()=>holdEnd(false)); document.addEventListener('visibilitychange',()=>{ if(document.hidden) holdEnd(false); });
-window.addEventListener('pagehide',()=>dragonMusicStop(true));
+  window.addEventListener('blur',()=>holdEnd(false)); document.addEventListener('visibilitychange',()=>{ if(document.hidden){ holdEnd(false); dragonFireStop(); DFX.clear(); } });
+  window.addEventListener('pagehide',e=>{
+    dragonMusicStop(true);
+    dragonFireStop(); DFX.clear();
+    if(!e.persisted&&PAURA&&PAURA.system&&typeof PAURA.system.dispose==='function'){ PAURA.system.dispose(); PAURA=null; }
+  });
   b.addEventListener('contextmenu',e=>{ if(specialDiceActive(players[cur])) e.preventDefault(); });
   /* keyboard (aksesibilitas): Space/Enter tahan = putar, lepas = pilih */
   b.addEventListener('keydown',e=>{ if((e.key===' '||e.key==='Enter')&&specialDiceActive(players[cur])){ e.preventDefault(); if(!e.repeat&&holdStart('kbd')) DH.id='kbd'; } });
@@ -5758,7 +5803,9 @@ function finishGame(p,fromRemote){
 function startGame(m,keys){
   mode=m; gameId++; MATCH_TOKEN=Date.now().toString(36)+Math.random().toString(36).slice(2,8); msReset(); busy=false; gameOver=false; winnerIndex=-1; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
-  if(PAURA) PAURA.clearAll(); players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
+  if(FX&&typeof FX.stopAll==='function') FX.stopAll({scope:'visual'});
+  else{ clearConfetti(); if(UT.ParticleFX&&typeof UT.ParticleFX.clear==='function') UT.ParticleFX.clear(); }
+  if(PAURA) PAURA.clearAll(); players.forEach(p=>scene.remove(p.pawn)); players=[];
   trapsClear(); applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));

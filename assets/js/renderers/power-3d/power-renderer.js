@@ -138,9 +138,9 @@ export class PowerRenderer {
   get stats() { return { particles: this.particles.alive, drawCalls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles, quality: this.qName }; }
 
   start() { if (this._raf) return; this._last = performance.now(); this._raf = requestAnimationFrame((t) => this._frame(t)); return this; }
-  stop() { cancelAnimationFrame(this._raf); this._raf = 0; }
-  _pause() { this._wasRunning = !!this._raf; this.stop(); }
-  _resume() { if (this._wasRunning) this.start(); }
+  stop() { cancelAnimationFrame(this._raf); this._raf = 0; this._wasRunning = false; }
+  _pause() { this._wasRunning = !!this._raf; cancelAnimationFrame(this._raf); this._raf = 0; }
+  _resume() { if (this._wasRunning) { this._wasRunning = false; this.start(); } }
 
   resize() {
     const w = this.container.clientWidth || 1, h = this.container.clientHeight || 1;

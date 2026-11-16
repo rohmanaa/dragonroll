@@ -13,7 +13,22 @@ export const supports = (key) => !!idOf(key);
 
 /* Model power tampil SHRINK x lebih kecil dari ukuran dasar (size), tetapi canvas boleh sebesar layar (o.rect) supaya aura/partikel tidak terpotong */
 const SHRINK = 1.5, BASE_DIST = 6.4;
-let OV = null, t1 = 0, t2 = 0;
+let OV = null, t1 = 0, t2 = 0, fxTrackId = null;
+function untrack() {
+  const id = fxTrackId;
+  fxTrackId = null;
+  const fx = window.UT && window.UT.GameplayFX;
+  if (id && fx && typeof fx.untrack === 'function') fx.untrack(id);
+}
+function stopTracked() {
+  const fx = window.UT && window.UT.GameplayFX;
+  if (fxTrackId && fx && typeof fx.stop === 'function') fx.stop(fxTrackId);
+  else stop();
+}
+function clearTimers() {
+  clearTimeout(t1); clearTimeout(t2);
+  t1 = t2 = 0;
+}
 function overlay(size) {
   if (OV) return OV;
   const host = document.createElement('div');
@@ -30,7 +45,7 @@ export function playAt(key, x, y, o) {
   const id = idOf(key); if (!id) return false;
   try {
     const size = Math.round((o && o.size) || 300), ov = overlay(size), pr = ov.pr;
-    clearTimeout(t1); clearTimeout(t2);
+    if (fxTrackId) stopTracked(); else clearTimers();
     const R = o && o.rect, st = ov.host.style;  /* ukuran bisa berubah tiap pemakaian (layar/orientasi) */
     if (R) { st.translate = 'none'; st.left = R.left + 'px'; st.top = R.top + 'px'; st.width = R.width + 'px'; st.height = R.height + 'px'; }   /* canvas = 1 layar, titik efek = tengah rect */
     else { st.translate = '-50% -50%'; st.left = x + 'px'; st.top = y + 'px'; st.width = size + 'px'; st.height = size + 'px'; }
@@ -42,7 +57,37 @@ export function playAt(key, x, y, o) {
     const a = pr.animator; a.state = 'idle'; a.t = 0; a.holder.visible = true; a.activate(); /* lewati animasi muncul: langsung beraksi */
     pr.start();
     const dur = ((a.act.duration || 1.1) + (a.hold || 0)) * 1000 + 150;
-    t1 = setTimeout(() => { try { pr.disappear(); } catch (e) { /* abaikan */ } t2 = setTimeout(() => { pr.stop(); ov.host.style.display = 'none'; }, 850); }, dur);
-  } catch (e) { return false; }
+    t1 = setTimeout(() => {
+      t1 = 0;
+      try { pr.disappear(); } catch (e) { /* abaikan */ }
+      t2 = setTimeout(() => {
+        t2 = 0;
+        try { pr.stop(); }
+        finally { ov.host.style.display = 'none'; untrack(); }
+      }, 850);
+    }, dur);
+    const fx = window.UT && window.UT.GameplayFX;
+    if (fx && typeof fx.track === 'function') fxTrackId = fx.track({ stop }, { type: 'power-overlay', scope: 'visual' });
+  } catch (e) { stopTracked(); return false; }
   return true;
+}
+
+export function stop() {
+  clearTimers();
+  try {
+    if (OV) {
+      try { OV.pr.stop(); }
+      finally { OV.host.style.display = 'none'; }
+    }
+  } finally { untrack(); }
+}
+
+export function dispose() {
+  const ov = OV;
+  if (!ov) { stop(); return; }
+  try { stop(); }
+  finally {
+    try { ov.pr.dispose(); }
+    finally { ov.host.remove(); OV = null; }
+  }
 }
