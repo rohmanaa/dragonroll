@@ -1,15 +1,17 @@
 /* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
-   Strategi: kode/HTML = network-first (selalu terbaru saat online), cadangan cache saat offline.
-   Media (gambar/font/suara, diunduh sekali oleh splash) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang sampai VERSION dinaikkan.
-   Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh.
-   Ganti/tambah aset => naikkan VERSION (cache lama otomatis dibuang). */
-const VERSION = 'ut-pwa-v218';
+   Strategi: SEMUA aset (HTML/JS/CSS/JSON + gambar/font/suara + library cdnjs/fonts) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang,
+   jadi pindah halaman tidak menunggu jaringan. Lewat jaringan hanya bila belum ada di cache (disimpan, dan diambil dengan revalidasi supaya tidak basi).
+   PEMBARUAN: ganti/tambah aset => naikkan VERSION. SW baru memasang cache sendiri lalu MENUNGGU; baru aktif (cache lama dibuang) setelah
+   semua tab/aplikasi ditutup dan dibuka lagi (tanpa skipWaiting) -> pembaruan berlaku setelah restart aplikasi, tanpa campur versi di tengah sesi.
+   Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
+const VERSION = 'ut-pwa-v219';
 const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/splash.js', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
+const CODE = /\.(html|js|css|json|webmanifest)$/i;
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => {}));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -33,6 +35,21 @@ self.addEventListener('fetch', e => {
         if (res && res.status === 200) c.put(key, res.clone()).catch(() => {});
         return res;
       } catch (err) { return Response.error(); }
+    }));
+    return;
+  }
+  if ((same && (r.mode === 'navigate' || CODE.test(u.pathname))) || !same) {
+    e.respondWith(caches.open(VERSION).then(async c => {
+      const key = new Request(same ? u.origin + u.pathname : r.url); /* kunci tanpa query (?v=, ?next=) */
+      const hit = await c.match(key, { ignoreSearch: same });
+      if (hit) return hit;
+      try {
+        const res = await fetch(r, same ? { cache: 'no-cache' } : undefined); /* belum ada di perangkat: ambil terbaru (revalidasi) */
+        if (res && (res.ok || res.type === 'opaque') && !res.redirected) c.put(key, res.clone()).catch(() => {});
+        return res;
+      } catch (err) {
+        return (r.mode === 'navigate' && await c.match('index.html')) || Response.error();
+      }
     }));
     return;
   }
