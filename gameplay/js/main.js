@@ -5664,7 +5664,7 @@ async function recordMatchServer(PD,m){
 }
 /* Hadiah naik level: server (claim_level_rewards) membayar koin/emerald dan mengembalikan nominalnya; modal hanya menampilkan.
    Gagal/offline -> modal tetap tampil tanpa hadiah (hadiah yang terlewat dibayar pada klaim berikutnya). */
-const LEVELUP_ICON={coins:'assets/ng/komponen/hud/ikon-koin-emas.webp',gems:'assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp'};
+const LEVELUP_ICON={coins:'assets/images/ui/hud/ikon-koin-emas.webp',gems:'assets/images/ui/gem-medal-icons/berlian-hijau.webp'};
 async function showLevelUpWithRewards(level,gid){
   let rewards=[],note='';
   try{

@@ -4,7 +4,7 @@
    Jalankan: node tests/level-up-reward.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const WS = require(path.join(ROOT, 'assets/js/wallet-service.js'));
+const WS = require(path.join(ROOT, 'assets/js/services/wallet-service.js'));
 let n = 0; const t = async (name, fn) => { await fn(); n++; console.log('ok - ' + name); };
 const mk = (reply, opts) => { const calls = [], mirrored = [];
   const PD = { serverMode: () => !(opts && opts.local), applyServerWallet: o => mirrored.push(o) };
@@ -43,10 +43,15 @@ const mk = (reply, opts) => { const calls = [], mirrored = [];
   await t('Ikon hadiah (koin & emerald) ada dan sama dengan ikon mata uang di UI', async () => {
     const m = rd('gameplay/js/main.js'); const c = /coins:'([^']+)'/.exec(m)[1], g = /gems:'([^']+)'/.exec(m)[1];
     [c, g].forEach(f => { const b = fs.readFileSync(path.join(ROOT, f)); assert.ok(b.length > 500, f); assert.strictEqual(b.slice(8, 12).toString(), 'WEBP', f); });
-    assert.ok(rd('profile.html').includes(c) && rd('profile.html').includes(g));
+    assert.ok(c === 'assets/images/ui/hud/ikon-koin-emas.webp' && g === 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', 'ikon memakai path aset terbaru (assets/images/ui)');
+  });
+  await t('Latar slot hadiah = slot-terpilih.webp (aset existing, path relatif CSS benar)', async () => {
+    const css = rd('gameplay/css/level-up.css'), m = /\.lu-modal__slot \{[^}]*url\(([^)]+)\)/.exec(css); assert.ok(m, 'CSS slot memakai url()');
+    const f = path.join(ROOT, 'gameplay/css', m[1]); assert.ok(fs.existsSync(f), m[1] + ' -> ' + f); assert.strictEqual(path.basename(f), 'slot-terpilih.webp');
+    assert.strictEqual(fs.readFileSync(f).slice(8, 12).toString(), 'WEBP');
   });
   await t('gameplay.html memuat level-up.js dan wallet-service.js (UT.LevelUp / UT.WalletService tersedia)', async () => {
-    const h = rd('gameplay.html'); assert.ok(h.includes('gameplay/js/level-up.js')); assert.ok(/assets\/js\/wallet-service\.js/.test(h));
+    const h = rd('gameplay.html'); assert.ok(h.includes('gameplay/js/level-up.js')); assert.ok(/assets\/js\/services\/wallet-service\.js/.test(h));
   });
   console.log('\n' + n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
