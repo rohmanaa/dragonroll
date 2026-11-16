@@ -1,4 +1,4 @@
-/* play.js — dipindah dari <script> inline (play.html). */
+/* play.js — dipindah dari blok script inline (play.html). */
 (function () {
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
   try {

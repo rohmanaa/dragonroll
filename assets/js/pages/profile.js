@@ -1,4 +1,4 @@
-/* profile.js — dipindah dari <script> inline (profile.html). */
+/* profile.js — dipindah dari blok script inline (profile.html). */
 (()=>{
 const $=s=>document.querySelector(s);
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;

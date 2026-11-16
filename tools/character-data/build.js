@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const raw = require('./extract.js');
 const ROOT = path.join(__dirname, '..', '..');
-const TARGET = path.join(ROOT, 'data', 'character-page', 'js', 'character-data.js');
+const TARGET = path.join(ROOT, 'data', 'inventory', 'character', '_shared', 'js', 'character-data.js');
 const CHARACTER_KEYS = ['steve', 'alex', 'creeper', 'zombie', 'skeleton', 'ender'];
 
 function merge(boxes) {

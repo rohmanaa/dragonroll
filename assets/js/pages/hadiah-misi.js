@@ -1,4 +1,4 @@
-/* hadiah-misi.js — dipindah dari <script> inline (hadiah-misi.html). */
+/* hadiah-misi.js — dipindah dari blok script inline (hadiah-misi.html). */
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();

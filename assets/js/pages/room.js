@@ -1,4 +1,4 @@
-/* room.js — dipindah dari <script> inline (room.html). */
+/* room.js — dipindah dari blok script inline (room.html). */
 (()=>{
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

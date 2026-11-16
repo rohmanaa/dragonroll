@@ -1,4 +1,4 @@
-/* settings.js — dipindah dari <script> inline (settings.html). */
+/* settings.js — dipindah dari blok script inline (settings.html). */
 (()=>{
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],PD=window.PlayerData,A=UT.Ambience;
 const S=()=>PD.settings();

@@ -1,4 +1,4 @@
-/* splash.js — dipindah dari <script> inline (splash.html). */
+/* splash.js — dipindah dari blok script inline (splash.html). */
 (()=>{
 const $=s=>document.querySelector(s);
 const q=new URLSearchParams(location.search);

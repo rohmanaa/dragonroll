@@ -1,4 +1,4 @@
-/* mode.js — dipindah dari <script> inline (mode.html). */
+/* mode.js — dipindah dari blok script inline (mode.html). */
 (()=>{
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow,fmt=n=>Number(n).toLocaleString('id-ID');
 const buzz=()=>{try{if(PD.settings().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};

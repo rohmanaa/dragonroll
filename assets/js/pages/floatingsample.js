@@ -1,4 +1,4 @@
-/* floatingsample.js — dipindah dari <script> inline (floatingsample.html). */
+/* floatingsample.js — dipindah dari blok script inline (floatingsample.html). */
 /* ================= JS ================= */
 (function () {
   'use strict';

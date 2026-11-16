@@ -1,4 +1,4 @@
-/* leaderboard.js — dipindah dari <script> inline (leaderboard.html). */
+/* leaderboard.js — dipindah dari blok script inline (leaderboard.html). */
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
