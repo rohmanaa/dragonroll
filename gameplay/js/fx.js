@@ -1,5 +1,4 @@
-/* Gameplay FX (Stage 4.1.13) — HANYA efek visual murni: konfeti (kemenangan/teleport/ledakan TNT) dan sparkle peti.
-   Kode dipindahkan APA ADANYA dari gameplay.html (jumlah partikel, ukuran, warna, kecepatan, gravitasi, umur, urutan Math.random tidak diubah).
+/* Gameplay FX — efek visual murni dengan skala perangkat, tier, dan reduced-motion.
    Variasi Math.random di sini hanya untuk tampilan (sebar partikel), bukan hasil gameplay.
    Modul BUKAN pemilik scene/kamera/renderer: scene diberikan gameplay lewat init(scene). Tidak memanggil feedback/HUD, tanpa localStorage, tanpa timer,
    tanpa game loop kedua: update dipanggil dari loop animasi milik gameplay (pada titik yang sama seperti sebelumnya).
@@ -12,8 +11,14 @@
   if (UT.GameplayFX) return;
 
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
-  var currentQuality = null, reducedMq = null, tracked = [];
-  var QUALITY = { low: { scale: 0.5, cap: 120 }, medium: { scale: 1.0, cap: 220 }, high: { scale: 1.3, cap: 320 }, ultra: { scale: 1.6, cap: 450 } };
+  var currentQuality = null, reducedMq = null, tracked = [], configuredQuality = null;
+  var QUALITY = {
+    low: { scale: 0.5, cap: 120, particles: { maxParticles: 40, maxBurst: 12 } },
+    medium: { scale: 1.0, cap: 220, particles: { maxParticles: 60, maxBurst: 20 } },
+    high: { scale: 1.3, cap: 320, particles: { maxParticles: 100, maxBurst: 30 } },
+    ultra: { scale: 1.6, cap: 450, particles: { maxParticles: 150, maxBurst: 45 } }
+  };
+  var ITEM_TIER = { L1: 0.4, L2: 0.8, L3: 1.3, L4: 2.0 };
 
   function detectQuality() {
     try {
@@ -31,10 +36,7 @@
 
   function reduced() {
     try {
-      if (!reducedMq && win.matchMedia) {
-        reducedMq = win.matchMedia('(prefers-reduced-motion: reduce)');
-        if (reducedMq && reducedMq.addEventListener) reducedMq.addEventListener('change', function () {});
-      }
+      if (!reducedMq && win.matchMedia) reducedMq = win.matchMedia('(prefers-reduced-motion: reduce)');
       return !!(reducedMq && reducedMq.matches);
     } catch (e) { return false; }
   }
@@ -44,19 +46,54 @@
     return currentQuality;
   }
 
-  function n(base) {
-    var val = +base || 0;
-    var scale = QUALITY[quality()] ? QUALITY[quality()].scale : 1;
-    var multi = reduced() ? 0.4 : 1;
-    return Math.max(1, Math.round(val * scale * multi));
+  function limit() {
+    var q = QUALITY[quality()] || QUALITY.medium;
+    return q.cap;
+  }
+
+  function tierMultiplier(tier) {
+    var value = tier;
+    if (value && typeof value === 'object') value = value.effectTier || value.itemTier || value.tier;
+    if (typeof value === 'number' && value >= 1 && value <= 4 && Math.floor(value) === value) value = 'L' + value;
+    value = typeof value === 'string' ? value.toUpperCase() : '';
+    return ITEM_TIER[value] || ITEM_TIER.L2;
+  }
+
+  function n(base, tier) {
+    var val = Number(base);
+    if (!isFinite(val)) val = 0;
+    var q = QUALITY[quality()] || QUALITY.medium;
+    var motion = reduced() ? 0.4 : 1;
+    return Math.max(1, Math.min(q.cap, Math.round(val * tierMultiplier(tier) * q.scale * motion)));
+  }
+
+  function activeCount() {
+    return confetti.length + sparks.length + blasts.length;
+  }
+
+  function availableCount() {
+    var q = QUALITY[quality()] || QUALITY.medium;
+    return Math.max(0, q.cap - activeCount());
+  }
+
+  function scaledCount(base, tier, available) {
+    return Math.min(n(base, tier), available == null ? availableCount() : available);
   }
 
   function applyParticlePreset() {
+    if (!win.UT || !win.UT.ParticleFX || typeof win.UT.ParticleFX.configure !== 'function') return;
+    var name = quality(), q = QUALITY[name] || QUALITY.medium;
+    if (configuredQuality === name) return;
+    var preset = q.particles;
     try {
-      if (!win.UT || !win.UT.ParticleFX || typeof win.UT.ParticleFX.configure !== 'function') return;
-      var q = QUALITY[quality()] || QUALITY.medium;
-      win.UT.ParticleFX.configure({ maxParticles: Math.max(60, q.cap), maxBurst: Math.max(8, Math.min(20, Math.round(q.cap / 6))) });
-    } catch (e) {}
+      win.UT.ParticleFX.configure({
+        maxParticles: Math.min(q.cap, preset.maxParticles),
+        maxBurst: Math.min(preset.maxParticles, preset.maxBurst)
+      });
+      configuredQuality = name;
+    } catch (e) {
+      if (win.console && win.console.warn) win.console.warn('[gameplay-fx] konfigurasi ParticleFX gagal', e);
+    }
   }
 
   function track(item) {
@@ -90,9 +127,9 @@
     return true;
   }
 
-  function spawnConfetti(pos) {
+  function spawnConfetti(pos, tier) {
     if (!scene) return;
-    var count = n(110);
+    var count = scaledCount(138, tier);
     for (let i = 0; i < count; i++) {
       const m = new THREE.Mesh(CONF_GEO, CONF_MATS[i % CONF_MATS.length]);
       m.position.set(pos.x, pos.y + 0.8, pos.z);
@@ -101,11 +138,12 @@
     }
   }
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
-  function spawnExplosion(pos, kind) {
+  function spawnExplosion(pos, kind, tier) {
     if (!scene) return;
-    var baseFire = 36, baseSmoke = 22;
-    var q = QUALITY[quality()] || QUALITY.medium;
-    var en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = Math.max(10, n(baseFire)), NS = Math.max(8, n(baseSmoke));
+    var available = availableCount(), baseFire = 45, baseSmoke = 27.5;
+    var en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS;
+    var NB = scaledCount(baseFire, tier, available), NS = scaledCount(baseSmoke, tier, available - NB);
+    if (!NB && !NS) return;
     for (let i = 0; i < NB + NS; i++) {
       const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
       const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : smk[Math.floor(Math.random() * smk.length)]);
@@ -114,14 +152,6 @@
       const sp = fire ? 1.6 + Math.random() * 2.6 : 0.4 + Math.random() * 0.8, an = Math.random() * Math.PI * 2;
       blasts.push({ m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.2 + Math.random() * 2.8 : 0.8 + Math.random() * 1.1, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.5 + Math.random() * 0.4 : 1.0 + Math.random() * 0.7, max: 1 });
       blasts[blasts.length - 1].max = blasts[blasts.length - 1].life;
-    }
-    if (blasts.length > q.cap) {
-      var overflow = blasts.length - q.cap;
-      while (overflow > 0 && blasts.length) {
-        var stale = blasts.shift();
-        if (stale && stale.m && scene) scene.remove(stale.m);
-        overflow--;
-      }
     }
   }
   function updateBlasts(dt) {
@@ -148,9 +178,9 @@
     }
   }
 
-  function sparkle(pos) {
-    if (!scene || reduced()) return;
-    var count = Math.max(1, n(14));
+  function sparkle(pos, tier) {
+    if (!scene) return;
+    var count = scaledCount(18, tier);
     for(let i=0;i<count;i++){
       const m=new THREE.Mesh(SPARK_GEO,new THREE.MeshBasicMaterial({color:i%3?0xFFE58A:0xFFFFFF,transparent:true,fog:false}));
       m.position.set(pos.x+(Math.random()-0.5)*0.3,pos.y,pos.z+(Math.random()-0.5)*0.3); scene.add(m);
@@ -166,5 +196,5 @@
     }
   }
 
-  UT.GameplayFX = { quality: quality, n: n, reduced: reduced, track: track, stopAll: stopAll, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { quality: quality, limit: limit, n: n, reduced: reduced, track: track, stopAll: stopAll, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
 })(window);

@@ -12,7 +12,8 @@
   var UT = win.UT = win.UT || {};
   if (UT.ParticleFX) return;
 
-  var LIMITS = { maxParticles: 60, maxBurst: 20 }; /* batas total di layar & per burst (hemat Android) */
+  var LIMITS = { maxParticles: 60, maxBurst: 20 }; /* Medium: batas total & per burst lama */
+  var MAX_PARTICLES = 450, MAX_BURST = 80;
   var layer = null, live = 0, mq = null;
   var EASE_RE = /^(linear|ease|ease-in|ease-out|ease-in-out|steps\(\s*\d{1,2}\s*(,\s*(start|end)\s*)?\)|cubic-bezier\(\s*-?[\d.]+(\s*,\s*-?[\d.]+){3}\s*\))$/; /* whitelist: ease hanya nilai aman */
 
@@ -95,8 +96,12 @@
   function clear() { try { if (layer) layer.textContent = ''; live = 0; } catch (e) {} }
   function configure(c) {
     if (!c) return LIMITS;
-    if (isFinite(+c.maxParticles)) LIMITS.maxParticles = Math.max(1, Math.min(120, +c.maxParticles));
-    if (isFinite(+c.maxBurst)) LIMITS.maxBurst = Math.max(1, Math.min(30, +c.maxBurst));
+    var globalCap = MAX_PARTICLES, fx = win.UT && win.UT.GameplayFX;
+    if (fx && typeof fx.limit === 'function') globalCap = Math.min(globalCap, fx.limit());
+    LIMITS.maxParticles = Math.min(LIMITS.maxParticles, globalCap);
+    if (isFinite(+c.maxParticles)) LIMITS.maxParticles = Math.max(1, Math.min(globalCap, +c.maxParticles));
+    if (isFinite(+c.maxBurst)) LIMITS.maxBurst = Math.max(1, Math.min(MAX_BURST, +c.maxBurst));
+    LIMITS.maxBurst = Math.max(1, Math.min(LIMITS.maxBurst, LIMITS.maxParticles, globalCap));
     return LIMITS;
   }
 

@@ -237,6 +237,7 @@ renderer.setClearColor(0x000000,0);
 const scene=new THREE.Scene();
 const FX=(window.UT&&UT.GameplayFX)||null; /* modul tak termuat -> efek visual dilewati, gameplay tetap jalan */
 if(FX) FX.init(scene);
+function fxReduced(){ return FX&&typeof FX.reduced==='function'?FX.reduced():reduce; }
 const camera=new THREE.PerspectiveCamera(38,1,0.1,250);
 
 const hemi=new THREE.HemisphereLight(0xFFFFFF,0xB9D7A0,0.84);
@@ -2776,7 +2777,7 @@ function setBossFightFx(active){
   else if(!root.classList.contains('hit')) root.classList.remove('active');
 }
 function bossCinemaHit(){
-  if(reduce) return;
+  if(fxReduced()) return;
   let layer=document.getElementById('hitFx');
   if(!layer){ layer=document.createElement('div'); layer.id='hitFx'; document.body.appendChild(layer); }
   const add=(cls,style)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,style||{}); layer.appendChild(e); setTimeout(()=>e.remove(),800); };
@@ -5332,12 +5333,12 @@ async function celebrate(p){
 /* Efek hit 2D di posisi pion: gelombang + garis angin + flash merah + guncangan layar */
 function hitBlastFx(p){
   if(MP_SEQ===0) mpCue({k:'hitfx',pid:p&&p.networkId});
-  if(reduce) return;
   try{
     let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
     const r=$('c').getBoundingClientRect(),v=p.pawn.position.clone(); v.y+=0.6; v.project(camera);
     const x=r.left+(v.x*0.5+0.5)*r.width,y=r.top+(-v.y*0.5+0.5)*r.height;
-    const add=(cls,st)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,st||{}); L.appendChild(e); setTimeout(()=>e.remove(),800); };
+    const add=(cls,st,text)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,st||{}); if(text) e.textContent=text; L.appendChild(e); setTimeout(()=>e.remove(),800); };
+    if(fxReduced()){ add('hf-static-hit',{left:x+'px',top:y+'px'},'TERKENA'); return; }
     add('hf-cinema');
     add('hf-wave',{left:x+'px',top:y+'px'});
     [-26,-8,10,28].forEach((d,i)=>add('hf-wind',{left:(x-20+i*6)+'px',top:(y+d)+'px',animationDelay:(i*40)+'ms'}));
