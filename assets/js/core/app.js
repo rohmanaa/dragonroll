@@ -163,13 +163,13 @@ window.UT = window.UT || {};
   };
 
   /* ================= Audio (fondasi; TIDAK menggantikan WebAudio gameplay) ================= */
-  var SFX_BASE = 'assets/sfx/';
+  var SFX_BASE = 'assets/audio/sfx/';
   var SFX = {                       /* nama logis -> file yang ADA di assets/sfx */
     button: 'ui/button-click.mp3',
     chest: 'ui/chest-reward.mp3',
-    kalah: 'ui/game-lose.mp3',
+    kalah: '../../sfx/ui/game-lose.mp3',
     power: 'ui/power-claim.mp3',
-    notif: 'notification.mp3'        /* notif undangan teman (presence.js); file di root assets/sfx/ */
+    notif: 'notification.mp3'        /* notif undangan teman (presence.js); file di root assets/audio/sfx/ */
   };
   var audioCache = {}, muted = false, volume = 1;
   UT.Audio.sources = SFX;

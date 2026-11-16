@@ -10,7 +10,7 @@ const shellSync=()=>{try{if(parent&&parent!==window&&parent.UTShell)parent.UTShe
 $('#musicVol').addEventListener('input',e=>{PF().set('musicVol',+e.target.value);$('#musicVolV').textContent=e.target.value+'%';shellSync()});
 $('#sfxVol').addEventListener('input',e=>{PF().set('sfxVol',+e.target.value);$('#sfxVolV').textContent=e.target.value+'%'});
 $('#sfxVol').addEventListener('change',()=>{try{UT.Audio.play('button')}catch(e){}});
-const IC='assets/ng/komponen/';
+const IC='assets/images/ui/';
 function render(){
  paintVol();
  const T=S();

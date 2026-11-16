@@ -10,7 +10,7 @@
 .ir.tap{cursor:pointer}
 /* baris Koleksi/Statistik = aset baris-ranking.webp (sama dengan halaman lain), bukan kotak CSS */
 .kr,.sr{background:none;border:0;isolation:isolate}
-.kr::before,.sr::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../../assets/ng/komponen/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+.kr::before,.sr::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
 .sr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .sr .v{flex:none;min-width:0;white-space:nowrap}
 .sr .v small{white-space:nowrap}
@@ -18,5 +18,5 @@
 
 /* Latar halaman profil: SATU gambar cover penuh layar. Layar biasa (<2:1) = profile-bg.webp (16:9); layar lebar (>=2:1) = profile-bg-wide.webp
    (kelas html.pf-wide diatur fit() di profile.js). Lapis bawah = linear-gradient ungu sebagai pengaman sebelum gambar termuat / bila ada celah. */
-html,body.pf{background:url(../../Images/background/profile-bg.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
-html.pf-wide,html.pf-wide body.pf{background:url(../../Images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
+html,body.pf{background:url(../../images/background/profile-bg.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
+html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}

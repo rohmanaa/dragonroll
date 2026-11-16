@@ -122,18 +122,18 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 @keyframes inL{from{opacity:0;transform:translateX(-90px)}}@keyframes inR{from{opacity:0;transform:translateX(120px)}}
 /* ---- bingkai dari kit (9-slice) ---- */
 #maps{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-#maps::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#maps::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 .card{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-.card::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.card::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 #quick .face{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-#quick .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+#quick .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../ng/komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 #create .face{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-#create .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../komponen/hud/kartu-kosong-hijau.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+#create .face::before{content:'';position:absolute;inset:-2px;border:20px solid transparent;border-image:url(../images/ui/hud/kartu-kosong-hijau.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .card .tiles{left:34px;right:34px}
 /* ---- pita judul dari kit ---- */
-#maps h3{background:url(../komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
-#quick .hd{background:url(../komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
-#create .hd{background:url(../komponen/banner-label/banner-judul-hijau-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
+#maps h3{background:url(../ng/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+#quick .hd{background:url(../ng/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
+#create .hd{background:url(../images/ui/banner-label/banner-judul-hijau-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-38px!important;left:36px!important;line-height:64px;}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 /* pilihan jumlah peserta: tersusun BARIS (atas-bawah), bukan kolom */
@@ -144,4 +144,4 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .back{padding:14px 16px 16px;gap:8px}
 .back .q{font-size:28px}
 /* latar voxel langit (sama caranya dengan tambang.css: lapisan tetap di belakang #wrap, agak transparan di atas gradien ungu bg.css) */
-body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/mode-voxel-langit.webp) center/cover no-repeat;opacity:.35}
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/mode-voxel-langit.webp) center/cover no-repeat;opacity:.35}

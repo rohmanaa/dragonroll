@@ -5,7 +5,7 @@ html{font-size:min(calc(100vw/120),calc(100vh/67.5))}
 html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:hidden}
 #scene{position:fixed;inset:0;overflow:hidden}
 #cave{position:absolute;inset:0;
-  background:url(../../Images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
+  background:url(../images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
 /* TAP TO START: latar sama persis dengan saat loading (splash-loading.webp) */
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}
@@ -17,11 +17,11 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 /* bar loading: bingkai logam 9-slice (ujung runcing tidak melar) */
 #loadbox{position:absolute;left:3vw;right:3vw;bottom:2.2rem;height:5.25rem}
 #loadbox .frm{display:none}
-#loadbox::before{content:'';position:absolute;inset:0;border-style:solid;border-width:0 3.75rem;border-image:url(../komponen/logo/bar-loading-bingkai-kosong.webp) 0 60 0 60 fill stretch;pointer-events:none}
+#loadbox::before{content:'';position:absolute;inset:0;border-style:solid;border-width:0 3.75rem;border-image:url(../images/ui/logo/bar-loading-bingkai-kosong.webp) 0 60 0 60 fill stretch;pointer-events:none}
 /* area isi mengikuti rongga bingkai (ujung kiri & kanan RUNCING seperti bingkai, jadi di 100% isi penuh sampai ujung) */
 #bar{position:absolute;left:1.62rem;right:1.68rem;top:1.28rem;bottom:1.35rem;overflow:hidden;background:#241c1f;
   clip-path:polygon(1.25rem 0,calc(100% - 1.15rem) 0,100% 50%,calc(100% - 1.15rem) 100%,1.25rem 100%,0 50%)}
-#fill{display:block;height:100%;width:0;background:url(../komponen/logo/bar-loading-isi-biru.webp) center/calc(100% + 3rem) 100% no-repeat;transition:width .15s}
+#fill{display:block;height:100%;width:0;background:url(../images/ui/logo/bar-loading-isi-biru.webp) center/calc(100% + 3rem) 100% no-repeat;transition:width .15s}
 #lbl{position:absolute;left:0;right:0;top:1.28rem;bottom:1.35rem;display:grid;place-items:center;font:800 1.9rem var(--font-body);color:#fff;text-shadow:0 .12rem .12rem rgba(0,0,0,.6)}
 
 /* tombol */
@@ -38,7 +38,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 .amodal{position:fixed;inset:0;background:rgba(6,4,12,.66);display:none;place-items:center;z-index:50}
 .amodal.on{display:grid}
 .dlg{position:relative;width:min(51.9rem,94vw);isolation:isolate;margin-top:-1rem}
-.dlg::before{content:'';position:absolute;inset:-.4rem;border:1.4rem solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 1.4rem stretch;z-index:-1;pointer-events:none}
+.dlg::before{content:'';position:absolute;inset:-.4rem;border:1.4rem solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 1.4rem stretch;z-index:-1;pointer-events:none}
 .dh{position:relative;height:5.25rem;margin:0 .4rem;display:grid;place-items:center;background:#221e30;font:400 2.75rem var(--font-title);color:#ffd98e;text-shadow:0 .12rem 0 rgba(0,0,0,.5)}
 .x{position:absolute;right:0;top:0;width:6rem;height:5.25rem;display:grid;place-items:center;background:#2c283c;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%,0 50%)}
 .x img{width:2.5rem;height:2.5rem}
@@ -52,8 +52,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 .inp:focus-within{background:#241d36}
 .rem{display:flex;align-items:center;gap:1.4rem;font:700 2rem var(--font-body);color:#fff;cursor:pointer;margin:.2rem 0 0 .2rem;position:relative}
 .rem input{position:absolute;opacity:0;width:0;height:0}
-.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../komponen/tombol-dan-kontrol/checkbox-kosong.webp) center/100% 100% no-repeat}
-.rem input:checked+.cb{background-image:url(../komponen/tombol-dan-kontrol/checkbox-dicentang.webp)}
+.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../images/tombol/checkbox-kosong.webp) center/100% 100% no-repeat}
+.rem input:checked+.cb{background-image:url(../images/tombol/checkbox-dicentang.webp)}
 .err{min-height:2.2rem;color:#ff9a9a;font:800 1.6rem var(--font-body);text-align:center}
 .err.info{color:#ffd98e}
 .btn.blue{width:100%;height:7rem}

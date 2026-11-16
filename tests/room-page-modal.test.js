@@ -27,7 +27,7 @@ test('equipment slots open their corresponding full-screen page modal', () => {
   assert.ok(/id="pageModalFrame"/.test(room));
   assert.ok(!room.includes('pageModalClose'));
   assert.ok(room.includes('id="pageModalLoading"'));
-  assert.ok(room.includes('assets/ng/komponen/hud/efek-titik-berputar.webp'));
+  assert.ok(room.includes('assets/images/ui/hud/efek-titik-berputar.webp'));
   assert.ok(room.includes("classList.add('on','loading')"));
 });
 
@@ -40,7 +40,7 @@ test('equipment modal fills the viewport with an opaque backdrop outside the Roo
   assert.ok(bridge.includes('background:#4b4162!important'));
   assert.ok(bridge.includes('background:#483e60!important'));
   assert.ok(!bridge.includes('background:transparent'), 'embedded page uses an opaque Room background');
-  assert.ok(read('assets/ng/css/room.css').includes('--room-backdrop:#4b4162'));
+  assert.ok(read('assets/css/legacy-pages/room.css').includes('--room-backdrop:#4b4162'));
   const bootGuard = read('assets/js/boot-guard.js');
   assert.ok(bootGuard.includes("get('from') === 'room'"), 'embedded pages skip the cinematic black fade');
 });
@@ -59,7 +59,7 @@ test('embedded pages close the parent modal from their back controls', () => {
 
 test('effects page keeps its back button and removes the home button', () => {
   const effect = read('efek.html');
-  const pageCss = read('assets/ng/css/page.css');
+  const pageCss = read('assets/css/page.css');
   assert.ok(effect.includes('id="back"'));
   assert.ok(!effect.includes('id="home"'));
   assert.ok(!effect.includes("$('#home')"));

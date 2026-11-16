@@ -170,15 +170,15 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .sidecard .tm b{color:#ffd45a}
 /* ---- bingkai dari kit (9-slice) ---- */
 .panel{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
-.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 .tile{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-.tile::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+.tile::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../../ng/komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 /* tile besar navigasi bawah (TOKO, TEMAN, HADIAH & MISI, TAMBANG): bingkai webp kit, bukan panel CSS */
-#nav .tile.big::before{inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
+#nav .tile.big::before{inset:-8px;border:22px solid transparent;border-image:url(../../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
 #quest{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
-#quest::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#quest::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 /* ---- pita judul dari kit ---- */
-.panel>h3{background:url(../komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+.panel>h3{background:url(../../ng/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 /* ---- latar full-bleed: langit menutupi SELURUH layar; isi lobby tetap di kontainer landscape 1920x1080 ---- */
@@ -193,7 +193,7 @@ html,body{background:#0e0b1c!important} /* latar lobby = scene-bg.js (lobby-bg.w
 /* tile menu bawah: bentuk tile ungu dipotong dari referensi */
 #nav{gap:40px}
 .big{width:188px;height:136px;margin-top:40px;border-radius:0}
-#nav .tile.big::before{inset:0;border:0;border-image:none;background:url(../komponen/tombol-dan-kontrol/tile-menu-bawah.webp) center/100% 100% no-repeat;filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
+#nav .tile.big::before{inset:0;border:0;border-image:none;background:url(../../images/tombol/tile-menu-bawah.webp) center/100% 100% no-repeat;filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
 .big .lb{font-size:30px;padding-bottom:10px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.7);-webkit-text-stroke:1px rgba(20,10,40,.6);paint-order:stroke fill}
 .big .lk{position:absolute;right:8px;bottom:4px;width:34px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
 #nav .tile.locked{filter:saturate(.5) brightness(.85)}

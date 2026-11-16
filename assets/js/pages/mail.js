@@ -4,7 +4,7 @@ const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Kotak masuk = SERVER (supabase/migrations/202611260001_player_mail.sql) lewat UT.MailService. Tidak ada surat/dompet tiruan:
    tanpa akun login halaman hanya menampilkan ajakan masuk. Hadiah masuk ke dompet server (MailService mencerminkannya ke PlayerData). */
-const PD=window.PlayerData,IC='assets/ng/komponen/';
+const PD=window.PlayerData,IC='assets/images/ui/';
 const MS=()=>window.UT&&UT.MailService&&UT.MailService.get(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const SV=()=>!!(PD.serverMode&&PD.serverMode());
 const esc=s=>String(s==null?'':s).replace(/[&<>"\x27]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

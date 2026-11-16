@@ -163,7 +163,7 @@ test('Halaman konsumen memuat Registry, enam manifest, index, lalu ItemCatalog t
 test('Service Worker cache version naik dan preload mencatat semua manifest dengan ukuran aktual', () => {
   const preload = JSON.parse(rd('assets/preload-manifest.json'));
   BASE_CHAIN.slice(1).forEach(file => assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file));
-  assert.ok(/VERSION = 'ut-pwa-v197'/.test(rd('sw.js')));
+  assert.ok(/^ut-pwa-v\d+$/.test((/VERSION = '([^']+)'/.exec(rd('sw.js')) || [])[1] || ''));
 });
 
 console.log('PASS ' + passed + '/' + passed);

@@ -3,7 +3,7 @@
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Data = SERVER (RoomService.getLeaderboard -> RPC get_leaderboard). Tidak ada data contoh. Avatar pemain lain = tampilan asli dari server (AppearanceService). */
-const PD=window.PlayerData,IC='assets/ng/komponen/';
+const PD=window.PlayerData,IC='assets/images/ui/';
 const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};

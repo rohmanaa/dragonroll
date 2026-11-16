@@ -4,21 +4,21 @@
 <title>Dragon Roll — Pengaturan</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/page.css"><link rel="stylesheet" href="assets/ng/css/settings.css"><link rel="stylesheet" href="assets/ng/css/bg.css">
+<link rel="stylesheet" href="assets/css/common.css"><link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/css/settings.css"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/core/prefs.js"></script><script src="assets/js/core/prefs-sync.js"></script><script src="assets/js/systems/ambience.js"></script>
 </head>
 <body class="sub">
 <div id="wrap"><div id="stage">
-  <button id="back" aria-label="Kembali"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-rumah-abu.webp" alt=""></button>
+  <button id="back" aria-label="Kembali"><img src="assets/images/tombol/tombol-rumah-abu.webp" alt=""></button>
   <div id="title" class="ttl">PENGATURAN</div>
 
   <!-- kolom kiri: suara & getar -->
   <section id="rows">
-    <div class="row"><img class="ic" id="ic-sfx" src="assets/ng/komponen/ikon-pengaturan/ikon-speaker.webp" alt=""><em>Efek suara</em>
+    <div class="row"><img class="ic" id="ic-sfx" src="assets/images/ui/ikon-pengaturan/ikon-speaker.webp" alt=""><em>Efek suara</em>
       <input type="range" id="sfxVol" min="0" max="100" step="5" aria-label="Volume efek suara"><span class="val" id="sfxVolV"></span><button class="tg" data-tg="sound" aria-label="Efek suara"></button></div>
-    <div class="row"><img class="ic" id="ic-music" src="assets/ng/komponen/ikon-pengaturan/ikon-musik-mati.webp" alt=""><em>Musik</em>
+    <div class="row"><img class="ic" id="ic-music" src="assets/images/ui/ikon-pengaturan/ikon-musik-mati.webp" alt=""><em>Musik</em>
       <input type="range" id="musicVol" min="0" max="100" step="5" aria-label="Volume musik"><span class="val" id="musicVolV"></span><button class="tg" data-tg="music" aria-label="Musik"></button></div>
-    <div class="row"><img class="ic" src="assets/ng/komponen/ikon-pengaturan/ikon-getar.webp" alt=""><em>Getar</em>
+    <div class="row"><img class="ic" src="assets/images/ui/ikon-pengaturan/ikon-getar.webp" alt=""><em>Getar</em>
       <span class="sp"></span><button class="tg" data-tg="vibration" aria-label="Getar"></button></div>
   </section>
 
@@ -29,18 +29,18 @@
     <div class="grp"><div class="cap">SUASANA</div><div class="seg" id="seg-amb"><button data-amb="day">Siang</button><button data-amb="night">Malam</button><button data-amb="system">Sistem</button></div>
       <div id="sysn"></div></div>
     <div class="grp"><div class="cap">BAHASA</div>
-      <button class="btn" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/ng/komponen/tombol-dan-kontrol/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
+      <button class="btn" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/images/tombol/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
   </section>
 
   <div id="line"></div>
-  <button class="btn" id="logout"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>KELUAR AKUN</span></button>
+  <button class="btn" id="logout"><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>KELUAR AKUN</span></button>
 
   <!-- konfirmasi keluar -->
   <div id="confirm" role="dialog" aria-modal="true" aria-labelledby="cf-t"><div id="cbox">
     <div id="cf-t" class="ttl">KELUAR AKUN?</div>
     <div id="cf-s">Koin, item, dan progres tetap tersimpan dan kembali saat kamu login lagi.</div>
     <div class="cbtns">
-      <button class="btn" id="cf-no"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
+      <button class="btn" id="cf-no"><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
       <button class="btn" id="cf-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
     </div>
   </div></div>

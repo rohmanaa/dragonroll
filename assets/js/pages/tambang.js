@@ -49,7 +49,7 @@ function showErr(reason){
 }
 
 /* ---------- UI slot ---------- */
-const EM='assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp',CN='assets/ng/komponen/hud/ikon-koin-emas.webp',LK='assets/ng/komponen/glyph-putih/gembok.webp',BG='assets/ng/komponen/tombol-dan-kontrol/';
+const EM='assets/images/ui/ikon-gem-medali/berlian-hijau.webp',CN='assets/ng/komponen/hud/ikon-koin-emas.webp',LK='assets/images/ui/glyph-putih/gembok.webp',BG='assets/ng/komponen/tombol-dan-kontrol/';
 const WIN=(i,pill)=>'<div class="win"><canvas class="cvv" data-v="'+i+'"></canvas>'+(pill?'<div class="pill"><img src="'+EM+'" alt=""><b class="bt"></b></div>':'')+'</div>';
 function slotHTML(i){
   const s=ST.slots[i-1];

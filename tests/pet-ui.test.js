@@ -14,7 +14,7 @@ assert.ok(html.includes('<div class="pet-info-panel">'));
 assert.ok(!html.includes('glyph-putih/info-bulat.webp'));
 assert.ok(!html.includes('id="home"'));
 assert.deepStrictEqual(
-  fs.readFileSync(path.join(root, 'assets/ng/komponen/glyph-putih/seru-bulat.webp')),
+  fs.readFileSync(path.join(root, 'assets/images/ui/glyph-putih/seru-bulat.webp')),
   fs.readFileSync(path.join(root, 'referensi/newgui/game/assets/komponen/glyph-putih/seru-bulat.webp'))
 );
 assert.ok(css.includes('.cur{z-index:6}'));

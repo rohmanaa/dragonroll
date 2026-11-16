@@ -38,7 +38,7 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 .card{position:relative;width:140px;height:236px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:8px 6px 8px;cursor:pointer;animation:pop .35s both;transition:transform .1s}
 .card::before{content:'';position:absolute;inset:-2px;border:16px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;z-index:-1;pointer-events:none}
 .card{isolation:isolate}
-.card.sel::before{border-image-source:url(../komponen/hud/kartu-kosong-oranye.webp)}
+.card.sel::before{border-image-source:url(../../images/ui/hud/kartu-kosong-oranye.webp)}
 .card:hover{transform:translateY(-3px)}
 @keyframes pop{from{opacity:0;transform:scale(.88)}}
 .card .th{position:relative;flex:1;min-height:0;width:100%;display:grid;place-items:center}
@@ -50,9 +50,9 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 .card .nm{font:400 22px/1.1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card .bt{display:flex;flex:0 0 56px;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:10px;overflow:hidden;white-space:nowrap;font:400 24px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../komponen/tombol-dan-kontrol/tombol-biru-polos.webp) center/100% 100% no-repeat}
 .card .bt .coin{position:static;width:28px;height:28px;object-fit:contain}
-.card .bt.owned{background-image:url(../komponen/tombol-dan-kontrol/tombol-abu-polos.webp);color:#34445f;text-shadow:0 1px 0 rgba(255,255,255,.65)}
+.card .bt.owned{background-image:url(../../images/tombol/tombol-abu-polos.webp);color:#34445f;text-shadow:0 1px 0 rgba(255,255,255,.65)}
 .card .bt.own{background-image:url(../komponen/tombol-dan-kontrol/tombol-hijau-polos.webp)}
-.card .bt.no{background-image:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp);color:#d0d0e0}
+.card .bt.no{background-image:url(../../images/tombol/tombol-gelap-polos.webp);color:#d0d0e0}
 .card.lk .th{filter:grayscale(1) brightness(.55);opacity:.8}
 .card .ck{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;background:var(--g);border:3px solid #fff;display:grid;place-items:center;z-index:2}
 .card .ck svg{width:18px;height:18px}
@@ -89,7 +89,7 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 #eqR{left:772px}
 .eq{position:relative;width:124px;height:124px;padding:0;background:url(../komponen/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 .eq:hover{filter:brightness(1.15)}.eq:active{transform:scale(.95)}
-.eq.sel{background-image:url(../komponen/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.eq.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
 .eq.empty .en{color:#b9b2d6}
 .eq .th{position:absolute;left:8px;right:8px;top:6px;bottom:26px;display:grid;place-items:center}
 .eq .th .em{font-size:42px;line-height:1}

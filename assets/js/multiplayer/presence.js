@@ -15,10 +15,10 @@ function track(){if(ch&&me)ch.track({id:me.id,name:me.name,status:status}).catch
    (tidak memblokir pengirim: undangan baru dari dia tetap muncul dengan hitungan baru). Pengirim tetap dibatasi 8 dtk per target (lihat invite()). */
 const INV_GAP=10000,INV_MAX=3,INV_VISIBLE=7000;
 let invState=null;
-function invSfx(){ /* aset: assets/sfx/notification.mp3 via UT.Audio (nama 'notif' di app.js; ikut mute). Halaman tanpa app.js: putar langsung, hormati pengaturan suara */
+function invSfx(){ /* aset: assets/audio/sfx/notification.mp3 via UT.Audio (nama 'notif' di app.js; ikut mute). Halaman tanpa app.js: putar langsung, hormati pengaturan suara */
  try{const A=window.UT&&window.UT.Audio;if(A&&A.sources&&A.sources.notif){A.play('notif');return}
   const PD=window.PlayerData,st=PD&&PD.settings&&PD.settings();if(st&&st.sound===false)return;
-  const a=new Audio('assets/sfx/notification.mp3');a.volume=.8;const r=a.play();if(r&&r.catch)r.catch(()=>{});}catch(e){}
+  const a=new Audio('assets/audio/sfx/notification.mp3');a.volume=.8;const r=a.play();if(r&&r.catch)r.catch(()=>{});}catch(e){}
 }
 function clearInvite(){if(invState){clearTimeout(invState.tShow);clearTimeout(invState.tHide);invState=null}const o=document.getElementById('ut-invite');if(o)o.remove()}
 function showInvite(p){

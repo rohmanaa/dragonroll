@@ -6,7 +6,7 @@ const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletServic
 const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString("id-ID");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-const K="assets/ng/komponen/",G=K+"glyph-putih/";
+const K="assets/images/ui/",G=K+"glyph-putih/";
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 const snd=n=>{try{if(SET().sound)UT.Audio.play(n||"button")}catch(e){}};
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),1800)}

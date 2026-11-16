@@ -5,9 +5,9 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
-assert.ok(lobby.includes('assets/ng/css/lobby.css'));
+assert.ok(lobby.includes('assets/css/legacy-pages/lobby.css'));
 assert.ok(lobby.includes('assets/css/scene-bg.css'));
-assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/Images/background/lobby-kastel.webp" data-lights="lobby"'));
+assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"'));
 assert.ok(lobby.includes('.sbg-clouds{display:none!important}'));
 assert.ok(lobby.includes('.sbg-stars,.sbg-moon,.sbg-fog,.sbg-rays{display:none!important}'));
 assert.ok(lobby.includes('.sbg-lights{opacity:.3}'));
@@ -26,24 +26,24 @@ assert.ok(lobby.includes('assets/js/floating-island.js'));
 assert.ok(lobby.includes('UT.FloatingIsland.contactShadow(THREE'));
 assert.ok(!lobby.includes('UT.FloatingIsland.create(THREE'));
 assert.ok(!lobby.includes('id="bdrop"'));
-assert.ok(lobby.includes('assets/Images/background/lobby-kastel.webp'));
+assert.ok(lobby.includes('assets/images/background/lobby-kastel.webp'));
 assert.ok(!lobby.includes('lobby-bg.webp'));
-assert.ok(lobby.includes('assets/Images/icon/currency/coin.webp'));
-assert.ok(!lobby.includes('assets/Images/icon/mode/console.webp'));
+assert.ok(lobby.includes('assets/images/icon/currency/coin.webp'));
+assert.ok(!lobby.includes('assets/images/icon/mode/console.webp'));
 assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})'));
 assert.ok(lobby.includes('AUR.update(motionDt)'));
 assert.ok(lobby.includes('bc.tick(motionDt)'));
 assert.ok(lobby.includes('const lobbyActs='));
 assert.ok(!lobby.includes("$('#md').classList"));
 
-const background = PG.readFileSync(path.join(root, 'assets/Images/background/lobby-kastel.webp'));
+const background = PG.readFileSync(path.join(root, 'assets/images/background/lobby-kastel.webp'));
 assert.strictEqual(background.toString('ascii', 0, 4), 'RIFF');
 assert.strictEqual(background.toString('ascii', 8, 12), 'WEBP');
-for (const icon of ['assets/Images/icon/currency/coin.webp']) {
+for (const icon of ['assets/images/icon/currency/coin.webp']) {
   const image = PG.readFileSync(path.join(root, icon));
   assert.strictEqual(image.toString('ascii', 0, 4), 'RIFF');
   assert.strictEqual(image.toString('ascii', 8, 12), 'WEBP');
 }
-assert.ok(lobby.includes('assets/ng/komponen/ikon-item/podium.webp'));
-assert.ok(lobby.includes('assets/ng/komponen/tombol-dan-kontrol/tombol-play-lobby.webp'));
+assert.ok(lobby.includes('assets/images/ui/ikon-item/podium.webp'));
+assert.ok(lobby.includes('assets/images/tombol/tombol-play-lobby.webp'));
 console.log('ok - lobby keeps ui-newgui HUD over main WebP backdrop, character, aura, and animations');

@@ -1251,7 +1251,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 function confirmBuy(ci){
   const coins=PD.coins(),ok=coins>=ci.price;
   openModal(ok
-    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
@@ -1270,7 +1270,7 @@ function confirmBuySet(set){
   const coins=PD.coins(),ok=coins>=set.total,nm=set.n.replace(/^\S+\s/,'');
   const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2rem;margin:.4rem 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
   openModal(ok
-    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/Images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
+    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
@@ -1316,7 +1316,7 @@ function renderTabs(){
   tabsEl.innerHTML='';subsEl.innerHTML='';
   GROUPS.forEach((g,i)=>{
     const b=document.createElement('button');b.className='cat tab'+(i===gi?' on':'');
-    b.innerHTML='<span class="ce"></span><span class="cl"></span><img class="ul" src="assets/ng/komponen/ikon-navigasi/garis-bawah-tab-emas.webp" alt="">';
+    b.innerHTML='<span class="ce"></span><span class="cl"></span><img class="ul" src="assets/images/ui/ikon-navigasi/garis-bawah-tab-emas.webp" alt="">';
     b.querySelector('.ce').textContent=g.ico;b.querySelector('.cl').textContent=g.name;
     b.setAttribute('aria-label',g.name);
     b.addEventListener('click',()=>{if(i!==gi||!g.keys.includes(CATS[cat].key))goCat(g.keys[0]);});

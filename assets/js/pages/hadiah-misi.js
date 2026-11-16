@@ -4,7 +4,7 @@ const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Semua status & klaim = SERVER: hadiah harian (daily_reward_get / claim_daily_reward) dan misi (quest_get / quest_claim*) lewat UT.WalletService.
    Hari reset = WIB. Klien hanya menampilkan; nominal & item ditentukan server. Tanpa akun login: hanya ajakan masuk, tidak ada data tiruan. */
-const PD=window.PlayerData,IC='assets/ng/komponen/',Q=UT.Quest,AC=UT.Achievement;
+const PD=window.PlayerData,IC='assets/images/ui/',Q=UT.Quest,AC=UT.Achievement;
 const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(20)};

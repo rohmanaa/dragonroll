@@ -124,17 +124,17 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 @keyframes inL{from{opacity:0;transform:translateX(-90px)}}@keyframes inR{from{opacity:0;transform:translateX(120px)}}
 /* ---- bingkai dari kit (9-slice) ---- */
 .panel{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
-.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 .slot{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-.slot::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+.slot::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../../ng/komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .it{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-.it::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
+.it::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../../ng/komponen/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .pl:not(.empty){background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
-.pl:not(.empty)::before{content:'';position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../komponen/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
-.it.sel::before{border-image-source:url(../komponen/hud/kartu-kosong-oranye.webp)}
+.pl:not(.empty)::before{content:'';position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+.it.sel::before{border-image-source:url(../../images/ui/hud/kartu-kosong-oranye.webp)}
 /* ---- pita judul dari kit ---- */
-.panel>h3{background:url(../komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
-#players h3{background:url(../komponen/banner-label/banner-judul-hijau-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+.panel>h3{background:url(../../ng/komponen/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
+#players h3{background:url(../../images/ui/banner-label/banner-judul-hijau-polos.webp) center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:84px;padding:0 54px!important;line-height:60px;-webkit-text-stroke:1.5px rgba(20,10,40,.6);paint-order:stroke fill;top:-34px!important;}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 /* ---- slot terkunci (solo): panel terkunci, host bisa membuka ---- */
 .pl.lock{width:100%;cursor:pointer;opacity:.85;gap:18px;border-color:#6d6590;background:rgba(20,15,40,.6)!important;justify-content:center;transition:filter .1s,transform .1s}
@@ -143,4 +143,4 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .pl.lock b{padding:6px 20px;border-radius:10px;background:#5a5180;border:3px solid #2b2550;font:400 24px var(--font-title);color:#fff}
 .pl.lock:hover{filter:brightness(1.2)}.pl.lock:active{transform:scale(.98)}
 /* latar voxel malam (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
-body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/room-voxel-malam.webp) center/cover no-repeat;opacity:.35}
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../images/background/room-voxel-malam.webp) center/cover no-repeat;opacity:.35}

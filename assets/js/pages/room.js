@@ -74,7 +74,7 @@ async function setupOnline(){
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
 const EQ=[['dice','DICE','DADU'],['skin','KARAKTER','KARAKTER'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
 /* Efek: belum ada item efek di katalog (Shop/Inventory masih "segera"), jadi slot ini baru placeholder */
-const EFFECT_ICON='assets/ng/komponen/ikon-gem-medali/kristal-api.webp';
+const EFFECT_ICON='assets/images/ui/ikon-gem-medali/kristal-api.webp';
 /* Slot KARAKTER = karakter baru (halaman Karakter): gambar kepala dari BlockyCharacter, dimuat malas (three.js hanya dipakai untuk ini). CHANGE -> karakter.html */
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
@@ -216,7 +216,7 @@ async function loadLooks(){
  }catch(e){}
 }
 function avatar(p){
- if(p.kind==='bot')return '<span class="av"><img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false"></span>';
+ if(p.kind==='bot')return '<span class="av"><img src="assets/images/icon/mode/robot.webp" alt="" draggable="false"></span>';
  const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId;
  /* pemain sendiri: foto profil = wajah karakter yang dipakai + frame yang sedang dipakai (sama dengan Lobby) */
  if(isMe&&window.UT&&UT.CharacterFace&&window.FrameAvatar){const f=UT.CharacterFace.html('');if(f)return FrameAvatar.wrap('<span class="av av-face">'+f+'</span>','4.2rem',FrameAvatar.mine())}
@@ -241,7 +241,7 @@ function srow(team){if(!ONLINE)return'';
  if(!HOST)return `<div class="pl empty">Slot kosong</div>`;
  return `<button class="pl empty" data-share="1">＋ UNDANG TEMAN</button>`}
 /* slot terkunci: online -> sentuh untuk membuka (host); offline -> hanya penanda terkunci */
-function lrow(){const lk='<img src="assets/ng/komponen/glyph-putih/gembok.webp" alt="" draggable="false">';
+function lrow(){const lk='<img src="assets/images/ui/glyph-putih/gembok.webp" alt="" draggable="false">';
  if(ONLINE)return `<button class="pl empty lock" data-open="1" aria-label="Sentuh untuk membuka">${lk}<span>SLOT TERKUNCI</span><b>${HOST?'BUKA':'HOST'}</b></button>`;
  return `<div class="pl empty lock static" aria-label="Slot terkunci">${lk}<span>SLOT TERKUNCI</span></div>`}
 function renderPlayers(){
@@ -273,7 +273,7 @@ function check(){const P=S.room.players,h=me();
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
 function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textContent=(c.ok?'✅ ':'⏳ ')+c.msg;
- const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/ng/komponen/tombol-dan-kontrol/'+(h.ready?'tombol-abu-polos':'tombol-hijau-polos')+'.webp';
+ const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/tombol/'+(h.ready?'tombol-abu-polos':'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos')+'.webp';
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
@@ -314,7 +314,7 @@ async function loadDrawerLooks(ids){try{const AS=window.UT&&UT.AppearanceService
  const r=await AS.usersAppearance(need);
  if(r&&r.ok){need.forEach(i=>{S.dApp[String(i).toLowerCase()]=r.byId[String(i).toLowerCase()]||EMPTY_LOOK});if(root.classList.contains('dro'))renderDrawer()}else need.forEach(i=>{delete S.dTry[i]})}catch(e){}}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
- return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv" data-add="${esc(id)}" data-nm="${esc(name)}"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>＋ TEMAN</span></button>`}<button class="btn inv ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}><img src="assets/ng/komponen/tombol-dan-kontrol/${sent?'tombol-ungu-polos':'tombol-hijau-polos'}.webp" alt=""><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
+ return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv" data-add="${esc(id)}" data-nm="${esc(name)}"><img src="assets/images/tombol/../../ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>＋ TEMAN</span></button>`}<button class="btn inv ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}><img src="assets/images/tombol/${sent?'tombol-ungu-polos':'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos'}.webp" alt=""><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
 /* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
 const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
 function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}

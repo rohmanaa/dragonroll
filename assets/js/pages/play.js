@@ -131,7 +131,7 @@
   function playClick() {
     if (!settings().sound) return;
     try {
-      if (!clickPool.length) for (var i = 0; i < 4; i++) { var a = new Audio('assets/sfx/ui/button-click.mp3'); a.preload = 'auto'; clickPool.push(a); }
+      if (!clickPool.length) for (var i = 0; i < 4; i++) { var a = new Audio('assets/audio/sfx/ui/button-click.mp3'); a.preload = 'auto'; clickPool.push(a); }
       var el = clickPool[clickI++ % clickPool.length]; el.currentTime = 0; el.volume = sfxVol(); /* file klik sudah diseragamkan (tools/normalize-sfx.py) */
       var p = el.play(); if (p && p.catch) p.catch(function () {});
     } catch (e) {}

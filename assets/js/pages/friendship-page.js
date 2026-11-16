@@ -150,17 +150,17 @@
       } else {
         const statusButton = friend.status === 'online'
           ? `<button class="btn sm" type="button" data-action="invite" aria-label="Ajak ${escapeHtml(friend.name)} bermain"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>MAIN</span></button>`
-          : `<button class="btn sm off" type="button" disabled><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>${friend.status === 'busy' ? 'SIBUK' : 'OFFLINE'}</span></button>`;
+          : `<button class="btn sm off" type="button" disabled><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>${friend.status === 'busy' ? 'SIBUK' : 'OFFLINE'}</span></button>`;
         actions = statusButton;
       }
       const dotClass = isRequest ? 'request' : friend.status === 'offline' ? 'off' : friend.status === 'busy' ? 'busy' : '';
       const statHtml = isRequest ? '' : `<div class="cell"><b>${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small>POSISI</small></div>
         <div class="cell"><b>${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small>LEVEL</small></div>
-        <div class="stat tr" title="Kemenangan"><img src="assets/ng/komponen/glyph-putih/piala.webp" alt=""><b>${stats.wins == null ? '—' : fmt(stats.wins)}</b></div>
+        <div class="stat tr" title="Kemenangan"><img src="assets/images/ui/glyph-putih/piala.webp" alt=""><b>${stats.wins == null ? '—' : fmt(stats.wins)}</b></div>
         <button class="stat lk" type="button" disabled title="Fitur suka belum tersedia" aria-label="Fitur suka belum tersedia">
-          <img src="assets/ng/komponen/glyph-putih/hati-garis.webp" alt=""><b>—</b>
+          <img src="assets/images/ui/glyph-putih/hati-garis.webp" alt=""><b>—</b>
         </button>`;
-      const removeButton = isRequest ? '' : `<button class="rm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/ng/komponen/glyph-putih/tong-sampah.webp" alt=""></button>`;
+      const removeButton = isRequest ? '' : `<button class="rm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/images/ui/glyph-putih/tong-sampah.webp" alt=""></button>`;
       return `<article class="row fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
         ${avatarHtml(friend)}
         <div class="grow"><div class="nm ttl">${escapeHtml(friend.name)}</div>

@@ -4,7 +4,7 @@
 <title>DRAGON ROLL</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/ng/css/common.css"><link rel="stylesheet" href="assets/ng/css/splash.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/pwa.js"></script><script src="assets/js/core/prefs.js"></script><script src="assets/js/systems/ambience.js"></script>
+<link rel="stylesheet" href="assets/css/common.css"><link rel="stylesheet" href="assets/css/splash.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/pwa.js"></script><script src="assets/js/core/prefs.js"></script><script src="assets/js/systems/ambience.js"></script>
 <style>
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
 body.quick #loadbox,body.quick #spin{visibility:hidden}
@@ -16,17 +16,17 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 <div id="scene">
   <div id="cave"><i id="beam"></i><i id="floor"></i></div>
   <canvas id="splashfx" aria-hidden="true"></canvas>
-  <img id="spin" src="assets/ng/komponen/hud/efek-titik-berputar.webp" alt="">
+  <img id="spin" src="assets/images/ui/hud/efek-titik-berputar.webp" alt="">
   <div id="vig"></div>
 
   <div id="loadbox">
-    <img class="frm" src="assets/ng/komponen/logo/bar-loading-bingkai-kosong.webp" alt="">
+    <img class="frm" src="assets/images/ui/logo/bar-loading-bingkai-kosong.webp" alt="">
     <div id="bar"><i id="fill"></i></div>
     <div id="lbl">Loading… 0%</div>
   </div>
   <!-- TAP TO START: muncul setelah loading selesai & sudah login -->
   <div id="intro">
-    <div id="lg"><div class="rb"><img src="assets/ng/komponen/logo/pita-merah-kosong.webp" alt=""><b>DRAGON ROLL</b></div></div>
+    <div id="lg"><div class="rb"><img src="assets/images/ui/logo/pita-merah-kosong.webp" alt=""><b>DRAGON ROLL</b></div></div>
     <button id="tapbox" aria-label="Tap to start"><span>TAP TO START</span></button>
     <div id="hi"></div>
   </div>
@@ -34,10 +34,10 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 
   <!-- LOGIN (username + password; akun asli lewat UT.Auth) -->
   <div class="amodal" id="m-login"><div class="dlg">
-    <div class="dh"><span>Login</span><button class="x" data-close aria-label="Tutup"><img src="assets/ng/komponen/glyph-putih/silang.webp" alt=""></button></div>
+    <div class="dh"><span>Login</span><button class="x" data-close aria-label="Tutup"><img src="assets/images/ui/glyph-putih/silang.webp" alt=""></button></div>
     <div class="df">
-      <label class="inp"><img src="assets/ng/komponen/glyph-putih/pengguna.webp" alt=""><input id="li-id" maxlength="16" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
-      <label class="inp"><img src="assets/ng/komponen/glyph-putih/gembok.webp" alt=""><input id="li-pw" type="password" placeholder="Password" autocomplete="current-password"></label>
+      <label class="inp"><img src="assets/images/ui/glyph-putih/pengguna.webp" alt=""><input id="li-id" maxlength="16" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label class="inp"><img src="assets/images/ui/glyph-putih/gembok.webp" alt=""><input id="li-pw" type="password" placeholder="Password" autocomplete="current-password"></label>
       <div class="err" id="li-err"></div>
       <button class="btn blue" id="li-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>Login</span></button>
       <div class="foot c">Belum punya akun? <a id="to-signup" href="#">Sign up</a></div>
@@ -46,10 +46,10 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 
   <!-- SIGN UP -->
   <div class="amodal" id="m-signup"><div class="dlg">
-    <div class="dh"><span>Sign up</span><button class="x" data-close aria-label="Tutup"><img src="assets/ng/komponen/glyph-putih/silang.webp" alt=""></button></div>
+    <div class="dh"><span>Sign up</span><button class="x" data-close aria-label="Tutup"><img src="assets/images/ui/glyph-putih/silang.webp" alt=""></button></div>
     <div class="df">
-      <label class="inp"><img src="assets/ng/komponen/glyph-putih/pengguna.webp" alt=""><input id="su-us" maxlength="16" placeholder="Username (3–16: huruf, angka, _)" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
-      <label class="inp"><img src="assets/ng/komponen/glyph-putih/gembok.webp" alt=""><input id="su-pw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="new-password"></label>
+      <label class="inp"><img src="assets/images/ui/glyph-putih/pengguna.webp" alt=""><input id="su-us" maxlength="16" placeholder="Username (3–16: huruf, angka, _)" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label class="inp"><img src="assets/images/ui/glyph-putih/gembok.webp" alt=""><input id="su-pw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="new-password"></label>
       <div class="err" id="su-err"></div>
       <button class="btn blue" id="su-ok"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>Sign up</span></button>
       <div class="foot c">Sudah punya akun? <a id="to-login" href="#">Log in</a></div>

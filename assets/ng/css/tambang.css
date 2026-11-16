@@ -1,10 +1,10 @@
 /* tambang.html — 3 kartu berdampingan (README bagian 6); gua 3D asli ada DI DALAM tiap kartu. Kanvas 1920x1080. */
-body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/tambang-kristal-bercahaya-nan-mistis.webp) center/cover no-repeat;opacity:.08}
+body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../images/background/tambang-kristal-bercahaya-nan-mistis.webp) center/cover no-repeat;opacity:.08}
 #sum{position:absolute;left:140px;top:112px;font:800 30px var(--font-body);color:#cfc8ea}#sum b{color:#6be04a;font:400 38px var(--font-title)}
 #slots{position:absolute;left:0;right:0;top:170px;display:flex;justify-content:center;gap:48px}
 .slot{position:relative;width:560px;height:810px;display:flex;flex-direction:column;align-items:center;padding:84px 44px 30px;isolation:isolate;animation:inU .45s cubic-bezier(.2,.9,.2,1) both}
 .slot:nth-child(2){animation-delay:.07s}.slot:nth-child(3){animation-delay:.14s}
-.slot::before{content:'';position:absolute;inset:0;background:url(../komponen/panel-dialog/kartu-toko.webp) center/100% 100% no-repeat;z-index:-1}
+.slot::before{content:'';position:absolute;inset:0;background:url(../../images/ui/panel-dialog/kartu-toko.webp) center/100% 100% no-repeat;z-index:-1}
 .slot.locked::before{filter:grayscale(.6) brightness(.85)}
 @keyframes inU{from{opacity:0;transform:translateY(40px)}}
 .slot .hd{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-size:40px;white-space:nowrap;color:#ffe8a3}
@@ -38,7 +38,7 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .btn.y .bl2{font:400 26px/1 var(--font-title)}.btn.y .bs{display:flex;align-items:center;gap:4px;font:800 20px/1 var(--font-body);color:#fff}
 .btn.y .bs img{width:26px;height:26px}
 .ups{display:flex;gap:14px;width:100%;margin-top:12px}
-.up{flex:1;height:80px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px;background:url(../komponen/tombol-dan-kontrol/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+.up{flex:1;height:80px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px;background:url(../../images/tombol/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 .up:active{transform:scale(.97)}.up:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
 .up b{font:400 24px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .up small{display:flex;align-items:center;gap:5px;font:400 28px var(--font-title);color:#ffe08a;text-shadow:0 2px 0 rgba(0,0,0,.6)}

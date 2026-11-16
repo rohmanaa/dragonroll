@@ -20,7 +20,7 @@
 #confirm{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.72)}
 #confirm.on{display:grid}
 #cbox{position:relative;width:820px;padding:64px 50px 48px;text-align:center;isolation:isolate;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
-#cbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#cbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 #cf-t{font-size:56px;line-height:1}
 #cf-s{margin-top:18px;font:800 28px var(--font-body);color:#ddd7f7}
 .cbtns{display:flex;gap:24px;justify-content:center;margin-top:40px}
@@ -36,7 +36,7 @@
 #lang{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.72)}
 #lang.on{display:grid}
 #lbox{position:relative;width:1060px;padding:74px 50px 50px;isolation:isolate;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
-#lbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#lbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
 #lg-t{text-align:center;font-size:54px;line-height:1;margin-bottom:34px}
 #lg-x{position:absolute;right:26px;top:22px;width:72px;height:72px}
 #lg-x img{width:100%;height:100%}
@@ -52,4 +52,4 @@
 #toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:80;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);font:800 30px var(--font-body);color:#fff;transition:.25s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 /* latar voxel bengkel (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
-body.sub::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../../Images/background/settings-voxel-bengkel.webp) center/cover no-repeat;opacity:.35}
+body.sub::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/settings-voxel-bengkel.webp) center/cover no-repeat;opacity:.35}

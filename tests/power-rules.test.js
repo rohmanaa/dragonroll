@@ -109,7 +109,7 @@ t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay
 t('Room: lima slot membuka modal Power dan loadout baru disimpan saat dikonfirmasi', () => {
   const r = rd('room.html');
   assert.ok(r.indexOf('id="prow"') > 0 && r.indexOf('id="pmL"') > 0);
-  assert.ok(r.indexOf("const EFFECT_ICON='assets/ng/komponen/ikon-gem-medali/kristal-api.webp'") > 0);
+  assert.ok(r.indexOf("const EFFECT_ICON='assets/images/ui/ikon-gem-medali/kristal-api.webp'") > 0);
   assert.ok(r.indexOf('Array.from({length:TMAX}') > 0 && r.indexOf('function openPowerPick()') > 0);
   assert.ok(r.indexOf('if(powerDraft.equipped.length>=TMAX)') > 0);
   assert.ok(r.indexOf('function closePowerPick(){powerDraft=null;') > 0);

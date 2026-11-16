@@ -4,7 +4,7 @@ const PG = require("./_page");
 const path = require('path');
 const root = path.join(__dirname, '..');
 const html = PG.readFileSync(path.join(root, 'leaderboard.html'), 'utf8');
-const css = PG.readFileSync(path.join(root, 'assets/ng/css/leaderboard.css'), 'utf8');
+const css = PG.readFileSync(path.join(root, 'assets/css/leaderboard.css'), 'utf8');
 
 assert.ok(css.includes('banner-judul-nila-polos.webp'));
 assert.ok(!css.includes('pita-sudut-nila.webp'));

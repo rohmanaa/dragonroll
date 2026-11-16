@@ -6,7 +6,7 @@
   const WS = () => window.UT && UT.WalletService && UT.WalletService.get();
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
-  const IC = 'assets/ng/komponen/';
+  const IC = 'assets/images/ui/';
   const TABS = ['chest', 'coin', 'emerald', 'history'];
   const PACKS = [
     { coins: 500, gems: 10, name: 'Koin Kecil', image: 'gold-koin-sedikit.webp', color: '#ffd04a' },

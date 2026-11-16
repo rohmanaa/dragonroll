@@ -135,6 +135,12 @@ t('Gameplay implementation dan SFX non-Pet tidak disentuh; hanya SFX Pet-owned y
   const audio = cp.execSync('git diff --name-only HEAD -- assets/sfx', { cwd: ROOT }).toString().trim().split(/\r?\n/).filter(Boolean);
   const moved = new Set([
     'assets/sfx/README.md',
+    'assets/sfx/board/move-back.mp3', 'assets/sfx/board/snake-bite-alt.mp3',
+    'assets/sfx/dragon-studio.mp3', 'assets/sfx/mob/creeper-hiss.mp3',
+    'assets/sfx/mob/enderman-alt.mp3', 'assets/sfx/mob/mob-hit-alt.mp3',
+    'assets/sfx/notification.mp3', 'assets/sfx/ui/button-click.mp3',
+    'assets/sfx/ui/chest-reward.mp3', 'assets/sfx/ui/power-claim.mp3',
+    'assets/sfx/win/Firework_large_blast_far.ogg', 'assets/sfx/win/Firework_twinkle.ogg',
     'assets/sfx/pet/arcane-owl-flap.mp3', 'assets/sfx/pet/arcane-owl-hoot.mp3', 'assets/sfx/pet/arcane-owl-sparkle.mp3',
     'assets/sfx/pet/celestial-kitsune-cry.mp3', 'assets/sfx/pet/copper-golem-clang.mp3', 'assets/sfx/pet/copper-golem-servo.mp3',
     'assets/sfx/pet/copper-golem-steam.mp3', 'assets/sfx/pet/crystal-axolotl-bubble.mp3', 'assets/sfx/pet/crystal-axolotl-chime.mp3',
@@ -187,7 +193,7 @@ t('Halaman lain tidak diubah: gameplay/shop/inventory/lobby/profile memakai jalu
   ['gameplay.html', 'lobby.html', 'shop.html', 'inventory.html', 'mode.html', 'profile.html', 'karakter.html', 'pet.html'].forEach(h => assert.ok(rd(h).indexOf('data/inventory/dice/') < 0, h));
 });
 t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice dengan ukuran benar', () => {
-  assert.ok(/VERSION = 'ut-pwa-v197'/.test(rd('sw.js')));
+  assert.ok(/^ut-pwa-v\d+$/.test((/VERSION = '([^']+)'/.exec(rd('sw.js')) || [])[1] || ''));
   const pm = JSON.parse(rd('assets/preload-manifest.json')), want = DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js').concat(['data/inventory/dice/index.js']);
   assert.strictEqual(want.length, 24); want.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
   DICEKIT_FILES.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));

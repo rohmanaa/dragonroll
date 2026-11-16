@@ -15,11 +15,11 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<
 
 Catatan:
 - Nama file `calndar`, `modekhsusus`, `invenotry` memang typo dari aslinya; tidak di-rename agar tidak memutus referensi.
-- `lobby/invenotry.webp` = peti, `lobby/inventory.webp` = tas ransel.
-- Path dinamis: `shop.html` & `inventory.html` (`catImg` -> `icon/items/`), `profile.html` (`RI('grup/nama')`).
+- `../../Images/icon/lobby/invenotry.webp` = peti, `lobby/inventory.webp` = tas ransel.
+- Path dinamis: `../../Images/icon/shop.html` & `../../Images/icon/inventory.html` (`catImg` -> `icon/items/`), `../../Images/icon/profile.html` (`RI('grup/nama')`).
 - Semua icon baru berukuran 256x256 (cukup untuk tampil <= 64px di layar 3x). Jangan taruh file 1024px di sini; perkecil dulu agar loading ringan.
 
-## Peta ikon Gameplay (`gameplay.html`, `gameplay/hud.js`)
+## Peta ikon Gameplay (`../../Images/icon/gameplay.html`, `gameplay/hud.js`)
 
 | Elemen HUD | Aset |
 |---|---|
@@ -43,20 +43,20 @@ Catatan:
 | Banner giliran / tiga kali 6 | `items/dadu` |
 | Banner chest | `lobby/invenotry` |
 | Banner power (pesan teks) | `items/power` |
-| Tombol Power-up | `data/power/sm/*.webp` (via `item-catalog.js`) |
+| Tombol Power-up | `data/power/sm/*.webp` (via `../../Images/icon/item-catalog.js`) |
 
 Masih SVG/emoji karena belum ada aset: layar kalah, tombol tutup (X), dan banner tangga/ular/mob/naga/perisai/pantul/info.
 
 
 ## Tabler Icons (`tabler/`)
-Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi MIT), warna mengikuti `currentColor`. Sudah dipakai di tombol HUD kanan atas Gameplay (`gameplay.html`, diputihkan lewat filter CSS `.hud .btn .hi`):
+Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi MIT), warna mengikuti `currentColor`. Sudah dipakai di tombol HUD kanan atas Gameplay (`../../Images/icon/gameplay.html`, diputihkan lewat filter CSS `.hud .btn .hi`):
 
 | Elemen HUD | File |
 |---|---|
 | Ikuti bidak (`#btnFollow`) | `tabler/focus-2.svg` |
 | Reset kamera (`#btnCam`) | `tabler/refresh.svg` |
-| Preset kamera (`#btnPreset`) | `tabler/camera.svg` |
-| Kunci kamera (`#btnAngle`, LOCK) | `tabler/lock.svg` |
-| Kamera bebas (`#btnAngle`, ANGLE) | `tabler/lock-open.svg` |
+| Preset kamera (`#btnPreset`) | `../../Images/icon/tabler/camera.svg` |
+| Kunci kamera (`#btnAngle`, LOCK) | `../../Images/icon/tabler/lock.svg` |
+| Kamera bebas (`#btnAngle`, ANGLE) | `../../Images/icon/tabler/lock-open.svg` |
 | Suara nyala / mati (`#btnSnd`) | `tabler/volume.svg` / `tabler/volume-off.svg` |
 | Menu (`#btnMenu`) | `tabler/menu-2.svg` |
