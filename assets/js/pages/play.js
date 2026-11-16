@@ -11,6 +11,11 @@
      Halaman akan pergi (pagehide/beforeunload)  -> layar memuat tampil seketika, menutup jeda kosong.
      Halaman baru selesai (load + font + gambar) -> layar memuat dihilangkan.
      splash.html punya layar muat sendiri (pulau melayang), jadi layar dadu ini tidak ditampilkan di atasnya. */
+  /* Awan dipanaskan di awal: SVG dimuat + di-decode sebelum pernah tampil, supaya tirai langsung lengkap (tidak ada awan yang telat muncul). */
+  var cloudWarm = [];
+  ['cloud-1', 'cloud-2', 'cloud-3'].forEach(function (n) {
+    try { var im = new Image(); im.src = 'assets/images/background/clouds/' + n + '.svg'; if (im.decode) im.decode().catch(function () {}); cloudWarm.push(im); } catch (e) {}
+  });
   var SELF_LOADING = /^splash\.html$/;
   function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
   /* Overlay antar-halaman: tirai awan (tanpa persen palsu; progres asli dihitung di splash).
@@ -21,7 +26,7 @@
   function setP(v) { if (v > pct) { pct = v; bar.style.width = pct + '%'; } }
   function stage(c, text) { if (c > cap) cap = c; if (text && lbl) lbl.textContent = text; }
   function resetP() { pct = 0; cap = 60; bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; bar.style.transition = ''; if (lbl) lbl.textContent = 'Memuat halaman'; setP(6); }
-  function creep() { cancelAnimationFrame(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.03); creepRaf = requestAnimationFrame(tick); })(); }
+  function creep() { clearTimeout(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.08); creepRaf = setTimeout(tick, 100); })(); }   // 10x/dtk (bukan tiap frame): tidak membebani halaman yang sedang dimuat
   /* Tirai awan TERTUNDA: pindah halaman yang cepat (aset sudah di cache dari splash) tidak menampilkan loading sama sekali.
      Tirai baru muncul bila halaman tujuan belum siap setelah SHOW_DELAY. Selama menunggu, iframe polos (warna sama dengan latar) agar tidak ada kilatan baru. */
   var SHOW_DELAY = 450, armed = false, showT = 0;
@@ -50,6 +55,17 @@
   }
   ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
 
+  /* Tunggu isi halaman "tenang": tidak ada elemen baru ditambahkan selama quiet ms (maks max ms). Mencegah latar/HUD/kartu muncul bergantian setelah tirai membuka. */
+  function settle(w, d, quiet, max) {
+    return new Promise(function (res) {
+      var t = 0, cap = 0, mo = null, done = false;
+      function fin() { if (done) return; done = true; clearTimeout(t); clearTimeout(cap); try { if (mo) mo.disconnect(); } catch (e) {} res(); }
+      function arm() { clearTimeout(t); t = setTimeout(fin, quiet); }
+      cap = setTimeout(fin, max);
+      try { mo = new (w.MutationObserver || MutationObserver)(arm); mo.observe(d.documentElement, { childList: true, subtree: true }); } catch (e) {}
+      arm();
+    });
+  }
   function whenReady(w, cb) {
     var d; try { d = w.document; } catch (e) { cb(); return; }
     var fonts = (d && d.fonts && d.fonts.ready) ? d.fonts.ready.catch(function () {}) : Promise.resolve();
@@ -69,9 +85,28 @@
         if (!hidden || Date.now() - t0 > 2000) r(); else setTimeout(poll, 30);
       })();
     });
-    var all = [fonts, bg, shownBody].concat(waits), n = all.length;
+    /* latar CSS (background-image) elemen utama harus sudah ter-decode, bukan hanya <img> */
+    var bgs = [];
+    try {
+      var els = [d.documentElement, d.body].concat(Array.prototype.slice.call(d.body ? d.body.children : [], 0, 12)), seen = {};
+      els.forEach(function (el) {
+        if (!el) return;
+        var m = /url\((['"]?)(.*?)\1\)/.exec(w.getComputedStyle(el).backgroundImage || '');
+        if (m && m[2] && !seen[m[2]] && !/^data:/.test(m[2])) {
+          seen[m[2]] = 1;
+          bgs.push(new Promise(function (r) { var im = new Image(); im.onload = im.onerror = function () { (im.decode ? im.decode().catch(function () {}) : Promise.resolve()).then(r); }; im.src = m[2]; setTimeout(r, 1500); }));
+        }
+      });
+    } catch (e) {}
+    /* gameplay: tunggu adegan 3D menggambar frame pertamanya (diset gameplay/js/main.js: class gp-ready), maks 6 dtk */
+    var gp = Promise.resolve();
+    if (pageName(w) === 'gameplay.html') gp = new Promise(function (r) {
+      var t0 = Date.now();
+      (function poll() { var ok = false; try { ok = d.documentElement.classList.contains('gp-ready'); } catch (e) {} if (ok || Date.now() - t0 > 6000) r(); else setTimeout(poll, 50); })();
+    });
+    var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits), n = all.length;
     all.forEach(function (pr) { pr.then(function () { stage(Math.min(96, cap + 24 / n)); setP(Math.min(94, pct + 24 / n)); }); });
-    Promise.all(all).then(function () {
+    Promise.all(all).then(function () { return settle(w, d, 120, pageName(w) === 'gameplay.html' ? 1500 : 700); }).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
     });

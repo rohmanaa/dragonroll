@@ -6195,4 +6195,6 @@ startGame(CFG.mode,CFG.skins.slice());
 if(ONLINE_ROOM){addEventListener('ut:multiplayer-game-sync-ready',initMultiplayerBridge,{once:true});if(UT.Multiplayer&&UT.Multiplayer.GameSync)initMultiplayerBridge();}
 /*TEST-HOOK*/
 requestAnimationFrame(frame);
+/* sinyal ke pembungkus (play.js): adegan sudah menggambar frame pertamanya -> layar "Memuat" boleh dibuka */
+requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ document.documentElement.classList.add('gp-ready'); }catch(e){} }));
 })();

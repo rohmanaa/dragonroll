@@ -16,7 +16,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 #ov .clouds{position:absolute;inset:0;overflow:hidden}
 #ov .c0{position:absolute;inset:0;background:#e9f5ff;z-index:1}
 #ov .cl{position:absolute;width:64%;aspect-ratio:2/1;will-change:transform;z-index:2;transition:none}
-#ov .cl::before{content:"";position:absolute;inset:0;background:var(--img) no-repeat;background-size:100% 100%;will-change:transform}
+#ov .cl::before{content:"";position:absolute;inset:0;background:var(--img) no-repeat;background-size:100% 100%}
 #ov .cl.a{--img:url(../../images/background/clouds/cloud-1.svg)}
 #ov .cl.b{--img:url(../../images/background/clouds/cloud-2.svg)}
 #ov .cl.c{--img:url(../../images/background/clouds/cloud-3.svg)}
@@ -49,5 +49,5 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 @keyframes ldin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
 #ov.quiet .ld{display:none}
 #ov.hide .ld{animation:none;opacity:0;transition:opacity .25s ease}
-#ov.quiet .clouds{visibility:hidden}
+#ov.quiet .clouds{opacity:0}
 @media (prefers-reduced-motion:reduce){#ov .ldb b::after,#ov .ldt i{animation:none!important}#ov .cl::before{animation:none!important}#ov:not(.quiet).hide{opacity:0;transition:opacity .25s ease,visibility 0s linear .25s}#ov:not(.quiet).hide .cl{transform:none;transition:none}#ov:not(.quiet).hide .c0{opacity:1;transition:none}}
