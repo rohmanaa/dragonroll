@@ -77,22 +77,14 @@
     $('#v-co').textContent = ready ? format(PD.coins()) : '—';
   }
 
-  function priceMarkup(item) {
-    const cost = costOf(item);
-    if (!cost) return '<span class="pr no">TIDAK DIJUAL</span>';
-    const gems = cost.gems > 0;
-    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
-    const amount = gems ? cost.gems : cost.coins;
-    return `<span class="pr buy"><img src="${ITEM_ROOT + icon}" alt="">${format(amount)}</span>`;
-  }
-
   function drawGrid() {
     const equipped = PD.equippedId('pet');
     let html = PETS.map((item) => {
       const owned = PD.owns(item.id);
       const used = equipped === item.id;
-      const badge = used ? '<span class="tag">DIPAKAI</span>' : owned ? '<span class="tag own">DIMILIKI</span>' : '';
-      return `<button class="fslot${selected && item.id === selected.id ? ' sel' : ''}${owned ? '' : ' lk'}" type="button" data-id="${item.id}" aria-pressed="${!!selected && item.id === selected.id}" aria-label="${item.name}, tier ${item.tier}${used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki'}">${badge}<div class="dc"><img src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="${item.name}" loading="lazy"></div>${owned ? '' : priceMarkup(item)}</button>`;
+      const st = used ? 'st-used' : owned ? 'st-own' : 'st-lock';
+      const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
+      return `<button class="fslot ${st}${selected && item.id === selected.id ? ' sel' : ''}${owned ? '' : ' lk'}" type="button" data-id="${item.id}" aria-pressed="${!!selected && item.id === selected.id}" aria-label="${item.name}, tier ${item.tier}${used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki'}"><div class="dc"><img src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="${item.name}" loading="lazy"></div>${check}</button>`;
     }).join('');
     for (let i = PETS.length; i < Math.max(20, Math.ceil(PETS.length / 5) * 5); i++) html += '<div class="slot empty" aria-hidden="true"></div>';
     $('#grid').innerHTML = html;

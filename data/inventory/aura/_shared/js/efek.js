@@ -101,11 +101,12 @@ function pickDefault(){
 }
 function draw(){
   pickDefault();
+  renderAct();
   let html=FR.map(x=>{
-    const m=isOwned(x),on=isUsed(x),sell=canSell(x),state=m?`<span class="pr ${on?'used':'owned'}"${on?(x.none?'':' data-action="unequip"'):' data-action="equip"'}>${on?'DIPAKAI':'DIMILIKI'}</span>`
-      :sell?`<span class="pr buy" data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
+    const m=isOwned(x),on=isUsed(x),sell=canSell(x);
+    const st=on?'st-used':m?'st-own':'st-lock';
     const label=on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual';
-    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${label}"><div class="th${x.none?' none':''}">${art(x)}</div>${state}</button>`}).join('');
+    return `<button class="fslot ${st}${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${label}"><div class="th${x.none?' none':''}">${art(x)}</div>${on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':''}</button>`}).join('');
   for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   const f=sel,r=RAR[f.rarity]||RAR.common;
@@ -129,12 +130,28 @@ function buySelected(f){
 $('#grid').onclick=e=>{
   const c=e.target.closest('.fslot');if(!c)return;
   const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
-  const action=e.target.closest('[data-action]'),act=action&&action.dataset.action;
   sel=f;
-  if(act==='buy'){snd('button');draw();buySelected(f);return}
-  if(act==='equip'){equip(f);return}
-  if(act==='unequip'){equip(NONE);return}
   snd('button');draw();
+};
+
+/* ---- tombol aksi tunggal (kanan bawah): Beli / Pakai / Lepas / Dipakai / Tidak dijual ---- */
+function renderAct(){
+  const b=$('#act'); if(!b)return;
+  const f=sel; const sp=b.querySelector('span');
+  if(!f){b.style.display='none';return}
+  b.style.display='';
+  const m=isOwned(f),on=isUsed(f),sell=canSell(f);
+  if(on&&f.none){b.dataset.mode='used';b.disabled=true;sp.textContent='DIPAKAI'}
+  else if(on){b.dataset.mode='unequip';b.disabled=false;sp.textContent='LEPAS'}
+  else if(m){b.dataset.mode='equip';b.disabled=false;sp.textContent='PAKAI'}
+  else if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)+(f.gems>0?' EMERALD':' COIN')}
+  else {b.dataset.mode='no';b.disabled=true;sp.textContent='TIDAK DIJUAL'}
+}
+$('#act').onclick=()=>{
+  const f=sel; if(!f)return; const mode=$('#act').dataset.mode;
+  if(mode==='equip'){equip(f);return}
+  if(mode==='unequip'){equip(NONE);return}
+  if(mode==='buy'){buySelected(f);return}
 };
 
 /* ---- modal ---- */

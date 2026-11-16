@@ -1,0 +1,10 @@
+/* pet.html saja: status slot (abu = belum dimiliki, ungu = dimiliki, hijau = dipakai + centang),
+   ikon tepat di tengah slot, dan tombol aksi tunggal kanan bawah (#use). */
+.fslot .dc{position:absolute;left:50%;top:50%;width:84px;height:84px;transform:translate(-50%,-50%)}
+.fslot.st-lock{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp);filter:grayscale(1) brightness(.75)}
+.fslot.st-lock.sel{filter:grayscale(1) brightness(.9) drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.fslot.st-used,.fslot.st-used.sel{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-hijau.webp)}
+.fslot .ck{position:absolute;right:6px;top:6px;width:30px;height:30px;object-fit:contain;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+#use{position:absolute;right:48px;bottom:40px;width:300px;height:84px;z-index:5}
+#use span{font-size:26px}
+#use:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}

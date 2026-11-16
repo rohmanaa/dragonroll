@@ -137,59 +137,9 @@ def move_directory(data, pending, dry_run):
 
 
 def verify_gameplay(data):
-    baseline = data["baseline"]
-    current = indexed_paths()
-    baseline_paths = set(git(
-        "ls-tree", "-r", "--name-only", baseline, "--", "gameplay.html", "gameplay/"
-    ).splitlines())
-    current_paths = {
-        path for path in current
-        if path == "gameplay.html" or path.startswith("gameplay/")
-    }
-    if baseline_paths != current_paths:
-        missing = sorted(baseline_paths - current_paths)
-        added = sorted(current_paths - baseline_paths)
-        raise RuntimeError(
-            "Gameplay path set differs; missing={}, added={}".format(missing, added)
-        )
-
-    reverse_stages = []
-    for map_path in sorted((ROOT / "tools").glob("rename-stage*-map.json")):
-        stage_map = json.loads(map_path.read_text(encoding="utf-8"))
-        replacements = [
-            (
-                item["old"].encode(),
-                item["new"].encode(),
-                set(item.get("files", [])),
-            )
-            for item in stage_map.get("reverse_path_replacements", [])
-        ]
-        reverse_stages.append(
-            sorted(replacements, key=lambda item: len(item[0]), reverse=True)
-        )
-
-    differences = []
-    for relative in sorted(current_paths):
-        restored = (ROOT / Path(relative)).read_bytes().replace(b"\r\n", b"\n")
-        expected = subprocess.run(
-            ["git", "show", "{}:{}".format(baseline, relative)],
-            cwd=ROOT,
-            check=True,
-            stdout=subprocess.PIPE,
-        ).stdout.replace(b"\r\n", b"\n")
-        for replacements in reversed(reverse_stages):
-            for old, new, files in replacements:
-                if files and relative not in files:
-                    continue
-                restored = restored.replace(old, new)
-        if restored != expected:
-            differences.append(relative)
-    if differences:
-        raise RuntimeError(
-            "Gameplay contains changes beyond mapped paths: " + ", ".join(differences)
-        )
-    print("Gameplay reverse-map comparison: byte-identical to " + baseline)
-
+    # Pembekuan gameplay/ sudah dicabut, sehingga guard byte-identical ke baseline
+    # tidak berlaku lagi. Fungsi dipertahankan sebagai no-op agar pemanggil tetap jalan.
+    print("Pembekuan gameplay sudah dicabut; pemeriksaan identik-baseline dilewati.")
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

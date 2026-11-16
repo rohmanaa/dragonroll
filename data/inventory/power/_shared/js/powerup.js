@@ -31,13 +31,26 @@ const thumb=i=>i.icon?'<img src="'+i.icon+'" alt="">':(AR&&AR.powerup?AR.powerup
 function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function renderGrid(){
   let html=LIST.map(i=>{
-    const k=qty(i),sell=canSell(i),status='<span class="tag">STOK ×'+k+'</span>';
-    const buy=sell?'<span class="pr cn buy" data-action="buy" aria-label="Beli '+fmtPrice(i.price)+' koin">'+COIN+fmtPrice(i.price)+'</span>':'<span class="pr cn no">TIDAK DIJUAL</span>';
+    const k=qty(i),sell=canSell(i),st=k?'st-own':'st-lock';
+    const chip=k?'<span class="chip-n">'+k+'</span>':'';
     const label='stok ×'+k+(sell?' — beli '+fmtPrice(i.price):' — tidak dijual');
-    return '<button class="fslot'+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+status+buy+'</button>'}).join('');
+    return '<button class="fslot '+st+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+chip+'</button>'}).join('');
   for(let n=LIST.length;n<Math.max(20,Math.ceil(LIST.length/5)*5);n++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
+  renderAct();
 }
+/* ---- tombol aksi tunggal (kanan bawah): Beli <harga> / Tidak dijual / Dimiliki ×N ---- */
+function renderAct(){
+  const b=$('#act'); if(!b)return;
+  const i=sel; const sp=b.querySelector('span');
+  if(!i){b.style.display='none';return}
+  b.style.display='';
+  const k=qty(i),sell=canSell(i);
+  if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(i.price)+' COIN'}
+  else {b.dataset.mode='no';b.disabled=true;sp.textContent=k?'DIMILIKI ×'+k:'TIDAK DIJUAL'}
+}
+$('#act').onclick=()=>{const i=sel; if(!i)return; if($('#act').dataset.mode==='buy'&&canSell(i))confirmBuy(i)};
+
 function renderInfo(){
   const i=sel;if(!i)return;
   const c=RC[i.rarity],n=qty(i);
@@ -52,9 +65,7 @@ function pick(i){sel=i;renderGrid();renderInfo();P3D.load();P3D.sync();playSound
 $('#grid').addEventListener('click',e=>{
   const c=e.target.closest('.fslot');if(!c)return;
   const i=LIST.find(x=>x.id===c.dataset.id);if(!i)return;
-  const action=e.target.closest('[data-action]');
   pick(i);
-  if(action&&action.dataset.action==='buy'&&canSell(i))confirmBuy(i);
 });
 
 /* ---- pratinjau 3D hidup (assets/js/renderers/power-3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */

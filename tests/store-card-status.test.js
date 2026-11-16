@@ -42,19 +42,23 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
   assert.ok(pages.karakter.includes("'<img class=\"coin\" src=\"'+KOIN+'\" alt=\"\"><span>'+fmtPrice(ci.price)+'</span>'"));
   assert.ok(!/Beli <img class="coin"/.test(pages.karakter));
   const currencyPrice = 'data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}';
-  assert.ok(scripts.frame.includes(currencyPrice));
-  assert.ok(scripts.dadu.includes(currencyPrice));
-  assert.ok(/data-action="buy" aria-label="Beli '\+fmtPrice\(i\.price\)\+' koin">'\+COIN\+fmtPrice\(i\.price\)/.test(pages.powerup));
+  assert.ok(scripts.frame.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'frame: harga beli ada di tombol aksi #act');
+  assert.ok(!scripts.frame.includes(currencyPrice), 'frame: kartu slot tidak lagi memuat badge harga');
+  assert.ok(scripts.dadu.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'dadu: harga beli ada di tombol aksi #act');
+  assert.ok(!scripts.dadu.includes(currencyPrice), 'dadu: kartu slot tidak lagi memuat badge harga');
+  assert.ok(/sp\.textContent='BELI '\+fmtPrice\(i\.price\)\+' COIN'/.test(pages.powerup), 'power: tombol aksi tunggal BELI <harga> COIN');
   assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(pages.room));
 });
 
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
-  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/inventory/character/_shared/css/kredit.css")));
-  assert.ok(/on\?'DIPAKAI':'DIMILIKI'/.test(scripts.frame));
-  assert.ok(/on\?'DIPASANG':'DIMILIKI'/.test(scripts.dadu));
-  assert.ok(/class="pr \$\{on\?'used':'owned'\}".*DIPAKAI/.test(pages.efek));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
+  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/inventory/character/_shared/css/kredit.css")));
+  assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.frame), 'frame: status warna slot (hijau/ungu/abu)');
+  assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.dadu), 'dadu: status warna slot (hijau/ungu/abu)');
+  const efekJs = read("data/inventory/aura/_shared/js/efek.js");
+  assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(efekJs), "efek: status warna slot (hijau/ungu/abu)");
+  assert.ok(/id="act"/.test(pages.efek) && /sp\.textContent='LEPAS'/.test(efekJs), "efek: tombol aksi tunggal #act (LEPAS/PAKAI/BELI)");
   assert.ok(!/class="tag">DIPAKAI/.test(pages.efek), "status efek bukan lagi badge di atas");
   assert.ok(!/id="use"/.test(pages.efek) && !pages.efek.includes("$('#use')"), "aksi efek ada pada kartu, bukan panel");
 });
@@ -66,8 +70,8 @@ test("tombol Home hilang dan saldo rata kanan pada halaman yang diminta", () => 
 });
 
 test("Power-up hanya menunjukkan stok dan tombol beli; status pasang tetap di Room", () => {
-  assert.ok(/STOK ×'\+k/.test(pages.powerup));
-  assert.ok(/data-action="buy" aria-label="Beli '\+fmtPrice\(i\.price\)\+' koin"/.test(pages.powerup));
+  assert.ok(/class="chip-n">'\+k\+'<\/span>/.test(pages.powerup), 'power: chip jumlah kepemilikan di kanan atas');
+  assert.ok(/st-own|st-lock/.test(pages.powerup), 'power: status warna slot (ungu/abu)');
   assert.ok(!/roomPowers|DIPASANG|installed/.test(pages.powerup));
   assert.ok(/data-buy="1"/.test(scripts.room) && /power:\['powerup\.html','Power-up'\]/.test(scripts.room));
   assert.ok(/class="pstate installed">DIPASANG/.test(scripts.room));

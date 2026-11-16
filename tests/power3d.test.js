@@ -55,7 +55,7 @@ t('semua impor mesin 3D (relatif dan three/addons) menunjuk file yang ada', () =
 });
 t('powerup.html punya wadah #p3d dan cadangan ke tampilan lama (showThemeArt)', () => {
   const h = rd('powerup.html');
-  assert.ok(h.indexOf('id="p3d"') > 0); assert.ok(h.indexOf("import('../../../assets/js/renderers/power-3d/power-show.js')") > 0); /* path relatif ke assets/js/pages/powerup.js */
+  assert.ok(h.indexOf('id="p3d"') > 0); const pj = rd('data/inventory/power/_shared/js/powerup.js'); assert.ok(pj.indexOf("import('../../../../../assets/js/renderers/power-3d/power-show.js')") > 0); /* path relatif dari data/inventory/power/_shared/js/powerup.js */
   assert.ok(/catch\(e=>\{this\.state=3/.test(h), 'tidak ada cadangan saat impor gagal');
 });
 console.log(n + ' tes lulus');

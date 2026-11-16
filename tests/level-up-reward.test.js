@@ -44,7 +44,7 @@ const mk = (reply, opts) => { const calls = [], mirrored = [];
     const m = rd('gameplay/js/main.js'); assert.ok(/kind:'coins'/.test(m) && /kind:'gems'/.test(m));
     const css = rd('gameplay/css/level-up.css'); const want = { coins: 'assets/images/ui/hud/ikon-koin-emas.webp', gems: 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' };
     Object.keys(want).forEach(k => { const r = new RegExp('\\.lu-modal__ic--' + k + ' \\{[^}]*url\\(([^)]+)\\)').exec(css); assert.ok(r, k);
-      const f = path.join(ROOT, 'gameplay/css', r[1]); assert.strictEqual(path.relative(ROOT, f), want[k]); assert.strictEqual(fs.readFileSync(f).slice(8, 12).toString(), 'WEBP', k); });
+      const f = path.join(ROOT, 'gameplay/css', r[1]); assert.strictEqual(path.relative(ROOT, f).replace(/\\/g, '/'), want[k]); assert.strictEqual(fs.readFileSync(f).slice(8, 12).toString(), 'WEBP', k); });
   });
   await t('Latar slot hadiah = slot-terpilih.webp (aset existing, path relatif CSS benar)', async () => {
     const css = rd('gameplay/css/level-up.css'), m = /\.lu-modal__slot \{[^}]*url\(([^)]+)\)/.exec(css); assert.ok(m, 'CSS slot memakai url()');

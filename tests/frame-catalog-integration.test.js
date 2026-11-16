@@ -113,7 +113,7 @@ t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL f
 });
 
 /* ---- pemuatan skrip: tag <script> klasik statis, urutan di halaman ---- */
-const WIRED = ['shop', 'inventory', 'karakter', 'profile', 'frame'];
+const WIRED = ['shop', 'karakter', 'profile', 'frame'];
 const CHAIN = ['assets/js/core/item-registry.js'].concat(FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js'), ['data/inventory/frame/index.js']);
 const srcs = h => (h.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
 t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catalog.js', () => {
@@ -127,12 +127,12 @@ t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catal
 t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 16); });
 t('Halaman lain memakai jalur fallback Frame tanpa manifest Frame; Registry kategori lain tidak mengubahnya', () => {
   fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && WIRED.concat(['pet']).indexOf(f.replace('.html', '')) < 0).forEach(f => {
-    assert.ok(!/data\/inventory\/frame\//.test(rd(f)), f); });
+    assert.ok(!/data\/inventory\/frame\/(?!_shared\/)/.test(rd(f)), f); });
 });
 t('Simulasi urutan halaman: menjalankan skrip PERSIS menurut urutan tag di HTML -> frameSource = registry di setiap halaman terhubung', () => {
   WIRED.forEach(p => { const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
     const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-    srcs(rd(p + '.html')).filter(f => /^(assets\/js\/(item-registry|session|item-catalog)|data\/inventory\/frame\/)/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
+    srcs(rd(p + '.html')).filter(f => /^(assets\/js\/(core\/(item-registry|session)|item-catalog)|data\/inventory\/frame\/(?!_shared\/))/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
     assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry', p); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items, p); });
 });
 console.log('\n' + n + ' tes lulus');

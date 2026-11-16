@@ -10,7 +10,7 @@
     { k: 'power', page: 'powerup.html', label: 'Power-up', icon: 'gem-medal-icons/petir-ungu.webp' },
     { k: 'pet', page: 'pet.html', label: 'Pet', icon: 'lobby/pet.webp' }
   ];
-  var KEY = 'ut-inv-tab', host = $('#views'), tabsEl = $('#tabs'), cur = '', frames = {};
+  var KEY = 'ut-inv-tab', host = $('#views'), loading = $('#view-loading'), tabsEl = $('#tabs'), cur = '', frames = {};
   var SET = function () { try { return window.PlayerData.settings(); } catch (e) { return {}; } };
   function snd() { try { if (SET().sound) UT.Audio.play('button'); } catch (e) {} }
 
@@ -35,6 +35,7 @@
         if (p && !TABS.some(function (x) { return x.page === p; }) && p !== 'inventory.html') { nav(p + f.contentWindow.location.search); return; }
       } catch (e) {}
       f.classList.add('ready');
+      if (f.classList.contains('on')) loading.hidden = true;
     });
     f.src = t.page + '?embed=inv';
     host.appendChild(f);
@@ -48,6 +49,7 @@
     try { sessionStorage.setItem(KEY, t.k); history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}
     if (!frames[t.k]) frames[t.k] = mk(t);
     Object.keys(frames).forEach(function (x) { frames[x].classList.toggle('on', x === t.k); });
+    loading.hidden = frames[t.k].classList.contains('ready');
     if (!quiet) snd();
   }
   tabsEl.addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) open(b.dataset.k); });

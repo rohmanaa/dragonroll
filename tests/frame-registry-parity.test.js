@@ -71,7 +71,7 @@ t('A. paritas visual dengan frame-fx.js: fxKey ada di FR, tier & margin sama', (
 t('A. gambar manifest = ItemCatalog.image; kategori memakai FRAME_TAB_ICON yang sama', () => {
   catFrames.forEach(c => assert.strictEqual(byId[c.id].assets.image, c.image, c.id));
   assert.strictEqual(FrameCat.category.assets.tabIcon, 'data/inventory/frame/_shared/img/icon-frame.webp');
-  assert.ok(/FRAME_TAB_ICON = FRAME_DIR \+ 'icon-frame\.webp'/.test(rd('assets/js/item-catalog.js')));
+  assert.ok(/FRAME_TAB_ICON = 'data\/inventory\/frame\/_shared\/img\/icon-frame\.webp'/.test(rd('assets/js/item-catalog.js')));
 });
 
 /* ---- B. format path ---- */

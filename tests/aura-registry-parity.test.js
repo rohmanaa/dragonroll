@@ -83,8 +83,8 @@ test('Semua manifest dan referensi aset bersama valid, tersedia di filesystem', 
   Object.keys(AuraCat.category.assets).forEach(k => assert.ok(exists(AuraCat.category.assets[k]), k));
 });
 
-test('Shop, Inventory, Character, Lobby, Profile, Gameplay memuat Aura Registry sebelum ItemCatalog', () => {
-  ['efek.html', 'inventory.html', 'karakter.html', 'lobby.html', 'profile.html', 'gameplay.html'].forEach(file => {
+test('Shop, Character, Lobby, Profile, Gameplay memuat Aura Registry sebelum ItemCatalog', () => {
+  ['efek.html', 'karakter.html', 'lobby.html', 'profile.html', 'gameplay.html'].forEach(file => {
     const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' tidak boleh memuat skrip ganda');
     const registry = scripts.indexOf('assets/js/core/item-registry.js'), index = scripts.indexOf('data/inventory/aura/index.js');

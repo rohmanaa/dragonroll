@@ -102,8 +102,8 @@ t('Folder dan ikon: tepat 17 manifest unik, format path valid, PNG icon ada dan 
   assert.strictEqual(IR.validateAssetPaths({ assets: PowerCat.category.assets }, null).ok, true);
   Object.keys(PowerCat.category.assets).forEach(k => assert.ok(ex(PowerCat.category.assets[k]), k + ': ' + PowerCat.category.assets[k]));
 });
-t('Shop/Inventory/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tidak ada script duplikat', () => {
-  ['shop.html', 'inventory.html', 'room.html', 'gameplay.html', 'powerup.html'].forEach(file => {
+t('Shop/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tidak ada script duplikat', () => {
+  ['shop.html', 'room.html', 'gameplay.html', 'powerup.html'].forEach(file => {
     const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' script ganda');
     assert.ok(scripts.indexOf('assets/js/core/item-registry.js') >= 0, file + ' Registry');

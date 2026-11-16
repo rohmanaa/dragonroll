@@ -252,7 +252,7 @@ t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong a
 });
 t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan byte count aktual', () => {
   const pm = JSON.parse(rd('assets/preload-manifest.json'));
-  assert.strictEqual(Object.keys(pm).length, 838);
+  assert.strictEqual(Object.keys(pm).length, 842);
   ['data/inventory/pet/_shared/js/pet-model-registry.js'].concat(PetCat.keys.map(key => 'data/inventory/pet/items/' + key + '/model.js')).forEach(f => {
     assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f);
   });

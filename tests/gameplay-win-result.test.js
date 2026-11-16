@@ -14,7 +14,7 @@ assert.ok(html.includes('gameplay/css/win-screen.css'), 'expected the result scr
 const screen = html.slice(start, end);
 const rewards = [...screen.matchAll(/data-reward="([^"]+)"/g)].map((match) => match[1]);
 assert.deepStrictEqual(rewards, ['xp', 'points', 'coins', 'gems']);
-assert.strictEqual((screen.match(/bintang-stage-emas\.webp/g) || []).length, 3);
+assert.strictEqual((screen.match(/bintang-hasil-emas\.webp/g) || []).length, 3);
 
 for (const [, asset] of screen.matchAll(/src="(assets\/ng\/[^"]+)"/g)) {
   assert.ok(fs.existsSync(path.join(root, asset)), `expected copied reference asset ${asset}`);

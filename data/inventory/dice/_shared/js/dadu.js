@@ -55,11 +55,11 @@ function pickDefault(){
 }
 function draw(){
   pickDefault();
+  renderAct();
   let html=FR.map(x=>{
-    const m=isOwned(x),sell=canSell(x);
-    const on=isUsed(x),state=m?`<span class="pr ${on?'used':'owned'}"${on?'':' data-action="equip"'}>${on?'DIPASANG':'DIMILIKI'}</span>`
-      :sell?`<span class="pr buy" data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}</span>`:`<span class="pr no"><img src="${LOCK}" alt="">TIDAK DIJUAL</span>`;
-    return `<button class="fslot${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipasang':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${state}</button>`}).join('');
+    const m=isOwned(x),on=isUsed(x),sell=canSell(x);
+    const st=on?'st-used':m?'st-own':'st-lock';
+    return `<button class="fslot ${st}${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipasang':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':''}</button>`}).join('');
   for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='Belum ada dadu di game ini.';showWallet();return}
@@ -85,11 +85,26 @@ function buySelected(f){
 $('#grid').onclick=e=>{
   const c=e.target.closest('.fslot');if(!c)return;
   const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
-  const action=e.target.closest('[data-action]'),act=action&&action.dataset.action;
   sel=f;
-  if(act==='buy'){draw();buySelected(f);return}
-  if(act==='equip'){equip(f);throwPreview();return}
   snd('button');draw();throwPreview();
+};
+
+/* ---- tombol aksi tunggal (kanan bawah): Beli / Pakai / Dipakai / Tidak dijual ---- */
+function renderAct(){
+  const b=$('#act'); if(!b)return;
+  const f=sel; const sp=b.querySelector('span');
+  if(!f){b.style.display='none';return}
+  b.style.display='';
+  const m=isOwned(f),on=isUsed(f),sell=canSell(f);
+  if(on){b.dataset.mode='used';b.disabled=true;sp.textContent='DIPAKAI'}
+  else if(m){b.dataset.mode='equip';b.disabled=false;sp.textContent='PAKAI'}
+  else if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)+(f.gems>0?' EMERALD':' COIN')}
+  else {b.dataset.mode='no';b.disabled=true;sp.textContent='TIDAK DIJUAL'}
+}
+$('#act').onclick=()=>{
+  const f=sel; if(!f)return; const mode=$('#act').dataset.mode;
+  if(mode==='equip'){equip(f);throwPreview();return}
+  if(mode==='buy'){buySelected(f);return}
 };
 
 /* ---- modal ---- */

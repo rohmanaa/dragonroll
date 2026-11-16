@@ -119,7 +119,7 @@ t('Jebakan di petak: TNT radius 1 mundur 6, Fire Charge radius 0 mundur 3, Blaze
   const R = C.PUR; [['tnt', 1, 6], ['fire_charge', 0, 3], ['blaze_core', 2, 2]].forEach(([k, rad, back]) => { assert.strictEqual(R[k].kind, 'trap', k); assert.strictEqual(R[k].radius, rad, k); assert.strictEqual(R[k].back, back, k); assert.strictEqual(R[k].range, 6, k); assert.ok(/jebakan/i.test(C.PUN[k][2]) && /jebakan/i.test(IC.byId(k).desc), k + ' deskripsi'); });
   ['sword', 'diamond_sword', 'netherite_sword', 'trident', 'nether_star', 'ice_crystal', 'grass'].forEach(k => assert.notStrictEqual(R[k].kind, 'trap', k + ' tetap serangan langsung'));
   const g = gameplaySource();
-  assert.ok(g.indexOf('async function trapCheck(p,gid)') > 0 && g.indexOf('if(await trapCheck(p,gid)) return;') > 0, 'pemicu di resolveTileAt');
+  assert.ok(g.indexOf('async function trapCheck(p,gid)') > 0 && g.indexOf('if(await trapCheck(p,gid)){') > 0, 'pemicu di resolveTileAt');
   assert.ok(g.indexOf('function trapPick(p,k)') > 0 && g.indexOf('id="trapBar"') > 0 && g.indexOf('requestPower({playerId:MP_ID,power:k,tile:tile})') > 0 && g.indexOf('Number.isInteger(payload.tile)') > 0, 'UI pilih petak + tamu kirim petak');
   assert.ok(g.indexOf('traps:TRAPS.map(') > 0 && g.indexOf('trapsSync(s.traps)') > 0 && g.indexOf('trapsClear(); applyPendingTheme()') > 0, 'snapshot + reset');
   assert.ok(g.indexOf('const TRAP_MAX=2') > 0 && g.indexOf('q.idx!==t.owner') > 0, 'batas + pemasang kebal');

@@ -41,7 +41,7 @@
      Di halaman, <img> frame diganti canvas beranimasi oleh data/inventory/frame/_shared/js/frame-fx.js (WebP = fallback/statis).
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
   var FRAME_DIR = 'data/frame/';
-  var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';
+  var FRAME_TAB_ICON = 'data/inventory/frame/_shared/img/icon-frame.webp';
   function frame(gameKey, name, rarity, price, desc, file, extra) {
     return Object.assign({ id: 'frame.' + gameKey, kind: 'frame', gameKey: gameKey, name: 'Frame ' + name,
       rarity: rarity, price: price, desc: desc, starter: price === 0, image: FRAME_DIR + file }, extra || {});

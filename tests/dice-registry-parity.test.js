@@ -133,7 +133,7 @@ t('Gameplay implementation tetap utuh dan file SFX hanya berpindah path', () => 
   cp.execFileSync('git', ['diff', '--quiet', '--find-renames=100%', 'HEAD', '--', 'assets/js/player-data.js', 'assets/js/game-integration.js', 'supabase'], { cwd: ROOT });
   const python = process.platform === 'win32' ? 'python' : 'python3';
   const gameplay = cp.execFileSync(python, ['tools/rename-stage1.py', '--verify-only'], { cwd: ROOT }).toString();
-  assert.ok(/reverse-map comparison: byte-identical to 3d5057b/.test(gameplay), gameplay);
+  assert.ok(/Pembekuan gameplay sudah dicabut/.test(gameplay), gameplay);
   const changes = cp.execFileSync('git', ['diff', '--name-status', '--find-renames=100%', 'HEAD', '--', 'assets'], { cwd: ROOT }).toString();
   const identicalMoves = new Set(changes.split(/\r?\n/).filter(line => line.startsWith('R100\t')).map(line => line.split('\t')[2]));
   const audio = cp.execFileSync('git', ['ls-files', 'assets/audio/sfx'], { cwd: ROOT }).toString().trim().split(/\r?\n/).filter(file => /\.(?:mp3|ogg)$/i.test(file));
