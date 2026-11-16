@@ -30,8 +30,8 @@
       lastStageHeight = stageHeight;
       root.style.setProperty('--ghud-stage-scale', String(stage));
       root.style.setProperty('--ghud-stage-height', stageHeight + 'px');
-      /* HP kecil: target ukuran layar sungguhan >= 0,68 (kartu profil; HP 820px = 1,6x) / 0,7 (slot power); layar lebar tidak diperbesar */
-      root.style.setProperty('--ghud-boost', String(Math.round(clamp(0.68 / stage, 1, 1.8) * 1000) / 1000));
+      /* HP kecil: kartu profil: TETAP 1,6x untuk semua HP (stage <= 0,55 ~ lebar <= 1056px), turun halus ke 1x di stage 0,7 (layar >= 1344px) / 0,7 (slot power); layar lebar tidak diperbesar */
+      root.style.setProperty('--ghud-boost', String(Math.round(clamp(1.6 - (stage - 0.55) / 0.15 * 0.6, 1, 1.6) * 1000) / 1000));
       root.style.setProperty('--ghud-boost-pu', String(Math.round(clamp(0.7 / stage, 1, 1.8) * 1000) / 1000));
     }
     var s = Math.round(scaleFor(W, H) * 1000) / 1000;
