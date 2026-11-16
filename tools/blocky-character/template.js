@@ -946,7 +946,7 @@ function computeTarget(){
     lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:0,headX:0,headY:0,cape:0.1,tail:0.25};
   const w=clamp(level,0,1),ra=clamp(level-1,0,1),idleW=1-w;
   const b=Math.sin(time*2.2);
-  T.rArmS+=b*0.025*idleW;T.lArmS+=-b*0.03*idleW;T.headX+=b*0.02*idleW;T.headY+=Math.sin(time*0.7)*0.3*idleW;
+  T.rArmS+=b*0.025*idleW;T.lArmS+=-b*0.03*idleW;T.headX+=b*0.02*idleW;T.headY+=Math.sin(time*0.7)*0.1*idleW;
   if(w>0.01){
     const A=(0.62+0.45*ra)*w,Aa=(0.55+0.5*ra)*w,kb=0.55+0.95*ra;
     const s=Math.sin(phase),c=Math.cos(phase);

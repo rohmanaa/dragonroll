@@ -29,7 +29,7 @@ assert.ok(!lobby.includes('UT.FloatingIsland.create(THREE'));
 assert.ok(!lobby.includes('id="bdrop"'));
 assert.ok(lobby.includes('assets/images/background/lobby-kastel.webp'));
 assert.ok(!lobby.includes('lobby-bg.webp'));
-assert.ok(lobby.includes('assets/images/icon/currency/coin.webp'));
+assert.ok(lobby.includes('assets/images/ui/hud/ikon-koin-emas.webp'));
 assert.ok(!lobby.includes('assets/images/icon/mode/console.webp'));
 assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})'));
 assert.ok(lobby.includes('AUR.update(motionDt)'));
@@ -40,7 +40,7 @@ assert.ok(!lobby.includes("$('#md').classList"));
 const background = PG.readFileSync(path.join(root, 'assets/images/background/lobby-kastel.webp'));
 assert.strictEqual(background.toString('ascii', 0, 4), 'RIFF');
 assert.strictEqual(background.toString('ascii', 8, 12), 'WEBP');
-for (const icon of ['assets/images/icon/currency/coin.webp']) {
+for (const icon of ['assets/images/ui/hud/ikon-koin-emas.webp']) {
   const image = PG.readFileSync(path.join(root, icon));
   assert.strictEqual(image.toString('ascii', 0, 4), 'RIFF');
   assert.strictEqual(image.toString('ascii', 8, 12), 'WEBP');
