@@ -1258,6 +1258,20 @@ function commitDraft(){
   if(!(pv&&pv.draft))return;
   const keep=clone(cfg);pv=null;previewAll=false;cfg=keep;apply(null,true); /* apply -> syncToPD: baru sekarang disimpan */
   toast('Tampilan dipakai!');
+  try{renderAct();updateInfo();}catch(e){}
+}
+/* Warna (dye) & ukuran tubuh: juga hanya pratinjau sampai tombol PAKAI ditekan (tidak langsung tersimpan). */
+const DRAFT_ACTION={state:()=>pv&&pv.draft?{mode:'equip',label:'PAKAI',disabled:false}:{mode:'used',label:'DIPAKAI',disabled:true},run:()=>commitDraft()};
+function stageBody(part){
+  if(pv&&!pv.draft){apply(part);return;}
+  if(pv&&pv.draft){apply(part);if(pv&&pv.draft&&JSON.stringify(cfg)===JSON.stringify(pv.saved))endPreview();}
+  else stage('b','Ukuran tubuh',part);
+  selectedActionKey='body';updateInfo();renderAct();
+}
+function stageDye(key,part){
+  if(pv&&!pv.draft){apply(part);return;} /* item terkunci sedang dicoba: perilaku lama */
+  if(pv&&pv.draft){apply(part);if(pv&&pv.draft&&JSON.stringify(cfg)===JSON.stringify(pv.saved))endPreview();renderAct();return;}
+  stage('d'+key,'Warna',part);selectedActionKey='dye';renderAct();
 }
 const modal=$('#modal');let mOpen=false;
 function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
@@ -1313,7 +1327,7 @@ function slider(label,key,min,max){
   const t=document.createElement('span');
   const r=document.createElement('input');r.type='range';r.min=min;r.max=max;r.step=0.01;r.value=cfg.body[key];
   const upd=()=>{t.textContent=label+' '+Math.round(cfg.body[key]*100)+'%';};
-  r.addEventListener('input',()=>{apply({body:{[key]:+r.value}});upd();});
+  r.addEventListener('input',()=>{stageBody({body:{[key]:+r.value}});upd();});
   upd();w.appendChild(t);w.appendChild(r);optsEl.appendChild(w);
 }
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
@@ -1350,7 +1364,7 @@ function renderTabs(){
   });
 }
 function renderOpts(){
-  optsEl.innerHTML='';dyesEl.innerHTML='';optsEl.classList.remove('flat');cardActions.clear();
+  optsEl.innerHTML='';dyesEl.innerHTML='';optsEl.classList.remove('flat');cardActions.clear();cardActions.set('dye',DRAFT_ACTION);cardActions.set('body',DRAFT_ACTION);
   THUMB.reset();
   const c=CATS[cat];let n=0;
   if(c.type==='gender'){
@@ -1372,8 +1386,9 @@ function renderOpts(){
     optsEl.classList.add('flat');
     slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
     const r=document.createElement('button');r.className='bt gd';r.textContent='Atur ulang';
-    r.addEventListener('click',()=>{apply({body:{height:1,build:1}});renderOpts();});
+    r.addEventListener('click',()=>{stageBody({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
+    selectedActionKey='body';
   }else if(c.type==='preset'){
     const presetCard=p=>{
       const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
@@ -1425,7 +1440,7 @@ function renderOpts(){
         tq:{key:'a|'+it.id+THUMB.sig([]),fr:'full',part:cur=>cur.accessories.some(a=>a.id===it.id)?{}:{accessories:cur.accessories.concat([{id:it.id,dye:it.def}])}}}));
     });
     const cur=cfg.accessories.find(a=>a.id===accSel);
-    if(cur)dyeRow(find('acc',cur.id),cur.dye,id=>apply({accessories:cfg.accessories.map(a=>a.id===cur.id?{id:a.id,dye:id}:a)}));
+    if(cur)dyeRow(find('acc',cur.id),cur.dye,id=>stageDye('acc',{accessories:cfg.accessories.map(a=>a.id===cur.id?{id:a.id,dye:id}:a)}));
   }else{
     const cur=cfg[c.key];
     REG[c.reg].filter(okG).forEach(it=>{
@@ -1447,7 +1462,7 @@ function renderOpts(){
         fn:()=>lock?startPreview(ci,{[c.key]:{id:it.id}}):stage('i'+c.key+it.id,it.n,{[c.key]:{id:it.id}}),
         tq:it.id==='none'?null:{key:c.key+'|'+it.id+'|'+(cur.dye||'')+THUMB.sig([c.key]),fr:FRAME[c.key]||'full',part:()=>({[c.key]:{id:it.id}})}}));
     });
-    dyeRow(find(c.reg,cur.id),cur.dye,id=>apply({[c.key]:{dye:id}}));
+    dyeRow(find(c.reg,cur.id),cur.dye,id=>stageDye(c.key,{[c.key]:{dye:id}}));
   }
   $('#ofm').style.display=(c.type==='preset'&&PD.outfits().length)?'':'none';
   renderEq();

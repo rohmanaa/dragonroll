@@ -27,6 +27,13 @@ t("Gender dan Kulit hanya pratinjau dulu; dipakai lewat tombol aksi PAKAI", () =
   assert.ok(/actionKey:'gender:'\+a\[0\]/.test(html) && /actionKey:'skin:'\+s\.id/.test(html), "ada tombol aksi");
   assert.ok(/function setGender\(g\)/.test(html));
 });
+t("Warna (dye) dan slider Tubuh juga hanya pratinjau sampai tombol PAKAI", () => {
+  assert.ok(/function stageDye\(key,part\)/.test(html) && /function stageBody\(part\)/.test(html));
+  assert.ok(/id=>stageDye\(c\.key,\{\[c\.key\]:\{dye:id\}\}\)/.test(html), "warna item tidak langsung tersimpan");
+  assert.ok(/r\.addEventListener\('input',\(\)=>\{stageBody\(/.test(html), "slider tubuh tidak langsung tersimpan");
+  assert.ok(!/apply\(\{body:\{\[key\]:\+r\.value\}\}\)/.test(html));
+  assert.ok(/cardActions\.set\('dye',DRAFT_ACTION\);cardActions\.set\('body',DRAFT_ACTION\)/.test(html));
+});
 t("aksesori multi-pakai memakai centang hijau dan aksi PAKAI/LEPAS", () => {
   assert.ok(/status:lock\?'lock':on\?'used':'own'/.test(html));
   assert.ok(/label:'LEPAS',disabled:false/.test(html));
