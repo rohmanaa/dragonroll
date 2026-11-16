@@ -82,9 +82,9 @@ function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('s
  return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/renderers/blocky-character.js')).then(()=>L('assets/js/renderers/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
- $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?null:eqItem(k);
-  const ar=k==='effect'?`<img src="${EFFECT_ICON}" alt="" draggable="false">`:k==='skin'?skinArt(it):(it?art(it):'');
-  const nm=k==='effect'?'Segera':k==='skin'?'Kustom':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-');
+ $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?IC.byId(PD.equippedId('aura')):eqItem(k);
+  const ar=k==='effect'?(it?eqArt(it):`<img src="${EFFECT_ICON}" alt="" draggable="false">`):k==='skin'?skinArt(it):(it?art(it):'');
+  const nm=k==='effect'?(it?esc(it.name.replace(/ Aura$/,'')):'Tanpa'):k==='skin'?'Kustom':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-');
   return `<button class="slot" data-k="${k}" aria-label="Ganti ${l}"><span class="chg">✎</span><div class="k">${l}</div><span class="art">${ar}</span><div class="v">${nm}</div></button>`}).join('');
 }
 const PAGE_VIEWS={dice:['dadu.html','Dadu'],skin:['karakter.html','Karakter'],frame:['frame.html','Frame'],effect:['efek.html','Efek'],power:['powerup.html','Power-up']};
@@ -107,9 +107,31 @@ function closePageModal(){
   return true;
 }
 $('#pageModalFrame').addEventListener('load',()=>{const modal=$('#pageModal');if(!modal.classList.contains('on'))return;modal.classList.remove('loading');modal.setAttribute('aria-busy','false')});
-$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(b)openPageModal(b.dataset.k)};
-$('#powerPage').onclick=()=>openPageModal('power');
-$('#power').onclick=e=>{if(!e.target.closest('#prow, #powerPage'))openPageModal('power')};
+/* Equipment: dadu/frame/efek = modal RINGAN berisi item yang DIMILIKI saja (tanpa memuat halaman penuh). Karakter = editor 3D, tetap halaman Karakter. */
+const EQP={dice:{kind:'dice',title:'PILIH DADU',none:false},frame:{kind:'frame',title:'PILIH FRAME',none:false},effect:{kind:'aura',title:'PILIH EFEK',none:true}};
+const eqArt=it=>it.kind==='aura'?ItemArt.aura(it.id):art(it);
+let eqPick=null,fwTrigger=null;
+const fwOpen=(id,focus)=>{const m=$(id);fwTrigger=document.activeElement;m.classList.add('on');m.setAttribute('aria-hidden','false');fit();const f=m.querySelector(focus||'.fwx');if(f)f.focus()};
+const fwClose=id=>{const m=$(id);m.classList.remove('on');m.setAttribute('aria-hidden','true');if(fwTrigger&&fwTrigger.isConnected)fwTrigger.focus();fwTrigger=null};
+function renderEqPick(){
+  const c=EQP[eqPick];if(!c)return;
+  const list=IC.items.filter(i=>i.kind===c.kind&&!i.off&&PD.owns(i.id));
+  const none=c.none?`<button type="button" class="it${PD.equippedId('aura')?'':' sel'}" data-id="__none" aria-pressed="${!PD.equippedId('aura')}"><span class="art"><img src="${EFFECT_ICON}" alt="" draggable="false"></span><div class="n">Tanpa Efek</div>${PD.equippedId('aura')?'':'<div class="u">DIPASANG</div>'}</button>`:'';
+  $('#emL').innerHTML=none+list.map(i=>{const on=PD.isEquipped(i.id);return `<button type="button" class="it${on?' sel':''}" data-id="${esc(i.id)}" aria-pressed="${on}"><span class="art">${eqArt(i)}</span><div class="n">${esc(i.name)}</div>${on?'<div class="u">DIPASANG</div>':''}</button>`}).join('')||'<p class="empty">Belum ada item yang dimiliki.</p>';
+  $('#emHint').textContent=list.length+' item dimiliki · ketuk untuk memakai';
+}
+function openEqPick(k){const c=EQP[k];if(!c)return;eqPick=k;$('#emT').textContent=c.title;renderEqPick();fwOpen('#em')}
+function closeEqPick(){if(!eqPick)return;eqPick=null;fwClose('#em');renderEq();if(ONLINE)publishProfile()}
+$('#emL').onclick=e=>{
+  const b=e.target.closest('[data-id]');if(!b||!eqPick)return;const id=b.dataset.id;
+  const r=id==='__none'?PD.unequip('aura'):PD.equip(id);
+  if(r&&r.ok){const it=IC.byId(id);toast(id==='__none'?'Efek dilepas':(it?it.name:'Item')+' dipakai')}else toast('Gagal memakai item.');
+  renderEqPick();renderEq();
+};
+$('#emX').onclick=closeEqPick;
+$('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;if(k==='skin')openPageModal('skin');else openEqPick(k)};
+$('#powerPage').onclick=()=>openPowerPick();
+$('#power').onclick=e=>{if(!e.target.closest('#prow, #powerPage'))openPowerPick()};
 addEventListener('message',e=>{if(e.source===$('#pageModalFrame').contentWindow&&e.data&&e.data.type==='ut-room-modal-close')closePageModal()});
 addEventListener('room-dice-art-ready',renderEq);
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
@@ -163,8 +185,8 @@ function renderPowerPick(){
   return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — '+(on?'dipasang':st?'dimiliki '+st:canBuyPower(p)?'beli '+fmtPrice(p.price):'tidak dijual')+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${state}${info}</div>`;
  }).join('');
 }
-function openPowerPick(){powerDraft={equipped:PW.equipped.slice(),carry:Object.assign({},PW.carry)};renderPowerPick();$('#pm').classList.add('on')}
-function closePowerPick(){powerDraft=null;$('#pm').classList.remove('on')}
+function openPowerPick(){powerDraft={equipped:PW.equipped.slice(),carry:Object.assign({},PW.carry)};renderPowerPick();fwOpen('#pm')}
+function closePowerPick(){powerDraft=null;fwClose('#pm')}
 $('#pmL').onclick=e=>{
  const card=e.target.closest('.pc[data-id]');if(!card||!powerDraft)return;
  const id=card.dataset.id,pi=IC.byId(id),sb=e.target.closest('[data-d]');
@@ -187,7 +209,8 @@ $('#pmL').onclick=e=>{
 };
 $('#pmL').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pc[data-id]')){e.preventDefault();e.target.click()}};
 $('#pdone').onclick=()=>{if(!powerDraft)return;PW.equipped=powerDraft.equipped;PW.carry=powerDraft.carry;saveP();closePowerPick();renderPower()};
-$('#pm').onclick=e=>{if(e.target.id==='pm')closePowerPick()};
+$('#pmX').onclick=closePowerPick; /* tutup tanpa menyimpan (SELESAI = simpan) */
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#pageModal').classList.contains('on'))return;if($('#em').classList.contains('on'))closeEqPick();else if($('#pm').classList.contains('on'))closePowerPick()});
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/assets/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
 const BANNER={minecraft:'gameplay/assets/maps/banner-maps/world.webp',nether:'gameplay/assets/maps/banner-maps/nether.webp'};
@@ -341,7 +364,8 @@ addEventListener('pagehide',clearT);
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
 try{UT.Events.on('inventoryChanged',()=>{renderPower();if(powerDraft)renderPowerPick()})}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
 if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';
+ document.querySelectorAll('.fwin').forEach(w=>{w.style.width=innerWidth/s+'px';w.style.height=innerHeight/s+'px';w.style.transform='scale('+s+')'})} /* modal full-window: isi diskalakan seperti stage tapi mengisi seluruh jendela */
 addEventListener('resize',fit);fit();
 /* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode) */
 try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}}}catch(e){}

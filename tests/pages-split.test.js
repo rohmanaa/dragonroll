@@ -14,7 +14,7 @@ t("tidak ada <style>/<script> inline >= 300 karakter (kecuali importmap)", () =>
 t("semua src/href ke assets/{js,css}/pages ada, dan url() CSS halaman menunjuk file yang ada", () => {
   pages.forEach(f => {
     const h = fs.readFileSync(path.join(root, f), "utf8");
-    [...h.matchAll(/(?:src|href)="(assets\/(?:js|css)\/pages\/[^"]+)"/g)].forEach(m => assert.ok(fs.existsSync(path.join(root, m[1])), f + " -> " + m[1]));
+    [...h.matchAll(/(?:src|href)="(assets\/(?:js|css)\/pages\/[^"?]+)(?:\?[^"]*)?"/g)].forEach(m => assert.ok(fs.existsSync(path.join(root, m[1])), f + " -> " + m[1]));
   });
   fs.readdirSync(path.join(root, "assets/css/pages")).forEach(c => {
     const css = fs.readFileSync(path.join(root, "assets/css/pages", c), "utf8");

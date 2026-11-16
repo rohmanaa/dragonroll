@@ -41,10 +41,6 @@
 .pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
 .pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
 .pst button:disabled{opacity:.45;cursor:not-allowed}
-#pm{padding:24px}
-#pm .box{width:100%;height:100%;max-height:none;display:flex;flex-direction:column}
-#pmL{grid-template-columns:repeat(5,minmax(0,1fr));max-height:none;min-height:0;flex:1;overflow:auto;align-content:start}
-#pm .mfoot{justify-content:space-between}
 #pm .mfoot .hint{flex:1}
 #power.dis .ps{pointer-events:none}
 #pageModal{position:fixed;inset:0;z-index:100;display:none;background:var(--room-backdrop)}
@@ -73,3 +69,14 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
 .fr .btn.inv{flex:none}.fr .btn.inv:disabled{filter:grayscale(1) brightness(.7)}
 #dr{display:none}.dro #dr{display:grid}
 #dr .box{width:900px}#dr .fl{max-height:520px}
+/* modal FULL WINDOW (Power & pilih item milik pemain): di luar #stage supaya memenuhi seluruh jendela; isi diskalakan seperti stage (fit() di room.js) */
+.fw{position:fixed;inset:0;z-index:90;display:none;background:var(--room-backdrop)}
+.fw.on{display:block}
+.fwin{position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:column;box-sizing:border-box;padding:34px 56px 30px}
+.fwin h2{margin:0 0 22px;font-size:56px;text-align:center}
+.fwx{position:absolute;top:24px;right:32px;z-index:2;width:88px;height:88px;border-radius:24px;font:400 56px/1 var(--font-title);color:#fff;background:linear-gradient(#ff6b6b,#d83a3a);border:4px solid #7a1d1d;box-shadow:0 6px 0 #5c1313;cursor:pointer}
+.fwx:active{transform:translateY(4px);box-shadow:0 2px 0 #5c1313}
+.fw .igrid{flex:1;min-height:0;max-height:none;overflow:auto;align-content:start;gap:20px;padding:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.fw .mfoot{justify-content:space-between}.fw .mfoot .hint{flex:1;text-align:left}
+.fw .igrid .empty{grid-column:1/-1;text-align:center;font-weight:800;font-size:28px;color:#ddd7f7;padding:60px 0}
+.fw .it{cursor:pointer;color:#fff}

@@ -89,4 +89,23 @@ test('room dice art uses the same procedural thumbnail source as the preview', (
   assert.ok(module.includes('diceThumbDataURL(die, px)'));
 });
 
+test('dadu/frame/efek: modal ringan native berisi item yang DIMILIKI saja (tanpa iframe halaman penuh)', () => {
+  assert.ok(room.includes("const EQP={dice:{kind:'dice'"), 'picker dice/frame/effect');
+  assert.ok(room.includes("PD.owns(i.id)"), 'hanya item yang dimiliki');
+  assert.ok(room.includes("k==='skin')openPageModal('skin');else openEqPick(k)"), 'hanya karakter yang tetap membuka halaman Karakter');
+  assert.ok(/id="em"[^>]*role="dialog"/.test(room) && room.includes('id="emL"') && room.includes('id="emX"'));
+  assert.ok(room.includes("PD.unequip('aura')") && room.includes('PD.equip(id)'), 'pakai/lepas lewat PlayerData');
+});
+
+test('modal Power & picker item: FULL WINDOW di luar stage, tombol close (X) kanan atas', () => {
+  assert.ok(/<div class="fw" id="pm"[^>]*role="dialog"/.test(room) && room.includes('id="pmX"'));
+  const stageEnd = room.indexOf('<div id="pageModal"');
+  assert.ok(room.indexOf('id="pm"') > stageEnd && room.indexOf('id="em"') > stageEnd, 'di luar #stage yang diskalakan');
+  assert.ok(/\.fw\{position:fixed;inset:0;[^}]*background:var\(--room-backdrop\)/.test(room));
+  assert.ok(/\.fwx\{position:absolute;top:\d+px;right:\d+px/.test(room), 'close di kanan atas');
+  assert.ok(room.includes("w.style.width=innerWidth/s+'px'") && room.includes("w.style.height=innerHeight/s+'px'"), 'isi mengikuti ukuran jendela');
+  assert.ok(room.includes("$('#pmX').onclick=closePowerPick") && room.includes("e.key!=='Escape'"));
+  assert.ok(room.includes("$('#powerPage').onclick=()=>openPowerPick()"));
+});
+
 console.log(count + ' tests passed');
