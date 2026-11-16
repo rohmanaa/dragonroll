@@ -64,7 +64,7 @@
     async function refresh() {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };
       try {
-        var w = await rpc('wallet_get'), inv = await rpc('inventory_get');
+        var rs = await Promise.all([rpc('wallet_get'), rpc('inventory_get')]), w = rs[0], inv = rs[1]; /* paralel: 2 request sekaligus, bukan berurutan */
         mirror(w.coins, w.gems, Array.isArray(inv) ? inv : []);
         return { ok: true, coins: num(w.coins), gems: num(w.gems) };
       } catch (e) { return fail(e); }
