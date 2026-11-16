@@ -30,14 +30,18 @@ Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash
 
 ## Struktur kode
 
-- `assets/js/` : layanan bersama (`player-data`, `wallet-service`, `item-catalog`, `auth`, `session`, `prefs`, dll.), `dice-kit/`, `renderers/power3d/`, `multiplayer/`, dan `vendor/` (three.js).
-- `assets/css/` : CSS bersama; `base.css` mempertahankan path lama dan mengimpor `base/`, `components/`, serta `utilities/`. Font lokal tetap di `fonts.css`, gaya halaman di `pages/`.
+- `assets/` : aset statis umum lintas halaman/domain; gunakan `images/`, `audio/music/`, `audio/sfx/`, `fonts/`, dan `icons/`.
+- `assets/js/` dan `assets/css/` : kode serta gaya bersama. Kit renderer yang dibekukan untuk Gameplay tetap di lokasi saat ini.
+- `data/<domain>/{css,js,img,audio}/` : berkas yang hanya dimiliki satu domain; aset khusus item berada di `data/<domain>/items/<item>/`.
+- Domain fitur: `dice`, `frame`, `power`, `pet`, `karakter`, `aura`, `maps`, `lobby`, dan `tambang`. Berkas yang masih dibekukan/ditunda tidak dipindah sampai ada izin.
 - `gameplay/` : modul game (core, HUD, audio, efek, peta, AFK, dadu).
 - `hud/` : komponen & tema HUD.
 - `supabase/` : migrasi, snapshot skema, dan tes SQL. Lihat `supabase/README.md`.
 - `tests/` : tes Node (`for f in tests/*.test.js; do node "$f"; done`).
 - `tools/` : skrip bantu (snapshot skema, manifes pramuat, dll.).
 - `doc/`, `MULTIPLAYER_PLAN.md`, `MULTIPLAYER_STATE.md` : catatan desain.
+
+Lihat [STRUKTUR.md](STRUKTUR.md) untuk aturan pemilihan `assets/` vs `data/` dan menambahkan item.
 
 ## Aturan aset referensi
 
@@ -67,11 +71,11 @@ Setelah mengubah aset/kode yang harus segera segar, naikkan `VERSION` di `sw.js`
 
 ## Struktur halaman (HTML / CSS / JS dipisah)
 
-Halaman root (kecuali `gameplay.html`, yang punya struktur sendiri di `gameplay/`) hanya berisi markup. CSS dan JS halaman ada di:
+Halaman root (kecuali `gameplay.html`, yang punya struktur sendiri di `gameplay/`) tetap di root. CSS/JS bersama atau generik berada di `assets/css/pages/` dan `assets/js/pages/`; pengendali serta gaya yang khusus domain boleh berada di `data/<domain>/`.
 
-- `assets/css/pages/<halaman>[-N].css` dan `assets/js/pages/<halaman>[-N].js` (tag dipasang di posisi yang sama dengan blok inline aslinya, jadi urutan cascade/eksekusi tidak berubah)
+- Tag tetap di posisi yang sama agar urutan cascade/eksekusi tidak berubah.
 - Inline kecil (<300 karakter, mis. `UT.App.init({page:'x'})`) dan `importmap` tetap di HTML.
-- `url()` di CSS relatif ke `assets/css/pages/` (`../../../assets/...`); `import()` dinamis di JS relatif ke `assets/js/pages/` (`../../../assets/js/...`).
+- Path `url()` relatif terhadap file CSS yang memuatnya; `import()` dinamis relatif terhadap file JS yang memuatnya.
 - Alat: `python3 tools/extract-inline.py` (aman diulang). Penjaga: `tests/pages-split.test.js`. Tes statis yang membaca teks halaman memakai `tests/_page.js`.
 - Tanpa CDN: font di `assets/fonts/` + `assets/css/fonts.css`, supabase-js di `assets/js/vendor/supabase-js-2.119.0.mjs` (dites `tests/no-cdn.test.js`).
 - Setelah mengubah aset: naikkan `VERSION` di `sw.js` dan jalankan `python3 tools/gen-preload-manifest.py`.
