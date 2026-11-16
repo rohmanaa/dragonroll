@@ -5439,6 +5439,11 @@ const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
 /* Tahan-lepas HANYA untuk fase Crystal (dan Skeleton/Wither di map Nether). Menyerang Ender Dragon = lempar acak biasa. */
 function dragonStrike(p){ return !!(p&&!p.cpu&&BOSS==='dragon'&&p.dragonReady&&p.pos===GOAL&&AWK.done&&!gameOver); }
 function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===GOAL&&AWK.done&&!gameOver&&!(BOSS==='dragon'&&p.dragonReady)); }
+const ROLL_ACTION_ICONS={
+  roll:'assets/images/ui/gameplay-actions/roll.webp',
+  hancurkan:'assets/images/ui/gameplay-actions/hancurkan.webp',
+  serang:'assets/images/ui/gameplay-actions/serang.webp'
+};
 function specialHint(p){
   if(AWK.running) return;
   if(dragonStrike(p)){ setMsg('Serang Ender Dragon!'); return; }
@@ -5449,7 +5454,10 @@ function specialHint(p){
 function syncRollLabel(){
   const b=$('btnRoll'),p=players[cur],sp=specialDiceActive(p),dragonAttack=dragonStrike(p);
   b.classList.toggle('special',sp); b.classList.toggle('boss-attack',dragonAttack); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?'Lepas':(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
+  const action=dragonAttack?'serang':(sp?'hancurkan':'roll');
+  const label=DH.on?'Lepas':(dragonAttack?'Serang':(sp?'Hancurkan':'Roll'));
+  b.dataset.action=action; b.setAttribute('aria-label',label);
+  const icon=$('btnRollIcon'); if(icon&&icon.getAttribute('src')!==ROLL_ACTION_ICONS[action]) icon.setAttribute('src',ROLL_ACTION_ICONS[action]);
   dmShow(sp&&!AWK.running&&canControlPlayer(players[cur])); if(sp&&!DH.on) dmDraw(0); /* bar 1-6 ikut hilang bersama Roll/Auto saat bukan giliran pemain ini */
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
