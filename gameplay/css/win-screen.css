@@ -378,3 +378,13 @@ body:has(#win.win-result:not([hidden])) #utGameplayHud { visibility: hidden !imp
   max-width: calc(100vw - 32px) !important;
   padding: clamp(12px, 2vh, 28px) clamp(18px, 3vw, 40px) !important;
 }
+
+
+/* HP landscape: ukuran hasil (clamp vw/vh) jadi sangat kecil di layar ~800x360 -> perbesar isi layar kemenangan/kalah.
+   min-height dibagi zoom agar tetap pas 1 layar (zoom ikut mengalikan min-height). */
+@media (max-height: 430px) {
+  #win.win-result .lm-body { zoom: 1.6; min-height: calc((100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1.6) !important; }
+}
+@media (min-height: 431px) and (max-height: 560px) {
+  #win.win-result .lm-body { zoom: 1.35; min-height: calc((100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1.35) !important; }
+}

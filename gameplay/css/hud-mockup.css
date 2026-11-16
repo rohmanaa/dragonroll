@@ -1542,7 +1542,7 @@ html body #hud .tools.open #btnMenu::before {
 }
 
 html body #side .rcol .pnl.tn #btnRoll.boss-attack {
-  background-image: url("../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp") !important;
+  background-image: none !important; /* tombol Serang = ikon pedang (action-icons.css); gambar tombol merah polos dulu masih tampak di belakang ikon */
   color: #fff !important;
   text-shadow: 0 3px 0 #7a0e0a !important;
   text-transform: uppercase !important;
@@ -1683,3 +1683,14 @@ html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .
   background-size: 100% 100% !important;
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-hp { font-size: 20px !important; }
+
+
+/* ===== HP layar kecil: panggung HUD 1920px diskala (lebar layar / 1920) -> di HP landscape ~0,43 sehingga kartu profil & slot power sangat kecil.
+   hud-scale.js mengisi --ghud-boost (kartu profil) dan --ghud-boost-pu (slot power); di layar lebar nilainya 1 (tidak ada perubahan).
+   Diperbesar dari sudut tempat ia menempel, jadi tidak keluar layar dan tidak menutupi tombol Roll/Serang di tengah-kanan. ===== */
+#players .pg { transform: scale(var(--ghud-boost, 1)) !important; }
+#players .pg.p0 { transform-origin: 100% 100% !important; }
+#players .pg.p1 { transform-origin: 0 0 !important; }
+#players .pg.p2 { transform-origin: 100% 0 !important; }
+#players .pg.p3 { transform-origin: 0 100% !important; }
+#side .pnl.pu { transform: translateX(-50%) scale(var(--ghud-boost-pu, 1)) !important; transform-origin: 50% 100% !important; }
