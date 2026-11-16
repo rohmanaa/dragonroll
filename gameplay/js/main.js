@@ -5664,14 +5664,13 @@ async function recordMatchServer(PD,m){
 }
 /* Hadiah naik level: server (claim_level_rewards) membayar koin/emerald dan mengembalikan nominalnya; modal hanya menampilkan.
    Gagal/offline -> modal tetap tampil tanpa hadiah (hadiah yang terlewat dibayar pada klaim berikutnya). */
-const LEVELUP_ICON={coins:'assets/images/ui/hud/ikon-koin-emas.webp',gems:'assets/images/ui/gem-medal-icons/berlian-hijau.webp'};
 async function showLevelUpWithRewards(level,gid){
   let rewards=[],note='';
   try{
     const W=UT.WalletService&&UT.WalletService.get(), r=W&&W.claimLevelRewards?await W.claimLevelRewards():null;
     if(r&&r.ok){
-      if(r.reward_coins>0) rewards.push({icon:LEVELUP_ICON.coins,amount:'+'+r.reward_coins,label:'Koin'});
-      if(r.reward_gems>0) rewards.push({icon:LEVELUP_ICON.gems,amount:'+'+r.reward_gems,label:'Emerald'});
+      if(r.reward_coins>0) rewards.push({kind:'coins',amount:'+'+r.reward_coins,label:'Koin'});
+      if(r.reward_gems>0) rewards.push({kind:'gems',amount:'+'+r.reward_gems,label:'Emerald'});
       const lv=Array.isArray(r.levels)?r.levels:[]; if(lv.length>1) note='Hadiah level '+lv[0].level+'–'+lv[lv.length-1].level;
     }
   }catch(e){ console.warn('[level-up] klaim hadiah gagal',e); }

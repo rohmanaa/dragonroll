@@ -40,10 +40,11 @@ const mk = (reply, opts) => { const calls = [], mirrored = [];
     assert.ok(/claimLevelRewards/.test(h) && /r\.reward_coins/.test(h) && /r\.reward_gems/.test(h)); assert.ok(!/\b50\s*\*|\*\s*50\b|100\s*\+/.test(h), 'tidak ada rumus hadiah di klien');
     assert.ok(/catch\(e\)\{ console\.warn\('\[level-up\] klaim hadiah gagal'/.test(h), 'gagal klaim -> modal tetap tampil');
   });
-  await t('Ikon hadiah (koin & emerald) ada dan sama dengan ikon mata uang di UI', async () => {
-    const m = rd('gameplay/js/main.js'); const c = /coins:'([^']+)'/.exec(m)[1], g = /gems:'([^']+)'/.exec(m)[1];
-    [c, g].forEach(f => { const b = fs.readFileSync(path.join(ROOT, f)); assert.ok(b.length > 500, f); assert.strictEqual(b.slice(8, 12).toString(), 'WEBP', f); });
-    assert.ok(c === 'assets/images/ui/hud/ikon-koin-emas.webp' && g === 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', 'ikon memakai path aset terbaru (assets/images/ui)');
+  await t('Ikon hadiah: main.js mengirim kind coins/gems; CSS level-up.css memetakan ke ikon mata uang existing (path relatif CSS benar, file WEBP ada)', async () => {
+    const m = rd('gameplay/js/main.js'); assert.ok(/kind:'coins'/.test(m) && /kind:'gems'/.test(m));
+    const css = rd('gameplay/css/level-up.css'); const want = { coins: 'assets/images/ui/hud/ikon-koin-emas.webp', gems: 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' };
+    Object.keys(want).forEach(k => { const r = new RegExp('\\.lu-modal__ic--' + k + ' \\{[^}]*url\\(([^)]+)\\)').exec(css); assert.ok(r, k);
+      const f = path.join(ROOT, 'gameplay/css', r[1]); assert.strictEqual(path.relative(ROOT, f), want[k]); assert.strictEqual(fs.readFileSync(f).slice(8, 12).toString(), 'WEBP', k); });
   });
   await t('Latar slot hadiah = slot-terpilih.webp (aset existing, path relatif CSS benar)', async () => {
     const css = rd('gameplay/css/level-up.css'), m = /\.lu-modal__slot \{[^}]*url\(([^)]+)\)/.exec(css); assert.ok(m, 'CSS slot memakai url()');

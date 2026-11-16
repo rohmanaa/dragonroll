@@ -1,7 +1,7 @@
 /* Ular Tangga Blok — gameplay/js/level-up.js
    Modal "Naik Level" (referensi: referensi/newgui/assets/penerapan/CyJ1Oe.png).
    Skrip klasik (tanpa import/export). Dimuat dari gameplay.html; CSS: gameplay/css/level-up.css (z-index tinggi).
-   Pakai:  UT.LevelUp.show({ level: 3, rewards: [{icon:'assets/...webp', amount:60, label:'Energi'}], note: 'Energi maks naik ke 60', onClose: fn })
+   Pakai:  UT.LevelUp.show({ level: 3, rewards: [{kind:'coins'|'gems', amount:'+250', label:'Koin'} atau {icon:'assets/...webp', amount:60, label:'Energi'}], note: 'Energi maks naik ke 60', onClose: fn })
    - level   : wajib, angka level baru.
    - rewards : opsional; bagian "HADIAH" disembunyikan bila kosong (tidak ada hadiah karangan).
    - note    : opsional; teks cyan di bawah hadiah.
@@ -68,13 +68,19 @@
     b.appendChild(mk('div', 'lu-modal__lvl-num' + (lv >= 100 ? ' is-long' : ''), String(lv)));
     m.appendChild(b);
 
-    var rw = Array.isArray(opts.rewards) ? opts.rewards.filter(function (r) { return r && r.icon; }).slice(0, 5) : [];
+    var rw = Array.isArray(opts.rewards) ? opts.rewards.filter(function (r) { return r && (r.icon || r.kind); }).slice(0, 5) : [];
     var rs = mk('section', 'lu-modal__rewards'); rs.hidden = !rw.length;
     rs.appendChild(mk('h3', null, 'Hadiah'));
     var sl = mk('div', 'lu-modal__slots');
     rw.forEach(function (r) {
-      var s = mk('div', 'lu-modal__slot'), im = doc.createElement('img');
-      im.src = String(r.icon); im.alt = r.label ? String(r.label) : ''; im.draggable = false; s.appendChild(im);
+      var s = mk('div', 'lu-modal__slot'), im;
+      if (r.kind === 'coins' || r.kind === 'gems') {
+        /* ikon mata uang lewat CSS (url relatif ke level-up.css, sama seperti latar slot) -> tidak bergantung pada lokasi halaman */
+        im = mk('span', 'lu-modal__ic lu-modal__ic--' + r.kind); im.setAttribute('role', 'img'); im.setAttribute('aria-label', r.label ? String(r.label) : r.kind);
+      } else {
+        im = doc.createElement('img'); im.src = String(r.icon); im.alt = r.label ? String(r.label) : ''; im.draggable = false;
+      }
+      s.appendChild(im);
       if (r.amount != null) s.appendChild(mk('b', null, String(r.amount)));
       sl.appendChild(s);
     });
