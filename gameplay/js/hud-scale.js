@@ -30,9 +30,10 @@
       lastStageHeight = stageHeight;
       root.style.setProperty('--ghud-stage-scale', String(stage));
       root.style.setProperty('--ghud-stage-height', stageHeight + 'px');
-      /* HP kecil: kartu profil menyesuaikan layar: target ukuran sungguhan 0,68 (HP selebar 820px = 1,6x; layar lebih lebar = lebih kecil, >= 1280px = 1x; maks 1,8x) / 0,7 (slot power); layar lebar tidak diperbesar */
-      root.style.setProperty('--ghud-boost', String(Math.round(clamp(0.68 / stage, 1, 1.8) * 1000) / 1000));
-      root.style.setProperty('--ghud-boost-pu', String(Math.round(clamp(0.7 / stage, 1, 1.8) * 1000) / 1000));
+      /* Pembesar HUD untuk HP: boost TETAP di HP kecil (profil 1,6x, slot power 1,65x; stage <= 0,5 ~ lebar <= 960px) lalu turun halus ke 1x di desktop 1920px.
+         Ukuran akhir = stage x boost, jadi makin lebar layar makin besar HUD-nya (tidak ada dataran/ukuran tetap). */
+      root.style.setProperty('--ghud-boost', String(Math.round((1 + 0.6 * clamp((1 - stage) / 0.5, 0, 1)) * 1000) / 1000));
+      root.style.setProperty('--ghud-boost-pu', String(Math.round((1 + 0.65 * clamp((1 - stage) / 0.5, 0, 1)) * 1000) / 1000));
     }
     var s = Math.round(scaleFor(W, H) * 1000) / 1000;
     if (s === last) return;
