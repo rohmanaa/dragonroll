@@ -5,7 +5,9 @@
    tanpa game loop kedua: update dipanggil dari loop animasi milik gameplay (pada titik yang sama seperti sebelumnya).
    Tetap di gameplay.html: explode/teleport (mengubah pawn + tween + sfx), salju/ember tema, animasi mob/ular, kamera, Dragon, state & guard gameId/STALE.
    Classic script. Namespace: UT.GameplayFX.
-   API: init(scene) · spawnConfetti(pos) · updateConfetti(dt) · clearConfetti() · sparkle(pos) · updateSparks(dt) */
+   API: init(scene) · spawnConfetti(pos) · updateConfetti(dt) · clearConfetti() · sparkle(pos) · updateSparks(dt)
+   Core FX (audit/4 checkpoint 1.1): quality() · setQuality(q|'auto') · n(base) · cap() · reduced().
+   Kualitas 'medium' (bawaan) = jumlah partikel LAMA, tanpa perubahan visual. Skala hanya aktif di low/high/ultra atau saat reduced-motion. */
 (function (win) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -13,9 +15,46 @@
 
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
 
+  /* ---- Core FX (1.1): kualitas perangkat + reduce-motion live + batas partikel aktif ----
+     Tanpa localStorage/timer di modul ini: preferensi dikirim pemanggil lewat setQuality(). */
+  var Q_SCALE = { low: 0.5, medium: 1, high: 1.3, ultra: 1.6 };
+  var Q_CAP = { low: 120, medium: 300, high: 420, ultra: 600 }; /* batas mesh aktif (confetti + ledakan + sparkle); medium cukup untuk swap Ender + konfeti bersamaan */
+  var Q_PFX = { low: { maxParticles: 30, maxBurst: 10 }, medium: { maxParticles: 60, maxBurst: 20 }, high: { maxParticles: 78, maxBurst: 26 }, ultra: { maxParticles: 96, maxBurst: 30 } }; /* ParticleFX (DOM) */
+  var REDUCE_MUL = 0.4; /* sama dengan FX Lab */
+  var qPref = 'auto', mql = null;
+
+  function detectQuality() {
+    try {
+      var nav = win.navigator || {};
+      var mem = nav.deviceMemory || 8, cores = nav.hardwareConcurrency || 8;
+      return (cores <= 2 || mem <= 2) ? 'low' : 'medium'; /* perangkat sangat lemah saja; selebihnya = perilaku lama */
+    } catch (e) { return 'medium'; }
+  }
+  function quality() { return Q_SCALE[qPref] ? qPref : detectQuality(); }
+  function applyParticleLimits() {
+    try { if (UT.ParticleFX && UT.ParticleFX.configure) UT.ParticleFX.configure(Q_PFX[quality()]); } catch (e) {}
+  }
+  function setQuality(q) {
+    qPref = (q && Q_SCALE[q]) ? q : 'auto';
+    applyParticleLimits();
+    return quality();
+  }
+  /* dibaca LIVE tiap panggilan (MediaQueryList.matches selalu terkini), bukan sekali saat load */
+  function reduced() {
+    try {
+      if (!mql && typeof win.matchMedia === 'function') mql = win.matchMedia('(prefers-reduced-motion: reduce)');
+      return !!(mql && mql.matches);
+    } catch (e) { return false; }
+  }
+  function n(base) { return Math.max(1, Math.round(base * Q_SCALE[quality()] * (reduced() ? REDUCE_MUL : 1))); }
+  function cap() { return Q_CAP[quality()]; }
+  function active() { return confetti.length + blasts.length + sparks.length; }
+  function grant(want) { return Math.max(0, Math.min(want, cap() - active())); }
+
   function init(sc) {
     if (!sc || !win.THREE) return false;
     scene = sc;
+    applyParticleLimits();
     if (!CONF_GEO) { /* sumber daya dibuat sekali, nilai sama dengan kode lama */
       CONF_GEO = new THREE.BoxGeometry(0.14, 0.14, 0.14);
       CONF_MATS = [0xF0453A, 0x2F80FF, 0xFFC21A, 0xA855F7, 0x45C94B, 0xFFFFFF].map(function (c) { return new THREE.MeshLambertMaterial({ color: c }); });
@@ -31,7 +70,8 @@
 
   function spawnConfetti(pos) {
     if (!scene) return;
-    for(let i=0;i<110;i++){
+    const NC = grant(n(110));
+    for(let i=0;i<NC;i++){
       const m=new THREE.Mesh(CONF_GEO,CONF_MATS[i%CONF_MATS.length]);
       m.position.set(pos.x,pos.y+0.8,pos.z);
       scene.add(m);
@@ -41,7 +81,7 @@
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
   function spawnExplosion(pos, kind) {
     if (!scene) return;
-    const en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = 36, NS = 22;
+    const en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB0 = 36, NS0 = 22, tot = grant(n(NB0 + NS0)), NB = Math.round(tot * NB0 / (NB0 + NS0)), NS = tot - NB; /* proporsi api:asap tetap 36:22 */
     for (let i = 0; i < NB + NS; i++) {
       const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
       const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : smk[Math.floor(Math.random() * smk.length)]);
@@ -64,7 +104,7 @@
       if (b.life <= 0) { scene.remove(b.m); blasts.splice(i, 1); }
     }
   }
-  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; }
+  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; sparks.forEach(q=>{ scene.remove(q.m); q.m.material.dispose(); }); sparks.length=0; }
   function updateConfetti(dt) {
     if (!scene) return;
     updateBlasts(dt);
@@ -78,7 +118,8 @@
 
   function sparkle(pos) {
     if (!scene) return;
-    for(let i=0;i<14;i++){
+    const NSP = grant(n(14));
+    for(let i=0;i<NSP;i++){
       const m=new THREE.Mesh(SPARK_GEO,new THREE.MeshBasicMaterial({color:i%3?0xFFE58A:0xFFFFFF,transparent:true,fog:false}));
       m.position.set(pos.x+(Math.random()-0.5)*0.3,pos.y,pos.z+(Math.random()-0.5)*0.3); scene.add(m);
       sparks.push({m,v:new THREE.Vector3((Math.random()-0.5)*0.9,0.7+Math.random()*0.9,(Math.random()-0.5)*0.9),life:1,max:1});
@@ -93,5 +134,5 @@
     }
   }
 
-  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks, quality: quality, setQuality: setQuality, n: n, cap: cap, reduced: reduced };
 })(window);
