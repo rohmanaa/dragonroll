@@ -5,12 +5,15 @@
    tanpa game loop kedua: update dipanggil dari loop animasi milik gameplay (pada titik yang sama seperti sebelumnya).
    Tetap di gameplay.html: explode/teleport (mengubah pawn + tween + sfx), salju/ember tema, animasi mob/ular, kamera, Dragon, state & guard gameId/STALE.
    Classic script. Namespace: UT.GameplayFX.
-   API: init(scene) · spawnConfetti(pos) · updateConfetti(dt) · clearConfetti() · sparkle(pos) · updateSparks(dt) */
+   Core FX (audit/4, Phase 2): clearConfetti() kini juga membersihkan sparkle (sebelumnya tertinggal di scene + material bocor saat game direset);
+   setQuality('low'|'medium'|'high'|'ultra') mengalikan jumlah partikel (default 'high' = 1x = perilaku lama); batas keras MAX_LIVE mencegah penumpukan mesh; stats() = jumlah partikel hidup (untuk tes/profiling).
+   API: init(scene) · spawnConfetti(pos) · spawnExplosion(pos, kind) · updateConfetti(dt) · clearConfetti() · sparkle(pos) · updateSparks(dt) · setQuality(q) · stats() */
 (function (win) {
   'use strict';
   var UT = win.UT = win.UT || {};
   if (UT.GameplayFX) return;
 
+  var QUALITY = { low: 0.4, medium: 0.7, high: 1, ultra: 1 }, MAX_LIVE = 600, qScale = 1;
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
 
   function init(sc) {
@@ -29,9 +32,13 @@
     return true;
   }
 
+  function setQuality(q) { qScale = QUALITY.hasOwnProperty(q) ? QUALITY[q] : 1; return qScale; }
+  function live() { return confetti.length + blasts.length + sparks.length; }
+  function room(n) { return Math.max(0, Math.min(Math.ceil(n * qScale), MAX_LIVE - live())); } /* jumlah yang boleh dibuat: skala kualitas + sisa kapasitas */
+
   function spawnConfetti(pos) {
     if (!scene) return;
-    for(let i=0;i<110;i++){
+    for(let i=0,N=room(110);i<N;i++){
       const m=new THREE.Mesh(CONF_GEO,CONF_MATS[i%CONF_MATS.length]);
       m.position.set(pos.x,pos.y+0.8,pos.z);
       scene.add(m);
@@ -41,8 +48,8 @@
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
   function spawnExplosion(pos, kind) {
     if (!scene) return;
-    const en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = 36, NS = 22;
-    for (let i = 0; i < NB + NS; i++) {
+    const en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS, NB = Math.round(36 * qScale), NS = Math.round(22 * qScale), cap = room(NB + NS);
+    for (let i = 0; i < Math.min(NB + NS, cap); i++) {
       const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
       const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : smk[Math.floor(Math.random() * smk.length)]);
       m.position.set(pos.x + (Math.random() - 0.5) * 0.25, pos.y + 0.45, pos.z + (Math.random() - 0.5) * 0.25);
@@ -64,7 +71,7 @@
       if (b.life <= 0) { scene.remove(b.m); blasts.splice(i, 1); }
     }
   }
-  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; }
+  function clearConfetti() { if (!scene) return; confetti.forEach(c=>scene.remove(c.m)); confetti.length=0; blasts.forEach(b=>scene.remove(b.m)); blasts.length=0; sparks.forEach(q=>{ scene.remove(q.m); q.m.material.dispose(); }); sparks.length=0; }
   function updateConfetti(dt) {
     if (!scene) return;
     updateBlasts(dt);
@@ -78,7 +85,7 @@
 
   function sparkle(pos) {
     if (!scene) return;
-    for(let i=0;i<14;i++){
+    for(let i=0,N=room(14);i<N;i++){
       const m=new THREE.Mesh(SPARK_GEO,new THREE.MeshBasicMaterial({color:i%3?0xFFE58A:0xFFFFFF,transparent:true,fog:false}));
       m.position.set(pos.x+(Math.random()-0.5)*0.3,pos.y,pos.z+(Math.random()-0.5)*0.3); scene.add(m);
       sparks.push({m,v:new THREE.Vector3((Math.random()-0.5)*0.9,0.7+Math.random()*0.9,(Math.random()-0.5)*0.9),life:1,max:1});
@@ -93,5 +100,5 @@
     }
   }
 
-  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks, setQuality: setQuality, stats: function () { return { confetti: confetti.length, blasts: blasts.length, sparks: sparks.length, live: live(), quality: qScale }; } };
 })(window);
