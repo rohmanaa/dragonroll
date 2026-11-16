@@ -4,8 +4,8 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const html = read('pet.html');
-const css = read('data/pet/css/pet.css');
-const page = read('data/pet/js/pet-page.js');
+const css = read('data/inventory/pet/_shared/css/pet.css');
+const page = read('data/inventory/pet/_shared/js/pet-page.js');
 
 assert.ok(html.includes('<div id="petTitle">'));
 assert.ok(html.includes('id="petInfoOpen" type="button" aria-label="Informasi tier" aria-haspopup="dialog"'));

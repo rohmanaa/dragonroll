@@ -38,7 +38,7 @@
     pet:     { category: 'lainnya',  noun: 'Pet',        slot: 'pet' }    /* opsional (boleh kosong), satu pet aktif; punya skill (data skill: supabase/pet_catalog.sql) */
   };
   /* Frame profil: gambar WebP transparan (mode ringkas 42x42 sel; lubang avatar = 61.9% lebar gambar) di data/frame/.
-     Di halaman, <img> frame diganti canvas beranimasi oleh data/frame/js/frame-fx.js (WebP = fallback/statis).
+     Di halaman, <img> frame diganti canvas beranimasi oleh data/inventory/frame/_shared/js/frame-fx.js (WebP = fallback/statis).
      Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
   var FRAME_DIR = 'data/frame/';
   var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';
@@ -54,7 +54,7 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0,
       texture: null, renderer: 'palette' }, extra || {});
   }
-  /* Skin PNG sudah dihapus: semua skin memakai model voxel UT.CharacterData (data/character-page/js/character-data.js). */
+  /* Skin PNG sudah dihapus: semua skin memakai model voxel UT.CharacterData (data/inventory/character/_shared/js/character-data.js). */
   /* Path texture harus relatif, berakhiran .png, tanpa skema/URL, drive Windows, '..' atau spasi. */
   function validTexturePath(p) {
     return typeof p === 'string' && /^[A-Za-z0-9_\-]+(\/[A-Za-z0-9_\-]+)*\.png$/.test(p);

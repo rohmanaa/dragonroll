@@ -278,8 +278,8 @@ def refresh_mapping(data):
     data["path_prefixes"] = [
         {
             "old": "data/inventory/pet/",
-            "new": "data/pet/items/",
-            "referrer": "assets/js/pages/pet-page.js",
+            "new": "data/inventory/pet/items/",
+            "referrer": "data/inventory/pet/_shared/js/pet-page.js",
             "phase": 3,
             "reason": "IMAGE_ROOT used for pet item card images",
         },

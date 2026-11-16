@@ -15,7 +15,7 @@ assert.ok(!html.includes('id="home"'), 'redundant Home button must not overlap t
 assert.ok(!html.includes("$('#home').addEventListener"), 'leaderboard has no duplicate Home navigation');
 assert.ok(html.includes('id="cur-co"') && html.includes('ikon-koin-emas.webp'));
 
-const frameFx = html.indexOf('data/frame/js/frame-fx.js');
-const frameAvatar = html.indexOf('data/frame/js/frame-avatar.js');
+const frameFx = html.indexOf('data/inventory/frame/_shared/js/frame-fx.js');
+const frameAvatar = html.indexOf('data/inventory/frame/_shared/js/frame-avatar.js');
 assert.ok(frameFx >= 0 && frameFx < frameAvatar, 'FrameFX must load before FrameAvatar');
 console.log('ok - leaderboard banners, scores, and animated frames');

@@ -56,7 +56,7 @@ t('A. paritas HARGA dengan seed server (migrasi fase 3) — default = starter gr
   assert.ok(/\('frame\.default',\s*'frame',\s*null,\s*true,/.test(cat));
 });
 t('A. paritas visual dengan frame-fx.js: fxKey ada di FR, tier & margin sama', () => {
-  const fx = rd('data/frame/js/frame-fx.js'), tier = {};
+  const fx = rd('data/inventory/frame/_shared/js/frame-fx.js'), tier = {};
   for (const m of fx.matchAll(/^D\('([a-z]+)',(\d+),/gm)) tier[m[1]] = +m[2];
   const mC = JSON.parse(fx.match(/var MARGIN_C = (\{[^}]*\})/)[1].replace(/([a-z]+):/g, '"$1":'));
   assert.strictEqual(Object.keys(tier).length, 14);
@@ -70,7 +70,7 @@ t('A. paritas visual dengan frame-fx.js: fxKey ada di FR, tier & margin sama', (
 });
 t('A. gambar manifest = ItemCatalog.image; kategori memakai FRAME_TAB_ICON yang sama', () => {
   catFrames.forEach(c => assert.strictEqual(byId[c.id].assets.image, c.image, c.id));
-  assert.strictEqual(FrameCat.category.assets.tabIcon, 'data/frame/img/icon-frame.webp');
+  assert.strictEqual(FrameCat.category.assets.tabIcon, 'data/inventory/frame/_shared/img/icon-frame.webp');
   assert.ok(/FRAME_TAB_ICON = FRAME_DIR \+ 'icon-frame\.webp'/.test(rd('assets/js/item-catalog.js')));
 });
 
@@ -91,13 +91,13 @@ t('C. tiap path gambar menunjuk file yang ADA, tidak kosong, berheader WebP (RIF
   assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 14, 'tiap frame punya gambar sendiri');
 });
 t('C. gambar tersedia di disk untuk setiap file yang dirujuk frame-fx (FILE2KEY) dan sebaliknya', () => {
-  const map = JSON.parse(rd('data/frame/js/frame-fx.js').match(/var FILE2KEY = (\{[^}]*\})/)[1].replace(/'/g, '"'));
+  const map = JSON.parse(rd('data/inventory/frame/_shared/js/frame-fx.js').match(/var FILE2KEY = (\{[^}]*\})/)[1].replace(/'/g, '"'));
   items.forEach(m => assert.ok(m.assets.image.replace(/^data\/frame\/|\.webp$/g, '') in map, m.id + ' tidak ada di FILE2KEY'));
 });
 
 /* ---- struktur folder ---- */
 t('struktur: satu folder per item (nama = gameKey) berisi manifest.js; tanpa berkas kosong/placeholder', () => {
-  const base = path.join(ROOT, 'data/inventory/frame'), dirs = fs.readdirSync(base, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name).sort();
+  const base = path.join(ROOT, 'data/inventory/frame'), dirs = fs.readdirSync(base, { withFileTypes: true }).filter(d => d.isDirectory() && d.name !== '_shared').map(d => d.name).sort();
   assert.deepStrictEqual(dirs, FrameCat.keys.slice().sort());
   dirs.forEach(d => {
     const files = fs.readdirSync(path.join(base, d)); assert.deepStrictEqual(files, ['manifest.js'], d + ' hanya manifest.js (CSS/JS/asset/audio bersifat opsional & belum perlu)');

@@ -72,7 +72,7 @@ test('ItemCatalog mempertahankan bentuk/API lama pada mode legacy dan Registry; 
 });
 
 test('Semua manifest dan referensi aset bersama valid, tersedia di filesystem', () => {
-  assert.deepStrictEqual(AuraCat.keys.slice().sort(), fs.readdirSync(path.join(ROOT, 'data/inventory/aura')).filter(k => fs.statSync(path.join(ROOT, 'data/inventory/aura', k)).isDirectory()).sort());
+  assert.deepStrictEqual(AuraCat.keys.slice().sort(), fs.readdirSync(path.join(ROOT, 'data/inventory/aura')).filter(k => k !== '_shared' && fs.statSync(path.join(ROOT, 'data/inventory/aura', k)).isDirectory()).sort());
   manifests.forEach(m => {
     assert.deepStrictEqual(IR.validateManifest(m, AuraCat.category), { ok: true, errors: [] }, m.id);
     assert.strictEqual(IR.validateAssetPaths(m, AuraCat.category).ok, true, m.id);

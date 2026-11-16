@@ -1,6 +1,6 @@
 /* Tampilan karakter 3D bersama (Lobby, Inventory, Shop, Profil, Teman, Leaderboard, Hadiah Harian).
    Satu sumber model = UT.CharacterData (diekstrak dari gameplay.html), jadi karakter di semua halaman sama dengan gameplay.
-   Butuh: data/character-page/js/character-data.js (dan three.js yang dikirim lewat argumen THREE).
+   Butuh: data/inventory/character/_shared/js/character-data.js (dan three.js yang dikirim lewat argumen THREE).
 
    UT.CharacterView.make(THREE, skinIdOrKey, emote) -> THREE.Group, userData.anim(t) siap dipanggil tiap frame
      skinIdOrKey : 'skin.steve' | 'steve' | palet dari ItemArt.palette (memakai .gameKey); tak dikenal -> steve

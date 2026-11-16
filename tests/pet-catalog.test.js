@@ -100,19 +100,19 @@ t('pembelian pet lokal tanpa akun ditolak (harga dipegang server), koin maupun e
   assert.strictEqual(PD.purchase('pet.storm_wolf').ok, false);
 });
 t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dompet localStorage demo', () => {
-  const html = rd('pet.html'), page = rd('data/pet/js/pet-page.js');
-  assert.ok(html.includes('data/pet/js/pet-viewer.js'));
-  assert.ok(html.includes('data/pet/js/pet-model-registry.js'));
-  assert.ok(html.indexOf('assets/js/vendor/three.min.js') < html.indexOf('data/pet/js/pet-model-registry.js'));
-  assert.ok(html.indexOf('data/pet/js/pet-model-registry.js') < html.indexOf('data/pet/js/pet-viewer.js'));
-  assert.ok(html.indexOf('data/pet/js/pet-viewer.js') < html.indexOf('data/pet/js/pet-page.js'));
-  assert.ok(html.includes('data/pet/js/pet-page.js'));
+  const html = rd('pet.html'), page = rd('data/inventory/pet/_shared/js/pet-page.js');
+  assert.ok(html.includes('data/inventory/pet/_shared/js/pet-viewer.js'));
+  assert.ok(html.includes('data/inventory/pet/_shared/js/pet-model-registry.js'));
+  assert.ok(html.indexOf('assets/js/vendor/three.min.js') < html.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
+  assert.ok(html.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js') < html.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
+  assert.ok(html.indexOf('data/inventory/pet/_shared/js/pet-viewer.js') < html.indexOf('data/inventory/pet/_shared/js/pet-page.js'));
+  assert.ok(html.includes('data/inventory/pet/_shared/js/pet-page.js'));
   assert.ok(html.includes('UT.App.init({page:\'pet\'})'));
   assert.ok(page.includes(".from('pet_catalog')"));
   assert.ok(page.includes('WalletService'));
   assert.ok(!/localStorage/.test(page));
   pets.forEach(p => {
-    const image = path.join(root, 'data/pet/items', p.gameKey, p.gameKey + '.png');
+    const image = path.join(root, 'data/inventory/pet/items', p.gameKey, p.gameKey + '.png');
     assert.ok(fs.existsSync(image), p.gameKey);
   });
 });

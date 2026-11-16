@@ -6,17 +6,17 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const KEYS = ['forest_pup', 'copper_golem', 'crystal_axolotl', 'arcane_owl', 'storm_wolf', 'inferno_dragon', 'celestial_kitsune'];
-const REGISTRY_PATH = 'data/pet/js/pet-model-registry.js';
+const REGISTRY_PATH = 'data/inventory/pet/_shared/js/pet-model-registry.js';
 const MODEL_PATHS = {
-  forest_pup: 'data/pet/items/forest_pup/model.js',
-  copper_golem: 'data/pet/items/copper_golem/model.js',
-  crystal_axolotl: 'data/pet/items/crystal_axolotl/model.js',
-  arcane_owl: 'data/pet/items/arcane_owl/model.js',
-  storm_wolf: 'data/pet/items/storm_wolf/model.js',
-  inferno_dragon: 'data/pet/items/inferno_dragon/model.js',
-  celestial_kitsune: 'data/pet/items/celestial_kitsune/model.js'
+  forest_pup: 'data/inventory/pet/items/forest_pup/model.js',
+  copper_golem: 'data/inventory/pet/items/copper_golem/model.js',
+  crystal_axolotl: 'data/inventory/pet/items/crystal_axolotl/model.js',
+  arcane_owl: 'data/inventory/pet/items/arcane_owl/model.js',
+  storm_wolf: 'data/inventory/pet/items/storm_wolf/model.js',
+  inferno_dragon: 'data/inventory/pet/items/inferno_dragon/model.js',
+  celestial_kitsune: 'data/inventory/pet/items/celestial_kitsune/model.js'
 };
-const VIEWER_PATH = 'data/pet/js/pet-viewer.js';
+const VIEWER_PATH = 'data/inventory/pet/_shared/js/pet-viewer.js';
 const tests = [];
 const test = (name, fn) => tests.push([name, fn]);
 
@@ -120,8 +120,8 @@ test('allowlist contains all seven active Pet model keys', () => {
   assert.deepStrictEqual(KEYS.filter(key => registry.hasModule(key)), KEYS);
   KEYS.forEach(key => assert.strictEqual(registry.isKnownKey(key), true, key));
   const source = read(REGISTRY_PATH);
-  KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/pet/items/" + key + "/model.js'"), key));
-  KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/pet/items/" + key + "/model.js',active:true}"), key));
+  KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/items/" + key + "/model.js'"), key));
+  KEYS.forEach(key => assert.ok(source.includes(key + ":{url:'data/inventory/pet/items/" + key + "/model.js',active:true}"), key));
 });
 
 test('unknown keys reject without creating a script or deriving a URL', async () => {

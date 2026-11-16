@@ -4,7 +4,7 @@
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const PG = require("./_page");
 const rd = f => PG.readFileSync(path.join(__dirname, "..", f), "utf8");
-const html = rd("karakter.html"), css = rd("data/character-page/css/kredit.css");
+const html = rd("karakter.html"), css = rd("data/inventory/character/_shared/css/kredit.css");
 let n = 0; const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 const regBlock = name => { const i = html.indexOf("const " + name + "=["); assert.ok(i > 0, name); const j = html.indexOf("\n];", i); return html.slice(i, j); };
 
@@ -124,6 +124,6 @@ t("aset slot ada", () => {
 t("skrip halaman valid secara sintaks", () => {
   const inline = fs.readFileSync(path.join(__dirname, "../karakter.html"), "utf8");
   [...inline.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
-  new Function(fs.readFileSync(path.join(__dirname, "../data/character-page/js/karakter.js"), "utf8"));
+  new Function(fs.readFileSync(path.join(__dirname, "../data/inventory/character/_shared/js/karakter.js"), "utf8"));
 });
 console.log(n + " tes lulus");

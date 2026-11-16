@@ -1,6 +1,6 @@
 /* BLOCKY-CHARACTER-SOURCE:v1
    Source kanonis renderer reusable UT.BlockyCharacter; build.js menyalin template ini ke asset runtime.
-   Editor Karakter berada di data/character-page/js/karakter.js dan bukan source generator renderer reusable.
+   Editor Karakter berada di data/inventory/character/_shared/js/karakter.js dan bukan source generator renderer reusable.
    Jangan mengedit assets/js/renderers/blocky-character.js secara langsung; regenerasi dengan node tools/blocky-character/build.js.
    Perlu: global THREE (r128), ItemCatalog, PlayerData (dimuat sebelum create() dipanggil).
 

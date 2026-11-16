@@ -7,7 +7,7 @@
   const WS = window.UT && window.UT.WalletService;
   const AS = window.UT && window.UT.AppearanceService;
   const ITEM_ROOT = 'assets/images/ui/';
-  const IMAGE_ROOT = 'data/pet/items/';
+  const IMAGE_ROOT = 'data/inventory/pet/items/';
   const RARITY = {
     common: ['Biasa', '#cfc8ea'],
     uncommon: ['Tidak Biasa', '#6fe08a'],

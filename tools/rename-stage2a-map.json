@@ -1,0 +1,63 @@
+{
+  "baseline": "3d5057b",
+  "sw_version": "ut-pwa-v205",
+  "directory_moves": {
+    "data/aura/js/": "data/inventory/aura/_shared/js/",
+    "data/dice/js/": "data/inventory/dice/_shared/js/",
+    "data/dice/css/": "data/inventory/dice/_shared/css/",
+    "data/frame/js/": "data/inventory/frame/_shared/js/",
+    "data/frame/css/": "data/inventory/frame/_shared/css/",
+    "data/frame/img/": "data/inventory/frame/_shared/img/",
+    "data/character-page/js/": "data/inventory/character/_shared/js/",
+    "data/character-page/css/": "data/inventory/character/_shared/css/",
+    "data/power/js/": "data/inventory/power/_shared/js/",
+    "data/power/css/": "data/inventory/power/_shared/css/",
+    "data/pet/items/": "data/inventory/pet/items/",
+    "data/pet/js/": "data/inventory/pet/_shared/js/",
+    "data/pet/css/": "data/inventory/pet/_shared/css/"
+  },
+  "exact_moves": {
+    "data/pet/index.js": "data/inventory/pet/index.js"
+  },
+  "pet_move_guards": [
+    "supabase/",
+    "tools/wallet/gen-item-seed.js",
+    "tests/fixtures/item-catalog-baseline.json"
+  ],
+  "preserved_paths": [
+    {
+      "path": "data/frame/*.webp",
+      "reason": "Path aset frame tersimpan di katalog/DB dan dipakai gameplay."
+    },
+    {
+      "path": "data/power/3d/*.png",
+      "reason": "Path ikon Power tersimpan di katalog/DB dan dipakai gameplay."
+    },
+    {
+      "path": "data/power/power-fx.js",
+      "reason": "Dirujuk langsung oleh gameplay.html dan merupakan perilaku gameplay."
+    },
+    {
+      "path": "data/inventory/<kategori>/<item>/manifest.js",
+      "reason": "Manifest item inventori dibekukan."
+    },
+    {
+      "path": "gameplay.html dan gameplay/**",
+      "reason": "File gameplay dan semua path yang diselesaikan darinya dibekukan."
+    }
+  ],
+  "reference_exclusions": [
+    "mapping.json",
+    "frozen.txt",
+    "rename-skipped.txt",
+    "assets/preload-manifest.json",
+    "tools/rename-stage1.py",
+    "tools/rename-stage1-map.json",
+    "tools/rename-stage2.py",
+    "tools/rename-stage2-map.json",
+    "tools/rename-stage2a.py",
+    "tools/rename-stage2a-map.json",
+    "tools/rename-stage3.py",
+    "tools/rename-stage3-map.json"
+  ]
+}

@@ -4,13 +4,13 @@ const UT=global.UT=global.UT||{};
 if(UT.PetModelRegistry)return;
 
 const MODULES=Object.freeze({
-  forest_pup:{url:'data/pet/items/forest_pup/model.js',active:true},
-  copper_golem:{url:'data/pet/items/copper_golem/model.js',active:true},
-  crystal_axolotl:{url:'data/pet/items/crystal_axolotl/model.js',active:true},
-  arcane_owl:{url:'data/pet/items/arcane_owl/model.js',active:true},
-  storm_wolf:{url:'data/pet/items/storm_wolf/model.js',active:true},
-  inferno_dragon:{url:'data/pet/items/inferno_dragon/model.js',active:true},
-  celestial_kitsune:{url:'data/pet/items/celestial_kitsune/model.js',active:true}
+  forest_pup:{url:'data/inventory/pet/items/forest_pup/model.js',active:true},
+  copper_golem:{url:'data/inventory/pet/items/copper_golem/model.js',active:true},
+  crystal_axolotl:{url:'data/inventory/pet/items/crystal_axolotl/model.js',active:true},
+  arcane_owl:{url:'data/inventory/pet/items/arcane_owl/model.js',active:true},
+  storm_wolf:{url:'data/inventory/pet/items/storm_wolf/model.js',active:true},
+  inferno_dragon:{url:'data/inventory/pet/items/inferno_dragon/model.js',active:true},
+  celestial_kitsune:{url:'data/inventory/pet/items/celestial_kitsune/model.js',active:true}
 });
 const KEYS=Object.freeze(Object.keys(MODULES));
 const builders=Object.create(null),pending=Object.create(null);

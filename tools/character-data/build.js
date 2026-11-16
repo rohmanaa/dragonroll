@@ -214,7 +214,7 @@ function generate() {
 function build(checkOnly) {
   const output = generate();
   if (checkOnly) {
-    if (fs.readFileSync(TARGET, 'utf8') !== output) throw new Error('data/character-page/js/character-data.js tidak sama dengan hasil generator');
+    if (fs.readFileSync(TARGET, 'utf8') !== output) throw new Error('data/inventory/character/_shared/js/character-data.js tidak sama dengan hasil generator');
     return { bytes: Buffer.byteLength(output), checked: true };
   }
   fs.writeFileSync(TARGET, output, 'utf8');
@@ -224,7 +224,7 @@ function build(checkOnly) {
 if (require.main === module) {
   try {
     const result = build(process.argv.includes('--check'));
-    console.log('data/character-page/js/character-data.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
+    console.log('data/inventory/character/_shared/js/character-data.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
   } catch (error) {
     console.error('CharacterData build failed:', error.message);
     process.exitCode = 1;

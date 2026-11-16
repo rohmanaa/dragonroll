@@ -1,10 +1,10 @@
-/* Tes paritas Pet (Stage 4): manifest data/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
+/* Tes paritas Pet (Stage 4): manifest data/inventory/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
    Jalankan: node tests/pet-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada + header PNG  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
-const PetCat = require(path.join(ROOT, 'data/pet/index.js'));
+const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -20,7 +20,7 @@ function boot(chains) {
   chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
-const PET_CHAIN = ['assets/js/core/item-registry.js'].concat(PetCat.keys.map(k => 'data/pet/items/' + k + '/manifest.js'), ['data/pet/index.js']);
+const PET_CHAIN = ['assets/js/core/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaPet = boot(PET_CHAIN), viaBoth = boot(PET_CHAIN.concat(FRAME_CHAIN));
 
@@ -31,7 +31,7 @@ t('Registry: 7 Pet terdaftar, 0 ditolak, kategori pet tersedia', () => {
 });
 t('Registry: tanpa ID duplikat; registrasi ulang manifest identik ditolak (duplicate-registration), ID sama isi beda ditolak (duplicate-id)', () => {
   assert.strictEqual(new Set(items.map(i => i.id)).size, 7);
-  const m = require(path.join(ROOT, 'data/pet/items/storm_wolf/manifest.js'));
+  const m = require(path.join(ROOT, 'data/inventory/pet/items/storm_wolf/manifest.js'));
   assert.strictEqual(reg.registerItem(m).reason, 'duplicate-registration');
   assert.strictEqual(reg.registerItem(Object.assign({}, m, { name: 'Lain' })).reason, 'duplicate-id');
   assert.strictEqual(reg.getCategory('pet').count, 7);
@@ -83,8 +83,8 @@ t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) — ben
   const c2 = boot([]); /* VM bersih dengan manifest storm_wolf termutasi */
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const x = vm.createContext(Object.assign(w, { console, Date, JSON, Math })); vm.runInContext(rd('assets/js/core/item-registry.js'), x);
-  PetCat.keys.forEach(k => { let s = rd('data/pet/items/' + k + '/manifest.js'); if (k === 'storm_wolf') s = s.replace('"Storm Wolf"', '"Storm Wolf UJI"').replace('gems: 1500', 'gems: 1501'); vm.runInContext(s, x); });
-  vm.runInContext(rd('data/pet/index.js'), x); vm.runInContext(rd('assets/js/item-catalog.js'), x);
+  PetCat.keys.forEach(k => { let s = rd('data/inventory/pet/items/' + k + '/manifest.js'); if (k === 'storm_wolf') s = s.replace('"Storm Wolf"', '"Storm Wolf UJI"').replace('gems: 1500', 'gems: 1501'); vm.runInContext(s, x); });
+  vm.runInContext(rd('data/inventory/pet/index.js'), x); vm.runInContext(rd('assets/js/item-catalog.js'), x);
   const s = x.ItemCatalog.byId('pet.storm_wolf'); assert.strictEqual(x.ItemCatalog.petSource(), 'registry'); assert.strictEqual(s.name, 'Storm Wolf UJI'); assert.strictEqual(s.gems, 1501);
 });
 t('ItemCatalog: semua API lama tetap ada; cost/byId/byGameKey/optionalSlots/KIND_META.pet sama di semua jalur', () => {
@@ -98,7 +98,7 @@ t('ItemCatalog: semua API lama tetap ada; cost/byId/byGameKey/optionalSlots/KIND
 t('Ketahanan: Registry + index.js ada tetapi manifest belum dimuat -> jalur cadangan, katalog identik baseline', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
-  ['assets/js/core/item-registry.js', 'data/pet/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
+  ['assets/js/core/item-registry.js', 'data/inventory/pet/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'legacy'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali tidak menggandakan registrasi', () => {
@@ -115,11 +115,11 @@ t('PlayerData: kepemilikan/equipped/pembelian identik antara jalur cadangan dan 
   const a = strip(snap(boot([]))), b = strip(snap(boot(PET_CHAIN.concat(FRAME_CHAIN)))); assert.deepStrictEqual(b, a);
   assert.deepStrictEqual(b.owns, [false, false, false, false, false, false, false]);
 });
-t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = data/pet/items/gameKey/gameKey.png = manifest assets.image', () => {
-  const pg = rd('data/pet/js/pet-page.js'); assert.ok(/IMAGE_ROOT = 'data\/pet\/items\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey \+ '\/' \+ item\.gameKey \+ '\.png'/.test(pg));
+t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = data/inventory/pet/items/gameKey/gameKey.png = manifest assets.image', () => {
+  const pg = rd('data/inventory/pet/_shared/js/pet-page.js'); assert.ok(/IMAGE_ROOT = 'data\/inventory\/pet\/items\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey \+ '\/' \+ item\.gameKey \+ '\.png'/.test(pg));
   assert.ok(/item\.kind === 'pet'\)\.sort\(\(a, b\) => a\.tier - b\.tier\)/.test(pg));
   const sorted = clone(viaPet.ItemCatalog.items.filter(i => i.kind === 'pet')).sort((a, b) => a.tier - b.tier); assert.deepStrictEqual(sorted.map(i => i.id), bp.map(i => i.id));
-  items.forEach(m => assert.strictEqual(m.assets.image, 'data/pet/items/' + m.gameKey + '/' + m.gameKey + '.png'));
+  items.forEach(m => assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey + '.png'));
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
   const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 147);
@@ -136,7 +136,7 @@ t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) da
 t('A. manifest valid (validateManifest) 7/7', () => { items.forEach(m => assert.deepStrictEqual(IR.validateManifest(m, PetCat.category), { ok: true, errors: [] }, m.id)); });
 t('B. FORMAT path gambar canonical valid 7/7 dan unik (bukan bukti file ada / termuat)', () => {
   items.forEach(m => {
-    assert.strictEqual(m.assets.image, 'data/pet/items/' + m.gameKey + '/' + m.gameKey + '.png', m.id);
+    assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey + '.png', m.id);
     assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id);
   });
   assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 7);
@@ -153,8 +153,8 @@ const SFX_BASELINE = {
 const SHARED_PET_SFX = new Set(['storm-wolf-zap', 'inferno-dragon-fire', 'celestial-kitsune-bell', 'celestial-kitsune-shine']);
 const sfxPath = (key, n) => SHARED_PET_SFX.has(n)
   ? 'assets/audio/sfx/pet/' + n + '.mp3'
-  : 'data/pet/items/' + key + '/sfx/' + n + '.mp3';
-const PV_PATH = 'data/pet/js/pet-viewer.js', PV = rd(PV_PATH);
+  : 'data/inventory/pet/items/' + key + '/sfx/' + n + '.mp3';
+const PV_PATH = 'data/inventory/pet/_shared/js/pet-viewer.js', PV = rd(PV_PATH);
 function viewerAudioProbe(itemRegistry) {
   const calls = [], SND = PetCat.keys.map((_, i) => [0, 1, 2].map(k => () => calls.push([i, k])));
   const view = { insertAdjacentHTML() {} }, canvas = {};
@@ -189,12 +189,12 @@ t('SFX manifest: path dan urutan slot = pemetaan baseline pet-viewer.js (tidak a
 t('SFX validasi: A. validateManifest OK 7/7  B. path format mp3 valid  C. 17 SFX Pet-owned + 4 shared ada dan tidak ada file yatim', () => {
   items.forEach(m => { assert.deepStrictEqual(IR.validateManifest(m, PetCat.category), { ok: true, errors: [] }, m.id); assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id); });
   const diskShared = fs.readdirSync(path.join(ROOT, 'assets/audio/sfx/pet')).filter(f => /\.mp3$/.test(f)).map(f => 'assets/audio/sfx/pet/' + f).sort(), diskOwned = [], ref = [];
-  PetCat.keys.forEach(key => fs.readdirSync(path.join(ROOT, 'data/pet/items', key, 'sfx')).filter(f => /\.mp3$/.test(f))
-    .forEach(f => diskOwned.push('data/pet/items/' + key + '/sfx/' + f)));
+  PetCat.keys.forEach(key => fs.readdirSync(path.join(ROOT, 'data/inventory/pet/items', key, 'sfx')).filter(f => /\.mp3$/.test(f))
+    .forEach(f => diskOwned.push('data/inventory/pet/items/' + key + '/sfx/' + f)));
   items.forEach(m => m.assets.sfx.forEach(u => { ref.push(u); const f = path.join(ROOT, u); assert.ok(fs.existsSync(f), u); const b = fs.readFileSync(f); assert.ok(b.length > 1000, u);
     assert.ok(b.slice(0, 3).toString() === 'ID3' || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0), u + ' header MP3'); }));
   assert.deepStrictEqual(ref.filter(u => u.startsWith('assets/audio/sfx/pet/')).sort(), diskShared);
-  assert.deepStrictEqual(ref.filter(u => u.startsWith('data/pet/items/')).sort(), diskOwned.sort());
+  assert.deepStrictEqual(ref.filter(u => u.startsWith('data/inventory/pet/items/')).sort(), diskOwned.sort());
   assert.strictEqual(diskOwned.length, 17);
   assert.strictEqual(diskShared.length, 4);
 });
@@ -223,13 +223,13 @@ t('Pet Viewer (full source in VM): manifest SFX maps to the baseline Pet/slot an
 t('Pet Viewer: manifest remains the source when assets.sfx changes and Registry order is reversed', () => {
   const changed = IR.create(); changed.registerCategory(PetCat.category);
   PetCat.keys.forEach(key => {
-    const manifest = clone(require(path.join(ROOT, 'data/pet/items/' + key + '/manifest.js')));
+    const manifest = clone(require(path.join(ROOT, 'data/inventory/pet/items/' + key + '/manifest.js')));
     if (key === 'storm_wolf') manifest.assets.sfx[0] = 'assets/audio/sfx/pet/ZZ.mp3';
     assert.ok(changed.registerItem(manifest).ok);
   });
   assert.strictEqual(viewerAudioProbe(changed).PET_FILES[4][0], 'assets/audio/sfx/pet/ZZ.mp3');
   const reversed = IR.create(); reversed.registerCategory(PetCat.category);
-  PetCat.keys.slice().reverse().forEach(key => reversed.registerItem(require(path.join(ROOT, 'data/pet/items/' + key + '/manifest.js'))));
+  PetCat.keys.slice().reverse().forEach(key => reversed.registerItem(require(path.join(ROOT, 'data/inventory/pet/items/' + key + '/manifest.js'))));
   assert.deepStrictEqual(viewerAudioProbe(reversed).PET_FILES, viewerAudioProbe(reg).PET_FILES);
 });
 t('Pet Viewer: missing Registry or manifest SFX keeps the synthesized fallback without throwing', () => {
@@ -238,7 +238,7 @@ t('Pet Viewer: missing Registry or manifest SFX keeps the synthesized fallback w
   absent.SND[0][0](); assert.strictEqual(absent.calls.length, 1);
   const missing = IR.create(); missing.registerCategory(PetCat.category);
   PetCat.keys.forEach(key => {
-    const manifest = clone(require(path.join(ROOT, 'data/pet/items/' + key + '/manifest.js')));
+    const manifest = clone(require(path.join(ROOT, 'data/inventory/pet/items/' + key + '/manifest.js')));
     if (key === 'forest_pup') delete manifest.assets.sfx;
     assert.ok(missing.registerItem(manifest).ok);
   });
@@ -253,7 +253,7 @@ t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong a
 t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan byte count aktual', () => {
   const pm = JSON.parse(rd('assets/preload-manifest.json'));
   assert.strictEqual(Object.keys(pm).length, 838);
-  ['data/pet/js/pet-model-registry.js'].concat(PetCat.keys.map(key => 'data/pet/items/' + key + '/model.js')).forEach(f => {
+  ['data/inventory/pet/_shared/js/pet-model-registry.js'].concat(PetCat.keys.map(key => 'data/inventory/pet/items/' + key + '/model.js')).forEach(f => {
     assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f);
   });
   items.forEach(m => {
@@ -264,7 +264,7 @@ t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan
 t('SFX: pet.html memuat manifest + pet/index.js SEBELUM PetViewer', () => {
   const s = srcs(rd('pet.html')), pv = s.indexOf(PV_PATH); assert.ok(pv > 0);
   const catalog = s.indexOf('assets/js/item-catalog.js'), playerData = s.indexOf('assets/js/player-data.js');
-  const three = s.indexOf('assets/js/vendor/three.min.js'), registry = s.indexOf('data/pet/js/pet-model-registry.js');
+  const three = s.indexOf('assets/js/vendor/three.min.js'), registry = s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js');
   assert.ok(catalog >= 0 && catalog < playerData && playerData < three && three < registry && registry < pv);
   PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.ok(s.indexOf(f) >= 0 && s.indexOf(f) < pv, f));
 });
@@ -273,23 +273,23 @@ t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes in
 /* ---- pemuatan skrip ---- */
 t('pet.html: item-registry.js -> 7 manifest -> pet/index.js -> item-catalog.js -> skrip halaman; tepat satu kali; tanpa document.write', () => {
   const html = rd('pet.html'), s = srcs(html), i = s.indexOf('assets/js/item-catalog.js'); assert.deepStrictEqual(s.slice(i - PET_CHAIN.length, i), PET_CHAIN);
-  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('data/pet/js/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
-  assert.strictEqual(s.filter(x => x === 'data/pet/js/pet-model-registry.js').length, 1);
-  assert.ok(s.indexOf('assets/js/vendor/three.min.js') < s.indexOf('data/pet/js/pet-model-registry.js'));
+  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('data/inventory/pet/_shared/js/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
+  assert.strictEqual(s.filter(x => x === 'data/inventory/pet/_shared/js/pet-model-registry.js').length, 1);
+  assert.ok(s.indexOf('assets/js/vendor/three.min.js') < s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
   assert.ok(s.indexOf('assets/js/item-catalog.js') < s.indexOf('assets/js/player-data.js'));
   assert.ok(s.indexOf('assets/js/player-data.js') < s.indexOf('assets/js/vendor/three.min.js'));
-  assert.ok(s.indexOf('data/pet/js/pet-model-registry.js') < s.indexOf(PV_PATH));
+  assert.ok(s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js') < s.indexOf(PV_PATH));
   PET_CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f));
 });
 t('pet.html: simulasi urutan tag -> petSource = registry, katalog = baseline', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w; const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  srcs(rd('pet.html')).filter(f => /^(assets\/js\/(core\/item-registry|core\/session|item-catalog)|data\/inventory\/|data\/pet\/(?:index\.js|items\/[^/]+\/manifest\.js)$)/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
+  srcs(rd('pet.html')).filter(f => /^assets\/js\/(?:core\/(?:item-registry|session)|item-catalog)\.js$|^data\/inventory\/pet\/(?:items\/[^/]+\/manifest\.js|index\.js)$/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'registry'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Halaman lain tidak memuat manifest Pet; gameplay.html tidak berubah', () => {
   fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && f !== 'pet.html').forEach(f => assert.ok(!/inventory\/pet/.test(rd(f)), f));
 });
 t('Loader lama dibuang: tidak ada document.write di berkas Registry/manifest/index/katalog', () => {
-  ['assets/js/core/item-registry.js', 'assets/js/item-catalog.js', 'data/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/pet/items/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
+  ['assets/js/core/item-registry.js', 'assets/js/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
 });
 console.log('\n' + n + ' tes lulus');

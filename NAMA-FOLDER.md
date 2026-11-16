@@ -42,15 +42,13 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 - `assets/js/vendor/` — pustaka pihak ketiga; `three-addons/` berisi add-on Three.js, nama upstream dipertahankan.
 
 ## data/
-- `data/aura/` dan `data/aura/js/` — katalog dan tampilan aura.
-- `data/character-page/`, `css/`, `js/` — data dan halaman karakter; nama lama: `data/karakter/`.
-- `data/dice/`, `css/`, `js/` — katalog, gaya, dan skrip dadu.
-- `data/frame/`, `css/`, `img/`, `js/` — katalog, gambar, dan halaman frame.
-- `data/inventory/` — data inventori yang dipakai halaman Inventory dan gameplay.
-- `data/inventory/aura/`, `character/`, `dice/`, `frame/`, `power/` — item inventori; nama folder item tetap berupa gameKey/ID.
-- `data/lobby/` dan `data/lobby/js/` — data dan fungsi halaman Lobby.
-- `data/mining/`, `css/`, `js/` — data serta halaman Tambang; nama lama: `data/tambang/`.
-- `data/pet/`, `css/`, `items/`, `js/` — katalog, model, dan halaman Pet; nama item tetap berupa gameKey/ID.
-- `data/power/`, `3d/`, `css/`, `js/` — katalog, aset 3D, gaya, dan skrip Power; nama aset item tetap berupa gameKey/ID.
+- `data/inventory/<kategori>/` — kategori item pemain: `aura/`, `character/`, `dice/`, `frame/`, `pet/`, dan `power/`. Item berada di folder gameKey/ID; kode dan gaya kategori bersama berada di `_shared/`.
+- `data/inventory/pet/items/<gameKey>/` — manifest, model, gambar, dan SFX khusus Pet.
+- Manifest item inventori berada di `data/inventory/<kategori>/<item>/` dan dipertahankan tetap.
+- `data/frame/*.webp` — gambar frame yang path-nya dipertahankan karena dirujuk katalog/DB.
+- `data/power/3d/` dan `data/power/power-fx.js` — aset dan efek Power yang path-nya dipertahankan karena dirujuk katalog/DB atau gameplay.
+- `data/lobby/` — data dan fungsi khusus halaman Lobby; fitur/halaman tetap di bawah `data/`, bukan `data/inventory/`.
+- `data/mining/` — data serta halaman Tambang; nama lama: `data/tambang/`; fitur/halaman tetap di bawah `data/`, bukan `data/inventory/`.
+- `data/` hanya menampung kode/aset per fitur atau halaman, bukan kategori item pemain.
 
 referensi/ = mockup, tidak dipakai aplikasi, jangan diubah

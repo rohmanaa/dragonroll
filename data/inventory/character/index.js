@@ -13,7 +13,7 @@
     kind: 'skin',
     label: 'Karakter',
     fallbackId: 'skin.steve',
-    assets: { modelData: 'data/character-page/js/character-data.js' }
+    assets: { modelData: 'data/inventory/character/_shared/js/character-data.js' }
   };
 
   function manifests() {

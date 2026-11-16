@@ -13,7 +13,7 @@
 
   var KEYS = ['default', 'stone', 'copper', 'iron', 'gold', 'diamond', 'amethyst', 'nether', 'ender', 'storm', 'dragon', 'phoenix', 'celestial', 'cosmic'];
   var CATEGORY = { key: 'frame', kind: 'frame', label: 'Frame', fallbackId: 'frame.default',
-                   assets: { tabIcon: 'data/frame/img/icon-frame.webp' } };
+                   assets: { tabIcon: 'data/inventory/frame/_shared/img/icon-frame.webp' } };
 
   /* Manifest kategori ini: Node = require per folder; browser = antrean UT.ItemManifests yang diisi tiap manifest.js. */
   function manifests() {

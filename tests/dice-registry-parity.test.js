@@ -6,7 +6,7 @@ const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8'), ex = p => fs.existsSync(path.join(ROOT, p));
 const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
-const PetCat = require(path.join(ROOT, 'data/pet/index.js'));
+const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -25,7 +25,7 @@ function boot(chains) {
 const DICE_CHAIN = ['assets/js/core/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
 const DICEKIT_FILES = ['dice-animation.js', 'dice-catalog.js', 'dice-effects.js', 'dice-effects-core.js', 'dice-materials.js', 'dice-physics.js', 'dice-renderer.js', 'dice-textures.js', 'index.js', 'room-environment.js', 'rounded-box-geometry.js']
   .map(name => 'assets/js/renderers/dice-kit/' + name);
-const PET_CHAIN = PetCat.keys.map(k => 'data/pet/items/' + k + '/manifest.js').concat(['data/pet/index.js']);
+const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaDice = boot(DICE_CHAIN), viaAll = boot(DICE_CHAIN.concat(PET_CHAIN, FRAME_CHAIN));
 
@@ -51,7 +51,7 @@ t('Registry: urutan manifest = urutan ItemCatalog; KEYS = gameKey; nilai dibekuk
   const it = reg.getItem('dice.emas'); assert.ok(Object.isFrozen(it) && Object.isFrozen(it.visual) && Object.isFrozen(it.legacyIds));
 });
 t('Folder: satu item = satu folder (nama folder = gameKey); tidak ada folder/manifest liar', () => {
-  const dirs = fs.readdirSync(path.join(ROOT, 'data/inventory/dice')).filter(n => fs.statSync(path.join(ROOT, 'data/inventory/dice', n)).isDirectory()).sort();
+  const dirs = fs.readdirSync(path.join(ROOT, 'data/inventory/dice')).filter(n => n !== '_shared' && fs.statSync(path.join(ROOT, 'data/inventory/dice', n)).isDirectory()).sort();
   assert.deepStrictEqual(dirs, DiceCat.keys.slice().sort());
   DiceCat.keys.forEach(k => assert.ok(ex('data/inventory/dice/' + k + '/manifest.js'), k));
 });
@@ -117,7 +117,7 @@ t('Equip: slot dice terpasang selalu valid — DEFAULT dice.klasik ada di Regist
   assert.deepStrictEqual(clone(IC.items.filter(i => i.slot === 'dice').map(i => i.id)), bd.map(i => i.id));
 });
 t('Shop/Inventory: dadu.html membaca kind dice dari ItemCatalog (tanpa salinan data); shop.js/inventory.js tidak membaca metadata dice', () => {
-  assert.ok(/IC\.items\.filter\(i=>i\.kind==='dice'/.test(rd('data/dice/js/dadu.js')));
+  assert.ok(/IC\.items\.filter\(i=>i\.kind==='dice'/.test(rd('data/inventory/dice/_shared/js/dadu.js')));
   ['assets/js/pages/shop.js', 'assets/js/pages/inventory.js'].forEach(f => { if (ex(f)) assert.ok(!/kind\s*===?\s*'dice'/.test(rd(f)), f); });
   const IC = viaDice.ItemCatalog; const shown = IC.items.filter(i => i.kind === 'dice' && !i.off); assert.strictEqual(shown.length, 23);
   shown.forEach(i => { const c = IC.cost(i); if (i.starter) assert.strictEqual(c, null); else assert.ok(c && ((c.coins > 0) !== (c.gems > 0)), i.id); });

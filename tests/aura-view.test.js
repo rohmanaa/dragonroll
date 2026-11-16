@@ -85,7 +85,7 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   assert.ok(/PAURA\.update\(dt\)/.test(gameplay), 'AuraFX diperbarui setiap frame');
 });
 t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
-  const g = read('karakter.html'), js = read('data/character-page/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
+  const g = read('karakter.html'), js = read('data/inventory/character/_shared/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
   assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'));
   assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(js) && /AUR\.update\(dt\)/.test(js) && /auraSync\(\)/.test(js) && /AUR\.clear\(root\)/.test(js));
 });
