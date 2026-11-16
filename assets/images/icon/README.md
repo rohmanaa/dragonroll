@@ -1,6 +1,6 @@
 # Peta folder icon
 
-Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<grup>/<nama>.webp`.
+Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/images/icon/<grup>/<nama>.webp`.
 
 | Folder | Isi | Dipakai di |
 |---|---|---|

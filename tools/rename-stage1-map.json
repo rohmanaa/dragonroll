@@ -1,0 +1,61 @@
+{
+  "baseline": "3d5057b",
+  "directory_move": {
+    "source": "assets/Images",
+    "temporary": "assets/_tmp",
+    "destination": "assets/images"
+  },
+  "file_moves": [
+    {
+      "old": "assets/Images/icon/items/dadu.webp",
+      "new": "assets/images/icon/items/dadu.webp"
+    },
+    {
+      "old": "assets/Images/icon/items/power.webp",
+      "new": "assets/images/icon/items/power.webp"
+    },
+    {
+      "old": "assets/Images/icon/lobby/invenotry.webp",
+      "new": "assets/images/icon/lobby/invenotry.webp"
+    },
+    {
+      "old": "assets/Images/icon/lobby/leader.webp",
+      "new": "assets/images/icon/lobby/leader.webp"
+    },
+    {
+      "old": "assets/Images/icon/tabler/camera.svg",
+      "new": "assets/images/icon/tabler/camera.svg"
+    },
+    {
+      "old": "assets/Images/icon/tabler/lock-open.svg",
+      "new": "assets/images/icon/tabler/lock-open.svg"
+    },
+    {
+      "old": "assets/Images/icon/tabler/lock.svg",
+      "new": "assets/images/icon/tabler/lock.svg"
+    },
+    {
+      "old": "assets/Images/icon/ui/day.webp",
+      "new": "assets/images/icon/ui/day.webp"
+    },
+    {
+      "old": "assets/Images/icon/ui/night.webp",
+      "new": "assets/images/icon/ui/night.webp"
+    }
+  ],
+  "path_replacements": [
+    {
+      "old": "assets/Images/icon/",
+      "new": "assets/images/icon/"
+    }
+  ],
+  "reference_exclusions": [
+    "mapping.json",
+    "frozen.txt",
+    "assets/preload-manifest.json",
+    "tests/fixtures/item-catalog-baseline.json",
+    "tools/wallet/gen-item-seed.js",
+    "tools/rename-stage1.py",
+    "tools/rename-stage1-map.json"
+  ]
+}

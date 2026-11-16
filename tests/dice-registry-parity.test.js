@@ -130,8 +130,11 @@ t('Equip->Gameplay: tiap gameKey Dice ada di DiceKit (DiceCatalog.js) sehingga d
   assert.ok(/DiceKit\.has\(want\.key\) \? want\.key : 'klasik'/.test(rd('gameplay/js/dice-ui.js')));
 });
 t('Gameplay implementation dan SFX non-Pet tidak disentuh; hanya SFX Pet-owned yang direlokasi', () => {
-  const d = cp.execSync('git diff --name-only HEAD -- gameplay assets/js/player-data.js assets/js/game-integration.js assets/js/renderers/dice-kit supabase', { cwd: ROOT }).toString().trim();
+  const d = cp.execSync('git diff --name-only HEAD -- assets/js/player-data.js assets/js/game-integration.js assets/js/renderers/dice-kit supabase', { cwd: ROOT }).toString().trim();
   assert.strictEqual(d, '');
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const gameplay = cp.execFileSync(python, ['tools/rename-stage1.py', '--verify-only'], { cwd: ROOT }).toString();
+  assert.ok(/reverse-map result is byte-identical to 3d5057b/.test(gameplay), gameplay);
   const audio = cp.execSync('git diff --name-only HEAD -- assets/sfx', { cwd: ROOT }).toString().trim().split(/\r?\n/).filter(Boolean);
   const moved = new Set([
     'assets/sfx/README.md',

@@ -30,7 +30,7 @@
                bounce: '↩️', shield: '🛡️', dragon: '🐉', info: 'ℹ️' };
   /* Ikon gambar untuk banner event (aset buatan sendiri, 256px). Jenis yang tidak ada di sini tetap memakai emoji di ICON.
      Emoji juga jadi cadangan bila gambar gagal dimuat. Ikon kustom dari pemanggil (o.icon) selalu dipakai apa adanya. */
-  var IMG_DIR = 'assets/Images/icon/';
+  var IMG_DIR = 'assets/images/icon/';
   var ICON_IMG = { turn: IMG_DIR + 'items/dadu.webp', three6: IMG_DIR + 'items/dadu.webp',
                    chest: IMG_DIR + 'lobby/invenotry.webp', power: IMG_DIR + 'items/power.webp' };
   var cfg = { getGameId: null, isPaused: null };

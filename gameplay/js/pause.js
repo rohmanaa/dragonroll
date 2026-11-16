@@ -8,8 +8,8 @@
     bind.done = true;
     ops = ops || {};
     var $ = function (id) { return doc.getElementById(id); };
-    var ICO_SUN = '<img src="assets/Images/icon/ui/day.webp" alt="" draggable="false">';
-    var ICO_MOON = '<img src="assets/Images/icon/ui/night.webp" alt="" draggable="false">';
+    var ICO_SUN = '<img src="assets/images/icon/ui/day.webp" alt="" draggable="false">';
+    var ICO_MOON = '<img src="assets/images/icon/ui/night.webp" alt="" draggable="false">';
 
     function syncMusicUI() {
       var music = $('pmVol'), sfx = $('pmSfx');

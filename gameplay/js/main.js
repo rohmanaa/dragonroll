@@ -4279,7 +4279,7 @@ function resetCam(P){
   goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=P.px||0; panGoal.z=P.pz||0; panGoal.y=0; /* px/pz opsional di preset (geser titik pandang) */
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
-const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
+const ICON_LOCK='<img class="hi sm" src="assets/images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/images/icon/tabler/camera.svg" alt="" draggable="false">';
 function camUI(){
   /* tombol LOCK/ANGLE sudah dihapus: kamera selalu mode ANGLE */
   if(!camCfg.angle) camMenuClose();

@@ -433,7 +433,7 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 /* --- Power-up (kiri bawah): pill header + panah + slot --- */
 #side .pnl.pu{display:flex;align-items:center;gap:6px;width:clamp(380px,36vw,600px);padding:24px 10px 10px}
 #side .pu>h3{left:14px}
-#side .pu>h3::before{content:"";flex:none;width:1.4em;height:1.4em;background:url("../../assets/Images/icon/items/power.webp") center/contain no-repeat;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+#side .pu>h3::before{content:"";flex:none;width:1.4em;height:1.4em;background:url("../../assets/images/icon/items/power.webp") center/contain no-repeat;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
 #side #pus{flex:1;min-width:0;display:flex;flex-wrap:nowrap;gap:2px;max-width:none;overflow-x:auto;overflow-y:visible;scroll-snap-type:x proximity;scrollbar-width:none;padding:12px 4px 0;margin-top:-6px}
 #side #pus::-webkit-scrollbar{display:none}
 #side .pb{flex:1 0 var(--slot);min-width:var(--slot);height:calc(var(--slot)*1.18);scroll-snap-align:start;font-size:calc(var(--slot)*.52);border-radius:14px;overflow:visible;
@@ -550,7 +550,7 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
   flex:none;
   width:1.5em;
   height:1.5em;
-  background:url("../../assets/Images/icon/items/dadu.webp") center/contain no-repeat;
+  background:url("../../assets/images/icon/items/dadu.webp") center/contain no-repeat;
   filter:drop-shadow(0 2px 0 rgba(120,60,0,.35));
 }
 #side .tn #btnRoll:disabled::after{filter:grayscale(1) opacity(.7)}
@@ -794,7 +794,7 @@ body #side .pr>span:first-of-type{grid-column:2;grid-row:1;font-weight:800;text-
 body #side .pr .pos{grid-column:4;grid-row:1;flex:none;color:#fff;border:2px solid var(--ol);border-radius:6px;background:linear-gradient(#1b3270,#12235a);box-shadow:inset 0 0 0 2px rgba(120,160,235,.3);text-shadow:0 2px 0 #000;font-weight:800;text-align:center}
 body #side .pr .bf{grid-column:2 / -1;grid-row:2;justify-self:start;margin:0;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 body #side .pr.on>span:first-of-type{text-shadow:0 2px 0 #8a5a08}
-body #side .pr.on::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
+body #side .pr.on::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
 body #side .pr.on::before{content:"";position:absolute;left:-13px;top:50%;translate:0 -50%;border-left:9px solid #ffc83d;border-top:8px solid transparent;border-bottom:8px solid transparent;filter:drop-shadow(0 2px 0 var(--ol))}
 /* ---- panel giliran: sembunyikan pesan & header lama ---- */
 body #side .tn .msg{display:none}
@@ -823,7 +823,7 @@ body #side .tn>h3{display:none}
 }
 /* online: mahkota hanya untuk host (bukan penanda giliran); pemain lokal diberi outline */
 body.mp-online #side .pr.on::after{content:none}
-body.mp-online #side .pr.host::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
+body.mp-online #side .pr.host::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("../../assets/images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
 body.mp-online #side .pr.me{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 5px var(--pc,#ffc83d),0 0 14px 4px var(--pc,#ffc83d)}
 body #pauseMenu #pmMode:disabled{opacity:.55;cursor:not-allowed}
 /* urutan giliran = chip angka kecil di pojok foto profil (kiri: daftar Pemain; kanan: panel Giliran) */
@@ -1003,7 +1003,7 @@ html body #side .pr .pav>.ord{right:-8px;top:-10px;min-width:1.7em;height:1.7em;
 html body #side .pr>span:first-of-type{font-size:1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html body #side .pr .pos{display:inline-flex;align-items:center;gap:5px;min-width:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;
   font-size:1.12em;font-weight:800;line-height:1;color:#fff;text-shadow:inherit}
-html body #side .pr .pos::before{content:"";flex:none;width:1.3em;height:1.3em;background:url("../../assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(11,24,56,.65))}
+html body #side .pr .pos::before{content:"";flex:none;width:1.3em;height:1.3em;background:url("../../assets/images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(11,24,56,.65))}
 html body #side .pr .bf{color:#fff;text-shadow:0 1px 0 rgba(11,24,56,.7)}
 
 /* --- Kanan atas: tombol biru bergaya candy, ikon putih --- */
