@@ -4,7 +4,7 @@
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const PG = require("./_page");
 const rd = f => PG.readFileSync(path.join(__dirname, "..", f), "utf8");
-const html = rd("karakter.html"), css = rd("data/karakter/css/kredit.css");
+const html = rd("karakter.html"), css = rd("data/character-page/css/kredit.css");
 let n = 0; const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 const regBlock = name => { const i = html.indexOf("const " + name + "=["); assert.ok(i > 0, name); const j = html.indexOf("\n];", i); return html.slice(i, j); };
 
@@ -13,7 +13,7 @@ t("slot equipment berada di kedua sisi karakter tanpa tombol aksi di panel", () 
   assert.ok(/<div id="eqR" aria-label="Perlengkapan sisi kanan"><\/div>/.test(html));
   assert.ok(!/id="buy"/.test(html), "aksi pembelian/pemakaian tidak diletakkan di panel");
   assert.ok(/fmtPrice\(ci\.price\)/.test(html));
-  assert.ok(/const KOIN='assets\/ng\/komponen\/hud\/ikon-koin-emas\.webp'/.test(html));
+  assert.ok(/const KOIN='assets\/images\/ui\/hud\/ikon-koin-emas\.webp'/.test(html));
   assert.ok(html.includes("badgeHtml:lock&&canSell(ci)?'<img class=\"coin\" src=\"'+KOIN+'\" alt=\"\"><span>'+fmtPrice(ci.price)+'</span>':null"), "status beli menampilkan ikon koin dan harga ringkas");
   assert.ok(/on\?'Dipakai':'Dimiliki'/.test(html));
   assert.ok(/startPreview\(ci,part\);confirmBuy\(ci\)/.test(html), "Beli pada kartu membuka pembelian item");
@@ -118,8 +118,12 @@ t("klik slot: kosong -> buka tab kategori; terisi -> buka kategorinya untuk mele
   assert.ok(/renderEq\(\);\s*updateInfo\(\);\s*\}/.test(html), "renderEq dipanggil di akhir renderOpts");
 });
 t("aset slot ada", () => {
-  ["slot-ungu", "slot-terpilih"].forEach(a => assert.ok(fs.existsSync(path.join(__dirname, "../assets/ng/komponen/slot-equipment", a + ".webp")), a));
-  assert.ok(fs.existsSync(path.join(__dirname, "../assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp")));
+  ["slot-ungu", "slot-terpilih"].forEach(a => assert.ok(fs.existsSync(path.join(__dirname, "../assets/images/ui/slot-equipment", a + ".webp")), a));
+  assert.ok(fs.existsSync(path.join(__dirname, "../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp")));
 });
-t("skrip inline valid secara sintaks", () => { [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1])); });
+t("skrip halaman valid secara sintaks", () => {
+  const inline = fs.readFileSync(path.join(__dirname, "../karakter.html"), "utf8");
+  [...inline.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => new Function(m[1]));
+  new Function(fs.readFileSync(path.join(__dirname, "../data/character-page/js/karakter.js"), "utf8"));
+});
 console.log(n + " tes lulus");

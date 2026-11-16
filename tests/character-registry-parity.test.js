@@ -68,7 +68,7 @@ test('Manifest mempertahankan metadata ItemCatalog, harga, rarity, starter, dan 
 test('Semua referensi model dasar ada di CharacterData dan jalur aset valid', () => {
   const w = { UT: {} }; w.window = w;
   const ctx = vm.createContext({ window: w, UT: w.UT, console, Math, JSON });
-  vm.runInContext(rd('data/karakter/js/character-data.js'), ctx, { filename: 'data/karakter/js/character-data.js' });
+  vm.runInContext(rd('data/character-page/js/character-data.js'), ctx, { filename: 'data/character-page/js/character-data.js' });
   manifests.forEach(m => {
     assert.deepStrictEqual(IR.validateManifest(m, CharacterCat.category), { ok: true, errors: [] }, m.id);
     assert.strictEqual(IR.validateAssetPaths(m, CharacterCat.category).ok, true, m.id);

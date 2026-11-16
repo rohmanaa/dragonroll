@@ -38,7 +38,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 .amodal{position:fixed;inset:0;background:rgba(6,4,12,.66);display:none;place-items:center;z-index:50}
 .amodal.on{display:grid}
 .dlg{position:relative;width:min(51.9rem,94vw);isolation:isolate;margin-top:-1rem}
-.dlg::before{content:'';position:absolute;inset:-.4rem;border:1.4rem solid transparent;border-image:url(../ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 1.4rem stretch;z-index:-1;pointer-events:none}
+.dlg::before{content:'';position:absolute;inset:-.4rem;border:1.4rem solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 1.4rem stretch;z-index:-1;pointer-events:none}
 .dh{position:relative;height:5.25rem;margin:0 .4rem;display:grid;place-items:center;background:#221e30;font:400 2.75rem var(--font-title);color:#ffd98e;text-shadow:0 .12rem 0 rgba(0,0,0,.5)}
 .x{position:absolute;right:0;top:0;width:6rem;height:5.25rem;display:grid;place-items:center;background:#2c283c;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%,0 50%)}
 .x img{width:2.5rem;height:2.5rem}
@@ -52,8 +52,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 .inp:focus-within{background:#241d36}
 .rem{display:flex;align-items:center;gap:1.4rem;font:700 2rem var(--font-body);color:#fff;cursor:pointer;margin:.2rem 0 0 .2rem;position:relative}
 .rem input{position:absolute;opacity:0;width:0;height:0}
-.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../images/tombol/checkbox-kosong.webp) center/100% 100% no-repeat}
-.rem input:checked+.cb{background-image:url(../images/tombol/checkbox-dicentang.webp)}
+.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../images/buttons/checkbox-kosong.webp) center/100% 100% no-repeat}
+.rem input:checked+.cb{background-image:url(../images/buttons/checkbox-dicentang.webp)}
 .err{min-height:2.2rem;color:#ff9a9a;font:800 1.6rem var(--font-body);text-align:center}
 .err.info{color:#ffd98e}
 .btn.blue{width:100%;height:7rem}

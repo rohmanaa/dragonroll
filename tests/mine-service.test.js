@@ -1,6 +1,6 @@
 /* Tes klien tambang (tanpa jaringan): pembungkus RPC, penolakan lokal, tidak dobel, cermin saldo, kegagalan tidak melempar. */
 const assert = require('assert');
-const { create } = require('../data/tambang/js/mine-service.js');
+const { create } = require('../data/mining/js/mine-service.js');
 
 function setup(handlers, opts) {
   opts = opts || {};

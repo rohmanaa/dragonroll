@@ -152,7 +152,7 @@ const SFX_BASELINE = {
   celestial_kitsune: ['celestial-kitsune-bell', 'celestial-kitsune-cry', 'celestial-kitsune-shine'] };
 const SHARED_PET_SFX = new Set(['storm-wolf-zap', 'inferno-dragon-fire', 'celestial-kitsune-bell', 'celestial-kitsune-shine']);
 const sfxPath = (key, n) => SHARED_PET_SFX.has(n)
-  ? 'assets/sfx/pet/' + n + '.mp3'
+  ? 'assets/audio/sfx/pet/' + n + '.mp3'
   : 'data/pet/items/' + key + '/sfx/' + n + '.mp3';
 const PV_PATH = 'data/pet/js/pet-viewer.js', PV = rd(PV_PATH);
 function viewerAudioProbe(itemRegistry) {
@@ -188,12 +188,12 @@ t('SFX manifest: path dan urutan slot = pemetaan baseline pet-viewer.js (tidak a
 });
 t('SFX validasi: A. validateManifest OK 7/7  B. path format mp3 valid  C. 17 SFX Pet-owned + 4 shared ada dan tidak ada file yatim', () => {
   items.forEach(m => { assert.deepStrictEqual(IR.validateManifest(m, PetCat.category), { ok: true, errors: [] }, m.id); assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id); });
-  const diskShared = fs.readdirSync(path.join(ROOT, 'assets/sfx/pet')).filter(f => /\.mp3$/.test(f)).map(f => 'assets/sfx/pet/' + f).sort(), diskOwned = [], ref = [];
+  const diskShared = fs.readdirSync(path.join(ROOT, 'assets/audio/sfx/pet')).filter(f => /\.mp3$/.test(f)).map(f => 'assets/audio/sfx/pet/' + f).sort(), diskOwned = [], ref = [];
   PetCat.keys.forEach(key => fs.readdirSync(path.join(ROOT, 'data/pet/items', key, 'sfx')).filter(f => /\.mp3$/.test(f))
     .forEach(f => diskOwned.push('data/pet/items/' + key + '/sfx/' + f)));
   items.forEach(m => m.assets.sfx.forEach(u => { ref.push(u); const f = path.join(ROOT, u); assert.ok(fs.existsSync(f), u); const b = fs.readFileSync(f); assert.ok(b.length > 1000, u);
     assert.ok(b.slice(0, 3).toString() === 'ID3' || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0), u + ' header MP3'); }));
-  assert.deepStrictEqual(ref.filter(u => u.startsWith('assets/sfx/pet/')).sort(), diskShared);
+  assert.deepStrictEqual(ref.filter(u => u.startsWith('assets/audio/sfx/pet/')).sort(), diskShared);
   assert.deepStrictEqual(ref.filter(u => u.startsWith('data/pet/items/')).sort(), diskOwned.sort());
   assert.strictEqual(diskOwned.length, 17);
   assert.strictEqual(diskShared.length, 4);
@@ -203,7 +203,7 @@ t('SFX: tidak digandakan di ItemCatalog (item katalog tetap = baseline; tidak ad
   assert.deepStrictEqual(clone(viaPet.ItemCatalog.items), base.items);
 });
 t('Pet Viewer: tidak lagi punya path mp3 hardcoded; membaca dari UT.ItemRegistry (pet.<id> -> assets.sfx)', () => {
-  assert.ok(PV.indexOf('assets/sfx/pet/') < 0 || !/['"]assets\/sfx\/pet\/[^'"]+\.mp3['"]/.test(PV), 'masih ada literal path mp3');
+  assert.ok(PV.indexOf('assets/audio/sfx/pet/') < 0 || !/['"]assets\/sfx\/pet\/[^'"]+\.mp3['"]/.test(PV), 'masih ada literal path mp3');
   assert.ok(/UT\.ItemRegistry/.test(PV) && /getItem\('pet\.'\+id\)/.test(PV) && /assets\.sfx/.test(PV));
 });
 t('Pet Viewer: SFX dibaca dari manifest ItemRegistry dan dipasangkan ke fallback sintesis per Pet/slot', () => {
@@ -224,10 +224,10 @@ t('Pet Viewer: manifest remains the source when assets.sfx changes and Registry 
   const changed = IR.create(); changed.registerCategory(PetCat.category);
   PetCat.keys.forEach(key => {
     const manifest = clone(require(path.join(ROOT, 'data/pet/items/' + key + '/manifest.js')));
-    if (key === 'storm_wolf') manifest.assets.sfx[0] = 'assets/sfx/pet/ZZ.mp3';
+    if (key === 'storm_wolf') manifest.assets.sfx[0] = 'assets/audio/sfx/pet/ZZ.mp3';
     assert.ok(changed.registerItem(manifest).ok);
   });
-  assert.strictEqual(viewerAudioProbe(changed).PET_FILES[4][0], 'assets/sfx/pet/ZZ.mp3');
+  assert.strictEqual(viewerAudioProbe(changed).PET_FILES[4][0], 'assets/audio/sfx/pet/ZZ.mp3');
   const reversed = IR.create(); reversed.registerCategory(PetCat.category);
   PetCat.keys.slice().reverse().forEach(key => reversed.registerItem(require(path.join(ROOT, 'data/pet/items/' + key + '/manifest.js'))));
   assert.deepStrictEqual(viewerAudioProbe(reversed).PET_FILES, viewerAudioProbe(reg).PET_FILES);

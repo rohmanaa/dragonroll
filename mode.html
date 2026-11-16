@@ -13,10 +13,10 @@
 <div id="stage">
 
   <!-- header -->
-  <button id="back" aria-label="Kembali ke lobby"><img class="bg" src="assets/images/tombol/tombol-rumah-abu.webp" alt=""></button>
+  <button id="back" aria-label="Kembali ke lobby"><img class="bg" src="assets/images/buttons/tombol-rumah-abu.webp" alt=""></button>
   <div id="title" class="ttl">PILIH MODE</div>
-  <div class="cur" id="cur-em" role="button" aria-label="Emerald, buka Tambang"><img src="assets/images/ui/ikon-gem-medali/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-em" role="button" aria-label="Emerald, buka Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
+  <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
 
   <!-- peta -->
   <section id="maps">
@@ -33,11 +33,11 @@
     <div class="hd ttl">QUICK START</div><div class="desc">Cari lawan otomatis</div>
     <div class="tiles">
       <div class="flip" data-id="q-solo">
-        <div class="face front"><div class="ic"><img src="assets/images/ui/new-icon/solo.webp" alt=""></div><div class="nm ttl">SOLO</div><div class="sb">Semua melawan semua</div></div>
+        <div class="face front"><div class="ic"><img src="assets/images/ui/feature-icons/solo.webp" alt=""></div><div class="nm ttl">SOLO</div><div class="sb">Semua melawan semua</div></div>
         <div class="face back"><button class="close">×</button><div class="q ttl">Berapa pemain?</div><div class="opts" data-kind="quick" data-format="solo"></div></div>
       </div>
       <div class="flip" data-id="q-team">
-        <div class="face front"><div class="ic xl"><img src="assets/images/ui/new-icon/teamvsteam.webp" alt=""></div><div class="nm ttl">TEAM</div><div class="sb">2 vs 2</div></div>
+        <div class="face front"><div class="ic xl"><img src="assets/images/ui/feature-icons/team-vs-team.webp" alt=""></div><div class="nm ttl">TEAM</div><div class="sb">2 vs 2</div></div>
         <div class="face back"><button class="close">×</button><div class="q ttl">Mode Team 2 vs 2</div><div class="opts" data-kind="quick" data-format="team" data-counts="4"></div></div>
       </div>
     </div>
@@ -48,15 +48,15 @@
     <div class="hd ttl">CREATE ROOM</div><div class="desc">Atur permainanmu sendiri</div>
     <div class="tiles">
       <div class="flip" data-id="c-vsc">
-        <div class="face front"><div class="ic xl"><img src="assets/images/ui/new-icon/vscomputer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">VS COMPUTER</div><div class="sb">Lawan bot</div></div>
+        <div class="face front"><div class="ic xl"><img src="assets/images/ui/feature-icons/vs-computer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">VS COMPUTER</div><div class="sb">Lawan bot</div></div>
         <div class="face back"><button class="close">×</button><div class="q ttl">Jumlah peserta</div><div class="opts" data-kind="room" data-mode="vsc" data-format="solo"></div></div>
       </div>
       <div class="flip" data-id="c-local">
-        <div class="face front"><div class="ic"><img src="assets/images/ui/new-icon/multiplayer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">MULTI PLAYER</div><div class="sb">Satu perangkat, gantian</div></div>
+        <div class="face front"><div class="ic"><img src="assets/images/ui/feature-icons/multiplayer.webp" alt=""></div><div class="nm ttl" style="font-size:36px">MULTI PLAYER</div><div class="sb">Satu perangkat, gantian</div></div>
         <div class="face back"><button class="close">×</button><div class="q ttl">Jumlah pemain</div><div class="opts" data-kind="room" data-mode="local" data-format="solo"></div></div>
       </div>
       <div class="flip" data-id="c-online">
-        <div class="face front"><div class="ic"><img src="assets/images/ui/ikon-item/gerbang-dungeon.webp" alt=""></div><div class="nm ttl" style="font-size:36px">CREATE ROOM</div><div class="sb">Online dengan teman</div></div>
+        <div class="face front"><div class="ic"><img src="assets/images/ui/item-icons/gerbang-dungeon.webp" alt=""></div><div class="nm ttl" style="font-size:36px">CREATE ROOM</div><div class="sb">Online dengan teman</div></div>
         <div class="face back"><button class="close">×</button><div class="q ttl">Format room online</div>
           <div class="opts" data-kind="room" data-mode="online" data-pairs="solo:4:SOLO:Maks. 4 pemain|team:4:TEAM:2 vs 2"></div></div>
       </div>
@@ -66,7 +66,7 @@
   <div id="modal"><div id="mbox">
     <div id="mt" class="ttl">MENCARI LAWAN…</div><div id="ms"></div>
     <div class="spin" id="spin"></div><div id="mplayers"></div>
-    <button id="mcancel"><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
+    <button id="mcancel"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
   </div></div>
   <div id="toast"></div>
 </div>
@@ -76,7 +76,7 @@
 
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/renderers/item-art.js"></script>
-<script src="data/karakter/js/character-data.js"></script>
+<script src="data/character-page/js/character-data.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/core/app.js"></script>

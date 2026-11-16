@@ -49,9 +49,9 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
 });
 
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/tombol\/tombol-abu-polos\.webp\)/.test(frameCss));
-  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/tombol\/tombol-abu-polos\.webp\)/.test(powerCss));
-  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/tombol\/tombol-abu-polos\.webp\)/.test(read("data/karakter/css/kredit.css")));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
+  assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
+  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/character-page/css/kredit.css")));
   assert.ok(/on\?'DIPAKAI':'DIMILIKI'/.test(scripts.frame));
   assert.ok(/on\?'DIPASANG':'DIMILIKI'/.test(scripts.dadu));
   assert.ok(/class="pr \$\{on\?'used':'owned'\}".*DIPAKAI/.test(pages.efek));

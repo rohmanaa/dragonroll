@@ -87,7 +87,7 @@
 
   /* Musik latar untuk semua halaman selain gameplay (gameplay punya musiknya sendiri).
      Empat lagu di assets/music diputar bergantian. */
-  var TRACKS = ['assets/music/sunset_plains.mp3', 'assets/music/community.mp3', 'assets/music/first_light_particles.mp3', 'assets/music/rainy.mp3'], ti = 0, bgm = null, fadeRaf = 0;
+  var TRACKS = ['assets/audio/music/sunset-plains.mp3', 'assets/audio/music/community.mp3', 'assets/audio/music/first-light-particles.mp3', 'assets/audio/music/rainy.mp3'], ti = 0, bgm = null, fadeRaf = 0;
   var wantMusic = false;                     // halaman saat ini boleh bermusik (bukan gameplay)
   function ensureBgm() {
     if (bgm) return bgm;

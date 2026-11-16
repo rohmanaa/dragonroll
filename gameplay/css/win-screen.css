@@ -60,7 +60,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   width: clamp(38px, 6vh, 66px);
   height: clamp(38px, 6vh, 66px);
   margin-bottom: -10px;
-  background: url("../../assets/ng/komponen/ikon-item/mahkota.webp") center / contain no-repeat;
+  background: url("../../assets/images/ui/item-icons/mahkota.webp") center / contain no-repeat;
   filter: drop-shadow(0 4px 0 #805015) drop-shadow(0 8px 8px rgba(0, 0, 0, .35));
   animation: win-crown-float 2.5s ease-in-out infinite;
 }
@@ -92,7 +92,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   margin: 0 !important;
   padding: calc(var(--wt-w) * .08) calc(var(--wt-w) * .12) 0 !important; /* teks di antara dua garis banner (persen padding mengacu ke induk, jadi pakai lebar banner) */
   color: #fff7dc !important;
-  background: url("../../assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp") center / 100% 100% no-repeat !important;
+  background: url("../../assets/images/ui/banner-label/banner-hasil-menang-emas.webp") center / 100% 100% no-repeat !important;
   font: 800 40px/1.05 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
   font-size: calc(var(--wt-w) * .076) !important; /* satu baris; nama panjang membungkus rapi */
   text-wrap: balance;
@@ -106,7 +106,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   aspect-ratio: 1400 / 363 !important;       /* rasio banner-hasil-kalah-merah.webp */
   padding: 0 calc(var(--wt-w) * .12) !important;
   color: #ffe3e3 !important;
-  background-image: url("../../assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp") !important;
+  background-image: url("../../assets/images/ui/banner-label/banner-hasil-kalah-merah.webp") !important;
   text-shadow: 0 3px 0 #3a0008, 0 0 14px rgba(255, 30, 50, .75) !important;
 }
 
@@ -271,7 +271,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   width: 100%;
   height: clamp(28px, 4vh, 38px);
   overflow: hidden;
-  background: url("../../assets/ng/komponen/misi/bar-progres-kosong.webp") center / 100% 100% no-repeat;
+  background: url("../../assets/images/ui/missions/bar-progres-kosong.webp") center / 100% 100% no-repeat;
 }
 
 #win.win-result .win-result__xp-fill {
@@ -280,7 +280,7 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   bottom: 20%;
   left: 3%;
   width: 0;
-  background: url("../../assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp") left center / 100% 100% no-repeat;
+  background: url("../../assets/images/ui/missions/isi-bar-progres-oranye-runcing.webp") left center / 100% 100% no-repeat;
   transition: width .45s ease-out;
 }
 
@@ -325,8 +325,8 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   transition: filter .12s, transform .12s;
 }
 
-#win.win-result #btnAgain { background-image: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp") !important; }
-#win.win-result #btnToMenu { background-image: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp") !important; }
+#win.win-result #btnAgain { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") !important; }
+#win.win-result #btnToMenu { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
 #win.win-result .lm-mode:hover { filter: brightness(1.08); transform: translateY(-2px); }
 #win.win-result .lm-mode:active { transform: translateY(2px); }
 #win.win-result .lm-mode:focus-visible { outline: 3px solid #fff3d0; outline-offset: 3px; }

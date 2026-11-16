@@ -2,9 +2,9 @@
    Modul ES lokal (bukan CDN). SATU modul bersama: dipakai dadu.html (preview Inventory) DAN gameplay.html (dadu gameplay) lewat window.DiceKit.
    Hanya VISUAL: angka hasil ditentukan game (roll(forcedValue)); kit hanya menampilkan lemparan yang berakhir di angka itu.
    Kepemilikan, harga & equip tetap dari katalog SERVER; kit ini hanya tahu cara menampilkan dadu berdasarkan gameKey. */
-import { DiceRenderer } from './DiceRenderer.js';
-import { getDice, DICE_CATALOG } from './DiceCatalog.js';
-import { diceThumbDataURL } from './DiceTextures.js';
+import { DiceRenderer } from './dice-renderer.js';
+import { getDice, DICE_CATALOG } from './dice-catalog.js';
+import { diceThumbDataURL } from './dice-textures.js';
 
 /* Preset panggung dadu transparan (tanpa arena, jatuh dari atas ke tengah). Dipakai bersama preview & gameplay agar gerak/ukuran identik. */
 const STAGE = Object.freeze({ transparent: true, arena: false, bounds: { x: 1.3, z: 1.1 }, idleZ: 0, camScale: 0.38, lookY: 0.8, drop: true });

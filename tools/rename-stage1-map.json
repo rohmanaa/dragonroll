@@ -49,6 +49,12 @@
       "new": "assets/images/icon/"
     }
   ],
+  "reverse_path_replacements": [
+    {
+      "old": "assets/images/icon/",
+      "new": "assets/Images/icon/"
+    }
+  ],
   "reference_exclusions": [
     "mapping.json",
     "frozen.txt",

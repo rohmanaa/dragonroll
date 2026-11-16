@@ -153,37 +153,42 @@ def verify_gameplay(data):
             "Gameplay path set differs; missing={}, added={}".format(missing, added)
         )
 
-    replacement_stages = []
+    reverse_stages = []
     for map_path in sorted((ROOT / "tools").glob("rename-stage*-map.json")):
         stage_map = json.loads(map_path.read_text(encoding="utf-8"))
         replacements = [
-            (item["old"].encode(), item["new"].encode())
-            for item in stage_map.get("path_replacements", [])
+            (
+                item["old"].encode(),
+                item["new"].encode(),
+                set(item.get("files", [])),
+            )
+            for item in stage_map.get("reverse_path_replacements", [])
         ]
-        replacement_stages.append(
+        reverse_stages.append(
             sorted(replacements, key=lambda item: len(item[0]), reverse=True)
         )
 
     differences = []
     for relative in sorted(current_paths):
-        actual = (ROOT / Path(relative)).read_bytes().replace(b"\r\n", b"\n")
+        restored = (ROOT / Path(relative)).read_bytes().replace(b"\r\n", b"\n")
         expected = subprocess.run(
             ["git", "show", "{}:{}".format(baseline, relative)],
             cwd=ROOT,
             check=True,
             stdout=subprocess.PIPE,
         ).stdout.replace(b"\r\n", b"\n")
-        path_only = expected
-        for replacements in replacement_stages:
-            for old, new in replacements:
-                path_only = path_only.replace(old, new)
-        if actual != path_only:
+        for replacements in reversed(reverse_stages):
+            for old, new, files in replacements:
+                if files and relative not in files:
+                    continue
+                restored = restored.replace(old, new)
+        if restored != expected:
             differences.append(relative)
     if differences:
         raise RuntimeError(
             "Gameplay contains changes beyond mapped paths: " + ", ".join(differences)
         )
-    print("Gameplay path-only comparison: reverse-map result is byte-identical to " + baseline)
+    print("Gameplay reverse-map comparison: byte-identical to " + baseline)
 
 
 def main():

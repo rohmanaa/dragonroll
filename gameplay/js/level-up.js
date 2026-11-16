@@ -21,7 +21,7 @@
   }
 
   /* Lencana perisai merah bersayap (webp). Alamat dihitung dari base dokumen agar benar di halaman mana pun. */
-  var BADGE_SRC = 'assets/ng/komponen/hud/lencana-level-sayap.webp';
+  var BADGE_SRC = 'assets/images/ui/hud/lencana-level-sayap.webp';
   function badgeUrl() { try { return new win.URL(BADGE_SRC, doc.baseURI).href; } catch (e) { return BADGE_SRC; } }
 
   function sparks(host) {

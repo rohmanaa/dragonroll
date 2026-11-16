@@ -1,0 +1,25 @@
+Path yang tidak dipindah pada tahap 2 dan alasannya:
+
+- data/inventory/power/* — Nama folder item adalah gameKey/ID katalog; jalurnya dipertahankan.
+- data/pet/items/* — Nama folder dan gambar item adalah gameKey/ID; jalurnya dipertahankan.
+- data/power/3d/* — Nama aset model cocok dengan gameKey/ID; jalurnya dipertahankan.
+- assets/js/vendor/* — Nama modul vendor upstream dipertahankan agar specifier publiknya tetap valid.
+- assets/js/multiplayer/config.example.js — Pola nama file contoh konfigurasi yang umum dipertahankan.
+- supabase/ — Direktori dikecualikan; tidak ditemukan rujukan ke path yang dipindah.
+- tools/wallet/gen-item-seed.js — File dikecualikan; tidak ditemukan rujukan ke path yang dipindah.
+- tests/fixtures/item-catalog-baseline.json — Fixture dikecualikan; tidak ditemukan rujukan ke path yang dipindah.
+- DB eksternal — Tidak ada akses ke data DB untuk mengubah path tersimpan; tidak ada rujukan tersebut di berkas repo yang dipindai.
+
+Penggabungan string gameplay yang terinventarisasi:
+- Prefix audio dan ikon HUD diperbarui pada literal serta fragmen string yang ditemukan.
+- Tidak ada path hasil penggabungan string yang ditunda.
+
+Path audio yang sengaja opsional dan belum tersedia (fallback audio tetap berlaku):
+- assets/audio/sfx/powerup/feather.mp3 — opsional.
+- assets/audio/sfx/powerup/golden-apple.mp3 — opsional.
+- assets/audio/sfx/powerup/shield-up.mp3 — opsional.
+- assets/audio/sfx/powerup/diamond-sword-use.mp3 — opsional.
+- assets/audio/sfx/powerup/netherite-sword-use.mp3 — opsional.
+
+Catatan DB:
+- Tidak ada akses ke DB eksternal; path tersimpan di DB tidak dapat diubah dari repo.

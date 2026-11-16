@@ -203,7 +203,7 @@ const SND=window.__synthesizedSnd||[
   ()=>{[2093,2637,3136].forEach((f,i)=>tone(f,f,1.0,'sine',.06,i*.05,{vib:9,vibd:f*.01}));noise(.9,.05,'highpass',6000,9000,0)}
  ]
 ];
-/* Suara Pet = rekaman asli, SFX khusus di folder kategori dan empat SFX shared tetap di assets/sfx/pet/. tools/normalize-sfx.py menormalkan keduanya. Path dibaca dari manifest Pet
+/* Suara Pet = rekaman asli, SFX khusus di folder kategori dan empat SFX shared tetap di assets/audio/sfx/pet/. tools/normalize-sfx.py menormalkan keduanya. Path dibaca dari manifest Pet
    (data/inventory/pet/<key>/manifest.js -> assets.sfx, via UT.ItemRegistry), BUKAN lagi dipetakan per indeks tier di sini. assets.sfx[k] = SND[pet][k].
    Sintesis lama (SND) jadi cadangan bila file belum dimuat/gagal, atau bila Registry/manifest tidak tersedia. */
 const PET_FILES={};

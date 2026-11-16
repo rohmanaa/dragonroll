@@ -21,7 +21,7 @@ let n = 0; const T = async (name, fn) => { await fn(); n++; console.log('ok - ' 
     assert.ok(fs.existsSync(path.join(ROOT, canonical)), 'implementasi canonical tersedia');
     [
       { file: 'shop.html', controller: 'assets/js/pages/shop-page.js', page: 'shop' },
-      { file: 'tambang.html', controller: 'data/tambang/js/tambang.js', page: 'tambang' }
+      { file: 'tambang.html', controller: 'data/mining/js/tambang.js', page: 'tambang' }
     ].forEach(({ file, controller, page }) => {
       const html = pageSource(file);
       const sources = pageScriptSources(html);

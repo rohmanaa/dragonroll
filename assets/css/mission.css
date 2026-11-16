@@ -25,8 +25,8 @@
 
 /* ---- isi ---- */
 #body{position:absolute;left:416px;top:135px;width:1450px;height:930px}
-.hdr{position:relative;width:1450px;height:210px;background:url(../images/ui/misi/panel-hadiah-harian-kosong.webp) center/100% 100% no-repeat}
-.hdr .alas{position:absolute;left:16px;top:16px;width:176px;height:176px;background:url(../images/ui/misi/alas-ikon-misi.webp) center/100% 100% no-repeat;display:grid;place-items:center}
+.hdr{position:relative;width:1450px;height:210px;background:url(../images/ui/missions/panel-hadiah-harian-kosong.webp) center/100% 100% no-repeat}
+.hdr .alas{position:absolute;left:16px;top:16px;width:176px;height:176px;background:url(../images/ui/missions/alas-ikon-misi.webp) center/100% 100% no-repeat;display:grid;place-items:center}
 .hdr .alas img{width:128px;height:auto}
 .hdr h2{position:absolute;left:224px;top:46px;margin:0;font:800 48px/1 var(--font-body);letter-spacing:.5px;color:#f3effc}
 .hdr p{position:absolute;left:224px;top:112px;margin:0;font:600 34px/1 var(--font-body);color:#cbc4e0}
@@ -35,9 +35,9 @@
 .rw{position:relative;width:108px;height:108px;background-size:100% 100%;background-repeat:no-repeat;display:grid;place-items:center}
 .rw img{width:62px;height:62px;object-fit:contain;margin-top:-10px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
 .rw b{position:absolute;left:0;right:0;bottom:6px;text-align:center;font:400 24px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.8)}
-.rw.g{background-image:url(../images/ui/misi/slot-hadiah-hijau-kosong.webp)}
-.rw.b{background-image:url(../images/ui/misi/slot-hadiah-biru-kosong.webp)}
-.rw.p{background-image:url(../images/ui/misi/slot-hadiah-ungu-kosong.webp)}
+.rw.g{background-image:url(../images/ui/missions/slot-hadiah-hijau-kosong.webp)}
+.rw.b{background-image:url(../images/ui/missions/slot-hadiah-biru-kosong.webp)}
+.rw.p{background-image:url(../images/ui/missions/slot-hadiah-ungu-kosong.webp)}
 .hdr .rw{position:absolute;top:50px}
 .hdr .gbtn2{position:absolute;right:170px;top:62px}
 
@@ -45,15 +45,15 @@
 .btn.cl span{font-size:46px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
 .btn.cl.sm{width:190px;height:80px}.btn.cl.sm span{font-size:36px}
 
-.row{position:absolute;left:0;width:1450px;height:130px;background:url(../images/ui/misi/baris-misi.webp) center/100% 100% no-repeat}
-.row.ready{background-image:url(../images/ui/misi/baris-misi-siap-klaim.webp)}
+.row{position:absolute;left:0;width:1450px;height:130px;background:url(../images/ui/missions/baris-misi.webp) center/100% 100% no-repeat}
+.row.ready{background-image:url(../images/ui/missions/baris-misi-siap-klaim.webp)}
 .row .ri{position:absolute;left:28px;top:26px;width:78px;height:78px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 .row h3{position:absolute;left:164px;top:24px;margin:0;font:800 36px/1.1 var(--font-body);color:#f3effc}
 .row .ds{position:absolute;left:164px;top:72px;font:600 27px/1.1 var(--font-body);color:#b9b2d0}
-.pb{position:absolute;left:846px;top:55px;width:198px;height:20px;background:url(../ng/komponen/misi/bar-progres-kosong.webp) center/100% 100% no-repeat}
-.pb i{position:absolute;left:0;top:-2px;height:24px;max-width:198px;background:url(../ng/komponen/misi/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat}
+.pb{position:absolute;left:846px;top:55px;width:198px;height:20px;background:url(../images/ui/missions/bar-progres-kosong.webp) center/100% 100% no-repeat}
+.pb i{position:absolute;left:0;top:-2px;height:24px;max-width:198px;background:url(../images/ui/missions/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat}
 .pt{position:absolute;left:1070px;top:44px;width:90px;font:600 30px/1.1 var(--font-body);color:#e4def5;white-space:nowrap}
-.rbox{position:absolute;left:1178px;top:13px;width:256px;height:104px;background:url(../images/ui/misi/slot-hadiah-misi-kosong.webp) center/100% 100% no-repeat;display:flex;align-items:center;justify-content:center;gap:12px}
+.rbox{position:absolute;left:1178px;top:13px;width:256px;height:104px;background:url(../images/ui/missions/slot-hadiah-misi-kosong.webp) center/100% 100% no-repeat;display:flex;align-items:center;justify-content:center;gap:12px}
 .rbox img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
 .rbox b{font:400 38px/1 var(--font-title);color:#e9e3f8;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 .rbox.done{opacity:.6}

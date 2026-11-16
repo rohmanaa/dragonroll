@@ -17,5 +17,5 @@
     starter: false,
     desc: "Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.",
     visual: {"accent":"#ffe08a","colors":["#fdfbf4","#ffcf4a","#6ae8ff"]},
-    assets: { image: "data/pet/items/celestial_kitsune/celestial_kitsune.png", sfx: ["assets/sfx/pet/celestial-kitsune-bell.mp3", "data/pet/items/celestial_kitsune/sfx/celestial-kitsune-cry.mp3", "assets/sfx/pet/celestial-kitsune-shine.mp3"] }
+    assets: { image: "data/pet/items/celestial_kitsune/celestial_kitsune.png", sfx: ["assets/audio/sfx/pet/celestial-kitsune-bell.mp3", "data/pet/items/celestial_kitsune/sfx/celestial-kitsune-cry.mp3", "assets/audio/sfx/pet/celestial-kitsune-shine.mp3"] }
 });

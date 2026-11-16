@@ -88,7 +88,7 @@
   display: grid; place-items: center;
   font-family: "Lilita One", Impact, sans-serif; font-size: clamp(17px, 3.4vw, 28px); letter-spacing: .02em; color: #8a4a05;
   text-shadow: 0 1px 0 rgba(255, 235, 160, .6);
-  background: url("../../assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp") center / 100% 100% no-repeat transparent;
+  background: url("../../assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp") center / 100% 100% no-repeat transparent;
   filter: drop-shadow(0 5px 6px rgba(0, 0, 0, .45));
   opacity: 0; transition: opacity .4s .9s, transform .1s, filter .12s;
 }

@@ -3,7 +3,7 @@
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':Number(n).toLocaleString('id-ID');
-const PCOIN='<img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="">';
+const PCOIN='<img src="assets/images/ui/hud/ikon-koin-emas.webp" alt="">';
 const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1900)}
 /* ---------- URL -> konfigurasi room (URL tidak valid -> Mode Selection) ---------- */
@@ -74,7 +74,7 @@ async function setupOnline(){
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
 const EQ=[['dice','DICE','DADU'],['skin','KARAKTER','KARAKTER'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
 /* Efek: belum ada item efek di katalog (Shop/Inventory masih "segera"), jadi slot ini baru placeholder */
-const EFFECT_ICON='assets/images/ui/ikon-gem-medali/kristal-api.webp';
+const EFFECT_ICON='assets/images/ui/gem-medal-icons/kristal-api.webp';
 /* Slot KARAKTER = karakter baru (halaman Karakter): gambar kepala dari BlockyCharacter, dimuat malas (three.js hanya dipakai untuk ini). CHANGE -> karakter.html */
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
@@ -189,8 +189,8 @@ $('#pmL').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pc
 $('#pdone').onclick=()=>{if(!powerDraft)return;PW.equipped=powerDraft.equipped;PW.carry=powerDraft.carry;saveP();closePowerPick();renderPower()};
 $('#pm').onclick=e=>{if(e.target.id==='pm')closePowerPick()};
 /* ---------- MAP INFORMATION ---------- */
-/* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
-const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
+/* banner gambar map (gameplay/assets/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
+const BANNER={minecraft:'gameplay/assets/maps/banner-maps/world.webp',nether:'gameplay/assets/maps/banner-maps/nether.webp'};
 function renderMap(){
  $('#mArt').innerHTML=MAP?(BANNER[MAP.gameKey]?`<img src="${BANNER[MAP.gameKey]}" alt="" draggable="false">`:ItemArt.theme(MAP.id)):'';
  $('#mTxt').innerHTML=`<div class="n ttl">${MAP?esc(MAP.name.replace(/^Map /,'')):'-'}</div><div>Game Mode: <b>${MODE_LABEL[MODE]}</b></div><div>Jumlah petak: <b>${TILES}</b></div>`;
@@ -241,7 +241,7 @@ function srow(team){if(!ONLINE)return'';
  if(!HOST)return `<div class="pl empty">Slot kosong</div>`;
  return `<button class="pl empty" data-share="1">＋ UNDANG TEMAN</button>`}
 /* slot terkunci: online -> sentuh untuk membuka (host); offline -> hanya penanda terkunci */
-function lrow(){const lk='<img src="assets/images/ui/glyph-putih/gembok.webp" alt="" draggable="false">';
+function lrow(){const lk='<img src="assets/images/ui/white-glyphs/gembok.webp" alt="" draggable="false">';
  if(ONLINE)return `<button class="pl empty lock" data-open="1" aria-label="Sentuh untuk membuka">${lk}<span>SLOT TERKUNCI</span><b>${HOST?'BUKA':'HOST'}</b></button>`;
  return `<div class="pl empty lock static" aria-label="Slot terkunci">${lk}<span>SLOT TERKUNCI</span></div>`}
 function renderPlayers(){
@@ -273,7 +273,7 @@ function check(){const P=S.room.players,h=me();
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
 function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textContent=(c.ok?'✅ ':'⏳ ')+c.msg;
- const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/tombol/'+(h.ready?'tombol-abu-polos':'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos')+'.webp';
+ const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/buttons/'+(h.ready?'tombol-abu-polos':'../../images/ui/buttons-and-controls/tombol-hijau-polos')+'.webp';
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
@@ -314,7 +314,7 @@ async function loadDrawerLooks(ids){try{const AS=window.UT&&UT.AppearanceService
  const r=await AS.usersAppearance(need);
  if(r&&r.ok){need.forEach(i=>{S.dApp[String(i).toLowerCase()]=r.byId[String(i).toLowerCase()]||EMPTY_LOOK});if(root.classList.contains('dro'))renderDrawer()}else need.forEach(i=>{delete S.dTry[i]})}catch(e){}}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
- return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv" data-add="${esc(id)}" data-nm="${esc(name)}"><img src="assets/images/tombol/../../ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>＋ TEMAN</span></button>`}<button class="btn inv ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}><img src="assets/images/tombol/${sent?'tombol-ungu-polos':'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos'}.webp" alt=""><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
+ return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv" data-add="${esc(id)}" data-nm="${esc(name)}"><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>＋ TEMAN</span></button>`}<button class="btn inv ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}><img src="${sent?'assets/images/buttons/tombol-ungu-polos.webp':'assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp'}" alt=""><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
 /* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
 const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
 function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}

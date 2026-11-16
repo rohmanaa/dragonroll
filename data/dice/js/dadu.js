@@ -6,7 +6,7 @@ const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletServic
 const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
-const GEM='assets/images/ui/ikon-gem-medali/berlian-hijau.webp',KOIN='assets/ng/komponen/hud/ikon-koin-emas.webp',LOCK='assets/images/ui/glyph-putih/gembok.webp';
+const GEM='assets/images/ui/gem-medal-icons/berlian-hijau.webp',KOIN='assets/images/ui/hud/ikon-koin-emas.webp',LOCK='assets/images/ui/white-glyphs/gembok.webp';
 const RAR={common:['Biasa','#cfc8ea'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a']};
 const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Emerald tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 /* data dari ItemCatalog + PlayerData (bukan data sendiri); off:true = takedown sementara */

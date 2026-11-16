@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Seragamkan kekerasan SEMUA SFX (assets/sfx/**, assets/new sound/**, data/inventory/pet/*/sfx/**) supaya slider "Efek suara" bermakna:
+"""Seragamkan kekerasan SEMUA SFX (assets/audio/sfx/**, data/inventory/pet/*/sfx/**) supaya slider "Efek suara" bermakna:
 tidak ada lagi suara yang jauh lebih keras/pelan dari yang lain.
 
 Sumber asli disimpan di referensi/sfx-asli/ (tidak ikut diunduh). Skrip SELALU membaca dari sana lalu menulis ke lokasi runtime
@@ -21,18 +21,36 @@ LONG_S, LONG_OFFSET = 5.0, -3.0
 MAX_BOOST = 20.0
 PEAK_BUDGET = 3.0     # puncak sebelum limiter boleh sampai +3 dBFS (limiter menarik ke -1)
 OFFSETS = {}          # contoh: {'sfx/ui/button-click.mp3': -2}  (dB, relatif path di bawah assets/)
-DIRS = ['sfx', 'new sound']
+ASSET_SFX = os.path.join(ROOT, 'assets', 'audio', 'sfx')
+SOURCE_OVERRIDES = {
+    'audio/sfx/bounce.mp3': 'new sound/bounce.mp3',
+    'audio/sfx/chomp.mp3': 'new sound/chomp.mp3',
+    'audio/sfx/crystal-destroyed.mp3': 'new sound/crystall-was-destroy.mp3',
+    'audio/sfx/dragon-awakening.mp3': 'new sound/dragonAwakening.mp3',
+    'audio/sfx/gulp.mp3': 'new sound/gulp.mp3',
+    'audio/sfx/hiss.mp3': 'new sound/hiss.mp3',
+    'audio/sfx/ladder.mp3': 'new sound/ladder.mp3',
+    'audio/sfx/pop.mp3': 'new sound/pop.mp3',
+    'audio/sfx/shuffle.mp3': 'new sound/shuffle.mp3',
+    'audio/sfx/villager.mp3': 'new sound/villager.mp3',
+    'audio/sfx/win.mp3': 'new sound/win.mp3',
+    'audio/sfx/win2.mp3': 'new sound/win2.mp3',
+    'audio/sfx/dragon-arena-up-before-crystal.mp3': 'sfx/dragon-areana-up-before-crystal.mp3',
+    'audio/sfx/setalah-hancurkan-crystal.mp3': 'sfx/setalah-hancurkan-crsytal.mp3',
+    'audio/sfx/win/firework-launch.ogg': 'sfx/win/Firework_launch.ogg',
+    'audio/sfx/win/firework-large-blast-far.ogg': 'sfx/win/Firework_large_blast_far.ogg',
+    'audio/sfx/win/firework-twinkle.ogg': 'sfx/win/Firework_twinkle.ogg',
+}
 PET_DIR = os.path.join(ROOT, 'data', 'inventory', 'pet')
 
 def rels():
     out = []
-    for d in DIRS:
-        base = os.path.join(ROOT, 'assets', d)
-        for dp, _, fn in os.walk(base):
-            for f in fn:
-                if f.lower().endswith(('.mp3', '.ogg')):
-                    rel = os.path.relpath(os.path.join(dp, f), os.path.join(ROOT, 'assets')).replace(os.sep, '/')
-                    out.append((rel, 'assets/' + rel, rel))
+    for dp, _, fn in os.walk(ASSET_SFX):
+        for f in fn:
+            if f.lower().endswith(('.mp3', '.ogg')):
+                rel = os.path.relpath(os.path.join(dp, f), os.path.join(ROOT, 'assets')).replace(os.sep, '/')
+                source_rel = SOURCE_OVERRIDES.get(rel, rel.replace('audio/sfx/', 'sfx/', 1))
+                out.append((rel, 'assets/' + rel, source_rel))
     for dp, _, fn in os.walk(PET_DIR):
         if os.path.basename(dp) != 'sfx':
             continue

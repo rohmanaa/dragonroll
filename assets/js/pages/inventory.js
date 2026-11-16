@@ -20,7 +20,7 @@
   function nav(u) { $('#fade').classList.add('on'); setTimeout(function () { location.href = u; }, 330); }
 
   tabsEl.innerHTML = TABS.map(function (t) {
-    return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/images/ui/ikon-navigasi/garis-bawah-tab-emas.webp" alt=""></button>';
+    return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt=""></button>';
   }).join('');
 
   /* Tiap tab dimuat SEKALI (iframe dibuat saat pertama dibuka) lalu disimpan; pindah tab = tampilkan/sembunyikan saja.

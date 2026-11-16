@@ -58,7 +58,7 @@ t('tiap Power punya ikon 3D (file ada), efek 2D, dan peta model 3D', () => {
   assert.ok(FX.has('shield_block') && FX.has('totem_block'));
 });
 t('suara: PowerSound punya suara untuk tiap Power (gameKey dan id model 3D)', () => {
-  const src = rd('assets/js/renderers/power3d/PowerSound.js'), vm_ = src.match(/const VOICE = \{([\s\S]*?)\};/)[1];
+  const src = rd('assets/js/renderers/power-3d/power-sound.js'), vm_ = src.match(/const VOICE = \{([\s\S]*?)\};/)[1];
   keys.forEach(k => assert.ok(new RegExp('\\b' + k + ':').test(vm_), 'suara tidak ada: ' + k));
   ['iron_sword', 'ender_pearl', 'potion_red', 'potion_blue'].forEach(k => assert.ok(new RegExp('\\b' + k + ':').test(vm_), k));
 });
@@ -73,7 +73,7 @@ t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importm
   const g = gameplaySource();
   const loader = rd('gameplay/js/power3d-loader.js');
   const main = rd('gameplay/js/main.js');
-  assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../assets/js/renderers/power3d/power-overlay.js") > 0);
+  assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../assets/js/renderers/power-3d/power-overlay.js") > 0);
   assert.ok(!/const o=\{sword:0,feather:0/.test(main), 'daftar Power tetap masih ada');
   assert.ok(main.indexOf('guard:!!p.guard,frozen:!!p.frozen') > 0 && main.indexOf("'shield','guard','frozen'") > 0);
   assert.ok(main.indexOf('function skipFrozen') > 0 && /function nextTurn\(\)\{[^}]*skipFrozen\(\)/.test(main));
@@ -109,7 +109,7 @@ t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay
 t('Room: lima slot membuka modal Power dan loadout baru disimpan saat dikonfirmasi', () => {
   const r = rd('room.html');
   assert.ok(r.indexOf('id="prow"') > 0 && r.indexOf('id="pmL"') > 0);
-  assert.ok(r.indexOf("const EFFECT_ICON='assets/images/ui/ikon-gem-medali/kristal-api.webp'") > 0);
+  assert.ok(r.indexOf("const EFFECT_ICON='assets/images/ui/gem-medal-icons/kristal-api.webp'") > 0);
   assert.ok(r.indexOf('Array.from({length:TMAX}') > 0 && r.indexOf('function openPowerPick()') > 0);
   assert.ok(r.indexOf('if(powerDraft.equipped.length>=TMAX)') > 0);
   assert.ok(r.indexOf('function closePowerPick(){powerDraft=null;') > 0);

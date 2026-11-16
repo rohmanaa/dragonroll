@@ -123,9 +123,9 @@ t('Shop/Inventory/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCa
 });
 t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama yang benar-benar tersedia', async () => {
   const [{ POWER_ITEMS }, { PowerSound }, powerRegistry] = await Promise.all([
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerCatalog.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerSound.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power3d/PowerRegistry.js')).href)
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-catalog.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-sound.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-registry.js')).href)
   ]);
   const modelById = Object.fromEntries(POWER_ITEMS.map(m => [m.id, m]));
   const expectedMap = {};
@@ -161,7 +161,7 @@ t('Audio gameplay: file yang dirujuk tersedia; file Power opsional memakai fallb
   const fileBlock = /const FILE=\{([\s\S]*?)\};/.exec(audio)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   const filePaths = {};
   for (const m of fileBlock.matchAll(/([A-Za-z]\w*)\s*:\s*(NS\s*\+\s*)?'([^']+)'/g)) {
-    filePaths[m[1]] = m[2] ? path.join('assets', 'new sound', m[3]) : path.join('assets', 'sfx', m[3]);
+    filePaths[m[1]] = path.join('assets', 'audio', 'sfx', m[3]);
   }
   const mappedKeys = new Set(['swordUse']);
   ['POWER_SND', 'POWER_TRIG'].forEach(name => {
@@ -174,7 +174,7 @@ t('Audio gameplay: file yang dirujuk tersedia; file Power opsional memakai fallb
   assert.ok(/a\.play\(\)\.catch\(function\(\)\{\s*powerBase\(k\);\s*\}\)/.test(audio), 'missing optional sound playback falls back');
   assert.ok(/catch\(e\)\{\s*return powerBase\(k\);\s*\}/.test(audio), 'optional sound load error falls back');
   for (const m of optional.matchAll(/([A-Za-z_]\w*)\s*:\s*'([^']+)'/g)) {
-    const file = path.join('assets', 'sfx', m[2]);
+    const file = path.join('assets', 'audio', 'sfx', m[2]);
     assert.ok(ex(file) || /powerBase\(k\)/.test(audio), m[1] + ' missing optional sound must fall back');
   }
 });

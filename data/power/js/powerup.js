@@ -15,7 +15,7 @@ const PFX={at(i,el){try{if(P3D.on())return;if(i&&i.kind==='powerup'&&window.UT&&
  note(i){try{const fx=window.UT&&UT.PowerFX,d=i&&i.kind==='powerup'&&fx&&fx.DATA[fx.keyFor(i.gameKey)];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
 const canSell=i=>!!i&&typeof i.price==='number'&&i.price>0&&!i.starter;
 const qty=i=>PD.qty(i.id);
-const COIN='<img src="assets/ng/komponen/hud/ikon-koin-emas.webp" alt="">';
+const COIN='<img src="assets/images/ui/hud/ikon-koin-emas.webp" alt="">';
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 const SFX={click:'button',select:'button',open:'button',error:'button',coin:'button',purchase:'power',chest:'chest'};
 function playSound(n){if(!SET().sound)return;try{UT.Audio.play(SFX[n]||'button')}catch(e){}}
@@ -57,7 +57,7 @@ $('#grid').addEventListener('click',e=>{
   if(action&&action.dataset.action==='buy'&&canSell(i))confirmBuy(i);
 });
 
-/* ---- pratinjau 3D hidup (assets/js/renderers/power3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */
+/* ---- pratinjau 3D hidup (assets/js/renderers/power-3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */
 function showThemeArt(on){$('#fpv').classList.toggle('art2d',!!on)}
 const P3D={inst:null,mod:null,state:0,
  off(){$('#fpv').classList.remove('p3d');showThemeArt(true)},
@@ -66,7 +66,7 @@ const P3D={inst:null,mod:null,state:0,
   try{if(this.inst.show(i.gameKey)){$('#fpv').classList.add('p3d');showThemeArt(false);return true}}catch(e){console.warn('[power3d]',e)}
   this.off();return false},
  load(){if(this.state)return;this.state=1;
-  import('../../../assets/js/renderers/power3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
+  import('../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
    const sh=$('#fpv');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
    sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.inst.activate()}); /* ketuk = aktifkan; geser = putar */
    this.sync()

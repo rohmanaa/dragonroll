@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { DiceAnimator } from '../assets/js/renderers/dice-kit/DiceAnimation.js';
-import { D6_FACES } from '../assets/js/renderers/dice-kit/DiceCatalog.js';
+import { DiceAnimator } from '../assets/js/renderers/dice-kit/dice-animation.js';
+import { D6_FACES } from '../assets/js/renderers/dice-kit/dice-catalog.js';
 import * as THREE from '../assets/js/vendor/three.r170.module.min.js';
 
 const calls = [];

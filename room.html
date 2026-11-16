@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Game Room</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/css/common.css"><link rel="stylesheet" href="assets/css/legacy-pages/room.css"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/css/common.css"><link rel="stylesheet" href="assets/css/pages/room.css"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/core/prefs.js"></script><script src="assets/js/core/prefs-sync.js"></script>
 <link rel="stylesheet" href="assets/css/pages/room.css">
 </head>
@@ -12,44 +12,44 @@
 <div id="stage">
   <div id="sun"></div><div id="vig"></div>
 
-  <button id="back" aria-label="Kembali ke Mode"><img class="bg" src="assets/images/tombol/tombol-rumah-abu.webp" alt=""></button>
+  <button id="back" aria-label="Kembali ke Mode"><img class="bg" src="assets/images/buttons/tombol-rumah-abu.webp" alt=""></button>
   <div id="title" class="ttl">GAME ROOM</div>
   <div id="chips"></div>
-  <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
+  <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
 
   <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eq"></div></section>
-  <section class="panel" id="power"><h3>POWER <button type="button" id="powerPage" aria-label="Buka Power-up" title="Power-up"><img src="assets/images/ui/ikon-gem-medali/petir-ungu.webp" alt=""></button></h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
+  <section class="panel" id="power"><h3>POWER <button type="button" id="powerPage" aria-label="Buka Power-up" title="Power-up"><img src="assets/images/ui/gem-medal-icons/petir-ungu.webp" alt=""></button></h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
   <section class="panel" id="mapi"><h3>MAP INFORMATION</h3><div class="pic" id="mArt"></div><div class="txt" id="mTxt"></div></section>
 
   <section class="panel" id="players"><h3>PLAYER ROOM</h3>
     <div id="bar">
       <div id="code"><span id="codeLbl"></span><b id="codeV">------</b><button id="cp1" hidden>SALIN</button></div>
-      <button class="btn bsm" id="invB" hidden><img src="assets/images/tombol/tombol-ungu-polos.webp" alt=""><span>AKSES</span></button>
-      <button class="btn bsm" id="invD" hidden><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp" alt=""><span>INVITE</span></button>
+      <button class="btn bsm" id="invB" hidden><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>AKSES</span></button>
+      <button class="btn bsm" id="invD" hidden><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>INVITE</span></button>
     </div>
     <div id="list"></div>
     <div id="foot"><div id="why"></div>
       <div id="acts">
-        <button class="btn" id="rdy"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>READY</span></button>
-        <button class="btn gold" id="start"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp" alt=""><span>START GAME</span></button>
+        <button class="btn" id="rdy"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>READY</span></button>
+        <button class="btn gold" id="start"><img src="assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>START GAME</span></button>
       </div></div>
     <span id="cnt" hidden></span>
   </section>
 
   <div class="modal" id="pm"><div class="box" role="dialog" aria-modal="true" aria-labelledby="pmT"><h2 class="ttl" id="pmT">PILIH POWER</h2><div class="igrid" id="pmL"></div>
-    <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
+    <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
 
   <div class="modal" id="inv"><div class="box" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ttl">AKSES ROOM</h2>
     <div class="sw"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div>
-    <div class="row2"><div class="field" id="icode"></div><button class="btn cp" id="cCode"><img src="assets/images/tombol/tombol-ungu-polos.webp" alt=""><span>KODE</span></button></div>
-    <div class="row2"><div class="field">Link undangan</div><button class="btn cp" id="cLink"><img src="assets/images/tombol/tombol-ungu-polos.webp" alt=""><span>LINK</span></button></div>
+    <div class="row2"><div class="field" id="icode"></div><button class="btn cp" id="cCode"><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>KODE</span></button></div>
+    <div class="row2"><div class="field">Link undangan</div><button class="btn cp" id="cLink"><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>LINK</span></button></div>
     <div class="fl" id="fl"></div>
-    <div class="mfoot"><span class="hint" id="slotInfo"></span><button class="btn" id="invX" style="width:240px;height:84px"><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+    <div class="mfoot"><span class="hint" id="slotInfo"></span><button class="btn" id="invX" style="width:240px;height:84px"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
 
   <div class="modal" id="dr" aria-hidden="true"><div class="box" role="dialog" aria-modal="true" aria-label="Undang Teman"><h2 class="ttl">UNDANG TEMAN</h2>
     <div class="sw"><button id="dTf">TEMAN ONLINE</button><button id="dTp">PEMAIN ONLINE</button></div>
     <div class="fl" id="drL"></div>
-    <div class="mfoot"><span class="hint" id="drCnt"></span><button class="btn" id="drX" style="width:240px;height:84px"><img src="assets/images/tombol/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+    <div class="mfoot"><span class="hint" id="drCnt"></span><button class="btn" id="drX" style="width:240px;height:84px"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
 
   <div id="toast"></div>
 </div>
@@ -62,8 +62,8 @@
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/dice/klasik/manifest.js"></script><script src="data/inventory/dice/rumput/manifest.js"></script><script src="data/inventory/dice/tnt/manifest.js"></script><script src="data/inventory/dice/wood/manifest.js"></script><script src="data/inventory/dice/stone/manifest.js"></script><script src="data/inventory/dice/copper/manifest.js"></script><script src="data/inventory/dice/iron/manifest.js"></script><script src="data/inventory/dice/emas/manifest.js"></script><script src="data/inventory/dice/diamond/manifest.js"></script><script src="data/inventory/dice/emerald/manifest.js"></script><script src="data/inventory/dice/lapis/manifest.js"></script><script src="data/inventory/dice/amethyst/manifest.js"></script><script src="data/inventory/dice/redstone/manifest.js"></script><script src="data/inventory/dice/obsidian/manifest.js"></script><script src="data/inventory/dice/magma/manifest.js"></script><script src="data/inventory/dice/frost/manifest.js"></script><script src="data/inventory/dice/prismarine/manifest.js"></script><script src="data/inventory/dice/quartz/manifest.js"></script><script src="data/inventory/dice/void/manifest.js"></script><script src="data/inventory/dice/netherite/manifest.js"></script><script src="data/inventory/dice/sculk/manifest.js"></script><script src="data/inventory/dice/ender/manifest.js"></script><script src="data/inventory/dice/dragon/manifest.js"></script><script src="data/inventory/dice/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script><script src="data/frame/js/frame-fx.js"></script>
 <link rel="stylesheet" href="gameplay/css/particle-fx.css"><script src="gameplay/js/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/renderers/item-art.js"></script>
-<script src="data/karakter/js/character-data.js"></script>
-<script src="data/karakter/js/character-view.js"></script>
+<script src="data/character-page/js/character-data.js"></script>
+<script src="data/character-page/js/character-view.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>

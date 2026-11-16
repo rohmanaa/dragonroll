@@ -14,7 +14,7 @@ assert.ok(html.includes('<div class="pet-info-panel">'));
 assert.ok(!html.includes('glyph-putih/info-bulat.webp'));
 assert.ok(!html.includes('id="home"'));
 assert.deepStrictEqual(
-  fs.readFileSync(path.join(root, 'assets/images/ui/glyph-putih/seru-bulat.webp')),
+  fs.readFileSync(path.join(root, 'assets/images/ui/white-glyphs/seru-bulat.webp')),
   fs.readFileSync(path.join(root, 'referensi/newgui/game/assets/komponen/glyph-putih/seru-bulat.webp'))
 );
 assert.ok(css.includes('.cur{z-index:6}'));
@@ -22,7 +22,7 @@ assert.ok(css.includes('#petTitle{position:absolute;left:190px;top:660px;width:6
 assert.ok(css.includes('#rar{position:absolute;left:190px;top:744px;width:600px;text-align:center;font-size:26px}'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
-assert.ok(css.includes('border-image:url(../../../assets/ng/komponen/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
+assert.ok(css.includes('border-image:url(../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
 assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 120px);overflow-y:auto;'));
 assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
@@ -36,7 +36,7 @@ for (const label of ['Identitas', 'Peran', 'Keunggulan', 'Cerita', 'Skill', 'Efe
 }
 assert.ok(page.includes(".select('id,identity,role,skill,advantage,lore')"));
 assert.deepStrictEqual(
-  fs.readFileSync(path.join(root, 'assets/ng/komponen/panel-dialog/bingkai-dialog.webp')),
+  fs.readFileSync(path.join(root, 'assets/images/ui/panel-dialog/bingkai-dialog.webp')),
   fs.readFileSync(path.join(root, 'referensi/newgui/assets/komponen/panel-dialog/bingkai-dialog.webp'))
 );
 console.log('ok - Pet uses an accessible tier modal, removes the duplicate home icon, and keeps skills at the bottom');

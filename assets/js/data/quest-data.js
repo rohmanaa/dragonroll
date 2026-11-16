@@ -6,7 +6,7 @@
   'use strict';
   var UT = win.UT = win.UT || {};
   var DEFS = [
-    { id: 'login',  title: 'Login Harian',      desc: 'Masuk ke dalam game',         goal: 1,  reward: 100, icon: 'mode/calndar' },
+    { id: 'login',  title: 'Login Harian',      desc: 'Masuk ke dalam game',         goal: 1,  reward: 100, icon: 'mode/calendar' },
     { id: 'play',   title: 'Mainkan Permainan', desc: 'Selesaikan 1 pertandingan',   goal: 1,  reward: 150, icon: 'items/dadu' },
     { id: 'win',    title: 'Raih Kemenangan',   desc: 'Menangkan 3 pertandingan',    goal: 3,  reward: 250, icon: 'lobby/trophy' },
     { id: 'dice',   title: 'Lempar Dadu',       desc: 'Lempar dadu 30 kali',         goal: 30, reward: 120, icon: 'items/dadu' },

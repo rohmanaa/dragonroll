@@ -2,7 +2,7 @@
    LAUNCH → TRAIL → CORE FLASH → MAIN BURST → SECONDARY SPARK → FADE/CLEANUP.
    Hanya memakai UT.ParticleFX.burstAt (engine 4.1.22): layer #fx-layer, batas partikel (20/burst, 60 visible), cleanup animationend, guard reduced-motion milik engine.
    Urutan layer dijadwalkan lewat animation-delay CSS (opsi delayMin engine): TANPA timer, rAF, interval, listener, atau layer sendiri. Hanya transform+opacity.
-   SFX (Stage 4.1.23.3): 1x per panggilan burstAt lewat audio existing UT.GameplayAudio.play('firework') (audio.js: file win/Firework_launch.ogg); aman bila audio tidak ada/gagal.
+   SFX (Stage 4.1.23.3): 1x per panggilan burstAt lewat audio existing UT.GameplayAudio.play('firework') (audio.js: file win/firework-launch.ogg); aman bila audio tidak ada/gagal.
    BELUM terhubung ke gameplay: tanpa trigger victory/reward (sub-stage berikutnya). Variasi Math.random hanya untuk tampilan.
    Classic script. Namespace: UT.FireworkFX. API: burstAt(x, y, opts) · burstFromElement(el, opts) — return jumlah partikel yang dibuat (0 bila tak ada engine/reduced-motion).
    (x, y) = titik LEDAKAN; roket naik dari bawahnya. opts: count (8–16, default 12) · colors[] · distance (default 64) · rise (tinggi launch, default 90) · sound (false = tanpa SFX, mis. untuk rangkaian beberapa firework) */

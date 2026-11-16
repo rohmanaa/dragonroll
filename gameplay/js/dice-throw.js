@@ -73,7 +73,7 @@
   function loadMods() {
     if (!kmods) {
       var b = doc.baseURI;
-      kmods = Promise.all([import(new URL('assets/js/renderers/dice-kit/DiceTextures.js', b).href), import(new URL('assets/js/renderers/dice-kit/DiceCatalog.js', b).href)])
+      kmods = Promise.all([import(new URL('assets/js/renderers/dice-kit/dice-textures.js', b).href), import(new URL('assets/js/renderers/dice-kit/dice-catalog.js', b).href)])
         .catch(function (e) { console.error('[dice-throw] skin DiceKit gagal dimuat', e); return null; });
     }
     return kmods;
@@ -131,7 +131,7 @@
   function initFx() {
     if (fx || fxFail || !scene) return;
     var b = doc.baseURI;
-    Promise.all([import(new URL('assets/js/renderers/dice-kit/DiceEffectsCore.js', b).href), loadMods()]).then(function (r) {
+    Promise.all([import(new URL('assets/js/renderers/dice-kit/dice-effects-core.js', b).href), loadMods()]).then(function (r) {
       var core = r[0], m = r[1];
       if (!core || !m || !scene || fx) return;
       var C = m[1], q = C.QUALITY_PRESETS[fxQuality()] || C.QUALITY_PRESETS.medium;

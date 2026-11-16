@@ -59,7 +59,7 @@ t('validateManifest: murni & tidak melempar; mengembalikan semua error sekaligus
   assert.strictEqual(IR.validateManifest(mk({ price: null, gems: 450 }), CAT).ok, true);
 });
 t('validateAssetPaths: hanya FORMAT; path buruk ditolak, path baik lolos (tanpa cek file)', () => {
-  const ok = ['data/frame/a.webp', 'assets/sfx/dice/dice-roll.mp3', 'a_b-c/d.png'];
+  const ok = ['data/frame/a.webp', 'assets/audio/sfx/dice/dice-roll.mp3', 'a_b-c/d.png'];
   const bad = ['', '/abs/a.webp', 'http://x/a.webp', '//cdn/a.webp', 'C:/a.webp', '../a.webp', 'a/../b.webp', 'a b/c.webp', 'a\\b.webp', 'a/b', 'a/b.exe', 'a//b.webp'];
   ok.forEach(p => assert.strictEqual(IR.validateAssetPaths(mk({ assets: { image: p } }), CAT).ok, true, p));
   bad.forEach(p => assert.strictEqual(IR.validateAssetPaths(mk({ assets: { image: p } }), CAT).ok, false, p));

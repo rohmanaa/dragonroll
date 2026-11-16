@@ -3,9 +3,10 @@ const fs = require('fs');
 const PG = require("./_page");
 const path = require('path');
 const root = path.join(__dirname, '..');
+const rawLobby = fs.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
-assert.ok(lobby.includes('assets/css/legacy-pages/lobby.css'));
+assert.ok(rawLobby.includes('assets/css/pages/lobby.css'));
 assert.ok(lobby.includes('assets/css/scene-bg.css'));
 assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"'));
 assert.ok(lobby.includes('.sbg-clouds{display:none!important}'));
@@ -44,6 +45,6 @@ for (const icon of ['assets/images/icon/currency/coin.webp']) {
   assert.strictEqual(image.toString('ascii', 0, 4), 'RIFF');
   assert.strictEqual(image.toString('ascii', 8, 12), 'WEBP');
 }
-assert.ok(lobby.includes('assets/images/ui/ikon-item/podium.webp'));
-assert.ok(lobby.includes('assets/images/tombol/tombol-play-lobby.webp'));
+assert.ok(lobby.includes('assets/images/ui/item-icons/podium.webp'));
+assert.ok(lobby.includes('assets/images/buttons/tombol-play-lobby.webp'));
 console.log('ok - lobby keeps ui-newgui HUD over main WebP backdrop, character, aura, and animations');

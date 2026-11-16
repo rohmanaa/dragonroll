@@ -5,7 +5,7 @@
    CATATAN: hanya aturan inti (dadu, 6 = giliran tambahan, 3x6 hangus, pantul, ular, tangga).
    Mob, peti, power, dan totem BELUM disimulasikan (masih di gameplay.html). */
 'use strict';
-const C = require('../../gameplay/game-core.js');
+const C = require('../../gameplay/js/game-core.js');
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > -1 ? +process.argv[i + 1] : d; };
 const N = arg('--n', 20000), SEED = arg('--seed', 20261106), CHECK = process.argv.includes('--check');

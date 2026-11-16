@@ -1,4 +1,4 @@
-/* Gameplay Audio (Stage 4.1.11) — HANYA presentation suara: AudioContext lazy, beep/noise sintetis, dan objek SFX (file di assets/sfx/<kategori>/ + fallback beep).
+/* Gameplay Audio (Stage 4.1.11) — HANYA presentation suara: AudioContext lazy, beep/noise sintetis, dan objek SFX (file di assets/audio/sfx/<kategori>/ + fallback beep).
    Isi blok di bawah dipindahkan APA ADANYA dari gameplay.html (frekuensi, gain, durasi, path file, urutan fallback tidak diubah).
    Gameplay tetap yang menentukan KAPAN suara dimainkan; state mute/musik/persistence tetap di gameplay.html (modul hanya diberi setMuted).
    Tanpa timer gameplay; semua kegagalan audio ditelan di dalam helper (try/catch) sehingga game tidak berhenti.
@@ -40,14 +40,14 @@
     }catch(e){}
   }
   /* ============================ LOKASI FILE SFX ============================
-     Satu tabel path. Struktur folder: assets/sfx/<kategori>/<nama>.<ext>
-       ui/ dice/ board/ reward/ powerup/ mob/ dragon/   (daftar lengkap: assets/sfx/README.md)
+     Satu tabel path. Struktur folder: assets/audio/sfx/<kategori>/<nama>.<ext>
+       ui/ dice/ board/ reward/ powerup/ mob/ dragon/   (daftar lengkap: assets/audio/sfx/readme.md)
      Mengganti/menambah file cukup ubah baris di sini; fungsi sfx di bawah hanya memakai kuncinya. */
-  const SFX_DIR='assets/sfx/', NS='../new sound/';
+  const SFX_DIR='assets/audio/sfx/', NS='';
   const FILE={
     /* dice */   roll:'dice/dice-roll.mp3',
     /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
-    /* win */    firework:'win/Firework_launch.ogg',
+    /* win */    firework:'win/firework-launch.ogg',
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUse:'powerup/sword-use.mp3', tntExplosion:'mob/creeper-explosion.mp3', /* tntExplosion = asset ledakan bersama dengan Creeper (Stage C C14) */
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
@@ -56,12 +56,12 @@
     /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonSpawn:'dragon/dragon-spawn.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
                earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
                /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua Crystal hancur */
-               arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3',
-    /* new sound/ (folder assets/new sound/, dirujuk relatif dari SFX_DIR) — pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
-    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3', crystalDestroyed:NS+'crystall-was-destroy.mp3',
+               arenaUp:'dragon-arena-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crystal.mp3',
+    /* new sound/ (folder assets/audio/sfx/, dirujuk relatif dari SFX_DIR) — pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
+    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3', crystalDestroyed:NS+'crystal-destroyed.mp3',
     win:NS+'win.mp3', victory:NS+'win2.mp3', shuffle:NS+'shuffle.mp3', villager:NS+'villager.mp3'
   };
-  const FILE_AWAKENING=NS+'dragonAwakening.mp3'; /* file ada di assets/new sound/; bila gagal -> fallback sintetis (retak + gema) */
+  const FILE_AWAKENING=NS+'dragon-awakening.mp3'; /* file ada di assets/audio/sfx/; bila gagal -> fallback sintetis (retak + gema) */
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
   var warm=[];
   function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }
@@ -82,7 +82,7 @@
   /* ---------- Suara Power ----------
      POWER_SND   = suara saat Power dipakai/dipasang {f: kunci FILE, ms: batas putar (fade keluar) untuk file panjang}
      POWER_TRIG  = suara saat jebakan meledak (fase 'trigger', dipanggil trapCheck)
-     POWER_OPT   = slot file OPSIONAL di assets/sfx/powerup/: taruh file dengan nama itu -> otomatis dipakai, tanpa ubah kode. Belum ada/gagal -> cadangan lama.
+     POWER_OPT   = slot file OPSIONAL di assets/audio/sfx/powerup/: taruh file dengan nama itu -> otomatis dipakai, tanpa ubah kode. Belum ada/gagal -> cadangan lama.
      Tidak ada di tabel -> suara sintetis UT.PowerSound, lalu pop(). */
   const POWER_SND={
     potion_odd:{f:'gulp'}, potion_even:{f:'gulp'}, grass:{f:'endermanTp'}, trident:{f:'stormZap'},
@@ -131,7 +131,7 @@
     firework(){ fileSfx('firework',1); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
     defeat(){ return fileSfx('defeat',1); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
-       Power lain = suara sintetis UT.PowerSound (assets/js/renderers/power3d/PowerSound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
+       Power lain = suara sintetis UT.PowerSound (assets/js/renderers/power-3d/power-sound.js, dimuat gameplay.html); modul belum siap -> pop() lama. TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
     power(k,phase){
       if(phase==='trigger'&&POWER_TRIG[k]) return limited(POWER_TRIG[k],function(){ sfx.pop(); });
       if(POWER_OPT[k]){ /* slot opsional: file belum ada -> cadangan lama */

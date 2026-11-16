@@ -14,7 +14,7 @@
 
   var KEYS = ['klasik', 'rumput', 'tnt', 'wood', 'stone', 'copper', 'iron', 'emas', 'diamond', 'emerald', 'lapis', 'amethyst', 'redstone', 'obsidian', 'magma', 'frost', 'prismarine', 'quartz', 'void', 'netherite', 'sculk', 'ender', 'dragon'];
   var CATEGORY = { key: 'dice', kind: 'dice', label: 'Dadu', fallbackId: 'dice.klasik',
-                   assets: { renderKit: 'assets/js/renderers/dice-kit/DiceCatalog.js' } };
+                   assets: { renderKit: 'assets/js/renderers/dice-kit/dice-catalog.js' } };
 
   /* Manifest kategori ini: Node = require per folder; browser = antrean UT.ItemManifests yang diisi tiap manifest.js. */
   function manifests() {

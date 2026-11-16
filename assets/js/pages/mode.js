@@ -46,7 +46,7 @@ function mapSVG(m){
 const track=$('#track');
 MAPS.forEach(m=>{
   const d=document.createElement('div');d.className='map'+(m.locked?' locked':'');
-  d.innerHTML=`<div class="pic">${m.img?`<img class="mimg" src="${m.img}" alt="${m.name}" draggable="false">`:mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/images/ui/ikon-item/gembok.webp" alt=""></div></div>`;
+  d.innerHTML=`<div class="pic">${m.img?`<img class="mimg" src="${m.img}" alt="${m.name}" draggable="false">`:mapSVG(m)}<div class="tag">${m.locked?'SOON':'PETA'}</div><div class="nm ttl">${m.name}</div><div class="lock"><img src="assets/images/ui/item-icons/gembok.webp" alt=""></div></div>`;
   track.appendChild(d);
 });
 const dots=$('#dots');MAPS.forEach((_,i)=>{const e=document.createElement('i');e.onclick=()=>show(i);dots.appendChild(e)});
@@ -82,7 +82,7 @@ document.querySelectorAll('.opts').forEach(o=>{
   const color=o.closest('#quick')?'ungu':'hijau';
   list.forEach(it=>{
     const b=document.createElement('button');b.className='opt';
-    b.innerHTML=`<img src="assets/ng/komponen/tombol-dan-kontrol/tombol-${pairs&&it.format==='team'?'kuning':color}-polos.webp" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
+    b.innerHTML=`<img src="assets/images/ui/buttons-and-controls/tombol-${pairs&&it.format==='team'?'kuning':color}-polos.webp" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
     b.onclick=e=>{e.stopPropagation();buzz();pick(o.dataset,it)};o.appendChild(b);
   });
 });

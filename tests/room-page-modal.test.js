@@ -40,7 +40,7 @@ test('equipment modal fills the viewport with an opaque backdrop outside the Roo
   assert.ok(bridge.includes('background:#4b4162!important'));
   assert.ok(bridge.includes('background:#483e60!important'));
   assert.ok(!bridge.includes('background:transparent'), 'embedded page uses an opaque Room background');
-  assert.ok(read('assets/css/legacy-pages/room.css').includes('--room-backdrop:#4b4162'));
+  assert.ok(read('assets/css/pages/room-legacy.css').includes('--room-backdrop:#4b4162'));
   const bootGuard = read('assets/js/boot-guard.js');
   assert.ok(bootGuard.includes("get('from') === 'room'"), 'embedded pages skip the cinematic black fade');
 });
@@ -76,8 +76,8 @@ test('power uses a compact icon action and concise label', () => {
 test('room dice art uses the same procedural thumbnail source as the preview', () => {
   assert.ok(room.includes('RoomDiceArt.thumb(it.gameKey,96)'));
   const module = read('data/dice/js/room-dice-art.js');
-  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/DiceCatalog.js'"));
-  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/DiceTextures.js'"));
+  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/dice-catalog.js'"));
+  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/dice-textures.js'"));
   assert.ok(module.includes('diceThumbDataURL(die, px)'));
 });
 
