@@ -4,10 +4,10 @@
   'use strict';
   var $ = function (s) { return document.querySelector(s); };
   var TABS = [
-    { k: 'frame', page: 'frame.html', label: 'Frame', icon: 'new-icon/frame.webp' },
-    { k: 'dadu', page: 'dadu.html', label: 'Dadu', icon: 'new-icon/dadu.webp' },
-    { k: 'efek', page: 'efek.html', label: 'Efek', icon: 'ikon-gem-medali/kristal-api.webp' },
-    { k: 'power', page: 'powerup.html', label: 'Power-up', icon: 'ikon-gem-medali/petir-ungu.webp' },
+    { k: 'frame', page: 'frame.html', label: 'Frame', icon: 'feature-icons/frame.webp' },
+    { k: 'dadu', page: 'dadu.html', label: 'Dadu', icon: 'feature-icons/dadu.webp' },
+    { k: 'efek', page: 'efek.html', label: 'Efek', icon: 'gem-medal-icons/kristal-api.webp' },
+    { k: 'power', page: 'powerup.html', label: 'Power-up', icon: 'gem-medal-icons/petir-ungu.webp' },
     { k: 'pet', page: 'pet.html', label: 'Pet', icon: 'lobby/pet.webp' }
   ];
   var KEY = 'ut-inv-tab', host = $('#views'), tabsEl = $('#tabs'), cur = '', frames = {};

@@ -22,7 +22,7 @@ assert.ok(css.includes('#petTitle{position:absolute;left:190px;top:660px;width:6
 assert.ok(css.includes('#rar{position:absolute;left:190px;top:744px;width:600px;text-align:center;font-size:26px}'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
-assert.ok(css.includes('border-image:url(../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
+assert.ok(css.includes('border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
 assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 120px);overflow-y:auto;'));
 assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));

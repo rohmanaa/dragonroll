@@ -17,8 +17,8 @@ function render(){
  $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $$('[data-gfx]').forEach(b=>{const on=T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $$('[data-amb]').forEach(b=>{const on=T.ambience===b.dataset.amb;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
- $('#ic-sfx').src=IC+(T.sound?'ikon-pengaturan/ikon-speaker.webp':'glyph-putih/speaker-mati.webp');
- $('#ic-music').src=IC+(T.music?'glyph-putih/nada.webp':'ikon-pengaturan/ikon-musik-mati.webp');
+ $('#ic-sfx').src=IC+(T.sound?'settings-icons/ikon-speaker.webp':'white-glyphs/speaker-mati.webp');
+ $('#ic-music').src=IC+(T.music?'white-glyphs/nada.webp':'settings-icons/ikon-musik-mati.webp');
  $('#sysn').innerHTML=T.ambience==='system'?'Mengikuti perangkat — sekarang: <b>'+(A.resolved()==='night'?'Malam':'Siang')+'</b>':T.ambience==='night'?'Malam: bintang, bulan &amp; cahaya bulan di lobby.':'Siang: matahari &amp; sinar emas di lobby.';
 }
 $$('[data-tg]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tg;PD.setSettings({[k]:!S()[k]});buzz();render()}));
@@ -36,7 +36,7 @@ cf.addEventListener('click',e=>{if(e.target===cf)closeCf()});
 addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(lgModal.classList.contains('on'))closeLang();else if(cf.classList.contains('on'))closeCf();else home()});
 $('#cf-ok').onclick=()=>{closeCf();import('../../../assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})};
 /* bahasa: pilihan disimpan di pref 'lang' (teks game belum diterjemahkan; hanya menyimpan pilihan) */
-const BF=IC+'bendera-bahasa/',GLB=IC+'glyph-putih/bola-dunia-garis.webp';
+const BF=IC+'language-flags/',GLB=IC+'white-glyphs/bola-dunia-garis.webp';
 const LANGS=[
  {id:'en',name:'English',flag:BF+'bendera-inggris.webp'},
  {id:'id',name:'Indonesia',flag:BF+'bendera-indonesia.webp'},

@@ -21,7 +21,7 @@ let mails=[],tab='all',state='loading'; /* loading | ok | local | error */
 const pending=m=>m.kind==='reward'&&!m.claimed;
 const unreadN=()=>mails.filter(m=>!m.read).length,pendN=()=>mails.filter(pending).length;
 const ago=at=>{const d=Math.floor((Date.now()-new Date(at).getTime())/864e5);return d<=0?'Hari ini':d===1?'Kemarin':d<7?d+' hari lalu':d<30?Math.floor(d/7)+' minggu lalu':Math.floor(d/30)+' bulan lalu'};
-const rwHtml=m=>'<div class="rw">'+(m.gems?'<span><img src="'+IC+'ikon-gem-medali/berlian-hijau.webp" alt="">'+fmt(m.gems)+'</span>':'')+(m.coins?'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">'+fmt(m.coins)+'</span>':'')+'</div>';
+const rwHtml=m=>'<div class="rw">'+(m.gems?'<span><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt="">'+fmt(m.gems)+'</span>':'')+(m.coins?'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">'+fmt(m.coins)+'</span>':'')+'</div>';
 
 /* ---- render ---- */
 function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
@@ -33,9 +33,9 @@ function draw(){
   const a=mails.filter(m=>tab==='all'||m.kind===tab);
   if(!ok){$('#list').innerHTML='<div class="empty">'+(state==='loading'?'Memuat…':state==='local'?'Masuk ke akun untuk membuka Mail.':'Tidak dapat terhubung ke server.<br><small style="font:800 28px var(--font-body)">Ketuk untuk coba lagi</small>')+'</div>';return}
   $('#list').innerHTML=a.length?a.map(m=>{
-    const ico=m.kind==='reward'?'ikon-item/kado-merah':m.read?'glyph-putih/surat-terbuka':'ikon-item/surat-segel';
-    const act=pending(m)?'<button class="btn sm ok" data-claim="'+m.id+'"><img src="'+IC+'tombol-dan-kontrol/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':m.kind==='reward'?'<button class="btn sm off"><img src="'+IC+'tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>DIKLAIM</span></button>':'';
-    return '<div class="row mr'+(m.read?'':' unread')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="grow"><div class="nm ttl">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="tm">'+ago(m.at)+'</div><button class="rm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'glyph-putih/tong-sampah.webp" alt=""></button></div>'}).join('')
+    const ico=m.kind==='reward'?'item-icons/kado-merah':m.read?'white-glyphs/surat-terbuka':'item-icons/surat-segel';
+    const act=pending(m)?'<button class="btn sm ok" data-claim="'+m.id+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':m.kind==='reward'?'<button class="btn sm off"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>DIKLAIM</span></button>':'';
+    return '<div class="row mr'+(m.read?'':' unread')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="grow"><div class="nm ttl">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="tm">'+ago(m.at)+'</div><button class="rm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'white-glyphs/tong-sampah.webp" alt=""></button></div>'}).join('')
    :'<div class="empty">Tidak ada surat.</div>';
 }
 

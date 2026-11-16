@@ -14,10 +14,10 @@
     { coins: 6000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f' }
   ];
   const CHESTS = [
-    { name: 'Peti Kayu', image: 'paket-chest/peti-kayu.webp' },
-    { name: 'Peti Perak', image: 'paket-chest/peti-perak.webp' },
-    { name: 'Peti Emas', image: 'paket-chest/peti-emas.webp' },
-    { name: 'Peti Legendaris', image: 'paket-chest/peti-legendaris.webp' }
+    { name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp' },
+    { name: 'Peti Perak', image: 'chest-packs/peti-perak.webp' },
+    { name: 'Peti Emas', image: 'chest-packs/peti-emas.webp' },
+    { name: 'Peti Legendaris', image: 'chest-packs/peti-legendaris.webp' }
   ];
   const WMSG = {
     'saldo-kurang': 'Coin tidak cukup.',
@@ -105,11 +105,11 @@
       return `<div class="card${index === 2 ? ' fx' : ''}${index === 2 && query.has('coin') ? ' hl' : ''}" style="--g:${pack.color}">
         ${pack.best ? `<img class="rib" src="${IC}banner-label/pita-badge-biru.webp" alt=""><span class="rt">BEST</span>` : ''}
         <div class="nm">${pack.name}</div>
-        <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}paket-gold/${pack.image}" alt=""></div>
+        <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}gold-packs/${pack.image}" alt=""></div>
         <div class="amt">+${fmt(pack.coins)} Coin</div>
         <button class="btn buy" data-i="${index}" aria-label="Tukar ${pack.gems} Emerald menjadi ${fmt(pack.coins)} Coin">
-          <img src="${IC}tombol-dan-kontrol/tombol-hijau-polos.webp" alt="">
-          <span><img src="${IC}ikon-gem-medali/berlian-hijau.webp" alt="">${pack.gems}</span>
+          <img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt="">
+          <span><img src="${IC}gem-medal-icons/berlian-hijau.webp" alt="">${pack.gems}</span>
         </button>
       </div>`;
     }).join('');
@@ -121,7 +121,7 @@
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
       <div class="amt sm"><small>Fitur belum tersedia</small></div>
       <button class="btn buy soon" type="button" disabled>
-        <img src="${IC}tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
+        <img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
       </button>
     </div>`).join('');
   }
@@ -129,10 +129,10 @@
   function renderEmerald() {
     return `<div class="card fx" style="--g:#38e070">
       <div class="nm">Emerald</div>
-      <div class="pic"><i class="glow"></i><img src="${IC}ikon-gem-medali/berlian-hijau.webp" alt=""></div>
+      <div class="pic"><i class="glow"></i><img src="${IC}gem-medal-icons/berlian-hijau.webp" alt=""></div>
       <div class="amt sm"><small>Hadiah iklan belum tersedia</small></div>
       <button class="btn buy soon" id="adbtn" type="button" disabled>
-        <img src="${IC}tombol-dan-kontrol/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
+        <img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
       </button>
     </div>`;
   }
@@ -194,7 +194,7 @@
       const amount = (value, currency) => {
         const n = Number(value) || 0;
         if (!n) return '';
-        const icon = currency === 'Coin' ? 'hud/ikon-koin-emas.webp' : 'ikon-gem-medali/berlian-hijau.webp';
+        const icon = currency === 'Coin' ? 'hud/ikon-koin-emas.webp' : 'gem-medal-icons/berlian-hijau.webp';
         return `<span class="${n > 0 ? 'up' : 'dn'}"><img src="${IC}${icon}" alt="">${n > 0 ? '+' : '−'}${fmt(Math.abs(n))}</span>`;
       };
       return `<div class="hr" role="listitem">

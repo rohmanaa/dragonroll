@@ -82,7 +82,8 @@ document.querySelectorAll('.opts').forEach(o=>{
   const color=o.closest('#quick')?'ungu':'hijau';
   list.forEach(it=>{
     const b=document.createElement('button');b.className='opt';
-    b.innerHTML=`<img src="assets/images/ui/buttons-and-controls/tombol-${pairs&&it.format==='team'?'kuning':color}-polos.webp" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
+    const image=pairs&&it.format==='team'?'assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp':color==='ungu'?'assets/images/buttons/tombol-ungu-polos.webp':'assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp';
+    b.innerHTML=`<img src="${image}" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
     b.onclick=e=>{e.stopPropagation();buzz();pick(o.dataset,it)};o.appendChild(b);
   });
 });

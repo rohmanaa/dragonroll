@@ -194,7 +194,7 @@
     renderDetails(selected || PETS[0]);
     try {
       if (!window.UT.Multiplayer || !window.UT.Multiplayer.getClient) {
-        await import('../../../assets/js/multiplayer/client.js');
+        await import('../../../../../assets/js/multiplayer/client.js');
       }
       const client = await window.UT.Multiplayer.getClient();
       const { data, error } = await client

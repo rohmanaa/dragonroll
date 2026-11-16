@@ -6,7 +6,7 @@ const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletServic
 const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString("id-ID");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-const K="assets/images/ui/",G=K+"glyph-putih/";
+const K="assets/images/ui/",G=K+"white-glyphs/";
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 const snd=n=>{try{if(SET().sound)UT.Audio.play(n||"button")}catch(e){}};
 let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),1800)}
@@ -117,7 +117,7 @@ $("#info").onclick=e=>{
 };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","ikon-item/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","new-icon/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","new-icon/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","ikon-gem-medali/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","ikon-gem-medali/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol(){
   $("#kol").innerHTML=KOL.map(([n,k,ic,c,u])=>{const a=owned(k),t=Math.max(total(k),a);return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><i><b data-w="${t?Math.min(100,a/t*100):0}"></b></i><em>${a}/${t}</em></button>`}).join("");
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".kr b").forEach(b=>{b.style.width=b.dataset.w+"%"})));
@@ -128,13 +128,13 @@ $("#kol").onclick=e=>{const b=e.target.closest(".kr");if(b){snd();go(b.dataset.u
 function drawStat(){
   const w=PROF.win,p=PROF.play,wr=p?Math.round(w/p*100):0;
   const row=(ic,label,v,u,bar)=>`<${u?"button":"div"} class="sr"${u?` data-u="${u}"`:""}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div>${bar!=null?`<i class="bar"><b data-w="${bar}"></b></i>`:""}<div class="v">${v}</div></${u?"button":"div"}>`;
-  const rk=PROF.rank?"#"+fmt(PROF.rank)+(PROF.rank===1?`<img src="${K}ikon-item/mahkota.webp" alt="">`:""):"—";
+  const rk=PROF.rank?"#"+fmt(PROF.rank)+(PROF.rank===1?`<img src="${K}item-icons/mahkota.webp" alt="">`:""):"—";
   $("#sg").innerHTML=
-    row(K+"ikon-item/podium.webp","Peringkat Global",rk,"leaderboard.html")+
-    row(K+"ikon-item/pedang-silang.webp","Rasio Kemenangan",wr+"%<small>"+w+"/"+p+"</small>",null,wr)+
-    row(K+"ikon-item/gulungan-misi.webp","Misi",MIS()+`<img class="go" src="${G}segitiga-kanan.webp" alt="">`,"hadiah-misi.html")+
-    row(K+"ikon-item/piala.webp","Win / Lose",w+" / "+Math.max(0,p-w))+
-    row(K+"ikon-gem-medali/petir-emas.webp","Win Streak",PROF.streak);
+    row(K+"item-icons/podium.webp","Peringkat Global",rk,"leaderboard.html")+
+    row(K+"item-icons/pedang-silang.webp","Rasio Kemenangan",wr+"%<small>"+w+"/"+p+"</small>",null,wr)+
+    row(K+"item-icons/gulungan-misi.webp","Misi",MIS()+`<img class="go" src="${G}segitiga-kanan.webp" alt="">`,"hadiah-misi.html")+
+    row(K+"item-icons/piala.webp","Win / Lose",w+" / "+Math.max(0,p-w))+
+    row(K+"gem-medal-icons/petir-emas.webp","Win Streak",PROF.streak);
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".sr i.bar b").forEach(b=>{b.style.width=b.dataset.w+"%"})));
 }
 $("#sg").onclick=e=>{const b=e.target.closest("button.sr");if(b){snd();go(b.dataset.u)}};

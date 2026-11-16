@@ -5,6 +5,7 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const read = (file) => PG.readFileSync(path.join(root, file), 'utf8');
 const room = read('room.html');
+const roomSource = fs.readFileSync(path.join(root, 'room.html'), 'utf8');
 let count = 0;
 
 function test(name, fn) {
@@ -29,6 +30,13 @@ test('equipment slots open their corresponding full-screen page modal', () => {
   assert.ok(room.includes('id="pageModalLoading"'));
   assert.ok(room.includes('assets/images/ui/hud/efek-titik-berputar.webp'));
   assert.ok(room.includes("classList.add('on','loading')"));
+});
+
+test('room loads its layout stylesheet before page-specific overrides exactly once', () => {
+  const layout = roomSource.indexOf('assets/css/pages/room-legacy.css');
+  const overrides = roomSource.indexOf('assets/css/pages/room.css');
+  assert.ok(layout > 0 && overrides > layout);
+  assert.strictEqual((roomSource.match(/assets\/css\/pages\/room\.css/g) || []).length, 1);
 });
 
 test('equipment modal fills the viewport with an opaque backdrop outside the Room stage', () => {
@@ -76,8 +84,8 @@ test('power uses a compact icon action and concise label', () => {
 test('room dice art uses the same procedural thumbnail source as the preview', () => {
   assert.ok(room.includes('RoomDiceArt.thumb(it.gameKey,96)'));
   const module = read('data/inventory/dice/_shared/js/room-dice-art.js');
-  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/dice-catalog.js'"));
-  assert.ok(module.includes("from '../../../assets/js/renderers/dice-kit/dice-textures.js'"));
+  assert.ok(module.includes("from '../../../../../assets/js/renderers/dice-kit/dice-catalog.js'"));
+  assert.ok(module.includes("from '../../../../../assets/js/renderers/dice-kit/dice-textures.js'"));
   assert.ok(module.includes('diceThumbDataURL(die, px)'));
 });
 

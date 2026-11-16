@@ -3,7 +3,7 @@
    Media (gambar/font/suara, diunduh sekali oleh splash) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang sampai VERSION dinaikkan.
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh.
    Ganti/tambah aset => naikkan VERSION (cache lama otomatis dibuang). */
-const VERSION = 'ut-pwa-v205';
+const VERSION = 'ut-pwa-v206';
 const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/splash.js', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -37,7 +37,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   e.respondWith(
-    fetch(r).then(res => {
+    fetch(r, { cache: 'no-store' }).then(res => {
       if (res && (res.ok || res.type === 'opaque')) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(r, copy)).catch(() => {}); }
       return res;
     }).catch(() => caches.match(r, { ignoreSearch: r.mode === 'navigate' }).then(hit => hit || (r.mode === 'navigate' ? caches.match('index.html') : Response.error())))

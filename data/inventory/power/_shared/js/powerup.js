@@ -66,7 +66,7 @@ const P3D={inst:null,mod:null,state:0,
   try{if(this.inst.show(i.gameKey)){$('#fpv').classList.add('p3d');showThemeArt(false);return true}}catch(e){console.warn('[power3d]',e)}
   this.off();return false},
  load(){if(this.state)return;this.state=1;
-  import('../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
+  import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;this.inst=m.mount($('#p3d'),{quality:SET().graphics==='low'?'low':'medium'});this.state=2;
    const sh=$('#fpv');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
    sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.inst.activate()}); /* ketuk = aktifkan; geser = putar */
    this.sync()
