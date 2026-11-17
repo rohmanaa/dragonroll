@@ -44,14 +44,16 @@ const QUALITY = Object.freeze({
   low:    { cap: 300,  rate: 0.45, fog: false, rings: 1, arcs: 2, extras: false },
   medium: { cap: 800,  rate: 0.75, fog: true,  rings: 2, arcs: 4, extras: true },
   high:   { cap: 1800, rate: 1,    fog: true,  rings: 4, arcs: 6, extras: true },
+  ultra:  { cap: 2400, rate: 1.2,  fog: true,  rings: 4, arcs: 8, extras: true },
 });
 
 function detectQuality() {
   const nav = typeof navigator !== 'undefined' ? navigator : {};
   const mobile = /Android|iPhone|iPad|Mobile/i.test(nav.userAgent || '');
   const cores = nav.hardwareConcurrency || 4, mem = nav.deviceMemory || 4;
-  if (mem <= 2 || (cores <= 4 && mobile)) return 'low';
-  if (mobile || cores <= 4) return 'medium';
+  if (mem <= 2 || (cores <= 2 && mobile)) return 'low';
+  if (mobile || cores <= 4 || mem <= 4) return 'medium';
+  if (cores >= 8 && mem >= 8) return 'ultra';
   return 'high';
 }
 
@@ -117,8 +119,9 @@ class VoxelPool {
     if (this.solid) { this.mesh.setColorAt(i, tmpC.setRGB(o.r, o.g, o.b)); this.dirty = true; }
   }
 
-  update(dt) {
+  update(dt, motionScale = 1) {
     let alive = 0;
+    const motionDt = dt * motionScale;
     for (let i = 0; i < this.cap; i++) {
       if (this.life[i] <= 0) continue;
       this.life[i] -= dt;
@@ -126,22 +129,22 @@ class VoxelPool {
       alive++;
       const k = i * 3, age = this.max[i] - this.life[i], f = age / this.max[i];
       if (this.mode[i] === 0) {
-        this.vel[k + 1] -= this.grav[i] * dt;
-        const dmp = Math.exp(-this.drag[i] * dt);
+        this.vel[k + 1] -= this.grav[i] * motionDt;
+        const dmp = Math.exp(-this.drag[i] * motionDt);
         this.vel[k] *= dmp; this.vel[k + 1] *= dmp; this.vel[k + 2] *= dmp;
-        this.pos[k] += this.vel[k] * dt; this.pos[k + 1] += this.vel[k + 1] * dt; this.pos[k + 2] += this.vel[k + 2] * dt;
+        this.pos[k] += this.vel[k] * motionDt; this.pos[k + 1] += this.vel[k + 1] * motionDt; this.pos[k + 2] += this.vel[k + 2] * motionDt;
       } else {
         const a = this.anchor[i];
-        if (this.tele[i] > 0) {
+        if (this.tele[i] > 0 && motionScale >= 1) {
           this.tele[i] -= dt;
           if (this.tele[i] <= 0) { this.ang[i] += rnd(-1.5, 1.5); this.rad[i] *= rnd(0.8, 1.25); this.h[i] += rnd(-0.3, 0.3); this.tele[i] = rnd(0.4, 1.2); }
         }
-        this.ang[i] += this.w[i] * dt; this.rad[i] = Math.max(0.02, this.rad[i] + this.radV[i] * dt); this.h[i] += this.vy[i] * dt;
+        this.ang[i] += this.w[i] * motionDt; this.rad[i] = Math.max(0.02, this.rad[i] + this.radV[i] * motionDt); this.h[i] += this.vy[i] * motionDt;
         this.pos[k] = a.x + Math.cos(this.ang[i]) * this.rad[i];
-        this.pos[k + 1] = a.y + this.h[i] + this.bob[i] * Math.sin(this.phase[i] + age * 3);
+        this.pos[k + 1] = a.y + this.h[i] + this.bob[i] * Math.sin(this.phase[i] + age * 3 * motionScale);
         this.pos[k + 2] = a.z + Math.sin(this.ang[i]) * this.rad[i];
       }
-      this.rot[k] += this.spn[k] * dt; this.rot[k + 1] += this.spn[k + 1] * dt; this.rot[k + 2] += this.spn[k + 2] * dt;
+      this.rot[k] += this.spn[k] * motionDt; this.rot[k + 1] += this.spn[k + 1] * motionDt; this.rot[k + 2] += this.spn[k + 2] * motionDt;
       const kIn = Math.min(1, f / 0.12), kOut = 1 - f;
       let sc = this.size[i] * (1 + (this.grow[i] - 1) * f);
       if (this.solid) sc *= Math.min(1, f * 10) * Math.min(1, kOut * 5);
@@ -173,7 +176,7 @@ class VoxelParticles {
   }
   /** o: {x,y,z,vx,vy,vz,r,g,b,size,life,alpha,shape,solid,grav,drag,grow,spin,mode,anchor,ang,rad,h,w,vyO,radV,tele,bob} */
   emit(o) { this.pools[o.shape + (o.solid ? 'S' : 'A')].emit(o); }
-  update(dt) { for (const p of Object.values(this.pools)) p.update(dt); }
+  update(dt, motionScale) { for (const p of Object.values(this.pools)) p.update(dt, motionScale); }
   get alive() { let n = 0; for (const p of Object.values(this.pools)) n += p.aliveCount; return n; }
   dispose() { for (const p of Object.values(this.pools)) p.dispose(); }
 }
@@ -637,7 +640,7 @@ const DECOR = {
     return { follow: 'pos', obj: g,
       update(t, dt, s) {
         ctx.paint(cA, spec.c1); ctx.paint(cB, spec.c2);
-        acc += spec.rate * s.env * Math.min(1.5, s.inten) * dt;
+        if (!s.reducedMotion) acc += spec.rate * s.env * Math.min(1.5, s.inten) * dt;
         while (acc >= 1) {
           acc--; const l = lines.find((x) => x.userData.life <= 0); if (!l) break;
           const a = rnd(0, TAU), rad = rnd(0.35, 0.65) * ctx.u * s.size, y0 = rnd(0, 0.3) * ctx.u, y1 = rnd(1.3, 1.8) * ctx.u, p = l.geometry.attributes.position.array;
@@ -645,7 +648,7 @@ const DECOR = {
             p[i * 3] = snap(Math.cos(a) * rad + rnd(-j, j)); p[i * 3 + 1] = lerp(y0, y1, u); p[i * 3 + 2] = snap(Math.sin(a) * rad + rnd(-j, j)); }
           l.geometry.attributes.position.needsUpdate = true; l.userData.life = 0.14; l.material.color.copy(Math.random() > 0.5 ? cA : cB);
         }
-        for (const l of lines) { if (l.userData.life > 0) { l.userData.life -= dt; l.material.opacity = Math.random() > 0.25 ? 1 : 0.3; } else l.material.opacity = 0; }
+        for (const l of lines) { if (l.userData.life > 0) { l.userData.life -= dt; l.material.opacity = s.reducedMotion ? 0.45 : Math.random() > 0.25 ? 1 : 0.3; } else l.material.opacity = 0; }
       },
       dispose() { lines.forEach((l) => { l.geometry.dispose(); l.material.dispose(); }); } };
   },
@@ -673,7 +676,7 @@ const System = (function(){
 /**
  * AuraSystem.js — satu engine untuk semua aura (data dari AuraCatalog).
  *
- * const sys = new AuraSystem(scene, camera, { quality: 'medium' });
+ * const sys = new AuraSystem(scene, camera, { quality: 'medium', reducedMotion: false });
  * const aura = sys.attach(characterObject3D, 'dragon', { intensity: 1, size: 1, speed: 1, tint: null });
  * aura.set({ intensity: 1.4 }); aura.jump(); aura.despawn(); aura.setAura('solar');
  * // di render loop: sys.update(dt)
@@ -700,7 +703,7 @@ class CharacterAura {
     this.anchor = new THREE.Vector3(); this.vel = new THREE.Vector3(); this._prev = new THREE.Vector3(); this._has = false;
     this._p = new THREE.Vector3(); this._q = new THREE.Quaternion(); this._e = new THREE.Euler();
     this.t = 0; this.env = 0; this.phase = 'spawn'; this.air = 0; this.airborne = false; this.pulse = 0; this.tintV = 0; this.lod = 1; this.removeOnDone = true;
-    this.s = { env: 0, inten: 1, size: 1, air: 0, pulse: 0, tintV: 0 };
+    this.s = { env: 0, inten: 1, size: 1, air: 0, pulse: 0, tintV: 0, reducedMotion: false };
     this._measure();
     this.ground = this.anchor.y;
     this._build(id);
@@ -789,13 +792,13 @@ class CharacterAura {
         vx: Math.cos(a) * sp, vy: rnd(0.2, up) * u * 1.5, vz: Math.sin(a) * sp, grav: 2.5 * u, drag: 0.8 });
     }
   }
-  _burstSpawn() { for (const e of this.emitters) for (let i = 0; i < Math.min(10, e.rate * 2); i++) this._spawn(e); this.pulse = 1; }
-  _onJump() { this._burstFeet(Math.round(14 * this.sys.q.rate + 4)); this.pulse = 1; }
-  _onLand() { this._burstFeet(Math.round(18 * this.sys.q.rate + 4), 0.4); this.pulse = 1.2; }
+  _burstSpawn() { if (this.sys.isReducedMotion()) return; for (const e of this.emitters) for (let i = 0; i < Math.min(10, e.rate * 2); i++) this._spawn(e); this.pulse = 1; }
+  _onJump() { if (this.sys.isReducedMotion()) return; this._burstFeet(Math.round(14 * this.sys.q.rate + 4)); this.pulse = 1; }
+  _onLand() { if (this.sys.isReducedMotion()) return; this._burstFeet(Math.round(18 * this.sys.q.rate + 4), 0.4); this.pulse = 1.2; }
 
   // ---------------------------------------------------------------- loop
-  update(dt) {
-    const S = this.settings, k = S.speed, sdt = dt * k, u = this.u, q = this.sys.q;
+  update(dt, motionScale) {
+    const S = this.settings, k = S.speed, sdt = dt * k * motionScale, u = this.u, q = this.sys.q, reducedMotion = motionScale < 1;
     this.t += sdt;
     // lifecycle
     if (this.phase === 'spawn') { this.env = Math.min(1, this.env + dt / 0.9); if (this.env >= 1) this.phase = 'run'; }
@@ -813,25 +816,25 @@ class CharacterAura {
     this._prev.copy(this.anchor); this._has = true;
     const spd = Math.hypot(this.vel.x, this.vel.z) / u;
     const air = this.anchor.y - this.ground > 0.12 * u;
-    if (air && !this.airborne) this._onJump();
-    if (!air && this.airborne) this._onLand();
+    if (air && !this.airborne && !reducedMotion) this._onJump();
+    if (!air && this.airborne && !reducedMotion) this._onLand();
     if (!air && Math.abs(this.vel.y) < 0.6 * u) this.ground += (this.anchor.y - this.ground) * 0.2; /* lantai tidak ikut terangkat saat awal lompatan */
     this.airborne = air; this.air += ((air ? 1 : 0) - this.air) * Math.min(1, dt * 8);
-    this.pulse *= Math.exp(-3 * dt);
+    this.pulse *= Math.exp(-3 * dt * (reducedMotion ? 8 : 1));
     // LOD jarak kamera
     const dist = this.sys.camera.position.distanceTo(this.anchor);
     this.lod = clamp(1.15 - dist / (40 * u), 0.25, 1);
     // emisi
-    const eEnv = smooth(0, 1, this.env), mul = this.T.rate * q.rate * this.lod * Math.min(2, S.intensity) * eEnv * (1 + this.air * 0.6 + Math.min(spd, 6) * 0.08);
+    const eEnv = smooth(0, 1, this.env), mul = this.T.rate * q.rate * this.lod * Math.min(2, S.intensity) * eEnv * (1 + this.air * 0.6 + Math.min(spd, 6) * 0.08) * (reducedMotion ? 0.2 : 1);
     for (const em of this.emitters) {
       em.acc = Math.min(20, em.acc + em.rate * mul * sdt);
       while (em.acc >= 1) { em.acc--; this._spawn(em); }
-      if (em.burst && eEnv > 0.5) { em.burstT -= sdt; if (em.burstT <= 0) { em.burstT = em.burst.every; const n = Math.round(em.burst.count * q.rate * this.lod); for (let i = 0; i < n; i++) this._spawn(em, { boost: 1.8 }); } }
-      if (em.pulse && eEnv > 0.5) { em.pulseT -= sdt; if (em.pulseT <= 0) { em.pulseT = em.pulse.every; this._pulseRing(em); } }
+      if (!reducedMotion && em.burst && eEnv > 0.5) { em.burstT -= sdt; if (em.burstT <= 0) { em.burstT = em.burst.every; const n = Math.round(em.burst.count * q.rate * this.lod); for (let i = 0; i < n; i++) this._spawn(em, { boost: 1.8 }); } }
+      if (!reducedMotion && em.pulse && eEnv > 0.5) { em.pulseT -= sdt; if (em.pulseT <= 0) { em.pulseT = em.pulse.every; this._pulseRing(em); } }
     }
     // dekor
-    const s = this.s; s.env = eEnv; s.inten = S.intensity; s.size = S.size; s.air = this.air; s.pulse = this.pulse; s.tintV = this.tintV;
-    for (const d of this.decor) d.update(this.t, sdt, s);
+    const s = this.s; s.env = eEnv; s.inten = S.intensity; s.size = S.size; s.air = this.air; s.pulse = this.pulse; s.tintV = this.tintV; s.reducedMotion = reducedMotion;
+    for (const d of this.decor) d.update(this.t, reducedMotion ? dt : sdt, s);
   }
 
   dispose() {
@@ -846,15 +849,18 @@ class AuraSystem {
   constructor(scene, camera, opts = {}) {
     this.scene = scene; this.camera = camera;
     this.qName = opts.quality || detectQuality(); this.q = QUALITY[this.qName];
+    this.reducedMotion = opts.reducedMotion || false;
     this.particles = new VoxelParticles(scene, this.q);
     this.auras = [];
   }
+  isReducedMotion() { return typeof this.reducedMotion === 'function' ? !!this.reducedMotion() : !!this.reducedMotion; }
   list() { return AURAS.map((a) => ({ id: a.id, name: a.name, rarity: a.rarity, tier: a.tier, theme: a.theme })); }
   attach(character, id, settings, opts) { const a = new CharacterAura(this, character, id, settings, opts); this.auras.push(a); return a; }
   update(dt) {
     dt = Math.min(dt, 0.05);
-    for (const a of [...this.auras]) a.update(dt);
-    this.particles.update(dt);
+    const motionScale = this.isReducedMotion() ? 0.12 : 1;
+    for (const a of [...this.auras]) a.update(dt, motionScale);
+    this.particles.update(dt, motionScale);
   }
   /** Ganti kualitas: pool partikel dibuat ulang, dekor tiap aura dibangun ulang. */
   setQuality(name) {

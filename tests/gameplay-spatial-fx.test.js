@@ -44,7 +44,8 @@ const SAMPLE = {
   'weapon-release': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
   'combat-projectile': { from: { x: 0, y: 1, z: 0 }, to: { x: 2, y: 2, z: -1 }, dur: 0.4, style: 'charged' },
   'combat-impact': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
-  'combat-defense': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'shield' }
+  'combat-defense': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'shield' },
+  'buff-feedback': { pos: { x: 1, y: 0.2, z: 2 }, hy: 0.65, style: 'activate' }
 };
 
 test('semua kind Spatial FX terdaftar dan dapat dibuat', () => {
@@ -307,6 +308,24 @@ test('Combat FX menggunakan lifecycle, fid/seed, reduce-motion, dan Stop All', (
   step(reduced, 1);
   assert.strictEqual(reduced.FX.getActive().length, 0);
   assert.strictEqual(reduced.scene.children.length, 0);
+});
+
+test('buff shield punya feedback aktivasi dan akhir dengan siluet berbeda', () => {
+  const snapshot = style => {
+    const h = ready();
+    h.FX.spatial('buff-feedback', Object.assign({}, SAMPLE['buff-feedback'], { pos: { x: 0, y: 0, z: 0 }, style, seed: 912 }));
+    step(h, 0.12);
+    return h.scene.children.map(m => [
+      m.material.color,
+      Math.round(m.position.x * 100), Math.round(m.position.y * 100), Math.round(m.position.z * 100),
+      Math.round(m.scale.x * 100), Math.round(m.scale.y * 100)
+    ]);
+  };
+  assert.notDeepStrictEqual(snapshot('activate'), snapshot('end'));
+  const src = fnBody(mainSrc, 'function powerFxPawn(key,pl,meta,origin){');
+  assert.ok(src.includes("key==='wooden_shield'||key==='shield_block'"));
+  assert.ok(src.includes("FX.spatial('buff-feedback'") && src.includes("key==='wooden_shield'?'activate':'end'"));
+  assert.ok(src.includes('defense||guardFeedback?mpFxMeta()'), 'cue buff tetap membawa identity/seed');
 });
 
 test('efek spasial dilacak menurut fid/seed/source untuk cue multiplayer', () => {

@@ -518,7 +518,7 @@
      Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
   var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
   var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62]; /* violet, magenta, pale, teal, gold, red */
-  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20 };
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21 };
   var SP_KINDS = Object.create(null);
   var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
 
@@ -1069,6 +1069,33 @@
           item.mesh.rotation.y = yaw; item.mesh.material.opacity = 0.72 * (1 - k);
         });
         ring.position.set(c.cx, c.cy, c.cz); ring.scale.setScalar((0.4 + easeOut(k) * 0.9) * s); ring.rotation.y = yaw; ring.material.opacity = 0.48 * (1 - k);
+      };
+    });
+  };
+
+  SP_KINDS['buff-feedback'] = function (o) {
+    var ending = o.style === 'end', dur = ending ? 0.42 : 0.62;
+    return spRun('buff-feedback', dur, o, function (ctl) {
+      var s = ctl.scale, color = ending ? 2 : 4, ring = spFlat(spMesh(ctl, SP_RING, color, 0.56)), shield = [];
+      var points = [[0, 0.34], [0.2, 0.14], [0.16, -0.12], [0, -0.28], [-0.16, -0.12], [-0.2, 0.14]];
+      for (var i = 0; i < points.length; i++) {
+        var m = spMesh(ctl, CONF_GEO, color, 0.64, false);
+        m.scale.set(0.1 * s, 0.1 * s, 0.07 * s);
+        shield.push({ mesh: m, x: points[i][0], y: points[i][1] });
+      }
+      var n = spCount(ending ? 8 : 12, o), motion = mo();
+      for (i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.buff * 1000 + i), a = R() * 6.2832, speed = (ending ? 1.2 : 0.55) * (0.65 + R() * 0.5) * motion;
+        spPart(ctl, { mode: 'burst', x: ctl.cx, y: ctl.cy, z: ctl.cz, vx: Math.cos(a) * speed, vy: (ending ? 0.25 : 0.7 + R() * 0.5) * motion, vz: Math.sin(a) * speed, g: ending ? 0.3 : 0.8, life: 0.3 + R() * 0.2, size: 0.045 + R() * 0.025, mat: color });
+      }
+      ctl.tick = function (c, t, k) {
+        ring.position.set(c.px, c.py + 0.04, c.pz);
+        ring.scale.setScalar((ending ? 1.05 * (1 - k) + 0.1 : 0.32 + easeOut(k) * 0.58) * s);
+        ring.material.opacity = 0.56 * (1 - k);
+        shield.forEach(function (item) {
+          item.mesh.position.set(c.cx + c.U[0] * item.x, c.cy + item.y * s, c.cz + c.U[2] * item.x);
+          item.mesh.rotation.y = num(o.dir, 0); item.mesh.material.opacity = 0.64 * (1 - k);
+        });
       };
     });
   };

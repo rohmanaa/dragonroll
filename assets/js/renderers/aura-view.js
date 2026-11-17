@@ -5,7 +5,7 @@
      UT.AuraView.equippedKey()           -> id aura (gameKey) yang dipakai pemain ini, atau null
      UT.AuraView.keyFromEquipped(eq)     -> id aura dari data 'equipped' server (pemain lain), atau null
      UT.AuraView.quality()               -> 'low' kecuali pengaturan grafis 'high' (lalu deteksi perangkat)
-     const A = UT.AuraView.create(scene, camera[, {quality}])
+     const A = UT.AuraView.create(scene, camera[, {quality, reducedMotion}])
        A.only(root, key[, {height, settings, facing}])  // aura hanya untuk root ini (yang lain dilepas); key null = tanpa aura
        A.set(root, key[, {height, settings}])   // tambah/ubah aura untuk root (banyak karakter sekaligus)
        A.clear(root) / A.clearAll()             // lepas dengan memudar
@@ -39,7 +39,7 @@
     function ensure() {
       if (sys) return sys;
       if (!FX() || !FX().AuraSystem || !win.THREE) return null;
-      try { sys = new (FX().AuraSystem)(scene, camera, { quality: opts.quality || quality() }); } catch (e) { sys = null; }
+      try { sys = new (FX().AuraSystem)(scene, camera, { quality: opts.quality || quality(), reducedMotion: opts.reducedMotion }); } catch (e) { sys = null; }
       return sys;
     }
     function clear(root) {

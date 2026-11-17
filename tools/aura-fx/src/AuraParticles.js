@@ -58,8 +58,9 @@ class VoxelPool {
     if (this.solid) { this.mesh.setColorAt(i, tmpC.setRGB(o.r, o.g, o.b)); this.dirty = true; }
   }
 
-  update(dt) {
+  update(dt, motionScale = 1) {
     let alive = 0;
+    const motionDt = dt * motionScale;
     for (let i = 0; i < this.cap; i++) {
       if (this.life[i] <= 0) continue;
       this.life[i] -= dt;
@@ -67,22 +68,22 @@ class VoxelPool {
       alive++;
       const k = i * 3, age = this.max[i] - this.life[i], f = age / this.max[i];
       if (this.mode[i] === 0) {
-        this.vel[k + 1] -= this.grav[i] * dt;
-        const dmp = Math.exp(-this.drag[i] * dt);
+        this.vel[k + 1] -= this.grav[i] * motionDt;
+        const dmp = Math.exp(-this.drag[i] * motionDt);
         this.vel[k] *= dmp; this.vel[k + 1] *= dmp; this.vel[k + 2] *= dmp;
-        this.pos[k] += this.vel[k] * dt; this.pos[k + 1] += this.vel[k + 1] * dt; this.pos[k + 2] += this.vel[k + 2] * dt;
+        this.pos[k] += this.vel[k] * motionDt; this.pos[k + 1] += this.vel[k + 1] * motionDt; this.pos[k + 2] += this.vel[k + 2] * motionDt;
       } else {
         const a = this.anchor[i];
-        if (this.tele[i] > 0) {
+        if (this.tele[i] > 0 && motionScale >= 1) {
           this.tele[i] -= dt;
           if (this.tele[i] <= 0) { this.ang[i] += rnd(-1.5, 1.5); this.rad[i] *= rnd(0.8, 1.25); this.h[i] += rnd(-0.3, 0.3); this.tele[i] = rnd(0.4, 1.2); }
         }
-        this.ang[i] += this.w[i] * dt; this.rad[i] = Math.max(0.02, this.rad[i] + this.radV[i] * dt); this.h[i] += this.vy[i] * dt;
+        this.ang[i] += this.w[i] * motionDt; this.rad[i] = Math.max(0.02, this.rad[i] + this.radV[i] * motionDt); this.h[i] += this.vy[i] * motionDt;
         this.pos[k] = a.x + Math.cos(this.ang[i]) * this.rad[i];
-        this.pos[k + 1] = a.y + this.h[i] + this.bob[i] * Math.sin(this.phase[i] + age * 3);
+        this.pos[k + 1] = a.y + this.h[i] + this.bob[i] * Math.sin(this.phase[i] + age * 3 * motionScale);
         this.pos[k + 2] = a.z + Math.sin(this.ang[i]) * this.rad[i];
       }
-      this.rot[k] += this.spn[k] * dt; this.rot[k + 1] += this.spn[k + 1] * dt; this.rot[k + 2] += this.spn[k + 2] * dt;
+      this.rot[k] += this.spn[k] * motionDt; this.rot[k + 1] += this.spn[k + 1] * motionDt; this.rot[k + 2] += this.spn[k + 2] * motionDt;
       const kIn = Math.min(1, f / 0.12), kOut = 1 - f;
       let sc = this.size[i] * (1 + (this.grow[i] - 1) * f);
       if (this.solid) sc *= Math.min(1, f * 10) * Math.min(1, kOut * 5);
@@ -114,7 +115,7 @@ export class VoxelParticles {
   }
   /** o: {x,y,z,vx,vy,vz,r,g,b,size,life,alpha,shape,solid,grav,drag,grow,spin,mode,anchor,ang,rad,h,w,vyO,radV,tele,bob} */
   emit(o) { this.pools[o.shape + (o.solid ? 'S' : 'A')].emit(o); }
-  update(dt) { for (const p of Object.values(this.pools)) p.update(dt); }
+  update(dt, motionScale) { for (const p of Object.values(this.pools)) p.update(dt, motionScale); }
   get alive() { let n = 0; for (const p of Object.values(this.pools)) n += p.aliveCount; return n; }
   dispose() { for (const p of Object.values(this.pools)) p.dispose(); }
 }

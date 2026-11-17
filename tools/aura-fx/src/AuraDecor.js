@@ -276,7 +276,7 @@ export const DECOR = {
     return { follow: 'pos', obj: g,
       update(t, dt, s) {
         ctx.paint(cA, spec.c1); ctx.paint(cB, spec.c2);
-        acc += spec.rate * s.env * Math.min(1.5, s.inten) * dt;
+        if (!s.reducedMotion) acc += spec.rate * s.env * Math.min(1.5, s.inten) * dt;
         while (acc >= 1) {
           acc--; const l = lines.find((x) => x.userData.life <= 0); if (!l) break;
           const a = rnd(0, TAU), rad = rnd(0.35, 0.65) * ctx.u * s.size, y0 = rnd(0, 0.3) * ctx.u, y1 = rnd(1.3, 1.8) * ctx.u, p = l.geometry.attributes.position.array;
@@ -284,7 +284,7 @@ export const DECOR = {
             p[i * 3] = snap(Math.cos(a) * rad + rnd(-j, j)); p[i * 3 + 1] = lerp(y0, y1, u); p[i * 3 + 2] = snap(Math.sin(a) * rad + rnd(-j, j)); }
           l.geometry.attributes.position.needsUpdate = true; l.userData.life = 0.14; l.material.color.copy(Math.random() > 0.5 ? cA : cB);
         }
-        for (const l of lines) { if (l.userData.life > 0) { l.userData.life -= dt; l.material.opacity = Math.random() > 0.25 ? 1 : 0.3; } else l.material.opacity = 0; }
+        for (const l of lines) { if (l.userData.life > 0) { l.userData.life -= dt; l.material.opacity = s.reducedMotion ? 0.45 : Math.random() > 0.25 ? 1 : 0.3; } else l.material.opacity = 0; }
       },
       dispose() { lines.forEach((l) => { l.geometry.dispose(); l.material.dispose(); }); } };
   },

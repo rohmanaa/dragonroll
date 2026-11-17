@@ -35,13 +35,15 @@ export const QUALITY = Object.freeze({
   low:    { cap: 300,  rate: 0.45, fog: false, rings: 1, arcs: 2, extras: false },
   medium: { cap: 800,  rate: 0.75, fog: true,  rings: 2, arcs: 4, extras: true },
   high:   { cap: 1800, rate: 1,    fog: true,  rings: 4, arcs: 6, extras: true },
+  ultra:  { cap: 2400, rate: 1.2,  fog: true,  rings: 4, arcs: 8, extras: true },
 });
 
 export function detectQuality() {
   const nav = typeof navigator !== 'undefined' ? navigator : {};
   const mobile = /Android|iPhone|iPad|Mobile/i.test(nav.userAgent || '');
   const cores = nav.hardwareConcurrency || 4, mem = nav.deviceMemory || 4;
-  if (mem <= 2 || (cores <= 4 && mobile)) return 'low';
-  if (mobile || cores <= 4) return 'medium';
+  if (mem <= 2 || (cores <= 2 && mobile)) return 'low';
+  if (mobile || cores <= 4 || mem <= 4) return 'medium';
+  if (cores >= 8 && mem >= 8) return 'ultra';
   return 'high';
 }

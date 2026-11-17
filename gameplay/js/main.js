@@ -131,9 +131,9 @@ function loadSkin3D(k){
 function pawnAct(pawn,type,dur){ try{ const b=pawn&&pawn.userData&&pawn.userData.bc; if(b&&b.act) b.act(type,dur); }catch(e){} }
 /* Ganti model pion (mis. setelah tampilan pemain lain dari server tiba). spec: <0 = milik sendiri, >=0 = preset, objek = baris room_appearance_get. */
 /* Aura (slot 'aura', dipilih di halaman Efek) menempel ke pion karakter baru: milik sendiri = aura yang dipakai; pemain lain = aura dari data server.
-   Satu AuraSystem untuk seluruh scene; dipasang malas di loop frame setelah pion masuk scene. Kualitas dibatasi 'medium' (banyak pion). */
+   Satu AuraSystem untuk seluruh scene; profil High dibatasi ke Medium untuk banyak pion, Ultra memakai preset khusus perangkat kuat. */
 let PAURA=null;
-function pawnAuraCtl(){ if(!PAURA&&UT.AuraView&&UT.AuraFX){ try{ const q=UT.AuraView.quality(); PAURA=UT.AuraView.create(scene,camera,{quality:q==='high'?'medium':q}); }catch(e){} } return PAURA; }
+function pawnAuraCtl(){ if(!PAURA&&UT.AuraView&&UT.AuraFX){ try{ const q=UT.AuraView.quality(); PAURA=UT.AuraView.create(scene,camera,{quality:q==='high'?'medium':q,reducedMotion:fxReduced}); }catch(e){} } return PAURA; }
 function repawnNew(pawn,spec){ try{ const u=pawn&&pawn.userData,pal=u&&u.pal; if(!pal) return; if(u.bc&&PAURA) PAURA.clear(u.bc.root); u.auraOn=false; if(u.png){ pawn.remove(u.png); u.png=null; u.bc=null; u.bcLast=null; u.bcMode=null; } pal.visible=true; upgradePawnNew(pawn,pal,spec); }catch(e){} }
 /* Online: pemain lokal = tampilannya sendiri; pemain lain = tampilan dari server (room_appearance_get), tanpa data = preset. */
 async function applyOnlineLooks(gid,attempt){
@@ -3933,9 +3933,10 @@ function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
 function powerFxPawn(key,pl,meta,origin){
   const defense=key==='shield_block'||key==='totem_block';
+  const guardFeedback=key==='wooden_shield'||key==='shield_block';
   let fxMeta=meta||null;
   if(MP_SEQ===0){
-    const m=defense?mpFxMeta():null; if(m) fxMeta=m;
+    const m=defense||guardFeedback?mpFxMeta():null; if(m) fxMeta=m;
     const cue={k:'pfx',key:key,pid:pl&&pl.networkId};
     if(m){ cue.fid=m.fid; cue.seed=m.seed; }
     const source=origin&&origin.pawn?origin.pawn.position:origin&&origin.position?origin.position:origin;
@@ -3946,6 +3947,10 @@ function powerFxPawn(key,pl,meta,origin){
   }
   if(key==='shield_block'||key==='totem_block'){ try{ sfx.powerBlock(key); }catch(e){} } /* suara menahan serangan: juga saat reduce-motion */
   try{
+    if(guardFeedback&&pl&&pl.pawn&&FX){
+      const pos=pl.pawn.position.clone();
+      FX.spatial('buff-feedback',Object.assign({pos,follow:()=>pl.pawn.position,hy:0.65,style:key==='wooden_shield'?'activate':'end'},fxMeta||{}));
+    }
     if(defense&&pl&&pl.pawn&&FX){
       const pos=pl.pawn.position.clone(); pos.y+=0.65;
       const source=origin&&origin.pawn?origin.pawn.position:origin&&origin.position?origin.position:origin;
