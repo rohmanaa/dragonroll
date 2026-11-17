@@ -6,7 +6,8 @@
    API: burstAt(x, y, opts) · burstFromElement(el, opts) · clear() · dispose() · configure({maxParticles, maxBurst}) — burst mengembalikan jumlah partikel yang dibuat.
    opts: count(12) · color | colors[] · size(8) · sizeJitter(.5) · distance(60) · distanceJitter(.5) · duration(600ms) · durationJitter(.3) · spread(360°) · angle(derajat arah tengah, 0=kanan)
          · gravity(px turun di akhir) · scale(akhir, .2) · rotate(derajat maks) · shape('square'|'round'|'bar') · delay(ms, maks acak) · delayMin(ms, jeda tetap sebelum mulai, maks 1500; total jeda = delayMin + acak(0..delay))
-         · ease(timing-function CSS: steps(n[,end]) · cubic-bezier(a,b,c,d) · linear/ease*; nilai lain diabaikan) */
+         · ease(timing-function CSS: steps(n[,end]) · cubic-bezier(a,b,c,d) · linear/ease*; nilai lain diabaikan)
+         · seed(angka, opsional: variasi arah/ukuran/durasi/jeda reproduksi antar klien lewat UT.GameplayFX.rng; tanpa seed = Math.random) · fid/source (metadata debug) */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -71,16 +72,18 @@
     if (group.id && UT.GameplayFX && typeof UT.GameplayFX.untrack === 'function') UT.GameplayFX.untrack(group.id);
   }
 
-  function makeGroup() {
+  function makeGroup(o) {
     var group = { id: null, nodes: new Set(), stopping: false };
     groups.push(group);
     if (UT.GameplayFX && typeof UT.GameplayFX.track === 'function') {
-      group.id = UT.GameplayFX.track({ stop: function () { removeGroup(group); } }, { type: 'dom-particle-burst', scope: 'visual', category: 'particle' });
+      var meta = { type: 'dom-particle-burst', scope: 'visual', category: 'particle' };
+      if (o) ['fid', 'seed', 'source'].forEach(function (key) { if (o[key] != null) meta[key] = o[key]; });
+      group.id = UT.GameplayFX.track({ stop: function () { removeGroup(group); } }, meta);
     }
     return group;
   }
   function num(v, d) { v = +v; return isFinite(v) ? v : d; }
-  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function rnd(a, b, R) { return a + (R || Math.random)() * (b - a); }
 
   function burstAt(x, y, o) {
     var group = null;
@@ -103,10 +106,12 @@
       var ease = (typeof o.ease === 'string' && EASE_RE.test(o.ease.trim())) ? o.ease.trim() : '';
       var cls = o.shape === 'round' ? ' fx-round' : o.shape === 'bar' ? ' fx-bar' : '';
       var frag = doc.createDocumentFragment();
-      group = makeGroup();
+      var seeded = typeof o.seed === 'number' && isFinite(o.seed) && UT.GameplayFX && typeof UT.GameplayFX.rng === 'function';
+      group = makeGroup(o);
       for (var i = 0; i < n; i++) {
-        var a = (base - spread / 2 + (spread >= 360 ? (i / n) * 360 + rnd(-8, 8) : rnd(0, spread))) * Math.PI / 180;
-        var d = dist * (1 - dj + Math.random() * dj);
+        var R = seeded ? UT.GameplayFX.rng(o.seed, i) : Math.random;
+        var a = (base - spread / 2 + (spread >= 360 ? (i / n) * 360 + rnd(-8, 8, R) : rnd(0, spread, R))) * Math.PI / 180;
+        var d = dist * (1 - dj + R() * dj);
         var el = doc.createElement('span'), s = el.style;
         el.className = 'fx-particle' + cls;
         el.__fxGroup = group;
@@ -115,13 +120,13 @@
         s.left = x.toFixed(1) + 'px'; s.top = y.toFixed(1) + 'px'; /* hanya set statis sekali; tidak dianimasikan */
         s.setProperty('--fx-x', (Math.cos(a) * d).toFixed(1) + 'px');
         s.setProperty('--fx-y', (Math.sin(a) * d + grav).toFixed(1) + 'px');
-        s.setProperty('--fx-size', (size * (1 - sj + Math.random() * sj * 2)).toFixed(1) + 'px');
-        s.setProperty('--fx-dur', Math.round(dur * (1 - duj + Math.random() * duj * 2)) + 'ms');
+        s.setProperty('--fx-size', (size * (1 - sj + R() * sj * 2)).toFixed(1) + 'px');
+        s.setProperty('--fx-dur', Math.round(dur * (1 - duj + R() * duj * 2)) + 'ms');
         s.setProperty('--fx-scale', String(scl));
-        s.setProperty('--fx-rot', Math.round(rnd(-rot, rot)) + 'deg');
+        s.setProperty('--fx-rot', Math.round(rnd(-rot, rot, R)) + 'deg');
         s.setProperty('--fx-color', colors[i % colors.length]);
         if (ease) s.setProperty('--fx-ease', ease);
-        if (delay || dmin) s.setProperty('--fx-delay', Math.round(dmin + Math.random() * delay) + 'ms');
+        if (delay || dmin) s.setProperty('--fx-delay', Math.round(dmin + R() * delay) + 'ms');
       }
       L.appendChild(frag); live += n;
       return n;

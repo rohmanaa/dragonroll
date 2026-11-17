@@ -3925,8 +3925,8 @@ try{ const D=window.UT&&UT.GameplayDiceUI; if(D&&!(window.UT.GameplayDiceThrow&&
 showDie(1,false);
 
 /* ---------- Konfeti ---------- */
-function spawnConfetti(pos){ if(MP_SEQ===0&&pos) mpCue({k:'confetti',x:pos.x,y:pos.y,z:pos.z}); if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
-function spawnExplosion(pos,kind){ if(MP_SEQ===0&&pos) mpCue({k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind); else if(FX) FX.spawnConfetti(pos); } /* ledakan = serpihan kecil + asap (kind 'ender' = ungu Enderman, default = api), bukan konfeti */
+function spawnConfetti(pos,meta){ let m=meta||null; if(MP_SEQ===0&&pos){ const o=mpFxMeta(); if(o) m=o; mpCue(o?{k:'confetti',x:pos.x,y:pos.y,z:pos.z,fid:o.fid,seed:o.seed}:{k:'confetti',x:pos.x,y:pos.y,z:pos.z}); } if(FX) FX.spawnConfetti(pos,null,m); } /* visual: UT.GameplayFX. meta {seed,fid,source}: dari cue (tamu) atau dibuat host agar host & tamu memakai seed yang sama */
+function spawnExplosion(pos,kind,meta){ let m=meta||null; if(MP_SEQ===0&&pos){ const o=mpFxMeta(); if(o) m=o; mpCue(o?{k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind,fid:o.fid,seed:o.seed}:{k:'blast',x:pos.x,y:pos.y,z:pos.z,kind:kind}); } if(FX&&FX.spawnExplosion) FX.spawnExplosion(pos,kind,null,m); else if(FX) FX.spawnConfetti(pos,null,m); } /* ledakan = serpihan kecil + asap (kind 'ender' = ungu Enderman, default = api), bukan konfeti */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
@@ -4220,14 +4220,15 @@ async function teleport(p,to,fire){
    enderSwapAnim(p,L,a,b): lubang membuka di dekat kedua pion -> keduanya terhisap (mengecil + berputar) -> posisi ditukar -> muncul dari lubang lawan -> lubang menutup.
    Aset baru: tidak ada (geometri THREE + SFX enderman yang sudah ada). reduce-motion: tukar langsung seperti teleport biasa. */
 const EH_LIFE=2.3;
-function enderHole(pos,scale){
-  if(MP_SEQ===0) mpCue({k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale});
+function enderHole(pos,scale,meta){
+  let fxm=meta||null;
+  if(MP_SEQ===0){ const o=mpFxMeta(); if(o) fxm=o; mpCue(o?{k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale,fid:o.fid,seed:o.seed}:{k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale}); }
   if(reduce) return;
   const g=new THREE.Group(); g.position.set(pos.x,pos.y+0.95*scale,pos.z); g.scale.setScalar(0.001);
   const core=new THREE.Mesh(new THREE.SphereGeometry(0.42,20,14),new THREE.MeshBasicMaterial({color:0x000000,fog:false}));
   const ring=(r0,r1,col,op,tilt)=>{ const m=new THREE.Mesh(new THREE.RingGeometry(r0,r1,40),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); m.rotation.x=tilt; return m; };
   const r1=ring(0.55,0.95,0x9b4dff,0.85,1.15),r2=ring(0.8,1.25,0x4b1d99,0.5,1.5);
-  const N=70,arr=new Float32Array(N*3),sd=[]; for(let i=0;i<N;i++) sd.push({a:Math.random()*6.283,r:0.6+Math.random()*1.1,y:(Math.random()-0.5)*0.5,s:0.6+Math.random()*1.2,p:Math.random()});
+  const N=70,arr=new Float32Array(N*3),sd=[],R=(fxm&&typeof fxm.seed==='number'&&FX&&typeof FX.rng==='function')?FX.rng(fxm.seed):Math.random; for(let i=0;i<N;i++) sd.push({a:R()*6.283,r:0.6+R()*1.1,y:(R()-0.5)*0.5,s:0.6+R()*1.2,p:R()}); /* seed dari cue: partikel terhisap sama di semua klien (hanya visual) */
   const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(arr,3));
   const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xd9b3ff,size:0.08,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); pts.rotation.x=1.15; pts.frustumCulled=false;
   g.add(core,r1,r2,pts); scene.add(g);
@@ -4245,7 +4246,7 @@ function enderHole(pos,scale){
       }
     });
   };
-  if(FX&&typeof FX.track==='function') trackId=FX.track({stop:()=>{ active=false; cleanup(true); },cleanup:()=>cleanup(true)},{type:'ender-hole',scope:'visual',category:'transition'});
+  if(FX&&typeof FX.track==='function') trackId=FX.track({stop:()=>{ active=false; cleanup(true); },cleanup:()=>cleanup(true)},{type:'ender-hole',scope:'visual',category:'transition',fid:fxm&&fxm.fid||null,seed:fxm&&typeof fxm.seed==='number'?fxm.seed:null,source:fxm&&fxm.source||null});
   visualTween=tweenVisual(EH_LIFE,k=>{
     if(!active) return;
     const t=k*EH_LIFE,env=t<0.7?ease3(t/0.7):(t>EH_LIFE-0.4?1-ease3((t-(EH_LIFE-0.4))/0.4):1);
@@ -5840,7 +5841,10 @@ function startGame(m,keys){
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
 const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,bosshfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
-function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
+/* Checkpoint 1.3: cue FX membawa fid (id kejadian unik: pengirim:gameId:sesi.urut) dan, untuk partikel, seed. Hanya angka/teks kecil; tidak ada partikel/objek THREE di jaringan. Tamu lama mengabaikan field baru; cue lama tanpa fid tetap diputar. */
+const MP_FX_CUES={confetti:1,blast:1,eport:1,pfx:1,hitfx:1,bosshfx:1,pufx:1,sfx:1,dfx:1,dmusic:1,seq:1};
+function mpFxMeta(){ try{ return (ONLINE_ROOM&&ONLINE_HOST&&FX&&typeof FX.cueMeta==='function')?FX.cueMeta(MP_ID||'host',gameId):null; }catch(e){ return null; } }
+function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ if(c&&MP_FX_CUES[c.k]&&!c.fid){ const m=mpFxMeta(); if(m) c.fid=m.fid; } MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
 function mpRunCue(c){
   const p=mpPlayerByNet(c.pid); if(!p) return Promise.resolve();
@@ -5856,8 +5860,8 @@ function mpRunFeedbackCue(c){
   try{
     if(c.k==='fb'){ const a=mpFixGid(c.a); if(c.f==='short'&&!fb0(c.f,...a)){ const o=a[3]||{}; hud0('showPower',a[0],a[1],a[2],o); } else if(c.f!=='short') fb0(c.f,...a); }
     else if(c.k==='seq'){ return mpRunSeq(c); }
-    else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z)); }
-    else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z),c.kind); }
+    else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z),FX&&FX.cueOptions?FX.cueOptions(c):null); }
+    else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z),c.kind,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
     else if(c.k==='hud'){ hud0(c.f,...mpFixGid(c.a)); }
     else if(c.k==='dfx'){ return mpDragonFx(c.t); }
@@ -5867,7 +5871,7 @@ function mpRunFeedbackCue(c){
     else if(c.k==='ccard'){ if(FBK) FBK.showChestRewardCard(c.w,c.t); clearTimeout(MP_CCARD_T); MP_CCARD_T=setTimeout(()=>{ if(FBK) FBK.hideChestRewardCard(); },2500); }
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
-    else if(c.k==='eport'){ enderHole(new THREE.Vector3(c.x,c.y,c.z),c.s||1); }
+    else if(c.k==='eport'){ enderHole(new THREE.Vector3(c.x,c.y,c.z),c.s||1,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
     else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
     else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }
@@ -5925,6 +5929,7 @@ async function mpGuestTotemPrompt(c){
 function onMpCue(c){
   if(!ONLINE_ROOM||ONLINE_HOST) return;
   if(c&&c.k==='totem_ask'){ mpGuestTotemPrompt(c); return; } /* di luar antrean animasi: modal harus segera muncul */
+  if(c&&c.fid&&FX&&typeof FX.acceptCue==='function'&&!FX.acceptCue(c)) return; /* 1.3: cue FX duplikat / dari game sebelumnya dilewati (hanya visual); cue tanpa fid selalu diputar */
   MP_CUE_N++;
   MP_CUE_CHAIN=MP_CUE_CHAIN.then(()=>(c&&MPFB[c.k])?mpRunFeedbackCue(c):mpRunCue(c)).catch(e=>{ if(e!==STALE) console.error('[multiplayer] cue failed',e); }).then(()=>{
     MP_CUE_N--;

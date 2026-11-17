@@ -4,7 +4,9 @@
    update dipanggil dari loop animasi milik gameplay (pada titik yang sama seperti sebelumnya), sementara timer FX dilacak agar dapat dibatalkan.
    Tetap di gameplay.html: explode/teleport (mengubah pawn + tween + sfx), salju/ember tema, animasi mob/ular, kamera, Dragon, state & guard gameId/STALE.
    Classic script. Namespace: UT.GameplayFX.
-   API: track/stop/untrack/stopAll/getActive · timeout · init(scene) · emitters lama · dispose() */
+   API: track/stop/untrack/stopAll/getActive/getHistory · timeout · init(scene) · emitters lama (opsional opts {seed,fid,source}) · dispose()
+   Cue multiplayer (1.3): cueMeta(origin,epoch) -> {fid,seed,source} · acceptCue(cue) (dedup + cue basi) · cueOptions(cue) · rng(seed[,index]) · getCueLog() · setDebug(on).
+   Seed hanya untuk variasi visual (arah/ukuran/kecepatan partikel); tiap partikel memakai rng(seed, index) sendiri, jadi partikel ke-i sama di semua klien walau jumlah total berbeda (skala perangkat). */
 (function (win) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -13,6 +15,8 @@
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
   var currentQuality = null, reducedMq = null, tracked = Object.create(null), trackSeq = 0, configuredQuality = null;
   var disposed = false, lifecycleBound = false;
+  var fidSeq = 0, SESSION = Math.random().toString(36).slice(2, 6) || 'x', CUE_SEEN_MAX = 256, LOG_MAX = 64;
+  var cueSeen = Object.create(null), cueSeenOrder = [], cueEpoch = Object.create(null), cueLog = [], history = [], debugOn = false;
   var doc = win.document;
   var QUALITY = {
     low: { scale: 0.5, cap: 120, particles: { maxParticles: 40, maxBurst: 12 } },
@@ -102,6 +106,97 @@
     if (win.console && win.console.warn) win.console.warn('[gameplay-fx] cleanup gagal', error);
   }
 
+  function now() { try { return Date.now(); } catch (e) { return 0; } }
+
+  function debugLog(kind, info) {
+    if (!debugOn || !win.console || !win.console.debug) return;
+    try { win.console.debug('[gameplay-fx] ' + kind, info); } catch (e) { /* debug tidak boleh mengganggu FX */ }
+  }
+
+  function pushBounded(list, item) {
+    list.push(item);
+    if (list.length > LOG_MAX) list.shift();
+  }
+
+  /* ---- Seed deterministik (hanya visual) ---- */
+  function hash32(str) {
+    var h = 2166136261;
+    str = String(str);
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mix(seed, index) {
+    var h = (seed >>> 0) ^ Math.imul(((index | 0) + 1) | 0, 0x9E3779B1);
+    h = Math.imul(h ^ (h >>> 16), 0x85EBCA6B);
+    h = Math.imul(h ^ (h >>> 13), 0xC2B2AE35);
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  function validSeed(v) { return typeof v === 'number' && isFinite(v); }
+  function rng(seed, index) {
+    var a = (index === undefined ? seed : mix(seed, index)) >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  /* RNG per partikel: berseed bila opts.seed valid, selain itu Math.random seperti sebelumnya */
+  function pr(opts, index) {
+    return opts && validSeed(opts.seed) ? rng(opts.seed, index) : Math.random;
+  }
+
+  /* ---- Identitas cue (fid) ---- */
+  var FID_RE = /^(.+):(\d+):([a-z0-9]+)\.(\d+)$/;
+  function parseFid(fid) {
+    if (typeof fid !== 'string' || fid.length > 80) return null;
+    var m = FID_RE.exec(fid);
+    return m ? { origin: m[1], epoch: +m[2], nonce: m[3], seq: +m[4] } : null;
+  }
+  function cueMeta(origin, epoch) {
+    var o = String(origin == null ? 'host' : origin).replace(/[^\w\-.@]/g, '').slice(0, 24) || 'host';
+    var e = Math.max(0, Math.floor(Number(epoch) || 0));
+    var fid = o + ':' + e + ':' + SESSION + '.' + (++fidSeq);
+    return { fid: fid, seed: hash32(fid), source: o };
+  }
+  /* Opsi emitter dari cue yang diterima; cue lama tanpa fid/seed -> null (acak seperti dulu) */
+  function cueOptions(cue) {
+    if (!cue || typeof cue !== 'object') return null;
+    var f = parseFid(cue.fid), seed = validSeed(cue.seed) ? cue.seed : (f ? hash32(cue.fid) : null);
+    if (seed == null && !f) return null;
+    var o = {};
+    if (seed != null) o.seed = seed;
+    if (f) { o.fid = cue.fid; o.source = f.origin; }
+    return o;
+  }
+  function logCue(cue, status, reason) {
+    var f = cue && parseFid(cue.fid);
+    var item = { fid: cue && typeof cue.fid === 'string' ? cue.fid : null, k: cue && cue.k, source: f ? f.origin : null, seed: cue && validSeed(cue.seed) ? cue.seed : null, status: status, reason: reason, at: now() };
+    pushBounded(cueLog, item);
+    debugLog('cue ' + status, item);
+  }
+  function remember(fid) {
+    cueSeen[fid] = 1;
+    cueSeenOrder.push(fid);
+    if (cueSeenOrder.length > CUE_SEEN_MAX) delete cueSeen[cueSeenOrder.shift()];
+  }
+  /* true = putar cue; false = abaikan (duplikat / dari game sebelumnya). Cue tanpa fid yang valid selalu diterima (kompatibel mundur). Murni visual: tidak menyentuh state gameplay. */
+  function acceptCue(cue) {
+    var f = cue && typeof cue === 'object' ? parseFid(cue.fid) : null;
+    if (!f) { logCue(cue, 'accepted', 'legacy'); return true; }
+    if (cueSeen[cue.fid]) { logCue(cue, 'rejected', 'duplicate'); return false; }
+    var key = f.origin + '|' + f.nonce, last = cueEpoch[key];
+    if (last != null && f.epoch < last) { logCue(cue, 'rejected', 'stale-epoch'); return false; }
+    if (last == null || f.epoch > last) cueEpoch[key] = f.epoch;
+    remember(cue.fid);
+    logCue(cue, 'accepted', 'new');
+    return true;
+  }
+  function getCueLog() { return cueLog.slice(); }
+  function getHistory() { return history.slice(); }
+  function setDebug(on) { debugOn = !!on; return debugOn; }
+
   function setState(entry, state) {
     entry.state = state;
     if (typeof entry.effect.onLifecycle === 'function') {
@@ -112,24 +207,29 @@
   function track(effect, metadata) {
     if (!effect || typeof effect !== 'object' || disposed) return null;
     var id = 'gameplay-fx-' + (++trackSeq);
-    var entry = { id: id, effect: effect, metadata: metadata || {}, state: 'created' };
+    var entry = { id: id, effect: effect, metadata: metadata || {}, state: 'created', createdAt: now(), reason: null };
     tracked[id] = entry;
     setState(entry, 'created');
     if (tracked[id] === entry) setState(entry, 'playing');
     return id;
   }
 
-  function untrack(id) {
+  function untrack(id, reason) {
     var entry = tracked[id];
     if (!entry || entry.state === 'disposed') return false;
+    entry.reason = entry.reason || reason || 'completed';
     setState(entry, 'disposed');
     delete tracked[id];
+    var md = entry.metadata, item = { id: entry.id, type: md.type, category: md.category, scope: md.scope, fid: md.fid == null ? null : md.fid, seed: md.seed == null ? null : md.seed, source: md.source == null ? null : md.source, createdAt: entry.createdAt, endedAt: now(), state: 'disposed', reason: entry.reason };
+    pushBounded(history, item);
+    debugLog('dispose', item);
     return true;
   }
 
-  function stop(id) {
+  function stop(id, reason) {
     var entry = tracked[id];
     if (!entry || entry.state === 'stopping' || entry.state === 'disposed') return false;
+    entry.reason = typeof reason === 'string' && reason ? reason : 'stopped';
     setState(entry, 'stopping');
     try {
       if (typeof entry.effect.stop === 'function') entry.effect.stop();
@@ -153,9 +253,10 @@
 
   function stopAll(options) {
     var scope = options && options.scope, ids = Object.keys(tracked), stopped = 0;
+    var reason = options && typeof options.reason === 'string' && options.reason ? options.reason : 'stopAll';
     for (var i = ids.length - 1; i >= 0; i--) {
       var entry = tracked[ids[i]];
-      if (entry && matchesScope(entry, scope) && stop(entry.id)) stopped++;
+      if (entry && matchesScope(entry, scope) && stop(entry.id, reason)) stopped++;
     }
     if (!scope || matchesScope({ metadata: { scope: 'visual', category: 'particle' } }, scope)) {
       try {
@@ -199,17 +300,17 @@
   function getActive() {
     return Object.keys(tracked).map(function (id) {
       var entry = tracked[id];
-      return { id: entry.id, state: entry.state, metadata: entry.metadata };
+      return { id: entry.id, state: entry.state, metadata: entry.metadata, createdAt: entry.createdAt, reason: entry.reason };
     });
   }
 
   function onVisibilityChange() {
-    if (doc && doc.hidden) stopAll({ scope: 'visual' });
+    if (doc && doc.hidden) stopAll({ scope: 'visual', reason: 'visibility-hidden' });
   }
 
   function onPageHide(event) {
     if (event && event.persisted) {
-      stopAll({ scope: 'visual' });
+      stopAll({ scope: 'visual', reason: 'pagehide-bfcache' });
       return;
     }
     dispose();
@@ -229,14 +330,16 @@
     lifecycleBound = false;
   }
 
-  function makeParticleGroup(type) {
+  function makeParticleGroup(type, opts) {
     var group = { id: null, items: [], stopping: false };
+    var meta = { type: type, scope: 'visual', category: 'particle' };
+    if (opts) ['fid', 'seed', 'source'].forEach(function (key) { if (opts[key] != null) meta[key] = opts[key]; });
     group.id = track({
       stop: function () {
         group.stopping = true;
         group.items.slice().forEach(function (item) { removeParticle(item, !!item.ownedMaterial); });
       }
-    }, { type: type, scope: 'visual', category: 'particle' });
+    }, meta);
     return group;
   }
 
@@ -284,7 +387,7 @@
 
   function dispose() {
     if (disposed) return false;
-    stopAll();
+    stopAll({ reason: 'dispose' });
     clearConfetti();
     try { if (win.UT && win.UT.ParticleFX && typeof win.UT.ParticleFX.dispose === 'function') win.UT.ParticleFX.dispose(); }
     catch (e) { reportCleanupError(e); }
@@ -317,33 +420,35 @@
     return true;
   }
 
-  function spawnConfetti(pos, tier) {
+  function spawnConfetti(pos, tier, opts) {
     if (!scene) return;
     var count = scaledCount(138, tier);
     if (count < 1) return;
-    var group = makeParticleGroup('confetti');
+    var group = makeParticleGroup('confetti', opts);
     for (let i = 0; i < count; i++) {
+      const R = pr(opts, i);
       const m = new THREE.Mesh(CONF_GEO, CONF_MATS[i % CONF_MATS.length]);
       m.position.set(pos.x, pos.y + 0.8, pos.z);
       scene.add(m);
-      addParticle(confetti, { m, v: new THREE.Vector3((Math.random() - 0.5) * 6, 4 + Math.random() * 5, (Math.random() - 0.5) * 6), r: new THREE.Vector3(Math.random() * 6, Math.random() * 6, Math.random() * 6), life: 2.6 + Math.random() * 1.4 }, group);
+      addParticle(confetti, { m, v: new THREE.Vector3((R() - 0.5) * 6, 4 + R() * 5, (R() - 0.5) * 6), r: new THREE.Vector3(R() * 6, R() * 6, R() * 6), life: 2.6 + R() * 1.4 }, group);
     }
   }
   /* Ledakan api (TNT / Creeper / hit): serpihan api oranye-merah menyembur + asap abu naik. Menggantikan konfeti warna-warni untuk semua ledakan. */
-  function spawnExplosion(pos, kind, tier) {
+  function spawnExplosion(pos, kind, tier, opts) {
     if (!scene) return;
     var available = availableCount(), baseFire = 45, baseSmoke = 27.5;
     var en = kind === 'ender', bits = en ? ENDER_MATS : FIRE_MATS, smk = en ? ESMOKE_MATS : SMOKE_MATS;
     var NB = scaledCount(baseFire, tier, available), NS = scaledCount(baseSmoke, tier, available - NB);
     if (!NB && !NS) return;
-    var group = makeParticleGroup('explosion');
+    var group = makeParticleGroup('explosion', opts);
     for (let i = 0; i < NB + NS; i++) {
-      const fire = i < NB, sz = fire ? 0.045 + Math.random() * 0.07 : 0.1 + Math.random() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
-      const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(Math.random() * bits.length)] : smk[Math.floor(Math.random() * smk.length)]);
-      m.position.set(pos.x + (Math.random() - 0.5) * 0.25, pos.y + 0.45, pos.z + (Math.random() - 0.5) * 0.25);
+      const fire = i < NB, R = pr(opts, fire ? i : 1000 + (i - NB)); /* asap punya namespace indeks sendiri: jumlah api berbeda antar perangkat tidak menggeser variasi asap */
+      const sz = fire ? 0.045 + R() * 0.07 : 0.1 + R() * 0.14; /* serpihan kecil; asap sedikit lebih besar */
+      const m = new THREE.Mesh(CONF_GEO, fire ? bits[Math.floor(R() * bits.length)] : smk[Math.floor(R() * smk.length)]);
+      m.position.set(pos.x + (R() - 0.5) * 0.25, pos.y + 0.45, pos.z + (R() - 0.5) * 0.25);
       m.scale.setScalar(sz / 0.14); scene.add(m);
-      const sp = fire ? 1.6 + Math.random() * 2.6 : 0.4 + Math.random() * 0.8, an = Math.random() * Math.PI * 2;
-      var item = { m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.2 + Math.random() * 2.8 : 0.8 + Math.random() * 1.1, Math.sin(an) * sp), r: new THREE.Vector3(Math.random() * 5, Math.random() * 5, Math.random() * 5), life: fire ? 0.5 + Math.random() * 0.4 : 1.0 + Math.random() * 0.7, max: 1 };
+      const sp = fire ? 1.6 + R() * 2.6 : 0.4 + R() * 0.8, an = R() * Math.PI * 2;
+      var item = { m: m, s0: sz / 0.14, fire: fire, v: new THREE.Vector3(Math.cos(an) * sp, fire ? 1.2 + R() * 2.8 : 0.8 + R() * 1.1, Math.sin(an) * sp), r: new THREE.Vector3(R() * 5, R() * 5, R() * 5), life: fire ? 0.5 + R() * 0.4 : 1.0 + R() * 0.7, max: 1 };
       item.max = item.life;
       addParticle(blasts, item, group);
     }
@@ -361,7 +466,7 @@
     }
   }
   function clearConfetti() {
-    stopAll({ scope: 'particle' });
+    stopAll({ scope: 'particle', reason: 'clear' });
     confetti.slice().forEach(function (item) { removeParticle(item, false); });
     blasts.slice().forEach(function (item) { removeParticle(item, false); });
     sparks.slice().forEach(function (item) { removeParticle(item, true); });
@@ -377,16 +482,17 @@
     }
   }
 
-  function sparkle(pos, tier) {
+  function sparkle(pos, tier, opts) {
     if (!scene) return;
     var count = scaledCount(18, tier);
     if (count < 1) return;
-    var group = makeParticleGroup('sparkle');
+    var group = makeParticleGroup('sparkle', opts);
     for(let i=0;i<count;i++){
+      const R=pr(opts,i);
       const m=new THREE.Mesh(SPARK_GEO,new THREE.MeshBasicMaterial({color:i%3?0xFFE58A:0xFFFFFF,transparent:true,fog:false}));
-      m.position.set(pos.x+(Math.random()-0.5)*0.3,pos.y,pos.z+(Math.random()-0.5)*0.3); scene.add(m);
-      var item = {m:m,v:new THREE.Vector3((Math.random()-0.5)*0.9,0.7+Math.random()*0.9,(Math.random()-0.5)*0.9),life:1,max:1,ownedMaterial:true};
-      item.life=item.max=0.8+Math.random()*0.5;
+      m.position.set(pos.x+(R()-0.5)*0.3,pos.y,pos.z+(R()-0.5)*0.3); scene.add(m);
+      var item = {m:m,v:new THREE.Vector3((R()-0.5)*0.9,0.7+R()*0.9,(R()-0.5)*0.9),life:1,max:1,ownedMaterial:true};
+      item.life=item.max=0.8+R()*0.5;
       addParticle(sparks, item, group);
     }
   }
@@ -398,5 +504,5 @@
     }
   }
 
-  UT.GameplayFX = { quality: quality, limit: limit, n: n, reduced: reduced, track: track, untrack: untrack, stop: stop, stopAll: stopAll, timeout: timeout, getActive: getActive, dispose: dispose, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+  UT.GameplayFX = { quality: quality, limit: limit, n: n, reduced: reduced, track: track, untrack: untrack, stop: stop, stopAll: stopAll, timeout: timeout, getActive: getActive, getHistory: getHistory, cueMeta: cueMeta, cueOptions: cueOptions, parseFid: parseFid, acceptCue: acceptCue, getCueLog: getCueLog, setDebug: setDebug, rng: rng, dispose: dispose, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
 })(window);
