@@ -2382,7 +2382,7 @@ function blazeFireStep(m,dt,t,hot){
 function sparkle(pos){ if(FX) FX.sparkle(pos); } /* visual: UT.GameplayFX */
 function mobReact(n){ if(MOBOBJ[n]) MOBOBJ[n].react=1.6; }
 /* Lifecycle Chest: open=1 menahan tutup terbuka sampai closeChest() dipanggil (tidak lagi timer otomatis). */
-function openChest(n){ mpCue({k:'chest',n:n,o:1}); const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); if(!ONLINE_ROOM||ONLINE_HOST||MP_SEQ>0) spFx('reward-burst',{pos:new THREE.Vector3(c.x,c.y+0.35,c.z),style:'chest'}); }
+function openChest(n){ mpCue({k:'chest',n:n,o:1}); const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); if(!ONLINE_ROOM||ONLINE_HOST) spFx('reward-burst',{pos:new THREE.Vector3(c.x,c.y+0.35,c.z),style:'chest'}); }
 function closeChest(n){ mpCue({k:'chest',n:n,o:0}); const c=CHESTOBJ[n]; if(c) c.open=0; }
 function updateMobs(dt,t){
   updateGhasts(dt,t); updateLavafalls(t); updateWither(dt,t); updateFort(dt,t); updateWFX(dt);
@@ -4856,7 +4856,7 @@ async function giveChest(p,tok){
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
      const rw=resolveChestReward(); CHEST_LC.rewards++; /* reward tepat 1x per lifecycle */
      const res=await applyChestReward(p,rw,gid); if(gid!==gameId) return {status:'stale'};
-     if(!ONLINE_ROOM||ONLINE_HOST||MP_SEQ>0){ const c=CHESTOBJ[n]; if(c) spFx('reward-burst',{pos:new THREE.Vector3(c.x,c.y+0.45,c.z),style:'reveal'}); }
+     if(!ONLINE_ROOM||ONLINE_HOST){ const c=CHESTOBJ[n]; if(c) spFx('reward-burst',{pos:new THREE.Vector3(c.x,c.y+0.45,c.z),style:'reveal'}); }
      setMsg(p.name+' membuka peti: '+res.text+'.');
      if(FBK){ mpCue({k:'ccard',w:p.name,t:res.text}); FBK.showChestRewardCard(p.name,res.text); sfx.rewardpower(); } else fb('event','chest','Chest: '+res.text); /* compact reward card + SFX reward 1x per reward */
      await sleep(reduce?600:1200); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama card tampil */

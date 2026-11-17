@@ -20,8 +20,9 @@ function rewardBurst(el,kind,tier){
   item:{count:14,tier:'L3',colors:['#c9a0ff','#ffe5a0','#ffffff'],shape:'bar',distance:60,size:7},
   legendary:{count:18,tier:'L4',colors:['#ffe27a','#ffffff','#b7a2ff','#ffd24a'],shape:'square',distance:68,size:8}
  };
- const s=styles[kind]||styles.mixed,seq=++rewardFxSequence,seed=Math.imul(seq,2654435761)>>>0;
- PF.burstFromElement(el,Object.assign({},s,{count:FX&&typeof FX.n==='function'?FX.n(s.count,tier||s.tier):s.count,duration:620,seed,fid:'reward-claim-'+seq}));
+ const s=styles[kind]||styles.mixed,seq=++rewardFxSequence,seed=Math.imul(seq,2654435761)>>>0,actualTier=tier||s.tier;
+ if(FX&&typeof FX.n==='function'&&typeof FX.limit==='function'&&typeof PF.configure==='function')PF.configure({maxParticles:FX.limit(),maxBurst:FX.n(18,'L4')});
+ PF.burstFromElement(el,Object.assign({},s,{count:FX&&typeof FX.n==='function'?FX.n(s.count,actualTier):s.count,duration:620,seed,fid:'reward-claim-'+seq}));
 }
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};

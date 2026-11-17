@@ -508,6 +508,8 @@ test('reward FX terikat pada klaim sukses dan menggunakan data rarity/reward yan
   assert.ok(/r&&r\.ok\)onOk\(r\)/.test(rewardPage), 'quest FX hanya boleh dipanggil dari callback sukses');
   assert.ok(/applyChestReward\(p,rw,gid\)[\s\S]*?spFx\('reward-burst'/.test(mainSrc), 'chest reveal harus setelah reward yang ada diproses');
   assert.ok(/Math\.imul\(seq,2654435761\)/.test(rewardPage) && /fid:'reward-claim-'\+seq/.test(rewardPage), 'DOM burst punya seed dan fid');
+  assert.ok(/PF\.configure\(\{maxParticles:FX\.limit\(\),maxBurst:FX\.n\(18,'L4'\)\}\)/.test(rewardPage), 'DOM burst mengikuti limit kualitas dan tier');
+  assert.ok(/function openChest\(n\)[\s\S]*?if\(!ONLINE_ROOM\|\|ONLINE_HOST\) spFx\('reward-burst'/.test(mainSrc), 'chest replay di klien tidak memutar cue dua kali');
 });
 
 test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', () => {
