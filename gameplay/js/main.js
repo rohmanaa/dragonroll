@@ -225,7 +225,11 @@ const THEMES=UT.Gameplay.Themes.LIST; /* data tema dari gameplay/js/themes.js (s
 
 /* ---------- Renderer ---------- */
 const coarse=matchMedia('(pointer:coarse)').matches;
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduceMq=matchMedia('(prefers-reduced-motion: reduce)');
+let reduce=reduceMq.matches;
+const onReduceChange=e=>{ reduce=!!e.matches; };
+if(reduceMq.addEventListener) reduceMq.addEventListener('change',onReduceChange);
+else if(reduceMq.addListener) reduceMq.addListener(onReduceChange);
 let renderer;
 try{
   renderer=new THREE.WebGLRenderer({canvas:$('c'),antialias:true,alpha:true});
@@ -5737,6 +5741,10 @@ function holdEnd(select){
     dragonMusicStop(true);
     dragonFireStop(); DFX.clear();
     if(!e.persisted&&PAURA&&PAURA.system&&typeof PAURA.system.dispose==='function'){ PAURA.system.dispose(); PAURA=null; }
+    if(!e.persisted){
+      if(reduceMq.removeEventListener) reduceMq.removeEventListener('change',onReduceChange);
+      else if(reduceMq.removeListener) reduceMq.removeListener(onReduceChange);
+    }
   });
   b.addEventListener('contextmenu',e=>{ if(specialDiceActive(players[cur])) e.preventDefault(); });
   /* keyboard (aksesibilitas): Space/Enter tahan = putar, lepas = pilih */

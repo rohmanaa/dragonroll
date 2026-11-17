@@ -168,4 +168,31 @@ test('feedback reduced-motion statis tidak memakai shake atau flash animasi', ()
   assert.ok(!/\banimation\s*:/.test(rule[1]), 'feedback statis tidak dianimasikan');
 });
 
+test('perubahan Reduce Motion diterapkan live dan listener dilepas saat pagehide', () => {
+  const main = read('gameplay/js/main.js');
+  const setup = main.match(/const reduceMq=matchMedia\('\(prefers-reduced-motion: reduce\)'\);\s*let reduce=reduceMq\.matches;\s*const onReduceChange=e=>\{\s*reduce=!!e\.matches;\s*\};\s*if\(reduceMq\.addEventListener\) reduceMq\.addEventListener\('change',onReduceChange\);\s*else if\(reduceMq\.addListener\) reduceMq\.addListener\(onReduceChange\);/);
+  assert.ok(setup, 'media query harus diperbarui saat preferensi berubah');
+  let listener = null;
+  const state = new Function('matchMedia', setup[0] + ';return { get value(){ return reduce; }, onReduceChange:onReduceChange };')(() => ({
+    matches: false,
+    addEventListener(type, callback) { assert.strictEqual(type, 'change'); listener = callback; }
+  }));
+  assert.strictEqual(state.value, false);
+  listener({ matches: true });
+  assert.strictEqual(state.value, true);
+  listener({ matches: false });
+  assert.strictEqual(state.value, false);
+  const cleanup = main.match(/if\(!e\.persisted\)\{([\s\S]*?)\n    \}/);
+  assert.ok(cleanup, 'listener cleanup harus terpasang pada pagehide');
+  let removed = 0;
+  const media = {
+    removeEventListener(type, callback) { assert.strictEqual(type, 'change'); assert.strictEqual(callback, state.onReduceChange); removed++; }
+  };
+  const removeOnPagehide = new Function('e', 'reduceMq', 'onReduceChange', cleanup[0]);
+  removeOnPagehide({ persisted: true }, media, state.onReduceChange);
+  assert.strictEqual(removed, 0, 'listener dipertahankan untuk BFCache');
+  removeOnPagehide({ persisted: false }, media, state.onReduceChange);
+  assert.strictEqual(removed, 1, 'listener dilepas saat halaman ditutup');
+});
+
 console.log('\n' + count + ' tes lulus');
