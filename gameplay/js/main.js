@@ -4285,7 +4285,7 @@ function swordAttackFx(attacker,target,key){
   const from=attacker.pawn.position.clone(),to=target.pawn.position.clone();
   from.y+=0.65; to.y+=0.65;
   const dir=Math.atan2(to.x-from.x,to.z-from.z);
-  const style=key==='netherite_sword'?'heavy':key==='diamond_sword'?'diagonal':'horizontal';
+  const style=key==='netherite_sword'?'heavy':key==='diamond_sword'?'heavy-diagonal':'horizontal';
   spFx('sword-slash',{pos:from,dir,style});
   spFx('weapon-release',{pos:from,dir,style});
   const trail=weaponBoneTrail(attacker,'hand',0.25);

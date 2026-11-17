@@ -287,7 +287,9 @@ test('Combat slash: arah yaw mengubah siluet; heavy/double/vertical memiliki ben
   const horizontal = snapshot('horizontal', 0), turned = snapshot('horizontal', Math.PI / 2);
   assert.notDeepStrictEqual(horizontal, turned, 'yaw harus memutar arah slash');
   assert.notDeepStrictEqual(horizontal, snapshot('vertical', 0), 'slash vertikal memiliki siluet berbeda');
+  assert.notDeepStrictEqual(horizontal, snapshot('diagonal', 0), 'slash diagonal memiliki siluet berbeda');
   assert.notDeepStrictEqual(horizontal, snapshot('heavy', 0), 'slash berat memiliki siluet berbeda');
+  assert.notDeepStrictEqual(horizontal, snapshot('heavy-diagonal', 0), 'slash berat diagonal memiliki siluet berbeda');
   assert.notDeepStrictEqual(horizontal, snapshot('double', 0), 'double slash memiliki dua lintasan');
 });
 
@@ -372,7 +374,7 @@ test('cue spfx: ringan, bawa fid, whitelist kind, tamu menolak duplikat lewat ac
 test('serangan Power pedang memicu slash sesuai posisi dan tipe senjata, tanpa mengubah resolusi Power', () => {
   const attack = fnBody(mainSrc, 'function swordAttackFx(attacker,target,key){');
   assert.ok(attack.includes('Math.atan2(to.x-from.x,to.z-from.z)'));
-  assert.ok(attack.includes("key==='netherite_sword'?'heavy':key==='diamond_sword'?'diagonal':'horizontal'"));
+  assert.ok(attack.includes("key==='netherite_sword'?'heavy':key==='diamond_sword'?'heavy-diagonal':'horizontal'"));
   assert.ok(attack.includes("spFx('sword-slash'") && attack.includes("spFx('weapon-release'") && attack.includes("spFx('weapon-trail'"));
   const use = fnBody(mainSrc, 'async function usePU(k,cpu,tileArg){');
   assert.ok(use.includes("if(melee&&T.length&&(R.kind==='strike'||R.kind==='area')) swordAttackFx(p,T[0],k);"));

@@ -917,7 +917,7 @@
   };
 
   SP_KINDS['sword-slash'] = function (o) {
-    var style = o.style || 'horizontal', heavy = style === 'heavy', double = style === 'double', critical = style === 'critical';
+    var style = o.style || 'horizontal', heavy = style === 'heavy' || style === 'heavy-diagonal', diagonal = style === 'diagonal' || style === 'heavy-diagonal', double = style === 'double', critical = style === 'critical';
     var dur = clamp(num(o.dur, heavy || double || critical ? 0.62 : 0.42), 0.2, 1.2);
     return spRun('sword-slash', dur, o, function (ctl) {
       var yaw = num(o.dir, 0), s = ctl.scale, layers = double ? 2 : 1, n = spCount(heavy ? 10 : 8, o), ci = critical || heavy ? 6 : 2;
@@ -926,11 +926,11 @@
       for (j = 0; j < layers; j++) for (i = 0; i < n; i++) {
         var u = n === 1 ? 0.5 : i / (n - 1), a = (u - 0.5) * Math.PI * 0.82;
         var lateral = style === 'vertical' ? 0.12 + Math.cos(a) * 0.28 : Math.sin(a) * (heavy ? 0.88 : 0.72);
-        var height = style === 'vertical' ? 0.65 + Math.sin(a) * 0.62 : 0.62 + (style === 'diagonal' || critical ? (u - 0.5) * -0.55 : Math.sin(a) * 0.08);
+        var height = style === 'vertical' ? 0.65 + Math.sin(a) * 0.62 : 0.62 + (diagonal || critical ? (u - 0.5) * -0.55 : Math.sin(a) * 0.08);
         var m = spMesh(ctl, CONF_GEO, ci, heavy ? 0.78 : 0.68, false);
         m.scale.set(0.22 * s * (heavy ? 1.2 : 1), 0.07 * s, 0.045 * s);
         m.rotation.y = yaw;
-        slashes.push({ mesh: m, lateral: lateral, height: height, depth: 0.2 + Math.cos(a) * 0.16, progress: u, pass: j, angle: style === 'vertical' ? 0 : (style === 'diagonal' || critical ? -0.45 : 0) });
+        slashes.push({ mesh: m, lateral: lateral, height: height, depth: 0.2 + Math.cos(a) * 0.16, progress: u, pass: j, angle: style === 'vertical' ? 0 : (diagonal || critical ? -0.45 : 0) });
       }
       var ring = null;
       if (heavy) { ring = spFlat(spMesh(ctl, SP_RING, 6, 0.58)); }
