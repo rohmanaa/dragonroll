@@ -80,7 +80,7 @@ async function run() {
   const UI = window.UT.GameplayDuelUI;
   UI.open({
     names: ['Rohman', 'CPU'], css: ['#ff4a54', '#55aaff'],
-    faces: ['face-one.webp', 'face-two.webp'], reducedMotion: true,
+    faces: ['face-one.webp', 'face-two.webp'], reducedMotion: false,
     fighters: [{ config: { outfit: 'equipped' } }, { preset: 5 }]
   });
   assert.ok(body.className.includes('duel-active'), 'duel mode hides the board HUD');
@@ -91,6 +91,20 @@ async function run() {
   assert.strictEqual(findAll(body, 'du-die-stage').length, 0, 'combat dice are not displayed in the arena');
   assert.strictEqual(findAll(body, 'du-fighter').length, 2, 'both arena fighters have action HUDs');
   assert.strictEqual(find(body, 'du-scene').children[0].tagName, 'canvas');
+  const rollButton = find(body, 'du-roll-button');
+  assert.ok(rollButton && rollButton.disabled, 'the duel waits for an explicit roll before a round begins');
+  const rollWait = UI.waitForRoll(1);
+  assert.strictEqual(rollButton.disabled, false);
+  rollButton.click();
+  assert.strictEqual(await rollWait, true, 'the roll button starts the duel round');
+  await UI.revealRolls([2, 5]);
+  assert.deepStrictEqual(findAll(body, 'du-die').map(die => die.textContent), ['2', '5'], 'both dice results are shown before combat resolves');
+  const intro = UI.intro();
+  const skipButton = find(body, 'du-skip');
+  assert.strictEqual(skipButton.hidden, false, 'skip animation is available during the duel intro');
+  skipButton.click();
+  await intro;
+  assert.strictEqual(skipButton.hidden, true, 'skip animation closes the intro promptly');
 
   UI.state([2, 3], [3, 1]);
   assert.ok(find(body, 'du-hp').innerHTML.includes('du-heart on'));
@@ -111,7 +125,9 @@ async function run() {
   chooserNode.children[2].click();
   assert.strictEqual(await chooser, 1, 'target selection resolves the chosen opponent');
 
+  const cancelledRoll = UI.waitForRoll(2);
   UI.close();
+  assert.strictEqual(await cancelledRoll, false, 'closing the duel cancels a pending roll prompt');
   await new Promise(resolve => setTimeout(resolve, 280));
   assert.ok(!body.className.includes('duel-active'), 'closing the duel restores the board HUD');
   assert.strictEqual(window.THREE.WebGLRenderer, Renderer);

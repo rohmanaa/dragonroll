@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
-  var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null;
+  var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null, rollResolver = null, introResolver = null, introTimer = 0;
   var options = { reducedMotion: false };
   var ACTIONS = {
     1: ['DEFENSE', 'BLOCK 1 DAMAGE'],
@@ -26,8 +26,20 @@
   }
   function moms(n, max) {
     var s = '';
-    for (var i = 0; i < max; i++) s += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+    var filled = Math.round(n / max * 5);
+    for (var i = 0; i < 5; i++) s += '<i class="' + (i < filled ? 'on' : '') + '"></i>';
     return s;
+  }
+  function finishIntro() {
+    if (introTimer) clearTimeout(introTimer);
+    introTimer = 0;
+    if (el.skipButton) el.skipButton.hidden = true;
+    if (root) root.classList.remove('intro');
+    if (introResolver) {
+      var resolve = introResolver;
+      introResolver = null;
+      resolve();
+    }
   }
 
   function build() {
@@ -71,6 +83,37 @@
 
     el.log = mk('div', 'du-log', 'THE CLASH BEGINS');
     root.appendChild(el.log);
+    el.rollStage = mk('div', 'du-roll-stage');
+    el.dice = [mk('div', 'du-die', '—'), mk('div', 'du-die', '—')];
+    el.dice.forEach(function (die) { el.rollStage.appendChild(die); });
+    root.appendChild(el.rollStage);
+    el.rollButton = mk('button', 'du-roll-button');
+    el.rollButton.type = 'button';
+    el.rollIcon = mk('img');
+    el.rollIcon.src = 'assets/images/ui/gameplay-actions/roll.webp';
+    el.rollIcon.alt = '';
+    el.rollButton.appendChild(el.rollIcon);
+    el.rollLabel = mk('span', null, 'ROLL DICE');
+    el.rollButton.appendChild(el.rollLabel);
+    el.rollButton.addEventListener('click', function () {
+      if (!rollResolver || el.rollButton.disabled) return;
+      el.rollButton.disabled = true;
+      el.rollLabel.textContent = 'ROLLING...';
+      var resolve = rollResolver;
+      rollResolver = null;
+      resolve(true);
+    });
+    root.appendChild(el.rollButton);
+    el.skipButton = mk('button', 'du-skip');
+    el.skipButton.type = 'button';
+    el.skipButton.setAttribute('aria-label', 'Lewati animasi duel');
+    el.skipImage = mk('img');
+    el.skipImage.src = 'gameplay/assets/duel/hud-skip.webp';
+    el.skipImage.alt = '';
+    el.skipButton.appendChild(el.skipImage);
+    el.skipButton.hidden = true;
+    el.skipButton.addEventListener('click', finishIntro);
+    root.appendChild(el.skipButton);
     el.pops = mk('div', 'du-pops'); root.appendChild(el.pops);
     el.flash = mk('div', 'du-flash'); root.appendChild(el.flash);
     el.choose = mk('div', 'du-choose'); el.choose.hidden = true; root.appendChild(el.choose);
@@ -96,17 +139,17 @@
     }
     try {
       var scene = new T.Scene();
-      var camera = new T.PerspectiveCamera(34, 1, 0.1, 40);
-      camera.position.set(0, 1.65, 5.5); camera.lookAt(0, 1, 0);
+      var camera = new T.PerspectiveCamera(36, 1, 0.1, 40);
+      camera.position.set(0, 1.75, 6.4); camera.lookAt(0, 1.05, 0);
       scene.add(new T.HemisphereLight(0xe9dcff, 0x22132c, 1.7));
       var key = new T.DirectionalLight(0xffe6c6, 2.1); key.position.set(-2.8, 5, 4); scene.add(key);
-      var rim = new T.PointLight(0x9a48ff, 2.3, 10); rim.position.set(0, 2.8, -1.5); scene.add(rim);
-      var floor = new T.Mesh(new T.CircleGeometry(2.4, 48), new T.MeshBasicMaterial({
-        color: 0x110b20, transparent: true, opacity: 0.76, depthWrite: false
+      var rim = new T.PointLight(0xffb64e, 2.3, 10); rim.position.set(0, 2.8, -1.5); scene.add(rim);
+      var floor = new T.Mesh(new T.CircleGeometry(2.7, 48), new T.MeshBasicMaterial({
+        color: 0x5d321a, transparent: true, opacity: 0.32, depthWrite: false
       }));
       floor.rotation.x = -Math.PI / 2; floor.position.y = -0.035; scene.add(floor);
-      var ring = new T.Mesh(new T.RingGeometry(1.7, 1.76, 48), new T.MeshBasicMaterial({
-        color: 0xc27aff, transparent: true, opacity: 0.78, side: T.DoubleSide, depthWrite: false
+      var ring = new T.Mesh(new T.RingGeometry(2.1, 2.16, 48), new T.MeshBasicMaterial({
+        color: 0xffc35b, transparent: true, opacity: 0.78, side: T.DoubleSide, depthWrite: false
       }));
       ring.rotation.x = -Math.PI / 2; ring.position.y = -0.02; scene.add(ring);
       var renderer = new T.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
@@ -159,9 +202,9 @@
         model.scale.multiplyScalar(0.86);
         var baseScale = model.scale.clone();
         var direction = i === 0 ? 1 : -1;
-        var x = i === 0 ? -1.05 : 1.05;
-        model.rotation.y = i === 0 ? 0.68 : -0.68;
-        model.position.set(x + direction * 0.95, 0, 0);
+        var x = i === 0 ? -1.38 : 1.38;
+        model.rotation.y = i === 0 ? Math.PI / 2 : -Math.PI / 2;
+        model.position.set(x - direction * 1.05, 0, 0);
         model.scale.set(baseScale.x * 0.18, baseScale.y * 0.18, baseScale.z * 0.18);
         currentArena.scene.add(model);
         fighters[i] = {
@@ -189,12 +232,13 @@
         var phase = fighter.actionTime / fighter.actionDuration;
         if (phase > 0.34 && phase < 0.72) lunge = Math.sin((phase - 0.34) / 0.38 * Math.PI) * 0.26;
       }
-      var hit = fighter.hitTime ? Math.sin((1 - fighter.hitTime / 0.38) * Math.PI) * (fighter.heavyHit ? 0.28 : 0.15) : 0;
-      fighter.root.position.x = fighter.x + fighter.direction * (0.95 * (1 - ease) + lunge - hit);
+      var hitProgress = fighter.heavyHit ? 0.68 : 0.38;
+      var hit = fighter.hitTime ? Math.sin((1 - fighter.hitTime / hitProgress) * Math.PI) * (fighter.heavyHit ? 0.72 : 0.24) : 0;
+      fighter.root.position.x = fighter.x - fighter.direction * (1.05 * (1 - ease)) + fighter.direction * lunge - fighter.direction * hit;
       fighter.root.position.y = Math.sin(introProgress * Math.PI) * 0.07;
       var scale = 0.18 + ease * 0.82;
       fighter.root.scale.set(fighter.baseScale.x * scale, fighter.baseScale.y * scale, fighter.baseScale.z * scale);
-      fighter.root.rotation.z = hit * (fighter.direction > 0 ? -0.45 : 0.45);
+      fighter.root.rotation.z = hit * (fighter.direction > 0 ? -0.55 : 0.55);
     });
     arena.renderer.render(arena.scene, arena.camera);
   }
@@ -215,7 +259,7 @@
 
   var UI = {
     open: function (o) {
-      build(); o = o || {}; closeToken++;
+      build(); finishIntro(); o = o || {}; closeToken++;
       var names = o.names || ['P1', 'P2'], css = o.css || [], faces = o.faces || [];
       options.reducedMotion = !!o.reducedMotion;
       [0, 1].forEach(function (i) {
@@ -225,6 +269,9 @@
         else el['face' + i].removeAttribute('src');
       });
       el.card.hidden = true; el.card.innerHTML = ''; el.choose.hidden = true; el.choose.innerHTML = '';
+      el.rollStage.hidden = true; el.rollButton.hidden = false;
+      el.dice.forEach(function (die) { die.textContent = '—'; });
+      el.rollButton.disabled = true; el.rollLabel.textContent = 'ROLL DICE';
       el.log.textContent = 'THE CLASH BEGINS'; el.versus.textContent = 'VS';
       UI.state([3, 3], [0, 0]); UI.actions([0, 0]);
       document.body.classList.add('duel-active');
@@ -245,7 +292,38 @@
         });
       });
     },
-    intro: function () { build(); el.log.textContent = 'WEAPONS DRAWN · GET READY'; root.classList.add('intro'); },
+    intro: function () {
+      build(); finishIntro();
+      el.log.textContent = 'WEAPONS DRAWN · GET READY';
+      root.classList.add('intro');
+      if (options.reducedMotion) return Promise.resolve();
+      el.skipButton.hidden = false;
+      return new Promise(function (resolve) {
+        introResolver = resolve;
+        introTimer = setTimeout(finishIntro, 900);
+      });
+    },
+    waitForRoll: function (round) {
+      build();
+      el.rollLabel.textContent = 'ROLL DICE · ROUND ' + round;
+      el.rollButton.disabled = false;
+      el.rollStage.hidden = true;
+      return new Promise(function (resolve) {
+        if (rollResolver) rollResolver(false);
+        rollResolver = resolve;
+      });
+    },
+    revealRolls: function (values) {
+      build();
+      el.rollStage.hidden = false;
+      el.dice.forEach(function (die, i) { die.textContent = String(values[i]); });
+      el.rollStage.classList.remove('rolling');
+      void el.rollStage.offsetWidth;
+      el.rollStage.classList.add('rolling');
+      return new Promise(function (resolve) {
+        setTimeout(function () { el.rollStage.classList.remove('rolling'); resolve(); }, options.reducedMotion ? 0 : 620);
+      });
+    },
     state: function (hp, mom, max) {
       build(); max = max || 3;
       [0, 1].forEach(function (i) {
@@ -291,7 +369,7 @@
       target.classList.add('hit');
       if (cls) target.classList.add(cls);
       if (fighters[side]) {
-        fighters[side].hitTime = 0.38;
+        fighters[side].hitTime = cls === 'heavy' ? 0.68 : 0.38;
         fighters[side].heavyHit = cls === 'heavy';
       }
       root.classList.add('impact');
@@ -308,12 +386,15 @@
     },
     result: function (title, lines) {
       build(); root.classList.add('result'); el.card.innerHTML = '';
+      el.rollStage.hidden = true; el.rollButton.hidden = true;
       el.card.appendChild(mk('b', null, title));
       (lines || []).forEach(function (line) { el.card.appendChild(mk('div', null, line)); });
       el.card.hidden = false;
     },
     close: function () {
       if (!root) return;
+      finishIntro();
+      if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
       el.choose.hidden = true; root.classList.remove('selecting'); root.classList.add('out');
       var token = ++closeToken;
       setTimeout(function () {

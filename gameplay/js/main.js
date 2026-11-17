@@ -5426,6 +5426,24 @@ async function walk(p,from,to){
   }
   } finally { p.pawn.userData.bcStyle='walk'; }
 }
+async function duelKnockback(p,to,heavy){
+  const pawn=p.pawn,start=pawn.position.clone(),dest=slotPos(p.idx,to),rotation=pawn.rotation.y;
+  const duration=heavy?1.05:0.78;
+  p.pawn.userData.bcStyle='walk';
+  try{
+    await tween(duration,k=>{
+      const progress=1-Math.pow(1-k,3);
+      pawn.position.lerpVectors(start,dest,progress);
+      pawn.position.y+=Math.sin(Math.PI*k)*(heavy?0.42:0.12);
+      pawn.rotation.z=Math.sin(Math.PI*k)*(heavy?0.52:0.24);
+      pawn.rotation.y=rotation+Math.sin(Math.PI*k)*(heavy?0.62:0.3);
+    });
+  }finally{
+    pawn.position.copy(dest);
+    pawn.rotation.set(0,rotation,0);
+    p.pawn.userData.bcStyle='walk';
+  }
+}
 async function climb(p,from,to){
   if(ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'climb',pid:p.networkId,from:from,to:to});
   const L=LADINFO[from];
@@ -5654,13 +5672,16 @@ async function duelCheck(p,gid){
         return f.cpu?{preset:2+f.idx*3}:{local:true};
       })
     });
-    UI.state(s.hp,s.mom); UI.intro(); sfx.crystalAppear();
-    await sleep(900); st();
+    UI.state(s.hp,s.mom); const intro=UI.intro(); sfx.crystalAppear();
+    await intro; st();
     while(!s.over&&guard++<60){
       UI.banner(s.sudden?'Sudden Death':'ROUND '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
-      UI.log('Kedua petarung mengangkat senjata...');
-      await sleep(300); st();
-      const rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],r=D.round(s,rolls); s=r.state;
+      UI.log('Tekan tombol ROLL untuk memulai ronde.');
+      const ready=await UI.waitForRoll(s.round+1); st();
+      if(!ready) return null;
+      const rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];
+      await UI.revealRolls(rolls); st();
+      const r=D.round(s,rolls); s=r.state;
       UI.actions(rolls);
       UI.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
       pair.forEach((m,i)=>{
@@ -5673,7 +5694,7 @@ async function duelCheck(p,gid){
         else if(e.type==='hit'){ UI.impact(e.target,e.finisher?'heavy':'hit'); UI.pop(e.target,'-'+e.dmg,'hit'); sfx.hit(); sfx.playerHurt(); }
         else if(e.type==='block'){ UI.impact(e.who,'block'); UI.pop(e.who,'BLOCK','blk'); }
         else if(e.type==='heal') UI.pop(e.who,'+1','heal');
-        else if(e.type==='finisher'){ UI.impact(e.who,'heavy'); UI.pop(e.who,'FINISHER!','fin'); UI.shake(); sfx.crystalBreak(); }
+        else if(e.type==='finisher'){ UI.pop(e.who,'FINISHER!','fin'); UI.shake(); sfx.crystalBreak(); }
         else if(e.type==='revenge') UI.pop(e.who,'REVENGE','rev');
         else if(e.type==='double_ko'){ UI.banner('Seri! Sudden Death','sd'); UI.log('KEDUANYA JATUH · SUDDEN DEATH'); }
       });
@@ -5694,7 +5715,8 @@ async function duelCheck(p,gid){
       l.name+' mendapat Revenge buff (+1 damage serangan pertama vs '+w.name+')']);
     await sleep(1600); st();
     UI.close();
-    if(out.back>0){ const from=l.pos; await walk(l,from,out.to); l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
+    await sleep(280); st();
+    if(out.back>0){ await duelKnockback(l,out.to,out.kind==='heavy'); l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
     st(); if(out.skipTurn) l.frozen=true;
     renderChips(); if(!w.cpu&&!isPlayerDefeat(w)) pawnCheer(w.pawn,1.4);
     return {winner:w,loser:l};
