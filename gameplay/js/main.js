@@ -14,7 +14,7 @@ if(!(window.UT&&UT.GameplayVoxelGeom)){ showBootErr(); return; }
 
 /* ---------- Musik latar ---------- */
 let bgMusic=null,musicOn=true,musicVol=30; /* volume musik bawaan 30% (bisa diubah di Pengaturan / menu jeda) */
-try{ const mv=parseInt(UT.Prefs.get('musicVol',30),10); musicVol=isNaN(mv)?30:Math.max(0,Math.min(100,mv)); musicOn=UT.Prefs.get('musicOn',true)!==false; }catch(e){}
+try{ const mv=parseInt(UT.Prefs.get('musicVol',30),10); musicVol=isNaN(mv)?30:Math.max(0,Math.min(100,mv)); }catch(e){} /* musicOn = status mute SESI (tombol Suara di HUD), tidak disimpan: dulu mute tersimpan permanen sehingga game berikutnya tanpa musik padahal tombol bertuliskan "Suara: nyala" */
 const MUSIC=['assets/audio/music/first-light-particles.mp3','assets/audio/music/community.mp3','assets/audio/music/sunset-plains.mp3','assets/audio/music/rainy.mp3']; /* playlist BGM gameplay: diputar berurutan, lalu ulang dari awal */
 let musicIdx=0;
 function ensureMusic(){
@@ -33,7 +33,7 @@ function stopMusic(){
   if(!bgMusic) return; try{ bgMusic.pause(); }catch(e){}
 }
 function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('musicVol',musicVol); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; }
-function setMusicOn(v){ musicOn=!!v; try{ UT.Prefs.set('musicOn',musicOn); }catch(e){} if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
+function setMusicOn(v){ musicOn=!!v; if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
 /* ---------- Musik Naga (muncul-naga.mp3): mulai saat pemain pertama masuk Block 100, loop + fade in/out, berhenti saat naga kalah / game selesai / game baru ---------- */
 const DM={a:null,active:false,raf:0,fadeIn:2000,fadeOut:2500};
 function dmTarget(){ return Math.max(0,Math.min(1,musicVol/100)); }
