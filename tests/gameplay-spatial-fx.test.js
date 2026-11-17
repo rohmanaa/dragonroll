@@ -45,7 +45,8 @@ const SAMPLE = {
   'combat-projectile': { from: { x: 0, y: 1, z: 0 }, to: { x: 2, y: 2, z: -1 }, dur: 0.4, style: 'charged' },
   'combat-impact': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
   'combat-defense': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'shield' },
-  'buff-feedback': { pos: { x: 1, y: 0.2, z: 2 }, hy: 0.65, style: 'activate' }
+  'buff-feedback': { pos: { x: 1, y: 0.2, z: 2 }, hy: 0.65, style: 'activate' },
+  'reward-burst': { pos: { x: 1, y: 0.2, z: 2 }, style: 'reveal', fid: 'test-reward', seed: 7 }
 };
 
 test('semua kind Spatial FX terdaftar dan dapat dibuat', () => {
@@ -328,6 +329,20 @@ test('buff shield punya feedback aktivasi dan akhir dengan siluet berbeda', () =
   assert.ok(src.includes('defense||guardFeedback?mpFxMeta()'), 'cue buff tetap membawa identity/seed');
 });
 
+test('reward chest, coin, gem, XP, item, rare, dan legendary memiliki FX terlacak serta cleanup', () => {
+  ['chest', 'coin', 'gem', 'xp', 'item', 'rare', 'legendary'].forEach(style => {
+    const h = ready();
+    const effect = h.FX.spatial('reward-burst', { pos: { x: 1, y: 0.2, z: 2 }, style, tier: 'L4', fid: 'reward-' + style, seed: 41 });
+    assert.ok(effect, style + ': FX tidak dibuat');
+    const active = h.FX.getActive().find(e => e.metadata.fid === 'reward-' + style);
+    assert.strictEqual(active.metadata.category, 'spatial');
+    assert.strictEqual(active.metadata.fid, 'reward-' + style);
+    step(h, 2);
+    assert.strictEqual(h.FX.getActive().length, 0, style + ': lifecycle tidak selesai');
+    assert.strictEqual(h.scene.children.length, 0, style + ': mesh tertinggal');
+  });
+});
+
 test('efek spasial dilacak menurut fid/seed/source untuk cue multiplayer', () => {
   const h = ready();
   h.FX.spatial('tp-arrive', Object.assign({ fid: 'host:1:abcd.7', seed: 42, source: 'host' }, SAMPLE['tp-arrive']));
@@ -480,6 +495,19 @@ test('audio: memakai UT.GameplayAudio (sfx) yang ada, satu suara spasial per 250
   const body = fnBody(mainSrc, 'function spSound(name){');
   assert.ok(body.includes('250') && body.includes('sfx[name]()'));
   assert.ok(!/new Audio|AudioContext/.test(fxSrc) && !/new Audio|AudioContext/.test(body));
+});
+
+test('reward FX terikat pada klaim sukses dan menggunakan data rarity/reward yang tersedia', () => {
+  const rewardPage = fs.readFileSync(path.join(root, 'assets/js/pages/hadiah-misi.js'), 'utf8');
+  const claimDay = rewardPage.slice(rewardPage.indexOf('async function claimDay('), rewardPage.indexOf('function vHadiah('));
+  const claimAch = rewardPage.slice(rewardPage.indexOf('async function claimAch('), rewardPage.indexOf('function vAch('));
+  assert.ok(claimDay.indexOf('if(!r.ok)') < claimDay.indexOf('rewardBurst('), 'daily feedback harus setelah server menyetujui klaim');
+  assert.ok(/r\.type==='box'/.test(claimDay) && /r\.gems>0/.test(claimDay), 'daily FX menggunakan tipe reward server');
+  assert.ok(claimAch.indexOf('if(!r||!r.ok)') < claimAch.indexOf('rewardBurst('), 'achievement feedback harus setelah klaim sukses');
+  assert.ok(/def&&def\[5\]==='legendaris'/.test(claimAch), 'rarity achievement mengikuti definisi yang ada');
+  assert.ok(/r&&r\.ok\)onOk\(r\)/.test(rewardPage), 'quest FX hanya boleh dipanggil dari callback sukses');
+  assert.ok(/applyChestReward\(p,rw,gid\)[\s\S]*?spFx\('reward-burst'/.test(mainSrc), 'chest reveal harus setelah reward yang ada diproses');
+  assert.ok(/Math\.imul\(seq,2654435761\)/.test(rewardPage) && /fid:'reward-claim-'\+seq/.test(rewardPage), 'DOM burst punya seed dan fid');
 });
 
 test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', () => {

@@ -517,8 +517,8 @@
      tiap efek dilacak lewat track() (kategori 'spatial', scope 'visual') sehingga stop/stopAll/dispose/visibility ikut bekerja.
      Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
   var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
-  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62]; /* violet, magenta, pale, teal, gold, red */
-  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21 };
+  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62, 0x58DFFF, 0x75E28C, 0xB7A2FF]; /* violet, magenta, pale, teal, gold, red, cyan, green, lavender */
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21, reward: 22 };
   var SP_KINDS = Object.create(null);
   var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
 
@@ -1095,6 +1095,59 @@
         shield.forEach(function (item) {
           item.mesh.position.set(c.cx + c.U[0] * item.x, c.cy + item.y * s, c.cz + c.U[2] * item.x);
           item.mesh.rotation.y = num(o.dir, 0); item.mesh.material.opacity = 0.64 * (1 - k);
+        });
+      };
+    });
+  };
+
+  SP_KINDS['reward-burst'] = function (o) {
+    var style = o.style || 'reveal', coin = style === 'coin', gem = style === 'gem', xp = style === 'xp';
+    var chest = style === 'chest', rare = style === 'rare', legendary = style === 'legendary';
+    var primary = coin ? 6 : gem ? 8 : xp ? 9 : chest ? 4 : rare ? 1 : legendary ? 6 : 2;
+    var secondary = coin || chest || legendary ? 4 : gem || xp ? 10 : rare ? 0 : 8;
+    var dur = chest ? 0.82 : legendary ? 0.9 : 0.68;
+    return spRun('reward-burst', dur, o, function (ctl) {
+      var s = ctl.scale, base = coin ? 10 : gem || xp ? 12 : rare ? 15 : legendary ? 18 : chest ? 12 : 10;
+      var n = spCount(base, o), ringCount = rare || legendary ? 2 : 1, rings = [], tokens = [];
+      for (var j = 0; j < ringCount; j++) {
+        var r = spMesh(ctl, SP_RING, j ? secondary : primary, j ? 0.42 : 0.62, false);
+        r.rotation.x = j && legendary ? 0 : -HALF_PI;
+        rings.push(r);
+      }
+      var tokenCount = coin ? 4 : gem ? 5 : legendary ? 5 : 3;
+      for (var k = 0; k < tokenCount; k++) {
+        var m = spMesh(ctl, CONF_GEO, k % 2 ? secondary : primary, 0.82, false);
+        if (coin) m.scale.set(0.11 * s, 0.035 * s, 0.11 * s);
+        else if (gem || legendary || rare) m.scale.set(0.06 * s, 0.15 * s, 0.06 * s);
+        else m.scale.set(0.075 * s, 0.075 * s, 0.075 * s);
+        tokens.push(m);
+      }
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.reward * 1000 + i), a = R() * 6.2832;
+        var speed = (coin ? 0.85 : gem || legendary ? 1.05 : 0.75) * (0.65 + R() * 0.6) * mo();
+        spPart(ctl, {
+          mode: 'burst', x: ctl.cx, y: ctl.cy, z: ctl.cz,
+          vx: Math.cos(a) * speed, vy: (xp ? 1.25 : gem || legendary ? 0.9 : 0.55) * mo(),
+          vz: Math.sin(a) * speed, g: xp ? 0.1 : 0.75,
+          life: 0.36 + R() * 0.35, size: coin ? 0.045 : 0.04 + R() * 0.035,
+          mat: i % 3 === 0 ? secondary : primary, spin: (R() - 0.5) * 8 * mo()
+        });
+      }
+      ctl.tick = function (c, t, p) {
+        var out = easeOut(p);
+        rings.forEach(function (r, i) {
+          r.position.set(c.cx, c.cy - (coin ? 0.12 : 0), c.cz);
+          r.scale.setScalar((0.26 + out * (i ? 0.78 : 1.04)) * s);
+          r.material.opacity = (i ? 0.38 : 0.62) * (1 - p);
+          if (i && !legendary) r.rotation.z = out * 0.35;
+        });
+        tokens.forEach(function (m, i) {
+          var a = i * 6.2832 / tokens.length + (coin ? p * 1.2 : p * 0.45);
+          var radius = (coin ? 0.2 : 0.16) + out * (coin ? 0.34 : 0.24);
+          m.position.set(c.cx + Math.cos(a) * radius * s, c.cy + (xp ? out * 0.56 : Math.sin(out * Math.PI) * 0.18) * s, c.cz + Math.sin(a) * radius * s);
+          m.rotation.x += (coin ? 3.2 : 1.7) * 0.016 * mo();
+          m.rotation.y += (coin ? 4.4 : 2.6) * 0.016 * mo();
+          m.material.opacity = 0.82 * (1 - p);
         });
       };
     });
