@@ -5617,11 +5617,13 @@ async function askTotem(p,gid,what){
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
 async function resolveTileAt(p,gid,depth){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
+  const duel=await A(duelCheck(p,gid));
+  if(duel&&duel.winner!==p) return duel;
   const posBefore=p.pos;
   if(await trapCheck(p,gid)){ /* jebakan di petak ini: bila p terpental mundur, efek petak lama (tangga/ular/mob) dilewati, TAPI petak tempat ia mendarat (mis. ada mob) tetap diproses */
     if(gid!==gameId) throw STALE;
-    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL){ renderChips(); await resolveTileAt(p,gid); }
-    return;
+    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL){ renderChips(); const landing=await A(resolveTileAt(p,gid,(depth||0)+1)); if(landing) return landing; }
+    return duel;
   }
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
@@ -5639,10 +5641,11 @@ async function resolveTileAt(p,gid,depth){
     /* Mob memindahkan pion (Enderman teleport, Creeper/Skeleton mundur, Villager/Strider maju): petak tempat ia MENDARAT tetap diproses
        (kepala ular, dasar tangga, atau mob lain). Tanpa ini pion diam di kepala ular setelah teleport. depth membatasi rantai mob. */
     const d=depth||0;
-    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL&&d<6){ renderChips(); await A(resolveTileAt(p,gid,d+1)); }
+    if(p.pos!==posBefore&&p.pos>0&&p.pos<GOAL&&d<6){ renderChips(); const landing=await A(resolveTileAt(p,gid,d+1)); if(landing) return landing; }
   }
+  return duel;
 }
-async function resolveAfterChestMove(p,gid){ await resolveTileAt(p,gid); renderChips(); }
+async function resolveAfterChestMove(p,gid){ const duel=await resolveTileAt(p,gid); renderChips(); return duel; }
 /* ---------- PVP Clash (duel) ----------
    Dua pemain bertemu (mendarat) di petak yang sama -> duel singkat (aturan murni = duel-core.js, tampilan = duel-ui.js).
    Tahap 1: hanya offline (solo/vs CPU/lokal). Online (ONLINE_ROOM) dilewati sampai dadu duel diundi di server (RPC Supabase).
@@ -5756,9 +5759,8 @@ async function playTurn(p,v,gid,bn){
     setMsg(p.name+' tiba di petak '+GOAL+'!'); fb('event','dragon',p.name+' tiba di petak '+GOAL+'!',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(celebrate(p)); finishGame(p); return;
   }
   if(p.pos===GOAL){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
-  const duel=await A(duelCheck(p,gid)); /* duel dipicu saat mendarat, sebelum efek tile */
+  const duel=await A(resolveTileAt(p,gid)); /* duel diperiksa pada setiap pendaratan, termasuk setelah efek mob */
   if(!duel||duel.winner===p){
-    await A(resolveTileAt(p,gid));
     if(CHESTS.has(p.pos)){ const pre=p.pos; await A(giveChest(p,chestToken(p))); if(p.pos!==pre) await A(resolveAfterChestMove(p,gid)); }
   }
   renderChips();
