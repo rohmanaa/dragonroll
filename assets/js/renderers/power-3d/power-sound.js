@@ -111,9 +111,14 @@ const FAMILY = {
     crack: () => { hiss(0.18, 0.08, 0, 'highpass', 4000, 10000); tone(3000, 0.04, 'square', 0.035, 0, 1500); tone(1800, 0.13, 'triangle', 0.025, 0.03, 800); },
     hit: () => { hiss(0.55, 0.14, 0, 'highpass', 6000); tone(2600, 0.5, 'square', 0.04, 0, 1000); tone(1900, 0.56, 'triangle', 0.05, 0.04, 700); },
   },
-  blaze: { // bara berdenyut
-    activate: () => { hiss(0.38, 0.09, 0, 'bandpass', 500, 2400); tone(140, 0.38, 'sawtooth', 0.05, 0, 260); },
-    hit: () => { hiss(0.8, 0.18, 0, 'lowpass', 2600, 160); tone(80, 0.8, 'sawtooth', 0.11, 0, 32); tone(330, 0.35, 'square', 0.04, 0.02, 110); },
+  blaze: { // magma berdetak, eruption berat, dan resonansi bara
+    activate: () => { hiss(0.18, 0.1, 0, 'bandpass', 500, 2200); tone(120, 0.28, 'sawtooth', 0.06, 0, 260); },
+    charge: () => { hiss(0.5, 0.12, 0, 'lowpass', 650, 1400); tone(72, 0.6, 'sawtooth', 0.09, 0, 115, true); },
+    pulse: () => { tone(88, 0.18, 'sine', 0.07, 0, 132, true); tone(92, 0.18, 'sine', 0.06, 0.24, 145, true); },
+    embers: () => { hiss(0.22, 0.08, 0, 'highpass', 4200, 7800); },
+    release: () => { hiss(0.42, 0.14, 0, 'bandpass', 500, 4200); tone(125, 0.48, 'sawtooth', 0.1, 0, 58); },
+    finish: () => { tone(110, 0.5, 'sine', 0.07, 0, 220, true); tone(220, 0.46, 'triangle', 0.045, 0.06, 440, true); hiss(0.3, 0.045, 0.08, 'highpass', 3000, 6800); },
+    hit: () => { hiss(0.42, 0.14, 0, 'bandpass', 500, 4200); tone(125, 0.48, 'sawtooth', 0.1, 0, 58); },
   },
   trident: { // petir + tombak
     activate: () => { hiss(0.24, 0.1, 0, 'highpass', 4500, 9500); tone(1300, 0.24, 'sawtooth', 0.04, 0, 200); },
@@ -172,7 +177,7 @@ export const PowerSound = {
     if (!live()) return false;
     try {
       const ph = o.phase || 'use';
-      const pitchBase = id === 'wooden_shield' ? 0.95 : id === 'diamond_sword' || id === 'golden_apple' ? 1.05 : id === 'feather' || id === 'potion_even' || id === 'ice_crystal' ? 1.1 : 1;
+      const pitchBase = id === 'wooden_shield' ? 0.95 : id === 'blaze_core' ? 0.9 : id === 'diamond_sword' || id === 'golden_apple' ? 1.05 : id === 'feather' || id === 'potion_even' || id === 'ice_crystal' ? 1.1 : 1;
       pitchScale = pitchBase * (0.98 + Math.random() * 0.04);
       if (ph === 'spawn') COMMON.spawn(o.tier || 1);
       else if (ph === 'disappear') COMMON.disappear();
@@ -182,6 +187,7 @@ export const PowerSound = {
       else if (ph === 'charge' && fam.charge) fam.charge();
       else if (ph === 'launch' && fam.launch) fam.launch();
       else if (ph === 'embers' && fam.embers) fam.embers();
+      else if (ph === 'pulse' && fam.pulse) fam.pulse();
       else if (ph === 'release' && fam.release) fam.release();
       else if (ph === 'crack' && fam.crack) fam.crack();
       else if (ph === 'swing' && fam.swing) fam.swing();

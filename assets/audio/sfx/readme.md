@@ -117,6 +117,10 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `ice-crystal-charge.mp3` | Energi es naik (0,4 dtk) | Ice Crystal |
 | `ice-crystal-release.mp3` | Burst es tajam (0,4 dtk) | Ice Crystal |
 | `ice-crystal-shatter.mp3` | Pecahan kristal saat impact (0,6 dtk) | Ice Crystal |
+| `blaze-core-ignition.mp3` | Ignition api dalam (0,3 dtk) | Blaze Core |
+| `blaze-core-molten.mp3` | Dengung energi molten (0,6 dtk) | Blaze Core |
+| `blaze-core-eruption.mp3` | Eruption api (0,5 dtk) | Blaze Core |
+| `blaze-core-resonance.mp3` | Resonansi bara akhir (0,5 dtk) | Blaze Core |
 | `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil |
 | `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil |
 | `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil |
@@ -135,6 +139,8 @@ Golden Apple memakai chime emas 0,3 dtk, gigitan renyah 0,3 dtk, healing energy 
 Fire Charge berbunyi ignition 0,2 dtk saat dipasang; ketika terpicu, energi api naik 0,4 dtk, proyektil melesat 0,4 dtk, lalu impact menyembur 0,5 dtk. Volume 85%, pitch 1,0 ±2%, reverb medium dan bara tipis. Launch dibuat cepat dengan bass ringan, berbeda dari boom TNT yang berat.
 
 Ice Crystal memakai chime 0,3 dtk, charging 0,4 dtk, release 0,4 dtk, lalu impact 0,6 dtk dengan layer crack dan pecahan kristal. Volume 78%, pitch 1,1 ±2%, reverb medium, high-frequency jernih, dan low-end ringan agar efeknya tajam tanpa gemuruh.
+
+Blaze Core berbunyi ignition dalam 0,3 dtk saat dipasang; saat terpicu, energi molten berdengung 0,6 dtk, eruption 0,5 dtk, lalu resonansi bara 0,5 dtk. Volume 85%, pitch 0,9 ±2%, bass kuat dan reverb medium, dengan bara serta pulse energi. Karakternya berat dan magmatik, bukan ledakan TNT.
 
 TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
 

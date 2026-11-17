@@ -168,7 +168,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
     assert.ok(filePaths[m[1]] && ex(filePaths[m[1]]), m[1] + ' Power SFX file');
   }
   assert.ok(/powerSynth\(k,'hit'\)/.test(audio), 'trigger must use the Power-specific hit');
-  assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\)\{[\s\S]*?if\(k==='fire_charge'&&powerFiles\(k,'activate'\)\) return null;[\s\S]*?return powerSynth\(k,'activate'\)/.test(audio), 'trap placement only plays Fire Charge ignition, never its impact');
+  assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\)\{[\s\S]*?if\(\(k==='fire_charge'\|\|k==='blaze_core'\)&&powerFiles\(k,'activate'\)\) return null;[\s\S]*?return powerSynth\(k,'activate'\)/.test(audio), 'trap placement only plays the Fire Charge or Blaze Core ignition');
   assert.ok(!audio.includes('creeper-explosion.mp3'), 'Power explosions must not reuse the Creeper explosion');
   const voicesSrc = rd('assets/js/renderers/power-3d/power-sound.js');
   const voiceBlock = /const VOICE = \{([\s\S]*?)\};/.exec(voicesSrc)[1];
@@ -184,7 +184,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/layers\.boom,rate,800,fallback,level,\{bassDb:2,reverb:0\.18\}/.test(audio) && /layers\.deepBoom,rate,1300,fallback,level,\{bassDb:6,reverb:0\.35\}/.test(audio), 'TNT boom and bass layer tuning');
   assert.ok(/layers\.debris,rate,600,null,0\.72,\{bassDb:1,reverb:0\.2\}\);\s*\},1000\)/.test(audio), 'TNT debris finish timing');
   assert.ok(/shelf\.type='lowshelf'/.test(audio) && /comp\.ratio\.value=4/.test(audio), 'TNT bass processing stays compressed');
-  ['debris-break.mp3', 'deep-explosion.mp3', 'diamond-sword-crystal-resonance.mp3', 'diamond-sword-crystal-unsheathe.mp3', 'diamond-sword-metal-impact.mp3', 'diamond-sword-slash-whoosh.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'fire-charge-ignition.mp3', 'fire-charge-impact.mp3', 'fire-charge-magic.mp3', 'fire-charge-whoosh.mp3', 'golden-apple-activation.mp3', 'golden-apple-bite.mp3', 'golden-apple-finish.mp3', 'golden-apple-healing.mp3', 'ice-crystal-charge.mp3', 'ice-crystal-chime.mp3', 'ice-crystal-release.mp3', 'ice-crystal-shatter.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'potion-bubbling.mp3', 'potion-dark-magic.mp3', 'potion-drink.mp3', 'potion-even-drink.mp3', 'potion-even-healing-magic.mp3', 'potion-even-magic-chime.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'totem-magic-spell.mp3', 'totem-mystical-chime.mp3', 'totem-shield-activation.mp3', 'wind-magic.mp3', 'wooden-shield-equip.mp3', 'wooden-shield-impact.mp3', 'wooden-shield-resonance.mp3'].forEach(file => {
+  ['blaze-core-eruption.mp3', 'blaze-core-ignition.mp3', 'blaze-core-molten.mp3', 'blaze-core-resonance.mp3', 'debris-break.mp3', 'deep-explosion.mp3', 'diamond-sword-crystal-resonance.mp3', 'diamond-sword-crystal-unsheathe.mp3', 'diamond-sword-metal-impact.mp3', 'diamond-sword-slash-whoosh.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'fire-charge-ignition.mp3', 'fire-charge-impact.mp3', 'fire-charge-magic.mp3', 'fire-charge-whoosh.mp3', 'golden-apple-activation.mp3', 'golden-apple-bite.mp3', 'golden-apple-finish.mp3', 'golden-apple-healing.mp3', 'ice-crystal-charge.mp3', 'ice-crystal-chime.mp3', 'ice-crystal-release.mp3', 'ice-crystal-shatter.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'potion-bubbling.mp3', 'potion-dark-magic.mp3', 'potion-drink.mp3', 'potion-even-drink.mp3', 'potion-even-healing-magic.mp3', 'potion-even-magic-chime.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'totem-magic-spell.mp3', 'totem-mystical-chime.mp3', 'totem-shield-activation.mp3', 'wind-magic.mp3', 'wooden-shield-equip.mp3', 'wooden-shield-impact.mp3', 'wooden-shield-resonance.mp3'].forEach(file => {
     assert.ok(ex('assets/audio/sfx/powerup/' + file), file + ' SFX path');
   });
   assert.ok(/totem:\{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0\.95,volume:0\.75\}/.test(audio), 'Totem SFX profile');
@@ -198,7 +198,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/if\(phase==='block'\)[\s\S]*?layers\.defense,rate,400[\s\S]*?layers\.finish,rate,300/.test(audio), 'Wooden Shield defense and finish occur on block');
   assert.ok(/power==='wooden_shield'&&powerFiles\(power,'block'\)/.test(audio) && /reverb:0\.06,reverbWet:0\.08,resonanceDb:2,resonanceHz:250/.test(audio), 'Wooden Shield uses dry wooden impact processing');
   assert.ok(/shield: \{[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /id === 'wooden_shield' \? 0\.95/.test(voicesSrc), 'Wooden Shield has a matching protective fallback');
-  assert.ok(/if\(k==='totem'\)\{[\s\S]*?\n    \}\n    if\(k==='diamond_sword'\)\{[\s\S]*?\n    \}\n    if\(k==='wooden_shield'\)\{[\s\S]*?\n    \}\n    if\(k==='golden_apple'\)\{[\s\S]*?\n    \}\n    if\(k==='fire_charge'\)\{[\s\S]*?\n    \}\n    if\(k==='ice_crystal'\)\{/.test(audio), 'each specialized Power audio handler must be reachable');
+  assert.ok(/if\(k==='totem'\)\{[\s\S]*?\n    \}\n    if\(k==='diamond_sword'\)\{[\s\S]*?\n    \}\n    if\(k==='wooden_shield'\)\{[\s\S]*?\n    \}\n    if\(k==='golden_apple'\)\{[\s\S]*?\n    \}\n    if\(k==='fire_charge'\)\{[\s\S]*?\n    \}\n    if\(k==='ice_crystal'\)\{[\s\S]*?\n    \}\n    if\(k==='blaze_core'\)\{/.test(audio), 'each specialized Power audio handler must be reachable');
   assert.ok(/golden_apple:\{activate:'goldenAppleActivation',consume:'goldenAppleBite',healing:'goldenAppleHealing',finish:'goldenAppleFinish',pitch:1\.05,volume:0\.75\}/.test(audio), 'Golden Apple SFX profile');
   assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.consume,rate,300[\s\S]*?\},300\)[\s\S]*?layers\.healing,rate,700[\s\S]*?\},600\)[\s\S]*?layers\.finish,rate,300[\s\S]*?\},1300\)/.test(audio), 'Golden Apple four-stage timing');
   assert.ok(/reverb:0\.14,reverbWet:0\.16,resonanceDb:1\.2/.test(audio) && /apple: \{[\s\S]*?consume: \(\) =>[\s\S]*?healing: \(\) =>[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /ph === 'consume' && fam\.consume/.test(voicesSrc) && /ph === 'healing' && fam\.healing/.test(voicesSrc) && /id === 'diamond_sword' \|\| id === 'golden_apple' \? 1\.05/.test(voicesSrc), 'Golden Apple has matching reverb and phased synthetic fallback');
@@ -208,6 +208,9 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/ice_crystal:\{activate:'iceCrystalChime',charge:'iceCrystalCharge',release:'iceCrystalRelease',impact:'iceCrystalShatter',pitch:1\.1,volume:0\.78\}/.test(audio), 'Ice Crystal SFX profile');
   assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.charge,rate,400[\s\S]*?\},300\)[\s\S]*?layers\.release,rate,400[\s\S]*?\},700\)[\s\S]*?layers\.impact,rate,600[\s\S]*?\},1100\)/.test(audio), 'Ice Crystal four-stage timing');
   assert.ok(/fallbackPlayed=false[\s\S]*?layers\.impact,rate,600,fallback,level,fx\)[\s\S]*?powerSynth\(k,'crack',level\*0\.25\)/.test(audio) && /bassDb:-1,reverb:0\.22,reverbWet:0\.2,resonanceDb:1\.5,resonanceHz:4000/.test(audio) && /ice: \{[\s\S]*?charge: \(\) =>[\s\S]*?release: \(\) =>[\s\S]*?crack: \(\) =>[\s\S]*?hit: \(\) =>/.test(voicesSrc) && /id === 'feather' \|\| id === 'potion_even' \|\| id === 'ice_crystal' \? 1\.1/.test(voicesSrc), 'Ice Crystal layers a bright crack over a restrained crystal shatter and has a phased fallback');
+  assert.ok(/blaze_core:\{activate:'blazeCoreIgnition',charge:'blazeCoreMolten',release:'blazeCoreEruption',finish:'blazeCoreResonance',pitch:0\.9,volume:0\.85\}/.test(audio), 'Blaze Core SFX profile');
+  assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.charge,rate,600[\s\S]*?powerSynth\(k,'pulse',level\*0\.25\)[\s\S]*?layers\.release,rate,500[\s\S]*?\},600\)[\s\S]*?layers\.finish,rate,500[\s\S]*?\},1100\)/.test(audio), 'Blaze Core activation, molten charge, eruption, and finish timing');
+  assert.ok(/bassDb:4,reverb:0\.26,reverbWet:0\.22,resonanceDb:1\.5,resonanceHz:180/.test(audio) && /blaze: \{[\s\S]*?charge: \(\) =>[\s\S]*?pulse: \(\) =>[\s\S]*?embers: \(\) =>[\s\S]*?release: \(\) =>[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /id === 'blaze_core' \? 0\.9/.test(voicesSrc), 'Blaze Core has its own bass-heavy pulse and ember fallback');
   assert.ok(/potion_odd:\{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0\.7\}/.test(audio), 'Potion SFX profile');
   assert.ok(/powerSynth\(k,'activate',level\);\s*setTimeout\(function\(\)\{[\s\S]*?layers\.drink,rate,400[\s\S]*?layers\.bubbling,rate,280[\s\S]*?\},200\)/.test(audio), 'Potion glass pop and drinking sequence');
   assert.ok(/layers\.effect,rate,600[\s\S]*?\},600\)/.test(audio), 'Potion shimmer duration');
@@ -273,6 +276,10 @@ t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual 
     assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
   });
   ['ice-crystal-chime.mp3', 'ice-crystal-charge.mp3', 'ice-crystal-release.mp3', 'ice-crystal-shatter.mp3'].forEach(file => {
+    const asset = 'assets/audio/sfx/powerup/' + file;
+    assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
+  });
+  ['blaze-core-ignition.mp3', 'blaze-core-molten.mp3', 'blaze-core-eruption.mp3', 'blaze-core-resonance.mp3'].forEach(file => {
     const asset = 'assets/audio/sfx/powerup/' + file;
     assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
   });
