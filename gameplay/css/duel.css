@@ -1,4 +1,4 @@
-/* Arena overlay for PVP Clash. */
+/* Arena overlay for PVP Clash — layout mengikuti referensi assets/images/pvp/goal.jpg */
 body.duel-active #c,
 body.duel-active #hud,
 body.duel-active #side,
@@ -9,57 +9,94 @@ body.duel-active #puCard,
 body.duel-active #trapBar{display:none!important}
 
 .du{position:fixed;inset:0;z-index:10000;overflow:hidden;color:#f8eddb;font-family:var(--font-display,"Trebuchet MS",sans-serif);
-  background:#080710 url("../assets/duel/background.jpg") center 55%/cover no-repeat;opacity:0;pointer-events:none;transition:opacity .28s ease}
+  background:#0a1830 url("../../assets/images/pvp/background.webp") center 58%/cover no-repeat;opacity:0;pointer-events:none;transition:opacity .28s ease;
+  --pw:min(26vw,430px);--fw:min(11.6vw,200px)}
 .du.in{opacity:1}.du.out{opacity:0}
 .du::before,.du::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none}
-.du::before{background:linear-gradient(180deg,rgba(3,5,14,.84),rgba(8,5,16,.22) 34%,rgba(9,5,13,.08) 58%,rgba(3,4,10,.88)),
-  radial-gradient(ellipse at 50% 62%,transparent 15%,rgba(1,2,9,.56) 100%)}
-.du::after{box-shadow:inset 0 0 110px 20px rgba(0,0,0,.68)}
-.du-top,.du-arena,.du-log,.du-pops,.du-choose,.du-card,.du-flash{position:absolute;z-index:1}
-.du-top{top:clamp(12px,2.4vh,24px);left:2.2vw;right:2.2vw;height:clamp(82px,15vh,128px);display:flex;align-items:flex-start;justify-content:space-between}
-.du-profile{display:flex;align-items:center;gap:12px;width:min(34vw,390px);min-width:210px;padding:8px 14px;border:1px solid rgba(223,152,69,.65);
-  background:linear-gradient(100deg,rgba(10,9,15,.93),rgba(20,14,23,.82));box-shadow:0 0 0 2px rgba(18,9,8,.75),inset 0 0 24px rgba(133,68,31,.16);clip-path:polygon(0 0,94% 0,100% 20%,100% 80%,94% 100%,0 100%)}
-.du-profile-1{flex-direction:row-reverse;text-align:right;clip-path:polygon(6% 0,100% 0,100% 100%,6% 100%,0 80%,0 20%)}
-.du-avatar{flex:none;width:clamp(50px,7vw,78px);aspect-ratio:1;border:3px solid var(--pc,#ffd45a);background:#100d17;box-shadow:0 0 18px color-mix(in srgb,var(--pc,#ffd45a) 50%,transparent);overflow:hidden}
+.du::before{background:linear-gradient(180deg,rgba(4,8,22,.34),transparent 22%,transparent 66%,rgba(4,8,18,.5))}
+.du::after{box-shadow:inset 0 0 90px 10px rgba(2,6,18,.42)}
+.du-top,.du-arena,.du-log,.du-pops,.du-choose,.du-card,.du-flash,.du-sfx,.du-skip{position:absolute;z-index:1}
+.du-top{top:clamp(8px,1.8vh,20px);left:1.4vw;right:1.4vw;height:calc(var(--pw)*.4624);display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none}
+
+/* HUD profil: frame dari assets/images/pvp/profile-left|right.png (923x427) */
+.du-profile{position:relative;flex:none;width:var(--pw);aspect-ratio:923/427;color:#fff;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.du-frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;user-select:none}
+.du-avatar{position:absolute;top:7.6%;width:29.4%;height:64.5%;border-radius:7%;overflow:hidden;background:#241a33}
+.du-profile-0 .du-avatar{left:3.9%}.du-profile-1 .du-avatar{right:3.9%}
 .du-avatar img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
-.du-profile-info{min-width:0;flex:1}
-.du-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--pc,#ffd45a);font-size:clamp(15px,1.8vw,22px);font-weight:900;letter-spacing:.04em;text-shadow:0 2px 6px #000}
-.du-hp{display:flex;gap:3px;margin-top:3px}
-.du-heart{color:#41202b;font-size:clamp(19px,2.3vw,27px);line-height:1;text-shadow:0 2px #160912}
-.du-heart.on{color:#ff334e;filter:drop-shadow(0 0 5px rgba(255,32,63,.58))}
-.du-momentum-row{display:flex;align-items:center;gap:8px;margin-top:5px}
-.du-momentum-label{color:#e1a958;font-size:9px;font-weight:900;letter-spacing:.12em}
-.du-mom{display:flex;gap:5px}
-.du-mom i{display:block;width:14px;height:10px;border:1px solid #6f4a2e;background:rgba(9,8,15,.9);transform:skew(-16deg)}
-.du-mom i.on{background:#ffbf46;border-color:#fff0a5;box-shadow:0 0 10px #ff941e}
-.du-title{position:absolute;left:50%;top:-2px;transform:translateX(-50%);min-width:190px;text-align:center;padding:8px 24px 10px;
-  border:1px solid #b77c39;border-top:0;background:linear-gradient(180deg,rgba(26,18,19,.96),rgba(9,8,14,.82));box-shadow:0 8px 26px #0008,0 0 18px #ed9c4233}
-.du-title::before,.du-title::after{content:"";position:absolute;top:0;width:18px;height:12px;border-top:2px solid #e1a551}
-.du-title::before{left:-8px;border-left:2px solid #e1a551;transform:skew(30deg)}.du-title::after{right:-8px;border-right:2px solid #e1a551;transform:skew(-30deg)}
-.du-title>b{display:block;color:#ffcf80;font-size:clamp(17px,2.2vw,26px);letter-spacing:.12em;text-shadow:0 2px #3a1708}
-.du-banner{display:block;margin-top:3px;color:#f4eee6;font-family:inherit;font-size:12px;font-weight:800;line-height:1.1;letter-spacing:.08em;text-transform:uppercase}
-.du-banner.sd{color:#ff765a;text-shadow:0 0 12px #f30}
-.du-arena{inset:18% 0 17%}
+.du-profile-info{position:absolute;top:13%;bottom:32%;display:flex;flex-direction:column;justify-content:center;gap:4%;min-width:0}
+.du-profile-0 .du-profile-info{left:39.5%;right:7%;text-align:left}
+.du-profile-1 .du-profile-info{left:7%;right:39.5%;text-align:right;align-items:flex-end}
+.du-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:calc(var(--pw)*.056);font-weight:900;letter-spacing:.03em;line-height:1.1;text-shadow:0 2px 4px #000,0 0 10px color-mix(in srgb,var(--pc,#ffd45a) 70%,transparent)}
+.du-hp{display:flex;gap:calc(var(--pw)*.008)}
+.du-profile-1 .du-hp{justify-content:flex-end}
+.du-heart{color:#3a2330;font-size:calc(var(--pw)*.088);line-height:1;text-shadow:0 2px #120810,0 0 0 #000}
+.du-heart.on{color:#ff3a52;text-shadow:0 2px #5a0b16;filter:drop-shadow(0 0 5px rgba(255,40,70,.6))}
+.du-momentum-row{position:absolute;top:73.6%;height:25.4%;display:flex;align-items:center}
+.du-profile-0 .du-momentum-row{left:8.1%;width:75.8%}
+.du-profile-1 .du-momentum-row{left:16.1%;width:75.6%}
+.du-momentum-label{flex:0 0 45.8%;padding-right:3%;text-align:right;color:#e4b366;font-size:calc(var(--pw)*.027);font-weight:900;letter-spacing:.12em;text-shadow:0 1px 2px #000}
+.du-profile-1 .du-momentum-label{flex-basis:46.8%}
+.du-mom{flex:1;display:flex;align-items:center;gap:4.2%}
+.du-mom i{display:block;flex:0 0 16.3%;aspect-ratio:50/45;background:#08070c;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);box-shadow:inset 0 0 0 2px #2a2630}
+.du-mom i.on{background:linear-gradient(#ffe27a,#ffa51f);filter:drop-shadow(0 0 5px #ff9a1e)}
+
+/* judul: plate emas + gulungan (title-plate.png 1225x390) */
+.du-title{position:absolute;left:50%;top:0;transform:translateX(-50%);width:calc(var(--pw)*1.02);max-width:44vw;aspect-ratio:1225/390;text-align:center}
+.du-title-plate{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+.du-title>b{position:absolute;left:12%;right:12%;top:7%;height:50%;display:flex;align-items:center;justify-content:center;color:#ffd35a;font-size:calc(var(--pw)*.088);font-weight:1000;letter-spacing:.05em;white-space:nowrap;
+  text-shadow:0 3px 0 #6a3a05,0 0 14px rgba(255,170,40,.55),-1px -1px 0 #4b2a04,1px -1px 0 #4b2a04}
+.du-banner{position:absolute;left:25%;right:25%;top:62%;height:27%;display:flex;align-items:center;justify-content:center;color:#6a3d12;font-family:inherit;font-size:calc(var(--pw)*.047);font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.du-banner.sd{color:#b3200f;text-shadow:0 0 10px rgba(255,80,40,.6)}
+
+.du-arena{inset:12% 0 3%}
 .du-scene{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
 .du-scene-canvas{display:block;width:100%;height:100%;touch-action:none}
-.du-fighter{position:absolute;bottom:5%;width:min(36vw,360px);transform:translateX(-50%);z-index:2;text-align:center;pointer-events:none}
-.du-fighter-0{left:27%}.du-fighter-1{left:73%}
-.du-action{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px;margin:0 auto;padding:5px 12px;border:1px solid rgba(215,157,83,.62);
-  background:linear-gradient(90deg,transparent,rgba(8,7,13,.9) 16%,rgba(8,7,13,.9) 84%,transparent);text-shadow:0 2px #000}
-.du-action b{color:#68c4ff;font-size:clamp(13px,1.5vw,19px);letter-spacing:.1em}
-.du-action span{font-size:clamp(9px,1vw,12px);font-weight:800;letter-spacing:.04em}
-.du-action.critical b{color:#ffce61;text-shadow:0 0 12px #fd5}
-.du-action.berserk b{color:#ff646e;text-shadow:0 0 12px #f33}
+
+/* dadu + label aksi di bawah tiap karakter */
+.du-fighter{position:absolute;bottom:0;width:calc(var(--fw)*1.5);transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:calc(var(--fw)*.05);pointer-events:none;text-align:center}
+.du-fighter-0{left:23.5%}.du-fighter-1{left:76.5%}
+.du-die{--dc:#4fb4ff;display:grid;place-items:center;width:calc(var(--fw)*.66);aspect-ratio:1;border-radius:18%;
+  background:linear-gradient(150deg,#ffffff 0%,#e9edf5 55%,#c5ccdc 100%);box-shadow:0 5px 0 #8e97ae,0 10px 14px rgba(0,0,0,.45),0 0 22px color-mix(in srgb,var(--dc) 70%,transparent),inset 0 0 0 2px rgba(255,255,255,.9);
+  color:var(--dc);font:1000 calc(var(--fw)*.34)/1 Georgia,serif;text-shadow:0 0 12px var(--dc),0 2px 0 rgba(20,30,60,.35);transform:rotate(-7deg)}
+.du-fighter-1 .du-die{transform:rotate(7deg)}
+.du-die.a1{--dc:#3fe0d0}.du-die.a2{--dc:#5fe27a}.du-die.a3{--dc:#4fb4ff}.du-die.a4{--dc:#b46bff}.du-die.a5{--dc:#ff6fb8}.du-die.a6{--dc:#ff5a52}
+.du-die.rolling{animation:du-die-roll .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes du-die-roll{0%{transform:translateY(-34px) rotate(-260deg) scale(.6);opacity:.2}60%{transform:translateY(4px) rotate(14deg) scale(1.12);opacity:1}100%{transform:rotate(-7deg) scale(1)}}
+.du-action{--ac1:#5db8ff;--ac2:#1d78d6;--ac3:#0b3d82;display:flex;flex-direction:column;align-items:center;gap:calc(var(--fw)*.03);margin:0 auto;padding:0;text-shadow:0 2px #000}
+.du-action b{display:block;min-width:var(--fw);padding:calc(var(--fw)*.04) calc(var(--fw)*.1);border:2px solid var(--ac3);border-radius:calc(var(--fw)*.05);
+  background:linear-gradient(var(--ac1),var(--ac2));box-shadow:0 3px 0 var(--ac3),0 0 0 1px rgba(255,255,255,.35) inset,0 5px 10px rgba(0,0,0,.4);
+  color:#fff;font-size:calc(var(--fw)*.135);font-weight:900;letter-spacing:.08em;line-height:1.25;white-space:nowrap}
+.du-action span{white-space:nowrap;color:#f4f1ea;font-size:calc(var(--fw)*.085);font-weight:800;letter-spacing:.03em;line-height:1.2;text-shadow:0 2px 3px #000,0 0 6px #000}
+.du-action.a1{--ac1:#4fe3d3;--ac2:#14958f;--ac3:#075a58}
+.du-action.a2{--ac1:#79e88a;--ac2:#2c9d46;--ac3:#115a24}
+.du-action.a3{--ac1:#5db8ff;--ac2:#1d78d6;--ac3:#0b3d82}
+.du-action.a4{--ac1:#c487ff;--ac2:#7a35c9;--ac3:#3d1580}
+.du-action.a5{--ac1:#ff8ac6;--ac2:#c93a86;--ac3:#6e1048}
+.du-action.a6{--ac1:#ff7e6e;--ac2:#d1352c;--ac3:#74130e}
 .du-fighter.hit .du-action{animation:du-action-hit .42s ease-out}
-.du-fighter.block .du-action b{color:#78dbff;text-shadow:0 0 14px #3bd}
-.du-fighter.heavy .du-action b{color:#ffdc6b;text-shadow:0 0 18px #f80}
-@keyframes du-action-hit{0%{transform:scale(1)}30%{transform:scale(1.12);filter:brightness(1.8)}100%{transform:scale(1)}}
-.du-versus{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%) rotate(-7deg);z-index:3;display:grid;place-items:center;width:clamp(58px,8vw,96px);aspect-ratio:1;
-  color:#ffd27b;font:1000 clamp(28px,4vw,48px)/1 Georgia,serif;text-shadow:0 3px #542600,0 0 22px #ff9a27;
-  background:radial-gradient(circle,rgba(36,16,19,.96) 32%,rgba(11,7,13,.82) 70%,transparent 72%);filter:drop-shadow(0 0 12px #f80)}
-.du-log{left:50%;bottom:3.4%;transform:translateX(-50%);max-width:min(72vw,600px);padding:8px 20px;color:#d9e8ff;text-align:center;font-size:clamp(10px,1.1vw,13px);
-  border:1px solid rgba(202,145,73,.66);background:linear-gradient(90deg,transparent,rgba(8,7,13,.94) 12%,rgba(8,7,13,.94) 88%,transparent);
-  box-shadow:0 0 20px #0008;text-shadow:0 2px #000}
+.du-fighter.heavy .du-action b{filter:brightness(1.25) drop-shadow(0 0 10px #f80)}
+@keyframes du-action-hit{0%{transform:scale(1)}30%{transform:scale(1.12);filter:brightness(1.6)}100%{transform:scale(1)}}
+
+/* VS (vs.png, tanpa latar: di-blend screen) */
+.du-versus{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);z-index:3;width:clamp(86px,calc(var(--pw)*.5),210px);pointer-events:none}
+.du-versus img{display:block;width:100%;height:auto;filter:drop-shadow(0 0 14px rgba(255,150,30,.6))}
+
+/* kontrol bawah: SFX kiri, Skip kanan (btn-sfx.png / btn-skip.png) */
+.du-sfx,.du-skip{bottom:clamp(8px,2.2vh,22px);padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.du-sfx{left:1.4vw;width:calc(var(--fw)*.95);aspect-ratio:501/165}
+.du-skip{right:1.4vw;width:calc(var(--fw)*1.1);aspect-ratio:598/165}
+.du-sfx img,.du-skip img{display:block;width:100%;height:100%;pointer-events:none}
+.du-skip:active,.du-sfx:active{transform:translateY(2px)}
+.du-sfx-state{position:absolute;left:55%;top:22%;width:38%;height:56%;display:flex;align-items:center;gap:8%;pointer-events:none}
+.du-sfx-state i{flex:none;height:78%;aspect-ratio:1;border-radius:50%;border:3px solid #2e2218;background:radial-gradient(circle at 35% 30%,#8dff7a,#1fb82a 60%,#0d6b17);box-shadow:0 0 8px #3f3}
+.du-sfx-state b{color:#3fe04a;font-size:calc(var(--fw)*.11);font-weight:900;letter-spacing:.04em;text-shadow:0 2px 0 #123}
+.du-sfx.off .du-sfx-state i{background:radial-gradient(circle at 35% 30%,#ff9a8d,#d02a1a 60%,#6b0d07);box-shadow:0 0 8px #f33}
+.du-sfx.off .du-sfx-state b{color:#ff6a55}
+.du.skipped .du-skip{opacity:.45;pointer-events:none}
+
+.du-log{left:50%;bottom:clamp(8px,2.4vh,22px);transform:translateX(-50%);max-width:min(36vw,440px);padding:6px 16px;color:#e8f0ff;text-align:center;font-size:clamp(9px,.9vw,12px);
+  border:1px solid rgba(214,160,80,.6);border-radius:8px;background:rgba(8,12,26,.72);box-shadow:0 0 14px #0008;text-shadow:0 2px #000}
 .du-pops{inset:0;overflow:hidden;pointer-events:none}
 .du-pop{position:absolute;top:49%;z-index:8;color:#fff;font-size:clamp(22px,3vw,34px);font-weight:1000;letter-spacing:.04em;text-shadow:0 3px #290b12,0 0 16px #f33;animation:du-pop-up 1.1s ease-out forwards}
 .du-pop.hit{color:#ff6473}.du-pop.blk{color:#78dbff;text-shadow:0 0 16px #3bd}.du-pop.heal{color:#86ffad;text-shadow:0 0 16px #3f8}
@@ -75,9 +112,9 @@ body.duel-active #trapBar{display:none!important}
 .du.intro .du-versus{animation:du-versus-in .7s .2s cubic-bezier(.2,1.8,.4,1) both}
 @keyframes du-title-in{from{opacity:0;transform:translate(-50%,-20px) scale(.75)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
 @keyframes du-fighter-in{from{opacity:0;transform:translate(-50%,12px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
-@keyframes du-versus-in{from{opacity:0;transform:translate(-50%,-50%) rotate(-30deg) scale(.3)}to{opacity:1;transform:translate(-50%,-50%) rotate(-7deg) scale(1)}}
-.du.result .du-versus{color:#fff3c6;text-shadow:0 0 30px #ffb13b;animation:du-win-pulse .8s ease-in-out infinite alternate}
-@keyframes du-win-pulse{to{filter:drop-shadow(0 0 30px #f90);transform:translate(-50%,-50%) rotate(7deg) scale(1.12)}}
+@keyframes du-versus-in{from{opacity:0;transform:translate(-50%,-52%) scale(.3)}to{opacity:1;transform:translate(-50%,-52%) scale(1)}}
+.du.result .du-versus{animation:du-win-pulse .8s ease-in-out infinite alternate}
+@keyframes du-win-pulse{to{filter:drop-shadow(0 0 26px #f90);transform:translate(-50%,-52%) scale(1.1)}}
 .du-card{left:50%;bottom:10%;transform:translateX(-50%);width:min(90vw,540px);padding:14px 20px;background:linear-gradient(135deg,rgba(13,10,16,.98),rgba(29,17,17,.96));
   border:1px solid #d19b54;box-shadow:0 0 0 3px #100b0b,0 12px 42px #000b,inset 0 0 24px rgba(184,103,48,.15);font-size:clamp(11px,1.2vw,14px);line-height:1.55;text-align:center}
 .du-card[hidden]{display:none}
@@ -89,35 +126,29 @@ body.duel-active #trapBar{display:none!important}
 .du-choose button{padding:10px 14px;border:1px solid var(--pc,#ffd45a);background:linear-gradient(100deg,#191019,#352019);color:#fff;font:inherit;font-weight:900;cursor:pointer;touch-action:manipulation}
 .du.selecting{pointer-events:auto}
 @media(max-width:700px) and (orientation:portrait){
-  .du{background-position:center center}
-  .du-top{top:10px;left:8px;right:8px;height:76px}
-  .du-title{top:0;min-width:130px;padding:5px 10px 7px}
-  .du-title>b{font-size:16px}.du-banner{font-size:10px}
-  .du-profile{position:absolute;top:52px;width:47%;min-width:0;gap:6px;padding:5px 7px}
+  .du{--pw:48vw;--fw:28vw;background-position:center center}
+  .du-top{left:6px;right:6px}
+  .du-title{top:0;max-width:none;width:52vw}
+  .du-profile{position:absolute;top:calc(52vw*.318 - 6px)}
   .du-profile-0{left:0}.du-profile-1{right:0}
-  .du-avatar{width:42px;border-width:2px}
-  .du-name{font-size:clamp(11px,3.2vw,15px)}
-  .du-heart{font-size:18px}
-  .du-momentum-row{gap:4px;margin-top:2px}.du-momentum-label{font-size:7px}.du-mom{gap:3px}.du-mom i{width:10px;height:8px}
-  .du-arena{inset:22% 0 14%}
-  .du-fighter{bottom:4%;width:44vw}
-  .du-fighter-0{left:27%}.du-fighter-1{left:73%}
-  .du-action{min-height:38px;padding:4px 5px}
-  .du-action b{font-size:clamp(11px,3vw,15px)}.du-action span{font-size:8px}
-  .du-versus{top:48%;width:48px;font-size:25px}
-  .du-log{bottom:4%;max-width:92vw;width:max-content;padding:6px 10px;font-size:9px}
-  .du-card{bottom:9%;padding:11px 12px}
+  .du-arena{inset:24% 0 14%}
+  .du-fighter{width:46vw}
+  .du-fighter-0{left:26%}.du-fighter-1{left:74%}
+  .du-versus{top:46%;width:26vw}
+  .du-sfx{width:34vw}.du-skip{width:40vw}
+  .du-log{bottom:calc(8px + 11vw);max-width:92vw;width:max-content}
+  .du-card{bottom:12%;padding:11px 12px}
 }
 @media(orientation:landscape) and (max-height:500px){
-  .du-top{top:8px;height:72px}
-  .du-profile{min-width:190px;padding:5px 9px;gap:8px}
-  .du-avatar{width:46px}
-  .du-arena{inset:17% 0 13%}
-  .du-fighter{bottom:3%;width:35vw}
-  .du-action{min-height:30px;padding:3px 8px}
-  .du-log{bottom:2%;padding:5px 12px}
+  .du{--pw:min(30vw,300px);--fw:min(14vw,130px)}
+  .du-top{top:6px}
+  .du-arena{inset:11% 0 4%}
+  .du-sfx,.du-skip{bottom:6px}
+  .du-sfx{width:calc(var(--fw)*.95)}.du-skip{width:calc(var(--fw)*1.1)}
+  .du-fighter-0{left:21.5%}.du-fighter-1{left:78.5%}
+  .du-log{bottom:6px;padding:4px 10px}
 }
 @media(prefers-reduced-motion:reduce){
   .du,.du *{scroll-behavior:auto!important}
-  .du.shake,.du-pop,.du-flash.active,.du.intro .du-title,.du.intro .du-fighter,.du.intro .du-versus,.du.result .du-versus,.du-fighter.hit .du-action{animation:none!important}
+  .du.shake,.du-pop,.du-flash.active,.du.intro .du-title,.du.intro .du-fighter,.du.intro .du-versus,.du.result .du-versus,.du-fighter.hit .du-action,.du-die.rolling{animation:none!important}
 }

@@ -5632,6 +5632,8 @@ async function resolveAfterChestMove(p,gid){ await resolveTileAt(p,gid); renderC
 function duelRevKey(a,b){ return a.idx+'>'+b.idx; }
 function duelHasRev(a,b){ const e=DUEL.rev[duelRevKey(a,b)]; return e!=null&&DUEL.turn<=e; }
 async function duelCheck(p,gid){
+  const dsleep=ms=>{ const u=UT.GameplayDuelUI; return sleep(u&&u.skipped&&u.skipped()?40:ms); }; /* tombol Skip Animation: lewati jeda */
+  const SX=new Proxy(sfx,{get(t,k){ const v=t[k],u=UT.GameplayDuelUI; return typeof v==='function'?(...a)=>{ if(u&&u.sfxOn&&!u.sfxOn()) return; return v.apply(t,a); }:v; }}); /* tombol SFX ON/OFF di arena */
   const D=UT.Gameplay&&UT.Gameplay.Duel,UI=UT.GameplayDuelUI;
   if(!DUEL.on||!D||!UI||ONLINE_ROOM||gameOver||!p||!p.pawn||p.pos===GOAL||D.isSafeTile(p.pos,GOAL)) return null;
   const foes=players.filter(q=>q!==p&&q.pawn&&!q.left&&q.pos===p.pos); if(!foes.length) return;
@@ -5654,12 +5656,12 @@ async function duelCheck(p,gid){
         return f.cpu?{preset:2+f.idx*3}:{local:true};
       })
     });
-    UI.state(s.hp,s.mom); UI.intro(); sfx.crystalAppear();
-    await sleep(900); st();
+    UI.state(s.hp,s.mom); UI.intro(); SX.crystalAppear();
+    await dsleep(900); st();
     while(!s.over&&guard++<60){
       UI.banner(s.sudden?'Sudden Death':'ROUND '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
       UI.log('Kedua petarung mengangkat senjata...');
-      await sleep(300); st();
+      await dsleep(300); st();
       const rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],r=D.round(s,rolls); s=r.state;
       UI.actions(rolls);
       UI.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
@@ -5667,21 +5669,21 @@ async function duelCheck(p,gid){
         const action=D.ACTIONS[rolls[i]].atk>0?'attack':(rolls[i]===1?'block':null);
         if(action) UI.act(i,action,action==='attack'?0.75:0.9);
       });
-      await sleep(360); st();
+      await dsleep(360); st();
       r.events.forEach(e=>{
-        if(e.type==='clash'){ UI.shake(); sfx.hit(); }
-        else if(e.type==='hit'){ UI.impact(e.target,e.finisher?'heavy':'hit'); UI.pop(e.target,'-'+e.dmg,'hit'); sfx.hit(); sfx.playerHurt(); }
+        if(e.type==='clash'){ UI.shake(); SX.hit(); }
+        else if(e.type==='hit'){ UI.impact(e.target,e.finisher?'heavy':'hit'); UI.pop(e.target,'-'+e.dmg,'hit'); SX.hit(); SX.playerHurt(); }
         else if(e.type==='block'){ UI.impact(e.who,'block'); UI.pop(e.who,'BLOCK','blk'); }
         else if(e.type==='heal') UI.pop(e.who,'+1','heal');
-        else if(e.type==='finisher'){ UI.impact(e.who,'heavy'); UI.pop(e.who,'FINISHER!','fin'); UI.shake(); sfx.crystalBreak(); }
+        else if(e.type==='finisher'){ UI.impact(e.who,'heavy'); UI.pop(e.who,'FINISHER!','fin'); UI.shake(); SX.crystalBreak(); }
         else if(e.type==='revenge') UI.pop(e.who,'REVENGE','rev');
         else if(e.type==='double_ko'){ UI.banner('Seri! Sudden Death','sd'); UI.log('KEDUANYA JATUH · SUDDEN DEATH'); }
       });
-      UI.state(s.hp,s.mom); await sleep(550); st();
+      UI.state(s.hp,s.mom); await dsleep(550); st();
     }
     const out=D.outcome(s,{pos:p.pos,goal:GOAL}),w=pair[out.winner],l=pair[out.loser];
     UI.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
-    sfx.hit(); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
+    SX.hit(); if(!w.cpu) SX.victory(); else if(!l.cpu) SX.playerHurt();
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
     DUEL.rev[duelRevKey(l,w)]=DUEL.turn+D.DEFAULTS.revengeTurns*players.length; delete DUEL.rev[duelRevKey(w,l)];

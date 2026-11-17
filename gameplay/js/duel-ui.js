@@ -4,11 +4,19 @@
   var UT = window.UT = window.UT || {};
   var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null;
   var options = { reducedMotion: false };
+  var IMG = 'assets/images/pvp/', sfxOn = true, skipped = false;
+  function syncSfx() {
+    if (!el.sfx) return;
+    el.sfx.classList.toggle('off', !sfxOn);
+    el.sfx.setAttribute('aria-pressed', String(sfxOn));
+    el.sfx.setAttribute('aria-label', 'SFX ' + (sfxOn ? 'ON' : 'OFF'));
+    el.sfx.querySelector('b').textContent = sfxOn ? 'ON' : 'OFF';
+  }
   var ACTIONS = {
     1: ['DEFENSE', 'BLOCK 1 DAMAGE'],
     2: ['REGENERATION', 'RESTORE 1 HEART'],
     3: ['ATTACK', 'DEAL 1 DAMAGE'],
-    4: ['CRITICAL', 'DEAL 2 DAMAGE · +2 MOMENTUM'],
+    4: ['CRITICAL', 'DEAL 2 DAMAGE'],
     5: ['LIFESTEAL', 'DAMAGE 1 · HEAL 1'],
     6: ['BERSERK', 'DEAL 2 · PIERCE DEFENSE']
   };
@@ -36,20 +44,25 @@
     var top = mk('div', 'du-top');
     [0, 1].forEach(function (i) {
       var side = mk('section', 'du-profile du-profile-' + i);
+      var frame = mk('img', 'du-frame'); frame.alt = ''; frame.draggable = false; frame.setAttribute('aria-hidden', 'true');
+      frame.src = IMG + 'profile-' + (i ? 'right' : 'left') + '.png';
       var avatar = mk('div', 'du-avatar');
       el['face' + i] = mk('img'); el['face' + i].alt = '';
       avatar.appendChild(el['face' + i]);
       var stats = mk('div', 'du-profile-info');
       el['name' + i] = mk('div', 'du-name');
       el['hp' + i] = mk('div', 'du-hp');
+      stats.appendChild(el['name' + i]); stats.appendChild(el['hp' + i]);
       var momentum = mk('div', 'du-momentum-row');
       momentum.appendChild(mk('span', 'du-momentum-label', 'MOMENTUM'));
       el['mom' + i] = mk('div', 'du-mom');
       momentum.appendChild(el['mom' + i]);
-      stats.appendChild(el['name' + i]); stats.appendChild(el['hp' + i]); stats.appendChild(momentum);
-      side.appendChild(avatar); side.appendChild(stats); top.appendChild(side);
+      side.appendChild(frame); side.appendChild(avatar); side.appendChild(stats); side.appendChild(momentum);
+      top.appendChild(side);
     });
     var title = mk('div', 'du-title');
+    var plate = mk('img', 'du-title-plate'); plate.alt = ''; plate.draggable = false; plate.setAttribute('aria-hidden', 'true'); plate.src = IMG + 'title-plate.png';
+    title.appendChild(plate);
     title.appendChild(mk('b', null, 'PVP CLASH'));
     el.banner = mk('span', 'du-banner', 'ROUND 1');
     title.appendChild(el.banner); top.appendChild(title); root.appendChild(top);
@@ -60,14 +73,28 @@
     [0, 1].forEach(function (i) {
       var fighter = mk('section', 'du-fighter du-fighter-' + i);
       el['fighter' + i] = fighter;
+      el['die' + i] = mk('div', 'du-die', '?');
+      el['die' + i].setAttribute('role', 'img'); el['die' + i].setAttribute('aria-label', 'Dadu tempur');
       el['action' + i] = mk('div', 'du-action');
       el['actionName' + i] = mk('b', null, 'READY');
       el['actionDesc' + i] = mk('span');
       el['action' + i].appendChild(el['actionName' + i]); el['action' + i].appendChild(el['actionDesc' + i]);
-      fighter.appendChild(el['action' + i]); arena.appendChild(fighter);
+      fighter.appendChild(el['die' + i]); fighter.appendChild(el['action' + i]); arena.appendChild(fighter);
     });
-    el.versus = mk('div', 'du-versus', 'VS'); arena.appendChild(el.versus);
+    el.versus = mk('div', 'du-versus');
+    var vs = mk('img'); vs.alt = 'VS'; vs.draggable = false; vs.src = IMG + 'vs.png';
+    el.versus.appendChild(vs); arena.appendChild(el.versus);
     root.appendChild(arena);
+
+    el.sfx = mk('button', 'du-sfx'); el.sfx.type = 'button';
+    el.sfx.innerHTML = '<img alt="" draggable="false" src="' + IMG + 'btn-sfx.png"><span class="du-sfx-state"><i></i><b></b></span>';
+    el.sfx.addEventListener('click', function () { sfxOn = !sfxOn; syncSfx(); });
+    root.appendChild(el.sfx);
+    el.skip = mk('button', 'du-skip'); el.skip.type = 'button'; el.skip.setAttribute('aria-label', 'Skip animation');
+    el.skip.innerHTML = '<img alt="" draggable="false" src="' + IMG + 'btn-skip.png">';
+    el.skip.addEventListener('click', function () { skipped = true; root.classList.add('skipped'); });
+    root.appendChild(el.skip);
+    syncSfx();
 
     el.log = mk('div', 'du-log', 'THE CLASH BEGINS');
     root.appendChild(el.log);
@@ -225,7 +252,7 @@
         else el['face' + i].removeAttribute('src');
       });
       el.card.hidden = true; el.card.innerHTML = ''; el.choose.hidden = true; el.choose.innerHTML = '';
-      el.log.textContent = 'THE CLASH BEGINS'; el.versus.textContent = 'VS';
+      el.log.textContent = 'THE CLASH BEGINS'; skipped = false; root.classList.remove('skipped');
       UI.state([3, 3], [0, 0]); UI.actions([0, 0]);
       document.body.classList.add('duel-active');
       root.hidden = false; root.classList.remove('out', 'selecting', 'shake', 'intro', 'result');
@@ -260,9 +287,15 @@
         var action = ACTIONS[vals[i]];
         el['actionName' + i].textContent = action ? action[0] : 'READY';
         el['actionDesc' + i].textContent = action ? action[1] : 'ROLLING COMBAT DICE';
-        el['action' + i].className = 'du-action' + (vals[i] === 4 ? ' critical' : vals[i] === 6 ? ' berserk' : '');
+        el['action' + i].className = 'du-action' + (action ? ' a' + vals[i] : '');
+        var die = el['die' + i];
+        die.textContent = action ? String(vals[i]) : '?';
+        die.className = 'du-die' + (action ? ' a' + vals[i] : '');
+        if (action && !options.reducedMotion && !skipped) { void die.offsetWidth; die.classList.add('rolling'); }
       });
     },
+    skipped: function () { return skipped; },
+    sfxOn: function () { return sfxOn; },
     act: function (side, type, duration) {
       var fighter = fighters[side];
       if (!fighter || !fighter.character.act) return;
