@@ -98,9 +98,12 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `totem-mystical-chime.mp3` | Aktivasi (0,3 dtk) | Totem |
 | `totem-shield-activation.mp3` | Perlindungan (0,5 dtk) | Totem |
 | `totem-magic-spell.mp3` | Resonansi akhir (0,5 dtk) | Totem |
-| `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil/Genap |
-| `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil/Genap |
-| `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil/Genap |
+| `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil |
+| `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil |
+| `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil |
+| `potion-even-drink.mp3` | Minum (0,4 dtk) | Ramuan Genap |
+| `potion-even-healing-magic.mp3` | Efek magic cerah (0,6 dtk) | Ramuan Genap |
+| `potion-even-magic-chime.mp3` | Chime naik (0,6 dtk; layer pendamping) | Ramuan Genap |
 
 Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
 
@@ -108,4 +111,6 @@ TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledak
 
 Totem memakai volume 75%, pitch 0,95 ±2%, resonansi EQ ringan, dan reverb medium 0,28 dtk. Saat Totem memblokir serangan, hanya layer perlindungan yang berbunyi.
 
-Ramuan Ganjil/Genap memakai glass-pop sintetis 0,2 dtk, diikuti minum dan bubbling pendek, lalu shimmer magis menurun. Volume 70%, pitch 1,0 ±1%, dengan reverb ringan pada efek akhir. Keduanya memiliki fallback sintetis alchemy.
+Ramuan Ganjil memakai glass-pop sintetis 0,2 dtk, minum + bubbling pendek 0,4 dtk, lalu shimmer misterius menurun selama 0,6 dtk; volumenya 70%, pitch 1,0 ±1%, dengan reverb ringan.
+
+Ramuan Genap memakai glass-pop sintetis 0,2 dtk, gulp 0,4 dtk, lalu healing magic dan bright ascending chime selama 0,6 dtk; volumenya 70%, pitch 1,1 ±2%, dengan reverb ringan. Nada akhir naik dan karakternya cerah/beruntung, kontras dengan shimmer Ramuan Ganjil. Keduanya memiliki fallback sintetis alchemy.

@@ -121,11 +121,11 @@ const FAMILY = {
     activate: () => { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 0.22, 'sine', 0.05, i * 0.06)); },
     hit: () => { chime(1047, 0, 0.06, [1, 1.25, 1.5, 2, 2.5]); tone(65, 1.1, 'sine', 0.1, 0, 32); hiss(0.9, 0.08, 0, 'highpass', 3000, 9000); },
   },
-  potionEven: { // gelembung bernada turun, berbeda dari ramuan ganjil
-    activate: () => { tone(1250, 0.2, 'sine', 0.05, 0, 480); hiss(0.08, 0.025, 0, 'highpass', 3800, 1600); },
-    drink: () => { for (let i = 0; i < 4; i++) tone(290 + i * 60, 0.1, 'sine', 0.035, i * 0.09, 570 + i * 65); hiss(0.22, 0.035, 0, 'lowpass', 1000, 380); },
+  potionEven: { // ramuan beruntung bernada cerah dan naik
+    activate: () => { tone(1550, 0.2, 'sine', 0.05, 0, 680); hiss(0.08, 0.025, 0, 'highpass', 4600, 2200); },
+    drink: () => { for (let i = 0; i < 4; i++) tone(400 + i * 70, 0.1, 'sine', 0.035, i * 0.09, 720 + i * 80); },
     hit: () => { tone(520, 0.3, 'sine', 0.06, 0, 260); tone(180, 0.24, 'triangle', 0.04, 0.1, 90); hiss(0.16, 0.04, 0.12, 'lowpass', 1600, 500); },
-    finish: () => { tone(1180, 0.6, 'sine', 0.045, 0, 390, true); tone(820, 0.45, 'sine', 0.025, 0.08, 270, true); },
+    finish: () => { [880, 1100, 1320, 1760].forEach((f, i) => tone(f, 0.45, 'sine', 0.04, i * 0.05, f * 1.08, true)); },
   },
 };
 const COMMON = { // spawn & disappear umum (naik tipis / turun tipis)
@@ -160,7 +160,8 @@ export const PowerSound = {
     if (!live()) return false;
     try {
       const ph = o.phase || 'use';
-      pitchScale = id === 'feather' ? 1.1 * (0.98 + Math.random() * 0.04) : 0.98 + Math.random() * 0.04;
+      const pitchBase = id === 'feather' || id === 'potion_even' ? 1.1 : 1;
+      pitchScale = pitchBase * (0.98 + Math.random() * 0.04);
       if (ph === 'spawn') COMMON.spawn(o.tier || 1);
       else if (ph === 'disappear') COMMON.disappear();
       else if (ph === 'activate') fam.activate();

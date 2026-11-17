@@ -54,6 +54,7 @@
                  tntExplosionFx:'powerup/explosion-fx.mp3', tntDeepExplosion:'powerup/deep-explosion.mp3', tntDebrisBreak:'powerup/debris-break.mp3',
                  totemChime:'powerup/totem-mystical-chime.mp3', totemSpell:'powerup/totem-magic-spell.mp3', totemShield:'powerup/totem-shield-activation.mp3',
                  potionDrink:'powerup/potion-drink.mp3', potionBubbling:'powerup/potion-bubbling.mp3', potionDarkMagic:'powerup/potion-dark-magic.mp3',
+                 potionEvenDrink:'powerup/potion-even-drink.mp3', potionEvenHealing:'powerup/potion-even-healing-magic.mp3', potionEvenChime:'powerup/potion-even-magic-chime.mp3',
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
     /* power (memakai ulang file pet/dragon yang sudah ada) */ stormZap:'pet/storm-wolf-zap.mp3', infernoFire:'pet/inferno-dragon-fire.mp3', kitsuneBell:'pet/celestial-kitsune-bell.mp3', kitsuneShine:'pet/celestial-kitsune-shine.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
@@ -86,7 +87,7 @@
   /* ---------- Suara Power ----------
      Tiap Power memakai resep PowerSound khusus; fase trigger memainkan hit khas Power itu sendiri.
      Audio pedang berbasis file punya fallback sintesis, bukan file musik atau ledakan bersama. */
-  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85}, totem:{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0.95,volume:0.75}, potion_odd:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7}, potion_even:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7} };
+  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85}, totem:{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0.95,volume:0.75}, potion_odd:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7}, potion_even:{drink:'potionEvenDrink',effect:'potionEvenHealing',chime:'potionEvenChime',pitch:1.1,volume:0.7} };
   function powerSynth(k,phase,level){
     try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0&&PS.play(k,{phase:phase||'use',ctx:actx,volume:sfxV*(level==null?1:level)})) return true; }catch(e){}
     return false;
@@ -142,10 +143,16 @@
       setTimeout(function(){
         const fallback=function(){ powerSynth(k,'drink',level); };
         powerFile(layers.drink,rate,400,fallback,level);
-        powerFile(layers.bubbling,rate,280,fallback,0.3);
+        if(layers.bubbling) powerFile(layers.bubbling,rate,280,fallback,0.3);
       },200);
       setTimeout(function(){
-        powerFile(layers.effect,rate,600,function(){ powerSynth(k,'finish',level); },level,{bassDb:0,reverb:0.12,reverbWet:0.14});
+        if(k==='potion_even'){
+          let fallbackPlayed=false;
+          const fallback=function(){ if(!fallbackPlayed){ fallbackPlayed=true; powerSynth(k,'finish',level); } };
+          const fx={bassDb:0,reverb:0.12,reverbWet:0.14};
+          powerFile(layers.effect,rate,600,fallback,level,fx);
+          powerFile(layers.chime,rate,600,fallback,0.4,fx);
+        }else powerFile(layers.effect,rate,600,function(){ powerSynth(k,'finish',level); },level,{bassDb:0,reverb:0.12,reverbWet:0.14});
       },600);
       return true;
     }
