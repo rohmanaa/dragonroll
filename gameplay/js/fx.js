@@ -518,7 +518,7 @@
      Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
   var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
   var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62, 0x58DFFF, 0x75E28C, 0xB7A2FF]; /* violet, magenta, pale, teal, gold, red, cyan, green, lavender */
-  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21, reward: 22 };
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21, reward: 22, ambient: 23, world: 24 };
   var SP_KINDS = Object.create(null);
   var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
 
@@ -1148,6 +1148,57 @@
           m.rotation.x += (coin ? 3.2 : 1.7) * 0.016 * mo();
           m.rotation.y += (coin ? 4.4 : 2.6) * 0.016 * mo();
           m.material.opacity = 0.82 * (1 - p);
+        });
+      };
+    });
+  };
+
+  SP_KINDS['environment-ambient'] = function (o) {
+    var style = o.style || 'world', nether = style === 'nether', dragon = style === 'dragon';
+    var primary = nether ? 7 : dragon ? 10 : 9, secondary = nether ? 1 : 6, dur = dragon ? 1.35 : 1.55;
+    return spRun('environment-ambient', dur, o, function (ctl) {
+      var n = spCount(dragon ? 4 : 3, o), motion = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.ambient * 1000 + i);
+        spPart(ctl, {
+          mode: 'burst', x: ctl.cx + (R() - 0.5) * 0.85, y: ctl.cy + (R() - 0.5) * 0.7, z: ctl.cz + (R() - 0.5) * 0.85,
+          vx: (dragon ? 0.16 : nether ? (R() - 0.5) * 0.12 : (R() - 0.5) * 0.2) * motion,
+          vy: (nether ? 0.28 : dragon ? 0.12 : 0.08 + R() * 0.1) * motion,
+          vz: (dragon ? 0.08 : (R() - 0.5) * 0.16) * motion, g: 0,
+          life: dur * (0.72 + R() * 0.25), size: dragon ? 0.035 : 0.028 + R() * 0.018,
+          mat: i % 3 === 0 ? secondary : primary, spin: dragon ? (R() - 0.5) * 2 * motion : 0
+        });
+      }
+    });
+  };
+
+  SP_KINDS['world-transition'] = function (o) {
+    var style = o.style || 'world', nether = style === 'nether', dragon = style === 'dragon';
+    var primary = nether ? 7 : dragon ? 10 : 9, secondary = nether ? 1 : 6, dur = dragon ? 0.92 : 0.78;
+    return spRun('world-transition', dur, o, function (ctl) {
+      var s = ctl.scale, rings = [], n = spCount(dragon ? 12 : 9, o);
+      var ring = spFlat(spMesh(ctl, SP_RING, primary, 0.58));
+      rings.push(ring);
+      if (dragon) {
+        var accent = spMesh(ctl, SP_RING, secondary, 0.38, false);
+        accent.rotation.y = Math.PI / 2;
+        rings.push(accent);
+      }
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.world * 1000 + i), a = R() * 6.2832, speed = (nether ? 0.72 : 0.55) * mo();
+        spPart(ctl, {
+          mode: 'burst', x: ctl.cx, y: ctl.cy + (R() - 0.5) * 0.5, z: ctl.cz,
+          vx: Math.cos(a) * speed, vy: (dragon ? 0.65 : 0.4) * mo(), vz: Math.sin(a) * speed,
+          g: 0.35, life: 0.32 + R() * 0.28, size: 0.035 + R() * 0.025,
+          mat: i % 3 === 0 ? secondary : primary
+        });
+      }
+      ctl.tick = function (c, t, p) {
+        rings.forEach(function (r, i) {
+          r.position.set(c.cx, c.cy + (i ? 0 : -0.5), c.cz);
+          r.scale.setScalar((0.3 + easeOut(p) * (i ? 0.72 : 1.02)) * s);
+          r.material.opacity = (i ? 0.38 : 0.58) * (1 - p);
+          if (i) r.rotation.x = p * 0.35;
         });
       };
     });

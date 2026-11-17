@@ -46,7 +46,9 @@ const SAMPLE = {
   'combat-impact': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
   'combat-defense': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'shield' },
   'buff-feedback': { pos: { x: 1, y: 0.2, z: 2 }, hy: 0.65, style: 'activate' },
-  'reward-burst': { pos: { x: 1, y: 0.2, z: 2 }, style: 'reveal', fid: 'test-reward', seed: 7 }
+  'reward-burst': { pos: { x: 1, y: 0.2, z: 2 }, style: 'reveal', fid: 'test-reward', seed: 7 },
+  'environment-ambient': { pos: { x: 1, y: 0.2, z: 2 }, style: 'world', fid: 'test-ambient', seed: 8 },
+  'world-transition': { pos: { x: 1, y: 0.2, z: 2 }, style: 'nether', fid: 'test-transition', seed: 9 }
 };
 
 test('semua kind Spatial FX terdaftar dan dapat dibuat', () => {
@@ -343,6 +345,23 @@ test('reward chest, coin, gem, XP, item, rare, dan legendary memiliki FX terlaca
   });
 });
 
+test('environment FX World, Nether, dan Dragon seeded serta membersihkan semua resource', () => {
+  ['world', 'nether', 'dragon'].forEach(style => {
+    const h = ready();
+    const effect = h.FX.spatial('environment-ambient', { pos: { x: 2, y: 3, z: -4 }, style, fid: 'ambient-' + style, seed: 58 });
+    assert.ok(effect, style + ': ambient tidak dibuat');
+    assert.ok(h.FX.getActive().some(e => e.metadata.fid === 'ambient-' + style));
+    step(h, 2);
+    assert.strictEqual(h.FX.getActive().length, 0, style + ': ambient tertinggal');
+    assert.strictEqual(h.scene.children.length, 0, style + ': mesh tertinggal');
+  });
+  const h = ready();
+  assert.ok(h.FX.spatial('world-transition', { pos: { x: 0, y: 2, z: 0 }, style: 'dragon', seed: 73, fid: 'transition-dragon' }));
+  step(h, 2);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+});
+
 test('efek spasial dilacak menurut fid/seed/source untuk cue multiplayer', () => {
   const h = ready();
   h.FX.spatial('tp-arrive', Object.assign({ fid: 'host:1:abcd.7', seed: 42, source: 'host' }, SAMPLE['tp-arrive']));
@@ -510,6 +529,16 @@ test('reward FX terikat pada klaim sukses dan menggunakan data rarity/reward yan
   assert.ok(/Math\.imul\(seq,2654435761\)/.test(rewardPage) && /fid:'reward-claim-'\+seq/.test(rewardPage), 'DOM burst punya seed dan fid');
   assert.ok(/PF\.configure\(\{maxParticles:FX\.limit\(\),maxBurst:FX\.n\(18,'L4'\)\}\)/.test(rewardPage), 'DOM burst mengikuti limit kualitas dan tier');
   assert.ok(/function openChest\(n\)[\s\S]*?if\(!ONLINE_ROOM\|\|ONLINE_HOST\) spFx\('reward-burst'/.test(mainSrc), 'chest replay di klien tidak memutar cue dua kali');
+});
+
+test('world FX menggunakan peta aktif, jeda kualitas, Reduce Motion, visibility, dan cleanup transisi', () => {
+  const env = fnBody(mainSrc, 'function updateEnvironmentFX(dt){');
+  const world = fnBody(mainSrc, 'function buildWorld(key){');
+  assert.ok(env.includes("themeKey==='nether'?'nether':'world'"), 'ambient mengikuti dua map aktif');
+  assert.ok(env.includes('FX.quality()') && env.includes('FX.reduced()') && env.includes('document.hidden') && env.includes('paused'), 'emisi menghormati kualitas, reduce motion, visibility, dan jeda');
+  assert.ok(env.includes("spFx('environment-ambient'") && env.includes('seed') && env.includes('fid:'), 'ambient memakai cue seeded');
+  assert.ok(world.includes('if(transition){ ENV_ACC=0; ENV_SEQ=0; wfxClear(); if(FX&&FX.clearSpatial) FX.clearSpatial(); }'), 'pergantian map membersihkan efek lama');
+  assert.ok(world.includes("spFx('world-transition'"), 'pergantian map mengirim cue transisi');
 });
 
 test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', () => {

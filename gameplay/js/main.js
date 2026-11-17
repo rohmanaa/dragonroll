@@ -3016,6 +3016,7 @@ function numSprite(n){
 }
 /* Kubus pecahan (batu/tulang/debu): satu InstancedMesh bersama, dipakai tembok runtuh, skeleton mati, Wither muncul/kalah */
 const WFX={n:150,o1:new THREE.Color(0xFF7A12),o2:new THREE.Color(0xD92B0A),o3:new THREE.Color(0x3A3236),im:null,st:[],i:0,on:false,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),e:new THREE.Euler(),p:new THREE.Vector3(),s:new THREE.Vector3(),c:new THREE.Color()};
+let ENV_ACC=0,ENV_SEQ=0;
 function wfxInit(){
   if(WFX.im) return;
   const im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xFFFFFF}),WFX.n); im.frustumCulled=false;
@@ -3041,6 +3042,7 @@ function fireBurst(x,y,z,k,floor){
   burstCubes(x,y+0.1,z,Math.round(8*k),{cols:[0x26262B,0x34343A,0x4A4A52],up:0.9,sp:0.45,size:0.09,spread:0.3*k,grav:-0.9,life:1.7,floor:fl}); /* asap */
 }
 function updateWFX(dt){
+  updateEnvironmentFX(dt);
   if(!WFX.im||!WFX.on) return; let any=false;
   for(let i=0;i<WFX.n;i++){
     const s=WFX.st[i]; if(s.life<=0) continue;
@@ -3055,6 +3057,17 @@ function updateWFX(dt){
   WFX.im.instanceMatrix.needsUpdate=true; if(!any) WFX.on=false;
 }
 function wfxClear(){ if(!WFX.im) return; WFX.m4.makeScale(0.0001,0.0001,0.0001); for(let i=0;i<WFX.n;i++){ WFX.st[i].life=0; WFX.im.setMatrixAt(i,WFX.m4); } WFX.im.instanceMatrix.needsUpdate=true; WFX.on=false; }
+function updateEnvironmentFX(dt){
+  if(!FX||typeof FX.spatial!=='function'||FX.reduced()||document.hidden||paused||gameOver){ ENV_ACC=0; return; }
+  const intervals={low:4.2,medium:3.4,high:2.8,ultra:2.3},interval=intervals[FX.quality()]||3.4;
+  ENV_ACC+=Math.min(0.1,Math.max(0,dt||0)); if(ENV_ACC<interval) return; ENV_ACC=0;
+  if(ONLINE_ROOM&&!ONLINE_HOST) return;
+  let style,pos;
+  if(BOSS==='dragon'&&AWK.done&&dragon.visible&&!DRG.defeated){ style='dragon'; pos=dragon.position.clone(); pos.y+=1.5; }
+  else{ const edge=ENV_SEQ%4; style=themeKey==='nether'?'nether':'world'; pos=new THREE.Vector3(edge%2?6.15:-6.15,1.8,edge<2?-5.7:5.7); }
+  const seq=++ENV_SEQ,seed=Math.imul(worldToken*131+seq,2654435761)>>>0;
+  spFx('environment-ambient',{pos,style,tier:'L1',seed,fid:'world-ambient-'+worldToken+'-'+seq});
+}
 /* Dibangun addFortress (BOSS 'wither'): jembatan 3 blok (tersembunyi), puing tembok, 6 Skeleton Hitam (tersembunyi). pg = grup tembok barat. */
 function buildWitherFort(Fo,pg){
   const x0=Fo.x0,x1=Fo.x1,z0=Fo.z0,z1=Fo.z1,y=Fo.y,cx=(x0+x1)/2,cz=(z0+z1)/2,T=0.5,F={edge:false};
@@ -3634,6 +3647,8 @@ function decorateCustom(DB,th){
 }
 function buildWorld(key){
   const th=THEMES.find(x=>x.key===key)||THEMES[0];
+  const previousThemeKey=themeKey,transition=worldToken>0&&previousThemeKey!==th.key;
+  if(transition){ ENV_ACC=0; ENV_SEQ=0; wfxClear(); if(FX&&FX.clearSpatial) FX.clearSpatial(); }
   theme=th; themeKey=th.key;
   applyMapRules(UT.Gameplay.Maps&&UT.Gameplay.Maps.get(th.key));
   const tk=++worldToken;
@@ -3724,6 +3739,10 @@ function buildWorld(key){
   applyLook(th);
   const tb=$('btnTheme'); if(tb) tb.textContent='Maps: '+th.name;
   document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===th.key?'true':'false'));
+  if(transition&&(!ONLINE_ROOM||ONLINE_HOST)){
+    const center=TILES[Math.min(GOAL,Math.max(1,Math.floor(GOAL/2)))];
+    if(center) spFx('world-transition',{pos:new THREE.Vector3(center.x,center.h+2.2,center.z),style:th.key==='nether'?'nether':'world',seed:th.key==='nether'?2:1,fid:'world-transition-'+worldToken});
+  }
 }
 
 /* ---------- Pion ---------- */
