@@ -180,7 +180,11 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/feather:\{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1\.1,volume:0\.68\}/.test(audio), 'Feather SFX mix');
   assert.ok(/powerFile\(layers\.activate,rate,200/.test(audio) && /layers\.action,rate,500/.test(audio) && /layers\.finish,rate,300/.test(audio), 'Feather layer durations');
   assert.ok(/finish: \(\) => \{ tone\(1800, 0\.3,[\s\S]*?true\)/.test(voicesSrc), 'Feather finish sparkle reverb');
-  ['epic-whoosh.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'wind-magic.mp3'].forEach(file => {
+  assert.ok(/tnt:\{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0\.9,volume:0\.85\}/.test(audio), 'TNT SFX mix');
+  assert.ok(/layers\.boom,rate,800,fallback,level,\{bassDb:2,reverb:0\.18\}/.test(audio) && /layers\.deepBoom,rate,1300,fallback,level,\{bassDb:6,reverb:0\.35\}/.test(audio), 'TNT boom and bass layer tuning');
+  assert.ok(/layers\.debris,rate,600,null,0\.72,\{bassDb:1,reverb:0\.2\}\);\s*\},1000\)/.test(audio), 'TNT debris finish timing');
+  assert.ok(/shelf\.type='lowshelf'/.test(audio) && /comp\.ratio\.value=4/.test(audio), 'TNT bass processing stays compressed');
+  ['debris-break.mp3', 'deep-explosion.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'wind-magic.mp3'].forEach(file => {
     assert.ok(ex('assets/audio/sfx/powerup/' + file), file + ' SFX path');
   });
 });

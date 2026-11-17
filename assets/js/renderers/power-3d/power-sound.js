@@ -70,8 +70,8 @@ const FAMILY = {
     hit: () => { tone(160, 0.22, 'square', 0.08, 0, 70); hiss(0.2, 0.1, 0, 'lowpass', 1200); },
   },
   tnt: { // sumbu + ledakan
-    activate: () => { for (let i = 0; i < 7; i++) hiss(0.04, 0.05, i * 0.07, 'highpass', 4500 + i * 300); tone(520, 0.45, 'sine', 0.025, 0, 900); },
-    hit: () => { hiss(0.5, 0.22, 0, 'lowpass', 2400, 120); tone(90, 0.5, 'sawtooth', 0.12, 0, 28); tone(60, 0.6, 'sine', 0.12, 0, 24); },
+    activate: () => { hiss(0.48, 0.08, 0, 'bandpass', 900, 5200); tone(320, 0.42, 'sine', 0.025, 0, 520); },
+    hit: () => { hiss(1.05, 0.2, 0, 'lowpass', 2400, 100); tone(70, 1.3, 'sawtooth', 0.12, 0, 28, true); tone(45, 1.35, 'sine', 0.12, 0, 22, true); },
   },
   feather: { // hembus ringan
     activate: () => { tone(1400, 0.2, 'sine', 0.04, 0, 1100); },

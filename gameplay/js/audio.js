@@ -51,6 +51,7 @@
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUnsheathing:'powerup/sword-unsheathing.mp3', swordSlice:'powerup/sword-slice.mp3', metalWhooshHit:'powerup/metal-whoosh-hit.mp3',
                  featherWindMagic:'powerup/wind-magic.mp3', featherLongWhoosh:'powerup/long-whoosh.mp3', featherFinishWhoosh:'powerup/epic-whoosh.mp3',
+                 tntExplosionFx:'powerup/explosion-fx.mp3', tntDeepExplosion:'powerup/deep-explosion.mp3', tntDebrisBreak:'powerup/debris-break.mp3',
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
     /* power (memakai ulang file pet/dragon yang sudah ada) */ stormZap:'pet/storm-wolf-zap.mp3', infernoFire:'pet/inferno-dragon-fire.mp3', kitsuneBell:'pet/celestial-kitsune-bell.mp3', kitsuneShine:'pet/celestial-kitsune-shine.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
@@ -83,18 +84,47 @@
   /* ---------- Suara Power ----------
      Tiap Power memakai resep PowerSound khusus; fase trigger memainkan hit khas Power itu sendiri.
      Audio pedang berbasis file punya fallback sintesis, bukan file musik atau ledakan bersama. */
-  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68} };
+  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85} };
   function powerSynth(k,phase,level){
     try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0&&PS.play(k,{phase:phase||'use',ctx:actx,volume:sfxV*(level==null?1:level)})) return true; }catch(e){}
     return false;
   }
-  function powerFile(key,rate,duration,fb,level){
+  function powerFileFX(a,fx){
+    if(!actx) ensureAudio();
+    if(!actx) return;
+    try{
+      const source=actx.createMediaElementSource(a), shelf=actx.createBiquadFilter(), comp=actx.createDynamicsCompressor();
+      shelf.type='lowshelf'; shelf.frequency.value=120; shelf.gain.value=fx.bassDb||0;
+      comp.threshold.value=-10; comp.knee.value=8; comp.ratio.value=4; comp.attack.value=0.005; comp.release.value=0.2;
+      source.connect(shelf); shelf.connect(comp); comp.connect(actx.destination);
+      if(fx.reverb){
+        const length=Math.max(1,Math.floor(actx.sampleRate*fx.reverb)), impulse=actx.createBuffer(2,length,actx.sampleRate);
+        for(let channel=0;channel<2;channel++){
+          const data=impulse.getChannelData(channel);
+          for(let i=0;i<length;i++) data[i]=(Math.random()*2-1)*0.02*Math.pow(1-i/length,3);
+        }
+        const convolver=actx.createConvolver(), wet=actx.createGain();
+        convolver.buffer=impulse; wet.gain.value=0.2; shelf.connect(convolver); convolver.connect(wet); wet.connect(comp);
+      }
+    }catch(e){ console.warn('[audio] efek TNT tambahan tidak tersedia',e); }
+  }
+  function powerFile(key,rate,duration,fb,level,fx){
     const a=fileSfx(key,level==null?1:level,fb,0,rate);
+    if(a&&fx) powerFileFX(a,fx);
     if(a) setTimeout(function(){ fadeOut(a,80); },duration);
     return a;
   }
-  function powerFiles(k){
+  function powerFiles(k,phase){
     const layers=POWER_FILES[k]; if(!layers) return false;
+    if(k==='tnt'&&phase==='trigger'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      let fallbackPlayed=false;
+      const fallback=function(){ if(!fallbackPlayed){ fallbackPlayed=true; powerSynth(k,'hit'); } };
+      powerFile(layers.boom,rate,800,fallback,level,{bassDb:2,reverb:0.18});
+      powerFile(layers.deepBoom,rate,1300,fallback,level,{bassDb:6,reverb:0.35});
+      setTimeout(function(){ powerFile(layers.debris,rate,600,null,0.72,{bassDb:1,reverb:0.2}); },1000);
+      return true;
+    }
     if(k==='feather'){
       const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
       powerFile(layers.activate,rate,200,function(){ powerSynth(k,'activate',level); },level);
@@ -140,9 +170,12 @@
     defeat(){ return fileSfx('defeat',1); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     /* Satu titik aktivasi Power untuk Player dan Computer; resep tiap Power tersedia di PowerSound. */
     power(k,phase){
-      if(phase==='trigger') return powerSynth(k,'hit')||powerBase(k);
+      if(phase==='trigger'){
+        if(powerFiles(k,'trigger')) return null;
+        return powerSynth(k,'hit')||powerBase(k);
+      }
       if(k==='tnt'||k==='fire_charge'||k==='blaze_core') return powerSynth(k,'activate')||powerBase(k);
-      if(powerFiles(k)) return null;
+      if(powerFiles(k,'use')) return null;
       return powerSynth(k,'use')||powerBase(k);
     },
     /* Shield/Totem menahan serangan (dipanggil powerFxPawn: 'shield_block' | 'totem_block') */

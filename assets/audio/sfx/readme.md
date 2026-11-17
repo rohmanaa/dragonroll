@@ -92,5 +92,10 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `wind-magic.mp3` | Aktivasi (0,2 dtk) | Feather |
 | `long-whoosh.mp3` | Action (0,5 dtk) | Feather |
 | `epic-whoosh.mp3` | Finish (0,3 dtk, volume lapisan 28%) | Feather |
+| `explosion-fx.mp3` | Ledakan awal (0,8 dtk) | TNT |
+| `deep-explosion.mp3` | Bass / boom (1,3 dtk) | TNT |
+| `debris-break.mp3` | Debris akhir (0,6 dtk; mulai pada 1 dtk) | TNT |
 
-Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Netherite Sword dan Power lainnya memakai suara sintetis unik berbasis material/elemen; file yang gagal diputar kembali ke resep sintetis Power yang sama.
+Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
+
+TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
