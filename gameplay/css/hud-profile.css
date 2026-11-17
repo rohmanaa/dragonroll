@@ -1,0 +1,46 @@
+/* HUD profil player di gameplay — frame dari assets/images/pvp/hud-profile.png (1257x371 ≈ 400x118).
+   Hanya skin kartu #players .pg .pr; markup & logika tidak diubah. Dimuat SETELAH hud-mockup.css. */
+html body #players .pg .pr{
+  --hp-s:.318; /* 400 / 1257 */
+  display:block!important;position:relative!important;box-sizing:border-box!important;
+  width:400px!important;height:118px!important;min-height:118px!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;overflow:visible!important;
+  background:url("../../assets/images/pvp/hud-profile.png") 0 0/100% 100% no-repeat!important;
+  box-shadow:none!important;filter:drop-shadow(0 5px 6px rgba(0,0,0,.45));
+  transition:filter .2s ease;
+}
+html body #players .pg .pr.act,html body #players .pg .pr.on{
+  box-shadow:none!important;border:0!important;
+  filter:drop-shadow(0 0 7px rgba(255,212,90,.95)) drop-shadow(0 0 16px rgba(255,190,60,.55)) drop-shadow(0 5px 6px rgba(0,0,0,.45));
+}
+html body #players .pg .pr[class*="pfx-"]::after{border-radius:14px;inset:0}
+html body #players .pg .mid{display:contents!important}
+
+/* avatar: kotak kiri (x0-107, y7-116) */
+html body #players .pg .av{position:absolute!important;left:4px!important;top:10px!important;width:99px!important;height:103px!important;overflow:visible!important}
+html body #players .pg .av>img{width:99px!important;height:103px!important;object-fit:cover!important;border-radius:8px!important;background:#2a2036!important;image-rendering:pixelated!important}
+
+/* lencana giliran -> perisai coklat (x118-160, y49-111): angka urutan di tengah */
+html body #players .pg .tn{left:114px!important;top:39px!important;width:42px!important;height:62px!important;display:grid!important;place-items:center!important}
+html body #players .pg .tn img{display:none!important}
+html body #players .pg .tn b{font-size:24px!important;color:#fff3d0!important;text-shadow:0 2px 0 #1b1020!important;transform:translateY(-2px)}
+
+/* bar biru: nama + tag (x108-359, y14-52) */
+html body #players .pg .r1{position:absolute!important;left:112px!important;top:15px!important;width:236px!important;height:36px!important;display:flex!important;align-items:center!important;gap:6px!important}
+html body #players .pg .nm{flex:1 1 auto!important;font-size:23px!important;line-height:1!important;text-shadow:0 2px 0 rgba(0,0,0,.6),0 0 8px color-mix(in srgb,var(--pc,#fff) 70%,transparent)!important}
+html body #players .pg .nm .cr{width:22px!important;height:22px!important}
+html body #players .pg .tag{height:20px!important;padding:0 6px!important;font-size:11px!important}
+html body #players .pg .pu-using{max-width:70px!important;padding:1px 4px!important;font-size:10px!important}
+html body #players .pg .pu-using img{width:14px!important;height:14px!important}
+
+/* bar hitam: sisa waktu giliran (x162-362, y56-80) */
+html body #players .pg .turn-progress{position:absolute!important;left:166px!important;top:60px!important;width:190px!important;height:15px!important;margin:0!important;border-radius:8px!important;background:rgba(0,0,0,.55)!important}
+html body #players .pg .turn-progress>u{border-radius:8px!important}
+
+/* panel bawah: posisi petak + buff (x108-267, y87-116) */
+html body #players .pg .r2{position:absolute!important;left:166px!important;top:88px!important;width:112px!important;height:26px!important;display:flex!important;align-items:center!important;gap:5px!important;overflow:hidden}
+html body #players .pg .ps{font-size:15px!important;line-height:1!important;text-shadow:0 2px 0 rgba(0,0,0,.6)!important}
+html body #players .pg .bf{gap:3px!important}
+html body #players .pg .bi{width:22px!important;height:22px!important}
+html body #players .pg .bi em{font-size:10px!important;right:-4px!important;bottom:-4px!important;padding:0 2px!important}
+html body #players .pg .pr.off{filter:grayscale(1) drop-shadow(0 5px 6px rgba(0,0,0,.45))}
