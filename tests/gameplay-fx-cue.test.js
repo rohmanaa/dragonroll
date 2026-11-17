@@ -221,6 +221,15 @@ test('daftar dedup dibatasi sehingga memori tidak tumbuh tanpa batas', () => {
   assert.strictEqual(FX.acceptCue({ fid: first.fid }), true, 'entri tertua sudah dilupakan (batas 256)');
 });
 
+test('cache epoch multiplayer dibatasi untuk banyak sesi pengirim', () => {
+  const { FX } = harness();
+  for (let i = 0; i < 257; i++) {
+    const nonce = 's' + i.toString(36);
+    assert.strictEqual(FX.acceptCue({ fid: 'hostA:5:' + nonce + '.1' }), true);
+  }
+  assert.strictEqual(FX.acceptCue({ fid: 'hostA:4:s0.2' }), true, 'epoch tertua dilupakan setelah batas sesi terlampaui');
+});
+
 test('cue lama tanpa fid atau dengan fid tak dikenal tetap diterima dan diputar tiap kali', () => {
   const { FX } = harness();
   const old = { k: 'confetti', x: 1, y: 2, z: 3 };

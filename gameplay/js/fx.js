@@ -16,8 +16,8 @@
   var scene = null, confetti = [], sparks = [], blasts = [], CONF_GEO = null, CONF_MATS = null, SPARK_GEO = null, FIRE_MATS = null, SMOKE_MATS = null, ENDER_MATS = null, ESMOKE_MATS = null;
   var currentQuality = null, reducedMq = null, tracked = Object.create(null), trackSeq = 0, configuredQuality = null;
   var disposed = false, lifecycleBound = false;
-  var fidSeq = 0, SESSION = Math.random().toString(36).slice(2, 6) || 'x', CUE_SEEN_MAX = 256, LOG_MAX = 64;
-  var cueSeen = Object.create(null), cueSeenOrder = [], cueEpoch = Object.create(null), cueLog = [], history = [], debugOn = false;
+  var fidSeq = 0, SESSION = Math.random().toString(36).slice(2, 6) || 'x', CUE_SEEN_MAX = 256, CUE_EPOCH_MAX = 256, LOG_MAX = 64;
+  var cueSeen = Object.create(null), cueSeenOrder = [], cueEpoch = Object.create(null), cueEpochOrder = [], cueLog = [], history = [], debugOn = false;
   var doc = win.document;
   var QUALITY = {
     low: { scale: 0.5, cap: 120, particles: { maxParticles: 40, maxBurst: 12 } },
@@ -182,6 +182,13 @@
     cueSeenOrder.push(fid);
     if (cueSeenOrder.length > CUE_SEEN_MAX) delete cueSeen[cueSeenOrder.shift()];
   }
+  function rememberEpoch(key, epoch) {
+    if (cueEpoch[key] == null) {
+      cueEpochOrder.push(key);
+      if (cueEpochOrder.length > CUE_EPOCH_MAX) delete cueEpoch[cueEpochOrder.shift()];
+    }
+    cueEpoch[key] = epoch;
+  }
   /* true = putar cue; false = abaikan (duplikat / dari game sebelumnya). Cue tanpa fid yang valid selalu diterima (kompatibel mundur). Murni visual: tidak menyentuh state gameplay. */
   function acceptCue(cue) {
     var f = cue && typeof cue === 'object' ? parseFid(cue.fid) : null;
@@ -189,7 +196,7 @@
     if (cueSeen[cue.fid]) { logCue(cue, 'rejected', 'duplicate'); return false; }
     var key = f.origin + '|' + f.nonce, last = cueEpoch[key];
     if (last != null && f.epoch < last) { logCue(cue, 'rejected', 'stale-epoch'); return false; }
-    if (last == null || f.epoch > last) cueEpoch[key] = f.epoch;
+    if (last == null || f.epoch > last) rememberEpoch(key, f.epoch);
     remember(cue.fid);
     logCue(cue, 'accepted', 'new');
     return true;
