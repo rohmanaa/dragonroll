@@ -1031,7 +1031,7 @@
     var style = o.style || 'hit', heavy = style === 'heavy' || style === 'ground', critical = style === 'critical';
     return spRun('combat-impact', 0.48, o, function (ctl) {
       var s = ctl.scale, color = critical ? 6 : style === 'damage' ? 7 : style === 'ground' ? 6 : 2;
-      var ring = spFlat(spMesh(ctl, SP_RING, color, 0.68)), hit = spMesh(ctl, SP_RING, color, 0.5);
+      var ring = spFlat(spMesh(ctl, SP_RING, color, 0.68)), hit = spMesh(ctl, SP_RING, color, 0.5), flash = spMesh(ctl, SP_DISC, color, 0.28);
       var n = spCount(heavy ? 18 : 12, o), motion = mo();
       for (var i = 0; i < n; i++) {
         var R = pr(o, SP_NS.impact * 1000 + i), a = R() * 6.2832, speed = (heavy ? 1.8 : 1.2) * (0.6 + R() * 0.6) * motion;
@@ -1040,6 +1040,7 @@
       ctl.tick = function (c, t, k) {
         ring.position.set(c.px, c.py + 0.04, c.pz); ring.scale.setScalar((0.24 + easeOut(k) * (heavy ? 1.35 : 0.95)) * s); ring.material.opacity = 0.68 * (1 - k);
         hit.position.set(c.cx, c.cy, c.cz); hit.scale.setScalar((0.22 + easeOut(k) * 0.42) * s); hit.material.opacity = 0.5 * (1 - k); hit.visible = hit.material.opacity > 0.01;
+        flash.position.set(c.cx, c.cy, c.cz); flash.scale.setScalar((0.12 + clamp(t / 0.08, 0, 1) * 0.2) * s); flash.material.opacity = 0.28 * Math.max(0, 1 - t / 0.12); flash.visible = flash.material.opacity > 0.01;
       };
     });
   };

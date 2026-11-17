@@ -355,7 +355,7 @@ test('cue spfx: ringan, bawa fid, whitelist kind, tamu menolak duplikat lewat ac
   assert.ok(send.includes('MP_SEQ===0') && send.includes("k:'spfx'") && send.includes('c.fid=f.fid'));
   assert.ok(!send.includes('follow:') && !/c\.[a-z]+=o\.follow/.test(send), 'follow (fungsi) tidak dikirim');
   assert.ok(send.includes('if(o.pid) c.pid=o.pid'));
-  assert.ok(mainSrc.includes("c.t==='weapon-trail'&&c.pid") && mainSrc.includes('o.pos=sample().clone(); o.follow=sample'));
+  assert.ok(mainSrc.includes("(c.t==='weapon-trail'||c.t==='weapon-charge')&&c.pid") && mainSrc.includes('o.pos=follow.pos; o.follow=follow.follow'));
   assert.ok(/FX\.spatialKinds\[c\.t\]/.test(mainSrc));
   const worst = { k: 'spfx', t: 'tp-trail', x: -12.3, y: 0.4, z: 13.5, tx: 12.1, ty: 0.4, tz: -13.3, d: 0.5, q: -0.3, h: 0.4, fid: 'player_ab12cd:12:x7k2.123' };
   assert.ok(JSON.stringify(worst).length < 200, 'payload terburuk ' + JSON.stringify(worst).length);
@@ -364,6 +364,8 @@ test('cue spfx: ringan, bawa fid, whitelist kind, tamu menolak duplikat lewat ac
   assert.ok(JSON.stringify(Object.assign({}, typical, { t: 'sword-slash', r: 0, m: 'diagonal' })).length < 120);
   const trail = { k: 'spfx', t: 'weapon-trail', x: -12.3, y: 0.4, z: 13.5, m: 'heavy', pid: 'player_ab12cd', fid: 'player_ab12cd:12:x7k2.123' };
   assert.ok(JSON.stringify(trail).length < 200, 'weapon trail cue ' + JSON.stringify(trail).length);
+  const projectile = { k: 'spfx', t: 'combat-projectile', x: -12.3, y: 0.4, z: 13.5, tx: 12.1, ty: 0.4, tz: -13.3, d: 0.5, m: 'charged', fid: 'player_ab12cd:12:x7k2.123' };
+  assert.ok(JSON.stringify(projectile).length < 200, 'projectile cue ' + JSON.stringify(projectile).length);
 });
 
 test('serangan Power pedang memicu slash sesuai posisi dan tipe senjata, tanpa mengubah resolusi Power', () => {
@@ -375,6 +377,31 @@ test('serangan Power pedang memicu slash sesuai posisi dan tipe senjata, tanpa m
   assert.ok(use.includes("if(melee&&T.length&&(R.kind==='strike'||R.kind==='area')) swordAttackFx(p,T[0],k);"));
   assert.ok(use.includes('const from=q.pos,to=Math.max(1,from-R.back)'));
   assert.ok(use.includes('if(melee) await fly(q,to,0.45,1.1); else await teleport(q,to,true);'));
+});
+
+test('panah Dragon memberi charge, trail lintasan, dan impact aktual tanpa memengaruhi resolusi gameplay', () => {
+  const body = fnBody(mainSrc, 'async function bowShootDragon(p,gid,onShoot){');
+  assert.ok(body.includes("spFx('weapon-charge'") && body.includes("spFx('combat-projectile'") && body.includes("spFx('combat-impact'"));
+  assert.ok(body.includes('await sleep(bc.bowReleaseAt(dur)*1000)'));
+  assert.ok(body.includes('await tween(fl,k=>{ aimAt(); to.copy(s0).lerp(tg,k);'));
+  assert.ok(body.includes('pos:dragon.position.clone()'));
+  assert.ok(body.includes('finally{ world.remove(a); }'));
+  assert.ok(!body.includes('damage') && !body.includes('hitTest') && !body.includes('intersect'));
+});
+
+test('projectile FX mengikuti origin/target dan menyelesaikan trail tanpa collision logic', () => {
+  const h = ready();
+  h.FX.spatial('combat-projectile', { from: { x: 0, y: 1, z: 0 }, to: { x: 2, y: 2, z: -1 }, dur: 0.4, seed: 33 });
+  step(h, 0.14);
+  const trail = h.scene.children.filter(m => !m.material.transparent);
+  assert.ok(trail.length > 0);
+  assert.ok(trail.some(m => m.position.x > 0 && m.position.z < 0));
+  step(h, 1);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+  assert.ok(fxSrc.includes('flash.material.opacity = 0.28 *'));
+  const explosion = fnBody(mainSrc, 'async function explode(p){');
+  assert.ok(explosion.includes("spFx('combat-impact',{pos,style:'ground'})"));
 });
 
 test('cue lama eport tetap diputar; Ender Hole memasang lapisan hole-fx tanpa cue tambahan', () => {

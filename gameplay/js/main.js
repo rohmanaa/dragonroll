@@ -4169,15 +4169,21 @@ const BOWA_GEO=new THREE.BoxGeometry(0.05,0.05,0.75),BOWA_MAT=new THREE.MeshLamb
 async function bowShootDragon(p,gid,onShoot){
   const pw=p.pawn,bc=pw&&pw.userData&&pw.userData.bc; if(!(bc&&bc.act&&bc.bow&&bc.bowReleaseAt)||!dragon.visible) return false;
   const dur=reduce?0.7:1.2,t0=performance.now(),oldYaw=pw.rotation.y,tg=new THREE.Vector3();
+  const charging=weaponBoneTrail(p,'bow',0.05);
+  const chargeFx=charging?spFx('weapon-charge',{pos:charging.pos,follow:charging.follow,dur:bc.bowReleaseAt(dur),style:'charged',pid:p.networkId}):null;
   const aimAt=()=>tg.copy(dragon.position); aimAt();
   const dx=tg.x-pw.position.x,dz=tg.z-pw.position.z,hd=Math.hypot(dx,dz)||1,el=Math.atan2(tg.y-(pw.position.y+1.1),hd);
   pw.rotation.y=Math.atan2(dx,dz); bc.setBowAim(Math.max(0,Math.min(1.1,el))); bc.act('bow',dur);
-  await sleep(bc.bowReleaseAt(dur)*1000); if(gid!==gameId){ pw.rotation.y=oldYaw; return true; }
+  await sleep(bc.bowReleaseAt(dur)*1000); if(chargeFx&&chargeFx.id&&FX) FX.stop(chargeFx.id,'projectile-released'); if(gid!==gameId){ pw.rotation.y=oldYaw; return true; }
   try{ sfx.skeltonSh(); }catch(e){}
   try{ if(onShoot) onShoot(); }catch(e){} /* overlay merah/Critical muncul tepat saat bidak melepas panah */
   const a=new THREE.Mesh(BOWA_GEO,BOWA_MAT),s0=new THREE.Vector3(); bc.bow.getWorldPosition(s0); aimAt(); a.position.copy(s0); a.lookAt(tg); world.add(a);
   const fl=Math.max(0.18,Math.min(0.5,s0.distanceTo(tg)/22)),to=new THREE.Vector3();
+  const projectileDir=Math.atan2(tg.x-s0.x,tg.z-s0.z);
+  spFx('weapon-release',{pos:s0,dir:projectileDir,style:'charged'});
+  spFx('combat-projectile',{from:s0,to:tg,dur:fl,style:'charged'});
   try{ await tween(fl,k=>{ aimAt(); to.copy(s0).lerp(tg,k); to.y+=Math.sin(k*Math.PI)*0.35; a.position.copy(to); a.lookAt(tg); }); }finally{ world.remove(a); }
+  spFx('combat-impact',{pos:dragon.position.clone(),style:'projectile'});
   await sleep(Math.max(0,dur*1000-(performance.now()-t0))); pw.rotation.y=oldYaw; /* tunggu animasi selesai lalu hadap seperti semula */
   return true;
 }
@@ -4203,7 +4209,7 @@ async function hitDragon(p,v){
 async function explode(p){
   const pos=p.pawn.position.clone(); pos.y+=0.5;
   const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xFF9A2A,transparent:true,opacity:0.8,fog:false})); /* kilatan api kecil (dulu kubus oranye besar) */
-  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos);
+  m.position.copy(pos); scene.add(m); sfx.bounce(); spawnExplosion(pos); spFx('combat-impact',{pos,style:'ground'});
   await tween(0.32,k=>{ m.scale.setScalar(0.15+k*0.85); m.material.opacity=0.8*(1-k)*(1-k); });
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
@@ -4245,19 +4251,16 @@ function spFxCue(c){ /* tamu: putar cue 'spfx' lokal; kind tak dikenal / angka t
   if(c.q!=null) o.side=n(c.q,0);
   if(c.h!=null) o.hy=n(c.h,0);
   if(typeof c.m==='string') o.style=c.m;
-  if(c.t==='weapon-trail'&&c.pid){
-    const p=mpPlayerByNet(c.pid),hand=p&&p.pawn&&p.pawn.userData&&p.pawn.userData.bc&&p.pawn.userData.bc.hand;
-    if(hand&&typeof hand.getWorldPosition==='function'){
-      const point=new THREE.Vector3(),sample=()=>{ hand.getWorldPosition(point); point.y+=0.25; return point; };
-      o.pos=sample().clone(); o.follow=sample;
-    }
+  if((c.t==='weapon-trail'||c.t==='weapon-charge')&&c.pid){
+    const p=mpPlayerByNet(c.pid),bone=c.t==='weapon-charge'?'bow':'hand',offset=bone==='bow'?0.05:0.25,follow=weaponBoneTrail(p,bone,offset);
+    if(follow){ o.pos=follow.pos; o.follow=follow.follow; }
   }
   FX.spatial(c.t,o);
 }
-function weaponHandTrail(p){
-  const hand=p&&p.pawn&&p.pawn.userData&&p.pawn.userData.bc&&p.pawn.userData.bc.hand;
-  if(!hand||typeof hand.getWorldPosition!=='function') return null;
-  const point=new THREE.Vector3(),follow=()=>{ hand.getWorldPosition(point); point.y+=0.25; return point; };
+function weaponBoneTrail(p,bone,offset){
+  const node=p&&p.pawn&&p.pawn.userData&&p.pawn.userData.bc&&p.pawn.userData.bc[bone];
+  if(!node||typeof node.getWorldPosition!=='function') return null;
+  const point=new THREE.Vector3(),follow=()=>{ node.getWorldPosition(point); point.y+=offset||0; return point; };
   return {pos:follow().clone(),follow};
 }
 function swordAttackFx(attacker,target,key){
@@ -4268,7 +4271,7 @@ function swordAttackFx(attacker,target,key){
   const style=key==='netherite_sword'?'heavy':key==='diamond_sword'?'diagonal':'horizontal';
   spFx('sword-slash',{pos:from,dir,style});
   spFx('weapon-release',{pos:from,dir,style});
-  const trail=weaponHandTrail(attacker);
+  const trail=weaponBoneTrail(attacker,'hand',0.25);
   if(trail) spFx('weapon-trail',{pos:trail.pos,follow:trail.follow,dur:0.72,style,pid:attacker.networkId});
 }
 let SP_SND_AT=0;
