@@ -63,6 +63,7 @@ function renderInfo(){
 function refresh(){if(!sel||!LIST.includes(sel))sel=LIST.find(i=>qty(i)>0)||LIST[0]||null;renderGrid();renderInfo();P3D.sync()}
 function pick(i){
   if(sel===i){playSound('select');return}
+  stopNetherStarPreview();
   sel=i;
   $('#grid').querySelectorAll('.fslot').forEach(card=>{
     const active=card.dataset.id===i.id;
@@ -81,19 +82,52 @@ $('#grid').addEventListener('click',e=>{
 function showThemeArt(on){$('#fpv').classList.toggle('art2d',!!on)}
 const hasPreviewObserver=typeof IntersectionObserver==='function';
 let previewIntersecting=!hasPreviewObserver;
+let netherStarTimers=[],netherStarAudio=[];
+function stopNetherStarPreview(){
+ netherStarTimers.forEach(id=>{clearTimeout(id);clearInterval(id)});netherStarTimers=[];
+ netherStarAudio.forEach(a=>a.pause());netherStarAudio=[];
+}
+function playNetherStarPreview(){
+ stopNetherStarPreview();if(SET().sound===false)return;
+ const stages=[['nether-star-activation.mp3',0,400],['nether-star-charge.mp3',350,800],['nether-star-release.mp3',1050,700],['nether-star-finish.mp3',1650,800]];
+ const rate=0.85*(0.98+Math.random()*0.04);
+ const playStage=(file,duration)=>{
+  if(SET().sound===false)return;
+  const a=new Audio('assets/audio/sfx/powerup/'+file);a.volume=0.9;a.playbackRate=rate;netherStarAudio.push(a);
+  a.addEventListener('error',()=>console.warn('[powerup-audio] gagal memutar '+file),{once:true});
+  let result;try{result=a.play()}catch(e){console.warn('[powerup-audio] gagal memutar '+file,e);return}
+  if(result&&typeof result.catch==='function')result.catch(e=>console.warn('[powerup-audio] gagal memutar '+file,e));
+  netherStarTimers.push(setTimeout(()=>{
+   const initial=a.volume,started=Date.now();
+   const fade=setInterval(()=>{
+    const progress=Math.min(1,(Date.now()-started)/80);a.volume=initial*(1-progress);
+    if(progress>=1){clearInterval(fade);a.pause()}
+   },20);
+   netherStarTimers.push(fade);
+  },Math.max(0,duration-80)));
+ };
+ stages.forEach(([file,delay,duration])=>{
+  if(delay===0)playStage(file,duration);
+  else netherStarTimers.push(setTimeout(()=>playStage(file,duration),delay));
+ });
+}
 const P3D={inst:null,mod:null,state:0,key:null,visible:previewIntersecting&&!document.hidden,
  off(){$('#fpv').classList.remove('p3d');showThemeArt(true);this.key=null;if(this.inst)this.inst.stop()},
  on(){return !!this.inst&&$('#fpv').classList.contains('p3d')},
  sync(){const i=sel;if(!i||!this.inst||!this.mod.supports(i.gameKey)){this.off();return false}
   if(!this.visible){this.inst.stop();return false}
   if(this.key===i.gameKey&&this.on()){this.inst.start();return true}
-  try{if(this.inst.show(i.gameKey)){this.key=i.gameKey;$('#fpv').classList.add('p3d');showThemeArt(false);this.inst.start();return true}}catch(e){console.warn('[power3d]',e)}
+  try{this.inst.setSound(false);if(this.inst.show(i.gameKey)){this.key=i.gameKey;$('#fpv').classList.add('p3d');showThemeArt(false);this.inst.start();return true}}catch(e){console.warn('[power3d]',e)}
   this.off();return false},
- setVisible(visible){if(this.visible===visible)return;this.visible=visible;if(!visible){if(this.inst)this.inst.stop();return}if(this.inst)this.sync();else this.load()},
+ activate(){const i=sel,star=!!i&&i.gameKey==='nether_star',sound=SET().sound!==false;
+  if(this.inst)this.inst.setSound(sound&&!star,star?0.9:1);
+  if(star&&sound)playNetherStarPreview();else stopNetherStarPreview();
+  return this.inst?this.inst.activate():false},
+ setVisible(visible){if(this.visible===visible)return;this.visible=visible;if(!visible){stopNetherStarPreview();if(this.inst)this.inst.stop();return}if(this.inst)this.sync();else this.load()},
  load(){if(this.state||!this.visible)return;this.state=1;
   import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;const graphics=SET().graphics,scale=Math.min(innerWidth/1920,innerHeight/1080);const quality=graphics==='low'||scale<.7?'low':graphics==='high'?'high':undefined;this.inst=m.mount($('#p3d'),{quality});this.state=2;
    const sh=$('#fpv');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
-   sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.inst.activate()}); /* ketuk = aktifkan; geser = putar */
+   sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.activate()}); /* ketuk = aktifkan; geser = putar */
    this.sync()
   }).catch(e=>{this.state=3;console.warn('[power3d] tidak tersedia, memakai tampilan lama',e)})}};
 const previewObserver=hasPreviewObserver?new IntersectionObserver(entries=>{
@@ -108,8 +142,9 @@ document.addEventListener('visibilitychange',()=>P3D.setVisible(previewIntersect
 /* ---- putar efek: 3D bila ada, bila tidak animasi 2D + partikel PowerFX */
 let rolling=false;
 function roll(){
-  if(P3D.on()){P3D.inst.activate();return}
+  if(P3D.on()){P3D.activate();return}
   if(rolling)return;rolling=true;
+  if(sel&&sel.gameKey==='nether_star')playNetherStarPreview();
   const d=$('#die');if(d)d.classList.add('burst');
   PFX.at(sel);
   setTimeout(()=>{if(d)d.classList.remove('burst');rolling=false},1000);

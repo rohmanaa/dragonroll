@@ -120,9 +120,12 @@ const FAMILY = {
     finish: () => { tone(110, 0.5, 'sine', 0.07, 0, 220, true); tone(220, 0.46, 'triangle', 0.045, 0.06, 440, true); hiss(0.3, 0.045, 0.08, 'highpass', 3000, 6800); },
     hit: () => { hiss(0.42, 0.14, 0, 'bandpass', 500, 4200); tone(125, 0.48, 'sawtooth', 0.1, 0, 58); },
   },
-  trident: { // petir + tombak
-    activate: () => { hiss(0.24, 0.1, 0, 'highpass', 4500, 9500); tone(1300, 0.24, 'sawtooth', 0.04, 0, 200); },
-    hit: () => { hiss(0.28, 0.16, 0, 'highpass', 2000, 8000); tone(2200, 0.08, 'square', 0.06, 0, 400); tone(100, 0.35, 'sine', 0.1, 0.03, 40); },
+  trident: { // senjata listrik dengan charge, whoosh, dan thunder tajam
+    activate: () => { hiss(0.18, 0.08, 0, 'bandpass', 700, 3200); tone(320, 0.28, 'sawtooth', 0.05, 0, 900); },
+    charge: () => { hiss(0.45, 0.1, 0, 'highpass', 1800, 8000); tone(260, 0.5, 'sawtooth', 0.055, 0, 1200); },
+    crackle: () => { hiss(0.2, 0.14, 0, 'highpass', 2600, 9000); tone(1800, 0.1, 'square', 0.06, 0, 500); },
+    release: () => { hiss(0.32, 0.13, 0, 'bandpass', 900, 7500); tone(1100, 0.38, 'sawtooth', 0.06, 0, 240); },
+    hit: () => { hiss(0.62, 0.16, 0, 'lowpass', 2400, 180); tone(145, 0.7, 'sawtooth', 0.12, 0, 40); tone(1800, 0.16, 'square', 0.06, 0.02, 250); },
   },
   dragon: { // dengung kosmik + raungan
     activate: () => { tone(110, 0.34, 'sawtooth', 0.06, 0, 220); tone(660, 0.32, 'sine', 0.03, 0.1, 1320); },
@@ -134,8 +137,11 @@ const FAMILY = {
     hit: () => { chime(880, 0, 0.05, [1, 1.33, 1.68]); hiss(0.15, 0.04, 0, 'highpass', 5000); },
     finish: () => { tone(1250, 0.6, 'sine', 0.045, 0, 430, true); tone(900, 0.45, 'sine', 0.025, 0.08, 300, true); },
   },
-  star: { // akor naik megah
-    activate: () => { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 0.22, 'sine', 0.05, i * 0.06)); },
+  star: { // energi kosmik rendah dengan resonansi kristal
+    activate: () => { [220, 330, 440, 660].forEach((f, i) => tone(f, 0.4, 'sine', 0.055, i * 0.035, f * 0.82, true)); },
+    charge: () => { tone(48, 0.8, 'sine', 0.11, 0, 96, true); tone(196, 0.8, 'triangle', 0.045, 0, 784, true); hiss(0.8, 0.035, 0, 'lowpass', 180, 1400); },
+    release: () => { tone(55, 0.7, 'sawtooth', 0.09, 0, 36, true); tone(440, 0.7, 'sine', 0.05, 0, 1760, true); hiss(0.65, 0.07, 0, 'bandpass', 500, 7000); },
+    finish: () => { [880, 1320, 1760, 2200].forEach((f, i) => tone(f, 0.8, 'sine', 0.04, i * 0.06, f * 1.08, true)); tone(110, 0.8, 'sine', 0.045, 0, 165, true); },
     hit: () => { chime(1047, 0, 0.06, [1, 1.25, 1.5, 2, 2.5]); tone(65, 1.1, 'sine', 0.1, 0, 32); hiss(0.9, 0.08, 0, 'highpass', 3000, 9000); },
   },
   potionEven: { // ramuan beruntung bernada cerah dan naik
@@ -177,7 +183,7 @@ export const PowerSound = {
     if (!live()) return false;
     try {
       const ph = o.phase || 'use';
-      const pitchBase = id === 'wooden_shield' ? 0.95 : id === 'blaze_core' ? 0.9 : id === 'diamond_sword' || id === 'golden_apple' ? 1.05 : id === 'feather' || id === 'potion_even' || id === 'ice_crystal' ? 1.1 : 1;
+      const pitchBase = id === 'nether_star' ? 0.85 : id === 'wooden_shield' || id === 'trident' ? 0.95 : id === 'blaze_core' ? 0.9 : id === 'diamond_sword' || id === 'golden_apple' ? 1.05 : id === 'feather' || id === 'potion_even' || id === 'ice_crystal' ? 1.1 : 1;
       pitchScale = pitchBase * (0.98 + Math.random() * 0.04);
       if (ph === 'spawn') COMMON.spawn(o.tier || 1);
       else if (ph === 'disappear') COMMON.disappear();
@@ -189,6 +195,7 @@ export const PowerSound = {
       else if (ph === 'embers' && fam.embers) fam.embers();
       else if (ph === 'pulse' && fam.pulse) fam.pulse();
       else if (ph === 'release' && fam.release) fam.release();
+      else if (ph === 'crackle' && fam.crackle) fam.crackle();
       else if (ph === 'crack' && fam.crack) fam.crack();
       else if (ph === 'swing' && fam.swing) fam.swing();
       else if (ph === 'drink' && fam.drink) fam.drink();

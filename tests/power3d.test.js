@@ -67,4 +67,14 @@ t('Power: klik pilihan tidak membangun ulang grid/FX, renderer dipakai ulang dan
   assert.ok(pj.includes('P3D.setVisible(previewIntersecting&&!document.hidden)'), 'renderer mengikuti visibilitas preview');
   assert.ok(pj.includes('if(this.inst)this.inst.stop()'), 'renderer dihentikan ketika preview tidak aktif');
 });
+t('Power: preview mengaktifkan suara sesuai pengaturan dan Nether Star memainkan empat layer file', () => {
+  const pj = rd('data/inventory/power/_shared/js/powerup.js');
+  assert.ok(pj.includes('this.inst.setSound(sound&&!star,star?0.9:1)'), 'suara renderer mengikuti pengaturan saat aktivasi oleh gesture');
+  assert.ok(pj.includes('if(star&&sound)playNetherStarPreview()'), 'Nether Star preview memakai aset file, bukan suara sintetis ganda');
+  ['nether-star-activation.mp3', 'nether-star-charge.mp3', 'nether-star-release.mp3', 'nether-star-finish.mp3'].forEach(file => {
+    assert.ok(pj.includes(file), file + ' tersedia di preview');
+  });
+  assert.ok(pj.includes('a.playbackRate=rate') && pj.includes('a.volume=0.9'), 'preview menghormati pitch dan volume Nether Star');
+  assert.ok(pj.includes('stopNetherStarPreview()'), 'preview dihentikan saat berpindah power');
+});
 console.log(n + ' tes lulus');

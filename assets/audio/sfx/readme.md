@@ -121,6 +121,14 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `blaze-core-molten.mp3` | Dengung energi molten (0,6 dtk) | Blaze Core |
 | `blaze-core-eruption.mp3` | Eruption api (0,5 dtk) | Blaze Core |
 | `blaze-core-resonance.mp3` | Resonansi bara akhir (0,5 dtk) | Blaze Core |
+| `trident-activation.mp3` | Electric weapon charge (0,3 dtk) | Trident |
+| `trident-crackle.mp3` | Crackle listrik naik (0,5 dtk) | Trident |
+| `trident-whoosh.mp3` | Electric whoosh (0,4 dtk) | Trident |
+| `trident-thunder.mp3` | Sambaran dan thunder (0,7 dtk) | Trident |
+| `nether-star-activation.mp3` | Deep celestial bell (0,4 dtk) | Nether Star |
+| `nether-star-charge.mp3` | Energi kosmik naik (0,8 dtk) | Nether Star |
+| `nether-star-release.mp3` | Massive energy blast (0,7 dtk) | Nether Star |
+| `nether-star-finish.mp3` | Resonansi kristal surgawi (0,8 dtk) | Nether Star |
 | `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil |
 | `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil |
 | `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil |
@@ -141,6 +149,10 @@ Fire Charge berbunyi ignition 0,2 dtk saat dipasang; ketika terpicu, energi api 
 Ice Crystal memakai chime 0,3 dtk, charging 0,4 dtk, release 0,4 dtk, lalu impact 0,6 dtk dengan layer crack dan pecahan kristal. Volume 78%, pitch 1,1 ±2%, reverb medium, high-frequency jernih, dan low-end ringan agar efeknya tajam tanpa gemuruh.
 
 Blaze Core berbunyi ignition dalam 0,3 dtk saat dipasang; saat terpicu, energi molten berdengung 0,6 dtk, eruption 0,5 dtk, lalu resonansi bara 0,5 dtk. Volume 85%, pitch 0,9 ±2%, bass kuat dan reverb medium, dengan bara serta pulse energi. Karakternya berat dan magmatik, bukan ledakan TNT.
+
+Trident memakai charge elektrik 0,3 dtk, crackle naik 0,5 dtk, electric whoosh 0,4 dtk, lalu sambaran dengan thunder 0,7 dtk. Volume 85%, pitch 0,95 ±2%, bass medium-strong dan reverb medium; crackle listrik ditambahkan tipis agar strike tetap tajam tanpa memanjangkan thunder.
+
+Nether Star memakai chime surgawi 0,4 dtk, cosmic charge 0,8 dtk, energy blast 0,7 dtk, lalu resonansi kristal 0,8 dtk. Lapisan ditumpangtindihkan tipis agar keseluruhan berakhir sekitar 2,5 dtk. Volume 90%, pitch 0,85 ±2%, bass kuat dengan kompresi, reverb cinematic, dan shimmer high-frequency; fallback sintetis mempertahankan empat fase kosmik ini.
 
 TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
 
