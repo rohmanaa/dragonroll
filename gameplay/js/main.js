@@ -3931,10 +3931,19 @@ function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
-function powerFxPawn(key,pl){
-  if(MP_SEQ===0) mpCue({k:'pfx',key:key,pid:pl&&pl.networkId});
+function powerFxPawn(key,pl,meta){
+  const defense=key==='shield_block'||key==='totem_block';
+  let fxMeta=meta||null;
+  if(MP_SEQ===0){
+    const m=defense?mpFxMeta():null; if(m) fxMeta=m;
+    mpCue(m?{k:'pfx',key:key,pid:pl&&pl.networkId,fid:m.fid,seed:m.seed}:{k:'pfx',key:key,pid:pl&&pl.networkId});
+  }
   if(key==='shield_block'||key==='totem_block'){ try{ sfx.powerBlock(key); }catch(e){} } /* suara menahan serangan: juga saat reduce-motion */
   try{
+    if(defense&&pl&&pl.pawn&&FX){
+      const pos=pl.pawn.position.clone(); pos.y+=0.65;
+      FX.spatial('combat-defense',Object.assign({pos,dir:pl.pawn.rotation.y,style:key==='totem_block'?'absorb':'shield'},fxMeta||{}));
+    }
     if(!pl||!pl.pawn||reduce) return;
     /* Efek Power selalu di TENGAH layar (bukan di atas pion). Canvas 3D = sebesar canvas game (1 layar) agar aura/partikel tidak terpotong; model power sendiri diperkecil 1,5x (SHRINK di power-overlay.js) dari ukuran dasar 90% sisi pendek layar (320-760px) */
     const r=$('c').getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
@@ -5465,9 +5474,12 @@ async function celebrate(p){
 }
 /* Efek mob di petak p.pos. Dipakai playTurn (setelah dadu) DAN setelah Chest 'Kejutan' memindahkan pemain. */
 /* Efek hit 2D di posisi pion: gelombang + garis angin + flash merah + guncangan layar */
-function hitBlastFx(p){
-  if(MP_SEQ===0) mpCue({k:'hitfx',pid:p&&p.networkId});
+function hitBlastFx(p,meta){
+  let fxMeta=meta||null;
+  if(MP_SEQ===0){ const m=mpFxMeta(); if(m) fxMeta=m; mpCue(m?{k:'hitfx',pid:p&&p.networkId,fid:m.fid,seed:m.seed}:{k:'hitfx',pid:p&&p.networkId}); }
   try{
+    const impact=p.pawn.position.clone(); impact.y+=0.55;
+    if(FX) FX.spatial('combat-impact',Object.assign({pos:impact,style:'hit'},fxMeta||{}));
     let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
     const r=$('c').getBoundingClientRect(),v=p.pawn.position.clone(); v.y+=0.6; v.project(camera);
     const x=r.left+(v.x*0.5+0.5)*r.width,y=r.top+(-v.y*0.5+0.5)*r.height;
@@ -5965,9 +5977,9 @@ function mpRunFeedbackCue(c){
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
     else if(c.k==='eport'){ enderHole(new THREE.Vector3(c.x,c.y,c.z),c.s||1,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='spfx'){ spFxCue(c); }
-    else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
+    else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
-    else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }
+    else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='pufx'){ puFx(c.key,c.cls); }
   }catch(e){ console.error('[multiplayer] feedback cue failed',e); }
   return Promise.resolve();

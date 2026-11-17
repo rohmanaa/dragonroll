@@ -7,6 +7,7 @@ const { harness } = require('./helpers/fx-harness');
 const root = path.join(__dirname, '..');
 const mainSrc = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
 const fxSrc = fs.readFileSync(path.join(root, 'gameplay/js/fx.js'), 'utf8');
+const cssSrc = fs.readFileSync(path.join(root, 'gameplay/css/gameplay.css'), 'utf8');
 
 let count = 0;
 const tests = [];
@@ -402,6 +403,35 @@ test('projectile FX mengikuti origin/target dan menyelesaikan trail tanpa collis
   assert.ok(fxSrc.includes('flash.material.opacity = 0.28 *'));
   const explosion = fnBody(mainSrc, 'async function explode(p){');
   assert.ok(explosion.includes("spFx('combat-impact',{pos,style:'ground'})"));
+});
+
+test('hit feedback muncul pada pawn aktual, mengikuti cue seeded, dan screen flash <= 0.28', () => {
+  const hit = fnBody(mainSrc, 'function hitBlastFx(p,meta){');
+  assert.ok(hit.includes("FX.spatial('combat-impact'") && hit.includes("Object.assign({pos:impact,style:'hit'},fxMeta||{})"));
+  assert.ok(hit.includes('fid:m.fid,seed:m.seed'));
+  assert.ok(mainSrc.includes("hitBlastFx(q,FX&&FX.cueOptions?FX.cueOptions(c):null)"));
+  const flash = cssSrc.match(/#hitFx \.hf-flash\{([^}]+)\}/);
+  assert.ok(flash);
+  const flashAlphas = [...flash[1].matchAll(/rgba\([^)]*,\s*([0-9.]+)\)/g)].map(m => Number(m[1]));
+  assert.ok(flashAlphas.length && Math.max(...flashAlphas) <= 0.28);
+  assert.ok(cssSrc.includes('rgba(255,0,0,.28)') && !cssSrc.includes('rgba(255,0,0,.45)'));
+});
+
+test('shield block dan absorption hanya dirender melalui cue defense yang sudah diproses', () => {
+  const h = ready();
+  ['shield', 'absorb'].forEach(style => {
+    h.FX.spatial('combat-defense', { pos: { x: 2, y: 0.5, z: -1 }, dir: 0.7, style, fid: 'host:1:abcd.' + (style === 'shield' ? 1 : 2), seed: 445 });
+  });
+  assert.strictEqual(h.FX.getActive().filter(e => e.metadata.type === 'combat-defense').length, 2);
+  step(h, 1);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+  const powerFx = fnBody(mainSrc, 'function powerFxPawn(key,pl,meta){');
+  assert.ok(powerFx.includes("key==='shield_block'||key==='totem_block'"));
+  assert.ok(powerFx.includes("FX.spatial('combat-defense'"));
+  assert.ok(powerFx.includes("style:key==='totem_block'?'absorb':'shield'"));
+  assert.ok(mainSrc.includes("powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null)"));
+  assert.ok(mainSrc.includes("powerFxPawn(by==='guard'?'shield_block':'totem_block',q)"));
 });
 
 test('cue lama eport tetap diputar; Ender Hole memasang lapisan hole-fx tanpa cue tambahan', () => {
