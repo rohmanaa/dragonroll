@@ -83,6 +83,9 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   assert.ok(/keyFromEquipped\(seed\.equipped\)/.test(gameplay), 'pemain lain: aura dari data server');
   assert.ok(/A\.set\(b\.root,u\.auraKey/.test(gameplay), 'Aura dipasang pada pion gameplay');
   assert.ok(/PAURA\.update\(dt\)/.test(gameplay), 'AuraFX diperbarui setiap frame');
+  assert.ok(/quality:q==='high'\?'medium':q,reducedMotion:fxReduced/.test(gameplay), 'quality Ultra dan Reduce Motion diteruskan ke AuraFX');
+  assert.ok(/if\(u\.bc&&PAURA\) PAURA\.clear\(u\.bc\.root\)/.test(gameplay), 'ganti skin melepas aura pada rig lama');
+  assert.ok(/if\(PAURA\) PAURA\.clearAll\(\); players\.forEach/.test(gameplay), 'reset membersihkan seluruh aura');
 });
 t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
   const g = read('karakter.html'), js = read('data/inventory/character/_shared/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };

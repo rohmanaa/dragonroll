@@ -19,6 +19,6 @@ assert.ok(!main.includes("showDragonBoss(p,gid,'Siap menyerang Ender Dragon!'"),
 assert.ok(main.includes("root.classList.add('fight')"), 'The red vignette should remain active through the fight');
 assert.ok(main.includes("add('hf-cinema')") && main.includes("add('hf-wave'"), 'Dragon hits should use the cinematic impact effect');
 assert.match(css, /#bossFx\.critical\.hit \.boss-hit-label\s*\{animation:bossCriticalFlash/, 'Critical should flash during a Dragon hit');
-assert.match(css, /#bossFx::before[^}]*box-shadow:inset 0 0 260px rgba\(255,0,0,\.73\)/, 'The fight overlay should retain its red screen-edge vignette');
+assert.match(css, /#bossFx::before[^}]*box-shadow:inset 0 0 180px rgba\(255,0,0,\.28\)/, 'The fight overlay should retain a capped red screen-edge vignette');
 
 console.log('ok - Dragon hits show Critical with a persistent red vignette and no boss bar');

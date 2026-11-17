@@ -33,8 +33,8 @@ t('shader tidak memakai include three r152+ (colorspace_fragment) yang tidak ada
   assert.ok(!/colorspace_fragment/.test(read('assets/js/renderers/aura-fx.js')));
   assert.ok(!/^\s*(import|export)\s/m.test(read('assets/js/renderers/aura-fx.js')));
 });
-t('semua aura x 3 kualitas: attach, lompat, ganti aura, tint, despawn tanpa error', () => {
-  for (const q of ['low', 'medium', 'high']) {
+t('semua aura x 4 kualitas: attach, lompat, ganti aura, tint, despawn tanpa error', () => {
+  for (const q of ['low', 'medium', 'high', 'ultra']) {
     const { scene, cam } = stage(), sys = new FX.AuraSystem(scene, cam, { quality: q });
     FX.AURAS.forEach((a, i) => {
       const ch = new THREE.Group(); const m = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2, 0.4), new THREE.MeshBasicMaterial()); m.position.y = 1; ch.add(m); scene.add(ch);
@@ -46,6 +46,24 @@ t('semua aura x 3 kualitas: attach, lompat, ganti aura, tint, despawn tanpa erro
     assert.strictEqual(sys.stats.auras, 0, q);
     sys.setQuality(q === 'low' ? 'high' : 'low'); sys.update(0.016); sys.dispose();
   }
+});
+t('Ultra dan Reduce Motion: kualitas dikenali, emisi gerak dibatasi, dan perubahan preferensi dibaca live', () => {
+  const { scene, cam } = stage(); let reduced = true;
+  const sys = new FX.AuraSystem(scene, cam, { quality: 'ultra', reducedMotion: () => reduced });
+  const ch = new THREE.Group(); const m = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2, 0.4), new THREE.MeshBasicMaterial()); m.position.y = 1; ch.add(m); scene.add(ch);
+  const aura = sys.attach(ch, 'electric', {}, { height: 2 });
+  assert.strictEqual(sys.stats.quality, 'ultra');
+  frames(sys, 60);
+  const reducedTime = aura.t, reducedParticles = sys.stats.particles;
+  assert.ok(reducedTime > 0 && reducedTime < 0.2, 'animasi melambat saat Reduce Motion: ' + reducedTime);
+  assert.strictEqual(reducedParticles, 0, 'tidak ada semburan atau emisi terus-menerus saat Reduce Motion');
+  ch.position.x = 5; sys.update(1 / 60); assert.ok(Math.abs(aura.anchor.x - 5) < 1e-6, 'aura mengikuti teleport/gerak karakter');
+  reduced = false; frames(sys, 60);
+  assert.ok(aura.t > reducedTime + 0.8, 'perubahan Reduce Motion dibaca live');
+  assert.ok(sys.stats.particles > reducedParticles, 'emisi normal kembali saat Reduce Motion mati');
+  aura.despawn(true); frames(sys, 60);
+  assert.strictEqual(sys.stats.auras, 0, 'aura dibersihkan setelah despawn');
+  sys.dispose();
 });
 t('karakter blocky: pakai penampilan PlayerData, tinggi ~2, semua mode & lompat jalan', () => {
   const c = UT.BlockyCharacter.create(THREE); c.loadFromPlayer();

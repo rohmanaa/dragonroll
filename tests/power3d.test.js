@@ -77,4 +77,23 @@ t('Power: preview mengaktifkan suara sesuai pengaturan dan Nether Star memainkan
   assert.ok(pj.includes('a.playbackRate=rate') && pj.includes('a.volume=0.9'), 'preview menghormati pitch dan volume Nether Star');
   assert.ok(pj.includes('stopNetherStarPreview()'), 'preview dihentikan saat berpindah power');
 });
+t('Power-3D mendukung kualitas Low sampai Ultra dengan scaling bertahap', () => {
+  const source = rd('assets/js/renderers/power-3d/power-config.js').replace(/^export /gm, '');
+  const load = device => vm.runInNewContext(source + '\n;({ QUALITY, detectQuality })', { navigator: device });
+  const profiles = load({ userAgent: 'Desktop', deviceMemory: 4, hardwareConcurrency: 4 }).QUALITY;
+  assert.deepStrictEqual(Object.keys(profiles), ['low', 'medium', 'high', 'ultra']);
+  assert.ok(profiles.low.particleCap < profiles.medium.particleCap);
+  assert.ok(profiles.medium.particleCap < profiles.high.particleCap);
+  assert.ok(profiles.high.particleCap < profiles.ultra.particleCap);
+  assert.ok(profiles.low.auraLayers < profiles.medium.auraLayers);
+  assert.ok(profiles.medium.auraLayers < profiles.high.auraLayers);
+  assert.ok(profiles.high.auraLayers < profiles.ultra.auraLayers);
+  const cases = [
+    [{ userAgent: 'Desktop', deviceMemory: 2, hardwareConcurrency: 8 }, 'low'],
+    [{ userAgent: 'Desktop', deviceMemory: 4, hardwareConcurrency: 4 }, 'medium'],
+    [{ userAgent: 'Desktop', deviceMemory: 8, hardwareConcurrency: 6 }, 'high'],
+    [{ userAgent: 'Desktop', deviceMemory: 8, hardwareConcurrency: 8 }, 'ultra']
+  ];
+  cases.forEach(([device, expected]) => assert.strictEqual(load(device).detectQuality(), expected));
+});
 console.log(n + ' tes lulus');

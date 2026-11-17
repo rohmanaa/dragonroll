@@ -1,7 +1,7 @@
 /**
  * AuraSystem.js — satu engine untuk semua aura (data dari AuraCatalog).
  *
- * const sys = new AuraSystem(scene, camera, { quality: 'medium' });
+ * const sys = new AuraSystem(scene, camera, { quality: 'medium', reducedMotion: false });
  * const aura = sys.attach(characterObject3D, 'dragon', { intensity: 1, size: 1, speed: 1, tint: null });
  * aura.set({ intensity: 1.4 }); aura.jump(); aura.despawn(); aura.setAura('solar');
  * // di render loop: sys.update(dt)
@@ -29,7 +29,7 @@ class CharacterAura {
     this.anchor = new THREE.Vector3(); this.vel = new THREE.Vector3(); this._prev = new THREE.Vector3(); this._has = false;
     this._p = new THREE.Vector3(); this._q = new THREE.Quaternion(); this._e = new THREE.Euler();
     this.t = 0; this.env = 0; this.phase = 'spawn'; this.air = 0; this.airborne = false; this.pulse = 0; this.tintV = 0; this.lod = 1; this.removeOnDone = true;
-    this.s = { env: 0, inten: 1, size: 1, air: 0, pulse: 0, tintV: 0 };
+    this.s = { env: 0, inten: 1, size: 1, air: 0, pulse: 0, tintV: 0, reducedMotion: false };
     this._measure();
     this.ground = this.anchor.y;
     this._build(id);
@@ -118,13 +118,13 @@ class CharacterAura {
         vx: Math.cos(a) * sp, vy: rnd(0.2, up) * u * 1.5, vz: Math.sin(a) * sp, grav: 2.5 * u, drag: 0.8 });
     }
   }
-  _burstSpawn() { for (const e of this.emitters) for (let i = 0; i < Math.min(10, e.rate * 2); i++) this._spawn(e); this.pulse = 1; }
-  _onJump() { this._burstFeet(Math.round(14 * this.sys.q.rate + 4)); this.pulse = 1; }
-  _onLand() { this._burstFeet(Math.round(18 * this.sys.q.rate + 4), 0.4); this.pulse = 1.2; }
+  _burstSpawn() { if (this.sys.isReducedMotion()) return; for (const e of this.emitters) for (let i = 0; i < Math.min(10, e.rate * 2); i++) this._spawn(e); this.pulse = 1; }
+  _onJump() { if (this.sys.isReducedMotion()) return; this._burstFeet(Math.round(14 * this.sys.q.rate + 4)); this.pulse = 1; }
+  _onLand() { if (this.sys.isReducedMotion()) return; this._burstFeet(Math.round(18 * this.sys.q.rate + 4), 0.4); this.pulse = 1.2; }
 
   // ---------------------------------------------------------------- loop
-  update(dt) {
-    const S = this.settings, k = S.speed, sdt = dt * k, u = this.u, q = this.sys.q;
+  update(dt, motionScale) {
+    const S = this.settings, k = S.speed, sdt = dt * k * motionScale, u = this.u, q = this.sys.q, reducedMotion = motionScale < 1;
     this.t += sdt;
     // lifecycle
     if (this.phase === 'spawn') { this.env = Math.min(1, this.env + dt / 0.9); if (this.env >= 1) this.phase = 'run'; }
@@ -142,25 +142,25 @@ class CharacterAura {
     this._prev.copy(this.anchor); this._has = true;
     const spd = Math.hypot(this.vel.x, this.vel.z) / u;
     const air = this.anchor.y - this.ground > 0.12 * u;
-    if (air && !this.airborne) this._onJump();
-    if (!air && this.airborne) this._onLand();
+    if (air && !this.airborne && !reducedMotion) this._onJump();
+    if (!air && this.airborne && !reducedMotion) this._onLand();
     if (!air && Math.abs(this.vel.y) < 0.6 * u) this.ground += (this.anchor.y - this.ground) * 0.2; /* lantai tidak ikut terangkat saat awal lompatan */
     this.airborne = air; this.air += ((air ? 1 : 0) - this.air) * Math.min(1, dt * 8);
-    this.pulse *= Math.exp(-3 * dt);
+    this.pulse *= Math.exp(-3 * dt * (reducedMotion ? 8 : 1));
     // LOD jarak kamera
     const dist = this.sys.camera.position.distanceTo(this.anchor);
     this.lod = clamp(1.15 - dist / (40 * u), 0.25, 1);
     // emisi
-    const eEnv = smooth(0, 1, this.env), mul = this.T.rate * q.rate * this.lod * Math.min(2, S.intensity) * eEnv * (1 + this.air * 0.6 + Math.min(spd, 6) * 0.08);
+    const eEnv = smooth(0, 1, this.env), mul = this.T.rate * q.rate * this.lod * Math.min(2, S.intensity) * eEnv * (1 + this.air * 0.6 + Math.min(spd, 6) * 0.08) * (reducedMotion ? 0.2 : 1);
     for (const em of this.emitters) {
       em.acc = Math.min(20, em.acc + em.rate * mul * sdt);
       while (em.acc >= 1) { em.acc--; this._spawn(em); }
-      if (em.burst && eEnv > 0.5) { em.burstT -= sdt; if (em.burstT <= 0) { em.burstT = em.burst.every; const n = Math.round(em.burst.count * q.rate * this.lod); for (let i = 0; i < n; i++) this._spawn(em, { boost: 1.8 }); } }
-      if (em.pulse && eEnv > 0.5) { em.pulseT -= sdt; if (em.pulseT <= 0) { em.pulseT = em.pulse.every; this._pulseRing(em); } }
+      if (!reducedMotion && em.burst && eEnv > 0.5) { em.burstT -= sdt; if (em.burstT <= 0) { em.burstT = em.burst.every; const n = Math.round(em.burst.count * q.rate * this.lod); for (let i = 0; i < n; i++) this._spawn(em, { boost: 1.8 }); } }
+      if (!reducedMotion && em.pulse && eEnv > 0.5) { em.pulseT -= sdt; if (em.pulseT <= 0) { em.pulseT = em.pulse.every; this._pulseRing(em); } }
     }
     // dekor
-    const s = this.s; s.env = eEnv; s.inten = S.intensity; s.size = S.size; s.air = this.air; s.pulse = this.pulse; s.tintV = this.tintV;
-    for (const d of this.decor) d.update(this.t, sdt, s);
+    const s = this.s; s.env = eEnv; s.inten = S.intensity; s.size = S.size; s.air = this.air; s.pulse = this.pulse; s.tintV = this.tintV; s.reducedMotion = reducedMotion;
+    for (const d of this.decor) d.update(this.t, reducedMotion ? dt : sdt, s);
   }
 
   dispose() {
@@ -175,15 +175,18 @@ export class AuraSystem {
   constructor(scene, camera, opts = {}) {
     this.scene = scene; this.camera = camera;
     this.qName = opts.quality || detectQuality(); this.q = QUALITY[this.qName];
+    this.reducedMotion = opts.reducedMotion || false;
     this.particles = new VoxelParticles(scene, this.q);
     this.auras = [];
   }
+  isReducedMotion() { return typeof this.reducedMotion === 'function' ? !!this.reducedMotion() : !!this.reducedMotion; }
   list() { return AURAS.map((a) => ({ id: a.id, name: a.name, rarity: a.rarity, tier: a.tier, theme: a.theme })); }
   attach(character, id, settings, opts) { const a = new CharacterAura(this, character, id, settings, opts); this.auras.push(a); return a; }
   update(dt) {
     dt = Math.min(dt, 0.05);
-    for (const a of [...this.auras]) a.update(dt);
-    this.particles.update(dt);
+    const motionScale = this.isReducedMotion() ? 0.12 : 1;
+    for (const a of [...this.auras]) a.update(dt, motionScale);
+    this.particles.update(dt, motionScale);
   }
   /** Ganti kualitas: pool partikel dibuat ulang, dekor tiap aura dibangun ulang. */
   setQuality(name) {

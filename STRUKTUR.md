@@ -12,4 +12,4 @@
 - Untuk item baru, buat folder `items/<item>/`, tambahkan manifest dan aset item, lalu daftarkan melalui `index.js` domain.
 - Perbarui semua referensi path; jangan mengubah ID, harga, atau kunci penyimpanan saat memindahkan aset.
 - Setelah perubahan aset, naikkan `VERSION` di `sw.js`, jalankan `python3 tools/gen-preload-manifest.py`, lalu tes.
-- `gameplay.html` dan `gameplay/` dibekukan; aset yang dirujuknya tetap di lokasi sampai ada izin khusus.
+- `gameplay.html` dan `gameplay/` dizinkan. tapi WAJIB HATI-HATI

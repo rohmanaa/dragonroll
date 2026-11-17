@@ -9,6 +9,21 @@ const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletServi
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(20)};
 const playSound=n=>{try{if(SET().sound)UT.Audio.play(n==='claim'?'power':n==='chest'?'chest':'button')}catch(e){}};
+let rewardFxSequence=0;
+function rewardBurst(el,kind,tier){
+ const PF=UT.ParticleFX,FX=UT.GameplayFX;if(!el||!PF||typeof PF.burstFromElement!=='function')return;
+ const styles={
+  coin:{count:12,tier:'L1',colors:['#ffd24a','#fff3ad','#e99b26'],shape:'bar',distance:48,size:7},
+  gem:{count:12,tier:'L2',colors:['#55ddff','#b8f5ff','#7a9dff'],shape:'square',distance:54,size:7},
+  mixed:{count:16,tier:'L3',colors:['#ffd24a','#55ddff','#fff3ad','#b8f5ff'],shape:'square',distance:58,size:7},
+  chest:{count:14,tier:'L2',colors:['#ffd24a','#fff3ad','#d99c4a'],shape:'square',distance:56,size:8},
+  item:{count:14,tier:'L3',colors:['#c9a0ff','#ffe5a0','#ffffff'],shape:'bar',distance:60,size:7},
+  legendary:{count:18,tier:'L4',colors:['#ffe27a','#ffffff','#b7a2ff','#ffd24a'],shape:'square',distance:68,size:8}
+ };
+ const s=styles[kind]||styles.mixed,seq=++rewardFxSequence,seed=Math.imul(seq,2654435761)>>>0,actualTier=tier||s.tier;
+ if(FX&&typeof FX.n==='function'&&typeof FX.limit==='function'&&typeof PF.configure==='function')PF.configure({maxParticles:FX.limit(),maxBurst:FX.n(18,'L4')});
+ PF.burstFromElement(el,Object.assign({},s,{count:FX&&typeof FX.n==='function'?FX.n(s.count,actualTier):s.count,duration:620,seed,fid:'reward-claim-'+seq}));
+}
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
 const WM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Sudah diklaim.','belum-selesai':'Misi belum selesai.','terkunci':'Selesaikan semua misi dulu.','mode-lokal':'Masuk ke akun untuk mengklaim.'};
@@ -32,7 +47,7 @@ function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,today
 const dState=i=>!SD?'wait':i<SD.claimed?'done':(i===SD.claimed&&!SD.today&&SD.claimed<7)?'now':'wait';
 const dayNow=()=>!!SD&&!SD.today&&SD.claimed<7;
 async function reloadD(){const w=WS();if(!w)return;const d=await w.dailyGet();if(applyDaily(d))render()}
-async function claimDay(){
+async function claimDay(target){
  if(dbusy)return;if(!SV()){toast(WM['mode-lokal']);return}
  dbusy=true;
  try{const w=WS(),r=w?await w.claimDaily():{ok:false,reason:'jaringan'};
@@ -42,7 +57,8 @@ async function claimDay(){
   else if(r.type==='powerup')msg=row.t+' diterima (Power)';
   applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
   playSound('claim');buzz();bump();render();renderCurrency();
-  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+IC+row.ic+'.webp" alt="">'+msg)}
+  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+IC+row.ic+'.webp" alt="">'+msg);
+  rewardBurst($('#box'),r.type==='box'?'chest':r.type==='powerup'?'item':r.gems>0?(r.coins>0?'mixed':'gem'):'coin')}
  finally{dbusy=false}}
 function vHadiah(){
  const pos=[[0,0],[360,0],[720,0],[0,330],[360,330],[720,330]];let h='';
@@ -93,14 +109,14 @@ async function loadSP(){
   if(sp){SP=sp.exists?sp:{counters:{},claims:{}};SPS='ok'}else if(SPS!=='ok')SPS='error'}
  catch(e){console.warn('[achievement] gagal memuat',e);if(SPS!=='ok')SPS='error'}
  render()}
-async function claimAch(id){
+async function claimAch(id,target){
  const a=aList().find(x=>x.id===id);if(!a||a.pend<1||abusy)return;abusy=true;
  try{await import('../../../assets/js/multiplayer/progress-service.js');
   const r=await UT.Multiplayer.Progress.claimAchievement(id,null),stars=Math.min(3,+(r&&r.stars)||0);
   if(!r||!r.ok){SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:Math.max(a.cl,+(r&&r.claimed)||0)})});toast('Belum ada reward untuk diklaim');return}
   SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:stars})});
   PD.applyServerWallet({coins:r.wallet_coins,gems:r.wallet_gems});
-  const rw=AC.reward(a.cl,stars,a.rew);playSound('claim');buzz();bump();toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')}
+  const rw=AC.reward(a.cl,stars,a.rew),def=AC.ACH.find(x=>x[0]===id),rank=def&&def[5]==='legendaris'?'legendary':'mixed';playSound('claim');buzz();bump();toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald');rewardBurst(target,rank)}
  catch(e){console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.')}
  finally{abusy=false;render();renderCurrency()}}
 function vAch(){
@@ -148,13 +164,13 @@ $('#tabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(t&&t
 $('#body').addEventListener('click',e=>{
  if(tab==='ach'&&SPS==='error'&&!e.target.closest('button')){SPS='loading';render();loadSP();return}
  const dc=e.target.closest('.dc');
- if(dc&&tab==='hadiah'){const st=dState(+dc.dataset.i);if(st==='now')claimDay();else if(SD)toast(st==='done'?'Hadiah sudah diklaim.':+dc.dataset.i>SD.claimed?'Belum waktunya, login besok!':'Sudah klaim hari ini, kembali besok!');return}
+ if(dc&&tab==='hadiah'){const st=dState(+dc.dataset.i);if(st==='now')claimDay(dc);else if(SD)toast(st==='done'?'Hadiah sudah diklaim.':+dc.dataset.i>SD.claimed?'Belum waktunya, login besok!':'Sudah klaim hari ini, kembali besok!');return}
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.a)claimAch(b.dataset.a);
- else if(b.dataset.day)claimDay();
- else if(b.dataset.q)srvClaim(w=>w.questClaim(b.dataset.q),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!')});
- else if(b.dataset.qall)srvClaim(w=>w.questClaimAll(),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!')});
- else if(b.dataset.bonus)srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');buzz();bump();toast('Bonus +'+fmt(r.coins)+' Coin +'+fmt(r.gems||0)+' Emerald diterima!')})});
+ if(b.dataset.a)claimAch(b.dataset.a,b);
+ else if(b.dataset.day)claimDay(b);
+ else if(b.dataset.q)srvClaim(w=>w.questClaim(b.dataset.q),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!');rewardBurst(b,r.gems>0?'mixed':'coin')});
+ else if(b.dataset.qall)srvClaim(w=>w.questClaimAll(),r=>{playSound('claim');buzz();bump();toast('+'+fmt(r.coins)+' Coin diterima!');rewardBurst(b,r.gems>0?'mixed':'coin')});
+ else if(b.dataset.bonus)srvClaim(w=>w.questClaimBonus(),r=>{playSound('chest');buzz();bump();toast('Bonus +'+fmt(r.coins)+' Coin +'+fmt(r.gems||0)+' Emerald diterima!');rewardBurst(b,r.gems>0?'mixed':'coin')})});
 
 /* ---- navigasi + dompet ---- */
 $('#back').addEventListener('click',()=>nav('lobby.html'));
