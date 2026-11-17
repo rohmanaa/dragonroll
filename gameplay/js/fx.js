@@ -517,8 +517,8 @@
      tiap efek dilacak lewat track() (kategori 'spatial', scope 'visual') sehingga stop/stopAll/dispose/visibility ikut bekerja.
      Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
   var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
-  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62, 0x58DFFF, 0x75E28C, 0xB7A2FF]; /* violet, magenta, pale, teal, gold, red, cyan, green, lavender */
-  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21, reward: 22, ambient: 23, world: 24 };
+  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62, 0x58DFFF, 0x75E28C, 0xB7A2FF, 0x9A7880, 0x62545D]; /* violet, magenta, pale, teal, gold, red, cyan, green, lavender, muted rose, slate */
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20, buff: 21, reward: 22, ambient: 23, world: 24, result: 25 };
   var SP_KINDS = Object.create(null);
   var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
 
@@ -1201,6 +1201,21 @@
           if (i) r.rotation.x = p * 0.35;
         });
       };
+    });
+  };
+
+  SP_KINDS['result-dissolve'] = function (o) {
+    return spRun('result-dissolve', 0.78, o, function (ctl) {
+      var n = spCount(9, o), motion = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.result * 1000 + i), a = R() * 6.2832, speed = (0.25 + R() * 0.28) * motion;
+        spPart(ctl, {
+          mode: 'burst', x: ctl.cx, y: ctl.cy + R() * 0.32, z: ctl.cz,
+          vx: Math.cos(a) * speed, vy: (0.16 + R() * 0.18) * motion, vz: Math.sin(a) * speed,
+          g: -0.08, life: 0.48 + R() * 0.26, size: 0.028 + R() * 0.018,
+          s1: 0.12, mat: i % 3 === 0 ? 12 : 11
+        });
+      }
     });
   };
 

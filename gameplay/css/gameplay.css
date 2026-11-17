@@ -241,11 +241,12 @@ body .sr{font-family:var(--font-display);text-transform:none;font-size:14px}
 /* tombol: dasar emas, varian .light biru */
 body .btn{font-family:var(--font-display);font-size:18px;font-weight:800;text-transform:none;letter-spacing:0;color:#fff;border:0;border-radius:20px;padding:10px 20px;background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 2px 0 #8a4a0a;box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
 body .btn:hover:not(:disabled){filter:brightness(1.08)}
-body .btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
+body .btn:active:not(:disabled){transform:translateY(4px) scale(.98);box-shadow:0 1px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
 body .btn:disabled{background:linear-gradient(#8a9bb8,#5a6b8c);color:#d0dbee;text-shadow:none;box-shadow:0 3px 0 #2c3a56;transform:translateY(2px)}
 body .btn.light,body .hud .btn.light{color:#fff;background:linear-gradient(#4aa8ff,#1f6fe0);text-shadow:0 2px 0 var(--bd);box-shadow:0 5px 0 var(--bd),0 10px 14px rgba(18,51,127,.35),inset 0 2px 2px rgba(255,255,255,.6)}
 body .btn.light:active:not(:disabled){box-shadow:0 1px 0 var(--bd),inset 0 2px 2px rgba(255,255,255,.6)}
 body .btn.small,body .hud .btn.small{font-size:14px;padding:8px 14px;border-radius:15px;white-space:nowrap}
+body .btn.small:active:not(:disabled),body .hud .btn.small:active:not(:disabled){transform:translateY(2px) scale(.98)}
 body .btn.light[aria-pressed=true]{background:linear-gradient(#ffd24d,#f4a81f);text-shadow:0 2px 0 #a35f08;box-shadow:0 4px 0 #b9740c,0 0 14px #ffd24d}
 /* panel giliran */
 body .tn .btn{width:100%;font-size:22px;border-radius:999px;padding:8px 16px;color:#fff;background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 2px 0 #8a4a0a;box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6)}
@@ -388,6 +389,7 @@ body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);back
   #pauseMenu .lm-mode{min-height:40px}
 }
 @media (prefers-reduced-motion:reduce){.lm-ov:not([hidden]),.lm-ov:not([hidden]) .lm-box{animation:none}}
+@media (prefers-reduced-motion:reduce){body .btn{transition:none}body .btn:active:not(:disabled),body .btn.small:active:not(:disabled),body .hud .btn.small:active:not(:disabled){transform:none}}
 /* Layar Ready/Shuffle ("Siap main?") = modal pixel (sama dengan Menu/Jeda & lobby; redesign-hud/modal.webp).
    HANYA tampilan. gameplay/js/ready.js (logika, DOM, id) tidak berubah; ukuran kartu/avatar tetap dari ready.js. */
 body #readyScreen{--mu:clamp(5.2px,min(1vw,1.85vh),9px);background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif}

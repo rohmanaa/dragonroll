@@ -5500,9 +5500,9 @@ async function bite(p,from,to,gid){
 function isPlayerDefeat(p){ return mode==='cpu'&&!!p&&!!p.cpu; }
 async function celebrate(p){
   const defeat=isPlayerDefeat(p); /* CPU menang = pemain kalah: tanpa fanfare/firework kemenangan pemain; suara kalah diputar di finishGame */
-  if(!defeat) sfx.victory();
-  spawnConfetti(p.pawn.position);
-  if(!defeat) fireworkCelebrate(p);
+  if(defeat) return;
+  sfx.victory();
+  spawnConfetti(p.pawn.position); fireworkCelebrate(p);
   for(let i=0;i<3;i++) await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.5);
 }
 /* Efek mob di petak p.pos. Dipakai playTurn (setelah dadu) DAN setelah Chest 'Kejutan' memindahkan pemain. */
@@ -5919,8 +5919,10 @@ function finishGame(p,fromRemote){
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost){
-    pawnAct(p.pawn,'sad',2.4);
-    try{ if(p&&p.pawn&&p.pawn.position) spawnExplosion(p.pawn.position.clone().add(new THREE.Vector3(0,0.4,0)),'ender'); }catch(e){}
+    const loser=players.find(q=>!q.cpu)||p;
+    const defeatAt=loser.pawn.position.clone(); defeatAt.y+=0.45;
+    pawnAct(loser.pawn,'sad',2.4);
+    spFx('result-dissolve',{pos:defeatAt,style:'defeat',tier:'L1',seed:gameId,fid:'result-defeat-'+gameId});
   }else pawnCheer(p.pawn,2.6); /* karakter baru: sorak saat menang, sedih saat kalah */
   resetWinResultDetails();
   updateWinLevelProgress(gameId);

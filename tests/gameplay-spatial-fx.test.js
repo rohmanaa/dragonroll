@@ -48,7 +48,8 @@ const SAMPLE = {
   'buff-feedback': { pos: { x: 1, y: 0.2, z: 2 }, hy: 0.65, style: 'activate' },
   'reward-burst': { pos: { x: 1, y: 0.2, z: 2 }, style: 'reveal', fid: 'test-reward', seed: 7 },
   'environment-ambient': { pos: { x: 1, y: 0.2, z: 2 }, style: 'world', fid: 'test-ambient', seed: 8 },
-  'world-transition': { pos: { x: 1, y: 0.2, z: 2 }, style: 'nether', fid: 'test-transition', seed: 9 }
+  'world-transition': { pos: { x: 1, y: 0.2, z: 2 }, style: 'nether', fid: 'test-transition', seed: 9 },
+  'result-dissolve': { pos: { x: 1, y: 0.2, z: 2 }, style: 'defeat', fid: 'test-result', seed: 10 }
 };
 
 test('semua kind Spatial FX terdaftar dan dapat dibuat', () => {
@@ -362,6 +363,19 @@ test('environment FX World, Nether, dan Dragon seeded serta membersihkan semua r
   assert.strictEqual(h.scene.children.length, 0);
 });
 
+test('result kalah memakai dissolve halus tanpa konfeti, sementara kemenangan tetap celebratory', () => {
+  const celebrate = fnBody(mainSrc, 'async function celebrate(p){');
+  const finish = fnBody(mainSrc, 'function finishGame(p,fromRemote){');
+  const h = ready();
+  assert.ok(h.FX.spatial('result-dissolve', { pos: { x: 0, y: 0.4, z: 0 }, style: 'defeat', tier: 'L1', fid: 'defeat-result', seed: 10 }));
+  step(h, 2);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+  assert.ok(celebrate.includes('if(defeat) return;') && celebrate.includes('spawnConfetti(p.pawn.position); fireworkCelebrate(p);'), 'kemenangan mempertahankan efek perayaannya');
+  assert.ok(celebrate.indexOf('if(defeat) return;') < celebrate.indexOf('hopTo('), 'kekalahan tidak memainkan animasi kemenangan');
+  assert.ok(finish.includes("spFx('result-dissolve'") && finish.includes("pawnAct(loser.pawn,'sad',2.4)") && finish.includes("fid:'result-defeat-'+gameId"), 'hasil kalah memakai pawn pemain dan dissolve seeded tanpa ledakan/flash');
+});
+
 test('efek spasial dilacak menurut fid/seed/source untuk cue multiplayer', () => {
   const h = ready();
   h.FX.spatial('tp-arrive', Object.assign({ fid: 'host:1:abcd.7', seed: 42, source: 'host' }, SAMPLE['tp-arrive']));
@@ -539,6 +553,15 @@ test('world FX menggunakan peta aktif, jeda kualitas, Reduce Motion, visibility,
   assert.ok(env.includes("spFx('environment-ambient'") && env.includes('seed') && env.includes('fid:'), 'ambient memakai cue seeded');
   assert.ok(world.includes('if(transition){ ENV_ACC=0; ENV_SEQ=0; wfxClear(); if(FX&&FX.clearSpatial) FX.clearSpatial(); }'), 'pergantian map membersihkan efek lama');
   assert.ok(world.includes("spFx('world-transition'"), 'pergantian map mengirim cue transisi');
+});
+
+test('UI mempertahankan feedback tombol, giliran, notifikasi, dadu, dan modal tanpa perubahan layout', () => {
+  assert.ok(cssSrc.includes('body .btn:hover:not(:disabled)'), 'hover tombol');
+  assert.ok(cssSrc.includes('body .btn:active:not(:disabled){transform:translateY(4px) scale(.98)'), 'press tombol punya feedback skala halus');
+  assert.ok(cssSrc.includes('@media (prefers-reduced-motion:reduce){body .btn{transition:none}body .btn:active:not(:disabled),body .btn.small:active:not(:disabled),body .hud .btn.small:active:not(:disabled){transform:none}}'), 'press menghormati Reduce Motion');
+  assert.ok(cssSrc.includes('#side .pr.on') && cssSrc.includes('hud-swap'), 'status/giliran sudah memiliki pulse/transisi');
+  assert.ok(cssSrc.includes('#side .tn #rollHint'), 'hint hasil roll tersedia');
+  assert.ok(cssSrc.includes('.lm-ov:not([hidden])') && cssSrc.includes('@media (prefers-reduced-motion:reduce)'), 'modal memiliki entrance dan fallback Reduce Motion');
 });
 
 test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', () => {
