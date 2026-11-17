@@ -9,14 +9,17 @@ export const QUALITY = {
   low:    { antialias: false, pixelRatio: 1,   texture: 32, bump: false, clearcoat: false, light: false, shadowMap: 512,  ambientMul: 1,   auraLayers: 1, particleMul: 0.45, particleCap: 500,  wingBlades: 3, ringsMax: 1, trail: false },
   medium: { antialias: true,  pixelRatio: 1.5, texture: 64, bump: true,  clearcoat: true,  light: true,  shadowMap: 1024, ambientMul: 1,   auraLayers: 2, particleMul: 0.8,  particleCap: 1200, wingBlades: 4, ringsMax: 2, trail: true },
   high:   { antialias: true,  pixelRatio: 2,   texture: 128, bump: true, clearcoat: true,  light: true,  shadowMap: 2048, ambientMul: 1,   auraLayers: 3, particleMul: 1.3,  particleCap: 2500, wingBlades: 6, ringsMax: 3, trail: true },
+  ultra:  { antialias: true,  pixelRatio: 2,   texture: 128, bump: true, clearcoat: true,  light: true,  shadowMap: 2048, ambientMul: 1.1, auraLayers: 4, particleMul: 1.6, particleCap: 3000, wingBlades: 8, ringsMax: 4, trail: true },
 };
 
 /** Deteksi kualitas otomatis: HP / memori kecil -> low. */
 export function detectQuality() {
   const mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || '');
   const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4;
-  if (mobile || mem <= 4 || cores <= 4) return 'low';
-  return 'medium';
+  if (mem <= 2 || (cores <= 2 && mobile)) return 'low';
+  if (mobile || cores <= 4 || mem <= 4) return 'medium';
+  if (cores >= 8 && mem >= 8) return 'ultra';
+  return 'high';
 }
 
 export const RARITY = {

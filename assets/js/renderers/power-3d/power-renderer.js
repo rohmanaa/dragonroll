@@ -122,7 +122,7 @@ export class PowerRenderer {
   disappear() { this.animator?.disappear(); }
   respawn() { if (this.current) this.show(this.current.id); }
 
-  /** Ubah kualitas efek: 'low' | 'medium' | 'high' (antialias hanya berubah saat renderer dibuat ulang). */
+  /** Ubah kualitas efek: 'low' | 'medium' | 'high' | 'ultra' (antialias hanya berubah saat renderer dibuat ulang). */
   setQuality(name) {
     if (!QUALITY[name] || name === this.qName) return;
     const id = this.current?.id;
