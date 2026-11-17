@@ -5,7 +5,7 @@
    Tetap di gameplay.html: explode/teleport (mengubah pawn + tween + sfx), salju/ember tema, animasi mob/ular, kamera, Dragon, state & guard gameId/STALE.
    Classic script. Namespace: UT.GameplayFX.
    API: track/stop/untrack/stopAll/getActive/getHistory · timeout · init(scene) · emitters lama (opsional opts {seed,fid,source}) · dispose()
-   Spatial FX (Phase 2): spatial(kind, opts) · spatialKinds · clearSpatial — kind: tp-gather|tp-depart|tp-trail|tp-arrive|tp-recover|tp-residual|hole-fx|portal|portal-entry|portal-exit|distort.
+   Spatial FX: spatial(kind, opts) · spatialKinds · clearSpatial — teleport, portal, combat, and impact effects.
    Cue multiplayer (1.3): cueMeta(origin,epoch) -> {fid,seed,source} · acceptCue(cue) (dedup + cue basi) · cueOptions(cue) · rng(seed[,index]) · getCueLog() · setDebug(on).
    Seed hanya untuk variasi visual (arah/ukuran/kecepatan partikel); tiap partikel memakai rng(seed, index) sendiri, jadi partikel ke-i sama di semua klien walau jumlah total berbeda (skala perangkat). */
 (function (win) {
@@ -247,7 +247,7 @@
     if (!scope) return true;
     var scopes = Array.isArray(scope) ? scope : [scope];
     for (var i = 0; i < scopes.length; i++) {
-      if (entry.metadata.scope === scopes[i] || entry.metadata.category === scopes[i]) return true;
+      if (entry.metadata.scope === scopes[i] || entry.metadata.category === scopes[i] || entry.metadata.parentCategory === scopes[i]) return true;
     }
     return false;
   }
@@ -517,8 +517,8 @@
      tiap efek dilacak lewat track() (kategori 'spatial', scope 'visual') sehingga stop/stopAll/dispose/visibility ikut bekerja.
      Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
   var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
-  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C]; /* violet, magenta, pucat, ungu tua, teal (aksen), hitam */
-  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14 };
+  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C, 0xFFC94A, 0xFF5C62]; /* violet, magenta, pale, teal, gold, red */
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14, slash: 15, release: 16, projectile: 17, charge: 18, impact: 19, defense: 20 };
   var SP_KINDS = Object.create(null);
   var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
 
@@ -570,6 +570,7 @@
     if (g && g.stopping) return null;
     if (g && tracked[g.id]) return g;
     g = makeParticleGroup('spatial-' + ctl.type, ctl.o);
+    if (g.id && tracked[g.id]) tracked[g.id].metadata.parentCategory = 'spatial';
     ctl.group = g;
     return g.id ? g : null;
   }
@@ -911,6 +912,162 @@
           coll.position.set(c.px, c.py + 0.05, c.pz); coll.scale.setScalar(Math.max(0.001, (1.0 * (1 - ck) + 0.05) * s)); coll.material.opacity = 0.5 * Math.sin(Math.PI * Math.min(1, ck * 1.1)); coll.visible = coll.material.opacity > 0.01;
           if (!burst && ck > 0.6) { burst = true; for (i = 0, a = spCount(14, o); i < a; i++) { var P = pr(o, SP_NS.collapse * 1000 + 100 + i), an = P() * 6.2832, sp = (1 + P() * 1.5) * m; spPart(c, { mode: 'burst', x: c.cx, y: c.cy, z: c.cz, vx: Math.cos(an) * sp, vy: (0.3 + P()) * m, vz: Math.sin(an) * sp, g: 2, life: 0.35, size: 0.04 + P() * 0.04, mat: pal(o, i % 3) }); } }
         } else { coll.visible = false; }
+      };
+    });
+  };
+
+  SP_KINDS['sword-slash'] = function (o) {
+    var style = o.style || 'horizontal', heavy = style === 'heavy', double = style === 'double', critical = style === 'critical';
+    var dur = clamp(num(o.dur, heavy || double || critical ? 0.62 : 0.42), 0.2, 1.2);
+    return spRun('sword-slash', dur, o, function (ctl) {
+      var yaw = num(o.dir, 0), s = ctl.scale, layers = double ? 2 : 1, n = spCount(heavy ? 10 : 8, o), ci = critical || heavy ? 6 : 2;
+      ctl.hy = 0.65 * s; spCenter(ctl); spBasis(ctl, yaw);
+      var slashes = [], i, j;
+      for (j = 0; j < layers; j++) for (i = 0; i < n; i++) {
+        var u = n === 1 ? 0.5 : i / (n - 1), a = (u - 0.5) * Math.PI * 0.82;
+        var lateral = style === 'vertical' ? 0.12 + Math.cos(a) * 0.28 : Math.sin(a) * (heavy ? 0.88 : 0.72);
+        var height = style === 'vertical' ? 0.65 + Math.sin(a) * 0.62 : 0.62 + (style === 'diagonal' || critical ? (u - 0.5) * -0.55 : Math.sin(a) * 0.08);
+        var m = spMesh(ctl, CONF_GEO, ci, heavy ? 0.78 : 0.68, false);
+        m.scale.set(0.22 * s * (heavy ? 1.2 : 1), 0.07 * s, 0.045 * s);
+        m.rotation.y = yaw;
+        slashes.push({ mesh: m, lateral: lateral, height: height, depth: 0.2 + Math.cos(a) * 0.16, progress: u, pass: j, angle: style === 'vertical' ? 0 : (style === 'diagonal' || critical ? -0.45 : 0) });
+      }
+      var ring = null;
+      if (heavy) { ring = spFlat(spMesh(ctl, SP_RING, 6, 0.58)); }
+      var nbits = spCount(heavy || critical ? 10 : 5, o), motion = mo();
+      for (i = 0; i < nbits; i++) {
+        var R = pr(o, SP_NS.slash * 1000 + i), th = yaw + (R() - 0.5) * 1.25, rad = 0.25 + R() * 0.3;
+        spPart(ctl, { mode: 'burst', x: ctl.px + Math.sin(th) * rad, y: ctl.py + 0.55 + R() * 0.45, z: ctl.pz + Math.cos(th) * rad, vx: Math.sin(th) * (heavy ? 1.6 : 0.8) * motion, vy: (R() - 0.2) * motion, vz: Math.cos(th) * (heavy ? 1.6 : 0.8) * motion, g: 1.5, life: 0.25 + R() * 0.2, size: 0.035 + R() * 0.025, mat: critical ? 6 : ci });
+      }
+      ctl.tick = function (c, t, k) {
+        var u = easeOut(clamp(k / (double ? 0.78 : 0.7), 0, 1));
+        slashes.forEach(function (item) {
+          var passStart = item.pass * 0.34, pass = clamp((k - passStart) / (double ? 0.36 : 0.56), 0, 1);
+          var fade = Math.max(0, 1 - Math.max(0, k - 0.52) / 0.48);
+          item.mesh.position.set(c.px + c.U[0] * item.lateral + c.N[0] * (item.depth + u * (heavy ? 0.5 : 0.35)), c.py + item.height * s, c.pz + c.U[2] * item.lateral + c.N[2] * (item.depth + u * (heavy ? 0.5 : 0.35)));
+          item.mesh.rotation.z = item.angle + (style === 'vertical' ? 0 : (u - 0.5) * 0.9);
+          item.mesh.material.opacity = (heavy ? 0.78 : 0.68) * fade * clamp(pass * 3, 0, 1);
+        });
+        if (ring) {
+          ring.position.set(c.px, c.py + 0.04, c.pz);
+          ring.scale.setScalar((0.3 + easeOut(k) * 1.1) * s);
+          ring.material.opacity = 0.58 * (1 - k);
+        }
+      };
+    });
+  };
+
+  SP_KINDS['weapon-charge'] = function (o) {
+    var dur = clamp(num(o.dur, 1.2), 0.2, 2.5);
+    return spRun('weapon-charge', dur, o, function (ctl) {
+      var s = ctl.scale, rings = [0, 1].map(function (i) { return spMesh(ctl, SP_RING, i ? 6 : 2, i ? 0.35 : 0.5); });
+      rings.forEach(function (r) { r.rotation.y = num(o.dir, 0); });
+      var n = spCount(8, o), motion = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.charge * 1000 + i), a = R() * 6.2832, rad = 0.38 + R() * 0.22;
+        spPart(ctl, { mode: 'swirl', a: a, w: (3 + R() * 2) * motion, rad: rad * s, x: ctl.cx + Math.cos(a) * rad, y: ctl.cy + Math.sin(a) * 0.3, z: ctl.cz + Math.sin(a) * rad, life: dur, size: 0.04 + R() * 0.025, mat: i % 2 ? 6 : 2 });
+      }
+      ctl.tick = function (c, t, k) {
+        var pulse = reduced() ? 1 : 0.94 + 0.06 * Math.sin(t * 10);
+        rings[0].position.set(c.cx, c.cy, c.cz); rings[0].scale.setScalar((0.48 + k * 0.14) * s * pulse); rings[0].material.opacity = 0.45 * (1 - k * 0.3);
+        rings[1].position.set(c.cx, c.cy, c.cz); rings[1].scale.setScalar((0.32 + k * 0.12) * s); rings[1].material.opacity = 0.32 * (1 - k * 0.2);
+      };
+    });
+  };
+
+  SP_KINDS['weapon-trail'] = function (o) {
+    var dur = clamp(num(o.dur, 0.72), 0.25, 1.2);
+    return spRun('weapon-trail', dur, o, function (ctl) {
+      var n = spCount(8, o), color = o.style === 'heavy' ? 6 : 2, history = [], segments = [];
+      for (var i = 0; i < n; i++) segments.push(spMesh(ctl, CONF_GEO, color, 0, false));
+      ctl.tick = function (c, t, k) {
+        history.unshift({ x: c.cx, y: c.cy, z: c.cz });
+        if (history.length > n + 1) history.length = n + 1;
+        for (var j = 0; j < segments.length; j++) {
+          var m = segments[j], a = history[j], b = history[j + 1] || a;
+          if (!a) { m.visible = false; continue; }
+          var dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z, len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          m.visible = len > 0.01 && k < 0.98;
+          if (!m.visible) continue;
+          m.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+          m.rotation.y = Math.atan2(dx, dz); m.rotation.z = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
+          m.scale.set(Math.max(0.1, len / 0.14), 0.08 * ctl.scale / 0.14, 0.035 * ctl.scale / 0.14);
+          m.material.opacity = (o.style === 'heavy' ? 0.68 : 0.52) * (1 - j / segments.length) * (1 - k * 0.55);
+        }
+      };
+    });
+  };
+
+  SP_KINDS['weapon-release'] = function (o) {
+    return spRun('weapon-release', 0.32, o, function (ctl) {
+      var ring = spFlat(spMesh(ctl, SP_RING, o.style === 'heavy' ? 6 : 2, 0.6)), n = spCount(8, o), motion = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.release * 1000 + i), a = R() * 6.2832, speed = (0.6 + R() * 0.8) * motion;
+        spPart(ctl, { mode: 'burst', x: ctl.px, y: ctl.py + 0.5, z: ctl.pz, vx: Math.cos(a) * speed, vy: (0.4 + R() * 0.5) * motion, vz: Math.sin(a) * speed, g: 1, life: 0.25 + R() * 0.12, size: 0.04 + R() * 0.03, mat: o.style === 'heavy' ? 6 : 2 });
+      }
+      ctl.tick = function (c, t, k) { ring.position.set(c.px, c.py + 0.04, c.pz); ring.scale.setScalar((0.2 + easeOut(k) * 0.9) * c.scale); ring.material.opacity = 0.6 * (1 - k); };
+    });
+  };
+
+  SP_KINDS['combat-projectile'] = function (o) {
+    var a = o.from || o.pos, b = o.to;
+    if (!a || !b) return null;
+    var dur = clamp(num(o.dur, 0.4), 0.12, 1.5);
+    return spRun('combat-projectile', dur, cp(o, { pos: a, follow: null }), function (ctl) {
+      var ax = num(+a.x, 0), ay = num(+a.y, 0), az = num(+a.z, 0), dx = num(+b.x, 0) - ax, dy = num(+b.y, 0) - ay, dz = num(+b.z, 0) - az;
+      var n = spCount(o.style === 'charged' ? 14 : 9, o), made = 0;
+      ctl.tick = function (c, t) {
+        var want = Math.floor(n * clamp(t / dur, 0, 1) + 0.0001);
+        while (made < want) {
+          var R = pr(o, SP_NS.projectile * 1000 + made), f = made / Math.max(1, n - 1), spread = (R() - 0.5) * 0.08;
+          spPart(c, { mode: 'burst', x: ax + dx * f + spread, y: ay + dy * f + Math.sin(f * Math.PI) * 0.35 + spread, z: az + dz * f + spread, vx: -dx * 0.18 / dur, vy: 0.15, vz: -dz * 0.18 / dur, g: 0, life: 0.2 + R() * 0.12, size: o.style === 'charged' ? 0.06 : 0.045, mat: o.style === 'charged' ? 6 : 2 });
+          made++;
+        }
+      };
+    });
+  };
+
+  SP_KINDS['combat-impact'] = function (o) {
+    var style = o.style || 'hit', heavy = style === 'heavy' || style === 'ground', critical = style === 'critical';
+    return spRun('combat-impact', 0.48, o, function (ctl) {
+      var s = ctl.scale, color = critical ? 6 : style === 'damage' ? 7 : style === 'ground' ? 6 : 2;
+      var ring = spFlat(spMesh(ctl, SP_RING, color, 0.68)), hit = spMesh(ctl, SP_RING, color, 0.5);
+      var n = spCount(heavy ? 18 : 12, o), motion = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.impact * 1000 + i), a = R() * 6.2832, speed = (heavy ? 1.8 : 1.2) * (0.6 + R() * 0.6) * motion;
+        spPart(ctl, { mode: 'burst', x: ctl.px, y: ctl.py + (style === 'ground' ? 0.08 : 0.5), z: ctl.pz, vx: Math.cos(a) * speed, vy: style === 'ground' ? 0.1 : (0.4 + R() * 0.8) * motion, vz: Math.sin(a) * speed, g: style === 'ground' ? 0.5 : 2.5, life: 0.28 + R() * 0.2, size: 0.04 + R() * 0.045, mat: color });
+      }
+      ctl.tick = function (c, t, k) {
+        ring.position.set(c.px, c.py + 0.04, c.pz); ring.scale.setScalar((0.24 + easeOut(k) * (heavy ? 1.35 : 0.95)) * s); ring.material.opacity = 0.68 * (1 - k);
+        hit.position.set(c.cx, c.cy, c.cz); hit.scale.setScalar((0.22 + easeOut(k) * 0.42) * s); hit.material.opacity = 0.5 * (1 - k); hit.visible = hit.material.opacity > 0.01;
+      };
+    });
+  };
+
+  SP_KINDS['combat-defense'] = function (o) {
+    var absorb = o.style === 'absorb', dur = 0.5;
+    return spRun('combat-defense', dur, o, function (ctl) {
+      var yaw = num(o.dir, 0), s = ctl.scale, color = absorb ? 6 : 4;
+      spCenter(ctl); spBasis(ctl, yaw);
+      var shield = [];
+      if (!absorb) {
+        var points = [[0, 0.42], [0.34, 0.18], [0.28, -0.22], [0, -0.42], [-0.28, -0.22], [-0.34, 0.18]];
+        for (var i = 0; i < points.length; i++) {
+          var m = spMesh(ctl, CONF_GEO, color, 0.72, false);
+          m.scale.set(0.17 * s, 0.07 * s, 0.06 * s); shield.push({ mesh: m, x: points[i][0], y: points[i][1] });
+        }
+      }
+      var ring = spMesh(ctl, SP_RING, color, 0.48), n = spCount(absorb ? 12 : 7, o);
+      for (i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.defense * 1000 + i), a = R() * 6.2832, rad = 0.38 + R() * 0.3;
+        spPart(ctl, { mode: absorb ? 'gather' : 'burst', dx: Math.cos(a), dy: 0, dz: Math.sin(a), rad: rad, x: ctl.cx + Math.cos(a) * rad, y: ctl.cy + (R() - 0.5) * 0.45, z: ctl.cz + Math.sin(a) * rad, vx: Math.cos(a) * 0.8 * mo(), vy: 0.5 * mo(), vz: Math.sin(a) * 0.8 * mo(), life: dur, size: 0.045, mat: color });
+      }
+      ctl.tick = function (c, t, k) {
+        shield.forEach(function (item) {
+          item.mesh.position.set(c.cx + c.U[0] * item.x, c.cy + item.y * s, c.cz + c.U[2] * item.x);
+          item.mesh.rotation.y = yaw; item.mesh.material.opacity = 0.72 * (1 - k);
+        });
+        ring.position.set(c.cx, c.cy, c.cz); ring.scale.setScalar((0.4 + easeOut(k) * 0.9) * s); ring.rotation.y = yaw; ring.material.opacity = 0.48 * (1 - k);
       };
     });
   };

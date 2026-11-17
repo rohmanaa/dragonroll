@@ -4221,10 +4221,12 @@ function spFx(kind,o){
     if(o.to){ c.tx=r(o.to.x); c.ty=r(o.to.y); c.tz=r(o.to.z); }
     if(o.scale&&o.scale!==1) c.s=Math.round(o.scale*100)/100;
     if(o.tint) c.w=1;
-    if(o.yaw||o.dir) c.r=Math.round((o.yaw||o.dir)*100)/100;
+    if(o.yaw!=null||o.dir!=null) c.r=Math.round((o.yaw!=null?o.yaw:o.dir)*100)/100;
     if(o.dur) c.d=Math.round(o.dur*100)/100;
     if(o.side) c.q=Math.round(o.side*100)/100;
     if(o.hy!=null) c.h=Math.round(o.hy*100)/100;
+    if(o.style) c.m=o.style;
+    if(o.pid) c.pid=o.pid;
     if(f) c.fid=f.fid; /* seed tidak dikirim: tamu menurunkannya dari fid (hash32), sama dengan host -> payload tetap ringan */
     mpCue(c);
   }
@@ -4242,7 +4244,32 @@ function spFxCue(c){ /* tamu: putar cue 'spfx' lokal; kind tak dikenal / angka t
   if(c.d!=null) o.dur=n(c.d,0.6);
   if(c.q!=null) o.side=n(c.q,0);
   if(c.h!=null) o.hy=n(c.h,0);
+  if(typeof c.m==='string') o.style=c.m;
+  if(c.t==='weapon-trail'&&c.pid){
+    const p=mpPlayerByNet(c.pid),hand=p&&p.pawn&&p.pawn.userData&&p.pawn.userData.bc&&p.pawn.userData.bc.hand;
+    if(hand&&typeof hand.getWorldPosition==='function'){
+      const point=new THREE.Vector3(),sample=()=>{ hand.getWorldPosition(point); point.y+=0.25; return point; };
+      o.pos=sample().clone(); o.follow=sample;
+    }
+  }
   FX.spatial(c.t,o);
+}
+function weaponHandTrail(p){
+  const hand=p&&p.pawn&&p.pawn.userData&&p.pawn.userData.bc&&p.pawn.userData.bc.hand;
+  if(!hand||typeof hand.getWorldPosition!=='function') return null;
+  const point=new THREE.Vector3(),follow=()=>{ hand.getWorldPosition(point); point.y+=0.25; return point; };
+  return {pos:follow().clone(),follow};
+}
+function swordAttackFx(attacker,target,key){
+  if(!attacker||!target||!attacker.pawn||!target.pawn) return;
+  const from=attacker.pawn.position.clone(),to=target.pawn.position.clone();
+  from.y+=0.65; to.y+=0.65;
+  const dir=Math.atan2(to.x-from.x,to.z-from.z);
+  const style=key==='netherite_sword'?'heavy':key==='diamond_sword'?'diagonal':'horizontal';
+  spFx('sword-slash',{pos:from,dir,style});
+  spFx('weapon-release',{pos:from,dir,style});
+  const trail=weaponHandTrail(attacker);
+  if(trail) spFx('weapon-trail',{pos:trail.pos,follow:trail.follow,dur:0.72,style,pid:attacker.networkId});
 }
 let SP_SND_AT=0;
 function spSound(name){ /* satu suara spasial per 250 ms: tidak bertumpuk; aset asli lewat sfx (UT.GameplayAudio), tanpa engine audio baru */
@@ -5075,6 +5102,7 @@ async function usePU(k,cpu,tileArg){
   renderChips();
   const old={},pushed={}; T.forEach(q=>{ old[q.idx]=q.pos; }); const oldP=p.pos; let hit=false; const blocked=[],hits=[]; /* blocked = [{q,by}] korban yang menahan */
   const melee=/sword$/.test(k)&&k!=='trident';
+  if(melee&&T.length&&(R.kind==='strike'||R.kind==='area')) swordAttackFx(p,T[0],k);
   try{
     if(R.kind==='strike'||R.kind==='area'){
       await sleep(reduce?100:250);

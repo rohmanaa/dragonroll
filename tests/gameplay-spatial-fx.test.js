@@ -36,7 +36,14 @@ const SAMPLE = {
   portal: { pos: { x: 0, y: 0, z: 0 }, yaw: 0.6, idle: 1 },
   'portal-entry': { pos: { x: 0, y: 0, z: 0 }, yaw: 0.6 },
   'portal-exit': { pos: { x: 0, y: 0, z: 0 }, yaw: 0.6 },
-  distort: { pos: { x: 0, y: 0, z: 0 }, dir: 1.1 }
+  distort: { pos: { x: 0, y: 0, z: 0 }, dir: 1.1 },
+  'sword-slash': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'diagonal' },
+  'weapon-charge': { pos: { x: 1, y: 0.2, z: 2 }, dur: 1.2 },
+  'weapon-trail': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
+  'weapon-release': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
+  'combat-projectile': { from: { x: 0, y: 1, z: 0 }, to: { x: 2, y: 2, z: -1 }, dur: 0.4, style: 'charged' },
+  'combat-impact': { pos: { x: 1, y: 0.2, z: 2 }, style: 'heavy' },
+  'combat-defense': { pos: { x: 1, y: 0.2, z: 2 }, dir: 0.8, style: 'shield' }
 };
 
 test('semua kind Spatial FX terdaftar dan dapat dibuat', () => {
@@ -133,7 +140,7 @@ test('seed deterministik: seed sama -> posisi sama; seed beda -> beda; tidak mem
     try { h.FX.spatial(kind, Object.assign({ seed }, SAMPLE[kind])); step(h, 0.3); } finally { Math.random = original; }
     return JSON.stringify(h.scene.children.map(m => [m.position.x, m.position.y, m.position.z].map(v => Math.round(v * 1e6))));
   };
-  ['tp-depart', 'tp-arrive', 'tp-trail', 'hole-fx', 'portal', 'distort', 'portal-exit'].forEach(kind => {
+  ['tp-depart', 'tp-arrive', 'tp-trail', 'hole-fx', 'portal', 'distort', 'portal-exit', 'sword-slash', 'combat-projectile', 'combat-impact', 'combat-defense'].forEach(kind => {
     assert.strictEqual(snap(12345, kind), snap(12345, kind), kind + ' seed sama harus identik');
     assert.notStrictEqual(snap(12345, kind), snap(99999, kind), kind + ' seed beda harus berbeda');
   });
@@ -216,6 +223,21 @@ test('efek mengikuti posisi pion aktual (follow) tanpa menyimpan referensi setel
   assert.ok(ctl.id);
 });
 
+test('weapon trail merekam gerak anchor dan cleanup otomatis', () => {
+  const h = ready();
+  const hand = { x: 0, y: 1, z: 0 };
+  h.FX.spatial('weapon-trail', { pos: hand, follow: () => hand, dur: 0.72, style: 'heavy', seed: 88 });
+  step(h, 0.08);
+  hand.x = 1;
+  step(h, 0.08);
+  const segments = h.scene.children.filter(m => m.material.transparent && m.visible);
+  assert.ok(segments.length > 0, 'trail harus terbentuk di antara posisi anchor');
+  assert.ok(segments.some(m => m.position.x > 0 && m.position.x < 1));
+  step(h, 1);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+});
+
 test('follow yang melempar error tidak merusak loop; efek tetap selesai', () => {
   const h = ready();
   h.FX.spatial('tp-gather', { pos: { x: 1, y: 0, z: 1 }, follow: () => { throw new Error('pion hilang'); } });
@@ -249,6 +271,39 @@ test('Spatial Distortion punya titik pusat dan arah (riak memanjang searah dir)'
   const rings = h.scene.children.filter(m => m.material.transparent && m.rotation.x === -Math.PI / 2 && m.scale.x !== m.scale.y);
   assert.ok(rings.length >= 1, 'riak harus elips (memanjang searah dir)');
   rings.forEach(r => { assert.strictEqual(r.position.x, 2); assert.strictEqual(r.position.z, -1); });
+});
+
+test('Combat slash: arah yaw mengubah siluet; heavy/double/vertical memiliki bentuk berbeda', () => {
+  const snapshot = (style, dir) => {
+    const h = ready();
+    h.FX.spatial('sword-slash', { pos: { x: 0, y: 0, z: 0 }, style, dir, seed: 912 });
+    step(h, 0.08);
+    return h.scene.children.filter(m => m.material.transparent).map(m => [
+      Math.round(m.position.x * 100), Math.round(m.position.y * 100), Math.round(m.position.z * 100),
+      Math.round(m.scale.x * 100), Math.round(m.scale.y * 100)
+    ]);
+  };
+  const horizontal = snapshot('horizontal', 0), turned = snapshot('horizontal', Math.PI / 2);
+  assert.notDeepStrictEqual(horizontal, turned, 'yaw harus memutar arah slash');
+  assert.notDeepStrictEqual(horizontal, snapshot('vertical', 0), 'slash vertikal memiliki siluet berbeda');
+  assert.notDeepStrictEqual(horizontal, snapshot('heavy', 0), 'slash berat memiliki siluet berbeda');
+  assert.notDeepStrictEqual(horizontal, snapshot('double', 0), 'double slash memiliki dua lintasan');
+});
+
+test('Combat FX menggunakan lifecycle, fid/seed, reduce-motion, dan Stop All', () => {
+  const h = ready();
+  Object.keys(SAMPLE).filter(k => k.startsWith('combat-') || k.startsWith('weapon-') || k === 'sword-slash')
+    .forEach((kind, i) => h.FX.spatial(kind, Object.assign({ fid: 'host:1:abcd.' + (i + 1), seed: 77 + i }, SAMPLE[kind])));
+  assert.strictEqual(h.FX.getActive().filter(e => e.metadata.category === 'spatial').length, 7);
+  assert.ok(h.FX.stopAll({ scope: 'visual', reason: 'reset' }) >= 7);
+  assert.strictEqual(h.FX.getActive().length, 0);
+  assert.strictEqual(h.scene.children.length, 0);
+  const reduced = ready({ reducedMotion: true });
+  reduced.FX.spatial('combat-impact', { pos: { x: 0, y: 0, z: 0 }, seed: 1 });
+  assert.ok(reduced.FX.getActive().length > 0, 'reduce motion must not prevent feedback');
+  step(reduced, 1);
+  assert.strictEqual(reduced.FX.getActive().length, 0);
+  assert.strictEqual(reduced.scene.children.length, 0);
 });
 
 test('efek spasial dilacak menurut fid/seed/source untuk cue multiplayer', () => {
@@ -299,11 +354,27 @@ test('cue spfx: ringan, bawa fid, whitelist kind, tamu menolak duplikat lewat ac
   const send = fnBody(mainSrc, 'function spFx(kind,o){');
   assert.ok(send.includes('MP_SEQ===0') && send.includes("k:'spfx'") && send.includes('c.fid=f.fid'));
   assert.ok(!send.includes('follow:') && !/c\.[a-z]+=o\.follow/.test(send), 'follow (fungsi) tidak dikirim');
+  assert.ok(send.includes('if(o.pid) c.pid=o.pid'));
+  assert.ok(mainSrc.includes("c.t==='weapon-trail'&&c.pid") && mainSrc.includes('o.pos=sample().clone(); o.follow=sample'));
   assert.ok(/FX\.spatialKinds\[c\.t\]/.test(mainSrc));
   const worst = { k: 'spfx', t: 'tp-trail', x: -12.3, y: 0.4, z: 13.5, tx: 12.1, ty: 0.4, tz: -13.3, d: 0.5, q: -0.3, h: 0.4, fid: 'player_ab12cd:12:x7k2.123' };
   assert.ok(JSON.stringify(worst).length < 200, 'payload terburuk ' + JSON.stringify(worst).length);
   const typical = { k: 'spfx', t: 'tp-arrive', x: -2.3, y: 0.4, z: 3.5, fid: 'host:3:x7k2.12' };
   assert.ok(JSON.stringify(typical).length < 120);
+  assert.ok(JSON.stringify(Object.assign({}, typical, { t: 'sword-slash', r: 0, m: 'diagonal' })).length < 120);
+  const trail = { k: 'spfx', t: 'weapon-trail', x: -12.3, y: 0.4, z: 13.5, m: 'heavy', pid: 'player_ab12cd', fid: 'player_ab12cd:12:x7k2.123' };
+  assert.ok(JSON.stringify(trail).length < 200, 'weapon trail cue ' + JSON.stringify(trail).length);
+});
+
+test('serangan Power pedang memicu slash sesuai posisi dan tipe senjata, tanpa mengubah resolusi Power', () => {
+  const attack = fnBody(mainSrc, 'function swordAttackFx(attacker,target,key){');
+  assert.ok(attack.includes('Math.atan2(to.x-from.x,to.z-from.z)'));
+  assert.ok(attack.includes("key==='netherite_sword'?'heavy':key==='diamond_sword'?'diagonal':'horizontal'"));
+  assert.ok(attack.includes("spFx('sword-slash'") && attack.includes("spFx('weapon-release'") && attack.includes("spFx('weapon-trail'"));
+  const use = fnBody(mainSrc, 'async function usePU(k,cpu,tileArg){');
+  assert.ok(use.includes("if(melee&&T.length&&(R.kind==='strike'||R.kind==='area')) swordAttackFx(p,T[0],k);"));
+  assert.ok(use.includes('const from=q.pos,to=Math.max(1,from-R.back)'));
+  assert.ok(use.includes('if(melee) await fly(q,to,0.45,1.1); else await teleport(q,to,true);'));
 });
 
 test('cue lama eport tetap diputar; Ender Hole memasang lapisan hole-fx tanpa cue tambahan', () => {
