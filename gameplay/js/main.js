@@ -4675,6 +4675,7 @@ cv.addEventListener('wheel',e=>{ e.preventDefault(); if(camInputOff()||AWK.runni
 
 /* ---------- Permainan ---------- */
 const STALE={};
+const DUEL={on:true,turn:0,rev:{}}; /* PVP Clash: rev['kalah>menang'] = giliran terakhir Revenge buff berlaku (lihat duelCheck) */
 let paused=false;
 let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=null,winnerIndex=-1;
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
@@ -5411,7 +5412,7 @@ function startTurnTimer(){
 function settlePawns(){
   try{ players.forEach(q=>{ if(!q.pawn||!(q.pos>0)||q.pos>=GOAL) return; const to=slotPos(q.idx,q.pos),pw=q.pawn,from=pw.position.clone(); if(from.distanceTo(to)<0.03||Math.abs(from.y-to.y)>0.6) return; tween(0.25,k=>pw.position.lerpVectors(from,to,k)); }); }catch(e){}
 }
-function nextTurn(){ settlePawns(); cur=(cur+1)%players.length; skipFrozen(); busy=false; beginTurn(); }
+function nextTurn(){ settlePawns(); DUEL.turn++; cur=(cur+1)%players.length; skipFrozen(); busy=false; beginTurn(); }
 
 async function walk(p,from,to){
   if(ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'walk',pid:p.networkId,from:from,to:to});
@@ -5624,6 +5625,55 @@ async function resolveTileAt(p,gid,depth){
   }
 }
 async function resolveAfterChestMove(p,gid){ await resolveTileAt(p,gid); renderChips(); }
+/* ---------- PVP Clash (duel) ----------
+   Dua pemain bertemu (mendarat) di petak yang sama -> duel singkat (aturan murni = duel-core.js, tampilan = duel-ui.js).
+   Tahap 1: hanya offline (solo/vs CPU/lokal). Online (ONLINE_ROOM) dilewati sampai dadu duel diundi di server (RPC Supabase).
+   Penalti kalah: mundur 10% papan (+ skip 1 giliran bila Heavy Defeat). Skip giliran memakai flag p.frozen yang sudah ada (skipFrozen). */
+function duelRevKey(a,b){ return a.idx+'>'+b.idx; }
+function duelHasRev(a,b){ const e=DUEL.rev[duelRevKey(a,b)]; return e!=null&&DUEL.turn<=e; }
+async function duelCheck(p,gid){
+  const D=UT.Gameplay&&UT.Gameplay.Duel,UI=UT.GameplayDuelUI;
+  if(!DUEL.on||!D||!UI||ONLINE_ROOM||gameOver||!p||!p.pawn||p.pos===GOAL||D.isSafeTile(p.pos,GOAL)) return;
+  const foes=players.filter(q=>q!==p&&q.pawn&&!q.left&&q.pos===p.pos); if(!foes.length) return;
+  const q=foes[Math.floor(Math.random()*foes.length)],pair=[p,q],st=()=>{ if(gid!==gameId) throw STALE; };
+  let s=D.create({revenge:[duelHasRev(p,q),duelHasRev(q,p)]}),guard=0;
+  try{
+    setMsg(p.name+' bertemu '+q.name+'! Duel dimulai.'); fb('event','info',p.name+' vs '+q.name+': Duel!',{gid,ttl:1400});
+    UI.open({names:[p.name,q.name],css:[p.css,q.css]}); UI.state(s.hp,s.mom); sfx.hit();
+    await sleep(900); st();
+    while(!s.over&&guard++<60){
+      UI.banner(s.sudden?'Sudden Death':'Ronde '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
+      UI.dice(null,true); await sleep(550); st();
+      const rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)],r=D.round(s,rolls); s=r.state;
+      UI.dice(rolls,false); await sleep(350); st();
+      pair.forEach((m,i)=>{ if(D.ACTIONS[rolls[i]].atk>0) pawnAct(m.pawn,'attack',0.5); });
+      r.events.forEach(e=>{
+        if(e.type==='clash'){ UI.shake(); sfx.hit(); }
+        else if(e.type==='hit'){ UI.pop(e.target,'-'+e.dmg,'hit'); hitBlastFx(pair[e.target]); sfx.hit(); sfx.playerHurt(); }
+        else if(e.type==='block'){ UI.pop(e.who,'BLOCK','blk'); pawnAct(pair[e.who].pawn,'block',0.6); }
+        else if(e.type==='heal') UI.pop(e.who,'+1','heal');
+        else if(e.type==='finisher'){ UI.pop(e.who,'FINISHER!','fin'); UI.shake(); }
+        else if(e.type==='revenge') UI.pop(e.who,'REVENGE','rev');
+        else if(e.type==='double_ko') UI.banner('Seri! Sudden Death','sd');
+      });
+      UI.state(s.hp,s.mom); await sleep(900); st();
+    }
+    const out=D.outcome(s,{pos:p.pos,goal:GOAL}),w=pair[out.winner],l=pair[out.loser];
+    UI.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
+    sfx.hit(); hitBlastFx(l); pawnAct(l.pawn,'block',0.9); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
+    w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
+    DUEL.rev[duelRevKey(l,w)]=DUEL.turn+D.DEFAULTS.revengeTurns*players.length; delete DUEL.rev[duelRevKey(w,l)];
+    UI.result((s.byFinisher?'Heavy Defeat (Finisher)':(out.kind==='heavy'?'Heavy Defeat (Sudden Death)':'Normal Defeat')),[
+      w.name+': tetap di petak '+out.from+', +'+out.xp.winner+' XP',
+      l.name+': mundur ke petak '+out.to+(out.skipTurn?', skip 1 giliran':'')+', +'+out.xp.loser+' XP',
+      l.name+' mendapat Revenge buff (+1 damage serangan pertama vs '+w.name+')']);
+    await sleep(1600); st();
+    UI.close();
+    if(out.back>0){ const from=l.pos; await walk(l,from,out.to); l.pos=out.to; } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
+    st(); if(out.skipTurn) l.frozen=true;
+    renderChips(); if(!w.cpu&&!isPlayerDefeat(w)) pawnCheer(w.pawn,1.4);
+  }finally{ if(gid!==gameId){ try{ UI.close(); }catch(e){} } }
+}
 async function playTurn(p,v,gid,bn){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   focus=p.pawn;
@@ -5658,6 +5708,7 @@ async function playTurn(p,v,gid,bn){
   if(p.pos===GOAL){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
   await A(resolveTileAt(p,gid));
   if(CHESTS.has(p.pos)){ const pre=p.pos; await A(giveChest(p,chestToken(p))); if(p.pos!==pre) await A(resolveAfterChestMove(p,gid)); }
+  await A(duelCheck(p,gid)); /* PVP Clash: bertemu pemain lain di petak yang sama */
   renderChips();
   await A(faceCamera(p.pawn));
   if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); }

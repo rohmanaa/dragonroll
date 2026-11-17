@@ -1,0 +1,27 @@
+/* Ular Tangga Blok — overlay duel PVP (gameplay/js/duel-ui.js). Tidak mengubah gaya halaman lain. */
+.du{position:fixed;inset:0;z-index:60;pointer-events:none;font-family:inherit;color:#fff;text-shadow:2px 2px 0 #000;opacity:0;transition:opacity .25s}
+.du.in{opacity:1}.du.out{opacity:0}
+.du::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(20,0,0,.55) 100%)}
+.du.shake{animation:du-shake .38s}
+@keyframes du-shake{0%,100%{transform:none}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,4px)}}
+.du-side{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));max-width:42vw}
+.du-l{left:12px}.du-r{right:12px;text-align:right}
+.du-name{font-weight:800;font-size:15px;color:var(--pc,#ffd45a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.du-hp{font-size:26px;line-height:1.1;letter-spacing:2px}
+.du-h{color:#ef2b3d}.du-h.off{color:#4a2a2e}
+.du-mom{display:inline-flex;gap:3px;margin-top:3px}
+.du-mom i{width:16px;height:10px;background:#3a2a1f;border:2px solid #000}.du-mom i.on{background:#ffd23f}
+.du-banner{position:absolute;top:calc(64px + env(safe-area-inset-top,0px));left:0;right:0;text-align:center;font-weight:800;font-size:18px}
+.du-banner.sd{color:#ff6a3a}
+.du-dice{position:absolute;top:calc(104px + env(safe-area-inset-top,0px));left:0;right:0;display:flex;justify-content:center;gap:40px}
+.du-die{width:84px;padding:6px 4px;text-align:center;background:#f4f0e6;color:#1b1d22;text-shadow:none;border:3px solid #000;box-shadow:4px 4px 0 #000}
+.du-die b{display:block;font-size:30px;line-height:1.1}.du-die span{font-size:12px;font-weight:700}
+.du-die.roll b{animation:du-blink .12s infinite}
+@keyframes du-blink{50%{opacity:.4}}
+.du-pops{position:absolute;inset:0;overflow:hidden}
+.du-pop{position:absolute;top:46%;font-weight:800;font-size:26px;animation:du-up 1s forwards}
+.du-pop.hit{color:#ff5a5a}.du-pop.blk{color:#7fdcff}.du-pop.heal{color:#7dff9a}.du-pop.fin{color:#ffd23f;font-size:32px}.du-pop.rev{color:#ffa31a}
+@keyframes du-up{to{transform:translateY(-54px);opacity:0}}
+.du-card{position:absolute;left:50%;bottom:calc(18% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(88vw,380px);padding:12px 14px;background:rgba(20,14,12,.92);border:3px solid #000;box-shadow:4px 4px 0 #000;font-size:14px;line-height:1.5;text-shadow:none}
+.du-card b{display:block;font-size:16px;margin-bottom:4px;color:#ffd23f}
+@media (prefers-reduced-motion:reduce){.du.shake,.du-die.roll b,.du-pop{animation:none}}
