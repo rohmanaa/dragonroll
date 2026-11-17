@@ -3931,18 +3931,26 @@ function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
 /* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
-function powerFxPawn(key,pl,meta){
+function powerFxPawn(key,pl,meta,origin){
   const defense=key==='shield_block'||key==='totem_block';
   let fxMeta=meta||null;
   if(MP_SEQ===0){
     const m=defense?mpFxMeta():null; if(m) fxMeta=m;
-    mpCue(m?{k:'pfx',key:key,pid:pl&&pl.networkId,fid:m.fid,seed:m.seed}:{k:'pfx',key:key,pid:pl&&pl.networkId});
+    const cue={k:'pfx',key:key,pid:pl&&pl.networkId};
+    if(m){ cue.fid=m.fid; cue.seed=m.seed; }
+    const source=origin&&origin.pawn?origin.pawn.position:origin&&origin.position?origin.position:origin;
+    if(defense&&source&&Number.isFinite(source.x)&&Number.isFinite(source.y)&&Number.isFinite(source.z)){
+      cue.sx=Math.round(source.x*10)/10; cue.sy=Math.round(source.y*10)/10; cue.sz=Math.round(source.z*10)/10;
+    }
+    mpCue(cue);
   }
   if(key==='shield_block'||key==='totem_block'){ try{ sfx.powerBlock(key); }catch(e){} } /* suara menahan serangan: juga saat reduce-motion */
   try{
     if(defense&&pl&&pl.pawn&&FX){
       const pos=pl.pawn.position.clone(); pos.y+=0.65;
-      FX.spatial('combat-defense',Object.assign({pos,dir:pl.pawn.rotation.y,style:key==='totem_block'?'absorb':'shield'},fxMeta||{}));
+      const source=origin&&origin.pawn?origin.pawn.position:origin&&origin.position?origin.position:origin;
+      const dir=source&&Number.isFinite(source.x)&&Number.isFinite(source.z)?Math.atan2(source.x-pos.x,source.z-pos.z):pl.pawn.rotation.y;
+      FX.spatial('combat-defense',Object.assign({pos,dir,style:key==='totem_block'?'absorb':'shield'},fxMeta||{}));
     }
     if(!pl||!pl.pawn||reduce) return;
     /* Efek Power selalu di TENGAH layar (bukan di atas pion). Canvas 3D = sebesar canvas game (1 layar) agar aura/partikel tidak terpotong; model power sendiri diperkecil 1,5x (SHRINK di power-overlay.js) dari ukuran dasar 90% sisi pendek layar (320-760px) */
@@ -5061,7 +5069,7 @@ async function trapCheck(p,gid){
   let moved=false; const parts=[],pushedOthers=[];
   for(const q of vs){
     const by=await puDefend(q,gid,nm+(owner?' '+owner.name:'')); if(gid!==gameId) throw STALE;
-    if(by){ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q); parts.push(q.name+' menahan'); continue; }
+    if(by){ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q,null,bp); parts.push(q.name+' menahan'); continue; }
     const from=q.pos,to=Math.max(1,from-t.back);
     sfx.playerHurt(); hitBlastFx(q); pawnAct(q.pawn,'block');
     await teleport(q,to,true); if(gid!==gameId) throw STALE; q.pos=to; if(q===p) moved=true; else if(to!==from) pushedOthers.push(q); renderChips();
@@ -5149,7 +5157,7 @@ async function usePU(k,cpu,tileArg){
     }
   }catch(e){ if(e===STALE) return; console.error(e); }
   if(gid!==gameId) return;
-  blocked.forEach(({q,by})=>{ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q); }); if(blocked.length){ sfx.pop(); renderChips(); }
+  blocked.forEach(({q,by})=>{ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q,null,p.pawn.position); }); if(blocked.length){ sfx.pop(); renderChips(); }
   /* Feedback: Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Power self/area/diblok = banner HUD singkat. Urutan: pakai → efek → feedback → lanjut. */
   const mv=q=>{ const d=old[q.idx]-(pushed[q.idx]!=null?pushed[q.idx]:q.pos); return q.name+(d>0?' mundur '+d+' petak':' tidak bergerak'); };
   if(offense&&R.kind!=='trap'){
@@ -5979,7 +5987,7 @@ function mpRunFeedbackCue(c){
     else if(c.k==='spfx'){ spFxCue(c); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
-    else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null); }
+    else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid),source=Number.isFinite(c.sx)&&Number.isFinite(c.sy)&&Number.isFinite(c.sz)?{x:c.sx,y:c.sy,z:c.sz}:null; if(q) powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null,source); }
     else if(c.k==='pufx'){ puFx(c.key,c.cls); }
   }catch(e){ console.error('[multiplayer] feedback cue failed',e); }
   return Promise.resolve();

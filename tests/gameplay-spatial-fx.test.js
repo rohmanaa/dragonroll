@@ -418,6 +418,17 @@ test('hit feedback muncul pada pawn aktual, mengikuti cue seeded, dan screen fla
 });
 
 test('shield block dan absorption hanya dirender melalui cue defense yang sudah diproses', () => {
+  const oriented = dir => {
+    const h = ready();
+    h.FX.spatial('combat-defense', { pos: { x: 2, y: 0.5, z: -1 }, dir, style: 'shield', seed: 445 });
+    step(h, 0.04);
+    const points = h.scene.children.filter(m => m.material.transparent && m.material.color === 0x14B8A6)
+      .map(m => [Math.round(m.position.x * 100), Math.round(m.position.z * 100)]);
+    step(h, 1);
+    assert.strictEqual(h.scene.children.length, 0);
+    return points;
+  };
+  assert.notDeepStrictEqual(oriented(0), oriented(Math.PI / 2), 'shield silhouette must face its source');
   const h = ready();
   ['shield', 'absorb'].forEach(style => {
     h.FX.spatial('combat-defense', { pos: { x: 2, y: 0.5, z: -1 }, dir: 0.7, style, fid: 'host:1:abcd.' + (style === 'shield' ? 1 : 2), seed: 445 });
@@ -426,12 +437,15 @@ test('shield block dan absorption hanya dirender melalui cue defense yang sudah 
   step(h, 1);
   assert.strictEqual(h.FX.getActive().length, 0);
   assert.strictEqual(h.scene.children.length, 0);
-  const powerFx = fnBody(mainSrc, 'function powerFxPawn(key,pl,meta){');
+  const powerFx = fnBody(mainSrc, 'function powerFxPawn(key,pl,meta,origin){');
   assert.ok(powerFx.includes("key==='shield_block'||key==='totem_block'"));
   assert.ok(powerFx.includes("FX.spatial('combat-defense'"));
   assert.ok(powerFx.includes("style:key==='totem_block'?'absorb':'shield'"));
-  assert.ok(mainSrc.includes("powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null)"));
-  assert.ok(mainSrc.includes("powerFxPawn(by==='guard'?'shield_block':'totem_block',q)"));
+  assert.ok(powerFx.includes('cue.sx=Math.round(source.x*10)/10'));
+  assert.ok(powerFx.includes('Math.atan2(source.x-pos.x,source.z-pos.z)'));
+  assert.ok(mainSrc.includes("powerFxPawn(c.key,q,FX&&FX.cueOptions?FX.cueOptions(c):null,source)"));
+  assert.ok(mainSrc.includes("powerFxPawn(by==='guard'?'shield_block':'totem_block',q,null,p.pawn.position)"));
+  assert.ok(mainSrc.includes("powerFxPawn(by==='guard'?'shield_block':'totem_block',q,null,bp)"));
 });
 
 test('cue lama eport tetap diputar; Ender Hole memasang lapisan hole-fx tanpa cue tambahan', () => {
