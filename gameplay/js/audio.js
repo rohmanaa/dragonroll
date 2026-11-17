@@ -50,9 +50,14 @@
     /* win */    firework:'win/firework-launch.ogg',
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUnsheathing:'powerup/sword-unsheathing.mp3', swordSlice:'powerup/sword-slice.mp3', metalWhooshHit:'powerup/metal-whoosh-hit.mp3',
+                 diamondSwordUnsheath:'powerup/diamond-sword-crystal-unsheathe.mp3', diamondSwordWhoosh:'powerup/diamond-sword-slash-whoosh.mp3', diamondSwordImpact:'powerup/diamond-sword-metal-impact.mp3', diamondSwordResonance:'powerup/diamond-sword-crystal-resonance.mp3',
+                 woodenShieldEquip:'powerup/wooden-shield-equip.mp3', woodenShieldImpact:'powerup/wooden-shield-impact.mp3', woodenShieldResonance:'powerup/wooden-shield-resonance.mp3',
                  featherWindMagic:'powerup/wind-magic.mp3', featherLongWhoosh:'powerup/long-whoosh.mp3', featherFinishWhoosh:'powerup/epic-whoosh.mp3',
                  tntExplosionFx:'powerup/explosion-fx.mp3', tntDeepExplosion:'powerup/deep-explosion.mp3', tntDebrisBreak:'powerup/debris-break.mp3',
                  totemChime:'powerup/totem-mystical-chime.mp3', totemSpell:'powerup/totem-magic-spell.mp3', totemShield:'powerup/totem-shield-activation.mp3',
+                 goldenAppleActivation:'powerup/golden-apple-activation.mp3', goldenAppleBite:'powerup/golden-apple-bite.mp3', goldenAppleHealing:'powerup/golden-apple-healing.mp3', goldenAppleFinish:'powerup/golden-apple-finish.mp3',
+                 fireChargeIgnition:'powerup/fire-charge-ignition.mp3', fireChargeMagic:'powerup/fire-charge-magic.mp3', fireChargeWhoosh:'powerup/fire-charge-whoosh.mp3', fireChargeImpact:'powerup/fire-charge-impact.mp3',
+                 iceCrystalChime:'powerup/ice-crystal-chime.mp3', iceCrystalCharge:'powerup/ice-crystal-charge.mp3', iceCrystalRelease:'powerup/ice-crystal-release.mp3', iceCrystalShatter:'powerup/ice-crystal-shatter.mp3',
                  potionDrink:'powerup/potion-drink.mp3', potionBubbling:'powerup/potion-bubbling.mp3', potionDarkMagic:'powerup/potion-dark-magic.mp3',
                  potionEvenDrink:'powerup/potion-even-drink.mp3', potionEvenHealing:'powerup/potion-even-healing-magic.mp3', potionEvenChime:'powerup/potion-even-magic-chime.mp3',
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
@@ -87,7 +92,7 @@
   /* ---------- Suara Power ----------
      Tiap Power memakai resep PowerSound khusus; fase trigger memainkan hit khas Power itu sendiri.
      Audio pedang berbasis file punya fallback sintesis, bukan file musik atau ledakan bersama. */
-  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85}, totem:{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0.95,volume:0.75}, potion_odd:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7}, potion_even:{drink:'potionEvenDrink',effect:'potionEvenHealing',chime:'potionEvenChime',pitch:1.1,volume:0.7} };
+  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{activate:'diamondSwordUnsheath',attack:'diamondSwordWhoosh',impact:'diamondSwordImpact',finish:'diamondSwordResonance',pitch:1.05,volume:0.85}, wooden_shield:{activate:'woodenShieldEquip',defense:'woodenShieldImpact',finish:'woodenShieldResonance',pitch:0.95,volume:0.8}, golden_apple:{activate:'goldenAppleActivation',consume:'goldenAppleBite',healing:'goldenAppleHealing',finish:'goldenAppleFinish',pitch:1.05,volume:0.75}, fire_charge:{activate:'fireChargeIgnition',charge:'fireChargeMagic',launch:'fireChargeWhoosh',impact:'fireChargeImpact',pitch:1,volume:0.85}, ice_crystal:{activate:'iceCrystalChime',charge:'iceCrystalCharge',release:'iceCrystalRelease',impact:'iceCrystalShatter',pitch:1.1,volume:0.78}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85}, totem:{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0.95,volume:0.75}, potion_odd:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7}, potion_even:{drink:'potionEvenDrink',effect:'potionEvenHealing',chime:'potionEvenChime',pitch:1.1,volume:0.7} };
   function powerSynth(k,phase,level){
     try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0&&PS.play(k,{phase:phase||'use',ctx:actx,volume:sfxV*(level==null?1:level)})) return true; }catch(e){}
     return false;
@@ -115,7 +120,7 @@
         const convolver=actx.createConvolver(), wet=actx.createGain();
         convolver.buffer=impulse; wet.gain.value=fx.reverbWet==null?0.2:fx.reverbWet; output.connect(convolver); convolver.connect(wet); wet.connect(comp);
       }
-    }catch(e){ console.warn('[audio] efek TNT tambahan tidak tersedia',e); }
+    }catch(e){ console.warn('[audio] efek SFX tambahan tidak tersedia',e); }
   }
   function powerFile(key,rate,duration,fb,level,fx){
     const a=fileSfx(key,level==null?1:level,fb,0,rate);
@@ -135,6 +140,58 @@
       powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
       setTimeout(function(){ powerFile(layers.protection,rate,500,function(){ powerSynth(k,'hit',level); },level,fx); },300);
       setTimeout(function(){ powerFile(layers.finish,rate,500,function(){ powerSynth(k,'finish',level); },level,fx); },800);
+      return true;
+    }
+    if(k==='diamond_sword'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:1,reverb:0.16,reverbWet:0.18,resonanceDb:1.5,resonanceHz:2500,resonanceQ:1.1};
+      powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
+      setTimeout(function(){ powerFile(layers.attack,rate,400,function(){ powerSynth(k,'swing',level); },level,fx); },300);
+      setTimeout(function(){ powerFile(layers.impact,rate,500,function(){ powerSynth(k,'hit',level); },level,fx); },700);
+      setTimeout(function(){ powerFile(layers.finish,rate,300,function(){ powerSynth(k,'finish',level); },level,fx); },1200);
+      return true;
+    }
+    if(k==='wooden_shield'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:1.5,reverb:0.06,reverbWet:0.08,resonanceDb:2,resonanceHz:250,resonanceQ:1.1};
+      if(phase==='block'){
+        powerFile(layers.defense,rate,400,function(){ powerSynth(k,'hit',level); },level,fx);
+        setTimeout(function(){ powerFile(layers.finish,rate,300,function(){ powerSynth(k,'finish',level); },level,fx); },400);
+      }else powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
+      return true;
+    }
+    if(k==='golden_apple'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:0,reverb:0.14,reverbWet:0.16,resonanceDb:1.2,resonanceHz:1800,resonanceQ:0.9};
+      powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
+      setTimeout(function(){ powerFile(layers.consume,rate,300,function(){ powerSynth(k,'consume',level); },level); },300);
+      setTimeout(function(){ powerFile(layers.healing,rate,700,function(){ powerSynth(k,'healing',level); },level,fx); },600);
+      setTimeout(function(){ powerFile(layers.finish,rate,300,function(){ powerSynth(k,'finish',level); },level,fx); },1300);
+      return true;
+    }
+    if(k==='fire_charge'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:-1,reverb:0.22,reverbWet:0.18,resonanceDb:1,resonanceHz:1600,resonanceQ:0.8};
+      if(phase==='trigger'){
+        powerFile(layers.charge,rate,400,function(){ powerSynth(k,'charge',level); },level,fx);
+        powerSynth(k,'embers',level*0.25);
+        setTimeout(function(){ powerFile(layers.launch,rate,400,function(){ powerSynth(k,'launch',level); },level,fx); },400);
+        setTimeout(function(){ powerFile(layers.impact,rate,500,function(){ powerSynth(k,'hit',level); },level,fx); },800);
+      }else powerFile(layers.activate,rate,200,function(){ powerSynth(k,'activate',level); },level,fx);
+      return true;
+    }
+    if(k==='ice_crystal'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:-1,reverb:0.22,reverbWet:0.2,resonanceDb:1.5,resonanceHz:4000,resonanceQ:1};
+      powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
+      setTimeout(function(){ powerFile(layers.charge,rate,400,function(){ powerSynth(k,'charge',level); },level,fx); },300);
+      setTimeout(function(){ powerFile(layers.release,rate,400,function(){ powerSynth(k,'release',level); },level,fx); },700);
+      setTimeout(function(){
+        let fallbackPlayed=false;
+        const fallback=function(){ if(!fallbackPlayed){ fallbackPlayed=true; powerSynth(k,'hit',level); } };
+        powerFile(layers.impact,rate,600,fallback,level,fx);
+        powerSynth(k,'crack',level*0.25);
+      },1100);
       return true;
     }
     if(k==='potion_odd'||k==='potion_even'){
@@ -214,7 +271,10 @@
         if(powerFiles(k,'trigger')) return null;
         return powerSynth(k,'hit')||powerBase(k);
       }
-      if(k==='tnt'||k==='fire_charge'||k==='blaze_core') return powerSynth(k,'activate')||powerBase(k);
+      if(k==='tnt'||k==='fire_charge'||k==='blaze_core'){
+        if(k==='fire_charge'&&powerFiles(k,'activate')) return null;
+        return powerSynth(k,'activate')||powerBase(k);
+      }
       if(powerFiles(k,'use')) return null;
       return powerSynth(k,'use')||powerBase(k);
     },
@@ -222,6 +282,7 @@
     powerBlock(key){
       const power=key==='shield_block'?'wooden_shield':'totem';
       if(power==='totem'&&powerFiles(power,'protection')) return null;
+      if(power==='wooden_shield'&&powerFiles(power,'block')) return null;
       if(!powerSynth(power,'hit')) beep(key==='shield_block'?160:1568,0.4,'sine',0.06,0,key==='shield_block'?70:0);
     },
     win(){ fileSfx('win',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */

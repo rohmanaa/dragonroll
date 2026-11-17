@@ -88,7 +88,14 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 |---|---|---|
 | `sword-unsheathing.mp3` | Aktivasi (maks. 0,44 dtk) | Iron Sword |
 | `sword-slice.mp3` | Impact (maks. 0,68 dtk) | Iron Sword |
-| `metal-whoosh-hit.mp3` | Impact (maks. 0,68 dtk) | Diamond Sword |
+| `metal-whoosh-hit.mp3` | Legacy impact (tidak dipakai mix Diamond Sword saat ini) | Legacy |
+| `diamond-sword-crystal-unsheathe.mp3` | Aktivasi (0,3 dtk) | Diamond Sword |
+| `diamond-sword-slash-whoosh.mp3` | Attack (0,4 dtk) | Diamond Sword |
+| `diamond-sword-metal-impact.mp3` | Impact (0,5 dtk) | Diamond Sword |
+| `diamond-sword-crystal-resonance.mp3` | Finish (0,3 dtk) | Diamond Sword |
+| `wooden-shield-equip.mp3` | Aktivasi (0,3 dtk) | Wooden Shield |
+| `wooden-shield-impact.mp3` | Defense saat blok (0,4 dtk) | Wooden Shield |
+| `wooden-shield-resonance.mp3` | Finish setelah blok (0,3 dtk) | Wooden Shield |
 | `wind-magic.mp3` | Aktivasi (0,2 dtk) | Feather |
 | `long-whoosh.mp3` | Action (0,5 dtk) | Feather |
 | `epic-whoosh.mp3` | Finish (0,3 dtk, volume lapisan 28%) | Feather |
@@ -98,6 +105,18 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `totem-mystical-chime.mp3` | Aktivasi (0,3 dtk) | Totem |
 | `totem-shield-activation.mp3` | Perlindungan (0,5 dtk) | Totem |
 | `totem-magic-spell.mp3` | Resonansi akhir (0,5 dtk) | Totem |
+| `golden-apple-activation.mp3` | Chime emas (0,3 dtk) | Golden Apple |
+| `golden-apple-bite.mp3` | Gigitan apel (0,3 dtk) | Golden Apple |
+| `golden-apple-healing.mp3` | Energi penyembuhan naik (0,7 dtk) | Golden Apple |
+| `golden-apple-finish.mp3` | Sparkle emas (0,3 dtk) | Golden Apple |
+| `fire-charge-ignition.mp3` | Ignition saat dipasang (0,2 dtk) | Fire Charge |
+| `fire-charge-magic.mp3` | Charge energi api (0,4 dtk) | Fire Charge |
+| `fire-charge-whoosh.mp3` | Launch proyektil cepat (0,4 dtk) | Fire Charge |
+| `fire-charge-impact.mp3` | Impact semburan api (0,5 dtk) | Fire Charge |
+| `ice-crystal-chime.mp3` | Aktivasi crystalline (0,3 dtk) | Ice Crystal |
+| `ice-crystal-charge.mp3` | Energi es naik (0,4 dtk) | Ice Crystal |
+| `ice-crystal-release.mp3` | Burst es tajam (0,4 dtk) | Ice Crystal |
+| `ice-crystal-shatter.mp3` | Pecahan kristal saat impact (0,6 dtk) | Ice Crystal |
 | `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil |
 | `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil |
 | `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil |
@@ -106,6 +125,16 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `potion-even-magic-chime.mp3` | Chime naik (0,6 dtk; layer pendamping) | Ramuan Genap |
 
 Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
+
+Diamond Sword memakai empat layer berurutan: aktivasi 0,3 dtk, slash 0,4 dtk, impact metal 0,5 dtk, dan resonansi kristal 0,3 dtk. Volume 85%, pitch dasar 1,05 ±2%, bass ringan, serta reverb medium-light; fallback sintetisnya juga punya slash dan finish kristal. Attack/impact lebih berat dan lebih berkilau daripada Iron Sword.
+
+Wooden Shield berbunyi equip 0,3 dtk saat dipakai; impact kayu 0,4 dtk dan resonansi pelindung 0,3 dtk hanya saat shield benar-benar memblokir serangan. Volume 80%, pitch 0,95 ±2%, impact kering dengan getaran kayu low-mid dan reverb sangat ringan (0,06 dtk).
+
+Golden Apple memakai chime emas 0,3 dtk, gigitan renyah 0,3 dtk, healing energy yang naik 0,7 dtk, lalu sparkle 0,3 dtk. Volume 75%, pitch 1,05 ±2%, dan reverb medium-light pada lapisan magis; fallback sintetis mempertahankan urutan aktivasi, gigitan, healing, dan finish.
+
+Fire Charge berbunyi ignition 0,2 dtk saat dipasang; ketika terpicu, energi api naik 0,4 dtk, proyektil melesat 0,4 dtk, lalu impact menyembur 0,5 dtk. Volume 85%, pitch 1,0 ±2%, reverb medium dan bara tipis. Launch dibuat cepat dengan bass ringan, berbeda dari boom TNT yang berat.
+
+Ice Crystal memakai chime 0,3 dtk, charging 0,4 dtk, release 0,4 dtk, lalu impact 0,6 dtk dengan layer crack dan pecahan kristal. Volume 78%, pitch 1,1 ±2%, reverb medium, high-frequency jernih, dan low-end ringan agar efeknya tajam tanpa gemuruh.
 
 TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
 

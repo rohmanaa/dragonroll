@@ -57,9 +57,11 @@ const FAMILY = {
     activate: () => { hiss(0.2, 0.1, 0, 'highpass', 2500, 9000); tone(700, 0.16, 'sawtooth', 0.035, 0, 260); },
     hit: () => { hiss(0.1, 0.12, 0, 'highpass', 5000); tone(1800, 0.09, 'triangle', 0.05, 0, 3200); tone(240, 0.12, 'square', 0.04, 0, 90); },
   },
-  diamond: { // tebasan kristal + denting
+  diamond: { // tebasan kristal premium
     activate: () => { hiss(0.2, 0.09, 0, 'highpass', 3000, 10000); tone(1000, 0.18, 'sawtooth', 0.03, 0, 320); },
-    hit: () => { hiss(0.1, 0.1, 0, 'highpass', 6000); chime(1200, 0, 0.04, [1, 1.5, 2]); tone(260, 0.14, 'square', 0.04, 0, 100); },
+    swing: () => { hiss(0.3, 0.1, 0, 'bandpass', 900, 7800); tone(950, 0.24, 'sawtooth', 0.04, 0, 3200); },
+    hit: () => { hiss(0.14, 0.12, 0, 'highpass', 6000); chime(1200, 0, 0.04, [1, 1.5, 2]); tone(180, 0.22, 'triangle', 0.07, 0, 110); },
+    finish: () => { tone(1760, 0.3, 'sine', 0.045, 0, 2200, true); tone(2640, 0.22, 'sine', 0.025, 0.06, 3100, true); },
   },
   netherite: { // tebasan berat + gemuruh
     activate: () => { hiss(0.28, 0.12, 0, 'bandpass', 700, 3000); tone(220, 0.3, 'sawtooth', 0.06, 0, 70); },
@@ -67,7 +69,8 @@ const FAMILY = {
   },
   shield: { // angkat perisai kayu
     activate: () => { hiss(0.12, 0.08, 0, 'bandpass', 900, 500); tone(300, 0.16, 'triangle', 0.06, 0.02, 180); tone(180, 0.2, 'square', 0.04, 0.1, 120); },
-    hit: () => { tone(160, 0.22, 'square', 0.08, 0, 70); hiss(0.2, 0.1, 0, 'lowpass', 1200); },
+    hit: () => { tone(160, 0.22, 'square', 0.08, 0, 70); tone(290, 0.12, 'triangle', 0.04, 0, 180); hiss(0.12, 0.08, 0, 'lowpass', 1000); },
+    finish: () => { tone(420, 0.3, 'triangle', 0.04, 0, 300, true); tone(260, 0.22, 'sine', 0.025, 0.08, 210, true); },
   },
   tnt: { // sumbu + ledakan
     activate: () => { hiss(0.48, 0.08, 0, 'bandpass', 900, 5200); tone(320, 0.42, 'sine', 0.025, 0, 520); },
@@ -78,9 +81,12 @@ const FAMILY = {
     hit: () => { hiss(0.5, 0.05, 0, 'bandpass', 1300, 6500); tone(700, 0.5, 'sine', 0.035, 0, 1300); },
     finish: () => { tone(1800, 0.3, 'sine', 0.035, 0, 2400, true); tone(2600, 0.2, 'sine', 0.02, 0.05, 3200, true); },
   },
-  apple: { // dentingan emas
-    activate: () => { chime(660, 0, 0.06, [1, 1.25, 1.5, 2], 0.2); },
+  apple: { // chime emas, gigitan renyah, dan energi penyembuhan
+    activate: () => { chime(1320, 0, 0.045, [1, 1.25, 1.5], 0.16); },
+    consume: () => { hiss(0.08, 0.07, 0, 'bandpass', 900, 3500); tone(320, 0.18, 'triangle', 0.045, 0, 180); tone(1400, 0.08, 'sine', 0.02, 0.08, 700); },
+    healing: () => { tone(330, 0.7, 'sine', 0.045, 0, 660, true); tone(495, 0.62, 'triangle', 0.03, 0.08, 990, true); },
     hit: () => { chime(990, 0, 0.05, [1, 1.5, 2, 2.5]); },
+    finish: () => { tone(1568, 0.24, 'sine', 0.035, 0, 2352, true); tone(2093, 0.2, 'sine', 0.025, 0.07, 3139, true); },
   },
   totem: { // paduan suara naik + pop
     activate: () => { [392, 494, 587].forEach((f, i) => tone(f, 0.22, 'triangle', 0.05, i * 0.04, 0, true)); },
@@ -91,13 +97,19 @@ const FAMILY = {
     activate: () => { tone(1400, 0.3, 'sawtooth', 0.04, 0, 180); tone(300, 0.35, 'sine', 0.05, 0.05, 1200); },
     hit: () => { tone(120, 0.3, 'sine', 0.1, 0, 800); hiss(0.2, 0.06, 0.02, 'bandpass', 3000, 700); },
   },
-  fire: { // bola api
-    activate: () => { hiss(0.4, 0.1, 0, 'bandpass', 400, 1800); tone(180, 0.35, 'sawtooth', 0.04, 0, 420); },
-    hit: () => { hiss(0.65, 0.16, 0, 'lowpass', 2000, 300); tone(140, 0.65, 'sawtooth', 0.08, 0, 45); },
+  fire: { // ignition, charge, proyektil cepat, dan semburan api
+    activate: () => { hiss(0.12, 0.08, 0, 'highpass', 2200, 5200); tone(260, 0.16, 'sawtooth', 0.045, 0, 500); },
+    charge: () => { hiss(0.36, 0.09, 0, 'bandpass', 500, 2400); tone(180, 0.4, 'sawtooth', 0.06, 0, 520); },
+    launch: () => { hiss(0.3, 0.11, 0, 'bandpass', 900, 6500); tone(420, 0.32, 'sawtooth', 0.055, 0, 1700); },
+    embers: () => { hiss(0.14, 0.08, 0, 'highpass', 4200, 7800); },
+    hit: () => { hiss(0.45, 0.12, 0, 'lowpass', 2200, 420); tone(180, 0.48, 'sawtooth', 0.065, 0, 95); tone(520, 0.12, 'triangle', 0.04, 0, 190); },
   },
   ice: { // kristal beku
-    activate: () => { chime(1400, 0, 0.04, [1, 1.2, 1.5, 1.8], 0.2); hiss(0.25, 0.04, 0, 'highpass', 7000); },
-    hit: () => { hiss(0.52, 0.14, 0, 'highpass', 6500); tone(2400, 0.28, 'square', 0.04, 0, 900); tone(1900, 0.3, 'triangle', 0.04, 0.04, 700); },
+    activate: () => { chime(1600, 0, 0.04, [1, 1.3, 1.6], 0.15); hiss(0.1, 0.025, 0, 'highpass', 7000); },
+    charge: () => { tone(520, 0.4, 'sine', 0.04, 0, 1800, true); hiss(0.32, 0.04, 0, 'highpass', 2500, 8000); },
+    release: () => { hiss(0.25, 0.1, 0, 'highpass', 3500, 10000); tone(2600, 0.32, 'square', 0.05, 0, 1300); },
+    crack: () => { hiss(0.18, 0.08, 0, 'highpass', 4000, 10000); tone(3000, 0.04, 'square', 0.035, 0, 1500); tone(1800, 0.13, 'triangle', 0.025, 0.03, 800); },
+    hit: () => { hiss(0.55, 0.14, 0, 'highpass', 6000); tone(2600, 0.5, 'square', 0.04, 0, 1000); tone(1900, 0.56, 'triangle', 0.05, 0.04, 700); },
   },
   blaze: { // bara berdenyut
     activate: () => { hiss(0.38, 0.09, 0, 'bandpass', 500, 2400); tone(140, 0.38, 'sawtooth', 0.05, 0, 260); },
@@ -149,7 +161,7 @@ export const PowerSound = {
   get volume() { return volume; },
   has: (key) => !!VOICE[ALIAS[key] || key],
   /**
-   * play(key, { phase: 'spawn'|'activate'|'drink'|'hit'|'finish'|'disappear'|'use', tier, volume, ctx })
+   * play(key, { phase: 'spawn'|'activate'|'swing'|'drink'|'hit'|'finish'|'disappear'|'use', tier, volume, ctx })
    * 'use' = activate lalu hit (~0,35 dtk kemudian) — dipakai gameplay saat Power dipakai.
    */
   play(key, o = {}) {
@@ -160,11 +172,19 @@ export const PowerSound = {
     if (!live()) return false;
     try {
       const ph = o.phase || 'use';
-      const pitchBase = id === 'feather' || id === 'potion_even' ? 1.1 : 1;
+      const pitchBase = id === 'wooden_shield' ? 0.95 : id === 'diamond_sword' || id === 'golden_apple' ? 1.05 : id === 'feather' || id === 'potion_even' || id === 'ice_crystal' ? 1.1 : 1;
       pitchScale = pitchBase * (0.98 + Math.random() * 0.04);
       if (ph === 'spawn') COMMON.spawn(o.tier || 1);
       else if (ph === 'disappear') COMMON.disappear();
       else if (ph === 'activate') fam.activate();
+      else if (ph === 'consume' && fam.consume) fam.consume();
+      else if (ph === 'healing' && fam.healing) fam.healing();
+      else if (ph === 'charge' && fam.charge) fam.charge();
+      else if (ph === 'launch' && fam.launch) fam.launch();
+      else if (ph === 'embers' && fam.embers) fam.embers();
+      else if (ph === 'release' && fam.release) fam.release();
+      else if (ph === 'crack' && fam.crack) fam.crack();
+      else if (ph === 'swing' && fam.swing) fam.swing();
       else if (ph === 'drink' && fam.drink) fam.drink();
       else if (ph === 'hit') fam.hit();
       else if (ph === 'finish' && fam.finish) fam.finish();

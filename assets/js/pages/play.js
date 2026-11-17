@@ -18,21 +18,18 @@
   });
   var SELF_LOADING = /^splash\.html$/;
   function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
-  /* Overlay antar-halaman: tirai awan (tanpa persen palsu; progres asli dihitung di splash).
+  /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
+     Ini indikator kesiapan halaman, bukan persentase unduhan; progres byte nyata hanya ditampilkan di splash.
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
-  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 600;   // awan minimal tampil 0,7 dtk (sempat melayang) sebelum menyibak
-  /* progres: tahap nyata (halaman dimuat -> font/latar/gambar siap) + merayap pelan menuju batas tahap, tidak pernah terlihat diam */
-  var bar = ov.querySelector('.ldb b'), lbl = ov.querySelector('.ldt span'), pct = 0, cap = 60, creepRaf = 0;
-  function setP(v) { if (v > pct) { pct = v; bar.style.width = pct + '%'; } }
-  function stage(c, text) { if (c > cap) cap = c; if (text && lbl) lbl.textContent = text; }
-  function resetP() { pct = 0; cap = 60; bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; bar.style.transition = ''; if (lbl) lbl.textContent = 'Memuat halaman'; setP(6); }
-  function creep() { clearTimeout(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.08); creepRaf = setTimeout(tick, 100); })(); }   // 10x/dtk (bukan tiap frame): tidak membebani halaman yang sedang dimuat
-  /* Tirai awan TERTUNDA: pindah halaman yang cepat (aset sudah di cache dari splash) tidak menampilkan loading sama sekali.
-     Tirai baru muncul bila halaman tujuan belum siap setelah SHOW_DELAY. Selama menunggu, iframe polos (warna sama dengan latar) agar tidak ada kilatan baru. */
+  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 600;
+  var lbl = ov.querySelector('.ldt span');
+  function stage(text) { if (text && lbl) lbl.textContent = text; }
+  function resetP() { if (lbl) lbl.textContent = 'Memuat halaman'; }
+  /* Tutup konten tujuan seketika; jika belum siap setelah SHOW_DELAY, munculkan awan dan label loading. */
   var SHOW_DELAY = 450, armed = false, showT = 0;
   function doShow(quiet) {
     shown = true; shownAt = Date.now(); ov.classList.toggle('quiet', !!quiet);
-    ov.classList.remove('hide'); resetP(); creep();
+    ov.classList.remove('pending', 'hide'); resetP();
   }
   /* kind: 'quiet' = senyap (layar hitam polos; dipakai saat meninggalkan splash); 'now' = tirai awan + bar SEGERA (halaman berat: gameplay);
      selain itu = tirai awan TERTUNDA (SHOW_DELAY): pindah halaman yang cepat tidak menampilkan apa pun, yang lambat menampilkan "Memuat". */
@@ -42,14 +39,18 @@
     if (kind === 'quiet') { armed = false; clearTimeout(showT); doShow(true); return; }
     if (kind === 'now') { armed = false; clearTimeout(showT); doShow(false); return; }
     if (armed) return;
+    doShow(true);
+    ov.classList.add('pending');
     armed = true; clearTimeout(showT);
-    showT = setTimeout(function () { armed = false; doShow(false); }, SHOW_DELAY);
+    showT = setTimeout(function () {
+      if (!armed || !shown) return;
+      armed = false; doShow(false);
+    }, SHOW_DELAY);
   }
   function hideOv() {
-    if (armed) { armed = false; clearTimeout(showT); return; }   // halaman siap sebelum tirai sempat muncul
+    if (armed) { armed = false; clearTimeout(showT); }
     if (!shown) return;
     shown = false; clearTimeout(hideT);
-    setP(100);   // bar penuh dulu, baru awan menyibak
     var wait = ov.classList.contains('quiet') ? 60 : Math.max(60, MIN_SHOW - (Date.now() - shownAt));   // senyap: langsung buka; tirai awan: tampil minimal MIN_SHOW agar tidak berkedip
     hideT = setTimeout(function () { ov.classList.add('hide'); }, wait);
   }
@@ -71,7 +72,19 @@
     var fonts = (d && d.fonts && d.fonts.ready) ? d.fonts.ready.catch(function () {}) : Promise.resolve();
     var imgs = [];
     try { imgs = Array.prototype.filter.call(d.images || [], function (im) { return !im.complete && im.src; }); } catch (e) {}
-    var waits = imgs.map(function (im) { return new Promise(function (r) { im.addEventListener('load', r); im.addEventListener('error', r); }); });
+    var waits = imgs.map(function (im) {
+      return new Promise(function (r) {
+        var done = false, timer;
+        function finish() {
+          if (done) return;
+          done = true; clearTimeout(timer);
+          im.removeEventListener('load', finish); im.removeEventListener('error', finish);
+          r();
+        }
+        im.addEventListener('load', finish); im.addEventListener('error', finish);
+        timer = setTimeout(finish, 1500);
+      });
+    });
     /* latar harus sudah ter-decode, kalau tidak frame pertama tampil polos */
     var bg = Promise.resolve();
     try { var bi = d.querySelector('.sbg-img'); if (bi && bi.decode) bg = bi.decode().catch(function () {}); } catch (e) {}
@@ -104,9 +117,11 @@
       var t0 = Date.now();
       (function poll() { var ok = false; try { ok = d.documentElement.classList.contains('gp-ready'); } catch (e) {} if (ok || Date.now() - t0 > 6000) r(); else setTimeout(poll, 50); })();
     });
-    var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits), n = all.length;
-    all.forEach(function (pr) { pr.then(function () { stage(Math.min(96, cap + 24 / n)); setP(Math.min(94, pct + 24 / n)); }); });
-    Promise.all(all).then(function () { return settle(w, d, 120, pageName(w) === 'gameplay.html' ? 1500 : 700); }).then(function () {
+    var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits);
+    Promise.all(all).then(function () {
+      stage('Menampilkan halaman');
+      return settle(w, d, 120, pageName(w) === 'gameplay.html' ? 1500 : 700);
+    }).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
     });
@@ -182,7 +197,7 @@
     var name = pageName(w);
 
     // layar memuat
-    stage(84, 'Menyiapkan tampilan'); setP(70);   // dokumen sudah dimuat
+    stage('Menyiapkan tampilan');   // dokumen sudah dimuat
     if (SELF_LOADING.test(name)) hideOv(); else whenReady(w, hideOv);
     var leave = function () {
       var heavy = false;

@@ -168,7 +168,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
     assert.ok(filePaths[m[1]] && ex(filePaths[m[1]]), m[1] + ' Power SFX file');
   }
   assert.ok(/powerSynth\(k,'hit'\)/.test(audio), 'trigger must use the Power-specific hit');
-  assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\) return powerSynth\(k,'activate'\)/.test(audio), 'placing traps must not play the impact early');
+  assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\)\{[\s\S]*?if\(k==='fire_charge'&&powerFiles\(k,'activate'\)\) return null;[\s\S]*?return powerSynth\(k,'activate'\)/.test(audio), 'trap placement only plays Fire Charge ignition, never its impact');
   assert.ok(!audio.includes('creeper-explosion.mp3'), 'Power explosions must not reuse the Creeper explosion');
   const voicesSrc = rd('assets/js/renderers/power-3d/power-sound.js');
   const voiceBlock = /const VOICE = \{([\s\S]*?)\};/.exec(voicesSrc)[1];
@@ -184,12 +184,30 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/layers\.boom,rate,800,fallback,level,\{bassDb:2,reverb:0\.18\}/.test(audio) && /layers\.deepBoom,rate,1300,fallback,level,\{bassDb:6,reverb:0\.35\}/.test(audio), 'TNT boom and bass layer tuning');
   assert.ok(/layers\.debris,rate,600,null,0\.72,\{bassDb:1,reverb:0\.2\}\);\s*\},1000\)/.test(audio), 'TNT debris finish timing');
   assert.ok(/shelf\.type='lowshelf'/.test(audio) && /comp\.ratio\.value=4/.test(audio), 'TNT bass processing stays compressed');
-  ['debris-break.mp3', 'deep-explosion.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'potion-bubbling.mp3', 'potion-dark-magic.mp3', 'potion-drink.mp3', 'potion-even-drink.mp3', 'potion-even-healing-magic.mp3', 'potion-even-magic-chime.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'totem-magic-spell.mp3', 'totem-mystical-chime.mp3', 'totem-shield-activation.mp3', 'wind-magic.mp3'].forEach(file => {
+  ['debris-break.mp3', 'deep-explosion.mp3', 'diamond-sword-crystal-resonance.mp3', 'diamond-sword-crystal-unsheathe.mp3', 'diamond-sword-metal-impact.mp3', 'diamond-sword-slash-whoosh.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'fire-charge-ignition.mp3', 'fire-charge-impact.mp3', 'fire-charge-magic.mp3', 'fire-charge-whoosh.mp3', 'golden-apple-activation.mp3', 'golden-apple-bite.mp3', 'golden-apple-finish.mp3', 'golden-apple-healing.mp3', 'ice-crystal-charge.mp3', 'ice-crystal-chime.mp3', 'ice-crystal-release.mp3', 'ice-crystal-shatter.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'potion-bubbling.mp3', 'potion-dark-magic.mp3', 'potion-drink.mp3', 'potion-even-drink.mp3', 'potion-even-healing-magic.mp3', 'potion-even-magic-chime.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'totem-magic-spell.mp3', 'totem-mystical-chime.mp3', 'totem-shield-activation.mp3', 'wind-magic.mp3', 'wooden-shield-equip.mp3', 'wooden-shield-impact.mp3', 'wooden-shield-resonance.mp3'].forEach(file => {
     assert.ok(ex('assets/audio/sfx/powerup/' + file), file + ' SFX path');
   });
   assert.ok(/totem:\{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0\.95,volume:0\.75\}/.test(audio), 'Totem SFX profile');
   assert.ok(/powerFile\(layers\.activate,rate,300/.test(audio) && /layers\.protection,rate,500[\s\S]*?\},300\)/.test(audio) && /layers\.finish,rate,500[\s\S]*?\},800\)/.test(audio), 'Totem phase durations');
   assert.ok(/if\(phase==='protection'\)[\s\S]*?layers\.protection/.test(audio), 'Totem block uses the protection layer');
+  assert.ok(/diamond_sword:\{activate:'diamondSwordUnsheath',attack:'diamondSwordWhoosh',impact:'diamondSwordImpact',finish:'diamondSwordResonance',pitch:1\.05,volume:0\.85\}/.test(audio), 'Diamond Sword premium SFX profile');
+  assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.attack,rate,400[\s\S]*?layers\.impact,rate,500[\s\S]*?layers\.finish,rate,300/.test(audio), 'Diamond Sword four-layer timing');
+  assert.ok(/reverb:0\.16,reverbWet:0\.18,resonanceDb:1\.5/.test(audio) && /powerSynth\(k,'swing',level\)/.test(audio), 'Diamond Sword crystal processing and distinct swing fallback');
+  assert.ok(/diamond: \{[\s\S]*?swing: \(\) =>[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /id === 'diamond_sword' \|\| id === 'golden_apple' \? 1\.05/.test(voicesSrc), 'Diamond Sword synthetic fallback uses matching pitch and stages');
+  assert.ok(/wooden_shield:\{activate:'woodenShieldEquip',defense:'woodenShieldImpact',finish:'woodenShieldResonance',pitch:0\.95,volume:0\.8\}/.test(audio), 'Wooden Shield SFX profile');
+  assert.ok(/if\(phase==='block'\)[\s\S]*?layers\.defense,rate,400[\s\S]*?layers\.finish,rate,300/.test(audio), 'Wooden Shield defense and finish occur on block');
+  assert.ok(/power==='wooden_shield'&&powerFiles\(power,'block'\)/.test(audio) && /reverb:0\.06,reverbWet:0\.08,resonanceDb:2,resonanceHz:250/.test(audio), 'Wooden Shield uses dry wooden impact processing');
+  assert.ok(/shield: \{[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /id === 'wooden_shield' \? 0\.95/.test(voicesSrc), 'Wooden Shield has a matching protective fallback');
+  assert.ok(/if\(k==='totem'\)\{[\s\S]*?\n    \}\n    if\(k==='diamond_sword'\)\{[\s\S]*?\n    \}\n    if\(k==='wooden_shield'\)\{[\s\S]*?\n    \}\n    if\(k==='golden_apple'\)\{[\s\S]*?\n    \}\n    if\(k==='fire_charge'\)\{[\s\S]*?\n    \}\n    if\(k==='ice_crystal'\)\{/.test(audio), 'each specialized Power audio handler must be reachable');
+  assert.ok(/golden_apple:\{activate:'goldenAppleActivation',consume:'goldenAppleBite',healing:'goldenAppleHealing',finish:'goldenAppleFinish',pitch:1\.05,volume:0\.75\}/.test(audio), 'Golden Apple SFX profile');
+  assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.consume,rate,300[\s\S]*?\},300\)[\s\S]*?layers\.healing,rate,700[\s\S]*?\},600\)[\s\S]*?layers\.finish,rate,300[\s\S]*?\},1300\)/.test(audio), 'Golden Apple four-stage timing');
+  assert.ok(/reverb:0\.14,reverbWet:0\.16,resonanceDb:1\.2/.test(audio) && /apple: \{[\s\S]*?consume: \(\) =>[\s\S]*?healing: \(\) =>[\s\S]*?finish: \(\) =>/.test(voicesSrc) && /ph === 'consume' && fam\.consume/.test(voicesSrc) && /ph === 'healing' && fam\.healing/.test(voicesSrc) && /id === 'diamond_sword' \|\| id === 'golden_apple' \? 1\.05/.test(voicesSrc), 'Golden Apple has matching reverb and phased synthetic fallback');
+  assert.ok(/fire_charge:\{activate:'fireChargeIgnition',charge:'fireChargeMagic',launch:'fireChargeWhoosh',impact:'fireChargeImpact',pitch:1,volume:0\.85\}/.test(audio), 'Fire Charge SFX profile');
+  assert.ok(/layers\.charge,rate,400[\s\S]*?powerSynth\(k,'embers',level\*0\.25\)[\s\S]*?layers\.launch,rate,400[\s\S]*?\},400\)[\s\S]*?layers\.impact,rate,500[\s\S]*?\},800\)[\s\S]*?\}else powerFile\(layers\.activate,rate,200/.test(audio), 'Fire Charge ignition-on-place and trigger sequence');
+  assert.ok(/bassDb:-1,reverb:0\.22,reverbWet:0\.18/.test(audio) && /fire: \{[\s\S]*?charge: \(\) =>[\s\S]*?launch: \(\) =>[\s\S]*?embers: \(\) =>[\s\S]*?hit: \(\) =>/.test(voicesSrc) && /ph === 'charge' && fam\.charge/.test(voicesSrc) && /ph === 'launch' && fam\.launch/.test(voicesSrc) && /ph === 'embers' && fam\.embers/.test(voicesSrc), 'Fire Charge uses fast, ember-like effects with medium reverb and light bass');
+  assert.ok(/ice_crystal:\{activate:'iceCrystalChime',charge:'iceCrystalCharge',release:'iceCrystalRelease',impact:'iceCrystalShatter',pitch:1\.1,volume:0\.78\}/.test(audio), 'Ice Crystal SFX profile');
+  assert.ok(/layers\.activate,rate,300[\s\S]*?layers\.charge,rate,400[\s\S]*?\},300\)[\s\S]*?layers\.release,rate,400[\s\S]*?\},700\)[\s\S]*?layers\.impact,rate,600[\s\S]*?\},1100\)/.test(audio), 'Ice Crystal four-stage timing');
+  assert.ok(/fallbackPlayed=false[\s\S]*?layers\.impact,rate,600,fallback,level,fx\)[\s\S]*?powerSynth\(k,'crack',level\*0\.25\)/.test(audio) && /bassDb:-1,reverb:0\.22,reverbWet:0\.2,resonanceDb:1\.5,resonanceHz:4000/.test(audio) && /ice: \{[\s\S]*?charge: \(\) =>[\s\S]*?release: \(\) =>[\s\S]*?crack: \(\) =>[\s\S]*?hit: \(\) =>/.test(voicesSrc) && /id === 'feather' \|\| id === 'potion_even' \|\| id === 'ice_crystal' \? 1\.1/.test(voicesSrc), 'Ice Crystal layers a bright crack over a restrained crystal shatter and has a phased fallback');
   assert.ok(/potion_odd:\{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0\.7\}/.test(audio), 'Potion SFX profile');
   assert.ok(/powerSynth\(k,'activate',level\);\s*setTimeout\(function\(\)\{[\s\S]*?layers\.drink,rate,400[\s\S]*?layers\.bubbling,rate,280[\s\S]*?\},200\)/.test(audio), 'Potion glass pop and drinking sequence');
   assert.ok(/layers\.effect,rate,600[\s\S]*?\},600\)/.test(audio), 'Potion shimmer duration');
@@ -197,7 +215,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/potion_even:\{drink:'potionEvenDrink',effect:'potionEvenHealing',chime:'potionEvenChime',pitch:1\.1,volume:0\.7\}/.test(audio), 'Bright Potion Even SFX profile');
   assert.ok(/if\(k==='potion_even'\)[\s\S]*?layers\.chime,rate,600,fallback,0\.4/.test(audio), 'Potion Even bright chime layer');
   assert.ok(/potionEven: \{[\s\S]*?finish: \(\) => \{ \[880, 1100, 1320, 1760\]/.test(voicesSrc), 'Potion Even has an ascending fallback');
-  assert.ok(/id === 'potion_even' \? 1\.1/.test(voicesSrc), 'Potion Even synthetic pitch');
+  assert.ok(/id === 'feather' \|\| id === 'potion_even' \|\| id === 'ice_crystal' \? 1\.1/.test(voicesSrc), 'high-pitch Power synthetic voices');
 });
 t('PowerFX: efek 2D membaca effect2d Registry; alias efek guard/totem lama tetap tersedia', () => {
   const fxReg = IR.create();
@@ -246,6 +264,18 @@ t('PlayerData dan server: Power tetap consumable non-equip; RPC use/buy dan harg
 });
 t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual dan cache version naik', () => {
   const preload = JSON.parse(rd('assets/preload-manifest.json'));
+  ['golden-apple-activation.mp3', 'golden-apple-bite.mp3', 'golden-apple-healing.mp3', 'golden-apple-finish.mp3'].forEach(file => {
+    const asset = 'assets/audio/sfx/powerup/' + file;
+    assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
+  });
+  ['fire-charge-ignition.mp3', 'fire-charge-magic.mp3', 'fire-charge-whoosh.mp3', 'fire-charge-impact.mp3'].forEach(file => {
+    const asset = 'assets/audio/sfx/powerup/' + file;
+    assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
+  });
+  ['ice-crystal-chime.mp3', 'ice-crystal-charge.mp3', 'ice-crystal-release.mp3', 'ice-crystal-shatter.mp3'].forEach(file => {
+    const asset = 'assets/audio/sfx/powerup/' + file;
+    assert.strictEqual(preload[asset], fs.statSync(path.join(ROOT, asset)).size, asset);
+  });
   PowerCat.keys.concat(['index']).forEach(k => {
     const file = 'data/inventory/power/' + (k === 'index' ? '' : k + '/') + (k === 'index' ? 'index.js' : 'manifest.js');
     assert.strictEqual(preload[file], fs.statSync(path.join(ROOT, file)).size, file);
