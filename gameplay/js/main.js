@@ -4207,12 +4207,64 @@ async function explode(p){
   await tween(0.32,k=>{ m.scale.setScalar(0.15+k*0.85); m.material.opacity=0.8*(1-k)*(1-k); });
   scene.remove(m); m.geometry.dispose(); m.material.dispose();
 }
+/* ---------- Spatial FX (Phase 2): teleport, lubang, portal, distorsi, jejak energi ----------
+   Visual ada di UT.GameplayFX.spatial(kind,opts) (dilacak, seed, kualitas, reduce-motion). Di sini hanya penyambung:
+   host mengirim cue ringan 'spfx' (kind + posisi + parameter kecil + fid/seed), tiap klien merender sendiri. Tidak ada partikel mentah di jaringan.
+   MP_SEQ>0 (sequence yang dijalankan ulang di tamu) tidak mengirim cue agar tidak dobel, sama seperti spawnExplosion. */
+function spFx(kind,o){
+  o=o||{};
+  let meta=o.meta||null;
+  const pos=o.from||o.pos;
+  if(MP_SEQ===0&&pos){
+    const f=mpFxMeta(); if(f) meta=f;
+    const r=v=>Math.round(v*10)/10,c={k:'spfx',t:kind,x:r(pos.x),y:r(pos.y),z:r(pos.z)};
+    if(o.to){ c.tx=r(o.to.x); c.ty=r(o.to.y); c.tz=r(o.to.z); }
+    if(o.scale&&o.scale!==1) c.s=Math.round(o.scale*100)/100;
+    if(o.tint) c.w=1;
+    if(o.yaw||o.dir) c.r=Math.round((o.yaw||o.dir)*100)/100;
+    if(o.dur) c.d=Math.round(o.dur*100)/100;
+    if(o.side) c.q=Math.round(o.side*100)/100;
+    if(o.hy!=null) c.h=Math.round(o.hy*100)/100;
+    if(f) c.fid=f.fid; /* seed tidak dikirim: tamu menurunkannya dari fid (hash32), sama dengan host -> payload tetap ringan */
+    mpCue(c);
+  }
+  if(!FX||typeof FX.spatial!=='function') return null;
+  return FX.spatial(kind,meta?Object.assign({},o,{seed:meta.seed,fid:meta.fid,source:meta.source}):o);
+}
+function spFxCue(c){ /* tamu: putar cue 'spfx' lokal; kind tak dikenal / angka tak valid diabaikan (kompatibel mundur) */
+  if(!FX||typeof FX.spatial!=='function'||!FX.spatialKinds||!FX.spatialKinds[c.t]) return;
+  const n=(v,d)=>typeof v==='number'&&isFinite(v)?v:d,pos={x:n(c.x,0),y:n(c.y,0),z:n(c.z,0)};
+  const o=Object.assign({},FX.cueOptions?FX.cueOptions(c):null);
+  if(c.tx!=null){ o.from=pos; o.to={x:n(c.tx,0),y:n(c.ty,0),z:n(c.tz,0)}; } else o.pos=pos;
+  if(c.s!=null) o.scale=n(c.s,1);
+  if(c.w) o.tint=1;
+  if(c.r!=null){ o.yaw=n(c.r,0); o.dir=o.yaw; }
+  if(c.d!=null) o.dur=n(c.d,0.6);
+  if(c.q!=null) o.side=n(c.q,0);
+  if(c.h!=null) o.hy=n(c.h,0);
+  FX.spatial(c.t,o);
+}
+let SP_SND_AT=0;
+function spSound(name){ /* satu suara spasial per 250 ms: tidak bertumpuk; aset asli lewat sfx (UT.GameplayAudio), tanpa engine audio baru */
+  const t=performance.now(); if(t-SP_SND_AT<250) return; SP_SND_AT=t;
+  try{ sfx[name](); }catch(e){}
+}
+/* Teleport: durasi & hasil TETAP (kecil 0,3 dtk -> pindah -> besar 0,3 dtk). fire===true (TNT) tetap ledakan api tanpa Spatial FX.
+   Urutan visual: energi berkumpul (selama mengecil) -> departure -> jejak -> arrival -> recovery -> energi sisa. */
 async function teleport(p,to,fire){
   const fx=fire==='ender'?(v=>spawnExplosion(v,'ender')):fire?spawnExplosion:spawnConfetti; /* 'ender' = ungu-hitam + asap; true (TNT) = api; false (Chest) = konfeti */
-  fx(p.pawn.position);
-  await tween(0.3,k=>p.pawn.scale.setScalar(1-k));
-  p.pawn.position.copy(slotPos(p.idx,to)); fx(p.pawn.position);
-  await tween(0.3,k=>p.pawn.scale.setScalar(k)); p.pawn.scale.setScalar(1);
+  const spat=fire!==true,pw=p.pawn,from=pw.position.clone();
+  if(spat) spFx('tp-gather',{pos:from,follow:()=>pw.position});
+  fx(pw.position);
+  await tween(0.3,k=>pw.scale.setScalar(1-k));
+  const dest=slotPos(p.idx,to);
+  if(spat){ spSound('enderman'); spFx('tp-depart',{pos:from}); spFx('tp-residual',{pos:from}); }
+  pw.position.copy(dest); fx(pw.position);
+  if(spat){
+    spFx('tp-trail',{from:from,to:dest}); spFx('tp-arrive',{pos:dest}); spFx('tp-recover',{pos:dest,follow:()=>pw.position}); spFx('tp-residual',{pos:dest});
+    trackFxTimeout(()=>spSound('pop'),140,'tp-arrive-sfx');
+  }
+  await tween(0.3,k=>pw.scale.setScalar(k)); pw.scale.setScalar(1);
 }
 
 /* ---------- Ender Pearl: lubang hitam + tukar posisi ----------
@@ -4223,6 +4275,8 @@ const EH_LIFE=2.3;
 function enderHole(pos,scale,meta){
   let fxm=meta||null;
   if(MP_SEQ===0){ const o=mpFxMeta(); if(o) fxm=o; mpCue(o?{k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale,fid:o.fid,seed:o.seed}:{k:'eport',x:pos.x,y:pos.y,z:pos.z,s:scale}); }
+  const spatialMeta=fxm?{seed:fxm.seed,fid:fxm.fid,source:fxm.source}:null;
+  if(FX&&typeof FX.spatial==='function') FX.spatial('hole-fx',Object.assign({pos:{x:pos.x,y:pos.y,z:pos.z},scale:scale,dur:EH_LIFE},spatialMeta)); /* lapisan Phase 2: gelombang buka, glow, pusaran, kolaps, partikel sisa (ikut reduce-motion) */
   if(reduce) return;
   const g=new THREE.Group(); g.position.set(pos.x,pos.y+0.95*scale,pos.z); g.scale.setScalar(0.001);
   const core=new THREE.Mesh(new THREE.SphereGeometry(0.42,20,14),new THREE.MeshBasicMaterial({color:0x000000,fog:false}));
@@ -4274,14 +4328,21 @@ async function enderSwapAnim(p,L,a,b){ /* p (pemakai) pindah ke petak b milik L;
   const pa=p.pawn,la=L.pawn,pA=pa.position.clone(),lA=la.position.clone(),HY=0.95;
   const cP=pA.clone(); cP.y+=HY*0.75; const cL=lA.clone(); cL.y+=HY; /* pusat lubang pemakai (kecil) & lubang target (besar) */
   enderHole(lA,1); enderHole(pA,0.75); sfx.enderman();
+  spFx('tp-gather',{pos:pA,follow:()=>pa.position,dur:0.7,scale:0.9,tint:0}); spFx('tp-gather',{pos:lA,follow:()=>la.position,dur:0.7,tint:1}); /* 1-2: antisipasi + energi ender berkumpul; tint beda = dua karakter tidak saling menimpa */
   const ry=[pa.rotation.y,la.rotation.y];
   await tween(0.7,()=>{}); /* lubang membuka */
+  spFx('tp-trail',{from:pA,to:cP,hy:0.4,dur:0.6,tint:0,side:0.25}); spFx('tp-trail',{from:lA,to:cL,hy:0.4,dur:0.6,tint:1,side:-0.25}); /* 3: masuk ke efek spasial */
   await tween(0.7,k=>{ const e=k*k; pa.position.lerpVectors(pA,cP,e); pa.scale.setScalar(Math.max(0.001,1-e)); pa.rotation.y=ry[0]+e*10; la.position.lerpVectors(lA,cL,e); la.scale.setScalar(Math.max(0.001,1-e)); la.rotation.y=ry[1]-e*10; }); /* terhisap */
   p.pos=b; L.pos=a; /* tujuan dihitung setelah posisi tertukar: tiap pion di tengah petaknya, bukan berbagi cincin dgn lawan */
   const pD=slotPos(p.idx,b).clone(),lD=slotPos(L.idx,a).clone();
+  spFx('tp-trail',{from:cL,to:pD,hy:0,dur:0.5,tint:0,side:0.3}); spFx('tp-trail',{from:cP,to:lD,hy:0,dur:0.5,tint:1,side:-0.3}); /* 4: pertukaran posisi (jalur silang, sisi berlawanan) */
+  { const mx=(pA.x+lA.x)/2,mz=(pA.z+lA.z)/2,dxy=Math.atan2(lA.x-pA.x,lA.z-pA.z); spFx('distort',{pos:{x:mx,y:Math.max(pA.y,lA.y),z:mz},dir:dxy,scale:0.8,dur:1.1}); } /* transisi spasial: riak searah p->L */
   await tween(0.5,k=>{ const e=ease3(k); pa.position.lerpVectors(cL,pD,e); pa.scale.setScalar(Math.max(0.001,e)); pa.rotation.y=ry[0]+(1-e)*6; la.position.lerpVectors(cP,lD,e); la.scale.setScalar(Math.max(0.001,e)); la.rotation.y=ry[1]-(1-e)*6; }); /* muncul dari lubang lawan */
   pa.position.copy(pD); la.position.copy(lD); pa.scale.setScalar(1); la.scale.setScalar(1); pa.rotation.y=ry[0]; la.rotation.y=ry[1];
   spawnExplosion(pD,'ender'); spawnExplosion(lD,'ender');
+  spFx('tp-arrive',{pos:pD,tint:0,scale:0.9}); spFx('tp-arrive',{pos:lD,tint:1}); /* 5-6: muncul kembali, arrival + recovery */
+  spFx('tp-recover',{pos:pD,follow:()=>pa.position,tint:0}); spFx('tp-recover',{pos:lD,follow:()=>la.position,tint:1});
+  spFx('tp-residual',{pos:pD,tint:0}); spFx('tp-residual',{pos:lD,tint:1}); spSound('pop');
   await tween(0.4,()=>{}); /* lubang menutup */
 }
 
@@ -5842,7 +5903,7 @@ function startGame(m,keys){
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
 const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,bosshfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
 /* Checkpoint 1.3: cue FX membawa fid (id kejadian unik: pengirim:gameId:sesi.urut) dan, untuk partikel, seed. Hanya angka/teks kecil; tidak ada partikel/objek THREE di jaringan. Tamu lama mengabaikan field baru; cue lama tanpa fid tetap diputar. */
-const MP_FX_CUES={confetti:1,blast:1,eport:1,pfx:1,hitfx:1,bosshfx:1,pufx:1,sfx:1,dfx:1,dmusic:1,seq:1};
+const MP_FX_CUES={confetti:1,blast:1,eport:1,spfx:1,pfx:1,hitfx:1,bosshfx:1,pufx:1,sfx:1,dfx:1,dmusic:1,seq:1};
 function mpFxMeta(){ try{ return (ONLINE_ROOM&&ONLINE_HOST&&FX&&typeof FX.cueMeta==='function')?FX.cueMeta(MP_ID||'host',gameId):null; }catch(e){ return null; } }
 function mpCue(c){ if(!ONLINE_ROOM||!ONLINE_HOST||!MP_SYNC||!MP_SYNC.sendCue) return; try{ if(c&&MP_FX_CUES[c.k]&&!c.fid){ const m=mpFxMeta(); if(m) c.fid=m.fid; } MP_SYNC.sendCue(c).catch(()=>{}); }catch(e){} }
 function mpPlayerByNet(id){ return players.find(q=>q.networkId===id); }
@@ -5872,6 +5933,7 @@ function mpRunFeedbackCue(c){
     else if(c.k==='ccard_hide'){ clearTimeout(MP_CCARD_T); if(FBK) FBK.hideChestRewardCard(); }
     else if(c.k==='chest'){ if(c.o) openChest(c.n); else closeChest(c.n); }
     else if(c.k==='eport'){ enderHole(new THREE.Vector3(c.x,c.y,c.z),c.s||1,FX&&FX.cueOptions?FX.cueOptions(c):null); }
+    else if(c.k==='spfx'){ spFxCue(c); }
     else if(c.k==='hitfx'){ const q=mpPlayerByNet(c.pid); if(q) hitBlastFx(q); }
     else if(c.k==='bosshfx'){ bossHitFx(c.dmg,true,!!c.fight); }
     else if(c.k==='pfx'){ const q=mpPlayerByNet(c.pid); if(q) powerFxPawn(c.key,q); }

@@ -5,6 +5,7 @@
    Tetap di gameplay.html: explode/teleport (mengubah pawn + tween + sfx), salju/ember tema, animasi mob/ular, kamera, Dragon, state & guard gameId/STALE.
    Classic script. Namespace: UT.GameplayFX.
    API: track/stop/untrack/stopAll/getActive/getHistory · timeout · init(scene) · emitters lama (opsional opts {seed,fid,source}) · dispose()
+   Spatial FX (Phase 2): spatial(kind, opts) · spatialKinds · clearSpatial — kind: tp-gather|tp-depart|tp-trail|tp-arrive|tp-recover|tp-residual|hole-fx|portal|portal-entry|portal-exit|distort.
    Cue multiplayer (1.3): cueMeta(origin,epoch) -> {fid,seed,source} · acceptCue(cue) (dedup + cue basi) · cueOptions(cue) · rng(seed[,index]) · getCueLog() · setDebug(on).
    Seed hanya untuk variasi visual (arah/ukuran/kecepatan partikel); tiap partikel memakai rng(seed, index) sendiri, jadi partikel ke-i sama di semua klien walau jumlah total berbeda (skala perangkat). */
 (function (win) {
@@ -74,7 +75,7 @@
   }
 
   function activeCount() {
-    return confetti.length + sparks.length + blasts.length;
+    return confetti.length + sparks.length + blasts.length + spItems.length; /* partikel spasial ikut batas kualitas yang sama */
   }
 
   function availableCount() {
@@ -380,6 +381,9 @@
         try { geometry.dispose(); } catch (e) { reportCleanupError(e); }
       }
     });
+    (SP_MATS || []).forEach(function (material) { try { material.dispose(); } catch (e) { reportCleanupError(e); } });
+    [SP_RING, SP_DISC].forEach(function (geometry) { if (geometry && typeof geometry.dispose === 'function') { try { geometry.dispose(); } catch (e) { reportCleanupError(e); } } });
+    SP_MATS = SP_RING = SP_DISC = null;
     CONF_GEO = SPARK_GEO = null;
     CONF_MATS = FIRE_MATS = SMOKE_MATS = ENDER_MATS = ESMOKE_MATS = null;
     configuredQuality = null;
@@ -470,10 +474,12 @@
     confetti.slice().forEach(function (item) { removeParticle(item, false); });
     blasts.slice().forEach(function (item) { removeParticle(item, false); });
     sparks.slice().forEach(function (item) { removeParticle(item, true); });
+    clearSpatial();
   }
   function updateConfetti(dt) {
     if (!scene) return;
     updateBlasts(dt);
+    updateSpatial(dt);
     for(let i=confetti.length-1;i>=0;i--){
       const c=confetti[i]; c.life-=dt; c.v.y-=14*dt;
       c.m.position.addScaledVector(c.v,dt);
@@ -504,5 +510,417 @@
     }
   }
 
-  UT.GameplayFX = { quality: quality, limit: limit, n: n, reduced: reduced, track: track, untrack: untrack, stop: stop, stopAll: stopAll, timeout: timeout, getActive: getActive, getHistory: getHistory, cueMeta: cueMeta, cueOptions: cueOptions, parseFid: parseFid, acceptCue: acceptCue, getCueLog: getCueLog, setDebug: setDebug, rng: rng, dispose: dispose, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks };
+
+  /* ================= Spatial FX (Phase 2) =================
+     Efek perpindahan & manipulasi ruang: Teleport, Ender Hole (lapisan energi), Portal, Spatial Distortion, Energy Trail.
+     Tidak ada engine baru: partikel memakai CONF_GEO + materi bersama, dihitung ke batas kualitas yang sama (activeCount/cap),
+     tiap efek dilacak lewat track() (kategori 'spatial', scope 'visual') sehingga stop/stopAll/dispose/visibility ikut bekerja.
+     Update dipanggil dari updateConfetti (loop gameplay yang sama). Murni visual; seed per partikel = rng(seed, ns*1000+i). */
+  var spItems = [], spEffects = [], SP_MATS = null, SP_RING = null, SP_DISC = null;
+  var SP_COLORS = [0xB84DFF, 0xDD66FF, 0xFFE6FF, 0x6D28D9, 0x14B8A6, 0x15121C]; /* violet, magenta, pucat, ungu tua, teal (aksen), hitam */
+  var SP_NS = { gather: 1, depart: 2, trail: 3, arrive: 4, recover: 5, residual: 6, hole: 7, portal: 9, entry: 10, exit: 11, ripple: 12, frag: 13, collapse: 14 };
+  var SP_KINDS = Object.create(null);
+  var HOLE_LIFE = 2.3, HALF_PI = Math.PI / 2;
+
+  function mo() { return reduced() ? 0.35 : 1; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function easeOut(v) { v = clamp(v, 0, 1); return 1 - (1 - v) * (1 - v) * (1 - v); }
+  function num(v, d) { return typeof v === 'number' && isFinite(v) ? v : d; }
+  function pal(o, j) { return (o && o.tint ? [4, 2, 0, 2] : [0, 1, 2, 3])[j & 3]; } /* tint 1 = aksen teal: dua karakter tidak berbagi warna yang sama */
+  function cp(o, extra) { var r = {}, k; for (k in o) r[k] = o[k]; for (k in extra) r[k] = extra[k]; return r; }
+  function spCount(base, o) { return scaledCount(base, o && o.tier); }
+
+  function spRes() {
+    if (SP_MATS) return true;
+    if (!scene || !win.THREE || !CONF_GEO) return false;
+    SP_MATS = SP_COLORS.map(function (c) { return new THREE.MeshBasicMaterial({ color: c, fog: false }); });
+    SP_RING = new THREE.RingGeometry(0.88, 1, 44);
+    SP_DISC = new THREE.CircleGeometry(1, 32);
+    return true;
+  }
+  function spPos(o) {
+    var p = null;
+    try { p = typeof o.follow === 'function' ? o.follow() : null; } catch (e) { p = null; }
+    p = p || o.pos || { x: 0, y: 0, z: 0 };
+    return { x: num(+p.x, 0), y: num(+p.y, 0), z: num(+p.z, 0) };
+  }
+  function spCenter(ctl) {
+    var p = spPos(ctl.o);
+    ctl.px = p.x; ctl.py = p.y; ctl.pz = p.z; ctl.cx = p.x; ctl.cy = p.y + ctl.hy; ctl.cz = p.z;
+  }
+  function spBasis(ctl, yaw) { /* bidang portal: U kanan, V atas, N normal (menghadap yaw) */
+    var s = Math.sin(yaw), c = Math.cos(yaw);
+    ctl.U = [c, 0, -s]; ctl.V = [0, 1, 0]; ctl.N = [s, 0, c];
+  }
+  function spMesh(ctl, geo, ci, opacity, additive) {
+    var mat = new THREE.MeshBasicMaterial({ color: SP_COLORS[ci], transparent: true, opacity: opacity, depthWrite: false, fog: false, side: THREE.DoubleSide });
+    if (additive !== false) mat.blending = THREE.AdditiveBlending;
+    var m = new THREE.Mesh(geo, mat);
+    m.renderOrder = 6; scene.add(m); ctl.meshes.push(m); ctl.mats.push(mat);
+    return m;
+  }
+  function spCube(ctl, ci) {
+    var m = new THREE.Mesh(CONF_GEO, SP_MATS[ci]); /* geometri & materi milik bersama: hanya dilepas dari scene */
+    m.renderOrder = 6; scene.add(m); ctl.meshes.push(m);
+    return m;
+  }
+  function spFlat(m) { m.rotation.x = -HALF_PI; return m; }
+  function spGroup(ctl) {
+    var g = ctl.group;
+    if (g && g.stopping) return null;
+    if (g && tracked[g.id]) return g;
+    g = makeParticleGroup('spatial-' + ctl.type, ctl.o);
+    ctl.group = g;
+    return g.id ? g : null;
+  }
+  function spPart(ctl, s) {
+    if (availableCount() <= 0) return null; /* kuota dicek saat dipancarkan (bukan hanya saat efek dibuat): batas kualitas tidak pernah terlampaui */
+    var g = spGroup(ctl);
+    if (!g) return null;
+    var m = new THREE.Mesh(CONF_GEO, SP_MATS[s.mat]);
+    s.s0 = s.size / 0.14; s.max = s.life; s.c = ctl;
+    s.vx = s.vx || 0; s.vy = s.vy || 0; s.vz = s.vz || 0;
+    m.position.set(s.x, s.y, s.z); m.scale.setScalar(s.s0 * (s.s1 || 0.3)); m.renderOrder = 6; scene.add(m);
+    s.m = m;
+    addParticle(spItems, s, g);
+    return s;
+  }
+
+  function spFinish(ctl) {
+    if (ctl.cleaned) return;
+    ctl.cleaned = true; ctl.done = true;
+    var i = spEffects.indexOf(ctl);
+    if (i >= 0) spEffects.splice(i, 1);
+    ctl.meshes.forEach(function (m) { try { if (scene) scene.remove(m); } catch (e) { reportCleanupError(e); } });
+    ctl.mats.forEach(function (mat) { try { mat.dispose(); } catch (e) { reportCleanupError(e); } });
+    ctl.meshes.length = 0; ctl.mats.length = 0;
+  }
+
+  function spRun(type, dur, o, build) {
+    if (!scene || disposed || !spRes()) return null;
+    o = o || {};
+    var ctl = { type: type, o: o, t: 0, dur: Math.max(0.05, dur), meshes: [], mats: [], group: null, tick: null, id: null, cleaned: false, done: false, hy: num(o.hy, 0), scale: clamp(num(o.scale, 1), 0.3, 3), U: [1, 0, 0], V: [0, 0, 1], N: [0, 1, 0], px: 0, py: 0, pz: 0, cx: 0, cy: 0, cz: 0 };
+    spCenter(ctl);
+    var meta = { type: type, scope: 'visual', category: 'spatial' };
+    ['fid', 'seed', 'source'].forEach(function (key) { if (o[key] != null) meta[key] = o[key]; });
+    ctl.id = track({
+      stop: function () { ctl.done = true; if (ctl.group && ctl.group.id) stop(ctl.group.id, 'parent-stop'); },
+      cleanup: function () { spFinish(ctl); }
+    }, meta);
+    if (!ctl.id) return null;
+    try { build(ctl); } catch (e) { reportCleanupError(e); stop(ctl.id, 'build-failed'); return null; }
+    spEffects.push(ctl);
+    return ctl;
+  }
+
+  function updateSpatialItems(dt) {
+    for (var i = spItems.length - 1; i >= 0; i--) {
+      var it = spItems[i];
+      it.life -= dt;
+      if (it.life <= 0) { removeParticle(it, false); continue; }
+      var k = it.life / it.max, u = 1 - k, m = it.m, c = it.c, p = m.position;
+      if (it.mode === 'gather') {
+        var r = it.rad * (1 - u * u);
+        p.set(c.cx + it.dx * r, c.cy + it.dy * r, c.cz + it.dz * r);
+      } else if (it.mode === 'swirl') {
+        it.a += it.w * dt;
+        var rr = it.rad * (it.out ? 0.25 + 0.75 * u : k), ca = Math.cos(it.a) * rr, sa = Math.sin(it.a) * rr, d = it.d || 0;
+        p.set(c.cx + c.U[0] * ca + c.V[0] * sa + c.N[0] * d, c.cy + c.U[1] * ca + c.V[1] * sa + c.N[1] * d + (it.rise || 0) * u, c.cz + c.U[2] * ca + c.V[2] * sa + c.N[2] * d);
+      } else {
+        it.vy -= (it.g || 0) * dt;
+        p.x += it.vx * dt; p.y += it.vy * dt; p.z += it.vz * dt;
+      }
+      m.scale.setScalar(it.s0 * Math.min(1, k * 3) * Math.min(1, (it.s1 || 0.3) + u * 6));
+      if (it.spin) { m.rotation.x += it.spin * dt; m.rotation.y += it.spin * 0.7 * dt; }
+    }
+  }
+
+  function updateSpatial(dt) {
+    if (!scene) return;
+    updateSpatialItems(dt);
+    for (var i = spEffects.length - 1; i >= 0; i--) {
+      var ctl = spEffects[i];
+      if (ctl.done) continue;
+      ctl.t += dt;
+      spCenter(ctl);
+      try { if (ctl.tick) ctl.tick(ctl, ctl.t, clamp(ctl.t / ctl.dur, 0, 1), dt); } catch (e) { reportCleanupError(e); ctl.t = ctl.dur; }
+      if (ctl.t >= ctl.dur) { spFinish(ctl); untrack(ctl.id, 'completed'); }
+    }
+  }
+
+  function clearSpatial() {
+    stopAll({ scope: 'spatial', reason: 'clear' });
+    spItems.slice().forEach(function (item) { removeParticle(item, false); });
+    spEffects.slice().forEach(spFinish);
+  }
+
+  /* ---- Teleport ---- */
+  /* 1+2. Antisipasi & energi berkumpul: cincin menyempit + serpihan voxel mengalir ke pion (mengikuti pion), selesai tepat saat pion lenyap */
+  SP_KINDS['tp-gather'] = function (o) {
+    var dur = clamp(num(o.dur, 0.3), 0.1, 1.5);
+    return spRun('tp-gather', dur, o, function (ctl) {
+      ctl.hy = num(o.hy, 0.8); spCenter(ctl);
+      var s = ctl.scale, ring = spFlat(spMesh(ctl, SP_RING, pal(o, 0), 0.7)), n = spCount(16, o);
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.gather * 1000 + i), th = R() * 6.2832, ph = (R() - 0.25) * 1.3, rad = (0.8 + R() * 0.7) * s;
+        var dx = Math.cos(th) * Math.cos(ph), dy = Math.sin(ph) * 0.8, dz = Math.sin(th) * Math.cos(ph);
+        spPart(ctl, { mode: 'gather', dx: dx, dy: dy, dz: dz, rad: rad, x: ctl.cx + dx * rad, y: ctl.cy + dy * rad, z: ctl.cz + dz * rad, life: dur, size: 0.05 + R() * 0.06, mat: pal(o, i % 3), s1: 0.5, spin: (R() - 0.5) * 6 * mo() });
+      }
+      ctl.tick = function (c, t, k) {
+        ring.position.set(c.px, c.py + 0.05, c.pz);
+        ring.scale.setScalar((1.3 * (1 - k * k) + 0.18) * s);
+        ring.rotation.z = reduced() ? 0 : t * 6;
+        ring.material.opacity = 0.7 * Math.min(1, k * 4) * (1 - k * 0.3);
+      };
+    });
+  };
+  /* 3. Departure burst: pilar percik naik + cincin kolom naik (karakter: vertikal, naik) */
+  SP_KINDS['tp-depart'] = function (o) {
+    return spRun('tp-depart', 0.55, o, function (ctl) {
+      ctl.hy = num(o.hy, 0.6); spCenter(ctl);
+      var s = ctl.scale, g = spFlat(spMesh(ctl, SP_RING, pal(o, 1), 0.75)), col = spFlat(spMesh(ctl, SP_RING, pal(o, 2), 0.6)), i, R;
+      var n = spCount(26, o), nf = spCount(6, o), m = mo();
+      for (i = 0; i < n; i++) {
+        R = pr(o, SP_NS.depart * 1000 + i);
+        var a = R() * 6.2832, rad = R() * 0.35 * s;
+        spPart(ctl, { mode: 'burst', x: ctl.px + Math.cos(a) * rad, y: ctl.py + 0.1, z: ctl.pz + Math.sin(a) * rad, vx: Math.cos(a) * 0.4 * m, vy: (2.4 + R() * 3) * m, vz: Math.sin(a) * 0.4 * m, g: 2.5, life: 0.45 + R() * 0.35, size: 0.04 + R() * 0.06, mat: pal(o, i % 3) });
+      }
+      for (i = 0; i < nf; i++) {
+        R = pr(o, SP_NS.depart * 1000 + 500 + i);
+        var b = R() * 6.2832, sp = (0.8 + R() * 0.8) * m;
+        spPart(ctl, { mode: 'burst', x: ctl.px, y: ctl.py + 0.5, z: ctl.pz, vx: Math.cos(b) * sp, vy: (1.2 + R()) * m, vz: Math.sin(b) * sp, g: 4, life: 0.5 + R() * 0.3, size: 0.1 + R() * 0.04, mat: pal(o, 2), spin: 8 * m, s1: 0.8 });
+      }
+      ctl.tick = function (c, t, k) {
+        g.position.set(c.px, c.py + 0.05, c.pz); g.scale.setScalar((0.25 + easeOut(k) * 1.1) * s); g.material.opacity = 0.75 * (1 - k);
+        col.position.set(c.px, c.py + 0.1 + easeOut(k) * 1.9 * m, c.pz); col.scale.setScalar(0.55 * (1 - 0.55 * k) * s); col.material.opacity = 0.6 * (1 - k);
+      };
+    });
+  };
+  /* 5+6 Arrival burst + recovery: cincin lebar melebar + serpihan jatuh ke pion lalu menyembur ke samping (karakter: horizontal, turun) */
+  SP_KINDS['tp-arrive'] = function (o) {
+    return spRun('tp-arrive', 0.7, o, function (ctl) {
+      ctl.hy = num(o.hy, 0.6); spCenter(ctl);
+      var s = ctl.scale, g = spFlat(spMesh(ctl, SP_RING, pal(o, 2), 0.7)), dn = spFlat(spMesh(ctl, SP_RING, pal(o, 0), 0.6)), i, R;
+      var n = spCount(28, o), nd = spCount(12, o), nf = spCount(8, o), m = mo();
+      for (i = 0; i < n; i++) {
+        R = pr(o, SP_NS.arrive * 1000 + i);
+        var a = R() * 6.2832, sp = (1.6 + R() * 1.8) * m;
+        spPart(ctl, { mode: 'burst', x: ctl.px, y: ctl.py + 0.15, z: ctl.pz, vx: Math.cos(a) * sp, vy: (0.6 + R() * 1.2) * m, vz: Math.sin(a) * sp, g: 7, life: 0.4 + R() * 0.4, size: 0.04 + R() * 0.06, mat: pal(o, i % 3) });
+      }
+      for (i = 0; i < nd; i++) {
+        R = pr(o, SP_NS.arrive * 1000 + 300 + i);
+        spPart(ctl, { mode: 'burst', x: ctl.px + (R() - 0.5) * 0.5 * s, y: ctl.py + 1.4 + R() * 0.6, z: ctl.pz + (R() - 0.5) * 0.5 * s, vy: -(3 + R() * 2) * m, g: 0, life: 0.3 + R() * 0.1, size: 0.05 + R() * 0.04, mat: pal(o, 2) });
+      }
+      for (i = 0; i < nf; i++) {
+        R = pr(o, SP_NS.arrive * 1000 + 600 + i);
+        var b = R() * 6.2832, sp2 = (1 + R() * 1.2) * m;
+        spPart(ctl, { mode: 'burst', x: ctl.px, y: ctl.py + 0.4, z: ctl.pz, vx: Math.cos(b) * sp2, vy: (1 + R()) * m, vz: Math.sin(b) * sp2, g: 5, life: 0.5 + R() * 0.3, size: 0.1 + R() * 0.04, mat: pal(o, 1), spin: 7 * m, s1: 0.8 });
+      }
+      ctl.tick = function (c, t, k) {
+        g.position.set(c.px, c.py + 0.05, c.pz); g.scale.setScalar((0.15 + easeOut(k) * 1.6) * s); g.material.opacity = 0.7 * (1 - k) * (1 - k);
+        var d = clamp(k / 0.4, 0, 1);
+        dn.position.set(c.px, c.py + 0.1 + 1.8 * (1 - d) * m, c.pz); dn.scale.setScalar(0.5 * s); dn.material.opacity = k < 0.4 ? 0.6 : Math.max(0, 0.6 - (k - 0.4) * 3);
+        dn.visible = dn.material.opacity > 0.01;
+      };
+    });
+  };
+  /* 7. Recovery particles: percik halus berputar naik di sekitar pion (mengikuti pion) */
+  SP_KINDS['tp-recover'] = function (o) {
+    return spRun('tp-recover', 0.9, o, function (ctl) {
+      ctl.hy = num(o.hy, 0.2); spCenter(ctl);
+      var n = spCount(10, o), m = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.recover * 1000 + i), life = 0.6 + R() * 0.3, a = R() * 6.2832, rad = 0.45 * ctl.scale;
+        spPart(ctl, { mode: 'swirl', a: a, w: (R() < 0.5 ? -1 : 1) * (3 + R() * 3) * m, rad: rad, rise: 0.9 * m, x: ctl.cx + Math.cos(a) * rad, y: ctl.cy, z: ctl.cz + Math.sin(a) * rad, life: life, size: 0.04 + R() * 0.03, mat: pal(o, 1 + (i % 2)) });
+      }
+    });
+  };
+  /* 8. Residual energy: percik tipis berkedip + glow tanah redup yang tertinggal */
+  SP_KINDS['tp-residual'] = function (o) {
+    return spRun('tp-residual', 1.3, o, function (ctl) {
+      var s = ctl.scale, glow = spFlat(spMesh(ctl, SP_DISC, pal(o, 3), 0.22)), n = spCount(7, o), m = mo();
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.residual * 1000 + i), a = R() * 6.2832, rad = (0.15 + R() * 0.4) * s;
+        spPart(ctl, { mode: 'burst', x: ctl.px + Math.cos(a) * rad, y: ctl.py + 0.1, z: ctl.pz + Math.sin(a) * rad, vy: (0.3 + R() * 0.3) * m, g: 0, life: 0.8 + R() * 0.5, size: 0.03 + R() * 0.03, mat: pal(o, 1 + (i % 2)) });
+      }
+      ctl.tick = function (c, t, k) {
+        glow.position.set(c.px, c.py + 0.04, c.pz); glow.scale.setScalar(0.6 * s * (1 - k * 0.3)); glow.material.opacity = 0.22 * (1 - k) * (reduced() ? 1 : 0.85 + 0.15 * Math.sin(t * 9));
+      };
+    });
+  };
+  /* Spatial Energy Trail: serpihan mengalir dari 'from' ke 'to' (busur ringan). Dipakai teleport, penyerapan, dan pertukaran. */
+  SP_KINDS['tp-trail'] = function (o) {
+    var a = o.from || o.pos, b = o.to;
+    if (!a || !b) return null;
+    var dur = clamp(num(o.dur, 0.6), 0.2, 1.5);
+    return spRun('tp-trail', dur, cp(o, { pos: a, follow: null }), function (ctl) {
+      var ax = num(+a.x, 0), ay = num(+a.y, 0), az = num(+a.z, 0), bx = num(+b.x, 0), by = num(+b.y, 0), bz = num(+b.z, 0);
+      var dx = bx - ax, dz = bz - az, dist = Math.sqrt(dx * dx + dz * dz + (by - ay) * (by - ay)), len = Math.sqrt(dx * dx + dz * dz) || 1;
+      var arcH = Math.min(1, 0.25 * dist + 0.3) * mo(), side = num(o.side, 0), px = -dz / len * side, pz = dx / len * side;
+      var N = spCount(18, o), made = 0, hy = num(o.hy, 0.8);
+      ctl.tick = function (c, t) {
+        var want = Math.floor(N * clamp(t / (dur * 0.6), 0, 1) + 0.0001);
+        while (made < want) {
+          var R = pr(o, SP_NS.trail * 1000 + made), f = made / N, sn = Math.sin(Math.PI * f);
+          spPart(ctl, { mode: 'burst', x: ax + dx * f + px * sn + (R() - 0.5) * 0.2, y: ay + hy + (by - ay) * f + sn * arcH + (R() - 0.5) * 0.2, z: az + dz * f + pz * sn + (R() - 0.5) * 0.2, vy: 0.3 * mo(), g: 0, life: 0.35 + R() * 0.3, size: 0.05 + R() * 0.05, mat: pal(o, made % 3) });
+          made++;
+        }
+      };
+    });
+  };
+
+  /* ---- Ender Hole: lapisan energi di atas lubang hitam lama (inti, cincin, & hisapan lama tidak diubah) ---- */
+  /* pembukaan (gelombang kejut), energi lubang (glow), pusaran voxel terhisap, penutupan (kolaps), partikel sisa */
+  SP_KINDS['hole-fx'] = function (o) {
+    var life = clamp(num(o.dur, HOLE_LIFE), 0.8, 4), closeLen = 0.4, tilt = 1.15;
+    return spRun('hole-fx', life, o, function (ctl) {
+      var s = ctl.scale; ctl.hy = 0.95 * s; spCenter(ctl);
+      ctl.U = [1, 0, 0]; ctl.V = [0, Math.cos(tilt), Math.sin(tilt)]; ctl.N = [0, -Math.sin(tilt), Math.cos(tilt)];
+      var shock = spFlat(spMesh(ctl, SP_RING, pal(o, 1), 0.5)), glow = spMesh(ctl, SP_DISC, pal(o, 3), 0.26), coll = spFlat(spMesh(ctl, SP_RING, pal(o, 2), 0)), made = 0, burst = false;
+      glow.rotation.x = tilt; coll.visible = false;
+      var N = spCount(44, o), m = mo();
+      ctl.tick = function (c, t) {
+        var env = t < 0.7 ? easeOut(t / 0.7) : (t > life - closeLen ? 1 - easeOut((t - (life - closeLen)) / closeLen) : 1);
+        var sk = clamp(t / 0.55, 0, 1);
+        shock.position.set(c.px, c.py + 0.05, c.pz); shock.scale.setScalar((0.3 + easeOut(sk) * 1.3) * s); shock.material.opacity = 0.5 * (1 - sk); shock.visible = sk < 1;
+        glow.position.set(c.cx, c.cy, c.cz); glow.scale.setScalar(Math.max(0.001, 1.35 * s * env)); glow.material.opacity = 0.26 * env * (reduced() ? 1 : 0.85 + 0.15 * Math.sin(t * 7));
+        var want = Math.floor(N * clamp((t - 0.1) / (life - 0.6), 0, 1) + 0.0001);
+        while (made < want) {
+          var R = pr(o, SP_NS.hole * 1000 + made);
+          spPart(ctl, { mode: 'swirl', a: R() * 6.2832, w: (4 + R() * 3) * m, rad: (0.7 + R() * 1.1) * s, d: (R() - 0.5) * 0.3, x: c.cx, y: c.cy, z: c.cz, life: 0.7 + R() * 0.3, size: 0.04 + R() * 0.04, mat: pal(o, made % 3) });
+          made++;
+        }
+        if (t > life - closeLen) {
+          var ck = clamp((t - (life - closeLen)) / closeLen, 0, 1);
+          coll.visible = true; coll.position.set(c.px, c.py + 0.05, c.pz); coll.scale.setScalar(Math.max(0.001, (1.2 * (1 - ck) + 0.1) * s)); coll.material.opacity = 0.5 * Math.sin(Math.PI * ck);
+        }
+        if (!burst && t >= life - 0.05) {
+          burst = true;
+          var nb = spCount(12, o);
+          for (var i = 0; i < nb; i++) {
+            var Q = pr(o, SP_NS.collapse * 1000 + i), a = Q() * 6.2832, sp = (0.4 + Q() * 0.8) * m;
+            spPart(ctl, { mode: 'burst', x: c.cx, y: c.cy, z: c.cz, vx: Math.cos(a) * sp, vy: (0.4 + Q() * 0.6) * m, vz: Math.sin(a) * sp, g: 1.5, life: 0.8 + Q() * 0.3, size: 0.03 + Q() * 0.04, mat: pal(o, i % 3) });
+          }
+        }
+      };
+    });
+  };
+
+  /* ---- Portal ---- */
+  SP_KINDS.portal = function (o) {
+    var OPEN = 0.5, CLOSE = 0.4, idle = clamp(num(o.idle, 2.5), 0.2, 12), yaw = num(o.yaw, 0);
+    var ctl = spRun('portal', OPEN + idle + CLOSE, o, function (ctl) {
+      var s = ctl.scale, i; ctl.hy = 1.0 * s; spCenter(ctl); spBasis(ctl, yaw); ctl.closeAt = OPEN + idle;
+      var back = spMesh(ctl, SP_DISC, 5, 0.9, false); back.rotation.y = yaw;
+      var defs = [[1.0, 2, 0.85, 0.02, 1.6], [0.78, 1, 0.6, -0.04, -2.4], [0.55, 0, 0.5, -0.1, 3.2]]; /* [radius, warna, opacity, kedalaman, spin] -> lorong berlapis = kedalaman */
+      var rings = defs.map(function (d) { var m = spMesh(ctl, SP_RING, d[1], d[2]); m.rotation.y = yaw; return m; });
+      var nc = (quality() === 'low' || reduced()) ? 8 : 12, cubes = [];
+      for (i = 0; i < nc; i++) cubes.push(spCube(ctl, i % 2 ? 0 : 3));
+      var acc = 0, opened = false, closed = false, m = mo();
+      ctl.tick = function (c, t, k, dt) {
+        var env = t < OPEN ? easeOut(t / OPEN) : (t > c.closeAt ? 1 - easeOut((t - c.closeAt) / CLOSE) : 1), e = Math.max(0.001, env);
+        back.position.set(c.cx + c.N[0] * -0.12, c.cy, c.cz + c.N[2] * -0.12); back.scale.setScalar(0.9 * s * e);
+        for (var j = 0; j < rings.length; j++) { var d = defs[j], r = rings[j]; r.position.set(c.cx + c.N[0] * d[3], c.cy, c.cz + c.N[2] * d[3]); r.scale.setScalar(d[0] * s * e); r.rotation.z = t * d[4] * m; }
+        for (j = 0; j < cubes.length; j++) {
+          var an = j / cubes.length * 6.2832, cu = Math.cos(an) * 1.08 * s * e, sv = Math.sin(an) * 1.08 * s * e;
+          cubes[j].position.set(c.cx + c.U[0] * cu + c.V[0] * sv, c.cy + c.U[1] * cu + c.V[1] * sv, c.cz + c.U[2] * cu + c.V[2] * sv);
+          cubes[j].scale.setScalar(Math.max(0.001, (1.0 + 0.15 * (reduced() ? 0 : Math.sin(t * 4 + j))) * s * e)); cubes[j].rotation.z = an;
+        }
+        var q, R, a;
+        if (!opened) { opened = true; for (q = 0, a = spCount(10, o); q < a; q++) { R = pr(o, SP_NS.portal * 1000 + 800 + q); var th = R() * 6.2832, sp = (1 + R()) * m; spPart(c, { mode: 'burst', x: c.cx, y: c.cy, z: c.cz, vx: (c.U[0] * Math.cos(th) + c.V[0] * Math.sin(th)) * sp, vy: Math.sin(th) * sp, vz: (c.U[2] * Math.cos(th)) * sp, g: 0, life: 0.5, size: 0.06, mat: pal(o, 1) }); } }
+        if (t > OPEN * 0.6 && t < c.closeAt) { /* partikel portal: terus keluar, mengorbit, terhisap ke pusat */
+          acc += dt;
+          while (acc >= 0.1) {
+            acc -= 0.1;
+            R = pr(o, SP_NS.portal * 1000 + (c.emitted = (c.emitted || 0) + 1));
+            spPart(c, { mode: 'swirl', a: R() * 6.2832, w: (R() < 0.5 ? -1 : 1) * (2 + R() * 2) * m, rad: (1.0 + R() * 0.4) * s, d: (R() - 0.5) * 0.2, x: c.cx, y: c.cy, z: c.cz, life: 0.8 + R() * 0.3, size: 0.04 + R() * 0.04, mat: pal(o, (c.emitted + 1) % 3) });
+          }
+        }
+        if (!closed && t >= c.closeAt) { /* penutupan: cincin kolaps + percik terakhir */
+          closed = true;
+          var cr = spMesh(c, SP_RING, pal(o, 2), 0.6); cr.rotation.y = yaw; cr.position.set(c.cx, c.cy, c.cz); c.collapseRing = cr; c.collapseAt = t;
+          for (q = 0, a = spCount(10, o); q < a; q++) { R = pr(o, SP_NS.portal * 1000 + 900 + q); var th2 = R() * 6.2832, sp2 = (0.6 + R() * 0.8) * m; spPart(c, { mode: 'burst', x: c.cx, y: c.cy, z: c.cz, vx: (c.U[0] * Math.cos(th2)) * sp2, vy: Math.sin(th2) * sp2, vz: (c.U[2] * Math.cos(th2)) * sp2, g: 1, life: 0.4, size: 0.05, mat: pal(o, 2) }); }
+        }
+        if (c.collapseRing) { var ck = clamp((t - c.collapseAt) / CLOSE, 0, 1); c.collapseRing.scale.setScalar(Math.max(0.001, (1.1 * (1 - ck) + 0.05) * s)); c.collapseRing.material.opacity = 0.6 * (1 - ck); }
+      };
+    });
+    if (!ctl) return null;
+    var base = { pos: { x: ctl.px, y: ctl.py, z: ctl.pz }, yaw: yaw, scale: ctl.scale, tier: o.tier };
+    return {
+      id: ctl.id,
+      close: function () { if (ctl.cleaned || ctl.t >= ctl.closeAt) return false; ctl.closeAt = Math.max(OPEN, ctl.t); ctl.dur = ctl.closeAt + CLOSE; return true; },
+      stop: function () { return stop(ctl.id, 'portal-stop'); },
+      enter: function () { return SP_KINDS['portal-entry'](cp(base, { seed: o.seed, fid: o.fid, source: o.source })); },
+      exit: function () { return SP_KINDS['portal-exit'](cp(base, { seed: o.seed, fid: o.fid, source: o.source })); }
+    };
+  };
+  SP_KINDS['portal-entry'] = function (o) {
+    var yaw = num(o.yaw, 0), dur = 0.5;
+    return spRun('portal-entry', dur, o, function (ctl) {
+      var s = ctl.scale; ctl.hy = 1.0 * s; spCenter(ctl); spBasis(ctl, yaw);
+      var ring = spMesh(ctl, SP_RING, pal(o, 2), 0.6), n = spCount(16, o), U = ctl.U, V = ctl.V, N = ctl.N;
+      ring.rotation.y = yaw;
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.entry * 1000 + i), th = R() * 6.2832, cu = Math.cos(th), sv = Math.sin(th), rad = (1.0 + R() * 0.4) * s;
+        var dx = U[0] * cu + V[0] * sv + N[0] * 0.6, dy = V[1] * sv + 0.0, dz = U[2] * cu + N[2] * 0.6;
+        spPart(ctl, { mode: 'gather', dx: dx, dy: dy, dz: dz, rad: rad, x: ctl.cx + dx * rad, y: ctl.cy + dy * rad, z: ctl.cz + dz * rad, life: dur, size: 0.05 + R() * 0.05, mat: pal(o, i % 3), s1: 0.5 });
+      }
+      ctl.tick = function (c, t, k) { ring.position.set(c.cx, c.cy, c.cz); ring.scale.setScalar((1.1 * (1 - k) + 0.25) * s); ring.material.opacity = 0.6 * (1 - k * k); };
+    });
+  };
+  SP_KINDS['portal-exit'] = function (o) {
+    var yaw = num(o.yaw, 0);
+    return spRun('portal-exit', 0.6, o, function (ctl) {
+      var s = ctl.scale; ctl.hy = 1.0 * s; spCenter(ctl); spBasis(ctl, yaw);
+      var ring = spMesh(ctl, SP_RING, pal(o, 1), 0.6), n = spCount(20, o), U = ctl.U, V = ctl.V, N = ctl.N, m = mo();
+      ring.rotation.y = yaw;
+      for (var i = 0; i < n; i++) {
+        var R = pr(o, SP_NS.exit * 1000 + i), th = R() * 6.2832, cu = Math.cos(th) * (0.8 + R() * 1.2) * m, sv = Math.sin(th) * (0.8 + R() * 1.2) * m, fw = (1.8 + R() * 1.5) * m;
+        spPart(ctl, { mode: 'burst', x: ctl.cx, y: ctl.cy, z: ctl.cz, vx: U[0] * cu + N[0] * fw, vy: V[1] * sv, vz: U[2] * cu + N[2] * fw, g: 2, life: 0.45 + R() * 0.35, size: 0.04 + R() * 0.05, mat: pal(o, i % 3) });
+      }
+      ctl.tick = function (c, t, k) { ring.position.set(c.cx, c.cy, c.cz); ring.scale.setScalar((0.3 + easeOut(k) * 1.0) * s); ring.material.opacity = 0.6 * (1 - k); };
+    });
+  };
+
+  /* ---- Spatial Distortion: titik pusat (pos) + arah (dir = yaw, rad) ---- */
+  SP_KINDS.distort = function (o) {
+    var dur = clamp(num(o.dur, 1.4), 0.6, 3), dir = num(o.dir, 0);
+    return spRun('distort', dur, o, function (ctl) {
+      var s = ctl.scale, i, phi = Math.atan2(-Math.cos(dir), Math.sin(dir)), dvx = Math.sin(dir), dvz = Math.cos(dir), m = mo();
+      ctl.hy = 0.6 * s; spCenter(ctl);
+      var rip = [0, 1, 2].map(function () { return spFlat(spMesh(ctl, SP_RING, pal(o, 0), 0)); }); /* riak energi: memanjang searah dir */
+      var wave = spMesh(ctl, SP_RING, pal(o, 2), 0); wave.rotation.y = dir; /* gelombang ruang: cincin tegak lurus dir, bergerak searah dir */
+      var dring = spMesh(ctl, SP_RING, pal(o, 1), 0); dring.rotation.x = 1.3; /* cincin distorsi: berdenyut */
+      var coll = spFlat(spMesh(ctl, SP_RING, pal(o, 2), 0)); /* kolaps energi */
+      var vN = spCount(30, o), fN = spCount(10, o), vm = 0, fm = 0, burst = false;
+      ctl.tick = function (c, t, k) {
+        for (var j = 0; j < 3; j++) {
+          var lk = clamp((t - j * 0.18) / 0.8, 0, 1), r = rip[j], rr = (0.3 + easeOut(lk) * 1.9) * s;
+          r.position.set(c.px, c.py + 0.05, c.pz); r.rotation.z = phi; r.scale.set(rr * 1.4, rr, 1); r.material.opacity = (t < j * 0.18 || lk >= 1) ? 0 : 0.55 * (1 - lk); r.visible = r.material.opacity > 0.01;
+        }
+        var wk = clamp((t - 0.05) / 0.9, 0, 1);
+        wave.position.set(c.cx + dvx * easeOut(wk) * 2.0 * s * m, c.cy, c.cz + dvz * easeOut(wk) * 2.0 * s * m); wave.scale.setScalar(Math.max(0.001, 0.8 * s * (0.6 + easeOut(wk) * 0.7))); wave.material.opacity = (wk <= 0 || wk >= 1) ? 0 : 0.5 * (1 - wk); wave.visible = wave.material.opacity > 0.01;
+        var dk = clamp((t - 0.1) / (dur - 0.5), 0, 1), dv = Math.sin(Math.PI * dk);
+        dring.position.set(c.cx, c.cy, c.cz); dring.scale.setScalar(0.9 * s * (1 + (reduced() ? 0 : 0.08 * Math.sin(t * 12)))); dring.rotation.z = reduced() ? 0 : t * 2.2; dring.material.opacity = 0.6 * dv; dring.visible = dring.material.opacity > 0.01;
+        var vw = Math.floor(vN * clamp(t / (dur - 0.5), 0, 1) + 0.0001);
+        while (vm < vw) { var R = pr(o, SP_NS.ripple * 1000 + vm), a = R() * 6.2832; spPart(c, { mode: 'swirl', a: a, w: (6 + R() * 3) * m, rad: (1.2 + R() * 0.5) * s, rise: 0.2, x: c.cx, y: c.cy, z: c.cz, life: 0.6 + R() * 0.3, size: 0.04 + R() * 0.04, mat: pal(o, vm % 3) }); vm++; } /* tarikan pusaran ke titik pusat */
+        var fw = Math.floor(fN * clamp((t - 0.2) / 0.6, 0, 1) + 0.0001);
+        while (fm < fw) { var Q = pr(o, SP_NS.frag * 1000 + fm), b = Q() * 6.2832, rd = (0.8 + Q() * 0.7) * s; spPart(c, { mode: 'burst', x: c.cx + Math.cos(b) * rd, y: c.cy + (Q() - 0.5) * 0.5, z: c.cz + Math.sin(b) * rd, vx: dvx * (0.6 + Q()) * m, vz: dvz * (0.6 + Q()) * m, vy: 0.3 * m, g: 0, life: 0.8 + Q() * 0.4, size: 0.09 + Q() * 0.05, mat: pal(o, 2 - (fm % 2)), spin: 5 * m, s1: 0.6 }); fm++; } /* serpihan dimensi */
+        if (t > dur - 0.4) {
+          var ck = clamp((t - (dur - 0.4)) / 0.4, 0, 1);
+          coll.position.set(c.px, c.py + 0.05, c.pz); coll.scale.setScalar(Math.max(0.001, (1.0 * (1 - ck) + 0.05) * s)); coll.material.opacity = 0.5 * Math.sin(Math.PI * Math.min(1, ck * 1.1)); coll.visible = coll.material.opacity > 0.01;
+          if (!burst && ck > 0.6) { burst = true; for (i = 0, a = spCount(14, o); i < a; i++) { var P = pr(o, SP_NS.collapse * 1000 + 100 + i), an = P() * 6.2832, sp = (1 + P() * 1.5) * m; spPart(c, { mode: 'burst', x: c.cx, y: c.cy, z: c.cz, vx: Math.cos(an) * sp, vy: (0.3 + P()) * m, vz: Math.sin(an) * sp, g: 2, life: 0.35, size: 0.04 + P() * 0.04, mat: pal(o, i % 3) }); } }
+        } else { coll.visible = false; }
+      };
+    });
+  };
+
+  function spatial(kind, opts) {
+    var fn = SP_KINDS[kind];
+    if (!fn || !scene || disposed) return null;
+    try { return fn(opts && typeof opts === 'object' ? opts : {}); } catch (e) { reportCleanupError(e); return null; }
+  }
+  var SPATIAL_KINDS = Object.create(null);
+  Object.keys(SP_KINDS).forEach(function (key) { SPATIAL_KINDS[key] = 1; });
+  UT.GameplayFX = { quality: quality, limit: limit, n: n, reduced: reduced, track: track, untrack: untrack, stop: stop, stopAll: stopAll, timeout: timeout, getActive: getActive, getHistory: getHistory, cueMeta: cueMeta, cueOptions: cueOptions, parseFid: parseFid, acceptCue: acceptCue, getCueLog: getCueLog, setDebug: setDebug, rng: rng, dispose: dispose, init: init, spawnConfetti: spawnConfetti, spawnExplosion: spawnExplosion, updateConfetti: updateConfetti, clearConfetti: clearConfetti, sparkle: sparkle, updateSparks: updateSparks, spatial: spatial, spatialKinds: SPATIAL_KINDS, clearSpatial: clearSpatial };
 })(window);

@@ -79,7 +79,7 @@ class FakeNode {
 
 function harness(options) {
   options = options || {};
-  let motion = false;
+  let motion = !!options.reducedMotion;
   let timerSequence = 0;
   const timers = new Map();
   const document = {
@@ -139,11 +139,15 @@ function harness(options) {
       this.material = material;
       this.position = new Vector3();
       this.rotation = new Vector3();
-      this.scale = { setScalar(value) { this.value = value; } };
+      this.scale = { x: 1, y: 1, z: 1, setScalar(value) { this.x = this.y = this.z = value; this.value = value; }, set(x, y, z) { this.x = x; this.y = y; this.z = z; } };
     }
   }
   const THREE = {
     BoxGeometry: Geometry,
+    RingGeometry: Geometry,
+    CircleGeometry: Geometry,
+    DoubleSide: 2,
+    AdditiveBlending: 2,
     MeshLambertMaterial: Material,
     MeshBasicMaterial: Material,
     Mesh,
@@ -162,7 +166,7 @@ function harness(options) {
   const context = { window, document, THREE, console: window.console, Number, Math, isFinite, Set, Array };
   vm.runInNewContext(fs.readFileSync(path.join(root, 'gameplay/js/fx.js'), 'utf8'), context, { filename: 'gameplay/js/fx.js' });
   vm.runInNewContext(fs.readFileSync(path.join(root, 'gameplay/js/particle-fx.js'), 'utf8'), context, { filename: 'gameplay/js/particle-fx.js' });
-  return { FX: window.UT.GameplayFX, ParticleFX: window.UT.ParticleFX, window, document, scene, windowListeners, timers };
+  return { FX: window.UT.GameplayFX, ParticleFX: window.UT.ParticleFX, window, document, scene, windowListeners, timers, setMotion: value => { motion = !!value; } };
 }
 
 module.exports = { harness, FakeNode };
