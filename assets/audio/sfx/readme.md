@@ -42,14 +42,14 @@ Catatan: semua sfx file menghormati tombol mute dan punya fallback bunyi sinteti
 
 ## Audio Pet
 
-Tujuh belas SFX yang hanya dipakai Pet berada di `data/inventory/pet/<gameKey>/sfx/`; path kanonisnya tercatat di manifest Pet. Empat SFX yang juga dipakai Gameplay Power tetap satu file shared di `assets/audio/sfx/pet/`:
+Tujuh belas SFX yang hanya dipakai Pet berada di `data/inventory/pet/<gameKey>/sfx/`; path kanonisnya tercatat di manifest Pet. Empat SFX shared berada di `assets/audio/sfx/pet/`:
 
 | File | Pemakaian shared |
 |---|---|
-| `storm-wolf-zap.mp3` | Storm Wolf + Trident |
-| `inferno-dragon-fire.mp3` | Inferno Dragon + Fire Charge |
-| `celestial-kitsune-bell.mp3` | Celestial Kitsune + Nether Star |
-| `celestial-kitsune-shine.mp3` | Celestial Kitsune + Totem |
+| `storm-wolf-zap.mp3` | Storm Wolf |
+| `inferno-dragon-fire.mp3` | Inferno Dragon |
+| `celestial-kitsune-bell.mp3` | Celestial Kitsune |
+| `celestial-kitsune-shine.mp3` | Celestial Kitsune |
 
 `tools/normalize-sfx.py` mencakup SFX shared, SFX Pet-owned, dan SFX gameplay. Musik tetap di `assets/audio/music/` karena tidak ada musik khusus Pet.
 
@@ -63,33 +63,34 @@ Nama file ini disimpan langsung di `assets/audio/sfx/` dan tetap memakai fallbac
 | `chomp.mp3` | `chomp` | ular menggigit |
 | `gulp.mp3` | `gulp` | ular menelan |
 | `ladder.mp3` | `ladder` | pion memanjat tangga (animasi `climb`) |
-| `pop.mp3` | `pop` | pop umum (+ Feather/Potion/Totem/Grass) |
-| `bounce.mp3` | `bounce` | memantul / giliran hangus / ledakan TNT |
+| `pop.mp3` | `pop` | pop umum |
+| `bounce.mp3` | `bounce` | memantul / giliran hangus |
 | `win.mp3` | `win` | tiba di Block 100 |
 | `win2.mp3` | `victory` | layar menang (`celebrate`) |
 | `shuffle.mp3` | `shuffleTick` | tiap pergantian angka di meter dadu spesial |
 | `villager.mp3` | `villager` | Villager membantu (maju 5 blok) |
 
-## Suara Power (`gameplay/js/audio.js`: `POWER_SND`, `POWER_TRIG`, `POWER_OPT`)
+## Identitas Suara Power
 
-Memakai ulang file yang sudah ada (sudah diseragamkan). File gagal/tidak ada -> suara sintetis `PowerSound.js`, lalu `pop`.
+Katalog saat ini memiliki 17 Power. Tiap game key memakai resep SFX tersendiri di `assets/js/renderers/power-3d/power-sound.js`; aktivasi dan efek utama memakai fase terpisah, termasuk efek khas Power saat jebakan terpicu. Suara tidak mengambil musik atau ledakan Creeper sebagai fallback. Penggunaan berulang mendapat variasi pitch kecil ±2%.
 
-| Power | Dipakai/dipasang | Terpicu / menahan |
+| Lapisan | Rentang sasaran |
+|---|---:|
+| Aktivasi | 0,2–0,5 dtk |
+| Slash / impact | 0,2–0,7 dtk |
+| Ledakan | 0,5–1,2 dtk |
+| Efek magic | 0,5–1,5 dtk |
+| Efek legendary | 1–2,5 dtk |
+
+SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel `FILE` di `gameplay/js/audio.js`. Nama sumber disederhanakan menjadi kebab-case:
+
+| File | Lapisan | Power |
 |---|---|---|
-| Ramuan Ganjil / Genap | `gulp.mp3` | — |
-| Ender Pearl | `mob/enderman-teleport.mp3` | — |
-| Trident | `pet/storm-wolf-zap.mp3` | — |
-| Dragon Crystal | `dragon/crystal-appear.mp3` (maks 1,8 dtk) | — |
-| Ice Crystal | `dragon/crystal-break.mp3` (maks 1,4 dtk) | — |
-| Nether Star | `pet/celestial-kitsune-bell.mp3` (maks 2,2 dtk) | — |
-| Totem | `pet/celestial-kitsune-shine.mp3` (maks 1,8 dtk) | menahan: sama |
-| TNT | `mob/creeper-fuse.mp3` (maks 1,5 dtk) | ledak: `mob/creeper-explosion.mp3` |
-| Fire Charge | sintetis (pasang) | `pet/inferno-dragon-fire.mp3` (maks 1,2 dtk) |
-| Blaze Core | sintetis (pasang) | `mob/creeper-explosion.mp3` |
-| Wooden Shield | slot opsional `powerup/shield-up.mp3` | menahan: `mob/mob-punch.mp3` |
-| Iron Sword | `powerup/sword-use.mp3` | — |
-| Diamond / Netherite Sword | slot opsional `powerup/diamond-sword-use.mp3` / `powerup/netherite-sword-use.mp3`, cadangan `sword-use.mp3` | — |
-| Feather | slot opsional `powerup/feather.mp3` | — |
-| Golden Apple | slot opsional `powerup/golden-apple.mp3` | — |
+| `sword-unsheathing.mp3` | Aktivasi (maks. 0,44 dtk) | Iron Sword |
+| `sword-slice.mp3` | Impact (maks. 0,68 dtk) | Iron Sword |
+| `metal-whoosh-hit.mp3` | Impact (maks. 0,68 dtk) | Diamond Sword |
+| `wind-magic.mp3` | Aktivasi (0,2 dtk) | Feather |
+| `long-whoosh.mp3` | Action (0,5 dtk) | Feather |
+| `epic-whoosh.mp3` | Finish (0,3 dtk, volume lapisan 28%) | Feather |
 
-Slot opsional: taruh file bernama itu di `assets/audio/sfx/powerup/` (jalankan `tools/normalize-sfx.py` agar kerasnya seragam) -> langsung terpakai tanpa ubah kode.
+Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Netherite Sword dan Power lainnya memakai suara sintetis unik berbasis material/elemen; file yang gagal diputar kembali ke resep sintetis Power yang sama.

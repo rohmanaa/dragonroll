@@ -156,27 +156,33 @@ t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama ya
     else global.window = previousWindow;
   }
 });
-t('Audio gameplay: file yang dirujuk tersedia; file Power opsional memakai fallback yang sudah ada', () => {
+t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi pitch', () => {
   const audio = rd('gameplay/js/audio.js');
   const fileBlock = /const FILE=\{([\s\S]*?)\};/.exec(audio)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   const filePaths = {};
   for (const m of fileBlock.matchAll(/([A-Za-z]\w*)\s*:\s*(NS\s*\+\s*)?'([^']+)'/g)) {
     filePaths[m[1]] = path.join('assets', 'audio', 'sfx', m[3]);
   }
-  const mappedKeys = new Set(['swordUse']);
-  ['POWER_SND', 'POWER_TRIG'].forEach(name => {
-    const block = new RegExp('const ' + name + '=\\{([\\s\\S]*?)\\};').exec(audio)[1];
-    for (const m of block.matchAll(/:\s*\{f:'([^']+)'/g)) mappedKeys.add(m[1]);
-  });
-  mappedKeys.forEach(k => assert.ok(filePaths[k] && ex(filePaths[k]), k + ' audio file'));
-
-  const optional = /const POWER_OPT=\{([\s\S]*?)\};/.exec(audio)[1];
-  assert.ok(/a\.play\(\)\.catch\(function\(\)\{\s*powerBase\(k\);\s*\}\)/.test(audio), 'missing optional sound playback falls back');
-  assert.ok(/catch\(e\)\{\s*return powerBase\(k\);\s*\}/.test(audio), 'optional sound load error falls back');
-  for (const m of optional.matchAll(/([A-Za-z_]\w*)\s*:\s*'([^']+)'/g)) {
-    const file = path.join('assets', 'audio', 'sfx', m[2]);
-    assert.ok(ex(file) || /powerBase\(k\)/.test(audio), m[1] + ' missing optional sound must fall back');
+  const powerFiles = /const POWER_FILES=\{([\s\S]*?)\};/.exec(audio)[1];
+  for (const m of powerFiles.matchAll(/'([A-Za-z]\w*)'/g)) {
+    assert.ok(filePaths[m[1]] && ex(filePaths[m[1]]), m[1] + ' Power SFX file');
   }
+  assert.ok(/powerSynth\(k,'hit'\)/.test(audio), 'trigger must use the Power-specific hit');
+  assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\) return powerSynth\(k,'activate'\)/.test(audio), 'placing traps must not play the impact early');
+  assert.ok(!audio.includes('creeper-explosion.mp3'), 'Power explosions must not reuse the Creeper explosion');
+  const voicesSrc = rd('assets/js/renderers/power-3d/power-sound.js');
+  const voiceBlock = /const VOICE = \{([\s\S]*?)\};/.exec(voicesSrc)[1];
+  const voices = Object.fromEntries(Array.from(voiceBlock.matchAll(/([A-Za-z_]\w*):\s*'([^']+)'/g), m => [m[1], m[2]]));
+  const assignedVoices = manifests.map(m => voices[m.visual.modelKey] || voices[m.gameKey]);
+  assert.ok(assignedVoices.every(Boolean), 'every registered Power has a voice');
+  assert.strictEqual(new Set(assignedVoices).size, manifests.length, 'every Power has a distinct voice');
+  assert.ok(/0\.98 \+ Math\.random\(\) \* 0\.04/.test(voicesSrc), 'repeat-use pitch variation');
+  assert.ok(/feather:\{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1\.1,volume:0\.68\}/.test(audio), 'Feather SFX mix');
+  assert.ok(/powerFile\(layers\.activate,rate,200/.test(audio) && /layers\.action,rate,500/.test(audio) && /layers\.finish,rate,300/.test(audio), 'Feather layer durations');
+  assert.ok(/finish: \(\) => \{ tone\(1800, 0\.3,[\s\S]*?true\)/.test(voicesSrc), 'Feather finish sparkle reverb');
+  ['epic-whoosh.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'wind-magic.mp3'].forEach(file => {
+    assert.ok(ex('assets/audio/sfx/powerup/' + file), file + ' SFX path');
+  });
 });
 t('PowerFX: efek 2D membaca effect2d Registry; alias efek guard/totem lama tetap tersedia', () => {
   const fxReg = IR.create();
