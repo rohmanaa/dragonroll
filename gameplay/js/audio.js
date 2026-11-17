@@ -52,6 +52,8 @@
     /* power */  swordUnsheathing:'powerup/sword-unsheathing.mp3', swordSlice:'powerup/sword-slice.mp3', metalWhooshHit:'powerup/metal-whoosh-hit.mp3',
                  featherWindMagic:'powerup/wind-magic.mp3', featherLongWhoosh:'powerup/long-whoosh.mp3', featherFinishWhoosh:'powerup/epic-whoosh.mp3',
                  tntExplosionFx:'powerup/explosion-fx.mp3', tntDeepExplosion:'powerup/deep-explosion.mp3', tntDebrisBreak:'powerup/debris-break.mp3',
+                 totemChime:'powerup/totem-mystical-chime.mp3', totemSpell:'powerup/totem-magic-spell.mp3', totemShield:'powerup/totem-shield-activation.mp3',
+                 potionDrink:'powerup/potion-drink.mp3', potionBubbling:'powerup/potion-bubbling.mp3', potionDarkMagic:'powerup/potion-dark-magic.mp3',
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
     /* power (memakai ulang file pet/dragon yang sudah ada) */ stormZap:'pet/storm-wolf-zap.mp3', infernoFire:'pet/inferno-dragon-fire.mp3', kitsuneBell:'pet/celestial-kitsune-bell.mp3', kitsuneShine:'pet/celestial-kitsune-shine.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
@@ -84,7 +86,7 @@
   /* ---------- Suara Power ----------
      Tiap Power memakai resep PowerSound khusus; fase trigger memainkan hit khas Power itu sendiri.
      Audio pedang berbasis file punya fallback sintesis, bukan file musik atau ledakan bersama. */
-  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85} };
+  const POWER_FILES={ sword:{activate:'swordUnsheathing',impact:'swordSlice',delay:400}, diamond_sword:{impact:'metalWhooshHit'}, feather:{activate:'featherWindMagic',action:'featherLongWhoosh',finish:'featherFinishWhoosh',pitch:1.1,volume:0.68}, tnt:{boom:'tntExplosionFx',deepBoom:'tntDeepExplosion',debris:'tntDebrisBreak',pitch:0.9,volume:0.85}, totem:{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0.95,volume:0.75}, potion_odd:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7}, potion_even:{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0.7} };
   function powerSynth(k,phase,level){
     try{ const PS=win.UT&&win.UT.PowerSound; if(PS&&PS.has(k)&&!muted&&sfxV>0&&PS.play(k,{phase:phase||'use',ctx:actx,volume:sfxV*(level==null?1:level)})) return true; }catch(e){}
     return false;
@@ -96,7 +98,13 @@
       const source=actx.createMediaElementSource(a), shelf=actx.createBiquadFilter(), comp=actx.createDynamicsCompressor();
       shelf.type='lowshelf'; shelf.frequency.value=120; shelf.gain.value=fx.bassDb||0;
       comp.threshold.value=-10; comp.knee.value=8; comp.ratio.value=4; comp.attack.value=0.005; comp.release.value=0.2;
-      source.connect(shelf); shelf.connect(comp); comp.connect(actx.destination);
+      let output=shelf;
+      if(fx.resonanceDb){
+        const resonance=actx.createBiquadFilter();
+        resonance.type='peaking'; resonance.frequency.value=fx.resonanceHz||1250; resonance.Q.value=fx.resonanceQ||0.8; resonance.gain.value=fx.resonanceDb;
+        shelf.connect(resonance); output=resonance;
+      }
+      source.connect(shelf); output.connect(comp); comp.connect(actx.destination);
       if(fx.reverb){
         const length=Math.max(1,Math.floor(actx.sampleRate*fx.reverb)), impulse=actx.createBuffer(2,length,actx.sampleRate);
         for(let channel=0;channel<2;channel++){
@@ -104,7 +112,7 @@
           for(let i=0;i<length;i++) data[i]=(Math.random()*2-1)*0.02*Math.pow(1-i/length,3);
         }
         const convolver=actx.createConvolver(), wet=actx.createGain();
-        convolver.buffer=impulse; wet.gain.value=0.2; shelf.connect(convolver); convolver.connect(wet); wet.connect(comp);
+        convolver.buffer=impulse; wet.gain.value=fx.reverbWet==null?0.2:fx.reverbWet; output.connect(convolver); convolver.connect(wet); wet.connect(comp);
       }
     }catch(e){ console.warn('[audio] efek TNT tambahan tidak tersedia',e); }
   }
@@ -116,6 +124,31 @@
   }
   function powerFiles(k,phase){
     const layers=POWER_FILES[k]; if(!layers) return false;
+    if(k==='totem'){
+      const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
+      const fx={bassDb:0,reverb:0.28,reverbWet:0.2,resonanceDb:1.5,resonanceHz:1250,resonanceQ:0.8};
+      if(phase==='protection'){
+        powerFile(layers.protection,rate,500,function(){ powerSynth(k,'hit',level); },level,fx);
+        return true;
+      }
+      powerFile(layers.activate,rate,300,function(){ powerSynth(k,'activate',level); },level,fx);
+      setTimeout(function(){ powerFile(layers.protection,rate,500,function(){ powerSynth(k,'hit',level); },level,fx); },300);
+      setTimeout(function(){ powerFile(layers.finish,rate,500,function(){ powerSynth(k,'finish',level); },level,fx); },800);
+      return true;
+    }
+    if(k==='potion_odd'||k==='potion_even'){
+      const rate=layers.pitch*(0.99+Math.random()*0.02), level=layers.volume;
+      powerSynth(k,'activate',level);
+      setTimeout(function(){
+        const fallback=function(){ powerSynth(k,'drink',level); };
+        powerFile(layers.drink,rate,400,fallback,level);
+        powerFile(layers.bubbling,rate,280,fallback,0.3);
+      },200);
+      setTimeout(function(){
+        powerFile(layers.effect,rate,600,function(){ powerSynth(k,'finish',level); },level,{bassDb:0,reverb:0.12,reverbWet:0.14});
+      },600);
+      return true;
+    }
     if(k==='tnt'&&phase==='trigger'){
       const rate=layers.pitch*(0.98+Math.random()*0.04), level=layers.volume;
       let fallbackPlayed=false;
@@ -181,6 +214,7 @@
     /* Shield/Totem menahan serangan (dipanggil powerFxPawn: 'shield_block' | 'totem_block') */
     powerBlock(key){
       const power=key==='shield_block'?'wooden_shield':'totem';
+      if(power==='totem'&&powerFiles(power,'protection')) return null;
       if(!powerSynth(power,'hit')) beep(key==='shield_block'?160:1568,0.4,'sine',0.06,0,key==='shield_block'?70:0);
     },
     win(){ fileSfx('win',1,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */

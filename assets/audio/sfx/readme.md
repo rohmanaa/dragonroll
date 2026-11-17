@@ -95,7 +95,17 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `explosion-fx.mp3` | Ledakan awal (0,8 dtk) | TNT |
 | `deep-explosion.mp3` | Bass / boom (1,3 dtk) | TNT |
 | `debris-break.mp3` | Debris akhir (0,6 dtk; mulai pada 1 dtk) | TNT |
+| `totem-mystical-chime.mp3` | Aktivasi (0,3 dtk) | Totem |
+| `totem-shield-activation.mp3` | Perlindungan (0,5 dtk) | Totem |
+| `totem-magic-spell.mp3` | Resonansi akhir (0,5 dtk) | Totem |
+| `potion-drink.mp3` | Minum (0,4 dtk) | Ramuan Ganjil/Genap |
+| `potion-bubbling.mp3` | Gelembung pendek (0,28 dtk) | Ramuan Ganjil/Genap |
+| `potion-dark-magic.mp3` | Shimmer menurun (0,6 dtk) | Ramuan Ganjil/Genap |
 
 Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
 
 TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
+
+Totem memakai volume 75%, pitch 0,95 ±2%, resonansi EQ ringan, dan reverb medium 0,28 dtk. Saat Totem memblokir serangan, hanya layer perlindungan yang berbunyi.
+
+Ramuan Ganjil/Genap memakai glass-pop sintetis 0,2 dtk, diikuti minum dan bubbling pendek, lalu shimmer magis menurun. Volume 70%, pitch 1,0 ±1%, dengan reverb ringan pada efek akhir. Keduanya memiliki fallback sintetis alchemy.

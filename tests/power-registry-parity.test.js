@@ -184,9 +184,16 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/layers\.boom,rate,800,fallback,level,\{bassDb:2,reverb:0\.18\}/.test(audio) && /layers\.deepBoom,rate,1300,fallback,level,\{bassDb:6,reverb:0\.35\}/.test(audio), 'TNT boom and bass layer tuning');
   assert.ok(/layers\.debris,rate,600,null,0\.72,\{bassDb:1,reverb:0\.2\}\);\s*\},1000\)/.test(audio), 'TNT debris finish timing');
   assert.ok(/shelf\.type='lowshelf'/.test(audio) && /comp\.ratio\.value=4/.test(audio), 'TNT bass processing stays compressed');
-  ['debris-break.mp3', 'deep-explosion.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'wind-magic.mp3'].forEach(file => {
+  ['debris-break.mp3', 'deep-explosion.mp3', 'epic-whoosh.mp3', 'explosion-fx.mp3', 'long-whoosh.mp3', 'metal-whoosh-hit.mp3', 'potion-bubbling.mp3', 'potion-dark-magic.mp3', 'potion-drink.mp3', 'sword-slice.mp3', 'sword-unsheathing.mp3', 'totem-magic-spell.mp3', 'totem-mystical-chime.mp3', 'totem-shield-activation.mp3', 'wind-magic.mp3'].forEach(file => {
     assert.ok(ex('assets/audio/sfx/powerup/' + file), file + ' SFX path');
   });
+  assert.ok(/totem:\{activate:'totemChime',protection:'totemShield',finish:'totemSpell',pitch:0\.95,volume:0\.75\}/.test(audio), 'Totem SFX profile');
+  assert.ok(/powerFile\(layers\.activate,rate,300/.test(audio) && /layers\.protection,rate,500[\s\S]*?\},300\)/.test(audio) && /layers\.finish,rate,500[\s\S]*?\},800\)/.test(audio), 'Totem phase durations');
+  assert.ok(/if\(phase==='protection'\)[\s\S]*?layers\.protection/.test(audio), 'Totem block uses the protection layer');
+  assert.ok(/potion_odd:\{drink:'potionDrink',bubbling:'potionBubbling',effect:'potionDarkMagic',pitch:1,volume:0\.7\}/.test(audio), 'Potion SFX profile');
+  assert.ok(/powerSynth\(k,'activate',level\);\s*setTimeout\(function\(\)\{[\s\S]*?layers\.drink,rate,400[\s\S]*?layers\.bubbling,rate,280[\s\S]*?\},200\)/.test(audio), 'Potion glass pop and drinking sequence');
+  assert.ok(/layers\.effect,rate,600[\s\S]*?\},600\)/.test(audio), 'Potion shimmer duration');
+  assert.ok(/ph === 'drink' && fam\.drink/.test(voicesSrc) && /finish: \(\) => \{ tone\(1250, 0\.6,[\s\S]*?true\)/.test(voicesSrc), 'Potion synthetic phase fallbacks');
 });
 t('PowerFX: efek 2D membaca effect2d Registry; alias efek guard/totem lama tetap tersedia', () => {
   const fxReg = IR.create();

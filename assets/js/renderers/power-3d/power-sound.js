@@ -83,8 +83,9 @@ const FAMILY = {
     hit: () => { chime(990, 0, 0.05, [1, 1.5, 2, 2.5]); },
   },
   totem: { // paduan suara naik + pop
-    activate: () => { [392, 494, 587].forEach((f, i) => tone(f, 0.32, 'triangle', 0.05, i * 0.07)); },
-    hit: () => { tone(1568, 0.5, 'sine', 0.06); tone(2093, 0.45, 'sine', 0.04, 0.06); hiss(0.18, 0.05, 0, 'highpass', 6000); },
+    activate: () => { [392, 494, 587].forEach((f, i) => tone(f, 0.22, 'triangle', 0.05, i * 0.04, 0, true)); },
+    hit: () => { tone(1568, 0.5, 'sine', 0.06, 0, 0, true); tone(2093, 0.45, 'sine', 0.04, 0.06, 0, true); hiss(0.18, 0.05, 0, 'highpass', 6000); },
+    finish: () => { tone(880, 0.5, 'sine', 0.045, 0, 1320, true); tone(1320, 0.5, 'sine', 0.025, 0.08, 1760, true); },
   },
   ender: { // warp
     activate: () => { tone(1400, 0.3, 'sawtooth', 0.04, 0, 180); tone(300, 0.35, 'sine', 0.05, 0.05, 1200); },
@@ -111,16 +112,20 @@ const FAMILY = {
     hit: () => { tone(70, 1.1, 'sawtooth', 0.12, 0, 30); chime(880, 0.05, 0.04, [1, 1.5, 2]); hiss(0.9, 0.07, 0, 'bandpass', 1500, 400); },
   },
   potion: { // gelembung + tenggak
-    activate: () => { for (let i = 0; i < 5; i++) tone(380 + i * 110, 0.09, 'sine', 0.05, i * 0.06, 700 + i * 150); },
+    activate: () => { tone(1500, 0.2, 'sine', 0.05, 0, 520); hiss(0.08, 0.025, 0, 'highpass', 4200, 1800); },
+    drink: () => { for (let i = 0; i < 4; i++) tone(320 + i * 65, 0.1, 'sine', 0.035, i * 0.09, 620 + i * 70); hiss(0.22, 0.035, 0, 'lowpass', 1100, 420); },
     hit: () => { chime(880, 0, 0.05, [1, 1.33, 1.68]); hiss(0.15, 0.04, 0, 'highpass', 5000); },
+    finish: () => { tone(1250, 0.6, 'sine', 0.045, 0, 430, true); tone(900, 0.45, 'sine', 0.025, 0.08, 300, true); },
   },
   star: { // akor naik megah
     activate: () => { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 0.22, 'sine', 0.05, i * 0.06)); },
     hit: () => { chime(1047, 0, 0.06, [1, 1.25, 1.5, 2, 2.5]); tone(65, 1.1, 'sine', 0.1, 0, 32); hiss(0.9, 0.08, 0, 'highpass', 3000, 9000); },
   },
   potionEven: { // gelembung bernada turun, berbeda dari ramuan ganjil
-    activate: () => { [760, 620, 480, 360].forEach((f, i) => tone(f, 0.11, 'triangle', 0.05, i * 0.055, f * 0.78)); },
+    activate: () => { tone(1250, 0.2, 'sine', 0.05, 0, 480); hiss(0.08, 0.025, 0, 'highpass', 3800, 1600); },
+    drink: () => { for (let i = 0; i < 4; i++) tone(290 + i * 60, 0.1, 'sine', 0.035, i * 0.09, 570 + i * 65); hiss(0.22, 0.035, 0, 'lowpass', 1000, 380); },
     hit: () => { tone(520, 0.3, 'sine', 0.06, 0, 260); tone(180, 0.24, 'triangle', 0.04, 0.1, 90); hiss(0.16, 0.04, 0.12, 'lowpass', 1600, 500); },
+    finish: () => { tone(1180, 0.6, 'sine', 0.045, 0, 390, true); tone(820, 0.45, 'sine', 0.025, 0.08, 270, true); },
   },
 };
 const COMMON = { // spawn & disappear umum (naik tipis / turun tipis)
@@ -144,7 +149,7 @@ export const PowerSound = {
   get volume() { return volume; },
   has: (key) => !!VOICE[ALIAS[key] || key],
   /**
-   * play(key, { phase: 'spawn'|'activate'|'hit'|'finish'|'disappear'|'use', tier, volume, ctx })
+   * play(key, { phase: 'spawn'|'activate'|'drink'|'hit'|'finish'|'disappear'|'use', tier, volume, ctx })
    * 'use' = activate lalu hit (~0,35 dtk kemudian) — dipakai gameplay saat Power dipakai.
    */
   play(key, o = {}) {
@@ -159,6 +164,7 @@ export const PowerSound = {
       if (ph === 'spawn') COMMON.spawn(o.tier || 1);
       else if (ph === 'disappear') COMMON.disappear();
       else if (ph === 'activate') fam.activate();
+      else if (ph === 'drink' && fam.drink) fam.drink();
       else if (ph === 'hit') fam.hit();
       else if (ph === 'finish' && fam.finish) fam.finish();
       else {
