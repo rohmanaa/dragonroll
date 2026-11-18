@@ -11,4 +11,6 @@ async function getHistory(limit){if(!await hasSession())return [];return rpc('ge
 async function claimAchievement(id,clientValue){await ensurePlayer();return rpc('claim_achievement',{p_id:id,p_client_value:clientValue==null?null:Math.max(0,Math.floor(+clientValue)||0)})}
 async function dailyLogin(){if(!await hasSession())return null;return rpc('record_daily_login')} /* hanya pemain yang sudah punya sesi (sudah pernah main) */
 async function bumpCounter(kind,amount){await ensurePlayer();return rpc('bump_player_counter',{p_kind:kind,p_amount:amount||1})}
-Object.assign(MP,{Progress:{getMyProfile,getHistory,claimAchievement,dailyLogin,bumpCounter}});
+async function recordPvpWin(){await ensurePlayer();return rpc('record_pvp_win')} /* +1 kemenangan PVP (server membatasi per hari) */
+async function claimPvpUnlock(itemId){await ensurePlayer();return rpc('claim_pvp_unlock',{p_item_id:itemId})} /* klaim item terkunci PVP (mis. 'skin.ksatria') */
+Object.assign(MP,{Progress:{getMyProfile,getHistory,claimAchievement,dailyLogin,bumpCounter,recordPvpWin,claimPvpUnlock}});

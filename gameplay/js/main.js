@@ -4742,6 +4742,7 @@ function framedFaceNew(p){
     return FFURL[ck]=cv.toDataURL();
   }catch(e){ return ''; }
 }
+function plainFace(p){ return newFaceSrc(p)||faceURL(p.key); } /* wajah polos TANPA frame: HUD duel sudah punya bingkai sendiri */
 function framedFace(p){
   { const nf=framedFaceNew(p); if(nf) return nf; } /* pion karakter baru (pemain 1 / preset CPU & pemain lokal) */
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
@@ -5427,20 +5428,36 @@ async function walk(p,from,to){
   } finally { p.pawn.userData.bcStyle='walk'; }
 }
 async function duelKnockback(p,to,heavy){
-  const pawn=p.pawn,start=pawn.position.clone(),dest=slotPos(p.idx,to),rotation=pawn.rotation.y;
-  const duration=heavy?1.05:0.78;
+  const pawn=p.pawn,start=pawn.position.clone(),dest=slotPos(p.idx,to),rotation=pawn.rotation.y,scale0=pawn.scale.clone();
+  const duration=heavy?1.15:0.85,arc=heavy?0.95:0.5,spin=heavy?Math.PI*2:0,dir=Math.sign(dest.x-start.x)||1;
   p.pawn.userData.bcStyle='walk';
   try{
+    /* 1) terlempar: busur tinggi + berguling ke belakang (heavy = satu putaran penuh) */
     await tween(duration,k=>{
-      const progress=1-Math.pow(1-k,3);
-      pawn.position.lerpVectors(start,dest,progress);
-      pawn.position.y+=Math.sin(Math.PI*k)*(heavy?0.42:0.12);
-      pawn.rotation.z=Math.sin(Math.PI*k)*(heavy?0.52:0.24);
+      const e=1-Math.pow(1-k,2.2);
+      pawn.position.lerpVectors(start,dest,e);
+      pawn.position.y=start.y+(dest.y-start.y)*e+Math.sin(Math.PI*k)*arc;
+      pawn.rotation.z=-dir*(heavy?0.35:0.22)*Math.sin(Math.PI*k);
+      pawn.rotation.x=-spin*k;
       pawn.rotation.y=rotation+Math.sin(Math.PI*k)*(heavy?0.62:0.3);
     });
+    pawn.position.copy(dest); pawn.rotation.set(0,rotation,0);
+    /* 2) mendarat: debu, SFX, getar layar, penyok sesaat, memantul kecil */
+    sfx.hit(); sparkle(dest.clone().add(new THREE.Vector3(0,0.12,0)));
+    document.body.classList.add('hf-shake'); trackFxTimeout(()=>document.body.classList.remove('hf-shake'),360,'duel-land-shake',()=>document.body.classList.remove('hf-shake'));
+    await tween(0.28,k=>{
+      const sq=Math.sin(Math.PI*k);
+      pawn.scale.set(scale0.x*(1+0.18*sq),scale0.y*(1-0.3*sq),scale0.z*(1+0.18*sq));
+      pawn.position.y=dest.y+Math.sin(Math.PI*k)*(heavy?0.16:0.08)*(k>0.5?1:0);
+    });
+    pawn.scale.copy(scale0); pawn.position.copy(dest);
+    /* 3) terduduk lesu sebentar lalu berdiri (pose 'sad' bawaan karakter) */
+    pawnAct(pawn,'sad',heavy?1.5:0.9);
+    await sleep(heavy?1000:600);
   }finally{
     pawn.position.copy(dest);
     pawn.rotation.set(0,rotation,0);
+    pawn.scale.copy(scale0);
     p.pawn.userData.bcStyle='walk';
   }
 }
@@ -5668,11 +5685,12 @@ async function duelCheck(p,gid){
     pair.forEach(m=>{ m.duelHp=D.DEFAULTS.maxHp; });
     setMsg(p.name+' bertemu '+q.name+'! Duel dimulai.'); fb('event','info',p.name+' vs '+q.name+': Duel!',{gid,ttl:1400});
     UI.open({
-      names:[p.name,q.name],css:[p.css,q.css],faces:pair.map(framedFace),reducedMotion:reduce,
+      names:[p.name,q.name],css:[p.css,q.css],faces:pair.map(plainFace),reducedMotion:reduce,
+      dice:pair.map(f=>(!f.cpu&&f.idx===0)?diceKey:null), /* skin dadu dari katalog DiceKit; pemain lokal utama = dadu yang dipakai, lainnya bawaan */
       fighters:pair.map(f=>{
-        const bc=f.pawn.userData&&f.pawn.userData.bc;
-        if(bc&&bc.config) return {config:bc.config};
-        return f.cpu?{preset:2+f.idx*3}:{local:true};
+        const bc=f.pawn.userData&&f.pawn.userData.bc, kn=(!f.cpu&&f.idx===0&&equippedGameKey('skin')==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
+        if(bc&&bc.config) return kn?{config:bc.config,knight:true}:{config:bc.config};
+        return kn?{knight:true}:(f.cpu?{preset:2+f.idx*3}:{local:true});
       })
     });
     UI.state(s.hp,s.mom); const intro=UI.intro(); sfx.crystalAppear();
@@ -5706,6 +5724,7 @@ async function duelCheck(p,gid){
     const out=D.outcome(s,{pos:p.pos,goal:GOAL}),w=pair[out.winner],l=pair[out.loser];
     UI.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
     sfx.hit(); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
+    try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
     DUEL.rev[duelRevKey(l,w)]=DUEL.turn+D.DEFAULTS.revengeTurns*players.length; delete DUEL.rev[duelRevKey(w,l)];
@@ -5716,7 +5735,7 @@ async function duelCheck(p,gid){
       w.name+': tetap di petak '+out.from+', +'+out.xp.winner+' XP',
       l.name+': mundur ke petak '+out.to+(out.skipTurn?', skip 1 giliran':'')+', +'+out.xp.loser+' XP',
       l.name+' mendapat Revenge buff (+1 damage serangan pertama vs '+w.name+')']);
-    await sleep(1600); st();
+    await sleep(2800); st(); /* jeda hasil duel ~2,8 detik agar kartu hasil terbaca */
     UI.close();
     await sleep(280); st();
     if(out.back>0){ await duelKnockback(l,out.to,out.kind==='heavy'); l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
