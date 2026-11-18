@@ -4193,7 +4193,7 @@ function dragonFlight(dt,now){
 }
 const _fa=new THREE.Vector3(),_fb=new THREE.Vector3(),_fc=new THREE.Vector3();
 function dragonFade(dt){
-  const D=dragon.userData; if(!D.fm){ D.fm=D.mats.map(m=>({m,o:m.opacity,t:m.transparent,dw:m.depthWrite})); D.op=1; D.opA=1; }
+  const D=dragon.userData; if(!D.fm){ D.fm=D.mats.map(m=>({m,o:m.opacity,t:m.transparent,dw:m.depthWrite})); D.op=1; D.opA=1; D.fm.forEach(e=>{ if(!e.t){ e.m.transparent=true; e.m.needsUpdate=true; } }); } /* transparent dibuat tetap sejak awal: membalik transparent saat memudar memicu kompilasi ulang shader = patah-patah */
   let target=1;
   if(FLY.on&&dragon.visible&&FLY.blend>0.05){
     const cd=baseDist*cam.zoom,dc=camera.position.distanceTo(dragon.position);
@@ -4205,7 +4205,7 @@ function dragonFade(dt){
   D.op+=(target-D.op)*Math.min(1,dt*6);
   if(Math.abs(D.op-D.opA)<0.004&&!(D.op>=0.999&&D.opA<0.999)) return;
   D.opA=D.op; const op=D.op;
-  D.fm.forEach(e=>{ const tr=op<0.995||e.t; if(e.m.transparent!==tr){ e.m.transparent=tr; e.m.needsUpdate=true; } e.m.opacity=e.o*op; e.m.depthWrite=op>0.9&&e.dw; });
+  D.fm.forEach(e=>{ e.m.opacity=e.o*op; e.m.depthWrite=op>0.9&&e.dw; });
 }
 function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(DRAGON_S); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragon.userData.hd=0; dragon.userData.roll=0; dragon.rotation.z=0; FLY.on=false; FLY.blend=0; FLY.a=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
 /* Serangan ke Ender Dragon = memanah (naga terbang, jadi jarak jauh): pion berdiri menyamping menghadap naga, membidik ke atas, menarik busur, lalu anak panah melesat ke naga.
@@ -6527,9 +6527,10 @@ function runFrame(now){
     }
   }
   updatePortal(dt,now); updateArena(dt,now); updateMountain(dt,now);
-  { const D=dragon.userData,fy=(FLY.on&&dragon.visible)?1:0,wf=0.006+0.003*fy,wr=Math.sin(now*wf)*(0.55+0.4*fy),wo=Math.sin(now*wf-0.7)*(0.3+0.25*fy); /* terbang: kepak lebih cepat & lebar */
+  { const D=dragon.userData,fy=(FLY.on&&dragon.visible)?1:0,wf=0.006+0.003*fy; let wr,wo; D.fyS=(D.fyS===undefined?fy:D.fyS+(fy-D.fyS)*Math.min(1,dt*2)); /* fy dihaluskan: amplitudenya tidak loncat saat mulai terbang */ /* fase kepak diakumulasi (bukan now*wf): saat wf berubah (mulai terbang) now*wf melompat jauh -> sayap patah/loncat */
+    D.wf=(D.wf===undefined?wf:D.wf+(wf-D.wf)*Math.min(1,dt*2)); D.wph=((D.wph||0)+dt*1000*D.wf)%(Math.PI*2); wr=Math.sin(D.wph)*(0.55+0.4*D.fyS); wo=Math.sin(D.wph-0.7)*(0.3+0.25*D.fyS); /* terbang: kepak lebih cepat & lebar */
     D.wR.rotation.z=wr; D.wL.rotation.z=-wr; D.wRo.rotation.z=wo; D.wLo.rotation.z=-wo; /* ujung sayap melentur sedikit tertinggal */
-    D.tail.rotation.y=Math.sin(now*0.0022)*(0.28+0.2*fy); D.rig.rotation.x=Math.sin(now*wf)*0.03;
+    D.tail.rotation.y=Math.sin(now*0.0022)*(0.28+0.2*D.fyS); D.rig.rotation.x=Math.sin(D.wph)*0.03;
     D.head.rotation.x=Math.sin(now*0.0027)*0.05-0.32*(D.open||0); D.head.rotation.y=Math.sin(now*0.0013)*0.12; D.jaw.rotation.x=0.04+0.5*(D.open||0);
     if(FLY.on) dragonFlight(dt,now); else{ dragon.position.y=D.y0+Math.sin(now*0.003)*0.18+D.dy; dragon.rotation.y=Math.sin(now*0.0015)*0.2+D.shk; dragon.rotation.z=0; }
     try{ dragonFade(dt); }catch(e){ console.error(e); }
