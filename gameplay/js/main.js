@@ -5331,10 +5331,8 @@ function renderChips(){
     }
     const topSeat=slot===1||slot===2; /* kursi atas: penanda di atas frame/kepala; kursi bawah: tepat di bawah frame */
     const appendCard=()=>{ if(turnChip&&topSeat) group.appendChild(turnChip); group.appendChild(card); if(turnChip&&!topSeat) group.appendChild(turnChip); };
-    if(extra.childNodes.length){
-      if(slot===1||slot===2){ appendCard(); group.appendChild(extra); }
-      else { group.appendChild(extra); appendCard(); }
-    }else appendCard();
+    if(extra.childNodes.length){ position.hidden=true; row.appendChild(extra); } /* crystal / HP boss masuk ke tab kecil kartu (multifungsi: petak, crystal, bar naga) */
+    appendCard();
     box.appendChild(group);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';

@@ -38,7 +38,7 @@ html body #players .pg .pr.shielded { outline: 0 !important; box-shadow: none !i
 #players .pg .pr .hf i { position: absolute; display: block; background: var(--hf-edge); }
 #players .pg .pr .hf i::before { content: ""; position: absolute; }
 /* tab bawah (lebih pendek, di belakang bar) */
-#players .pg .pr .hf-tab { left: 66px; right: 78px; top: 70px; height: 40px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%); }
+#players .pg .pr .hf-tab { left: 66px; right: 30px; top: 70px; height: 56px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%); }
 #players .pg .pr .hf-tab::before { inset: 4px 5px 4px 0; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%); background: linear-gradient(#3b3e49, #272a33); }
 /* bar utama */
 #players .pg .pr .hf-bar { left: 66px; right: 0; top: 6px; height: 72px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 12px, calc(100% - 30px) 100%, 0 100%); }
@@ -78,7 +78,7 @@ html body #players .pg .pr .mid { position: absolute; inset: 0; z-index: 2; disp
 #players .pg .pr .r1,
 #players .pg .pr .r2 { position: absolute; display: flex; align-items: center; min-width: 0; overflow: hidden; }
 #players .pg .pr .r1 { top: 6px; height: 72px; left: 108px; right: 40px; gap: 8px; }
-#players .pg .pr .r2 { top: 80px; height: 28px; left: 100px; right: 92px; gap: 8px; }
+#players .pg .pr .r2 { top: 80px; height: 44px; left: 100px; right: 60px; gap: 8px; }
 html body #players .pg .pr .nm { font-size: 32px !important; }
 html body #players .pg .pr .ps { font-size: 18px !important; }
 html body #players .pg .pr .bi { width: 26px; height: 26px; }
@@ -95,7 +95,7 @@ html body #players .pg.p3 .pr .tn { left: auto !important; right: -14px !importa
 #players .pg.p2 .pr .r1,
 #players .pg.p3 .pr .r1 { left: 40px; right: 108px; flex-direction: row-reverse; text-align: right; }
 #players .pg.p2 .pr .r2,
-#players .pg.p3 .pr .r2 { left: 92px; right: 100px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p3 .pr .r2 { left: 60px; right: 100px; flex-direction: row-reverse; text-align: right; }
 #players .pg.p2 .pr .turn-progress,
 #players .pg.p3 .pr .turn-progress { left: 40px; right: 108px; }
 
@@ -106,3 +106,12 @@ html body #players .pg.p3 .pr { transform: rotate(180deg) !important; }
 html body #players .pg .pr.off .hf,
 html body #players .pg .pr.off .av { filter: grayscale(1); }
 @media (prefers-reduced-motion: reduce) { #players .pg .pr .hf, #players .pg .pr .av { filter: none; } }
+
+/* ---------- tab multifungsi: petak / crystal / bar naga ---------- */
+#players .pg .pr .r2 .px { display: flex; flex: 1 1 auto; flex-direction: row; align-items: center; gap: 8px; width: auto; min-width: 0; }
+#players .pg .pr .r2 .cx { width: auto; flex: 1 1 auto; gap: 5px; }
+#players .pg .pr .r2 .cx > img.cg { width: 22px; height: 25px; }
+#players .pg .pr .r2 .cn { width: 40px; font-size: 22px; }
+#players .pg .pr .r2 .sks { flex: 1 1 auto; gap: 3px; margin-left: 0; }
+#players .pg .pr .r2 .sk6 { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 7px; }
+#players .pg .pr .r2 .hpb { width: 100%; margin-top: 0; }
