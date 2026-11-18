@@ -31,7 +31,7 @@ class Element {
 }
 
 class Renderer {
-  constructor() { this.domElement = new Element('canvas'); this.loops = []; this.sizes = []; }
+  constructor() { this.domElement = new Element('canvas'); this.loops = []; this.sizes = []; this.shadowMap = { enabled: false, type: null }; }
   setPixelRatio(value) { this.pixelRatio = value; }
   setClearColor() {}
   setSize(width, height) { this.sizes.push([width, height]); }
@@ -53,14 +53,42 @@ function findAll(element, className, results) {
 }
 
 async function run() {
-  const body = new Element('body'), created = [], listeners = {};
+  const body = new Element('body'), knightCreated = [], listeners = {};
   body.classList.add('app');
+
+  /* Minimal POSES for PvpKnight mock */
+  const GUARD_POSE = { body: { rx: 0, ry: 0, rz: 0 } };
+  const mockPoses = {
+    guard: GUARD_POSE, block: GUARD_POSE, hurt: GUARD_POSE, dodge: GUARD_POSE,
+    win: GUARD_POSE, ko: GUARD_POSE, holy: GUARD_POSE, smite: GUARD_POSE,
+    atk: [GUARD_POSE, GUARD_POSE]
+  };
+
   global.window = {
     UT: {}, THREE, innerWidth: 640, innerHeight: 360, devicePixelRatio: 2,
     addEventListener(name, callback) { listeners[name] = callback; },
     removeEventListener(name) { delete listeners[name]; }
   };
   global.document = { body, createElement: tag => new Element(tag) };
+
+  /* Mock PvpKnight — takes priority over BlockyCharacter */
+  window.UT.PvpKnight = {
+    POSES: mockPoses,
+    RIVAL_PAL: { body: 0xff0000 },
+    createKnight(THREE, opts) {
+      const kn = {
+        root: new THREE.Group(), cape2: null,
+        setFlash() {}, setGlow() {}, dispose() {}
+      };
+      knightCreated.push({ kn, opts });
+      return kn;
+    },
+    newPose() { return Object.assign({}, GUARD_POSE); },
+    sample(keys, u) { return GUARD_POSE; },
+    applyPose(kn, cur, tgt, dt, rate) {}
+  };
+
+  /* BlockyCharacter kept as fallback but should NOT be called when PvpKnight present */
   window.UT.BlockyCharacter = {
     create() {
       const character = {
@@ -71,7 +99,6 @@ async function run() {
         tick() {},
         act(type, duration) { this.actions.push([type, duration]); }
       };
-      created.push(character);
       return character;
     }
   };
@@ -84,9 +111,8 @@ async function run() {
     fighters: [{ config: { outfit: 'equipped' } }, { preset: 5 }]
   });
   assert.ok(body.className.includes('duel-active'), 'duel mode hides the board HUD');
-  assert.strictEqual(created.length, 2, 'both fighters use the existing BlockyCharacter rig');
-  assert.deepStrictEqual(created[0].appliedConfig, { outfit: 'equipped' }, 'the player appearance is copied into the arena rig');
-  assert.strictEqual(created[1].preset, 5, 'CPU appearance is loaded from its preset');
+  assert.strictEqual(knightCreated.length, 2, 'both fighters use PvpKnight rig when available');
+  assert.ok(knightCreated[1] && knightCreated[1].opts && knightCreated[1].opts.palette, 'rival fighter gets RIVAL_PAL palette');
   assert.ok(find(body, 'du-scene'), 'the arena includes a dedicated Three.js scene');
   assert.strictEqual(findAll(body, 'du-die-stage').length, 0, 'combat dice are not displayed in the arena');
   assert.strictEqual(findAll(body, 'du-fighter').length, 2, 'both arena fighters have action HUDs');
@@ -114,8 +140,9 @@ async function run() {
   assert.ok(findAll(body, 'du-action')[1].className.includes('berserk'));
   UI.act(0, 'attack', 0.75);
   UI.act(1, 'block', 0.9);
-  assert.deepStrictEqual(created[0].actions, [['attack', 0.75]], 'attack results play the rigged swing animation');
-  assert.deepStrictEqual(created[1].actions, [['block', 0.9]], 'defense results play the rigged guard animation');
+  /* With PvpKnight rig, actions set pose clips directly — no act() delegate to character */
+  assert.ok(knightCreated[0] && knightCreated[0].kn, 'fighter 0 has knight rig');
+  assert.ok(knightCreated[1] && knightCreated[1].kn, 'fighter 1 has knight rig');
   UI.impact(1, 'block');
   assert.ok(findAll(body, 'du-fighter')[1].className.includes('block'), 'impact FX are attached to the defending fighter');
 

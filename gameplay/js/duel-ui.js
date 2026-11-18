@@ -219,32 +219,65 @@
   function ensureArena() {
     if (arena) return arena;
     var T = window.THREE;
-    if (!T || !T.WebGLRenderer || !UT.BlockyCharacter || !UT.BlockyCharacter.create) {
-      console.error('[duel] Three.js atau rig karakter tidak tersedia');
+    if (!T || !T.WebGLRenderer) {
+      console.error('[duel] Three.js tidak tersedia');
+      return null;
+    }
+    var useKnight = UT.PvpKnight && typeof UT.PvpKnight.createKnight === 'function';
+    if (!useKnight && (!UT.BlockyCharacter || !UT.BlockyCharacter.create)) {
+      console.error('[duel] Rig karakter tidak tersedia');
       return null;
     }
     try {
       var scene = new T.Scene();
-      var camera = new T.PerspectiveCamera(36, 1, 0.1, 40);
-      camera.position.set(0, 1.75, 6.4); camera.lookAt(0, 1.05, 0);
-      scene.add(new T.HemisphereLight(0xe9dcff, 0x22132c, 1.7));
-      var key = new T.DirectionalLight(0xffe6c6, 2.1); key.position.set(-2.8, 5, 4); scene.add(key);
-      var rim = new T.PointLight(0xffb64e, 2.3, 10); rim.position.set(0, 2.8, -1.5); scene.add(rim);
-      var floor = new T.Mesh(new T.CircleGeometry(2.7, 48), new T.MeshBasicMaterial({
-        color: 0x5d321a, transparent: true, opacity: 0.32, depthWrite: false
+      var camera = new T.PerspectiveCamera(36, 1, 0.1, 60);
+      camera.position.set(0, 3.0, 9.5); camera.lookAt(0, 1.75, 0);
+
+      /* Cinematic lighting — mockup style */
+      scene.add(new T.HemisphereLight(0xb9a6e8, 0x2a1a38, 1.05));
+      var key = new T.DirectionalLight(0xffe0bc, 0.95);
+      key.position.set(-3, 12, 8);
+      key.castShadow = true;
+      key.shadow.mapSize.width = 1024; key.shadow.mapSize.height = 1024;
+      scene.add(key);
+      var purple = new T.PointLight(0x9a5cff, 1.1, 22, 2);
+      purple.position.set(0, 4, -4); scene.add(purple);
+      var fireL = new T.PointLight(0xff9a40, 0.9, 18, 2);
+      fireL.position.set(-7, 2.5, 1); scene.add(fireL);
+      var fireR = new T.PointLight(0xff9a40, 0.9, 18, 2);
+      fireR.position.set(7, 2.5, 1); scene.add(fireR);
+
+      /* Arena floor circle */
+      var floor = new T.Mesh(new T.CircleGeometry(3.2, 64), new T.MeshStandardMaterial({
+        color: 0x3a1e0a, roughness: 0.9, metalness: 0.1,
+        transparent: true, opacity: 0.45, depthWrite: false
       }));
-      floor.rotation.x = -Math.PI / 2; floor.position.y = -0.035; scene.add(floor);
-      var ring = new T.Mesh(new T.RingGeometry(2.1, 2.16, 48), new T.MeshBasicMaterial({
-        color: 0xffc35b, transparent: true, opacity: 0.78, side: T.DoubleSide, depthWrite: false
+      floor.rotation.x = -Math.PI / 2; floor.position.y = 0.01;
+      floor.receiveShadow = true; scene.add(floor);
+
+      /* Gold ring */
+      var ring = new T.Mesh(new T.RingGeometry(2.6, 2.68, 64), new T.MeshBasicMaterial({
+        color: 0xffc35b, transparent: true, opacity: 0.82, side: T.DoubleSide, depthWrite: false
       }));
-      ring.rotation.x = -Math.PI / 2; ring.position.y = -0.02; scene.add(ring);
+      ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; scene.add(ring);
+
+      /* Shadow catcher */
+      try {
+        var catcher = new T.Mesh(new T.PlaneGeometry(40, 20), new T.ShadowMaterial({ opacity: 0.45 }));
+        catcher.rotation.x = -Math.PI / 2; catcher.position.set(0, 0.02, 2);
+        catcher.receiveShadow = true; scene.add(catcher);
+      } catch (se) { /* ShadowMaterial might not exist in older THREE */ }
+
       var renderer = new T.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.enabled = true;
+      if (T.PCFSoftShadowMap) renderer.shadowMap.type = T.PCFSoftShadowMap;
       renderer.domElement.className = 'du-scene-canvas';
       renderer.domElement.setAttribute('aria-label', 'Karakter duel 3D');
       el.scene.appendChild(renderer.domElement);
-      arena = { scene: scene, camera: camera, renderer: renderer, elapsed: 0 };
+      arena = { scene: scene, camera: camera, renderer: renderer, elapsed: 0,
+                fireL: fireL, fireR: fireR, useKnight: useKnight };
       return arena;
     } catch (e) {
       console.error('[duel] Gagal membuat arena Three.js', e);
@@ -266,8 +299,10 @@
     if (!arena) return;
     fighters.forEach(function (fighter, i) {
       if (!fighter) return;
-      arena.scene.remove(fighter.root);
-      disposeTree(fighter.root);
+      var rootNode = fighter.phys || fighter.root;
+      if (arena.scene && rootNode) arena.scene.remove(rootNode);
+      if (fighter.kn && fighter.kn.dispose) fighter.kn.dispose();
+      else disposeTree(fighter.root);
       fighters[i] = null;
     });
   }
@@ -276,55 +311,158 @@
     if (!Array.isArray(specs)) return;
     var currentArena = ensureArena();
     if (!currentArena) return;
-    specs.slice(0, 2).forEach(function (spec, i) {
-      try {
-        var character = UT.BlockyCharacter.create(window.THREE);
-        if (spec && spec.config) character.apply(spec.config, true);
-        else if (spec && Number.isInteger(spec.preset)) character.loadPreset(spec.preset);
-        else if (spec && spec.local) character.loadFromPlayer();
-        else character.loadPreset(i);
-        character.tick(0.016);
-        var model = character.root;
-        model.scale.multiplyScalar(0.86);
-        var baseScale = model.scale.clone();
-        var direction = i === 0 ? 1 : -1;
-        var x = i === 0 ? -1.38 : 1.38;
-        model.rotation.y = i === 0 ? Math.PI / 2 : -Math.PI / 2;
-        model.position.set(x - direction * 1.05, 0, 0);
-        model.scale.set(baseScale.x * 0.18, baseScale.y * 0.18, baseScale.z * 0.18);
-        currentArena.scene.add(model);
-        fighters[i] = {
-          character: character, root: model, baseScale: baseScale, x: x, direction: direction,
-          intro: 0, action: '', actionTime: 0, actionDuration: 0, hitTime: 0, heavyHit: false
-        };
-      } catch (e) {
-        console.error('[duel] Gagal menyiapkan karakter ' + i, e);
-      }
-    });
+    var T = window.THREE;
+
+    if (currentArena.useKnight && UT.PvpKnight) {
+      /* ── PvpKnight rig (cinematic mockup style) ── */
+      var G = { homeX: 3.4, K: 1.4, MID: 1.2 };
+      specs.slice(0, 2).forEach(function (spec, i) {
+        try {
+          var palette = i === 1 ? UT.PvpKnight.RIVAL_PAL : undefined;
+          var kn = UT.PvpKnight.createKnight(T, palette ? { palette: palette } : undefined);
+          var mirror = new T.Group();
+          mirror.scale.set(i === 0 ? G.K : -G.K, G.K, G.K);
+          kn.root.rotation.y = i === 0 ? Math.PI / 2 : -Math.PI / 2;
+          kn.root.position.y = -G.MID;
+          mirror.add(kn.root);
+          var phys = new T.Group();
+          phys.position.set(i === 0 ? -G.homeX : G.homeX, G.MID * G.K, 0);
+          phys.add(mirror);
+          currentArena.scene.add(phys);
+          var pose = UT.PvpKnight.newPose ? UT.PvpKnight.newPose() : {};
+          fighters[i] = {
+            kn: kn, root: kn.root, phys: phys,
+            pose: pose, base: UT.PvpKnight.POSES.guard,
+            clip: null, clipT: 0, clipDur: 1,
+            flash: 0, glow: 0,
+            intro: 0, action: '', actionTime: 0, actionDuration: 0,
+            hitTime: 0, heavyHit: false,
+            x: i === 0 ? -G.homeX : G.homeX, direction: i === 0 ? 1 : -1
+          };
+        } catch (e) { console.error('[duel] PvpKnight gagal untuk fighter ' + i, e); }
+      });
+    } else if (UT.BlockyCharacter && UT.BlockyCharacter.create) {
+      /* ── Fallback: BlockyCharacter ── */
+      specs.slice(0, 2).forEach(function (spec, i) {
+        try {
+          var character = UT.BlockyCharacter.create(T);
+          if (spec && spec.config) character.apply(spec.config, true);
+          else if (spec && Number.isInteger(spec.preset)) character.loadPreset(spec.preset);
+          else if (spec && spec.local) character.loadFromPlayer();
+          else character.loadPreset(i);
+          character.tick(0.016);
+          var model = character.root;
+          model.scale.multiplyScalar(0.86);
+          var baseScale = model.scale.clone();
+          var direction = i === 0 ? 1 : -1;
+          var x = i === 0 ? -1.38 : 1.38;
+          model.rotation.y = i === 0 ? Math.PI / 2 : -Math.PI / 2;
+          model.position.set(x - direction * 1.05, 0, 0);
+          model.scale.set(baseScale.x * 0.18, baseScale.y * 0.18, baseScale.z * 0.18);
+          currentArena.scene.add(model);
+          fighters[i] = {
+            character: character, root: model, baseScale: baseScale, x: x, direction: direction,
+            intro: 0, action: '', actionTime: 0, actionDuration: 0, hitTime: 0, heavyHit: false
+          };
+        } catch (e) { console.error('[duel] BlockyCharacter gagal untuk fighter ' + i, e); }
+      });
+    }
   }
   function renderArena(dt) {
     if (!arena || !root || root.hidden) return;
     arena.elapsed += dt;
+    var t = arena.elapsed;
+
+    /* Torch flicker for fireL / fireR */
+    if (arena.fireL && arena.fireR) {
+      var fl = 0.9 + Math.sin(t * 13) * 0.08 + Math.sin(t * 21) * 0.05;
+      arena.fireL.intensity = 0.9 * fl;
+      arena.fireR.intensity = 0.9 * (1.9 - fl + 0.1);
+    }
+
     fighters.forEach(function (fighter) {
       if (!fighter) return;
-      fighter.character.tick(dt);
-      fighter.intro = Math.min(0.72, fighter.intro + dt);
-      fighter.actionTime += dt;
-      fighter.hitTime = Math.max(0, fighter.hitTime - dt);
-      var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 0.72);
-      var ease = 1 - Math.pow(1 - introProgress, 3);
-      var lunge = 0;
-      if (fighter.action === 'attack' && fighter.actionTime < fighter.actionDuration) {
-        var phase = fighter.actionTime / fighter.actionDuration;
-        if (phase > 0.34 && phase < 0.72) lunge = Math.sin((phase - 0.34) / 0.38 * Math.PI) * 0.26;
+
+      if (fighter.kn && arena.useKnight) {
+        /* ── PvpKnight animation path ── */
+        fighter.intro = Math.min(0.72, fighter.intro + dt);
+        fighter.actionTime += dt;
+        fighter.hitTime = Math.max(0, fighter.hitTime - dt);
+
+        /* Intro slide-in: phys.position.x slides from off-screen */
+        var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 0.72);
+        var ease = 1 - Math.pow(1 - introProgress, 3);
+        var offX = fighter.direction * 6 * (1 - ease);
+        fighter.phys.position.x = fighter.x + offX;
+
+        /* Lunge on attack */
+        var lunge = 0;
+        if ((fighter.action === 'attack' || fighter.action === 'critical' ||
+             fighter.action === 'lifesteal' || fighter.action === 'berserk') &&
+             fighter.actionTime < fighter.actionDuration) {
+          var phase = fighter.actionTime / fighter.actionDuration;
+          if (phase > 0.3 && phase < 0.75)
+            lunge = Math.sin((phase - 0.3) / 0.45 * Math.PI) * 0.5;
+        }
+        fighter.phys.position.x += fighter.direction * lunge;
+
+        /* Hit recoil */
+        var hitP = fighter.heavyHit ? 0.68 : 0.38;
+        var hitRecoil = fighter.hitTime
+          ? Math.sin((1 - fighter.hitTime / hitP) * Math.PI) * (fighter.heavyHit ? 0.9 : 0.35)
+          : 0;
+        fighter.phys.position.x -= fighter.direction * hitRecoil;
+
+        /* Pose animation */
+        var targetPose = fighter.base || UT.PvpKnight.POSES.guard;
+        if (fighter.clip) {
+          fighter.clipT = Math.min(1, fighter.clipT + dt / fighter.clipDur);
+          if (typeof UT.PvpKnight.sample === 'function')
+            targetPose = UT.PvpKnight.sample(fighter.clip, fighter.clipT);
+          if (fighter.clipT >= 1) { fighter.clip = null; }
+        }
+        if (typeof UT.PvpKnight.applyPose === 'function')
+          UT.PvpKnight.applyPose(fighter.kn, fighter.pose, targetPose, dt, 10);
+
+        /* Flash / glow */
+        if (fighter.flash > 0) {
+          if (fighter.kn.setFlash) fighter.kn.setFlash(fighter.flash);
+          fighter.flash = Math.max(0, fighter.flash - dt * 4);
+        } else {
+          if (fighter.kn.setFlash) fighter.kn.setFlash(0);
+        }
+        if (fighter.glow > 0) {
+          if (fighter.kn.setGlow) fighter.kn.setGlow(fighter.glow);
+          fighter.glow = Math.max(0, fighter.glow - dt * 2);
+        } else {
+          if (fighter.kn.setGlow) fighter.kn.setGlow(0);
+        }
+
+        /* Cape wave */
+        if (fighter.kn.cape2)
+          fighter.kn.cape2.rotation.x = Math.sin(t * 1.4 + fighter.phys.position.x) * 0.1;
+
+      } else if (fighter.character) {
+        /* ── BlockyCharacter fallback path ── */
+        fighter.character.tick(dt);
+        fighter.intro = Math.min(0.72, fighter.intro + dt);
+        fighter.actionTime += dt;
+        fighter.hitTime = Math.max(0, fighter.hitTime - dt);
+        var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 0.72);
+        var ease = 1 - Math.pow(1 - introProgress, 3);
+        var lunge = 0;
+        if (fighter.action === 'attack' && fighter.actionTime < fighter.actionDuration) {
+          var phase = fighter.actionTime / fighter.actionDuration;
+          if (phase > 0.34 && phase < 0.72) lunge = Math.sin((phase - 0.34) / 0.38 * Math.PI) * 0.26;
+        }
+        var hitProgress = fighter.heavyHit ? 0.68 : 0.38;
+        var hit = fighter.hitTime ? Math.sin((1 - fighter.hitTime / hitProgress) * Math.PI) * (fighter.heavyHit ? 0.72 : 0.24) : 0;
+        fighter.root.position.x = fighter.x - fighter.direction * (1.05 * (1 - ease)) + fighter.direction * lunge - fighter.direction * hit;
+        fighter.root.position.y = Math.sin(introProgress * Math.PI) * 0.07;
+        var scale = 0.18 + ease * 0.82;
+        fighter.root.scale.set(fighter.baseScale.x * scale, fighter.baseScale.y * scale, fighter.baseScale.z * scale);
+        fighter.root.rotation.z = hit * (fighter.direction > 0 ? -0.55 : 0.55);
       }
-      var hitProgress = fighter.heavyHit ? 0.68 : 0.38;
-      var hit = fighter.hitTime ? Math.sin((1 - fighter.hitTime / hitProgress) * Math.PI) * (fighter.heavyHit ? 0.72 : 0.24) : 0;
-      fighter.root.position.x = fighter.x - fighter.direction * (1.05 * (1 - ease)) + fighter.direction * lunge - fighter.direction * hit;
-      fighter.root.position.y = Math.sin(introProgress * Math.PI) * 0.07;
-      var scale = 0.18 + ease * 0.82;
-      fighter.root.scale.set(fighter.baseScale.x * scale, fighter.baseScale.y * scale, fighter.baseScale.z * scale);
-      fighter.root.rotation.z = hit * (fighter.direction > 0 ? -0.55 : 0.55);
     });
     arena.renderer.render(arena.scene, arena.camera);
   }
@@ -445,8 +583,40 @@
       var fighter = fighters[side];
       if (type === 'block') playSfx('guard');
       else if (type === 'heal' || type === 'regen') playSfx('heal');
-      if (!fighter || !fighter.character.act) return;
-      fighter.character.act(type, duration);
+      if (!fighter) return;
+
+      if (fighter.kn && arena && arena.useKnight && UT.PvpKnight && UT.PvpKnight.POSES) {
+        /* ── PvpKnight pose trigger ── */
+        var POSES = UT.PvpKnight.POSES;
+        var CLIPS = {
+          attack:    { keys: POSES.atk ? POSES.atk[0] : null, dur: 0.6 },
+          lifesteal: { keys: POSES.atk ? POSES.atk[1] || POSES.atk[0] : null, dur: 0.6 },
+          critical:  { keys: POSES.smite || null, dur: 1.0 },
+          berserk:   { keys: POSES.holy  || null, dur: 0.9 }
+        };
+        var clip = CLIPS[type];
+        if (clip && clip.keys) {
+          fighter.clip = clip.keys; fighter.clipT = 0; fighter.clipDur = clip.dur;
+          fighter.base = POSES.guard;
+        } else if (type === 'block' || type === 'defense') {
+          fighter.base = POSES.block || POSES.guard;
+          if (fighter.kn.shield) fighter.kn.shield.visible = true;
+        } else if (type === 'regen' || type === 'heal') {
+          fighter.base = POSES.guard;
+          fighter.glow = 0.9;
+        } else if (type === 'win' || type === 'cheer') {
+          fighter.base = POSES.win || POSES.guard;
+        } else if (type === 'sad' || type === 'ko') {
+          fighter.base = POSES.ko || POSES.hurt || POSES.guard;
+        } else {
+          /* dodge, etc. */
+          fighter.base = POSES.dodge || POSES.guard;
+        }
+      } else if (fighter.character && fighter.character.act) {
+        /* Fallback BlockyCharacter */
+        fighter.character.act(type, duration);
+      }
+
       fighter.action = type;
       fighter.actionTime = 0;
       fighter.actionDuration = duration || (type === 'attack' ? 0.75 : 0.9);
@@ -476,6 +646,20 @@
       if (fighters[side]) {
         fighters[side].hitTime = cls === 'heavy' ? 0.68 : 0.38;
         fighters[side].heavyHit = cls === 'heavy';
+        /* PvpKnight flash/glow on hit */
+        if (fighters[side].kn) {
+          fighters[side].flash = cls === 'heavy' ? 1.0 : 0.6;
+          if (cls === 'block') fighters[side].glow = 0.85;
+          /* hurt pose on heavy hit */
+          if (cls === 'heavy' && UT.PvpKnight && UT.PvpKnight.POSES) {
+            fighters[side].base = UT.PvpKnight.POSES.hurt || UT.PvpKnight.POSES.guard;
+            /* snap back to guard after recoil */
+            setTimeout(function () {
+              if (fighters[side] && fighters[side].kn)
+                fighters[side].base = UT.PvpKnight.POSES.guard;
+            }, 600);
+          }
+        }
       }
       root.classList.add('impact');
       el.flash.className = 'du-flash active';

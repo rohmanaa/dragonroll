@@ -34,7 +34,7 @@ body.duel-active #trapBar        { display: none !important }
   color: var(--du-ink);
   font-family: "Lilita One","Fredoka","Arial Rounded MT Bold",
                var(--font-display,"Trebuchet MS"),sans-serif;
-  background: #0d1424 url("../../referensi/pvp/background.jpg")
+  background: #0d1424 url("../assets/duel/background.jpg")
               center 55% / cover no-repeat;
   opacity: 0; pointer-events: none;
   transition: opacity .3s ease;
