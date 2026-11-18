@@ -556,6 +556,82 @@ body.duel-active #trapBar        { display: none !important }
 .du.selecting { pointer-events: auto }
 
 /* ============================================================
+   HELP BUTTON & RULES MODAL
+   ============================================================ */
+.du-help {
+  position: absolute; right: clamp(10px,2vw,22px); top: clamp(8px,2vh,20px);
+  width: clamp(32px,3.5vw,42px); height: clamp(32px,3.5vw,42px);
+  border-radius: 50%;
+  border: 1.5px solid var(--du-gold);
+  background: rgba(29,34,51,0.85);
+  backdrop-filter: blur(4px);
+  color: var(--du-gold); font-size: clamp(14px,1.5vw,20px);
+  font-weight: 900; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; pointer-events: auto; z-index: 15;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  transition: transform .15s, background .15s, box-shadow .15s;
+}
+.du-help:hover {
+  transform: scale(1.1);
+  background: rgba(45,54,82,0.95);
+  box-shadow: 0 0 16px rgba(240,185,46,0.6);
+}
+
+.du-rules-card {
+  position: absolute; z-index: 25;
+  left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: min(92vw, 540px); max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(13,18,32,0.98), rgba(28,18,36,0.97));
+  border: 1.5px solid var(--du-gold);
+  border-radius: 18px;
+  box-shadow: 0 0 0 4px #0a0612, 0 16px 50px rgba(0,0,0,0.85);
+  color: var(--du-ink);
+  pointer-events: auto;
+  text-align: center;
+}
+.du-rules-card[hidden] { display: none }
+.du-rules-card > b {
+  display: block; font-size: clamp(18px,2.2vw,26px);
+  color: var(--du-gold); letter-spacing: .08em;
+  margin-bottom: 14px; text-shadow: 0 2px 6px #000;
+}
+.du-rules-table {
+  display: flex; flex-direction: column; gap: 7px;
+  margin-bottom: 14px; text-align: left;
+}
+.du-rules-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 12px; border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(240,185,46,0.18);
+  font-size: clamp(11px,1.1vw,13px);
+}
+.du-rules-row b {
+  color: var(--du-gold); font-size: 1.05em; min-width: 140px;
+}
+.du-rules-row span {
+  opacity: .92; text-align: right;
+}
+.du-rules-note {
+  font-size: clamp(10px,1vw,12px); opacity: .78;
+  line-height: 1.45; margin-bottom: 16px;
+  padding: 8px 12px; border-radius: 8px;
+  background: rgba(0,0,0,0.3);
+}
+.du-rules-close {
+  padding: 9px 28px;
+  border: none; border-radius: 20px;
+  background: var(--du-gold-g);
+  color: #3a1800; font: inherit; font-size: 13px; font-weight: 900;
+  letter-spacing: .08em; cursor: pointer;
+  transition: transform .12s, filter .12s;
+}
+.du-rules-close:hover { transform: scale(1.05); filter: brightness(1.1) }
+
+/* ============================================================
    RESPONSIVE – potrait mobile (≤700px)
    ============================================================ */
 @media (max-width: 700px) and (orientation: portrait) {

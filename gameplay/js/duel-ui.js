@@ -19,6 +19,11 @@
     if (text != null) e.textContent = text;
     return e;
   }
+  function playSfx(name) {
+    if (UT.PvpKnight && UT.PvpKnight.SFX && typeof UT.PvpKnight.SFX[name] === 'function') {
+      try { UT.PvpKnight.SFX[name](); } catch (e) {}
+    }
+  }
   function hearts(n, max) {
     var s = '';
     for (var i = 0; i < max; i++) s += '<span class="du-heart' + (i < n ? ' on' : '') + '">&#9829;</span>';
@@ -26,7 +31,7 @@
   }
   /* Animated heart update — compares old vs new state */
   function updateHearts(el, newN, oldN, max) {
-    if (oldN === undefined || oldN === newN) {
+    if (oldN === undefined || oldN === newN || !el.querySelectorAll) {
       el.innerHTML = hearts(newN, max);
       return;
     }
@@ -135,6 +140,7 @@
       if (!rollResolver || el.rollButton.disabled) return;
       el.rollButton.disabled = true;
       el.rollLabel.textContent = 'ROLLING...';
+      playSfx('roll');
       var resolve = rollResolver;
       rollResolver = null;
       resolve(true);
@@ -164,6 +170,40 @@
     el.flash = mk('div', 'du-flash'); root.appendChild(el.flash);
     el.choose = mk('div', 'du-choose'); el.choose.hidden = true; root.appendChild(el.choose);
     el.card = mk('div', 'du-card'); el.card.hidden = true; root.appendChild(el.card);
+
+    el.helpButton = mk('button', 'du-help', '?');
+    el.helpButton.type = 'button';
+    el.helpButton.setAttribute('aria-label', 'Aturan duel PVP');
+    el.helpButton.addEventListener('click', function () {
+      if (el.rulesCard) el.rulesCard.hidden = !el.rulesCard.hidden;
+    });
+    root.appendChild(el.helpButton);
+
+    el.rulesCard = mk('div', 'du-rules-card');
+    el.rulesCard.hidden = true;
+    el.rulesCard.appendChild(mk('b', null, 'ATURAN COMBAT DADU'));
+    var rTable = mk('div', 'du-rules-table');
+    var rulesList = [
+      ['1 · DEFENSE', 'Blokir 1 damage dari serangan lawan'],
+      ['2 · REGEN', 'Pulihkan 1 HP (maks 3 HP)'],
+      ['3 · ATTACK', 'Berikan 1 damage ke lawan'],
+      ['4 · CRITICAL', 'Berikan 2 damage & +2 Momentum'],
+      ['5 · LIFESTEAL', 'Berikan 1 damage & pulihkan 1 HP'],
+      ['6 · BERSERK', 'Berikan 2 damage (menembus Defense!)']
+    ];
+    rulesList.forEach(function (r) {
+      var row = mk('div', 'du-rules-row');
+      row.appendChild(mk('b', null, r[0]));
+      row.appendChild(mk('span', null, r[1]));
+      rTable.appendChild(row);
+    });
+    el.rulesCard.appendChild(rTable);
+    el.rulesCard.appendChild(mk('div', 'du-rules-note', 'MOMENTUM: Penuh (3) memicu FINISHER (+1 DMG pada serangan berikutnya). Pertarungan maks 3 ronde. Seri = Sudden Death (tanpa heal). Kalah mundur 10% petak.'));
+    var rClose = mk('button', 'du-rules-close', 'TUTUP');
+    rClose.type = 'button';
+    rClose.addEventListener('click', function () { el.rulesCard.hidden = true; });
+    el.rulesCard.appendChild(rClose);
+    root.appendChild(el.rulesCard);
     document.body.appendChild(root);
   }
 
@@ -361,6 +401,7 @@
     },
     revealRolls: function (values) {
       build();
+      playSfx('land');
       el.rollStage.hidden = false;
       el.dice.forEach(function (die, i) {
         die.textContent = String(values[i]);
@@ -381,8 +422,11 @@
       build(); max = max || 3;
       [0, 1].forEach(function (i) {
         var hpEl = el['hp' + i];
-        var oldHp = hpEl ? parseInt(hpEl.dataset.hp || max, 10) : max;
-        if (hpEl) hpEl.dataset.hp = hp[i];
+        var oldHp = hpEl ? parseInt((hpEl.dataset && hpEl.dataset.hp) || hpEl._lastHp || max, 10) : max;
+        if (hpEl) {
+          if (hpEl.dataset) hpEl.dataset.hp = hp[i];
+          hpEl._lastHp = hp[i];
+        }
         updateHearts(hpEl || el['hp' + i], hp[i], oldHp, max);
         updateMom(el['mom' + i], mom[i], max);
       });
@@ -399,6 +443,8 @@
     },
     act: function (side, type, duration) {
       var fighter = fighters[side];
+      if (type === 'block') playSfx('guard');
+      else if (type === 'heal' || type === 'regen') playSfx('heal');
       if (!fighter || !fighter.character.act) return;
       fighter.character.act(type, duration);
       fighter.action = type;
@@ -419,6 +465,9 @@
     },
     impact: function (side, cls) {
       build();
+      if (cls === 'block') playSfx('block');
+      else if (cls === 'heavy') playSfx('crit');
+      else playSfx('hit');
       var target = el['fighter' + side];
       target.classList.remove('hit', 'heavy', 'block');
       void target.offsetWidth;
@@ -443,6 +492,8 @@
     result: function (title, lines, outcome) {
       build(); root.classList.add('result'); el.card.innerHTML = '';
       el.rollStage.hidden = true; el.rollButton.hidden = true;
+      if (outcome === 'win') playSfx('victory');
+      else playSfx('defeat');
       /* warna kontekstual: win / lose / draw */
       var ctx = outcome === 'win' ? 'win' : outcome === 'lose' ? 'lose' : outcome === 'draw' ? 'draw' : '';
       el.card.className = 'du-card' + (ctx ? ' ' + ctx : '');
