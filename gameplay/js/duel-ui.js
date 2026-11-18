@@ -5,12 +5,12 @@
   var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null, rollResolver = null, introResolver = null, introTimer = 0;
   var options = { reducedMotion: false };
   var ACTIONS = {
-    1: ['DEFENSE', 'BLOCK 1 DAMAGE'],
-    2: ['REGENERATION', 'RESTORE 1 HEART'],
-    3: ['ATTACK', 'DEAL 1 DAMAGE'],
-    4: ['CRITICAL', 'DEAL 2 DAMAGE · +2 MOMENTUM'],
-    5: ['LIFESTEAL', 'DAMAGE 1 · HEAL 1'],
-    6: ['BERSERK', 'DEAL 2 · PIERCE DEFENSE']
+    1: ['DEFENSE',      'BLOCK 1 DAMAGE',         'defense'],
+    2: ['REGENERATION', 'RESTORE 1 HEART',         'regen'],
+    3: ['ATTACK',       'DEAL 1 DAMAGE',           ''],
+    4: ['CRITICAL',     'DEAL 2 DAMAGE · +2 MOM',  'critical'],
+    5: ['LIFESTEAL',    'DAMAGE 1 · HEAL 1',       'lifesteal'],
+    6: ['BERSERK',      'DEAL 2 · PIERCE DEFENSE', 'berserk']
   };
 
   function mk(tag, cls, text) {
@@ -24,11 +24,38 @@
     for (var i = 0; i < max; i++) s += '<span class="du-heart' + (i < n ? ' on' : '') + '">&#9829;</span>';
     return s;
   }
+  /* Animated heart update — compares old vs new state */
+  function updateHearts(el, newN, oldN, max) {
+    if (oldN === undefined || oldN === newN) {
+      el.innerHTML = hearts(newN, max);
+      return;
+    }
+    el.innerHTML = hearts(oldN, max);
+    var spans = el.querySelectorAll('.du-heart');
+    for (var i = 0; i < max; i++) {
+      var wasOn = i < oldN, nowOn = i < newN;
+      if (wasOn && !nowOn) {
+        spans[i].classList.remove('on');
+        (function (span) {
+          span.classList.add('break');
+          setTimeout(function () { span.classList.remove('break'); }, 420);
+        })(spans[i]);
+      } else if (!wasOn && nowOn) {
+        spans[i].classList.add('on', 'gain');
+        setTimeout(function (span) { span.classList.remove('gain'); }, 350, spans[i]);
+      }
+    }
+  }
   function moms(n, max) {
     var s = '';
-    var filled = Math.round(n / max * 5);
-    for (var i = 0; i < 5; i++) s += '<i class="' + (i < filled ? 'on' : '') + '"></i>';
+    for (var i = 0; i < max; i++) s += '<i class="' + (i < n ? 'on' : '') + '"></i>';
     return s;
+  }
+  function updateMom(el, n, max) {
+    el.innerHTML = moms(n, max);
+    if (n >= max) el.classList.add('full');
+    else el.classList.remove('full');
+    el.setAttribute('aria-label', 'Momentum ' + n + ' dari ' + max);
   }
   function finishIntro() {
     if (introTimer) clearTimeout(introTimer);
@@ -85,7 +112,14 @@
     root.appendChild(el.log);
     el.rollStage = mk('div', 'du-roll-stage');
     el.dice = [mk('div', 'du-die', '—'), mk('div', 'du-die', '—')];
-    el.dice.forEach(function (die) { el.rollStage.appendChild(die); });
+    el.dieLabels = [mk('div', 'du-die-label', ''), mk('div', 'du-die-label', '')];
+    el.dice.forEach(function (die, i) {
+      var wrap = mk('div', 'du-die-wrap');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center';
+      wrap.appendChild(die);
+      wrap.appendChild(el.dieLabels[i]);
+      el.rollStage.appendChild(wrap);
+    });
     root.appendChild(el.rollStage);
     el.rollButton = mk('button', 'du-roll-button');
     el.rollButton.type = 'button';
@@ -95,6 +129,8 @@
     el.rollButton.appendChild(el.rollIcon);
     el.rollLabel = mk('span', null, 'ROLL DICE');
     el.rollButton.appendChild(el.rollLabel);
+    var kbdHint = mk('kbd', null, 'SPACE');
+    el.rollButton.appendChild(kbdHint);
     el.rollButton.addEventListener('click', function () {
       if (!rollResolver || el.rollButton.disabled) return;
       el.rollButton.disabled = true;
@@ -103,6 +139,15 @@
       rollResolver = null;
       resolve(true);
     });
+    /* keyboard shortcut SPACE */
+    el._keyHandler = function (e) {
+      if (e.repeat) return;
+      if ((e.code === 'Space' || e.code === 'Enter') && !el.rollButton.disabled && rollResolver) {
+        e.preventDefault();
+        el.rollButton.click();
+      }
+    };
+    window.addEventListener('keydown', el._keyHandler);
     root.appendChild(el.rollButton);
     el.skipButton = mk('button', 'du-skip');
     el.skipButton.type = 'button';
@@ -111,6 +156,7 @@
     el.skipImage.src = 'gameplay/assets/duel/hud-skip.webp';
     el.skipImage.alt = '';
     el.skipButton.appendChild(el.skipImage);
+    el.skipButton.appendChild(mk('span', null, '▶ LEWATI'));
     el.skipButton.hidden = true;
     el.skipButton.addEventListener('click', finishIntro);
     root.appendChild(el.skipButton);
@@ -316,7 +362,14 @@
     revealRolls: function (values) {
       build();
       el.rollStage.hidden = false;
-      el.dice.forEach(function (die, i) { die.textContent = String(values[i]); });
+      el.dice.forEach(function (die, i) {
+        die.textContent = String(values[i]);
+        die.setAttribute('data-val', String(values[i]));
+        if (el.dieLabels && el.dieLabels[i]) {
+          var act = ACTIONS[values[i]];
+          el.dieLabels[i].textContent = act ? act[0] : '';
+        }
+      });
       el.rollStage.classList.remove('rolling');
       void el.rollStage.offsetWidth;
       el.rollStage.classList.add('rolling');
@@ -327,9 +380,11 @@
     state: function (hp, mom, max) {
       build(); max = max || 3;
       [0, 1].forEach(function (i) {
-        el['hp' + i].innerHTML = hearts(hp[i], max);
-        el['mom' + i].innerHTML = moms(mom[i], max);
-        el['mom' + i].setAttribute('aria-label', 'Momentum ' + mom[i] + ' dari ' + max);
+        var hpEl = el['hp' + i];
+        var oldHp = hpEl ? parseInt(hpEl.dataset.hp || max, 10) : max;
+        if (hpEl) hpEl.dataset.hp = hp[i];
+        updateHearts(hpEl || el['hp' + i], hp[i], oldHp, max);
+        updateMom(el['mom' + i], mom[i], max);
       });
     },
     actions: function (vals) {
@@ -338,7 +393,8 @@
         var action = ACTIONS[vals[i]];
         el['actionName' + i].textContent = action ? action[0] : 'READY';
         el['actionDesc' + i].textContent = action ? action[1] : 'ROLLING COMBAT DICE';
-        el['action' + i].className = 'du-action' + (vals[i] === 4 ? ' critical' : vals[i] === 6 ? ' berserk' : '');
+        var extra = action && action[2] ? ' ' + action[2] : (vals[i] === 4 ? ' critical' : vals[i] === 6 ? ' berserk' : '');
+        el['action' + i].className = 'du-action' + extra;
       });
     },
     act: function (side, type, duration) {
@@ -384,10 +440,19 @@
       build(); root.classList.remove('shake'); void root.offsetWidth; root.classList.add('shake');
       setTimeout(function () { if (root) root.classList.remove('shake'); }, 420);
     },
-    result: function (title, lines) {
+    result: function (title, lines, outcome) {
       build(); root.classList.add('result'); el.card.innerHTML = '';
       el.rollStage.hidden = true; el.rollButton.hidden = true;
-      el.card.appendChild(mk('b', null, title));
+      /* warna kontekstual: win / lose / draw */
+      var ctx = outcome === 'win' ? 'win' : outcome === 'lose' ? 'lose' : outcome === 'draw' ? 'draw' : '';
+      el.card.className = 'du-card' + (ctx ? ' ' + ctx : '');
+      /* letter-drop title */
+      var titleEl = document.createElement('b');
+      titleEl.innerHTML = title.split('').map(function (c, idx) {
+        return '<span style="animation-delay:' + (idx * 0.07) + 's">' +
+               (c === ' ' ? '&nbsp;' : c) + '</span>';
+      }).join('');
+      el.card.appendChild(titleEl);
       (lines || []).forEach(function (line) { el.card.appendChild(mk('div', null, line)); });
       el.card.hidden = false;
     },
@@ -395,6 +460,7 @@
       if (!root) return;
       finishIntro();
       if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
+      if (el._keyHandler) window.removeEventListener('keydown', el._keyHandler);
       el.choose.hidden = true; root.classList.remove('selecting'); root.classList.add('out');
       var token = ++closeToken;
       setTimeout(function () {
