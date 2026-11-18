@@ -2867,7 +2867,7 @@ async function serverBossClaim(p,gid){
       }
       const parts=[]; if(r.reward_coins>0) parts.push('+'+r.reward_coins+' Coin'); if(r.reward_gems>0) parts.push('+'+r.reward_gems+' Gem');
       DRG.reward={gameId:gid,coins:r.reward_coins,gems:r.reward_gems};
-      setWinReward(gid,'coins',r.reward_coins); setWinReward(gid,'gems',r.reward_gems);
+      setWinCoins(gid,'boss',r.reward_coins); setWinReward(gid,'gems',r.reward_gems);
       DRG.text='Hadiah: '+parts.join(' · ')+'.';
       if(DRG.rewardStatus&&DRG.rewardStatus.gameId===gid) DRG.rewardStatus=null;
       setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.'); try{ sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid}); }catch(e){}
@@ -5954,6 +5954,13 @@ function setWinReward(gid,key,amount){
   card.querySelector('[data-reward-value]').textContent='+'+Math.floor(value).toLocaleString('id-ID');
   card.hidden=false;
 }
+const WIN_COINS={gid:-1,boss:null,match:null}; /* koin layar hasil = koin boss + koin match; tiap sumber datang terpisah (async), jadi dijumlahkan di sini */
+function setWinCoins(gid,part,amount){
+  if(WIN_COINS.gid!==gid){ WIN_COINS.gid=gid; WIN_COINS.boss=null; WIN_COINS.match=null; }
+  const v=Number(amount); if(!Number.isFinite(v)||v<0) return;
+  WIN_COINS[part]=Math.floor(v);
+  setWinReward(gid,'coins',(WIN_COINS.boss|0)+(WIN_COINS.match|0));
+}
 function setWinRewardStatus(gid,message){
   if(!gameOver||gameId!==gid) return;
   const status=$('winRewardStatus'); status.textContent=message; status.hidden=!message;
@@ -6018,6 +6025,10 @@ async function recordMatchServer(PD,m){
     }
     setWinReward(m.gameId,'xp',r.xp_gain);
     setWinReward(m.gameId,'points',r.points);
+    if(Number.isFinite(+r.reward_coins)&&r.reward_coins>=0){ /* koin match: menang ATAU kalah; nominal dari server */
+      setWinCoins(m.gameId,'match',r.reward_coins);
+      try{ const W0=UT.WalletService&&UT.WalletService.get(); if(W0&&W0.refresh) W0.refresh(); }catch(e){} /* cermin saldo koin di header/lobby */
+    }
     const sp=await UT.Multiplayer.Progress.getMyProfile();
     if(!sp||!sp.exists){
       const bossStatus=DRG.rewardStatus&&DRG.rewardStatus.gameId===m.gameId?DRG.rewardStatus.message:'';
@@ -6028,7 +6039,7 @@ async function recordMatchServer(PD,m){
     updateWinLevelProgress(m.gameId);
     const bossStatus=DRG.rewardStatus&&DRG.rewardStatus.gameId===m.gameId?DRG.rewardStatus.message:'';
     setWinRewardStatus(m.gameId,bossStatus||(a&&a.ok?'':'XP dan poin tercatat, tetapi progres level gagal disimpan.'));
-    const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
+    const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(r.reward_coins>0) bits.push('+'+r.reward_coins+' koin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
     try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
     try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
     if(a&&a.ok&&a.level>lvBefore){ try{ showLevelUpWithRewards(a.level,m.gameId); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil); hadiah dihitung & dibayar server */
@@ -6072,7 +6083,7 @@ function finishGame(p,fromRemote){
   $('winRewardsTitle').textContent=lost?'PROGRES PERTANDINGAN':'HADIAH';
   const resultRecorded=recordMatchResult(p);
   const bossReward=DRG.reward&&DRG.reward.gameId===gameId?DRG.reward:null;
-  if(bossReward){ setWinReward(gameId,'coins',bossReward.coins); setWinReward(gameId,'gems',bossReward.gems); }
+  if(bossReward){ setWinCoins(gameId,'boss',bossReward.coins); setWinReward(gameId,'gems',bossReward.gems); }
   const bossStatus=DRG.rewardStatus&&DRG.rewardStatus.gameId===gameId?DRG.rewardStatus.message:'';
   setWinRewardStatus(gameId,bossStatus||(resultRecorded?'Memuat hasil pertandingan...':'Hasil mode ini tidak disimpan ke profil.'));
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
