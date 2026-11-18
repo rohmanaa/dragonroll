@@ -14,6 +14,9 @@ EXT = {
     ".wav", ".js", ".css", ".woff", ".woff2", ".webm",
 }
 SKIP_PARTS = {"old", "doc", "referensi", "node_modules"}
+# Media yang disimpan service worker di cache PERMANEN (sw.js MEDIA). Hash = id blob git (12 hex) -> SW hanya
+# mengunduh ulang file yang hash-nya berubah, bukan seluruh aset tiap SW naik versi.
+MEDIA_EXT = {".png", ".webp", ".jpg", ".jpeg", ".gif", ".svg", ".mp3", ".ogg", ".wav", ".woff", ".woff2"}
 
 
 def git_output(*args, input_bytes=None):
@@ -43,7 +46,7 @@ def index_files():
             continue
         if Path(path).suffix.lower() not in EXT:
             continue
-        if path == "assets/preload-manifest.json":
+        if path in ("assets/preload-manifest.json", "assets/media-hash.json"):
             continue
         selected.append((path, object_id))
     return selected
@@ -74,7 +77,17 @@ def main():
         encoding="utf-8",
         newline="",
     )
-    print(len(manifest), "file,", round(sum(manifest.values()) / 1048576, 2), "MB")
+    media = {
+        path: object_id[:12]
+        for path, object_id in files
+        if Path(path).suffix.lower() in MEDIA_EXT
+    }
+    (ROOT / "assets" / "media-hash.json").write_text(
+        json.dumps(dict(sorted(media.items())), separators=(",", ":")),
+        encoding="utf-8",
+        newline="",
+    )
+    print(len(manifest), "file,", round(sum(manifest.values()) / 1048576, 2), "MB;", len(media), "media-hash")
 
 
 if __name__ == "__main__":
