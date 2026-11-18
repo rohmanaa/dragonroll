@@ -315,29 +315,40 @@
 
     if (currentArena.useKnight && UT.PvpKnight) {
       /* ── PvpKnight rig (cinematic mockup style) ── */
-      var G = { homeX: 3.4, K: 1.4, MID: 1.2 };
+      /* Scale + posisi: karakter berdiri tepat di atas lantai arena
+         S = 0.075 (skala voxel), karakter setinggi ~26 unit = ~1.95 world-unit.
+         STAND_Y = setengah tinggi karakter agar kaki menyentuh lantai (y=0).  */
+      var G = { homeX: 3.2, K: 1.0, STAND_Y: 1.0 };
       specs.slice(0, 2).forEach(function (spec, i) {
         try {
+          /* Gunakan palette player (0=default emas, 1=rival merah) */
           var palette = i === 1 ? UT.PvpKnight.RIVAL_PAL : undefined;
-          var kn = UT.PvpKnight.createKnight(T, palette ? { palette: palette } : undefined);
-          var mirror = new T.Group();
-          mirror.scale.set(i === 0 ? G.K : -G.K, G.K, G.K);
+          var knOpts = palette ? { palette: palette } : undefined;
+          var kn = UT.PvpKnight.createKnight(T, knOpts);
+
+          /* Root langsung tanpa mirror group — skala 1 natural */
+          kn.root.scale.setScalar(1);
+          /* Hadap satu sama lain */
           kn.root.rotation.y = i === 0 ? Math.PI / 2 : -Math.PI / 2;
-          kn.root.position.y = -G.MID;
-          mirror.add(kn.root);
-          var phys = new T.Group();
-          phys.position.set(i === 0 ? -G.homeX : G.homeX, G.MID * G.K, 0);
-          phys.add(mirror);
-          currentArena.scene.add(phys);
+          /* Posisi horizontal + vertikal: kaki menyentuh lantai */
+          kn.root.position.set(
+            i === 0 ? -G.homeX : G.homeX,
+            G.STAND_Y,          /* naik agar kaki pas di lantai */
+            0
+          );
+          currentArena.scene.add(kn.root);
+
+          /* Seed pose dari guard agar interpolasi smooth */
           var pose = UT.PvpKnight.newPose ? UT.PvpKnight.newPose() : {};
           fighters[i] = {
-            kn: kn, root: kn.root, phys: phys,
+            kn: kn, root: kn.root, phys: kn.root,
             pose: pose, base: UT.PvpKnight.POSES.guard,
             clip: null, clipT: 0, clipDur: 1,
-            flash: 0, glow: 0,
+            flash: 0, glow: 0, idleT: i * 1.3,  /* offset phase idle */
             intro: 0, action: '', actionTime: 0, actionDuration: 0,
             hitTime: 0, heavyHit: false,
-            x: i === 0 ? -G.homeX : G.homeX, direction: i === 0 ? 1 : -1
+            x: i === 0 ? -G.homeX : G.homeX, direction: i === 0 ? 1 : -1,
+            groundY: G.STAND_Y
           };
         } catch (e) { console.error('[duel] PvpKnight gagal untuk fighter ' + i, e); }
       });
@@ -388,12 +399,16 @@
         fighter.intro = Math.min(0.72, fighter.intro + dt);
         fighter.actionTime += dt;
         fighter.hitTime = Math.max(0, fighter.hitTime - dt);
+        fighter.idleT = (fighter.idleT || 0) + dt;
 
-        /* Intro slide-in: phys.position.x slides from off-screen */
+        /* Intro slide-in dari samping */
         var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 0.72);
         var ease = 1 - Math.pow(1 - introProgress, 3);
-        var offX = fighter.direction * 6 * (1 - ease);
-        fighter.phys.position.x = fighter.x + offX;
+        var offX = fighter.direction * 7 * (1 - ease);
+        fighter.root.position.x = fighter.x + offX;
+
+        /* Karakter menapak di tanah — y tetap groundY */
+        fighter.root.position.y = (fighter.groundY || 1.0);
 
         /* Lunge on attack */
         var lunge = 0;
@@ -404,23 +419,39 @@
           if (phase > 0.3 && phase < 0.75)
             lunge = Math.sin((phase - 0.3) / 0.45 * Math.PI) * 0.5;
         }
-        fighter.phys.position.x += fighter.direction * lunge;
+        fighter.root.position.x += fighter.direction * lunge;
 
         /* Hit recoil */
         var hitP = fighter.heavyHit ? 0.68 : 0.38;
         var hitRecoil = fighter.hitTime
           ? Math.sin((1 - fighter.hitTime / hitP) * Math.PI) * (fighter.heavyHit ? 0.9 : 0.35)
           : 0;
-        fighter.phys.position.x -= fighter.direction * hitRecoil;
+        fighter.root.position.x -= fighter.direction * hitRecoil;
 
-        /* Pose animation */
+        /* ── IDLE BREATHING ANIMATION ──
+           Saat tidak ada clip aktif, breathing: torso naik-turun,
+           berat tubuh berganti kaki secara halus */
         var targetPose = fighter.base || UT.PvpKnight.POSES.guard;
         if (fighter.clip) {
           fighter.clipT = Math.min(1, fighter.clipT + dt / fighter.clipDur);
           if (typeof UT.PvpKnight.sample === 'function')
             targetPose = UT.PvpKnight.sample(fighter.clip, fighter.clipT);
           if (fighter.clipT >= 1) { fighter.clip = null; }
+        } else {
+          /* Idle: breathing pose (hy naik-turun, sedikit sway) */
+          var idleSin = Math.sin(fighter.idleT * 1.1) * 0.5 + 0.5; /* 0..1 */
+          var idleSway = Math.sin(fighter.idleT * 0.6) * 0.04;
+          var idleLeg  = Math.sin(fighter.idleT * 0.9) * 0.06;
+          var base = fighter.base || UT.PvpKnight.POSES.guard;
+          /* Buat objek pose idle berbasis guard + efek napas */
+          targetPose = Object.assign({}, base, {
+            hy: (base.hy || 0) + idleSin * 0.025,     /* hips naik-turun */
+            ty: (base.ty || 0) + idleSway,             /* torso sway */
+            ll: (base.ll || 0) + idleLeg,              /* kaki kiri */
+            rl: (base.rl || 0) - idleLeg               /* kaki kanan */
+          });
         }
+
         if (typeof UT.PvpKnight.applyPose === 'function')
           UT.PvpKnight.applyPose(fighter.kn, fighter.pose, targetPose, dt, 10);
 
@@ -440,7 +471,7 @@
 
         /* Cape wave */
         if (fighter.kn.cape2)
-          fighter.kn.cape2.rotation.x = Math.sin(t * 1.4 + fighter.phys.position.x) * 0.1;
+          fighter.kn.cape2.rotation.x = Math.sin(t * 1.4 + fighter.root.position.x) * 0.1;
 
       } else if (fighter.character) {
         /* ── BlockyCharacter fallback path ── */
