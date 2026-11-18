@@ -4,6 +4,8 @@
   var UT = window.UT = window.UT || {};
   var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null, rollResolver = null, introResolver = null, introTimer = 0;
   var options = { reducedMotion: false };
+  /* LOOK_Y: makin besar => petarung makin turun di layar (kaki menapak lantai bawah background) */
+  var LOOK_Y = 0.7;
   var diceSkins = [null, null];            /* skin dadu per pemain (dari katalog DiceKit); null = bawaan */
   var DEFAULT_DICE = [
     { face: '#f4ead2', pip: '#1c2a4a', rim: '#d9b45a' },
@@ -133,7 +135,7 @@
       el['action' + i].appendChild(el['actionName' + i]); el['action' + i].appendChild(el['actionDesc' + i]);
       fighter.appendChild(el['action' + i]); arena.appendChild(fighter);
     });
-    el.versus = mk('div', 'du-versus', 'VS'); arena.appendChild(el.versus);
+    el.versus = mk('div', 'du-versus'); el.versus.setAttribute('role', 'img'); el.versus.setAttribute('aria-label', 'VS'); arena.appendChild(el.versus);
     root.appendChild(arena);
     el.barTop = mk('div', 'du-bar du-bar-top'); el.barBottom = mk('div', 'du-bar du-bar-bottom');
     root.appendChild(el.barTop); root.appendChild(el.barBottom);
@@ -318,7 +320,9 @@
   function updateDice(dt) {
     var dc = arena.dice, T = window.THREE;
     if (!dc) return;
-    var sr = el.scene.getBoundingClientRect(), tmp = arena._dq || (arena._dq = new T.Quaternion()), axis = arena._da || (arena._da = new T.Vector3());
+    var sr = el.scene.getBoundingClientRect();
+    if (sr.width && sr.height && (Math.abs(sr.width - arena.W) > 1 || Math.abs(sr.height - arena.H) > 1)) { resizeArena(); }
+    var tmp = arena._dq || (arena._dq = new T.Quaternion()), axis = arena._da || (arena._da = new T.Vector3());
     dc.items.forEach(function (d, i) {
       var slot = el.dieSlots && el.dieSlots[i];
       var r = slot ? slot.getBoundingClientRect() : null;
@@ -454,7 +458,7 @@
       try { dice = makeDiceScene(T); } catch (dx) { console.error('[duel] dadu 3D gagal', dx); }
       arena = { scene: scene, camera: camera, renderer: renderer, elapsed: 0, W: 640, H: 360, baseZ: 9.8,
                 fireL: fireL, fireR: fireR, dust: dust, dice: dice,
-                cin: { px: 0, py: 2.2, pz: 7.6, lx: 0, ly: 1.3, fov: 36, rate: 4, shake: 0, slow: 1, slowUntil: 0, focusX: 0, zoom: 0, intro: 0 } };
+                cin: { px: 0, py: 2.2, pz: 7.6, lx: 0, ly: 1.3 + LOOK_Y, fov: 36, rate: 4, shake: 0, slow: 1, slowUntil: 0, focusX: 0, zoom: 0, intro: 0 } };
       return arena;
     } catch (e) {
       console.error('[duel] Gagal membuat arena Three.js', e);
@@ -569,13 +573,13 @@
     if (!arena) return;
     var c = arena.cin;
     if (options.reducedMotion) { c.px = 0; c.py = 2.2; c.pz = arena.baseZ; c.fov = 36; c.rate = 8; return; }
-    c.px = -5; c.py = 6; c.pz = arena.baseZ + 6; c.lx = 0; c.ly = 1.1; c.fov = 42; c.rate = 1.7; c.intro = 1;
+    c.px = -5; c.py = 6; c.pz = arena.baseZ + 6; c.lx = 0; c.ly = 1.1 + LOOK_Y; c.fov = 42; c.rate = 1.7; c.intro = 1;
     setTimeout(function () { if (arena) { arena.cin.rate = 4; arena.cin.intro = 0; } }, 2300);
   }
   function stepCamera(dt) {
     var c = arena.cin, cam = arena.camera, k = 1 - Math.exp(-c.rate * dt);
     var tx = c.focusX * 0.4 * c.zoom, tz = arena.baseZ - 2.6 * c.zoom, ty = 2.2 - 0.4 * c.zoom;
-    var tlx = c.focusX * 0.7 * c.zoom, tly = 1.3 - 0.1 * c.zoom, tfov = 36 - 5 * c.zoom;
+    var tlx = c.focusX * 0.7 * c.zoom, tly = 1.3 + LOOK_Y - 0.1 * c.zoom, tfov = 36 - 5 * c.zoom;
     c.px += (tx - c.px) * k; c.py += (ty - c.py) * k; c.pz += (tz - c.pz) * k;
     c.lx += (tlx - c.lx) * k; c.ly += (tly - c.ly) * k; c.fov += (tfov - c.fov) * k;
     c.shake = Math.max(0, c.shake - dt * 1.8);
@@ -809,7 +813,7 @@
       el.dice.forEach(function (die) { die.textContent = '—'; die.removeAttribute('data-val'); });
       el.dieLabels.forEach(function (lb) { lb.textContent = ''; });
       el.rollButton.disabled = true; el.rollLabel.textContent = 'ROLL DICE';
-      el.log.textContent = 'THE CLASH BEGINS'; el.versus.textContent = 'VS';
+      el.log.textContent = 'THE CLASH BEGINS';
       UI.state([3, 3], [0, 0]); UI.actions([0, 0]);
       document.body.classList.add('duel-active');
       root.hidden = false; root.classList.remove('out', 'selecting', 'shake', 'intro', 'result', 'cine');

@@ -85,8 +85,8 @@ body.duel-active #trapBar        { display: none !important }
 .du-profile {
   position: relative; box-sizing: border-box;
   display: flex; align-items: center; gap: 8px;
-  width: min(34vw,380px); height: auto;
-  aspect-ratio: 470 / 224; min-width: 210px;
+  width: min(26vw,300px); height: auto;
+  aspect-ratio: 470 / 224; min-width: 170px;
   padding: 8px; border: 0;
   background: transparent
               url("../assets/duel/hud-player-left.webp")
@@ -234,7 +234,7 @@ body.duel-active #trapBar        { display: none !important }
 }
 .du-fighter-0 { left: 27% }
 .du-fighter-1 { left: 73% }
-.du-die-slot { width: clamp(70px,11vh,112px); height: clamp(70px,11vh,112px); flex: none }
+.du-die-slot { width: clamp(50px,8.5vh,80px); height: clamp(50px,8.5vh,80px); flex: none; margin-bottom: -6px }
 .du-die-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 4px }
 
 /* action label box */
@@ -647,7 +647,7 @@ body.duel-active #trapBar        { display: none !important }
 
   /* log / dice / button */
   .du-log { bottom: calc(1% + 84px + 12px); max-width: 94vw; padding: 4px 10px; font-size: 9px }
-  .du-die-slot { width: 64px; height: 64px }
+  .du-die-slot { width: 48px; height: 48px }
   .du-die { font-size: 18px; height: 26px }
   .du-roll-button { bottom: 1%; width: 84px }
   .du-skip { right: 1%; bottom: 10%; min-width: clamp(110px,36vw,180px) }
@@ -659,13 +659,13 @@ body.duel-active #trapBar        { display: none !important }
    ============================================================ */
 @media (orientation: landscape) and (max-height: 500px) {
   .du-top { top: 4px; height: 76px }
-  .du-profile { min-width: 188px; padding: 3px 8px; gap: 7px }
+  .du-profile { width: min(21vw,200px); min-width: 150px; padding: 3px 8px; gap: 7px }
   .du-title { width: min(52vh,340px) }
   .du-arena { inset: 16% 0 26% }
   .du-fighter { bottom: 3%; width: 36vw }
   .du-action { min-height: 28px; padding: 3px 7px }
   .du-log { bottom: calc(clamp(64px,22vh,96px) + 8px); padding: 4px 11px }
-  .du-die-slot { width: clamp(52px,17vh,80px); height: clamp(52px,17vh,80px) }
+  .du-die-slot { width: clamp(38px,11vh,52px); height: clamp(38px,11vh,52px) }
   .du-roll-button { bottom: 0; width: clamp(64px,22vh,96px) }
 }
 
