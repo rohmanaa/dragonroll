@@ -142,7 +142,11 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
 }
 
 #win.win-result .win-result__stars img:nth-child(3) { animation-delay: .2s; }
-#win[data-state="lose"].win-result .win-result__stars { display: none !important; }
+/* kalah: bintang tetap tampil tapi abu-abu (tanpa animasi pop) */
+#win[data-state="lose"].win-result .win-result__stars img {
+  filter: grayscale(1) brightness(.6) drop-shadow(0 4px 3px rgba(0, 0, 0, .5));
+  animation: none;
+}
 
 #win.win-result .win-result__rewards {
   display: flex;

@@ -5537,7 +5537,15 @@ async function bite(p,from,to,gid){
   S.busy=false;
 }
 /* Stage 4.1.24.D.1: sumber kebenaran hasil KALAH = mode vs Computer dan pemenang adalah Computer (sama dengan 'lost' di finishGame). */
-function isPlayerDefeat(p){ return mode==='cpu'&&!!p&&!!p.cpu; }
+function isPlayerDefeat(p){
+  if(!p) return false;
+  if(mode==='cpu') return !!p.cpu;
+  if(ONLINE_ROOM){ /* room online: pemain lokal kalah bila bukan dia (atau rekan setimnya) yang sampai duluan */
+    const me=players.find(q=>isLocalPlayer(q)); if(!me||me.left) return false;
+    return players.some(q=>q.team===1)?me.team!==p.team:me!==p;
+  }
+  return false;
+}
 async function celebrate(p){
   const defeat=isPlayerDefeat(p); /* CPU menang = pemain kalah: tanpa fanfare/firework kemenangan pemain; suara kalah diputar di finishGame */
   if(defeat) return;
@@ -6054,7 +6062,7 @@ function finishGame(p,fromRemote){
   setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':BOSS==='wither'?p.name+' mengalahkan Wither!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost){
-    const loser=players.find(q=>!q.cpu)||p;
+    const loser=(ONLINE_ROOM&&players.find(q=>isLocalPlayer(q)))||players.find(q=>!q.cpu)||p;
     const defeatAt=loser.pawn.position.clone(); defeatAt.y+=0.45;
     pawnAct(loser.pawn,'sad',2.4);
     spFx('result-dissolve',{pos:defeatAt,style:'defeat',tier:'L1',seed:gameId,fid:'result-defeat-'+gameId});
@@ -6069,9 +6077,9 @@ function finishGame(p,fromRemote){
   setWinRewardStatus(gameId,bossStatus||(resultRecorded?'Memuat hasil pertandingan...':'Hasil mode ini tidak disimpan ke profil.'));
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
-  $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak '+GOAL;
+  $('winEyebrow').textContent=lost?(p.cpu?'Level gagal':p.name+' sampai di petak '+GOAL):'Sampai di petak '+GOAL;
   $('winTitle').textContent=lost?'Kamu kalah':(mode==='cpu'&&!p.cpu)?'Kamu menang':p.name+' menang';
-  $('winText').textContent=(p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':'Pionmu lebih dulu sampai di puncak. Mau main lagi?')+(DRG.text&&!p.cpu?' '+DRG.text:'');
+  $('winText').textContent=(lost?(p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':p.name+' lebih dulu sampai di puncak. Coba lagi?'):'Pionmu lebih dulu sampai di puncak. Mau main lagi?')+(DRG.text&&!p.cpu?' '+DRG.text:'');
   setTimeout(()=>{ if(gameOver) $('win').hidden=false; },500);
   if(!fromRemote)publishGameSnapshot();
 }
