@@ -265,9 +265,10 @@
         spin.setFromAxisAngle(axis, spinK * turns * 6.2832);
         die.quaternion.copy(qEnd).premultiply(spin);
       }
+      var wd = 0;   /* tab tersembunyi: requestAnimationFrame berhenti, jadi dadu didaratkan lewat timer agar giliran lanjut */
       function land() {
         if (done || id !== throwId) return; done = true;
-        cancelAnimationFrame(raf);
+        clearInterval(wd); cancelAnimationFrame(raf);
         die.position.set(to.x, floorY, to.z); die.quaternion.copy(qEnd);
         shadow.position.set(to.x, groundY, to.z); shadow.material.opacity = 0.3; shadow.scale.setScalar(1);
         try { opt.onLand && opt.onLand(); } catch (e) { console.error(e); }
@@ -306,6 +307,7 @@
       try { opt.onThrow && opt.onThrow(); } catch (e) { console.error(e); }
       if (useFx) { try { fx.onRollStart(fl(from.x, from.y, from.z)); } catch (e) { console.error(e); } }   /* kocokan + suara material */
       raf = requestAnimationFrame(frame);
+      wd = setInterval(function () { if (done) { clearInterval(wd); return; } if (document.hidden && (performance.now() - t0) / 1000 >= total) land(); }, 300);
     });
   }
 

@@ -6443,10 +6443,14 @@ function onMpEmote(pl){ const p=mpPlayerByNet(pl&&pl.playerId); if(p&&p.networkI
 
 function frame(now){
   requestAnimationFrame(frame);
-  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  runFrame(now);
+}
+/* Satu langkah game (logika + render). Tab tersembunyi: tween memakai selisih waktu nyata (maks 2 dtk) supaya animasi/giliran tetap maju walau hanya dipanggil ±1x/dtk; render dilewati. */
+function runFrame(now){
+  const raw=(now-last)/1000,dt=Math.min(0.05,raw),tdt=document.hidden?Math.min(2,raw):dt; last=now;
   if(TRAPS.length||TRAP_PICK) trapTick(now);
   for(let i=tweens.length-1;i>=0;i--){
-    const tw=tweens[i]; tw.t+=dt;
+    const tw=tweens[i]; tw.t+=tdt;
     const k=Math.min(1,tw.t/tw.dur);
     tw.fn(tw.ease?tw.ease(k):k);
     if(k>=1){ tweens.splice(i,1); tw.res(); }
@@ -6520,8 +6524,15 @@ function frame(now){
   updateMobs(dt,now/1000);
   updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000); tickAuto(dt);
   updateFades(dt,watch); updateGhastFade(dt,watch);
-  renderer.render(scene,camera);
+  if(!document.hidden) renderer.render(scene,camera);
 }
+/* Pindah tab/aplikasi: browser menghentikan requestAnimationFrame, jadi game ikut berhenti. Saat tersembunyi, langkahkan game lewat timer (browser membatasi ±1x/dtk). */
+let BG_TIMER=0;
+function bgStep(){ BG_TIMER=0; if(!document.hidden) return; try{ runFrame(performance.now()); }catch(e){ console.error(e); } BG_TIMER=setTimeout(bgStep,250); }
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ if(!BG_TIMER){ last=performance.now(); BG_TIMER=setTimeout(bgStep,250); } }
+  else{ clearTimeout(BG_TIMER); BG_TIMER=0; last=performance.now(); }
+});
 
 /* ---------- Konfigurasi dari lobby ---------- */
 function readLobbyConfig(){
