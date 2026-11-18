@@ -15,7 +15,6 @@ function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gem
 function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';$('#nm').textContent=n;const h=$('#ht-name');if(h)h.textContent=n}
 function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),pct=Math.min(100,i.xpIn/i.xpMax*100);
  $('#lvnum').textContent=i.level;$('#xptxt').textContent=fmt(i.xpIn)+' / '+fmt(i.xpMax);$('#xpfill').style.width=pct+'%';
- $('#xpnote').textContent='Butuh '+fmt(i.xpMax-i.xpIn)+' XP lagi ke Level '+Math.min(999,i.level+1);
  const l=$('#ht-lv'),p=$('#ht-pct'),f=$('#ht-fill');if(l)l.textContent=i.level;if(p)p.textContent=pct.toFixed(1)+'%';if(f)f.setAttribute('width',Math.max(0,326*pct/100))}
 /* event: UI ikut berubah tanpa reload halaman */
 UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()});

@@ -15,16 +15,20 @@
 
   <!-- ===== profil ===== -->
   <div id="profile" data-act="profil" role="button" aria-label="Profil">
+    <img id="hudbg" src="assets/images/ui/lobby/hud-profil.webp" alt="" draggable="false">
     <div id="avatar"><span id="ava"></span></div><img id="avf" alt="" draggable="false">
-    <svg id="lvl" viewBox="0 0 74 86">
-      <defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4d8fe6"/><stop offset="1" stop-color="#1b4aa8"/></linearGradient></defs>
-      <path d="M37 2 L70 12 V44 C70 62 54 76 37 84 C20 76 4 62 4 44 V12 Z" fill="#cfd5e3" stroke="#222a45" stroke-width="3"/>
-      <path d="M37 9 L63 17 V44 C63 58 50 69 37 76 C24 69 11 58 11 44 V17 Z" fill="url(#gs)" stroke="#12285e" stroke-width="2"/>
-    </svg>
     <div id="lvl" style="pointer-events:none"><b class="t-title" id="lvnum">1</b></div>
     <div id="pname" class="t-title"><span id="nm">Pemain</span><img src="assets/images/ui/language-flags/bendera-inggris.webp" alt="bendera"></div>
     <div id="xp"><div id="xpfill"></div><div id="xptxt">—</div></div>
-    <div id="xpnote"></div>
+    <div id="hearts" aria-label="Nyawa">
+      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
+      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
+      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
+    </div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+      <linearGradient id="lv-hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a8a"/><stop offset=".55" stop-color="#e3263f"/><stop offset="1" stop-color="#a00f2a"/></linearGradient>
+      <symbol id="lv-heart" viewBox="0 0 32 29"><path d="M16 27.5C6 20 1.5 14.6 1.5 8.9 1.5 4.6 4.8 1.5 8.9 1.5c3 0 5.5 1.7 7.1 4.4 1.6-2.7 4.1-4.4 7.1-4.4 4.1 0 7.4 3.1 7.4 7.4 0 5.7-4.5 11.1-14.5 18.6z" fill="url(#lv-hg)" stroke="#5a0615" stroke-width="2" stroke-linejoin="round"/><path d="M7.5 6.2c-2.1.6-3.2 2.4-3.2 4.3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    </defs></svg>
   </div>
 
   <!-- ===== Emerald & Coin ===== -->
