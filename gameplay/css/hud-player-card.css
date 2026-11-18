@@ -2,7 +2,7 @@
    Panel (frame avatar kotak + bar berujung miring + tab bawah) = GAMBAR hasil crop referensi: assets/images/hud/pcard-{red,blue,yellow,green}-{silver,gold}.webp
    (592x210, latar transparan). Warna mengikuti kursi (data-seat: 0 merah, 1 biru, 2 kuning, 3 hijau); perak = menunggu, emas = giliran.
    Border PERAK = menunggu, EMAS = sedang giliran. Warna kursi (--pc) jadi cahaya garis tengah bar.
-   Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3): hanya panel yang diputar 180 derajat (avatar + badge tetap tegak), seperti referensi.
+   Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3): hanya panel yang diputar 180 derajat (avatar, badge, dan teks tetap tegak), seperti referensi.
    Hanya presentasi: markup tetap dari renderChips() + dua elemen dekorasi (.hf). Dimuat SETELAH hud-mockup.css. */
 
 html body #players .pg .pr {
@@ -95,6 +95,12 @@ html body #players .pg.p0 .pr,
 html body #players .pg.p3 .pr { transform: rotate(180deg) !important; }
 html body #players .pg.p0 .pr .av,
 html body #players .pg.p3 .pr .av { transform: rotate(180deg); } /* .tn ada di dalam .av, jadi ikut tegak */
+/* teks (nama, posisi, buff) tetap terbaca tegak: tiap baris diputar balik di tempatnya sendiri (tetap di atas bar/tab yang sudah terbalik).
+   Kartu sudah dicerminkan 180 derajat, jadi arah alir dibalik agar teks tetap menempel ke avatar. */
+html body #players .pg.p0 .pr .r1, html body #players .pg.p0 .pr .r2,
+html body #players .pg.p3 .pr .r1, html body #players .pg.p3 .pr .r2 { transform: rotate(180deg); }
+html body #players .pg.p0 .pr .r1, html body #players .pg.p0 .pr .r2 { flex-direction: row-reverse; text-align: right; }
+html body #players .pg.p3 .pr .r1, html body #players .pg.p3 .pr .r2 { flex-direction: row; text-align: left; }
 
 html body #players .pg .pr.off .hf,
 html body #players .pg .pr.off .av { filter: grayscale(1); }
@@ -108,3 +114,7 @@ html body #players .pg .pr.off .av { filter: grayscale(1); }
 #players .pg .pr .r2 .sks { flex: 1 1 auto; gap: 3px; margin-left: 0; }
 #players .pg .pr .r2 .sk6 { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 7px; }
 #players .pg .pr .r2 .hpb { width: 100%; margin-top: 0; }
+
+/* nama = flex (text-align tidak berlaku): kursi dengan avatar di kanan (p0, p2) rata kanan agar menempel ke avatar, seperti referensi */
+html body #players .pg.p0 .pr .nm,
+html body #players .pg.p2 .pr .nm { justify-content: flex-end; }
