@@ -1,7 +1,7 @@
 /* Kartu profil pemain gameplay — desain "Player HUD Design Variations" (referensi/gameplay/profilgameplay.jpg).
    Frame avatar kotak + bar panjang berujung miring + tab kecil di bawahnya.
    Border PERAK = menunggu, EMAS = sedang giliran. Warna kursi (--pc) jadi cahaya garis tengah bar.
-   Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3) diputar 180 derajat seperti referensi.
+   Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3): hanya panel yang diputar 180 derajat (avatar + badge tetap tegak), seperti referensi.
    Hanya presentasi: markup tetap dari renderChips() + dua elemen dekorasi (.hf). Dimuat SETELAH hud-mockup.css. */
 
 html body #players .pg .pr {
@@ -99,9 +99,14 @@ html body #players .pg.p3 .pr .tn { left: auto !important; right: -14px !importa
 #players .pg.p2 .pr .turn-progress,
 #players .pg.p3 .pr .turn-progress { left: 40px; right: 108px; }
 
-/* ---------- kursi bawah (p0 kanan-bawah, p3 kiri-bawah): seluruh kartu diputar 180 derajat (teks ikut terbalik, seperti referensi) ---------- */
+/* ---------- kursi bawah (p0 kanan-bawah, p3 kiri-bawah): HANYA panel (tab + bar + teks) yang berputar 180 derajat, seperti referensi.
+   Kartu diputar agar panel terbalik & avatar pindah ke sisi yang benar, lalu frame avatar + badge nomor diputar balik 180 sehingga tetap tegak. ---------- */
 html body #players .pg.p0 .pr,
 html body #players .pg.p3 .pr { transform: rotate(180deg) !important; }
+html body #players .pg.p0 .pr .av,
+html body #players .pg.p3 .pr .av,
+html body #players .pg.p0 .pr .tn,
+html body #players .pg.p3 .pr .tn { transform: rotate(180deg); }
 
 html body #players .pg .pr.off .hf,
 html body #players .pg .pr.off .av { filter: grayscale(1); }

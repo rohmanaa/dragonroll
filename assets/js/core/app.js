@@ -228,6 +228,26 @@ window.UT = window.UT || {};
     if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
       try { import('../multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
     }
+    /* Resume: pemain yang kembali ke lobby saat room online-nya masih 'playing' (tab ditutup, refresh, koneksi putus) langsung diarahkan ke gameplay lagi.
+       room.html -> join_game_room mengembalikan baris room untuk anggota lama, lalu room.js meluncurkan game dengan snapshot terakhir.
+       Keluar lewat tombol "Menu" di gameplay memanggil exit_game_room (pemain dihapus dari room), jadi tidak diseret kembali. */
+    if (UT.App.page === 'lobby') {
+      try {
+        import('../multiplayer/room-service.js').then(function () {
+          var MP = win.UT.Multiplayer;
+          return MP.getClient().then(function (c) { return c.auth.getSession(); }).then(function (r) {
+            if (!r.data || !r.data.session) return null; /* belum punya sesi: jangan membuat pemain anonim hanya untuk memeriksa */
+            return MP.RoomService.activeRoom();
+          });
+        }).then(function (row) {
+          if (!row || !row.code) return;
+          var exited = null; try { exited = win.sessionStorage.getItem('ut-mp-exited'); } catch (e) {}
+          if (exited === String(row.id)) return;
+          var q = new win.URLSearchParams({ mode: 'online', format: row.format === 'team' ? 'team' : 'solo', count: (row.players || []).length || 4, role: 'guest', code: row.code });
+          win.location.replace('room.html?' + q.toString());
+        }).catch(function (e) { if (win.console) console.warn('[resume] gagal memeriksa room aktif', e); });
+      } catch (e) {}
+    }
     if (UT.App.page && UT.PAGES.indexOf(UT.App.page) < 0 && win.console) console.warn('[UT.App] page tidak dikenal:', UT.App.page);
     /* Jembatan PlayerData -> UT.Events (tanpa mengubah PlayerData) */
     var PD = win.PlayerData;
