@@ -1,7 +1,7 @@
 /* Kartu profil pemain gameplay — desain "Player HUD Design Variations" (referensi/gameplay/profilgameplay.jpg).
    Frame avatar kotak + bar panjang berujung miring + tab kecil di bawahnya.
    Border PERAK = menunggu, EMAS = sedang giliran. Warna kursi (--pc) jadi cahaya garis tengah bar.
-   Kursi kanan (p0, p2) dicerminkan horizontal; kursi bawah (p0, p3) dicerminkan vertikal (tab di atas bar).
+   Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3) diputar 180 derajat seperti referensi.
    Hanya presentasi: markup tetap dari renderChips() + dua elemen dekorasi (.hf). Dimuat SETELAH hud-mockup.css. */
 
 html body #players .pg .pr {
@@ -85,31 +85,23 @@ html body #players .pg .pr .bi { width: 26px; height: 26px; }
 html body #players .pg .pr .bi em { font-size: 11px; }
 #players .pg .pr .turn-progress { position: absolute; left: 108px; right: 40px; top: 70px; height: 6px; margin: 0; z-index: 3; }
 
-/* ---------- kursi kanan: cermin horizontal ---------- */
-#players .pg.p0 .pr .hf,
-#players .pg.p2 .pr .hf { transform: scaleX(-1); }
-html body #players .pg.p0 .pr .av,
-html body #players .pg.p2 .pr .av { left: auto; right: 0; }
-html body #players .pg.p0 .pr .tn,
-html body #players .pg.p2 .pr .tn { left: auto !important; right: -14px !important; }
-#players .pg.p0 .pr .r1,
-#players .pg.p2 .pr .r1 { left: 40px; right: 108px; flex-direction: row-reverse; text-align: right; }
-#players .pg.p0 .pr .r2,
-#players .pg.p2 .pr .r2 { left: 92px; right: 100px; flex-direction: row-reverse; text-align: right; }
-#players .pg.p0 .pr .turn-progress,
-#players .pg.p2 .pr .turn-progress { left: 40px; right: 108px; }
+/* ---------- kursi kanan-atas (p2) & kiri-bawah (p3): tata letak cermin horizontal ---------- */
+#players .pg.p2 .pr .hf,
+#players .pg.p3 .pr .hf { transform: scaleX(-1); }
+html body #players .pg.p2 .pr .av,
+html body #players .pg.p3 .pr .av { left: auto; right: 0; }
+html body #players .pg.p2 .pr .tn,
+html body #players .pg.p3 .pr .tn { left: auto !important; right: -14px !important; }
+#players .pg.p2 .pr .r1,
+#players .pg.p3 .pr .r1 { left: 40px; right: 108px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p2 .pr .r2,
+#players .pg.p3 .pr .r2 { left: 92px; right: 100px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p2 .pr .turn-progress,
+#players .pg.p3 .pr .turn-progress { left: 40px; right: 108px; }
 
-/* ---------- kursi bawah: cermin vertikal (tab di atas bar) ---------- */
-#players .pg.p3 .pr .hf { transform: scaleY(-1); }
-#players .pg.p0 .pr .hf { transform: scale(-1, -1); }
-html body #players .pg.p0 .pr .av,
-html body #players .pg.p3 .pr .av { top: auto; bottom: 0; }
-#players .pg.p0 .pr .r1,
-#players .pg.p3 .pr .r1 { top: 54px; }
-#players .pg.p0 .pr .r2,
-#players .pg.p3 .pr .r2 { top: 24px; }
-#players .pg.p0 .pr .turn-progress,
-#players .pg.p3 .pr .turn-progress { top: 56px; }
+/* ---------- kursi bawah (p0 kanan-bawah, p3 kiri-bawah): seluruh kartu diputar 180 derajat (teks ikut terbalik, seperti referensi) ---------- */
+html body #players .pg.p0 .pr,
+html body #players .pg.p3 .pr { transform: rotate(180deg) !important; }
 
 html body #players .pg .pr.off .hf,
 html body #players .pg .pr.off .av { filter: grayscale(1); }
