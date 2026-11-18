@@ -5672,85 +5672,170 @@ async function resolveTileAt(p,gid,depth){
 async function resolveAfterChestMove(p,gid){ const duel=await resolveTileAt(p,gid); renderChips(); return duel; }
 /* ---------- PVP Clash (duel) ----------
    Dua pemain bertemu (mendarat) di petak yang sama -> duel singkat (aturan murni = duel-core.js, tampilan = duel-ui.js).
-   Tahap 1: hanya offline (solo/vs CPU/lokal). Online (ONLINE_ROOM) dilewati sampai dadu duel diundi di server (RPC Supabase).
+   Offline (solo/vs CPU/lokal): satu tombol ROLL, dadu Math.random. Online: host menjalankan duel, dadu tiap sisi diundi server (roll_game_dice), tamu memutar ulang tampilan lewat cue 'duel' (lihat blok 'Duel PVP online' di atas).
    Penalti kalah: mundur 10% papan (+ skip 1 giliran bila Heavy Defeat). Skip giliran memakai flag p.frozen yang sudah ada (skipFrozen). */
+/* ---- Duel PVP online (host-authoritative) ----
+   Host menjalankan duel penuh (aturan = duel-core.js, dadu tiap sisi = roll_game_dice di server). Setiap langkah tampilan dikirim ke tamu sebagai cue 'duel' dan diputar ulang di layar mereka (gameplay/js/duel-ui.js).
+   Tiap ronde: pemain manusia yang ikut duel menekan ROLL sendiri (tamu -> event 'duel_roll' ke host); host menunggu semuanya maks DUEL_ROLL_MS, sisanya (CPU/AUTO/keluar/timeout) jalan otomatis. State duel (HP, Revenge, posisi) hanya di host. */
+const DUEL_ROLL_MS=12000;
+let MP_DUEL_SEQ=0;      /* id duel (host) */
+let MP_DUEL=null;       /* tamu: duel yang sedang diputar ulang {did,pair,gone} */
+let MP_DUEL_GONE={did:0,round:0}; /* tamu: ronde terakhir yang sudah ditutup host (go) - bisa tiba sebelum cue 'wait' diproses */
+let MP_DUEL_H=null;     /* host: penantian ROLL ronde ini {did,round,pair,got:Set} */
+function duelLocal(f){ return ONLINE_ROOM?isLocalPlayer(f):(!f.cpu&&f.idx===0); }
+/* Opsi UI.open untuk sepasang pemain: dipakai host DAN tamu (tamu membangunnya dari pemain lokalnya sendiri). Dadu/ksatria milik sendiri hanya terlihat di layar pemilik. */
+function duelOpenOpts(pair){
+  return {
+    names:pair.map(f=>f.name),css:pair.map(f=>f.css),faces:pair.map(plainFace),reducedMotion:reduce,
+    dice:pair.map(f=>duelLocal(f)?diceKey:null), /* skin dadu dari katalog DiceKit; pemain lokal = dadu yang dipakai, lainnya bawaan */
+    fighters:pair.map(f=>{
+      const bc=f.pawn.userData&&f.pawn.userData.bc, kn=(duelLocal(f)&&equippedGameKey('skin')==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
+      if(bc&&bc.config) return kn?{config:bc.config,knight:true}:{config:bc.config};
+      return kn?{knight:true}:(f.cpu?{preset:2+f.idx*3}:{local:true});
+    })
+  };
+}
+/* Host online: bungkus UI duel agar tiap panggilan presentasi juga dikirim sebagai cue (tamu memutar ulang UI yang sama). */
+function mpDuelUI(UI,pair,did){
+  const o={},idx=pair.map(q=>q.idx);
+  o.open=opts=>{ mpCue({k:'duel',f:'open',did:did,idx:idx}); return UI.open(opts); };
+  ['intro','banner','log','state','actions','act','impact','pop','shake','revealRolls','result'].forEach(n=>{
+    o[n]=(...a)=>{ mpCue({k:'duel',f:n,a:JSON.parse(JSON.stringify(a))}); return UI[n](...a); };
+  });
+  o.close=()=>{ mpCue({k:'duel',f:'close'}); return UI.close(); };
+  o.won=i=>{ mpCue({k:'duel',f:'won',i:i}); };
+  return o;
+}
+/* Dadu tiap sisi diundi server (angka tercatat di game_events). Sisi CPU/tanpa networkId diundi atas nama host. */
+async function duelServerRolls(pair){ const out=[]; for(const q of pair) out.push(await serverRoll(q,'normal',null)); return out; }
+/* Menunggu ronde: offline = satu tombol ROLL (perilaku lama). Online = tiap pemain manusia menekan ROLL sendiri. */
+async function duelWaitRolls(DU,UI,pair,did,round,st){
+  if(!ONLINE_ROOM) return UI.waitForRoll(round);
+  const hostSide=pair.findIndex(q=>q.networkId===MP_ID&&!q.cpu&&!q.auto&&!q.left);
+  const need=()=>pair.map((q,i)=>(!q.cpu&&!q.auto&&!q.left&&(i===hostSide||(q.networkId&&q.networkId!==MP_ID)))?i:-1).filter(i=>i>=0);
+  const H=MP_DUEL_H={did:did,round:round,pair:pair,got:new Set()};
+  mpCue({k:'duel',f:'wait',did:did,round:round});
+  let hostRes=null;
+  if(hostSide>=0) UI.waitForRoll(round).then(ok=>{ hostRes=!!ok; if(ok) H.got.add(hostSide); });
+  else UI.lockRoll('MENUNGGU PEMAIN...');
+  const t0=Date.now();
+  try{
+    for(;;){
+      await sleep(120); st();
+      if(hostRes===false) return false; /* UI ditutup */
+      if(need().every(i=>H.got.has(i))) break;
+      if(Date.now()-t0>=DUEL_ROLL_MS) break; /* waktu habis: yang belum tap di-roll otomatis */
+    }
+  }finally{ if(MP_DUEL_H===H) MP_DUEL_H=null; }
+  mpCue({k:'duel',f:'go',did:did,round:round});
+  UI.lockRoll('ROLLING...');
+  return true;
+}
+function onMpDuelRoll(pl){
+  const H=MP_DUEL_H; if(!ONLINE_HOST||!H||!pl||pl.round!==H.round) return;
+  const i=H.pair.findIndex(q=>q.networkId===pl.playerId); if(i>=0) H.got.add(i);
+}
+/* ---- tamu: putar ulang duel dari cue ---- */
+function mpDuelGo(c){ MP_DUEL_GONE={did:c.did,round:c.round}; const D=MP_DUEL; if(D&&D.did===c.did&&D.go) D.go(c.round); }
+function mpRunDuelCue(c){
+  const UI=UT.GameplayDuelUI; if(!UI) return Promise.resolve();
+  if(c.f==='open'){
+    const pair=(c.idx||[]).map(i=>players.find(q=>q.idx===i));
+    if(pair.length!==2||!pair.every(q=>q&&q.pawn)) return Promise.resolve();
+    MP_DUEL={did:c.did,pair:pair,go:null}; UI.open(duelOpenOpts(pair)); return Promise.resolve();
+  }
+  if(c.f==='close'){ MP_DUEL=null; try{ UI.close(); }catch(e){} return Promise.resolve(); }
+  const D=MP_DUEL; if(!D) return Promise.resolve();
+  if(c.f==='won'){ const w=players.find(q=>q.idx===c.i); try{ if(w&&isLocalPlayer(w)) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} return Promise.resolve(); }
+  if(c.f==='wait'){
+    const me=D.pair.some(q=>q.networkId===MP_ID&&!q.auto&&!q.left);
+    if(!me){ UI.lockRoll('MENUNGGU PEMAIN...'); return Promise.resolve(); } /* penonton / pemain AUTO: tidak ada tombol */
+    if(MP_DUEL_GONE.did===D.did&&MP_DUEL_GONE.round>=c.round){ UI.lockRoll('ROLLING...'); return Promise.resolve(); } /* host sudah menutup ronde ini */
+    return new Promise(res=>{
+      const tm=setTimeout(()=>{ if(D.go) D.go(); },DUEL_ROLL_MS+5000); /* pengaman bila cue 'go' hilang: jangan menahan antrean cue selamanya */
+      D.go=()=>{ clearTimeout(tm); D.go=null; UI.lockRoll('ROLLING...'); res(); }; /* host menutup (waktu habis / semua tap) */
+      UI.waitForRoll(c.round).then(ok=>{
+        if(!ok) return;
+        clearTimeout(tm); D.go=null; UI.lockRoll('MENUNGGU LAWAN...');
+        try{ if(MP_SYNC&&MP_SYNC.sendDuelRoll) MP_SYNC.sendDuelRoll({playerId:MP_ID,round:c.round}).catch(()=>{}); }catch(e){}
+        res();
+      });
+    });
+  }
+  const fn=UI[c.f]; if(typeof fn==='function') return Promise.resolve(fn.apply(UI,c.a||[]));
+  return Promise.resolve();
+}
 function duelRevKey(a,b){ return a.idx+'>'+b.idx; }
 function duelHasRev(a,b){ const e=DUEL.rev[duelRevKey(a,b)]; return e!=null&&DUEL.turn<=e; }
 async function duelCheck(p,gid){
   const D=UT.Gameplay&&UT.Gameplay.Duel,UI=UT.GameplayDuelUI;
-  if(!DUEL.on||!D||!UI||ONLINE_ROOM||gameOver||!p||!p.pawn||p.pos===GOAL||D.isSafeTile(p.pos,GOAL)) return null;
+  if(!DUEL.on||!D||!UI||(ONLINE_ROOM&&!ONLINE_HOST)||gameOver||!p||!p.pawn||p.pos===GOAL||D.isSafeTile(p.pos,GOAL)) return null;
   const foes=players.filter(q=>q!==p&&q.pawn&&!q.left&&q.pos===p.pos); if(!foes.length) return;
   let choice;
-  if(foes.length>1&&!p.cpu){
+  if(foes.length>1&&!p.cpu&&(!ONLINE_ROOM||isLocalPlayer(p))){ /* online: hanya pemain di layar host yang memilih; pemain lain/AUTO = acak */
     UI.open({names:[p.name,'Pilih lawan'],css:[p.css,'#ffd45a']});
     choice=await UI.chooseOpponent(foes);
     if(gid!==gameId){ UI.close(); throw STALE; }
   }else choice=Math.floor(Math.random()*foes.length);
   const q=foes[choice],pair=[p,q],st=()=>{ if(gid!==gameId) throw STALE; };
+  const did=++MP_DUEL_SEQ,DU=ONLINE_ROOM?mpDuelUI(UI,pair,did):UI; /* online: setiap langkah tampilan juga dikirim ke tamu sebagai cue 'duel' */
   let s=D.create({revenge:[duelHasRev(p,q),duelHasRev(q,p)]}),guard=0;
   try{
     pair.forEach(m=>{ m.duelHp=D.DEFAULTS.maxHp; });
     setMsg(p.name+' bertemu '+q.name+'! Duel dimulai.'); fb('event','info',p.name+' vs '+q.name+': Duel!',{gid,ttl:1400});
-    UI.open({
-      names:[p.name,q.name],css:[p.css,q.css],faces:pair.map(plainFace),reducedMotion:reduce,
-      dice:pair.map(f=>(!f.cpu&&f.idx===0)?diceKey:null), /* skin dadu dari katalog DiceKit; pemain lokal utama = dadu yang dipakai, lainnya bawaan */
-      fighters:pair.map(f=>{
-        const bc=f.pawn.userData&&f.pawn.userData.bc, kn=(!f.cpu&&f.idx===0&&equippedGameKey('skin')==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
-        if(bc&&bc.config) return kn?{config:bc.config,knight:true}:{config:bc.config};
-        return kn?{knight:true}:(f.cpu?{preset:2+f.idx*3}:{local:true});
-      })
-    });
-    UI.state(s.hp,s.mom); const intro=UI.intro(); sfx.crystalAppear();
+    DU.open(duelOpenOpts(pair));
+    DU.state(s.hp,s.mom); const intro=DU.intro(); sfx.crystalAppear();
     await intro; st();
     while(!s.over&&guard++<60){
-      UI.banner(s.sudden?'Sudden Death':'ROUND '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
-      UI.log('Tekan tombol ROLL untuk memulai ronde.');
-      const ready=await UI.waitForRoll(s.round+1); st();
+      DU.banner(s.sudden?'Sudden Death':'ROUND '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
+      DU.log('Tekan tombol ROLL untuk memulai ronde.');
+      const ready=await duelWaitRolls(DU,UI,pair,did,s.round+1,st); st();
       if(!ready) return null;
-      const rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];
-      await UI.revealRolls(rolls); st();
+      let rolls; if(ONLINE_ROOM){ try{ rolls=await duelServerRolls(pair); }catch(e){ console.error('[multiplayer] duel dice failed',e); st(); setMsg('Dadu duel dari server gagal. Duel dibatalkan.'); DU.log('Dadu server gagal · duel dibatalkan'); await sleep(1200); st(); DU.close(); return null; } st(); } else rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]; /* online: dadu tiap sisi diundi server (roll_game_dice), seperti dadu giliran */
+      await DU.revealRolls(rolls); st();
       const r=D.round(s,rolls); s=r.state;
-      UI.actions(rolls);
-      UI.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
+      DU.actions(rolls);
+      DU.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
       pair.forEach((m,i)=>{
         const action=D.ACTIONS[rolls[i]].atk>0?'attack':(rolls[i]===1?'block':null);
-        if(action) UI.act(i,action,action==='attack'?0.75:0.9);
+        if(action) DU.act(i,action,action==='attack'?0.75:0.9);
       });
       await sleep(360); st();
       r.events.forEach(e=>{
-        if(e.type==='clash'){ UI.shake(); sfx.hit(); }
-        else if(e.type==='hit'){ UI.impact(e.target,e.finisher?'heavy':'hit'); UI.pop(e.target,'-'+e.dmg,'hit'); sfx.hit(); sfx.playerHurt(); }
-        else if(e.type==='block'){ UI.impact(e.who,'block'); UI.pop(e.who,'BLOCK','blk'); }
-        else if(e.type==='heal') UI.pop(e.who,'+1','heal');
-        else if(e.type==='finisher'){ UI.pop(e.who,'FINISHER!','fin'); UI.shake(); sfx.crystalBreak(); }
-        else if(e.type==='revenge') UI.pop(e.who,'REVENGE','rev');
-        else if(e.type==='double_ko'){ UI.banner('Seri! Sudden Death','sd'); UI.log('KEDUANYA JATUH · SUDDEN DEATH'); }
+        if(e.type==='clash'){ DU.shake(); sfx.hit(); }
+        else if(e.type==='hit'){ DU.impact(e.target,e.finisher?'heavy':'hit'); DU.pop(e.target,'-'+e.dmg,'hit'); sfx.hit(); sfx.playerHurt(); }
+        else if(e.type==='block'){ DU.impact(e.who,'block'); DU.pop(e.who,'BLOCK','blk'); }
+        else if(e.type==='heal') DU.pop(e.who,'+1','heal');
+        else if(e.type==='finisher'){ DU.pop(e.who,'FINISHER!','fin'); DU.shake(); sfx.crystalBreak(); }
+        else if(e.type==='revenge') DU.pop(e.who,'REVENGE','rev');
+        else if(e.type==='double_ko'){ DU.banner('Seri! Sudden Death','sd'); DU.log('KEDUANYA JATUH · SUDDEN DEATH'); }
       });
-      UI.state(s.hp,s.mom); await sleep(550); st();
+      DU.state(s.hp,s.mom); await sleep(550); st();
     }
     const out=D.outcome(s,{pos:p.pos,goal:GOAL}),w=pair[out.winner],l=pair[out.loser];
-    UI.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
+    DU.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
     sfx.hit(); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
     try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
+    if(ONLINE_ROOM&&!w.cpu) DU.won(w.idx); /* tamu pemenang mencatat counter menang PVP-nya sendiri */
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
     DUEL.rev[duelRevKey(l,w)]=DUEL.turn+D.DEFAULTS.revengeTurns*players.length; delete DUEL.rev[duelRevKey(w,l)];
-    UI.act(out.winner,'cheer',1.4); UI.act(out.loser,'sad',1.8);
-    UI.impact(out.loser,out.kind==='heavy'?'heavy':'hit');
-    UI.pop(out.loser,'DEFEATED','hit'); UI.shake();
-    UI.result((s.byFinisher?'Heavy Defeat (Finisher)':(out.kind==='heavy'?'Heavy Defeat (Sudden Death)':'Normal Defeat')),[
+    DU.act(out.winner,'cheer',1.4); DU.act(out.loser,'sad',1.8);
+    DU.impact(out.loser,out.kind==='heavy'?'heavy':'hit');
+    DU.pop(out.loser,'DEFEATED','hit'); DU.shake();
+    DU.result((s.byFinisher?'Heavy Defeat (Finisher)':(out.kind==='heavy'?'Heavy Defeat (Sudden Death)':'Normal Defeat')),[
       w.name+': tetap di petak '+out.from+', +'+out.xp.winner+' XP',
       l.name+': mundur ke petak '+out.to+(out.skipTurn?', skip 1 giliran':'')+', +'+out.xp.loser+' XP',
       l.name+' mendapat Revenge buff (+1 damage serangan pertama vs '+w.name+')']);
     await sleep(2800); st(); /* jeda hasil duel ~2,8 detik agar kartu hasil terbaca */
-    UI.close();
+    DU.close();
     await sleep(280); st();
-    if(out.back>0){ await duelKnockback(l,out.to,out.kind==='heavy'); l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
+    if(out.back>0){ if(ONLINE_ROOM) mpCue({k:'seq',n:'duelKnock',pid:l.networkId,to:out.to,heavy:out.kind==='heavy'}); MP_SEQ++; try{ await duelKnockback(l,out.to,out.kind==='heavy'); } finally{ MP_SEQ--; } l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
     st(); if(out.skipTurn) l.frozen=true;
     renderChips(); if(!w.cpu&&!isPlayerDefeat(w)) pawnCheer(w.pawn,1.4);
     return {winner:w,loser:l};
   }finally{
-    if(gid!==gameId){ try{ UI.close(); }catch(e){} }
+    if(gid!==gameId){ try{ DU.close(); }catch(e){} }
   }
 }
 async function playTurn(p,v,gid,bn){
@@ -6134,7 +6219,7 @@ function startGame(m,keys){
 /* Cue animasi: host menyiarkan isyarat visual (dadu, langkah, tangga, ular); tamu memutarnya berurutan.
    Snapshot yang datang saat animasi tamu berjalan ditahan sampai antrean selesai. */
 let MP_CUE_CHAIN=Promise.resolve(),MP_CUE_N=0,MP_PENDING_SNAP=null;
-const MPFB={fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,bosshfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
+const MPFB={duel:1,fb:1,sfx:1,atk:1,ccard:1,ccard_hide:1,chest:1,hitfx:1,bosshfx:1,pfx:1,pufx:1,confetti:1,blast:1,dmusic:1,hud:1,dfx:1,seq:1};
 /* Checkpoint 1.3: cue FX membawa fid (id kejadian unik: pengirim:gameId:sesi.urut) dan, untuk partikel, seed. Hanya angka/teks kecil; tidak ada partikel/objek THREE di jaringan. Tamu lama mengabaikan field baru; cue lama tanpa fid tetap diputar. */
 const MP_FX_CUES={confetti:1,blast:1,eport:1,spfx:1,pfx:1,hitfx:1,bosshfx:1,pufx:1,sfx:1,dfx:1,dmusic:1,seq:1};
 function mpFxMeta(){ try{ return (ONLINE_ROOM&&ONLINE_HOST&&FX&&typeof FX.cueMeta==='function')?FX.cueMeta(MP_ID||'host',gameId):null; }catch(e){ return null; } }
@@ -6154,6 +6239,7 @@ function mpRunFeedbackCue(c){
   try{
     if(c.k==='fb'){ const a=mpFixGid(c.a); if(c.f==='short'&&!fb0(c.f,...a)){ const o=a[3]||{}; hud0('showPower',a[0],a[1],a[2],o); } else if(c.f!=='short') fb0(c.f,...a); }
     else if(c.k==='seq'){ return mpRunSeq(c); }
+    else if(c.k==='duel'){ return mpRunDuelCue(c); }
     else if(c.k==='confetti'){ spawnConfetti(new THREE.Vector3(c.x,c.y,c.z),FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='blast'){ spawnExplosion(new THREE.Vector3(c.x,c.y,c.z),c.kind,FX&&FX.cueOptions?FX.cueOptions(c):null); }
     else if(c.k==='dmusic'){ dragonMusicStop(c.i); }
@@ -6184,6 +6270,7 @@ function mpRunSeq(c){
   if(c.n==='awakenWither'&&p) return awakenWither(p,gid);
   if(c.n==='gatherArena') return gatherArena(gid);
   if(c.n==='gatherFort') return gatherFort(gid);
+  if(c.n==='duelKnock'&&p) return duelKnockback(p,c.to,!!c.heavy);
   return Promise.resolve();
 }
 async function mpDragonFx(t){
@@ -6224,6 +6311,7 @@ async function mpGuestTotemPrompt(c){
 function onMpCue(c){
   if(!ONLINE_ROOM||ONLINE_HOST) return;
   if(c&&c.k==='totem_ask'){ mpGuestTotemPrompt(c); return; } /* di luar antrean animasi: modal harus segera muncul */
+  if(c&&c.k==='duel'&&c.f==='go'){ mpDuelGo(c); return; } /* duel online: host menutup penantian ROLL (semua sudah tap / waktu habis); di luar antrean agar tamu yang belum tap tidak menahan cue berikutnya */
   if(c&&c.fid&&FX&&typeof FX.acceptCue==='function'&&!FX.acceptCue(c)) return; /* 1.3: cue FX duplikat / dari game sebelumnya dilewati (hanya visual); cue tanpa fid selalu diputar */
   MP_CUE_N++;
   MP_CUE_CHAIN=MP_CUE_CHAIN.then(()=>(c&&MPFB[c.k])?mpRunFeedbackCue(c):mpRunCue(c)).catch(e=>{ if(e!==STALE) console.error('[multiplayer] cue failed',e); }).then(()=>{
@@ -6282,6 +6370,7 @@ function initMultiplayerBridge(){
   onPeerLeft:key=>{ if(!key||key===MP_ID) return; MP_LEFT.add(key); const q=mpPlayerByNet(key); if(q&&!q.cpu) q.left=true; try{ renderChips(); }catch(e){} }, /* semua klien (host/tamu, juga saat game over) */
   onPeerJoin:key=>{ if(!key||key===MP_ID) return; MP_LEFT.delete(key); const q=mpPlayerByNet(key); if(q&&q.left){ q.left=false; try{ renderChips(); }catch(e){} } mpBroadcastAutoRoll(); }, /* pemain (re)join: kirim ulang status Auto milik kita agar chip-nya benar */
   onTotemAnswer:onMpTotemAnswer,
+  onDuelRoll:onMpDuelRoll,
   onEmote:onMpEmote,
   onAutoRoll:onMpAutoRoll,
   onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
