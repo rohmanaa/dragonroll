@@ -97,22 +97,19 @@ body.duel-active #trapBar        { display: none !important }
   background-image: url("../assets/duel/hud-player-right.webp");
 }
 
-/* avatar — fit ke bingkai HUD agar foto pas di kotak */
+/* avatar — tepat di soket kuning bingkai HUD (terukur dari hud-player-*.webp: kiri 4.6%, atas 11.8%, 29% x 60%) */
 .du-avatar {
-  flex: none; width: 23%; aspect-ratio: 1;
-  border-radius: 8px;
-  background: rgba(10,8,20,.55);
-  overflow: hidden;
-  margin-top: 10%; margin-bottom: 10%;
-  margin-left: 5%; margin-right: 1%;
-  box-shadow: inset 0 0 0 1px rgba(240,185,46,.35);
+  position: absolute; left: 4.6%; top: 11.8%; width: 29%; height: 60%;
+  border-radius: 6px; background: #f8ce76; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(60,30,0,.45);
 }
-.du-profile-1 .du-avatar { margin-left: 1%; margin-right: 5%; }
+.du-profile-1 .du-avatar { left: auto; right: 4.6%; }
 .du-avatar img {
   display: block; width: 100%; height: 100%;
-  object-fit: cover; object-position: center top;
+  object-fit: cover; object-position: center;
   image-rendering: pixelated;
 }
+.du-avatar img:not([src]) { visibility: hidden }
 
 /* teks nama + hp */
 .du-profile-info {
@@ -224,18 +221,21 @@ body.duel-active #trapBar        { display: none !important }
 /* ============================================================
    ARENA – 3D scene + fighter action labels
    ============================================================ */
-.du-arena  { inset: 16% 0 26% }
+.du-arena  { inset: 14% 0 22% }
 .du-scene  { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none }
 .du-scene-canvas { display: block; width: 100%; height: 100%; touch-action: none }
 
-/* fighter slots */
+/* fighter slots: kolom [slot dadu 3D] [angka] [panel aksi] — dadu DI ATAS panel Defense/Berserk */
 .du-fighter {
-  position: absolute; bottom: 5%;
-  width: min(36vw,360px); transform: translateX(-50%);
+  position: absolute; bottom: 2%;
+  width: min(34vw,340px); transform: translateX(-50%);
   z-index: 2; text-align: center; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center;
 }
 .du-fighter-0 { left: 27% }
 .du-fighter-1 { left: 73% }
+.du-die-slot { width: clamp(70px,11vh,112px); height: clamp(70px,11vh,112px); flex: none }
+.du-die-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 4px }
 
 /* action label box */
 .du-action {
@@ -266,24 +266,36 @@ body.duel-active #trapBar        { display: none !important }
   100% { transform: scale(1) }
 }
 
-/* VS emblem — lebih besar dan menonjol */
+/* VS emblem — besar, outline tebal, denyut */
 .du-versus {
-  position: absolute; left: 50%; top: 44%;
+  position: absolute; left: 50%; top: 40%;
   transform: translate(-50%,-50%) rotate(-7deg);
-  width: min(16vw,160px); height: auto; aspect-ratio: 1 / 1.4;
+  width: min(26vw,300px); height: auto; aspect-ratio: 1 / 1.1;
   background: url("../assets/duel/hud-versus.webp") center / contain no-repeat;
-  font-size: clamp(28px,4vw,52px); font-weight: 900; color: #ffd45a;
-  text-shadow: 0 0 24px #f80, 0 3px 10px #000;
+  font-size: clamp(64px,11vw,150px); font-weight: 900; line-height: 1; color: #ffd45a;
+  -webkit-text-stroke: clamp(3px,.5vw,7px) #2a1200; paint-order: stroke fill;
+  text-shadow: 0 0 30px #ff8a00, 0 0 60px #f50, 0 6px 0 #5a2600, 0 10px 18px #000;
   display: flex; align-items: center; justify-content: center;
   pointer-events: none; z-index: 3;
-  filter: drop-shadow(0 4px 14px rgba(0,0,0,.7));
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.75));
+  animation: du-vs-slam .55s cubic-bezier(.2,1.6,.4,1) 1.2s both, du-vs-pulse 1.6s ease-in-out 1.8s infinite;
+}
+.du:not(.intro) .du-versus { animation: du-vs-pulse 1.6s ease-in-out infinite }
+@keyframes du-vs-slam {
+  0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(4.5) }
+  60%  { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.88) }
+  100% { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(1) }
+}
+@keyframes du-vs-pulse {
+  0%,100% { transform: translate(-50%,-50%) rotate(-7deg) scale(1) }
+  50%     { transform: translate(-50%,-50%) rotate(-7deg) scale(1.08); filter: drop-shadow(0 0 22px rgba(255,140,0,.8)) }
 }
 
 /* ============================================================
    LOG bar (pesan ronde)
    ============================================================ */
 .du-log {
-  left: 50%; bottom: 23%;
+  left: 50%; bottom: calc(1.5% + clamp(84px,17vh,140px) + 18px);
   transform: translateX(-50%);
   width: max-content; max-width: 88vw;
   padding: 5px 16px;
@@ -299,43 +311,23 @@ body.duel-active #trapBar        { display: none !important }
 /* ============================================================
    DICE STAGE + ROLL BUTTON
    ============================================================ */
-.du-roll-stage {
-  position: absolute; left: 50%; bottom: 19%;
-  transform: translateX(-50%);
-  display: flex; align-items: center; gap: clamp(16px,3vw,36px);
-  z-index: 3; pointer-events: none;
-}
-
 .du-die {
-  width: clamp(44px,6vw,76px); height: clamp(44px,6vw,76px);
-  border-radius: clamp(10px,1.5vw,18px);
-  border: 2px solid rgba(240,185,46,.55);
+  min-width: clamp(30px,3.6vw,44px); height: clamp(24px,3vw,34px); padding: 0 8px;
+  border-radius: 9px; border: 2px solid rgba(240,185,46,.55);
   background: linear-gradient(145deg,#1d2233,#2b3248);
-  box-shadow: 0 0 0 1px #0008, 0 6px 22px #000b,
-              inset 0 1px 0 rgba(255,255,255,.12);
+  box-shadow: 0 0 0 1px #0008, 0 4px 14px #000b, inset 0 1px 0 rgba(255,255,255,.12);
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(22px,3.4vw,46px); font-weight: 900;
+  font-size: clamp(16px,2.2vw,26px); font-weight: 900;
   color: var(--du-gold); text-shadow: 0 2px 8px #0008;
-  transition: transform .12s;
 }
+.du-die.pop { animation: du-die-pop .45s cubic-bezier(.2,1.5,.4,1) }
+@keyframes du-die-pop { 0% { transform: scale(.4) } 100% { transform: scale(1) } }
 /* sub-label aksi di bawah dadu */
 .du-die-label {
-  display: block; margin-top: 5px;
+  display: block; margin-top: 3px; min-height: 1em;
   font-size: clamp(8px,.85vw,11px); font-weight: 900;
   letter-spacing: .07em; text-align: center;
-  color: var(--du-gold); opacity: .82;
-}
-
-/* animasi rolling */
-.du-roll-stage.rolling .du-die {
-  animation: du-die-roll .58s cubic-bezier(.2,.8,.4,1.1);
-}
-@keyframes du-die-roll {
-  0%   { transform: rotate(0deg) scale(1) }
-  20%  { transform: rotate(-28deg) scale(1.1) }
-  45%  { transform: rotate(22deg) scale(.92) }
-  70%  { transform: rotate(-10deg) scale(1.06) }
-  100% { transform: rotate(0deg) scale(1) }
+  color: var(--du-gold); opacity: .9; text-shadow: 0 2px 6px #000;
 }
 /* warna dadu per nilai */
 .du-die[data-val="4"] { color: #ffce61; border-color: #ffce6188 }
@@ -343,49 +335,33 @@ body.duel-active #trapBar        { display: none !important }
 .du-die[data-val="5"] { color: #62ffa0; border-color: #62ffa088 }
 .du-die[data-val="2"] { color: #68dbff; border-color: #68dbff88 }
 
-/* ROLL DICE button */
+/* ROLL button — sama dengan tombol Roll gameplay: ikon roll.webp tanpa bingkai (action-icons.css #btnRoll) */
 .du-roll-button {
-  position: absolute; left: 50%; bottom: 3%;
+  position: absolute; left: 50%; bottom: 1.5%;
   transform: translateX(-50%);
-  display: flex; align-items: center; gap: 10px;
-  min-width: clamp(180px,22vw,260px); min-height: clamp(44px,6vh,58px);
-  padding: 8px 24px;
-  border: none; border-radius: 32px;
-  background: var(--du-gold-g);
-  box-shadow: 0 0 0 2px #c47d10,
-              0 6px 24px rgba(240,185,46,.45),
-              inset 0 1px 0 rgba(255,255,255,.35);
-  color: #3a1800; font: inherit; font-size: clamp(14px,1.6vw,19px);
-  font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
-  cursor: pointer; pointer-events: auto;
-  transition: transform .12s, box-shadow .12s, filter .12s;
-  z-index: 4;
-}
-.du-roll-button:not(:disabled):hover {
-  transform: translateX(-50%) scale(1.04);
-  box-shadow: 0 0 0 2px #f0b92e, 0 8px 30px rgba(240,185,46,.6),
-              inset 0 1px 0 rgba(255,255,255,.4);
-}
-.du-roll-button:not(:disabled):active {
-  transform: translateX(-50%) scale(.97);
-  filter: brightness(.9);
-}
-.du-roll-button:disabled {
-  filter: grayscale(.55) brightness(.7);
-  cursor: not-allowed;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  width: clamp(84px,17vh,140px); padding: 0; border: 0; background: transparent;
+  color: var(--du-ink); font: inherit; cursor: pointer; pointer-events: auto;
+  z-index: 4; -webkit-tap-highlight-color: transparent;
 }
 .du-roll-button img {
-  width: clamp(26px,3vw,36px); height: clamp(26px,3vw,36px);
-  object-fit: contain; pointer-events: none;
+  display: block; width: 100%; height: auto; object-fit: contain; pointer-events: none;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.4));
+  transition: filter .12s, transform .12s;
 }
-/* keyboard hint */
+.du-roll-button:not(:disabled):not(.rolling) img { animation: du-roll-idle 1.8s ease-in-out infinite }
+@keyframes du-roll-idle { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+.du-roll-button:disabled img { filter: grayscale(.8) opacity(.68) drop-shadow(0 3px 4px rgba(0,0,0,.4)) }
+.du-roll-button:not(:disabled):hover img { filter: brightness(1.08) drop-shadow(0 3px 4px rgba(0,0,0,.4)) }
+.du-roll-button:not(:disabled):active img { transform: scale(.94); animation: none }
+.du-roll-button:disabled { cursor: default }
+.du-roll-label {
+  margin-top: -4px; font-size: clamp(9px,1.1vw,13px); font-weight: 900; letter-spacing: .1em;
+  text-transform: uppercase; text-shadow: 0 2px 6px #000, 0 0 10px #000; white-space: nowrap;
+}
 .du-roll-button kbd {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 5px;
-  background: rgba(0,0,0,.28);
-  font: inherit; font-size: .72em;
-  letter-spacing: .04em; opacity: .75;
+  display: inline-block; margin-top: 2px; padding: 0 6px; border-radius: 5px;
+  background: rgba(0,0,0,.45); font: inherit; font-size: 8px; letter-spacing: .06em; opacity: .75;
 }
 
 /* SKIP button */
@@ -652,7 +628,6 @@ body.duel-active #trapBar        { display: none !important }
   /* profil */
   .du-profile { position: absolute; top: 50px; width: 50%; height: auto; min-width: 0; gap: 3px; padding: 4px 5px }
   .du-profile-0 { left: 0 } .du-profile-1 { right: 0 }
-  .du-avatar { width: 24%; border-radius: 6px; margin: 0 1% }
   .du-profile-info { left: 36%; right: 6%; top: 17%; height: 46% }
   .du-profile-1 .du-profile-info { left: 6%; right: 36% }
   .du-name { font-size: clamp(10px,3vw,14px) }
@@ -668,17 +643,13 @@ body.duel-active #trapBar        { display: none !important }
   .du-action span { font-size: 8px }
 
   /* VS */
-  .du-versus { top: 48%; width: 78px; height: 110px }
+  .du-versus { top: 44%; width: 120px; height: 130px; font-size: 56px }
 
   /* log / dice / button */
-  .du-log { bottom: 20%; max-width: 94vw; padding: 4px 10px; font-size: 9px }
-  .du-roll-stage { bottom: 11%; gap: 14px }
-  .du-die { width: 40px; height: 40px; border-radius: 10px; font-size: 25px }
-  .du-roll-button {
-    bottom: 2%; min-width: 178px; min-height: 42px;
-    padding: 6px 16px; font-size: 13px;
-  }
-  .du-roll-button img { width: 24px; height: 24px }
+  .du-log { bottom: calc(1% + 84px + 12px); max-width: 94vw; padding: 4px 10px; font-size: 9px }
+  .du-die-slot { width: 64px; height: 64px }
+  .du-die { font-size: 18px; height: 26px }
+  .du-roll-button { bottom: 1%; width: 84px }
   .du-skip { right: 1%; bottom: 10%; min-width: clamp(110px,36vw,180px) }
   .du-card { bottom: 10%; padding: 12px 14px }
 }
@@ -689,14 +660,13 @@ body.duel-active #trapBar        { display: none !important }
 @media (orientation: landscape) and (max-height: 500px) {
   .du-top { top: 4px; height: 76px }
   .du-profile { min-width: 188px; padding: 3px 8px; gap: 7px }
-  .du-avatar { width: 25% }
   .du-title { width: min(52vh,340px) }
   .du-arena { inset: 16% 0 26% }
   .du-fighter { bottom: 3%; width: 36vw }
   .du-action { min-height: 28px; padding: 3px 7px }
-  .du-log { bottom: 20%; padding: 4px 11px }
-  .du-roll-stage { bottom: 10% }
-  .du-roll-button { bottom: 1%; min-height: 36px; padding: 4px 16px; font-size: 13px }
+  .du-log { bottom: calc(clamp(64px,22vh,96px) + 8px); padding: 4px 11px }
+  .du-die-slot { width: clamp(52px,17vh,80px); height: clamp(52px,17vh,80px) }
+  .du-roll-button { bottom: 0; width: clamp(64px,22vh,96px) }
 }
 
 /* ============================================================
@@ -713,9 +683,26 @@ body.duel-active #trapBar        { display: none !important }
   .du.intro .du-profile,
   .du.result .du-versus,
   .du-fighter.hit .du-action,
-  .du-roll-stage.rolling .du-die,
   .du.result .du-card > b span,
   .du-mom.full i.on,
   .du-heart.break,
   .du-heart.gain { animation: none !important }
+}
+
+/* ============================================================
+   SINEMATIK — letterbox saat intro
+   ============================================================ */
+.du-bar {
+  position: absolute; left: 0; right: 0; height: 11%; z-index: 5; pointer-events: none;
+  background: #000; transform: scaleY(0); transition: transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.du-bar-top { top: 0; transform-origin: top }
+.du-bar-bottom { bottom: 0; transform-origin: bottom }
+.du.cine .du-bar { transform: scaleY(1) }
+.du.cine .du-profile { transform: translateY(-140%) }
+.du .du-profile { transition: transform .6s cubic-bezier(.2,.8,.2,1) }
+.du.cine .du-log, .du.cine .du-fighter, .du.cine .du-roll-button { opacity: 0 }
+.du .du-log, .du .du-fighter, .du .du-roll-button { transition: opacity .5s }
+@media (prefers-reduced-motion: reduce) {
+  .du-versus, .du-roll-button img { animation: none !important }
 }

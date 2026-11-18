@@ -52,6 +52,7 @@ function findAll(element, className, results) {
   return results;
 }
 
+let fighterGroundY = () => 0;
 async function run() {
   const body = new Element('body'), knightCreated = [], listeners = {};
   body.classList.add('app');
@@ -88,17 +89,20 @@ async function run() {
     applyPose(kn, cur, tgt, dt, rate) {}
   };
 
-  /* BlockyCharacter kept as fallback but should NOT be called when PvpKnight present */
+  /* Karakter ASLI pemain/CPU = BlockyCharacter; PvpKnight hanya untuk skin 'ksatria' */
+  const blockyCreated = [];
   window.UT.BlockyCharacter = {
     create() {
       const character = {
-        root: new THREE.Group(), actions: [], config: { outfit: 'equipped' },
+        root: new THREE.Group(), actions: [], modes: [], config: { outfit: 'equipped' },
         apply(config) { this.appliedConfig = config; },
         loadPreset(preset) { this.preset = preset; },
         loadFromPlayer() { this.loadedPlayer = true; },
         tick() {},
+        setMode(mode) { this.modes.push(mode); },
         act(type, duration) { this.actions.push([type, duration]); }
       };
+      blockyCreated.push(character);
       return character;
     }
   };
@@ -111,10 +115,13 @@ async function run() {
     fighters: [{ config: { outfit: 'equipped' } }, { preset: 5 }]
   });
   assert.ok(body.className.includes('duel-active'), 'duel mode hides the board HUD');
-  assert.strictEqual(knightCreated.length, 2, 'both fighters use PvpKnight rig when available');
-  assert.ok(knightCreated[1] && knightCreated[1].opts && knightCreated[1].opts.palette, 'rival fighter gets RIVAL_PAL palette');
+  assert.strictEqual(knightCreated.length, 0, 'karakter asli pemain/CPU tidak diganti ksatria');
+  assert.strictEqual(blockyCreated.length, 2, 'both fighters use their real BlockyCharacter');
+  assert.deepStrictEqual(blockyCreated[0].appliedConfig, { outfit: 'equipped' }, 'config pemain dipakai apa adanya');
+  assert.strictEqual(blockyCreated[1].preset, 5, 'preset CPU dipakai');
+  assert.strictEqual(fighterGroundY(), 0, 'karakter menapak di lantai (y=0)');
   assert.ok(find(body, 'du-scene'), 'the arena includes a dedicated Three.js scene');
-  assert.strictEqual(findAll(body, 'du-die-stage').length, 0, 'combat dice are not displayed in the arena');
+  assert.strictEqual(findAll(body, 'du-die-slot').length, 2, 'tiap pemain punya slot dadu 3D di atas panel aksinya');
   assert.strictEqual(findAll(body, 'du-fighter').length, 2, 'both arena fighters have action HUDs');
   assert.strictEqual(find(body, 'du-scene').children[0].tagName, 'canvas');
   const rollButton = find(body, 'du-roll-button');
@@ -140,11 +147,19 @@ async function run() {
   assert.ok(findAll(body, 'du-action')[1].className.includes('berserk'));
   UI.act(0, 'attack', 0.75);
   UI.act(1, 'block', 0.9);
-  /* With PvpKnight rig, actions set pose clips directly — no act() delegate to character */
-  assert.ok(knightCreated[0] && knightCreated[0].kn, 'fighter 0 has knight rig');
-  assert.ok(knightCreated[1] && knightCreated[1].kn, 'fighter 1 has knight rig');
+  assert.deepStrictEqual(blockyCreated[0].actions[0], ['attack', 0.75], 'serangan diteruskan ke karakter asli');
+  assert.deepStrictEqual(blockyCreated[1].actions[0], ['block', 0.9], 'block diteruskan ke karakter asli');
+  UI.act(1, 'sad', 1.8);
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.ok(blockyCreated[1].modes.includes('poseDown'), 'yang kalah terpental lalu jatuh (poseDown)');
   UI.impact(1, 'block');
   assert.ok(findAll(body, 'du-fighter')[1].className.includes('block'), 'impact FX are attached to the defending fighter');
+
+  /* skin ksatria memakai rig PvpKnight dengan palet rival untuk pemain kedua */
+  UI.open({ names: ['A', 'B'], css: ['#fff', '#fff'], fighters: [{ skin: 'ksatria' }, { skin: 'ksatria' }], reducedMotion: true });
+  assert.strictEqual(knightCreated.length, 2, 'skin ksatria memakai rig PvpKnight');
+  assert.ok(knightCreated[1].opts && knightCreated[1].opts.palette, 'rival fighter gets RIVAL_PAL palette');
+  assert.strictEqual(blockyCreated.length, 2, 'ksatria tidak membuat karakter blocky baru');
 
   const chooser = UI.chooseOpponent([{ name: 'CPU A' }, { name: 'CPU B' }]);
   const chooserNode = find(body, 'du-choose');

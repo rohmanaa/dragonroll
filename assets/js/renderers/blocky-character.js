@@ -932,7 +932,11 @@ const BUILD={head:buildHead,hair:buildHair,body:buildBody,helm:buildHelm,chest:b
 const POSES={
   pose1:{rLegT:-0.55,rKnee:0.5,lLegT:0.45,lKnee:0.05,rLegZ:-0.12,lLegZ:0.15,rArmS:-0.95,rElbow:-0.75,rWrist:1.0,rArmZ:-0.12,lArmS:-0.7,lElbow:-1.1,lArmZ:0.35,lean:0.18,twist:0.25,headX:0.05,headY:-0.2,cape:0.2,tail:0.3},
   pose2:{rLegT:-0.15,rKnee:0.05,lLegT:0.1,lKnee:0.05,rLegZ:-0.25,lLegZ:0.25,rArmS:-3.05,rElbow:-0.15,rWrist:1.55,rArmZ:-0.25,lArmS:0.1,lElbow:-1.3,lArmZ:0.55,lean:-0.12,twist:-0.1,headX:-0.2,headY:0,cape:0.35,tail:0.5},
-  pose3:{rLegT:-0.95,rKnee:0.95,lLegT:0.7,lKnee:0.05,rLegZ:-0.15,lLegZ:0.2,rArmS:-1.5,rElbow:-0.05,rWrist:1.5,rArmZ:-0.05,lArmS:0.5,lElbow:-0.4,lArmZ:0.9,lean:0.28,twist:0.5,headX:0.1,headY:-0.45,cape:0.5,tail:0.6}
+  pose3:{rLegT:-0.95,rKnee:0.95,lLegT:0.7,lKnee:0.05,rLegZ:-0.15,lLegZ:0.2,rArmS:-1.5,rElbow:-0.05,rWrist:1.5,rArmZ:-0.05,lArmS:0.5,lElbow:-0.4,lArmZ:0.9,lean:0.28,twist:0.5,headX:0.1,headY:-0.45,cape:0.5,tail:0.6},
+  /* PVP: terpental -> jatuh -> duduk -> berdiri kalah (dipakai lewat setMode) */
+  poseDown:{rLegT:-0.3,rKnee:0.3,lLegT:0.1,lKnee:0.2,rLegZ:-0.2,lLegZ:0.2,rArmS:0.45,rElbow:-0.2,rWrist:0,rArmZ:-0.8,lArmS:0.35,lElbow:-0.2,lArmZ:0.8,lean:0,twist:0,headX:-0.3,headY:0,cape:0.1,tail:0.1},
+  poseSit:{rLegT:-1.45,rKnee:0.08,lLegT:-1.45,lKnee:0.08,rLegZ:-0.2,lLegZ:0.2,rArmS:0.6,rElbow:-0.15,rWrist:0,rArmZ:-0.4,lArmS:0.6,lElbow:-0.15,lArmZ:0.4,lean:0.2,twist:0,headX:0.4,headY:0,cape:0.05,tail:0.05},
+  poseDefeat:{rLegT:-0.12,rKnee:0.25,lLegT:-0.05,lKnee:0.2,rLegZ:-0.06,lLegZ:0.06,rArmS:0.12,rElbow:-0.12,rWrist:0,rArmZ:-0.06,lArmS:0.12,lElbow:-0.12,lArmZ:0.06,lean:0.38,twist:0,headX:0.6,headY:0,cape:0.08,tail:0.05}
 };
 const CROUCH={rLegT:-0.75,rKnee:1.35,lLegT:-0.55,lKnee:1.2,rArmS:-0.2,rArmZ:-0.35,lArmS:-0.3,lArmZ:0.4,lean:0.35,headX:-0.15,cape:0.1};
 const AIR_UP={rLegT:-1.0,rKnee:1.2,lLegT:0.35,lKnee:0.9,rLegZ:-0.1,lLegZ:0.12,rArmS:-2.7,rElbow:-0.15,rWrist:1.3,rArmZ:-0.15,lArmS:-2.5,lElbow:-0.2,lArmZ:0.35,lean:0.05,twist:0,headX:-0.1,headY:0,cape:0.2,tail:1.0};
@@ -983,8 +987,12 @@ function applyRig(){
   upper.rotation.set(P.lean,P.twist,0);
   head.rotation.set(P.headX-P.lean*0.6,P.headY-P.twist*0.7,0);
   const act=clamp(level,0,2)*0.5+(airborne?0.6:0)+0.1;
-  cape1.rotation.x=P.cape+Math.sin(time*6)*0.03*act;
-  cape2.rotation.x=P.cape*0.6+Math.sin(time*7+1.2)*0.08*act;
+  /* jubah berkibar: angin pelan saat diam (selalu terlihat) + getar cepat saat bergerak */
+  const wind=0.7+clamp(level,0,2)*0.35+(airborne?0.5:0);
+  cape1.rotation.x=P.cape+Math.sin(time*1.9)*0.06*wind+Math.sin(time*6)*0.03*act;
+  cape1.rotation.z=Math.sin(time*1.3)*0.04*wind;
+  cape2.rotation.x=P.cape*0.6+Math.sin(time*2.6+1.2)*0.12*wind+Math.sin(time*7+1.2)*0.08*act;
+  cape2.rotation.z=Math.sin(time*1.7+0.4)*0.06*wind;
   tails.forEach((g,i)=>{g.rotation.x=0.2+P.tail*0.5+Math.sin(time*6+i)*0.08*act;g.rotation.z=Math.sin(time*3.1+i)*0.05*act;});
   if(torsoMesh)torsoMesh.scale.y=1+Math.sin(time*2.2)*0.012*(1-clamp(level,0,1));
   const hipY=Math.max(reach(P.rLegT,P.rKnee,P.rLegZ),reach(P.lLegT,P.lKnee,P.lLegZ));
