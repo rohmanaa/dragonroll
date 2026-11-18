@@ -6032,15 +6032,18 @@ async function showLevelUpWithRewards(level,gid){
   if(!Number.isFinite(level)||level<1) return;
   if(LAST_LEVELUP_SHOWN >= level) return;
   LAST_LEVELUP_SHOWN = level;
-  let rewards=[],note='';
+  let rewards=[],note='',serverSaid=false,paidNew=false;
   try{
     const W=UT.WalletService&&UT.WalletService.get(), r=W&&W.claimLevelRewards?await W.claimLevelRewards():null;
     if(r&&r.ok){
+      serverSaid=true; paidNew=Array.isArray(r.levels)&&r.levels.length>0;
       if(r.reward_coins>0) rewards.push({kind:'coins',amount:'+'+r.reward_coins,label:'Koin'});
       if(r.reward_gems>0) rewards.push({kind:'gems',amount:'+'+r.reward_gems,label:'Emerald'});
       const lv=Array.isArray(r.levels)?r.levels:[]; if(lv.length>1) note='Hadiah level '+lv[0].level+'–'+lv[lv.length-1].level;
     }
   }catch(e){ console.warn('[level-up] klaim hadiah gagal',e); }
+  /* Server = penentu: bila server menjawab & tidak ada level baru yang dibayar, level ini sudah pernah dirayakan (cache lokal ketinggalan) -> jangan tampilkan lagi. */
+  if(serverSaid&&!paidNew) return;
   setTimeout(()=>{ if(gameOver&&gameId===gid&&UT.LevelUp) UT.LevelUp.show({level,rewards,note}); },900);
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
