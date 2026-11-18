@@ -1,0 +1,116 @@
+/* Kartu profil pemain gameplay — desain "Player HUD Design Variations" (referensi/gameplay/profilgameplay.jpg).
+   Frame avatar kotak + bar panjang berujung miring + tab kecil di bawahnya.
+   Border PERAK = menunggu, EMAS = sedang giliran. Warna kursi (--pc) jadi cahaya garis tengah bar.
+   Kursi kanan (p0, p2) dicerminkan horizontal; kursi bawah (p0, p3) dicerminkan vertikal (tab di atas bar).
+   Hanya presentasi: markup tetap dari renderChips() + dua elemen dekorasi (.hf). Dimuat SETELAH hud-mockup.css. */
+
+html body #players .pg .pr {
+  --hf-silver: linear-gradient(#f1f4fa, #a7b0c2 52%, #727b90);
+  --hf-gold: linear-gradient(#fff3b0, #f4c649 50%, #c98c16);
+  --hf-edge: var(--hf-silver);
+  --hf-glow: rgba(0, 0, 0, .45);
+  display: block !important;
+  width: 400px !important;
+  height: 132px !important;
+  min-height: 132px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: none !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+html body #players .pg .pr.on,
+html body #players .pg .pr.act {
+  --hf-edge: var(--hf-gold);
+  --hf-glow: rgba(255, 204, 70, .75);
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html body #players .pg .pr::before,
+html body #players .pg .pr::after { content: none !important; }
+html body #players .pg .pr[class*="pfx-"]::after { content: "" !important; }
+html body #players .pg .pr.me,
+html body #players .pg .pr.shielded { outline: 0 !important; box-shadow: none !important; }
+
+/* ---------- dekorasi: tab + bar ---------- */
+#players .pg .pr .hf { position: absolute; inset: 0; z-index: 0; pointer-events: none; filter: drop-shadow(0 5px 0 rgba(8, 6, 20, .5)) drop-shadow(0 0 9px var(--hf-glow)); }
+#players .pg .pr .hf i { position: absolute; display: block; background: var(--hf-edge); }
+#players .pg .pr .hf i::before { content: ""; position: absolute; }
+/* tab bawah (lebih pendek, di belakang bar) */
+#players .pg .pr .hf-tab { left: 66px; right: 78px; top: 70px; height: 40px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%); }
+#players .pg .pr .hf-tab::before { inset: 4px 5px 4px 0; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%); background: linear-gradient(#3b3e49, #272a33); }
+/* bar utama */
+#players .pg .pr .hf-bar { left: 66px; right: 0; top: 6px; height: 72px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 12px, calc(100% - 30px) 100%, 0 100%); }
+#players .pg .pr .hf-bar::before {
+  inset: 4px 5px 4px 0;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 10px, calc(100% - 28px) 100%, 0 100%);
+  background:
+    linear-gradient(90deg, transparent, var(--pc, #3b7ddd) 45%, transparent 100%) 0 24% / 100% 2px no-repeat,
+    linear-gradient(90deg, transparent, var(--pc, #3b7ddd) 45%, transparent 100%) 0 76% / 100% 2px no-repeat,
+    linear-gradient(90deg, transparent 6%, color-mix(in srgb, var(--pc, #3b7ddd) 46%, transparent) 48%, transparent 94%),
+    linear-gradient(#454955, #2c2f39);
+}
+
+/* ---------- frame avatar ---------- */
+html body #players .pg .pr .av {
+  position: absolute !important;
+  z-index: 3;
+  left: 0; top: 0;
+  box-sizing: border-box;
+  width: 96px !important; height: 96px !important;
+  border: 6px solid transparent;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--pc, #3b7ddd) 55%, #000), #14151b 85%) padding-box,
+    var(--hf-edge) border-box;
+  filter: drop-shadow(0 5px 0 rgba(8, 6, 20, .5)) drop-shadow(0 0 9px var(--hf-glow));
+}
+html body #players .pg .pr .av > img {
+  width: 100% !important; height: 100% !important;
+  border-radius: 10px !important;
+  object-fit: contain !important;
+}
+html body #players .pg .pr .tn { left: -14px !important; top: -14px !important; z-index: 4; }
+
+/* ---------- isi teks (bar = nama, tab = posisi/buff) ---------- */
+html body #players .pg .pr .mid { position: absolute; inset: 0; z-index: 2; display: block; gap: 0; }
+#players .pg .pr .r1,
+#players .pg .pr .r2 { position: absolute; display: flex; align-items: center; min-width: 0; overflow: hidden; }
+#players .pg .pr .r1 { top: 6px; height: 72px; left: 108px; right: 40px; gap: 8px; }
+#players .pg .pr .r2 { top: 80px; height: 28px; left: 100px; right: 92px; gap: 8px; }
+html body #players .pg .pr .nm { font-size: 32px !important; }
+html body #players .pg .pr .ps { font-size: 18px !important; }
+html body #players .pg .pr .bi { width: 26px; height: 26px; }
+html body #players .pg .pr .bi em { font-size: 11px; }
+#players .pg .pr .turn-progress { position: absolute; left: 108px; right: 40px; top: 70px; height: 6px; margin: 0; z-index: 3; }
+
+/* ---------- kursi kanan: cermin horizontal ---------- */
+#players .pg.p0 .pr .hf,
+#players .pg.p2 .pr .hf { transform: scaleX(-1); }
+html body #players .pg.p0 .pr .av,
+html body #players .pg.p2 .pr .av { left: auto; right: 0; }
+html body #players .pg.p0 .pr .tn,
+html body #players .pg.p2 .pr .tn { left: auto !important; right: -14px !important; }
+#players .pg.p0 .pr .r1,
+#players .pg.p2 .pr .r1 { left: 40px; right: 108px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p0 .pr .r2,
+#players .pg.p2 .pr .r2 { left: 92px; right: 100px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p0 .pr .turn-progress,
+#players .pg.p2 .pr .turn-progress { left: 40px; right: 108px; }
+
+/* ---------- kursi bawah: cermin vertikal (tab di atas bar) ---------- */
+#players .pg.p3 .pr .hf { transform: scaleY(-1); }
+#players .pg.p0 .pr .hf { transform: scale(-1, -1); }
+html body #players .pg.p0 .pr .av,
+html body #players .pg.p3 .pr .av { top: auto; bottom: 0; }
+#players .pg.p0 .pr .r1,
+#players .pg.p3 .pr .r1 { top: 54px; }
+#players .pg.p0 .pr .r2,
+#players .pg.p3 .pr .r2 { top: 24px; }
+#players .pg.p0 .pr .turn-progress,
+#players .pg.p3 .pr .turn-progress { top: 56px; }
+
+html body #players .pg .pr.off .hf,
+html body #players .pg .pr.off .av { filter: grayscale(1); }
+@media (prefers-reduced-motion: reduce) { #players .pg .pr .hf, #players .pg .pr .av { filter: none; } }

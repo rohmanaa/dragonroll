@@ -5312,7 +5312,8 @@ function renderChips(){
     if(p.guard) addBuff('item-icons','perisai-kayu','Perisai');
     if(p.frozen) addBuff('white-glyphs','kepingan-salju','Beku');
     row.appendChild(buffs); content.appendChild(row);
-    card.appendChild(avatar); card.appendChild(content);
+    const frameFx=document.createElement('span'); frameFx.className='hf'; frameFx.setAttribute('aria-hidden','true'); frameFx.innerHTML='<i class="hf-tab"></i><i class="hf-bar"></i>'; /* dekorasi frame HUD (hud-player-card.css) */
+    card.appendChild(frameFx); card.appendChild(avatar); card.appendChild(content);
     const extra=document.createElement('div'); extra.className='px';
     if(p.pos===GOAL&&!p.dragonReady){
       const crystals=document.createElement('div'); crystals.className='cx'; crystals.setAttribute('role','img'); crystals.setAttribute('aria-label',(BOSS==='wither'?'Skeleton':'Crystal')+' '+p.crystal+' dari '+CRYSTAL_N);

@@ -28,6 +28,7 @@ assert.match(css, /display:\s*contents\s*!important/);
 assert.match(css, /#win\[data-state="lose"\]\.win-result \.lm-eyebrow\s*\{[^}]*width:\s*fit-content\s*!important/s);
 assert.match(main, /setWinReward\(m\.gameId,'xp',r\.xp_gain\)/);
 assert.match(main, /setWinReward\(m\.gameId,'points',r\.points\)/);
-assert.match(main, /setWinReward\(gid,'coins',r\.reward_coins\)/);
+assert.match(main, /setWinCoins\(gid,'boss',r\.reward_coins\)/);
+assert.match(main, /setWinCoins\(m\.gameId,'match',r\.reward_coins\)/); /* koin match (menang/kalah) dari server */
 assert.match(main, /updateWinLevelProgress\(m\.gameId\)/);
 console.log('ok - result screen uses local reference assets and server-backed rewards/level progress');
