@@ -88,7 +88,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #foot{position:absolute;left:28px;right:28px;bottom:26px}
 #why{height:34px;text-align:center;font-weight:800;font-size:22px;color:#ffe08a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #acts{display:flex;gap:20px;justify-content:center;margin-top:8px}
-#ready{width:400px;height:110px}#ready span,#start span{font-size:50px}
+#rdy{width:400px;height:110px}#rdy span,#start span{font-size:50px}
 #start{width:520px;height:110px}
 /* modal */
 .modal{position:absolute;inset:0;background:rgba(10,8,30,.72);display:none;place-items:center;z-index:40}
