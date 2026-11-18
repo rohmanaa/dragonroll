@@ -382,7 +382,7 @@ export function createDiceEffects(THREE) {
       this.fxPos = p;
       const k = Math.min(1.6, speed / 9) * e.impactIntensity;
       this.sound.play(e.soundEffect, Math.min(2, k), e.soundGain);
-      this.sound.thud(index, k, e.soundGain); /* lapisan benturan papan, beda tiap pantulan */
+      /* suara pantulan ke papan (thud) dimatikan atas permintaan; hanya bunyi material dadu yang diputar */
       this.auraFlare = Math.min(2, this.auraFlare + 0.3 * k);
       if (index === 0) {
         (RECIPES[e.landingEffect] || RECIPES.puff)(this, p, e, k);
