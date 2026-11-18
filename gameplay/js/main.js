@@ -5273,13 +5273,13 @@ function renderChips(){
     if(i===cur&&!gameOver) content.appendChild(timer);
     const head=document.createElement('div'); head.className='r1';
     const name=document.createElement('span'); name.className='nm';
-    if((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))) name.appendChild(gameHudImage('item-icons','mahkota','cr'));
+    if((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))) avatar.appendChild(gameHudImage('item-icons','mahkota','cr')); /* mahkota host: absolut di atas kepala frame avatar (hud-player-card.css) */
     name.appendChild(document.createTextNode(p.name)); head.appendChild(name);
     const isAuto=!!(p.cpu||p.auto||(ONLINE_ROOM&&p.left&&!p.cpu)||(!gameOver&&(p.autoRoll||(autoOn&&isLocalPlayer(p)))));
     if(isLocal||isAuto||p.left){
       const badge=p.cpu?'cpu':(isAuto?'auto':'local');
       const tag=document.createElement('span'); tag.className='tag '+badge;
-      const tagText=document.createElement('span'); tagText.textContent=p.cpu?'CPU':(isAuto?'AUTO':'AKU'); tag.appendChild(tagText); head.appendChild(tag);
+      const tagText=document.createElement('span'); tagText.textContent=p.cpu?'CPU':(isAuto?'AUTO':'AKU'); tag.appendChild(tagText); avatar.appendChild(tag); /* chip melayang di bawah frame avatar, tidak makan tempat nama */
     }
     if(p.activePower&&PUN[p.activePower]){
       const art=GAME_HUD_POWER_ART[p.activePower],using=document.createElement('span');
@@ -5317,7 +5317,6 @@ function renderChips(){
     const extra=document.createElement('div'); extra.className='px';
     if(p.pos===GOAL&&!p.dragonReady){
       const crystals=document.createElement('div'); crystals.className='cx'; crystals.setAttribute('role','img'); crystals.setAttribute('aria-label',(BOSS==='wither'?'Skeleton':'Crystal')+' '+p.crystal+' dari '+CRYSTAL_N);
-      const gem=gameHudImage('white-glyphs','kristal-heksagon','cg'); crystals.appendChild(gem);
       const count=document.createElement('b'); count.className='ttl cn'+(p.crystal>=CRYSTAL_N?' ok':''); count.textContent=p.crystal+'/'+CRYSTAL_N; crystals.appendChild(count);
       const skulls=document.createElement('div'); skulls.className='sks';
       for(let n=0;n<CRYSTAL_N;n++){ const skull=document.createElement('span'); skull.className='sk6'+(p.cdone&&p.cdone[n]?' d':''); skull.setAttribute('aria-hidden','true'); const icon=document.createElement('i'); skull.appendChild(icon); skulls.appendChild(skull); }

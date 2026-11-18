@@ -73,7 +73,7 @@ html body #players .pg .pr .nm { font-size: 32px !important; }
 html body #players .pg .pr .ps { font-size: 18px !important; }
 html body #players .pg .pr .bi { width: 26px; height: 26px; }
 html body #players .pg .pr .bi em { font-size: 11px; }
-#players .pg .pr .turn-progress { position: absolute; left: 130px; right: 38px; top: 82px; height: 6px; margin: 0; z-index: 3; }
+#players .pg .pr .turn-progress { position: absolute; box-sizing: border-box; left: 130px; right: 38px; top: 82px; width: auto !important; max-width: calc(100% - 168px); height: 6px; margin: 0; z-index: 3; } /* width:100% dari hud-mockup membuat bar melewati batas kartu: pakai left/right saja */
 
 /* ---------- kursi kanan-atas (p2) & kiri-bawah (p3): tata letak cermin horizontal ---------- */
 #players .pg.p2 .pr .hf,
@@ -118,3 +118,19 @@ html body #players .pg .pr.off .av { filter: grayscale(1); }
 /* nama = flex (text-align tidak berlaku): kursi dengan avatar di kanan (p0, p2) rata kanan agar menempel ke avatar, seperti referensi */
 html body #players .pg.p0 .pr .nm,
 html body #players .pg.p2 .pr .nm { justify-content: flex-end; }
+
+/* ---------- mahkota host (di atas kepala frame) & chip AKU/AUTO/CPU (di bawah frame, melayang di atas profil) ----------
+   Keduanya anak .av (frame avatar), absolut, sehingga tetap tegak di kursi bawah (.av sudah diputar balik 180 derajat). */
+html body #players .pg .pr .av .cr {
+  position: absolute; z-index: 6; left: 50%; top: -26px;
+  width: 44px !important; height: auto !important; max-width: none; border-radius: 0 !important; object-fit: contain !important; /* menimpa aturan .av > img (wajah) */
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .5));
+}
+html body #players .pg .pr .av .tag {
+  position: absolute; z-index: 6; left: 50%; bottom: 2px;
+  transform: translateX(-50%);
+  height: 24px; padding: 0 10px;
+  pointer-events: none;
+}
