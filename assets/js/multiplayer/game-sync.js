@@ -6,6 +6,7 @@ async function connect(options){
  let revision=Number(options.roomConfig.roomRevision)||0,channel=client.channel('game-sync:'+options.roomId,{config:{broadcast:{self:false},presence:{key:identity.id}}});
  let resolveReady,rejectReady;const ready=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject});
  channel.on('broadcast',{event:'roll_request'},({payload})=>{if(options.isHost&&options.onRollRequest)options.onRollRequest(payload||{})});
+ channel.on('broadcast',{event:'duel_roll'},({payload})=>{if(options.isHost&&options.onDuelRoll&&payload)options.onDuelRoll(payload)}); // duel PVP online: pemain yang duel menekan ROLL
  channel.on('broadcast',{event:'power_request'},({payload})=>{if(options.isHost&&options.onPowerRequest)options.onPowerRequest(payload||{})});
  channel.on('broadcast',{event:'loadout'},({payload})=>{if(options.isHost&&options.onLoadout&&payload)options.onLoadout(payload)});
  channel.on('broadcast',{event:'host_left'},()=>{if(!options.isHost&&options.onHostLeft)options.onHostLeft()});
@@ -31,6 +32,7 @@ async function connect(options){
   announceLeave:()=>{if(!options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'host_left',payload:{}})},
   sendEmote:payload=>channel.send({type:'broadcast',event:'emote',payload}),
   sendAutoRoll:payload=>channel.send({type:'broadcast',event:'autoroll',payload}),
+  sendDuelRoll:payload=>{if(options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'duel_roll',payload})},
   sendTotemAnswer:payload=>{if(options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'totem_answer',payload})},
   sendCue:payload=>{if(!options.isHost)return Promise.resolve('skipped');return channel.send({type:'broadcast',event:'cue',payload})},
   requestRoll:async payload=>{if(options.isHost)throw new Error('HOST_DOES_NOT_REQUEST_REMOTE_ROLL');const result=await channel.send({type:'broadcast',event:'roll_request',payload});if(result==='error')throw new Error('ROLL_REQUEST_FAILED');return result},

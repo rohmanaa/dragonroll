@@ -861,6 +861,13 @@
         rollResolver = resolve;
       });
     },
+    /* Online: kunci tombol ROLL (sudah tap / menunggu lawan / penonton). Melepas janji waitForRoll yang masih menggantung (hasil false). */
+    lockRoll: function (label) {
+      build();
+      el.rollButton.disabled = true;
+      if (label) el.rollLabel.textContent = label;
+      if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
+    },
     revealRolls: function (values) {
       build();
       var d3 = arena && arena.dice, quick = options.reducedMotion || !d3;

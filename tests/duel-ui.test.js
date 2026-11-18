@@ -167,6 +167,14 @@ async function run() {
   chooserNode.children[2].click();
   assert.strictEqual(await chooser, 1, 'target selection resolves the chosen opponent');
 
+  /* online: lockRoll mengunci tombol dan melepas janji waitForRoll yang menggantung (hasil false) */
+  const lockedWait = UI.waitForRoll(3);
+  const lockBtn = find(body, 'du-roll-button');
+  assert.strictEqual(lockBtn.disabled, false);
+  UI.lockRoll('MENUNGGU LAWAN...');
+  assert.strictEqual(lockBtn.disabled, true, 'lockRoll mengunci tombol ROLL');
+  assert.strictEqual(await lockedWait, false, 'lockRoll membatalkan penantian ROLL tanpa dianggap tap');
+
   const cancelledRoll = UI.waitForRoll(2);
   UI.close();
   assert.strictEqual(await cancelledRoll, false, 'closing the duel cancels a pending roll prompt');
