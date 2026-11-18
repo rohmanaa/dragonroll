@@ -102,7 +102,7 @@ function drawAkun(){
   $("#xpnote").textContent=`${fmt(L.xpIn)} / ${fmt(L.xpMax)} XP · butuh ${fmt(L.xpMax-L.xpIn)} XP lagi ke Level ${L.level+1}`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{$("#lvf").style.width=pct+"%"}));
   const lang=LANG[(UT.Prefs&&UT.Prefs.get("lang","en"))]||"English";
-  $("#info").innerHTML=[["Nama",esc(pname()),"name"],["ID Pengguna",esc(PROF.uid),"copy"],["Akun",un?"@"+esc(un):"-"],["Bergabung",esc(PROF.joined)],["Karakter aktif",esc(eqSkin().name)],["Bahasa",lang]]
+  $("#info").innerHTML=[["Nama",esc(pname()),"name"],["ID Pengguna",esc(PROF.uid),"copy"],["Akun",un?"@"+esc(un):"-"],["Bergabung",esc(PROF.joined)],["Bahasa",lang]]
     .map(([a,b,t])=>`<div class="ir${t?" tap":""}"${t?` data-t="${t}"`:""}><span>${a}</span><b>${b}</b></div>`).join("");
   drawAvatar();
 }
