@@ -1,18 +1,16 @@
 /* Kartu profil pemain gameplay — desain "Player HUD Design Variations" (referensi/gameplay/profilgameplay.jpg).
-   Frame avatar kotak + bar panjang berujung miring + tab kecil di bawahnya.
+   Panel (frame avatar kotak + bar berujung miring + tab bawah) = GAMBAR hasil crop referensi: assets/images/hud/pcard-{red,blue,yellow,green}-{silver,gold}.webp
+   (592x210, latar transparan). Warna mengikuti kursi (data-seat: 0 merah, 1 biru, 2 kuning, 3 hijau); perak = menunggu, emas = giliran.
    Border PERAK = menunggu, EMAS = sedang giliran. Warna kursi (--pc) jadi cahaya garis tengah bar.
    Tata letak kiri/kanan: p1, p0 = avatar di kiri; p2, p3 = avatar di kanan (cermin). Kursi bawah (p0, p3): hanya panel yang diputar 180 derajat (avatar + badge tetap tegak), seperti referensi.
    Hanya presentasi: markup tetap dari renderChips() + dua elemen dekorasi (.hf). Dimuat SETELAH hud-mockup.css. */
 
 html body #players .pg .pr {
-  --hf-silver: linear-gradient(#f1f4fa, #a7b0c2 52%, #727b90);
-  --hf-gold: linear-gradient(#fff3b0, #f4c649 50%, #c98c16);
-  --hf-edge: var(--hf-silver);
   --hf-glow: rgba(0, 0, 0, .45);
   display: block !important;
   width: 400px !important;
-  height: 132px !important;
-  min-height: 132px !important;
+  height: 142px !important;
+  min-height: 142px !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 18px !important;
@@ -22,7 +20,6 @@ html body #players .pg .pr {
 }
 html body #players .pg .pr.on,
 html body #players .pg .pr.act {
-  --hf-edge: var(--hf-gold);
   --hf-glow: rgba(255, 204, 70, .75);
   border: 0 !important;
   box-shadow: none !important;
@@ -33,80 +30,71 @@ html body #players .pg .pr[class*="pfx-"]::after { content: "" !important; }
 html body #players .pg .pr.me,
 html body #players .pg .pr.shielded { outline: 0 !important; box-shadow: none !important; }
 
-/* ---------- dekorasi: tab + bar ---------- */
-#players .pg .pr .hf { position: absolute; inset: 0; z-index: 0; pointer-events: none; filter: drop-shadow(0 5px 0 rgba(8, 6, 20, .5)) drop-shadow(0 0 9px var(--hf-glow)); }
-#players .pg .pr .hf i { position: absolute; display: block; background: var(--hf-edge); }
-#players .pg .pr .hf i::before { content: ""; position: absolute; }
-/* tab bawah (lebih pendek, di belakang bar) */
-#players .pg .pr .hf-tab { left: 66px; right: 30px; top: 70px; height: 56px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%); }
-#players .pg .pr .hf-tab::before { inset: 4px 5px 4px 0; clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%); background: linear-gradient(#3b3e49, #272a33); }
-/* bar utama */
-#players .pg .pr .hf-bar { left: 66px; right: 0; top: 6px; height: 72px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 12px, calc(100% - 30px) 100%, 0 100%); }
-#players .pg .pr .hf-bar::before {
-  inset: 4px 5px 4px 0;
-  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 10px, calc(100% - 28px) 100%, 0 100%);
-  background:
-    linear-gradient(90deg, transparent, var(--pc, #3b7ddd) 45%, transparent 100%) 0 24% / 100% 2px no-repeat,
-    linear-gradient(90deg, transparent, var(--pc, #3b7ddd) 45%, transparent 100%) 0 76% / 100% 2px no-repeat,
-    linear-gradient(90deg, transparent 6%, color-mix(in srgb, var(--pc, #3b7ddd) 46%, transparent) 48%, transparent 94%),
-    linear-gradient(#454955, #2c2f39);
-}
+/* ---------- panel: gambar crop referensi (tab + bar + frame sudah menyatu di gambar) ---------- */
+#players .pg .pr .hf { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: var(--hf-img) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 0 rgba(8, 6, 20, .45)) drop-shadow(0 0 8px var(--hf-glow)); }
+#players .pg .pr .hf i { display: none; }
+#players .pg .pr { --hf-img: url(../../assets/images/hud/pcard-blue-silver.webp); }
+#players .pg .pr.on, #players .pg .pr.act { --hf-img: url(../../assets/images/hud/pcard-blue-gold.webp); }
+#players .pg .pr[data-seat="0"] { --hf-img: url(../../assets/images/hud/pcard-red-silver.webp); }
+#players .pg .pr[data-seat="0"].on, #players .pg .pr[data-seat="0"].act { --hf-img: url(../../assets/images/hud/pcard-red-gold.webp); }
+#players .pg .pr[data-seat="1"] { --hf-img: url(../../assets/images/hud/pcard-blue-silver.webp); }
+#players .pg .pr[data-seat="1"].on, #players .pg .pr[data-seat="1"].act { --hf-img: url(../../assets/images/hud/pcard-blue-gold.webp); }
+#players .pg .pr[data-seat="2"] { --hf-img: url(../../assets/images/hud/pcard-yellow-silver.webp); }
+#players .pg .pr[data-seat="2"].on, #players .pg .pr[data-seat="2"].act { --hf-img: url(../../assets/images/hud/pcard-yellow-gold.webp); }
+#players .pg .pr[data-seat="3"] { --hf-img: url(../../assets/images/hud/pcard-green-silver.webp); }
+#players .pg .pr[data-seat="3"].on, #players .pg .pr[data-seat="3"].act { --hf-img: url(../../assets/images/hud/pcard-green-gold.webp); }
 
-/* ---------- frame avatar ---------- */
+/* ---------- avatar: mengisi petak gelap di frame gambar (frame 120px di kiri-atas; sisi dalam ~ 10px) ---------- */
 html body #players .pg .pr .av {
   position: absolute !important;
   z-index: 3;
-  left: 0; top: 0;
+  left: 4px; top: 4px;
   box-sizing: border-box;
-  width: 96px !important; height: 96px !important;
-  border: 6px solid transparent;
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--pc, #3b7ddd) 55%, #000), #14151b 85%) padding-box,
-    var(--hf-edge) border-box;
-  filter: drop-shadow(0 5px 0 rgba(8, 6, 20, .5)) drop-shadow(0 0 9px var(--hf-glow));
+  width: 116px !important; height: 116px !important;
+  padding: 11px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
 }
 html body #players .pg .pr .av > img {
   width: 100% !important; height: 100% !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   object-fit: contain !important;
 }
-html body #players .pg .pr .tn { left: -14px !important; top: -14px !important; z-index: 4; }
+html body #players .pg .pr .tn { left: -10px !important; top: -10px !important; z-index: 4; }
 
 /* ---------- isi teks (bar = nama, tab = posisi/buff) ---------- */
 html body #players .pg .pr .mid { position: absolute; inset: 0; z-index: 2; display: block; gap: 0; }
 #players .pg .pr .r1,
 #players .pg .pr .r2 { position: absolute; display: flex; align-items: center; min-width: 0; overflow: hidden; }
-#players .pg .pr .r1 { top: 6px; height: 72px; left: 108px; right: 40px; gap: 8px; }
-#players .pg .pr .r2 { top: 80px; height: 44px; left: 100px; right: 60px; gap: 8px; }
+#players .pg .pr .r1 { top: 18px; height: 70px; left: 130px; right: 38px; gap: 8px; }
+#players .pg .pr .r2 { top: 96px; height: 38px; left: 130px; right: 60px; gap: 8px; }
 html body #players .pg .pr .nm { font-size: 32px !important; }
 html body #players .pg .pr .ps { font-size: 18px !important; }
 html body #players .pg .pr .bi { width: 26px; height: 26px; }
 html body #players .pg .pr .bi em { font-size: 11px; }
-#players .pg .pr .turn-progress { position: absolute; left: 108px; right: 40px; top: 70px; height: 6px; margin: 0; z-index: 3; }
+#players .pg .pr .turn-progress { position: absolute; left: 130px; right: 38px; top: 82px; height: 6px; margin: 0; z-index: 3; }
 
 /* ---------- kursi kanan-atas (p2) & kiri-bawah (p3): tata letak cermin horizontal ---------- */
 #players .pg.p2 .pr .hf,
 #players .pg.p3 .pr .hf { transform: scaleX(-1); }
 html body #players .pg.p2 .pr .av,
-html body #players .pg.p3 .pr .av { left: auto; right: 0; }
+html body #players .pg.p3 .pr .av { left: auto; right: 4px; }
 html body #players .pg.p2 .pr .tn,
-html body #players .pg.p3 .pr .tn { left: auto !important; right: -14px !important; }
+html body #players .pg.p3 .pr .tn { left: auto !important; right: -10px !important; }
 #players .pg.p2 .pr .r1,
-#players .pg.p3 .pr .r1 { left: 40px; right: 108px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p3 .pr .r1 { left: 38px; right: 130px; flex-direction: row-reverse; text-align: right; }
 #players .pg.p2 .pr .r2,
-#players .pg.p3 .pr .r2 { left: 60px; right: 100px; flex-direction: row-reverse; text-align: right; }
+#players .pg.p3 .pr .r2 { left: 60px; right: 130px; flex-direction: row-reverse; text-align: right; }
 #players .pg.p2 .pr .turn-progress,
-#players .pg.p3 .pr .turn-progress { left: 40px; right: 108px; }
+#players .pg.p3 .pr .turn-progress { left: 38px; right: 130px; }
 
 /* ---------- kursi bawah (p0 kanan-bawah, p3 kiri-bawah): HANYA panel (tab + bar + teks) yang berputar 180 derajat, seperti referensi.
    Kartu diputar agar panel terbalik & avatar pindah ke sisi yang benar, lalu frame avatar + badge nomor diputar balik 180 sehingga tetap tegak. ---------- */
 html body #players .pg.p0 .pr,
 html body #players .pg.p3 .pr { transform: rotate(180deg) !important; }
 html body #players .pg.p0 .pr .av,
-html body #players .pg.p3 .pr .av,
-html body #players .pg.p0 .pr .tn,
-html body #players .pg.p3 .pr .tn { transform: rotate(180deg); }
+html body #players .pg.p3 .pr .av { transform: rotate(180deg); } /* .tn ada di dalam .av, jadi ikut tegak */
 
 html body #players .pg .pr.off .hf,
 html body #players .pg .pr.off .av { filter: grayscale(1); }

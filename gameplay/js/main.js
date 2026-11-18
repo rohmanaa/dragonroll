@@ -5251,7 +5251,7 @@ function renderChips(){
     const turnChip=null; /* chip YOUR TURN/GILIRAN dihapus: giliran aktif ditandai glow panel + bar waktu */
     if(turnChip){ turnChip.className='turn-chip'+(isLocal?'':' opp'); turnChip.textContent=isLocal?'YOUR TURN':'GILIRAN'; }
     const group=document.createElement('div'); group.className='pg p'+slot+(ONLINE_ROOM&&p.left?' off':''); group.dataset.seat=String(i);
-    const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css);
+    const card=document.createElement('div'); card.className='pr pl'+(i===cur&&!gameOver?' on act':'')+(p.shield?' shielded':'')+((ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu))?' host':'')+(ONLINE_ROOM&&MP_ID&&p.networkId===MP_ID?' me':''); puFxApply(card,'pr:'+p.idx); card.style.setProperty('--pc',p.css); card.dataset.seat=String(Math.max(0,SEAT_COLORS.findIndex(c=>c.css===p.css))); /* kursi -> warna kartu HUD (aset hud/pcard-*.webp) */
     const avatar=document.createElement('div'); avatar.className='av';
     const im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name;
     const order=document.createElement('span'); order.className='tn'; order.setAttribute('aria-label','Giliran ke-'+(p.turnOrder||i+1));
