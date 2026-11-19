@@ -4863,6 +4863,15 @@ async function applyChestReward(p,rw,gid){
       return {text:rw.id==='tangga'?'Lucky! Meluncur ke Tangga di petak '+to:'Unlucky! Meluncur ke Ular di petak '+to,
         after:async()=>{ sfx.pop(); await teleport(p,to); if(gid!==gameId) return; p.pos=to; renderChips(); }};
     }
+    case 'coin': case 'xp':{
+      const R=(CHEST_CFG.CHEST_AMOUNT||{})[rw.id]||[5,15],n=R[0]+Math.floor(Math.random()*(R[1]-R[0]+1)),got=msAdd(p,rw.id==='coin'?'coins':'xp',n),lbl=rw.id==='coin'?'Koin':'XP';
+      return {text:p.cpu?'+'+n+' '+lbl:got>0?'+'+got+' '+lbl+' (dihitung di akhir game)':lbl+' sudah penuh untuk match ini'};
+    }
+    case 'power':{
+      const ks=Object.keys(PUN).filter(puAvail); if(!ks.length) return {text:'Kosong'};
+      const k=ks[Math.floor(Math.random()*ks.length)]; p.pu[k]=(p.pu[k]|0)+1; renderChips();
+      return {text:'Power: '+PUN[k][1]+' ×1'};
+    }
     case 'bonus': p.bonus=2; renderChips(); return {text:'Bonus Langkah! Dadu berikutnya +2'};
     case 'lucky': chestFlag(p,'lucky'); return {text:'Pasti 6! Dadu berikutnya 6'};
     case 'addroll': p.extra=true; return {text:'Add Roll! Roll tambahan'};
@@ -6010,7 +6019,8 @@ async function doRoll(opt){
     await sleep(300); if(gid!==gameId) return;
     if(SX.forfeit){
       sfx.bounce();
-      setMsg(p.name+' dapat 6 tiga kali berturut-turut. Giliran hangus.'); hud('showResult','Tiga kali 6!','Giliran hangus.',{gid,ttl:1500});
+      const t6=msAdd(p,'coins',UT.Gameplay.Config.TRIPLE_SIX_COINS|0),t6txt=t6>0?' +'+t6+' Koin.':'';
+      setMsg(p.name+' dapat 6 tiga kali berturut-turut. Giliran hangus.'+t6txt); hud('showResult','Tiga kali 6!','Giliran hangus.'+t6txt,{gid,ttl:1500});
       await sleep(1500); if(gid!==gameId) return;
       nextTurn(); return;
     }
@@ -6024,6 +6034,8 @@ let MATCH_TOKEN=''; /* id unik per match (hanya untuk lawan CPU); online memakai
 let CH_SENT=0; /* jumlah peti tamu yang sudah dikirim ke server (reset tiap match) */
 function msReset(){ CH_SENT=0; }
 function msBump(p,k,id){ try{ if(!p||p.cpu) return; const m=p.ms||(p.ms={dice:0,ladders:0,snakes:0,skills:0,dragon_hits:0,chests:0,skill_ids:[]}); m[k]=(m[k]||0)+1; if(id&&!m.skill_ids.includes(id)&&m.skill_ids.length<8) m.skill_ids.push(id); }catch(e){} }
+/* Koin/XP in-game (Chest board, hiburan tiga-6): hanya dikumpulkan di p.ms; SERVER yang membatasi & membayar saat submit_match_result. Pagar klien = Config.INGAME_CAP. */
+function msAdd(p,k,n){ try{ if(!p||p.cpu||!(n>0)) return 0; const m=p.ms||(p.ms={dice:0,ladders:0,snakes:0,skills:0,dragon_hits:0,chests:0,skill_ids:[]}),cap=((UT.Gameplay.Config.INGAME_CAP||{})[k])||0,before=m[k]|0; m[k]=Math.min(cap,before+(n|0)); return m[k]-before; }catch(e){ return 0; } }
 let MATCH_DONE=''; /* token match yang sudah dicatat -> 1x per match walau finishGame terpanggil lagi (snapshot/refresh) */
 function resetWinResultDetails(){
   const slots=$('winRewardSlots');
@@ -6037,12 +6049,28 @@ function setWinReward(gid,key,amount){
   card.querySelector('[data-reward-value]').textContent='+'+Math.floor(value).toLocaleString('id-ID');
   card.hidden=false;
 }
-const WIN_COINS={gid:-1,boss:null,match:null}; /* koin layar hasil = koin boss + koin match; tiap sumber datang terpisah (async), jadi dijumlahkan di sini */
+const WIN_COINS={gid:-1,boss:null,match:null,ingame:null}; /* koin layar hasil = koin boss + koin match; tiap sumber datang terpisah (async), jadi dijumlahkan di sini */
 function setWinCoins(gid,part,amount){
-  if(WIN_COINS.gid!==gid){ WIN_COINS.gid=gid; WIN_COINS.boss=null; WIN_COINS.match=null; }
+  if(WIN_COINS.gid!==gid){ WIN_COINS.gid=gid; WIN_COINS.boss=null; WIN_COINS.match=null; WIN_COINS.ingame=null; }
   const v=Number(amount); if(!Number.isFinite(v)||v<0) return;
   WIN_COINS[part]=Math.floor(v);
-  setWinReward(gid,'coins',(WIN_COINS.boss|0)+(WIN_COINS.match|0));
+  setWinReward(gid,'coins',(WIN_COINS.boss|0)+(WIN_COINS.match|0)+(WIN_COINS.ingame|0));
+}
+/* Hadiah in-game muncul BELAKANGAN: angka dasar tampil dulu, jeda singkat, lalu menghitung naik ke total (rAF; reduce-motion = langsung). onDone memasang nilai akhir. */
+function animateWinReward(gid,key,from,to,onDone){
+  const done=()=>{ if(gameOver&&gameId===gid&&onDone) onDone(); };
+  if(!(to>from)||reduce){ done(); return; }
+  setTimeout(()=>{
+    if(!gameOver||gameId!==gid) return;
+    const card=$('winRewardSlots').querySelector('[data-reward="'+key+'"]'),el=card&&card.querySelector('[data-reward-value]'),t0=performance.now(),D=Math.min(1600,500+(to-from)*25);
+    if(!el){ done(); return; }
+    card.classList.add('win-result__reward--count');
+    const step=t=>{ if(!gameOver||gameId!==gid) return;
+      const k=Math.min(1,(t-t0)/D),v=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));
+      el.textContent='+'+v.toLocaleString('id-ID');
+      if(k<1) requestAnimationFrame(step); else { card.classList.remove('win-result__reward--count'); done(); } };
+    requestAnimationFrame(step);
+  },900);
 }
 function setWinRewardStatus(gid,message){
   if(!gameOver||gameId!==gid) return;
@@ -6087,7 +6115,7 @@ function recordMatchResult(winner){
    setelah diterima, profil server dibaca ulang dan disalin ke cache PlayerData. Gagal/offline = tidak tercatat (tanpa tulis lokal). */
 async function recordMatchServer(PD,m){
   try{
-    const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,skill_ids:(mm.skill_ids||[]).slice()};
+    const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,ingame_coins:mm.coins|0,ingame_xp:mm.xp|0,skill_ids:(mm.skill_ids||[]).slice()};
     const lvBefore=PD.levelInfo().level;
     await import(new URL('assets/js/multiplayer/room-service.js', document.baseURI).href); await import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href);
     const RS=UT.Multiplayer&&UT.Multiplayer.RoomService;
@@ -6106,10 +6134,13 @@ async function recordMatchServer(PD,m){
       setWinRewardStatus(m.gameId,'Data hadiah pertandingan tidak lengkap.');
       return;
     }
-    setWinReward(m.gameId,'xp',r.xp_gain);
+    const igXp=Math.max(0,Math.min(r.xp_gain|0,+r.ingame_xp||0)),igCoin=Math.max(0,+r.ingame_coins||0);
+    setWinReward(m.gameId,'xp',r.xp_gain-igXp); /* XP dasar dulu; XP in-game menyusul dengan animasi hitung */
+    if(igXp>0) animateWinReward(m.gameId,'xp',r.xp_gain-igXp,r.xp_gain,()=>setWinReward(m.gameId,'xp',r.xp_gain));
     setWinReward(m.gameId,'points',r.points);
     if(Number.isFinite(+r.reward_coins)&&r.reward_coins>=0){ /* koin match: menang ATAU kalah; nominal dari server */
-      setWinCoins(m.gameId,'match',r.reward_coins);
+      setWinCoins(m.gameId,'match',r.reward_coins); /* koin dasar menang/kalah dulu */
+      if(igCoin>0){ const base=(WIN_COINS.boss|0)+(r.reward_coins|0); animateWinReward(m.gameId,'coins',base,base+igCoin,()=>setWinCoins(m.gameId,'ingame',igCoin)); } /* koin in-game menyusul */
       try{ const W0=UT.WalletService&&UT.WalletService.get(); if(W0&&W0.refresh) W0.refresh(); }catch(e){} /* cermin saldo koin di header/lobby */
     }
     const sp=await UT.Multiplayer.Progress.getMyProfile();
@@ -6122,7 +6153,7 @@ async function recordMatchServer(PD,m){
     updateWinLevelProgress(m.gameId);
     const bossStatus=DRG.rewardStatus&&DRG.rewardStatus.gameId===m.gameId?DRG.rewardStatus.message:'';
     setWinRewardStatus(m.gameId,bossStatus||(a&&a.ok?'':'XP dan poin tercatat, tetapi progres level gagal disimpan.'));
-    const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if(r.reward_coins>0) bits.push('+'+r.reward_coins+' koin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
+    const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if((r.reward_coins|0)+igCoin>0) bits.push('+'+((r.reward_coins|0)+igCoin)+' koin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
     try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
     try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
     if(a&&a.ok&&a.level>lvBefore){ try{ showLevelUpWithRewards(a.level,m.gameId); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil); hadiah dihitung & dibayar server */

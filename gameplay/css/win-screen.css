@@ -392,3 +392,6 @@ body:has(#win.win-result:not([hidden])) #utGameplayHud { visibility: hidden !imp
 @media (min-height: 431px) and (max-height: 560px) {
   #win.win-result .lm-body { zoom: 1.35; min-height: calc((100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1.35) !important; }
 }
+
+/* hadiah in-game yang sedang menghitung naik */
+#win.win-result .win-result__reward--count strong { color: #ffe27a; text-shadow: 0 0 10px rgba(255, 210, 74, .75); transform: scale(1.12); transition: transform .15s; }

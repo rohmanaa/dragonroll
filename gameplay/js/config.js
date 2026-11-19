@@ -17,7 +17,7 @@
      DMG            damage per angka dadu ke Ender Dragon
      DRAGON_REWARD  {coins, gems}            nominal hadiah mengalahkan Ender Dragon (dipakai PlayerData.grant)
      CHEST_POOL     [{id, w}]                bobot Reward Pool Chest (w = persen x 10, total 1000 = 100%)
-     CHEST_AMOUNT   {coins, xp, gems}        nominal reward Chest (dipakai PlayerData.grant)
+     CHEST_AMOUNT   {coins:[min,max], xp:[min,max]}  rentang koin/XP in-game dari Chest (dibayar server di akhir match)
      CHEST_MOVE     [langkah]                kandidat langkah reward maju / mundur
      PUN            {powerKey: [emoji, nama, deskripsi, labelPendek?]} metadata power-up
    Catatan: ukuran papan (10 x 10 = 100) belum ada sebagai konfigurasi di source (masih literal di
@@ -58,16 +58,23 @@
   /* Chest Feature 2: Reward Pool. Persentase x10 supaya 0.5% dan 7.5% jadi bilangan bulat; total WAJIB 1000.
      Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
   C.CHEST_POOL = C.CHEST_POOL || [
-    { id: 'empty',   w: 150 },  /* 15%  */
-    { id: 'maju',    w: 190 },  /* 19%  maju 1-3 langkah */
+    { id: 'empty',   w: 100 },  /* 10%  */
+    { id: 'maju',    w: 160 },  /* 16%  maju 1-3 langkah */
     { id: 'mundur',  w: 50 },   /* 5%   mundur 1-3 langkah */
-    { id: 'lucky',   w: 90 },   /* 9%   label tampil: "Pasti 6" (dadu berikutnya 6) */
-    { id: 'addroll', w: 150 },  /* 15%  */
-    { id: 'bonus',   w: 190 },  /* 19%  Bonus Langkah: dadu berikutnya +2 */
-    { id: 'tangga',  w: 90 },   /* 9%   Lucky: meluncur ke tangga terdekat di depan (lalu naik) */
-    { id: 'ular',    w: 90 }    /* 9%   Unlucky: meluncur ke ular terdekat di depan (lalu turun) */
-  ]; /* Dadu Ganjil/Genap BUKAN lagi reward Chest: pindah jadi Power (Ramuan Ganjil / Ramuan Genap). */ /* Semua reward Chest hanya berdampak ke pemain pembuka (tanpa interaksi antar pemain). Coin/XP/Emerald dihapus. */
-  C.CHEST_AMOUNT = C.CHEST_AMOUNT || { coins: 5, xp: 10, gems: 1 };
+    { id: 'lucky',   w: 80 },   /* 8%   label tampil: "Pasti 6" (dadu berikutnya 6) */
+    { id: 'addroll', w: 130 },  /* 13%  */
+    { id: 'bonus',   w: 150 },  /* 15%  Bonus Langkah: dadu berikutnya +2 */
+    { id: 'tangga',  w: 80 },   /* 8%   Lucky: meluncur ke tangga terdekat di depan (lalu naik) */
+    { id: 'ular',    w: 80 },   /* 8%   Unlucky: meluncur ke ular terdekat di depan (lalu turun) */
+    { id: 'coin',    w: 80 },   /* 8%   Koin in-game (CHEST_AMOUNT.coins), dibayar SERVER di akhir match */
+    { id: 'xp',      w: 60 },   /* 6%   XP in-game (CHEST_AMOUNT.xp), dibayar SERVER di akhir match */
+    { id: 'power',   w: 30 }    /* 3%   1 Power acak (hanya untuk match ini, bukan stok akun) */
+  ]; /* Dadu Ganjil/Genap BUKAN reward Chest: itu Power (Ramuan Ganjil / Ramuan Genap), tetapi Power acak di atas bisa berupa keduanya. */ /* Reward gerak/dadu hanya berdampak ke pemain pembuka. */
+  /* Koin/XP in-game: rentang acak [min, maks]. Hanya pemain manusia; CPU tidak dapat. Dikumpulkan di p.ms lalu dikirim ke submit_match_result;
+     SERVER yang membatasi & membayar (batas per match: lihat c_ingame_* di migrasi 202611340001). INGAME_CAP di sini hanya pagar klien. */
+  C.CHEST_AMOUNT = { coins: [5, 15], xp: [5, 15] };
+  C.INGAME_CAP = { coins: 60, xp: 60 };
+  C.TRIPLE_SIX_COINS = 10; /* tiga kali 6 beruntun (giliran hangus) -> hiburan koin in-game */
   C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */
 
   C.PUN = C.PUN || {
