@@ -211,6 +211,7 @@
      g = 'm' | 'f' | null (null = semua gender). Mata, rambut, warna kulit & pewarna adalah dasar penampilan, bukan item dagangan.
      Belum ada di builder (SENGAJA dilewati): trail, spawn_effect, idle_animation, bundle. (Aura = kind 'aura', lihat AURAS.) */
   var GEAR_SLOTS = [
+    { key: 'eyes', label: 'Wajah' }, { key: 'hair', label: 'Rambut' },
     { key: 'top', label: 'Baju' }, { key: 'legs', label: 'Celana' }, { key: 'boots', label: 'Sepatu' },
     { key: 'helm', label: 'Kepala' }, { key: 'chest', label: 'Zirah' }, { key: 'shoulder', label: 'Bahu' },
     { key: 'cape', label: 'Punggung' }, { key: 'weapon', label: 'Tangan' }, { key: 'acc', label: 'Aksesori' }
@@ -298,6 +299,32 @@
     gear('acc', 'purse', 'Tas Selempang', 150, 'f')
   ];
   ITEMS = ITEMS.concat(GEAR);
+
+  /* ---- Set PVP: Ksatria Mahkota & Ksatria Rival (referensi/pvp/Ksatria Mahkota PVP.html) ----
+     Tiap set = wajah (eyes) + rambut + baju + celana + sepatu + mahkota + zirah + bahu + jubah + pedang. TIDAK dijual (price null,
+     source 'event'): dibuka server lewat kemenangan PVP (tabel pvp_unlocks, RPC claim_pvp_unlocks). `unlock.wins` hanya info UI;
+     angka asli ada di server (supabase/migrations/202611350001_pvp_knight_gear.sql). Ubah keduanya bersamaan. */
+  var PVP_SETS = [
+    { key: 'mahkota', wins: 10, label: 'Ksatria Mahkota', items: [
+      ['eyes', 'Mata Ksatria'], ['hair', 'Rambut Putih Ksatria'], ['top', 'Tunik Ksatria'], ['legs', 'Pelindung Kaki Ksatria'],
+      ['boots', 'Bot Ksatria'], ['helm', 'Mahkota Emas'], ['chest', 'Zirah Ksatria'], ['shoulder', 'Bahu Ksatria'],
+      ['cape', 'Jubah Ksatria Merah'], ['weapon', 'Pedang Emas']] },
+    { key: 'rival', wins: 20, label: 'Ksatria Rival', items: [
+      ['eyes', 'Mata Rival'], ['hair', 'Rambut Rival'], ['top', 'Tunik Rival'], ['legs', 'Pelindung Kaki Rival'],
+      ['boots', 'Bot Rival'], ['helm', 'Mahkota Rival'], ['chest', 'Zirah Rival'], ['shoulder', 'Bahu Rival'],
+      ['cape', 'Jubah Rival'], ['weapon', 'Pedang Rival']] }
+  ];
+  var PVP_GEAR = [];
+  PVP_SETS.forEach(function (set) {
+    set.items.forEach(function (it) {
+      PVP_GEAR.push(gear(it[0], set.key, it[1], null, null, {
+        rarity: 'legendary', price: null, starter: false, source: 'event', group: 'PVP',
+        desc: it[1] + ' — bagian set ' + set.label + '. Dibuka dengan memenangkan ' + set.wins + ' PVP Clash.',
+        unlock: { type: 'pvp', wins: set.wins, set: set.key }
+      }));
+    });
+  });
+  ITEMS = ITEMS.concat(PVP_GEAR);
 
   /* ---- Aura karakter (kategori Efek) ----
      Efek visual di assets/js/renderers/aura-fx.js (id aura = gameKey). Dibeli dengan koin lewat server (item_catalog), dipakai satu per

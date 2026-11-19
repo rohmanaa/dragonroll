@@ -82,10 +82,10 @@ t('ItemCatalog: jalur Registry aktif untuk Dice (diceSource) dan cadangan bila t
   assert.strictEqual(viaDice.ItemCatalog.diceSource(), 'registry'); assert.strictEqual(legacy.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.diceSource(), 'registry');
   assert.strictEqual(viaDice.ItemCatalog.petSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.petSource(), 'registry'); assert.strictEqual(viaAll.ItemCatalog.frameSource(), 'registry');
 });
-t('ItemCatalog: 147 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
-  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 147);
+t('ItemCatalog: 167 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
+  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 167);
     assert.deepStrictEqual(clone(IC.items), base.items);
-    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 147); });
+    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 167); });
 });
 t('ItemCatalog: API publik sama (tipe & kunci) dengan baseline; sumber Registry baru tersedia', () => {
   const a = Object.keys(legacy.ItemCatalog).sort(), b = Object.keys(viaDice.ItemCatalog).sort(); assert.deepStrictEqual(a, b);
@@ -106,7 +106,7 @@ t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, 
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {}, warn() {} }, Date, JSON, Math }));
   DICE_CHAIN.filter(f => !f.endsWith('/tnt/manifest.js')).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 147); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
+  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 167); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 
 /* ---- Equip / Shop / Inventory / Gameplay (integrasi lintas sistem) ---- */

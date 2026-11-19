@@ -13,4 +13,5 @@ async function dailyLogin(){if(!await hasSession())return null;return rpc('recor
 async function bumpCounter(kind,amount){await ensurePlayer();return rpc('bump_player_counter',{p_kind:kind,p_amount:amount||1})}
 async function recordPvpWin(){await ensurePlayer();return rpc('record_pvp_win')} /* +1 kemenangan PVP (server membatasi per hari) */
 async function claimPvpUnlock(itemId){await ensurePlayer();return rpc('claim_pvp_unlock',{p_item_id:itemId})} /* klaim item terkunci PVP (mis. 'skin.ksatria') */
-Object.assign(MP,{Progress:{getMyProfile,getHistory,claimAchievement,dailyLogin,bumpCounter,recordPvpWin,claimPvpUnlock}});
+async function claimPvpUnlocks(itemIds){await ensurePlayer();return rpc('claim_pvp_unlocks',{p_item_ids:itemIds})} /* klaim banyak item PVP sekaligus (satu set); server membaca syarat dari pvp_unlocks */
+Object.assign(MP,{Progress:{getMyProfile,getHistory,claimAchievement,dailyLogin,bumpCounter,recordPvpWin,claimPvpUnlock,claimPvpUnlocks}});

@@ -698,6 +698,81 @@ const ACCS=[
   }}
 ];
 
+/* ================================================================
+   Set PVP: Ksatria Mahkota & Ksatria Rival (dari referensi/pvp/Ksatria Mahkota PVP.html)
+   Wajah (eyes) + rambut + baju + celana + sepatu + mahkota + zirah + bahu + jubah + pedang. Warna set TETAP (tanpa dye, kecuali
+   iris mata & rambut karena server mewajibkan dye di tampilan). Item ini ada di katalog sebagai 'gear.<bagian>.<mahkota|rival>'
+   (assets/js/item-catalog.js, PVP_SETS) dan terkunci sampai server membukanya lewat kemenangan PVP.
+   ================================================================ */
+const KN={
+  mahkota:{armor:0x3a3d4a,armorD:0x23252f,cloth:0x2b2d37,gold:0xe8b830,leather:0x5a3a22,red:0xb02a2a,redD:0x7e1d22,blade:0xffd34a,gem:0x4aa8ff,brow:0x2a2230},
+  rival:{armor:0x56464e,armorD:0x2a2226,cloth:0x3a2428,gold:0xc42f2f,leather:0x3a2a2a,red:0x9b2226,redD:0x5e1216,blade:0xe0403a,gem:0xffb04a,brow:0x1b1218}
+};
+const knCrown=c=>()=>{
+  add('helm',head,box(10,1.6,10,phong(c.gold),0,7.2,0));
+  add('helm',head,box(1.6,2.4,0.8,phong(c.gold),0,8.8,5.1));
+  [-2.6,2.6].forEach(x=>add('helm',head,box(1.2,1.8,0.8,phong(c.gold),x,8.4,5.1)));
+  add('helm',head,box(1.1,1.1,0.4,glow(c.gem),0,7.2,5.15));
+  [-1,1].forEach(sd=>{
+    const w=box(0.7,3.2,2.4,phong(c.gold),sd*5.4,8.6,0);w.rotation.z=-sd*0.45;add('helm',head,w);
+    const w2=box(0.7,2.2,1.8,phong(c.gold),sd*5.9,7.6,-1.2);w2.rotation.z=-sd*0.7;add('helm',head,w2);
+  });
+};
+const knChest=c=>()=>{
+  add('chest',upper,box(8.7,7,4.7,phong(c.armor),0,8.5,0));
+  add('chest',upper,box(8.9,1,4.9,phong(c.gold),0,12.1,0));
+  add('chest',upper,box(3.2,3.2,0.4,phong(c.gold),0,9,2.5));
+  add('chest',upper,box(1.6,1.6,0.5,solid(c.red),0,9,2.65));
+  add('chest',upper,box(8.7,2,4.7,solid(c.leather),0,1.5,0));
+  add('chest',upper,box(2.2,1.6,0.5,phong(c.gold),0,1.5,2.5));
+};
+const knShoulder=c=>(p,R)=>{
+  add('shoulder',R.sh,box(5.8,2.8,5.8,phong(c.armor),R.side*0.3,2.4,0));
+  add('shoulder',R.sh,box(6,0.7,6,phong(c.gold),R.side*0.3,3.9,0));
+};
+const knCape=c=>()=>{
+  add('cape',cape1,box(8.4,6,0.8,solid(c.red),0,-3,-0.4));
+  add('cape',cape1,box(10,1.2,1.4,phong(c.gold),0,0.2,-0.3));
+  add('cape',cape2,box(8.4,6,0.8,solid(c.redD),0,-3,-0.4));
+  add('cape',cape2,box(8.6,0.8,1,phong(c.gold),0,-6,-0.4));
+};
+const knSword=c=>(p,g)=>{
+  g.add(box(1.1,3.6,1.1,solid(c.leather),0,0,0));
+  g.add(box(1.8,1,1.8,phong(c.gold),0,-2.2,0));
+  g.add(box(5.4,1,1.5,phong(c.gold),0,2.2,0));
+  g.add(box(1.9,15,0.7,phong(c.blade),0,10.2,0));
+  g.add(box(1.3,1.6,0.6,phong(c.blade),0,18.5,0));
+};
+const knHair=spikes=>H=>{
+  H(8.8,1.4,8.8,0,8.2,0);H(8.8,7,1.6,0,4.4,-4.4);H(0.8,5,8.8,4.4,5.2,0);H(0.8,5,8.8,-4.4,5.2,0);
+  H(2,1.6,1,-2.8,6.6,4.3);H(2,1.6,1,2.8,6.6,4.3);H(1.6,1.2,1,0,6.8,4.3);
+  if(spikes)[[-2.6,2.4],[0,3.2],[2.6,2.4]].forEach(q=>H(1.8,q[1],1.8,q[0],8.9+q[1]/2,-0.5));
+};
+const knGear=(key,c)=>{
+  const nm=key==='mahkota'?'Ksatria':'Rival';
+  return{
+    top:{id:key,n:'Tunik '+nm,dyes:null,paint:()=>({
+      torso:(x,y)=>y===0?c.armorD:(y===11?c.gold:c.cloth),
+      arm:(x,y)=>y<=4?c.armorD:(y===5?c.gold:(y<=8?c.armor:null))
+    })},
+    legs:{id:key,n:'Pelindung Kaki '+nm,dyes:null,paint:()=>(x,y)=>y===5?c.gold:c.armorD},
+    boots:{id:key,n:'Bot '+nm,dyes:null,from:6,paint:()=>(x,y)=>y===6?c.gold:(y<=10?c.leather:shade(c.leather,0.45)),sole:()=>shade(c.leather,0.45)}
+  };
+};
+['mahkota','rival'].forEach(key=>{
+  const c=KN[key],g=knGear(key,c),rv=key==='rival';
+  EYES.push({id:key,n:rv?'Mata Rival':'Mata Ksatria',dyes:'eye',def:rv?'red':'blue',brow:null,
+    px:rv?((m,y,ic)=>y===3?(m===2?c.brow:undefined):(y===4?(m===1?ic:0xffffff):undefined))
+         :((m,y,ic)=>y===3?c.brow:(y===4?(m===1?0xffffff:ic):undefined))});
+  HAIRS.push({id:key,n:rv?'Rambut Rival':'Rambut Putih Ksatria',dyes:'hair',def:rv?'black':'silver',f:knHair(rv)});
+  TOPS.push(g.top);LEGS.push(g.legs);BOOTS.push(g.boots);
+  HELMS.push({id:key,n:rv?'Mahkota Rival':'Mahkota Emas',dyes:null,build:knCrown(c)});
+  CHESTS.push({id:key,n:rv?'Zirah Rival':'Zirah Ksatria',dyes:null,build:knChest(c)});
+  SHOULDERS.push({id:key,n:rv?'Bahu Rival':'Bahu Ksatria',dyes:null,build:knShoulder(c)});
+  CAPES.push({id:key,n:rv?'Jubah Rival':'Jubah Ksatria Merah',dyes:null,build:knCape(c)});
+  WEAPONS.push({id:key,n:rv?'Pedang Rival':'Pedang Emas',dyes:null,base:1.9,build:knSword(c)});
+});
+
 const REG={eyes:EYES,hair:HAIRS,top:TOPS,legs:LEGS,boots:BOOTS,helm:HELMS,chest:CHESTS,shoulder:SHOULDERS,cape:CAPES,weapon:WEAPONS,acc:ACCS};
 const find=(key,id)=>REG[key].find(i=>i.id===id)||REG[key][0];
 /* Kepemilikan: item builder yang ada di katalog game ('gear.<bagian>.<id>') hanya boleh dipakai bila dimiliki (PlayerData).
@@ -738,6 +813,13 @@ FP('princess','👑 Putri',{top:{id:'dress',dye:'pink'},legs:{id:'tights',dye:'w
   helm:{id:'tiara',dye:'gold'},cape:{id:'short',dye:'pink'},accessories:[{id:'necklace',dye:'gold'},{id:'earrings',dye:'gold'},{id:'gloves',dye:'white'}]});
 FP('fairy','🧚 Peri',{top:{id:'sundress',dye:'mint'},legs:{id:'bare'},boots:{id:'flat',dye:'mint'},
   helm:{id:'flowers',dye:'pink'},cape:{id:'wings',dye:'lilac'},weapon:{id:'wand',dye:'mint'},accessories:[{id:'earrings',dye:'gold'}]});
+/* Set PVP (unisex): wajah + rambut + semua perlengkapan; terkunci sampai dibuka server (kemenangan PVP). */
+[['mahkota','👑 Ksatria Mahkota'],['rival','🗡️ Ksatria Rival']].forEach(a=>['m','f'].forEach(g=>{
+  const k=a[0];
+  PRESETS.push({id:'pvp_'+k+'_'+g,n:a[1],g:g,pvp:k,set:gear({
+    eyes:{id:k,dye:k==='rival'?'red':'blue'},hair:{id:k,dye:k==='rival'?'black':'silver'},
+    top:{id:k},legs:{id:k},boots:{id:k},helm:{id:k},chest:{id:k},shoulder:{id:k},cape:{id:k},weapon:{id:k}})});
+}));
 const DEFAULT=Object.assign({
   version:1,
   gender:'m',
@@ -1224,6 +1306,28 @@ let pv=null; /* {saved, ci}: item belum dimiliki yang sedang dicoba; TIDAK disim
 const SV=()=>{try{return PD.serverMode();}catch(e){return false;}},WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get(),AS=()=>window.UT&&UT.AppearanceService&&UT.AppearanceService.get();
 const WMSG={'saldo-kurang':'Coin tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','terlalu-banyak':'Set terlalu besar.'};
 const canSell=ci=>!!ci&&ci.price>0&&ci.source==='shop';
+/* Item PVP: tidak dijual; dibuka server saat kemenangan PVP cukup (ci.unlock.wins hanya info UI, angka asli di tabel pvp_unlocks). */
+const pvpOf=ci=>(ci&&ci.unlock&&ci.unlock.type==='pvp')?ci.unlock:null;
+let claiming=false;
+async function claimPvp(ci){ /* klaim SELURUH set PVP milik item ini sekaligus (wajah, rambut, baju, mahkota, ...) */
+  const u=pvpOf(ci);if(!u||claiming)return;
+  if(!SV()){toast('Masuk ke akun untuk membuka item PVP.');return;}
+  claiming=true;
+  try{
+    await import(new URL('assets/js/multiplayer/progress-service.js',document.baseURI).href);
+    const ids=IC.items.filter(i=>i.unlock&&i.unlock.type==='pvp'&&i.unlock.set===u.set).map(i=>i.id);
+    const r=await UT.Multiplayer.Progress.claimPvpUnlocks(ids);
+    if(r&&r.ok&&r.granted&&r.granted.length){
+      const W=WS();if(W)await W.refresh();
+      const keep=clone(cfg);pv=null;previewAll=false;cfg=keep;apply(null,true);
+      renderCurrency();toast('Set PVP terbuka!');
+    }else if(r&&r.ok&&r.locked&&r.locked.length){
+      toast('Menang PVP '+(r.wins||0)+'/'+r.locked[0].min_wins+' untuk membuka.');
+    }else if(r&&r.ok){toast('Set sudah dimiliki.');}
+    else toast('Tidak dapat membuka item.');
+  }catch(e){toast('Tidak dapat terhubung ke server.');}
+  finally{claiming=false;try{renderOpts();}catch(e){}}
+}
 function startPreview(ci,part,set){
   endPreview();
   pv={saved:clone(cfg),ci:ci,set:set||null};previewAll=true;
@@ -1234,14 +1338,15 @@ const SLOTK=['top','legs','boots','helm','chest','shoulder','cape','weapon'];
 function setParts(p){ /* item katalog tiap bagian set (selain 'none') */
   const out=[];
   SLOTK.forEach(k=>{const o=p.set[k];if(!o||o.id==='none')return;const ci=catItem(k,find(k,o.id));if(ci)out.push(ci);});
+  ['eyes','hair'].forEach(k=>{const o=p.set[k];if(!o)return;const ci=catItem(k,find(k,o.id));if(ci)out.push(ci);}); /* wajah & rambut set */
   (p.set.accessories||[]).forEach(a=>{const ci=catItem('acc',find('acc',a.id));if(ci)out.push(ci);});
   return out;
 }
 function setStatus(p){
   const miss=setParts(p).filter(ci=>!PD.owns(ci.id));
-  return {miss:miss,total:miss.reduce((a,ci)=>a+(ci.price>0?ci.price:0),0),sellable:miss.every(canSell)};
+  return {miss:miss,total:miss.reduce((a,ci)=>a+(ci.price>0?ci.price:0),0),sellable:miss.every(canSell),pvp:miss.length>0&&miss.every(pvpOf)};
 }
-const setOn=p=>{const c=pv?pv.saved:cfg;return SLOTK.every(k=>c[k].id===((p.set[k]||{id:'none'}).id))&&c.accessories.length===p.set.accessories.length&&p.set.accessories.every(a=>c.accessories.some(x=>x.id===a.id));};
+const setOn=p=>{const c=pv?pv.saved:cfg;return SLOTK.every(k=>c[k].id===((p.set[k]||{id:'none'}).id))&&['eyes','hair'].every(k=>!p.set[k]||c[k].id===p.set[k].id)&&c.accessories.length===p.set.accessories.length&&p.set.accessories.every(a=>c.accessories.some(x=>x.id===a.id));};
 function endPreview(){
   if(!pv)return;
   const s=pv.saved;pv=null;previewAll=false;
@@ -1397,10 +1502,11 @@ function renderOpts(){
         actionKey:'set:'+p.id,
         action:{
           state:()=>lock
-            ?(st.sellable?{mode:'buy-set',label:'BELI SET '+fmtPrice(st.total)+' COIN',disabled:false}:{mode:'no',label:'TIDAK DIJUAL',disabled:true})
+            ?(st.sellable?{mode:'buy-set',label:'BELI SET '+fmtPrice(st.total)+' COIN',disabled:false}:(st.pvp?{mode:'claim-set',label:'MENANG '+pvpOf(st.miss[0]).wins+' PVP',disabled:false}:{mode:'no',label:'TIDAK DIJUAL',disabled:true}))
             :{mode:'equip-set',label:'PAKAI SET',disabled:false},
           run:()=>{
             if(lock){
+              if(st.pvp){claimPvp(st.miss[0]);return;}
               const setToBuy=pv&&pv.set&&pv.set.id===p.id?pv.set:{id:p.id,n:p.n,cis:st.miss,total:st.total};
               confirmBuySet(setToBuy);return;
             }
@@ -1450,11 +1556,11 @@ function renderOpts(){
         actionKey:actionKey,
         action:{
           state:()=>lock
-            ?(sell?{mode:'buy',label:'BELI '+fmtPrice(ci.price)+' COIN',disabled:false}:{mode:'no',label:'TIDAK DIJUAL',disabled:true})
+            ?(sell?{mode:'buy',label:'BELI '+fmtPrice(ci.price)+' COIN',disabled:false}:(pvpOf(ci)?{mode:'claim',label:'MENANG '+pvpOf(ci).wins+' PVP',disabled:false}:{mode:'no',label:'TIDAK DIJUAL',disabled:true}))
             :on&&removable&&it.id!=='none'?{mode:'remove',label:'LEPAS',disabled:false}
             :on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},
           run:()=>{
-            if(lock){confirmBuy(ci);return;}
+            if(lock){if(pvpOf(ci))claimPvp(ci);else confirmBuy(ci);return;}
             if(on&&removable&&it.id!=='none'){const equipped=eqItems().main.find(a=>a.k===c.key&&a.id===it.id);if(equipped)unequip(equipped);return;}
             commitDraft();
           }

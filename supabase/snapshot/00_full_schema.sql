@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 44 migrasi, urut: 202611050001 s/d 202611340001
+-- Isi: 45 migrasi, urut: 202611050001 s/d 202611350001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -2077,51 +2077,71 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('gear.boots.cloth', 'gear', 60, false, false),
   ('gear.boots.flat', 'gear', 80, false, false),
   ('gear.boots.knee', 'gear', 150, false, false),
+  ('gear.boots.mahkota', 'gear', null, false, false),
   ('gear.boots.mary', 'gear', null, true, false),
   ('gear.boots.none', 'gear', null, true, false),
+  ('gear.boots.rival', 'gear', null, false, false),
   ('gear.boots.sandal', 'gear', 60, false, false),
   ('gear.boots.shoes', 'gear', null, true, false),
   ('gear.boots.tall', 'gear', 120, false, false),
   ('gear.cape.long', 'gear', 400, false, false),
+  ('gear.cape.mahkota', 'gear', null, false, false),
+  ('gear.cape.rival', 'gear', null, false, false),
   ('gear.cape.short', 'gear', 250, false, false),
   ('gear.cape.wings', 'gear', 900, false, false),
   ('gear.chest.bodice', 'gear', 300, false, false),
   ('gear.chest.leather', 'gear', 350, false, false),
+  ('gear.chest.mahkota', 'gear', null, false, false),
   ('gear.chest.plate', 'gear', 700, false, false),
+  ('gear.chest.rival', 'gear', null, false, false),
   ('gear.chest.valk', 'gear', 800, false, false),
+  ('gear.eyes.mahkota', 'gear', null, false, false),
+  ('gear.eyes.rival', 'gear', null, false, false),
+  ('gear.hair.mahkota', 'gear', null, false, false),
+  ('gear.hair.rival', 'gear', null, false, false),
   ('gear.helm.beret', 'gear', 150, false, false),
   ('gear.helm.crown', 'gear', 900, false, false),
   ('gear.helm.flowers', 'gear', 250, false, false),
   ('gear.helm.knight', 'gear', 400, false, false),
+  ('gear.helm.mahkota', 'gear', null, false, false),
   ('gear.helm.ribbon', 'gear', 150, false, false),
+  ('gear.helm.rival', 'gear', null, false, false),
   ('gear.helm.straw', 'gear', 120, false, false),
   ('gear.helm.tiara', 'gear', 600, false, false),
   ('gear.helm.wizard', 'gear', 300, false, false),
   ('gear.legs.bare', 'gear', null, true, false),
   ('gear.legs.formal', 'gear', 250, false, false),
   ('gear.legs.lskirt', 'gear', 150, false, false),
+  ('gear.legs.mahkota', 'gear', null, false, false),
   ('gear.legs.pants', 'gear', null, true, false),
+  ('gear.legs.rival', 'gear', null, false, false),
   ('gear.legs.shorts', 'gear', 80, false, false),
   ('gear.legs.skirt', 'gear', null, true, false),
   ('gear.legs.tights', 'gear', 100, false, false),
   ('gear.shoulder.gem', 'gear', 500, false, false),
   ('gear.shoulder.leather', 'gear', 200, false, false),
+  ('gear.shoulder.mahkota', 'gear', null, false, false),
   ('gear.shoulder.pad', 'gear', 350, false, false),
+  ('gear.shoulder.rival', 'gear', null, false, false),
   ('gear.shoulder.ruffle', 'gear', 250, false, false),
   ('gear.shoulder.spiked', 'gear', 450, false, false),
   ('gear.top.blouse', 'gear', null, true, false),
   ('gear.top.cardigan', 'gear', 200, false, false),
   ('gear.top.coat', 'gear', 400, false, false),
   ('gear.top.dress', 'gear', 300, false, false),
+  ('gear.top.mahkota', 'gear', null, false, false),
   ('gear.top.overall', 'gear', 150, false, false),
+  ('gear.top.rival', 'gear', null, false, false),
   ('gear.top.robe', 'gear', 350, false, false),
   ('gear.top.sundress', 'gear', 200, false, false),
   ('gear.top.tee', 'gear', null, true, false),
   ('gear.top.tunic', 'gear', 120, false, false),
   ('gear.top.vest', 'gear', 150, false, false),
   ('gear.weapon.axe', 'gear', 450, false, false),
+  ('gear.weapon.mahkota', 'gear', null, false, false),
   ('gear.weapon.parasol', 'gear', 200, false, false),
   ('gear.weapon.rapier', 'gear', 450, false, false),
+  ('gear.weapon.rival', 'gear', null, false, false),
   ('gear.weapon.staff', 'gear', 350, false, false),
   ('gear.weapon.sword', 'gear', 300, false, false),
   ('gear.weapon.wand', 'gear', 300, false, false),
@@ -2905,51 +2925,71 @@ from (values
   ('gear.boots.cloth', null),
   ('gear.boots.flat', 'f'),
   ('gear.boots.knee', 'f'),
+  ('gear.boots.mahkota', null),
   ('gear.boots.mary', 'f'),
   ('gear.boots.none', null),
+  ('gear.boots.rival', null),
   ('gear.boots.sandal', null),
   ('gear.boots.shoes', null),
   ('gear.boots.tall', null),
   ('gear.cape.long', null),
+  ('gear.cape.mahkota', null),
+  ('gear.cape.rival', null),
   ('gear.cape.short', null),
   ('gear.cape.wings', 'f'),
   ('gear.chest.bodice', 'f'),
   ('gear.chest.leather', null),
+  ('gear.chest.mahkota', null),
   ('gear.chest.plate', null),
+  ('gear.chest.rival', null),
   ('gear.chest.valk', 'f'),
+  ('gear.eyes.mahkota', null),
+  ('gear.eyes.rival', null),
+  ('gear.hair.mahkota', null),
+  ('gear.hair.rival', null),
   ('gear.helm.beret', 'f'),
   ('gear.helm.crown', null),
   ('gear.helm.flowers', 'f'),
   ('gear.helm.knight', null),
+  ('gear.helm.mahkota', null),
   ('gear.helm.ribbon', 'f'),
+  ('gear.helm.rival', null),
   ('gear.helm.straw', null),
   ('gear.helm.tiara', 'f'),
   ('gear.helm.wizard', null),
   ('gear.legs.bare', null),
   ('gear.legs.formal', 'm'),
   ('gear.legs.lskirt', 'f'),
+  ('gear.legs.mahkota', null),
   ('gear.legs.pants', null),
+  ('gear.legs.rival', null),
   ('gear.legs.shorts', null),
   ('gear.legs.skirt', 'f'),
   ('gear.legs.tights', 'f'),
   ('gear.shoulder.gem', 'f'),
   ('gear.shoulder.leather', null),
+  ('gear.shoulder.mahkota', null),
   ('gear.shoulder.pad', null),
+  ('gear.shoulder.rival', null),
   ('gear.shoulder.ruffle', 'f'),
   ('gear.shoulder.spiked', 'm'),
   ('gear.top.blouse', 'f'),
   ('gear.top.cardigan', 'f'),
   ('gear.top.coat', 'm'),
   ('gear.top.dress', 'f'),
+  ('gear.top.mahkota', null),
   ('gear.top.overall', null),
+  ('gear.top.rival', null),
   ('gear.top.robe', null),
   ('gear.top.sundress', 'f'),
   ('gear.top.tee', null),
   ('gear.top.tunic', null),
   ('gear.top.vest', null),
   ('gear.weapon.axe', 'm'),
+  ('gear.weapon.mahkota', null),
   ('gear.weapon.parasol', 'f'),
   ('gear.weapon.rapier', 'f'),
+  ('gear.weapon.rival', null),
   ('gear.weapon.staff', null),
   ('gear.weapon.sword', null),
   ('gear.weapon.wand', 'f')
@@ -6350,4 +6390,195 @@ end;
 $$;
 revoke all on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) from public, anon;
 grant execute on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611350001_pvp_knight_gear.sql
+-- ---------------------------------------------------------------------------
+-- Set PVP: Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, celana, sepatu, mahkota, zirah, bahu, jubah, pedang).
+-- Terapkan SETELAH 202611310001_pvp_wins_unlock.sql (butuh pvp_unlocks, player_stats.pvp_wins) dan 202611130001_player_outfits.sql.
+-- Aman diulang (upsert / create or replace).
+--
+--   * 20 item gear baru di item_catalog: tidak dijual (price_coins null), bukan starter. Dibuka HANYA lewat claim_pvp_unlocks
+--     setelah pvp_wins server >= min_wins (record_pvp_win sudah dibatasi harian). Klien tidak mengirim syarat/jumlah.
+--   * claim_pvp_unlocks(p_item_ids): klaim banyak item sekaligus (satu set) dalam SATU transaksi; item yang syaratnya belum
+--     terpenuhi dilaporkan di 'locked' (dengan min_wins), yang sudah dimiliki di 'already'.
+--   * _appearance_normalize: wajah (eyes) & rambut (hair) yang ADA di katalog kini wajib dimiliki. Sebelumnya hanya dicek bentuk
+--     datanya, sehingga id wajah terkunci bisa disimpan lewat appearance_save tanpa memiliki. Mata/rambut dasar (tidak ada di katalog)
+--     tetap gratis.
+--   * Angka min_wins di sini harus sama dengan unlock.wins di assets/js/item-catalog.js (PVP_SETS); itu hanya info tampilan.
+
+insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
+  ('gear.boots.mahkota', 'gear', null, false, false),
+  ('gear.boots.rival', 'gear', null, false, false),
+  ('gear.cape.mahkota', 'gear', null, false, false),
+  ('gear.cape.rival', 'gear', null, false, false),
+  ('gear.chest.mahkota', 'gear', null, false, false),
+  ('gear.chest.rival', 'gear', null, false, false),
+  ('gear.eyes.mahkota', 'gear', null, false, false),
+  ('gear.eyes.rival', 'gear', null, false, false),
+  ('gear.hair.mahkota', 'gear', null, false, false),
+  ('gear.hair.rival', 'gear', null, false, false),
+  ('gear.helm.mahkota', 'gear', null, false, false),
+  ('gear.helm.rival', 'gear', null, false, false),
+  ('gear.legs.mahkota', 'gear', null, false, false),
+  ('gear.legs.rival', 'gear', null, false, false),
+  ('gear.shoulder.mahkota', 'gear', null, false, false),
+  ('gear.shoulder.rival', 'gear', null, false, false),
+  ('gear.top.mahkota', 'gear', null, false, false),
+  ('gear.top.rival', 'gear', null, false, false),
+  ('gear.weapon.mahkota', 'gear', null, false, false),
+  ('gear.weapon.rival', 'gear', null, false, false)
+on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
+
+update public.item_catalog set gender = null where id in (select item_id from (values
+  ('gear.boots.mahkota'),
+  ('gear.boots.rival'),
+  ('gear.cape.mahkota'),
+  ('gear.cape.rival'),
+  ('gear.chest.mahkota'),
+  ('gear.chest.rival'),
+  ('gear.eyes.mahkota'),
+  ('gear.eyes.rival'),
+  ('gear.hair.mahkota'),
+  ('gear.hair.rival'),
+  ('gear.helm.mahkota'),
+  ('gear.helm.rival'),
+  ('gear.legs.mahkota'),
+  ('gear.legs.rival'),
+  ('gear.shoulder.mahkota'),
+  ('gear.shoulder.rival'),
+  ('gear.top.mahkota'),
+  ('gear.top.rival'),
+  ('gear.weapon.mahkota'),
+  ('gear.weapon.rival')
+) as v(item_id));
+
+insert into public.pvp_unlocks(item_id, min_wins) values
+  ('gear.boots.mahkota', 10),
+  ('gear.boots.rival', 20),
+  ('gear.cape.mahkota', 10),
+  ('gear.cape.rival', 20),
+  ('gear.chest.mahkota', 10),
+  ('gear.chest.rival', 20),
+  ('gear.eyes.mahkota', 10),
+  ('gear.eyes.rival', 20),
+  ('gear.hair.mahkota', 10),
+  ('gear.hair.rival', 20),
+  ('gear.helm.mahkota', 10),
+  ('gear.helm.rival', 20),
+  ('gear.legs.mahkota', 10),
+  ('gear.legs.rival', 20),
+  ('gear.shoulder.mahkota', 10),
+  ('gear.shoulder.rival', 20),
+  ('gear.top.mahkota', 10),
+  ('gear.top.rival', 20),
+  ('gear.weapon.mahkota', 10),
+  ('gear.weapon.rival', 20)
+on conflict (item_id) do update set min_wins = excluded.min_wins;
+
+-- ============ claim_pvp_unlocks: klaim satu set sekaligus ============
+-- Hasil ok     : {ok:true, wins, granted:[id baru], already:[id sudah dimiliki], locked:[{item_id, min_wins}]}
+-- Hasil gagal  : {ok:false, reason:'tidak-tersedia'} bila daftar kosong/null, > 40 id, ada elemen null, atau ada id yang bukan item PVP.
+create or replace function public.claim_pvp_unlocks(p_item_ids text[])
+returns jsonb
+language plpgsql security definer set search_path = public, auth as $$
+declare
+  c_max   constant int := 40;
+  v_uid     uuid := auth.uid();
+  v_ids     text[];
+  v_wins    int;
+  v_granted text[] := '{}';
+  v_already text[] := '{}';
+  v_locked  jsonb  := '[]'::jsonb;
+  r         record;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  if p_item_ids is null or cardinality(p_item_ids) = 0 or cardinality(p_item_ids) > c_max
+     or exists (select 1 from unnest(p_item_ids) x where x is null) then
+    return jsonb_build_object('ok', false, 'reason', 'tidak-tersedia');
+  end if;
+
+  select array_agg(distinct x order by x) into v_ids from unnest(p_item_ids) x;
+  if (select count(*) from public.pvp_unlocks where item_id = any (v_ids)) <> cardinality(v_ids) then
+    return jsonb_build_object('ok', false, 'reason', 'tidak-tersedia');
+  end if;
+
+  insert into public.player_stats(user_id) values (v_uid) on conflict (user_id) do nothing;
+  select pvp_wins into v_wins from public.player_stats where user_id = v_uid for update;
+
+  for r in select u.item_id, u.min_wins from public.pvp_unlocks u where u.item_id = any (v_ids) order by u.item_id loop
+    if v_wins < r.min_wins then
+      v_locked := v_locked || jsonb_build_array(jsonb_build_object('item_id', r.item_id, 'min_wins', r.min_wins));
+    elsif exists (select 1 from public.player_inventory where user_id = v_uid and item_id = r.item_id) then
+      v_already := v_already || r.item_id;
+    else
+      insert into public.player_inventory(user_id, item_id) values (v_uid, r.item_id) on conflict do nothing;
+      v_granted := v_granted || r.item_id;
+    end if;
+  end loop;
+
+  return jsonb_build_object('ok', true, 'wins', v_wins, 'granted', to_jsonb(v_granted), 'already', to_jsonb(v_already), 'locked', v_locked);
+end;
+$$;
+revoke all on function public.claim_pvp_unlocks(text[]) from public, anon;
+grant execute on function public.claim_pvp_unlocks(text[]) to authenticated;
+
+-- ============ _appearance_normalize: wajah & rambut katalog wajib dimiliki ============
+create or replace function public._appearance_normalize(p_user uuid, p_look jsonb, p_equipped jsonb, p_dye jsonb) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  c_id constant text := '^[a-z0-9_]{1,24}$';
+  v_look jsonb := null; v_part text; v_o jsonb; v_h numeric := 1; v_b numeric := 1; v_body jsonb;
+  v_eq jsonb := '{}'::jsonb; v_gd jsonb := '{}'::jsonb; r record; v_slot text;
+begin
+  if p_look is not null and jsonb_typeof(p_look) <> 'null' then
+    if jsonb_typeof(p_look) <> 'object' then return public._bad('data-tidak-valid'); end if;
+    if jsonb_typeof(p_look -> 'gender') is distinct from 'string' or (p_look ->> 'gender') not in ('m', 'f') then return public._bad('data-tidak-valid'); end if;
+    if jsonb_typeof(p_look -> 'skin') is distinct from 'string' or (p_look ->> 'skin') !~ '^s[1-5]$' then return public._bad('data-tidak-valid'); end if;
+    v_look := jsonb_build_object('gender', p_look ->> 'gender', 'skin', p_look ->> 'skin');
+    foreach v_part in array array['eyes', 'hair'] loop
+      v_o := p_look -> v_part;
+      if jsonb_typeof(v_o) is distinct from 'object' or jsonb_typeof(v_o -> 'id') is distinct from 'string' or jsonb_typeof(v_o -> 'dye') is distinct from 'string'
+         or (v_o ->> 'id') !~ c_id or (v_o ->> 'dye') !~ c_id then return public._bad('data-tidak-valid'); end if;
+      -- wajah/rambut yang ada di katalog (mis. set PVP) hanya boleh dipakai bila dimiliki; yang tidak ada di katalog = dasar penampilan (gratis)
+      if exists (select 1 from public.item_catalog c where c.id = 'gear.' || v_part || '.' || (v_o ->> 'id') and c.kind = 'gear')
+         and not public._owns_item(p_user, 'gear.' || v_part || '.' || (v_o ->> 'id')) then
+        return public._bad('belum-dimiliki', 'gear.' || v_part || '.' || (v_o ->> 'id'));
+      end if;
+      v_look := v_look || jsonb_build_object(v_part, jsonb_build_object('id', v_o ->> 'id', 'dye', v_o ->> 'dye'));
+    end loop;
+    v_body := p_look -> 'body';
+    if v_body is not null and jsonb_typeof(v_body) = 'object' then
+      if jsonb_typeof(v_body -> 'height') = 'number' and (v_body ->> 'height')::numeric > 0 then v_h := (v_body ->> 'height')::numeric; end if;
+      if jsonb_typeof(v_body -> 'build')  = 'number' and (v_body ->> 'build')::numeric  > 0 then v_b := (v_body ->> 'build')::numeric; end if;
+    end if;
+    v_look := v_look || jsonb_build_object('body', jsonb_build_object('height', least(1.1, greatest(0.9, v_h)), 'build', least(1.15, greatest(0.9, v_b))));
+  end if;
+
+  if p_equipped is not null and jsonb_typeof(p_equipped) <> 'null' then
+    if jsonb_typeof(p_equipped) <> 'object' then return public._bad('data-tidak-valid'); end if;
+    if (select count(*) from jsonb_object_keys(p_equipped)) > 60 then return public._bad('data-tidak-valid'); end if;
+    for r in select key, value from jsonb_each(p_equipped) loop
+      if jsonb_typeof(r.value) <> 'string' then return public._bad('data-tidak-valid'); end if;
+      v_slot := public._item_equip_slot(r.value #>> '{}');
+      if v_slot is null or v_slot <> r.key then return public._bad('slot-tidak-cocok', r.value #>> '{}'); end if;
+      if not public._owns_item(p_user, r.value #>> '{}') then return public._bad('belum-dimiliki', r.value #>> '{}'); end if;
+      v_eq := v_eq || jsonb_build_object(r.key, r.value);
+    end loop;
+  end if;
+
+  if p_dye is not null and jsonb_typeof(p_dye) <> 'null' then
+    if jsonb_typeof(p_dye) <> 'object' then return public._bad('data-tidak-valid'); end if;
+    if (select count(*) from jsonb_object_keys(p_dye)) > 120 then return public._bad('data-tidak-valid'); end if;
+    for r in select key, value from jsonb_each(p_dye) loop
+      if jsonb_typeof(r.value) <> 'string' or (r.value #>> '{}') !~ c_id then return public._bad('data-tidak-valid'); end if;
+      if not exists (select 1 from public.item_catalog c where c.id = r.key and c.kind = 'gear') then return public._bad('item-tidak-dikenal', left(r.key, 60)); end if;
+      if not public._owns_item(p_user, r.key) then return public._bad('belum-dimiliki', r.key); end if;
+      v_gd := v_gd || jsonb_build_object(r.key, r.value);
+    end loop;
+  end if;
+  return jsonb_build_object('ok', true, 'look', v_look, 'equipped', v_eq, 'gear_dye', v_gd);
+end;
+$$;
 
