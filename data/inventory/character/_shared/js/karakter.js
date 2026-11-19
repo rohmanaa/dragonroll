@@ -1123,7 +1123,10 @@ const THUMB={
       c.position.set(Math.sin(f.yaw)*Math.cos(f.pit)*f.d,t+Math.sin(f.pit)*f.d,Math.cos(f.yaw)*Math.cos(f.pit)*f.d);
       c.lookAt(0,t,0);
       const gv=ground.visible;ground.visible=false;
-      this.r.render(scene,c);
+      /* thumbnail slot = karakter saja: aura (partikel/halo/lantai) ikut tampil di scene yang sama, jadi disembunyikan dulu agar gambar slot bersih */
+      const hid=scene.children.filter(o=>o!==root&&o!==ground&&!o.isLight&&o!==sun.target&&o.visible);
+      hid.forEach(o=>{o.visible=false;});
+      try{this.r.render(scene,c);}finally{hid.forEach(o=>{o.visible=true;});}
       ground.visible=gv;
       url=this.r.domElement.toDataURL('../../../assets/js/pages/image/png');
     }catch(e){url='';}
@@ -1183,7 +1186,7 @@ try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
 const CATS=[
   {key:'gender',label:'⚧ Gender',type:'gender'},
   {key:'skin',label:'🎨 Kulit',type:'skin'},
-  {key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true},
+  {key:'eyes',label:'🙂 Wajah',reg:'eyes',keepDye:true},
   {key:'hair',label:'💇 Rambut',reg:'hair',keepDye:true},
   {key:'top',label:'👕 Baju',reg:'top'},
   {key:'legs',label:'👖 Celana',reg:'legs'},
