@@ -5763,7 +5763,11 @@ function duelOpenOpts(pair){
     fighters:pair.map(f=>{
       const bc=f.pawn.userData&&f.pawn.userData.bc, kn=(duelLocal(f)&&equippedGameKey('skin')==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
       if(bc&&bc.config) return kn?{config:bc.config,knight:true}:{config:bc.config};
-      return kn?{knight:true}:(f.cpu?{preset:2+f.idx*3}:{local:true});
+      if(kn) return {knight:true};
+      /* bidak tanpa rig karakter baru (mis. CPU = Villager voxel, atau bidak skin PNG): pakai model bidaknya SENDIRI, bukan preset acak */
+      const u=f.pawn.userData||{},src=u.png||u.pal;
+      if(src&&src.clone){ try{ const m=src.clone(true); m.visible=true; return {model:m}; }catch(e){} }
+      return f.cpu?{preset:2+f.idx*3}:{local:true};
     })
   };
 }

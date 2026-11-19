@@ -461,6 +461,7 @@
   function disposeTree(rootNode) {
     if (!rootNode || !rootNode.traverse) return;
     rootNode.traverse(function (node) {
+      if (node.userData && node.userData.sharedWithPawn) return;   /* model bidak (klon): geometri/material milik bidak di papan, jangan dibuang */
       if (node.geometry && node.geometry.dispose) node.geometry.dispose();
       var materials = Array.isArray(node.material) ? node.material : node.material ? [node.material] : [];
       materials.forEach(function (material) {
@@ -525,7 +526,16 @@
         var f = { phys: phys, face: face, x: x, direction: direction, side: i, groundY: 0,
                   intro: 0, action: '', actionTime: 0, actionDuration: 0, hitTime: 0, heavyHit: false,
                   flash: 0, glow: 0, idleT: i * 1.3, defeat: null, defeatDx: 0, ph: i * 1.9 };
-        if ((wantsKnight(spec) || !canBlocky) && canKnight) {
+        if (spec && spec.model) {
+          /* model bidak sendiri (klon): berdiri di lantai, tengah di origin; skala disamakan dengan lawan setelah kedua petarung dibuat */
+          var sm = spec.model, wrap = new T.Group();
+          sm.traverse(function (n) { n.userData = n.userData || {}; n.userData.sharedWithPawn = true; });
+          sm.position.set(0, 0, 0); sm.rotation.set(0, 0, 0); sm.scale.set(1, 1, 1); sm.updateMatrixWorld(true);
+          var sb = new T.Box3().setFromObject(sm), sh = Math.max(0.1, sb.max.y - sb.min.y);
+          sm.position.set(-(sb.min.x + sb.max.x) / 2, -sb.min.y, -(sb.min.z + sb.max.z) / 2);
+          wrap.add(sm); face.add(wrap);
+          f.root = wrap; f.staticModel = true; f.staticH = sh;
+        } else if ((wantsKnight(spec) || !canBlocky) && canKnight) {
           var palette = i === 1 ? UT.PvpKnight.RIVAL_PAL : undefined;
           var kn = UT.PvpKnight.createKnight(T, palette ? { palette: palette } : undefined);
           kn.root.scale.setScalar(1);
@@ -551,6 +561,19 @@
         currentArena.scene.add(phys);
         fighters[i] = f;
       } catch (e) { console.error('[duel] karakter gagal untuk fighter ' + i, e); }
+    });
+    /* samakan tinggi model bidak dengan lawannya (rig karakter/ksatria) supaya kedua petarung sebanding */
+    fighters.forEach(function (f, i) {
+      if (!f || !f.staticModel) return;
+      var th = 2.1, o = fighters[1 - i];
+      try {
+        if (o && o.root && !o.staticModel) {
+          o.phys.updateMatrixWorld(true);
+          var ob = new T.Box3().setFromObject(o.root), oh = ob.max.y - ob.min.y;
+          if (oh > 0.8 && oh < 6) th = oh;
+        }
+      } catch (e) {}
+      f.root.scale.setScalar(th / f.staticH);
     });
   }
 
