@@ -1183,7 +1183,7 @@ try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
 const CATS=[
   {key:'gender',label:'⚧ Gender',type:'gender'},
   {key:'skin',label:'🎨 Kulit',type:'skin'},
-  {key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true},
+  {key:'eyes',label:'😀 Wajah',reg:'eyes',keepDye:true},
   {key:'hair',label:'💇 Rambut',reg:'hair',keepDye:true},
   {key:'top',label:'👕 Baju',reg:'top'},
   {key:'legs',label:'👖 Celana',reg:'legs'},
