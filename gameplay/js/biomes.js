@@ -20,10 +20,10 @@
 
   B.PK = B.PK || {gurun:0xF6DDA0,salju:0xFFFFFF,hutan:0x2E7D4F,nether:0x2E2E36};
   B.R  = B.R  || {gurun:0x3FB6D0,salju:0x9AD7F0,hutan:0x2E8FBF,nether:0xFF6A1A};
-  B.MC       = B.MC       || {PK:0xEEF4F4,R:0x3F76E4};
+  B.MC       = B.MC       || {PK:0xEEF4F4,R:0x35B9DC};
   B.FALLBACK = B.FALLBACK || {PK:0xEEF4F4,R:0x3F76E4};
 
   B.PALETTES = B.PALETTES || {
-    sandy:{default:[0xE8D7A0,0xCDB878],salju:[0xCFE9F5,0xB4D6E8]}
+    sandy:{default:[0xF0DC9A,0xD9BE72],salju:[0xCFE9F5,0xB4D6E8]}
   };
 })(window);

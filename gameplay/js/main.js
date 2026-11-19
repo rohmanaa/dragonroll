@@ -273,9 +273,9 @@ function trackFxTimeout(callback,delay,type,onStop){
 }
 const camera=new THREE.PerspectiveCamera(38,1,0.1,250);
 
-const hemi=new THREE.HemisphereLight(0xFFFFFF,0xB9D7A0,0.84);
+const hemi=new THREE.HemisphereLight(0xE4F4FF,0xB9D7A0,0.84);
 scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xFFFFFF,0.64);
+const sun=new THREE.DirectionalLight(0xFFF1D0,0.64);
 sun.position.set(-9,24,14);
 sun.castShadow=true;
 sun.shadow.mapSize.set(coarse?1024:2048,coarse?1024:2048);
@@ -1244,7 +1244,7 @@ const sgh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; r
 function sgn(x,z,k){ const x0=Math.floor(x),z0=Math.floor(z),fx=x-x0,fz=z-z0,sx=fx*fx*(3-2*fx),sz=fz*fz*(3-2*fz),a=sgh(x0,z0,k),b=sgh(x0+1,z0,k),c=sgh(x0,z0+1,k),d=sgh(x0+1,z0+1,k); return a+(b-a)*sx+(c-a)*sz+(a-b-c+d)*sx*sz; }
 /* ===== Gaya detail pulau melayang (floating-island.js v2) untuk tanah World: palet zaitun/sage alami, tanah & tanah liat bervariasi, lumut menetes.
    Deterministik per koordinat (TIDAK memakai rnd()/lr()), jadi urutan acak dunia tidak bergeser. ===== */
-const ISL={grass:[0x6a9440,0x5d8738,0x76a049,0x537c3a],grassDk:[0x45752f,0x3e6b2a,0x4c7c34,0x376226],grassMd:[0x588238,0x4f7a34,0x609040,0x487030],olive:0x86973f,sage:0x5a8452,moss:[0x5a8744,0x4e7a3e],dirt:[0x8b5d3a,0x7d5233,0x96683f,0x6e4a2e],clay:0xa8794a,gravel:0x8c8b90,stone:[0x9a9ca6,0x868a96,0xaeb0b8,0x7c808c],flowers:[0xc97b8a,0xd8b95a,0xdedacc,0x8f84b8,0xc98a4e]};
+const ISL={grass:[0x66AE49,0x5CA343,0x70B84F,0x529A3D],grassDk:[0x4A9136,0x448830,0x519C3B,0x3C7F2B],grassMd:[0x57A042,0x4F973C,0x61AB48,0x498E37],olive:0x8FB44D,sage:0x4F9B62,moss:[0x5AA24B,0x509643],dirt:[0x9A6540,0x8B5A37,0xA77246,0x7C4F31],clay:0xB98650,gravel:0x9C9CA4,stone:[0xA9ABB4,0x9598A4,0xBBBDC5,0x8A8E9B],flowers:[0xE8708A,0xFFC93C,0xFFFFFF,0x9B8CFF,0xFF9A3C]};
 function islH(a,b,k){ const h=Math.sin(a*127.1+b*311.7+(k||0)*74.7)*43758.5453; return h-Math.floor(h); }
 function islGrass(x,z){
   const fx=Math.floor(x),fz=Math.floor(z),patch=islH(Math.floor(x/2),Math.floor(z/2),1),rr=islH(x,z,2);
@@ -1577,7 +1577,7 @@ function addMcFar(DB){
 }
 /* gunung batu di sisi bawah (selatan) pulau: +3 blok besar (z 15..18), bentuk seperti gunung kiri: batu abu-abu berlumut, tebing tinggi di tepi luar dan turun ke arah board. Tanpa rnd() (deterministik) agar seed dunia tidak bergeser. */
 function addSouthMountain(DB){
-  const st=[0x7F7F7F,0x777777,0x898989,0x707070,0x8E8E8E],moss=[0x6E8F5A,0x5F8A4A],hs=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
+  const st=[0x98A1B0,0x8E97A7,0xA4ACBA,0x848D9E,0xA0A8B6],moss=[0x7BBF5A,0x6AB04C],hs=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
   for(let ix=-ISLXL;ix<=ISLXR+1;ix+=1){
     const x=ix-0.5+0.5, ridge=1+0.45*Math.sin(ix*0.31)+0.3*Math.sin(ix*0.77+1.3); /* punggung bergelombang: puncak + lembah */
     for(let jz=0;jz<3;jz++){
@@ -1591,7 +1591,7 @@ function addSouthMountain(DB){
 }
 /* gunung batu di sisi kanan (timur) pulau: 3 blok (x 20..23), tinggi & bentuk sama dengan gunung selatan (maks 4.5, makin ke tepi luar makin tinggi). Deterministik (tanpa rnd()). */
 function addEastMountain(DB){
-  const st=[0x7F7F7F,0x777777,0x898989,0x707070,0x8E8E8E],moss=[0x6E8F5A,0x5F8A4A],hs=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
+  const st=[0x98A1B0,0x8E97A7,0xA4ACBA,0x848D9E,0xA0A8B6],moss=[0x7BBF5A,0x6AB04C],hs=(a,b)=>{ const v=Math.sin(a*127.1+b*311.7)*43758.5453; return v-Math.floor(v); };
   for(let iz=-ISLZT;iz<=ISLZR+1;iz+=1){
     const z=iz, ridge=1+0.45*Math.sin(iz*0.31)+0.3*Math.sin(iz*0.77+1.3);
     for(let jx=0;jx<3;jx++){
@@ -2013,11 +2013,13 @@ function ambienceWrite(v){ try{ const PD=window.PlayerData; if(PD&&PD.setSetting
 try{ const an=ambienceNight(); night=(an===null)?(UT.Prefs.get('night',false)===true):an; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
 /* corak petak (4x4 blok): hanya 2 warna utama per petak = border (12 blok) lebih gelap + tengah (4 blok) sedikit lebih terang. Warna dasar petak tetap dari tileBlock(). */
+/* Grade warna petak World (Dragon Roll x gaya diorama cerah): kunci warna di mcBlock() TIDAK diubah (dipakai untuk cek dekor/air/batu), hanya warna yang dilukis. */
+const WORLD_GRADE={0x5A9E3C:0x5FAE47,0x8A5B33:0x9C6B3C,0xE8D9A0:0xF2E09C,0xD9C98A:0xE6D088,0x2F5FCC:0x2399CF,0x3F76E4:0x37BADC,0x8E8E8E:0xA1A7B1,0x9A9490:0xADA49A,0xE0561A:0xF0662A,0x5A4636:0x6C5342,0x8A2B2B:0xAB3B35,0x6E2222:0x8C2F2D};
 function tileShade(bc,n,t,i,j,themeKey){
   const k=(n===GOAL||LADDERS[n]||SNAKES[n]||mobOn(n,themeKey))?0.6:1;
   const ring=(i===0||i===4||j===0||j===4);
   const d=ring?-0.06:0.03;
-  const c=new THREE.Color(bc); c.offsetHSL(0,0,d*k); return c;
+  const c=new THREE.Color(themeKey==='minecraft'&&WORLD_GRADE[bc]!==undefined?WORLD_GRADE[bc]:bc); c.offsetHSL(0,0,d*k); return c;
 }
 function tileBlock(n,t,th){
   if(n===GOAL) return th.goalTile;
@@ -2039,8 +2041,8 @@ function applyLook(th){
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
-  hemi.color.setHex(night?0x8FA6FF:0xFFFFFF); hemi.intensity=night?0.5:(th.key==='minecraft'?0.72:0.84); hemi.groundColor.setHex(night?0x1A2340:th.hemi);
-  sun.color.setHex(night?0xA9BCFF:0xFFFFFF); sun.intensity=night?0.42:(th.key==='minecraft'?0.56:0.64);
+  hemi.color.setHex(night?0x8FA6FF:(th.key==='minecraft'?0xE4F4FF:0xFFFFFF)); hemi.intensity=night?0.5:(th.key==='minecraft'?0.74:0.84); hemi.groundColor.setHex(night?0x1A2340:th.hemi);
+  sun.color.setHex(night?0xA9BCFF:(th.key==='minecraft'?0xFFF1D0:0xFFFFFF)); sun.intensity=night?0.42:(th.key==='minecraft'?0.58:0.64);
   scene.fog=new THREE.Fog(new THREE.Color(bot),night?38:32,night?80:64);
   nightObjs.forEach(o=>{ skyDome.remove(o); if(o.geometry) o.geometry.dispose(); }); nightObjs=[]; skyStars=null;
   if(night){

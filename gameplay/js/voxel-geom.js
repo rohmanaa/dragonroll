@@ -45,6 +45,9 @@
   ];
   const CORNERS=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
   const EDGES=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  /* Ambient occlusion palsu (baked di vertex color): kaki sisi kotak digelapkan, makin ke atas makin terang; sisi bawah kotak paling gelap.
+     Murni warna - tidak mengubah posisi/ukuran/urutan vertex. Matikan per kotak dengan o.ao===false, atau global lewat UT.GameplayVoxelGeom.AO.foot=0. */
+  const AO={foot:0.20,under:0.30};
   function makeBatch(){ return {pos:[],nor:[],col:[],idx:[],lpos:[],lcol:[],n:0}; }
   function addBox(b,cx,cy,cz,sx,sy,sz,color,o){
     o=o||{};
@@ -58,7 +61,8 @@
         const v=F.v[k],p=tr(v[0]*hx,v[1]*hy,v[2]*hz);
         b.pos.push(p[0],p[1],p[2]);
         b.nor.push(F.n[0]*c+F.n[2]*s,F.n[1],-F.n[0]*s+F.n[2]*c);
-        b.col.push(col.r,col.g,col.b);
+        let m=1; if(o.ao!==false){ if(F.n[1]===0){ if(v[1]<0) m=1-AO.foot; } else if(F.n[1]<0) m=1-AO.under; }
+        b.col.push(col.r*m,col.g*m,col.b*m);
       }
       b.idx.push(base,base+1,base+2,base,base+2,base+3);
       b.n+=4;
@@ -96,6 +100,6 @@
 
   UT.GameplayVoxelGeom = {
     tileToGrid: tileToGrid, gridToTile: gridToTile, buildTiles: buildTiles, terrainTop: terrainTop, topAt: topAt,
-    FACES: FACES, CORNERS: CORNERS, EDGES: EDGES, makeBatch: makeBatch, addBox: addBox, addOBox: addOBox
+    FACES: FACES, CORNERS: CORNERS, EDGES: EDGES, makeBatch: makeBatch, addBox: addBox, addOBox: addOBox, AO: AO
   };
 })(window);
