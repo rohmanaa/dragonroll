@@ -21,7 +21,7 @@
   /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
      Ini indikator kesiapan halaman, bukan persentase unduhan; progres byte nyata hanya ditampilkan di splash.
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
-  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 250;
+  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 350;
   var lbl = ov.querySelector('.ldt span');
   function stage(text) { if (text && lbl) lbl.textContent = text; }
   function resetP() { if (lbl) lbl.textContent = 'Memuat halaman'; }
@@ -120,7 +120,7 @@
     var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits);
     Promise.all(all).then(function () {
       stage('Menampilkan halaman');
-      return settle(w, d, 60, pageName(w) === 'gameplay.html' ? 800 : 300);
+      return settle(w, d, 100, pageName(w) === 'gameplay.html' ? 1200 : 500);
     }).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
