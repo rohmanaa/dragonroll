@@ -13,6 +13,7 @@ if(!window.THREE){ showBootErr(); return; }
 if(!(window.UT&&UT.GameplayVoxelGeom)){ showBootErr(); return; }
 
 /* ---------- Musik latar ---------- */
+let PROF_IDX=-1; /* indeks pemain yang profilnya terbuka di modal tengah (-1 = tertutup) */
 let bgMusic=null,musicOn=true,musicVol=30; /* volume musik bawaan 30% (bisa diubah di Pengaturan / menu jeda) */
 try{ const mv=parseInt(UT.Prefs.get('musicVol',30),10); musicVol=isNaN(mv)?30:Math.max(0,Math.min(100,mv)); }catch(e){} /* musicOn = status mute SESI (tombol Suara di HUD), tidak disimpan: dulu mute tersimpan permanen sehingga game berikutnya tanpa musik padahal tombol bertuliskan "Suara: nyala" */
 const MUSIC=['assets/audio/music/first-light-particles.mp3','assets/audio/music/community.mp3','assets/audio/music/sunset-plains.mp3','assets/audio/music/rainy.mp3']; /* playlist BGM gameplay: diputar berurutan, lalu ulang dari awal */
@@ -5345,6 +5346,9 @@ function renderChips(){
     row.appendChild(buffs); content.appendChild(row);
     const frameFx=document.createElement('span'); frameFx.className='hf'; frameFx.setAttribute('aria-hidden','true'); frameFx.innerHTML='<i class="hf-tab"></i><i class="hf-bar"></i>'; /* dekorasi frame HUD (hud-player-card.css) */
     card.appendChild(frameFx); card.appendChild(avatar); card.appendChild(content);
+    card.setAttribute('role','button'); card.tabIndex=0; card.setAttribute('aria-label','Profil '+p.name);
+    card.addEventListener('click',()=>{ try{ ensureAudio(); }catch(e){} profOpen(i); });
+    card.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); profOpen(i); } });
     const extra=document.createElement('div'); extra.className='px';
     if(p.pos===GOAL&&!p.dragonReady){
       const crystals=document.createElement('div'); crystals.className='cx'; crystals.setAttribute('role','img'); crystals.setAttribute('aria-label',(BOSS==='wither'?'Skeleton':'Crystal')+' '+p.crystal+' dari '+CRYSTAL_N);
@@ -5388,6 +5392,7 @@ function renderChips(){
     pu.appendChild(bt);
   });
   { const pnl=pu.closest('.pnl.pu'); if(pnl) pnl.style.display=puKeys().length?'':'none'; } /* tanpa Power terpilih: panel Power disembunyikan */
+  try{ if(PROF_IDX>=0) profRender(); }catch(e){} /* modal profil terbuka: ikut disegarkan */
 }
 function applyPendingTheme(){
   if(pendingTheme){ const k=pendingTheme; pendingTheme=null; buildWorld(k); }
@@ -6529,6 +6534,60 @@ function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!p
 function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
 function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; syncAutoBtn(); mpBroadcastAutoRoll(); try{ renderChips(); }catch(e){} try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){} }
 $('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
+/* ---------- Modal profil pemain (klik kartu profil di HUD) ----------
+   Semua pemain: info diri (petak, crystal, HP boss, skor, Power, buff). Hanya pemain LOKAL (kartu milik sendiri): tombol AUTO PLAY. */
+function pmEl(tag,cls,text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!==undefined&&text!==null) e.textContent=String(text); return e; }
+function profBar(label,val,max,txt,color){
+  const row=pmEl('div','pm-row'),lb=pmEl('span','pm-lb',label),track=pmEl('div','pm-bar'),fill=pmEl('u');
+  fill.style.width=Math.max(0,Math.min(100,max>0?val/max*100:0))+'%'; if(color) fill.style.background=color; track.appendChild(fill);
+  row.appendChild(lb); row.appendChild(track); row.appendChild(pmEl('b','pm-val',txt)); return row;
+}
+function profToggleAuto(){
+  if(!players.some(q=>isLocalPlayer(q))) return;
+  try{ ensureAudio(); }catch(e){}
+  autoRoll=!autoRoll; autoSince=0; syncAutoBtn(); mpBroadcastAutoRoll();
+  try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200,local:true}); }catch(e){}
+  try{ renderChips(); }catch(e){}
+}
+function profClose(){ PROF_IDX=-1; const m=document.getElementById('profModal'); if(m) m.hidden=true; }
+function profOpen(i){ if(!players[i]) return; PROF_IDX=i; profRender(); }
+function profRender(){
+  const p=players[PROF_IDX]; if(!p){ profClose(); return; }
+  let m=document.getElementById('profModal');
+  if(!m){
+    m=pmEl('div','pm'); m.id='profModal'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); document.body.appendChild(m);
+    m.addEventListener('click',e=>{ if(e.target===m) profClose(); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&PROF_IDX>=0){ e.stopPropagation(); profClose(); } },true);
+  }
+  m.hidden=false; m.setAttribute('aria-label','Profil '+p.name); m.textContent='';
+  const local=isLocalPlayer(p),host=ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu);
+  const box=pmEl('div','pm-box'); box.style.setProperty('--pc',p.css||'#ffd45a');
+  const head=pmEl('div','pm-head'); head.appendChild(pmEl('b',null,p.name));
+  const x=pmEl('button','pm-x','✕'); x.type='button'; x.setAttribute('aria-label','Tutup'); x.addEventListener('click',profClose); head.appendChild(x); box.appendChild(head);
+  const body=pmEl('div','pm-body');
+  const left=pmEl('div','pm-card'); const face=pmEl('div','pm-face'),im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name; face.appendChild(im); left.appendChild(face);
+  const tags=pmEl('div','pm-tags'); if(local) tags.appendChild(pmEl('span','pm-tag me','AKU')); if(p.cpu) tags.appendChild(pmEl('span','pm-tag','CPU')); if(host) tags.appendChild(pmEl('span','pm-tag host','HOST'));
+  tags.appendChild(pmEl('span','pm-tag','Giliran ke-'+(p.turnOrder||p.idx+1)));
+  if(ONLINE_ROOM&&p.left) tags.appendChild(pmEl('span','pm-tag off','Terputus'));
+  left.appendChild(tags); body.appendChild(left);
+  const st=pmEl('div','pm-stats');
+  st.appendChild(profBar('PETAK',p.pos,GOAL,p.pos===0?'Mulai':p.pos+'/'+GOAL,'linear-gradient(90deg,#6fd34a,#2fa84f)'));
+  st.appendChild(profBar(BOSS==='wither'?'SKELETON':'CRYSTAL',p.crystal||0,CRYSTAL_N,(p.crystal||0)+'/'+CRYSTAL_N,'linear-gradient(90deg,#b98cff,#7a4cff)'));
+  if(p.pos===GOAL&&p.dragonReady) st.appendChild(profBar(BOSS==='wither'?'WITHER':'NAGA',p.dhp,p.hpMax||100,p.dhp+'/'+(p.hpMax||100),'linear-gradient(90deg,#ff7a5a,#d62b2b)'));
+  const pus=Object.keys(p.pu||{}).filter(k=>p.pu[k]>0&&PUN[k]);
+  const chips=pmEl('div','pm-chips');
+  pus.forEach(k=>chips.appendChild(pmEl('span','pm-chip',PUN[k][1]+' ×'+p.pu[k])));
+  const buffs=[]; if(p.bonus) buffs.push('Bonus langkah +'+p.bonus); if(p.extra) buffs.push('Giliran tambahan'); if(p.odd) buffs.push('Dadu ganjil'); if(p.even) buffs.push('Dadu genap'); if(p.lucky) buffs.push('Dadu pasti 6'); if(p.shield) buffs.push('Kebal serangan'); if(p.guard) buffs.push('Perisai'); if(p.frozen) buffs.push('Beku');
+  buffs.forEach(t=>chips.appendChild(pmEl('span','pm-chip buff',t)));
+  const sec=pmEl('div','pm-sec'); sec.appendChild(pmEl('span','pm-lb','POWER & BUFF')); if(chips.childNodes.length) sec.appendChild(chips); else sec.appendChild(pmEl('span','pm-none','Tidak ada')); st.appendChild(sec);
+  body.appendChild(st); box.appendChild(body);
+  const foot=pmEl('div','pm-foot'); const th=document.createElement('img'); th.className='pm-th'; th.src=framedFace(p); th.alt=''; foot.appendChild(th);
+  if(local){ /* tombol AUTO hanya untuk profil sendiri */
+    const on=!!autoRoll,ab=pmEl('button','pm-auto'+(on?' on':''),on?'AUTO PLAY: NYALA':'AUTO PLAY'); ab.type='button'; ab.setAttribute('aria-pressed',String(on)); ab.addEventListener('click',profToggleAuto); foot.appendChild(ab);
+  } else foot.appendChild(pmEl('span','pm-spacer'));
+  const sc=pmEl('div','pm-score'); sc.appendChild(pmEl('small','pm-lb','SKOR')); sc.appendChild(pmEl('b',null,p.score||0)); foot.appendChild(sc);
+  box.appendChild(foot); m.appendChild(box);
+}
 syncAutoBtn();
 setInterval(()=>{
   syncAutoBtn();
