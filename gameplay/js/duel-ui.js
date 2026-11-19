@@ -558,7 +558,8 @@
   function cinPunch(side, strength, hold) {
     if (!arena || options.reducedMotion) return;
     var c = arena.cin, f = fighters[side];
-    c.focusX = f ? f.x : 0; c.zoom = strength; c.rate = 9;
+    /* zoom lebih halus & kamera nyaris tidak bergeser ke samping: petarung tetap satu garis, tidak terlalu dekat */
+    c.focusX = f ? f.x * 0.3 : 0; c.zoom = strength * 0.4; c.rate = 7;
     c.slow = 0.35; c.slowUntil = arena.elapsedReal + (hold || 0.3);
     setTimeout(function () { if (arena) { arena.cin.zoom = 0; arena.cin.rate = 3.2; } }, Math.round((hold || 0.3) * 1000) + 250);
   }
@@ -624,7 +625,8 @@
       else if (phase === 5) { f.defeat = null; f.defeated = true; f.defeatDx = dx; }
     }
     if (d.phase < 5 && f.defeat) { f.defeatDx = dx; }
-    /* badan rebah berputar di poros kaki: angkat sedikit supaya tidak menembus lantai */
+    /* badan rebah berputar di poros kaki -> kepala/badan menyapu busur (terlihat 'terikat lingkaran'). Kompensasi: titik tengah badan (~0.9) dijaga lurus di garis lantai. */
+    dx += 0.9 * Math.sin(tilt);
     y += 0.2 * Math.sin(Math.min(1.5, Math.abs(tilt)));
     return { dx: dx, y: y, tilt: tilt };
   }
