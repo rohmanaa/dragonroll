@@ -90,14 +90,17 @@ document.addEventListener('click',e=>{
  if(b.dataset.start)return act(w=>w.chestStart(id),()=>toast('Chest mulai dibuka.'));
  if(b.dataset.skip)return act(w=>w.chestOpenNow(id),()=>{playSound('button');bump();renderCurrency()});
  if(b.dataset.collect){const k=kindOf(id);return act(w=>w.chestCollect(id),r=>{playSound('chest');bump();renderCurrency();
-  let x='<img class="mi" src="'+IC+KIND[k].im+'.webp" alt="">';
+  let x='<div class="rays"></div><img class="mi" src="'+IC+KIND[k].im+'.webp" alt="">';
   x+='<div class="rw"><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">+'+fmt(r.coins)+' Coin</div>';
   if(r.gems>0)x+='<div class="rw"><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt="">+'+fmt(r.gems)+' Gem</div>';
   if(r.xp>0)x+='<div class="rw">+'+fmt(r.xp)+' XP</div>';
-  modal(KIND[k].nm+' Terbuka!',x)})}});
+  modal(KIND[k].nm+' Terbuka!',x,true)})}});
 
-function modal(t,x){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#md').classList.add('on');mOpen=true}
-function closeM(){$('#md').classList.remove('on');mOpen=false}
+function modal(t,x,fx){$('#mt').textContent=t;$('#mx').innerHTML=x;const md=$('#md');md.classList.toggle('fx',!!fx);
+ const old=md.querySelector('.flash');if(old)old.remove();
+ if(fx){const f=document.createElement('div');f.className='flash';md.appendChild(f)} /* kilatan cahaya lembut saat peti terbuka */
+ md.classList.remove('on');void md.offsetWidth;md.classList.add('on');mOpen=true}
+function closeM(){const md=$('#md');md.classList.remove('on','fx');const f=md.querySelector('.flash');if(f)f.remove();mOpen=false}
 $('#m-ok').addEventListener('click',closeM);
 $('#back').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=chest.html'));

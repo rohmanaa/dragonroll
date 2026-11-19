@@ -89,3 +89,26 @@
 .dc .tx.tm{top:186px;font-size:38px}
 .dc .btn{bottom:8px;width:210px;height:64px}
 .dc .btn span{font-size:28px}
+
+/* ---- animasi buka chest: modal muncul, peti bergoyang, lalu cahaya (agak silau tapi lembut) + sinar berputar, hadiah muncul bergantian ---- */
+#md.on.fx #box{animation:boxIn .35s cubic-bezier(.2,1.2,.3,1) both}
+#mx{position:relative}
+#mx .mi{position:relative;z-index:1}
+#md.fx #mx .mi{animation:chOpen 1.15s ease-out both;transform-origin:50% 80%}
+#md.fx #mx .rays{position:absolute;left:50%;top:-30px;width:520px;height:520px;margin-left:-260px;z-index:0;pointer-events:none;border-radius:50%;
+ background:repeating-conic-gradient(from 0deg,rgba(255,226,140,.55) 0 8deg,rgba(255,226,140,0) 8deg 20deg);
+ -webkit-mask:radial-gradient(circle,#000 8%,transparent 68%);mask:radial-gradient(circle,#000 8%,transparent 68%);
+ opacity:0;animation:raysIn 2.4s .7s ease-out both,raysSpin 14s linear infinite}
+#md.fx .flash{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;
+ background:radial-gradient(circle at 50% 44%,rgba(255,248,214,.95) 0,rgba(255,226,140,.5) 38%,rgba(255,226,140,0) 72%);
+ animation:flashIn 1.2s .7s ease-out both}
+#md.fx #mx .rw{opacity:0;animation:rwIn .5s .95s ease-out both}
+#md.fx #mx .rw~.rw{animation-delay:1.15s}
+#md.fx #mx .rw~.rw~.rw{animation-delay:1.35s}
+@keyframes boxIn{from{opacity:0;transform:scale(.8) translateY(14px)}to{opacity:1;transform:none}}
+@keyframes chOpen{0%{transform:scale(.9) rotate(0)}12%{transform:rotate(-7deg)}24%{transform:rotate(7deg)}36%{transform:rotate(-8deg)}48%{transform:rotate(8deg)}58%{transform:rotate(0) scale(1)}72%{transform:scale(1.28)}100%{transform:scale(1)}}
+@keyframes flashIn{0%{opacity:0}16%{opacity:.75}100%{opacity:0}}
+@keyframes raysIn{0%{opacity:0;transform:scale(.4)}30%{opacity:1}100%{opacity:.85;transform:scale(1)}}
+@keyframes raysSpin{to{rotate:360deg}}
+@keyframes rwIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#md.fx .flash{display:none}#md.fx #mx .mi,#md.fx #mx .rays,#md.fx #mx .rw,#md.on.fx #box{animation:none!important;opacity:1}}
