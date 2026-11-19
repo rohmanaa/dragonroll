@@ -35,7 +35,7 @@ const cv=$('#gl3d'),isLow=()=>document.documentElement.getAttribute('data-graphi
 let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null;
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&UT.FloatingIsland&&cv){
-  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
   renderer.setClearColor(0x000000,0);
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;

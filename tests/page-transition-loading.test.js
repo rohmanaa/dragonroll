@@ -14,7 +14,7 @@ assert.match(show[1], /setTimeout\(function \(\) \{[\s\S]*?doShow\(false\)/, 'cl
 const hide = js.match(/function hideOv\(\) \{([\s\S]*?)\n  \}\n  ov\.classList/);
 assert.ok(hide, 'ready handler exists');
 assert.match(hide[1], /if \(armed\) \{ armed = false; clearTimeout\(showT\); \}\s*if \(!shown\) return;/, 'a fast destination cancels pending clouds and still uncovers');
-assert.match(css, /#ov\.pending\{background:#e9f5ff\}[\s\S]*?#ov\.pending \.clouds\{opacity:0\}[\s\S]*?#ov\.pending \.ld\{display:none\}/, 'pending cover hides the page without prematurely showing loading UI');
+assert.match(css, /#ov\.pending\{background:#1e1440\}[\s\S]*?#ov\.pending \.clouds\{opacity:0\}[\s\S]*?#ov\.pending \.ld\{display:none\}/, 'pending cover hides the page without prematurely showing loading UI');
 assert.match(css, /@keyframes ldmove/, 'loading bar is indeterminate');
 assert.doesNotMatch(js, /\b(?:pct|setP|creepRaf)\b/, 'between-page loading does not show simulated percentage progress');
 assert.match(js, /im\.addEventListener\('error', finish\);[\s\S]*?timer = setTimeout\(finish, 1500\)/, 'a stalled or lazy image cannot keep the curtain open forever');

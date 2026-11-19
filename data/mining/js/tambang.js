@@ -171,7 +171,7 @@ function bindViews(){ctxs={};if(!isl||!renderer)return;[vw,vh]=viewSize();render
 function mountIsland(){
   if(isl||typeof THREE==='undefined'||!UT.MineIsland||!(UT.BlockyCharacter||UT.CharacterView))return;
   try{
-    renderer=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:true,alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(1);
+    renderer=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(1);
     isl=UT.MineIsland.create(THREE,{makeMiner});isl.still=true;   /* tidak goyang: pulau diam, lampu tidak berayun */
     [1,2,3].forEach(i=>{bays[i]={setFill:f=>isl.setFill(i,f),burst:(k,n)=>isl.burst(i,k,n)}});
     clock=new THREE.Clock();loop();
