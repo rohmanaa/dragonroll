@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'inventory', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'inventory', 'hadiahmisi', 'chest', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -225,7 +225,7 @@ window.UT = window.UT || {};
     UT.App.options = options;
     UT.App.page = options.page || null;
     /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
-    if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
+    if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','chest','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
       try { import('../multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {}
     }
     /* Resume: pemain yang kembali ke lobby saat room online-nya masih 'playing' (tab ditutup, refresh, koneksi putus) langsung diarahkan ke gameplay lagi.

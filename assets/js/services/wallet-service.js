@@ -231,6 +231,26 @@
       });
     }
 
+
+    /* ----- chest harian (server: chest_get / chest_claim_daily / chest_start / chest_open_now / chest_collect) ----- */
+    function chestMirror(r) { if (r && r.ok !== false) mirror(r.wallet_coins, r.wallet_gems); return r; }
+    async function chestGet() {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return Object.assign({ ok: true }, await rpc('chest_get')); } catch (e) { return fail(e); }
+    }
+    function chestClaimDaily(kind) {
+      return once('chest-daily', async function () { return chestMirror(await rpc('chest_claim_daily', { p_kind: String(kind || '') })); });
+    }
+    function chestStart(id) {
+      return once('chest-start', async function () { return chestMirror(await rpc('chest_start', { p_id: Math.floor(+id) })); });
+    }
+    function chestOpenNow(id) {
+      return once('chest-skip', async function () { return chestMirror(await rpc('chest_open_now', { p_id: Math.floor(+id) })); });
+    }
+    function chestCollect(id) {
+      return once('chest-collect', async function () { return chestMirror(await rpc('chest_collect', { p_id: Math.floor(+id) })); });
+    }
+
     async function refreshInventory() {
       try { var inv = await rpc('inventory_get'); mirror(null, null, Array.isArray(inv) ? inv : []); } catch (e) {}
     }
@@ -240,7 +260,8 @@
       dailyGet: dailyGet, claimDaily: claimDaily, claimLevelRewards: claimLevelRewards, openBox: openBox,
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,
-      claimAchievement: claimAchievement
+      claimAchievement: claimAchievement,
+      chestGet: chestGet, chestClaimDaily: chestClaimDaily, chestStart: chestStart, chestOpenNow: chestOpenNow, chestCollect: chestCollect
     };
   }
 

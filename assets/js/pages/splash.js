@@ -43,6 +43,7 @@ const ASSETS=[
   'efek.html',
   'powerup.html',
   'hadiah-misi.html',
+  'chest.html',
   'profile.html',
   'lobby.html',
   'mode.html',

@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 41 migrasi, urut: 202611050001 s/d 202611310001
+-- Isi: 43 migrasi, urut: 202611050001 s/d 202611330001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -5736,4 +5736,437 @@ end;
 $$;
 revoke all on function public.claim_pvp_unlock(text) from public, anon;
 grant execute on function public.claim_pvp_unlock(text) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611320001_match_coin_reward.sql
+-- ---------------------------------------------------------------------------
+-- Koin hadiah per pertandingan (menang DAN kalah), dibayar server di submit_match_result.
+-- Sebelumnya match hanya memberi XP + poin; koin hanya dari boss/level/misi.
+--   * Online terverifikasi: menang +40, kalah +15 koin. Lawan CPU / room tak terverifikasi: menang +10, kalah +5.
+--   * Batas 300 koin/hari WIB dari match (ledger reason 'match'); jeda 45 detik antar match tetap berlaku.
+--   * Hasil dikembalikan di 'reward_coins' (klien hanya menampilkan). Ubah angka lewat konstanta c_coin_* di bawah.
+-- Terapkan SETELAH 202611190003 dan migrasi wallet (butuh _wallet_apply/_wallet_ensure/_wib_day_start).
+
+create or replace function public.submit_match_result(
+  p_match_id text,
+  p_won boolean,
+  p_name text,
+  p_xp_total bigint default 0,
+  p_room_id uuid default null,
+  p_mode text default null,
+  p_players int default null,
+  p_stats jsonb default null
+) returns jsonb
+language plpgsql security definer set search_path = public, auth as $$
+#variable_conflict use_column
+declare
+  c_xp_win  constant int := 120;   -- match online terverifikasi
+  c_xp_loss constant int := 40;
+  c_xp_win_cpu  constant int := 30;   -- lawan CPU / room tak terverifikasi: XP kecil
+  c_xp_loss_cpu constant int := 10;
+  c_pts_win constant int := 100;
+  c_pts_loss constant int := 10;
+  c_coin_win       constant bigint := 40;   -- koin match online terverifikasi (menang)
+  c_coin_loss      constant bigint := 15;   -- koin match online terverifikasi (kalah) - kalah tetap dapat koin
+  c_coin_win_cpu   constant bigint := 10;   -- lawan CPU / room tak terverifikasi
+  c_coin_loss_cpu  constant bigint := 5;
+  c_coin_daily_cap constant bigint := 300;  -- batas total koin dari match per akun per hari WIB (anti-farming)
+  v_uid    uuid := auth.uid();
+  v_name   text := left(btrim(coalesce(p_name, '')), 24);
+  v_wk     date := (date_trunc('week', now() at time zone 'utc'))::date;
+  v_rows   integer;
+  v_s      public.player_stats;
+  v_room   public.game_rooms;
+  v_online boolean := false;
+  v_won    boolean := coalesce(p_won, false);
+  v_key    text := p_match_id;
+  v_widx   int;
+  v_winner text;
+  v_pts    int;
+  v_gain   int;
+  v_xp     bigint;
+  v_coins  bigint := 0;
+  v_today  bigint;
+  v_dice  int := public._clamp_json_int(p_stats, 'dice', 300);
+  v_lad   int := public._clamp_json_int(p_stats, 'ladders', 60);
+  v_snk   int := public._clamp_json_int(p_stats, 'snakes', 60);
+  v_skl   int := public._clamp_json_int(p_stats, 'skills', 100);
+  v_drg   int := public._clamp_json_int(p_stats, 'dragon_hits', 100);
+  v_ids   text[] := '{}';
+  v_swins text[];
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  if p_match_id is null or char_length(p_match_id) not between 1 and 80 then raise exception 'BAD_MATCH_ID'; end if;
+  if v_name = '' then v_name := 'Player'; end if;
+
+  if p_room_id is not null then
+    if not public.is_game_room_member(p_room_id) then raise exception 'ROOM_ACCESS_DENIED'; end if;
+    select * into v_room from public.game_rooms where id = p_room_id;
+    if v_room.status <> 'finished' then
+      return jsonb_build_object('ok', false, 'reason', 'room_not_finished'); -- klien boleh mencoba lagi sebentar lagi
+    end if;
+    v_widx := case when (v_room.game_state -> 'snapshot' ->> 'winnerIndex') ~ '^[0-9]+$'
+                   then (v_room.game_state -> 'snapshot' ->> 'winnerIndex')::int end;
+    v_winner := case when v_widx is not null then v_room.game_state -> 'snapshot' -> 'players' -> v_widx ->> 'networkId' end;
+    if v_winner is null then
+      return jsonb_build_object('ok', false, 'reason', 'no_result');
+    end if;
+    if public._room_is_verified(p_room_id) then
+      v_online := true;
+      v_won := (v_winner = v_uid::text);   -- klaim klien (p_won) diabaikan
+    end if;                                 -- room tak terverifikasi: diperlakukan seperti lawan CPU (XP kecil, tanpa poin leaderboard)
+  end if;
+
+  v_gain := case when v_online then (case when v_won then c_xp_win else c_xp_loss end)
+                 else (case when v_won then c_xp_win_cpu else c_xp_loss_cpu end) end;
+  v_pts  := case when not v_online then 0 when v_won then c_pts_win else c_pts_loss end;
+
+  insert into public.player_stats(user_id, name) values (v_uid, v_name) on conflict (user_id) do nothing;
+  select * into v_s from public.player_stats where user_id = v_uid for update;
+
+  if v_s.last_match_at is not null and v_s.last_match_at > now() - interval '45 seconds' then
+    return jsonb_build_object('ok', true, 'ignored', 'too_fast');
+  end if;
+
+  if v_online then
+    perform 1 from public.player_room_credits
+      where user_id = v_uid and room_id = p_room_id and credited_at > now() - interval '3 minutes';
+    if found then return jsonb_build_object('ok', true, 'duplicate', true); end if;
+    insert into public.player_room_credits(user_id, room_id, credited_at) values (v_uid, p_room_id, now())
+      on conflict (user_id, room_id) do update set credited_at = excluded.credited_at;
+    v_key := left('room:' || p_room_id::text || ':' || to_char(now() at time zone 'utc', 'YYYYMMDDHH24MISS'), 80);
+  end if;
+
+  insert into public.player_match_results(user_id, match_id) values (v_uid, v_key) on conflict do nothing;
+  get diagnostics v_rows = row_count;
+  if v_rows = 0 then return jsonb_build_object('ok', true, 'duplicate', true); end if;
+
+  if v_s.week_key <> v_wk then v_s.week_key := v_wk; v_s.week_points := 0; end if;
+  v_xp := least(v_s.xp + v_gain, 1000000);   -- XP dari server, bukan dari klien
+
+  v_swins := v_s.skill_wins;
+  if v_won and p_stats is not null and jsonb_typeof(p_stats -> 'skill_ids') = 'array' then
+    select coalesce(array_agg(left(x, 30)), '{}') into v_ids
+    from (select jsonb_array_elements_text(p_stats -> 'skill_ids') as x limit 8) q
+    where btrim(x) <> '';
+    select coalesce(array_agg(x order by x), '{}') into v_swins
+    from (select distinct x from unnest(v_s.skill_wins || v_ids) as x limit 40) q;
+  end if;
+
+  update public.player_stats set
+    name          = v_name,
+    xp            = v_xp,
+    level         = public.level_from_xp(v_xp),
+    plays         = v_s.plays + 1,
+    wins          = v_s.wins + (case when v_won then 1 else 0 end),
+    streak        = case when v_won then v_s.streak + 1 else 0 end,
+    best_streak   = greatest(v_s.best_streak, case when v_won then v_s.streak + 1 else 0 end),
+    points        = v_s.points + v_pts,
+    week_key      = v_s.week_key,
+    week_points   = v_s.week_points + v_pts,
+    dice_rolls    = v_s.dice_rolls + v_dice,
+    ladders       = v_s.ladders + v_lad,
+    snakes        = v_s.snakes + v_snk,
+    skills_used   = v_s.skills_used + v_skl,
+    dragon_hits   = v_s.dragon_hits + v_drg,
+    skill_wins    = v_swins,
+    last_match_at = now(),
+    updated_at    = now()
+  where user_id = v_uid;
+
+  insert into public.player_match_history(user_id, match_id, won, mode, players, xp_gain, points, detail)
+  values (v_uid, v_key, v_won, case when v_online then 'online' else 'cpu' end,
+          case when p_players between 1 and 8 then p_players end,
+          (v_xp - v_s.xp)::int, v_pts,
+          jsonb_build_object('dice', v_dice, 'ladders', v_lad, 'snakes', v_snk, 'skills', v_skl, 'dragon_hits', v_drg))
+  on conflict do nothing;
+
+  delete from public.player_match_history h
+  where h.user_id = v_uid
+    and h.id not in (select id from public.player_match_history
+                     where user_id = v_uid order by created_at desc, id desc limit 50);
+
+  -- Koin match: menang ATAU kalah dapat koin (kalah lebih kecil). Server menentukan nominal; ref_key = id match -> tidak bisa dobel.
+  v_coins := case when v_online then (case when v_won then c_coin_win else c_coin_loss end)
+                  else (case when v_won then c_coin_win_cpu else c_coin_loss_cpu end) end;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select coalesce(sum(delta_coins), 0) into v_today from public.wallet_ledger
+    where user_id = v_uid and reason = 'match' and created_at >= public._wib_day_start();
+  v_coins := greatest(least(v_coins, c_coin_daily_cap - v_today), 0);
+  if v_coins > 0 then perform public._wallet_apply(v_uid, v_coins, 0, 'match', v_key); end if;
+
+  return jsonb_build_object('ok', true, 'duplicate', false, 'won', v_won, 'online', v_online,
+                            'points', v_pts, 'xp_gain', (v_xp - v_s.xp)::int, 'reward_coins', v_coins);
+end;
+$$;
+revoke all on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) from public, anon;
+grant execute on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611330001_chest_system.sql
+-- ---------------------------------------------------------------------------
+-- Sistem Chest harian. Idempotent (create or replace / if not exists).
+--   1. Chest harian: Kayu (main 1 game), Silver (3 game), Gold (10 game); tiap jenis maksimal 1x per hari WIB.
+--      Jumlah game hari ini dihitung SERVER dari player_match_history (hari WIB) -> klien tidak melaporkan apa pun.
+--   2. Penyimpanan: maksimal 10 chest. Maksimal 3 chest diproses (timer) bersamaan; sisanya antre di penyimpanan.
+--   3. Membuka chest butuh waktu tunggu (Kayu 10 mnt, Silver 1 jam, Gold 4 jam). Boleh dipercepat dengan gem
+--      (biaya = 1 gem per 30 menit tersisa, minimal 1).
+--   4. Hadiah (koin/gem/XP) diundi di server saat chest diambil. Kunci idempoten dompet = 'chest' + id chest.
+--   5. Setiap chest yang diambil menambah player_stats.chests (misi harian "Buka Peti" + achievement Peti).
+-- Nominal dan waktu HANYA di _chest_defs / _chest_roll / _chest_skip_cost di bawah. Power belum jadi hadiah (tahap lanjut).
+
+-- ============ 1. Tabel ============
+create table if not exists public.player_chest_daily (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  day        date not null,
+  claimed    text[] not null default '{}',
+  updated_at timestamptz not null default now()
+);
+alter table public.player_chest_daily enable row level security;
+revoke all on public.player_chest_daily from anon, authenticated;
+
+create table if not exists public.player_chest (
+  id              bigserial primary key,
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  kind            text not null check (kind in ('wood', 'silver', 'gold')),
+  source          text not null default 'daily',
+  status          text not null default 'stored' check (status in ('stored', 'opening', 'collected')),
+  created_at      timestamptz not null default now(),
+  open_started_at timestamptz,
+  open_ready_at   timestamptz,
+  collected_at    timestamptz
+);
+create index if not exists player_chest_user_idx on public.player_chest (user_id, status);
+alter table public.player_chest enable row level security;
+revoke all on public.player_chest from anon, authenticated;
+revoke all on sequence public.player_chest_id_seq from anon, authenticated;
+
+-- ============ 2. Definisi (urutan tampil) ============
+create or replace function public._chest_defs() returns table(ord int, kind text, need_plays int, open_secs int)
+language sql immutable as $$
+  select * from (values
+    (1, 'wood',   1,   600),
+    (2, 'silver', 3,  3600),
+    (3, 'gold',  10, 14400)
+  ) v(ord, kind, need_plays, open_secs)
+$$;
+revoke all on function public._chest_defs() from public, anon, authenticated;
+
+-- Biaya gem untuk melewati sisa waktu: 1 gem per 30 menit (dibulatkan ke atas), minimal 1.
+create or replace function public._chest_skip_cost(p_secs int) returns int
+language sql immutable as $$
+  select case when coalesce(p_secs, 0) <= 0 then 0 else greatest(1, ceil(p_secs / 1800.0)::int) end
+$$;
+revoke all on function public._chest_skip_cost(int) from public, anon, authenticated;
+
+-- Undi hadiah. Kayu 50-100 koin | Silver 150-250 koin, 10% +1 gem | Gold 350-500 koin + 1 gem. XP 10/25/60.
+create or replace function public._chest_roll(p_kind text) returns jsonb
+language plpgsql volatile as $$
+declare v_c int; v_g int := 0; v_x int;
+begin
+  if p_kind = 'wood' then
+    v_c := 50 + floor(random() * 51)::int;  v_x := 10;
+  elsif p_kind = 'silver' then
+    v_c := 150 + floor(random() * 101)::int; v_x := 25;
+    if random() < 0.10 then v_g := 1; end if;
+  elsif p_kind = 'gold' then
+    v_c := 350 + floor(random() * 151)::int; v_x := 60; v_g := 1;
+  else
+    raise exception 'BAD_CHEST_KIND';
+  end if;
+  return jsonb_build_object('coins', v_c, 'gems', v_g, 'xp', v_x);
+end;
+$$;
+revoke all on function public._chest_roll(text) from public, anon, authenticated;
+
+-- ============ 3. Helper ============
+-- Jumlah game yang tercatat hari ini (WIB).
+create or replace function public._chest_plays_today(p_user uuid) returns int
+language sql stable security definer set search_path = public as $$
+  select count(*)::int from public.player_match_history h
+   where h.user_id = p_user
+     and h.created_at >= (public._wib_today()::timestamp at time zone 'Asia/Jakarta')
+$$;
+revoke all on function public._chest_plays_today(uuid) from public, anon, authenticated;
+
+-- Pastikan baris harian ada dan reset klaim bila hari WIB berganti; kunci baris.
+create or replace function public._chest_roll_day(p_user uuid) returns public.player_chest_daily
+language plpgsql security definer set search_path = public as $$
+declare v_d public.player_chest_daily; v_today date := public._wib_today();
+begin
+  insert into public.player_chest_daily(user_id, day) values (p_user, v_today) on conflict (user_id) do nothing;
+  update public.player_chest_daily set day = v_today, claimed = '{}', updated_at = now()
+   where user_id = p_user and day <> v_today;
+  select * into v_d from public.player_chest_daily where user_id = p_user for update;
+  return v_d;
+end;
+$$;
+revoke all on function public._chest_roll_day(uuid) from public, anon, authenticated;
+
+-- Status lengkap untuk klien (read-only; baris harian sudah di-roll oleh pemanggil).
+create or replace function public._chest_json(p_user uuid) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  v_d public.player_chest_daily; v_plays int := public._chest_plays_today(p_user);
+  v_daily jsonb; v_list jsonb; v_cnt int; v_open int;
+begin
+  select * into v_d from public.player_chest_daily where user_id = p_user;
+
+  select jsonb_agg(jsonb_build_object(
+           'kind', d.kind, 'need', d.need_plays, 'progress', least(d.need_plays, v_plays),
+           'status', case when d.kind = any(coalesce(v_d.claimed, '{}')) then 'claimed'
+                          when v_plays >= d.need_plays then 'ready' else 'todo' end) order by d.ord)
+    into v_daily from public._chest_defs() d;
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'id', c.id, 'kind', c.kind,
+           'status', case when c.status = 'opening' and c.open_ready_at <= now() then 'ready' else c.status end,
+           'open_secs', d.open_secs,
+           'seconds_left', case when c.status = 'opening' then greatest(0, ceil(extract(epoch from (c.open_ready_at - now())))::int) else d.open_secs end,
+           'skip_cost', case when c.status = 'opening'
+                             then public._chest_skip_cost(greatest(0, ceil(extract(epoch from (c.open_ready_at - now())))::int)) else 0 end
+         ) order by c.id), '[]'::jsonb)
+    into v_list
+    from public.player_chest c join public._chest_defs() d on d.kind = c.kind
+   where c.user_id = p_user and c.status <> 'collected';
+
+  select count(*)::int, count(*) filter (where status = 'opening')::int
+    into v_cnt, v_open from public.player_chest where user_id = p_user and status <> 'collected';
+
+  return jsonb_build_object('day', coalesce(v_d.day, public._wib_today()), 'seconds_to_reset', public._secs_to_wib_reset(),
+    'plays_today', v_plays, 'daily', v_daily,
+    'all_claimed', coalesce((select bool_and(d.kind = any(coalesce(v_d.claimed, '{}'))) from public._chest_defs() d), false),
+    'max_storage', 10, 'max_open', 3, 'count', v_cnt, 'opening', v_open, 'chests', v_list);
+end;
+$$;
+revoke all on function public._chest_json(uuid) from public, anon, authenticated;
+
+-- ============ 4. RPC untuk klien ============
+create or replace function public.chest_get() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid();
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  perform public._chest_roll_day(v_uid);
+  return jsonb_build_object('ok', true) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_get() from public, anon;
+grant execute on function public.chest_get() to authenticated;
+
+-- Klaim chest harian -> masuk penyimpanan.
+create or replace function public.chest_claim_daily(p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_d public.player_chest_daily; v_def record; v_cnt int;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  select * into v_def from public._chest_defs() where kind = p_kind;
+  if not found then raise exception 'BAD_CHEST_KIND'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  v_d := public._chest_roll_day(v_uid);
+
+  if p_kind = any(v_d.claimed) then return jsonb_build_object('ok', false, 'reason', 'sudah-klaim'); end if;
+  if public._chest_plays_today(v_uid) < v_def.need_plays then return jsonb_build_object('ok', false, 'reason', 'belum-selesai'); end if;
+  select count(*)::int into v_cnt from public.player_chest where user_id = v_uid and status <> 'collected';
+  if v_cnt >= 10 then return jsonb_build_object('ok', false, 'reason', 'penuh'); end if;
+
+  insert into public.player_chest(user_id, kind, source) values (v_uid, p_kind, 'daily');
+  update public.player_chest_daily set claimed = array_append(claimed, p_kind), updated_at = now() where user_id = v_uid;
+  return jsonb_build_object('ok', true, 'kind', p_kind) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_claim_daily(text) from public, anon;
+grant execute on function public.chest_claim_daily(text) to authenticated;
+
+-- Mulai membuka chest (timer jalan). Maksimal 3 chest diproses bersamaan.
+create or replace function public.chest_start(p_id bigint) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_c public.player_chest; v_def record; v_open int;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select * into v_c from public.player_chest where id = p_id and user_id = v_uid for update;
+  if not found or v_c.status = 'collected' then return jsonb_build_object('ok', false, 'reason', 'tidak-ada'); end if;
+  if v_c.status = 'opening' then return jsonb_build_object('ok', false, 'reason', 'sudah-dibuka'); end if;
+  select count(*)::int into v_open from public.player_chest where user_id = v_uid and status = 'opening';
+  if v_open >= 3 then return jsonb_build_object('ok', false, 'reason', 'slot-penuh'); end if;
+
+  select * into v_def from public._chest_defs() where kind = v_c.kind;
+  update public.player_chest
+     set status = 'opening', open_started_at = now(), open_ready_at = now() + make_interval(secs => v_def.open_secs)
+   where id = p_id;
+  return jsonb_build_object('ok', true, 'id', p_id) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_start(bigint) from public, anon;
+grant execute on function public.chest_start(bigint) to authenticated;
+
+-- Percepat sisa waktu dengan gem.
+create or replace function public.chest_open_now(p_id bigint) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_c public.player_chest; v_secs int; v_cost int; v_w jsonb; v_gems bigint;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select * into v_c from public.player_chest where id = p_id and user_id = v_uid for update;
+  if not found or v_c.status = 'collected' then return jsonb_build_object('ok', false, 'reason', 'tidak-ada'); end if;
+  if v_c.status <> 'opening' then return jsonb_build_object('ok', false, 'reason', 'belum-dibuka'); end if;
+
+  v_secs := greatest(0, ceil(extract(epoch from (v_c.open_ready_at - now())))::int);
+  if v_secs = 0 then return jsonb_build_object('ok', true, 'cost', 0) || public._chest_json(v_uid); end if;
+  v_cost := public._chest_skip_cost(v_secs);
+
+  select gems into v_gems from public.player_wallet where user_id = v_uid;
+  if v_gems < v_cost then return jsonb_build_object('ok', false, 'reason', 'gem-kurang', 'cost', v_cost); end if;
+
+  v_w := public._wallet_apply(v_uid, 0, -v_cost, 'chest_skip', 'skip:' || p_id);
+  if (v_w ->> 'duplicate')::boolean then return jsonb_build_object('ok', false, 'reason', 'sudah-dibayar'); end if;
+  update public.player_chest set open_ready_at = now() where id = p_id;
+  return jsonb_build_object('ok', true, 'cost', v_cost,
+           'wallet_coins', (v_w ->> 'coins')::bigint, 'wallet_gems', (v_w ->> 'gems')::bigint) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_open_now(bigint) from public, anon;
+grant execute on function public.chest_open_now(bigint) to authenticated;
+
+-- Ambil hadiah chest yang timernya sudah selesai. Hadiah diundi di sini.
+create or replace function public.chest_collect(p_id bigint) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_c public.player_chest; v_rw jsonb; v_w jsonb; v_xp int;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select * into v_c from public.player_chest where id = p_id and user_id = v_uid for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'tidak-ada'); end if;
+  if v_c.status = 'collected' then return jsonb_build_object('ok', false, 'reason', 'sudah-diambil'); end if;
+  if v_c.status <> 'opening' then return jsonb_build_object('ok', false, 'reason', 'belum-dibuka'); end if;
+  if v_c.open_ready_at > now() then return jsonb_build_object('ok', false, 'reason', 'belum-siap'); end if;
+
+  v_rw := public._chest_roll(v_c.kind);
+  v_xp := (v_rw ->> 'xp')::int;
+  v_w := public._wallet_apply(v_uid, (v_rw ->> 'coins')::bigint, (v_rw ->> 'gems')::bigint, 'chest', 'collect:' || p_id);
+  if (v_w ->> 'duplicate')::boolean then return jsonb_build_object('ok', false, 'reason', 'sudah-diambil'); end if;
+
+  update public.player_chest set status = 'collected', collected_at = now() where id = p_id;
+  insert into public.player_stats(user_id) values (v_uid) on conflict (user_id) do nothing;
+  update public.player_stats
+     set chests = chests + 1, xp = xp + v_xp, level = public.level_from_xp(xp + v_xp), updated_at = now()
+   where user_id = v_uid;
+
+  return jsonb_build_object('ok', true, 'id', p_id, 'kind', v_c.kind,
+           'coins', (v_rw ->> 'coins')::int, 'gems', (v_rw ->> 'gems')::int, 'xp', v_xp,
+           'wallet_coins', (v_w ->> 'coins')::bigint, 'wallet_gems', (v_w ->> 'gems')::bigint) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_collect(bigint) from public, anon;
+grant execute on function public.chest_collect(bigint) to authenticated;
 
