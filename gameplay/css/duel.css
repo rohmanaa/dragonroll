@@ -697,3 +697,12 @@ body.duel-active #trapBar        { display: none !important }
 @media (prefers-reduced-motion: reduce) {
   .du-versus, .du-roll-button img { animation: none !important }
 }
+
+/* batas waktu roll 5 detik: bar menyusut di bawah label tombol ROLL */
+.du-roll-timer { width: min(100%, 130px); height: 6px; margin-top: 3px; border-radius: 3px; background: rgba(0, 0, 0, .5); overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 220, 120, .35); }
+.du-roll-timer[hidden] { display: none; }
+.du-roll-timer i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #ffd45a, #ff9a3c); }
+.du-roll-timer.urgent i { background: linear-gradient(90deg, #ff6a5a, #e0242b); }
+.du-roll-timer.urgent { animation: du-roll-urgent .4s ease-in-out infinite alternate; }
+@keyframes du-roll-urgent { to { box-shadow: 0 0 6px 1px rgba(255, 70, 60, .8); } }
+@media (prefers-reduced-motion: reduce) { .du-roll-timer.urgent { animation: none; } }

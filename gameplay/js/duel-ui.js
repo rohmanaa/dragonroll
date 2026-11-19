@@ -2,7 +2,8 @@
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
-  var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null, rollResolver = null, introResolver = null, introTimer = 0;
+  var root = null, el = {}, arena = null, fighters = [null, null], closeToken = 0, resizeHandler = null, rollResolver = null, introResolver = null, introTimer = 0, rollTick = 0;
+  var ROLL_LIMIT_MS = 5000;   /* batas waktu tap ROLL: lewat 5 detik -> otomatis roll */
   var options = { reducedMotion: false };
   /* LOOK_Y: makin besar => petarung makin turun di layar (kaki menapak lantai bawah background) */
   var LOOK_Y = 0.7;
@@ -151,10 +152,13 @@
     /* tombol Roll = tombol Roll gameplay (ikon roll.webp tanpa bingkai); label kecil di bawahnya */
     el.rollLabel = mk('span', 'du-roll-label', 'ROLL DICE');
     el.rollButton.appendChild(el.rollLabel);
+    el.rollTimer = mk('div', 'du-roll-timer'); el.rollTimerBar = mk('i'); el.rollTimer.appendChild(el.rollTimerBar); el.rollTimer.hidden = true;
+    el.rollButton.appendChild(el.rollTimer);
     var kbdHint = mk('kbd', null, 'SPACE');
     el.rollButton.appendChild(kbdHint);
     el.rollButton.addEventListener('click', function () {
       if (!rollResolver || el.rollButton.disabled) return;
+      clearRollTimer();
       el.rollButton.disabled = true;
       el.rollLabel.textContent = 'ROLLING...';
       playSfx('roll');
@@ -476,6 +480,27 @@
       if (arena.dust) { arena.dust.geo.dispose(); arena.dust.pool.forEach(function (p) { p.mesh.material.dispose(); }); }
       if (arena.dice) arena.dice.items.forEach(function (d) { d.geo.dispose(); disposeDieMats(d); });
     } catch (e) {}
+  }
+  function clearRollTimer() {
+    if (rollTick) { clearInterval(rollTick); rollTick = 0; }
+    if (el.rollTimer) { el.rollTimer.hidden = true; el.rollTimer.classList.remove('urgent'); }
+  }
+  /* hitung mundur 5 detik di tombol ROLL; habis -> klik otomatis (jalur yang sama dengan tap manual, jadi online/lokal sama) */
+  function startRollTimer(round) {
+    clearRollTimer();
+    if (!el.rollTimer) return;
+    var t0 = Date.now(), bar = el.rollTimerBar || { style: {} };
+    el.rollTimer.hidden = false;
+    bar.style.transition = 'none'; bar.style.width = '100%'; void (bar.offsetWidth || 0);
+    if (!options.reducedMotion) { bar.style.transition = 'width ' + ROLL_LIMIT_MS + 'ms linear'; bar.style.width = '0%'; }
+    rollTick = setInterval(function () {
+      if (!root || root.hidden || !rollResolver || el.rollButton.disabled) { clearRollTimer(); return; }
+      var left = Math.max(0, ROLL_LIMIT_MS - (Date.now() - t0));
+      el.rollLabel.textContent = 'ROLL DICE · ROUND ' + round + ' · ' + Math.ceil(left / 1000);
+      if (left <= 2000) el.rollTimer.classList.add('urgent'); else el.rollTimer.classList.remove('urgent');
+      if (options.reducedMotion) bar.style.width = (left / ROLL_LIMIT_MS * 100) + '%';
+      if (left <= 0) { clearRollTimer(); el.rollButton.click(); }
+    }, 100);
   }
   function clearFighters() {
     if (!arena) return;
@@ -920,11 +945,12 @@
       return new Promise(function (resolve) {
         if (rollResolver) rollResolver(false);
         rollResolver = resolve;
+        startRollTimer(round);
       });
     },
     /* Online: kunci tombol ROLL (sudah tap / menunggu lawan / penonton). Melepas janji waitForRoll yang masih menggantung (hasil false). */
     lockRoll: function (label) {
-      build();
+      build(); clearRollTimer();
       el.rollButton.disabled = true;
       if (label) el.rollLabel.textContent = label;
       if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
@@ -1078,7 +1104,7 @@
     },
     result: function (title, lines, outcome) {
       build(); root.classList.add('result'); el.card.innerHTML = '';
-      el.rollButton.hidden = true;
+      el.rollButton.hidden = true; clearRollTimer();
       if (outcome === 'win') playSfx('victory');
       else playSfx('defeat');
       /* warna kontekstual: win / lose / draw */
@@ -1097,7 +1123,7 @@
     close: function () {
       if (!root) return;
       try { window.dispatchEvent(new Event('ut:duel-close')); } catch (e) {}
-      finishIntro();
+      finishIntro(); clearRollTimer();
       if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
       if (el._keyHandler) window.removeEventListener('keydown', el._keyHandler);
       el.choose.hidden = true; root.classList.remove('selecting'); root.classList.add('out');

@@ -132,6 +132,17 @@ async function run() {
   assert.strictEqual(await rollWait, true, 'the roll button starts the duel round');
   await UI.revealRolls([2, 5]);
   assert.deepStrictEqual(findAll(body, 'du-die').map(die => die.textContent), ['2', '5'], 'both dice results are shown before combat resolves');
+  /* batas waktu roll 5 detik: kalau pemain tidak tap, otomatis roll */
+  {
+    const realNow = Date.now, autoWait = UI.waitForRoll(2);
+    assert.strictEqual(rollButton.disabled, false, 'tombol ROLL aktif saat menunggu');
+    Date.now = () => realNow() + 5200;
+    const autoRolled = await Promise.race([autoWait, new Promise(r => setTimeout(() => r('timeout'), 600))]);
+    Date.now = realNow;
+    assert.strictEqual(autoRolled, true, 'lewat 5 detik tanpa tap -> otomatis roll');
+    assert.strictEqual(rollButton.disabled, true, 'tombol terkunci setelah auto-roll');
+    await UI.revealRolls([3, 4]);
+  }
   const intro = UI.intro();
   const skipButton = find(body, 'du-skip');
   assert.strictEqual(skipButton.hidden, false, 'skip animation is available during the duel intro');
