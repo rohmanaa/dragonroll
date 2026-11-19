@@ -253,14 +253,14 @@ function removeListeners(){
   listeners.splice(0).forEach(({target,type,handler,options})=>target.removeEventListener(type,handler,options));
 }
 let renderer=null;
-try{renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:true,premultipliedAlpha:true})}catch(err){
+try{renderer=new T.WebGLRenderer({canvas,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true,premultipliedAlpha:true})}catch(err){
   view.insertAdjacentHTML('beforeend','<div class="gl-fail">WebGL tidak tersedia, pratinjau 3D tidak bisa ditampilkan.</div>');
 }
 let teardownFn=()=>{if(destroyed)return;destroyed=true;glowTex.dispose();removeListeners()};
 const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 let pendingId=null,selectFn=null;
 if(renderer){
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
 renderer.setClearColor(0x000000,0);
 const scene=new T.Scene();
 const camera=new T.PerspectiveCamera(40,1,.1,100);

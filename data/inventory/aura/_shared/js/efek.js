@@ -38,7 +38,7 @@ function rigInit(){
   if(R||!gl)return;
   try{
     const host=$('#fpv'),cv=document.createElement('canvas');host.innerHTML='';host.appendChild(cv);
-    const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+    const r=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
     const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(FOV,1,.1,100);
     scene.add(new THREE.AmbientLight(0xffffff,.7),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
     const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);scene.add(sun);

@@ -50,7 +50,7 @@ function buildChar(){
   if(!R){
     try{
       art.innerHTML="";const cv=document.createElement("canvas");art.appendChild(cv);
-      const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true}),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(36,1,.1,100);
+      const r=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true}),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(36,1,.1,100);
       scene.add(new THREE.AmbientLight(0xffffff,.7),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
       const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);scene.add(sun);
       const holder=new THREE.Group();scene.add(holder);

@@ -442,7 +442,7 @@
         catcher.receiveShadow = true; scene.add(catcher);
       } catch (se) { /* ShadowMaterial might not exist in older THREE */ }
 
-      var renderer = new T.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+      var renderer = new T.WebGLRenderer({ alpha: true, antialias: !(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)), powerPreference: 'low-power' });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.setClearColor(0x000000, 0);
       renderer.shadowMap.enabled = true;

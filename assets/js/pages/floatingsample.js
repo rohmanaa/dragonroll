@@ -12,7 +12,7 @@
   var cv = document.getElementById('gl');
   var renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)), alpha: true });
   } catch (e) {
     document.getElementById('msg').style.display = 'grid';
     return;
@@ -48,7 +48,7 @@
   function frame() {
     var w = cv.clientWidth, h = cv.clientHeight;
     if (!w || !h) return;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(w, h, false);
     cam.aspect = w / h;
     /* jarak dasar supaya seluruh pulau (lebar ~7.4 x skala) pas di layar, portrait maupun landscape */
