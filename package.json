@@ -1,0 +1,51 @@
+{
+  "name": "dragon-roll",
+  "version": "1.0.0",
+  "description": "Dragon Roll Desktop Game",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "VERSI_YANG_SUDAH_TERPASANG",
+    "electron-builder": "VERSI_YANG_SUDAH_TERPASANG"
+  },
+  "build": {
+    "appId": "com.dragonroll.game",
+    "productName": "Dragon Roll",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "**/*",
+      "!release/**/*",
+      "!node_modules/.cache/**/*"
+    ],
+    "win": {
+      "icon": "assets/icons/favicon.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icons/favicon.ico",
+      "uninstallerIcon": "assets/icons/favicon.ico"
+    }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohmanaa/dragonroll.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rohmanaa/dragonroll/issues"
+  },
+  "homepage": "https://github.com/rohmanaa/dragonroll#readme"
+}

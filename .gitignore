@@ -1,2 +1,3 @@
 # No server-side secrets belong in this static frontend. Never commit Supabase service_role credentials.
 supabase/.env
+node_modules/
