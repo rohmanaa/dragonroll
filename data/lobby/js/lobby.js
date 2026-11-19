@@ -25,7 +25,7 @@ UT.Events.on('frameChanged',applyFrame);
 /* ---------- navigasi (peta ACT) ---------- */
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
-const SOON={guild:'Guild segera hadir',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir'};
+const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir'};
 function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});

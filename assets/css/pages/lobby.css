@@ -85,3 +85,9 @@ html[data-graphics="low"] #hearts svg{filter:none}
 #nav .tile{position:relative}
 #nav .tile .nbadge{right:6px;top:2px}
 @keyframes nbpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ===== tombol menu terkunci (Mancing): ikon redup + gembok ===== */
+.mbtn.locked{filter:saturate(.45) brightness(.8)}
+.mbtn.locked:hover{filter:saturate(.45) brightness(.9)}
+.mbtn .mlk{position:absolute;right:6px;bottom:30px;width:30px;height:auto;margin:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+html[data-graphics="low"] .mbtn.locked{filter:none}
