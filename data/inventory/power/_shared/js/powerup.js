@@ -125,7 +125,7 @@ const P3D={inst:null,mod:null,state:0,key:null,visible:previewIntersecting&&!doc
   return this.inst?this.inst.activate():false},
  setVisible(visible){if(this.visible===visible)return;this.visible=visible;if(!visible){stopNetherStarPreview();if(this.inst)this.inst.stop();return}if(this.inst)this.sync();else this.load()},
  load(){if(this.state||!this.visible)return;this.state=1;
-  import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;const graphics=SET().graphics,scale=Math.min(innerWidth/1920,innerHeight/1080);const quality=graphics==='low'||scale<.7?'low':graphics==='high'?'high':undefined;this.inst=m.mount($('#p3d'),{quality});this.state=2;
+  import('../../../../../assets/js/renderers/power-3d/power-show.js').then(m=>{this.mod=m;const graphics=SET().graphics,scale=Math.min(innerWidth/1920,innerHeight/1080);const quality=graphics==='low'||scale<.7?'low':(graphics==='high'||graphics==='ultra')?'high':undefined;this.inst=m.mount($('#p3d'),{quality});this.state=2;
    const sh=$('#fpv');let x=0,y=0;sh.addEventListener('pointerdown',e=>{x=e.clientX;y=e.clientY});
    sh.addEventListener('click',e=>{if(this.on()&&Math.hypot(e.clientX-x,e.clientY-y)<6)this.activate()}); /* ketuk = aktifkan; geser = putar */
    this.sync()

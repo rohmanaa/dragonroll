@@ -33,7 +33,7 @@ function showWallet(bump){
 /* ---- preview 3D: karakter pemain (BlockyCharacter, tampilan/outfit akun) + AuraSystem; ganti aura = setAura ---- */
 const FXSCALE=2.5,CY=3.2,DIST=15,FOV=36;
 let R=null,gl=!!(typeof THREE!=='undefined'&&FX&&window.UT&&UT.BlockyCharacter);
-const fxQ=()=>SET().graphics==='high'?FX.detectQuality():'low';
+const fxQ=()=>{const g=SET().graphics;return g==='ultra'?'ultra':g==='high'?FX.detectQuality():g==='normal'?'medium':'low'};
 function rigInit(){
   if(R||!gl)return;
   try{
@@ -54,7 +54,7 @@ function rigInit(){
 }
 function fitRig(){
   if(!R)return;const w=R.host.clientWidth,h=R.host.clientHeight;if(!w||!h)return;
-  R.r.setPixelRatio(SET().graphics==='high'?Math.min(devicePixelRatio||1,1.5):1);R.r.setSize(w,h,false);
+  R.r.setPixelRatio(SET().graphics==='ultra'?Math.min(devicePixelRatio||1,2):SET().graphics==='high'?Math.min(devicePixelRatio||1,1.5):1);R.r.setSize(w,h,false);
   R.cam.aspect=w/h;R.cam.fov=FOV*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix();
 }
 function clearChar(){

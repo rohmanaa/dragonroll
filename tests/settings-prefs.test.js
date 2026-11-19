@@ -22,9 +22,13 @@ t('setSettings menulis ke UT.Prefs, bukan ke blob pemain', () => {
   const blob = JSON.parse(store[BASE] || '{"settings":{"music":true}}');
   assert.strictEqual(blob.settings.music, true, 'blob tidak ikut berubah');
 });
+t('grafik mendukung rendah/normal/tinggi/ultra', () => {
+  const { PD } = boot({}, true);
+  for (const g of ['low', 'normal', 'high', 'ultra']) assert.strictEqual(PD.setSettings({ graphics: g }).graphics, g);
+});
 t('nilai tidak valid diabaikan (whitelist tetap)', () => {
   const { PD } = boot({});
-  PD.setSettings({ music: 'ya', graphics: 'ultra', ambience: 'siang', sound: false });
+  PD.setSettings({ music: 'ya', graphics: 'extreme', ambience: 'siang', sound: false });
   const s = PD.settings();
   assert.deepStrictEqual([s.music, s.graphics, s.ambience, s.sound], [true, 'high', 'day', false]);
 });

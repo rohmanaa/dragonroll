@@ -32,7 +32,7 @@ function mountKit(){
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
     host.innerHTML='';
-    KIT=window.DiceKit.mount(host,{diceId:k,quality:SET().graphics==='high'?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound});
+    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound});
   }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 let sel=null;

@@ -79,7 +79,7 @@ function frameCam(){
   const p=new THREE.Vector3(0,b.min.y,0).project(R.cam);   /* koreksi perspektif: tapak berada di kedalaman z=0 */
   ly+=(p.y-(1-2*f))*(z*tn);put();
 }
-function sizeGL(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(SET().graphics==="high"?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.updateProjectionMatrix()}
+function sizeGL(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(SET().graphics==="ultra"?Math.min(devicePixelRatio,2):SET().graphics==="high"?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.updateProjectionMatrix()}
 let lt=null;
 function loop(t){
   requestAnimationFrame(loop);if(!R||!R.ch||document.hidden)return;

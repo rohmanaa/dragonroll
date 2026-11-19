@@ -20,6 +20,7 @@
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
   var SET_MAX_UNIQUE = 20, SET_MAX_RAW = 200;   /* batas beli set: sama dengan buy_set di server */
   /* Tahap 6d: tidak ada saldo/XP awal lokal. Semua mulai 0 dan baru bermakna setelah server membalas (lihat walletReady). */
+  var GFX = ['low', 'normal', 'high', 'ultra']; /* tingkat grafik: rendah, normal, tinggi, ultra */
   var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high', ambience: 'day' }; /* ambience: 'day' | 'night' | 'system' (ikuti perangkat) */
   var DEFAULT_PROFILE = { name: 'OmanBogel' };   /* nama mock sementara (satu sumber: PlayerData.profile().name) */
 
@@ -50,7 +51,7 @@
       if (typeof s.music === 'boolean') out.music = s.music;
       if (typeof s.sound === 'boolean') out.sound = s.sound;
       if (typeof s.vibration === 'boolean') out.vibration = s.vibration;
-      if (s.graphics === 'high' || s.graphics === 'low') out.graphics = s.graphics;
+      if (GFX.indexOf(s.graphics) >= 0) out.graphics = s.graphics;
       if (s.ambience === 'day' || s.ambience === 'night' || s.ambience === 'system') out.ambience = s.ambience;
     }
     return out;
@@ -489,7 +490,7 @@
       if (typeof p.music === 'boolean') next.music = p.music;
       if (typeof p.sound === 'boolean') next.sound = p.sound;
       if (typeof p.vibration === 'boolean') next.vibration = p.vibration;
-      if (p.graphics === 'high' || p.graphics === 'low') next.graphics = p.graphics;
+      if (GFX.indexOf(p.graphics) >= 0) next.graphics = p.graphics;
       if (p.ambience === 'day' || p.ambience === 'night' || p.ambience === 'system') next.ambience = p.ambience;
       if (P) { P.set('settings', next); notify('settings'); return clone(next); }
       var st = load(); st.settings = next;

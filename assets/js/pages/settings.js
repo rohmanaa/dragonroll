@@ -11,19 +11,18 @@ $('#musicVol').addEventListener('input',e=>{PF().set('musicVol',+e.target.value)
 $('#sfxVol').addEventListener('input',e=>{PF().set('sfxVol',+e.target.value);$('#sfxVolV').textContent=e.target.value+'%'});
 $('#sfxVol').addEventListener('change',()=>{try{UT.Audio.play('button')}catch(e){}});
 const IC='assets/images/ui/';
+const GN={low:'Paling ringan. Pilih ini bila game terasa berat di HP kamu.',normal:'Seimbang antara tampilan dan performa.',high:'Efek visual penuh, menyesuaikan kemampuan perangkat.',ultra:'Kualitas tertinggi. Butuh perangkat yang kuat.'};
 function render(){
  paintVol();
  const T=S();
  $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $$('[data-gfx]').forEach(b=>{const on=T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
- $$('[data-amb]').forEach(b=>{const on=T.ambience===b.dataset.amb;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $('#ic-sfx').src=IC+(T.sound?'settings-icons/ikon-speaker.webp':'white-glyphs/speaker-mati.webp');
  $('#ic-music').src=IC+(T.music?'white-glyphs/nada.webp':'settings-icons/ikon-musik-mati.webp');
- $('#sysn').innerHTML=T.ambience==='system'?'Mengikuti perangkat — sekarang: <b>'+(A.resolved()==='night'?'Malam':'Siang')+'</b>':T.ambience==='night'?'Malam: bintang, bulan &amp; cahaya bulan di lobby.':'Siang: matahari &amp; sinar emas di lobby.';
+ $('#gfxn').textContent=GN[T.graphics]||GN.high;
 }
 $$('[data-tg]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tg;PD.setSettings({[k]:!S()[k]});buzz();render()}));
 $$('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{A.set({graphics:b.dataset.gfx});buzz();render()}));
-$$('[data-amb]').forEach(b=>b.addEventListener('click',()=>{A.set({ambience:b.dataset.amb});buzz();render()}));
 A.on(render);
 /* kembali ke halaman asal (profil, toko, dll.); bila tidak ada, ke lobby */
 const go=u=>{$('#fade').classList.add('on');setTimeout(()=>{location.href=u},330)};

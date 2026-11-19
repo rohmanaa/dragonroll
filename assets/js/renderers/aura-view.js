@@ -29,7 +29,7 @@
   function equippedKey() { try { return keyOfItem(win.PlayerData.equippedId('aura')); } catch (e) { return null; } }
   function keyFromEquipped(eq) { try { return keyOfItem(eq && eq.aura); } catch (e) { return null; } }
   function quality() {
-    try { return win.PlayerData.settings().graphics === 'high' ? FX().detectQuality() : 'low'; } catch (e) { return 'low'; }
+    try { var g = win.PlayerData.settings().graphics; return g === 'ultra' ? 'ultra' : g === 'high' ? FX().detectQuality() : g === 'normal' ? 'medium' : 'low'; } catch (e) { return 'low'; }
   }
 
   function create(scene, camera, opts) {

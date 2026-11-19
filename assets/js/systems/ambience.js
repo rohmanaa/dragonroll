@@ -1,7 +1,7 @@
 /* Ambience — suasana (siang / malam / ikuti perangkat) + level grafik, dipakai SEMUA halaman lobby.
-   Sumber data: PlayerData.settings().ambience ('day'|'night'|'system') dan .graphics ('high'|'low').
+   Sumber data: PlayerData.settings().ambience ('day'|'night'|'system') dan .graphics ('low'|'normal'|'high'|'ultra').
    Efek: memasang atribut di <html>:  data-ambience="day|night" (hasil akhir),  data-ambience-mode="day|night|system" (pilihan),
-         data-graphics="high|low".  CSS (scene-bg.css) dan scene 3D (lobby.html) bereaksi pada atribut/event ini.
+         data-graphics="low|normal|high|ultra".  CSS (scene-bg.css) dan scene 3D (lobby.html) bereaksi pada atribut/event ini.
    Dimuat di <head> sebelum scene-bg.js agar tidak ada kilatan siang->malam: nilai awal dibaca dari cermin UT.Prefs 'ambience',
    lalu disinkronkan dengan PlayerData begitu tersedia.
    API:  UT.Ambience.mode() / resolved() / graphics() / set({ambience,graphics}) / on(fn) -> fungsi off.
@@ -10,7 +10,7 @@
   'use strict';
   var UT = window.UT = window.UT || {};
   if (UT.Ambience) return;
-  var root = document.documentElement, MIRROR = 'ambience', cur = { mode: 'day', graphics: 'high' }, subs = [], last = '', mq = null;
+  var GFX = ['low', 'normal', 'high', 'ultra'], root = document.documentElement, MIRROR = 'ambience', cur = { mode: 'day', graphics: 'high' }, subs = [], last = '', mq = null;
   try { mq = window.matchMedia('(prefers-color-scheme: dark)'); } catch (e) {}
 
   function valid(m) { return m === 'day' || m === 'night' || m === 'system'; }
@@ -19,7 +19,7 @@
     try {
       var o = (UT.Prefs && UT.Prefs.get(MIRROR, null)) || null;
       if (o && valid(o.mode)) cur.mode = o.mode;
-      if (o && (o.graphics === 'low' || o.graphics === 'high')) cur.graphics = o.graphics;
+      if (o && GFX.indexOf(o.graphics) >= 0) cur.graphics = o.graphics;
     } catch (e) {}
   }
   function apply() {
@@ -38,7 +38,7 @@
     try { S = PD && PD.settings && PD.settings(); } catch (e) {}
     if (!S) return;
     if (valid(S.ambience)) cur.mode = S.ambience;
-    if (S.graphics === 'low' || S.graphics === 'high') cur.graphics = S.graphics;
+    if (GFX.indexOf(S.graphics) >= 0) cur.graphics = S.graphics;
     try { if (UT.Prefs) UT.Prefs.set(MIRROR, { mode: cur.mode, graphics: cur.graphics }); } catch (e) {}
     apply();
   }
