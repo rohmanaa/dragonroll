@@ -78,6 +78,38 @@ t('statis: migrasi chest punya versi unik & RPC klien dikunci ke authenticated',
     assert.ok(sql.includes('grant execute on function public.' + sig + ' to authenticated'), 'grant hilang: ' + sig));
 });
 
+t('chestBuy: hanya kirim jenis chest; saldo dicerminkan dari server; ditolak tidak mengubah saldo', async () => {
+  const f = fake({ chest_buy: a => a.p_kind === 'diamond' ? { ok: false, reason: 'gem-kurang' } : { ok: true, id: 5, wallet_coins: 910, wallet_gems: 0 } });
+  const ok = await f.svc.chestBuy('wood'), no = await f.svc.chestBuy('diamond');
+  assert.strictEqual(ok.ok, true); assert.deepStrictEqual(f.mirrored, [{ coins: 910, gems: 0 }]);
+  assert.strictEqual(no.reason, 'gem-kurang');
+  assert.deepStrictEqual(f.calls.map(c => c.args), [{ p_kind: 'wood' }, { p_kind: 'diamond' }]);
+  assert.strictEqual((await fake({}, false).svc.chestBuy('wood')).reason, 'mode-lokal');
+});
+t('shop: tombol beli aktif (tidak ada "SEGERA HADIR" di kartu chest) dan harga di klien = harga di SQL', () => {
+  const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
+  const card = js.slice(js.indexOf('function renderChest'), js.indexOf('function renderEmerald'));
+  assert.ok(card.includes('data-chest') && !/SEGERA HADIR|Fitur belum tersedia/.test(card));
+  const sql = fs.readFileSync(root('supabase/migrations/202611370001_chest_shop.sql'), 'utf8');
+  const shop = [...sql.slice(sql.indexOf('_chest_shop()')).matchAll(/\('(\w+)',\s*(\d+),\s*(\d+)\)/g)].map(m => [m[1], +m[2], +m[3]]);
+  assert.strictEqual(shop.length, 4);
+  shop.forEach(([kind, coins, gems]) => {
+    const m = js.match(new RegExp("kind: '" + kind + "'[^}]*?(coins|gems): (\\d+)"));
+    assert.ok(m, 'kartu shop hilang: ' + kind);
+    assert.strictEqual(+m[2], m[1] === 'coins' ? coins : gems, 'harga beda: ' + kind);
+    assert.ok(m[1] === 'coins' ? gems === 0 : coins === 0);
+  });
+});
+t('migrasi shop: chest_buy dikunci ke authenticated; cek penuh/saldo SEBELUM chest dibuat; jenis diamond ada di cek & roll', () => {
+  const sql = fs.readFileSync(root('supabase/migrations/202611370001_chest_shop.sql'), 'utf8');
+  assert.ok(sql.includes('grant execute on function public.chest_buy(text) to authenticated'));
+  const b = sql.slice(sql.indexOf('function public.chest_buy'));
+  assert.ok(b.indexOf("'penuh'") < b.indexOf('insert into public.player_chest') && b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_chest'));
+  assert.ok(/check \(kind in \('wood', 'silver', 'gold', 'diamond'\)\)/.test(sql) && sql.includes("p_kind = 'diamond'"));
+  const chestJs = fs.readFileSync(root('assets/js/pages/chest.js'), 'utf8');
+  assert.ok(chestJs.includes('diamond:{nm:'));
+});
+
 (async () => {
   for (const [name, fn] of queue) { try { await fn(); n++; console.log('ok  - ' + name); } catch (e) { console.error('GAGAL - ' + name + '\n' + (e.stack || e)); process.exit(1); } }
   console.log(n + ' tes lulus');

@@ -241,6 +241,9 @@
     function chestClaimDaily(kind) {
       return once('chest-daily', async function () { return chestMirror(await rpc('chest_claim_daily', { p_kind: String(kind || '') })); });
     }
+    function chestBuy(kind) {
+      return once('chest-buy', async function () { return chestMirror(await rpc('chest_buy', { p_kind: String(kind || '') })); });
+    }
     function chestStart(id) {
       return once('chest-start', async function () { return chestMirror(await rpc('chest_start', { p_id: Math.floor(+id) })); });
     }
@@ -261,7 +264,7 @@
       questGet: questGet, questTrack: questTrack, questClaim: questClaim, questClaimAll: questClaimAll, questClaimBonus: questClaimBonus,
       claimBossOnline: claimBossOnline, claimBossCpu: claimBossCpu, capsGet: capsGet, claimAd: claimAd, adGet: adGet,
       claimAchievement: claimAchievement,
-      chestGet: chestGet, chestClaimDaily: chestClaimDaily, chestStart: chestStart, chestOpenNow: chestOpenNow, chestCollect: chestCollect
+      chestGet: chestGet, chestBuy: chestBuy, chestClaimDaily: chestClaimDaily, chestStart: chestStart, chestOpenNow: chestOpenNow, chestCollect: chestCollect
     };
   }
 

@@ -14,7 +14,7 @@ const WM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan l
  'sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan penuh (10/10). Ambil chest dulu.',
  'slot-penuh':'Maksimal 3 chest diproses. Tunggu salah satu selesai.','sudah-dibuka':'Chest ini sudah dalam proses.','gem-kurang':'Gem tidak cukup.',
  'belum-siap':'Chest belum siap diambil.','belum-dibuka':'Mulai buka chest dulu.','sudah-diambil':'Chest sudah diambil.','tidak-ada':'Chest tidak ditemukan.','sudah-dibayar':'Sudah dibayar.'};
-const KIND={wood:{nm:'Peti Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Peti Perak',im:'chest-packs/peti-perak'},gold:{nm:'Peti Emas',im:'chest-packs/peti-emas'}};
+const KIND={wood:{nm:'Peti Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Peti Perak',im:'chest-packs/peti-perak'},gold:{nm:'Peti Emas',im:'chest-packs/peti-emas'},diamond:{nm:'Peti Diamond',im:'chest-packs/peti-diamond'}};
 const NEED_TXT={wood:'game',silver:'game',gold:'game'};
 
 /* ---- state server ---- */

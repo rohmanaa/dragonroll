@@ -14,14 +14,15 @@
     { coins: 6000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f' }
   ];
   const CHESTS = [
-    { name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp' },
-    { name: 'Peti Perak', image: 'chest-packs/peti-perak.webp' },
-    { name: 'Peti Emas', image: 'chest-packs/peti-emas.webp' },
-    { name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', color: '#4de8e0' }
+    { kind: 'wood', name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp', coins: 90, open: '10 menit' },
+    { kind: 'silver', name: 'Peti Perak', image: 'chest-packs/peti-perak.webp', coins: 250, open: '1 jam' },
+    { kind: 'gold', name: 'Peti Emas', image: 'chest-packs/peti-emas.webp', coins: 600, open: '4 jam' },
+    { kind: 'diamond', name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', gems: 25, open: '8 jam', color: '#4de8e0' }
   ];
   const WMSG = {
     'saldo-kurang': 'Coin tidak cukup.',
     'gem-kurang': 'Emerald tidak cukup.',
+    penuh: 'Penyimpanan chest penuh (10/10). Ambil chest dulu.',
     'sudah-dimiliki': 'Item sudah dimiliki.',
     'tidak-tersedia': 'Item tidak tersedia.',
     'mode-lokal': 'Toko hanya tersedia setelah login.',
@@ -44,7 +45,10 @@
     ad: 'Hadiah iklan',
     quest: 'Hadiah misi',
     quest_bonus: 'Bonus misi',
-    achievement: 'Pencapaian'
+    achievement: 'Pencapaian',
+    chest_buy: 'Beli chest',
+    chest: 'Hadiah chest',
+    chest_skip: 'Percepat chest'
   };
   const SFX = { click: 'button', select: 'button', open: 'button', error: 'button', coin: 'button' };
   const query = new URLSearchParams(location.search);
@@ -119,9 +123,10 @@
     return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
-      <div class="amt sm"><small>Fitur belum tersedia</small></div>
-      <button class="btn buy soon" type="button" disabled>
-        <img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
+      <div class="amt sm"><small>Hadiah acak · buka ${chest.open}</small></div>
+      <button class="btn buy" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
+        <img src="${IC}buttons-and-controls/${chest.gems ? 'tombol-biru-polos' : 'tombol-hijau-polos'}.webp" alt="">
+        <span><img src="${IC}${chest.gems ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt(chest.gems || chest.coins)}</span>
       </button>
     </div>`).join('');
   }
@@ -257,6 +262,34 @@
     }
   }
 
+  async function buyChest(kind) {
+    if (busy) return;
+    const chest = CHESTS.find(item => item.kind === kind);
+    if (!chest) return;
+    if (!SV() || !WS()) { toast(WMSG['mode-lokal']); playSound('error'); return; }
+    busy = true;
+    try {
+      const result = await WS().chestBuy(kind);
+      if (!result || !result.ok) {
+        toast(WMSG[result && result.reason] || 'Transaksi gagal.');
+        playSound('error');
+        if (result && result.reason === 'gem-kurang') setTimeout(gemShop, 300);
+        return;
+      }
+      renderCurrency();
+      pulse(chest.gems ? '#cur-em' : '#cur-co');
+      playSound('coin');
+      buzz();
+      openModal(`<h2>${escapeHtml(chest.name)} dibeli!</h2><p>Chest masuk ke penyimpanan (${result.count}/${result.max_storage}). Buka lewat menu Chest.</p><button class="pack" data-go="chest.html"><span>Buka Chest</span></button>`);
+    } finally {
+      busy = false;
+    }
+  }
+
+  $('#mb').addEventListener('click', event => {
+    const go = event.target.closest('[data-go]');
+    if (go) { playSound('click'); location.href = go.dataset.go; }
+  });
   $('#tabs').addEventListener('click', event => {
     const button = event.target.closest('.tabb');
     if (button) setTab(button.dataset.k);
@@ -267,6 +300,8 @@
     if (button.id === 'histbtn') {
       loadHistory();
       playSound('click');
+    } else if (button.dataset.chest) {
+      buyChest(button.dataset.chest);
     } else if (button.dataset.i !== undefined) {
       exchange(Number(button.dataset.i));
     }
