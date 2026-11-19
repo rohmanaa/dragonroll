@@ -191,3 +191,11 @@ html body #players .pg .pr .av .tag {
 .pm-score b { font-size: 34px; color: #d9822b; text-shadow: 0 2px 0 #fff, 0 3px 0 #b7782f; }
 @media (max-width: 480px) { .pm-body { flex-direction: column; align-items: stretch; } .pm-card { flex-direction: row; max-width: none; flex-basis: auto; } .pm-face { width: 96px; } .pm-tags { justify-content: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .pm-box { animation: none; } }
+
+/* ---------- sedang memakai Power: chip pindah ke BAWAH nama, nama naik sedikit (semua kursi, kiri & kanan) ---------- */
+html body #players .pg .pr .r1.has-pu { flex-direction: column; justify-content: flex-start; gap: 0; padding-top: 2px; }
+html body #players .pg .pr .r1.has-pu .nm { flex: 0 0 auto; max-width: 100%; line-height: 1.05; }
+html body #players .pg .pr .r1.has-pu .pu-using { flex: 0 0 auto; margin: 0; max-width: 100%; }
+/* sisi nama = sisi avatar: kursi avatar di kiri (p1, p3) rata kiri, avatar di kanan (p0, p2) rata kanan */
+html body #players .pg.p1 .pr .r1.has-pu, html body #players .pg.p3 .pr .r1.has-pu { align-items: flex-start; }
+html body #players .pg.p0 .pr .r1.has-pu, html body #players .pg.p2 .pr .r1.has-pu { align-items: flex-end; }

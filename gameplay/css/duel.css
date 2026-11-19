@@ -128,6 +128,7 @@ body.duel-active #trapBar        { display: none !important }
 
 /* hearts */
 .du-hp { display: flex; gap: 4px; margin-top: 4px; align-items: center }
+.du-profile-1 .du-hp { justify-content: flex-end } /* panel kanan: hati rata kanan (sisi avatar), seperti kiri rata kiri */
 .du-heart {
   font-size: clamp(18px,2.2vw,26px); line-height: 1;
   color: rgba(255,51,78,.22);

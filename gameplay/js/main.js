@@ -5321,6 +5321,7 @@ function renderChips(){
       const powerName=document.createElement('span'); powerName.textContent=PUN[p.activePower][1]; using.appendChild(powerName);
       head.appendChild(using);
     }
+    if(p.activePower&&PUN[p.activePower]) head.classList.add('has-pu'); /* chip power turun ke bawah nama, nama sedikit naik (hud-player-card.css) */
     content.appendChild(head);
     const row=document.createElement('div'); row.className='r2';
     const position=document.createElement('span'); position.className='ps';
@@ -5352,8 +5353,7 @@ function renderChips(){
     const extra=document.createElement('div'); extra.className='px';
     if(p.pos===GOAL&&!p.dragonReady){
       const crystals=document.createElement('div'); crystals.className='cx'; crystals.setAttribute('role','img'); crystals.setAttribute('aria-label',(BOSS==='wither'?'Skeleton':'Crystal')+' '+p.crystal+' dari '+CRYSTAL_N);
-      const count=document.createElement('b'); count.className='ttl cn'+(p.crystal>=CRYSTAL_N?' ok':''); count.textContent=p.crystal+'/'+CRYSTAL_N; crystals.appendChild(count);
-      const skulls=document.createElement('div'); skulls.className='sks';
+            const skulls=document.createElement('div'); skulls.className='sks';
       for(let n=0;n<CRYSTAL_N;n++){ const skull=document.createElement('span'); skull.className='sk6'+(p.cdone&&p.cdone[n]?' d':''); skull.setAttribute('aria-hidden','true'); const icon=document.createElement('i'); skull.appendChild(icon); skulls.appendChild(skull); }
       crystals.appendChild(skulls);
       extra.appendChild(crystals);
