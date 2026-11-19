@@ -21,7 +21,7 @@
   /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
      Ini indikator kesiapan halaman, bukan persentase unduhan; progres byte nyata hanya ditampilkan di splash.
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
-  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 600;
+  var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 250;
   var lbl = ov.querySelector('.ldt span');
   function stage(text) { if (text && lbl) lbl.textContent = text; }
   function resetP() { if (lbl) lbl.textContent = 'Memuat halaman'; }
@@ -120,7 +120,7 @@
     var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits);
     Promise.all(all).then(function () {
       stage('Menampilkan halaman');
-      return settle(w, d, 120, pageName(w) === 'gameplay.html' ? 1500 : 700);
+      return settle(w, d, 60, pageName(w) === 'gameplay.html' ? 800 : 300);
     }).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
@@ -191,6 +191,33 @@
   /* Setelah setiap ketukan di halaman, baca ulang pengaturan (toggle Musik/Suara di Pengaturan berlaku seketika). */
   function afterTap() { setTimeout(syncMusic, 0); setTimeout(syncMusic, 120); }
 
+
+  /* ================= Prefetch halaman berikutnya (saat idle) =================
+     Setelah halaman tampil, unduh HTML + script/CSS halaman yang paling mungkin dibuka berikutnya ke cache service worker,
+     jadi pindah halaman tidak menunggu jaringan/parse pertama. Dilewati bila Save-Data / koneksi 2g. */
+  var NEXT = {
+    'lobby.html': ['mode.html', 'shop.html', 'karakter.html'],
+    'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
+    'room.html': ['gameplay.html', 'mode.html'],
+    'shop.html': ['lobby.html'], 'karakter.html': ['lobby.html']
+  }, warmed = {};
+  function warm(page) {
+    if (warmed[page]) return; warmed[page] = 1;
+    fetch(page).then(function (r) { return r.ok ? r.text() : ''; }).then(function (html) {
+      var re = /<(?:script[^>]+src|link[^>]+href)=["']([^"']+\.(?:js|css))["']/gi, m, n = 0;
+      while ((m = re.exec(html)) && n++ < 120) { if (!/^(https?:)?\/\//i.test(m[1])) fetch(m[1]).catch(function () {}); }
+    }).catch(function () {});
+  }
+  function prefetchNext(name) {
+    try {
+      var c = navigator.connection || {};
+      if (c.saveData || /2g/.test(c.effectiveType || '')) return;
+      var list = NEXT[name] || [];
+      var run = function () { list.forEach(warm); };
+      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 3000 }); else setTimeout(run, 1500);
+    } catch (e) {}
+  }
+
   /* ================= Pasang pada setiap halaman yang dimuat di iframe ================= */
   f.addEventListener('load', function () {
     var w; try { w = f.contentWindow; w.document; } catch (e) { hideOv(); return; }
@@ -215,6 +242,7 @@
     else if (!SELF_LOADING.test(name)) { wantMusic = true; syncMusic(); }
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
+    prefetchNext(name);
   });
   f.src = go;
 })();
