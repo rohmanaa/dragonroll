@@ -186,6 +186,21 @@ pullFriends();
 /* titik merah Mail = ada surat belum dibaca / hadiah belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
 const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{const d=$('#mailDot');if(d)d.hidden=!(r&&r.ok&&(r.unread||r.pending));return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
+/* kartu Chest harian: teks progres + bar menuju chest harian berikutnya (Kayu 1 game, Silver 3, Gold 10); cukup -> tombol KLAIM. Titik merah menu Chest = ada yang bisa diklaim / diambil. */
+const CH_IM={wood:'peti-kayu',silver:'peti-perak',gold:'peti-emas'};
+function renderChest(S){
+ const card=$('.chcard');if(!card||!S||!Array.isArray(S.daily))return;
+ const nx=S.daily.find(d=>d.status!=='claimed'),tx=$('#chTx'),fill=$('#chFill'),btn=$('#chClaim');
+ if(nx){tx.textContent=nx.progress+'/'+nx.need;fill.style.width=Math.min(100,100*nx.progress/nx.need)+'%';$('#chImg').src='assets/images/ui/chest-packs/'+(CH_IM[nx.kind]||'peti-kayu')+'.webp'}
+ else{tx.textContent='Selesai';fill.style.width='100%'}
+ btn.dataset.kind=nx&&nx.status==='ready'?nx.kind:'';
+ btn.hidden=!(nx&&nx.status==='ready');card.classList.toggle('rdy',!btn.hidden);
+ const rd=(S.chests||[]).some(c=>c.status==='ready'),dot=$('#chestDot');if(dot)dot.hidden=!(rd||!btn.hidden)}
+const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
+pullChest();
+{const cb=$('#chClaim');if(cb)cb.addEventListener('click',async e=>{e.stopPropagation();const k=cb.dataset.kind,W=UT.WalletService&&UT.WalletService.get();if(!k||!W||cb.disabled)return;buzz();cb.disabled=true;
+ try{const r=await W.chestClaimDaily(k);if(r&&r.ok){toast('Chest masuk ke penyimpanan!');renderChest(r)}else toast('Gagal klaim, coba lagi')}catch(_){toast('Gagal klaim, coba lagi')}
+ cb.disabled=false;pullChest()})}
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */
 if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
@@ -194,5 +209,6 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('appearance',()=>{const A=UT.AppearanceService&&UT.AppearanceService.get();return A?A.refreshThrottled().then(()=>({ok:true}),()=>({ok:false})):{ok:true}},{minGap:20000});
  LS.add('friends',pullFriends,{minGap:40000});
  LS.add('mail',pullMail,{minGap:40000});
+ LS.add('chest',pullChest,{minGap:20000});
  LS.start({interval:20000});
 }

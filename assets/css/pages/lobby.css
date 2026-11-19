@@ -61,3 +61,19 @@ html[data-graphics="low"] .mbtn img{filter:none!important}
 #hearts{position:absolute;left:248px;top:123px;display:flex;gap:9px;pointer-events:none}
 #hearts svg{width:39px;height:35px;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
 html[data-graphics="low"] #hearts svg{filter:none}
+
+/* ===== kartu Chest harian di lobi: teks progres (1/3) + bar; tombol KLAIM muncul bila target tercapai ===== */
+.chcard{gap:0}
+.chcard>img{height:78px!important;margin-top:4px}
+.chcard .tm{margin-top:2px;font-size:21px}
+.chcard .chp{display:flex;flex-direction:column;align-items:center;gap:4px;width:150px;margin-top:4px}
+.chcard .chp b{font:400 26px/1 var(--font-title);color:#ffd45a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.chcard .chb{display:block;width:100%;height:14px;border-radius:8px;background:rgba(0,0,0,.5);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+.chcard .chb i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(180deg,#8be86a,#3fae3a);transition:width .4s}
+.chcard.rdy .chp{display:none}
+.chcard .chclaim{position:relative;width:156px;height:54px;margin-top:6px;padding:0;border:0;background:none;cursor:pointer;animation:chpulse 1s infinite alternate}
+.chcard .chclaim[hidden]{display:none}
+.chcard .chclaim img{position:absolute;inset:0;width:100%!important;height:100%!important;filter:none}
+.chcard .chclaim span{position:relative;font:400 26px/54px var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55)}
+.chcard .chclaim:active{transform:scale(.95)}
+@keyframes chpulse{from{transform:scale(1)}to{transform:scale(1.06)}}

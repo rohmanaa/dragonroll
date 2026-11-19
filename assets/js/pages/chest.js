@@ -30,21 +30,21 @@ const clock=s=>{s=Math.max(0,Math.ceil(s));return s>=3600?hms(s):String(s/60|0).
 function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 const bump=()=>['#cur-em','#cur-co'].forEach(s=>{const e=$(s);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')});
 
-/* ---- chest harian ---- */
+/* ---- 3 kolom atas: chest yang SEDANG DIBUKA (timer / CEPAT / AMBIL). Klaim chest harian ada di Lobby. ---- */
+function oc(c){
+ const k=KIND[c.kind],rd=isReady(c),head='<img class="im" src="'+IC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>';
+ if(rd)return '<div class="dc ready">'+head+'<div class="pg"><i style="width:100%"></i></div><div class="tx tm">Siap diambil!</div>'+
+  '<button class="btn" data-collect="'+c.id+'"><img src="'+IC+'buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>AMBIL</span></button></div>';
+ const left=secsLeft(c),pct=Math.max(0,Math.min(100,Math.round(100*(1-left/c.open_secs))));
+ return '<div class="dc opening">'+head+'<div class="pg"><i data-pg="'+c.id+'" data-os="'+c.open_secs+'" style="width:'+pct+'%"></i></div><div class="tx tm" data-tm="'+c.id+'">'+clock(left)+'</div>'+
+  '<button class="btn" data-skip="'+c.id+'"><img src="'+IC+'buttons-and-controls/tombol-biru-polos.webp" alt=""><span>CEPAT <img class="gm" src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt=""><b data-sc="'+c.id+'">'+skipCost(c)+'</b></span></button></div>'}
 function vDaily(){
- const hd='<div class="hd"><span>Chest Harian</span><small>Game hari ini: <b>'+(S?S.plays_today:0)+'</b></small></div>';
+ const hd='<div class="hd"><span>Sedang Dibuka <b>'+(S?S.opening:0)+' / '+(S?S.max_open:3)+'</b></span><small>Chest harian diklaim di Lobby</small></div>';
  if(!S)return hd;
+ const act=S.chests.filter(c=>c.status!=='stored').sort((a,b)=>(isReady(b)-isReady(a))||secsLeft(a)-secsLeft(b)||a.id-b.id);
  let h=hd+'<div class="dcs">';
- S.daily.forEach(d=>{const k=KIND[d.kind],pct=Math.round(100*d.progress/d.need);
-  h+='<div class="dc '+d.status+'"><img class="im" src="'+IC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
-   '<div class="pg"><i style="width:'+pct+'%"></i></div><div class="tx">'+d.progress+' / '+d.need+' '+NEED_TXT[d.kind]+'</div>'+
-   (d.status==='claimed'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+
-   (d.status==='ready'?'<button class="btn" data-claim="'+d.kind+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
-    :d.status==='todo'?'<button class="btn off" disabled><img src="'+IC+'buttons-and-controls/tombol-biru-polos.webp" alt=""><span>MAIN '+d.need+'×</span></button>'
-    :'<button class="btn off" disabled><img src="'+IC+'buttons-and-controls/tombol-biru-polos.webp" alt=""><span>DIKLAIM</span></button>')+'</div>'});
- h+='</div>';
- if(S.all_claimed)h+='<div class="lockov"><img src="'+IC+'white-glyphs/gembok.webp" alt=""><div class="t1">Selesai hari ini</div><div class="t2">Chest harian baru dalam <b id="rs">'+hms(resetSecs())+'</b></div></div>';
- return h}
+ for(let i=0;i<S.max_open;i++)h+=act[i]?oc(act[i]):'<div class="dc empty"><div class="em">Slot kosong<small>Pilih chest di penyimpanan,<br>lalu tekan BUKA</small></div></div>';
+ return h+'</div>'}
 
 /* ---- penyimpanan ---- */
 function slot(c){
@@ -59,9 +59,12 @@ function slot(c){
 function vStore(){
  const hd='<div class="hd"><span>Penyimpanan <b>'+(S?S.count:0)+' / '+(S?S.max_storage:10)+'</b></span><small>Diproses: '+(S?S.opening:0)+' / '+(S?S.max_open:3)+'</small></div>';
  if(!S)return hd;
- const order=c=>(isReady(c)?0:c.status==='opening'?1:2),list=S.chests.slice().sort((a,b)=>order(a)-order(b)||a.id-b.id);
- let h=hd+'<div class="slots">';
- for(let i=0;i<S.max_storage;i++)h+=list[i]?slot(list[i]):'<div class="sl"><div class="em">Kosong</div></div>';
+ const list=S.chests.filter(c=>c.status==='stored').sort((a,b)=>a.id-b.id);
+ let h=hd+'<div class="slots">',busyN=S.opening;
+ for(let i=0;i<S.max_storage;i++){
+  if(list[i])h+=slot(list[i]);
+  else if(busyN>0){busyN--;h+='<div class="sl busy"><div class="em">Sedang dibuka</div></div>'}
+  else h+='<div class="sl"><div class="em">Kosong</div></div>'}
  return h+'</div>'}
 
 function render(){
@@ -113,6 +116,7 @@ setInterval(()=>{
   const el=document.querySelector('[data-tm="'+c.id+'"]');
   if(secsLeft(c)<=0){if(el)flip=true;return}
   if(el)el.textContent=clock(secsLeft(c));
+  const pgi=document.querySelector('[data-pg="'+c.id+'"]');if(pgi&&c.open_secs)pgi.style.width=Math.max(0,Math.min(100,100*(1-secsLeft(c)/c.open_secs)))+'%';
   const sc=document.querySelector('[data-sc="'+c.id+'"]');if(sc)sc.textContent=skipCost(c)});
  if(flip&&!busy)render();
  if(S.all_claimed&&resetSecs()<=0&&!busy)reload()},1000);

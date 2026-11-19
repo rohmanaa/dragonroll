@@ -53,6 +53,7 @@
     <button class="mbtn" data-act="mail" aria-label="Pesan"><img src="assets/images/ui/item-icons/surat-segel.webp" alt=""><span>Pesan</span><span class="dot sm" id="mailDot" hidden></span></button>
     <button class="mbtn" data-act="teman" aria-label="Teman"><img src="assets/images/ui/feature-icons/friends.webp" alt=""><span>Teman</span><span class="dot sm" id="friendDot" hidden></span></button>
     <button class="mbtn" data-act="settings" aria-label="Pengaturan"><img src="assets/images/ui/item-icons/gir.webp" alt=""><span>Pengaturan</span></button>
+    <button class="mbtn" data-act="chest" aria-label="Chest"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span>Chest</span><span class="dot sm" id="chestDot" hidden></span></button>
   </div>
 
   <!-- ===== hadiah gratis (kanan) ===== -->
@@ -61,10 +62,11 @@
       <span class="tag sn">SOON</span>
       <img src="assets/images/ui/gem-medal-icons/televisi.webp" alt=""><div class="tm">Hadiah gratis<br><b>Segera hadir</b></div>
     </div>
-    <div class="sidecard" data-act="chest" role="button">
-      <img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><div class="tm">Chest<br><b>Chest harian</b></div>
-    </div>
-    <div class="sidecard soon" data-act="babi" role="button">
+    <div class="sidecard chcard" data-act="chest" role="button">
+      <img id="chImg" src="assets/images/ui/chest-packs/peti-kayu.webp" alt=""><div class="tm">Chest harian</div>
+      <div class="chp" id="chProg"><b id="chTx">—</b><span class="chb"><i id="chFill"></i></span></div>
+      <button class="chclaim" id="chClaim" type="button" hidden><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>
+    </div>    <div class="sidecard soon" data-act="babi" role="button">
       <span class="tag pk">FULL</span><span class="tag sn">SOON</span>
       <img src="assets/images/ui/gem-medal-icons/celengan-babi.webp" alt=""><div class="tm">Celengan<br><b>Segera hadir</b></div>
     </div>

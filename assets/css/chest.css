@@ -1,4 +1,4 @@
-/* chest.html — chest harian + penyimpanan (maks 10) dengan 3 slot proses. Memakai aset kit (chest-packs, tombol, panel). */
+/* chest.html — chest yang sedang dibuka (3 kolom atas, timer) + penyimpanan (maks 10) dengan 3 slot proses. Memakai aset kit (chest-packs, tombol, panel). */
 #back{left:40px;top:30px;width:64px;height:72px}
 #back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
 #back svg{display:none}
@@ -67,3 +67,16 @@
 #mx .rw img{width:52px;height:auto}
 #mbtns{position:absolute;left:0;right:0;bottom:36px;display:flex;justify-content:center;gap:40px}
 #mbtns .btn{width:330px;height:100px}#mbtns .btn span{font-size:32px}
+
+/* ---- 3 kolom atas = chest sedang dibuka ---- */
+.dc.opening{border-color:#6fd0ff;background:rgba(111,208,255,.08)}
+.dc.opening .im{animation:shake 1.4s infinite}
+.dc.ready .im{animation:pop 1s infinite alternate}
+.dc .tx.tm{top:240px;font:400 44px/1 var(--font-title);color:#9fe3ff;text-shadow:0 3px 0 rgba(0,0,0,.55)}
+.dc.ready .tx.tm{color:#ffe28a}
+.dc.empty{border-style:dashed;background:rgba(255,255,255,.04)}
+.dc.empty .em{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:400 40px/1 var(--font-title);color:rgba(255,255,255,.32)}
+.dc.empty .em small{font:800 26px/1.3 var(--font-body);color:rgba(255,255,255,.28)}
+.dc .btn .gm{display:inline-block;width:30px;height:auto;margin-left:8px;position:relative;inset:auto;vertical-align:middle}
+.sl.busy{border-style:solid;border-color:rgba(111,208,255,.35);background:rgba(111,208,255,.06)}
+.sl.busy .em{color:rgba(159,227,255,.5)}
