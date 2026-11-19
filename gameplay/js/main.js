@@ -5456,12 +5456,30 @@ async function walk(p,from,to){
   }
   } finally { p.pawn.userData.bcStyle='walk'; }
 }
+/* Cincin kejut di lantai (mengembang + memudar) */
+function shockRing(pos,color,size,life){
+  if(reduce) return;
+  const g=new THREE.RingGeometry(0.18,0.3,40),m=new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.85,side:THREE.DoubleSide,depthWrite:false,fog:false});
+  const r=new THREE.Mesh(g,m); r.rotation.x=-Math.PI/2; r.position.set(pos.x,pos.y+0.04,pos.z); scene.add(r);
+  tween(life,k=>{ r.scale.setScalar(1+k*size*5); m.opacity=0.85*(1-k)*(1-k); }).then(()=>{ scene.remove(r); g.dispose(); m.dispose(); });
+}
+function landDust(pos,n,floorY){ burstCubes(pos.x,pos.y+0.05,pos.z,n,{cols:[0xE0D4B8,0xC4B898,0xAA9D80,0xF2EAD6],up:1.7,sp:1.7,size:0.09,spread:0.45,grav:7,life:0.95,floor:floorY}); }
+/* Terpental setelah kalah duel: terlempar -> hantam petak baru (hit-stop, debu, cincin kejut, getar, kamera mendekat) -> JATUH rebah -> pantul -> pusing (bintang) -> bangkit */
 async function duelKnockback(p,to,heavy){
   const pawn=p.pawn,start=pawn.position.clone(),dest=slotPos(p.idx,to),rotation=pawn.rotation.y,scale0=pawn.scale.clone();
   const duration=heavy?1.15:0.85,arc=heavy?0.95:0.5,spin=heavy?Math.PI*2:0,dir=Math.sign(dest.x-start.x)||1;
+  const UP=new THREE.Vector3(0,1,0),dv=new THREE.Vector3(dest.x-start.x,0,dest.z-start.z);
+  if(dv.lengthSq()<1e-4) dv.set(dir,0,0); dv.normalize();
+  const axis=new THREE.Vector3().crossVectors(UP,dv).normalize();   /* kepala jatuh ke arah terlempar (rebah telentang) */
+  const baseQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,rotation,0)),qa=new THREE.Quaternion();
+  const lay=(th,lift)=>{ qa.setFromAxisAngle(axis,th); pawn.quaternion.copy(qa).multiply(baseQ); pawn.position.set(dest.x,dest.y+(lift||0)+0.14*Math.sin(Math.min(1.5,Math.abs(th))),dest.z); };
+  const z0=goal.zoom,f0=focus,zoomed=!camLocked()&&!reduce,q0=QUAKE.amp; let stars=null;
   p.pawn.userData.bcStyle='walk';
   try{
-    /* 1) terlempar: busur tinggi + berguling ke belakang (heavy = satu putaran penuh) */
+    focus=pawn; if(zoomed) goal.zoom=Math.max(0.45,z0*0.82);       /* sinematik: kamera menyorot & sedikit mendekat */
+    /* 1) terlempar: busur tinggi + berguling, jejak percikan */
+    sfx.whoosh&&sfx.whoosh();
+    let lastK=0;
     await tween(duration,k=>{
       const e=1-Math.pow(1-k,2.2);
       pawn.position.lerpVectors(start,dest,e);
@@ -5469,25 +5487,44 @@ async function duelKnockback(p,to,heavy){
       pawn.rotation.z=-dir*(heavy?0.35:0.22)*Math.sin(Math.PI*k);
       pawn.rotation.x=-spin*k;
       pawn.rotation.y=rotation+Math.sin(Math.PI*k)*(heavy?0.62:0.3);
+      if(!reduce&&k-lastK>0.07){ lastK=k; burstCubes(pawn.position.x,pawn.position.y+0.4,pawn.position.z,3,{cols:[0xFFFFFF,0xFFE58A,0xFFB347],up:0.2,sp:0.5,size:0.06,grav:2,life:0.5}); }
     });
+    /* 2) HANTAM petak baru: hit-stop singkat, debu, cincin kejut, percikan, getar layar */
     pawn.position.copy(dest); pawn.rotation.set(0,rotation,0);
-    /* 2) mendarat: debu, SFX, getar layar, penyok sesaat, memantul kecil */
-    sfx.hit(); sparkle(dest.clone().add(new THREE.Vector3(0,0.12,0)));
+    sfx.hit(); if(heavy) setTimeout(()=>{ try{ sfx.hit(); }catch(e){} },90);
+    landDust(dest,heavy?30:16,dest.y);
+    shockRing(dest,0xFFE9A8,heavy?1.0:0.7,0.55); if(heavy) shockRing(dest,0xFF8A3C,1.4,0.75);
+    sparkle(dest.clone().add(new THREE.Vector3(0,0.2,0)));
     document.body.classList.add('hf-shake'); trackFxTimeout(()=>document.body.classList.remove('hf-shake'),360,'duel-land-shake',()=>document.body.classList.remove('hf-shake'));
-    await tween(0.28,k=>{
-      const sq=Math.sin(Math.PI*k);
-      pawn.scale.set(scale0.x*(1+0.18*sq),scale0.y*(1-0.3*sq),scale0.z*(1+0.18*sq));
-      pawn.position.y=dest.y+Math.sin(Math.PI*k)*(heavy?0.16:0.08)*(k>0.5?1:0);
-    });
-    pawn.scale.copy(scale0); pawn.position.copy(dest);
-    /* 3) terduduk lesu sebentar lalu berdiri (pose 'sad' bawaan karakter) */
-    pawnAct(pawn,'sad',heavy?1.5:0.9);
-    await sleep(heavy?1000:600);
+    if(!reduce) tween(0.45,k=>{ QUAKE.amp=Math.max(q0,(heavy?0.16:0.09)*(1-k)); });
+    await sleep(reduce?0:(heavy?110:70));
+    /* 3) JATUH: badan rubuh ke belakang sampai rebah di petak (+ debu saat menyentuh lantai) */
+    pawnAct(pawn,'sad',heavy?2.4:1.6);
+    await tween(0.34,k=>{ const e=k*k; lay(1.5*e,Math.sin(Math.PI*k)*0.12); });
+    landDust(dest,heavy?20:10,dest.y); sfx.hit(); shockRing(dest,0xFFFFFF,0.5,0.4);
+    document.body.classList.add('hf-shake'); trackFxTimeout(()=>document.body.classList.remove('hf-shake'),240,'duel-fall-shake',()=>document.body.classList.remove('hf-shake'));
+    /* 4) pantul kecil lalu rebah pusing: bintang berputar di atas kepala */
+    await tween(0.28,k=>{ lay(1.5-0.12*Math.sin(Math.PI*k),Math.sin(Math.PI*k)*0.18); });
+    if(!reduce){
+      stars=new THREE.Group(); const sg=new THREE.OctahedronGeometry(0.06),sm=new THREE.MeshBasicMaterial({color:0xFFE45C,fog:false});
+      for(let i=0;i<4;i++){ const m=new THREE.Mesh(sg,sm); m.userData.a=i*Math.PI/2; stars.add(m); }
+      stars.position.set(dest.x+dv.x*0.78,dest.y+0.5,dest.z+dv.z*0.78); scene.add(stars); stars.userData={g:sg,m:sm};
+    }
+    const hold=heavy?0.95:0.55;
+    await tween(hold,k=>{ lay(1.5,0); if(stars){ const t=k*hold*6; stars.children.forEach(c=>{ const a=c.userData.a+t; c.position.set(Math.cos(a)*0.24,Math.sin(t*2+c.userData.a)*0.03,Math.sin(a)*0.24); c.rotation.y=t*2; }); stars.scale.setScalar(Math.min(1,(1-k)*5)); } });
+    if(stars){ scene.remove(stars); stars.userData.g.dispose(); stars.userData.m.dispose(); stars=null; }
+    /* 5) bangkit: berdiri dengan sentakan kecil + percikan */
+    await tween(0.42,k=>{ const e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2; lay(1.5*(1-e),Math.sin(Math.PI*k)*0.1); });
+    pawn.rotation.set(0,rotation,0); pawn.position.copy(dest);
+    sparkle(dest.clone().add(new THREE.Vector3(0,0.25,0))); landDust(dest,6,dest.y);
+    await sleep(heavy?350:200);
   }finally{
-    pawn.position.copy(dest);
+    if(stars){ try{ scene.remove(stars); stars.userData.g.dispose(); stars.userData.m.dispose(); }catch(e){} }
     pawn.rotation.set(0,rotation,0);
+    pawn.position.copy(dest);
     pawn.scale.copy(scale0);
     p.pawn.userData.bcStyle='walk';
+    QUAKE.amp=q0; goal.zoom=z0; focus=f0||pawn;
   }
 }
 async function climb(p,from,to){
