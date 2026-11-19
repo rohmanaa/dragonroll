@@ -24,6 +24,19 @@
   let appearanceInFlight = null;
   let modalAction = null;
 
+  /* Semua langkah muat data dibatasi waktu: janji yang menggantung (presence, getSession, RPC) tidak boleh
+     membuat daftar "Memuat teman..." selamanya dan tidak boleh mengunci loadInFlight. */
+  const LOAD_TIMEOUT = 12000;
+  const PRESENCE_WAIT = 3000;
+  function withTimeout(promise, ms, label) {
+    let timer;
+    const guard = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('TIMEOUT: ' + label)), ms);
+    });
+    return Promise.race([Promise.resolve(promise), guard]).finally(() => clearTimeout(timer));
+  }
+  let retryTimer = 0;
+
   function fit() {
     $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
   }
@@ -200,7 +213,7 @@
 
   async function loadStats() {
     if (!authed || !RS() || !RS().getLeaderboard || statsInFlight) return statsInFlight;
-    statsInFlight = RS().getLeaderboard('friends', 100).then(rows => {
+    statsInFlight = withTimeout(RS().getLeaderboard('friends', 100), LOAD_TIMEOUT, 'statistik').then(rows => {
       if (!Array.isArray(rows)) throw new Error('BAD_LEADERBOARD_RESPONSE');
       Object.keys(friendStats).forEach(id => delete friendStats[id]);
       rows.forEach(row => {
@@ -250,7 +263,7 @@
     if (!ids.length) return;
     const service = window.UT.AppearanceService && window.UT.AppearanceService.get();
     if (!service) return;
-    appearanceInFlight = service.usersAppearance(ids).then(result => {
+    appearanceInFlight = withTimeout(service.usersAppearance(ids), LOAD_TIMEOUT, 'avatar').then(result => {
       if (!result || !result.ok) {
         console.warn('[friendship] tampilan avatar tidak dapat dimuat', result && result.reason);
         return;
@@ -267,9 +280,12 @@
 
   async function loadData() {
     try {
-      await ready;
-      const client = await UT.Multiplayer.getClient();
-      const { data, error } = await client.auth.getSession();
+      /* Presence hanya pelengkap (status online). Jangan biarkan ia menahan daftar teman. */
+      await withTimeout(ready, PRESENCE_WAIT, 'presence').catch(error => {
+        console.warn('[friendship] presence lambat, daftar teman tetap dimuat', error);
+      });
+      const client = await withTimeout(UT.Multiplayer.getClient(), LOAD_TIMEOUT, 'getClient');
+      const { data, error } = await withTimeout(client.auth.getSession(), LOAD_TIMEOUT, 'getSession');
       if (error) throw error;
       authed = !!data.session;
       if (!authed) {
@@ -280,19 +296,24 @@
         render();
         return;
       }
-      const [friendRows, requestRows] = await Promise.all([RS().listFriends(), RS().listRequests()]);
+      const [friendRows, requestRows] = await withTimeout(
+        Promise.all([RS().listFriends(), RS().listRequests()]), LOAD_TIMEOUT, 'daftar teman');
       friends = Array.isArray(friendRows) ? friendRows : [];
       requests = Array.isArray(requestRows) ? requestRows : [];
       loadError = '';
       loaded = true;
+      clearTimeout(retryTimer);
       render();
       loadStats();
       loadAppearance();
     } catch (error) {
       console.warn('[friendship] gagal memuat teman', error);
-      loadError = 'Teman tidak dapat dimuat. Periksa koneksi lalu coba lagi.';
+      loadError = 'Teman tidak dapat dimuat. Mencoba lagi...';
       loaded = true;
       render();
+      /* coba lagi otomatis; pada pemuatan pertama authed masih null sehingga interval 20 dtk tidak jalan */
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(() => { if (!document.hidden) load(); }, 5000);
     }
   }
 
@@ -414,7 +435,7 @@
     if (!document.hidden) load();
   });
   setInterval(() => {
-    if (!document.hidden && authed) load();
+    if (!document.hidden && authed !== false) load();
   }, 20000);
   load();
 })();
