@@ -32,10 +32,32 @@ function playMusic(){
 function stopMusic(){
   if(!bgMusic) return; try{ bgMusic.pause(); }catch(e){}
 }
-function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('musicVol',musicVol); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; }
-function setMusicOn(v){ musicOn=!!v; if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
+function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('musicVol',musicVol); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; if(DUM.on&&DUM.a&&!DUM.a.paused) DUM.a.volume=duelMusicTarget(); }
+function setMusicOn(v){ musicOn=!!v; if(musicOn){ if(DM.active) dragonMusicStart(); else if(DUM.on){ DUM.on=false; duelMusicStart(); } else playMusic(); } else { stopMusic(); dragonMusicHalt(); try{ if(DUM.a) DUM.a.pause(); }catch(e){} } }
 /* ---------- Musik Naga (muncul-naga.mp3): mulai saat pemain pertama masuk Block 100, loop + fade in/out, berhenti saat naga kalah / game selesai / game baru ---------- */
 const DM={a:null,active:false,raf:0,fadeIn:2000,fadeOut:2500};
+/* ---------- Musik duel PVP: BGM dijeda, diganti trek lain (gameplay.mp3) dengan volume RENDAH; BGM lanjut setelah duel ---------- */
+const DUM={a:null,on:false,raf:0,ratio:0.3,file:'assets/audio/music/gameplay.mp3'};
+function duelMusicTarget(){ return Math.max(0,Math.min(1,musicVol/100))*DUM.ratio; }
+function duelMusicFade(to,ms,done){
+  cancelAnimationFrame(DUM.raf); const a=DUM.a; if(!a){ if(done) done(); return; }
+  const from=a.volume,t0=performance.now();
+  (function step(t){ const k=Math.min(1,(t-t0)/Math.max(1,ms)); try{ a.volume=Math.max(0,Math.min(1,from+(to-from)*k)); }catch(e){}
+    if(k<1) DUM.raf=requestAnimationFrame(step); else if(done) done(); })(t0);
+}
+function duelMusicStart(){
+  if(DUM.on) return; DUM.on=true; if(!musicOn||DM.active) return; /* musik naga diutamakan */
+  try{
+    if(!DUM.a){ DUM.a=new Audio(DUM.file); DUM.a.loop=true; DUM.a.preload='auto'; }
+    stopMusic(); DUM.a.volume=0; try{ DUM.a.currentTime=0; }catch(e){}
+    const r=DUM.a.play(); if(r&&r.catch) r.catch(()=>{}); duelMusicFade(duelMusicTarget(),600);
+  }catch(e){}
+}
+function duelMusicStop(){
+  if(!DUM.on) return; DUM.on=false;
+  duelMusicFade(0,500,()=>{ if(DUM.on) return; try{ if(DUM.a) DUM.a.pause(); }catch(e){} if(!DM.active&&musicOn) playMusic(); });
+}
+window.addEventListener('ut:duel-open',duelMusicStart); window.addEventListener('ut:duel-close',duelMusicStop);
 function dmTarget(){ return Math.max(0,Math.min(1,musicVol/100)); }
 function dmFade(to,ms,done){
   cancelAnimationFrame(DM.raf); const a=DM.a; if(!a){ if(done) done(); return; }
