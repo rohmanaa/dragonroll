@@ -1,3 +1,4 @@
+
 {
   "name": "dragon-roll",
   "version": "1.0.0",
@@ -33,9 +34,6 @@
       "uninstallerIcon": "assets/icons/favicon.ico"
     }
   },
-  "directories": {
-    "test": "tests"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rohmanaa/dragonroll.git"
@@ -45,7 +43,7 @@
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/rohmanaa/dragonroll/issues"
+    "url": "https://github.com/rohmanaa/dragonroll.git/issues"
   },
   "homepage": "https://github.com/rohmanaa/dragonroll#readme"
 }
