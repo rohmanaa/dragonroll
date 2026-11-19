@@ -68,8 +68,6 @@ html[data-graphics="low"] #hearts svg{filter:none}
 .chcard .tm{margin-top:2px;font-size:21px}
 .chcard .chp{display:flex;flex-direction:column;align-items:center;gap:4px;width:150px;margin-top:4px}
 .chcard .chp b{font:400 26px/1 var(--font-title);color:#ffd45a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.chcard .chb{display:block;width:100%;height:14px;border-radius:8px;background:rgba(0,0,0,.5);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
-.chcard .chb i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(180deg,#8be86a,#3fae3a);transition:width .4s}
 .chcard.rdy .chp{display:none}
 .chcard .chclaim{position:relative;width:156px;height:54px;margin-top:6px;padding:0;border:0;background:none;cursor:pointer;animation:chpulse 1s infinite alternate}
 .chcard .chclaim[hidden]{display:none}
@@ -77,3 +75,13 @@ html[data-graphics="low"] #hearts svg{filter:none}
 .chcard .chclaim span{position:relative;font:400 26px/54px var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55)}
 .chcard .chclaim:active{transform:scale(.95)}
 @keyframes chpulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+/* ===== lencana merah berangka: hanya tampil bila ada yang perlu diklaim (Misi & Hadiah, Pesan, Chest, Tambang) ===== */
+.nbadge{position:absolute;right:-10px;top:-10px;width:44px;height:44px;display:grid;place-items:center;z-index:6;pointer-events:none;animation:nbpop .35s cubic-bezier(.2,1.4,.4,1) both}
+.nbadge[hidden]{display:none!important}
+.nbadge img{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;filter:none;object-fit:contain}
+.nbadge b{position:relative;font:400 23px/1 var(--font-title);color:#fff;padding-bottom:2px;text-shadow:0 2px 0 rgba(60,0,10,.7)}
+.nbadge.w2 b{font-size:19px}.nbadge.w3 b{font-size:15px}
+#nav .tile{position:relative}
+#nav .tile .nbadge{right:6px;top:2px}
+@keyframes nbpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}

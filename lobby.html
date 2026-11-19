@@ -49,11 +49,11 @@
   <!-- ===== menu ikon (kotak abu transparan) ===== -->
   <div id="menu">
     <button class="mbtn" data-act="leaderboard" aria-label="Ranking"><img src="assets/images/ui/item-icons/podium.webp" alt=""><span>Ranking</span></button>
-    <button class="mbtn" data-act="hadiahMisi" aria-label="Misi & Hadiah"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""><span>Misi &amp; Hadiah</span><span class="dot sm" hidden id="questDot"></span></button>
-    <button class="mbtn" data-act="mail" aria-label="Pesan"><img src="assets/images/ui/item-icons/surat-segel.webp" alt=""><span>Pesan</span><span class="dot sm" id="mailDot" hidden></span></button>
+    <button class="mbtn" data-act="hadiahMisi" aria-label="Misi & Hadiah"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""><span>Misi &amp; Hadiah</span><span class="nbadge" hidden id="questDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+    <button class="mbtn" data-act="mail" aria-label="Pesan"><img src="assets/images/ui/item-icons/surat-segel.webp" alt=""><span>Pesan</span><span class="nbadge" id="mailDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
     <button class="mbtn" data-act="teman" aria-label="Teman"><img src="assets/images/ui/feature-icons/friends.webp" alt=""><span>Teman</span><span class="dot sm" id="friendDot" hidden></span></button>
     <button class="mbtn" data-act="settings" aria-label="Pengaturan"><img src="assets/images/ui/item-icons/gir.webp" alt=""><span>Pengaturan</span></button>
-    <button class="mbtn" data-act="chest" aria-label="Chest"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span>Chest</span><span class="dot sm" id="chestDot" hidden></span></button>
+    <button class="mbtn" data-act="chest" aria-label="Chest"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span>Chest</span><span class="nbadge" id="chestDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
   </div>
 
   <!-- ===== hadiah gratis (kanan) ===== -->
@@ -64,7 +64,7 @@
     </div>
     <div class="sidecard chcard" data-act="chest" role="button">
       <img id="chImg" src="assets/images/ui/chest-packs/peti-kayu.webp" alt=""><div class="tm">Chest harian</div>
-      <div class="chp" id="chProg"><b id="chTx">—</b><span class="chb"><i id="chFill"></i></span></div>
+      <div class="chp" id="chProg"><b id="chTx">—</b></div>
       <button class="chclaim" id="chClaim" type="button" hidden><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>
     </div>    <div class="sidecard soon" data-act="babi" role="button">
       <span class="tag pk">FULL</span><span class="tag sn">SOON</span>
@@ -77,7 +77,7 @@
     <button class="tile big" data-act="toko"><div class="ico"><img src="assets/images/ui/item-icons/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
     <button class="tile big" data-act="karakter"><div class="ico"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
     <button class="tile big" data-act="inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
-    <button class="tile big" data-act="tambang"><div class="ico"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""></div><div class="lb">TAMBANG</div></button>
+    <button class="tile big" data-act="tambang"><div class="ico"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""></div><div class="lb">TAMBANG</div><span class="nbadge" id="mineDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
     <button class="tile big locked" data-act="guild"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
   </div>
 
@@ -106,6 +106,8 @@
 <script src="assets/js/renderers/aura-fx.js"></script><script src="assets/js/renderers/aura-view.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/services/mail-service.js"></script>
+<script src="assets/js/data/achievement-data.js"></script>
+<script src="data/mining/js/mine-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
