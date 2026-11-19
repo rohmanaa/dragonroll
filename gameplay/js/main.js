@@ -5313,15 +5313,15 @@ function renderChips(){
       const tag=document.createElement('span'); tag.className='tag '+badge;
       const tagText=document.createElement('span'); tagText.textContent=p.cpu?'CPU':(isAuto?'AUTO':'AKU'); tag.appendChild(tagText); avatar.appendChild(tag); /* chip melayang di bawah frame avatar, tidak makan tempat nama */
     }
+    const subEls=[]; /* chip power + ikon buff (potion dll) dikumpulkan lalu ditaruh TEPAT di bawah nama */
     if(p.activePower&&PUN[p.activePower]){
       const art=GAME_HUD_POWER_ART[p.activePower],using=document.createElement('span');
       using.className='pu-using'; using.title='Memakai '+PUN[p.activePower][1];
       using.setAttribute('aria-label','Memakai '+PUN[p.activePower][1]);
       if(art) using.appendChild(gameHudImage(art[0],art[1]));
       const powerName=document.createElement('span'); powerName.textContent=PUN[p.activePower][1]; using.appendChild(powerName);
-      head.appendChild(using);
+      subEls.push(using);
     }
-    if(p.activePower&&PUN[p.activePower]) head.classList.add('has-pu'); /* chip power turun ke bawah nama, nama sedikit naik (hud-player-card.css) */
     content.appendChild(head);
     const row=document.createElement('div'); row.className='r2';
     const position=document.createElement('span'); position.className='ps';
@@ -5344,7 +5344,11 @@ function renderChips(){
     if(p.shield) addBuff('item-icons','batu-rune','Kebal serangan');
     if(p.guard) addBuff('item-icons','perisai-kayu','Perisai');
     if(p.frozen) addBuff('white-glyphs','kepingan-salju','Beku');
-    row.appendChild(buffs); content.appendChild(row);
+    const sub=document.createElement('div'); sub.className='r1sub';
+    subEls.forEach(e=>sub.appendChild(e));
+    if(buffs.childNodes.length) sub.appendChild(buffs); else row.appendChild(buffs);
+    if(sub.childNodes.length){ head.appendChild(sub); head.classList.add('has-pu'); } /* ikon power/potion di bawah nama, nama naik sedikit (hud-player-card.css) */
+    content.appendChild(row);
     const frameFx=document.createElement('span'); frameFx.className='hf'; frameFx.setAttribute('aria-hidden','true'); frameFx.innerHTML='<i class="hf-tab"></i><i class="hf-bar"></i>'; /* dekorasi frame HUD (hud-player-card.css) */
     card.appendChild(frameFx); card.appendChild(avatar); card.appendChild(content);
     card.setAttribute('role','button'); card.tabIndex=0; card.setAttribute('aria-label','Profil '+p.name);

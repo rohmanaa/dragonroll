@@ -582,16 +582,16 @@
     if (!arena || options.reducedMotion) return;
     var c = arena.cin, f = fighters[side];
     /* zoom lebih halus & kamera nyaris tidak bergeser ke samping: petarung tetap satu garis, tidak terlalu dekat */
-    c.focusX = f ? f.x * 0.3 : 0; c.zoom = strength * 0.4; c.rate = 7;
+    /* TANPA ZOOM: kamera PVP tetap di posisi dasar (hanya slow-mo & getar yang tersisa) */
+    c.focusX = 0; c.zoom = 0; c.rate = 7;
     c.slow = 0.35; c.slowUntil = arena.elapsedReal + (hold || 0.3);
     setTimeout(function () { if (arena) { arena.cin.zoom = 0; arena.cin.rate = 3.2; } }, Math.round((hold || 0.3) * 1000) + 250);
   }
   function cinIntro() {
     if (!arena) return;
     var c = arena.cin;
-    if (options.reducedMotion) { c.px = 0; c.py = 2.2; c.pz = arena.baseZ; c.fov = 36; c.rate = 8; return; }
-    c.px = -5; c.py = 6; c.pz = arena.baseZ + 6; c.lx = 0; c.ly = 1.1 + LOOK_Y; c.fov = 42; c.rate = 1.7; c.intro = 1;
-    setTimeout(function () { if (arena) { arena.cin.rate = 4; arena.cin.intro = 0; } }, 2300);
+    /* TANPA ZOOM: kamera langsung di posisi dasar (tidak ada sapuan mendekat); petarung muncul jatuh dari atas (lihat renderArena) */
+    c.px = 0; c.py = 2.2; c.pz = arena.baseZ; c.lx = 0; c.ly = 1.3 + LOOK_Y; c.fov = 36; c.rate = 8; c.zoom = 0; c.intro = 0;
   }
   function stepCamera(dt) {
     var c = arena.cin, cam = arena.camera, k = 1 - Math.exp(-c.rate * dt);
@@ -677,11 +677,16 @@
       fighter.hitTime = Math.max(0, fighter.hitTime - rdt);
       fighter.idleT = (fighter.idleT || 0) + rdt;
 
-      /* Intro: berjalan masuk dari luar layar */
-      var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 1.3);
-      var ease = 1 - Math.pow(1 - introProgress, 3);
-      var offX = -fighter.direction * 8 * (1 - ease);   /* kiri (direction +1) masuk dari kiri layar, kanan dari kanan */
-      var walking = introProgress < 1;
+      /* Intro: JATUH DARI ATAS (gravitasi: makin cepat), petarung kanan menyusul sedikit; mendarat = debu + getar + squash */
+      var introProgress = options.reducedMotion ? 1 : Math.min(1, Math.max(0, (fighter.intro - fighter.side * 0.16) / 1.0));
+      var dropY = options.reducedMotion ? 0 : 9 * (1 - introProgress * introProgress);
+      var offX = 0;
+      var walking = introProgress < 1;      /* true = masih di udara */
+      var justLanded = false;
+      if (!walking && !fighter.dropLanded) {
+        fighter.dropLanded = true;
+        if (!options.reducedMotion) { justLanded = true; spawnDust(fighter.x, 0, 14, 1.0); playSfx('thud'); playSfx('dust'); arena.cin.shake = Math.max(arena.cin.shake, 0.35); }
+      }
 
       /* Lunge saat menyerang */
       var lunge = 0;
@@ -699,10 +704,10 @@
         : 0;
 
       var px = fighter.x + offX + fighter.direction * lunge - fighter.direction * hitRecoil;
-      var py = 0, tilt = 0;
+      var py = dropY, tilt = 0;
       if (fighter.defeat) {
         var df = stepDefeat(fighter, rdt, t);
-        px = fighter.x + df.dx; py = df.y; tilt = df.tilt;
+        px = fighter.x + df.dx; py = df.y + dropY; tilt = df.tilt;
       } else if (fighter.defeated) {
         px = fighter.x + fighter.defeatDx;
       }
@@ -717,6 +722,7 @@
       /* ANCANG-ANCANG -> LOMPAT (fisika sungguhan, bukan melayang): menunggu dgn kuda-kuda -> jongkok (antisipasi) -> tolakan -> parabola gravitasi -> mendarat (squash + debu) */
       var J = fighter.jmp || (fighter.jmp = { st: 'wait', t: 0, wait: 0.9 + fighter.side * 0.8 + Math.random() * 0.8, y: 0, vy: 0 });
       var JG = 17, JV = 4.9, jc = 0;
+      if (justLanded) { J.st = 'land'; J.t = 0; J.y = 0; J.vy = 0; }   /* squash saat mendarat dari jatuh */
       if (options.reducedMotion || fighter.defeat || fighter.defeated) { J.st = 'wait'; J.t = 0; J.y = 0; J.vy = 0; }
       else if (J.st === 'wait') { J.t += rdt; if (calm && J.t >= J.wait) { J.st = 'prep'; J.t = 0; } }
       else if (J.st === 'prep') {
@@ -770,9 +776,8 @@
           } else if (J.st === 'air') {                          /* di udara: lengan & pedang terangkat, kaki ditekuk */
             targetPose = Object.assign({}, targetPose, { hy: 0, tx: -0.05, rx: -2.3, lx: -1.7, sw: 3.2, ll: -0.55, rl: 0.55 });
           }
-        } else if (walking) {
-          var wk = Math.sin(fighter.idleT * 9);
-          targetPose = Object.assign({}, UT.PvpKnight.POSES.guard, { ll: wk * 0.5, rl: -wk * 0.5, hy: 0.03 });
+        } else if (walking) {                                   /* jatuh dari atas: lengan terangkat, kaki ditekuk */
+          targetPose = Object.assign({}, UT.PvpKnight.POSES.guard, { hy: 0, tx: -0.05, rx: -2.3, lx: -1.7, sw: 3.2, ll: -0.55, rl: 0.55 });
         }
         if (typeof UT.PvpKnight.applyPose === 'function')
           UT.PvpKnight.applyPose(fighter.kn, fighter.pose, targetPose, rdt, fighter.defeat ? 14 : 10);
@@ -798,7 +803,7 @@
         }
       } else if (fighter.character) {
         fighter.character.tick(rdt);
-        if (walking && fighter.character.setMode) fighter.character.setMode('walk');
+        if (walking && fighter.character.setMode) { if (fighter.mode !== 'fall') { fighter.character.setMode('idle'); fighter.mode = 'fall'; } }
         else if (!fighter.defeat && !fighter.defeated && fighter.mode !== 'idle' && fighter.character.setMode && !walking) {
           fighter.character.setMode('idle'); fighter.mode = 'idle';
         }

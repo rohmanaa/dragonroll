@@ -199,3 +199,9 @@ html body #players .pg .pr .r1.has-pu .pu-using { flex: 0 0 auto; margin: 0; max
 /* sisi nama = sisi avatar: kursi avatar di kiri (p1, p3) rata kiri, avatar di kanan (p0, p2) rata kanan */
 html body #players .pg.p1 .pr .r1.has-pu, html body #players .pg.p3 .pr .r1.has-pu { align-items: flex-start; }
 html body #players .pg.p0 .pr .r1.has-pu, html body #players .pg.p2 .pr .r1.has-pu { align-items: flex-end; }
+
+/* baris di bawah nama: chip power + ikon buff (potion, sepatu, dll) berdampingan; panel kecil bawah hanya "Petak N" */
+html body #players .pg .pr .r1sub { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; min-width: 0; max-width: 100%; margin-top: 1px; }
+html body #players .pg .pr .r1sub .bf { display: flex; gap: 4px; flex: 0 0 auto !important; }
+html body #players .pg .pr .r1sub .bi { width: 24px; height: 24px; }
+html body #players .pg.p0 .pr .r1sub, html body #players .pg.p2 .pr .r1sub { justify-content: flex-end; }
