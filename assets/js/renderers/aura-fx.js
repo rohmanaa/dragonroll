@@ -72,17 +72,25 @@ const GEO = {
   cube: () => new THREE.BoxGeometry(1, 1, 1),
   plate: () => new THREE.BoxGeometry(1, 0.16, 1),
   shard: () => new THREE.BoxGeometry(0.4, 1.7, 0.4),
+  leafG: () => new THREE.PlaneGeometry(1, 1),   // daun bergambar (Nature Aura): bidang datar bertekstur webp
+  leafT: () => new THREE.PlaneGeometry(1, 1),
 };
-const SHARE = { cubeA: 0.3, plateA: 0.12, shardA: 0.12, cubeS: 0.2, plateS: 0.14, shardS: 0.12 };
+// Tekstur daun (relatif terhadap halaman; semua halaman ada di akar). Pool daun hanya "solid" (leafGS / leafTS).
+const LEAF_TEX = { leafG: 'assets/images/effects/daun-hijau.webp', leafT: 'assets/images/effects/daun-tosca.webp' };
+const SHARE = { cubeA: 0.3, plateA: 0.12, shardA: 0.12, cubeS: 0.2, plateS: 0.14, shardS: 0.12, leafGS: 0.06, leafTS: 0.06 };
 
+// Muat tekstur daun; di lingkungan tanpa browser (tes node) pemuatan gambar tidak tersedia -> tanpa tekstur, bukan crash.
+function loadTex(url) { try { return new THREE.TextureLoader().load(url); } catch (e) { return null; } }
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
 const dummy = new THREE.Object3D();
 const tmpC = new THREE.Color();
 
 class VoxelPool {
-  constructor(geo, solid, cap) {
+  constructor(geo, solid, cap, texUrl) {
     this.cap = cap; this.head = 0; this.aliveCount = 0; this.dirty = true; this.solid = solid;
-    const mat = solid
+    const mat = texUrl
+      ? new THREE.MeshBasicMaterial({ map: loadTex(texUrl), transparent: true, alphaTest: 0.3, side: THREE.DoubleSide })
+      : solid
       ? new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: 0, emissive: 0x1c1c1c, flatShading: true })
       : new THREE.MeshBasicMaterial({ transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
     this.mesh = new THREE.InstancedMesh(geo, mat, cap);
@@ -162,7 +170,7 @@ class VoxelPool {
     }
   }
 
-  dispose() { this.mesh.parent?.remove(this.mesh); this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.mesh.dispose(); }
+  dispose() { this.mesh.parent?.remove(this.mesh); this.mesh.geometry.dispose(); this.mesh.material.map?.dispose(); this.mesh.material.dispose(); this.mesh.dispose(); }
 }
 
 class VoxelParticles {
@@ -170,7 +178,7 @@ class VoxelParticles {
     this.pools = {};
     for (const [key, share] of Object.entries(SHARE)) {
       const shape = key.replace(/[AS]$/, ''), solid = key.endsWith('S');
-      const p = new VoxelPool(GEO[shape](), solid, Math.max(24, Math.round(q.cap * share)));
+      const p = new VoxelPool(GEO[shape](), solid, Math.max(24, Math.round(q.cap * share)), LEAF_TEX[shape]);
       this.pools[key] = p; scene.add(p.mesh);
     }
   }
@@ -188,7 +196,7 @@ const Catalog = (function(){
  * AuraCatalog.js — SATU katalog data untuk 15 aura. Tidak ada kode render per aura.
  *
  * emit[]  = emitter partikel voxel: zone (foot|body|head|ambient), mode (orbit|helix|rise|drift|fall),
- *           shape (cube|plate|shard), solid (voxel padat berlampu) / additive (cahaya), rate (per detik, sebelum
+ *           shape (cube|plate|shard|leafG|leafT; leaf* = daun bertekstur webp, hanya solid), solid (voxel padat berlampu) / additive (cahaya), rate (per detik, sebelum
  *           pengali tier/kualitas), size/radius/h dalam "u" (1u = 1 blok), life (detik), speed, colors, bob, tele,
  *           burst {every,count} (semburan berkala), pulse {every,count} (cincin partikel naik).
  * fx[]    = dekor shader/mesh: ring (cincin kaki), fog, halo, backRing, glow, wings, horns, silhouette,
@@ -203,8 +211,11 @@ const AURAS = [
   { id: 'nature', name: 'Nature Aura', rarity: 'common', theme: 'Nature / Forest', colors: ['#4caf50', '#8bc34a', '#7a5230'],
     fx: [{ type: 'ring', style: 'grass', r: 0.95, c1: '#6fcf4a', c2: '#2f7a2a' }],
     emit: [
-      E('body', 'orbit', 'plate', { solid: true, rate: 2.5, size: 0.1, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#4caf50', '#6dbb4a', '#8bc34a', '#5d9c3a'] }),
-      E('head', 'orbit', 'plate', { solid: true, rate: 0.9, size: 0.08, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#5fbf4a', '#8bc34a'] }),
+      // Daun bergambar (daun-hijau.webp / daun-tosca.webp): warna putih = tekstur tampil apa adanya.
+      E('body', 'orbit', 'leafG', { solid: true, rate: 1.4, size: 0.2, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#ffffff'] }),
+      E('body', 'orbit', 'leafT', { solid: true, rate: 1.1, size: 0.2, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#ffffff'] }),
+      E('head', 'orbit', 'leafG', { solid: true, rate: 0.5, size: 0.16, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#ffffff'] }),
+      E('head', 'orbit', 'leafT', { solid: true, rate: 0.4, size: 0.16, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#ffffff'] }),
       E('ambient', 'fall', 'cube', { rate: 2.5, size: 0.03, life: 3, grav: 0.15, h: [2.0, 2.4], radius: 1, colors: ['#f3e26b', '#fff59d'] }),
       E('foot', 'rise', 'cube', { solid: true, rate: 1.5, size: 0.03, life: 1.2, speed: 0.4, radius: 0.7, colors: ['#7a5230', '#5a3a1e'] }),
     ] },

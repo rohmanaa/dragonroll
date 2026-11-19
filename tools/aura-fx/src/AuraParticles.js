@@ -11,17 +11,25 @@ const GEO = {
   cube: () => new THREE.BoxGeometry(1, 1, 1),
   plate: () => new THREE.BoxGeometry(1, 0.16, 1),
   shard: () => new THREE.BoxGeometry(0.4, 1.7, 0.4),
+  leafG: () => new THREE.PlaneGeometry(1, 1),   // daun bergambar (Nature Aura): bidang datar bertekstur webp
+  leafT: () => new THREE.PlaneGeometry(1, 1),
 };
-const SHARE = { cubeA: 0.3, plateA: 0.12, shardA: 0.12, cubeS: 0.2, plateS: 0.14, shardS: 0.12 };
+// Tekstur daun (relatif terhadap halaman; semua halaman ada di akar). Pool daun hanya "solid" (leafGS / leafTS).
+const LEAF_TEX = { leafG: 'assets/images/effects/daun-hijau.webp', leafT: 'assets/images/effects/daun-tosca.webp' };
+const SHARE = { cubeA: 0.3, plateA: 0.12, shardA: 0.12, cubeS: 0.2, plateS: 0.14, shardS: 0.12, leafGS: 0.06, leafTS: 0.06 };
 
+// Muat tekstur daun; di lingkungan tanpa browser (tes node) pemuatan gambar tidak tersedia -> tanpa tekstur, bukan crash.
+function loadTex(url) { try { return new THREE.TextureLoader().load(url); } catch (e) { return null; } }
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
 const dummy = new THREE.Object3D();
 const tmpC = new THREE.Color();
 
 class VoxelPool {
-  constructor(geo, solid, cap) {
+  constructor(geo, solid, cap, texUrl) {
     this.cap = cap; this.head = 0; this.aliveCount = 0; this.dirty = true; this.solid = solid;
-    const mat = solid
+    const mat = texUrl
+      ? new THREE.MeshBasicMaterial({ map: loadTex(texUrl), transparent: true, alphaTest: 0.3, side: THREE.DoubleSide })
+      : solid
       ? new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: 0, emissive: 0x1c1c1c, flatShading: true })
       : new THREE.MeshBasicMaterial({ transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
     this.mesh = new THREE.InstancedMesh(geo, mat, cap);
@@ -101,7 +109,7 @@ class VoxelPool {
     }
   }
 
-  dispose() { this.mesh.parent?.remove(this.mesh); this.mesh.geometry.dispose(); this.mesh.material.dispose(); this.mesh.dispose(); }
+  dispose() { this.mesh.parent?.remove(this.mesh); this.mesh.geometry.dispose(); this.mesh.material.map?.dispose(); this.mesh.material.dispose(); this.mesh.dispose(); }
 }
 
 export class VoxelParticles {
@@ -109,7 +117,7 @@ export class VoxelParticles {
     this.pools = {};
     for (const [key, share] of Object.entries(SHARE)) {
       const shape = key.replace(/[AS]$/, ''), solid = key.endsWith('S');
-      const p = new VoxelPool(GEO[shape](), solid, Math.max(24, Math.round(q.cap * share)));
+      const p = new VoxelPool(GEO[shape](), solid, Math.max(24, Math.round(q.cap * share)), LEAF_TEX[shape]);
       this.pools[key] = p; scene.add(p.mesh);
     }
   }

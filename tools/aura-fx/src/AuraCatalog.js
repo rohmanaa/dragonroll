@@ -2,7 +2,7 @@
  * AuraCatalog.js — SATU katalog data untuk 15 aura. Tidak ada kode render per aura.
  *
  * emit[]  = emitter partikel voxel: zone (foot|body|head|ambient), mode (orbit|helix|rise|drift|fall),
- *           shape (cube|plate|shard), solid (voxel padat berlampu) / additive (cahaya), rate (per detik, sebelum
+ *           shape (cube|plate|shard|leafG|leafT; leaf* = daun bertekstur webp, hanya solid), solid (voxel padat berlampu) / additive (cahaya), rate (per detik, sebelum
  *           pengali tier/kualitas), size/radius/h dalam "u" (1u = 1 blok), life (detik), speed, colors, bob, tele,
  *           burst {every,count} (semburan berkala), pulse {every,count} (cincin partikel naik).
  * fx[]    = dekor shader/mesh: ring (cincin kaki), fog, halo, backRing, glow, wings, horns, silhouette,
@@ -17,8 +17,11 @@ export const AURAS = [
   { id: 'nature', name: 'Nature Aura', rarity: 'common', theme: 'Nature / Forest', colors: ['#4caf50', '#8bc34a', '#7a5230'],
     fx: [{ type: 'ring', style: 'grass', r: 0.95, c1: '#6fcf4a', c2: '#2f7a2a' }],
     emit: [
-      E('body', 'orbit', 'plate', { solid: true, rate: 2.5, size: 0.1, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#4caf50', '#6dbb4a', '#8bc34a', '#5d9c3a'] }),
-      E('head', 'orbit', 'plate', { solid: true, rate: 0.9, size: 0.08, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#5fbf4a', '#8bc34a'] }),
+      // Daun bergambar (daun-hijau.webp / daun-tosca.webp): warna putih = tekstur tampil apa adanya.
+      E('body', 'orbit', 'leafG', { solid: true, rate: 1.4, size: 0.2, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#ffffff'] }),
+      E('body', 'orbit', 'leafT', { solid: true, rate: 1.1, size: 0.2, life: 6, speed: 0.45, radius: 0.8, h: [0.2, 1.6], spin: 1.5, bob: 0.06, colors: ['#ffffff'] }),
+      E('head', 'orbit', 'leafG', { solid: true, rate: 0.5, size: 0.16, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#ffffff'] }),
+      E('head', 'orbit', 'leafT', { solid: true, rate: 0.4, size: 0.16, life: 5, speed: 0.7, radius: 0.35, h: [2.0, 2.3], spin: 2, bob: 0.05, colors: ['#ffffff'] }),
       E('ambient', 'fall', 'cube', { rate: 2.5, size: 0.03, life: 3, grav: 0.15, h: [2.0, 2.4], radius: 1, colors: ['#f3e26b', '#fff59d'] }),
       E('foot', 'rise', 'cube', { solid: true, rate: 1.5, size: 0.03, life: 1.2, speed: 0.4, radius: 0.7, colors: ['#7a5230', '#5a3a1e'] }),
     ] },
