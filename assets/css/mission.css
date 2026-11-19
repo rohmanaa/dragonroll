@@ -132,3 +132,15 @@
 .qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}
 /* latar voxel papan misi (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
 body.ms::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/misi-voxel-papan.webp) center/cover no-repeat;opacity:.35}
+
+/* ===== Hadiah harian 30 hari: grid 4 kolom yang digulir; kelipatan 7 = hadiah besar (emas), Hari 30 = hadiah utama ===== */
+.dlist{position:absolute;left:0;top:0;width:1450px;bottom:116px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain;padding:12px 0 24px}
+.dlist::-webkit-scrollbar{display:none}
+.dgrid{display:grid;grid-template-columns:repeat(4,350px);justify-content:space-between;row-gap:22px}
+.dgrid .dc{position:relative;left:auto;top:auto;width:350px;height:310px}
+.dgrid .dc.now{margin:0;width:350px;height:310px}
+.dgrid .dc.ms.wait,.dgrid .dc.ms.now{filter:drop-shadow(0 0 10px rgba(255,214,90,.55))}
+.dgrid .dc.ms .dt{color:#fff3c4}
+.dgrid .dc.grand{filter:drop-shadow(0 0 16px rgba(255,214,90,.95))}
+.dgrid .dc.grand.done{filter:brightness(.6)}
+.dgrid .dc.grand .di{height:170px;top:62px;max-width:260px}

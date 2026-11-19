@@ -190,7 +190,7 @@ const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{const x=pr&&
 pullXp();
 const pullQuest=()=>{const W=UT.WalletService&&UT.WalletService.get();if(!SRV||!W)return {ok:true};
  return Promise.all([W.dailyGet?W.dailyGet():null,W.questGet?W.questGet():null]).then(([d,q])=>{
-  if(d&&d.ok)QN.login=(!d.claimed_today&&(+d.claimed||0)<7)?1:0;
+  if(d&&d.ok)QN.login=(!d.claimed_today&&(+d.claimed||0)<30)?1:0;
   if(q&&Array.isArray(q.quests))QN.misi=q.quests.filter(x=>x.status==='ready').length+((q.bonus&&q.bonus.status==='ready')?1:0);
   paintQuestBadge();return {ok:true}}).catch(()=>({ok:false}))};
 pullQuest();
