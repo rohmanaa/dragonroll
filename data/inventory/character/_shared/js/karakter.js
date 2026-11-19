@@ -67,9 +67,9 @@ function faceMats(pf,seed,alpha){
 const scene=new THREE.Scene();
 const cv=document.getElementById('gl'),showEl=document.getElementById('show');
 const camera=new THREE.PerspectiveCamera(40,1,0.1,200);
-const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
 renderer.setClearColor(0x000000,0);
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfcf,0.85));

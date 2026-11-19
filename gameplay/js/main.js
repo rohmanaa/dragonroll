@@ -255,9 +255,9 @@ if(reduceMq.addEventListener) reduceMq.addEventListener('change',onReduceChange)
 else if(reduceMq.addListener) reduceMq.addListener(onReduceChange);
 let renderer;
 try{
-  renderer=new THREE.WebGLRenderer({canvas:$('c'),antialias:true,alpha:true});
+  renderer=new THREE.WebGLRenderer({canvas:$('c'),antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
 }catch(err){ showBootErr(); return; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.setClearColor(0x000000,0);
