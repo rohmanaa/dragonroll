@@ -80,3 +80,12 @@
 .dc .btn .gm{display:inline-block;width:30px;height:auto;margin-left:8px;position:relative;inset:auto;vertical-align:middle}
 .sl.busy{border-style:solid;border-color:rgba(111,208,255,.35);background:rgba(111,208,255,.06)}
 .sl.busy .em{color:rgba(159,227,255,.5)}
+
+/* ---- rapikan isi kolom (tinggi kolom ~298px): gambar > nama > bar > timer > tombol, tanpa tumpang tindih ---- */
+.dc .im{top:8px;height:108px}
+.dc .nm{top:120px;font-size:32px}
+.dc .pg{top:162px;height:18px;left:34px;right:34px}
+.dc .tx{top:188px}
+.dc .tx.tm{top:186px;font-size:38px}
+.dc .btn{bottom:8px;width:210px;height:64px}
+.dc .btn span{font-size:28px}
