@@ -8,8 +8,8 @@
     "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "VERSI_YANG_SUDAH_TERPASANG",
-    "electron-builder": "VERSI_YANG_SUDAH_TERPASANG"
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
   },
   "build": {
     "appId": "com.dragonroll.game",
