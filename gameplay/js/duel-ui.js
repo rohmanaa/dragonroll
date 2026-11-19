@@ -107,15 +107,15 @@
       momentum.appendChild(mk('span', 'du-momentum-label', 'MOMENTUM'));
       el['mom' + i] = mk('div', 'du-mom');
       momentum.appendChild(el['mom' + i]);
-      stats.appendChild(el['name' + i]); stats.appendChild(el['hp' + i]); stats.appendChild(momentum);
-      side.appendChild(avatar); side.appendChild(stats); top.appendChild(side);
+      stats.appendChild(el['name' + i]); stats.appendChild(el['hp' + i]);
+      side.appendChild(avatar); side.appendChild(stats); side.appendChild(momentum); top.appendChild(side);
     });
     var title = mk('div', 'du-title');
     title.appendChild(mk('b', null, 'PVP CLASH'));
     el.banner = mk('span', 'du-banner', 'ROUND 1');
     title.appendChild(el.banner); top.appendChild(title); root.appendChild(top);
 
-    var arena = mk('div', 'du-arena');
+    var arena = mk('div', 'du-arena'); el.arenaBox = arena;
     el.scene = mk('div', 'du-scene');
     arena.appendChild(el.scene);
     el.dice = []; el.dieLabels = []; el.dieSlots = [];
@@ -230,10 +230,15 @@
     var rect = el.scene.getBoundingClientRect();
     var width = Math.max(1, Math.round(rect.width || window.innerWidth || 1));
     var height = Math.max(1, Math.round(rect.height || window.innerHeight || 1));
+    /* canvas dibuat lebih tinggi dari kotak arena (CSS .du-scene bottom negatif) agar dadu 3D bisa berada DI BAWAH kaki petarung.
+       Bingkai kamera tetap setinggi kotak arena (setViewOffset) sehingga komposisi 3D tidak berubah. */
+    var box = el.arenaBox ? el.arenaBox.getBoundingClientRect() : null;
+    var baseH = box && box.height ? Math.min(height, Math.round(box.height)) : height;
     arena.renderer.setSize(width, height, false);
-    arena.camera.aspect = width / height;
+    arena.camera.aspect = width / baseH;
     /* layar sempit (portrait): mundurkan kamera agar kedua petarung tetap masuk frame */
-    arena.baseZ = Math.min(15, 7.6 * Math.max(1, 1.75 / (width / height)));
+    arena.baseZ = Math.min(15, 7.6 * Math.max(1, 1.75 / (width / baseH)));
+    if (arena.camera.setViewOffset) arena.camera.setViewOffset(width, baseH, 0, 0, width, height);
     arena.camera.updateProjectionMatrix();
     arena.W = width; arena.H = height;
     var dc = arena.dice && arena.dice.cam;
@@ -424,19 +429,7 @@
       var fireR = new T.PointLight(0xff9a40, 0.9, 18, 2);
       fireR.position.set(7, 2.5, 1); scene.add(fireR);
 
-      /* Arena floor circle */
-      var floor = new T.Mesh(new T.CircleGeometry(3.9, 64), new T.MeshStandardMaterial({
-        color: 0x3a1e0a, roughness: 0.9, metalness: 0.1,
-        transparent: true, opacity: 0.45, depthWrite: false
-      }));
-      floor.rotation.x = -Math.PI / 2; floor.position.y = 0.01;
-      floor.receiveShadow = true; scene.add(floor);
-
-      /* Gold ring */
-      var ring = new T.Mesh(new T.RingGeometry(3.7, 3.78, 64), new T.MeshBasicMaterial({
-        color: 0xffc35b, transparent: true, opacity: 0.82, side: T.DoubleSide, depthWrite: false
-      }));
-      ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; scene.add(ring);
+      /* Lingkaran lantai + ring emas dihapus (tidak ada lingkaran di sekeliling petarung) */
 
       /* Shadow catcher */
       try {
@@ -662,7 +655,7 @@
       /* Intro: berjalan masuk dari luar layar */
       var introProgress = options.reducedMotion ? 1 : Math.min(1, fighter.intro / 1.3);
       var ease = 1 - Math.pow(1 - introProgress, 3);
-      var offX = fighter.direction * 8 * (1 - ease);
+      var offX = -fighter.direction * 8 * (1 - ease);   /* kiri (direction +1) masuk dari kiri layar, kanan dari kanan */
       var walking = introProgress < 1;
 
       /* Lunge saat menyerang */
@@ -689,7 +682,14 @@
         px = fighter.x + fighter.defeatDx;
       }
       /* Kaki menapak: root-model berdiri di y=0 (tumit rig = origin); hanya idle bob yang boleh menaikkan */
-      var bob = (fighter.defeat || fighter.defeated) ? 0 : Math.max(0, Math.sin(fighter.idleT * 2.2 + fighter.ph)) * 0.012;
+      /* IDLE SIAP PERANG: memantul di ujung kaki, menggeser langkah maju-mundur & condong ke lawan (bukan sekadar diam) */
+      var calm = !fighter.defeat && !fighter.defeated && !walking && !fighter.hitTime && fighter.actionTime >= fighter.actionDuration;
+      fighter.idleK = (fighter.idleK || 0) + ((calm ? 1 : 0) - (fighter.idleK || 0)) * Math.min(1, rdt * 6);
+      var amp = (options.reducedMotion ? 0.25 : 1) * fighter.idleK;
+      var rt = fighter.idleT * 4.4 + fighter.ph;
+      px += fighter.direction * Math.sin(fighter.idleT * 1.6 + fighter.ph) * 0.11 * amp;
+      tilt += -fighter.direction * (0.04 + 0.04 * Math.sin(rt)) * amp;
+      var bob = (fighter.defeat || fighter.defeated) ? 0 : Math.max(0, Math.sin(fighter.idleT * 2.2 + fighter.ph)) * 0.012 + Math.abs(Math.sin(rt * 0.5)) * 0.07 * amp;
       fighter.phys.position.set(px, py + bob, 0);
       fighter.phys.rotation.z = tilt;
       if (fighter.shadow) {
@@ -708,16 +708,18 @@
           if (fighter.clipT >= 1) { fighter.clip = null; }
         } else if (!fighter.defeat && !fighter.defeated && !walking) {
           /* IDLE: napas + geser berat badan + ayun lengan — terlihat jelas saat menunggu ronde */
-          var br = Math.sin(fighter.idleT * 1.7 + fighter.ph) * 0.5 + 0.5;
           var base = fighter.base || UT.PvpKnight.POSES.guard;
+          var ka = options.reducedMotion ? 0.25 : 1, kr = fighter.idleT * 4.4 + fighter.ph;
+          var kb = Math.sin(kr) * 0.5 + 0.5;
           targetPose = Object.assign({}, base, {
-            hy: (base.hy || 0) + br * 0.06,
-            ty: (base.ty || 0) + Math.sin(fighter.idleT * 0.8 + fighter.ph) * 0.07,
-            tx: (base.tx || 0) + br * 0.03,
-            ll: (base.ll || 0) + Math.sin(fighter.idleT * 1.1) * 0.07,
-            rl: (base.rl || 0) - Math.sin(fighter.idleT * 1.1) * 0.07,
-            rx: (base.rx || 0) + Math.sin(fighter.idleT * 1.7 + 0.6) * 0.05,
-            sw: (base.sw || 0) + Math.sin(fighter.idleT * 1.3) * 0.06
+            hy: (base.hy || 0) + (0.10 + kb * 0.10) * ka,                                  /* lutut menekuk, memantul */
+            tx: (base.tx || 0) + (0.10 + Math.sin(kr) * 0.04) * ka,                        /* condong ke lawan */
+            ty: (base.ty || 0) + Math.sin(fighter.idleT * 0.9 + fighter.ph) * 0.12 * ka,   /* badan memutar mengintai */
+            ll: (base.ll || 0) + Math.sin(kr * 0.5) * 0.32 * ka,                           /* kaki bergantian menggeser langkah */
+            rl: (base.rl || 0) - Math.sin(kr * 0.5) * 0.32 * ka,
+            rx: (base.rx || 0) + Math.sin(kr * 0.5 + 0.6) * 0.2 * ka,                      /* lengan pedang siaga */
+            sw: (base.sw || 0) + Math.sin(fighter.idleT * 2.3 + fighter.ph) * 0.3 * ka,    /* pedang diayun-ayun */
+            lx: (base.lx || 0) - 0.35 * ka + Math.sin(kr + 1) * 0.12 * ka                  /* tangan kiri terangkat (guard) */
           });
         } else if (walking) {
           var wk = Math.sin(fighter.idleT * 9);
@@ -798,6 +800,7 @@
   var UI = {
     open: function (o) {
       build(); finishIntro(); o = o || {}; closeToken++;
+      try { window.dispatchEvent(new Event('ut:duel-open')); } catch (e) {}
       var names = o.names || ['P1', 'P2'], css = o.css || [], faces = o.faces || [];
       options.reducedMotion = !!o.reducedMotion;
       diceSkins = [null, null];
@@ -843,7 +846,7 @@
       build(); finishIntro();
       el.log.textContent = 'WEAPONS DRAWN · GET READY';
       root.classList.add('intro');
-      if (options.reducedMotion) { root.classList.remove('cine'); return Promise.resolve(); }
+      if (options.reducedMotion) { root.classList.remove('cine', 'intro'); return Promise.resolve(); }
       root.classList.add('cine');
       el.skipButton.hidden = false;
       /* VS menghantam layar di tengah sinematik */
@@ -1039,6 +1042,7 @@
     },
     close: function () {
       if (!root) return;
+      try { window.dispatchEvent(new Event('ut:duel-close')); } catch (e) {}
       finishIntro();
       if (rollResolver) { var resolve = rollResolver; rollResolver = null; resolve(false); }
       if (el._keyHandler) window.removeEventListener('keydown', el._keyHandler);
