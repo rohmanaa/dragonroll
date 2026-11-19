@@ -33,10 +33,10 @@ const bump=()=>['#cur-em','#cur-co'].forEach(s=>{const e=$(s);e.classList.remove
 /* ---- 3 kolom atas: chest yang SEDANG DIBUKA (timer / CEPAT / AMBIL). Klaim chest harian ada di Lobby. ---- */
 function oc(c){
  const k=KIND[c.kind],rd=isReady(c),head='<img class="im" src="'+IC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>';
- if(rd)return '<div class="dc ready">'+head+'<div class="pg"><i style="width:100%"></i></div><div class="tx tm">Siap diambil!</div>'+
+ if(rd)return '<div class="dc ready">'+head+'<div class="tx tm">Siap diambil!</div>'+
   '<button class="btn" data-collect="'+c.id+'"><img src="'+IC+'buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>AMBIL</span></button></div>';
- const left=secsLeft(c),pct=Math.max(0,Math.min(100,Math.round(100*(1-left/c.open_secs))));
- return '<div class="dc opening">'+head+'<div class="pg"><i data-pg="'+c.id+'" data-os="'+c.open_secs+'" style="width:'+pct+'%"></i></div><div class="tx tm" data-tm="'+c.id+'">'+clock(left)+'</div>'+
+ const left=secsLeft(c);
+ return '<div class="dc opening">'+head+'<div class="tx tm" data-tm="'+c.id+'">'+clock(left)+'</div>'+
   '<button class="btn" data-skip="'+c.id+'"><img src="'+IC+'buttons-and-controls/tombol-biru-polos.webp" alt=""><span>CEPAT <img class="gm" src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt=""><b data-sc="'+c.id+'">'+skipCost(c)+'</b></span></button></div>'}
 function vDaily(){
  const hd='<div class="hd"><span>Sedang Dibuka <b>'+(S?S.opening:0)+' / '+(S?S.max_open:3)+'</b></span><small>Chest harian diklaim di Lobby</small></div>';
@@ -119,7 +119,6 @@ setInterval(()=>{
   const el=document.querySelector('[data-tm="'+c.id+'"]');
   if(secsLeft(c)<=0){if(el)flip=true;return}
   if(el)el.textContent=clock(secsLeft(c));
-  const pgi=document.querySelector('[data-pg="'+c.id+'"]');if(pgi&&c.open_secs)pgi.style.width=Math.max(0,Math.min(100,100*(1-secsLeft(c)/c.open_secs)))+'%';
   const sc=document.querySelector('[data-sc="'+c.id+'"]');if(sc)sc.textContent=skipCost(c)});
  if(flip&&!busy)render();
  if(S.all_claimed&&resetSecs()<=0&&!busy)reload()},1000);

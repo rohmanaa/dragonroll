@@ -178,29 +178,51 @@ if(SRV&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh(
 /* login harian + XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 const loadProgress=()=>import('../../../assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress);
 loadProgress().then(P=>P.dailyLogin&&P.dailyLogin()).catch(()=>{});
-const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0&&Math.floor(x)!==SRV_XP){SRV_XP=Math.floor(x);renderXp()}return {ok:true}}).catch(()=>({ok:false}));
+/* lencana merah berangka (aset lencana-notifikasi-merah-segi-delapan): tampil hanya bila n>0; angka >99 jadi 99+ */
+function setBadge(id,n){const el=$('#'+id);if(!el)return;n=Math.max(0,Math.floor(+n)||0);el.hidden=!n;if(!n)return;
+ const t=n>99?'99+':String(n);el.querySelector('b').textContent=t;el.classList.toggle('w2',t.length===2);el.classList.toggle('w3',t.length>=3)}
+/* Misi & Hadiah = login harian siap klaim + misi siap klaim + bonus misi + pencapaian yang punya bintang belum diklaim (hitungan sama dengan tab di halaman Misi & Hadiah) */
+const QN={login:0,misi:0,ach:0};
+const paintQuestBadge=()=>setBadge('questDot',QN.login+QN.misi+QN.ach);
+const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0&&Math.floor(x)!==SRV_XP){SRV_XP=Math.floor(x);renderXp()}
+ try{const AC=UT.Achievement;if(AC&&pr&&pr.exists!==false){QN.ach=AC.info(pr).filter(a=>a.pend>0).length;paintQuestBadge()}}catch(_){}
+ return {ok:true}}).catch(()=>({ok:false}));
 pullXp();
+const pullQuest=()=>{const W=UT.WalletService&&UT.WalletService.get();if(!SRV||!W)return {ok:true};
+ return Promise.all([W.dailyGet?W.dailyGet():null,W.questGet?W.questGet():null]).then(([d,q])=>{
+  if(d&&d.ok)QN.login=(!d.claimed_today&&(+d.claimed||0)<7)?1:0;
+  if(q&&Array.isArray(q.quests))QN.misi=q.quests.filter(x=>x.status==='ready').length+((q.bonus&&q.bonus.status==='ready')?1:0);
+  paintQuestBadge();return {ok:true}}).catch(()=>({ok:false}))};
+pullQuest();
 /* titik merah Teman = ada permintaan pertemanan masuk */
 const pullFriends=()=>import('../../../assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{const d=$('#friendDot');if(d)d.hidden=!(r&&r.length);return {ok:true}}).catch(()=>({ok:false}));
 pullFriends();
-/* titik merah Mail = ada surat belum dibaca / hadiah belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
-const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{const d=$('#mailDot');if(d)d.hidden=!(r&&r.ok&&(r.unread||r.pending));return {ok:!!(r&&r.ok)}}):{ok:true}};
+/* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
+const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(r&&r.ok)setBadge('mailDot',r.pending);return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
-/* kartu Chest harian: teks progres + bar menuju chest harian berikutnya (Kayu 1 game, Silver 3, Gold 10); cukup -> tombol KLAIM. Titik merah menu Chest = ada yang bisa diklaim / diambil. */
+/* kartu Chest harian: teks progres (tanpa bar) menuju chest harian berikutnya (Kayu 1 game, Silver 3, Gold 10); cukup -> tombol KLAIM. Lencana menu Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. */
 const CH_IM={wood:'peti-kayu',silver:'peti-perak',gold:'peti-emas'};
 function renderChest(S){
  const card=$('.chcard');if(!card||!S||!Array.isArray(S.daily))return;
- const nx=S.daily.find(d=>d.status!=='claimed'),tx=$('#chTx'),fill=$('#chFill'),btn=$('#chClaim');
- if(nx){tx.textContent=nx.progress+'/'+nx.need;fill.style.width=Math.min(100,100*nx.progress/nx.need)+'%';$('#chImg').src='assets/images/ui/chest-packs/'+(CH_IM[nx.kind]||'peti-kayu')+'.webp'}
- else{tx.textContent='Selesai';fill.style.width='100%'}
+ const nx=S.daily.find(d=>d.status!=='claimed'),tx=$('#chTx'),btn=$('#chClaim');
+ if(nx){tx.textContent=nx.progress+'/'+nx.need;$('#chImg').src='assets/images/ui/chest-packs/'+(CH_IM[nx.kind]||'peti-kayu')+'.webp'}
+ else{tx.textContent='Selesai'}
  btn.dataset.kind=nx&&nx.status==='ready'?nx.kind:'';
  btn.hidden=!(nx&&nx.status==='ready');card.classList.toggle('rdy',!btn.hidden);
- const rd=(S.chests||[]).some(c=>c.status==='ready'),dot=$('#chestDot');if(dot)dot.hidden=!(rd||!btn.hidden)}
+ setBadge('chestDot',(S.chests||[]).filter(c=>c.status==='ready').length+(btn.hidden?0:1))}
 const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
 {const cb=$('#chClaim');if(cb)cb.addEventListener('click',async e=>{e.stopPropagation();const k=cb.dataset.kind,W=UT.WalletService&&UT.WalletService.get();if(!k||!W||cb.disabled)return;buzz();cb.disabled=true;
  try{const r=await W.chestClaimDaily(k);if(r&&r.ok){toast('Chest masuk ke penyimpanan!');renderChest(r)}else toast('Gagal klaim, coba lagi')}catch(_){toast('Gagal klaim, coba lagi')}
  cb.disabled=false;pullChest()})}
+
+/* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
+let MINE=null;
+function mineFull(){if(!MINE||!Array.isArray(MINE.slots))return 0;const el=(performance.now()-MINE.at)/1000,bm=(MINE.config&&MINE.config.boost_mult)||1;
+ return MINE.slots.filter(s=>{if(!s||!s.unlocked)return false;const b=Math.min(el,(s.boost&&s.boost.left_secs)||0);return Math.min(s.cap,s.stock+s.rate*(el+b*(bm-1))/3600)>=s.cap-1e-6}).length}
+const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)return {ok:true};
+ return M.get().then(r=>{if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
+pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */
 if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
@@ -209,6 +231,8 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('appearance',()=>{const A=UT.AppearanceService&&UT.AppearanceService.get();return A?A.refreshThrottled().then(()=>({ok:true}),()=>({ok:false})):{ok:true}},{minGap:20000});
  LS.add('friends',pullFriends,{minGap:40000});
  LS.add('mail',pullMail,{minGap:40000});
+ LS.add('quest',pullQuest,{minGap:30000});
+ LS.add('mine',pullMine,{minGap:40000});
  LS.add('chest',pullChest,{minGap:20000});
  LS.start({interval:20000});
 }
