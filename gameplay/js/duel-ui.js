@@ -714,8 +714,27 @@
       var rt = fighter.idleT * 4.4 + fighter.ph;
       px += fighter.direction * Math.sin(fighter.idleT * 1.6 + fighter.ph) * 0.11 * amp;
       tilt += -fighter.direction * (0.04 + 0.04 * Math.sin(rt)) * amp;
-      var bob = (fighter.defeat || fighter.defeated) ? 0 : Math.max(0, Math.sin(fighter.idleT * 2.2 + fighter.ph)) * 0.012 + Math.abs(Math.sin(rt * 0.5)) * 0.07 * amp;
+      /* ANCANG-ANCANG -> LOMPAT (fisika sungguhan, bukan melayang): menunggu dgn kuda-kuda -> jongkok (antisipasi) -> tolakan -> parabola gravitasi -> mendarat (squash + debu) */
+      var J = fighter.jmp || (fighter.jmp = { st: 'wait', t: 0, wait: 0.9 + fighter.side * 0.8 + Math.random() * 0.8, y: 0, vy: 0 });
+      var JG = 17, JV = 4.9, jc = 0;
+      if (options.reducedMotion || fighter.defeat || fighter.defeated) { J.st = 'wait'; J.t = 0; J.y = 0; J.vy = 0; }
+      else if (J.st === 'wait') { J.t += rdt; if (calm && J.t >= J.wait) { J.st = 'prep'; J.t = 0; } }
+      else if (J.st === 'prep') {
+        if (!calm) { J.st = 'wait'; J.t = 0; }
+        else { J.t += rdt; jc = ease3(Math.min(1, J.t / 0.42)); if (J.t >= 0.42) { J.st = 'air'; J.vy = JV; J.y = 0.001; J.t = 0; } }
+      } else if (J.st === 'air') {
+        J.t += rdt; J.vy -= JG * rdt; J.y += J.vy * rdt;
+        jc = -0.6 * Math.max(0, Math.min(1, J.vy / JV));                  /* meregang saat naik */
+        if (J.y <= 0) { J.y = 0; J.vy = 0; J.st = 'land'; J.t = 0; spawnDust(px, 0, 7, 0.6); }
+      } else if (J.st === 'land') {
+        J.t += rdt; var lu = Math.max(0, 1 - J.t / 0.34); jc = lu * lu;      /* squash lalu pulih */
+        if (J.t >= 0.34) { J.st = 'wait'; J.t = 0; J.wait = 1.3 + Math.random() * 1.8; }
+      }
+      var bob = (fighter.defeat || fighter.defeated) ? 0 : J.y;            /* tidak ada lagi gerak naik-turun melayang: kaki selalu menapak kecuali saat lompat */
       fighter.phys.position.set(px, py + bob, 0);
+      /* kuda-kuda: lutut menekuk/memantul DI LANTAI lewat squash; saat lompat: jongkok -> meregang -> squash mendarat */
+      var sq = jc + (J.st === 'wait' ? 0.12 * (0.5 + 0.5 * Math.sin(rt)) * amp : 0);
+      if (fighter.face) fighter.face.scale.set(1 + 0.06 * sq, 1 - 0.13 * sq, 1 + 0.06 * sq);
       fighter.phys.rotation.z = tilt;
       if (fighter.shadow) {
         fighter.shadow.position.x = px + (fighter.defeat ? 0 : 0);
@@ -746,6 +765,11 @@
             sw: (base.sw || 0) + Math.sin(fighter.idleT * 2.3 + fighter.ph) * 0.3 * ka,    /* pedang diayun-ayun */
             lx: (base.lx || 0) - 0.35 * ka + Math.sin(kr + 1) * 0.12 * ka                  /* tangan kiri terangkat (guard) */
           });
+          if (J.st === 'prep' || J.st === 'land') {            /* antisipasi / mendarat: jongkok dalam, lengan ditarik ke belakang */
+            targetPose = Object.assign({}, targetPose, { hy: (targetPose.hy || 0) + 0.5 * jc, tx: (targetPose.tx || 0) + 0.28 * jc, rx: (targetPose.rx || 0) + 0.9 * jc, lx: (targetPose.lx || 0) + 0.9 * jc, ll: (targetPose.ll || 0) + 0.35 * jc, rl: (targetPose.rl || 0) - 0.35 * jc });
+          } else if (J.st === 'air') {                          /* di udara: lengan & pedang terangkat, kaki ditekuk */
+            targetPose = Object.assign({}, targetPose, { hy: 0, tx: -0.05, rx: -2.3, lx: -1.7, sw: 3.2, ll: -0.55, rl: 0.55 });
+          }
         } else if (walking) {
           var wk = Math.sin(fighter.idleT * 9);
           targetPose = Object.assign({}, UT.PvpKnight.POSES.guard, { ll: wk * 0.5, rl: -wk * 0.5, hy: 0.03 });
