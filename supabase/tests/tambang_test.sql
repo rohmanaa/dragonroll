@@ -56,7 +56,7 @@ do $$ begin
 end $$;
 
 -- ===== upgrade: laju lama dihitung dulu; koin kurang; level maks; jenis salah; terkunci =====
-update public.player_wallet set coins = 2000 where user_id='eeeeeeee-0000-0000-0000-000000000001';
+update public.player_wallet set coins = 20000 where user_id='eeeeeeee-0000-0000-0000-000000000001';
 update public.player_mines set stock = 0, stock_at = now() - interval '10 hours' where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1;
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'up1', public.mine_upgrade(1, 'speed');
@@ -66,7 +66,7 @@ insert into out select 'uplock', public.mine_upgrade(2, 'cap');
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='up1') = 'true';
-  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 800, 'speed Lv2 slot 1 = 1.200 koin';
+  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 10000, 'speed Lv2 slot 1 = 10.000 koin';
   assert (select speed_lv from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) = 2;
   assert (select stock from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) between 1.99 and 2.01, '10 jam dihitung dengan laju LAMA 0.20';
   assert (select v->>'reason' from out where k='up2poor') = 'saldo-kurang';

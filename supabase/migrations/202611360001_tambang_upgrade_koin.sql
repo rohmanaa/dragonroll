@@ -1,13 +1,13 @@
 -- Tambang: UPGRADE (Kecepatan & Peti) dibayar KOIN, bukan Emerald. Buka slot tetap Emerald, Percepat tetap Koin.
 -- Terapkan SETELAH 202611280001_economy_phase3_gems.sql. Aman diulang (create or replace); data pemain tidak diubah.
--- Harga koin dibuat cukup mahal (Emerald tetap hasil utama tambang): naik KE Lv2..5, dikali faktor slot 1,0 / 1,5 / 2,0.
---   Kecepatan: 1.200 / 3.500 / 9.000 / 20.000   Peti: 1.000 / 3.000 / 7.500 / 18.000
+-- Harga koin sengaja mahal (Emerald tetap hasil eksklusif tambang): naik KE Lv2..5, dikali faktor slot 1,0 / 1,5 / 2,0.
+--   Lv3 sudah 50.000 (slot 1). Kecepatan: 10.000 / 50.000 / 150.000 / 400.000   Peti: 8.000 / 50.000 / 130.000 / 350.000
 
 create or replace function public._mine_up_cost(p_kind text, p_slot int, p_to int) returns bigint
 language sql immutable as $$
   select round(
-    case p_kind when 'speed' then (array[0, 1200, 3500, 9000, 20000]::numeric[])[p_to]
-                when 'cap'   then (array[0, 1000, 3000, 7500, 18000]::numeric[])[p_to] end
+    case p_kind when 'speed' then (array[0, 10000, 50000, 150000, 400000]::numeric[])[p_to]
+                when 'cap'   then (array[0, 8000, 50000, 130000, 350000]::numeric[])[p_to] end
     * (array[1.0, 1.5, 2.0]::numeric[])[p_slot])::bigint
 $$;
 
