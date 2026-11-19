@@ -17,7 +17,7 @@
     { name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp' },
     { name: 'Peti Perak', image: 'chest-packs/peti-perak.webp' },
     { name: 'Peti Emas', image: 'chest-packs/peti-emas.webp' },
-    { name: 'Peti Legendaris', image: 'chest-packs/peti-legendaris.webp' }
+    { name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', color: '#4de8e0' }
   ];
   const WMSG = {
     'saldo-kurang': 'Coin tidak cukup.',
@@ -116,7 +116,7 @@
   }
 
   function renderChest() {
-    return CHESTS.map(chest => `<div class="card chest fx" style="--g:#6e8fe8">
+    return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
       <div class="amt sm"><small>Fitur belum tersedia</small></div>
