@@ -100,14 +100,22 @@ t('shop: tombol beli aktif (tidak ada "SEGERA HADIR" di kartu chest) dan harga d
     assert.ok(m[1] === 'coins' ? gems === 0 : coins === 0);
   });
 });
-t('migrasi shop: chest_buy dikunci ke authenticated; cek penuh/saldo SEBELUM chest dibuat; jenis diamond ada di cek & roll', () => {
-  const sql = fs.readFileSync(root('supabase/migrations/202611370001_chest_shop.sql'), 'utf8');
-  assert.ok(sql.includes('grant execute on function public.chest_buy(text) to authenticated'));
+t('migrasi shop: chest_buy TERBARU langsung membuka (tanpa timer/penyimpanan), saldo dicek sebelum chest dibuat, dikunci ke authenticated', () => {
+  const files = fs.readdirSync(root('supabase/migrations')).sort().filter(f => /function public\.chest_buy/.test(fs.readFileSync(root('supabase/migrations/' + f), 'utf8')));
+  const sql = fs.readFileSync(root('supabase/migrations/' + files[files.length - 1]), 'utf8');
   const b = sql.slice(sql.indexOf('function public.chest_buy'));
-  assert.ok(b.indexOf("'penuh'") < b.indexOf('insert into public.player_chest') && b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_chest'));
-  assert.ok(/check \(kind in \('wood', 'silver', 'gold', 'diamond'\)\)/.test(sql) && sql.includes("p_kind = 'diamond'"));
-  const chestJs = fs.readFileSync(root('assets/js/pages/chest.js'), 'utf8');
-  assert.ok(chestJs.includes('diamond:{nm:'));
+  assert.ok(files[files.length - 1].includes('instant'));
+  assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_chest') && b.indexOf("'gem-kurang'") < b.indexOf('insert into public.player_chest'));
+  assert.ok(b.includes("'collected'") && b.includes("'chest_buy', 'buy:'") && b.includes("'chest', 'collect:'") && b.includes('_chest_roll(p_kind)'));
+  assert.ok(!/'stored'|'opening'|'penuh'|_chest_open_secs/.test(b), 'chest beli tidak boleh memakai penyimpanan/timer');
+  assert.ok(sql.includes('grant execute on function public.chest_buy(text) to authenticated'));
+  assert.ok(sql.includes("'coins', (v_rw ->> 'coins')::int") && sql.includes("'wallet_coins'"));
+  assert.ok(fs.readFileSync(root('assets/js/pages/chest.js'), 'utf8').includes('diamond:{nm:'));
+});
+t('shop: chest dibeli langsung tampil hadiah (revealChest) dan tidak lagi mengarahkan ke penyimpanan', () => {
+  const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
+  assert.ok(js.includes('function revealChest') && js.includes('r.coins') && js.includes('r.xp'));
+  assert.ok(!/masuk ke penyimpanan|data-go="chest\.html"/.test(js));
 });
 
 (async () => {

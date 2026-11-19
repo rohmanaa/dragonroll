@@ -123,7 +123,7 @@
     return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
-      <div class="amt sm"><small>Hadiah acak · buka ${chest.open}</small></div>
+      <div class="amt sm"><small>Langsung dibuka · hadiah acak</small></div>
       <button class="btn buy" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
         <img src="${IC}buttons-and-controls/${chest.gems ? 'tombol-biru-polos' : 'tombol-hijau-polos'}.webp" alt="">
         <span><img src="${IC}${chest.gems ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt(chest.gems || chest.coins)}</span>
@@ -262,6 +262,27 @@
     }
   }
 
+  /* Chest yang dibeli langsung terbuka: peti bergoyang sebentar, lalu hadiah dari server tampil. */
+  function revealChest(chest, r) {
+    const img = `<img class="cr-img" src="${IC}${chest.image}" alt="">`;
+    openModal(`<h2>Membuka ${escapeHtml(chest.name)}…</h2><div class="cr">${img}</div>`);
+    const row = (icon, text) => `<div class="cr-rw"><img src="${IC}${icon}.webp" alt="">${text}</div>`;
+    setTimeout(() => {
+      if (!mOpen) return;
+      $('#mb').innerHTML = `<h2>${escapeHtml(chest.name)}</h2><div class="cr done">${img}</div>`
+        + row('hud/ikon-koin-emas', `+${fmt(r.coins)} Coin`)
+        + (r.gems > 0 ? row('gem-medal-icons/berlian-hijau', `+${fmt(r.gems)} Emerald`) : '')
+        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '');
+      const heading = $('#mb h2');
+      if (heading) heading.id = 'modal-title';
+      renderCurrency();
+      pulse('#cur-co');
+      if (r.gems > 0) pulse('#cur-em');
+      playSound('coin');
+      buzz();
+    }, 1100);
+  }
+
   async function buyChest(kind) {
     if (busy) return;
     const chest = CHESTS.find(item => item.kind === kind);
@@ -278,9 +299,7 @@
       }
       renderCurrency();
       pulse(chest.gems ? '#cur-em' : '#cur-co');
-      playSound('coin');
-      buzz();
-      openModal(`<h2>${escapeHtml(chest.name)} dibeli!</h2><p>Chest masuk ke penyimpanan (${result.count}/${result.max_storage}). Buka lewat menu Chest.</p><button class="pack" data-go="chest.html"><span>Buka Chest</span></button>`);
+      revealChest(chest, result);
     } finally {
       busy = false;
     }

@@ -146,3 +146,11 @@ body:has(#modal.show)::after{content:'';position:fixed;inset:0;z-index:0;pointer
 @media (prefers-reduced-motion:reduce){.card .pic .sp{animation:none;display:none}}
 /* latar voxel pasar (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/shop-voxel-pasar.webp) center/cover no-repeat;opacity:.35}
+
+/* chest yang dibeli: langsung terbuka (peti bergoyang -> hadiah) */
+.cr{display:grid;place-items:center;margin:8px 0 14px}
+.cr-img{width:210px;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.55));animation:shk .28s linear infinite alternate}
+.cr.done .cr-img{width:150px;animation:none}
+.cr-rw{display:flex;align-items:center;justify-content:center;gap:12px;font:400 46px/1.25 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.55);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.cr-rw img{width:54px;height:auto}
+.cr-rw.xp{color:#ffe27a}
