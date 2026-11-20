@@ -142,8 +142,9 @@ env.own(function () {
   if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
   try { UT.SharedGL.release('profile'); } catch (e) {}
   if (R) {
-    try { if (R.aura && R.aura.dispose) R.aura.dispose(); } catch (e) {}
-    try { if (R.ch && R.ch.dispose) R.ch.dispose(); } catch (e) {}
+    /* AuraView tidak punya dispose(): clearAll() = despawn semua aura (pool/efek dilepas), baru geometri scene dibuang di bawah */
+    try { if (R.aura && R.aura.clearAll) R.aura.clearAll(); } catch (e) {}
+    try { if (R.ch && R.ch.root) R.holder.remove(R.ch.root); } catch (e) {}
     try {
       /* buang semua geometri dan material di scene */
       R.scene.traverse(function (obj) {

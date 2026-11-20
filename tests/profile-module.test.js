@@ -28,4 +28,8 @@ t('tombol Coin/Gem berada di atas panel kanan (z-index) - dulu tertutup #right',
   const css = fs.readFileSync(path.join(root, 'assets/css/pages/profile-legacy.css'), 'utf8');
   assert(/\.cur\{[^}]*z-index:\s*[1-9]/.test(css));
 });
+t('cleanup aura memakai clearAll (AuraView tidak punya dispose)', () => {
+  assert(/R\.aura\.clearAll\(\)/.test(src));
+  assert(!/R\.aura\.dispose\(\)/.test(src));
+});
 console.log(n + ' tes lulus');

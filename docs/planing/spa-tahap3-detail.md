@@ -80,7 +80,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | --- | --- | --- | --- | --- |
 | lobby | pilot | - | - | tahap 2 |
 | karakter | pilot | - | - | tahap 2 |
-| profile | A | Selesai (kode & test) | `66a65d7` | SW v297-v299; smoke browser LULUS; cek HP belum; UT.PageModule + UT.SharedGL |
+| profile | A | Selesai (kode & test) | `66a65d7` | SW v297-v300; smoke browser LULUS; cleanup aura diperbaiki (`AuraView.clearAll`, v300); cek HP belum; UT.PageModule + UT.SharedGL |
 | efek | A | Ditunda | - | efek/frame/dadu/powerup/pet = TAB di `inventory.html` (iframe `?embed=inv`, `inventory-bridge.js`); migrasikan bersama `inventory` sebagai satu keputusan desain |
 | pet | A | - | - | |
 | tambang | A | - | - | |
@@ -116,3 +116,10 @@ di akhir, tidak ada CSS/DOM/kelas `pf-wide` tersisa, tugas LiveSync `board` terl
 dibedakan dari noise, ukur ulang di HP. Waktu mount lobby (~1,9 dtk) adalah render perangkat lunak (SwiftShader), bukan angka HP.
 Temuan: tombol Coin/Gem Profil dan Peringkat tertutup panel kanan/`#board` (bug lama, juga di halaman mandiri) -> `.cur{z-index}` ditambahkan.
 Belum: cek di HP fisik.
+
+### Review kode `spa-tahap3` (2026-11-20)
+
+- Hasil: profile sesuai resep (PageModule, SharedGL, cleanup, route, halaman mandiri tetap jalan). Test Node: 84 lulus, 5 gagal = baseline lama (tanpa regresi baru).
+- Diperbaiki (SW v300): `profile.js` memanggil `R.aura.dispose()` / `R.ch.dispose()` yang tidak ada di `AuraView` / `BlockyCharacter` (tidak pernah jalan). Sekarang `R.aura.clearAll()` dipanggil sebelum geometri scene dibuang; tes `profile-module` menjaganya.
+- Branch `spa-tahap3` tertinggal dari `main` (sudah di-merge ke `main`); pekerjaan lanjutan dikerjakan dari `main`.
+- Masih terbuka: cek HP fisik, ukur ulang memori di HP (11,0 -> 17,2 MB di headless belum bisa dibedakan dari noise).
