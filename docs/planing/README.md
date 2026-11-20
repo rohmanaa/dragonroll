@@ -54,7 +54,7 @@ sesuai urutan.
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
 | 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Selesai, sudah di `main` (SW v294) |
 | 2 | Shell SPA, renderer bersama (pilot) | Selesai, sudah dimerge ke `main` |
-| 3 | Migrasi halaman lain | Sedang berjalan di branch `spa-tahap3` (profile.html selesai, SW v296) |
+| 3 | Migrasi halaman lain | Sedang berjalan di branch `spa-tahap3` (profile.html: kode & test selesai, SW v297; smoke browser dan cek HP belum) |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
 
 Perbarui tabel ini di akhir tiap tahap.

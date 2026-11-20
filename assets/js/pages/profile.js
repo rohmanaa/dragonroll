@@ -12,12 +12,10 @@ const K = 'assets/images/ui/', G = K + 'white-glyphs/';
 const buzz = () => { try { if (SET().vibration && navigator.vibrate) navigator.vibrate(15); } catch (e) {} };
 const snd = n => { try { if (SET().sound) UT.Audio.play(n || 'button'); } catch (e) {} };
 let tt; function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
-/* navigasi: bila target adalah view di SPA, pakai UT.Spa.go; lainnya fade + location.href */
+/* navigasi: di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan, sama seperti lobby/karakter;
+   halaman mandiri (tanpa UT.Spa): fade + location.href */
 const nav = u => {
-  if (UT.Spa && UT.Spa.go && UT.Spa.canView && UT.Spa.canView(u)) {
-    UT.Spa.go(u);
-    return;
-  }
+  if (UT.Spa && UT.Spa.go) { UT.Spa.go(u); return; }
   const f = $('#fade');
   if (f) f.classList.add('on');
   setTimeout(() => { location.href = u; }, 330);
@@ -152,12 +150,13 @@ env.own(function () {
         try { if (obj.geometry) obj.geometry.dispose(); } catch (_) {}
         if (obj.material) {
           var mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          mats.forEach(function (m) { try { m.dispose(); } catch (_) {} });
+          mats.forEach(function (m) { try { if (m.map) m.map.dispose(); m.dispose(); } catch (_) {} });
         }
       });
     } catch (e) {}
     R = null;
   }
+  document.documentElement.classList.remove('pf-wide');
 });
 
 /* ---- kanan: AKUN ---- */

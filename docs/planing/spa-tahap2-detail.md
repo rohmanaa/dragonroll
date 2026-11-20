@@ -180,11 +180,28 @@ Desain yang dipakai: Opsi A hybrid (lihat `README.md` > Catatan keputusan). `rou
 - [x] Cek sintaks (`node --check`) semua file yang diubah: lulus
 - [x] `tests/shared-gl.test.js` (10 tes) dan `tests/spa-host.test.js` (9 tes) ditulis dan lulus di Node (`router.test.js` tidak perlu karena tidak ada router)
 - [x] Seluruh test: hanya 5 gagal baseline lama, tidak ada kegagalan baru (dijalankan 2026-11-20)
-- [ ] Smoke test browser: `tools/smoke-spa.py` ditulis (pindah 20x, hitung konteks WebGL, `three.min.js` tidak dimuat ulang, Back, memori) tetapi BELUM DIJALANKAN (tidak ada Chrome di lingkungan penulis); jalankan di mesin pemilik
-- [ ] Hasil pengukuran sebelum/sesudah (di bawah)
+- [x] Smoke test browser `tools/smoke-spa.py` dijalankan (Chromium 153 headless, SwiftShader, 1280x720 landscape, 2026-11-20): LULUS pada 20x dan 40x pindah (CHROME=/path/ke/chrome bila Chrome tidak di /usr/bin/google-chrome)
+- [x] Hasil pengukuran sebelum/sesudah (di bawah)
+- [x] Temuan smoke test: `character-face.js` membuat renderer WebGL sendiri (konteks ke-2 sejak Lobby) -> dialihkan ke `UT.SharedGL.offscreen()` bersama thumbnail Karakter; ukuran diset tiap render
 - [ ] Verifikasi di HP oleh pemilik (HP portrait memakai jalur iframe; lihat catatan keputusan)
 - [ ] Merge `spa-tahap2` ke `main` (menunggu persetujuan pemilik)
 
 ## Hasil pengukuran
 
-NOT TESTED. Tabel sebelum/sesudah belum diisi.
+Diukur 2026-11-20 dengan `tools/smoke-spa.py` (sesudah) dan skrip setara untuk `main` (sebelum, pindah lewat iframe `#f`): Chromium 153 headless, WebGL software (SwiftShader), viewport 1280x720 landscape, 20 perpindahan Lobby↔Karakter setelah pemanasan.
+
+| Metrik | Sebelum (`main`, iframe) | Sesudah (`spa-tahap2`, view) |
+| --- | --- | --- |
+| `three.min.js` diunduh ulang per 20 perpindahan | 20 (satu per perpindahan, tipe script) | 0 |
+| Konteks WebGL baru per 20 perpindahan | satu set baru per dokumen (>=2 per halaman: renderer halaman + wajah karakter; Karakter juga renderer thumbnail) | 0 (total sesi 2: renderer bersama + renderer luring) |
+| Waktu pindah sampai modul tujuan mounted (rata-rata / maks) | 2712 ms / 3973 ms | 359-424 ms / 768-873 ms |
+| Memori JS heap setelah perpindahan | 15,7 MB (akhir) | 9,7 -> 18,9 MB (20x); 12,7 -> 10,9 MB (40x): mendatar, tidak naik terus |
+| Draw call halaman aktif | normal | normal (±1000-1500/dtk di SwiftShader) |
+| Error konsol/halaman (selain jaringan yang diblok) | tidak diukur | 0 |
+| Tombol Back setelah pindah | tidak diukur | kembali ke rute sebelumnya (`UT.Spa.current()`) |
+
+Catatan dan batas:
+- Waktu mutlak TIDAK mewakili HP (GPU software di sandbox); yang bermakna adalah rasio dan hitungan.
+- Angka sesudah di atas diambil setelah `character-face.js` dialihkan ke renderer luring bersama (sebelumnya 3 konteks total).
+- Konteks "sebelum" dihitung per dokumen iframe (tiap dokumen baru membuat ulang konteksnya); total GPU memory tidak diukur.
+- HP portrait memakai iframe (bukan view), jadi tidak tercakup ukuran ini. Verifikasi di HP oleh pemilik masih diperlukan.
