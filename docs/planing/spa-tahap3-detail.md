@@ -92,7 +92,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule (tanpa WebGL); `#view` -> `#mapview` (bentrok dengan shell); `UT.RoomFlow` lewat `UT.Spa.go`; Presence dimulai `app.js` (blok module inline tidak jalan di shell); smoke browser LULUS; cek HP belum |
 | inventory | B | - | - | |
 | hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
-| chest | B | - | - | |
+| chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | mail | B | - | - | |
 | settings | B | - | - | |
 | room | B | - | - | |
@@ -192,3 +192,14 @@ Belum: cek di HP fisik.
 - `tools/smoke-spa-pages.py` kini ikut memutar `hadiah-misi` (pemanasan, 20 putaran, tombol bisa diketuk, `mounted_akhir`), tetapi **belum dijalankan** (tidak ada Chrome/Chromium di sesi ini). Jalankan di mesin dengan Chrome: `CHROME=... N=20 python3 -I tools/smoke-spa-pages.py`.
 - Belum: smoke browser; klaim sungguhan (hadiah harian, misi, pencapaian) dengan akun server; cek HP fisik. Blok smoke khusus hadiah-misi (tab, klaim, Back/Gem/Coin) belum ditulis.
 - Urutan berikutnya: `chest`, `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Chest (tahap 3-8, Gelombang B, SW v307)
+
+- `assets/js/pages/chest.js` dibungkus `UT.PageModule.define('chest')`; `chest.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `chest.html` -> lobby di `play.js`. Tanpa WebGL sendiri.
+- **Listener global:** `document.addEventListener('click')` (delegasi tombol CLAIM/BUKA/CEPAT/AMBIL) dan `visibilitychange` kini lewat `env.on(document, ...)`; kalau tidak, tiap kunjungan menambah handler klik dan satu klik memicu aksi server berkali-kali.
+- **Boot di shell:** versi lama menunggu `window 'load'` bila server belum siap; di shell dokumen sudah `load` sehingga event itu tidak datang lagi. Kini `document.readyState==='complete'` menjalankan boot langsung.
+- Navigasi (Back, Gem -> `tambang.html?from=chest.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: ticker 1 dtk, timer toast, `resize`/`pageshow`/klik/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus), LiveSync (`wallet` + `stop`). Callback async (`reload`, `act`) dan `render`/`modal`/`toast` dijaga `env.disposed`.
+- Test: `tests/chest-module.test.js` (10 tes); `chest-service.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` ikut memutar `chest` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: aksi chest sungguhan (BUKA, CEPAT, AMBIL) dengan akun server; cek HP fisik.
+- Urutan berikutnya: `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.

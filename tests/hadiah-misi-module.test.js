@@ -34,7 +34,7 @@ t('hadiah-misi.html memuat page-module.js sebelum hadiah-misi.js', () => assert(
 t('halaman tidak punya id bentrok dengan shell (view, f, ov)', () => assert(!/id="(view|f|ov)"/.test(html)));
 t('spa-host dan frame-guard mengenal hadiah-misi; play.js punya prefetch', () => {
   assert(/'hadiah-misi\.html': 'hadiah-misi'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/mode\|hadiah-misi/.test(rd('assets/js/frame-guard.js')));
+  assert(/mode\|hadiah-misi[|)]/.test(rd('assets/js/frame-guard.js')));
   assert(/'hadiah-misi\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');

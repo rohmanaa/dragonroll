@@ -54,7 +54,7 @@ sesuai urutan.
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
 | 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Selesai, sudah di `main` (SW v294) |
 | 2 | Shell SPA, renderer bersama (pilot) | Selesai, sudah dimerge ke `main` |
-| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); hadiah-misi selesai (kode + test, SW v306; smoke browser BELUM dijalankan); cek HP belum. Sisa: Gelombang B (chest, mail, settings, room, frame) + inventory (dengan efek/pet/dadu/powerup/frame) |
+| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); hadiah-misi dan chest selesai (kode + test, SW v307; smoke browser BELUM dijalankan untuk keduanya); cek HP belum. Sisa: Gelombang B (mail, settings, room, frame) + inventory (dengan efek/pet/dadu/powerup/frame) |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
 
 Perbarui tabel ini di akhir tiap tahap.

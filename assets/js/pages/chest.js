@@ -1,6 +1,9 @@
 /* chest.js — halaman Chest. Semua status & hadiah = SERVER (chest_get / chest_claim_daily / chest_start / chest_open_now / chest_collect)
    lewat UT.WalletService. Klien hanya menampilkan; syarat main, waktu buka, biaya gem, dan isi hadiah ditentukan server (hari reset = WIB). */
-(()=>{
+/* Tahap 3 SPA: dibungkus UT.PageModule ('chest'); halaman mandiri otomatis mount, unmount() melepas timer, listener, langganan dan LiveSync.
+   Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
+UT.PageModule.define('chest',function(env){
+const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 const PD=window.PlayerData,IC='assets/images/ui/';
@@ -8,8 +11,9 @@ const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletServi
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(20)};
 const playSound=n=>{try{if(SET().sound)UT.Audio.play(n==='chest'?'chest':'button')}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
+const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
 const WM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','mode-lokal':'Masuk ke akun untuk memakai Chest.',
  'sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan penuh (10/10). Ambil chest dulu.',
  'slot-penuh':'Maksimal 3 chest diproses. Tunggu salah satu selesai.','sudah-dibuka':'Chest ini sudah dalam proses.','gem-kurang':'Gem tidak cukup.',
@@ -27,7 +31,7 @@ const resetSecs=()=>S?Math.max(0,S.seconds_to_reset-Math.floor((Date.now()-AT)/1
 const hms=s=>{s=Math.max(0,Math.ceil(s));return [s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':')};
 const clock=s=>{s=Math.max(0,Math.ceil(s));return s>=3600?hms(s):String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 
-function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 const bump=()=>['#cur-em','#cur-co'].forEach(s=>{const e=$(s);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')});
 
 /* ---- 3 kolom atas: chest yang SEDANG DIBUKA (timer / CEPAT / AMBIL). Klaim chest harian ada di Lobby. ---- */
@@ -68,6 +72,7 @@ function vStore(){
  return h+'</div>'}
 
 function render(){
+ if(env.disposed)return;
  $('#daily').className='sec';$('#store').className='sec';
  $('#daily').innerHTML=vDaily();$('#store').innerHTML=vStore();
  const old=$('.msg');if(old)old.remove();
@@ -75,15 +80,16 @@ function render(){
  renderCurrency()}
 
 /* ---- aksi (semua lewat server) ---- */
-async function reload(){const w=WS();if(!w)return;const r=await w.chestGet();if(apply(r))render()}
+async function reload(){const w=WS();if(!w)return;const r=await w.chestGet();if(env.disposed)return;if(apply(r))render()}
 async function act(call,onOk){
  if(busy)return;if(!SV()){toast(WM['mode-lokal']);return}
  busy=true;
  try{const w=WS(),r=w?await call(w):{ok:false,reason:'jaringan'};
+  if(env.disposed)return;
   if(r&&r.ok){apply(r);onOk&&onOk(r)}else{toast(WM[r&&r.reason]||'Gagal, coba lagi');await reload()}}
  finally{busy=false;render()}}
 const kindOf=id=>{const c=S&&S.chests.find(x=>x.id===id);return c?c.kind:'wood'};
-document.addEventListener('click',e=>{
+env.on(document,'click',e=>{
  const b=e.target.closest('button[data-claim],button[data-start],button[data-skip],button[data-collect]');if(!b||b.disabled)return;buzz();
  if(b.dataset.claim)return act(w=>w.chestClaimDaily(b.dataset.claim),()=>{playSound('button');toast('Chest masuk ke penyimpanan!')});
  const id=+(b.dataset.start||b.dataset.skip||b.dataset.collect);
@@ -96,7 +102,7 @@ document.addEventListener('click',e=>{
   if(r.xp>0)x+='<div class="rw">+'+fmt(r.xp)+' XP</div>';
   modal(KIND[k].nm+' Terbuka!',x,true)})}});
 
-function modal(t,x,fx){$('#mt').textContent=t;$('#mx').innerHTML=x;const md=$('#md');md.classList.toggle('fx',!!fx);
+function modal(t,x,fx){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;const md=$('#md');md.classList.toggle('fx',!!fx);
  const old=md.querySelector('.flash');if(old)old.remove();
  if(fx){const f=document.createElement('div');f.className='flash';md.appendChild(f)} /* kilatan cahaya lembut saat peti terbuka */
  md.classList.remove('on');void md.offsetWidth;md.classList.add('on');mOpen=true}
@@ -106,9 +112,10 @@ $('#back').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=chest.html'));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}
-UT.Events.on('currencyChanged',renderCurrency);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SV()&&!mOpen&&!busy)reload()});
+/* penjaga window.__curSub dihapus: dengan SPA langganan harus dipasang tiap mount dan dilepas saat unmount */
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){}
+env.own(UT.Events.on('currencyChanged',renderCurrency));
+env.on(document,'visibilitychange',()=>{if(!document.hidden&&SV()&&!mOpen&&!busy)reload()});
 
 /* ---- ticker 1 detik: timer, biaya cepat, reset harian; chest yang timernya habis -> render ulang ---- */
 setInterval(()=>{
@@ -125,7 +132,10 @@ setInterval(()=>{
 
 /* ---- mulai ---- */
 render();
-if(SV()&&WS()){WS().refresh().then(renderCurrency);reload()}
-else addEventListener('load',()=>{if(SV()&&WS()){WS().refresh().then(renderCurrency);reload()}});
-if(UT.LiveSync){UT.LiveSync.add('wallet',()=>WS().refresh());UT.LiveSync.start({interval:20000})}
-})();
+const boot=()=>{if(SV()&&WS()){WS().refresh().then(()=>{if(!env.disposed)renderCurrency()});reload()}};
+/* di shell dokumen sudah 'load': event load tidak akan datang lagi, jalankan langsung */
+if(SV()&&WS())boot();else if(document.readyState==='complete')boot();else addEventListener('load',boot);
+if(UT.LiveSync){UT.LiveSync.add('wallet',()=>WS().refresh());UT.LiveSync.start({interval:20000});
+ /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+ env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.stop()})}
+});
