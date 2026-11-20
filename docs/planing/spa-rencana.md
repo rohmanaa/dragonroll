@@ -1,6 +1,6 @@
 # Rencana Migrasi SPA (Satu Renderer WebGL)
 
-Status: rencana, tahap 1 belum dikerjakan. Branch kerja: `spa-pilot` (dari `main`).
+Status: tahap 1 SELESAI (2026-11-20, branch `spa-pilot`); tahap 2-4 belum. Lihat `README.md` untuk tabel status.
 Terakhir diperbarui: 2026-11-20.
 
 ## 1. Latar belakang dan tujuan
@@ -47,6 +47,11 @@ Bukan tujuan: mengubah tampilan, aturan game, atau data pemain.
   lihat bagian 6): `aura-view`, `blocky-actions`, `daily-reward-30`,
   `chest-service`, `karakter-equip` (`new Function(...)`), `pvp-knight-gear`.
 
+- **Update dari tahap 1:** halaman dijalankan di dalam `<iframe>` oleh pembungkus
+  `play.html` (musik, overlay, prefetch). Shell SPA sebaiknya memakai ulang
+  pembungkus ini. Rincian di `spa-tahap1-detail.md` bagian 10 dan
+  `spa-tahap2-detail.md` bagian 0.
+
 ## 3. Arsitektur target
 
 ```
@@ -77,6 +82,7 @@ Bungkus `lobby.js` dan `karakter.js` menjadi modul dengan `mount` dan `unmount`.
 Halaman mandiri otomatis memanggil `mount` sehingga perilaku sama.
 Selesai bila: semua test yang lulus sebelumnya tetap lulus, dua halaman
 terbuka normal secara mandiri, dan `unmount` membersihkan semua registrasi.
+**Status: selesai** (ceklis di `spa-tahap1-detail.md` bagian 9).
 
 ### Tahap 2 - Shell SPA dan renderer bersama
 

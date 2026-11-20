@@ -5,6 +5,35 @@ Prasyarat: tahap 1 selesai (Lobby dan Karakter sudah berupa modul
 Tujuan: Lobby ↔ Karakter berpindah tanpa muat ulang halaman, tanpa
 `three.min.js` baru, tanpa konteks WebGL baru.
 
+## 0. Temuan dari tahap 1 yang mengubah desain (BACA DULU)
+
+1. **`play.html` sudah menjadi shell.** Ia memuat tiap halaman di `<iframe id="f">`
+   (`assets/js/pages/play.js`), mengurus musik latar, overlay "Memuat halaman",
+   prefetch halaman berikutnya (`prefetchNext`), dan menerima `?go=<halaman>`.
+   `boot-guard.js` mengalihkan halaman yang dibuka langsung ke
+   `splash.html?next=...` kecuali `sessionStorage['ut:booted']==='1'` dan
+   `localStorage['ut-auth']` ada.
+2. **Dua opsi desain:**
+   - **Opsi A (disarankan): `play.html` tetap shell, iframe diganti tampilan modul.**
+     `#view` menggantikan `<iframe>`; musik/overlay/prefetch dipakai ulang; router
+     menjadi pengganti `f.src = go`. Perlu memindahkan `frame-guard.js` dan
+     `boot-guard.js` (halaman tidak lagi di iframe) dan mengganti
+     `UT.App.init({page})` per halaman dengan satu kali init di shell.
+   - **Opsi B: shell baru `app.html`.** Lebih bersih tetapi menduplikasi fungsi
+     musik/overlay/prefetch yang sudah ada di `play.js`.
+   Catat pilihan di `README.md` bagian "Catatan keputusan".
+3. **Sisa loop rAF setelah unmount** di Lobby berasal dari
+   `data/inventory/frame/_shared/js/frame-fx.js`. Beri `FrameFX` cara berhenti
+   (mis. `FrameFX.stop()` atau loop berhenti bila elemen bingkai terlepas) dan
+   daftarkan lewat `env.own`.
+4. **Callback async** (`pullXp`, `pullQuest`, `pullFriends`, `pullMail`,
+   `pullChest`, `pullMine`, `loadProgress().then`) di `lobby.js` perlu guard
+   `if(env.disposed)return` karena DOM sudah diganti setelah pindah halaman.
+5. **`UT.App.init({page})`** memasang listener/langganan global; panggil sekali
+   di shell dan sediakan cara memberi tahu halaman aktif (mis. `UT.App.setPage`).
+6. **Smoke test sudah ada:** `tools/smoke-page-module.py` (lihat README
+   `docs/planing`). Perluas untuk pindah rute 20x dan hitung konteks WebGL.
+
 ## 1. Komponen baru
 
 ### `assets/js/core/shared-gl.js` (`UT.SharedGL`)
@@ -48,7 +77,7 @@ UT.Router.start()                // baca lokasi awal, tangani Back/Forward
 - Judul dokumen mengikuti `title`.
 - Tombol Back/Forward browser dan tombol Back Android/Electron harus bekerja.
 
-### `app.html` (shell)
+### Shell (`app.html` atau `play.html`, lihat bagian 0)
 
 - Memuat sekali: CSS dasar, `three.min.js`, `item-registry`, `player-data`,
   `app.js`, `ui-core`, `live-sync`, `page-module`, `shared-gl`, `router`.

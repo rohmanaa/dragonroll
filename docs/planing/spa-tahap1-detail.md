@@ -1,5 +1,7 @@
 # SPA Tahap 1 - Modul Halaman (Rincian)
 
+**STATUS: SELESAI (2026-11-20)**, commit di branch `spa-pilot`, SW v294. Lihat ceklis dan catatan hasil di bagian bawah file ini.
+
 Bagian dari `spa-rencana.md`. Tujuan: ubah `lobby.js` dan `karakter.js` menjadi
 modul dengan `mount` dan `unmount`, tanpa mengubah perilaku halaman mandiri.
 
@@ -31,11 +33,12 @@ Semua fungsi mendaftarkan pembersihan otomatis dan tidak berjalan setelah
 | `requestAnimationFrame`, `cancelAnimationFrame` | loop animasi (loop berhenti sendiri setelah `unmount`) |
 | `addEventListener`, `removeEventListener` | pemanggilan bare (target `window`) |
 | `on(target, type, fn, opt)` | `document.addEventListener(...)` dan sejenis |
-| `ev(name, fn)` | `UT.Events.on(...)` |
-| `sub(fn)` | `PD.subscribe(...)` |
-| `amb(fn)` | `UT.Ambience.on(...)` |
+| `own(off)` | langganan yang mengembalikan fungsi pelepas: `env.own(UT.Events.on(...))`, `env.own(PD.subscribe(...))`, `env.own(UT.Ambience.on(...))` |
 | `observe(observer)` | `ResizeObserver` dan sejenisnya (`disconnect` saat unmount) |
-| `dispose(fn)` | cleanup khusus halaman (mis. `renderer.dispose()`, `LS.stop()`) |
+| `dispose(fn)` | alias `own`; cleanup khusus halaman (mis. `renderer.dispose()`, `LS.stop()`) |
+
+(Rancangan awal memakai `ev`/`sub`/`amb`; diganti satu `own(off)` generik karena
+semua API langganan di repo ini mengembalikan fungsi pelepas.)
 
 Skrip memakai bayangan variabel di awal body:
 
@@ -56,9 +59,8 @@ registrasi yang bukan pemanggilan bare yang diganti (daftar di bawah).
 ### `data/lobby/js/lobby.js`
 
 - Bungkus seluruh isi dalam `define('lobby', ...)`.
-- `UT.Events.on(` (3x) → `env.ev(`.
-- `PD.subscribe(` (2x) → `env.sub(`.
-- `UT.Ambience.on(` (1x) → `env.amb(`.
+- `UT.Events.on(` (3x), `PD.subscribe(` (2x), `UT.Ambience.on(` (1x) → dibungkus `env.own(...)`.
+- `UT.CharacterFace.watch(...)` → `env.own(...)` (watch kini mengembalikan pelepas).
 - `document.addEventListener` (1x) → `env.on(document, ...)`.
 - `LS.start(...)` di akhir file: daftarkan `env.dispose(() => LS.stop())`
   (cek dulu apakah `LiveSync` punya `stop`; bila belum, tambahkan).
@@ -69,7 +71,7 @@ registrasi yang bukan pemanggilan bare yang diganti (daftar di bawah).
 ### `data/inventory/character/_shared/js/karakter.js`
 
 - Bungkus seluruh isi dalam `define('karakter', ...)`.
-- `UT.Events.on(` (1x) → `env.ev(`; `PD.subscribe(` (1x) → `env.sub(`.
+- `UT.Events.on(` (1x) dan `PD.subscribe(` (1x) → `env.own(...)`.
 - Hapus guard `window.__curSub` (diganti pelepasan lewat `env.sub`).
 - `new ResizeObserver(fit)` → `env.observe(new ResizeObserver(fit))`.
 - `window.BlockyCharacter = {...}` (baris ±1821): tetap di `window`, karena
@@ -129,3 +131,63 @@ Jalankan seluruh test sebelum dan sesudah tiap langkah; bandingkan daftar gagal.
 3. Bungkus `lobby.js` dan ganti titik registrasi; jalankan test dan smoke test.
 4. Bungkus `karakter.js` dan ganti titik registrasi; jalankan test dan smoke test.
 5. Naikkan versi SW, regenerasi manifest, commit di branch `spa-pilot`.
+
+## 9. Ceklis tahap 1
+
+- [x] `assets/js/core/page-module.js` ditulis (`create/define/mount/unmount/isMounted/managed`, env pelacak)
+- [x] `tests/page-module.test.js`: 18 tes lulus
+- [x] `page-module.js` dimuat di `lobby.html` dan `karakter.html` sebelum skrip halaman
+- [x] `lobby.js` dibungkus `define('lobby')`; semua titik registrasi diganti (own/on/dispose)
+- [x] `karakter.js` dibungkus `define('karakter')` (sudah berupa IIFE, jadi tinggal diganti pembungkusnya); guard `window.__curSub` dihapus
+- [x] `LiveSync.remove(name)` ditambahkan; lobby melepas 8 tugas dan `LS.stop()` saat unmount
+- [x] `CharacterFace.watch` mengembalikan fungsi pelepas (langganan PlayerData dan `pageshow`)
+- [x] Disposer renderer: geometri/material/tekstur adegan + `renderer.dispose()`
+- [x] Seluruh test: sama dengan baseline (hanya 5 gagal lama; tidak ada kegagalan baru)
+- [x] Smoke test Chrome headless (`tools/smoke-page-module.py`): Lobby dan Karakter mounted, `unmount` → 0 draw call WebGL, mount ulang → render lagi
+- [x] `sw.js` VERSION v293 → v294, `gen-preload-manifest.py` dijalankan, tes SW lulus
+- [x] Commit di branch `spa-pilot`
+- [ ] Verifikasi manual di HP oleh pemilik (halaman mandiri harus tampil/berperilaku sama)
+- [ ] Merge `spa-pilot` ke `main` (menunggu persetujuan pemilik)
+
+## 10. Catatan hasil dan temuan (penting untuk tahap 2)
+
+Hasil smoke test (Chrome headless + SwiftShader, tanpa jaringan Supabase):
+
+| Halaman | Draw call/detik saat mounted | Draw call 1,5 dtk setelah unmount | Mount ulang |
+| --- | --- | --- | --- |
+| lobby | ±2680 | 0 | render lagi |
+| karakter | ±1600 | 0 | render lagi |
+
+Temuan:
+
+1. **Arsitektur sebenarnya: `play.html` membungkus tiap halaman dalam `<iframe>`.**
+   `boot-guard.js` mengalihkan halaman yang dibuka langsung ke `splash.html?next=...`
+   kecuali `sessionStorage['ut:booted']==='1'` dan ada `localStorage['ut-auth']`.
+   Halaman Lobby dan Karakter berjalan di dalam iframe `play.html`; wrapper itu
+   sudah mengurus musik, layar memuat, dan prefetch. Ini memengaruhi desain tahap 2
+   (lihat `spa-tahap2-detail.md`, bagian 0).
+2. **Sisa loop `requestAnimationFrame` setelah unmount Lobby (±60/detik) berasal dari
+   `data/inventory/frame/_shared/js/frame-fx.js`** (animasi bingkai avatar), bukan dari
+   modul. Draw call WebGL tetap 0. Di tahap 2 loop ini harus berhenti sendiri saat
+   elemen bingkai tidak ada di DOM (atau FrameFX menyediakan `stop()` yang dipanggil
+   lewat `env.own`).
+3. **Callback async setelah unmount.** Di `lobby.js`, `pullXp/pullQuest/pullFriends/
+   pullMail/pullChest/pullMine` dan `loadProgress().then(...)` adalah promise yang
+   bisa selesai setelah `unmount`; mereka menyentuh DOM (`$('#...')`). Saat ini error
+   tertangkap `.catch`, tetapi di SPA DOM sudah diganti; tambahkan guard
+   `if(env.disposed)return` di awal callback tersebut (tahap 2).
+4. **`PageShell`/`UT.App.init({page})` tidak ikut modul.** `UT.App.init` dipanggil dari
+   HTML dan memasang listener/langganan global sendiri (musik, tombol, sinkron).
+   Di SPA perlu dipanggil sekali oleh shell, bukan per halaman.
+5. **`window.BlockyCharacter`** (di `karakter.js`) tetap ditulis ke `window` tiap mount;
+   aman diulang. `lobby.js`/`karakter.js` tidak mengekspor global lain (fungsi
+   level-atas kini lokal modul; tidak ada pemakai luar yang ditemukan).
+6. **Test yang sensitif bentuk teks:** `lobby-appearance.test.js` mencocokkan pola
+   `PD.subscribe(r=>{if(r==='equip'...});` di `lobby.js`. Pembungkusan
+   `env.own(PD.subscribe(...))` merusak pola itu, jadi dipakai
+   `const unsubHero=PD.subscribe&&PD.subscribe(...);env.own(unsubHero);`.
+   Untuk halaman berikutnya, periksa test yang `readFileSync` skrip halaman sebelum
+   mengubah bentuk baris.
+7. **Renderer yang dibuat di dalam `try` pada `lobby.js`** tetap dibuat dengan
+   `new THREE.WebGLRenderer` (belum bersama). Itu sengaja: berbagi renderer adalah tahap 2.
+8. Versi cache-bust `karakter.js?v=218` → `?v=219` di `karakter.html`.

@@ -52,7 +52,7 @@ sesuai urutan.
 | Tahap | Isi | Status |
 | --- | --- | --- |
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
-| 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Belum dimulai (rencana siap) |
+| 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | **Selesai** di branch `spa-pilot` (SW v294); menunggu cek HP dan merge |
 | 2 | Shell SPA, router, renderer bersama (pilot) | Belum |
 | 3 | Migrasi halaman lain | Belum |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
@@ -79,14 +79,24 @@ git add -A && python3 tools/gen-preload-manifest.py && node tests/sw-incremental
 npx http-server -p 30002
 ```
 
-Chrome headless tersedia di lingkungan kerja AI sebelumnya (`google-chrome`);
-Playwright Python terpasang tapi browser bawaannya belum diunduh, jadi pakai
-Chrome sistem lewat `executable_path`.
+Smoke test Chrome headless: `python3 -I tools/smoke-page-module.py` (butuh
+`pip install playwright` dan `google-chrome` di `/usr/bin`; skrip memakai Chrome
+sistem lewat `executable_path`, menanam `ut-auth` dan `ut:booted` untuk melewati
+boot-guard, dan membuka halaman lewat `play.html?go=<halaman>`).
+
+## Temuan arsitektur penting
+
+`play.html` adalah pembungkus: tiap halaman (lobby, karakter, dst.) berjalan dalam
+`<iframe id="f">` di dalamnya; wrapper mengurus musik, layar memuat, dan prefetch.
+`boot-guard.js` melempar halaman yang dibuka langsung ke `splash.html?next=...`
+kecuali sesi (`ut-auth`) dan `ut:booted` ada. Konsekuensinya, pindah halaman
+sekarang = muat dokumen baru di iframe yang sama (konteks WebGL dibuat ulang).
+Rincian dan opsi desain ada di `spa-tahap2-detail.md` bagian 0.
 
 ## Keputusan terbuka (jawab sebelum tahap 2)
 
 1. Router: hash (`#/lobby`) atau History API. Usulan: hash.
-2. Shell baru (`app.html`) atau memperluas `lobby.html`. Usulan: shell baru.
+2. Shell baru (`app.html`), memperluas `lobby.html`, atau MEMAKAI `play.html` sebagai shell (ia sudah pembungkus yang mengurus musik/overlay). Usulan: jadikan `play.html` shell dan ganti iframe dengan tampilan modul (lihat tahap 2, bagian 0).
 3. `gameplay.html`/`play.html` masuk SPA atau tetap terpisah. Usulan: tetap
    terpisah sampai tahap 4 selesai.
 4. Transisi antar halaman: spinner gaya Inventory yang sudah ada di `main`.
