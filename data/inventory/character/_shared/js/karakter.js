@@ -1,5 +1,7 @@
-/* karakter.js — dipindah dari <script> inline (karakter.html). */
-(function(){
+/* karakter.js — dipindah dari <script> inline (karakter.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('karakter').
+   Halaman mandiri otomatis mount; unmount() melepas rAF, listener, observer, langganan, dan renderer. */
+UT.PageModule.define('karakter',function(env){
+const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
 if(typeof THREE==='undefined'||!window.ItemCatalog||!window.PlayerData){document.body.insertAdjacentHTML('beforeend','<p style="padding:20px;font:16px sans-serif">Halaman karakter gagal dimuat. Muat ulang halaman.</p>');return;}
 
 /* ================================================================
@@ -1179,9 +1181,9 @@ $('#shp').addEventListener('click',()=>{location.href='shop.html';});
 $('#cur-em').addEventListener('click',()=>{location.href='tambang.html?from=karakter.html'});$('#cur-co').addEventListener('click',()=>{location.href='shop.html?coin=1'});
 function setMode(m){mode=m;}
 function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 renderCurrency();
-try{UT.Events.on('currencyChanged',renderCurrency);}catch(e){}
+try{env.own(UT.Events.on('currencyChanged',renderCurrency));}catch(e){}
 
 const CATS=[
   {key:'gender',label:'⚧ Gender',type:'gender'},
@@ -1749,7 +1751,7 @@ function fit(){
     }
   }catch(e){}
 }
-try{new ResizeObserver(fit).observe(showEl);}catch(e){addEventListener('resize',fit);}
+try{const ro=env.observe(new ResizeObserver(fit));ro.observe(showEl);}catch(e){addEventListener('resize',fit);}
 function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')'}
 addEventListener('resize',fitStage);fitStage();
 fit();
@@ -1816,6 +1818,8 @@ function frame(now){
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);
+/* unmount: buang geometri/material/tekstur adegan + renderer (tahap 2: diganti pelepasan renderer bersama) */
+env.own(()=>{try{scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});renderer.dispose()}catch(e){console.error('[karakter] dispose gagal',e)}});
 
 // API untuk game / editor luar
 window.BlockyCharacter={
@@ -1826,4 +1830,4 @@ window.BlockyCharacter={
   catalog:{REG,DYES,SKINS,PRESETS},
   setMode,jump
 };
-})();
+});

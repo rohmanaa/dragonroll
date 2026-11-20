@@ -65,6 +65,11 @@
       tasks.push({ name: name, fn: fn, minGap: (opts && opts.minGap) || 0, last: -1e15 });
       return true;
     },
+    remove: function (name) {
+      var n = tasks.length;
+      tasks = tasks.filter(function (k) { return k.name !== name; });
+      return tasks.length !== n;
+    },
     start: function (o) {
       if (o) for (var k in o) if (k in cfg && typeof o[k] === 'number') cfg[k] = o[k];
       running = true; bind(); schedule();

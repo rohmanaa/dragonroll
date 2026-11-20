@@ -72,8 +72,10 @@
     var h = html(); el.innerHTML = h || (fb ? fb() : '');
   }
   function watch(fn) {
-    try { if (win.PlayerData && win.PlayerData.subscribe) win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fn(); }); } catch (e) {}
-    win.addEventListener('pageshow', function (e) { if (e.persisted) fn(); });
+    var unsub = null, onShow = function (e) { if (e.persisted) fn(); };
+    try { if (win.PlayerData && win.PlayerData.subscribe) unsub = win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fn(); }); } catch (e) {}
+    win.addEventListener('pageshow', onShow);
+    return function () { if (typeof unsub === 'function') unsub(); win.removeEventListener('pageshow', onShow); };
   }
   UT.CharacterFace = { url: url, urlPreset: urlPreset, urlData: urlData, html: html, mount: mount, watch: watch };
 })(window);

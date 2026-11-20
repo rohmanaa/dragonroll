@@ -1,4 +1,7 @@
-/* lobby.js — dipindah dari <script> inline (lobby.html). */
+/* lobby.js — dipindah dari <script> inline (lobby.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('lobby').
+   Halaman mandiri otomatis mount; unmount() melepas timer, rAF, listener, langganan, LiveSync, dan renderer. */
+UT.PageModule.define('lobby',function(env){
+const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 const PD=window.PlayerData,AR=window.ItemArt;
 const SET=()=>PD.settings();
@@ -17,10 +20,10 @@ function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),pct=Math.mi
  $('#lvnum').textContent=i.level;$('#xptxt').textContent=fmt(i.xpIn)+' / '+fmt(i.xpMax);$('#xpfill').style.width=pct+'%';
  const l=$('#ht-lv'),p=$('#ht-pct'),f=$('#ht-fill');if(l)l.textContent=i.level;if(p)p.textContent=pct.toFixed(1)+'%';if(f)f.setAttribute('width',Math.max(0,326*pct/100))}
 /* event: UI ikut berubah tanpa reload halaman */
-UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()});
-if(PD.subscribe)PD.subscribe(()=>{renderName();renderXp();renderCurrency()});
-UT.Events.on('skinChanged',()=>{renderAvatar();buildHero()});
-UT.Events.on('frameChanged',applyFrame);
+env.own(UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()}));
+if(PD.subscribe)env.own(PD.subscribe(()=>{renderName();renderXp();renderCurrency()}));
+env.own(UT.Events.on('skinChanged',()=>{renderAvatar();buildHero()}));
+env.own(UT.Events.on('frameChanged',applyFrame));
 
 /* ---------- navigasi (peta ACT) ---------- */
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
@@ -85,10 +88,12 @@ try{
    applyMood();
   }
   setMood(window.UT.Ambience?window.UT.Ambience.resolved():'day',true);
-  if(window.UT.Ambience)window.UT.Ambience.on(detail=>setMood(detail.resolved,false));
+  if(window.UT.Ambience)env.own(window.UT.Ambience.on(detail=>setMood(detail.resolved,false)));
   G3=true;
  }
 }catch(e){console.error('[lobby] gagal membuat adegan 3D',e);G3=false;renderer=null}
+/* unmount: buang geometri/material/tekstur adegan + renderer (tahap 2: diganti pelepasan renderer bersama) */
+env.own(()=>{try{if(scene)scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});if(renderer)renderer.dispose()}catch(e){console.error('[lobby] dispose gagal',e)}G3=false});
 function applyLights(){
  if(!renderer)return;
  const highQuality=!isLow();
@@ -117,7 +122,7 @@ function buildHero(){
 }
 function syncAura(){try{if(!(UT.AuraView&&UT.AuraFX))return;if(!AUR)AUR=UT.AuraView.create(scene,cam);scene.updateMatrixWorld(true);AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})}catch(e){console.error('[lobby] gagal memasang efek aura',e)}}
 buildHero();
-PD.subscribe&&PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();else if(r==='server-appearance'||r==='server-outfits'){renderAvatar();buildHero()}});
+const unsubHero=PD.subscribe&&PD.subscribe(r=>{if(r==='equip'||r==='pageshow'||r==='storage')buildHero();else if(r==='server-appearance'||r==='server-outfits'){renderAvatar();buildHero()}});env.own(unsubHero);
 addEventListener('pageshow',e=>{if(e.persisted)buildHero()});
 const lobbyActs=[
  [[0,()=>bc.setMode('run')],[1.5,()=>bc.act('flip')],[2.5,()=>bc.setMode('idle')]],
@@ -152,7 +157,7 @@ $('#stage').addEventListener('pointerdown',event=>{
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';fit3d()}
 if(G3){
  let lastFrame=null,frameDebt=0;
- document.addEventListener('visibilitychange',()=>{lastFrame=null;frameDebt=0});
+ env.on(document,'visibilitychange',()=>{lastFrame=null;frameDebt=0});
  (function loop(ts){
   requestAnimationFrame(loop);
   if(document.hidden){lastFrame=ts;frameDebt=0;return}
@@ -169,7 +174,7 @@ if(G3){
 addEventListener('resize',fit);addEventListener('ut-ambience',()=>{applyLights();fit()});fit();
 
 /* ---------- init + sinkron server ---------- */
-renderAvatar();if(UT.CharacterFace)UT.CharacterFace.watch(renderAvatar);applyFrame();renderName();renderCurrency();renderXp();
+renderAvatar();if(UT.CharacterFace)env.own(UT.CharacterFace.watch(renderAvatar));applyFrame();renderName();renderCurrency();renderXp();
 const SRV=!!(PD.serverMode&&PD.serverMode());
 /* B5: akun login + flag -> saldo & inventory dari server */
 if(SRV&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh();
@@ -235,4 +240,6 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('mine',pullMine,{minGap:40000});
  LS.add('chest',pullChest,{minGap:20000});
  LS.start({interval:20000});
+ env.own(()=>{LS.stop();['wallet','xp','appearance','friends','mail','quest','mine','chest'].forEach(k=>LS.remove&&LS.remove(k))});
 }
+});
