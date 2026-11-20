@@ -50,7 +50,7 @@ t('mode.html memuat page-module.js sebelum mode.js; blok module Presence tetap u
 });
 t('spa-host, frame-guard mengenal mode; app.js memulai Presence untuk halaman mode; play.js punya prefetch mode', () => {
   assert(/'mode\.html': 'mode'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/friendship\|shop\|mode\)/.test(rd('assets/js/frame-guard.js')));
+  assert(/friendship\|shop\|mode[|)]/.test(rd('assets/js/frame-guard.js')));
   assert(/'mail','mode'\]\.indexOf\(UT\.App\.page\)/.test(rd('assets/js/core/app.js')));
   assert(/'mode\.html': \['gameplay\.html', 'room\.html', 'lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });

@@ -1,5 +1,7 @@
-/* hadiah-misi.js — dipindah dari blok script inline (hadiah-misi.html). */
-(()=>{
+/* hadiah-misi.js — dipindah dari blok script inline (hadiah-misi.html). Tahap 3 SPA: dibungkus UT.PageModule ('hadiah-misi'); halaman mandiri otomatis mount,
+   unmount() melepas timer, listener, langganan (PlayerData, Events) dan LiveSync. Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
+UT.PageModule.define('hadiah-misi',function(env){
+const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Semua status & klaim = SERVER: hadiah harian (daily_reward_get / claim_daily_reward) dan misi (quest_get / quest_claim*) lewat UT.WalletService.
@@ -24,13 +26,16 @@ function rewardBurst(el,kind,tier){
  if(FX&&typeof FX.n==='function'&&typeof FX.limit==='function'&&typeof PF.configure==='function')PF.configure({maxParticles:FX.limit(),maxBurst:FX.n(18,'L4')});
  PF.burstFromElement(el,Object.assign({},s,{count:FX&&typeof FX.n==='function'?FX.n(s.count,actualTier):s.count,duration:620,seed,fid:'reward-claim-'+seq}));
 }
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
+const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
 const WM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Sudah diklaim.','belum-selesai':'Misi belum selesai.','terkunci':'Selesaikan semua misi dulu.','mode-lokal':'Masuk ke akun untuk mengklaim.'};
 const bump=()=>['#cur-em','#cur-co'].forEach(s=>{const e=$(s);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')});
 
 /* ---- tab ---- */
-const Q0=new URLSearchParams(location.search).get('tab');
+/* di shell location.search milik play.html (?go=...): parameter halaman (?tab=) diambil dari URL rute aktif */
+const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='hadiah-misi'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const Q0=new URLSearchParams(search()).get('tab');
 let tab=(Q0==='misi'||Q0==='daily')?'misi':(Q0==='ach'||Q0==='achievement')?'ach':'hadiah';
 
 /* ---- hadiah harian (server) ---- */
@@ -47,11 +52,12 @@ const R=[
 function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,today:!!r.claimed_today,box:+r.box||0};DRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const dState=i=>!SD?'wait':i<SD.claimed?'done':(i===SD.claimed&&!SD.today&&SD.claimed<DAYS)?'now':'wait';
 const dayNow=()=>!!SD&&!SD.today&&SD.claimed<DAYS;
-async function reloadD(){const w=WS();if(!w)return;const d=await w.dailyGet();if(applyDaily(d))render()}
+async function reloadD(){const w=WS();if(!w)return;const d=await w.dailyGet();if(env.disposed)return;if(applyDaily(d))render()}
 async function claimDay(target){
  if(dbusy)return;if(!SV()){toast(WM['mode-lokal']);return}
  dbusy=true;
  try{const w=WS(),r=w?await w.claimDaily():{ok:false,reason:'jaringan'};
+  if(env.disposed)return;
   if(!r.ok){toast(WM[r.reason]||'Klaim gagal.');await reloadD();return}
   const row=R[(r.day||1)-1]||R[0];let msg=row.t;
   if(r.type==='box')msg='Mystery Box ×1 diterima! Buka lewat halaman Hadiah Harian.';
@@ -76,10 +82,10 @@ const QI={login:'item-icons/kalender',play:'item-icons/pedang-silang',win:'item-
 function applyQ(r){if(!r||!Array.isArray(r.quests))return false;QS=r;QRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const qList=()=>QS?QS.quests.map(q=>{const d=Q.DEFS.find(x=>x.id===q.id)||{};return{id:q.id,title:d.title||q.id,desc:d.desc||'',goal:q.goal,reward:q.reward,progress:Math.min(q.goal,q.progress),status:q.status}}):[];
 const bonusSt=()=>QS?QS.bonus.status:'locked',bonusRw=()=>QS?QS.bonus.reward:Q.BONUS;
-async function reloadQ(){const w=WS();if(!w)return;if(applyQ(await w.questGet())){await w.refresh();render()}}
+async function reloadQ(){const w=WS();if(!w)return;const q=await w.questGet();if(env.disposed)return;if(applyQ(q)){await w.refresh();if(env.disposed)return;render()}}
 async function srvClaim(call,onOk){
  if(qbusy)return;if(!SV()){toast(WM['mode-lokal']);return}
- qbusy=true;try{const r=await call(WS());if(r&&r.ok)onOk(r);else toast(WM[r&&r.reason]||'Gagal klaim, coba lagi');await reloadQ()}finally{qbusy=false}render();renderCurrency()}
+ qbusy=true;try{const r=await call(WS());if(env.disposed)return;if(r&&r.ok)onOk(r);else toast(WM[r&&r.reason]||'Gagal klaim, coba lagi');await reloadQ()}finally{qbusy=false}render();renderCurrency()}
 function vMisi(){
  const L=qList(),rdyN=L.filter(q=>q.status==='ready').length,bs=bonusSt();
  if(!QS)return '<div class="msg">'+(SV()?'Memuat misi…':'Masuk ke akun untuk<br>membuka misi harian.')+'</div>';
@@ -108,18 +114,20 @@ const aList=()=>AC.info(SP);
 async function loadSP(){
  if(!SV())return;
  try{await import('../../../assets/js/multiplayer/progress-service.js');const sp=await UT.Multiplayer.Progress.getMyProfile();
+  if(env.disposed)return;
   if(sp){SP=sp.exists?sp:{counters:{},claims:{}};SPS='ok'}else if(SPS!=='ok')SPS='error'}
- catch(e){console.warn('[achievement] gagal memuat',e);if(SPS!=='ok')SPS='error'}
+ catch(e){if(env.disposed)return;console.warn('[achievement] gagal memuat',e);if(SPS!=='ok')SPS='error'}
  render()}
 async function claimAch(id,target){
  const a=aList().find(x=>x.id===id);if(!a||a.pend<1||abusy)return;abusy=true;
  try{await import('../../../assets/js/multiplayer/progress-service.js');
   const r=await UT.Multiplayer.Progress.claimAchievement(id,null),stars=Math.min(3,+(r&&r.stars)||0);
+  if(env.disposed)return;
   if(!r||!r.ok){SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:Math.max(a.cl,+(r&&r.claimed)||0)})});toast('Belum ada reward untuk diklaim');return}
   SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:stars})});
   PD.applyServerWallet({coins:r.wallet_coins,gems:r.wallet_gems});
   const rw=AC.reward(a.cl,stars,a.rew),def=AC.ACH.find(x=>x[0]===id),rank=def&&def[5]==='legendaris'?'legendary':'mixed';playSound('claim');buzz();bump();toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald');rewardBurst(target,rank)}
- catch(e){console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.')}
+ catch(e){if(env.disposed)return;console.warn('[achievement] klaim gagal',e);toast('Butuh koneksi untuk klaim.')}
  finally{abusy=false;render();renderCurrency()}}
 function vAch(){
  if(!SV())return '<div class="msg">Masuk ke akun untuk<br>melihat pencapaian.</div>';
@@ -140,8 +148,9 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 function resetIn(at){const s=Math.max(0,Math.ceil((at-Date.now())/1000));return [s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':')}
 const badge=n=>n?'<span class="bd"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>'+n+'</b></span>':'';
 const cnt={misi:()=>qList().filter(q=>q.status==='ready').length+(bonusSt()==='ready'?1:0),hadiah:()=>dayNow()?1:0,ach:()=>SPS==='ok'?aList().filter(a=>a.pend>0).length:0};
-function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function render(){
+ if(env.disposed)return;
  const L=[['hadiah','HADIAH','item-icons/kado-merah'],['misi','MISI','missions/ikon-tab-harian-centang'],['ach','PENCAPAIAN','missions/ikon-tab-pencapaian-medali']];
  $('#tabs').innerHTML=L.map(a=>'<button class="tab'+(tab===a[0]?' on':'')+'" data-k="'+a[0]+'"><img class="ul" src="'+IC+'navigation-icons/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
  const sc=($('#alist')||{}).scrollTop||0, qsc=($('#qlist')||{}).scrollTop||0, dsc=($('#dlist')||{}).scrollTop||0;
@@ -154,14 +163,15 @@ function render(){
 
 /* ---- modal ---- */
 let mOpen=false;
-function modal(t,x){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#md').classList.add('on');mOpen=true}
+function modal(t,x){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#md').classList.add('on');mOpen=true}
 const closeM=()=>{$('#md').classList.remove('on');mOpen=false};
 $('#m-ok').addEventListener('click',closeM);
 $('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&mOpen)closeM()});
 
 /* ---- aksi ---- */
-function setTab(k){tab=k;try{history.replaceState(null,'','?tab='+k)}catch(e){}render();if(k==='misi'&&!setTab.t){setTab.t=1;trackLogin()}}
+function setTab(k){tab=k;if(!(UT.Spa&&UT.Spa.go)){try{history.replaceState(null,'','?tab='+k)}catch(e){}}   /* di shell URL milik play.html: jangan diubah */
+ render();if(k==='misi'&&!setTab.t){setTab.t=1;trackLogin()}}
 function trackLogin(){const w=WS();if(SV()&&w)w.questTrack('login').then(()=>reloadQ())}   /* membuka Misi = login hari ini (dilaporkan ke server) */
 $('#tabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(t&&t.dataset.k!==tab){buzz();setTab(t.dataset.k)}});
 $('#body').addEventListener('click',e=>{
@@ -179,8 +189,9 @@ $('#body').addEventListener('click',e=>{
 $('#back').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=hadiah-misi.html'));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}
-UT.Events.on('currencyChanged',renderCurrency);
+/* penjaga window.__curSub dihapus: dengan SPA langganan harus dipasang tiap mount dan dilepas saat unmount */
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){}
+env.own(UT.Events.on('currencyChanged',renderCurrency));
 
 /* ---- hitung mundur (hari reset WIB) ---- */
 let rf=0;
@@ -189,15 +200,17 @@ setInterval(()=>{
  if(SD&&Date.now()>=DRESET&&!rf){rf=1;reloadD().finally(()=>setTimeout(()=>{rf=0},3000))}
  if(QS&&Date.now()>=QRESET&&!rf){rf=1;reloadQ().finally(()=>setTimeout(()=>{rf=0},3000))}
 },1000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SV()&&!mOpen){reloadD();if(tab==='misi'||QS)reloadQ();loadSP()}});
+env.on(document,'visibilitychange',()=>{if(!document.hidden&&SV()&&!mOpen){reloadD();if(tab==='misi'||QS)reloadQ();loadSP()}});
 
 render();
 document.documentElement.classList.add('ut-ready');
 if(SV()&&WS()){
- WS().refresh().then(renderCurrency);          /* saldo dari server */
+ WS().refresh().then(()=>{if(!env.disposed)renderCurrency()});          /* saldo dari server */
  reloadD();                                     /* hadiah harian */
  if(tab==='misi'){setTab.t=1;trackLogin()}else reloadQ();
  loadSP();
- if(UT.LiveSync){UT.LiveSync.add('wallet',()=>WS().refresh());UT.LiveSync.add('ach',()=>loadSP().then(()=>({ok:SPS==='ok'})),{minGap:30000});UT.LiveSync.start({interval:20000})}
+ if(UT.LiveSync){UT.LiveSync.add('wallet',()=>WS().refresh());UT.LiveSync.add('ach',()=>loadSP().then(()=>({ok:SPS==='ok'})),{minGap:30000});UT.LiveSync.start({interval:20000});
+  /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+  env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.remove('ach');UT.LiveSync.stop()})}
 }
-})();
+});

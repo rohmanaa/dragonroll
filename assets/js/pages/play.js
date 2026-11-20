@@ -194,7 +194,7 @@
     'lobby.html': ['mode.html', 'shop.html', 'karakter.html', 'profile.html'],
     'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
     'room.html': ['gameplay.html', 'mode.html'],
-    'shop.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
+    'shop.html': ['lobby.html'], 'hadiah-misi.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
     'profile.html': ['lobby.html', 'tambang.html'], 'leaderboard.html': ['lobby.html'], 'tambang.html': ['lobby.html', 'shop.html'], 'friendship.html': ['lobby.html']
   }, warmed = {};
   function warm(page) {

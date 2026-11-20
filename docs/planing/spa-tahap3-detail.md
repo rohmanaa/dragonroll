@@ -91,7 +91,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
 | mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule (tanpa WebGL); `#view` -> `#mapview` (bentrok dengan shell); `UT.RoomFlow` lewat `UT.Spa.go`; Presence dimulai `app.js` (blok module inline tidak jalan di shell); smoke browser LULUS; cek HP belum |
 | inventory | B | - | - | |
-| hadiah-misi | B | - | - | |
+| hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
 | chest | B | - | - | |
 | mail | B | - | - | |
 | settings | B | - | - | |
@@ -179,3 +179,16 @@ Belum: cek di HP fisik.
 - Smoke (`CHROME=... N=20 python3 -I tools/smoke-spa-pages.py`, Chromium 157 headless, SwiftShader, 7 view): LULUS. 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 11,0 -> 11,9 MB, mount mode ~31 ms (maks 59). Blok mode di smoke memeriksa: `#view` tunggal, 3 peta/3 titik/5 tile/12 opsi; panah (WORLD -> NETHER -> THE END terkunci + toast -> WORLD); geser di peta mengganti peta, geser DI LUAR peta tidak; satu tile terbuka sekaligus, Escape menutup; Quick Start membuka modal dan BATAL menutupnya; Quick Start Team sampai "LAWAN DITEMUKAN" dan `game:start` (dicegat) membawa konfigurasi benar (ranked, team, 4 pemain, map); Coin -> Toko tab coin (view), Gem -> Tambang `?from=mode.html` dan Back kembali ke mode, Back -> lobby; VS Computer -> `room.html?mode=vsc&format=solo&count=2` di iframe dan shell tidak ditinggalkan; tidak ada sisa DOM/CSS/kelas `dm`.
 - Belum: cek HP fisik (dan jalur HP portrait yang tetap iframe); peluncuran gameplay sungguhan dari Quick Start di browser (smoke mencegat `game:start`; rute `UT.Spa.go('gameplay.html?...')` + overlay `now` hanya diuji unit/statis); Presence dengan sesi server sungguhan (smoke memakai login palsu tanpa jaringan).
 - Urutan berikutnya: `hadiah-misi`, `chest`, `mail`, `settings`, `room` (memakai `room-modal-bridge.js`; `RoomFlow` sudah siap lewat shell), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Hadiah-misi (tahap 3-7, Gelombang B, SW v306)
+
+- `assets/js/pages/hadiah-misi.js` dibungkus `UT.PageModule.define('hadiah-misi')`; `hadiah-misi.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS), `frame-guard.js`, prefetch `hadiah-misi.html` -> lobby di `play.js`. Tanpa WebGL sendiri, jadi tidak memakai `SharedGL`. Efek partikel hadiah (`UT.ParticleFX`) tetap dari `particle-fx.js` yang dimuat host.
+- `?tab=misi|ach` dibaca dari URL rute aktif (`UT.Spa.current().url`), bukan `location.search` milik `play.html`.
+- **`history.replaceState('?tab=')` dimatikan di shell** (di shell URL milik `play.html?go=...`; mengubahnya merusak reload). Halaman mandiri dan iframe tetap memakainya.
+- Navigasi (Back, Gem -> `tambang.html?from=hadiah-misi.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade 330 ms + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: `setInterval` hitung mundur reset (1 dtk), timer toast, `resize`/`keydown`/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus), LiveSync (`wallet` + `ach`, lalu `stop`).
+- Callback async (`reloadD`, `claimDay`, `reloadQ`, `srvClaim`, `loadSP`, `claimAch`, `wallet.refresh`) dijaga `env.disposed`.
+- Test: `tests/hadiah-misi-module.test.js` (11 tes); `tests/spa-host.test.js` diperluas; pola regex `frame-guard` di `tests/mode-module.test.js` dilonggarkan (daftar halaman bertambah). Seluruh test: sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` kini ikut memutar `hadiah-misi` (pemanasan, 20 putaran, tombol bisa diketuk, `mounted_akhir`), tetapi **belum dijalankan** (tidak ada Chrome/Chromium di sesi ini). Jalankan di mesin dengan Chrome: `CHROME=... N=20 python3 -I tools/smoke-spa-pages.py`.
+- Belum: smoke browser; klaim sungguhan (hadiah harian, misi, pencapaian) dengan akun server; cek HP fisik. Blok smoke khusus hadiah-misi (tab, klaim, Back/Gem/Coin) belum ditulis.
+- Urutan berikutnya: `chest`, `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
