@@ -1,6 +1,8 @@
-/* tambang.js — dipindah dari <script> inline (tambang.html). */
-(()=>{
+/* tambang.js — dipindah dari <script> inline (tambang.html). Tahap 3 SPA: dibungkus UT.PageModule ('tambang');
+   halaman mandiri otomatis mount, unmount() melepas timer, rAF, listener, langganan, LiveSync, pulau 3D, dan renderer bersama (SharedGL). */
+UT.PageModule.define('tambang',function(env){
 'use strict';
+const {setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener}=env;
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const PD=window.PlayerData,MS=()=>window.UT&&UT.MineService&&UT.MineService.get();
 const fmt=n=>Number(n).toLocaleString('id-ID');
@@ -15,13 +17,17 @@ const say=r=>toast(MSG[r&&r.reason]||'Gagal. Coba lagi.');
 
 /* ---------- navigasi: Back ke halaman asal (?from=), Home ke lobby ---------- */
 const FROM_OK=['lobby','karakter','frame','dadu','efek','powerup','profile','leaderboard','friendship','shop','mode','misi','hadiah-misi','dailyreward','settings','mail'];
-const FROM=(()=>{const f=new URLSearchParams(location.search).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
-$('#back').addEventListener('click',()=>{playSound();location.href=FROM});
-$('#cur-co').addEventListener('click',()=>{playSound();location.href='shop.html?coin=1'});
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: pindah halaman biasa */
+const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}location.href=u};
+/* di shell, location.search milik play.html (?go=...): parameter halaman diambil dari URL rute aktif */
+const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='tambang'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const FROM=(()=>{const f=new URLSearchParams(search()).get('from')||'',m=/^([a-z-]+)\.html$/.exec(f);return m&&FROM_OK.indexOf(m[1])>=0?f:'lobby.html'})();
+$('#back').addEventListener('click',()=>{playSound();nav(FROM)});
+$('#cur-co').addEventListener('click',()=>{playSound();nav('shop.html?coin=1')});
 
 /* ---------- saldo ---------- */
 function renderCurrency(){$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—')}
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();tick(true)}catch(e){}})}}catch(e){}
+try{env.own(PD.subscribe(r=>{if(env.disposed)return;if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();tick(true)}catch(e){}}))}catch(e){}
 renderCurrency();
 
 /* ---------- state dari SERVER (tidak ada angka ekonomi di sini) ---------- */
@@ -38,6 +44,7 @@ function status(i){const s=ST.slots[i-1];if(!s.unlocked)return 'locked';if(cheer
 
 async function load(){
   const r=await MS().get();
+  if(env.disposed)return false;
   if(!r||!r.ok){showErr(r&&r.reason);return false}
   r.slots.forEach(stamp);ST=r;
   buildAll();renderCurrency();return true
@@ -125,6 +132,7 @@ async function act(i,a,btn){
   else if(a==='unlock')r=await M.unlock(i);
   else if(a==='boost')r=await M.boost(i);
   else r=await M.upgrade(i,a);
+  if(env.disposed)return;
   if(!r||!r.ok){
     if(r&&r.reason==='peti-kosong'&&r.slot_data){ST.slots[i-1]=stamp(r.slot_data);buildAll()}
     say(r);return;
@@ -171,13 +179,14 @@ function bindViews(){ctxs={};if(!isl||!renderer)return;[vw,vh]=viewSize();render
 function mountIsland(){
   if(isl||typeof THREE==='undefined'||!UT.MineIsland||!(UT.BlockyCharacter||UT.CharacterView))return;
   try{
-    renderer=new THREE.WebGLRenderer({canvas:$('#cv'),antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});renderer.setClearColor(0,0);renderer.setPixelRatio(1);
+    renderer=UT.SharedGL.acquire('tambang',{canvas:$('#cv'),shadows:false}).renderer;renderer.setClearColor(0,0);renderer.setPixelRatio(1);   /* renderer + kanvas bersama (antialias: mati di HP, sama seperti sebelumnya) */
     isl=UT.MineIsland.create(THREE,{makeMiner});isl.still=true;   /* tidak goyang: pulau diam, lampu tidak berayun */
     [1,2,3].forEach(i=>{bays[i]={setFill:f=>isl.setFill(i,f),burst:(k,n)=>isl.burst(i,k,n)}});
     clock=new THREE.Clock();loop();
   }catch(err){console.warn('[tambang] 3D gagal',err);isl=null}
 }
 function loop(){
+  if(env.disposed)return;
   rafId=requestAnimationFrame(loop);
   if(document.hidden||!isl)return;
   const dt=Math.min(.1,clock.getDelta()),sts=[null],sp=[0];
@@ -188,13 +197,17 @@ function loop(){
   const src=renderer.domElement;
   for(let i=1;i<=3;i++){const x=ctxs[i];if(x){x.clearRect(0,0,vw,vh);x.drawImage(src,(i-1)*vw,0,vw,vh,0,0,vw,vh)}}
 }
-addEventListener('pagehide',()=>{cancelAnimationFrame(rafId);try{isl&&isl.dispose();renderer&&renderer.dispose()}catch(e){}});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ST)load()});
+/* cleanup: hentikan loop, buang geometri/material pulau, lepas renderer bersama (renderer TIDAK di-dispose: dipakai halaman lain) */
+function cleanup(){cancelAnimationFrame(rafId);rafId=0;try{isl&&isl.dispose()}catch(e){}isl=null;try{UT.SharedGL.release('tambang')}catch(e){}}
+addEventListener('pagehide',cleanup);env.own(cleanup);
+env.on(document,'visibilitychange',()=>{if(!document.hidden&&ST)load()});
 setInterval(()=>{if(!document.hidden&&ST)load()},30000);
 setInterval(()=>tick(),500);
 
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);SC=s;$('#stage').style.transform='scale('+s+')';if(isl&&vw){const n=viewSize();if(n[0]!==vw||n[1]!==vh)bindViews()}}
 addEventListener('resize',fit);fit();
-try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}}}catch(e){}
+try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){const LS=UT.LiveSync;LS.add('wallet',()=>UT.WalletService.get().refresh());LS.start({interval:20000});
+  /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+  env.own(()=>{LS.remove('wallet');LS.stop()})}}}catch(e){}
 if(!MS()){showErr('mode-lokal')}else load();
-})();
+});

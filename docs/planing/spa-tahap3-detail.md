@@ -83,7 +83,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | profile | A | Selesai (kode & test) | `66a65d7` | SW v297-v300; smoke browser LULUS; cleanup aura diperbaiki (`AuraView.clearAll`, v300); cek HP belum; UT.PageModule + UT.SharedGL |
 | efek | A | Ditunda | - | efek/frame/dadu/powerup/pet = TAB di `inventory.html` (iframe `?embed=inv`, `inventory-bridge.js`); migrasikan bersama `inventory` sebagai satu keputusan desain |
 | pet | A | - | - | |
-| tambang | A | - | - | |
+| tambang | A | Selesai (kode & test) | (commit ini) | SW v301; PageModule + SharedGL; `?from=` dibaca dari `UT.Spa.current()`; LiveSync, pulau 3D, interval, listener dilepas saat unmount; renderer TIDAK di-dispose (bersama); smoke browser (MineService di-stub, 3D jalan) LULUS; cek HP belum |
 | dadu | A | - | - | |
 | powerup | A | - | - | |
 | leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
@@ -109,7 +109,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 
 ## 6. Catatan verifikasi (profile + leaderboard)
 
-Smoke browser: `CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py` (Lobby -> Profil -> Peringkat -> Lobby x20).
+Smoke browser: `CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py` (Lobby -> Profil -> Peringkat -> Tambang -> Lobby x20; MineService di-stub supaya pulau 3D tambang benar-benar dirender).
 Hasil (Chromium 153 headless, SwiftShader): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, hanya lobby yang ter-mount
 di akhir, tidak ada CSS/DOM/kelas `pf-wide` tersisa, tugas LiveSync `board` terlepas, Back kembali ke lobby, dan tombol Coin/Gem ke Shop/Tambang
 (halaman non-view) tidak meninggalkan shell `play.html`. Memori JS 11.0 -> 17.2 MB setelah 60 pindah rute (tanpa GC paksa): belum bisa
@@ -123,3 +123,15 @@ Belum: cek di HP fisik.
 - Diperbaiki (SW v300): `profile.js` memanggil `R.aura.dispose()` / `R.ch.dispose()` yang tidak ada di `AuraView` / `BlockyCharacter` (tidak pernah jalan). Sekarang `R.aura.clearAll()` dipanggil sebelum geometri scene dibuang; tes `profile-module` menjaganya.
 - Branch `spa-tahap3` tertinggal dari `main` (sudah di-merge ke `main`); pekerjaan lanjutan dikerjakan dari `main`.
 - Masih terbuka: cek HP fisik, ukur ulang memori di HP (11,0 -> 17,2 MB di headless belum bisa dibedakan dari noise).
+
+### Tambang (tahap 3-3, SW v301)
+
+- `data/mining/js/tambang.js` dibungkus `UT.PageModule.define('tambang')`; `tambang.html` memuat `shared-gl.js` + `page-module.js` sebelum controller. Route: `spa-host.js` (VIEWS), `frame-guard.js`, prefetch di `play.js`.
+- Renderer: `UT.SharedGL.acquire('tambang', {canvas: #cv, shadows:false})`; cleanup memanggil `SharedGL.release` dan `isl.dispose()` (kini membuang tekstur juga) - TIDAK memanggil `renderer.dispose()` (dulu di `pagehide`; berbahaya karena renderer dipakai bersama).
+- Dibuang saat unmount: 2 `setInterval`, rAF, `resize`/`pagehide`/`visibilitychange`, langganan `PD.subscribe` (penjaga `window.__curSub` dihapus: akan membuat langganan tidak terpasang pada kunjungan kedua), LiveSync (`wallet` + `stop`).
+- `?from=`: di shell `location.search` milik `play.html`, jadi dibaca dari URL rute aktif (`UT.Spa.current().url`). Back dari tambang ke Profil terverifikasi.
+- Callback async (`load`, `act`, `loop`) dijaga `env.disposed` agar tidak menyentuh DOM halaman berikutnya.
+- Hasil smoke (Chromium headless, SwiftShader, 20 putaran, 4 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 13,6 -> 11,7 MB, kanvas `#cv` dan CSS/DOM tambang tidak tersisa, tugas LiveSync `mine`/`wallet` milik lobby tetap berjalan.
+- Test Node baru: `tests/tambang-module.test.js` (10 tes). `spa-host.test.js` diperluas. Test lama (`mine-island`, `mine-service`, `live-sync`) tetap lulus.
+- Belum: cek HP fisik; ukur memori di HP.
+- Urutan berikutnya: efek/frame/dadu/powerup/pet = tab di `inventory.html` (ditunda, lihat tabel); `friendship` (Gelombang A), lalu Gelombang B.

@@ -312,7 +312,10 @@
         rd.setScissorTest(false);
       };
       I.dispose = function () {
-        scene.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); });
+        scene.traverse(function (o) {
+          if (o.geometry) o.geometry.dispose();
+          (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { if (m) { if (m.map && m.map.dispose) m.map.dispose(); if (m.dispose) m.dispose(); } });
+        });
       };
       I.select(0); I.fit(1.6, 1); I.frame(0.016, [null, 'work', 'work', 'work'], [0, 1, 1, 1]);
       return I;
