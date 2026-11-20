@@ -10,7 +10,7 @@
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
 #home:active,#back:active{transform:scale(.92)}
-.cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
+.cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px;z-index:5} /* di atas #right/.pane (panel kanan menutupi area tombol Coin/Gem) */
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
 

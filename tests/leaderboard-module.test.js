@@ -23,4 +23,7 @@ t('PodiumFX di-mount dari modul dan punya unmount', () => {
 });
 t('leaderboard.html memuat page-module.js sebelum leaderboard.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/leaderboard.js')));
 t('frame-guard dan play.js mengenal leaderboard', () => { assert(/profile\|leaderboard/.test(rd('assets/js/frame-guard.js'))); assert(/'leaderboard\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js'))); });
+t('tombol Coin/Gem berada di atas #board (z-index) - dulu tertutup', () => {
+  assert(/\.cur\{z-index:\s*[1-9]/.test(rd('assets/css/leaderboard.css')));
+});
 console.log(n + ' tes lulus');

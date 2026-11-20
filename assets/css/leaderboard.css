@@ -17,6 +17,7 @@
 #reward{position:absolute;left:350px;top:900px;width:340px;height:100px}
 #reward span{font-size:40px;color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
 #board{position:absolute;left:820px;top:0;width:1060px;height:1080px}
+.cur{z-index:5}  /* di atas #board (panel peringkat menutupi tombol Coin/Gem tanpa ini) */
 #th{position:absolute;left:30px;right:30px;top:140px;display:grid;grid-template-columns:90px 1fr 190px 200px;font:400 26px var(--font-title);color:#b9b1d3;text-align:left}
 #th span:nth-child(3),#th span:nth-child(4){text-align:right}
 #rows{position:absolute;left:10px;right:10px;top:190px;height:860px;display:flex;flex-direction:column;gap:14px;padding:6px 4px}

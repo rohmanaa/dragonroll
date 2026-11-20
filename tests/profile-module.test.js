@@ -24,4 +24,8 @@ t('profile.html memuat shared-gl dan page-module sebelum profile.js', () => {
   const a = html.indexOf('core/shared-gl.js'), b = html.indexOf('core/page-module.js'), c = html.indexOf('pages/profile.js');
   assert(a > 0 && b > a && c > b);
 });
+t('tombol Coin/Gem berada di atas panel kanan (z-index) - dulu tertutup #right', () => {
+  const css = fs.readFileSync(path.join(root, 'assets/css/pages/profile-legacy.css'), 'utf8');
+  assert(/\.cur\{[^}]*z-index:\s*[1-9]/.test(css));
+});
 console.log(n + ' tes lulus');

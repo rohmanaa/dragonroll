@@ -80,13 +80,13 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | --- | --- | --- | --- | --- |
 | lobby | pilot | - | - | tahap 2 |
 | karakter | pilot | - | - | tahap 2 |
-| profile | A | Selesai (kode & test) | `66a65d7` | SW v297; UT.PageModule + UT.SharedGL |
+| profile | A | Selesai (kode & test) | `66a65d7` | SW v297-v299; smoke browser LULUS; cek HP belum; UT.PageModule + UT.SharedGL |
 | efek | A | Ditunda | - | efek/frame/dadu/powerup/pet = TAB di `inventory.html` (iframe `?embed=inv`, `inventory-bridge.js`); migrasikan bersama `inventory` sebagai satu keputusan desain |
 | pet | A | - | - | |
 | tambang | A | - | - | |
 | dadu | A | - | - | |
 | powerup | A | - | - | |
-| leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; smoke browser + HP belum |
+| leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
 | friendship | A | - | - | |
 | shop | B | - | - | |
 | mode | B | - | - | |
@@ -106,3 +106,13 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 - Pindah antar halaman SPA tidak memuat ulang `three.min.js`.
 - Seluruh test: tidak ada kegagalan baru dibanding baseline.
 - Diverifikasi di HP.
+
+## 6. Catatan verifikasi (profile + leaderboard)
+
+Smoke browser: `CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py` (Lobby -> Profil -> Peringkat -> Lobby x20).
+Hasil (Chromium 153 headless, SwiftShader): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, hanya lobby yang ter-mount
+di akhir, tidak ada CSS/DOM/kelas `pf-wide` tersisa, tugas LiveSync `board` terlepas, Back kembali ke lobby, dan tombol Coin/Gem ke Shop/Tambang
+(halaman non-view) tidak meninggalkan shell `play.html`. Memori JS 11.0 -> 17.2 MB setelah 60 pindah rute (tanpa GC paksa): belum bisa
+dibedakan dari noise, ukur ulang di HP. Waktu mount lobby (~1,9 dtk) adalah render perangkat lunak (SwiftShader), bukan angka HP.
+Temuan: tombol Coin/Gem Profil dan Peringkat tertutup panel kanan/`#board` (bug lama, juga di halaman mandiri) -> `.cur{z-index}` ditambahkan.
+Belum: cek di HP fisik.
