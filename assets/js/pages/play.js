@@ -11,11 +11,6 @@
      Halaman akan pergi (pagehide/beforeunload)  -> layar memuat tampil seketika, menutup jeda kosong.
      Halaman baru selesai (load + font + gambar) -> layar memuat dihilangkan.
      splash.html punya layar muat sendiri (pulau melayang), jadi layar dadu ini tidak ditampilkan di atasnya. */
-  /* Awan dipanaskan di awal: SVG dimuat + di-decode sebelum pernah tampil, supaya tirai langsung lengkap (tidak ada awan yang telat muncul). */
-  var cloudWarm = [];
-  ['cloud-1', 'cloud-2', 'cloud-3'].forEach(function (n) {
-    try { var im = new Image(); im.src = 'assets/images/background/clouds/' + n + '.svg'; if (im.decode) im.decode().catch(function () {}); cloudWarm.push(im); } catch (e) {}
-  });
   var SELF_LOADING = /^splash\.html$/;
   function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
   /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
