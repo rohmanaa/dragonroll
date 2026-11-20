@@ -17,7 +17,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'leaderboard.html': 'leaderboard' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'leaderboard.html': 'leaderboard' };
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
   var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css

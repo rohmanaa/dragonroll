@@ -93,7 +93,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | inventory | B | - | - | |
 | hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
 | chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
-| mail | B | - | - | |
+| mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | settings | B | - | - | |
 | room | B | - | - | |
 | frame | B | - | - | |
@@ -203,3 +203,14 @@ Belum: cek di HP fisik.
 - Test: `tests/chest-module.test.js` (10 tes); `chest-service.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
 - `tools/smoke-spa-pages.py` ikut memutar `chest` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: aksi chest sungguhan (BUKA, CEPAT, AMBIL) dengan akun server; cek HP fisik.
 - Urutan berikutnya: `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Mail (tahap 3-9, Gelombang B, SW v309)
+
+- `assets/js/pages/mail.js` dibungkus `UT.PageModule.define('mail')`; `mail.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `mail.html` -> lobby di `play.js`. Tanpa WebGL sendiri.
+- `?from=` (tujuan tombol Back; lobby memakai `mail.html?from=lobby.html`) dibaca dari URL rute aktif (`UT.Spa.current().url`), bukan `location.search` milik `play.html`. Daftar `BUILT` tetap menjadi daftar putih tujuan.
+- Navigasi (Back, Home, Gem -> `tambang.html?from=mail.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: polling `setInterval` 30 dtk, timer toast, `resize`/`keydown`/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus). Halaman ini tidak memakai LiveSync.
+- Callback async (`load`, `claim`, `remove`, `readAll`, `claimAll`, `wallet.refresh`) dijaga `env.disposed`.
+- Test: `tests/mail-module.test.js` (8 tes); `spa-host.test.js` diperluas; pola `frame-guard` di `chest-module.test.js` dilonggarkan. Seluruh test sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` ikut memutar `mail` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: klaim/hapus surat sungguhan dengan akun server; cek HP fisik.
+- Urutan berikutnya: `settings` (tes `settings-prefs`; ingat panggil `UT.Version.apply(root)` saat mount agar versi game tampil), `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.

@@ -1,5 +1,7 @@
-/* mail.js — dipindah dari blok script inline (mail.html). */
-(()=>{
+/* mail.js — dipindah dari blok script inline (mail.html). Tahap 3 SPA: dibungkus UT.PageModule ('mail'); halaman mandiri otomatis mount,
+   unmount() melepas timer, listener, langganan dan polling. Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
+UT.PageModule.define('mail',function(env){
+const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Kotak masuk = SERVER (supabase/migrations/202611260001_player_mail.sql) lewat UT.MailService. Tidak ada surat/dompet tiruan:
@@ -11,10 +13,13 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"\x27]/g,c=>({'&':'&amp;','<':'&l
 const MSG={'tidak-ada':'Surat tidak ditemukan.','tanpa-hadiah':'Surat ini tidak berisi hadiah.','sudah-diklaim':'Hadiah sudah diklaim.','kedaluwarsa':'Surat sudah kedaluwarsa.','tidak-ada-hadiah':'Tidak ada hadiah untuk diklaim.','hadiah-belum-diklaim':'Klaim hadiahnya dulu sebelum menghapus surat.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','mode-lokal':'Masuk ke akun untuk memakai Mail.'};
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
+const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
 const BUILT=['lobby.html','shop.html','profile.html','tambang.html','friendship.html','settings.html','powerup.html','frame.html','dadu.html','efek.html','karakter.html','mode.html','room.html','leaderboard.html','hadiah-misi.html','inventory.html'];
-const FROM=(()=>{const f=new URLSearchParams(location.search).get('from');return f&&BUILT.includes(f.split('?')[0])?f:'lobby.html'})();
+/* di shell location.search milik play.html (?go=...): parameter halaman (?from=) diambil dari URL rute aktif */
+const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='mail'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const FROM=(()=>{const f=new URLSearchParams(search()).get('from');return f&&BUILT.includes(f.split('?')[0])?f:'lobby.html'})();
 
 /* ---- state ---- */
 let mails=[],tab='all',state='loading'; /* loading | ok | local | error */
@@ -24,8 +29,9 @@ const ago=at=>{const d=Math.floor((Date.now()-new Date(at).getTime())/864e5);ret
 const rwHtml=m=>'<div class="rw">'+(m.gems?'<span><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt="">'+fmt(m.gems)+'</span>':'')+(m.coins?'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">'+fmt(m.coins)+'</span>':'')+'</div>';
 
 /* ---- render ---- */
-function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function draw(){
+  if(env.disposed)return;
   const un=unreadN(),pn=pendN(),ok=state==='ok';
   $('#tabs').innerHTML='<button class="tabb'+(tab==='all'?' on':'')+'" data-k="all">SEMUA'+(un?'<i>'+un+'</i>':'')+'</button><button class="tabb'+(tab==='reward'?' on':'')+'" data-k="reward">HADIAH'+(pn?'<i>'+pn+'</i>':'')+'</button><button class="tabb'+(tab==='system'?' on':'')+'" data-k="system">SISTEM</button>';
   $('#sum').textContent=ok?mails.length+' surat · '+un+' belum dibaca':state==='loading'?'Memuat…':'';
@@ -48,6 +54,7 @@ async function load(){
   loading=true;
   const r=await S.list(100);
   loading=false;
+  if(env.disposed)return;
   if(r&&r.ok){mails=r.mails||[];state='ok'}
   else if(r&&(r.reason==='mode-lokal'||r.reason==='belum-login'))state='local';
   else if(state!=='ok')state='error';   /* gagal sesaat saat sudah tampil: biarkan daftar lama */
@@ -60,6 +67,7 @@ const find=id=>mails.find(m=>m.id===id);
 function markRead(m){if(m.read)return;m.read=true;draw();MS().read(m.id)}
 async function claim(m){
   const r=await MS().claim(m.id);
+  if(env.disposed)return;
   if(r&&r.ok){m.claimed=true;m.read=true;buzz();toast('Hadiah diklaim');draw();renderCurrency();return}
   if(r&&(r.reason==='sudah-diklaim')){m.claimed=true;draw()}
   fail(r);if(r&&(r.reason==='kedaluwarsa'||r.reason==='tidak-ada'))load();
@@ -72,6 +80,7 @@ function askDelete(m){
   if(pending(m)){toast(MSG['hadiah-belum-diklaim']);return}
   modal('Hapus surat','Hapus surat<br>"'+esc(m.title)+'"?','BATAL','HAPUS',async()=>{
     const r=await MS().remove(m.id);
+    if(env.disposed)return;
     if(r&&r.ok){mails=mails.filter(x=>x.id!==m.id);draw();toast('Surat dihapus')}else{fail(r);load()}
   });
 }
@@ -86,16 +95,18 @@ $('#list').addEventListener('click',e=>{
 });
 $('#readAll').addEventListener('click',async()=>{
   const r=await MS().readAll();
+  if(env.disposed)return;
   if(r&&r.ok){mails.forEach(m=>m.read=true);draw()}else fail(r);
 });
 $('#claimAll').addEventListener('click',async()=>{
   const r=await MS().claimAll();
+  if(env.disposed)return;
   if(r&&r.ok){buzz();toast(r.count+' hadiah diklaim');await load();renderCurrency()}else{fail(r);if(r&&r.reason!=='sedang-diproses')load()}
 });
 
 /* ---- modal ---- */
 let okFn=null,mOpen=false;
-function modal(t,x,noL,okL,ok){$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#md').classList.add('on');mOpen=true}
+function modal(t,x,noL,okL,ok){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#md').classList.add('on');mOpen=true}
 const closeM=()=>{$('#md').classList.remove('on');mOpen=false};
 $('#m-no').addEventListener('click',closeM);
 $('#m-ok').addEventListener('click',()=>{closeM();if(okFn)okFn()});
@@ -107,12 +118,13 @@ $('#back').addEventListener('click',()=>nav(FROM));
 $('#home').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=mail.html'));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}
-UT.Events.on('currencyChanged',renderCurrency);
+/* penjaga window.__curSub dihapus: dengan SPA langganan harus dipasang tiap mount dan dilepas saat unmount */
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){}
+env.own(UT.Events.on('currencyChanged',renderCurrency));
 
 draw();renderCurrency();load();
 setInterval(()=>{if(!document.hidden&&state==='ok'&&!mOpen)load()},30000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state==='ok'&&!mOpen)load()});
+env.on(document,'visibilitychange',()=>{if(!document.hidden&&state==='ok'&&!mOpen)load()});
 document.documentElement.classList.add('ut-ready');
-if(SV()&&WS())WS().refresh().then(renderCurrency); /* saldo dari server */
-})();
+if(SV()&&WS())WS().refresh().then(()=>{if(!env.disposed)renderCurrency()}); /* saldo dari server */
+});

@@ -30,7 +30,7 @@ t('chest.html memuat page-module.js sebelum chest.js; tanpa id bentrok shell', (
 });
 t('spa-host dan frame-guard mengenal chest; play.js punya prefetch', () => {
   assert(/'chest\.html': 'chest'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/hadiah-misi\|chest/.test(rd('assets/js/frame-guard.js')));
+  assert(/hadiah-misi\|chest[|)]/.test(rd('assets/js/frame-guard.js')));
   assert(/'chest\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');
