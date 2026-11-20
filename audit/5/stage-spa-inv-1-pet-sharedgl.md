@@ -18,3 +18,9 @@ gameplay.html, gameplay/, game-integration.js, player-data.js, supabase/, data/f
 
 ## Belum dikerjakan (butuh keputusan)
 Tab Pet sebagai modul di dokumen yang sama. CSS tab (`#tabs`, `#back`, `#title`, `#toast`, `#fade`, `html/body`, `#stage`) bentrok dengan shell inventory.css, dan ID sama (`#left`, `#grid`, `#use`...) dipakai antar tab. Opsi: Shadow DOM per tab (isolasi CSS+ID tanpa menulis ulang CSS; selector `body.*` perlu jadi `:host(.*)`, `@font-face` tetap di dokumen) atau scoping CSS manual. pet.html tetap harus jalan mandiri untuk room (`?from=room`).
+
+## Tambahan: pemanasan tab (prioritas pemilik: pindah tab tanpa loading)
+- `assets/js/pages/inventory.js`: setelah tab pertama selesai dimuat, tab lain dimuat satu per satu di latar belakang (kelas `.warm`: display:block, opacity 0, tidak bisa diklik; setelah selesai kembali display:none). Batas tunggu 6 dtk per tab. Dilewati bila `saveData` atau `deviceMemory < 4`.
+- `assets/css/pages/inventory.css`: `.view.warm`, `.view.warm.on`.
+- `sw.js`: VERSION v314 → v315 (aset cache-first).
+- NOT TESTED di browser: beban memori/GPU saat 4 iframe dimuat berurutan (tiap iframe masih membuat konteks WebGL sendiri sampai tabnya jadi modul).

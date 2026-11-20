@@ -54,6 +54,7 @@ UT.PageModule.define('inventory', function (env) {
     Array.prototype.forEach.call(tabsEl.children, function (b) { b.classList.toggle('on', b.dataset.k === t.k); });
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
     if (!frames[t.k]) frames[t.k] = mk(t);
+    frames[t.k].classList.remove('warm');   // dibuka pengguna: tidak lagi pemanasan
     Object.keys(frames).forEach(function (x) { frames[x].classList.toggle('on', x === t.k); });
     loading.hidden = frames[t.k].classList.contains('ready');
     if (!quiet) snd();
@@ -71,4 +72,31 @@ UT.PageModule.define('inventory', function (env) {
   var q = new URLSearchParams(search()).get('tab'), saved = '';
   try { saved = sessionStorage.getItem(KEY) || ''; } catch (e) {}
   open(q || saved || 'frame', true);
+
+  /* Pemanasan: begitu tab pertama selesai dimuat, tab lain dimuat diam-diam satu per satu (opacity 0, tidak bisa diklik),
+     jadi pindah tab nyaris tanpa layar loading. Dimuat dalam keadaan tampil-tak-terlihat (.warm) supaya ukuran/layout halaman
+     sama seperti biasa; setelah selesai kembali display:none (tidak menjalankan animasi/3D). Dilewati bila hemat data/memori. */
+  function canWarm() {
+    try { var n = navigator, c = n.connection || {}; if (c.saveData) return false; if (n.deviceMemory && n.deviceMemory < 4) return false; } catch (e) {}
+    return true;
+  }
+  function warm() {
+    var next = TABS.filter(function (t) { return !frames[t.k]; })[0];
+    if (!next) return;
+    var f = frames[next.k] = mk(next), done = false;
+    f.classList.add('warm');
+    function again() {
+      if (done) return; done = true;
+      setTimeout(function () { f.classList.remove('warm'); }, 300);
+      setTimeout(warm, 400);
+    }
+    f.addEventListener('load', again);
+    setTimeout(again, 6000);   // jangan menunggu tab yang macet
+  }
+  if (canWarm() && frames[cur]) {
+    var first = frames[cur], started = false;
+    var go = function () { if (started) return; started = true; setTimeout(warm, 500); };
+    first.addEventListener('load', go);
+    setTimeout(go, 6000);
+  }
 });
