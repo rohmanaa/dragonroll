@@ -18,8 +18,9 @@
     var T = win.THREE;
     if (!T || !UT.BlockyCharacter || !win.PlayerData) return null;
     try {
-      var r = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-      r.setPixelRatio(1); r.setSize(SIZE, SIZE); r.setClearColor(0x000000, 0);
+      /* satu renderer luring untuk seluruh sesi (UT.SharedGL.offscreen, dipakai juga thumbnail Karakter); ukuran diset tiap render */
+      var r = (win.UT.SharedGL && win.UT.SharedGL.offscreen) ? win.UT.SharedGL.offscreen() : new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      r.setClearColor(0x000000, 0);
       scene = new T.Scene();
       scene.add(new T.AmbientLight(0xffffff, .75), new T.HemisphereLight(0xcfeaff, 0x7a9a60, .55));
       var sun = new T.DirectionalLight(0xfff2d8, .9); sun.position.set(2, 4, 5); scene.add(sun);
@@ -46,6 +47,7 @@
       var ty = bb.min.y + h * .885, d = h * 1.0, yaw = .28, pit = .06; /* kepala ~ 88% tinggi; bidikan sedikit serong */
       cam.position.set(Math.sin(yaw) * Math.cos(pit) * d, ty + Math.sin(pit) * d, Math.cos(yaw) * Math.cos(pit) * d);
       cam.lookAt(0, ty, 0);
+      R.r.setPixelRatio(1); R.r.setSize(SIZE, SIZE);
       R.r.render(scene, cam);
       out = R.r.domElement.toDataURL('image/png');
     } catch (e) { out = ''; }

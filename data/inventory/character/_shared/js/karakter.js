@@ -1126,6 +1126,7 @@ const THUMB={
       /* thumbnail slot = karakter saja: aura (partikel/halo/lantai) ikut tampil di scene yang sama, jadi disembunyikan dulu agar gambar slot bersih */
       const hid=scene.children.filter(o=>o!==root&&o!==ground&&!o.isLight&&o!==sun.target&&o.visible);
       hid.forEach(o=>{o.visible=false;});
+      this.r.setPixelRatio(1);this.r.setSize(160,160); /* renderer luring dipakai bersama character-face: set ukuran tiap render */
       try{this.r.render(scene,c);}finally{hid.forEach(o=>{o.visible=true;});}
       ground.visible=gv;
       url=this.r.domElement.toDataURL('../../../assets/js/pages/image/png');
