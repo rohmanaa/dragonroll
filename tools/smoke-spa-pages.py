@@ -35,7 +35,7 @@ with sync_playwright() as p:
         pg.evaluate(f"UT.Spa.go('{n}.html')"); pg.wait_for_function(f"UT.PageModule.isMounted('{n}')",timeout=45000); pg.wait_for_timeout(600)
     pg.goto(f'http://127.0.0.1:{port}/play.html?go=lobby.html',wait_until='load')
     pg.wait_for_function("UT&&UT.Spa&&UT.Spa.viewActive&&UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(1500)
-    for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','lobby'): mount(n)          # pemanasan
+    for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','lobby'): mount(n)          # pemanasan
 
     # tambang butuh MineService server: pasang stub (data palsu) agar pulau 3D + SharedGL benar-benar jalan, bukan mode-lokal
     STUB="""(()=>{const sl=(u)=>({unlocked:u,base_rate:1,unlock_cost:50,rate:u?2:0,stock:3,cap:20,speed_lv:u?3:1,cap_lv:1,next_speed_cost:100,next_cap_cost:100,full_in_secs:3600,boost:{active:false,left_secs:0,left_today:2,cost:10}});
@@ -51,10 +51,10 @@ with sync_playwright() as p:
     out['tambang_sesudah_keluar']=pg.evaluate("({mounted:UT.PageModule.isMounted('tambang'),cv:!!document.querySelector('canvas#cv'),owner:UT.SharedGL.owner(),tasks:(UT.LiveSync.status()||{}).tasks})")
     ctx0=pg.evaluate('window.__ctx'); three0=len(three); mem0=pg.evaluate('performance.memory?performance.memory.usedJSHeapSize:0'); times={}
     for i in range(N):
-        for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','lobby'):
+        for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','lobby'):
             t=pg.evaluate(f"""new Promise(res=>{{const t0=performance.now();UT.Spa.go('{n}.html').then(()=>{{const w=()=>UT.PageModule.isMounted('{n}')?res(performance.now()-t0):setTimeout(w,16);w()}})}})""")
             times.setdefault(n,[]).append(round(t)); pg.wait_for_timeout(250)
-    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail'].filter(n=>UT.PageModule.isMounted(n))")
+    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings'].filter(n=>UT.PageModule.isMounted(n))")
     out['konteks_baru']=pg.evaluate('window.__ctx')-ctx0; out['three_dimuat_ulang']=len(three)-three0
     out['sharedgl']=pg.evaluate('UT.SharedGL.stats()')
     out['waktu_mount_ms']={k:{'rata2':round(sum(v)/len(v)),'maks':max(v)} for k,v in times.items()}

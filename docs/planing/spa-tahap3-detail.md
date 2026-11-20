@@ -94,7 +94,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
 | chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser BELUM dijalankan; cek HP belum |
-| settings | B | - | - | |
+| settings | B | Selesai (kode & test) | (commit ini) | SW v310; PageModule (tanpa WebGL); tombol Fullscreen/Normal diperbaiki lewat `UT.Display`; versi game via `UT.Version.apply`; smoke browser BELUM dijalankan; cek HP belum |
 | room | B | - | - | |
 | frame | B | - | - | |
 
@@ -214,3 +214,13 @@ Belum: cek di HP fisik.
 - Test: `tests/mail-module.test.js` (8 tes); `spa-host.test.js` diperluas; pola `frame-guard` di `chest-module.test.js` dilonggarkan. Seluruh test sama dengan baseline (5 gagal lama).
 - `tools/smoke-spa-pages.py` ikut memutar `mail` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: klaim/hapus surat sungguhan dengan akun server; cek HP fisik.
 - Urutan berikutnya: `settings` (tes `settings-prefs`; ingat panggil `UT.Version.apply(root)` saat mount agar versi game tampil), `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Settings + perbaikan Fullscreen/Normal (tahap 3-10, Gelombang B, SW v310)
+
+- **Akar masalah tombol Fullscreen/Normal:** `settings-electron.js` (satu-satunya kode yang memasang handler `[data-display]`) TIDAK pernah dimuat di `settings.html`, sehingga tombol tidak berbuat apa-apa; di web/PWA memang belum ada implementasi sama sekali (hanya jalur Electron). File itu dihapus dan diganti `assets/js/core/display-mode.js` (`UT.Display`): Electron lewat `electronAPI.setFullscreen/getFullscreen` (preload + `main.js` tidak berubah), web/PWA lewat Fullscreen API pada dokumen paling atas (shell `play.html`; iframe punya `allow="fullscreen"`). Status disinkronkan lewat `fullscreenchange`/`resize` (mis. tombol Esc). Tidak didukung (iPhone Safari): tombol dinonaktifkan dan toast menjelaskan. Masuk fullscreen di web wajib gestur pengguna, jadi mode tidak dipulihkan otomatis saat game dibuka lagi (Electron selalu mulai fullscreen, sesuai `main.js`). Gaya tombol aktif memakai `.on` (sama dengan segmen Grafik) plus `.active`.
+- `assets/js/pages/settings.js` dibungkus `UT.PageModule.define('settings')`; `settings.html` memuat `display-mode.js` dan `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `settings.html` -> lobby di `play.js`.
+- Back/Escape: di shell memakai `?from=` (daftar putih nama halaman) dari URL rute aktif, bila tidak ada ke lobby (`document.referrer` di shell selalu `play.html`). Halaman mandiri tetap memakai referrer. Keluar akun tetap `location.replace('splash.html')` (di shell menggantikan seluruh `play.html`, memang diinginkan).
+- Dilepas saat unmount: `resize`/`keydown`, timer toast, langganan `Ambience.on`, `Prefs.on`, dan `UT.Display.on`. Versi game (`[data-app-version]`) diisi ulang tiap mount lewat `UT.Version.apply(document)`.
+- Test: `tests/display-mode.test.js` (10 tes: web, iframe -> dokumen atas, ditolak, tidak didukung, PWA fullscreen, on/off, Electron, wiring settings); `settings-prefs.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
+- Belum: uji tombol di browser nyata (Chrome desktop, Android Chrome, PWA terpasang) dan di Electron sungguhan; smoke browser; cek HP. Catatan: saat PWA terpasang memakai `display_override: fullscreen` (manifest), `exitFullscreen` tidak berlaku; tombol Normal tidak akan mengubah apa pun di mode itu.
+- Urutan berikutnya: `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
