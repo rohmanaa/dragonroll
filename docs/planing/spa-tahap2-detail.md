@@ -178,9 +178,9 @@ Desain yang dipakai: Opsi A hybrid (lihat `README.md` > Catatan keputusan). `rou
 - [x] `UT.App.setPage`; `frame-guard.js` mengalihkan Lobby/Karakter di iframe `#f` ke view
 - [x] `sw.js` v295 dan `preload-manifest.json` memuat `page-module.js`, `shared-gl.js`, `spa-host.js`
 - [x] Cek sintaks (`node --check`) semua file yang diubah: lulus
-- [ ] `tests/shared-gl.test.js` dan `tests/spa-host.test.js` (belum ditulis; `router.test.js` tidak perlu karena tidak ada router)
-- [ ] Seluruh test dibanding baseline 5 gagal (belum dijalankan)
-- [ ] `tools/smoke-page-module.py` diperluas: pindah 20x, hitung konteks WebGL, `three.min.js` tidak dimuat ulang (belum)
+- [x] `tests/shared-gl.test.js` (10 tes) dan `tests/spa-host.test.js` (9 tes) ditulis dan lulus di Node (`router.test.js` tidak perlu karena tidak ada router)
+- [x] Seluruh test: hanya 5 gagal baseline lama, tidak ada kegagalan baru (dijalankan 2026-11-20)
+- [ ] Smoke test browser: `tools/smoke-spa.py` ditulis (pindah 20x, hitung konteks WebGL, `three.min.js` tidak dimuat ulang, Back, memori) tetapi BELUM DIJALANKAN (tidak ada Chrome di lingkungan penulis); jalankan di mesin pemilik
 - [ ] Hasil pengukuran sebelum/sesudah (di bawah)
 - [ ] Verifikasi di HP oleh pemilik (HP portrait memakai jalur iframe; lihat catatan keputusan)
 - [ ] Merge `spa-tahap2` ke `main` (menunggu persetujuan pemilik)
