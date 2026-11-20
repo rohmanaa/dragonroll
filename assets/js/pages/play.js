@@ -191,10 +191,11 @@
      Setelah halaman tampil, unduh HTML + script/CSS halaman yang paling mungkin dibuka berikutnya ke cache service worker,
      jadi pindah halaman tidak menunggu jaringan/parse pertama. Dilewati bila Save-Data / koneksi 2g. */
   var NEXT = {
-    'lobby.html': ['mode.html', 'shop.html', 'karakter.html'],
+    'lobby.html': ['mode.html', 'shop.html', 'karakter.html', 'profile.html'],
     'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
     'room.html': ['gameplay.html', 'mode.html'],
-    'shop.html': ['lobby.html'], 'karakter.html': ['lobby.html']
+    'shop.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
+    'profile.html': ['lobby.html']
   }, warmed = {};
   function warm(page) {
     if (warmed[page]) return; warmed[page] = 1;

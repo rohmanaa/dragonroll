@@ -80,7 +80,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | --- | --- | --- | --- | --- |
 | lobby | pilot | - | - | tahap 2 |
 | karakter | pilot | - | - | tahap 2 |
-| profile | A | - | - | |
+| profile | A | Selesai (kode & test) | - | SW v296; UT.PageModule + UT.SharedGL |
 | efek | A | - | - | |
 | pet | A | - | - | |
 | tambang | A | - | - | |
