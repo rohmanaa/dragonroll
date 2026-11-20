@@ -146,3 +146,9 @@ Belum: cek di HP fisik.
 - Hasil smoke (Chromium headless, 20 putaran, 5 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 12,8 -> 11,8 MB, tombol Back/Gem/Coin bisa diketuk.
 - Belum: uji alur teman dengan akun server sungguhan (smoke memakai login palsu, jadi daftar teman, Presence, dan tombol MAIN/TERIMA tidak teruji); cek HP fisik.
 - Urutan berikutnya: Gelombang B (shop, mode, inventory, hadiah-misi, chest, mail, settings, room, frame); inventory bersama efek/pet/dadu/powerup/frame sebagai satu keputusan desain.
+
+### Popup undangan teman (SW v303)
+
+- `assets/js/multiplayer/presence.js`: tombol GABUNG/TOLAK pada popup undangan sebelumnya memakai gradien CSS; kini memakai aset `tombol-hijau-polos.webp` / `tombol-merah-polos.webp` (gaya inline karena popup muncul di halaman tanpa `page.css`). Drawer "Undang Teman" di `room.html` sudah memakai aset gambar sejak awal.
+- GABUNG kini pindah lewat `UT.Spa.go` bila ada shell (sebelumnya `location.href` meninggalkan `play.html`); fallback `location.href` untuk halaman biasa/iframe.
+- Tes: `tests/presence-invite-ui.test.js`. Diverifikasi di browser (harness dengan Presence di-stub): kedua gambar termuat, GABUNG memanggil `UT.Spa.go('room.html?...&code=...')`.

@@ -32,10 +32,16 @@ function popInvite(){
  const box=document.createElement('div');box.id='ut-invite';
  box.style.cssText='position:fixed;left:50%;bottom:max(1.5rem,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:12px;max-width:92vw;padding:12px 14px;border-radius:16px;background:linear-gradient(#3f93f4,#1d58c6);color:#fff;font:800 16px/1.2 "Baloo 2",Arial,sans-serif;box-shadow:0 0 0 3px #0b1530,0 6px 0 3px #0b1530';
  const t=document.createElement('span');t.textContent=String(p.from||'Pemain').slice(0,24)+' mengundangmu main!';
- const mk=(txt,bg,fn)=>{const b=document.createElement('button');b.textContent=txt;b.style.cssText='border:0;border-radius:10px;padding:8px 14px;font:inherit;color:#fff;cursor:pointer;background:'+bg+';box-shadow:0 0 0 2px #0b1530';b.onclick=fn;return b};
+ /* tombol memakai aset gambar (sama dengan .btn di page.css) tetapi gayanya inline: popup muncul di halaman yang tidak memuat page.css */
+ const BTN='assets/images/ui/buttons-and-controls/';
+ const mk=(txt,img,fn)=>{const b=document.createElement('button');b.type='button';b.style.cssText='position:relative;display:grid;place-items:center;width:150px;height:56px;padding:0;border:0;background:none;cursor:pointer;flex:none;-webkit-tap-highlight-color:transparent';
+  const i=document.createElement('img');i.src=BTN+img;i.alt='';i.draggable=false;i.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none';
+  const l=document.createElement('span');l.textContent=txt;l.style.cssText='position:relative;font:400 26px/1 var(--font-title,"Baloo 2",Arial,sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-4px;pointer-events:none';
+  b.append(i,l);b.onclick=fn;return b};
 
- const go=mk('GABUNG','linear-gradient(#75ed46,#19a32d)',()=>{const f=p.format==='team'?'team':'solo';clearInvite();location.href='room.html?mode=online&format='+f+'&count=4&role=guest&code='+p.code});
- const no=mk('TOLAK','linear-gradient(#ff7777,#bd1828)',()=>clearInvite());
+ /* di shell SPA (play.html) pindah lewat UT.Spa.go agar shell tidak ditinggalkan; di halaman biasa/iframe: location.href */
+ const go=mk('GABUNG','tombol-hijau-polos.webp',()=>{const f=p.format==='team'?'team':'solo',u='room.html?mode=online&format='+f+'&count=4&role=guest&code='+p.code;clearInvite();if(window.UT&&UT.Spa&&UT.Spa.go)UT.Spa.go(u);else location.href=u});
+ const no=mk('TOLAK','tombol-merah-polos.webp',()=>clearInvite());
  box.append(t,go,no);document.body.appendChild(box);invSfx();
  s.tHide=setTimeout(()=>box.remove(),INV_VISIBLE);
  if(s.n<INV_MAX)s.tShow=setTimeout(popInvite,INV_GAP);else s.tShow=setTimeout(clearInvite,INV_VISIBLE);
