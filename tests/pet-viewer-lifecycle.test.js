@@ -112,6 +112,12 @@ const window = {
         } };
       }
     },
+    /* renderer dipegang UT.SharedGL (satu renderer per sesi): viewer hanya acquire/release, tidak boleh dispose/forceContextLoss */
+    SharedGL: {
+      acquires: [], releases: [],
+      acquire(owner, opts) { this.acquires.push({ owner, opts }); return { renderer: new Renderer(), canvas }; },
+      release(owner) { this.releases.push(owner); return true; }
+    },
     Prefs: { get() { return 100; } },
     Audio: { isMuted() { return false; } }
   },
@@ -223,8 +229,12 @@ function resolveBuilder(key, result, stats) {
   assert.strictEqual(timeouts.size, 0);
   assert.strictEqual(second.geometry.disposed, true);
   assert.strictEqual(second.material.disposed, true);
-  assert.strictEqual(renderers[0].disposed, true);
-  assert.strictEqual(renderers[0].contextLost, true);
+  assert.strictEqual(renderers.length, 1, 'renderer hanya dibuat lewat SharedGL.acquire');
+  assert.deepStrictEqual(window.UT.SharedGL.acquires.map(a => a.owner), ['inv-pet']);
+  assert.strictEqual(window.UT.SharedGL.acquires[0].opts.canvas, canvas);
+  assert.deepStrictEqual(window.UT.SharedGL.releases, ['inv-pet']);
+  assert.strictEqual(renderers[0].disposed, false, 'renderer bersama tidak boleh di-dispose');
+  assert.strictEqual(renderers[0].contextLost, false, 'renderer bersama tidak boleh forceContextLoss');
   assert.strictEqual(audioContexts[0].closed, true);
   assert.strictEqual(glowTexture.disposed, true);
   assert.ok(bufferSources.some(source => source.stopped && source.disconnected));

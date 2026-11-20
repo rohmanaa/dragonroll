@@ -242,7 +242,8 @@ if(PETS.length!==7||PETS.some(item=>!item.id||!item.name||!item.color))throw new
 PETS.forEach((d,i)=>{const f=petSfxFromManifest(d.id);if(!f)return;PET_FILES[i]=f;f.forEach((url,k)=>{const synth=SND[i][k];SND[i][k]=()=>petPlayFile(url,synth)})});
 
 /* ================= scene: latar transparan, tanpa pad, kanvas besar, tanpa zoom ================= */
-const view=document.getElementById('fpv'),canvas=document.getElementById('petGl');
+const view=document.getElementById('fpv'),GL_OWNER='inv-pet';
+let canvas=document.getElementById('petGl');
 const listeners=[];
 let rafId=0,resizeObserver=null,soundTimer=0;
 function listen(target,type,handler,options){
@@ -252,8 +253,15 @@ function listen(target,type,handler,options){
 function removeListeners(){
   listeners.splice(0).forEach(({target,type,handler,options})=>target.removeEventListener(type,handler,options));
 }
+/* renderer = milik UT.SharedGL (satu WebGLRenderer + satu <canvas> per sesi); kanvas halaman diganti kanvas bersama di posisi yang sama */
 let renderer=null;
-try{renderer=new T.WebGLRenderer({canvas,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true,premultipliedAlpha:true})}catch(err){
+try{
+  const SGL=window.UT&&window.UT.SharedGL;
+  if(!SGL)throw new Error('UT.SharedGL belum dimuat');
+  const gl=SGL.acquire(GL_OWNER,{canvas,shadows:false});
+  renderer=gl.renderer;canvas=gl.canvas;
+}catch(err){
+  console.error('[PetViewer] gagal mengambil renderer bersama',err);
   view.insertAdjacentHTML('beforeend','<div class="gl-fail">WebGL tidak tersedia, pratinjau 3D tidak bisa ditampilkan.</div>');
 }
 let teardownFn=()=>{if(destroyed)return;destroyed=true;glowTex.dispose();removeListeners()};
@@ -391,8 +399,7 @@ teardownFn=()=>{
   petSounds.clear();
   if(AC){AC.close().catch(error=>console.error('[PetViewer] Failed to close audio context.',error));AC=null;MASTER=null;noiseBuf=null}
   glowTex.dispose();
-  renderer.dispose();
-  renderer.forceContextLoss();
+  window.UT.SharedGL.release(GL_OWNER);   // renderer bersama TIDAK di-dispose; hanya dilepas
 };
 }
 
