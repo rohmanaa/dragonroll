@@ -195,7 +195,7 @@
     'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
     'room.html': ['gameplay.html', 'mode.html'],
     'shop.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
-    'profile.html': ['lobby.html']
+    'profile.html': ['lobby.html'], 'leaderboard.html': ['lobby.html']
   }, warmed = {};
   function warm(page) {
     if (warmed[page]) return; warmed[page] = 1;

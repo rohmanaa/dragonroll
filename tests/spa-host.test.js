@@ -29,10 +29,11 @@ function setup(o) {
 }
 
 (async () => {
-  await t('viewName/pageOf mengenali lobby, karakter, dan profile', () => {
+  await t('viewName/pageOf mengenali lobby, karakter, profile, dan leaderboard', () => {
     assert.strictEqual(Spa.viewName('lobby.html'), 'lobby');
     assert.strictEqual(Spa.viewName('karakter.html?x=1'), 'karakter');
     assert.strictEqual(Spa.viewName('profile.html'), 'profile');
+    assert.strictEqual(Spa.viewName('leaderboard.html'), 'leaderboard');
     assert.strictEqual(Spa.viewName('shop.html'), null);
     assert.strictEqual(Spa.pageOf('mode.html#a'), 'mode.html');
   });

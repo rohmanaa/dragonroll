@@ -81,12 +81,12 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | lobby | pilot | - | - | tahap 2 |
 | karakter | pilot | - | - | tahap 2 |
 | profile | A | Selesai (kode & test) | `66a65d7` | SW v297; UT.PageModule + UT.SharedGL |
-| efek | A | - | - | |
+| efek | A | Ditunda | - | efek/frame/dadu/powerup/pet = TAB di `inventory.html` (iframe `?embed=inv`, `inventory-bridge.js`); migrasikan bersama `inventory` sebagai satu keputusan desain |
 | pet | A | - | - | |
 | tambang | A | - | - | |
 | dadu | A | - | - | |
 | powerup | A | - | - | |
-| leaderboard | A | - | - | |
+| leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; smoke browser + HP belum |
 | friendship | A | - | - | |
 | shop | B | - | - | |
 | mode | B | - | - | |

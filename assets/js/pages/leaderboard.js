@@ -1,5 +1,7 @@
-/* leaderboard.js — dipindah dari blok script inline (leaderboard.html). */
-(()=>{
+/* leaderboard.js — dipindah dari blok script inline (leaderboard.html). Tahap 3 SPA: dibungkus UT.PageModule ('leaderboard');
+   halaman mandiri otomatis mount, di shell unmount() melepas listener, langganan, LiveSync, dan efek podium. */
+UT.PageModule.define('leaderboard',function(env){
+const {setTimeout,clearTimeout,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
 /* Data = SERVER (RoomService.getLeaderboard -> RPC get_leaderboard). Tidak ada data contoh. Avatar pemain lain = tampilan asli dari server (AppearanceService). */
@@ -8,7 +10,8 @@ const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletServi
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; mandiri: fade + location.href */
+const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}const f=$('#fade');if(f)f.classList.add('on');setTimeout(()=>{location.href=u},330)};
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const FA=window.FrameAvatar;
 const TABS=[['global','GLOBAL','bola-dunia-garis'],['teman','TEMAN','grup-pengguna'],['mingguan','MINGGUAN','jam-bulat']];
@@ -30,10 +33,10 @@ const avatar=(r,sz)=>{const fid=r.me?FA.mine():(APP[appKey(r)]&&APP[appKey(r)].e
 async function loadAppr(rows){
  try{const AS=UT.AppearanceService&&UT.AppearanceService.get();if(!AS)return;
   const ids=rows.filter(r=>!r.me&&r.uid&&!APP[appKey(r)]).map(r=>r.uid);if(!ids.length)return;
-  const r=await AS.usersAppearance(ids);if(!r||!r.ok)return;Object.assign(APP,r.byId);draw()}catch(e){}}
+  const r=await AS.usersAppearance(ids);if(env.disposed||!r||!r.ok)return;Object.assign(APP,r.byId);draw()}catch(e){}}
 /* baris sendiri memakai PlayerData: tarik tampilan/outfit aktif dari server dulu (tanpa membuka halaman Karakter) */
 try{const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{});
- if(PD.subscribe)PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){MEV++;try{draw()}catch(e){}}})}catch(e){}
+ if(PD.subscribe)env.own(PD.subscribe(r=>{if(r==='server-appearance'||r==='server-outfits'){MEV++;try{draw()}catch(e){}}}))}catch(e){}
 
 /* ---- state ---- */
 let tab='global';
@@ -45,9 +48,11 @@ async function load(t,force){
  CACHE[t]={state:'loading',rows:(c&&c.rows)||[]};if(t===tab)draw();
  try{
   await import('../../../assets/js/multiplayer/room-service.js');
+  if(env.disposed)return;
   const rows=await UT.Multiplayer.RoomService.getLeaderboard(SCOPE[t],50);
+  if(env.disposed)return;
   CACHE[t]={state:'ok',at:Date.now(),rows:(rows||[]).map(r=>({pos:Number(r.pos),uid:r.uid,name:r.pname,lv:r.lvl,score:Number(r.score),wins:r.wins,plays:r.plays,me:!!r.is_me}))};
- }catch(e){console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:(c&&c.rows)||[]}}
+ }catch(e){if(env.disposed)return;console.warn('[leaderboard] gagal memuat',e);CACHE[t]={state:'error',rows:(c&&c.rows)||[]}}
  if(t===tab)draw();
  if(CACHE[t].state==='ok')loadAppr(CACHE[t].rows);
 }
@@ -70,6 +75,7 @@ function drawRows(c){
  if(!c.rows.length)return note(tab==='teman'?'Belum ada temanmu yang bermain.<br><small>Tambah teman lewat menu Teman</small>':tab==='mingguan'?'Belum ada yang bermain minggu ini.':'Belum ada pemain di peringkat.<br><small>Selesaikan satu pertandingan untuk masuk</small>');
  box.innerHTML=c.rows.map(o=>'<div class="row rw'+(o.me?' me':'')+'" data-n="'+esc(o.name)+'" data-r="'+o.pos+'"><span class="no">'+fmt(o.pos)+'</span>'+avatar(o,64)+'<div class="grow"><div class="nm">'+esc(o.name)+(o.me?' (Kamu)':'')+'</div><div class="lv">Lv. '+esc(o.lv==null?'—':o.lv)+'</div></div><span class="sc">'+fmt(o.score)+'</span><span class="wn">'+(o.wins==null?'—':fmt(o.wins))+'</span></div>').join('')}
 function draw(){
+ if(env.disposed)return;
  const c=cur();drawTabs();drawPodium(c.rows);drawMe(c.rows);drawRows(c);renderCurrency()}
 
 /* ---- aksi ---- */
@@ -89,18 +95,22 @@ $('#reward').addEventListener('click',()=>{buzz();modal('Hadiah Peringkat','Hadi
 $('#back').addEventListener('click',()=>nav('lobby.html'));
 $('#cur-em').addEventListener('click',()=>nav('tambang.html?from=leaderboard.html'));
 $('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}})}}catch(e){}
-UT.Events.on('currencyChanged',renderCurrency);
-UT.Events.on('frameChanged',()=>draw());
+try{env.own(PD.subscribe(r=>{if(env.disposed)return;if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){}
+env.own(UT.Events.on('currencyChanged',renderCurrency));
+env.own(UT.Events.on('frameChanged',()=>draw()));
 
 draw();load(tab);
 addEventListener('pageshow',e=>{if(e.persisted)load(tab,true)});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!mOpen)load(tab,true)});
+env.on(document,'visibilitychange',()=>{if(!document.hidden&&!mOpen)load(tab,true)});
+/* efek podium (kanvas 2D): mount di sini karena skrip inline halaman tidak dijalankan di shell */
+try{if(UT.PodiumFX){UT.PodiumFX.mount();env.own(()=>UT.PodiumFX.unmount())}}catch(e){}
 if(SV()&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('wallet',()=>{const W=WS();return W?W.refresh():{ok:true}});
  LS.add('board',()=>load(tab,true).then(()=>({ok:cur().state==='ok'})),{minGap:20000});
  LS.start({interval:20000});
+ /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+ env.own(()=>{LS.remove('board');LS.remove('wallet');LS.stop()});
 }
 document.documentElement.classList.add('ut-ready');
-if(SV()&&WS())WS().refresh().then(renderCurrency); /* saldo dari server */
-})();
+if(SV()&&WS())WS().refresh().then(()=>{if(!env.disposed)renderCurrency()}); /* saldo dari server */
+});

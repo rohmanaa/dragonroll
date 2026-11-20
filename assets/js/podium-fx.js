@@ -8,7 +8,7 @@
   var W = 660, H = 540, MAX = 45;
   var CONF = ['#3fb8ff', '#ff4fa8', '#ffd24a', '#ff9f3a', '#7be05a'];
   var GLINTS = [[330, 292], [262, 300], [398, 300], [126, 352], [186, 352], [482, 358], [540, 358], [330, 500], [300, 430], [360, 430]];
-  var cv, cx, run = false, last = 0, P = [], acc = { s: 0, d: 0, c: 0, g: 0 }, raf = 0;
+  var cv, cx, run = false, last = 0, P = [], acc = { s: 0, d: 0, c: 0, g: 0 }, raf = 0, onVis = null;
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
   function pick(a) { return a[(Math.random() * a.length) | 0]; }
@@ -88,8 +88,16 @@
       if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       var d = Math.min(2, window.devicePixelRatio || 1);
       cv.width = W * d; cv.height = H * d; cx = cv.getContext('2d'); cx.scale(d, d);
-      document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
+      if (onVis) document.removeEventListener('visibilitychange', onVis);
+      onVis = function () { document.hidden ? stop() : start(); };
+      document.addEventListener('visibilitychange', onVis);
       start();
+    },
+    /* lepas animasi + listener (dipakai saat halaman di-unmount di shell SPA); mount bisa dipanggil lagi */
+    unmount: function () {
+      stop();
+      if (onVis) { document.removeEventListener('visibilitychange', onVis); onVis = null; }
+      cv = cx = null; P = [];
     },
     start: start, stop: stop
   };
