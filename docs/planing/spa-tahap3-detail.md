@@ -91,10 +91,10 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
 | mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule (tanpa WebGL); `#view` -> `#mapview` (bentrok dengan shell); `UT.RoomFlow` lewat `UT.Spa.go`; Presence dimulai `app.js` (blok module inline tidak jalan di shell); smoke browser LULUS; cek HP belum |
 | inventory | B | Selesai sebagai view (tab masih iframe) | (commit ini) | SW v313; PageModule; `?tab=` dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; tab = iframe bersarang `?embed=inv`; smoke LULUS; tab belum jadi modul |
-| hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
-| chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
-| mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser BELUM dijalankan; cek HP belum |
-| settings | B | Selesai (kode & test) | (commit ini) | SW v310; PageModule (tanpa WebGL); tombol Fullscreen/Normal diperbaiki lewat `UT.Display`; versi game via `UT.Version.apply`; smoke browser BELUM dijalankan; cek HP belum |
+| hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| settings | B | Selesai (kode & test) | (commit ini) | SW v310; PageModule (tanpa WebGL); tombol Fullscreen/Normal diperbaiki lewat `UT.Display`; versi game via `UT.Version.apply`; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
 | room | B | Selesai (kode, test, smoke) | (commit ini) | SW v312; PageModule (tanpa WebGL sendiri); parameter dibaca dari `UT.Spa.current().url`; spa-host memuat `<script type=module>` lewat `import()`; modul multiplayer dimuat `room.js`; smoke browser LULUS; cek HP belum |
 | frame | B | - | - | |
 
@@ -254,3 +254,13 @@ Belum: cek di HP fisik.
 - **Perbaikan:** aturan gradasi dihapus; `.tm-bt .tm-y` kini `background-image: url(tombol-hijau-polos.webp) !important` (Pakai = hijau, Tidak = biru, tidak diubah).
 - **Tes:** `tests/totem-buttons-assets.test.js` (4 tes; terbukti gagal pada CSS lama) menjaga tidak ada gradasi `!important` pada `.tm-y`/`.tm-n` dan aset gambar ada.
 - **Belum:** verifikasi visual di browser (tidak ada Chrome di sesi ini); modal Totem pada layar tamu online memakai kode yang sama (`totemModal`), tetapi belum dicek. Aturan tema di `gameplay-overrides.css` (baris 112-113) dan warna dasar `gameplay.css` tetap ada sebagai cadangan, tertimpa `hud-mockup.css`.
+
+### Verifikasi smoke penuh di `main` (SW v314, 2026-11-20)
+
+`N=3 CHROME=/path/ke/chrome python3 -I tools/smoke-spa-pages.py` (Chromium 153 headless, SwiftShader), 13 view: profile, leaderboard, tambang,
+friendship, shop, mode, hadiah-misi, chest, mail, settings, room, inventory, lobby. Hasil: LULUS - 0 konteks WebGL baru, `three.min.js` 0x dimuat ulang,
+0 error konsol, hanya lobby ter-mount di akhir, tidak ada CSS/DOM/kelas tersisa, tombol Back/Coin/Gem bisa diketuk, memori JS 14,4 -> 14,1 MB.
+Ini menutup "smoke BELUM" untuk hadiah-misi, chest, mail, dan settings.
+Skrip: klik yang memicu pindah rute memakai `no_wait_after=True` (tanpa itu Playwright menunggu mount lobby yang lambat di render perangkat lunak dan
+kena timeout padahal Back berfungsi). Skrip kini lama (>5 menit untuk N=3); jalankan di latar belakang (`setsid nohup ... &`) bila alat membatasi waktu per perintah.
+Masih terbuka: cek HP fisik, ukur memori di HP, dan tab inventory (frame/efek/dadu/powerup/pet) sebagai modul.

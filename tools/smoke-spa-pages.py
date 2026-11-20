@@ -47,7 +47,7 @@ with sync_playwright() as p:
     mount('tambang'); pg.wait_for_function("document.querySelectorAll('.slot canvas.cvv').length==3",timeout=15000); pg.wait_for_timeout(1500)
     out['tambang_3d']=pg.evaluate("({owner:UT.SharedGL.owner(),slots:document.querySelectorAll('.slot').length,cv:!!document.querySelector('canvas#cv'),draws:window.__draws})")
     d0=pg.evaluate('window.__draws'); pg.wait_for_timeout(1200); out['tambang_3d']['menggambar']=pg.evaluate('window.__draws')>d0
-    pg.click('.slot[data-s="1"] [data-a="collect"]',timeout=8000); pg.wait_for_timeout(500)
+    pg.click('.slot[data-s="1"] [data-a="collect"]',timeout=8000,no_wait_after=True); pg.wait_for_timeout(500)
     mount('lobby')
     out['tambang_sesudah_keluar']=pg.evaluate("({mounted:UT.PageModule.isMounted('tambang'),cv:!!document.querySelector('canvas#cv'),owner:UT.SharedGL.owner(),tasks:(UT.LiveSync.status()||{}).tasks})")
     ctx0=pg.evaluate('window.__ctx'); three0=len(three); mem0=pg.evaluate('performance.memory?performance.memory.usedJSHeapSize:0'); times={}
@@ -72,7 +72,7 @@ with sync_playwright() as p:
     out['tombol_bisa_diketuk']={f'{n}{sel}':tappable(n,sel) for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail') for sel in ('#back','#cur-em','#cur-co')}
     nav={}
     for src in ('profile','leaderboard','tambang','friendship'):       # tombol Coin kini membuka TOKO sebagai view (bukan iframe), shell tetap
-        mount(src); pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
+        mount(src); pg.click('#cur-co',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
         nav[f'{src}#cur-co->shop']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),tab:(document.querySelector('.tabb.on')||{}).dataset&&document.querySelector('.tabb.on').dataset.k})")
     out['navigasi_ke_toko']=nav
     mount('lobby'); pg.evaluate("UT.Spa.go('karakter.html?from=room')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
@@ -81,13 +81,13 @@ with sync_playwright() as p:
     # TOKO: ?coin=1 -> tab Coin; ?tab=history; ?emerald -> tab Emerald (+ modal); Back ke lobby; Riwayat; pindah tab; tidak ada sisa DOM/CSS/kelas/langganan
     pg.evaluate("UT.Spa.go('shop.html?coin=1')"); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
     out['toko_coin']=pg.evaluate("({tab:document.querySelector('.tabb.on').dataset.k,kartu:document.querySelectorAll('#cards .card').length,hl:!!document.querySelector('#cards .card.hl'),body:document.body.className})")
-    pg.click('.tabb[data-k="history"]',timeout=8000); pg.click('#histbtn',timeout=8000); pg.wait_for_timeout(600)
+    pg.click('.tabb[data-k="history"]',timeout=8000,no_wait_after=True); pg.click('#histbtn',timeout=8000,no_wait_after=True); pg.wait_for_timeout(600)
     out['toko_riwayat']=pg.evaluate("({tab:document.querySelector('.tabb.on').dataset.k,ada_hasil:!!document.querySelector('#histlist .hempty')})")
-    pg.click('#cur-em',timeout=8000); pg.wait_for_timeout(300); out['toko_klik_emerald']=pg.evaluate("document.querySelector('.tabb.on').dataset.k")
+    pg.click('#cur-em',timeout=8000,no_wait_after=True); pg.wait_for_timeout(300); out['toko_klik_emerald']=pg.evaluate("document.querySelector('.tabb.on').dataset.k")
     pg.evaluate("UT.Spa.go('shop.html?emerald=1')"); pg.wait_for_timeout(1500)
     out['toko_emerald_modal']=pg.evaluate("({tab:document.querySelector('.tabb.on')&&document.querySelector('.tabb.on').dataset.k,modal:getComputedStyle(document.querySelector('#modal')).display})")
     pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
-    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     out['toko_sisa']=pg.evaluate("({mounted:UT.PageModule.isMounted('shop'),dom:!!document.querySelector('#cards,#tabs,#histbtn,#modal'),kelasSub:document.body.classList.contains('sub'),css:[...document.querySelectorAll('link[data-spa=\"shop\"],style[data-spa=\"shop\"]')].length,tasks:(UT.LiveSync.status()||{}).tasks})")
     # MODE (tahap 3-6): view (bukan iframe); #view tunggal (milik shell); peta/dots/tile/opsi; panah, geser, flip, Quick Start (game:start dicegat),
     # Back/Coin/Gem, pilih room lewat shell; tanpa sisa DOM/CSS. Geser di LUAR #mapview tidak boleh mengganti peta (regresi bentrok #view dengan shell).
@@ -100,9 +100,9 @@ with sync_playwright() as p:
       tile:document.querySelectorAll('.flip').length,opt:document.querySelectorAll('.opts .opt').length,dm:document.body.classList.contains('dm'),
       info:document.querySelector('#mapinfo').textContent.slice(0,40)})""")
     out['mode_awal']['aktif']=pg.evaluate(IDX)
-    pg.click('#next',timeout=8000); pg.wait_for_timeout(250); a1=pg.evaluate(IDX)                      # 1 = NETHER
-    pg.click('#next',timeout=8000); pg.wait_for_timeout(250); a2=pg.evaluate(IDX); toast=pg.evaluate("document.querySelector('#toast').classList.contains('on')")   # 2 = THE END (terkunci)
-    pg.click('#next',timeout=8000); pg.wait_for_timeout(250); a3=pg.evaluate(IDX)                      # kembali ke 0 (WORLD)
+    pg.click('#next',timeout=8000,no_wait_after=True); pg.wait_for_timeout(250); a1=pg.evaluate(IDX)                      # 1 = NETHER
+    pg.click('#next',timeout=8000,no_wait_after=True); pg.wait_for_timeout(250); a2=pg.evaluate(IDX); toast=pg.evaluate("document.querySelector('#toast').classList.contains('on')")   # 2 = THE END (terkunci)
+    pg.click('#next',timeout=8000,no_wait_after=True); pg.wait_for_timeout(250); a3=pg.evaluate(IDX)                      # kembali ke 0 (WORLD)
     bb=pg.evaluate("(()=>{const r=document.querySelector('#mapview').getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height}})()")
     cx,cy=bb['x']+bb['w']/2,bb['y']+bb['h']/2
     pg.mouse.move(cx,cy); pg.mouse.down(); pg.mouse.move(cx-200,cy,steps=5); pg.mouse.up(); pg.wait_for_timeout(250); s1=pg.evaluate(IDX)   # geser kiri -> 1
@@ -110,38 +110,38 @@ with sync_playwright() as p:
     qb=pg.evaluate("(()=>{const r=document.querySelector('#quick .hd').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()")
     pg.mouse.move(qb['x'],qb['y']); pg.mouse.down(); pg.mouse.move(qb['x']-160,qb['y'],steps=5); pg.mouse.up(); pg.wait_for_timeout(250); s3=pg.evaluate(IDX)   # di luar peta -> tetap 0
     out['mode_peta']={'panah':[a1,a2,a3],'toast_end':toast,'geser':[s1,s2],'geser_luar':s3}
-    pg.click('.flip[data-id="q-solo"] .front',timeout=8000); pg.wait_for_timeout(300); f1=pg.evaluate(OPEN)
-    pg.click('.flip[data-id="c-vsc"] .front',timeout=8000); pg.wait_for_timeout(300); f2=pg.evaluate(OPEN)
+    pg.click('.flip[data-id="q-solo"] .front',timeout=8000,no_wait_after=True); pg.wait_for_timeout(300); f1=pg.evaluate(OPEN)
+    pg.click('.flip[data-id="c-vsc"] .front',timeout=8000,no_wait_after=True); pg.wait_for_timeout(300); f2=pg.evaluate(OPEN)
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300); f3=pg.evaluate(OPEN)
-    pg.click('.flip[data-id="q-solo"] .front',timeout=8000); pg.wait_for_timeout(500); pg.click('#quick .flip[data-id="q-solo"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(500)
+    pg.click('.flip[data-id="q-solo"] .front',timeout=8000,no_wait_after=True); pg.wait_for_timeout(500); pg.click('#quick .flip[data-id="q-solo"] .opt >> nth=0',timeout=8000,no_wait_after=True); pg.wait_for_timeout(500)
     mm1=pg.evaluate("({on:document.querySelector('#modal').classList.contains('on'),mt:document.querySelector('#mt').textContent})")
-    pg.click('#mcancel',timeout=8000); pg.wait_for_timeout(300); mm2=pg.evaluate("document.querySelector('#modal').classList.contains('on')")
+    pg.click('#mcancel',timeout=8000,no_wait_after=True); pg.wait_for_timeout(300); mm2=pg.evaluate("document.querySelector('#modal').classList.contains('on')")
     out['mode_flip']={'q_solo':f1,'c_vsc':f2,'escape':f3,'quick_modal':mm1,'sesudah_batal':mm2}
     nm={}
-    pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
+    pg.click('#cur-co',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
     nm['coin->shop']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),tab:(document.querySelector('.tabb.on')||{}).dataset&&document.querySelector('.tabb.on').dataset.k})")
-    mount('mode'); pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
+    mount('mode'); pg.click('#cur-em',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
     nm['gem->tambang']=pg.evaluate("({path:location.pathname.split('/').pop(),cur:UT.Spa.current()})")
-    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(800)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(800)
     nm['tambang_back->mode']=pg.evaluate("UT.Spa.current()")
-    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     nm['back->lobby']=pg.evaluate("({path:location.pathname.split('/').pop(),cur:UT.Spa.current(),mode:UT.PageModule.isMounted('mode')})")
-    mount('mode'); pg.click('.flip[data-id="c-vsc"] .front',timeout=8000); pg.wait_for_timeout(500); pg.click('#create .flip[data-id="c-vsc"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(3000)
+    mount('mode'); pg.click('.flip[data-id="c-vsc"] .front',timeout=8000,no_wait_after=True); pg.wait_for_timeout(500); pg.click('#create .flip[data-id="c-vsc"] .opt >> nth=0',timeout=8000,no_wait_after=True); pg.wait_for_timeout(3000)
     nm['vsc->room']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),mode:UT.PageModule.isMounted('mode'),room:UT.PageModule.isMounted('room')})")
-    mount('mode'); pg.click('.flip[data-id="q-team"] .front',timeout=8000); pg.wait_for_timeout(500); pg.click('#quick .flip[data-id="q-team"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(4200)
+    mount('mode'); pg.click('.flip[data-id="q-team"] .front',timeout=8000,no_wait_after=True); pg.wait_for_timeout(500); pg.click('#quick .flip[data-id="q-team"] .opt >> nth=0',timeout=8000,no_wait_after=True); pg.wait_for_timeout(4200)
     nm['quick_team->launch']=pg.evaluate("({lawan:document.querySelector('#mt').textContent,cfg:window.__launch&&{type:window.__launch.type,format:window.__launch.format,players:window.__launch.players.length,map:window.__launch.map},path:location.pathname.split('/').pop()})")
     out['mode_nav']=nm
     mount('lobby')
     out['mode_sisa']=pg.evaluate("""({mounted:UT.PageModule.isMounted('mode'),dom:!!document.querySelector('#track,#maps,#quick,#create,#mbox,#mapview'),dm:document.body.classList.contains('dm'),
       css:[...document.querySelectorAll('link[data-spa="mode"],style[data-spa="mode"]')].length,shellView:!!document.querySelector('body > #view')})""")
-    mount('profile'); pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
-    out['tambang_dari_profil']=pg.evaluate("UT.Spa.current()"); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500)
+    mount('profile'); pg.click('#cur-em',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
+    out['tambang_dari_profil']=pg.evaluate("UT.Spa.current()"); pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_timeout(1500)
     out['tambang_back_ke_asal']=pg.evaluate("UT.Spa.current()")
-    mount('friendship'); pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
-    pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['tambang_back_ke_friendship']=pg.evaluate("UT.Spa.current()")
-    mount('friendship'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['friendship_back_ke']=pg.evaluate("UT.Spa.current()")
-    mount('profile'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['profil_back_ke']=pg.evaluate("UT.Spa.current()")
-    mount('leaderboard'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['peringkat_back_ke']=pg.evaluate("UT.Spa.current()")
+    mount('friendship'); pg.click('#cur-em',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_timeout(1500); out['tambang_back_ke_friendship']=pg.evaluate("UT.Spa.current()")
+    mount('friendship'); pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_timeout(1500); out['friendship_back_ke']=pg.evaluate("UT.Spa.current()")
+    mount('profile'); pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_timeout(1500); out['profil_back_ke']=pg.evaluate("UT.Spa.current()")
+    mount('leaderboard'); pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_timeout(1500); out['peringkat_back_ke']=pg.evaluate("UT.Spa.current()")
     # ROOM (tahap 3-11): view; offline VS Computer (2 pemain), perlengkapan, modal Power/Equipment, Escape, START -> game:start (dicegat),
     # Back -> mode, KELUAR -> lobby; kelas html (dro/mp-online) dan DOM/CSS tidak tersisa. Mode ONLINE: modul multiplayer dimuat lewat import() di shell
     # (RoomService ada, RoomDiceArt ada); setup server gagal tanpa jaringan -> pesan galat room dibuang dari daftar galat.
@@ -151,16 +151,16 @@ with sync_playwright() as p:
       pemain:document.querySelectorAll('#list .pl:not(.empty)').length,bot:document.querySelectorAll('#list .badge.bot').length,slotEq:document.querySelectorAll('#eq .slot').length,
       slotPower:document.querySelectorAll('#prow .ps').length,chips:document.querySelectorAll('#chips .chip').length,startOn:!document.querySelector('#start').disabled,
       peta:!!document.querySelector('#mArt img,#mArt svg'),dm:document.body.classList.contains('dm'),diceArt:!!(window.RoomDiceArt&&window.RoomDiceArt.thumb)})""")
-    pg.click('#power',timeout=8000); pg.wait_for_timeout(400); pm=pg.evaluate("document.querySelector('#pm').classList.contains('on')")
+    pg.click('#power',timeout=8000,no_wait_after=True); pg.wait_for_timeout(400); pm=pg.evaluate("document.querySelector('#pm').classList.contains('on')")
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300); pm2=pg.evaluate("document.querySelector('#pm').classList.contains('on')")
-    pg.click('.slot[data-k="dice"]',timeout=8000); pg.wait_for_timeout(400); em=pg.evaluate("({on:document.querySelector('#em').classList.contains('on'),n:document.querySelectorAll('#emL .it').length})")
+    pg.click('.slot[data-k="dice"]',timeout=8000,no_wait_after=True); pg.wait_for_timeout(400); em=pg.evaluate("({on:document.querySelector('#em').classList.contains('on'),n:document.querySelectorAll('#emL .it').length})")
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300); em2=pg.evaluate("document.querySelector('#em').classList.contains('on')")
     out['room_modal']={'power':pm,'power_esc':pm2,'dadu':em,'dadu_esc':em2}
-    pg.click('#start',timeout=8000); pg.wait_for_timeout(800)
+    pg.click('#start',timeout=8000,no_wait_after=True); pg.wait_for_timeout(800)
     out['room_start']=pg.evaluate("({cfg:window.__launch&&{type:window.__launch.type,mode:window.__launch.mode,players:window.__launch.players.length},path:location.pathname.split('/').pop()})")
-    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
     out['room_back']=pg.evaluate("({cur:UT.Spa.current(),room:UT.PageModule.isMounted('room')})")
-    mount('room'); pg.click('#leave',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    mount('room'); pg.click('#leave',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     out['room_keluar']=pg.evaluate("({cur:UT.Spa.current(),room:UT.PageModule.isMounted('room')})")
     out['room_sisa']=pg.evaluate("""({dom:!!document.querySelector('#eq,#prow,#players,#pageModal,#pm,#em,#dr'),dro:document.documentElement.classList.contains('dro'),mp:document.documentElement.classList.contains('mp-online'),
       css:[...document.querySelectorAll('link[data-spa="room"],style[data-spa="room"]')].length,tasks:(UT.LiveSync.status()||{}).tasks})""")
@@ -173,9 +173,9 @@ with sync_playwright() as p:
     mount('lobby'); pg.evaluate("UT.Spa.go('inventory.html?tab=dadu')"); pg.wait_for_function("UT.PageModule.isMounted('inventory')",timeout=45000)
     pg.wait_for_function("document.querySelector('iframe.view.on.ready')",timeout=30000); pg.wait_for_timeout(500)
     out['inv_awal']=pg.evaluate("({path:location.pathname.split('/').pop(),cur:UT.Spa.current(),tabs:document.querySelectorAll('#tabs .tab').length,on:(document.querySelector('#tabs .tab.on')||{}).dataset.k,iframes:document.querySelectorAll('#views iframe').length,src:(document.querySelector('iframe.view.on')||{}).src})")
-    pg.click('#tabs .tab[data-k="frame"]',timeout=8000); pg.wait_for_function("document.querySelector('iframe.view.on.ready')&&document.querySelector('iframe.view.on').src.indexOf('frame.html')>0",timeout=30000)
+    pg.click('#tabs .tab[data-k="frame"]',timeout=8000,no_wait_after=True); pg.wait_for_function("document.querySelector('iframe.view.on.ready')&&document.querySelector('iframe.view.on').src.indexOf('frame.html')>0",timeout=30000)
     out['inv_tab']=pg.evaluate("({on:document.querySelector('#tabs .tab.on').dataset.k,iframes:document.querySelectorAll('#views iframe').length,url:UT.Spa.current().url})")
-    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#back',timeout=8000,no_wait_after=True); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     out['inv_sisa']=pg.evaluate("({mounted:UT.PageModule.isMounted('inventory'),dom:!!document.querySelector('#tabs,#views'),iframes:document.querySelectorAll('#views iframe').length,css:[...document.querySelectorAll('link[data-spa=\"inventory\"],style[data-spa=\"inventory\"]')].length,cur:UT.Spa.current()})")
     out['errors']=errs[:8]
     shell_ok=all(v['path']=='play.html' and not v['viewActive'] for v in out['navigasi_non_view'].values())
