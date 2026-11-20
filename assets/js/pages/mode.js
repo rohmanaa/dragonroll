@@ -1,23 +1,36 @@
-/* mode.js — dipindah dari blok script inline (mode.html). */
-(()=>{
+/* mode.js — Tahap 3 SPA: dibungkus UT.PageModule ('mode'). Halaman mandiri otomatis mount; unmount() melepas timer, listener, langganan
+   (PlayerData, Events), LiveSync, dan simulasi pencarian lawan. Navigasi lewat UT.Spa.go (RoomFlow juga sadar-shell). */
+UT.PageModule.define('mode',function(env){
+const {setTimeout,clearTimeout,addEventListener}=env;
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow,fmt=n=>Number(n).toLocaleString('id-ID');
 const buzz=()=>{try{if(PD.settings().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2000)}
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2000)}
 function nav(fn){$('#fade').classList.add('on');setTimeout(fn,330)}
+/* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: pindah halaman biasa */
+const go=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}location.href=u};
 addEventListener('pageshow',e=>{if(e.persisted){$('#fade').classList.remove('on');closeAll();cancelMM()}});
 
 /* ---- saldo: PlayerData; "—" sampai server membalas; ikut berubah tanpa refresh ---- */
 function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
-function money(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
-UT.Events.on('currencyChanged',money);
-try{PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')money()})}catch(e){}
+function money(){if(env.disposed)return;const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
+env.own(UT.Events.on('currencyChanged',money));
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')money()}))}catch(e){}
 money();
-$('#cur-em').onclick=()=>{buzz();nav(()=>{location.href='tambang.html?from=mode.html'})};
-$('#cur-co').onclick=()=>{buzz();nav(()=>{location.href='shop.html?coin=1'})};
+$('#cur-em').onclick=()=>{buzz();nav(()=>go('tambang.html?from=mode.html'))};
+$('#cur-co').onclick=()=>{buzz();nav(()=>go('shop.html?coin=1'))};
 if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){
   UT.WalletService.get().refresh();
-  if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}
+  if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000});
+    /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+    env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.stop()})}
 }
+
+/* ---- multiplayer: dulu <script type="module"> inline di mode.html (dibuang loader SPA); kini import dinamis ---- */
+Promise.all([import('../multiplayer/room-service.js'),import('../multiplayer/presence.js')]).then(()=>{
+  if(env.disposed)return;
+  window.dispatchEvent(new Event('ut:multiplayer-ready'));
+  UT.Multiplayer.Presence.start({status:'lobby'});
+}).catch(e=>console.warn('[mode] multiplayer gagal dimulai',e));
 
 /* ---- peta: dari RoomFlow.maps() (ItemCatalog, kind:'theme') + The End (terkunci). Ilustrasi = gaya GUI baru ---- */
 const META={
@@ -59,7 +72,7 @@ function show(i,instant){
   if(m.locked){toast(SOONMSG)}else RF.setMap(m.key);   /* map terkunci: pilihan tersimpan tidak berubah */
 }
 $('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);
-{ let x0=null;const v=$('#view');
+{ let x0=null;const v=$('#mapview');
   v.addEventListener('pointerdown',e=>{x0=e.clientX});
   addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1))});
   addEventListener('keydown',e=>{if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1);if(e.key==='Escape')closeAll()}); }
@@ -73,7 +86,7 @@ flips.forEach(f=>{
   f.querySelector('.front').addEventListener('click',()=>{buzz();if(!selectedMap())return;const was=f.classList.contains('open');closeAll();if(!was)f.classList.add('open')});
   f.querySelector('.close').addEventListener('click',e=>{e.stopPropagation();f.classList.remove('open')});
 });
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.flip.open'))closeAll()});
+env.on(document,'pointerdown',e=>{if(!e.target.closest('.flip.open'))closeAll()});
 /* isi tombol opsi */
 document.querySelectorAll('.opts').forEach(o=>{
   const pairs=o.dataset.pairs?o.dataset.pairs.split('|').map(p=>p.split(':')):null;
@@ -117,4 +130,4 @@ $('#back').onclick=()=>{buzz();nav(()=>RF.navigate('back'))};
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')'}
 addEventListener('resize',fit);fit();
 document.documentElement.classList.add('ut-ready');
-})();
+});

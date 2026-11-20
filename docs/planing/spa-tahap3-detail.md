@@ -89,7 +89,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
 | friendship | A | Selesai (kode & test) | (commit ini) | SW v302; PageModule (tanpa WebGL sendiri); memperbaiki bug lama `#home` (halaman mandiri melempar TypeError, daftar teman tidak pernah dimuat); smoke browser LULUS; cek HP belum |
 | shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
-| mode | B | - | - | |
+| mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule; `#view` -> `#mapview`; module multiplayer -> import dinamis; RoomFlow sadar-shell; smoke browser LULUS; cek HP belum |
 | inventory | B | - | - | |
 | hadiah-misi | B | - | - | |
 | chest | B | - | - | |
@@ -166,3 +166,17 @@ Belum: cek di HP fisik.
 - Hasil smoke (Chromium headless, 20 putaran, 6 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 10,6 -> 11,8 MB, mount shop ~26 ms.
 - Belum: transaksi sungguhan (tukar Coin, beli chest, riwayat) dengan akun server; cek HP fisik.
 - Urutan berikutnya: `mode`, `hadiah-misi`, `chest`, `mail`, `settings`, `room`, `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Mode (tahap 3-5, Gelombang B, SW v305)
+
+- `assets/js/pages/mode.js` dibungkus `UT.PageModule.define('mode')`; `mode.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS) dan `frame-guard.js` (agar keluar dari gameplay/room ke `mode.html` di iframe dialihkan ke view); prefetch `mode.html` di `play.js` sudah ada.
+- **Bentrok ID**: `play.html` memiliki `#view` (kontainer shell), sedangkan mode memakai `#view` untuk peta. `$('#view')` akan mengenai shell dan CSS `#view{position:absolute;...}` merusak shell. Diganti `#mapview` di `mode.html`, `mode.css`, `mode.js`. Cek ID bentrok antara shell dan halaman wajib untuk setiap halaman berikutnya (shell: `f`, `ov`, `view`).
+- **Skrip module inline** (`room-service.js` + `presence.js` + `Presence.start({status:'lobby'})`) dibuang loader (hanya `script[src]` yang dimuat). Dipindah ke `mode.js` sebagai `import()` dinamis, dijaga `env.disposed`.
+- **`RoomFlow`** (`assets/js/room-flow.js`, dipakai juga `room.js`/gameplay): semua `location.href` diganti helper `go(url)`; bila ada `UT.Spa` memakai `UT.Spa.go` (shell tidak ditinggalkan), bila tidak (iframe/halaman mandiri) tetap pindah halaman biasa. Perilaku di iframe tidak berubah. Berguna juga untuk migrasi `room`.
+- Timer pencarian lawan, `pointerup`/`keydown`/`resize`/`pageshow`/`pointerdown(document)`, `Events`/`PlayerData`, dan LiveSync dilepas saat unmount. Keluar saat simulasi pencarian berjalan tidak meluncurkan game.
+- Tombol Gem -> `tambang.html?from=mode.html` (Back kembali ke mode), Coin -> `shop.html?coin=1`, lewat `go()`.
+- `tests/spa-host.test.js`: contoh halaman non-view diganti ke `mail.html`. Test baru `tests/mode-module.test.js` (11 tes, termasuk RoomFlow dengan/tanpa shell). Seluruh test: sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` mencakup mode: carousel peta, Quick Start (batal; luncur ke `gameplay.html?...` via `UT.Spa.go` tertangkap; keluar saat mencari), Create Room, Gem/Coin/Back, tanpa sisa DOM/CSS, `#view` shell tetap satu. Pencatat URL 404 ditambahkan. Navigasi non-view kini diuji ke `mail.html`.
+- Hasil smoke (Chromium headless, N=20, 7 view): LULUS; 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error/404, memori 10,7 -> 12,0 MB, mount mode ~33 ms. Catatan: pada N=12 dua kali cek lama `tambang_3d.menggambar` (frame tambang digambar dalam 1,2 dtk) gagal sementara seluruh cek mode lulus; belum diselidiki penyebabnya (diduga peka beban render perangkat lunak). Pakai N=20 sebagai standar.
+- Belum: peluncuran gameplay/room sungguhan dari view (di smoke `UT.Spa.go` ditangkap), cek HP fisik.
+- Urutan berikutnya: `hadiah-misi`, `chest`, `mail`, `settings`, `room`, `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.

@@ -32,6 +32,11 @@
   }
   function eqKey(slot) { var it = IC.byId(PD.equippedId(slot)); return it ? it.gameKey : null; }
 
+  /* di shell SPA (play.html) pindah lewat UT.Spa.go agar shell tidak ditinggalkan; di iframe/halaman mandiri UT.Spa tidak ada -> pindah halaman biasa seperti semula */
+  function go(url) {
+    try { if (g.UT && g.UT.Spa && g.UT.Spa.go) { g.UT.Spa.go(url); return; } } catch (e) {}
+    location.href = url;
+  }
   function navigate(to, detail) {
     var d = Object.assign({ to: to }, detail || {});
     var ev = new CustomEvent('game:navigate', { detail: d, cancelable: true });
@@ -39,9 +44,9 @@
     if (to === 'room') {
       var q = new URLSearchParams({ mode: d.mode, format: d.format || 'solo', count: d.count || 4 });
       if (d.role) q.set('role', d.role); if (d.code) q.set('code', d.code);
-      location.href = 'room.html?' + q.toString();
-    } else if (to === 'mode') location.href = 'mode.html';
-    else location.href = 'lobby.html';   /* back & home */
+      go('room.html?' + q.toString());
+    } else if (to === 'mode') go('mode.html');
+    else go('lobby.html');   /* back & home */
   }
 
   /* cfg: {type:'ranked'|'room', mode, format, privacy, host, code, players:[{name,team,kind}], powers:[id], skin, frame, dice, map} */
@@ -57,7 +62,7 @@
     try { sessionStorage.setItem(CFG_KEY, JSON.stringify({ mode: mode, skins: skins, theme: cfg.map, dice: dice })); } catch (e) {}
     try { sessionStorage.setItem(ROOM_KEY, JSON.stringify(cfg)); } catch (e) {}   /* konfigurasi lengkap (tim, power, frame, host) untuk gameplay */
     try { sessionStorage.setItem('ut:nav-heavy', '1'); } catch (e) {} /* pembungkus (play.html) menampilkan layar "Memuat" segera untuk gameplay */
-    location.href = 'gameplay.html?' + p.toString();
+    go('gameplay.html?' + p.toString());
   }
   /* Tujuan setelah keluar gameplay, sesuai cara pemain masuk tadi:
      - type 'room' (VS Computer / Multi Player / Create Room) -> room.html dengan parameter yang sama
@@ -78,7 +83,7 @@
     var to = returnUrl();
     var ev = new CustomEvent('game:navigate', { detail: { to: 'exit', url: to }, cancelable: true });
     if (!g.dispatchEvent(ev)) return;
-    location.href = to;
+    go(to);
   }
   function lastRoom() { try { return JSON.parse(sessionStorage.getItem(ROOM_KEY) || 'null'); } catch (e) { return null; } }
 

@@ -1,7 +1,7 @@
-"""Smoke test SPA tahap 3 (Chrome headless): Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Toko -> Lobby berulang lewat UT.Spa.go.
+"""Smoke test SPA tahap 3 (Chrome headless): Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Toko -> Mode -> Lobby berulang lewat UT.Spa.go.
 Diukur: konteks WebGL baru (harus 0), three.min.js dimuat ulang (0), error konsol/halaman, memori, waktu mount,
 tugas LiveSync 'board' setelah keluar leaderboard, kelas html yang bocor (pf-wide), CSS/DOM view yang tertinggal,
-tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (mode):
+tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (mail):
 shell play.html TIDAK boleh ditinggalkan. Toko (?coin=1, tab, Back, Riwayat) dicek sebagai view.
 Jalankan: CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py   (viewport landscape; syarat lain sama dengan smoke-spa.py)."""
 import sys, json, threading, http.server, socketserver, functools, os
@@ -26,16 +26,18 @@ with sync_playwright() as p:
     b=p.chromium.launch(executable_path=os.environ.get('CHROME','/usr/bin/google-chrome'),args=['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--enable-precise-memory-info'])
     pg=b.new_context(viewport={'width':1280,'height':720}).new_page()
     errs=[]; three=[]
+    pg.on('response',lambda r:errs.append('404:'+r.url.split('/',3)[-1][:160]) if r.status==404 else None)   # sebut URL-nya, bukan hanya 'Failed to load resource'
     pg.on('pageerror',lambda e:errs.append(str(e)[:200]))
     pg.on('console',lambda m:errs.append('console:'+m.text[:200]) if m.type=='error' and not any(x in m.text for x in ('ERR_TUNNEL','ERR_NAME_NOT_RESOLVED','ERR_INTERNET_DISCONNECTED')) else None)
     pg.on('request',lambda r:three.append(r.resource_type+'@'+(r.frame.url.split('/')[-1] if r.frame else '?')) if r.url.split('?')[0].endswith('three.min.js') else None)
     pg.add_init_script(INIT)
+    r404=[]; pg.on('response',lambda r: r404.append(r.url.split('/',3)[-1]) if r.status==404 else None)   # sumber 404 dicatat (pesan konsol Chromium tidak menyebut URL)
     HIT="""(sel)=>{const e=document.querySelector(sel);if(!e)return false;const r=e.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!(t&&(t===e||e.contains(t)))}"""
     def mount(n):
         pg.evaluate(f"UT.Spa.go('{n}.html')"); pg.wait_for_function(f"UT.PageModule.isMounted('{n}')",timeout=45000); pg.wait_for_timeout(600)
     pg.goto(f'http://127.0.0.1:{port}/play.html?go=lobby.html',wait_until='load')
     pg.wait_for_function("UT&&UT.Spa&&UT.Spa.viewActive&&UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(1500)
-    for n in ('profile','leaderboard','tambang','friendship','shop','lobby'): mount(n)          # pemanasan
+    for n in ('profile','leaderboard','tambang','friendship','shop','mode','lobby'): mount(n)          # pemanasan
 
     # tambang butuh MineService server: pasang stub (data palsu) agar pulau 3D + SharedGL benar-benar jalan, bukan mode-lokal
     STUB="""(()=>{const sl=(u)=>({unlocked:u,base_rate:1,unlock_cost:50,rate:u?2:0,stock:3,cap:20,speed_lv:u?3:1,cap_lv:1,next_speed_cost:100,next_cap_cost:100,full_in_secs:3600,boost:{active:false,left_secs:0,left_today:2,cost:10}});
@@ -51,10 +53,10 @@ with sync_playwright() as p:
     out['tambang_sesudah_keluar']=pg.evaluate("({mounted:UT.PageModule.isMounted('tambang'),cv:!!document.querySelector('canvas#cv'),owner:UT.SharedGL.owner(),tasks:(UT.LiveSync.status()||{}).tasks})")
     ctx0=pg.evaluate('window.__ctx'); three0=len(three); mem0=pg.evaluate('performance.memory?performance.memory.usedJSHeapSize:0'); times={}
     for i in range(N):
-        for n in ('profile','leaderboard','tambang','friendship','shop','lobby'):
+        for n in ('profile','leaderboard','tambang','friendship','shop','mode','lobby'):
             t=pg.evaluate(f"""new Promise(res=>{{const t0=performance.now();UT.Spa.go('{n}.html').then(()=>{{const w=()=>UT.PageModule.isMounted('{n}')?res(performance.now()-t0):setTimeout(w,16);w()}})}})""")
             times.setdefault(n,[]).append(round(t)); pg.wait_for_timeout(250)
-    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop'].filter(n=>UT.PageModule.isMounted(n))")
+    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop','mode'].filter(n=>UT.PageModule.isMounted(n))")
     out['konteks_baru']=pg.evaluate('window.__ctx')-ctx0; out['three_dimuat_ulang']=len(three)-three0
     out['sharedgl']=pg.evaluate('UT.SharedGL.stats()')
     out['waktu_mount_ms']={k:{'rata2':round(sum(v)/len(v)),'maks':max(v)} for k,v in times.items()}
@@ -68,14 +70,14 @@ with sync_playwright() as p:
         mount(n)
         try: pg.wait_for_function("([f,sel])=>eval('('+f+')')(sel)",arg=[HIT,sel],timeout=10000); return True
         except Exception: return False
-    out['tombol_bisa_diketuk']={f'{n}{sel}':tappable(n,sel) for n in ('profile','leaderboard','tambang','friendship','shop') for sel in ('#back','#cur-em','#cur-co')}
+    out['tombol_bisa_diketuk']={f'{n}{sel}':tappable(n,sel) for n in ('profile','leaderboard','tambang','friendship','shop','mode') for sel in ('#back','#cur-em','#cur-co')}
     nav={}
     for src in ('profile','leaderboard','tambang','friendship'):       # tombol Coin kini membuka TOKO sebagai view (bukan iframe), shell tetap
         mount(src); pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
         nav[f'{src}#cur-co->shop']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),tab:(document.querySelector('.tabb.on')||{}).dataset&&document.querySelector('.tabb.on').dataset.k})")
     out['navigasi_ke_toko']=nav
-    mount('lobby'); pg.evaluate("UT.Spa.go('mode.html')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
-    out['navigasi_non_view']={'lobby->mode':pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")}
+    mount('lobby'); pg.evaluate("UT.Spa.go('mail.html')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
+    out['navigasi_non_view']={'lobby->mail':pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")}
     mount('lobby')
     # TOKO: ?coin=1 -> tab Coin; ?tab=history; ?emerald -> tab Emerald (+ modal); Back ke lobby; Riwayat; pindah tab; tidak ada sisa DOM/CSS/kelas/langganan
     pg.evaluate("UT.Spa.go('shop.html?coin=1')"); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
@@ -88,6 +90,35 @@ with sync_playwright() as p:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
     pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     out['toko_sisa']=pg.evaluate("({mounted:UT.PageModule.isMounted('shop'),dom:!!document.querySelector('#cards,#tabs,#histbtn,#modal'),kelasSub:document.body.classList.contains('sub'),css:[...document.querySelectorAll('link[data-spa=\"shop\"],style[data-spa=\"shop\"]')].length,tasks:(UT.LiveSync.status()||{}).tasks})")
+    # MODE: peta (carousel), Quick Start (simulasi; batal & keluar saat berjalan), peluncuran via RoomFlow -> UT.Spa.go, Create Room, Gem/Back; #view shell tidak rusak
+    pg.evaluate("UT.Spa.go('mode.html')"); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(900)
+    out['mode_awal']=pg.evaluate("({peta:document.querySelectorAll('#track .map').length,tombol_opsi:document.querySelectorAll('.opt').length,view_shell:document.querySelectorAll('#view').length,mapview_di_dalam_shell:document.getElementById('view').contains(document.getElementById('mapview')),info:document.getElementById('mapinfo').textContent})")
+    pg.click('#next',timeout=8000); pg.wait_for_timeout(300); out['mode_next']=pg.evaluate("document.getElementById('mapinfo').textContent")
+    pg.click('#next',timeout=8000); pg.wait_for_timeout(300); out['mode_end']=pg.evaluate("({info:document.getElementById('mapinfo').textContent,toast:document.getElementById('toast').classList.contains('on')})")
+    pg.click('#prev',timeout=8000); pg.wait_for_timeout(300)
+    pg.evaluate("window.__go=[];window.__goOrig=UT.Spa.go;UT.Spa.go=function(u){window.__go.push(u);return Promise.resolve()};0")   # tangkap navigasi (tidak membuka gameplay/room sungguhan)
+    pg.evaluate("sessionStorage.removeItem('ut-room')")
+    pg.click('.flip[data-id="q-solo"] .front',timeout=8000); pg.click('.flip[data-id="q-solo"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(300)
+    out['mode_quick_modal']=pg.evaluate("document.getElementById('modal').classList.contains('on')")
+    pg.click('#mcancel',timeout=8000); pg.wait_for_timeout(300); out['mode_quick_batal']=pg.evaluate("!document.getElementById('modal').classList.contains('on')")
+    pg.click('.flip[data-id="q-solo"] .front',timeout=8000); pg.click('.flip[data-id="q-solo"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(4200)   # simulasi 2,4 dtk + 0,9 dtk
+    out['mode_quick_launch']=pg.evaluate("({go:window.__go.slice(),room:(JSON.parse(sessionStorage.getItem('ut-room')||'null')||{}).type})")
+    pg.evaluate("window.__go=[];sessionStorage.removeItem('ut-room');document.getElementById('modal').classList.remove('on')")   # navigasi ditangkap (tidak pindah), jadi modal dibersihkan manual
+    pg.click('.flip[data-id="c-vsc"] .front',timeout=8000); pg.click('.flip[data-id="c-vsc"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(900)
+    out['mode_create_room']=pg.evaluate("window.__go.slice()")
+    pg.evaluate("window.__go=[];document.getElementById('fade').classList.remove('on')")
+    pg.click('.flip[data-id="q-team"] .front',timeout=8000); pg.click('.flip[data-id="q-team"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(500)   # keluar SAAT simulasi berjalan
+    pg.evaluate("UT.Spa.go=window.__goOrig;0"); mount('lobby'); pg.wait_for_timeout(4200)
+    out['mode_keluar_saat_cari']=pg.evaluate("({mounted:UT.PageModule.isMounted('mode'),room:sessionStorage.getItem('ut-room'),go:window.__go.slice(),page:UT.Spa.page,cur:UT.Spa.current()&&UT.Spa.current().name})")
+    pg.evaluate("UT.Spa.go('mode.html')"); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(600)
+    out['mode_gem_ke_tambang']=pg.evaluate("UT.Spa.current()"); pg.click('#back',timeout=12000); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
+    out['mode_tambang_back']=pg.evaluate("UT.Spa.current()")
+    pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
+    out['mode_coin_ke_toko']=pg.evaluate("({cur:UT.Spa.current(),tab:document.querySelector('.tabb.on').dataset.k})")
+    pg.evaluate("UT.Spa.go('mode.html')"); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
+    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    out['mode_sisa']=pg.evaluate("({mounted:UT.PageModule.isMounted('mode'),dom:!!document.querySelector('#mapview,#track,#quick,#create,#mcancel'),css:[...document.querySelectorAll('link[data-spa=mode],style[data-spa=mode]')].length,view_shell:document.querySelectorAll('#view').length,tasks:(UT.LiveSync.status()||{}).tasks})")
     mount('profile'); pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
     out['tambang_dari_profil']=pg.evaluate("UT.Spa.current()"); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500)
     out['tambang_back_ke_asal']=pg.evaluate("UT.Spa.current()")
@@ -96,15 +127,22 @@ with sync_playwright() as p:
     mount('friendship'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['friendship_back_ke']=pg.evaluate("UT.Spa.current()")
     mount('profile'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['profil_back_ke']=pg.evaluate("UT.Spa.current()")
     mount('leaderboard'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['peringkat_back_ke']=pg.evaluate("UT.Spa.current()")
-    out['errors']=errs[:8]
+    out['errors']=errs[:8]; out['http_404']=sorted(set(r404))
     shell_ok=all(v['path']=='play.html' and not v['viewActive'] for v in out['navigasi_non_view'].values())
-    nonview_ok=[v['page'] for v in out['navigasi_non_view'].values()]==['mode.html']
+    nonview_ok=[v['page'] for v in out['navigasi_non_view'].values()]==['mail.html']
+    mode_ok=(out['mode_awal']['peta']==3 and out['mode_awal']['tombol_opsi']>=10 and out['mode_awal']['view_shell']==1 and out['mode_awal']['mapview_di_dalam_shell']
+        and 'NETHER' in out['mode_next'] and out['mode_end']['toast'] and out['mode_quick_modal'] and out['mode_quick_batal']
+        and len(out['mode_quick_launch']['go'])==1 and out['mode_quick_launch']['go'][0].startswith('gameplay.html?mode=') and out['mode_quick_launch']['room']=='ranked'
+        and len(out['mode_create_room'])==1 and out['mode_create_room'][0].startswith('room.html?mode=vsc')
+        and not out['mode_keluar_saat_cari']['mounted'] and out['mode_keluar_saat_cari']['room'] is None and out['mode_keluar_saat_cari']['go']==[] and out['mode_keluar_saat_cari']['cur']=='lobby'
+        and out['mode_gem_ke_tambang']['url']=='tambang.html?from=mode.html' and out['mode_tambang_back']['name']=='mode' and out['mode_coin_ke_toko']['tab']=='coin'
+        and not out['mode_sisa']['mounted'] and not out['mode_sisa']['dom'] and out['mode_sisa']['css']==0 and out['mode_sisa']['view_shell']==1)
     toko_nav_ok=all(v['path']=='play.html' and v['viewActive'] and v['cur']['name']=='shop' and v['tab']=='coin' for v in nav.values())
     toko_ok=(out['toko_coin']['tab']=='coin' and out['toko_coin']['kartu']==3 and out['toko_coin']['hl'] and out['toko_riwayat']['tab']=='history' and out['toko_riwayat']['ada_hasil']
         and out['toko_klik_emerald']=='emerald' and out['toko_emerald_modal']['tab']=='emerald' and out['toko_emerald_modal']['modal']!='none' and not out['toko_sisa']['mounted'] and not out['toko_sisa']['dom']
         and not out['toko_sisa']['kelasSub'] and out['toko_sisa']['css']==0)
     ok=(out['konteks_baru']==0 and out['three_dimuat_ulang']==0 and not errs and out['sharedgl']['created']<=2
-        and not out['kelas_pf_wide_bocor'] and all(out['tombol_bisa_diketuk'].values()) and out['mounted_akhir']==['lobby'] and shell_ok and nonview_ok and toko_nav_ok and toko_ok
+        and not out['kelas_pf_wide_bocor'] and all(out['tombol_bisa_diketuk'].values()) and out['mounted_akhir']==['lobby'] and shell_ok and nonview_ok and toko_nav_ok and toko_ok and mode_ok
         and out['link_css_spa']==['lobby'] and out['tambang_back_ke_friendship']['name']=='friendship' and out['friendship_back_ke']['name']=='lobby' and out['tambang_3d']['owner']=='tambang' and out['tambang_3d']['slots']==3 and out['tambang_3d']['menggambar'] and not out['tambang_sesudah_keluar']['mounted'] and not out['tambang_sesudah_keluar']['cv'] and out['tambang_sesudah_keluar']['owner']=='lobby' and out['tambang_dari_profil']['name']=='tambang' and out['tambang_back_ke_asal']['name']=='profile' and out['profil_back_ke']['name']=='lobby' and out['peringkat_back_ke']['name']=='lobby'
         and 'board' not in ((out['livesync_sesudah_keluar'] or {}).get('tasks') or []))   # LiveSync boleh jalan (lobby memulainya sendiri); tugas 'board' milik leaderboard harus lepas
     out['LULUS']=bool(ok)
