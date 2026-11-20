@@ -32,6 +32,9 @@
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "assets/icons/favicon.ico",
       "uninstallerIcon": "assets/icons/favicon.ico"
+    },
+    "linux": {
+      "category": "Game"
     }
   },
   "repository": {
