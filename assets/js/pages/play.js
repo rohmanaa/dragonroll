@@ -215,6 +215,7 @@
 
   /* ================= Pasang pada setiap halaman yang dimuat di iframe ================= */
   f.addEventListener('load', function () {
+    if (window.UT && UT.Spa && UT.Spa.viewActive) return;   // iframe dikosongkan karena view (Lobby/Karakter) tampil di #view
     var w; try { w = f.contentWindow; w.document; } catch (e) { hideOv(); return; }
     var name = pageName(w);
 
@@ -239,5 +240,23 @@
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);
   });
+  /* ================= SPA tahap 2: Lobby & Karakter dirender langsung di #view (tanpa iframe) =================
+     Layar memuat, musik, dan prefetch tetap milik pembungkus; UT.Spa memanggil hook ini saat berpindah rute. */
+  document.addEventListener('click', afterTap, true);      // ketukan pada view (klik di iframe tidak sampai ke sini)
+  if (window.UT && UT.Spa) {
+    UT.Spa.mount({
+      frame: f, view: document.getElementById('view'),
+      hooks: {
+        leave: function (kind) { showOv(kind === 'quiet' ? 'quiet' : 'delay'); },
+        ready: function (name) {
+          stage('Menampilkan halaman');
+          whenReady(window, hideOv);
+          wantMusic = true; syncMusic();
+          prefetchNext(UT.Spa.page || name + '.html');
+        }
+      }
+    });
+    if (UT.Spa.start(go)) return;
+  }
   f.src = go;
 })();
