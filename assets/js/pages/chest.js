@@ -100,6 +100,7 @@ env.on(document,'click',e=>{
   x+='<div class="rw"><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">+'+fmt(r.coins)+' Coin</div>';
   if(r.gems>0)x+='<div class="rw"><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt="">+'+fmt(r.gems)+' Gem</div>';
   if(r.xp>0)x+='<div class="rw">+'+fmt(r.xp)+' XP</div>';
+  if(r.power){const it=window.ItemCatalog&&ItemCatalog.byId(r.power);x+='<div class="rw pw">'+(it&&it.icon?'<img src="'+it.icon+'" alt="">':'')+'Power: '+(it?it.name:r.power)+' ×1</div>'}
   modal(KIND[k].nm+' Terbuka!',x,true)})}});
 
 function modal(t,x,fx){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;const md=$('#md');md.classList.toggle('fx',!!fx);

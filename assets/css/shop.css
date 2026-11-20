@@ -154,3 +154,4 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .cr-rw{display:flex;align-items:center;justify-content:center;gap:12px;font:400 46px/1.25 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.55);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
 .cr-rw img{width:54px;height:auto}
 .cr-rw.xp{color:#ffe27a}
+.cr-rw.pw{font-size:36px;color:#9fe3ff}

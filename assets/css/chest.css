@@ -63,6 +63,7 @@
 #mx .mi{display:block;width:150px;height:auto;margin:0 auto 16px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 #mx .rw{display:flex;align-items:center;justify-content:center;gap:12px;font:400 44px/1.25 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #mx .rw img{width:52px;height:auto}
+#mx .rw.pw{font-size:36px;color:#9fe3ff}
 #mbtns{position:absolute;left:0;right:0;bottom:36px;display:flex;justify-content:center;gap:40px}
 #mbtns .btn{width:330px;height:100px}#mbtns .btn span{font-size:32px}
 

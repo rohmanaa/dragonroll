@@ -104,7 +104,6 @@ t('migrasi shop: chest_buy TERBARU langsung membuka (tanpa timer/penyimpanan), s
   const files = fs.readdirSync(root('supabase/migrations')).sort().filter(f => /function public\.chest_buy/.test(fs.readFileSync(root('supabase/migrations/' + f), 'utf8')));
   const sql = fs.readFileSync(root('supabase/migrations/' + files[files.length - 1]), 'utf8');
   const b = sql.slice(sql.indexOf('function public.chest_buy'));
-  assert.ok(files[files.length - 1].includes('instant'));
   assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_chest') && b.indexOf("'gem-kurang'") < b.indexOf('insert into public.player_chest'));
   assert.ok(b.includes("'collected'") && b.includes("'chest_buy', 'buy:'") && b.includes("'chest', 'collect:'") && b.includes('_chest_roll(p_kind)'));
   assert.ok(!/'stored'|'opening'|'penuh'|_chest_open_secs/.test(b), 'chest beli tidak boleh memakai penyimpanan/timer');
@@ -116,6 +115,19 @@ t('shop: chest dibeli langsung tampil hadiah (revealChest) dan tidak lagi mengar
   const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
   assert.ok(js.includes('function revealChest') && js.includes('r.coins') && js.includes('r.xp'));
   assert.ok(!/masuk ke penyimpanan|data-go="chest\.html"/.test(js));
+});
+
+t('Power dari chest: roll berbobot 1/harga, masuk stok akun (maks 999) di collect & buy, ditampilkan di klien; Diamond dibesarkan', () => {
+  const sql = fs.readFileSync(root('supabase/migrations/202611400001_chest_power.sql'), 'utf8');
+  ['v_pc := 0.05', 'v_pc := 0.12', 'v_pc := 0.20', 'v_pc := 0.35', '1000 + floor(random() * 401)', 'v_g := 3',
+   "kind = 'powerup'", '(-ln(1 - random())) * price_coins', "'power', v_pw"].forEach(x => assert.ok(sql.includes(x), x));
+  assert.strictEqual((sql.match(/least\(999, public\.player_inventory\.qty \+ 1\)/g) || []).length, 2);   // collect + buy
+  assert.ok(sql.includes('grant execute on function public.chest_collect(bigint) to authenticated') && sql.includes('grant execute on function public.chest_buy(text) to authenticated'));
+  const b = sql.slice(sql.indexOf('function public.chest_buy')), c = sql.slice(sql.indexOf('function public.chest_collect'), sql.indexOf('function public.chest_buy'));
+  assert.ok(c.indexOf("'duplicate'") < c.indexOf('player_inventory'), 'stok Power hanya setelah dompet non-duplikat');
+  assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_inventory'));
+  const shop = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('assets/js/pages/chest.js'), 'utf8');
+  assert.ok(shop.includes('powerRow(r.power)') && ch.includes('r.power'));
 });
 
 (async () => {

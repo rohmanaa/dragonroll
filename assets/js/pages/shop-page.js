@@ -137,7 +137,7 @@ UT.PageModule.define('shop', function (env) {
     return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
-      <div class="amt sm"><small>Langsung dibuka · hadiah acak</small></div>
+      <div class="amt sm"><small>Langsung dibuka · bisa dapat Power</small></div>
       <button class="btn buy" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
         <img src="${IC}buttons-and-controls/${chest.gems ? 'tombol-biru-polos' : 'tombol-hijau-polos'}.webp" alt="">
         <span><img src="${IC}${chest.gems ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt(chest.gems || chest.coins)}</span>
@@ -281,6 +281,13 @@ UT.PageModule.define('shop', function (env) {
   }
 
   /* Chest yang dibeli langsung terbuka: peti bergoyang sebentar, lalu hadiah dari server tampil. */
+  /* Power hadiah (id item dari server): nama dari ItemCatalog, ikon bila ada. */
+  function powerRow(id) {
+    if (!id) return '';
+    const it = window.ItemCatalog && ItemCatalog.byId(id);
+    return `<div class="cr-rw pw">${it && it.icon ? `<img src="${escapeHtml(it.icon)}" alt="">` : ''}Power: ${escapeHtml(it ? it.name : id)} ×1</div>`;
+  }
+
   function revealChest(chest, r) {
     const img = `<img class="cr-img" src="${IC}${chest.image}" alt="">`;
     openModal(`<h2>Membuka ${escapeHtml(chest.name)}…</h2><div class="cr">${img}</div>`);
@@ -290,7 +297,8 @@ UT.PageModule.define('shop', function (env) {
       $('#mb').innerHTML = `<h2>${escapeHtml(chest.name)}</h2><div class="cr done">${img}</div>`
         + row('hud/ikon-koin-emas', `+${fmt(r.coins)} Coin`)
         + (r.gems > 0 ? row('gem-medal-icons/berlian-hijau', `+${fmt(r.gems)} Emerald`) : '')
-        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '');
+        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '')
+        + powerRow(r.power);
       const heading = $('#mb h2');
       if (heading) heading.id = 'modal-title';
       renderCurrency();
