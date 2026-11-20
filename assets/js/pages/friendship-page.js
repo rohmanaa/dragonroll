@@ -356,7 +356,7 @@ UT.PageModule.define('friendship', function (env) {
   });
   $('#add').addEventListener('click', addFriend);
   $('#back').addEventListener('click', () => nav('lobby.html'));
-  /* #home sudah tidak ada di friendship.html (dihapus saat redesain): dulu `$('#home').addEventListener` melempar TypeError sehingga semua pendengar & load() di bawahnya tidak pernah jalan */
+  /* #home sudah tidak ada di friendship.html (dihapus saat redesain): dulu memasang pendengar langsung pada elemen null melempar TypeError sehingga semua pendengar & load() di bawahnya tidak pernah jalan */
   const homeBtn = $('#home'); if (homeBtn) homeBtn.addEventListener('click', () => nav('lobby.html'));
   $('#cur-em').addEventListener('click', () => nav('tambang.html?from=friendship.html'));
   $('#cur-co').addEventListener('click', () => nav('shop.html?coin=1'));
