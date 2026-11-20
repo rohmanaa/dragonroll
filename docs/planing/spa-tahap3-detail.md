@@ -224,3 +224,11 @@ Belum: cek di HP fisik.
 - Test: `tests/display-mode.test.js` (10 tes: web, iframe -> dokumen atas, ditolak, tidak didukung, PWA fullscreen, on/off, Electron, wiring settings); `settings-prefs.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
 - Belum: uji tombol di browser nyata (Chrome desktop, Android Chrome, PWA terpasang) dan di Electron sungguhan; smoke browser; cek HP. Catatan: saat PWA terpasang memakai `display_override: fullscreen` (manifest), `exitFullscreen` tidak berlaku; tombol Normal tidak akan mengubah apa pun di mode itu.
 - Urutan berikutnya: `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Perbaikan: tombol modal Totem masih CSS (SW v311)
+
+- **Gejala:** saat memakai Totem, modal "Pakai Totem?" menampilkan tombol "Pakai Totem" sebagai gradasi hijau CSS, bukan aset gambar.
+- **Penyebab:** `gameplay/css/hud-mockup.css` punya `.tm-bt .tm-y { background: linear-gradient(...) !important }` (spesifisitas 0,2,0) yang mengalahkan `.tm-bt button { background: url(tombol-hijau-polos.webp) !important }` (0,1,1) di bawahnya. Tombol "Tidak" (`.tm-n`) sudah benar karena punya aturan `background-image: url(...)` sendiri.
+- **Perbaikan:** aturan gradasi dihapus; `.tm-bt .tm-y` kini `background-image: url(tombol-hijau-polos.webp) !important` (Pakai = hijau, Tidak = biru, tidak diubah).
+- **Tes:** `tests/totem-buttons-assets.test.js` (4 tes; terbukti gagal pada CSS lama) menjaga tidak ada gradasi `!important` pada `.tm-y`/`.tm-n` dan aset gambar ada.
+- **Belum:** verifikasi visual di browser (tidak ada Chrome di sesi ini); modal Totem pada layar tamu online memakai kode yang sama (`totemModal`), tetapi belum dicek. Aturan tema di `gameplay-overrides.css` (baris 112-113) dan warna dasar `gameplay.css` tetap ada sebagai cadangan, tertimpa `hud-mockup.css`.
