@@ -17,7 +17,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room' };
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
   var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
@@ -37,7 +37,7 @@
 
     function parse(html) {
       var doc = new G.DOMParser().parseFromString(html, 'text/html');
-      var p = { css: [], styles: [], js: [], sbg: null, html: '', cls: '', title: doc.title || '' };
+      var p = { css: [], styles: [], js: [], mods: {}, sbg: null, html: '', cls: '', title: doc.title || '' };
       Array.prototype.forEach.call(doc.querySelectorAll('head link[rel~="stylesheet"], head style, head script[src], body script[src]'), function (el) {
         var tag = el.tagName;
         if (tag === 'LINK') { p.css.push(el.getAttribute('href')); return; }
@@ -51,6 +51,7 @@
           });
           p.sbg = c;
         }
+        if ((el.getAttribute('type') || '').toLowerCase() === 'module') p.mods[src] = 1;   // ES module: dimuat lewat import(), bukan <script> klasik
         p.js.push(src);
       });
       Array.prototype.forEach.call(doc.body.querySelectorAll('script'), function (s) { s.parentNode.removeChild(s); });
@@ -67,10 +68,22 @@
       }).then(function (html) { return (cache[page] = parse(html)); });
     }
 
-    function loadScripts(list) {
+    function inDoc(k) {   // skrip yang sudah ada di dokumen (mis. dimuat dinamis oleh halaman) tidak diunduh ulang
+      return Array.prototype.some.call(D.scripts || [], function (s) { return s.src && key(s.src) === k; });
+    }
+
+    function loadScripts(list, mods) {
       var ps = [];
+      mods = mods || {};
       list.forEach(function (src) {
         var k = key(src);
+        if (!scripts[k] && mods[src]) {
+          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) {
+            delete scripts[k]; if (G.console) console.warn('[Spa] gagal memuat modul', src, e);
+          });
+        } else if (!scripts[k] && inDoc(k)) {
+          scripts[k] = Promise.resolve();
+        }
         if (!scripts[k]) {
           scripts[k] = new Promise(function (res) {
             var s = D.createElement('script');
@@ -108,7 +121,7 @@
         return Promise.all(waits).then(function () {
           view.innerHTML = p.html;
           (p.cls || '').split(/\s+/).filter(Boolean).forEach(function (c) { if (!D.body.classList.contains(c)) { D.body.classList.add(c); added.push(c); } });
-          return loadScripts(p.js);
+          return loadScripts(p.js, p.mods);
         }).then(function () {
           if (p.sbg && G.UT && G.UT.SceneBG) sbg = G.UT.SceneBG.mount(view, p.sbg);
           if (p.title) D.title = p.title;

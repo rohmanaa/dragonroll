@@ -95,7 +95,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | settings | B | Selesai (kode & test) | (commit ini) | SW v310; PageModule (tanpa WebGL); tombol Fullscreen/Normal diperbaiki lewat `UT.Display`; versi game via `UT.Version.apply`; smoke browser BELUM dijalankan; cek HP belum |
-| room | B | - | - | |
+| room | B | Selesai (kode, test, smoke) | (commit ini) | SW v312; PageModule (tanpa WebGL sendiri); parameter dibaca dari `UT.Spa.current().url`; spa-host memuat `<script type=module>` lewat `import()`; modul multiplayer dimuat `room.js`; smoke browser LULUS; cek HP belum |
 | frame | B | - | - | |
 
 ## 5. Kriteria selesai tahap 3
@@ -224,6 +224,21 @@ Belum: cek di HP fisik.
 - Test: `tests/display-mode.test.js` (10 tes: web, iframe -> dokumen atas, ditolak, tidak didukung, PWA fullscreen, on/off, Electron, wiring settings); `settings-prefs.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
 - Belum: uji tombol di browser nyata (Chrome desktop, Android Chrome, PWA terpasang) dan di Electron sungguhan; smoke browser; cek HP. Catatan: saat PWA terpasang memakai `display_override: fullscreen` (manifest), `exitFullscreen` tidak berlaku; tombol Normal tidak akan mengubah apa pun di mode itu.
 - Urutan berikutnya: `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Room (tahap 3-11, Gelombang B, SW v312)
+
+- `assets/js/pages/room.js` dibungkus `UT.PageModule.define('room')`; `room.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS), `frame-guard.js`; prefetch `room.html` -> gameplay/mode di `play.js` sudah ada. Tanpa WebGL sendiri (kepala karakter lewat `UT.CharacterFace`, memakai three bersama), jadi tidak memakai `SharedGL`.
+- **spa-host kini mendukung `<script type="module" src>`** (dimuat lewat `import()` relatif ke dokumen; dedupe per URL) dan tidak mengunduh ulang skrip yang sudah ada di dokumen (`inDoc`). Dipakai `room-dice-art.js` (import dice-kit). Blok `<script type=module>` INLINE tetap tidak dijalankan host.
+- **Modul multiplayer:** blok inline di `room.html` (import `room-service.js` + `presence.js`, lalu event `ut:multiplayer-ready`) tidak jalan di shell. `room.js` memuatnya sendiri lewat `import('../multiplayer/room-service.js')` bila `UT.Multiplayer.RoomService` belum ada; flag `started` mencegah setup ganda dengan event mandiri.
+- **Parameter room** (`?mode=&format=&count=&role=&code=&invite=`) dibaca dari URL rute aktif. Mode tak valid -> `UT.Spa.go('mode.html',{replace:true})` (fallback `location.replace`).
+- **Tautan undangan/tamu** memakai `roomUrl()` (`.../room.html`): di shell `location.pathname` = `play.html`, jadi tautan lama akan salah.
+- **`loadFace`** tidak lagi memuat ulang `three.min.js`/`blocky-character.js`/`character-face.js` bila sudah ada di dokumen (di shell three sudah dimuat Lobby).
+- Dilepas saat unmount: langganan realtime room (`unsub`, juga dipakai `leave`), `Presence.onChange`, `Events.on('inventoryChanged')`, `CharacterFace.watch`, LiveSync (`wallet` + `stop`), kelas html `dro` dan `mp-online`, timer, `resize`/`keydown`/`message`/`pagehide`. `setupOnline` berhenti bila halaman ditinggalkan saat menunggu server (setelah `ensurePlayer` dan `createRoom/joinRoom`); `toast` dijaga `env.disposed`.
+- Modal bersarang `#pageModal` (Dadu/Karakter/Frame/Efek/Power-up `?from=room`) tetap iframe bersarang (bukan view; `canView` menolak `from=room`).
+- Test: `tests/room-module.test.js` (15 tes); `tests/spa-host.test.js` dan `display-mode.test.js` disesuaikan (non-view contoh: `inventory.html`). Seluruh test: sama dengan baseline.
+- Smoke (`tools/smoke-spa-pages.py`, Chromium headless, SwiftShader, N=20, 12 view): LULUS. 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol. Blok room: view di shell, 2 pemain (Kamu + Bot), 4 slot equipment, 5 slot Power, modal Power/Dadu terbuka dan tertutup dengan Escape, START -> `game:start` (type room, mode vsc, 2 pemain), Back -> mode, KELUAR -> lobby, tanpa sisa DOM/CSS/kelas; mode online: `UT.Multiplayer.RoomService`/`Presence` dimuat di shell, kelas `mp-online` dilepas. Heap setelah GC paksa, 25 putaran room<->lobby: 9,6 -> 9,8 MB (tanpa kebocoran; mail 8,3 -> 9,2 MB sebagai pembanding).
+- Belum: setup room online dengan akun/server sungguhan (create/join, realtime, Ready/Start, undangan Presence); cek HP fisik.
+- Urutan berikutnya: `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
 
 ### Perbaikan: tombol modal Totem masih CSS (SW v311)
 

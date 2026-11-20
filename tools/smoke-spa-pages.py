@@ -1,7 +1,7 @@
 """Smoke test SPA tahap 3 (Chrome headless): Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Toko -> Mode -> Lobby berulang lewat UT.Spa.go.
 Diukur: konteks WebGL baru (harus 0), three.min.js dimuat ulang (0), error konsol/halaman, memori, waktu mount,
 tugas LiveSync 'board' setelah keluar leaderboard, kelas html yang bocor (pf-wide), CSS/DOM view yang tertinggal,
-tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (room):
+tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (inventory):
 shell play.html TIDAK boleh ditinggalkan. Toko (?coin=1, tab, Back, Riwayat) dan Mode (peta, geser, flip, Quick Start, Coin/Gem/Back, pilih room) dicek sebagai view.
 Jalankan: CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py   (viewport landscape; syarat lain sama dengan smoke-spa.py)."""
 import sys, json, threading, http.server, socketserver, functools, os
@@ -31,11 +31,12 @@ with sync_playwright() as p:
     pg.on('request',lambda r:three.append(r.resource_type+'@'+(r.frame.url.split('/')[-1] if r.frame else '?')) if r.url.split('?')[0].endswith('three.min.js') else None)
     pg.add_init_script(INIT)
     HIT="""(sel)=>{const e=document.querySelector(sel);if(!e)return false;const r=e.getBoundingClientRect(),t=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return !!(t&&(t===e||e.contains(t)))}"""
+    URL={'room':'room.html?mode=vsc&format=solo&count=2'}
     def mount(n):
-        pg.evaluate(f"UT.Spa.go('{n}.html')"); pg.wait_for_function(f"UT.PageModule.isMounted('{n}')",timeout=45000); pg.wait_for_timeout(600)
+        pg.evaluate(f"UT.Spa.go('{URL.get(n,n+'.html')}')"); pg.wait_for_function(f"UT.PageModule.isMounted('{n}')",timeout=45000); pg.wait_for_timeout(600)
     pg.goto(f'http://127.0.0.1:{port}/play.html?go=lobby.html',wait_until='load')
     pg.wait_for_function("UT&&UT.Spa&&UT.Spa.viewActive&&UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(1500)
-    for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','lobby'): mount(n)          # pemanasan
+    for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','room','lobby'): mount(n)          # pemanasan
 
     # tambang butuh MineService server: pasang stub (data palsu) agar pulau 3D + SharedGL benar-benar jalan, bukan mode-lokal
     STUB="""(()=>{const sl=(u)=>({unlocked:u,base_rate:1,unlock_cost:50,rate:u?2:0,stock:3,cap:20,speed_lv:u?3:1,cap_lv:1,next_speed_cost:100,next_cap_cost:100,full_in_secs:3600,boost:{active:false,left_secs:0,left_today:2,cost:10}});
@@ -51,10 +52,10 @@ with sync_playwright() as p:
     out['tambang_sesudah_keluar']=pg.evaluate("({mounted:UT.PageModule.isMounted('tambang'),cv:!!document.querySelector('canvas#cv'),owner:UT.SharedGL.owner(),tasks:(UT.LiveSync.status()||{}).tasks})")
     ctx0=pg.evaluate('window.__ctx'); three0=len(three); mem0=pg.evaluate('performance.memory?performance.memory.usedJSHeapSize:0'); times={}
     for i in range(N):
-        for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','lobby'):
-            t=pg.evaluate(f"""new Promise(res=>{{const t0=performance.now();UT.Spa.go('{n}.html').then(()=>{{const w=()=>UT.PageModule.isMounted('{n}')?res(performance.now()-t0):setTimeout(w,16);w()}})}})""")
+        for n in ('profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','room','lobby'):
+            t=pg.evaluate(f"""new Promise(res=>{{const t0=performance.now();UT.Spa.go('{URL.get(n,n+'.html')}').then(()=>{{const w=()=>UT.PageModule.isMounted('{n}')?res(performance.now()-t0):setTimeout(w,16);w()}})}})""")
             times.setdefault(n,[]).append(round(t)); pg.wait_for_timeout(250)
-    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings'].filter(n=>UT.PageModule.isMounted(n))")
+    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop','mode','hadiah-misi','chest','mail','settings','room'].filter(n=>UT.PageModule.isMounted(n))")
     out['konteks_baru']=pg.evaluate('window.__ctx')-ctx0; out['three_dimuat_ulang']=len(three)-three0
     out['sharedgl']=pg.evaluate('UT.SharedGL.stats()')
     out['waktu_mount_ms']={k:{'rata2':round(sum(v)/len(v)),'maks':max(v)} for k,v in times.items()}
@@ -74,8 +75,8 @@ with sync_playwright() as p:
         mount(src); pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
         nav[f'{src}#cur-co->shop']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),tab:(document.querySelector('.tabb.on')||{}).dataset&&document.querySelector('.tabb.on').dataset.k})")
     out['navigasi_ke_toko']=nav
-    mount('lobby'); pg.evaluate("UT.Spa.go('room.html?mode=vsc&format=solo&count=2')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
-    out['navigasi_non_view']={'lobby->room':pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")}
+    mount('lobby'); pg.evaluate("UT.Spa.go('inventory.html')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
+    out['navigasi_non_view']={'lobby->inventory':pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")}
     mount('lobby')
     # TOKO: ?coin=1 -> tab Coin; ?tab=history; ?emerald -> tab Emerald (+ modal); Back ke lobby; Riwayat; pindah tab; tidak ada sisa DOM/CSS/kelas/langganan
     pg.evaluate("UT.Spa.go('shop.html?coin=1')"); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
@@ -126,7 +127,7 @@ with sync_playwright() as p:
     pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
     nm['back->lobby']=pg.evaluate("({path:location.pathname.split('/').pop(),cur:UT.Spa.current(),mode:UT.PageModule.isMounted('mode')})")
     mount('mode'); pg.click('.flip[data-id="c-vsc"] .front',timeout=8000); pg.wait_for_timeout(500); pg.click('#create .flip[data-id="c-vsc"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(3000)
-    nm['vsc->room']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page,mode:UT.PageModule.isMounted('mode'),frame:document.getElementById('f').contentWindow.location.search})")
+    nm['vsc->room']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),mode:UT.PageModule.isMounted('mode'),room:UT.PageModule.isMounted('room')})")
     mount('mode'); pg.click('.flip[data-id="q-team"] .front',timeout=8000); pg.wait_for_timeout(500); pg.click('#quick .flip[data-id="q-team"] .opt >> nth=0',timeout=8000); pg.wait_for_timeout(4200)
     nm['quick_team->launch']=pg.evaluate("({lawan:document.querySelector('#mt').textContent,cfg:window.__launch&&{type:window.__launch.type,format:window.__launch.format,players:window.__launch.players.length,map:window.__launch.map},path:location.pathname.split('/').pop()})")
     out['mode_nav']=nm
@@ -141,9 +142,36 @@ with sync_playwright() as p:
     mount('friendship'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['friendship_back_ke']=pg.evaluate("UT.Spa.current()")
     mount('profile'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['profil_back_ke']=pg.evaluate("UT.Spa.current()")
     mount('leaderboard'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['peringkat_back_ke']=pg.evaluate("UT.Spa.current()")
+    # ROOM (tahap 3-11): view; offline VS Computer (2 pemain), perlengkapan, modal Power/Equipment, Escape, START -> game:start (dicegat),
+    # Back -> mode, KELUAR -> lobby; kelas html (dro/mp-online) dan DOM/CSS tidak tersisa. Mode ONLINE: modul multiplayer dimuat lewat import() di shell
+    # (RoomService ada, RoomDiceArt ada); setup server gagal tanpa jaringan -> pesan galat room dibuang dari daftar galat.
+    mount('lobby'); mount('room')
+    pg.wait_for_function("window.RoomDiceArt",timeout=15000)
+    out['room_awal']=pg.evaluate("""({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),idStage:document.querySelectorAll('#stage').length,
+      pemain:document.querySelectorAll('#list .pl:not(.empty)').length,bot:document.querySelectorAll('#list .badge.bot').length,slotEq:document.querySelectorAll('#eq .slot').length,
+      slotPower:document.querySelectorAll('#prow .ps').length,chips:document.querySelectorAll('#chips .chip').length,startOn:!document.querySelector('#start').disabled,
+      peta:!!document.querySelector('#mArt img,#mArt svg'),dm:document.body.classList.contains('dm'),diceArt:!!(window.RoomDiceArt&&window.RoomDiceArt.thumb)})""")
+    pg.click('#power',timeout=8000); pg.wait_for_timeout(400); pm=pg.evaluate("document.querySelector('#pm').classList.contains('on')")
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(300); pm2=pg.evaluate("document.querySelector('#pm').classList.contains('on')")
+    pg.click('.slot[data-k="dice"]',timeout=8000); pg.wait_for_timeout(400); em=pg.evaluate("({on:document.querySelector('#em').classList.contains('on'),n:document.querySelectorAll('#emL .it').length})")
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(300); em2=pg.evaluate("document.querySelector('#em').classList.contains('on')")
+    out['room_modal']={'power':pm,'power_esc':pm2,'dadu':em,'dadu_esc':em2}
+    pg.click('#start',timeout=8000); pg.wait_for_timeout(800)
+    out['room_start']=pg.evaluate("({cfg:window.__launch&&{type:window.__launch.type,mode:window.__launch.mode,players:window.__launch.players.length},path:location.pathname.split('/').pop()})")
+    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('mode')",timeout=45000); pg.wait_for_timeout(600)
+    out['room_back']=pg.evaluate("({cur:UT.Spa.current(),room:UT.PageModule.isMounted('room')})")
+    mount('room'); pg.click('#leave',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    out['room_keluar']=pg.evaluate("({cur:UT.Spa.current(),room:UT.PageModule.isMounted('room')})")
+    out['room_sisa']=pg.evaluate("""({dom:!!document.querySelector('#eq,#prow,#players,#pageModal,#pm,#em,#dr'),dro:document.documentElement.classList.contains('dro'),mp:document.documentElement.classList.contains('mp-online'),
+      css:[...document.querySelectorAll('link[data-spa="room"],style[data-spa="room"]')].length,tasks:(UT.LiveSync.status()||{}).tasks})""")
+    pg.evaluate("UT.Spa.go('room.html?mode=online&format=solo')"); pg.wait_for_function("UT.PageModule.isMounted('room')",timeout=45000); pg.wait_for_timeout(4000)
+    out['room_online']=pg.evaluate("({mp:!!(UT.Multiplayer&&UT.Multiplayer.RoomService),presence:!!(UT.Multiplayer&&UT.Multiplayer.Presence),mpOnlineClass:document.documentElement.classList.contains('mp-online'),host:document.querySelector('#chips').textContent.indexOf('HOST')>0})")
+    mount('lobby')
+    out['room_online']['kelas_sisa']=pg.evaluate("document.documentElement.classList.contains('mp-online')")
+    errs[:]=[e for e in errs if 'room setup failed' not in e]
     out['errors']=errs[:8]
     shell_ok=all(v['path']=='play.html' and not v['viewActive'] for v in out['navigasi_non_view'].values())
-    nonview_ok=[v['page'] for v in out['navigasi_non_view'].values()]==['room.html']
+    nonview_ok=[v['page'] for v in out['navigasi_non_view'].values()]==['inventory.html']
     toko_nav_ok=all(v['path']=='play.html' and v['viewActive'] and v['cur']['name']=='shop' and v['tab']=='coin' for v in nav.values())
     toko_ok=(out['toko_coin']['tab']=='coin' and out['toko_coin']['kartu']==3 and out['toko_coin']['hl'] and out['toko_riwayat']['tab']=='history' and out['toko_riwayat']['ada_hasil']
         and out['toko_klik_emerald']=='emerald' and out['toko_emerald_modal']['tab']=='emerald' and out['toko_emerald_modal']['modal']!='none' and not out['toko_sisa']['mounted'] and not out['toko_sisa']['dom']
@@ -155,10 +183,17 @@ with sync_playwright() as p:
         and mn['coin->shop']['path']=='play.html' and mn['coin->shop']['viewActive'] and mn['coin->shop']['cur']['name']=='shop' and mn['coin->shop']['tab']=='coin'
         and mn['gem->tambang']['cur']['name']=='tambang' and 'from=mode.html' in mn['gem->tambang']['cur']['url'] and mn['tambang_back->mode']['name']=='mode'
         and mn['back->lobby']['path']=='play.html' and mn['back->lobby']['cur']['name']=='lobby' and not mn['back->lobby']['mode']
-        and mn['vsc->room']['path']=='play.html' and not mn['vsc->room']['viewActive'] and mn['vsc->room']['page']=='room.html' and not mn['vsc->room']['mode'] and 'mode=vsc' in mn['vsc->room']['frame'] and 'count=2' in mn['vsc->room']['frame']
+        and mn['vsc->room']['path']=='play.html' and mn['vsc->room']['viewActive'] and mn['vsc->room']['cur']['name']=='room' and not mn['vsc->room']['mode'] and mn['vsc->room']['room'] and 'mode=vsc' in mn['vsc->room']['cur']['url'] and 'count=2' in mn['vsc->room']['cur']['url']
         and 'DITEMUKAN' in mn['quick_team->launch']['lawan'] and mn['quick_team->launch']['cfg'] and mn['quick_team->launch']['cfg']['type']=='ranked' and mn['quick_team->launch']['cfg']['format']=='team' and mn['quick_team->launch']['cfg']['players']==4 and mn['quick_team->launch']['path']=='play.html'
         and not out['mode_sisa']['mounted'] and not out['mode_sisa']['dom'] and not out['mode_sisa']['dm'] and out['mode_sisa']['css']==0 and out['mode_sisa']['shellView'])
-    ok=(out['konteks_baru']==0 and out['three_dimuat_ulang']==0 and not errs and out['sharedgl']['created']<=2
+    ra=out['room_awal']; rm=out['room_modal']; ro=out['room_online']
+    room_ok=(ra['path']=='play.html' and ra['viewActive'] and ra['cur']['name']=='room' and ra['idStage']==1 and ra['pemain']==2 and ra['bot']==1 and ra['slotEq']==4 and ra['slotPower']==5 and ra['chips']==4
+        and ra['startOn'] and ra['peta'] and ra['dm'] and ra['diceArt'] and rm['power'] and not rm['power_esc'] and rm['dadu']['on'] and not rm['dadu_esc']
+        and out['room_start']['cfg'] and out['room_start']['cfg']['type']=='room' and out['room_start']['cfg']['mode']=='vsc' and out['room_start']['cfg']['players']==2 and out['room_start']['path']=='play.html'
+        and out['room_back']['cur']['name']=='mode' and not out['room_back']['room'] and out['room_keluar']['cur']['name']=='lobby' and not out['room_keluar']['room']
+        and not out['room_sisa']['dom'] and not out['room_sisa']['dro'] and not out['room_sisa']['mp'] and out['room_sisa']['css']==0
+        and ro['mp'] and ro['presence'] and ro['mpOnlineClass'] and not ro['kelas_sisa'])
+    ok=(room_ok and out['konteks_baru']==0 and out['three_dimuat_ulang']==0 and not errs and out['sharedgl']['created']<=2
         and not out['kelas_pf_wide_bocor'] and all(out['tombol_bisa_diketuk'].values()) and out['mounted_akhir']==['lobby'] and shell_ok and nonview_ok and toko_nav_ok and toko_ok and mode_ok
         and out['link_css_spa']==['lobby'] and out['tambang_back_ke_friendship']['name']=='friendship' and out['friendship_back_ke']['name']=='lobby' and out['tambang_3d']['owner']=='tambang' and out['tambang_3d']['slots']==3 and out['tambang_3d']['menggambar'] and not out['tambang_sesudah_keluar']['mounted'] and not out['tambang_sesudah_keluar']['cv'] and out['tambang_sesudah_keluar']['owner']=='lobby' and out['tambang_dari_profil']['name']=='tambang' and out['tambang_back_ke_asal']['name']=='profile' and out['profil_back_ke']['name']=='lobby' and out['peringkat_back_ke']['name']=='lobby'
         and 'board' not in ((out['livesync_sesudah_keluar'] or {}).get('tasks') or []))   # LiveSync boleh jalan (lobby memulainya sendiri); tugas 'board' milik leaderboard harus lepas

@@ -1,14 +1,20 @@
-/* room.js — dipindah dari blok script inline (room.html). */
-(()=>{
+/* room.js — dipindah dari blok script inline (room.html). Tahap 3 SPA: dibungkus UT.PageModule ('room'); halaman mandiri otomatis mount,
+   unmount() melepas timer, listener, langganan room (realtime), Presence, LiveSync, dan kelas html (dro, mp-online). Callback async dijaga env.disposed. */
+UT.PageModule.define('room',function(env){
+const {setTimeout,clearTimeout,addEventListener}=env;
 const $=s=>document.querySelector(s),PD=window.PlayerData,IC=window.ItemCatalog,RF=UT.RoomFlow;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':Number(n).toLocaleString('id-ID');
 const PCOIN='<img src="assets/images/ui/hud/ikon-koin-emas.webp" alt="">';
 const rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1900)}
+let tt;function toast(m){if(env.disposed)return;const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1900)}
 /* ---------- URL -> konfigurasi room (URL tidak valid -> Mode Selection) ---------- */
-const q=new URLSearchParams(location.search),MODE=q.get('mode');
-if(RF.MODES.indexOf(MODE)<0){location.replace('mode.html');return}
+/* di shell location.search milik play.html (?go=...): parameter room diambil dari URL rute aktif */
+const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='room'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const q=new URLSearchParams(search()),MODE=q.get('mode');
+if(RF.MODES.indexOf(MODE)<0){if(UT.Spa&&UT.Spa.go)UT.Spa.go('mode.html',{replace:true});else location.replace('mode.html');return}
+/* tautan undangan harus ke room.html (di shell location.pathname = play.html) */
+const roomUrl=()=>location.origin+location.pathname.replace(/[^/]*$/,'')+'room.html';
 const ONLINE=MODE==='online',FORMAT=(ONLINE&&q.get('format')==='team')?'team':'solo',TEAM=ONLINE&&FORMAT==='team';
 const COUNT=ONLINE?4:Math.min(4,Math.max(2,parseInt(q.get('count'),10)||2));
 let HOST=!(ONLINE&&q.get('role')==='guest');
@@ -22,7 +28,8 @@ const S={invTab:'online',timers:[],room:{privacy:'private',code:'',players:[]},h
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:it.kind==='dice'&&window.RoomDiceArt?`<img src="${window.RoomDiceArt.thumb(it.gameKey,96)}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null}
 /* ---------- navigasi ---------- */
-const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
+const unsub=()=>{const u=S.mpUnsub;S.mpUnsub=null;if(u){try{u()}catch(e){}}};
+const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}unsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
 $('#back').onclick=()=>leave('mode');$('#leave').onclick=()=>leave('home');
 /* ---------- setup room ---------- */
 function setup(){
@@ -34,7 +41,7 @@ function setup(){
 }
 function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,b=>chars[b%chars.length]).join('')}
 function renderRoomHeader(){
- document.documentElement.classList.toggle('mp-online',ONLINE);
+ document.documentElement.classList.toggle('mp-online',ONLINE);if(ONLINE)env.own(()=>document.documentElement.classList.remove('mp-online'));
  const t=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
  $('#chips').innerHTML=`<span class="chip">${t}</span><span class="chip">${esc(MAP?MAP.name.replace(/^Map /,''):'-')}</span><span class="chip">${cap()} pemain</span>`+(ONLINE?`<span class="chip on">● ${HOST?'HOST':'TAMU'}</span>`:'<span class="chip">OFFLINE</span>');
  $('#invB').hidden=!(ONLINE&&HOST);$('#invD').hidden=!(ONLINE&&HOST);
@@ -59,17 +66,18 @@ function publishProfile(){try{if(ONLINE&&S.mpRoomId&&UT.Multiplayer.RoomService&
 async function setupOnline(){
  try{
   const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
-  S.mpIdentity=await MP.ensurePlayer();loadFriends();let row;
+  S.mpIdentity=await MP.ensurePlayer();if(env.disposed)return;loadFriends();let row;
   try{const AS0=window.UT&&UT.AppearanceService&&UT.AppearanceService.get&&UT.AppearanceService.get();if(AS0&&AS0.pushAppearance)AS0.pushAppearance().catch(()=>{})}catch(e){} /* pastikan tampilan kita ada di server sebelum game dimulai */
   if(HOST){
    let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
    if(saved&&saved.id){try{row=await MP.getRoom(saved.id);if(!row||row.status!=='waiting'||row.host_id!==S.mpIdentity.id)row=null}catch(_){row=null} }
    if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:TEAM?4:2,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
+  if(env.disposed)return; /* halaman sudah ditinggalkan saat menunggu server: jangan pasang langganan */
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
-  applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);publishProfile();
-  try{const PR=UT.Multiplayer.Presence;if(PR){const INV=HOST?q.get('invite'):null;PR.start({status:'room'}).then(()=>{if(INV&&/^[0-9a-f-]{36}$/i.test(INV)&&row.code)return PR.invite(INV,{code:row.code,format:FORMAT}).then(()=>toast('Undangan terkirim'))}).catch(()=>{});PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()})}}catch(_){}
- }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#why').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
+  applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);env.own(unsub);publishProfile();
+  try{const PR=UT.Multiplayer.Presence;if(PR){const INV=HOST?q.get('invite'):null;PR.start({status:'room'}).then(()=>{if(INV&&/^[0-9a-f-]{36}$/i.test(INV)&&row.code)return PR.invite(INV,{code:row.code,format:FORMAT}).then(()=>toast('Undangan terkirim'))}).catch(()=>{});env.own(PR.onChange(()=>{if(root.classList.contains('dro'))renderDrawer()}))}}catch(_){}
+ }catch(e){if(env.disposed)return;console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#why').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
 const EQ=[['dice','DICE','DADU'],['skin','KARAKTER','KARAKTER'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
@@ -78,8 +86,10 @@ const EFFECT_ICON='assets/images/ui/gem-medal-icons/kristal-api.webp';
 /* Slot KARAKTER = karakter baru (halaman Karakter): gambar kepala dari BlockyCharacter, dimuat malas (three.js hanya dipakai untuk ini). CHANGE -> karakter.html */
 let FACE_DONE=false;
 function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.html();if(h)return h}return FACE_DONE&&it?art(it):''}
-function loadFace(){const L=u=>new Promise(r=>{const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
- return L('assets/js/vendor/three.min.js').then(()=>L('assets/js/renderers/blocky-character.js')).then(()=>L('assets/js/renderers/character-face.js')).then(()=>{FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)UT.CharacterFace.watch(()=>{renderEq();renderPlayers()})})}
+function loadFace(){
+ /* skrip yang sudah ada di dokumen (shell: three.min.js dari Lobby/Karakter) TIDAK dimuat ulang */
+ const L=u=>new Promise(r=>{const abs=new URL(u,document.baseURI).href;if(Array.prototype.some.call(document.scripts,x=>x.src===abs))return r();const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
+ return L('assets/js/vendor/three.min.js').then(()=>env.disposed||L('assets/js/renderers/blocky-character.js')).then(()=>env.disposed||L('assets/js/renderers/character-face.js')).then(()=>{if(env.disposed)return;FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)env.own(UT.CharacterFace.watch(()=>{renderEq();renderPlayers()}))})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?IC.byId(PD.equippedId('aura')):eqItem(k);
@@ -106,7 +116,7 @@ function closePageModal(){
   if(pageTrigger&&pageTrigger.isConnected)pageTrigger.focus();pageTrigger=null;
   return true;
 }
-$('#pageModalFrame').addEventListener('load',()=>{const modal=$('#pageModal');if(!modal.classList.contains('on'))return;modal.classList.remove('loading');modal.setAttribute('aria-busy','false')});
+env.on($('#pageModalFrame'),'load',()=>{const modal=$('#pageModal');if(!modal.classList.contains('on'))return;modal.classList.remove('loading');modal.setAttribute('aria-busy','false')});
 /* Equipment: dadu/frame/efek = modal RINGAN berisi item yang DIMILIKI saja (tanpa memuat halaman penuh). Karakter = editor 3D, tetap halaman Karakter. */
 const EQP={dice:{kind:'dice',title:'PILIH DADU',none:false},frame:{kind:'frame',title:'PILIH FRAME',none:false},effect:{kind:'aura',title:'PILIH EFEK',none:true}};
 const eqArt=it=>it.kind==='aura'?ItemArt.aura(it.id):art(it);
@@ -281,7 +291,7 @@ async function addFriendReq(b){const id=b.dataset.af,nm=b.dataset.nm;if(S.reqSen
  catch(er){toast(er.message==='ALREADY_FRIENDS'?'Sudah berteman':'Gagal mengirim permintaan teman')}}
 async function openSlot(){if(!ONLINE)return;if(!HOST)return toast('Hanya host yang bisa membuka slot');if(cap()>=4)return;
  try{applyRemoteRoom(await UT.Multiplayer.RoomService.setSlots(S.mpRoomId,cap()+1))}catch(e){toast('Gagal membuka slot: '+(e.message||'coba lagi'))}}
-function copy(t){const v=t==='code'?S.room.code:`${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
+function copy(t){const v=t==='code'?S.room.code:`${roomUrl()}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
  try{navigator.clipboard.writeText(v).then(()=>toast(t==='code'?'Kode disalin':'Link disalin'),()=>toast('Kode: '+S.room.code))}catch(e){toast('Kode: '+S.room.code)}}
 $('#cCode').onclick=()=>HOST&&copy('code');$('#cLink').onclick=()=>HOST&&copy('link');$('#cp1').onclick=()=>{if(S.room.code)copy('code')};
 $('#sPriv').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,false));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};$('#sPub').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,true));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};
@@ -320,9 +330,10 @@ function renderInvite(){
 }
 /* ---------- DRAWER UNDANG TEMAN (dari kiri; tab Teman & Publik) ---------- */
 const root=document.documentElement;
+env.own(()=>root.classList.remove('dro'));
 function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFriends();renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
 function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
-function inviteLink(){return `${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
+function inviteLink(){return `${roomUrl()}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
 const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
 async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}renderPlayers();if(root.classList.contains('dro'))renderDrawer()}
 /* foto profil di drawer: wajah karakter asli (appearance_get_many; server hanya memberi diri sendiri, teman, pengirim permintaan, pemain leaderboard) + frame; sebelum data tiba / tanpa data = huruf awal */
@@ -362,12 +373,18 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){if(closePageModal())return;c
 addEventListener('pagehide',clearT);
 /* ---------- init ---------- */
 setup();renderEq();renderPower();renderMap();renderPlayers();renderBottom();loadFace();
-try{UT.Events.on('inventoryChanged',()=>{renderPower();if(powerDraft)renderPowerPick()})}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
-if(ONLINE){addEventListener('ut:multiplayer-ready',()=>setupOnline(),{once:true});if(UT.Multiplayer&&UT.Multiplayer.RoomService)setupOnline();}
+try{env.own(UT.Events.on('inventoryChanged',()=>{renderPower();if(powerDraft)renderPowerPick()}))}catch(e){} /* stok Power ikut terbarui saat Inventory server selesai dimuat / berubah */
+if(ONLINE){
+ /* modul multiplayer (ES module): halaman mandiri memuatnya lewat blok <script type=module> di room.html; di shell blok itu tidak dijalankan, jadi dimuat di sini (import() dedupe per URL) */
+ let started=false;const start=()=>{if(started||env.disposed)return;started=true;setupOnline()};
+ addEventListener('ut:multiplayer-ready',start,{once:true});
+ if(UT.Multiplayer&&UT.Multiplayer.RoomService)start();
+ else import('../multiplayer/room-service.js').then(()=>import('../multiplayer/presence.js')).then(start,start);
+}
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';
  document.querySelectorAll('.fwin').forEach(w=>{w.style.width=innerWidth/s+'px';w.style.height=innerHeight/s+'px';w.style.transform='scale('+s+')'})} /* modal full-window: isi diskalakan seperti stage tapi mengisi seluruh jendela */
 addEventListener('resize',fit);fit();
-/* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode) */
-try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}}}catch(e){}
+/* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode); tugas LiveSync dilepas saat unmount */
+try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>{if(!env.disposed)UT.WalletService.get().refresh()});UT.LiveSync.start({interval:20000});env.own(()=>{try{UT.LiveSync.remove('wallet');UT.LiveSync.stop()}catch(e){}})}}}catch(e){}
 document.documentElement.classList.add('ut-ready');
-})();
+});

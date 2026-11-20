@@ -83,7 +83,7 @@ const win = (d, extra) => Object.assign({ document: d, setTimeout: (f) => f(), a
   });
   await t('settings terdaftar di spa-host, frame-guard, prefetch play.js', () => {
     assert(/'settings\.html': 'settings'/.test(rd('assets/js/core/spa-host.js')));
-    assert(/mail\|settings\)/.test(rd('assets/js/frame-guard.js')));
+    assert(/mail\|settings[|)]/.test(rd('assets/js/frame-guard.js')));
     assert(/'settings\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
   });
   console.log(n + ' tes lulus');
