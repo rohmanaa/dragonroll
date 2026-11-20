@@ -29,7 +29,9 @@ env.own(UT.Events.on('frameChanged',applyFrame));
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir'};
-function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
+function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;
+ if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}  /* di shell (play.html): pindah rute tanpa muat ulang; layar memuat milik shell */
+ const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
 
@@ -38,10 +40,7 @@ const cv=$('#gl3d'),isLow=()=>document.documentElement.getAttribute('data-graphi
 let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null;
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&UT.FloatingIsland&&cv){
-  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
-  renderer.setClearColor(0x000000,0);
-  renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer=UT.SharedGL.acquire('lobby',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
   scene=new THREE.Scene();scene.fog=new THREE.Fog(0xa8ecff,22,90);
   const amb=new THREE.AmbientLight(0xdff6ff,.42),hemi=new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5);
   scene.add(amb,hemi);
@@ -91,9 +90,9 @@ try{
   if(window.UT.Ambience)env.own(window.UT.Ambience.on(detail=>setMood(detail.resolved,false)));
   G3=true;
  }
-}catch(e){console.error('[lobby] gagal membuat adegan 3D',e);G3=false;renderer=null}
-/* unmount: buang geometri/material/tekstur adegan + renderer (tahap 2: diganti pelepasan renderer bersama) */
-env.own(()=>{try{if(scene)scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});if(renderer)renderer.dispose()}catch(e){console.error('[lobby] dispose gagal',e)}G3=false});
+}catch(e){console.error('[lobby] gagal membuat adegan 3D',e);G3=false;try{UT.SharedGL.release('lobby')}catch(_){}renderer=null}
+/* unmount: buang geometri/material/tekstur adegan, lepas renderer bersama (renderer TIDAK dibuang; dipakai halaman berikutnya) */
+env.own(()=>{try{if(scene)scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});if(AUR&&AUR.clearAll)AUR.clearAll()}catch(e){console.error('[lobby] dispose gagal',e)}try{UT.SharedGL.release('lobby')}catch(e){}renderer=null;G3=false});
 function applyLights(){
  if(!renderer)return;
  const highQuality=!isLow();
@@ -182,28 +181,29 @@ if(SRV&&UT.WalletService&&UT.WalletService.get())UT.WalletService.get().refresh(
 (function(){const A=PD.serverMode&&PD.serverMode()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{})})();
 /* login harian + XP server (tanpa membuat sesi baru; gagal/offline -> tetap data lokal) */
 const loadProgress=()=>import('../../../assets/js/multiplayer/progress-service.js').then(()=>UT.Multiplayer.Progress);
-loadProgress().then(P=>P.dailyLogin&&P.dailyLogin()).catch(()=>{});
+loadProgress().then(P=>{if(env.disposed)return;return P.dailyLogin&&P.dailyLogin()}).catch(()=>{});
 /* lencana merah berangka (aset lencana-notifikasi-merah-segi-delapan): tampil hanya bila n>0; angka >99 jadi 99+ */
 function setBadge(id,n){const el=$('#'+id);if(!el)return;n=Math.max(0,Math.floor(+n)||0);el.hidden=!n;if(!n)return;
  const t=n>99?'99+':String(n);el.querySelector('b').textContent=t;el.classList.toggle('w2',t.length===2);el.classList.toggle('w3',t.length>=3)}
 /* Misi & Hadiah = login harian siap klaim + misi siap klaim + bonus misi + pencapaian yang punya bintang belum diklaim (hitungan sama dengan tab di halaman Misi & Hadiah) */
 const QN={login:0,misi:0,ach:0};
 const paintQuestBadge=()=>setBadge('questDot',QN.login+QN.misi+QN.ach);
-const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{const x=pr&&+pr.xp;if(x>0&&Math.floor(x)!==SRV_XP){SRV_XP=Math.floor(x);renderXp()}
+const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{if(env.disposed)return {ok:false};const x=pr&&+pr.xp;if(x>0&&Math.floor(x)!==SRV_XP){SRV_XP=Math.floor(x);renderXp()}
  try{const AC=UT.Achievement;if(AC&&pr&&pr.exists!==false){QN.ach=AC.info(pr).filter(a=>a.pend>0).length;paintQuestBadge()}}catch(_){}
  return {ok:true}}).catch(()=>({ok:false}));
 pullXp();
 const pullQuest=()=>{const W=UT.WalletService&&UT.WalletService.get();if(!SRV||!W)return {ok:true};
  return Promise.all([W.dailyGet?W.dailyGet():null,W.questGet?W.questGet():null]).then(([d,q])=>{
+  if(env.disposed)return {ok:false};
   if(d&&d.ok)QN.login=(!d.claimed_today&&(+d.claimed||0)<30)?1:0;
   if(q&&Array.isArray(q.quests))QN.misi=q.quests.filter(x=>x.status==='ready').length+((q.bonus&&q.bonus.status==='ready')?1:0);
   paintQuestBadge();return {ok:true}}).catch(()=>({ok:false}))};
 pullQuest();
 /* titik merah Teman = ada permintaan pertemanan masuk */
-const pullFriends=()=>import('../../../assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{const d=$('#friendDot');if(d)d.hidden=!(r&&r.length);return {ok:true}}).catch(()=>({ok:false}));
+const pullFriends=()=>import('../../../assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{if(env.disposed)return {ok:false};const d=$('#friendDot');if(d)d.hidden=!(r&&r.length);return {ok:true}}).catch(()=>({ok:false}));
 pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
-const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(r&&r.ok)setBadge('mailDot',r.pending);return {ok:!!(r&&r.ok)}}):{ok:true}};
+const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok)setBadge('mailDot',r.pending);return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
 /* kartu Chest harian: teks progres (tanpa bar) menuju chest harian berikutnya (Kayu 1 game, Silver 3, Gold 10); cukup -> tombol KLAIM. Lencana menu Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. */
 const CH_IM={wood:'peti-kayu',silver:'peti-perak',gold:'peti-emas'};
@@ -215,10 +215,10 @@ function renderChest(S){
  btn.dataset.kind=nx&&nx.status==='ready'?nx.kind:'';
  btn.hidden=!(nx&&nx.status==='ready');card.classList.toggle('rdy',!btn.hidden);
  setBadge('chestDot',(S.chests||[]).filter(c=>c.status==='ready').length+(btn.hidden?0:1))}
-const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
+const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
 {const cb=$('#chClaim');if(cb)cb.addEventListener('click',async e=>{e.stopPropagation();const k=cb.dataset.kind,W=UT.WalletService&&UT.WalletService.get();if(!k||!W||cb.disabled)return;buzz();cb.disabled=true;
- try{const r=await W.chestClaimDaily(k);if(r&&r.ok){toast('Chest masuk ke penyimpanan!');renderChest(r)}else toast('Gagal klaim, coba lagi')}catch(_){toast('Gagal klaim, coba lagi')}
+ try{const r=await W.chestClaimDaily(k);if(env.disposed)return;if(r&&r.ok){toast('Chest masuk ke penyimpanan!');renderChest(r)}else toast('Gagal klaim, coba lagi')}catch(_){if(env.disposed)return;toast('Gagal klaim, coba lagi')}
  cb.disabled=false;pullChest()})}
 
 /* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
@@ -226,7 +226,7 @@ let MINE=null;
 function mineFull(){if(!MINE||!Array.isArray(MINE.slots))return 0;const el=(performance.now()-MINE.at)/1000,bm=(MINE.config&&MINE.config.boost_mult)||1;
  return MINE.slots.filter(s=>{if(!s||!s.unlocked)return false;const b=Math.min(el,(s.boost&&s.boost.left_secs)||0);return Math.min(s.cap,s.stock+s.rate*(el+b*(bm-1))/3600)>=s.cap-1e-6}).length}
 const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)return {ok:true};
- return M.get().then(r=>{if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
+ return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
 pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */
