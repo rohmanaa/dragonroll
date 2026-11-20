@@ -22,13 +22,13 @@
   };
   var DEFEAT_T = { launch: 0.45, bounce: 0.65, sit: 1.25, hold: 2.0, stand: 2.7 };  /* detik: terpental -> jatuh -> duduk -> berdiri kalah */
   function ease3(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
-  var ACTIONS = {
-    1: ['DEFENSE',      'BLOCK 1 DAMAGE',         'defense'],
-    2: ['REGENERATION', 'RESTORE 1 HEART',         'regen'],
-    3: ['ATTACK',       'DEAL 1 DAMAGE',           ''],
-    4: ['CRITICAL',     'DEAL 2 DAMAGE · +2 MOM',  'critical'],
-    5: ['LIFESTEAL',    'DAMAGE 1 · HEAL 1',       'lifesteal'],
-    6: ['BERSERK',      'DEAL 2 · PIERCE DEFENSE', 'berserk']
+  var ACTIONS = {   /* dadu 1-6 -> 3 aksi (lihat duel-core.js) */
+    1: ['ATTACK',  'DEAL 1 DAMAGE', ''],
+    2: ['ATTACK',  'DEAL 1 DAMAGE', ''],
+    3: ['DEFENSE', 'BLOCK ATTACK',  'defense'],
+    4: ['DEFENSE', 'BLOCK ATTACK',  'defense'],
+    5: ['HEAL',    'GAIN 1 HEART',  'regen'],
+    6: ['HEAL',    'GAIN 1 HEART',  'regen']
   };
 
   function mk(tag, cls, text) {
@@ -206,12 +206,9 @@
     el.rulesCard.appendChild(mk('b', null, 'ATURAN COMBAT DADU'));
     var rTable = mk('div', 'du-rules-table');
     var rulesList = [
-      ['1 · DEFENSE', 'Blokir 1 damage dari serangan lawan'],
-      ['2 · REGEN', 'Pulihkan 1 HP (maks 3 HP)'],
-      ['3 · ATTACK', 'Berikan 1 damage ke lawan'],
-      ['4 · CRITICAL', 'Berikan 2 damage & +2 Momentum'],
-      ['5 · LIFESTEAL', 'Berikan 1 damage & pulihkan 1 HP'],
-      ['6 · BERSERK', 'Berikan 2 damage (menembus Defense!)']
+      ['1-2 · ATTACK', 'Beri 1 damage. Kalah oleh Defense'],
+      ['3-4 · DEFENSE', 'Tahan Attack lawan. Kalah oleh Heal'],
+      ['5-6 · HEAL', 'Dapat 1 hati. Gagal jika diserang']
     ];
     rulesList.forEach(function (r) {
       var row = mk('div', 'du-rules-row');
@@ -220,7 +217,7 @@
       rTable.appendChild(row);
     });
     el.rulesCard.appendChild(rTable);
-    el.rulesCard.appendChild(mk('div', 'du-rules-note', 'MOMENTUM: Penuh (3) memicu FINISHER (+1 DMG pada serangan berikutnya). Pertarungan maks 3 ronde. Seri = Sudden Death (tanpa heal). Kalah mundur 10% petak.'));
+    el.rulesCard.appendChild(mk('div', 'du-rules-note', 'Hanya 3 ronde, 3 hati. Menang: hadiah + bertahan. Kalah: hadiah kecil + mundur 5 petak. Seri: tanpa hadiah, tetap di petak.'));
     var rClose = mk('button', 'du-rules-close', 'TUTUP');
     rClose.type = 'button';
     rClose.addEventListener('click', function () { el.rulesCard.hidden = true; });
@@ -749,7 +746,7 @@
       var JG = 17, JV = 4.9, jc = 0;
       if (justLanded) { J.st = 'land'; J.t = 0; J.y = 0; J.vy = 0; }   /* squash saat mendarat dari jatuh */
       if (options.reducedMotion || fighter.defeat || fighter.defeated) { J.st = 'wait'; J.t = 0; J.y = 0; J.vy = 0; }
-      else if (J.st === 'wait') { J.t += rdt; if (calm && J.t >= J.wait) { J.st = 'prep'; J.t = 0; } }
+      else if (J.st === 'wait') { J.t += rdt; if (false && calm && J.t >= J.wait) { J.st = 'prep'; J.t = 0; }   /* lompat acak dimatikan: di HP terlihat kaki tidak menapak */ }
       else if (J.st === 'prep') {
         if (!calm) { J.st = 'wait'; J.t = 0; }
         else { J.t += rdt; jc = ease3(Math.min(1, J.t / 0.42)); if (J.t >= 0.42) { J.st = 'air'; J.vy = JV; J.y = 0.001; J.t = 0; } }
