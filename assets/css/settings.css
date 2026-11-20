@@ -17,6 +17,8 @@
 #seg-display button:disabled{opacity:.5}
 #seg-display button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 #line{position:absolute;left:70px;right:70px;top:820px;border-top:3px solid rgba(255,255,255,.13)}
+#appver{position:absolute;left:70px;top:900px;font:700 30px var(--font-body);color:rgba(255,255,255,.55)}
+#appver[hidden]{display:none}
 #logout{position:absolute;right:70px;top:860px;width:330px;height:104px}
 #logout span{font-size:36px;color:#2a2238;text-shadow:0 2px 0 rgba(255,255,255,.35)}
 #confirm{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.72)}

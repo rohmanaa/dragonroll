@@ -38,6 +38,7 @@ sesuai urutan.
    `sw.js` dan jalankan `python3 tools/gen-preload-manifest.py` (perlu `git add`
    dulu karena hash diambil dari indeks git). Tes `tests/sw-incremental-media.test.js`
    menjaganya.
+3b. **Versi game = `VERSION` di `sw.js`** (satu-satunya sumber). Tampil otomatis sebagai "Versi vNNN" di splash (`#ver`) dan Pengaturan (`#appver`) lewat `assets/js/core/app-version.js` (tanya SW aktif via `postMessage GET_VERSION`; cadangan: baca teks `sw.js`). JANGAN menulis nomor versi di halaman. Halaman baru yang ingin menampilkannya cukup menaruh `<span data-app-version hidden></span>` + memuat skripnya; bila halaman jadi SPA view, panggil `UT.Version.apply(root)` saat mount. Tes: `tests/app-version.test.js`.
 4. Jalankan seluruh test sebelum dan sesudah tiap langkah (bagian "Perintah umum").
    Baseline 5 test gagal sejak awal; target: tidak menambah kegagalan baru.
 5. Satu tahap = satu atau beberapa commit kecil di branch; jangan gabungkan tahap.

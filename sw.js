@@ -9,7 +9,7 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v307';
+const VERSION = 'ut-pwa-v308';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
@@ -70,6 +70,14 @@ async function blobHash(buf) {
   const d = new Uint8Array(await crypto.subtle.digest('SHA-1', all));
   return Array.from(d, b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
 }
+/* Versi game untuk halaman (assets/js/core/app-version.js): jawab {type:'GET_VERSION'} dengan VERSION di atas. Satu-satunya sumber versi. */
+self.addEventListener('message', e => {
+  if (!e.data || e.data.type !== 'GET_VERSION') return;
+  const reply = { type: 'VERSION', version: VERSION };
+  if (e.ports && e.ports[0]) e.ports[0].postMessage(reply);
+  else if (e.source) e.source.postMessage(reply);
+});
+
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET') return;
