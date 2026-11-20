@@ -248,7 +248,12 @@
     UT.Spa.mount({
       frame: f, view: document.getElementById('view'),
       hooks: {
-        leave: function (kind) { showOv(kind === 'quiet' ? 'quiet' : 'delay'); },
+        leave: function (kind) {
+          /* peluncuran gameplay dari view (Mode/Room lewat RoomFlow.launch) menyetel ut:nav-heavy: halaman berat -> tirai awan seketika, bukan tertunda */
+          var heavy = false;
+          try { heavy = sessionStorage.getItem('ut:nav-heavy') === '1'; if (heavy) sessionStorage.removeItem('ut:nav-heavy'); } catch (e) {}
+          showOv(kind === 'quiet' ? 'quiet' : (kind === 'now' || heavy) ? 'now' : 'delay');
+        },
         ready: function (name) {
           stage('Menampilkan halaman');
           whenReady(window, hideOv);

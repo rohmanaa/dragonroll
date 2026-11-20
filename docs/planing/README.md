@@ -54,7 +54,7 @@ sesuai urutan.
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
 | 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Selesai, sudah di `main` (SW v294) |
 | 2 | Shell SPA, renderer bersama (pilot) | Selesai, sudah dimerge ke `main` |
-| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop selesai (kode, test, smoke browser headless lulus; SW v304); cek HP belum. Sisa: Gelombang B (tanpa shop) + inventory (dengan efek/pet/dadu/powerup/frame) |
+| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); cek HP belum. Sisa: Gelombang B (hadiah-misi, chest, mail, settings, room, frame) + inventory (dengan efek/pet/dadu/powerup/frame) |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
 
 Perbarui tabel ini di akhir tiap tahap.
@@ -109,3 +109,4 @@ Jika pemilik belum menjawab, pakai usulan di atas dan catat di bagian
 - 2026-11-20, tahap 2: **Opsi A (hybrid)**. `play.html` tetap shell; `#view` dipakai untuk Lobby dan Karakter, halaman lain tetap di `<iframe id="f">` sampai tahap 3. Alasan: musik, overlay memuat, dan prefetch di `play.js` dipakai ulang, tanpa shell baru.
 - 2026-11-20, tahap 2: **tanpa `router.js` dan tanpa hash route**. Navigasi memakai `UT.Spa.go(url)` dengan History API (`play.html?go=<halaman>`, `popstate` untuk Back/Forward). Alasan: `play.js` sudah memakai `?go=` dan reload ke Karakter tetap jalan lewat parameter itu.
 - 2026-11-20, tahap 2: HP portrait (play.css memutar iframe 90°) tetap memakai iframe karena trik rotasi tidak bisa dipakai untuk `#view`. Akibatnya, keuntungan SPA di HP portrait BELUM terukur; ini perlu diputuskan sebelum tahap 3.
+- 2026-11-20, tahap 3 (mode): **`UT.RoomFlow` (navigate/launch/exitGame) memakai `UT.Spa.go` bila ada** (di shell), `location.href` hanya fallback untuk halaman mandiri/iframe. Alasan: di view, `location.href` memuat ulang SELURUH `play.html` (shell, musik, overlay hilang). Ini berlaku untuk Room nanti juga. Id `#view` milik shell: halaman yang di-view-kan tidak boleh punya `id="view"` (mode: `#mapview`).
