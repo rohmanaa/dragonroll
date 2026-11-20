@@ -64,7 +64,7 @@ t('spa-host: room terdaftar; <script type=module> dimuat lewat import(); skrip y
   assert(/function inDoc\(k\)/.test(host) && /scripts\[k\] = Promise\.resolve\(\)/.test(host));
 });
 t('frame-guard mengenal room; play.js punya prefetch', () => {
-  assert(/mail\|settings\|room\)/.test(rd('assets/js/frame-guard.js')));
+  assert(/mail\|settings\|room[|)]/.test(rd('assets/js/frame-guard.js')));
   assert(/'room\.html': \['gameplay\.html', 'mode\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');

@@ -1,7 +1,9 @@
 /* inventory.js — SATU halaman Inventory: tab Frame / Dadu / Efek / Power-up / Pet.
-   Tiap tab = halaman lama (frame.html dst.) dimuat di iframe ?embed=inv, jadi seluruh sistem (beli, pakai, 3D, server) tidak berubah. */
-(function () {
+   Tiap tab = halaman lama (frame.html dst.) dimuat di iframe ?embed=inv, jadi seluruh sistem (beli, pakai, 3D, server) tidak berubah.
+   Tahap 3 SPA: dibungkus UT.PageModule ('inventory'); jadi view di shell play.html (tab tetap iframe bersarang sampai tiap tab dimigrasikan). */
+UT.PageModule.define('inventory', function (env) {
   'use strict';
+  var addEventListener = env.addEventListener, setTimeout = env.setTimeout;
   var $ = function (s) { return document.querySelector(s); };
   var TABS = [
     { k: 'frame', page: 'frame.html', label: 'Frame', icon: 'feature-icons/frame.webp' },
@@ -17,7 +19,11 @@
   function fit() { $('#stage').style.transform = 'scale(' + Math.min(innerWidth / 1920, innerHeight / 1080) + ')'; }
   addEventListener('resize', fit); fit();
 
-  function nav(u) { $('#fade').classList.add('on'); setTimeout(function () { location.href = u; }, 330); }
+  /* di shell (play.html) semua target lewat UT.Spa.go; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
+  function nav(u) { if (window.UT && UT.Spa && UT.Spa.go) { UT.Spa.go(u); return; } $('#fade').classList.add('on'); setTimeout(function () { location.href = u; }, 330); }
+  /* di shell location.search milik play.html (?go=...): ?tab= diambil dari URL rute aktif */
+  function search() { var c = window.UT && UT.Spa && UT.Spa.current && UT.Spa.current(); if (c && c.name === 'inventory') { var i = c.url.indexOf('?'); return i < 0 ? '' : c.url.slice(i).split('#')[0]; } return location.search; }
+  function inShell() { var c = window.UT && UT.Spa && UT.Spa.current && UT.Spa.current(); return !!(c && c.name === 'inventory'); }
 
   tabsEl.innerHTML = TABS.map(function (t) {
     return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt=""></button>';
@@ -46,7 +52,7 @@
     if (t.k === cur) return;
     cur = t.k;
     Array.prototype.forEach.call(tabsEl.children, function (b) { b.classList.toggle('on', b.dataset.k === t.k); });
-    try { sessionStorage.setItem(KEY, t.k); history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}
+    try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
     if (!frames[t.k]) frames[t.k] = mk(t);
     Object.keys(frames).forEach(function (x) { frames[x].classList.toggle('on', x === t.k); });
     loading.hidden = frames[t.k].classList.contains('ready');
@@ -62,7 +68,7 @@
   });
   addEventListener('pageshow', function (e) { if (e.persisted) $('#fade').classList.remove('on'); });
 
-  var q = new URLSearchParams(location.search).get('tab'), saved = '';
+  var q = new URLSearchParams(search()).get('tab'), saved = '';
   try { saved = sessionStorage.getItem(KEY) || ''; } catch (e) {}
   open(q || saved || 'frame', true);
-})();
+});

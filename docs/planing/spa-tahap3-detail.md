@@ -90,7 +90,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | friendship | A | Selesai (kode & test) | (commit ini) | SW v302; PageModule (tanpa WebGL sendiri); memperbaiki bug lama `#home` (halaman mandiri melempar TypeError, daftar teman tidak pernah dimuat); smoke browser LULUS; cek HP belum |
 | shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
 | mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule (tanpa WebGL); `#view` -> `#mapview` (bentrok dengan shell); `UT.RoomFlow` lewat `UT.Spa.go`; Presence dimulai `app.js` (blok module inline tidak jalan di shell); smoke browser LULUS; cek HP belum |
-| inventory | B | - | - | |
+| inventory | B | Selesai sebagai view (tab masih iframe) | (commit ini) | SW v313; PageModule; `?tab=` dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; tab = iframe bersarang `?embed=inv`; smoke LULUS; tab belum jadi modul |
 | hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser BELUM dijalankan (Chrome tidak tersedia di sesi ini); cek HP belum |
 | chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser BELUM dijalankan; cek HP belum |
 | mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser BELUM dijalankan; cek HP belum |
@@ -239,6 +239,13 @@ Belum: cek di HP fisik.
 - Smoke (`tools/smoke-spa-pages.py`, Chromium headless, SwiftShader, N=20, 12 view): LULUS. 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol. Blok room: view di shell, 2 pemain (Kamu + Bot), 4 slot equipment, 5 slot Power, modal Power/Dadu terbuka dan tertutup dengan Escape, START -> `game:start` (type room, mode vsc, 2 pemain), Back -> mode, KELUAR -> lobby, tanpa sisa DOM/CSS/kelas; mode online: `UT.Multiplayer.RoomService`/`Presence` dimuat di shell, kelas `mp-online` dilepas. Heap setelah GC paksa, 25 putaran room<->lobby: 9,6 -> 9,8 MB (tanpa kebocoran; mail 8,3 -> 9,2 MB sebagai pembanding).
 - Belum: setup room online dengan akun/server sungguhan (create/join, realtime, Ready/Start, undangan Presence); cek HP fisik.
 - Urutan berikutnya: `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Inventory (tahap 3-12, SW v313)
+
+- **Temuan:** frame/dadu/efek/powerup/pet bukan halaman terpisah; `inventory-bridge.js` mengalihkan `frame.html` dst. ke `inventory.html?tab=...`. Tab = iframe bersarang `?embed=inv` (bukan `#f`, jadi `frame-guard` tidak mengambil alih). Satu-satunya pengecualian: `?from=room` (modal room).
+- `assets/js/pages/inventory.js` dibungkus `UT.PageModule.define('inventory')`; route di `spa-host.js`, `frame-guard.js`, prefetch lobby -> inventory di `play.js`. Navigasi keluar (pesan `ut-inv-nav` dari tab, Back, Escape) lewat `UT.Spa.go`; `?tab=` dari URL rute aktif; `history.replaceState` dimatikan di shell.
+- Smoke (`tools/smoke-spa-pages.py`, 3 putaran): LULUS. Tab dari `?tab=dadu`, pindah ke frame (iframe kedua), Back -> lobby, tanpa sisa DOM/iframe/CSS; 0 konteks WebGL baru di shell, three.min.js 0x dimuat ulang, 0 error konsol. Contoh halaman non-view di smoke dan `spa-host.test.js` diganti (`karakter.html?from=room`, `dadu.html`).
+- **Batas:** tiap tab masih memuat dokumen penuh + renderer sendiri di iframe (pindah tab pertama kali tetap lambat). Langkah berikutnya: tab menjadi modul di wadah `#views`, mulai dari `frame` (tanpa WebGL), lalu efek, dadu, powerup, pet (SharedGL). Halaman mandiri tetap untuk modal room.
 
 ### Perbaikan: tombol modal Totem masih CSS (SW v311)
 

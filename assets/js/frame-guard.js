@@ -9,7 +9,7 @@
       try {
         var pg = location.pathname.split('/').pop(), P = window.parent;
         if (window.frameElement && window.frameElement.id === 'f' && P === window.top && P.UT && P.UT.Spa
-            && /^(lobby|karakter|profile|leaderboard|tambang|friendship|shop|mode|hadiah-misi|chest|mail|settings|room)\.html$/.test(pg) && P.UT.Spa.canView(pg + location.search)) {
+            && /^(lobby|karakter|profile|leaderboard|tambang|friendship|shop|mode|hadiah-misi|chest|mail|settings|room|inventory)\.html$/.test(pg) && P.UT.Spa.canView(pg + location.search)) {
           window.stop();
           P.UT.Spa.go(pg + location.search + location.hash);
         }

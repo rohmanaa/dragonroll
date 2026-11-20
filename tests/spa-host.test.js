@@ -44,7 +44,8 @@ function setup(o) {
     assert.strictEqual(Spa.pageOf('hadiah-misi.html?tab=ach'), 'hadiah-misi.html');
     assert.strictEqual(Spa.viewName('mode.html'), 'mode');
     assert.strictEqual(Spa.viewName('room.html?mode=vsc'), 'room');
-    assert.strictEqual(Spa.viewName('inventory.html'), null);
+    assert.strictEqual(Spa.viewName('dadu.html'), null);
+    assert.strictEqual(Spa.viewName('inventory.html?tab=frame'), 'inventory');
     assert.strictEqual(Spa.pageOf('mode.html#a'), 'mode.html');
   });
   await t('mount menandai PageModule.managed', () => { assert.strictEqual(setup().PageModule.managed, true); });
@@ -56,11 +57,11 @@ function setup(o) {
     assert.strictEqual(setup({ search: '?noframe=1' }).spa.canView('lobby.html'), false);
     assert.strictEqual(setup().spa.canView('karakter.html?from=room'), false);
     assert.strictEqual(setup().spa.canView('room.html?mode=vsc'), true);
-    assert.strictEqual(setup().spa.canView('inventory.html'), false);
+    assert.strictEqual(setup().spa.canView('dadu.html'), false);
   });
   await t('start: view untuk lobby, false untuk halaman iframe', async () => {
     const a = setup();
-    assert.strictEqual(a.spa.start('inventory.html'), false);
+    assert.strictEqual(a.spa.start('dadu.html'), false);
     const b = setup();
     assert.strictEqual(b.spa.start('lobby.html'), true);
     await tick(); await tick();
@@ -79,14 +80,14 @@ function setup(o) {
   });
   await t('pindah ke halaman biasa: view dilepas, iframe dimuat', async () => {
     const a = setup(); a.spa.start('lobby.html'); await tick(); await tick(); a.log.length = 0;
-    const r = await a.spa.go('inventory.html');
+    const r = await a.spa.go('dadu.html');
     assert.strictEqual(r, false);
-    assert.ok(a.log.includes('unmount:lobby') && a.log.includes('frame.go:inventory.html'));
+    assert.ok(a.log.includes('unmount:lobby') && a.log.includes('frame.go:dadu.html'));
     assert.strictEqual(a.spa.viewActive, false); assert.strictEqual(a.view.hidden, true);
   });
   await t('navigasi yang kalah balapan tidak mount', async () => {
     const a = setup(); a.spa.start('lobby.html'); await tick(); await tick(); a.log.length = 0;
-    const p1 = a.spa.go('karakter.html'); const p2 = a.spa.go('inventory.html');
+    const p1 = a.spa.go('karakter.html'); const p2 = a.spa.go('dadu.html');
     await Promise.all([p1, p2]); await tick();
     assert.ok(!a.log.includes('mount:karakter'), a.log.join(','));
   });

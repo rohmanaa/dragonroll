@@ -55,7 +55,7 @@ sesuai urutan.
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
 | 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Selesai, sudah di `main` (SW v294) |
 | 2 | Shell SPA, renderer bersama (pilot) | Selesai, sudah dimerge ke `main` |
-| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); hadiah-misi, chest, mail, dan settings selesai (kode + test, SW v310; smoke browser BELUM dijalankan untuk keempatnya); room selesai (kode, test, smoke browser headless lulus; SW v312; spa-host kini memuat `<script type=module>`); cek HP belum. Sisa: frame + inventory (dengan efek/pet/dadu/powerup/frame) |
+| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); hadiah-misi, chest, mail, dan settings selesai (kode + test, SW v310; smoke browser BELUM dijalankan untuk keempatnya); room selesai (kode, test, smoke browser headless lulus; SW v312; spa-host kini memuat `<script type=module>`); cek HP belum. inventory selesai sebagai view (SW v313; tab masih iframe bersarang `?embed=inv`). Sisa: ubah tab frame/efek/dadu/powerup/pet dari iframe menjadi modul satu per satu |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
 
 Perbarui tabel ini di akhir tiap tahap.
