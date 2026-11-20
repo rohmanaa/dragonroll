@@ -87,7 +87,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | dadu | A | - | - | |
 | powerup | A | - | - | |
 | leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
-| friendship | A | - | - | |
+| friendship | A | Selesai (kode & test) | (commit ini) | SW v302; PageModule (tanpa WebGL sendiri); memperbaiki bug lama `#home` (halaman mandiri melempar TypeError, daftar teman tidak pernah dimuat); smoke browser LULUS; cek HP belum |
 | shop | B | - | - | |
 | mode | B | - | - | |
 | inventory | B | - | - | |
@@ -109,7 +109,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 
 ## 6. Catatan verifikasi (profile + leaderboard)
 
-Smoke browser: `CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py` (Lobby -> Profil -> Peringkat -> Tambang -> Lobby x20; MineService di-stub supaya pulau 3D tambang benar-benar dirender).
+Smoke browser: `CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py` (Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Lobby x20; MineService di-stub supaya pulau 3D tambang benar-benar dirender).
 Hasil (Chromium 153 headless, SwiftShader): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, hanya lobby yang ter-mount
 di akhir, tidak ada CSS/DOM/kelas `pf-wide` tersisa, tugas LiveSync `board` terlepas, Back kembali ke lobby, dan tombol Coin/Gem ke Shop/Tambang
 (halaman non-view) tidak meninggalkan shell `play.html`. Memori JS 11.0 -> 17.2 MB setelah 60 pindah rute (tanpa GC paksa): belum bisa
@@ -135,3 +135,14 @@ Belum: cek di HP fisik.
 - Test Node baru: `tests/tambang-module.test.js` (10 tes). `spa-host.test.js` diperluas. Test lama (`mine-island`, `mine-service`, `live-sync`) tetap lulus.
 - Belum: cek HP fisik; ukur memori di HP.
 - Urutan berikutnya: efek/frame/dadu/powerup/pet = tab di `inventory.html` (ditunda, lihat tabel); `friendship` (Gelombang A), lalu Gelombang B.
+
+### Friendship (tahap 3-4, SW v302)
+
+- **Bug lama ditemukan dan diperbaiki:** `friendship-page.js` memanggil `$('#home').addEventListener(...)`, padahal `#home` dihapus dari `friendship.html` (commit `bd12764`). Akibatnya TypeError, dan semua baris sesudahnya TIDAK pernah jalan: `load()`, tombol Coin/Gem, dialog, aksi daftar, langganan dompet, LiveSync. Terverifikasi di browser pada `main` sebelum perbaikan (daftar kosong + `pageerror`); sesudahnya 0 error. Sekarang `#home` dijaga (`if (homeBtn)`), dan tes `friendship-module` menjaganya.
+- Halaman ini tidak membuat `WebGLRenderer` sendiri (avatar lewat `UT.CharacterFace`), jadi tidak memakai `SharedGL`; hanya `UT.PageModule`.
+- Dilepas saat unmount: `setInterval` 20 dtk, timer retry/toast, `resize`/`keydown`/`visibilitychange`, langganan `PD.subscribe` + `Events.on` + `Presence.onChange`, LiveSync (`wallet` + `stop`). Presence global sengaja TIDAK dihentikan (lobby/room memakainya).
+- `render`/`toast`/`renderCurrency`/`loadData` dijaga `env.disposed` karena DOM view sudah dibuang saat callback async selesai.
+- Navigasi: semua lewat `nav()` -> `UT.Spa.go` (Back ke lobby, Gem ke tambang `?from=friendship.html`, Coin ke shop, ajak main ke `room.html?...invite=`). Back dari tambang kembali ke friendship terverifikasi.
+- Hasil smoke (Chromium headless, 20 putaran, 5 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 12,8 -> 11,8 MB, tombol Back/Gem/Coin bisa diketuk.
+- Belum: uji alur teman dengan akun server sungguhan (smoke memakai login palsu, jadi daftar teman, Presence, dan tombol MAIN/TERIMA tidak teruji); cek HP fisik.
+- Urutan berikutnya: Gelombang B (shop, mode, inventory, hadiah-misi, chest, mail, settings, room, frame); inventory bersama efek/pet/dadu/powerup/frame sebagai satu keputusan desain.

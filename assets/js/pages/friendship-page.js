@@ -1,5 +1,8 @@
-(function () {
+/* friendship-page.js — Tahap 3 SPA: dibungkus UT.PageModule ('friendship'). Halaman mandiri otomatis mount; unmount() melepas timer,
+   listener, langganan (PlayerData, Events, Presence), dan LiveSync. Callback async dijaga env.disposed. */
+UT.PageModule.define('friendship', function (env) {
   'use strict';
+  const { setTimeout, clearTimeout, setInterval, clearInterval, requestAnimationFrame, addEventListener } = env;
 
   const $ = selector => document.querySelector(selector);
   const PD = window.PlayerData;
@@ -37,6 +40,9 @@
   }
   let retryTimer = 0;
 
+  /* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: pindah halaman biasa */
+  const nav = url => { if (UT.Spa && UT.Spa.go) { UT.Spa.go(url); return; } location.href = url; };
+
   function fit() {
     $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
   }
@@ -56,11 +62,13 @@
   }
 
   function renderCurrency() {
+    if (env.disposed) return;
     $('#v-em').textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
     $('#v-co').textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
   }
 
   function toast(message) {
+    if (env.disposed) return;
     const el = $('#toast');
     el.textContent = message;
     el.classList.add('on');
@@ -144,6 +152,7 @@
   }
 
   function render() {
+    if (env.disposed) return;
     const friendRows = viewFriends();
     const requestRows = viewRequests();
     const onlineCount = friendRows.filter(friend => friend.status !== 'offline').length;
@@ -287,6 +296,7 @@
       const client = await withTimeout(UT.Multiplayer.getClient(), LOAD_TIMEOUT, 'getClient');
       const { data, error } = await withTimeout(client.auth.getSession(), LOAD_TIMEOUT, 'getSession');
       if (error) throw error;
+      if (env.disposed) return;
       authed = !!data.session;
       if (!authed) {
         friends = [];
@@ -328,7 +338,8 @@
   const ready = import('../multiplayer/presence.js').then(async () => {
     if (!PR()) throw new Error('Presence tidak tersedia.');
     await PR().start({ status: 'lobby', requireSession: true });
-    PR().onChange(render);
+    if (env.disposed) return;
+    env.own(PR().onChange(render));   /* Presence global tetap hidup (lobby/room memakainya); hanya langganan halaman ini dilepas */
   }).catch(error => {
     console.warn('[friendship] presence gagal dimulai', error);
   });
@@ -344,10 +355,11 @@
     render();
   });
   $('#add').addEventListener('click', addFriend);
-  $('#back').addEventListener('click', () => { location.href = 'lobby.html'; });
-  $('#home').addEventListener('click', () => { location.href = 'lobby.html'; });
-  $('#cur-em').addEventListener('click', () => { location.href = 'tambang.html?from=friendship.html'; });
-  $('#cur-co').addEventListener('click', () => { location.href = 'shop.html?coin=1'; });
+  $('#back').addEventListener('click', () => nav('lobby.html'));
+  /* #home sudah tidak ada di friendship.html (dihapus saat redesain): dulu `$('#home').addEventListener` melempar TypeError sehingga semua pendengar & load() di bawahnya tidak pernah jalan */
+  const homeBtn = $('#home'); if (homeBtn) homeBtn.addEventListener('click', () => nav('lobby.html'));
+  $('#cur-em').addEventListener('click', () => nav('tambang.html?from=friendship.html'));
+  $('#cur-co').addEventListener('click', () => nav('shop.html?coin=1'));
   $('#md').addEventListener('click', event => {
     if (event.target === $('#md')) closeModal();
   });
@@ -367,7 +379,7 @@
       if ($('#md').classList.contains('on')) $('#m-ok').disabled = false;
     }
   });
-  document.addEventListener('keydown', event => {
+  env.on(document, 'keydown', event => {
     if (event.key === 'Escape' && $('#md').classList.contains('on')) closeModal();
   });
 
@@ -382,7 +394,7 @@
     const action = button.dataset.action;
 
     if (action === 'invite') {
-      location.href = `room.html?mode=online&format=solo&count=4&invite=${encodeURIComponent(id)}`;
+      nav(`room.html?mode=online&format=solo&count=4&invite=${encodeURIComponent(id)}`);
       return;
     }
     if (action === 'remove') {
@@ -417,8 +429,8 @@
   });
 
   renderCurrency();
-  if (PD.subscribe) PD.subscribe(renderCurrency);
-  UT.Events.on('currencyChanged', renderCurrency);
+  if (PD.subscribe) env.own(PD.subscribe(renderCurrency));
+  env.own(UT.Events.on('currencyChanged', renderCurrency));
   if (PD.serverMode && PD.serverMode() && UT.WalletService && UT.LiveSync) {
     const wallet = WS();
     if (wallet) {
@@ -428,14 +440,16 @@
         return result;
       });
       UT.LiveSync.start({ interval: 20000, immediate: true });
+      /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+      env.own(() => { UT.LiveSync.remove('wallet'); UT.LiveSync.stop(); });
     }
   }
 
-  document.addEventListener('visibilitychange', () => {
+  env.on(document, 'visibilitychange', () => {
     if (!document.hidden) load();
   });
   setInterval(() => {
     if (!document.hidden && authed !== false) load();
   }, 20000);
   load();
-})();
+});
