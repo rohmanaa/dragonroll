@@ -1,5 +1,8 @@
-(function () {
+/* shop-page.js — Tahap 3 SPA: dibungkus UT.PageModule ('shop'). Halaman mandiri otomatis mount; unmount() melepas timer, listener,
+   langganan (PlayerData, Events) dan LiveSync. Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
+UT.PageModule.define('shop', function (env) {
   'use strict';
+  const { setTimeout, clearTimeout, requestAnimationFrame, addEventListener } = env;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const PD = window.PlayerData;
@@ -51,7 +54,15 @@
     chest_skip: 'Percepat chest'
   };
   const SFX = { click: 'button', select: 'button', open: 'button', error: 'button', coin: 'button' };
-  const query = new URLSearchParams(location.search);
+  /* di shell (play.html) location.search milik shell (?go=...): parameter halaman (?coin=1, ?tab=, ?emerald) diambil dari URL rute aktif */
+  const search = () => {
+    const c = UT.Spa && UT.Spa.current && UT.Spa.current();
+    if (c && c.name === 'shop') { const i = c.url.indexOf('?'); return i < 0 ? '' : c.url.slice(i).split('#')[0]; }
+    return location.search;
+  };
+  const query = new URLSearchParams(search());
+  /* di shell SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: pindah halaman biasa */
+  const nav = url => { if (UT.Spa && UT.Spa.go) { UT.Spa.go(url); return; } location.href = url; };
 
   let tab = query.has('emerald') || query.get('tab') === 'gem' ? 'emerald'
     : query.has('coin') || query.get('tab') === 'coin' ? 'coin'
@@ -74,6 +85,7 @@
     if (PD.settings().vibration && navigator.vibrate) navigator.vibrate(15);
   }
   function toast(message) {
+    if (env.disposed) return;
     const el = $('#toast');
     el.textContent = message;
     el.classList.add('on');
@@ -81,11 +93,13 @@
     toast.timer = setTimeout(() => el.classList.remove('on'), 1800);
   }
   function renderCurrency() {
+    if (env.disposed) return;
     $('#v-em').textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
     $('#v-co').textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
   }
   function pulse(selector) {
     const el = $(selector);
+    if (!el) return;
     el.classList.remove('pulse');
     void el.offsetWidth;
     el.classList.add('pulse');
@@ -151,6 +165,7 @@
   }
 
   function render() {
+    if (env.disposed) return;
     renderTabs();
     const cards = $('#cards');
     cards.classList.toggle('history-view', tab === 'history');
@@ -179,6 +194,7 @@
     button.disabled = true;
     button.textContent = 'Memuat…';
     const result = await WS().history(20);
+    if (env.disposed) return;
     button.disabled = false;
     button.textContent = 'Muat Ulang';
     if (!result || !result.ok) {
@@ -211,6 +227,7 @@
 
   const modal = $('#modal');
   function openModal(html, init) {
+    if (env.disposed) return;
     clearTimeout(modalTimer);
     $('#mb').innerHTML = html;
     const heading = $('#mb h2');
@@ -246,6 +263,7 @@
     busy = true;
     try {
       const result = SV() ? await WS().exchange(index) : PD.addCurrency(pack.coins, -pack.gems);
+      if (env.disposed) return;
       if (!result || !result.ok) {
         toast(WMSG[result && result.reason] || 'Transaksi gagal.');
         playSound('error');
@@ -291,6 +309,7 @@
     busy = true;
     try {
       const result = await WS().chestBuy(kind);
+      if (env.disposed) return;
       if (!result || !result.ok) {
         toast(WMSG[result && result.reason] || 'Transaksi gagal.');
         playSound('error');
@@ -307,7 +326,7 @@
 
   $('#mb').addEventListener('click', event => {
     const go = event.target.closest('[data-go]');
-    if (go) { playSound('click'); location.href = go.dataset.go; }
+    if (go) { playSound('click'); nav(go.dataset.go); }
   });
   $('#tabs').addEventListener('click', event => {
     const button = event.target.closest('.tabb');
@@ -335,20 +354,18 @@
       }
     });
   });
-  $('#back').addEventListener('click', () => { playSound('click'); location.href = 'lobby.html'; });
+  $('#back').addEventListener('click', () => { playSound('click'); nav('lobby.html'); });
   $('#mx').addEventListener('click', closeModal);
   modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
   addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
 
+  /* penjaga window.__curSub dihapus: dengan SPA langganan harus dipasang tiap mount dan dilepas saat unmount */
   try {
-    if (!window.__curSub) {
-      window.__curSub = 1;
-      PD.subscribe(reason => {
-        if (reason === 'server-wallet' || reason === 'storage' || reason === 'pageshow') renderCurrency();
-      });
-    }
+    env.own(PD.subscribe(reason => {
+      if (reason === 'server-wallet' || reason === 'storage' || reason === 'pageshow') renderCurrency();
+    }));
   } catch (e) {}
-  if (UT.Events) UT.Events.on('currencyChanged', renderCurrency);
+  if (UT.Events) env.own(UT.Events.on('currencyChanged', renderCurrency));
 
   render();
   renderCurrency();
@@ -358,12 +375,15 @@
   if (SV() && WS()) {
     const wallet = WS();
     wallet.refresh().then(result => {
+      if (env.disposed) return;
       if (result.ok) renderCurrency();
       else toast(WMSG[result.reason] || 'Tidak dapat memuat saldo.');
     });
     if (UT.LiveSync) {
       UT.LiveSync.add('wallet', () => wallet.refresh());
       UT.LiveSync.start({ interval: 20000 });
+      /* LiveSync bersifat global: lepas tugas halaman ini dan hentikan saat keluar (halaman berikut memulai ulang sendiri) */
+      env.own(() => { UT.LiveSync.remove('wallet'); UT.LiveSync.stop(); });
     }
   }
-})();
+});

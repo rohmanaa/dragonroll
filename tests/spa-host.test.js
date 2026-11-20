@@ -36,7 +36,8 @@ function setup(o) {
     assert.strictEqual(Spa.viewName('leaderboard.html'), 'leaderboard');
     assert.strictEqual(Spa.viewName('tambang.html?from=profile.html'), 'tambang');
     assert.strictEqual(Spa.viewName('friendship.html'), 'friendship');
-    assert.strictEqual(Spa.viewName('shop.html'), null);
+    assert.strictEqual(Spa.viewName('shop.html?coin=1'), 'shop');
+    assert.strictEqual(Spa.viewName('mode.html'), null);
     assert.strictEqual(Spa.pageOf('mode.html#a'), 'mode.html');
   });
   await t('mount menandai PageModule.managed', () => { assert.strictEqual(setup().PageModule.managed, true); });
@@ -47,11 +48,11 @@ function setup(o) {
     assert.strictEqual(setup({ rotated: true }).spa.canView('lobby.html'), false);
     assert.strictEqual(setup({ search: '?noframe=1' }).spa.canView('lobby.html'), false);
     assert.strictEqual(setup().spa.canView('karakter.html?from=room'), false);
-    assert.strictEqual(setup().spa.canView('shop.html'), false);
+    assert.strictEqual(setup().spa.canView('mode.html'), false);
   });
   await t('start: view untuk lobby, false untuk halaman iframe', async () => {
     const a = setup();
-    assert.strictEqual(a.spa.start('shop.html'), false);
+    assert.strictEqual(a.spa.start('mode.html'), false);
     const b = setup();
     assert.strictEqual(b.spa.start('lobby.html'), true);
     await tick(); await tick();
@@ -70,14 +71,14 @@ function setup(o) {
   });
   await t('pindah ke halaman biasa: view dilepas, iframe dimuat', async () => {
     const a = setup(); a.spa.start('lobby.html'); await tick(); await tick(); a.log.length = 0;
-    const r = await a.spa.go('shop.html');
+    const r = await a.spa.go('mode.html');
     assert.strictEqual(r, false);
-    assert.ok(a.log.includes('unmount:lobby') && a.log.includes('frame.go:shop.html'));
+    assert.ok(a.log.includes('unmount:lobby') && a.log.includes('frame.go:mode.html'));
     assert.strictEqual(a.spa.viewActive, false); assert.strictEqual(a.view.hidden, true);
   });
   await t('navigasi yang kalah balapan tidak mount', async () => {
     const a = setup(); a.spa.start('lobby.html'); await tick(); await tick(); a.log.length = 0;
-    const p1 = a.spa.go('karakter.html'); const p2 = a.spa.go('shop.html');
+    const p1 = a.spa.go('karakter.html'); const p2 = a.spa.go('mode.html');
     await Promise.all([p1, p2]); await tick();
     assert.ok(!a.log.includes('mount:karakter'), a.log.join(','));
   });

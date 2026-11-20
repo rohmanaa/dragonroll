@@ -1,8 +1,8 @@
-"""Smoke test SPA tahap 3 (Chrome headless): Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Lobby berulang lewat UT.Spa.go.
+"""Smoke test SPA tahap 3 (Chrome headless): Lobby -> Profil -> Peringkat -> Tambang -> Teman -> Toko -> Lobby berulang lewat UT.Spa.go.
 Diukur: konteks WebGL baru (harus 0), three.min.js dimuat ulang (0), error konsol/halaman, memori, waktu mount,
 tugas LiveSync 'board' setelah keluar leaderboard, kelas html yang bocor (pf-wide), CSS/DOM view yang tertinggal,
-tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (shop/tambang):
-shell play.html TIDAK boleh ditinggalkan.
+tombol Back/Coin/Gem bisa diketuk (tidak tertutup elemen lain), dan tombol menuju halaman non-view (mode):
+shell play.html TIDAK boleh ditinggalkan. Toko (?coin=1, tab, Back, Riwayat) dicek sebagai view.
 Jalankan: CHROME=/path/ke/chrome N=20 python3 -I tools/smoke-spa-pages.py   (viewport landscape; syarat lain sama dengan smoke-spa.py)."""
 import sys, json, threading, http.server, socketserver, functools, os
 from playwright.sync_api import sync_playwright
@@ -35,7 +35,7 @@ with sync_playwright() as p:
         pg.evaluate(f"UT.Spa.go('{n}.html')"); pg.wait_for_function(f"UT.PageModule.isMounted('{n}')",timeout=45000); pg.wait_for_timeout(600)
     pg.goto(f'http://127.0.0.1:{port}/play.html?go=lobby.html',wait_until='load')
     pg.wait_for_function("UT&&UT.Spa&&UT.Spa.viewActive&&UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(1500)
-    for n in ('profile','leaderboard','tambang','friendship','lobby'): mount(n)          # pemanasan
+    for n in ('profile','leaderboard','tambang','friendship','shop','lobby'): mount(n)          # pemanasan
 
     # tambang butuh MineService server: pasang stub (data palsu) agar pulau 3D + SharedGL benar-benar jalan, bukan mode-lokal
     STUB="""(()=>{const sl=(u)=>({unlocked:u,base_rate:1,unlock_cost:50,rate:u?2:0,stock:3,cap:20,speed_lv:u?3:1,cap_lv:1,next_speed_cost:100,next_cap_cost:100,full_in_secs:3600,boost:{active:false,left_secs:0,left_today:2,cost:10}});
@@ -51,10 +51,10 @@ with sync_playwright() as p:
     out['tambang_sesudah_keluar']=pg.evaluate("({mounted:UT.PageModule.isMounted('tambang'),cv:!!document.querySelector('canvas#cv'),owner:UT.SharedGL.owner(),tasks:(UT.LiveSync.status()||{}).tasks})")
     ctx0=pg.evaluate('window.__ctx'); three0=len(three); mem0=pg.evaluate('performance.memory?performance.memory.usedJSHeapSize:0'); times={}
     for i in range(N):
-        for n in ('profile','leaderboard','tambang','friendship','lobby'):
+        for n in ('profile','leaderboard','tambang','friendship','shop','lobby'):
             t=pg.evaluate(f"""new Promise(res=>{{const t0=performance.now();UT.Spa.go('{n}.html').then(()=>{{const w=()=>UT.PageModule.isMounted('{n}')?res(performance.now()-t0):setTimeout(w,16);w()}})}})""")
             times.setdefault(n,[]).append(round(t)); pg.wait_for_timeout(250)
-    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship'].filter(n=>UT.PageModule.isMounted(n))")
+    out['mounted_akhir']=pg.evaluate("['lobby','karakter','profile','leaderboard','tambang','friendship','shop'].filter(n=>UT.PageModule.isMounted(n))")
     out['konteks_baru']=pg.evaluate('window.__ctx')-ctx0; out['three_dimuat_ulang']=len(three)-three0
     out['sharedgl']=pg.evaluate('UT.SharedGL.stats()')
     out['waktu_mount_ms']={k:{'rata2':round(sum(v)/len(v)),'maks':max(v)} for k,v in times.items()}
@@ -64,16 +64,30 @@ with sync_playwright() as p:
     mount('profile'); mount('lobby')
     out['kelas_pf_wide_bocor']=pg.evaluate("document.documentElement.classList.contains('pf-wide')")
     out['link_css_spa']=pg.evaluate("[...new Set([...document.querySelectorAll('link[data-spa],style[data-spa]')].map(e=>e.dataset.spa))]")
-    def tappable(n,sel):            # tunggu overlay 'Memuat' shell hilang (maks 4 dtk); tetap tertutup sesudahnya = gagal sungguhan
+    def tappable(n,sel):            # tunggu overlay 'Memuat' shell hilang (maks 10 dtk; SwiftShader lambat); tetap tertutup sesudahnya = gagal sungguhan
         mount(n)
-        try: pg.wait_for_function("([f,sel])=>eval('('+f+')')(sel)",arg=[HIT,sel],timeout=4000); return True
+        try: pg.wait_for_function("([f,sel])=>eval('('+f+')')(sel)",arg=[HIT,sel],timeout=10000); return True
         except Exception: return False
-    out['tombol_bisa_diketuk']={f'{n}{sel}':tappable(n,sel) for n in ('profile','leaderboard','tambang','friendship') for sel in ('#back','#cur-em','#cur-co')}
+    out['tombol_bisa_diketuk']={f'{n}{sel}':tappable(n,sel) for n in ('profile','leaderboard','tambang','friendship','shop') for sel in ('#back','#cur-em','#cur-co')}
     nav={}
-    for src,sel,tgt in (('profile','#cur-co','shop.html'),('leaderboard','#cur-co','shop.html'),('tambang','#cur-co','shop.html'),('friendship','#cur-co','shop.html')):
-        mount(src); pg.click(sel,timeout=8000); pg.wait_for_timeout(2500)
-        nav[f'{src}{sel}->{tgt}']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")
-    out['navigasi_non_view']=nav
+    for src in ('profile','leaderboard','tambang','friendship'):       # tombol Coin kini membuka TOKO sebagai view (bukan iframe), shell tetap
+        mount(src); pg.click('#cur-co',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
+        nav[f'{src}#cur-co->shop']=pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,cur:UT.Spa.current(),tab:(document.querySelector('.tabb.on')||{}).dataset&&document.querySelector('.tabb.on').dataset.k})")
+    out['navigasi_ke_toko']=nav
+    mount('lobby'); pg.evaluate("UT.Spa.go('mode.html')"); pg.wait_for_timeout(2500)          # halaman non-view tetap lewat iframe di dalam shell
+    out['navigasi_non_view']={'lobby->mode':pg.evaluate("({path:location.pathname.split('/').pop(),viewActive:UT.Spa.viewActive,page:UT.Spa.page})")}
+    mount('lobby')
+    # TOKO: ?coin=1 -> tab Coin; ?tab=history; ?emerald -> tab Emerald (+ modal); Back ke lobby; Riwayat; pindah tab; tidak ada sisa DOM/CSS/kelas/langganan
+    pg.evaluate("UT.Spa.go('shop.html?coin=1')"); pg.wait_for_function("UT.PageModule.isMounted('shop')",timeout=45000); pg.wait_for_timeout(500)
+    out['toko_coin']=pg.evaluate("({tab:document.querySelector('.tabb.on').dataset.k,kartu:document.querySelectorAll('#cards .card').length,hl:!!document.querySelector('#cards .card.hl'),body:document.body.className})")
+    pg.click('.tabb[data-k="history"]',timeout=8000); pg.click('#histbtn',timeout=8000); pg.wait_for_timeout(600)
+    out['toko_riwayat']=pg.evaluate("({tab:document.querySelector('.tabb.on').dataset.k,ada_hasil:!!document.querySelector('#histlist .hempty')})")
+    pg.click('#cur-em',timeout=8000); pg.wait_for_timeout(300); out['toko_klik_emerald']=pg.evaluate("document.querySelector('.tabb.on').dataset.k")
+    pg.evaluate("UT.Spa.go('shop.html?emerald=1')"); pg.wait_for_timeout(1500)
+    out['toko_emerald_modal']=pg.evaluate("({tab:document.querySelector('.tabb.on')&&document.querySelector('.tabb.on').dataset.k,modal:getComputedStyle(document.querySelector('#modal')).display})")
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(500)
+    pg.click('#back',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('lobby')",timeout=45000); pg.wait_for_timeout(600)
+    out['toko_sisa']=pg.evaluate("({mounted:UT.PageModule.isMounted('shop'),dom:!!document.querySelector('#cards,#tabs,#histbtn,#modal'),kelasSub:document.body.classList.contains('sub'),css:[...document.querySelectorAll('link[data-spa=\"shop\"],style[data-spa=\"shop\"]')].length,tasks:(UT.LiveSync.status()||{}).tasks})")
     mount('profile'); pg.click('#cur-em',timeout=8000); pg.wait_for_function("UT.PageModule.isMounted('tambang')",timeout=45000); pg.wait_for_timeout(800)
     out['tambang_dari_profil']=pg.evaluate("UT.Spa.current()"); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500)
     out['tambang_back_ke_asal']=pg.evaluate("UT.Spa.current()")
@@ -83,10 +97,14 @@ with sync_playwright() as p:
     mount('profile'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['profil_back_ke']=pg.evaluate("UT.Spa.current()")
     mount('leaderboard'); pg.click('#back',timeout=8000); pg.wait_for_timeout(1500); out['peringkat_back_ke']=pg.evaluate("UT.Spa.current()")
     out['errors']=errs[:8]
-    shell_ok=all(v['path']=='play.html' and not v['viewActive'] for v in nav.values())
-    nonview_ok=[v['page'] for v in nav.values()]==['shop.html']*4
+    shell_ok=all(v['path']=='play.html' and not v['viewActive'] for v in out['navigasi_non_view'].values())
+    nonview_ok=[v['page'] for v in out['navigasi_non_view'].values()]==['mode.html']
+    toko_nav_ok=all(v['path']=='play.html' and v['viewActive'] and v['cur']['name']=='shop' and v['tab']=='coin' for v in nav.values())
+    toko_ok=(out['toko_coin']['tab']=='coin' and out['toko_coin']['kartu']==3 and out['toko_coin']['hl'] and out['toko_riwayat']['tab']=='history' and out['toko_riwayat']['ada_hasil']
+        and out['toko_klik_emerald']=='emerald' and out['toko_emerald_modal']['tab']=='emerald' and out['toko_emerald_modal']['modal']!='none' and not out['toko_sisa']['mounted'] and not out['toko_sisa']['dom']
+        and not out['toko_sisa']['kelasSub'] and out['toko_sisa']['css']==0)
     ok=(out['konteks_baru']==0 and out['three_dimuat_ulang']==0 and not errs and out['sharedgl']['created']<=2
-        and not out['kelas_pf_wide_bocor'] and all(out['tombol_bisa_diketuk'].values()) and out['mounted_akhir']==['lobby'] and shell_ok and nonview_ok
+        and not out['kelas_pf_wide_bocor'] and all(out['tombol_bisa_diketuk'].values()) and out['mounted_akhir']==['lobby'] and shell_ok and nonview_ok and toko_nav_ok and toko_ok
         and out['link_css_spa']==['lobby'] and out['tambang_back_ke_friendship']['name']=='friendship' and out['friendship_back_ke']['name']=='lobby' and out['tambang_3d']['owner']=='tambang' and out['tambang_3d']['slots']==3 and out['tambang_3d']['menggambar'] and not out['tambang_sesudah_keluar']['mounted'] and not out['tambang_sesudah_keluar']['cv'] and out['tambang_sesudah_keluar']['owner']=='lobby' and out['tambang_dari_profil']['name']=='tambang' and out['tambang_back_ke_asal']['name']=='profile' and out['profil_back_ke']['name']=='lobby' and out['peringkat_back_ke']['name']=='lobby'
         and 'board' not in ((out['livesync_sesudah_keluar'] or {}).get('tasks') or []))   # LiveSync boleh jalan (lobby memulainya sendiri); tugas 'board' milik leaderboard harus lepas
     out['LULUS']=bool(ok)

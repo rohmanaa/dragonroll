@@ -88,7 +88,7 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | powerup | A | - | - | |
 | leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
 | friendship | A | Selesai (kode & test) | (commit ini) | SW v302; PageModule (tanpa WebGL sendiri); memperbaiki bug lama `#home` (halaman mandiri melempar TypeError, daftar teman tidak pernah dimuat); smoke browser LULUS; cek HP belum |
-| shop | B | - | - | |
+| shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
 | mode | B | - | - | |
 | inventory | B | - | - | |
 | hadiah-misi | B | - | - | |
@@ -152,3 +152,17 @@ Belum: cek di HP fisik.
 - `assets/js/multiplayer/presence.js`: tombol GABUNG/TOLAK pada popup undangan sebelumnya memakai gradien CSS; kini memakai aset `tombol-hijau-polos.webp` / `tombol-merah-polos.webp` (gaya inline karena popup muncul di halaman tanpa `page.css`). Drawer "Undang Teman" di `room.html` sudah memakai aset gambar sejak awal.
 - GABUNG kini pindah lewat `UT.Spa.go` bila ada shell (sebelumnya `location.href` meninggalkan `play.html`); fallback `location.href` untuk halaman biasa/iframe.
 - Tes: `tests/presence-invite-ui.test.js`. Diverifikasi di browser (harness dengan Presence di-stub): kedua gambar termuat, GABUNG memanggil `UT.Spa.go('room.html?...&code=...')`.
+
+### Shop (tahap 3-5, Gelombang B, SW v304)
+
+- `assets/js/pages/shop-page.js` dibungkus `UT.PageModule.define('shop')`; `shop.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS) dan `frame-guard.js`; prefetch `shop.html` di `play.js` sudah ada.
+- Tanpa WebGL sendiri, jadi tidak memakai `SharedGL`.
+- Parameter `?coin=1`, `?tab=`, `?emerald` dibaca dari URL rute aktif (`UT.Spa.current().url`) karena `location.search` di shell milik `play.html`.
+- Navigasi (Back, tombol `data-go` di modal) lewat `nav()` -> `UT.Spa.go`; `location.href` hanya fallback halaman mandiri.
+- Dilepas saat unmount: timer modal/toast, `resize`/`keydown`, langganan `PD.subscribe` + `Events.on`, LiveSync (`wallet` + `stop`). Penjaga `window.__curSub` dihapus (akan membuat langganan tidak terpasang pada kunjungan kedua).
+- Callback async (riwayat, tukar Coin, beli chest, `wallet.refresh`) dijaga `env.disposed`.
+- `tests/spa-host.test.js`: contoh halaman non-view diganti dari `shop.html` ke `mode.html` (shop kini view). Test baru `tests/shop-module.test.js` (9 tes). Seluruh test: sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` mencakup shop: tombol Coin dari profile/leaderboard/tambang/friendship membuka tab Coin di view (shell tetap), `?emerald` membuka modal, Riwayat, Back ke lobby, tanpa sisa DOM/CSS/kelas. Batas tunggu "bisa diketuk" dinaikkan 4 -> 12 dtk (render perangkat lunak lambat; `tambang#cur-em` sebelumnya gagal karena waktu, bukan overlap).
+- Hasil smoke (Chromium headless, 20 putaran, 6 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 10,6 -> 11,8 MB, mount shop ~26 ms.
+- Belum: transaksi sungguhan (tukar Coin, beli chest, riwayat) dengan akun server; cek HP fisik.
+- Urutan berikutnya: `mode`, `hadiah-misi`, `chest`, `mail`, `settings`, `room`, `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
