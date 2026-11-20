@@ -8,6 +8,7 @@ if(typeof THREE==='undefined'||!window.ItemCatalog||!window.PlayerData){document
    1. UTIL
    ================================================================ */
 const S=1/16;
+const nav=u=>{if(UT.Spa&&UT.Spa.go)UT.Spa.go(u);else location.href=u};  /* di shell (play.html): pindah rute tanpa muat ulang */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -69,11 +70,8 @@ function faceMats(pf,seed,alpha){
 const scene=new THREE.Scene();
 const cv=document.getElementById('gl'),showEl=document.getElementById('show');
 const camera=new THREE.PerspectiveCamera(40,1,0.1,200);
-const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
-renderer.setClearColor(0x000000,0);
+const renderer=UT.SharedGL.acquire('karakter',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfcf,0.85));
 const sun=new THREE.DirectionalLight(0xfff0d0,0.55);
 sun.castShadow=true;
@@ -1096,7 +1094,7 @@ const THUMB={
   init(){
     if(this.ready)return true;
     try{
-      const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+      const r=UT.SharedGL.offscreen();
       r.setSize(160,160);r.setPixelRatio(1);r.setClearColor(0x000000,0);
       this.r=r;this.cam=new THREE.PerspectiveCamera(30,1,0.1,60);this.ready=true;
     }catch(e){this.ready=false;}
@@ -1175,10 +1173,10 @@ function jump(){if(!airborne){airborne=true;vy=7.2;}}
 const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
-$('#back').addEventListener('click',()=>{location.href='lobby.html';});
+$('#back').addEventListener('click',()=>{nav('lobby.html');});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
-$('#shp').addEventListener('click',()=>{location.href='shop.html';});
-$('#cur-em').addEventListener('click',()=>{location.href='tambang.html?from=karakter.html'});$('#cur-co').addEventListener('click',()=>{location.href='shop.html?coin=1'});
+$('#shp').addEventListener('click',()=>{nav('shop.html');});
+$('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});
 function setMode(m){mode=m;}
 function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
 try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
@@ -1396,7 +1394,7 @@ function confirmBuy(ci){
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
     $('#yes').addEventListener('click',async()=>{
       const r=SV()?await WS().buy(ci.id):PD.purchase(ci.id);
       closeModal();
@@ -1415,7 +1413,7 @@ function confirmBuySet(set){
     :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
-    if(!ok){$('#more').addEventListener('click',()=>{location.href='shop.html';});return;}
+    if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
     $('#yes').addEventListener('click',async()=>{
       /* atomik: server (buy_set) / PlayerData.purchaseSet memotong koin sekali dan memberi SEMUA item, atau tidak sama sekali */
       const ids=set.cis.map(c=>c.id);
@@ -1818,8 +1816,8 @@ function frame(now){
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);
-/* unmount: buang geometri/material/tekstur adegan + renderer (tahap 2: diganti pelepasan renderer bersama) */
-env.own(()=>{try{scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});renderer.dispose()}catch(e){console.error('[karakter] dispose gagal',e)}});
+/* unmount: buang geometri/material/tekstur adegan, lepas renderer bersama (renderer TIDAK dibuang; dipakai halaman berikutnya) */
+env.own(()=>{try{if(AUR&&AUR.clearAll)AUR.clearAll();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})})}catch(e){console.error('[karakter] dispose gagal',e)}try{UT.SharedGL.release('karakter')}catch(e){}});
 
 // API untuk game / editor luar
 window.BlockyCharacter={

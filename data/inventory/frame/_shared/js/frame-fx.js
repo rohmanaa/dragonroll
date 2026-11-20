@@ -260,6 +260,7 @@ class Inst{
       i.acc2 += dt; if (i.acc2 < 1 / i.fps) continue;
       var d = Math.min(.1, i.acc2); i.acc2 = 0; i.update(d); i.draw();
     }
+    if (!live.length) { running = false; return; }   /* tidak ada kanvas bingkai lagi (halaman di-unmount): hentikan loop; setKey() -> start() menyalakannya lagi */
     g.requestAnimationFrame(loop);
   }
   /* <img> frame -> <canvas>; .src tetap bisa diganti (lobby.applyFrame) */

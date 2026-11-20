@@ -186,6 +186,7 @@ window.UT = window.UT || {};
     /* Ketukan tombol dimainkan oleh pembungkus (play.html) bila ada: suara tetap bunyi walau halaman langsung berpindah. */
     if (name === 'button') {
       try { if (win.parent && win.parent !== win && win.parent.UTShell) { win.parent.UTShell.click(); return true; } } catch (e) {}
+      try { if (win.parent === win && win.UTShell && win.UTShell.click) { win.UTShell.click(); return true; } } catch (e) {}   /* halaman dirender langsung di shell (SPA) */
     }
     var a = UT.Audio.get(name); if (!a) return false;
     try {
@@ -219,6 +220,11 @@ window.UT = window.UT || {};
   UT.App.page = null;
   UT.App.ready = false;
   UT.App.options = {};
+  /* shell SPA (play.html): init sekali, halaman aktif diganti lewat setPage */
+  UT.App.setPage = function (page) {
+    UT.App.page = page || null;
+    UT.Events.emit('pageChanged', { page: UT.App.page });
+  };
   UT.App.init = function (options) {
     options = options || {};
     if (UT.App.ready) return UT.App; /* idempoten: tidak membuat ulang sistem */
@@ -246,7 +252,8 @@ window.UT = window.UT || {};
           var exited = null; try { exited = win.sessionStorage.getItem('ut-mp-exited'); } catch (e) {}
           if (exited === String(row.id)) return;
           var q = new win.URLSearchParams({ mode: 'online', format: row.format === 'team' ? 'team' : 'solo', count: (row.players || []).length || 4, role: 'guest', code: row.code });
-          win.location.replace('room.html?' + q.toString());
+          if (win.UT.Spa && win.UT.Spa.go) win.UT.Spa.go('room.html?' + q.toString(), { replace: true }); /* di shell (SPA): tetap di play.html */
+          else win.location.replace('room.html?' + q.toString());
         }).catch(function (e) { if (win.console) console.warn('[resume] gagal memeriksa room aktif', e); });
       } catch (e) {}
     }
@@ -274,8 +281,10 @@ window.UT = window.UT || {};
     }
     /* Suara ketukan tombol otomatis untuk halaman yang belum punya playSound sendiri (halaman lain sudah memanggil UT.Audio.play('button')).
        Hanya bunyi bila pengaturan "Suara" aktif. */
-    if (['lobby', 'mode', 'friendship', 'settings', 'mail'].indexOf(UT.App.page) > -1) {
+    var CLICK_PAGES = ['lobby', 'mode', 'friendship', 'settings', 'mail'];
+    if (CLICK_PAGES.indexOf(UT.App.page) > -1 || UT.Spa) {   /* di shell (SPA) halaman aktif berganti: dicek tiap klik lewat UT.App.page */
       doc.addEventListener('click', function (e) {
+        if (CLICK_PAGES.indexOf(UT.App.page) < 0) return;
         var t = e.target && e.target.closest ? e.target.closest('button,[role="button"],a[href],[data-act]') : null;
         if (!t || t.disabled) return;
         var s = UT.State.getSettings();

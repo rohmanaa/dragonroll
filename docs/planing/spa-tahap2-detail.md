@@ -165,6 +165,26 @@ Catat sebelum (halaman mandiri) dan sesudah (SPA), di HP uji dan di desktop:
 | Elemen DOM lama dipakai skrip yang sudah `unmount` | setelah `unmount`, semua callback ditolak (`env` mati) |
 | FOUC karena CSS halaman dimuat telat | pasang CSS dulu, tampilkan `#view` setelah CSS siap |
 
+## 9. Ceklis tahap 2
+
+Desain yang dipakai: Opsi A hybrid (lihat `README.md` > Catatan keputusan). `router.js` dan `app.html` TIDAK dibuat; fungsinya dipegang `UT.Spa` (`assets/js/core/spa-host.js`).
+
+- [x] `assets/js/core/shared-gl.js` (`UT.SharedGL`: `acquire/release/offscreen/setQuality/stats`, reset state tiap acquire, `webglcontextlost/restored`)
+- [x] `assets/js/core/spa-host.js` (`UT.Spa`: `mount/start/go/canView`, fetch + DOMParser, CSS dilepas saat pindah, `popstate`, fallback iframe bila view gagal)
+- [x] `play.html`: `#view` + `page-module.js`, `shared-gl.js`, `spa-host.js`; `play.js` memanggil `UT.Spa.start` dan memakai ulang musik/overlay/prefetch
+- [x] `lobby.js` dan `karakter.js` memakai `SharedGL.acquire`; navigasi Lobby↔Karakter lewat `UT.Spa.go`; renderer offscreen karakter lewat `SharedGL.offscreen()`
+- [x] `FrameFX` berhenti saat tidak ada kanvas (loop rAF tidak tersisa)
+- [x] Guard `env.disposed` di callback async lobby (`pullXp/Quest/Friends/Mail/Chest/Mine`, `loadProgress`, klaim chest)
+- [x] `UT.App.setPage`; `frame-guard.js` mengalihkan Lobby/Karakter di iframe `#f` ke view
+- [x] `sw.js` v295 dan `preload-manifest.json` memuat `page-module.js`, `shared-gl.js`, `spa-host.js`
+- [x] Cek sintaks (`node --check`) semua file yang diubah: lulus
+- [x] `tests/shared-gl.test.js` (10 tes) dan `tests/spa-host.test.js` (9 tes) ditulis dan lulus di Node (`router.test.js` tidak perlu karena tidak ada router)
+- [x] Seluruh test: hanya 5 gagal baseline lama, tidak ada kegagalan baru (dijalankan 2026-11-20)
+- [ ] Smoke test browser: `tools/smoke-spa.py` ditulis (pindah 20x, hitung konteks WebGL, `three.min.js` tidak dimuat ulang, Back, memori) tetapi BELUM DIJALANKAN (tidak ada Chrome di lingkungan penulis); jalankan di mesin pemilik
+- [ ] Hasil pengukuran sebelum/sesudah (di bawah)
+- [ ] Verifikasi di HP oleh pemilik (HP portrait memakai jalur iframe; lihat catatan keputusan)
+- [ ] Merge `spa-tahap2` ke `main` (menunggu persetujuan pemilik)
+
 ## Hasil pengukuran
 
-(isi setelah selesai: tabel sebelum/sesudah)
+NOT TESTED. Tabel sebelum/sesudah belum diisi.
