@@ -72,3 +72,15 @@ html[data-graphics="low"] #pmodal{filter:none}
 html.ut-hub-embed,html.ut-hub-embed body,html.ut-hub-embed #wrap,html.ut-hub-embed #stage,
 html.ut-hub-embed:has(#stage.has-hub),html.ut-hub-embed:has(#stage.has-hub) body{background:transparent!important}
 html.ut-hub-embed body::before,html.ut-hub-embed body::after{display:none!important}
+
+/* Teman · Pesan · Pengaturan: satu kartu panel dengan margin kiri-kanan sama seperti kartu Profil (x 100..1820, y 150..1010) */
+#stage.has-hub #pane[data-tab="teman"]::before,#stage.has-hub #pane[data-tab="pesan"]::before,#stage.has-hub #pane[data-tab="setelan"]::before{
+  content:"";position:absolute;left:100px;top:150px;width:1720px;height:860px;box-sizing:border-box;pointer-events:none;
+  border:20px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 20px stretch;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+#stage.has-hub #pane .tabs{left:150px;top:182px}
+#stage.has-hub #pane #sbar{left:150px;top:270px;width:1620px}
+#stage.has-hub #pane #list{left:136px;top:384px;width:1648px;height:600px}
+#stage.has-hub #pane #rows{left:160px;top:196px;width:840px}
+#stage.has-hub #pane #opts{left:1060px;top:196px;width:700px}
+#stage.has-hub #pane #line{left:150px;right:150px;top:846px}
+#stage.has-hub #pane #logout{right:150px;top:872px}

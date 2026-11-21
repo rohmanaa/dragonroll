@@ -212,6 +212,7 @@
         b.tabIndex = on ? 0 : -1;
       });
       pane.setAttribute('aria-labelledby', 'ptab-' + key);
+      pane.setAttribute('data-tab', key);
       title.textContent = BY[key].label;
     }
     function syncUrl(key) {
