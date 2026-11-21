@@ -33,7 +33,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
 
 /* ===== mata uang kanan atas: Emerald, Coin, Hati. Ikon di kanan (tombol bulat), plus di kiri, bar biru langit transparan ===== */
-.cur{width:330px;height:76px;background:none;clip-path:none;filter:none}
+.cur{width:330px;height:64px;background:none;clip-path:none;filter:none}
 /* bar: hitam transparan, tanpa bayangan/garis */
 .cur::before{content:'';position:absolute;inset:auto 0 auto 0;top:50%;height:48px;transform:translateY(-50%);border-radius:0;
   background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) center/100% 100% no-repeat;
@@ -48,9 +48,9 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 /* hati: tanpa tombol +; status (hitung mundur / SIAP) di kiri */
 #cur-ht .v{padding-left:84px}
 #htime.ready{color:#9dff9f}
-#cur-em{left:auto;right:26px;top:22px}
-#cur-co{left:auto;right:26px;top:110px}
-#cur-ht{right:26px;top:198px}
+#cur-em{left:auto;right:26px;top:30px}
+#cur-co{left:auto;right:26px;top:94px}
+#cur-ht{right:26px;top:158px}
 /* hati: tanpa tombol +; status di kiri: hitung mundur isi ulang, SIAP bila penuh, +N bila lebih dari max */
 #cur-ht{cursor:default}
 #htime{position:absolute;left:18px;right:auto;top:50%;transform:translateY(-50%);z-index:2;font-size:20px;line-height:1;color:#ffe9a8;
