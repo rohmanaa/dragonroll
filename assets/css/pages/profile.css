@@ -14,6 +14,8 @@ button.sr,button.kr,#rank,#pet,#hid,.eb,#pen,.ecell{background:none;border:0;pad
 .pcard{position:absolute;box-sizing:border-box;border:0;border-radius:0;background:none;box-shadow:none;isolation:isolate;overflow:hidden}
 .pcard::before{content:"";position:absolute;inset:0;border:20px solid transparent;border-image:url(../../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 20px stretch;z-index:-1;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
 #hero{overflow:visible;left:100px;top:150px;width:1720px;height:470px}
+/* latar kartu Profil tetap profile-bg.webp, di dalam bingkai panel kartu */
+#hero::after{content:"";position:absolute;inset:16px;border-radius:10px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(12,8,30,.35),rgba(12,8,30,.7)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
 #statc{left:100px;top:640px;width:840px;height:370px}
 #kolc{left:960px;top:640px;width:860px;height:370px}
 .ph{position:absolute;left:28px;top:12px;font:400 44px/1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
