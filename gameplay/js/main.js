@@ -300,10 +300,10 @@ const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,o
    --world-grass-tint (warna CSS, mis. #6fc04a) + --world-grass-tint-amt (0..1, 0 = pakai warna palet asli).
    Hanya muka ATAS yang hijau di luar board 10x10; geometri/warna vertex/rnd() tidak berubah. Gagal muat -> tampilan lama. ===== */
 const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
-const DETAIL_URLS=['log','daun','kayu','tanah'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
+const DETAIL_URLS=['log','daun','kayu','tanah','semak'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
 const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
 /* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
-const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dt4:{value:null},dstr4:{value:0},dscale4:{value:0.5},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
 let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
 const WMATS={};
 function grassMat(){ return worldMat(1); }   /* papan/tanah (TB): rumput + batu + tekstur per bagian */
@@ -312,12 +312,12 @@ function worldMat(mode){
   if(WMATS[mode]) return WMATS[mode];
   const WM=WMATS[mode]=MAT.clone();
   WM.onBeforeCompile=sh=>{
-    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
+    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDT4:GU.dt4,uDStr4:GU.dstr4,uDScale4:GU.dscale4,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nattribute float tid;\nvarying float vTid;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;\nvTid=tid;');
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform sampler2D uDT4;\nuniform float uDStr4;\nuniform float uDScale4;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
       .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
         '  float gUp=step(0.9,vGNor.y);\n'+
         '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
@@ -338,9 +338,9 @@ function worldMat(mode){
         '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
         '  float dI=floor(vTid+0.5);\n'+
         '  vec2 dUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
-        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r;\n'+
-        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:dT3));\n'+
-        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:uDStr.w));\n'+
+        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r;\n'+
+        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:dT4)));\n'+
+        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:uDStr4)));\n'+
         '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
         '#endif');
   };
@@ -362,8 +362,8 @@ function syncGrassCss(){
     GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
     GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
     GU.tree.value=(themeKey==='minecraft'&&!low&&GU.tex2.value&&GU.tmask.value)?Math.max(0,Math.min(1,num('--world-grass-tree',0))):0;
-    { const nm=['log','leaf','wood','earth'],on=themeKey==='minecraft'&&!low;
-      nm.forEach((n,i)=>{ const ok=on&&GU['dt'+i].value; GU.dstr.value.setComponent(i,ok?Math.max(0,Math.min(1,num('--world-'+n+'-tex',0))):0); GU.dscale.value.setComponent(i,1/Math.max(0.25,num('--world-'+n+'-tex-size',2))); }); }
+    { const nm=['log','leaf','wood','earth','brush'],on=themeKey==='minecraft'&&!low;
+      nm.forEach((n,i)=>{ const ok=on&&GU['dt'+i].value; const st=ok?Math.max(0,Math.min(1,num('--world-'+n+'-tex',0))):0,sz=1/Math.max(0.25,num('--world-'+n+'-tex-size',2)); if(i<4){ GU.dstr.value.setComponent(i,st); GU.dscale.value.setComponent(i,sz); } else { GU.dstr4.value=st; GU.dscale4.value=sz; } }); }
     GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
     GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
     GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
@@ -1396,7 +1396,7 @@ function addDomePix(B,x,z,o,r){
   for(let i=0;i<w;i++) for(let j=0;j<d;j++){
     const h=H[i][j]; if(!h) continue;
     const nb=Math.min(hh(i-1,j),hh(i+1,j),hh(i,j-1),hh(i,j+1));
-    for(let k=Math.min(nb,h-1);k<h;k++) addBox(B,x+(i-cxm)*u,u*(k+0.5),z+(j-czm)*u,u,u,u,o.color(k,h,pk,r));
+    for(let k=Math.min(nb,h-1);k<h;k++) addBox(B,x+(i-cxm)*u,u*(k+0.5),z+(j-czm)*u,u,u,u,o.color(k,h,pk,r),o.tex?{tex:o.tex}:undefined);
   }
   return H;
 }
@@ -1411,7 +1411,7 @@ function addRockPix(B,x,z,big,r){
   return [o.w*o.u/2+0.12,o.d*o.u/2+0.12];
 }
 function addBushPix(B,x,z,r){
-  const n=5+Math.floor(r()*2),o={u:0.1,w:n,d:n-(r()<0.5?1:0),pk:3,fall:1.0,rough:1.2,color:bushColor},H=addDomePix(B,x,z,o,r);
+  const n=5+Math.floor(r()*2),o={u:0.1,w:n,d:n-(r()<0.5?1:0),pk:3,fall:1.0,rough:1.2,color:bushColor,tex:5},H=addDomePix(B,x,z,o,r);
   if(r()<0.55){ const FL=[0xFFD23F,0xFF7EB6,0xFFFFFF,0x4FB4F0],m=1+Math.floor(r()*3); /* bunga kecil di pucuk semak */
     for(let i=0;i<m;i++){ const a=Math.floor(r()*o.w),b=Math.floor(r()*o.d); if(!H[a][b]) continue; addBox(B,x+(a-(o.w-1)/2)*o.u,o.u*H[a][b]+0.035,z+(b-(o.d-1)/2)*o.u,0.07,0.07,0.07,FL[Math.floor(r()*4)],{edge:false}); } }
 }

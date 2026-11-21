@@ -140,4 +140,5 @@ body.th-world{--world-grass-tex:.5;--world-grass-tex-size:2;--world-grass-tint:#
   --world-leaf-tex:.5;--world-leaf-tex-size:1.2;             /* daun pohon */
   --world-wood-tex:.5;--world-wood-tex-size:1.5;             /* papan kayu: rumah, pagar, bingkai board */
   --world-earth-tex:.5;--world-earth-tex-size:2;             /* tanah: kolom tile & sisi pulau */
+  --world-brush-tex:.5;--world-brush-tex-size:.6;            /* semak-semak (blok kecil 0.1, jadi ukuran ubin kecil) */
   --world-stone-tex:.5;--world-stone-tex-size:2;--world-stone-tint:#a1a7b1;--world-stone-tint-amt:0}
