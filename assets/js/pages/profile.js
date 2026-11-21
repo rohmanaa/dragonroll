@@ -57,8 +57,9 @@ function buildChar() {
       const r = acquired.renderer, cv = acquired.canvas;
       art.appendChild(cv);
       const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, 1, .1, 100);
-      scene.add(new THREE.AmbientLight(0xffffff, .7), new THREE.HemisphereLight(0xcfeaff, 0x6a9a50, .6));
-      const sun = new THREE.DirectionalLight(0xfff2d8, .9); sun.position.set(6, 12, 8); scene.add(sun);
+      scene.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
+      const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); scene.add(sun);
+      const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); scene.add(rim);
       const holder = new THREE.Group(); scene.add(holder);
       R = {r, scene, cam, holder, cv, ch: null};
       /* resize observer: pakai env.own agar dibersihkan */
@@ -73,7 +74,7 @@ function buildChar() {
     }
   }
   if (R.ch) R.holder.remove(R.ch.root);
-  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('idle'); ch.tick(.016);
+  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('pose1'); ch.tick(.016);
   const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam(); renderOnce();
   /* jaga-jaga bila tekstur wajah/outfit selesai dimuat sesudahnya */
   [120, 500].forEach(ms => setTimeout(renderOnce, ms));
@@ -131,12 +132,10 @@ const EMO = ['😎', '🔥', '🐉', '⚔️', '👑', '🛡️', '🎲', '🍀'
 /* 3 emoji "siapa dirimu" disimpan lokal (UT.Prefs 'profileEmoji'); belum disinkronkan ke server */
 const emo = () => { let a = null; try { a = UT.Prefs.get('profileEmoji', null); } catch (e) {} if (!Array.isArray(a)) a = ['😎', '🔥', '🐉']; return [0, 1, 2].map(i => a[i] || EMO[i]); };
 function drawAkun() {
-  const L = PD.levelInfo(), pct = L.xpMax ? Math.min(100, L.xpIn / L.xpMax * 100) : 0;
+  const L = PD.levelInfo();
   $('#hnm').textContent = pname();
   $('#hid').textContent = `ID ${PROF.uid} · Bergabung ${PROF.joined}`;
-  $('#lvn').textContent = L.level; $('#lvp').textContent = pct.toFixed(1) + '%';
-  $('#xpnote').textContent = `${fmt(L.xpIn)} / ${fmt(L.xpMax)} XP · butuh ${fmt(L.xpMax - L.xpIn)} XP lagi ke Level ${L.level + 1}`;
-  requestAnimationFrame(() => requestAnimationFrame(() => { $('#lvf').style.width = pct + '%'; }));
+  $('#lvn').textContent = L.level;
   const e = emo(); document.querySelectorAll('.eb').forEach((b, i) => { b.textContent = e[i]; b.setAttribute('aria-label', 'Emoji ' + (i + 1)); });
   $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
   $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
@@ -167,15 +166,14 @@ $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classLi
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
 const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><i><b data-w="${t ? Math.min(100, a / t * 100) : 0}"></b></i><em>${a}/${t}</em></button>`; }).join('');
-  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.kr b').forEach(b => { b.style.width = b.dataset.w + '%'; })));
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
 $('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u, bar) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div>${bar != null ? `<i class="bar"><b data-w="${bar}"></b></i>` : ''}<div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u, bar) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
@@ -184,7 +182,6 @@ function drawStat() {
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
     row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +
     row(K + 'item-icons/gulungan-pena.webp', 'Main', p);
-  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.sr i.bar b').forEach(b => { b.style.width = b.dataset.w + '%'; })));
 }
 $('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
 
