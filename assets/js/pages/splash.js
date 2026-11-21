@@ -62,7 +62,8 @@ const ASSETS=[
   'data/power/3d/potion_even.png',
   'data/power/3d/grass.png',
   'assets/js/vendor/three.min.js',
-  'assets/css/fonts.css'
+  'assets/css/fonts.css',
+  'assets/images/ui/achievement/ach-pedang.webp'
 ];
 ASSETS.unshift(dest.split("?")[0]);
 let pct=0;

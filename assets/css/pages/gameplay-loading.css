@@ -1,0 +1,37 @@
+/* gameplay-loading.css — layar muat KHUSUS gameplay (play.html #ov.gp > #gl). Referensi: referensi/newgui/assets/penerapan/6EC+9G.png.
+   Hanya tampil saat tujuannya gameplay; halaman lain tetap memakai ring berputar (#ov .ld). Ukuran dalam vmin supaya sama di landscape & portrait (play.html memutar #ov). */
+#gl{display:none;position:absolute;inset:0;overflow:hidden;color:#fff;font-family:'Lilita One',system-ui,-apple-system,"Segoe UI",sans-serif;pointer-events:none;
+  background:radial-gradient(120% 70% at 50% 108%,#4a2a55 0,rgba(74,42,85,0) 60%),radial-gradient(80% 60% at 50% 30%,#2b2147 0,rgba(43,33,71,0) 70%),linear-gradient(#1b1530,#241a38 55%,#2f2042)}
+#ov.gp,#ov.gp.quiet,#ov.gp.pending{background:#1b1530}
+#ov.gp .ld{display:none!important}
+#ov.gp #gl{display:grid;grid-template-rows:1fr auto 1fr;justify-items:center}
+
+#gl .gl-dust{position:absolute;inset:0}
+#gl .gl-dust i{position:absolute;width:.55vmin;height:.55vmin;border-radius:50%;background:#b69bff;opacity:.5;animation:gl-tw 4s ease-in-out infinite}
+@keyframes gl-tw{0%,100%{opacity:.12;transform:translateY(0)}50%{opacity:.75;transform:translateY(-1.2vmin)}}
+
+#gl .gl-top{align-self:end;display:grid;place-items:center;padding-bottom:3.2vmin}
+#gl .gl-sword{width:30vmin;height:30vmin;object-fit:contain;filter:drop-shadow(0 0 3vmin rgba(255,200,90,.45)) drop-shadow(0 1vmin 1.2vmin rgba(0,0,0,.55));animation:gl-fl 2.6s ease-in-out infinite}
+@keyframes gl-fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2vmin)}}
+
+#gl .gl-mid{display:grid;justify-items:center;gap:1.6vmin;width:min(86vmin,80%)}
+#gl .gl-rule{position:relative;width:100%;height:.35vmin;background:linear-gradient(90deg,transparent,rgba(190,170,230,.45) 25%,rgba(190,170,230,.45) 75%,transparent)}
+#gl .gl-rule::after{content:'';position:absolute;left:50%;top:50%;width:1.5vmin;height:1.5vmin;background:#6b5a8e;transform:translate(-50%,-50%) rotate(45deg)}
+#gl .gl-txt{margin:0;padding:1.2vmin 0;font:400 4.4vmin/1.1 'Lilita One',system-ui,sans-serif;letter-spacing:.25vmin;color:#d9d2ea;text-shadow:0 .3vmin 0 rgba(10,6,24,.6);text-align:center}
+#gl .gl-txt::after{content:'...';display:inline-block;width:0;overflow:hidden;vertical-align:bottom;text-align:left;animation:gl-dots 1.2s steps(4,end) infinite}
+@keyframes gl-dots{to{width:3ch}}
+#gl.rdy .gl-txt{color:#ffe08a;animation:gl-pop .35s cubic-bezier(.3,1.6,.5,1) both}
+#gl.rdy .gl-txt::after{content:none}
+@keyframes gl-pop{from{transform:scale(.8);opacity:.4}}
+
+#gl .gl-bot{align-self:start;display:grid;justify-items:center;gap:2.6vmin;padding-top:4vmin}
+#gl .gl-time{display:flex;align-items:center;gap:2.4vmin;font:400 14vmin/1 'Lilita One',system-ui,sans-serif;letter-spacing:.6vmin;text-shadow:0 .6vmin 0 rgba(10,6,24,.55);font-variant-numeric:tabular-nums}
+#gl .gl-time b{font-weight:400;min-width:2ch;text-align:center}
+#gl .gl-c{display:grid;gap:2.4vmin}
+#gl .gl-c::before,#gl .gl-c::after{content:'';width:1.3vmin;height:1.3vmin;background:#fff;border-radius:.3vmin;transform:rotate(45deg)}
+#gl .gl-net{display:flex;align-items:center;gap:1.8vmin;padding:1.4vmin 4vmin;background:rgba(22,16,36,.9);font:400 3.4vmin/1 'Lilita One',system-ui,sans-serif;letter-spacing:.2vmin;
+  clip-path:polygon(2.2vmin 0,calc(100% - 2.2vmin) 0,100% 50%,calc(100% - 2.2vmin) 100%,2.2vmin 100%,0 50%)}
+#gl .gl-wifi{width:4.4vmin;height:4.4vmin;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+#gl .gl-wifi circle{fill:currentColor;stroke:none}
+#gl .gl-wifi.off{opacity:.35}
+@media (prefers-reduced-motion:reduce){#gl .gl-dust i,#gl .gl-sword,#gl .gl-txt::after,#gl.rdy .gl-txt{animation:none}}
