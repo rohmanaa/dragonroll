@@ -82,3 +82,4 @@ html.ut-hub-embed body::before,html.ut-hub-embed body::after{display:none!import
 #stage.has-hub #pane #opts{left:1040px;top:180px;width:700px}
 #stage.has-hub #pane #line{left:110px;right:110px;top:846px}
 #stage.has-hub #pane #logout{right:110px;top:872px}
+#stage.has-hub #pane #appver{left:130px;top:906px}
