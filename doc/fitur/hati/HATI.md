@@ -7,6 +7,14 @@
 - Kebijakan: hanya `hati-habis` yang memblokir. Gagal jaringan/belum login = lolos; tamu/lokal = tanpa batas.
 - Tes: `tests/hearts-service.test.js`, `tests/room-flow-spa.test.js`, `supabase/tests/hearts_test.sql` (DB uji).
 
-## Belum dikerjakan (tahap 2)
-- Kirim hati ke teman: 1 hati/hari per teman; pengirim dapat fee 1 Emerald; penerima tidak online 1 bulan = hati jadi 2 (hati emas); batas 25 teman/hari.
+## Tahap 2 — kirim hati ke teman (migrasi `202611420001_hearts_friends.sql`)
+- Halaman Pertemanan: tombol hati di tiap baris teman (`hati-garis.webp`). Normal `+1`, emas `+2`, sudah dikirim hari ini `✓` (redup).
+- 1 hati / hari / teman (hari = tanggal Asia/Jakarta), maksimal 25 teman berbeda per hari. Server: `hearts_friends()` (status), `hearts_send(friend)`.
+- Penerima langsung +1 hati tanpa klaim; boleh > 5 (isi ulang otomatis tetap berhenti di 5; hadiah tidak hilang saat sedang isi ulang).
+- Pengirim dapat fee Emerald lewat `_wallet_apply(reason 'heart_gift')`: 1; bila penerima tidak aktif >= 30 hari: 2 dan ikon teman itu emas.
+- "Aktif terakhir" = `player_hearts.last_seen_at` (disentuh `hearts_get`/`hearts_friends`, maks. 1x/jam) -> `auth.users.last_sign_in_at` -> `created_at`.
+- Angka (25, fee 1/2, 30 hari) hanya di fungsi `_hg_*` pada migrasi.
+- Tes: `supabase/tests/hearts_friends_test.sql`, `tests/hearts-service.test.js`, `tests/friendship-module.test.js`.
+
+## Belum dikerjakan
 - Hati dari chest.

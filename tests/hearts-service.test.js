@@ -73,5 +73,16 @@ function setup(handlers, opts) {
   assert.strictEqual(b.reason, 'sedang-diproses'); release(); assert.strictEqual((await a).ok, true);
   assert.strictEqual(s.calls.length, 1);
 
+  // tahap 2: kirim hati ke teman
+  s = setup({ hearts_send: async a => ({ data: { ok: true, fee: 2, gold: true, sent_today: 1, limit: 25, echo: a.p_friend }, error: null }),
+              hearts_friends: async () => ({ data: { ok: true, limit: 25, sent_today: 0, friends: [] }, error: null }) });
+  r = await s.svc.send('abc'); assert.deepStrictEqual([r.ok, r.fee, r.gold], [true, 2, true]);
+  assert.deepStrictEqual(s.calls[0], ['hearts_send', { p_friend: 'abc' }]);
+  assert.strictEqual((await s.svc.friends()).limit, 25);
+  s = setup({}, { enabled: false });
+  assert.strictEqual((await s.svc.send('x')).reason, 'mode-lokal'); assert.strictEqual(s.calls.length, 0);
+  s = setup({ hearts_send: async () => { throw new Error('down'); } });
+  assert.strictEqual((await s.svc.send('x')).reason, 'jaringan');
+
   console.log('hearts-service: semua lulus');
 })().catch(e => { console.error(e); process.exit(1); });
