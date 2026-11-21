@@ -6,8 +6,8 @@
 #art .noweb svg{position:static;width:100%;height:100%}
 .ir.tap{cursor:pointer}
 .sr,.kr{isolation:isolate}
-/* kotak = aset baris-ranking.webp (9-slice) seperti halaman lain, bukan kotak CSS biasa */
-.sr::before,.kr::before,.prow::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+/* panel 9-slice (baris-ranking.webp) hanya untuk baris Guild/Rank; isi Statistik & Koleksi polos di dalam panel kartunya */
+.prow::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
 button.sr,button.kr,#rank,#pet,#hid,.eb,#pen,.ecell{background:none;border:0;padding:0;color:#fff;font:inherit;cursor:pointer;text-align:left}
 
 .pcard{position:absolute;box-sizing:border-box;border-radius:20px;border:3px solid rgba(255,255,255,.16);background:rgba(14,10,26,.58);box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
