@@ -8,7 +8,15 @@ const html = fs.readFileSync(path.join(root, 'profile.html'), 'utf8');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
-t('dibungkus UT.PageModule.define("profile")', () => assert(/UT\.PageModule\.define\('profile'/.test(src)));
+t('panel Profil dibungkus UT.PageModule.define("profil"); hub-nya modul "profile" (account.js)', () => {
+  assert(/UT\.PageModule\.define\('profil'/.test(src));
+  const acc = fs.readFileSync(path.join(root, 'assets/js/pages/account.js'), 'utf8');
+  assert(/UT\.PageModule\.define\('profile'/.test(acc));
+});
+t('panel Profil tidak memasang tab lama dan tidak meninggalkan halaman lewat Esc (hub yang mengelola)', () => {
+  assert(!/ProfileTabs/.test(src));
+  assert(!/Escape/.test(src));
+});
 t('nav memakai UT.Spa.go untuk semua target (tanpa syarat canView)', () => {
   const nav = src.slice(src.indexOf('const nav ='), src.indexOf('const BUILT'));
   assert(/UT\.Spa && UT\.Spa\.go\) \{ UT\.Spa\.go\(u\); return; \}/.test(nav));

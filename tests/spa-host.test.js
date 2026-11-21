@@ -122,5 +122,44 @@ function setup(o) {
     a.log.length = 0; a.ls.popstate({ state: null }); await tick();
     assert.strictEqual(a.log.length, 0);
   });
+  await t('hub: friendship/mail/settings.html dialihkan (canon) ke profile.html?tab=..., ?from= dipertahankan', () => {
+    const { spa } = setup();
+    assert.strictEqual(spa.canon('friendship.html'), 'profile.html?tab=teman');
+    assert.strictEqual(spa.canon('mail.html?from=lobby.html'), 'profile.html?tab=pesan&from=lobby.html');
+    assert.strictEqual(spa.canon('settings.html?from=shop.html%3Fcoin%3D1'), 'profile.html?tab=setelan&from=shop.html%3Fcoin%3D1');
+    assert.strictEqual(spa.canon('profile.html'), 'profile.html');
+    assert.strictEqual(spa.canon('profile.html?tab=pesan'), 'profile.html?tab=pesan');
+    assert.strictEqual(spa.canon('shop.html'), 'shop.html');
+  });
+  await t('hub: go(mail.html) dari lobby memuat view "profile" (bukan "mail"); riwayat memakai URL hub', async () => {
+    const a = setup(); a.spa.start('lobby.html'); await tick(); await tick(); a.log.length = 0;
+    const r = await a.spa.go('mail.html?from=lobby.html');
+    assert.strictEqual(r, true);
+    assert.ok(a.log.includes('enter:profile') && a.log.includes('mount:profile'), a.log.join(','));
+    assert.ok(!a.log.includes('enter:mail') && !a.log.includes('mount:mail'));
+    assert.ok(a.hist.some(h => h[0] === 'push' && /go=profile\.html%3Ftab%3Dpesan%26from%3Dlobby\.html/.test(h[1])), JSON.stringify(a.hist));
+  });
+  await t('hub: saat hub terbuka, go(tab lain) pindah DI TEMPAT lewat AccountHub.handle (tanpa unmount/enter/riwayat baru)', async () => {
+    const a = setup(); a.spa.start('profile.html?tab=profil'); await tick(); await tick();
+    a.G.UT.AccountHub = { handle: url => { a.log.push('hub.handle:' + url); return true; } };
+    a.log.length = 0; a.hist.length = 0;
+    assert.strictEqual(await a.spa.go('friendship.html'), true);
+    assert.deepStrictEqual(a.log, ['hub.handle:profile.html?tab=teman']);
+    assert.strictEqual(a.hist.length, 0);
+    a.log.length = 0;
+    assert.strictEqual(await a.spa.go('settings.html'), true);
+    assert.deepStrictEqual(a.log, ['hub.handle:profile.html?tab=setelan']);
+  });
+  await t('hub: bila AccountHub tidak menangani (atau tidak ada), go() memakai jalur normal; halaman non-hub tetap meninggalkan hub', async () => {
+    const a = setup(); a.spa.start('profile.html'); await tick(); await tick();
+    a.log.length = 0;
+    await a.spa.go('lobby.html');
+    assert.ok(a.log.includes('unmount:profile') && a.log.includes('enter:lobby'), a.log.join(','));
+    const b = setup(); b.spa.start('profile.html'); await tick(); await tick();
+    b.G.UT.AccountHub = { handle: () => false };
+    b.log.length = 0;
+    await b.spa.go('mail.html');
+    assert.ok(b.log.includes('unmount:profile') && b.log.includes('enter:profile'), b.log.join(','));
+  });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

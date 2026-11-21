@@ -1,7 +1,6 @@
 /* mail.js — dipindah dari blok script inline (mail.html). Tahap 3 SPA: dibungkus UT.PageModule ('mail'); halaman mandiri otomatis mount,
    unmount() melepas timer, listener, langganan dan polling. Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
 UT.PageModule.define('mail',function(env){
-if(UT.ProfileTabs)UT.ProfileTabs.mount('pesan',env);
 const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
@@ -19,7 +18,7 @@ let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textConten
 const nav=u=>{if(UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');setTimeout(()=>location.href=u,330)};
 const BUILT=['lobby.html','shop.html','profile.html','tambang.html','friendship.html','settings.html','powerup.html','frame.html','dadu.html','efek.html','karakter.html','mode.html','room.html','leaderboard.html','hadiah-misi.html','inventory.html'];
 /* di shell location.search milik play.html (?go=...): parameter halaman (?from=) diambil dari URL rute aktif */
-const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='mail'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const search=()=>{if(UT.AccountHub&&UT.AccountHub.query&&UT.AccountHub.active&&UT.AccountHub.active())return UT.AccountHub.query();const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='mail'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
 const FROM=(()=>{const f=new URLSearchParams(search()).get('from');return f&&BUILT.includes(f.split('?')[0])?f:'lobby.html'})();
 
 /* ---- state ---- */

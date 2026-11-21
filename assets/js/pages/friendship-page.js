@@ -1,7 +1,6 @@
 /* friendship-page.js — Tahap 3 SPA: dibungkus UT.PageModule ('friendship'). Halaman mandiri otomatis mount; unmount() melepas timer,
    listener, langganan (PlayerData, Events, Presence), dan LiveSync. Callback async dijaga env.disposed. */
 UT.PageModule.define('friendship', function (env) {
-if(UT.ProfileTabs)UT.ProfileTabs.mount('teman',env);
   'use strict';
   const { setTimeout, clearTimeout, setInterval, clearInterval, requestAnimationFrame, addEventListener } = env;
 

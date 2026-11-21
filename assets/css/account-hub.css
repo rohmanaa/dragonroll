@@ -1,0 +1,56 @@
+/* account-hub.css — kerangka MODAL untuk hub Profil · Teman · Pesan · Pengaturan (profile.html). Kanvas 1920x1080.
+   Struktur: #phub[role=dialog] > #pbackdrop, #pmodal (bingkai 9-slice), #phub-title (sr-only), #ptabs, #pane (isi panel), #pclose.
+   Tab bergaya Inventory: ikon di atas, teks di bawah, garis bawah emas pada tab aktif. */
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+#phub{position:absolute;inset:0;z-index:10}
+#pbackdrop{position:absolute;inset:0}
+#pane{position:absolute;inset:0;outline:none}
+#pane.loading{opacity:.55;transition:opacity .12s}
+#pane[aria-busy="true"]{cursor:progress}
+
+/* latar: lobby diredupkan (hanya saat hub aktif) */
+html:has(#stage.has-hub),html:has(#stage.has-hub) body{
+  background:linear-gradient(rgba(10,8,24,.66),rgba(10,8,24,.66)) fixed,url(../images/background/lobby-kastel.webp) center/cover no-repeat fixed,#0b0826!important}
+
+/* bingkai panel (di bawah tab; tab menempel di tepi atas panel) */
+#pmodal{position:absolute;left:50px;top:100px;width:1820px;height:960px;pointer-events:none;box-sizing:border-box;z-index:0;
+  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 22px stretch;
+  filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))}
+
+/* tab */
+#ptabs{position:absolute;left:150px;top:6px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
+#ptabs .ptab{position:relative;flex:1;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
+#ptabs .ptab img.ic{height:52px;width:auto;max-width:76px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+#ptabs .ptab span{font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#ptabs .ptab:hover{opacity:.9}
+#ptabs .ptab:active{transform:scale(.95)}
+#ptabs .ptab.on{opacity:1;cursor:default}
+#ptabs .ptab.on span{color:#ffd45a}
+#ptabs .ptab img.ul{position:absolute;left:0;right:0;bottom:-20px;width:100%;height:36px;object-fit:fill;display:none}
+#ptabs .ptab.on img.ul{display:block}
+
+/* tombol tutup (X) */
+#pclose{position:absolute;left:1790px;top:14px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:21;
+  transition:transform .1s,filter .1s}
+#pclose img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#pclose:hover{filter:brightness(1.12)}#pclose:active{transform:scale(.92)}
+
+/* fokus keyboard terlihat (modal harus bisa dipakai tanpa mouse) */
+#phub button:focus-visible,#phub input:focus-visible,#phub select:focus-visible,#phub [tabindex]:focus-visible{outline:4px solid #ffd45a;outline-offset:3px;border-radius:10px}
+#pane:focus,#pane:focus-visible{outline:none}
+
+/* elemen navigasi milik halaman lama digantikan tab + X */
+#stage.has-hub #pane #title,#stage.has-hub #pane #back,#stage.has-hub #pane #home{display:none!important}
+
+/* panel gagal dimuat */
+.perr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;font:800 40px var(--font-body)}
+.perr p{margin:0 0 28px;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+.perr-btn{font:400 36px var(--font-title);color:#fff;padding:14px 44px;border:0;border-radius:18px;background:#3d9e5f;box-shadow:0 6px 0 #1f6038;cursor:pointer}
+.perr-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #1f6038}
+
+html[data-graphics="low"] #ptabs .ptab{transition:none}
+html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pclose img{filter:none}
+html[data-graphics="low"] #pmodal{filter:none}
+@media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pclose{transition:none}}

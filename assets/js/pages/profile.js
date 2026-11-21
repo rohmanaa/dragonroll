@@ -1,7 +1,7 @@
-/* profile.js — dipindah dari blok script inline (profile.html). Tahap 3 SPA: dibungkus modul UT.PageModule ('profile').
+/* profile.js — panel PROFIL di dalam hub (assets/js/pages/account.js + UT.AccountHub). Dibungkus modul UT.PageModule ('profil');
+   hub yang me-mount/unmount-nya saat tab Profil dipilih/ditinggalkan. Kerangka modal, tab, tombol X, dan Esc dikelola hub.
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, langganan, dan renderer WebGL bersama (SharedGL). */
-UT.PageModule.define('profile', function(env) {
-if(UT.ProfileTabs)UT.ProfileTabs.mount('profil',env);
+UT.PageModule.define('profil', function(env) {
 const {setTimeout, clearTimeout, requestAnimationFrame, cancelAnimationFrame, addEventListener, removeEventListener} = env;
 const $ = s => document.querySelector(s);
 const PD = window.PlayerData, IC = window.ItemCatalog, AR = window.ItemArt;
@@ -44,13 +44,7 @@ $('#cur-co').onclick = () => nav('shop.html?coin=1');
 $('#cur-em').onclick = () => nav('tambang.html?from=profile.html');
 /* tombol kembali: lobby sudah SPA — gunakan UT.Spa.go bila tersedia */
 $('#back').onclick = () => { snd(); if (UT.Spa && UT.Spa.go) { UT.Spa.go('lobby.html'); } else { nav('lobby.html'); } };
-/* event listener keydown dan resize didaftarkan via env.own agar dibersihkan saat unmount */
-env.own(addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (UT.Spa && UT.Spa.go) UT.Spa.go('lobby.html');
-    else nav('lobby.html');
-  }
-}));
+/* Esc dan tombol tutup dikelola hub (UT.AccountHub): menutup modal ke halaman asal, bukan hanya ke lobby. */
 
 /* ---- kiri: tab ---- */
 const TABS = [['akun', 'Akun', 'profil-bulat.webp'], ['koleksi', 'Koleksi', 'tas-kulit.webp'], ['statistik', 'Statistik', 'grafik-batang.webp']];
