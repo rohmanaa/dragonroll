@@ -2,14 +2,15 @@
    Strategi: SEMUA aset (HTML/JS/CSS/JSON + gambar/font/suara + library cdnjs/fonts) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang,
    jadi pindah halaman tidak menunggu jaringan. Lewat jaringan hanya bila belum ada di cache (disimpan, dan diambil dengan revalidasi supaya tidak basi).
    PEMBARUAN: ganti/tambah aset => naikkan VERSION. SW baru memasang cache sendiri lalu MENUNGGU; baru aktif (cache lama dibuang) setelah
-   semua tab/aplikasi ditutup dan dibuka lagi (tanpa skipWaiting) -> pembaruan berlaku setelah restart aplikasi, tanpa campur versi di tengah sesi.
+   semua tab/aplikasi ditutup dan dibuka lagi, ATAU pemain menekan "Mulai ulang" di modal Unduh Data Lobby (pesan SKIP_WAITING; skipWaiting tidak
+   pernah dipanggil otomatis) -> pembaruan berlaku setelah restart, tanpa campur versi di tengah sesi.
    UPDATE INKREMENTAL: kode (HTML/JS/CSS/JSON) ada di cache ber-versi (kecil, dibuang tiap versi baru); MEDIA (gambar/suara/font + library luar) ada di
    cache PERMANEN MEDIA_CACHE yang TIDAK dibuang saat VERSION naik. Saat aktivasi, assets/media-hash.json (dibuat tools/gen-preload-manifest.py) dibandingkan
    dengan indeks yang tersimpan: hanya media yang hash-nya berubah/dihapus yang dibuang dari cache dan diunduh ulang. Cache ber-versi lama (sebelum skema ini)
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v318';
+const VERSION = 'ut-pwa-v319';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
@@ -72,6 +73,8 @@ async function blobHash(buf) {
 }
 /* Versi game untuk halaman (assets/js/core/app-version.js): jawab {type:'GET_VERSION'} dengan VERSION di atas. Satu-satunya sumber versi. */
 self.addEventListener('message', e => {
+  /* Satu-satunya jalan skipWaiting: pemain menekan "Mulai ulang" di modal Unduh Data (assets/js/systems/update-service.js). */
+  if (e.data && e.data.type === 'SKIP_WAITING') { self.skipWaiting(); return; }
   if (!e.data || e.data.type !== 'GET_VERSION') return;
   const reply = { type: 'VERSION', version: VERSION };
   if (e.ports && e.ports[0]) e.ports[0].postMessage(reply);
@@ -85,6 +88,7 @@ self.addEventListener('fetch', e => {
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
   const same = u.origin === self.location.origin;
   if (!same && !EXTRA_HOSTS.includes(u.hostname)) return;
+  if (same && r.headers.has('x-ut-fresh')) return; /* cek/unduh pembaruan dari halaman: selalu ke jaringan, jangan dari cache */
   if (same && MEDIA.test(u.pathname)) {
     const range = r.headers.get('range');
     e.respondWith(caches.open(MEDIA_CACHE).then(async c => {

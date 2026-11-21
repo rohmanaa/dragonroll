@@ -14,7 +14,9 @@ t('lobi memuat stylesheet layout sebelum override halaman, sekali saja', () => {
 t('service worker: kode cache-first, tapi saat mengunduh (belum di cache) melewati cache browser; pembaruan menunggu restart', () => {
   assert.ok(/fetch\(r,\s*same\s*\?\s*\{\s*cache:\s*'no-cache'\s*\}/.test(sw), 'unduhan pertama harus revalidasi, bukan cache browser basi');
   assert.ok(/CODE\.test\(u\.pathname\)/.test(sw) && /c\.match\(key,\s*\{\s*ignoreSearch:\s*same\s*\}\)/.test(sw), 'HTML/JS/CSS dilayani dari cache lebih dulu');
-  assert.ok(!/skipWaiting\(\)/.test(sw.replace(/\/\*[\s\S]*?\*\//g, '')), 'tanpa skipWaiting: versi baru aktif setelah aplikasi dibuka ulang');
+  const code = sw.replace(/\/\*[\s\S]*?\*\//g, '');
+  const calls = code.split('\n').filter(l => /skipWaiting\(\)/.test(l));
+  assert.ok(calls.every(l => /SKIP_WAITING/.test(l)), 'skipWaiting hanya boleh atas pesan SKIP_WAITING (tombol Mulai ulang), tidak otomatis');
 });
 t('lobi memuat appearance-service.js setelah wallet-service.js', () => {
   const w = h.indexOf('assets/js/services/wallet-service.js'), a = h.indexOf('assets/js/services/appearance-service.js');

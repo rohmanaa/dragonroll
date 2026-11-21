@@ -256,4 +256,13 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.start({interval:20000});
  env.own(()=>{LS.stop();['wallet','xp','appearance','friends','mail','quest','mine','chest'].forEach(k=>LS.remove&&LS.remove(k))});
 }
+/* Modal setelah masuk Lobby (hanya di sini): Ketentuan Layanan dulu bila belum setuju / versi naik, lalu "Unduh Data" bila ada pembaruan.
+   Tidak ada unduhan otomatis: pemain yang memutuskan. Dialog ditutup saat Lobby di-unmount (SPA). */
+{let alive=true;
+ env.own(()=>{alive=false;try{UT.GameDialog&&UT.GameDialog.closeAll();UT.Update&&UT.Update.closeUi()}catch(e){}});
+ setTimeout(()=>{
+  const T=UT.Tos,U=UT.Update;
+  Promise.resolve(T&&T.promptIfNeeded()).catch(()=>{}).then(()=>{if(alive&&U)return U.promptOnLobby()}).catch(()=>{});
+ },2000);
+}
 });

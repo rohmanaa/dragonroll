@@ -1,0 +1,9 @@
+/* tos.html — halaman Ketentuan Layanan & Kebijakan Privasi (dibuka dari tombol Lihat / link di Sign up). */
+  :root{color-scheme:dark}
+  body{margin:0;background:#17131f;color:#e9e4f5;font:600 16px/1.6 'Nunito',system-ui,sans-serif}
+  main{max-width:46rem;margin:0 auto;padding:24px 20px 64px}
+  h1,h2{font-family:'Lilita One','Baloo 2',system-ui,sans-serif;font-weight:400;color:#ffd98e;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+  h1{font-size:30px;margin:8px 0 4px} h2{font-size:22px;margin:32px 0 6px;scroll-margin-top:12px}
+  .meta{color:#9d93bd;font-size:14px;margin:0 0 20px}
+  .draft{border:2px dashed #f2b632;border-radius:10px;padding:10px 14px;background:rgba(242,182,50,.08);color:#ffe3a1;font-size:14px}
+  a{color:#7fb0ff} ul{padding-left:20px}

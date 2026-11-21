@@ -120,6 +120,12 @@ async function submit(btn,errId,fn){
   btn.disabled=false;lbl.textContent=t;
 }
 $("#li-ok").onclick=()=>submit($("#li-ok"),"#li-err",()=>UT.Auth.signIn($("#li-id").value,$("#li-pw").value));
-$("#su-ok").onclick=()=>submit($("#su-ok"),"#su-err",()=>UT.Auth.signUp($("#su-us").value,$("#su-pw").value));
+/* Sign up: wajib centang Ketentuan Layanan + Kebijakan Privasi; setelah akun jadi, persetujuan dicatat di server (gagal dicatat -> Lobby meminta konfirmasi) */
+$("#su-ok").onclick=()=>submit($("#su-ok"),"#su-err",async()=>{
+  if(!$("#su-tos").checked)throw new Error("Centang persetujuan Ketentuan Layanan dan Kebijakan Privasi dulu.");
+  const user=await UT.Auth.signUp($("#su-us").value,$("#su-pw").value);
+  try{if(UT.Tos)await UT.Tos.accept()}catch(e){}
+  return user;
+});
 document.documentElement.classList.add("ut-ready");
 })();
