@@ -15,9 +15,9 @@ function renderAvatar(){const fb=()=>(AR&&(AR.face(PD.equippedId('skin'))||AR.fa
 function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=$('#avf');if(im){im.src=(f&&f.image)||'data/frame/frame-default.webp';if(window.FrameFX)FrameFX.upgrade(im)}}
 function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
 function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
-function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';$('#nm').textContent=n;const h=$('#ht-name');if(h)h.textContent=n}
+function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';const h=$('#ht-name');if(h)h.textContent=n}
 function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),pct=Math.min(100,i.xpIn/i.xpMax*100);
- $('#lvnum').textContent=i.level;$('#xptxt').textContent=fmt(i.xpIn)+' / '+fmt(i.xpMax);$('#xpfill').style.width=pct+'%';
+ const lv=$('#lvnum');lv.textContent=i.level;lv.classList.toggle('w3',String(i.level).length>=3);
  const l=$('#ht-lv'),p=$('#ht-pct'),f=$('#ht-fill');if(l)l.textContent=i.level;if(p)p.textContent=pct.toFixed(1)+'%';if(f)f.setAttribute('width',Math.max(0,326*pct/100))}
 /* event: UI ikut berubah tanpa reload halaman */
 env.own(UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()}));
@@ -28,12 +28,14 @@ env.own(UT.Events.on('frameChanged',applyFrame));
 /* ---------- navigasi (peta ACT) ---------- */
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
-const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci',babi:'Celengan segera hadir',hadiahGratis:'Hadiah gratis segera hadir'};
+const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
 function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}  /* di shell (play.html): pindah rute tanpa muat ulang; layar memuat milik shell */
  const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
 addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')});
+/* grup lipat (Tambang, Mancing, Ranking): tombol < menutup/membuka */
+{const g=$('#grp'),t=$('#grpt');if(g&&t)t.addEventListener('click',()=>{buzz();const shut=g.classList.toggle('shut');t.setAttribute('aria-expanded',String(!shut));t.setAttribute('aria-label',shut?'Buka menu':'Tutup menu')})}
 
 /* ================= 3D: karakter, bayangan, aura, dan animasi lobby main ================= */
 const cv=$('#gl3d'),isLow=()=>document.documentElement.getAttribute('data-graphics')==='low';
@@ -205,21 +207,13 @@ pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
 const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok)setBadge('mailDot',r.pending);return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
-/* kartu Chest harian: teks progres (tanpa bar) menuju chest harian berikutnya (Kayu 1 game, Silver 3, Gold 10); cukup -> tombol KLAIM. Lencana menu Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. */
-const CH_IM={wood:'peti-kayu',silver:'peti-perak',gold:'peti-emas'};
+/* lencana tombol Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. Kartu Chest harian dihapus dari lobby (nanti jadi timeline); klaim harian dilakukan di halaman Chest. */
 function renderChest(S){
- const card=$('.chcard');if(!card||!S||!Array.isArray(S.daily))return;
- const nx=S.daily.find(d=>d.status!=='claimed'),tx=$('#chTx'),btn=$('#chClaim');
- if(nx){tx.textContent=nx.progress+'/'+nx.need;$('#chImg').src='assets/images/ui/chest-packs/'+(CH_IM[nx.kind]||'peti-kayu')+'.webp'}
- else{tx.textContent='Selesai'}
- btn.dataset.kind=nx&&nx.status==='ready'?nx.kind:'';
- btn.hidden=!(nx&&nx.status==='ready');card.classList.toggle('rdy',!btn.hidden);
- setBadge('chestDot',(S.chests||[]).filter(c=>c.status==='ready').length+(btn.hidden?0:1))}
+ if(!S||!Array.isArray(S.daily))return;
+ const nx=S.daily.find(d=>d.status!=='claimed'),dailyReady=!!(nx&&nx.status==='ready');
+ setBadge('chestDot',(S.chests||[]).filter(c=>c.status==='ready').length+(dailyReady?1:0))}
 const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
-{const cb=$('#chClaim');if(cb)cb.addEventListener('click',async e=>{e.stopPropagation();const k=cb.dataset.kind,W=UT.WalletService&&UT.WalletService.get();if(!k||!W||cb.disabled)return;buzz();cb.disabled=true;
- try{const r=await W.chestClaimDaily(k);if(env.disposed)return;if(r&&r.ok){toast('Chest masuk ke penyimpanan!');renderChest(r)}else toast('Gagal klaim, coba lagi')}catch(_){if(env.disposed)return;toast('Gagal klaim, coba lagi')}
- cb.disabled=false;pullChest()})}
 
 /* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
 let MINE=null;
@@ -231,15 +225,16 @@ pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFul
 
 /* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 5 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
 const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
-(function(){const slots=$('#hslots'),tm=$('#htime');if(!slots||!tm)return;
+(function(){const val=$('#v-ht'),tm=$('#htime'),chip=$('#cur-ht');if(!val||!tm||!chip)return;
  const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
  let key='';
  function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),f=Math.min(n,max),k=f+'/'+max;
-  if(k!==key){key=k;slots.innerHTML=Array.from({length:max},(_,i)=>i<f?'<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false">':'<i></i>').join('')}
-  /* hati < 5: hitung mundur | tepat 5: READY | > 5: +N */
-  tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'READY';tm.className='t-title'+(n===max?' ready':'');
-  $('#hearts').setAttribute('aria-label','Nyawa '+n+' dari '+max)}
+  if(k!==key){key=k;val.textContent=k}
+  /* hati < max: hitung mundur | penuh: kosong | > max: +N */
+  tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'';
+  chip.setAttribute('aria-label','Nyawa '+n+' dari '+max)}
  paint();if(HRT&&HRT.onChange)HRT.onChange(paint);setInterval(()=>{if(!document.hidden)paint()},1000);
+ chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 5 menit')});
  if(SRV&&HRT)HRT.get()})();
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */

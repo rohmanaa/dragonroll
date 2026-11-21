@@ -1,4 +1,4 @@
-/* lobby.css — dipindah dari <style> inline (lobby.html). Path url() relatif ke folder ini. */
+/* lobby.css — override halaman lobby (lobby v3). Path url() relatif ke folder ini. */
 html,body{background:#0b0d16!important}
 body{overflow:hidden}
 #gl3d{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none}
@@ -10,91 +10,94 @@ body{overflow:hidden}
 .sbg-lights{opacity:.3}
 html[data-ambience="night"] .sbg-img{filter:brightness(.72) saturate(.9) hue-rotate(5deg)!important}
 html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12,42,.24) 0%,rgba(10,25,70,.1) 38%,transparent 72%)!important}
-/* GUI baru di dragonroll: avatar = wajah karakter asli + frame yang dipakai; karakter 3D di atas pedestal */
-#avatar{overflow:hidden}
+
+/* ===== profil kiri atas: frame + foto saja; level = Shield ===== */
+#profile{position:absolute;left:30px;top:20px;width:190px;height:190px;cursor:pointer;transition:transform .12s}
+#profile:active{transform:scale(.97)}
+#avatar{position:absolute;left:26px;top:24px;width:138px;height:142px;background:#2a1d2c;overflow:hidden;
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
-#avf{position:absolute;left:-12px;top:-10px;width:190px;height:190px;object-fit:contain;pointer-events:none;z-index:1}
-.dot[hidden]{display:none!important}
+#avf{position:absolute;left:0;top:0;width:190px;height:190px;object-fit:contain;pointer-events:none;z-index:1}
+#lvl{position:absolute;left:-8px;top:-10px;width:64px;height:74px;z-index:3;pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
+#lvl svg{position:absolute;inset:0;width:100%;height:100%}
+#lvl b{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:6px;font:400 30px/1 var(--font-title);
+  -webkit-text-stroke:1.5px #0b2b57;paint-order:stroke fill}
+#lvl b.w3{font-size:22px}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
 
-/* ===== menu ikon kotak abu transparan (di bawah panel Misi Harian) ===== */
-#menu{position:absolute;left:22px;top:272px;width:636px;display:flex;flex-wrap:wrap;gap:14px;animation:inL .6s .16s cubic-bezier(.2,.9,.2,1) both}
-.mbtn{position:relative;width:118px;height:124px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding:0 4px 9px;
-  background:url(../../images/ui/slot-equipment/slot-transparan.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
-.mbtn img{width:68px;height:68px;object-fit:contain;margin-bottom:auto;margin-top:10px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.mbtn span:not(.dot){font:400 21px/1 var(--font-title);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.7)}
-.mbtn:hover{filter:brightness(1.15)}.mbtn:active{transform:scale(.94)}
-.mbtn .dot{right:-8px;top:-8px}
-#nav .tile .ico img.bag{max-height:114px;max-width:none;transform:none}
-html[data-graphics="low"] .mbtn img{filter:none!important}
-
-/* ===== panel Misi Harian: latar abu transparan (sama dengan tombol menu) + lebih tinggi ===== */
-#quest{top:196px;height:98px;gap:18px;padding:0 34px}
-/* latar gulungan (webp transparan): ujung gulungan tidak melar, tengahnya yang meregang */
-#quest::before{inset:-12px -8px;border:solid transparent;border-width:0 26px;background:none;filter:none;
-  border-image:url(../../images/ui/lobby/latar-misi-harian.webp) 0 100 0 100 fill / 0 26px 0 26px stretch}
-#quest img{height:68px}
-#menu{top:306px}
-
-/* ===== emerald & coin rata kanan; kartu Hadiah gratis/Chest/Celengan tepat di bawahnya, panel abu transparan ===== */
-#cur-em{left:1300px}
-#cur-co{left:1604px}
-#side{top:124px;right:26px;gap:8px}
-.sidecard{background:none!important;border-radius:0}
-.sidecard::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:url(../../images/ui/slot-equipment/slot-transparan.webp) center/100% 100% no-repeat}
-.sidecard{isolation:isolate;padding-left:0}
-
-/* ===== HUD profil lobi (gambar transparan hud-profil.webp, 620px lebar; koordinat = posisi slot pada gambar) ===== */
-#profile{top:10px;width:620px;height:176px}
-#hudbg{position:absolute;left:0;top:0;width:620px;height:auto;pointer-events:none;user-select:none}
-#avatar{left:14px;top:14px;width:138px;height:142px;background:#2a1d2c;box-shadow:none;
-  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
-#lvl{left:174px;top:74px;width:62px;height:62px;filter:none}
-#lvl b{padding-bottom:0;font-size:29px;-webkit-text-stroke:1.5px #1a1205}
-#pname{left:178px;top:19px;height:48px;gap:10px;font-size:33px}
-#pname img{width:40px}
-#xp{left:241px;top:78px;width:326px;height:27px;border:0;border-radius:8px;background:none;box-shadow:none}
-#xpfill{border-radius:8px}
-#xptxt{padding-left:0;font-size:18px}
-/* 5 hati: slot (kosong) sudah tergambar di hud-profil.webp; hanya hati yang TERISI digambar di atasnya (slot kosong = spacer transparan).
-   Teks di kanan slot ke-5: hati < 5 = hitung mundur isi ulang, tepat 5 = "READY", > 5 = "+N". */
-#hearts{position:absolute;left:248.5px;top:124.5px;height:37px;width:310px;pointer-events:none}
-#hslots{position:absolute;left:0;top:0;display:flex;gap:8.1px}
-#hslots i{display:block;width:40px;height:37px;flex:none}
-#hearts img{display:block;width:40px;height:37px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
-#htime{position:absolute;left:233px;top:2px;width:70px;text-align:center;font-size:22px;line-height:31px;white-space:nowrap;color:#ffe9a8;-webkit-text-stroke:1px #1a1205;letter-spacing:.5px}
-#htime.ready{color:#a6f06b;-webkit-text-stroke:1px #0f3a08;font-size:21px}
+/* ===== mata uang kanan atas: Emerald, Coin, Hati ditumpuk (ikuti GUI referensi) ===== */
+#cur-em{left:auto;right:26px;top:22px}
+#cur-co{left:auto;right:26px;top:110px}
+#cur-ht{right:26px;top:198px}
+/* hati: tanpa tombol +; di kanan angka tampil hitung mundur isi ulang (kosong bila penuh, +N bila lebih dari max) */
+#cur-ht{cursor:default}
+#htime{position:absolute;right:30px;top:50%;transform:translateY(-50%);z-index:2;font-size:21px;line-height:1;color:#ffe9a8;
+  -webkit-text-stroke:1px #1a1205;letter-spacing:.5px;white-space:nowrap}
 #htime:empty{display:none}
-html[data-graphics="low"] #hearts img{filter:none}
 
-/* ===== kartu Chest harian di lobi: teks progres (1/3) + bar; tombol KLAIM muncul bila target tercapai ===== */
-.chcard{gap:0}
-.chcard>img{height:78px!important;margin-top:4px}
-.chcard .tm{margin-top:2px;font-size:21px}
-.chcard .chp{display:flex;flex-direction:column;align-items:center;gap:4px;width:150px;margin-top:4px}
-.chcard .chp b{font:400 26px/1 var(--font-title);color:#ffd45a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.chcard.rdy .chp{display:none}
-.chcard .chclaim{position:relative;width:156px;height:54px;margin-top:6px;padding:0;border:0;background:none;cursor:pointer;animation:chpulse 1s infinite alternate}
-.chcard .chclaim[hidden]{display:none}
-.chcard .chclaim img{position:absolute;inset:0;width:100%!important;height:100%!important;filter:none}
-.chcard .chclaim span{position:relative;font:400 26px/54px var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55)}
-.chcard .chclaim:active{transform:scale(.95)}
-@keyframes chpulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+/* ===== tombol tile (Karakter, Guild, Chest, Shop, Inventory, Pet, Misi) ===== */
+.lbt{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:170px;height:124px;
+  isolation:isolate;transition:transform .1s,filter .1s}
+.lbt::before{content:'';position:absolute;inset:0;z-index:-1;background:url(../../images/buttons/tile-menu-bawah.webp) center/100% 100% no-repeat;
+  filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
+.lbt .ico{position:absolute;left:0;right:0;top:-36px;height:100px;display:grid;place-items:center}
+.lbt .ico img{max-height:100px;max-width:none;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+.lbt .ico img.bag{max-height:106px}
+.lbt .lb{font:400 27px/1 var(--font-title);padding:0 4px 10px;white-space:nowrap;color:#fff;position:relative;z-index:1;
+  text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.7);-webkit-text-stroke:1px rgba(20,10,40,.6);paint-order:stroke fill}
+.lbt:hover{filter:brightness(1.1)}
+.lbt:active{transform:translateY(3px)}
+.lbt.locked{filter:saturate(.5) brightness(.85)}
+.lbt .lk{position:absolute;right:8px;bottom:4px;width:32px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.lbt .nbadge{right:2px;top:-6px}
+.lbt.sm{width:128px;height:100px}
+.lbt.sm .ico{top:-30px;height:80px}
+.lbt.sm .ico img{max-height:80px}
+.lbt.sm .lb{font-size:23px;padding-bottom:8px}
 
-/* ===== lencana merah berangka: hanya tampil bila ada yang perlu diklaim (Misi & Hadiah, Pesan, Chest, Tambang) ===== */
+/* kiri: Pet tepat di bawah profil, Guild di tengah dan Chest di bawahnya */
+#b-pet{left:60px;top:262px}
+#b-guild{left:30px;top:430px}
+#b-chest{left:30px;top:650px}
+/* kanan tengah: Shop */
+#b-shop{right:26px;top:480px}
+/* kiri bawah: Karakter, Misi, grup lipat */
+#b-char{left:30px;bottom:26px}
+#b-misi{left:224px;bottom:26px}
+/* kanan bawah: Inventory di kiri tombol Battle (MULAI) */
+#b-inv{right:450px;bottom:26px}
+#b-pet,#b-guild,#b-chest{animation:inL .6s .1s cubic-bezier(.2,.9,.2,1) both}
+#b-chest{animation-delay:.16s}
+#b-shop{animation:inR .6s .2s cubic-bezier(.2,.9,.2,1) both}
+#b-char,#b-misi,#grp,#b-inv{animation:inB .6s cubic-bezier(.2,.9,.2,1) both}
+#b-misi{animation-delay:.07s}#grp{animation-delay:.14s}#b-inv{animation-delay:.21s}
+
+/* ===== grup lipat: Tambang, Mancing, Ranking (+ tombol < untuk menutup) ===== */
+#grp{position:absolute;left:366px;bottom:26px;height:100px;display:flex;align-items:stretch;border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(82,92,118,.86),rgba(44,50,72,.9));border:3px solid rgba(18,22,36,.88);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 5px 0 rgba(10,6,30,.5)}
+#grp .gset{display:flex;overflow:hidden;max-width:360px;transition:max-width .28s ease}
+#grp.shut .gset{max-width:0}
+.gbtn{position:relative;width:114px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  border-right:2px solid rgba(18,22,36,.55);transition:filter .1s}
+.gbtn .gi{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
+.gbtn .lb{font:400 20px/1 var(--font-title);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.65)}
+.gbtn:hover{filter:brightness(1.15)}.gbtn:active{filter:brightness(1.3)}
+.gbtn.locked{filter:saturate(.45) brightness(.8)}
+.gbtn .mlk{position:absolute;right:10px;bottom:30px;width:26px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.gbtn .nbadge{right:8px;top:4px;width:38px;height:38px}
+#grpt{width:56px;flex:none;display:grid;place-items:center}
+#grpt:active{filter:brightness(1.3)}
+#grpt img{width:30px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));transition:transform .28s}
+#grp.shut #grpt img{transform:rotate(180deg)}
+html[data-graphics="low"] #grpt img,html[data-graphics="low"] .gbtn .mlk{filter:none!important}
+html[data-graphics="low"] #grp .gset{transition:none}
+
+/* ===== lencana merah berangka: hanya tampil bila ada yang perlu diklaim (Misi & Hadiah, Chest, Tambang) ===== */
 .nbadge{position:absolute;right:-10px;top:-10px;width:44px;height:44px;display:grid;place-items:center;z-index:6;pointer-events:none;animation:nbpop .35s cubic-bezier(.2,1.4,.4,1) both}
 .nbadge[hidden]{display:none!important}
 .nbadge img{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;filter:none;object-fit:contain}
 .nbadge b{position:relative;font:400 23px/1 var(--font-title);color:#fff;padding-bottom:2px;text-shadow:0 2px 0 rgba(60,0,10,.7)}
 .nbadge.w2 b{font-size:19px}.nbadge.w3 b{font-size:15px}
-#nav .tile{position:relative}
-#nav .tile .nbadge{right:6px;top:2px}
 @keyframes nbpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
-
-/* ===== tombol menu terkunci (Mancing): ikon redup + gembok ===== */
-.mbtn.locked{filter:saturate(.45) brightness(.8)}
-.mbtn.locked:hover{filter:saturate(.45) brightness(.9)}
-.mbtn .mlk{position:absolute;right:6px;bottom:30px;width:30px;height:auto;margin:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-html[data-graphics="low"] .mbtn.locked{filter:none}
