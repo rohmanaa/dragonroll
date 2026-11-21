@@ -37,10 +37,6 @@ const total = k => IC.items.filter(i => i.kind === k && !i.off).length;
 const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
 const LANG = {en: 'English', id: 'Indonesia', de: 'Deutsch', fr: 'Français', es: 'Español', pt: 'Português', ru: 'Русский', hi: 'हिन्दी', zh: '简体中文'};
 
-/* ---- dompet ---- */
-function showWallet() { const ok = PD.walletReady(); $('#v-em').textContent = ok ? fmt(PD.gems()) : '—'; $('#v-co').textContent = ok ? fmt(PD.coins()) : '—'; }
-$('#cur-co').onclick = () => nav('shop.html?coin=1');
-$('#cur-em').onclick = () => nav('tambang.html?from=profile.html');
 /* tombol kembali: lobby sudah SPA — gunakan UT.Spa.go bila tersedia */
 $('#back').onclick = () => { snd(); if (UT.Spa && UT.Spa.go) { UT.Spa.go('lobby.html'); } else { nav('lobby.html'); } };
 /* Esc dan tombol tutup dikelola hub (UT.AccountHub): menutup modal ke halaman asal, bukan hanya ke lobby. */
@@ -69,8 +65,6 @@ function buildChar() {
       const ro = new ResizeObserver(sizeGL);
       ro.observe(cv);
       env.own(function () { ro.disconnect(); });
-      /* mulai loop rAF */
-      rafId = requestAnimationFrame(loop);
     } catch (e) {
       webOk = false; R = null;
       console.warn('[profil] WebGL tidak tersedia', e);
@@ -80,7 +74,9 @@ function buildChar() {
   }
   if (R.ch) R.holder.remove(R.ch.root);
   const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('idle'); ch.tick(.016);
-  const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam();
+  const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam(); renderOnce();
+  /* jaga-jaga bila tekstur wajah/outfit selesai dimuat sesudahnya */
+  [120, 500].forEach(ms => setTimeout(renderOnce, ms));
 }
 /* kamera: FOTO dada-kepala (setengah atas badan, tanpa aura), sedikit serong seperti pose siap tempur. Wajah & outfit mengikuti skin yang dipakai (PlayerData). */
 function frameCam() {
@@ -100,19 +96,13 @@ function sizeGL() {
   R.r.setSize(w, h, false);
   R.cam.aspect = w / h;
   R.cam.updateProjectionMatrix();
-  frameCam();
+  frameCam(); renderOnce();
 }
-let lt = null;
-function loop(t) {
-  /* cek env.disposed agar loop berhenti setelah unmount */
-  if (env.disposed) return;
-  rafId = requestAnimationFrame(loop);
-  if (!R || !R.ch || document.hidden) return;
-  t /= 1000; const dt = lt == null ? .016 : Math.min(.05, Math.max(0, t - lt)); lt = t;
-  R.ch.tick(dt); if (R.aura) R.aura.update(dt);
-  R.r.render(R.scene, R.cam);
+/* FOTO diam: karakter tidak bergerak (tanpa loop rAF). Dirender sekali setelah dipasang, lalu ulang hanya saat ukuran/skin berubah. */
+function renderOnce() {
+  if (env.disposed || !R || !R.ch) return;
+  R.ch.tick(.016); R.r.render(R.scene, R.cam);
 }
-
 /* cleanup WebGL: lepas SharedGL, buang geometri/material/aura */
 env.own(function () {
   if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
@@ -198,22 +188,19 @@ function drawStat() {
 }
 $('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
 
-function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); showWallet(); }
+function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); }
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
-env.own(UT.Events.on('currencyChanged', showWallet));
 env.own(UT.Events.on('skinChanged', () => { draw(); buildChar(); }));
 ['inventoryChanged'].forEach(n => env.own(UT.Events.on(n, () => { drawKol(); drawPet(); })));
 if (UT.CharacterFace && UT.CharacterFace.watch) env.own(UT.CharacterFace.watch(() => { buildChar(); }));
 try {
   env.own(PD.subscribe(r => {
     if (env.disposed) return;
-    if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') showWallet();
     if(r==='server-appearance'||r==='server-outfits'){ draw(); buildChar(); }
   }));
 } catch (e) {}
 try { const A = SV() && UT.AppearanceService && UT.AppearanceService.get(); if (A) A.refreshThrottled().catch(() => {}); } catch (e) {}
-if (SV() && WS()) WS().refresh().then(r => { if (env.disposed) return; if (r && r.ok) showWallet(); });
 (async () => {
   try {
     await import('../../../assets/js/multiplayer/client.js');
