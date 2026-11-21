@@ -134,5 +134,5 @@ html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
    --world-grass-tex-size : lebar satu ubin tekstur dalam satuan dunia (kecil = butiran halus, besar = kasar)
    --world-grass-tint     : warna CSS pewarna rumput (kosong/none = pakai palet asli) ; --world-grass-tint-amt : 0..1 seberapa kuat ===== */
 body.th-world{--world-grass-tex:.5;--world-grass-tex-size:2;--world-grass-tint:#6fc04a;--world-grass-tint-amt:0;
-  --world-grass-thick:.7;                                   /* 0 = rumput tipis, 1 = rumput tebal */
+  --world-grass-thick:0;                                   /* 0 = rumput tipis, 1 = rumput tebal */
   --world-stone-tex:.5;--world-stone-tex-size:2;--world-stone-tint:#a1a7b1;--world-stone-tint-amt:0}
