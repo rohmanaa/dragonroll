@@ -300,18 +300,20 @@ const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,o
    --world-grass-tint (warna CSS, mis. #6fc04a) + --world-grass-tint-amt (0..1, 0 = pakai warna palet asli).
    Hanya muka ATAS yang hijau di luar board 10x10; geometri/warna vertex/rnd() tidak berubah. Gagal muat -> tampilan lama. ===== */
 const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
-const GU={tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
+/* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
+const GU={tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
 let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
 function grassMat(){
   if(GRASS_MAT) return GRASS_MAT;
   GRASS_MAT=MAT.clone();
   GRASS_MAT.onBeforeCompile=sh=>{
-    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole});
+    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;');
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;')
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nuniform sampler2D uGTex2;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
       .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
         '  float gUp=step(0.9,vGNor.y);\n'+
         '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
@@ -319,11 +321,20 @@ function grassMat(){
         '  float gM=gUp*gGr*gOut;\n'+
         '  float gLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,uGTint*(gLum/0.4),uGTintAmt*gM);\n'+
-        '  float gT=texture2D(uGTex,vGPos.xz*uGScale).r;\n'+
+        '  float gT=mix(texture2D(uGTex,vGPos.xz*uGScale).r,texture2D(uGTex2,vGPos.xz*uGScale).r,uGThick);\n'+
         '  diffuseColor.rgb*=1.0+(gT-0.5)*2.0*uGStr*gM;\n'+
+        '  float sMx=max(vColor.r,max(vColor.g,vColor.b)),sMn=min(vColor.r,min(vColor.g,vColor.b));\n'+
+        '  float sM=(1.0-gM)*gOut*step(sMx-sMn,0.09)*step(0.25,sMx)*step(sMx,0.85);\n'+
+        '  vec3 sA=abs(vGNor); vec2 sUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
+        '  float sT=texture2D(uSTex,sUV*uSScale).r;\n'+
+        '  float sLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
+        '  diffuseColor.rgb=mix(diffuseColor.rgb,uSTint*(sLum/0.6),uSTintAmt*sM);\n'+
+        '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
         '#endif');
   };
   if(!GRASS_REQ){ GRASS_REQ=true;
+    const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; },undefined,()=>{}); }catch(e){} };
+    ld(GRASS2_TEX_URL,GU.tex2); ld(STONE_TEX_URL,GU.stex);
     try{ new THREE.TextureLoader().load(GRASS_TEX_URL,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU.tex.value=t; GRASS_READY=true; GU.str.value=GRASS_CSS_STR; },undefined,()=>{ GRASS_READY=false; GU.str.value=0; }); }catch(e){ GRASS_READY=false; }
   }
   return GRASS_MAT;
@@ -337,6 +348,12 @@ function syncGrassCss(){
     GU.str.value=GRASS_READY?GRASS_CSS_STR:0;
     GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
     GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
+    GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
+    GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
+    GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
+    GU.stintAmt.value=Math.max(0,Math.min(1,num('--world-stone-tint-amt',0)));
+    const sc=cs.getPropertyValue('--world-stone-tint').trim();
+    if(sc){ try{ GU.stint.value.set(sc); }catch(e){ GU.stintAmt.value=0; } } else GU.stintAmt.value=0;
     const tc=cs.getPropertyValue('--world-grass-tint').trim();
     if(tc){ try{ GU.tint.value.set(tc); }catch(e){ GU.tintAmt.value=0; } } else GU.tintAmt.value=0;
   }catch(e){ GU.str.value=0; GU.tintAmt.value=0; }
