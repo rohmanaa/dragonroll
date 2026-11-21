@@ -34,10 +34,26 @@
       });
       nav.appendChild(b);
     });
+    /* panel modal (di belakang isi halaman) + tombol tutup X di kanan atas; X = tombol kembali halaman (atau ke lobby) */
+    var oldPanel = document.getElementById('pmodal'); if (oldPanel && oldPanel.parentNode) oldPanel.parentNode.removeChild(oldPanel);
+    var oldX = document.getElementById('pclose'); if (oldX && oldX.parentNode) oldX.parentNode.removeChild(oldX);
+    var panel = document.createElement('div'); panel.id = 'pmodal'; panel.setAttribute('aria-hidden', 'true');
+    stage.insertBefore(panel, stage.firstChild);
+    var x = document.createElement('button');
+    x.type = 'button'; x.id = 'pclose'; x.setAttribute('aria-label', 'Tutup');
+    x.innerHTML = '<img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt="">';
+    x.addEventListener('click', function () {
+      var b = document.getElementById('back');
+      if (b) { b.click(); return; }
+      go('lobby.html');
+    });
     stage.appendChild(nav);
+    stage.appendChild(x);
     stage.classList.add('has-ptabs');
     function remove() {
       if (nav.parentNode) nav.parentNode.removeChild(nav);
+      if (x.parentNode) x.parentNode.removeChild(x);
+      if (panel.parentNode) panel.parentNode.removeChild(panel);
       stage.classList.remove('has-ptabs');
     }
     if (env && typeof env.own === 'function') env.own(remove);

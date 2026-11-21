@@ -1,6 +1,6 @@
 /* profile-tabs.css — baris tab atas (Profil, Teman, Pesan, Pengaturan), gaya sama dengan tab Inventory (#invtabs):
    ikon di atas, teks di bawah, garis bawah emas pada tab aktif. Dipakai profile/friendship/mail/settings. Kanvas 1920x1080. */
-#ptabs{position:absolute;left:150px;top:8px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
+#ptabs{position:absolute;left:150px;top:6px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
 #ptabs .ptab{position:relative;flex:1;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer}
 #ptabs .ptab img.ic{height:52px;width:auto;max-width:76px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
@@ -14,3 +14,18 @@
 #stage.has-ptabs #title{display:none}
 html[data-graphics="low"] #ptabs .ptab{transition:none}
 html[data-graphics="low"] #ptabs .ptab img.ic{filter:none}
+
+/* ===== modal: latar lobby diredupkan + panel di bawah tab (tab menempel di tepi atas panel) + tombol X ===== */
+html:has(#stage.has-ptabs),html:has(#stage.has-ptabs) body{
+  background:linear-gradient(rgba(10,8,24,.66),rgba(10,8,24,.66)) fixed,url(../images/background/lobby-kastel.webp) center/cover no-repeat fixed,#0b0826!important}
+#pmodal{position:absolute;left:50px;top:100px;width:1820px;height:960px;border-radius:22px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(44,36,84,.95),rgba(24,19,48,.97));border:4px solid #3a3270;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.12),0 14px 44px rgba(0,0,0,.6)}
+#pclose{position:absolute;left:1790px;top:14px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:21;
+  transition:transform .1s,filter .1s}
+#pclose img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#pclose:hover{filter:brightness(1.12)}#pclose:active{transform:scale(.92)}
+/* X menggantikan panah kembali */
+#stage.has-ptabs #back{display:none}
+html[data-graphics="low"] #pmodal{box-shadow:none}
+html[data-graphics="low"] #pclose img{filter:none}
