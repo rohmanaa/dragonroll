@@ -18,26 +18,26 @@
   <div class="cur" id="cur-em"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
 
-  <nav id="menu"></nav>
-
-  <section id="mid">
-    <div id="art"></div>
-  </section>
-
-  <section id="right">
-    <div class="pane" id="p-akun">
-      <div id="avatar" class="fr"></div>
+  <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = pose pet (gambar statis) -->
+  <section id="hero" class="pcard">
+    <div id="mid"><div id="art"></div></div>
+    <div id="who">
+      <div id="lv"><span class="lvb"><b id="lvn">1</b></span><div class="lvr"><span class="p" id="lvp"></span><i><u id="lvf"></u></i></div></div>
       <div id="hnm" class="ttl"></div>
-      <div id="hid"></div>
-      <div id="lv"><b class="ttl" id="lvn">1</b><div class="lvr"><span class="l">Level</span><span class="p" id="lvp"></span><i><u id="lvf"></u></i></div></div>
+      <button id="hid" type="button" aria-label="Salin ID pengguna"></button>
+      <div id="pbtns"><button class="eb" data-i="0"></button><button class="eb" data-i="1"></button><button class="eb" data-i="2"></button><button id="pen" aria-label="Ubah nama">✏️</button></div>
       <div id="xpnote"></div>
-      <div id="sep"></div>
-      <div id="info"></div>
+      <div id="guild" class="prow"><img src="assets/images/ui/white-glyphs/perisai-lambang.webp" alt=""><div class="gt"><b>Nama Guild</b><small>Segera hadir</small></div></div>
+      <button id="rank" class="prow" type="button"><img src="assets/images/ui/item-icons/podium.webp" alt=""><div class="gt"><b id="rk-v">—</b><small>Peringkat Global</small></div><div class="rp"><b id="rk-p">—</b><small>Poin</small></div></button>
     </div>
-    <div class="pane" id="p-koleksi"><div class="ph">Koleksi</div><div id="kol"></div></div>
-    <div class="pane" id="p-statistik"><div class="ph">Statistik</div><div id="sg"></div></div>
+    <button id="pet" type="button" aria-label="Pet"><span class="pimg"></span><span class="pnm"></span></button>
   </section>
 
+  <section id="statc" class="pcard"><div class="ph">Statistik</div><div id="sg"></div></section>
+  <section id="kolc" class="pcard"><div class="ph">Koleksi</div><div id="kol"></div></section>
+
+  <!-- pemilih emoji (3 slot "siapa dirimu") -->
+  <div id="epick" aria-hidden="true"><div class="ebox" role="dialog" aria-label="Pilih emoji"><div class="eh">Pilih emoji</div><div id="egrid"></div></div></div>
   <div id="toast"></div>
 </template>
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>

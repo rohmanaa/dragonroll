@@ -1,22 +1,81 @@
-/* profile.css — dipindah dari <style> inline (profile.html). Path url() relatif ke folder ini. */
-/* tambahan khusus data asli (di luar profile.css newgui): karakter 3D, avatar berbingkai */
-#art canvas{position:absolute;inset:0;width:100%;height:100%;}
-#art .noweb{position:absolute;left:50%;bottom:222px;transform:translateX(-50%);width:230px;height:230px}
+/* profile.css — layout PROFIL baru (kanvas 1920x1080, dimuat SETELAH profile-legacy.css).
+   Kartu atas #hero: kiri foto karakter dada-kepala (3D tanpa aura), tengah level/nama/4 tombol/guild/rank, kanan pose pet statis.
+   Di bawahnya: kartu Statistik dan Koleksi berupa kotak-kotak. Koordinat anak kartu relatif ke kartunya. */
+#art canvas{position:absolute;inset:0;width:100%;height:100%}
+#art .noweb{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:300px;height:300px}
 #art .noweb svg{position:static;width:100%;height:100%}
-#avatar.fr{border:0;background:none;box-shadow:none;overflow:visible;border-radius:0}
-#avatar.fr .fc{position:absolute;inset:19%;overflow:hidden;border-radius:6px;background:linear-gradient(#5a4f82,#2c2547)}
-#avatar.fr .fc svg{width:100%;height:100%;display:block}
-#avatar.fr .frm{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .ir.tap{cursor:pointer}
-/* baris Koleksi/Statistik = aset baris-ranking.webp (sama dengan halaman lain), bukan kotak CSS */
-.kr,.sr{background:none;border:0;isolation:isolate}
-.kr::before,.sr::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
-.sr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.sr .v{flex:none;min-width:0;white-space:nowrap}
-.sr .v small{white-space:nowrap}
-/* karakter turun & lebih besar (tanpa pedestal/teks nama) */
+.sr,.kr{isolation:isolate}
+/* kotak = aset baris-ranking.webp (9-slice) seperti halaman lain, bukan kotak CSS biasa */
+.sr::before,.kr::before,.prow::before{content:"";position:absolute;inset:-4px;border:18px solid transparent;border-image:url(../../images/ui/panel-dialog/baris-ranking.webp) 30 fill / 18px stretch;z-index:-1;pointer-events:none}
+button.sr,button.kr,#rank,#pet,#hid,.eb,#pen,.ecell{background:none;border:0;padding:0;color:#fff;font:inherit;cursor:pointer;text-align:left}
 
-/* Latar halaman profil: SATU gambar cover penuh layar. Layar biasa (<2:1) = profile-bg.webp (16:9); layar lebar (>=2:1) = profile-bg-wide.webp
-   (kelas html.pf-wide diatur fit() di profile.js). Lapis bawah = linear-gradient ungu sebagai pengaman sebelum gambar termuat / bila ada celah. */
+.pcard{position:absolute;box-sizing:border-box;border-radius:20px;border:3px solid rgba(255,255,255,.16);background:rgba(14,10,26,.58);box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+#hero{left:100px;top:150px;width:1720px;height:470px;background:linear-gradient(rgba(12,8,30,.35),rgba(12,8,30,.7)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
+#statc{left:100px;top:640px;width:840px;height:370px}
+#kolc{left:960px;top:640px;width:860px;height:370px}
+.ph{position:absolute;left:28px;top:12px;font:400 44px/1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+
+/* kiri: foto karakter */
+#mid{position:absolute;left:0;top:0;width:470px;height:470px}
+#art{position:absolute;left:0;top:0;width:470px;height:470px}
+#mid::after{content:"";position:absolute;right:0;top:20px;bottom:20px;width:2px;background:linear-gradient(transparent,rgba(255,255,255,.25),transparent);pointer-events:none}
+
+/* tengah */
+#who{position:absolute;left:500px;top:0;width:740px;height:470px}
+#lv{position:absolute;left:0;top:0;width:740px;height:270px;pointer-events:none}
+.lvb{position:absolute;left:0;top:22px;width:130px;height:130px;display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#ffe9a0,#e8a92a 60%,#a86a12);box-shadow:0 0 0 6px #2c2547,0 0 0 9px #ffd45a,0 8px 14px rgba(0,0,0,.5)}
+#lv .lvb b{position:static;font:400 64px/1 var(--font-title);color:#fff;-webkit-text-stroke:0;text-shadow:0 4px 0 rgba(80,40,0,.7)}
+.lvr{position:absolute;left:0;top:206px;width:740px;height:26px}
+.lvr .p{position:absolute;right:12px;top:3px;z-index:2;font:800 18px/1 var(--font-body);color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.7)}
+.lvr i{position:absolute;left:0;right:0;top:0;height:26px;border-radius:6px}
+#hnm{position:absolute;left:170px;top:14px;width:570px;font-size:62px;line-height:1.05}
+#hid{position:absolute;left:170px;top:84px;max-width:570px;font:800 24px/1.2 var(--font-body);color:#cfc8ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pbtns{position:absolute;left:170px;top:124px;display:flex;gap:12px}
+.eb,#pen{position:relative;width:76px;height:76px;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;font-size:40px;line-height:76px;text-align:center;transition:transform .1s,filter .1s}
+#pen{background-image:url(../../images/ui/slot-equipment/slot-hijau.webp);margin-left:10px}
+.eb:hover,#pen:hover{filter:brightness(1.15)}.eb:active,#pen:active{transform:scale(.93)}
+#xpnote{position:absolute;left:0;top:238px;font:700 20px/1 var(--font-body);color:#cfc8ea;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+.prow{position:absolute;left:0;width:740px;height:80px;box-sizing:border-box;display:flex;align-items:center;gap:18px;padding:0 24px 0 18px;isolation:isolate}
+#guild{top:272px;opacity:.9}#rank{top:364px}
+.prow>img{flex:none;width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.prow .gt{flex:1;min-width:0}
+.prow b{display:block;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow small{display:block;margin-top:4px;font:800 20px/1 var(--font-body);color:#cfc8ea}
+.prow .rp{flex:none;text-align:right}.prow .rp b{color:#ffd45a}
+#rank:active{transform:scale(.98)}
+
+/* kanan: pose pet (gambar statis, bukan model hidup) */
+#pet{position:absolute;left:1270px;top:24px;width:430px;height:422px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:18px;
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:3px solid rgba(255,255,255,.14);overflow:hidden;transition:filter .1s}
+#pet:hover{filter:brightness(1.1)}
+#pet .pimg{position:absolute;left:20px;right:20px;top:16px;bottom:64px;background:center/contain no-repeat;filter:drop-shadow(0 10px 8px rgba(0,0,0,.5))}
+#pet.empty .pimg{opacity:.35;filter:grayscale(1)}
+#pet .pnm{position:relative;width:100%;padding:12px 0;text-align:center;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6);background:linear-gradient(transparent,rgba(10,6,24,.7))}
+
+/* bawah: kotak-kotak Statistik & Koleksi */
+#sg,#kol{position:absolute;left:24px;right:24px;top:72px;bottom:22px;width:auto;height:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:14px}
+.sr,.kr{position:relative;width:auto;height:auto;min-height:0;margin:0;padding:4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;background:none;border:0}
+.sr .ic,.kr .ic{width:54px;height:54px}.sr .ic img,.kr .ic img{width:34px;height:34px}
+.sr .nm,.kr .nm{width:auto;flex:none;font:400 22px/1 var(--font-title);color:#e4def8;text-shadow:0 2px 0 rgba(10,6,24,.5);white-space:nowrap}
+.sr .v{justify-content:center;min-width:0;font:400 32px/1 var(--font-title)}
+.sr .v small{font-size:20px}
+.sr i.bar,.kr i{flex:none;width:80%;height:10px}
+.kr em{width:auto;font:800 22px/1 var(--font-body);color:#fff}
+.sr .nm{order:2}.sr .ic{order:1}.sr .v{order:3}.sr i.bar{order:4}
+.sr:nth-child(n){grid-column:auto}
+
+/* pemilih emoji */
+#epick{position:absolute;inset:0;z-index:30;display:none;background:rgba(6,4,16,.66);align-items:center;justify-content:center}
+#epick.on{display:flex}
+.ebox{width:780px;box-sizing:border-box;padding:24px 28px 28px;border-radius:22px;background:#2c2547;border:4px solid #ffd45a;box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.eh{font:400 44px/1 var(--font-title);color:#ffd45a;text-align:center;margin-bottom:18px;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#egrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.ecell{height:100px;border-radius:14px;background:rgba(10,6,24,.45);font-size:56px;text-align:center;line-height:100px;transition:transform .1s,filter .1s}
+.ecell:hover{filter:brightness(1.3)}.ecell:active{transform:scale(.93)}.ecell.on{outline:4px solid #ffd45a}
+
+/* Latar halaman profil mandiri: SATU gambar cover penuh layar. Layar biasa (<2:1) = profile-bg.webp (16:9); layar lebar (>=2:1) = profile-bg-wide.webp
+   (kelas html.pf-wide diatur fit() di profile.js). Lapis bawah = linear-gradient ungu sebagai pengaman. */
 html,body.pf{background:url(../../images/background/profile-bg.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
 html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
