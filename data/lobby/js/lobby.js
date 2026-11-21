@@ -188,6 +188,8 @@ loadProgress().then(P=>{if(env.disposed)return;return P.dailyLogin&&P.dailyLogin
 function setBadge(id,n){const el=$('#'+id);if(!el)return;n=Math.max(0,Math.floor(+n)||0);el.hidden=!n;if(!n)return;
  const t=n>99?'99+':String(n);el.querySelector('b').textContent=t;el.classList.toggle('w2',t.length===2);el.classList.toggle('w3',t.length>=3)}
 /* Misi & Hadiah = login harian siap klaim + misi siap klaim + bonus misi + pencapaian yang punya bintang belum diklaim (hitungan sama dengan tab di halaman Misi & Hadiah) */
+/* lencana di tombol profil = surat berhadiah belum diklaim + permintaan teman masuk (Pesan & Teman kini ada di dalam Profil) */
+const PN={mail:0,fr:0};const paintProf=()=>setBadge('profDot',PN.mail+PN.fr);
 const QN={login:0,misi:0,ach:0};
 const paintQuestBadge=()=>setBadge('questDot',QN.login+QN.misi+QN.ach);
 const pullXp=()=>loadProgress().then(P=>P.getMyProfile()).then(pr=>{if(env.disposed)return {ok:false};const x=pr&&+pr.xp;if(x>0&&Math.floor(x)!==SRV_XP){SRV_XP=Math.floor(x);renderXp()}
@@ -202,10 +204,10 @@ const pullQuest=()=>{const W=UT.WalletService&&UT.WalletService.get();if(!SRV||!
   paintQuestBadge();return {ok:true}}).catch(()=>({ok:false}))};
 pullQuest();
 /* titik merah Teman = ada permintaan pertemanan masuk */
-const pullFriends=()=>import('../../../assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{if(env.disposed)return {ok:false};const d=$('#friendDot');if(d)d.hidden=!(r&&r.length);return {ok:true}}).catch(()=>({ok:false}));
+const pullFriends=()=>import('../../../assets/js/multiplayer/room-service.js').then(()=>UT.Multiplayer.RoomService.listRequests()).then(r=>{if(env.disposed)return {ok:false};PN.fr=(r&&r.length)||0;paintProf();return {ok:true}}).catch(()=>({ok:false}));
 pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
-const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok)setBadge('mailDot',r.pending);return {ok:!!(r&&r.ok)}}):{ok:true}};
+const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok){PN.mail=Math.max(0,+r.pending||0);paintProf()}return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
 /* lencana tombol Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. Kartu Chest harian dihapus dari lobby (nanti jadi timeline); klaim harian dilakukan di halaman Chest. */
 function renderChest(S){

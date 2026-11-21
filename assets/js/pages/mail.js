@@ -1,6 +1,7 @@
 /* mail.js — dipindah dari blok script inline (mail.html). Tahap 3 SPA: dibungkus UT.PageModule ('mail'); halaman mandiri otomatis mount,
    unmount() melepas timer, listener, langganan dan polling. Callback async dijaga env.disposed (DOM view sudah dibuang saat callback selesai). */
 UT.PageModule.define('mail',function(env){
+if(UT.ProfileTabs)UT.ProfileTabs.mount('pesan',env);
 const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();

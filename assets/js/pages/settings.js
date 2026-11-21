@@ -1,6 +1,7 @@
 /* settings.js — dipindah dari blok script inline (settings.html). Tahap 3 SPA: dibungkus UT.PageModule ('settings'); halaman mandiri otomatis mount,
    unmount() melepas listener, timer, dan langganan (Ambience, Prefs, layar penuh). */
 UT.PageModule.define('settings',function(env){
+if(UT.ProfileTabs)UT.ProfileTabs.mount('setelan',env);
 const {setTimeout,clearTimeout,addEventListener}=env;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],PD=window.PlayerData,A=UT.Ambience;
 const S=()=>PD.settings();

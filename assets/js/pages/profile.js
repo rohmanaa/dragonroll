@@ -1,6 +1,7 @@
 /* profile.js — dipindah dari blok script inline (profile.html). Tahap 3 SPA: dibungkus modul UT.PageModule ('profile').
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, langganan, dan renderer WebGL bersama (SharedGL). */
 UT.PageModule.define('profile', function(env) {
+if(UT.ProfileTabs)UT.ProfileTabs.mount('profil',env);
 const {setTimeout, clearTimeout, requestAnimationFrame, cancelAnimationFrame, addEventListener, removeEventListener} = env;
 const $ = s => document.querySelector(s);
 const PD = window.PlayerData, IC = window.ItemCatalog, AR = window.ItemArt;
