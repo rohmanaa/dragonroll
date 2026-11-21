@@ -14,12 +14,12 @@ html:has(#stage.has-hub),html:has(#stage.has-hub) body{
   background:linear-gradient(rgba(10,8,24,.66),rgba(10,8,24,.66)) fixed,url(../images/background/lobby-kastel.webp) center/cover no-repeat fixed,#0b0826!important}
 
 /* bingkai panel (di bawah tab; tab menempel di tepi atas panel) */
-#pmodal{position:absolute;left:50px;top:100px;width:1820px;height:960px;pointer-events:none;box-sizing:border-box;z-index:0;
+#pmodal{position:absolute;left:50px;top:10px;width:1820px;height:1050px;pointer-events:none;box-sizing:border-box;z-index:0;
   border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 22px stretch;
   filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))}
 
 /* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
-#ptabs{position:absolute;left:150px;top:6px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
+#ptabs{position:absolute;left:110px;top:34px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
 #ptabs .ptab{position:relative;flex:1;min-width:0;height:92px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;
   opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
 #ptabs .ptab img.ic{height:44px;width:auto;max-width:52px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
@@ -32,7 +32,7 @@ html:has(#stage.has-hub),html:has(#stage.has-hub) body{
 #ptabs .ptab.on img.ul{display:block}
 
 /* tombol tutup (X) */
-#pclose{position:absolute;left:1790px;top:14px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:21;
+#pclose{position:absolute;left:1770px;top:30px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:21;
   transition:transform .1s,filter .1s}
 #pclose img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
 #pclose:hover{filter:brightness(1.12)}#pclose:active{transform:scale(.92)}
@@ -54,3 +54,16 @@ html[data-graphics="low"] #ptabs .ptab{transition:none}
 html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pclose img{filter:none}
 html[data-graphics="low"] #pmodal{filter:none}
 @media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pclose{transition:none}}
+
+/* mata uang (koin/emerald) tidak dibawa ke dalam modal hub */
+#stage.has-hub #pane .cur{display:none!important}
+/* sub-tab di bawah tab utama (Teman: Online/Semua/Permintaan, Pesan: Semua/Hadiah/Sistem) = tombol aset modal, sama dengan segmen Pengaturan */
+#stage.has-hub #pane .tabs{display:flex;gap:14px;top:152px;left:60px}
+#stage.has-hub #pane .tabs .tabb{position:relative;box-sizing:border-box;min-width:230px;height:72px;padding:0 30px;display:flex;align-items:center;justify-content:center;gap:10px;
+  font:400 30px/1 var(--font-title);color:#d6d0ec;text-shadow:0 2px 0 rgba(0,0,0,.6);
+  background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#stage.has-hub #pane .tabs .tabb.on{color:#fff;background-image:url(../images/ui/buttons-and-controls/tombol-biru-polos.webp)}
+#stage.has-hub #pane .tabs .tabb.on::after{display:none}
+#stage.has-hub #pane .tabs .tabb:hover{filter:brightness(1.12)}
+#stage.has-hub #pane .tabs .tabb:active{transform:scale(.96)}
+#stage.has-hub #pane .tabs .tabb i{margin:0;min-width:34px;padding:2px 8px;font-size:22px}
