@@ -155,3 +155,47 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .cr-rw img{width:54px;height:auto}
 .cr-rw.xp{color:#ffe27a}
 .cr-rw.pw{font-size:36px;color:#9fe3ff}
+
+/* ===== Toko ala Clash of Clans: tab ikon di tengah, kartu panjang bergulir ke samping, tanpa tombol beli ===== */
+#tabs{left:0;right:0;justify-content:center;gap:10px}
+.tabb{padding:6px 20px 46px;opacity:.72;transition:opacity .15s,transform .15s}
+.tabb img{display:block;width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.tabb.on{opacity:1}
+.tabb.on img{transform:translateY(-4px) scale(1.08)}
+.tabb.on::after{width:132px;height:30px}
+#cards{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 70px;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#cards::-webkit-scrollbar{display:none}
+#cards>.card{flex:none;scroll-snap-align:center}
+#cards>.card:first-child{margin-left:auto}#cards>.card:last-child{margin-right:auto}
+#cards:has(.item){gap:34px}
+.card.item{width:380px;position:relative}
+.card.item .nm{font-size:36px;min-height:44px}
+.card.item .pic{min-height:0}
+.card.item .art{position:relative;z-index:1;width:280px;height:300px;display:grid;place-items:center;animation:flt 3.2s ease-in-out infinite}
+.card.item .art>svg{width:100%;height:100%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.card.item.k-frame .art{width:260px;height:260px}
+.card.item .art .fr-th{width:100%;height:100%}
+.card.item .pic img{max-width:none;max-height:none}
+.card.item .art .fr-img{position:absolute;inset:0;width:100%;height:100%;filter:none}
+.card.item .chip{position:absolute;z-index:3;right:34px;top:92px;min-width:62px;padding:4px 14px;border-radius:16px;background:rgba(10,8,26,.78);border:3px solid rgba(255,255,255,.35);font:400 34px/1.1 var(--font-title);color:#9fe3ff;text-align:center}
+.eye{position:absolute;z-index:3;left:36px;bottom:158px;width:70px;height:70px;border-radius:50%;background:rgba(10,8,26,.72);border:4px solid rgba(255,255,255,.55);display:grid;place-items:center;box-shadow:0 4px 0 rgba(0,0,0,.4)}
+.eye svg{width:40px;height:40px}
+.eye:active,.plate:active:not(:disabled){transform:scale(.94)}
+.plate{width:100%;max-width:320px;height:96px;margin-top:16px;border-radius:20px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(color-mix(in srgb,var(--g) 55%,#1b1230),color-mix(in srgb,var(--g) 28%,#0c0818));border:4px solid color-mix(in srgb,var(--g) 70%,#000);box-shadow:inset 0 3px 3px rgba(255,255,255,.25),0 5px 0 rgba(0,0,0,.4);font:400 48px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.6)}
+.plate img{width:54px;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.plate.own{font-size:38px;color:#cfc8ea;background:rgba(10,8,26,.55);border-color:rgba(255,255,255,.18);box-shadow:none;cursor:default}
+/* modal preview / konfirmasi */
+.pv{display:grid;place-items:center;height:340px;margin:0 0 18px;border-radius:24px;background:radial-gradient(circle,color-mix(in srgb,var(--g) 45%,transparent),rgba(10,8,26,.4) 72%)}
+.pv .art{width:300px;height:310px;display:grid;place-items:center;position:relative}
+.pv .art>svg{width:100%;height:100%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.pv .art .fr-th{width:100%;height:100%}
+.pv .art .fr-img{position:absolute;inset:0;width:100%;height:100%}
+.qty{display:flex;align-items:center;justify-content:center;gap:28px;margin:0 0 24px}
+.qty button{width:80px;height:80px;border-radius:20px;background:linear-gradient(#6b5fa8,#3a3068);box-shadow:0 5px 0 #1d1840;font:800 52px/1 var(--font-body)}
+.qty b{min-width:90px;font:400 64px var(--font-title)}
+.mrow{display:flex;gap:24px;justify-content:center}
+.mbtn{min-width:260px;height:96px;padding:0 28px;border-radius:22px;font:400 42px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.55);box-shadow:0 6px 0 rgba(0,0,0,.35),inset 0 3px 3px rgba(255,255,255,.4)}
+.mbtn.no{background:linear-gradient(#ff7a8a,#c9283f)}
+.mbtn.ok{background:linear-gradient(#58d85a,#1f9a2a)}
+.mbtn.ok span{display:flex;align-items:center;justify-content:center;gap:12px}
+.mbtn.ok img{width:52px;height:auto}
