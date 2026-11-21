@@ -73,6 +73,9 @@ function buildChar() {
       return;
     }
   }
+  const sig = JSON.stringify([PD.look(), PD.gearLook()]);
+  if (R.ch && R.sig === sig) { renderOnce(); return; }   /* tampilan sama: pakai karakter yang sudah ada, tidak dibuat/dijepret ulang */
+  R.sig = sig;
   if (R.ch) R.holder.remove(R.ch.root);
   const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('pose1'); ch.tick(.016);
   const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam(); renderOnce();
