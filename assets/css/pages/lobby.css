@@ -12,7 +12,7 @@ html[data-ambience="night"] .sbg-img{filter:brightness(.72) saturate(.9) hue-rot
 html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12,42,.24) 0%,rgba(10,25,70,.1) 38%,transparent 72%)!important}
 
 /* ===== profil kiri atas: frame + foto saja; level = Shield ===== */
-#profile{position:absolute;left:30px;top:20px;width:190px;height:190px;cursor:pointer;transition:transform .12s}
+#profile{position:absolute;left:21px;top:20px;width:190px;height:190px;cursor:pointer;transition:transform .12s}
 #profile:active{transform:scale(.97)}
 /* bar nama: gradasi hitam -> transparan, menyambung dari frame profil ke kanan */
 #pbar{position:absolute;left:96px;top:62px;width:340px;height:66px;display:flex;align-items:center;padding-left:108px;
@@ -34,30 +34,30 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 
 /* ===== mata uang kanan atas: Emerald, Coin, Hati. Ikon di kanan (tombol bulat), plus di kiri, bar biru langit transparan ===== */
 .cur{width:330px;height:76px;background:none;clip-path:none;filter:none}
-/* bar biru langit transparan (tanpa garis/bayangan di tepinya) */
+/* bar: hitam transparan, tanpa bayangan/garis */
 .cur::before{content:'';position:absolute;inset:auto 0 auto 30px;top:50%;height:48px;transform:translateY(-50%);border-radius:24px;
   background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) right center/114% 100% no-repeat;
-  filter:hue-rotate(158deg) saturate(.85) brightness(1.2);opacity:.72;clip-path:none;box-shadow:none}
-/* tombol bulat kosong = wadah tanda + (kiri) */
-.cur::after{content:'';position:absolute;left:0;top:0;width:76px;height:76px;z-index:1;pointer-events:none;
-  background:url(../../images/ui/menu-pause/tombol-bulat-kosong.webp) center/100% 100% no-repeat;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.cur .plus{position:absolute;left:0;top:0;right:auto;width:76px;height:76px;display:grid;place-items:center;transform:none;z-index:2;
-  color:#eaf7ff;font-size:44px;line-height:1;padding-bottom:4px}
-/* ikon di kanan, tanpa tombol; angka rata kanan */
-.cur img{left:auto;right:14px;height:46px;max-width:48px;object-fit:contain;z-index:2}
-.cur .v{font-size:38px;text-align:right;padding:0 70px 0 90px}
+  filter:brightness(0);opacity:.5;clip-path:none;box-shadow:none}
+/* tile kotak hijau kecil (dari tile-stage-terkunci) = wadah tanda +, di kiri, sedikit lebih tinggi dari bar */
+.cur::after{content:'';position:absolute;left:0;top:8px;width:60px;height:60px;z-index:1;pointer-events:none;
+  background:url(../../images/buttons/tile-plus-hijau.webp) center/100% 100% no-repeat}
+.cur .plus{position:absolute;left:0;top:8px;right:auto;width:60px;height:60px;display:grid;place-items:center;transform:none;z-index:2;
+  color:#fff;font-size:42px;line-height:1;padding-bottom:3px;text-shadow:0 2px 0 rgba(0,40,0,.55)}
+/* ikon di kanan dengan jarak dari ujung bar (bar tetap kelihatan); angka rata kanan */
+.cur img{left:auto;right:24px;height:46px;max-width:48px;object-fit:contain;z-index:2}
+.cur .v{font-size:38px;text-align:right;padding:0 80px 0 76px}
 .cur:active{filter:brightness(1.12)}
 /* hati: tanpa tombol +, bar penuh dari kiri */
 #cur-ht::after{display:none}
 #cur-ht::before{left:0}
-#cur-ht .v{padding-left:84px}
+#cur-ht .v{padding-left:20px}
 #cur-em{left:auto;right:26px;top:22px}
 #cur-co{left:auto;right:26px;top:110px}
 #cur-ht{right:26px;top:198px}
 /* hati: tanpa tombol +; hitung mundur isi ulang tampil di kiri (kosong bila penuh, +N bila lebih dari max) */
 #cur-ht{cursor:default}
-#htime{position:absolute;left:18px;right:auto;top:50%;transform:translateY(-50%);z-index:2;font-size:20px;line-height:1;color:#000;
-  -webkit-text-stroke:0;letter-spacing:.5px;white-space:nowrap}
+#htime{position:absolute;left:18px;right:auto;top:50%;transform:translateY(-50%);z-index:2;font-size:20px;line-height:1;color:#ffe9a8;
+  -webkit-text-stroke:1px #1a1205;letter-spacing:.5px;white-space:nowrap}
 #htime:empty{display:none}
 
 /* ===== tombol tile (Karakter, Guild, Chest, Shop, Inventory, Pet, Misi) ===== */
