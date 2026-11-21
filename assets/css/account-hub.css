@@ -18,12 +18,12 @@ html:has(#stage.has-hub),html:has(#stage.has-hub) body{
   border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 22px stretch;
   filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))}
 
-/* tab */
+/* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
 #ptabs{position:absolute;left:150px;top:6px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
-#ptabs .ptab{position:relative;flex:1;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+#ptabs .ptab{position:relative;flex:1;min-width:0;height:92px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;
   opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
-#ptabs .ptab img.ic{height:52px;width:auto;max-width:76px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#ptabs .ptab span{font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#ptabs .ptab img.ic{height:44px;width:auto;max-width:52px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+#ptabs .ptab span{font:400 24px/1 var(--font-title);white-space:nowrap;color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.6)}
 #ptabs .ptab:hover{opacity:.9}
 #ptabs .ptab:active{transform:scale(.95)}
 #ptabs .ptab.on{opacity:1;cursor:default}
