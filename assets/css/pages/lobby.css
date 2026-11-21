@@ -15,19 +15,23 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #profile{position:absolute;left:21px;top:20px;width:190px;height:190px;cursor:pointer;transition:transform .12s}
 #profile:active{transform:scale(.97)}
 /* bar nama: gradasi hitam -> transparan, menyambung dari frame profil ke kanan */
-#pbar{position:absolute;left:96px;top:62px;width:340px;height:66px;display:flex;align-items:center;padding-left:108px;
+#pbar{position:absolute;left:96px;top:62px;width:380px;height:66px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;padding-left:166px;
   background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.62) 45%,rgba(0,0,0,0) 100%);pointer-events:none}
-#ht-name{display:block;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+#ht-name{display:block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font:400 30px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);-webkit-text-stroke:1px rgba(20,10,40,.6);paint-order:stroke fill}
+/* ID pemain: tepat di bawah nama (kosong/tersembunyi bila belum login) */
+#ht-id{display:block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 18px/1 var(--font-body);letter-spacing:.5px;color:#d8d2ee;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#ht-id:empty{display:none}
 #avatar{position:absolute;left:26px;top:24px;width:138px;height:142px;background:#2a1d2c;overflow:hidden;
   clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
 #avatar #ava,#avatar #ava img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 #avf{position:absolute;left:0;top:0;width:190px;height:190px;object-fit:contain;pointer-events:none;z-index:1}
-#lvl{position:absolute;left:-8px;top:-10px;width:64px;height:74px;z-index:3;pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
+/* Shield level: tepat sebelum teks nama (di kiri blok nama + ID) */
+#lvl{position:absolute;left:204px;top:67px;width:48px;height:56px;z-index:3;pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
 #lvl svg{position:absolute;inset:0;width:100%;height:100%}
-#lvl b{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:6px;font:400 30px/1 var(--font-title);
-  -webkit-text-stroke:1.5px #0b2b57;paint-order:stroke fill}
-#lvl b.w3{font-size:22px}
+#lvl b{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:4px;font:400 24px/1 var(--font-title);
+  -webkit-text-stroke:1.2px #0b2b57;paint-order:stroke fill}
+#lvl b.w3{font-size:17px}
 #profDot{right:-2px;top:auto;bottom:-2px}
 .cur .v.bump{animation:bump .5s ease-out}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
