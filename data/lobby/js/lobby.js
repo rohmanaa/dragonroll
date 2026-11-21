@@ -232,8 +232,8 @@ const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
  let key='';
  function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),f=Math.min(n,max),k=f+'/'+max;
   if(k!==key){key=k;val.textContent=k}
-  /* hati < max: hitung mundur | penuh: kosong | > max: +N */
-  tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'';
+  /* hati < max: hitung mundur | penuh: SIAP | > max: +N */
+  tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'SIAP';tm.classList.toggle('ready',n>=max);
   chip.setAttribute('aria-label','Nyawa '+n+' dari '+max)}
  paint();if(HRT&&HRT.onChange)HRT.onChange(paint);setInterval(()=>{if(!document.hidden)paint()},1000);
  chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 5 menit')});

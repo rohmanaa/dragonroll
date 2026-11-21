@@ -35,26 +35,23 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 /* ===== mata uang kanan atas: Emerald, Coin, Hati. Ikon di kanan (tombol bulat), plus di kiri, bar biru langit transparan ===== */
 .cur{width:330px;height:76px;background:none;clip-path:none;filter:none}
 /* bar: hitam transparan, tanpa bayangan/garis */
-.cur::before{content:'';position:absolute;inset:auto 0 auto 58px;top:50%;height:48px;transform:translateY(-50%);border-radius:0;
+.cur::before{content:'';position:absolute;inset:auto 0 auto 0;top:50%;height:48px;transform:translateY(-50%);border-radius:0;
   background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) center/100% 100% no-repeat;
   filter:brightness(0);opacity:.5;clip-path:none;box-shadow:none}
-/* tile kotak hijau kecil (dari tile-stage-terkunci) = wadah tanda +, di kiri, sedikit lebih tinggi dari bar */
-.cur::after{content:'';position:absolute;left:0;top:8px;width:60px;height:60px;z-index:1;pointer-events:none;
-  background:url(../../images/buttons/tile-plus-hijau.webp) center/100% 100% no-repeat}
-.cur .plus{position:absolute;left:0;top:8px;right:auto;width:60px;height:60px;display:grid;place-items:center;transform:none;z-index:2;
-  color:#fff;font-size:42px;line-height:1;padding-bottom:3px;text-shadow:0 2px 0 rgba(0,40,0,.55)}
+/* tanda + langsung di dalam bar (tanpa tombol), di kiri */
+.cur .plus{position:absolute;left:14px;top:50%;right:auto;transform:translateY(-52%);z-index:2;
+  color:#fff;font:800 44px/1 var(--font-body);text-shadow:0 2px 0 rgba(0,0,0,.45)}
 /* ikon di kanan menutup ujung kanan bar (tanpa jarak); angka rata kanan */
 .cur img{left:auto;right:0;height:46px;max-width:48px;object-fit:contain;z-index:2}
-.cur .v{font-size:38px;text-align:right;padding:0 56px 0 76px}
+.cur .v{font-size:38px;text-align:right;padding:0 56px 0 64px}
 .cur:active{filter:brightness(1.12)}
-/* hati: tanpa tombol +, bar penuh dari kiri */
-#cur-ht::after{display:none}
-#cur-ht::before{left:0}
-#cur-ht .v{padding-left:20px}
+/* hati: tanpa tombol +; status (hitung mundur / SIAP) di kiri */
+#cur-ht .v{padding-left:84px}
+#htime.ready{color:#9dff9f}
 #cur-em{left:auto;right:26px;top:22px}
 #cur-co{left:auto;right:26px;top:110px}
 #cur-ht{right:26px;top:198px}
-/* hati: tanpa tombol +; hitung mundur isi ulang tampil di kiri (kosong bila penuh, +N bila lebih dari max) */
+/* hati: tanpa tombol +; status di kiri: hitung mundur isi ulang, SIAP bila penuh, +N bila lebih dari max */
 #cur-ht{cursor:default}
 #htime{position:absolute;left:18px;right:auto;top:50%;transform:translateY(-50%);z-index:2;font-size:20px;line-height:1;color:#ffe9a8;
   -webkit-text-stroke:1px #1a1205;letter-spacing:.5px;white-space:nowrap}
