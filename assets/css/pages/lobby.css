@@ -26,7 +26,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .mbtn span:not(.dot){font:400 21px/1 var(--font-title);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 .mbtn:hover{filter:brightness(1.15)}.mbtn:active{transform:scale(.94)}
 .mbtn .dot{right:-8px;top:-8px}
-#nav .tile .ico img.bag{max-height:146px;max-width:none;transform:translateY(-17px)}
+#nav .tile .ico img.bag{max-height:114px;max-width:none;transform:none}
 html[data-graphics="low"] .mbtn img{filter:none!important}
 
 /* ===== panel Misi Harian: latar abu transparan (sama dengan tombol menu) + lebih tinggi ===== */
