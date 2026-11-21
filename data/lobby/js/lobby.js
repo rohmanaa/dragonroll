@@ -29,7 +29,39 @@ env.own(UT.Events.on('frameChanged',applyFrame));
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
-function go(act){if(SOON[act]){toast(SOON[act]);return}const url=ACT[act];if(!url)return;
+/* Profil · Teman · Pesan · Pengaturan = MODAL sungguhan di atas Lobby: hub (profile.html?embed=lobby) dimuat di iframe overlay transparan,
+   Lobby tetap hidup di belakang (tidak di-unmount, tanpa pindah halaman). Tutup/navigasi keluar diteruskan hub lewat postMessage. */
+const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',settings:'setelan'};
+let hubM=null,hubTrigger=null,hubCss=null;
+function navTo(url){if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/i.test(url)||/^(play|index|splash)\.html/i.test(url))return;
+ if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}
+ const f=$('#fade');if(f)f.classList.add('on');setTimeout(()=>{location.href=url},330)}
+function closeHub(){
+ if(!hubM)return;
+ const m=hubM;hubM=null;
+ try{const fr=m.querySelector('iframe');if(fr)fr.src='about:blank'}catch(e){}
+ m.remove();if(hubCss){hubCss.remove();hubCss=null}
+ renderName();renderAvatar();applyFrame();renderCurrency();renderXp();
+ if(hubTrigger&&hubTrigger.isConnected)hubTrigger.focus();hubTrigger=null}
+function openHub(act){
+ if(hubM)return;
+ hubTrigger=document.activeElement;
+ hubCss=document.createElement('style');
+ hubCss.textContent='#hubModal{position:fixed;inset:0;z-index:100;background:rgba(10,8,24,.66)}#hubModal iframe{display:block;width:100%;height:100%;border:0;background:transparent;color-scheme:normal}';
+ document.head.appendChild(hubCss);
+ const m=document.createElement('div');m.id='hubModal';m.setAttribute('role','presentation');
+ const f=document.createElement('iframe');f.title='Profil';f.setAttribute('allowtransparency','true');f.setAttribute('allow','fullscreen; autoplay');
+ f.src='profile.html?tab='+HUB_TAB[act]+'&from=lobby.html&embed=lobby';
+ f.addEventListener('load',()=>{if(hubM===m&&f.contentWindow)try{f.contentWindow.focus()}catch(e){}});
+ m.appendChild(f);document.body.appendChild(m);hubM=m}
+addEventListener('message',e=>{
+ if(!hubM)return;const fr=hubM.querySelector('iframe');
+ if(!fr||e.source!==fr.contentWindow||!e.data)return;
+ if(e.data.type==='ut-hub-close')closeHub();
+ else if(e.data.type==='ut-hub-nav'&&typeof e.data.url==='string'){closeHub();navTo(e.data.url)}});
+addEventListener('keydown',e=>{if(hubM&&(e.key==='Escape'||e.key==='Esc')){e.preventDefault();closeHub()}});
+env.own(()=>{closeHub()});
+function go(act){if(SOON[act]){toast(SOON[act]);return}if(HUB_TAB[act]){openHub(act);return}const url=ACT[act];if(!url)return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}  /* di shell (play.html): pindah rute tanpa muat ulang; layar memuat milik shell */
  const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));

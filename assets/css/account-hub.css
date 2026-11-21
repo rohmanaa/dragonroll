@@ -67,3 +67,8 @@ html[data-graphics="low"] #pmodal{filter:none}
 #stage.has-hub #pane .tabs .tabb:hover{filter:brightness(1.12)}
 #stage.has-hub #pane .tabs .tabb:active{transform:scale(.96)}
 #stage.has-hub #pane .tabs .tabb i{margin:0;min-width:34px;padding:2px 8px;font-size:22px}
+
+/* tertanam sebagai modal di atas Lobby (iframe overlay): latar transparan, Lobby asli terlihat redup di belakang */
+html.ut-hub-embed,html.ut-hub-embed body,html.ut-hub-embed #wrap,html.ut-hub-embed #stage,
+html.ut-hub-embed:has(#stage.has-hub),html.ut-hub-embed:has(#stage.has-hub) body{background:transparent!important}
+html.ut-hub-embed body::before,html.ut-hub-embed body::after{display:none!important}

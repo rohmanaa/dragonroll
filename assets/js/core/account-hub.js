@@ -84,6 +84,9 @@
 
   /* ================= browser ================= */
   var D = G.document, active = null;
+  /* tertanam di Lobby sebagai modal (iframe ?embed=lobby): tutup & navigasi keluar diteruskan ke induk */
+  var EMBED = G.parent !== G && /[?&]embed=lobby(&|$)/.test(G.location.search);
+  function toParent(msg) { try { G.parent.postMessage(msg, '*'); } catch (e) { /* abaikan */ } }
 
   function el(tag, id, cls) {
     var n = D.createElement(tag);
@@ -310,6 +313,7 @@
       if (closing || disposed) return;
       closing = true;
       feedback();
+      if (EMBED) { toParent({ type: 'ut-hub-close' }); G.setTimeout(function () { closing = false; }, 1500); return; }
       var to = homeUrl(url, D.referrer, G.location.origin);
       if (UT.Spa && UT.Spa.go) { UT.Spa.go(to); G.setTimeout(function () { closing = false; }, 1500); }
       else {
@@ -382,6 +386,19 @@
     /* fokus awal: tab aktif (pembaca layar mengumumkan dialog + judulnya) */
     G.requestAnimationFrame(function () { if (!disposed && tabBtns[first]) tabBtns[first].focus({ preventScroll: true }); });
     return inst;
+  }
+  /* embed: navigasi keluar (rank, pet, Tambang, ...) diteruskan ke induk; pindah antar-tab hub tetap di dalam modal */
+  if (EMBED && G.navigation && G.navigation.addEventListener) {
+    G.navigation.addEventListener('navigate', function (e) {
+      if (!e.cancelable || e.hashChange || e.downloadRequest !== null || (e.destination && e.destination.sameDocument)) return;
+      var u; try { u = new G.URL(e.destination.url); } catch (x) { return; }
+      if (u.origin !== G.location.origin) return;
+      var rel = u.pathname.split('/').pop() + u.search + u.hash, p = pageOf(rel);
+      if (!p) return;
+      e.preventDefault();
+      if (PAGE_TAB[p]) api.handle(rel);
+      else toParent({ type: 'ut-hub-nav', url: rel });
+    });
   }
   api.open = open;
   api.handle = function (url) {   // dipanggil UT.Spa.go: pindah tab di tempat alih-alih memuat ulang halaman
