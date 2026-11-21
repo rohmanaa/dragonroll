@@ -295,6 +295,52 @@ const makeBatch=GV.makeBatch,addBox=GV.addBox,addOBox=GV.addOBox;
 /*GEOM-END*/
 const MAT=new THREE.MeshLambertMaterial({vertexColors:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
 const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6});
+/* ===== Tekstur rumput World (netral/abu-abu, seamless). WARNA & kekuatan diatur dari CSS (body.th-world di gameplay-overrides.css):
+   --world-grass-tex (0..1, 0 = mati/tampilan lama = "opacity" tekstur), --world-grass-tex-size (satuan dunia per ubin tekstur),
+   --world-grass-tint (warna CSS, mis. #6fc04a) + --world-grass-tint-amt (0..1, 0 = pakai warna palet asli).
+   Hanya muka ATAS yang hijau di luar board 10x10; geometri/warna vertex/rnd() tidak berubah. Gagal muat -> tampilan lama. ===== */
+const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
+const GU={tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
+function grassMat(){
+  if(GRASS_MAT) return GRASS_MAT;
+  GRASS_MAT=MAT.clone();
+  GRASS_MAT.onBeforeCompile=sh=>{
+    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole});
+    sh.vertexShader=sh.vertexShader
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;');
+    sh.fragmentShader=sh.fragmentShader
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;')
+      .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
+        '  float gUp=step(0.9,vGNor.y);\n'+
+        '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
+        '  float gOut=1.0-step(abs(vGPos.x),uGHole.x)*step(abs(vGPos.z),uGHole.y);\n'+
+        '  float gM=gUp*gGr*gOut;\n'+
+        '  float gLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
+        '  diffuseColor.rgb=mix(diffuseColor.rgb,uGTint*(gLum/0.4),uGTintAmt*gM);\n'+
+        '  float gT=texture2D(uGTex,vGPos.xz*uGScale).r;\n'+
+        '  diffuseColor.rgb*=1.0+(gT-0.5)*2.0*uGStr*gM;\n'+
+        '#endif');
+  };
+  if(!GRASS_REQ){ GRASS_REQ=true;
+    try{ new THREE.TextureLoader().load(GRASS_TEX_URL,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU.tex.value=t; GRASS_READY=true; GU.str.value=GRASS_CSS_STR; },undefined,()=>{ GRASS_READY=false; GU.str.value=0; }); }catch(e){ GRASS_READY=false; }
+  }
+  return GRASS_MAT;
+}
+/* baca variabel CSS (dipanggil tiap applyLook/bangun dunia); tanpa variabel / bukan World / grafis rendah -> kekuatan 0 */
+function syncGrassCss(){
+  try{
+    const cs=getComputedStyle(document.body),num=(n,d)=>{ const v=parseFloat(cs.getPropertyValue(n)); return isFinite(v)?v:d; };
+    const low=document.documentElement.getAttribute('data-graphics')==='low';
+    GRASS_CSS_STR=(themeKey==='minecraft'&&!low)?Math.max(0,Math.min(1,num('--world-grass-tex',0))):0;
+    GU.str.value=GRASS_READY?GRASS_CSS_STR:0;
+    GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
+    GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
+    const tc=cs.getPropertyValue('--world-grass-tint').trim();
+    if(tc){ try{ GU.tint.value.set(tc); }catch(e){ GU.tintAmt.value=0; } } else GU.tintAmt.value=0;
+  }catch(e){ GU.str.value=0; GU.tintAmt.value=0; }
+}
 function buildBatch(b,opt){
   opt=opt||{};
   const g=new THREE.Group();
@@ -2038,6 +2084,7 @@ function applyLook(th){
   const rs=document.documentElement.style;
   document.body.classList.toggle('th-nether',th.key==='nether'); /* HUD ikut warna Nether (CSS body.th-nether) */
   document.body.classList.toggle('th-world',th.key==='minecraft'); /* HUD ikut warna World: daun + kayu (CSS body.th-world) */
+  syncGrassCss();
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
@@ -3731,7 +3778,8 @@ function buildWorld(key){
   for(let y=0;y<2.2;y+=0.4) addBox(TB,G.x-0.36,G.h+0.2+y,G.z-0.36,0.12,0.4,0.12,0xE9E4D4);
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
-  world.add(buildBatch(TB));
+  syncGrassCss();
+  world.add(buildBatch(TB,th.key==='minecraft'?{mat:grassMat()}:null));
   if(BOSS==='dragon'){
   PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
