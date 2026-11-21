@@ -207,7 +207,7 @@
     'lobby.html': ['mode.html', 'shop.html', 'karakter.html', 'profile.html', 'inventory.html'],
     'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
     'room.html': ['gameplay.html', 'mode.html'],
-    'shop.html': ['lobby.html'], 'inventory.html': ['lobby.html'], 'pet.html': ['lobby.html'], 'frame.html': ['lobby.html'], 'hadiah-misi.html': ['lobby.html'], 'chest.html': ['lobby.html'], 'mail.html': ['lobby.html'], 'settings.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
+    'shop.html': ['lobby.html'], 'inventory.html': ['lobby.html'], 'pet.html': ['lobby.html'], 'frame.html': ['lobby.html'], 'efek.html': ['lobby.html'], 'hadiah-misi.html': ['lobby.html'], 'chest.html': ['lobby.html'], 'mail.html': ['lobby.html'], 'settings.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
     'profile.html': ['lobby.html', 'tambang.html'], 'leaderboard.html': ['lobby.html'], 'tambang.html': ['lobby.html', 'shop.html'], 'friendship.html': ['lobby.html']
   }, warmed = {};
   function warm(page) {

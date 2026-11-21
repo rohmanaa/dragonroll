@@ -15,7 +15,7 @@
     { k: 'pet', page: 'pet.html', label: 'Pet', icon: 'lobby/pet.webp' }
   ];
   /* tab yang sudah menjadi view di shell (bukan iframe) */
-  var VIEW_TABS = { frame: 'frame.html', pet: 'pet.html' };
+  var VIEW_TABS = { frame: 'frame.html', efek: 'efek.html', pet: 'pet.html' };
 
   function markup(active) {
     return TABS.map(function (t) {

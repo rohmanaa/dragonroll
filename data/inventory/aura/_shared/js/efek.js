@@ -1,5 +1,7 @@
-/* efek.js — dipindah dari <script> inline (efek.html). */
-(()=>{
+/* efek.js — dipindah dari <script> inline (efek.html). Modul 'efek': mandiri/embed = mount otomatis saat skrip dimuat; di shell (play.html) = view sendiri
+   (tanpa iframe): renderer pratinjau milik UT.SharedGL (acquire saat mount, release saat unmount), bar tab Inventory dipasang di sini,
+   navigasi lewat UT.Spa.go, timer/listener/langganan/rAF dilepas lewat env. */
+UT.PageModule.define('efek',function(env){
 const $=s=>document.querySelector(s);
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
@@ -20,11 +22,14 @@ const art=i=>i.none?'<img src="'+STAR+'" alt="">':AR.aura(i.id);
 let sel=null;
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 const snd=n=>{try{if(SET().sound)UT.Audio.play(n||'button')}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>{location.href=u},330)};
+const MANAGED=!!(UT.PageModule&&UT.PageModule.managed);
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');env.clearTimeout(tt);tt=env.setTimeout(()=>t.classList.remove('on'),1900)}
+/* di shell semua target lewat UT.Spa.go; mandiri/embed: fade 330 ms lalu pindah halaman biasa */
+const nav=u=>{if(MANAGED&&UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');env.setTimeout(()=>{location.href=u},330)};
 
 /* ---- dompet ---- */
 function showWallet(bump){
+  if(env.disposed)return;
   const ok=PD.walletReady();
   $('#v-em').textContent=ok?fmt(PD.gems()):'—';$('#v-co').textContent=ok?fmt(PD.coins()):'—';
   if(bump){const e=$('#cur-co');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}
@@ -32,25 +37,36 @@ function showWallet(bump){
 
 /* ---- preview 3D: karakter pemain (BlockyCharacter, tampilan/outfit akun) + AuraSystem; ganti aura = setAura ---- */
 const FXSCALE=2.5,CY=3.2,DIST=15,FOV=36;
+const GL_OWNER='inv-efek';
 let R=null,gl=!!(typeof THREE!=='undefined'&&FX&&window.UT&&UT.BlockyCharacter);
 const fxQ=()=>{const g=SET().graphics;return g==='ultra'?'ultra':g==='high'?FX.detectQuality():g==='normal'?'medium':'low'};
 function rigInit(){
   if(R||!gl)return;
   try{
-    const host=$('#fpv'),cv=document.createElement('canvas');host.innerHTML='';host.appendChild(cv);
-    const r=new THREE.WebGLRenderer({canvas:cv,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true});
+    const host=$('#fpv');host.innerHTML='';
+    /* renderer + kanvas = milik UT.SharedGL (satu per sesi); kanvas bersama dipasang di host, dilepas saat unmount */
+    const acquired=UT.SharedGL.acquire(GL_OWNER,{shadows:false}),r=acquired.renderer,cv=acquired.canvas;host.appendChild(cv);
     const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(FOV,1,.1,100);
     scene.add(new THREE.AmbientLight(0xffffff,.7),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
     const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);scene.add(sun);
     const holder=new THREE.Group();scene.add(holder);
     R={r,scene,cam,holder,cv,host,rot:0,vel:0,drag:false,lx:0,fx:null,moved:0};
-    cv.addEventListener('pointerdown',e=>{R.drag=true;R.moved=0;R.lx=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
-    cv.addEventListener('pointermove',e=>{if(R.drag){R.vel=(e.clientX-R.lx)*.012;R.rot+=R.vel;R.moved+=Math.abs(e.clientX-R.lx);R.lx=e.clientX}});
-    const up=()=>{R.drag=false};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    /* kanvas bersama dipakai ulang antar halaman: semua listener dilepas saat unmount */
+    const ls=[],on=(t,ev,fn)=>{t.addEventListener(ev,fn);ls.push(()=>t.removeEventListener(ev,fn))};
+    on(cv,'pointerdown',e=>{R.drag=true;R.moved=0;R.lx=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+    on(cv,'pointermove',e=>{if(R.drag){R.vel=(e.clientX-R.lx)*.012;R.rot+=R.vel;R.moved+=Math.abs(e.clientX-R.lx);R.lx=e.clientX}});
+    const up=()=>{R.drag=false};on(cv,'pointerup',up);on(cv,'pointercancel',up);
     /* ketuk (bukan geser) = aura melompat/bereaksi */
-    cv.addEventListener('click',()=>{if(R.moved<6&&R.fx&&R.fx.aura)try{R.fx.aura.jump()}catch(e){}});
-    new ResizeObserver(fitRig).observe(host);fitRig();requestAnimationFrame(loop);
-  }catch(e){gl=false;R=null;console.warn('WebGL tidak tersedia',e)}
+    on(cv,'click',()=>{if(R.moved<6&&R.fx&&R.fx.aura)try{R.fx.aura.jump()}catch(e){}});
+    const ro=new ResizeObserver(fitRig);ro.observe(host);fitRig();env.requestAnimationFrame(loop);
+    env.own(()=>{
+      ls.forEach(f=>f());try{ro.disconnect()}catch(e){}
+      try{if(R&&R.fx)R.fx.sys.dispose()}catch(e){}
+      try{if(R)R.scene.traverse(o=>{try{if(o.geometry)o.geometry.dispose()}catch(_){}if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{try{if(m.map)m.map.dispose();m.dispose()}catch(_){}})})}catch(e){}
+      try{UT.SharedGL.release(GL_OWNER)}catch(e){}
+      R=null;
+    });
+  }catch(e){gl=false;R=null;try{UT.SharedGL.release(GL_OWNER)}catch(_){}console.warn('WebGL tidak tersedia',e)}
 }
 function fitRig(){
   if(!R)return;const w=R.host.clientWidth,h=R.host.clientHeight;if(!w||!h)return;
@@ -80,7 +96,8 @@ function setAura(id){
 }
 let lastT=0;
 function loop(now){
-  requestAnimationFrame(loop);
+  if(env.disposed)return;
+  env.requestAnimationFrame(loop);
   if(!R||!R.fx||!R.host.offsetParent)return;
   const t=(now||0)/1000,dt=Math.min(.05,Math.max(0,t-lastT));lastT=t;
   if(!R.drag){R.vel*=.95;R.rot+=R.vel+.004}
@@ -100,6 +117,7 @@ function pickDefault(){
   sel=FR.find(x=>!x.none&&isUsed(x))||NONE;
 }
 function draw(){
+  if(env.disposed)return;
   pickDefault();
   renderAct();
   let html=FR.map(x=>{
@@ -165,7 +183,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
 
 /* ---- aksi: pakai / lepas / beli (beli lewat WalletService/PlayerData; klien tidak mengubah saldo sendiri) ---- */
 function equip(f){
@@ -187,19 +205,20 @@ $('#cur-co').onclick=()=>nav('shop.html?coin=1');
 $('#cur-em').onclick=()=>nav('tambang.html?from=efek.html');
 
 /* ---- sinkron: event + live-sync (saldo/inventory dari server) ---- */
-UT.Events.on('currencyChanged',()=>showWallet());
-['inventoryChanged','auraChanged'].forEach(n=>UT.Events.on(n,draw));
-try{PD.subscribe(r=>{
+env.own(UT.Events.on('currencyChanged',()=>showWallet()));
+['inventoryChanged','auraChanged'].forEach(n=>env.own(UT.Events.on(n,draw)));
+try{env.own(PD.subscribe(r=>{
   if(r==='server-wallet'||r==='storage'||r==='pageshow')showWallet();
-  if(r==='server-appearance'||r==='server-outfits'){try{if(R){clearChar();syncPreview()}}catch(e){}} /* karakter pratinjau = tampilan aktif akun di server */
-})}catch(e){}
-if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}
+  if(r==='server-appearance'||r==='server-outfits'){try{if(R&&!env.disposed){clearChar();syncPreview()}}catch(e){}} /* karakter pratinjau = tampilan aktif akun di server */
+}))}catch(e){}
+if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000});env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.stop()})}
 if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok){showWallet();draw()}});
 try{const A=SV()&&UT.AppearanceService&&UT.AppearanceService.get();if(A)A.refreshThrottled().catch(()=>{})}catch(e){}
 
 /* skala kanvas 1920x1080 */
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}
-addEventListener('resize',fit);fit();
+env.addEventListener('resize',fit);fit();
+if(MANAGED&&UT.InvTabs)UT.InvTabs.mountChrome(env,'efek',nav,snd);
 rigInit();draw();
 document.documentElement.classList.add('ut-ready');
-})();
+});

@@ -61,7 +61,8 @@ function setup(o) {
     assert.strictEqual(spa.canon('lobby.html'), 'lobby.html');
     G.sessionStorage.getItem = k => (k === 'ut:booted' ? '1' : k === 'ut-inv-tab' ? 'pet' : null);
     assert.strictEqual(spa.canon('inventory.html'), 'pet.html');
-    assert.strictEqual(spa.canon('inventory.html?tab=efek'), 'inventory.html?tab=efek');
+    assert.strictEqual(spa.canon('inventory.html?tab=efek'), 'efek.html');
+    assert.strictEqual(spa.canon('inventory.html?tab=dadu'), 'inventory.html?tab=dadu');
     await spa.go('inventory.html', { history: 'none' });
     assert.ok(log.includes('enter:pet') && !log.includes('enter:inventory'));
     assert.deepStrictEqual(spa.current(), { name: 'pet', url: 'pet.html' });
