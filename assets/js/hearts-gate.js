@@ -20,7 +20,7 @@
   var CSS = '#hgate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(8,5,12,.62);font-family:var(--font-body,system-ui,sans-serif)}' +
     '#hgate[hidden]{display:none}' +
     '#hgate .hg{min-width:min(86vw,360px);max-width:92vw;padding:22px 26px 20px;text-align:center;color:#fff;border-radius:16px;background:linear-gradient(180deg,#2a1f2e,#17111b);border:3px solid #f2b632;box-shadow:0 10px 40px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.4)}' +
-    '#hgate svg{width:64px;height:58px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55))}' +
+    '#hgate img{width:72px;height:auto;filter:grayscale(1) brightness(.75) drop-shadow(0 3px 2px rgba(0,0,0,.55))}' +
     '#hgate h3{margin:8px 0 4px;font:400 28px/1.1 var(--font-title,inherit);color:#ffd45a;text-shadow:0 2px 0 rgba(0,0,0,.6)}' +
     '#hgate p{margin:4px 0;font-size:16px;line-height:1.35;color:#e9e2ee}' +
     '#hgate .hgt{display:block;margin:8px 0 14px;font:400 34px/1 var(--font-title,inherit);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);letter-spacing:1px}' +
@@ -35,8 +35,7 @@
     el = document.createElement('div'); el.id = 'hgate'; el.hidden = true;
     el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Hati habis');
     el.innerHTML = '<div class="hg">' +
-      '<svg viewBox="0 0 32 29" aria-hidden="true"><defs><linearGradient id="hgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a7a86"/><stop offset="1" stop-color="#3a3a44"/></linearGradient></defs>' +
-      '<path d="M16 27.5C6 20 1.5 14.6 1.5 8.9 1.5 4.6 4.8 1.5 8.9 1.5c3 0 5.5 1.7 7.1 4.4 1.6-2.7 4.1-4.4 7.1-4.4 4.1 0 7.4 3.1 7.4 7.4 0 5.7-4.5 11.1-14.5 18.6z" fill="url(#hgg)" stroke="#16161c" stroke-width="2" stroke-linejoin="round"/></svg>' +
+      '<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false">' +
       '<h3>Hati habis</h3><p id="hgmsg">Hati berikutnya terisi dalam</p><span class="hgt" id="hgt">--:--</span>' +
       '<button type="button" id="hgok">OKE</button></div>';
     document.body.appendChild(el);

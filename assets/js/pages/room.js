@@ -386,13 +386,12 @@ function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').st
 addEventListener('resize',fit);fit();
 /* ---------- Hati: sisa hati + hitung mundur isi ulang di kanan atas (server: UT.HeartsService; tamu/lokal = chip disembunyikan) ---------- */
 (function(){const H=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get(),el=$('#hrt');if(!H||!el)return;
- const HP='M16 27.5C6 20 1.5 14.6 1.5 8.9 1.5 4.6 4.8 1.5 8.9 1.5c3 0 5.5 1.7 7.1 4.4 1.6-2.7 4.1-4.4 7.1-4.4 4.1 0 7.4 3.1 7.4 7.4 0 5.7-4.5 11.1-14.5 18.6z';
  const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
  let key='';
  function paint(){if(env.disposed)return;if(!H.enabled()){el.hidden=true;key='';return}
   const s=H.snapshot(),n=s.hearts|0,max=(s.max|0)||5,tm=(n>=max||!s.nextInSecs)?'':mmss(s.nextInSecs),k=n+'/'+max+'/'+tm;
   if(k===key&&!el.hidden)return;key=k;el.hidden=false;el.classList.toggle('empty',n<1);
-  el.innerHTML='<svg viewBox="0 0 32 29" aria-hidden="true"><path d="'+HP+'" fill="'+(n<1?'#6b6b76':'#e3263f')+'" stroke="#16161c" stroke-width="2" stroke-linejoin="round"/></svg><b>'+(n>max?n:n+'/'+max)+'</b>'+(tm?'<span>'+tm+'</span>':'');
+  el.innerHTML='<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false"><b>'+(n>max?n:n+'/'+max)+'</b>'+(tm?'<span>'+tm+'</span>':'');
   el.setAttribute('aria-label','Hati '+n+' dari '+max+(tm?', hati berikutnya '+tm:''))}
  paint();env.own(H.onChange(paint));env.setInterval(paint,1000);if(H.enabled())H.get()})();
 /* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode); tugas LiveSync dilepas saat unmount */

@@ -235,7 +235,7 @@ const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
  const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
  let key='';
  function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),f=Math.min(n,max),k=f+'/'+max;
-  if(k!==key){key=k;slots.innerHTML=Array.from({length:max},(_,i)=>i<f?'<svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>':'<i></i>').join('')}
+  if(k!==key){key=k;slots.innerHTML=Array.from({length:max},(_,i)=>i<f?'<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false">':'<i></i>').join('')}
   /* hati < 5: hitung mundur | tepat 5: READY | > 5: +N */
   tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'READY';tm.className='t-title'+(n===max?' ready':'');
   $('#hearts').setAttribute('aria-label','Nyawa '+n+' dari '+max)}

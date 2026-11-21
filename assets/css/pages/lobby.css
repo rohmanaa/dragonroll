@@ -60,14 +60,14 @@ html[data-graphics="low"] .mbtn img{filter:none!important}
 #xptxt{padding-left:0;font-size:18px}
 /* 5 hati: slot (kosong) sudah tergambar di hud-profil.webp; hanya hati yang TERISI digambar di atasnya (slot kosong = spacer transparan).
    Teks di kanan slot ke-5: hati < 5 = hitung mundur isi ulang, tepat 5 = "READY", > 5 = "+N". */
-#hearts{position:absolute;left:249.5px;top:125.5px;height:35px;width:310px;pointer-events:none}
-#hslots{position:absolute;left:0;top:0;display:flex;gap:10.1px}
-#hslots i{display:block;width:38px;height:35px;flex:none}
-#hearts svg{width:38px;height:35px;flex:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
+#hearts{position:absolute;left:248.5px;top:124.5px;height:37px;width:310px;pointer-events:none}
+#hslots{position:absolute;left:0;top:0;display:flex;gap:8.1px}
+#hslots i{display:block;width:40px;height:37px;flex:none}
+#hearts img{display:block;width:40px;height:37px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
 #htime{position:absolute;left:233px;top:2px;width:70px;text-align:center;font-size:22px;line-height:31px;white-space:nowrap;color:#ffe9a8;-webkit-text-stroke:1px #1a1205;letter-spacing:.5px}
 #htime.ready{color:#a6f06b;-webkit-text-stroke:1px #0f3a08;font-size:21px}
 #htime:empty{display:none}
-html[data-graphics="low"] #hearts svg{filter:none}
+html[data-graphics="low"] #hearts img{filter:none}
 
 /* ===== kartu Chest harian di lobi: teks progres (1/3) + bar; tombol KLAIM muncul bila target tercapai ===== */
 .chcard{gap:0}
