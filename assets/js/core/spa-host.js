@@ -17,8 +17,8 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame' };
-    var INV_VIEW_TABS = { frame: 'frame.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek' };
+    var INV_VIEW_TABS = { frame: 'frame.html', efek: 'efek.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
   var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css

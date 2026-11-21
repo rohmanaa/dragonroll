@@ -39,7 +39,7 @@ t('spa-host: pet.html = view; inventory-bridge dilewati (tidak mengalihkan shell
 });
 t('inventory.js: tab view (Pet) tidak dimuat di iframe saat di shell', () => {
   assert(/UT\.InvTabs\.VIEW_TABS\[t\.k\] && inShell\(\) && UT\.Spa\.canView/.test(inv));
-  assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', pet: 'pet.html' });
+  assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', efek: 'efek.html', pet: 'pet.html' });
 });
 t('InvTabs.markup: 5 tab, hanya yang aktif berkelas "on"; url tab', () => {
   const m = InvTabs.markup('pet');

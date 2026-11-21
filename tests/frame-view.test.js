@@ -29,10 +29,10 @@ t('frame.html: page-module.js + inv-tabs.js sebelum frame.js; CSS bar tab', () =
   assert(i('assets/css/inv-tabbar.css') > 0);
 });
 t('spa-host: frame.html = view; canon memetakan semua tab view; frame-guard & prefetch mengenal frame', () => {
-  assert(/'frame\.html': 'frame'/.test(host) && /INV_VIEW_TABS = \{ frame: 'frame\.html', pet: 'pet\.html' \}/.test(host));
-  assert(/\|pet\|frame\)\\\.html/.test(rd('assets/js/frame-guard.js')));
+  assert(/'frame\.html': 'frame'/.test(host) && /INV_VIEW_TABS = \{ frame: 'frame\.html', efek: 'efek\.html', pet: 'pet\.html' \}/.test(host));
+  assert(/\|pet\|frame\|efek\)\\\.html/.test(rd('assets/js/frame-guard.js')));
   assert(/'frame\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
-  assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', pet: 'pet.html' });
+  assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', efek: 'efek.html', pet: 'pet.html' });
 });
 t('mountChrome: judul Inventory, class inv-view, bar 5 tab, klik tab lain = navigate; tab aktif diabaikan; unmount melepas class', () => {
   const classes = new Set(), appended = [], title = { textContent: 'Frame' }, store = {}, snds = [], navs = [];

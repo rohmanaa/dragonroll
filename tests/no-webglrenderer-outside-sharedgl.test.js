@@ -18,8 +18,7 @@ const PENGECUALIAN_SENGAJA = [
 ];
 const PELANGGAR_TERSISA = [
   'assets/js/renderers/power-3d/power-renderer.js',
-  'assets/js/renderers/dice-kit/dice-renderer.js',
-  'data/inventory/aura/_shared/js/efek.js'
+  'assets/js/renderers/dice-kit/dice-renderer.js'
 ];
 const PEMEGANG_OFFSCREEN = ['assets/js/renderers/character-face.js'];   // jalur cadangan bila SharedGL.offscreen tidak ada
 
@@ -36,6 +35,11 @@ const allowed = new Set([SHARED_GL, ...PENGECUALIAN_SENGAJA, ...PELANGGAR_TERSIS
 
 assert.deepStrictEqual(hits.filter(f => !allowed.has(f)), [], 'renderer baru di luar SharedGL: pakai UT.SharedGL.acquire');
 for (const f of PELANGGAR_TERSISA) assert.ok(hits.includes(f), f + ' sudah bersih: hapus dari PELANGGAR_TERSISA');
+
+/* Efek (tahap 3) sudah bersih */
+assert.ok(!hits.includes('data/inventory/aura/_shared/js/efek.js'));
+assert.match(fs.readFileSync(path.join(ROOT, 'data/inventory/aura/_shared/js/efek.js'), 'utf8'), /SharedGL\.acquire\(GL_OWNER/);
+assert.match(fs.readFileSync(path.join(ROOT, 'efek.html'), 'utf8'), /core\/shared-gl\.js/);
 
 /* Pet (tahap 1) sudah bersih dan tidak boleh kembali */
 assert.ok(!hits.includes('data/inventory/pet/_shared/js/pet-viewer.js'));
