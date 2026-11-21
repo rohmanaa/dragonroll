@@ -38,24 +38,26 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #htime:empty{display:none}
 
 /* ===== tombol tile (Karakter, Guild, Chest, Shop, Inventory, Pet, Misi) ===== */
-.lbt{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:170px;height:124px;
+.lbt{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:132px;height:132px;
   isolation:isolate;transition:transform .1s,filter .1s}
-.lbt::before{content:'';position:absolute;inset:0;z-index:-1;background:url(../../images/buttons/tile-menu-bawah.webp) center/100% 100% no-repeat;
+.lbt::before{content:'';position:absolute;inset:0;z-index:-1;background:url(../../images/buttons/tile-stage-terkunci.webp) center/100% 100% no-repeat;
   filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
-.lbt .ico{position:absolute;left:0;right:0;top:-36px;height:100px;display:grid;place-items:center}
-.lbt .ico img{max-height:100px;max-width:none;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
-.lbt .ico img.bag{max-height:106px}
-.lbt .lb{font:400 27px/1 var(--font-title);padding:0 4px 10px;white-space:nowrap;color:#fff;position:relative;z-index:1;
+/* Karakter & Toko: tile aktif (cokelat), tombol lain: tile terkunci (abu gelap) */
+#b-char::before,#b-shop::before{background-image:url(../../images/buttons/tile-stage-aktif.webp)}
+.lbt .ico{position:relative;display:grid;place-items:center;height:72px}
+.lbt .ico img{max-height:72px;max-width:84px;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+.lbt .ico img.bag{max-height:76px}
+.lbt .lb{font:400 20px/1 var(--font-title);padding:0 4px;white-space:nowrap;color:#fff;position:relative;z-index:1;
   text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.7);-webkit-text-stroke:1px rgba(20,10,40,.6);paint-order:stroke fill}
 .lbt:hover{filter:brightness(1.1)}
 .lbt:active{transform:translateY(3px)}
 .lbt.locked{filter:saturate(.5) brightness(.85)}
-.lbt .lk{position:absolute;right:8px;bottom:4px;width:32px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-.lbt .nbadge{right:2px;top:-6px}
-.lbt.sm{width:128px;height:100px}
-.lbt.sm .ico{top:-30px;height:80px}
-.lbt.sm .ico img{max-height:80px}
-.lbt.sm .lb{font-size:23px;padding-bottom:8px}
+.lbt .lk{position:absolute;right:10px;bottom:10px;width:28px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.lbt .nbadge{right:4px;top:4px}
+.lbt.sm{width:100px;height:100px;gap:4px}
+.lbt.sm .ico{height:54px}
+.lbt.sm .ico img{max-height:54px;max-width:64px}
+.lbt.sm .lb{font-size:17px}
 
 /* kiri: Pet tepat di bawah profil, Guild di tengah dan Chest di bawahnya */
 #b-pet{left:60px;top:262px}
@@ -65,7 +67,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #b-shop{right:26px;top:480px}
 /* kiri bawah: Karakter, Misi, grup lipat */
 #b-char{left:30px;bottom:26px}
-#b-misi{left:224px;bottom:26px}
+#b-misi{left:178px;bottom:26px}
 /* kanan bawah: Inventory di kiri tombol Battle (MULAI) */
 #b-inv{right:450px;bottom:26px}
 #b-pet,#b-guild,#b-chest{animation:inL .6s .1s cubic-bezier(.2,.9,.2,1) both}
@@ -75,7 +77,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #b-misi{animation-delay:.07s}#grp{animation-delay:.14s}#b-inv{animation-delay:.21s}
 
 /* ===== grup lipat: Tambang, Mancing, Ranking (+ tombol < untuk menutup) ===== */
-#grp{position:absolute;left:366px;bottom:26px;height:100px;display:flex;align-items:stretch;border-radius:16px;overflow:hidden;
+#grp{position:absolute;left:294px;bottom:26px;height:100px;display:flex;align-items:stretch;border-radius:16px;overflow:hidden;
   background:linear-gradient(180deg,rgba(82,92,118,.86),rgba(44,50,72,.9));border:3px solid rgba(18,22,36,.88);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 5px 0 rgba(10,6,30,.5)}
 #grp .gset{display:flex;overflow:hidden;max-width:360px;transition:max-width .28s ease}
