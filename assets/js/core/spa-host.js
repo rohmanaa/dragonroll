@@ -17,7 +17,8 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame' };
+    var INV_VIEW_TABS = { frame: 'frame.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
   var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
@@ -230,7 +231,8 @@
       if (pageOf(url) !== 'inventory.html') return url;
       var m = /[?&]tab=([a-z]+)/.exec(String(url)), tab = m ? m[1] : '';
       if (!m) { try { tab = G.sessionStorage.getItem('ut-inv-tab') || ''; } catch (e) { tab = ''; } }
-      return tab === 'pet' && !broken['pet.html'] && canView('pet.html') ? 'pet.html' : url;
+      var pg = INV_VIEW_TABS[tab];
+      return pg && !broken[pg] && canView(pg) ? pg : url;
     }
 
     function go(url, opts) {

@@ -55,11 +55,13 @@ function setup(o) {
     const { spa, log, G } = setup();
     assert.strictEqual(spa.canon('inventory.html?tab=pet'), 'pet.html');
     assert.strictEqual(spa.canon('inventory.html?tab=dadu'), 'inventory.html?tab=dadu');
+    assert.strictEqual(spa.canon('inventory.html?tab=frame'), 'frame.html');
+    assert.strictEqual(spa.canon('inventory.html?tab=power'), 'inventory.html?tab=power');
     assert.strictEqual(spa.canon('inventory.html'), 'inventory.html');
     assert.strictEqual(spa.canon('lobby.html'), 'lobby.html');
     G.sessionStorage.getItem = k => (k === 'ut:booted' ? '1' : k === 'ut-inv-tab' ? 'pet' : null);
     assert.strictEqual(spa.canon('inventory.html'), 'pet.html');
-    assert.strictEqual(spa.canon('inventory.html?tab=frame'), 'inventory.html?tab=frame');
+    assert.strictEqual(spa.canon('inventory.html?tab=efek'), 'inventory.html?tab=efek');
     await spa.go('inventory.html', { history: 'none' });
     assert.ok(log.includes('enter:pet') && !log.includes('enter:inventory'));
     assert.deepStrictEqual(spa.current(), { name: 'pet', url: 'pet.html' });

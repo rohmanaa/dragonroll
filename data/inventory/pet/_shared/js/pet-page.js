@@ -396,26 +396,8 @@ UT.PageModule.define('pet', function (env) {
     env.setTimeout(() => { window.location.href = url; }, 330);
   }
 
-  /* di shell: judul + bar tab Inventory milik halaman ini (tab lain = view/iframe lewat inventory.html?tab=) */
-  if (MANAGED && window.UT.InvTabs) {
-    const T = window.UT.InvTabs;
-    document.body.classList.add('inv-view');
-    env.own(() => document.body.classList.remove('inv-view'));
-    $('#title').textContent = 'Inventory';
-    const bar = document.createElement('nav');
-    bar.id = 'invtabs';
-    bar.setAttribute('aria-label', 'Kategori inventory');
-    bar.innerHTML = T.markup('pet');
-    $('#stage').appendChild(bar);
-    try { sessionStorage.setItem(T.KEY, 'pet'); } catch (e) {}
-    bar.addEventListener('click', (event) => {
-      const tab = event.target.closest('.tab');
-      if (!tab || tab.dataset.k === 'pet') return;
-      snd('button');
-      try { sessionStorage.setItem(T.KEY, tab.dataset.k); } catch (e) {}
-      navigate(T.url(tab.dataset.k));
-    });
-  }
+  /* di shell: judul + bar tab Inventory (helper bersama) */
+  if (MANAGED && window.UT.InvTabs) window.UT.InvTabs.mountChrome(env, 'pet', navigate, snd);
   $('#back').addEventListener('click', () => navigate('lobby.html'));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
