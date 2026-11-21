@@ -40,7 +40,7 @@ t('efek.html: page-module/inv-tabs sebelum efek.js, shared-gl setelah three.js, 
 t('routing: efek.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'efek\.html': 'efek'/.test(host) && /efek: 'efek\.html'/.test(host));
   assert(/efek: 'efek\.html'/.test(rd('assets/js/core/inv-tabs.js')));
-  assert(/\|efek\)\\\.html/.test(rd('assets/js/frame-guard.js')));
+  assert(/\|efek\|dadu\)\\\.html/.test(rd('assets/js/frame-guard.js')));
   assert(/'efek\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');
