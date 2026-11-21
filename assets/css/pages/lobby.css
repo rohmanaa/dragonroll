@@ -35,17 +35,17 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 /* ===== mata uang kanan atas: Emerald, Coin, Hati. Ikon di kanan (tombol bulat), plus di kiri, bar biru langit transparan ===== */
 .cur{width:330px;height:76px;background:none;clip-path:none;filter:none}
 /* bar: hitam transparan, tanpa bayangan/garis */
-.cur::before{content:'';position:absolute;inset:auto 0 auto 30px;top:50%;height:48px;transform:translateY(-50%);border-radius:24px;
-  background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) right center/114% 100% no-repeat;
+.cur::before{content:'';position:absolute;inset:auto 0 auto 58px;top:50%;height:48px;transform:translateY(-50%);border-radius:0;
+  background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) center/100% 100% no-repeat;
   filter:brightness(0);opacity:.5;clip-path:none;box-shadow:none}
 /* tile kotak hijau kecil (dari tile-stage-terkunci) = wadah tanda +, di kiri, sedikit lebih tinggi dari bar */
 .cur::after{content:'';position:absolute;left:0;top:8px;width:60px;height:60px;z-index:1;pointer-events:none;
   background:url(../../images/buttons/tile-plus-hijau.webp) center/100% 100% no-repeat}
 .cur .plus{position:absolute;left:0;top:8px;right:auto;width:60px;height:60px;display:grid;place-items:center;transform:none;z-index:2;
   color:#fff;font-size:42px;line-height:1;padding-bottom:3px;text-shadow:0 2px 0 rgba(0,40,0,.55)}
-/* ikon di kanan dengan jarak dari ujung bar (bar tetap kelihatan); angka rata kanan */
-.cur img{left:auto;right:24px;height:46px;max-width:48px;object-fit:contain;z-index:2}
-.cur .v{font-size:38px;text-align:right;padding:0 80px 0 76px}
+/* ikon di kanan menutup ujung kanan bar (tanpa jarak); angka rata kanan */
+.cur img{left:auto;right:0;height:46px;max-width:48px;object-fit:contain;z-index:2}
+.cur .v{font-size:38px;text-align:right;padding:0 56px 0 76px}
 .cur:active{filter:brightness(1.12)}
 /* hati: tanpa tombol +, bar penuh dari kiri */
 #cur-ht::after{display:none}
