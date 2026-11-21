@@ -153,9 +153,11 @@ async function run() {
   UI.state([2, 3], [3, 1]);
   assert.ok(find(body, 'du-hp').innerHTML.includes('du-heart on'));
   assert.ok(find(body, 'du-mom').innerHTML.includes('on'));
-  UI.actions([4, 6]);
-  assert.ok(findAll(body, 'du-action')[0].className.includes('critical'));
-  assert.ok(findAll(body, 'du-action')[1].className.includes('berserk'));
+  UI.actions([3, 5]);
+  assert.ok(findAll(body, 'du-action')[0].className.includes('defense'));
+  assert.ok(findAll(body, 'du-action')[1].className.includes('regen'));
+  UI.actions([1, 2]);
+  assert.strictEqual(findAll(body, 'du-action')[0].className, 'du-action');
   UI.act(0, 'attack', 0.75);
   UI.act(1, 'block', 0.9);
   assert.deepStrictEqual(blockyCreated[0].actions[0], ['attack', 0.75], 'serangan diteruskan ke karakter asli');
