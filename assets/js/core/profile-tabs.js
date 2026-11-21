@@ -4,7 +4,10 @@
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
-  var TABS = [['profil', 'Profil', 'profile.html'], ['teman', 'Teman', 'friendship.html'], ['pesan', 'Pesan', 'mail.html'], ['setelan', 'Pengaturan', 'settings.html']];
+  var IC = 'assets/images/ui/';
+  var UL = IC + 'navigation-icons/garis-bawah-tab-emas.webp';
+  /* [kunci, label, halaman, ikon] — gaya tab sama dengan Inventory: ikon + teks + garis bawah emas pada tab aktif */
+  var TABS = [['profil', 'Profil', 'profile.html', IC + 'item-icons/helm-ksatria.webp'], ['teman', 'Teman', 'friendship.html', IC + 'feature-icons/friends.webp'], ['pesan', 'Pesan', 'mail.html', IC + 'item-icons/surat-segel.webp'], ['setelan', 'Pengaturan', 'settings.html', IC + 'item-icons/gir.webp']];
   function go(url) {
     if (UT.Spa && UT.Spa.go) { UT.Spa.go(url); return; }
     var f = document.getElementById('fade');
@@ -22,7 +25,8 @@
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'ptab' + (t[0] === active ? ' on' : ''); b.dataset.k = t[0];
       b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', t[0] === active ? 'true' : 'false');
-      b.textContent = t[1];
+      b.setAttribute('aria-label', t[1]);
+      b.innerHTML = '<img class="ic" src="' + t[3] + '" alt=""><span>' + t[1] + '</span><img class="ul" src="' + UL + '" alt="">';
       b.addEventListener('click', function () {
         if (t[0] === active) return;
         try { var S = window.PlayerData && PlayerData.settings(); if (S && S.sound && UT.Audio) UT.Audio.play('button'); if (S && S.vibration && navigator.vibrate) navigator.vibrate(15); } catch (e) {}
