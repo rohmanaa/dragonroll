@@ -37,9 +37,9 @@
       if (typeof deps.enabled === 'function') return !!deps.enabled();
       return !!(PD && PD.serverMode && PD.serverMode());
     }
-    async function rpc(name) {
+    async function rpc(name, args) {
       var c = await deps.getClient();
-      var r = await c.rpc(name, {});
+      var r = await c.rpc(name, args || {});
       if (r.error) throw r.error;
       return r.data;
     }
@@ -81,10 +81,21 @@
       catch (e) { return fail(e); }
       finally { inflight = false; }
     }
+    /* Tahap 2 — kirim hati ke teman (server menghitung fee/emas/batas; klien hanya mengirim id teman). */
+    /* Status per teman: {ok, limit, sent_today, fee, fee_gold, friends:[{friend_id, sent_today, gold}]} */
+    async function friends() {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return await rpc('hearts_friends'); } catch (e) { return fail(e); }
+    }
+    /* {ok:true, fee, gold, sent_today, limit, gems} | {ok:false, reason:'sudah-dikirim'|'batas-harian'|'bukan-teman'|'diri-sendiri'|'jaringan'|'belum-login'} */
+    async function send(friendId) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return await rpc('hearts_send', { p_friend: String(friendId) }); } catch (e) { return fail(e); }
+    }
     /* Cek cepat dari proyeksi lokal (hanya UX; server tetap memutuskan di consume). Belum dimuat/tanpa server: boleh. */
     function canPlay() { var s = snapshot(); return !s.enabled || !s.known || s.hearts > 0; }
 
-    return { enabled: enabled, get: get, consume: consume, snapshot: snapshot, canPlay: canPlay, onChange: onChange };
+    return { enabled: enabled, get: get, consume: consume, friends: friends, send: send, snapshot: snapshot, canPlay: canPlay, onChange: onChange };
   }
 
   /* Instans browser: klien Supabase dimuat malas pada RPC pertama (sama seperti mine-service). */

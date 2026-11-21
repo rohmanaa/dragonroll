@@ -36,6 +36,11 @@
 .actions{display:flex;align-items:center;gap:14px;flex:none}
 .btn.sm.off{filter:grayscale(1) brightness(.7)}
 .stat.lk:disabled{cursor:not-allowed;opacity:.72}
+.stat.lk{cursor:pointer;border:0;font:inherit}
+.stat.lk.gold{background:rgba(255,196,60,.28);box-shadow:inset 0 0 0 2px rgba(255,204,70,.7)}
+.stat.lk.gold img{filter:brightness(0) saturate(100%) invert(78%) sepia(70%) saturate(1200%) hue-rotate(345deg) drop-shadow(0 0 6px #ffc83a)}
+.stat.lk.gold b{color:#ffd45a}
+.stat.lk.sent{opacity:.5;cursor:default}
 .fc .avc{overflow:hidden}
 .fc .avc img{width:100%;height:100%;object-fit:contain}
 #mx .field{height:76px;font-size:26px}
