@@ -22,7 +22,7 @@ t('inventory.html memuat page-module.js sebelum inventory.js; tanpa id bentrok s
 });
 t('spa-host, frame-guard, play.js mengenal inventory', () => {
   assert(/'inventory\.html': 'inventory'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/room\|inventory(\|pet\|frame\|efek)*\)/.test(rd("assets/js/frame-guard.js")));
+  assert(/room\|inventory(\|pet\|frame\|efek\|dadu)*\)/.test(rd("assets/js/frame-guard.js")));
   assert(/'inventory\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');

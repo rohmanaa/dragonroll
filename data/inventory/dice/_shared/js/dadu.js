@@ -1,5 +1,7 @@
-/* dadu.js — dipindah dari <script> inline (dadu.html). */
-(()=>{
+/* dadu.js — dipindah dari <script> inline (dadu.html). Modul 'dadu': mandiri/embed = mount otomatis saat skrip dimuat; di shell (play.html) = view sendiri
+   (tanpa iframe): DiceKit memakai renderer bersama (sharedGL:'inv-dadu', dilepas saat unmount), bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go,
+   timer/listener/langganan dilepas lewat env. */
+UT.PageModule.define('dadu',function(env){
 const $=s=>document.querySelector(s);
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();
@@ -27,22 +29,25 @@ function rollPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.roll
 function throwPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.rollWhenReady()}
 function syncKit(){if(KIT&&sel&&kitOK(sel))KIT.equip(sel.gameKey)}
 function mountKit(){
-  if(KIT||!window.DiceKit)return;
+  if(env.disposed||KIT||!window.DiceKit)return;
   const host=$('#fpv');if(!host)return;
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
     host.innerHTML='';
-    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound});
+    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound,sharedGL:'inv-dadu'});
   }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 let sel=null;
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 const snd=n=>{try{if(SET().sound)UT.Audio.play(n||'button')}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
-const nav=u=>{$('#fade').classList.add('on');setTimeout(()=>{location.href=u},330)};
+const MANAGED=!!(UT.PageModule&&UT.PageModule.managed);
+let tt;function toast(m){if(env.disposed)return;const t=$('#toast');t.textContent=m;t.classList.add('on');env.clearTimeout(tt);tt=env.setTimeout(()=>t.classList.remove('on'),1900)}
+/* di shell semua target lewat UT.Spa.go; mandiri/embed: fade 330 ms lalu pindah halaman biasa */
+const nav=u=>{if(MANAGED&&UT.Spa&&UT.Spa.go){UT.Spa.go(u);return}$('#fade').classList.add('on');env.setTimeout(()=>{location.href=u},330)};
 
 /* ---- dompet ---- */
 function showWallet(bump){
+  if(env.disposed)return;
   const ok=PD.walletReady();
   $('#v-em').textContent=ok?fmt(PD.gems()):'—';$('#v-co').textContent=ok?fmt(PD.coins()):'—';
   if(bump){const e=$('#cur-co');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}
@@ -54,6 +59,7 @@ function pickDefault(){
   sel=FR.find(isUsed)||FR.find(isOwned)||FR[0]||null;
 }
 function draw(){
+  if(env.disposed)return;
   pickDefault();
   renderAct();
   let html=FR.map(x=>{
@@ -118,7 +124,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
 
 /* ---- aksi: pakai / beli (beli lewat WalletService/PlayerData; klien tidak mengubah saldo sendiri) ---- */
 function equip(f){
@@ -142,16 +148,19 @@ $('#cur-co').onclick=()=>nav('shop.html?coin=1');
 $('#cur-em').onclick=()=>nav('tambang.html?from=dadu.html');
 
 /* ---- sinkron: event + live-sync (saldo/inventory dari server) ---- */
-UT.Events.on('currencyChanged',()=>showWallet());
-['inventoryChanged','diceChanged'].forEach(n=>UT.Events.on(n,draw));
-try{PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')showWallet()})}catch(e){}
-if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000})}
+env.own(UT.Events.on('currencyChanged',()=>showWallet()));
+['inventoryChanged','diceChanged'].forEach(n=>env.own(UT.Events.on(n,draw)));
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')showWallet()}))}catch(e){}
+if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000});env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.stop()})}
 if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok){showWallet();draw()}});
 
 /* skala kanvas 1920x1080 */
 function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}
-addEventListener('resize',fit);fit();
+env.addEventListener('resize',fit);fit();
+if(MANAGED&&UT.InvTabs)UT.InvTabs.mountChrome(env,'dadu',nav,snd);
+/* unmount: DiceKit dibuang (animasi, listener, fisika) dan renderer bersama dilepas */
+env.own(()=>{try{if(KIT)KIT.dispose()}catch(e){}KIT=null});
 draw();mountKit();
-window.addEventListener('dicekit-ready',()=>{mountKit();draw()}); /* kit siap -> dadu 3D tampil & kartu berganti ke warna asli */
+env.addEventListener('dicekit-ready',()=>{mountKit();draw()}); /* kit siap -> dadu 3D tampil & kartu berganti ke warna asli */
 document.documentElement.classList.add('ut-ready');
-})();
+});
