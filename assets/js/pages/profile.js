@@ -135,7 +135,7 @@ function drawAkun() {
   const L = PD.levelInfo();
   $('#hnm').textContent = pname();
   $('#hid').textContent = `ID ${PROF.uid} · Bergabung ${PROF.joined}`;
-  $('#lvn').textContent = L.level;
+  const lvn = $('#lvn'); lvn.textContent = L.level; lvn.classList.toggle('w3', String(L.level).length >= 3);
   const e = emo(); document.querySelectorAll('.eb').forEach((b, i) => { b.textContent = e[i]; b.setAttribute('aria-label', 'Emoji ' + (i + 1)); });
   $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
   $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
