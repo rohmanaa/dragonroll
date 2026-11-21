@@ -1,4 +1,6 @@
-(function () {
+/* Modul 'pet' (tab Pet). Mandiri/embed: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
+   bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go, listener/timer dilepas lewat env saat unmount. */
+UT.PageModule.define('pet', function (env) {
   'use strict';
 
   const $ = (selector) => document.querySelector(selector);
@@ -44,6 +46,13 @@
     return;
   }
 
+  /* di shell, viewer 3D ikut di-mount/unmount bersama view (mandiri: viewer sudah mount sendiri saat skrip dimuat) */
+  const MANAGED = !!(window.UT.PageModule && window.UT.PageModule.managed);
+  if (MANAGED) {
+    window.UT.PageModule.mount('pet-viewer');
+    env.own(() => window.UT.PageModule.unmount('pet-viewer'));
+  }
+
   function snd(name) {
     try { if (PD.settings().sound) window.UT.Audio.play(name || 'button'); } catch (e) {}
   }
@@ -60,17 +69,19 @@
     const element = $('#toast');
     element.textContent = message;
     element.classList.add('on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => element.classList.remove('on'), 2200);
+    env.clearTimeout(toastTimer);
+    toastTimer = env.setTimeout(() => element.classList.remove('on'), 2200);
   }
 
   function setStatus(message) {
+    if (env.disposed) return;
     const element = $('#petStatus');
     element.textContent = message || '';
     element.hidden = !message;
   }
 
   function showWallet() {
+    if (env.disposed) return;
     const ready = PD.walletReady();
     $('#v-em').textContent = ready ? format(PD.gems()) : '—';
     $('#v-co').textContent = ready ? format(PD.coins()) : '—';
@@ -102,6 +113,7 @@
   }
 
   function renderDetails(item) {
+    if (env.disposed) return;
     const body = $('#petInfoBody');
     body.replaceChildren();
 
@@ -162,6 +174,7 @@
   }
 
   function draw() {
+    if (env.disposed) return;
     const equipped = PD.equippedId('pet');
     if (!selected || !PETS.some((item) => item.id === selected.id)) {
       selected = PETS.find((item) => item.id === equipped) || PETS[0];
@@ -327,7 +340,7 @@
       const missing = format(amount - balance);
       const current = format(balance);
       modal(`${currency} tidak cukup`, `Kamu butuh ${missing} ${currency} lagi.\nSaldo kamu ${current} ${currency}.`, 'TUTUP', gems ? 'DAPATKAN EMERALD' : 'DAPATKAN COIN', () => {
-        window.location.href = gems ? 'tambang.html?from=pet.html' : 'shop.html?coin=1';
+        navigate(gems ? 'tambang.html?from=pet.html' : 'shop.html?coin=1');
       });
       return;
     }
@@ -363,30 +376,53 @@
   $('#petInfoOpen').addEventListener('click', () => {
     renderDetails(selected || PETS[0]);
     $('#petInfo').showModal();
-    requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
+    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
   });
   $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
   $('#petInfo').addEventListener('click', (event) => {
     if (event.target === $('#petInfo')) $('#petInfo').close();
   });
-  document.addEventListener('keydown', (event) => {
+  env.on(document, 'keydown', (event) => {
     if (event.key !== 'Escape') return;
     if ($('#md').classList.contains('on')) closeModal();
     else if ($('#petInfo').open) return;
-    else window.location.href = 'lobby.html';
+    else navigate('lobby.html');
   });
 
+  /* di shell semua target lewat UT.Spa.go (view atau iframe); mandiri/embed: fade 330 ms lalu pindah halaman biasa */
   function navigate(url) {
+    if (MANAGED && window.UT.Spa && window.UT.Spa.go) { window.UT.Spa.go(url); return; }
     $('#fade').classList.add('on');
-    setTimeout(() => { window.location.href = url; }, 330);
+    env.setTimeout(() => { window.location.href = url; }, 330);
+  }
+
+  /* di shell: judul + bar tab Inventory milik halaman ini (tab lain = view/iframe lewat inventory.html?tab=) */
+  if (MANAGED && window.UT.InvTabs) {
+    const T = window.UT.InvTabs;
+    document.body.classList.add('inv-view');
+    env.own(() => document.body.classList.remove('inv-view'));
+    $('#title').textContent = 'Inventory';
+    const bar = document.createElement('nav');
+    bar.id = 'invtabs';
+    bar.setAttribute('aria-label', 'Kategori inventory');
+    bar.innerHTML = T.markup('pet');
+    $('#stage').appendChild(bar);
+    try { sessionStorage.setItem(T.KEY, 'pet'); } catch (e) {}
+    bar.addEventListener('click', (event) => {
+      const tab = event.target.closest('.tab');
+      if (!tab || tab.dataset.k === 'pet') return;
+      snd('button');
+      try { sessionStorage.setItem(T.KEY, tab.dataset.k); } catch (e) {}
+      navigate(T.url(tab.dataset.k));
+    });
   }
   $('#back').addEventListener('click', () => navigate('lobby.html'));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
 
-  window.UT.Events.on('currencyChanged', showWallet);
-  window.UT.Events.on('inventoryChanged', draw);
-  window.UT.Events.on('petChanged', draw);
+  env.own(window.UT.Events.on('currencyChanged', showWallet));
+  env.own(window.UT.Events.on('inventoryChanged', draw));
+  env.own(window.UT.Events.on('petChanged', draw));
 
   function refreshAccount() {
     if (!PD.serverMode()) {
@@ -410,13 +446,14 @@
       window.UT.LiveSync.add('wallet', () => wallet.refresh());
       window.UT.LiveSync.add('appearance', () => appearance.refreshThrottled(20000));
       window.UT.LiveSync.start({ interval: 20000 });
+      env.own(() => { window.UT.LiveSync.remove('wallet'); window.UT.LiveSync.remove('appearance'); window.UT.LiveSync.stop(); });
     }
   }
 
   function fit() {
     $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
   }
-  window.addEventListener('resize', fit);
+  env.addEventListener('resize', fit);
   selected = PETS.find((item) => PD.isEquipped(item.id)) || PETS[0];
   draw();
   showWallet();
@@ -424,4 +461,4 @@
   refreshAccount();
   void loadMetadata();
   document.documentElement.classList.add('ut-ready');
-})();
+});

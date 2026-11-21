@@ -1,6 +1,8 @@
 /* Viewer 3D pet (dipindah dari 'data pet.html'; data pet sudah ada di supabase/pet_catalog.sql).
    Latar transparan, tanpa pad, tanpa zoom. API: PetViewer.select(gameKey). */
-(function(){
+/* Modul 'pet-viewer': state (renderer, audio, listener) hidup per-mount. Mandiri/embed = mount otomatis saat skrip dimuat (sama seperti sebelumnya);
+   di shell, pet-page.js me-mount saat view dibuka dan unmount (release SharedGL, tutup audio) saat view ditutup. */
+window.UT.PageModule.define('pet-viewer',function(env){
 "use strict";
 const T=THREE;
 let destroyed=false;
@@ -412,4 +414,5 @@ window.PetViewer={
   destroy(){teardownFn()}
 };
 listen(window,'pagehide',event=>{if(!event.persisted)window.PetViewer.destroy()});
-})();
+env.own(()=>window.PetViewer.destroy());
+});

@@ -112,6 +112,8 @@ const window = {
         } };
       }
     },
+    /* viewer = modul 'pet-viewer': define() menjalankan body (seperti mount otomatis di halaman mandiri); env.own = disposer saat unmount */
+    PageModule: { disposers: [], define(name, body) { assert.strictEqual(name, 'pet-viewer'); return body({ own: fn => { this.disposers.push(fn); return fn; } }); } },
     /* renderer dipegang UT.SharedGL (satu renderer per sesi): viewer hanya acquire/release, tidak boleh dispose/forceContextLoss */
     SharedGL: {
       acquires: [], releases: [],
@@ -229,6 +231,7 @@ function resolveBuilder(key, result, stats) {
   assert.strictEqual(timeouts.size, 0);
   assert.strictEqual(second.geometry.disposed, true);
   assert.strictEqual(second.material.disposed, true);
+  assert.strictEqual(window.UT.PageModule.disposers.length, 1, 'unmount modul = destroy viewer');
   assert.strictEqual(renderers.length, 1, 'renderer hanya dibuat lewat SharedGL.acquire');
   assert.deepStrictEqual(window.UT.SharedGL.acquires.map(a => a.owner), ['inv-pet']);
   assert.strictEqual(window.UT.SharedGL.acquires[0].opts.canvas, canvas);

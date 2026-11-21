@@ -17,9 +17,9 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'chest.html': 'chest', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet' };
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
-  var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|frame-guard|boot-guard)\.js$/;
+  var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
 
   function pageOf(url) {
@@ -225,8 +225,17 @@
       });
     }
 
+    /* inventory.html bagi tab yang sudah jadi view (Pet) = langsung view-nya: tab dari ?tab=, atau tab terakhir (sessionStorage) bila tanpa ?tab= */
+    function canon(url) {
+      if (pageOf(url) !== 'inventory.html') return url;
+      var m = /[?&]tab=([a-z]+)/.exec(String(url)), tab = m ? m[1] : '';
+      if (!m) { try { tab = G.sessionStorage.getItem('ut-inv-tab') || ''; } catch (e) { tab = ''; } }
+      return tab === 'pet' && !broken['pet.html'] && canView('pet.html') ? 'pet.html' : url;
+    }
+
     function go(url, opts) {
       opts = opts || {};
+      url = canon(url);
       var id = ++navId, name = viewName(url), toView = !!name && canView(url);
       if (hooks.leave) hooks.leave(opts.kind || 'delay');
       pushHistory(url, opts);
@@ -262,6 +271,7 @@
     api.canView = canView;
     api.viewName = viewName;
     api.pageOf = pageOf;
+    api.canon = canon;
     api.current = function () { return current ? { name: current.name, url: current.url } : null; };
     api.initialUrl = function () { return initialUrl; };
     return api;

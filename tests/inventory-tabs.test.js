@@ -5,6 +5,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'inventory.html'), 'utf8');
 const js = fs.readFileSync(path.join(root, 'assets/js/pages/inventory.js'), 'utf8');
+const tabsJs = fs.readFileSync(path.join(root, 'assets/js/core/inv-tabs.js'), 'utf8');
 const scripts = Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), match => match[1]);
 
 assert.ok(!scripts.includes('assets/js/core/item-registry.js'));
@@ -20,7 +21,7 @@ for (const [key, page] of Object.entries({
   power: 'powerup.html',
   pet: 'pet.html'
 })) {
-  assert.ok(new RegExp("k: '" + key + "', page: '" + page + "'").test(js), key);
+  assert.ok(new RegExp("k: '" + key + "', page: '" + page + "'").test(tabsJs), key);
 }
 assert.ok(js.includes("if (!frames[t.k]) frames[t.k] = mk(t)"));
 assert.ok(js.includes("if (f.classList.contains('on')) loading.hidden = true"));

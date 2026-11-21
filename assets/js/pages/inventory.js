@@ -5,14 +5,8 @@ UT.PageModule.define('inventory', function (env) {
   'use strict';
   var addEventListener = env.addEventListener, setTimeout = env.setTimeout;
   var $ = function (s) { return document.querySelector(s); };
-  var TABS = [
-    { k: 'frame', page: 'frame.html', label: 'Frame', icon: 'feature-icons/frame.webp' },
-    { k: 'dadu', page: 'dadu.html', label: 'Dadu', icon: 'feature-icons/dadu.webp' },
-    { k: 'efek', page: 'efek.html', label: 'Efek', icon: 'gem-medal-icons/kristal-api.webp' },
-    { k: 'power', page: 'powerup.html', label: 'Power-up', icon: 'gem-medal-icons/petir-ungu.webp' },
-    { k: 'pet', page: 'pet.html', label: 'Pet', icon: 'lobby/pet.webp' }
-  ];
-  var KEY = 'ut-inv-tab', host = $('#views'), loading = $('#view-loading'), tabsEl = $('#tabs'), cur = '', frames = {};
+  var TABS = UT.InvTabs.TABS;
+  var KEY = UT.InvTabs.KEY, host = $('#views'), loading = $('#view-loading'), tabsEl = $('#tabs'), cur = '', frames = {};
   var SET = function () { try { return window.PlayerData.settings(); } catch (e) { return {}; } };
   function snd() { try { if (SET().sound) UT.Audio.play('button'); } catch (e) {} }
 
@@ -25,9 +19,7 @@ UT.PageModule.define('inventory', function (env) {
   function search() { var c = window.UT && UT.Spa && UT.Spa.current && UT.Spa.current(); if (c && c.name === 'inventory') { var i = c.url.indexOf('?'); return i < 0 ? '' : c.url.slice(i).split('#')[0]; } return location.search; }
   function inShell() { var c = window.UT && UT.Spa && UT.Spa.current && UT.Spa.current(); return !!(c && c.name === 'inventory'); }
 
-  tabsEl.innerHTML = TABS.map(function (t) {
-    return '<button class="tab" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt=""></button>';
-  }).join('');
+  tabsEl.innerHTML = UT.InvTabs.markup('');
 
   /* Tiap tab dimuat SEKALI (iframe dibuat saat pertama dibuka) lalu disimpan; pindah tab = tampilkan/sembunyikan saja.
      Iframe yang disembunyikan (display:none) tidak menjalankan animasi/3D, jadi tidak membebani. */
@@ -50,6 +42,13 @@ UT.PageModule.define('inventory', function (env) {
   function open(k, quiet) {
     var t = TABS.filter(function (x) { return x.k === k; })[0] || TABS[0];
     if (t.k === cur) return;
+    /* Tab yang sudah jadi view (Pet) tidak dimuat di iframe: pindah ke view-nya langsung (tanpa dokumen bersarang) */
+    if (UT.InvTabs.VIEW_TABS[t.k] && inShell() && UT.Spa.canView(UT.InvTabs.VIEW_TABS[t.k])) {
+      try { sessionStorage.setItem(KEY, t.k); } catch (e) {}
+      if (!quiet) snd();
+      nav(UT.InvTabs.VIEW_TABS[t.k]);
+      return;
+    }
     cur = t.k;
     Array.prototype.forEach.call(tabsEl.children, function (b) { b.classList.toggle('on', b.dataset.k === t.k); });
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */

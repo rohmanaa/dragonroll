@@ -46,9 +46,24 @@ function setup(o) {
     assert.strictEqual(Spa.viewName('room.html?mode=vsc'), 'room');
     assert.strictEqual(Spa.viewName('dadu.html'), null);
     assert.strictEqual(Spa.viewName('inventory.html?tab=frame'), 'inventory');
+    assert.strictEqual(Spa.viewName('pet.html'), 'pet');
+    assert.strictEqual(Spa.viewName('pet.html?embed=inv'), 'pet');
     assert.strictEqual(Spa.pageOf('mode.html#a'), 'mode.html');
   });
   await t('mount menandai PageModule.managed', () => { assert.strictEqual(setup().PageModule.managed, true); });
+  await t('canon: inventory.html?tab=pet (atau tab terakhir = pet) -> view pet; tab lain tetap inventory', async () => {
+    const { spa, log, G } = setup();
+    assert.strictEqual(spa.canon('inventory.html?tab=pet'), 'pet.html');
+    assert.strictEqual(spa.canon('inventory.html?tab=dadu'), 'inventory.html?tab=dadu');
+    assert.strictEqual(spa.canon('inventory.html'), 'inventory.html');
+    assert.strictEqual(spa.canon('lobby.html'), 'lobby.html');
+    G.sessionStorage.getItem = k => (k === 'ut:booted' ? '1' : k === 'ut-inv-tab' ? 'pet' : null);
+    assert.strictEqual(spa.canon('inventory.html'), 'pet.html');
+    assert.strictEqual(spa.canon('inventory.html?tab=frame'), 'inventory.html?tab=frame');
+    await spa.go('inventory.html', { history: 'none' });
+    assert.ok(log.includes('enter:pet') && !log.includes('enter:inventory'));
+    assert.deepStrictEqual(spa.current(), { name: 'pet', url: 'pet.html' });
+  });
   await t('canView: syarat sesi, boot, rotasi, noframe, from=room', () => {
     assert.strictEqual(setup().spa.canView('lobby.html'), true);
     assert.strictEqual(setup({ booted: false }).spa.canView('lobby.html'), false);
