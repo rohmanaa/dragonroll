@@ -47,7 +47,7 @@ html[data-graphics="low"] .mbtn img{filter:none!important}
 .sidecard{isolation:isolate;padding-left:0}
 
 /* ===== HUD profil lobi (gambar transparan hud-profil.webp, 620px lebar; koordinat = posisi slot pada gambar) ===== */
-#profile{top:10px;width:620px;height:172px}
+#profile{top:10px;width:620px;height:176px}
 #hudbg{position:absolute;left:0;top:0;width:620px;height:auto;pointer-events:none;user-select:none}
 #avatar{left:14px;top:14px;width:138px;height:142px;background:#2a1d2c;box-shadow:none;
   clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
@@ -58,13 +58,14 @@ html[data-graphics="low"] .mbtn img{filter:none!important}
 #xp{left:241px;top:78px;width:326px;height:27px;border:0;border-radius:8px;background:none;box-shadow:none}
 #xpfill{border-radius:8px}
 #xptxt{padding-left:0;font-size:18px}
-/* 5 hati (default pemain): panel gelap di bawah XP diperpanjang ke kanan menutupi 3 slot gambar & memuat 2 slot tambahan + hitung mundur isi ulang.
-   Warna panel gambar datar #1a1a1a, jadi sambungannya mulus. Hitung mundur muncul hanya saat hati belum penuh. */
-#hearts{position:absolute;left:248px;top:123px;height:35px;width:330px;pointer-events:none}
-#hbk{position:absolute;left:-8px;top:-9px;width:338px;height:52px;background:#1a1a1a;clip-path:polygon(0 0,100% 0,calc(100% - 19px) 100%,0 100%);box-shadow:inset 0 -3px 0 #0a0a0a}
-#hslots{position:absolute;left:0;top:0;display:flex;gap:9px}
-#hearts svg{width:39px;height:35px;flex:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
-#htime{position:absolute;left:246px;top:3px;font-size:26px;line-height:30px;color:#ffe9a8;-webkit-text-stroke:1px #1a1205;letter-spacing:.5px}
+/* 5 hati: slot (kosong) sudah tergambar di hud-profil.webp; hanya hati yang TERISI digambar di atasnya (slot kosong = spacer transparan).
+   Teks di kanan slot ke-5: hati < 5 = hitung mundur isi ulang, tepat 5 = "READY", > 5 = "+N". */
+#hearts{position:absolute;left:249.5px;top:125.5px;height:35px;width:310px;pointer-events:none}
+#hslots{position:absolute;left:0;top:0;display:flex;gap:10.1px}
+#hslots i{display:block;width:38px;height:35px;flex:none}
+#hearts svg{width:38px;height:35px;flex:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
+#htime{position:absolute;left:233px;top:2px;width:70px;text-align:center;font-size:22px;line-height:31px;white-space:nowrap;color:#ffe9a8;-webkit-text-stroke:1px #1a1205;letter-spacing:.5px}
+#htime.ready{color:#a6f06b;-webkit-text-stroke:1px #0f3a08;font-size:21px}
 #htime:empty{display:none}
 html[data-graphics="low"] #hearts svg{filter:none}
 
