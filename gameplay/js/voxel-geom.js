@@ -48,7 +48,7 @@
   /* Ambient occlusion palsu (baked di vertex color): kaki sisi kotak digelapkan, makin ke atas makin terang; sisi bawah kotak paling gelap.
      Murni warna - tidak mengubah posisi/ukuran/urutan vertex. Matikan per kotak dengan o.ao===false, atau global lewat UT.GameplayVoxelGeom.AO.foot=0. */
   const AO={foot:0.20,under:0.30};
-  function makeBatch(){ return {pos:[],nor:[],col:[],idx:[],lpos:[],lcol:[],n:0}; }
+  function makeBatch(){ return {pos:[],nor:[],col:[],tid:[],idx:[],lpos:[],lcol:[],n:0}; } /* tid = id tekstur per vertex: 0 none, 1 log, 2 daun, 3 kayu, 4 tanah (opsi addBox {tex:n}) */
   function addBox(b,cx,cy,cz,sx,sy,sz,color,o){
     o=o||{};
     const col=color&&color.isColor?color:new win.THREE.Color(color);
@@ -63,6 +63,7 @@
         b.nor.push(F.n[0]*c+F.n[2]*s,F.n[1],-F.n[0]*s+F.n[2]*c);
         let m=1; if(o.ao!==false){ if(F.n[1]===0){ if(v[1]<0) m=1-AO.foot; } else if(F.n[1]<0) m=1-AO.under; }
         b.col.push(col.r*m,col.g*m,col.b*m);
+        if(b.tid) b.tid.push(o.tex||0);
       }
       b.idx.push(base,base+1,base+2,base,base+2,base+3);
       b.n+=4;
@@ -89,7 +90,7 @@
         for(let k=0;k<4;k++){
           const i=cs[k][0],j=cs[k][1];
           b.pos.push(C[0]+sg*A[0]+i*B[0]+j*D[0],C[1]+sg*A[1]+i*B[1]+j*D[1],C[2]+sg*A[2]+i*B[2]+j*D[2]);
-          b.nor.push(nx,ny,nz); b.col.push(col.r,col.g,col.b);
+          b.nor.push(nx,ny,nz); b.col.push(col.r,col.g,col.b); if(b.tid) b.tid.push(0);
         }
         if((sg<0)!==flip) b.idx.push(base,base+2,base+1,base,base+3,base+2);
         else b.idx.push(base,base+1,base+2,base,base+2,base+3);

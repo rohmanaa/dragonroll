@@ -300,45 +300,57 @@ const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,o
    --world-grass-tint (warna CSS, mis. #6fc04a) + --world-grass-tint-amt (0..1, 0 = pakai warna palet asli).
    Hanya muka ATAS yang hijau di luar board 10x10; geometri/warna vertex/rnd() tidak berubah. Gagal muat -> tampilan lama. ===== */
 const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
+const DETAIL_URLS=['log','daun','kayu','tanah'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
 const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
 /* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
-const GU={tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
 let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
-function grassMat(){
-  if(GRASS_MAT) return GRASS_MAT;
-  GRASS_MAT=MAT.clone();
-  GRASS_MAT.onBeforeCompile=sh=>{
-    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
+const WMATS={};
+function grassMat(){ return worldMat(1); }   /* papan/tanah (TB): rumput + batu + tekstur per bagian */
+function decorMat(){ return worldMat(0); }   /* dekor (DB): hanya tekstur per bagian (log/daun/kayu/tanah) + batu */
+function worldMat(mode){
+  if(WMATS[mode]) return WMATS[mode];
+  const WM=WMATS[mode]=MAT.clone();
+  WM.onBeforeCompile=sh=>{
+    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
     sh.vertexShader=sh.vertexShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;')
-      .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;');
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nattribute float tid;\nvarying float vTid;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;\nvTid=tid;');
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
       .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
         '  float gUp=step(0.9,vGNor.y);\n'+
         '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
         '  float gOut=1.0-step(abs(vGPos.x),uGHole.x)*step(abs(vGPos.z),uGHole.y);\n'+
-        '  float gM=gUp*gGr*gOut;\n'+
+        '  float gTid=step(0.5,vTid);\n'+
+        '  float gM=gUp*gGr*gOut*uWMode*(1.0-gTid);\n'+
         '  float gLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,uGTint*(gLum/0.4),uGTintAmt*gM);\n'+
         '  float gTk=clamp(uGThick+texture2D(uTMask,(vGPos.xz+40.0)/80.0).r*uTreeAmt,0.0,1.0);\n'+
         '  float gT=mix(texture2D(uGTex,vGPos.xz*uGScale).r,texture2D(uGTex2,vGPos.xz*uGScale).r,gTk);\n'+
         '  diffuseColor.rgb*=1.0+(gT-0.5)*2.0*uGStr*gM;\n'+
         '  float sMx=max(vColor.r,max(vColor.g,vColor.b)),sMn=min(vColor.r,min(vColor.g,vColor.b));\n'+
-        '  float sM=(1.0-gM)*gOut*step(sMx-sMn,0.09)*step(0.25,sMx)*step(sMx,0.85);\n'+
+        '  float sM=(1.0-gM)*gOut*(1.0-gTid)*step(sMx-sMn,0.09)*step(0.25,sMx)*step(sMx,0.85);\n'+
         '  vec3 sA=abs(vGNor); vec2 sUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
         '  float sT=texture2D(uSTex,sUV*uSScale).r;\n'+
         '  float sLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,uSTint*(sLum/0.6),uSTintAmt*sM);\n'+
         '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
+        '  float dI=floor(vTid+0.5);\n'+
+        '  vec2 dUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
+        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r;\n'+
+        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:dT3));\n'+
+        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:uDStr.w));\n'+
+        '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
         '#endif');
   };
   if(!GRASS_REQ){ GRASS_REQ=true;
     const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} };
     ld(GRASS2_TEX_URL,GU.tex2); ld(STONE_TEX_URL,GU.stex);
+    DETAIL_URLS.forEach((u,i)=>{ try{ new THREE.TextureLoader().load(u,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU['dt'+i].value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} });
     try{ new THREE.TextureLoader().load(GRASS_TEX_URL,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU.tex.value=t; GRASS_READY=true; GU.str.value=GRASS_CSS_STR; },undefined,()=>{ GRASS_READY=false; GU.str.value=0; }); }catch(e){ GRASS_READY=false; }
   }
-  return GRASS_MAT;
+  return WM;
 }
 /* baca variabel CSS (dipanggil tiap applyLook/bangun dunia); tanpa variabel / bukan World / grafis rendah -> kekuatan 0 */
 function syncGrassCss(){
@@ -350,6 +362,8 @@ function syncGrassCss(){
     GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
     GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
     GU.tree.value=(themeKey==='minecraft'&&!low&&GU.tex2.value&&GU.tmask.value)?Math.max(0,Math.min(1,num('--world-grass-tree',0))):0;
+    { const nm=['log','leaf','wood','earth'],on=themeKey==='minecraft'&&!low;
+      nm.forEach((n,i)=>{ const ok=on&&GU['dt'+i].value; GU.dstr.value.setComponent(i,ok?Math.max(0,Math.min(1,num('--world-'+n+'-tex',0))):0); GU.dscale.value.setComponent(i,1/Math.max(0.25,num('--world-'+n+'-tex-size',2))); }); }
     GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
     GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
     GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
@@ -384,6 +398,7 @@ function buildBatch(b,opt){
   geo.setAttribute('position',new THREE.Float32BufferAttribute(b.pos,3));
   geo.setAttribute('normal',new THREE.Float32BufferAttribute(b.nor,3));
   geo.setAttribute('color',new THREE.Float32BufferAttribute(b.col,3));
+  if(opt.mat&&b.tid&&b.tid.length===b.n) geo.setAttribute('tid',new THREE.Float32BufferAttribute(b.tid,1));
   geo.setIndex(new THREE.BufferAttribute(b.n>65000?new Uint32Array(b.idx):new Uint16Array(b.idx),1));
   const m=new THREE.Mesh(geo,opt.mat||MAT);
   m.castShadow=opt.cast!==false; m.receiveShadow=opt.receive!==false;
@@ -778,9 +793,10 @@ function wallPix(B,fx,fz,dx,dz,len,yTop,yBot,sd){
 }
 function addRanch(DB){
   const F={edge:false},W=ljit,TORCH=[];
-  const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
-  const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),F));
-  const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),F));
+  const FW={edge:false,tex:3};
+  const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),FW); };
+  const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),FW));
+  const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),FW));
   const GROUND={cow:0x7C6A3A,pig:0x6E5A34,sheep:0x7C6A3A,chicken:0x8E7A44};
   /* satu kandang: platform batu + tanah + jerami + pagar (pintu menghadap jalan batu) + obor + isi khas hewan.
      Dibangun di koordinat lokal (lx melintang pintu, lz menuju pintu) lalu diputar sesuai gate 's'/'n'/'e'/'w'; y relatif ke tinggi kandang. */
@@ -1176,9 +1192,9 @@ function addMcHouse(B,x,z,v){
     {w:0x8E908B,r:0x4D7A3E,cp:0x6B6D68,ln:0x7C7E79,rt:0x2F5128,rl:0x3E6633,rg:0x3A6030,door:0x4A3320,sh:0x5A5A5A,fnd:0x73736E,ch:0x5E5E5A}
   ][v];
   const w=P.w,r=P.r,F={edge:false},wd=0x3E2612,Q=(dx,dy,dz,ww,hh,dd,c,f)=>addBox(B,x+dx,dy,z+dz,ww,hh,dd,c,f);
-  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05));                       /* dinding (1x jit seperti dulu) */
+  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05),{tex:v<2?3:0});                       /* dinding (1x jit seperti dulu) */
   Q(0,0.06,0,1.57,0.12,1.27,P.fnd); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
-  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,P.cp))); /* tiang sudut */
+  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,P.cp,{tex:v<2?1:0}))); /* tiang sudut */
   [0.3,0.62].forEach(y=>{ Q(0,y,0.603,1.38,0.025,0.01,P.ln,F); Q(0,y,-0.603,1.38,0.025,0.01,P.ln,F); }); /* garis papan depan & belakang */
   [0.3,0.62].forEach(y=>{ Q(0.753,y,0,0.01,0.025,1.1,P.ln,F); Q(-0.753,y,0,0.01,0.025,1.1,P.ln,F); });
   /* atap */
@@ -1312,7 +1328,7 @@ function roadAt(x,z,pad){ const r=Math.ceil(pad/0.5),i0=Math.floor(x/0.5),j0=Mat
 /* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, z dari -ISLZT (atas, sampai gunung air) sampai ISLZB (bawah) (blok pulau 2x2, tepi = batas + 1). ISLZR = batas dekor/sungai di bawah (di luar itu: gunung selatan) */
 const ISLXL=22,ISLXR=22,ISLZT=22,ISLZB=18,ISLZR=14; /* bawah: +3 blok besar berbentuk gunung batu (addSouthMountain), z 15..18 */
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
-const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
+const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; if(B.tid) B.tid.length=s.v; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
 function lift(B,fn,h){
   const p0=B.pos.length,l0=B.lpos.length; fn();
   for(let i=p0+1;i<B.pos.length;i+=3) B.pos[i]+=h;
@@ -1543,7 +1559,7 @@ function buildMcTerrain(TB,th){
     if(mc&&gx>=6&&gx<=10&&gz>=-20&&gz<=14){ jit(W,0.07); jit(G,0.08); continue; } /* kolom koridor sungai: digantikan buildRiverWorld (jit tetap dipanggil agar urutan rnd() sama) */
     const h=mcH(gx,gz),hi=h>=1.5;
     { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
-      addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
+      addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false,tex:(mc&&!hi)?4:0});
       if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
       /* naik 0.02 agar tidak sebidang (z-fighting) dengan rumput 1x1 sekeliling board yang menimpa strip gz=+-7 */
@@ -1786,9 +1802,9 @@ function burnOakRnd(){
 function addOak(DB,x,z,s){
   burnOakRnd(); TREEPOS.push([x,z,s]);
   const r=mkRng((Math.floor(x*977)^Math.floor(z*1553)^0x9E3779B9)|0),c=0.58*s,tr=0.7*s,F=0x4FBF3A;
-  [0,1].forEach(i=>addBox(DB,x,tr*(i+0.5)/2,z,0.34*s,tr/2,0.34*s,shade(0x7A4F2A,0.1,r)));
+  [0,1].forEach(i=>addBox(DB,x,tr*(i+0.5)/2,z,0.34*s,tr/2,0.34*s,shade(0x7A4F2A,0.1,r),{tex:1}));
   const y0=tr*0.82;
-  const put=(dx,dy,dz,sz,dl)=>addBox(DB,x+dx*c+(r()-0.5)*0.14*s,y0+dy+sz/2,z+dz*c+(r()-0.5)*0.14*s,sz,sz,sz,shade(F,0.12,r).offsetHSL(0,0,dl));
+  const put=(dx,dy,dz,sz,dl)=>addBox(DB,x+dx*c+(r()-0.5)*0.14*s,y0+dy+sz/2,z+dz*c+(r()-0.5)*0.14*s,sz,sz,sz,shade(F,0.12,r).offsetHSL(0,0,dl),{tex:2});
   for(let ix=-1;ix<=1;ix++) for(let iz=-1;iz<=1;iz++){ if(ix&&iz&&r()<0.35) continue; put(ix,0,iz,c*(0.86+r()*0.28),-0.04); }
   [[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(q=>put(q[0]*0.8,c*0.78,q[1]*0.8,c*(0.78+r()*0.24),0));
   put(0,c*1.5,0,c*0.7,0.04); if(r()<0.6) put((r()-0.5)*1.2,c*1.45,(r()-0.5)*1.2,c*0.5,0.05);
@@ -3775,7 +3791,7 @@ function buildWorld(key){
   const TB=makeBatch();
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
-    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06));
+    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06),{tex:th.key==='minecraft'?4:0});
     if(n===GOAL&&BOSS==='dragon'){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i===0||i===3||j===0||j===3)?0x0A0712:0x161024,{edge:false}); /* 2 warna: border gelap + tengah sedikit lebih terang (tanpa papan catur) */
       [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
@@ -3801,7 +3817,7 @@ function buildWorld(key){
     /* frame kayu 2 lapis: lapis DALAM (menempel petak) rata dengan permukaan petak, lapis LUAR lebih tinggi */
     const FT=TILES[1].h,FO=FT+0.4; /* FT = tinggi permukaan petak, FO = tinggi lapis luar */
     [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
-     [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08)); }); /* tanpa corak papan kayu di permukaan atas */
+     [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08),{tex:th.key==='minecraft'?3:0}); }); /* tanpa corak papan kayu di permukaan atas */
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],1.15,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.43,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
   // area mulai
@@ -3832,7 +3848,7 @@ function buildWorld(key){
 
   const DB=makeBatch();
   if(BOARD_CUSTOM) decorateCustom(DB,th); else decorate(DB,th);
-  world.add(buildBatch(DB));
+  world.add(buildBatch(DB,th.key==='minecraft'?{mat:decorMat()}:null));
   applyArenaState();
   spawnRoamers();
 

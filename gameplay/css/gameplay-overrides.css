@@ -136,4 +136,8 @@ html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
 body.th-world{--world-grass-tex:.5;--world-grass-tex-size:2;--world-grass-tint:#6fc04a;--world-grass-tint-amt:0;
   --world-grass-tree:1;                                     /* 0..1 = kekuatan rumput tebal tepat di bawah pohon (0 = mati) */
   --world-grass-thick:0;                                   /* 0 = rumput tipis, 1 = rumput tebal */
+  --world-log-tex:.6;--world-log-tex-size:1;                 /* batang pohon / tiang kayu */
+  --world-leaf-tex:.5;--world-leaf-tex-size:1.2;             /* daun pohon */
+  --world-wood-tex:.5;--world-wood-tex-size:1.5;             /* papan kayu: rumah, pagar, bingkai board */
+  --world-earth-tex:.5;--world-earth-tex-size:2;             /* tanah: kolom tile & sisi pulau */
   --world-stone-tex:.5;--world-stone-tex-size:2;--world-stone-tint:#a1a7b1;--world-stone-tint-amt:0}
