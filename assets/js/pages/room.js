@@ -309,13 +309,13 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textCont
  const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/buttons/'+(h.ready?'tombol-abu-polos':'../../images/ui/buttons-and-controls/tombol-hijau-polos')+'.webp';
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
-$('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
+$('#rdy').onclick=async()=>{const h=me();if(!h)return;if(!h.ready&&UT.HeartsGate&&!UT.HeartsGate.guard())return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
   players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind,pub:p.pub||null})),powers:ONLINE?[]:PW.equipped.filter(pOk),carry:ONLINE?{}:PW.carry,
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?null:(di&&di.gameKey)}} /* online: dadu = milik masing-masing pemain (equipped), bukan 'klasik' paksa */
 function launch(){clearT();RF.launch(cfg())}
-async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
+async function startGame(){if(!HOST||!check().ok)return;if(UT.HeartsGate&&!UT.HeartsGate.guard())return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
 $('#start').onclick=startGame;
 /* Online room membership/readiness comes from Supabase; no demo guest simulation. */
 /* ---------- INVITE (hanya Create Room, host) ---------- */

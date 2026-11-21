@@ -4703,6 +4703,8 @@ const STALE={};
 const DUEL={on:true,turn:0,rev:{}}; /* PVP Clash: rev['kalah>menang'] = giliran terakhir Revenge buff berlaku (lihat duelCheck) */
 let paused=false;
 let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=null,winnerIndex=-1;
+/* Hati: match baru lewat "Mulai ulang"/"Main lagi" memotong 1 hati seperti masuk dari lobi (gerbang bersama hearts-gate.js; tamu = tanpa batas). */
+const againGate=()=>{ const HG=window.UT&&UT.HeartsGate; return HG?HG.spend():Promise.resolve(true); };
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
@@ -6657,12 +6659,12 @@ UT.GameplayPause.bind({
   clearTurnTimer:clearTurnTimer,
   startTurnTimer:startTurnTimer,
   ensureAudio:ensureAudio,
-  restart:()=>startGame(mode,lastSkins),
+  restart:()=>againGate().then(ok=>{ if(ok) startGame(mode,lastSkins); }),
   exitToRoom:exitToRoom,
   isPlaying:()=>document.body.classList.contains('playing'),
   isWinHidden:()=>$('win').hidden
 });
-$('btnAgain').addEventListener('click',()=>{ ensureAudio(); startGame(mode,lastSkins); });
+$('btnAgain').addEventListener('click',()=>{ ensureAudio(); againGate().then(ok=>{ if(ok) startGame(mode,lastSkins); }); });
 $('btnToMenu').addEventListener('click',exitToRoom);
 
 /* ---------- Loop render ---------- */

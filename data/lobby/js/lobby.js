@@ -229,6 +229,18 @@ const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)ret
  return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
 pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
 
+/* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 5 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
+const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
+(function(){const slots=$('#hslots'),tm=$('#htime');if(!slots||!tm)return;
+ const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+ let key='';
+ function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),k=n+'/'+max;
+  if(k!==key){key=k;slots.innerHTML=Array.from({length:max},(_,i)=>'<svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart'+(i<n?'':'-off')+'"/></svg>').join('')}
+  tm.textContent=n>max?'+'+(n-max):(s.full||!s.nextInSecs?'':mmss(s.nextInSecs));
+  $('#hearts').setAttribute('aria-label','Nyawa '+n+' dari '+max)}
+ paint();if(HRT&&HRT.onChange)HRT.onChange(paint);setInterval(()=>{if(!document.hidden)paint()},1000);
+ if(SRV&&HRT)HRT.get()})();
+
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */
 if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('wallet',()=>{const W=UT.WalletService&&UT.WalletService.get();return W?W.refresh():{ok:true}});
@@ -239,6 +251,7 @@ if(SRV&&UT.LiveSync){const LS=UT.LiveSync;
  LS.add('quest',pullQuest,{minGap:30000});
  LS.add('mine',pullMine,{minGap:40000});
  LS.add('chest',pullChest,{minGap:20000});
+ LS.add('hearts',()=>HRT?HRT.get().then(r=>({ok:!!(r&&r.ok)}),()=>({ok:false})):{ok:true},{minGap:20000});
  LS.start({interval:20000});
  env.own(()=>{LS.stop();['wallet','xp','appearance','friends','mail','quest','mine','chest'].forEach(k=>LS.remove&&LS.remove(k))});
 }
