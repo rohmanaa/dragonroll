@@ -333,7 +333,7 @@ function grassMat(){
         '#endif');
   };
   if(!GRASS_REQ){ GRASS_REQ=true;
-    const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; },undefined,()=>{}); }catch(e){} };
+    const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} };
     ld(GRASS2_TEX_URL,GU.tex2); ld(STONE_TEX_URL,GU.stex);
     try{ new THREE.TextureLoader().load(GRASS_TEX_URL,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU.tex.value=t; GRASS_READY=true; GU.str.value=GRASS_CSS_STR; },undefined,()=>{ GRASS_READY=false; GU.str.value=0; }); }catch(e){ GRASS_READY=false; }
   }
