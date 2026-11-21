@@ -302,18 +302,18 @@ const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,o
 const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
 const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
 /* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
-const GU={tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+const GU={tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
 let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
 function grassMat(){
   if(GRASS_MAT) return GRASS_MAT;
   GRASS_MAT=MAT.clone();
   GRASS_MAT.onBeforeCompile=sh=>{
-    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
+    Object.assign(sh.uniforms,{uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;');
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nuniform sampler2D uGTex2;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
       .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
         '  float gUp=step(0.9,vGNor.y);\n'+
         '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
@@ -321,7 +321,8 @@ function grassMat(){
         '  float gM=gUp*gGr*gOut;\n'+
         '  float gLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,uGTint*(gLum/0.4),uGTintAmt*gM);\n'+
-        '  float gT=mix(texture2D(uGTex,vGPos.xz*uGScale).r,texture2D(uGTex2,vGPos.xz*uGScale).r,uGThick);\n'+
+        '  float gTk=clamp(uGThick+texture2D(uTMask,(vGPos.xz+40.0)/80.0).r*uTreeAmt,0.0,1.0);\n'+
+        '  float gT=mix(texture2D(uGTex,vGPos.xz*uGScale).r,texture2D(uGTex2,vGPos.xz*uGScale).r,gTk);\n'+
         '  diffuseColor.rgb*=1.0+(gT-0.5)*2.0*uGStr*gM;\n'+
         '  float sMx=max(vColor.r,max(vColor.g,vColor.b)),sMn=min(vColor.r,min(vColor.g,vColor.b));\n'+
         '  float sM=(1.0-gM)*gOut*step(sMx-sMn,0.09)*step(0.25,sMx)*step(sMx,0.85);\n'+
@@ -348,6 +349,7 @@ function syncGrassCss(){
     GU.str.value=GRASS_READY?GRASS_CSS_STR:0;
     GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
     GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
+    GU.tree.value=(themeKey==='minecraft'&&!low&&GU.tex2.value&&GU.tmask.value)?Math.max(0,Math.min(1,num('--world-grass-tree',0))):0;
     GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
     GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
     GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
@@ -357,6 +359,23 @@ function syncGrassCss(){
     const tc=cs.getPropertyValue('--world-grass-tint').trim();
     if(tc){ try{ GU.tint.value.set(tc); }catch(e){ GU.tintAmt.value=0; } } else GU.tintAmt.value=0;
   }catch(e){ GU.str.value=0; GU.tintAmt.value=0; }
+}
+/* Mask rumput tebal di bawah pohon: kanvas 512x512 untuk area dunia x,z -40..40 (r = ada pohon). Dibangun ulang tiap buildWorld dari TREEPOS.
+   Shader mencampur rumput tipis -> tebal memakai mask ini (kekuatan: --world-grass-tree). Tanpa rnd(): letak pohon tidak bergeser. */
+function buildTreeMask(){
+  try{
+    const N=512,W=80,k=N/W,c=document.createElement('canvas'); c.width=c.height=N;
+    const g=c.getContext('2d'); g.fillStyle='#000'; g.fillRect(0,0,N,N);
+    const blob=(x,z,r)=>{ const px=(x+W/2)*k,py=(z+W/2)*k,rr=r*k,gr=g.createRadialGradient(px,py,rr*0.45,px,py,rr);
+      gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gr; g.beginPath(); g.arc(px,py,rr,0,Math.PI*2); g.fill(); };
+    for(let i=0;i<TREEPOS.length;i++){ const t=TREEPOS[i],x=t[0],z=t[1],sc=t[2],h=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5453)%1;
+      blob(x,z,1.15*sc);                                               /* inti tepat di bawah pohon */
+      blob(x+(h-0.5)*0.9*sc,z+(((h*7)%1)-0.5)*0.9*sc,0.8*sc);          /* tonjolan tak beraturan agar tidak bulat sempurna */
+    }
+    if(GU.tmask.value) GU.tmask.value.dispose();
+    const t=new THREE.CanvasTexture(c); t.flipY=false; t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping; t.minFilter=THREE.LinearFilter; t.generateMipmaps=false;
+    GU.tmask.value=t;
+  }catch(e){ GU.tmask.value=null; }
 }
 function buildBatch(b,opt){
   opt=opt||{};
@@ -3795,6 +3814,7 @@ function buildWorld(key){
   for(let y=0;y<2.2;y+=0.4) addBox(TB,G.x-0.36,G.h+0.2+y,G.z-0.36,0.12,0.4,0.12,0xE9E4D4);
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
+  if(th.key==='minecraft') buildTreeMask();
   syncGrassCss();
   world.add(buildBatch(TB,th.key==='minecraft'?{mat:grassMat()}:null));
   if(BOSS==='dragon'){
