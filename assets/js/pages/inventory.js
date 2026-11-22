@@ -1,4 +1,4 @@
-/* inventory.js — SATU halaman Inventory: tab Power-up / Ore / Log (hanya item yang dimiliki).
+/* inventory.js — SATU halaman Inventory: tab Power-up / Chest / Ore / Log (hanya item yang dimiliki).
    Power-up = halaman lama (powerup.html) di iframe ?embed=inv, jadi sistem beli/pakai/3D/server tidak berubah; Ore & Log dirender di sini (kosong dulu).
    Frame / Dadu / Efek / Pet tidak lagi tab Inventory: dipasang dari Karakter (bar tab Perlengkapan) dan Pet dari tombol Pet di lobby.
    Tahap 3 SPA: dibungkus UT.PageModule ('inventory'); jadi view di shell play.html (tab tetap iframe bersarang sampai tiap tab dimigrasikan). */
@@ -21,6 +21,69 @@ UT.PageModule.define('inventory', function (env) {
   function inShell() { var c = window.UT && UT.Spa && UT.Spa.current && UT.Spa.current(); return !!(c && c.name === 'inventory'); }
 
   tabsEl.innerHTML = UT.InvTabs.markup('');
+
+  /* ---- Tab Chest (native): klaim chest harian + penyimpanan. TANPA timer: BUKA langsung memberi hadiah (server: chest_collect).
+     Syarat main, hari reset (WIB), isi hadiah, dan saldo semuanya ditentukan server lewat UT.WalletService. ---- */
+  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, tt = 0;
+  var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Perak', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Emas', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
+  var CWM = { 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...', 'sudah-klaim': 'Chest ini sudah diklaim hari ini.', 'belum-selesai': 'Main dulu sampai syaratnya terpenuhi.', 'penuh': 'Penyimpanan penuh (10/10). Buka chest dulu.', 'sudah-diambil': 'Chest sudah diambil.', 'tidak-ada': 'Chest tidak ditemukan.' };
+  var cBox = $('#chestBox');
+  function fmt(n) { return Number(n).toLocaleString('id-ID'); }
+  function cWS() { return window.UT && UT.WalletService && UT.WalletService.get(); }
+  function cSV() { try { return !!(window.PlayerData.serverMode && window.PlayerData.serverMode()); } catch (e) { return false; } }
+  function toast(m) { var t = $('#invToast'); if (!t) return; t.textContent = m; t.classList.add('on'); env.clearTimeout(tt); tt = setTimeout(function () { t.classList.remove('on'); }, 1900); }
+  function cStored() { return CS && Array.isArray(CS.chests) ? CS.chests.filter(function (c) { return c.status !== 'collected'; }) : []; }
+  function cHtml() {
+    if (!cSV()) return '<div class="cempty">Masuk ke akun untuk<br>memakai Chest.</div>';
+    if (cReward) {
+      var k = CK[cReward.kind] || CK.wood, x = '<div class="rwd"><img class="mi" src="' + CIC + k.im + '.webp" alt=""><div class="rt">' + k.nm + ' Terbuka!</div>';
+      x += '<div class="rw"><img src="' + CIC + 'hud/ikon-koin-emas.webp" alt="">+' + fmt(cReward.coins) + ' Coin</div>';
+      if (cReward.gems > 0) x += '<div class="rw"><img src="' + CIC + 'gem-medal-icons/berlian-hijau.webp" alt="">+' + fmt(cReward.gems) + ' Gem</div>';
+      if (cReward.xp > 0) x += '<div class="rw">+' + fmt(cReward.xp) + ' XP</div>';
+      if (cReward.power) { var it = window.ItemCatalog && ItemCatalog.byId(cReward.power); x += '<div class="rw pw">' + (it && it.icon ? '<img src="' + it.icon + '" alt="">' : '') + 'Power: ' + (it ? it.name : cReward.power) + ' ×1</div>'; }
+      return x + '<button class="cb gold" type="button" data-cback>MANTAP!</button></div>';
+    }
+    if (!CS) return '<div class="cempty">Memuat…</div>';
+    var h = '<div class="sh"><span>Chest Harian</span><small>Reset tiap hari (WIB)</small></div><div class="crow">';
+    CS.daily.forEach(function (d) {
+      var kk = CK[d.kind] || CK.wood, st = d.status, done = st === 'claimed', need = +d.need || 0, pg = Math.min(need, +d.progress || 0);
+      h += '<div class="cc' + (done ? ' done' : '') + '"><img class="im" src="' + CIC + kk.im + '.webp" alt=""><div class="nm">' + kk.nm + '</div>' +
+        '<div class="tx">' + (done ? 'Sudah diklaim' : st === 'ready' ? 'Siap diklaim!' : 'Main ' + pg + ' / ' + need + ' game') + '</div>' +
+        (st === 'ready' ? '<button class="cb" type="button" data-claim="' + d.kind + '">KLAIM</button>' : '<button class="cb" type="button" disabled>' + (done ? 'DIKLAIM' : 'BELUM') + '</button>') + '</div>';
+    });
+    h += '</div>';
+    var L = cStored();
+    h += '<div class="sh two"><span>Penyimpanan</span><small>' + L.length + ' / ' + ((CS && CS.max_storage) || 10) + '</small></div>';
+    if (!L.length) return h + '<div class="cempty sm">Belum ada chest. Selesaikan syarat harian lalu klaim.</div>';
+    h += '<div class="crow">';
+    L.forEach(function (c) {
+      var kk = CK[c.kind] || CK.wood;
+      h += '<div class="cc"><img class="im" src="' + CIC + kk.im + '.webp" alt=""><div class="nm">' + kk.nm + '</div><div class="tx">Langsung buka, tanpa timer</div><button class="cb gold" type="button" data-open="' + c.id + '">BUKA</button></div>';
+    });
+    return h + '</div>';
+  }
+  function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
+  function cPull() {
+    var w = cWS(); if (!cSV() || !w || !w.chestGet) { cPaint(); return Promise.resolve(); }
+    return w.chestGet().then(function (r) { if (env.disposed) return; if (r && r.ok !== false && Array.isArray(r.daily)) CS = r; cPaint(); }, function () { cPaint(); });
+  }
+  function cEnter() { cReward = null; cPaint(); cPull(); }
+  function cAct(call, onOk) {
+    if (cBusy) return; cBusy = true;
+    var w = cWS();
+    Promise.resolve(w ? call(w) : { ok: false, reason: 'jaringan' }).then(function (r) {
+      if (env.disposed) return;
+      if (r && r.ok) { if (Array.isArray(r.daily)) CS = r; if (onOk) onOk(r); }
+      else { toast(CWM[r && r.reason] || 'Gagal, coba lagi'); return cPull(); }
+    }).catch(function () { toast('Gagal, coba lagi'); }).then(function () { cBusy = false; cPaint(); });
+  }
+  if (cBox) cBox.addEventListener('click', function (e) {
+    if (e.target.closest('[data-cback]')) { snd(); cReward = null; cPaint(); return; }
+    var b = e.target.closest('button[data-claim],button[data-open]'); if (!b || b.disabled) return; snd();
+    if (b.dataset.claim) return cAct(function (w) { return w.chestClaimDaily(b.dataset.claim); }, function () { toast('Chest masuk ke penyimpanan!'); });
+    var id = +b.dataset.open;
+    cAct(function (w) { return w.chestCollect(id); }, function (r) { try { if (SET().sound) UT.Audio.play('chest'); } catch (e2) {} cReward = r; });
+  });
 
   /* Tiap tab dimuat SEKALI (iframe dibuat saat pertama dibuka) lalu disimpan; pindah tab = tampilkan/sembunyikan saja.
      Iframe yang disembunyikan (display:none) tidak menjalankan animasi/3D, jadi tidak membebani. */
@@ -54,7 +117,8 @@ UT.PageModule.define('inventory', function (env) {
     Array.prototype.forEach.call(tabsEl.children, function (b) { b.classList.toggle('on', b.dataset.k === t.k); });
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
     Array.prototype.forEach.call(host.querySelectorAll('.native'), function (p) { p.classList.toggle('on', p.dataset.k === t.k); });
-    if (t.native) {   /* Ore / Log: isi native, tanpa iframe */
+    if (t.k === 'chest') cEnter();
+    if (t.native) {   /* Chest / Ore / Log: isi native, tanpa iframe */
       Object.keys(frames).forEach(function (x) { frames[x].classList.remove('on'); });
       loading.hidden = true;
       if (!quiet) snd();

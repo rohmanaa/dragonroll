@@ -1,5 +1,5 @@
 /* Tes sistem Chest (klien): method WalletService.chest* memanggil RPC yang benar, tanpa nominal dari klien, cermin saldo dari hasil server.
-   Tes statis: panel Chest di Lobby, aset gambar, dan migrasi. Jalankan: node tests/chest-service.test.js */
+   Tes statis: tab Chest di Inventory, tombol di Lobby, aset gambar, dan migrasi. Jalankan: node tests/chest-service.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const Svc = require('../assets/js/services/wallet-service.js');
 const root = p => path.join(__dirname, '..', p);
@@ -56,20 +56,21 @@ t('error jaringan / AUTH_REQUIRED dipetakan, tidak melempar', async () => {
   assert.strictEqual((await f.svc.chestStart(1)).reason, 'belum-login');
   assert.strictEqual((await f.svc.chestCollect(1)).reason, 'jaringan');
 });
-t('statis: panel Chest di Lobby memuat aset yang ada; chest.html sudah dihapus', () => {
-  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
+t('statis: tab Chest di Inventory memuat aset yang ada; chest.html sudah dihapus', () => {
+  const ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8'), ih = fs.readFileSync(root('inventory.html'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
   ['chest.html', 'assets/js/pages/chest.js', 'assets/css/chest.css'].forEach(f => assert.ok(!fs.existsSync(root(f)), f + ' harus sudah dihapus'));
-  [...lj.matchAll(/im:'(chest-packs\/[\w\-]+)'/g)].map(m => m[1]).forEach(p => assert.ok(fs.existsSync(root('assets/images/ui/' + p + '.webp')), 'aset hilang: ' + p));
-  [...lh.matchAll(/assets\/images\/ui\/[\w\-\/]+\.webp/g)].map(m => m[0]).forEach(p => assert.ok(fs.existsSync(root(p)), 'aset hilang: ' + p));
-  assert.ok(lj.includes('diamond:{nm:'));
+  [...ij.matchAll(/im: '(chest-packs\/[\w\-]+)'/g)].map(m => m[1]).forEach(p => assert.ok(fs.existsSync(root('assets/images/ui/' + p + '.webp')), 'aset hilang: ' + p));
+  [...(lh + ih).matchAll(/assets\/images\/ui\/[\w\-\/]+\.webp/g)].map(m => m[0]).forEach(p => assert.ok(fs.existsSync(root(p)), 'aset hilang: ' + p));
+  assert.ok(ij.includes("diamond: { nm:") && ih.includes('data-k="chest"') && ih.includes('services/wallet-service.js'));
 });
-t('statis: tombol Chest ada di grup lipat Lobby (dekat Tambang/Mancing/Ranking) dan membuka panel, bukan halaman', () => {
-  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
-  const grp = lh.slice(lh.indexOf('id="grp"'), lh.indexOf('id="grpt"'));
-  assert.ok(/data-act="chest"/.test(grp) && /data-act="tambang"/.test(grp) && /data-act="mancing"/.test(grp) && /data-act="leaderboard"/.test(grp));
-  assert.ok(/id="chestMd"/.test(lh));
-  assert.ok(!/chest:'chest\.html'/.test(lj) && /act==='chest'\)\{openChest\(\)/.test(lj));
-  assert.ok(!/chestStart|chestOpenNow|secsLeft|setInterval\([^)]*chest/i.test(lj.slice(lj.indexOf('Chest: panel di Lobby'), lj.indexOf('lencana Tambang'))), 'panel chest tidak boleh memakai timer');
+t('statis: tombol Chest di Lobby (kiri Inventory) membuka tab Chest di Inventory, bukan halaman chest', () => {
+  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8'), ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
+  assert.ok(/id="b-chest" data-act="chest"/.test(lh) && lh.indexOf('id="b-chest"') < lh.indexOf('id="b-inv"'));
+  assert.ok(!/id="grp"[\s\S]*data-act="chest"[\s\S]*id="grpt"/.test(lh), 'Chest tidak lagi di grup lipat');
+  assert.ok(/chest:'inventory\.html\?tab=chest'/.test(lj) && !/chest:'chest\.html'/.test(lj));
+  assert.ok(!/chestStart|chestOpenNow|secsLeft|seconds_left/.test(ij), 'tab chest tidak boleh memakai timer');
+  const tabs = require('../assets/js/core/inv-tabs.js');
+  assert.deepStrictEqual(tabs.GROUPS.inv.keys, ['power', 'chest', 'ore', 'log']);
 });
 t('migrasi: chest_collect tanpa timer menerima status stored & tidak mengecek open_ready_at', () => {
   const sql = fs.readFileSync(root('supabase/migrations/202611430001_chest_no_timer.sql'), 'utf8');
@@ -132,7 +133,7 @@ t('Power dari chest: roll berbobot 1/harga, masuk stok akun (maks 999) di collec
   const b = sql.slice(sql.indexOf('function public.chest_buy')), c = sql.slice(sql.indexOf('function public.chest_collect'), sql.indexOf('function public.chest_buy'));
   assert.ok(c.indexOf("'duplicate'") < c.indexOf('player_inventory'), 'stok Power hanya setelah dompet non-duplikat');
   assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_inventory'));
-  const shop = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8');
+  const shop = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
   assert.ok(shop.includes('powerRow(r.power)') && ch.includes('cReward.power'));
 });
 
