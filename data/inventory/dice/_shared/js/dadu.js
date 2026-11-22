@@ -32,7 +32,7 @@ function throwPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.rol
 function syncKit(){if(KIT&&sel&&kitOK(sel))KIT.equip(sel.gameKey)}
 function mountKit(){
   if(env.disposed||KIT||!window.DiceKit)return;
-  if(!previewOpen())return; /* dadu 3D hanya dibuat saat modal pratinjau terbuka (dibuang saat ditutup) */
+  if(!previewOpen())return; /* pratinjau inline: dadu 3D dibuat sekali, dibuang saat halaman ditutup */
   const host=$('#fpv');if(!host)return;
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
@@ -112,6 +112,11 @@ function updatePreview(){
   $('#rar').textContent=r[0]+(f.materialName?' · '+f.materialName:'');$('#rar').style.color=r[1];
   $('#ds').textContent=f.desc||'';
   updateButtons();
+}
+const previewOpen=()=>!!$('#fpv');
+function disposeKit(){
+  const k=KIT;KIT=null;if(!k)return;
+  try{const gl=k.renderer;k.dispose();if(gl&&gl.forceContextLoss)gl.forceContextLoss()}catch(e){} /* konteks WebGL dilepas penuh saat halaman ditutup */
 }
 function buySelected(f){
   if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
