@@ -369,11 +369,15 @@ selectFn=function(i){
   catch(error){failed(error)}
 };
 
-let last=performance.now(),t=0;
+let last=performance.now(),t=0,sizeW=0,sizeH=0;
 function frame(now){
   if(destroyed)return;
   rafId=requestAnimationFrame(frame);
   if(!shown()){last=now;return}
+  /* modal baru dibuka: ResizeObserver baru jalan SETELAH rAF ini, jadi frame pertama sempat dirender dengan ukuran lama (1x1 / gepeng).
+     Samakan ukuran di sini sebelum render. */
+  const cw=view.clientWidth,ch=view.clientHeight;
+  if(cw!==sizeW||ch!==sizeH){sizeW=cw;sizeH=ch;resize()}
   const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
   if(idle>0)idle-=dt;
   sndT-=dt;if(sndT<=0){sndT=rr(3,5.5);playPetSound()}
