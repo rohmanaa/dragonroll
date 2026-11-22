@@ -99,7 +99,12 @@ if(quick){document.body.classList.add("quick");afterLoad()}
 else{
   /* URUTAN: 1) cek pembaruan ke server DULU (sebelum mengunduh aset apa pun) -> 2) bila ada, modal Unduh Data (X = tunda) -> 3) baru bar loading memuat aset */
   $("#lbl").textContent="Memeriksa pembaruan…";
-  Promise.resolve(UT.Update&&UT.Update.promptOnSplash(4000)).catch(()=>{})
+  Promise.resolve(UT.Update&&UT.Update.promptOnSplash(4000,{
+    /* modal hanya konfirmasi; progres unduhan pembaruan tampil di bar splash ini */
+    progress:ev=>{const p=ev.total>0?Math.min(100,Math.round(ev.loaded/ev.total*100)):0;$("#fill").style.width=p+"%";
+      $("#lbl").textContent="Mengunduh pembaruan… "+(ev.total>0?mb(ev.loaded)+" / "+mb(ev.total)+" MB ("+p+"%)":"")},
+    status:t=>{$("#lbl").textContent=t;if(/^Mengunduh/.test(t))$("#fill").style.width="0%";else if(/^(Menyiapkan|Memulai)/.test(t))$("#fill").style.width="100%"}
+  })).catch(()=>{})
     .then(()=>UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}))
     .then(()=>{setPct(100);setTimeout(afterLoad,300)});
 }

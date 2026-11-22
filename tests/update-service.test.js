@@ -33,7 +33,7 @@ function setup(opts) {
     return new Response(body, { status: 200, headers: { 'Content-Type': 'application/octet-stream' } });
   };
   const reloads = [];
-  const G = { UT: { Version: { get: async () => ({ raw: 'ut-pwa-v318' }), label: r => 'v' + /(\d+)$/.exec(r)[1] } }, Request, Response, Blob, URL, location: { href: BASE + 'lobby.html', reload: () => reloads.push('reload'), replace: u => reloads.push(u) } };
+  const G = { UT: { GameDialog: opts.gd, Version: { get: async () => ({ raw: 'ut-pwa-v318' }), label: r => 'v' + /(\d+)$/.exec(r)[1] } }, Request, Response, Blob, URL, location: { href: BASE + 'lobby.html', reload: () => reloads.push('reload'), replace: u => reloads.push(u) } };
   const svc = U.create({ G, navigator: nav, fetch, caches, storage: local, session: sessions });
   return { svc, calls, posted, caches, reg, reloads, local, sessions };
 }
@@ -106,11 +106,35 @@ function setup(opts) {
   await t('Splash: cek server DULU (sebelum mengunduh aset); modal muncul di awal, bar loading menyusul', () => {
     const h = rd('splash.html'), j = rd('assets/js/pages/splash.js'), i = n => h.indexOf(n);
     assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('pages/splash.js'));
-    assert.ok(/promptOnSplash\(/.test(j));
+    assert.ok(/promptOnSplash\(4000,\{/.test(j) && /progress:ev=>/.test(j), 'progres unduhan tampil di bar splash');
     assert.ok(j.indexOf('promptOnSplash') < j.indexOf('UT_Preload.runAuto(ASSETS'), 'cek pembaruan sebelum preloader mengunduh aset');
   });
-  await t('promptOnSplash: tanpa pembaruan langsung selesai; ada pembaruan -> modal, selesai setelah ditutup', async () => {
-    const s = setup({ swVer: 318 }); assert.strictEqual(await s.svc.promptOnSplash(), null, 'tanpa GameDialog/pembaruan tidak menahan splash');
+  const fakeGD = pick => ({ preload: async () => {}, open: o => {
+    const api = { close() { if (api.done) return; api.done = true; o.onClose && o.onClose(); }, set() {}, isOpen: () => true };
+    setTimeout(() => { if (pick) { o.buttons[0].onClick(api); } api.close(); }, 0); return api; } });
+  await t('promptOnSplash: tanpa pembaruan langsung selesai (tidak menahan splash)', async () => {
+    const s = setup({ swVer: 318, gd: fakeGD(true) }); assert.strictEqual(await s.svc.promptOnSplash(), null);
+  });
+  await t('promptOnSplash: modal hanya konfirmasi; Unduh -> progres lewat hooks (bar splash) -> restart otomatis ke root', async () => {
+    const s = setup({ gd: fakeGD(true) }); const prog = [], stat = [];
+    let resolved = false; s.svc.promptOnSplash(1000, { progress: e => prog.push(e), status: x => stat.push(x) }).then(() => { resolved = true; });
+    await new Promise(r => setTimeout(r, 120));
+    assert.ok(prog.length >= 1 && prog[0].total === 5 * 1048576, 'progres unduhan dikirim ke splash');
+    assert.ok(stat.includes('Mengunduh pembaruan…') && stat.includes('Memulai ulang…'));
+    assert.deepStrictEqual(s.posted, [{ type: 'SKIP_WAITING' }]); assert.strictEqual(s.reloads[0], BASE);
+    assert.strictEqual(resolved, false, 'halaman berpindah; splash tidak lanjut memuat aset');
+  });
+  await t('promptOnSplash: X = tunda -> lanjut loading, tidak mengunduh, ditandai ditunda untuk sesi', async () => {
+    const s = setup({ gd: fakeGD(false) }); const info = await s.svc.promptOnSplash(1000, {});
+    assert.strictEqual(info.available, true); assert.strictEqual(s.sessions.getItem('ut:upd:dismiss'), 'ut-pwa-v319');
+    assert.strictEqual(s.calls.filter(c => /\.(png|mp3)$/.test(c.url)).length, 0); assert.deepStrictEqual(s.posted, []);
+  });
+  await t('Lobby: Unduh -> tanda ut:upd:go + pindah ke root; splash berikutnya langsung mengunduh tanpa bertanya lagi', async () => {
+    const s = setup({ gd: fakeGD(true) }); await s.svc.promptOnLobby();
+    assert.strictEqual(s.sessions.getItem('ut:upd:go'), 'ut-pwa-v319'); assert.strictEqual(s.reloads[0], BASE);
+    const s2 = setup({ gd: fakeGD(false) }); s2.sessions.setItem('ut:upd:go', 'ut-pwa-v319'); const prog = [];
+    s2.svc.promptOnSplash(1000, { progress: e => prog.push(e) }); await new Promise(r => setTimeout(r, 120));
+    assert.ok(prog.length >= 1, 'langsung unduh karena sudah dikonfirmasi di Lobby'); assert.strictEqual(s2.sessions.getItem('ut:upd:dismiss'), null);
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
