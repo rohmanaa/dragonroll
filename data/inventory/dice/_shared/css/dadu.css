@@ -16,8 +16,8 @@
 #dprev #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
 #dprev #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
 #dprev #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
-#dbtns{flex:none;display:flex;gap:20px;height:92px}
-#dbtns .btn{position:relative;flex:1;height:100%;padding:0;border:0;background:none;cursor:pointer;font:800 38px/1 var(--font-body);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+#dbtns{flex:none;display:flex;justify-content:flex-start;gap:14px;height:68px}
+#dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;border:0;background:none;cursor:pointer;font:800 28px/1 var(--font-body);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35);white-space:nowrap}
 #dbtns .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
 #dbtns .btn span{position:relative}
 #dbtns .btn.off{filter:grayscale(.85) brightness(.75);cursor:default}

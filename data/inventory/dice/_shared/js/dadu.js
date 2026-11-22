@@ -25,6 +25,8 @@ const art=i=>{try{if(kitOK(i)){let u=SNAP.get(i.gameKey)||THUMBS.get(i.gameKey);
 /* ---- DiceKit: dadu 3D asli (fisika kocok-lempar, material, partikel, suara); angka lempar hanya visual ---- */
 /* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas pratinjau di modal 500px tinggi: camScale .45 (ukuran dadu ~ kanvas/camScale) = ukuran dadu sama dengan kanvas 700px/.628 sebelumnya. */
 const CAM_SCALE=.45;
+/* pratinjau inline: kamera lebih mundur (dadu utuh meski saat dilempar) & titik pandang lebih tinggi (dadu di tengah); thumbnail slot tetap CAM_SCALE */
+const PREV_CAM=.7;
 let KIT=null;
 function prepKitSound(){let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}KIT.setSound(!!SET().sound&&v>0);KIT.setVolume(v)}
 function rollPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.roll()}
@@ -39,7 +41,7 @@ function mountKit(){
     host.innerHTML='';
     /* renderer sendiri (three r170 milik DiceKit): renderer bersama SharedGL memakai three r128 sehingga shader material/efek gagal dikompilasi (pratinjau jatuh ke SVG statis tanpa animasi & efek).
        Kualitas minimal 'medium' agar aura, jejak, partikel & cahaya tetap menyala di HP (mode 'auto' di HP = 'low' = efek dimatikan). */
-    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'medium',camScale:CAM_SCALE,lookY:.35,sound:!!SET().sound});
+    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'medium',camScale:PREV_CAM,lookY:.55,sound:!!SET().sound});
   }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 let sel=null;
