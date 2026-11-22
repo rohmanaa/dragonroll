@@ -23,7 +23,7 @@ assert.ok(pcss.includes('#pv #petTitle{position:static;'));
 assert.ok(pcss.includes('#pv #rar{position:static;'));
 // redesain: tanpa tab, preview = modal #pv, kartu gaya skin, tombol beli di kartu, saldo kiri bawah
 assert.ok(!html.includes('id="left"'), 'panel kiri lama dihapus');
-assert.ok(html.includes('id="pv"') && html.includes('id="pvClose"') && /id="pv"[\s\S]*id="fpv"[\s\S]*id="use"/.test(html));
+assert.ok(html.includes('id="pv"') && html.includes('id="pvClose"') && /id="pv"[\s\S]*id="fpv"/.test(html) && !html.includes('id="use"'));
 assert.ok(!page.includes('invtabs') && !page.includes('InvTabs'), 'bar tab dihapus');
 assert.ok(page.includes('class="pc-pr') && page.includes('data-act="use"') && page.includes('function openPreview') && page.includes('function closePreview'));
 assert.ok(pcss.includes('#stage #cur-em{left:60px!important}') && pcss.includes('bottom:28px'));

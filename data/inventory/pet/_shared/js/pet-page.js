@@ -111,9 +111,9 @@ UT.PageModule.define('pet', function (env) {
       const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
       const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
       return `<article class="pc r-${rar}${sel ? ' sel' : ''}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
-        + `<button class="pc-top" type="button" data-act="preview" aria-label="Pratinjau ${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
+        + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
         + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}</span></button>`
+        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
         + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
         + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
@@ -170,30 +170,6 @@ UT.PageModule.define('pet', function (env) {
     }
   }
 
-  function renderAction(item) {
-    const button = $('#use');
-    const label = button.querySelector('span');
-    const owned = PD.owns(item.id);
-    const used = PD.equippedId('pet') === item.id;
-    button.disabled = busy;
-    button.classList.toggle('off', busy);
-    if (owned) {
-      label.textContent = used ? 'LEPAS' : 'GUNAKAN';
-      return;
-    }
-    const cost = costOf(item);
-    if (!cost) {
-      label.textContent = 'TIDAK DIJUAL';
-      button.disabled = true;
-      button.classList.add('off');
-      return;
-    }
-    const gems = cost.gems > 0;
-    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
-    const amount = gems ? cost.gems : cost.coins;
-    label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;
-  }
-
   function draw() {
     if (env.disposed) return;
     const equipped = PD.equippedId('pet');
@@ -210,7 +186,6 @@ UT.PageModule.define('pet', function (env) {
     $('#petGl').setAttribute('aria-label', `Pratinjau 3D ${selected.name}`);
     if (window.PetViewer) window.PetViewer.select(selected.gameKey);
     renderDetails(selected);
-    renderAction(selected);
     showWallet();
   }
 
@@ -418,11 +393,6 @@ UT.PageModule.define('pet', function (env) {
     event.preventDefault();
     grid.scrollLeft += event.deltaY;
   }, { passive: false });
-  $('#use').addEventListener('click', () => {
-    if (busy || !selected) return;
-    snd('button');
-    runAction(selected);
-  });
   $('#pvClose').addEventListener('click', closePreview);
   $('#pv').addEventListener('click', (event) => {
     if (event.target.id === 'pv') closePreview();
