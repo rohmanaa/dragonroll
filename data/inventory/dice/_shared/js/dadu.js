@@ -1,7 +1,7 @@
 /* dadu.js — dipindah dari <script> inline (dadu.html). Modul 'dadu': mandiri/embed = mount otomatis saat skrip dimuat; di shell (play.html) = view sendiri
    (tanpa iframe): DiceKit memakai renderer bersama (sharedGL:'inv-dadu', dilepas saat unmount), navigasi lewat UT.Spa.go,
    timer/listener/langganan dilepas lewat env.
-   Tampilan = sama dengan halaman Pet (tanpa tab): baris kartu .pc (nama, thumbnail, bar aksi harga/GUNAKAN), ikon mata / badan kartu = pratinjau 3D di modal #pv. */
+   Tampilan = layout ala Line Get Rich: kiri info + pratinjau 3D inline (#fpv) + tombol JUAL/BELI-PAKAI; kanan tab Lihat Semua/Memiliki + slot kotak (terkunci / hijau dimiliki / biru dipakai). */
 UT.PageModule.define('dadu',function(env){
 const $=s=>document.querySelector(s);
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
@@ -65,37 +65,24 @@ function pickDefault(){
 }
 const IC_GEM=GEM,IC_COIN=KOIN;
 const EYE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
-/* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN (dimiliki); DIPAKAI (aktif; dadu selalu ada satu yang dipakai) */
-function actionBar(f,m,on,sell){
-  if(on)return '<button class="pc-pr no" type="button" disabled>DIPAKAI</button>';
-  if(m)return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
-  if(!sell)return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
-  const gems=f.gems>0;
-  return '<button class="pc-pr" type="button" data-act="use"><b>'+fmtPrice(gems?f.gems:f.price)+'</b><img src="'+(gems?IC_GEM:IC_COIN)+'" alt=""></button>';
-}
-/* Grid hanya dibangun ulang bila isinya berubah (dimiliki / dipakai / harga / thumbnail); penanda pilihan (.sel) dipasang terpisah */
+/* slot kotak: terkunci (belum dibeli) / hijau (dimiliki) / biru (dipakai) */
+let tab='all';
+function slotState(x){return isUsed(x)?'used':isOwned(x)?'own':'locked'}
 let lastGridHtml='';
 function drawGrid(){
-  const html=FR.map(x=>{
-    const m=isOwned(x),on=isUsed(x),sell=canSell(x);
-    const rar=RAR[x.rarity]?x.rarity:'common';
-    const state=on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual';
-    const check=on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':'';
-    return '<article class="pc r-'+rar+(m?' own':'')+(on?' used':'')+'" data-id="'+x.id+'"><div class="pc-sel">'
-      +'<div class="pc-top" role="group" aria-label="'+x.name+', '+RAR[rar][0]+', '+state+'">'
-      +'<span class="pc-nm">'+x.name+'</span>'
-      +'<span class="pc-th">'+art(x)+check+'</span></div>'
-      +actionBar(x,m,on,sell)+'</div>'
-      +'<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau '+x.name+'" title="Pratinjau">'+EYE_SVG+'</button>'
-      +'<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail '+x.name+'" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>'
-      +'</article>';
-  }).join('');
-  if(html!==lastGridHtml){$('#grid').innerHTML=html;lastGridHtml=html}
+  const list=FR.filter(x=>tab==='all'||isOwned(x));
+  const html=list.map(x=>{
+    const st=slotState(x),sell=canSell(x),gems=x.gems>0;
+    const foot=st==='used'?'DIPAKAI':st==='own'?'DIMILIKI':sell?'<img src="'+LOCK+'" alt="">'+fmtPrice(gems?x.gems:x.price)+'<img src="'+(gems?GEM:KOIN)+'" alt="">':'TIDAK DIJUAL';
+    return '<button type="button" class="slot '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
+      +'<span class="sl-nm">'+x.name+'</span><span class="sl-th">'+art(x)+'</span><span class="sl-ft">'+foot+'</span></button>';
+  }).join('')||'<p class="dempty">Belum ada dadu yang dimiliki.</p>';
+  if(html!==lastGridHtml){$('#dgrid').innerHTML=html;lastGridHtml=html}
   markSelected();
 }
 function markSelected(){
   const id=sel&&sel.id;
-  $('#grid').querySelectorAll('.pc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
+  $('#dgrid').querySelectorAll('.slot').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
 }
 function draw(){
   if(env.disposed)return;
@@ -104,28 +91,27 @@ function draw(){
   updatePreview();
   showWallet();
 }
-/* isi modal pratinjau + dadu 3D terpilih (tanpa membangun ulang grid) */
+/* info kiri-atas, pratinjau 3D kiri-bawah, dan tombol JUAL / BELI-PAKAI mengikuti dadu terpilih */
+function updateButtons(){
+  const b=$('#b-buy'),sl=$('#b-sell'),f=sel;if(!b||!sl)return;
+  const set=(btn,t,off)=>{btn.querySelector('span').textContent=t;btn.disabled=!!off;btn.classList.toggle('off',!!off)};
+  if(!f){set(b,'BELI',true);set(sl,'JUAL',true);return}
+  const st=slotState(f);
+  if(st==='used')set(b,'DIPAKAI',true);
+  else if(st==='own')set(b,'PAKAI',false);
+  else if(canSell(f))set(b,'BELI '+fmtPrice(f.gems>0?f.gems:f.price),false);
+  else set(b,'TIDAK DIJUAL',true);
+  set(sl,'JUAL',!(st!=='locked'&&canSell(f)));
+}
 function updatePreview(){
   if(env.disposed)return;
-  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';return}
+  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='';updateButtons();return}
   const f=sel,r=RAR[f.rarity]||RAR.common;
-  if(KIT)syncKit();else if(previewOpen())$('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
+  if(KIT)syncKit();else if(previewOpen()&&!window.DiceKit)$('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
   $('#nm').textContent=f.name;
-  $('#rar').textContent=r[0];$('#rar').style.color=r[1];
-}
-const previewOpen=()=>$('#pv').classList.contains('on');
-function openPreview(){
-  $('#pv').classList.add('on');$('#pv').setAttribute('aria-hidden','false');
-  mountKit();updatePreview();throwPreview();
-  try{$('#pvClose').focus({preventScroll:true})}catch(e){}
-}
-function disposeKit(){
-  const k=KIT;KIT=null;if(!k)return;
-  try{const gl=k.renderer;k.dispose();if(gl&&gl.forceContextLoss)gl.forceContextLoss()}catch(e){} /* konteks WebGL dilepas penuh agar tidak menumpuk tiap pratinjau dibuka */
-}
-function closePreview(){
-  $('#pv').classList.remove('on');$('#pv').setAttribute('aria-hidden','true');
-  disposeKit(); /* dadu 3D & renderer dilepas selama modal tertutup */
+  $('#rar').textContent=r[0]+(f.materialName?' · '+f.materialName:'');$('#rar').style.color=r[1];
+  $('#ds').textContent=f.desc||'';
+  updateButtons();
 }
 function buySelected(f){
   if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
@@ -139,42 +125,25 @@ function buySelected(f){
   if(coins<f.price)modal('Coin tidak cukup',`Kamu butuh ${fmt(f.price-coins)} Coin lagi.<br>Saldo kamu ${fmt(coins)} Coin.`,'TUTUP','DAPATKAN COIN',()=>nav('shop.html?coin=1'));
   else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
 }
-/* ketuk bar bawah = beli / pakai; ikon mata ATAU badan kartu = pratinjau 3D (modal) */
-$('#grid').onclick=e=>{
-  const c=e.target.closest('.pc');if(!c)return;
+/* ketuk thumbnail = pilih (pratinjau di kiri); tombol BELI/PAKAI & JUAL di bawah pratinjau */
+$('#dgrid').onclick=e=>{
+  const c=e.target.closest('.slot');if(!c)return;
   const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
-  const btn=e.target.closest('[data-act]'),act=btn?btn.dataset.act:'preview';
-  sel=f;snd('button');
-  if(act==='use'){runAction(f);return}
-  markSelected();
-  if(act==='detail'){openInfo();return}
-  openPreview();
+  sel=f;snd('button');markSelected();updatePreview();throwPreview();
 };
+$('#dtabs').onclick=e=>{
+  const t=e.target.closest('[data-tab]');if(!t||t.dataset.tab===tab)return;
+  tab=t.dataset.tab;snd('button');
+  $('#dtabs').querySelectorAll('[data-tab]').forEach(x=>{const on=x===t;x.classList.toggle('on',on);x.setAttribute('aria-selected',on)});
+  drawGrid();
+};
+$('#b-buy').onclick=()=>{if(sel){snd('button');runAction(sel)}};
+$('#b-sell').onclick=()=>{snd('button');toast('Fitur jual segera hadir.')};
 /* beli bila belum dimiliki, pakai bila sudah (dadu yang sedang dipakai tidak bisa dilepas) */
 function runAction(f){
   if(!isOwned(f)){if(canSell(f))buySelected(f);else toast('Dadu ini tidak dijual.');return}
   if(!isUsed(f))equip(f);
 }
-
-/* ---- detail (deskripsi) terpisah dari pratinjau, sama seperti halaman Pet ---- */
-function infoRow(box,label,value){
-  if(value==null||value==='')return;
-  const row=document.createElement('div'),b=document.createElement('b'),sp=document.createElement('span');
-  row.className='pet-info-row';b.textContent=label;sp.textContent=String(value);row.append(b,sp);box.appendChild(row);
-}
-function openInfo(){
-  const f=sel;if(!f)return;
-  const r=RAR[f.rarity]||RAR.common,body=$('#petInfoBody');
-  $('#petInfoTitle').textContent='Detail '+f.name;
-  body.replaceChildren();
-  infoRow(body,'Deskripsi',f.desc);
-  infoRow(body,'Kelangkaan',r[0]);
-  infoRow(body,'Material',f.materialName);
-  $('#petInfo').showModal();
-  env.requestAnimationFrame(()=>{body.scrollTop=0});
-}
-$('#petInfoClose').onclick=()=>$('#petInfo').close();
-$('#petInfo').onclick=e=>{if(e.target===$('#petInfo'))$('#petInfo').close()};
 
 /* ---- thumbnail kartu = jepretan dadu 3D asli (renderer, material, cahaya & kamera sama dengan pratinjau), satu per satu saat senggang ---- */
 let snapStop=null;
@@ -233,9 +202,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if($('#petInfo').open)return;else if(previewOpen())closePreview();else nav('lobby.html')});
-$('#pvClose').onclick=closePreview;
-$('#pv').onclick=e=>{if(e.target.id==='pv')closePreview()};
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
 
 /* ---- aksi: pakai / beli (beli lewat WalletService/PlayerData; klien tidak mengubah saldo sendiri) ---- */
 function equip(f){
@@ -282,7 +249,7 @@ env.addEventListener('resize',fit);fit();
 /* unmount: DiceKit dibuang (animasi, listener, fisika) dan renderer bersama dilepas */
 env.own(()=>{disposeKit();stopSnaps()});
 draw();
-if(window.DiceKit)buildSnaps();
+if(window.DiceKit){mountKit();syncKit();buildSnaps()}
 env.addEventListener('dicekit-ready',()=>{draw();buildSnaps();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
 document.documentElement.classList.add('ut-ready');
 });
