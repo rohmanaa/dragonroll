@@ -2642,7 +2642,8 @@ const FRAME_RISE=0.3;
 function frameRingSegs(top){ return [[0,5.25,11,0.5,top],[0,-5.25,11,0.5,top],[5.25,0,0.5,10,top],[-5.25,0,0.5,10,top]]; } /* [cx,cz,lebar x,lebar z,tinggi] */
 function woodRing(B,wb,top,tex){
   const base=new THREE.Color(wb),E={edge:false,tex:tex||0},cy=(top-0.1)/2,hh=top+0.1;
-  const put=(x,z)=>{ const a=Math.round(x*4),b=Math.round(z*4),L=Math.min(1,1+(hrn(a,b,77,5)-0.5)*0.5*hrn(a,b,77,6)); addBox(B,x,cy,z,0.5,hh,0.5,base.clone().multiplyScalar(L),E); };
+  /* geser 0.008 keluar: sisi dalam kubus tadinya tepat di |x|/|z|=5.0 = dalam jangkauan 'tile tertekan' (cinematic.js, <0.502 dari pusat petak) -> bingkai ikut turun saat bidak menginjak petak tepi. Dengan 5.008 > 5.002 bingkai tak tersentuh. */
+  const put=(x,z)=>{ const a=Math.round(x*4),b=Math.round(z*4),L=Math.min(1,1+(hrn(a,b,77,5)-0.5)*0.5*hrn(a,b,77,6)),ox=Math.abs(x)>5?Math.sign(x)*0.008:0,oz=Math.abs(z)>5?Math.sign(z)*0.008:0; addBox(B,x+ox,cy,z+oz,0.5,hh,0.5,base.clone().multiplyScalar(L),E); };
   for(let i=0;i<22;i++){ const x=-5.25+i*0.5; put(x,-5.25); put(x,5.25); }          /* sisi atas & bawah (termasuk 4 sudut) */
   for(let i=0;i<20;i++){ const z=-4.75+i*0.5; put(-5.25,z); put(5.25,z); }          /* sisi kiri & kanan (tanpa sudut: tidak dobel) */
 }
