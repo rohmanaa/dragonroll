@@ -137,8 +137,8 @@ body.th-world{--world-grass-tex:.5;--world-grass-tex-size:2;--world-grass-tint:#
   --world-grass-tree:1;                                     /* 0..1 = kekuatan rumput tebal tepat di bawah pohon (0 = mati) */
   --world-grass-thick:0;                                   /* 0 = rumput tipis, 1 = rumput tebal */
   --world-log-tex:.6;--world-log-tex-size:1;--world-log-tint:#7A4F2A;--world-log-tint-amt:1;                 /* batang pohon / tiang kayu */
-  --world-leaf-tex:.5;--world-leaf-tex-size:1.2;--world-leaf-tint:#4CAF35;--world-leaf-tint-amt:1;             /* daun pohon */
-  --world-wood-tex:.5;--world-wood-tex-size:1.5;--world-wood-tint:#A8743F;--world-wood-tint-amt:1;             /* papan kayu: rumah, pagar, bingkai board */
-  --world-earth-tex:.5;--world-earth-tex-size:2;--world-earth-tint:#98643B;--world-earth-tint-amt:1;             /* tanah: kolom tile & sisi pulau */
-  --world-brush-tex:.5;--world-brush-tex-size:.6;--world-brush-tint:#3F9E2C;--world-brush-tint-amt:1;            /* semak-semak (blok kecil 0.1, jadi ukuran ubin kecil) */
-  --world-stone-tex:.3;--world-stone-tex-size:2;--world-stone-tint:#9AA0A8;--world-stone-tint-amt:1}
+  --world-leaf-tex:.5;--world-leaf-tex-size:1;--world-leaf-tint:#4CAF35;--world-leaf-tint-amt:1;             /* daun pohon */
+  --world-wood-tex:.5;--world-wood-tex-size:1;--world-wood-tint:#A8743F;--world-wood-tint-amt:1;             /* papan kayu: rumah, pagar, bingkai board */
+  --world-earth-tex:.5;--world-earth-tex-size:1;--world-earth-tint:#98643B;--world-earth-tint-amt:1;             /* tanah: kolom tile & sisi pulau */
+  --world-brush-tex:.5;--world-brush-tex-size:.5;--world-brush-tint:#3F9E2C;--world-brush-tint-amt:1;            /* semak-semak (blok kecil 0.1, jadi ukuran ubin kecil) */
+  --world-stone-tex:.3;--world-stone-tex-size:1;--world-stone-tint:#9AA0A8;--world-stone-tint-amt:1}
