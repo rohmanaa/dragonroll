@@ -6,7 +6,7 @@ const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 const PD=window.PlayerData,AR=window.ItemArt;
 const SET=()=>PD.settings();
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+let tt;function toast(m){const md=$('#chestMd'),t=(md&&!md.hidden&&$('#cm-toast'))||$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 
 /* ---------- data: SEMUA dari PlayerData (single source of truth); saldo "—" sampai server membalas ---------- */
 let SRV_XP=0;
@@ -160,7 +160,7 @@ $('#stage').addEventListener('pointerdown',event=>{
  const rect=$('#stage').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width;
  if(x>.36&&x<.64){if(Math.random()<.25)bc.jump();else startLobbyAct();buzz()}
 });
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';fit3d()}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';document.documentElement.style.setProperty('--ls',s);fit3d()}
 if(G3){
  let lastFrame=null,frameDebt=0;
  env.on(document,'visibilitychange',()=>{lastFrame=null;frameDebt=0});
@@ -244,8 +244,8 @@ function chestHtml(){
  h+='<div class="tl"><div class="trk"><div class="fil" style="width:'+Math.max(0,Math.min(100,(fill-CSTART)/(CPOS[CPOS.length-1]-CSTART)*100)).toFixed(1)+'%"></div></div>';
  D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
   h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
-   '<div class="mk">'+(reached?'✓':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
-   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'">KLAIM</button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
+   '<div class="mk">'+(reached?'<img src="'+CIC+'missions/ikon-tab-harian-centang.webp" alt="">':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
+   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'"><img src="'+CIC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
  return h+'</div>'}
 function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
 function openChest(){

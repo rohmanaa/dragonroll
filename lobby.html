@@ -61,16 +61,19 @@
     <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
   </button>
 
-  <!-- ===== modal Chest: timeline progres game harian (Kayu -> Silver -> Gold) + tombol KLAIM kecil; chest hasil klaim masuk Inventory ===== -->
-  <div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
-    <button id="cm-x" type="button" aria-label="Tutup">×</button><h3 id="cm-t">Chest Harian</h3><div id="cm-body"></div>
-  </div></div>
-
   <div id="toast"></div>
   
 </div>
 </div>
 
+<!-- ===== modal Chest: timeline progres game harian (Kayu -> Silver -> Gold) + tombol KLAIM; chest hasil klaim masuk Inventory.
+     Di LUAR #stage (yang di-scale): backdrop fixed menutup lebar penuh layar; kotak diskalakan lewat zoom:var(--ls). ===== -->
+<div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
+  <h3 id="cm-t">Chest Harian</h3>
+  <button id="cm-x" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div id="cm-body"></div>
+  <div id="cm-toast" role="status"></div>
+</div></div>
 <div id="fade"></div>
 
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>

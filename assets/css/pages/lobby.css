@@ -133,34 +133,40 @@ html[data-graphics="low"] #grp .gset{transition:none}
 @keyframes nbpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
 
 
-/* ===== modal Chest: timeline progres game harian ===== */
-#chestMd{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:flex;align-items:center;justify-content:center}
+/* ===== modal Chest: timeline progres game harian (semua gambar dari assets; kotak = bingkai-dialog.webp 9-slice, konvensi Toko) ===== */
+#chestMd{position:fixed;inset:0;z-index:70;background:rgba(10,8,30,.72);display:flex;align-items:center;justify-content:center}
 #chestMd[hidden]{display:none}
-#cbox{position:relative;width:1240px;padding:30px 40px 34px;border-radius:26px;color:#fff;
-  background:linear-gradient(180deg,rgba(82,92,118,.97),rgba(44,50,72,.98));border:5px solid rgba(18,22,36,.92);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.14),0 10px 0 rgba(10,6,30,.5);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both}
-#cbox h3{margin:0 0 6px;text-align:center;font:400 50px/1 var(--font-title);text-shadow:0 3px 0 rgba(0,0,0,.6)}
-#cm-x{position:absolute;right:18px;top:12px;width:64px;height:64px;font:400 48px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-#cm-body .tot{text-align:center;font:400 34px/1 var(--font-title);margin:10px 0 18px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox{position:relative;width:1240px;padding:104px 56px 44px;color:#fff;isolation:isolate;zoom:var(--ls,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both}
+#cbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+#cm-t{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 72px;line-height:70px;white-space:nowrap;font:400 40px/70px var(--font-title);
+  background:url(../../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(20,5,70,.7)}
+#cm-x{position:absolute;right:-14px;top:-14px;width:84px;height:84px;padding:0;border:0;background:none;cursor:pointer;z-index:2}
+#cm-x img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#cm-x:hover{filter:brightness(1.12)}#cm-x:active{transform:scale(.92)}
+#cm-body .tot{text-align:center;font:400 34px/1 var(--font-title);margin:0 0 18px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #cm-body .tot b{color:#ffd45a;font-weight:400}
 #cm-body .tot small{display:block;margin-top:8px;font:400 20px/1 var(--font-title);opacity:.7}
 .tl{position:relative;height:330px}
-.tl .trk{position:absolute;left:4%;right:16%;top:176px;height:20px;border-radius:12px;background:rgba(10,12,24,.75);border:3px solid rgba(18,22,36,.9);overflow:hidden}
-.tl .fil{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(180deg,#8be86f,#3aa83a);transition:width .5s ease}
+.tl .trk{position:absolute;left:4%;right:16%;top:174px;height:26px;overflow:hidden;background:url(../../images/ui/missions/bar-progres-kosong.webp) center/100% 100% no-repeat}
+.tl .fil{position:absolute;left:0;top:0;bottom:0;width:0;background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat;transition:width .5s ease}
 .tl .nd{position:absolute;top:0;width:260px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
 .tl .nd img.im{height:120px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 .tl .nd.todo img.im{filter:grayscale(.7) brightness(.7) drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 .tl .nd .nm{height:36px;font:400 28px/36px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.tl .nd .mk{position:relative;z-index:2;margin-top:8px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:400 22px/1 var(--font-title);
-  background:#3a4056;border:4px solid rgba(18,22,36,.92);box-shadow:0 3px 0 rgba(10,6,30,.5);color:#cfd5ea}
-.tl .nd.ok .mk{background:linear-gradient(180deg,#ffe27a,#e0a21a);color:#4a2f00;border-color:#6b4300}
+.tl .nd .mk{position:relative;z-index:2;margin-top:4px;width:56px;height:56px;display:grid;place-items:center;font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);
+  background:url(../../images/ui/missions/alas-ikon-misi.webp) center/100% 100% no-repeat}
+.tl .nd .mk img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
 .tl .nd .rq{height:30px;margin-top:6px;font:400 22px/30px var(--font-title);opacity:.85}
-.tl .nd .act{height:56px;display:flex;align-items:flex-start;justify-content:center}
+.tl .nd .act{height:70px;display:flex;align-items:flex-start;justify-content:center}
 .tl .nd .act i{font:400 22px/44px var(--font-title);font-style:normal;opacity:.75}
-.cb{min-width:120px;height:46px;padding:0 18px;border-radius:12px;font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);
-  background:linear-gradient(180deg,#5fd05a,#2f8f34);border:3px solid rgba(10,40,12,.85);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 rgba(10,6,30,.5)}
+.cb{position:relative;display:grid;place-items:center;width:160px;height:54px;padding:0;border:0;background:none;cursor:pointer;transition:transform .1s,filter .1s}
+.cb img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.cb span{position:relative;font:400 24px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .cb:active{transform:translateY(3px)}
 .cb[disabled]{filter:grayscale(.8) brightness(.7);pointer-events:none}
 #cm-body .cempty{padding:60px 10px;text-align:center;font:400 30px/1.3 var(--font-title);opacity:.8}
+#cm-toast{position:absolute;left:50%;bottom:-70px;transform:translate(-50%,16px);opacity:0;pointer-events:none;padding:12px 26px;border-radius:14px;white-space:nowrap;
+  background:rgba(20,16,34,.94);color:#fff;font:700 22px/1.2 var(--font-body);transition:opacity .2s,transform .2s}
+#cm-toast.on{opacity:1;transform:translate(-50%,0)}
 @keyframes cmIn{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#cbox{animation:none}.tl .fil{transition:none}}

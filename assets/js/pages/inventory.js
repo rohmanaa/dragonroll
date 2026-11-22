@@ -22,10 +22,11 @@ UT.PageModule.define('inventory', function (env) {
 
   tabsEl.innerHTML = UT.InvTabs.markup('');
 
-  /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), satu slot per jenis dengan lencana jumlah.
-     Tanpa tombol: ketuk slot = buka satu chest, hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
-  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, tt = 0;
+  /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI Power-up: panel kiri (pratinjau + nama + jumlah dimiliki),
+     grid slot kanan (chip jumlah), satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
+  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
+  var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
   var CORD = ['wood', 'silver', 'gold', 'diamond'];
   var CWM = { 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...', 'sudah-diambil': 'Chest sudah diambil.', 'tidak-ada': 'Chest tidak ditemukan.' };
   var cBox = $('#chestBox');
@@ -42,20 +43,22 @@ UT.PageModule.define('inventory', function (env) {
       if (cReward.gems > 0) x += '<div class="rw"><img src="' + CIC + 'gem-medal-icons/berlian-hijau.webp" alt="">+' + fmt(cReward.gems) + ' Gem</div>';
       if (cReward.xp > 0) x += '<div class="rw">+' + fmt(cReward.xp) + ' XP</div>';
       if (cReward.power) { var it = window.ItemCatalog && ItemCatalog.byId(cReward.power); x += '<div class="rw pw">' + (it && it.icon ? '<img src="' + it.icon + '" alt="">' : '') + 'Power: ' + (it ? it.name : cReward.power) + ' ×1</div>'; }
-      return x + '<button class="cb" type="button" data-cback>MANTAP!</button></div>';
+      return x + '<button class="btn cb" type="button" data-cback><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MANTAP!</span></button></div>';
     }
     if (!CS) return '<div class="cempty">Memuat…</div>';
     var L = cOwned(), by = {};
     L.forEach(function (c) { (by[c.kind] = by[c.kind] || []).push(c); });
     var kinds = CORD.filter(function (q) { return by[q]; });
     if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small></div>';
-    var h = '<div class="slots">';
+    if (!by[cSel]) cSel = kinds[0];
+    var sk = CK[cSel] || CK.wood, sn = by[cSel].length;
+    var h = '<section id="cl"><div id="cpv"><img src="' + CIC + sk.im + '.webp" alt=""></div><div id="cnm">' + sk.nm + '</div>' +
+      '<div id="cown">Dimiliki ×' + fmt(sn) + '</div><p id="cds">' + (CDS[cSel] || '') + '</p></section><section id="cr"><div id="cg">';
     kinds.forEach(function (q) {
       var kk = CK[q] || CK.wood, n = by[q].length;
-      h += '<button class="sl" type="button" data-kind="' + q + '" aria-label="Buka ' + kk.nm + ', jumlah ' + n + '"><img class="im" src="' + CIC + kk.im + '.webp" alt=""><span class="nm">' + kk.nm + '</span>' +
-        '<span class="nbadge"><img src="' + CIC + 'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>' + (n > 99 ? '99+' : n) + '</b></span></button>';
+      h += '<button class="fslot' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + '"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
-    return h + '</div><div class="hint">Ketuk chest untuk membuka</div>';
+    return h + '</div></section><button class="btn" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
   }
   function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
   function cPull() {
@@ -74,8 +77,10 @@ UT.PageModule.define('inventory', function (env) {
   }
   if (cBox) cBox.addEventListener('click', function (e) {
     if (e.target.closest('[data-cback]')) { snd(); cReward = null; cPaint(); return; }
-    var b = e.target.closest('button[data-kind]'); if (!b) return;
-    var c = cOwned().filter(function (x) { return x.kind === b.dataset.kind; })[0]; if (!c) return;
+    var b = e.target.closest('button[data-kind]');
+    if (b) { snd(); cSel = b.dataset.kind; cPaint(); return; }
+    if (!e.target.closest('#cact')) return;
+    var c = cOwned().filter(function (x) { return x.kind === cSel; })[0]; if (!c) return;
     snd(); cOpen(c.id);
   });
 
