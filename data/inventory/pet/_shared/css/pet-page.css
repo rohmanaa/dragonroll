@@ -90,3 +90,15 @@ button.pc-pr{border-radius:0;background:url(../../../../../assets/images/ui/butt
 button.pc-pr.own{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp);color:#fff}
 button.pc-pr.used{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp)}
 button.pc-pr.no{background-image:url(../../../../../assets/images/buttons/tombol-gelap-polos.webp)}
+
+/* kartu potret 9:16, lebih tinggi dan lebar */
+html body.fm.notabs #right #grid{top:175px!important;height:780px!important}
+#grid .pc{width:auto;height:100%;aspect-ratio:9/16}
+.pc-nm{min-height:96px;font-size:46px}
+button.pc-pr,.pc-pr{height:100px;font-size:50px}
+.pc-pr.own,.pc-pr.used,.pc-pr.no{font-size:38px}
+.pc-pr img{width:56px;height:56px}
+.pc-th img:not(.ck){height:calc(100% - 90px)}
+.pc-ic{bottom:140px;width:76px;height:76px}
+.pc-ic svg,.pc-ic img{width:56px;height:56px}
+.pc-eye{left:30px}.pc-det{right:30px}
