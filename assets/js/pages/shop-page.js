@@ -10,9 +10,9 @@ UT.PageModule.define('shop', function (env) {
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
   const IC = 'assets/images/ui/';
-  const TABS = ['skin', 'set', 'frame', 'dice', 'aura', 'power', 'chest', 'coin', 'emerald', 'history'];
+  const TABS = ['skin', 'set', 'frame', 'power', 'chest', 'coin', 'emerald', 'history'];
   /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
-  const KIND = { skin: 'skin', frame: 'frame', dice: 'dice', aura: 'aura', power: 'powerup' };
+  const KIND = { skin: 'skin', frame: 'frame', power: 'powerup' };
   const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
   const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11.2A4.2 4.2 0 1 1 12 7.8a4.2 4.2 0 0 1 0 8.4zm0-6.4a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z" fill="#fff"/></svg>';
   const PACKS = [
