@@ -6,7 +6,9 @@
      3. download() : unduh media yang berubah ke cache 'ut-media' (progres), tulis indeks baru, lalu pasang SW baru (menunggu).
      4. modal berubah jadi "Mulai ulang" -> restart(): SW baru diaktifkan (pesan SKIP_WAITING) lalu halaman dimuat ulang.
    Karena indeks sudah diperbarui oleh download(), syncMedia() di sw.js saat aktivasi tidak membuang unduhan ini.
-   Splash TIDAK mengunduh pembaruan; splash hanya memuat aset pertama kali (preloader).
+   Splash MEMERIKSA server saat loading (precheck() jalan paralel dengan bar); setelah loading selesai, bila ada pembaruan modal "Unduh Data"
+   muncul di splash (promptOnSplash). Splash tetap tidak mengunduh sendiri: unduhan hanya setelah pemain menekan Unduh.
+   Mulai ulang = aktifkan SW baru lalu pindah ke URL ROOT situs (bukan memuat ulang halaman terakhir, mis. lobby) = seperti Ctrl+Shift+R.
    Skrip klasik; di browser jadi window.UT.Update, di Node (module.exports) untuk tes. Fungsi murni: plan(), formatBytes(). */
 (function (root, factory) {
   var api = factory(root);
@@ -41,7 +43,7 @@
     var doFetch = deps.fetch || (g.fetch && g.fetch.bind(g)), cachesApi = deps.caches || g.caches;
     var store = function () { try { return deps.storage || g.localStorage; } catch (e) { return null; } };
     var sess = function () { try { return deps.session || g.sessionStorage; } catch (e) { return null; } };
-    var job = null, ui = null, listeners = [];
+    var job = null, ui = null, listeners = [], pending = null, afterClose = null;
 
     function supported() { return !!(nav && nav.serviceWorker && cachesApi && doFetch); }
     /* header X-UT-Fresh: sw.js melewatkan permintaan ini ke jaringan (bukan dari cache) */
@@ -134,15 +136,25 @@
       return job;
     }
 
-    /* Aktifkan SW baru lalu muat ulang. Cadangan 3 dtk bila controllerchange tidak datang. */
+    /* Aktifkan SW baru lalu pindah ke URL ROOT situs (index -> splash), bukan reload halaman terakhir (mis. lobby):
+       cache kode versi lama sudah dibuang SW baru saat aktivasi, jadi hasilnya seperti Ctrl+Shift+R. Cadangan 3 dtk bila controllerchange tidak datang. */
+    function rootUrl(reg) {
+      try { return new g.URL('./', (reg && reg.scope) || (g.location && g.location.href)).href; } catch (e) { return null; }
+    }
+    function goRoot(reg) {
+      try { var ss = sess(); if (ss) { ss.removeItem('ut:booted'); ss.removeItem('ut:fadein'); } } catch (e) {}
+      var url = rootUrl(reg), loc = g.location;
+      try { if (loc && url && typeof loc.replace === 'function') return loc.replace(url); } catch (e) {}
+      try { loc && loc.reload(); } catch (e) {}
+    }
     async function restart() {
       var reg = await nav.serviceWorker.getRegistration();
       writeFlag(FLAG_DONE, null);
-      var reload = function () { try { g.location.reload(); } catch (e) {} };
-      if (!reg || !reg.waiting) return reload();
-      nav.serviceWorker.addEventListener('controllerchange', reload, { once: true });
+      var go = function () { goRoot(reg); };
+      if (!reg || !reg.waiting) return go();
+      nav.serviceWorker.addEventListener('controllerchange', go, { once: true });
       reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      setTimeout(reload, 3000);
+      setTimeout(go, 3000);
     }
 
     function dismissed(version) { try { return sess().getItem(FLAG_DISMISS) === version; } catch (e) { return false; } }
@@ -157,7 +169,7 @@
       var d = ui = GD.open({
         title: 'Unduh Data', message: 'Unduh data tambahan untuk pembaruan ' + info.label + '?', sub: 'Disarankan memakai jaringan Wi-Fi',
         badge: formatBytes(info.bytes), closable: true,
-        onClose: function () { if (off) off(); if (ui === d) ui = null; if (!job) dismiss(info.version); }
+        onClose: function () { if (off) off(); if (ui === d) ui = null; if (!job) dismiss(info.version); if (afterClose) { var f = afterClose; afterClose = null; f(); } }
       });
       function ask() {
         d.set({ title: 'Unduh Data', message: 'Unduh data tambahan untuk pembaruan ' + info.label + '?', sub: 'Disarankan memakai jaringan Wi-Fi',
@@ -201,7 +213,20 @@
       showModal(info); return info;
     }
 
-    return { supported: supported, check: check, download: download, restart: restart, promptOnLobby: promptOnLobby, closeUi: closeUi, onEvent: onEvent, parseVersion: parseVersion };
+    /* Splash: mulai cek ke server segera (paralel dengan bar loading); hasilnya dipakai ulang oleh promptOnSplash(). */
+    function precheck() { if (!pending) pending = check().catch(function () { return null; }); return pending; }
+    /* Dipanggil splash setelah loading selesai. Resolve bila tidak ada pembaruan / cek gagal / ditunda (X). Modal terbuka -> menunggu
+       sampai ditutup; menekan Unduh -> Mulai ulang memindahkan halaman ke root, jadi promise tidak perlu resolve. */
+    async function promptOnSplash(maxWaitMs) {
+      var GD = g.UT && g.UT.GameDialog; if (!GD) return null;
+      var info = await Promise.race([precheck(), new Promise(function (r) { setTimeout(function () { r(null); }, maxWaitMs || 6000); })]);
+      if (!info || !info.available) return null;
+      if (!job && dismissed(info.version)) return info;
+      try { await GD.preload(); } catch (e) {}
+      return new Promise(function (resolve) { afterClose = function () { resolve(info); }; showModal(info); });
+    }
+
+    return { supported: supported, check: check, precheck: precheck, promptOnSplash: promptOnSplash, download: download, restart: restart, promptOnLobby: promptOnLobby, closeUi: closeUi, onEvent: onEvent, parseVersion: parseVersion };
   }
 
   return { create: create, plan: plan, formatBytes: formatBytes };

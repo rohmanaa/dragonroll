@@ -10,17 +10,17 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v408';
+const VERSION = 'ut-pwa-v409';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
-const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/gameplay-loading.js', 'assets/css/pages/gameplay-loading.css', 'assets/js/pages/splash.js', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
+const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/gameplay-loading.js', 'assets/css/pages/gameplay-loading.css', 'assets/js/pages/splash.js', 'assets/js/systems/game-dialog.js', 'assets/js/systems/update-service.js', 'assets/css/components/game-dialog.css', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const CODE = /\.(html|js|css|json|webmanifest)$/i;
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => {}));
+  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: 'reload' })).catch(() => {}) /* lewati cache HTTP: SW baru harus memegang kode terbaru */))).then(() => {}));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(syncMedia().catch(() => {}).then(() => caches.keys()).then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== MEDIA_CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));

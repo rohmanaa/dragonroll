@@ -33,7 +33,7 @@ function setup(opts) {
     return new Response(body, { status: 200, headers: { 'Content-Type': 'application/octet-stream' } });
   };
   const reloads = [];
-  const G = { UT: { Version: { get: async () => ({ raw: 'ut-pwa-v318' }), label: r => 'v' + /(\d+)$/.exec(r)[1] } }, Request, Response, Blob, URL, location: { reload: () => reloads.push(1) } };
+  const G = { UT: { Version: { get: async () => ({ raw: 'ut-pwa-v318' }), label: r => 'v' + /(\d+)$/.exec(r)[1] } }, Request, Response, Blob, URL, location: { href: BASE + 'lobby.html', reload: () => reloads.push('reload'), replace: u => reloads.push(u) } };
   const svc = U.create({ G, navigator: nav, fetch, caches, storage: local, session: sessions });
   return { svc, calls, posted, caches, reg, reloads, local, sessions };
 }
@@ -87,17 +87,30 @@ function setup(opts) {
     const s = setup(); await s.reg.update(); await s.svc.restart();
     assert.deepStrictEqual(s.posted, [{ type: 'SKIP_WAITING' }]);
     await new Promise(r => setTimeout(r, 20)); assert.ok(s.reloads.length >= 1);
+    assert.strictEqual(s.reloads[0], BASE, 'Mulai ulang pindah ke URL root, bukan reload halaman terakhir (lobby)');
+  });
+  await t('restart: tanpa SW menunggu tetap pindah ke root; flag sesi ut:booted dibuang', async () => {
+    const s = setup(); s.sessions.setItem('ut:booted', '1'); await s.svc.restart();
+    assert.deepStrictEqual(s.reloads, [BASE]); assert.strictEqual(s.sessions.getItem('ut:booted'), null);
   });
   await t('sw.js: SKIP_WAITING hanya atas pesan; permintaan X-UT-Fresh dilewatkan ke jaringan', () => {
     const sw = rd('sw.js').replace(/\/\*[\s\S]*?\*\//g, '');
     assert.ok(/type === 'SKIP_WAITING'\) \{ self\.skipWaiting\(\)/.test(sw));
     assert.ok(/r\.headers\.has\('x-ut-fresh'\)\) return/.test(sw));
   });
-  await t('Lobby: skrip dimuat berurutan & modal dipanggil dari lobby.js, tidak dari splash', () => {
+  await t('Lobby: skrip dimuat berurutan & modal dipanggil dari lobby.js (cadangan bila ditunda di splash)', () => {
     const h = rd('lobby.html'), i = n => h.indexOf(n);
     assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('services/tos-service.js') > 0);
     assert.ok(/UT\.Update/.test(rd('data/lobby/js/lobby.js')) && /promptOnLobby/.test(rd('data/lobby/js/lobby.js')));
-    assert.ok(!/UT\.Update|update-service/.test(rd('assets/js/pages/splash.js') + rd('splash.html')), 'splash tidak mengunduh pembaruan');
+  });
+  await t('Splash: cek server paralel dengan loading, modal muncul setelah loading selesai, sebelum login/TAP TO START', () => {
+    const h = rd('splash.html'), j = rd('assets/js/pages/splash.js'), i = n => h.indexOf(n);
+    assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('pages/splash.js'));
+    assert.ok(/UT\.Update&&UT\.Update\.precheck\(\)/.test(j) && /promptOnSplash\(\)/.test(j));
+    assert.ok(j.indexOf('promptOnSplash') < j.indexOf('setTimeout(afterLoad,300)'), 'modal ditunggu sebelum afterLoad');
+  });
+  await t('promptOnSplash: tanpa pembaruan langsung selesai; ada pembaruan -> modal, selesai setelah ditutup', async () => {
+    const s = setup({ swVer: 318 }); assert.strictEqual(await s.svc.promptOnSplash(), null, 'tanpa GameDialog/pembaruan tidak menahan splash');
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

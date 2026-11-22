@@ -96,7 +96,15 @@ function afterLoad(){
 }
 try{window.PlayerData&&PlayerData.snapshot()}catch(e){} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
 if(quick){document.body.classList.add("quick");afterLoad()}
-else UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}).then(()=>{setPct(100);setTimeout(afterLoad,300)});
+else{
+  /* cek pembaruan ke server SAAT loading (paralel dengan bar); selesai loading -> bila ada, modal Unduh Data muncul di sini */
+  try{UT.Update&&UT.Update.precheck()}catch(e){}
+  UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}).then(()=>{
+    setPct(100);
+    let slow=setTimeout(()=>{$("#lbl").textContent="Memeriksa pembaruan…"},600);
+    return Promise.resolve(UT.Update&&UT.Update.promptOnSplash()).catch(()=>{}).then(()=>clearTimeout(slow));
+  }).then(()=>setTimeout(afterLoad,300));
+}
 
 /* ---- dialog login / sign up ---- */
 const ML=$("#m-login"),MS=$("#m-signup");
