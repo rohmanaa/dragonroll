@@ -1,6 +1,6 @@
 /* account-hub.css — kerangka HALAMAN untuk hub Profil · Teman · Pesan · Pengaturan (profile.html). Kanvas 1920x1080. Bukan modal:
    memakai latar halaman standar (bg.css), tombol Kembali kiri atas, tanpa lapisan gelap.
-   Struktur: #phub[role=region] > #pmodal (bingkai kartu 9-slice), #phub-title (sr-only), #ptabs, #pane (isi panel), #pback.
+   Struktur: #phub[role=region] > #pmodal (bingkai-dialog.webp penuh layar = latar panel), #phub-title (sr-only), #ptabs, #pane (isi panel), #pback.
    Tab bergaya Inventory: ikon di atas, teks di bawah, garis bawah emas pada tab aktif. */
 .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
@@ -9,19 +9,18 @@
 #pane.loading{opacity:.55;transition:opacity .12s}
 #pane[aria-busy="true"]{cursor:progress}
 
-/* SATU latar untuk semua tab: tiap panel membawa latarnya sendiri (body.dm/sub::before voxel, profile-bg pada body.pf) sehingga latar
-   berganti saat tab berpindah. Selama hub aktif semuanya diseragamkan di sini (!important + :has agar menang dari CSS panel). */
-html:has(#stage.has-hub),html:has(#stage.has-hub) body{
-  background:linear-gradient(rgba(10,8,24,.30),rgba(10,8,24,.50)) fixed,url(../images/background/lobby-kastel.webp) center/cover no-repeat fixed,#0b0826!important}
+/* Panel = LATAR halaman: bingkai-dialog.webp dibentangkan PENUH layar (9-slice, konvensi repo: 44 fill / 22px) dan menjadi latar untuk
+   keempat tab (latar per-panel: body.dm/sub::before voxel, profile-bg pada body.pf, dimatikan/diseragamkan di sini). Warna halaman di belakangnya =
+   warna isi aset (#2e293c) sehingga tidak ada celah di sudut membulat. */
+html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:#2e293c!important}
 body.hub::before,body.hub::after{content:none!important;display:none!important}
 
-/* bingkai kartu: PENUH satu layar (kanvas 1920x1080) dan agak transparan. Tepi = border-image tanpa `fill`; isi = ::before berwarna
-   semi-transparan + blur latar, sehingga latar halaman tetap terlihat tembus. (Tanpa filter pada #pmodal: filter mematikan backdrop-filter anaknya.) */
-/* --hub-ex/--hub-ey = sisa layar di luar kanvas (diisi UT.AccountHub.fitFrame); #stage biasanya overflow:hidden, jadi dibuka selama hub aktif */
+/* --hub-ex/--hub-ey = sisa layar di luar kanvas (diisi UT.AccountHub.fitFrame); #stage biasanya overflow:hidden, jadi dibuka selama hub aktif.
+   Bingkai ditarik 8px ke luar layar (inset:-8px, seperti .panel/#cbox) agar sudut membulat & tepi luar aset jatuh di luar layar = tanpa celah. */
 #stage.has-hub{overflow:visible!important}
-#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px));top:calc(-1 * var(--hub-ey,0px));width:calc(1920px + 2 * var(--hub-ex,0px));height:calc(1080px + 2 * var(--hub-ey,0px));pointer-events:none;box-sizing:border-box;z-index:0;
-  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 22px stretch}
-#pmodal::before{content:"";position:absolute;inset:0;background:rgba(18,13,36,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
+  pointer-events:none;box-sizing:border-box;z-index:0;
+  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
 
 /* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
 #ptabs{position:absolute;left:210px;top:34px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
@@ -57,7 +56,6 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
 
 html[data-graphics="low"] #ptabs .ptab{transition:none}
 html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pback img{filter:none}
-html[data-graphics="low"] #pmodal::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(18,13,36,.92)}
 @media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pback{transition:none}}
 
 /* mata uang (koin/emerald) tidak dibawa ke dalam hub */
