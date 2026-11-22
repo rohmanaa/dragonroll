@@ -9,6 +9,8 @@ UT.PageModule.define('pet', function (env) {
   const WS = window.UT && window.UT.WalletService;
   const AS = window.UT && window.UT.AppearanceService;
   const IMAGE_ROOT = 'data/inventory/pet/items/';
+  /* thumbnail kartu = crop fokus-pet (tanpa makhluk latar) dari ilustrasi penuh; bila berkas crop gagal dimuat, pakai ilustrasi penuh (item.image) */
+  const CARD_ROOT = 'assets/images/ui/pet/card/';
   const RARITY = {
     common: ['Biasa', '#cfc8ea'],
     uncommon: ['Tidak Biasa', '#6fe08a'],
@@ -116,7 +118,7 @@ UT.PageModule.define('pet', function (env) {
       return `<article class="pc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
         + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
         + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
+        + `<span class="pc-th"><img src="${CARD_ROOT + item.gameKey.replace(/_/g, '-')}.webp" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
         + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
         + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
@@ -422,6 +424,10 @@ UT.PageModule.define('pet', function (env) {
   });
   /* geser baris kartu: roda mouse / Shift + roda = ke samping; tahan + seret mouse = geser (touch tetap pan bawaan) */
   const gridEl = $('#grid');
+  gridEl.addEventListener('error', (event) => {
+    const img = event.target;
+    if (img && img.tagName === 'IMG' && img.dataset.fb && img.getAttribute('src') !== img.dataset.fb) img.src = img.dataset.fb;
+  }, true);
   gridEl.addEventListener('wheel', (event) => {
     if (gridEl.scrollWidth <= gridEl.clientWidth) return;
     const d = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
