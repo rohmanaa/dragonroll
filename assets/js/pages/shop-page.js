@@ -263,6 +263,8 @@ UT.PageModule.define('shop', function (env) {
 
   /* ----- tab Set: paket gear siap pakai (data bersama dengan Karakter: character-sets.js). Harga = total item yang BELUM dimiliki;
      transaksi atomik lewat WalletService.buySet (RPC buy_set): semua item masuk atau tidak sama sekali ----- */
+  /* ikon WebP per set (assets/images/ui/item-icons); set tanpa entri memakai helm-ksatria */
+  const SET_ICON = { citizen: 'toko', knight: 'helm-ksatria', mage: 'ramuan-ungu', farmer: 'ramuan-hijau', explorer: 'sepatu-sayap', noble: 'panji-pedang', princess: 'mahkota', fairy: 'helm-sayap' };
   const SET_SLOTS = ['top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'];
   function setGender() {
     try { const a = PD.appearance && PD.appearance(); return a && a.look && a.look.gender === 'f' ? 'f' : 'm'; } catch (e) { return 'm'; }
@@ -294,10 +296,10 @@ UT.PageModule.define('shop', function (env) {
     if (!list.length) return '<div class="hempty">Belum ada set untuk dijual.</div>';
     return list.map(s => {
       const owned = s.miss.length === 0;
-      const emoji = escapeHtml(s.p.n.split(' ')[0]), name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
+      const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
       return `<div class="card item fx k-set" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
-        <div class="pic"><i class="glow"></i><div class="art"><span class="setemo" aria-hidden="true">${emoji}</span></div></div>
+        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="${IC}item-icons/${icon}.webp" alt=""></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
         <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
           ${owned ? 'Dimiliki' : `<img src="${IC}hud/ikon-koin-emas.webp" alt="">${fmt(s.total)}`}
