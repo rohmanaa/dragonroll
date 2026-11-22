@@ -103,11 +103,11 @@ function setup(opts) {
     assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('services/tos-service.js') > 0);
     assert.ok(/UT\.Update/.test(rd('data/lobby/js/lobby.js')) && /promptOnLobby/.test(rd('data/lobby/js/lobby.js')));
   });
-  await t('Splash: cek server paralel dengan loading, modal muncul setelah loading selesai, sebelum login/TAP TO START', () => {
+  await t('Splash: cek server DULU (sebelum mengunduh aset); modal muncul di awal, bar loading menyusul', () => {
     const h = rd('splash.html'), j = rd('assets/js/pages/splash.js'), i = n => h.indexOf(n);
     assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('pages/splash.js'));
-    assert.ok(/UT\.Update&&UT\.Update\.precheck\(\)/.test(j) && /promptOnSplash\(\)/.test(j));
-    assert.ok(j.indexOf('promptOnSplash') < j.indexOf('setTimeout(afterLoad,300)'), 'modal ditunggu sebelum afterLoad');
+    assert.ok(/promptOnSplash\(/.test(j));
+    assert.ok(j.indexOf('promptOnSplash') < j.indexOf('UT_Preload.runAuto(ASSETS'), 'cek pembaruan sebelum preloader mengunduh aset');
   });
   await t('promptOnSplash: tanpa pembaruan langsung selesai; ada pembaruan -> modal, selesai setelah ditutup', async () => {
     const s = setup({ swVer: 318 }); assert.strictEqual(await s.svc.promptOnSplash(), null, 'tanpa GameDialog/pembaruan tidak menahan splash');

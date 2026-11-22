@@ -97,13 +97,11 @@ function afterLoad(){
 try{window.PlayerData&&PlayerData.snapshot()}catch(e){} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
 if(quick){document.body.classList.add("quick");afterLoad()}
 else{
-  /* cek pembaruan ke server SAAT loading (paralel dengan bar); selesai loading -> bila ada, modal Unduh Data muncul di sini */
-  try{UT.Update&&UT.Update.precheck()}catch(e){}
-  UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}).then(()=>{
-    setPct(100);
-    let slow=setTimeout(()=>{$("#lbl").textContent="Memeriksa pembaruan…"},600);
-    return Promise.resolve(UT.Update&&UT.Update.promptOnSplash()).catch(()=>{}).then(()=>clearTimeout(slow));
-  }).then(()=>setTimeout(afterLoad,300));
+  /* URUTAN: 1) cek pembaruan ke server DULU (sebelum mengunduh aset apa pun) -> 2) bila ada, modal Unduh Data (X = tunda) -> 3) baru bar loading memuat aset */
+  $("#lbl").textContent="Memeriksa pembaruan…";
+  Promise.resolve(UT.Update&&UT.Update.promptOnSplash(4000)).catch(()=>{})
+    .then(()=>UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}))
+    .then(()=>{setPct(100);setTimeout(afterLoad,300)});
 }
 
 /* ---- dialog login / sign up ---- */
