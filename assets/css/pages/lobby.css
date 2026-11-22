@@ -83,10 +83,11 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .lbt.sm .ico img{max-height:54px;max-width:64px}
 .lbt.sm .lb{font-size:17px}
 
-/* kiri: Pet tepat di bawah profil, Guild di tengah dan Chest di bawahnya */
+/* kiri: Pet tepat di bawah profil, Dadu + Aura di bawah Pet, Guild di posisi bekas Chest (Chest dihapus sementara) */
 #b-pet{left:30px;top:236px}
-#b-guild{left:30px;top:430px}
-#b-chest{left:30px;top:674px}
+#b-dice{left:30px;top:346px}
+#b-aura{left:30px;top:456px}
+#b-guild{left:30px;top:674px}
 /* kanan tengah: Shop */
 #b-shop{right:26px;top:480px}
 /* kiri bawah: Karakter, Misi, grup lipat */
@@ -94,8 +95,8 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #b-misi{left:178px;bottom:26px}
 /* kanan bawah: Inventory di kiri tombol Battle (MULAI) */
 #b-inv{right:450px;bottom:26px}
-#b-pet,#b-guild,#b-chest{animation:inL .6s .1s cubic-bezier(.2,.9,.2,1) both}
-#b-chest{animation-delay:.16s}
+#b-pet,#b-dice,#b-aura,#b-guild{animation:inL .6s .1s cubic-bezier(.2,.9,.2,1) both}
+#b-dice{animation-delay:.13s}#b-aura{animation-delay:.16s}#b-guild{animation-delay:.19s}
 #b-shop{animation:inR .6s .2s cubic-bezier(.2,.9,.2,1) both}
 #b-char,#b-misi,#grp,#b-inv{animation:inB .6s cubic-bezier(.2,.9,.2,1) both}
 #b-misi{animation-delay:.07s}#grp{animation-delay:.14s}#b-inv{animation-delay:.21s}
