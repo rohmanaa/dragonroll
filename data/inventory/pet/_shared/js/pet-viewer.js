@@ -309,9 +309,11 @@ const selectionGuard=window.UT&&window.UT.PetModelRegistry&&window.UT.PetModelRe
   ?window.UT.PetModelRegistry.createSelectionGuard()
   :{begin(){return ++selectionVersion},isCurrent(token){return token===selectionVersion}};
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
+/* viewer tersembunyi (modal preview tertutup) = tidak render dan tidak bersuara */
+const shown=()=>typeof view.getClientRects!=='function'||view.getClientRects().length>0;
 let soundOn=false,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
-  applyMaster();if(!soundOn||!sfxEnabled()||!AC||AC.state!=='running'||cur<0)return;
+  applyMaster();if(!shown())return;if(!soundOn||!sfxEnabled()||!AC||AC.state!=='running'||cur<0)return;
   if(!sndBag.length){sndBag=[0,1,2].sort(()=>Math.random()-.5);if(sndBag[sndBag.length-1]===bagLast)sndBag.reverse()}
   const k=sndBag.pop();bagLast=k;
   try{SND[cur][k]()}catch(e){}
@@ -371,6 +373,7 @@ let last=performance.now(),t=0;
 function frame(now){
   if(destroyed)return;
   rafId=requestAnimationFrame(frame);
+  if(!shown()){last=now;return}
   const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
   if(idle>0)idle-=dt;
   sndT-=dt;if(sndT<=0){sndT=rr(3,5.5);playPetSound()}

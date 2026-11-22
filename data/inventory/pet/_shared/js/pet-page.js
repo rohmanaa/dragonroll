@@ -87,17 +87,41 @@ UT.PageModule.define('pet', function (env) {
     $('#v-co').textContent = ready ? format(PD.coins()) : '—';
   }
 
+  const EYE = '<svg class="pc-eye" viewBox="0 0 256 256" aria-hidden="true" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>';
+
+  function priceOf(item) {
+    const cost = costOf(item);
+    if (!cost) return null;
+    const gems = cost.gems > 0;
+    return {
+      gems,
+      amount: gems ? cost.gems : cost.coins,
+      icon: gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp'
+    };
+  }
+
+  function barOf(item) {
+    if (PD.owns(item.id)) return PD.equippedId('pet') === item.id ? { cls: 'used', html: 'LEPAS' } : { cls: 'own', html: 'GUNAKAN' };
+    const price = priceOf(item);
+    if (!price) return { cls: 'no', html: 'TIDAK DIJUAL', off: true };
+    return { cls: 'buy', html: `<img src="${price.icon}" alt="">${format(price.amount)}` };
+  }
+
   function drawGrid() {
     const equipped = PD.equippedId('pet');
-    let html = PETS.map((item) => {
+    $('#grid').innerHTML = PETS.map((item) => {
       const owned = PD.owns(item.id);
       const used = equipped === item.id;
-      const st = used ? 'st-used' : owned ? 'st-own' : 'st-lock';
-      const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      return `<button class="fslot ${st}${selected && item.id === selected.id ? ' sel' : ''}${owned ? '' : ' lk'}" type="button" data-id="${item.id}" aria-pressed="${!!selected && item.id === selected.id}" aria-label="${item.name}, tier ${item.tier}${used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki'}"><div class="dc"><img src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="${item.name}" loading="lazy"></div>${check}</button>`;
+      const rarity = RARITY[item.rarity] || RARITY.common;
+      const bar = barOf(item);
+      const check = used ? '<img class="pc-ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
+      const state = used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki';
+      return `<article class="pcard${selected && item.id === selected.id ? ' sel' : ''}" style="--rc:${rarity[1]}" data-id="${item.id}">`
+        + `<button class="pc-top" type="button" data-act="view" aria-label="Pratinjau ${item.name}, tier ${item.tier}${state}"><span class="pc-name">${item.name}</span>`
+        + `<span class="pc-art"><img class="pic" src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}`
+        + `<img class="pc-spark" src="assets/images/ui/white-glyphs/bintang-kilau.webp" alt="">${EYE}</span></button>`
+        + `<button class="pc-bar ${bar.cls}" type="button" data-act="use"${bar.off ? ' disabled' : ''}>${bar.html}</button></article>`;
     }).join('');
-    for (let i = PETS.length; i < Math.max(20, Math.ceil(PETS.length / 5) * 5); i++) html += '<div class="slot empty" aria-hidden="true"></div>';
-    $('#grid').innerHTML = html;
   }
 
   function addInfoRow(container, label, value) {
@@ -160,17 +184,14 @@ UT.PageModule.define('pet', function (env) {
       label.textContent = used ? 'LEPAS' : 'GUNAKAN';
       return;
     }
-    const cost = costOf(item);
-    if (!cost) {
+    const price = priceOf(item);
+    if (!price) {
       label.textContent = 'TIDAK DIJUAL';
       button.disabled = true;
       button.classList.add('off');
       return;
     }
-    const gems = cost.gems > 0;
-    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
-    const amount = gems ? cost.gems : cost.coins;
-    label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;
+    label.innerHTML = `<img src="${price.icon}" alt="">${format(price.amount)}`;
   }
 
   function draw() {
@@ -347,22 +368,50 @@ UT.PageModule.define('pet', function (env) {
     modal('Konfirmasi', `Beli ${item.name}\nseharga ${format(amount)} ${currency}?`, 'BATAL', 'BELI', () => buy(item));
   }
 
-  $('#grid').addEventListener('click', (event) => {
-    const card = event.target.closest('.fslot');
-    if (!card) return;
-    selected = PETS.find((item) => item.id === card.dataset.id) || selected;
-    snd('button');
+  function runAction(item) {
+    if (busy || !item) return;
+    if (!PD.owns(item.id)) {
+      buySelected(item);
+      return;
+    }
+    if (PD.equippedId('pet') === item.id) void unequip();
+    else void equip(item);
+  }
+
+  function openPreview(item) {
+    selected = item;
     draw();
+    $('#pv').classList.add('on');
+    $('#pv').setAttribute('aria-hidden', 'false');
+    $('#pvClose').focus({ preventScroll: true });
+  }
+
+  function closePreview() {
+    $('#pv').classList.remove('on');
+    $('#pv').setAttribute('aria-hidden', 'true');
+  }
+
+  $('#grid').addEventListener('click', (event) => {
+    const card = event.target.closest('.pcard');
+    const part = event.target.closest('[data-act]');
+    const item = card && PETS.find((pet) => pet.id === card.dataset.id);
+    if (!item || !part) return;
+    snd('button');
+    if (part.dataset.act === 'use') {
+      selected = item;
+      runAction(item);
+    } else {
+      openPreview(item);
+    }
   });
   $('#use').addEventListener('click', () => {
     if (busy || !selected) return;
     snd('button');
-    if (!PD.owns(selected.id)) {
-      buySelected(selected);
-      return;
-    }
-    if (PD.equippedId('pet') === selected.id) void unequip();
-    else void equip(selected);
+    runAction(selected);
+  });
+  $('#pvClose').addEventListener('click', closePreview);
+  $('#pv').addEventListener('click', (event) => {
+    if (event.target.id === 'pv') closePreview();
   });
   $('#m-no').addEventListener('click', closeModal);
   $('#m-ok').addEventListener('click', () => {
@@ -386,6 +435,7 @@ UT.PageModule.define('pet', function (env) {
     if (event.key !== 'Escape') return;
     if ($('#md').classList.contains('on')) closeModal();
     else if ($('#petInfo').open) return;
+    else if ($('#pv').classList.contains('on')) closePreview();
     else navigate('lobby.html');
   });
 
@@ -396,26 +446,6 @@ UT.PageModule.define('pet', function (env) {
     env.setTimeout(() => { window.location.href = url; }, 330);
   }
 
-  /* di shell: judul + bar tab Inventory milik halaman ini (tab lain = view/iframe lewat inventory.html?tab=) */
-  if (MANAGED && window.UT.InvTabs) {
-    const T = window.UT.InvTabs;
-    document.body.classList.add('inv-view');
-    env.own(() => document.body.classList.remove('inv-view'));
-    $('#title').textContent = 'Inventory';
-    const bar = document.createElement('nav');
-    bar.id = 'invtabs';
-    bar.setAttribute('aria-label', 'Kategori inventory');
-    bar.innerHTML = T.markup('pet');
-    $('#stage').appendChild(bar);
-    try { sessionStorage.setItem(T.KEY, 'pet'); } catch (e) {}
-    bar.addEventListener('click', (event) => {
-      const tab = event.target.closest('.tab');
-      if (!tab || tab.dataset.k === 'pet') return;
-      snd('button');
-      try { sessionStorage.setItem(T.KEY, tab.dataset.k); } catch (e) {}
-      navigate(T.url(tab.dataset.k));
-    });
-  }
   $('#back').addEventListener('click', () => navigate('lobby.html'));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
