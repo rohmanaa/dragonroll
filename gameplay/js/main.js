@@ -338,10 +338,10 @@ function worldMat(mode){
         '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
         '  float dI=floor(vTid+0.5);\n'+
         '  vec2 dUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
-        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r;\n'+
-        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:dT4)));\n'+
-        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:uDStr4)));\n'+
-        '  vec4 dC=dI<1.5?uDC0:(dI<2.5?uDC1:(dI<3.5?uDC2:(dI<4.5?uDC3:uDC4)));\n'+
+        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r,dTs=texture2D(uSTex,dUV*uSScale).r;\n'+
+        '  float dT=dI>5.5?dTs:(dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:dT4))));\n'+
+        '  float dS=dI>5.5?uSStr:(dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:uDStr4))));\n'+
+        '  vec4 dC=dI>5.5?vec4(uSTint,uSTintAmt):(dI<1.5?uDC0:(dI<2.5?uDC1:(dI<3.5?uDC2:(dI<4.5?uDC3:uDC4))));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,dC.rgb,dC.a*gTid);\n'+
         '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
         '#endif');
@@ -1370,9 +1370,9 @@ function grassShade(x,z){
   return new THREE.Color(GRASS_PAL[Math.floor(v*5)]).offsetHSL(0,0,(sgh(x,z,3)-0.5)*0.012);
 }
 /* satu muka atas saja (4 vertex) — untuk tambalan rumput, jauh lebih hemat daripada kotak penuh */
-function addTopQuad(B,cx,y,cz,sx,sz,color){
+function addTopQuad(B,cx,y,cz,sx,sz,color,tex){
   const hx=sx/2,hz=sz/2,base=B.n;
-  [[-1,1],[1,1],[1,-1],[-1,-1]].forEach(v=>{ B.pos.push(cx+v[0]*hx,y,cz+v[1]*hz); B.nor.push(0,1,0); B.col.push(color.r,color.g,color.b); });
+  [[-1,1],[1,1],[1,-1],[-1,-1]].forEach(v=>{ B.pos.push(cx+v[0]*hx,y,cz+v[1]*hz); B.nor.push(0,1,0); B.col.push(color.r,color.g,color.b); if(B.tid) B.tid.push(tex||0); });
   B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
 }
 /* isi permukaan size x size dengan tambalan 1x1; sebagian petak dipecah jadi 4 kotak 0.5 */
@@ -1509,9 +1509,9 @@ function addGrassScenery(DB,th){
   }
 }
 /* kotak sisi vertikal 1 muka (normal sumbu dx/dz), dipakai untuk piksel tebing tanah */
-function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color){
+function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color,tex){
   const tx=dz,tz=-dx,hw=w/2,hy=hh/2,base=B.n;
-  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); });
+  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); if(B.tid) B.tid.push(tex||0); });
   B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
 }
 function islDepth(gx,gz){ const c=Math.min(((gx<0?gx+ISLXL:ISLXR-gx))/2,((gz<0?gz+ISLZT:ISLZB-gz))/2); return Math.min(4.4,1.0+c*0.62); }
@@ -1519,7 +1519,7 @@ function addIslUnder(TB){ /* alas pulau: tanah di tepi, makin ke tengah makin da
   for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
     const dp=islDepth(gx,gz),rr=islH(gx,gz,41),edge=dp<1.7;
     const hex=rr<0.05?0xd9a441:rr<0.1?0xb09a78:edge?ISL.dirt[Math.floor(islH(gx,gz,42)*4)&3]:ISL.stone[Math.floor(islH(gx,gz,43)*4)&3];
-    addBox(TB,gx,-0.4-dp/2,gz,2,dp,2,new THREE.Color(hex).offsetHSL(0,0,(islH(gx,gz,44)-0.5)*0.06),{edge:false});
+    addBox(TB,gx,-0.4-dp/2,gz,2,dp,2,new THREE.Color(hex).offsetHSL(0,0,(islH(gx,gz,44)-0.5)*0.06),{edge:false,tex:(rr<0.1||edge)?4:6});
   }
 }
 function addIslCliff(TB,gx,gz,h){
@@ -1534,13 +1534,14 @@ function addIslCliff(TB,gx,gz,h){
       for(let rw=0;rw<rows;rw++){
         const y0=h-rw*0.5,hh=Math.min(0.5,y0-nh); if(hh<=0.001) break;
         const cy=y0-hh/2,rr=islH(wx+rw*3.1,wz-rw*1.7,32);
-        let hex; if(rw<drip) hex=ISL.moss[(sg+rw)&1];
-        else if(rr<0.07) hex=ISL.clay; else if(rr<0.12) hex=ISL.gravel;
-        else if((h-rw*0.5<0.7&&h>1.2)||y0-hh<-0.2) hex=ISL.stone[Math.floor(rr*4)&3];
+        let hex,tx=4; /* id tekstur sisi tebing: lumut=5 (semak), tanah/tanah liat=4, kerikil/batu=6 */
+        if(rw<drip){ hex=ISL.moss[(sg+rw)&1]; tx=5; }
+        else if(rr<0.07) hex=ISL.clay; else if(rr<0.12){ hex=ISL.gravel; tx=6; }
+        else if((h-rw*0.5<0.7&&h>1.2)||y0-hh<-0.2){ hex=ISL.stone[Math.floor(rr*4)&3]; tx=6; }
         else hex=ISL.dirt[Math.floor(islH(wx,wz+rw,33)*4)&3];
         const c=new THREE.Color(hex).offsetHSL(0,0,(islH(wx,wz,34+rw)-0.5)*0.06);
-        addSideQuad(TB,wx,cy,wz,d[0],d[1],0.5,hh,c);
-        if(rr>0.78) addSideQuad(TB,wx+(d[0]?0.004*d[0]:(islH(wx,wz,35)-0.5)*0.2),cy+(islH(wx,wz,36)-0.5)*0.15,wz+(d[1]?0.004*d[1]:(islH(wx,wz,35)-0.5)*0.2),d[0],d[1],0.16,0.16,c.clone().offsetHSL(0,0,rr<0.9?-0.06:0.08)); /* butir piksel */
+        addSideQuad(TB,wx,cy,wz,d[0],d[1],0.5,hh,c,tx);
+        if(rr>0.78) addSideQuad(TB,wx+(d[0]?0.004*d[0]:(islH(wx,wz,35)-0.5)*0.2),cy+(islH(wx,wz,36)-0.5)*0.15,wz+(d[1]?0.004*d[1]:(islH(wx,wz,35)-0.5)*0.2),d[0],d[1],0.16,0.16,c.clone().offsetHSL(0,0,rr<0.9?-0.06:0.08),tx); /* butir piksel */
       }
     }
   });
@@ -4144,7 +4145,7 @@ function dBone(B,a,b,th,col){
 /* segitiga berwarna per-titik (selaput sayap / sirip) */
 function dTri(B,p,q,r,cp,cq,cr){
   const e1=dVec(p,q),e2=dVec(p,r); let n=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]]; const l=Math.hypot(n[0],n[1],n[2])||1; n=[n[0]/l,n[1]/l,n[2]/l];
-  const base=B.n; [[p,cp],[q,cq],[r,cr]].forEach(a=>{ const c=new THREE.Color(a[1]); B.pos.push(a[0][0],a[0][1],a[0][2]); B.nor.push(n[0],n[1],n[2]); B.col.push(c.r,c.g,c.b); });
+  const base=B.n; [[p,cp],[q,cq],[r,cr]].forEach(a=>{ const c=new THREE.Color(a[1]); B.pos.push(a[0][0],a[0][1],a[0][2]); B.nor.push(n[0],n[1],n[2]); B.col.push(c.r,c.g,c.b); if(B.tid) B.tid.push(0); });
   B.idx.push(base,base+1,base+2); B.n+=3;
 }
 /* rantai ruas menyempit: pts = [x,y,z,tebal]; cb(i) = warna ruas ke-i */
