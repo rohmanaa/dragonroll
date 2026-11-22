@@ -112,7 +112,7 @@ html body.fm.notabs #right #grid.drag{cursor:grabbing}
 #grid.drag .pc-pr,#grid.drag .pc-ic{pointer-events:none}
 #grid img{-webkit-user-drag:none;user-drag:none}
 
-/* ===== Thumbnail pet (hero banner di atas halaman): cinematic, atas agak transparan ===== */
-.pet-thumb{position:absolute;left:0;top:0;width:100vw;height:260px;overflow:hidden;z-index:0}
-.pet-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.12) saturate(1.15)}
-.pet-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0%,rgba(10,6,24,.42) 45%,rgba(10,6,24,.78) 100%);z-index:1;pointer-events:none}
+/* ===== thumbnail kartu: penuh (cover) memenuhi kotak, memakai crop khusus kartu (assets/images/ui/pet/card/) yang fokus ke pet,
+   tanpa makhluk latar (ular/mob) dari ilustrasi penuh. Sebelumnya object-fit:contain + inset membuat gambar kecil dengan pita kosong. ===== */
+.pc-th img:not(.ck){left:0;right:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.pc-th::after{left:0;right:0;top:0;bottom:0;border-radius:0}

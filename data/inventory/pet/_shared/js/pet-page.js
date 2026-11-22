@@ -9,6 +9,8 @@ UT.PageModule.define('pet', function (env) {
   const WS = window.UT && window.UT.WalletService;
   const AS = window.UT && window.UT.AppearanceService;
   const IMAGE_ROOT = 'data/inventory/pet/items/';
+  /* thumbnail kartu = crop fokus-pet (tanpa makhluk latar) dari ilustrasi penuh; bila berkas crop gagal dimuat, pakai ilustrasi penuh (item.image) */
+  const CARD_ROOT = 'assets/images/ui/pet/card/';
   const RARITY = {
     common: ['Biasa', '#cfc8ea'],
     uncommon: ['Tidak Biasa', '#6fe08a'],
@@ -101,24 +103,37 @@ UT.PageModule.define('pet', function (env) {
   }
 
   /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = pratinjau 3D (modal), ikon info = detail */
+  /* Grid hanya dibangun ulang bila isinya benar-benar berubah (dimiliki / dipakai / harga). Sebelumnya setiap draw() membuang semua kartu:
+     thumbnail berkedip dan ketukan yang sedang berjalan bisa hilang saat saldo / inventori / sinkron akun memicu draw().
+     Penanda pilihan (.sel) dipasang terpisah lewat markSelected() agar tidak ikut memaksa rebuild. */
+  let lastGridHtml = '';
   function drawGrid() {
     const equipped = PD.equippedId('pet');
-    $('#grid').innerHTML = PETS.map((item) => {
+    const html = PETS.map((item) => {
       const owned = PD.owns(item.id);
       const used = equipped === item.id;
-      const sel = !!selected && item.id === selected.id;
       const rar = RARITY[item.rarity] ? item.rarity : 'common';
       const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
       const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      return `<article class="pc r-${rar}${sel ? ' sel' : ''}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
+      return `<article class="pc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
         + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
         + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}</span></div>`
+        + `<span class="pc-th"><img src="${CARD_ROOT + item.gameKey.replace(/_/g, '-')}.webp" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
         + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
         + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
         + `</article>`;
     }).join('');
+    if (html !== lastGridHtml) {
+      $('#grid').innerHTML = html;
+      lastGridHtml = html;
+    }
+    markSelected();
+  }
+
+  function markSelected() {
+    const id = selected && selected.id;
+    $('#grid').querySelectorAll('.pc').forEach((card) => card.classList.toggle('sel', card.dataset.id === id));
   }
 
   function addInfoRow(container, label, value) {
@@ -173,6 +188,13 @@ UT.PageModule.define('pet', function (env) {
       selected = PETS.find((item) => item.id === equipped) || PETS[0];
     }
     drawGrid();
+    updatePreview();
+    showWallet();
+  }
+
+  /* isi modal pratinjau + minta viewer 3D memuat pet terpilih (tanpa membangun ulang grid) */
+  function updatePreview() {
+    if (env.disposed || !selected) return;
     const detail = metadata.get(selected.gameKey);
     const rarity = RARITY[selected.rarity] || RARITY.common;
     $('#nm').textContent = selected.name;
@@ -182,7 +204,21 @@ UT.PageModule.define('pet', function (env) {
     $('#petGl').setAttribute('aria-label', `Pratinjau 3D ${selected.name}`);
     if (window.PetViewer) window.PetViewer.select(selected.gameKey);
     renderDetails(selected);
-    showWallet();
+  }
+
+  /* Muat semua modul model 3D saat browser senggang, supaya pratinjau pet mana pun langsung tampil
+     (dulu modul baru diunduh baru saat kartu diketuk, jadi modal sempat kosong). */
+  function prewarmModels() {
+    const registry = window.UT && window.UT.PetModelRegistry;
+    if (!registry || typeof registry.load !== 'function') return;
+    const run = () => {
+      if (env.disposed) return;
+      PETS.forEach((item) => {
+        if (registry.hasModule(item.gameKey)) registry.load(item.gameKey).catch(() => {});
+      });
+    };
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 1500 });
+    else env.setTimeout(run, 400);
   }
 
   async function loadMetadata() {
@@ -367,29 +403,39 @@ UT.PageModule.define('pet', function (env) {
     $('#pv').setAttribute('aria-hidden', 'true');
   }
 
+  /* ketuk tombol bar bawah = beli/pakai/lepas; ikon info = detail; ikon mata ATAU badan kartu = pratinjau 3D.
+     Pratinjau: pilih -> isi modal + minta viewer -> baru buka modal (tanpa membangun ulang grid), jadi tampil langsung. */
   $('#grid').addEventListener('click', (event) => {
-    const btn = event.target.closest('[data-act]');
-    const card = btn && btn.closest('.pc');
+    const card = event.target.closest('.pc');
     const item = card && PETS.find((pet) => pet.id === card.dataset.id);
     if (!item) return;
+    const btn = event.target.closest('[data-act]');
+    const act = btn ? btn.dataset.act : 'preview';
     selected = item;
     snd('button');
-    if (btn.dataset.act === 'use') {
+    if (act === 'use') {
       runAction(item);
       return;
     }
-    draw();
-    if (btn.dataset.act === 'detail') openInfo();
+    markSelected();
+    updatePreview();
+    if (act === 'detail') openInfo();
     else openPreview();
   });
   /* geser baris kartu: roda mouse / Shift + roda = ke samping; tahan + seret mouse = geser (touch tetap pan bawaan) */
   const gridEl = $('#grid');
+  gridEl.addEventListener('error', (event) => {
+    const img = event.target;
+    if (img && img.tagName === 'IMG' && img.dataset.fb && img.getAttribute('src') !== img.dataset.fb) img.src = img.dataset.fb;
+  }, true);
   gridEl.addEventListener('wheel', (event) => {
     if (gridEl.scrollWidth <= gridEl.clientWidth) return;
     const d = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
     if (!d) return;
     event.preventDefault();
-    gridEl.scrollLeft += d * (event.deltaMode === 1 ? 32 : 1);
+    /* kanvas 1920x1080 diskalakan (transform), jadi 1px layar = 1/k px scrollLeft; sama seperti perhitungan seret di bawah */
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1;
+    gridEl.scrollLeft += d * (event.deltaMode === 1 ? 32 : 1) / k;
   }, { passive: false });
   let drag = null;
   let dragged = false;
@@ -515,6 +561,7 @@ UT.PageModule.define('pet', function (env) {
   draw();
   showWallet();
   fit();
+  prewarmModels();
   refreshAccount();
   void loadMetadata();
   document.documentElement.classList.add('ut-ready');

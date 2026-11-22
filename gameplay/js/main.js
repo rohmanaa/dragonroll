@@ -294,6 +294,8 @@ function pick(a){ return a[Math.floor(rnd()*a.length)]; }
 const makeBatch=GV.makeBatch,addBox=GV.addBox,addOBox=GV.addOBox;
 /*GEOM-END*/
 const MAT=new THREE.MeshLambertMaterial({vertexColors:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
+const CINE=(window.UT&&UT.Cinema)||null; /* gameplay/js/cinematic.js: post-processing, langit shader, partikel ambient (opsional; null = tampilan lama) */
+if(CINE){ try{ CINE.patchMaterial(MAT); }catch(e){ console.warn(e); } }
 const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6});
 /* ===== Tekstur rumput World (netral/abu-abu, seamless). WARNA & kekuatan diatur dari CSS (body.th-world di gameplay-overrides.css):
    --world-grass-tex (0..1, 0 = mati/tampilan lama = "opacity" tekstur), --world-grass-tex-size (satuan dunia per ubin tekstur),
@@ -351,6 +353,7 @@ function worldMat(mode){
         '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
         '#endif');
   };
+  if(CINE){ try{ CINE.patchMaterial(WM); }catch(e){ console.warn(e); } } /* material bertekstur ikut shader sinematik (patchMaterial merantai onBeforeCompile tekstur) */
   if(!GRASS_REQ){ GRASS_REQ=true;
     const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} };
     ld(GRASS2_TEX_URL,GU.tex2); ld(STONE_TEX_URL,GU.stex);
@@ -1352,15 +1355,13 @@ function sgn(x,z,k){ const x0=Math.floor(x),z0=Math.floor(z),fx=x-x0,fz=z-z0,sx=
    Deterministik per koordinat (TIDAK memakai rnd()/lr()), jadi urutan acak dunia tidak bergeser. ===== */
 const ISL={grass:[0x66AE49,0x5CA343,0x70B84F,0x529A3D],grassDk:[0x4A9136,0x448830,0x519C3B,0x3C7F2B],grassMd:[0x57A042,0x4F973C,0x61AB48,0x498E37],olive:0x8FB44D,sage:0x4F9B62,moss:[0x5AA24B,0x509643],dirt:[0x9A6540,0x8B5A37,0xA77246,0x7C4F31],clay:0xB98650,gravel:0x9C9CA4,stone:[0xA9ABB4,0x9598A4,0xBBBDC5,0x8A8E9B],flowers:[0xE8708A,0xFFC93C,0xFFFFFF,0x9B8CFF,0xFF9A3C]};
 function islH(a,b,k){ const h=Math.sin(a*127.1+b*311.7+(k||0)*74.7)*43758.5453; return h-Math.floor(h); }
+/* Rumput World gaya demo "Blok Sinematik": papan catur 1x1 (dua nuansa selang-seling) + variasi kecerahan halus per sel -> rapi & terstruktur,
+   menggantikan hamparan/tambalan acak lama. Nuansa dari palet ISL.grass (ganti GRASS_CHK ke [0x5A9E3C,0x4F8A33] untuk hijau persis demo).
+   Deterministik per koordinat (TANPA rnd()/lr()): urutan acak dunia tidak bergeser. Sel 1x1 = floor(x),floor(z), jadi kuad 0.5 tepi sungai ikut kotaknya. */
+const GRASS_CHK=[ISL.grass[0],ISL.grass[1]];
 function islGrass(x,z){
-  const fx=Math.floor(x),fz=Math.floor(z),patch=islH(Math.floor(x/2),Math.floor(z/2),1),rr=islH(x,z,2);
-  /* hamparan rumput tua BESAR (garis tengah ~6-7 unit, tepi tak beraturan) + zona peralihan, bukan bintik kecil.
-     Tanah terbuka kini hanya lewat jalan tanah (buildRoads), bukan tambalan acak. */
-  const bl=sgn(x/7+4.7,z/7+1.9,31)*0.78+sgn(x/3+0.5,z/3+8.1,32)*0.22,pk=((fx+fz)&1)?(rr<0.2?2:0):(rr<0.2?3:1);
-  if(bl>0.6) return new THREE.Color(ISL.grassDk[pk]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
-  if(bl>0.53) return new THREE.Color(ISL.grassMd[pk]).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
-  const hex=patch>0.8?ISL.olive:patch<0.16?ISL.sage:ISL.grass[pk];
-  return new THREE.Color(hex).offsetHSL(0,0,(islH(x,z,3)-0.5)*0.03);
+  const fx=Math.floor(x),fz=Math.floor(z);
+  return new THREE.Color(GRASS_CHK[(fx+fz)&1]).offsetHSL(0,0,(islH(fx,fz,3)-0.5)*0.1);
 }
 function islSide(base,hi,x,z){ /* sisi tanah/batu kolom World: tanah coklat bervariasi + tanah liat + kerikil; kolom tinggi = batu abu-kebiruan */
   const rr=islH(x,z,4);
@@ -1616,7 +1617,7 @@ function buildRiverWorld(TB,R){
     bank(X0,xl,zc); bank(xr,X1,zc);
     addBox(TB,(xl+xr)/2,(BED+BTOP)/2,zc,xr-xl,BTOP-BED,0.5,new THREE.Color(SAND[Math.floor(islH(i,1,74)*4)&3]),F); /* dasar pasir */
     addBox(TB,(xl+xr)/2,(BTOP+WTOP)/2,zc,xr-xl,WTOP-BTOP,0.5,new THREE.Color(R).offsetHSL(0,0,(islH(i,2,72)-0.5)*0.04),F); /* air */
-    waterDetail(TB,(xl+xr)/2,zc,WTOP,xr-xl,0.5,i+300,Math.max(2,Math.round((xr-xl)/0.8)),1);
+    waterBlocks(TB,xl,xr,zc,WTOP,R); /* blok air 1x1 ala demo Blok Sinematik (kilau & riak = shader MAT di cinematic.js, sama persis dengan demo) */
     addBox(TB,xl-0.06,-0.03,zc,0.12,0.09,0.5,ISL.moss[i&1],F); addBox(TB,xr+0.06,-0.03,zc,0.12,0.09,0.5,ISL.moss[(i+1)&1],F); /* lumut tepi */
     if(islH(i,3,73)<0.12) addBox(TB,(islH(i,4,73)<0.5?xl-0.3:xr+0.3),0.07,zc,0.14,0.1,0.14,ISL.stone[i&3],F); /* kerikil di tepi */
   }
@@ -2078,8 +2079,8 @@ function labelTexture(text,w,h,fs,fill,line){
   const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
   const g=cv.getContext('2d');
   g.textAlign='center'; g.textBaseline='middle'; g.lineJoin='round';
-  g.font='700 '+fs+'px Silkscreen, monospace';
-  g.lineWidth=fs*0.2; g.strokeStyle=line; g.strokeText(text,w/2,h/2+fs*0.04);
+  g.font='700 '+fs+'px "Space Grotesk",system-ui,sans-serif'; /* font angka petak ala demo Blok Sinematik */
+  g.lineWidth=fs*0.16; g.strokeStyle=line; g.strokeText(text,w/2,h/2+fs*0.04);
   g.fillStyle=fill; g.fillText(text,w/2,h/2+fs*0.04);
   const tex=new THREE.CanvasTexture(cv);
   tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy()||1);
@@ -2087,18 +2088,20 @@ function labelTexture(text,w,h,fs,fill,line){
 }
 function buildLabels(th){
   const geo=new THREE.PlaneGeometry(0.72,0.72); /* nomor petak 1.2x (0.6 -> 0.72) */
+  const LABS=[];
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n];
-    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false})); /* fog:false: nomor tidak ikut memudar jadi warna langit saat kamera jauh */
-    m.rotation.x=-Math.PI/2; m.position.set(t.x,t.h+0.012,t.z); m.renderOrder=2;
-    world.add(m);
+    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?44:56,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false})); /* fog:false: nomor tidak ikut memudar jadi warna langit saat kamera jauh */
+    m.rotation.x=-Math.PI/2; m.position.set(t.x,t.h+0.032,t.z); m.renderOrder=2; /* +0.032: di atas kotak timbul tengah petak (top t.h+0.01) */
+    world.add(m); LABS[n]=m;
   }
+  if(CINE_ON){ try{ CINE.setTiles(TILES,LABS); }catch(e){ console.warn(e); } } /* tile menyala/tertekan saat diinjak (cinematic.js) */
   const st=new THREE.Mesh(new THREE.PlaneGeometry(1.8,0.45),new THREE.MeshBasicMaterial({map:labelTexture('START',256,64,40,th.label,th.labelLine),transparent:true,depthWrite:false,fog:false}));
   st.rotation.x=-Math.PI/2; st.position.set(PAD.x,0.012,PAD.z+1.5); st.renderOrder=2;
   world.add(st);
 }
 const fontReady=(document.fonts&&document.fonts.load)
-  ?Promise.race([document.fonts.load('700 40px Silkscreen'),new Promise(r=>setTimeout(r,2500))]).catch(()=>{})
+  ?Promise.race([document.fonts.load('700 40px "Space Grotesk"'),new Promise(r=>setTimeout(r,2500))]).catch(()=>{})
   :Promise.resolve();
 
 let night=false,nightObjs=[],torchMeshes=[],skyStars=null;
@@ -2106,6 +2109,7 @@ const PHASE_SEC=12*60;                         /* mode auto: tiap fase siang/mal
 let autoDN=false,phaseT=0;
 try{ autoDN=UT.Prefs.get('autoDN',false)===true; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
+let CINE_ON=false; if(CINE){ try{ CINE_ON=CINE.init({renderer,scene,camera,hemi,sun,skyDome,coarse,reduce}); }catch(e){ console.warn(e); } }
 /* SINKRON dengan Pengaturan > Suasana (PlayerData.settings().ambience: day | night | system; cermin di UT.Prefs 'ambience'): itulah sumber siang/malam saat game dibuka. Kunci lama 'night' hanya cadangan bila Suasana belum ada. */
 function ambienceNight(){
   try{
@@ -2166,6 +2170,7 @@ function applyLook(th){
     moon.lookAt(0,0,0);
     skyDome.add(st); skyDome.add(moon); nightObjs.push(st,moon);
   }
+  if(CINE_ON){ try{ CINE.look({night:night,themeKey:th.key,top:top,bot:bot,hemiGnd:th.hemi}); }catch(e){ console.warn(e); } }
   applyNightFX(); syncHostNight();
   document.body.classList.toggle('night',night); updateNightUI();
 }
@@ -2631,6 +2636,17 @@ function voxShell(B,cx,cy,cz,w,h,d,u,pal,seed,o){
     addBox(B,cx-w/2+sx*(i+0.5),cy-h/2+sy*(j+0.5),cz-d/2+sz*(k+0.5),sx,sy,sz,vcol(palAt(pal,hrn(i,j*7+k,seed,3)),seed,i+k*13,j,0.035),o);
   }
 }
+/* ===== Bingkai papan gaya demo "Blok Sinematik": cincin kubus kayu 0.5, setinggi petak + FRAME_RISE.
+   Kecerahan tiap kubus berbeda (deterministik via hrn, TANPA rnd()/lr() -> seed dunia tidak bergeser). Dipakai kayu (buildTheme) & lapisan bedrock (Dragon Awakening) agar jejaknya sama persis. ===== */
+const FRAME_RISE=0.3;
+function frameRingSegs(top){ return [[0,5.25,11,0.5,top],[0,-5.25,11,0.5,top],[5.25,0,0.5,10,top],[-5.25,0,0.5,10,top]]; } /* [cx,cz,lebar x,lebar z,tinggi] */
+function woodRing(B,wb,top,tex){
+  const base=new THREE.Color(wb),E={edge:false,tex:tex||0},cy=(top-0.1)/2,hh=top+0.1;
+  /* geser 0.008 keluar: sisi dalam kubus tadinya tepat di |x|/|z|=5.0 = dalam jangkauan 'tile tertekan' (cinematic.js, <0.502 dari pusat petak) -> bingkai ikut turun saat bidak menginjak petak tepi. Dengan 5.008 > 5.002 bingkai tak tersentuh. */
+  const put=(x,z)=>{ const a=Math.round(x*4),b=Math.round(z*4),L=Math.min(1,1+(hrn(a,b,77,5)-0.5)*0.5*hrn(a,b,77,6)),ox=Math.abs(x)>5?Math.sign(x)*0.008:0,oz=Math.abs(z)>5?Math.sign(z)*0.008:0; addBox(B,x+ox,cy,z+oz,0.5,hh,0.5,base.clone().multiplyScalar(L),E); };
+  for(let i=0;i<22;i++){ const x=-5.25+i*0.5; put(x,-5.25); put(x,5.25); }          /* sisi atas & bawah (termasuk 4 sudut) */
+  for(let i=0;i<20;i++){ const z=-4.75+i*0.5; put(-5.25,z); put(5.25,z); }          /* sisi kiri & kanan (tanpa sudut: tidak dobel) */
+}
 /* Bedrock: abu-abu gelap, bintik hitam & abu terang, tidak satu warna */
 const BEDROCK=[0x1B1B1B,0x1B1B1B,0x262626,0x262626,0x303030,0x3B3B3B,0x3B3B3B,0x4A4A4A,0x585858,0x0D0D0D,0x0D0D0D,0x6A6A6A];
 /* Papan kayu: lembar papan acak panjang, serat, paku, dan garis sambungan di sisi luar. alongX = sumbu panjang strip */
@@ -2665,6 +2681,17 @@ function waterDetail(B,cx,cz,y,w,d,seed,nx,nz){
   for(let i=0;i<nx;i++) for(let j=0;j<nz;j++)
     addBox(B,cx-w/2+sx*(i+0.5),y+0.006,cz-d/2+sz*(j+0.5),sx*0.98,0.012,sz*0.98,vcol(palAt(WATERPAL,hrn(i,j,seed,4)),seed,i,j,0.04),E);
 }
+/* air sungai gaya demo "Blok Sinematik": blok 1x1 (sejajar kotak rumput) dengan 3 nuansa berdekatan dari warna sungai tema (R) + variasi halus per blok, dipotong mengikuti tepi alur.
+   Tinggi/ketebalan sama dgn waterDetail (rentang y yang dikenali shader kilau air di cinematic.js). Deterministik (hrn): tanpa rnd()/lr(). */
+function waterBlocks(B,xl,xr,zc,y,R){
+  const E={edge:false},fz=Math.floor(zc),ST=[-0.045,0,0.045];
+  for(let x=xl;x<xr-0.001;){
+    const fx=Math.floor(x+1e-6),nx=Math.min(xr,fx+1),cx=(x+nx)/2,w=nx-x;
+    const c=new THREE.Color(R).offsetHSL(0,0,ST[Math.min(2,Math.floor(hrn(fx,fz,300,4)*3))]+(hrn(fx,fz,300,91)-0.5)*0.04);
+    addBox(B,cx,y+0.006,zc,w,0.012,0.5,c,E);
+    x=nx;
+  }
+}
 const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): sekarang di puncak 6 tower kecil di pinggir papan */
 /* ---------- Dragon Awakening versi papan ----------
    Tidak ada lagi arena kiri / tower besar. Alur: bidak 100 -> gempa -> kayu bingkai papan jadi bedrock -> 4 End Crystal pembangkit muncul
@@ -2694,9 +2721,8 @@ function buildArena(){
   const mkSprite=(col)=>{ const m=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.visible=false; m.frustumCulled=false; g.add(m); return m; };
   const mkBeam=(col)=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.visible=false; m.frustumCulled=false; g.add(m); return m; };
   /* kayu bingkai -> bedrock: lapisan bedrock sedikit lebih besar dari bingkai kayu, tumbuh dari bawah menutupi kayu */
-  const FB=makeBatch(),FT=TILES[1].h,FO=FT+0.4;
-  [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
-   [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const top=f[4]; voxShell(FB,f[0],(top-0.25)/2,f[1],f[2]+0.03,top+0.27,f[3]+0.03,0.22,BEDROCK,40+fi,E); });
+  const FB=makeBatch(),FT=TILES[1].h;
+  frameRingSegs(FT+FRAME_RISE).forEach((f,fi)=>{ const top=f[4]; voxShell(FB,f[0],(top-0.1)/2,f[1],f[2]+0.03,top+0.14,f[3]+0.03,0.22,BEDROCK,40+fi,E); }); /* jejak = cincin kayu baru, sedikit lebih besar */
   const frame=buildBatch(FB); frame.scale.y=0.001; frame.visible=false; g.add(frame);
   /* 6 tower kecil bedrock di pinggir papan (kaki lebar, batang, kepala lebar) */
   const towers=TOWER_SPOTS.map((q,i)=>{
@@ -3799,7 +3825,7 @@ function buildWorld(key){
 
   const TB=makeBatch();
   for(let n=1;n<=GOAL;n++){
-    const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
+    const t=TILES[n],colTop=t.h-0.1,hh=colTop+0.5; /* kolom tanah sampai t.h-0.1; pelat 0.1 di atasnya (bentuk tile demo Blok Sinematik) */
     addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06),{tex:th.key==='minecraft'?4:0});
     if(n===GOAL&&BOSS==='dragon'){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i===0||i===3||j===0||j===3)?0x0A0712:0x161024,{edge:false}); /* 2 warna: border gelap + tengah sedikit lebih terang (tanpa papan catur) */
@@ -3808,7 +3834,9 @@ function buildWorld(key){
     }
     {
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
-      for(let i=0;i<5;i++) for(let j=0;j<5;j++) addBox(TB,t.x+(i-2)*0.188,t.h-0.1,t.z+(j-2)*0.188,0.188,0.2,0.188,tileShade(bc,n,t,i,j,th.key),{edge:false}); /* grid 5x5: border 1 blok, tengah 3x3 (lebih besar dari 2x2) */
+      /* bentuk tile ala demo: pelat 0.95 (celah gelap 0.05 antar petak) + kotak timbul 0.62 di tengah. Warna tetap dari tileShade (cincin gelap / tengah terang) */
+      addBox(TB,t.x,t.h-0.05,t.z,0.95,0.1,0.95,tileShade(bc,n,t,0,0,th.key),{edge:false});
+      addBox(TB,t.x,t.h,t.z,0.62,0.02,0.62,tileShade(bc,n,t,2,2,th.key),{edge:false});
       for(let k=0;k<16;k++) rnd(); /* pertahankan jumlah panggilan rnd() lama (16 blok) agar seed dunia/dekor tidak bergeser */
       /* dekor kecil di sudut petak dibuang bila petak ini berisi mob/chest (bentrok). Argumen tetap dievaluasi -> urutan rnd() & seed dunia tidak berubah. */
       const decorOK=!(mobOn(n,th.key)||CHESTS.has(n)),dbox=(x,y,z,w,h,d,c,o)=>{ if(decorOK) addBox(TB,x,y,z,w,h,d,c,o); };
@@ -3823,10 +3851,10 @@ function buildWorld(key){
   MCFLAT=(th.decor==='mc');
   if(BOARD_CUSTOM) buildCustomGround(TB,th); else buildMcTerrain(TB,th);
   if(!BOARD_CUSTOM){
-    /* frame kayu 2 lapis: lapis DALAM (menempel petak) rata dengan permukaan petak, lapis LUAR lebih tinggi */
-    const FT=TILES[1].h,FO=FT+0.4; /* FT = tinggi permukaan petak, FO = tinggi lapis luar */
-    [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
-     [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08),{tex:th.key==='minecraft'?3:0}); }); /* tanpa corak papan kayu di permukaan atas */
+    /* frame kayu gaya demo: cincin kubus 0.5 setinggi petak+FRAME_RISE (lihat woodRing). Bedrock Dragon Awakening memakai jejak yang sama. */
+    const FT=TILES[1].h;
+    for(let k=0;k<8;k++) jit(0,0.08); /* pertahankan 8 panggilan rnd() lama (dulu 1 per balok frame) agar seed dunia/dekor tidak bergeser */
+    woodRing(TB,th.key==='minecraft'?0x6B4424:th.wall[1],FT+FRAME_RISE,th.key==='minecraft'?MT.WOOD:0);
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],1.15,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.43,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
   // area mulai
@@ -4567,6 +4595,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function onResize(){
   const w=window.innerWidth,h=window.innerHeight;
   renderer.setSize(w,h,false);
+  if(CINE_ON){ try{ CINE.resize(w,h,renderer.getPixelRatio()); }catch(e){ console.warn(e); } }
   camera.aspect=w/h;
   const t=Math.tan(camera.fov*Math.PI/360);
   baseDist=Math.max(11,5.9/(t*camera.aspect),6.6/t)*0.76;
@@ -6908,7 +6937,10 @@ function runFrame(now){
   updateMobs(dt,now/1000);
   updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000); tickAuto(dt);
   updateFades(dt,watch); updateGhastFade(dt,watch);
-  if(!document.hidden) renderer.render(scene,camera);
+  if(!document.hidden){
+    if(CINE_ON){ CINE.setReduced(reduce); CINE.setDoom(ARENA&&ARENA.g&&ARENA.g.visible?ARENA.bed:0); CINE.trackPawns(players.map(q=>q&&q.pawn?q.pawn.position:null)); /* Dragon Awakening: kayu->bedrock = lingkungan layu + kabut hitam */ CINE.update(dt,now/1000,camera,camTarget); CINE.render(); }
+    else renderer.render(scene,camera);
+  }
 }
 /* Pindah tab/aplikasi: browser menghentikan requestAnimationFrame, jadi game ikut berhenti. Saat tersembunyi, langkahkan game lewat timer (browser membatasi ±1x/dtk). */
 let BG_TIMER=0;
