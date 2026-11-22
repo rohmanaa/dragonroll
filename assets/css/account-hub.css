@@ -17,9 +17,11 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
 
 /* bingkai kartu: PENUH satu layar (kanvas 1920x1080) dan agak transparan. Tepi = border-image tanpa `fill`; isi = ::before berwarna
    semi-transparan + blur latar, sehingga latar halaman tetap terlihat tembus. (Tanpa filter pada #pmodal: filter mematikan backdrop-filter anaknya.) */
-#pmodal{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;box-sizing:border-box;z-index:0;
+/* --hub-ex/--hub-ey = sisa layar di luar kanvas (diisi UT.AccountHub.fitFrame); #stage biasanya overflow:hidden, jadi dibuka selama hub aktif */
+#stage.has-hub{overflow:visible!important}
+#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px));top:calc(-1 * var(--hub-ey,0px));width:calc(1920px + 2 * var(--hub-ex,0px));height:calc(1080px + 2 * var(--hub-ey,0px));pointer-events:none;box-sizing:border-box;z-index:0;
   border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 22px stretch}
-#pmodal::before{content:"";position:absolute;inset:0;background:rgba(18,13,36,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#pmodal::before{content:"";position:absolute;inset:0;background:rgba(18,13,36,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 
 /* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
 #ptabs{position:absolute;left:210px;top:34px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
@@ -55,7 +57,7 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
 
 html[data-graphics="low"] #ptabs .ptab{transition:none}
 html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pback img{filter:none}
-html[data-graphics="low"] #pmodal::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(18,13,36,.72)}
+html[data-graphics="low"] #pmodal::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(18,13,36,.92)}
 @media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pback{transition:none}}
 
 /* mata uang (koin/emerald) tidak dibawa ke dalam hub */

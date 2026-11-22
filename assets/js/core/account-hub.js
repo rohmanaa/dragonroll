@@ -188,6 +188,17 @@
     stage.appendChild(hub);
     stage.classList.add('has-hub');
 
+    /* ---- kartu PENUH selebar/setinggi layar: kanvas 1920x1080 diskalakan (k) dan dipusatkan; sisa layar di luar kanvas (layar lebih lebar/
+       tinggi dari 16:9) dihitung dalam satuan kanvas lalu dipakai CSS (--hub-ex/--hub-ey) untuk melebarkan bingkai kartu ke tepi layar ---- */
+    function fitFrame() {
+      var vw = G.innerWidth || 1920, vh = G.innerHeight || 1080, k = Math.min(vw / 1920, vh / 1080) || 1;
+      stage.style.setProperty('--hub-ex', Math.max(0, (vw / k - 1920) / 2).toFixed(1) + 'px');
+      stage.style.setProperty('--hub-ey', Math.max(0, (vh / k - 1080) / 2).toFixed(1) + 'px');
+    }
+    fitFrame();
+    G.addEventListener('resize', fitFrame);
+    G.addEventListener('orientationchange', fitFrame);
+
     /* ---- util ---- */
     function dialogOpen() { return !!pane.querySelector('#md.on,#confirm.on,#lang.on'); }
     function feedback() {
@@ -343,6 +354,9 @@
       leave();
       disposed = true;
       D.removeEventListener('keydown', onKeydown, true);
+      G.removeEventListener('resize', fitFrame);
+      G.removeEventListener('orientationchange', fitFrame);
+      stage.style.removeProperty('--hub-ex'); stage.style.removeProperty('--hub-ey');
       rm(hub);
       stage.classList.remove('has-hub');
       PM.managed = prevManaged;
