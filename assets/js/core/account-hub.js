@@ -1,12 +1,12 @@
-/* UT.AccountHub — Profil · Teman · Pesan · Pengaturan dalam SATU halaman (profile.html) berbentuk modal sungguhan.
+/* UT.AccountHub — Profil · Teman · Pesan · Pengaturan dalam SATU halaman penuh (profile.html), BUKAN modal.
    - Tab berpindah DI TEMPAT: panel lama di-unmount, panel baru dimuat ke #pane (CSS + DOM + skrip + modul), tanpa pindah halaman, tanpa fade,
      bingkai modal/tab/tombol X tetap. Hanya SATU panel yang ada di DOM pada satu waktu, jadi id yang sama (#list, #md, #toast, ...) tidak bentrok.
    - Sumber isi panel: Profil = <template id="tpl-profil"> di profile.html; Teman/Pesan/Pengaturan = isi #stage dari friendship.html / mail.html /
      settings.html (halaman itu tetap jadi sumber; dibuka langsung di browser ia dialihkan ke profile.html?tab=...).
-   - Perilaku modal: role=dialog + aria-modal + aria-labelledby, fokus masuk saat dibuka & terkunci di dalam (Tab/Shift+Tab), latar di luar `inert`,
-     Esc menutup (bila ada dialog dalam yang terbuka, Esc menutup dialog itu dulu), klik area gelap di luar panel menutup, tombol X menutup,
-     tab berstandar WAI-ARIA (panah kiri/kanan, Home/End, roving tabindex). Dialog dalam panel (#md, #confirm, #lang) dibungkus UT.ModalKit.
-   - URL: ?tab=profil|teman|pesan|setelan (+ &from=halaman-asal untuk tujuan tombol tutup). Ganti tab memakai replaceState (tidak menambah riwayat).
+   - Perilaku halaman: tombol Kembali (kiri atas) pindah ke halaman asal; Esc juga kembali (bila ada dialog dalam yang terbuka, Esc menutup dialog itu dulu).
+     Tidak ada latar gelap, perangkap fokus, `inert`, atau tutup-dengan-klik-luar. Tab berstandar WAI-ARIA (panah kiri/kanan, Home/End, roving tabindex).
+     Dialog KECIL di dalam panel (#md, #confirm, #lang) tetap modal sungguhan dan dibungkus UT.ModalKit.
+   - URL: ?tab=profil|teman|pesan|setelan (+ &from=halaman-asal untuk tujuan tombol Kembali). Ganti tab memakai replaceState (tidak menambah riwayat).
    Skrip klasik. Helper murni (pageOf, tabOf, canon, hubUrl, homeUrl, ...) dapat dimuat di Node (module.exports) untuk tes. */
 (function (root, factory) {
   var api = factory(root);
@@ -49,7 +49,7 @@
     if (BY[t]) return t;
     return PAGE_TAB[pageOf(url)] || 'profil';
   }
-  /* tujuan tombol tutup yang aman: halaman .html lokal, bukan halaman hub/splash/index/play */
+  /* tujuan tombol Kembali yang aman: halaman .html lokal, bukan halaman hub/splash/index/play */
   function validFrom(f) {
     return f && /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(f) && !/^(profile|friendship|mail|settings|splash|index|play)\.html/i.test(f) ? f : '';
   }
@@ -62,7 +62,7 @@
     if (!PAGE_TAB[p] || p === 'profile.html') return url;
     return hubUrl(PAGE_TAB[p], param(url, 'from'));
   }
-  /* tujuan tombol tutup: ?from= yang valid; bila tidak ada, halaman asal (referrer sama-origin yang valid); selain itu lobby */
+  /* tujuan tombol Kembali: ?from= yang valid; bila tidak ada, halaman asal (referrer sama-origin yang valid); selain itu lobby */
   function homeUrl(url, referrer, origin) {
     var f = validFrom(param(url, 'from'));
     if (f) return f;
@@ -84,9 +84,6 @@
 
   /* ================= browser ================= */
   var D = G.document, active = null;
-  /* tertanam di Lobby sebagai modal (iframe ?embed=lobby): tutup & navigasi keluar diteruskan ke induk */
-  var EMBED = G.parent !== G && /[?&]embed=lobby(&|$)/.test(G.location.search);
-  function toParent(msg) { try { G.parent.postMessage(msg, '*'); } catch (e) { /* abaikan */ } }
 
   function el(tag, id, cls) {
     var n = D.createElement(tag);
@@ -166,17 +163,16 @@
     var prevManaged = PM.managed;
     PM.managed = true;   // halaman mandiri: modul panel TIDAK boleh mount sendiri saat skripnya dimuat; hub yang memasangnya
 
-    var disposed = false, closing = false, busy = false, want = null, cur = null, curKey = '', downOutside = false, undoInert = null;
+    var disposed = false, closing = false, busy = false, want = null, cur = null, curKey = '';
 
-    /* ---- kerangka modal ---- */
-    var hub = el('div', 'phub'); hub.setAttribute('role', 'dialog'); hub.setAttribute('aria-modal', 'true'); hub.setAttribute('aria-labelledby', 'phub-title');
-    var backdrop = el('div', 'pbackdrop'); backdrop.setAttribute('aria-hidden', 'true');
-    var frame = el('div', 'pmodal'); frame.setAttribute('aria-hidden', 'true');
+    /* ---- kerangka halaman ---- */
+    var hub = el('div', 'phub'); hub.setAttribute('role', 'region'); hub.setAttribute('aria-labelledby', 'phub-title');
+    var frame = el('div', 'pmodal'); frame.setAttribute('aria-hidden', 'true');   // bingkai kartu halaman (nama id lama dipertahankan untuk CSS)
     var title = el('h2', 'phub-title', 'sr-only');
     var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
     var pane = el('div', 'pane'); pane.setAttribute('role', 'tabpanel'); pane.tabIndex = -1;
-    var xbtn = el('button', 'pclose'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
-    var xi = D.createElement('img'); xi.src = IC + 'buttons-and-controls/tombol-tutup-bulat.webp'; xi.alt = ''; xbtn.appendChild(xi);
+    var xbtn = el('button', 'pback'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Kembali');
+    var xi = D.createElement('img'); xi.src = IC + 'navigation-icons/panah-kembali.webp'; xi.alt = ''; xbtn.appendChild(xi);
 
     var tabBtns = {};
     TABS.forEach(function (t) {
@@ -188,12 +184,9 @@
       b.appendChild(ic); b.appendChild(sp); b.appendChild(ul);
       tabs.appendChild(b); tabBtns[t.key] = b;
     });
-    [backdrop, frame, title, tabs, pane, xbtn].forEach(function (n) { hub.appendChild(n); });
+    [frame, title, tabs, pane, xbtn].forEach(function (n) { hub.appendChild(n); });
     stage.appendChild(hub);
     stage.classList.add('has-hub');
-
-    /* latar di luar modal: tidak bisa difokus/diklik/dibaca selama modal terbuka (di shell: elemen shell lain) */
-    undoInert = MK.inertOthers(hub, { skip: function (n) { return n.id === 'fade'; } });
 
     /* ---- util ---- */
     function dialogOpen() { return !!pane.querySelector('#md.on,#confirm.on,#lang.on'); }
@@ -309,12 +302,11 @@
       })();
     }
 
-    /* ---- menutup ---- */
+    /* ---- kembali ke halaman asal ---- */
     function close() {
       if (closing || disposed) return;
       closing = true;
       feedback();
-      if (EMBED) { toParent({ type: 'ut-hub-close' }); G.setTimeout(function () { closing = false; }, 1500); return; }
       var to = homeUrl(url, D.referrer, G.location.origin);
       if (UT.Spa && UT.Spa.go) { UT.Spa.go(to); G.setTimeout(function () { closing = false; }, 1500); }
       else {
@@ -322,29 +314,14 @@
         G.setTimeout(function () { G.location.href = to; }, 330);
       }
     }
-    function isOutside(e) {
-      var t = e.target, wrap = D.getElementById('wrap');
-      if (!(t === D.documentElement || t === D.body || t === wrap || t === stage || t === hub || t === backdrop || t === pane)) return false;
-      if (dialogOpen()) return false;
-      var x = e.clientX, y = e.clientY;
-      return ![frame, tabs, xbtn].some(function (n) {
-        var r = n.getBoundingClientRect();
-        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-      });
-    }
-
     /* ---- pendengar ---- */
     function onKeydown(e) {
       if (disposed) return;
       if (e.key === 'Escape' || e.key === 'Esc') {
         if (e.defaultPrevented || dialogOpen()) return;   // dialog dalam panel menutup dirinya dulu (logikanya milik panel)
         e.preventDefault(); close();
-      } else if (e.key === 'Tab' && !dialogOpen()) {
-        MK.trapTab(e, hub, D);
       }
     }
-    function onPointerDown(e) { downOutside = isOutside(e); }
-    function onClick(e) { if (downOutside && isOutside(e)) close(); downOutside = false; }
     function onTabsKey(e) {
       var i = TABS.findIndex(function (t) { return t.key === curKey || (!curKey && tabBtns[t.key].tabIndex === 0); }), n = TABS.length, j = -1;
       if (e.key === 'ArrowRight') j = (i + 1) % n;
@@ -360,17 +337,12 @@
     tabs.addEventListener('keydown', onTabsKey);
     xbtn.addEventListener('click', close);
     D.addEventListener('keydown', onKeydown, true);
-    D.addEventListener('pointerdown', onPointerDown, true);
-    D.addEventListener('click', onClick, true);
 
     function destroy() {
       if (disposed) return;
       leave();
       disposed = true;
       D.removeEventListener('keydown', onKeydown, true);
-      D.removeEventListener('pointerdown', onPointerDown, true);
-      D.removeEventListener('click', onClick, true);
-      if (undoInert) { undoInert(); undoInert = null; }
       rm(hub);
       stage.classList.remove('has-hub');
       PM.managed = prevManaged;
@@ -384,22 +356,9 @@
     var first = tabOf(url);
     setActiveTab(first);
     select(first, true);
-    /* fokus awal: tab aktif (pembaca layar mengumumkan dialog + judulnya) */
+    /* fokus awal: tab aktif */
     G.requestAnimationFrame(function () { if (!disposed && tabBtns[first]) tabBtns[first].focus({ preventScroll: true }); });
     return inst;
-  }
-  /* embed: navigasi keluar (rank, pet, Tambang, ...) diteruskan ke induk; pindah antar-tab hub tetap di dalam modal */
-  if (EMBED && G.navigation && G.navigation.addEventListener) {
-    G.navigation.addEventListener('navigate', function (e) {
-      if (!e.cancelable || e.hashChange || e.downloadRequest !== null || (e.destination && e.destination.sameDocument)) return;
-      var u; try { u = new G.URL(e.destination.url); } catch (x) { return; }
-      if (u.origin !== G.location.origin) return;
-      var rel = u.pathname.split('/').pop() + u.search + u.hash, p = pageOf(rel);
-      if (!p) return;
-      e.preventDefault();
-      if (PAGE_TAB[p]) api.handle(rel);
-      else toParent({ type: 'ut-hub-nav', url: rel });
-    });
   }
   api.open = open;
   api.handle = function (url) {   // dipanggil UT.Spa.go: pindah tab di tempat alih-alih memuat ulang halaman

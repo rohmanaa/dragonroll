@@ -1,4 +1,4 @@
-/* Hub Profil · Teman · Pesan · Pengaturan (satu halaman, modal sungguhan): helper murni + pemeriksaan statis kode/markup.
+/* Hub Profil · Teman · Pesan · Pengaturan (satu halaman penuh, bukan modal): helper murni + pemeriksaan statis kode/markup.
    Perilaku DOM (fokus, inert, Esc, ganti tab) diverifikasi terpisah dengan jsdom; tes ini tanpa dependensi agar jalan di CI. */
 const assert = require('assert');
 const fs = require('fs');
@@ -40,12 +40,25 @@ t('hubUrl mengunci from yang tidak valid', () => {
 });
 
 const hub = rd('assets/js/core/account-hub.js');
-t('hub = modal sungguhan: role=dialog, aria-modal, aria-labelledby, tablist/tab/tabpanel, Esc, klik luar, focus trap, inert', () => {
-  assert(/setAttribute\('role', 'dialog'\)/.test(hub) && /setAttribute\('aria-modal', 'true'\)/.test(hub) && /aria-labelledby/.test(hub));
+t('hub = halaman penuh (bukan modal): tanpa role=dialog/aria-modal/inert/focus trap/klik-luar; ada tombol Kembali, Esc, tablist/tab/tabpanel', () => {
+  assert(!/hub\.setAttribute\('role', 'dialog'\)/.test(hub) && !/hub\.setAttribute\('aria-modal'/.test(hub), 'kerangka hub tidak boleh role=dialog/aria-modal (dialog kecil dalam panel tetap boleh)');
+  assert(!/inertOthers/.test(hub) && !/trapTab/.test(hub) && !/pointerdown/.test(hub) && !/backdrop/.test(hub) && !/EMBED/.test(hub));
+  assert(/'role', 'region'/.test(hub) && /aria-labelledby/.test(hub));
   assert(/'role', 'tablist'/.test(hub) && /'role', 'tab'/.test(hub) && /'role', 'tabpanel'/.test(hub) && /aria-selected/.test(hub) && /aria-controls/.test(hub));
   assert(/e\.key === 'Escape'/.test(hub) && /dialogOpen\(\)/.test(hub));
   assert(/ArrowRight/.test(hub) && /ArrowLeft/.test(hub) && /'Home'/.test(hub) && /'End'/.test(hub));
-  assert(/inertOthers/.test(hub) && /trapTab/.test(hub) && /pointerdown/.test(hub));
+  assert(/panah-kembali\.webp/.test(hub) && /'pback'/.test(hub) && !/tombol-tutup-bulat/.test(hub));
+});
+t('CSS hub: latar halaman standar (tanpa lapisan gelap/embed), tombol Kembali #pback', () => {
+  const css = rd('assets/css/account-hub.css');
+  assert(!/pbackdrop|ut-hub-embed|has-hub\)\{?\s*background|rgba\(10,8,24,\.66\)/.test(css), 'tidak ada lapisan gelap/embed');
+  assert(/#pback\{/.test(css) && !/#pclose/.test(css));
+  assert(!/embed=lobby|ut-hub-embed/.test(rd('profile.html')));
+});
+t('Lobby membuka hub sebagai halaman (navigasi), bukan iframe overlay', () => {
+  const lb = rd('data/lobby/js/lobby.js');
+  assert(!/hubModal|openHub|closeHub|embed=lobby|createElement\('iframe'\)/.test(lb));
+  assert(/navTo\('profile\.html\?tab='\+HUB_TAB\[act\]\+'&from=lobby\.html'\)/.test(lb));
 });
 t('ganti tab = in-place: replaceState (bukan pushState/location.href), unmount sebelum mount, hanya satu transisi sekaligus', () => {
   assert(/replaceState/.test(hub) && !/pushState/.test(hub));

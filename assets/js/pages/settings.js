@@ -38,7 +38,7 @@ $('#back').addEventListener('click',()=>{buzz();home()});
 const cf=$('#confirm'),openCf=()=>cf.classList.add('on'),closeCf=()=>cf.classList.remove('on');
 $('#logout').onclick=openCf;$('#cf-no').onclick=closeCf;
 cf.addEventListener('click',e=>{if(e.target===cf)closeCf()});
-/* Esc: hanya menutup dialog dalam panel; Esc tanpa dialog = tutup modal, dikelola UT.AccountHub */
+/* Esc: hanya menutup dialog dalam panel; Esc tanpa dialog = kembali ke halaman asal, dikelola UT.AccountHub */
 addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(lgModal.classList.contains('on'))closeLang();else if(cf.classList.contains('on'))closeCf()});
 $('#cf-ok').onclick=()=>{closeCf();import('../../../assets/js/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})};
 /* bahasa: pilihan disimpan di pref 'lang' (teks game belum diterjemahkan; hanya menyimpan pilihan) */

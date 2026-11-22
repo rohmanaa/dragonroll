@@ -39,7 +39,7 @@ const LANG = {en: 'English', id: 'Indonesia', de: 'Deutsch', fr: 'Français', es
 
 /* tombol kembali: lobby sudah SPA — gunakan UT.Spa.go bila tersedia */
 $('#back').onclick = () => { snd(); if (UT.Spa && UT.Spa.go) { UT.Spa.go('lobby.html'); } else { nav('lobby.html'); } };
-/* Esc dan tombol tutup dikelola hub (UT.AccountHub): menutup modal ke halaman asal, bukan hanya ke lobby. */
+/* Esc dan tombol tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
 
 /* ---- tengah: karakter 3D terpasang (BlockyCharacter dari PlayerData) di atas pedestal ---- */
 let R = null, webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter);
