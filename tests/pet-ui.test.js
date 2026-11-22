@@ -36,10 +36,10 @@ assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
 assert.ok(page.includes("$('#petInfoClose').addEventListener('click', () => $('#petInfo').close())"));
 assert.ok(!page.includes("$('#home').addEventListener"));
-for (const label of ['Kelangkaan', 'Tier', 'Bahan', 'Animasi', 'Efek visual', 'Suara', 'Identitas', 'Keunggulan', 'Cerita', 'Batas']) {
+for (const label of ['Kelangkaan', 'Tier', 'Bahan', 'Animasi', 'Efek visual', 'Suara', 'Identitas', 'Keunggulan', 'Cerita']) {
   assert.ok(!page.includes(`addInfoRow(body, '${label}'`), `${label} tidak ditampilkan dalam panel`);
 }
-for (const label of ['Peran', 'Skill', 'Efek skill']) {
+for (const label of ['Peran', 'Skill', 'Efek skill', 'Batas']) {
   assert.ok(page.includes(`addInfoRow(body, '${label}'`), `${label} tetap ditampilkan dalam panel`);
 }
 assert.ok(page.includes(".select('id,identity,role,skill,advantage,lore')"));

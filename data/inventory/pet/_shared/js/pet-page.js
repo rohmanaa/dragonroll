@@ -143,6 +143,7 @@ UT.PageModule.define('pet', function (env) {
       addInfoRow(body, 'Peran', detail.role || item.role);
       addInfoRow(body, 'Skill', detail.skill && detail.skill.name);
       addInfoRow(body, 'Efek skill', detail.skill && detail.skill.effect);
+      addInfoRow(body, 'Batas', detail.skill && detail.skill.limit);
     } else {
       addInfoRow(body, 'Peran', item.role);
     }
