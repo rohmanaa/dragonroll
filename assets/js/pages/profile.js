@@ -2,13 +2,12 @@
    hub yang me-mount/unmount-nya saat tab Profil dipilih/ditinggalkan. Kerangka modal, tab, tombol X, dan Esc dikelola hub.
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, langganan, dan renderer WebGL bersama (SharedGL). */
 UT.PageModule.define('profil', function(env) {
-const {setTimeout, clearTimeout, requestAnimationFrame, cancelAnimationFrame, addEventListener, removeEventListener} = env;
+const {setTimeout, clearTimeout, addEventListener} = env;
 const $ = s => document.querySelector(s);
 const PD = window.PlayerData, IC = window.ItemCatalog, AR = window.ItemArt;
 const SV = () => PD.serverMode(), WS = () => window.UT && UT.WalletService && UT.WalletService.get();
 const SET = () => PD.settings();
 const fmt = n => Number(n).toLocaleString('id-ID');
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 const K = 'assets/images/ui/', G = K + 'white-glyphs/';
 const buzz = () => { try { if (SET().vibration && navigator.vibrate) navigator.vibrate(15); } catch (e) {} };
 const snd = n => { try { if (SET().sound) UT.Audio.play(n || 'button'); } catch (e) {} };
@@ -35,16 +34,11 @@ const eqSkin = () => IC.byId(PD.equippedId('skin')) || IC.byId('skin.steve');
 const owned = k => PD.ownedItems().filter(o => o.item.kind === k).length;
 const total = k => IC.items.filter(i => i.kind === k && !i.off).length;
 const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
-const LANG = {en: 'English', id: 'Indonesia', de: 'Deutsch', fr: 'Français', es: 'Español', pt: 'Português', ru: 'Русский', hi: 'हिन्दी', zh: '简体中文'};
 
-/* tombol kembali: lobby sudah SPA — gunakan UT.Spa.go bila tersedia */
-$('#back').onclick = () => { snd(); if (UT.Spa && UT.Spa.go) { UT.Spa.go('lobby.html'); } else { nav('lobby.html'); } };
-/* Esc dan tombol tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
+/* Esc dan tombol Tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
 
 /* ---- tengah: karakter 3D terpasang (BlockyCharacter dari PlayerData) di atas pedestal ---- */
 let R = null, webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter);
-/* rafId untuk cleanup rAF */
-let rafId = 0;
 function buildChar() {
   if (env.disposed) return;
   const art = $('#art');
@@ -109,7 +103,6 @@ function renderOnce() {
 }
 /* cleanup WebGL: lepas SharedGL, buang geometri/material/aura */
 env.own(function () {
-  if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
   try { UT.SharedGL.release('profile'); } catch (e) {}
   if (R) {
     /* AuraView tidak punya dispose(): clearAll() = despawn semua aura (pool/efek dilepas), baru geometri scene dibuang di bawah */
@@ -151,7 +144,12 @@ function drawPet() {
 }
 $('#pet').onclick = () => { snd(); go('pet.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
-$('#hid').onclick = () => { snd(); try { navigator.clipboard && navigator.clipboard.writeText(PROF.uid); } catch (x) {} toast('ID pengguna disalin'); };
+$('#hid').onclick = () => {
+  snd();
+  if (!PROF.uid || PROF.uid === '—') { toast('ID belum tersedia'); return; }
+  const ok = () => toast('ID pengguna disalin'), fail = () => toast('Gagal menyalin ID');
+  try { navigator.clipboard.writeText(PROF.uid).then(ok, fail); } catch (x) { fail(); }
+};
 $('#pen').onclick = () => {
   snd(); const un = UT.Session.username();
   if (un) { toast('Nama mengikuti username akunmu: ' + un); return; }
@@ -176,11 +174,11 @@ $('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); go
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u, bar) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
-    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, wr) +
+    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>') +
     row(K + 'item-icons/gulungan-misi.webp', 'Misi', MIS() + `<img class="go" src="${G}segitiga-kanan.webp" alt="">`, 'hadiah-misi.html') +
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
     row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +

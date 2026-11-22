@@ -40,19 +40,19 @@ t('hubUrl mengunci from yang tidak valid', () => {
 });
 
 const hub = rd('assets/js/core/account-hub.js');
-t('hub = halaman penuh (bukan modal): tanpa role=dialog/aria-modal/inert/focus trap/klik-luar; ada tombol Kembali, Esc, tablist/tab/tabpanel', () => {
+t('hub = halaman penuh (bukan modal): tanpa role=dialog/aria-modal/inert/focus trap/klik-luar; ada tombol Tutup, Esc, tablist/tab/tabpanel', () => {
   assert(!/hub\.setAttribute\('role', 'dialog'\)/.test(hub) && !/hub\.setAttribute\('aria-modal'/.test(hub), 'kerangka hub tidak boleh role=dialog/aria-modal (dialog kecil dalam panel tetap boleh)');
   assert(!/inertOthers/.test(hub) && !/trapTab/.test(hub) && !/pointerdown/.test(hub) && !/backdrop/.test(hub) && !/EMBED/.test(hub));
   assert(/'role', 'region'/.test(hub) && /aria-labelledby/.test(hub));
   assert(/'role', 'tablist'/.test(hub) && /'role', 'tab'/.test(hub) && /'role', 'tabpanel'/.test(hub) && /aria-selected/.test(hub) && /aria-controls/.test(hub));
   assert(/e\.key === 'Escape'/.test(hub) && /dialogOpen\(\)/.test(hub));
   assert(/ArrowRight/.test(hub) && /ArrowLeft/.test(hub) && /'Home'/.test(hub) && /'End'/.test(hub));
-  assert(/panah-kembali\.webp/.test(hub) && /'pback'/.test(hub) && !/tombol-tutup-bulat/.test(hub));
+  assert(/tombol-tutup-bulat\.webp/.test(hub) && /'pclose'/.test(hub) && !/panah-kembali/.test(hub));
 });
-t('CSS hub: latar halaman standar (tanpa lapisan gelap/embed), tombol Kembali #pback', () => {
+t('CSS hub: latar halaman standar (tanpa lapisan gelap/embed), tombol Tutup #pclose', () => {
   const css = rd('assets/css/account-hub.css');
   assert(!/pbackdrop|ut-hub-embed|has-hub\)\{?\s*background|rgba\(10,8,24,\.66\)/.test(css), 'tidak ada lapisan gelap/embed');
-  assert(/#pback\{/.test(css) && !/#pclose/.test(css));
+  assert(/#pclose\{/.test(css) && !/#pback/.test(css));
   assert(!/embed=lobby|ut-hub-embed/.test(rd('profile.html')));
 });
 t('Lobby membuka hub sebagai halaman (navigasi), bukan iframe overlay', () => {

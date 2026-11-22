@@ -171,8 +171,8 @@
     var title = el('h2', 'phub-title', 'sr-only');
     var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
     var pane = el('div', 'pane'); pane.setAttribute('role', 'tabpanel'); pane.tabIndex = -1;
-    var xbtn = el('button', 'pback'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Kembali');
-    var xi = D.createElement('img'); xi.src = IC + 'navigation-icons/panah-kembali.webp'; xi.alt = ''; xbtn.appendChild(xi);
+    var xbtn = el('button', 'pclose'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
+    var xi = D.createElement('img'); xi.src = 'assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp'; xi.alt = ''; xbtn.appendChild(xi);
 
     var tabBtns = {};
     TABS.forEach(function (t) {
@@ -196,6 +196,17 @@
       stage.style.setProperty('--hub-ey', Math.max(0, (vh / k - 1080) / 2).toFixed(1) + 'px');
     }
     fitFrame();
+    /* transparansi panel (Pengaturan -> slider): 0% = pekat, maks 70%; disimpan di UT.Prefs 'panelTransparency' */
+    function applyPanelAlpha() {
+      try {
+        var t = parseInt(UT.Prefs.get('panelTransparency', 16), 10);
+        if (!isFinite(t)) t = 16;
+        D.documentElement.style.setProperty('--panel-a', (1 - Math.max(0, Math.min(70, t)) / 100).toFixed(2));
+      } catch (e) { /* abaikan */ }
+    }
+    applyPanelAlpha();
+    var offPrefs = null;
+    try { if (UT.Prefs && UT.Prefs.on) offPrefs = UT.Prefs.on(function (n) { if (n === 'panelTransparency') applyPanelAlpha(); }); } catch (e) { /* abaikan */ }
     G.addEventListener('resize', fitFrame);
     G.addEventListener('orientationchange', fitFrame);
 
@@ -356,6 +367,7 @@
       D.removeEventListener('keydown', onKeydown, true);
       G.removeEventListener('resize', fitFrame);
       G.removeEventListener('orientationchange', fitFrame);
+      if (offPrefs) { try { offPrefs(); } catch (e) { /* abaikan */ } }
       stage.style.removeProperty('--hub-ex'); stage.style.removeProperty('--hub-ey');
       rm(hub);
       stage.classList.remove('has-hub');

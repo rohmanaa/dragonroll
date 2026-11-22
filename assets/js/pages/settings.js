@@ -12,10 +12,19 @@ const shellSync=()=>{try{if(parent&&parent!==window&&parent.UTShell)parent.UTShe
 $('#musicVol').addEventListener('input',e=>{PF().set('musicVol',+e.target.value);$('#musicVolV').textContent=e.target.value+'%';shellSync()});
 $('#sfxVol').addEventListener('input',e=>{PF().set('sfxVol',+e.target.value);$('#sfxVolV').textContent=e.target.value+'%'});
 $('#sfxVol').addEventListener('change',()=>{try{UT.Audio.play('button')}catch(e){}});
+/* transparansi panel hub: 0% pekat .. 70%; langsung terlihat (hub memakai --panel-a di <html>), disimpan di Prefs 'panelTransparency' */
+const trVal=()=>{const v=parseInt(PF().get('panelTransparency',16),10);return isNaN(v)?16:Math.max(0,Math.min(70,v))};
+const trApply=v=>document.documentElement.style.setProperty('--panel-a',(1-v/100).toFixed(2));
+(function(){const el=$('#panelTr');if(!el)return;
+ const paint=()=>{const v=trVal();if(document.activeElement!==el)el.value=v;$('#panelTrV').textContent=v+'%'};
+ paint();trApply(trVal());
+ el.addEventListener('input',e=>{const v=+e.target.value;PF().set('panelTransparency',v);trApply(v);$('#panelTrV').textContent=v+'%'});
+})();
 const IC='assets/images/ui/';
 const GN={low:'Paling ringan. Pilih ini bila game terasa berat di HP kamu.',normal:'Seimbang antara tampilan dan performa.',high:'Efek visual penuh, menyesuaikan kemampuan perangkat.',ultra:'Kualitas tertinggi. Butuh perangkat yang kuat.'};
 function render(){
  paintVol();
+ {const el=$('#panelTr');if(el){const v=trVal();if(document.activeElement!==el)el.value=v;$('#panelTrV').textContent=v+'%'}}
  const T=S();
  $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $$('[data-gfx]').forEach(b=>{const on=T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
