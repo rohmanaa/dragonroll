@@ -87,17 +87,38 @@ UT.PageModule.define('pet', function (env) {
     $('#v-co').textContent = ready ? format(PD.coins()) : '—';
   }
 
+  const EYE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
+  const IC_GEM = 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', IC_COIN = 'assets/images/ui/hud/ikon-koin-emas.webp';
+
+  /* bar harga di dasar kartu: harga (emerald/coin) bila belum dimiliki; DIMILIKI / DIPAKAI / TIDAK DIJUAL bila tidak */
+  function priceBar(item, owned, used) {
+    if (used) return '<span class="pc-pr used">DIPAKAI</span>';
+    if (owned) return '<span class="pc-pr own">DIMILIKI</span>';
+    const cost = costOf(item);
+    if (!cost) return '<span class="pc-pr no">TIDAK DIJUAL</span>';
+    const gems = cost.gems > 0;
+    return `<span class="pc-pr"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></span>`;
+  }
+
+  /* kartu pet: nama, thumbnail, harga; warna kartu = tier (rarity); ikon mata = pratinjau 3D, ikon info = detail (keunggulan, cerita, efek skill, batas) */
   function drawGrid() {
     const equipped = PD.equippedId('pet');
-    let html = PETS.map((item) => {
+    $('#grid').innerHTML = PETS.map((item) => {
       const owned = PD.owns(item.id);
       const used = equipped === item.id;
-      const st = used ? 'st-used' : owned ? 'st-own' : 'st-lock';
+      const sel = !!selected && item.id === selected.id;
+      const rar = RARITY[item.rarity] ? item.rarity : 'common';
+      const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
       const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      return `<button class="fslot ${st}${selected && item.id === selected.id ? ' sel' : ''}${owned ? '' : ' lk'}" type="button" data-id="${item.id}" aria-pressed="${!!selected && item.id === selected.id}" aria-label="${item.name}, tier ${item.tier}${used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki'}"><div class="dc"><img src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="${item.name}" loading="lazy"></div>${check}</button>`;
+      return `<article class="pc r-${rar}${sel ? ' sel' : ''}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}">`
+        + `<button class="pc-sel" type="button" data-act="select" aria-pressed="${sel}" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
+        + `<span class="pc-nm">${item.name}</span>`
+        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}</span>`
+        + `${priceBar(item, owned, used)}</button>`
+        + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
+        + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
+        + `</article>`;
     }).join('');
-    for (let i = PETS.length; i < Math.max(20, Math.ceil(PETS.length / 5) * 5); i++) html += '<div class="slot empty" aria-hidden="true"></div>';
-    $('#grid').innerHTML = html;
   }
 
   function addInfoRow(container, label, value) {
@@ -347,13 +368,29 @@ UT.PageModule.define('pet', function (env) {
     modal('Konfirmasi', `Beli ${item.name}\nseharga ${format(amount)} ${currency}?`, 'BATAL', 'BELI', () => buy(item));
   }
 
+  function openInfo() {
+    renderDetails(selected || PETS[0]);
+    $('#petInfoTitle').textContent = `Detail ${(selected || PETS[0]).name}`;
+    $('#petInfo').showModal();
+    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
+  }
+
   $('#grid').addEventListener('click', (event) => {
-    const card = event.target.closest('.fslot');
+    const btn = event.target.closest('[data-act]');
+    const card = btn && btn.closest('.pc');
     if (!card) return;
     selected = PETS.find((item) => item.id === card.dataset.id) || selected;
     snd('button');
     draw();
+    if (btn.dataset.act === 'detail') openInfo();
   });
+  /* roda mouse = geser kartu ke samping (baris kartu menggulir horizontal) */
+  $('#grid').addEventListener('wheel', (event) => {
+    const grid = event.currentTarget;
+    if (grid.scrollWidth <= grid.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    grid.scrollLeft += event.deltaY;
+  }, { passive: false });
   $('#use').addEventListener('click', () => {
     if (busy || !selected) return;
     snd('button');
@@ -373,11 +410,7 @@ UT.PageModule.define('pet', function (env) {
   $('#md').addEventListener('click', (event) => {
     if (event.target.id === 'md') closeModal();
   });
-  $('#petInfoOpen').addEventListener('click', () => {
-    renderDetails(selected || PETS[0]);
-    $('#petInfo').showModal();
-    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
-  });
+  $('#petInfoOpen').addEventListener('click', openInfo);
   $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
   $('#petInfo').addEventListener('click', (event) => {
     if (event.target === $('#petInfo')) $('#petInfo').close();
@@ -432,9 +465,23 @@ UT.PageModule.define('pet', function (env) {
     }
   }
 
+  /* skala kanvas 1920x1080 + sisa layar di luar kanvas (--hub-ex/--hub-ey) agar bingkai #pmodal penuh sampai tepi layar */
   function fit() {
-    $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1, st = $('#stage');
+    st.style.transform = `scale(${k})`;
+    st.style.setProperty('--hub-ex', Math.max(0, (innerWidth / k - 1920) / 2).toFixed(1) + 'px');
+    st.style.setProperty('--hub-ey', Math.max(0, (innerHeight / k - 1080) / 2).toFixed(1) + 'px');
   }
+  /* transparansi panel (Pengaturan, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% */
+  function applyPanelAlpha() {
+    try {
+      let t = parseInt(window.UT.Prefs.get('panelTransparency', 16), 10);
+      if (!isFinite(t)) t = 16;
+      document.documentElement.style.setProperty('--panel-a', (1 - Math.max(0, Math.min(70, t)) / 100).toFixed(2));
+    } catch (e) { /* abaikan */ }
+  }
+  applyPanelAlpha();
+  try { if (window.UT.Prefs && window.UT.Prefs.on) env.own(window.UT.Prefs.on((n) => { if (n === 'panelTransparency') applyPanelAlpha(); })); } catch (e) { /* abaikan */ }
   env.addEventListener('resize', fit);
   selected = PETS.find((item) => PD.isEquipped(item.id)) || PETS[0];
   draw();
