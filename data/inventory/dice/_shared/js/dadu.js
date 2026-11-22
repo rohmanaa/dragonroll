@@ -74,15 +74,15 @@ function drawGrid(){
   const html=list.map(x=>{
     const st=slotState(x),sell=canSell(x),gems=x.gems>0;
     const foot=st==='used'?'DIPAKAI':st==='own'?'DIMILIKI':sell?'<img src="'+LOCK+'" alt="">'+fmtPrice(gems?x.gems:x.price)+'<img src="'+(gems?GEM:KOIN)+'" alt="">':'TIDAK DIJUAL';
-    return '<button type="button" class="slot '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
-      +'<span class="sl-nm">'+x.name+'</span><span class="sl-th">'+art(x)+'</span><span class="sl-ft">'+foot+'</span></button>';
+    return '<button type="button" class="dslot '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
+      +'<span class="d-nm">'+x.name+'</span><span class="d-th">'+art(x)+'</span><span class="d-ft">'+foot+'</span></button>';
   }).join('')||'<p class="dempty">Belum ada dadu yang dimiliki.</p>';
   if(html!==lastGridHtml){$('#dgrid').innerHTML=html;lastGridHtml=html}
   markSelected();
 }
 function markSelected(){
   const id=sel&&sel.id;
-  $('#dgrid').querySelectorAll('.slot').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
+  $('#dgrid').querySelectorAll('.dslot').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
 }
 function draw(){
   if(env.disposed)return;
@@ -132,7 +132,7 @@ function buySelected(f){
 }
 /* ketuk thumbnail = pilih (pratinjau di kiri); tombol BELI/PAKAI & JUAL di bawah pratinjau */
 $('#dgrid').onclick=e=>{
-  const c=e.target.closest('.slot');if(!c)return;
+  const c=e.target.closest('.dslot');if(!c)return;
   const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
   sel=f;snd('button');markSelected();updatePreview();throwPreview();
 };
