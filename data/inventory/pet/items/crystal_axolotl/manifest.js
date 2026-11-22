@@ -17,5 +17,5 @@
     starter: false,
     desc: "Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.",
     visual: {"accent":"#40e8f4","colors":["#8fe8f2","#d8fbff","#ff9ad8"]},
-    assets: { image: "data/inventory/pet/items/crystal_axolotl/crystal_axolotl.png", sfx: ["data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-bubble.mp3", "data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-chime.mp3", "data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-squeak.mp3"] }
+    assets: { image: "assets/images/ui/pet/crystal-axolotl.webp", sfx: ["data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-bubble.mp3", "data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-chime.mp3", "data/inventory/pet/items/crystal_axolotl/sfx/crystal-axolotl-squeak.mp3"] }
 });

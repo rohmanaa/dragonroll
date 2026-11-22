@@ -36,13 +36,16 @@ html body.fm.notabs #right #grid{left:0!important;top:250px!important;width:1800
 #grid .pc.r-mythic{--c1:#ff6a5e;--c2:#b3261e;--c3:#ff9d93;--cb:#ffbfb8;--cd:#6f1510}
 #grid .pc.r-divine{--c1:#fff2b0;--c2:#d9b24a;--c3:#ffffff;--cb:#fffbe6;--cd:#8a6b1c}
 .pc-sel{position:absolute;inset:0;display:flex;flex-direction:column;box-sizing:border-box;padding:12px;border:4px solid var(--cb);border-radius:18px;
-  background:linear-gradient(180deg,var(--c1),var(--c2));color:#fff;font:inherit;text-align:center;cursor:pointer;
+  background-image:linear-gradient(180deg,var(--c1),var(--c2)),url(../../../../../assets/images/ui/pet/kartu-toko.webp);
+  background-size:auto,cover;background-position:center;background-blend-mode:multiply;
+  color:#fff;font:inherit;text-align:center;cursor:pointer;
   box-shadow:0 6px 0 var(--cd),0 12px 16px rgba(0,0,0,.4);transition:transform .1s,filter .1s}
 .pc.sel .pc-sel{outline:5px solid #ffe27a;outline-offset:3px;box-shadow:0 6px 0 var(--cd),0 0 18px 4px rgba(255,226,122,.55),0 12px 16px rgba(0,0,0,.4)}
 .pc-nm{display:grid;place-items:center;flex:none;min-height:76px;padding:0 6px;font:400 36px/1.05 var(--font-title);text-shadow:0 3px 0 rgba(10,6,24,.6),0 0 6px rgba(10,6,24,.35)}
 .pc-th{position:relative;flex:1;min-height:0;margin:4px 0 12px;border-radius:12px;overflow:hidden;
   background:radial-gradient(circle at 50% 38%,var(--c3),var(--c2) 78%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.14),inset 0 8px 16px rgba(0,0,0,.25)}
 .pc-th img:not(.ck){position:absolute;left:8px;right:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 78px);object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+.pc-th::after{content:"";position:absolute;left:8px;right:8px;top:8px;bottom:8px;background:linear-gradient(to bottom,transparent 0%,rgba(10,6,24,.42) 45%,rgba(10,6,24,.78) 100%);z-index:3;pointer-events:none;border-radius:8px}
 .pc .ck{position:absolute;right:8px;top:8px;width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .pc-pr{flex:none;height:76px;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:12px;font:400 38px/1 var(--font-title);
   background:rgba(10,6,24,.34);box-shadow:inset 0 4px 8px rgba(0,0,0,.35),inset 0 0 0 3px rgba(255,255,255,.1);text-shadow:0 3px 0 rgba(10,6,24,.6)}
@@ -108,3 +111,8 @@ html body.fm.notabs #right #grid{overflow-x:auto!important;overflow-y:hidden!imp
 html body.fm.notabs #right #grid.drag{cursor:grabbing}
 #grid.drag .pc-pr,#grid.drag .pc-ic{pointer-events:none}
 #grid img{-webkit-user-drag:none;user-drag:none}
+
+/* ===== Thumbnail pet (hero banner di atas halaman): cinematic, atas agak transparan ===== */
+.pet-thumb{position:absolute;left:0;top:0;width:100vw;height:260px;overflow:hidden;z-index:0}
+.pet-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.12) saturate(1.15)}
+.pet-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0%,rgba(10,6,24,.42) 45%,rgba(10,6,24,.78) 100%);z-index:1;pointer-events:none}
