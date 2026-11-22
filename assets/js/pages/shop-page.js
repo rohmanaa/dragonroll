@@ -14,7 +14,7 @@ UT.PageModule.define('shop', function (env) {
   /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
   const KIND = { skin: 'skin', frame: 'frame', power: 'powerup' };
   const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
-  const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11.2A4.2 4.2 0 1 1 12 7.8a4.2 4.2 0 0 1 0 8.4zm0-6.4a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z" fill="#fff"/></svg>';
+  const EYE = `<img src="${IC}white-glyphs/mata.webp" alt="">`;
   const PACKS = [
     { coins: 500, gems: 10, name: 'Koin Kecil', image: 'gold-koin-sedikit.webp', color: '#ffd04a' },
     { coins: 2000, gems: 40, name: 'Tumpukan Koin', image: 'gold-tumpukan.webp', color: '#ffb02a' },
@@ -177,7 +177,21 @@ UT.PageModule.define('shop', function (env) {
     return C.items.filter(it => it.kind === KIND[key] && !it.off && C.cost(it))
       .sort((a, b) => (C.RARITY[a.rarity] ? C.RARITY[a.rarity].rank : 0) - (C.RARITY[b.rarity] ? C.RARITY[b.rarity].rank : 0) || (a.price || 0) - (b.price || 0));
   }
-  function artOf(it) { try { return window.ItemArt ? ItemArt.forItem(it.id) : ''; } catch (e) { return ''; } }
+  function artOf(it) {
+    try {
+      const real = window.UT && UT.ShopPreview ? UT.ShopPreview.diceThumb(it) : '';
+      return real || (window.ItemArt ? ItemArt.forItem(it.id) : '');
+    } catch (e) { return ''; }
+  }
+  /* preview hidup di modal (3D/animasi); dibuang saat modal ditutup/diganti */
+  let pvStop = null;
+  function stopPreview() { if (pvStop) { try { pvStop(); } catch (e) {} pvStop = null; } }
+  function startPreview(it) {
+    stopPreview();
+    const host = $('#mb .pvh');
+    if (host && window.UT && UT.ShopPreview) pvStop = UT.ShopPreview.mount(host, it);
+  }
+  env.own(stopPreview);
   function priceHtml(it, qty) {
     const cost = IC_().cost(it);
     const gem = cost.gems != null;
@@ -207,8 +221,8 @@ UT.PageModule.define('shop', function (env) {
     const it = IC_().byId(id);
     if (!it) return;
     const rar = IC_().RARITY[it.rarity];
-    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="art">${artOf(it)}</div></div>
-      <p>${rar ? escapeHtml(rar.label) + ' · ' : ''}${escapeHtml(it.desc || '')}</p>`);
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
+      <p>${rar ? escapeHtml(rar.label) + ' · ' : ''}${escapeHtml(it.desc || '')}</p>`, () => startPreview(it));
   }
 
   function confirmBuy(id) {
@@ -216,10 +230,11 @@ UT.PageModule.define('shop', function (env) {
     if (!it || busy) return;
     const power = it.kind === 'powerup';
     let qty = 1;
-    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="art">${artOf(it)}</div></div>
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
       <p>${escapeHtml(it.desc || '')}</p>
       ${power ? '<div class="qty"><button type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
       <div class="mrow"><button class="mbtn no" type="button" id="m-no">Batal</button><button class="mbtn ok" type="button" id="m-ok"><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
+      startPreview(it);
       const sync = () => {
         if (power) $('#q-n').textContent = qty;
         $('#m-pr').innerHTML = priceHtml(it, qty);
@@ -414,6 +429,7 @@ UT.PageModule.define('shop', function (env) {
   function openModal(html, init) {
     if (env.disposed) return;
     clearTimeout(modalTimer);
+    stopPreview();
     $('#mb').innerHTML = html;
     const heading = $('#mb h2');
     if (heading) heading.id = 'modal-title';
@@ -427,6 +443,7 @@ UT.PageModule.define('shop', function (env) {
   function closeModal() {
     if (!mOpen) return;
     mOpen = false;
+    stopPreview();
     modal.classList.add('closing');
     modal.classList.remove('show');
     clearTimeout(modalTimer);
@@ -571,6 +588,7 @@ UT.PageModule.define('shop', function (env) {
 
   render();
   renderCurrency();
+  addEventListener('dicekit-ready', () => { if (tab === 'dice') { const keep = $('#cards').scrollLeft; render(); $('#cards').scrollLeft = keep; } });
   document.documentElement.classList.add('ut-ready');
 
   if (query.has('emerald') || query.get('tab') === 'gem') gemShop();

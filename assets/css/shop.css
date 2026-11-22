@@ -206,3 +206,15 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .srow{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:6px 0;font-size:32px;font-weight:800;color:#ddd7f7}
 .srow span:last-child{display:flex;align-items:center;gap:8px;color:#ffe36a}
 .srow img{width:36px;height:auto}
+
+/* preview hidup di modal (3D / animasi) */
+.pv{position:relative;height:440px;width:100%;overflow:hidden}
+.pvh{position:absolute;inset:0;display:grid;place-items:center}
+.pvh>svg,.pvh>.fr-th{width:300px;height:300px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.pvh .fr-th{position:relative}
+.pvh .fr-img{position:absolute;inset:0;width:100%;height:100%}
+.pvh canvas{touch-action:none}
+.eye img{width:42px;height:42px;object-fit:contain}
+.card.item .art .dthumb{width:250px;height:250px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+#modal>.box{max-height:1000px}
+#modal>#box{min-height:0;margin-top:0;padding-bottom:54px;height:auto;max-height:1000px}
