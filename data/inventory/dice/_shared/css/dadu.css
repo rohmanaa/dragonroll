@@ -12,7 +12,7 @@
 .dst i{height:12px;border-radius:6px;background:rgba(255,255,255,.12)}
 .dst em{font-style:normal;text-align:right;color:#9a90c4;font-size:19px}
 #dprev{flex:1;min-height:0;position:relative;overflow:hidden}
-#dprev #fpv{position:absolute;inset:18px;cursor:pointer;touch-action:manipulation}
+html body #stage #dprev #fpv{position:absolute;left:18px;top:18px;right:auto;bottom:auto;width:calc(100% - 36px)!important;height:calc(100% - 36px)!important;max-width:none;max-height:none;margin:0;transform:none;overflow:hidden;cursor:pointer;touch-action:manipulation}
 #dprev #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
 #dprev #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
 #dprev #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
@@ -25,7 +25,8 @@
 #dtabs{flex:none;display:flex;gap:12px;margin-bottom:16px}
 #dtabs button{flex:none;min-width:240px;height:64px;padding:0 28px;border:0;border-radius:14px;background:rgba(255,255,255,.1);color:#cfc8ea;font:800 28px/1 var(--font-body);cursor:pointer}
 #dtabs button.on{background:linear-gradient(180deg,#ffd45a,#d98a14);color:#4a2a05;box-shadow:0 4px 0 #8a5508}
-#dgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;gap:16px;overflow-y:auto;overflow-x:hidden;padding:4px 6px 6px 4px;align-content:start;touch-action:pan-y}
+#dgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;gap:16px;overflow-y:auto;overflow-x:hidden;padding:4px 6px 6px 4px;align-content:start;touch-action:pan-y;scrollbar-width:none;-ms-overflow-style:none}
+#dgrid::-webkit-scrollbar{display:none;width:0;height:0}
 .dslot{position:relative;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;aspect-ratio:1/1;width:100%;height:auto;min-width:0;padding:14px 8px 12px;border:0;background:url(../../../../../assets/images/ui/slot-equipment/slot-terkunci.webp) center/100% 100% no-repeat;cursor:pointer;color:#fff;font-family:var(--font-body)}
 .dslot.own{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-hijau.webp)}
 .dslot.used{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-biru.webp)}
@@ -37,3 +38,11 @@
 .d-ft{flex:none;display:flex;align-items:center;justify-content:center;gap:5px;max-width:100%;font:800 19px/1 var(--font-body);text-shadow:0 2px 3px rgba(0,0,0,.75);white-space:nowrap}
 .d-ft img{flex:none;width:22px;height:22px;object-fit:contain;position:static}
 .dempty{grid-column:1/-1;margin:40px 0;text-align:center;font:700 28px/1.3 var(--font-body);color:#cfc8ea}
+
+/* saldo emerald & coin: diperkecil */
+html body #stage #cur-em,html body #stage #cur-co{height:54px;width:190px;bottom:30px!important}
+html body #stage #cur-em{left:60px!important}
+html body #stage #cur-co{left:270px!important}
+#stage #cur-em img,#stage #cur-co img{height:50px;left:8px}
+#stage #cur-em .v,#stage #cur-co .v{font-size:28px;padding-left:34px;padding-right:30px}
+#stage #cur-em .plus,#stage #cur-co .plus{font-size:32px;right:12px}
