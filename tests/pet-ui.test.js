@@ -9,7 +9,7 @@ const pcss = read('data/inventory/pet/_shared/css/pet-page.css');
 const page = read('data/inventory/pet/_shared/js/pet-page.js');
 
 assert.ok(html.includes('<div id="petTitle">'));
-assert.ok(html.includes('id="petInfoOpen" type="button" aria-label="Informasi tier" aria-haspopup="dialog"'));
+assert.ok(!html.includes('petInfoOpen'), 'tanda seru di modal preview dihapus');
 assert.ok(html.includes('<dialog id="petInfo" aria-labelledby="petInfoTitle">'));
 assert.ok(html.includes('<div class="pet-info-panel">'));
 assert.ok(!html.includes('glyph-putih/info-bulat.webp'));
@@ -28,7 +28,6 @@ assert.ok(!page.includes('invtabs') && !page.includes('InvTabs'), 'bar tab dihap
 assert.ok(page.includes('class="pc-pr') && page.includes('data-act="use"') && page.includes('function openPreview') && page.includes('function closePreview'));
 assert.ok(pcss.includes('#stage #cur-em{left:60px!important}') && pcss.includes('bottom:28px'));
 assert.ok(pcss.includes('.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}'));
-assert.ok(pcss.includes('#petInfoOpen{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;background:none'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
 assert.ok(css.includes('border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
@@ -37,10 +36,10 @@ assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
 assert.ok(page.includes("$('#petInfoClose').addEventListener('click', () => $('#petInfo').close())"));
 assert.ok(!page.includes("$('#home').addEventListener"));
-for (const label of ['Kelangkaan', 'Tier', 'Bahan', 'Animasi', 'Efek visual', 'Suara']) {
+for (const label of ['Kelangkaan', 'Tier', 'Bahan', 'Animasi', 'Efek visual', 'Suara', 'Identitas', 'Keunggulan', 'Cerita', 'Batas']) {
   assert.ok(!page.includes(`addInfoRow(body, '${label}'`), `${label} tidak ditampilkan dalam panel`);
 }
-for (const label of ['Identitas', 'Peran', 'Keunggulan', 'Cerita', 'Skill', 'Efek skill', 'Batas']) {
+for (const label of ['Peran', 'Skill', 'Efek skill']) {
   assert.ok(page.includes(`addInfoRow(body, '${label}'`), `${label} tetap ditampilkan dalam panel`);
 }
 assert.ok(page.includes(".select('id,identity,role,skill,advantage,lore')"));

@@ -140,16 +140,11 @@ UT.PageModule.define('pet', function (env) {
 
     const detail = metadata.get(item.gameKey);
     if (detail) {
-      addInfoRow(body, 'Identitas', detail.identity);
       addInfoRow(body, 'Peran', detail.role || item.role);
-      addInfoRow(body, 'Keunggulan', detail.advantage);
-      addInfoRow(body, 'Cerita', detail.lore);
       addInfoRow(body, 'Skill', detail.skill && detail.skill.name);
       addInfoRow(body, 'Efek skill', detail.skill && detail.skill.effect);
-      addInfoRow(body, 'Batas', detail.skill && detail.skill.limit);
     } else {
       addInfoRow(body, 'Peran', item.role);
-      addInfoRow(body, 'Deskripsi', item.desc);
     }
 
     if (metadataError || !metadataLoaded) {
@@ -406,7 +401,6 @@ UT.PageModule.define('pet', function (env) {
   $('#md').addEventListener('click', (event) => {
     if (event.target.id === 'md') closeModal();
   });
-  $('#petInfoOpen').addEventListener('click', openInfo);
   $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
   $('#petInfo').addEventListener('click', (event) => {
     if (event.target === $('#petInfo')) $('#petInfo').close();
