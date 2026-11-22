@@ -27,8 +27,16 @@
     <div id="fpv"></div>
     <div id="petTitle"><div id="nm" class="ttl"></div></div>
     <div id="rar"></div>
-    <p id="ds"></p>
   </div></div>
+
+  <!-- detail / deskripsi dadu (terpisah dari pratinjau, sama seperti Pet) -->
+  <dialog id="petInfo" aria-labelledby="petInfoTitle">
+    <div class="pet-info-panel">
+      <button id="petInfoClose" type="button" aria-label="Tutup detail">×</button>
+      <h2 id="petInfoTitle">Detail Dadu</h2>
+      <div id="petInfoBody"></div>
+    </div>
+  </dialog>
 
   <!-- modal konfirmasi beli / coin kurang -->
   <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">

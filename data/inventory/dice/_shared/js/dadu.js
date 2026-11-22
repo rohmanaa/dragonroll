@@ -18,10 +18,10 @@ const isOwned=i=>PD.owns(i.id),isUsed=i=>PD.isEquipped(i.id);
 const canSell=i=>!!i&&((typeof i.price==='number'&&i.price>0)||(typeof i.gems==='number'&&i.gems>0))&&!i.starter;
 const kitOK=i=>!!(window.DiceKit&&i&&window.DiceKit.has(i.gameKey));
 /* kartu: warna asli = tekstur yang sama dengan preview 3D; cadangan SVG bila kit belum siap */
-/* deskripsi singkat: kalimat pertama saja, maks ~64 karakter */
-const brief=d=>{d=String(d||'').trim();const first=d.split(/(?<=[.!?])\s+/)[0]||d;if(first.length<=64)return first;const cut=first.slice(0,62),i=cut.lastIndexOf(' ');return (i>30?cut.slice(0,i):cut)+'…'};
 const THUMBS=new Map();
-const art=i=>{try{if(kitOK(i)){let u=THUMBS.get(i.gameKey);if(!u){u=window.DiceKit.thumb(i.gameKey,300);if(u)THUMBS.set(i.gameKey,u)}if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
+/* jepretan dadu 3D asli (material, cahaya, kamera sama dengan pratinjau); dipakai bersama antar kunjungan halaman */
+const SNAP=window.__diceSnap||(window.__diceSnap=new Map());
+const art=i=>{try{if(kitOK(i)){let u=SNAP.get(i.gameKey)||THUMBS.get(i.gameKey);if(!u){u=window.DiceKit.thumb(i.gameKey,300);if(u)THUMBS.set(i.gameKey,u)}if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
 /* ---- DiceKit: dadu 3D asli (fisika kocok-lempar, material, partikel, suara); angka lempar hanya visual ---- */
 /* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas pratinjau di modal 500px tinggi: camScale .45 (ukuran dadu ~ kanvas/camScale) = ukuran dadu sama dengan kanvas 700px/.628 sebelumnya. */
 const CAM_SCALE=.45;
@@ -37,7 +37,9 @@ function mountKit(){
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
     host.innerHTML='';
-    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'auto',camScale:CAM_SCALE,sound:!!SET().sound,sharedGL:'inv-dadu'});
+    /* renderer sendiri (three r170 milik DiceKit): renderer bersama SharedGL memakai three r128 sehingga shader material/efek gagal dikompilasi (pratinjau jatuh ke SVG statis tanpa animasi & efek).
+       Kualitas minimal 'medium' agar aura, jejak, partikel & cahaya tetap menyala di HP (mode 'auto' di HP = 'low' = efek dimatikan). */
+    KIT=window.DiceKit.mount(host,{diceId:k,quality:(SET().graphics==='high'||SET().graphics==='ultra')?'high':'medium',camScale:CAM_SCALE,lookY:.35,sound:!!SET().sound});
   }catch(e){KIT=null;console.warn('DiceKit gagal, memakai pratinjau sederhana',e)}
 }
 let sel=null;
@@ -85,6 +87,7 @@ function drawGrid(){
       +'<span class="pc-th">'+art(x)+check+'</span></div>'
       +actionBar(x,m,on,sell)+'</div>'
       +'<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau '+x.name+'" title="Pratinjau">'+EYE_SVG+'</button>'
+      +'<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail '+x.name+'" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>'
       +'</article>';
   }).join('');
   if(html!==lastGridHtml){$('#grid').innerHTML=html;lastGridHtml=html}
@@ -104,12 +107,11 @@ function draw(){
 /* isi modal pratinjau + dadu 3D terpilih (tanpa membangun ulang grid) */
 function updatePreview(){
   if(env.disposed)return;
-  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='Belum ada dadu di game ini.';return}
+  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';return}
   const f=sel,r=RAR[f.rarity]||RAR.common;
   if(KIT)syncKit();else if(previewOpen())$('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
   $('#nm').textContent=f.name;
   $('#rar').textContent=r[0];$('#rar').style.color=r[1];
-  $('#ds').textContent=brief(f.desc);
 }
 const previewOpen=()=>$('#pv').classList.contains('on');
 function openPreview(){
@@ -117,9 +119,13 @@ function openPreview(){
   mountKit();updatePreview();throwPreview();
   try{$('#pvClose').focus({preventScroll:true})}catch(e){}
 }
+function disposeKit(){
+  const k=KIT;KIT=null;if(!k)return;
+  try{const gl=k.renderer;k.dispose();if(gl&&gl.forceContextLoss)gl.forceContextLoss()}catch(e){} /* konteks WebGL dilepas penuh agar tidak menumpuk tiap pratinjau dibuka */
+}
 function closePreview(){
   $('#pv').classList.remove('on');$('#pv').setAttribute('aria-hidden','true');
-  try{if(KIT)KIT.dispose()}catch(e){}KIT=null; /* dadu 3D & renderer bersama dilepas selama modal tertutup */
+  disposeKit(); /* dadu 3D & renderer dilepas selama modal tertutup */
 }
 function buySelected(f){
   if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
@@ -140,12 +146,80 @@ $('#grid').onclick=e=>{
   const btn=e.target.closest('[data-act]'),act=btn?btn.dataset.act:'preview';
   sel=f;snd('button');
   if(act==='use'){runAction(f);return}
-  markSelected();openPreview();
+  markSelected();
+  if(act==='detail'){openInfo();return}
+  openPreview();
 };
 /* beli bila belum dimiliki, pakai bila sudah (dadu yang sedang dipakai tidak bisa dilepas) */
 function runAction(f){
   if(!isOwned(f)){if(canSell(f))buySelected(f);else toast('Dadu ini tidak dijual.');return}
   if(!isUsed(f))equip(f);
+}
+
+/* ---- detail (deskripsi) terpisah dari pratinjau, sama seperti halaman Pet ---- */
+function infoRow(box,label,value){
+  if(value==null||value==='')return;
+  const row=document.createElement('div'),b=document.createElement('b'),sp=document.createElement('span');
+  row.className='pet-info-row';b.textContent=label;sp.textContent=String(value);row.append(b,sp);box.appendChild(row);
+}
+function openInfo(){
+  const f=sel;if(!f)return;
+  const r=RAR[f.rarity]||RAR.common,body=$('#petInfoBody');
+  $('#petInfoTitle').textContent='Detail '+f.name;
+  body.replaceChildren();
+  infoRow(body,'Deskripsi',f.desc);
+  infoRow(body,'Kelangkaan',r[0]);
+  infoRow(body,'Material',f.materialName);
+  $('#petInfo').showModal();
+  env.requestAnimationFrame(()=>{body.scrollTop=0});
+}
+$('#petInfoClose').onclick=()=>$('#petInfo').close();
+$('#petInfo').onclick=e=>{if(e.target===$('#petInfo'))$('#petInfo').close()};
+
+/* ---- thumbnail kartu = jepretan dadu 3D asli (renderer, material, cahaya & kamera sama dengan pratinjau), satu per satu saat senggang ---- */
+let snapStop=null;
+function stopSnaps(){if(snapStop){const f=snapStop;snapStop=null;f()}}
+function buildSnaps(){
+  if(env.disposed||snapStop||!window.DiceKit)return;
+  const todo=FR.filter(x=>kitOK(x)&&!SNAP.has(x.gameKey));
+  if(!todo.length)return;
+  const host=document.createElement('div');
+  host.style.cssText='position:fixed;left:-9999px;top:0;width:560px;height:560px;pointer-events:none;visibility:hidden';
+  document.body.appendChild(host);
+  let R=null,timer=0,i=0,got=0;
+  const end=()=>{
+    clearTimeout(timer);snapStop=null;
+    try{if(R){const gl=R.renderer;R.dispose();if(gl&&gl.forceContextLoss)gl.forceContextLoss()}}catch(e){}
+    R=null;host.remove();
+    if(got&&!env.disposed){lastGridHtml='';drawGrid()}
+  };
+  try{R=window.DiceKit.mount(host,{diceId:todo[0].gameKey,quality:'medium',camScale:CAM_SCALE,sound:false});R.stop()}catch(e){R=null;end();return}
+  snapStop=end;
+  const cv=document.createElement('canvas'),OUT=256;cv.width=cv.height=OUT;
+  const grab=()=>{
+    const src=R.renderer.domElement,w=src.width,h=src.height;
+    const t=document.createElement('canvas');t.width=w;t.height=h;const tc=t.getContext('2d',{willReadFrequently:true});tc.drawImage(src,0,0);
+    const d=tc.getImageData(0,0,w,h).data;let x0=w,y0=h,x1=-1,y1=-1;
+    for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){if(d[(y*w+x)*4+3]>200){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
+    if(x1<0)return '';
+    const pad=Math.round(Math.max(x1-x0,y1-y0)*.06),bw=x1-x0+1,bh=y1-y0+1,side=Math.max(bw,bh)+pad*2;
+    const c=cv.getContext('2d');c.clearRect(0,0,OUT,OUT);c.imageSmoothingQuality='high';
+    const k=OUT/side;c.drawImage(t,x0,y0,bw,bh,(OUT-bw*k)/2,(OUT-bh*k)/2,bw*k,bh*k);
+    return cv.toDataURL('image/png');
+  };
+  const step=()=>{
+    if(env.disposed||!R){end();return}
+    const x=todo[i++];
+    if(!x){end();return}
+    try{
+      R.equip(x.gameKey);R.showFace(1,.6);
+      R.effects.update(.016,R.animator.view);R.effects.update(.016,R.animator.view);
+      R.renderer.render(R.scene,R.camera);
+      const u=grab();if(u){SNAP.set(x.gameKey,u);got++}
+    }catch(e){console.warn('snapshot dadu gagal',x.gameKey,e)}
+    timer=setTimeout(step,30);
+  };
+  timer=setTimeout(step,60);
 }
 
 /* ---- modal ---- */
@@ -159,7 +233,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if($('#petInfo').open)return;else if(previewOpen())closePreview();else nav('lobby.html')});
 $('#pvClose').onclick=closePreview;
 $('#pv').onclick=e=>{if(e.target.id==='pv')closePreview()};
 
@@ -206,8 +280,9 @@ applyPanelAlpha();
 try{if(UT.Prefs&&UT.Prefs.on)env.own(UT.Prefs.on(n=>{if(n==='panelTransparency')applyPanelAlpha()}))}catch(e){}
 env.addEventListener('resize',fit);fit();
 /* unmount: DiceKit dibuang (animasi, listener, fisika) dan renderer bersama dilepas */
-env.own(()=>{try{if(KIT)KIT.dispose()}catch(e){}KIT=null});
+env.own(()=>{disposeKit();stopSnaps()});
 draw();
-env.addEventListener('dicekit-ready',()=>{draw();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
+if(window.DiceKit)buildSnaps();
+env.addEventListener('dicekit-ready',()=>{draw();buildSnaps();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
 document.documentElement.classList.add('ut-ready');
 });
