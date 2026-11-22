@@ -10,7 +10,7 @@ UT.PageModule.define('shop', function (env) {
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
   const IC = 'assets/images/ui/';
-  const TABS = ['skin', 'set', 'frame', 'power', 'chest', 'coin', 'emerald', 'history'];
+  const TABS = ['set', 'frame', 'power', 'chest', 'coin', 'emerald'];
   /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
   const KIND = { skin: 'skin', frame: 'frame', power: 'powerup' };
   const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
@@ -71,13 +71,17 @@ UT.PageModule.define('shop', function (env) {
 
   let tab = query.has('emerald') || query.get('tab') === 'gem' ? 'emerald'
     : query.has('coin') || query.get('tab') === 'coin' ? 'coin'
-      : TABS.includes(query.get('tab')) ? query.get('tab') : 'skin';
+      : TABS.includes(query.get('tab')) ? query.get('tab') : 'set';
   let busy = false;
   let modalTimer = 0;
   let mOpen = false;
 
   function fit() {
-    $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
+    /* skala kanvas 1920x1080 + sisa layar di luar kanvas (--hub-ex/--hub-ey): bingkai & latar #pmodal penuh sampai tepi layar (sama dengan pet.html) */
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1, st = $('#stage');
+    st.style.transform = `scale(${k})`;
+    st.style.setProperty('--hub-ex', Math.max(0, (innerWidth / k - 1920) / 2).toFixed(1) + 'px');
+    st.style.setProperty('--hub-ey', Math.max(0, (innerHeight / k - 1080) / 2).toFixed(1) + 'px');
   }
   addEventListener('resize', fit);
   fit();
