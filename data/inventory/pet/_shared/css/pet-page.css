@@ -102,3 +102,9 @@ button.pc-pr,.pc-pr{height:100px;font-size:50px}
 .pc-ic{bottom:140px;width:76px;height:76px}
 .pc-ic svg,.pc-ic img{width:56px;height:56px}
 .pc-eye{left:30px}.pc-det{right:30px}
+
+/* geser kartu: overflow-x pasti aktif, tanpa snap (mengganggu seret), kursor grab, gambar tidak ikut terseret */
+html body.fm.notabs #right #grid{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}
+html body.fm.notabs #right #grid.drag{cursor:grabbing}
+#grid.drag .pc-pr,#grid.drag .pc-ic{pointer-events:none}
+#grid img{-webkit-user-drag:none;user-drag:none}

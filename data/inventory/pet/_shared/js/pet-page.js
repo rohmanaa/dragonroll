@@ -382,13 +382,51 @@ UT.PageModule.define('pet', function (env) {
     if (btn.dataset.act === 'detail') openInfo();
     else openPreview();
   });
-  /* roda mouse = geser kartu ke samping (baris kartu menggulir horizontal) */
-  $('#grid').addEventListener('wheel', (event) => {
-    const grid = event.currentTarget;
-    if (grid.scrollWidth <= grid.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+  /* geser baris kartu: roda mouse / Shift + roda = ke samping; tahan + seret mouse = geser (touch tetap pan bawaan) */
+  const gridEl = $('#grid');
+  gridEl.addEventListener('wheel', (event) => {
+    if (gridEl.scrollWidth <= gridEl.clientWidth) return;
+    const d = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (!d) return;
     event.preventDefault();
-    grid.scrollLeft += event.deltaY;
+    gridEl.scrollLeft += d * (event.deltaMode === 1 ? 32 : 1);
   }, { passive: false });
+  let drag = null;
+  let dragged = false;
+  gridEl.addEventListener('pointerdown', (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    drag = { id: event.pointerId, x: event.clientX, left: gridEl.scrollLeft, moving: false };
+  });
+  gridEl.addEventListener('pointermove', (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1;
+    const dx = (event.clientX - drag.x) / k;
+    if (!drag.moving) {
+      if (Math.abs(dx) < 6) return;
+      drag.moving = true;
+      gridEl.classList.add('drag');
+      try { gridEl.setPointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+    }
+    gridEl.scrollLeft = drag.left - dx;
+  });
+  function endDrag(event) {
+    if (!drag || event.pointerId !== drag.id) return;
+    if (drag.moving) {
+      dragged = true;
+      env.setTimeout(() => { dragged = false; }, 0);
+      try { gridEl.releasePointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+    }
+    gridEl.classList.remove('drag');
+    drag = null;
+  }
+  gridEl.addEventListener('pointerup', endDrag);
+  gridEl.addEventListener('pointercancel', endDrag);
+  gridEl.addEventListener('dragstart', (event) => event.preventDefault());
+  gridEl.addEventListener('click', (event) => {
+    if (!dragged) return;
+    event.stopPropagation();
+    event.preventDefault();
+  }, true);
   $('#pvClose').addEventListener('click', closePreview);
   $('#pv').addEventListener('click', (event) => {
     if (event.target.id === 'pv') closePreview();
