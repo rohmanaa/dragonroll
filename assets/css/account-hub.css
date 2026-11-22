@@ -20,7 +20,7 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
    #2e293c) yang SEDIKIT transparan sehingga gambar latar samar terlihat. Tanpa `fill` pada border-image (fill aset itu pekat).
    --hub-ex/--hub-ey = sisa layar di luar kanvas (diisi UT.AccountHub.fitFrame); #stage biasanya overflow:hidden, jadi dibuka selama hub aktif.
    Bingkai ditarik 8px ke luar layar (inset:-8px, seperti .panel/#cbox) agar sudut membulat & tepi luar aset jatuh di luar layar = tanpa celah. */
-#stage.has-hub{overflow:visible!important;--hub-gap:20px}   /* jarak bingkai ke tepi layar: border batu tampak penuh, latar terlihat di sekelilingnya */
+#stage.has-hub{overflow:visible!important;--hub-gap:-8px}   /* jarak bingkai ke tepi layar: negatif = bingkai ditarik 8px ke luar layar (penuh sampai sisi, tanpa celah) */
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) + var(--hub-gap));top:calc(-1 * var(--hub-ey,0px) + var(--hub-gap));width:calc(1920px + 2 * var(--hub-ex,0px) - 2 * var(--hub-gap));height:calc(1080px + 2 * var(--hub-ey,0px) - 2 * var(--hub-gap));
   pointer-events:none;box-sizing:border-box;z-index:0;
   border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
