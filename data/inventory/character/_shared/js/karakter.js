@@ -1175,6 +1175,7 @@ const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 $('#back').addEventListener('click',()=>{nav('lobby.html');});
+$('#gearbtn').addEventListener('click',()=>{nav('frame.html');});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
 $('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});

@@ -29,3 +29,13 @@ html,body{background:#4b4162!important;overflow:hidden}
 #fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:60}
 #fade.on{opacity:1;pointer-events:all}
 @media (prefers-reduced-motion:reduce){.view{transition:none}#view-loading span{animation:none}}
+/* tab native (Ore, Log): kosong dulu sampai Tambang & Farm masuk. Ukuran memakai --invs (skala kanvas 1920x1080 yang diset inventory.js) */
+.view.native{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)),url(../../images/background/inventory-voxel-tas.webp) center/cover no-repeat,#231d37}
+.view.native.on{display:grid;place-items:center}
+.native .empty{display:flex;flex-direction:column;align-items:center;gap:calc(14px*var(--invs,1));text-align:center;color:#fff;margin-top:calc(60px*var(--invs,1))}
+.native .empty img{height:calc(150px*var(--invs,1));width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45));opacity:.55}
+.native .empty strong{font:400 calc(44px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 3px 0 rgba(10,6,24,.6)}
+.native .empty p{margin:0;max-width:calc(560px*var(--invs,1));font:700 calc(26px*var(--invs,1))/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
+.native .empty button{margin-top:calc(8px*var(--invs,1));padding:calc(12px*var(--invs,1)) calc(34px*var(--invs,1));border-radius:calc(14px*var(--invs,1));cursor:pointer;
+  font:400 calc(28px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);color:#fff;background:linear-gradient(180deg,#58b8ff,#2d7fd6);border:3px solid #17407a;text-shadow:0 2px 0 rgba(0,0,0,.45);box-shadow:0 4px 0 rgba(10,6,30,.5)}
+.native .empty button:active{transform:translateY(3px)}

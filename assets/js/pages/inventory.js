@@ -1,16 +1,17 @@
-/* inventory.js — SATU halaman Inventory: tab Frame / Dadu / Efek / Power-up / Pet.
-   Tiap tab = halaman lama (frame.html dst.) dimuat di iframe ?embed=inv, jadi seluruh sistem (beli, pakai, 3D, server) tidak berubah.
+/* inventory.js — SATU halaman Inventory: tab Power-up / Ore / Log (hanya item yang dimiliki).
+   Power-up = halaman lama (powerup.html) di iframe ?embed=inv, jadi sistem beli/pakai/3D/server tidak berubah; Ore & Log dirender di sini (kosong dulu).
+   Frame / Dadu / Efek / Pet tidak lagi tab Inventory: dipasang dari Karakter (bar tab Perlengkapan) dan Pet dari tombol Pet di lobby.
    Tahap 3 SPA: dibungkus UT.PageModule ('inventory'); jadi view di shell play.html (tab tetap iframe bersarang sampai tiap tab dimigrasikan). */
 UT.PageModule.define('inventory', function (env) {
   'use strict';
   var addEventListener = env.addEventListener, setTimeout = env.setTimeout;
   var $ = function (s) { return document.querySelector(s); };
-  var TABS = UT.InvTabs.TABS;
+  var TABS = UT.InvTabs.tabsOf('inv');
   var KEY = UT.InvTabs.KEY, host = $('#views'), loading = $('#view-loading'), tabsEl = $('#tabs'), cur = '', frames = {};
   var SET = function () { try { return window.PlayerData.settings(); } catch (e) { return {}; } };
   function snd() { try { if (SET().sound) UT.Audio.play('button'); } catch (e) {} }
 
-  function fit() { $('#stage').style.transform = 'scale(' + Math.min(innerWidth / 1920, innerHeight / 1080) + ')'; }
+  function fit() { var k = Math.min(innerWidth / 1920, innerHeight / 1080); $('#stage').style.transform = 'scale(' + k + ')'; document.documentElement.style.setProperty('--invs', k); }
   addEventListener('resize', fit); fit();
 
   /* di shell (play.html) semua target lewat UT.Spa.go; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
@@ -52,6 +53,13 @@ UT.PageModule.define('inventory', function (env) {
     cur = t.k;
     Array.prototype.forEach.call(tabsEl.children, function (b) { b.classList.toggle('on', b.dataset.k === t.k); });
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
+    Array.prototype.forEach.call(host.querySelectorAll('.native'), function (p) { p.classList.toggle('on', p.dataset.k === t.k); });
+    if (t.native) {   /* Ore / Log: isi native, tanpa iframe */
+      Object.keys(frames).forEach(function (x) { frames[x].classList.remove('on'); });
+      loading.hidden = true;
+      if (!quiet) snd();
+      return;
+    }
     if (!frames[t.k]) frames[t.k] = mk(t);
     frames[t.k].classList.remove('warm');   // dibuka pengguna: tidak lagi pemanasan
     Object.keys(frames).forEach(function (x) { frames[x].classList.toggle('on', x === t.k); });
@@ -59,6 +67,7 @@ UT.PageModule.define('inventory', function (env) {
     if (!quiet) snd();
   }
   tabsEl.addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) open(b.dataset.k); });
+  host.addEventListener('click', function (e) { var g = e.target.closest('[data-go]'); if (g) { snd(); nav(g.dataset.go); } });
   $('#back').addEventListener('click', function () { snd(); nav('lobby.html'); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape') nav('lobby.html'); });
   addEventListener('message', function (e) {
@@ -70,7 +79,7 @@ UT.PageModule.define('inventory', function (env) {
 
   var q = new URLSearchParams(search()).get('tab'), saved = '';
   try { saved = sessionStorage.getItem(KEY) || ''; } catch (e) {}
-  open(q || saved || 'frame', true);
+  open(q || saved || 'power', true);
 
   /* Pemanasan: begitu tab pertama selesai dimuat, tab lain dimuat diam-diam satu per satu (opacity 0, tidak bisa diklik),
      jadi pindah tab nyaris tanpa layar loading. Dimuat dalam keadaan tampil-tak-terlihat (.warm) supaya ukuran/layout halaman
@@ -80,7 +89,7 @@ UT.PageModule.define('inventory', function (env) {
     return true;
   }
   function warm() {
-    var next = TABS.filter(function (t) { return !frames[t.k]; })[0];
+    var next = TABS.filter(function (t) { return !t.native && !frames[t.k]; })[0];
     if (!next) return;
     var f = frames[next.k] = mk(next), done = false;
     f.classList.add('warm');

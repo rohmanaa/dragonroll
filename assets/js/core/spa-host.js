@@ -240,7 +240,7 @@
       url = hubCanon(url);
       if (pageOf(url) !== 'inventory.html') return url;
       var m = /[?&]tab=([a-z]+)/.exec(String(url)), tab = m ? m[1] : '';
-      if (!m) { try { tab = G.sessionStorage.getItem('ut-inv-tab') || ''; } catch (e) { tab = ''; } }
+      /* tab terakhir yang diingat TIDAK dipakai lagi: Inventory kini hanya Power-up/Ore/Log (bukan view); tombol Inventory selalu membuka inventory.html */
       var pg = INV_VIEW_TABS[tab];
       return pg && !broken[pg] && canView(pg) ? pg : url;
     }

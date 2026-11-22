@@ -60,12 +60,13 @@ function setup(o) {
     assert.strictEqual(spa.canon('inventory.html'), 'inventory.html');
     assert.strictEqual(spa.canon('lobby.html'), 'lobby.html');
     G.sessionStorage.getItem = k => (k === 'ut:booted' ? '1' : k === 'ut-inv-tab' ? 'pet' : null);
-    assert.strictEqual(spa.canon('inventory.html'), 'pet.html');
+    /* tab terakhir yang diingat tidak lagi membelokkan tombol Inventory: Inventory = Power-up/Ore/Log (bukan view) */
+    assert.strictEqual(spa.canon('inventory.html'), 'inventory.html');
     assert.strictEqual(spa.canon('inventory.html?tab=efek'), 'efek.html');
     assert.strictEqual(spa.canon('inventory.html?tab=dadu'), 'dadu.html');
     await spa.go('inventory.html', { history: 'none' });
-    assert.ok(log.includes('enter:pet') && !log.includes('enter:inventory'));
-    assert.deepStrictEqual(spa.current(), { name: 'pet', url: 'pet.html' });
+    assert.ok(log.includes('enter:inventory') && !log.includes('enter:pet'));
+    assert.deepStrictEqual(spa.current(), { name: 'inventory', url: 'inventory.html' });
   });
   await t('canView: syarat sesi, boot, rotasi, noframe, from=room', () => {
     assert.strictEqual(setup().spa.canView('lobby.html'), true);
