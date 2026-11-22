@@ -63,14 +63,30 @@ t('statis: tab Chest di Inventory memuat aset yang ada; chest.html sudah dihapus
   [...(lh + ih).matchAll(/assets\/images\/ui\/[\w\-\/]+\.webp/g)].map(m => m[0]).forEach(p => assert.ok(fs.existsSync(root(p)), 'aset hilang: ' + p));
   assert.ok(ij.includes("diamond: { nm:") && ih.includes('data-k="chest"') && ih.includes('services/wallet-service.js'));
 });
-t('statis: tombol Chest di Lobby (kiri Inventory) membuka tab Chest di Inventory, bukan halaman chest', () => {
+t('statis: Lobby = modal timeline klaim (Kayu/Silver/Gold); Inventory = slot chest yang dimiliki, ketuk untuk buka', () => {
   const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8'), ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
   assert.ok(/id="b-chest" data-act="chest"/.test(lh) && lh.indexOf('id="b-chest"') < lh.indexOf('id="b-inv"'));
-  assert.ok(!/id="grp"[\s\S]*data-act="chest"[\s\S]*id="grpt"/.test(lh), 'Chest tidak lagi di grup lipat');
-  assert.ok(/chest:'inventory\.html\?tab=chest'/.test(lj) && !/chest:'chest\.html'/.test(lj));
-  assert.ok(!/chestStart|chestOpenNow|secsLeft|seconds_left/.test(ij), 'tab chest tidak boleh memakai timer');
+  assert.ok(!/id="grp"[\s\S]*data-act="chest"[\s\S]*id="grpt"/.test(lh), 'Chest tidak di grup lipat');
+  assert.ok(/id="chestMd"/.test(lh) && /act==='chest'\)\{openChest\(\)/.test(lj) && !/chest:'chest\.html'/.test(lj));
+  assert.ok(lj.includes('chestClaimDaily') && !/chestCollect|chestStart|chestOpenNow/.test(lj), 'lobby hanya mengklaim, tidak membuka');
+  assert.ok(lj.includes('plays_today') && lj.includes('chestFill'), 'timeline memakai progres game dari server');
+  assert.ok(ij.includes('chestCollect') && !/chestClaimDaily|chestStart|chestOpenNow|secsLeft|seconds_left|data-claim/.test(ij), 'inventory hanya membuka, tanpa klaim/timer');
+  assert.ok(ij.includes("data-kind") && !/<button class="cb"[^>]*data-open/.test(ij), 'tanpa tombol BUKA: ketuk slot');
   const tabs = require('../assets/js/core/inv-tabs.js');
   assert.deepStrictEqual(tabs.GROUPS.inv.keys, ['power', 'chest', 'ore', 'log']);
+});
+t('timeline Lobby: bar maju per ruas menurut jumlah game', () => {
+  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8');
+  const m = lj.match(/const CPOS=\[[^\]]*\],CSTART=\d+;\nfunction chestFill[\s\S]*?return CPOS\[CPOS\.length-1\]\}/);
+  assert.ok(m, 'chestFill ditemukan');
+  const chestFill = new Function(m[0] + '; return chestFill;')();
+  const need = [1, 3, 10];
+  assert.strictEqual(chestFill(0, need), 4);
+  assert.strictEqual(chestFill(1, need), 16);
+  assert.strictEqual(chestFill(3, need), 50);
+  assert.strictEqual(chestFill(10, need), 84);
+  assert.strictEqual(chestFill(25, need), 84);
+  const mid = chestFill(2, need); assert.ok(mid > 16 && mid < 50);
 });
 t('migrasi: chest_collect tanpa timer menerima status stored & tidak mengecek open_ready_at', () => {
   const sql = fs.readFileSync(root('supabase/migrations/202611430001_chest_no_timer.sql'), 'utf8');

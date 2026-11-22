@@ -40,28 +40,27 @@ html,body{background:#4b4162!important;overflow:hidden}
   font:400 calc(28px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);color:#fff;background:linear-gradient(180deg,#58b8ff,#2d7fd6);border:3px solid #17407a;text-shadow:0 2px 0 rgba(0,0,0,.45);box-shadow:0 4px 0 rgba(10,6,30,.5)}
 .native .empty button:active{transform:translateY(3px)}
 
-/* tab Chest (native): klaim harian + penyimpanan, tanpa timer. Dirender di dalam .view.native, diskalakan dengan --invs (kanvas 1920x1080) */
+/* tab Chest (native): slot chest yang dimiliki (satu per jenis, lencana jumlah). Ukuran lewat zoom:--invs (kanvas 1920x1080) */
 .view.native[data-k="chest"].on{display:grid;place-items:center}
 #chestBox{display:grid;place-items:center;margin-top:calc(120px*var(--invs,1))}
-#cbox{width:1180px;max-height:760px;overflow:auto;padding:30px 40px 36px;border-radius:26px;color:#fff;zoom:var(--invs,1);
+#cbox{width:1180px;min-height:420px;max-height:760px;overflow:auto;padding:36px 40px 40px;border-radius:26px;color:#fff;zoom:var(--invs,1);display:grid;align-content:center;
   background:linear-gradient(180deg,rgba(82,92,118,.9),rgba(44,50,72,.94));border:5px solid rgba(18,22,36,.92);
   box-shadow:inset 0 3px 0 rgba(255,255,255,.14),0 10px 0 rgba(10,6,30,.5)}
-#cbox .sh{display:flex;justify-content:space-between;align-items:baseline;margin:6px 4px 12px;font:400 30px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
-#cbox .sh.two{margin-top:26px}
-#cbox .sh small{font:400 22px/1 var(--font-title,'Lilita One',sans-serif);opacity:.8}
-#cbox .crow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-#cbox .cc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px 12px;border-radius:18px;background:rgba(14,18,32,.5);border:3px solid rgba(18,22,36,.7)}
-#cbox .cc img.im{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
-#cbox .cc .nm{font:400 26px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
-#cbox .cc .tx{font:400 22px/1 var(--font-title,'Lilita One',sans-serif);opacity:.85;min-height:22px}
-#cbox .cc.done{filter:saturate(.4) brightness(.8)}
+#cbox .slots{display:flex;flex-wrap:wrap;justify-content:center;gap:22px}
+#cbox .sl{position:relative;width:200px;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:20px;cursor:pointer;
+  background:rgba(14,18,32,.55);border:3px solid rgba(18,22,36,.75);box-shadow:inset 0 2px 0 rgba(255,255,255,.1),0 5px 0 rgba(10,6,30,.45);transition:transform .1s,filter .1s}
+#cbox .sl:hover{filter:brightness(1.12)}#cbox .sl:active{transform:translateY(3px)}
+#cbox .sl img.im{width:116px;height:116px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
+#cbox .sl .nm{font:400 26px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .nbadge{position:absolute;right:-10px;top:-10px;width:52px;height:52px;display:grid;place-items:center;pointer-events:none}
+#cbox .nbadge img{position:absolute;inset:0;width:100%;height:100%}
+#cbox .nbadge b{position:relative;font:400 24px/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .hint{margin-top:26px;text-align:center;font:700 22px/1 'Nunito','Segoe UI',sans-serif;color:#d9d3f3;opacity:.85}
+#cbox .cempty{text-align:center;font:400 34px/1.3 var(--font-title,'Lilita One',sans-serif);opacity:.85}
+#cbox .cempty small{display:block;margin-top:10px;font:700 22px/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
 #cbox .cb{min-width:170px;height:58px;padding:0 18px;border-radius:14px;cursor:pointer;font:400 26px/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);
-  background:linear-gradient(180deg,#5fd05a,#2f8f34);border:3px solid rgba(10,40,12,.85);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 rgba(10,6,30,.5)}
-#cbox .cb.gold{background:linear-gradient(180deg,#ffd45a,#d99c1e);border-color:rgba(70,42,0,.85)}
+  background:linear-gradient(180deg,#ffd45a,#d99c1e);border:3px solid rgba(70,42,0,.85);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 rgba(10,6,30,.5)}
 #cbox .cb:active{transform:translateY(3px)}
-#cbox .cb[disabled]{filter:grayscale(.8) brightness(.7);pointer-events:none}
-#cbox .cempty{padding:40px 10px;text-align:center;font:400 30px/1.3 var(--font-title,'Lilita One',sans-serif);opacity:.8}
-#cbox .cempty.sm{padding:22px 10px;font-size:24px}
 #cbox .rwd{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0 4px;animation:cmIn .35s both}
 #cbox .rwd .rt{font:400 40px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #cbox .rwd img.mi{width:170px;height:auto;margin-bottom:6px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5));animation:cmShake .9s ease-out both}

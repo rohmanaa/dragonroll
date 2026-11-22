@@ -26,7 +26,7 @@ env.own(UT.Events.on('skinChanged',()=>{renderAvatar();buildHero()}));
 env.own(UT.Events.on('frameChanged',applyFrame));
 
 /* ---------- navigasi (peta ACT) ---------- */
-const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',dadu:'dadu.html',efek:'efek.html',chest:'inventory.html?tab=chest',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
+const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',dadu:'dadu.html',efek:'efek.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
 /* Profil · Teman · Pesan · Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
@@ -34,7 +34,7 @@ const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',settings:'setelan'};
 function navTo(url){if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/i.test(url)||/^(play|index|splash)\.html/i.test(url))return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}
  const f=$('#fade');if(f)f.classList.add('on');setTimeout(()=>{location.href=url},330)}
-function go(act){if(SOON[act]){toast(SOON[act]);return}if(HUB_TAB[act]){navTo('profile.html?tab='+HUB_TAB[act]+'&from=lobby.html');return}const url=ACT[act];if(!url)return;
+function go(act){if(act==='chest'){openChest();return}if(SOON[act]){toast(SOON[act]);return}if(HUB_TAB[act]){navTo('profile.html?tab='+HUB_TAB[act]+'&from=lobby.html');return}const url=ACT[act];if(!url)return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}  /* di shell (play.html): pindah rute tanpa muat ulang; layar memuat milik shell */
  const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
@@ -217,13 +217,52 @@ pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
 const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok){PN.mail=Math.max(0,+r.pending||0);paintProf()}return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
-/* ---------- Chest: tombol di Lobby (kiri Inventory) membuka tab Chest di Inventory (klaim harian + penyimpanan, tanpa timer).
-   Di sini hanya lencana: chest harian siap klaim + chest di penyimpanan. ---------- */
+/* ---------- Chest: tombol di Lobby (kiri Inventory) = modal TIMELINE progres game hari ini (Kayu -> Silver -> Gold).
+   Tiap titik punya syarat jumlah game (server); bila tercapai muncul tombol KLAIM kecil. Chest hasil klaim MASUK INVENTORY (tab Chest), dibuka dari sana.
+   Lencana tombol = jumlah chest harian siap klaim. ---------- */
+const CIC='assets/images/ui/',CK={wood:{nm:'Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Silver',im:'chest-packs/peti-perak'},gold:{nm:'Gold',im:'chest-packs/peti-emas'}};
+const CWM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan inventory penuh (10/10). Buka chest di Inventory dulu.','tidak-ada':'Chest tidak ditemukan.'};
+let CS=null,cBusy=false;
 function renderChest(S){
  if(!S||!Array.isArray(S.daily))return;
- setBadge('chestDot',S.daily.filter(d=>d.status==='ready').length+(S.chests||[]).filter(c=>c.status!=='collected').length)}
+ CS=S;setBadge('chestDot',S.daily.filter(d=>d.status==='ready').length);
+ const md=$('#chestMd');if(md&&!md.hidden)paintChest()}
 const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
+/* posisi titik (% lebar) dan isi bar: bar berjalan per ruas (mulai -> titik 1 -> titik 2 -> titik 3) menurut jumlah game hari ini */
+const CPOS=[16,50,84],CSTART=4;
+function chestFill(plays,needs){let prev=0,from=CSTART;
+ for(let i=0;i<needs.length;i++){const to=CPOS[i]||CPOS[CPOS.length-1];
+  if(plays<=needs[i])return Math.max(0,from+(to-from)*((plays-prev)/Math.max(1,needs[i]-prev)));
+  prev=needs[i];from=to}
+ return CPOS[CPOS.length-1]}
+function chestHtml(){
+ if(!CS)return '<div class="cempty">Memuat…</div>';
+ const D=CS.daily,needs=D.map(d=>+d.need||0),top=Math.max.apply(null,needs.concat([1])),plays=Math.max(0,+CS.plays_today||0);
+ const fill=chestFill(plays,needs);
+ let h='<div class="tot"><b>'+Math.min(plays,top)+' / '+top+'</b> game hari ini<small>Reset tiap hari (WIB) · chest hasil klaim masuk Inventory</small></div>';
+ h+='<div class="tl"><div class="trk"><div class="fil" style="width:'+Math.max(0,Math.min(100,(fill-CSTART)/(CPOS[CPOS.length-1]-CSTART)*100)).toFixed(1)+'%"></div></div>';
+ D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
+  h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
+   '<div class="mk">'+(reached?'✓':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
+   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'">KLAIM</button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
+ return h+'</div>'}
+function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
+function openChest(){
+ if(!SRV){toast('Masuk ke akun untuk memakai Chest.');return}
+ $('#chestMd').hidden=false;paintChest();pullChest()}
+function closeChest(){const md=$('#chestMd');if(md)md.hidden=true}
+async function claimChest(kind){
+ if(cBusy)return;cBusy=true;
+ try{const W=UT.WalletService&&UT.WalletService.get(),r=W?await W.chestClaimDaily(kind):{ok:false,reason:'jaringan'};
+  if(env.disposed)return;
+  if(r&&r.ok){renderChest(r);toast('Chest masuk ke Inventory!')}else{toast(CWM[r&&r.reason]||'Gagal, coba lagi');await pullChest()}}
+ finally{cBusy=false;if(!env.disposed)paintChest()}}
+{const md=$('#chestMd');if(md){
+ env.on(md,'click',e=>{
+  if(e.target===md||e.target.closest('#cm-x')){buzz();closeChest();return}
+  const b=e.target.closest('button[data-claim]');if(!b||b.disabled)return;buzz();claimChest(b.dataset.claim)});
+ env.on(document,'keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeChest()})}}
 
 /* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
 let MINE=null;
