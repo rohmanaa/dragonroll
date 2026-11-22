@@ -199,3 +199,10 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .mbtn.ok{background:linear-gradient(#58d85a,#1f9a2a)}
 .mbtn.ok span{display:flex;align-items:center;justify-content:center;gap:12px}
 .mbtn.ok img{width:52px;height:auto}
+/* tab Set: kartu pakai emoji tema set; daftar bagian di modal beli */
+.card.item.k-set .art{font-size:170px;line-height:1}
+.setemo{display:block;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.slist{max-height:420px;overflow:auto;margin:0 0 18px;text-align:left}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:6px 0;font-size:32px;font-weight:800;color:#ddd7f7}
+.srow span:last-child{display:flex;align-items:center;gap:8px;color:#ffe36a}
+.srow img{width:36px;height:auto}
