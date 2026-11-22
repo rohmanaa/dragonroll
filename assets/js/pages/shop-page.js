@@ -195,7 +195,7 @@ UT.PageModule.define('shop', function (env) {
   function priceHtml(it, qty) {
     const cost = IC_().cost(it);
     const gem = cost.gems != null;
-    return `<img src="${IC}${gem ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt((gem ? cost.gems : cost.coins) * (qty || 1))}`;
+    return `${fmt((gem ? cost.gems : cost.coins) * (qty || 1))}<img src="${IC}${gem ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">`;
   }
   function renderItems(key) {
     const list = shopItems(key);
@@ -205,7 +205,7 @@ UT.PageModule.define('shop', function (env) {
       const power = it.kind === 'powerup';
       const owned = !power && PD.owns(it.id);
       const qty = power ? PD.qty(it.id) : 0;
-      return `<div class="card item fx k-${key}" style="--g:${RCOL[it.rarity] || RCOL.common}">
+      return `<div class="card item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
         <div class="nm">${escapeHtml(it.name)}</div>
         <div class="pic"><i class="glow"></i><div class="art">${art}</div></div>
         ${qty > 0 ? `<span class="chip" aria-label="Dimiliki ${qty}">×${qty}</span>` : ''}
@@ -222,7 +222,8 @@ UT.PageModule.define('shop', function (env) {
     if (!it) return;
     const rar = IC_().RARITY[it.rarity];
     openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
-      <p>${rar ? escapeHtml(rar.label) + ' · ' : ''}${escapeHtml(it.desc || '')}</p>`, () => startPreview(it));
+      ${rar ? `<div class="rar" style="color:${RCOL[it.rarity] || RCOL.common}">${escapeHtml(rar.label)}</div>` : ''}
+      <p class="ds">${escapeHtml(it.desc || '')}</p>`, () => startPreview(it));
   }
 
   function confirmBuy(id) {
@@ -230,10 +231,10 @@ UT.PageModule.define('shop', function (env) {
     if (!it || busy) return;
     const power = it.kind === 'powerup';
     let qty = 1;
-    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv sm" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
       <p>${escapeHtml(it.desc || '')}</p>
       ${power ? '<div class="qty"><button type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
-      <div class="mrow"><button class="mbtn no" type="button" id="m-no">Batal</button><button class="mbtn ok" type="button" id="m-ok"><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
+      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
       startPreview(it);
       const sync = () => {
         if (power) $('#q-n').textContent = qty;
@@ -312,12 +313,12 @@ UT.PageModule.define('shop', function (env) {
     return list.map(s => {
       const owned = s.miss.length === 0;
       const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
-      return `<div class="card item fx k-set" style="--g:${RCOL.rare}">
+      return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
         <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="${IC}item-icons/${icon}.webp" alt=""></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
         <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
-          ${owned ? 'Dimiliki' : `<img src="${IC}hud/ikon-koin-emas.webp" alt="">${fmt(s.total)}`}
+          ${owned ? 'Dimiliki' : `${fmt(s.total)}<img src="${IC}hud/ikon-koin-emas.webp" alt="">`}
         </button>
       </div>`;
     }).join('');
@@ -331,7 +332,7 @@ UT.PageModule.define('shop', function (env) {
     openModal(`<h2>Beli Set ${name}?</h2>
       <div class="slist">${rows}</div>
       <p>Bagian yang sudah kamu miliki tidak ditagih. Pakai set-nya di menu Karakter.</p>
-      <div class="mrow"><button class="mbtn no" type="button" id="m-no">Batal</button><button class="mbtn ok" type="button" id="m-ok"><span>${coin}${fmt(s.total)}</span></button></div>`, () => {
+      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>${fmt(s.total)}${coin}</span></button></div>`, () => {
       $('#m-no').addEventListener('click', closeModal);
       $('#m-ok').addEventListener('click', () => buySetNow(s));
     });
