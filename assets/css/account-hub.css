@@ -9,10 +9,17 @@
 #pane.loading{opacity:.55;transition:opacity .12s}
 #pane[aria-busy="true"]{cursor:progress}
 
-/* bingkai kartu halaman (di bawah tab; tab menempel di tepi atas kartu) */
-#pmodal{position:absolute;left:50px;top:10px;width:1820px;height:1050px;pointer-events:none;box-sizing:border-box;z-index:0;
-  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 fill / 22px stretch;
-  filter:drop-shadow(0 14px 30px rgba(0,0,0,.6))}
+/* SATU latar untuk semua tab: tiap panel membawa latarnya sendiri (body.dm/sub::before voxel, profile-bg pada body.pf) sehingga latar
+   berganti saat tab berpindah. Selama hub aktif semuanya diseragamkan di sini (!important + :has agar menang dari CSS panel). */
+html:has(#stage.has-hub),html:has(#stage.has-hub) body{
+  background:linear-gradient(rgba(10,8,24,.30),rgba(10,8,24,.50)) fixed,url(../images/background/lobby-kastel.webp) center/cover no-repeat fixed,#0b0826!important}
+body.hub::before,body.hub::after{content:none!important;display:none!important}
+
+/* bingkai kartu: PENUH satu layar (kanvas 1920x1080) dan agak transparan. Tepi = border-image tanpa `fill`; isi = ::before berwarna
+   semi-transparan + blur latar, sehingga latar halaman tetap terlihat tembus. (Tanpa filter pada #pmodal: filter mematikan backdrop-filter anaknya.) */
+#pmodal{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;box-sizing:border-box;z-index:0;
+  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 22px stretch}
+#pmodal::before{content:"";position:absolute;inset:0;background:rgba(18,13,36,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 
 /* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
 #ptabs{position:absolute;left:210px;top:34px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
@@ -48,7 +55,7 @@
 
 html[data-graphics="low"] #ptabs .ptab{transition:none}
 html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pback img{filter:none}
-html[data-graphics="low"] #pmodal{filter:none}
+html[data-graphics="low"] #pmodal::before{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(18,13,36,.72)}
 @media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pback{transition:none}}
 
 /* mata uang (koin/emerald) tidak dibawa ke dalam hub */
@@ -65,10 +72,10 @@ html[data-graphics="low"] #pmodal{filter:none}
 #stage.has-hub #pane .tabs .tabb i{margin:0;min-width:34px;padding:2px 8px;font-size:22px}
 
 /* Teman · Pesan · Pengaturan: isi langsung di atas bingkai kartu utama (#pmodal), TANPA kartu panel kedua.
-   Area isi = x 72..1848, y 130..1038 (di bawah garis tab utama). */
+   Area isi = x 72..1848, y 130..1058 (di bawah garis tab utama). */
 #stage.has-hub #pane .tabs{left:110px;top:156px}
 #stage.has-hub #pane #sbar{left:110px;top:248px;width:1700px}
-#stage.has-hub #pane #list{left:96px;top:360px;width:1728px;height:650px}
+#stage.has-hub #pane #list{left:96px;top:360px;width:1728px;height:680px}
 #stage.has-hub #pane #rows{left:130px;top:180px;width:840px}
 #stage.has-hub #pane #opts{left:1040px;top:180px;width:700px}
 #stage.has-hub #pane #line{left:110px;right:110px;top:846px}
