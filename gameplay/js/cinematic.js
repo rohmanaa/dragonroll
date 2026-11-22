@@ -315,10 +315,10 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     'float wd=uDoom*outB*gm; if(wd>0.001){ float l=dot(gl_FragColor.rgb,vec3(0.299,0.587,0.114)); float v=0.88+0.24*cNoise(cw.xz*2.6);',
     'vec3 dead=vec3(l*1.18)*vec3(0.92,0.82,0.62)*0.80*v+vec3(0.035,0.028,0.018); gl_FragColor.rgb=mix(gl_FragColor.rgb,dead,min(1.0,wd*1.25)); } }',
     '/* TILE: menyala tipis (napas pelan) di dalam papan + kilau saat diinjak (hanya saat baru mendarat) */',
-    '{ float onB=step(max(abs(cw.x),abs(cw.z)),5.06)*step(-0.2,cw.y)*step(cw.y,1.3);',
+    '{ float onB=step(max(abs(cw.x),abs(cw.z)),5.004)*step(0.25,cw.y)*step(cw.y,1.3);',
     'float pul=0.5+0.5*sin(uTime*0.8+(cw.x*0.6+cw.z*0.45));',
     'gl_FragColor.rgb+=base*onB*uTileGlow*(0.55+0.45*pul);',
-    'float gl=0.0; for(int i=0;i<4;i++){ vec4 pr=uPress[i]; if(pr.w>0.001){ vec2 dd=abs(cw.xz-pr.xy); float mxd=max(dd.x,dd.y); gl+=pr.w*step(mxd,0.52)*step(-0.2,cw.y)*(0.6+0.4*(1.0-smoothstep(0.15,0.55,mxd))); } }',
+    'float gl=0.0; for(int i=0;i<4;i++){ vec4 pr=uPress[i]; if(pr.w>0.001){ vec2 dd=abs(cw.xz-pr.xy); float mxd=max(dd.x,dd.y); gl+=pr.w*step(mxd,0.503)*step(0.25,cw.y)*(0.6+0.4*(1.0-smoothstep(0.15,0.55,mxd))); } }',
     'gl_FragColor.rgb+=(base*1.0+vec3(0.10,0.09,0.06))*gl*0.85; }',
     '/* air (y rendah, biru): kilau matahari berkelip + riak */',
     '  bool lowY=cw.y<-0.10&&cw.y>-0.42; float bl=base.b-base.r; /* biru ATAU tosca (sungai World R=0x35B9DC: b-max(r,g) cuma 0.14 -> dulu tak terdeteksi, kilau siang hilang) */',
@@ -341,7 +341,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
       sh.uniforms.uTime = U.uTime; sh.uniforms.uNight = U.uNight; sh.uniforms.uNether = U.uNether;
       sh.uniforms.uDoom = U.uDoom; sh.uniforms.uTileGlow = U.uTileGlow; sh.uniforms.uPress = U.uPress; sh.uniforms.uMist = U.uMist; sh.uniforms.uMistAmt = U.uMistAmt; sh.uniforms.uCloudSh = U.uCloudSh;
       sh.vertexShader = 'varying vec3 vCW; uniform vec4 uPress[4];\n' + sh.vertexShader
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\n { vec3 wpP=(modelMatrix*vec4(transformed,1.0)).xyz; for(int i=0;i<4;i++){ vec4 pr=uPress[i]; if(pr.z>0.0){ vec2 dd=abs(wpP.xz-pr.xy); if(max(dd.x,dd.y)<0.502&&wpP.y>-0.16) transformed.y-=pr.z; } } }')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\n { vec3 wpP=(modelMatrix*vec4(transformed,1.0)).xyz; for(int i=0;i<4;i++){ vec4 pr=uPress[i]; if(pr.z>0.0){ vec2 dd=abs(wpP.xz-pr.xy); if(max(dd.x,dd.y)<0.502&&wpP.y>0.25) transformed.y-=pr.z; /* y>0.25: hanya petak & benda di atasnya; tanah tepi papan (y<=0.03, pojok di |x|/|z|=5.0) dan bingkai tidak ikut turun */ } } }')
         .replace('#include <project_vertex>', '#include <project_vertex>\n vCW=(modelMatrix*vec4(transformed,1.0)).xyz;');
       sh.fragmentShader = MAT_FRAG_HEAD + '\n' + sh.fragmentShader.replace('#include <fog_fragment>', MAT_FRAG_BODY + '\n#include <fog_fragment>');
     };
