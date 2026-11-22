@@ -26,7 +26,7 @@ env.own(UT.Events.on('skinChanged',()=>{renderAvatar();buildHero()}));
 env.own(UT.Events.on('frameChanged',applyFrame));
 
 /* ---------- navigasi (peta ACT) ---------- */
-const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',chest:'chest.html',dadu:'dadu.html',efek:'efek.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
+const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',dadu:'dadu.html',efek:'efek.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
 /* Profil · Teman · Pesan · Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
@@ -34,7 +34,7 @@ const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',settings:'setelan'};
 function navTo(url){if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/i.test(url)||/^(play|index|splash)\.html/i.test(url))return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}
  const f=$('#fade');if(f)f.classList.add('on');setTimeout(()=>{location.href=url},330)}
-function go(act){if(SOON[act]){toast(SOON[act]);return}if(HUB_TAB[act]){navTo('profile.html?tab='+HUB_TAB[act]+'&from=lobby.html');return}const url=ACT[act];if(!url)return;
+function go(act){if(act==='chest'){openChest();return}if(SOON[act]){toast(SOON[act]);return}if(HUB_TAB[act]){navTo('profile.html?tab='+HUB_TAB[act]+'&from=lobby.html');return}const url=ACT[act];if(!url)return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}  /* di shell (play.html): pindah rute tanpa muat ulang; layar memuat milik shell */
  const f=$('#fade');f.classList.add('on');setTimeout(()=>{location.href=url},330)}
 document.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>{buzz();go(el.dataset.act)}));
@@ -217,13 +217,62 @@ pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
 const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok){PN.mail=Math.max(0,+r.pending||0);paintProf()}return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
-/* lencana tombol Chest = chest yang sudah terbuka (siap diambil) + chest harian siap klaim. Kartu Chest harian dihapus dari lobby (nanti jadi timeline); klaim harian dilakukan di halaman Chest. */
+/* ---------- Chest: panel di Lobby (halaman chest.html dihapus), TANPA timer ----------
+   Klaim chest harian (syarat jumlah game, dicek server) -> masuk penyimpanan -> BUKA = hadiah langsung diundi & dibayar server (chest_collect).
+   Lencana tombol Chest = chest harian siap klaim + chest di penyimpanan. */
+const CIC='assets/images/ui/',CK={wood:{nm:'Peti Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Peti Perak',im:'chest-packs/peti-perak'},gold:{nm:'Peti Emas',im:'chest-packs/peti-emas'},diamond:{nm:'Peti Diamond',im:'chest-packs/peti-diamond'}};
+const CWM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan penuh (10/10). Buka chest dulu.','sudah-diambil':'Chest sudah diambil.','tidak-ada':'Chest tidak ditemukan.'};
+let CS=null,cBusy=false,cReward=null;
+const cStored=()=>CS&&Array.isArray(CS.chests)?CS.chests.filter(c=>c.status!=='collected'):[];
 function renderChest(S){
  if(!S||!Array.isArray(S.daily))return;
- const nx=S.daily.find(d=>d.status!=='claimed'),dailyReady=!!(nx&&nx.status==='ready');
- setBadge('chestDot',(S.chests||[]).filter(c=>c.status==='ready').length+(dailyReady?1:0))}
+ CS=S;setBadge('chestDot',S.daily.filter(d=>d.status==='ready').length+cStored().length);
+ const md=$('#chestMd');if(md&&!md.hidden)paintChest()}
 const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
+function chestHtml(){
+ if(cReward){const k=CK[cReward.kind]||CK.wood;
+  let x='<div class="rwd"><img class="mi" src="'+CIC+k.im+'.webp" alt=""><div class="nm" style="font:400 36px/1 var(--font-title)">'+k.nm+' Terbuka!</div>';
+  x+='<div class="rw"><img src="'+CIC+'hud/ikon-koin-emas.webp" alt="">+'+fmt(cReward.coins)+' Coin</div>';
+  if(cReward.gems>0)x+='<div class="rw"><img src="'+CIC+'gem-medal-icons/berlian-hijau.webp" alt="">+'+fmt(cReward.gems)+' Gem</div>';
+  if(cReward.xp>0)x+='<div class="rw">+'+fmt(cReward.xp)+' XP</div>';
+  if(cReward.power){const it=window.ItemCatalog&&ItemCatalog.byId(cReward.power);x+='<div class="rw pw">'+(it&&it.icon?'<img src="'+it.icon+'" alt="">':'')+'Power: '+(it?it.name:cReward.power)+' ×1</div>'}
+  return x+'<button class="cb gold" type="button" data-cback style="margin-top:14px">MANTAP!</button></div>'}
+ if(!CS)return '<div class="cempty">Memuat…</div>';
+ let h='<div class="sh"><span>Chest Harian</span><small>Reset tiap hari (WIB)</small></div><div class="crow">';
+ CS.daily.forEach(d=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',need=+d.need||0,pg=Math.min(need,+d.progress||0);
+  h+='<div class="cc'+(done?' done':'')+'"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
+   '<div class="tx">'+(done?'Sudah diklaim':st==='ready'?'Siap diklaim!':'Main '+pg+' / '+need+' game')+'</div>'+
+   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'">KLAIM</button>':'<button class="cb" type="button" disabled>'+(done?'DIKLAIM':'BELUM')+'</button>')+'</div>'});
+ h+='</div>';
+ const L=cStored();
+ h+='<div class="sh" style="margin-top:26px"><span>Penyimpanan</span><small>'+L.length+' / '+((CS&&CS.max_storage)||10)+'</small></div>';
+ if(!L.length)return h+'<div class="cempty">Belum ada chest. Selesaikan syarat harian lalu klaim.</div>';
+ h+='<div class="crow">';
+ L.forEach(c=>{const k=CK[c.kind]||CK.wood;
+  h+='<div class="cc"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div><div class="tx">Langsung buka, tanpa timer</div>'+
+   '<button class="cb gold" type="button" data-open="'+c.id+'">BUKA</button></div>'});
+ return h+'</div>'}
+function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
+function openChest(){
+ if(!SRV){toast('Masuk ke akun untuk memakai Chest.');return}
+ cReward=null;$('#chestMd').hidden=false;paintChest();pullChest()}
+function closeChest(){const md=$('#chestMd');if(md)md.hidden=true;cReward=null}
+async function chestAct(call,onOk){
+ if(cBusy)return;cBusy=true;
+ try{const W=UT.WalletService&&UT.WalletService.get(),r=W?await call(W):{ok:false,reason:'jaringan'};
+  if(env.disposed)return;
+  if(r&&r.ok){renderChest(r);onOk&&onOk(r)}else{toast(CWM[r&&r.reason]||'Gagal, coba lagi');await pullChest()}}
+ finally{cBusy=false;if(!env.disposed)paintChest()}}
+{const md=$('#chestMd');if(md){
+ env.on(md,'click',e=>{
+  if(e.target===md||e.target.closest('#cm-x')){buzz();closeChest();return}
+  if(e.target.closest('[data-cback]')){buzz();cReward=null;paintChest();return}
+  const b=e.target.closest('button[data-claim],button[data-open]');if(!b||b.disabled)return;buzz();
+  if(b.dataset.claim)return chestAct(w=>w.chestClaimDaily(b.dataset.claim),()=>toast('Chest masuk ke penyimpanan!'));
+  const id=+b.dataset.open;
+  chestAct(w=>w.chestCollect(id),r=>{try{if(SET().sound)UT.Audio.play('chest')}catch(_){}cReward=r;renderCurrency()})});
+ env.on(document,'keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeChest()})}}
 
 /* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
 let MINE=null;

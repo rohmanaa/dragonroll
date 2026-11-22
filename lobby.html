@@ -49,6 +49,7 @@
       <button class="gbtn" data-act="tambang" aria-label="Tambang"><img class="gi" src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span class="lb">Tambang</span><span class="nbadge" hidden id="mineDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
       <button class="gbtn locked" data-act="mancing" aria-label="Mancing (terkunci)"><img class="gi" src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><span class="lb">Mancing</span><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
       <button class="gbtn" data-act="leaderboard" aria-label="Ranking"><img class="gi" src="assets/images/ui/item-icons/podium.webp" alt=""><span class="lb">Ranking</span></button>
+      <button class="gbtn" id="b-chest" data-act="chest" aria-label="Chest"><img class="gi" src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span class="lb">Chest</span><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
     </div>
     <button id="grpt" type="button" aria-label="Tutup menu" aria-expanded="true"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   </div>
@@ -59,6 +60,11 @@
     <img src="assets/images/buttons/tombol-play-lobby.webp" alt="">
     <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
   </button>
+
+  <!-- ===== panel Chest (tanpa timer): klaim harian + penyimpanan, BUKA langsung beri hadiah ===== -->
+  <div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
+    <button id="cm-x" type="button" aria-label="Tutup">×</button><h3 id="cm-t">Chest</h3><div id="cm-body"></div>
+  </div></div>
 
   <div id="toast"></div>
   

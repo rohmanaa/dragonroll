@@ -10,7 +10,7 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v391';
+const VERSION = 'ut-pwa-v392';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';

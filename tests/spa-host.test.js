@@ -38,7 +38,6 @@ function setup(o) {
     assert.strictEqual(Spa.viewName('friendship.html'), 'friendship');
     assert.strictEqual(Spa.viewName('shop.html?coin=1'), 'shop');
     assert.strictEqual(Spa.viewName('hadiah-misi.html?tab=misi'), 'hadiah-misi');
-    assert.strictEqual(Spa.viewName('chest.html'), 'chest');
     assert.strictEqual(Spa.viewName('mail.html?from=lobby.html'), 'mail');
     assert.strictEqual(Spa.viewName('settings.html'), 'settings');
     assert.strictEqual(Spa.pageOf('hadiah-misi.html?tab=ach'), 'hadiah-misi.html');
