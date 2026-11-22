@@ -1,13 +1,13 @@
-/* profile.js — dipindah dari blok script inline (profile.html). Tahap 3 SPA: dibungkus modul UT.PageModule ('profile').
+/* profile.js — panel PROFIL di dalam hub (assets/js/pages/account.js + UT.AccountHub). Dibungkus modul UT.PageModule ('profil');
+   hub yang me-mount/unmount-nya saat tab Profil dipilih/ditinggalkan. Kerangka modal, tab, tombol X, dan Esc dikelola hub.
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, langganan, dan renderer WebGL bersama (SharedGL). */
-UT.PageModule.define('profile', function(env) {
-const {setTimeout, clearTimeout, requestAnimationFrame, cancelAnimationFrame, addEventListener, removeEventListener} = env;
+UT.PageModule.define('profil', function(env) {
+const {setTimeout, clearTimeout, addEventListener} = env;
 const $ = s => document.querySelector(s);
 const PD = window.PlayerData, IC = window.ItemCatalog, AR = window.ItemArt;
 const SV = () => PD.serverMode(), WS = () => window.UT && UT.WalletService && UT.WalletService.get();
 const SET = () => PD.settings();
 const fmt = n => Number(n).toLocaleString('id-ID');
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 const K = 'assets/images/ui/', G = K + 'white-glyphs/';
 const buzz = () => { try { if (SET().vibration && navigator.vibrate) navigator.vibrate(15); } catch (e) {} };
 const snd = n => { try { if (SET().sound) UT.Audio.play(n || 'button'); } catch (e) {} };
@@ -34,34 +34,11 @@ const eqSkin = () => IC.byId(PD.equippedId('skin')) || IC.byId('skin.steve');
 const owned = k => PD.ownedItems().filter(o => o.item.kind === k).length;
 const total = k => IC.items.filter(i => i.kind === k && !i.off).length;
 const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
-const LANG = {en: 'English', id: 'Indonesia', de: 'Deutsch', fr: 'Français', es: 'Español', pt: 'Português', ru: 'Русский', hi: 'हिन्दी', zh: '简体中文'};
-const frameSrc = () => { const f = IC.byId(PD.equippedId('frame')); return f && f.image ? f.image : 'data/frame/frame-default.webp'; };
 
-/* ---- dompet ---- */
-function showWallet() { const ok = PD.walletReady(); $('#v-em').textContent = ok ? fmt(PD.gems()) : '—'; $('#v-co').textContent = ok ? fmt(PD.coins()) : '—'; }
-$('#cur-co').onclick = () => nav('shop.html?coin=1');
-$('#cur-em').onclick = () => nav('tambang.html?from=profile.html');
-/* tombol kembali: lobby sudah SPA — gunakan UT.Spa.go bila tersedia */
-$('#back').onclick = () => { snd(); if (UT.Spa && UT.Spa.go) { UT.Spa.go('lobby.html'); } else { nav('lobby.html'); } };
-/* event listener keydown dan resize didaftarkan via env.own agar dibersihkan saat unmount */
-env.own(addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (UT.Spa && UT.Spa.go) UT.Spa.go('lobby.html');
-    else nav('lobby.html');
-  }
-}));
-
-/* ---- kiri: tab ---- */
-const TABS = [['akun', 'Akun', 'profil-bulat.webp'], ['koleksi', 'Koleksi', 'tas-kulit.webp'], ['statistik', 'Statistik', 'grafik-batang.webp']];
-$('#menu').innerHTML = TABS.map(([k, n, ic]) => `<button class="mb" data-k="${k}" aria-label="${n}"><div class="ic"><img src="${G}${ic}" alt=""></div><div class="lb">${n}</div></button>`).join('');
-function tab(k) { document.querySelectorAll('.mb').forEach(b => b.classList.toggle('on', b.dataset.k === k)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + k)); }
-$('#menu').onclick = e => { const b = e.target.closest('.mb'); if (b) { snd(); tab(b.dataset.k); } };
-tab('akun');
+/* Esc dan tombol Tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
 
 /* ---- tengah: karakter 3D terpasang (BlockyCharacter dari PlayerData) di atas pedestal ---- */
 let R = null, webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter);
-/* rafId untuk cleanup rAF */
-let rafId = 0;
 function buildChar() {
   if (env.disposed) return;
   const art = $('#art');
@@ -74,16 +51,15 @@ function buildChar() {
       const r = acquired.renderer, cv = acquired.canvas;
       art.appendChild(cv);
       const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, 1, .1, 100);
-      scene.add(new THREE.AmbientLight(0xffffff, .7), new THREE.HemisphereLight(0xcfeaff, 0x6a9a50, .6));
-      const sun = new THREE.DirectionalLight(0xfff2d8, .9); sun.position.set(6, 12, 8); scene.add(sun);
+      scene.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
+      const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); scene.add(sun);
+      const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); scene.add(rim);
       const holder = new THREE.Group(); scene.add(holder);
       R = {r, scene, cam, holder, cv, ch: null};
       /* resize observer: pakai env.own agar dibersihkan */
       const ro = new ResizeObserver(sizeGL);
       ro.observe(cv);
       env.own(function () { ro.disconnect(); });
-      /* mulai loop rAF */
-      rafId = requestAnimationFrame(loop);
     } catch (e) {
       webOk = false; R = null;
       console.warn('[profil] WebGL tidak tersedia', e);
@@ -91,31 +67,24 @@ function buildChar() {
       return;
     }
   }
+  const sig = JSON.stringify([PD.look(), PD.gearLook()]);
+  if (R.ch && R.sig === sig) { renderOnce(); return; }   /* tampilan sama: pakai karakter yang sudah ada, tidak dibuat/dijepret ulang */
+  R.sig = sig;
   if (R.ch) R.holder.remove(R.ch.root);
-  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('idle'); ch.tick(.016);
-  const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam();
-  try {
-    if (UT.AuraView && UT.AuraFX) {
-      if (!R.aura) R.aura = UT.AuraView.create(R.scene, R.cam);
-      R.scene.updateMatrixWorld(true);
-      R.aura.only(ch.root, UT.AuraView.equippedKey());
-    }
-  } catch (e) {}
+  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('pose1'); ch.tick(.016);
+  const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam(); renderOnce();
+  /* jaga-jaga bila tekstur wajah/outfit selesai dimuat sesudahnya */
+  [120, 500].forEach(ms => setTimeout(renderOnce, ms));
 }
-/* kamera: karakter setinggi PODIUM.h px (ukuran stage 1920x1080) dengan TAPAK KAKI tepat di PODIUM.y */
-const PODIUM = {f: 678 / 900, h: 430};
+/* kamera: FOTO dada-kepala (setengah atas badan, tanpa aura), sedikit serong seperti pose siap tempur. Wajah & outfit mengikuti skin yang dipakai (PlayerData). */
 function frameCam() {
   if (!R || !R.w) return; R.scene.updateMatrixWorld(true);
   const b = new THREE.Box3().setFromObject(R.w), s = b.getSize(new THREE.Vector3());
-  const art = $('#art'), H = R.cv.clientHeight || art.clientHeight || 900;
-  const f = PODIUM.f;
+  const h = s.y * .46, cy = b.max.y - h * .5 + s.y * .02;
+  const asp = (R.cv.clientWidth / Math.max(1, R.cv.clientHeight)) || 1;
   const tn = Math.tan(THREE.MathUtils.degToRad(R.cam.fov / 2));
-  const vis = s.y * H / PODIUM.h, d = (vis / 2) / tn, z = d + s.z * .5;
-  let ly = b.min.y + (f - .5) * vis;
-  const put = () => { R.cam.position.set(0, ly, z); R.cam.lookAt(0, ly, 0); R.cam.updateProjectionMatrix(); R.cam.updateMatrixWorld(true); };
-  put();
-  const p = new THREE.Vector3(0, b.min.y, 0).project(R.cam);
-  ly += (p.y - (1 - 2 * f)) * (z * tn); put();
+  const d = Math.max(h / 2 / tn, (s.x * .62) / (tn * asp)) + s.z * .5;
+  R.cam.position.set(0, cy, d); R.cam.lookAt(0, cy, 0); R.cam.updateProjectionMatrix(); R.cam.updateMatrixWorld(true);
 }
 function sizeGL() {
   if (!R) return;
@@ -125,21 +94,15 @@ function sizeGL() {
   R.r.setSize(w, h, false);
   R.cam.aspect = w / h;
   R.cam.updateProjectionMatrix();
+  frameCam(); renderOnce();
 }
-let lt = null;
-function loop(t) {
-  /* cek env.disposed agar loop berhenti setelah unmount */
-  if (env.disposed) return;
-  rafId = requestAnimationFrame(loop);
-  if (!R || !R.ch || document.hidden) return;
-  t /= 1000; const dt = lt == null ? .016 : Math.min(.05, Math.max(0, t - lt)); lt = t;
-  R.ch.tick(dt); if (R.aura) R.aura.update(dt);
-  R.r.render(R.scene, R.cam);
+/* FOTO diam: karakter tidak bergerak (tanpa loop rAF). Dirender sekali setelah dipasang, lalu ulang hanya saat ukuran/skin berubah. */
+function renderOnce() {
+  if (env.disposed || !R || !R.ch) return;
+  R.ch.tick(.016); R.r.render(R.scene, R.cam);
 }
-
 /* cleanup WebGL: lepas SharedGL, buang geometri/material/aura */
 env.own(function () {
-  if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
   try { UT.SharedGL.release('profile'); } catch (e) {}
   if (R) {
     /* AuraView tidak punya dispose(): clearAll() = despawn semua aura (pool/efek dilepas), baru geometri scene dibuang di bawah */
@@ -160,74 +123,82 @@ env.own(function () {
   document.documentElement.classList.remove('pf-wide');
 });
 
-/* ---- kanan: AKUN ---- */
-function drawAvatar() {
-  const s = eqSkin(), face = (UT.CharacterFace && UT.CharacterFace.html('')) || AR.face(s.id);
-  $('#avatar').innerHTML = `<span class="fc">${face}</span><img class="frm" src="${frameSrc()}" alt="" draggable="false" decoding="async">`;
-  const profileFrame = $('#avatar .frm'); if (profileFrame && window.FrameFX) try { FrameFX.upgrade(profileFrame); } catch (e) {}
-}
+/* ---- tengah: AKUN ---- */
+const EMO = ['😎', '🔥', '🐉', '⚔️', '👑', '🛡️', '🎲', '🍀', '😈', '🤖', '🦊', '🐺', '🌟', '💎', '😴', '🥷', '🧙', '🏆', '💀', '🌈', '😂', '🥶', '🌋', '🐍'];
+/* 3 emoji "siapa dirimu" disimpan lokal (UT.Prefs 'profileEmoji'); belum disinkronkan ke server */
+const emo = () => { let a = null; try { a = UT.Prefs.get('profileEmoji', null); } catch (e) {} if (!Array.isArray(a)) a = ['😎', '🔥', '🐉']; return [0, 1, 2].map(i => a[i] || EMO[i]); };
 function drawAkun() {
-  const L = PD.levelInfo(), pct = L.xpMax ? Math.min(100, L.xpIn / L.xpMax * 100) : 0, un = UT.Session.username();
+  const L = PD.levelInfo();
   $('#hnm').textContent = pname();
-  $('#hid').innerHTML = `ID ${esc(PROF.uid)}<br>Bergabung ${esc(PROF.joined)}`;
-  $('#lvn').textContent = L.level; $('#lvp').textContent = pct.toFixed(1) + '%';
-  $('#xpnote').textContent = `${fmt(L.xpIn)} / ${fmt(L.xpMax)} XP · butuh ${fmt(L.xpMax - L.xpIn)} XP lagi ke Level ${L.level + 1}`;
-  requestAnimationFrame(() => requestAnimationFrame(() => { $('#lvf').style.width = pct + '%'; }));
-  const lang = LANG[(UT.Prefs && UT.Prefs.get('lang', 'en'))] || 'English';
-  $('#info').innerHTML = [['Nama', esc(pname()), 'name'], ['ID Pengguna', esc(PROF.uid), 'copy'], ['Akun', un ? '@' + esc(un) : '-'], ['Bergabung', esc(PROF.joined)], ['Bahasa', lang]]
-    .map(([a, b, t]) => `<div class="ir${t ? ' tap' : ''}"${t ? ` data-t="${t}"` : ''}><span>${a}</span><b>${b}</b></div>`).join('');
-  drawAvatar();
+  $('#hid').textContent = `ID ${PROF.uid} · Bergabung ${PROF.joined}`;
+  const lvn = $('#lvn'); lvn.textContent = L.level; lvn.classList.toggle('w3', String(L.level).length >= 3);
+  const e = emo(); document.querySelectorAll('.eb').forEach((b, i) => { b.textContent = e[i]; b.setAttribute('aria-label', 'Emoji ' + (i + 1)); });
+  $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
+  $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
 }
-$('#info').onclick = e => {
-  const r = e.target.closest('.ir[data-t]'); if (!r) return; snd();
-  if (r.dataset.t === 'copy') { try { navigator.clipboard && navigator.clipboard.writeText(PROF.uid); } catch (x) {} toast('ID pengguna disalin'); return; }
-  const un = UT.Session.username();
+function drawPet() {
+  const id = PD.equippedId('pet'), it = id && IC.byId(id), el = $('#pet');
+  el.classList.toggle('empty', !it);
+  el.querySelector('.pimg').style.backgroundImage = `url(${it ? (it.image || 'data/inventory/pet/items/' + it.gameKey + '/' + it.gameKey + '.png') : K + 'lobby/pet.webp'})`;
+  el.querySelector('.pnm').textContent = it ? it.name : 'Belum ada pet';
+}
+$('#pet').onclick = () => { snd(); go('pet.html'); };
+$('#rank').onclick = () => { snd(); go('leaderboard.html'); };
+$('#hid').onclick = () => {
+  snd();
+  if (!PROF.uid || PROF.uid === '—') { toast('ID belum tersedia'); return; }
+  const ok = () => toast('ID pengguna disalin'), fail = () => toast('Gagal menyalin ID');
+  try { navigator.clipboard.writeText(PROF.uid).then(ok, fail); } catch (x) { fail(); }
+};
+$('#pen').onclick = () => {
+  snd(); const un = UT.Session.username();
   if (un) { toast('Nama mengikuti username akunmu: ' + un); return; }
   const v = (prompt('Nama baru (3–12 karakter)', pname()) || '').trim();
   if (!v) return; if (v.length < 3 || v.length > 12) { toast('Nama 3–12 karakter'); return; }
   PD.setName(v); draw(); toast('Nama diperbarui');
 };
+/* pemilih emoji: tap salah satu dari 3 emoji -> pilih pengganti */
+let eSlot = 0;
+$('#egrid').innerHTML = EMO.map(x => `<button class="ecell" type="button">${x}</button>`).join('');
+document.querySelectorAll('.eb').forEach(b => { b.onclick = () => { snd(); eSlot = +b.dataset.i; $('#epick').classList.add('on'); }; });
+$('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) return; snd(); const a = emo(); a[eSlot] = c.textContent; try { UT.Prefs.set('profileEmoji', a); } catch (e) {} $('#epick').classList.remove('on'); drawAkun(); };
+$('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
 const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><i><b data-w="${t ? Math.min(100, a / t * 100) : 0}"></b></i><em>${a}/${t}</em></button>`; }).join('');
-  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.kr b').forEach(b => { b.style.width = b.dataset.w + '%'; })));
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
 $('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u, bar) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div>${bar != null ? `<i class="bar"><b data-w="${bar}"></b></i>` : ''}<div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
-    row(K + 'item-icons/podium.webp', 'Peringkat Global', rk, 'leaderboard.html') +
-    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, wr) +
+    row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
+    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>') +
     row(K + 'item-icons/gulungan-misi.webp', 'Misi', MIS() + `<img class="go" src="${G}segitiga-kanan.webp" alt="">`, 'hadiah-misi.html') +
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
-    row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak);
-  requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.sr i.bar b').forEach(b => { b.style.width = b.dataset.w + '%'; })));
+    row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +
+    row(K + 'item-icons/gulungan-pena.webp', 'Main', p);
 }
 $('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
 
-function draw() { drawAkun(); drawKol(); drawStat(); showWallet(); }
+function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); }
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
-env.own(UT.Events.on('currencyChanged', showWallet));
 env.own(UT.Events.on('skinChanged', () => { draw(); buildChar(); }));
-env.own(UT.Events.on('frameChanged', () => { drawAvatar(); }));
-['inventoryChanged'].forEach(n => env.own(UT.Events.on(n, () => { drawKol(); })));
-if (UT.CharacterFace && UT.CharacterFace.watch) env.own(UT.CharacterFace.watch(() => { drawAvatar(); buildChar(); }));
+['inventoryChanged'].forEach(n => env.own(UT.Events.on(n, () => { drawKol(); drawPet(); })));
+if (UT.CharacterFace && UT.CharacterFace.watch) env.own(UT.CharacterFace.watch(() => { buildChar(); }));
 try {
   env.own(PD.subscribe(r => {
     if (env.disposed) return;
-    if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') showWallet();
     if(r==='server-appearance'||r==='server-outfits'){ draw(); buildChar(); }
   }));
 } catch (e) {}
 try { const A = SV() && UT.AppearanceService && UT.AppearanceService.get(); if (A) A.refreshThrottled().catch(() => {}); } catch (e) {}
-if (SV() && WS()) WS().refresh().then(r => { if (env.disposed) return; if (r && r.ok) showWallet(); });
 (async () => {
   try {
     await import('../../../assets/js/multiplayer/client.js');
@@ -246,16 +217,11 @@ if (SV() && WS()) WS().refresh().then(r => { if (env.disposed) return; if (r && 
 })();
 
 /* skala kanvas 1920x1080 */
-/* gambar latar: n = 16:9 (profile-bg.webp), w = layar lebar (profile-bg-wide.webp). x,y = titik tengah permukaan atas podium (px gambar), pw = lebar podium */
-const BG = {n: {w: 1672, h: 941, x: 628, y: 676, pw: 517}, w: {w: 1893, h: 831, x: 792, y: 618, pw: 525}};
 function fit() {
-  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / 1920, vh / 1080), wide = vw / vh >= 2, B = wide ? BG.w : BG.n;
+  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / 1920, vh / 1080), wide = vw / vh >= 2;
   $('#stage').style.transform = 'scale(' + k + ')';
   document.documentElement.classList.toggle('pf-wide', wide);
-  /* latar = cover penuh layar; titik podium dihitung ke koordinat stage supaya kaki karakter tepat di atas batu */
-  const sc = Math.max(vw / B.w, vh / B.h), sx = (B.x - B.w / 2) * sc / k + 960, sy = (B.y - B.h / 2) * sc / k + 540, r = B.pw * sc / k / 594;
-  const art = $('#art'); art.style.left = (sx - 400 - 290) + 'px'; art.style.top = (sy - 678) + 'px';
-  PODIUM.h = 430 * r; if (R && R.w) frameCam();
+  if (R && R.w) { sizeGL(); }
 }
 env.own(addEventListener('resize', fit));
 fit();

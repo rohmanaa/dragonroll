@@ -22,12 +22,12 @@ assert.ok(css.includes('.cur{z-index:6}'));
 assert.ok(pcss.includes('#pv #petTitle{position:static;'));
 assert.ok(pcss.includes('#pv #rar{position:static;'));
 // redesain: tanpa tab, preview = modal #pv, kartu gaya skin, tombol beli di kartu, saldo kiri bawah
-assert.ok(!html.includes('id="left"') && !html.includes('id="right"'));
+assert.ok(!html.includes('id="left"'), 'panel kiri lama dihapus');
 assert.ok(html.includes('id="pv"') && html.includes('id="pvClose"') && /id="pv"[\s\S]*id="fpv"[\s\S]*id="use"/.test(html));
 assert.ok(!page.includes('invtabs') && !page.includes('InvTabs'), 'bar tab dihapus');
-assert.ok(page.includes('class="pcard') && page.includes('class="pc-bar ') && page.includes('data-act="use"'));
-assert.ok(!page.includes('class="fslot'));
-assert.ok(pcss.includes('#stage #cur-em{left:40px!important}') && pcss.includes('bottom:28px'));
+assert.ok(page.includes('class="pc-pr') && page.includes('data-act="use"') && page.includes('function openPreview') && page.includes('function closePreview'));
+assert.ok(pcss.includes('#stage #cur-em{left:60px!important}') && pcss.includes('bottom:28px'));
+assert.ok(pcss.includes('.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}'));
 assert.ok(pcss.includes('#petInfoOpen{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;background:none'));
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));

@@ -52,6 +52,7 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
     <div class="df">
       <label class="inp"><img src="assets/images/ui/white-glyphs/pengguna.webp" alt=""><input id="su-us" maxlength="16" placeholder="Username (3–16: huruf, angka, _)" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label class="inp"><img src="assets/images/ui/white-glyphs/gembok.webp" alt=""><input id="su-pw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="new-password"></label>
+      <label class="rem tos" for="su-tos"><input type="checkbox" id="su-tos"><span class="cb"></span><span class="tt">Saya setuju dengan <a href="tos.html" target="_blank" rel="noopener">Ketentuan Layanan</a> dan <a href="tos.html#privasi" target="_blank" rel="noopener">Kebijakan Privasi</a></span></label>
       <div class="err" id="su-err"></div>
       <button class="btn blue" id="su-ok"><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>Sign up</span></button>
       <div class="foot c">Sudah punya akun? <a id="to-login" href="#">Log in</a></div>
@@ -67,6 +68,6 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/preloader.js"></script>
 <script type="module" src="assets/js/auth.js"></script>
-<script src="assets/js/core/app-version.js"></script>
+<script src="assets/js/core/app-version.js"></script><script src="assets/js/services/tos-service.js"></script>
 <script src="assets/js/pages/splash.js"></script>
 </body></html>

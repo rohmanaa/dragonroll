@@ -13,76 +13,47 @@
 <div id="wrap">
 <div id="stage">
 
-  <!-- ===== profil ===== -->
+  <!-- ===== profil kiri atas: frame + foto saja; level = Shield ===== -->
   <div id="profile" data-act="profil" role="button" aria-label="Profil">
-    <img id="hudbg" src="assets/images/ui/lobby/hud-profil.webp" alt="" draggable="false">
+    <div id="pbar" aria-hidden="true"><span id="ht-name"></span><span id="ht-id"></span></div>
     <div id="avatar"><span id="ava"></span></div><img id="avf" alt="" draggable="false">
-    <div id="lvl" style="pointer-events:none"><b class="t-title" id="lvnum">1</b></div>
-    <div id="pname" class="t-title"><span id="nm">Pemain</span><img src="assets/images/ui/language-flags/bendera-inggris.webp" alt="bendera"></div>
-    <div id="xp"><div id="xpfill"></div><div id="xptxt">—</div></div>
-    <div id="hearts" aria-label="Nyawa">
-      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
-      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
-      <svg viewBox="0 0 32 29" aria-hidden="true"><use href="#lv-heart"/></svg>
-    </div>
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-      <linearGradient id="lv-hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a8a"/><stop offset=".55" stop-color="#e3263f"/><stop offset="1" stop-color="#a00f2a"/></linearGradient>
-      <symbol id="lv-heart" viewBox="0 0 32 29"><path d="M16 27.5C6 20 1.5 14.6 1.5 8.9 1.5 4.6 4.8 1.5 8.9 1.5c3 0 5.5 1.7 7.1 4.4 1.6-2.7 4.1-4.4 7.1-4.4 4.1 0 7.4 3.1 7.4 7.4 0 5.7-4.5 11.1-14.5 18.6z" fill="url(#lv-hg)" stroke="#5a0615" stroke-width="2" stroke-linejoin="round"/><path d="M7.5 6.2c-2.1.6-3.2 2.4-3.2 4.3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.2" stroke-linecap="round"/></symbol>
-    </defs></svg>
+    <div id="lvl" aria-label="Level"><svg viewBox="0 0 64 74" aria-hidden="true"><defs><linearGradient id="lvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2a63d6"/></linearGradient></defs><path d="M32 3 L59 12 V37 C59 55 46 67 32 72 C18 67 5 55 5 37 V12 Z" fill="url(#lvg)" stroke="#ffd45a" stroke-width="4" stroke-linejoin="round"/><path d="M32 10 L53 17 V37 C53 51 43 60 32 65 C21 60 11 51 11 37 V17 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/></svg><b class="t-title" id="lvnum">1</b></div>
+    <span class="nbadge" hidden id="profDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span>
   </div>
 
-  <!-- ===== Emerald & Coin ===== -->
+  <!-- ===== kiri: Pet (tepat di bawah profil), Guild + Chest (tengah) ===== -->
+  <button class="lbt sm" id="b-pet" data-act="pet" aria-label="Pet"><div class="ico"><img src="assets/images/ui/lobby/pet.webp" alt=""></div><div class="lb">PET</div></button>
+  <button class="lbt locked" id="b-guild" data-act="guild" aria-label="Guild (terkunci)"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
+  <button class="lbt" id="b-chest" data-act="chest" aria-label="Chest"><div class="ico"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""></div><div class="lb">CHEST</div><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+
+  <!-- ===== kanan atas: Emerald, Coin, Hati (ikon + angka + tombol +) ===== -->
   <div class="cur" id="cur-em" data-act="tambang" role="button" aria-label="Emerald, buka Tambang">
     <img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
   </div>
   <div class="cur" id="cur-co" data-act="beliCoin" role="button" aria-label="Coin, buka Toko">
     <img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
   </div>
-
-  <!-- ===== misi harian ===== -->
-  <div class="panel" id="quest" data-act="hadiahMisi" role="button">
-    <img src="assets/images/ui/item-icons/gulungan-misi.webp" alt="">
-    <div><div class="q1">Misi Harian</div><div class="q2" id="q2">Buka untuk lihat progres</div></div>
-    <div class="qb"><i></i></div>
+  <div class="cur" id="cur-ht" role="status" aria-label="Nyawa">
+    <img src="assets/images/ui/white-glyphs/hati-garis.webp" alt=""><div class="v" id="v-ht">5/5</div><b id="htime" class="t-title"></b>
   </div>
 
-  <!-- ===== menu ikon (kotak abu transparan) ===== -->
-  <div id="menu">
-    <button class="mbtn" data-act="leaderboard" aria-label="Ranking"><img src="assets/images/ui/item-icons/podium.webp" alt=""><span>Ranking</span></button>
-    <button class="mbtn" data-act="hadiahMisi" aria-label="Misi & Hadiah"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""><span>Misi &amp; Hadiah</span><span class="nbadge" hidden id="questDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-    <button class="mbtn" data-act="mail" aria-label="Pesan"><img src="assets/images/ui/item-icons/surat-segel.webp" alt=""><span>Pesan</span><span class="nbadge" id="mailDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-    <button class="mbtn" data-act="teman" aria-label="Teman"><img src="assets/images/ui/feature-icons/friends.webp" alt=""><span>Teman</span><span class="dot sm" id="friendDot" hidden></span></button>
-    <button class="mbtn" data-act="settings" aria-label="Pengaturan"><img src="assets/images/ui/item-icons/gir.webp" alt=""><span>Pengaturan</span></button>
-    <button class="mbtn" data-act="chest" aria-label="Chest"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span>Chest</span><span class="nbadge" id="chestDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-    <button class="mbtn" data-act="tambang" aria-label="Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span>Tambang</span><span class="nbadge" id="mineDot" hidden><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-    <button class="mbtn locked" data-act="mancing" aria-label="Mancing (terkunci)"><img src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><span>Mancing</span><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
-  </div>
+  <!-- ===== kanan tengah: Shop ===== -->
+  <button class="lbt" id="b-shop" data-act="toko" aria-label="Toko"><div class="ico"><img src="assets/images/ui/item-icons/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
 
-  <!-- ===== hadiah gratis (kanan) ===== -->
-  <div id="side">
-    <div class="sidecard soon" data-act="hadiahGratis" role="button">
-      <span class="tag sn">SOON</span>
-      <img src="assets/images/ui/gem-medal-icons/televisi.webp" alt=""><div class="tm">Hadiah gratis<br><b>Segera hadir</b></div>
+  <!-- ===== kiri bawah: Karakter, Misi, grup lipat (Tambang, Mancing, Ranking) ===== -->
+  <button class="lbt" id="b-char" data-act="karakter" aria-label="Karakter"><div class="ico"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
+  <button class="lbt sm" id="b-misi" data-act="hadiahMisi" aria-label="Misi &amp; Hadiah"><div class="ico"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""></div><div class="lb">MISI</div><span class="nbadge" hidden id="questDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+  <div id="grp">
+    <div class="gset">
+      <button class="gbtn" data-act="tambang" aria-label="Tambang"><img class="gi" src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span class="lb">Tambang</span><span class="nbadge" hidden id="mineDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+      <button class="gbtn locked" data-act="mancing" aria-label="Mancing (terkunci)"><img class="gi" src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><span class="lb">Mancing</span><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
+      <button class="gbtn" data-act="leaderboard" aria-label="Ranking"><img class="gi" src="assets/images/ui/item-icons/podium.webp" alt=""><span class="lb">Ranking</span></button>
     </div>
-    <div class="sidecard chcard" data-act="chest" role="button">
-      <img id="chImg" src="assets/images/ui/chest-packs/peti-kayu.webp" alt=""><div class="tm">Chest harian</div>
-      <div class="chp" id="chProg"><b id="chTx">—</b></div>
-      <button class="chclaim" id="chClaim" type="button" hidden><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>
-    </div>    <div class="sidecard soon" data-act="babi" role="button">
-      <span class="tag pk">FULL</span><span class="tag sn">SOON</span>
-      <img src="assets/images/ui/gem-medal-icons/celengan-babi.webp" alt=""><div class="tm">Celengan<br><b>Segera hadir</b></div>
-    </div>
+    <button id="grpt" type="button" aria-label="Tutup menu" aria-expanded="true"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   </div>
 
-  <!-- ===== navigasi bawah ===== -->
-  <div id="nav">
-    <button class="tile big" data-act="toko"><div class="ico"><img src="assets/images/ui/item-icons/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
-    <button class="tile big" data-act="karakter"><div class="ico"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
-    <button class="tile big" data-act="inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
-        <button class="tile big locked" data-act="guild"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
-  </div>
-
-  <!-- ===== MULAI! ===== -->
+  <!-- ===== kanan bawah: Inventory + Battle (MULAI) ===== -->
+  <button class="lbt" id="b-inv" data-act="inventory" aria-label="Inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
   <button id="go" data-act="mulai" aria-label="Mulai">
     <img src="assets/images/buttons/tombol-play-lobby.webp" alt="">
     <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
@@ -106,6 +77,8 @@
 <script src="assets/js/renderers/character-face.js"></script>
 <script src="assets/js/renderers/aura-fx.js"></script><script src="assets/js/renderers/aura-view.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
+<script src="assets/js/services/hearts-service.js"></script><script src="assets/js/systems/game-dialog.js"></script><script src="assets/js/systems/update-service.js"></script><script src="assets/js/services/tos-service.js"></script>
+<script src="assets/js/hearts-gate.js"></script>
 <script src="assets/js/services/mail-service.js"></script>
 <script src="assets/js/data/achievement-data.js"></script>
 <script src="data/mining/js/mine-service.js"></script>

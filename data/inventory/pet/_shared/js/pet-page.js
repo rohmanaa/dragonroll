@@ -87,40 +87,37 @@ UT.PageModule.define('pet', function (env) {
     $('#v-co').textContent = ready ? format(PD.coins()) : '—';
   }
 
-  const EYE = '<svg class="pc-eye" viewBox="0 0 256 256" aria-hidden="true" fill="currentColor"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>';
+  const EYE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
+  const IC_GEM = 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', IC_COIN = 'assets/images/ui/hud/ikon-koin-emas.webp';
 
-  function priceOf(item) {
+  /* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN / LEPAS (sudah dimiliki) */
+  function actionBar(item, owned, used) {
+    if (used) return '<button class="pc-pr used" type="button" data-act="use">LEPAS</button>';
+    if (owned) return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
     const cost = costOf(item);
-    if (!cost) return null;
+    if (!cost) return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
     const gems = cost.gems > 0;
-    return {
-      gems,
-      amount: gems ? cost.gems : cost.coins,
-      icon: gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp'
-    };
+    return `<button class="pc-pr" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
   }
 
-  function barOf(item) {
-    if (PD.owns(item.id)) return PD.equippedId('pet') === item.id ? { cls: 'used', html: 'LEPAS' } : { cls: 'own', html: 'GUNAKAN' };
-    const price = priceOf(item);
-    if (!price) return { cls: 'no', html: 'TIDAK DIJUAL', off: true };
-    return { cls: 'buy', html: `<img src="${price.icon}" alt="">${format(price.amount)}` };
-  }
-
+  /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = pratinjau 3D (modal), ikon info = detail */
   function drawGrid() {
     const equipped = PD.equippedId('pet');
     $('#grid').innerHTML = PETS.map((item) => {
       const owned = PD.owns(item.id);
       const used = equipped === item.id;
-      const rarity = RARITY[item.rarity] || RARITY.common;
-      const bar = barOf(item);
-      const check = used ? '<img class="pc-ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      const state = used ? ', dipakai' : owned ? ', dimiliki' : ', belum dimiliki';
-      return `<article class="pcard${selected && item.id === selected.id ? ' sel' : ''}" style="--rc:${rarity[1]}" data-id="${item.id}">`
-        + `<button class="pc-top" type="button" data-act="view" aria-label="Pratinjau ${item.name}, tier ${item.tier}${state}"><span class="pc-name">${item.name}</span>`
-        + `<span class="pc-art"><img class="pic" src="${IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}`
-        + `<img class="pc-spark" src="assets/images/ui/white-glyphs/bintang-kilau.webp" alt="">${EYE}</span></button>`
-        + `<button class="pc-bar ${bar.cls}" type="button" data-act="use"${bar.off ? ' disabled' : ''}>${bar.html}</button></article>`;
+      const sel = !!selected && item.id === selected.id;
+      const rar = RARITY[item.rarity] ? item.rarity : 'common';
+      const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
+      const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
+      return `<article class="pc r-${rar}${sel ? ' sel' : ''}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
+        + `<button class="pc-top" type="button" data-act="preview" aria-label="Pratinjau ${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
+        + `<span class="pc-nm">${item.name}</span>`
+        + `<span class="pc-th"><img src="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" loading="lazy">${check}</span></button>`
+        + `${actionBar(item, owned, used)}</div>`
+        + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
+        + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
+        + `</article>`;
     }).join('');
   }
 
@@ -184,14 +181,17 @@ UT.PageModule.define('pet', function (env) {
       label.textContent = used ? 'LEPAS' : 'GUNAKAN';
       return;
     }
-    const price = priceOf(item);
-    if (!price) {
+    const cost = costOf(item);
+    if (!cost) {
       label.textContent = 'TIDAK DIJUAL';
       button.disabled = true;
       button.classList.add('off');
       return;
     }
-    label.innerHTML = `<img src="${price.icon}" alt="">${format(price.amount)}`;
+    const gems = cost.gems > 0;
+    const icon = gems ? 'assets/images/ui/gem-medal-icons/berlian-hijau.webp' : 'assets/images/ui/hud/ikon-koin-emas.webp';
+    const amount = gems ? cost.gems : cost.coins;
+    label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;
   }
 
   function draw() {
@@ -368,6 +368,13 @@ UT.PageModule.define('pet', function (env) {
     modal('Konfirmasi', `Beli ${item.name}\nseharga ${format(amount)} ${currency}?`, 'BATAL', 'BELI', () => buy(item));
   }
 
+  function openInfo() {
+    renderDetails(selected || PETS[0]);
+    $('#petInfoTitle').textContent = `Detail ${(selected || PETS[0]).name}`;
+    $('#petInfo').showModal();
+    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
+  }
+
   function runAction(item) {
     if (busy || !item) return;
     if (!PD.owns(item.id)) {
@@ -378,9 +385,7 @@ UT.PageModule.define('pet', function (env) {
     else void equip(item);
   }
 
-  function openPreview(item) {
-    selected = item;
-    draw();
+  function openPreview() {
     $('#pv').classList.add('on');
     $('#pv').setAttribute('aria-hidden', 'false');
     $('#pvClose').focus({ preventScroll: true });
@@ -392,18 +397,27 @@ UT.PageModule.define('pet', function (env) {
   }
 
   $('#grid').addEventListener('click', (event) => {
-    const card = event.target.closest('.pcard');
-    const part = event.target.closest('[data-act]');
+    const btn = event.target.closest('[data-act]');
+    const card = btn && btn.closest('.pc');
     const item = card && PETS.find((pet) => pet.id === card.dataset.id);
-    if (!item || !part) return;
+    if (!item) return;
+    selected = item;
     snd('button');
-    if (part.dataset.act === 'use') {
-      selected = item;
+    if (btn.dataset.act === 'use') {
       runAction(item);
-    } else {
-      openPreview(item);
+      return;
     }
+    draw();
+    if (btn.dataset.act === 'detail') openInfo();
+    else openPreview();
   });
+  /* roda mouse = geser kartu ke samping (baris kartu menggulir horizontal) */
+  $('#grid').addEventListener('wheel', (event) => {
+    const grid = event.currentTarget;
+    if (grid.scrollWidth <= grid.clientWidth || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    event.preventDefault();
+    grid.scrollLeft += event.deltaY;
+  }, { passive: false });
   $('#use').addEventListener('click', () => {
     if (busy || !selected) return;
     snd('button');
@@ -422,11 +436,7 @@ UT.PageModule.define('pet', function (env) {
   $('#md').addEventListener('click', (event) => {
     if (event.target.id === 'md') closeModal();
   });
-  $('#petInfoOpen').addEventListener('click', () => {
-    renderDetails(selected || PETS[0]);
-    $('#petInfo').showModal();
-    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
-  });
+  $('#petInfoOpen').addEventListener('click', openInfo);
   $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
   $('#petInfo').addEventListener('click', (event) => {
     if (event.target === $('#petInfo')) $('#petInfo').close();
@@ -480,9 +490,23 @@ UT.PageModule.define('pet', function (env) {
     }
   }
 
+  /* skala kanvas 1920x1080 + sisa layar di luar kanvas (--hub-ex/--hub-ey) agar bingkai #pmodal penuh sampai tepi layar */
   function fit() {
-    $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1, st = $('#stage');
+    st.style.transform = `scale(${k})`;
+    st.style.setProperty('--hub-ex', Math.max(0, (innerWidth / k - 1920) / 2).toFixed(1) + 'px');
+    st.style.setProperty('--hub-ey', Math.max(0, (innerHeight / k - 1080) / 2).toFixed(1) + 'px');
   }
+  /* transparansi panel (Pengaturan, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% */
+  function applyPanelAlpha() {
+    try {
+      let t = parseInt(window.UT.Prefs.get('panelTransparency', 16), 10);
+      if (!isFinite(t)) t = 16;
+      document.documentElement.style.setProperty('--panel-a', (1 - Math.max(0, Math.min(70, t)) / 100).toFixed(2));
+    } catch (e) { /* abaikan */ }
+  }
+  applyPanelAlpha();
+  try { if (window.UT.Prefs && window.UT.Prefs.on) env.own(window.UT.Prefs.on((n) => { if (n === 'panelTransparency') applyPanelAlpha(); })); } catch (e) { /* abaikan */ }
   env.addEventListener('resize', fit);
   selected = PETS.find((item) => PD.isEquipped(item.id)) || PETS[0];
   draw();

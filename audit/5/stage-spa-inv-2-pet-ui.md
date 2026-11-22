@@ -13,3 +13,7 @@ Perubahan: pet.html, pet-page.js, pet-page.css, pet.css, pet-viewer.js, tests/pe
 Tes: pet-ui, pet-view, pet-catalog, pet-viewer-lifecycle, inventory-tabs, no-webglrenderer-outside-sharedgl, sw-incremental-media lulus.
 Catatan: tests/pet-registry-parity.test.js gagal sebelum perubahan ini ("PetViewer IIFE terminator", regex tes belum mengikuti modul PageModule); tidak disentuh.
 NOT TESTED: tampilan visual di browser (layout kartu, modal 3D, mobile), alur beli end-to-end dengan server.
+
+## Merge dengan main (45eeb73, panel gaya hub)
+Main sudah punya redesain Pet lain (panel #pmodal ala hub Profil, kartu .pc per tier, SW v376). Digabung: dasar = versi main (panel, warna rarity, kartu .pc, ikon mata/info), lalu ditambah dari tahap ini: tanpa bar tab (mountChrome dibuang), preview 3D di modal #pv (klik kartu / ikon mata), bar harga kartu = tombol beli/GUNAKAN/LEPAS, ikon tanpa kotak tombol, grid selebar layar, saldo kiri bawah, viewer berhenti render+suara saat modal tertutup. SW v377.
+Tes yang gagal di main juga (bukan dari perubahan ini): aura-view, dice-registry-parity, gameplay-assets-external, lobby-appearance, pet-registry-parity, power-registry-parity.

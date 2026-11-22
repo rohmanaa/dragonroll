@@ -10,7 +10,11 @@ UT.PageModule.define('shop', function (env) {
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
   const IC = 'assets/images/ui/';
-  const TABS = ['chest', 'coin', 'emerald', 'history'];
+  const TABS = ['skin', 'set', 'frame', 'dice', 'aura', 'power', 'chest', 'coin', 'emerald', 'history'];
+  /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
+  const KIND = { skin: 'skin', frame: 'frame', dice: 'dice', aura: 'aura', power: 'powerup' };
+  const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
+  const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11.2A4.2 4.2 0 1 1 12 7.8a4.2 4.2 0 0 1 0 8.4zm0-6.4a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z" fill="#fff"/></svg>';
   const PACKS = [
     { coins: 500, gems: 10, name: 'Koin Kecil', image: 'gold-koin-sedikit.webp', color: '#ffd04a' },
     { coins: 2000, gems: 40, name: 'Tumpukan Koin', image: 'gold-tumpukan.webp', color: '#ffb02a' },
@@ -27,6 +31,7 @@ UT.PageModule.define('shop', function (env) {
     'gem-kurang': 'Emerald tidak cukup.',
     penuh: 'Penyimpanan chest penuh (10/10). Ambil chest dulu.',
     'sudah-dimiliki': 'Item sudah dimiliki.',
+    'terlalu-banyak': 'Set terlalu besar.',
     'tidak-tersedia': 'Item tidak tersedia.',
     'mode-lokal': 'Toko hanya tersedia setelah login.',
     jaringan: 'Tidak dapat terhubung ke server.',
@@ -66,7 +71,7 @@ UT.PageModule.define('shop', function (env) {
 
   let tab = query.has('emerald') || query.get('tab') === 'gem' ? 'emerald'
     : query.has('coin') || query.get('tab') === 'coin' ? 'coin'
-      : TABS.includes(query.get('tab')) ? query.get('tab') : 'chest';
+      : TABS.includes(query.get('tab')) ? query.get('tab') : 'skin';
   let busy = false;
   let modalTimer = 0;
   let mOpen = false;
@@ -164,12 +169,192 @@ UT.PageModule.define('shop', function (env) {
     </section>`;
   }
 
+  /* ----- tab item katalog: kartu panjang bergulir ke samping, tanpa tombol beli (pelat harga = area ketuk) ----- */
+  const IC_ = () => window.ItemCatalog;
+  function shopItems(key) {
+    const C = IC_();
+    if (!C) return [];
+    return C.items.filter(it => it.kind === KIND[key] && !it.off && C.cost(it))
+      .sort((a, b) => (C.RARITY[a.rarity] ? C.RARITY[a.rarity].rank : 0) - (C.RARITY[b.rarity] ? C.RARITY[b.rarity].rank : 0) || (a.price || 0) - (b.price || 0));
+  }
+  function artOf(it) { try { return window.ItemArt ? ItemArt.forItem(it.id) : ''; } catch (e) { return ''; } }
+  function priceHtml(it, qty) {
+    const cost = IC_().cost(it);
+    const gem = cost.gems != null;
+    return `<img src="${IC}${gem ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt((gem ? cost.gems : cost.coins) * (qty || 1))}`;
+  }
+  function renderItems(key) {
+    const list = shopItems(key);
+    if (!list.length) return '<div class="hempty">Belum ada item untuk dijual.</div>';
+    return list.map(it => {
+      const art = artOf(it);
+      const power = it.kind === 'powerup';
+      const owned = !power && PD.owns(it.id);
+      const qty = power ? PD.qty(it.id) : 0;
+      return `<div class="card item fx k-${key}" style="--g:${RCOL[it.rarity] || RCOL.common}">
+        <div class="nm">${escapeHtml(it.name)}</div>
+        <div class="pic"><i class="glow"></i><div class="art">${art}</div></div>
+        ${qty > 0 ? `<span class="chip" aria-label="Dimiliki ${qty}">×${qty}</span>` : ''}
+        ${art ? `<button class="eye" type="button" data-pv="${escapeHtml(it.id)}" aria-label="Lihat ${escapeHtml(it.name)}">${EYE}</button>` : ''}
+        <button class="plate${owned ? ' own' : ''}" type="button" data-buy="${escapeHtml(it.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Sudah dimiliki' : 'Beli ' + escapeHtml(it.name)}">
+          ${owned ? 'Dimiliki' : priceHtml(it)}
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  function preview(id) {
+    const it = IC_().byId(id);
+    if (!it) return;
+    const rar = IC_().RARITY[it.rarity];
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="art">${artOf(it)}</div></div>
+      <p>${rar ? escapeHtml(rar.label) + ' · ' : ''}${escapeHtml(it.desc || '')}</p>`);
+  }
+
+  function confirmBuy(id) {
+    const it = IC_().byId(id);
+    if (!it || busy) return;
+    const power = it.kind === 'powerup';
+    let qty = 1;
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="art">${artOf(it)}</div></div>
+      <p>${escapeHtml(it.desc || '')}</p>
+      ${power ? '<div class="qty"><button type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
+      <div class="mrow"><button class="mbtn no" type="button" id="m-no">Batal</button><button class="mbtn ok" type="button" id="m-ok"><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
+      const sync = () => {
+        if (power) $('#q-n').textContent = qty;
+        $('#m-pr').innerHTML = priceHtml(it, qty);
+      };
+      if (power) {
+        $('#q-dn').addEventListener('click', () => { qty = Math.max(1, qty - 1); sync(); });
+        $('#q-up').addEventListener('click', () => { qty = Math.min(99, qty + 1); sync(); });
+      }
+      $('#m-no').addEventListener('click', closeModal);
+      $('#m-ok').addEventListener('click', () => buyItem(it, qty));
+    });
+  }
+
+  async function buyItem(it, qty) {
+    if (busy) return;
+    if (!SV() || !WS()) { toast(WMSG['mode-lokal']); playSound('error'); return; }
+    busy = true;
+    try {
+      const power = it.kind === 'powerup';
+      const result = power ? await WS().buyPowerup(it.id, qty) : await WS().buy(it.id);
+      if (env.disposed) return;
+      if (!result || !result.ok) {
+        toast(WMSG[result && result.reason] || 'Transaksi gagal.');
+        playSound('error');
+        if (result && result.reason === 'gem-kurang') setTimeout(gemShop, 300);
+        return;
+      }
+      closeModal();
+      renderCurrency();
+      pulse(IC_().cost(it).gems != null ? '#cur-em' : '#cur-co');
+      playSound('coin');
+      buzz();
+      toast('Berhasil dibeli!');
+      const keep = $('#cards').scrollLeft;
+      render();
+      $('#cards').scrollLeft = keep;
+    } finally {
+      busy = false;
+    }
+  }
+
+  /* ----- tab Set: paket gear siap pakai (data bersama dengan Karakter: character-sets.js). Harga = total item yang BELUM dimiliki;
+     transaksi atomik lewat WalletService.buySet (RPC buy_set): semua item masuk atau tidak sama sekali ----- */
+  /* ikon WebP per set (assets/images/ui/item-icons); set tanpa entri memakai helm-ksatria */
+  const SET_ICON = { citizen: 'toko', knight: 'helm-ksatria', mage: 'ramuan-ungu', farmer: 'ramuan-hijau', explorer: 'sepatu-sayap', noble: 'panji-pedang', princess: 'mahkota', fairy: 'helm-sayap' };
+  const SET_SLOTS = ['top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'];
+  function setGender() {
+    try { const a = PD.appearance && PD.appearance(); return a && a.look && a.look.gender === 'f' ? 'f' : 'm'; } catch (e) { return 'm'; }
+  }
+  function setParts(p) {
+    const C = IC_(), out = [];
+    const add = id => { const ci = C.byId(id); if (ci) out.push(ci); };
+    SET_SLOTS.forEach(k => { const o = p.set[k]; if (o && o.id !== 'none') add('gear.' + k + '.' + o.id); });
+    ['eyes', 'hair'].forEach(k => { const o = p.set[k]; if (o) add('gear.' + k + '.' + o.id); });
+    (p.set.accessories || []).forEach(a => add('gear.acc.' + a.id));
+    return out;
+  }
+  function setList() {
+    const S = window.UT && UT.CharacterSets;
+    if (!S || !IC_()) return [];
+    return (setGender() === 'f' ? S.female : S.male).map(p => {
+      const parts = setParts(p);
+      const miss = parts.filter(ci => !PD.owns(ci.id));
+      const full = parts.reduce((a, ci) => a + (ci.price > 0 ? ci.price : 0), 0);
+      return {
+        p, parts, miss, full,
+        total: miss.reduce((a, ci) => a + (ci.price > 0 ? ci.price : 0), 0),
+        sellable: miss.every(ci => ci.price > 0 && ci.source === 'shop')
+      };
+    }).filter(s => s.full > 0 && (s.miss.length === 0 || s.sellable)).sort((a, b) => a.full - b.full);
+  }
+  function renderSets() {
+    const list = setList();
+    if (!list.length) return '<div class="hempty">Belum ada set untuk dijual.</div>';
+    return list.map(s => {
+      const owned = s.miss.length === 0;
+      const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
+      return `<div class="card item fx k-set" style="--g:${RCOL.rare}">
+        <div class="nm">${name}</div>
+        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="${IC}item-icons/${icon}.webp" alt=""></div></div>
+        <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
+        <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
+          ${owned ? 'Dimiliki' : `<img src="${IC}hud/ikon-koin-emas.webp" alt="">${fmt(s.total)}`}
+        </button>
+      </div>`;
+    }).join('');
+  }
+  function confirmBuySet(id) {
+    const s = setList().find(x => x.p.id === id);
+    if (!s || !s.miss.length || busy) return;
+    const name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
+    const coin = `<img src="${IC}hud/ikon-koin-emas.webp" alt="">`;
+    const rows = s.miss.map(ci => `<div class="srow"><span>${escapeHtml(ci.name)}</span><span>${coin}${fmt(ci.price)}</span></div>`).join('');
+    openModal(`<h2>Beli Set ${name}?</h2>
+      <div class="slist">${rows}</div>
+      <p>Bagian yang sudah kamu miliki tidak ditagih. Pakai set-nya di menu Karakter.</p>
+      <div class="mrow"><button class="mbtn no" type="button" id="m-no">Batal</button><button class="mbtn ok" type="button" id="m-ok"><span>${coin}${fmt(s.total)}</span></button></div>`, () => {
+      $('#m-no').addEventListener('click', closeModal);
+      $('#m-ok').addEventListener('click', () => buySetNow(s));
+    });
+  }
+  async function buySetNow(s) {
+    if (busy) return;
+    if (!SV() || !WS()) { toast(WMSG['mode-lokal']); playSound('error'); return; }
+    busy = true;
+    try {
+      const result = await WS().buySet(s.miss.map(ci => ci.id));
+      if (env.disposed) return;
+      if (!result || !result.ok) {
+        toast(WMSG[result && result.reason] || 'Transaksi gagal.');
+        playSound('error');
+        return;
+      }
+      closeModal();
+      renderCurrency();
+      pulse('#cur-co');
+      playSound('coin');
+      buzz();
+      toast('Set berhasil dibeli!');
+      const keep = $('#cards').scrollLeft;
+      render();
+      $('#cards').scrollLeft = keep;
+    } finally {
+      busy = false;
+    }
+  }
+
   function render() {
     if (env.disposed) return;
     renderTabs();
     const cards = $('#cards');
     cards.classList.toggle('history-view', tab === 'history');
-    cards.innerHTML = tab === 'coin' ? renderCoin()
+    cards.innerHTML = KIND[tab] ? renderItems(tab)
+      : tab === 'set' ? renderSets()
+      : tab === 'coin' ? renderCoin()
       : tab === 'emerald' ? renderEmerald()
         : tab === 'history' ? renderHistory()
           : renderChest();
@@ -346,6 +531,15 @@ UT.PageModule.define('shop', function (env) {
     if (button.id === 'histbtn') {
       loadHistory();
       playSound('click');
+    } else if (button.dataset.pv) {
+      playSound('click');
+      preview(button.dataset.pv);
+    } else if (button.dataset.buy) {
+      playSound('click');
+      confirmBuy(button.dataset.buy);
+    } else if (button.dataset.set) {
+      playSound('click');
+      confirmBuySet(button.dataset.set);
     } else if (button.dataset.chest) {
       buyChest(button.dataset.chest);
     } else if (button.dataset.i !== undefined) {

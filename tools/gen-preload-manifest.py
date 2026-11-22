@@ -46,6 +46,8 @@ def index_files():
             continue
         if Path(path).suffix.lower() not in EXT:
             continue
+        if ".old." in Path(path).name:
+            continue  # backup aset lama (*.old.webp): jangan di-preload
         if path in ("assets/preload-manifest.json", "assets/media-hash.json"):
             continue
         selected.append((path, object_id))

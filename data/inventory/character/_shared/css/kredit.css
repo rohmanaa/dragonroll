@@ -17,7 +17,7 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 #panelActions{position:absolute;right:20px;bottom:10px;display:flex;gap:8px}
 #panelActions .bt{width:140px;height:56px;border-radius:10px;font:400 24px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
 /* ---- kanan: tab NewGUI, subkategori, grid ---- */
-#tabs{position:absolute;left:0;top:124px;width:900px;height:96px;display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid rgba(255,255,255,.18)}
+#tabs{position:absolute;left:0;top:124px;width:900px;height:96px;display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid rgba(255,255,255,.18)}
 #subs{position:absolute;left:0;top:232px;width:900px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
 .cat{position:relative;min-width:0;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:filter .1s}
 .cat.tab{width:auto}

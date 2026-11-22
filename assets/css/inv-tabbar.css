@@ -11,3 +11,4 @@
 #invtabs .tab.on img.ul{display:block}
 html:has(body.inv-view),body.inv-view{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,url(../images/background/inventory-voxel-tas.webp) center/cover no-repeat fixed,#231d37!important}
 body.inv-view.notabs #grid{top:250px!important;max-height:500px!important}
+#invtabs .tab:only-child{flex:0 0 225px}

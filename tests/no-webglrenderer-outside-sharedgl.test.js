@@ -17,10 +17,11 @@ const PENGECUALIAN_SENGAJA = [
   'gameplay/js/duel-ui.js'          // di area gameplay yang dibekukan
 ];
 const PELANGGAR_TERSISA = [
-  'assets/js/renderers/power-3d/power-renderer.js',
-  'assets/js/renderers/dice-kit/dice-renderer.js',
-  'data/inventory/aura/_shared/js/efek.js'
+  'assets/js/renderers/power-3d/power-renderer.js'
 ];
+/* MODE GANDA: SharedGL bila pemanggil meminta (opts.sharedGL: tab Dadu di shell); selain itu renderer sendiri karena gameplay.html (dibekukan)
+   memakai DiceKit yang sama dan boleh punya beberapa instance sekaligus (SharedGL = satu pemilik pada satu waktu). */
+const MODE_GANDA = ['assets/js/renderers/dice-kit/dice-renderer.js'];
 const PEMEGANG_OFFSCREEN = ['assets/js/renderers/character-face.js'];   // jalur cadangan bila SharedGL.offscreen tidak ada
 
 function walk(dir, out) {
@@ -32,10 +33,23 @@ function walk(dir, out) {
 }
 
 const hits = walk(ROOT, []).filter(f => PATTERN.test(fs.readFileSync(path.join(ROOT, f), 'utf8')));
-const allowed = new Set([SHARED_GL, ...PENGECUALIAN_SENGAJA, ...PELANGGAR_TERSISA, ...PEMEGANG_OFFSCREEN]);
+const allowed = new Set([SHARED_GL, ...PENGECUALIAN_SENGAJA, ...PELANGGAR_TERSISA, ...MODE_GANDA, ...PEMEGANG_OFFSCREEN]);
 
 assert.deepStrictEqual(hits.filter(f => !allowed.has(f)), [], 'renderer baru di luar SharedGL: pakai UT.SharedGL.acquire');
 for (const f of PELANGGAR_TERSISA) assert.ok(hits.includes(f), f + ' sudah bersih: hapus dari PELANGGAR_TERSISA');
+
+/* Dadu (tahap 4): dice-renderer mode ganda; tab Dadu SELALU lewat SharedGL */
+for (const f of MODE_GANDA) assert.ok(hits.includes(f), f + ' sudah tidak punya jalur mandiri: pindahkan ke daftar bersih');
+const dr = fs.readFileSync(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-renderer.js'), 'utf8');
+assert.match(dr, /opts\.sharedGL && globalThis\.UT && globalThis\.UT\.SharedGL/);
+assert.match(dr, /SGL\.acquire\(String\(opts\.sharedGL\)/);
+assert.match(dr, /SharedGL\.release\(this\._glOwner\)/);
+assert.match(fs.readFileSync(path.join(ROOT, 'data/inventory/dice/_shared/js/dadu.js'), 'utf8'), /sharedGL:'inv-dadu'/);
+
+/* Efek (tahap 3) sudah bersih */
+assert.ok(!hits.includes('data/inventory/aura/_shared/js/efek.js'));
+assert.match(fs.readFileSync(path.join(ROOT, 'data/inventory/aura/_shared/js/efek.js'), 'utf8'), /SharedGL\.acquire\(GL_OWNER/);
+assert.match(fs.readFileSync(path.join(ROOT, 'efek.html'), 'utf8'), /core\/shared-gl\.js/);
 
 /* Pet (tahap 1) sudah bersih dan tidak boleh kembali */
 assert.ok(!hits.includes('data/inventory/pet/_shared/js/pet-viewer.js'));

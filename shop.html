@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="assets/css/page.css">
 <link rel="stylesheet" href="assets/css/sub.css">
 <link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css">
 <link rel="stylesheet" href="assets/css/shop.css">
 
 
@@ -32,10 +33,16 @@
   </div>
 
   <nav id="tabs" role="tablist" aria-label="Kategori toko">
-    <button class="tabb" data-k="chest" role="tab">CHEST</button>
-    <button class="tabb" data-k="coin" role="tab">COIN</button>
-    <button class="tabb" data-k="emerald" role="tab">EMERALD</button>
-    <button class="tabb" data-k="history" role="tab">RIWAYAT</button>
+    <button class="tabb" data-k="skin" role="tab" aria-label="Skin" title="Skin"><img src="assets/images/ui/character-portraits/hero-shuri-pemanah.webp" alt=""></button>
+    <button class="tabb" data-k="set" role="tab" aria-label="Set" title="Set"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></button>
+    <button class="tabb" data-k="frame" role="tab" aria-label="Frame" title="Frame"><img src="assets/images/ui/feature-icons/frame.webp" alt=""></button>
+    <button class="tabb" data-k="dice" role="tab" aria-label="Dadu" title="Dadu"><img src="assets/images/ui/feature-icons/dadu.webp" alt=""></button>
+    <button class="tabb" data-k="aura" role="tab" aria-label="Aura" title="Aura"><img src="assets/images/ui/gem-medal-icons/kristal-api.webp" alt=""></button>
+    <button class="tabb" data-k="power" role="tab" aria-label="Power" title="Power"><img src="assets/images/ui/gem-medal-icons/petir-ungu.webp" alt=""></button>
+    <button class="tabb" data-k="chest" role="tab" aria-label="Chest" title="Chest"><img src="assets/images/ui/chest-packs/peti-kayu.webp" alt=""></button>
+    <button class="tabb" data-k="coin" role="tab" aria-label="Coin" title="Coin"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""></button>
+    <button class="tabb" data-k="emerald" role="tab" aria-label="Emerald" title="Emerald"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""></button>
+    <button class="tabb" data-k="history" role="tab" aria-label="Riwayat" title="Riwayat"><img src="assets/images/ui/white-glyphs/jam-bulat.webp" alt=""></button>
   </nav>
   <main id="cards"></main>
 
@@ -50,6 +57,9 @@
 <div id="fade"></div>
 
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<script src="data/inventory/character/_shared/js/character-data.js"></script>
+<script src="data/inventory/character/_shared/js/character-sets.js"></script>
+<script src="assets/js/renderers/item-art.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>

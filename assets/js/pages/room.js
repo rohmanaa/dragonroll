@@ -309,13 +309,13 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textCont
  const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/buttons/'+(h.ready?'tombol-abu-polos':'../../images/ui/buttons-and-controls/tombol-hijau-polos')+'.webp';
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
-$('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
+$('#rdy').onclick=async()=>{const h=me();if(!h)return;if(!h.ready&&UT.HeartsGate&&!UT.HeartsGate.guard())return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
   players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind,pub:p.pub||null})),powers:ONLINE?[]:PW.equipped.filter(pOk),carry:ONLINE?{}:PW.carry,
   skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?null:(di&&di.gameKey)}} /* online: dadu = milik masing-masing pemain (equipped), bukan 'klasik' paksa */
 function launch(){clearT();RF.launch(cfg())}
-async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
+async function startGame(){if(!HOST||!check().ok)return;if(UT.HeartsGate&&!UT.HeartsGate.guard())return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
 $('#start').onclick=startGame;
 /* Online room membership/readiness comes from Supabase; no demo guest simulation. */
 /* ---------- INVITE (hanya Create Room, host) ---------- */
@@ -384,6 +384,16 @@ if(ONLINE){
 function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';
  document.querySelectorAll('.fwin').forEach(w=>{w.style.width=innerWidth/s+'px';w.style.height=innerHeight/s+'px';w.style.transform='scale('+s+')'})} /* modal full-window: isi diskalakan seperti stage tapi mengisi seluruh jendela */
 addEventListener('resize',fit);fit();
+/* ---------- Hati: sisa hati + hitung mundur isi ulang di kanan atas (server: UT.HeartsService; tamu/lokal = chip disembunyikan) ---------- */
+(function(){const H=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get(),el=$('#hrt');if(!H||!el)return;
+ const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+ let key='';
+ function paint(){if(env.disposed)return;if(!H.enabled()){el.hidden=true;key='';return}
+  const s=H.snapshot(),n=s.hearts|0,max=(s.max|0)||5,tm=(n>=max||!s.nextInSecs)?'':mmss(s.nextInSecs),k=n+'/'+max+'/'+tm;
+  if(k===key&&!el.hidden)return;key=k;el.hidden=false;el.classList.toggle('empty',n<1);
+  el.innerHTML='<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false"><b>'+(n>max?n:n+'/'+max)+'</b>'+(tm?'<span>'+tm+'</span>':'');
+  el.setAttribute('aria-label','Hati '+n+' dari '+max+(tm?', hati berikutnya '+tm:''))}
+ paint();env.own(H.onChange(paint));env.setInterval(paint,1000);if(H.enabled())H.get()})();
 /* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode); tugas LiveSync dilepas saat unmount */
 try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>{if(!env.disposed)UT.WalletService.get().refresh()});UT.LiveSync.start({interval:20000});env.own(()=>{try{UT.LiveSync.remove('wallet');UT.LiveSync.stop()}catch(e){}})}}}catch(e){}
 document.documentElement.classList.add('ut-ready');

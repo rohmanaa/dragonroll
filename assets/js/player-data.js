@@ -577,15 +577,18 @@
       if (!serverMode()) return { ok: false, reason: 'bukan-mode-server' };
       o = o || {};
       var st = load(), eq = (o.equipped && typeof o.equipped === 'object' && !Array.isArray(o.equipped)) ? o.equipped : {};
+      var before = JSON.stringify([st.look, st.equipped, st.gearDye]);
       st.look = cleanLook(o.look);
       ['skin', 'dice', 'theme', 'frame'].forEach(function (slot) {
         var it = C.byId(eq[slot]);
         if (it && it.slot === slot && st.inventory[it.id]) st.equipped[slot] = it.id;
       });
       cleanGear(st, eq, o.gearDye);
+      /* tampilan dari server sama persis dengan cermin lokal: jangan tulis & jangan notify, supaya karakter/wajah tidak dirender ulang tiap sinkron */
+      if (JSON.stringify([st.look, st.equipped, st.gearDye]) === before) return { ok: true, changed: false };
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       notify('server-appearance');
-      return { ok: true };
+      return { ok: true, changed: true };
     },
     /* Isi cermin outfit dari server: [{slot, name, data, updatedAt?}]. Hanya mode server. */
     applyServerOutfits: function (list) {

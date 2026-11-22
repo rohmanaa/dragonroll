@@ -9,12 +9,21 @@
 <link rel="manifest" href="manifest.webmanifest">
 
 <title>DRAGON ROLL</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
-<link rel="stylesheet" href="assets/css/pages/play.css">
+<link rel="stylesheet" href="assets/css/pages/play.css"><link rel="stylesheet" href="assets/css/pages/gameplay-loading.css">
 </head>
 <body>
 <iframe id="f" title="DRAGON ROLL" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
 <div id="view" hidden></div>
-<div id="ov" role="status" aria-live="polite" aria-label="Memuat"><div class="ld" aria-hidden="true"><span class="sp"></span><div class="ldt"><span>Memuat halaman</span></div></div></div>
+<div id="ov" role="status" aria-live="polite" aria-label="Memuat"><div class="ld" aria-hidden="true"><span class="sp"></span><div class="ldt"><span>Memuat halaman</span></div></div>
+  <div id="gl" aria-hidden="true">
+    <div class="gl-dust" id="gl-dust"></div>
+    <div class="gl-top"><img class="gl-sword" src="assets/images/ui/achievement/ach-pedang.webp" alt="" draggable="false"></div>
+    <div class="gl-mid"><div class="gl-rule"></div><p class="gl-txt" id="gl-txt">Mempersiapkan</p><div class="gl-rule"></div></div>
+    <div class="gl-bot">
+      <div class="gl-time"><b id="gl-m">00</b><i class="gl-c"></i><b id="gl-s">00</b></div>
+      <div class="gl-net"><svg class="gl-wifi" id="gl-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M6 12.6a9 9 0 0 1 12 0"/><path d="M9.4 16.1a4.2 4.2 0 0 1 5.2 0"/><circle cx="12" cy="19.6" r="1.7"/></svg><span id="gl-ms">… ms</span></div>
+    </div>
+  </div></div>
 <noscript>Game ini memerlukan JavaScript.</noscript>
 
 
@@ -23,6 +32,7 @@
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/core/shared-gl.js"></script>
 <script src="assets/js/core/spa-host.js"></script>
+<script src="assets/js/pages/gameplay-loading.js"></script>
 <script src="assets/js/pages/play.js"></script>
 </body>
 </html>

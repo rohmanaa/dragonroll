@@ -1,0 +1,49 @@
+/* Dadu sebagai view SPA: modul 'dadu'; DiceKit memakai renderer bersama (sharedGL:'inv-dadu') hanya untuk tab ini — gameplay tetap mandiri. */
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+const js = rd('data/inventory/dice/_shared/js/dadu.js'), html = rd('dadu.html'), host = rd('assets/js/core/spa-host.js'), dr = rd('assets/js/renderers/dice-kit/dice-renderer.js');
+let n = 0;
+function t(name, fn) { fn(); n++; console.log('ok -', name); }
+
+t('dadu.js = modul "dadu"; timer/listener/langganan lewat env', () => {
+  assert(/UT\.PageModule\.define\('dadu',function\(env\)/.test(js) && /\}\);\s*$/.test(js));
+  assert(!/(^|[^.\w])setTimeout\(/.test(js) && !/(^|[^.\w])clearTimeout\(/.test(js), 'timer mentah');
+  assert(!/^\s*addEventListener\(|window\.addEventListener|document\.addEventListener/m.test(js), 'listener global mentah');
+  assert(!/(^|[^.\w])UT\.Events\.on\(/.test(js.replace(/env\.own\(UT\.Events\.on\(/g, '')), 'Events.on harus dibungkus env.own');
+  assert(/env\.own\(PD\.subscribe\(/.test(js));
+  assert(/env\.own\(\(\)=>\{UT\.LiveSync\.remove\('wallet'\);UT\.LiveSync\.stop\(\)\}\)/.test(js));
+  assert(/if\(env\.disposed\)return;/.test(js));
+});
+t('DiceKit: mount dengan sharedGL:"inv-dadu"; unmount = KIT.dispose(); event dicekit-ready lewat env; mount tidak jalan setelah unmount', () => {
+  assert(/sound:!!SET\(\)\.sound,sharedGL:'inv-dadu'\}\)/.test(js));
+  assert(/env\.own\(\(\)=>\{try\{if\(KIT\)KIT\.dispose\(\)\}catch\(e\)\{\}KIT=null\}\)/.test(js));
+  assert(/env\.addEventListener\('dicekit-ready'/.test(js));
+  assert(/function mountKit\(\)\{\n  if\(env\.disposed\|\|KIT\|\|!window\.DiceKit\)return;/.test(js));
+});
+t('DiceRenderer: SharedGL hanya bila diminta (opts.sharedGL); dispose melepas (tanpa dispose renderer bersama); jalur mandiri utuh untuk gameplay', () => {
+  assert(/const SGL = opts\.sharedGL && globalThis\.UT && globalThis\.UT\.SharedGL;/.test(dr));
+  assert(/SGL\.acquire\(String\(opts\.sharedGL\), \{ shadows: true \}\)/.test(dr));
+  assert(/else renderer = new THREE\.WebGLRenderer\(\{ antialias: this\.q\.antialias, alpha: this\.opt\.transparent, powerPreference: 'high-performance' \}\);/.test(dr), 'jalur mandiri gameplay tidak berubah');
+  assert(/if \(this\._glOwner\) \{ globalThis\.UT\.SharedGL\.release\(this\._glOwner\); this\._glOwner = null; \}[^\n]*\n    else \{ this\.renderer\.dispose\(\); this\.renderer\.domElement\.remove\(\); \}/.test(dr));
+  assert(!/sharedGL/.test(rd('gameplay.html')) && !/sharedGL/.test(rd('assets/js/renderers/dice-kit/index.js')), 'gameplay tidak meminta SharedGL');
+});
+t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); chrome tab dipasang', () => {
+  assert(/MANAGED&&UT\.Spa&&UT\.Spa\.go\)\{UT\.Spa\.go\(u\)/.test(js));
+  assert.strictEqual((js.match(/location\.href/g) || []).length, 1);
+  assert(/UT\.InvTabs\.mountChrome\(env,'dadu',nav,snd\)/.test(js));
+});
+t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js dan sebelum dice-kit; CSS bar tab', () => {
+  const i = s => html.indexOf(s), d = i('dice/_shared/js/dadu.js');
+  assert(i('core/page-module.js') > 0 && i('core/page-module.js') < d && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < d);
+  assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < i('dice-kit/index.js'));
+  assert(i('assets/css/inv-tabbar.css') > 0);
+});
+t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
+  assert(/'dadu\.html': 'dadu'/.test(host) && /dadu: 'dadu\.html'/.test(host));
+  assert(/dadu: 'dadu\.html'/.test(rd('assets/js/core/inv-tabs.js')));
+  assert(/\|dadu\)\\\.html/.test(rd('assets/js/frame-guard.js')));
+  assert(/'dadu\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+});
+console.log(n + ' tes lulus');

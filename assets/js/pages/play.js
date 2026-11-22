@@ -18,6 +18,13 @@
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
   var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 350;
   var lbl = ov.querySelector('.ldt span');
+  /* Layar muat KHUSUS gameplay (assets/js/pages/gameplay-loading.js): pedang + "Mempersiapkan… / Siap?" + timer naik + ping.
+     Aktif bila tujuannya gameplay (peluncuran lewat RoomFlow = ut:nav-heavy, atau halaman yang dimuat bernama gameplay.html). */
+  var GL = (window.UT && UT.GameLoading) || null, gpMode = false, GP_MIN = 1500, GP_READY = 700;
+  function setGp(on) {
+    on = !!on && !!GL; gpMode = on; ov.classList.toggle('gp', on);
+    if (on && shown) GL.start();
+  }
   function stage(text) { if (text && lbl) lbl.textContent = text; }
   function resetP() { if (lbl) lbl.textContent = 'Memuat halaman'; }
   /* Tutup konten tujuan seketika; jika belum siap setelah SHOW_DELAY, munculkan awan dan label loading. */
@@ -25,6 +32,7 @@
   function doShow(quiet) {
     shown = true; shownAt = Date.now(); ov.classList.toggle('quiet', !!quiet);
     ov.classList.remove('pending', 'hide'); resetP();
+    if (gpMode && GL) GL.start();
   }
   /* kind: 'quiet' = senyap (layar hitam polos; dipakai saat meninggalkan splash); 'now' = tirai awan + bar SEGERA (halaman berat: gameplay);
      selain itu = tirai awan TERTUNDA (SHOW_DELAY): pindah halaman yang cepat tidak menampilkan apa pun, yang lambat menampilkan "Memuat". */
@@ -47,7 +55,12 @@
     if (!shown) return;
     shown = false; clearTimeout(hideT);
     var wait = ov.classList.contains('quiet') ? 60 : Math.max(60, MIN_SHOW - (Date.now() - shownAt));   // senyap: langsung buka; tirai awan: tampil minimal MIN_SHOW agar tidak berkedip
-    hideT = setTimeout(function () { ov.classList.add('hide'); }, wait);
+    var gp = gpMode && GL;
+    if (gp) { GL.ready(); wait = Math.max(GP_READY, GP_MIN - (Date.now() - shownAt)); }   // gameplay: "Siap?" tampil sebentar, layar minimal GP_MIN agar terbaca
+    hideT = setTimeout(function () {
+      ov.classList.add('hide');
+      if (gp) setTimeout(function () { if (ov.classList.contains('hide')) { GL.stop(); setGp(false); } }, 320);
+    }, wait);
   }
   ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
 
@@ -194,7 +207,7 @@
     'lobby.html': ['mode.html', 'shop.html', 'karakter.html', 'profile.html', 'inventory.html'],
     'mode.html': ['gameplay.html', 'room.html', 'lobby.html'],
     'room.html': ['gameplay.html', 'mode.html'],
-    'shop.html': ['lobby.html'], 'inventory.html': ['lobby.html'], 'pet.html': ['lobby.html'], 'hadiah-misi.html': ['lobby.html'], 'chest.html': ['lobby.html'], 'mail.html': ['lobby.html'], 'settings.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
+    'shop.html': ['lobby.html'], 'inventory.html': ['lobby.html'], 'pet.html': ['lobby.html'], 'frame.html': ['lobby.html'], 'efek.html': ['lobby.html'], 'dadu.html': ['lobby.html'], 'hadiah-misi.html': ['lobby.html'], 'chest.html': ['lobby.html'], 'mail.html': ['lobby.html'], 'settings.html': ['lobby.html'], 'karakter.html': ['lobby.html'],
     'profile.html': ['lobby.html', 'tambang.html'], 'leaderboard.html': ['lobby.html'], 'tambang.html': ['lobby.html', 'shop.html'], 'friendship.html': ['lobby.html']
   }, warmed = {};
   function warm(page) {
@@ -221,11 +234,13 @@
     var name = pageName(w);
 
     // layar memuat
+    if (name === 'gameplay.html' && shown) setGp(true);
     stage('Menyiapkan tampilan');   // dokumen sudah dimuat
     if (SELF_LOADING.test(name)) hideOv(); else whenReady(w, hideOv);
     var leave = function () {
-      var heavy = false;
-      try { heavy = name === 'gameplay.html' || sessionStorage.getItem('ut:nav-heavy') === '1'; sessionStorage.removeItem('ut:nav-heavy'); } catch (e) {}
+      var heavy = false, toGp = false;
+      try { toGp = sessionStorage.getItem('ut:nav-heavy') === '1'; heavy = name === 'gameplay.html' || toGp; sessionStorage.removeItem('ut:nav-heavy'); } catch (e) {}
+      if (toGp) setGp(true); else if (!shown) setGp(false);
       showOv(SELF_LOADING.test(name) ? 'quiet' : heavy ? 'now' : 'delay');
     };
     try {
@@ -252,6 +267,7 @@
           /* peluncuran gameplay dari view (Mode/Room lewat RoomFlow.launch) menyetel ut:nav-heavy: halaman berat -> tirai awan seketika, bukan tertunda */
           var heavy = false;
           try { heavy = sessionStorage.getItem('ut:nav-heavy') === '1'; if (heavy) sessionStorage.removeItem('ut:nav-heavy'); } catch (e) {}
+          if (heavy) setGp(true); else if (!shown) setGp(false);   // peluncuran gameplay: layar muat khusus gameplay
           showOv(kind === 'quiet' ? 'quiet' : (kind === 'now' || heavy) ? 'now' : 'delay');
         },
         ready: function (name) {

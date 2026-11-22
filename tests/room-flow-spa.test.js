@@ -47,6 +47,28 @@ function load(withSpa) {
     assert(store['ut-room'] && store['ut-config']);
     assert.strictEqual(loc.href, 'about:start');
   });
+  await t('hati: launch lewat UT.HeartsGate.spend - habis = tidak pindah & tidak menyimpan config; ok = pindah seperti biasa', async () => {
+    const cfg = { type: 'ranked', mode: 'online', format: 'solo', count: 2, players: [{ name: 'A' }, { name: 'B' }] };
+    function loadGate(ok) {
+      let spent = 0;
+      // gerbang dipasang di sandbox yang sama dengan RoomFlow: muat ulang dengan UT.HeartsGate
+      const calls = [], store = {}, loc = { href: 'about:start' };
+      const sb = { UT: { Prefs: { get: (k, d) => d, set() {} }, HeartsGate: { spend: () => { spent++; return Promise.resolve(ok); } }, Spa: { go: u => { calls.push(u); return Promise.resolve(true); } } },
+        ItemCatalog: { items: [{ kind: 'theme', gameKey: 'minecraft', id: 't1' }, { kind: 'skin', gameKey: 'steve' }], byId: () => null }, PlayerData: { equippedId: () => null },
+        CustomEvent, URLSearchParams, Object, JSON, Promise, sessionStorage: { setItem: (k, v) => { store[k] = v; }, getItem: k => (k in store ? store[k] : null) }, location: loc };
+      sb.window = sb; sb.dispatchEvent = () => true; vm.runInNewContext(src, sb);
+      return { RF: sb.UT.RoomFlow, calls, store, spent: () => spent };
+    }
+    const blocked = loadGate(false);
+    assert.strictEqual(await blocked.RF.launch(cfg), false);
+    assert.strictEqual(blocked.spent(), 1); assert.strictEqual(blocked.calls.length, 0); assert.strictEqual(blocked.store['ut-room'], undefined);
+    const allowed = loadGate(true);
+    assert.strictEqual(await allowed.RF.launch(cfg), true);
+    assert.strictEqual(allowed.spent(), 1); assert.strictEqual(allowed.calls.length, 1);
+    assert(/^gameplay\.html\?mode=2&skins=/.test(allowed.calls[0]), allowed.calls[0]); assert(allowed.store['ut-room']);
+    // tanpa gerbang (tamu/halaman tanpa skrip hati): tetap langsung dan sinkron
+    const plain = load(true); assert.strictEqual(plain.RF.launch(cfg), true); assert.strictEqual(plain.calls.length, 1);
+  });
   await t('exitGame kembali ke mode.html (Quick Start) lewat UT.Spa.go', () => {
     const { RF, calls, store } = load(true);
     store['ut-room'] = JSON.stringify({ type: 'ranked', mode: 'online', format: 'solo', count: 2 });

@@ -1,6 +1,6 @@
 /* Existing Dragon Roll Settings layout */
 #rows{position:absolute;left:70px;top:170px;width:900px}
-.row{display:flex;align-items:center;gap:22px;height:170px;border-bottom:3px solid rgba(255,255,255,.13);font:800 38px var(--font-body)}
+.row{display:flex;align-items:center;gap:22px;height:132px;border-bottom:3px solid rgba(255,255,255,.13);font:800 38px var(--font-body)}
 .row:last-child{border-bottom:0}
 .row .ic{width:64px;height:auto;flex:none;opacity:.8}
 .row em{width:210px;font-style:normal;flex:none}
@@ -8,6 +8,8 @@
 .row .val{width:64px;text-align:right;font-size:30px;color:#cfc8ea;flex:none}
 .row .sp{flex:1}
 .row .tg{flex:none}
+.row em.sm{font-size:30px;line-height:1.1}
+.row .tgsp{flex:none;width:140px}   /* selebar tombol toggle, agar slider sejajar dengan baris lain */
 #opts{position:absolute;left:1080px;top:170px;width:770px;display:flex;flex-direction:column;gap:34px}
 .grp{height:auto}
 .cap{font:800 30px var(--font-body);color:#cfc8ea;letter-spacing:1px;margin:6px 0 10px}

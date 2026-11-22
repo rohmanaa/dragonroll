@@ -1,0 +1,87 @@
+/* account-hub.css — kerangka HALAMAN untuk hub Profil · Teman · Pesan · Pengaturan (profile.html). Kanvas 1920x1080. Bukan modal:
+   memakai latar halaman standar (bg.css), tombol Tutup kanan atas, tanpa lapisan gelap.
+   Struktur: #phub[role=region] > #pmodal (bingkai-dialog.webp penuh layar = latar panel), #phub-title (sr-only), #ptabs, #pane (isi panel), #pclose.
+   Tab bergaya Inventory: ikon di atas, teks di bawah, garis bawah emas pada tab aktif. */
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+#phub{position:absolute;inset:0;z-index:10}
+#pane{position:absolute;inset:0;outline:none}
+#pane.loading{opacity:.55;transition:opacity .12s}
+#pane[aria-busy="true"]{cursor:progress}
+
+/* Latar halaman = gambar HUD profil (profile-bg.webp; varian lebar untuk layar >= 2:1), SAMA untuk keempat tab (latar per-panel:
+   body.dm/sub::before voxel, profile-bg pada body.pf, dimatikan/diseragamkan di sini). Warna dasar = warna isi bingkai (#2e293c). */
+html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+@media (min-aspect-ratio:2/1){
+  html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#2e293c!important}}
+body.hub::before,body.hub::after{content:none!important;display:none!important}
+
+/* Panel = bingkai-dialog.webp PENUH layar (9-slice, konvensi repo: 44 / 22px). Tepi batu pekat dari aset; isi = ::before (warna isi aset
+   #2e293c) yang SEDIKIT transparan sehingga gambar latar samar terlihat. Tanpa `fill` pada border-image (fill aset itu pekat).
+   --hub-ex/--hub-ey = sisa layar di luar kanvas (diisi UT.AccountHub.fitFrame); #stage biasanya overflow:hidden, jadi dibuka selama hub aktif.
+   Bingkai ditarik 8px ke luar layar (inset:-8px, seperti .panel/#cbox) agar sudut membulat & tepi luar aset jatuh di luar layar = tanpa celah. */
+#stage.has-hub{overflow:visible!important;--hub-gap:-8px}   /* jarak bingkai ke tepi layar: negatif = bingkai ditarik 8px ke luar layar (penuh sampai sisi, tanpa celah) */
+#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) + var(--hub-gap));top:calc(-1 * var(--hub-ey,0px) + var(--hub-gap));width:calc(1920px + 2 * var(--hub-ex,0px) - 2 * var(--hub-gap));height:calc(1080px + 2 * var(--hub-ey,0px) - 2 * var(--hub-gap));
+  pointer-events:none;box-sizing:border-box;z-index:0;
+  border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
+#pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
+
+/* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
+#ptabs{position:absolute;left:110px;top:44px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
+#ptabs .ptab{position:relative;flex:1;min-width:0;height:92px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;
+  opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
+#ptabs .ptab img.ic{height:44px;width:auto;max-width:52px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+#ptabs .ptab span{font:400 24px/1 var(--font-title);white-space:nowrap;color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#ptabs .ptab:hover{opacity:.9}
+#ptabs .ptab:active{transform:scale(.95)}
+#ptabs .ptab.on{opacity:1;cursor:default}
+#ptabs .ptab.on span{color:#ffd45a}
+#ptabs .ptab img.ul{position:absolute;left:0;right:0;bottom:-20px;width:100%;height:36px;object-fit:fill;display:none}
+#ptabs .ptab.on img.ul{display:block}
+
+/* tombol Tutup (kanan atas, sejajar dengan tab) */
+#pclose{position:absolute;right:76px;top:46px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:21;
+  transition:transform .1s,filter .1s}
+#pclose img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#pclose:hover{filter:brightness(1.12)}#pclose:active{transform:scale(.92)}
+
+/* fokus keyboard terlihat (halaman harus bisa dipakai tanpa mouse) */
+#phub button:focus-visible,#phub input:focus-visible,#phub select:focus-visible,#phub [tabindex]:focus-visible{outline:4px solid #ffd45a;outline-offset:3px;border-radius:10px}
+#pane:focus,#pane:focus-visible{outline:none}
+
+/* elemen navigasi milik halaman lama digantikan tab + X */
+#stage.has-hub #pane #title,#stage.has-hub #pane #back,#stage.has-hub #pane #home{display:none!important}
+
+/* panel gagal dimuat */
+.perr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;font:800 40px var(--font-body)}
+.perr p{margin:0 0 28px;text-shadow:0 2px 0 rgba(10,6,24,.6)}
+.perr-btn{font:400 36px var(--font-title);color:#fff;padding:14px 44px;border:0;border-radius:18px;background:#3d9e5f;box-shadow:0 6px 0 #1f6038;cursor:pointer}
+.perr-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #1f6038}
+
+html[data-graphics="low"] #ptabs .ptab{transition:none}
+html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pclose img{filter:none}
+@media (prefers-reduced-motion:reduce){#ptabs .ptab,#pane.loading,#pclose{transition:none}}
+
+/* mata uang (koin/emerald) tidak dibawa ke dalam hub */
+#stage.has-hub #pane .cur{display:none!important}
+/* sub-tab di bawah tab utama (Teman: Online/Semua/Permintaan, Pesan: Semua/Hadiah/Sistem) = tombol aset, sama dengan segmen Pengaturan */
+#stage.has-hub #pane .tabs{display:flex;gap:14px;top:152px;left:60px}
+#stage.has-hub #pane .tabs .tabb{position:relative;box-sizing:border-box;min-width:230px;height:72px;padding:0 30px;display:flex;align-items:center;justify-content:center;gap:10px;
+  font:400 30px/1 var(--font-title);color:#d6d0ec;text-shadow:0 2px 0 rgba(0,0,0,.6);
+  background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#stage.has-hub #pane .tabs .tabb.on{color:#fff;background-image:url(../images/ui/buttons-and-controls/tombol-biru-polos.webp)}
+#stage.has-hub #pane .tabs .tabb.on::after{display:none}
+#stage.has-hub #pane .tabs .tabb:hover{filter:brightness(1.12)}
+#stage.has-hub #pane .tabs .tabb:active{transform:scale(.96)}
+#stage.has-hub #pane .tabs .tabb i{margin:0;min-width:34px;padding:2px 8px;font-size:22px}
+
+/* Teman · Pesan · Pengaturan: isi langsung di atas bingkai kartu utama (#pmodal), TANPA kartu panel kedua.
+   Area isi = x 72..1848, y 130..1058 (di bawah garis tab utama). */
+#stage.has-hub #pane .tabs{left:110px;top:156px}
+#stage.has-hub #pane #sbar{left:110px;top:248px;width:1700px}
+#stage.has-hub #pane #list{left:96px;top:360px;width:1728px;height:680px}
+#stage.has-hub #pane #rows{left:130px;top:180px;width:840px}
+#stage.has-hub #pane #opts{left:1040px;top:180px;width:700px}
+#stage.has-hub #pane #line{left:110px;right:110px;top:846px}
+#stage.has-hub #pane #logout{right:110px;top:872px}
+#stage.has-hub #pane #appver{left:130px;top:906px}

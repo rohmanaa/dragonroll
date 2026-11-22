@@ -48,8 +48,15 @@
     else go('lobby.html');   /* back & home */
   }
 
-  /* cfg: {type:'ranked'|'room', mode, format, privacy, host, code, players:[{name,team,kind}], powers:[id], skin, frame, dice, map} */
+  /* cfg: {type:'ranked'|'room', mode, format, privacy, host, code, players:[{name,team,kind}], powers:[id], skin, frame, dice, map}
+     Hati: tiap match dimulai memotong 1 hati (server). Gerbang bersama UT.HeartsGate (hearts-gate.js); tanpa gerbang/tamu = langsung.
+     Mengembalikan Promise<boolean>: false bila diblokir (hati habis) -> pemanggil tidak perlu melakukan apa-apa, modal sudah tampil. */
   function launch(cfg) {
+    var HG = g.UT && g.UT.HeartsGate;
+    if (!HG || typeof Promise === 'undefined') { startNow(cfg); return true; }
+    return HG.spend().then(function (ok) { if (ok) startNow(cfg); return ok; });
+  }
+  function startNow(cfg) {
     cfg = Object.assign({ map: (getMap() || {}).gameKey }, cfg);
     var ev = new CustomEvent('game:start', { detail: cfg, cancelable: true });
     if (!g.dispatchEvent(ev)) return;

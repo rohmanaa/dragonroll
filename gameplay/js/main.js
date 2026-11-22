@@ -295,6 +295,110 @@ const makeBatch=GV.makeBatch,addBox=GV.addBox,addOBox=GV.addOBox;
 /*GEOM-END*/
 const MAT=new THREE.MeshLambertMaterial({vertexColors:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
 const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6});
+/* ===== Tekstur rumput World (netral/abu-abu, seamless). WARNA & kekuatan diatur dari CSS (body.th-world di gameplay-overrides.css):
+   --world-grass-tex (0..1, 0 = mati/tampilan lama = "opacity" tekstur), --world-grass-tex-size (satuan dunia per ubin tekstur),
+   --world-grass-tint (warna CSS, mis. #6fc04a) + --world-grass-tint-amt (0..1, 0 = pakai warna palet asli).
+   Hanya muka ATAS yang hijau di luar board 10x10; geometri/warna vertex/rnd() tidak berubah. Gagal muat -> tampilan lama. ===== */
+const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
+/* ===== KATEGORI MATERIAL WORLD (id per vertex, opsi addBox {tex:id}) =====
+   1 LOG batang | 2 LEAF daun pohon | 3 WOOD papan kayu | 4 DIRT tanah (+sisi tanah) | 5 BRUSH semak
+   6 STONE batu | 7 GRASSSIDE sisi/lumut rumput (tekstur rumput) | 8 SNOW salju (polos) | 9 COAL batubara (polos) | 10 COBBLE cobblestone (polos)
+   8 SNOW & 9 COAL belum punya gambar tekstur: tampil warna polos; 10 COBBLE bertekstur (cobble-netral.webp), tidak ikut deteksi warna. 0 = tidak ditandai (rumput atas = deteksi hijau menghadap atas di TB). */
+const MT={LOG:1,LEAF:2,WOOD:3,DIRT:4,BRUSH:5,STONE:6,GRASSSIDE:7,SNOW:8,COAL:9,COBBLE:10};
+const DETAIL_URLS=['log','daun','kayu','tanah','semak','cobble'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
+const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
+/* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
+const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dt4:{value:null},dt5:{value:null},dstr5:{value:0},dscale5:{value:0.5},dc5:{value:new THREE.Vector4()},dc0:{value:new THREE.Vector4()},dc1:{value:new THREE.Vector4()},dc2:{value:new THREE.Vector4()},dc3:{value:new THREE.Vector4()},dc4:{value:new THREE.Vector4()},dstr4:{value:0},dscale4:{value:0.5},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
+const WMATS={};
+function grassMat(){ return worldMat(1); }   /* papan/tanah (TB): rumput + batu + tekstur per bagian */
+function decorMat(){ return worldMat(0); }   /* dekor (DB): hanya tekstur per bagian (log/daun/kayu/tanah) + batu */
+function worldMat(mode){
+  if(WMATS[mode]) return WMATS[mode];
+  const WM=WMATS[mode]=MAT.clone();
+  WM.onBeforeCompile=sh=>{
+    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDT4:GU.dt4,uDT5:GU.dt5,uDStr5:GU.dstr5,uDScale5:GU.dscale5,uDC5:GU.dc5,uDC0:GU.dc0,uDC1:GU.dc1,uDC2:GU.dc2,uDC3:GU.dc3,uDC4:GU.dc4,uDStr4:GU.dstr4,uDScale4:GU.dscale4,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
+    sh.vertexShader=sh.vertexShader
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nattribute float tid;\nvarying float vTid;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;\nvTid=tid;');
+    sh.fragmentShader=sh.fragmentShader
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform sampler2D uDT4;\nuniform sampler2D uDT5;\nuniform float uDStr5;\nuniform float uDScale5;\nuniform vec4 uDC5;\nuniform vec4 uDC0;\nuniform vec4 uDC1;\nuniform vec4 uDC2;\nuniform vec4 uDC3;\nuniform vec4 uDC4;\nuniform float uDStr4;\nuniform float uDScale4;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
+      .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
+        '  float gUp=step(0.9,vGNor.y);\n'+
+        '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
+        '  float gOut=1.0-step(abs(vGPos.x),uGHole.x)*step(abs(vGPos.z),uGHole.y);\n'+
+        '  float gTid=step(0.5,vTid);\n'+
+        '  float gM=gUp*gGr*gOut*uWMode*(1.0-gTid);\n'+
+        '  float gLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
+        '  diffuseColor.rgb=mix(diffuseColor.rgb,uGTint*(gLum/0.4),uGTintAmt*gM);\n'+
+        '  float gTk=clamp(uGThick+texture2D(uTMask,(vGPos.xz+40.0)/80.0).r*uTreeAmt,0.0,1.0);\n'+
+        '  float gT=mix(texture2D(uGTex,vGPos.xz*uGScale).r,texture2D(uGTex2,vGPos.xz*uGScale).r,gTk);\n'+
+        '  diffuseColor.rgb*=1.0+(gT-0.5)*2.0*uGStr*gM;\n'+
+        '  float sMx=max(vColor.r,max(vColor.g,vColor.b)),sMn=min(vColor.r,min(vColor.g,vColor.b));\n'+
+        '  float sM=0.0; /* deteksi batu dari warna DIMATIKAN: batu hanya yang ditandai id 6 (lihat MT) */\n'+
+        '  vec3 sA=abs(vGNor); vec2 sUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
+        '  float sT=texture2D(uSTex,sUV*uSScale).r;\n'+
+        '  float sLum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));\n'+
+        '  diffuseColor.rgb=mix(diffuseColor.rgb,uSTint,uSTintAmt*sM);\n'+
+        '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
+        '  float dI=floor(vTid+0.5);\n'+
+        '  vec2 dUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
+        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r,dTs=texture2D(uSTex,dUV*uSScale).r,dTg=texture2D(uGTex,dUV*uGScale).r,dT5=texture2D(uDT5,dUV*uDScale5).r;\n'+
+        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:(dI<5.5?dT4:(dI<6.5?dTs:(dI<7.5?dTg:(abs(dI-10.0)<0.5?dT5:0.5)))))));\n'+
+        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:(dI<5.5?uDStr4:(dI<6.5?uSStr:(dI<7.5?uGStr:(abs(dI-10.0)<0.5?uDStr5:0.0)))))));\n'+
+        '  vec4 dC=dI<1.5?uDC0:(dI<2.5?uDC1:(dI<3.5?uDC2:(dI<4.5?uDC3:(dI<5.5?uDC4:(dI<6.5?vec4(uSTint,uSTintAmt):(dI<7.5?vec4(uGTint,uGTintAmt):(abs(dI-10.0)<0.5?uDC5:vec4(0.0))))))));\n'+
+        '  diffuseColor.rgb=mix(diffuseColor.rgb,dC.rgb,dC.a*gTid);\n'+
+        '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
+        '#endif');
+  };
+  if(!GRASS_REQ){ GRASS_REQ=true;
+    const ld=(url,box)=>{ try{ new THREE.TextureLoader().load(url,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; box.value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} };
+    ld(GRASS2_TEX_URL,GU.tex2); ld(STONE_TEX_URL,GU.stex);
+    DETAIL_URLS.forEach((u,i)=>{ try{ new THREE.TextureLoader().load(u,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU['dt'+i].value=t; syncGrassCss(); },undefined,()=>{}); }catch(e){} });
+    try{ new THREE.TextureLoader().load(GRASS_TEX_URL,t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; GU.tex.value=t; GRASS_READY=true; GU.str.value=GRASS_CSS_STR; },undefined,()=>{ GRASS_READY=false; GU.str.value=0; }); }catch(e){ GRASS_READY=false; }
+  }
+  return WM;
+}
+/* baca variabel CSS (dipanggil tiap applyLook/bangun dunia); tanpa variabel / bukan World / grafis rendah -> kekuatan 0 */
+function syncGrassCss(){
+  try{
+    const cs=getComputedStyle(document.body),num=(n,d)=>{ const v=parseFloat(cs.getPropertyValue(n)); return isFinite(v)?v:d; };
+    const low=document.documentElement.getAttribute('data-graphics')==='low';
+    GRASS_CSS_STR=(themeKey==='minecraft'&&!low)?Math.max(0,Math.min(1,num('--world-grass-tex',0))):0;
+    GU.str.value=GRASS_READY?GRASS_CSS_STR:0;
+    GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
+    GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
+    GU.tree.value=(themeKey==='minecraft'&&!low&&GU.tex2.value&&GU.tmask.value)?Math.max(0,Math.min(1,num('--world-grass-tree',0))):0;
+    { const nm=['log','leaf','wood','earth','brush','cobble'],on=themeKey==='minecraft'&&!low;
+      nm.forEach((n,i)=>{ const ok=on&&GU['dt'+i].value; const st=ok?Math.max(0,Math.min(1,num('--world-'+n+'-tex',0))):0,sz=1/Math.max(0.25,num('--world-'+n+'-tex-size',2)); { const tcs=cs.getPropertyValue('--world-'+n+'-tint').trim(),ta=on?Math.max(0,Math.min(1,num('--world-'+n+'-tint-amt',0))):0,dc=GU['dc'+i].value; if(tcs&&ta>0){ try{ const cc=new THREE.Color(tcs); dc.set(cc.r,cc.g,cc.b,ta); }catch(e){ dc.set(0,0,0,0); } } else dc.set(0,0,0,0); }
+        if(i<4){ GU.dstr.value.setComponent(i,st); GU.dscale.value.setComponent(i,sz); } else if(i===4){ GU.dstr4.value=st; GU.dscale4.value=sz; } else { GU.dstr5.value=st; GU.dscale5.value=sz; } }); }
+    GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
+    GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
+    GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
+    GU.stintAmt.value=Math.max(0,Math.min(1,num('--world-stone-tint-amt',0)));
+    const sc=cs.getPropertyValue('--world-stone-tint').trim();
+    if(sc){ try{ GU.stint.value.set(sc); }catch(e){ GU.stintAmt.value=0; } } else GU.stintAmt.value=0;
+    const tc=cs.getPropertyValue('--world-grass-tint').trim();
+    if(tc){ try{ GU.tint.value.set(tc); }catch(e){ GU.tintAmt.value=0; } } else GU.tintAmt.value=0;
+  }catch(e){ GU.str.value=0; GU.tintAmt.value=0; }
+}
+/* Mask rumput tebal di bawah pohon: kanvas 512x512 untuk area dunia x,z -40..40 (r = ada pohon). Dibangun ulang tiap buildWorld dari TREEPOS.
+   Shader mencampur rumput tipis -> tebal memakai mask ini (kekuatan: --world-grass-tree). Tanpa rnd(): letak pohon tidak bergeser. */
+function buildTreeMask(){
+  try{
+    const N=512,W=80,k=N/W,c=document.createElement('canvas'); c.width=c.height=N;
+    const g=c.getContext('2d'); g.fillStyle='#000'; g.fillRect(0,0,N,N);
+    const blob=(x,z,r)=>{ const px=(x+W/2)*k,py=(z+W/2)*k,rr=r*k,gr=g.createRadialGradient(px,py,rr*0.45,px,py,rr);
+      gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gr; g.beginPath(); g.arc(px,py,rr,0,Math.PI*2); g.fill(); };
+    for(let i=0;i<TREEPOS.length;i++){ const t=TREEPOS[i],x=t[0],z=t[1],sc=t[2],h=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5453)%1;
+      blob(x,z,1.15*sc);                                               /* inti tepat di bawah pohon */
+      blob(x+(h-0.5)*0.9*sc,z+(((h*7)%1)-0.5)*0.9*sc,0.8*sc);          /* tonjolan tak beraturan agar tidak bulat sempurna */
+    }
+    if(GU.tmask.value) GU.tmask.value.dispose();
+    const t=new THREE.CanvasTexture(c); t.flipY=false; t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping; t.minFilter=THREE.LinearFilter; t.generateMipmaps=false;
+    GU.tmask.value=t;
+  }catch(e){ GU.tmask.value=null; }
+}
 function buildBatch(b,opt){
   opt=opt||{};
   const g=new THREE.Group();
@@ -302,6 +406,7 @@ function buildBatch(b,opt){
   geo.setAttribute('position',new THREE.Float32BufferAttribute(b.pos,3));
   geo.setAttribute('normal',new THREE.Float32BufferAttribute(b.nor,3));
   geo.setAttribute('color',new THREE.Float32BufferAttribute(b.col,3));
+  if(opt.mat&&b.tid&&b.tid.length===b.n) geo.setAttribute('tid',new THREE.Float32BufferAttribute(b.tid,1));
   geo.setIndex(new THREE.BufferAttribute(b.n>65000?new Uint32Array(b.idx):new Uint16Array(b.idx),1));
   const m=new THREE.Mesh(geo,opt.mat||MAT);
   m.castShadow=opt.cast!==false; m.receiveShadow=opt.receive!==false;
@@ -420,14 +525,14 @@ function addHouseExtras(B,x,z,y0){
 function addCampfire(B,x,z){
   blockRect(x,z,1.5,1.5);
   const F={edge:false};
-  for(let i=0;i<8;i++){ const a=i/8*Math.PI*2; addBox(B,x+Math.cos(a)*0.46,0.07,z+Math.sin(a)*0.46,0.15,0.14,0.15,ljit(0x8A8A8A,0.12)); }
+  for(let i=0;i<8;i++){ const a=i/8*Math.PI*2; addBox(B,x+Math.cos(a)*0.46,0.07,z+Math.sin(a)*0.46,0.15,0.14,0.15,ljit(0x8A8A8A,0.12),{tex:MT.COBBLE}); }
   addBox(B,x,0.03,z,0.7,0.06,0.7,0x2A2522,F);
-  [0.2,1.0,1.8,2.6].forEach(a=>addBox(B,x,0.16,z,0.62,0.1,0.1,ljit(0x6B4423,0.08),{yaw:a}));
+  [0.2,1.0,1.8,2.6].forEach(a=>addBox(B,x,0.16,z,0.62,0.1,0.1,ljit(0x6B4423,0.08),{yaw:a,tex:MT.LOG}));
   /* 4 kayu duduk: satu per slot pemain (posisi = SLOT*2.2, sama dengan slotPos(…,0)); bidak duduk di sini sebelum mulai */
   SLOT.forEach(o=>{
     const sx=x+o[0]*2.2,sz=z+o[1]*2.2,yaw=(o[0]*o[1]>0)?Math.PI/4:-Math.PI/4;
-    addBox(B,sx,0.12,sz,0.62,0.24,0.28,ljit(0x7A4E2A,0.08),{yaw:yaw});
-    addBox(B,sx,0.245,sz,0.64,0.03,0.30,ljit(0x8A5B33,0.06),{yaw:yaw,edge:false});
+    addBox(B,sx,0.12,sz,0.62,0.24,0.28,ljit(0x7A4E2A,0.08),{yaw:yaw,tex:MT.LOG});
+    addBox(B,sx,0.245,sz,0.64,0.03,0.30,ljit(0x8A5B33,0.06),{yaw:yaw,edge:false,tex:MT.WOOD});
   });
   const f=addFlame(x,0.12,z,1.7,{halo:3.2,hal:0.6}); f.lt=FLIGHTS[4]; f.li=2.1; f.lt.position.set(x,0.8,z);
   addFlame(x+0.14,0.1,z-0.1,1.0,{halo:0,hal:0}); addFlame(x-0.12,0.1,z+0.12,1.15,{halo:0,hal:0});
@@ -696,9 +801,10 @@ function wallPix(B,fx,fz,dx,dz,len,yTop,yBot,sd){
 }
 function addRanch(DB){
   const F={edge:false},W=ljit,TORCH=[];
-  const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
-  const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),F));
-  const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),F));
+  const FW={edge:false,tex:MT.WOOD};
+  const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),FW); };
+  const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),FW));
+  const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),FW));
   const GROUND={cow:0x7C6A3A,pig:0x6E5A34,sheep:0x7C6A3A,chicken:0x8E7A44};
   /* satu kandang: platform batu + tanah + jerami + pagar (pintu menghadap jalan batu) + obor + isi khas hewan.
      Dibangun di koordinat lokal (lx melintang pintu, lz menuju pintu) lalu diputar sesuai gate 's'/'n'/'e'/'w'; y relatif ke tinggi kandang. */
@@ -1094,9 +1200,9 @@ function addMcHouse(B,x,z,v){
     {w:0x8E908B,r:0x4D7A3E,cp:0x6B6D68,ln:0x7C7E79,rt:0x2F5128,rl:0x3E6633,rg:0x3A6030,door:0x4A3320,sh:0x5A5A5A,fnd:0x73736E,ch:0x5E5E5A}
   ][v];
   const w=P.w,r=P.r,F={edge:false},wd=0x3E2612,Q=(dx,dy,dz,ww,hh,dd,c,f)=>addBox(B,x+dx,dy,z+dz,ww,hh,dd,c,f);
-  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05));                       /* dinding (1x jit seperti dulu) */
-  Q(0,0.06,0,1.57,0.12,1.27,P.fnd); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
-  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,P.cp))); /* tiang sudut */
+  addBox(B,x,0.45,z,1.5,0.9,1.2,jit(w,0.05),{tex:v<2?MT.WOOD:0});                       /* dinding (1x jit seperti dulu) */
+  Q(0,0.06,0,1.57,0.12,1.27,P.fnd,{tex:MT.COBBLE}); Q(-0.55,0.06,0.636,0.28,0.12,0.01,0x777777,F); Q(0.5,0.06,0.636,0.22,0.12,0.01,0x9A9A9A,F); /* pondasi batu */
+  [-1,1].forEach(a=>[-1,1].forEach(b=>Q(a*0.745,0.47,b*0.595,0.1,0.94,0.1,P.cp,{tex:v<2?1:0}))); /* tiang sudut */
   [0.3,0.62].forEach(y=>{ Q(0,y,0.603,1.38,0.025,0.01,P.ln,F); Q(0,y,-0.603,1.38,0.025,0.01,P.ln,F); }); /* garis papan depan & belakang */
   [0.3,0.62].forEach(y=>{ Q(0.753,y,0,0.01,0.025,1.1,P.ln,F); Q(-0.753,y,0,0.01,0.025,1.1,P.ln,F); });
   /* atap */
@@ -1124,7 +1230,7 @@ function addMcHouse(B,x,z,v){
   [-1,1].forEach(a=>{ Q(a*0.753,0.55,0,0.02,0.3,0.3,wd); Q(a*0.762,0.55,0,0.02,0.22,0.22,0x9ADFF5); Q(a*0.772,0.55,0,0.012,0.22,0.012,wd,F); Q(a*0.772,0.55,0,0.012,0.012,0.22,wd,F); });
   /* cerobong (v1 & v3 di sisi kiri) */
   const cx=(v===1||v===3)?-0.5:0.5;
-  Q(cx,1.45,-0.2,0.22,0.55,0.22,P.ch); [1.3,1.45,1.6].forEach(y=>Q(cx,y,-0.087,0.22,0.03,0.01,0x5A5A5A,F));
+  Q(cx,1.45,-0.2,0.22,0.55,0.22,P.ch,{tex:MT.COBBLE}); [1.3,1.45,1.6].forEach(y=>Q(cx,y,-0.087,0.22,0.03,0.01,0x5A5A5A,F));
   Q(cx,1.75,-0.2,0.3,0.06,0.3,0x4E4E4E); Q(cx,1.8,-0.2,0.16,0.05,0.16,0x1A1A1A,F);
   /* ciri khas per varian */
   if(v===1){ /* tumpukan kayu bakar di sisi kanan + lentera di samping pintu */
@@ -1184,8 +1290,8 @@ function addPillar(B,x,z,hgt){
 function addHill(B,x0,x1,z0,z1,n,stone){
   for(let l=0;l<n;l++){
     const i=l*0.55,w=x1-x0-2*i,d=z1-z0-2*i; if(w<=0.3||d<=0.3) break;
-    addBox(B,(x0+x1)/2,(l+0.5)*0.5,(z0+z1)/2,w,0.5,d,jit(stone?0x7F7F7F:0x8A5B33,0.06));
-    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5A9E3C,0.05),{edge:false});
+    addBox(B,(x0+x1)/2,(l+0.5)*0.5,(z0+z1)/2,w,0.5,d,jit(stone?0x7F7F7F:0x8A5B33,0.06),{tex:stone?MT.STONE:MT.DIRT});
+    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5A9E3C,0.05),{edge:false,tex:MT.GRASSSIDE});
   }
 }
 function addAnimal(B,x,z,yaw,cow,cc,dd){
@@ -1230,7 +1336,7 @@ function roadAt(x,z,pad){ const r=Math.ceil(pad/0.5),i0=Math.floor(x/0.5),j0=Mat
 /* batas pulau World: kolom tanah x dari -ISLXL sampai ISLXR, z dari -ISLZT (atas, sampai gunung air) sampai ISLZB (bawah) (blok pulau 2x2, tepi = batas + 1). ISLZR = batas dekor/sungai di bawah (di luar itu: gunung selatan) */
 const ISLXL=22,ISLXR=22,ISLZT=22,ISLZB=18,ISLZR=14; /* bawah: +3 blok besar berbentuk gunung batu (addSouthMountain), z 15..18 */
 const snapB=B=>({p:B.pos.length,n:B.nor.length,c:B.col.length,i:B.idx.length,lp:B.lpos.length,lc:B.lcol.length,v:B.n});
-const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
+const rollB=(B,s)=>{ B.pos.length=s.p; B.nor.length=s.n; B.col.length=s.c; if(B.tid) B.tid.length=s.v; B.idx.length=s.i; B.lpos.length=s.lp; B.lcol.length=s.lc; B.n=s.v; };
 function lift(B,fn,h){
   const p0=B.pos.length,l0=B.lpos.length; fn();
   for(let i=p0+1;i<B.pos.length;i+=3) B.pos[i]+=h;
@@ -1269,9 +1375,9 @@ function grassShade(x,z){
   return new THREE.Color(GRASS_PAL[Math.floor(v*5)]).offsetHSL(0,0,(sgh(x,z,3)-0.5)*0.012);
 }
 /* satu muka atas saja (4 vertex) — untuk tambalan rumput, jauh lebih hemat daripada kotak penuh */
-function addTopQuad(B,cx,y,cz,sx,sz,color){
+function addTopQuad(B,cx,y,cz,sx,sz,color,tex){
   const hx=sx/2,hz=sz/2,base=B.n;
-  [[-1,1],[1,1],[1,-1],[-1,-1]].forEach(v=>{ B.pos.push(cx+v[0]*hx,y,cz+v[1]*hz); B.nor.push(0,1,0); B.col.push(color.r,color.g,color.b); });
+  [[-1,1],[1,1],[1,-1],[-1,-1]].forEach(v=>{ B.pos.push(cx+v[0]*hx,y,cz+v[1]*hz); B.nor.push(0,1,0); B.col.push(color.r,color.g,color.b); if(B.tid) B.tid.push(tex||0); });
   B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
 }
 /* isi permukaan size x size dengan tambalan 1x1; sebagian petak dipecah jadi 4 kotak 0.5 */
@@ -1298,22 +1404,22 @@ function addDomePix(B,x,z,o,r){
   for(let i=0;i<w;i++) for(let j=0;j<d;j++){
     const h=H[i][j]; if(!h) continue;
     const nb=Math.min(hh(i-1,j),hh(i+1,j),hh(i,j-1),hh(i,j+1));
-    for(let k=Math.min(nb,h-1);k<h;k++) addBox(B,x+(i-cxm)*u,u*(k+0.5),z+(j-czm)*u,u,u,u,o.color(k,h,pk,r));
+    for(let k=Math.min(nb,h-1);k<h;k++) addBox(B,x+(i-cxm)*u,u*(k+0.5),z+(j-czm)*u,u,u,u,o.color(k,h,pk,r),o.tex?{tex:o.tex}:undefined);
   }
   return H;
 }
 function rockColor(k,h,pk,r){ let c=shade(0x8E8E8E,0.07,r); c.offsetHSL(0,0,Math.min(0.1,k/pk*0.1)+(k===h-1?0.05:0)); if(k===0&&r()<0.07) c=shade(0x6E9A4C,0.1,r); return c; }
 function bushColor(k,h,pk,r){ const c=shade(0x3C9A2A,0.1,r); c.offsetHSL(0,0.02,Math.min(0.12,k/pk*0.1)+(k===h-1?0.04:0)); return c; }
 function addRockPix(B,x,z,big,r){
-  const o=big?{u:0.13,w:5+Math.floor(r()*3),d:4+Math.floor(r()*3),pk:3+Math.floor(r()*3),fall:0.9,rough:1.6,color:rockColor}
-             :{u:0.1,w:3+Math.floor(r()*2),d:3,pk:2,fall:0.8,rough:1.0,color:rockColor};
+  const o=big?{u:0.13,w:5+Math.floor(r()*3),d:4+Math.floor(r()*3),pk:3+Math.floor(r()*3),fall:0.9,rough:1.6,color:rockColor,tex:MT.STONE}
+             :{u:0.1,w:3+Math.floor(r()*2),d:3,pk:2,fall:0.8,rough:1.0,color:rockColor,tex:MT.STONE};
   addDomePix(B,x,z,o,r);
   const np=big?1+Math.floor(r()*3):Math.floor(r()*2); /* kerikil kecil di sekitar */
-  for(let i=0;i<np;i++){ const a=r()*6.283,d=o.w*o.u*0.5+0.1+r()*0.25,s=0.07+r()*0.06; addBox(B,x+Math.cos(a)*d,s/2,z+Math.sin(a)*d,s,s,s,shade(0x9A9A9A,0.1,r)); }
+  for(let i=0;i<np;i++){ const a=r()*6.283,d=o.w*o.u*0.5+0.1+r()*0.25,s=0.07+r()*0.06; addBox(B,x+Math.cos(a)*d,s/2,z+Math.sin(a)*d,s,s,s,shade(0x9A9A9A,0.1,r),{tex:MT.STONE}); }
   return [o.w*o.u/2+0.12,o.d*o.u/2+0.12];
 }
 function addBushPix(B,x,z,r){
-  const n=5+Math.floor(r()*2),o={u:0.1,w:n,d:n-(r()<0.5?1:0),pk:3,fall:1.0,rough:1.2,color:bushColor},H=addDomePix(B,x,z,o,r);
+  const n=5+Math.floor(r()*2),o={u:0.1,w:n,d:n-(r()<0.5?1:0),pk:3,fall:1.0,rough:1.2,color:bushColor,tex:MT.BRUSH},H=addDomePix(B,x,z,o,r);
   if(r()<0.55){ const FL=[0xFFD23F,0xFF7EB6,0xFFFFFF,0x4FB4F0],m=1+Math.floor(r()*3); /* bunga kecil di pucuk semak */
     for(let i=0;i<m;i++){ const a=Math.floor(r()*o.w),b=Math.floor(r()*o.d); if(!H[a][b]) continue; addBox(B,x+(a-(o.w-1)/2)*o.u,o.u*H[a][b]+0.035,z+(b-(o.d-1)/2)*o.u,0.07,0.07,0.07,FL[Math.floor(r()*4)],{edge:false}); } }
 }
@@ -1408,9 +1514,9 @@ function addGrassScenery(DB,th){
   }
 }
 /* kotak sisi vertikal 1 muka (normal sumbu dx/dz), dipakai untuk piksel tebing tanah */
-function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color){
+function addSideQuad(B,cx,cy,cz,dx,dz,w,hh,color,tex){
   const tx=dz,tz=-dx,hw=w/2,hy=hh/2,base=B.n;
-  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); });
+  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(v=>{ B.pos.push(cx+tx*hw*v[0],cy+hy*v[1],cz+tz*hw*v[0]); B.nor.push(dx,0,dz); B.col.push(color.r,color.g,color.b); if(B.tid) B.tid.push(tex||0); });
   B.idx.push(base,base+1,base+2,base,base+2,base+3); B.n+=4;
 }
 function islDepth(gx,gz){ const c=Math.min(((gx<0?gx+ISLXL:ISLXR-gx))/2,((gz<0?gz+ISLZT:ISLZB-gz))/2); return Math.min(4.4,1.0+c*0.62); }
@@ -1418,7 +1524,7 @@ function addIslUnder(TB){ /* alas pulau: tanah di tepi, makin ke tengah makin da
   for(let gx=-ISLXL;gx<=ISLXR;gx+=2) for(let gz=-ISLZT;gz<=ISLZB;gz+=2){
     const dp=islDepth(gx,gz),rr=islH(gx,gz,41),edge=dp<1.7;
     const hex=rr<0.05?0xd9a441:rr<0.1?0xb09a78:edge?ISL.dirt[Math.floor(islH(gx,gz,42)*4)&3]:ISL.stone[Math.floor(islH(gx,gz,43)*4)&3];
-    addBox(TB,gx,-0.4-dp/2,gz,2,dp,2,new THREE.Color(hex).offsetHSL(0,0,(islH(gx,gz,44)-0.5)*0.06),{edge:false});
+    addBox(TB,gx,-0.4-dp/2,gz,2,dp,2,new THREE.Color(hex).offsetHSL(0,0,(islH(gx,gz,44)-0.5)*0.06),{edge:false,tex:(rr<0.1||edge)?MT.DIRT:MT.STONE});
   }
 }
 function addIslCliff(TB,gx,gz,h){
@@ -1433,13 +1539,14 @@ function addIslCliff(TB,gx,gz,h){
       for(let rw=0;rw<rows;rw++){
         const y0=h-rw*0.5,hh=Math.min(0.5,y0-nh); if(hh<=0.001) break;
         const cy=y0-hh/2,rr=islH(wx+rw*3.1,wz-rw*1.7,32);
-        let hex; if(rw<drip) hex=ISL.moss[(sg+rw)&1];
-        else if(rr<0.07) hex=ISL.clay; else if(rr<0.12) hex=ISL.gravel;
-        else if((h-rw*0.5<0.7&&h>1.2)||y0-hh<-0.2) hex=ISL.stone[Math.floor(rr*4)&3];
+        let hex,tx=4; /* id tekstur sisi tebing: lumut=5 (semak), tanah/tanah liat=4, kerikil/batu=6 */
+        if(rw<drip){ hex=ISL.moss[(sg+rw)&1]; tx=MT.GRASSSIDE; }
+        else if(rr<0.07) hex=ISL.clay; else if(rr<0.12){ hex=ISL.gravel; tx=MT.STONE; }
+        else if((h-rw*0.5<0.7&&h>1.2)||y0-hh<-0.2){ hex=ISL.stone[Math.floor(rr*4)&3]; tx=MT.STONE; }
         else hex=ISL.dirt[Math.floor(islH(wx,wz+rw,33)*4)&3];
         const c=new THREE.Color(hex).offsetHSL(0,0,(islH(wx,wz,34+rw)-0.5)*0.06);
-        addSideQuad(TB,wx,cy,wz,d[0],d[1],0.5,hh,c);
-        if(rr>0.78) addSideQuad(TB,wx+(d[0]?0.004*d[0]:(islH(wx,wz,35)-0.5)*0.2),cy+(islH(wx,wz,36)-0.5)*0.15,wz+(d[1]?0.004*d[1]:(islH(wx,wz,35)-0.5)*0.2),d[0],d[1],0.16,0.16,c.clone().offsetHSL(0,0,rr<0.9?-0.06:0.08)); /* butir piksel */
+        addSideQuad(TB,wx,cy,wz,d[0],d[1],0.5,hh,c,tx);
+        if(rr>0.78) addSideQuad(TB,wx+(d[0]?0.004*d[0]:(islH(wx,wz,35)-0.5)*0.2),cy+(islH(wx,wz,36)-0.5)*0.15,wz+(d[1]?0.004*d[1]:(islH(wx,wz,35)-0.5)*0.2),d[0],d[1],0.16,0.16,c.clone().offsetHSL(0,0,rr<0.9?-0.06:0.08),tx); /* butir piksel */
       }
     }
   });
@@ -1461,14 +1568,14 @@ function buildMcTerrain(TB,th){
     if(mc&&gx>=6&&gx<=10&&gz>=-20&&gz<=14){ jit(W,0.07); jit(G,0.08); continue; } /* kolom koridor sungai: digantikan buildRiverWorld (jit tetap dipanggil agar urutan rnd() sama) */
     const h=mcH(gx,gz),hi=h>=1.5;
     { const sc=jit(hi?S:W,0.07); /* jit tetap dipanggil agar urutan rnd() sama */
-      addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false});
+      addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,mc?islSide(sc,hi,gx,gz):sc,{edge:false,tex:mc?(hi?MT.STONE:MT.DIRT):0});
       if(mc) addIslCliff(TB,gx,gz,h); } /* tebing berlapis piksel: lumut menetes, tanah, tanah liat, kerikil, batu */
     { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08);
       /* naik 0.02 agar tidak sebidang (z-fighting) dengan rumput 1x1 sekeliling board yang menimpa strip gz=+-7 */
       if(grassy&&h<2.5){
         if(mc){ [[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]].forEach(q=>addBox(TB,gx+q[0],h-0.08,gz+q[1],1,0.2,1,islGrass(gx+q[0],gz+q[1]),{edge:false})); } /* rumput per 1x1 dengan hamparan tua besar (islGrass) */
         else addBox(TB,gx,h-0.08,gz,2,0.2,2,GRASS_PAL[2],{edge:false}); }
-      else addBox(TB,gx,h-0.08,gz,2,0.2,2,j); }
+      else addBox(TB,gx,h-0.08,gz,2,0.2,2,j,{tex:mc?(h>=3.5?MT.SNOW:MT.STONE):0}); } /* puncak: salju (>=3.5) / batu (2.5..3.5) */
   }
   if(mc) addIslUnder(TB);
   if(mc){ buildRiverWorld(TB,R); return; }
@@ -1584,8 +1691,8 @@ function addSouthMountain(DB){
       const z=15.5+jz,u=(jz+1)/3,base=hAt(x,z);
       const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(ix,jz)-0.5)*0.9)*2)/2); /* makin ke tepi luar makin tinggi (tebing); tinggi total diturunkan & dibatasi 4.5 agar setara bukit kiri/atas */
       const top=Math.min(4.5,base+hgt*0.55),q=Math.floor(hs(ix+3,jz+7)*5)%5;
-      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false}); /* dasar diturunkan: menutup palung sungai di bawahnya */
-      if(hs(ix+9,jz+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(ix+jz)&1],{edge:false}); /* lumut di puncak */
+      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false,tex:MT.STONE}); /* dasar diturunkan: menutup palung sungai di bawahnya */
+      if(hs(ix+9,jz+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(ix+jz)&1],{edge:false,tex:MT.GRASSSIDE}); /* lumut di puncak */
     }
   }
 }
@@ -1598,8 +1705,8 @@ function addEastMountain(DB){
       const x=20.5+jx,u=(jx+1)/3,base=hAt(x,z);
       const hgt=Math.max(1,Math.round((0.8+u*u*3.6*ridge+(hs(iz,jx)-0.5)*0.9)*2)/2);
       const top=Math.min(4.5,base+hgt*0.55),q=Math.floor(hs(iz+3,jx+7)*5)%5;
-      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false});
-      if(hs(iz+9,jx+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(iz+jx)&1],{edge:false});
+      addBox(DB,x,(top-0.7)/2,z,1,top+0.7,1,st[q],{edge:false,tex:MT.STONE});
+      if(hs(iz+9,jx+2)<0.3) addBox(DB,x,top+0.04,z,1,0.08,1,moss[(iz+jx)&1],{edge:false,tex:MT.GRASSSIDE});
     }
   }
 }
@@ -1638,11 +1745,11 @@ function buildRoads(DB){
     const rr=islH(ci,cj,82),base=new THREE.Color(rr<0.1?ISL.gravel:rr<0.2?ISL.clay:ISL.dirt[Math.floor(islH(ci,cj,83)*4)&3]);
     let c=base.offsetHSL(0,0,(islH(ci,cj,84)-0.5)*0.05);
     if(v===1) c=c.lerp(islGrass(cx,cz),0.55); /* tepi jalan: campuran tanah & rumput */
-    addTopQuad(DB,cx,h+0.027,cz,0.5,0.5,c);
-    if(v===2&&islH(ci,cj,85)<0.07) addBox(DB,cx+(islH(ci,cj,86)-0.5)*0.3,h+0.06,cz+(islH(ci,cj,87)-0.5)*0.3,0.09,0.06,0.09,ISL.stone[(ci+cj)&3],F); /* kerikil */
+    addTopQuad(DB,cx,h+0.027,cz,0.5,0.5,c,rr<0.1?MT.STONE:MT.DIRT);
+    if(v===2&&islH(ci,cj,85)<0.07) addBox(DB,cx+(islH(ci,cj,86)-0.5)*0.3,h+0.06,cz+(islH(ci,cj,87)-0.5)*0.3,0.09,0.06,0.09,ISL.stone[(ci+cj)&3],{edge:false,tex:MT.STONE}); /* kerikil */
   });
   /* undakan batu dari dataran rendah naik ke peternakan (jalan tanah berakhir di sini) */
-  addBox(DB,PATHX,0.25,3.25,PATHW,0.5,0.5,ljit(0x77776F,0.06),F); addBox(DB,PATHX,0.52,3.25,PATHW-0.04,0.04,0.46,ljit(0x9A9A90,0.08),F);
+  { const FC={edge:false,tex:MT.COBBLE}; addBox(DB,PATHX,0.25,3.25,PATHW,0.5,0.5,ljit(0x77776F,0.06),FC); addBox(DB,PATHX,0.52,3.25,PATHW-0.04,0.04,0.46,ljit(0x9A9A90,0.08),FC); } /* undakan batu = cobblestone */
   wallPix(DB,PATHX-PATHW/2-0.03,3.25,-1,0,0.5,0.48,0,PATHX); wallPix(DB,PATHX+PATHW/2+0.03,3.25,1,0,0.5,0.48,0,PATHX+3);
 }
 function addMcEnv(DB){
@@ -1704,9 +1811,9 @@ function burnOakRnd(){
 function addOak(DB,x,z,s){
   burnOakRnd(); TREEPOS.push([x,z,s]);
   const r=mkRng((Math.floor(x*977)^Math.floor(z*1553)^0x9E3779B9)|0),c=0.58*s,tr=0.7*s,F=0x4FBF3A;
-  [0,1].forEach(i=>addBox(DB,x,tr*(i+0.5)/2,z,0.34*s,tr/2,0.34*s,shade(0x7A4F2A,0.1,r)));
+  [0,1].forEach(i=>addBox(DB,x,tr*(i+0.5)/2,z,0.34*s,tr/2,0.34*s,shade(0x7A4F2A,0.1,r),{tex:MT.LOG}));
   const y0=tr*0.82;
-  const put=(dx,dy,dz,sz,dl)=>addBox(DB,x+dx*c+(r()-0.5)*0.14*s,y0+dy+sz/2,z+dz*c+(r()-0.5)*0.14*s,sz,sz,sz,shade(F,0.12,r).offsetHSL(0,0,dl));
+  const put=(dx,dy,dz,sz,dl)=>addBox(DB,x+dx*c+(r()-0.5)*0.14*s,y0+dy+sz/2,z+dz*c+(r()-0.5)*0.14*s,sz,sz,sz,shade(F,0.12,r).offsetHSL(0,0,dl),{tex:MT.LEAF});
   for(let ix=-1;ix<=1;ix++) for(let iz=-1;iz<=1;iz++){ if(ix&&iz&&r()<0.35) continue; put(ix,0,iz,c*(0.86+r()*0.28),-0.04); }
   [[0,0],[1,0],[-1,0],[0,1],[0,-1]].forEach(q=>put(q[0]*0.8,c*0.78,q[1]*0.8,c*(0.78+r()*0.24),0));
   put(0,c*1.5,0,c*0.7,0.04); if(r()<0.6) put((r()-0.5)*1.2,c*1.45,(r()-0.5)*1.2,c*0.5,0.05);
@@ -1783,8 +1890,8 @@ function addJungleTree(DB,x,z,s){
 }
 function addCave(DB,x,z){
   addBox(DB,x,0.9,z-0.4,2.2,1.8,0.3,0x0B1511,{edge:false});
-  addBox(DB,x-1.2,0.9,z,0.6,1.8,0.9,jit(0x7C8C86,0.08)); addBox(DB,x+1.2,0.9,z,0.6,1.8,0.9,jit(0x7C8C86,0.08));
-  addBox(DB,x,2.0,z,3.0,0.6,0.9,jit(0x8B9A94,0.08));
+  addBox(DB,x-1.2,0.9,z,0.6,1.8,0.9,jit(0x7C8C86,0.08),{tex:MT.STONE}); addBox(DB,x+1.2,0.9,z,0.6,1.8,0.9,jit(0x7C8C86,0.08),{tex:MT.STONE});
+  addBox(DB,x,2.0,z,3.0,0.6,0.9,jit(0x8B9A94,0.08),{tex:MT.STONE});
   addBox(DB,x-0.3,1.0,z-0.2,0.2,0.2,0.1,0xFFE14D,{edge:false});
   addBox(DB,x+0.3,1.0,z-0.2,0.2,0.2,0.1,0xFFE14D,{edge:false});
 }
@@ -2038,6 +2145,7 @@ function applyLook(th){
   const rs=document.documentElement.style;
   document.body.classList.toggle('th-nether',th.key==='nether'); /* HUD ikut warna Nether (CSS body.th-nether) */
   document.body.classList.toggle('th-world',th.key==='minecraft'); /* HUD ikut warna World: daun + kayu (CSS body.th-world) */
+  syncGrassCss();
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
@@ -3692,7 +3800,7 @@ function buildWorld(key){
   const TB=makeBatch();
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
-    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06));
+    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06),{tex:th.key==='minecraft'?4:0});
     if(n===GOAL&&BOSS==='dragon'){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i===0||i===3||j===0||j===3)?0x0A0712:0x161024,{edge:false}); /* 2 warna: border gelap + tengah sedikit lebih terang (tanpa papan catur) */
       [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
@@ -3718,7 +3826,7 @@ function buildWorld(key){
     /* frame kayu 2 lapis: lapis DALAM (menempel petak) rata dengan permukaan petak, lapis LUAR lebih tinggi */
     const FT=TILES[1].h,FO=FT+0.4; /* FT = tinggi permukaan petak, FO = tinggi lapis luar */
     [[0,5.125,10.5,0.25,FT],[0,-5.125,10.5,0.25,FT],[5.125,0,0.25,10,FT],[-5.125,0,0.25,10,FT],
-     [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08)); }); /* tanpa corak papan kayu di permukaan atas */
+     [0,5.375,11,0.25,FO],[0,-5.375,11,0.25,FO],[5.375,0,0.25,10.5,FO],[-5.375,0,0.25,10.5,FO]].forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1],top=f[4]; addBox(TB,f[0],(top-0.25)/2,f[1],f[2],top+0.25,f[3],jit(wb,0.08),{tex:th.key==='minecraft'?3:0}); }); /* tanpa corak papan kayu di permukaan atas */
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],1.15,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.43,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
   // area mulai
@@ -3731,7 +3839,9 @@ function buildWorld(key){
   for(let y=0;y<2.2;y+=0.4) addBox(TB,G.x-0.36,G.h+0.2+y,G.z-0.36,0.12,0.4,0.12,0xE9E4D4);
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
-  world.add(buildBatch(TB));
+  if(th.key==='minecraft') buildTreeMask();
+  syncGrassCss();
+  world.add(buildBatch(TB,th.key==='minecraft'?{mat:grassMat()}:null));
   if(BOSS==='dragon'){
   PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
@@ -3747,7 +3857,7 @@ function buildWorld(key){
 
   const DB=makeBatch();
   if(BOARD_CUSTOM) decorateCustom(DB,th); else decorate(DB,th);
-  world.add(buildBatch(DB));
+  world.add(buildBatch(DB,th.key==='minecraft'?{mat:decorMat()}:null));
   applyArenaState();
   spawnRoamers();
 
@@ -4040,7 +4150,7 @@ function dBone(B,a,b,th,col){
 /* segitiga berwarna per-titik (selaput sayap / sirip) */
 function dTri(B,p,q,r,cp,cq,cr){
   const e1=dVec(p,q),e2=dVec(p,r); let n=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]]; const l=Math.hypot(n[0],n[1],n[2])||1; n=[n[0]/l,n[1]/l,n[2]/l];
-  const base=B.n; [[p,cp],[q,cq],[r,cr]].forEach(a=>{ const c=new THREE.Color(a[1]); B.pos.push(a[0][0],a[0][1],a[0][2]); B.nor.push(n[0],n[1],n[2]); B.col.push(c.r,c.g,c.b); });
+  const base=B.n; [[p,cp],[q,cq],[r,cr]].forEach(a=>{ const c=new THREE.Color(a[1]); B.pos.push(a[0][0],a[0][1],a[0][2]); B.nor.push(n[0],n[1],n[2]); B.col.push(c.r,c.g,c.b); if(B.tid) B.tid.push(0); });
   B.idx.push(base,base+1,base+2); B.n+=3;
 }
 /* rantai ruas menyempit: pts = [x,y,z,tebal]; cb(i) = warna ruas ke-i */
@@ -4703,6 +4813,8 @@ const STALE={};
 const DUEL={on:true,turn:0,rev:{}}; /* PVP Clash: rev['kalah>menang'] = giliran terakhir Revenge buff berlaku (lihat duelCheck) */
 let paused=false;
 let players=[],cur=0,busy=false,gameOver=false,gameId=0,mode='cpu',pendingTheme=null,winnerIndex=-1;
+/* Hati: match baru lewat "Mulai ulang"/"Main lagi" memotong 1 hati seperti masuk dari lobi (gerbang bersama hearts-gate.js; tamu = tanpa batas). */
+const againGate=()=>{ const HG=window.UT&&UT.HeartsGate; return HG?HG.spend():Promise.resolve(true); };
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
@@ -5861,7 +5973,7 @@ async function duelCheck(p,gid){
   }else choice=Math.floor(Math.random()*foes.length);
   const q=foes[choice],pair=[p,q],st=()=>{ if(gid!==gameId) throw STALE; };
   const did=++MP_DUEL_SEQ,DU=ONLINE_ROOM?mpDuelUI(UI,pair,did):UI; /* online: setiap langkah tampilan juga dikirim ke tamu sebagai cue 'duel' */
-  let s=D.create({revenge:[duelHasRev(p,q),duelHasRev(q,p)]}),guard=0;
+  let s=D.create(),guard=0;
   try{
     pair.forEach(m=>{ m.duelHp=D.DEFAULTS.maxHp; });
     setMsg(p.name+' bertemu '+q.name+'! Duel dimulai.'); fb('event','info',p.name+' vs '+q.name+': Duel!',{gid,ttl:1400});
@@ -5869,7 +5981,7 @@ async function duelCheck(p,gid){
     DU.state(s.hp,s.mom); const intro=DU.intro(); sfx.crystalAppear();
     await intro; st();
     while(!s.over&&guard++<60){
-      DU.banner(s.sudden?'Sudden Death':'ROUND '+(s.round+1)+'/'+s.cfg.maxRounds,s.sudden?'sd':'');
+      DU.banner('ROUND '+(s.round+1)+'/'+s.cfg.maxRounds);
       DU.log('Tekan tombol ROLL untuk memulai ronde.');
       const ready=await duelWaitRolls(DU,UI,pair,did,s.round+1,st); st();
       if(!ready) return null;
@@ -5879,7 +5991,7 @@ async function duelCheck(p,gid){
       DU.actions(rolls);
       DU.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
       pair.forEach((m,i)=>{
-        const action=D.ACTIONS[rolls[i]].atk>0?'attack':(rolls[i]===1?'block':null);
+        const aid=D.ACTIONS[rolls[i]].id,action=aid==='attack'?'attack':(aid==='defense'?'block':'heal');
         if(action) DU.act(i,action,action==='attack'?0.75:0.9);
       });
       await sleep(360); st();
@@ -5889,31 +6001,37 @@ async function duelCheck(p,gid){
         else if(e.type==='block'){ DU.impact(e.who,'block'); DU.pop(e.who,'BLOCK','blk'); }
         else if(e.type==='heal') DU.pop(e.who,'+1','heal');
         else if(e.type==='finisher'){ DU.pop(e.who,'FINISHER!','fin'); DU.shake(); sfx.crystalBreak(); }
-        else if(e.type==='revenge') DU.pop(e.who,'REVENGE','rev');
-        else if(e.type==='double_ko'){ DU.banner('Seri! Sudden Death','sd'); DU.log('KEDUANYA JATUH · SUDDEN DEATH'); }
+        else if(e.type==='double_ko'){ DU.log('KEDUANYA JATUH · SERI'); }
       });
       DU.state(s.hp,s.mom); await sleep(550); st();
     }
-    const out=D.outcome(s,{pos:p.pos,goal:GOAL}),w=pair[out.winner],l=pair[out.loser];
-    DU.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' terpental mundur '+out.back+' petak'+(out.skipTurn?' dan melewatkan 1 giliran.':'.'));
+    const out=D.outcome(s,{pos:p.pos,goal:GOAL});
+    if(out.draw){ /* SERI: tanpa hadiah, kedua bidak tetap di petak yang sama */
+      DU.banner('SERI!'); setMsg('Duel seri! '+p.name+' dan '+q.name+' tetap di petak '+out.from+', tanpa hadiah.');
+      DU.log('Seri · tanpa hadiah · kedua pemain tetap di petak '+out.from);
+      DU.result('Seri',[p.name+': tetap di petak '+out.from+', tanpa hadiah',q.name+': tetap di petak '+out.from+', tanpa hadiah']);
+      await sleep(2400); st();
+      DU.close(); await sleep(280); st();
+      return null;
+    }
+    const w=pair[out.winner],l=pair[out.loser];
+    DU.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' mundur '+out.back+' petak.');
     sfx.hit(); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
     try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
     if(ONLINE_ROOM&&!w.cpu) DU.won(w.idx); /* tamu pemenang mencatat counter menang PVP-nya sendiri */
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
-    DUEL.rev[duelRevKey(l,w)]=DUEL.turn+D.DEFAULTS.revengeTurns*players.length; delete DUEL.rev[duelRevKey(w,l)];
     DU.act(out.winner,'cheer',1.4); DU.act(out.loser,'sad',1.8);
-    DU.impact(out.loser,out.kind==='heavy'?'heavy':'hit');
+    DU.impact(out.loser,'hit');
     DU.pop(out.loser,'DEFEATED','hit'); DU.shake();
-    DU.result((s.byFinisher?'Heavy Defeat (Finisher)':(out.kind==='heavy'?'Heavy Defeat (Sudden Death)':'Normal Defeat')),[
-      w.name+': tetap di petak '+out.from+', +'+out.xp.winner+' XP',
-      l.name+': mundur ke petak '+out.to+(out.skipTurn?', skip 1 giliran':'')+', +'+out.xp.loser+' XP',
-      l.name+' mendapat Revenge buff (+1 damage serangan pertama vs '+w.name+')']);
+    DU.result('Menang & Kalah',[
+      w.name+': menang, bertahan di petak '+out.from+', +'+out.xp.winner+' XP',
+      l.name+': kalah, mundur '+out.back+' petak ke petak '+out.to+', +'+out.xp.loser+' XP']);
     await sleep(2800); st(); /* jeda hasil duel ~2,8 detik agar kartu hasil terbaca */
     DU.close();
     await sleep(280); st();
-    if(out.back>0){ if(ONLINE_ROOM) mpCue({k:'seq',n:'duelKnock',pid:l.networkId,to:out.to,heavy:out.kind==='heavy'}); MP_SEQ++; try{ await duelKnockback(l,out.to,out.kind==='heavy'); } finally{ MP_SEQ--; } l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
-    st(); if(out.skipTurn) l.frozen=true;
+    if(out.back>0){ if(ONLINE_ROOM) mpCue({k:'seq',n:'duelKnock',pid:l.networkId,to:out.to,heavy:false}); MP_SEQ++; try{ await duelKnockback(l,out.to,false); } finally{ MP_SEQ--; } l.pos=out.to; sparkle(l.pawn.position.clone().add(new THREE.Vector3(0,0.18,0))); } /* knockback: tanpa efek ular/tangga/mob/peti di petak pendaratan */
+    st();
     renderChips(); if(!w.cpu&&!isPlayerDefeat(w)) pawnCheer(w.pawn,1.4);
     return {winner:w,loser:l};
   }finally{
@@ -6657,12 +6775,12 @@ UT.GameplayPause.bind({
   clearTurnTimer:clearTurnTimer,
   startTurnTimer:startTurnTimer,
   ensureAudio:ensureAudio,
-  restart:()=>startGame(mode,lastSkins),
+  restart:()=>againGate().then(ok=>{ if(ok) startGame(mode,lastSkins); }),
   exitToRoom:exitToRoom,
   isPlaying:()=>document.body.classList.contains('playing'),
   isWinHidden:()=>$('win').hidden
 });
-$('btnAgain').addEventListener('click',()=>{ ensureAudio(); startGame(mode,lastSkins); });
+$('btnAgain').addEventListener('click',()=>{ ensureAudio(); againGate().then(ok=>{ if(ok) startGame(mode,lastSkins); }); });
 $('btnToMenu').addEventListener('click',exitToRoom);
 
 /* ---------- Loop render ---------- */

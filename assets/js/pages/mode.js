@@ -106,6 +106,7 @@ function pick(ds,it){
 let mm=null,tm=[];
 function cancelMM(){mm=null;tm.forEach(clearTimeout);tm=[];$('#modal').classList.remove('on')}
 function ranked(format,n){
+  if(UT.HeartsGate&&!UT.HeartsGate.guard())return;   /* hati habis: modal sudah tampil, jangan mulai cari lawan */
   const map=RF.getMap(),cfg={type:'ranked',mode:'online',format:format,privacy:'public',host:true,count:n,
     players:Array.from({length:n},(_,i)=>({name:i?'Lawan '+i:(PD.profile().name||'Kamu'),team:format==='team'?(i<2?1:2):0,kind:i?'friend':'host'})),
     dice:(IC.byId(PD.equippedId('dice'))||{}).gameKey,map:map&&map.gameKey};
@@ -115,7 +116,7 @@ function ranked(format,n){
   tm.push(setTimeout(()=>{if(mm!==cfg)return;
     $('#mt').textContent='LAWAN DITEMUKAN!';$('#spin').style.display='none';$('#mcancel').hidden=true;
     $('#mplayers').innerHTML=cfg.players.map(p=>`<div></div>`).join('');[...$('#mplayers').children].forEach((d,i)=>{d.textContent=cfg.players[i].name});
-    tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900));
+    tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;Promise.resolve(RF.launch(cfg)).then(ok=>{if(ok===false)cancelMM()})},900));
   },2400));
 }
 $('#mcancel').onclick=cancelMM;
