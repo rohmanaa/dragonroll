@@ -1,6 +1,7 @@
 /* dadu.js — dipindah dari <script> inline (dadu.html). Modul 'dadu': mandiri/embed = mount otomatis saat skrip dimuat; di shell (play.html) = view sendiri
-   (tanpa iframe): DiceKit memakai renderer bersama (sharedGL:'inv-dadu', dilepas saat unmount), bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go,
-   timer/listener/langganan dilepas lewat env. */
+   (tanpa iframe): DiceKit memakai renderer bersama (sharedGL:'inv-dadu', dilepas saat unmount), navigasi lewat UT.Spa.go,
+   timer/listener/langganan dilepas lewat env.
+   Tampilan = sama dengan halaman Pet (tanpa tab): baris kartu .pc (nama, thumbnail, bar aksi harga/GUNAKAN), ikon mata / badan kartu = pratinjau 3D di modal #pv. */
 UT.PageModule.define('dadu',function(env){
 const $=s=>document.querySelector(s);
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
@@ -19,10 +20,11 @@ const kitOK=i=>!!(window.DiceKit&&i&&window.DiceKit.has(i.gameKey));
 /* kartu: warna asli = tekstur yang sama dengan preview 3D; cadangan SVG bila kit belum siap */
 /* deskripsi singkat: kalimat pertama saja, maks ~64 karakter */
 const brief=d=>{d=String(d||'').trim();const first=d.split(/(?<=[.!?])\s+/)[0]||d;if(first.length<=64)return first;const cut=first.slice(0,62),i=cut.lastIndexOf(' ');return (i>30?cut.slice(0,i):cut)+'…'};
-const art=i=>{try{if(kitOK(i)){const u=window.DiceKit.thumb(i.gameKey,160);if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
+const THUMBS=new Map();
+const art=i=>{try{if(kitOK(i)){let u=THUMBS.get(i.gameKey);if(!u){u=window.DiceKit.thumb(i.gameKey,300);if(u)THUMBS.set(i.gameKey,u)}if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
 /* ---- DiceKit: dadu 3D asli (fisika kocok-lempar, material, partikel, suara); angka lempar hanya visual ---- */
-/* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas 700px dengan camScale .628 = dadu 1,3x dari versi 360px/.42. */
-const CAM_SCALE=.628;
+/* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas pratinjau di modal 500px tinggi: camScale .45 (ukuran dadu ~ kanvas/camScale) = ukuran dadu sama dengan kanvas 700px/.628 sebelumnya. */
+const CAM_SCALE=.45;
 let KIT=null;
 function prepKitSound(){let v=1;try{const p=parseInt(UT.Prefs.get('sfxVol',100),10);if(!isNaN(p))v=Math.max(0,Math.min(100,p))/100}catch(e){}KIT.setSound(!!SET().sound&&v>0);KIT.setVolume(v)}
 function rollPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.roll()}
@@ -30,6 +32,7 @@ function throwPreview(){if(!KIT||!sel||!kitOK(sel))return;prepKitSound();KIT.rol
 function syncKit(){if(KIT&&sel&&kitOK(sel))KIT.equip(sel.gameKey)}
 function mountKit(){
   if(env.disposed||KIT||!window.DiceKit)return;
+  if(!previewOpen())return; /* dadu 3D hanya dibuat saat modal pratinjau terbuka (dibuang saat ditutup) */
   const host=$('#fpv');if(!host)return;
   try{
     const k=sel&&kitOK(sel)?sel.gameKey:'klasik';
@@ -58,23 +61,65 @@ function pickDefault(){
   if(sel&&FR.includes(sel))return;
   sel=FR.find(isUsed)||FR.find(isOwned)||FR[0]||null;
 }
+const IC_GEM=GEM,IC_COIN=KOIN;
+const EYE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
+/* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN (dimiliki); DIPAKAI (aktif; dadu selalu ada satu yang dipakai) */
+function actionBar(f,m,on,sell){
+  if(on)return '<button class="pc-pr no" type="button" disabled>DIPAKAI</button>';
+  if(m)return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
+  if(!sell)return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
+  const gems=f.gems>0;
+  return '<button class="pc-pr" type="button" data-act="use"><b>'+fmtPrice(gems?f.gems:f.price)+'</b><img src="'+(gems?IC_GEM:IC_COIN)+'" alt=""></button>';
+}
+/* Grid hanya dibangun ulang bila isinya berubah (dimiliki / dipakai / harga / thumbnail); penanda pilihan (.sel) dipasang terpisah */
+let lastGridHtml='';
+function drawGrid(){
+  const html=FR.map(x=>{
+    const m=isOwned(x),on=isUsed(x),sell=canSell(x);
+    const rar=RAR[x.rarity]?x.rarity:'common';
+    const state=on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual';
+    const check=on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':'';
+    return '<article class="pc r-'+rar+(m?' own':'')+(on?' used':'')+'" data-id="'+x.id+'"><div class="pc-sel">'
+      +'<div class="pc-top" role="group" aria-label="'+x.name+', '+RAR[rar][0]+', '+state+'">'
+      +'<span class="pc-nm">'+x.name+'</span>'
+      +'<span class="pc-th">'+art(x)+check+'</span></div>'
+      +actionBar(x,m,on,sell)+'</div>'
+      +'<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau '+x.name+'" title="Pratinjau">'+EYE_SVG+'</button>'
+      +'</article>';
+  }).join('');
+  if(html!==lastGridHtml){$('#grid').innerHTML=html;lastGridHtml=html}
+  markSelected();
+}
+function markSelected(){
+  const id=sel&&sel.id;
+  $('#grid').querySelectorAll('.pc').forEach(c=>c.classList.toggle('sel',c.dataset.id===id));
+}
 function draw(){
   if(env.disposed)return;
   pickDefault();
-  renderAct();
-  let html=FR.map(x=>{
-    const m=isOwned(x),on=isUsed(x),sell=canSell(x);
-    const st=on?'st-used':m?'st-own':'st-lock';
-    return `<button class="fslot ${st}${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipasang':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':''}</button>`}).join('');
-  for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
-  $('#grid').innerHTML=html;
-  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='Belum ada dadu di game ini.';showWallet();return}
-  const f=sel,mine=isOwned(f),on=isUsed(f),r=RAR[f.rarity]||RAR.common;
-  if(KIT)syncKit();else $('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
+  drawGrid();
+  updatePreview();
+  showWallet();
+}
+/* isi modal pratinjau + dadu 3D terpilih (tanpa membangun ulang grid) */
+function updatePreview(){
+  if(env.disposed)return;
+  if(!sel){if(!KIT)$('#fpv').innerHTML='';$('#nm').textContent='Dadu';$('#rar').textContent='';$('#ds').textContent='Belum ada dadu di game ini.';return}
+  const f=sel,r=RAR[f.rarity]||RAR.common;
+  if(KIT)syncKit();else if(previewOpen())$('#fpv').innerHTML='<div class="fb3d">'+AR.dice(f.id)+'</div>';
   $('#nm').textContent=f.name;
   $('#rar').textContent=r[0];$('#rar').style.color=r[1];
   $('#ds').textContent=brief(f.desc);
-  showWallet();
+}
+const previewOpen=()=>$('#pv').classList.contains('on');
+function openPreview(){
+  $('#pv').classList.add('on');$('#pv').setAttribute('aria-hidden','false');
+  mountKit();updatePreview();throwPreview();
+  try{$('#pvClose').focus({preventScroll:true})}catch(e){}
+}
+function closePreview(){
+  $('#pv').classList.remove('on');$('#pv').setAttribute('aria-hidden','true');
+  try{if(KIT)KIT.dispose()}catch(e){}KIT=null; /* dadu 3D & renderer bersama dilepas selama modal tertutup */
 }
 function buySelected(f){
   if(!PD.walletReady()){toast('Menunggu saldo dari server...');return}
@@ -88,30 +133,20 @@ function buySelected(f){
   if(coins<f.price)modal('Coin tidak cukup',`Kamu butuh ${fmt(f.price-coins)} Coin lagi.<br>Saldo kamu ${fmt(coins)} Coin.`,'TUTUP','DAPATKAN COIN',()=>nav('shop.html?coin=1'));
   else modal('Konfirmasi',`Beli ${f.name}<br>seharga ${fmt(f.price)} Coin?`,'BATAL','BELI',()=>buy(f));
 }
+/* ketuk bar bawah = beli / pakai; ikon mata ATAU badan kartu = pratinjau 3D (modal) */
 $('#grid').onclick=e=>{
-  const c=e.target.closest('.fslot');if(!c)return;
+  const c=e.target.closest('.pc');if(!c)return;
   const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
-  sel=f;
-  snd('button');draw();throwPreview();
+  const btn=e.target.closest('[data-act]'),act=btn?btn.dataset.act:'preview';
+  sel=f;snd('button');
+  if(act==='use'){runAction(f);return}
+  markSelected();openPreview();
 };
-
-/* ---- tombol aksi tunggal (kanan bawah): Beli / Pakai / Dipakai / Tidak dijual ---- */
-function renderAct(){
-  const b=$('#act'); if(!b)return;
-  const f=sel; const sp=b.querySelector('span');
-  if(!f){b.style.display='none';return}
-  b.style.display='';
-  const m=isOwned(f),on=isUsed(f),sell=canSell(f);
-  if(on){b.dataset.mode='used';b.disabled=true;sp.textContent='DIPAKAI'}
-  else if(m){b.dataset.mode='equip';b.disabled=false;sp.textContent='PAKAI'}
-  else if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)+(f.gems>0?' EMERALD':' COIN')}
-  else {b.dataset.mode='no';b.disabled=true;sp.textContent='TIDAK DIJUAL'}
+/* beli bila belum dimiliki, pakai bila sudah (dadu yang sedang dipakai tidak bisa dilepas) */
+function runAction(f){
+  if(!isOwned(f)){if(canSell(f))buySelected(f);else toast('Dadu ini tidak dijual.');return}
+  if(!isUsed(f))equip(f);
 }
-$('#act').onclick=()=>{
-  const f=sel; if(!f)return; const mode=$('#act').dataset.mode;
-  if(mode==='equip'){equip(f);throwPreview();return}
-  if(mode==='buy'){buySelected(f);return}
-};
 
 /* ---- modal ---- */
 let okFn=null;
@@ -124,7 +159,9 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav('lobby.html')});
+$('#pvClose').onclick=closePreview;
+$('#pv').onclick=e=>{if(e.target.id==='pv')closePreview()};
 
 /* ---- aksi: pakai / beli (beli lewat WalletService/PlayerData; klien tidak mengubah saldo sendiri) ---- */
 function equip(f){
@@ -154,13 +191,23 @@ try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pagesho
 if(UT.LiveSync){UT.LiveSync.add('wallet',()=>UT.WalletService.get().refresh());UT.LiveSync.start({interval:20000});env.own(()=>{UT.LiveSync.remove('wallet');UT.LiveSync.stop()})}
 if(SV()&&WS())WS().refresh().then(r=>{if(r&&r.ok){showWallet();draw()}});
 
-/* skala kanvas 1920x1080 */
-function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}
+/* skala kanvas 1920x1080 + sisa layar di luar kanvas (--hub-ex/--hub-ey) agar bingkai #pmodal penuh sampai tepi layar (sama dengan Pet) */
+function fit(){
+  const k=Math.min(innerWidth/1920,innerHeight/1080)||1,st=$('#stage');
+  st.style.transform='scale('+k+')';
+  st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/k-1920)/2).toFixed(1)+'px');
+  st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/k-1080)/2).toFixed(1)+'px');
+}
+/* transparansi panel (Pengaturan, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% */
+function applyPanelAlpha(){
+  try{let t=parseInt(UT.Prefs.get('panelTransparency',16),10);if(!isFinite(t))t=16;document.documentElement.style.setProperty('--panel-a',(1-Math.max(0,Math.min(70,t))/100).toFixed(2))}catch(e){}
+}
+applyPanelAlpha();
+try{if(UT.Prefs&&UT.Prefs.on)env.own(UT.Prefs.on(n=>{if(n==='panelTransparency')applyPanelAlpha()}))}catch(e){}
 env.addEventListener('resize',fit);fit();
-if(MANAGED&&UT.InvTabs)UT.InvTabs.mountChrome(env,'dadu',nav,snd);
 /* unmount: DiceKit dibuang (animasi, listener, fisika) dan renderer bersama dilepas */
 env.own(()=>{try{if(KIT)KIT.dispose()}catch(e){}KIT=null});
-draw();mountKit();
-env.addEventListener('dicekit-ready',()=>{mountKit();draw()}); /* kit siap -> dadu 3D tampil & kartu berganti ke warna asli */
+draw();
+env.addEventListener('dicekit-ready',()=>{draw();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
 document.documentElement.classList.add('ut-ready');
 });

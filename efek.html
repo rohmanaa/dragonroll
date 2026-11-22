@@ -6,38 +6,40 @@
 <title>Dragon Roll — Efek</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css"><link rel="stylesheet" href="assets/css/efek.css"><link rel="stylesheet" href="data/inventory/aura/_shared/css/efek-page.css"><link rel="stylesheet" href="assets/css/bg.css"><link rel="stylesheet" href="assets/css/inv-tabbar.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css"><link rel="stylesheet" href="assets/css/efek.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet-page.css?v=224"><link rel="stylesheet" href="data/inventory/aura/_shared/css/efek-page.css?v=2"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
 </head>
-<body class="ef notabs">
+<body class="fm notabs">
 <div id="wrap"><div id="stage">
-  <button id="back" aria-label="Kembali"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+  <div id="pmodal" aria-hidden="true"></div>
+  <button id="back" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
   <div id="title" class="ttl">Efek</div>
   <div class="cur" id="cur-em"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
   <div class="cur" id="cur-co"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
 
-  <section id="left">
+  <section id="right">
+    <div id="grid" aria-label="Koleksi efek aura"></div>
+  </section>
+
+  <!-- pratinjau 3D (modal): ketuk kartu / ikon mata; putar karakter dengan geser, ketuk = aura bereaksi -->
+  <div id="pv" aria-hidden="true"><div id="pvBox" class="pet-info-panel" role="dialog" aria-modal="true" aria-labelledby="nm">
+    <button id="pvClose" type="button" aria-label="Tutup pratinjau">×</button>
     <div id="fpv"></div>
-    <div id="nm" class="ttl"></div>
+    <div id="petTitle"><div id="nm" class="ttl"></div></div>
     <div id="rar"></div>
     <p id="ds"></p>
-  </section>
-
-  <section id="right">
-    <div id="grid"></div>
-  </section>
+  </div></div>
 
   <!-- modal konfirmasi beli / coin kurang -->
-  <button class="btn" id="act" data-mode="" aria-label="Aksi"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
-  <div id="md"><div class="panel" id="box">
+  <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
     <h3 id="mt"></h3><p id="mx"></p>
     <div id="mbtns">
-      <button class="btn" id="m-no"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span></span></button>
-      <button class="btn" id="m-ok"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+      <button class="btn" id="m-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span></span></button>
+      <button class="btn" id="m-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
     </div>
   </div></div>
 
-  <div id="toast"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
 </div></div>
 <div id="fade"></div>
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="assets/js/item-catalog.js"></script>

@@ -26,16 +26,17 @@ t('renderer lewat SharedGL: tanpa new WebGLRenderer; acquire saat rigInit; relea
   assert(/SharedGL\.release\(GL_OWNER\)\}catch\(_\)\{\}console\.warn\('WebGL tidak tersedia'/.test(js), 'gagal init = renderer dilepas');
   assert(/function loop\(now\)\{\n  if\(env\.disposed\)return;\n  env\.requestAnimationFrame\(loop\)/.test(js), 'loop berhenti setelah unmount');
 });
-t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); chrome tab dipasang', () => {
+t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); tanpa bar tab (tampilan sama dengan Pet)', () => {
   assert(/MANAGED&&UT\.Spa&&UT\.Spa\.go\)\{UT\.Spa\.go\(u\)/.test(js));
   assert.strictEqual((js.match(/location\.href/g) || []).length, 1);
-  assert(/UT\.InvTabs\.mountChrome\(env,'efek',nav,snd\)/.test(js));
+  assert(!/mountChrome|InvTabs/.test(js), 'tanpa tab Inventory');
 });
-t('efek.html: page-module/inv-tabs sebelum efek.js, shared-gl setelah three.js, CSS bar tab', () => {
+t('efek.html: page-module/inv-tabs sebelum efek.js, shared-gl setelah three.js; tanpa CSS bar tab, gaya kartu Pet dipakai', () => {
   const i = s => html.indexOf(s), e = i('aura/_shared/js/efek.js');
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < e && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < e);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < e);
-  assert(i('assets/css/inv-tabbar.css') > 0);
+  assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
+  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="pv"/.test(html) && /id="grid"/.test(html) && !/id="act"/.test(html), 'kartu + modal pratinjau seperti Pet');
 });
 t('routing: efek.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'efek\.html': 'efek'/.test(host) && /efek: 'efek\.html'/.test(host));

@@ -29,16 +29,17 @@ t('DiceRenderer: SharedGL hanya bila diminta (opts.sharedGL); dispose melepas (t
   assert(/if \(this\._glOwner\) \{ globalThis\.UT\.SharedGL\.release\(this\._glOwner\); this\._glOwner = null; \}[^\n]*\n    else \{ this\.renderer\.dispose\(\); this\.renderer\.domElement\.remove\(\); \}/.test(dr));
   assert(!/sharedGL/.test(rd('gameplay.html')) && !/sharedGL/.test(rd('assets/js/renderers/dice-kit/index.js')), 'gameplay tidak meminta SharedGL');
 });
-t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); chrome tab dipasang', () => {
+t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); tanpa bar tab (tampilan sama dengan Pet)', () => {
   assert(/MANAGED&&UT\.Spa&&UT\.Spa\.go\)\{UT\.Spa\.go\(u\)/.test(js));
   assert.strictEqual((js.match(/location\.href/g) || []).length, 1);
-  assert(/UT\.InvTabs\.mountChrome\(env,'dadu',nav,snd\)/.test(js));
+  assert(!/mountChrome|InvTabs/.test(js), 'tanpa tab Inventory');
 });
-t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js dan sebelum dice-kit; CSS bar tab', () => {
+t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js dan sebelum dice-kit; tanpa CSS bar tab, gaya kartu Pet dipakai', () => {
   const i = s => html.indexOf(s), d = i('dice/_shared/js/dadu.js');
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < d && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < d);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < i('dice-kit/index.js'));
-  assert(i('assets/css/inv-tabbar.css') > 0);
+  assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
+  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="pv"/.test(html) && /id="grid"/.test(html) && !/id="act"/.test(html), 'kartu + modal pratinjau seperti Pet');
 });
 t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'dadu\.html': 'dadu'/.test(host) && /dadu: 'dadu\.html'/.test(host));

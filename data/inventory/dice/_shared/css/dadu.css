@@ -1,27 +1,10 @@
-/* dadu.html — memakai karakter.css + frame.css (kartu .fslot, tombol aksi, modal). Hanya bagian khusus dadu di sini.
-   Preview = dadu 3D asli (DiceKit.mount) di #fpv; kartu = DiceKit.thumb (warna asli), cadangan ItemArt.dice (SVG). */
-/* Kanvas preview diperluas (700px; dulu 360px) supaya efek/partikel dadu tidak kepotong. Ukuran dadu diatur lewat camScale di dadu.html
-   (K_DADU), bukan lewat ukuran kanvas: pusatnya tetap di (480,380). */
-#fpv{left:130px;top:30px;width:700px;height:700px;cursor:pointer;touch-action:manipulation}
-#fpv canvas{width:100%!important;height:100%!important;display:block}
-#fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
-#fpv .fb3d svg{width:70%;height:70%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
-#nm{top:640px}
-#rar{top:724px}
-#ds{top:790px}
-.fslot .th svg,.fslot .th .dthumb{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.fslot .th .dthumb{display:block;pointer-events:none;-webkit-user-drag:none}
-.fslot.lk .th .dthumb{filter:grayscale(1) brightness(.55)}
-
-/* Status slot Dadu: abu = belum dimiliki, ungu = dimiliki, hijau = sedang dipakai (centang).
-   Badge harga/DIMILIKI/DIPASANG dihapus dari kartu; aksi dipindah ke tombol #act (kanan bawah). */
-.fslot.st-lock{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp);filter:grayscale(1) brightness(.75)}
-.fslot.st-lock.sel{filter:grayscale(1) brightness(.9) drop-shadow(0 0 8px rgba(255,220,110,.7))}
-.fslot.st-used,.fslot.st-used.sel{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-hijau.webp)}
-.fslot .ck{position:absolute;right:6px;top:6px;width:30px;height:30px;object-fit:contain;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
-#act{position:absolute;right:48px;bottom:40px;width:300px;height:84px;z-index:5}
-#act span{font-size:26px}
-#act:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
-@media (max-width:1919px),(max-height:1079px){body.dm #grid{zoom:1}}
-/* Ikon dadu tepat di tengah slot (sebelumnya top:12px dari frame.css) */
-.fslot .th{left:50%;top:50%;transform:translate(-50%,-50%)}
+/* dadu.html — tampilan sama dengan halaman Pet: baris kartu katalog (.pc) yang digeser ke samping + pratinjau 3D di modal (#pv), tanpa tab.
+   Gaya kartu / modal / latar dipakai bersama dari pet-page.css; di sini hanya bagian khusus dadu.
+   Pratinjau = dadu 3D asli (DiceKit.mount) di #fpv dalam modal; kartu = DiceKit.thumb (warna asli), cadangan ItemArt.dice (SVG). */
+#pv #fpv{cursor:pointer;touch-action:manipulation}
+#pv #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
+#pv #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
+#pv #fpv .fb3d svg{width:60%;height:60%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
+/* ikon dadu di kartu: utuh (contain) di area thumbnail, bukan cover seperti foto pet */
+#grid .pc-th svg,#grid .pc-th img.dthumb{position:absolute;left:12%;top:6%;width:76%;height:68%;object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+#grid .pc-th img.dthumb{display:block;pointer-events:none;-webkit-user-drag:none}
