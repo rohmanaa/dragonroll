@@ -1,4 +1,4 @@
--- Hati tahap 2: KIRIM HATI KE TEMAN (server-side). Terapkan SETELAH 202611410001_hearts.sql.
+-- Hati tahap 2: KIRIM HATI KE TEMAN (server-side) + isi ulang jadi 1 hati / 15 menit. Terapkan SETELAH 202611410001_hearts.sql.
 --
 --   * 1 hati / hari / teman (hari = tanggal Asia/Jakarta); maksimal 25 teman berbeda per hari (batas harian pengirim).
 --   * Penerima langsung dapat +1 hati (otomatis, tanpa klaim); boleh melewati 5 (isi ulang otomatis tetap berhenti di 5).
@@ -8,6 +8,9 @@
 --   Angka ada di _hg_* (satu tempat). Klien tidak pernah mengirim jumlah/fee.
 
 alter table public.player_hearts add column if not exists last_seen_at timestamptz;
+
+-- Isi ulang otomatis: 1 hati / 15 menit (tahap 1 = 5 menit). Satu-satunya tempat angka ini.
+create or replace function public._hearts_regen_secs() returns int language sql immutable as $$ select 900 $$;
 
 create or replace function public._hg_day_limit()  returns int      language sql immutable as $$ select 25 $$;
 create or replace function public._hg_fee()        returns int      language sql immutable as $$ select 1 $$;

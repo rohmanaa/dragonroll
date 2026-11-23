@@ -391,7 +391,8 @@ addEventListener('resize',fit);fit();
  function paint(){if(env.disposed)return;if(!H.enabled()){el.hidden=true;key='';return}
   const s=H.snapshot(),n=s.hearts|0,max=(s.max|0)||5,tm=(n>=max||!s.nextInSecs)?'':mmss(s.nextInSecs),k=n+'/'+max+'/'+tm;
   if(k===key&&!el.hidden)return;key=k;el.hidden=false;el.classList.toggle('empty',n<1);
-  el.innerHTML='<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false"><b>'+(n>max?n:n+'/'+max)+'</b>'+(tm?'<span>'+tm+'</span>':'');
+  let h='';for(let i=0;i<max;i++)h+='<img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt="" draggable="false"'+(i<Math.min(n,max)?'':' class="e"')+'>';
+  el.innerHTML=h+(n>max?'<b>+'+(n-max)+'</b>':'')+(tm?'<span>'+tm+'</span>':'');
   el.setAttribute('aria-label','Hati '+n+' dari '+max+(tm?', hati berikutnya '+tm:''))}
  paint();env.own(H.onChange(paint));env.setInterval(paint,1000);if(H.enabled())H.get()})();
 /* stok Power = Inventory server: segarkan & ikut berubah tanpa refresh (pola sama dengan lobby/mode); tugas LiveSync dilepas saat unmount */

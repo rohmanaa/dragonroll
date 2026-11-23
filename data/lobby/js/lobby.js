@@ -272,18 +272,19 @@ const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)ret
  return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
 pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
 
-/* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 5 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
+/* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 15 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
 const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
 (function(){const val=$('#v-ht'),tm=$('#htime'),chip=$('#cur-ht');if(!val||!tm||!chip)return;
  const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
  let key='';
  function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),f=Math.min(n,max),k=f+'/'+max;
-  if(k!==key){key=k;val.textContent=k}
+  /* berjejer max paha ayam: terisi = penuh warna, kosong = siluet redup (bukan teks 5/5) */
+  if(k!==key){key=k;let h='';for(let i=0;i<max;i++)h+='<img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""'+(i<f?'':' class="e"')+' draggable="false">';val.innerHTML=h}
   /* hati < max: hitung mundur | penuh: SIAP | > max: +N */
   tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'SIAP';tm.classList.toggle('ready',n>=max);
   chip.setAttribute('aria-label','Nyawa '+n+' dari '+max)}
  paint();if(HRT&&HRT.onChange)HRT.onChange(paint);setInterval(()=>{if(!document.hidden)paint()},1000);
- chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 5 menit')});
+ chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 15 menit')});
  if(SRV&&HRT)HRT.get()})();
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */

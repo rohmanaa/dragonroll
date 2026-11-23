@@ -137,12 +137,12 @@ UT.PageModule.define('friendship', function (env) {
 
   function giftButton(friend) {
     const g = gifts[String(friend.id).toLowerCase()];
-    if (!g) return `<button class="stat lk" type="button" disabled title="Kirim hati belum tersedia" aria-label="Kirim hati belum tersedia"><img src="assets/images/ui/white-glyphs/hati-garis.webp" alt=""><b>—</b></button>`;
+    if (!g) return `<button class="stat lk" type="button" disabled title="Kirim hati belum tersedia" aria-label="Kirim hati belum tersedia"><img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""><b>—</b></button>`;
     const fee = g.gold ? giftInfo.feeGold : giftInfo.fee;
     const full = giftInfo.sent >= giftInfo.limit;
     const cls = 'stat lk' + (g.gold ? ' gold' : '') + (g.sent ? ' sent' : '');
     const label = g.sent ? 'Hati sudah dikirim hari ini' : full ? 'Batas harian tercapai' : `Kirim hati ke ${friend.name} (+${fee} Emerald untukmu)`;
-    return `<button class="${cls}" type="button" data-action="gift"${g.sent || full ? ' disabled' : ''} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><img src="assets/images/ui/white-glyphs/hati-garis.webp" alt=""><b>${g.sent ? '✓' : '+' + fee}</b></button>`;
+    return `<button class="${cls}" type="button" data-action="gift"${g.sent || full ? ' disabled' : ''} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""><b>${g.sent ? '✓' : '+' + fee}</b></button>`;
   }
 
   async function loadGifts() {

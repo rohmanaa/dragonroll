@@ -38,7 +38,7 @@ do $$ begin
 end $$;
 
 -- hadiah ke akun yang sedang mengisi ulang: tidak hilang oleh batas 5
-update public.player_hearts set hearts = 3, regen_at = now() - interval '12 minutes' where user_id='ffffffff-0000-0000-0000-000000000003';
+update public.player_hearts set hearts = 3, regen_at = now() - interval '30 minutes' where user_id='ffffffff-0000-0000-0000-000000000003';
 delete from public.hearts_gifts where receiver_id='ffffffff-0000-0000-0000-000000000003';
 set role authenticated; select set_config('request.jwt.claim.sub','ffffffff-0000-0000-0000-000000000001',false);
 insert into out select 's3b', public.hearts_send('ffffffff-0000-0000-0000-000000000003');

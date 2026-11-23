@@ -41,6 +41,6 @@ t('kirim hati: tombol data-action="gift" -> UT.HeartsService.send; status dari h
   assert(/data-action="gift"/.test(js) && /HS\(\)\.send\(id\)/.test(js) && /svc\.friends\(\)/.test(js));
   assert(/if \(action === 'gift'\)/.test(js));
   assert(/services\/hearts-service\.js/.test(html) && html.indexOf('hearts-service.js') < html.indexOf('pages/friendship-page.js'));
-  assert(!/<svg/i.test(js.slice(js.indexOf('function giftButton'), js.indexOf('async function loadGifts'))), 'pakai hati-garis.webp, bukan SVG');
+  assert(!/<svg/i.test(js.slice(js.indexOf('function giftButton'), js.indexOf('async function loadGifts'))), 'pakai paha-ayam.webp, bukan SVG');
 });
 console.log(n + ' tes lulus');

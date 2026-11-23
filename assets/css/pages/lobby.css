@@ -50,7 +50,9 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .cur .v{font-size:38px;text-align:right;padding:0 56px 0 64px}
 .cur:active{filter:brightness(1.12)}
 /* hati: tanpa tombol +; status (hitung mundur / SIAP) di kiri */
-#cur-ht .v{padding-left:84px}
+#cur-ht .v{position:absolute;inset:0;padding:0 10px 0 84px;display:flex;justify-content:flex-end;align-items:center;gap:2px;margin:0}
+#cur-ht .v img{position:static;transform:none;top:auto;right:auto;left:auto;height:34px;width:40px;max-width:none;object-fit:contain;flex:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
+#cur-ht .v img.e{filter:brightness(0) opacity(.45)}
 #htime.ready{color:#9dff9f}
 #cur-em{left:auto;right:26px;top:30px}
 #cur-co{left:auto;right:26px;top:94px}

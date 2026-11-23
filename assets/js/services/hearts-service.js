@@ -1,5 +1,5 @@
 /* Hearts service — satu-satunya pintu klien ke HATI/NYAWA di SERVER (supabase/migrations/202611410001_hearts.sql).
-   Tiap pemain punya 5 hati; 1 hati terpakai tiap match dimulai; terisi lagi otomatis 1 hati / 5 menit sampai penuh.
+   Tiap pemain punya 5 hati; 1 hati terpakai tiap match dimulai; terisi lagi otomatis 1 hati / 15 menit sampai penuh.
    Klien tidak pernah mengirim jumlah/waktu: server (RPC hearts_*) yang menghitung; klien hanya memproyeksikan hitung mundur
    dari next_in_secs terakhir supaya HUD bergerak tiap detik tanpa polling.
    Aktif hanya untuk akun login (PlayerData.serverMode()). Tamu/lokal: tidak ada batas hati (enabled() = false).
@@ -12,7 +12,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var DEFAULT_MAX = 5, DEFAULT_REGEN = 300;
+  var DEFAULT_MAX = 5, DEFAULT_REGEN = 900;
 
   /* Proyeksi lokal dari status server: st = {hearts, max, regenSecs, nextAt(ms) | null}. Murni, untuk HUD & tes. */
   function project(st, nowMs) {
