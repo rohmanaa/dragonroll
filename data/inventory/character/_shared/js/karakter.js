@@ -1422,10 +1422,10 @@ function slider(label,key,min,max){
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
   {name:'Gender',ico:'⚧',keys:['gender']},
-  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body','preset']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body']},
   {name:'Outfit',ico:'👕',keys:['top','legs','helm','boots']},
   {name:'Aksesori',ico:'🎒',keys:['accessories']}
-];   /* Set (preset) dipindah jadi subkategori Penampilan, di samping Kulit */
+];   /* tab Set DIPINDAH ke Toko (tab Set di shop.html); tidak ada lagi di Karakter */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
 const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k)||slotTabs[k]===g.name);
