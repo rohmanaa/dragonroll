@@ -67,30 +67,27 @@ const ASSETS=[
 ASSETS.unshift(dest.split("?")[0]);
 let pct=0;
 
-/* ---- SYSTEM LOG ringkas: per KATEGORI ("Loading script... 3/12"); persen total (bar) muncul di ujung kanan saat kategori selesai ---- */
+/* ---- SYSTEM LOG: SATU baris di atas bar loading = kategori yang sedang dimuat ("Loading gambar... 12/80 · 340/900"); pesan sistem (cek pembaruan) menggantikannya ---- */
 const LOG=(()=>{
-  const head=$("#sl-head"),list=$("#sl-list");
-  if(!head||!list)return{sys(){},ev(){}};
-  const CATS=[["halaman","halaman"],["style","style"],["script","script"],["data","data"],["font","font"],["gambar","gambar"],["efek","efek"],["sfx","sfx"],["musik","musik"]];
+  const line=$("#syslog");
+  if(!line)return{sys(){},ev(){}};
+  const CATS=["halaman","style","script","data","font","gambar","efek","sfx","musik"];
   const cat=u=>{const p=u.split("?")[0],x=((p.match(/\.([a-z0-9]+)$/i)||[])[1]||"").toLowerCase();
     if(/^(mp3|ogg|m4a|opus|wav)$/.test(x)||(x==="webm"&&/audio/.test(p)))return/\/sfx\//.test(p)?"sfx":"musik";
     if(/^(png|webp|jpe?g|gif|svg|ico)$/.test(x))return/\/effects\/|\/aura\/|(^|[-_\/])(fx|efek|fog|particle|spark|glow)([-_.\d]|$)/i.test(p)?"efek":"gambar";
     if(x==="js")return"script";if(x==="css")return"style";if(x==="html")return"halaman";if(/^woff2?$|^ttf$/.test(x))return"font";return"data"};
-  const C={};let sysMsg="",total=0,done=0,dirty=false,urlCat={};
-  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const C={};let sysMsg="",total=0,done=0,cur="",dirty=false,urlCat={};
   function paint(){if(dirty)return;dirty=true;requestAnimationFrame(()=>{dirty=false;
-    head.textContent="SYSTEM LOG"+(total?" · "+done+"/"+total:"");
-    let h=sysMsg?'<div class="sys"><span>▸ '+esc(sysMsg)+'</span></div>':"";
-    for(const[k]of CATS){const c=C[k];if(!c)continue;
-      const fin=c.done>=c.total,cls=fin?"ok":c.done>0?"run":"wait";
-      h+='<div class="'+cls+'"><span>'+(fin?"✓ ":"")+"Loading "+k+"... "+c.done+"/"+c.total+'</span><b>'+(fin?c.pct+"%":"")+'</b></div>'}
-    list.innerHTML=h})}
+    let t=sysMsg;
+    if(!t){const c=C[cur];t=c?"Loading "+cur+"... "+c.done+"/"+c.total+(total?" · "+done+"/"+total:""):""}
+    line.textContent=t})}
   function ev(e){
     if(e.type==="sys"){sysMsg=e.msg;return paint()}
-    if(e.type==="plan"){sysMsg="";total=e.total;(e.urls||[]).forEach(u=>{const k=cat(u);urlCat[u]=k;(C[k]=C[k]||{total:0,done:0,pct:0}).total++});return paint()}
+    if(e.type==="plan"){sysMsg="";total=e.total;(e.urls||[]).forEach(u=>{const k=cat(u);urlCat[u]=k;(C[k]=C[k]||{total:0,done:0}).total++});
+      cur=CATS.find(k=>C[k])||"";return paint()}
     if(e.type==="start")return;
-    const c=C[urlCat[e.url]||cat(e.url)];done++;
-    if(c){c.done++;if(c.done>=c.total)c.pct=Math.round(pct)}
+    const k=urlCat[e.url]||cat(e.url),c=C[k];done++;
+    if(c){c.done++;cur=k}
     paint();
   }
   return{sys:m=>ev({type:"sys",msg:m}),ev};
