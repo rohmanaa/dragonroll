@@ -112,7 +112,7 @@ html body.fm.notabs #right #grid.drag{cursor:grabbing}
 #grid.drag .pc-pr,#grid.drag .pc-ic{pointer-events:none}
 #grid img{-webkit-user-drag:none;user-drag:none}
 
-/* ===== thumbnail kartu: penuh (cover) memenuhi kotak, memakai crop khusus kartu (assets/images/ui/pet/card/) yang fokus ke pet,
+/* ===== thumbnail kartu: penuh (cover) memenuhi kotak, memakai crop khusus kartu (data/inventory/pet/items/<id>/<id>-card.webp) yang fokus ke pet,
    tanpa makhluk latar (ular/mob) dari ilustrasi penuh. Sebelumnya object-fit:contain + inset membuat gambar kecil dengan pita kosong. ===== */
 .pc-th img:not(.ck){left:0;right:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .pc-th::after{left:0;right:0;top:0;bottom:0;border-radius:0}

@@ -17,5 +17,5 @@
     starter: false,
     desc: "Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.",
     visual: {"accent":"#b46af0","colors":["#6a4a7a","#b46af0","#ffd24a"]},
-    assets: { image: "assets/images/ui/pet/arcane-owl.webp", sfx: ["data/inventory/pet/items/arcane_owl/sfx/arcane-owl-hoot.mp3", "data/inventory/pet/items/arcane_owl/sfx/arcane-owl-sparkle.mp3", "data/inventory/pet/items/arcane_owl/sfx/arcane-owl-flap.mp3"] }
+    assets: { image: "data/inventory/pet/items/arcane_owl/arcane-owl.webp", sfx: ["data/inventory/pet/items/arcane_owl/sfx/arcane-owl-hoot.mp3", "data/inventory/pet/items/arcane_owl/sfx/arcane-owl-sparkle.mp3", "data/inventory/pet/items/arcane_owl/sfx/arcane-owl-flap.mp3"] }
 });

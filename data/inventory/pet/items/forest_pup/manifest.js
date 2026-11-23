@@ -17,5 +17,5 @@
     starter: false,
     desc: "Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.",
     visual: {"accent":"#6fd05a","colors":["#b8803f","#f0dcb0","#3fa04a"]},
-    assets: { image: "assets/images/ui/pet/forest-pup.webp", sfx: ["data/inventory/pet/items/forest_pup/sfx/forest-pup-bark-burst.mp3", "data/inventory/pet/items/forest_pup/sfx/forest-pup-bark.mp3", "data/inventory/pet/items/forest_pup/sfx/forest-pup-whimper.mp3"] }
+    assets: { image: "data/inventory/pet/items/forest_pup/forest-pup.webp", sfx: ["data/inventory/pet/items/forest_pup/sfx/forest-pup-bark-burst.mp3", "data/inventory/pet/items/forest_pup/sfx/forest-pup-bark.mp3", "data/inventory/pet/items/forest_pup/sfx/forest-pup-whimper.mp3"] }
 });
