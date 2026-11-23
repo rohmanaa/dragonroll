@@ -83,6 +83,7 @@ sun.position.set(0,14,0.01);
 scene.add(sun);scene.add(sun.target);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.3}));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+ground.visible=false; /* tanpa bayangan lantai di bawah karakter */
 
 /* ================================================================
    3. DATA: warna (dye) & opsi dasar
@@ -1700,7 +1701,7 @@ renderTabs();
    11. KAMERA
    ================================================================ */
 /* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
-let camYaw=0.4,camPitch=0.18;const camDist=3.8;
+let camYaw=0,camPitch=0.1;const camDist=3.3; /* hadap depan; jarak pas untuk kartu potret (karakter utuh, tidak terpotong) */
 const ptrs=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{

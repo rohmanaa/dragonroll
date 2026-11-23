@@ -119,8 +119,8 @@ html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #title{left:100px;top:34px}
 /* slot kiri/kanan dirapatkan agar kartu + info + saldo muat tanpa tabrakan */
 #eqL,#eqR{top:128px;grid-template-rows:repeat(4,124px);gap:12px}
-/* kartu karakter = aset kartu-toko.webp, PAS dengan kolom slot: atas = slot pertama (y 128), bawah = slot keempat (y 660), kiri/kanan 20px dari slot (x 188 & 772) */
-#show{left:208px;top:128px;width:544px;height:532px;box-sizing:border-box;padding:54px 32px 28px;overflow:visible;z-index:1;
+/* kartu karakter = aset kartu-toko.webp, tetap POTRET (rasio asli 506x747, tidak jadi kotak): tinggi = kolom slot (y 128-660), lebar 360, di tengah antara slot kiri & kanan */
+#show{left:300px;top:128px;width:360px;height:532px;box-sizing:border-box;padding:54px 22px 28px;overflow:visible;z-index:1;
   background:url(../../../../../assets/images/ui/panel-dialog/kartu-toko.webp) center/100% 100% no-repeat}
 #show>canvas{border-radius:10px;background:none}
 body.kr #info{top:700px}
