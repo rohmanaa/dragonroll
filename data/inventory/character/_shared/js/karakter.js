@@ -1422,10 +1422,11 @@ function slider(label,key,min,max){
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
   {name:'Gender',ico:'⚧',keys:['gender']},
-  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body','preset']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body']},
   {name:'Outfit',ico:'👕',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
-  {name:'Aksesori',ico:'🎒',keys:['accessories']}
-];   /* Set (preset) = subkategori Penampilan di samping Kulit; Outfit memuat Baju/Celana/Kepala/Zirah/Bahu/Jubah/Senjata/Sepatu */
+  {name:'Aksesori',ico:'🎒',keys:['accessories']},
+  {name:'Set',ico:'🎭',keys:['preset']}
+];   /* Set (preset) = tab sendiri setelah Aksesori (bukan sub Penampilan); Outfit memuat Baju/Celana/Kepala/Zirah/Bahu/Jubah/Senjata/Sepatu */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
 const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k)||slotTabs[k]===g.name);
