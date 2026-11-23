@@ -1,4 +1,4 @@
-/* account-hub.css — kerangka HALAMAN untuk hub Profil · Teman · Pesan · Pengaturan (profile.html). Kanvas 1920x1080. Bukan modal:
+/* account-hub.css — kerangka HALAMAN untuk hub Profil · Teman · Pesan · Peringkat · Misi · Pengaturan (profile.html). Kanvas 1920x1080. Bukan modal:
    memakai latar halaman standar (bg.css), tombol Tutup kanan atas, tanpa lapisan gelap.
    Struktur: #phub[role=region] > #pmodal (bingkai-dialog.webp penuh layar = latar panel), #phub-title (sr-only), #ptabs, #pane (isi panel), #pclose.
    Tab bergaya Inventory: ikon di atas, teks di bawah, garis bawah emas pada tab aktif. */
@@ -9,11 +9,18 @@
 #pane.loading{opacity:.55;transition:opacity .12s}
 #pane[aria-busy="true"]{cursor:progress}
 
-/* Latar halaman = gambar HUD profil (profile-bg.webp; varian lebar untuk layar >= 2:1), SAMA untuk keempat tab (latar per-panel:
-   body.dm/sub::before voxel, profile-bg pada body.pf, dimatikan/diseragamkan di sini). Warna dasar = warna isi bingkai (#2e293c). */
+/* Latar halaman = gambar latar MASING-MASING panel (assets/images/background), dipilih lewat #pane[data-tab] (diisi UT.AccountHub.setActiveTab):
+   profil = profile-bg (+ varian lebar untuk layar >= 2:1), teman = friendship-bg, pesan = mail-voxel-pesan, peringkat = leaderboard-bg,
+   misi = misi-bg, setelan = settings-voxel-bengkel. Aturan dasar di bawah (profil) dipakai juga sebelum panel pertama selesai dimuat.
+   Warna dasar = warna isi bingkai (#2e293c). */
 html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 @media (min-aspect-ratio:2/1){
   html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#2e293c!important}}
+html:has(#pane[data-tab="teman"]),html:has(#pane[data-tab="teman"]) body{background:url(../images/background/friendship-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#pane[data-tab="pesan"]),html:has(#pane[data-tab="pesan"]) body{background:url(../images/background/mail-voxel-pesan.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#pane[data-tab="peringkat"]),html:has(#pane[data-tab="peringkat"]) body{background:url(../images/background/leaderboard-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#pane[data-tab="misi"]),html:has(#pane[data-tab="misi"]) body{background:url(../images/background/misi-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#pane[data-tab="setelan"]),html:has(#pane[data-tab="setelan"]) body{background:url(../images/background/settings-voxel-bengkel.webp) center/cover no-repeat fixed,#2e293c!important}
 body.hub::before,body.hub::after{content:none!important;display:none!important}
 
 /* Panel = bingkai-dialog.webp PENUH layar (9-slice, konvensi repo: 44 / 22px). Tepi batu pekat dari aset; isi = ::before (warna isi aset
@@ -27,7 +34,7 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 
 /* tab: ikon di KIRI teks (satu baris), supaya tidak terasa penuh */
-#ptabs{position:absolute;left:110px;top:44px;width:900px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
+#ptabs{position:absolute;left:110px;top:44px;width:1620px;height:96px;display:flex;border-bottom:2px solid rgba(255,255,255,.18);z-index:20}
 #ptabs .ptab{position:relative;flex:1;min-width:0;height:92px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;
   opacity:.7;transition:opacity .12s,transform .1s;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
 #ptabs .ptab img.ic{height:44px;width:auto;max-width:52px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
@@ -85,3 +92,20 @@ html[data-graphics="low"] #ptabs .ptab img.ic,html[data-graphics="low"] #pclose 
 #stage.has-hub #pane #line{left:110px;right:110px;top:846px}
 #stage.has-hub #pane #logout{right:110px;top:872px}
 #stage.has-hub #pane #appver{left:130px;top:906px}
+
+/* ===== Panel Peringkat (leaderboard.html) — isi langsung di atas bingkai kartu hub (area isi x 72..1848, y 130..1058), tanpa kartu kedua =====
+   Kiri: tab Global/Teman/Mingguan, podium + kartu posisi + tombol Hadiah; kanan: tabel peringkat. */
+#stage.has-hub #pane #ltabs{left:84px;top:156px;width:200px}
+#stage.has-hub #pane #podium,#stage.has-hub #pane #pfxb,#stage.has-hub #pane #pfxf{left:300px;top:160px}
+#stage.has-hub #pane #mycard{left:360px;top:740px}
+#stage.has-hub #pane #reward{left:460px;top:900px}
+#stage.has-hub #pane #board{left:1000px;top:26px;width:840px}
+#stage.has-hub #pane #th{grid-template-columns:90px 1fr 150px 174px}
+#stage.has-hub #pane #rows{height:820px}
+#stage.has-hub #pane .rw .no{width:60px}
+#stage.has-hub #pane .rw .sc{width:150px;font-size:34px}
+#stage.has-hub #pane .rw .wn{width:150px;font-size:32px}
+
+/* ===== Panel Misi (hadiah-misi.html) — rel tab kiri (Hadiah/Misi/Pencapaian) + isi 1450px dikecilkan 95% agar muat di dalam bingkai ===== */
+#stage.has-hub #pane #tabs{left:72px;top:152px;transform-origin:0 0;transform:scale(.95)}
+#stage.has-hub #pane #body{left:420px;top:152px;transform-origin:0 0;transform:scale(.95)}

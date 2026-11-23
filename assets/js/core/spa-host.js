@@ -18,7 +18,7 @@
   'use strict';
 
   var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu' };
-    var HUB_TABS = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };   // halaman yang kini panel di hub profile.html
+    var HUB_TABS = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'leaderboard.html': 'peringkat', 'hadiah-misi.html': 'misi', 'settings.html': 'setelan' };   // halaman yang kini panel di hub profile.html
     var INV_VIEW_TABS = { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
   var SKIP_JS = /(^|\/)(page-shell|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
@@ -228,13 +228,15 @@
     }
 
     /* inventory.html bagi tab yang sudah jadi view (Pet) = langsung view-nya: tab dari ?tab=, atau tab terakhir (sessionStorage) bila tanpa ?tab= */
-    /* Profil · Teman · Pesan · Pengaturan = SATU halaman (hub profile.html, modul 'profile'): friendship/mail/settings.html dialihkan ke
+    /* Profil · Teman · Pesan · Peringkat · Misi · Pengaturan = SATU halaman (hub profile.html, modul 'profile'): friendship/mail/leaderboard/hadiah-misi/settings.html dialihkan ke
        profile.html?tab=... (mempertahankan ?from=). Sinkron dengan UT.AccountHub.canon. */
     function hubCanon(url) {
       var tab = HUB_TABS[pageOf(url)];
       if (!tab) return url;
       var m = /[?&]from=([^&#]*)/.exec(String(url));
-      return 'profile.html?tab=' + tab + (m ? '&from=' + m[1] : '');
+      var sub = '';
+      if (pageOf(url) === 'hadiah-misi.html') { var t = /[?&]tab=([a-z]{1,12})(?=[&#]|$)/.exec(String(url)); sub = '&sub=' + (t ? t[1] : 'hadiah'); }   // sama dengan UT.AccountHub.canon
+      return 'profile.html?tab=' + tab + (m ? '&from=' + m[1] : '') + sub;
     }
     function canon(url) {
       url = hubCanon(url);

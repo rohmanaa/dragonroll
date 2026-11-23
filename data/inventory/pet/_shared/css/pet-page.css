@@ -7,16 +7,14 @@
 .fslot .ck{position:absolute;right:6px;top:6px;width:30px;height:30px;object-fit:contain;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 
 /* Panel + latar sama dengan hub Profil: bingkai dialog PENUH sampai tepi layar (ditarik 8px keluar, tanpa celah), isi sedikit transparan
-   (--panel-a, diatur slider Pengaturan -> Transparansi panel), latar = profile-bg. --hub-ex/--hub-ey diisi fit() di pet-page.js.
+   (--panel-a, diatur slider Pengaturan -> Transparansi panel), latar = inventory-bg (latar Inventory; Pet bagian dari Inventory). --hub-ex/--hub-ey diisi fit() di pet-page.js.
    Tidak dipakai saat pet.html di-embed (inventory / room): bingkai & latar milik halaman induk. */
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
   pointer-events:none;box-sizing:border-box;z-index:0;border:22px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
-html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/profile-bg.webp) center/cover no-repeat fixed,#2e293c!important}
-@media (min-aspect-ratio:2/1){
-  html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#2e293c!important}}
+html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 /* tombol Kembali -> Tutup di kanan atas (sama dengan hub Profil) */
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
 #title{left:100px;top:34px}

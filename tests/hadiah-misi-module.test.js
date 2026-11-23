@@ -17,7 +17,8 @@ t('?tab dibaca dari URL rute aktif di shell, bukan location.search milik play.ht
   assert(/new URLSearchParams\(search\(\)\)/.test(js));
   assert(!/new URLSearchParams\(location\.search\)/.test(js));
 });
-t('history.replaceState tidak mengubah URL play.html di shell', () => assert(/if\(!\(UT\.Spa&&UT\.Spa\.go\)\)\{try\{history\.replaceState/.test(js)));
+t('history.replaceState tidak mengubah URL play.html di shell maupun URL hub', () => assert(/if\(!\(UT\.Spa&&UT\.Spa\.go\)&&!HUB\(\)\)\{try\{history\.replaceState/.test(js)));
+t('di hub sub-tab dibaca dari ?sub= (UT.AccountHub.query), default Misi Harian', () => assert(/HUB\(\)\?\(new URLSearchParams\(search\(\)\)\.get\('sub'\)\|\|'misi'\)/.test(js) && /UT\.AccountHub\.query\(\)/.test(js)));
 t('penjaga window.__curSub dihapus; langganan PlayerData & Events dilepas via env.own', () => {
   assert(!/window\.__curSub\s*=/.test(js) && !/if\(!window\.__curSub\)/.test(js));
   assert(/env\.own\(PD\.subscribe\(/.test(js));

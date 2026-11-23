@@ -17,6 +17,18 @@ t('canon: friendship/mail/settings -> profile.html?tab=..., ?from= dipertahankan
   assert.strictEqual(H.canon('profile.html'), 'profile.html');
   assert.strictEqual(H.canon('shop.html'), 'shop.html');
 });
+t('canon: leaderboard/hadiah-misi = panel hub; ?tab= lama hadiah-misi jadi &sub=, tanpa ?tab= = Hadiah Harian', () => {
+  assert.strictEqual(H.canon('leaderboard.html'), 'profile.html?tab=peringkat');
+  assert.strictEqual(H.canon('leaderboard.html?from=shop.html'), 'profile.html?tab=peringkat&from=shop.html');
+  assert.strictEqual(H.canon('hadiah-misi.html'), 'profile.html?tab=misi&sub=hadiah');
+  assert.strictEqual(H.canon('hadiah-misi.html?tab=ach'), 'profile.html?tab=misi&sub=ach');
+  assert.strictEqual(H.canon('hadiah-misi.html?tab=misi&from=lobby.html'), 'profile.html?tab=misi&from=lobby.html&sub=misi');
+  assert.strictEqual(H.hubUrl('misi', '', 'Salah!'), 'profile.html?tab=misi');   // sub tidak valid dibuang
+  assert.strictEqual(H.tabOf('profile.html?tab=peringkat'), 'peringkat');
+  assert.strictEqual(H.tabOf('leaderboard.html'), 'peringkat');
+  assert.strictEqual(H.tabOf('hadiah-misi.html'), 'misi');
+  assert.deepStrictEqual(H.TABS.map(x => x.key), ['profil', 'teman', 'pesan', 'peringkat', 'misi', 'setelan']);
+});
 t('tabOf: ?tab= menang, lalu nama halaman, default profil; nilai tak dikenal -> profil', () => {
   assert.strictEqual(H.tabOf('profile.html?tab=pesan'), 'pesan');
   assert.strictEqual(H.tabOf('profile.html?tab=ngawur'), 'profil');
@@ -26,7 +38,7 @@ t('tabOf: ?tab= menang, lalu nama halaman, default profil; nilai tak dikenal -> 
 });
 t('validFrom / homeUrl: hanya halaman .html lokal non-hub; dasar ke lobby; referrer sama-origin dipakai', () => {
   assert.strictEqual(H.validFrom('shop.html?coin=1'), 'shop.html?coin=1');
-  ['profile.html', 'mail.html', 'splash.html', 'http://evil.example/x.html', '../x.html', 'javascript:alert(1)', ''].forEach(x => assert.strictEqual(H.validFrom(x), ''));
+  ['profile.html', 'mail.html', 'leaderboard.html', 'hadiah-misi.html', 'splash.html', 'http://evil.example/x.html', '../x.html', 'javascript:alert(1)', ''].forEach(x => assert.strictEqual(H.validFrom(x), ''));
   assert.strictEqual(H.homeUrl('profile.html?tab=teman&from=shop.html%3Fcoin%3D1', '', ''), 'shop.html?coin=1');
   assert.strictEqual(H.homeUrl('profile.html?tab=teman', '', ''), 'lobby.html');
   assert.strictEqual(H.homeUrl('profile.html', 'https://g.test/tambang.html', 'https://g.test'), 'tambang.html');
@@ -79,8 +91,8 @@ t('profile.html = host hub: #stage kosong, template Profil, managed=true sebelum
   assert(i('pages/account.js') > i('pages/profile.js') && i('PageModule.mount("profile")') > i('pages/account.js'));
   assert(!/profile-tabs/.test(h));
 });
-t('friendship/mail/settings.html: dialihkan ke hub bila dibuka langsung; tab lama dibuang', () => {
-  ['friendship.html', 'mail.html', 'settings.html'].forEach(f => {
+t('friendship/mail/leaderboard/hadiah-misi/settings.html: dialihkan ke hub bila dibuka langsung; tab lama dibuang', () => {
+  ['friendship.html', 'mail.html', 'leaderboard.html', 'hadiah-misi.html', 'settings.html'].forEach(f => {
     const h = rd(f);
     assert(/core\/hub-redirect\.js/.test(h), f);
     assert(h.indexOf('hub-redirect.js') < h.indexOf('page-shell.js'), f + ': pengalihan harus paling awal');
@@ -88,6 +100,13 @@ t('friendship/mail/settings.html: dialihkan ke hub bila dibuka langsung; tab lam
   });
   assert(/profile\.html\?tab=/.test(rd('assets/js/core/hub-redirect.js')));
   assert(/hub-redirect/.test(rd('assets/js/core/spa-host.js')) && /hub-redirect/.test(hub));   // tidak boleh ikut dimuat pemuat view
+});
+t('CSS hub: latar masing-masing panel (bukan satu profile-bg untuk semua)', () => {
+  const css = rd('assets/css/account-hub.css');
+  [['teman', 'friendship-bg'], ['pesan', 'mail-voxel-pesan'], ['peringkat', 'leaderboard-bg'], ['misi', 'misi-bg'], ['setelan', 'settings-voxel-bengkel']].forEach(([k, img]) => {
+    assert(new RegExp('#pane\\[data-tab="' + k + '"\\][^{]*\\{background:url\\(\\.\\./images/background/' + img + '\\.webp\\)').test(css), k + ' -> ' + img);
+  });
+  assert(!/profile-bg/.test(rd('data/inventory/pet/_shared/css/pet-page.css')), 'Pet tidak lagi memakai profile-bg');
 });
 t('ModalKit: API lengkap & trapTab membungkus di batas', () => {
   ['watch', 'trapTab', 'inertOthers', 'focusables'].forEach(k => assert.strictEqual(typeof MK[k], 'function', k));

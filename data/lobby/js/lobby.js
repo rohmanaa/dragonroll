@@ -29,8 +29,8 @@ env.own(UT.Events.on('frameChanged',applyFrame));
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',dadu:'dadu.html',efek:'efek.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
-/* Profil · Teman · Pesan · Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
-const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',settings:'setelan'};
+/* Profil · Teman · Pesan · Peringkat · Misi · Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
+const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',leaderboard:'peringkat',hadiahMisi:'misi&sub=hadiah',settings:'setelan'};
 function navTo(url){if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/i.test(url)||/^(play|index|splash)\.html/i.test(url))return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}
  const f=$('#fade');if(f)f.classList.add('on');setTimeout(()=>{location.href=url},330)}
