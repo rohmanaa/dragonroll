@@ -1700,7 +1700,7 @@ renderTabs();
    11. KAMERA
    ================================================================ */
 /* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
-let camYaw=0.4,camPitch=0.18;const camDist=4.1;
+let camYaw=0.4,camPitch=0.18;const camDist=3.8;
 const ptrs=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{
@@ -1725,12 +1725,15 @@ function fit(){
       camera.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,ty+Math.sin(camPitch)*camDist,Math.cos(camYaw)*Math.cos(camPitch)*camDist);
       camera.lookAt(0,ty,0);camera.updateMatrixWorld(true);
       const v=new THREE.Vector3(0,0,0).project(camera),feet=(1-v.y)/2*h,dy=FEET_Y-feet;
-      if(isFinite(dy)&&Math.abs(dy)<h*0.45)camera.setViewOffset(w,h,0,-dy,w,h);
+      /* kaki TIDAK lagi disejajarkan ke slot (dulu bikin kaki terpotong di kartu); karakter dipusatkan utuh di kanvas kartu */
+      void dy;
     }
   }catch(e){}
 }
 try{const ro=env.observe(new ResizeObserver(fit));ro.observe(showEl);}catch(e){addEventListener('resize',fit);}
-function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')'}
+function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080)||1,st=document.getElementById('stage');st.style.transform='scale('+s+')';
+  /* sisa layar di luar kanvas 1920x1080: bingkai & latar #pmodal penuh sampai tepi layar (sama dengan Toko/Pet) */
+  st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/s-1920)/2).toFixed(1)+'px');st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/s-1080)/2).toFixed(1)+'px');}
 addEventListener('resize',fitStage);fitStage();
 fit();
 
