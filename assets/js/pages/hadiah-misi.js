@@ -4,6 +4,10 @@ UT.PageModule.define('hadiah-misi',function(env){
 const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){const st=$('#stage'),k=Math.min(innerWidth/1920,innerHeight/1080)||1;st.style.transform='scale('+k+')';st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/k-1920)/2).toFixed(1)+'px');st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/k-1080)/2).toFixed(1)+'px')}  /* --hub-ex/--hub-ey: bingkai #pmodal penuh sampai tepi layar (sama dengan Profil/Aura/Pet) */addEventListener('resize',fit);fit();
+/* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% — sama seperti Shop/Pet/Aura/hub */
+function applyPanelAlpha(){try{let t=parseInt(UT.Prefs.get('panelTransparency',16),10);if(!isFinite(t))t=16;document.documentElement.style.setProperty('--panel-a',(1-Math.max(0,Math.min(70,t))/100).toFixed(2))}catch(e){}}
+applyPanelAlpha();
+try{if(UT.Prefs&&UT.Prefs.on)env.own(UT.Prefs.on(n=>{if(n==='panelTransparency')applyPanelAlpha()}))}catch(e){}
 /* Semua status & klaim = SERVER: hadiah harian (daily_reward_get / claim_daily_reward) dan misi (quest_get / quest_claim*) lewat UT.WalletService.
    Hari reset = WIB. Klien hanya menampilkan; nominal & item ditentukan server. Tanpa akun login: hanya ajakan masuk, tidak ada data tiruan. */
 const PD=window.PlayerData,IC='assets/images/ui/',Q=UT.Quest,AC=UT.Achievement;
