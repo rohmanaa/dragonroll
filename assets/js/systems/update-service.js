@@ -141,9 +141,15 @@
     function rootUrl(reg) {
       try { return new g.URL('./', (reg && reg.scope) || (g.location && g.location.href)).href; } catch (e) { return null; }
     }
+    /* Navigasi HARUS di jendela paling atas (pembungkus play.html). Bila dipanggil dari iframe (splash), loc.replace(root) hanya memindahkan
+       iframe -> pembungkus kedua bersarang di dalam pembungkus pertama dan keduanya memutar musik (bertabrakan). */
+    function navWin() {
+      try { var t = g.top; if (t && t !== g && t.location && g.location && t.location.origin === g.location.origin) return t; } catch (e) {}
+      return g;
+    }
     function goRoot(reg) {
       try { var ss = sess(); if (ss) { ss.removeItem('ut:booted'); ss.removeItem('ut:fadein'); } } catch (e) {}
-      var url = rootUrl(reg), loc = g.location;
+      var url = rootUrl(reg), loc = navWin().location;
       try { if (loc && url && typeof loc.replace === 'function') return loc.replace(url); } catch (e) {}
       try { loc && loc.reload(); } catch (e) {}
     }

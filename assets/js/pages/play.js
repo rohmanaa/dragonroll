@@ -1,5 +1,7 @@
 /* play.js — dipindah dari blok script inline (play.html). */
 (function () {
+  /* pembungkus bersarang (play.html/root dimuat di dalam iframe pembungkus lain) = dua pemutar musik bertabrakan: keluar ke jendela paling atas */
+  if (window.top !== window) { try { window.top.location.replace(location.href); return; } catch (e) { /* lintas origin: lanjut */ } }
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
   try {
     var q = new URLSearchParams(location.search).get('go');
@@ -194,7 +196,7 @@
       var p = el.play(); if (p && p.catch) p.catch(function () {});
     } catch (e) {}
   }
-  window.UTShell = { click: playClick, syncMusic: syncMusic };   // dipakai UT.Audio di halaman (app.js)
+  window.UTShell = { click: playClick, syncMusic: syncMusic, enter: function () { wantMusic = true; syncMusic(); } };   // enter: dipanggil splash saat ketukan masuk (ketukan = gesture yang membuka izin autoplay)   // dipakai UT.Audio di halaman (app.js)
 
   /* Setelah setiap ketukan di halaman, baca ulang pengaturan (toggle Musik/Suara di Pengaturan berlaku seketika). */
   function afterTap() { setTimeout(syncMusic, 0); setTimeout(syncMusic, 120); }
@@ -249,9 +251,9 @@
       w.addEventListener('pageshow', function (e) { if (e.persisted) hideOv(); });
     } catch (e) {}
 
-    // musik: gameplay = berhenti; splash/loading = biarkan apa adanya; selain itu = bermusik
-    if (name === 'gameplay.html') { wantMusic = false; syncMusic(); }
-    else if (!SELF_LOADING.test(name)) { wantMusic = true; syncMusic(); }
+    // musik: gameplay & splash = berhenti (di splash musik baru mulai saat ketukan "masuk": UTShell.enter); halaman lain = bermusik
+    if (name === 'gameplay.html' || SELF_LOADING.test(name)) { wantMusic = false; syncMusic(); }
+    else if (!/^(play|index)\.html$/.test(name)) { wantMusic = true; syncMusic(); }
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);

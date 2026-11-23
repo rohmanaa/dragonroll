@@ -74,6 +74,7 @@ let leaving=false;
 function go(){
   if(leaving)return;leaving=true;
   try{sessionStorage.setItem("ut:booted","1");sessionStorage.setItem("ut:fadein","1")}catch(e){}
+  try{window.parent!==window&&parent.UTShell&&parent.UTShell.enter&&parent.UTShell.enter()}catch(e){} /* musik mulai dari ketukan masuk (satu pemutar milik pembungkus) */
   $("#fade").classList.add("on");
   const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   setTimeout(()=>location.replace(dest),rm?150:700);

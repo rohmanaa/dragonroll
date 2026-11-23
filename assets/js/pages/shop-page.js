@@ -85,6 +85,16 @@ UT.PageModule.define('shop', function (env) {
   }
   addEventListener('resize', fit);
   fit();
+  /* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% — sama seperti hub/pet/dadu/efek */
+  function applyPanelAlpha() {
+    try {
+      let t = parseInt(UT.Prefs.get('panelTransparency', 16), 10);
+      if (!isFinite(t)) t = 16;
+      document.documentElement.style.setProperty('--panel-a', (1 - Math.max(0, Math.min(70, t)) / 100).toFixed(2));
+    } catch (e) { /* abaikan */ }
+  }
+  applyPanelAlpha();
+  try { if (UT.Prefs && UT.Prefs.on) env.own(UT.Prefs.on(n => { if (n === 'panelTransparency') applyPanelAlpha(); })); } catch (e) { /* abaikan */ }
 
   function playSound(name) {
     if (!PD.settings().sound) return;
