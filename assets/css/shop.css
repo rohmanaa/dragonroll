@@ -291,8 +291,12 @@ button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp)
 #modal>#box>#mx{border-image:none!important;outline:0;border-radius:0!important}
 /* "Dimiliki": aset tombol gelap. Aturan lama `.plate.own{background:...}` mereset ukuran/ulang gambar (tampil ganda), jadi diset penuh di sini */
 button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
-/* latar lama Toko (shop-bg + pasar voxel) harus terlihat: overlay panel dibuat tipis */
-#pmodal::before{background:rgba(30,24,50,.22)}
+/* panel mengikuti slider Pengaturan -> Transparansi panel (--panel-a diset shop-page.js); aturan alpha tetap .22 dihapus */
+/* performa gulir: kartu item tanpa drop-shadow besar di seluruh kartu & tanpa animasi gambar terus-menerus; render kartu di luar layar ditunda */
+.card.item.fx{filter:none}
+.card.item.fx .pic img{animation:none;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+.card.item{contain:layout paint style;content-visibility:auto;contain-intrinsic-size:auto 700px 394px}
+#cards{will-change:scroll-position;transform:translateZ(0)}
 
 /* lapisan gelap modal/dialog/iklan/hadiah menutup SELURUH layar (bukan hanya kanvas 16:9): sisi kiri-kanan sama gelapnya dengan tengah.
    --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi fit() di shop-page.js); #stage overflow:visible. */
