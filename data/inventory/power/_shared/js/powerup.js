@@ -29,7 +29,7 @@ const thumb=i=>i.icon?'<img src="'+i.icon+'" alt="">':(AR&&AR.powerup?AR.powerup
 
 // ---- render
 function renderGrid(){
-  const html=LIST.map(i=>{
+  let html=LIST.map(i=>{
     const k=qty(i);
     return '<button class="fslot st-own'+(i===sel?' sel':'')+'" data-id="'+i.id+'" aria-label="'+i.name+' — stok ×'+k+', ketuk untuk lihat detail"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><span class="chip-n">'+k+'</span></button>'}).join('');
   html+='<button class="fslot add" type="button" data-add aria-label="Tambah Power-up, buka Toko"><span class="pl">+</span></button>';
