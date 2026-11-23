@@ -77,34 +77,34 @@ test('effects page keeps its back button and removes the home button', () => {
 
 test('power uses a compact icon action and concise label', () => {
   assert.ok(room.includes('<h3>POWER <button type="button" id="powerPage"'));
-  assert.ok(room.includes('id="pmT">PILIH POWER</h2>'));
+  assert.ok(room.includes('id="pmT">PILIH POWER</h3>'));
   assert.ok(!room.includes('POWER LOADOUT</h3>'));
 });
 
-test('room dice art uses the same procedural thumbnail source as the preview', () => {
-  assert.ok(room.includes('RoomDiceArt.thumb(it.gameKey,96)'));
-  const module = read('data/inventory/dice/_shared/js/room-dice-art.js');
-  assert.ok(module.includes("from '../../../../../assets/js/renderers/dice-kit/dice-catalog.js'"));
-  assert.ok(module.includes("from '../../../../../assets/js/renderers/dice-kit/dice-textures.js'"));
-  assert.ok(module.includes('diceThumbDataURL(die, px)'));
+test('room dice art memakai thumbnail .webp per dadu (sama dengan halaman Dadu), SVG ItemArt sebagai cadangan', () => {
+  assert.ok(room.includes('data/inventory/dice/${it.gameKey}/${it.gameKey}.webp'));
+  assert.ok(room.includes("ItemArt.dice('${it.id}')"), 'fallback bila gambar gagal dimuat');
+  assert.ok(!room.includes('RoomDiceArt.thumb(it.gameKey,96)'));
 });
 
 test('dadu/frame/efek: modal ringan native berisi item yang DIMILIKI saja (tanpa iframe halaman penuh)', () => {
   assert.ok(room.includes("const EQP={dice:{kind:'dice'"), 'picker dice/frame/effect');
   assert.ok(room.includes("PD.owns(i.id)"), 'hanya item yang dimiliki');
   assert.ok(room.includes("k==='skin')openPageModal('skin');else openEqPick(k)"), 'hanya karakter yang tetap membuka halaman Karakter');
-  assert.ok(/id="em"[^>]*role="dialog"/.test(room) && room.includes('id="emL"') && room.includes('id="emX"'));
+  assert.ok(/id="em"[^>]*>\s*<div class="cbx" role="dialog"/.test(room) && room.includes('id="emL"') && room.includes('id="emX"'));
   assert.ok(room.includes("PD.unequip('aura')") && room.includes('PD.equip(id)'), 'pakai/lepas lewat PlayerData');
 });
 
-test('modal Power & picker item: FULL WINDOW di luar stage, tombol close (X) kanan atas', () => {
-  assert.ok(/<div class="fw" id="pm"[^>]*role="dialog"/.test(room) && room.includes('id="pmX"'));
+test('modal Power & picker item: gaya modal Chest lobi (backdrop, bingkai-dialog, banner judul, tutup bulat), di luar stage', () => {
+  assert.ok(/<div class="cmd" id="pm"[^>]*>\s*<div class="cbx" role="dialog"/.test(room) && room.includes('id="pmX"'));
+  assert.ok(/<div class="cmd" id="em"[^>]*>\s*<div class="cbx" role="dialog"/.test(room));
   const stageEnd = room.indexOf('<div id="pageModal"');
   assert.ok(room.indexOf('id="pm"') > stageEnd && room.indexOf('id="em"') > stageEnd, 'di luar #stage yang diskalakan');
-  assert.ok(/\.fw\{position:fixed;inset:0;[^}]*background:var\(--room-backdrop\)/.test(room));
-  assert.ok(/\.fwx\{position:absolute;top:\d+px;right:\d+px/.test(room), 'close di kanan atas');
-  assert.ok(room.includes("w.style.width=innerWidth/s+'px'") && room.includes("w.style.height=innerHeight/s+'px'"), 'isi mengikuti ukuran jendela');
+  assert.ok(/\.cmd\{position:fixed;inset:0;[^}]*background:rgba\(10,8,30,\.72\)/.test(room), 'backdrop sama dengan #chestMd');
+  assert.ok(room.includes('panel-dialog/bingkai-dialog.webp') && room.includes('banner-label/banner-judul-ungu-polos.webp') && room.includes('tombol-tutup-bulat.webp'));
+  assert.ok(room.includes("setProperty('--rs',s)") && /\.cbx\{[^}]*zoom:var\(--rs/.test(room), 'kotak diskalakan lewat zoom:var(--rs)');
   assert.ok(room.includes("$('#pmX').onclick=closePowerPick") && room.includes("e.key!=='Escape'"));
+  assert.ok(room.includes("e.target.id==='pm'") && room.includes("e.target.id==='em'"), 'klik backdrop menutup');
   assert.ok(room.includes("$('#powerPage').onclick=()=>openPowerPick()"));
 });
 

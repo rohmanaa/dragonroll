@@ -56,13 +56,16 @@
   <div id="pageModalLoading" role="status" aria-label="Memuat"><img src="assets/images/ui/hud/efek-titik-berputar.webp" alt=""></div>
   <iframe id="pageModalFrame" title="Equipment" tabindex="0" allow="fullscreen; autoplay"></iframe>
 </div>
-<div class="fw" id="pm" role="dialog" aria-modal="true" aria-labelledby="pmT" aria-hidden="true"><div class="fwin">
-  <button type="button" class="fwx" id="pmX" aria-label="Tutup">✕</button>
-  <h2 class="ttl" id="pmT">PILIH POWER</h2><div class="igrid" id="pmL"></div>
-  <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:240px;height:84px"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
-<div class="fw" id="em" role="dialog" aria-modal="true" aria-labelledby="emT" aria-hidden="true"><div class="fwin">
-  <button type="button" class="fwx" id="emX" aria-label="Tutup">✕</button>
-  <h2 class="ttl" id="emT">PILIH DADU</h2><div class="igrid" id="emL"></div>
+<!-- Modal Power & pilih item (Dadu/Frame/Efek): gaya modal Chest lobi (backdrop + kotak bingkai-dialog 9-slice, banner judul, tombol tutup bulat). Di LUAR #stage; kotak diskalakan lewat zoom:var(--rs). -->
+<div class="cmd" id="pm" aria-hidden="true"><div class="cbx" role="dialog" aria-modal="true" aria-labelledby="pmT">
+  <h3 class="cmt" id="pmT">PILIH POWER</h3>
+  <button type="button" class="cmx" id="pmX" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div class="igrid" id="pmL"></div>
+  <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:220px;height:76px"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
+<div class="cmd" id="em" aria-hidden="true"><div class="cbx" role="dialog" aria-modal="true" aria-labelledby="emT">
+  <h3 class="cmt" id="emT">PILIH DADU</h3>
+  <button type="button" class="cmx" id="emX" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div class="igrid" id="emL"></div>
   <div class="mfoot"><span class="hint" id="emHint"></span></div></div></div>
 </div>
 

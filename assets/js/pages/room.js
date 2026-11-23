@@ -25,7 +25,7 @@ const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>PD.levelInfo().level; /* satu rumus dengan profil (PlayerData.levelInfo) */
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
 const S={invTab:'online',timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,mpIdentity:null,mpRoomId:null,drTab:'friends',sent:{},friends:[],reqSent:{},mpUnsub:null,gameLaunched:false};
-const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:it.kind==='dice'&&window.RoomDiceArt?`<img src="${window.RoomDiceArt.thumb(it.gameKey,96)}" alt="" draggable="false">`:ItemArt.dice(it.id);
+const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:it.kind==='dice'&&it.gameKey?`<img class="dthumb" src="data/inventory/dice/${it.gameKey}/${it.gameKey}.webp" alt="" draggable="false" decoding="async" onerror="this.onerror=null;this.outerHTML=window.ItemArt?ItemArt.dice('${it.id}'):''">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null}
 /* ---------- navigasi ---------- */
 const unsub=()=>{const u=S.mpUnsub;S.mpUnsub=null;if(u){try{u()}catch(e){}}};
@@ -121,7 +121,7 @@ env.on($('#pageModalFrame'),'load',()=>{const modal=$('#pageModal');if(!modal.cl
 const EQP={dice:{kind:'dice',title:'PILIH DADU',none:false},frame:{kind:'frame',title:'PILIH FRAME',none:false},effect:{kind:'aura',title:'PILIH EFEK',none:true}};
 const eqArt=it=>it.kind==='aura'?ItemArt.aura(it.id):art(it);
 let eqPick=null,fwTrigger=null;
-const fwOpen=(id,focus)=>{const m=$(id);fwTrigger=document.activeElement;m.classList.add('on');m.setAttribute('aria-hidden','false');fit();const f=m.querySelector(focus||'.fwx');if(f)f.focus()};
+const fwOpen=(id,focus)=>{const m=$(id);fwTrigger=document.activeElement;m.classList.add('on');m.setAttribute('aria-hidden','false');fit();const f=m.querySelector(focus||'.cmx');if(f)f.focus()};
 const fwClose=id=>{const m=$(id);m.classList.remove('on');m.setAttribute('aria-hidden','true');if(fwTrigger&&fwTrigger.isConnected)fwTrigger.focus();fwTrigger=null};
 function renderEqPick(){
   const c=EQP[eqPick];if(!c)return;
@@ -138,12 +138,11 @@ $('#emL').onclick=e=>{
   if(r&&r.ok){const it=IC.byId(id);toast(id==='__none'?'Efek dilepas':(it?it.name:'Item')+' dipakai')}else toast('Gagal memakai item.');
   renderEqPick();renderEq();
 };
-$('#emX').onclick=closeEqPick;
+$('#emX').onclick=closeEqPick;$('#em').onclick=e=>{if(e.target.id==='em')closeEqPick()};
 $('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;if(k==='skin')openPageModal('skin');else openEqPick(k)};
 $('#powerPage').onclick=()=>openPowerPick();
 $('#power').onclick=e=>{if(!e.target.closest('#prow, #powerPage'))openPowerPick()};
 addEventListener('message',e=>{if(e.source===$('#pageModalFrame').contentWindow&&e.data&&e.data.type==='ut-room-modal-close')closePageModal()});
-addEventListener('room-dice-art-ready',renderEq);
 /* ---------- POWER LOADOUT (koleksi permanen, pilih maks. 5 jenis) ---------- */
 const POWERS=IC.items.filter(i=>i.kind==='powerup'&&!i.off),PK='roomPowers'; /* off:true = takedown sementara */
 const TMAX=IC.POWER_TYPES_MAX||5,CMAX=IC.POWER_CARRY_MAX||3; /* maks. jenis per match; maks. unit per jenis yang DIBAWA */
@@ -219,7 +218,7 @@ $('#pmL').onclick=e=>{
 };
 $('#pmL').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pc[data-id]')){e.preventDefault();e.target.click()}};
 $('#pdone').onclick=()=>{if(!powerDraft)return;PW.equipped=powerDraft.equipped;PW.carry=powerDraft.carry;saveP();closePowerPick();renderPower()};
-$('#pmX').onclick=closePowerPick; /* tutup tanpa menyimpan (SELESAI = simpan) */
+$('#pmX').onclick=closePowerPick;$('#pm').onclick=e=>{if(e.target.id==='pm')closePowerPick()}; /* tutup tanpa menyimpan (SELESAI = simpan) */
 addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#pageModal').classList.contains('on'))return;if($('#em').classList.contains('on'))closeEqPick();else if($('#pm').classList.contains('on'))closePowerPick()});
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/assets/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
@@ -381,8 +380,7 @@ if(ONLINE){
  if(UT.Multiplayer&&UT.Multiplayer.RoomService)start();
  else import('../multiplayer/room-service.js').then(()=>import('../multiplayer/presence.js')).then(start,start);
 }
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';
- document.querySelectorAll('.fwin').forEach(w=>{w.style.width=innerWidth/s+'px';w.style.height=innerHeight/s+'px';w.style.transform='scale('+s+')'})} /* modal full-window: isi diskalakan seperti stage tapi mengisi seluruh jendela */
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+s+')';document.documentElement.style.setProperty('--rs',s)} /* --rs = skala stage, dipakai zoom kotak modal (.cbx) seperti --ls di lobi */
 addEventListener('resize',fit);fit();
 /* ---------- Hati: sisa hati + hitung mundur isi ulang di kanan atas (server: UT.HeartsService; tamu/lokal = chip disembunyikan) ---------- */
 (function(){const H=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get(),el=$('#hrt');if(!H||!el)return;

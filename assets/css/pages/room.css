@@ -41,7 +41,6 @@
 .pst{display:flex;align-items:center;justify-content:center;gap:6px}.pst b{min-width:34px;font-size:18px}
 .pst button{width:30px;height:30px;border-radius:8px;background:linear-gradient(#ffb02e,#e07a10);box-shadow:0 3px 0 #7a3d08;font:800 20px/1 var(--font-body)}
 .pst button:disabled{opacity:.45;cursor:not-allowed}
-#pm .mfoot .hint{flex:1}
 #power.dis .ps{pointer-events:none}
 #pageModal{position:fixed;inset:0;z-index:100;display:none;background:var(--room-backdrop)}
 #pageModal.on{display:block}
@@ -69,14 +68,21 @@ button.pl.empty{width:100%;cursor:pointer;font:400 30px var(--font-title);color:
 .fr .btn.inv{flex:none}.fr .btn.inv:disabled{filter:grayscale(1) brightness(.7)}
 #dr{display:none}.dro #dr{display:grid}
 #dr .box{width:900px}#dr .fl{max-height:520px}
-/* modal FULL WINDOW (Power & pilih item milik pemain): di luar #stage supaya memenuhi seluruh jendela; isi diskalakan seperti stage (fit() di room.js) */
-.fw{position:fixed;inset:0;z-index:90;display:none;background:var(--room-backdrop)}
-.fw.on{display:block}
-.fwin{position:absolute;left:0;top:0;transform-origin:0 0;display:flex;flex-direction:column;box-sizing:border-box;padding:34px 56px 30px}
-.fwin h2{margin:0 0 22px;font-size:56px;text-align:center}
-.fwx{position:absolute;top:24px;right:32px;z-index:2;width:88px;height:88px;border-radius:24px;font:400 56px/1 var(--font-title);color:#fff;background:linear-gradient(#ff6b6b,#d83a3a);border:4px solid #7a1d1d;box-shadow:0 6px 0 #5c1313;cursor:pointer}
-.fwx:active{transform:translateY(4px);box-shadow:0 2px 0 #5c1313}
-.fw .igrid{flex:1;min-height:0;max-height:none;overflow:auto;align-content:start;gap:20px;padding:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.fw .mfoot{justify-content:space-between}.fw .mfoot .hint{flex:1;text-align:left}
-.fw .igrid .empty{grid-column:1/-1;text-align:center;font-weight:800;font-size:28px;color:#ddd7f7;padding:60px 0}
-.fw .it{cursor:pointer;color:#fff}
+/* modal Power & pilih item (Dadu/Frame/Efek): meniru modal Chest lobi (lobby.css #chestMd/#cbox) — backdrop gelap, kotak bingkai-dialog.webp 9-slice, banner judul ungu, tombol tutup bulat.
+   Di luar #stage; fit() di room.js mengisi --rs (skala stage) untuk zoom kotak. */
+.cmd{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:rgba(10,8,30,.72)}
+.cmd.on{display:flex}
+.cbx{position:relative;width:1240px;max-width:none;padding:104px 56px 44px;color:#fff;isolation:isolate;zoom:var(--rs,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both}
+.cbx::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.cmt{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 72px;line-height:70px;white-space:nowrap;font:400 40px/70px var(--font-title);
+  background:url(../../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(20,5,70,.7)}
+.cmx{position:absolute;right:-14px;top:-14px;width:84px;height:84px;padding:0;border:0;background:none;cursor:pointer;z-index:2}
+.cmx img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.cmx:hover{filter:brightness(1.12)}.cmx:active{transform:scale(.92)}
+.cbx .igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;max-height:540px;overflow-y:auto;overflow-x:hidden;align-content:start;padding:8px;overscroll-behavior:contain;scrollbar-width:thin}
+.cbx .mfoot{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:22px}
+.cbx .mfoot .hint{flex:1;text-align:left;font:400 24px/1.2 var(--font-title);opacity:.85}
+.cbx .igrid .empty{grid-column:1/-1;text-align:center;font:400 30px/1.3 var(--font-title);opacity:.8;padding:60px 0}
+.cbx .it{cursor:pointer;color:#fff}
+@keyframes cmIn{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cbx{animation:none}}
