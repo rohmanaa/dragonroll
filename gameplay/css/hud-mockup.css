@@ -106,7 +106,6 @@
   background: linear-gradient(#6cb7ff, #2f67c7) !important;
   font: 32px var(--gh-title) !important;
 }
-.tm-bt .tm-y { background: linear-gradient(#78e36b, #2f9f3d) !important; }
 
 .lm-ov {
   --mu: 9px !important;
@@ -1205,6 +1204,7 @@ html body #puCard.pucard.mob-hit {
   box-shadow: none !important;
   font: 30px var(--gh-title) !important;
 }
+.tm-bt .tm-y { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") !important; }   /* aset gambar (bukan gradasi CSS); menang atas .tm-bt button */
 .tm-bt .tm-n { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
 
 #readyScreen {

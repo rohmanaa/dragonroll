@@ -2,24 +2,25 @@
    Strategi: SEMUA aset (HTML/JS/CSS/JSON + gambar/font/suara + library cdnjs/fonts) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang,
    jadi pindah halaman tidak menunggu jaringan. Lewat jaringan hanya bila belum ada di cache (disimpan, dan diambil dengan revalidasi supaya tidak basi).
    PEMBARUAN: ganti/tambah aset => naikkan VERSION. SW baru memasang cache sendiri lalu MENUNGGU; baru aktif (cache lama dibuang) setelah
-   semua tab/aplikasi ditutup dan dibuka lagi (tanpa skipWaiting) -> pembaruan berlaku setelah restart aplikasi, tanpa campur versi di tengah sesi.
+   semua tab/aplikasi ditutup dan dibuka lagi, ATAU pemain menekan "Mulai ulang" di modal Unduh Data Lobby (pesan SKIP_WAITING; skipWaiting tidak
+   pernah dipanggil otomatis) -> pembaruan berlaku setelah restart, tanpa campur versi di tengah sesi.
    UPDATE INKREMENTAL: kode (HTML/JS/CSS/JSON) ada di cache ber-versi (kecil, dibuang tiap versi baru); MEDIA (gambar/suara/font + library luar) ada di
    cache PERMANEN MEDIA_CACHE yang TIDAK dibuang saat VERSION naik. Saat aktivasi, assets/media-hash.json (dibuat tools/gen-preload-manifest.py) dibandingkan
    dengan indeks yang tersimpan: hanya media yang hash-nya berubah/dihapus yang dibuang dari cache dan diunduh ulang. Cache ber-versi lama (sebelum skema ini)
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v304';
+const VERSION = 'ut-pwa-v432';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
-const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/splash.js', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
+const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/pages/gameplay-loading.js', 'assets/css/pages/gameplay-loading.css', 'assets/js/pages/splash.js', 'assets/js/systems/game-dialog.js', 'assets/js/systems/update-service.js', 'assets/css/components/game-dialog.css', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png'];
 const CODE = /\.(html|js|css|json|webmanifest)$/i;
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => {}));
+  e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: 'reload' })).catch(() => {}) /* lewati cache HTTP: SW baru harus memegang kode terbaru */))).then(() => {}));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(syncMedia().catch(() => {}).then(() => caches.keys()).then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== MEDIA_CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -70,6 +71,16 @@ async function blobHash(buf) {
   const d = new Uint8Array(await crypto.subtle.digest('SHA-1', all));
   return Array.from(d, b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
 }
+/* Versi game untuk halaman (assets/js/core/app-version.js): jawab {type:'GET_VERSION'} dengan VERSION di atas. Satu-satunya sumber versi. */
+self.addEventListener('message', e => {
+  /* Satu-satunya jalan skipWaiting: pemain menekan "Mulai ulang" di modal Unduh Data (assets/js/systems/update-service.js). */
+  if (e.data && e.data.type === 'SKIP_WAITING') { self.skipWaiting(); return; }
+  if (!e.data || e.data.type !== 'GET_VERSION') return;
+  const reply = { type: 'VERSION', version: VERSION };
+  if (e.ports && e.ports[0]) e.ports[0].postMessage(reply);
+  else if (e.source) e.source.postMessage(reply);
+});
+
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET') return;
@@ -77,6 +88,7 @@ self.addEventListener('fetch', e => {
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
   const same = u.origin === self.location.origin;
   if (!same && !EXTRA_HOSTS.includes(u.hostname)) return;
+  if (same && r.headers.has('x-ut-fresh')) return; /* cek/unduh pembaruan dari halaman: selalu ke jaringan, jangan dari cache */
   if (same && MEDIA.test(u.pathname)) {
     const range = r.headers.get('range');
     e.respondWith(caches.open(MEDIA_CACHE).then(async c => {

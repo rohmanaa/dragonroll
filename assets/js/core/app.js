@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'inventory', 'hadiahmisi', 'chest', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'frame', 'dadu', 'efek', 'powerup', 'pet', 'inventory', 'hadiahmisi', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi', 'mail', 'room', 'settings', 'karakter', 'tambang'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };
@@ -230,8 +230,8 @@ window.UT = window.UT || {};
     if (UT.App.ready) return UT.App; /* idempoten: tidak membuat ulang sistem */
     UT.App.options = options;
     UT.App.page = options.page || null;
-    /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html & mode.html memulainya sendiri) */
-    if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','chest','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail'].indexOf(UT.App.page) >= 0) {
+    /* pemain online: halaman menu ikut tampil di daftar online (hanya bila sudah punya sesi; room.html memulainya sendiri. mode.html juga memulainya sendiri saat mandiri, tetapi di shell SPA blok module inline-nya tidak dijalankan, jadi 'mode' ada di daftar ini; start() idempoten) */
+    if (['lobby','shop','frame','dadu','efek','powerup','pet','hadiahmisi','karakter','profile','misi','friendship','leaderboard','dailyreward','tambang','mail','mode'].indexOf(UT.App.page) >= 0) {
       /* ditunda ke saat idle: import presence (+ supabase-js ±224 KB) tidak berebut main thread dengan render pertama halaman */
       var startPresence = function () { try { import('../multiplayer/presence.js').then(function () { win.UT.Multiplayer.Presence.start({ status: 'lobby', requireSession: true }); }).catch(function () {}); } catch (e) {} };
       if (win.requestIdleCallback) win.requestIdleCallback(startPresence, { timeout: 2500 }); else win.setTimeout(startPresence, 1200);

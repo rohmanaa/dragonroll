@@ -39,6 +39,8 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 - `assets/js/renderers/` — `dice-kit/` untuk dadu dan `power-3d/` untuk efek Power 3D; dahulu `power3d/`.
 - `assets/js/services/` — layanan aplikasi dan integrasi data.
 - `assets/js/systems/` — sistem UI dan gameplay bersama.
+- `assets/js/systems/game-dialog.js` + `assets/css/components/game-dialog.css` — dialog bergaya game (bingkai, header, X bulat, tombol polos) yang dipakai bersama; modal Unduh Data dan Ketentuan Layanan memakainya.
+- `assets/js/systems/update-service.js` — cek/unduh/restart pembaruan dengan konfirmasi pemain (hanya dari Lobby); `assets/js/services/tos-service.js` — persetujuan Ketentuan Layanan/Privasi (server untuk akun, localStorage untuk tamu); halaman isinya `tos.html`.
 - `assets/js/vendor/` — pustaka pihak ketiga; `three-addons/` berisi add-on Three.js, nama upstream dipertahankan.
 
 ## data/

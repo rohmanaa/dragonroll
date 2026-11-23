@@ -24,7 +24,9 @@ export function detectQuality() {
 export class DiceRenderer {
   /**
    * @param {HTMLElement} container  elemen tempat canvas ditambahkan
-   * @param {{diceId?: string, quality?: 'auto'|'low'|'medium'|'high', rng?: Function, onResult?: Function, sound?: boolean}} opts
+   * @param {{diceId?: string, quality?: 'auto'|'low'|'medium'|'high', rng?: Function, onResult?: Function, sound?: boolean, sharedGL?: string}} opts
+   *   sharedGL = nama pemilik (mis. 'inv-dadu'): renderer + kanvas dipinjam dari UT.SharedGL (satu per sesi) dan dilepas di dispose().
+   *   Tanpa opsi ini (gameplay.html — dibekukan, bisa punya beberapa instance sekaligus) renderer dibuat sendiri seperti semula.
    */
   constructor(container, opts = {}) {
     this.container = container;
@@ -35,7 +37,10 @@ export class DiceRenderer {
     this.dieScale = Math.max(0.5, Math.min(3, +opts.dieScale || 1));
     this.opt = { pad: !!opts.pad, transparent: !!opts.transparent, arena: opts.arena !== false, bounds: opts.bounds || null, idleZ: opts.idleZ, camScale: opts.camScale || 1, drop: !!opts.drop, lookY: opts.lookY ?? 0.2 };
 
-    const renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
+    const SGL = opts.sharedGL && globalThis.UT && globalThis.UT.SharedGL;
+    let renderer;
+    if (SGL) { renderer = SGL.acquire(String(opts.sharedGL), { shadows: true }).renderer; this._glOwner = String(opts.sharedGL); }
+    else renderer = new THREE.WebGLRenderer({ antialias: this.q.antialias, alpha: this.opt.transparent, powerPreference: 'high-performance' });
     if (this.opt.transparent) renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(this._pr());
     renderer.shadowMap.enabled = true;
@@ -307,7 +312,7 @@ export class DiceRenderer {
     this.arena.forEach((m) => m.geometry.dispose());
     this._padTex?.forEach((t) => t.dispose());
     this.envTex.dispose();
-    this.renderer.dispose();
-    this.renderer.domElement.remove();
+    if (this._glOwner) { globalThis.UT.SharedGL.release(this._glOwner); this._glOwner = null; }   // renderer bersama: dilepas, TIDAK di-dispose
+    else { this.renderer.dispose(); this.renderer.domElement.remove(); }
   }
 }

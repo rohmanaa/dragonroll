@@ -10,7 +10,11 @@ UT.PageModule.define('shop', function (env) {
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
   const IC = 'assets/images/ui/';
-  const TABS = ['chest', 'coin', 'emerald', 'history'];
+  const TABS = ['set', 'frame', 'power', 'chest', 'coin', 'emerald'];
+  /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
+  const KIND = { skin: 'skin', frame: 'frame', power: 'powerup' };
+  const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
+  const EYE = `<img src="${IC}white-glyphs/mata.webp" alt="">`;
   const PACKS = [
     { coins: 500, gems: 10, name: 'Koin Kecil', image: 'gold-koin-sedikit.webp', color: '#ffd04a' },
     { coins: 2000, gems: 40, name: 'Tumpukan Koin', image: 'gold-tumpukan.webp', color: '#ffb02a' },
@@ -27,6 +31,7 @@ UT.PageModule.define('shop', function (env) {
     'gem-kurang': 'Emerald tidak cukup.',
     penuh: 'Penyimpanan chest penuh (10/10). Ambil chest dulu.',
     'sudah-dimiliki': 'Item sudah dimiliki.',
+    'terlalu-banyak': 'Set terlalu besar.',
     'tidak-tersedia': 'Item tidak tersedia.',
     'mode-lokal': 'Toko hanya tersedia setelah login.',
     jaringan: 'Tidak dapat terhubung ke server.',
@@ -66,16 +71,30 @@ UT.PageModule.define('shop', function (env) {
 
   let tab = query.has('emerald') || query.get('tab') === 'gem' ? 'emerald'
     : query.has('coin') || query.get('tab') === 'coin' ? 'coin'
-      : TABS.includes(query.get('tab')) ? query.get('tab') : 'chest';
+      : TABS.includes(query.get('tab')) ? query.get('tab') : 'set';
   let busy = false;
   let modalTimer = 0;
   let mOpen = false;
 
   function fit() {
-    $('#stage').style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`;
+    /* skala kanvas 1920x1080 + sisa layar di luar kanvas (--hub-ex/--hub-ey): bingkai & latar #pmodal penuh sampai tepi layar (sama dengan pet.html) */
+    const k = Math.min(innerWidth / 1920, innerHeight / 1080) || 1, st = $('#stage');
+    st.style.transform = `scale(${k})`;
+    st.style.setProperty('--hub-ex', Math.max(0, (innerWidth / k - 1920) / 2).toFixed(1) + 'px');
+    st.style.setProperty('--hub-ey', Math.max(0, (innerHeight / k - 1080) / 2).toFixed(1) + 'px');
   }
   addEventListener('resize', fit);
   fit();
+  /* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'): 0% pekat .. 70%; bawaan 16% — sama seperti hub/pet/dadu/efek */
+  function applyPanelAlpha() {
+    try {
+      let t = parseInt(UT.Prefs.get('panelTransparency', 16), 10);
+      if (!isFinite(t)) t = 16;
+      document.documentElement.style.setProperty('--panel-a', (1 - Math.max(0, Math.min(70, t)) / 100).toFixed(2));
+    } catch (e) { /* abaikan */ }
+  }
+  applyPanelAlpha();
+  try { if (UT.Prefs && UT.Prefs.on) env.own(UT.Prefs.on(n => { if (n === 'panelTransparency') applyPanelAlpha(); })); } catch (e) { /* abaikan */ }
 
   function playSound(name) {
     if (!PD.settings().sound) return;
@@ -137,7 +156,7 @@ UT.PageModule.define('shop', function (env) {
     return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
-      <div class="amt sm"><small>Langsung dibuka · hadiah acak</small></div>
+      <div class="amt sm"><small>Langsung dibuka · bisa dapat Power</small></div>
       <button class="btn buy" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
         <img src="${IC}buttons-and-controls/${chest.gems ? 'tombol-biru-polos' : 'tombol-hijau-polos'}.webp" alt="">
         <span><img src="${IC}${chest.gems ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt(chest.gems || chest.coins)}</span>
@@ -164,12 +183,208 @@ UT.PageModule.define('shop', function (env) {
     </section>`;
   }
 
+  /* ----- tab item katalog: kartu panjang bergulir ke samping, tanpa tombol beli (pelat harga = area ketuk) ----- */
+  const IC_ = () => window.ItemCatalog;
+  function shopItems(key) {
+    const C = IC_();
+    if (!C) return [];
+    return C.items.filter(it => it.kind === KIND[key] && !it.off && C.cost(it))
+      .sort((a, b) => (C.RARITY[a.rarity] ? C.RARITY[a.rarity].rank : 0) - (C.RARITY[b.rarity] ? C.RARITY[b.rarity].rank : 0) || (a.price || 0) - (b.price || 0));
+  }
+  function artOf(it) {
+    try {
+      const real = window.UT && UT.ShopPreview ? UT.ShopPreview.diceThumb(it) : '';
+      return real || (window.ItemArt ? ItemArt.forItem(it.id) : '');
+    } catch (e) { return ''; }
+  }
+  /* preview hidup di modal (3D/animasi); dibuang saat modal ditutup/diganti */
+  let pvStop = null;
+  function stopPreview() { if (pvStop) { try { pvStop(); } catch (e) {} pvStop = null; } }
+  function startPreview(it) {
+    stopPreview();
+    const host = $('#mb .pvh');
+    if (host && window.UT && UT.ShopPreview) pvStop = UT.ShopPreview.mount(host, it);
+  }
+  env.own(stopPreview);
+  function priceHtml(it, qty) {
+    const cost = IC_().cost(it);
+    const gem = cost.gems != null;
+    return `${fmt((gem ? cost.gems : cost.coins) * (qty || 1))}<img src="${IC}${gem ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">`;
+  }
+  function renderItems(key) {
+    const list = shopItems(key);
+    if (!list.length) return '<div class="hempty">Belum ada item untuk dijual.</div>';
+    return list.map(it => {
+      const art = it.kind === 'frame' && it.image ? `<img class="setimg" src="${escapeHtml(it.image)}" alt="" draggable="false" decoding="async">` : artOf(it); /* kartu Set/Frame = foto statis; preview hidup hanya di modal */
+      const power = it.kind === 'powerup';
+      const owned = !power && PD.owns(it.id);
+      const qty = power ? PD.qty(it.id) : 0;
+      return `<div class="card item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
+        <div class="nm">${escapeHtml(it.name)}</div>
+        <div class="pic"><i class="glow"></i><div class="art">${art}</div></div>
+        ${qty > 0 ? `<span class="chip" aria-label="Dimiliki ${qty}">×${qty}</span>` : ''}
+        ${art ? `<button class="eye" type="button" data-pv="${escapeHtml(it.id)}" aria-label="Lihat ${escapeHtml(it.name)}">${EYE}</button>` : ''}
+        <button class="plate${owned ? ' own' : ''}" type="button" data-buy="${escapeHtml(it.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Sudah dimiliki' : 'Beli ' + escapeHtml(it.name)}">
+          ${owned ? 'Dimiliki' : priceHtml(it)}
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  function preview(id) {
+    const it = IC_().byId(id);
+    if (!it) return;
+    const rar = IC_().RARITY[it.rarity];
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
+      ${rar ? `<div class="rar" style="color:${RCOL[it.rarity] || RCOL.common}">${escapeHtml(rar.label)}</div>` : ''}
+      <p class="ds">${escapeHtml(it.desc || '')}</p>`, () => startPreview(it));
+  }
+
+  function confirmBuy(id) {
+    const it = IC_().byId(id);
+    if (!it || busy) return;
+    const power = it.kind === 'powerup';
+    let qty = 1;
+    openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv sm" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
+      <p>${escapeHtml(it.desc || '')}</p>
+      ${power ? '<div class="qty"><button type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
+      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
+      startPreview(it);
+      const sync = () => {
+        if (power) $('#q-n').textContent = qty;
+        $('#m-pr').innerHTML = priceHtml(it, qty);
+      };
+      if (power) {
+        $('#q-dn').addEventListener('click', () => { qty = Math.max(1, qty - 1); sync(); });
+        $('#q-up').addEventListener('click', () => { qty = Math.min(99, qty + 1); sync(); });
+      }
+      $('#m-no').addEventListener('click', closeModal);
+      $('#m-ok').addEventListener('click', () => buyItem(it, qty));
+    });
+  }
+
+  async function buyItem(it, qty) {
+    if (busy) return;
+    if (!SV() || !WS()) { toast(WMSG['mode-lokal']); playSound('error'); return; }
+    busy = true;
+    try {
+      const power = it.kind === 'powerup';
+      const result = power ? await WS().buyPowerup(it.id, qty) : await WS().buy(it.id);
+      if (env.disposed) return;
+      if (!result || !result.ok) {
+        toast(WMSG[result && result.reason] || 'Transaksi gagal.');
+        playSound('error');
+        if (result && result.reason === 'gem-kurang') setTimeout(gemShop, 300);
+        return;
+      }
+      closeModal();
+      renderCurrency();
+      pulse(IC_().cost(it).gems != null ? '#cur-em' : '#cur-co');
+      playSound('coin');
+      buzz();
+      toast('Berhasil dibeli!');
+      const keep = $('#cards').scrollLeft;
+      render();
+      $('#cards').scrollLeft = keep;
+    } finally {
+      busy = false;
+    }
+  }
+
+  /* ----- tab Set: paket gear siap pakai (data bersama dengan Karakter: character-sets.js). Harga = total item yang BELUM dimiliki;
+     transaksi atomik lewat WalletService.buySet (RPC buy_set): semua item masuk atau tidak sama sekali ----- */
+  /* ikon WebP per set (assets/images/ui/item-icons); set tanpa entri memakai helm-ksatria */
+  const SET_ICON = { citizen: 'toko', knight: 'helm-ksatria', mage: 'ramuan-ungu', farmer: 'ramuan-hijau', explorer: 'sepatu-sayap', noble: 'panji-pedang', princess: 'mahkota', fairy: 'helm-sayap' };
+  const SET_SLOTS = ['top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'];
+  function setGender() {
+    try { const a = PD.appearance && PD.appearance(); return a && a.look && a.look.gender === 'f' ? 'f' : 'm'; } catch (e) { return 'm'; }
+  }
+  function setParts(p) {
+    const C = IC_(), out = [];
+    const add = id => { const ci = C.byId(id); if (ci) out.push(ci); };
+    SET_SLOTS.forEach(k => { const o = p.set[k]; if (o && o.id !== 'none') add('gear.' + k + '.' + o.id); });
+    ['eyes', 'hair'].forEach(k => { const o = p.set[k]; if (o) add('gear.' + k + '.' + o.id); });
+    (p.set.accessories || []).forEach(a => add('gear.acc.' + a.id));
+    return out;
+  }
+  function setList() {
+    const S = window.UT && UT.CharacterSets;
+    if (!S || !IC_()) return [];
+    return (setGender() === 'f' ? S.female : S.male).map(p => {
+      const parts = setParts(p);
+      const miss = parts.filter(ci => !PD.owns(ci.id));
+      const full = parts.reduce((a, ci) => a + (ci.price > 0 ? ci.price : 0), 0);
+      return {
+        p, parts, miss, full,
+        total: miss.reduce((a, ci) => a + (ci.price > 0 ? ci.price : 0), 0),
+        sellable: miss.every(ci => ci.price > 0 && ci.source === 'shop')
+      };
+    }).filter(s => s.full > 0 && (s.miss.length === 0 || s.sellable)).sort((a, b) => a.full - b.full);
+  }
+  function renderSets() {
+    const list = setList();
+    if (!list.length) return '<div class="hempty">Belum ada set untuk dijual.</div>';
+    return list.map(s => {
+      const owned = s.miss.length === 0;
+      const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
+      return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
+        <div class="nm">${name}</div>
+        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="data/frame/karakter/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
+        <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
+        <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
+          ${owned ? 'Dimiliki' : `${fmt(s.total)}<img src="${IC}hud/ikon-koin-emas.webp" alt="">`}
+        </button>
+      </div>`;
+    }).join('');
+  }
+  function confirmBuySet(id) {
+    const s = setList().find(x => x.p.id === id);
+    if (!s || !s.miss.length || busy) return;
+    const name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
+    const coin = `<img src="${IC}hud/ikon-koin-emas.webp" alt="">`;
+    const rows = s.miss.map(ci => `<div class="srow"><span>${escapeHtml(ci.name)}</span><span>${coin}${fmt(ci.price)}</span></div>`).join('');
+    openModal(`<h2>Beli Set ${name}?</h2>
+      <div class="slist">${rows}</div>
+      <p>Bagian yang sudah kamu miliki tidak ditagih. Pakai set-nya di menu Karakter.</p>
+      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>${fmt(s.total)}${coin}</span></button></div>`, () => {
+      $('#m-no').addEventListener('click', closeModal);
+      $('#m-ok').addEventListener('click', () => buySetNow(s));
+    });
+  }
+  async function buySetNow(s) {
+    if (busy) return;
+    if (!SV() || !WS()) { toast(WMSG['mode-lokal']); playSound('error'); return; }
+    busy = true;
+    try {
+      const result = await WS().buySet(s.miss.map(ci => ci.id));
+      if (env.disposed) return;
+      if (!result || !result.ok) {
+        toast(WMSG[result && result.reason] || 'Transaksi gagal.');
+        playSound('error');
+        return;
+      }
+      closeModal();
+      renderCurrency();
+      pulse('#cur-co');
+      playSound('coin');
+      buzz();
+      toast('Set berhasil dibeli!');
+      const keep = $('#cards').scrollLeft;
+      render();
+      $('#cards').scrollLeft = keep;
+    } finally {
+      busy = false;
+    }
+  }
+
   function render() {
     if (env.disposed) return;
     renderTabs();
     const cards = $('#cards');
     cards.classList.toggle('history-view', tab === 'history');
-    cards.innerHTML = tab === 'coin' ? renderCoin()
+    cards.innerHTML = KIND[tab] ? renderItems(tab)
+      : tab === 'set' ? renderSets()
+      : tab === 'coin' ? renderCoin()
       : tab === 'emerald' ? renderEmerald()
         : tab === 'history' ? renderHistory()
           : renderChest();
@@ -229,6 +444,7 @@ UT.PageModule.define('shop', function (env) {
   function openModal(html, init) {
     if (env.disposed) return;
     clearTimeout(modalTimer);
+    stopPreview();
     $('#mb').innerHTML = html;
     const heading = $('#mb h2');
     if (heading) heading.id = 'modal-title';
@@ -242,6 +458,7 @@ UT.PageModule.define('shop', function (env) {
   function closeModal() {
     if (!mOpen) return;
     mOpen = false;
+    stopPreview();
     modal.classList.add('closing');
     modal.classList.remove('show');
     clearTimeout(modalTimer);
@@ -281,6 +498,13 @@ UT.PageModule.define('shop', function (env) {
   }
 
   /* Chest yang dibeli langsung terbuka: peti bergoyang sebentar, lalu hadiah dari server tampil. */
+  /* Power hadiah (id item dari server): nama dari ItemCatalog, ikon bila ada. */
+  function powerRow(id) {
+    if (!id) return '';
+    const it = window.ItemCatalog && ItemCatalog.byId(id);
+    return `<div class="cr-rw pw">${it && it.icon ? `<img src="${escapeHtml(it.icon)}" alt="">` : ''}Power: ${escapeHtml(it ? it.name : id)} ×1</div>`;
+  }
+
   function revealChest(chest, r) {
     const img = `<img class="cr-img" src="${IC}${chest.image}" alt="">`;
     openModal(`<h2>Membuka ${escapeHtml(chest.name)}…</h2><div class="cr">${img}</div>`);
@@ -290,7 +514,8 @@ UT.PageModule.define('shop', function (env) {
       $('#mb').innerHTML = `<h2>${escapeHtml(chest.name)}</h2><div class="cr done">${img}</div>`
         + row('hud/ikon-koin-emas', `+${fmt(r.coins)} Coin`)
         + (r.gems > 0 ? row('gem-medal-icons/berlian-hijau', `+${fmt(r.gems)} Emerald`) : '')
-        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '');
+        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '')
+        + powerRow(r.power);
       const heading = $('#mb h2');
       if (heading) heading.id = 'modal-title';
       renderCurrency();
@@ -332,12 +557,79 @@ UT.PageModule.define('shop', function (env) {
     const button = event.target.closest('.tabb');
     if (button) setTab(button.dataset.k);
   });
+  /* geser baris kartu (tab Set / Frame / Power / Chest): roda mouse (vertikal/horizontal) -> ke samping; seret mouse / jari / pena + momentum.
+     Kanvas 1920x1080 diskalakan (transform): 1px layar = 1/k px scrollLeft, k dari ukuran tampil #cards. Daftar vertikal (#histlist, .slist)
+     dan tampilan riwayat dibiarkan memakai gulir bawaannya. Ketukan biasa tetap = klik kartu; seretan tidak dianggap klik. */
+  (function () {
+    const g = $('#cards');
+    if (!g) return;
+    const scale = () => { const w = g.offsetWidth, r = g.getBoundingClientRect(); return w && r.width ? r.width / w : 1; };
+    const vertical = target => !!(target && target.closest && target.closest('#histlist, .slist'));
+    let drag = null, dragged = false, fling = 0, raf = 0;
+    const stopFling = () => { fling = 0; if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+    g.addEventListener('wheel', event => {
+      if (g.classList.contains('history-view') || vertical(event.target) || g.scrollWidth <= g.clientWidth) return;
+      const d = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (!d) return;
+      event.preventDefault();
+      stopFling();
+      g.scrollLeft += d * (event.deltaMode === 1 ? 32 : 1) / scale();
+    }, { passive: false });
+    g.addEventListener('pointerdown', event => {
+      if ((event.pointerType === 'mouse' && event.button !== 0) || g.classList.contains('history-view') || vertical(event.target)) return;
+      if (g.scrollWidth <= g.clientWidth) return;
+      stopFling();
+      drag = { id: event.pointerId, x: event.clientX, left: g.scrollLeft, moving: false, lx: event.clientX, lt: performance.now(), v: 0 };
+    });
+    g.addEventListener('pointermove', event => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const k = scale(), dx = (event.clientX - drag.x) / k;
+      if (!drag.moving) {
+        if (Math.abs(dx) < 6) return;
+        drag.moving = true;
+        g.classList.add('drag');
+        try { g.setPointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+      }
+      const now = performance.now(), dt = Math.max(1, now - drag.lt);
+      drag.v = .8 * drag.v + .2 * ((drag.lx - event.clientX) / k / dt * 16); /* px scrollLeft per frame (16 ms) */
+      drag.lx = event.clientX; drag.lt = now;
+      g.scrollLeft = drag.left - dx;
+    });
+    function endDrag(event) {
+      if (!drag || event.pointerId !== drag.id) return;
+      if (drag.moving) {
+        dragged = true;
+        setTimeout(() => { dragged = false; }, 0);
+        try { g.releasePointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+        if (event.type === 'pointerup' && performance.now() - drag.lt < 80 && Math.abs(drag.v) > 1) { /* lepas sambil bergerak = momentum */
+          fling = drag.v;
+          const step = () => { fling *= .95; g.scrollLeft += fling; if (Math.abs(fling) > .4 && !env.disposed) raf = requestAnimationFrame(step); else raf = 0; };
+          raf = requestAnimationFrame(step);
+        }
+      }
+      g.classList.remove('drag');
+      drag = null;
+    }
+    g.addEventListener('pointerup', endDrag);
+    g.addEventListener('pointercancel', endDrag);
+    g.addEventListener('dragstart', event => event.preventDefault());
+    g.addEventListener('click', event => { if (!dragged) return; event.stopPropagation(); event.preventDefault(); }, true);
+  })();
   $('#cards').addEventListener('click', event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
     if (button.id === 'histbtn') {
       loadHistory();
       playSound('click');
+    } else if (button.dataset.pv) {
+      playSound('click');
+      preview(button.dataset.pv);
+    } else if (button.dataset.buy) {
+      playSound('click');
+      confirmBuy(button.dataset.buy);
+    } else if (button.dataset.set) {
+      playSound('click');
+      confirmBuySet(button.dataset.set);
     } else if (button.dataset.chest) {
       buyChest(button.dataset.chest);
     } else if (button.dataset.i !== undefined) {
@@ -369,6 +661,7 @@ UT.PageModule.define('shop', function (env) {
 
   render();
   renderCurrency();
+  addEventListener('dicekit-ready', () => { if (tab === 'dice') { const keep = $('#cards').scrollLeft; render(); $('#cards').scrollLeft = keep; } });
   document.documentElement.classList.add('ut-ready');
 
   if (query.has('emerald') || query.get('tab') === 'gem') gemShop();

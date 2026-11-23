@@ -10,6 +10,10 @@
   var CFG_KEY = 'ut-config', ROOM_KEY = 'ut-room';
   var MODES = ['vsc', 'local', 'online'];
 
+  /* Pindah halaman. Di shell SPA (play.html, window yang sama dengan UT.Spa) lewat UT.Spa.go agar shell/musik/overlay tidak ditinggalkan
+     (location.href di sana memuat ulang SELURUH play.html). Di halaman mandiri / di dalam iframe shell UT.Spa tidak ada -> location.href seperti semula. */
+  function go(url) { var S = g.UT && g.UT.Spa; if (S && S.go) S.go(url); else location.href = url; }
+
   function maps() { return IC.items.filter(function (i) { return i.kind === 'theme'; }); }   /* Map bukan item milik/dibeli: semua map bisa dimainkan siapa saja */
   function getMap() {
     var k = null, m = maps();
@@ -39,13 +43,20 @@
     if (to === 'room') {
       var q = new URLSearchParams({ mode: d.mode, format: d.format || 'solo', count: d.count || 4 });
       if (d.role) q.set('role', d.role); if (d.code) q.set('code', d.code);
-      location.href = 'room.html?' + q.toString();
-    } else if (to === 'mode') location.href = 'mode.html';
-    else location.href = 'lobby.html';   /* back & home */
+      go('room.html?' + q.toString());
+    } else if (to === 'mode') go('mode.html');
+    else go('lobby.html');   /* back & home */
   }
 
-  /* cfg: {type:'ranked'|'room', mode, format, privacy, host, code, players:[{name,team,kind}], powers:[id], skin, frame, dice, map} */
+  /* cfg: {type:'ranked'|'room', mode, format, privacy, host, code, players:[{name,team,kind}], powers:[id], skin, frame, dice, map}
+     Hati: tiap match dimulai memotong 1 hati (server). Gerbang bersama UT.HeartsGate (hearts-gate.js); tanpa gerbang/tamu = langsung.
+     Mengembalikan Promise<boolean>: false bila diblokir (hati habis) -> pemanggil tidak perlu melakukan apa-apa, modal sudah tampil. */
   function launch(cfg) {
+    var HG = g.UT && g.UT.HeartsGate;
+    if (!HG || typeof Promise === 'undefined') { startNow(cfg); return true; }
+    return HG.spend().then(function (ok) { if (ok) startNow(cfg); return ok; });
+  }
+  function startNow(cfg) {
     cfg = Object.assign({ map: (getMap() || {}).gameKey }, cfg);
     var ev = new CustomEvent('game:start', { detail: cfg, cancelable: true });
     if (!g.dispatchEvent(ev)) return;
@@ -57,7 +68,7 @@
     try { sessionStorage.setItem(CFG_KEY, JSON.stringify({ mode: mode, skins: skins, theme: cfg.map, dice: dice })); } catch (e) {}
     try { sessionStorage.setItem(ROOM_KEY, JSON.stringify(cfg)); } catch (e) {}   /* konfigurasi lengkap (tim, power, frame, host) untuk gameplay */
     try { sessionStorage.setItem('ut:nav-heavy', '1'); } catch (e) {} /* pembungkus (play.html) menampilkan layar "Memuat" segera untuk gameplay */
-    location.href = 'gameplay.html?' + p.toString();
+    go('gameplay.html?' + p.toString());
   }
   /* Tujuan setelah keluar gameplay, sesuai cara pemain masuk tadi:
      - type 'room' (VS Computer / Multi Player / Create Room) -> room.html dengan parameter yang sama
@@ -78,7 +89,7 @@
     var to = returnUrl();
     var ev = new CustomEvent('game:navigate', { detail: { to: 'exit', url: to }, cancelable: true });
     if (!g.dispatchEvent(ev)) return;
-    location.href = to;
+    go(to);
   }
   function lastRoom() { try { return JSON.parse(sessionStorage.getItem(ROOM_KEY) || 'null'); } catch (e) { return null; } }
 

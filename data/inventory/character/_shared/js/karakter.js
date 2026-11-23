@@ -787,32 +787,9 @@ const owned=(key,it)=>{if(previewAll)return true;const c=catItem(key,it);return 
    ================================================================ */
 const NONE_GEAR={helm:{id:'none'},chest:{id:'none'},shoulder:{id:'none'},cape:{id:'none'},weapon:{id:'none'},accessories:[]};
 const gear=o=>Object.assign(clone(NONE_GEAR),o);
-const PRESETS=[
-  {id:'citizen',n:'🙂 Warga',set:gear({top:{id:'tee',dye:'blue'},legs:{id:'pants',dye:'navy'},boots:{id:'shoes',dye:'brown'}})},
-  {id:'knight',n:'🛡️ Ksatria',set:gear({top:{id:'tunic',dye:'red'},legs:{id:'pants',dye:'navy'},boots:{id:'tall',dye:'brown'},
-    chest:{id:'plate',dye:'steel'},shoulder:{id:'pad',dye:'steel'},cape:{id:'long',dye:'red'},weapon:{id:'sword',dye:'steel'},accessories:[{id:'belt',dye:'brown'}]})},
-  {id:'mage',n:'🧙 Penyihir',set:gear({top:{id:'robe',dye:'purple'},legs:{id:'pants',dye:'purple'},boots:{id:'cloth',dye:'black'},
-    helm:{id:'wizard',dye:'purple'},weapon:{id:'staff',dye:'blue'}})},
-  {id:'farmer',n:'🌾 Petani',set:gear({top:{id:'overall',dye:'blue'},legs:{id:'pants',dye:'blue'},boots:{id:'shoes',dye:'brown'},helm:{id:'straw',dye:'straw'}})},
-  {id:'explorer',n:'🧭 Petualang',set:gear({top:{id:'vest',dye:'green'},legs:{id:'pants',dye:'brown'},boots:{id:'tall',dye:'brown'},
-    accessories:[{id:'belt',dye:'brown'},{id:'pack',dye:'brown'},{id:'goggles',dye:'bronze'}]})},
-  {id:'noble',n:'👑 Bangsawan',set:gear({top:{id:'coat',dye:'navy'},legs:{id:'formal',dye:'black'},boots:{id:'shoes',dye:'black'},
-    helm:{id:'crown',dye:'gold'},cape:{id:'short',dye:'navy'},accessories:[{id:'belt',dye:'black'}]})}
-];
-PRESETS.forEach(p=>p.g='m');
-const FP=(id,n,set)=>PRESETS.push({id:id,n:n,g:'f',set:gear(set)});
-FP('citizen','🙂 Warga',{top:{id:'blouse',dye:'white'},legs:{id:'skirt',dye:'navy'},boots:{id:'mary',dye:'black'},accessories:[{id:'bow',dye:'red'}]});
-FP('knight','🛡️ Ksatria',{top:{id:'tunic',dye:'purple'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
-  chest:{id:'valk',dye:'steel'},shoulder:{id:'gem',dye:'steel'},cape:{id:'long',dye:'purple'},weapon:{id:'rapier',dye:'steel'},accessories:[{id:'belt',dye:'black'}]});
-FP('mage','🧙 Penyihir',{top:{id:'robe',dye:'navy'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
-  helm:{id:'wizard',dye:'navy'},weapon:{id:'wand',dye:'pink'},accessories:[{id:'earrings',dye:'gold'}]});
-FP('farmer','🌾 Petani',{top:{id:'sundress',dye:'yellow'},legs:{id:'bare'},boots:{id:'sandal',dye:'tan'},helm:{id:'straw',dye:'straw'}});
-FP('explorer','🧭 Petualang',{top:{id:'vest',dye:'green'},legs:{id:'shorts',dye:'brown'},boots:{id:'tall',dye:'brown'},
-  accessories:[{id:'belt',dye:'brown'},{id:'goggles',dye:'bronze'},{id:'purse',dye:'brown'}]});
-FP('princess','👑 Putri',{top:{id:'dress',dye:'pink'},legs:{id:'tights',dye:'white'},boots:{id:'mary',dye:'pink'},
-  helm:{id:'tiara',dye:'gold'},cape:{id:'short',dye:'pink'},accessories:[{id:'necklace',dye:'gold'},{id:'earrings',dye:'gold'},{id:'gloves',dye:'white'}]});
-FP('fairy','🧚 Peri',{top:{id:'sundress',dye:'mint'},legs:{id:'bare'},boots:{id:'flat',dye:'mint'},
-  helm:{id:'flowers',dye:'pink'},cape:{id:'wings',dye:'lilac'},weapon:{id:'wand',dye:'mint'},accessories:[{id:'earrings',dye:'gold'}]});
+/* Set bawaan: data bersama dengan Toko (character-sets.js); set PVP ditambahkan di bawah */
+const PRESETS=UT.CharacterSets.male.map(p=>({id:p.id,n:p.n,g:'m',set:gear(clone(p.set))}));
+UT.CharacterSets.female.forEach(p=>PRESETS.push({id:p.id,n:p.n,g:'f',set:gear(clone(p.set))}));
 /* Set PVP (unisex): wajah + rambut + semua perlengkapan; terkunci sampai dibuka server (kemenangan PVP). */
 [['mahkota','👑 Ksatria Mahkota'],['rival','🗡️ Ksatria Rival']].forEach(a=>['m','f'].forEach(g=>{
   const k=a[0];
@@ -1175,6 +1152,7 @@ const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 $('#back').addEventListener('click',()=>{nav('lobby.html');});
+$('#gearbtn').addEventListener('click',()=>{nav('frame.html');});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
 $('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});
@@ -1442,11 +1420,10 @@ function slider(label,key,min,max){
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
   {name:'Gender',ico:'⚧',keys:['gender']},
-  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body','preset']},
   {name:'Outfit',ico:'👕',keys:['top','legs','helm','boots']},
-  {name:'Aksesori',ico:'🎒',keys:['accessories']},
-  {name:'Set',ico:'🎭',keys:['preset']}
-];
+  {name:'Aksesori',ico:'🎒',keys:['accessories']}
+];   /* Set (preset) dipindah jadi subkategori Penampilan, di samping Kulit */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
 const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k)||slotTabs[k]===g.name);
@@ -1813,7 +1790,7 @@ function frame(now){
     camTarget.y+Math.sin(camPitch)*camDist,
     camTarget.z+Math.cos(camYaw)*Math.cos(camPitch)*camDist);
   camera.lookAt(camTarget);
-  if((auraTick++%20)===0)auraSync();if(AUR)AUR.update(dt);
+  /* aura TIDAK ditampilkan di pratinjau karakter (permintaan desain): auraSync() sengaja tidak dipanggil */
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="../">
+<title>Generator thumbnail (Set karakter + Dadu)</title>
+<script type="importmap">{"imports":{"three":"./assets/js/vendor/three.r170.module.min.js","three/addons/":"./assets/js/vendor/three-addons/"}}</script>
+<style>
+body{margin:0;padding:16px;background:#1b1633;color:#f1ecff;font:15px/1.45 system-ui,sans-serif}
+h1{margin:0 0 6px;font-size:20px}h2{margin:22px 0 8px;font-size:16px}p{margin:4px 0;opacity:.85}
+button{font:700 16px system-ui;padding:12px 20px;border:0;border-radius:10px;background:#58d85a;color:#06280b;margin:8px 8px 8px 0}
+button:disabled{opacity:.45}#log{white-space:pre-wrap;background:#0f0b22;border-radius:8px;padding:10px;max-height:160px;overflow:auto;font:12px/1.4 ui-monospace,monospace}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.c{background:#2a2250;border-radius:10px;padding:8px;text-align:center;font-size:11px;word-break:break-all}
+.c img{width:100%;height:150px;object-fit:contain;display:block;background:repeating-conic-gradient(#3a3166 0 25%,#2a2250 0 50%) 50%/16px 16px;border-radius:6px}
+</style></head><body>
+<h1>Generator thumbnail Dragon Roll</h1>
+<p>Merender SEKALI dari renderer asli (karakter memakai set LENGKAP semua bagian, dan dadu 3D), lalu menyimpannya sebagai foto statis supaya Shop/Dadu tidak perlu render lagi.</p>
+<p>Buka lewat server lokal/deploy dari akar repo (mis. <code>/tools/gen-thumbs.html</code>) memakai <b>Chrome</b> (perlu encoder WebP). Hasil: ZIP berisi struktur folder repo, ekstrak ke akar repo.</p>
+<button id="go">1. Render semua</button><button id="zip" disabled>2. Unduh ZIP</button>
+<div id="log"></div>
+<h2>Set karakter → data/frame/karakter/&lt;id&gt;-&lt;m|f&gt;.webp</h2><div class="g" id="gs"></div>
+<h2>Dadu → data/inventory/dice/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gd"></div>
+<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<script src="data/inventory/character/_shared/js/character-data.js"></script>
+<script src="data/inventory/character/_shared/js/character-sets.js"></script>
+<script src="assets/js/renderers/item-art.js"></script>
+<script src="assets/js/vendor/three.min.js"></script><script src="assets/js/core/shared-gl.js"></script><script src="assets/js/renderers/blocky-character.js"></script><script src="assets/js/renderers/aura-fx.js"></script><script src="data/inventory/character/_shared/js/character-view.js"></script><script src="assets/js/renderers/shop-preview.js"></script><script type="module" src="assets/js/renderers/dice-kit/index.js"></script>
+<script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="assets/js/player-data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)},out=[],T=window.THREE,UT=window.UT;
+function log(m){var l=$('log');l.textContent+=m+'\n';l.scrollTop=l.scrollHeight}
+function toBlob(cv){return new Promise(function(res){cv.toBlob(function(b){res(b)},'image/webp',.92)})}
+async function add(path,cv,grid,label){
+  var b=await toBlob(cv);
+  if(!b||b.type!=='image/webp'){log('PERINGATAN: browser ini tidak bisa mengenkode WebP ('+path+'). Pakai Chrome.');return}
+  out.push({path:path,blob:b});
+  var d=document.createElement('div');d.className='c';var im=new Image();im.src=URL.createObjectURL(b);d.appendChild(im);
+  d.appendChild(document.createTextNode(label));$(grid).appendChild(d);
+}
+/* ---------- SET karakter (semua bagian set dirender, termasuk yang tidak dimiliki) ---------- */
+function renderSet(p,gender){
+  var BC=UT.BlockyCharacter,S=UT.SharedGL,W=512,H=640;
+  var o={gender:gender,accessories:[]};
+  ['eyes','hair'].forEach(function(k){if(p.set[k])o[k]=p.set[k]});
+  ['top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(function(k){o[k]=p.set[k]?{id:p.set[k].id,dye:p.set[k].dye}:{id:'none'}});
+  (p.set.accessories||[]).forEach(function(a){o.accessories.push({id:a.id,dye:a.dye})});
+  var ch=BC.create(T);ch.setPreviewAll(true);ch.apply(o,true);ch.setMode('idle');ch.tick(.016);
+  var sc=new T.Scene(),cam=new T.PerspectiveCamera(30,W/H,.1,100);
+  sc.add(new T.AmbientLight(0xffffff,.6),new T.HemisphereLight(0xcfeaff,0x6a9a50,.45));
+  var sun=new T.DirectionalLight(0xfff2d8,.8);sun.position.set(4,9,7);sc.add(sun);
+  sc.add(ch.root);sc.updateMatrixWorld(true);
+  var bb=new T.Box3().setFromObject(ch.root),cy=(bb.min.y+bb.max.y)/2,h=Math.max(.5,bb.max.y-bb.min.y);
+  var d=(h/2)/Math.tan(15*Math.PI/180)*1.15;
+  cam.position.set(Math.sin(.5)*d,cy+d*.1,Math.cos(.5)*d);cam.lookAt(0,cy,0);
+  var r=S.offscreen();r.setPixelRatio(1);r.setSize(W,H);r.setClearColor(0x000000,0);r.render(sc,cam);
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;cv.getContext('2d').drawImage(r.domElement,0,0);
+  sc.traverse(function(m){try{if(m.geometry)m.geometry.dispose()}catch(e){}if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(function(x){try{if(x.map)x.map.dispose();x.dispose()}catch(e){}})});
+  return cv;
+}
+async function doSets(){
+  var CS=UT.CharacterSets;if(!CS){log('UT.CharacterSets tidak ada');return}
+  var jobs=[];CS.male.forEach(function(p){jobs.push([p,'m'])});CS.female.forEach(function(p){jobs.push([p,'f'])});
+  for(var i=0;i<jobs.length;i++){
+    var p=jobs[i][0],g=jobs[i][1];
+    try{var cv=renderSet(p,g);await add('data/frame/karakter/'+p.id+'-'+g+'.webp',cv,'gs',p.id+'-'+g);log('set ok: '+p.id+'-'+g)}
+    catch(e){log('set GAGAL '+p.id+'-'+g+': '+e.message)}
+    await new Promise(function(r){setTimeout(r,20)});
+  }
+}
+/* ---------- DADU (jepretan 3D asli, sama dengan Pratinjau) ---------- */
+async function doDice(){
+  if(!window.DiceKit){log('DiceKit belum siap');return}
+  var keys=window.DiceKit.keys(),host=document.createElement('div');
+  host.style.cssText='position:fixed;left:-9999px;top:0;width:560px;height:560px;visibility:hidden';document.body.appendChild(host);
+  var R=window.DiceKit.mount(host,{diceId:keys[0],quality:'medium',camScale:.45,sound:false});R.stop();
+  var OUT=384,cv=document.createElement('canvas');cv.width=cv.height=OUT;
+  function grab(){
+    var src=R.renderer.domElement,w=src.width,h=src.height,t=document.createElement('canvas');t.width=w;t.height=h;
+    var tc=t.getContext('2d',{willReadFrequently:true});tc.drawImage(src,0,0);var d=tc.getImageData(0,0,w,h).data,x0=w,y0=h,x1=-1,y1=-1;
+    for(var y=0;y<h;y+=2)for(var x=0;x<w;x+=2){if(d[(y*w+x)*4+3]>200){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
+    if(x1<0)return null;
+    var pad=Math.round(Math.max(x1-x0,y1-y0)*.06),bw=x1-x0+1,bh=y1-y0+1,side=Math.max(bw,bh)+pad*2,c=cv.getContext('2d');
+    c.clearRect(0,0,OUT,OUT);c.imageSmoothingQuality='high';var k=OUT/side;c.drawImage(t,x0,y0,bw,bh,(OUT-bw*k)/2,(OUT-bh*k)/2,bw*k,bh*k);return cv;
+  }
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    try{
+      R.equip(k);R.showFace(1,.6);R.effects.update(.016,R.animator.view);R.effects.update(.016,R.animator.view);R.renderer.render(R.scene,R.camera);
+      var g=grab();if(!g){log('dadu kosong: '+k);continue}
+      await add('data/inventory/dice/'+k+'/'+k+'.webp',g,'gd',k);log('dadu ok: '+k);
+    }catch(e){log('dadu GAGAL '+k+': '+e.message)}
+    await new Promise(function(r){setTimeout(r,30)});
+  }
+  try{R.dispose()}catch(e){}host.remove();
+}
+$('go').onclick=async function(){
+  this.disabled=true;out=[];$('gs').innerHTML='';$('gd').innerHTML='';$('log').textContent='';
+  try{await doSets();await doDice()}catch(e){log('ERROR: '+e.message)}
+  log('selesai: '+out.length+' file');$('zip').disabled=!out.length;this.disabled=false;
+};
+$('zip').onclick=async function(){
+  if(!window.JSZip){alert('JSZip gagal dimuat (perlu internet ke cdnjs)');return}
+  var z=new JSZip();out.forEach(function(f){z.file(f.path,f.blob)});
+  var b=await z.generateAsync({type:'blob'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='thumbs-dragonroll.zip';a.click();
+};
+})();
+</script></body></html>

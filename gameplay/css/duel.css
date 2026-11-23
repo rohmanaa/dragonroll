@@ -156,6 +156,7 @@ body.duel-active #trapBar        { display: none !important }
 
 /* ── momentum: 5 hexagon tepat di slot hex bingkai HUD (terukur dari hud-player-*.webp) ── */
 .du-momentum-row {
+  display: none !important;
   position: absolute; top: 81.4%; height: 10%; left: 42.8%; width: 32.6%;
   display: flex; align-items: center; justify-content: center;
 }
@@ -706,3 +707,11 @@ body.duel-active #trapBar        { display: none !important }
 .du-roll-timer.urgent { animation: du-roll-urgent .4s ease-in-out infinite alternate; }
 @keyframes du-roll-urgent { to { box-shadow: 0 0 6px 1px rgba(255, 70, 60, .8); } }
 @media (prefers-reduced-motion: reduce) { .du-roll-timer.urgent { animation: none; } }
+
+/* ── HP: teks log tidak boleh menimpa tombol/dadu — log dipindah ke bawah judul (atas, tengah) ── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .du-log { bottom: auto; top: 84px; max-width: 46vw; font-size: 10px; padding: 3px 10px; z-index: 2 }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+  .du-log { bottom: auto; top: 112px; max-width: 92vw }
+}

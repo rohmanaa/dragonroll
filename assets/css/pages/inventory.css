@@ -9,6 +9,8 @@ html,body{background:#4b4162!important;overflow:hidden}
 @keyframes inv-spin{to{transform:rotate(360deg)}}
 .view{position:absolute;inset:0;z-index:1;width:100%;height:100%;border:0;background:#4b4162;display:none;opacity:0;transition:opacity .18s}
 .view.on{display:block}
+.view.warm{display:block;pointer-events:none}
+.view.warm.on{pointer-events:auto}
 .view.on.ready{opacity:1}
 #stage #back,#stage #title,#tabs{pointer-events:auto}
 #stage{pointer-events:none}
@@ -27,3 +29,52 @@ html,body{background:#4b4162!important;overflow:hidden}
 #fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:60}
 #fade.on{opacity:1;pointer-events:all}
 @media (prefers-reduced-motion:reduce){.view{transition:none}#view-loading span{animation:none}}
+/* tab native (Ore, Log): kosong dulu sampai Tambang & Farm masuk. Ukuran memakai --invs (skala kanvas 1920x1080 yang diset inventory.js) */
+.view.native{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)),url(../../images/background/inventory-voxel-tas.webp) center/cover no-repeat,#231d37}
+.view.native.on{display:grid;place-items:center}
+.native .empty{display:flex;flex-direction:column;align-items:center;gap:calc(14px*var(--invs,1));text-align:center;color:#fff;margin-top:calc(60px*var(--invs,1))}
+.native .empty img{height:calc(150px*var(--invs,1));width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45));opacity:.55}
+.native .empty strong{font:400 calc(44px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 3px 0 rgba(10,6,24,.6)}
+.native .empty p{margin:0;max-width:calc(560px*var(--invs,1));font:700 calc(26px*var(--invs,1))/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
+.native .empty button{margin-top:calc(8px*var(--invs,1));padding:calc(12px*var(--invs,1)) calc(34px*var(--invs,1));border-radius:calc(14px*var(--invs,1));cursor:pointer;
+  font:400 calc(28px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);color:#fff;background:linear-gradient(180deg,#58b8ff,#2d7fd6);border:3px solid #17407a;text-shadow:0 2px 0 rgba(0,0,0,.45);box-shadow:0 4px 0 rgba(10,6,30,.5)}
+.native .empty button:active{transform:translateY(3px)}
+
+/* tab Chest (native): pola UI Power-up (panel kiri + grid slot kanan + tombol aksi tunggal). Kanvas 1920x1080, ukuran lewat zoom:--invs */
+.view.native[data-k="chest"].on{display:grid;place-items:start center}
+#chestBox{margin-top:calc(120px*var(--invs,1))}
+#cbox{position:relative;width:1920px;height:900px;color:#fff;zoom:var(--invs,1);animation:cmIn .3s both}
+#cbox #cl{position:absolute;left:0;top:0;width:960px;height:100%;text-align:center}
+#cbox #cpv{position:absolute;left:270px;top:40px;width:420px;height:420px;display:grid;place-items:center}
+#cbox #cpv img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 12px 10px rgba(0,0,0,.45))}
+#cbox #cnm{position:absolute;left:190px;width:600px;top:480px;font:400 62px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#cbox #cown{position:absolute;left:190px;width:600px;top:564px;font:400 40px/1 var(--font-title,'Lilita One',sans-serif);color:#ffd45a;text-shadow:0 2px 0 rgba(10,6,24,.5)}
+#cbox #cds{position:absolute;left:190px;width:600px;top:630px;margin:0;font:700 26px/1.4 'Nunito','Segoe UI',sans-serif;color:#d8d2ee}
+#cbox #cr{position:absolute;left:985px;top:150px;width:900px;height:760px}
+#cbox #cg{display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:130px;gap:20px;zoom:1.25;max-height:600px;overflow-y:auto;overflow-x:hidden;padding:6px 4px;overscroll-behavior:contain;scrollbar-width:thin}
+#cbox .fslot{position:relative;width:130px;height:130px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#cbox .fslot:hover{filter:brightness(1.15)}#cbox .fslot:active{transform:scale(.95)}
+#cbox .fslot.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#cbox .fslot .dc{position:absolute;left:50%;top:50%;width:78px;height:78px;transform:translate(-50%,-50%);object-fit:contain}
+#cbox .fslot .chip-n{z-index:2;position:absolute;right:6px;top:6px;min-width:30px;padding:1px 7px;border-radius:5px;text-align:center;background:#2c9a3a;border:2px solid #9be86a;font:400 17px/1.3 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+#cbox #cact{position:absolute;right:48px;bottom:30px;width:300px;height:84px;z-index:5}
+#cbox .btn{position:relative;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer;transition:transform .1s,filter .1s}
+#cbox .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#cbox .btn span{position:relative;font:400 28px/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .btn:active{transform:translateY(3px)}#cbox .btn:hover{filter:brightness(1.1)}
+#cbox .cb{width:260px;height:76px}
+#cbox .cempty{position:absolute;left:0;right:0;top:300px;text-align:center;font:400 40px/1.3 var(--font-title,'Lilita One',sans-serif);opacity:.85}
+#cbox .cempty small{display:block;margin-top:12px;font:700 24px/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
+#cbox .rwd{position:absolute;left:0;right:0;top:130px;display:flex;flex-direction:column;align-items:center;gap:10px;animation:cmIn .35s both}
+#cbox .rwd .rt{font:400 52px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .rwd img.mi{width:240px;height:auto;margin-bottom:6px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5));animation:cmShake .9s ease-out both}
+#cbox .rwd .cb{margin-top:18px}
+#cbox .rw{display:flex;align-items:center;justify-content:center;gap:12px;font:400 44px/1.25 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .rw img{width:52px;height:auto}
+#cbox .rw.pw{font-size:34px;color:#9fe3ff}
+@keyframes cmIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:none}}
+@keyframes cmShake{0%{transform:scale(.9) rotate(0)}15%{transform:rotate(-7deg)}30%{transform:rotate(7deg)}45%{transform:rotate(-8deg)}60%{transform:rotate(0) scale(1)}78%{transform:scale(1.25)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){#cbox,#cbox .rwd,#cbox .rwd img.mi{animation:none}}
+#invToast{position:fixed;left:50%;bottom:8%;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:20;padding:12px 26px;border-radius:14px;
+  background:rgba(20,16,34,.92);color:#fff;font:700 20px/1.2 'Nunito','Segoe UI',sans-serif;transition:opacity .2s,transform .2s}
+#invToast.on{opacity:1;transform:translate(-50%,0)}

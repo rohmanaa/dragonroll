@@ -1,6 +1,8 @@
 /* Viewer 3D pet (dipindah dari 'data pet.html'; data pet sudah ada di supabase/pet_catalog.sql).
    Latar transparan, tanpa pad, tanpa zoom. API: PetViewer.select(gameKey). */
-(function(){
+/* Modul 'pet-viewer': state (renderer, audio, listener) hidup per-mount. Mandiri/embed = mount otomatis saat skrip dimuat (sama seperti sebelumnya);
+   di shell, pet-page.js me-mount saat view dibuka dan unmount (release SharedGL, tutup audio) saat view ditutup. */
+window.UT.PageModule.define('pet-viewer',function(env){
 "use strict";
 const T=THREE;
 let destroyed=false;
@@ -214,13 +216,26 @@ function petSfxFromManifest(id){
     return Array.isArray(f)&&f.length===3&&f.every(u=>typeof u==='string'&&u)?f.slice():null;
   }catch(e){return null}
 }
-const petBuf=Object.create(null),petLoading=Object.create(null);
+const petBuf=Object.create(null),petLoading=Object.create(null),petRaw=Object.create(null),petRawLoading=Object.create(null);
+/* Unduh byte MP3 lebih awal (tanpa AudioContext, tidak perlu menunggu ketukan pertama), simpan di petRaw; decode baru dilakukan setelah audio aktif (petLoad).
+   Dengan begitu suara pertama sudah rekaman asli, bukan sintesis cadangan. */
+function petFetchRaw(url){
+  if(petRaw[url]||petRawLoading[url]||destroyed)return Promise.resolve();
+  const controller=new AbortController();
+  petRawLoading[url]=controller;
+  return fetch(url,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer()})
+    .then(b=>{if(!destroyed&&petRawLoading[url]===controller)petRaw[url]=b})
+    .catch(error=>{if(!controller.signal.aborted)console.warn('[PetViewer] Failed to fetch Pet SFX '+url+'. Using synthesized fallback.',error)})
+    .then(()=>{if(petRawLoading[url]===controller)delete petRawLoading[url]});
+}
 function petLoad(url){
   if(petBuf[url]||petLoading[url]||!AC||destroyed)return;
   const controller=new AbortController();
   petLoading[url]=controller;
-  fetch(url,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer()})
-    .then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no)))
+  petFetchRaw(url).then(()=>{
+    if(!petRaw[url])throw new Error('no bytes');
+    return new Promise((ok,no)=>AC.decodeAudioData(petRaw[url].slice(0),ok,no));
+  })
     .then(buf=>{if(!destroyed&&petLoading[url]===controller)petBuf[url]=buf})
     .catch(error=>{if(!controller.signal.aborted)console.warn('[PetViewer] Failed to load Pet SFX '+url+'. Using synthesized fallback.',error)})
     .then(()=>{if(petLoading[url]===controller)delete petLoading[url]});
@@ -233,6 +248,7 @@ function petPlayFile(url,fallback){
   s.start();
 }
 function petPreloadFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(petLoad))}
+function petPrefetchFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(u=>petFetchRaw(u).then(()=>{if(AC)petLoad(u)})))}
 const catalogItems=window.ItemCatalog&&window.ItemCatalog.items;
 if(!Array.isArray(catalogItems))throw new Error('PetViewer requires ItemCatalog.items');
 const PETS=catalogItems.filter(item=>item.kind==='pet').sort((a,b)=>a.tier-b.tier).map(item=>({id:item.gameKey,name:item.name,color:item.accent}));
@@ -240,9 +256,11 @@ if(PETS.length!==7||PETS.some(item=>!item.id||!item.name||!item.color))throw new
 
 /* Hubungkan SND[indeks PETS][slot] ke file dari manifest (cari per id Pet, tidak bergantung urutan Registry). */
 PETS.forEach((d,i)=>{const f=petSfxFromManifest(d.id);if(!f)return;PET_FILES[i]=f;f.forEach((url,k)=>{const synth=SND[i][k];SND[i][k]=()=>petPlayFile(url,synth)})});
+try{petPrefetchFiles()}catch(e){}
 
 /* ================= scene: latar transparan, tanpa pad, kanvas besar, tanpa zoom ================= */
-const view=document.getElementById('fpv'),canvas=document.getElementById('petGl');
+const view=document.getElementById('fpv'),GL_OWNER='inv-pet';
+let canvas=document.getElementById('petGl');
 const listeners=[];
 let rafId=0,resizeObserver=null,soundTimer=0;
 function listen(target,type,handler,options){
@@ -252,8 +270,15 @@ function listen(target,type,handler,options){
 function removeListeners(){
   listeners.splice(0).forEach(({target,type,handler,options})=>target.removeEventListener(type,handler,options));
 }
+/* renderer = milik UT.SharedGL (satu WebGLRenderer + satu <canvas> per sesi); kanvas halaman diganti kanvas bersama di posisi yang sama */
 let renderer=null;
-try{renderer=new T.WebGLRenderer({canvas,antialias:!(navigator.maxTouchPoints>0&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)),alpha:true,premultipliedAlpha:true})}catch(err){
+try{
+  const SGL=window.UT&&window.UT.SharedGL;
+  if(!SGL)throw new Error('UT.SharedGL belum dimuat');
+  const gl=SGL.acquire(GL_OWNER,{canvas,shadows:false});
+  renderer=gl.renderer;canvas=gl.canvas;
+}catch(err){
+  console.error('[PetViewer] gagal mengambil renderer bersama',err);
   view.insertAdjacentHTML('beforeend','<div class="gl-fail">WebGL tidak tersedia, pratinjau 3D tidak bisa ditampilkan.</div>');
 }
 let teardownFn=()=>{if(destroyed)return;destroyed=true;glowTex.dispose();removeListeners()};
@@ -299,9 +324,11 @@ const selectionGuard=window.UT&&window.UT.PetModelRegistry&&window.UT.PetModelRe
   ?window.UT.PetModelRegistry.createSelectionGuard()
   :{begin(){return ++selectionVersion},isCurrent(token){return token===selectionVersion}};
 function disposeObj(o){o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>x.dispose())})}
+/* viewer tersembunyi (modal preview tertutup) = tidak render dan tidak bersuara */
+const shown=()=>typeof view.getClientRects!=='function'||view.getClientRects().length>0;
 let soundOn=false,sndT=1,sndBag=[],bagLast=-1;
 function playPetSound(){
-  applyMaster();if(!soundOn||!sfxEnabled()||!AC||AC.state!=='running'||cur<0)return;
+  applyMaster();if(!shown())return;if(!soundOn||!sfxEnabled()||!AC||AC.state!=='running'||cur<0)return;
   if(!sndBag.length){sndBag=[0,1,2].sort(()=>Math.random()-.5);if(sndBag[sndBag.length-1]===bagLast)sndBag.reverse()}
   const k=sndBag.pop();bagLast=k;
   try{SND[cur][k]()}catch(e){}
@@ -357,10 +384,15 @@ selectFn=function(i){
   catch(error){failed(error)}
 };
 
-let last=performance.now(),t=0;
+let last=performance.now(),t=0,sizeW=0,sizeH=0;
 function frame(now){
   if(destroyed)return;
   rafId=requestAnimationFrame(frame);
+  if(!shown()){last=now;return}
+  /* modal baru dibuka: ResizeObserver baru jalan SETELAH rAF ini, jadi frame pertama sempat dirender dengan ukuran lama (1x1 / gepeng).
+     Samakan ukuran di sini sebelum render. */
+  const cw=view.clientWidth,ch=view.clientHeight;
+  if(cw!==sizeW||ch!==sizeH){sizeW=cw;sizeH=ch;resize()}
   const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
   if(idle>0)idle-=dt;
   sndT-=dt;if(sndT<=0){sndT=rr(3,5.5);playPetSound()}
@@ -391,8 +423,7 @@ teardownFn=()=>{
   petSounds.clear();
   if(AC){AC.close().catch(error=>console.error('[PetViewer] Failed to close audio context.',error));AC=null;MASTER=null;noiseBuf=null}
   glowTex.dispose();
-  renderer.dispose();
-  renderer.forceContextLoss();
+  window.UT.SharedGL.release(GL_OWNER);   // renderer bersama TIDAK di-dispose; hanya dilepas
 };
 }
 
@@ -405,4 +436,5 @@ window.PetViewer={
   destroy(){teardownFn()}
 };
 listen(window,'pagehide',event=>{if(!event.persisted)window.PetViewer.destroy()});
-})();
+env.own(()=>window.PetViewer.destroy());
+});

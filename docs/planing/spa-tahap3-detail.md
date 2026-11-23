@@ -89,13 +89,13 @@ gameplay ke SPA diambil terpisah (lihat `spa-tahap4-detail.md`).
 | leaderboard | A | Selesai (kode & test) | (commit ini) | SW v298-v299; smoke browser (Chromium headless, 20 putaran) LULUS; tanpa renderer WebGL sendiri; PodiumFX.mount pindah ke leaderboard.js (+unmount); LiveSync dilepas saat unmount; cek HP belum |
 | friendship | A | Selesai (kode & test) | (commit ini) | SW v302; PageModule (tanpa WebGL sendiri); memperbaiki bug lama `#home` (halaman mandiri melempar TypeError, daftar teman tidak pernah dimuat); smoke browser LULUS; cek HP belum |
 | shop | B | Selesai (kode & test) | (commit ini) | SW v304; PageModule (tanpa WebGL); `?coin`/`?tab`/`?emerald` dibaca dari `UT.Spa.current()`; penjaga `window.__curSub` dihapus; smoke browser LULUS; cek HP belum |
-| mode | B | - | - | |
-| inventory | B | - | - | |
-| hadiah-misi | B | - | - | |
-| chest | B | - | - | |
-| mail | B | - | - | |
-| settings | B | - | - | |
-| room | B | - | - | |
+| mode | B | Selesai (kode & test) | (commit ini) | SW v305; PageModule (tanpa WebGL); `#view` -> `#mapview` (bentrok dengan shell); `UT.RoomFlow` lewat `UT.Spa.go`; Presence dimulai `app.js` (blok module inline tidak jalan di shell); smoke browser LULUS; cek HP belum |
+| inventory | B | Selesai sebagai view (tab masih iframe) | (commit ini) | SW v313; PageModule; `?tab=` dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; tab = iframe bersarang `?embed=inv`; smoke LULUS; tab belum jadi modul |
+| hadiah-misi | B | Selesai (kode & test) | (commit ini) | SW v306; PageModule (tanpa WebGL); `?tab=` dibaca dari `UT.Spa.current()`; `history.replaceState` dimatikan di shell; penjaga `window.__curSub` dihapus; LiveSync `wallet`+`ach` dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| chest | B | Selesai (kode & test) | (commit ini) | SW v307; PageModule (tanpa WebGL); listener klik dokumen lewat `env.on`; boot tidak menunggu event `load` di shell; LiveSync `wallet` dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| mail | B | Selesai (kode & test) | (commit ini) | SW v309; PageModule (tanpa WebGL); `?from=` dibaca dari `UT.Spa.current()`; polling 30 dtk + listener + langganan dilepas; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| settings | B | Selesai (kode & test) | (commit ini) | SW v310; PageModule (tanpa WebGL); tombol Fullscreen/Normal diperbaiki lewat `UT.Display`; versi game via `UT.Version.apply`; smoke browser LULUS (2026-11-20, lihat catatan verifikasi); cek HP belum |
+| room | B | Selesai (kode, test, smoke) | (commit ini) | SW v312; PageModule (tanpa WebGL sendiri); parameter dibaca dari `UT.Spa.current().url`; spa-host memuat `<script type=module>` lewat `import()`; modul multiplayer dimuat `room.js`; smoke browser LULUS; cek HP belum |
 | frame | B | - | - | |
 
 ## 5. Kriteria selesai tahap 3
@@ -166,3 +166,101 @@ Belum: cek di HP fisik.
 - Hasil smoke (Chromium headless, 20 putaran, 6 view): 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 10,6 -> 11,8 MB, mount shop ~26 ms.
 - Belum: transaksi sungguhan (tukar Coin, beli chest, riwayat) dengan akun server; cek HP fisik.
 - Urutan berikutnya: `mode`, `hadiah-misi`, `chest`, `mail`, `settings`, `room`, `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Mode (tahap 3-6, Gelombang B, SW v305)
+
+- `assets/js/pages/mode.js` dibungkus `UT.PageModule.define('mode')`; `mode.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS) dan `frame-guard.js`; prefetch `mode.html` di `play.js` sudah ada. Tanpa WebGL sendiri (peta = gambar/SVG), jadi tidak memakai `SharedGL`.
+- **Bentrok id (temuan):** `mode.html` punya `<div id="view">` (area geser peta) padahal `play.html` sudah punya `#view` (wadah view shell). `document.querySelector('#view')` di mode.js akan menangkap wadah shell: geser di mana pun di halaman mengganti peta, dan CSS `#view{...}` ikut menata wadah shell. Diganti `#mapview` (HTML, CSS, JS); tes `mode-module` menjaganya. **Aturan untuk halaman berikutnya: jangan ada `id="view"`, `id="f"`, `id="ov"` di halaman yang di-view-kan.**
+- **`UT.RoomFlow` lewat shell (temuan):** `navigate`/`launch`/`exitGame` memakai `location.href`; di view itu memuat ulang seluruh `play.html`. Kini lewat `go(url)`: `UT.Spa.go` bila ada (shell), `location.href` bila tidak (halaman mandiri; juga di dalam iframe, karena `UT.Spa` hanya ada di window shell). `launch` menyetel `ut:nav-heavy` SEBELUM pindah; hook `leave` di `play.js` kini membaca flag itu dan memakai overlay `now` (tirai awan seketika) untuk gameplay yang diluncurkan dari view. Tes baru `tests/room-flow-spa.test.js` (6 tes, `vm` dengan `UT.Spa` ada/tidak ada).
+- **Presence:** blok `<script type="module">` inline di `mode.html` (memulai Presence `status:'lobby'`) TIDAK dijalankan host SPA (hanya `script[src]` yang dimuat). `'mode'` ditambahkan ke daftar halaman di `app.js` yang memulai Presence (`start()` idempoten, jadi halaman mandiri yang memulainya dua kali aman). Blok module dibiarkan agar halaman mandiri tidak berubah.
+- Navigasi: Back -> lobby, Coin -> `shop.html?coin=1`, Gem -> `tambang.html?from=mode.html` (Back dari tambang kembali ke mode, terverifikasi), pilih room -> `room.html?...` (non-view, tetap di shell). Fade 330 ms hanya untuk halaman mandiri; di shell `nav()` langsung jalan karena view langsung dilepas.
+- Dilepas saat unmount: simulasi Quick Start (timer `tm`), timer toast, `pointerup`/`keydown`/`resize`/`pageshow` (window), `pointerdown` (document, lewat `env.on`), langganan `PD.subscribe` + `Events.on`, LiveSync (`wallet` + `stop`).
+- Test: `tests/mode-module.test.js` (12 tes), `tests/room-flow-spa.test.js` (6 tes); `tests/spa-host.test.js` memakai `room.html` sebagai contoh halaman non-view (mode kini view). Seluruh test: sama dengan baseline (5 gagal `.test.js` lama + 2 `.test.mjs` yang juga gagal sebelum perubahan).
+- Smoke (`CHROME=... N=20 python3 -I tools/smoke-spa-pages.py`, Chromium 157 headless, SwiftShader, 7 view): LULUS. 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol, memori 11,0 -> 11,9 MB, mount mode ~31 ms (maks 59). Blok mode di smoke memeriksa: `#view` tunggal, 3 peta/3 titik/5 tile/12 opsi; panah (WORLD -> NETHER -> THE END terkunci + toast -> WORLD); geser di peta mengganti peta, geser DI LUAR peta tidak; satu tile terbuka sekaligus, Escape menutup; Quick Start membuka modal dan BATAL menutupnya; Quick Start Team sampai "LAWAN DITEMUKAN" dan `game:start` (dicegat) membawa konfigurasi benar (ranked, team, 4 pemain, map); Coin -> Toko tab coin (view), Gem -> Tambang `?from=mode.html` dan Back kembali ke mode, Back -> lobby; VS Computer -> `room.html?mode=vsc&format=solo&count=2` di iframe dan shell tidak ditinggalkan; tidak ada sisa DOM/CSS/kelas `dm`.
+- Belum: cek HP fisik (dan jalur HP portrait yang tetap iframe); peluncuran gameplay sungguhan dari Quick Start di browser (smoke mencegat `game:start`; rute `UT.Spa.go('gameplay.html?...')` + overlay `now` hanya diuji unit/statis); Presence dengan sesi server sungguhan (smoke memakai login palsu tanpa jaringan).
+- Urutan berikutnya: `hadiah-misi`, `chest`, `mail`, `settings`, `room` (memakai `room-modal-bridge.js`; `RoomFlow` sudah siap lewat shell), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Hadiah-misi (tahap 3-7, Gelombang B, SW v306)
+
+- `assets/js/pages/hadiah-misi.js` dibungkus `UT.PageModule.define('hadiah-misi')`; `hadiah-misi.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS), `frame-guard.js`, prefetch `hadiah-misi.html` -> lobby di `play.js`. Tanpa WebGL sendiri, jadi tidak memakai `SharedGL`. Efek partikel hadiah (`UT.ParticleFX`) tetap dari `particle-fx.js` yang dimuat host.
+- `?tab=misi|ach` dibaca dari URL rute aktif (`UT.Spa.current().url`), bukan `location.search` milik `play.html`.
+- **`history.replaceState('?tab=')` dimatikan di shell** (di shell URL milik `play.html?go=...`; mengubahnya merusak reload). Halaman mandiri dan iframe tetap memakainya.
+- Navigasi (Back, Gem -> `tambang.html?from=hadiah-misi.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade 330 ms + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: `setInterval` hitung mundur reset (1 dtk), timer toast, `resize`/`keydown`/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus), LiveSync (`wallet` + `ach`, lalu `stop`).
+- Callback async (`reloadD`, `claimDay`, `reloadQ`, `srvClaim`, `loadSP`, `claimAch`, `wallet.refresh`) dijaga `env.disposed`.
+- Test: `tests/hadiah-misi-module.test.js` (11 tes); `tests/spa-host.test.js` diperluas; pola regex `frame-guard` di `tests/mode-module.test.js` dilonggarkan (daftar halaman bertambah). Seluruh test: sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` kini ikut memutar `hadiah-misi` (pemanasan, 20 putaran, tombol bisa diketuk, `mounted_akhir`), tetapi **belum dijalankan** (tidak ada Chrome/Chromium di sesi ini). Jalankan di mesin dengan Chrome: `CHROME=... N=20 python3 -I tools/smoke-spa-pages.py`.
+- Belum: smoke browser; klaim sungguhan (hadiah harian, misi, pencapaian) dengan akun server; cek HP fisik. Blok smoke khusus hadiah-misi (tab, klaim, Back/Gem/Coin) belum ditulis.
+- Urutan berikutnya: `chest`, `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Chest (tahap 3-8, Gelombang B, SW v307)
+
+- `assets/js/pages/chest.js` dibungkus `UT.PageModule.define('chest')`; `chest.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `chest.html` -> lobby di `play.js`. Tanpa WebGL sendiri.
+- **Listener global:** `document.addEventListener('click')` (delegasi tombol CLAIM/BUKA/CEPAT/AMBIL) dan `visibilitychange` kini lewat `env.on(document, ...)`; kalau tidak, tiap kunjungan menambah handler klik dan satu klik memicu aksi server berkali-kali.
+- **Boot di shell:** versi lama menunggu `window 'load'` bila server belum siap; di shell dokumen sudah `load` sehingga event itu tidak datang lagi. Kini `document.readyState==='complete'` menjalankan boot langsung.
+- Navigasi (Back, Gem -> `tambang.html?from=chest.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: ticker 1 dtk, timer toast, `resize`/`pageshow`/klik/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus), LiveSync (`wallet` + `stop`). Callback async (`reload`, `act`) dan `render`/`modal`/`toast` dijaga `env.disposed`.
+- Test: `tests/chest-module.test.js` (10 tes); `chest-service.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` ikut memutar `chest` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: aksi chest sungguhan (BUKA, CEPAT, AMBIL) dengan akun server; cek HP fisik.
+- Urutan berikutnya: `mail`, `settings`, `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Mail (tahap 3-9, Gelombang B, SW v309)
+
+- `assets/js/pages/mail.js` dibungkus `UT.PageModule.define('mail')`; `mail.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `mail.html` -> lobby di `play.js`. Tanpa WebGL sendiri.
+- `?from=` (tujuan tombol Back; lobby memakai `mail.html?from=lobby.html`) dibaca dari URL rute aktif (`UT.Spa.current().url`), bukan `location.search` milik `play.html`. Daftar `BUILT` tetap menjadi daftar putih tujuan.
+- Navigasi (Back, Home, Gem -> `tambang.html?from=mail.html`, Coin -> `shop.html?coin=1`) lewat `nav()` -> `UT.Spa.go` di shell; fade + `location.href` hanya fallback mandiri.
+- Dilepas saat unmount: polling `setInterval` 30 dtk, timer toast, `resize`/`keydown`/`visibilitychange`, langganan `PD.subscribe` + `Events.on` (penjaga `window.__curSub` dihapus). Halaman ini tidak memakai LiveSync.
+- Callback async (`load`, `claim`, `remove`, `readAll`, `claimAll`, `wallet.refresh`) dijaga `env.disposed`.
+- Test: `tests/mail-module.test.js` (8 tes); `spa-host.test.js` diperluas; pola `frame-guard` di `chest-module.test.js` dilonggarkan. Seluruh test sama dengan baseline (5 gagal lama).
+- `tools/smoke-spa-pages.py` ikut memutar `mail` tetapi BELUM dijalankan (tidak ada Chrome di sesi ini). Belum: klaim/hapus surat sungguhan dengan akun server; cek HP fisik.
+- Urutan berikutnya: `settings` (tes `settings-prefs`; ingat panggil `UT.Version.apply(root)` saat mount agar versi game tampil), `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Settings + perbaikan Fullscreen/Normal (tahap 3-10, Gelombang B, SW v310)
+
+- **Akar masalah tombol Fullscreen/Normal:** `settings-electron.js` (satu-satunya kode yang memasang handler `[data-display]`) TIDAK pernah dimuat di `settings.html`, sehingga tombol tidak berbuat apa-apa; di web/PWA memang belum ada implementasi sama sekali (hanya jalur Electron). File itu dihapus dan diganti `assets/js/core/display-mode.js` (`UT.Display`): Electron lewat `electronAPI.setFullscreen/getFullscreen` (preload + `main.js` tidak berubah), web/PWA lewat Fullscreen API pada dokumen paling atas (shell `play.html`; iframe punya `allow="fullscreen"`). Status disinkronkan lewat `fullscreenchange`/`resize` (mis. tombol Esc). Tidak didukung (iPhone Safari): tombol dinonaktifkan dan toast menjelaskan. Masuk fullscreen di web wajib gestur pengguna, jadi mode tidak dipulihkan otomatis saat game dibuka lagi (Electron selalu mulai fullscreen, sesuai `main.js`). Gaya tombol aktif memakai `.on` (sama dengan segmen Grafik) plus `.active`.
+- `assets/js/pages/settings.js` dibungkus `UT.PageModule.define('settings')`; `settings.html` memuat `display-mode.js` dan `page-module.js` sebelum skrip halaman. Route: `spa-host.js`, `frame-guard.js`, prefetch `settings.html` -> lobby di `play.js`.
+- Back/Escape: di shell memakai `?from=` (daftar putih nama halaman) dari URL rute aktif, bila tidak ada ke lobby (`document.referrer` di shell selalu `play.html`). Halaman mandiri tetap memakai referrer. Keluar akun tetap `location.replace('splash.html')` (di shell menggantikan seluruh `play.html`, memang diinginkan).
+- Dilepas saat unmount: `resize`/`keydown`, timer toast, langganan `Ambience.on`, `Prefs.on`, dan `UT.Display.on`. Versi game (`[data-app-version]`) diisi ulang tiap mount lewat `UT.Version.apply(document)`.
+- Test: `tests/display-mode.test.js` (10 tes: web, iframe -> dokumen atas, ditolak, tidak didukung, PWA fullscreen, on/off, Electron, wiring settings); `settings-prefs.test.js` tetap lulus; `spa-host.test.js` diperluas. Seluruh test sama dengan baseline (5 gagal lama).
+- Belum: uji tombol di browser nyata (Chrome desktop, Android Chrome, PWA terpasang) dan di Electron sungguhan; smoke browser; cek HP. Catatan: saat PWA terpasang memakai `display_override: fullscreen` (manifest), `exitFullscreen` tidak berlaku; tombol Normal tidak akan mengubah apa pun di mode itu.
+- Urutan berikutnya: `room` (memakai `room-modal-bridge.js`), `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Room (tahap 3-11, Gelombang B, SW v312)
+
+- `assets/js/pages/room.js` dibungkus `UT.PageModule.define('room')`; `room.html` memuat `page-module.js` sebelum skrip halaman. Route: `spa-host.js` (VIEWS), `frame-guard.js`; prefetch `room.html` -> gameplay/mode di `play.js` sudah ada. Tanpa WebGL sendiri (kepala karakter lewat `UT.CharacterFace`, memakai three bersama), jadi tidak memakai `SharedGL`.
+- **spa-host kini mendukung `<script type="module" src>`** (dimuat lewat `import()` relatif ke dokumen; dedupe per URL) dan tidak mengunduh ulang skrip yang sudah ada di dokumen (`inDoc`). Dipakai `room-dice-art.js` (import dice-kit). Blok `<script type=module>` INLINE tetap tidak dijalankan host.
+- **Modul multiplayer:** blok inline di `room.html` (import `room-service.js` + `presence.js`, lalu event `ut:multiplayer-ready`) tidak jalan di shell. `room.js` memuatnya sendiri lewat `import('../multiplayer/room-service.js')` bila `UT.Multiplayer.RoomService` belum ada; flag `started` mencegah setup ganda dengan event mandiri.
+- **Parameter room** (`?mode=&format=&count=&role=&code=&invite=`) dibaca dari URL rute aktif. Mode tak valid -> `UT.Spa.go('mode.html',{replace:true})` (fallback `location.replace`).
+- **Tautan undangan/tamu** memakai `roomUrl()` (`.../room.html`): di shell `location.pathname` = `play.html`, jadi tautan lama akan salah.
+- **`loadFace`** tidak lagi memuat ulang `three.min.js`/`blocky-character.js`/`character-face.js` bila sudah ada di dokumen (di shell three sudah dimuat Lobby).
+- Dilepas saat unmount: langganan realtime room (`unsub`, juga dipakai `leave`), `Presence.onChange`, `Events.on('inventoryChanged')`, `CharacterFace.watch`, LiveSync (`wallet` + `stop`), kelas html `dro` dan `mp-online`, timer, `resize`/`keydown`/`message`/`pagehide`. `setupOnline` berhenti bila halaman ditinggalkan saat menunggu server (setelah `ensurePlayer` dan `createRoom/joinRoom`); `toast` dijaga `env.disposed`.
+- Modal bersarang `#pageModal` (Dadu/Karakter/Frame/Efek/Power-up `?from=room`) tetap iframe bersarang (bukan view; `canView` menolak `from=room`).
+- Test: `tests/room-module.test.js` (15 tes); `tests/spa-host.test.js` dan `display-mode.test.js` disesuaikan (non-view contoh: `inventory.html`). Seluruh test: sama dengan baseline.
+- Smoke (`tools/smoke-spa-pages.py`, Chromium headless, SwiftShader, N=20, 12 view): LULUS. 0 konteks WebGL baru, three.min.js 0x dimuat ulang, 0 error konsol. Blok room: view di shell, 2 pemain (Kamu + Bot), 4 slot equipment, 5 slot Power, modal Power/Dadu terbuka dan tertutup dengan Escape, START -> `game:start` (type room, mode vsc, 2 pemain), Back -> mode, KELUAR -> lobby, tanpa sisa DOM/CSS/kelas; mode online: `UT.Multiplayer.RoomService`/`Presence` dimuat di shell, kelas `mp-online` dilepas. Heap setelah GC paksa, 25 putaran room<->lobby: 9,6 -> 9,8 MB (tanpa kebocoran; mail 8,3 -> 9,2 MB sebagai pembanding).
+- Belum: setup room online dengan akun/server sungguhan (create/join, realtime, Ready/Start, undangan Presence); cek HP fisik.
+- Urutan berikutnya: `frame`; lalu `inventory` bersama efek/pet/dadu/powerup.
+
+### Inventory (tahap 3-12, SW v313)
+
+- **Temuan:** frame/dadu/efek/powerup/pet bukan halaman terpisah; `inventory-bridge.js` mengalihkan `frame.html` dst. ke `inventory.html?tab=...`. Tab = iframe bersarang `?embed=inv` (bukan `#f`, jadi `frame-guard` tidak mengambil alih). Satu-satunya pengecualian: `?from=room` (modal room).
+- `assets/js/pages/inventory.js` dibungkus `UT.PageModule.define('inventory')`; route di `spa-host.js`, `frame-guard.js`, prefetch lobby -> inventory di `play.js`. Navigasi keluar (pesan `ut-inv-nav` dari tab, Back, Escape) lewat `UT.Spa.go`; `?tab=` dari URL rute aktif; `history.replaceState` dimatikan di shell.
+- Smoke (`tools/smoke-spa-pages.py`, 3 putaran): LULUS. Tab dari `?tab=dadu`, pindah ke frame (iframe kedua), Back -> lobby, tanpa sisa DOM/iframe/CSS; 0 konteks WebGL baru di shell, three.min.js 0x dimuat ulang, 0 error konsol. Contoh halaman non-view di smoke dan `spa-host.test.js` diganti (`karakter.html?from=room`, `dadu.html`).
+- **Batas:** tiap tab masih memuat dokumen penuh + renderer sendiri di iframe (pindah tab pertama kali tetap lambat). Langkah berikutnya: tab menjadi modul di wadah `#views`, mulai dari `frame` (tanpa WebGL), lalu efek, dadu, powerup, pet (SharedGL). Halaman mandiri tetap untuk modal room.
+
+### Perbaikan: tombol modal Totem masih CSS (SW v311)
+
+- **Gejala:** saat memakai Totem, modal "Pakai Totem?" menampilkan tombol "Pakai Totem" sebagai gradasi hijau CSS, bukan aset gambar.
+- **Penyebab:** `gameplay/css/hud-mockup.css` punya `.tm-bt .tm-y { background: linear-gradient(...) !important }` (spesifisitas 0,2,0) yang mengalahkan `.tm-bt button { background: url(tombol-hijau-polos.webp) !important }` (0,1,1) di bawahnya. Tombol "Tidak" (`.tm-n`) sudah benar karena punya aturan `background-image: url(...)` sendiri.
+- **Perbaikan:** aturan gradasi dihapus; `.tm-bt .tm-y` kini `background-image: url(tombol-hijau-polos.webp) !important` (Pakai = hijau, Tidak = biru, tidak diubah).
+- **Tes:** `tests/totem-buttons-assets.test.js` (4 tes; terbukti gagal pada CSS lama) menjaga tidak ada gradasi `!important` pada `.tm-y`/`.tm-n` dan aset gambar ada.
+- **Belum:** verifikasi visual di browser (tidak ada Chrome di sesi ini); modal Totem pada layar tamu online memakai kode yang sama (`totemModal`), tetapi belum dicek. Aturan tema di `gameplay-overrides.css` (baris 112-113) dan warna dasar `gameplay.css` tetap ada sebagai cadangan, tertimpa `hud-mockup.css`.
+
+### Verifikasi smoke penuh di `main` (SW v314, 2026-11-20)
+
+`N=3 CHROME=/path/ke/chrome python3 -I tools/smoke-spa-pages.py` (Chromium 153 headless, SwiftShader), 13 view: profile, leaderboard, tambang,
+friendship, shop, mode, hadiah-misi, chest, mail, settings, room, inventory, lobby. Hasil: LULUS - 0 konteks WebGL baru, `three.min.js` 0x dimuat ulang,
+0 error konsol, hanya lobby ter-mount di akhir, tidak ada CSS/DOM/kelas tersisa, tombol Back/Coin/Gem bisa diketuk, memori JS 14,4 -> 14,1 MB.
+Ini menutup "smoke BELUM" untuk hadiah-misi, chest, mail, dan settings.
+Skrip: klik yang memicu pindah rute memakai `no_wait_after=True` (tanpa itu Playwright menunggu mount lobby yang lambat di render perangkat lunak dan
+kena timeout padahal Back berfungsi). Skrip kini lama (>5 menit untuk N=3); jalankan di latar belakang (`setsid nohup ... &`) bila alat membatasi waktu per perintah.
+Masih terbuka: cek HP fisik, ukur memori di HP, dan tab inventory (frame/efek/dadu/powerup/pet) sebagai modul.

@@ -53,7 +53,7 @@
     } catch (e) { out = ''; }
     try { if (ch) scene.remove(ch.root); } catch (e) {}
     if (typeof out === 'string' && out.length > 100) {
-      var ks = Object.keys(cache); if (ks.length > 24) delete cache[ks[0]]; /* batasi memori */
+      var ks = Object.keys(cache); if (ks.length > 64) delete cache[ks[0]]; /* batasi memori */
       return (cache[sig] = out);
     }
     return '';
@@ -74,8 +74,12 @@
     var h = html(); el.innerHTML = h || (fb ? fb() : '');
   }
   function watch(fn) {
-    var unsub = null, onShow = function (e) { if (e.persisted) fn(); };
-    try { if (win.PlayerData && win.PlayerData.subscribe) unsub = win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fn(); }); } catch (e) {}
+    /* fn hanya dipanggil bila tampilan kepala (look + gear) BERUBAH sejak panggilan terakhir; event equip dadu/tema, sinkron server yang
+       isinya sama, pageshow, dst. tidak memicu render ulang. */
+    var unsub = null, last = signature();
+    var fire = function () { var sg = signature(); if (sg === last) return; last = sg; fn(); };
+    var onShow = function (e) { if (e.persisted) fire(); };
+    try { if (win.PlayerData && win.PlayerData.subscribe) unsub = win.PlayerData.subscribe(function (r) { if (r === 'equip' || r === 'pageshow' || r === 'storage' || r === 'server-appearance') fire(); }); } catch (e) {}
     win.addEventListener('pageshow', onShow);
     return function () { if (typeof unsub === 'function') unsub(); win.removeEventListener('pageshow', onShow); };
   }

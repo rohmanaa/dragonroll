@@ -3,25 +3,26 @@
    Sama seperti game-core.js: bisa dipakai di browser (UT.Gameplay.Duel) dan Node (require) untuk tes,
    serta nanti di server agar dadu & hasil duel tidak bisa dicurangi di klien.
 
-   Aturan:
+   Aturan (gaya batu-gunting-kertas):
    - Dua pemain bertemu (mendarat) di petak yang sama. Petak START (<=1) dan petak akhir = Safe Tile (tanpa duel).
-   - Masing-masing 3 Hearts. Kedua pemain roll d6 bersamaan; efek diproses bersamaan.
-       1 Defense      : blokir 1 damage dari serangan lawan di ronde itu
-       2 Regeneration : pulihkan 1 HP
-       3 Attack       : serang 1
-       4 Critical     : serang 2, +2 Momentum
-       5 Lifesteal    : serang 1 + pulihkan 1 HP
-       6 Berserk      : serang 2, MENEMBUS Defense
-   - Momentum (maks 3, per duel): serangan berhasil +1, Critical +2, berhasil memblokir +1.
-     Momentum penuh -> serangan berikutnya = FINISHER (+1 damage), Momentum kembali 0.
-   - Maks 3 ronde normal. HP 0 = kalah. Setelah ronde 3: HP lebih tinggi menang, sama -> Sudden Death.
-     Kedua HP 0 di ronde yang sama: keduanya dipulihkan ke 1 HP, lanjut Sudden Death.
-   - Sudden Death: tanpa heal (Regeneration & heal Lifesteal nonaktif), lanjut sampai ada yang kalah.
-   - Defeat Penalty (satu paket, tidak ditumpuk): mundur 10% panjang papan (min petak 1).
-     Heavy Defeat (kalah oleh Finisher atau di Sudden Death): mundur 10% + skip 1 giliran. Tidak pernah kembali ke START.
-   - Hadiah: pemenang +20 XP, kalah +5 XP, yang kalah mendapat Revenge buff (+1 damage pada serangan pertama
-     di duel berikutnya melawan lawan yang sama, sekali pakai).
-   API: create(opts) -> state ; round(state, rolls|rng) -> {state, events} ; outcome(state, ctx) -> hasil/penalti.
+   - Masing-masing 3 Hearts. Kedua pemain roll d6 bersamaan; dadu diubah jadi 3 aksi (2 sisi dadu per aksi):
+       1-2 Attack  : beri 1 damage
+       3-4 Defense : bertahan, menahan Attack lawan
+       5-6 Heal    : dapat 1 hati (maks 3)
+   - Siapa mengalahkan siapa:
+       Attack  vs Defense -> serangan diblokir (0 damage)
+       Attack  vs Heal    -> serangan masuk, Heal gagal (terganggu)
+       Attack  vs Attack  -> saling kena 1
+       Heal    vs Defense -> Heal berhasil
+       Heal    vs Heal    -> keduanya +1
+       Defense vs Defense -> tidak terjadi apa-apa
+   - Hanya 3 ronde. Setelah ronde 3 selesai TIDAK ada ronde berikutnya (tanpa Sudden Death).
+     Hati 0 = kalah lebih awal. Setelah ronde 3: hati lebih banyak menang, sama = DRAW.
+   - Hasil:
+       Menang : hadiah (XP) + bertahan di petak
+       Kalah  : hadiah kecil + mundur 5 petak (minimal petak 1)
+       Draw   : tanpa hadiah, kedua pemain tetap di petak yang sama
+   API: create(opts) -> state ; round(state, rolls|rng) -> {state, events} ; outcome(state, ctx) -> hasil.
    State tidak dimutasi. */
 (function (root, factory) {
   var api = factory();
@@ -34,21 +35,21 @@
   var DEFAULTS = {
     maxHp: 3,
     maxRounds: 3,
-    maxMomentum: 3,
-    penaltyPct: 0.10,
+    backTiles: 5,   /* petak mundur bagi yang kalah */
     xpWin: 20,
     xpLose: 5,
-    reviveHp: 2,     /* HP pemain kalah setelah duel (di luar duel) */
-    revengeTurns: 5  /* masa berlaku Revenge buff, dihitung oleh lapisan luar */
+    xpDraw: 0,
+    reviveHp: 2     /* HP pemain kalah setelah duel (di luar duel) */
   };
 
+  /* dadu 1-6 -> aksi. atk = damage yang diberikan. */
   var ACTIONS = {
-    1: { id: 'defense', name: 'Defense', atk: 0 },
-    2: { id: 'regen', name: 'Regeneration', atk: 0 },
-    3: { id: 'attack', name: 'Attack', atk: 1 },
-    4: { id: 'critical', name: 'Critical', atk: 2 },
-    5: { id: 'lifesteal', name: 'Lifesteal', atk: 1 },
-    6: { id: 'berserk', name: 'Berserk', atk: 2 }
+    1: { id: 'attack',  name: 'Attack',  atk: 1 },
+    2: { id: 'attack',  name: 'Attack',  atk: 1 },
+    3: { id: 'defense', name: 'Defense', atk: 0 },
+    4: { id: 'defense', name: 'Defense', atk: 0 },
+    5: { id: 'heal',    name: 'Heal',    atk: 0 },
+    6: { id: 'heal',    name: 'Heal',    atk: 0 }
   };
 
   function actionOf(v) { return ACTIONS[v]; }
@@ -64,34 +65,25 @@
     return 1 + Math.floor((rng || Math.random)() * 6);
   }
 
-  /* opts: {revenge:[bool,bool], maxHp, maxRounds, maxMomentum, ...DEFAULTS}. Pemain 0 = penantang (yang mendarat). */
+  /* opts: {maxHp, maxRounds, backTiles, ...DEFAULTS}. Pemain 0 = penantang (yang mendarat). */
   function create(opts) {
     opts = opts || {};
     var cfg = {};
     Object.keys(DEFAULTS).forEach(function (k) { cfg[k] = opts[k] != null ? opts[k] : DEFAULTS[k]; });
-    var rv = opts.revenge || [false, false];
     return {
       cfg: cfg,
       hp: [cfg.maxHp, cfg.maxHp],
-      mom: [0, 0],
+      mom: [0, 0],    /* dipertahankan (selalu 0) agar UI/cue lama tetap kompatibel */
       round: 0,
-      sudden: false,
       over: false,
-      winner: null,   /* 0 | 1 */
-      loser: null,
-      heavy: false,   /* true bila kalah oleh Finisher atau di Sudden Death */
-      byFinisher: false,
-      revenge: [!!rv[0], !!rv[1]],
-      revengeUsed: [false, false]
+      draw: false,
+      winner: null,   /* 0 | 1 | null (draw) */
+      loser: null
     };
   }
 
   function clone(s) {
-    return {
-      cfg: s.cfg, hp: s.hp.slice(), mom: s.mom.slice(), round: s.round, sudden: s.sudden, over: s.over,
-      winner: s.winner, loser: s.loser, heavy: s.heavy, byFinisher: s.byFinisher,
-      revenge: s.revenge.slice(), revengeUsed: s.revengeUsed.slice()
-    };
+    return { cfg: s.cfg, hp: s.hp.slice(), mom: s.mom.slice(), round: s.round, over: s.over, draw: s.draw, winner: s.winner, loser: s.loser };
   }
 
   function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
@@ -103,90 +95,75 @@
     if (Array.isArray(rolls)) r = [rollValue(rolls[0]), rollValue(rolls[1])];
     else r = [rollValue(rolls), rollValue(rolls)];
     s.round++;
-    ev.push({ type: 'round', n: s.round, sudden: s.sudden });
+    ev.push({ type: 'round', n: s.round });
     ev.push({ type: 'roll', values: r.slice() });
 
-    var base = [0, 0], dmg = [0, 0], heal = [0, 0], fin = [false, false], blocked = [false, false], rv = [false, false];
+    var act = [ACTIONS[r[0]].id, ACTIONS[r[1]].id];
+    var dmg = [0, 0], heal = [0, 0], blocked = [false, false];
     for (i = 0; i < 2; i++) {
-      base[i] = ACTIONS[r[i]].atk;
-      if (base[i] > 0) {
-        if (s.revenge[i] && !s.revengeUsed[i]) { base[i]++; s.revengeUsed[i] = true; rv[i] = true; }
-        if (s.mom[i] >= cfg.maxMomentum) { base[i]++; fin[i] = true; }
+      o = 1 - i;
+      if (act[i] === 'attack') {
+        if (act[o] === 'defense') blocked[o] = true;
+        else dmg[o] = 1;
       }
-      if (!s.sudden && (r[i] === 2 || r[i] === 5)) heal[i] = 1;
+      /* Heal berhasil kecuali diserang di ronde yang sama */
+      if (act[i] === 'heal' && act[o] !== 'attack') heal[i] = 1;
     }
+    if (act[0] === 'attack' && act[1] === 'attack') ev.push({ type: 'clash' });
     for (i = 0; i < 2; i++) {
-      o = 1 - i;
-      dmg[o] = base[i];
-      /* Defense memblokir 1 damage; Berserk menembus Defense. Di Sudden Death blokir tetap maks 1. */
-      if (base[i] > 0 && r[o] === 1 && r[i] !== 6) { dmg[o] = Math.max(0, base[i] - 1); blocked[o] = true; }
-    }
-    if (base[0] > 0 && base[1] > 0) ev.push({ type: 'clash' });
-    for (i = 0; i < 2; i++) {
-      o = 1 - i;
-      if (rv[i]) ev.push({ type: 'revenge', who: i });
-      if (fin[i]) { s.mom[i] = 0; ev.push({ type: 'finisher', who: i }); }
-      else if (base[i] > 0 && dmg[o] > 0) s.mom[i] = Math.min(cfg.maxMomentum, s.mom[i] + (r[i] === 4 ? 2 : 1));
-      if (blocked[i]) s.mom[i] = Math.min(cfg.maxMomentum, s.mom[i] + 1);
-    }
-    for (i = 0; i < 2; i++) {
-      if (dmg[i] > 0) ev.push({ type: 'hit', target: i, by: 1 - i, dmg: dmg[i], action: ACTIONS[r[1 - i]].id, finisher: fin[1 - i] });
+      if (dmg[i] > 0) ev.push({ type: 'hit', target: i, by: 1 - i, dmg: dmg[i], action: 'attack', finisher: false });
       else if (blocked[i]) ev.push({ type: 'block', who: i });
-      if (heal[i] > 0 && s.hp[i] - dmg[i] < cfg.maxHp) ev.push({ type: 'heal', who: i });
+      if (heal[i] > 0 && s.hp[i] < cfg.maxHp) ev.push({ type: 'heal', who: i });
     }
     for (i = 0; i < 2; i++) s.hp[i] = clamp(s.hp[i] - dmg[i] + heal[i], 0, cfg.maxHp);
     ev.push({ type: 'state', hp: s.hp.slice(), mom: s.mom.slice() });
 
-    var w = null;
-    if (s.hp[0] === 0 && s.hp[1] === 0) {
-      s.hp = [1, 1]; s.sudden = true;
-      ev.push({ type: 'double_ko' }, { type: 'sudden_death' }, { type: 'state', hp: s.hp.slice(), mom: s.mom.slice() });
-    } else if (s.hp[0] === 0 || s.hp[1] === 0) {
-      w = s.hp[0] === 0 ? 1 : 0;
-      s.byFinisher = !!(fin[w] && dmg[1 - w] > 0);
-      s.heavy = s.sudden || s.byFinisher;
-    } else if (!s.sudden && s.round >= cfg.maxRounds) {
-      if (s.hp[0] !== s.hp[1]) { w = s.hp[0] > s.hp[1] ? 0 : 1; s.heavy = false; ev.push({ type: 'decision', by: 'hp' }); }
-      else { s.sudden = true; ev.push({ type: 'sudden_death' }); }
+    var w = null, ended = false;
+    if (s.hp[0] === 0 && s.hp[1] === 0) { ended = true; ev.push({ type: 'double_ko' }); }
+    else if (s.hp[0] === 0 || s.hp[1] === 0) { ended = true; w = s.hp[0] === 0 ? 1 : 0; }
+    else if (s.round >= cfg.maxRounds) {
+      ended = true;
+      if (s.hp[0] !== s.hp[1]) { w = s.hp[0] > s.hp[1] ? 0 : 1; ev.push({ type: 'decision', by: 'hp' }); }
     }
-    if (w !== null) {
-      s.over = true; s.winner = w; s.loser = 1 - w;
-      ev.push({ type: 'ko', winner: w, loser: 1 - w, heavy: s.heavy, byFinisher: s.byFinisher });
+    if (ended) {
+      s.over = true;
+      if (w === null) { s.draw = true; ev.push({ type: 'draw' }); }
+      else { s.winner = w; s.loser = 1 - w; ev.push({ type: 'ko', winner: w, loser: 1 - w, heavy: false, byFinisher: false }); }
     }
     return { state: s, events: ev };
   }
 
-  /* Penalti & hadiah setelah duel selesai.
-     ctx: {pos, goal}. -> {winner, loser, kind:'normal'|'heavy', back, to, skipTurn, xp:{winner,loser}, reviveHp, revengeFor}
-     back = 10% panjang papan (min 1 petak); petak tujuan tidak pernah di bawah 1 (tidak pernah kembali ke START). */
+  /* Hasil & hadiah setelah duel selesai. ctx: {pos, goal}.
+     -> {draw, winner, loser, kind:'win'|'draw', back, from, to, skipTurn:false, xp:{winner,loser}, reviveHp}
+     Kalah: mundur backTiles petak (tidak pernah di bawah petak 1). Draw: tanpa hadiah, tidak ada yang bergerak. */
   function outcome(state, ctx) {
     if (!state.over) throw new Error('duel belum selesai');
-    var cfg = state.cfg, goal = (ctx && ctx.goal) || 100, pos = (ctx && ctx.pos) || 1;
-    var back = Math.max(1, Math.round(goal * cfg.penaltyPct));
-    var to = Math.max(1, pos - back);
+    var cfg = state.cfg, pos = (ctx && ctx.pos) || 1;
+    if (state.draw) {
+      return { draw: true, winner: null, loser: null, kind: 'draw', byFinisher: false, back: 0, from: pos, to: pos,
+               skipTurn: false, xp: { winner: cfg.xpDraw, loser: cfg.xpDraw }, reviveHp: cfg.maxHp, revengeFor: null };
+    }
+    var to = Math.max(1, pos - cfg.backTiles);
     return {
+      draw: false,
       winner: state.winner,
       loser: state.loser,
-      kind: state.heavy ? 'heavy' : 'normal',
-      byFinisher: state.byFinisher,
+      kind: 'win',
+      byFinisher: false,
       back: pos - to,
       from: pos,
       to: to,
-      skipTurn: !!state.heavy,
+      skipTurn: false,
       xp: { winner: cfg.xpWin, loser: cfg.xpLose },
       reviveHp: cfg.reviveHp,
-      revengeFor: state.loser
+      revengeFor: null
     };
   }
 
-  /* Mainkan duel sampai selesai (untuk simulasi/CPU/tes). rng opsional. Batas pengaman 60 ronde. */
+  /* Mainkan duel sampai selesai (untuk simulasi/CPU/tes). rng opsional. Selalu berakhir paling lama di ronde 3. */
   function play(state, rng) {
     var s = state, all = [], n = 0;
-    while (!s.over && n++ < 60) { var r = round(s, rng || Math.random); s = r.state; all = all.concat(r.events); }
-    if (!s.over) { /* sangat tak mungkin: putuskan dari HP, imbang -> penantang kalah tipis */
-      s = clone(s); var w = s.hp[0] >= s.hp[1] ? 0 : 1; s.over = true; s.winner = w; s.loser = 1 - w; s.heavy = true;
-      all.push({ type: 'ko', winner: w, loser: 1 - w, heavy: true, byFinisher: false });
-    }
+    while (!s.over && n++ < 10) { var r = round(s, rng || Math.random); s = r.state; all = all.concat(r.events); }
     return { state: s, events: all };
   }
 

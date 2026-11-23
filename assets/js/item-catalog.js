@@ -358,25 +358,25 @@
      dipakai satu per pemain; slot 'pet' OPSIONAL (boleh kosong, lihat optionalSlots) dan tersimpan di player_appearance.equipped['pet']
      seperti aura. id pet = gameKey = id di supabase/pet_catalog.sql (tabel metadata + skill). Harga di TIER_PRICE di bawah (bukan di sini).
      colors = 3 warna palet untuk thumbnail; accent = warna aksen pet. */
-  function pet(gameKey, name, rarity, tier, role, accent, colors, desc) {
+  function pet(gameKey, name, rarity, tier, role, accent, colors, desc, image) {
     return { id: 'pet.' + gameKey, kind: 'pet', gameKey: gameKey, name: name, rarity: rarity, tier: tier, role: role,
-      price: null, desc: desc, starter: false, accent: accent, colors: colors };
+      price: null, desc: desc, starter: false, accent: accent, colors: colors, image: image };
   }
   var PETS = [
     pet('forest_pup', 'Forest Pup', 'common', 1, 'Pengendus', '#6fd05a', ['#b8803f', '#f0dcb0', '#3fa04a'],
-      'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.'),
+      'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.', 'data/inventory/pet/items/forest_pup/forest-pup.webp'),
     pet('copper_golem', 'Copper Golem', 'uncommon', 2, 'Pelindung', '#ff9a30', ['#c8703a', '#3fbf9f', '#ffb040'],
-      'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.'),
+      'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.', 'data/inventory/pet/items/copper_golem/copper-golem.webp'),
     pet('crystal_axolotl', 'Crystal Axolotl', 'rare', 3, 'Penyembuh', '#40e8f4', ['#8fe8f2', '#d8fbff', '#ff9ad8'],
-      'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.'),
+      'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.', 'data/inventory/pet/items/crystal_axolotl/crystal-axolotl.webp'),
     pet('arcane_owl', 'Arcane Owl', 'epic', 4, 'Peramal', '#b46af0', ['#6a4a7a', '#b46af0', '#ffd24a'],
-      'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.'),
+      'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.', 'data/inventory/pet/items/arcane_owl/arcane-owl.webp'),
     pet('storm_wolf', 'Storm Wolf', 'legendary', 5, 'Penyerang', '#7fd0ff', ['#5a6a8a', '#e8f4ff', '#7fd0ff'],
-      'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.'),
+      'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.', 'data/inventory/pet/items/storm_wolf/storm-wolf.webp'),
     pet('inferno_dragon', 'Inferno Dragon', 'mythic', 6, 'Pembakar Ular', '#ff4a3a', ['#1b0a10', '#a0182c', '#ff7a18'],
-      'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.'),
+      'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.', 'data/inventory/pet/items/inferno_dragon/inferno-dragon.webp'),
     pet('celestial_kitsune', 'Celestial Kitsune', 'divine', 7, 'Pengubah Takdir', '#ffe08a', ['#fdfbf4', '#ffcf4a', '#6ae8ff'],
-      'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.')
+      'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.', 'data/inventory/pet/items/celestial_kitsune/celestial-kitsune.webp')
   ];
   ITEMS = ITEMS.concat(PETS);
 
@@ -431,7 +431,7 @@
   }
   function petFromManifest(m) {
     return { id: m.id, kind: 'pet', gameKey: m.gameKey, name: m.name, rarity: m.rarity, tier: m.tier, role: m.role, price: m.price == null ? null : m.price,
-      desc: m.desc, starter: !!m.starter, accent: m.visual.accent, colors: m.visual.colors.slice(), gems: m.gems == null ? null : m.gems };
+      desc: m.desc, starter: !!m.starter, accent: m.visual.accent, colors: m.visual.colors.slice(), image: m.assets.image, gems: m.gems == null ? null : m.gems };
   }
   function auraFromManifest(m) {
     return { id: m.id, kind: 'aura', gameKey: m.gameKey, name: m.name, rarity: m.rarity, price: m.price == null ? null : m.price,

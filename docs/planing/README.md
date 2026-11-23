@@ -38,6 +38,7 @@ sesuai urutan.
    `sw.js` dan jalankan `python3 tools/gen-preload-manifest.py` (perlu `git add`
    dulu karena hash diambil dari indeks git). Tes `tests/sw-incremental-media.test.js`
    menjaganya.
+3b. **Versi game = `VERSION` di `sw.js`** (satu-satunya sumber). Tampil otomatis sebagai "Versi vNNN" di splash (`#ver`) dan Pengaturan (`#appver`) lewat `assets/js/core/app-version.js` (tanya SW aktif via `postMessage GET_VERSION`; cadangan: baca teks `sw.js`). JANGAN menulis nomor versi di halaman. Halaman baru yang ingin menampilkannya cukup menaruh `<span data-app-version hidden></span>` + memuat skripnya; bila halaman jadi SPA view, panggil `UT.Version.apply(root)` saat mount. Tes: `tests/app-version.test.js`.
 4. Jalankan seluruh test sebelum dan sesudah tiap langkah (bagian "Perintah umum").
    Baseline 5 test gagal sejak awal; target: tidak menambah kegagalan baru.
 5. Satu tahap = satu atau beberapa commit kecil di branch; jangan gabungkan tahap.
@@ -54,7 +55,7 @@ sesuai urutan.
 | 0 | DPR 1,5, antialias mati di HP, latar `.webp` 1280 px | Selesai, sudah di `main` |
 | 1 | Modul halaman (`UT.PageModule`) untuk Lobby dan Karakter | Selesai, sudah di `main` (SW v294) |
 | 2 | Shell SPA, renderer bersama (pilot) | Selesai, sudah dimerge ke `main` |
-| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop selesai (kode, test, smoke browser headless lulus; SW v304); cek HP belum. Sisa: Gelombang B (tanpa shop) + inventory (dengan efek/pet/dadu/powerup/frame) |
+| 3 | Migrasi halaman lain | Sedang berjalan (di `main`): profile, leaderboard, tambang, friendship, shop, mode selesai (kode, test, smoke browser headless lulus; SW v305); hadiah-misi, chest, mail, dan settings selesai (kode + test, SW v310; smoke browser penuh LULUS 2026-11-20 untuk keempatnya); room selesai (kode, test, smoke browser headless lulus; SW v312; spa-host kini memuat `<script type=module>`); cek HP belum. inventory selesai sebagai view (SW v313; tab masih iframe bersarang `?embed=inv`). Sisa: ubah tab frame/efek/dadu/powerup/pet dari iframe menjadi modul satu per satu |
 | 4 | Pembersihan, SW, dokumentasi | Belum |
 
 Perbarui tabel ini di akhir tiap tahap.
@@ -109,3 +110,4 @@ Jika pemilik belum menjawab, pakai usulan di atas dan catat di bagian
 - 2026-11-20, tahap 2: **Opsi A (hybrid)**. `play.html` tetap shell; `#view` dipakai untuk Lobby dan Karakter, halaman lain tetap di `<iframe id="f">` sampai tahap 3. Alasan: musik, overlay memuat, dan prefetch di `play.js` dipakai ulang, tanpa shell baru.
 - 2026-11-20, tahap 2: **tanpa `router.js` dan tanpa hash route**. Navigasi memakai `UT.Spa.go(url)` dengan History API (`play.html?go=<halaman>`, `popstate` untuk Back/Forward). Alasan: `play.js` sudah memakai `?go=` dan reload ke Karakter tetap jalan lewat parameter itu.
 - 2026-11-20, tahap 2: HP portrait (play.css memutar iframe 90°) tetap memakai iframe karena trik rotasi tidak bisa dipakai untuk `#view`. Akibatnya, keuntungan SPA di HP portrait BELUM terukur; ini perlu diputuskan sebelum tahap 3.
+- 2026-11-20, tahap 3 (mode): **`UT.RoomFlow` (navigate/launch/exitGame) memakai `UT.Spa.go` bila ada** (di shell), `location.href` hanya fallback untuk halaman mandiri/iframe. Alasan: di view, `location.href` memuat ulang SELURUH `play.html` (shell, musik, overlay hilang). Ini berlaku untuk Room nanti juga. Id `#view` milik shell: halaman yang di-view-kan tidak boleh punya `id="view"` (mode: `#mapview`).

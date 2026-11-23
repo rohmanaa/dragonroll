@@ -8,7 +8,9 @@
   var q = new URLSearchParams(location.search), page = location.pathname.split('/').pop();
   if (q.get('from') === 'room') return;                 // dipakai room.html: ditangani room-modal-bridge.js
   if (q.get('embed') !== 'inv') {
-    if (TABS[page]) location.replace('inventory.html?tab=' + TABS[page]);
+    /* Dadu bukan tab Inventory lagi (dipasang dari Karakter): dibuka langsung -> masuk lewat shell play.html agar tetap di halaman Dadu */
+    if (page === 'dadu.html') location.replace('play.html?go=dadu.html');
+    else if (TABS[page]) location.replace('inventory.html?tab=' + TABS[page]);
     return;
   }
   document.documentElement.classList.add('ut-inv-embed');

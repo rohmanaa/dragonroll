@@ -16,6 +16,7 @@
   <button id="back" aria-label="Kembali ke Mode"><img class="bg" src="assets/images/buttons/tombol-rumah-abu.webp" alt=""></button>
   <div id="title" class="ttl">GAME ROOM</div>
   <div id="chips"></div>
+  <div id="hrt" class="chip" hidden role="status"></div>
   <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
 
   <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eq"></div></section>
@@ -72,6 +73,8 @@
 <script src="data/inventory/character/_shared/js/character-view.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
+<script src="assets/js/services/hearts-service.js"></script>
+<script src="assets/js/hearts-gate.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-avatar.js"></script>
 <script src="assets/js/core/app.js"></script>
@@ -80,6 +83,7 @@
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'room'});</script>
 <script type="module" src="data/inventory/dice/_shared/js/room-dice-art.js"></script>
+<script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/pages/room.js"></script>
 <script type="module">
 import './assets/js/multiplayer/room-service.js';

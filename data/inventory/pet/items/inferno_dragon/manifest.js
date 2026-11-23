@@ -17,5 +17,5 @@
     starter: false,
     desc: "Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.",
     visual: {"accent":"#ff4a3a","colors":["#1b0a10","#a0182c","#ff7a18"]},
-    assets: { image: "data/inventory/pet/items/inferno_dragon/inferno_dragon.png", sfx: ["data/inventory/pet/items/inferno_dragon/sfx/inferno-dragon-roar.mp3", "assets/audio/sfx/pet/inferno-dragon-fire.mp3", "data/inventory/pet/items/inferno_dragon/sfx/inferno-dragon-wings.mp3"] }
+    assets: { image: "data/inventory/pet/items/inferno_dragon/inferno-dragon.webp", sfx: ["data/inventory/pet/items/inferno_dragon/sfx/inferno-dragon-roar.mp3", "assets/audio/sfx/pet/inferno-dragon-fire.mp3", "data/inventory/pet/items/inferno_dragon/sfx/inferno-dragon-wings.mp3"] }
 });

@@ -17,9 +17,11 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'leaderboard.html': 'leaderboard' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu' };
+    var HUB_TABS = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };   // halaman yang kini panel di hub profile.html
+    var INV_VIEW_TABS = { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
-  var SKIP_JS = /(^|\/)(page-shell|room-modal-bridge|frame-guard|boot-guard)\.js$/;
+  var SKIP_JS = /(^|\/)(page-shell|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
 
   function pageOf(url) {
@@ -37,7 +39,7 @@
 
     function parse(html) {
       var doc = new G.DOMParser().parseFromString(html, 'text/html');
-      var p = { css: [], styles: [], js: [], sbg: null, html: '', cls: '', title: doc.title || '' };
+      var p = { css: [], styles: [], js: [], mods: {}, sbg: null, html: '', cls: '', title: doc.title || '' };
       Array.prototype.forEach.call(doc.querySelectorAll('head link[rel~="stylesheet"], head style, head script[src], body script[src]'), function (el) {
         var tag = el.tagName;
         if (tag === 'LINK') { p.css.push(el.getAttribute('href')); return; }
@@ -51,6 +53,7 @@
           });
           p.sbg = c;
         }
+        if ((el.getAttribute('type') || '').toLowerCase() === 'module') p.mods[src] = 1;   // ES module: dimuat lewat import(), bukan <script> klasik
         p.js.push(src);
       });
       Array.prototype.forEach.call(doc.body.querySelectorAll('script'), function (s) { s.parentNode.removeChild(s); });
@@ -67,10 +70,22 @@
       }).then(function (html) { return (cache[page] = parse(html)); });
     }
 
-    function loadScripts(list) {
+    function inDoc(k) {   // skrip yang sudah ada di dokumen (mis. dimuat dinamis oleh halaman) tidak diunduh ulang
+      return Array.prototype.some.call(D.scripts || [], function (s) { return s.src && key(s.src) === k; });
+    }
+
+    function loadScripts(list, mods) {
       var ps = [];
+      mods = mods || {};
       list.forEach(function (src) {
         var k = key(src);
+        if (!scripts[k] && mods[src]) {
+          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) {
+            delete scripts[k]; if (G.console) console.warn('[Spa] gagal memuat modul', src, e);
+          });
+        } else if (!scripts[k] && inDoc(k)) {
+          scripts[k] = Promise.resolve();
+        }
         if (!scripts[k]) {
           scripts[k] = new Promise(function (res) {
             var s = D.createElement('script');
@@ -108,7 +123,7 @@
         return Promise.all(waits).then(function () {
           view.innerHTML = p.html;
           (p.cls || '').split(/\s+/).filter(Boolean).forEach(function (c) { if (!D.body.classList.contains(c)) { D.body.classList.add(c); added.push(c); } });
-          return loadScripts(p.js);
+          return loadScripts(p.js, p.mods);
         }).then(function () {
           if (p.sbg && G.UT && G.UT.SceneBG) sbg = G.UT.SceneBG.mount(view, p.sbg);
           if (p.title) D.title = p.title;
@@ -212,8 +227,32 @@
       });
     }
 
+    /* inventory.html bagi tab yang sudah jadi view (Pet) = langsung view-nya: tab dari ?tab=, atau tab terakhir (sessionStorage) bila tanpa ?tab= */
+    /* Profil · Teman · Pesan · Pengaturan = SATU halaman (hub profile.html, modul 'profile'): friendship/mail/settings.html dialihkan ke
+       profile.html?tab=... (mempertahankan ?from=). Sinkron dengan UT.AccountHub.canon. */
+    function hubCanon(url) {
+      var tab = HUB_TABS[pageOf(url)];
+      if (!tab) return url;
+      var m = /[?&]from=([^&#]*)/.exec(String(url));
+      return 'profile.html?tab=' + tab + (m ? '&from=' + m[1] : '');
+    }
+    function canon(url) {
+      url = hubCanon(url);
+      if (pageOf(url) !== 'inventory.html') return url;
+      var m = /[?&]tab=([a-z]+)/.exec(String(url)), tab = m ? m[1] : '';
+      /* tab terakhir yang diingat TIDAK dipakai lagi: Inventory kini hanya Power-up/Ore/Log (bukan view); tombol Inventory selalu membuka inventory.html */
+      var pg = INV_VIEW_TABS[tab];
+      return pg && !broken[pg] && canView(pg) ? pg : url;
+    }
+
     function go(url, opts) {
       opts = opts || {};
+      url = canon(url);
+      /* hub Profil/Teman/Pesan/Pengaturan sudah terbuka: pindah tab DI TEMPAT (tanpa teardown, fade, atau memuat ulang view) */
+      if (current && current.name === 'profile' && (pageOf(url) === 'profile.html' || HUB_TABS[pageOf(url)])) {
+        var H = UT().AccountHub;
+        if (H && H.handle && H.handle(url)) return Promise.resolve(true);
+      }
       var id = ++navId, name = viewName(url), toView = !!name && canView(url);
       if (hooks.leave) hooks.leave(opts.kind || 'delay');
       pushHistory(url, opts);
@@ -249,6 +288,7 @@
     api.canView = canView;
     api.viewName = viewName;
     api.pageOf = pageOf;
+    api.canon = canon;
     api.current = function () { return current ? { name: current.name, url: current.url } : null; };
     api.initialUrl = function () { return initialUrl; };
     return api;

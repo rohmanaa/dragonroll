@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 49 migrasi, urut: 202611050001 s/d 202611390001
+-- Isi: 52 migrasi, urut: 202611050001 s/d 202611420001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -6902,4 +6902,280 @@ end;
 $$;
 revoke all on function public.claim_daily_reward() from public, anon;
 grant execute on function public.claim_daily_reward() to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611400001_chest_power.sql
+-- ---------------------------------------------------------------------------
+-- Chest bisa memberi POWER (masuk stok akun, player_inventory.qty +1, maks 999) + hadiah Diamond dibesarkan.
+--   * Peluang Power per chest: Kayu 5% | Perak 12% | Emas 20% | Diamond 35%. Jenis Power diundi dari item_catalog (kind 'powerup') dengan
+--     bobot ~ 1/harga: Power murah lebih sering, Power mahal (Nether Star dst.) langka. Rata-rata nilai ~146 koin.
+--   * Hadiah Diamond: 1000-1400 koin + 3 gem + 200 XP (sebelumnya 800-1200 koin + 2 gem + 150 XP). Hadiah lain tidak berubah.
+--   * Respons chest_collect / chest_buy menambah 'power' (id item atau null). Mendefinisi ulang _chest_roll, chest_collect, chest_buy.
+
+create or replace function public._chest_roll(p_kind text) returns jsonb
+language plpgsql volatile as $$
+declare v_c int; v_g int := 0; v_x int; v_pc numeric; v_pw text;
+begin
+  if p_kind = 'wood' then
+    v_c := 50 + floor(random() * 51)::int;  v_x := 10; v_pc := 0.05;
+  elsif p_kind = 'silver' then
+    v_c := 150 + floor(random() * 101)::int; v_x := 25; v_pc := 0.12;
+    if random() < 0.10 then v_g := 1; end if;
+  elsif p_kind = 'gold' then
+    v_c := 350 + floor(random() * 151)::int; v_x := 60; v_g := 1; v_pc := 0.20;
+  elsif p_kind = 'diamond' then
+    v_c := 1000 + floor(random() * 401)::int; v_x := 200; v_g := 3; v_pc := 0.35;
+  else
+    raise exception 'BAD_CHEST_KIND';
+  end if;
+  if random() < v_pc then   -- undian berbobot 1/harga (perlombaan eksponensial: kunci = -ln(u) * harga, terkecil menang)
+    select id into v_pw from public.item_catalog
+     where kind = 'powerup' and price_coins is not null
+     order by (-ln(1 - random())) * price_coins limit 1;
+  end if;
+  return jsonb_build_object('coins', v_c, 'gems', v_g, 'xp', v_x, 'power', v_pw);
+end;
+$$;
+revoke all on function public._chest_roll(text) from public, anon, authenticated;
+
+create or replace function public.chest_collect(p_id bigint) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v_c public.player_chest; v_rw jsonb; v_w jsonb; v_xp int; v_pw text;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select * into v_c from public.player_chest where id = p_id and user_id = v_uid for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'tidak-ada'); end if;
+  if v_c.status = 'collected' then return jsonb_build_object('ok', false, 'reason', 'sudah-diambil'); end if;
+  if v_c.status <> 'opening' then return jsonb_build_object('ok', false, 'reason', 'belum-dibuka'); end if;
+  if v_c.open_ready_at > now() then return jsonb_build_object('ok', false, 'reason', 'belum-siap'); end if;
+
+  v_rw := public._chest_roll(v_c.kind);
+  v_xp := (v_rw ->> 'xp')::int;
+  v_w := public._wallet_apply(v_uid, (v_rw ->> 'coins')::bigint, (v_rw ->> 'gems')::bigint, 'chest', 'collect:' || p_id);
+  if (v_w ->> 'duplicate')::boolean then return jsonb_build_object('ok', false, 'reason', 'sudah-diambil'); end if;
+
+  v_pw := v_rw ->> 'power';
+  if v_pw is not null then   -- Power hadiah masuk stok akun (maks 999 per jenis)
+    insert into public.player_inventory(user_id, item_id, qty) values (v_uid, v_pw, 1)
+      on conflict (user_id, item_id) do update set qty = least(999, public.player_inventory.qty + 1);
+  end if;
+
+  update public.player_chest set status = 'collected', collected_at = now() where id = p_id;
+  insert into public.player_stats(user_id) values (v_uid) on conflict (user_id) do nothing;
+  update public.player_stats
+     set chests = chests + 1, xp = xp + v_xp, level = public.level_from_xp(xp + v_xp), updated_at = now()
+   where user_id = v_uid;
+
+  return jsonb_build_object('ok', true, 'id', p_id, 'kind', v_c.kind,
+           'coins', (v_rw ->> 'coins')::int, 'gems', (v_rw ->> 'gems')::int, 'xp', v_xp, 'power', v_pw,
+           'wallet_coins', (v_w ->> 'coins')::bigint, 'wallet_gems', (v_w ->> 'gems')::bigint) || public._chest_json(v_uid);
+end;
+$$;
+revoke all on function public.chest_collect(bigint) from public, anon;
+grant execute on function public.chest_collect(bigint) to authenticated;
+
+create or replace function public.chest_buy(p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_uid uuid := auth.uid(); v_p record; v_wal public.player_wallet; v_id bigint; v_rw jsonb; v_xp int; v_w jsonb; v_pw text;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  select * into v_p from public._chest_shop() where kind = p_kind;
+  if not found then raise exception 'BAD_CHEST_KIND'; end if;
+  perform public._wallet_ensure(v_uid);
+  select * into v_wal from public.player_wallet where user_id = v_uid for update;
+
+  if v_wal.coins < v_p.coins then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if;
+  if v_wal.gems  < v_p.gems  then return jsonb_build_object('ok', false, 'reason', 'gem-kurang'); end if;
+
+  insert into public.player_chest(user_id, kind, source, status, collected_at)
+    values (v_uid, p_kind, 'shop', 'collected', now()) returning id into v_id;
+
+  v_rw := public._chest_roll(p_kind);
+  v_xp := (v_rw ->> 'xp')::int;
+  perform public._wallet_apply(v_uid, -v_p.coins, -v_p.gems, 'chest_buy', 'buy:' || v_id);
+  v_w := public._wallet_apply(v_uid, (v_rw ->> 'coins')::bigint, (v_rw ->> 'gems')::bigint, 'chest', 'collect:' || v_id);
+
+  v_pw := v_rw ->> 'power';
+  if v_pw is not null then   -- Power hadiah masuk stok akun (maks 999 per jenis)
+    insert into public.player_inventory(user_id, item_id, qty) values (v_uid, v_pw, 1)
+      on conflict (user_id, item_id) do update set qty = least(999, public.player_inventory.qty + 1);
+  end if;
+  insert into public.player_stats(user_id) values (v_uid) on conflict (user_id) do nothing;
+  update public.player_stats
+     set chests = chests + 1, xp = xp + v_xp, level = public.level_from_xp(xp + v_xp), updated_at = now()
+   where user_id = v_uid;
+
+  return jsonb_build_object('ok', true, 'kind', p_kind, 'id', v_id, 'price_coins', v_p.coins, 'price_gems', v_p.gems,
+           'coins', (v_rw ->> 'coins')::int, 'gems', (v_rw ->> 'gems')::int, 'xp', v_xp, 'power', v_pw,
+           'wallet_coins', (v_w ->> 'coins')::bigint, 'wallet_gems', (v_w ->> 'gems')::bigint);
+end;
+$$;
+revoke all on function public.chest_buy(text) from public, anon;
+grant execute on function public.chest_buy(text) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611410001_hearts.sql
+-- ---------------------------------------------------------------------------
+-- Hati / nyawa (tahap 1, SERVER-SIDE): tiap pemain punya 5 hati, 1 hati terpakai tiap match dimulai (semua mode),
+-- terisi lagi otomatis 1 hati per 5 menit sampai penuh (5). Terapkan SETELAH 202611400001_chest_power.sql (hanya butuh auth.users + auth.uid()).
+--
+--   Isi ulang dihitung MALAS (lazy) dari jam server: tanpa cron. Klien tidak pernah mengirim jumlah/waktu.
+--   hearts boleh > 5 (disiapkan untuk hadiah teman/chest di tahap berikutnya): isi ulang otomatis hanya berjalan saat hearts < 5.
+--   regen_at = awal hitungan 5 menit berikutnya; saat hati terpakai dari kondisi penuh, hitungan dimulai dari sekarang.
+--   Angka ada di _hearts_max() / _hearts_regen_secs() (satu-satunya tempat); hearts_get() mengirimnya ke klien.
+
+create table if not exists public.player_hearts (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  hearts     int not null default 5 check (hearts >= 0),
+  regen_at   timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+alter table public.player_hearts enable row level security;          -- tanpa policy: hanya lewat RPC security definer
+revoke all on public.player_hearts from public, anon, authenticated;
+
+create or replace function public._hearts_max() returns int language sql immutable as $$ select 5 $$;
+create or replace function public._hearts_regen_secs() returns int language sql immutable as $$ select 300 $$;   -- 1 hati / 5 menit
+
+create or replace function public._hearts_ensure(p_user uuid) returns void
+language sql security definer set search_path = public as $$
+  insert into public.player_hearts(user_id) values (p_user) on conflict (user_id) do nothing
+$$;
+
+-- Jumlah hati SAAT INI (tanpa menulis): stok + isi ulang yang sudah berjalan, dibatasi 5 (kecuali stok memang > 5).
+create or replace function public._hearts_now(r public.player_hearts) returns int
+language sql stable as $$
+  select case when r.hearts >= public._hearts_max() then r.hearts
+    else least(public._hearts_max(),
+               r.hearts + floor(greatest(extract(epoch from (now() - r.regen_at)), 0) / public._hearts_regen_secs())::int)
+  end
+$$;
+
+create or replace function public._hearts_json(r public.player_hearts) returns jsonb
+language plpgsql stable as $$
+declare v_h int := public._hearts_now(r); v_next int;
+begin
+  if v_h >= public._hearts_max() then v_next := null;
+  else v_next := public._hearts_regen_secs()
+               - (floor(greatest(extract(epoch from (now() - r.regen_at)), 0))::bigint % public._hearts_regen_secs())::int;
+  end if;
+  return jsonb_build_object('ok', true, 'hearts', v_h, 'max', public._hearts_max(),
+                            'regen_secs', public._hearts_regen_secs(), 'next_in_secs', v_next);
+end;
+$$;
+revoke all on function public._hearts_max(), public._hearts_regen_secs(), public._hearts_ensure(uuid),
+  public._hearts_now(public.player_hearts), public._hearts_json(public.player_hearts) from public, anon, authenticated;
+
+create or replace function public.hearts_get() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); r public.player_hearts;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._hearts_ensure(v_uid);
+  select * into r from public.player_hearts where user_id = v_uid;
+  return public._hearts_json(r);
+end;
+$$;
+revoke all on function public.hearts_get() from public, anon;
+grant execute on function public.hearts_get() to authenticated;
+
+-- Potong 1 hati saat match dimulai. Habis -> {ok:false, reason:'hati-habis'} + next_in_secs.
+create or replace function public.hearts_consume() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); r public.player_hearts; v_cur int; v_gain int;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  perform public._hearts_ensure(v_uid);
+  select * into r from public.player_hearts where user_id = v_uid for update;
+  v_cur := public._hearts_now(r);
+  if v_cur < 1 then
+    return public._hearts_json(r) || jsonb_build_object('ok', false, 'reason', 'hati-habis');
+  end if;
+  if v_cur >= public._hearts_max() then
+    -- penuh (atau lebih): hitungan 5 menit baru mulai dari sekarang
+    update public.player_hearts set hearts = v_cur - 1, regen_at = now() where user_id = v_uid;
+  else
+    -- sebagian sudah terisi: simpan hasil isi ulang, sisa menit menuju hati berikutnya tetap berjalan
+    v_gain := v_cur - r.hearts;
+    update public.player_hearts
+       set hearts = v_cur - 1, regen_at = r.regen_at + make_interval(secs => v_gain * public._hearts_regen_secs())
+     where user_id = v_uid;
+  end if;
+  select * into r from public.player_hearts where user_id = v_uid;
+  return public._hearts_json(r) || jsonb_build_object('consumed', 1);
+end;
+$$;
+revoke all on function public.hearts_consume() from public, anon;
+grant execute on function public.hearts_consume() to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611420001_tos_acceptance.sql
+-- ---------------------------------------------------------------------------
+-- Persetujuan Ketentuan Layanan + Kebijakan Privasi (SERVER-SIDE), satu catatan per akun.
+-- Terapkan SETELAH 202611410001_hearts.sql (hanya butuh auth.users + auth.uid()).
+--
+--   Versi TOS terbaru ada di _tos_current_version() (satu-satunya tempat di server). Naikkan angkanya saat teks TOS/Privasi berubah:
+--   semua akun dengan tos_version lebih kecil akan diminta konfirmasi lagi di Lobby. Klien (assets/js/services/tos-service.js) menyimpan
+--   salinan angka yang sama (FALLBACK_CURRENT) hanya untuk tamu tanpa akun; tests/tos-service.test.js menjaga keduanya tetap sama.
+--   Klien tidak pernah menulis tabel langsung: hanya lewat RPC security definer. Versi tidak bisa diturunkan.
+
+create table if not exists public.player_tos (
+  user_id     uuid primary key references auth.users(id) on delete cascade,
+  tos_version int not null check (tos_version >= 1),
+  accepted_at timestamptz not null default now()
+);
+alter table public.player_tos enable row level security;           -- tanpa policy: hanya lewat RPC security definer
+revoke all on public.player_tos from public, anon, authenticated;
+
+create or replace function public._tos_current_version() returns int language sql immutable as $$ select 1 $$;
+revoke all on function public._tos_current_version() from public, anon, authenticated;
+
+create or replace function public._tos_json(r public.player_tos) returns jsonb
+language sql stable as $$
+  select jsonb_build_object('ok', true,
+    'current',     public._tos_current_version(),
+    'accepted',    r.tos_version,
+    'accepted_at', r.accepted_at,
+    'needs',       r.tos_version is null or r.tos_version < public._tos_current_version())
+$$;
+revoke all on function public._tos_json(public.player_tos) from public, anon, authenticated;
+
+-- Status persetujuan akun yang login. Belum pernah setuju -> accepted null, needs true.
+create or replace function public.tos_status() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); r public.player_tos;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  select * into r from public.player_tos where user_id = v_uid;
+  return public._tos_json(r);
+end;
+$$;
+revoke all on function public.tos_status() from public, anon;
+grant execute on function public.tos_status() to authenticated;
+
+-- Catat persetujuan. p_version kosong = versi terbaru. Versi di luar 1..terbaru ditolak. Tidak pernah menurunkan versi tersimpan.
+create or replace function public.tos_accept(p_version int default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_uid uuid := auth.uid(); v int; r public.player_tos;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  v := coalesce(p_version, public._tos_current_version());
+  if v < 1 or v > public._tos_current_version() then
+    return jsonb_build_object('ok', false, 'reason', 'versi-tidak-valid');
+  end if;
+  insert into public.player_tos(user_id, tos_version) values (v_uid, v)
+  on conflict (user_id) do update
+    set tos_version = greatest(public.player_tos.tos_version, excluded.tos_version),
+        accepted_at = case when excluded.tos_version > public.player_tos.tos_version then now() else public.player_tos.accepted_at end;
+  select * into r from public.player_tos where user_id = v_uid;
+  return public._tos_json(r);
+end;
+$$;
+revoke all on function public.tos_accept(int) from public, anon;
+grant execute on function public.tos_accept(int) to authenticated;
 
