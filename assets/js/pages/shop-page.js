@@ -557,6 +557,64 @@ UT.PageModule.define('shop', function (env) {
     const button = event.target.closest('.tabb');
     if (button) setTab(button.dataset.k);
   });
+  /* geser baris kartu (tab Set / Frame / Power / Chest): roda mouse (vertikal/horizontal) -> ke samping; seret mouse / jari / pena + momentum.
+     Kanvas 1920x1080 diskalakan (transform): 1px layar = 1/k px scrollLeft, k dari ukuran tampil #cards. Daftar vertikal (#histlist, .slist)
+     dan tampilan riwayat dibiarkan memakai gulir bawaannya. Ketukan biasa tetap = klik kartu; seretan tidak dianggap klik. */
+  (function () {
+    const g = $('#cards');
+    if (!g) return;
+    const scale = () => { const w = g.offsetWidth, r = g.getBoundingClientRect(); return w && r.width ? r.width / w : 1; };
+    const vertical = target => !!(target && target.closest && target.closest('#histlist, .slist'));
+    let drag = null, dragged = false, fling = 0, raf = 0;
+    const stopFling = () => { fling = 0; if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+    g.addEventListener('wheel', event => {
+      if (g.classList.contains('history-view') || vertical(event.target) || g.scrollWidth <= g.clientWidth) return;
+      const d = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (!d) return;
+      event.preventDefault();
+      stopFling();
+      g.scrollLeft += d * (event.deltaMode === 1 ? 32 : 1) / scale();
+    }, { passive: false });
+    g.addEventListener('pointerdown', event => {
+      if ((event.pointerType === 'mouse' && event.button !== 0) || g.classList.contains('history-view') || vertical(event.target)) return;
+      if (g.scrollWidth <= g.clientWidth) return;
+      stopFling();
+      drag = { id: event.pointerId, x: event.clientX, left: g.scrollLeft, moving: false, lx: event.clientX, lt: performance.now(), v: 0 };
+    });
+    g.addEventListener('pointermove', event => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const k = scale(), dx = (event.clientX - drag.x) / k;
+      if (!drag.moving) {
+        if (Math.abs(dx) < 6) return;
+        drag.moving = true;
+        g.classList.add('drag');
+        try { g.setPointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+      }
+      const now = performance.now(), dt = Math.max(1, now - drag.lt);
+      drag.v = .8 * drag.v + .2 * ((drag.lx - event.clientX) / k / dt * 16); /* px scrollLeft per frame (16 ms) */
+      drag.lx = event.clientX; drag.lt = now;
+      g.scrollLeft = drag.left - dx;
+    });
+    function endDrag(event) {
+      if (!drag || event.pointerId !== drag.id) return;
+      if (drag.moving) {
+        dragged = true;
+        setTimeout(() => { dragged = false; }, 0);
+        try { g.releasePointerCapture(event.pointerId); } catch (e) { /* abaikan */ }
+        if (event.type === 'pointerup' && performance.now() - drag.lt < 80 && Math.abs(drag.v) > 1) { /* lepas sambil bergerak = momentum */
+          fling = drag.v;
+          const step = () => { fling *= .95; g.scrollLeft += fling; if (Math.abs(fling) > .4 && !env.disposed) raf = requestAnimationFrame(step); else raf = 0; };
+          raf = requestAnimationFrame(step);
+        }
+      }
+      g.classList.remove('drag');
+      drag = null;
+    }
+    g.addEventListener('pointerup', endDrag);
+    g.addEventListener('pointercancel', endDrag);
+    g.addEventListener('dragstart', event => event.preventDefault());
+    g.addEventListener('click', event => { if (!dragged) return; event.stopPropagation(); event.preventDefault(); }, true);
+  })();
   $('#cards').addEventListener('click', event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
