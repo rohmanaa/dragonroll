@@ -64,5 +64,28 @@
   background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.4) 50%,transparent 58%) 130% 0/300% 100% no-repeat;animation:pshine 8s ease-in-out infinite}
 @keyframes pshine{0%{background-position:130% 0}55%,100%{background-position:-30% 0}}
 @media(prefers-reduced-motion:reduce){.pg,.pshine{animation:none}.pshine{display:none}}
-/* latar voxel kastel (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
-body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/leaderboard-voxel-kastel.webp) center/cover no-repeat;opacity:.35}
+
+/* ===== Panel penuh seperti Profil / Aura / Pet: bingkai-dialog penuh layar (ditarik 8px keluar, tanpa celah), isi sedikit transparan
+   (--panel-a, slider Pengaturan -> Transparansi panel), latar = leaderboard-bg.webp, judul kiri & tombol Tutup bulat kanan atas.
+   --hub-ex/--hub-ey diisi fit() di modul halaman. ===== */
+#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
+  pointer-events:none;box-sizing:border-box;z-index:0;border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
+#pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
+#stage:has(#pmodal){overflow:visible!important}
+html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/leaderboard-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+#back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
+#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#title{left:100px;top:34px}
+#stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:6}
+#stage #cur-em{left:60px!important}#stage #cur-co{left:370px!important}
+/* isi di dalam bingkai (area isi x 72..1848, y 130..1058) */
+#ltabs{left:84px;top:156px;width:200px}
+#podium,#pfxb,#pfxf{left:300px;top:160px}
+#mycard{left:360px;top:716px}
+#reward{left:460px;top:862px}
+#board{left:1000px;top:26px;width:840px}
+#th{grid-template-columns:90px 1fr 150px 174px}
+#rows{height:820px}
+.rw .no{width:60px}
+.rw .sc{width:150px;font-size:34px}
+.rw .wn{width:150px;font-size:32px}

@@ -3,7 +3,7 @@
 UT.PageModule.define('hadiah-misi',function(env){
 const {setTimeout,clearTimeout,setInterval,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
-function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
+function fit(){const st=$('#stage'),k=Math.min(innerWidth/1920,innerHeight/1080)||1;st.style.transform='scale('+k+')';st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/k-1920)/2).toFixed(1)+'px');st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/k-1080)/2).toFixed(1)+'px')}  /* --hub-ex/--hub-ey: bingkai #pmodal penuh sampai tepi layar (sama dengan Profil/Aura/Pet) */addEventListener('resize',fit);fit();
 /* Semua status & klaim = SERVER: hadiah harian (daily_reward_get / claim_daily_reward) dan misi (quest_get / quest_claim*) lewat UT.WalletService.
    Hari reset = WIB. Klien hanya menampilkan; nominal & item ditentukan server. Tanpa akun login: hanya ajakan masuk, tidak ada data tiruan. */
 const PD=window.PlayerData,IC='assets/images/ui/',Q=UT.Quest,AC=UT.Achievement;
@@ -33,11 +33,9 @@ const WM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan l
 const bump=()=>['#cur-em','#cur-co'].forEach(s=>{const e=$(s);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')});
 
 /* ---- tab ---- */
-/* Panel Misi di hub (profile.html?tab=misi&sub=hadiah|misi|ach): sub-tab dari ?sub= (tanpa ?sub= = Misi Harian). Shell (play.html): ?tab= dari URL rute
-   aktif; halaman mandiri lama: location.search. */
-const HUB=()=>!!(UT.AccountHub&&UT.AccountHub.active&&UT.AccountHub.active());
-const search=()=>{if(HUB())return UT.AccountHub.query();const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='hadiah-misi'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
-const Q0=HUB()?(new URLSearchParams(search()).get('sub')||'misi'):new URLSearchParams(search()).get('tab');
+/* di shell location.search milik play.html (?go=...): parameter halaman (?tab=) diambil dari URL rute aktif */
+const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name==='hadiah-misi'){const i=c.url.indexOf('?');return i<0?'':c.url.slice(i).split('#')[0]}return location.search};
+const Q0=new URLSearchParams(search()).get('tab');
 let tab=(Q0==='misi'||Q0==='daily')?'misi':(Q0==='ach'||Q0==='achievement')?'ach':'hadiah';
 
 /* ---- hadiah harian (server) ---- */
@@ -172,7 +170,7 @@ $('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&mOpen)closeM()});
 
 /* ---- aksi ---- */
-function setTab(k){tab=k;if(!(UT.Spa&&UT.Spa.go)&&!HUB()){try{history.replaceState(null,'','?tab='+k)}catch(e){}}   /* di shell URL milik play.html dan di hub URL milik hub: jangan diubah */
+function setTab(k){tab=k;if(!(UT.Spa&&UT.Spa.go)){try{history.replaceState(null,'','?tab='+k)}catch(e){}}   /* di shell URL milik play.html: jangan diubah */
  render();if(k==='misi'&&!setTab.t){setTab.t=1;trackLogin()}}
 function trackLogin(){const w=WS();if(SV()&&w)w.questTrack('login').then(()=>reloadQ())}   /* membuka Misi = login hari ini (dilaporkan ke server) */
 $('#tabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(t&&t.dataset.k!==tab){buzz();setTab(t.dataset.k)}});

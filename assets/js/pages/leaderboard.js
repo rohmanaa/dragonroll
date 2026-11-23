@@ -3,7 +3,7 @@
 UT.PageModule.define('leaderboard',function(env){
 const {setTimeout,clearTimeout,addEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
-function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
+function fit(){const st=$('#stage'),k=Math.min(innerWidth/1920,innerHeight/1080)||1;st.style.transform='scale('+k+')';st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/k-1920)/2).toFixed(1)+'px');st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/k-1080)/2).toFixed(1)+'px')}  /* --hub-ex/--hub-ey: bingkai #pmodal penuh sampai tepi layar (sama dengan Profil/Aura/Pet) */addEventListener('resize',fit);fit();
 /* Data = SERVER (RoomService.getLeaderboard -> RPC get_leaderboard). Tidak ada data contoh. Avatar pemain lain = tampilan asli dari server (AppearanceService). */
 const PD=window.PlayerData,IC='assets/images/ui/';
 const SV=()=>!!(PD.serverMode&&PD.serverMode()),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();

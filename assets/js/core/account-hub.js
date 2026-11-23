@@ -1,12 +1,12 @@
-/* UT.AccountHub — Profil · Teman · Pesan · Peringkat · Misi · Pengaturan dalam SATU halaman penuh (profile.html), BUKAN modal.
+/* UT.AccountHub — Profil · Teman · Pesan · Pengaturan dalam SATU halaman penuh (profile.html), BUKAN modal.
    - Tab berpindah DI TEMPAT: panel lama di-unmount, panel baru dimuat ke #pane (CSS + DOM + skrip + modul), tanpa pindah halaman, tanpa fade,
      bingkai modal/tab/tombol X tetap. Hanya SATU panel yang ada di DOM pada satu waktu, jadi id yang sama (#list, #md, #toast, ...) tidak bentrok.
-   - Sumber isi panel: Profil = <template id="tpl-profil"> di profile.html; Teman/Pesan/Peringkat/Misi/Pengaturan = isi #stage dari friendship.html / mail.html /
-     leaderboard.html / hadiah-misi.html / settings.html (halaman itu tetap jadi sumber; dibuka langsung di browser ia dialihkan ke profile.html?tab=...).
+   - Sumber isi panel: Profil = <template id="tpl-profil"> di profile.html; Teman/Pesan/Pengaturan = isi #stage dari friendship.html / mail.html /
+     settings.html (halaman itu tetap jadi sumber; dibuka langsung di browser ia dialihkan ke profile.html?tab=...).
    - Perilaku halaman: tombol Kembali (kiri atas) pindah ke halaman asal; Esc juga kembali (bila ada dialog dalam yang terbuka, Esc menutup dialog itu dulu).
      Tidak ada latar gelap, perangkap fokus, `inert`, atau tutup-dengan-klik-luar. Tab berstandar WAI-ARIA (panah kiri/kanan, Home/End, roving tabindex).
      Dialog KECIL di dalam panel (#md, #confirm, #lang) tetap modal sungguhan dan dibungkus UT.ModalKit.
-   - URL: ?tab=profil|teman|pesan|peringkat|misi|setelan (+ &from=halaman-asal untuk tujuan tombol Kembali; &sub=hadiah|misi|ach = sub-tab panel Misi). Ganti tab memakai replaceState (tidak menambah riwayat).
+   - URL: ?tab=profil|teman|pesan|setelan (+ &from=halaman-asal untuk tujuan tombol Kembali). Ganti tab memakai replaceState (tidak menambah riwayat).
    Skrip klasik. Helper murni (pageOf, tabOf, canon, hubUrl, homeUrl, ...) dapat dimuat di Node (module.exports) untuk tes. */
 (function (root, factory) {
   var api = factory(root);
@@ -20,14 +20,12 @@
     { key: 'profil',  label: 'Profil',     icon: IC + 'item-icons/helm-ksatria.webp',   module: 'profil',     app: 'profile',    page: null },
     { key: 'teman',   label: 'Teman',      icon: IC + 'feature-icons/friends.webp',     module: 'friendship', app: 'friendship', page: 'friendship.html' },
     { key: 'pesan',   label: 'Pesan',      icon: IC + 'item-icons/surat-segel.webp',    module: 'mail',       app: 'mail',       page: 'mail.html' },
-    { key: 'peringkat', label: 'Peringkat', icon: IC + 'item-icons/podium.webp',         module: 'leaderboard', app: 'leaderboard', page: 'leaderboard.html' },
-    { key: 'misi',    label: 'Misi',       icon: IC + 'item-icons/gulungan-misi.webp',  module: 'hadiah-misi', app: 'hadiahmisi', page: 'hadiah-misi.html' },
     { key: 'setelan', label: 'Pengaturan', icon: IC + 'item-icons/gir.webp',            module: 'settings',   app: 'settings',   page: 'settings.html' }
   ];
   var BY = {};
   TABS.forEach(function (t) { BY[t.key] = t; });
-  var PAGE_TAB = { 'profile.html': 'profil', 'friendship.html': 'teman', 'mail.html': 'pesan', 'leaderboard.html': 'peringkat', 'hadiah-misi.html': 'misi', 'settings.html': 'setelan' };
-  var DIALOGS = [['#md', '#m-no,#m-ok'], ['#confirm', '#cf-no'], ['#lang', null], ['#frmd', '#frx']];   // [selector kontainer dialog dalam panel, fokus awal]
+  var PAGE_TAB = { 'profile.html': 'profil', 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };
+  var DIALOGS = [['#md', '#m-no'], ['#confirm', '#cf-no'], ['#lang', null], ['#frmd', '#frx']];   // [selector kontainer dialog dalam panel, fokus awal]
   var SKIP_CSS = /(^|\/)(page|bg|common|profile-tabs|account-hub)\.css$/;     // sudah dimuat halaman hub (statis)
   var SKIP_JS = /(^|\/)(page-shell|profile-tabs|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
 
@@ -53,18 +51,16 @@
   }
   /* tujuan tombol Kembali yang aman: halaman .html lokal, bukan halaman hub/splash/index/play */
   function validFrom(f) {
-    return f && /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(f) && !/^(profile|friendship|mail|leaderboard|hadiah-misi|settings|splash|index|play)\.html/i.test(f) ? f : '';
+    return f && /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(f) && !/^(profile|friendship|mail|settings|splash|index|play)\.html/i.test(f) ? f : '';
   }
-  /* sub = sub-tab isi panel (panel Misi: hadiah | misi | ach); hanya huruf kecil, selain itu dibuang */
-  function hubUrl(key, from, sub) {
-    return 'profile.html?tab=' + (BY[key] ? key : 'profil') + (validFrom(from) ? '&from=' + encodeURIComponent(from) : '') + (/^[a-z]{1,12}$/.test(sub || '') ? '&sub=' + sub : '');
+  function hubUrl(key, from) {
+    return 'profile.html?tab=' + (BY[key] ? key : 'profil') + (validFrom(from) ? '&from=' + encodeURIComponent(from) : '');
   }
-  /* friendship.html / mail.html / leaderboard.html / hadiah-misi.html / settings.html -> profile.html?tab=...; URL lain (termasuk profile.html) tidak diubah */
+  /* friendship.html / mail.html / settings.html -> profile.html?tab=...; URL lain (termasuk profile.html) tidak diubah */
   function canon(url) {
     var p = pageOf(url);
     if (!PAGE_TAB[p] || p === 'profile.html') return url;
-    /* hadiah-misi.html?tab=hadiah|misi|ach: ?tab= milik halaman lama = sub-tab (?sub=) di hub; tanpa ?tab= = Hadiah Harian seperti dulu */
-    return hubUrl(PAGE_TAB[p], param(url, 'from'), p === 'hadiah-misi.html' ? (param(url, 'tab') || 'hadiah') : '');
+    return hubUrl(PAGE_TAB[p], param(url, 'from'));
   }
   /* tujuan tombol Kembali: ?from= yang valid; bila tidak ada, halaman asal (referrer sama-origin yang valid); selain itu lobby */
   function homeUrl(url, referrer, origin) {
@@ -173,7 +169,7 @@
     var hub = el('div', 'phub'); hub.setAttribute('role', 'region'); hub.setAttribute('aria-labelledby', 'phub-title');
     var frame = el('div', 'pmodal'); frame.setAttribute('aria-hidden', 'true');   // bingkai kartu halaman (nama id lama dipertahankan untuk CSS)
     var title = el('h2', 'phub-title', 'sr-only');
-    var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Peringkat, Misi, Pengaturan');
+    var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
     var pane = el('div', 'pane'); pane.setAttribute('role', 'tabpanel'); pane.tabIndex = -1;
     var xbtn = el('button', 'pclose'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
     var xi = D.createElement('img'); xi.src = 'assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp'; xi.alt = ''; xbtn.appendChild(xi);
