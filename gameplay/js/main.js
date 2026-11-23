@@ -305,12 +305,12 @@ const GRASS_TEX_URL='gameplay/assets/maps/world/rumput-netral.webp';
 /* ===== KATEGORI MATERIAL WORLD (id per vertex, opsi addBox {tex:id}) =====
    1 LOG batang | 2 LEAF daun pohon | 3 WOOD papan kayu | 4 DIRT tanah (+sisi tanah) | 5 BRUSH semak
    6 STONE batu | 7 GRASSSIDE sisi/lumut rumput (tekstur rumput) | 8 SNOW salju (polos) | 9 COAL batubara (polos) | 10 COBBLE cobblestone (polos)
-   8 SNOW & 9 COAL belum punya gambar tekstur: tampil warna polos; 10 COBBLE bertekstur (cobble-netral.webp), tidak ikut deteksi warna. 0 = tidak ditandai (rumput atas = deteksi hijau menghadap atas di TB). */
-const MT={LOG:1,LEAF:2,WOOD:3,DIRT:4,BRUSH:5,STONE:6,GRASSSIDE:7,SNOW:8,COAL:9,COBBLE:10};
-const DETAIL_URLS=['log','daun','kayu','tanah','semak','cobble'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
+   8 SNOW & 9 COAL belum punya gambar tekstur: tampil warna polos; 10 COBBLE bertekstur (cobble-netral.webp) | 11 FLOWER kelopak bunga (bunga-netral.webp; warna asli bunga dipertahankan), tidak ikut deteksi warna. 0 = tidak ditandai (rumput atas = deteksi hijau menghadap atas di TB). */
+const MT={FLOWER:11,LOG:1,LEAF:2,WOOD:3,DIRT:4,BRUSH:5,STONE:6,GRASSSIDE:7,SNOW:8,COAL:9,COBBLE:10};
+const DETAIL_URLS=['log','daun','kayu','tanah','semak','cobble','bunga'].map(n=>'gameplay/assets/maps/world/'+n+'-netral.webp'); /* urutan = id tekstur 1..4 */
 const GRASS2_TEX_URL='gameplay/assets/maps/world/rumput-tebal-netral.webp',STONE_TEX_URL='gameplay/assets/maps/world/batu-netral.webp';
 /* rumput tebal (--world-grass-thick 0..1 = campuran tipis->tebal) & batu (--world-stone-tex/-size/-tint/-tint-amt), semua dari CSS body.th-world */
-const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dt4:{value:null},dt5:{value:null},dstr5:{value:0},dscale5:{value:0.5},dc5:{value:new THREE.Vector4()},dc0:{value:new THREE.Vector4()},dc1:{value:new THREE.Vector4()},dc2:{value:new THREE.Vector4()},dc3:{value:new THREE.Vector4()},dc4:{value:new THREE.Vector4()},dstr4:{value:0},dscale4:{value:0.5},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
+const GU={dt0:{value:null},dt1:{value:null},dt2:{value:null},dt3:{value:null},dt4:{value:null},dt5:{value:null},dt6:{value:null},dstr6:{value:0},dscale6:{value:0.5},dc6:{value:new THREE.Vector4()},dstr5:{value:0},dscale5:{value:0.5},dc5:{value:new THREE.Vector4()},dc0:{value:new THREE.Vector4()},dc1:{value:new THREE.Vector4()},dc2:{value:new THREE.Vector4()},dc3:{value:new THREE.Vector4()},dc4:{value:new THREE.Vector4()},dstr4:{value:0},dscale4:{value:0.5},dstr:{value:new THREE.Vector4(0,0,0,0)},dscale:{value:new THREE.Vector4(0.5,0.5,0.5,0.5)},tmask:{value:null},tree:{value:0},tex2:{value:null},thick:{value:0},stex:{value:null},sstr:{value:0},sscale:{value:0.5},stint:{value:new THREE.Color(1,1,1)},stintAmt:{value:0},tex:{value:null},str:{value:0},scale:{value:0.5},tint:{value:new THREE.Color(1,1,1)},tintAmt:{value:0},hole:{value:new THREE.Vector2(5,5)}};
 let GRASS_MAT=null,GRASS_READY=false,GRASS_REQ=false,GRASS_CSS_STR=0;
 const WMATS={};
 function grassMat(){ return worldMat(1); }   /* papan/tanah (TB): rumput + batu + tekstur per bagian */
@@ -319,12 +319,12 @@ function worldMat(mode){
   if(WMATS[mode]) return WMATS[mode];
   const WM=WMATS[mode]=MAT.clone();
   WM.onBeforeCompile=sh=>{
-    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDT4:GU.dt4,uDT5:GU.dt5,uDStr5:GU.dstr5,uDScale5:GU.dscale5,uDC5:GU.dc5,uDC0:GU.dc0,uDC1:GU.dc1,uDC2:GU.dc2,uDC3:GU.dc3,uDC4:GU.dc4,uDStr4:GU.dstr4,uDScale4:GU.dscale4,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
+    Object.assign(sh.uniforms,{uWMode:{value:mode},uDT0:GU.dt0,uDT1:GU.dt1,uDT2:GU.dt2,uDT3:GU.dt3,uDT4:GU.dt4,uDT5:GU.dt5,uDT6:GU.dt6,uDStr6:GU.dstr6,uDScale6:GU.dscale6,uDC6:GU.dc6,uDStr5:GU.dstr5,uDScale5:GU.dscale5,uDC5:GU.dc5,uDC0:GU.dc0,uDC1:GU.dc1,uDC2:GU.dc2,uDC3:GU.dc3,uDC4:GU.dc4,uDStr4:GU.dstr4,uDScale4:GU.dscale4,uDStr:GU.dstr,uDScale:GU.dscale,uGTex:GU.tex,uGStr:GU.str,uGScale:GU.scale,uGTint:GU.tint,uGTintAmt:GU.tintAmt,uGHole:GU.hole,uGTex2:GU.tex2,uTMask:GU.tmask,uTreeAmt:GU.tree,uGThick:GU.thick,uSTex:GU.stex,uSStr:GU.sstr,uSScale:GU.sscale,uSTint:GU.stint,uSTintAmt:GU.stintAmt});
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nattribute float tid;\nvarying float vTid;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvGPos=position;\nvGNor=normal;\nvTid=tid;');
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform sampler2D uDT4;\nuniform sampler2D uDT5;\nuniform float uDStr5;\nuniform float uDScale5;\nuniform vec4 uDC5;\nuniform vec4 uDC0;\nuniform vec4 uDC1;\nuniform vec4 uDC2;\nuniform vec4 uDC3;\nuniform vec4 uDC4;\nuniform float uDStr4;\nuniform float uDScale4;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
+      .replace('#include <common>','#include <common>\nvarying vec3 vGPos;\nvarying vec3 vGNor;\nuniform sampler2D uGTex;\nuniform float uGStr;\nuniform float uGScale;\nuniform vec3 uGTint;\nuniform float uGTintAmt;\nuniform vec2 uGHole;\nvarying float vTid;\nuniform float uWMode;\nuniform sampler2D uDT0;\nuniform sampler2D uDT1;\nuniform sampler2D uDT2;\nuniform sampler2D uDT3;\nuniform sampler2D uDT4;\nuniform sampler2D uDT5;\nuniform sampler2D uDT6;\nuniform float uDStr6;\nuniform float uDScale6;\nuniform vec4 uDC6;\nuniform float uDStr5;\nuniform float uDScale5;\nuniform vec4 uDC5;\nuniform vec4 uDC0;\nuniform vec4 uDC1;\nuniform vec4 uDC2;\nuniform vec4 uDC3;\nuniform vec4 uDC4;\nuniform float uDStr4;\nuniform float uDScale4;\nuniform vec4 uDStr;\nuniform vec4 uDScale;\nuniform sampler2D uGTex2;\nuniform sampler2D uTMask;\nuniform float uTreeAmt;\nuniform float uGThick;\nuniform sampler2D uSTex;\nuniform float uSStr;\nuniform float uSScale;\nuniform vec3 uSTint;\nuniform float uSTintAmt;')
       .replace('#include <color_fragment>','#include <color_fragment>\n#ifdef USE_COLOR\n'+
         '  float gUp=step(0.9,vGNor.y);\n'+
         '  float gGr=step(vColor.r+0.01,vColor.g)*step(vColor.b+0.01,vColor.g);\n'+
@@ -345,10 +345,10 @@ function worldMat(mode){
         '  diffuseColor.rgb*=1.0+(sT-0.5)*2.0*uSStr*sM;\n'+
         '  float dI=floor(vTid+0.5);\n'+
         '  vec2 dUV=sA.y>0.5?vGPos.xz:(sA.x>sA.z?vGPos.zy:vGPos.xy);\n'+
-        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r,dTs=texture2D(uSTex,dUV*uSScale).r,dTg=texture2D(uGTex,dUV*uGScale).r,dT5=texture2D(uDT5,dUV*uDScale5).r;\n'+
-        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:(dI<5.5?dT4:(dI<6.5?dTs:(dI<7.5?dTg:(abs(dI-10.0)<0.5?dT5:0.5)))))));\n'+
-        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:(dI<5.5?uDStr4:(dI<6.5?uSStr:(dI<7.5?uGStr:(abs(dI-10.0)<0.5?uDStr5:0.0)))))));\n'+
-        '  vec4 dC=dI<1.5?uDC0:(dI<2.5?uDC1:(dI<3.5?uDC2:(dI<4.5?uDC3:(dI<5.5?uDC4:(dI<6.5?vec4(uSTint,uSTintAmt):(dI<7.5?vec4(uGTint,uGTintAmt):(abs(dI-10.0)<0.5?uDC5:vec4(0.0))))))));\n'+
+        '  float dT0=texture2D(uDT0,dUV*uDScale.x).r,dT1=texture2D(uDT1,dUV*uDScale.y).r,dT2=texture2D(uDT2,dUV*uDScale.z).r,dT3=texture2D(uDT3,dUV*uDScale.w).r,dT4=texture2D(uDT4,dUV*uDScale4).r,dTs=texture2D(uSTex,dUV*uSScale).r,dTg=texture2D(uGTex,dUV*uGScale).r,dT5=texture2D(uDT5,dUV*uDScale5).r,dT6=texture2D(uDT6,dUV*uDScale6).r;\n'+
+        '  float dT=dI<1.5?dT0:(dI<2.5?dT1:(dI<3.5?dT2:(dI<4.5?dT3:(dI<5.5?dT4:(dI<6.5?dTs:(dI<7.5?dTg:(abs(dI-10.0)<0.5?dT5:(abs(dI-11.0)<0.5?dT6:0.5))))))));\n'+
+        '  float dS=dI<1.5?uDStr.x:(dI<2.5?uDStr.y:(dI<3.5?uDStr.z:(dI<4.5?uDStr.w:(dI<5.5?uDStr4:(dI<6.5?uSStr:(dI<7.5?uGStr:(abs(dI-10.0)<0.5?uDStr5:(abs(dI-11.0)<0.5?uDStr6:0.0))))))));\n'+
+        '  vec4 dC=dI<1.5?uDC0:(dI<2.5?uDC1:(dI<3.5?uDC2:(dI<4.5?uDC3:(dI<5.5?uDC4:(dI<6.5?vec4(uSTint,uSTintAmt):(dI<7.5?vec4(uGTint,uGTintAmt):(abs(dI-10.0)<0.5?uDC5:(abs(dI-11.0)<0.5?uDC6:vec4(0.0)))))))));\n'+
         '  diffuseColor.rgb=mix(diffuseColor.rgb,dC.rgb,dC.a*gTid);\n'+
         '  diffuseColor.rgb*=1.0+(dT-0.5)*2.0*dS*gTid;\n'+
         '#endif');
@@ -372,9 +372,9 @@ function syncGrassCss(){
     GU.scale.value=1/Math.max(0.25,num('--world-grass-tex-size',2));
     GU.tintAmt.value=Math.max(0,Math.min(1,num('--world-grass-tint-amt',0)));
     GU.tree.value=(themeKey==='minecraft'&&!low&&GU.tex2.value&&GU.tmask.value)?Math.max(0,Math.min(1,num('--world-grass-tree',0))):0;
-    { const nm=['log','leaf','wood','earth','brush','cobble'],on=themeKey==='minecraft'&&!low;
+    { const nm=['log','leaf','wood','earth','brush','cobble','flower'],on=themeKey==='minecraft'&&!low;
       nm.forEach((n,i)=>{ const ok=on&&GU['dt'+i].value; const st=ok?Math.max(0,Math.min(1,num('--world-'+n+'-tex',0))):0,sz=1/Math.max(0.25,num('--world-'+n+'-tex-size',2)); { const tcs=cs.getPropertyValue('--world-'+n+'-tint').trim(),ta=on?Math.max(0,Math.min(1,num('--world-'+n+'-tint-amt',0))):0,dc=GU['dc'+i].value; if(tcs&&ta>0){ try{ const cc=new THREE.Color(tcs); dc.set(cc.r,cc.g,cc.b,ta); }catch(e){ dc.set(0,0,0,0); } } else dc.set(0,0,0,0); }
-        if(i<4){ GU.dstr.value.setComponent(i,st); GU.dscale.value.setComponent(i,sz); } else if(i===4){ GU.dstr4.value=st; GU.dscale4.value=sz; } else { GU.dstr5.value=st; GU.dscale5.value=sz; } }); }
+        if(i<4){ GU.dstr.value.setComponent(i,st); GU.dscale.value.setComponent(i,sz); } else if(i===4){ GU.dstr4.value=st; GU.dscale4.value=sz; } else if(i===5){ GU.dstr5.value=st; GU.dscale5.value=sz; } else { GU.dstr6.value=st; GU.dscale6.value=sz; } }); }
     GU.thick.value=GU.tex2.value?Math.max(0,Math.min(1,num('--world-grass-thick',0))):0;
     GU.sstr.value=(themeKey==='minecraft'&&!low&&GU.stex.value)?Math.max(0,Math.min(1,num('--world-stone-tex',0))):0;
     GU.sscale.value=1/Math.max(0.25,num('--world-stone-tex-size',2));
@@ -1422,7 +1422,7 @@ function addRockPix(B,x,z,big,r){
 function addBushPix(B,x,z,r){
   const n=5+Math.floor(r()*2),o={u:0.1,w:n,d:n-(r()<0.5?1:0),pk:3,fall:1.0,rough:1.2,color:bushColor,tex:MT.BRUSH},H=addDomePix(B,x,z,o,r);
   if(r()<0.55){ const FL=[0xFFD23F,0xFF7EB6,0xFFFFFF,0x4FB4F0],m=1+Math.floor(r()*3); /* bunga kecil di pucuk semak */
-    for(let i=0;i<m;i++){ const a=Math.floor(r()*o.w),b=Math.floor(r()*o.d); if(!H[a][b]) continue; addBox(B,x+(a-(o.w-1)/2)*o.u,o.u*H[a][b]+0.035,z+(b-(o.d-1)/2)*o.u,0.07,0.07,0.07,FL[Math.floor(r()*4)],{edge:false}); } }
+    for(let i=0;i<m;i++){ const a=Math.floor(r()*o.w),b=Math.floor(r()*o.d); if(!H[a][b]) continue; addBox(B,x+(a-(o.w-1)/2)*o.u,o.u*H[a][b]+0.035,z+(b-(o.d-1)/2)*o.u,0.07,0.07,0.07,FL[Math.floor(r()*4)],{edge:false,tex:MT.FLOWER}); } }
 }
 /* rumpun rumput: bilah tipis dari blok kecil, tengah lebih tinggi (seperti rumpun di gambar referensi) */
 function addTuft(B,x,z,s,r){
@@ -1436,7 +1436,7 @@ function addTuft(B,x,z,s,r){
 function addFlowerIsl(B,x,z,r){
   const fh=0.26+r()*0.16,c=ISL.flowers[Math.floor(r()*ISL.flowers.length)];
   addBox(B,x,fh/2,z,0.06,fh,0.06,0x4f7f33,{edge:false});
-  addBox(B,x,fh+0.05,z,0.2,0.14,0.2,c,{edge:false});
+  addBox(B,x,fh+0.05,z,0.2,0.14,0.2,c,{edge:false,tex:MT.FLOWER});
   addBox(B,x,fh+0.14,z,0.07,0.05,0.07,0xf6e08a,{edge:false});
 }
 function addMushIsl(B,x,z){
@@ -1787,7 +1787,7 @@ function addMcEnv(DB){
     if([[-9.0,-0.1],[FSH_X,FSH_Z]].some(a=>Math.hypot(x-a[0],z-a[1])<0.5)) return;
     if(DECOR_SEED.some(k=>Math.hypot(x-k[0],z-k[1])<0.22)) return;
     DECOR_SEED.push([x,z,0.16]);
-    addBox(DB,x,0.07,z,0.14,0.14,0.14,f[2],{edge:false});
+    addBox(DB,x,0.07,z,0.14,0.14,0.14,f[2],{edge:false,tex:MT.FLOWER});
   });
   addGrassScenery(DB,theme); /* batu + semak + rumpun pixel kecil di luar board */
 }
@@ -3852,7 +3852,7 @@ function buildWorld(key){
       /* dekor kecil di sudut petak dibuang bila petak ini berisi mob/chest (bentrok). Argumen tetap dievaluasi -> urutan rnd() & seed dunia tidak berubah. */
       const decorOK=!(mobOn(n,th.key)||CHESTS.has(n)),dbox=(x,y,z,w,h,d,c,o)=>{ if(decorOK) addBox(TB,x,y,z,w,h,d,c,o); };
       const cx=()=>t.x+(rnd()<0.5?-0.34:0.34),cz=()=>t.z+(rnd()<0.5?-0.34:0.34);
-      if(bc===0x5A9E3C&&rnd()<0.6) dbox(cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
+      if(bc===0x5A9E3C&&rnd()<0.6) dbox(cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false,tex:MT.FLOWER});
       if(bc===0x8E8E8E) for(let k=0;k<3;k++) dbox(cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
       if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) dbox(cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
       if(bc===0x3F76E4||bc===0x2F5FCC) waterDetail(TB,t.x,t.z,t.h,0.94,0.94,n+200,3,3); /* riak air detail */
