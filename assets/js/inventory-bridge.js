@@ -15,9 +15,9 @@
   }
   document.documentElement.classList.add('ut-inv-embed');
   var st = document.createElement('style');
-  st.textContent = 'html.ut-inv-embed #back,html.ut-inv-embed #title{display:none!important}html.ut-inv-embed body.notabs #grid{top:250px!important;max-height:500px!important}'
-    /* latar voxel tas: gambar + lapisan gelap .65 di atas dasar ungu (= gambar agak transparan, setara opacity .35 seperti halaman lain) */
-    + 'html.ut-inv-embed,html.ut-inv-embed body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,url(assets/images/background/inventory-voxel-tas.webp) center/cover no-repeat fixed,#231d37!important}';
+  st.textContent = 'html.ut-inv-embed #back,html.ut-inv-embed #title{display:none!important}'
+    /* latar & panel dipegang inventory.html (bingkai penuh di bawah iframe): isi tab transparan */
+    + 'html.ut-inv-embed,html.ut-inv-embed body{background:transparent!important}';
   document.head.appendChild(st);
 
   function toParent(url) { try { parent.postMessage({ type: 'ut-inv-nav', url: url }, '*'); } catch (e) {} }

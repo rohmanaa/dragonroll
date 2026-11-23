@@ -1,14 +1,14 @@
 /* powerup.js — dipindah dari <script> inline (powerup.html). */
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
-function fit(){$('#stage').style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}addEventListener('resize',fit);fit();
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+k+')';document.documentElement.style.setProperty('--k',k)}addEventListener('resize',fit);fit();
 // ---- data: inventory BUKAN database sendiri. Item & kepemilikan dibaca dari ItemCatalog + PlayerData.
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const SV=()=>PD.serverMode(),WS=()=>window.UT&&UT.WalletService&&UT.WalletService.get();   /* akun login + flag = dompet server */
 const RN={common:'Biasa',rare:'Langka',epic:'Epik',legendary:'Legendaris'},RC={common:'#cfc8ea',rare:'#4db3e6',epic:'#b07cff',legendary:'#ffd45a'};
 const KINDS=['powerup'];   /* halaman ini hanya Power-up */
 const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k&&!i.off)); /* off:true = takedown sementara (item-catalog.js) */
-const LIST=CI.powerup;
+let LIST=[]; /* hanya Power yang dimiliki (stok > 0): diisi ulang di refresh() */
 const SET=()=>PD.settings();
 /* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
 const PFX={at(i,el){try{if(P3D.on())return;if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||$('#fpv'))}catch(e){}},
@@ -28,29 +28,13 @@ let sel=null;
 const thumb=i=>i.icon?'<img src="'+i.icon+'" alt="">':(AR&&AR.powerup?AR.powerup(i.id):'');
 
 // ---- render
-function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function renderGrid(){
-  let html=LIST.map(i=>{
-    const k=qty(i),sell=canSell(i),st=k?'st-own':'st-lock';
-    const chip=k?'<span class="chip-n">'+k+'</span>':'';
-    const label='stok ×'+k+(sell?' — beli '+fmtPrice(i.price):' — tidak dijual');
-    return '<button class="fslot '+st+(i===sel?' sel':'')+(k?'':' lk')+'" data-id="'+i.id+'" aria-pressed="'+(i===sel)+'" aria-label="'+i.name+' — '+label+'"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div>'+chip+'</button>'}).join('');
-  for(let n=LIST.length;n<Math.max(20,Math.ceil(LIST.length/5)*5);n++)html+='<div class="slot empty"></div>';
+  const html=LIST.map(i=>{
+    const k=qty(i);
+    return '<button class="fslot st-own'+(i===sel?' sel':'')+'" data-id="'+i.id+'" aria-label="'+i.name+' — stok ×'+k+', ketuk untuk lihat detail"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><span class="chip-n">'+k+'</span></button>'}).join('');
   $('#grid').innerHTML=html;
-  renderAct();
+  $('#empty').hidden=LIST.length>0;
 }
-/* ---- tombol aksi tunggal (kanan bawah): Beli <harga> / Tidak dijual / Dimiliki ×N ---- */
-function renderAct(){
-  const b=$('#act'); if(!b)return;
-  const i=sel; const sp=b.querySelector('span');
-  if(!i){b.style.display='none';return}
-  b.style.display='';
-  const k=qty(i),sell=canSell(i);
-  if(sell){b.dataset.mode='buy';b.disabled=false;sp.innerHTML='BELI '+fmtPrice(i.price)+' '+COIN}
-  else {b.dataset.mode='no';b.disabled=true;sp.textContent=k?'DIMILIKI ×'+k:'TIDAK DIJUAL'}
-}
-$('#act').onclick=()=>{const i=sel; if(!i)return; if($('#act').dataset.mode==='buy'&&canSell(i))confirmBuy(i)};
-
 function renderInfo(){
   const i=sel;if(!i)return;
   const c=RC[i.rarity],n=qty(i);
@@ -58,25 +42,27 @@ function renderInfo(){
   $('#nm').textContent=i.name;
   const r=$('#rar');r.textContent=RN[i.rarity]+' · stok ×'+n;r.style.color=c;
   $('#ds').textContent=i.desc+(IC.powerMapNote(i.id)?' ['+IC.powerMapNote(i.id)+']':'')+PFX.note(i)+' Stok baru berkurang saat dipakai di pertandingan.';
-  renderCurrency();
 }
-function refresh(){if(!sel||!LIST.includes(sel))sel=LIST.find(i=>qty(i)>0)||LIST[0]||null;renderGrid();renderInfo();P3D.sync()}
+function refresh(){LIST=CI.powerup.filter(i=>qty(i)>0);if(!sel||!LIST.includes(sel))sel=LIST[0]||null;renderGrid();renderInfo();if(!sel&&$('#pv').classList.contains('on'))closePv();P3D.sync()}
 function pick(i){
-  if(sel===i){playSound('select');return}
+  if(sel===i)return; /* pilihan sama: sudah dirender, modal tinggal dibuka */
   stopNetherStarPreview();
   sel=i;
-  $('#grid').querySelectorAll('.fslot').forEach(card=>{
-    const active=card.dataset.id===i.id;
-    card.classList.toggle('sel',active);
-    card.setAttribute('aria-pressed',String(active));
-  });
-  renderAct();renderInfo();P3D.load();P3D.sync();playSound('select');
+  renderInfo();P3D.load();P3D.sync();
 }
+/* ---- modal pratinjau: nama, rarity, deskripsi + pratinjau 3D/2D. Di dalam Inventory (iframe) memberi tahu induk agar judul/tab ikut digelapkan */
+function tellParent(open){try{if(parent&&parent!==window)parent.postMessage({type:'ut-inv-modal',open:!!open},'*')}catch(e){}}
+function openPv(){$('#pv').classList.add('on');$('#pv').setAttribute('aria-hidden','false');tellParent(true);try{$('#pvClose').focus({preventScroll:true})}catch(e){}}
+function closePv(){$('#pv').classList.remove('on');$('#pv').setAttribute('aria-hidden','true');stopNetherStarPreview();tellParent(false)}
+$('#pvClose').addEventListener('click',()=>{playSound('click');closePv()});
+$('#pv').addEventListener('click',e=>{if(e.target.id==='pv'){playSound('click');closePv()}});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#pv').classList.contains('on'))closePv()});
 $('#grid').addEventListener('click',e=>{
   const c=e.target.closest('.fslot');if(!c)return;
   const i=LIST.find(x=>x.id===c.dataset.id);if(!i)return;
-  pick(i);
+  pick(i);playSound('open');openPv();
 });
+$('#goShop').addEventListener('click',()=>{playSound('click');nav('shop.html')});
 
 /* ---- pratinjau 3D hidup (assets/js/renderers/power-3d): dimuat malas; gagal/WebGL mati = tampilan 2D (showThemeArt) */
 function showThemeArt(on){$('#fpv').classList.toggle('art2d',!!on)}
@@ -149,43 +135,11 @@ function roll(){
   PFX.at(sel);
   setTimeout(()=>{if(d)d.classList.remove('burst');rolling=false},1000);
 }
-$('#roll').addEventListener('click',roll);
 $('#pa').addEventListener('click',roll);
 
-/* ---- modal: beli Power per jumlah (stepper 1..99, total = harga x jumlah). Server (buy_powerup) menagih & menambah stok; opId unik per pembelian. */
-let mOpen=false,opId=null;
-const closeM=()=>{mOpen=false;$('#md').classList.remove('on');$('#box').classList.remove('buy')};
-$('#m-no').addEventListener('click',closeM);
-$('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
-function confirmBuy(i){
-  let n=1;const have=qty(i),coins=()=>PD.coins(),cap=Math.max(1,Math.min(99,999-have));
-  opId=null;
-  $('#mt').textContent='Beli '+i.name;
-  $('#mx').innerHTML='<div class="qs">Stok sekarang ×'+have+'</div><div class="qr"><button class="qb" id="qm" aria-label="Kurangi">−</button><b id="qn">1</b><button class="qb" id="qp" aria-label="Tambah">+</button></div><div class="qt">'+COIN+'<span id="qt"></span></div><div class="qs" id="qd"></div>';
-  $('#box').classList.add('buy');$('#md').classList.add('on');mOpen=true;playSound('open');
-  const upd=()=>{const tot=i.price*n,ok=coins()>=tot;$('#qn').textContent=n;$('#qt').textContent=fmt(tot);$('#qt').style.color=ok?'#ffe36a':'#ff8a8a';$('#qd').textContent=ok?'Stok jadi ×'+(have+n):'Kurang '+fmt(tot-coins())+' coin';$('#m-ok').style.opacity=ok?1:.55};
-  $('#qm').addEventListener('click',()=>{n=Math.max(1,n-1);upd();playSound('click')});
-  $('#qp').addEventListener('click',()=>{n=Math.min(cap,n+1);upd();playSound('click')});
-  upd();
-  $('#m-ok').onclick=async()=>{
-    if(coins()<i.price*n){toast('Coin tidak cukup.');playSound('error');return}
-    let r;
-    if(SV()){opId=opId||('op-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));r=await WS().buyPowerup(i.id,n,opId)}
-    else{r={ok:true};for(let k=0;k<n&&r.ok;k++)r=PD.purchase(i.id)} /* mode lokal (tanpa server) */
-    closeM();
-    if(!r||!r.ok){toast(WMSG[r&&r.reason]||'Pembelian gagal.');playSound('error');return}
-    playSound('purchase');buzz();toast('Berhasil membeli ×'+n+' '+i.name+'!');
-    renderCurrency();refresh();
-  };
-}
-addEventListener('keydown',e=>{if(e.key==='Escape'&&mOpen)closeM()});
-
-/* ---- navigasi + dompet */
+/* ---- navigasi + sinkron */
 $('#back').addEventListener('click',()=>{playSound('click');nav('lobby.html')});
-$('#cur-em').addEventListener('click',()=>nav('tambang.html?from='+encodeURIComponent(location.pathname.split('/').pop()||'lobby.html')));
-$('#cur-co').addEventListener('click',()=>nav('shop.html?coin=1'));
-try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency();if(r!=='pageshow')refresh()}catch(e){}})}}catch(e){} /* saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
-UT.Events.on('currencyChanged',renderCurrency);
+try{if(!window.__curSub){window.__curSub=1;PD.subscribe(r=>{if(r==='server-wallet'||r==='storage')try{refresh()}catch(e){}})}}catch(e){} /* inventory dari server memperbarui daftar */
 UT.Events.on('inventoryChanged',refresh);
 
 refresh();if(P3D.visible)P3D.load();

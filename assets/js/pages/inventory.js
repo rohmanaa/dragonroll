@@ -22,6 +22,23 @@ UT.PageModule.define('inventory', function (env) {
 
   tabsEl.innerHTML = UT.InvTabs.markup('');
 
+  /* ---- saldo (kiri bawah, seperti Toko/Pet): emerald + coin; ketuk = Tambang / Toko ---- */
+  function curPD() { try { return window.PlayerData; } catch (e) { return null; } }
+  function curRender() {
+    if (env.disposed) return;
+    var PD = curPD(), ok = !!(PD && PD.walletReady && PD.walletReady());
+    var em = $('#v-em'), co = $('#v-co');
+    if (em) em.textContent = ok ? Number(PD.gems()).toLocaleString('id-ID') : '—';
+    if (co) co.textContent = ok ? Number(PD.coins()).toLocaleString('id-ID') : '—';
+  }
+  curRender();
+  try { env.own(UT.Events.on('currencyChanged', curRender)); } catch (e) {}
+  try { var PDs = curPD(); if (PDs && PDs.subscribe) env.own(PDs.subscribe(function (r) { if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') curRender(); })); } catch (e) {}
+  try { var WSs = window.UT && UT.WalletService && UT.WalletService.get(); if (WSs && WSs.refresh && curPD() && curPD().serverMode && curPD().serverMode()) WSs.refresh().then(curRender, function () {}); } catch (e) {}
+  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); }
+  curGo('#cur-em', 'tambang.html?from=inventory.html');
+  curGo('#cur-co', 'shop.html?coin=1');
+
   /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI Power-up: panel kiri (pratinjau + nama + jumlah dimiliki),
      grid slot kanan (chip jumlah), satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
   var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, cSel = '', tt = 0;
@@ -134,6 +151,8 @@ UT.PageModule.define('inventory', function (env) {
   $('#back').addEventListener('click', function () { snd(); nav('lobby.html'); });
   addEventListener('keydown', function (e) { if (e.key === 'Escape') nav('lobby.html'); });
   addEventListener('message', function (e) {
+    /* modal di dalam tab (mis. pratinjau Power-up): iframe naik di atas judul/tab supaya seluruh layar ikut gelap */
+    if (e.data && e.data.type === 'ut-inv-modal' && Object.keys(frames).some(function (x) { return frames[x].contentWindow === e.source; })) { host.classList.toggle('top', !!e.data.open); return; }
     if (!e.data || e.data.type !== 'ut-inv-nav' || !Object.keys(frames).some(function (x) { return frames[x].contentWindow === e.source; })) return;
     var u = String(e.data.url || '');
     if (/^[A-Za-z0-9_-]+\.html(\?[^#]*)?$/.test(u) && !/^(play|index)\.html/.test(u)) nav(u);
