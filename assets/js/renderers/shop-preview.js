@@ -101,17 +101,25 @@
     return function () { dead = true; if (off) off(); host.removeEventListener('click', roll); try { if (kit) kit.dispose(); } catch (e) {} kit = null; };
   }
 
+  /* Power: 3D hidup + SFX (mengikuti Pengaturan -> Suara) + FX. Efek & suara berjalan OTOMATIS sekali saat preview dibuka, ketuk = ulangi.
+     Power tanpa model 3D / WebGL gagal: gambar ItemArt + partikel 2D UT.PowerFX (data/power/power-fx.js), sama seperti halaman Power. */
+  function soundOn() { try { return !g.PlayerData || g.PlayerData.settings().sound !== false; } catch (e) { return true; } }
+  function fx2d(host, item) { try { if (g.UT && g.UT.PowerFX) g.UT.PowerFX.playAtElement(item.gameKey, host); } catch (e) { /* abaikan */ } }
   function power(host, item) {
-    var inst = null, dead = false, box = g.document.createElement('div');
+    var inst = null, dead = false, timer = 0, box = g.document.createElement('div');
     box.style.cssText = 'position:absolute;inset:0'; host.innerHTML = ''; host.appendChild(box);
+    function act() { try { if (inst) { inst.setSound(soundOn()); inst.activate(); } else fx2d(host, item); } catch (e) { /* abaikan */ } }
+    function plain() { fallback(host, item); host.addEventListener('click', act); timer = g.setTimeout(act, 450); }
     import('./power-3d/power-show.js').then(function (m) {
       if (dead) return;
-      if (!m.supports(item.gameKey)) { fallback(host, item); return; }
-      inst = m.mount(box, { quality: 'low' }); inst.setSound(false);
-      if (inst.show(item.gameKey)) { inst.start(); host.addEventListener('click', act); } else fallback(host, item);
-    }).catch(function () { if (!dead) fallback(host, item); });
-    function act() { try { if (inst) inst.activate(); } catch (e) {} }
-    return function () { dead = true; host.removeEventListener('click', act); try { if (inst) inst.destroy(); } catch (e) {} inst = null; };
+      if (!m.supports(item.gameKey)) { plain(); return; }
+      inst = m.mount(box, { quality: 'low' }); inst.setSound(soundOn());
+      if (inst.show(item.gameKey)) { inst.start(); host.addEventListener('click', act); timer = g.setTimeout(act, 450); } else { inst = null; plain(); }
+    }).catch(function () { if (!dead) { inst = null; plain(); } });
+    return function () {
+      dead = true; g.clearTimeout(timer); host.removeEventListener('click', act);
+      try { if (inst) { inst.setSound(false); inst.destroy(); } } catch (e) { /* abaikan */ } inst = null;
+    };
   }
 
   function mount(host, item) {
