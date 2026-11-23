@@ -1790,7 +1790,7 @@ function frame(now){
     camTarget.y+Math.sin(camPitch)*camDist,
     camTarget.z+Math.cos(camYaw)*Math.cos(camPitch)*camDist);
   camera.lookAt(camTarget);
-  if((auraTick++%20)===0)auraSync();if(AUR)AUR.update(dt);
+  /* aura TIDAK ditampilkan di pratinjau karakter (permintaan desain): auraSync() sengaja tidak dipanggil */
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);
