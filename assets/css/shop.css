@@ -131,7 +131,7 @@
 .x{position:absolute;right:4px;top:4px;z-index:1;width:64px;height:64px;border-radius:14px;background:linear-gradient(#ff7a8a,#c9283f);border:4px solid rgba(0,0,0,.45);box-shadow:0 5px 0 rgba(20,12,45,.6);font:800 40px/1 var(--font-body)}
 .pack{display:flex;align-items:center;justify-content:space-between;width:100%;padding:20px 28px;border-radius:18px;background:linear-gradient(#ffd45a,#ff9a1f);box-shadow:0 5px 0 #9c5d0b;font:800 30px var(--font-body)}
 .pack:disabled{filter:grayscale(.8);cursor:not-allowed}
-body:has(#modal.show)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(10,8,30,.65)}
+/* (lapisan gelap tambahan body:has(#modal.show)::after dihapus: dobel dengan #modal; kini #modal sendiri menutup seluruh layar) */
 
 /* kilau tipis melayang di sekitar gambar Coin & Chest */
 .card .pic{position:relative}
@@ -293,3 +293,7 @@ button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp)
 button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
 /* latar lama Toko (shop-bg + pasar voxel) harus terlihat: overlay panel dibuat tipis */
 #pmodal::before{background:rgba(30,24,50,.22)}
+
+/* lapisan gelap modal/dialog/iklan/hadiah menutup SELURUH layar (bukan hanya kanvas 16:9): sisi kiri-kanan sama gelapnya dengan tengah.
+   --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi fit() di shop-page.js); #stage overflow:visible. */
+#modal,#dlg,#ad,#rw{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}
