@@ -229,9 +229,6 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
-html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../images/background/profile-bg.webp) center/cover no-repeat fixed,#2e293c!important}
-@media (min-aspect-ratio:2/1){html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#2e293c!important}}
-body.dm::before{display:none}
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
 #title{left:100px;top:34px}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:2}
@@ -294,3 +291,5 @@ button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp)
 #modal>#box>#mx{border-image:none!important;outline:0;border-radius:0!important}
 /* "Dimiliki": aset tombol gelap. Aturan lama `.plate.own{background:...}` mereset ukuran/ulang gambar (tampil ganda), jadi diset penuh di sini */
 button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
+/* latar lama Toko (shop-bg + pasar voxel) harus terlihat: overlay panel dibuat tipis */
+#pmodal::before{background:rgba(30,24,50,.22)}
