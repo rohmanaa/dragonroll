@@ -185,7 +185,7 @@ t('Halaman lain tidak diubah: gameplay/shop/inventory/lobby/profile memakai jalu
 t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice dengan ukuran benar', () => {
   assert.ok(/^ut-pwa-v\d+$/.test((/VERSION = '([^']+)'/.exec(rd('sw.js')) || [])[1] || ''));
   const pm = JSON.parse(rd('assets/preload-manifest.json')), want = DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js').concat(['data/inventory/dice/index.js']);
-  assert.strictEqual(want.length, 24); want.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
+  assert.strictEqual(want.length, 25); want.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
   DICEKIT_FILES.forEach(f => assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f));
   assert.ok(!Object.keys(pm).some(f => f.startsWith('assets/js/dice-kit/')), 'preload must not retain legacy DiceKit paths');
 });
