@@ -16,6 +16,7 @@
   <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = pose pet (gambar statis) -->
   <section id="hero" class="pcard">
     <div id="mid"><div id="art"></div></div>
+    <button id="frbtn" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
     <div id="who">
       <div id="lv" aria-label="Level"><svg viewBox="0 0 64 74" aria-hidden="true"><defs><linearGradient id="pvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2a63d6"/></linearGradient></defs><path d="M32 3 L59 12 V37 C59 55 46 67 32 72 C18 67 5 55 5 37 V12 Z" fill="url(#pvg)" stroke="#ffd45a" stroke-width="4" stroke-linejoin="round"/><path d="M32 10 L53 17 V37 C53 51 43 60 32 65 C21 60 11 51 11 37 V17 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/></svg><b id="lvn">1</b></div>
       <div id="nrow"><div id="hnm" class="ttl"></div><div id="pbtns"><button class="eb" data-i="0"></button><button class="eb" data-i="1"></button><button class="eb" data-i="2"></button><button id="pen" aria-label="Ubah nama">✏️</button></div></div>
@@ -31,6 +32,19 @@
 
   <!-- pemilih emoji (3 slot "siapa dirimu") -->
   <div id="epick" aria-hidden="true"><div class="ebox" role="dialog" aria-label="Pilih emoji"><div class="eh">Pilih emoji</div><div id="egrid"></div></div></div>
+  <!-- modal Frame: pilih / beli frame foto profil (dulu halaman Frame di Perlengkapan) -->
+  <div id="frmd" aria-hidden="true"><div id="frbox" role="dialog" aria-modal="true" aria-labelledby="frt">
+    <h3 id="frt" class="ttl">Frame</h3>
+    <button id="frx" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+    <div id="frbody">
+      <div id="frpv"><div id="frart"></div><div id="frnm" class="ttl"></div><div id="frrar"></div><p id="frds"></p></div>
+      <div id="frgrid" aria-label="Daftar frame"></div>
+    </div>
+    <button class="btn" id="fract" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+    <div id="frcf"><div class="cfb"><p id="frcft"></p><div class="cfr">
+      <button class="btn" id="frcf-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>BATAL</span></button>
+      <button class="btn" id="frcf-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button></div></div></div>
+  </div></div>
   <div id="toast"></div>
 </template>
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>

@@ -1155,7 +1155,7 @@ const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleStri
 $('#back').addEventListener('click',()=>{nav('lobby.html');});
 /* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'), sama dengan Toko/Pet */
 try{let t=parseInt(UT.Prefs.get('panelTransparency',16),10);if(!isFinite(t))t=16;document.documentElement.style.setProperty('--panel-a',(1-Math.max(0,Math.min(70,t))/100).toFixed(2));}catch(e){}
-$('#gearbtn').addEventListener('click',()=>{nav('frame.html');});
+$('#gearbtn').addEventListener('click',()=>{nav('dadu.html');});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
 $('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});

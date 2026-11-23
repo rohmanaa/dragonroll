@@ -22,7 +22,7 @@
   /* Inventory = HANYA item yang dimiliki (Power-up, Chest, Ore, Log). Frame/Dadu/Efek (dipasang dari Karakter) dan Pet punya bar tab sendiri. */
   var GROUPS = {
     inv: { title: 'Inventory', label: 'Kategori inventory', keys: ['power', 'chest', 'ore', 'log'] },
-    gear: { title: 'Perlengkapan', label: 'Kategori perlengkapan', keys: ['karakter', 'frame', 'dadu', 'efek'] },
+    gear: { title: 'Perlengkapan', label: 'Kategori perlengkapan', keys: ['karakter', 'dadu', 'efek'] },
     pet: { title: 'Pet', label: 'Pet', keys: ['pet'] }
   };
   function groupOf(k) { for (var g in GROUPS) if (GROUPS[g].keys.indexOf(k) >= 0) return g; return 'inv'; }

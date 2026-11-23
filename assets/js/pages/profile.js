@@ -165,11 +165,11 @@ $('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) ret
 $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","inventory.html?tab=frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol() {
   $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
-$('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); go(b.dataset.u); } };
+$('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
@@ -186,11 +186,75 @@ function drawStat() {
 }
 $('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
 
+
+/* ---- modal FRAME: pilih / beli frame foto profil. Data = ItemCatalog (kind 'frame'); pakai/beli lewat PlayerData + WalletService ---- */
+const FRR = {common: ['Biasa', '#cfc8ea'], rare: ['Langka', '#4db3e6'], epic: ['Epik', '#b07cff'], legendary: ['Legendaris', '#ffd45a']};
+const FRW = {'saldo-kurang': 'Coin tidak cukup.', 'gem-kurang': 'Emerald tidak cukup.', 'sudah-dimiliki': 'Frame sudah dimiliki.', 'tidak-tersedia': 'Frame tidak tersedia.', 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...'};
+const frList = () => IC.items.filter(i => i.kind === 'frame' && !i.off);
+const frSell = i => !!i && ((typeof i.price === 'number' && i.price > 0) || (typeof i.gems === 'number' && i.gems > 0)) && !i.starter;
+const frPrice = n => n >= 1000 ? (n / 1000).toLocaleString('id-ID', {maximumFractionDigits: 1}) + 'k' : fmt(n);
+let frSel = null, frBusy = false, frOk = null;
+const frOpen = () => $('#frmd').classList.contains('on');
+function drawFrame() {
+  if (env.disposed || !frOpen()) return;
+  const L = frList();
+  if (!frSel || !L.includes(frSel)) frSel = L.find(i => PD.isEquipped(i.id)) || L.find(i => PD.owns(i.id)) || L[0] || null;
+  $('#frgrid').innerHTML = L.map(x => {
+    const m = PD.owns(x.id), on = PD.isEquipped(x.id);
+    return `<button class="fslot ${on ? 'st-used' : m ? 'st-own' : 'st-lock'}${x === frSel ? ' sel' : ''}" type="button" data-id="${x.id}" aria-label="${x.name} — ${on ? 'dipakai' : m ? 'dimiliki' : frSell(x) ? 'beli ' + frPrice(x.gems > 0 ? x.gems : x.price) : 'tidak dijual'}"><div class="th">${AR.frame(x.id)}</div>${on ? `<img class="ck" src="${G}centang.webp" alt="">` : ''}</button>`;
+  }).join('');
+  const b = $('#fract'), sp = b.querySelector('span'), f = frSel;
+  if (!f) { b.style.display = 'none'; $('#frnm').textContent = 'Frame'; $('#frds').textContent = 'Belum ada frame.'; $('#frart').innerHTML = ''; return; }
+  b.style.display = '';
+  const m = PD.owns(f.id), on = PD.isEquipped(f.id), sell = frSell(f), r = FRR[f.rarity] || FRR.common;
+  $('#frart').innerHTML = AR.frame(f.id);
+  $('#frnm').textContent = f.name;
+  $('#frrar').textContent = r[0]; $('#frrar').style.color = r[1];
+  $('#frds').textContent = f.desc + (m ? '' : (sell ? ' Belum dimiliki — ini hanya preview, beli untuk memakainya.' : ' Belum dimiliki dan tidak dijual. Hanya preview.'));
+  if (on) { b.dataset.mode = 'used'; b.disabled = true; sp.textContent = 'DIPAKAI'; }
+  else if (m) { b.dataset.mode = 'equip'; b.disabled = false; sp.textContent = 'PAKAI'; }
+  else if (sell) { b.dataset.mode = 'buy'; b.disabled = false; sp.textContent = 'BELI ' + frPrice(f.gems > 0 ? f.gems : f.price) + (f.gems > 0 ? ' EMERALD' : ' COIN'); }
+  else { b.dataset.mode = 'no'; b.disabled = true; sp.textContent = 'TIDAK DIJUAL'; }
+}
+function frameOpen() { const m = $('#frmd'); m.classList.add('on'); m.setAttribute('aria-hidden', 'false'); drawFrame(); }
+function frameClose() { const m = $('#frmd'); m.classList.remove('on'); m.setAttribute('aria-hidden', 'true'); $('#frcf').classList.remove('on'); }
+async function frameBuy(f) {
+  if (frBusy) return; frBusy = true;
+  try {
+    const r = SV() ? await WS().buy(f.id) : PD.purchase(f.id);
+    if (!r || !r.ok) { toast(FRW[r && r.reason] || 'Pembelian gagal.'); return; }
+    snd('power'); buzz(); try { PD.equip(f.id); } catch (e) {}
+    toast('Pembelian berhasil!');
+  } finally { frBusy = false; drawFrame(); drawKol(); }
+}
+function frameAct() {
+  const f = frSel; if (!f) return; const mode = $('#fract').dataset.mode;
+  if (mode === 'equip') {
+    const r = PD.equip(f.id);
+    if (r && r.ok) { toast(f.name + ' dipakai'); snd(); buzz(); } else toast('Gagal memakai item.');
+    drawFrame(); drawKol(); return;
+  }
+  if (mode !== 'buy') return;
+  if (!PD.walletReady()) { toast('Menunggu saldo dari server...'); return; }
+  const gem = f.gems > 0, need = gem ? f.gems : f.price, have = gem ? PD.gems() : PD.coins(), cur = gem ? 'Emerald' : 'Coin';
+  if (have < need) { toast(`${cur} tidak cukup. Kurang ${fmt(need - have)}.`); return; }
+  $('#frcft').textContent = `Beli ${f.name} seharga ${fmt(need)} ${cur}?`;
+  frOk = () => frameBuy(f); $('#frcf').classList.add('on');
+}
+$('#frbtn').onclick = () => { snd(); frameOpen(); };
+$('#frx').onclick = () => { snd(); frameClose(); };
+$('#frmd').onclick = e => { if (e.target.id === 'frmd') frameClose(); };
+$('#frgrid').onclick = e => { const c = e.target.closest('.fslot'); if (!c) return; const f = frList().find(x => x.id === c.dataset.id); if (!f) return; frSel = f; snd(); drawFrame(); };
+$('#fract').onclick = () => { snd(); frameAct(); };
+$('#frcf-no').onclick = () => { snd(); $('#frcf').classList.remove('on'); };
+$('#frcf-ok').onclick = () => { snd(); $('#frcf').classList.remove('on'); const f = frOk; frOk = null; if (f) f(); };
+{ const q = (UT.Spa && UT.Spa.current && UT.Spa.current()); const u = (q && q.url) || location.search; if (/[?&]frame=1\b/.test(u)) setTimeout(frameOpen, 0); }
+
 function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); }
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
 env.own(UT.Events.on('skinChanged', () => { draw(); buildChar(); }));
-['inventoryChanged'].forEach(n => env.own(UT.Events.on(n, () => { drawKol(); drawPet(); })));
+['inventoryChanged', 'frameChanged'].forEach(n => env.own(UT.Events.on(n, () => { drawKol(); drawPet(); drawFrame(); })));
 if (UT.CharacterFace && UT.CharacterFace.watch) env.own(UT.CharacterFace.watch(() => { buildChar(); }));
 try {
   env.own(PD.subscribe(r => {
