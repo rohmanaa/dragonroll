@@ -1357,6 +1357,9 @@ function startPreview(ci,part,set){
   pv={saved:clone(cfg),ci:ci,set:set||null};previewAll=true;
   apply(part);
 }
+/* thumbnail set bawaan: data/inventory/character/_shared/img/set/<id>-<m|f>.webp (hanya set bawaan; PVP & outfit pribadi tidak punya foto) */
+const SET_THUMBS=new Set(['citizen-m','knight-m','mage-m','farmer-m','explorer-m','noble-m','citizen-f','knight-f','mage-f','farmer-f','explorer-f','princess-f','fairy-f']);
+function setThumb(p){const k=p.id+'-'+p.g;return(p.outfit==null&&!p.pvp&&SET_THUMBS.has(k))?'data/inventory/character/_shared/img/set/'+k+'.webp':'';}
 /* ===== Set: beli per set = total harga item yang belum dimiliki ===== */
 const SLOTK=['top','legs','boots','helm','chest','shoulder','cape','weapon'];
 function setParts(p){ /* item katalog tiap bagian set (selain 'none') */
@@ -1522,7 +1525,8 @@ function renderOpts(){
     const presetCard=p=>{
       const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
       const part=clone(p.set),name=p.n.replace(/^\S+\s/,'');
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
+      const stat=setThumb(p); /* set bawaan = foto statis; PVP & outfit pribadi tetap jepretan 3D */
+      optsEl.appendChild(card({i:n++,th:stat?'<img class="thimg" src="'+stat+'" alt="" draggable="false" decoding="async">':emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
         actionKey:'set:'+p.id,
         action:{
           state:()=>lock
@@ -1539,7 +1543,7 @@ function renderOpts(){
           }
         },
         fn:()=>lock?startPreview(st.miss[0],clone(p.set),{id:p.id,n:p.n,cis:st.miss,total:st.total}):stage('p'+p.id,p.n.replace(/^\S+\s/,''),clone(p.set)),
-        tq:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body])+(p.outfit!=null?JSON.stringify(p.set):''),fr:'full',part:()=>clone(p.set)}}));
+        tq:stat?null:{key:'p|'+p.g+p.id+JSON.stringify([cfg.skin,cfg.eyes,cfg.hair,cfg.body])+(p.outfit!=null?JSON.stringify(p.set):''),fr:'full',part:()=>clone(p.set)}}));
     };
     PRESETS.filter(p=>p.g===cfg.gender).forEach(presetCard);
     /* outfit pribadi: tampil di samping set bawaan (hanya yang sesuai gender), lalu kartu "Simpan tampilan" bila slot masih ada */
