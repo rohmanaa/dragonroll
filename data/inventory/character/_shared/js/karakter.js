@@ -1422,10 +1422,10 @@ function slider(label,key,min,max){
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
   {name:'Gender',ico:'⚧',keys:['gender']},
-  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body']},
-  {name:'Outfit',ico:'👕',keys:['top','legs','helm','boots']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body','preset']},
+  {name:'Outfit',ico:'👕',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
   {name:'Aksesori',ico:'🎒',keys:['accessories']}
-];   /* tab Set DIPINDAH ke Toko (tab Set di shop.html); tidak ada lagi di Karakter */
+];   /* Set (preset) = subkategori Penampilan di samping Kulit; Outfit memuat Baju/Celana/Kepala/Zirah/Bahu/Jubah/Senjata/Sepatu */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
 const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k)||slotTabs[k]===g.name);
@@ -1700,7 +1700,7 @@ renderTabs();
    11. KAMERA
    ================================================================ */
 /* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
-let camYaw=0,camPitch=0.1;const camDist=3.3; /* hadap depan; jarak pas untuk kartu potret (karakter utuh, tidak terpotong) */
+let camYaw=0,camPitch=0.1;const camDist=3.8; /* hadap depan; jarak pas untuk kartu potret (karakter utuh, tidak terpotong) */
 const ptrs=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{
@@ -1721,7 +1721,7 @@ function fit(){
   /* Selaraskan titik dasar karakter dengan batas bawah slot equipment. */
   try{
     {
-      const ty=0.85;
+      const ty=0.95;
       camera.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,ty+Math.sin(camPitch)*camDist,Math.cos(camYaw)*Math.cos(camPitch)*camDist);
       camera.lookAt(0,ty,0);camera.updateMatrixWorld(true);
       const v=new THREE.Vector3(0,0,0).project(camera),feet=(1-v.y)/2*h,dy=FEET_Y-feet;
@@ -1759,7 +1759,7 @@ try{const WS=window.UT&&UT.WalletService&&UT.WalletService.get();
     loadCfg();
   });}catch(e){}
 
-const camTarget=new THREE.Vector3(0,0.85,0);
+const camTarget=new THREE.Vector3(0,0.95,0);
 let last=performance.now(),lastPh=-1;
 /* Aura yang sedang dipakai (dipilih di halaman Efek) tampil di pratinjau karakter; dicek ~tiap 20 frame (ganti aura / tinggi badan) */
 let AUR=null,auraKey,auraH=-1,auraTick=0;
@@ -1789,7 +1789,7 @@ function frame(now){
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
   root.position.y=-0.75*cfg.body.height*(cfg.gender==='f'?0.97:1);
-  camTarget.set(0,0.85,0);
+  camTarget.set(0,0.95,0);
   camera.position.set(
     camTarget.x+Math.sin(camYaw)*Math.cos(camPitch)*camDist,
     camTarget.y+Math.sin(camPitch)*camDist,
