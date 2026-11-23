@@ -132,3 +132,7 @@ html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile
 #frcf .btn{position:relative;display:grid;place-items:center;width:240px;height:78px;padding:0;border:0;background:none;cursor:pointer}
 #frcf .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
 #frcf .btn span{position:relative;font:400 28px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+
+/* lapisan gelap modal Frame & pemilih emoji menutup SELURUH layar (bukan hanya kanvas 16:9): tidak ada celah kiri-kanan di layar lebar.
+   --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi UT.AccountHub.fitFrame pada #stage; #stage.has-hub overflow:visible). */
+#frmd,#epick{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}
