@@ -39,8 +39,8 @@ UT.PageModule.define('inventory', function (env) {
   curGo('#cur-em', 'tambang.html?from=inventory.html');
   curGo('#cur-co', 'shop.html?coin=1');
 
-  /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI Power-up: panel kiri (pratinjau + nama + jumlah dimiliki),
-     grid slot kanan (chip jumlah), satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
+  /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI tab Power-up: hanya grid slot abu (chip jumlah),
+     tanpa panel pratinjau kiri, satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
   var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
   var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
@@ -68,12 +68,11 @@ UT.PageModule.define('inventory', function (env) {
     var kinds = CORD.filter(function (q) { return by[q]; });
     if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small><button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button></div>';
     if (!by[cSel]) cSel = kinds[0];
-    var sk = CK[cSel] || CK.wood, sn = by[cSel].length;
-    var h = '<section id="cl"><div id="cpv"><img src="' + CIC + sk.im + '.webp" alt=""></div><div id="cnm">' + sk.nm + '</div>' +
-      '<div id="cown">Dimiliki ×' + fmt(sn) + '</div><p id="cds">' + (CDS[cSel] || '') + '</p></section><section id="cr"><div id="cg">';
+    var sk = CK[cSel] || CK.wood;
+    var h = '<section id="cr"><div id="cg">';
     kinds.forEach(function (q) {
       var kk = CK[q] || CK.wood, n = by[q].length;
-      h += '<button class="fslot' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + '"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
+      h += '<button class="fslot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
     h += '<button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
     return h + '</div></section><button class="btn" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
