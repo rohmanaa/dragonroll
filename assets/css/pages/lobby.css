@@ -59,6 +59,9 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #cur-ht{right:26px;top:158px}
 /* hati: tanpa tombol +; status di kiri: hitung mundur isi ulang, SIAP bila penuh, +N bila lebih dari max */
 #cur-ht{cursor:default}
+/* hati: tanpa panel/latar, hanya deret paha + status */
+#cur-ht::before{display:none}
+#htime{text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #htime{position:absolute;left:18px;right:auto;top:50%;transform:translateY(-50%);z-index:2;font-size:20px;line-height:1;color:#ffe9a8;
   -webkit-text-stroke:1px #1a1205;letter-spacing:.5px;white-space:nowrap}
 #htime:empty{display:none}
