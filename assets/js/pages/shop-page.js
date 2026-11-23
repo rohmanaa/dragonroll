@@ -10,7 +10,7 @@ UT.PageModule.define('shop', function (env) {
   const SV = () => !!(PD.serverMode && PD.serverMode());
   const fmt = value => Number(value || 0).toLocaleString('id-ID');
   const IC = 'assets/images/ui/';
-  const TABS = ['set', 'frame', 'power', 'chest', 'coin', 'emerald'];
+  const TABS = ['frame', 'power', 'chest', 'coin', 'emerald'];
   /* tab katalog -> kind ItemCatalog; harga & kepemilikan dari katalog/PlayerData, transaksi tetap lewat WalletService (server) */
   const KIND = { skin: 'skin', frame: 'frame', power: 'powerup' };
   const RCOL = { common: '#9aa4b8', uncommon: '#62d07a', rare: '#4da3ff', epic: '#b46bff', legendary: '#ffb02a', mythic: '#ff5a7a', divine: '#fff2a8' };
@@ -71,7 +71,7 @@ UT.PageModule.define('shop', function (env) {
 
   let tab = query.has('emerald') || query.get('tab') === 'gem' ? 'emerald'
     : query.has('coin') || query.get('tab') === 'coin' ? 'coin'
-      : TABS.includes(query.get('tab')) ? query.get('tab') : 'set';
+      : TABS.includes(query.get('tab')) ? query.get('tab') : 'frame';
   let busy = false;
   let modalTimer = 0;
   let mOpen = false;
