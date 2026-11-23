@@ -37,7 +37,7 @@ function showWallet(bump){
 }
 
 /* ---- preview 3D: karakter pemain (BlockyCharacter, tampilan/outfit akun) + AuraSystem; ganti aura = setAura ---- */
-const FXSCALE=2.5,CY=3.2,DIST=15,FOV=36;
+const FXSCALE=2.5,CY=3.2,DIST=16,FOV=36,LOOK_UP=1.1; /* LOOK_UP: titik bidik dinaikkan => karakter + aura turun di kanvas (ujung atas aura tinggi spt Celestial tidak terpotong) */
 const GL_OWNER='inv-efek';
 let R=null,gl=!!(typeof THREE!=='undefined'&&FX&&window.UT&&UT.BlockyCharacter);
 const fxQ=()=>{const g=SET().graphics;return g==='ultra'?'ultra':g==='high'?FX.detectQuality():g==='normal'?'medium':'low'};
@@ -104,7 +104,7 @@ function loop(now){
   if(!R.drag){R.vel*=.95;R.rot+=R.vel+.004}
   R.holder.rotation.y=R.rot;
   R.fx.ch.tick(dt);R.fx.sys.update(dt);
-  R.cam.position.set(0,CY+1,DIST);R.cam.lookAt(0,CY,0);R.r.render(R.scene,R.cam);
+  R.cam.position.set(0,CY+LOOK_UP+1,DIST);R.cam.lookAt(0,CY+LOOK_UP,0);R.r.render(R.scene,R.cam);
 }
 function syncPreview(){
   if(!sel)return;
@@ -164,7 +164,6 @@ function updatePreview(){
   const f=sel,r=RAR[f.rarity]||RAR.common;
   $('#nm').textContent=f.name;
   $('#rar').textContent=f.none?'':r[0];$('#rar').style.color=r[1];
-  $('#ds').textContent=f.desc;
   syncPreview();
 }
 const previewOpen=()=>$('#pv').classList.contains('on');
