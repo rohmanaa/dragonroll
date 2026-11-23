@@ -2110,6 +2110,17 @@ let autoDN=false,phaseT=0;
 try{ autoDN=UT.Prefs.get('autoDN',false)===true; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
 let CINE_ON=false; if(CINE){ try{ CINE_ON=CINE.init({renderer,scene,camera,hemi,sun,skyDome,coarse,reduce}); }catch(e){ console.warn(e); } }
+/* Sinematik mengikuti Pengaturan > Grafis (low|normal|high|ultra): PlayerData.settings().graphics, cadangan cermin UT.Prefs 'ambience'. Berubah saat game berjalan -> ikut. */
+function readGraphics(){
+  try{ const S=window.PlayerData&&PlayerData.settings&&PlayerData.settings(); if(S&&S.graphics) return S.graphics; }catch(e){}
+  try{ const a=UT.Prefs.get('ambience',null); if(a&&a.graphics) return a.graphics; }catch(e){}
+  return 'high';
+}
+function applyCineGraphics(){ if(CINE_ON&&CINE.applyGraphics){ try{ CINE.applyGraphics(readGraphics()); }catch(e){ console.warn(e); } } }
+applyCineGraphics();
+try{ if(window.PlayerData&&PlayerData.subscribe) PlayerData.subscribe(applyCineGraphics); }catch(e){}
+try{ if(UT.Events&&UT.Events.on) UT.Events.on('settingsChanged',applyCineGraphics); }catch(e){}
+window.addEventListener('ut-ambience',applyCineGraphics); window.addEventListener('storage',applyCineGraphics); window.addEventListener('pageshow',applyCineGraphics);
 /* SINKRON dengan Pengaturan > Suasana (PlayerData.settings().ambience: day | night | system; cermin di UT.Prefs 'ambience'): itulah sumber siang/malam saat game dibuka. Kunci lama 'night' hanya cadangan bila Suasana belum ada. */
 function ambienceNight(){
   try{
