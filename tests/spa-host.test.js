@@ -161,5 +161,21 @@ function setup(o) {
     await b.spa.go('mail.html');
     assert.ok(b.log.includes('unmount:profile') && b.log.includes('enter:profile'), b.log.join(','));
   });
+  await t('HP portrait: frameUrl memetakan url iframe ke shell bersarang; tanpa frameUrl url apa adanya', async () => {
+    const b = setup({ rotated: true }), got = [];
+    const frame = { classList: { toggle() {} }, contentWindow: { location: { href: 'about:blank', replace(u) { got.push(u); } } } };
+    b.spa.mount({ frame, view: { hidden: true }, hooks: {}, frameUrl: u => 'play.html?nested=1&go=' + encodeURIComponent(u) });
+    await b.spa.go('shop.html?coin=1');
+    assert.deepStrictEqual(got, ['play.html?nested=1&go=shop.html%3Fcoin%3D1']);
+    const c = setup({ rotated: true }), got2 = [];
+    c.spa.mount({ frame: { classList: { toggle() {} }, contentWindow: { location: { href: 'about:blank', replace(u) { got2.push(u); } } } }, view: { hidden: true }, hooks: {} });
+    await c.spa.go('shop.html');
+    assert.deepStrictEqual(got2, ['shop.html']);
+  });
+  await t('shell bersarang: riwayat mempertahankan flag nested=1', async () => {
+    const b = setup({ search: '?nested=1&go=lobby.html' });
+    await b.spa.go('karakter.html'); await tick();
+    assert.ok(b.hist.some(h => h[0] === 'push' && h[1] === '/play.html?nested=1&go=karakter.html'), JSON.stringify(b.hist));
+  });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

@@ -142,7 +142,7 @@
     var PM = function () { return deps.PageModule || UT().PageModule; };
     var GL = function () { return deps.SharedGL || UT().SharedGL; };
 
-    var frame = null, view = null, hooks = {}, loader = deps.loader || null;
+    var frame = null, view = null, hooks = {}, loader = deps.loader || null, frameUrl = null;
     var navId = 0, current = null, initialUrl = '', broken = {};   // broken: halaman yang gagal jadi view -> selamanya lewat iframe (cegah loop frame-guard)
     var api = { viewActive: false, page: '' };
 
@@ -180,7 +180,8 @@
 
     function pushHistory(url, opts) {
       if (opts.history === 'none') return;
-      var link = (G.location.pathname || 'play.html') + '?go=' + encodeURIComponent(url);
+      var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');   // shell bersarang (HP portrait): pertahankan flag agar reload tidak keluar dari bersarang
+      var link = (G.location.pathname || 'play.html') + '?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
       try {
         if (opts.replace) G.history.replaceState({ spa: url }, '', link);
         else G.history.pushState({ spa: url }, '', link);
@@ -202,7 +203,8 @@
       api.viewActive = false; api.page = pageOf(url);
       showFrame(true);
       if (!frame) return;
-      try { frame.contentWindow.location.replace(url); } catch (e) { frame.src = url; }   // replace: tidak menambah riwayat sendiri
+      var u = frameUrl ? frameUrl(url) : url;   // HP portrait: iframe memuat shell bersarang (play.html?nested=1&go=...)
+      try { frame.contentWindow.location.replace(u); } catch (e) { frame.src = u; }   // replace: tidak menambah riwayat sendiri
     }
 
     function enterView(name, url, id) {
@@ -270,7 +272,7 @@
     }
 
     function install(o) {
-      frame = o.frame; view = o.view; hooks = o.hooks || {};
+      frame = o.frame; view = o.view; hooks = o.hooks || {}; frameUrl = typeof o.frameUrl === 'function' ? o.frameUrl : null;
       if (PM()) PM().managed = true;
       G.addEventListener('popstate', function (e) {
         var u = e.state && e.state.spa;
