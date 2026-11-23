@@ -1152,6 +1152,8 @@ const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 $('#back').addEventListener('click',()=>{nav('lobby.html');});
+/* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'), sama dengan Toko/Pet */
+try{let t=parseInt(UT.Prefs.get('panelTransparency',16),10);if(!isFinite(t))t=16;document.documentElement.style.setProperty('--panel-a',(1-Math.max(0,Math.min(70,t))/100).toFixed(2));}catch(e){}
 $('#gearbtn').addEventListener('click',()=>{nav('frame.html');});
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
