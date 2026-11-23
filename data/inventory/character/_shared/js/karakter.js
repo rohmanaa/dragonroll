@@ -83,6 +83,7 @@ sun.position.set(0,14,0.01);
 scene.add(sun);scene.add(sun.target);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.3}));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+ground.visible=false; /* tanpa bayangan lantai di bawah karakter */
 
 /* ================================================================
    3. DATA: warna (dye) & opsi dasar
@@ -161,6 +162,45 @@ const EYES=[
   {id:'closed',n:'Tertutup',dyes:'eye',def:'blue',brow:3,px:(m,y)=>y===4?0x1c1c1c:undefined},
   {id:'lash',n:'Lentik',g:'f',dyes:'eye',def:'blue',brow:2,px:(m,y,ic)=>y===3?0x2a1a12:(y===4?(m===1?0xffffff:ic):undefined)},
   {id:'sparkle',n:'Berbinar',g:'f',dyes:'eye',def:'purple',brow:2,px:(m,y,ic)=>y===3?(m===1?0xffffff:ic):(y===4?(m===1?0xffffff:shade(ic,0.6)):undefined)}
+];
+
+/* ---- wajah (bentuk wajah: hidung, mulut, pipi) — TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
+   px(x,y,m,c): warna piksel wajah 8x8 (x 0-7, y 0-7, m = kolom cermin 0-3) atau undefined = kulit polos; c = {sk,skD,fem,hD}. Baris mata/alis diatur EYES. */
+const lipC=c=>c.fem?0xc4565f:0x8c4a3c;
+const FACES=[
+  {id:'classic',n:'Klasik',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return lipC(c);
+    if(c.fem&&y===5&&m===1)return mix(c.sk,0xf08080,0.4);
+  }},
+  {id:'soft',n:'Lembut',px:(x,y,m,c)=>{
+    if(y===6&&(x===3||x===4))return mix(lipC(c),c.sk,0.35);
+    if(y===5&&m===1)return mix(c.sk,0xf08080,0.3);
+  }},
+  {id:'smile',n:'Senyum',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&x>=2&&x<=5)return lipC(c);
+    if(y===5&&m===0)return mix(lipC(c),c.sk,0.5);
+  }},
+  {id:'stern',n:'Tegas',px:(x,y,m,c)=>{
+    if((y===4||y===5)&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return shade(lipC(c),0.75);
+    if(y===7&&m<=1)return shade(c.sk,0.93);
+  }},
+  {id:'freckle',n:'Bintik',px:(x,y,m,c)=>{
+    if(y===5&&(x===1||x===2||x===5||x===6)&&(x===1||x===6||(x===2||x===5)))return shade(c.sk,0.8);
+    if(y===6&&(x===2||x===5))return shade(c.sk,0.88);
+    return FACES[0].px(x,y,m,c);
+  }},
+  {id:'cute',n:'Imut',px:(x,y,m,c)=>{
+    if(y===6&&(x===3||x===4))return mix(lipC(c),c.sk,0.2);
+    if(y===5&&(m===1||m===2))return mix(c.sk,0xf08080,0.45);
+  }},
+  {id:'open',n:'Ceria',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return 0x5a1f1f;
+    if(y===6&&(x===2||x===5))return lipC(c);
+  }}
 ];
 
 /* ---- rambut ---- */
@@ -773,7 +813,7 @@ const knGear=(key,c)=>{
   WEAPONS.push({id:key,n:rv?'Pedang Rival':'Pedang Emas',dyes:null,base:1.9,build:knSword(c)});
 });
 
-const REG={eyes:EYES,hair:HAIRS,top:TOPS,legs:LEGS,boots:BOOTS,helm:HELMS,chest:CHESTS,shoulder:SHOULDERS,cape:CAPES,weapon:WEAPONS,acc:ACCS};
+const REG={eyes:EYES,face:FACES,hair:HAIRS,top:TOPS,legs:LEGS,boots:BOOTS,helm:HELMS,chest:CHESTS,shoulder:SHOULDERS,cape:CAPES,weapon:WEAPONS,acc:ACCS};
 const find=(key,id)=>REG[key].find(i=>i.id===id)||REG[key][0];
 /* Kepemilikan: item builder yang ada di katalog game ('gear.<bagian>.<id>') hanya boleh dipakai bila dimiliki (PlayerData).
    Item yang tidak ada di katalog (mata, rambut, 'none') adalah dasar penampilan: gratis. Harga/kepemilikan asli ada di server. */
@@ -802,6 +842,7 @@ const DEFAULT=Object.assign({
   gender:'m',
   body:{height:1,build:1},
   skin:'s2',
+  face:{id:'classic'},
   eyes:{id:'round',dye:'blue'},
   hair:{id:'short',dye:'brown'}
 },clone(PRESETS[0].set));
@@ -809,14 +850,14 @@ const DEFAULT=Object.assign({
 let cfg=clone(DEFAULT);
 const okG=i=>!i.g||i.g===cfg.gender;
 const START={
-  m:Object.assign({gender:'m',eyes:{id:'round',dye:'blue'},hair:{id:'short',dye:'brown'}},clone(PRESETS[0].set)),
-  f:Object.assign({gender:'f',eyes:{id:'lash',dye:'blue'},hair:{id:'bob',dye:'brown'}},clone(PRESETS.find(p=>p.g==='f'&&p.id==='citizen').set))
+  m:Object.assign({gender:'m',face:{id:'classic'},eyes:{id:'round',dye:'blue'},hair:{id:'short',dye:'brown'}},clone(PRESETS[0].set)),
+  f:Object.assign({gender:'f',face:{id:'classic'},eyes:{id:'lash',dye:'blue'},hair:{id:'bob',dye:'brown'}},clone(PRESETS.find(p=>p.g==='f'&&p.id==='citizen').set))
 };
 // ganti gender: pakai set dasar gender tsb, pertahankan kulit, badan, warna rambut & mata
 function setGender(g){
   if(cfg.gender===g)return;
   const o=clone(START[g]);
-  o.hair.dye=cfg.hair.dye;o.eyes.dye=cfg.eyes.dye;o.skin=cfg.skin;o.body=clone(cfg.body);
+  o.hair.dye=cfg.hair.dye;o.eyes.dye=cfg.eyes.dye;o.face=clone(cfg.face);o.skin=cfg.skin;o.body=clone(cfg.body);
   apply(o);
 }
 
@@ -837,7 +878,7 @@ function normalize(){
   b.height=clamp(+b.height||1,0.9,1.1);b.build=clamp(+b.build||1,0.9,1.15);
   if(cfg.gender!=='m'&&cfg.gender!=='f')cfg.gender='m';
   if(!SKINS.some(s=>s.id===cfg.skin))cfg.skin='s2';
-  ['eyes','hair','top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
+  ['face','eyes','hair','top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
     const o=cfg[k]=(cfg[k]&&typeof cfg[k]==='object'&&!Array.isArray(cfg[k]))?cfg[k]:{};
     let it=find(k,o.id);if(!okG(it)||!owned(k,it))it=REG[k].find(i=>okG(i)&&owned(k,i))||REG[k][0];o.id=it.id;fixDye(o,it);
   });
@@ -847,7 +888,7 @@ function normalize(){
     .map(a=>{const it=find('acc',a.id);const o={id:a.id,dye:a.dye};fixDye(o,it);return o;});
 }
 // kategori config -> slot mesh yang harus dibangun ulang
-const KEYMAP={gender:['head'],skin:['head','body'],eyes:['head'],hair:['head','hair'],top:['body'],legs:['body'],boots:['body'],
+const KEYMAP={gender:['head'],skin:['head','body'],face:['head'],eyes:['head'],hair:['head','hair'],top:['body'],legs:['body'],boots:['body'],
   helm:['helm','hair'],chest:['chest'],shoulder:['shoulder'],cape:['cape'],weapon:['weapon'],accessories:['acc','cape']};
 const ORDER=['head','hair','body','helm','chest','shoulder','weapon','acc','cape'];
 const listeners=[];
@@ -875,13 +916,12 @@ function buildHead(){
   clear('head');
   const sk=skinC(),skD=shade(sk,0.85),hD=shade(hairC(),0.55),fem=cfg.gender==='f';
   const eye=find('eyes',cfg.eyes.id),ic=dyeC(cfg.eyes,eye);
+  const face=find('face',cfg.face.id),fc={sk:sk,skD:skD,fem:fem,hD:hD};
   const faceF=(x,y)=>{
     const m=x<4?x:7-x;
     if(m===1||m===2){const e=eye.px(m,y,ic);if(e!==undefined)return e;}
     if(eye.brow!==null&&y===eye.brow&&(m===1||m===2))return hD;
-    if(y===5&&(x===3||x===4))return skD;
-    if(y===6&&(x===3||x===4))return fem?0xc4565f:0x8c4a3c;
-    if(fem&&y===5&&m===1)return mix(sk,0xf08080,0.4);
+    const fv=face.px(x,y,m,fc);if(fv!==undefined)return fv;
     return sk;
   };
   const lidC=shade(sk,0.5);
@@ -1152,7 +1192,8 @@ const $=s=>document.querySelector(s);
 const fmt=n=>(n||0).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 $('#back').addEventListener('click',()=>{nav('lobby.html');});
-$('#gearbtn').addEventListener('click',()=>{nav('frame.html');});
+/* transparansi panel (Pengaturan -> slider, Prefs 'panelTransparency'), sama dengan Toko/Pet */
+try{let t=parseInt(UT.Prefs.get('panelTransparency',16),10);if(!isFinite(t))t=16;document.documentElement.style.setProperty('--panel-a',(1-Math.max(0,Math.min(70,t))/100).toFixed(2));}catch(e){}
 $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
 $('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});
@@ -1165,7 +1206,8 @@ try{env.own(UT.Events.on('currencyChanged',renderCurrency));}catch(e){}
 const CATS=[
   {key:'gender',label:'⚧ Gender',type:'gender'},
   {key:'skin',label:'🎨 Kulit',type:'skin'},
-  {key:'eyes',label:'🙂 Wajah',reg:'eyes',keepDye:true},
+  {key:'face',label:'😊 Wajah',reg:'face'},
+  {key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true},
   {key:'hair',label:'💇 Rambut',reg:'hair',keepDye:true},
   {key:'top',label:'👕 Baju',reg:'top'},
   {key:'legs',label:'👖 Celana',reg:'legs'},
@@ -1181,7 +1223,7 @@ const CATS=[
 ];
 CATS.forEach(c=>{const i=c.label.indexOf(' ');c.ico=c.label.slice(0,i);c.name=c.label.slice(i+1);});
 let cat=0,accSel=null,eqSel=null; /* eqSel: slot "sedang dipakai" yang dipilih (kolom kiri) */
-const FRAME={eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
+const FRAME={face:'eyes',eyes:'eyes',hair:'head',top:'bust',legs:'legs',boots:'boots',helm:'head',chest:'bust',shoulder:'bust',cape:'back',weapon:'full'};
 const tabsEl=$('#tabs'),optsEl=$('#grid'),dyesEl=$('#dyes'),toastEl=$('#toast');
 let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),1800);}
@@ -1253,7 +1295,7 @@ function randomize(){
     const o={id:it.id};if(it.dyes)o.dye=pick(DYES[it.dyes]).id;return o;
   };
   const accs=[];ACCS.filter(i=>ok(i)&&owned('acc',i)).forEach(a=>{if(Math.random()<0.3)accs.push({id:a.id,dye:pick(DYES[a.dyes]).id});});
-  apply({gender:g,skin:pick(SKINS).id,eyes:slot('eyes'),hair:slot('hair'),top:slot('top'),legs:slot('legs'),boots:slot('boots'),
+  apply({gender:g,skin:pick(SKINS).id,face:slot('face'),eyes:slot('eyes'),hair:slot('hair'),top:slot('top'),legs:slot('legs'),boots:slot('boots'),
     helm:slot('helm',0.5),chest:slot('chest',0.6),shoulder:slot('shoulder',0.6),cape:slot('cape',0.5),weapon:slot('weapon',0.4),
     accessories:accs,body:{height:0.9+Math.random()*0.2,build:0.9+Math.random()*0.25}});
 }
@@ -1420,10 +1462,11 @@ function slider(label,key,min,max){
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
   {name:'Gender',ico:'⚧',keys:['gender']},
-  {name:'Penampilan',ico:'🎨',keys:['skin','eyes','hair','body','preset']},
-  {name:'Outfit',ico:'👕',keys:['top','legs','helm','boots']},
-  {name:'Aksesori',ico:'🎒',keys:['accessories']}
-];   /* Set (preset) dipindah jadi subkategori Penampilan, di samping Kulit */
+  {name:'Penampilan',ico:'🎨',keys:['skin','face','eyes','hair','body']},
+  {name:'Outfit',ico:'👕',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
+  {name:'Aksesori',ico:'🎒',keys:['accessories']},
+  {name:'Set',ico:'🎭',keys:['preset']}
+];   /* Set (preset) = tab sendiri setelah Aksesori (bukan sub Penampilan); Outfit memuat Baju/Celana/Kepala/Zirah/Bahu/Jubah/Senjata/Sepatu */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
 const grpOf=k=>GROUPS.findIndex(g=>g.keys.includes(k)||slotTabs[k]===g.name);
@@ -1455,7 +1498,7 @@ function renderOpts(){
   const c=CATS[cat];let n=0;
   if(c.type==='gender'){
     [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
-      const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.skin=cur.skin;o.body=clone(cur.body);return o;};
+      const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.face=clone(cur.face);o.skin=cur.skin;o.body=clone(cur.body);return o;};
       optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
         actionKey:'gender:'+a[0],
         action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
@@ -1623,7 +1666,7 @@ $('#ofm').addEventListener('click',()=>{endPreview();openManageOutfits();});
 function syncToPD(){
   if(previewAll)return;
   try{
-    PD.setLook({gender:cfg.gender,skin:cfg.skin,eyes:cfg.eyes,hair:cfg.hair,body:cfg.body});
+    PD.setLook({gender:cfg.gender,skin:cfg.skin,face:cfg.face,eyes:cfg.eyes,hair:cfg.hair,body:cfg.body});
     const G=PD.gearLook();
     const put=(slot,ci,dye)=>{
       if(!ci){if(G[slot])PD.unequip(slot);return;}
@@ -1698,7 +1741,7 @@ renderTabs();
    11. KAMERA
    ================================================================ */
 /* camDist dikunci 3.6 (= 5.4/1.5 -> karakter 1.5x lebih besar dari sebelumnya); zoom scroll/pinch dimatikan, hanya putar (drag) */
-let camYaw=0.4,camPitch=0.18;const camDist=4.1;
+let camYaw=0,camPitch=0.1;const camDist=3.8; /* hadap depan; jarak pas untuk kartu potret (karakter utuh, tidak terpotong) */
 const ptrs=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{
@@ -1719,16 +1762,19 @@ function fit(){
   /* Selaraskan titik dasar karakter dengan batas bawah slot equipment. */
   try{
     {
-      const ty=0.85;
+      const ty=0.95;
       camera.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,ty+Math.sin(camPitch)*camDist,Math.cos(camYaw)*Math.cos(camPitch)*camDist);
       camera.lookAt(0,ty,0);camera.updateMatrixWorld(true);
       const v=new THREE.Vector3(0,0,0).project(camera),feet=(1-v.y)/2*h,dy=FEET_Y-feet;
-      if(isFinite(dy)&&Math.abs(dy)<h*0.45)camera.setViewOffset(w,h,0,-dy,w,h);
+      /* kaki TIDAK lagi disejajarkan ke slot (dulu bikin kaki terpotong di kartu); karakter dipusatkan utuh di kanvas kartu */
+      void dy;
     }
   }catch(e){}
 }
 try{const ro=env.observe(new ResizeObserver(fit));ro.observe(showEl);}catch(e){addEventListener('resize',fit);}
-function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='scale('+s+')'}
+function fitStage(){const s=Math.min(innerWidth/1920,innerHeight/1080)||1,st=document.getElementById('stage');st.style.transform='scale('+s+')';
+  /* sisa layar di luar kanvas 1920x1080: bingkai & latar #pmodal penuh sampai tepi layar (sama dengan Toko/Pet) */
+  st.style.setProperty('--hub-ex',Math.max(0,(innerWidth/s-1920)/2).toFixed(1)+'px');st.style.setProperty('--hub-ey',Math.max(0,(innerHeight/s-1080)/2).toFixed(1)+'px');}
 addEventListener('resize',fitStage);fitStage();
 fit();
 
@@ -1738,7 +1784,7 @@ fit();
 function loadCfg(){
   const L=PD.look(),G=PD.gearLook();
   if(!L){cfg=clone(DEFAULT);apply(null,true);return;}
-  const o={gender:L.gender,skin:L.skin,eyes:L.eyes,hair:L.hair,body:L.body,accessories:[]};
+  const o={gender:L.gender,skin:L.skin,face:L.face||{id:'classic'},eyes:L.eyes,hair:L.hair,body:L.body,accessories:[]};
   ['top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
     const g=G['g.'+k],ci=g&&IC.byId(g.id);
     o[k]=ci?{id:ci.gameKey,dye:g.dye||undefined}:{id:'none'};
@@ -1754,7 +1800,7 @@ try{const WS=window.UT&&UT.WalletService&&UT.WalletService.get();
     loadCfg();
   });}catch(e){}
 
-const camTarget=new THREE.Vector3(0,0.85,0);
+const camTarget=new THREE.Vector3(0,0.95,0);
 let last=performance.now(),lastPh=-1;
 /* Aura yang sedang dipakai (dipilih di halaman Efek) tampil di pratinjau karakter; dicek ~tiap 20 frame (ganti aura / tinggi badan) */
 let AUR=null,auraKey,auraH=-1,auraTick=0;
@@ -1784,13 +1830,13 @@ function frame(now){
   for(const key in T)P[key]+=(T[key]-P[key])*k;
   applyRig();
   root.position.y=-0.75*cfg.body.height*(cfg.gender==='f'?0.97:1);
-  camTarget.set(0,0.85,0);
+  camTarget.set(0,0.95,0);
   camera.position.set(
     camTarget.x+Math.sin(camYaw)*Math.cos(camPitch)*camDist,
     camTarget.y+Math.sin(camPitch)*camDist,
     camTarget.z+Math.cos(camYaw)*Math.cos(camPitch)*camDist);
   camera.lookAt(camTarget);
-  if((auraTick++%20)===0)auraSync();if(AUR)AUR.update(dt);
+  /* aura TIDAK ditampilkan di pratinjau karakter (permintaan desain): auraSync() sengaja tidak dipanggil */
   if(cv.width>1)renderer.render(scene,camera);
 }
 requestAnimationFrame(frame);

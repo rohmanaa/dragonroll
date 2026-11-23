@@ -35,7 +35,7 @@
     <img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
   </div>
   <div class="cur" id="cur-ht" role="status" aria-label="Nyawa">
-    <img src="assets/images/ui/white-glyphs/hati-garis.webp" alt=""><div class="v" id="v-ht">5/5</div><b id="htime" class="t-title"></b>
+    <div class="v" id="v-ht" aria-hidden="true"></div><b id="htime" class="t-title"></b>
   </div>
 
   <!-- ===== kanan tengah: Shop ===== -->
@@ -49,28 +49,31 @@
       <button class="gbtn" data-act="tambang" aria-label="Tambang"><img class="gi" src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span class="lb">Tambang</span><span class="nbadge" hidden id="mineDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
       <button class="gbtn locked" data-act="mancing" aria-label="Mancing (terkunci)"><img class="gi" src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><span class="lb">Mancing</span><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
       <button class="gbtn" data-act="leaderboard" aria-label="Ranking"><img class="gi" src="assets/images/ui/item-icons/podium.webp" alt=""><span class="lb">Ranking</span></button>
-      <button class="gbtn" id="b-chest" data-act="chest" aria-label="Chest"><img class="gi" src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""><span class="lb">Chest</span><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
     </div>
     <button id="grpt" type="button" aria-label="Tutup menu" aria-expanded="true"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   </div>
 
   <!-- ===== kanan bawah: Inventory + Battle (MULAI) ===== -->
+  <button class="lbt" id="b-chest" data-act="chest" aria-label="Chest"><div class="ico"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""></div><div class="lb">CHEST</div><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
   <button class="lbt" id="b-inv" data-act="inventory" aria-label="Inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
   <button id="go" data-act="mulai" aria-label="Mulai">
     <img src="assets/images/buttons/tombol-play-lobby.webp" alt="">
     <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
   </button>
 
-  <!-- ===== panel Chest (tanpa timer): klaim harian + penyimpanan, BUKA langsung beri hadiah ===== -->
-  <div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
-    <button id="cm-x" type="button" aria-label="Tutup">×</button><h3 id="cm-t">Chest</h3><div id="cm-body"></div>
-  </div></div>
-
   <div id="toast"></div>
   
 </div>
 </div>
 
+<!-- ===== modal Chest: timeline progres game harian (Kayu -> Silver -> Gold) + tombol KLAIM; chest hasil klaim masuk Inventory.
+     Di LUAR #stage (yang di-scale): backdrop fixed menutup lebar penuh layar; kotak diskalakan lewat zoom:var(--ls). ===== -->
+<div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
+  <h3 id="cm-t">Chest Harian</h3>
+  <button id="cm-x" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div id="cm-body"></div>
+  <div id="cm-toast" role="status"></div>
+</div></div>
 <div id="fade"></div>
 
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>

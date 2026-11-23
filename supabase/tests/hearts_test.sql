@@ -16,30 +16,30 @@ reset role;
 do $$ begin
   assert (select (v->>'hearts')::int from out where k='g0') = 5, 'awal 5 hati';
   assert (select (v->>'max')::int from out where k='g0') = 5;
-  assert (select (v->>'regen_secs')::int from out where k='g0') = 300, '1 hati per 5 menit';
+  assert (select (v->>'regen_secs')::int from out where k='g0') = 900, '1 hati per 15 menit';
   assert (select v->'next_in_secs' from out where k='g0') = 'null'::jsonb, 'penuh: tanpa hitung mundur';
   assert (select v->>'ok' from out where k='c1') = 'true';
   assert (select (v->>'hearts')::int from out where k='c1') = 4;
-  assert (select (v->>'next_in_secs')::int from out where k='c1') = 300, 'turun dari penuh: hitungan mulai 5 menit penuh';
+  assert (select (v->>'next_in_secs')::int from out where k='c1') = 900, 'turun dari penuh: hitungan mulai 5 menit penuh';
   assert (select (v->>'hearts')::int from out where k='c2') = 3;
   assert (select hearts from public.player_hearts where user_id='eeeeeeee-0000-0000-0000-0000000000a1') = 3;
 end $$;
 
 -- ===== isi ulang malas: stok 1, regen_at 7 menit lalu -> 2 hati, 3 menit lagi hati berikutnya =====
-update public.player_hearts set hearts = 1, regen_at = now() - interval '7 minutes' where user_id='eeeeeeee-0000-0000-0000-0000000000a1';
+update public.player_hearts set hearts = 1, regen_at = now() - interval '21 minutes' where user_id='eeeeeeee-0000-0000-0000-0000000000a1';
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-0000000000a1',false);
 insert into out select 'g7m', public.hearts_get();
 insert into out select 'c3', public.hearts_consume();
 reset role;
 do $$ begin
-  assert (select (v->>'hearts')::int from out where k='g7m') = 2, '1 + floor(7/5) = 2 hati';
-  assert (select (v->>'next_in_secs')::int from out where k='g7m') = 180, '3 menit menuju hati berikutnya';
+  assert (select (v->>'hearts')::int from out where k='g7m') = 2, '1 + floor(21/15) = 2 hati';
+  assert (select (v->>'next_in_secs')::int from out where k='g7m') = 540, '9 menit menuju hati berikutnya';
   assert (select (v->>'hearts')::int from out where k='c3') = 1, 'dipakai 1 dari 2';
-  assert (select (v->>'next_in_secs')::int from out where k='c3') = 180, 'sisa menit isi ulang tidak hilang saat memakai hati';
+  assert (select (v->>'next_in_secs')::int from out where k='c3') = 540, 'sisa menit isi ulang tidak hilang saat memakai hati';
 end $$;
 
 -- ===== isi ulang tidak melewati 5: stok 3, 60 menit lalu =====
-update public.player_hearts set hearts = 3, regen_at = now() - interval '60 minutes' where user_id='eeeeeeee-0000-0000-0000-0000000000a1';
+update public.player_hearts set hearts = 3, regen_at = now() - interval '180 minutes' where user_id='eeeeeeee-0000-0000-0000-0000000000a1';
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-0000000000a1',false);
 insert into out select 'gcap', public.hearts_get();
 insert into out select 'c4', public.hearts_consume();
@@ -48,7 +48,7 @@ do $$ begin
   assert (select (v->>'hearts')::int from out where k='gcap') = 5, 'dibatasi 5';
   assert (select v->'next_in_secs' from out where k='gcap') = 'null'::jsonb;
   assert (select (v->>'hearts')::int from out where k='c4') = 4;
-  assert (select (v->>'next_in_secs')::int from out where k='c4') = 300, 'sudah penuh lewat isi ulang: hitungan mulai dari sekarang';
+  assert (select (v->>'next_in_secs')::int from out where k='c4') = 900, 'sudah penuh lewat isi ulang: hitungan mulai dari sekarang';
 end $$;
 
 -- ===== habis: 0 hati ditolak, tidak negatif; hitung mundur tetap dikirim =====
@@ -59,7 +59,7 @@ reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='c0') = 'false';
   assert (select v->>'reason' from out where k='c0') = 'hati-habis';
-  assert (select (v->>'next_in_secs')::int from out where k='c0') = 240, '4 menit lagi';
+  assert (select (v->>'next_in_secs')::int from out where k='c0') = 840, '14 menit lagi';
   assert (select hearts from public.player_hearts where user_id='eeeeeeee-0000-0000-0000-0000000000a1') = 0, 'tidak berubah / tidak negatif';
 end $$;
 
@@ -75,7 +75,7 @@ do $$ begin
   assert (select (v->>'hearts')::int from out where k='g6') = 6, 'stok 6 dibiarkan';
   assert (select (v->>'hearts')::int from out where k='c6') = 5;
   assert (select (v->>'hearts')::int from out where k='c5') = 4;
-  assert (select (v->>'next_in_secs')::int from out where k='c5') = 300;
+  assert (select (v->>'next_in_secs')::int from out where k='c5') = 900;
   assert (select (v->>'hearts')::int from out where k='c4b') = 3;
 end $$;
 

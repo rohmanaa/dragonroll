@@ -17,5 +17,5 @@
     starter: false,
     desc: "Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.",
     visual: {"accent":"#ff9a30","colors":["#c8703a","#3fbf9f","#ffb040"]},
-    assets: { image: "assets/images/ui/pet/copper-golem.webp", sfx: ["data/inventory/pet/items/copper_golem/sfx/copper-golem-clang.mp3", "data/inventory/pet/items/copper_golem/sfx/copper-golem-steam.mp3", "data/inventory/pet/items/copper_golem/sfx/copper-golem-servo.mp3"] }
+    assets: { image: "data/inventory/pet/items/copper_golem/copper-golem.webp", sfx: ["data/inventory/pet/items/copper_golem/sfx/copper-golem-clang.mp3", "data/inventory/pet/items/copper_golem/sfx/copper-golem-steam.mp3", "data/inventory/pet/items/copper_golem/sfx/copper-golem-servo.mp3"] }
 });

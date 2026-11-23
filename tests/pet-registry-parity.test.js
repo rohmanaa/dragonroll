@@ -66,13 +66,13 @@ t('Harga: tepat satu mata uang per Pet; koin T1-T4 (3.000/9.000/25.000/60.000), 
 t('ItemCatalog: jalur Registry aktif untuk Pet (petSource) dan cadangan bila tidak dimuat', () => {
   assert.strictEqual(viaPet.ItemCatalog.petSource(), 'registry'); assert.strictEqual(legacy.ItemCatalog.petSource(), 'legacy'); assert.strictEqual(viaBoth.ItemCatalog.petSource(), 'registry');
 });
-t('ItemCatalog: total 167, Pet 7, Frame 14/14 (jalur cadangan dan gabungan)', () => {
-  [legacy, viaPet, viaBoth].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 167);
+t('ItemCatalog: total 168, Pet 7, Frame 14/14 (jalur cadangan dan gabungan)', () => {
+  [legacy, viaPet, viaBoth].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 168);
     assert.strictEqual(IC.items.filter(i => i.kind === 'pet').length, 7); assert.strictEqual(IC.items.filter(i => i.kind === 'frame').length, 14); });
   assert.strictEqual(viaBoth.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(viaPet.ItemCatalog.frameSource(), 'legacy');
 });
-t('ItemCatalog: SELURUH 167 item (semua field, urutan, tanpa ID ganda) = baseline di setiap kombinasi jalur', () => {
-  [legacy, viaPet, viaBoth].forEach(c => { assert.deepStrictEqual(clone(c.ItemCatalog.items), base.items); assert.strictEqual(new Set(clone(c.ItemCatalog.items.map(i => i.id))).size, 167); });
+t('ItemCatalog: SELURUH 168 item (semua field, urutan, tanpa ID ganda) = baseline di setiap kombinasi jalur', () => {
+  [legacy, viaPet, viaBoth].forEach(c => { assert.deepStrictEqual(clone(c.ItemCatalog.items), base.items); assert.strictEqual(new Set(clone(c.ItemCatalog.items.map(i => i.id))).size, 168); });
 });
 t('ItemCatalog: kategori non-Pet tidak berubah (140 item) dan Frame 14/14 sama dengan baseline', () => {
   const IC = viaBoth.ItemCatalog; assert.deepStrictEqual(clone(IC.items.filter(i => i.kind !== 'pet')), base.items.filter(i => i.kind !== 'pet'));
@@ -122,7 +122,7 @@ t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar 
   items.forEach(m => assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey + '.png'));
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
-  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 167);
+  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 168);
 });
 t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) dan supabase/pet_catalog.sql (tanpa mengubah SQL)', () => {
   const seed = /BEGIN PET SEED[\s\S]*?END PET SEED/.exec(rd('supabase/migrations/202611290001_pet_catalog.sql'))[0]; let seen = 0;

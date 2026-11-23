@@ -35,7 +35,7 @@
     el = document.createElement('div'); el.id = 'hgate'; el.hidden = true;
     el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Hati habis');
     el.innerHTML = '<div class="hg">' +
-      '<img src="assets/images/ui/white-glyphs/hati-garis.webp" alt="" draggable="false">' +
+      '<img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt="" draggable="false">' +
       '<h3>Hati habis</h3><p id="hgmsg">Hati berikutnya terisi dalam</p><span class="hgt" id="hgt">--:--</span>' +
       '<button type="button" id="hgok">OKE</button></div>';
     document.body.appendChild(el);

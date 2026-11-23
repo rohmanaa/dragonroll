@@ -41,14 +41,14 @@ t('inventory.js: tab view (Pet) tidak dimuat di iframe saat di shell', () => {
   assert(/UT\.InvTabs\.VIEW_TABS\[t\.k\] && inShell\(\) && UT\.Spa\.canView/.test(inv));
   assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' });
 });
-t('InvTabs.markup: grup Pet = 1 tab; grup Inventory (tanpa aktif) = Power-up/Ore/Log, tak ada yang "on"; url tab', () => {
+t('InvTabs.markup: grup Pet = 1 tab; grup Inventory (tanpa aktif) = Power-up/Chest/Ore/Log, tak ada yang "on"; url tab', () => {
   const m = InvTabs.markup('pet');
   assert.strictEqual((m.match(/class="tab/g) || []).length, 1);
   assert.strictEqual((m.match(/class="tab on"/g) || []).length, 1);
   assert(/class="tab on" type="button" data-k="pet"/.test(m));
   assert.strictEqual(InvTabs.url('dadu'), 'dadu.html');
   assert.strictEqual(InvTabs.url('ore'), 'inventory.html?tab=ore');
-  assert.strictEqual((InvTabs.markup('').match(/class="tab"/g) || []).length, 3);
+  assert.strictEqual((InvTabs.markup('').match(/class="tab"/g) || []).length, 4);
   assert.strictEqual((InvTabs.markup('').match(/class="tab on"/g) || []).length, 0);
 });
 t('CSS: bar tab dan mode view hanya aktif lewat #invtabs / body.inv-view (tidak menimpa halaman lain)', () => {

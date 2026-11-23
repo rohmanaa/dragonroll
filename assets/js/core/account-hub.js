@@ -25,7 +25,7 @@
   var BY = {};
   TABS.forEach(function (t) { BY[t.key] = t; });
   var PAGE_TAB = { 'profile.html': 'profil', 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };
-  var DIALOGS = [['#md', '#m-no'], ['#confirm', '#cf-no'], ['#lang', null]];   // [selector kontainer dialog dalam panel, fokus awal]
+  var DIALOGS = [['#md', '#m-no'], ['#confirm', '#cf-no'], ['#lang', null], ['#frmd', '#frx']];   // [selector kontainer dialog dalam panel, fokus awal]
   var SKIP_CSS = /(^|\/)(page|bg|common|profile-tabs|account-hub)\.css$/;     // sudah dimuat halaman hub (statis)
   var SKIP_JS = /(^|\/)(page-shell|profile-tabs|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
 
@@ -211,7 +211,7 @@
     G.addEventListener('orientationchange', fitFrame);
 
     /* ---- util ---- */
-    function dialogOpen() { return !!pane.querySelector('#md.on,#confirm.on,#lang.on'); }
+    function dialogOpen() { return !!pane.querySelector('#md.on,#confirm.on,#lang.on,#frmd.on'); }
     function feedback() {
       try {
         var S = G.PlayerData && G.PlayerData.settings();

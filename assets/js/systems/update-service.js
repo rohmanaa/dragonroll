@@ -1,12 +1,14 @@
 /* update-service.js — pembaruan game dengan KONFIRMASI pemain (tanpa unduhan tiba-tiba).
-   Alur (hanya dipanggil dari Lobby, lihat data/lobby/js/lobby.js):
+   Alur (di SPLASH, sebelum aset apa pun diunduh):
      1. check()    : bandingkan VERSION sw.js di server dengan versi yang sedang berjalan; hitung media yang berubah
                      (assets/media-hash.json baru vs indeks tersimpan di cache 'ut-media') + ukurannya (assets/preload-manifest.json).
-     2. modal "Unduh Data" menampilkan ukuran -> pemain menekan Unduh (X = tunda, ditanya lagi saat kunjungan Lobby berikutnya).
-     3. download() : unduh media yang berubah ke cache 'ut-media' (progres), tulis indeks baru, lalu pasang SW baru (menunggu).
-     4. modal berubah jadi "Mulai ulang" -> restart(): SW baru diaktifkan (pesan SKIP_WAITING) lalu halaman dimuat ulang.
+     2. modal "Unduh Data" HANYA konfirmasi (ukuran + Unduh / X = tunda, ditanya lagi di sesi berikutnya). Modal tidak menampilkan progres.
+     3. Unduh -> modal menutup; PROGRES tampil di bar loading splash (hooks.progress / hooks.status dari splash.js).
+        download() mengunduh media yang berubah ke cache 'ut-media', menulis indeks baru, lalu memasang SW baru (menunggu).
+     4. selesai -> restart() otomatis: SW baru diaktifkan (SKIP_WAITING) lalu halaman pindah ke URL root (seperti Ctrl+Shift+R).
+   Lobby (cadangan bila splash terlewat): modal konfirmasi yang sama; Unduh -> tanda sesi 'ut:upd:go' + pindah ke root,
+   lalu splash langsung mengunduh tanpa bertanya lagi.
    Karena indeks sudah diperbarui oleh download(), syncMedia() di sw.js saat aktivasi tidak membuang unduhan ini.
-   Splash TIDAK mengunduh pembaruan; splash hanya memuat aset pertama kali (preloader).
    Skrip klasik; di browser jadi window.UT.Update, di Node (module.exports) untuk tes. Fungsi murni: plan(), formatBytes(). */
 (function (root, factory) {
   var api = factory(root);
@@ -17,7 +19,7 @@
 
   var MEDIA_CACHE = 'ut-media', MEDIA_INDEX = '__media-index__';
   var HASH_URL = 'assets/media-hash.json', SIZE_URL = 'assets/preload-manifest.json', SW_URL = 'sw.js';
-  var FLAG_DONE = 'ut:upd:done', FLAG_DISMISS = 'ut:upd:dismiss';
+  var FLAG_DONE = 'ut:upd:done', FLAG_DISMISS = 'ut:upd:dismiss', FLAG_GO = 'ut:upd:go';
 
   /* Media yang harus diunduh: hash berubah atau baru. Tanpa indeks lama (instalasi lama/pertama) -> kosong:
      sw.js yang bermigrasi sendiri saat aktivasi, tidak ada yang perlu dikonfirmasi pemain. */
@@ -41,7 +43,7 @@
     var doFetch = deps.fetch || (g.fetch && g.fetch.bind(g)), cachesApi = deps.caches || g.caches;
     var store = function () { try { return deps.storage || g.localStorage; } catch (e) { return null; } };
     var sess = function () { try { return deps.session || g.sessionStorage; } catch (e) { return null; } };
-    var job = null, ui = null, listeners = [];
+    var job = null, ui = null, listeners = [], pending = null;
 
     function supported() { return !!(nav && nav.serviceWorker && cachesApi && doFetch); }
     /* header X-UT-Fresh: sw.js melewatkan permintaan ini ke jaringan (bukan dari cache) */
@@ -134,15 +136,31 @@
       return job;
     }
 
-    /* Aktifkan SW baru lalu muat ulang. Cadangan 3 dtk bila controllerchange tidak datang. */
+    /* Aktifkan SW baru lalu pindah ke URL ROOT situs (index -> splash), bukan reload halaman terakhir (mis. lobby):
+       cache kode versi lama sudah dibuang SW baru saat aktivasi, jadi hasilnya seperti Ctrl+Shift+R. Cadangan 3 dtk bila controllerchange tidak datang. */
+    function rootUrl(reg) {
+      try { return new g.URL('./', (reg && reg.scope) || (g.location && g.location.href)).href; } catch (e) { return null; }
+    }
+    /* Navigasi HARUS di jendela paling atas (pembungkus play.html). Bila dipanggil dari iframe (splash), loc.replace(root) hanya memindahkan
+       iframe -> pembungkus kedua bersarang di dalam pembungkus pertama dan keduanya memutar musik (bertabrakan). */
+    function navWin() {
+      try { var t = g.top; if (t && t !== g && t.location && g.location && t.location.origin === g.location.origin) return t; } catch (e) {}
+      return g;
+    }
+    function goRoot(reg) {
+      try { var ss = sess(); if (ss) { ss.removeItem('ut:booted'); ss.removeItem('ut:fadein'); } } catch (e) {}
+      var url = rootUrl(reg), loc = navWin().location;
+      try { if (loc && url && typeof loc.replace === 'function') return loc.replace(url); } catch (e) {}
+      try { loc && loc.reload(); } catch (e) {}
+    }
     async function restart() {
       var reg = await nav.serviceWorker.getRegistration();
       writeFlag(FLAG_DONE, null);
-      var reload = function () { try { g.location.reload(); } catch (e) {} };
-      if (!reg || !reg.waiting) return reload();
-      nav.serviceWorker.addEventListener('controllerchange', reload, { once: true });
+      var go = function () { goRoot(reg); };
+      if (!reg || !reg.waiting) return go();
+      nav.serviceWorker.addEventListener('controllerchange', go, { once: true });
       reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      setTimeout(reload, 3000);
+      setTimeout(go, 3000);
     }
 
     function dismissed(version) { try { return sess().getItem(FLAG_DISMISS) === version; } catch (e) { return false; } }
@@ -150,58 +168,69 @@
 
     function closeUi() { if (ui) { var u = ui; ui = null; try { u.close(); } catch (e) {} } }
 
-    function showModal(info) {
-      var GD = g.UT && g.UT.GameDialog; if (!GD) return;
-      closeUi();
-      var off = null;
-      var d = ui = GD.open({
-        title: 'Unduh Data', message: 'Unduh data tambahan untuk pembaruan ' + info.label + '?', sub: 'Disarankan memakai jaringan Wi-Fi',
-        badge: formatBytes(info.bytes), closable: true,
-        onClose: function () { if (off) off(); if (ui === d) ui = null; if (!job) dismiss(info.version); }
-      });
-      function ask() {
-        d.set({ title: 'Unduh Data', message: 'Unduh data tambahan untuk pembaruan ' + info.label + '?', sub: 'Disarankan memakai jaringan Wi-Fi',
-          badge: formatBytes(info.bytes), progress: null, closable: true,
-          buttons: [{ label: 'Unduh', tone: 'blue', keepOpen: true, onClick: start }] });
-      }
-      function ready() {
-        d.set({ title: 'Pembaruan Siap', message: 'Unduhan selesai. Mulai ulang untuk memakai versi ' + info.label + '.', sub: '', badge: '', progress: null, closable: true,
-          buttons: [{ label: 'Mulai ulang', tone: 'green', keepOpen: true, onClick: function () { d.set({ buttons: [{ label: 'Memulai…', tone: 'green', disabled: true }], closable: false }); restart(); } }] });
-      }
-      function failed() {
-        d.set({ title: 'Unduh Data', message: 'Unduhan gagal. Periksa koneksi lalu coba lagi.', sub: '', badge: '', progress: null, closable: true,
-          buttons: [{ label: 'Coba lagi', tone: 'blue', keepOpen: true, onClick: start }] });
-      }
-      function progress(ev) {
-        var pct = ev.total > 0 ? ev.loaded / ev.total : 0;
-        d.set({ title: 'Mengunduh…', message: 'Jangan tutup game sampai selesai.', sub: formatBytes(ev.loaded) + ' / ' + formatBytes(ev.total), badge: '', progress: pct, closable: false, buttons: [{ label: Math.round(pct * 100) + '%', tone: 'blue', disabled: true }] });
-      }
-      function attach() {
-        off = onEvent(function (ev) {
-          if (ev.type === 'progress') progress(ev);
-          else if (ev.type === 'installing') d.set({ message: 'Menyiapkan pembaruan…', sub: '', progress: 1 });
-          else if (ev.type === 'done') ready();
+    /* Modal KONFIRMASI saja -> 'download' (tombol Unduh / Coba lagi) atau 'later' (X / Esc; ditunda untuk sesi ini). */
+    function confirmDialog(info, failedMsg) {
+      return new Promise(function (resolve) {
+        var GD = g.UT && g.UT.GameDialog; if (!GD) return resolve('later');
+        closeUi();
+        var picked = false, d = ui = GD.open({
+          title: 'Unduh Data',
+          message: failedMsg || ('Unduh data tambahan untuk pembaruan ' + info.label + '?'),
+          sub: failedMsg ? '' : 'Disarankan memakai jaringan Wi-Fi',
+          badge: formatBytes(info.bytes), closable: true,
+          buttons: [{ label: failedMsg ? 'Coba lagi' : 'Unduh', tone: 'blue', onClick: function () { picked = true; } }],
+          onClose: function () { if (ui === d) ui = null; if (picked) return resolve('download'); dismiss(info.version); resolve('later'); }
         });
-      }
-      function start() {
-        progress({ loaded: 0, total: info.bytes }); attach();
-        download(info).catch(function () { if (off) { off(); off = null; } if (d.isOpen()) failed(); });
-      }
-      if (job) { progress({ loaded: 0, total: info.bytes }); attach(); }
-      else if (info.ready) ready();
-      else ask();
+      });
     }
 
-    /* Dipanggil Lobby sekali per kunjungan. Tidak melakukan apa pun bila tidak ada pembaruan / sudah ditunda di sesi ini. */
+    function setGo(version) { try { sess().setItem(FLAG_GO, version); } catch (e) {} }
+    function takeGo(version) { try { var ok = sess().getItem(FLAG_GO) === version; sess().removeItem(FLAG_GO); return ok; } catch (e) { return false; } }
+
+    /* Lobby (cadangan): konfirmasi lalu pindah ke splash yang mengunduh. Tidak melakukan apa pun bila tidak ada pembaruan / sudah ditunda. */
     async function promptOnLobby() {
       var GD = g.UT && g.UT.GameDialog; if (!GD) return null;
       var info = await check(); if (!info || !info.available) return null;
-      if (!job && dismissed(info.version)) return info;
+      if (dismissed(info.version)) return info;
       await GD.preload();
-      showModal(info); return info;
+      var c = info.ready ? 'download' : await confirmDialog(info);
+      if (c === 'download') { setGo(info.version); goRoot(await nav.serviceWorker.getRegistration()); }
+      return info;
     }
 
-    return { supported: supported, check: check, download: download, restart: restart, promptOnLobby: promptOnLobby, closeUi: closeUi, onEvent: onEvent, parseVersion: parseVersion };
+    /* Splash: mulai cek ke server segera; hasilnya dipakai ulang oleh promptOnSplash(). */
+    function precheck() { if (!pending) pending = check().catch(function () { return null; }); return pending; }
+    /* Dipanggil splash SEBELUM bar memuat aset. hooks = { progress(ev{loaded,total}), status(teks) } -> progres unduhan tampil di bar splash.
+       Resolve bila tidak ada pembaruan / cek gagal / ditunda (X). Unduh -> restart otomatis ke root, promise tidak pernah resolve (halaman berpindah). */
+    async function promptOnSplash(maxWaitMs, hooks) {
+      hooks = hooks || {};
+      var GD = g.UT && g.UT.GameDialog; if (!GD) return null;
+      var info = await Promise.race([precheck(), new Promise(function (r) { setTimeout(function () { r(null); }, maxWaitMs || 6000); })]);
+      if (!info || !info.available) return null;
+      var go = takeGo(info.version);
+      if (!go && !info.ready) {
+        if (!job && dismissed(info.version)) return info;
+        try { await GD.preload(); } catch (e) {}
+      }
+      var failedMsg = null, st = function (t) { if (hooks.status) hooks.status(t); };
+      for (;;) {
+        if (!info.ready) {
+          if (!go) { var c = await confirmDialog(info, failedMsg); if (c !== 'download') return info; }
+          go = false;
+          var off = onEvent(function (ev) {
+            if (ev.type === 'progress' && hooks.progress) hooks.progress(ev);
+            else if (ev.type === 'installing') st('Menyiapkan pembaruan…');
+          });
+          st('Mengunduh pembaruan…');
+          try { await download(info); } catch (e) { failedMsg = 'Unduhan gagal. Periksa koneksi lalu coba lagi.'; st('Unduhan gagal'); continue; } finally { off(); }
+        }
+        st('Memulai ulang…');
+        await restart();
+        return new Promise(function () {});
+      }
+    }
+
+    return { supported: supported, check: check, precheck: precheck, promptOnSplash: promptOnSplash, download: download, restart: restart, promptOnLobby: promptOnLobby, closeUi: closeUi, onEvent: onEvent, parseVersion: parseVersion };
   }
 
   return { create: create, plan: plan, formatBytes: formatBytes };

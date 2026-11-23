@@ -1,5 +1,5 @@
 /* Hearts service — satu-satunya pintu klien ke HATI/NYAWA di SERVER (supabase/migrations/202611410001_hearts.sql).
-   Tiap pemain punya 5 hati; 1 hati terpakai tiap match dimulai; terisi lagi otomatis 1 hati / 5 menit sampai penuh.
+   Tiap pemain punya 5 hati; 1 hati terpakai tiap match dimulai; terisi lagi otomatis 1 hati / 15 menit sampai penuh.
    Klien tidak pernah mengirim jumlah/waktu: server (RPC hearts_*) yang menghitung; klien hanya memproyeksikan hitung mundur
    dari next_in_secs terakhir supaya HUD bergerak tiap detik tanpa polling.
    Aktif hanya untuk akun login (PlayerData.serverMode()). Tamu/lokal: tidak ada batas hati (enabled() = false).
@@ -12,7 +12,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var DEFAULT_MAX = 5, DEFAULT_REGEN = 300;
+  var DEFAULT_MAX = 5, DEFAULT_REGEN = 900;
 
   /* Proyeksi lokal dari status server: st = {hearts, max, regenSecs, nextAt(ms) | null}. Murni, untuk HUD & tes. */
   function project(st, nowMs) {
@@ -37,9 +37,9 @@
       if (typeof deps.enabled === 'function') return !!deps.enabled();
       return !!(PD && PD.serverMode && PD.serverMode());
     }
-    async function rpc(name) {
+    async function rpc(name, args) {
       var c = await deps.getClient();
-      var r = await c.rpc(name, {});
+      var r = await c.rpc(name, args || {});
       if (r.error) throw r.error;
       return r.data;
     }
@@ -81,10 +81,21 @@
       catch (e) { return fail(e); }
       finally { inflight = false; }
     }
+    /* Tahap 2 — kirim hati ke teman (server menghitung fee/emas/batas; klien hanya mengirim id teman). */
+    /* Status per teman: {ok, limit, sent_today, fee, fee_gold, friends:[{friend_id, sent_today, gold}]} */
+    async function friends() {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return await rpc('hearts_friends'); } catch (e) { return fail(e); }
+    }
+    /* {ok:true, fee, gold, sent_today, limit, gems} | {ok:false, reason:'sudah-dikirim'|'batas-harian'|'bukan-teman'|'diri-sendiri'|'jaringan'|'belum-login'} */
+    async function send(friendId) {
+      if (!enabled()) return { ok: false, reason: 'mode-lokal' };
+      try { return await rpc('hearts_send', { p_friend: String(friendId) }); } catch (e) { return fail(e); }
+    }
     /* Cek cepat dari proyeksi lokal (hanya UX; server tetap memutuskan di consume). Belum dimuat/tanpa server: boleh. */
     function canPlay() { var s = snapshot(); return !s.enabled || !s.known || s.hearts > 0; }
 
-    return { enabled: enabled, get: get, consume: consume, snapshot: snapshot, canPlay: canPlay, onChange: onChange };
+    return { enabled: enabled, get: get, consume: consume, friends: friends, send: send, snapshot: snapshot, canPlay: canPlay, onChange: onChange };
   }
 
   /* Instans browser: klien Supabase dimuat malas pada RPC pertama (sama seperti mine-service). */

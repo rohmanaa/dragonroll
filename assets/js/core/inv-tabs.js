@@ -15,13 +15,14 @@
     { k: 'pet', page: 'pet.html', label: 'Pet', icon: 'lobby/pet.webp' },
     { k: 'karakter', page: 'karakter.html', label: 'Karakter', icon: 'item-icons/helm-ksatria.webp' },
     /* native = isi dirender halaman Inventory sendiri (tanpa halaman/iframe); kosong dulu sampai fitur Tambang & Farm masuk */
+    { k: 'chest', label: 'Chest', icon: 'chest-packs/peti-kayu.webp', native: true },
     { k: 'ore', label: 'Ore', icon: 'gem-medal-icons/berlian-biru.webp', native: true },
     { k: 'log', label: 'Log', icon: 'item-icons/perisai-kayu.webp', native: true }
   ];
-  /* Inventory = HANYA item yang dimiliki (Power-up, Ore, Log). Frame/Dadu/Efek (dipasang dari Karakter) dan Pet punya bar tab sendiri. */
+  /* Inventory = HANYA item yang dimiliki (Power-up, Chest, Ore, Log). Frame/Dadu/Efek (dipasang dari Karakter) dan Pet punya bar tab sendiri. */
   var GROUPS = {
-    inv: { title: 'Inventory', label: 'Kategori inventory', keys: ['power', 'ore', 'log'] },
-    gear: { title: 'Perlengkapan', label: 'Kategori perlengkapan', keys: ['karakter', 'frame', 'dadu', 'efek'] },
+    inv: { title: 'Inventory', label: 'Kategori inventory', keys: ['power', 'chest', 'ore', 'log'] },
+    gear: { title: 'Perlengkapan', label: 'Kategori perlengkapan', keys: ['karakter', 'dadu', 'efek'] },
     pet: { title: 'Pet', label: 'Pet', keys: ['pet'] }
   };
   function groupOf(k) { for (var g in GROUPS) if (GROUPS[g].keys.indexOf(k) >= 0) return g; return 'inv'; }

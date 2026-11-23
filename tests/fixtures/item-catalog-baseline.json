@@ -1,5 +1,5 @@
 {
- "total": 167,
+ "total": 168,
  "api": [
   "CATEGORIES",
   "FRAME_TAB_ICON",
@@ -906,6 +906,30 @@
    "collection": "mythical",
    "materialName": "Dragon Essence",
    "gems": 3000,
+   "category": "aksesori",
+   "slot": "dice",
+   "stackable": false,
+   "featured": false
+  },
+  {
+   "id": "dice.matrix",
+   "kind": "dice",
+   "gameKey": "matrix",
+   "name": "Dadu Matrix Epik",
+   "rarity": "epic",
+   "price": 30000,
+   "desc": "Dadu Epik hijau neon: hujan kode Matrix, sirkuit menyala, dan ledakan data saat mendarat.",
+   "starter": false,
+   "art": {
+    "bg": "#04140a",
+    "accent": "#22ff66",
+    "pip": "#b6ffcf",
+    "edge": "#020a05"
+   },
+   "tier": 4,
+   "collection": "mythical",
+   "materialName": "Matrix Code",
+   "gems": null,
    "category": "aksesori",
    "slot": "dice",
    "stackable": false,
@@ -3177,6 +3201,7 @@
     "#f0dcb0",
     "#3fa04a"
    ],
+   "image": "data/inventory/pet/items/forest_pup/forest-pup.webp",
    "gems": null,
    "category": "lainnya",
    "slot": "pet",
@@ -3200,6 +3225,7 @@
     "#3fbf9f",
     "#ffb040"
    ],
+   "image": "data/inventory/pet/items/copper_golem/copper-golem.webp",
    "gems": null,
    "category": "lainnya",
    "slot": "pet",
@@ -3223,6 +3249,7 @@
     "#d8fbff",
     "#ff9ad8"
    ],
+   "image": "data/inventory/pet/items/crystal_axolotl/crystal-axolotl.webp",
    "gems": null,
    "category": "lainnya",
    "slot": "pet",
@@ -3246,6 +3273,7 @@
     "#b46af0",
     "#ffd24a"
    ],
+   "image": "data/inventory/pet/items/arcane_owl/arcane-owl.webp",
    "gems": null,
    "category": "lainnya",
    "slot": "pet",
@@ -3269,6 +3297,7 @@
     "#e8f4ff",
     "#7fd0ff"
    ],
+   "image": "data/inventory/pet/items/storm_wolf/storm-wolf.webp",
    "gems": 1500,
    "category": "lainnya",
    "slot": "pet",
@@ -3292,6 +3321,7 @@
     "#a0182c",
     "#ff7a18"
    ],
+   "image": "data/inventory/pet/items/inferno_dragon/inferno-dragon.webp",
    "gems": 3000,
    "category": "lainnya",
    "slot": "pet",
@@ -3315,6 +3345,7 @@
     "#ffcf4a",
     "#6ae8ff"
    ],
+   "image": "data/inventory/pet/items/celestial_kitsune/celestial-kitsune.webp",
    "gems": 6000,
    "category": "lainnya",
    "slot": "pet",

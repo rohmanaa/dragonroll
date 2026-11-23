@@ -86,3 +86,53 @@ button.sr,button.kr,#rank,#pet,#hid,.eb,#pen,.ecell{background:none;border:0;pad
    (kelas html.pf-wide diatur fit() di profile.js). Lapis bawah = linear-gradient ungu sebagai pengaman. */
 html,body.pf{background:url(../../images/background/profile-bg.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
 html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#150f2e linear-gradient(180deg,#0b0826 0%,#1d1545 55%,#2a1d5e 100%) fixed!important}
+
+/* tombol Frame di kiri kartu atas (dekat foto karakter) + modal Frame */
+#frbtn{position:absolute;left:28px;bottom:26px;z-index:3;width:190px;height:76px;display:flex;align-items:center;justify-content:center;gap:10px;border:0;padding:0 14px;cursor:pointer;
+  background:url(../../images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat;color:#fff;transition:transform .1s,filter .1s}
+#frbtn img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+#frbtn span{font:400 32px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#frbtn:hover{filter:brightness(1.12)}#frbtn:active{transform:translateY(3px)}
+#frmd{position:absolute;inset:0;z-index:30;display:none;background:rgba(6,4,16,.72);align-items:center;justify-content:center}
+#frmd.on{display:flex}
+#frbox{position:relative;width:1480px;height:800px;box-sizing:border-box;padding:96px 56px 130px;color:#fff;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
+#frt{position:absolute;left:50%;top:-32px;transform:translateX(-50%);margin:0;height:84px;padding:0 72px;white-space:nowrap;font:400 40px/70px var(--font-title);
+  background:url(../../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(20,5,70,.7)}
+#frx{position:absolute;right:-12px;top:-12px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:3}
+#frx img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#frbody{display:flex;gap:40px;height:100%}
+#frpv{flex:none;width:460px;text-align:center}
+#frart{position:relative;width:340px;height:340px;margin:0 auto}
+#frart .fr-th{filter:drop-shadow(0 12px 10px rgba(0,0,0,.45))}
+.fr-th{position:relative;width:100%;height:100%;display:block}
+.fr-th .fr-in{position:absolute;inset:19%;display:block;overflow:hidden;border-radius:6px;background:linear-gradient(#5a4f82,#2c2547)}
+.fr-th .fr-in svg{width:100%;height:100%;display:block}
+.fr-th .fr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+#frnm{margin-top:14px;font:400 46px/1 var(--font-title);text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#frrar{margin-top:8px;font:400 30px/1 var(--font-title)}
+#frds{margin:12px 0 0;font:700 22px/1.35 var(--font-body);color:#d8d2ee}
+#frgrid{flex:1;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:130px;gap:20px;zoom:1.15;align-content:start;max-height:560px;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:thin}
+#frgrid .fslot{position:relative;width:130px;height:130px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#frgrid .fslot:hover{filter:brightness(1.15)}#frgrid .fslot:active{transform:scale(.95)}
+#frgrid .fslot.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#frgrid .fslot.st-used,#frgrid .fslot.st-used.sel{background-image:url(../../images/ui/slot-equipment/slot-hijau.webp)}
+#frgrid .fslot.st-lock{filter:grayscale(1) brightness(.75)}#frgrid .fslot.st-lock.sel{filter:grayscale(1) brightness(.95) drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#frgrid .fslot .th{position:absolute;left:50%;top:50%;width:88px;height:88px;transform:translate(-50%,-50%)}
+#frgrid .fslot.st-lock .th{opacity:.55}
+#frgrid .fslot .ck{position:absolute;right:6px;top:6px;width:30px;height:30px;object-fit:contain;z-index:2}
+#fract{position:absolute;right:48px;bottom:34px;width:320px;height:88px;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer}
+#fract img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#fract span{position:relative;font:400 28px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#fract:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+#frcf{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;background:rgba(6,4,16,.6)}
+#frcf.on{display:flex}
+#frcf .cfb{width:620px;padding:34px 30px;text-align:center;background:#2c2547;border:4px solid #ffd45a;border-radius:20px}
+#frcf p{margin:0 0 24px;font:400 34px/1.25 var(--font-title)}
+#frcf .cfr{display:flex;gap:24px;justify-content:center}
+#frcf .btn{position:relative;display:grid;place-items:center;width:240px;height:78px;padding:0;border:0;background:none;cursor:pointer}
+#frcf .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#frcf .btn span{position:relative;font:400 28px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+
+/* lapisan gelap modal Frame & pemilih emoji menutup SELURUH layar (bukan hanya kanvas 16:9): tidak ada celah kiri-kanan di layar lebar.
+   --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi UT.AccountHub.fitFrame pada #stage; #stage.has-hub overflow:visible). */
+#frmd,#epick{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}

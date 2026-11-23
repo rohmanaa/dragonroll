@@ -1,4 +1,4 @@
-/* Kategori Dice (Stage 5) — mendaftarkan kategori + 23 manifest ke ItemRegistry (pola sama dengan data/inventory/frame|pet/index.js).
+/* Kategori Dice (Stage 5) — mendaftarkan kategori + 24 manifest ke ItemRegistry (pola sama dengan data/inventory/frame|pet/index.js).
    Urutan KEYS = urutan di ItemCatalog (assets/js/item-catalog.js). Satu item = satu folder (nama folder = gameKey = id DiceKit).
    fallbackId 'dice.klasik' = dadu bawaan (DEFAULT_EQUIPPED.dice di ItemCatalog; starter).
    Asset TIDAK dipindah: render/material/efek/suara dadu tetap di assets/js/renderers/dice-kit/ (DiceCatalog.js = sumber material & efek; efek suara prosedural di DiceEffectsCore.js);
@@ -12,7 +12,7 @@
 })(typeof window !== 'undefined' ? window : null, function (req) {
   'use strict';
 
-  var KEYS = ['klasik', 'rumput', 'tnt', 'wood', 'stone', 'copper', 'iron', 'emas', 'diamond', 'emerald', 'lapis', 'amethyst', 'redstone', 'obsidian', 'magma', 'frost', 'prismarine', 'quartz', 'void', 'netherite', 'sculk', 'ender', 'dragon'];
+  var KEYS = ['klasik', 'rumput', 'tnt', 'wood', 'stone', 'copper', 'iron', 'emas', 'diamond', 'emerald', 'lapis', 'amethyst', 'redstone', 'obsidian', 'magma', 'frost', 'prismarine', 'quartz', 'void', 'netherite', 'sculk', 'ender', 'dragon', 'matrix'];
   var CATEGORY = { key: 'dice', kind: 'dice', label: 'Dadu', fallbackId: 'dice.klasik',
                    assets: { renderKit: 'assets/js/renderers/dice-kit/dice-catalog.js' } };
 

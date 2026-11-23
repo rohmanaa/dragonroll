@@ -366,7 +366,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     ' float fade=1.0-pow(length(p/uBox*2.0),4.0); fade=clamp(fade,0.0,1.0);',
     ' float tw=mix(0.45+0.55*sin(uTime*(1.2+aSeed.w*2.5)+aSeed.x*40.0),0.35+0.65*pow(0.5+0.5*sin(uTime*(0.9+aSeed.w*1.6)+aSeed.y*30.0),3.0),step(0.5,mode)*(1.0-uNether));',
     ' tw=mix(tw,0.55+0.45*sin(uTime*(7.0+aSeed.w*9.0)+aSeed.z*50.0),uNether);',
-    ' vA=fade*tw; vC=mix(mix(uColDay,uColNight,uNight),uColNether,uNether);',
+    ' vA=fade*tw*clamp(uNight*2.0+uNether,0.0,1.0); /* siang = tanpa partikel; malam = kunang-kunang; Nether = bara */ vC=mix(mix(uColDay,uColNight,uNight),uColNether,uNether);',
     ' vec4 mv=viewMatrix*vec4(wp,1.0); gl_Position=projectionMatrix*mv;',
     ' float sz=uSize*(0.55+aSeed.w*0.9)*mix(1.0,1.55,uNight)*mix(1.0,0.7,uNether);',
     ' gl_PointSize=clamp(sz*uPR*(26.0/max(-mv.z,1.0)),1.0,48.0); }'
@@ -626,7 +626,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     S.level = l; if (S.built) { allocTargets(); } uniformsApplyLevel();
   }
   function uniformsApplyLevel() {
-    if (AMB.pts) AMB.pts.visible = S.level >= 1 || !S.coarse;
+    /* visibilitas partikel diatur tiap frame di update() (malam/Nether + level + setting grafis) */
     if (S.sun) { var big = S.level >= 2 && !S.coarse ? 2048 : 1024; if (S.sun.shadow.mapSize.x !== big && S.level < 2) { /* biarkan ukuran shadow bawaan */ } }
   }
 
@@ -669,7 +669,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
       if (fg) { if (DOOM.fogObj !== fg) { DOOM.fogObj = fg; DOOM.fn = fg.near; DOOM.ff = fg.far; } fg.color.copy(E.bot); fg.near = DOOM.fn * (1 - 0.30 * D); fg.far = DOOM.ff * (1 - 0.22 * D); }
       if (AMB.pts) {
         AMB.mat.uniforms.uPR.value = S.dpr; if (center) AMB.mat.uniforms.uCenter.value.set(center.x, 0.0, center.z);
-        AMB.pts.visible = !S.reduce && S.level >= 1;
+        AMB.pts.visible = S.on && !S.reduce && S.level >= 1 && (U.uNight.value > 0.02 || U.uNether.value > 0.02); /* siang: tak digambar sama sekali */
         AMB.mat.uniforms.uSize.value = 5.0;
       }
       if (S.sun) { U.uSunDirW.value.copy(S.sun.position).normalize(); if (skyMat) skyMat.uniforms.uSunDir.value.copy(U.uSunDirW.value); }
@@ -683,6 +683,16 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
       catch (e) { console.warn('[Cinema] render gagal, kembali ke render bawaan:', e); S.on = false; try { S.renderer.setRenderTarget(null); } catch (_) {} S.renderer.render(S.scene, S.camera); }
     },
     setReduced: function (v) { S.reduce = !!v; },
+    /* Pengaturan > Grafis (PlayerData.settings().graphics): low | normal | high | ultra. Kualitas DIKUNCI mengikuti pengaturan (governor FPS otomatis tidak dipakai lagi,
+       sebelumnya ia menurunkan level sendiri saat FPS tersendat sehingga kunang-kunang & post-processing hilang di tengah main).
+       low = sinematik mati (render bawaan, tanpa partikel) | normal = level 1 | high = level 2 (perangkat sentuh: 1) | ultra = level 2 di semua perangkat */
+    applyGraphics: function (g) {
+      if (!S.ok) return;
+      g = (g === 'low' || g === 'normal' || g === 'ultra') ? g : 'high';
+      S.gfx = g; S.lockQ = true; S.demoted = false; S.on = g !== 'low';
+      setLevel(g === 'normal' ? 1 : (g === 'ultra' ? 2 : (S.coarse ? 1 : 2)));
+      uniformsApplyLevel();
+    },
     setTiles: setTiles, trackPawns: trackPawns, strike: strike,
     setDoom: function (v) { DOOM.t = Math.max(0, Math.min(1, +v || 0)); },
     debugDoom: function (v) { DOOM.dbg = (v == null) ? null : Math.max(0, Math.min(1, +v)); },

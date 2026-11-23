@@ -167,6 +167,8 @@
          { bg: '#1c0a3a', accent: '#e020c8', pip: '#ff7af0', edge: '#0d051a' }, { tier: 6, collection: 'mythical', materialName: 'Ender Pearl' }),
     dice('dragon', 'Dragon', 'legendary', 3500, 'Dadu esensi naga tertinggi: sisik gelap, api, dan ledakan naga saat mendarat.',
          { bg: '#0c0508', accent: '#e01830', pip: '#ff5a40', edge: '#050204' }, { tier: 7, collection: 'mythical', materialName: 'Dragon Essence' }),
+    dice('matrix', 'Matrix Epik', 'epic', 30000, 'Dadu Epik hijau neon: hujan kode Matrix, sirkuit menyala, dan ledakan data saat mendarat.',
+         { bg: '#04140a', accent: '#22ff66', pip: '#b6ffcf', edge: '#020a05' }, { tier: 4, collection: 'mythical', materialName: 'Matrix Code' }),
 
     /* ---- Tema papan (Lainnya) ---- */
     theme('minecraft', 'World', 'common', 0,   'Padang rumput blok bergaya klasik.',
@@ -211,7 +213,7 @@
      g = 'm' | 'f' | null (null = semua gender). Mata, rambut, warna kulit & pewarna adalah dasar penampilan, bukan item dagangan.
      Belum ada di builder (SENGAJA dilewati): trail, spawn_effect, idle_animation, bundle. (Aura = kind 'aura', lihat AURAS.) */
   var GEAR_SLOTS = [
-    { key: 'eyes', label: 'Wajah' }, { key: 'hair', label: 'Rambut' },
+    { key: 'eyes', label: 'Mata' }, { key: 'hair', label: 'Rambut' },
     { key: 'top', label: 'Baju' }, { key: 'legs', label: 'Celana' }, { key: 'boots', label: 'Sepatu' },
     { key: 'helm', label: 'Kepala' }, { key: 'chest', label: 'Zirah' }, { key: 'shoulder', label: 'Bahu' },
     { key: 'cape', label: 'Punggung' }, { key: 'weapon', label: 'Tangan' }, { key: 'acc', label: 'Aksesori' }
@@ -364,19 +366,19 @@
   }
   var PETS = [
     pet('forest_pup', 'Forest Pup', 'common', 1, 'Pengendus', '#6fd05a', ['#b8803f', '#f0dcb0', '#3fa04a'],
-      'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.', 'assets/images/ui/pet/forest-pup.webp'),
+      'Anak anjing hutan dengan kalung papan kayu. Gerakannya sederhana: bernapas, mengibas ekor, berkedip.', 'data/inventory/pet/items/forest_pup/forest-pup.webp'),
     pet('copper_golem', 'Copper Golem', 'uncommon', 2, 'Pelindung', '#ff9a30', ['#c8703a', '#3fbf9f', '#ffb040'],
-      'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.', 'assets/images/ui/pet/copper-golem.webp'),
+      'Golem tembaga dengan bercak karat hijau, panel pengukur di dada, dan roda gigi di punggung.', 'data/inventory/pet/items/copper_golem/copper-golem.webp'),
     pet('crystal_axolotl', 'Crystal Axolotl', 'rare', 3, 'Penyembuh', '#40e8f4', ['#8fe8f2', '#d8fbff', '#ff9ad8'],
-      'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.', 'assets/images/ui/pet/crystal-axolotl.webp'),
+      'Axolotl berwarna es dengan kristal tumbuh di punggung dan permata di dahi. Mengambang pelan di atas panggung.', 'data/inventory/pet/items/crystal_axolotl/crystal-axolotl.webp'),
     pet('arcane_owl', 'Arcane Owl', 'epic', 4, 'Peramal', '#b46af0', ['#6a4a7a', '#b46af0', '#ffd24a'],
-      'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.', 'assets/images/ui/pet/arcane-owl.webp'),
+      'Burung hantu bertengger di gugus amethyst. Dua cincin rune berputar berlawanan di belakang kepalanya.', 'data/inventory/pet/items/arcane_owl/arcane-owl.webp'),
     pet('storm_wolf', 'Storm Wolf', 'legendary', 5, 'Penyerang', '#7fd0ff', ['#5a6a8a', '#e8f4ff', '#7fd0ff'],
-      'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.', 'assets/images/ui/pet/storm-wolf.webp'),
+      'Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.', 'data/inventory/pet/items/storm_wolf/storm-wolf.webp'),
     pet('inferno_dragon', 'Inferno Dragon', 'mythic', 6, 'Pembakar Ular', '#ff4a3a', ['#1b0a10', '#a0182c', '#ff7a18'],
-      'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.', 'assets/images/ui/pet/inferno-dragon.webp'),
+      'Naga obsidian dengan retakan lava di dada. Setiap beberapa detik rahangnya terbuka dan menyemburkan api.', 'data/inventory/pet/items/inferno_dragon/inferno-dragon.webp'),
     pet('celestial_kitsune', 'Celestial Kitsune', 'divine', 7, 'Pengubah Takdir', '#ffe08a', ['#fdfbf4', '#ffcf4a', '#6ae8ff'],
-      'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.', 'assets/images/ui/pet/celestial-kitsune.webp')
+      'Rubah sembilan ekor melayang di atas lingkaran sihir. Ekornya besar, berbulu tebal, mengembang seperti kipas dan berujung bintang.', 'data/inventory/pet/items/celestial_kitsune/celestial-kitsune.webp')
   ];
   ITEMS = ITEMS.concat(PETS);
 
@@ -391,7 +393,7 @@
     'dice.wood': [500, null], 'dice.stone': [500, null], 'dice.rumput': [500, null],
     'dice.copper': [1500, null], 'dice.iron': [1500, null], 'dice.tnt': [1500, null],
     'dice.lapis': [9000, null], 'dice.emas': [9000, null],
-    'dice.diamond': [30000, null], 'dice.emerald': [30000, null], 'dice.amethyst': [30000, null], 'dice.redstone': [30000, null], 'dice.obsidian': [30000, null],
+    'dice.diamond': [30000, null], 'dice.emerald': [30000, null], 'dice.amethyst': [30000, null], 'dice.redstone': [30000, null], 'dice.obsidian': [30000, null], 'dice.matrix': [30000, null],
     'dice.magma': [null, 600], 'dice.frost': [null, 600], 'dice.prismarine': [null, 600], 'dice.quartz': [null, 600],
     'dice.void': [null, 1500], 'dice.netherite': [null, 1500], 'dice.sculk': [null, 1500], 'dice.ender': [null, 1500],
     'dice.dragon': [null, 3000],

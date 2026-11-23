@@ -6,7 +6,7 @@ const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 const PD=window.PlayerData,AR=window.ItemArt;
 const SET=()=>PD.settings();
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
+let tt;function toast(m){const md=$('#chestMd'),t=(md&&!md.hidden&&$('#cm-toast'))||$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 
 /* ---------- data: SEMUA dari PlayerData (single source of truth); saldo "—" sampai server membalas ---------- */
 let SRV_XP=0;
@@ -160,7 +160,7 @@ $('#stage').addEventListener('pointerdown',event=>{
  const rect=$('#stage').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width;
  if(x>.36&&x<.64){if(Math.random()<.25)bc.jump();else startLobbyAct();buzz()}
 });
-function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';fit3d()}
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080),st=$('#stage');st.style.transform='scale('+s+')';document.documentElement.style.setProperty('--ls',s);fit3d()}
 if(G3){
  let lastFrame=null,frameDebt=0;
  env.on(document,'visibilitychange',()=>{lastFrame=null;frameDebt=0});
@@ -217,61 +217,51 @@ pullFriends();
 /* lencana Pesan = jumlah surat berisi hadiah yang belum diklaim (RPC ringkas, tidak membuat surat sambutan) */
 const pullMail=()=>{const M=UT.MailService&&UT.MailService.get();return M?M.summary().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok){PN.mail=Math.max(0,+r.pending||0);paintProf()}return {ok:!!(r&&r.ok)}}):{ok:true}};
 pullMail();
-/* ---------- Chest: panel di Lobby (halaman chest.html dihapus), TANPA timer ----------
-   Klaim chest harian (syarat jumlah game, dicek server) -> masuk penyimpanan -> BUKA = hadiah langsung diundi & dibayar server (chest_collect).
-   Lencana tombol Chest = chest harian siap klaim + chest di penyimpanan. */
-const CIC='assets/images/ui/',CK={wood:{nm:'Peti Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Peti Perak',im:'chest-packs/peti-perak'},gold:{nm:'Peti Emas',im:'chest-packs/peti-emas'},diamond:{nm:'Peti Diamond',im:'chest-packs/peti-diamond'}};
-const CWM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan penuh (10/10). Buka chest dulu.','sudah-diambil':'Chest sudah diambil.','tidak-ada':'Chest tidak ditemukan.'};
-let CS=null,cBusy=false,cReward=null;
-const cStored=()=>CS&&Array.isArray(CS.chests)?CS.chests.filter(c=>c.status!=='collected'):[];
+/* ---------- Chest: tombol di Lobby (kiri Inventory) = modal TIMELINE progres game hari ini (Kayu -> Silver -> Gold).
+   Tiap titik punya syarat jumlah game (server); bila tercapai muncul tombol KLAIM kecil. Chest hasil klaim MASUK INVENTORY (tab Chest), dibuka dari sana.
+   Lencana tombol = jumlah chest harian siap klaim. ---------- */
+const CIC='assets/images/ui/',CK={wood:{nm:'Kayu',im:'chest-packs/peti-kayu'},silver:{nm:'Silver',im:'chest-packs/peti-perak'},gold:{nm:'Gold',im:'chest-packs/peti-emas'}};
+const CWM={'jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...','sudah-klaim':'Chest ini sudah diklaim hari ini.','belum-selesai':'Main dulu sampai syaratnya terpenuhi.','penuh':'Penyimpanan inventory penuh (10/10). Buka chest di Inventory dulu.','tidak-ada':'Chest tidak ditemukan.'};
+let CS=null,cBusy=false;
 function renderChest(S){
  if(!S||!Array.isArray(S.daily))return;
- CS=S;setBadge('chestDot',S.daily.filter(d=>d.status==='ready').length+cStored().length);
+ CS=S;setBadge('chestDot',S.daily.filter(d=>d.status==='ready').length);
  const md=$('#chestMd');if(md&&!md.hidden)paintChest()}
 const pullChest=()=>{const W=UT.WalletService&&UT.WalletService.get();return W&&W.chestGet?W.chestGet().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false)renderChest(r);return {ok:!!(r&&r.ok!==false)}}):{ok:true}};
 pullChest();
+/* posisi titik (% lebar) dan isi bar: bar berjalan per ruas (mulai -> titik 1 -> titik 2 -> titik 3) menurut jumlah game hari ini */
+const CPOS=[16,50,84],CSTART=4;
+function chestFill(plays,needs){let prev=0,from=CSTART;
+ for(let i=0;i<needs.length;i++){const to=CPOS[i]||CPOS[CPOS.length-1];
+  if(plays<=needs[i])return Math.max(0,from+(to-from)*((plays-prev)/Math.max(1,needs[i]-prev)));
+  prev=needs[i];from=to}
+ return CPOS[CPOS.length-1]}
 function chestHtml(){
- if(cReward){const k=CK[cReward.kind]||CK.wood;
-  let x='<div class="rwd"><img class="mi" src="'+CIC+k.im+'.webp" alt=""><div class="nm" style="font:400 36px/1 var(--font-title)">'+k.nm+' Terbuka!</div>';
-  x+='<div class="rw"><img src="'+CIC+'hud/ikon-koin-emas.webp" alt="">+'+fmt(cReward.coins)+' Coin</div>';
-  if(cReward.gems>0)x+='<div class="rw"><img src="'+CIC+'gem-medal-icons/berlian-hijau.webp" alt="">+'+fmt(cReward.gems)+' Gem</div>';
-  if(cReward.xp>0)x+='<div class="rw">+'+fmt(cReward.xp)+' XP</div>';
-  if(cReward.power){const it=window.ItemCatalog&&ItemCatalog.byId(cReward.power);x+='<div class="rw pw">'+(it&&it.icon?'<img src="'+it.icon+'" alt="">':'')+'Power: '+(it?it.name:cReward.power)+' ×1</div>'}
-  return x+'<button class="cb gold" type="button" data-cback style="margin-top:14px">MANTAP!</button></div>'}
  if(!CS)return '<div class="cempty">Memuat…</div>';
- let h='<div class="sh"><span>Chest Harian</span><small>Reset tiap hari (WIB)</small></div><div class="crow">';
- CS.daily.forEach(d=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',need=+d.need||0,pg=Math.min(need,+d.progress||0);
-  h+='<div class="cc'+(done?' done':'')+'"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
-   '<div class="tx">'+(done?'Sudah diklaim':st==='ready'?'Siap diklaim!':'Main '+pg+' / '+need+' game')+'</div>'+
-   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'">KLAIM</button>':'<button class="cb" type="button" disabled>'+(done?'DIKLAIM':'BELUM')+'</button>')+'</div>'});
- h+='</div>';
- const L=cStored();
- h+='<div class="sh" style="margin-top:26px"><span>Penyimpanan</span><small>'+L.length+' / '+((CS&&CS.max_storage)||10)+'</small></div>';
- if(!L.length)return h+'<div class="cempty">Belum ada chest. Selesaikan syarat harian lalu klaim.</div>';
- h+='<div class="crow">';
- L.forEach(c=>{const k=CK[c.kind]||CK.wood;
-  h+='<div class="cc"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div><div class="tx">Langsung buka, tanpa timer</div>'+
-   '<button class="cb gold" type="button" data-open="'+c.id+'">BUKA</button></div>'});
+ const D=CS.daily,needs=D.map(d=>+d.need||0),top=Math.max.apply(null,needs.concat([1])),plays=Math.max(0,+CS.plays_today||0);
+ const fill=chestFill(plays,needs);
+ let h='<div class="tot"><b>'+Math.min(plays,top)+' / '+top+'</b> game hari ini<small>Reset tiap hari (WIB) · chest hasil klaim masuk Inventory</small></div>';
+ h+='<div class="tl"><div class="trk"><div class="fil" style="width:'+Math.max(0,Math.min(100,(fill-CSTART)/(CPOS[CPOS.length-1]-CSTART)*100)).toFixed(1)+'%"></div></div>';
+ D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
+  h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
+   '<div class="mk">'+(reached?'<img src="'+CIC+'missions/ikon-tab-harian-centang.webp" alt="">':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
+   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'"><img src="'+CIC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
  return h+'</div>'}
 function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
 function openChest(){
  if(!SRV){toast('Masuk ke akun untuk memakai Chest.');return}
- cReward=null;$('#chestMd').hidden=false;paintChest();pullChest()}
-function closeChest(){const md=$('#chestMd');if(md)md.hidden=true;cReward=null}
-async function chestAct(call,onOk){
+ $('#chestMd').hidden=false;paintChest();pullChest()}
+function closeChest(){const md=$('#chestMd');if(md)md.hidden=true}
+async function claimChest(kind){
  if(cBusy)return;cBusy=true;
- try{const W=UT.WalletService&&UT.WalletService.get(),r=W?await call(W):{ok:false,reason:'jaringan'};
+ try{const W=UT.WalletService&&UT.WalletService.get(),r=W?await W.chestClaimDaily(kind):{ok:false,reason:'jaringan'};
   if(env.disposed)return;
-  if(r&&r.ok){renderChest(r);onOk&&onOk(r)}else{toast(CWM[r&&r.reason]||'Gagal, coba lagi');await pullChest()}}
+  if(r&&r.ok){renderChest(r);toast('Chest masuk ke Inventory!')}else{toast(CWM[r&&r.reason]||'Gagal, coba lagi');await pullChest()}}
  finally{cBusy=false;if(!env.disposed)paintChest()}}
 {const md=$('#chestMd');if(md){
  env.on(md,'click',e=>{
   if(e.target===md||e.target.closest('#cm-x')){buzz();closeChest();return}
-  if(e.target.closest('[data-cback]')){buzz();cReward=null;paintChest();return}
-  const b=e.target.closest('button[data-claim],button[data-open]');if(!b||b.disabled)return;buzz();
-  if(b.dataset.claim)return chestAct(w=>w.chestClaimDaily(b.dataset.claim),()=>toast('Chest masuk ke penyimpanan!'));
-  const id=+b.dataset.open;
-  chestAct(w=>w.chestCollect(id),r=>{try{if(SET().sound)UT.Audio.play('chest')}catch(_){}cReward=r;renderCurrency()})});
+  const b=e.target.closest('button[data-claim]');if(!b||b.disabled)return;buzz();claimChest(b.dataset.claim)});
  env.on(document,'keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeChest()})}}
 
 /* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
@@ -282,18 +272,19 @@ const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)ret
  return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
 pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
 
-/* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 5 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
+/* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 15 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
 const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
 (function(){const val=$('#v-ht'),tm=$('#htime'),chip=$('#cur-ht');if(!val||!tm||!chip)return;
  const mmss=s=>{s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
  let key='';
  function paint(){const s=HRT?HRT.snapshot():{hearts:5,max:5,nextInSecs:0,full:true},max=Math.max(5,s.max|0),n=Math.max(0,s.hearts|0),f=Math.min(n,max),k=f+'/'+max;
-  if(k!==key){key=k;val.textContent=k}
+  /* berjejer max paha ayam: terisi = penuh warna, kosong = siluet redup (bukan teks 5/5) */
+  if(k!==key){key=k;let h='';for(let i=0;i<max;i++)h+='<img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""'+(i<f?'':' class="e"')+' draggable="false">';val.innerHTML=h}
   /* hati < max: hitung mundur | penuh: SIAP | > max: +N */
   tm.textContent=n>max?'+'+(n-max):n<max?mmss(s.nextInSecs):'SIAP';tm.classList.toggle('ready',n>=max);
   chip.setAttribute('aria-label','Nyawa '+n+' dari '+max)}
  paint();if(HRT&&HRT.onChange)HRT.onChange(paint);setInterval(()=>{if(!document.hidden)paint()},1000);
- chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 5 menit')});
+ chip.addEventListener('click',()=>{buzz();toast('Nyawa +1 tiap 15 menit')});
  if(SRV&&HRT)HRT.get()})();
 
 /* ---------- LIVE: data tetap mutakhir tanpa refresh (live-sync.js: timer ~20 dtk saat tab terlihat + saat tab aktif lagi/online) ---------- */

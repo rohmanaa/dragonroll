@@ -157,6 +157,45 @@ const EYES=[
   {id:'sparkle',n:'Berbinar',g:'f',dyes:'eye',def:'purple',brow:2,px:(m,y,ic)=>y===3?(m===1?0xffffff:ic):(y===4?(m===1?0xffffff:shade(ic,0.6)):undefined)}
 ];
 
+/* ---- wajah (bentuk wajah: hidung, mulut, pipi) — TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
+   px(x,y,m,c): warna piksel wajah 8x8 (x 0-7, y 0-7, m = kolom cermin 0-3) atau undefined = kulit polos; c = {sk,skD,fem,hD}. Baris mata/alis diatur EYES. */
+const lipC=c=>c.fem?0xc4565f:0x8c4a3c;
+const FACES=[
+  {id:'classic',n:'Klasik',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return lipC(c);
+    if(c.fem&&y===5&&m===1)return mix(c.sk,0xf08080,0.4);
+  }},
+  {id:'soft',n:'Lembut',px:(x,y,m,c)=>{
+    if(y===6&&(x===3||x===4))return mix(lipC(c),c.sk,0.35);
+    if(y===5&&m===1)return mix(c.sk,0xf08080,0.3);
+  }},
+  {id:'smile',n:'Senyum',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&x>=2&&x<=5)return lipC(c);
+    if(y===5&&m===0)return mix(lipC(c),c.sk,0.5);
+  }},
+  {id:'stern',n:'Tegas',px:(x,y,m,c)=>{
+    if((y===4||y===5)&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return shade(lipC(c),0.75);
+    if(y===7&&m<=1)return shade(c.sk,0.93);
+  }},
+  {id:'freckle',n:'Bintik',px:(x,y,m,c)=>{
+    if(y===5&&(x===1||x===2||x===5||x===6)&&(x===1||x===6||(x===2||x===5)))return shade(c.sk,0.8);
+    if(y===6&&(x===2||x===5))return shade(c.sk,0.88);
+    return FACES[0].px(x,y,m,c);
+  }},
+  {id:'cute',n:'Imut',px:(x,y,m,c)=>{
+    if(y===6&&(x===3||x===4))return mix(lipC(c),c.sk,0.2);
+    if(y===5&&(m===1||m===2))return mix(c.sk,0xf08080,0.45);
+  }},
+  {id:'open',n:'Ceria',px:(x,y,m,c)=>{
+    if(y===5&&(x===3||x===4))return c.skD;
+    if(y===6&&(x===3||x===4))return 0x5a1f1f;
+    if(y===6&&(x===2||x===5))return lipC(c);
+  }}
+];
+
 /* ---- rambut ---- */
 const hairCap=H=>H(8.7,1.7,8.7,0,7.3,0);
 const hairSides=H=>{H(0.8,3,3.2,4.25,5,-2.4);H(0.8,3,3.2,-4.25,5,-2.4);};
@@ -692,7 +731,82 @@ const ACCS=[
   }}
 ];
 
-const REG={eyes:EYES,hair:HAIRS,top:TOPS,legs:LEGS,boots:BOOTS,helm:HELMS,chest:CHESTS,shoulder:SHOULDERS,cape:CAPES,weapon:WEAPONS,acc:ACCS};
+/* ================================================================
+   Set PVP: Ksatria Mahkota & Ksatria Rival (dari referensi/pvp/Ksatria Mahkota PVP.html)
+   Wajah (eyes) + rambut + baju + celana + sepatu + mahkota + zirah + bahu + jubah + pedang. Warna set TETAP (tanpa dye, kecuali
+   iris mata & rambut karena server mewajibkan dye di tampilan). Item ini ada di katalog sebagai 'gear.<bagian>.<mahkota|rival>'
+   (assets/js/item-catalog.js, PVP_SETS) dan terkunci sampai server membukanya lewat kemenangan PVP.
+   ================================================================ */
+const KN={
+  mahkota:{armor:0x3a3d4a,armorD:0x23252f,cloth:0x2b2d37,gold:0xe8b830,leather:0x5a3a22,red:0xb02a2a,redD:0x7e1d22,blade:0xffd34a,gem:0x4aa8ff,brow:0x2a2230},
+  rival:{armor:0x56464e,armorD:0x2a2226,cloth:0x3a2428,gold:0xc42f2f,leather:0x3a2a2a,red:0x9b2226,redD:0x5e1216,blade:0xe0403a,gem:0xffb04a,brow:0x1b1218}
+};
+const knCrown=c=>()=>{
+  add('helm',head,box(10,1.6,10,phong(c.gold),0,7.2,0));
+  add('helm',head,box(1.6,2.4,0.8,phong(c.gold),0,8.8,5.1));
+  [-2.6,2.6].forEach(x=>add('helm',head,box(1.2,1.8,0.8,phong(c.gold),x,8.4,5.1)));
+  add('helm',head,box(1.1,1.1,0.4,glow(c.gem),0,7.2,5.15));
+  [-1,1].forEach(sd=>{
+    const w=box(0.7,3.2,2.4,phong(c.gold),sd*5.4,8.6,0);w.rotation.z=-sd*0.45;add('helm',head,w);
+    const w2=box(0.7,2.2,1.8,phong(c.gold),sd*5.9,7.6,-1.2);w2.rotation.z=-sd*0.7;add('helm',head,w2);
+  });
+};
+const knChest=c=>()=>{
+  add('chest',upper,box(8.7,7,4.7,phong(c.armor),0,8.5,0));
+  add('chest',upper,box(8.9,1,4.9,phong(c.gold),0,12.1,0));
+  add('chest',upper,box(3.2,3.2,0.4,phong(c.gold),0,9,2.5));
+  add('chest',upper,box(1.6,1.6,0.5,solid(c.red),0,9,2.65));
+  add('chest',upper,box(8.7,2,4.7,solid(c.leather),0,1.5,0));
+  add('chest',upper,box(2.2,1.6,0.5,phong(c.gold),0,1.5,2.5));
+};
+const knShoulder=c=>(p,R)=>{
+  add('shoulder',R.sh,box(5.8,2.8,5.8,phong(c.armor),R.side*0.3,2.4,0));
+  add('shoulder',R.sh,box(6,0.7,6,phong(c.gold),R.side*0.3,3.9,0));
+};
+const knCape=c=>()=>{
+  add('cape',cape1,box(8.4,6,0.8,solid(c.red),0,-3,-0.4));
+  add('cape',cape1,box(10,1.2,1.4,phong(c.gold),0,0.2,-0.3));
+  add('cape',cape2,box(8.4,6,0.8,solid(c.redD),0,-3,-0.4));
+  add('cape',cape2,box(8.6,0.8,1,phong(c.gold),0,-6,-0.4));
+};
+const knSword=c=>(p,g)=>{
+  g.add(box(1.1,3.6,1.1,solid(c.leather),0,0,0));
+  g.add(box(1.8,1,1.8,phong(c.gold),0,-2.2,0));
+  g.add(box(5.4,1,1.5,phong(c.gold),0,2.2,0));
+  g.add(box(1.9,15,0.7,phong(c.blade),0,10.2,0));
+  g.add(box(1.3,1.6,0.6,phong(c.blade),0,18.5,0));
+};
+const knHair=spikes=>H=>{
+  H(8.8,1.4,8.8,0,8.2,0);H(8.8,7,1.6,0,4.4,-4.4);H(0.8,5,8.8,4.4,5.2,0);H(0.8,5,8.8,-4.4,5.2,0);
+  H(2,1.6,1,-2.8,6.6,4.3);H(2,1.6,1,2.8,6.6,4.3);H(1.6,1.2,1,0,6.8,4.3);
+  if(spikes)[[-2.6,2.4],[0,3.2],[2.6,2.4]].forEach(q=>H(1.8,q[1],1.8,q[0],8.9+q[1]/2,-0.5));
+};
+const knGear=(key,c)=>{
+  const nm=key==='mahkota'?'Ksatria':'Rival';
+  return{
+    top:{id:key,n:'Tunik '+nm,dyes:null,paint:()=>({
+      torso:(x,y)=>y===0?c.armorD:(y===11?c.gold:c.cloth),
+      arm:(x,y)=>y<=4?c.armorD:(y===5?c.gold:(y<=8?c.armor:null))
+    })},
+    legs:{id:key,n:'Pelindung Kaki '+nm,dyes:null,paint:()=>(x,y)=>y===5?c.gold:c.armorD},
+    boots:{id:key,n:'Bot '+nm,dyes:null,from:6,paint:()=>(x,y)=>y===6?c.gold:(y<=10?c.leather:shade(c.leather,0.45)),sole:()=>shade(c.leather,0.45)}
+  };
+};
+['mahkota','rival'].forEach(key=>{
+  const c=KN[key],g=knGear(key,c),rv=key==='rival';
+  EYES.push({id:key,n:rv?'Mata Rival':'Mata Ksatria',dyes:'eye',def:rv?'red':'blue',brow:null,
+    px:rv?((m,y,ic)=>y===3?(m===2?c.brow:undefined):(y===4?(m===1?ic:0xffffff):undefined))
+         :((m,y,ic)=>y===3?c.brow:(y===4?(m===1?0xffffff:ic):undefined))});
+  HAIRS.push({id:key,n:rv?'Rambut Rival':'Rambut Putih Ksatria',dyes:'hair',def:rv?'black':'silver',f:knHair(rv)});
+  TOPS.push(g.top);LEGS.push(g.legs);BOOTS.push(g.boots);
+  HELMS.push({id:key,n:rv?'Mahkota Rival':'Mahkota Emas',dyes:null,build:knCrown(c)});
+  CHESTS.push({id:key,n:rv?'Zirah Rival':'Zirah Ksatria',dyes:null,build:knChest(c)});
+  SHOULDERS.push({id:key,n:rv?'Bahu Rival':'Bahu Ksatria',dyes:null,build:knShoulder(c)});
+  CAPES.push({id:key,n:rv?'Jubah Rival':'Jubah Ksatria Merah',dyes:null,build:knCape(c)});
+  WEAPONS.push({id:key,n:rv?'Pedang Rival':'Pedang Emas',dyes:null,base:1.9,build:knSword(c)});
+});
+
+const REG={eyes:EYES,face:FACES,hair:HAIRS,top:TOPS,legs:LEGS,boots:BOOTS,helm:HELMS,chest:CHESTS,shoulder:SHOULDERS,cape:CAPES,weapon:WEAPONS,acc:ACCS};
 const find=(key,id)=>REG[key].find(i=>i.id===id)||REG[key][0];
 /* Kepemilikan: item builder yang ada di katalog game ('gear.<bagian>.<id>') hanya boleh dipakai bila dimiliki (PlayerData).
    Item yang tidak ada di katalog (mata, rambut, 'none') adalah dasar penampilan: gratis. Harga/kepemilikan asli ada di server. */
@@ -736,6 +850,7 @@ const DEFAULT=Object.assign({
   gender:'m',
   body:{height:1,build:1},
   skin:'s2',
+  face:{id:'classic'},
   eyes:{id:'round',dye:'blue'},
   hair:{id:'short',dye:'brown'}
 },clone(PRESETS[0].set));
@@ -743,14 +858,14 @@ const DEFAULT=Object.assign({
 let cfg=clone(DEFAULT);
 const okG=i=>!i.g||i.g===cfg.gender;
 const START={
-  m:Object.assign({gender:'m',eyes:{id:'round',dye:'blue'},hair:{id:'short',dye:'brown'}},clone(PRESETS[0].set)),
-  f:Object.assign({gender:'f',eyes:{id:'lash',dye:'blue'},hair:{id:'bob',dye:'brown'}},clone(PRESETS.find(p=>p.g==='f'&&p.id==='citizen').set))
+  m:Object.assign({gender:'m',face:{id:'classic'},eyes:{id:'round',dye:'blue'},hair:{id:'short',dye:'brown'}},clone(PRESETS[0].set)),
+  f:Object.assign({gender:'f',face:{id:'classic'},eyes:{id:'lash',dye:'blue'},hair:{id:'bob',dye:'brown'}},clone(PRESETS.find(p=>p.g==='f'&&p.id==='citizen').set))
 };
 // ganti gender: pakai set dasar gender tsb, pertahankan kulit, badan, warna rambut & mata
 function setGender(g){
   if(cfg.gender===g)return;
   const o=clone(START[g]);
-  o.hair.dye=cfg.hair.dye;o.eyes.dye=cfg.eyes.dye;o.skin=cfg.skin;o.body=clone(cfg.body);
+  o.hair.dye=cfg.hair.dye;o.eyes.dye=cfg.eyes.dye;o.face=clone(cfg.face);o.skin=cfg.skin;o.body=clone(cfg.body);
   apply(o);
 }
 
@@ -771,7 +886,7 @@ function normalize(){
   b.height=clamp(+b.height||1,0.9,1.1);b.build=clamp(+b.build||1,0.9,1.15);
   if(cfg.gender!=='m'&&cfg.gender!=='f')cfg.gender='m';
   if(!SKINS.some(s=>s.id===cfg.skin))cfg.skin='s2';
-  ['eyes','hair','top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
+  ['face','eyes','hair','top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
     const o=cfg[k]=(cfg[k]&&typeof cfg[k]==='object'&&!Array.isArray(cfg[k]))?cfg[k]:{};
     let it=find(k,o.id);if(!okG(it)||!owned(k,it))it=REG[k].find(i=>okG(i)&&owned(k,i))||REG[k][0];o.id=it.id;fixDye(o,it);
   });
@@ -781,7 +896,7 @@ function normalize(){
     .map(a=>{const it=find('acc',a.id);const o={id:a.id,dye:a.dye};fixDye(o,it);return o;});
 }
 // kategori config -> slot mesh yang harus dibangun ulang
-const KEYMAP={gender:['head'],skin:['head','body'],eyes:['head'],hair:['head','hair'],top:['body'],legs:['body'],boots:['body'],
+const KEYMAP={gender:['head'],skin:['head','body'],face:['head'],eyes:['head'],hair:['head','hair'],top:['body'],legs:['body'],boots:['body'],
   helm:['helm','hair'],chest:['chest'],shoulder:['shoulder'],cape:['cape'],weapon:['weapon'],accessories:['acc','cape']};
 const ORDER=['head','hair','body','helm','chest','shoulder','weapon','acc','cape'];
 const listeners=[];
@@ -808,13 +923,12 @@ function buildHead(){
   clear('head');
   const sk=skinC(),skD=shade(sk,0.85),hD=shade(hairC(),0.55),fem=cfg.gender==='f';
   const eye=find('eyes',cfg.eyes.id),ic=dyeC(cfg.eyes,eye);
+  const face=find('face',cfg.face.id),fc={sk:sk,skD:skD,fem:fem,hD:hD};
   const faceF=(x,y)=>{
     const m=x<4?x:7-x;
     if(m===1||m===2){const e=eye.px(m,y,ic);if(e!==undefined)return e;}
     if(eye.brow!==null&&y===eye.brow&&(m===1||m===2))return hD;
-    if(y===5&&(x===3||x===4))return skD;
-    if(y===6&&(x===3||x===4))return fem?0xc4565f:0x8c4a3c;
-    if(fem&&y===5&&m===1)return mix(sk,0xf08080,0.4);
+    const fv=face.px(x,y,m,fc);if(fv!==undefined)return fv;
     return sk;
   };
   const lidC=shade(sk,0.5);
@@ -1160,7 +1274,7 @@ function loadPreset(n){
 }
 function loadLook(L,G){
   if(!L){cfg=clone(DEFAULT);apply(null,true);return;}
-  const o={gender:L.gender,skin:L.skin,eyes:L.eyes,hair:L.hair,body:L.body,accessories:[]};
+  const o={gender:L.gender,skin:L.skin,face:L.face||{id:'classic'},eyes:L.eyes,hair:L.hair,body:L.body,accessories:[]};
   ['top','legs','boots','helm','chest','shoulder','cape','weapon'].forEach(k=>{
     const g=G['g.'+k],ci=g&&IC.byId(g.id);
     o[k]=ci?{id:ci.gameKey,dye:g.dye||undefined}:{id:'none'};
@@ -1176,7 +1290,7 @@ function loadFromData(look,equipped,gearDye){
   try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
 }
 apply(null,true);
-return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,bow:bowG,arrow:arrowG,bowReleaseAt:function(dur){return BOW_REL*(dur||ACT_DUR.bow);},setBowAim:function(v){bowAim=clamp(+v||0,0,1.1);},get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,bow:bowG,arrow:arrowG,bowReleaseAt:function(dur){return BOW_REL*(dur||ACT_DUR.bow);},setBowAim:function(v){bowAim=clamp(+v||0,0,1.1);},get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,setPreviewAll:function(v){previewAll=!!v;},loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};

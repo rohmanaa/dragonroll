@@ -216,13 +216,26 @@ function petSfxFromManifest(id){
     return Array.isArray(f)&&f.length===3&&f.every(u=>typeof u==='string'&&u)?f.slice():null;
   }catch(e){return null}
 }
-const petBuf=Object.create(null),petLoading=Object.create(null);
+const petBuf=Object.create(null),petLoading=Object.create(null),petRaw=Object.create(null),petRawLoading=Object.create(null);
+/* Unduh byte MP3 lebih awal (tanpa AudioContext, tidak perlu menunggu ketukan pertama), simpan di petRaw; decode baru dilakukan setelah audio aktif (petLoad).
+   Dengan begitu suara pertama sudah rekaman asli, bukan sintesis cadangan. */
+function petFetchRaw(url){
+  if(petRaw[url]||petRawLoading[url]||destroyed)return Promise.resolve();
+  const controller=new AbortController();
+  petRawLoading[url]=controller;
+  return fetch(url,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer()})
+    .then(b=>{if(!destroyed&&petRawLoading[url]===controller)petRaw[url]=b})
+    .catch(error=>{if(!controller.signal.aborted)console.warn('[PetViewer] Failed to fetch Pet SFX '+url+'. Using synthesized fallback.',error)})
+    .then(()=>{if(petRawLoading[url]===controller)delete petRawLoading[url]});
+}
 function petLoad(url){
   if(petBuf[url]||petLoading[url]||!AC||destroyed)return;
   const controller=new AbortController();
   petLoading[url]=controller;
-  fetch(url,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer()})
-    .then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no)))
+  petFetchRaw(url).then(()=>{
+    if(!petRaw[url])throw new Error('no bytes');
+    return new Promise((ok,no)=>AC.decodeAudioData(petRaw[url].slice(0),ok,no));
+  })
     .then(buf=>{if(!destroyed&&petLoading[url]===controller)petBuf[url]=buf})
     .catch(error=>{if(!controller.signal.aborted)console.warn('[PetViewer] Failed to load Pet SFX '+url+'. Using synthesized fallback.',error)})
     .then(()=>{if(petLoading[url]===controller)delete petLoading[url]});
@@ -235,6 +248,7 @@ function petPlayFile(url,fallback){
   s.start();
 }
 function petPreloadFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(petLoad))}
+function petPrefetchFiles(){Object.keys(PET_FILES).forEach(k=>PET_FILES[k].forEach(u=>petFetchRaw(u).then(()=>{if(AC)petLoad(u)})))}
 const catalogItems=window.ItemCatalog&&window.ItemCatalog.items;
 if(!Array.isArray(catalogItems))throw new Error('PetViewer requires ItemCatalog.items');
 const PETS=catalogItems.filter(item=>item.kind==='pet').sort((a,b)=>a.tier-b.tier).map(item=>({id:item.gameKey,name:item.name,color:item.accent}));
@@ -242,6 +256,7 @@ if(PETS.length!==7||PETS.some(item=>!item.id||!item.name||!item.color))throw new
 
 /* Hubungkan SND[indeks PETS][slot] ke file dari manifest (cari per id Pet, tidak bergantung urutan Registry). */
 PETS.forEach((d,i)=>{const f=petSfxFromManifest(d.id);if(!f)return;PET_FILES[i]=f;f.forEach((url,k)=>{const synth=SND[i][k];SND[i][k]=()=>petPlayFile(url,synth)})});
+try{petPrefetchFiles()}catch(e){}
 
 /* ================= scene: latar transparan, tanpa pad, kanvas besar, tanpa zoom ================= */
 const view=document.getElementById('fpv'),GL_OWNER='inv-pet';

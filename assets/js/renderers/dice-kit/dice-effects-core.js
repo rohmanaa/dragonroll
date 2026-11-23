@@ -30,6 +30,7 @@ const STYLES = {
   void:   { add: true,  gravity: -0.5, drag: 1.6, shape: 0, grow: 0.2, size: 1.4 },
   star:   { add: true,  gravity: -0.8, drag: 1.0, shape: 1, grow: 0.0, size: 1.1 },
   flame:  { add: true,  gravity: -3.2, drag: 1.4, shape: 0, grow: 0.1, size: 1.7 },
+  code:   { add: true,  gravity: 2.5,  drag: 0.8, shape: 1, grow: 0.0, size: 1.0 }, /* kepingan data hijau (Matrix Epik) */
 };
 
 // Resep idle: gaya, laju (partikel/detik), pola spawn.
@@ -44,9 +45,10 @@ const IDLE = {
   stars:   { style: 'star',   rate: 4.0, mode: 'orbit' },
   void:    { style: 'void',   rate: 5.0, mode: 'orbit' },
   flames:  { style: 'flame',  rate: 9.0, mode: 'rise' },
+  code:    { style: 'code',   rate: 7.0, mode: 'rain' }, /* hujan kode jatuh di sekitar dadu */
 };
 
-const ROLL_STYLE = { trail: null, ember: 'ember', mist: 'smoke', stars: 'star', flame: 'flame' };
+const ROLL_STYLE = { trail: null, ember: 'ember', mist: 'smoke', stars: 'star', flame: 'flame', code: 'code' };
 
 /**
  * Pabrik kelas DiceEffects untuk namespace THREE tertentu.
@@ -224,6 +226,13 @@ export function createDiceEffects(THREE) {
         case 'heavy':   this._tone(70, 35, 0.4, 0.8 * G, 'sine'); this._noiseHit(200, 0.8, 0.25, 0.8 * G, 'lowpass'); break;
         case 'sonic':   [0, 0.12, 0.24].forEach((d) => this._tone(150, 90, 0.2, 0.4 * G, 'sine', d)); break;
         case 'ender':   this._tone(300, 1800, 0.25, 0.2 * G, 'sine'); this._tone(1800, 200, 0.3, 0.15 * G, 'triangle', 0.15); break;
+        case 'matrix': /* data decode: statis digital + dentuman square + 4 bleep menurun + desis akhir */
+          this._noiseHit(2600, 3, 0.05, 0.55 * G, 'highpass'); this._tone(90, 45, 0.18, 0.5 * G, 'square');
+          [880, 1175, 1568, 2093].forEach((f, k) => this._tone(f, f * 0.5, 0.07, 0.13 * G, 'square', 0.03 + k * 0.045));
+          this._noiseHit(5200, 2, 0.06, 0.3 * G, 'bandpass', 0.2); break;
+        case 'matrixPing': /* konfirmasi hasil: tiga nada naik + dengung bawah */
+          [1046, 1568, 2093].forEach((f, k) => this._tone(f, null, 0.28, 0.12 * G, 'sine', k * 0.07));
+          this._tone(523, null, 0.4, 0.1 * G, 'triangle'); this._tone(3136, null, 0.12, 0.05 * G, 'square', 0.2); break;
         case 'dragon':  this._tone(55, 40, 0.9, 0.7 * G, 'sawtooth'); this._noiseHit(300, 0.6, 0.6, 0.8 * G, 'lowpass'); this._tone(880, 440, 0.5, 0.15 * G, 'sine', 0.1); break;
         default:        this._noiseHit(700, 1, 0.08, G);
       }
@@ -337,6 +346,7 @@ export function createDiceEffects(THREE) {
         if (mode === 'ring') { vx = Math.cos(a) * sp; vz = Math.sin(a) * sp; vy = (o.up ?? 0.5) * sp * Math.random(); }
         else if (mode === 'fountain') { const s = o.spread ?? 0.5; vx = Math.cos(a) * sp * s * Math.random(); vz = Math.sin(a) * sp * s * Math.random(); vy = sp * (0.8 + Math.random() * 0.6); }
         else if (mode === 'inward') { const R = o.radius ?? 1.2; x += Math.cos(a) * R; z += Math.sin(a) * R; vx = -Math.cos(a) * sp * 0.6; vz = -Math.sin(a) * sp * 0.6; vy = Math.random() * sp * 0.5; }
+        else if (mode === 'rain') { const R = o.radius ?? 0.9; x += (Math.random() * 2 - 1) * R; z += (Math.random() * 2 - 1) * R; y += o.height ?? 1.3; vx = (Math.random() - 0.5) * 0.15; vz = (Math.random() - 0.5) * 0.15; vy = -sp * (0.6 + Math.random() * 0.6); }
         else if (mode === 'cone') { const d = o.dir || [0, 1, 0], s = o.spread ?? 0.5; vx = d[0] * sp + (Math.random() - 0.5) * sp * s; vy = d[1] * sp + (Math.random() - 0.5) * sp * s; vz = d[2] * sp + (Math.random() - 0.5) * sp * s; }
         else { const u = Math.random() * 2 - 1, r = Math.sqrt(1 - u * u); vx = Math.cos(a) * r * sp; vz = Math.sin(a) * r * sp; vy = Math.abs(u) * sp * (o.up ?? 1) ; }
         const c = this._tmp.copy(this._col()); const br = 0.8 + Math.random() * 0.4; c.r *= br; c.g *= br; c.b *= br;
@@ -409,8 +419,9 @@ export function createDiceEffects(THREE) {
       if (r === 'sparkle' || r === 'pulse' || r === 'burst' || r === 'halo') this.emit(STYLE_OF(e), [p[0], 0.15, p[2]], Math.round(e.particleCount * 0.3), { mode: 'ring', speed: 1.4, up: 1.2, life: e.particleLifetime });
       if (r === 'pulse' || r === 'burst' || r === 'halo') this.ring(this.glowColor, 0.7, r === 'pulse' ? 1.8 : 2.6, 0.8, 0.7);
       if (r === 'burst' || r === 'halo') { this.ring(this.glowColor, 0.5, 3.2, 1.1, 0.5, 0.1); this.flash(1.2 * e.glowIntensity, 3); }
+      if (r === 'decode') { this.emit('code', p, Math.round(e.particleCount * 0.45), { mode: 'rain', speed: 2.2, radius: 1.1, height: 1.8, life: 0.9 }); this.ring(this.glowColor, 0.5, 2.4, 0.9, 0.7); this.ring('#b6ffcf', 0.3, 1.5, 0.6, 0.5, 0.1); this.pillarPos = p; this.pillarFx(this.glowColor, 2.6, 0.6, 0.9, 0.4); this.flash(1.4 * e.glowIntensity, 4); }
       if (r === 'halo') { this.pillarPos = p; this.pillarFx(this.glowColor, 2.2, 0.7, 1.1, 0.35); this.later(0.15, () => this.emit('flame', [p[0], 0.1, p[2]], 40, { mode: 'fountain', speed: 2.4, spread: 0.4, life: 1 })); }
-      this.sound.play(e.soundEffect, 0.4 + e.effectTier * 0.12, e.soundGain);
+      this.sound.play(e.resultSound || e.soundEffect, 0.4 + e.effectTier * 0.12, e.soundGain); /* resultSound = nada konfirmasi khusus dadu (opsional) */
     }
 
     // ---------- per frame ----------
@@ -463,7 +474,8 @@ export function createDiceEffects(THREE) {
         this._idleAcc -= 1;
         const a = Math.random() * 6.28, R = 0.62 + Math.random() * 0.25;
         let o = [pos[0] + Math.cos(a) * R, pos[1] + (Math.random() - 0.5) * 0.8, pos[2] + Math.sin(a) * R], opt = { life: 1.1, speed: 0.25 };
-        if (rec.mode === 'rise') opt = { mode: 'fountain', speed: 0.7, spread: 0.2, life: 1.3, size: e.particleSize * 0.8 };
+        if (rec.mode === 'rain') { o = [pos[0], pos[1], pos[2]]; opt = { mode: 'rain', speed: 1.2, life: 0.9, radius: 0.8, height: 1.1, size: e.particleSize * 0.8 }; }
+        else if (rec.mode === 'rise') opt = { mode: 'fountain', speed: 0.7, spread: 0.2, life: 1.3, size: e.particleSize * 0.8 };
         else if (rec.mode === 'low') { o[1] = 0.1; opt = { mode: 'ring', speed: 0.3, up: 0.3, life: 1.6 }; }
         else if (rec.mode === 'orbit') opt = { mode: 'sphere', speed: 0.35, life: 1.2 };
         this.emit(rec.style, o, 1, { size: e.particleSize * 0.8, ...opt });
@@ -513,6 +525,16 @@ const RECIPES = {
   heavyImpact: (fx, p, e) => { fx.emit('ember', p, N(e, 0.7), { mode: 'fountain', speed: e.particleSpeed * 1.2, spread: 0.9, life: 1.2 }); fx.emit('smoke', p, N(e, 0.3), { mode: 'ring', speed: 1.2, up: 0.2, life: 1.2, size: e.particleSize * 1.6 }); fx.ring('#c8803a', 0.3, 3, 0.55, 0.8); fx.ring('#2a1a10', 0.3, 2.2, 0.8, 0.6, 0.05); fx.shakeCam(0.05); fx.flash(1.2, 8); fx.slow(0.55, 0.12); },
   sonic:       (fx, p, e) => { [0, 0.16, 0.32].forEach((d, i) => fx.ring('#22d3ee', 0.3, 2.4 + i * 0.7, 0.8, 0.8, d)); fx.emit('energy', p, N(e, 0.8), { mode: 'ring', speed: e.particleSpeed * 1.2, up: 0.4 }); fx.flash(1.6, 6); },
   teleport:    (fx, p, e) => { fx.pillarPos = p; fx.pillarFx('#d040ff', 3.2, 0.55, 0.8, 0.5); fx.emit('star', p, N(e, 0.9), { mode: 'fountain', speed: e.particleSpeed * 1.6, spread: 0.5, life: 1.3 }); fx.ring('#ff4de8', 0.2, 1.8, 0.7, 0.9); fx.ring('#a030ff', 0.2, 2.6, 0.9, 0.6, 0.1); fx.flash(2.2, 5); },
+  matrixCode: (fx, p, e) => {
+    fx.pillarPos = p; fx.pillarFx('#22ff66', 2.8, 0.45, 0.8, 0.45);
+    fx.emit('code', p, N(e, 0.7), { mode: 'rain', speed: 2.6, radius: 1.2, height: 2.0, life: 1.1, size: e.particleSize * 1.15 });
+    fx.emit('code', p, N(e, 0.5), { mode: 'fountain', speed: e.particleSpeed * 1.5, spread: 0.8, life: 0.9 });
+    fx.emit('glint', p, N(e, 0.25), { mode: 'sphere', speed: 2, up: 1 });
+    [0, 0.12, 0.26].forEach((d, i) => fx.ring(i === 1 ? '#b6ffcf' : '#22ff66', 0.3, 2.2 + i * 0.7, 0.7 + i * 0.1, 0.85, d));
+    fx.later(0.12, () => fx.emit('code', p, N(e, 0.4), { mode: 'inward', radius: 1.2, speed: e.particleSpeed * 0.9, life: 0.7 }));
+    fx.later(0.3, () => fx.emit('code', p, N(e, 0.3), { mode: 'ring', speed: e.particleSpeed * 1.2, up: 0.6, life: 0.8 }));
+    fx.flash(2.2, 5);
+  },
   dragonExplosion: (fx, p, e) => {
     fx.pillarPos = p; fx.pillarFx('#ff2a3a', 3.6, 0.9, 1.0, 0.55);
     fx.emit('flame', p, N(e, 0.5), { mode: 'fountain', speed: e.particleSpeed * 1.8, spread: 0.9, life: 1.1, size: e.particleSize * 1.3 });

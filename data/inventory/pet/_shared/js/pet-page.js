@@ -10,7 +10,7 @@ UT.PageModule.define('pet', function (env) {
   const AS = window.UT && window.UT.AppearanceService;
   const IMAGE_ROOT = 'data/inventory/pet/items/';
   /* thumbnail kartu = crop fokus-pet (tanpa makhluk latar) dari ilustrasi penuh; bila berkas crop gagal dimuat, pakai ilustrasi penuh (item.image) */
-  const CARD_ROOT = 'assets/images/ui/pet/card/';
+  const cardUrl = item => 'data/inventory/pet/items/' + item.gameKey + '/' + item.gameKey.replace(/_/g, '-') + '-card.webp'; /* crop kartu per pet, di folder data pet */
   const RARITY = {
     common: ['Biasa', '#cfc8ea'],
     uncommon: ['Tidak Biasa', '#6fe08a'],
@@ -118,7 +118,7 @@ UT.PageModule.define('pet', function (env) {
       return `<article class="pc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
         + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
         + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${CARD_ROOT + item.gameKey.replace(/_/g, '-')}.webp" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
+        + `<span class="pc-th"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
         + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
         + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`

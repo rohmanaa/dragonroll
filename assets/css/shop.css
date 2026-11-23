@@ -131,7 +131,7 @@
 .x{position:absolute;right:4px;top:4px;z-index:1;width:64px;height:64px;border-radius:14px;background:linear-gradient(#ff7a8a,#c9283f);border:4px solid rgba(0,0,0,.45);box-shadow:0 5px 0 rgba(20,12,45,.6);font:800 40px/1 var(--font-body)}
 .pack{display:flex;align-items:center;justify-content:space-between;width:100%;padding:20px 28px;border-radius:18px;background:linear-gradient(#ffd45a,#ff9a1f);box-shadow:0 5px 0 #9c5d0b;font:800 30px var(--font-body)}
 .pack:disabled{filter:grayscale(.8);cursor:not-allowed}
-body:has(#modal.show)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(10,8,30,.65)}
+/* (lapisan gelap tambahan body:has(#modal.show)::after dihapus: dobel dengan #modal; kini #modal sendiri menutup seluruh layar) */
 
 /* kilau tipis melayang di sekitar gambar Coin & Chest */
 .card .pic{position:relative}
@@ -206,3 +206,103 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .srow{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:6px 0;font-size:32px;font-weight:800;color:#ddd7f7}
 .srow span:last-child{display:flex;align-items:center;gap:8px;color:#ffe36a}
 .srow img{width:36px;height:auto}
+
+/* preview hidup di modal (3D / animasi) */
+.pv{position:relative;height:440px;width:100%;overflow:hidden}
+.pvh{position:absolute;inset:0;display:grid;place-items:center}
+.pvh>svg,.pvh>.fr-th{width:300px;height:300px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.pvh .fr-th{position:relative}
+.pvh .fr-img{position:absolute;inset:0;width:100%;height:100%}
+.pvh canvas{touch-action:none}
+.eye img{width:42px;height:42px;object-fit:contain}
+.card.item .art .dthumb{width:250px;height:250px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+#modal>.box{max-height:1000px}
+#modal>#box{min-height:0;margin-top:0;height:auto;max-height:1000px}
+
+/* ===================================================================================================
+   Tata letak mengikuti pet.html: bingkai + latar profil, judul kiri & tombol Tutup bulat kanan atas, saldo kiri bawah,
+   kartu berwarna rarity (gradasi + kartu-toko), thumbnail di "sumur", bar harga = tombol kuning (harga + ikon di kanan),
+   ikon mata tanpa kotak, modal pratinjau/konfirmasi memakai panel & tombol aset yang sama.
+   =================================================================================================== */
+#pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
+  pointer-events:none;box-sizing:border-box;z-index:0;border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
+#pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
+html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
+#stage:has(#pmodal){overflow:visible!important}
+#back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
+#title{left:100px;top:34px}
+#stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:2}
+#stage #cur-em{left:60px!important}
+#stage #cur-co{left:370px!important}
+/* tab ikon: baris tengah di antara judul dan tombol Tutup */
+#tabs{left:330px;right:330px;top:20px;gap:6px;justify-content:center;z-index:2}
+.tabb{padding:4px 14px 40px}
+.tabb img{width:76px;height:76px}
+.tabb.on::after{width:112px;height:28px}
+/* area kartu */
+#cards{left:60px;right:auto;width:1800px;top:175px;height:780px;box-sizing:border-box;padding:12px 8px 24px;gap:22px;align-items:center;z-index:1}
+#cards:has(.item){gap:22px;align-items:stretch}
+/* kartu item */
+.card.item{--c1:#9a96b3;--c2:#5e5a78;--c3:#bdb9d4;--cb:#d6d2ea;--cd:#3d3a52;
+  width:auto;height:100%;aspect-ratio:9/16;box-sizing:border-box;padding:12px;align-items:stretch;
+  border:4px solid var(--cb);border-radius:18px;
+  background-image:linear-gradient(180deg,var(--c1),var(--c2)),url(../images/ui/pet/kartu-toko.webp);background-size:auto,cover;background-position:center;background-blend-mode:multiply;background-repeat:no-repeat;
+  box-shadow:0 6px 0 var(--cd),0 12px 16px rgba(0,0,0,.4)}
+.card.item.r-uncommon{--c1:#4fcf7a;--c2:#1f8f4a;--c3:#8cf0ac;--cb:#aef5c4;--cd:#115c2f}
+.card.item.r-rare{--c1:#4aa8f0;--c2:#1f62c4;--c3:#8fd0ff;--cb:#b4defc;--cd:#123f82}
+.card.item.r-epic{--c1:#c05cf0;--c2:#7a2bc0;--c3:#e29bff;--cb:#e8b6ff;--cd:#4b1a7e}
+.card.item.r-legendary{--c1:#ffc83a;--c2:#d48a10;--c3:#ffe27a;--cb:#ffe9a8;--cd:#8a5508}
+.card.item.r-mythic{--c1:#ff6a5e;--c2:#b3261e;--c3:#ff9d93;--cb:#ffbfb8;--cd:#6f1510}
+.card.item.r-divine{--c1:#fff2b0;--c2:#d9b24a;--c3:#ffffff;--cb:#fffbe6;--cd:#8a6b1c}
+.card.item .nm{display:grid;place-items:center;flex:none;min-height:96px;padding:0 6px;font:400 44px/1.05 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6),0 0 6px rgba(10,6,24,.35)}
+.card.item .pic{position:relative;flex:1;min-height:0;width:auto;margin:4px 0 12px;border-radius:12px;overflow:hidden;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 38%,var(--c3),var(--c2) 78%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.14),inset 0 8px 16px rgba(0,0,0,.25)}
+.card.item .pic .glow{display:none}
+.card.item .art,.card.item.k-frame .art,.card.item.k-set .art{width:100%;height:100%;display:grid;place-items:center;animation:none}
+.card.item .art>svg,.card.item .art>img,.card.item .art .setimg,.card.item .art .dthumb{width:74%;height:auto;max-height:74%;object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+.card.item .art .fr-th{width:70%;height:auto;aspect-ratio:1;position:relative}
+.card.item .chip{right:22px;top:112px;z-index:3}
+.eye{left:30px;bottom:140px;width:76px;height:76px;border:0;border-radius:0;background:none;box-shadow:none;z-index:3}
+.eye img{width:56px;height:56px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
+.eye:hover{filter:brightness(1.2)}
+button.plate{width:100%;max-width:none;height:100px;margin:0;border:0;border-radius:0;gap:10px;
+  background:url(../images/ui/buttons-and-controls/tombol-kuning-polos.webp) center/100% 100% no-repeat;box-shadow:none;
+  font:400 50px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6),0 0 6px rgba(10,6,24,.4)}
+button.plate img{width:56px;height:56px}
+button.plate:hover:not(:disabled){filter:brightness(1.12)}
+button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp);font-size:38px;color:#e6e2f6;opacity:.85}
+/* modal: panel & tombol aset (sama dengan pet) */
+#modal>#box{width:1000px;padding:30px 30px 26px}
+#mx{position:absolute;right:20px;top:12px;z-index:3;width:60px;height:60px;padding:0;border:0!important;background:none!important;box-shadow:none!important;color:#fff;font:800 52px/1 var(--font-body);text-shadow:0 2px 4px rgba(0,0,0,.7)}
+#mb h2{font-size:56px;line-height:1;margin:0 0 6px}
+.pv{height:500px;background:none;border-radius:0;margin:0}
+.rar{margin-top:6px;font:400 28px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#mb p{margin:10px 0 0;font:700 24px/1.3 var(--font-body);color:#ddd7f7}
+.mbtn{min-width:300px;height:104px;border-radius:0;box-shadow:none;font-size:42px;background:center/100% 100% no-repeat}
+.mbtn.no{background-image:url(../images/ui/buttons-and-controls/tombol-merah-polos.webp)}
+.mbtn.ok{background-image:url(../images/ui/buttons-and-controls/tombol-hijau-polos.webp)}
+.mrow{margin-top:18px}
+
+#modal>#box>#mx{left:auto!important;right:20px!important;top:12px!important}
+.pv.sm{height:320px}
+.mrow .btn{width:330px;height:100px}
+.mrow .btn span{display:flex;align-items:center;justify-content:center;gap:10px;font-size:42px}
+.mrow .btn span img{position:static;width:50px;height:50px;object-fit:contain}
+#modal>#box>#mx{border-image:none!important;outline:0;border-radius:0!important}
+/* "Dimiliki": aset tombol gelap. Aturan lama `.plate.own{background:...}` mereset ukuran/ulang gambar (tampil ganda), jadi diset penuh di sini */
+button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
+/* panel mengikuti slider Pengaturan -> Transparansi panel (--panel-a diset shop-page.js); aturan alpha tetap .22 dihapus */
+/* performa gulir: kartu item tanpa drop-shadow besar di seluruh kartu & tanpa animasi gambar terus-menerus; render kartu di luar layar ditunda */
+.card.item.fx{filter:none}
+.card.item.fx .pic img{animation:none;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+/* gulir ke samping di HP: jangan pakai contain/content-visibility (merusak lebar scroll & memotong bayangan kartu) */
+#cards{touch-action:pan-y;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-snap-type:none;cursor:grab;user-select:none;-webkit-user-select:none}
+/* geser ditangani shop-page.js (roda/seret/sentuh + momentum): pan-y = jari horizontal diberikan ke skrip, daftar vertikal tetap bisa digulir; snap dimatikan agar tidak melawan seretan */
+#cards.drag{cursor:grabbing}
+#cards.drag .card{pointer-events:none}
+#cards img{-webkit-user-drag:none;user-drag:none}
+#cards.history-view{cursor:auto;user-select:auto;-webkit-user-select:auto}
+
+/* lapisan gelap modal/dialog/iklan/hadiah menutup SELURUH layar (bukan hanya kanvas 16:9): sisi kiri-kanan sama gelapnya dengan tengah.
+   --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi fit() di shop-page.js); #stage overflow:visible. */
+#modal,#dlg,#ad,#rw{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}

@@ -17,5 +17,5 @@
     starter: false,
     desc: "Serigala baja dengan surai duri petir. Awan badai di atasnya menyambar tanah dan surainya secara acak.",
     visual: {"accent":"#7fd0ff","colors":["#5a6a8a","#e8f4ff","#7fd0ff"]},
-    assets: { image: "assets/images/ui/pet/storm-wolf.webp", sfx: ["data/inventory/pet/items/storm_wolf/sfx/storm-wolf-howl.mp3", "data/inventory/pet/items/storm_wolf/sfx/storm-wolf-thunder.mp3", "assets/audio/sfx/pet/storm-wolf-zap.mp3"] }
+    assets: { image: "data/inventory/pet/items/storm_wolf/storm-wolf.webp", sfx: ["data/inventory/pet/items/storm_wolf/sfx/storm-wolf-howl.mp3", "data/inventory/pet/items/storm_wolf/sfx/storm-wolf-thunder.mp3", "assets/audio/sfx/pet/storm-wolf-zap.mp3"] }
 });

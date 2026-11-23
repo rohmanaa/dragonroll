@@ -34,7 +34,7 @@ t('spa-host: frame.html = view; canon memetakan semua tab view; frame-guard & pr
   assert(/'frame\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
   assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' });
 });
-t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 4 tab (Karakter/Frame/Dadu/Efek), klik tab lain = buka halamannya; tab aktif diabaikan; tab terakhir Inventory tidak diingat; unmount melepas class', () => {
+t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 3 tab (Karakter/Dadu/Efek; Frame = modal di Profil), klik tab lain = buka halamannya; tab aktif diabaikan; tab terakhir Inventory tidak diingat; unmount melepas class', () => {
   const classes = new Set(), appended = [], title = { textContent: 'Frame' }, store = {}, snds = [], navs = [];
   const stage = { appendChild: el => appended.push(el) };
   let barClick = null;
@@ -45,16 +45,16 @@ t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 4 ta
   };
   global.sessionStorage = { setItem: (k, v) => { store[k] = v; }, removeItem: k => { delete store[k]; } };
   const disposers = [], env = { own: fn => disposers.push(fn) };
-  const bar = InvTabs.mountChrome(env, 'frame', u => navs.push(u), s => snds.push(s));
+  const bar = InvTabs.mountChrome(env, 'dadu', u => navs.push(u), s => snds.push(s));
   assert.strictEqual(appended[0], bar); assert(bar.id === 'invtabs');
   assert.strictEqual(title.textContent, 'Perlengkapan'); assert(classes.has('inv-view'));
-  assert.strictEqual((bar.innerHTML.match(/class="tab/g) || []).length, 4);
-  assert(/class="tab on" type="button" data-k="frame"/.test(bar.innerHTML));
+  assert.strictEqual((bar.innerHTML.match(/class="tab/g) || []).length, 3);
+  assert(/class="tab on" type="button" data-k="dadu"/.test(bar.innerHTML));
   assert.strictEqual(store['ut-inv-tab'], undefined);
-  barClick({ target: { closest: () => ({ dataset: { k: 'frame' } }) } });
-  assert.deepStrictEqual(navs, []);
   barClick({ target: { closest: () => ({ dataset: { k: 'dadu' } }) } });
-  assert.deepStrictEqual(navs, ['dadu.html']); assert.deepStrictEqual(snds, ['button']); assert.strictEqual(store['ut-inv-tab'], undefined);
+  assert.deepStrictEqual(navs, []);
+  barClick({ target: { closest: () => ({ dataset: { k: 'efek' } }) } });
+  assert.deepStrictEqual(navs, ['efek.html']); assert.deepStrictEqual(snds, ['button']); assert.strictEqual(store['ut-inv-tab'], undefined);
   disposers.forEach(f => f()); assert(!classes.has('inv-view'));
   delete global.document; delete global.sessionStorage;
 });

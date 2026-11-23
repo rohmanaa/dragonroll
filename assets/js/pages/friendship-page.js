@@ -26,6 +26,11 @@ UT.PageModule.define('friendship', function (env) {
   let statsInFlight = null;
   let appearanceInFlight = null;
   let modalAction = null;
+  /* Kirim hati (tahap 2): status per teman dari server (hearts_friends) */
+  const HS = () => window.UT && UT.HeartsService && UT.HeartsService.get();
+  const gifts = Object.create(null);          // id(lowercase) -> { sent, gold }
+  let giftInfo = { limit: 25, sent: 0, fee: 1, feeGold: 2, known: false };
+  let giftBusy = false;
 
   /* Semua langkah muat data dibatasi waktu: janji yang menggantung (presence, getSession, RPC) tidak boleh
      membuat daftar "Memuat teman..." selamanya dan tidak boleh mengunci loadInFlight. */
@@ -130,6 +135,49 @@ UT.PageModule.define('friendship', function (env) {
       : avatar;
   }
 
+  function giftButton(friend) {
+    const g = gifts[String(friend.id).toLowerCase()];
+    if (!g) return `<button class="stat lk" type="button" disabled title="Kirim hati belum tersedia" aria-label="Kirim hati belum tersedia"><img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""><b>—</b></button>`;
+    const fee = g.gold ? giftInfo.feeGold : giftInfo.fee;
+    const full = giftInfo.sent >= giftInfo.limit;
+    const cls = 'stat lk' + (g.gold ? ' gold' : '') + (g.sent ? ' sent' : '');
+    const label = g.sent ? 'Hati sudah dikirim hari ini' : full ? 'Batas harian tercapai' : `Kirim hati ke ${friend.name} (+${fee} Emerald untukmu)`;
+    return `<button class="${cls}" type="button" data-action="gift"${g.sent || full ? ' disabled' : ''} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""><b>${g.sent ? '✓' : '+' + fee}</b></button>`;
+  }
+
+  async function loadGifts() {
+    const svc = HS();
+    if (!authed || !svc || !svc.enabled()) return;
+    const r = await svc.friends();
+    if (env.disposed || !r || !r.ok) return;
+    Object.keys(gifts).forEach(id => delete gifts[id]);
+    (r.friends || []).forEach(row => { gifts[String(row.friend_id).toLowerCase()] = { sent: !!row.sent_today, gold: !!row.gold }; });
+    giftInfo = { limit: r.limit || 25, sent: r.sent_today | 0, fee: r.fee || 1, feeGold: r.fee_gold || 2, known: true };
+    render();
+  }
+
+  async function sendGift(id, name) {
+    if (giftBusy) return;
+    giftBusy = true;
+    try {
+      const r = await HS().send(id);
+      if (env.disposed) return;
+      if (r && r.ok) {
+        const g = gifts[id.toLowerCase()] || (gifts[id.toLowerCase()] = {});
+        g.sent = true; g.gold = !!r.gold;
+        giftInfo.sent = r.sent_today | 0;
+        toast(`Hati terkirim ke ${name}! +${r.fee} Emerald`);
+        if (WS() && WS().refresh) WS().refresh().then(renderCurrency, () => {});
+      } else {
+        const why = { 'sudah-dikirim': 'Hari ini kamu sudah kirim hati ke teman ini.', 'batas-harian': `Batas ${giftInfo.limit} teman per hari tercapai.`,
+          'bukan-teman': 'Kalian belum berteman.', 'belum-login': 'Masuk dulu untuk mengirim hati.' }[r && r.reason] || 'Gagal mengirim hati. Periksa koneksi.';
+        toast(why);
+        if (r && (r.reason === 'sudah-dikirim' || r.reason === 'batas-harian')) loadGifts();
+      }
+      render();
+    } finally { giftBusy = false; }
+  }
+
   function renderTabs(onlineCount) {
     const tabs = [
       ['online', `ONLINE <i>${onlineCount}</i>`],
@@ -179,9 +227,7 @@ UT.PageModule.define('friendship', function (env) {
       const statHtml = isRequest ? '' : `<div class="cell"><b>${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small>POSISI</small></div>
         <div class="cell"><b>${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small>LEVEL</small></div>
         <div class="stat tr" title="Kemenangan"><img src="assets/images/ui/white-glyphs/piala.webp" alt=""><b>${stats.wins == null ? '—' : fmt(stats.wins)}</b></div>
-        <button class="stat lk" type="button" disabled title="Fitur suka belum tersedia" aria-label="Fitur suka belum tersedia">
-          <img src="assets/images/ui/white-glyphs/hati-garis.webp" alt=""><b>—</b>
-        </button>`;
+        ${giftButton(friend)}`;
       const removeButton = isRequest ? '' : `<button class="rm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/images/ui/white-glyphs/tong-sampah.webp" alt=""></button>`;
       return `<article class="row fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
         ${avatarHtml(friend)}
@@ -316,6 +362,7 @@ UT.PageModule.define('friendship', function (env) {
       render();
       loadStats();
       loadAppearance();
+      loadGifts();
     } catch (error) {
       console.warn('[friendship] gagal memuat teman', error);
       loadError = 'Teman tidak dapat dimuat. Mencoba lagi...';
@@ -393,6 +440,7 @@ UT.PageModule.define('friendship', function (env) {
     if (!friend) return;
     const action = button.dataset.action;
 
+    if (action === 'gift') { sendGift(id, friend.name); return; }
     if (action === 'invite') {
       nav(`room.html?mode=online&format=solo&count=4&invite=${encodeURIComponent(id)}`);
       return;
