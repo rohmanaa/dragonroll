@@ -21,7 +21,8 @@ const kitOK=i=>!!(window.DiceKit&&i&&window.DiceKit.has(i.gameKey));
 const THUMBS=new Map();
 /* jepretan dadu 3D asli (material, cahaya, kamera sama dengan pratinjau); dipakai bersama antar kunjungan halaman */
 const SNAP=window.__diceSnap||(window.__diceSnap=new Map());
-const art=i=>{try{if(kitOK(i)){let u=SNAP.get(i.gameKey)||THUMBS.get(i.gameKey);if(!u){u=window.DiceKit.thumb(i.gameKey,300);if(u)THUMBS.set(i.gameKey,u)}if(u)return '<img class="dthumb" src="'+u+'" alt="" draggable="false">'}}catch(e){}return AR.dice(i.id)};
+/* kartu = FOTO statis dari data/inventory/dice/<gameKey>/<gameKey>.webp (tanpa render 3D); foto belum ada -> cadangan SVG ItemArt */
+const art=i=>{try{if(i&&i.gameKey)return '<img class="dthumb" src="data/inventory/dice/'+i.gameKey+'/'+i.gameKey+'.webp" alt="" draggable="false" decoding="async" onerror="this.onerror=null;this.outerHTML=window.ItemArt?ItemArt.dice(\''+i.id+'\'):\'\'">'}catch(e){}return AR.dice(i.id)};
 /* ---- DiceKit: dadu 3D asli (fisika kocok-lempar, material, partikel, suara); angka lempar hanya visual ---- */
 /* Ukuran dadu di layar = ukuran kanvas / (jarak kamera ~ camScale). Kanvas pratinjau di modal 500px tinggi: camScale .45 (ukuran dadu ~ kanvas/camScale) = ukuran dadu sama dengan kanvas 700px/.628 sebelumnya. */
 const CAM_SCALE=.45;
@@ -256,7 +257,7 @@ env.addEventListener('resize',fit);fit();
 /* unmount: DiceKit dibuang (animasi, listener, fisika) dan renderer bersama dilepas */
 env.own(()=>{disposeKit();stopSnaps()});
 draw();
-if(window.DiceKit){mountKit();syncKit();buildSnaps()}
-env.addEventListener('dicekit-ready',()=>{draw();buildSnaps();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
+if(window.DiceKit){mountKit();syncKit()}
+env.addEventListener('dicekit-ready',()=>{draw();if(previewOpen()){mountKit();syncKit()}}); /* kit siap -> kartu berganti ke warna asli; dadu 3D bila modal sedang terbuka */
 document.documentElement.classList.add('ut-ready');
 });

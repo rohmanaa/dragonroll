@@ -133,9 +133,11 @@
     return fallback(host, item); /* frame & cadangan: ItemArt (FrameFX menganimasikan frame otomatis) */
   }
 
+  /* kartu dadu = FOTO statis data/inventory/dice/<gameKey>/<gameKey>.webp (tanpa render 3D); foto belum ada -> cadangan ItemArt */
   function diceThumb(item) {
-    try { if (item && item.kind === 'dice' && g.DiceKit && g.DiceKit.has(item.gameKey)) { var u = g.DiceKit.thumb(item.gameKey, 160); if (u) return '<img class="dthumb" src="' + u + '" alt="" draggable="false">'; } } catch (e) {}
-    return '';
+    if (!item || item.kind !== 'dice' || !item.gameKey) return '';
+    return '<img class="dthumb" src="data/inventory/dice/' + item.gameKey + '/' + item.gameKey + '.webp" alt="" draggable="false" decoding="async" ' +
+      'onerror="this.onerror=null;this.outerHTML=window.ItemArt?ItemArt.forItem(\'' + item.id + '\'):\'\'">';
   }
 
   UT.ShopPreview = { mount: mount, diceThumb: diceThumb };
