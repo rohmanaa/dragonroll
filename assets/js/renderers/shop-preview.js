@@ -154,7 +154,7 @@
         o[k] = p.set[k] ? { id: p.set[k].id, dye: p.set[k].dye } : { id: 'none' };
       });
       (p.set.accessories || []).forEach(function (a) { o.accessories.push({ id: a.id, dye: a.dye }); });
-      var ch = BC.create(T); ch.apply(o, true); ch.setMode('idle'); ch.tick(.016);
+      var ch = BC.create(T); if (ch.setPreviewAll) ch.setPreviewAll(true); /* tampilkan SEMUA bagian set, termasuk yang belum dimiliki */ ch.apply(o, true); ch.setMode('idle'); ch.tick(.016);
       var scene = new T.Scene(), cam = new T.PerspectiveCamera(30, 256 / 320, .1, 100);
       scene.add(new T.AmbientLight(0xffffff, .6), new T.HemisphereLight(0xcfeaff, 0x6a9a50, .45));
       var sun = new T.DirectionalLight(0xfff2d8, .8); sun.position.set(4, 9, 7); scene.add(sun);

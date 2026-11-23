@@ -295,8 +295,8 @@ button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) cente
 /* performa gulir: kartu item tanpa drop-shadow besar di seluruh kartu & tanpa animasi gambar terus-menerus; render kartu di luar layar ditunda */
 .card.item.fx{filter:none}
 .card.item.fx .pic img{animation:none;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
-.card.item{contain:layout paint style;content-visibility:auto;contain-intrinsic-size:auto 700px 394px}
-#cards{will-change:scroll-position;transform:translateZ(0)}
+/* gulir ke samping di HP: jangan pakai contain/content-visibility (merusak lebar scroll & memotong bayangan kartu) */
+#cards{touch-action:pan-x;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 
 /* lapisan gelap modal/dialog/iklan/hadiah menutup SELURUH layar (bukan hanya kanvas 16:9): sisi kiri-kanan sama gelapnya dengan tengah.
    --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi fit() di shop-page.js); #stage overflow:visible. */

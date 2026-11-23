@@ -1176,7 +1176,7 @@ function loadFromData(look,equipped,gearDye){
   try{loadLook(look||null,G);}catch(e){cfg=clone(DEFAULT);apply(null,true);}
 }
 apply(null,true);
-return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,bow:bowG,arrow:arrowG,bowReleaseAt:function(dur){return BOW_REL*(dur||ACT_DUR.bow);},setBowAim:function(v){bowAim=clamp(+v||0,0,1.1);},get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
+return{root:root,hand:hand,tick:tick,jump:jump,setMode:setMode,act:doAct,setTool:setTool,bow:bowG,arrow:arrowG,bowReleaseAt:function(dur){return BOW_REL*(dur||ACT_DUR.bow);},setBowAim:function(v){bowAim=clamp(+v||0,0,1.1);},get strikes(){return strikeN;},loadFromPlayer:loadFromPlayer,loadFromData:loadFromData,setPreviewAll:function(v){previewAll=!!v;},loadPreset:loadPreset,presetCount:PRESETS.length,apply:apply,
   get acting(){return act?act.type:null;},
   get config(){return clone(cfg);},get airborne(){return airborne;},
   height:function(){return 2*root.scale.y;}};
