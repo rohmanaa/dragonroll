@@ -8,6 +8,9 @@
 window.UT_Preload = (function () {
   var CONC = 6, DEF_SIZE = 30000, EXT_SIZE = 80000, TIMEOUT = 20000, RETRY = 1;
   function kindOf(u) { var e = (u.split('?')[0].match(/\.([a-z0-9]+)$/i) || [])[1]; e = (e || '').toLowerCase(); if (/^(mp3|ogg|wav|webm|m4a)$/.test(e)) return 'audio'; if (/^(png|webp|jpe?g|gif|svg)$/.test(e)) return 'gambar'; if (/^(js|css|html|woff2?)$/.test(e)) return 'kode'; return 'data'; }
+  /* hook log: UT_Preload.onFile = function(ev){...}; ev.type = sys | plan | cache | start | ok | fail (dipakai system log di splash) */
+  var api = {};
+  function emit(ev) { try { if (api.onFile) api.onFile(ev); } catch (e) {} }
   var MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav|webm|m4a)$/i;
   function isMedia(u) { return !isExt(u) && MEDIA.test(u.split('?')[0]); }
   /* tunggu service worker aktif & mengendalikan halaman, supaya semua unduhan masuk cache perangkat (maks 3 dtk; tanpa SW tetap jalan) */
@@ -38,15 +41,17 @@ window.UT_Preload = (function () {
     var curKind = 'kode';
     function load(i) {
       return new Promise(function (res) {
-        var fin = false, tm, u = list[i];
-        if (cached[i]) { got[i] = exp[i]; doneN++; res(); return; } /* sudah ada di perangkat */
+        var fin = false, tm, u = list[i], bad = false, t1 = performance.now();
+        if (cached[i]) { got[i] = exp[i]; doneN++; emit({ type: 'cache', url: u, kind: kindOf(u), bytes: exp[i] }); res(); return; } /* sudah ada di perangkat */
         curKind = kindOf(u);
-        function done() { if (fin) return; fin = true; clearTimeout(tm); got[i] = exp[i]; doneN++; res(); }
-        function arm() { clearTimeout(tm); tm = setTimeout(done, TIMEOUT); } /* timeout = tanpa byte baru selama TIMEOUT */
+        emit({ type: 'start', url: u, kind: curKind, bytes: exp[i] });
+        function done() { if (fin) return; fin = true; clearTimeout(tm); var ok = !bad; got[i] = exp[i]; doneN++; emit({ type: ok ? 'ok' : 'fail', url: u, kind: curKind, bytes: exp[i], ms: Math.round(performance.now() - t1) }); res(); }
+        function arm() { clearTimeout(tm); tm = setTimeout(function () { bad = true; done(); }, TIMEOUT); } /* timeout = tanpa byte baru selama TIMEOUT */
         function attempt(n) {
           arm();
           try {
             fetch(u, isExt(u) ? { mode: 'no-cors' } : {}).then(function (r) {
+              if (!isExt(u) && r.status >= 400 && r.status < 500) bad = true;
               if (!isExt(u) && r.status >= 500 && n < RETRY) { got[i] = 0; return new Promise(function (ok) { setTimeout(ok, 400); }).then(function () { return attempt(n + 1); }); }
               if (isExt(u) || !r.body || !r.body.getReader) return r.arrayBuffer();
               var cl = parseInt(r.headers.get('content-length'), 10);
@@ -62,6 +67,7 @@ window.UT_Preload = (function () {
               })();
             }, function () {
               if (n < RETRY) { got[i] = 0; return new Promise(function (ok) { setTimeout(ok, 400); }).then(function () { return attempt(n + 1); }); }
+              bad = true;
             }).then(done, done);
           } catch (e) { done(); }
         }
@@ -73,7 +79,8 @@ window.UT_Preload = (function () {
       var i = next++;
       return load(i).then(worker);
     }
-    return swReady().then(function () { return cachedFlags(list); }).then(function (flags) { cached = flags; return new Promise(function (resolve) {
+    emit({ type: 'sys', msg: 'Menyiapkan cache…' });
+    return swReady().then(function () { emit({ type: 'sys', msg: 'Cek aset tersimpan…' }); return cachedFlags(list); }).then(function (flags) { cached = flags; var cn = flags.filter(Boolean).length; emit({ type: 'plan', total: N, cached: cn, urls: list }); return new Promise(function (resolve) {
       for (var w = 0; w < Math.min(CONC, N); w++) worker();
       function paint(now) {
         var a = 0, b = 0;
@@ -95,6 +102,7 @@ window.UT_Preload = (function () {
   function runAuto(extra, onProgress) {
     var base = 'assets/preload-manifest.json';
     var tm = new Promise(function (r) { setTimeout(function () { r(null); }, 4000); });
+    emit({ type: 'sys', msg: 'Memuat daftar aset…' });
     var man = fetch(base).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
     return Promise.race([man, tm]).then(function (m) {
       m = m || {};
@@ -103,5 +111,6 @@ window.UT_Preload = (function () {
       return run(urls, onProgress, 0, m);
     });
   }
-  return { run: run, runAuto: runAuto };
+  api.run = run; api.runAuto = runAuto;
+  return api;
 })();

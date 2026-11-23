@@ -66,6 +66,36 @@ const ASSETS=[
 ];
 ASSETS.unshift(dest.split("?")[0]);
 let pct=0;
+
+/* ---- SYSTEM LOG ringkas: per KATEGORI ("Loading script... 3/12"); persen total (bar) muncul di ujung kanan saat kategori selesai ---- */
+const LOG=(()=>{
+  const head=$("#sl-head"),list=$("#sl-list");
+  if(!head||!list)return{sys(){},ev(){}};
+  const CATS=[["halaman","halaman"],["style","style"],["script","script"],["data","data"],["font","font"],["gambar","gambar"],["efek","efek"],["sfx","sfx"],["musik","musik"]];
+  const cat=u=>{const p=u.split("?")[0],x=((p.match(/\.([a-z0-9]+)$/i)||[])[1]||"").toLowerCase();
+    if(/^(mp3|ogg|m4a|opus|wav)$/.test(x)||(x==="webm"&&/audio/.test(p)))return/\/sfx\//.test(p)?"sfx":"musik";
+    if(/^(png|webp|jpe?g|gif|svg|ico)$/.test(x))return/\/effects\/|\/aura\/|(^|[-_\/])(fx|efek|fog|particle|spark|glow)([-_.\d]|$)/i.test(p)?"efek":"gambar";
+    if(x==="js")return"script";if(x==="css")return"style";if(x==="html")return"halaman";if(/^woff2?$|^ttf$/.test(x))return"font";return"data"};
+  const C={};let sysMsg="",total=0,done=0,dirty=false,urlCat={};
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function paint(){if(dirty)return;dirty=true;requestAnimationFrame(()=>{dirty=false;
+    head.textContent="SYSTEM LOG"+(total?" · "+done+"/"+total:"");
+    let h=sysMsg?'<div class="sys"><span>▸ '+esc(sysMsg)+'</span></div>':"";
+    for(const[k]of CATS){const c=C[k];if(!c)continue;
+      const fin=c.done>=c.total,cls=fin?"ok":c.done>0?"run":"wait";
+      h+='<div class="'+cls+'"><span>'+(fin?"✓ ":"")+"Loading "+k+"... "+c.done+"/"+c.total+'</span><b>'+(fin?c.pct+"%":"")+'</b></div>'}
+    list.innerHTML=h})}
+  function ev(e){
+    if(e.type==="sys"){sysMsg=e.msg;return paint()}
+    if(e.type==="plan"){sysMsg="";total=e.total;(e.urls||[]).forEach(u=>{const k=cat(u);urlCat[u]=k;(C[k]=C[k]||{total:0,done:0,pct:0}).total++});return paint()}
+    if(e.type==="start")return;
+    const c=C[urlCat[e.url]||cat(e.url)];done++;
+    if(c){c.done++;if(c.done>=c.total)c.pct=Math.round(pct)}
+    paint();
+  }
+  return{sys:m=>ev({type:"sys",msg:m}),ev};
+})();
+try{window.UT_Preload&&(UT_Preload.onFile=LOG.ev)}catch(e){}
 function mb(b){return (b/1048576).toFixed(b<10485760?1:0)}
 /* info.fresh = ada aset yang belum tersimpan di perangkat -> tampilkan "Mengunduh aset" (hanya sekali); selain itu "Loading" biasa */
 function setPct(p,kind,info){pct=p;$("#fill").style.width=p+"%";
@@ -99,15 +129,15 @@ try{window.PlayerData&&PlayerData.snapshot()}catch(e){} /* jalankan migrasi/muat
 if(quick){document.body.classList.add("quick");afterLoad()}
 else{
   /* URUTAN: 1) cek pembaruan ke server DULU (sebelum mengunduh aset apa pun) -> 2) bila ada, modal Unduh Data (X = tunda) -> 3) baru bar loading memuat aset */
-  $("#lbl").textContent="Memeriksa pembaruan…";
+  $("#lbl").textContent="Memeriksa pembaruan…";LOG.sys("Cek pembaruan…");
   Promise.resolve(UT.Update&&UT.Update.promptOnSplash(4000,{
     /* modal hanya konfirmasi; progres unduhan pembaruan tampil di bar splash ini */
     progress:ev=>{const p=ev.total>0?Math.min(100,Math.round(ev.loaded/ev.total*100)):0;$("#fill").style.width=p+"%";
       $("#lbl").textContent="Mengunduh pembaruan… "+(ev.total>0?mb(ev.loaded)+" / "+mb(ev.total)+" MB ("+p+"%)":"")},
-    status:t=>{$("#lbl").textContent=t;if(/^Mengunduh/.test(t))$("#fill").style.width="0%";else if(/^(Menyiapkan|Memulai)/.test(t))$("#fill").style.width="100%"}
+    status:t=>{$("#lbl").textContent=t;LOG.sys(t);if(/^Mengunduh/.test(t))$("#fill").style.width="0%";else if(/^(Menyiapkan|Memulai)/.test(t))$("#fill").style.width="100%"}
   })).catch(()=>{})
     .then(()=>UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}))
-    .then(()=>{setPct(100);setTimeout(afterLoad,300)});
+    .then(()=>{setPct(100);LOG.sys("Siap ✓ cek login…");setTimeout(afterLoad,300)});
 }
 
 /* ---- dialog login / sign up ---- */
