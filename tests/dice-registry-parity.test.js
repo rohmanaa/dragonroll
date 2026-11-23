@@ -74,7 +74,7 @@ t('Harga: tepat satu mata uang per Dice yang dijual; koin T1-T4, emerald T5-T7; 
   items.forEach(i => { if (i.starter) { assert.strictEqual(i.id, 'dice.klasik'); assert.strictEqual(i.price, 0); assert.strictEqual(i.gems, null); }
     else assert.ok((i.price > 0) !== (i.gems > 0), i.id + ' harus tepat satu mata uang'); });
   const coin = items.filter(i => i.price > 0).map(i => i.price), gem = items.filter(i => i.gems > 0).map(i => i.gems);
-  assert.deepStrictEqual([...new Set(coin)].sort((a, b) => a - b), [500, 1500, 9000, 30000]); assert.deepStrictEqual([...new Set(gem)].sort((a, b) => a - b), [600, 1500, 2000, 3000]);
+  assert.deepStrictEqual([...new Set(coin)].sort((a, b) => a - b), [500, 1500, 9000, 30000]); assert.deepStrictEqual([...new Set(gem)].sort((a, b) => a - b), [600, 1500, 3000]);
 });
 
 /* ---- ItemCatalog ---- */

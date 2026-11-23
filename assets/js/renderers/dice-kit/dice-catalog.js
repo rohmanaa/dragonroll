@@ -191,9 +191,9 @@ const RAW = [
     effect: { particleType: 'flame', colors: ['#ff2a1a', '#ff8a2a', '#a020ff'], glowColor: '#ff2a3a', landingEffect: 'dragonExplosion', idleEffect: 'flames', rollEffect: 'flame', resultEffect: 'halo', soundEffect: 'dragon' },
   },
   {
-    id: 'matrix', name: 'Matrix Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Matrix Code',
-    material: { pattern: 'sculk', base: '#04140a', accent: '#22ff66', roughness: 0.3, metalness: 0.4, emissive: '#22ff66', glowMap: true, clearcoat: 1, pip: { color: '#b6ffcf', glow: true } },
-    effect: { particleType: 'energy', colors: ['#22ff66', '#b6ffcf', '#0a7a2e'], glowColor: '#22ff66', landingEffect: 'sonic', idleEffect: 'float', rollEffect: 'trail', soundEffect: 'sonic', soundGain: 1.2 },
+    id: 'matrix', name: 'Matrix Epik', collection: 'mythical', rarity: 'epic', materialName: 'Matrix Code',
+    material: { pattern: 'matrix', base: '#04140a', accent: '#22ff66', roughness: 0.3, metalness: 0.45, emissive: '#22ff66', glowMap: true, clearcoat: 1, pip: { color: '#b6ffcf', glow: true } },
+    effect: { particleType: 'code', colors: ['#22ff66', '#b6ffcf', '#0a9a3a'], glowColor: '#22ff66', particleCount: 80, particleSize: 0.085, glowIntensity: 1.1, emissiveIntensity: 0.55, landingEffect: 'matrixCode', idleEffect: 'code', rollEffect: 'code', resultEffect: 'decode', soundEffect: 'matrix', resultSound: 'matrixPing', soundGain: 1.15 },
   },
 ];
 
@@ -231,7 +231,7 @@ export const EFFECT_FIELDS = Object.freeze([
 /** Dipakai oleh test: memastikan katalog valid dan tidak ada field yang memengaruhi peluang angka. */
 export function validateCatalog() {
   const errors = [];
-  if (DICE_CATALOG.length !== 23) errors.push(`Harus 23 dadu, ada ${DICE_CATALOG.length}`);
+  if (DICE_CATALOG.length !== 24) errors.push(`Harus 24 dadu, ada ${DICE_CATALOG.length}`);
   const ids = new Set();
   for (const d of DICE_CATALOG) {
     if (ids.has(d.id)) errors.push(`ID ganda: ${d.id}`);

@@ -40,7 +40,7 @@ from (values
   ('dice.iron', 1500, null),
   ('dice.lapis', 9000, null),
   ('dice.magma', null, 600),
-  ('dice.matrix', null, 2000),
+  ('dice.matrix', 30000, null),
   ('dice.netherite', null, 1500),
   ('dice.obsidian', 30000, null),
   ('dice.prismarine', null, 600),

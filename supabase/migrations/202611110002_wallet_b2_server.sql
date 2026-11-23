@@ -55,7 +55,7 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('dice.klasik', 'dice', null, true, false),
   ('dice.lapis', 'dice', 9000, false, false),
   ('dice.magma', 'dice', null, false, false),
-  ('dice.matrix', 'dice', null, false, false),
+  ('dice.matrix', 'dice', 30000, false, false),
   ('dice.netherite', 'dice', null, false, false),
   ('dice.obsidian', 'dice', 30000, false, false),
   ('dice.prismarine', 'dice', null, false, false),

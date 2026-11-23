@@ -44,6 +44,27 @@ export const PATTERNS = {
   netherite(c, g, S, r, m) { gradient(c, S, '#3a3436', '#1e1a1c'); streaks(c, S, r, '#000000', 60, S * 0.6, S / 160, 0.3); speckle(c, S, r, [m.accent, '#5a4a3a', '#c8905a'], 200, 1, S / 45, 0.8); tiles(c, S, r, ['rgba(0,0,0,0)'], 4, rgba('#c8905a', 0.35)); border(c, S, '#c8905a', '#000000'); },
   sculk(c, g, S, r, m) { c.fillStyle = m.base; c.fillRect(0, 0, S, S); blotches(c, S, r, '#12507a', 12, S * 0.05, S * 0.16, 0.6); blotches(c, S, r, m.accent, 14, S * 0.02, S * 0.07, 0.8); veins(c, S, r, '#22d3ee', 3, S / 140, 0.5); if (g) { g.fillStyle = '#000'; g.fillRect(0, 0, S, S); blotches(g, S, r, '#ffffff', 14, S * 0.02, S * 0.07, 0.9); veins(g, S, r, '#8affff', 3, S / 140, 0.6); } border(c, S, '#22d3ee', '#020a14'); },
   ender(c, g, S, r, m) { c.fillStyle = m.base; c.fillRect(0, 0, S, S); blotches(c, S, r, '#3a1070', 10, S * 0.06, S * 0.2, 0.6); swirl(c, S, r, m.accent, 0.7); swirl(c, S, r, '#40ffa0', 0.4); speckle(c, S, r, ['#ff7af0', '#ffffff'], 60, 1, S / 70, 0.9); if (g) { g.fillStyle = '#000'; g.fillRect(0, 0, S, S); swirl(g, S, r, '#ffffff', 0.8); speckle(g, S, r, ['#ffffff'], 60, 1, S / 70, 1); } border(c, S, '#e020c8', '#05000a'); },
+  matrix(c, g, S, r, m) {
+    /* Hujan kode Matrix: kolom glyph hijau (kepala terang, ekor memudar) + jejak sirkuit; glyph ikut menyala di peta glow. */
+    c.fillStyle = m.base; c.fillRect(0, 0, S, S);
+    blotches(c, S, r, '#0a5a24', 10, S * 0.05, S * 0.16, 0.5);
+    const cols = 12, cw = S / cols, fs = Math.round(cw * 0.9), GL = '01010110ABCDEF<>/=+*:'.split('');
+    c.font = 'bold ' + fs + 'px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    if (g) { g.fillStyle = '#000'; g.fillRect(0, 0, S, S); g.font = c.font; g.textAlign = 'center'; g.textBaseline = 'middle'; }
+    for (let x = 0; x < cols; x++) {
+      const len = 4 + ((r() * 11) | 0), y0 = r() * S;
+      for (let k = 0; k < len; k++) {
+        const y = (y0 + k * fs * 1.05) % S, t = (k + 1) / len, head = k === len - 1, ch = GL[(r() * GL.length) | 0];
+        c.fillStyle = head ? rgba('#d8ffe6', 0.95) : rgba(m.accent, 0.18 + t * 0.6);
+        c.fillText(ch, x * cw + cw / 2, y);
+        if (g) { g.fillStyle = head ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,' + (0.12 + t * 0.5) + ')'; g.fillText(ch, x * cw + cw / 2, y); }
+      }
+    }
+    veins(c, S, r, m.accent, 4, S / 150, 0.55);
+    speckle(c, S, r, ['#b6ffcf', m.accent], 60, 1, S / 90, 0.8);
+    if (g) veins(g, S, r, '#9affc0', 4, S / 150, 0.6);
+    border(c, S, '#22ff66', '#020a05');
+  },
   dragon(c, g, S, r, m) { c.fillStyle = m.base; c.fillRect(0, 0, S, S); scales(c, S, m.accent, 0.8); scales(c, S, '#7a20c0', 0.35, 6); blotches(c, S, r, '#400010', 10, S * 0.06, S * 0.16, 0.6); veins(c, S, r, '#a020ff', 3, S / 130, 0.5); if (g) { g.fillStyle = '#000'; g.fillRect(0, 0, S, S); scales(g, S, '#ffffff', 0.7); veins(g, S, r, '#c060ff', 3, S / 130, 0.7); } border(c, S, '#ff3040', '#000000'); },
 };
 
