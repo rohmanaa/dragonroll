@@ -106,6 +106,8 @@
     frame('phoenix', 'Phoenix', 'legendary', 5500, 'Frame api phoenix bersayap; lidah api hidup dan bulu membara naik ke atas.', 'phoenix.webp'),
     frame('celestial','Surgawi', 'legendary', 7500, 'Frame surgawi bersayap dengan halo berputar, sinar emas, dan bintang berkilau.', 'celestial.webp'),
     frame('cosmic',  'Kosmik', 'legendary', 8000, 'Frame kosmik dengan bintang yang mengorbit dan nebula warna-warni yang bergerak.', 'cosmic.webp'),
+    /* Frame hadiah (tidak dijual): diberikan server saat klaim login Hari 30 (claim_daily_reward). price/gems null = tidak muncul di Toko. */
+    frame('setia',   'Setia', 'legendary', null, 'Frame zamrud eksklusif untuk pemain yang login 30 hari berturut-turut. Tidak dijual.', 'setia.webp', { source: 'event', group: 'Login' }),
 
     /* ---- Skin karakter ---- */
     skin('steve',    'Steve',    'Default',   'common', 0,   'Petualang blok klasik. Siap melangkah ke petak mana pun.'),
@@ -429,6 +431,8 @@
     var it = { id: m.id, kind: 'frame', gameKey: m.gameKey, name: m.name, rarity: m.rarity, price: m.price == null ? null : m.price,
       desc: m.desc, starter: !!m.starter, image: m.assets.image, gems: m.gems == null ? null : m.gems };
     if (m.featured) it.featured = true;
+    if (m.source) it.source = m.source;   /* frame hadiah (mis. Setia: 'event') tidak dijual */
+    if (m.group) it.group = m.group;
     return it;
   }
   function petFromManifest(m) {

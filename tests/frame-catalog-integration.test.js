@@ -26,12 +26,12 @@ const ICl = legacy.ItemCatalog, ICr = viaReg.ItemCatalog;
 t('jalur Registry aktif bila skrip dimuat; jalur cadangan bila tidak (diagnostik frameSource)', () => {
   assert.strictEqual(ICr.frameSource(), 'registry'); assert.strictEqual(ICl.frameSource(), 'legacy');
 });
-t('ItemCatalog: 168 item, kedua jalur', () => { assert.strictEqual(base.total, 168); assert.strictEqual(ICr.items.length, 168); assert.strictEqual(ICl.items.length, 168); });
+t('ItemCatalog: 169 item, kedua jalur', () => { assert.strictEqual(base.total, 169); assert.strictEqual(ICr.items.length, 169); assert.strictEqual(ICl.items.length, 169); });
 t('ItemCatalog: urutan ID = baseline (kedua jalur)', () => {
   const ids = base.items.map(i => i.id);
   assert.deepStrictEqual(clone(ICr.items.map(i => i.id)), ids); assert.deepStrictEqual(clone(ICl.items.map(i => i.id)), ids);
 });
-t('ItemCatalog: tidak ada ID ganda', () => { assert.strictEqual(new Set(clone(ICr.items.map(i => i.id))).size, 168); });
+t('ItemCatalog: tidak ada ID ganda', () => { assert.strictEqual(new Set(clone(ICr.items.map(i => i.id))).size, 169); });
 t('ItemCatalog: SELURUH item (semua field) sama dengan baseline, jalur Registry dan jalur cadangan', () => {
   assert.deepStrictEqual(clone(ICr.items), base.items); assert.deepStrictEqual(clone(ICl.items), base.items);
 });
@@ -55,7 +55,7 @@ t('ItemCatalog: byId/byGameKey/cost/starters/defaultEquipped/FRAME_TAB_ICON sama
   assert.strictEqual(ICr.FRAME_TAB_ICON, 'data/inventory/frame/_shared/img/icon-frame.webp');
 });
 t('Frame: 14/14 metadata (id, name, kind, rarity, price, gems, starter, desc, featured, image) dari manifest = baseline', () => {
-  const fr = ICr.items.filter(i => i.kind === 'frame'), bf = base.items.filter(i => i.kind === 'frame'); assert.strictEqual(fr.length, 14);
+  const fr = ICr.items.filter(i => i.kind === 'frame'), bf = base.items.filter(i => i.kind === 'frame'); assert.strictEqual(fr.length, 15);
   fr.forEach((f, i) => ['id', 'name', 'kind', 'rarity', 'price', 'gems', 'starter', 'desc', 'featured', 'image', 'gameKey', 'category', 'slot', 'stackable'].forEach(k => assert.strictEqual(f[k], bf[i][k], f.id + '.' + k)));
 });
 t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) — nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
@@ -72,17 +72,17 @@ t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) — n
   assert.strictEqual(s.name, 'Frame Batu UJI'); assert.strictEqual(s.gems, 77); assert.strictEqual(s.price, null);
 });
 t('Registry: item Frame dari katalog berasal dari Registry bersama (shared) dan fallback berfungsi', () => {
-  const reg = viaReg.UT.ItemRegistry.shared(); assert.strictEqual(reg.getCategory('frame').count, 14);
+  const reg = viaReg.UT.ItemRegistry.shared(); assert.strictEqual(reg.getCategory('frame').count, 15);
   assert.strictEqual(reg.getItemOrFallback('frame.tidak-ada').id, 'frame.default'); assert.strictEqual(reg.getItemOrFallback('frame.default').id, 'frame.default');
   assert.strictEqual(reg.rejected().length, 0);
   const f = reg.getItem('frame.storm'); assert.strictEqual(f.visual.tier, 5); assert.strictEqual(f.visual.marginCells, 6); assert.strictEqual(f.visual.fxKey, 'storm');
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali di VM sama tidak menggandakan registrasi / tidak melempar', () => {
   const ctx = boot(true); vm.runInContext(rd('assets/js/item-catalog.js'), ctx);
-  assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(ctx.UT.ItemRegistry.shared().getCategory('frame').count, 14);
+  assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(ctx.UT.ItemRegistry.shared().getCategory('frame').count, 15);
   assert.strictEqual(ctx.UT.ItemRegistry.shared().rejected().length, 0);
 });
-t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 168 item identik baseline', () => {
+t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 169 item identik baseline', () => {
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
   ['assets/js/core/item-registry.js', 'data/inventory/frame/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
@@ -100,11 +100,11 @@ t('PlayerData: perilaku sama di kedua jalur (kepemilikan starter, equip, pemasan
   assert.strictEqual(b.eq, 'frame.default'); assert.strictEqual(b.owns[0], true); assert.strictEqual(b.owns[1], false);
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error', () => {
-  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 168);
+  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 169);
 });
 t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL fase 3) dan frame.default starter (harga server null)', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), blk = /BEGIN TIER PRICE SEED[\s\S]*?END TIER PRICE SEED/.exec(sql)[0];
-  let seen = 0; ICr.items.filter(i => i.kind === 'frame' && !i.starter).forEach(f => {
+  let seen = 0; ICr.items.filter(i => i.kind === 'frame' && !i.starter && i.source !== 'event').forEach(f => {
     const m = new RegExp("\\('" + f.id.replace('.', '\\.') + "', (null|\\d+), (null|\\d+)\\)").exec(blk); assert.ok(m, f.id);
     assert.strictEqual(m[1] === 'null' ? null : +m[1], f.price > 0 ? f.price : null, f.id + ' koin'); assert.strictEqual(m[2] === 'null' ? null : +m[2], f.gems > 0 ? f.gems : null, f.id + ' gems'); seen++;
   });
@@ -124,7 +124,7 @@ t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catal
     CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, p + ' ' + f));
     const fx = s.indexOf('data/inventory/frame/_shared/js/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
 });
-t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 16); });
+t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 17); });
 t('Halaman lain memakai jalur fallback Frame tanpa manifest Frame; Registry kategori lain tidak mengubahnya', () => {
   fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && WIRED.concat(['pet']).indexOf(f.replace('.html', '')) < 0).forEach(f => {
     assert.ok(!/data\/inventory\/frame\/(?!_shared\/)/.test(rd(f)), f); });

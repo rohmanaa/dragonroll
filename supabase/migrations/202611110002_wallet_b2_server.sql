@@ -82,6 +82,7 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('frame.iron', 'frame', 2500, false, false),
   ('frame.nether', 'frame', 20000, false, false),
   ('frame.phoenix', 'frame', null, false, false),
+  ('frame.setia', 'frame', null, false, false),
   ('frame.stone', 'frame', 500, false, false),
   ('frame.storm', 'frame', null, false, false),
   ('gear.acc.beard', 'gear', 100, false, false),

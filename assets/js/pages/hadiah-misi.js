@@ -52,7 +52,7 @@ const R=[
  {t:'400 Coin',ic:C1},{t:'600 Coin',ic:C2},{t:'8 Gem',ic:GM},{t:'1.000 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'12 Gem',ic:GM},{t:'3.000 Coin + 20 Gem',ic:C2},
  {t:'500 Coin',ic:C1},{t:'700 Coin',ic:C2},{t:'10 Gem',ic:GM},{t:'1.200 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'15 Gem',ic:GM},{t:'4.000 Coin + 25 Gem',ic:C2},
  {t:'600 Coin',ic:C1},{t:'800 Coin',ic:C2},{t:'12 Gem',ic:GM},{t:'1.500 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'18 Gem',ic:GM},{t:'3.000 Coin + 20 Gem',ic:C2},
- {t:'2.000 Coin',ic:C1},{t:'6.000 Coin + 50 Gem',ic:'chest-packs/peti-emas'}];
+ {t:'2.000 Coin',ic:C1},{t:'6.000 Coin + 50 Gem',ic:'chest-packs/peti-emas',src:'data/frame/setia.webp',x:'Frame Setia'}];
 function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,today:!!r.claimed_today,box:+r.box||0};DRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const dState=i=>!SD?'wait':i<SD.claimed?'done':(i===SD.claimed&&!SD.today&&SD.claimed<DAYS)?'now':'wait';
 const dayNow=()=>!!SD&&!SD.today&&SD.claimed<DAYS;
@@ -66,9 +66,10 @@ async function claimDay(target){
   const row=R[(r.day||1)-1]||R[0];let msg=row.t;
   if(r.type==='box')msg='Mystery Box ×1 diterima! Buka lewat halaman Hadiah Harian.';
   else if(r.type==='powerup')msg=row.t+' diterima (Power)';
+  if(r.item==='frame.setia')msg+='<br>+ Frame Setia (eksklusif) masuk ke Frame-mu!';
   applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
   playSound('claim');buzz();bump();render();renderCurrency();
-  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+IC+row.ic+'.webp" alt="">'+msg);
+  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+(r.item&&row.src?row.src:IC+row.ic+'.webp')+'" alt="">'+msg);
   rewardBurst($('#box'),r.type==='box'?'chest':r.type==='powerup'?'item':r.gems>0?(r.coins>0?'mixed':'gem'):'coin')}
  finally{dbusy=false}}
 function vHadiah(){
@@ -76,7 +77,7 @@ function vHadiah(){
  if(!SV())h+='<div class="msg">Masuk ke akun untuk<br>mengklaim hadiah harian.</div>';
  h+='<div class="dlist scr" id="dlist"><div class="dgrid">';
  R.forEach((d,i)=>{const n=i+1,st=dState(i),ms=n%7===0,grand=n===DAYS;
-  h+='<div class="dc '+st+(ms?' ms':'')+(grand?' grand':'')+'" data-i="'+i+'"><div class="dn">Hari '+n+'</div><img class="di '+(d.cls||'')+'" src="'+IC+d.ic+'.webp" alt=""><div class="dt">'+d.t+'</div>'+(st==='done'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+'</div>'});
+  h+='<div class="dc '+st+(ms?' ms':'')+(grand?' grand':'')+'" data-i="'+i+'"><div class="dn">Hari '+n+'</div>'+(d.x?'<div class="dx">'+d.x+'</div>':'')+'<img class="di '+(d.cls||'')+'" src="'+(d.src||IC+d.ic+'.webp')+'" alt=""><div class="dt">'+d.t+'</div>'+(st==='done'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+'</div>'});
  h+='</div></div><div class="foot" style="bottom:20px"><div class="note">'+(SD?'Login tiap hari tanpa bolos · Reset 00.00 WIB : <span style="color:#ff6f8d" id="rs">'+resetIn(DRESET)+'</span>':'')+'</div>'+(dayNow()?'<button class="btn cl" data-day="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+'</div>';
  return h}
 

@@ -1,5 +1,5 @@
 {
- "total": 168,
+ "total": 169,
  "api": [
   "CATEGORIES",
   "FRAME_TAB_ICON",
@@ -246,6 +246,24 @@
    "starter": false,
    "image": "data/frame/cosmic.webp",
    "gems": 2000,
+   "category": "aksesori",
+   "slot": "frame",
+   "stackable": false,
+   "featured": false
+  },
+  {
+   "id": "frame.setia",
+   "kind": "frame",
+   "gameKey": "setia",
+   "name": "Frame Setia",
+   "rarity": "legendary",
+   "price": null,
+   "desc": "Frame zamrud eksklusif untuk pemain yang login 30 hari berturut-turut. Tidak dijual.",
+   "starter": false,
+   "image": "data/frame/setia.webp",
+   "source": "event",
+   "group": "Login",
+   "gems": null,
    "category": "aksesori",
    "slot": "frame",
    "stackable": false,

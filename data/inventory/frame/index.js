@@ -1,4 +1,4 @@
-/* Kategori Frame (pilot Stage 2) — mendaftarkan kategori + 14 manifest ke ItemRegistry.
+/* Kategori Frame (pilot Stage 2) — mendaftarkan kategori + 15 manifest ke ItemRegistry.
    Urutan KEYS = urutan di ItemCatalog (assets/js/item-catalog.js). Satu item = satu folder (nama folder = gameKey).
    Asset TIDAK dipindah: manifest merujuk path existing di data/frame/ (aset & renderer frame-fx.js tidak berubah).
    Halaman yang memuat rantai ini mengadopsi metadata lewat ItemCatalog; fallback legacy tetap tersedia.
@@ -11,7 +11,7 @@
 })(typeof window !== 'undefined' ? window : null, function (req) {
   'use strict';
 
-  var KEYS = ['default', 'stone', 'copper', 'iron', 'gold', 'diamond', 'amethyst', 'nether', 'ender', 'storm', 'dragon', 'phoenix', 'celestial', 'cosmic'];
+  var KEYS = ['default', 'stone', 'copper', 'iron', 'gold', 'diamond', 'amethyst', 'nether', 'ender', 'storm', 'dragon', 'phoenix', 'celestial', 'cosmic', 'setia'];
   var CATEGORY = { key: 'frame', kind: 'frame', label: 'Frame', fallbackId: 'frame.default',
                    assets: { tabIcon: 'data/inventory/frame/_shared/img/icon-frame.webp' } };
 

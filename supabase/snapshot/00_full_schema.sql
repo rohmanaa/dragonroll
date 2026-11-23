@@ -2061,6 +2061,7 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('frame.iron', 'frame', 2500, false, false),
   ('frame.nether', 'frame', 20000, false, false),
   ('frame.phoenix', 'frame', null, false, false),
+  ('frame.setia', 'frame', null, false, false),
   ('frame.stone', 'frame', 500, false, false),
   ('frame.storm', 'frame', null, false, false),
   ('gear.acc.beard', 'gear', 100, false, false),
@@ -6829,7 +6830,12 @@ grant execute on function public.chest_buy(text) to authenticated;
 --    8: 400 koin        9: 600 koin       10: 8 gem          11: 1.000 koin    12: Mystery Box   13: 12 gem      14: 3.000 koin + 20 gem
 --   15: 500 koin       16: 700 koin       17: 10 gem         18: 1.200 koin    19: Mystery Box   20: 15 gem      21: 4.000 koin + 25 gem
 --   22: 600 koin       23: 800 koin       24: 12 gem         25: 1.500 koin    26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
---   29: 2.000 koin     30: 6.000 koin + 50 gem (hadiah utama bulan ini)
+--   29: 2.000 koin     30: 6.000 koin + 50 gem + Frame Setia (item eksklusif, tidak dijual; diberikan sekali, putaran berikutnya hanya koin + gem)
+
+-- Frame hadiah Hari 30. Harga null + bukan starter = tidak bisa dibeli di Toko; hanya diberikan oleh claim_daily_reward.
+-- (Sumber kebenaran katalog: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
+insert into public.item_catalog(id, kind, price_coins, starter, stackable) values ('frame.setia', 'frame', null, false, false)
+on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
 
 alter table public.player_daily_reward drop constraint if exists player_daily_reward_claimed_check;
 alter table public.player_daily_reward add constraint player_daily_reward_claimed_check check (claimed between 0 and 30);
@@ -6869,6 +6875,7 @@ declare
   v_dc    bigint := 0;
   v_dg    bigint := 0;
   v_type  text;
+  v_item  text := null;
   v_res   jsonb;
 begin
   if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
@@ -6897,7 +6904,12 @@ begin
          updated_at = now()
    where user_id = v_uid;
 
-  return jsonb_build_object('ok', true, 'day', v_idx + 1, 'type', v_type, 'item', null, 'duplicate', false,
+  -- Hari 30: Frame Setia (sekali per akun; kalau sudah punya, v_item tetap null).
+  if v_idx + 1 = 30 then
+    insert into public.player_inventory(user_id, item_id) values (v_uid, 'frame.setia') on conflict do nothing returning item_id into v_item;
+  end if;
+
+  return jsonb_build_object('ok', true, 'day', v_idx + 1, 'type', v_type, 'item', v_item, 'duplicate', false,
                             'coins', v_dc, 'gems', v_dg, 'box', v_type = 'box',
                             'wallet_coins', (v_res ->> 'coins')::bigint, 'wallet_gems', (v_res ->> 'gems')::bigint,
                             'seconds_to_reset', public._secs_to_wib_reset());

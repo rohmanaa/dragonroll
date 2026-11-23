@@ -227,7 +227,7 @@ class Inst{
   var MARGIN_C = { phoenix: 7, celestial: 7, storm: 6 }; FR.forEach(function (f) { if (MARGIN_C[f.id]) f.mC = MARGIN_C[f.id]; });
   /* nama file gambar -> id desain */
   var FILE2KEY = { 'frame-default': 'wood', 'stone': 'stone', 'copper': 'copper', 'iron': 'iron', 'frame-gold': 'gold', 'diamond': 'diamond', 'amethyst': 'amethyst',
-    'nether': 'nether', 'ender': 'ender', 'storm': 'storm', 'dragon': 'dragon', 'phoenix': 'phoenix', 'celestial': 'celestial', 'cosmic': 'cosmic' };
+    'nether': 'nether', 'ender': 'ender', 'storm': 'storm', 'dragon': 'dragon', 'phoenix': 'phoenix', 'celestial': 'celestial', 'cosmic': 'cosmic', 'setia': 'gold' };   /* setia (frame hadiah Login 30 hari) memakai animasi gold */
   var RE = /data\/frame\/([a-z-]+)\.webp/;
   function keyOf(x) {
     if (!x) return null; x = String(x);

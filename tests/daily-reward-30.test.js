@@ -47,6 +47,16 @@ t('lobi: lencana login memakai batas 30', () => {
   const lobby = read('data/lobby/js/lobby.js');
   assert.ok(/\(\+d\.claimed\|\|0\)<30/.test(lobby) && !/claimed\|\|0\)<7/.test(lobby));
 });
+t('Hari 30 memberi Frame Setia sekali; frame terdaftar di katalog klien tanpa harga (tidak dijual)', () => {
+  assert.ok(/v_idx \+ 1 = 30 then[\s\S]*'frame\.setia'[\s\S]*on conflict do nothing returning item_id into v_item/.test(sql));
+  assert.ok(/'item', v_item/.test(sql));
+  const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
+  const f = C.ItemCatalog.byId('frame.setia');
+  assert.ok(f && f.kind === 'frame' && !f.price && !f.gems && !f.starter && f.source === 'event');
+  assert.strictEqual(C.ItemCatalog.cost(f), null);
+  assert.ok(fs.existsSync(root('data/frame/setia.webp')));
+  assert.ok(/'setia': 'gold'/.test(read('data/inventory/frame/_shared/js/frame-fx.js')));
+});
 t('snapshot skema memuat migrasi 30 hari', () => {
   assert.ok(read('supabase/snapshot/00_full_schema.sql').includes('202611390001_daily_reward_30.sql'));
 });
