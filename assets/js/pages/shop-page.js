@@ -215,7 +215,7 @@ UT.PageModule.define('shop', function (env) {
     const list = shopItems(key);
     if (!list.length) return '<div class="hempty">Belum ada item untuk dijual.</div>';
     return list.map(it => {
-      const art = artOf(it);
+      const art = it.kind === 'frame' && it.image ? `<img class="setimg" src="${escapeHtml(it.image)}" alt="" draggable="false" decoding="async">` : artOf(it); /* kartu Set/Frame = foto statis; preview hidup hanya di modal */
       const power = it.kind === 'powerup';
       const owned = !power && PD.owns(it.id);
       const qty = power ? PD.qty(it.id) : 0;
@@ -329,7 +329,7 @@ UT.PageModule.define('shop', function (env) {
       const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
       return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
-        <div class="pic"><i class="glow"></i><div class="art">${(window.UT && UT.ShopPreview && UT.ShopPreview.setThumb(s.p)) || `<img class="setimg" src="${IC}item-icons/${icon}.webp" alt="">`}</div></div>
+        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="${IC}set-thumbs/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
         <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
           ${owned ? 'Dimiliki' : `${fmt(s.total)}<img src="${IC}hud/ikon-koin-emas.webp" alt="">`}
