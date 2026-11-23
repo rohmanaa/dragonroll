@@ -37,91 +37,123 @@ const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
 
 /* Esc dan tombol Tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
 
-/* ---- tengah: karakter 3D terpasang (BlockyCharacter dari PlayerData) di atas pedestal ---- */
-let R = null, webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter);
-function buildChar() {
+/* ---- kiri: FOTO karakter (gambar statis, bukan kanvas WebGL hidup) ----
+   Foto dijepret SEKALI lewat renderer offscreen (SharedGL.offscreen) lalu disimpan di localStorage bersama tanda tangan tampilan+pose.
+   Membuka profil berikutnya langsung menampilkan gambar itu: tanpa membangun karakter 3D, tanpa WebGL. Foto dibuat ulang hanya bila
+   tampilan/perlengkapan/pose berubah. Pose = bentuk badan diam (bukan animasi) yang dipilih lewat tombol Pose. */
+let webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter && UT.SharedGL);
+const PHOTO_KEY = 'ut.profilePhoto.v1', PHOTO_VER = 1;
+const POSES = () => (UT.BlockyCharacter && UT.BlockyCharacter.poses) || [{id: 'pose1', n: 'Siap Tempur'}];
+function poseId() { let v = 'pose1'; try { v = UT.Prefs.get('profilePose', 'pose1'); } catch (e) {} return POSES().some(p => p.id === v) ? v : 'pose1'; }
+const lookSig = () => JSON.stringify([PD.look(), PD.gearLook()]);
+const photoSig = pose => lookSig() + '|' + pose + '|v' + PHOTO_VER;
+function readPhoto() { try { const o = JSON.parse(localStorage.getItem(PHOTO_KEY) || 'null'); return o && o.sig && o.url ? o : null; } catch (e) { return null; } }
+function writePhoto(sig, url) { try { localStorage.setItem(PHOTO_KEY, JSON.stringify({sig, url})); } catch (e) { /* penuh/diblokir: foto tetap tampil, hanya tidak di-cache */ } }
+
+/* jepret satu foto: kind 'bust' (dada-kepala, foto profil) atau 'full' (seluruh badan, pratinjau modal Pose) -> dataURL (webp/png, latar transparan) */
+function shoot(pose, kind, W, H) {
+  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode(pose);
+  for (let i = 0; i < 80; i++) ch.tick(.05);   /* pose dicapai bertahap oleh renderer: tick berulang agar bentuk akhirnya yang dijepret */
+  const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, W / H, .1, 100);
+  sc.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
+  const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); sc.add(sun);
+  const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); sc.add(rim);
+  const w = new THREE.Group(); w.scale.setScalar(3.7); w.rotation.set(0, -.55, .05); w.add(ch.root); sc.add(w);
+  sc.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(w), sz = bb.getSize(new THREE.Vector3());
+  const tn = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)), asp = W / H;
+  let cy, d;
+  if (kind === 'full') { cy = (bb.min.y + bb.max.y) / 2; d = Math.max(sz.y * .56 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
+  else { const h = sz.y * .46; cy = bb.max.y - h * .5 + sz.y * .02; d = Math.max(h / 2 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
+  cam.position.set(0, cy, d); cam.lookAt(0, cy, 0); cam.updateProjectionMatrix();
+  const r = UT.SharedGL.offscreen();
+  r.setPixelRatio(1); r.setSize(W, H, false); r.setClearColor(0x000000, 0); r.render(sc, cam);
+  const url = r.domElement.toDataURL('image/webp', .92);
+  sc.traverse(function (o) {
+    try { if (o.geometry) o.geometry.dispose(); } catch (_) {}
+    if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { try { if (m.map) m.map.dispose(); m.dispose(); } catch (_) {} });
+  });
+  return url;
+}
+const HERO_W = 980, HERO_H = 992;   /* 2x dari #art (490x496) */
+let heroUrl = '', heroTimers = [];
+function showPhoto(url) {
+  if (env.disposed || !url || url === heroUrl) return;
+  heroUrl = url;
+  const art = $('#art');
+  let im = art.querySelector('img.phot');
+  if (!im) { art.innerHTML = ''; im = new Image(); im.className = 'phot'; im.alt = ''; im.draggable = false; im.decoding = 'async'; art.appendChild(im); }
+  im.src = url;
+}
+function buildChar(force) {
   if (env.disposed) return;
   const art = $('#art');
+  heroTimers.forEach(clearTimeout); heroTimers = [];
   if (!webOk) { art.innerHTML = `<div class="noweb">${AR.face(eqSkin().id)}</div>`; return; }
-  if (!R) {
-    try {
-      art.innerHTML = '';
-      /* Pakai SharedGL agar renderer dipakai bersama antar halaman SPA */
-      const acquired = UT.SharedGL.acquire('profile', {alpha: true, shadows: false});
-      const r = acquired.renderer, cv = acquired.canvas;
-      art.appendChild(cv);
-      const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, 1, .1, 100);
-      scene.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
-      const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); scene.add(sun);
-      const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); scene.add(rim);
-      const holder = new THREE.Group(); scene.add(holder);
-      R = {r, scene, cam, holder, cv, ch: null};
-      /* resize observer: pakai env.own agar dibersihkan */
-      const ro = new ResizeObserver(sizeGL);
-      ro.observe(cv);
-      env.own(function () { ro.disconnect(); });
-    } catch (e) {
-      webOk = false; R = null;
-      console.warn('[profil] WebGL tidak tersedia', e);
-      buildChar();
-      return;
-    }
-  }
-  const sig = JSON.stringify([PD.look(), PD.gearLook()]);
-  if (R.ch && R.sig === sig) { renderOnce(); return; }   /* tampilan sama: pakai karakter yang sudah ada, tidak dibuat/dijepret ulang */
-  R.sig = sig;
-  if (R.ch) R.holder.remove(R.ch.root);
-  const ch = UT.BlockyCharacter.create(THREE); ch.loadFromPlayer(); ch.setMode('pose1'); ch.tick(.016);
-  const w = new THREE.Group(); w.scale.setScalar(3.7); w.position.y = 0; w.rotation.set(0, -.55, .05); w.add(ch.root); R.holder.add(w); R.ch = ch; R.w = w; frameCam(); renderOnce();
-  /* jaga-jaga bila tekstur wajah/outfit selesai dimuat sesudahnya */
-  [120, 500].forEach(ms => setTimeout(renderOnce, ms));
+  const pose = poseId(), sig = photoSig(pose), c = readPhoto();
+  if (!force && c && c.sig === sig) { showPhoto(c.url); return; }   /* tampilan & pose sama dengan foto tersimpan: pakai gambar, tanpa render */
+  const snap = () => {
+    if (env.disposed || sig !== photoSig(poseId())) return;
+    try { const u = shoot(pose, 'bust', HERO_W, HERO_H); showPhoto(u); writePhoto(sig, u); }
+    catch (e) { webOk = false; console.warn('[profil] foto karakter gagal', e); art.innerHTML = `<div class="noweb">${AR.face(eqSkin().id)}</div>`; }
+  };
+  snap();
+  /* jaga-jaga bila tekstur wajah/outfit selesai dimuat sesudahnya: jepret ulang sekali dua kali, lalu foto terakhir yang disimpan */
+  [400, 1200].forEach(ms => heroTimers.push(setTimeout(snap, ms)));
 }
-/* kamera: FOTO dada-kepala (setengah atas badan, tanpa aura), sedikit serong seperti pose siap tempur. Wajah & outfit mengikuti skin yang dipakai (PlayerData). */
-function frameCam() {
-  if (!R || !R.w) return; R.scene.updateMatrixWorld(true);
-  const b = new THREE.Box3().setFromObject(R.w), s = b.getSize(new THREE.Vector3());
-  const h = s.y * .46, cy = b.max.y - h * .5 + s.y * .02;
-  const asp = (R.cv.clientWidth / Math.max(1, R.cv.clientHeight)) || 1;
-  const tn = Math.tan(THREE.MathUtils.degToRad(R.cam.fov / 2));
-  const d = Math.max(h / 2 / tn, (s.x * .62) / (tn * asp)) + s.z * .5;
-  R.cam.position.set(0, cy, d); R.cam.lookAt(0, cy, 0); R.cam.updateProjectionMatrix(); R.cam.updateMatrixWorld(true);
+env.own(function () { heroTimers.forEach(clearTimeout); document.documentElement.classList.remove('pf-wide'); });
+
+/* ---- modal POSE: pilih pose foto profil (bentuk badan diam, bukan animasi), lihat pratinjau, lalu SIMPAN ---- */
+const PO_W = 520, PO_H = 720;
+let poSel = null, poShots = new Map(), poSig = '', poGen = 0;
+const poOpen = () => $('#pomd').classList.contains('on');
+function poShot(id) {   /* pratinjau seluruh badan, di-cache per tampilan agar membuka modal lagi tidak merender ulang */
+  const sg = lookSig();
+  if (sg !== poSig) { poShots = new Map(); poSig = sg; }
+  if (!poShots.has(id)) poShots.set(id, shoot(id, 'full', PO_W, PO_H));
+  return poShots.get(id);
 }
-function sizeGL() {
-  if (!R) return;
-  const w = R.cv.clientWidth, h = R.cv.clientHeight;
-  if (!w || !h) return;
-  R.r.setPixelRatio(SET().graphics === 'ultra' ? Math.min(devicePixelRatio, 2) : SET().graphics === 'high' ? Math.min(devicePixelRatio, 1.5) : 1);
-  R.r.setSize(w, h, false);
-  R.cam.aspect = w / h;
-  R.cam.updateProjectionMatrix();
-  frameCam(); renderOnce();
+function drawPose() {
+  if (env.disposed || !poOpen()) return;
+  const L = POSES(), saved = poseId();
+  if (!poSel || !L.some(p => p.id === poSel)) poSel = saved;
+  $('#pogrid').innerHTML = L.map(p => `<button class="fslot ${p.id === saved ? 'st-used' : 'st-own'}${p.id === poSel ? ' sel' : ''}" type="button" data-id="${p.id}" aria-label="${p.n}${p.id === saved ? ' — dipakai' : ''}"><span class="pth"></span><span class="pnm2">${p.n}</span></button>`).join('');
+  const cur = L.find(p => p.id === poSel) || L[0];
+  $('#ponm').textContent = cur.n;
+  const b = $('#posave'), sp = b.querySelector('span');
+  b.disabled = poSel === saved; sp.textContent = poSel === saved ? 'TERSIMPAN' : 'SIMPAN';
+  fillPoseImgs();
 }
-/* FOTO diam: karakter tidak bergerak (tanpa loop rAF). Dirender sekali setelah dipasang, lalu ulang hanya saat ukuran/skin berubah. */
-function renderOnce() {
-  if (env.disposed || !R || !R.ch) return;
-  R.ch.tick(.016); R.r.render(R.scene, R.cam);
+/* gambar dibuat bertahap (satu pose per giliran) agar modal langsung muncul; yang sudah di-cache langsung terpasang */
+function fillPoseImgs() {
+  const gen = ++poGen, L = POSES();
+  const put = id => {
+    const cell = document.querySelector('#pogrid .fslot[data-id="' + id + '"] .pth');
+    if (cell && !cell.firstChild) { const im = new Image(); im.alt = ''; im.draggable = false; im.src = poShot(id); cell.appendChild(im); }
+    if (id === poSel) { const a = $('#poart'); a.innerHTML = ''; const im = new Image(); im.alt = ''; im.draggable = false; im.src = poShot(id); a.appendChild(im); }
+  };
+  put(poSel);
+  const rest = L.map(p => p.id).filter(id => id !== poSel);
+  const step = () => { if (env.disposed || gen !== poGen || !poOpen()) return; const id = rest.shift(); if (!id) return; try { put(id); } catch (e) {} setTimeout(step, 0); };
+  setTimeout(step, 30);
 }
-/* cleanup WebGL: lepas SharedGL, buang geometri/material/aura */
-env.own(function () {
-  try { UT.SharedGL.release('profile'); } catch (e) {}
-  if (R) {
-    /* AuraView tidak punya dispose(): clearAll() = despawn semua aura (pool/efek dilepas), baru geometri scene dibuang di bawah */
-    try { if (R.aura && R.aura.clearAll) R.aura.clearAll(); } catch (e) {}
-    try { if (R.ch && R.ch.root) R.holder.remove(R.ch.root); } catch (e) {}
-    try {
-      /* buang semua geometri dan material di scene */
-      R.scene.traverse(function (obj) {
-        try { if (obj.geometry) obj.geometry.dispose(); } catch (_) {}
-        if (obj.material) {
-          var mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-          mats.forEach(function (m) { try { if (m.map) m.map.dispose(); m.dispose(); } catch (_) {} });
-        }
-      });
-    } catch (e) {}
-    R = null;
-  }
-  document.documentElement.classList.remove('pf-wide');
-});
+function poseOpen() {
+  if (!webOk) { toast('Pose belum bisa dipakai di perangkat ini.'); return; }
+  poSel = poseId();
+  const m = $('#pomd'); m.classList.add('on'); m.setAttribute('aria-hidden', 'false');
+  $('#poart').innerHTML = ''; drawPose();
+}
+function poseClose() { const m = $('#pomd'); m.classList.remove('on'); m.setAttribute('aria-hidden', 'true'); poGen++; }
+function poseSave() {
+  if (!poSel || poSel === poseId()) return;
+  try { UT.Prefs.set('profilePose', poSel); } catch (e) { toast('Gagal menyimpan pose.'); return; }
+  snd('power'); buzz(); poseClose(); buildChar(); toast('Pose disimpan');
+}
+$('#pobtn').onclick = () => { snd(); poseOpen(); };
+$('#pox').onclick = () => { snd(); poseClose(); };
+$('#pomd').onclick = e => { if (e.target.id === 'pomd') poseClose(); };
+$('#pogrid').onclick = e => { const c = e.target.closest('.fslot'); if (!c) return; poSel = c.dataset.id; snd(); drawPose(); };
+$('#posave').onclick = () => { poseSave(); };
 
 /* ---- tengah: AKUN ---- */
 const EMO = ['😎', '🔥', '🐉', '⚔️', '👑', '🛡️', '🎲', '🍀', '😈', '🤖', '🦊', '🐺', '🌟', '💎', '😴', '🥷', '🧙', '🏆', '💀', '🌈', '😂', '🥶', '🌋', '🐍'];
@@ -285,7 +317,6 @@ function fit() {
   const vw = innerWidth, vh = innerHeight, k = Math.min(vw / 1920, vh / 1080), wide = vw / vh >= 2;
   $('#stage').style.transform = 'scale(' + k + ')';
   document.documentElement.classList.toggle('pf-wide', wide);
-  if (R && R.w) { sizeGL(); }
 }
 env.own(addEventListener('resize', fit));
 fit();

@@ -1,7 +1,9 @@
 /* profile.css — layout PROFIL baru (kanvas 1920x1080, dimuat SETELAH profile-legacy.css).
    Kartu atas #hero: kiri foto karakter dada-kepala (3D tanpa aura), tengah level/nama/4 tombol/guild/rank, kanan pose pet statis.
    Di bawahnya: kartu Statistik dan Koleksi berupa kotak-kotak. Koordinat anak kartu relatif ke kartunya. */
-#art canvas{position:absolute;inset:0;width:100%;height:100%}
+#art canvas,#art img.phot{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+/* menetralkan aturan lama profile-legacy.css (#art img: geser tengah + animasi bob + bayangan) untuk foto statis */
+#art img.phot{left:0;top:0;right:0;bottom:0;max-width:none;transform:none;animation:none;filter:none}
 #art .noweb{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:300px;height:300px}
 #art .noweb svg{position:static;width:100%;height:100%}
 .ir.tap{cursor:pointer}
@@ -135,4 +137,37 @@ html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile
 
 /* lapisan gelap modal Frame & pemilih emoji menutup SELURUH layar (bukan hanya kanvas 16:9): tidak ada celah kiri-kanan di layar lebar.
    --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi UT.AccountHub.fitFrame pada #stage; #stage.has-hub overflow:visible). */
-#frmd,#epick{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}
+#frmd,#pomd,#epick{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}
+
+/* tombol Pose (di samping Frame) + modal Pose */
+#pobtn{position:absolute;left:232px;bottom:26px;z-index:3;width:190px;height:76px;display:flex;align-items:center;justify-content:center;gap:10px;border:0;padding:0 14px;cursor:pointer;
+  background:url(../../images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat;color:#fff;transition:transform .1s,filter .1s}
+#pobtn i{font-style:normal;font-size:40px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+#pobtn span{font:400 32px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6)}
+#pobtn:hover{filter:brightness(1.12)}#pobtn:active{transform:translateY(3px)}
+#pomd{position:absolute;z-index:30;display:none;background:rgba(6,4,16,.72);align-items:center;justify-content:center}
+#pomd.on{display:flex}
+#pobox{position:relative;width:1480px;height:800px;box-sizing:border-box;padding:96px 56px 130px;color:#fff;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch}
+#pot{position:absolute;left:50%;top:-32px;transform:translateX(-50%);margin:0;height:84px;padding:0 72px;white-space:nowrap;font:400 40px/70px var(--font-title);
+  background:url(../../images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#pox{position:absolute;right:-12px;top:-12px;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;z-index:3}
+#pox img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#pobody{display:flex;gap:40px;height:100%}
+#popv{flex:none;width:460px;text-align:center}
+#poart{position:relative;width:360px;height:498px;margin:0 auto}
+#poart img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 12px 10px rgba(0,0,0,.45));pointer-events:none}
+#ponm{margin-top:6px;font:400 46px/1 var(--font-title);text-shadow:0 3px 0 rgba(10,6,24,.5)}
+#pohint{margin:10px 0 0;font:700 22px/1.35 var(--font-body);color:#d8d2ee}
+#pogrid{flex:1;display:grid;grid-template-columns:repeat(4,150px);grid-auto-rows:190px;gap:20px;align-content:start;justify-content:start;max-height:560px;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-y}
+#pogrid::-webkit-scrollbar{display:none;width:0;height:0}
+#pogrid .fslot{position:relative;width:150px;height:190px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#pogrid .fslot:hover{filter:brightness(1.15)}#pogrid .fslot:active{transform:scale(.95)}
+#pogrid .fslot.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#pogrid .fslot.st-used,#pogrid .fslot.st-used.sel{background-image:url(../../images/ui/slot-equipment/slot-hijau.webp)}
+#pogrid .fslot .pth{position:absolute;left:12px;right:12px;top:10px;bottom:38px}
+#pogrid .fslot .pth img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+#pogrid .fslot .pnm2{position:absolute;left:6px;right:6px;bottom:8px;font:400 22px/1 var(--font-title);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+#posave{position:absolute;right:48px;bottom:34px;width:320px;height:88px;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer}
+#posave img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#posave span{position:relative;font:400 28px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#posave:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
