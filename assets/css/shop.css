@@ -292,6 +292,5 @@ button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp)
 .mrow .btn span{display:flex;align-items:center;justify-content:center;gap:10px;font-size:42px}
 .mrow .btn span img{position:static;width:50px;height:50px;object-fit:contain}
 #modal>#box>#mx{border-image:none!important;outline:0;border-radius:0!important}
-
-/* "Dimiliki": pelat gelap CSS (aset tombol-gelap-polos tampil ganda/terpotong) */
-button.plate.own{background:linear-gradient(#5d5974,#3b3850);border:4px solid #8a86a3;border-radius:16px;box-shadow:inset 0 3px 3px rgba(255,255,255,.22),0 5px 0 #26243a;opacity:1;color:#e6e2f6;font-size:38px}
+/* "Dimiliki": aset tombol gelap. Aturan lama `.plate.own{background:...}` mereset ukuran/ulang gambar (tampil ganda), jadi diset penuh di sini */
+button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
