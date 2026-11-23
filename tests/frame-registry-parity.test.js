@@ -133,8 +133,8 @@ t('fallback: ID frame tak dikenal/ditolak -> frame.default (starter)', () => {
 });
 
 /* ---- kompatibilitas sistem lama ---- */
-t('ItemCatalog tidak berubah: 167 item, 14 frame, byId/byGameKey/defaultEquipped utuh', () => {
-  assert.strictEqual(IC.items.length, 167);
+t('ItemCatalog tidak berubah: 168 item, 14 frame, byId/byGameKey/defaultEquipped utuh', () => {
+  assert.strictEqual(IC.items.length, 168);
   assert.strictEqual(IC.byId('frame.gold').gameKey, 'gold'); assert.strictEqual(IC.byGameKey('frame', 'gold').id, 'frame.gold');
   assert.strictEqual(IC.defaultEquipped.frame, 'frame.default'); assert.strictEqual(IC.byId('frame.gold').slot, 'frame');
 });

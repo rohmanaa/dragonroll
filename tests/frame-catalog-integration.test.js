@@ -26,18 +26,18 @@ const ICl = legacy.ItemCatalog, ICr = viaReg.ItemCatalog;
 t('jalur Registry aktif bila skrip dimuat; jalur cadangan bila tidak (diagnostik frameSource)', () => {
   assert.strictEqual(ICr.frameSource(), 'registry'); assert.strictEqual(ICl.frameSource(), 'legacy');
 });
-t('ItemCatalog: 167 item, kedua jalur', () => { assert.strictEqual(base.total, 167); assert.strictEqual(ICr.items.length, 167); assert.strictEqual(ICl.items.length, 167); });
+t('ItemCatalog: 168 item, kedua jalur', () => { assert.strictEqual(base.total, 168); assert.strictEqual(ICr.items.length, 168); assert.strictEqual(ICl.items.length, 168); });
 t('ItemCatalog: urutan ID = baseline (kedua jalur)', () => {
   const ids = base.items.map(i => i.id);
   assert.deepStrictEqual(clone(ICr.items.map(i => i.id)), ids); assert.deepStrictEqual(clone(ICl.items.map(i => i.id)), ids);
 });
-t('ItemCatalog: tidak ada ID ganda', () => { assert.strictEqual(new Set(clone(ICr.items.map(i => i.id))).size, 167); });
+t('ItemCatalog: tidak ada ID ganda', () => { assert.strictEqual(new Set(clone(ICr.items.map(i => i.id))).size, 168); });
 t('ItemCatalog: SELURUH item (semua field) sama dengan baseline, jalur Registry dan jalur cadangan', () => {
   assert.deepStrictEqual(clone(ICr.items), base.items); assert.deepStrictEqual(clone(ICl.items), base.items);
 });
 t('ItemCatalog: kategori non-Frame identik dengan baseline', () => {
   const nf = a => clone(a.filter(i => i.kind !== 'frame'));
-  assert.strictEqual(nf(ICr.items).length, 153); assert.deepStrictEqual(nf(ICr.items), base.items.filter(i => i.kind !== 'frame'));
+  assert.strictEqual(nf(ICr.items).length, 154); assert.deepStrictEqual(nf(ICr.items), base.items.filter(i => i.kind !== 'frame'));
 });
 t('ItemCatalog: semua API publik baseline tetap ada (tipe sama); sumber Registry kategori tetap tersedia', () => {
   const cur = Object.keys(ICr).sort(); base.api.forEach(k => { assert.ok(k in ICr, k); assert.strictEqual(typeof ICr[k], typeof ICl[k], k); });
@@ -82,7 +82,7 @@ t('Pemuatan ganda: item-catalog.js dimuat dua kali di VM sama tidak menggandakan
   assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(ctx.UT.ItemRegistry.shared().getCategory('frame').count, 14);
   assert.strictEqual(ctx.UT.ItemRegistry.shared().rejected().length, 0);
 });
-t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 167 item identik baseline', () => {
+t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 168 item identik baseline', () => {
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
   ['assets/js/core/item-registry.js', 'data/inventory/frame/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
@@ -100,7 +100,7 @@ t('PlayerData: perilaku sama di kedua jalur (kepemilikan starter, equip, pemasan
   assert.strictEqual(b.eq, 'frame.default'); assert.strictEqual(b.owns[0], true); assert.strictEqual(b.owns[1], false);
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error', () => {
-  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 167);
+  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 168);
 });
 t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL fase 3) dan frame.default starter (harga server null)', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), blk = /BEGIN TIER PRICE SEED[\s\S]*?END TIER PRICE SEED/.exec(sql)[0];

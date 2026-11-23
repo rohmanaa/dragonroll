@@ -190,6 +190,11 @@ const RAW = [
     material: { pattern: 'dragon', base: '#0c0508', accent: '#e01830', roughness: 0.25, metalness: 0.6, emissive: '#ff1a30', glowMap: true, clearcoat: 1, pip: { color: '#ff5a40', glow: true } },
     effect: { particleType: 'flame', colors: ['#ff2a1a', '#ff8a2a', '#a020ff'], glowColor: '#ff2a3a', landingEffect: 'dragonExplosion', idleEffect: 'flames', rollEffect: 'flame', resultEffect: 'halo', soundEffect: 'dragon' },
   },
+  {
+    id: 'matrix', name: 'Matrix Dice', collection: 'mythical', rarity: 'mythic', materialName: 'Matrix Code',
+    material: { pattern: 'sculk', base: '#04140a', accent: '#22ff66', roughness: 0.3, metalness: 0.4, emissive: '#22ff66', glowMap: true, clearcoat: 1, pip: { color: '#b6ffcf', glow: true } },
+    effect: { particleType: 'energy', colors: ['#22ff66', '#b6ffcf', '#0a7a2e'], glowColor: '#22ff66', landingEffect: 'sonic', idleEffect: 'float', rollEffect: 'trail', soundEffect: 'sonic', soundGain: 1.2 },
+  },
 ];
 
 function build(raw, index) {

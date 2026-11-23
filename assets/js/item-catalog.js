@@ -167,6 +167,8 @@
          { bg: '#1c0a3a', accent: '#e020c8', pip: '#ff7af0', edge: '#0d051a' }, { tier: 6, collection: 'mythical', materialName: 'Ender Pearl' }),
     dice('dragon', 'Dragon', 'legendary', 3500, 'Dadu esensi naga tertinggi: sisik gelap, api, dan ledakan naga saat mendarat.',
          { bg: '#0c0508', accent: '#e01830', pip: '#ff5a40', edge: '#050204' }, { tier: 7, collection: 'mythical', materialName: 'Dragon Essence' }),
+    dice('matrix', 'Matrix', 'legendary', 2200, 'Dadu Matrix hitam dengan sirkuit hijau menyala yang mengalirkan kode saat dilempar.',
+         { bg: '#04140a', accent: '#22ff66', pip: '#b6ffcf', edge: '#020a05' }, { tier: 7, collection: 'mythical', materialName: 'Matrix Code' }),
 
     /* ---- Tema papan (Lainnya) ---- */
     theme('minecraft', 'World', 'common', 0,   'Padang rumput blok bergaya klasik.',
@@ -394,7 +396,7 @@
     'dice.diamond': [30000, null], 'dice.emerald': [30000, null], 'dice.amethyst': [30000, null], 'dice.redstone': [30000, null], 'dice.obsidian': [30000, null],
     'dice.magma': [null, 600], 'dice.frost': [null, 600], 'dice.prismarine': [null, 600], 'dice.quartz': [null, 600],
     'dice.void': [null, 1500], 'dice.netherite': [null, 1500], 'dice.sculk': [null, 1500], 'dice.ender': [null, 1500],
-    'dice.dragon': [null, 3000],
+    'dice.dragon': [null, 3000], 'dice.matrix': [null, 2000],
     /* Frame: 500 / 1.500 / 2.500 / 6.000 / 9.000 / 12.000 / 20.000 koin; lalu 450 / 600 / 800 / 1.100 / 1.500 / 2.000 emerald */
     'frame.stone': [500, null], 'frame.copper': [1500, null], 'frame.iron': [2500, null], 'frame.gold': [6000, null],
     'frame.diamond': [9000, null], 'frame.amethyst': [12000, null], 'frame.nether': [20000, null],

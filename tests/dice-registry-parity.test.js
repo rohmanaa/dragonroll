@@ -30,16 +30,16 @@ const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manif
 const legacy = boot([]), viaDice = boot(DICE_CHAIN), viaAll = boot(DICE_CHAIN.concat(PET_CHAIN, FRAME_CHAIN));
 
 /* ---- A. Registry ---- */
-t('Registry: 23 Dice terdaftar, 0 ditolak, kategori dice tersedia', () => {
-  assert.deepStrictEqual(res.rejected, []); assert.strictEqual(res.ok, true); assert.strictEqual(res.registered, 23); assert.strictEqual(items.length, 23);
+t('Registry: 24 Dice terdaftar, 0 ditolak, kategori dice tersedia', () => {
+  assert.deepStrictEqual(res.rejected, []); assert.strictEqual(res.ok, true); assert.strictEqual(res.registered, 24); assert.strictEqual(items.length, 24);
   assert.strictEqual(reg.rejected().length, 0); assert.deepStrictEqual(reg.categories(), ['dice']); assert.strictEqual(reg.getCategory('dice').kind, 'dice');
 });
 t('Registry: tanpa ID duplikat; registrasi ulang identik ditolak (duplicate-registration), ID sama isi beda ditolak (duplicate-id)', () => {
-  assert.strictEqual(new Set(items.map(i => i.id)).size, 23);
+  assert.strictEqual(new Set(items.map(i => i.id)).size, 24);
   const m = require(path.join(ROOT, 'data/inventory/dice/dragon/manifest.js'));
   assert.strictEqual(reg.registerItem(m).reason, 'duplicate-registration');
   assert.strictEqual(reg.registerItem(Object.assign({}, m, { name: 'Lain' })).reason, 'duplicate-id');
-  assert.strictEqual(reg.getCategory('dice').count, 23);
+  assert.strictEqual(reg.getCategory('dice').count, 24);
 });
 t('Registry: fallback = dice.klasik (dadu bawaan/starter); getItem ketat; kelengkapan vs baseline', () => {
   assert.strictEqual(DiceCat.category.fallbackId, 'dice.klasik'); assert.strictEqual(reg.getItemOrFallback('dice.tidak-ada').id, 'dice.klasik');
@@ -57,24 +57,24 @@ t('Folder: satu item = satu folder (nama folder = gameKey); tidak ada folder/man
 });
 
 /* ---- Metadata parity (manifest vs baseline = nilai runtime SEBELUM integrasi) ---- */
-t('Metadata: jumlah 23 dan ID sama dengan baseline; ID lama/legacyIds dipertahankan (standard, emas)', () => {
-  assert.strictEqual(bd.length, 23); assert.deepStrictEqual(items.map(i => i.id).sort(), bd.map(i => i.id).sort());
+t('Metadata: jumlah 24 dan ID sama dengan baseline; ID lama/legacyIds dipertahankan (standard, emas)', () => {
+  assert.strictEqual(bd.length, 24); assert.deepStrictEqual(items.map(i => i.id).sort(), bd.map(i => i.id).sort());
   assert.deepStrictEqual(clone(byId['dice.klasik'].legacyIds), ['standard']); assert.deepStrictEqual(clone(byId['dice.emas'].legacyIds), ['emas']);
   assert.strictEqual(items.filter(i => i.legacyIds).length, bd.filter(i => i.legacyIds).length);
 });
-t('Metadata: id, kind, gameKey, nama, rarity, tier, collection, materialName, harga, gems, starter, featured, desc = baseline (23/23)', () => {
+t('Metadata: id, kind, gameKey, nama, rarity, tier, collection, materialName, harga, gems, starter, featured, desc = baseline (24/24)', () => {
   bd.forEach(b => { const m = byId[b.id]; assert.ok(m, b.id);
     ['id', 'kind', 'gameKey', 'name', 'rarity', 'tier', 'collection', 'materialName', 'price', 'gems', 'starter', 'desc'].forEach(k => assert.strictEqual(m[k], b[k], b.id + '.' + k));
     assert.strictEqual(!!m.featured, !!b.featured, b.id + '.featured'); });
 });
-t('Metadata visual (art bg/accent/pip/edge) = baseline (23/23)', () => {
+t('Metadata visual (art bg/accent/pip/edge) = baseline (24/24)', () => {
   bd.forEach(b => assert.deepStrictEqual(clone(byId[b.id].visual), b.art, b.id));
 });
 t('Harga: tepat satu mata uang per Dice yang dijual; koin T1-T4, emerald T5-T7; hanya klasik starter gratis', () => {
   items.forEach(i => { if (i.starter) { assert.strictEqual(i.id, 'dice.klasik'); assert.strictEqual(i.price, 0); assert.strictEqual(i.gems, null); }
     else assert.ok((i.price > 0) !== (i.gems > 0), i.id + ' harus tepat satu mata uang'); });
   const coin = items.filter(i => i.price > 0).map(i => i.price), gem = items.filter(i => i.gems > 0).map(i => i.gems);
-  assert.deepStrictEqual([...new Set(coin)].sort((a, b) => a - b), [500, 1500, 9000, 30000]); assert.deepStrictEqual([...new Set(gem)].sort((a, b) => a - b), [600, 1500, 3000]);
+  assert.deepStrictEqual([...new Set(coin)].sort((a, b) => a - b), [500, 1500, 9000, 30000]); assert.deepStrictEqual([...new Set(gem)].sort((a, b) => a - b), [600, 1500, 2000, 3000]);
 });
 
 /* ---- ItemCatalog ---- */
@@ -82,10 +82,10 @@ t('ItemCatalog: jalur Registry aktif untuk Dice (diceSource) dan cadangan bila t
   assert.strictEqual(viaDice.ItemCatalog.diceSource(), 'registry'); assert.strictEqual(legacy.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.diceSource(), 'registry');
   assert.strictEqual(viaDice.ItemCatalog.petSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.petSource(), 'registry'); assert.strictEqual(viaAll.ItemCatalog.frameSource(), 'registry');
 });
-t('ItemCatalog: 167 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
-  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 167);
+t('ItemCatalog: 168 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
+  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 168);
     assert.deepStrictEqual(clone(IC.items), base.items);
-    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 167); });
+    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 168); });
 });
 t('ItemCatalog: API publik sama (tipe & kunci) dengan baseline; sumber Registry baru tersedia', () => {
   const a = Object.keys(legacy.ItemCatalog).sort(), b = Object.keys(viaDice.ItemCatalog).sort(); assert.deepStrictEqual(a, b);
@@ -106,7 +106,7 @@ t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, 
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {}, warn() {} }, Date, JSON, Math }));
   DICE_CHAIN.filter(f => !f.endsWith('/tnt/manifest.js')).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 167); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
+  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 168); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 
 /* ---- Equip / Shop / Inventory / Gameplay (integrasi lintas sistem) ---- */
@@ -119,7 +119,7 @@ t('Equip: slot dice terpasang selalu valid — DEFAULT dice.klasik ada di Regist
 t('Shop/Inventory: dadu.html membaca kind dice dari ItemCatalog (tanpa salinan data); shop.js/inventory.js tidak membaca metadata dice', () => {
   assert.ok(/IC\.items\.filter\(i=>i\.kind==='dice'/.test(rd('data/inventory/dice/_shared/js/dadu.js')));
   ['assets/js/pages/shop.js', 'assets/js/pages/inventory.js'].forEach(f => { if (ex(f)) assert.ok(!/kind\s*===?\s*'dice'/.test(rd(f)), f); });
-  const IC = viaDice.ItemCatalog; const shown = IC.items.filter(i => i.kind === 'dice' && !i.off); assert.strictEqual(shown.length, 23);
+  const IC = viaDice.ItemCatalog; const shown = IC.items.filter(i => i.kind === 'dice' && !i.off); assert.strictEqual(shown.length, 24);
   shown.forEach(i => { const c = IC.cost(i); if (i.starter) assert.strictEqual(c, null); else assert.ok(c && ((c.coins > 0) !== (c.gems > 0)), i.id); });
 });
 t('Equip->Gameplay: tiap gameKey Dice ada di DiceKit (DiceCatalog.js) sehingga dadu terpasang = dadu yang dirender; urutan sama', () => {
@@ -142,7 +142,7 @@ t('Gameplay implementation tetap utuh dan file SFX hanya berpindah path', () => 
 });
 
 /* ---- Server / kepemilikan ---- */
-t('Server: seed klien-server sinkron (gen-item-seed --check) dan harga/gems/starter Dice = blok seed migrasi phase3 + 23 id ada di migrasi dice_catalog', () => {
+t('Server: seed klien-server sinkron (gen-item-seed --check) dan harga/gems/starter Dice = blok seed migrasi phase3 + 24 id ada di migrasi dice_catalog', () => {
   const out = cp.execSync('node tools/wallet/gen-item-seed.js --check', { cwd: ROOT }).toString(); assert.ok(/sinkron/.test(out), out);
   const p3 = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), cat = rd('supabase/migrations/202611170001_dice_catalog.sql');
   items.forEach(i => { assert.ok(cat.indexOf("'" + i.id + "'") >= 0, 'dice_catalog migrasi: ' + i.id);
@@ -158,8 +158,8 @@ t('Server/PlayerData: manifest tidak memuat kepemilikan/saldo/equip/transaksi; s
 });
 
 /* ---- Aset (lapisan dipisah) ---- */
-t('Aset A: validateManifest lulus 23/23', () => { items.forEach(m => { const v = IR.validateManifest(m, reg.getCategory('dice')); assert.strictEqual(v.ok, true, m.id + ': ' + v.errors.join('; ')); }); });
-t('Aset B: FORMAT path lulus 23/23 (assets per item kosong: dadu prosedural DiceKit) + path kategori renderKit valid', () => {
+t('Aset A: validateManifest lulus 24/24', () => { items.forEach(m => { const v = IR.validateManifest(m, reg.getCategory('dice')); assert.strictEqual(v.ok, true, m.id + ': ' + v.errors.join('; ')); }); });
+t('Aset B: FORMAT path lulus 24/24 (assets per item kosong: dadu prosedural DiceKit) + path kategori renderKit valid', () => {
   items.forEach(m => { const v = IR.validateAssetPaths(m, reg.getCategory('dice')); assert.strictEqual(v.ok, true, m.id); assert.deepStrictEqual(clone(m.assets), {}); });
   assert.strictEqual(IR.validateAssetPaths({ assets: { x: DiceCat.category.assets.renderKit } }, null).ok, true);
 });
@@ -172,7 +172,7 @@ t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan sel
 });
 
 /* ---- Halaman ---- */
-t('Halaman: dadu/room memuat rantai Dice berurutan (registry -> 23 manifest -> index -> item-catalog), tanpa skrip ganda, semua berkas ada', () => {
+t('Halaman: dadu/room memuat rantai Dice berurutan (registry -> 24 manifest -> index -> item-catalog), tanpa skrip ganda, semua berkas ada', () => {
   ['dadu.html', 'room.html'].forEach(h => { const s = srcs(rd(h)); assert.strictEqual(new Set(s).size, s.length, h + ' skrip ganda');
     const iReg = s.indexOf('assets/js/core/item-registry.js'), iIdx = s.indexOf('data/inventory/dice/index.js'), iCat = s.indexOf('assets/js/item-catalog.js');
     assert.ok(iReg >= 0 && iReg < iIdx && iIdx < iCat, h);

@@ -67,7 +67,7 @@ t('Manifest: semua metadata Power sama persis dengan baseline (nama, rarity, har
 });
 t('ItemCatalog: jalur Registry/legacy/gabungan identik dengan baseline dan API lama tetap tersedia', () => {
   [legacy, viaPower, viaAll].forEach(ctx => {
-    assert.strictEqual(ctx.ItemCatalog.items.length, 167);
+    assert.strictEqual(ctx.ItemCatalog.items.length, 168);
     assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
     assert.strictEqual(ctx.ItemCatalog.powerSource(), ctx === legacy ? 'legacy' : 'registry');
     base.api.forEach(k => { if (typeof k === 'string') assert.ok(k in ctx.ItemCatalog, k); });
