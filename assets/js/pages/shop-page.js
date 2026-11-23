@@ -329,7 +329,7 @@ UT.PageModule.define('shop', function (env) {
       const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
       return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
-        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="${IC}set-thumbs/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
+        <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="data/frame/karakter/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
         <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
           ${owned ? 'Dimiliki' : `${fmt(s.total)}<img src="${IC}hud/ikon-koin-emas.webp" alt="">`}
