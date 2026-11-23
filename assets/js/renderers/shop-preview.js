@@ -138,5 +138,37 @@
     return '';
   }
 
-  UT.ShopPreview = { mount: mount, diceThumb: diceThumb };
+  /* Thumbnail SET: render karakter pemain (wajah/rambut/kulit sendiri) memakai set tsb, pose idle, satu kali per set lalu di-cache.
+     p = entri UT.CharacterSets ({id,n,set}). Mengembalikan html <img> atau '' (pemanggil memakai ikon cadangan). */
+  var setCache = {};
+  function setThumb(p) {
+    try {
+      var T = g.THREE, S = UT.SharedGL, BC = UT.BlockyCharacter;
+      if (!p || !p.set || !T || !S || !S.offscreen || !BC) return '';
+      var look = (g.PlayerData && g.PlayerData.look && g.PlayerData.look()) || {};
+      var key = p.id + '|' + JSON.stringify(look);
+      if (setCache[key] !== undefined) return setCache[key];
+      var o = { gender: look.gender, skin: look.skin, eyes: look.eyes, hair: look.hair, body: look.body, accessories: [] };
+      ['eyes', 'hair'].forEach(function (k) { if (p.set[k]) o[k] = p.set[k]; });
+      ['top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'].forEach(function (k) {
+        o[k] = p.set[k] ? { id: p.set[k].id, dye: p.set[k].dye } : { id: 'none' };
+      });
+      (p.set.accessories || []).forEach(function (a) { o.accessories.push({ id: a.id, dye: a.dye }); });
+      var ch = BC.create(T); ch.apply(o, true); ch.setMode('idle'); ch.tick(.016);
+      var scene = new T.Scene(), cam = new T.PerspectiveCamera(30, 256 / 320, .1, 100);
+      scene.add(new T.AmbientLight(0xffffff, .6), new T.HemisphereLight(0xcfeaff, 0x6a9a50, .45));
+      var sun = new T.DirectionalLight(0xfff2d8, .8); sun.position.set(4, 9, 7); scene.add(sun);
+      scene.add(ch.root); scene.updateMatrixWorld(true);
+      var bb = new T.Box3().setFromObject(ch.root), cy = (bb.min.y + bb.max.y) / 2, h = Math.max(.5, bb.max.y - bb.min.y);
+      var d = (h / 2) / Math.tan(15 * Math.PI / 180) * 1.18;
+      cam.position.set(Math.sin(.5) * d, cy + d * .1, Math.cos(.5) * d); cam.lookAt(0, cy, 0);
+      var r = S.offscreen(); r.setPixelRatio(1); r.setSize(256, 320); r.setClearColor(0x000000, 0);
+      r.render(scene, cam);
+      var url = r.domElement.toDataURL('image/png');
+      try { scene.traverse(function (m) { try { if (m.geometry) m.geometry.dispose(); } catch (_) {} if (m.material) (Array.isArray(m.material) ? m.material : [m.material]).forEach(function (x) { try { if (x.map) x.map.dispose(); x.dispose(); } catch (_) {} }); }); } catch (e) { /* abaikan */ }
+      return (setCache[key] = url ? '<img class="setthumb" src="' + url + '" alt="" draggable="false">' : '');
+    } catch (e) { return ''; }
+  }
+
+  UT.ShopPreview = { mount: mount, diceThumb: diceThumb, setThumb: setThumb };
 })(window);
