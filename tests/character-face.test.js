@@ -82,3 +82,15 @@ t('katalog: slot eyes berlabel Mata (wajah bukan lagi nama slot mata)', () => {
   assert.ok(R('assets/js/item-catalog.js').includes("{ key: 'eyes', label: 'Mata' }"));
 });
 console.log(n + ' tes lulus');
+
+/* ---- Set PVP (Ksatria Mahkota & Rival) harus ada di renderer bersama, bukan hanya di builder Karakter ---- */
+(function () {
+  const blk = s => { const a = s.indexOf('const KN={'), b = s.indexOf('const REG={'); return s.slice(a, b); };
+  t('PVP: blok Ksatria Mahkota/Rival identik di renderer (template) dan builder Karakter', () => {
+    assert.ok(SRC.template.includes('const KN={'), 'renderer punya definisi set PVP');
+    assert.strictEqual(blk(SRC.template), blk(SRC.karakter));
+    ['EYES', 'HAIRS', 'TOPS', 'LEGS', 'BOOTS', 'HELMS', 'CHESTS', 'SHOULDERS', 'CAPES', 'WEAPONS'].forEach(L =>
+      assert.ok(SRC.template.includes(L + '.push('), L + ' terdaftar mahkota/rival'));
+  });
+  console.log(n + ' tes lulus (total)');
+})();
