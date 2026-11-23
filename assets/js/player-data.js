@@ -109,7 +109,7 @@
   }
 
   /* ---------- Tampilan dasar karakter (builder) ----------
-     look = { gender:'m'|'f', skin:'s1'..'s5', eyes:{id,dye}, hair:{id,dye}, body:{height,build} } atau null (belum pernah diatur).
+     look = { gender:'m'|'f', skin:'s1'..'s5', face?:{id}, eyes:{id,dye}, hair:{id,dye}, body:{height,build} } atau null (belum pernah diatur).
      Kosmetik lokal (bukan item dagangan): hanya BENTUK data yang divalidasi; daftar id/warna milik builder. */
   var LOOK_ID = /^[a-z0-9_]{1,24}$/;
   function cleanLook(l) {
@@ -119,8 +119,11 @@
     var b = (l.body && typeof l.body === 'object') ? l.body : {};
     var h = +b.height, bd = +b.build;
     if (!eyes || !hair || (l.gender !== 'm' && l.gender !== 'f') || !/^s[1-5]$/.test(l.skin || '')) return null;
-    return { gender: l.gender, skin: l.skin, eyes: eyes, hair: hair,
+    var out = { gender: l.gender, skin: l.skin, eyes: eyes, hair: hair,
              body: { height: Math.min(1.1, Math.max(0.9, isFinite(h) && h > 0 ? h : 1)), build: Math.min(1.15, Math.max(0.9, isFinite(bd) && bd > 0 ? bd : 1)) } };
+    /* wajah (bentuk wajah, terpisah dari mata): opsional; tidak ada/tidak valid = 'classic' di renderer */
+    if (l.face && typeof l.face === 'object' && LOOK_ID.test(l.face.id || '')) out.face = { id: l.face.id };
+    return out;
   }
 
   /* ---------- Outfit pribadi (tab Set di builder) ----------

@@ -213,7 +213,7 @@
      g = 'm' | 'f' | null (null = semua gender). Mata, rambut, warna kulit & pewarna adalah dasar penampilan, bukan item dagangan.
      Belum ada di builder (SENGAJA dilewati): trail, spawn_effect, idle_animation, bundle. (Aura = kind 'aura', lihat AURAS.) */
   var GEAR_SLOTS = [
-    { key: 'eyes', label: 'Wajah' }, { key: 'hair', label: 'Rambut' },
+    { key: 'eyes', label: 'Mata' }, { key: 'hair', label: 'Rambut' },
     { key: 'top', label: 'Baju' }, { key: 'legs', label: 'Celana' }, { key: 'boots', label: 'Sepatu' },
     { key: 'helm', label: 'Kepala' }, { key: 'chest', label: 'Zirah' }, { key: 'shoulder', label: 'Bahu' },
     { key: 'cape', label: 'Punggung' }, { key: 'weapon', label: 'Tangan' }, { key: 'acc', label: 'Aksesori' }
