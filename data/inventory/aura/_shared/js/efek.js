@@ -197,6 +197,54 @@ $('#grid').onclick=e=>{
   if(act==='use'){runAction(f);return}
   markSelected();openPreview();
 };
+/* geser baris kartu: roda mouse (vertikal/horizontal) -> ke samping; seret dengan mouse / jari / pena + momentum.
+   Kanvas 1920x1080 diskalakan (transform), jadi 1px layar = 1/k px scrollLeft (k dihitung dari ukuran tampil grid). Ketukan biasa tetap = klik kartu. */
+(function(){
+  const g=$('#grid');if(!g)return;
+  const sc=()=>{const w=g.offsetWidth,r=g.getBoundingClientRect();return w&&r.width?r.width/w:1};
+  g.style.touchAction='none'; /* seret ditangani sendiri di bawah (touch-action:pan-x bawaan tidak menggeser di dalam kanvas berskala) */
+  g.addEventListener('wheel',e=>{
+    if(g.scrollWidth<=g.clientWidth)return;
+    const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(!d)return;
+    e.preventDefault();g.scrollLeft+=d*(e.deltaMode===1?32:1)/sc();
+  },{passive:false});
+  let drag=null,dragged=false,fling=0,raf=0;
+  const stopFling=()=>{fling=0;if(raf){cancelAnimationFrame(raf);raf=0}};
+  g.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    stopFling();drag={id:e.pointerId,x:e.clientX,left:g.scrollLeft,moving:false,lx:e.clientX,lt:performance.now(),v:0};
+  });
+  g.addEventListener('pointermove',e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    const k=sc(),dx=(e.clientX-drag.x)/k;
+    if(!drag.moving){
+      if(Math.abs(dx)<6)return;
+      drag.moving=true;g.classList.add('drag');
+      try{g.setPointerCapture(e.pointerId)}catch(_){}
+    }
+    const now=performance.now(),dt=Math.max(1,now-drag.lt);
+    drag.v=.8*drag.v+.2*((drag.lx-e.clientX)/k/dt*16); /* px scrollLeft per frame (16ms) */
+    drag.lx=e.clientX;drag.lt=now;
+    g.scrollLeft=drag.left-dx;
+  });
+  function end(e){
+    if(!drag||e.pointerId!==drag.id)return;
+    if(drag.moving){
+      dragged=true;setTimeout(()=>{dragged=false},0);
+      try{g.releasePointerCapture(e.pointerId)}catch(_){}
+      if(e.type==='pointerup'&&performance.now()-drag.lt<80&&Math.abs(drag.v)>1){ /* lepas sambil bergerak = momentum */
+        fling=drag.v;
+        const step=()=>{fling*=.95;g.scrollLeft+=fling;if(Math.abs(fling)>.4&&!env.disposed)raf=requestAnimationFrame(step);else raf=0};
+        raf=requestAnimationFrame(step);
+      }
+    }
+    g.classList.remove('drag');drag=null;
+  }
+  g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);
+  g.addEventListener('dragstart',e=>e.preventDefault());
+  g.addEventListener('click',e=>{if(!dragged)return;e.stopPropagation();e.preventDefault()},true); /* seretan bukan ketukan */
+})();
+
 /* beli bila belum dimiliki; GUNAKAN bila dimiliki; LEPAS bila sedang dipakai ("Tanpa Efek" = tidak ada aura) */
 function runAction(f){
   if(!isOwned(f)){if(canSell(f))buySelected(f);else toast('Efek ini tidak dijual.');return}
