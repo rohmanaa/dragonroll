@@ -30,3 +30,10 @@ so world/decor placement is identical to before.
 - Reference site is WebGL; I could not inspect its scene visually, so the look follows the brief's description (palette, soft light, polish), not a pixel match.
 - AO is baked/fake (cheap, mobile-safe), not screen-space AO.
 - Nether map unchanged (it shares some code paths but its theme data and lighting branches were not touched).
+
+## Texture pack pixel-art (World, Nether, map berikutnya)
+- Sumber: `referensi/gameplay/*.jpg` (lembar 3x2 tile). `python3 tools/build-texpack.py` -> `gameplay/assets/maps/world/texpack.webp` (63 tile grayscale 64px) + `texpack.json` (nama -> layer). Urutan nama = id layer: **tambah di akhir, jangan ubah urutan**.
+- Hanya DETAIL (terang/gelap). Warna tetap dari palet/vertex/CSS yang sudah ada (`--world-*-tint`). Dimuat sebagai satu texture-array WebGL2 (1 sampler); tanpa WebGL2 otomatis kembali ke tekstur painterly lama.
+- Pemetaan: kategori material `MT` (id per vertex via `addBox(..,{tex:MT.X})`) -> tile, per tema di `TEX_PACK_MAP` (main.js). **Map baru = tambah 1 entri tema + tandai bagian dengan MT.** Kategori tanpa entri tetap polos/painterly.
+- CSS: `--world-pack` (1/0 saklar), `--world-pack-tex` (kekuatan), `--world-pack-size` (unit dunia per tile). `body.th-world` dan `body.th-nether`.
+- Nether baru ditandai: tanah/kolom (netherrack), nylium crimson/warped, soul sand, basalt, magma, batu hangus (blackstone), tiang (nether bricks), bingkai portal. Belum: pulau Nether, jamur, ghast, dll.

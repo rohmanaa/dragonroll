@@ -143,4 +143,11 @@ body.th-world{--world-grass-tex:.25;--world-grass-tex-size:2;--world-grass-tint:
   --world-brush-tex:.5;--world-brush-tex-size:.5;--world-brush-tint:#3F9E2C;--world-brush-tint-amt:1;            /* semak-semak (blok kecil 0.1, jadi ukuran ubin kecil) */
   --world-cobble-tex:.5;--world-cobble-tex-size:1;--world-cobble-tint:#8E8A8C;--world-cobble-tint-amt:1; /* cobblestone: pondasi/cerobong rumah, undakan, lingkaran api unggun */
   --world-flower-tex:.6;--world-flower-tex-size:.3;--world-flower-tint:#FF8FC0;--world-flower-tint-amt:0; /* bunga: tint-amt 0 = warna asli tiap bunga dipertahankan, 1 = semua satu warna */
+  /* TEXTURE PACK pixel-art (tile grayscale dari referensi/gameplay): hanya DETAIL, warna tetap dari palet di atas. Peta material->tile: TEX_PACK_MAP di main.js */
+  --world-pack:1;                /* 1 = pakai pack pixel-art, 0 = kembali ke tekstur painterly lama */
+  --world-pack-tex:.7;           /* kekuatan detail (0..1.5) */
+  --world-pack-size:1;           /* unit dunia per tile (1 = satu tile per blok 1x1) */
   --world-stone-tex:.15;--world-stone-tex-size:1;--world-stone-tint:#9AA0A8;--world-stone-tint-amt:1}
+
+/* Nether memakai pack yang sama (peta 'nether' di TEX_PACK_MAP). Warna tetap dari palet Nether. */
+body.th-nether{--world-pack:1;--world-pack-tex:.7;--world-pack-size:1}
