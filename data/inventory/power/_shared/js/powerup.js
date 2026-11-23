@@ -32,6 +32,7 @@ function renderGrid(){
   const html=LIST.map(i=>{
     const k=qty(i);
     return '<button class="fslot st-own'+(i===sel?' sel':'')+'" data-id="'+i.id+'" aria-label="'+i.name+' — stok ×'+k+', ketuk untuk lihat detail"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><span class="chip-n">'+k+'</span></button>'}).join('');
+  html+='<button class="fslot add" type="button" data-add aria-label="Tambah Power-up, buka Toko"><span class="pl">+</span></button>';
   $('#grid').innerHTML=html;
   $('#empty').hidden=LIST.length>0;
 }
@@ -59,6 +60,7 @@ $('#pv').addEventListener('click',e=>{if(e.target.id==='pv'){playSound('click');
 addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#pv').classList.contains('on'))closePv()});
 $('#grid').addEventListener('click',e=>{
   const c=e.target.closest('.fslot');if(!c)return;
+  if(c.hasAttribute('data-add')){playSound('click');nav('shop.html?tab=power');return}
   const i=LIST.find(x=>x.id===c.dataset.id);if(!i)return;
   pick(i);playSound('open');openPv();
 });
