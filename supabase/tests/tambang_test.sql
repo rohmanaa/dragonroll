@@ -14,6 +14,8 @@ update public.player_wallet set gems = 100, coins = 0 where user_id='eeeeeeee-00
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'get0', public.mine_get();
 insert into out select 'u1', public.mine_unlock(1);
+-- simpan saldo gems SETELAH u1 (sebelum u2)
+insert into out select 'gems_after_u1', to_jsonb(gems) from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001';
 insert into out select 'u1again', public.mine_unlock(1);
 insert into out select 'u2', public.mine_unlock(2);
 insert into out select 'u3poor', public.mine_unlock(3);
@@ -24,8 +26,8 @@ do $$ declare c bigint; begin
   assert (select jsonb_array_length(v->'slots') from out where k='get0') = 3, '3 slot dikirim';
   assert (select (v->'config'->>'boost_daily')::int from out where k='get0') = 2, 'konfigurasi boost_daily=2';
   assert (select v->>'ok' from out where k='u1') = 'true', 'buka slot 1 ok: ' || (select v::text from out where k='u1');
-  -- unlock slot 1 = 20 gems
-  assert (select gems from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 80, 'buka slot 1 = 20 gems, sisa 80: ' || (select gems::text from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001');
+  -- unlock slot 1 = 20 gems, saldo seharusnya 80 (diambil dari snapshot gems_after_u1)
+  assert (select v->>'' from out where k='gems_after_u1')::bigint = 80, 'buka slot 1 = 20 gems, sisa 80 (snapshot): ' || (select v->>'' from out where k='gems_after_u1');
   assert (select v->>'reason' from out where k='u1again') = 'sudah-dibuka', 'buka ulang slot 1 = sudah-dibuka: ' || (select v::text from out where k='u1again');
   assert (select v->>'ok' from out where k='u2') = 'true', 'buka slot 2 ok: ' || (select v::text from out where k='u2');
   -- unlock slot 2 = 60 gems, total 80 spent, sisa 20
