@@ -185,8 +185,17 @@
 
     function pushHistory(url, opts) {
       if (opts.history === 'none') return;
-      var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');   // shell bersarang (HP portrait): pertahankan flag agar reload tidak keluar dari bersarang
-      var link = (G.location.pathname || 'play.html') + '?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
+      var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');
+      var link;
+      if (G.UT && G.UT.PrettyUrl && G.UT.PrettyUrl.shouldUsePretty()) {
+        var page = pageOf(url);
+        var token = G.UT.PrettyUrl.getToken();
+        var uuid = G.UT.PrettyUrl.genUuid();
+        link = G.UT.PrettyUrl.buildUrl(page, token, uuid);
+        if (nested) link += '?nested=1';
+      } else {
+        link = (G.location.pathname || 'play.html') + '?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
+      }
       try {
         if (opts.replace) G.history.replaceState({ spa: url }, '', link);
         else G.history.pushState({ spa: url }, '', link);

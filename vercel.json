@@ -1,5 +1,11 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
-  "installCommand": "echo skip"
+  "installCommand": "echo skip",
+  "rewrites": [
+    {
+      "source": "/:t([a-z0-9]{20})/:page([a-z0-9-]+)/:id([0-9a-f-]{36})",
+      "destination": "/play.html?go=:page.html"
+    }
+  ]
 }

@@ -12,9 +12,13 @@
   function frameUrl(u) { try { if (!NESTED && window.matchMedia(ROT).matches) return nestedUrl(u); } catch (e) {} return u; }
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
   try {
-    var q = new URLSearchParams(location.search).get('go');
-    // hanya halaman .html di folder yang sama (bukan play.html/index.html) agar tidak jadi open redirect
-    if (q && /^[A-Za-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/.test(q) && !/^(play|index)\.html/.test(q)) go = q;
+    if (window.UT && UT.PrettyUrl && UT.PrettyUrl.shouldUsePretty()) {
+      go = UT.PrettyUrl.getGoFromUrl();
+    } else {
+      var q = new URLSearchParams(location.search).get('go');
+      // hanya halaman .html di folder yang sama (bukan play.html/index.html) agar tidak jadi open redirect
+      if (q && /^[A-Za-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/.test(q) && !/^(play|index)\.html/.test(q)) go = q;
+    }
   } catch (e) {}
 
   /* ================= Layar memuat (kondisional, bukan timer) =================
