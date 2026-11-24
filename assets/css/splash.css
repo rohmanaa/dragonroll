@@ -10,8 +10,9 @@ html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 78% 78% at 50% 46%,transparent 40%,rgba(8,5,10,.75) 100%),linear-gradient(180deg,transparent 80%,rgba(8,5,10,.85))}
-#spin{position:absolute;left:calc(50vw - 3.4rem);bottom:8.6rem;width:6.9rem;height:auto;animation:spin 1.6s steps(12) infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* indikator berputar ikut di ujung isi bar (satu loading saja, bukan dua) */
+#spin{position:absolute;right:-.2rem;top:50%;height:150%;width:auto;aspect-ratio:1;transform:translateY(-50%);animation:spin 1.6s steps(12) infinite;pointer-events:none}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
 
 /* bar loading: bingkai logam 9-slice (ujung runcing tidak melar) */
@@ -23,7 +24,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 /* area isi mengikuti rongga bingkai (ujung kiri & kanan RUNCING seperti bingkai, jadi di 100% isi penuh sampai ujung) */
 #bar{position:absolute;left:1.62rem;right:1.68rem;top:1.28rem;bottom:1.35rem;overflow:hidden;background:#241c1f;
   clip-path:polygon(1.25rem 0,calc(100% - 1.15rem) 0,100% 50%,calc(100% - 1.15rem) 100%,1.25rem 100%,0 50%)}
-#fill{display:block;height:100%;width:0;background:url(../images/ui/logo/bar-loading-isi-biru.webp) center/calc(100% + 3rem) 100% no-repeat;transition:width .15s}
+#fill{position:relative;display:block;height:100%;width:0;background:url(../images/ui/logo/bar-loading-isi-biru.webp) center/calc(100% + 3rem) 100% no-repeat;transition:width .15s}
 #lbl{position:absolute;left:0;right:0;top:1.28rem;bottom:1.35rem;display:grid;place-items:center;font:800 1.9rem var(--font-body);color:#fff;text-shadow:0 .12rem .12rem rgba(0,0,0,.6)}
 
 /* tombol */
