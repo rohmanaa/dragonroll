@@ -165,7 +165,7 @@ function buildSnaps(){
   document.body.appendChild(host);
   let R=null,timer=0,i=0,got=0;
   const end=()=>{
-    clearTimeout(timer);snapStop=null;
+    env.clearTimeout(timer);snapStop=null;
     try{if(R){const gl=R.renderer;R.dispose();if(gl&&gl.forceContextLoss)gl.forceContextLoss()}}catch(e){}
     R=null;host.remove();
     if(got&&!env.disposed){lastGridHtml='';drawGrid()}
@@ -194,9 +194,9 @@ function buildSnaps(){
       R.renderer.render(R.scene,R.camera);
       const u=grab();if(u){SNAP.set(x.gameKey,u);got++}
     }catch(e){console.warn('snapshot dadu gagal',x.gameKey,e)}
-    timer=setTimeout(step,30);
+    timer=env.setTimeout(step,30);
   };
-  timer=setTimeout(step,60);
+  timer=env.setTimeout(step,60);
 }
 
 /* ---- modal ---- */

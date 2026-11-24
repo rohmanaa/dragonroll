@@ -208,7 +208,7 @@ $('#grid').onclick=e=>{
     e.preventDefault();g.scrollLeft+=d*(e.deltaMode===1?32:1)/sc();
   },{passive:false});
   let drag=null,dragged=false,fling=0,raf=0;
-  const stopFling=()=>{fling=0;if(raf){cancelAnimationFrame(raf);raf=0}};
+  const stopFling=()=>{fling=0;if(raf){env.cancelAnimationFrame(raf);raf=0}};
   g.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
     stopFling();drag={id:e.pointerId,x:e.clientX,left:g.scrollLeft,moving:false,lx:e.clientX,lt:performance.now(),v:0};
@@ -229,12 +229,12 @@ $('#grid').onclick=e=>{
   function end(e){
     if(!drag||e.pointerId!==drag.id)return;
     if(drag.moving){
-      dragged=true;setTimeout(()=>{dragged=false},0);
+      dragged=true;env.setTimeout(()=>{dragged=false},0);
       try{g.releasePointerCapture(e.pointerId)}catch(_){}
       if(e.type==='pointerup'&&performance.now()-drag.lt<80&&Math.abs(drag.v)>1){ /* lepas sambil bergerak = momentum */
         fling=drag.v;
-        const step=()=>{fling*=.95;g.scrollLeft+=fling;if(Math.abs(fling)>.4&&!env.disposed)raf=requestAnimationFrame(step);else raf=0};
-        raf=requestAnimationFrame(step);
+        const step=()=>{fling*=.95;g.scrollLeft+=fling;if(Math.abs(fling)>.4&&!env.disposed)raf=env.requestAnimationFrame(step);else raf=0};
+        raf=env.requestAnimationFrame(step);
       }
     }
     g.classList.remove('drag');drag=null;

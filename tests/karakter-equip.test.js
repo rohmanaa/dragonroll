@@ -57,7 +57,7 @@ t("karakter dipratinjau tanpa podium dan tidak bergerak naik-turun", () => {
   assert.ok(/root\.position\.y=0/.test(rig));
   assert.ok(!/Math\.sin/.test(rig), "rig pratinjau tidak menjalankan gerakan naik-turun otomatis");
   assert.ok(/root\.position\.y=-0\.75\*cfg\.body\.height\*\(cfg\.gender==='f'\?0\.97:1\)/.test(html), "karakter diturunkan tetap sampai kakinya menyentuh garis dasar");
-  assert.ok(/camTarget\.set\(0,0\.85,0\)/.test(html), "kamera tidak mengimbangi penurunan rig");
+  assert.ok(/camTarget\.set\(0,0\.95,0\)/.test(html), "kamera tidak mengimbangi penurunan rig");
   assert.ok(/camYaw-=dx\*0\.007/.test(html), "drag tetap memutar tampilan karakter");
 });
 t("kaki karakter sejajar dengan batas bawah baris keempat slot", () => {
@@ -118,16 +118,16 @@ t("empat slot outfit di kiri dan empat slot equipment/aksesori di kanan memakai 
 t("tab memakai garis bawah NewGUI dan tetap mengelompokkan semua kategori editor", () => {
   const m = html.match(/const GROUPS=\[([\s\S]*?)\n\];/); assert.ok(m);
   const names = [...m[1].matchAll(/name:'([^']+)'/g)].map(x => x[1]);
-  assert.deepStrictEqual(names, ["Gender", "Penampilan", "Outfit", "Aksesori"]);
+  assert.deepStrictEqual(names, ["Gender", "Penampilan", "Outfit", "Aksesori", "Set"]);
   const keys = [...m[1].matchAll(/keys:\[([^\]]*)\]/g)].map(x => x[1].replace(/'/g, "").split(","));
-  assert.deepStrictEqual(keys, [["gender"], ["skin", "eyes", "hair", "body", "preset"], ["top", "legs", "helm", "boots"], ["accessories"]]);
+  assert.deepStrictEqual(keys, [["gender"], ["skin", "face", "eyes", "hair", "body"], ["top", "legs", "helm", "chest", "shoulder", "cape", "weapon", "boots"], ["accessories"], ["preset"]]);
   const hidden = [...html.match(/const slotTabs=\{([^}]*)\}/)[1].matchAll(/(\w+):'Outfit'/g)].map(x => x[1]);
-  const all = keys.flat().concat(hidden).sort(), cats = [...regBlock("CATS").matchAll(/key:'(\w+)'/g)].map(x => x[1]).sort();
+  const all = [...new Set(keys.flat().concat(hidden))].sort(), cats = [...regBlock("CATS").matchAll(/key:'(\w+)'/g)].map(x => x[1]).sort();
   assert.deepStrictEqual(all, cats, "kategori yang tidak ditampilkan langsung tetap dapat diakses dari slot equip");
   assert.ok(/<nav id="tabs"/.test(html) && /<nav id="subs"/.test(html));
   assert.ok(/id="tabs" aria-label="Kategori"/.test(html));
   assert.ok(/garis-bawah-tab-emas\.webp/.test(html));
-  assert.ok(/#tabs\{[^}]*grid-template-columns:repeat\(4,1fr\)/.test(css));
+  assert.ok(/#tabs\{[^}]*grid-template-columns:repeat\(5,1fr\)/.test(css));
   assert.ok(/subsEl\.style\.display=G\.keys\.length>1\?'':'none'/.test(html), "Gender dan Aksesori tidak memiliki subkategori (Set kini subkategori Penampilan)");
   assert.ok(!/id="bh"|id="bht"/.test(html) && !/#bh|#bht/.test(css), "judul kategori tambahan tidak ditampilkan");
   assert.ok(/<button class="bt" id="ofm" style="display:none">✏️ Kelola<\/button>/.test(html), "aksi Kelola outfit tetap tersedia");
