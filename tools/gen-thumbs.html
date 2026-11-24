@@ -13,13 +13,17 @@ button:disabled{opacity:.45}#log{white-space:pre-wrap;background:#0f0b22;border-
 .c img{width:100%;height:150px;object-fit:contain;display:block;background:repeating-conic-gradient(#3a3166 0 25%,#2a2250 0 50%) 50%/16px 16px;border-radius:6px}
 </style></head><body>
 <h1>Generator thumbnail Dragon Roll</h1>
-<p>Merender SEKALI dari renderer asli (karakter memakai set LENGKAP semua bagian, dan dadu 3D), lalu menyimpannya sebagai foto statis supaya Shop/Dadu tidak perlu render lagi.</p>
+<p>Merender SEKALI dari renderer asli (karakter memakai set LENGKAP semua bagian, dadu, power, aura, dan pet 3D), lalu menyimpannya sebagai foto statis supaya Shop/Dadu tidak perlu render lagi.</p>
 <p>Buka lewat server lokal/deploy dari akar repo (mis. <code>/tools/gen-thumbs.html</code>) memakai <b>Chrome</b> (perlu encoder WebP). Hasil: ZIP berisi struktur folder repo, ekstrak ke akar repo.</p>
+<p><label><input type="checkbox" id="k-s" checked> Set</label> <label><input type="checkbox" id="k-d" checked> Dadu</label> <label><input type="checkbox" id="k-p" checked> Power</label> <label><input type="checkbox" id="k-a" checked> Aura</label> <label><input type="checkbox" id="k-t" checked> Pet</label> &nbsp;|&nbsp; <label><input type="checkbox" id="auraChar" checked> Aura: sertakan karakter (matikan = efek saja)</label></p>
 <button id="go">1. Render semua</button><button id="zip" disabled>2. Unduh ZIP</button>
 <div id="log"></div>
 <h2>Set karakter → data/frame/karakter/&lt;id&gt;-&lt;m|f&gt;.webp</h2><div class="g" id="gs"></div>
 <h2>Dadu → data/inventory/dice/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gd"></div>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<h2>Power → data/inventory/power/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gp"></div>
+<h2>Aura → data/inventory/aura/&lt;id&gt;/&lt;id&gt;.webp</h2><div class="g" id="ga"></div>
+<h2>Pet → data/inventory/pet/items/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gt"></div>
+<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/pet/items/forest_pup/manifest.js"></script><script src="data/inventory/pet/items/copper_golem/manifest.js"></script><script src="data/inventory/pet/items/crystal_axolotl/manifest.js"></script><script src="data/inventory/pet/items/arcane_owl/manifest.js"></script><script src="data/inventory/pet/items/storm_wolf/manifest.js"></script><script src="data/inventory/pet/items/inferno_dragon/manifest.js"></script><script src="data/inventory/pet/items/celestial_kitsune/manifest.js"></script><script src="data/inventory/pet/index.js"></script><script src="assets/js/item-catalog.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
 <script src="data/inventory/character/_shared/js/character-sets.js"></script>
 <script src="assets/js/renderers/item-art.js"></script>
@@ -97,11 +101,126 @@ async function doDice(){
   }
   try{R.dispose()}catch(e){}host.remove();
 }
+/* ---------- util: potong ke kotak OUT x OUT berdasarkan bounding alpha (dipakai Power/Aura/Pet) ---------- */
+function cropGrab(src,OUT,amin,padK,minCnt){
+  /* bbox dari piksel di atas ambang alpha; baris/kolom dengan terlalu sedikit piksel (percikan, bayangan tipis) diabaikan */
+  var w=src.width,h=src.height,t=document.createElement('canvas');t.width=w;t.height=h;
+  var tc=t.getContext('2d',{willReadFrequently:true});tc.drawImage(src,0,0);var d=tc.getImageData(0,0,w,h).data;
+  var col=new Uint16Array(w),row=new Uint16Array(h);
+  for(var y=0;y<h;y+=2)for(var x=0;x<w;x+=2){if(d[(y*w+x)*4+3]>amin){col[x]++;row[y]++}}
+  var mc=minCnt||1,x0=-1,x1=-1,y0=-1,y1=-1,i;
+  for(i=0;i<w;i++)if(col[i]>=mc){if(x0<0)x0=i;x1=i}
+  for(i=0;i<h;i++)if(row[i]>=mc){if(y0<0)y0=i;y1=i}
+  if(x0<0||y0<0)return null;
+  var pad=Math.round(Math.max(x1-x0,y1-y0)*(padK||.06)),bw=x1-x0+1,bh=y1-y0+1,side=Math.max(bw,bh)+pad*2;
+  var cv=document.createElement('canvas');cv.width=cv.height=OUT;var c=cv.getContext('2d');
+  c.imageSmoothingQuality='high';var k=OUT/side;c.drawImage(t,x0,y0,bw,bh,(OUT-bw*k)/2,(OUT-bh*k)/2,bw*k,bh*k);return cv;
+}
+/* potongan tetap (kamera & ukuran sama untuk semua item): ukuran karakter seragam antar thumbnail, tidak ikut sebaran partikel */
+function fixedGrab(src,OUT,x,y,side){
+  var cv=document.createElement('canvas');cv.width=cv.height=OUT;var c=cv.getContext('2d');
+  c.imageSmoothingQuality='high';c.drawImage(src,x,y,side,side,0,0,OUT,OUT);return cv;
+}
+var wait=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+function loadScript(src){return new Promise(function(res,rej){var e=document.createElement('script');e.src=src;e.onload=res;e.onerror=function(){rej(new Error('gagal memuat '+src))};document.head.appendChild(e)})}
+
+/* ---------- POWER (model 3D PowerRenderer): satu frame setelah animasi muncul selesai ---------- */
+async function doPower(){
+  var mod=await import('./assets/js/renderers/power-3d/power-show.js');
+  var keys=Object.keys(mod.KEY_TO_POWER3D).slice(0,window.__genLimit||99);
+  var host=document.createElement('div');host.style.cssText='position:fixed;left:-9999px;top:0;width:560px;height:560px;visibility:hidden';document.body.appendChild(host);
+  var H=mod.mount(host,{quality:'medium',sound:false}),pr=H.renderer;H.stop();pr.resize&&pr.resize();
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    try{
+      if(!H.show(k)){log('power tidak dikenal: '+k);continue}
+      pr.time=0;pr._last=0;
+      for(var f=0;f<50;f++){pr._frame(f*50)}   /* 2,5 dtk simulasi (langkah 50 ms): animasi spawn selesai; _frame menjadwalkan rAF, dibatalkan lewat stop() */
+      H.stop();pr.renderer.render(pr.scene,pr.camera);
+      var g=cropGrab(pr.renderer.domElement,384,200,.08,6);if(!g){log('power kosong: '+k);continue}
+      await add('data/inventory/power/'+k+'/'+k+'.webp',g,'gp',k);log('power ok: '+k);
+    }catch(e){log('power GAGAL '+k+': '+e.message)}
+    await wait(30);
+  }
+  try{H.destroy()}catch(e){}host.remove();
+}
+
+/* ---------- AURA (UT.AuraFX): sama seperti pratinjau efek.js; tanpa karakter = aura saja di tinggi karakter ---------- */
+async function doAura(){
+  var FX=UT.AuraFX;if(!FX||!FX.AuraSystem){log('AuraFX belum siap');return}
+  var withCh=$('auraChar').checked,ids=FX.AURAS.map(function(a){return a.id}).slice(0,window.__genLimit||99);
+  var FXSCALE=2.5,CY=3.2,DIST=16,FOV=36,LOOK=1.1,W=640,Hh=800,r=UT.SharedGL.offscreen();
+  for(var i=0;i<ids.length;i++){
+    var id=ids[i];
+    try{
+      var scene=new T.Scene(),cam=new T.PerspectiveCamera(FOV,W/Hh,.1,100);
+      scene.add(new T.AmbientLight(0xffffff,.7),new T.HemisphereLight(0xcfeaff,0x6a9a50,.6));
+      var sun=new T.DirectionalLight(0xfff2d8,.9);sun.position.set(6,12,8);scene.add(sun);
+      var holder=new T.Group(),w=new T.Group(),ch=null,root,hh;scene.add(holder);
+      if(withCh){ch=UT.BlockyCharacter.create(T);ch.loadFromPlayer();ch.setMode('idle');ch.tick(.016);w.scale.setScalar(FXSCALE);w.add(ch.root);root=ch.root;holder.add(w);
+        scene.updateMatrixWorld(true);var bb=new T.Box3().setFromObject(ch.root);hh=bb.max.y-bb.min.y;w.position.y+=.14-bb.min.y;}
+      else{root=new T.Group();var px=new T.Mesh(new T.BoxGeometry(1.2,1.9*FXSCALE,.8),new T.MeshBasicMaterial({visible:false}));px.position.y=1.9*FXSCALE/2;root.add(px);w.add(root);holder.add(w);w.position.y=.14;hh=1.9*FXSCALE;}   /* AuraFX butuh geometri di root: mesh tak terlihat sebagai pengganti badan */
+      scene.updateMatrixWorld(true);
+      var sys=new FX.AuraSystem(scene,cam,{quality:'high'});
+      var aura=sys.attach(root,id,{},{height:hh>.1?hh:1.9*FXSCALE});
+      for(var f=0;f<120;f++){if(ch)ch.tick(1/30);sys.update(1/30)}   /* ~4 dtk: efek sudah penuh */
+      cam.position.set(0,CY+LOOK+1,DIST);cam.lookAt(0,CY+LOOK,0);
+      r.setPixelRatio(1);r.setSize(W,Hh,false);r.setClearColor(0x000000,0);r.render(scene,cam);
+      var g=fixedGrab(r.domElement,384,100,290,440);   /* render 640x800: kotak 440 px berpusat di karakter (kaki + cincin di bawah, kepala + sedikit partikel di atas) */
+      try{sys.dispose()}catch(e){}
+      if(!g){log('aura kosong: '+id);continue}
+      await add('data/inventory/aura/'+id+'/'+id+'.webp',g,'ga',id);log('aura ok: '+id);
+    }catch(e){log('aura GAGAL '+id+': '+e.message)}
+    await wait(30);
+  }
+}
+
+/* ---------- PET (PetViewer asli; kamera diam di sudut awal, tanpa auto-putar) ---------- */
+async function doPet(){
+  if(window.__petDone){log('Pet: muat ulang halaman (F5) dulu untuk render Pet lagi');return}
+  var reduce=window.matchMedia;   /* paksa prefers-reduced-motion agar kamera tidak berputar: sudut sama untuk semua pet */
+  window.matchMedia=function(q){var m=reduce.call(window,q);return /reduced-motion/.test(q)?{matches:true,media:q,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){}}:m};
+  var host=document.createElement('div');host.id='fpv';host.style.cssText='position:fixed;left:-9999px;top:0;width:640px;height:640px';
+  host.innerHTML='<canvas id="petGl" style="width:100%;height:100%"></canvas>';document.body.appendChild(host);
+  /* salin kanvas TEPAT setelah PetViewer merender (buffer belum dibersihkan): render() renderer bersama dibungkus lewat SharedGL.acquire */
+  var cap=null,SG=UT.SharedGL,origAcq=SG.acquire;
+  SG.acquire=function(){var g=origAcq.apply(this,arguments),r=g.renderer;
+    if(r&&!r.__thumbHook){var rr=r.render.bind(r);r.render=function(a,b){rr(a,b);if(cap){var f=cap;cap=null;f(r.domElement)}};r.__thumbHook=1}
+    return g};
+  try{
+    if(!UT.PageModule)await loadScript('assets/js/core/page-module.js');
+    await loadScript('data/inventory/pet/_shared/js/pet-model-registry.js');
+    await loadScript('data/inventory/pet/_shared/js/pet-viewer.js');
+    await wait(400);
+    if(!window.PetViewer){log('PetViewer tidak termuat');return}
+    var keys=window.ItemCatalog.items.filter(function(x){return x.kind==='pet'}).sort(function(a,b){return a.tier-b.tier}).map(function(x){return x.gameKey}).slice(0,window.__genLimit||99);
+    for(var i=0;i<keys.length;i++){
+      var k=keys[i];
+      try{
+        window.PetViewer.select(k);await wait(i?1500:2600);
+        var snap=await new Promise(function(res){var t=setTimeout(function(){res(null)},3000);cap=function(cv){clearTimeout(t);var c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;c.getContext('2d').drawImage(cv,0,0);res(c)}});
+        var g=snap&&cropGrab(snap,384,150,.08,10);if(!g){log('pet kosong: '+k);continue}
+        await add('data/inventory/pet/items/'+k+'/'+k+'.webp',g,'gt',k);log('pet ok: '+k);
+      }catch(e){log('pet GAGAL '+k+': '+e.message)}
+    }
+  }finally{
+    window.__petDone=true;SG.acquire=origAcq;window.matchMedia=reduce;
+    try{window.PetViewer&&window.PetViewer.destroy()}catch(e){}host.remove();
+  }
+}
 $('go').onclick=async function(){
-  this.disabled=true;out=[];$('gs').innerHTML='';$('gd').innerHTML='';$('log').textContent='';
-  try{await doSets();await doDice()}catch(e){log('ERROR: '+e.message)}
+  this.disabled=true;out=[];['gs','gd','gp','ga','gt'].forEach(function(i){$(i).innerHTML=''});$('log').textContent='';
+  var on=function(i){return $(i).checked};
+  try{
+    if(on('k-s'))await doSets();
+    if(on('k-d'))await doDice();
+    if(on('k-p'))await doPower();
+    if(on('k-a'))await doAura();
+    if(on('k-t'))await doPet();
+  }catch(e){log('ERROR: '+e.message)}
   log('selesai: '+out.length+' file');$('zip').disabled=!out.length;this.disabled=false;
 };
+window.__gen={doSets:doSets,doDice:doDice,doPower:doPower,doAura:doAura,doPet:doPet,out:function(){return out}};   /* hook uji headless */
 $('zip').onclick=async function(){
   if(!window.JSZip){alert('JSZip gagal dimuat (perlu internet ke cdnjs)');return}
   var z=new JSZip();out.forEach(function(f){z.file(f.path,f.blob)});
