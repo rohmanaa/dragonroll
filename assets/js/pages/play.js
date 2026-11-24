@@ -268,10 +268,12 @@
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);
+    if (!NESTED && window.UT && UT.GraphicsAuto) UT.GraphicsAuto.afterReady();   // Grafik Auto: ukur frame time, turun sendiri bila berat
   });
   /* ================= SPA tahap 2: Lobby & Karakter dirender langsung di #view (tanpa iframe) =================
      Layar memuat, musik, dan prefetch tetap milik pembungkus; UT.Spa memanggil hook ini saat berpindah rute. */
   document.addEventListener('click', afterTap, true);      // ketukan pada view (klik di iframe tidak sampai ke sini)
+  if (!NESTED && window.UT && UT.GraphicsAuto) { try { UT.GraphicsAuto.boot(); } catch (e) {} }   // Grafik Auto: pilih tingkat sebelum halaman dibangun
   if (window.UT && UT.Spa) {
     UT.Spa.mount({
       frame: f, view: document.getElementById('view'), frameUrl: frameUrl,
@@ -288,6 +290,7 @@
           whenReady(window, hideOv);
           setWant(true);
           prefetchNext(UT.Spa.page || name + '.html');
+          if (!NESTED && UT.GraphicsAuto) UT.GraphicsAuto.afterReady();
         }
       }
     });
