@@ -1,7 +1,15 @@
 /* play.js — dipindah dari blok script inline (play.html). */
 (function () {
   /* pembungkus bersarang (play.html/root dimuat di dalam iframe pembungkus lain) = dua pemutar musik bertabrakan: keluar ke jendela paling atas */
-  if (window.top !== window) { try { window.top.location.replace(location.href); return; } catch (e) { /* lintas origin: lanjut */ } }
+  /* SPA portrait: di HP portrait pembungkus luar memutar iframe #f 90°; shell SPA dijalankan DI DALAM iframe itu (play.html?nested=1)
+     sehingga view melihat viewport landscape (innerWidth, vw/vh, sentuhan) tanpa mengubah kode halaman. Pembungkus bersarang ini
+     TIDAK memutar musik (milik pembungkus luar, lewat UTShell.want/syncMusic/click/enter). */
+  var NESTED = false, ROT = '(orientation:portrait) and (pointer:coarse)';
+  try { NESTED = window.top !== window && /[?&]nested=1(&|$)/.test(location.search) && window.parent.__utOuterShell === true; } catch (e) {}
+  if (window.top !== window && !NESTED) { try { window.top.location.replace(location.href); return; } catch (e) { /* lintas origin: lanjut */ } }
+  if (window.top === window) window.__utOuterShell = true;
+  function nestedUrl(u) { return 'play.html?nested=1&go=' + encodeURIComponent(u); }
+  function frameUrl(u) { try { if (!NESTED && window.matchMedia(ROT).matches) return nestedUrl(u); } catch (e) {} return u; }
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
   try {
     var q = new URLSearchParams(location.search).get('go');
@@ -169,6 +177,7 @@
   }
   var needGesture = false;
   function syncMusic() {
+    if (NESTED) { try { window.parent.UTShell.syncMusic(); } catch (e) {} return; }   // pemutar milik pembungkus luar
     var on = wantMusic && settings().music && !document.hidden;
     if (on) {
       if (!ensureBgm()) return;
@@ -189,6 +198,7 @@
   /* Suara ketukan tombol: kolam kecil agar ketukan beruntun tidak saling memotong; tetap bunyi walau halaman langsung berpindah. */
   var clickPool = [], clickI = 0;
   function playClick() {
+    if (NESTED) { try { window.parent.UTShell.click(); } catch (e) {} return; }
     if (!settings().sound) return;
     try {
       if (!clickPool.length) for (var i = 0; i < 4; i++) { var a = new Audio('assets/audio/sfx/ui/button-click.mp3'); a.preload = 'auto'; clickPool.push(a); }
@@ -196,7 +206,8 @@
       var p = el.play(); if (p && p.catch) p.catch(function () {});
     } catch (e) {}
   }
-  window.UTShell = { click: playClick, syncMusic: syncMusic, enter: function () { wantMusic = true; syncMusic(); } };   // enter: dipanggil splash saat ketukan masuk (ketukan = gesture yang membuka izin autoplay)   // dipakai UT.Audio di halaman (app.js)
+  function setWant(v) { if (NESTED) { try { window.parent.UTShell.want(!!v); } catch (e) {} return; } wantMusic = !!v; syncMusic(); }
+  window.UTShell = { click: playClick, syncMusic: syncMusic, want: setWant, enter: function () { setWant(true); } };   // enter: dipanggil splash saat ketukan masuk (ketukan = gesture yang membuka izin autoplay)   // dipakai UT.Audio di halaman (app.js)
 
   /* Setelah setiap ketukan di halaman, baca ulang pengaturan (toggle Musik/Suara di Pengaturan berlaku seketika). */
   function afterTap() { setTimeout(syncMusic, 0); setTimeout(syncMusic, 120); }
@@ -252,8 +263,8 @@
     } catch (e) {}
 
     // musik: gameplay & splash = berhenti (di splash musik baru mulai saat ketukan "masuk": UTShell.enter); halaman lain = bermusik
-    if (name === 'gameplay.html' || SELF_LOADING.test(name)) { wantMusic = false; syncMusic(); }
-    else if (!/^(play|index)\.html$/.test(name)) { wantMusic = true; syncMusic(); }
+    if (name === 'gameplay.html' || SELF_LOADING.test(name)) { setWant(false); }
+    else if (!/^(play|index)\.html$/.test(name)) { setWant(true); }
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);
@@ -263,7 +274,7 @@
   document.addEventListener('click', afterTap, true);      // ketukan pada view (klik di iframe tidak sampai ke sini)
   if (window.UT && UT.Spa) {
     UT.Spa.mount({
-      frame: f, view: document.getElementById('view'),
+      frame: f, view: document.getElementById('view'), frameUrl: frameUrl,
       hooks: {
         leave: function (kind) {
           /* peluncuran gameplay dari view (Mode/Room lewat RoomFlow.launch) menyetel ut:nav-heavy: halaman berat -> tirai awan seketika, bukan tertunda */
@@ -275,12 +286,12 @@
         ready: function (name) {
           stage('Menampilkan halaman');
           whenReady(window, hideOv);
-          wantMusic = true; syncMusic();
+          setWant(true);
           prefetchNext(UT.Spa.page || name + '.html');
         }
       }
     });
     if (UT.Spa.start(go)) return;
   }
-  f.src = go;
+  f.src = frameUrl(go);
 })();
