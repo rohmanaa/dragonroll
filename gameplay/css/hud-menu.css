@@ -1,0 +1,75 @@
+/* Menu gameplay (dock) + modal Pengaturan & Bantuan + penyesuaian menu Pause murni.
+   Dock: tepi kiri layar, bisa dibuka/ditutup lewat tab. HP = deret ikon (target sentuh 46px); desktop (>=900px & pointer halus) = tab berlabel + nilai.
+   Tombol lama di #hud .tools disembunyikan (tetap di DOM agar JS lama jalan; dock memanggilnya lewat ops di hud-menu.js). */
+body #hud .tools{display:none!important}
+
+.hm{position:fixed;left:max(6px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);z-index:7;display:none;flex-direction:row;align-items:flex-start;gap:6px;pointer-events:none;max-height:calc(100vh - 16px);font-family:Nunito,system-ui,sans-serif}
+body.playing .hm:not([hidden]){display:flex}
+.hm>*{pointer-events:auto}
+.hm[hidden]{display:none!important}
+
+.hm-tab{display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:0 10px;border-radius:14px;border:2px solid rgba(241,217,160,.6);background:rgba(27,20,51,.88);color:#fff3d6;font:800 13px/1 Nunito,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 3px 0 rgba(0,0,0,.45)}
+.hm-tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.hm-tab .hm-tabt{display:none}
+.hm.open .hm-tab{background:linear-gradient(#ffc24d,#f08a1c);color:#2b1a05;border-color:#fff3d6}
+.hm-cls{display:none}.hm.open .hm-bars{display:none}.hm.open .hm-cls{display:inline}
+.hm-tab:focus-visible,.hm-b:focus-visible,.hm-seg button:focus-visible,.hm-done:focus-visible,.hm-x:focus-visible{outline:3px solid #fff3d6;outline-offset:2px}
+
+.hm-list{display:none;flex-direction:column;gap:6px;padding:6px;border-radius:18px;background:rgba(27,20,51,.9);border:2px solid rgba(241,217,160,.5);box-shadow:0 6px 18px rgba(0,0,0,.4);overflow-y:auto;max-height:calc(100vh - 24px);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hm-list::-webkit-scrollbar{display:none}
+.hm.open .hm-list{display:flex}
+.hm-b{display:flex;align-items:center;gap:10px;min-width:46px;min-height:46px;padding:0 11px;border-radius:13px;border:2px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff3d6;font:800 14px/1.1 Nunito,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,transform .1s;text-align:left}
+.hm-b img,.hm-b svg{width:24px;height:24px;flex:none;object-fit:contain}
+.hm-b svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hm-b .hm-t,.hm-b .hm-v{display:none}
+.hm-b:hover{background:rgba(255,255,255,.14);border-color:rgba(255,212,90,.7)}
+.hm-b:active{transform:scale(.96)}
+.hm-b[aria-pressed=false] img{opacity:.5}
+.hm-b:disabled{opacity:.45;cursor:not-allowed}
+.hm-pause{background:rgba(255,194,77,.16);border-color:rgba(255,194,77,.55)}
+.hm-pause svg{fill:currentColor;stroke:none}
+
+/* desktop: tab berlabel */
+@media (min-width:900px) and (pointer:fine){
+  .hm{left:14px;flex-direction:column;align-items:flex-start;gap:8px} /* tab di atas daftar: lebih ramping, tidak menutupi papan */
+  .hm-tab .hm-tabt{display:inline}
+  .hm-list{min-width:212px;gap:5px}
+  .hm-b{padding:0 12px 0 11px;min-height:44px}
+  .hm-b .hm-t{display:inline;flex:1 1 auto}
+  .hm-b .hm-v{display:inline;flex:none;font-style:normal;font-weight:800;font-size:12px;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.35);color:#ffd45a}
+}
+/* layar pendek (HP landscape): dua kolom ikon agar tidak terpotong */
+@media (max-height:520px){
+  .hm.open .hm-list{display:grid;grid-template-columns:repeat(2,42px);gap:5px}
+  .hm-b{min-width:42px;min-height:42px;padding:0 8px}
+}
+@media (prefers-reduced-motion:reduce){.hm-b{transition:none}.hm-b:active{transform:none}}
+
+/* modal Pengaturan & Bantuan */
+.hm-ov{position:fixed;inset:0;z-index:2147483645;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:rgba(6,4,18,.72)}
+.hm-ov[hidden]{display:none!important}
+.hm-box{position:relative;box-sizing:border-box;width:min(440px,100%);max-height:100%;overflow-y:auto;padding:22px 20px 18px;border-radius:20px;background:linear-gradient(#2a2050,#1b1433);border:3px solid #f1d9a0;box-shadow:0 10px 0 rgba(0,0,0,.4),0 18px 40px rgba(0,0,0,.5);color:#efe6cf;font-family:Nunito,system-ui,sans-serif}
+.hm-box h2{margin:0 36px 14px 0;font:400 28px/1.1 "Lilita One",Nunito,system-ui,sans-serif;color:#fff3d6;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+.hm-box h3{margin:14px 0 4px;font:800 14px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
+.hm-box p{margin:0 0 6px;font:600 15px/1.45 Nunito,system-ui,sans-serif}
+.hm-x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;border:2px solid rgba(241,217,160,.6);background:rgba(255,255,255,.08);color:#fff3d6;font-size:18px;cursor:pointer}
+.hm-sec{margin:0 0 14px}
+.hm-lbl{display:block;margin:0 0 6px;font:800 13px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
+.hm-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.hm-seg button{min-height:46px;border-radius:12px;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#efe6cf;font:800 14px/1 Nunito,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hm-seg button[aria-pressed=true]{background:linear-gradient(#ffc24d,#f08a1c);border-color:#fff3d6;color:#2b1a05}
+.hm-note{margin:8px 0 0!important;font:600 13px/1.4 Nunito,system-ui,sans-serif!important;color:#c9bfe0}
+.hm-row{display:flex;align-items:center;gap:12px;margin:0 0 12px;background:none!important;border-radius:0!important}
+.hm-row .hm-lbl{flex:0 0 64px;margin:0}
+.hm-row input[type=range]{flex:1 1 auto;min-width:0;height:34px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;--p:50%}
+.hm-row input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:99px;background:linear-gradient(90deg,#ffc24d var(--p),rgba(255,255,255,.2) var(--p))}
+.hm-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-8px;border-radius:50%;border:3px solid #fff3d6;background:#f08a1c;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.hm-row input[type=range]::-moz-range-track{height:10px;border-radius:99px;background:rgba(255,255,255,.2)}
+.hm-row input[type=range]::-moz-range-progress{height:10px;border-radius:99px;background:#ffc24d}
+.hm-row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;border:3px solid #fff3d6;background:#f08a1c}
+.hm-done{display:block;width:100%;min-height:50px;margin-top:6px;border-radius:14px;border:3px solid #fff3d6;background:linear-gradient(#4aa8ff,#1f6fe0);color:#fff;font:400 20px/1 "Lilita One",Nunito,system-ui,sans-serif;text-shadow:0 2px 0 rgba(0,0,0,.35);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hm-keys{color:#c9bfe0}
+.hm-box kbd{display:inline-block;min-width:20px;padding:1px 6px;border-radius:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font:800 12px/1.5 system-ui,sans-serif;text-align:center}
+
+/* Pause murni jeda: 3 tombol (Lanjutkan, Ulang, Keluar) */
+html body #pauseMenu .lm-grid.lm-pm{grid-template-columns:repeat(3,170px)!important}

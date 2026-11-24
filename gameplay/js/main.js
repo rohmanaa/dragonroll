@@ -2152,6 +2152,14 @@ function readGraphics(){
   try{ const a=UT.Prefs.get('ambience',null); if(a&&a.graphics) return a.graphics; }catch(e){}
   return 'high';
 }
+function setGraphicsPref(g){ /* dari menu Pengaturan gameplay: simpan ke PlayerData (+ cermin Prefs) lalu terapkan langsung */
+  if(['low','normal','high','ultra'].indexOf(g)<0) return;
+  try{ const PD=window.PlayerData; if(PD&&PD.setSettings) PD.setSettings({graphics:g}); }catch(e){}
+  try{ const a=UT.Prefs.get('ambience',null)||{}; UT.Prefs.set('ambience',{mode:a.mode||'day',graphics:g}); }catch(e){}
+  document.documentElement.setAttribute('data-graphics',g);
+  try{ syncGrassCss(); }catch(e){}
+  applyCineGraphics();
+}
 function applyCineGraphics(){ if(CINE_ON&&CINE.applyGraphics){ try{ CINE.applyGraphics(readGraphics()); }catch(e){ console.warn(e); } } }
 applyCineGraphics();
 try{ if(window.PlayerData&&PlayerData.subscribe) PlayerData.subscribe(applyCineGraphics); }catch(e){}
@@ -2187,7 +2195,9 @@ function tileBlock(n,t,th){
   const r=rnd(); if(t.bio&&NI_TILE[t.bio]) return r<0.5?NI_TILE[t.bio][1]:NI_TILE[t.bio][0]; /* papan Nether: warna petak per biome */
   return r<0.22?th.wall[0]:(r<0.6?th.tileB:th.tileA);
 }
+function hmSync(){ try{ UT.GameplayHudMenu.sync(); }catch(e){} } /* salin status ke dock menu (hud-menu.js) */
 function updateNightUI(){
+  hmSync();
   $('btnNight').textContent='Mode: '+(autoDN?'Auto · ':'')+(night?'Malam':'Siang');
   if($('nDay')) $('nDay').setAttribute('aria-pressed',String(!night));
   if($('nNight')) $('nNight').setAttribute('aria-pressed',String(night));
@@ -4726,6 +4736,7 @@ function camUI(){
   $('camGrp').hidden=!(camCfg.angle||hudMenuOpen); document.body.classList.toggle('cam-angle',camCfg.angle); document.body.classList.toggle('cam-lock',!camCfg.angle); cv.style.cursor=(camCfg.angle&&(camCfg.preset==='free'||camCfg.preset==='pov'))?'grab':'default';
   $('btnPreset').innerHTML=ICON_CAM+CAM_NAMES[camCfg.preset];
   const f=$('btnFollow'); f.setAttribute('aria-pressed',String(camCfg.follow));
+  hmSync();
 }
 function setHudMenuOpen(open){
   hudMenuOpen=!!open;
@@ -4735,6 +4746,7 @@ function setHudMenuOpen(open){
   $('camGrp').hidden=!(camCfg.angle||hudMenuOpen);
   $('btnSnd').hidden=!hudMenuOpen;
   $('btnPause').hidden=!hudMenuOpen;
+  try{ UT.GameplayHudMenu.setOpen(hudMenuOpen); }catch(e){}
 }
 function camSetAngle(v){
   v=!!v; if(v===camCfg.angle||AWK.running) return;
@@ -6807,7 +6819,7 @@ camLoad(); camUI();
 $('btnMenu').addEventListener('click',()=>setHudMenuOpen(!hudMenuOpen));
 camRefit=()=>{ if(camLocked()) goal.zoom=WF.cam?fortZoom(true):(WF.shot?fortZoom(false):lockZoom()); };
 if(camLocked()){ resetCam(); cam.yaw=goal.yaw; cam.pitch=goal.pitch; cam.zoom=goal.zoom; camTarget.set(lockCenter.x,LOCK_BOX.y,lockCenter.z); } /* mulai langsung di LOCK tanpa gerakan kamera */
-$('btnPreset').addEventListener('click',camMenuToggle);
+$('btnPreset').addEventListener('click',()=>{ ensureAudio(); camMenuClose(); camNextPreset(); }); /* satu tombol: tiap klik ganti ke sudut berikutnya (dropdown dihapus) */
 $('btnFollow').addEventListener('click',()=>camSetFollow(!camCfg.follow));
 /* Pintasan keyboard (desktop): 1 = ganti sudut kamera, 2 = ikuti bidak (nyala/mati), 3 = reset kamera. Esc = menu jeda (pause.js). */
 document.addEventListener('keydown',e=>{
@@ -6827,7 +6839,7 @@ $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
-$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/images/ui/white-glyphs/'+(muted?'speaker-mati':'speaker-suara')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').setAttribute('aria-label','Suara: '+t); $('btnSnd').classList.toggle('muted',muted); });
+$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); syncDiceSound(); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/images/ui/white-glyphs/'+(muted?'speaker-mati':'speaker-suara')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').setAttribute('aria-label','Suara: '+t); $('btnSnd').classList.toggle('muted',muted); hmSync(); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
 let sfxVol=100; try{ const sv=parseInt(UT.Prefs.get('sfxVol',NaN),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
 function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ UT.Prefs.set('sfxVol',sfxVol); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} syncDiceSound(); }
@@ -6839,7 +6851,7 @@ UT.GameplayPause.bind({
   isReadyRunning:()=>AWK.running,
   isOnlineGuest:()=>ONLINE_ROOM&&!ONLINE_HOST,
   getMode:()=>mode,
-  closeHudMenu:()=>setHudMenuOpen(false),
+  closeHudMenu:()=>{ try{ UT.GameplayHudMenu.closeModals(); }catch(e){} if(!matchMedia('(min-width:900px) and (pointer:fine)').matches) setHudMenuOpen(false); },
   isNight:()=>night,
   isAutoDN:()=>autoDN,
   cycleMode:cycleMode,
@@ -6857,6 +6869,22 @@ UT.GameplayPause.bind({
   exitToRoom:exitToRoom,
   isPlaying:()=>document.body.classList.contains('playing'),
   isWinHidden:()=>$('win').hidden
+});
+UT.GameplayHudMenu.bind({
+  setMenuOpen:v=>setHudMenuOpen(v),
+  camName:()=>CAM_NAMES[camCfg.preset]||'Free',
+  isFollow:()=>camCfg.follow,
+  camNext:()=>{ ensureAudio(); camMenuClose(); camNextPreset(); },
+  toggleFollow:()=>camSetFollow(!camCfg.follow),
+  resetCam:()=>resetCam(),
+  isNight:()=>night, isAutoDN:()=>autoDN, isOnlineGuest:()=>ONLINE_ROOM&&!ONLINE_HOST,
+  cycleMode:()=>{ ensureAudio(); cycleMode(); },
+  isMuted:()=>muted,
+  toggleSound:()=>$('btnSnd').click(),
+  pause:()=>$('btnPause').click(),
+  getGraphics:readGraphics, setGraphics:setGraphicsPref,
+  getMusicVol:()=>musicVol, setMusicVol:setMusicVol, getSfxVol:()=>sfxVol, setSfxVol:setSfxVol, paintRange:paintRange,
+  onSfxCommit:()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} }
 });
 $('btnAgain').addEventListener('click',()=>{ ensureAudio(); againGate().then(ok=>{ if(ok) startGame(mode,lastSkins); }); });
 $('btnToMenu').addEventListener('click',exitToRoom);
