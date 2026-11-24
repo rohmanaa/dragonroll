@@ -11,6 +11,9 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
+  /* DIMATIKAN (keputusan pemilik): pretty URL bermasalah, semua halaman memakai URL biasa (.html / ?go=).
+     Nyalakan lagi dengan ENABLED = true (atau UT.PrettyUrl.setEnabled(true) untuk tes). */
+  var ENABLED = false;
   var TOKEN_KEY = 'ut:pretty:token';
   var VALID_PAGES = {
     'lobby.html': 'lobby',
@@ -63,6 +66,7 @@
   }
 
   function isHttp(loc) {
+    if (!ENABLED) return false;
     loc = loc || getLocation();
     if (!loc) return false;
     try { return loc.protocol === 'http:' || loc.protocol === 'https:'; } catch (e) { return false; }
@@ -153,6 +157,8 @@
     buildUrl: buildUrl,
     getGoFromUrl: getGoFromUrl,
     shouldUsePretty: shouldUsePretty,
+    setEnabled: function (v) { ENABLED = !!v; },
+    isEnabled: function () { return ENABLED; },
     VALID_PAGES: VALID_PAGES,
     SLUG_TO_PAGE: SLUG_TO_PAGE
   };

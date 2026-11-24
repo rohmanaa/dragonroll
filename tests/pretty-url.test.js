@@ -4,6 +4,12 @@ const assert = require('assert');
 const path = require('path');
 const PrettyUrl = require(path.join(__dirname, '..', 'assets/js/core/pretty-url.js'));
 
+/* default: DIMATIKAN -> tidak ada URL pretty; logika modul tetap diuji dengan menyalakannya manual */
+assert.strictEqual(PrettyUrl.isEnabled(), false);
+assert.strictEqual(PrettyUrl.shouldUsePretty({ protocol: 'https:' }), false);
+assert.strictEqual(PrettyUrl.buildUrl('tambang.html', null, null, { protocol: 'https:' }), null);
+PrettyUrl.setEnabled(true);
+
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
