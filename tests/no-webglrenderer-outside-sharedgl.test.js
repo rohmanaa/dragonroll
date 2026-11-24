@@ -14,7 +14,8 @@ const SHARED_GL = 'assets/js/core/shared-gl.js';
 const PENGECUALIAN_SENGAJA = [
   'assets/js/pages/floatingsample.js',
   'gameplay/js/main.js',
-  'gameplay/js/duel-ui.js'          // di area gameplay yang dibekukan
+  'gameplay/js/duel-ui.js',          // di area gameplay yang dibekukan
+  'tambang-world/js/tambang-world.js'   // halaman mandiri demo tambang-world
 ];
 const PELANGGAR_TERSISA = [
   'assets/js/renderers/power-3d/power-renderer.js'
