@@ -4,7 +4,8 @@
    tidak dijalankan (dan namanya masuk SKIP_JS di account-hub.js dan spa-host.js). */
 (function () {
   var TAB = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };
-  var tab = TAB[location.pathname.split('/').pop()];
+  var page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : location.pathname.split('/').pop();
+  var tab = TAB[page];
   if (!tab) return;
   var q = location.search.replace(/^\?/, '');
   location.replace('profile.html?tab=' + tab + (q ? '&' + q : '') + location.hash);

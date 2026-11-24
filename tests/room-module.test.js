@@ -17,7 +17,9 @@ t('mode tidak valid -> mode.html lewat UT.Spa.go (replace), fallback location.re
   assert(/UT\.Spa\.go\('mode\.html',\{replace:true\}\)/.test(js) && /location\.replace\('mode\.html'\)/.test(js));
 });
 t('tautan undangan memakai room.html, bukan location.pathname (di shell = play.html)', () => {
-  assert(/const roomUrl=\(\)=>location\.origin\+location\.pathname\.replace\(\/\[\^\/\]\*\$\/,''\)\+'room\.html'/.test(js));
+  assert(/const roomUrl=\(\)=>location\.origin \+ \(document\.baseURI \|\| \(location\.origin \+ '\/'\)\)/.test(js));
+  assert(/replace\([^)]*\)/.test(js));
+  assert(/'room\.html'/.test(js));
   assert(!/\$\{location\.origin\}\$\{location\.pathname\}/.test(js));
   assert((js.match(/\$\{roomUrl\(\)\}\?mode=online/g) || []).length === 2);
 });

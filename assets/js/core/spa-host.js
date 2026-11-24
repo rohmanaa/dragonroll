@@ -194,7 +194,8 @@
         link = G.UT.PrettyUrl.buildUrl(page, token, uuid);
         if (nested) link += '?nested=1';
       } else {
-        link = (G.location.pathname || 'play.html') + '?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
+        var base = G.document && G.document.baseURI ? G.document.baseURI : (G.location.origin + '/');
+        link = base + 'play.html?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
       }
       try {
         if (opts.replace) G.history.replaceState({ spa: url }, '', link);

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   var TABS = { 'frame.html': 'frame', 'dadu.html': 'dadu', 'efek.html': 'efek', 'powerup.html': 'power', 'pet.html': 'pet' };
-  var q = new URLSearchParams(location.search), page = location.pathname.split('/').pop();
+  var q = new URLSearchParams(location.search), page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : location.pathname.split('/').pop();
   if (q.get('from') === 'room') return;                 // dipakai room.html: ditangani room-modal-bridge.js
   if (q.get('embed') !== 'inv') {
     /* Dadu bukan tab Inventory lagi (dipasang dari Karakter): dibuka langsung -> masuk lewat shell play.html agar tetap di halaman Dadu */

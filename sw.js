@@ -10,7 +10,7 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v478';
+const VERSION = 'ut-pwa-v479';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
@@ -89,7 +89,12 @@ self.addEventListener('fetch', e => {
   const same = u.origin === self.location.origin;
   if (!same && !EXTRA_HOSTS.includes(u.hostname)) return;
   if (same && r.headers.has('x-ut-fresh')) return; /* cek/unduh pembaruan dari halaman: selalu ke jaringan, jangan dari cache */
-  if (same && MEDIA.test(u.pathname)) {
+
+  /* Normalisasi path: buang awalan pretty URL /<token>/<page>/<uuid>/ */
+  const normPath = u.pathname.replace(/^\/[a-z0-9]{20}\/[a-z0-9-]+\/[0-9a-f-]{36}\//, '/');
+  const isMedia = MEDIA.test(normPath);
+
+  if (same && isMedia) {
     const range = r.headers.get('range');
     e.respondWith(caches.open(MEDIA_CACHE).then(async c => {
       const key = new Request(r.url); /* kunci tanpa header Range */
@@ -104,9 +109,9 @@ self.addEventListener('fetch', e => {
     }));
     return;
   }
-  if ((same && (r.mode === 'navigate' || CODE.test(u.pathname))) || !same) {
+  if ((same && (r.mode === 'navigate' || CODE.test(normPath))) || !same) {
     e.respondWith(caches.open(same ? VERSION : MEDIA_CACHE).then(async c => { /* library/font luar: URL ber-versi, simpan permanen */
-      const key = new Request(same ? u.origin + u.pathname : r.url); /* kunci tanpa query (?v=, ?next=) */
+      const key = new Request(same ? u.origin + normPath : r.url); /* kunci tanpa query (?v=, ?next=) */
       const hit = await c.match(key, { ignoreSearch: same });
       if (hit) return hit;
       try {

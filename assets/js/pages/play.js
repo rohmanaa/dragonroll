@@ -26,7 +26,7 @@
      Halaman baru selesai (load + font + gambar) -> layar memuat dihilangkan.
      splash.html punya layar muat sendiri (pulau melayang), jadi layar dadu ini tidak ditampilkan di atasnya. */
   var SELF_LOADING = /^splash\.html$/;
-  function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
+  function pageName(w) { try { return (w.UT && w.UT.PrettyUrl) ? w.UT.PrettyUrl.getGoFromUrl() : (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
   /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
      Ini indikator kesiapan halaman, bukan persentase unduhan; progres byte nyata hanya ditampilkan di splash.
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */

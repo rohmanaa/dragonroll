@@ -14,7 +14,7 @@ const search=()=>{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.name=
 const q=new URLSearchParams(search()),MODE=q.get('mode');
 if(RF.MODES.indexOf(MODE)<0){if(UT.Spa&&UT.Spa.go)UT.Spa.go('mode.html',{replace:true});else location.replace('mode.html');return}
 /* tautan undangan harus ke room.html (di shell location.pathname = play.html) */
-const roomUrl=()=>location.origin+location.pathname.replace(/[^/]*$/,'')+'room.html';
+  const roomUrl=()=>location.origin + (document.baseURI || (location.origin + '/')).replace(/\/[^/]*$/,'') + 'room.html';
 const ONLINE=MODE==='online',FORMAT=(ONLINE&&q.get('format')==='team')?'team':'solo',TEAM=ONLINE&&FORMAT==='team';
 const COUNT=ONLINE?4:Math.min(4,Math.max(2,parseInt(q.get('count'),10)||2));
 let HOST=!(ONLINE&&q.get('role')==='guest');

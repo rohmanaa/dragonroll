@@ -233,8 +233,10 @@
     function syncUrl(key) {
       var u = hubUrl(key, from);
       try {
-        if (UT.Spa && UT.Spa.viewActive) G.history.replaceState({ spa: u }, '', (G.location.pathname || 'play.html') + '?go=' + encodeURIComponent(u));
-        else G.history.replaceState(G.history.state, '', u);
+        if (UT.Spa && UT.Spa.viewActive) {
+          var base = G.document && G.document.baseURI ? G.document.baseURI : (G.location.origin + '/');
+          G.history.replaceState({ spa: u }, '', base + 'play.html?go=' + encodeURIComponent(u));
+        } else G.history.replaceState(G.history.state, '', u);
       } catch (e) { /* abaikan */ }
     }
 

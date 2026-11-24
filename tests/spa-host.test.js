@@ -11,7 +11,8 @@ function setup(o) {
   const log = [], ls = {}, hist = [];
   const G = {
     console: { error() {} },
-    location: { search: o.search || '', pathname: '/play.html' },
+    location: { search: o.search || '', pathname: '/play.html', origin: 'https://example.com' },
+    document: { baseURI: 'https://example.com/' },
     sessionStorage: { getItem: k => (k === 'ut:booted' && o.booted !== false ? '1' : null) },
     matchMedia: () => ({ matches: !!o.rotated, addEventListener() {} }),
     history: { pushState(s, _t, u) { hist.push(['push', u]); }, replaceState(s, _t, u) { hist.push(['replace', u]); } },
@@ -175,7 +176,7 @@ function setup(o) {
   await t('shell bersarang: riwayat mempertahankan flag nested=1', async () => {
     const b = setup({ search: '?nested=1&go=lobby.html' });
     await b.spa.go('karakter.html'); await tick();
-    assert.ok(b.hist.some(h => h[0] === 'push' && h[1] === '/play.html?nested=1&go=karakter.html'), JSON.stringify(b.hist));
+    assert.ok(b.hist.some(h => h[0] === 'push' && h[1] === 'https://example.com/play.html?nested=1&go=karakter.html'), JSON.stringify(b.hist));
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

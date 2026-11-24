@@ -23,7 +23,7 @@
   try {
     if (sessionStorage.getItem('ut:booted') === '1' && window.UT && UT.Session && UT.Session.loggedIn()) return; /* wajib sudah lewat splash DAN login (tanpa session.js = dianggap belum login) */
   } catch (e) { return; }
-  var page = location.pathname.split('/').pop() || 'index.html';
+  var page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : (location.pathname.split('/').pop() || 'index.html');
   if (page === 'splash.html') return;
   var next = (page === 'index.html' || page === '') ? 'lobby.html' : page + location.search;
   location.replace('splash.html?next=' + encodeURIComponent(next));
