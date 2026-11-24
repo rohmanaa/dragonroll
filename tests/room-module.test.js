@@ -62,7 +62,7 @@ t('room.html mandiri tetap memuat modul multiplayer (blok module inline) dan roo
 });
 t('spa-host: room terdaftar; <script type=module> dimuat lewat import(); skrip yang sudah ada tidak diunduh ulang', () => {
   assert(/'room\.html': 'room'/.test(host));
-  assert(/mods\[src\] = 1/.test(host) && /import\(new G\.URL\(src, G\.location\.href\)\.href\)/.test(host));
+  assert(/mods\[src\] = 1/.test(host) && /import\(new G\.URL\(src, base\(\)\)\.href\)/.test(host) && /function base\(\) \{ return \(G\.document && G\.document\.baseURI\) \|\| G\.location\.href; \}/.test(host));
   assert(/function inDoc\(k\)/.test(host) && /scripts\[k\] = Promise\.resolve\(\)/.test(host));
 });
 t('frame-guard mengenal room; play.js punya prefetch', () => {

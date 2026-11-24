@@ -87,7 +87,7 @@
       enabled: function () { return w.UT.Session.loggedIn(); },
       getClient: async function () {
         var clientPath = SELF ? '../multiplayer/client.js' : 'multiplayer/client.js';
-        if (!(w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL(clientPath, SELF || w.location.href).href);
+        if (!(w.UT.Multiplayer && w.UT.Multiplayer.getClient)) await import(new URL(clientPath, SELF || (w.document && w.document.baseURI) || w.location.href).href);
         return w.UT.Multiplayer.getClient();
       }
     });

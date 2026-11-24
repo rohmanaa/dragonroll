@@ -96,7 +96,8 @@
 
   /* ---- pemuat skrip/halaman (sama pola dengan UT.Spa, tapi untuk panel di dalam hub) ---- */
   var scripts = Object.create(null), pages = Object.create(null);
-  function keyOf(src) { try { return new G.URL(src, G.location.href).pathname; } catch (e) { return src; } }
+  function baseOf() { return (G.document && G.document.baseURI) || G.location.href; }   /* baseURI, bukan location.href (pretty URL) */
+  function keyOf(src) { try { return new G.URL(src, baseOf()).pathname; } catch (e) { return src; } }
   function loadScripts(list, mods) {
     mods = mods || {};
     return Promise.all(list.map(function (src) {
@@ -105,7 +106,7 @@
         var already = Array.prototype.some.call(D.scripts || [], function (s) { return s.src && keyOf(s.src) === k; });
         if (already) scripts[k] = Promise.resolve();
         else if (mods[src]) {
-          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) { delete scripts[k]; warn('[AccountHub] gagal memuat modul ' + src, e); });
+          scripts[k] = import(new G.URL(src, baseOf()).href).catch(function (e) { delete scripts[k]; warn('[AccountHub] gagal memuat modul ' + src, e); });
         } else {
           scripts[k] = new Promise(function (res) {
             var s = D.createElement('script');

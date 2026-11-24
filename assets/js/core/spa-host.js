@@ -34,7 +34,9 @@
   function makeLoader(G) {
     var D = G.document, cache = {}, scripts = Object.create(null);
 
-    function key(src) { try { return new G.URL(src, G.location.href).pathname; } catch (e) { return src; } }
+    /* basis = baseURI (<base href="/">), BUKAN location.href: di pretty URL (/token/halaman/uuid/) location.href membuat kunci skrip berbeda tiap rute -> skrip inti dimuat/dijalankan ulang (registry modul hilang) */
+    function base() { return (G.document && G.document.baseURI) || G.location.href; }
+    function key(src) { try { return new G.URL(src, base()).pathname; } catch (e) { return src; } }
     Array.prototype.forEach.call(D.scripts || [], function (s) { if (s.src) scripts[key(s.src)] = Promise.resolve(); });
 
     function parse(html) {
@@ -80,7 +82,7 @@
       list.forEach(function (src) {
         var k = key(src);
         if (!scripts[k] && mods[src]) {
-          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) {
+          scripts[k] = import(new G.URL(src, base()).href).catch(function (e) {
             delete scripts[k]; if (G.console) console.warn('[Spa] gagal memuat modul', src, e);
           });
         } else if (!scripts[k] && inDoc(k)) {
