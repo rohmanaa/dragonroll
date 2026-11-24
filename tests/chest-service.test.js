@@ -117,7 +117,8 @@ t('shop: tombol beli aktif (tidak ada "SEGERA HADIR" di kartu chest) dan harga d
   const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
   const card = js.slice(js.indexOf('function renderChest'), js.indexOf('function renderEmerald'));
   assert.ok(card.includes('data-chest') && !/SEGERA HADIR|Fitur belum tersedia/.test(card));
-  const sql = fs.readFileSync(root('supabase/migrations/202611370001_chest_shop.sql'), 'utf8');
+  const defs = fs.readdirSync(root('supabase/migrations')).sort().filter(f => /function public\._chest_shop\(\)/.test(fs.readFileSync(root('supabase/migrations/' + f), 'utf8')));
+  const sql = fs.readFileSync(root('supabase/migrations/' + defs[defs.length - 1]), 'utf8');   // definisi TERBARU
   const shop = [...sql.slice(sql.indexOf('_chest_shop()')).matchAll(/\('(\w+)',\s*(\d+),\s*(\d+)\)/g)].map(m => [m[1], +m[2], +m[3]]);
   assert.strictEqual(shop.length, 4);
   shop.forEach(([kind, coins, gems]) => {
@@ -125,6 +126,8 @@ t('shop: tombol beli aktif (tidak ada "SEGERA HADIR" di kartu chest) dan harga d
     assert.ok(m, 'kartu shop hilang: ' + kind);
     assert.strictEqual(+m[2], m[1] === 'coins' ? coins : gems, 'harga beda: ' + kind);
     assert.ok(m[1] === 'coins' ? gems === 0 : coins === 0);
+    assert.strictEqual(m[1], 'gems', 'chest shop hanya boleh dibeli dengan emerald: ' + kind);
+    assert.strictEqual(coins, 0);
   });
 });
 t('migrasi shop: chest_buy TERBARU langsung membuka (tanpa timer/penyimpanan), saldo dicek sebelum chest dibuat, dikunci ke authenticated', () => {

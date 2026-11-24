@@ -21,10 +21,10 @@ UT.PageModule.define('shop', function (env) {
     { coins: 6000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f' }
   ];
   const CHESTS = [
-    { kind: 'wood', name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp', coins: 90, open: '10 menit' },
-    { kind: 'silver', name: 'Peti Perak', image: 'chest-packs/peti-perak.webp', coins: 250, open: '1 jam' },
-    { kind: 'gold', name: 'Peti Emas', image: 'chest-packs/peti-emas.webp', coins: 600, open: '4 jam' },
-    { kind: 'diamond', name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', gems: 25, open: '8 jam', color: '#4de8e0' }
+    { kind: 'wood', name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp', gems: 2 },
+    { kind: 'silver', name: 'Peti Perak', image: 'chest-packs/peti-perak.webp', gems: 5 },
+    { kind: 'gold', name: 'Peti Emas', image: 'chest-packs/peti-emas.webp', gems: 12 },
+    { kind: 'diamond', name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', gems: 25, color: '#4de8e0' }
   ];
   const WMSG = {
     'saldo-kurang': 'Coin tidak cukup.',
