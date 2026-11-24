@@ -22,10 +22,23 @@ t('nav memakai UT.Spa.go untuk semua target (tanpa syarat canView)', () => {
   assert(/UT\.Spa && UT\.Spa\.go\) \{ UT\.Spa\.go\(u\); return; \}/.test(nav));
   assert(!/canView/.test(nav));
 });
-t('cleanup: lepas SharedGL, buang tekstur, cabut kelas pf-wide', () => {
-  assert(/SharedGL\.release\('profile'\)/.test(src));
-  assert(/m\.map\) m\.map\.dispose\(\)/.test(src));
+t('cleanup: batalkan timer foto dan cabut kelas pf-wide', () => {
+  assert(/heroTimers\.forEach\(clearTimeout\)/.test(src));
   assert(/classList\.remove\('pf-wide'\)/.test(src));
+});
+t('foto karakter statis: dijepret lewat renderer offscreen bersama, tekstur dibuang, tanpa loop animasi', () => {
+  assert(/SharedGL\.offscreen\(\)/.test(src));
+  assert(/m\.map\) m\.map\.dispose\(\)/.test(src));
+  assert(!/requestAnimationFrame/.test(src));
+  assert(!/SharedGL\.acquire/.test(src));
+});
+t('foto di-cache per tanda tangan tampilan+pose; cache cocok = tanpa render', () => {
+  assert(/ut\.profilePhoto\.v1/.test(src));
+  assert(/c\.sig === sig/.test(src));
+});
+t('tombol Pose + modal Pose ada di profile.html dan pose disimpan di Prefs', () => {
+  assert(/id="pobtn"/.test(html) && /id="pomd"/.test(html) && /id="posave"/.test(html));
+  assert(/UT\.Prefs\.set\('profilePose'/.test(src));
 });
 t('tidak ada WebGLRenderer sendiri', () => assert(!/new THREE\.WebGLRenderer/.test(src)));
 t('profile.html memuat shared-gl dan page-module sebelum profile.js', () => {
@@ -35,9 +48,5 @@ t('profile.html memuat shared-gl dan page-module sebelum profile.js', () => {
 t('tombol Coin/Gem berada di atas panel kanan (z-index) - dulu tertutup #right', () => {
   const css = fs.readFileSync(path.join(root, 'assets/css/pages/profile-legacy.css'), 'utf8');
   assert(/\.cur\{[^}]*z-index:\s*[1-9]/.test(css));
-});
-t('cleanup aura memakai clearAll (AuraView tidak punya dispose)', () => {
-  assert(/R\.aura\.clearAll\(\)/.test(src));
-  assert(!/R\.aura\.dispose\(\)/.test(src));
 });
 console.log(n + ' tes lulus');

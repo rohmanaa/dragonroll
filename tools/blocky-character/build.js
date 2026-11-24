@@ -8,7 +8,7 @@ const TARGET = path.join(ROOT, 'assets', 'js', 'renderers', 'blocky-character.js
 const ACTIONS = ['spinball', 'toss', 'dribble', 'throw', 'mine', 'attack', 'bow', 'block', 'sad', 'cheer', 'wave', 'flip', 'backflip', 'spin', 'roll'];
 const API = [
   'createBaseRig:function',
-  'root:root', 'hand:hand', 'tick:tick', 'jump:jump', 'setMode:setMode', 'act:doAct', 'setTool:setTool',
+  'poses:POSE_LIST', 'root:root', 'hand:hand', 'tick:tick', 'jump:jump', 'setMode:setMode', 'act:doAct', 'setTool:setTool',
   'bow:bowG', 'arrow:arrowG', 'bowReleaseAt:function', 'setBowAim:function', 'get strikes(){', 'loadFromPlayer:',
   'loadFromData:', 'loadPreset:', 'presetCount:', 'apply:apply', 'acting', 'config', 'airborne', 'height:function'
 ];
