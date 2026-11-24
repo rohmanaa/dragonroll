@@ -73,9 +73,13 @@ const camera=new THREE.PerspectiveCamera(40,1,0.1,200);
 const renderer=UT.SharedGL.acquire('karakter',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
 scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfcf,0.85));
+/* tingkat bayangan mengikuti Pengaturan > Grafik: Rendah/Normal = tanpa peta bayangan; Tinggi 1024; Ultra 2048 (karakter hanya bayangan-diri, tanpa bayangan lantai) */
+const shTier=()=>{const g=document.documentElement.getAttribute('data-graphics');return g==='ultra'?2048:g==='high'?1024:0};
+let shLast=shTier();
+renderer.shadowMap.enabled=shLast>0;
 const sun=new THREE.DirectionalLight(0xfff0d0,0.55);
-sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
+sun.castShadow=shLast>0;
+sun.shadow.mapSize.set(shLast||1024,shLast||1024);
 sun.shadow.camera.left=-9;sun.shadow.camera.right=9;sun.shadow.camera.top=9;sun.shadow.camera.bottom=-9;
 sun.shadow.camera.near=1;sun.shadow.camera.far=40;
 sun.shadow.bias=-0.0006;
@@ -84,6 +88,8 @@ scene.add(sun);scene.add(sun.target);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.3}));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 ground.visible=false; /* tanpa bayangan lantai di bawah karakter */
+function applyShadowTier(){const s=shTier();if(s===shLast)return;shLast=s;renderer.shadowMap.enabled=s>0;sun.castShadow=s>0;if(s>0){sun.shadow.mapSize.set(s,s);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}scene.traverse(o=>{const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{x.needsUpdate=true})})}
+addEventListener('ut-ambience',applyShadowTier);
 
 /* ================================================================
    3. DATA: warna (dye) & opsi dasar

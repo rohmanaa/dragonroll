@@ -44,7 +44,9 @@ addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')
 
 /* ================= 3D: karakter, bayangan, aura, dan animasi lobby main ================= */
 const cv=$('#gl3d'),isLow=()=>document.documentElement.getAttribute('data-graphics')==='low';
-let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null;
+let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null,sunL=null,shLast=-1;
+/* tingkat bayangan mengikuti Pengaturan > Grafik: Rendah/Normal = tanpa peta bayangan (cukup bayangan semu di kaki); Tinggi 1024; Ultra 2048 */
+function shTier(){const g=document.documentElement.getAttribute('data-graphics');return g==='ultra'?2048:g==='high'?1024:0}
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&UT.FloatingIsland&&cv){
   renderer=UT.SharedGL.acquire('lobby',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
@@ -52,7 +54,7 @@ try{
   const amb=new THREE.AmbientLight(0xdff6ff,.42),hemi=new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5);
   scene.add(amb,hemi);
   const sun=new THREE.DirectionalLight(0xffd88a,1.05);
-  sun.position.set(16,20,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.normalBias=.03;
+  sun.position.set(16,20,10);sun.castShadow=shTier()>0;sun.shadow.mapSize.set(shTier()||1024,shTier()||1024);sunL=sun;sun.shadow.normalBias=.03;
   Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});
   sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0008;scene.add(sun);
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,40),new THREE.ShadowMaterial({opacity:.34,depthWrite:false}));
@@ -102,8 +104,10 @@ try{
 env.own(()=>{try{if(scene)scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});if(AUR&&AUR.clearAll)AUR.clearAll()}catch(e){console.error('[lobby] dispose gagal',e)}try{UT.SharedGL.release('lobby')}catch(e){}renderer=null;G3=false});
 function applyLights(){
  if(!renderer)return;
- const highQuality=!isLow();
- renderer.shadowMap.enabled=highQuality;
+ const s=shTier();if(s===shLast)return;shLast=s;
+ renderer.shadowMap.enabled=s>0;
+ if(sunL){sunL.castShadow=s>0;if(s>0){sunL.shadow.mapSize.set(s,s);if(sunL.shadow.map){sunL.shadow.map.dispose();sunL.shadow.map=null}}}
+ if(scene)scene.traverse(o=>{const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{x.needsUpdate=true})});
 }
 addEventListener('ut-ambience',applyLights);applyLights();
 function fit3d(){

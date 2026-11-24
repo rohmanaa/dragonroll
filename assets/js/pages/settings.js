@@ -21,19 +21,21 @@ const trApply=v=>document.documentElement.style.setProperty('--panel-a',(1-v/100
  el.addEventListener('input',e=>{const v=+e.target.value;PF().set('panelTransparency',v);trApply(v);$('#panelTrV').textContent=v+'%'});
 })();
 const IC='assets/images/ui/';
-const GN={low:'Paling ringan. Pilih ini bila game terasa berat di HP kamu.',normal:'Seimbang antara tampilan dan performa.',high:'Efek visual penuh, menyesuaikan kemampuan perangkat.',ultra:'Kualitas tertinggi. Butuh perangkat yang kuat.'};
+const GA=()=>UT.GraphicsAuto,GTN={low:'Rendah',normal:'Normal',high:'Tinggi',ultra:'Ultra'};
+const GN={auto:'Otomatis: memilih tingkat sesuai perangkat dan menurunkannya sendiri bila game terasa berat.',low:'Paling ringan. Pilih ini bila game terasa berat di HP kamu.',normal:'Seimbang antara tampilan dan performa.',high:'Efek visual penuh, menyesuaikan kemampuan perangkat.',ultra:'Kualitas tertinggi. Butuh perangkat yang kuat.'};
 function render(){
  paintVol();
  {const el=$('#panelTr');if(el){const v=trVal();if(document.activeElement!==el)el.value=v;$('#panelTrV').textContent=v+'%'}}
  const T=S();
  $$('[data-tg]').forEach(b=>{const on=!!T[b.dataset.tg];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
- $$('[data-gfx]').forEach(b=>{const on=T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+ const AUTO=!!(GA()&&GA().enabled());
+ $$('[data-gfx]').forEach(b=>{const on=AUTO?b.dataset.gfx==='auto':T.graphics===b.dataset.gfx;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  $('#ic-sfx').src=IC+(T.sound?'settings-icons/ikon-speaker.webp':'white-glyphs/speaker-mati.webp');
  $('#ic-music').src=IC+(T.music?'white-glyphs/nada.webp':'settings-icons/ikon-musik-mati.webp');
- $('#gfxn').textContent=GN[T.graphics]||GN.high;
+ $('#gfxn').textContent=AUTO?GN.auto+' Sekarang: '+(GTN[T.graphics]||'Tinggi')+'.':(GN[T.graphics]||GN.high);
 }
 $$('[data-tg]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.tg;PD.setSettings({[k]:!S()[k]});buzz();render()}));
-$$('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{A.set({graphics:b.dataset.gfx});buzz();render()}));
+$$('[data-gfx]').forEach(b=>b.addEventListener('click',()=>{const g=b.dataset.gfx;if(g==='auto'){if(GA())GA().setEnabled(true)}else{if(GA())GA().setEnabled(false);A.set({graphics:g})}buzz();render()}));
 env.own(A.on(render));
 /* kembali ke halaman asal (profil, toko, dll.); bila tidak ada, ke lobby */
 /* di shell (play.html) SEMUA target lewat UT.Spa.go (view atau iframe) agar shell tidak ditinggalkan; halaman mandiri: fade 330 ms lalu pindah halaman biasa */
