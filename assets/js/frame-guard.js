@@ -5,10 +5,10 @@
   try {
     if (window.top !== window) {                               // sudah di dalam pembungkus
       /* SPA tahap 2: Lobby/Karakter yang dimuat di iframe pembungkus diambil alih view di play.html (tanpa muat ulang dokumen, tanpa WebGL baru).
-         Hanya iframe #f milik pembungkus (bukan iframe bersarang, mis. Karakter di modal room). */
+         Hanya iframe #f milik pembungkus (pembungkus luar, atau shell bersarang play.html?nested=1 di HP portrait); bukan iframe lain, mis. Karakter di modal room. */
       try {
         var pg = location.pathname.split('/').pop(), P = window.parent;
-        if (window.frameElement && window.frameElement.id === 'f' && P === window.top && P.UT && P.UT.Spa
+        if (window.frameElement && window.frameElement.id === 'f' && P.UT && P.UT.Spa
             && /^(lobby|karakter|profile|leaderboard|tambang|friendship|shop|mode|hadiah-misi|mail|settings|room|inventory|pet|frame|efek|dadu)\.html$/.test(pg) && P.UT.Spa.canView(pg + location.search)) {
           window.stop();
           P.UT.Spa.go(pg + location.search + location.hash);

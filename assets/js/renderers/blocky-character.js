@@ -17,7 +17,10 @@
 */
 (function(){
 window.UT=window.UT||{};
+/* Pose FOTO (diam, bukan animasi) yang bisa dipilih di Profil; datanya ada di POSES (di dalam create). */
+const POSE_LIST=[{id:'pose1',n:'Siap Tempur'},{id:'pose2',n:'Kemenangan'},{id:'pose3',n:'Menyerang'},{id:'pose4',n:'Berkacak'},{id:'pose5',n:'Melambai'},{id:'pose6',n:'Siaga'},{id:'pose7',n:'Bersorak'}];
 UT.BlockyCharacter={
+poses:POSE_LIST,
 createBaseRig:function(THREE,baseModelKey,opts){
   const adapter=window.UT&&window.UT.CharacterRigAdapter;
   if(!adapter||typeof adapter.create!=='function')return{ok:false,reason:'rig-adapter-unavailable'};
@@ -1047,6 +1050,10 @@ const POSES={
   pose1:{rLegT:-0.55,rKnee:0.5,lLegT:0.45,lKnee:0.05,rLegZ:-0.12,lLegZ:0.15,rArmS:-0.95,rElbow:-0.75,rWrist:1.0,rArmZ:-0.12,lArmS:-0.7,lElbow:-1.1,lArmZ:0.35,lean:0.18,twist:0.25,headX:0.05,headY:-0.2,cape:0.2,tail:0.3},
   pose2:{rLegT:-0.15,rKnee:0.05,lLegT:0.1,lKnee:0.05,rLegZ:-0.25,lLegZ:0.25,rArmS:-3.05,rElbow:-0.15,rWrist:1.55,rArmZ:-0.25,lArmS:0.1,lElbow:-1.3,lArmZ:0.55,lean:-0.12,twist:-0.1,headX:-0.2,headY:0,cape:0.35,tail:0.5},
   pose3:{rLegT:-0.95,rKnee:0.95,lLegT:0.7,lKnee:0.05,rLegZ:-0.15,lLegZ:0.2,rArmS:-1.5,rElbow:-0.05,rWrist:1.5,rArmZ:-0.05,lArmS:0.5,lElbow:-0.4,lArmZ:0.9,lean:0.28,twist:0.5,headX:0.1,headY:-0.45,cape:0.5,tail:0.6},
+  pose4:{rLegT:0,rKnee:0,lLegT:0,lKnee:0,rLegZ:-0.2,lLegZ:0.2,rArmS:0.3,rElbow:-2.0,rWrist:0,rArmZ:-0.95,lArmS:0.3,lElbow:-2.0,lArmZ:0.95,lean:-0.05,twist:0,headX:-0.08,headY:0,cape:0.2,tail:0.4},
+  pose5:{rLegT:0,rKnee:0,lLegT:0.05,lKnee:0.05,rLegZ:-0.12,lLegZ:0.12,rArmS:-0.3,rElbow:-0.6,rWrist:0,rArmZ:-2.4,lArmS:0.05,lElbow:-0.12,lArmZ:0.07,lean:0,twist:-0.12,headX:0,headY:0.15,cape:0.15,tail:0.3},
+  pose6:{rLegT:0,rKnee:0,lLegT:0,lKnee:0,rLegZ:-0.15,lLegZ:0.15,rArmS:-0.9,rElbow:-1.7,rWrist:0,rArmZ:0.6,lArmS:-0.9,lElbow:-1.7,lArmZ:-0.6,lean:0,twist:0.1,headX:-0.05,headY:-0.1,cape:0.15,tail:0.3},
+  pose7:{rLegT:-0.1,rKnee:0.1,lLegT:0.1,lKnee:0.05,rLegZ:-0.25,lLegZ:0.25,rArmS:-2.9,rElbow:-0.1,rWrist:0,rArmZ:-0.3,lArmS:-2.9,lElbow:-0.1,lArmZ:0.3,lean:-0.1,twist:0,headX:-0.25,headY:0,cape:0.4,tail:0.6},
   /* PVP: terpental -> jatuh -> duduk -> berdiri kalah (dipakai lewat setMode) */
   poseDown:{rLegT:-0.3,rKnee:0.3,lLegT:0.1,lKnee:0.2,rLegZ:-0.2,lLegZ:0.2,rArmS:0.45,rElbow:-0.2,rWrist:0,rArmZ:-0.8,lArmS:0.35,lElbow:-0.2,lArmZ:0.8,lean:0,twist:0,headX:-0.3,headY:0,cape:0.1,tail:0.1},
   poseSit:{rLegT:-1.45,rKnee:0.08,lLegT:-1.45,lKnee:0.08,rLegZ:-0.2,lLegZ:0.2,rArmS:0.6,rElbow:-0.15,rWrist:0,rArmZ:-0.4,lArmS:0.6,lElbow:-0.15,lArmZ:0.4,lean:0.2,twist:0,headX:0.4,headY:0,cape:0.05,tail:0.05},

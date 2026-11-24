@@ -19,6 +19,7 @@
 
     function syncNight() {
       var mode = $('pmMode');
+      if (!mode) return; /* suasana pindah ke dock menu (hud-menu.js); Pause murni jeda */
       mode.disabled = !!ops.isOnlineGuest();
       mode.setAttribute('aria-pressed', String(ops.isNight()));
       $('pmModeTxt').textContent = ops.isAutoDN()
@@ -59,7 +60,7 @@
       ops.paintRange(e.target);
     });
     $('pmSfx').addEventListener('change', ops.onSfxCommit);
-    $('pmMode').addEventListener('click', function () {
+    if ($('pmMode')) $('pmMode').addEventListener('click', function () {
       ops.cycleMode();
       syncNight();
       ops.setMusicOn(true);
