@@ -1,0 +1,298 @@
+/* tambang-hud.css — HUD Tambang, nilai disalin dari referensi/newgui/game (common/page/sub/tambang/bg.css).
+   Kanvas 1920x1080 yang diskalakan; semua id/kelas berawalan tambang- agar tidak menimpa CSS halaman lain. */
+@font-face{font-family:'Lilita One';src:url(../fonts/tambang-lilita-one.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Nunito';src:url(../fonts/tambang-nunito-600.woff2) format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Nunito';src:url(../fonts/tambang-nunito-800.woff2) format('woff2');font-weight:800;font-display:swap}
+:root{--tambang-ink:#1b1430;--tambang-panel:rgba(38,31,62,.88);--tambang-line:#6d6590;--tambang-gold:#ffd45a;--tambang-font-title:'Lilita One',Impact,sans-serif;--tambang-font-body:'Nunito','Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;font-family:var(--tambang-font-body);color:#fff;
+  background:#231d37 radial-gradient(ellipse at 22% 8%,#4b4163 0%,#352d4b 50%,#231d37 100%) fixed}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+img{display:block;-webkit-user-drag:none;pointer-events:none}
+#tambang-wrap{position:fixed;inset:0;display:block;z-index:1}
+#tambang-stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;margin:-540px 0 0 -960px;transform-origin:center center;overflow:hidden;flex:none;background:#07060c}
+#tambang-gl{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block;touch-action:none;z-index:0}
+.tambang-scrim{position:absolute;left:0;right:0;top:0;height:150px;pointer-events:none;z-index:1;background:linear-gradient(180deg,rgba(10,8,30,.62),rgba(10,8,30,.28) 62%,transparent)}
+.tambang-scrim.b{top:auto;bottom:0;height:170px;background:linear-gradient(0deg,rgba(10,8,30,.7),rgba(10,8,30,.3) 60%,transparent)}
+.tambang-ttl{font-family:var(--tambang-font-title);letter-spacing:.5px;text-shadow:0 3px 0 rgba(20,10,40,.55);-webkit-text-stroke:1.5px rgba(20,10,40,.55);paint-order:stroke fill}
+
+/* bar atas (page.css + sub.css) */
+#tambang-back{position:absolute;left:40px;top:30px;width:64px;height:72px;z-index:5}
+#tambang-home{position:absolute;left:1812px;top:30px;width:68px;height:72px;z-index:5}
+#tambang-back img,#tambang-home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+#tambang-back:active,#tambang-home:active{transform:scale(.92)}
+#tambang-title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);z-index:5}
+#tambang-sum{position:absolute;left:142px;top:116px;font:800 32px var(--tambang-font-body);color:#ebe6ff;z-index:5;text-shadow:0 2px 0 rgba(10,6,24,.9),0 0 8px rgba(10,6,24,.9);white-space:nowrap}
+#tambang-sum b{color:#6be04a;font:400 40px var(--tambang-font-title)}
+.tambang-cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;background:rgba(14,10,26,.6);
+  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);z-index:5}
+.tambang-cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;width:auto;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+.tambang-cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--tambang-font-title);padding-left:44px;padding-right:44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
+.tambang-cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--tambang-font-body);color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.tambang-cur:active{filter:brightness(1.12)}
+#tambang-cur-em{left:1100px}#tambang-cur-co{left:1420px}
+.tambang-cur.bump{animation:tambang-bump .4s}
+@keyframes tambang-bump{40%{transform:scale(1.07)}}
+
+/* navigasi layer: 6 tile stage dari kit */
+#tambang-nav{position:absolute;left:432px;top:26px;height:80px;display:flex;align-items:center;gap:4px;z-index:5}
+.tambang-arr{position:relative;width:52px;height:52px;transition:transform .1s,filter .1s}
+.tambang-arr img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+.tambang-arr.up img{transform:rotate(90deg)}.tambang-arr.dn img{transform:rotate(-90deg)}
+.tambang-arr:active{transform:scale(.92)}
+.tambang-arr:disabled{filter:grayscale(1) brightness(.6);pointer-events:none}
+.tambang-tile{position:relative;width:58px;height:58px;display:grid;place-items:center;transition:transform .12s,filter .12s}
+.tambang-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.tambang-tile span{position:relative;font:400 28px/1 var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-3px}
+.tambang-tile.lock span{display:none}
+.tambang-tile.lock{filter:brightness(.95)}
+.tambang-tile .lk{position:absolute;left:50%;top:50%;width:34px;height:34px;transform:translate(-50%,-48%);object-fit:contain;inset:auto}
+.tambang-tile.on{transform:scale(1.14)}
+.tambang-tile:active{transform:translateY(3px) scale(.97)}
+
+/* tombol kit (page.css .btn) */
+.tambang-btn{position:relative;display:grid;place-items:center;transition:transform .1s,filter .1s}
+.tambang-btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.tambang-btn span{position:relative;font:400 34px/1 var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-6px}
+.tambang-btn:active{transform:translateY(3px) scale(.97)}
+.tambang-btn.off{filter:grayscale(1) brightness(.7);pointer-events:none}
+
+/* dock penaruh objek (gaya .pill + .up dari tambang.css) */
+#tambang-dock{position:absolute;left:40px;right:40px;bottom:26px;height:108px;display:flex;align-items:center;gap:10px;padding:0 20px;border-radius:30px;background:rgba(14,10,26,.85);border:3px solid #6d6590;z-index:6;transition:border-color .15s,background .15s}
+#tambang-dock.del{border-color:#ff6a6a;background:rgba(70,14,24,.88)}
+#tambang-dock.del::after{content:'Lepas di sini untuk menghapus';position:absolute;inset:0;display:grid;place-items:center;border-radius:27px;background:rgba(70,14,24,.9);font:400 36px var(--tambang-font-title);color:#ffb0b0;text-shadow:0 2px 0 rgba(0,0,0,.6);pointer-events:none}
+.tambang-chip{position:relative;flex:1 1 0;min-width:0;height:84px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:url(../images/tambang-tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s;touch-action:none;cursor:grab}
+.tambang-chip:active{transform:scale(.97)}
+.tambang-chip img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.tambang-chip em{font:400 22px/1 var(--tambang-font-title);font-style:normal;text-shadow:0 2px 0 rgba(0,0,0,.6);white-space:nowrap}
+.tambang-chip::after{content:'';position:absolute;left:18px;right:18px;bottom:6px;height:5px;border-radius:3px;background:var(--c,#8d8d96)}
+.tambang-sep{flex:none;width:3px;height:64px;border-radius:2px;background:#6d6590;opacity:.7;margin:0 4px}
+.tambang-tgwrap{flex:none;display:flex;align-items:center;gap:10px;font:400 30px var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);cursor:pointer}
+.tambang-tg{width:140px;height:65px;background:url(../images/tambang-toggle-off.webp) center/100% 100% no-repeat}
+.tambang-tg.on{background-image:url(../images/tambang-toggle-on.webp)}
+#tambang-reset{flex:none;width:84px;height:84px}
+#tambang-reset img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#tambang-reset .ic{position:relative;width:46px;height:46px;object-fit:contain;inset:auto;margin-top:-6px}
+
+/* penanda Coming Soon = UI, bukan tekstur */
+#tambang-soon{position:absolute;left:50%;top:176px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:4;pointer-events:none}
+#tambang-soon .bn{position:relative;width:560px;height:110px;display:grid;place-items:center;background:url(../images/tambang-banner-judul-ungu-polos.webp) center/100% 100% no-repeat;font:400 54px/1 var(--tambang-font-title);text-shadow:0 3px 0 rgba(20,5,70,.7);padding-bottom:8px}
+#tambang-soon p{margin:0;font:800 30px var(--tambang-font-body);color:#d8d2ee;text-shadow:0 2px 0 rgba(10,6,24,.8)}
+
+/* modal (sub.css #md/#box + page.css .panel) */
+#tambang-md{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:none;align-items:center;justify-content:center}
+#tambang-md.on{display:flex}
+.tambang-panel{position:absolute}
+.tambang-panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../images/tambang-bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.tambang-panel>h3{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 54px;font:400 40px/70px var(--tambang-font-title);background:url(../images/tambang-banner-judul-ungu-polos.webp) center/100% 100% no-repeat;white-space:nowrap;text-shadow:0 2px 0 rgba(20,5,70,.7)}
+#tambang-box{position:relative;width:820px;min-height:440px;margin-top:20px;padding-bottom:150px}
+#tambang-mx{margin:96px 50px 0;text-align:center;font:700 34px/1.4 var(--tambang-font-body);color:#fff}
+#tambang-mbtns{position:absolute;left:0;right:0;bottom:36px;display:flex;justify-content:center;gap:40px}
+#tambang-mbtns .tambang-btn{width:330px;height:100px}#tambang-mbtns .tambang-btn span{font-size:32px}
+
+/* toast (page.css) */
+#tambang-toast{position:absolute;left:50%;bottom:160px;transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.94);border:3px solid #8f86c0;font-weight:800;font-size:26px;z-index:80;transition:.2s;white-space:nowrap}
+#tambang-toast.on{opacity:1;transform:translate(-50%,0)}
+#tambang-toast[data-bad="1"]{border-color:#ff8a8a}
+
+/* transisi + latar modal penuh layar (common.css) */
+#tambang-fade{position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;background:#000;opacity:0;pointer-events:none;transition:opacity .35s}
+#tambang-fade.on{opacity:1;pointer-events:all}
+body:has(#tambang-md.on)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(10,8,30,.93)}
+
+/* panel produksi (kartu .slot dari data/mining/css/tambang.css, diperkecil agar dunia 3D tetap terlihat) */
+.tambang-slot{position:absolute;left:1440px;top:212px;width:440px;height:690px;display:flex;flex-direction:column;align-items:center;padding:78px 34px 26px;isolation:isolate;z-index:6;animation:tambang-inU .35s cubic-bezier(.2,.9,.2,1) both}
+.tambang-slot::before{content:'';position:absolute;inset:0;background:url(../images/tambang-kartu-toko.webp) center/100% 100% no-repeat;z-index:-1}
+.tambang-slot.locked::before{filter:grayscale(.6) brightness(.85)}
+@keyframes tambang-inU{from{opacity:0;transform:translateY(30px)}}
+.tambang-slot .hd{position:absolute;left:50%;top:18px;transform:translateX(-50%);font-size:38px;white-space:nowrap;color:#ffe8a3}
+.tambang-slot .sb{font:800 22px var(--tambang-font-body);color:#cfc8ee;margin-top:4px}
+.tambang-slot .pill{position:relative;left:auto;bottom:auto;transform:none;margin-top:14px;display:flex;align-items:center;gap:8px;padding:4px 24px 4px 12px;border-radius:40px;background:rgba(14,10,26,.85);border:3px solid #6d6590;white-space:nowrap}
+.tambang-slot .pill img{width:44px;height:44px;object-fit:contain}.tambang-slot .pill .bt{font:400 40px var(--tambang-font-title);color:#6be04a}
+.tambang-slot.full .pill .bt{color:#ffd24d}
+.tambang-slot .msg{font:400 32px/1.2 var(--tambang-font-title);color:#d8d2ee;text-align:center;margin:26px 0 0}.tambang-slot .msg small{display:block;margin-top:8px;font:800 24px var(--tambang-font-body);color:#b9b1d3}
+.tambang-slot .gm{width:120px;height:120px;object-fit:contain;margin-top:40px;opacity:.7}
+.tambang-slot .opn{width:340px;height:96px;margin-top:auto}.tambang-slot .opn>span{display:flex;align-items:center;gap:8px;font-size:40px;color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+.tambang-btn>span img{position:static;width:38px;height:38px;object-fit:contain}
+.tambang-rt{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;min-height:44px;font:400 36px var(--tambang-font-title);color:#6be04a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+.tambang-rt img{width:42px;height:42px;object-fit:contain}.tambang-rt small{font:800 24px var(--tambang-font-body);color:#b9b1d3}
+.tambang-bst{display:none;margin-left:8px;font:400 28px var(--tambang-font-title);color:#ffe08a}
+.tambang-slot.boost .tambang-bst{display:block}
+.tambang-bar{display:block;width:100%;height:22px;margin-top:10px;border-radius:11px;background:#17122a;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.tambang-bar i{display:block;height:100%;width:0;background:linear-gradient(180deg,#8cf070,#2f9f3d);transition:width .5s linear}
+.tambang-slot.full .tambang-bar i{background:linear-gradient(180deg,#ffd24d,#f08215)}
+.tambang-eta{margin-top:6px;font:800 23px var(--tambang-font-body);color:#d8d2ee;min-height:30px;text-align:center}
+.tambang-acts{display:flex;gap:12px;margin-top:10px}
+.tambang-acts .tambang-btn{width:178px;height:80px}.tambang-acts .tambang-btn span{font-size:26px}
+.tambang-take>span{display:flex;align-items:center;gap:6px}.tambang-take>span img{width:34px;height:34px}
+.tambang-btn.y>span{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:-4px}
+.tambang-btn.y .bl2{font:400 26px/1 var(--tambang-font-title)}.tambang-btn.y .bs{display:flex;align-items:center;gap:4px;font:800 20px/1 var(--tambang-font-body);color:#fff}
+.tambang-btn.y .bs img{width:26px;height:26px}
+.tambang-ups{display:flex;gap:12px;width:100%;margin-top:14px}
+.tambang-up{flex:1;height:84px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;background:url(../images/tambang-tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+.tambang-up:active{transform:scale(.97)}.tambang-up:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+.tambang-up b{font:400 23px var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.tambang-up small{display:flex;align-items:center;gap:5px;font:400 28px var(--tambang-font-title);color:#ffe08a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.tambang-up small img{width:30px;height:30px;object-fit:contain}
+.tambang-slot button:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+.tambang-btn.poor{filter:saturate(.45) brightness(.88)}
+.tambang-pop{position:absolute;left:50%;top:40%;z-index:4;pointer-events:none;font:400 52px var(--tambang-font-title);color:#7dff9a;text-shadow:0 3px 0 #12337f;animation:tambang-pop 1.3s ease-out forwards;display:flex;align-items:center;gap:6px;translate:-50% 0}
+.tambang-pop img{width:52px;height:52px}
+@keyframes tambang-pop{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:1;transform:translateY(-18px) scale(1.15)}100%{transform:translateY(-120px) scale(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.tambang-slot{animation:none!important}}
+
+/* baris alat: Gudang / Produksi / Boost Semua / Lift */
+#tambang-tools{position:absolute;left:940px;top:120px;display:flex;gap:10px;z-index:5}
+#tambang-tools .tambang-btn{height:78px}
+#tambang-gudang{width:250px}#tambang-prod{width:215px}#tambang-boostall{width:280px}#tambang-liftb{width:150px}
+#tambang-tools .tambang-btn>span{font-size:28px;display:flex;align-items:center;gap:6px}
+#tambang-prod span,#tambang-gudang span{color:#fff}
+#tambang-prod span{color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+#tambang-gudang b{font:400 28px var(--tambang-font-title);color:#ffe08a}
+#tambang-tools .tambang-btn>span img{width:34px;height:34px}
+/* bubble aksi di atas pekerja */
+.tambang-bub{position:absolute;left:0;top:0;width:68px;height:68px;border-radius:50%;z-index:4;font:400 38px/1 var(--tambang-font-title);color:#fff;display:grid;place-items:center;border:4px solid rgba(0,0,0,.45);box-shadow:inset 0 4px 0 rgba(255,255,255,.35),0 5px 0 rgba(20,12,45,.6);text-shadow:0 2px 0 rgba(0,0,0,.6);transition:transform .1s,filter .1s}
+.tambang-bub.b{background:linear-gradient(180deg,#6cb7ff,#2f67c7)}
+.tambang-bub.u{background:linear-gradient(180deg,#78e36b,#2f9f3d)}
+.tambang-bub.k{background:linear-gradient(180deg,#ffd45a,#e08a15)}
+.tambang-bub img{width:38px;height:38px;object-fit:contain;transform:rotate(90deg)}
+.tambang-bub.k img{transform:none}
+.tambang-bub:active{margin-top:3px}
+.tambang-bub.off{filter:grayscale(1) brightness(.7);pointer-events:none}
+.tambang-bub[hidden]{display:none}
+/* daftar ore (gudang & ringkasan) */
+.tambang-ore{display:inline-flex;align-items:center;gap:8px;font:800 26px var(--tambang-font-body)}
+.tambang-ore i{width:22px;height:22px;border-radius:4px;border:3px solid rgba(0,0,0,.4);display:inline-block}
+.tambang-mix{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin-top:8px}
+.tambang-mix .tambang-ore{font-size:22px}
+.tambang-ores{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:12px 40px;justify-items:start;padding:0 30px;text-align:left}
+.tambang-ores b{font:400 30px var(--tambang-font-title);color:#ffe08a;margin-left:auto}
+.tambang-ores .tambang-ore{width:100%}
+.tambang-slot .st{margin-top:14px;font:800 24px/1.3 var(--tambang-font-body);color:#d8d2ee;text-align:center}
+.tambang-slot .st b{color:#6be04a;font:400 30px var(--tambang-font-title)}
+#tambang-card .tambang-btn.wide{width:340px;height:90px;margin-top:14px}
+#tambang-bubs{position:absolute;inset:0;pointer-events:none;z-index:4}
+#tambang-bubs .tambang-bub{pointer-events:auto}
+
+.tambang-tile.on{transform:scale(1.14)}
+/* modal bangunan: baris resep & ringkasan */
+.tambang-sec{margin:12px 40px 0;text-align:left}
+.tambang-sec h4{margin:0 0 6px;font:400 26px var(--tambang-font-title);color:#ffe08a;letter-spacing:.5px}
+.tambang-sec p{margin:4px 0;font:800 22px/1.3 var(--tambang-font-body);color:#b9b1d3}
+.tambang-rec{display:flex;align-items:center;gap:12px;margin:6px 0;padding:6px 12px;border-radius:14px;background:rgba(14,10,26,.55);border:2px solid #4c4570;font:800 24px var(--tambang-font-body)}
+.tambang-rec img{width:40px;height:40px;object-fit:contain}
+.tambang-rec .nm{flex:1;text-align:left}.tambang-rec .nm small{display:block;font:800 18px var(--tambang-font-body);color:#b9b1d3}
+.tambang-rec .go{min-width:104px;height:52px;padding:0 10px;border-radius:12px;font:400 22px var(--tambang-font-title);background:url(../images/tambang-tombol-hijau-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.tambang-rec .go.all{background-image:url(../images/tambang-tombol-kuning-polos.webp);color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+.tambang-rec .go:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+.tambang-vals{display:flex;gap:16px;justify-content:center;margin-top:6px}
+.tambang-val{display:flex;align-items:center;gap:8px;padding:4px 18px 4px 10px;border-radius:40px;background:rgba(14,10,26,.85);border:3px solid #6d6590;font:400 34px var(--tambang-font-title)}
+.tambang-val img{width:42px;height:42px;object-fit:contain}
+#tambang-mx:has(.tambang-sec){margin-top:84px;font-size:26px}
+.tambang-bigbtn{display:block;margin:12px auto 0;width:360px;height:84px;background:url(../images/tambang-tombol-kuning-polos.webp) center/100% 100% no-repeat;font:400 30px var(--tambang-font-title);color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+.tambang-bigbtn:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+.tambang-bigbtn.poor{filter:saturate(.45) brightness(.88)}
+
+/* tombol tutup kartu tambang/lift */
+.tambang-x{position:absolute;right:14px;top:14px;width:54px;height:54px;border:0;padding:0;cursor:pointer;z-index:3;background:url(../images/tambang-tombol-merah-polos.webp) center/100% 100% no-repeat;filter:drop-shadow(0 3px 0 rgba(0,0,0,.45))}
+.tambang-x::before,.tambang-x::after{content:'';position:absolute;left:14px;right:14px;top:50%;height:7px;margin-top:-3.5px;border-radius:4px;background:#fff;box-shadow:0 2px 0 rgba(90,10,10,.7)}
+.tambang-x::before{transform:rotate(45deg)}.tambang-x::after{transform:rotate(-45deg)}
+.tambang-x:active{transform:translateY(2px) scale(.96)}
+
+/* baris Manager di kartu tambang */
+.tambang-mgr{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:10px;padding:8px 10px;border:3px solid #6d6590;border-radius:14px;background:rgba(40,28,70,.85);color:#fff;font:400 24px var(--tambang-font-title);cursor:pointer}
+.tambang-mgr small{font:800 18px var(--tambang-font-body);color:#cfc8ee;display:inline-flex;align-items:center;gap:4px}
+.tambang-mgr small img{width:24px;height:24px;object-fit:contain}
+.tambang-mgr.on{border-color:#5fbf5a;background:rgba(30,70,40,.8);cursor:default}
+.tambang-mgr.poor{opacity:.6}
+
+/* overlay tambang terkunci (tanpa spoiler) */
+#tambang-lock{position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(14,10,30,.9),rgba(6,4,16,.97));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#tambang-lock.on{opacity:1}
+#tambang-lock img{width:196px;image-rendering:auto;height:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.45))}
+#tambang-lock b{font:400 76px var(--tambang-font-title);color:#fff;text-shadow:0 4px 0 #1b1030}
+#tambang-lock>span{font:800 34px var(--tambang-font-body);color:#b9b1d3}
+.tambang-slot{z-index:6}
+.tambang-tabs{display:flex;gap:8px;margin:8px 40px 0}.tambang-tabs button{flex:1;height:54px;border-radius:12px;border:3px solid #4c4570;background:rgba(14,10,26,.55);color:#cfc8ee;font:400 26px var(--tambang-font-title)}
+.tambang-tabs button.on{background:#ffd24d;color:#4d2300;border-color:#fff2b0}
+.tambang-rst{font:800 20px var(--tambang-font-body);color:#cfc8ee;margin-top:6px;text-align:center}
+.tambang-slot.rest .tambang-rst{color:#9fd8ff}
+.tambang-acts{justify-content:center}
+#tambang-mx:has(.tambang-sec){margin-top:70px;max-height:640px;overflow-y:auto;overscroll-behavior:contain;padding-bottom:6px}
+#tambang-mx:has(.tambang-sec) .tambang-sec{margin-top:6px}
+#tambang-mx:has(.tambang-sec) .tambang-sec h4{font-size:22px;margin-bottom:2px}
+#tambang-mx:has(.tambang-sec) .tambang-ore{font-size:22px}
+
+#tambang-tools2{position:absolute;left:940px;top:206px;display:none;gap:10px;z-index:5}
+#tambang-tools2 .tambang-btn{height:70px;width:230px}#tambang-tools2 .tambang-btn>span{font-size:26px}
+#tambang-stage[data-layer="0"] #tambang-tools2{display:flex}
+#tambang-mclose{display:none;right:-6px;top:-18px;z-index:5}
+#tambang-md.bld #tambang-mclose{display:block}
+#tambang-md.bld #tambang-mbtns{display:none}
+#tambang-md.bld #tambang-box{padding-bottom:40px}
+#tambang-md.bld #tambang-mx:has(.tambang-sec){max-height:760px}
+
+/* ===== polish v2 ===== */
+@keyframes tambangPop{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+#tambang-md.on #tambang-box{animation:tambangPop .22s cubic-bezier(.2,.9,.3,1.2)}
+.tambang-sec{background:rgba(14,10,26,.38);border:2px solid rgba(120,106,170,.32);border-radius:16px;padding:8px 14px 10px;margin:10px 34px 0}
+.tambang-sec h4 small{font:800 17px var(--tambang-font-body);color:#9a92bd;letter-spacing:0;margin-left:8px}
+.tambang-stats{display:flex;gap:12px;margin:12px 34px 0}
+.tambang-stat{flex:1;padding:8px 14px 10px;border-radius:16px;background:rgba(14,10,26,.55);border:2px solid #4c4570;text-align:left}
+.tambang-stat small{display:block;font:400 19px var(--tambang-font-title);color:#b9b1d3;letter-spacing:.5px}
+.tambang-stat b{font:400 34px var(--tambang-font-title);color:#fff}.tambang-stat b em{font:800 22px var(--tambang-font-body);color:#9a92bd;font-style:normal}
+.tambang-stat .tambang-bar{margin:6px 0 0!important}
+.tambang-stat.warn{border-color:#ff8a5a}.tambang-stat.warn b{color:#ffb08a}
+.tambang-note{margin:8px 34px 0;font:800 20px/1.3 var(--tambang-font-body);color:#9a92bd;text-align:center}
+.tambang-cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}.tambang-cells.two{grid-template-columns:repeat(2,1fr)}
+.tambang-cell{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:rgba(14,10,26,.6);border:2px solid #4c4570;font:800 21px var(--tambang-font-body);color:#fff;white-space:nowrap}
+.tambang-cell i{width:16px;height:16px;border-radius:4px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.tambang-cell b{margin-left:auto;color:#ffe08a;font-weight:800}.tambang-cell.z{opacity:.42}.tambang-cell.z b{color:#fff}
+.tambang-bigbtn.claim{background-image:url(../images/tambang-tombol-hijau-polos.webp);color:#fff;text-shadow:0 2px 0 rgba(10,60,20,.7);width:420px;animation:none}
+.tambang-bigbtn.claim:not(:disabled){animation:tambangGlow 1.8s ease-in-out infinite}
+@keyframes tambangGlow{50%{filter:brightness(1.12) drop-shadow(0 0 14px rgba(120,255,140,.55))}}
+.tambang-rec.up{padding:10px 14px}.tambang-rec.up .nm{font-size:25px;line-height:1.15}
+.tambang-rec.up .cur{display:block;font:400 30px var(--tambang-font-title);color:#ffe08a}.tambang-rec.up .cur em{font:800 22px var(--tambang-font-body);color:#7fe39a;font-style:normal}
+.tambang-pips{display:inline-flex;gap:5px;margin-left:12px;vertical-align:middle}.tambang-pips i{width:14px;height:14px;border-radius:4px;background:#2c2646;border:2px solid #4c4570}.tambang-pips i.on{background:#ffd24d;border-color:#fff2b0}
+.tambang-rec.up .go{min-width:150px;height:60px;display:inline-flex;align-items:center;justify-content:center;gap:6px}.tambang-rec.up .go img{width:30px;height:30px;margin:0}
+.tambang-rec.up .go.poor{filter:grayscale(.7) brightness(.8)}
+.tambang-rstw{margin-top:6px;text-align:center}
+.tambang-rst{display:inline-block;margin:0;padding:3px 14px;border-radius:999px;font:800 19px var(--tambang-font-body);background:rgba(60,150,90,.22);border:2px solid #4aa86a;color:#bff0cf}
+.tambang-slot.rest .tambang-rst{background:rgba(70,120,200,.25);border-color:#6aa8ff;color:#cfe6ff}
+button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
+.tambang-btn:active,.tambang-bigbtn:active,.tambang-up:active{transform:translateY(2px) scale(.98)}
+#tambang-md.bld #tambang-mx:has(.tambang-sec){max-height:820px;margin-top:64px}
+
+#tambang-lock-btn{width:440px;height:104px;margin-top:22px;pointer-events:none}
+#tambang-lock.on #tambang-lock-btn{pointer-events:auto}
+#tambang-lock-btn>span{font:400 40px var(--tambang-font-title)!important;color:#4d2300!important;text-shadow:0 2px 0 rgba(255,236,160,.6);display:flex;align-items:center;justify-content:center;gap:8px}
+#tambang-lock-btn>span img{width:42px;height:42px}
+#tambang-lock-btn.poor{filter:saturate(.5) brightness(.9)}
+#tambang-prod.open{animation:tambangGlow 1.6s ease-in-out infinite}
+#tambang-lock .tambang-btn>img{position:absolute;inset:0;width:100%;height:100%;filter:none;object-fit:fill}
+#tambang-lock-btn{position:relative}
+#tambang-lock-btn>span{position:relative;width:100%;height:100%}
+#tambang-lock-btn.wait>span{font-size:34px!important}
+
+.tambang-dot{display:inline-block;width:16px;height:16px;border-radius:4px;margin-right:10px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25);vertical-align:middle}
+#tambang-tools2 .tambang-btn{width:220px}
+.tambang-bigbtn[data-sellall]{width:640px;font-size:30px;white-space:nowrap}
+/* layout v3: home dihapus, mata uang ke kanan, tombol aksi di bawah */
+#tambang-home{display:none!important}
+#tambang-cur-em{left:1290px}#tambang-cur-co{left:1590px}
+#tambang-tools{left:50%;top:auto;bottom:26px;transform:translateX(-50%)}
+#tambang-tools2{left:50%;top:auto;bottom:112px;transform:translateX(-50%)}
+#tambang-toast{bottom:240px}
+
+/* satu baris */
+#tambang-tools .x0{display:none}
+#tambang-stage[data-layer="0"] #tambang-tools .x0{display:grid}
+#tambang-tools{gap:8px}
+#tambang-tools .tambang-btn{height:76px;min-width:150px;padding:0 6px}
+#tambang-tools .tambang-btn>span{font-size:26px;white-space:nowrap}
+#tambang-tools .x0{width:215px}
+
+.tambang-tile.lk{opacity:.4;filter:grayscale(.8)}
+#tambang-tools .x0{width:196px}
+#tambang-tools{gap:8px}

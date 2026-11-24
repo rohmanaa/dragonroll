@@ -1,0 +1,10 @@
+/* tambang-world.css — keadaan interaksi dunia 3D (drag, kursor). Hanya selektor berawalan tambang-. */
+#tambang-stage.dragging #tambang-gl{cursor:grabbing}
+#tambang-gl{cursor:grab}
+#tambang-stage.dragging .tambang-chip{pointer-events:none}
+#tambang-stage.dragging #tambang-dock{pointer-events:auto}
+
+
+
+/* dock taruh-objek, Slot & Reset dinonaktifkan */
+#tambang-dock{display:none!important}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Dragon Roll — Tambang</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tambang-hud.css">
+<link rel="stylesheet" href="css/tambang-world.css">
+</head>
+<body>
+<div id="tambang-wrap"><div id="tambang-stage" data-layer="0">
+  <canvas id="tambang-gl"></canvas>
+  <div id="tambang-lock" aria-hidden="true"><img src="images/tambang-gembok-besar.webp" alt=""><b id="tambang-lock-t">TAMBANG 1</b><span>Terkunci · buka untuk melihat isinya</span><button class="tambang-btn" id="tambang-lock-btn"><img src="images/tambang-tombol-kuning-polos.webp" alt=""><span>BUKA</span></button></div>
+  <div class="tambang-scrim"></div><div class="tambang-scrim b"></div>
+  <button id="tambang-back" aria-label="Kembali"><img src="images/tambang-panah-kembali.webp" alt=""></button>
+  <div id="tambang-title" class="tambang-ttl">Tambang</div>
+  <div id="tambang-sum"></div>
+  <nav id="tambang-nav" aria-label="Layer tambang">
+    <button class="tambang-arr up" id="tambang-up" aria-label="Layer atas"><img src="images/tambang-panah-kembali.webp" alt=""></button>
+    <button class="tambang-tile" data-i="0" aria-label="Base Camp"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>B</span></button>
+    <button class="tambang-tile" data-i="1" aria-label="Mine 1"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>1</span></button>
+    <button class="tambang-tile" data-i="2" aria-label="Mine 2"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>2</span></button>
+    <button class="tambang-tile" data-i="3" aria-label="Mine 3"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>3</span></button>
+    <button class="tambang-tile" data-i="4" aria-label="Mine 4"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>4</span></button>
+    <button class="tambang-tile" data-i="5" aria-label="Mine 5"><img src="images/tambang-tile-stage-biasa.webp" alt=""><span>5</span></button>
+    <button class="tambang-arr dn" id="tambang-down" aria-label="Layer bawah"><img src="images/tambang-panah-kembali.webp" alt=""></button>
+  </nav>
+  <div class="tambang-cur" id="tambang-cur-em"><img src="images/tambang-berlian-hijau.webp" alt=""><div class="v" id="tambang-v-em">—</div><div class="plus">+</div></div>
+  <div class="tambang-cur" id="tambang-cur-co"><img src="images/tambang-ikon-koin-emas.webp" alt=""><div class="v" id="tambang-v-co">—</div><div class="plus">+</div></div>
+  <button id="tambang-home" aria-label="Lobby"><img src="images/tambang-ikon-home.webp" alt=""></button>
+  <div id="tambang-tools">
+    <button class="tambang-btn" id="tambang-liftb" aria-expanded="false"><img src="images/tambang-tombol-mint.webp" alt=""><span>LIFT</span></button>
+    <button class="tambang-btn x0" id="tambang-furn"><img src="images/tambang-tombol-merah-polos.webp" alt=""><span>🔥 FURNACE</span></button>
+    <button class="tambang-btn x0" id="tambang-forest"><img src="images/tambang-tombol-hijau-polos.webp" alt=""><span>🌲 HUTAN</span></button>
+    <button class="tambang-btn" id="tambang-prod" aria-expanded="false"><img src="images/tambang-tombol-kuning-polos.webp" alt=""><span>PRODUKSI</span></button>
+    <button class="tambang-btn" id="tambang-boostall"><img src="images/tambang-tombol-biru-polos.webp" alt=""><span>⚡ BOOST SEMUA</span></button>
+    <button class="tambang-btn" id="tambang-gudang"><img src="images/tambang-tombol-coklat-polos.webp" alt=""><span><img src="images/tambang-tas-kulit.webp" alt="">GUDANG <b id="tambang-gcnt">0</b></span></button>
+    <button class="tambang-btn x0" id="tambang-inv"><img src="images/tambang-tombol-coklat-polos.webp" alt=""><span>🎒 INVENTORI</span></button>
+    <button class="tambang-btn x0" id="tambang-gup"><img src="images/tambang-tombol-ungu-polos.webp" alt=""><span>⬆ UPGRADE</span></button>
+  </div>
+
+  <section id="tambang-card" class="tambang-slot" hidden></section>
+  <div id="tambang-bubs"><button class="tambang-bub b" id="tambang-bub-b" aria-label="Boost tambang ini">⚡</button><button class="tambang-bub u" id="tambang-bub-u" aria-label="Upgrade tambang ini"><img src="images/tambang-panah-kembali.webp" alt=""></button></div>
+
+  <div id="tambang-dock" aria-label="Taruh objek di tambang">
+    <button class="tambang-chip" data-spec="chest:wooden" style="--c:#8a5a2b" title="Peti kayu"><img src="images/tambang-peti-harta.webp" alt=""><em>Kayu</em></button>
+    <button class="tambang-chip" data-spec="chest:stone" style="--c:#8d8d96" title="Peti batu"><img src="images/tambang-peti-harta.webp" alt=""><em>Batu</em></button>
+    <button class="tambang-chip" data-spec="chest:crystal" style="--c:#33d6ff" title="Peti kristal"><img src="images/tambang-peti-harta.webp" alt=""><em>Kristal</em></button>
+    <button class="tambang-chip" data-spec="chest:deep" style="--c:#ff7a2a" title="Peti deep"><img src="images/tambang-peti-harta.webp" alt=""><em>Deep</em></button>
+    <button class="tambang-chip" data-spec="chest:ancient" style="--c:#d0a22a" title="Peti ancient"><img src="images/tambang-peti-harta.webp" alt=""><em>Ancient</em></button>
+    <button class="tambang-chip" data-spec="chest:mystery" style="--c:#a05cff" title="Peti mystery"><img src="images/tambang-peti-harta.webp" alt=""><em>Mystery</em></button>
+    <div class="tambang-sep"></div>
+    <button class="tambang-chip" data-spec="worker" style="--c:#d9732a" title="Pekerja"><img src="images/tambang-pengguna.webp" alt=""><em>Pekerja</em></button>
+    <button class="tambang-chip" data-spec="cart" style="--c:#5a5f69" title="Kereta tambang"><img src="images/tambang-koin-tumpuk.webp" alt=""><em>Kereta</em></button>
+    <button class="tambang-chip" data-spec="decor:torch" style="--c:#ffa630" title="Obor"><img src="images/tambang-api.webp" alt=""><em>Obor</em></button>
+    <button class="tambang-chip" data-spec="decor:crates" style="--c:#8a5a2b" title="Kotak kayu"><img src="images/tambang-tas-kulit.webp" alt=""><em>Kotak</em></button>
+    <button class="tambang-chip" data-spec="decor:rocks" style="--c:#8d8d96" title="Batu hias"><img src="images/tambang-batu-rune.webp" alt=""><em>Batu</em></button>
+    <button class="tambang-chip" data-spec="mineral" style="--c:#4dd8ff" title="Mineral"><img src="images/tambang-kristal-heksagon.webp" alt=""><em>Mineral</em></button>
+    <div class="tambang-sep"></div>
+    <div class="tambang-tgwrap" id="tambang-slotwrap" role="switch" aria-checked="false" tabindex="0"><span>Slot</span><div class="tambang-tg" id="tambang-tg"></div></div>
+    <button class="tambang-btn" id="tambang-reset" aria-label="Reset tambang"><img src="images/tambang-tombol-ungu-polos.webp" alt=""><img class="ic" src="images/tambang-ulang.webp" alt=""></button>
+  </div>
+
+  <div id="tambang-md"><div class="tambang-panel" id="tambang-box">
+    <button class="tambang-x" id="tambang-mclose" aria-label="Tutup"></button><h3 id="tambang-mt">Reset Tambang</h3><p id="tambang-mx">Semua objek kembali ke susunan awal. Lanjutkan?</p>
+    <div id="tambang-mbtns">
+      <button class="tambang-btn" id="tambang-m-no"><img src="images/tambang-tombol-merah-polos.webp" alt=""><span>Batal</span></button>
+      <button class="tambang-btn" id="tambang-m-ok"><img src="images/tambang-tombol-hijau-polos.webp" alt=""><span>Reset</span></button>
+    </div>
+  </div></div>
+  <div id="tambang-toast"></div>
+</div></div>
+<div id="tambang-fade"></div>
+<script src="js/tambang-three.min.js"></script>
+<script src="js/tambang-core.js"></script>
+<script src="js/tambang-voxel.js"></script>
+<script src="js/tambang-props.js"></script>
+<script src="js/tambang-rig.js"></script>
+<script src="js/tambang-workers.js"></script>
+<script src="js/tambang-data.js"></script>
+<script src="js/tambang-layer-surface-stone.js"></script>
+<script src="js/tambang-layer-crystal-deep.js"></script>
+<script src="js/tambang-layer-ancient-soon.js"></script>
+<script src="js/tambang-lift.js"></script>
+<script src="js/tambang-snap.js"></script>
+<script src="js/tambang-top-layer.js"></script>
+<script src="js/tambang-world.js"></script>
+<script src="js/tambang-ui.js"></script>
+</body></html>
