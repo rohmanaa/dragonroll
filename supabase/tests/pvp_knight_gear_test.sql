@@ -62,8 +62,9 @@ end $$;
 
 -- 10 kemenangan: set Mahkota terbuka, Rival masih terkunci
 update public.player_stats set pvp_wins = 10 where user_id = 'bbbbbbbb-0000-0000-0000-000000000001';
+select set_config('test.pvp_ids', (select string_agg(id, ',') from public.item_catalog where id ~ '\.(mahkota|rival)$'), false);
 set role authenticated; select set_config('request.jwt.claim.sub', 'bbbbbbbb-0000-0000-0000-000000000001', false);
-insert into out select 'c10', public.claim_pvp_unlocks(array(select id from public.item_catalog where id ~ '\.(mahkota|rival)$'));
+insert into out select 'c10', public.claim_pvp_unlocks(string_to_array(current_setting('test.pvp_ids'), ','));
 reset role;
 do $$ begin
   assert (select jsonb_array_length(v->'granted') from out where k='c10') = 10, '10 item mahkota diberi';
@@ -73,7 +74,7 @@ end $$;
 
 -- klaim ulang idempoten: tidak dobel
 set role authenticated; select set_config('request.jwt.claim.sub', 'bbbbbbbb-0000-0000-0000-000000000001', false);
-insert into out select 'c10b', public.claim_pvp_unlocks(array(select id from public.item_catalog where id ~ '\.mahkota$'));
+insert into out select 'c10b', public.claim_pvp_unlocks(array(select x from unnest(string_to_array(current_setting('test.pvp_ids'), ',')) as x where x ~ '\.mahkota$'));
 reset role;
 do $$ begin
   assert (select jsonb_array_length(v->'granted') from out where k='c10b') = 0 and (select jsonb_array_length(v->'already') from out where k='c10b') = 10;
