@@ -13,7 +13,7 @@
 <div id="fade"></div>
 <!-- isi panel Profil; dipasang UT.AccountHub ke #pane (CSS panel ikut dimuat/dilepas bersama panelnya) -->
 <template id="tpl-profil" data-css="assets/css/pages/profile-legacy.css assets/css/pages/profile.css">
-  <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = pose pet (gambar statis) -->
+  <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = foto pet 3D (dijepret sekali lalu di-cache, bukan thumbnail toko) -->
   <section id="hero" class="pcard">
     <div id="mid"><div id="art"></div></div>
     <button id="frbtn" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
@@ -75,6 +75,8 @@
 <script src="assets/js/renderers/aura-fx.js"></script>
 <script src="assets/js/renderers/aura-view.js"></script>
 <script src="assets/js/core/shared-gl.js"></script>
+<script src="data/inventory/pet/_shared/js/pet-model-registry.js"></script>
+<script src="data/inventory/pet/_shared/js/pet-photo.js"></script>
 <script src="assets/js/core/modal-kit.js"></script>
 <script src="assets/js/core/account-hub.js"></script>
 <script src="assets/js/core/page-module.js"></script>

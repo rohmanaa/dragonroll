@@ -11,13 +11,17 @@ const rnd=()=>((_s=(Math.imul(_s,1664525)+1013904223)>>>0)/4294967296);
 const rr=(a,b)=>a+(b-a)*Math.random();
 const pick=a=>a[(Math.random()*a.length)|0];
 const rgb=h=>{const c=new T.Color(h);return[c.r,c.g,c.b]};
-const jc=(hex,a)=>{const c=new T.Color(hex);if(a)c.offsetHSL(0,0,(rnd()-.5)*a);return c};
+/* Cahaya efek diminimalkan & warna digelapkan (nyaman di mata). Jaga sama dengan DIM di pet-photo.js (foto pet Profil). */
+const DIM={emissive:.5,glow:.4,dark:.84,particle:.45,pbright:.55};
+const jc=(hex,a)=>{const c=new T.Color(hex);if(a)c.offsetHSL(0,0,(rnd()-.5)*a);c.r*=DIM.dark;c.g*=DIM.dark;c.b*=DIM.dark;return c};
+/* intensitas/opasitas yang ditulis model (termasuk tiap frame di tick) otomatis dikali pengali redup */
+const scaled=(obj,prop,k)=>{let v=obj[prop];Object.defineProperty(obj,prop,{get:()=>v*k,set:x=>{v=x},configurable:true,enumerable:true})};
 
 // ---------- mesh helpers (pets face +z, floor is y=0)
 function mk(parent,geo,col,x,y,z,o){
   o=o||{};
   const mat=new T.MeshStandardMaterial({color:jc(col,o.j===undefined?.06:o.j),roughness:o.r===undefined?.8:o.r,metalness:o.m||0,flatShading:o.flat!==false});
-  if(o.e!==undefined){mat.emissive=new T.Color(o.e);mat.emissiveIntensity=o.ei===undefined?1:o.ei}
+  if(o.e!==undefined){mat.emissive=new T.Color(o.e);mat.emissiveIntensity=o.ei===undefined?1:o.ei;scaled(mat,'emissiveIntensity',DIM.emissive)}
   if(o.op!==undefined){mat.transparent=true;mat.opacity=o.op}
   if(o.side)mat.side=T.DoubleSide;
   const m=new T.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);
@@ -47,6 +51,7 @@ const glowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=12
   x.fillStyle=g;x.fillRect(0,0,128,128);return new T.CanvasTexture(c)})();
 function glow(p,col,size,x,y,z,op){
   const s=new T.Sprite(new T.SpriteMaterial({map:glowTex,color:col,blending:T.AdditiveBlending,transparent:true,depthWrite:false,opacity:op===undefined?.8:op}));
+  scaled(s.material,'opacity',DIM.glow);
   s.scale.set(size,size,1);s.position.set(x||0,y||0,z||0);p.add(s);return s;
 }
 
@@ -89,7 +94,7 @@ class Particles{
     this.u={uScale:{value:500}};
     const mat=new T.ShaderMaterial({uniforms:this.u,transparent:true,depthWrite:false,blending:T.AdditiveBlending,
       vertexShader:'attribute vec3 aCol;attribute float aSize;varying vec3 vC;uniform float uScale;void main(){vC=aCol;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=aSize*uScale/max(0.1,-mv.z);gl_Position=projectionMatrix*mv;}',
-      fragmentShader:'varying vec3 vC;void main(){float d=length(gl_PointCoord-0.5);if(d>0.5)discard;float a=smoothstep(0.5,0.0,d);gl_FragColor=vec4(vC*a*1.2,1.0);}'});
+      fragmentShader:'varying vec3 vC;void main(){float d=length(gl_PointCoord-0.5);if(d>0.5)discard;float a=smoothstep(0.5,0.0,d);gl_FragColor=vec4(vC*a*'+DIM.pbright.toFixed(2)+',1.0);}'});
     this.pts=new T.Points(geo,mat);this.pts.frustumCulled=false;scene.add(this.pts);this.geo=geo;
   }
   emit(p,v,life,size,c,g){
@@ -116,7 +121,7 @@ class Particles{
   }
 }
 let P=null;
-const emit=(p,v,l,s,c,g)=>{if(P)P.emit(p,v,l,s,c,g)};
+const emit=(p,v,l,s,c,g)=>{if(P&&Math.random()<DIM.particle)P.emit(p,v,l,s,c,g)};
 
 // ================= T4 Arcane Owl (Epic)
 
@@ -289,10 +294,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
 renderer.setClearColor(0x000000,0);
 const scene=new T.Scene();
 const camera=new T.PerspectiveCamera(40,1,.1,100);
-scene.add(new T.HemisphereLight(0xcfe0ff,0x201838,.8));
-const key=new T.DirectionalLight(0xffffff,.85);key.position.set(4,7,5);scene.add(key);
-const rim=new T.DirectionalLight(0xffffff,.8);rim.position.set(-5,3,-5);scene.add(rim);
-const fill=new T.PointLight(0xffffff,.5,12);fill.position.set(0,.6,3.5);scene.add(fill);
+scene.add(new T.HemisphereLight(0xb9c6e6,0x1c1630,.5));
+const key=new T.DirectionalLight(0xffeccc,.55);key.position.set(4,7,5);scene.add(key);
+const rim=new T.DirectionalLight(0xffffff,.4);rim.position.set(-5,3,-5);scene.add(rim);
+const fill=new T.PointLight(0xffffff,.3,12);fill.position.set(0,.6,3.5);scene.add(fill);
 P=new Particles(scene,900);
 
 /* kamera: hanya putar (seret). Tanpa zoom: roda mouse dan cubit tidak mengubah jarak. */

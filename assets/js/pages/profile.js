@@ -170,11 +170,30 @@ function drawAkun() {
   $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
   $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
 }
+/* ---- kanan: FOTO pet 3D (seperti foto karakter), bukan thumbnail webp toko ----
+   Model pet dibangun sekali lewat UT.PetPhoto (renderer offscreen, cahaya redup, tanpa partikel) lalu disimpan di localStorage per pet.
+   Membuka profil berikutnya langsung memakai gambar itu. Jika WebGL/modelnya gagal, jatuh ke gambar thumbnail lama. */
+const PET_KEY = 'ut.petPhoto.v1', PET_VER = 1, PET_W = 860, PET_H = 844;   /* 2x dari #pet .pimg */
+let petGen = 0;
+const petSig = gk => gk + '|v' + PET_VER;
+function readPetPhoto() { try { const o = JSON.parse(localStorage.getItem(PET_KEY) || 'null'); return o && o.sig && o.url ? o : null; } catch (e) { return null; } }
+function writePetPhoto(sig, url) { try { localStorage.setItem(PET_KEY, JSON.stringify({sig, url})); } catch (e) { /* penuh/diblokir: foto tetap tampil, hanya tidak di-cache */ } }
 function drawPet() {
-  const id = PD.equippedId('pet'), it = id && IC.byId(id), el = $('#pet');
+  const id = PD.equippedId('pet'), it = id && IC.byId(id), el = $('#pet'), im = el.querySelector('.pimg');
   el.classList.toggle('empty', !it);
-  el.querySelector('.pimg').style.backgroundImage = `url(${it ? (it.image || 'data/inventory/pet/items/' + it.gameKey + '/' + it.gameKey + '.png') : K + 'lobby/pet.webp'})`;
   el.querySelector('.pnm').textContent = it ? it.name : 'Belum ada pet';
+  const setImg = u => { if (!env.disposed) im.style.backgroundImage = `url(${u})`; };
+  const thumb = it ? (it.image || 'data/inventory/pet/items/' + it.gameKey + '/' + it.gameKey + '.png') : K + 'lobby/pet.webp';
+  const gen = ++petGen;
+  if (!it) { setImg(thumb); return; }
+  const sig = petSig(it.gameKey), c = readPetPhoto();
+  if (c && c.sig === sig) { setImg(c.url); return; }   /* pet sama dengan foto tersimpan: pakai gambar, tanpa render */
+  im.style.backgroundImage = 'none';
+  if (typeof THREE === 'undefined' || !(window.UT && UT.PetPhoto && UT.SharedGL)) { setImg(thumb); return; }
+  UT.PetPhoto.shoot(it.gameKey, PET_W, PET_H).then(u => {
+    if (env.disposed || gen !== petGen) return;   /* pet diganti saat dirender: abaikan hasil lama */
+    setImg(u); writePetPhoto(sig, u);
+  }).catch(e => { console.warn('[profil] foto pet gagal', e); if (gen === petGen) setImg(thumb); });
 }
 $('#pet').onclick = () => { snd(); go('pet.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
