@@ -47,15 +47,22 @@ t('lobi: lencana login memakai batas 30', () => {
   const lobby = read('data/lobby/js/lobby.js');
   assert.ok(/\(\+d\.claimed\|\|0\)<30/.test(lobby) && !/claimed\|\|0\)<7/.test(lobby));
 });
-t('Hari 30 memberi Frame Setia sekali; frame terdaftar di katalog klien tanpa harga (tidak dijual)', () => {
-  assert.ok(/v_idx \+ 1 = 30 then[\s\S]*'frame\.setia'[\s\S]*on conflict do nothing returning item_id into v_item/.test(sql));
+t('Hari 30 memberi frame eksklusif pertama yang belum dimiliki; urutan SQL = urutan katalog klien', () => {
+  assert.ok(/v_idx \+ 1 = 30 then[\s\S]*unnest\(public\._daily_frame_order\(\)\) with ordinality[\s\S]*not exists \(select 1 from public\.player_inventory/.test(sql));
   assert.ok(/'item', v_item/.test(sql));
+  const order = [...sql.match(/_daily_frame_order\(\) returns text\[\][\s\S]*?array\[([\s\S]*?)\]\s*\$\$/)[1].matchAll(/'(frame\.[a-z]+)'/g)].map(m => m[1]);
   const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
-  const f = C.ItemCatalog.byId('frame.setia');
-  assert.ok(f && f.kind === 'frame' && !f.price && !f.gems && !f.starter && f.source === 'event');
-  assert.strictEqual(C.ItemCatalog.cost(f), null);
-  assert.ok(fs.existsSync(root('data/frame/setia.webp')));
-  assert.ok(/'setia': 'gold'/.test(read('data/inventory/frame/_shared/js/frame-fx.js')));
+  const ev = C.ItemCatalog.items.filter(i => i.kind === 'frame' && i.source === 'event').map(i => i.id);
+  assert.strictEqual(order.length, 15); assert.deepStrictEqual(order, ev);
+  assert.strictEqual(order[0], 'frame.nagaapi', 'Frame Naga Api jadi hadiah pertama');
+  order.forEach(id => assert.ok(new RegExp("\\('" + id.replace('.', '\\.') + "', 'frame', null, false, false\\)").test(sql), id + ' terdaftar di item_catalog'));
+});
+t('frame hadiah tidak dijual dan tidak ada spoiler: tanpa harga/gem, kartu Hari 30 hanya "Frame Misteri"', () => {
+  const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
+  const ev = C.ItemCatalog.items.filter(i => i.kind === 'frame' && i.source === 'event');
+  ev.forEach(f => { assert.ok(!f.price && !f.gems && !f.starter, f.id); assert.strictEqual(C.ItemCatalog.cost(f), null, f.id + ' tidak muncul di Toko'); assert.ok(fs.existsSync(root(f.image)), f.id + ' gambar'); });
+  const day30 = labels[29]; assert.ok(/Frame Misteri/.test(js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily'))));
+  ev.forEach(f => assert.ok(!js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily')).includes(f.name), 'kalender tidak menyebut ' + f.name));
 });
 t('snapshot skema memuat migrasi 30 hari', () => {
   assert.ok(read('supabase/snapshot/00_full_schema.sql').includes('202611390001_daily_reward_30.sql'));

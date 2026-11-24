@@ -159,5 +159,5 @@ html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/mis
 .dgrid .dc.grand{filter:drop-shadow(0 0 16px rgba(255,214,90,.95))}
 .dgrid .dc.grand.done{filter:brightness(.6)}
 .dgrid .dc.grand .di{height:170px;top:62px;max-width:260px}
-.dc .dx{position:absolute;left:0;right:0;top:64px;font:400 26px/1 var(--font-title);color:#7dffb0;text-shadow:0 2px 0 rgba(0,40,20,.85)}
+.dc .dx{position:absolute;left:0;right:0;top:64px;font:400 26px/1 var(--font-title);color:#e2b8ff;text-shadow:0 2px 0 rgba(40,0,70,.85)}
 .dgrid .dc.grand .di{top:96px;height:112px;max-width:190px}

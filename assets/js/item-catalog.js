@@ -106,8 +106,24 @@
     frame('phoenix', 'Phoenix', 'legendary', 5500, 'Frame api phoenix bersayap; lidah api hidup dan bulu membara naik ke atas.', 'phoenix.webp'),
     frame('celestial','Surgawi', 'legendary', 7500, 'Frame surgawi bersayap dengan halo berputar, sinar emas, dan bintang berkilau.', 'celestial.webp'),
     frame('cosmic',  'Kosmik', 'legendary', 8000, 'Frame kosmik dengan bintang yang mengorbit dan nebula warna-warni yang bergerak.', 'cosmic.webp'),
-    /* Frame hadiah (tidak dijual): diberikan server saat klaim login Hari 30 (claim_daily_reward). price/gems null = tidak muncul di Toko. */
-    frame('setia',   'Setia', 'legendary', null, 'Frame zamrud eksklusif untuk pemain yang login 30 hari berturut-turut. Tidak dijual.', 'setia.webp', { source: 'event', group: 'Login' }),
+    /* Frame hadiah Login 30 hari (BUKAN dijual; price/gems null = tidak muncul di Toko, tidak ada spoiler). Urutan = urutan pemberian di server:
+       Hari 30 putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. (tabel _daily_frame_order di migrasi 202611390001; tests/daily-reward-30.test.js menjaganya sama).
+       Gambar bergaya ilustrasi (bukan piksel) + efek aura dari frame-fx.js (tabel ART). */
+    frame('nagaapi', 'Naga Api', 'legendary', null, 'Frame naga bertanduk bersisik gelap dengan api yang menyala di kakinya. Hadiah login 30 hari, tidak dijual.', 'nagaapi.webp', { source: 'event', group: 'Login' }),
+    frame('batutua', 'Batu Tua', 'rare', null, 'Frame batu kuno yang retak dan berkarat di sudut-sudutnya. Hadiah login 30 hari, tidak dijual.', 'batutua.webp', { source: 'event', group: 'Login' }),
+    frame('perunggu', 'Perunggu', 'rare', null, 'Frame perunggu berukir dengan hiasan klasik di atas dan bawahnya. Hadiah login 30 hari, tidak dijual.', 'perunggu.webp', { source: 'event', group: 'Login' }),
+    frame('tembagaukir', 'Tembaga Ukir', 'rare', null, 'Frame tembaga jingga dengan ukiran spiral di sekeliling tepinya. Hadiah login 30 hari, tidak dijual.', 'tembagaukir.webp', { source: 'event', group: 'Login' }),
+    frame('peraksayap', 'Perak Sayap', 'epic', null, 'Frame perak mengilap dengan lencana sayap kecil di puncaknya. Hadiah login 30 hari, tidak dijual.', 'peraksayap.webp', { source: 'event', group: 'Login' }),
+    frame('emasrubi', 'Emas Rubi', 'epic', null, 'Frame emas murni bertatah rubi merah di puncak dan keempat sudutnya. Hadiah login 30 hari, tidak dijual.', 'emasrubi.webp', { source: 'event', group: 'Login' }),
+    frame('kristalsafir', 'Kristal Safir', 'epic', null, 'Frame biru safir dengan kristal bercahaya di setiap sudutnya. Hadiah login 30 hari, tidak dijual.', 'kristalsafir.webp', { source: 'event', group: 'Login' }),
+    frame('zamrudrambat', 'Zamrud Rambat', 'epic', null, 'Frame hijau dengan sulur dan daun yang merambat, permata zamrud di puncak. Hadiah login 30 hari, tidak dijual.', 'zamrudrambat.webp', { source: 'event', group: 'Login' }),
+    frame('rubikerajaan', 'Rubi Kerajaan', 'epic', null, 'Frame merah berbingkai emas dengan hiasan sayap dan rubi kerajaan. Hadiah login 30 hari, tidak dijual.', 'rubikerajaan.webp', { source: 'event', group: 'Login' }),
+    frame('batusenja', 'Batu Senja', 'epic', null, 'Frame batu ungu gelap seperti langit senja. Hadiah login 30 hari, tidak dijual.', 'batusenja.webp', { source: 'event', group: 'Login' }),
+    frame('bintangsafir', 'Bintang Safir', 'legendary', null, 'Frame emas berukir dengan bintang safir bersayap di puncaknya. Hadiah login 30 hari, tidak dijual.', 'bintangsafir.webp', { source: 'event', group: 'Login' }),
+    frame('hutanzamrud', 'Hutan Zamrud', 'legendary', null, 'Frame hutan penuh sulur rimbun dan permata zamrud. Hadiah login 30 hari, tidak dijual.', 'hutanzamrud.webp', { source: 'event', group: 'Login' }),
+    frame('mahkotarubi', 'Mahkota Rubi', 'legendary', null, 'Frame mahkota emas merah dengan rubi besar yang berkilau. Hadiah login 30 hari, tidak dijual.', 'mahkotarubi.webp', { source: 'event', group: 'Login' }),
+    frame('bayanganender', 'Bayangan Ungu', 'legendary', null, 'Frame batu ungu berduri yang memancarkan cahaya sihir. Hadiah login 30 hari, tidak dijual.', 'bayanganender.webp', { source: 'event', group: 'Login' }),
+    frame('sayapsurgawi', 'Sayap Surgawi', 'legendary', null, 'Frame emas bersayap putih dengan bintang suci dan halo yang berputar. Hadiah login 30 hari, tidak dijual.', 'sayapsurgawi.webp', { source: 'event', group: 'Login' }),
 
     /* ---- Skin karakter ---- */
     skin('steve',    'Steve',    'Default',   'common', 0,   'Petualang blok klasik. Siap melangkah ke petak mana pun.'),

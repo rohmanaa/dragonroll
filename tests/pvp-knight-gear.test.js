@@ -27,7 +27,7 @@ t('katalog: tidak dijual & bukan starter (hanya dibuka server lewat PVP), wins s
   });
 });
 t('katalog: item non-PVP tidak berubah (147 asli tetap, tidak ada yang kehilangan harga)', () => {
-  assert.strictEqual(C.items.length, 169);
+  assert.strictEqual(C.items.length, 183);
   assert.strictEqual(C.byId('gear.helm.crown').price, 900);
   assert.strictEqual(C.byId('skin.ksatria') ? C.byId('skin.ksatria').id : 'skin.ksatria', 'skin.ksatria');
 });

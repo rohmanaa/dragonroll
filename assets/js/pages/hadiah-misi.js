@@ -52,7 +52,7 @@ const R=[
  {t:'400 Coin',ic:C1},{t:'600 Coin',ic:C2},{t:'8 Gem',ic:GM},{t:'1.000 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'12 Gem',ic:GM},{t:'3.000 Coin + 20 Gem',ic:C2},
  {t:'500 Coin',ic:C1},{t:'700 Coin',ic:C2},{t:'10 Gem',ic:GM},{t:'1.200 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'15 Gem',ic:GM},{t:'4.000 Coin + 25 Gem',ic:C2},
  {t:'600 Coin',ic:C1},{t:'800 Coin',ic:C2},{t:'12 Gem',ic:GM},{t:'1.500 Coin',ic:C1},{t:'Mystery Box ×1',ic:BX},{t:'18 Gem',ic:GM},{t:'3.000 Coin + 20 Gem',ic:C2},
- {t:'2.000 Coin',ic:C1},{t:'6.000 Coin + 50 Gem',ic:'chest-packs/peti-emas',src:'data/frame/setia.webp',x:'Frame Setia'}];
+ {t:'2.000 Coin',ic:C1},{t:'6.000 Coin + 50 Gem',ic:'chest-packs/peti-emas',x:'Frame Misteri'}];
 function applyDaily(r){if(!r||!r.ok)return false;SD={claimed:+r.claimed||0,today:!!r.claimed_today,box:+r.box||0};DRESET=Date.now()+(+r.seconds_to_reset||0)*1000;return true}
 const dState=i=>!SD?'wait':i<SD.claimed?'done':(i===SD.claimed&&!SD.today&&SD.claimed<DAYS)?'now':'wait';
 const dayNow=()=>!!SD&&!SD.today&&SD.claimed<DAYS;
@@ -66,10 +66,12 @@ async function claimDay(target){
   const row=R[(r.day||1)-1]||R[0];let msg=row.t;
   if(r.type==='box')msg='Mystery Box ×1 diterima! Buka lewat halaman Hadiah Harian.';
   else if(r.type==='powerup')msg=row.t+' diterima (Power)';
-  if(r.item==='frame.setia')msg+='<br>+ Frame Setia (eksklusif) masuk ke Frame-mu!';
+  /* Hari 30: frame eksklusif (tidak dijual, jadi tidak ada spoiler di kalender/Toko). Baru terungkap di sini setelah diklaim. */
+  const fi=r.item&&UT.ItemCatalog&&UT.ItemCatalog.byId?UT.ItemCatalog.byId(r.item):null;
+  if(r.item)msg+='<br>+ '+(fi?fi.name:'Frame eksklusif')+' masuk ke Frame-mu!';
   applyDaily({ok:true,claimed:r.day,claimed_today:true,box:(SD?SD.box:0)+(r.box?1:0),seconds_to_reset:r.seconds_to_reset});
   playSound('claim');buzz();bump();render();renderCurrency();
-  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+(r.item&&row.src?row.src:IC+row.ic+'.webp')+'" alt="">'+msg);
+  modal('Hadiah Diklaim!','<img class="mi'+(row.cls?' '+row.cls:'')+'" src="'+(fi&&fi.image?fi.image:IC+row.ic+'.webp')+'" alt="">'+msg);
   rewardBurst($('#box'),r.type==='box'?'chest':r.type==='powerup'?'item':r.gems>0?(r.coins>0?'mixed':'gem'):'coin')}
  finally{dbusy=false}}
 function vHadiah(){

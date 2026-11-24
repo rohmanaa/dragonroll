@@ -2050,20 +2050,34 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('feather', 'powerup', 80, false, true),
   ('fire_charge', 'powerup', 120, false, true),
   ('frame.amethyst', 'frame', 12000, false, false),
+  ('frame.batusenja', 'frame', null, false, false),
+  ('frame.batutua', 'frame', null, false, false),
+  ('frame.bayanganender', 'frame', null, false, false),
+  ('frame.bintangsafir', 'frame', null, false, false),
   ('frame.celestial', 'frame', null, false, false),
   ('frame.copper', 'frame', 1500, false, false),
   ('frame.cosmic', 'frame', null, false, false),
   ('frame.default', 'frame', null, true, false),
   ('frame.diamond', 'frame', 9000, false, false),
   ('frame.dragon', 'frame', null, false, false),
+  ('frame.emasrubi', 'frame', null, false, false),
   ('frame.ender', 'frame', null, false, false),
   ('frame.gold', 'frame', 6000, false, false),
+  ('frame.hutanzamrud', 'frame', null, false, false),
   ('frame.iron', 'frame', 2500, false, false),
+  ('frame.kristalsafir', 'frame', null, false, false),
+  ('frame.mahkotarubi', 'frame', null, false, false),
+  ('frame.nagaapi', 'frame', null, false, false),
   ('frame.nether', 'frame', 20000, false, false),
+  ('frame.peraksayap', 'frame', null, false, false),
+  ('frame.perunggu', 'frame', null, false, false),
   ('frame.phoenix', 'frame', null, false, false),
-  ('frame.setia', 'frame', null, false, false),
+  ('frame.rubikerajaan', 'frame', null, false, false),
+  ('frame.sayapsurgawi', 'frame', null, false, false),
   ('frame.stone', 'frame', 500, false, false),
   ('frame.storm', 'frame', null, false, false),
+  ('frame.tembagaukir', 'frame', null, false, false),
+  ('frame.zamrudrambat', 'frame', null, false, false),
   ('gear.acc.beard', 'gear', 100, false, false),
   ('gear.acc.belt', 'gear', 80, false, false),
   ('gear.acc.bow', 'gear', 80, false, false),
@@ -6830,12 +6844,51 @@ grant execute on function public.chest_buy(text) to authenticated;
 --    8: 400 koin        9: 600 koin       10: 8 gem          11: 1.000 koin    12: Mystery Box   13: 12 gem      14: 3.000 koin + 20 gem
 --   15: 500 koin       16: 700 koin       17: 10 gem         18: 1.200 koin    19: Mystery Box   20: 15 gem      21: 4.000 koin + 25 gem
 --   22: 600 koin       23: 800 koin       24: 12 gem         25: 1.500 koin    26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
---   29: 2.000 koin     30: 6.000 koin + 50 gem + Frame Setia (item eksklusif, tidak dijual; diberikan sekali, putaran berikutnya hanya koin + gem)
-
--- Frame hadiah Hari 30. Harga null + bukan starter = tidak bisa dibeli di Toko; hanya diberikan oleh claim_daily_reward.
--- (Sumber kebenaran katalog: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
-insert into public.item_catalog(id, kind, price_coins, starter, stackable) values ('frame.setia', 'frame', null, false, false)
+--   29: 2.000 koin     30: 6.000 koin + 50 gem + 1 Frame eksklusif (frame ilustrasi, tidak dijual, TIDAK tampil di Toko = tanpa spoiler)
+--
+-- Frame Hari 30: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain menamatkan 30 hari dia mendapat frame
+-- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki, Hari 30
+-- hanya memberi koin + gem. Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
+-- (Sumber kebenaran katalog klien: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
+insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
+  ('frame.nagaapi', 'frame', null, false, false),
+  ('frame.batutua', 'frame', null, false, false),
+  ('frame.perunggu', 'frame', null, false, false),
+  ('frame.tembagaukir', 'frame', null, false, false),
+  ('frame.peraksayap', 'frame', null, false, false),
+  ('frame.emasrubi', 'frame', null, false, false),
+  ('frame.kristalsafir', 'frame', null, false, false),
+  ('frame.zamrudrambat', 'frame', null, false, false),
+  ('frame.rubikerajaan', 'frame', null, false, false),
+  ('frame.batusenja', 'frame', null, false, false),
+  ('frame.bintangsafir', 'frame', null, false, false),
+  ('frame.hutanzamrud', 'frame', null, false, false),
+  ('frame.mahkotarubi', 'frame', null, false, false),
+  ('frame.bayanganender', 'frame', null, false, false),
+  ('frame.sayapsurgawi', 'frame', null, false, false)
 on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
+
+create or replace function public._daily_frame_order() returns text[]
+language sql immutable as $$
+  select array[
+  'frame.nagaapi',
+  'frame.batutua',
+  'frame.perunggu',
+  'frame.tembagaukir',
+  'frame.peraksayap',
+  'frame.emasrubi',
+  'frame.kristalsafir',
+  'frame.zamrudrambat',
+  'frame.rubikerajaan',
+  'frame.batusenja',
+  'frame.bintangsafir',
+  'frame.hutanzamrud',
+  'frame.mahkotarubi',
+  'frame.bayanganender',
+  'frame.sayapsurgawi'
+  ]
+$$;
+revoke all on function public._daily_frame_order() from public, anon, authenticated;
 
 alter table public.player_daily_reward drop constraint if exists player_daily_reward_claimed_check;
 alter table public.player_daily_reward add constraint player_daily_reward_claimed_check check (claimed between 0 and 30);
@@ -6904,9 +6957,15 @@ begin
          updated_at = now()
    where user_id = v_uid;
 
-  -- Hari 30: Frame Setia (sekali per akun; kalau sudah punya, v_item tetap null).
+  -- Hari 30: frame eksklusif pertama dalam urutan yang belum dimiliki (null bila semua sudah dimiliki).
   if v_idx + 1 = 30 then
-    insert into public.player_inventory(user_id, item_id) values (v_uid, 'frame.setia') on conflict do nothing returning item_id into v_item;
+    select t.f into v_item
+      from unnest(public._daily_frame_order()) with ordinality as t(f, n)
+     where not exists (select 1 from public.player_inventory i where i.user_id = v_uid and i.item_id = t.f)
+     order by t.n limit 1;
+    if v_item is not null then
+      insert into public.player_inventory(user_id, item_id) values (v_uid, v_item) on conflict do nothing;
+    end if;
   end if;
 
   return jsonb_build_object('ok', true, 'day', v_idx + 1, 'type', v_type, 'item', v_item, 'duplicate', false,

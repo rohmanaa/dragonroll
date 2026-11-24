@@ -32,7 +32,9 @@ const PROF = {uid: '—', rank: null,
 const pname = () => PD.profile().name;
 const eqSkin = () => IC.byId(PD.equippedId('skin')) || IC.byId('skin.steve');
 const owned = k => PD.ownedItems().filter(o => o.item.kind === k).length;
-const total = k => IC.items.filter(i => i.kind === k && !i.off).length;
+/* Item hadiah (source 'event', mis. 15 frame Login 30 hari) disembunyikan sampai dimiliki: tidak ada spoiler di daftar maupun hitungan koleksi. */
+const shown = i => !i.off && (i.source !== 'event' || PD.owns(i.id));
+const total = k => IC.items.filter(i => i.kind === k && shown(i)).length;
 const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
 
 /* Esc dan tombol Tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
@@ -222,7 +224,7 @@ $('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(
 /* ---- modal FRAME: pilih / beli frame foto profil. Data = ItemCatalog (kind 'frame'); pakai/beli lewat PlayerData + WalletService ---- */
 const FRR = {common: ['Biasa', '#cfc8ea'], rare: ['Langka', '#4db3e6'], epic: ['Epik', '#b07cff'], legendary: ['Legendaris', '#ffd45a']};
 const FRW = {'saldo-kurang': 'Coin tidak cukup.', 'gem-kurang': 'Emerald tidak cukup.', 'sudah-dimiliki': 'Frame sudah dimiliki.', 'tidak-tersedia': 'Frame tidak tersedia.', 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...'};
-const frList = () => IC.items.filter(i => i.kind === 'frame' && !i.off);
+const frList = () => IC.items.filter(i => i.kind === 'frame' && shown(i));
 const frSell = i => !!i && ((typeof i.price === 'number' && i.price > 0) || (typeof i.gems === 'number' && i.gems > 0)) && !i.starter;
 const frPrice = n => n >= 1000 ? (n / 1000).toLocaleString('id-ID', {maximumFractionDigits: 1}) + 'k' : fmt(n);
 let frSel = null, frBusy = false, frOk = null;
