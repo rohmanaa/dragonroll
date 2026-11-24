@@ -156,6 +156,16 @@ t('Power dari chest: roll berbobot 1/harga, masuk stok akun (maks 999) di collec
   assert.ok(shop.includes('powerRow(r.power)') && ch.includes('cReward.power'));
 });
 
+t('Power chest murah: Kayu <=100 & Perak <=200 koin (harga katalog), Emas/Diamond semua; peluang tak berubah', () => {
+  const sql = fs.readFileSync(root('supabase/migrations/202611460001_chest_power_cheap.sql'), 'utf8');
+  ['v_pmax := 100', 'v_pmax := 200', '(v_pmax is null or price_coins <= v_pmax)', 'v_pc := 0.05', 'v_pc := 0.12', 'v_pc := 0.20', 'v_pc := 0.35'].forEach(x => assert.ok(sql.includes(x), x));
+  assert.strictEqual((sql.match(/v_pmax :=/g) || []).length, 2, 'Emas/Diamond tanpa batas');
+  const seed = fs.readFileSync(root('supabase/migrations/202611230001_powerup_stock.sql'), 'utf8');
+  const price = id => +seed.match(new RegExp("\\('" + id + "', (\\d+)\\)"))[1];
+  ['potion_odd', 'potion_even', 'feather', 'wooden_shield', 'grass'].forEach(id => assert.ok(price(id) <= 100, id));
+  ['nether_star', 'trident', 'dragon_crystal', 'blaze_core', 'netherite_sword', 'diamond_sword', 'ice_crystal'].forEach(id => assert.ok(price(id) > 200, id + ' tidak boleh di Kayu/Perak'));
+});
+
 (async () => {
   for (const [name, fn] of queue) { try { await fn(); n++; console.log('ok  - ' + name); } catch (e) { console.error('GAGAL - ' + name + '\n' + (e.stack || e)); process.exit(1); } }
   console.log(n + ' tes lulus');
