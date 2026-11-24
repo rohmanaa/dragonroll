@@ -111,10 +111,40 @@
       for (let i = 0; i < 70; i++) model.tick(1.2 + i * .05, .05);   /* 3,5 detik animasi -> satu pose diam yang wajar */
       sc.updateMatrixWorld(true);
       const cam = new T.PerspectiveCamera(40, W / H, .1, 100);
-      /* sudut pandang sama dengan pratinjau halaman Pet (azimut .6, sedikit dari atas), sedikit lebih dekat agar pet memenuhi bingkai */
-      const az = .6, pol = 1.3, ty = model.cam.y, dd = model.cam.d * .94 * (W / H < 1 ? 1 + (1 - W / H) * .8 : 1);
-      cam.position.set(Math.sin(pol) * Math.sin(az) * dd, ty + Math.cos(pol) * dd * .9 - dd * .18, Math.sin(pol) * Math.cos(az) * dd);
-      cam.lookAt(0, ty, 0);
+      /* sudut pandang sama dengan pratinjau halaman Pet (azimut .6, sedikit dari atas). Jarak & posisi tengah disesuaikan otomatis per pet
+         (bounding mesh diproyeksikan ke layar) supaya pet memenuhi ~92% bingkai tanpa terpotong, baik naga bersayap lebar maupun serigala tinggi. */
+      const az = .6, pol = 1.3, ty = model.cam.y, FILL = .92;
+      let dd = model.cam.d * .9, ox = 0, oy = 0;
+      const place = () => {
+        const dir = new T.Vector3(Math.sin(pol) * Math.sin(az), Math.cos(pol) * .9 - .18, Math.sin(pol) * Math.cos(az));
+        cam.position.set(dir.x * dd, ty + dir.y * dd, dir.z * dd);
+        cam.lookAt(0, ty, 0); cam.updateMatrixWorld(true); cam.updateProjectionMatrix();
+        const sh = new T.Vector3().addScaledVector(new T.Vector3().setFromMatrixColumn(cam.matrixWorld, 0), ox)
+          .addScaledVector(new T.Vector3().setFromMatrixColumn(cam.matrixWorld, 1), oy);
+        cam.position.add(sh); cam.lookAt(new T.Vector3(0, ty, 0).add(sh)); cam.updateMatrixWorld(true);
+      };
+      const extent = () => {   /* ekstrem layar (NDC) dari semua mesh yang tampak; sprite cahaya tidak dihitung */
+        const v = new T.Vector3(); let x0 = 9, x1 = -9, y0 = 9, y1 = -9;
+        sc.traverse(o => {
+          if (!o.isMesh || !o.geometry || !o.visible) return;
+          if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+          const b = o.geometry.boundingBox;
+          for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) {
+            v.set(x, y, z).applyMatrix4(o.matrixWorld).project(cam);
+            x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y);
+          }
+        });
+        return { x0, x1, y0, y1 };
+      };
+      place();
+      for (let i = 0; i < 7; i++) {
+        const e = extent(); if (!isFinite(e.x0 + e.x1 + e.y0 + e.y1)) break;
+        const halfW = Math.max(e.x1 - e.x0, 1e-3) / 2, halfH = Math.max(e.y1 - e.y0, 1e-3) / 2;
+        dd *= Math.min(1.4, Math.max(.7, Math.max(halfW, halfH) / FILL));
+        const hh = dd * Math.tan(T.MathUtils.degToRad(cam.fov / 2));   /* setengah tinggi bingkai di jarak target */
+        ox += ((e.x0 + e.x1) / 2) * hh * cam.aspect; oy += ((e.y0 + e.y1) / 2) * hh;   /* geser ke tengah bingkai */
+        place();
+      }
       const r = SGL.offscreen();
       r.setPixelRatio(1); r.setSize(W, H, false); r.setClearColor(0x000000, 0); r.render(sc, cam);
       const url = r.domElement.toDataURL('image/webp', .92);

@@ -173,7 +173,7 @@ function drawAkun() {
 /* ---- kanan: FOTO pet 3D (seperti foto karakter), bukan thumbnail webp toko ----
    Model pet dibangun sekali lewat UT.PetPhoto (renderer offscreen, cahaya redup, tanpa partikel) lalu disimpan di localStorage per pet.
    Membuka profil berikutnya langsung memakai gambar itu. Jika WebGL/modelnya gagal, jatuh ke gambar thumbnail lama. */
-const PET_KEY = 'ut.petPhoto.v1', PET_VER = 1, PET_W = 860, PET_H = 844;   /* 2x dari #pet .pimg */
+const PET_KEY = 'ut.petPhoto.v1', PET_VER = 3, PET_W = 1036, PET_H = 860;   /* 2x dari #pet .pimg (518x430) */
 let petGen = 0;
 const petSig = gk => gk + '|v' + PET_VER;
 function readPetPhoto() { try { const o = JSON.parse(localStorage.getItem(PET_KEY) || 'null'); return o && o.sig && o.url ? o : null; } catch (e) { return null; } }

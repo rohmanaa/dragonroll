@@ -1,5 +1,5 @@
 /* profile.css — layout PROFIL baru (kanvas 1920x1080, dimuat SETELAH profile-legacy.css).
-   Kartu atas #hero: kiri foto karakter dada-kepala (3D tanpa aura), tengah level/nama/4 tombol/guild/rank, kanan pose pet statis.
+   Kartu atas #hero: kiri foto karakter dada-kepala (3D tanpa aura), tengah level/nama/4 tombol/guild/rank, kanan foto pet 3D (boleh sedikit keluar kartu).
    Di bawahnya: kartu Statistik dan Koleksi berupa kotak-kotak. Koordinat anak kartu relatif ke kartunya. */
 #art canvas,#art img.phot{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 /* menetralkan aturan lama profile-legacy.css (#art img: geser tengah + animasi bob + bayangan) untuk foto statis */
@@ -53,11 +53,12 @@ button.sr,button.kr,#rank,#pet,#hid,.eb,#pen,.ecell{background:none;border:0;pad
 
 /* kanan: pose pet (gambar statis, bukan model hidup) */
 #pet{position:absolute;left:1270px;top:24px;width:430px;height:422px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:18px;
-  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:3px solid rgba(255,255,255,.14);overflow:hidden;transition:filter .1s}
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:3px solid rgba(255,255,255,.14);overflow:visible;transition:filter .1s}
 #pet:hover{filter:brightness(1.1)}
-#pet .pimg{position:absolute;left:20px;right:20px;top:16px;bottom:64px;background:center/contain no-repeat;filter:drop-shadow(0 10px 8px rgba(0,0,0,.5))}
+/* foto pet sengaja lebih besar dari kotaknya: kepala/sayap boleh sedikit keluar dari kartu */
+#pet .pimg{position:absolute;left:-44px;right:-44px;top:-56px;bottom:48px;background:center/contain no-repeat;filter:drop-shadow(0 10px 8px rgba(0,0,0,.5))}
 #pet.empty .pimg{opacity:.35;filter:grayscale(1)}
-#pet .pnm{position:relative;width:100%;padding:12px 0;text-align:center;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6);background:linear-gradient(transparent,rgba(10,6,24,.7))}
+#pet .pnm{position:relative;width:100%;padding:12px 0;border-radius:0 0 15px 15px;text-align:center;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6);background:linear-gradient(transparent,rgba(10,6,24,.7))}
 
 /* bawah: kotak-kotak Statistik & Koleksi */
 #sg,#kol{position:absolute;left:24px;right:24px;top:72px;bottom:22px;width:auto;height:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:14px}
