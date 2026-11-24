@@ -38,7 +38,7 @@
   const md = $('tambang-md');
   $('tambang-reset').addEventListener('click', () => ask('Reset Tambang', 'Semua objek kembali ke susunan awal.<br>Lanjutkan?', 'BATAL', 'RESET', () => { $('tambang-fade').classList.add('on'); setTimeout(() => location.reload(), 360); }));
   const D = MW.data, fmt = (n) => Number(n).toLocaleString('id-ID'), f1 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), f2 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const ORI = 'images/tambang-kristal-heksagon.webp', EM = 'images/tambang-berlian-hijau.webp', CN = 'images/tambang-ikon-koin-emas.webp';
+  const ORI = 'tambang-world/images/tambang-kristal-heksagon.webp', EM = 'tambang-world/images/tambang-berlian-hijau.webp', CN = 'tambang-world/images/tambang-ikon-koin-emas.webp';
   /* navigasi: Kembali ke halaman asal (?from=, daftar putih seperti repo), Home ke lobby, Coin ke toko. Di luar game hanya memicu event. */
   const FROM_OK = ['lobby', 'karakter', 'frame', 'dadu', 'efek', 'powerup', 'profile', 'leaderboard', 'friendship', 'shop', 'mode', 'misi', 'hadiah-misi', 'dailyreward', 'settings', 'mail'];
   const FROM = (() => { const f = new URLSearchParams(location.search).get('from') || '', m = /^([a-z-]+)\.html$/.exec(f); return m && FROM_OK.indexOf(m[1]) >= 0 ? f : 'lobby.html'; })();
@@ -78,7 +78,7 @@
     stage.dataset.layer = i;
     tiles.forEach((t, k) => {
       const on = +t.dataset.i === i; t.classList.toggle('on', on);
-      t.firstElementChild.src = 'images/tambang-tile-stage-' + (on ? 'aktif' : 'biasa') + '.webp';
+      t.firstElementChild.src = 'tambang-world/images/tambang-tile-stage-' + (on ? 'aktif' : 'biasa') + '.webp';
     });
     upB.disabled = i === MIN; dnB.disabled = i >= maxNav(); tiles.forEach((t) => t.classList.toggle('lk', +t.dataset.i > maxNav())); prodB.style.display = i === 0 ? 'none' : '';
   }
@@ -266,7 +266,7 @@
   const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
   function liftHTML() {
     const l = D.lift();
-    if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="tambang-btn opn" data-lift="unlock"><img src="images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
+    if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="tambang-btn opn" data-lift="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
     const up = (a, label, lv, mx, cost) => cost == null ? '<button class="tambang-up" data-lift="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/' + mx + '</small></button>' : '<button class="tambang-up" data-lift="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
     const last = D.lastLoad();
     return '<div class="hd tambang-ttl">LIFT</div><div class="sb">Muatan Lv ' + l.cap_lv + ' · Kecepatan Lv ' + l.spd_lv + '</div>'
@@ -276,14 +276,14 @@
   }
   function cardHTML(i) {
     const s = D.slots[i - 1]; if (!s) return '<div class="msg">Memuat…</div>';
-    if (!s.unlocked) return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><img class="gm" src="images/tambang-gembok-besar.webp" alt=""><div class="msg">Buka supaya penambang mulai menggali.<small>' + f2(s.base_rate) + ' /jam (Lv1)</small></div><button class="tambang-btn opn" data-a="unlock"><img src="images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(s.unlock_cost) + '</span></button>';
+    if (!s.unlocked) return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Buka supaya penambang mulai menggali.<small>' + f2(s.base_rate) + ' /jam (Lv1)</small></div><button class="tambang-btn opn" data-a="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(s.unlock_cost) + '</span></button>';
     const up = (a, label, lv, cost) => cost == null ? '<button class="tambang-up" data-a="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/5</small></button>' : '<button class="tambang-up" data-a="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
     return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><div class="sb">Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + '</div>'
       + '<div class="tambang-mix">' + mixHTML(s.mix) + '</div><div class="pill"><img src="' + ORI + '" alt=""><b class="bt"></b></div>'
       + '<div class="tambang-rt"><img src="' + ORI + '" alt=""><b class="rv"></b><small>/jam</small><span class="tambang-bst">⚡ x' + D.config.boost_mult + '</span></div>'
       + '<div class="tambang-bar"><i></i></div><div class="tambang-eta"></div>'
       + '<div class="tambang-rstw"><span class="tambang-rst"></span></div><div class="tambang-acts">'
-      + '<button class="tambang-btn y" data-a="boost"><img src="images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
+      + '<button class="tambang-btn y" data-a="boost"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
       + '<div class="tambang-ups">' + up('speed', 'Kecepatan', s.speed_lv, s.next_speed_cost) + up('cap', 'Peti', s.cap_lv, s.next_cap_cost) + '</div>'
       + (s.mgr ? '<div class="tambang-mgr on"><b>👔 Manager aktif</b><small>Percepat oleh manager · istirahat 5 mnt</small></div>' : '<button class="tambang-mgr" data-a="manager"><b>👔 Rekrut Manager</b><small>Boost &amp; istirahat 5 mnt (bukan 10) · <img src="' + EM + '" alt="">' + fmt(s.mgr_cost) + '</small></button>');
   }
@@ -401,7 +401,7 @@
   const gB = $('tambang-gudang');
   function paintGudang(bump) { const g0 = D.gudang(); $('tambang-gcnt').textContent = fmt(g0.used) + '/' + fmt(g0.cap); if (bump) { gB.classList.remove('bump'); void gB.offsetWidth; gB.classList.add('bump'); } }
   /* ---------- modal bangunan: Gudang / Tungku / Hutan ---------- */
-  const IC = { gem: 'images/tambang-berlian-hijau.webp', coin: 'images/tambang-ikon-koin-emas.webp' };
+  const IC = { gem: 'tambang-world/images/tambang-berlian-hijau.webp', coin: 'tambang-world/images/tambang-ikon-koin-emas.webp' };
   const cell = (c, n, v) => '<span class="tambang-cell' + (v ? '' : ' z') + '"><i style="background:' + c + '"></i>' + n + '<b>' + fmt(v) + '</b></span>';
   const stat = (lbl, v, mx, warn) => '<div class="tambang-stat' + (warn ? ' warn' : '') + '"><small>' + lbl + '</small><b>' + fmt(v) + '<em> / ' + fmt(mx) + '</em></b>' + bar(v, mx) + '</div>';
   const oreRow = (k, inv) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + '<b>' + fmt(inv[k]) + '</b></span>';
@@ -522,8 +522,8 @@
     const px = (v.x + 1) / 2 * SW, py = (1 - v.y) / 2 * SH;
     bubB.hidden = bubU.hidden = false;
     if (!s.unlocked) { bubB.hidden = bubU.hidden = true; return; }
-    if (false) { bubB.hidden = true; bubU.className = 'tambang-bub k'; bubU.innerHTML = '<img src="images/tambang-gembok.webp" alt="">'; bubMode = 'k'; bubU.style.transform = 'translate(' + (px - 34) + 'px,' + (py - 34) + 'px)'; return; }
-    if (bubMode === 'k') { bubU.className = 'tambang-bub u'; bubU.innerHTML = '<img src="images/tambang-panah-kembali.webp" alt="">'; bubMode = ''; }
+    if (false) { bubB.hidden = true; bubU.className = 'tambang-bub k'; bubU.innerHTML = '<img src="tambang-world/images/tambang-gembok.webp" alt="">'; bubMode = 'k'; bubU.style.transform = 'translate(' + (px - 34) + 'px,' + (py - 34) + 'px)'; return; }
+    if (bubMode === 'k') { bubU.className = 'tambang-bub u'; bubU.innerHTML = '<img src="tambang-world/images/tambang-panah-kembali.webp" alt="">'; bubMode = ''; }
     bubB.classList.toggle('off', D.boostLeft(i) > 0 || s.boost.left_today <= 0);
     bubB.style.transform = 'translate(' + (px - 78) + 'px,' + (py - 34) + 'px)'; bubU.style.transform = 'translate(' + (px + 10) + 'px,' + (py - 34) + 'px)';
   }

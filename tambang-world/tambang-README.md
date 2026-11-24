@@ -61,6 +61,6 @@ Layer hanya bisa dicapai sampai tambang terkunci pertama (tile/tombol turun/scro
 - Tombol baru 🔥 FURNACE (membuka modal Furnace). Urutan di Base Camp: LIFT · FURNACE · HUTAN · BOOST SEMUA (tengah) · GUDANG · INVENTORI · UPGRADE. Di tambang: LIFT · PRODUKSI · BOOST · GUDANG.
 
 ### Stage 8 — SQL Supabase
-- `supabase/migrations/202611490001_tambang_world.sql`: tabel `tambang_player`, `tambang_mine`, `tambang_event` (RLS + revoke), konfigurasi ekonomi `_tb_cfg()`, dan RPC: `tambang_get/unlock/upgrade/manager/boost/lift_upgrade/gudang_upgrade/hire/sweep/work/claim/sell/sell_all`.
+- `supabase/migrations/202611400001_tambang.sql`: tabel `tambang_player`, `tambang_mine`, `tambang_event` (RLS + revoke), konfigurasi ekonomi `_tb_cfg()`, dan RPC: `tambang_get/unlock/upgrade/manager/boost/lift_upgrade/gudang_upgrade/hire/sweep/work/claim/sell/sell_all`.
 - Terapkan SETELAH `202611110001_wallet_b1.sql`. Koin/Emerald lewat `_wallet_apply` (ledger anti-dobel). Klien tidak pernah mengirim nominal.
 - Sudah diuji di Postgres 16 lokal (stub auth). Klien (`tambang-data.js`) BELUM disambung ke RPC ini; masih mode lokal.
