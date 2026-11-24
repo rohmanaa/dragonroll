@@ -77,6 +77,22 @@
 #         run: supabase db push --remote --yes
 
 
+      - name: Tes klien (node)
+        run: |
+          fail=0
+          for f in tests/*.test.js; do
+            echo "== $f"
+            node "$f" || { echo "GAGAL: $f"; fail=1; }
+          done
+          exit $fail
+
+      - uses: supabase/setup-cli@v1
+        with: { version: 2.120.0 }
+      - name: Supabase lokal (menerapkan semua migrasi)
+        run: |
+          [ -f supabase/config.toml ] || supabase init
+          supabase start
+
       - name: Tes SQL
         run: |
           fail=0
@@ -85,3 +101,8 @@
             psql "$LOCAL_DB" -v ON_ERROR_STOP=1 -q -f "$f" || { echo "GAGAL: $f"; fail=1; }
           done
           exit $fail
+
+      - name: Tes integrasi buy_set (klien asli vs SQL asli)
+        env:
+          PSQL_CMD: psql -X -q -At -v ON_ERROR_STOP=1 postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: node tests/buy-set-sql.integration.test.js
