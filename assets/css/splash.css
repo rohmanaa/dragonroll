@@ -24,7 +24,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #bar{position:absolute;left:1.62rem;right:1.68rem;top:1.28rem;bottom:1.35rem;overflow:hidden;background:#241c1f;
   clip-path:polygon(1.25rem 0,calc(100% - 1.15rem) 0,100% 50%,calc(100% - 1.15rem) 100%,1.25rem 100%,0 50%)}
 #fill{display:block;height:100%;width:0;background:url(../images/ui/logo/bar-loading-isi-biru.webp) center/calc(100% + 3rem) 100% no-repeat;transition:width .15s}
-#lbl{position:absolute;left:0;right:0;top:1.28rem;bottom:1.35rem;display:grid;place-items:center;font:800 1.9rem var(--font-body);color:#fff;text-shadow:0 .12rem .12rem rgba(0,0,0,.6)}
+#lbl{position:absolute;left:0;right:0;top:1.28rem;bottom:1.35rem;display:grid;white-space:nowrap;place-items:center;font:800 1.9rem var(--font-body);color:#fff;text-shadow:0 .12rem .12rem rgba(0,0,0,.6)}
 
 /* tombol */
 .btn{position:relative;display:grid;place-items:center;transition:transform .1s,filter .1s}
@@ -87,9 +87,7 @@ body.ready #spin,body.ready #loadbox,body.ready #loginbtn{display:none!important
 @keyframes blink{50%{opacity:.35}}
 
 /* SYSTEM LOG: satu baris kecil tepat di atas bar loading; hilang saat TAP TO START & mode cepat */
-#syslog{position:absolute;left:1.9rem;right:1.9rem;top:1.32rem;bottom:auto;margin:0;height:1.2rem;text-align:center;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;
-  font:700 1.1rem/1.2rem ui-monospace,Menlo,Consolas,"Courier New",monospace;color:#fff;text-shadow:0 .08rem .1rem #000,0 0 .2rem #000}
-/* teks status (Loading gambar ... n/m) kini DI DALAM bar: baris atas = rincian, baris bawah = label/persen */
-#loadbox:has(#syslog:not(:empty)) #lbl{align-items:end;font-size:1.3rem;padding-bottom:.1rem}
+/* teks rincian dipakai sebagai label bar (satu teks saja); elemen ini hanya penyimpan */
+#syslog{display:none!important}
 #syslog:empty{display:none}
 body.quick #syslog,body.ready #syslog{display:none!important}

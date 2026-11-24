@@ -80,7 +80,9 @@ const LOG=(()=>{
   function paint(){if(dirty)return;dirty=true;requestAnimationFrame(()=>{dirty=false;
     let t=sysMsg;
     if(!t){const c=C[cur];t=c?"Loading "+cur+"... "+c.done+"/"+c.total+(total?" · "+done+"/"+total:""):""}
-    line.textContent=t})}
+    line.textContent=t;
+    /* satu teks saja di bar: setelah fase unduh selesai, rincian "Loading gambar… n/m" menggantikan label */
+    if(window.__lblLoad&&!window.__lblDl)$("#lbl").textContent=t||$("#lbl").textContent})}
   function ev(e){
     if(e.type==="sys"){sysMsg=e.msg;return paint()}
     if(e.type==="plan"){sysMsg="";total=e.total;(e.urls||[]).forEach(u=>{const k=cat(u);urlCat[u]=k;(C[k]=C[k]||{total:0,done:0}).total++});
@@ -96,7 +98,10 @@ try{window.UT_Preload&&(UT_Preload.onFile=LOG.ev)}catch(e){}
 function mb(b){return (b/1048576).toFixed(b<10485760?1:0)}
 /* info.fresh = ada aset yang belum tersimpan di perangkat -> tampilkan "Mengunduh aset" (hanya sekali); selain itu "Loading" biasa */
 function setPct(p,kind,info){pct=p;$("#fill").style.width=p+"%";
-  $("#lbl").textContent=(info&&info.fresh&&p<100)?"Mengunduh aset… "+mb(info.dlGot)+" / "+mb(info.dlTotal)+" MB ("+Math.round(p)+"%)":"Loading… "+Math.round(p)+"%"}
+  window.__lblLoad=true;window.__lblDl=!!(info&&info.fresh&&p<100);
+  const lb=$("#lbl");
+  if(window.__lblDl)lb.textContent="Mengunduh aset… "+mb(info.dlGot)+" / "+mb(info.dlTotal)+" MB ("+Math.round(p)+"%)";
+  else{const s=$("#syslog");lb.textContent=(s&&s.textContent)||("Loading… "+Math.round(p)+"%")}}
 let leaving=false;
 function go(){
   if(leaving)return;leaving=true;
