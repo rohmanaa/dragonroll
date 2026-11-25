@@ -8,6 +8,7 @@
   if (UT.GameplayHudMenu) return;
 
   var NOTE = {
+    auto: 'Otomatis: memilih tingkat sesuai perangkat dan menurunkannya sendiri bila game terasa berat.',
     low: 'Efek sinematik dimatikan. Paling ringan untuk HP.',
     normal: 'Seimbang antara tampilan dan performa.',
     high: 'Efek visual penuh (HP: sedikit dihemat).',
@@ -59,9 +60,9 @@
     function hideModal(id) { var m = $(id); if (m) m.hidden = true; }
     function anyModal() { return !$('settingsMenu').hidden || !$('helpMenu').hidden; }
     function syncSettings() {
-      var g = ops.getGraphics();
-      [].forEach.call($('stGfx').querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-gfx') === g)); });
-      $('stGfxN').textContent = NOTE[g] || NOTE.high;
+      var g = ops.getGraphics(), auto = !!ops.isGraphicsAuto();
+      [].forEach.call($('stGfx').querySelectorAll('button'), function (b) { var k = b.getAttribute('data-gfx'); b.setAttribute('aria-pressed', String(auto ? k === 'auto' : k === g)); });
+      $('stGfxN').textContent = auto ? NOTE.auto + ' Sekarang: ' + ({ low: 'Rendah', normal: 'Normal', high: 'Tinggi', ultra: 'Ultra' }[g] || 'Tinggi') + '.' : (NOTE[g] || NOTE.high);
       var m = $('pmVol'), s = $('pmSfx');
       if (m) { m.value = ops.getMusicVol(); ops.paintRange(m); }
       if (s) { s.value = ops.getSfxVol(); ops.paintRange(s); }

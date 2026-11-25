@@ -2152,8 +2152,12 @@ function readGraphics(){
   try{ const a=UT.Prefs.get('ambience',null); if(a&&a.graphics) return a.graphics; }catch(e){}
   return 'high';
 }
-function setGraphicsPref(g){ /* dari menu Pengaturan gameplay: simpan ke PlayerData (+ cermin Prefs) lalu terapkan langsung */
+function gfxAutoApi(){ return UT.GraphicsAuto||null; } /* assets/js/systems/graphics-auto.js (dimuat di gameplay.html) */
+function setGraphicsPref(g){ /* dari menu Pengaturan gameplay; aturan sama dengan halaman Pengaturan: Auto = preferensi lokal, tingkat manual mematikan Auto */
+  const GA=gfxAutoApi();
+  if(g==='auto'){ try{ if(GA) GA.setEnabled(true); }catch(e){} applyCineGraphics(); return; }
   if(['low','normal','high','ultra'].indexOf(g)<0) return;
+  try{ if(GA) GA.setEnabled(false); }catch(e){}
   try{ const PD=window.PlayerData; if(PD&&PD.setSettings) PD.setSettings({graphics:g}); }catch(e){}
   try{ const a=UT.Prefs.get('ambience',null)||{}; UT.Prefs.set('ambience',{mode:a.mode||'day',graphics:g}); }catch(e){}
   document.documentElement.setAttribute('data-graphics',g);
@@ -6883,7 +6887,7 @@ UT.GameplayHudMenu.bind({
   isMuted:()=>muted,
   toggleSound:()=>$('btnSnd').click(),
   pause:()=>$('btnPause').click(),
-  getGraphics:readGraphics, setGraphics:setGraphicsPref,
+  getGraphics:readGraphics, setGraphics:setGraphicsPref, isGraphicsAuto:()=>{ try{ const GA=gfxAutoApi(); return !!(GA&&GA.enabled()); }catch(e){ return false; } },
   getMusicVol:()=>musicVol, setMusicVol:setMusicVol, getSfxVol:()=>sfxVol, setSfxVol:setSfxVol, paintRange:paintRange,
   onSfxCommit:()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} }
 });
