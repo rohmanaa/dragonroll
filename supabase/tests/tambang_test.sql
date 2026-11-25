@@ -14,8 +14,10 @@ update public.player_wallet set gems = 100, coins = 0 where user_id='eeeeeeee-00
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'get0', public.mine_get();
 insert into out select 'u1', public.mine_unlock(1);
--- simpan saldo gems SETELAH u1 (sebelum u2)
+-- simpan saldo gems SETELAH u1 (sebelum u2). player_wallet di-REVOKE untuk authenticated (wallet_b1) -> baca sebagai admin, lalu kembali ke authenticated.
+reset role;
 insert into out select 'gems_after_u1', to_jsonb(gems) from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001';
+set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'u1again', public.mine_unlock(1);
 insert into out select 'u2', public.mine_unlock(2);
 insert into out select 'u3poor', public.mine_unlock(3);
@@ -27,7 +29,7 @@ do $$ declare c bigint; begin
   assert (select (v->'config'->>'boost_daily')::int from out where k='get0') = 2, 'konfigurasi boost_daily=2';
   assert (select v->>'ok' from out where k='u1') = 'true', 'buka slot 1 ok: ' || (select v::text from out where k='u1');
   -- unlock slot 1 = 20 gems, saldo seharusnya 80 (diambil dari snapshot gems_after_u1)
-  assert (select v->>'' from out where k='gems_after_u1')::bigint = 80, 'buka slot 1 = 20 gems, sisa 80 (snapshot): ' || (select v->>'' from out where k='gems_after_u1');
+  assert (select v #>> '{}' from out where k='gems_after_u1')::bigint = 80, 'buka slot 1 = 20 gems, sisa 80 (snapshot): ' || (select v #>> '{}' from out where k='gems_after_u1');
   assert (select v->>'reason' from out where k='u1again') = 'sudah-dibuka', 'buka ulang slot 1 = sudah-dibuka: ' || (select v::text from out where k='u1again');
   assert (select v->>'ok' from out where k='u2') = 'true', 'buka slot 2 ok: ' || (select v::text from out where k='u2');
   -- unlock slot 2 = 60 gems, total 80 spent, sisa 20
@@ -43,7 +45,7 @@ set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000
 insert into out select 'g10h', public.mine_get();
 insert into out select 'c1', public.mine_collect(1);
 insert into out select 'c2', public.mine_collect(1);
-insert into out select 'c3locked', public.mine_collect(2);
+insert into out select 'c3locked', public.mine_collect(3); -- slot 2 sudah dibuka di atas; slot 3 yang masih terkunci
 reset role;
 do $$ begin
   assert (select (v->'slots'->0->>'stock')::numeric from out where k='g10h') between 1.99 and 2.01, 'stok 10 jam ~2.0, aktual: ' || (select (v->'slots'->0->>'stock')::text from out where k='g10h');
@@ -51,7 +53,7 @@ do $$ begin
   -- collect menambah gems
   assert (select gems from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 22, 'gems naik 2 jadi 22: ' || (select gems::text from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001');
   assert (select v->>'reason' from out where k='c2') = 'peti-kosong', 'collect kedua langsung = kosong: ' || (select v::text from out where k='c2');
-  assert (select v->>'reason' from out where k='c3locked') = 'terkunci', 'slot 2 terkunci: ' || (select v::text from out where k='c3locked');
+  assert (select v->>'reason' from out where k='c3locked') = 'terkunci', 'slot 3 terkunci: ' || (select v::text from out where k='c3locked');
   assert (select count(*) from public.wallet_ledger where user_id='eeeeeeee-0000-0000-0000-000000000001' and reason='mine_collect') = 1, 'satu baris ledger mine_collect';
 end $$;
 
@@ -71,16 +73,20 @@ update public.player_wallet set coins = 20000, gems = 20 where user_id='eeeeeeee
 update public.player_mines set stock = 0, stock_at = now() - interval '10 hours' where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1;
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'up1', public.mine_upgrade(1, 'speed');
+-- snapshot koin SETELAH up1 (saldo dibaca admin: player_wallet di-REVOKE untuk authenticated)
+reset role;
+insert into out select 'coins_after_up1', to_jsonb(coins) from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001';
+set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-000000000001',false);
 insert into out select 'up2poor', public.mine_upgrade(1, 'speed');
 insert into out select 'up3', public.mine_upgrade(1, 'speed');  -- Lv3 butuh 50.000, tidak cukup
 insert into out select 'upbad', public.mine_upgrade(1, 'xx');
 insert into out select 'upcap', public.mine_upgrade(1, 'cap');  -- cap Lv2 = 8.000 koin
-insert into out select 'uplock', public.mine_upgrade(2, 'cap');
+insert into out select 'uplock', public.mine_upgrade(3, 'cap'); -- slot 2 sudah dibuka; slot 3 yang terkunci
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='up1') = 'true', 'upgrade speed Lv2 ok: ' || (select v::text from out where k='up1');
   -- speed Lv2 slot 1 = 10.000 koin
-  assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 10000, 'speed Lv2 slot 1 = 10.000 koin, sisa 10.000: ' || (select coins::text from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001');
+  assert (select v #>> '{}' from out where k='coins_after_up1')::bigint = 10000, 'speed Lv2 slot 1 = 10.000 koin, sisa 10.000 (snapshot): ' || (select coins::text from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001');
   assert (select speed_lv from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) = 2, 'speed_lv jadi 2';
   -- stok dihitung dengan laju LAMA (Lv1 0.20) x 10 jam = 2.0
   assert (select stock from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) between 1.99 and 2.01, '10 jam dihitung dengan laju LAMA 0.20, stock: ' || (select stock::text from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1);
@@ -91,7 +97,7 @@ do $$ begin
   -- cap Lv2 slot 1 = 8.000 koin, sisa 2.000
   assert (select coins from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001') = 2000, 'cap Lv2 slot 1 = 8.000 koin, sisa 2.000: ' || (select coins::text from public.player_wallet where user_id='eeeeeeee-0000-0000-0000-000000000001');
   assert (select cap_lv from public.player_mines where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1) = 2, 'cap_lv jadi 2';
-  assert (select v->>'reason' from out where k='uplock') = 'terkunci', 'slot 2 terkunci: ' || (select v::text from out where k='uplock');
+  assert (select v->>'reason' from out where k='uplock') = 'terkunci', 'slot 3 terkunci: ' || (select v::text from out where k='uplock');
   -- reset speed_lv untuk tes berikutnya
   update public.player_mines set speed_lv = 2 where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1;
 end $$;
@@ -114,10 +120,10 @@ set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000
 insert into out select 'gboost', public.mine_get();
 reset role;
 do $$ begin
-  -- laju boost = 0.20 x 2 = 0.40/jam. 2 jam x 0.40 = 0.8. Tapi stock dihitung dari stock_at dengan boost.
+  -- speed_lv=2 -> laju 0.20 x 1.25 = 0.25/jam (slot 1).
   -- _mine_stock_now: v_h = 2, v_bh = min(boost_until, now) - stock_at = 2 jam (karena boost_until > now + 1h)
-  -- stock = 0 + 0.20 * (2 + 2 * (2-1)) = 0.20 * 4 = 0.8
-  assert (select (v->'slots'->0->>'stock')::numeric from out where k='gboost') between 0.79 and 0.81, 'stock 2 jam boost 2x: 0.20 * 2 * 2 = 0.8, aktual: ' || (select (v->'slots'->0->>'stock')::text from out where k='gboost');
+  -- stock = 0.25 * (2 + 2 * (2-1)) = 0.25 * 4 = 1.0
+  assert (select (v->'slots'->0->>'stock')::numeric from out where k='gboost') between 0.99 and 1.01, 'stock 2 jam boost 2x: 0.25 * 4 = 1.0, aktual: ' || (select (v->'slots'->0->>'stock')::text from out where k='gboost');
   assert (select (v->'slots'->0->'boost'->>'active')::boolean from out where k='gboost'), 'boost masih aktif';
 end $$;
 update public.player_mines set boost_until = now() - interval '1 second' where user_id='eeeeeeee-0000-0000-0000-000000000001' and slot=1;
