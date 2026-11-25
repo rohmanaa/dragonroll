@@ -243,7 +243,10 @@
       if (c.saveData || /2g/.test(c.effectiveType || '')) return;
       var list = NEXT[name] || [];
       var run = function () {
-        list.forEach(warm);
+        /* Prefetch dibatasi sesuai tier grafik; jangan unduh semua halaman kandidat sekaligus. */
+        var tier = document.documentElement.getAttribute('data-graphics') || 'normal';
+        var warmCount = tier === 'low' ? 0 : tier === 'normal' ? 1 : tier === 'high' ? 3 : 9;
+        list.slice(0, warmCount).forEach(warm);
         /* siapkan view SPA di latar sesuai tingkat grafik: rendah=tidak; normal=1 halaman berikutnya; tinggi=3; ultra=semua */
         try {
           var g = document.documentElement.getAttribute('data-graphics') || 'normal';

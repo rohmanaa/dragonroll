@@ -11,7 +11,7 @@ window.UT_Preload = (function () {
   /* hook log: UT_Preload.onFile = function(ev){...}; ev.type = sys | plan | cache | start | ok | fail (dipakai system log di splash) */
   var api = {};
   function emit(ev) { try { if (api.onFile) api.onFile(ev); } catch (e) {} }
-  var MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav|webm|m4a)$/i;
+  var MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav|webm|m4a|glb|gltf|bin|ktx2)$/i;
   function isMedia(u) { return !isExt(u) && MEDIA.test(u.split('?')[0]); }
   /* tunggu service worker aktif & mengendalikan halaman, supaya semua unduhan masuk cache perangkat (maks 3 dtk; tanpa SW tetap jalan) */
   function swReady() {
