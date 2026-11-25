@@ -136,9 +136,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     ' vec3 st=vec3(0.0); for(int i=1;i<=5;i++){ float o=float(i)*0.012; st+=(texture2D(tBloom,uv+vec2(o,0.0)).rgb+texture2D(tBloom,uv-vec2(o,0.0)).rgb)*(1.0-float(i)*0.17); }',
     ' col+=bloom*uBloom+st*uStreak*uBloom*0.18;',
     ' alpha=max(alpha,clamp(luma(bloom)*uBloom,0.0,1.0));',
-    ' /* kabut hangat tipis dari sudut kiri-atas (cahaya matahari / api) */',
-    ' float hz=smoothstep(1.15,0.0,length((uv-vec2(0.08,0.95))*vec2(0.9,1.1)));',
-    ' col+=uHaze*hz*hz*uHazeAmt;',
+    ' /* (kabut layar dihapus: kabut sekarang kabut DUNIA di shader material, ikut kamera & berada di sekitar board) */',
     ' col*=uExposure;',
     ' /* tone mapping: bahu lembut yang menjaga hue (sorotan HDR tidak memutih/menguning) + sedikit kurva filmic; warna dasar tetap (audit-warna) */',
     ' float mx=max(col.r,max(col.g,col.b)); if(mx>0.74){ float m2=0.74+0.26*(1.0-exp(-(mx-0.74)/0.26)); col*=m2/mx; }',
@@ -329,6 +327,10 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     '  if(lv>0.01){ float f1=cNoise(cw.xz*1.9+vec2(uTime*0.10,uTime*0.06)); float f2=cNoise(cw.xz*4.6-vec2(uTime*0.18,0.0)); float fl=0.80+0.55*f1+0.35*f2*f2; gl_FragColor.rgb=mix(gl_FragColor.rgb,base*fl*1.22+vec3(0.05,0.008,0.0),lv); }',
     '  /* kabut dasar: makin tebal di bawah & jauh dari kamera (aerial perspective) */',
     '  float dist=length(cw-cameraPosition); float hf=exp(-max(cw.y+0.4,0.0)*0.55)*smoothstep(7.0,46.0,dist);',
+    '  /* kabut tanah di DUNIA: bergumpal & melayang pelan, hanya rendah di luar papan (papan tetap jernih) */',
+    '  float mn=cNoise(cw.xz*0.28+vec2(uTime*0.035,-uTime*0.022))*0.65+cNoise(cw.xz*0.7-vec2(uTime*0.02,uTime*0.03))*0.35;',
+    '  float gm=exp(-max(cw.y+0.1,0.0)*2.2)*smoothstep(5.2,8.5,max(abs(cw.x),abs(cw.z)))*smoothstep(2.5,7.0,dist)*(0.15+0.85*mn);',
+    '  hf=max(hf*(0.75+0.5*mn),gm*0.55);',
     '  gl_FragColor.rgb=mix(gl_FragColor.rgb,uMist,clamp(hf*uMistAmt,0.0,0.85)); }'
   ].join('\n');
 
