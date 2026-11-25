@@ -45,9 +45,9 @@
   const FUEL = { wood: 2, coal: 4 };   /* satuan bakar per 1 barang */
   /* resep: ore -> hasil. bakar = satuan bakar. out: 'gem' (Emerald), 'coin' (Koin), atau 'good' (pelengkap) */
   const RECIPES = {
-    copper: { n: 'Batang Copper', ore: 'copper', fuel: 1, out: 'good', qty: 1, ic: 'tambang-world/images/tambang-koin-tumpuk.webp', fl: 'sepia(1) hue-rotate(-20deg) saturate(2.2)' },
-    iron: { n: 'Batang Iron', ore: 'iron', fuel: 1, out: 'good', qty: 1, ic: 'tambang-world/images/tambang-kristal-heksagon.webp', fl: 'grayscale(1) brightness(1.15)' },
-    gold: { n: 'Batang Emas', ore: 'gold', fuel: 2, out: 'good', qty: 1, ic: 'tambang-world/images/tambang-ikon-koin-emas.webp' },
+    copper: { n: 'Batang Copper', ore: 'copper', fuel: 1, out: 'good', qty: 1, ic: 'tambang-world/images/ore/tambang-batang-copper.webp' },
+    iron: { n: 'Batang Iron', ore: 'iron', fuel: 1, out: 'good', qty: 1, ic: 'tambang-world/images/ore/tambang-batang-iron.webp' },
+    gold: { n: 'Batang Emas', ore: 'gold', fuel: 2, out: 'good', qty: 1, ic: 'tambang-world/images/ore/tambang-batang-gold.webp' },
   };
   const GOODS = ['copper', 'iron', 'gold', 'lapis', 'amethyst', 'diamond'], OREK = ['coal'].concat(GOODS);
   const GEMS = ['lapis', 'amethyst', 'diamond'];   /* permata: tidak dilebur, langsung jadi barang */

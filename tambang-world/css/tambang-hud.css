@@ -296,3 +296,8 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 .tambang-tile.lk{opacity:.4;filter:grayscale(.8)}
 #tambang-tools .x0{width:196px}
 #tambang-tools{gap:8px}
+
+/* ikon aset ore/batang/permata/kayu (pixel-art): jangan diperhalus */
+.tambang-ore img{width:30px;height:30px;vertical-align:middle;image-rendering:pixelated;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+.tambang-cell .tambang-cico{width:34px;height:34px;flex:none;image-rendering:pixelated;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+.tambang-rec .nm .tambang-rico{display:inline-block;width:46px;height:46px;margin:0 10px 0 0;vertical-align:middle;image-rendering:pixelated;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}

@@ -263,7 +263,13 @@
   const dur = (s) => { s = Math.max(0, Math.round(s)); if (s < 60) return s <= 1 ? '<1m' : s + 'd'; const m = Math.floor(s / 60), h = Math.floor(m / 60); return h >= 24 ? Math.floor(h / 24) + ' hr ' + (h % 24) + 'j' : h ? h + 'j ' + (m % 60) + 'm' : m + 'm'; };
   const q = (sel) => card.querySelector(sel);
   const ore = (k) => D.ORES[k];
-  const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
+  /* ikon aset (tools/gen-tambang-ore.py): ore mentah, batang hasil lebur, permata, kayu */
+  const IMG = 'tambang-world/images/ore/', ICO = {
+    ore: (k) => IMG + 'tambang-ore-' + k + '.webp',
+    good: (k) => IMG + (k === 'lapis' || k === 'amethyst' || k === 'diamond' ? 'tambang-permata-' : 'tambang-batang-') + k + '.webp',
+    wood: IMG + 'tambang-kayu.webp' };
+  const sw = (c) => c.charAt(0) === '#' ? '<i style="background:' + c + '"></i>' : '<img class="tambang-cico" src="' + c + '" alt="">';   /* '#warna' = kotak warna, selain itu = gambar ikon */
+  const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore"><img src="' + ICO.ore(k) + '" alt="">' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
   function liftHTML() {
     const l = D.lift();
     if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="tambang-btn opn" data-lift="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
@@ -402,7 +408,7 @@
   function paintGudang(bump) { const g0 = D.gudang(); $('tambang-gcnt').textContent = fmt(g0.used) + '/' + fmt(g0.cap); if (bump) { gB.classList.remove('bump'); void gB.offsetWidth; gB.classList.add('bump'); } }
   /* ---------- modal bangunan: Gudang / Tungku / Hutan ---------- */
   const IC = { gem: 'tambang-world/images/tambang-berlian-hijau.webp', coin: 'tambang-world/images/tambang-ikon-koin-emas.webp' };
-  const cell = (c, n, v) => '<span class="tambang-cell' + (v ? '' : ' z') + '"><i style="background:' + c + '"></i>' + n + '<b>' + fmt(v) + '</b></span>';
+  const cell = (c, n, v) => '<span class="tambang-cell' + (v ? '' : ' z') + '">' + sw(c) + n + '<b>' + fmt(v) + '</b></span>';
   const stat = (lbl, v, mx, warn) => '<div class="tambang-stat' + (warn ? ' warn' : '') + '"><small>' + lbl + '</small><b>' + fmt(v) + '<em> / ' + fmt(mx) + '</em></b>' + bar(v, mx) + '</div>';
   const oreRow = (k, inv) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + '<b>' + fmt(inv[k]) + '</b></span>';
   const GOODN = { copper: 'Batang Copper', iron: 'Batang Iron', gold: 'Batang Emas', lapis: 'Lapis Lazuli', amethyst: 'Amethyst', diamond: 'Diamond' }, GOODC = { copper: '#e0804a', iron: '#d6d0c8', gold: '#ffd24d', lapis: '#3a5fe0', amethyst: '#b06cff', diamond: '#6fe8ff' };
@@ -424,20 +430,20 @@
     return '<div class="tambang-stats">' + stat('PETI GUDANG', g.used, g.cap, full) + '</div>'
       + '<button class="tambang-bigbtn claim" data-claim="1"' + (ready ? '' : ' disabled') + '>' + (ready ? 'KLAIM KE INVENTORI' : 'GUDANG KOSONG') + '</button>'
       + '<p class="tambang-note">' + (full ? '⚠ Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '.') + '</p>'
-      + '<div class="tambang-sec"><h4>ORE MENTAH <small>antre dilebur</small></h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(ore(k).c, ore(k).n.replace('Ore ', ''), inv[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>HASIL LEBUR</h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(GOODC[k], GOODN[k].replace('Batang ', ''), gd[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>PERMATA <small>tidak dilebur</small></h4><div class="tambang-cells">' + ['lapis', 'amethyst', 'diamond'].map((k) => cell(GOODC[k], GOODN[k].replace(' Lazuli', ''), gd[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>BAHAN BAKAR <small>cadangan ' + g.keep.wood + ' kayu · ' + g.keep.coal + ' batu bara tidak ikut diklaim</small></h4><div class="tambang-cells two">' + cell('#8a5a2b', 'Kayu', D.wood()) + cell('#3a3a44', 'Batu Bara', inv.coal) + '</div></div>'
+      + '<div class="tambang-sec"><h4>ORE MENTAH <small>antre dilebur</small></h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(ICO.ore(k), ore(k).n.replace('Ore ', ''), inv[k])).join('') + '</div></div>'
+      + '<div class="tambang-sec"><h4>HASIL LEBUR</h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(ICO.good(k), GOODN[k].replace('Batang ', ''), gd[k])).join('') + '</div></div>'
+      + '<div class="tambang-sec"><h4>PERMATA <small>tidak dilebur</small></h4><div class="tambang-cells">' + ['lapis', 'amethyst', 'diamond'].map((k) => cell(ICO.good(k), GOODN[k].replace(' Lazuli', ''), gd[k])).join('') + '</div></div>'
+      + '<div class="tambang-sec"><h4>BAHAN BAKAR <small>cadangan ' + g.keep.wood + ' kayu · ' + g.keep.coal + ' batu bara tidak ikut diklaim</small></h4><div class="tambang-cells two">' + cell(ICO.wood, 'Kayu', D.wood()) + cell(ICO.ore('coal'), 'Batu Bara', inv.coal) + '</div></div>'
       + '<p class="tambang-note">Inventori ' + fmt(g.bag) + ' item · Offline: Gudang tetap bekerja maks ' + g.off_h + ' jam</p>';
   }
   function invHTML() {
     const bg = D.bag(), pl = D.sellPlan(), W = D.SELL, rows = [];
     const price = (pr) => (pr.c ? fmt(pr.c) + ' Koin' : '') + (pr.g ? fmt(pr.g) + ' Emerald' : '');
-    const row = (grp, k, nm, col, q) => { if (q < 1) return; const pr = W[grp][k];
-      rows.push('<div class="tambang-rec up"><div class="nm"><i class="tambang-dot" style="background:' + col + '"></i>' + nm + ' × ' + fmt(q) + '<span class="cur" style="font-size:24px">' + price(pr) + ' <em>/ buah</em></span></div><button class="go" data-sell="' + grp + ':' + k + '">JUAL</button></div>'); };
-    Object.keys(GOODN).forEach((k) => row('goods', k, GOODN[k], GOODC[k], bg.goods[k]));
-    ['copper', 'iron', 'lapis', 'gold', 'amethyst', 'diamond', 'coal'].forEach((k) => row('ore', k, ore(k).n, ore(k).c, bg.inv[k]));
-    row('wood', 'wood', 'Kayu', '#8a5a2b', bg.wood);
+    const row = (grp, k, nm, ico, q) => { if (q < 1) return; const pr = W[grp][k];
+      rows.push('<div class="tambang-rec up"><div class="nm"><img class="tambang-rico" src="' + ico + '" alt="">' + nm + ' × ' + fmt(q) + '<span class="cur" style="font-size:24px">' + price(pr) + ' <em>/ buah</em></span></div><button class="go" data-sell="' + grp + ':' + k + '">JUAL</button></div>'); };
+    Object.keys(GOODN).forEach((k) => row('goods', k, GOODN[k], ICO.good(k), bg.goods[k]));
+    ['copper', 'iron', 'lapis', 'gold', 'amethyst', 'diamond', 'coal'].forEach((k) => row('ore', k, ore(k).n, ICO.ore(k), bg.inv[k]));
+    row('wood', 'wood', 'Kayu', ICO.wood, bg.wood);
     const pw = D.powers(), pk = Object.keys(pw).filter((k) => pw[k] > 0);
     const vals = '<div class="tambang-vals"><span class="tambang-val"><img src="' + IC.gem + '" alt="">' + fmt(D.wallet.gems()) + '</span><span class="tambang-val"><img src="' + IC.coin + '" alt="">' + fmt(D.wallet.coins()) + '</span></div>';
     return vals + (pl.n ? '<button class="tambang-bigbtn claim" data-sellall="1">JUAL SEMUA · +' + (pl.coins ? fmt(pl.coins) + ' Koin' : '') + (pl.coins && pl.gems ? ' ' : '') + (pl.gems ? '+' + fmt(pl.gems) + ' Emerald' : '') + '</button>' : '')
