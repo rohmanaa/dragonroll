@@ -1,5 +1,12 @@
-/* Jembatan navigasi ke shell Dragon Roll (SPA / iframe). Event dari tambang-ui.js. */
-(function(){function go(e){var u=e.detail&&e.detail.url;if(!u)return;e.preventDefault();
- var S=(window.UT&&UT.Spa)||(window.parent!==window&&window.parent.UT&&window.parent.UT.Spa);
- if(S&&S.go)S.go(u);else location.href=u;}
- ['back','home','shop'].forEach(function(n){window.addEventListener('tambang:'+n,go);});})();
+/* Dompet server: segarkan saldo & sinkron berkala (sama seperti halaman lain). Hanya akun login. */
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    var PD = window.PlayerData, W = window.UT && UT.WalletService && UT.WalletService.get && UT.WalletService.get();
+    if (!(PD && PD.serverMode && PD.serverMode() && W)) return;
+    W.refresh();
+    if (UT.LiveSync) {
+      var LS = UT.LiveSync; LS.add('wallet', function () { return W.refresh(); }); LS.start({ interval: 20000 });
+      window.addEventListener('pagehide', function () { LS.remove('wallet'); LS.stop(); });
+    }
+  } catch (e) { }
+});
