@@ -47,7 +47,7 @@
   /* uniform bersama (dipakai material voxel, langit, partikel, composite) */
   var U = {
     uTime: { value: 0 }, uNight: { value: 0 }, uNether: { value: 0 },
-    uMist: { value: new T.Color(0xB8D4E6) }, uMistAmt: { value: 0.6 },
+    uMist: { value: new T.Color(0xB8D4E6) }, uMistAmt: { value: 0.6 }, uGMist: { value: 1 }, uGMistR: { value: new T.Vector2(10, 16) },
     uCloudSh: { value: 0.0 }, uDoom: { value: 0.0 }, uTileGlow: { value: 0.1 }, uPress: { value: [new T.Vector4(), new T.Vector4(), new T.Vector4(), new T.Vector4()] }, uSunDirW: { value: new T.Vector3(-0.32, 0.85, 0.5) }
   };
   /* "look" target & current (di-lerp tiap frame supaya siang<->malam tidak loncat) */
@@ -300,7 +300,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
 
   /* ---------- Patch material voxel ---------- */
   var MAT_FRAG_HEAD = [
-    'uniform float uTime,uNight,uNether,uMistAmt,uCloudSh,uDoom,uTileGlow; uniform vec3 uMist; uniform vec4 uPress[4]; varying vec3 vCW;',
+    'uniform float uTime,uNight,uNether,uMistAmt,uCloudSh,uDoom,uTileGlow,uGMist; uniform vec2 uGMistR; uniform vec3 uMist; uniform vec4 uPress[4]; varying vec3 vCW;',
     NOISE_GLSL
   ].join('\n');
   var MAT_FRAG_BODY = [
@@ -327,9 +327,9 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     '  if(lv>0.01){ float f1=cNoise(cw.xz*1.9+vec2(uTime*0.10,uTime*0.06)); float f2=cNoise(cw.xz*4.6-vec2(uTime*0.18,0.0)); float fl=0.80+0.55*f1+0.35*f2*f2; gl_FragColor.rgb=mix(gl_FragColor.rgb,base*fl*1.22+vec3(0.05,0.008,0.0),lv); }',
     '  /* kabut dasar: makin tebal di bawah & jauh dari kamera (aerial perspective) */',
     '  float dist=length(cw-cameraPosition); float hf=exp(-max(cw.y+0.4,0.0)*0.55)*smoothstep(7.0,46.0,dist);',
-    '  /* kabut tanah di DUNIA: bergumpal & melayang pelan, hanya rendah di luar papan (papan tetap jernih) */',
+    '  /* kabut tanah di DUNIA: bergumpal & melayang pelan, rendah, BARU mulai agak jauh dari papan (uGMistR); kekuatan ikut Pengaturan > Grafis (uGMist) */',
     '  float mn=cNoise(cw.xz*0.28+vec2(uTime*0.035,-uTime*0.022))*0.65+cNoise(cw.xz*0.7-vec2(uTime*0.02,uTime*0.03))*0.35;',
-    '  float gm=exp(-max(cw.y+0.1,0.0)*2.2)*smoothstep(5.2,8.5,max(abs(cw.x),abs(cw.z)))*smoothstep(2.5,7.0,dist)*(0.15+0.85*mn);',
+    '  float gm=exp(-max(cw.y+0.1,0.0)*2.2)*smoothstep(uGMistR.x,uGMistR.y,max(abs(cw.x),abs(cw.z)))*smoothstep(2.5,7.0,dist)*(0.15+0.85*mn)*uGMist;',
     '  hf=max(hf*(0.75+0.5*mn),gm*0.55);',
     '  gl_FragColor.rgb=mix(gl_FragColor.rgb,uMist,clamp(hf*uMistAmt,0.0,0.85)); }'
   ].join('\n');
@@ -341,7 +341,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     mat.onBeforeCompile = function (sh, rend) {
       if (prev) prev.call(mat, sh, rend);
       sh.uniforms.uTime = U.uTime; sh.uniforms.uNight = U.uNight; sh.uniforms.uNether = U.uNether;
-      sh.uniforms.uDoom = U.uDoom; sh.uniforms.uTileGlow = U.uTileGlow; sh.uniforms.uPress = U.uPress; sh.uniforms.uMist = U.uMist; sh.uniforms.uMistAmt = U.uMistAmt; sh.uniforms.uCloudSh = U.uCloudSh;
+      sh.uniforms.uDoom = U.uDoom; sh.uniforms.uTileGlow = U.uTileGlow; sh.uniforms.uPress = U.uPress; sh.uniforms.uMist = U.uMist; sh.uniforms.uMistAmt = U.uMistAmt; sh.uniforms.uGMist = U.uGMist; sh.uniforms.uGMistR = U.uGMistR; sh.uniforms.uCloudSh = U.uCloudSh;
       sh.vertexShader = 'varying vec3 vCW; uniform vec4 uPress[4];\n' + sh.vertexShader
         .replace('#include <begin_vertex>', '#include <begin_vertex>\n { vec3 wpP=(modelMatrix*vec4(transformed,1.0)).xyz; for(int i=0;i<4;i++){ vec4 pr=uPress[i]; if(pr.z>0.0){ vec2 dd=abs(wpP.xz-pr.xy); if(max(dd.x,dd.y)<0.502&&wpP.y>0.25) transformed.y-=pr.z; /* y>0.25: hanya petak & benda di atasnya; tanah tepi papan (y<=0.03, pojok di |x|/|z|=5.0) dan bingkai tidak ikut turun */ } } }')
         .replace('#include <project_vertex>', '#include <project_vertex>\n vCW=(modelMatrix*vec4(transformed,1.0)).xyz;');
@@ -351,6 +351,15 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     mat.customProgramCacheKey = function () { return 'ut-cine-voxel' + (pk ? pk.call(mat) : ''); };
     mat.needsUpdate = true;
     return mat;
+  }
+
+  /* ---------- Profil per Pengaturan > Grafis (low|normal|high|ultra) ----------
+     mist = kekuatan kabut tanah dunia; r0/r1 = jarak (dari tengah papan) mulai-penuh kabut; ff = proporsi kunang-kunang/bara yang digambar. Ubah angka di sini untuk menyetel. */
+  var GFX_FX = { low: { mist: 0, r0: 10, r1: 16, ff: 0 }, normal: { mist: 0.6, r0: 11, r1: 17, ff: 0.5 }, high: { mist: 1, r0: 10, r1: 16, ff: 0.8 }, ultra: { mist: 1.3, r0: 9, r1: 15, ff: 1 } };
+  function applyGfxFx() {
+    var P2 = GFX_FX[S.gfx] || GFX_FX.high;
+    U.uGMist.value = P2.mist * (S.reduce ? 0.6 : 1); U.uGMistR.value.set(P2.r0, P2.r1);
+    if (AMB.pts) AMB.pts.geometry.setDrawRange(0, Math.max(0, Math.round(AMB.n * P2.ff)));
   }
 
   /* ---------- Partikel ambient ---------- */
@@ -443,7 +452,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
 
   function uniformsFromLook() {
     U.uNight.value = E.night; U.uNether.value = E.nether;
-    U.uMist.value.copy(E.mist); U.uMistAmt.value = E.mistAmt; U.uCloudSh.value = E.cloudSh * (S.reduce ? 0.6 : 1);
+    U.uMist.value.copy(E.mist); U.uMistAmt.value = E.mistAmt; applyGfxFx(); U.uCloudSh.value = E.cloudSh * (S.reduce ? 0.6 : 1);
     if (skyMat) { skyMat.uniforms.uTop.value.copy(E.top); skyMat.uniforms.uBot.value.copy(E.bot); skyMat.uniforms.uCloud.value.copy(E.cloud); }
   }
 
@@ -674,6 +683,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
         AMB.mat.uniforms.uPR.value = S.dpr; if (center) AMB.mat.uniforms.uCenter.value.set(center.x, 0.0, center.z);
         AMB.pts.visible = S.on && !S.reduce && S.level >= 1 && (U.uNight.value > 0.02 || U.uNether.value > 0.02); /* siang: tak digambar sama sekali */
         AMB.mat.uniforms.uSize.value = 4.0;
+        applyGfxFx();
       }
       if (S.sun) { U.uSunDirW.value.copy(S.sun.position).normalize(); if (skyMat) skyMat.uniforms.uSunDir.value.copy(U.uSunDirW.value); }
       /* fokus tilt-shift: pita tajam di sekitar pusat papan (sedikit di bawah tengah layar) */
@@ -692,7 +702,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     applyGraphics: function (g) {
       if (!S.ok) return;
       g = (g === 'low' || g === 'normal' || g === 'ultra') ? g : 'high';
-      S.gfx = g; S.lockQ = true; S.demoted = false; S.on = g !== 'low';
+      S.gfx = g; applyGfxFx(); S.lockQ = true; S.demoted = false; S.on = g !== 'low';
       setLevel(g === 'normal' ? 1 : (g === 'ultra' ? 2 : (S.coarse ? 1 : 2)));
       uniformsApplyLevel();
     },
