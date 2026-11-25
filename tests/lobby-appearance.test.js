@@ -30,7 +30,8 @@ t('frame profil di lobi dimuat dan di-upgrade ke animasi FrameFX', () => {
   assert.ok(h.indexOf('data/inventory/frame/_shared/js/frame-fx.js') > 0, 'frame-fx.js tidak dimuat');
   assert.ok(/function applyFrame\(\)[\s\S]*?FrameFX\.upgrade\(im\)/.test(h), 'frame lobi tidak di-upgrade');
   const profile = PG.readFileSync(path.join(__dirname, '../profile.html'), 'utf8');
-  assert.ok(/FrameFX\.upgrade\(profileFrame\)/.test(profile), 'frame profil tidak di-upgrade');
+  /* Profil didesain ulang: kartu atas = foto karakter tanpa frame/aura; frame dipilih lewat modal Frame (#frbtn), jadi tidak ada lagi elemen profileFrame yang di-upgrade. */
+  assert.ok(profile.indexOf('data/inventory/frame/_shared/js/frame-fx.js') > 0 && /id="frbtn"/.test(profile), 'profil memuat frame-fx.js dan tombol modal Frame');
 });
 t('profil, efek, dan leaderboard juga menarik tampilan aktif dari server dan menggambar ulang', () => {
   ['profile', 'efek', 'leaderboard'].forEach(f => {

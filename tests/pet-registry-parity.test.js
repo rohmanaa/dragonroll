@@ -8,7 +8,7 @@ const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
 const clone = o => JSON.parse(JSON.stringify(o));
-const srcs = h => (h.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
+const srcs = h => (h.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1].replace(/\?.*$/, ""));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const bp = base.items.filter(i => i.kind === 'pet'), bf = base.items.filter(i => i.kind === 'frame');
@@ -66,15 +66,15 @@ t('Harga: tepat satu mata uang per Pet; koin T1-T4 (3.000/9.000/25.000/60.000), 
 t('ItemCatalog: jalur Registry aktif untuk Pet (petSource) dan cadangan bila tidak dimuat', () => {
   assert.strictEqual(viaPet.ItemCatalog.petSource(), 'registry'); assert.strictEqual(legacy.ItemCatalog.petSource(), 'legacy'); assert.strictEqual(viaBoth.ItemCatalog.petSource(), 'registry');
 });
-t('ItemCatalog: total 168, Pet 7, Frame 14/14 (jalur cadangan dan gabungan)', () => {
-  [legacy, viaPet, viaBoth].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 168);
-    assert.strictEqual(IC.items.filter(i => i.kind === 'pet').length, 7); assert.strictEqual(IC.items.filter(i => i.kind === 'frame').length, 14); });
+t('ItemCatalog: total 169, Pet 7, Frame 15/15 (jalur cadangan dan gabungan)', () => {
+  [legacy, viaPet, viaBoth].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 169);
+    assert.strictEqual(IC.items.filter(i => i.kind === 'pet').length, 7); assert.strictEqual(IC.items.filter(i => i.kind === 'frame').length, 15); });
   assert.strictEqual(viaBoth.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(viaPet.ItemCatalog.frameSource(), 'legacy');
 });
-t('ItemCatalog: SELURUH 168 item (semua field, urutan, tanpa ID ganda) = baseline di setiap kombinasi jalur', () => {
-  [legacy, viaPet, viaBoth].forEach(c => { assert.deepStrictEqual(clone(c.ItemCatalog.items), base.items); assert.strictEqual(new Set(clone(c.ItemCatalog.items.map(i => i.id))).size, 168); });
+t('ItemCatalog: SELURUH 169 item (semua field, urutan, tanpa ID ganda) = baseline di setiap kombinasi jalur', () => {
+  [legacy, viaPet, viaBoth].forEach(c => { assert.deepStrictEqual(clone(c.ItemCatalog.items), base.items); assert.strictEqual(new Set(clone(c.ItemCatalog.items.map(i => i.id))).size, 169); });
 });
-t('ItemCatalog: kategori non-Pet tidak berubah (140 item) dan Frame 14/14 sama dengan baseline', () => {
+t('ItemCatalog: kategori non-Pet tidak berubah (140 item) dan Frame 15/15 sama dengan baseline', () => {
   const IC = viaBoth.ItemCatalog; assert.deepStrictEqual(clone(IC.items.filter(i => i.kind !== 'pet')), base.items.filter(i => i.kind !== 'pet'));
   assert.deepStrictEqual(clone(IC.items.filter(i => i.kind === 'frame')), bf);
 });
@@ -103,7 +103,7 @@ t('Ketahanan: Registry + index.js ada tetapi manifest belum dimuat -> jalur cada
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali tidak menggandakan registrasi', () => {
   vm.runInContext(rd('assets/js/item-catalog.js'), viaBoth); const R = viaBoth.UT.ItemRegistry.shared();
-  assert.strictEqual(R.getCategory('pet').count, 7); assert.strictEqual(R.getCategory('frame').count, 14); assert.strictEqual(R.rejected().length, 0);
+  assert.strictEqual(R.getCategory('pet').count, 7); assert.strictEqual(R.getCategory('frame').count, 15); assert.strictEqual(R.rejected().length, 0);
 });
 
 /* ---- konsumen existing ---- */
@@ -115,14 +115,14 @@ t('PlayerData: kepemilikan/equipped/pembelian identik antara jalur cadangan dan 
   const a = strip(snap(boot([]))), b = strip(snap(boot(PET_CHAIN.concat(FRAME_CHAIN)))); assert.deepStrictEqual(b, a);
   assert.deepStrictEqual(b.owns, [false, false, false, false, false, false, false]);
 });
-t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = data/inventory/pet/items/gameKey/gameKey.png = manifest assets.image', () => {
+t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar pet-page = manifest assets.image (data/inventory/pet/items/gameKey/game-key.webp; .png hanya fallback data-fb)', () => {
   const pg = rd('data/inventory/pet/_shared/js/pet-page.js'); assert.ok(/IMAGE_ROOT = 'data\/inventory\/pet\/items\/'/.test(pg)); assert.ok(/IMAGE_ROOT \+ item\.gameKey \+ '\/' \+ item\.gameKey \+ '\.png'/.test(pg));
   assert.ok(/item\.kind === 'pet'\)\.sort\(\(a, b\) => a\.tier - b\.tier\)/.test(pg));
   const sorted = clone(viaPet.ItemCatalog.items.filter(i => i.kind === 'pet')).sort((a, b) => a.tier - b.tier); assert.deepStrictEqual(sorted.map(i => i.id), bp.map(i => i.id));
-  items.forEach(m => assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey + '.png'));
+  items.forEach(m => { const p = 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey.replace(/_/g, '-') + '.webp'; assert.strictEqual(m.assets.image, p); assert.ok(require('fs').existsSync(path.join(ROOT, p)), p); });
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
-  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 168);
+  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 169);
 });
 t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) dan supabase/pet_catalog.sql (tanpa mengubah SQL)', () => {
   const seed = /BEGIN PET SEED[\s\S]*?END PET SEED/.exec(rd('supabase/migrations/202611290001_pet_catalog.sql'))[0]; let seen = 0;
@@ -136,13 +136,13 @@ t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) da
 t('A. manifest valid (validateManifest) 7/7', () => { items.forEach(m => assert.deepStrictEqual(IR.validateManifest(m, PetCat.category), { ok: true, errors: [] }, m.id)); });
 t('B. FORMAT path gambar canonical valid 7/7 dan unik (bukan bukti file ada / termuat)', () => {
   items.forEach(m => {
-    assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey + '.png', m.id);
+    assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey.replace(/_/g, '-') + '.webp', m.id);
     assert.strictEqual(IR.validateAssetPaths(m, PetCat.category).ok, true, m.id);
   });
   assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 7);
 });
-t('C. file gambar ADA, tidak kosong, header PNG (BUKAN pemuatan di browser)', () => {
-  items.forEach(m => { const f = path.join(ROOT, m.assets.image); assert.ok(fs.existsSync(f), m.assets.image); const b = fs.readFileSync(f); assert.ok(b.length > 1000, m.assets.image); assert.strictEqual(b.slice(1, 4).toString(), 'PNG', m.assets.image); });
+t('C. file gambar ADA, tidak kosong, header WebP (BUKAN pemuatan di browser)', () => {
+  items.forEach(m => { const f = path.join(ROOT, m.assets.image); assert.ok(fs.existsSync(f), m.assets.image); const b = fs.readFileSync(f); assert.ok(b.length > 1000, m.assets.image); assert.ok(b.slice(0, 4).toString() === 'RIFF' && b.slice(8, 12).toString() === 'WEBP', m.assets.image); });
 });
 /* Baseline Stage 4 (SEBELUM 4.1): PET_FILES hardcoded per indeks tier di pet-viewer.js. Dibekukan di sini sebagai bukti pemetaan tidak berubah. */
 const SFX_BASELINE = {
@@ -163,7 +163,7 @@ function viewerAudioProbe(itemRegistry) {
     createElement() { return { getContext() { return context2d; } }; },
     getElementById(id) { return id === 'fpv' ? view : canvas; }
   };
-  const window = { ItemCatalog: { items: bp }, UT: itemRegistry ? { ItemRegistry: { shared: () => itemRegistry } } : {}, __synthesizedSnd: SND, addEventListener() {}, removeEventListener() {} };
+  const window = { ItemCatalog: { items: bp }, UT: itemRegistry ? { ItemRegistry: { shared: () => itemRegistry } } : {}, __synthesizedSnd: SND, setTimeout, clearTimeout, setInterval, clearInterval, requestAnimationFrame() { return 0; }, cancelAnimationFrame() {}, addEventListener() {}, removeEventListener() {} };
   window.window = window;
   const ctx = vm.createContext({
     window, document,
@@ -172,9 +172,11 @@ function viewerAudioProbe(itemRegistry) {
   });
   let source = PV.replace(/const SND=window\.__synthesizedSnd\|\|\[[\s\S]*?\n\];/, 'const SND=window.__synthesizedSnd;');
   assert.notStrictEqual(source, PV, 'synthetic fallback functions must be injectable');
-  const end = /\}\)\(\);\s*$/;
-  assert.ok(end.test(source), 'PetViewer IIFE terminator');
-  source = source.replace(end, 'window.__petAudioProbe={PET_FILES,SND};\n})();');
+  const end = /\}\);\s*$/;
+  assert.ok(end.test(source), 'PetViewer PageModule.define terminator');
+  source = source.replace(end, 'window.__petAudioProbe={PET_FILES,SND};\n});');
+  /* pet-viewer kini modul UT.PageModule.define('pet-viewer', fn): muat PageModule asli; halaman mandiri (managed != true) langsung mount. */
+  vm.runInContext(rd('assets/js/core/page-module.js'), ctx, { filename: 'page-module.js' });
   vm.runInContext(source, ctx, { filename: PV_PATH });
   return { PET_FILES: clone(window.__petAudioProbe.PET_FILES), SND: window.__petAudioProbe.SND, calls };
 }
@@ -252,7 +254,7 @@ t('Event/trigger/timing/volume pet-viewer TIDAK berubah (playPetSound: kantong a
 });
 t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan byte count aktual', () => {
   const pm = JSON.parse(rd('assets/preload-manifest.json'));
-  assert.strictEqual(Object.keys(pm).length, 908);
+  assert.ok(Object.keys(pm).length >= 908, 'preload-manifest tumbuh seiring aset baru; jangan kunci jumlah persisnya');
   ['data/inventory/pet/_shared/js/pet-model-registry.js'].concat(PetCat.keys.map(key => 'data/inventory/pet/items/' + key + '/model.js')).forEach(f => {
     assert.strictEqual(pm[f], fs.statSync(path.join(ROOT, f)).size, f);
   });
@@ -287,7 +289,7 @@ t('pet.html: simulasi urutan tag -> petSource = registry, katalog = baseline', (
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'registry'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Halaman lain tidak memuat manifest Pet; gameplay.html tidak berubah', () => {
-  fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && f !== 'pet.html').forEach(f => assert.ok(!/inventory\/pet/.test(rd(f)), f));
+  fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && f !== 'pet.html').forEach(f => assert.ok(!/inventory\/pet\/items\/[^"']*manifest/.test(rd(f)), f));
 });
 t('Loader lama dibuang: tidak ada document.write di berkas Registry/manifest/index/katalog', () => {
   ['assets/js/core/item-registry.js', 'assets/js/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));

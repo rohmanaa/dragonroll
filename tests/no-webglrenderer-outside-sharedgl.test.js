@@ -44,7 +44,8 @@ const dr = fs.readFileSync(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-re
 assert.match(dr, /opts\.sharedGL && globalThis\.UT && globalThis\.UT\.SharedGL/);
 assert.match(dr, /SGL\.acquire\(String\(opts\.sharedGL\)/);
 assert.match(dr, /SharedGL\.release\(this\._glOwner\)/);
-assert.match(fs.readFileSync(path.join(ROOT, 'data/inventory/dice/_shared/js/dadu.js'), 'utf8'), /sharedGL:'inv-dadu'/);
+/* dadu.js sengaja TIDAK memakai SharedGL (r128) karena DiceKit butuh three r170; pratinjau dadu memakai renderer DiceKit sendiri dan dilepas penuh saat unmount. */
+assert.doesNotMatch(fs.readFileSync(path.join(ROOT, 'data/inventory/dice/_shared/js/dadu.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''), /sharedGL:/);
 
 /* Efek (tahap 3) sudah bersih */
 assert.ok(!hits.includes('data/inventory/aura/_shared/js/efek.js'));

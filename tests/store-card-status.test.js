@@ -49,16 +49,17 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
   const currencyPrice = 'data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}';
   assert.ok(scripts.frame.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'frame: harga beli ada di tombol aksi #act');
   assert.ok(!scripts.frame.includes(currencyPrice), 'frame: kartu slot tidak lagi memuat badge harga');
-  assert.ok(scripts.dadu.includes("<b>'+fmtPrice(gems?f.gems:f.price)+'</b>"), 'dadu: harga beli ada di bar aksi kartu (seperti Pet)');
+  assert.ok(scripts.dadu.includes("set(b,'BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'dadu: harga beli ada di tombol aksi (seperti Frame)');
   assert.ok(!scripts.dadu.includes(currencyPrice), 'dadu: kartu slot tidak lagi memuat badge harga');
-  assert.ok(powerScript.includes("sp.innerHTML='BELI '+fmtPrice(i.price)+' '+COIN"), 'power: tombol aksi menampilkan ikon Coin');
-  assert.ok(powerPageCss.includes('#act span img{position:static;'), 'power: ikon Coin ditata di dalam tombol aksi');
+  /* Halaman Power-up (powerup.js) tidak lagi punya tombol aksi BELI (canSell tinggal kode mati); pembelian ada di Room (data-buy, dicek di bawah). */
+  assert.ok(!powerScript.includes("'BELI '"), 'power: halaman power-up tidak lagi menjual langsung');
   assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(pages.room));
 });
 
-test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
-  assert.ok(/#use\{[^}]*left:auto;right:48px/.test(petCss), "pet: tombol aksi tidak mewarisi posisi kiri");
-  assert.ok(petScript.includes('label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;'), "pet: ikon harga memakai path aset langsung");
+test("kartu Pet: harga di chip .pc-pr dan ikon Coin/Gem memakai path WebP langsung", () => {
+  /* Pet didesain ulang: tombol aksi tunggal #use diganti chip harga di kartu (.pc-pr). */
+  assert.ok(/<button class="pc-pr"[^`]*<b>\$\{format\(gems \? cost\.gems : cost\.coins\)\}<\/b><img src="\$\{gems \? IC_GEM : IC_COIN\}"/.test(petScript), "pet: harga beli ada di chip kartu");
+  assert.ok(/IC_COIN = 'assets\/images\/[^']+\.webp'/.test(petScript) && /IC_GEM = 'assets\/images\/[^']+\.webp'/.test(petScript), "pet: ikon harga memakai path aset langsung");
   assert.ok(!petScript.includes("ITEM_ROOT + icon"), "pet: path ikon tidak menggandakan root aset");
 });
 
@@ -67,7 +68,7 @@ test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
   assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/inventory/character/_shared/css/kredit.css")));
   assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.frame), 'frame: status warna slot (hijau/ungu/abu)');
-  assert.ok(/const m=isOwned\(x\),on=isUsed\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes("class=\"pc-pr own\"") && scripts.dadu.includes('DIPAKAI'), 'dadu: status kartu (GUNAKAN / DIPAKAI / harga) seperti Pet');
+  assert.ok(/const st=slotState\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes("class=\"dslot '+st+'\"") && scripts.dadu.includes('DIPAKAI') && scripts.dadu.includes('DIMILIKI'), 'dadu: status slot (DIPAKAI / DIMILIKI / harga) di footer kartu .dslot');
   const efekJs = read("data/inventory/aura/_shared/js/efek.js");
   assert.ok(/const m=isOwned\(x\),on=isUsed\(x\),sell=canSell\(x\)/.test(efekJs), "efek: status kartu dihitung per item");
   assert.ok(!/id="act"/.test(pages.efek) && efekJs.includes('>LEPAS</button>') && efekJs.includes('>GUNAKAN</button>'), "efek: bar aksi di kartu (LEPAS/GUNAKAN/harga) seperti Pet");

@@ -70,7 +70,7 @@ t('lompat: cincin & kabut aura tetap di lantai, dekor badan ikut naik; mendarat 
 t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-fx -> aura-view) dan memakai UT.AuraView', () => {
   const pages = [
     { html: 'lobby.html', source: 'data/lobby/js/lobby.js', update: /AUR\.update\(motionDt\)/ },
-    { html: 'profile.html', source: 'assets/js/pages/profile.js', update: /R\.aura\.update\(dt\)/ },
+    /* profile.html: kartu profil kini foto karakter tanpa aura -> tidak lagi memakai UT.AuraView */
     { html: 'gameplay.html', source: 'gameplay/js/main.js', update: /PAURA\.update\(dt\)/ }
   ];
   pages.forEach(({ html: f, source, update }) => {
@@ -87,9 +87,10 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   assert.ok(/if\(u\.bc&&PAURA\) PAURA\.clear\(u\.bc\.root\)/.test(gameplay), 'ganti skin melepas aura pada rig lama');
   assert.ok(/if\(PAURA\) PAURA\.clearAll\(\); players\.forEach/.test(gameplay), 'reset membersihkan seluruh aura');
 });
-t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
+t('karakter.html: skrip aura dimuat setelah three & player-data; aura tidak ditampilkan di pratinjau (desain)', () => {
   const g = read('karakter.html'), js = read('data/inventory/character/_shared/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
   assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'));
-  assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(js) && /AUR\.update\(dt\)/.test(js) && /auraSync\(\)/.test(js) && /AUR\.clear\(root\)/.test(js));
+  /* Desain: aura TIDAK ditampilkan di pratinjau karakter -> auraSync() tidak dipanggil & tidak ada AUR.update(dt) per frame; modul tetap dibuat/dibersihkan. */
+  assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(js) && /AUR\.clear\(root\)/.test(js) && /aura TIDAK ditampilkan di pratinjau karakter/.test(js) && !/AUR\.update\(dt\)/.test(js));
 });
 console.log(n + ' tes lulus');

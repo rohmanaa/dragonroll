@@ -32,6 +32,6 @@ assert.ok(html.indexOf('href="gameplay/css/dice-pad.css"') < html.indexOf('href=
 assert.ok(html.indexOf('href="gameplay/css/gameplay-overrides.css"') < html.indexOf('href="gameplay/css/hud-mockup.css"'));
 
 const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
-assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/progress-service\.js', document\.baseURI\)/g) || []).length, 4);
+assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/progress-service\.js', document\.baseURI\)/g) || []).length, 5);
 assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/room-service\.js', document\.baseURI\)/g) || []).length, 1);
 console.log('ok - gameplay CSS and JavaScript are external with load order preserved');

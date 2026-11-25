@@ -71,7 +71,7 @@ t('statis: Lobby = modal timeline klaim (Kayu/Silver/Gold); Inventory = slot che
   assert.ok(lj.includes('chestClaimDaily') && !/chestCollect|chestStart|chestOpenNow/.test(lj), 'lobby hanya mengklaim, tidak membuka');
   assert.ok(lj.includes('plays_today') && lj.includes('chestFill'), 'timeline memakai progres game dari server');
   assert.ok(ij.includes('chestCollect') && !/chestClaimDaily|chestStart|chestOpenNow|secsLeft|seconds_left|data-claim/.test(ij), 'inventory hanya membuka, tanpa klaim/timer');
-  assert.ok(ij.includes("data-kind") && ij.includes('id="cact"') && ij.includes('>BUKA<') && ij.includes('Dimiliki'), 'pola Power-up: pilih slot, satu tombol BUKA, jumlah dimiliki');
+  assert.ok(ij.includes("data-kind") && ij.includes('id="cact"') && ij.includes('>BUKA<') && ij.includes('chip-n'), 'pola Power-up: pilih slot, satu tombol BUKA, jumlah dimiliki');
   const lc = fs.readFileSync(root('assets/css/pages/lobby.css'), 'utf8');
   assert.ok(/#chestMd\{position:fixed;inset:0/.test(lc), 'backdrop fixed memenuhi layar');
   assert.ok(lh.indexOf('id="chestMd"') > lh.indexOf('id="fade"') - 900 && !/<div id="stage"[^]*<div id="chestMd"[^]*<div id="fade"/.test(lh.replace(/<div id="chestMd"[^]*?<\/div><\/div>/, '')) === true, 'modal di luar #stage');

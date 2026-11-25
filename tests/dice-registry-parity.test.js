@@ -2,6 +2,8 @@
    Jalankan: node tests/dice-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
+/* package.json = "type":"commonjs" membuat import() file .js ber-sintaks ESM gagal; muat lewat data: URL (modul ini tanpa import relatif). */
+const importEsm = file => import('data:text/javascript;base64,' + Buffer.from(require('fs').readFileSync(file, 'utf8')).toString('base64'));
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8'), ex = p => fs.existsSync(path.join(ROOT, p));
 const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
@@ -82,10 +84,10 @@ t('ItemCatalog: jalur Registry aktif untuk Dice (diceSource) dan cadangan bila t
   assert.strictEqual(viaDice.ItemCatalog.diceSource(), 'registry'); assert.strictEqual(legacy.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.diceSource(), 'registry');
   assert.strictEqual(viaDice.ItemCatalog.petSource(), 'legacy'); assert.strictEqual(viaAll.ItemCatalog.petSource(), 'registry'); assert.strictEqual(viaAll.ItemCatalog.frameSource(), 'registry');
 });
-t('ItemCatalog: 168 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
-  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 168);
+t('ItemCatalog: 169 item, urutan ID sama, tanpa ID ganda, DEEP-EQUAL ke baseline pada jalur cadangan, Dice-Registry, dan semua Registry', () => {
+  [legacy, viaDice, viaAll].forEach(c => { const IC = c.ItemCatalog; assert.strictEqual(IC.items.length, 169);
     assert.deepStrictEqual(clone(IC.items), base.items);
-    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 168); });
+    assert.strictEqual(new Set(IC.items.map(i => i.id)).size, 169); });
 });
 t('ItemCatalog: API publik sama (tipe & kunci) dengan baseline; sumber Registry baru tersedia', () => {
   const a = Object.keys(legacy.ItemCatalog).sort(), b = Object.keys(viaDice.ItemCatalog).sort(); assert.deepStrictEqual(a, b);
@@ -106,7 +108,7 @@ t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, 
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {}, warn() {} }, Date, JSON, Math }));
   DICE_CHAIN.filter(f => !f.endsWith('/tnt/manifest.js')).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 168); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
+  assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 169); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 
 /* ---- Equip / Shop / Inventory / Gameplay (integrasi lintas sistem) ---- */
@@ -192,7 +194,7 @@ t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice
 
 /* ---- DiceKit (modul ES) : paritas visual katalog <-> DiceKit ---- */
 t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collection/materialName selaras (nama emas dicatat: "Gold Dice" vs "Dadu Emas" — sudah ada sebelumnya, tidak diubah)', async () => {
-  const { DICE_CATALOG, validateCatalog } = await import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-catalog.js')).href);
+  const { DICE_CATALOG, validateCatalog } = await importEsm(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-catalog.js'));
   assert.deepStrictEqual(validateCatalog(), []); assert.deepStrictEqual(DICE_CATALOG.map(d => d.id), DiceCat.keys);
   DICE_CATALOG.forEach(d => { const m = byId['dice.' + d.id]; assert.strictEqual(m.visual.bg, d.material.base, d.id); assert.strictEqual(m.visual.pip, d.material.pip.color, d.id);
     if (m.visual.accent !== undefined) assert.strictEqual(m.visual.accent, d.material.accent, d.id);

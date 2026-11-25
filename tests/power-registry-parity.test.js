@@ -1,6 +1,8 @@
 /* Tes paritas Power Stage 6: manifest <-> ItemCatalog baseline <-> renderer/FX/audio <-> server catalog.
    Pemuatan nyata di browser tidak diuji di sini. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
+/* package.json = "type":"commonjs" membuat import() file .js ber-sintaks ESM gagal; muat lewat data: URL (modul ini tanpa import relatif). */
+const importEsm = file => import('data:text/javascript;base64,' + Buffer.from(require('fs').readFileSync(file, 'utf8')).toString('base64'));
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const ex = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
@@ -67,7 +69,7 @@ t('Manifest: semua metadata Power sama persis dengan baseline (nama, rarity, har
 });
 t('ItemCatalog: jalur Registry/legacy/gabungan identik dengan baseline dan API lama tetap tersedia', () => {
   [legacy, viaPower, viaAll].forEach(ctx => {
-    assert.strictEqual(ctx.ItemCatalog.items.length, 168);
+    assert.strictEqual(ctx.ItemCatalog.items.length, 169);
     assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
     assert.strictEqual(ctx.ItemCatalog.powerSource(), ctx === legacy ? 'legacy' : 'registry');
     base.api.forEach(k => { if (typeof k === 'string') assert.ok(k in ctx.ItemCatalog, k); });
@@ -123,9 +125,9 @@ t('Shop/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tid
 });
 t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama yang benar-benar tersedia', async () => {
   const [{ POWER_ITEMS }, { PowerSound }, powerRegistry] = await Promise.all([
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-catalog.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-sound.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-registry.js')).href)
+    importEsm(path.join(ROOT, 'assets/js/renderers/power-3d/power-catalog.js')),
+    importEsm(path.join(ROOT, 'assets/js/renderers/power-3d/power-sound.js')),
+    importEsm(path.join(ROOT, 'assets/js/renderers/power-3d/power-registry.js'))
   ]);
   const modelById = Object.fromEntries(POWER_ITEMS.map(m => [m.id, m]));
   const expectedMap = {};

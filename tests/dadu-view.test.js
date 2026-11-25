@@ -17,10 +17,11 @@ t('dadu.js = modul "dadu"; timer/listener/langganan lewat env', () => {
   assert(/if\(env\.disposed\)return;/.test(js));
 });
 t('DiceKit: mount dengan sharedGL:"inv-dadu"; unmount = KIT.dispose(); event dicekit-ready lewat env; mount tidak jalan setelah unmount', () => {
-  assert(/sound:!!SET\(\)\.sound,sharedGL:'inv-dadu'\}\)/.test(js));
-  assert(/env\.own\(\(\)=>\{try\{if\(KIT\)KIT\.dispose\(\)\}catch\(e\)\{\}KIT=null\}\)/.test(js));
+  /* sharedGL sengaja DIHAPUS di dadu.js: SharedGL memakai three r128, DiceKit butuh r170 (shader gagal). Mount memakai renderer sendiri. */
+  assert(/sound:!!SET\(\)\.sound\}\)/.test(js) && !/sharedGL:'inv-dadu'/.test(js));
+  assert(/function disposeKit\(\)\{\n  const k=KIT;KIT=null;if\(!k\)return;\n  try\{const gl=k\.renderer;k\.dispose\(\);/.test(js) && /env\.own\(\(\)=>\{disposeKit\(\);stopSnaps\(\)\}\)/.test(js), 'unmount = KIT.dispose() (+ lepas konteks WebGL) lewat env.own');
   assert(/env\.addEventListener\('dicekit-ready'/.test(js));
-  assert(/function mountKit\(\)\{\n  if\(env\.disposed\|\|KIT\|\|!window\.DiceKit\)return;/.test(js));
+  assert(/function mountKit\(\)\{\n  if\(env\.disposed\|\|KIT\|\|!window\.DiceKit\)return;\n  if\(!previewOpen\(\)\)return;/.test(js), 'mount tidak jalan setelah unmount / tanpa pratinjau terbuka');
 });
 t('DiceRenderer: SharedGL hanya bila diminta (opts.sharedGL); dispose melepas (tanpa dispose renderer bersama); jalur mandiri utuh untuk gameplay', () => {
   assert(/const SGL = opts\.sharedGL && globalThis\.UT && globalThis\.UT\.SharedGL;/.test(dr));
@@ -39,7 +40,7 @@ t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js d
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < d && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < d);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < i('dice-kit/index.js'));
   assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
-  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="pv"/.test(html) && /id="grid"/.test(html) && !/id="act"/.test(html), 'kartu + modal pratinjau seperti Pet');
+  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="fpv"/.test(html) && /id="dgrid"/.test(html) && !/id="act"/.test(html), 'panel pratinjau #fpv + grid kartu #dgrid (desain ulang dadu)');
 });
 t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'dadu\.html': 'dadu'/.test(host) && /dadu: 'dadu\.html'/.test(host));
