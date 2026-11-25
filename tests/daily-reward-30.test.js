@@ -6,7 +6,7 @@ const read = p => fs.readFileSync(root(p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const sql = read('supabase/migrations/202611390001_daily_reward_30.sql');
-const rows = [...sql.matchAll(/\(\s*(\d+),'(coin|gem|box|mix)',\s*(\d+),\s*(\d+)\)/g)].map(m => ({ day: +m[1], type: m[2], coins: +m[3], gems: +m[4] }));
+const rows = [...sql.matchAll(/\(\s*(\d+),'(coin|gem|box|mix|frame)',\s*(\d+),\s*(\d+)\)/g)].map(m => ({ day: +m[1], type: m[2], coins: +m[3], gems: +m[4] }));
 const js = read('assets/js/pages/hadiah-misi.js');
 const rBlock = js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily'));
 const labels = [...rBlock.matchAll(/\{t:'([^']+)'/g)].map(m => m[1]);
@@ -23,7 +23,7 @@ t('label klien = nominal SQL untuk setiap hari', () => {
     assert.strictEqual(coin ? num(coin[1]) : 0, r.coins, 'koin hari ' + r.day);
     assert.strictEqual(gem ? num(gem[1]) : 0, r.gems, 'gem hari ' + r.day);
     assert.strictEqual(box, r.type === 'box', 'box hari ' + r.day);
-    const kind = box ? 'box' : (coin && gem) ? 'mix' : gem ? 'gem' : 'coin';
+    const kind = /Frame Misteri/.test(l) ? 'frame' : box ? 'box' : (coin && gem) ? 'mix' : gem ? 'gem' : 'coin';
     assert.strictEqual(kind, r.type, 'tipe hari ' + r.day);
   });
 });
@@ -47,8 +47,9 @@ t('lobi: lencana login memakai batas 30', () => {
   const lobby = read('data/lobby/js/lobby.js');
   assert.ok(/\(\+d\.claimed\|\|0\)<30/.test(lobby) && !/claimed\|\|0\)<7/.test(lobby));
 });
-t('Hari 30 memberi frame eksklusif pertama yang belum dimiliki; urutan SQL = urutan katalog klien', () => {
-  assert.ok(/v_idx \+ 1 = 30 then[\s\S]*unnest\(public\._daily_frame_order\(\)\) with ordinality[\s\S]*not exists \(select 1 from public\.player_inventory/.test(sql));
+t('Hari 25 memberi frame eksklusif pertama yang belum dimiliki (semua dimiliki -> 1.500 koin); urutan SQL = urutan katalog klien', () => {
+  assert.strictEqual(rows[24].type, 'frame', 'Hari 25 = frame'); assert.notStrictEqual(rows[29].type, 'frame', 'Hari 30 bukan frame lagi');
+  assert.ok(/v_type = 'frame' then[\s\S]*unnest\(public\._daily_frame_order\(\)\) with ordinality[\s\S]*not exists \(select 1 from public\.player_inventory[\s\S]*v_dc := 1500/.test(sql), 'cadangan 1.500 koin bila semua frame sudah dimiliki');
   assert.ok(/'item', v_item/.test(sql));
   const order = [...sql.match(/_daily_frame_order\(\) returns text\[\][\s\S]*?array\[([\s\S]*?)\]\s*\$\$/)[1].matchAll(/'(frame\.[a-z]+)'/g)].map(m => m[1]);
   const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
@@ -57,11 +58,11 @@ t('Hari 30 memberi frame eksklusif pertama yang belum dimiliki; urutan SQL = uru
   assert.strictEqual(order[0], 'frame.nagaapi', 'Frame Naga Api jadi hadiah pertama');
   order.forEach(id => assert.ok(new RegExp("\\('" + id.replace('.', '\\.') + "', 'frame', null, false, false\\)").test(sql), id + ' terdaftar di item_catalog'));
 });
-t('frame hadiah tidak dijual dan tidak ada spoiler: tanpa harga/gem, kartu Hari 30 hanya "Frame Misteri"', () => {
+t('frame hadiah tidak dijual dan tidak ada spoiler: tanpa harga/gem, kartu Hari 25 hanya "Frame Misteri" (terpisah dari peti Hari 30)', () => {
   const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
   const ev = C.ItemCatalog.items.filter(i => i.kind === 'frame' && i.source === 'event');
   ev.forEach(f => { assert.ok(!f.price && !f.gems && !f.starter, f.id); assert.strictEqual(C.ItemCatalog.cost(f), null, f.id + ' tidak muncul di Toko'); assert.ok(fs.existsSync(root(f.image)), f.id + ' gambar'); });
-  const day30 = labels[29]; assert.ok(/Frame Misteri/.test(js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily'))));
+  assert.strictEqual(labels[24], 'Frame Misteri'); assert.ok(!/Frame/.test(labels[29]), 'Hari 30 murni koin + gem');
   ev.forEach(f => assert.ok(!js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily')).includes(f.name), 'kalender tidak menyebut ' + f.name));
 });
 t('snapshot skema memuat migrasi 30 hari', () => {

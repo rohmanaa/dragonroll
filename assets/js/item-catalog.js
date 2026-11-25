@@ -106,8 +106,8 @@
     frame('phoenix', 'Phoenix', 'legendary', 5500, 'Frame api phoenix bersayap; lidah api hidup dan bulu membara naik ke atas.', 'phoenix.webp'),
     frame('celestial','Surgawi', 'legendary', 7500, 'Frame surgawi bersayap dengan halo berputar, sinar emas, dan bintang berkilau.', 'celestial.webp'),
     frame('cosmic',  'Kosmik', 'legendary', 8000, 'Frame kosmik dengan bintang yang mengorbit dan nebula warna-warni yang bergerak.', 'cosmic.webp'),
-    /* Frame hadiah Login 30 hari (BUKAN dijual; price/gems null = tidak muncul di Toko, tidak ada spoiler). Urutan = urutan pemberian di server:
-       Hari 30 putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. (tabel _daily_frame_order di migrasi 202611390001; tests/daily-reward-30.test.js menjaganya sama).
+    /* Frame hadiah Login 30 hari, diberikan di Hari 25 tiap putaran (BUKAN dijual; price/gems null = tidak muncul di Toko, tidak ada spoiler). Urutan = urutan pemberian di server:
+       Hari 25 putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. (tabel _daily_frame_order di migrasi 202611390001; tests/daily-reward-30.test.js menjaganya sama).
        Gambar bergaya ilustrasi (bukan piksel) + efek aura dari frame-fx.js (tabel ART). */
     frame('nagaapi', 'Naga Api', 'legendary', null, 'Frame naga bertanduk bersisik gelap dengan api yang menyala di kakinya. Hadiah login 30 hari, tidak dijual.', 'nagaapi.webp', { source: 'event', group: 'Login' }),
     frame('batutua', 'Batu Tua', 'rare', null, 'Frame batu kuno yang retak dan berkarat di sudut-sudutnya. Hadiah login 30 hari, tidak dijual.', 'batutua.webp', { source: 'event', group: 'Login' }),

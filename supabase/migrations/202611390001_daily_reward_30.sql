@@ -10,12 +10,13 @@
 --    1: 300 koin        2: 500 koin        3: Mystery Box     4: 5 gem          5: 800 koin       6: 10 gem        7: 2.000 koin + 15 gem
 --    8: 400 koin        9: 600 koin       10: 8 gem          11: 1.000 koin    12: Mystery Box   13: 12 gem      14: 3.000 koin + 20 gem
 --   15: 500 koin       16: 700 koin       17: 10 gem         18: 1.200 koin    19: Mystery Box   20: 15 gem      21: 4.000 koin + 25 gem
---   22: 600 koin       23: 800 koin       24: 12 gem         25: 1.500 koin    26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
---   29: 2.000 koin     30: 6.000 koin + 50 gem + 1 Frame eksklusif (frame ilustrasi, tidak dijual, TIDAK tampil di Toko = tanpa spoiler)
+--   22: 600 koin       23: 800 koin       24: 12 gem         25: FRAME         26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
+--   29: 2.000 koin     30: 6.000 koin + 50 gem
+--   (Hari 25 sekarang = 1 Frame eksklusif, hadiah tersendiri; kalau semua frame sudah dimiliki diganti 1.500 koin. Lihat bawah.)
 --
--- Frame Hari 30: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain menamatkan 30 hari dia mendapat frame
--- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki, Hari 30
--- hanya memberi koin + gem. Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
+-- Frame Hari 25: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain mencapai Hari 25 dia mendapat frame
+-- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki,
+-- Hari 25 diganti 1.500 koin (nominal lama Hari 25). Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
 -- (Sumber kebenaran katalog klien: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('frame.nagaapi', 'frame', null, false, false),
@@ -78,7 +79,7 @@ language sql immutable as $$
       ( 6,'gem',     0, 10), ( 7,'mix',  2000, 15), ( 8,'coin',  400,  0), ( 9,'coin',  600,  0), (10,'gem',     0,  8),
       (11,'coin', 1000,  0), (12,'box',     0,  0), (13,'gem',     0, 12), (14,'mix',  3000, 20), (15,'coin',  500,  0),
       (16,'coin',  700,  0), (17,'gem',     0, 10), (18,'coin', 1200,  0), (19,'box',     0,  0), (20,'gem',     0, 15),
-      (21,'mix',  4000, 25), (22,'coin',  600,  0), (23,'coin',  800,  0), (24,'gem',     0, 12), (25,'coin', 1500,  0),
+      (21,'mix',  4000, 25), (22,'coin',  600,  0), (23,'coin',  800,  0), (24,'gem',     0, 12), (25,'frame',   0,  0),
       (26,'box',     0,  0), (27,'gem',     0, 18), (28,'mix',  3000, 20), (29,'coin', 2000,  0), (30,'mix',  6000, 50)
     ) as v(day, type, coins, gems)
    where v.day = case when p_day between 1 and 30 then p_day else 1 end
@@ -113,6 +114,15 @@ begin
 
   select r.type, r.coins, r.gems into v_type, v_dc, v_dg from public._daily_reward_for(v_idx + 1) r;
 
+  -- Hari 25 (type 'frame'): frame eksklusif pertama dalam urutan yang belum dimiliki; semua sudah dimiliki -> 1.500 koin.
+  if v_type = 'frame' then
+    select t.f into v_item
+      from unnest(public._daily_frame_order()) with ordinality as t(f, n)
+     where not exists (select 1 from public.player_inventory i where i.user_id = v_uid and i.item_id = t.f)
+     order by t.n limit 1;
+    if v_item is null then v_dc := 1500; end if;
+  end if;
+
   -- Kunci idempoten per tanggal WIB: klaim kedua di hari yang sama tidak mungkin, walau logika streak salah.
   v_res := public._wallet_apply(v_uid, v_dc, v_dg, 'daily', v_today::text);
   if (v_res ->> 'duplicate')::boolean then
@@ -124,15 +134,8 @@ begin
          updated_at = now()
    where user_id = v_uid;
 
-  -- Hari 30: frame eksklusif pertama dalam urutan yang belum dimiliki (null bila semua sudah dimiliki).
-  if v_idx + 1 = 30 then
-    select t.f into v_item
-      from unnest(public._daily_frame_order()) with ordinality as t(f, n)
-     where not exists (select 1 from public.player_inventory i where i.user_id = v_uid and i.item_id = t.f)
-     order by t.n limit 1;
-    if v_item is not null then
-      insert into public.player_inventory(user_id, item_id) values (v_uid, v_item) on conflict do nothing;
-    end if;
+  if v_item is not null then
+    insert into public.player_inventory(user_id, item_id) values (v_uid, v_item) on conflict do nothing;
   end if;
 
   return jsonb_build_object('ok', true, 'day', v_idx + 1, 'type', v_type, 'item', v_item, 'duplicate', false,
