@@ -15,21 +15,25 @@ create function pg_temp.skip_days(u uuid, n int) returns void language sql as $f
 $f$;
 
 -- ===== DAILY REWARD =====
+-- Siklus 30 hari; hadiah tiap hari dibaca dari _daily_reward_for (bukan di-hardcode, jadwal sengaja berubah di migrasi ekonomi).
+insert into out select 'r' || n, jsonb_build_object('type', r.type, 'coins', r.coins, 'gems', r.gems)
+  from generate_series(1, 4) n, lateral public._daily_reward_for(n) r;
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
-insert into out select 'd1', public.claim_daily_reward();          -- hari 1: 50 gem
+insert into out select 'd1', public.claim_daily_reward();          -- hari 1
 insert into out select 'd1again', public.claim_daily_reward();     -- hari yang sama: ditolak
 insert into out select 'get_after', public.daily_reward_get();
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='d1') = 'true' and (select v->>'day' from out where k='d1') = '1', 'hari 1 harus ok';
-  assert (select gems from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 50, 'hari 1 = +50 gem';
+  assert (select gems from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = (select (v->>'gems')::bigint from out where k='r1'), 'hari 1 = gems sesuai jadwal';
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 1000 + (select (v->>'coins')::bigint from out where k='r1'), 'hari 1 = koin sesuai jadwal';
   assert (select v->>'reason' from out where k='d1again') = 'sudah-klaim', 'klaim ganda sehari ditolak';
-  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 1000, 'klaim ganda tidak mengubah koin';
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 1000 + (select (v->>'coins')::bigint from out where k='r1'), 'klaim ganda tidak mengubah koin';
   assert (select (v->>'claimed_today')::boolean from out where k='get_after'), 'status harus claimed_today';
   assert (select (v->>'seconds_to_reset')::int from out where k='get_after') between 1 and 86400, 'hitung mundur 1..86400 detik';
 end $$;
 
--- hari berikutnya: lanjut streak (hari 2 = +1000 koin), lalu hari 3 = Mystery Box
+-- hari berikutnya: lanjut streak (hari 2), lalu hari 3 = Mystery Box
 select pg_temp.skip_days('bbbbbbbb-0000-0000-0000-000000000001', 1);
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
 insert into out select 'd2', public.claim_daily_reward();
@@ -40,8 +44,8 @@ insert into out select 'd3', public.claim_daily_reward();
 reset role;
 do $$ begin
   assert (select v->>'day' from out where k='d2') = '2', 'streak berlanjut ke hari 2';
-  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 2000, 'hari 2 = +1000 koin';
-  assert (select v->>'type' from out where k='d3') = 'box', 'hari 3 = box';
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 1000 + (select (v->>'coins')::bigint from out where k='r1') + (select (v->>'coins')::bigint from out where k='r2'), 'hari 2 = koin sesuai jadwal';
+  assert (select v->>'type' from out where k='d3') = 'box' and (select v->>'type' from out where k='r3') = 'box', 'hari 3 = box';
   assert (select box from public.player_daily_reward where user_id='bbbbbbbb-0000-0000-0000-000000000001') = 1;
 end $$;
 
@@ -56,69 +60,67 @@ do $$ begin
   assert (select v->>'day' from out where k='d_reset') = '1', 'streak putus -> hari 1';
 end $$;
 
--- hari 4: dadu rumput (baru) masuk inventory
+-- hari 4: hadiah sesuai jadwal (gems)
 update public.player_daily_reward set claimed = 3 where user_id='bbbbbbbb-0000-0000-0000-000000000001';
+insert into out select 'w0', jsonb_build_object('c', coins, 'g', gems) from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001';
 select pg_temp.skip_days('bbbbbbbb-0000-0000-0000-000000000001', 1);
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
 insert into out select 'd4', public.claim_daily_reward();
 reset role;
 do $$ begin
   assert (select v->>'day' from out where k='d4') = '4' and (select (v->>'duplicate')::boolean from out where k='d4') = false;
-  assert exists (select 1 from public.player_inventory where user_id='bbbbbbbb-0000-0000-0000-000000000001' and item_id='dice.rumput');
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = (select (v->>'c')::bigint from out where k='w0') + (select (v->>'coins')::bigint from out where k='r4'), 'hari 4 = koin sesuai jadwal';
+  assert (select gems from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = (select (v->>'g')::bigint from out where k='w0') + (select (v->>'gems')::bigint from out where k='r4'), 'hari 4 = gems sesuai jadwal';
 end $$;
 
--- hari 5: pemain sudah punya dice.emas -> duplikat jadi +300 koin
-insert into public.player_inventory(user_id,item_id) values ('bbbbbbbb-0000-0000-0000-000000000001','dice.emas');
-insert into out select 'c0', to_jsonb(coins) from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001';
+-- hari 30: frame eksklusif pertama dalam urutan yang belum dimiliki masuk inventory
+update public.player_daily_reward set claimed = 29 where user_id='bbbbbbbb-0000-0000-0000-000000000001';
 select pg_temp.skip_days('bbbbbbbb-0000-0000-0000-000000000001', 1);
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
-insert into out select 'd5', public.claim_daily_reward();
+insert into out select 'd30', public.claim_daily_reward();
 reset role;
 do $$ begin
-  assert (select (v->>'duplicate')::boolean from out where k='d5'), 'dadu emas sudah dimiliki -> duplikat';
-  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000001') = (select (v #>> '{}')::bigint from out where k='c0') + 300, 'duplikat emas = +300 koin';
-end $$;
-
--- hari 7 = skin Enderman; hari berikutnya kembali ke hari 1
-update public.player_daily_reward set claimed = 6 where user_id='bbbbbbbb-0000-0000-0000-000000000001';
-select pg_temp.skip_days('bbbbbbbb-0000-0000-0000-000000000001', 1);
-set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
-insert into out select 'd7', public.claim_daily_reward();
-reset role;
-select pg_temp.skip_days('bbbbbbbb-0000-0000-0000-000000000001', 1);
-set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000001',false);
-insert into out select 'd8', public.claim_daily_reward();
-reset role;
-do $$ begin
-  assert (select v->>'item' from out where k='d7') = 'skin.ender', 'hari 7 = skin ender';
-  assert exists (select 1 from public.player_inventory where user_id='bbbbbbbb-0000-0000-0000-000000000001' and item_id='skin.ender');
-  assert (select v->>'day' from out where k='d8') = '1', 'setelah hari 7 mulai hari 1';
+  assert (select v->>'day' from out where k='d30') = '30', 'hari 30';
+  assert (select v->>'item' from out where k='d30') is not null, 'hari 30 memberi frame eksklusif';
+  assert exists (select 1 from public.player_inventory where user_id='bbbbbbbb-0000-0000-0000-000000000001' and item_id = (select v->>'item' from out where k='d30')), 'frame hari 30 masuk inventory';
 end $$;
 
 -- ===== MISI =====
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000002',false);
 insert into out select 'q_early', public.quest_claim('login');       -- belum ada progres
 insert into out select 'q_track', public.quest_track('login');
+-- reward misi dibaca dari respons server (nilainya sengaja berubah di migrasi ekonomi), bukan di-hardcode
+insert into out select 'rw', jsonb_build_object(
+  'login', (select (e->>'reward')::int from jsonb_array_elements(v->'quests') e where e->>'id'='login'),
+  'play',  (select (e->>'reward')::int from jsonb_array_elements(v->'quests') e where e->>'id'='play'),
+  'win',   (select (e->>'reward')::int from jsonb_array_elements(v->'quests') e where e->>'id'='win'),
+  'bonus', (v->'bonus'->>'reward')::int, 'bgems', (v->'bonus'->>'gems')::int)
+  from out where k='q_track';
 insert into out select 'q_claim', public.quest_claim('login');       -- +50
 insert into out select 'q_dup', public.quest_claim('login');         -- ganda
 reset role;
 do $$ begin
   assert (select v->>'reason' from out where k='q_early') = 'belum-selesai';
-  assert (select (v->>'coins')::int from out where k='q_claim') = 50;
+  assert (select (v->>'coins')::int from out where k='q_claim') = (select (v->>'login')::int from out where k='rw'), 'misi login = reward login';
   assert (select v->>'reason' from out where k='q_dup') = 'sudah-klaim';
-  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 1050, 'misi login = +50 sekali';
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 1000 + (select (v->>'login')::int from out where k='rw'), 'misi login = reward login sekali';
 end $$;
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000002',false);
 select public.quest_track('win'); select public.quest_track('win'); select public.quest_track('win'); select public.quest_track('win'); -- maks 3
 insert into out select 'q_all', public.quest_claim_all();            -- play 75 + win 150
-insert into out select 'q_bonus', public.quest_claim_bonus();        -- +100
+-- bonus baru terbuka bila SEMUA misi harian (kini 8) diklaim; quest_track hanya menandai login/play/win,
+-- jadi misi lain ditandai sudah diklaim langsung sebagai superuser (tanpa hadiah koin)
+reset role;
+update public.player_quest set claimed = (select array_agg(id::text) from public._quest_defs()) where user_id='bbbbbbbb-0000-0000-0000-000000000002';
+set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000002',false);
+insert into out select 'q_bonus', public.quest_claim_bonus();        -- bonus
 insert into out select 'q_bonus2', public.quest_claim_bonus();
 reset role;
 do $$ begin
-  assert (select (v->>'coins')::int from out where k='q_all') = 225, 'claim_all = 75+150';
+  assert (select (v->>'coins')::int from out where k='q_all') = (select (v->>'play')::int + (v->>'win')::int from out where k='rw'), 'claim_all = reward play + win';
   assert (select (v->>'ok')::boolean from out where k='q_bonus');
   assert (select v->>'reason' from out where k='q_bonus2') = 'sudah-klaim';
-  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 1000+50+225+100, 'total misi 375 + bonus';
+  assert (select coins from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 1000 + (select (v->>'login')::int + (v->>'play')::int + (v->>'win')::int + (v->>'bonus')::int from out where k='rw'), 'total misi + bonus';
   assert (select prog_win from public.player_quest where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 3, 'progres win dibatasi 3';
 end $$;
 -- hari WIB berganti: misi direset
@@ -141,12 +143,12 @@ reset role;
 -- ===== TUKAR GEM =====
 update public.player_wallet set gems = 45 where user_id='bbbbbbbb-0000-0000-0000-000000000002';
 set role authenticated; select set_config('request.jwt.claim.sub','bbbbbbbb-0000-0000-0000-000000000002',false);
-insert into out select 'x1', public.exchange_gems(1);                -- 40 gem -> 2500
+insert into out select 'x1', public.exchange_gems(1);                -- 40 gem -> 2000
 insert into out select 'x2', public.exchange_gems(1);                -- sisa 5 gem: kurang
 insert into out select 'x3', public.exchange_gems(7);                -- paket tidak valid
 reset role;
 do $$ begin
-  assert (select (v->>'got_coins')::int from out where k='x1') = 2500;
+  assert (select (v->>'got_coins')::int from out where k='x1') = 2000, 'paket 1: 40 gem -> 2.000 koin';
   assert (select gems from public.player_wallet where user_id='bbbbbbbb-0000-0000-0000-000000000002') = 5, 'gem berkurang 40';
   assert (select v->>'reason' from out where k='x2') = 'gem-kurang', 'gem kurang ditolak';
   assert (select v->>'reason' from out where k='x3') = 'paket-tidak-valid';

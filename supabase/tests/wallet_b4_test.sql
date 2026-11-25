@@ -19,8 +19,8 @@ insert into out select 'bad', public.claim_cpu_boss_reward('x');                
 reset role;
 do $$ begin
   assert (select v->>'ok' from out where k='c1') = 'true';
-  assert (select coins from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 1500, '+500 koin';
-  assert (select gems  from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 10,   '+10 gem';
+  assert (select coins from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 1100, '+100 koin (hadiah CPU kecil)';
+  assert (select gems  from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 0,   'CPU: tanpa gem';
   assert (select v->>'reason' from out where k='c1again') = 'sudah-klaim', 'token sama tidak dobel';
   assert (select v->>'reason' from out where k='c2fast') = 'terlalu-cepat', 'jarak minimal antar klaim';
   assert (select (v->>'tunggu_detik')::int from out where k='c2fast') between 1 and 180;
@@ -28,9 +28,9 @@ do $$ begin
   assert (select count(*) from public.wallet_ledger where user_id='cccccccc-0000-0000-0000-000000000001' and reason='boss_cpu') = 1, 'penolakan tidak menulis ledger';
 end $$;
 
--- ===== batas harian: klaim 2..5 sah (jarak dipenuhi), ke-6 ditolak =====
+-- ===== batas harian (3/hari): klaim 2..3 sah (jarak dipenuhi), ke-4 ditolak =====
 do $$ declare i int; begin
-  for i in 2..5 loop
+  for i in 2..3 loop
     perform pg_temp.age_ledger('cccccccc-0000-0000-0000-000000000001', 600);
     perform set_config('request.jwt.claim.sub','cccccccc-0000-0000-0000-000000000001',false);
     set local role authenticated;
@@ -41,12 +41,12 @@ do $$ declare i int; begin
 end $$;
 select pg_temp.age_ledger('cccccccc-0000-0000-0000-000000000001', 600);
 set role authenticated; select set_config('request.jwt.claim.sub','cccccccc-0000-0000-0000-000000000001',false);
-insert into out select 'cap6', public.claim_cpu_boss_reward('dw-bbbb-0006');
+insert into out select 'cap6', public.claim_cpu_boss_reward('dw-bbbb-0004');   -- klaim ke-4 hari ini
 insert into out select 'caps', public.reward_caps_get();
 reset role;
 do $$ begin
-  assert (select v->>'reason' from out where k='cap6') = 'daily_cap', 'klaim ke-6 hari yang sama ditolak';
-  assert (select coins from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 1000 + 5*500, 'tepat 5 klaim';
+  assert (select v->>'reason' from out where k='cap6') = 'daily_cap', 'klaim ke-4 hari yang sama ditolak (batas 3/hari)';
+  assert (select coins from public.player_wallet where user_id='cccccccc-0000-0000-0000-000000000001') = 1000 + 3*100, 'tepat 3 klaim';
   assert (select (v->>'boss_cpu_left')::int from out where k='caps') = 0, 'sisa jatah 0';
   assert (select (v->>'boss_online_left')::int from out where k='caps') = 10;
 end $$;
