@@ -6873,6 +6873,7 @@ UT.GameplayPause.bind({
 UT.GameplayHudMenu.bind({
   setMenuOpen:v=>setHudMenuOpen(v),
   camName:()=>CAM_NAMES[camCfg.preset]||'Free',
+  camIndex:()=>Math.max(0,CAM_ORDER.indexOf(camCfg.preset)),
   isFollow:()=>camCfg.follow,
   camNext:()=>{ ensureAudio(); camMenuClose(); camNextPreset(); },
   toggleFollow:()=>camSetFollow(!camCfg.follow),

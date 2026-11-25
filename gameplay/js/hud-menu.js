@@ -13,8 +13,8 @@
     high: 'Efek visual penuh (HP: sedikit dihemat).',
     ultra: 'Kualitas tertinggi. Butuh perangkat kuat.'
   };
-  var ICO_DAY = 'assets/images/icon/ui/day.webp', ICO_NIGHT = 'assets/images/icon/ui/night.webp';
-  var ICO_ON = 'assets/images/ui/white-glyphs/speaker-suara.webp', ICO_OFF = 'assets/images/ui/white-glyphs/speaker-mati.webp';
+  var G = 'assets/images/ui/white-glyphs/';
+  var ICO_DAY = G + 'matahari.webp', ICO_NIGHT = G + 'bulan.webp', ICO_ON = G + 'speaker-suara.webp', ICO_OFF = G + 'speaker-mati.webp';
 
   function bind(ops) {
     if (bind.done) return;
@@ -33,16 +33,21 @@
     }
     function userSet(v) { openedByUser = true; ops.setMenuOpen(v); }
 
+    /* tombol hanya ikon: status lewat ikon/titik/redup + aria-label (tanpa teks tampil) */
+    function label(id, text) { var e = $(id); e.setAttribute('aria-label', text); e.title = text; }
     function sync() {
       var guest = !!ops.isOnlineGuest();
-      $('hmCamV').textContent = ops.camName();
-      var f = !!ops.isFollow(); $('hmFollow').setAttribute('aria-pressed', String(f)); $('hmFollowV').textContent = f ? 'Nyala' : 'Mati';
-      var night = !!ops.isNight(), auto = !!ops.isAutoDN();
-      $('hmModeIco').src = night ? ICO_NIGHT : ICO_DAY;
-      $('hmModeV').textContent = auto ? 'Auto' : (night ? 'Malam' : 'Siang');
-      $('hmMode').disabled = guest; $('hmMode').title = guest ? 'Hanya host yang bisa mengubah suasana' : '';
+      var cn = ops.camName(), ci = ops.camIndex();
+      label('hmCam', 'Kamera: ' + cn);
+      [].forEach.call($('hmPips').children, function (p, i) { p.className = i === ci ? 'on' : ''; });
+      var f = !!ops.isFollow(); $('hmFollow').setAttribute('aria-pressed', String(f)); label('hmFollow', 'Ikuti bidak: ' + (f ? 'nyala' : 'mati'));
+      var night = !!ops.isNight(), auto = !!ops.isAutoDN(), m = $('hmMode');
+      m.querySelector('.hm-g').src = night ? ICO_NIGHT : ICO_DAY;
+      m.setAttribute('data-auto', auto ? '1' : '0');
+      label('hmMode', 'Suasana: ' + (auto ? 'otomatis' : (night ? 'malam' : 'siang')));
+      m.disabled = guest; if (guest) m.title = 'Hanya host yang bisa mengubah suasana';
       var muted = !!ops.isMuted();
-      $('hmSnd').setAttribute('aria-pressed', String(!muted)); $('hmSndIco').src = muted ? ICO_OFF : ICO_ON; $('hmSndV').textContent = muted ? 'Mati' : 'Nyala';
+      $('hmSnd').setAttribute('aria-pressed', String(!muted)); $('hmSnd').querySelector('.hm-g').src = muted ? ICO_OFF : ICO_ON; label('hmSnd', 'Suara: ' + (muted ? 'mati' : 'nyala'));
     }
 
     /* ---- modal ---- */
@@ -93,11 +98,11 @@
       ops.setMenuOpen(false);
     }, true);
 
-    /* pasang API asli DULU (setHudMenuOpen di main.js memanggil setOpen), baru atur keadaan awal: desktop terbuka (tab berlabel), HP tertutup */
+    /* pasang API asli DULU (setHudMenuOpen di main.js memanggil setOpen), baru atur keadaan awal: bendera tergulung */
     UT.GameplayHudMenu.setOpen = setOpen;
     UT.GameplayHudMenu.sync = sync;
     UT.GameplayHudMenu.closeModals = function () { hideModal('settingsMenu'); hideModal('helpMenu'); };
-    ops.setMenuOpen(!!desktop.matches);
+    ops.setMenuOpen(false);
     sync();
   }
 

@@ -155,18 +155,22 @@
 </section>
 
 <nav class="hm" id="hm" aria-label="Menu permainan" hidden>
-  <button class="hm-tab" id="hmTab" type="button" aria-expanded="false" aria-controls="hmList" aria-label="Buka atau tutup menu">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path class="hm-bars" d="M4 7h16M4 12h16M4 17h16"/><path class="hm-cls" d="M6 6l12 12M18 6L6 18"/></svg><span class="hm-tabt">Menu</span>
+  <button class="hm-pole" id="hmTab" type="button" aria-expanded="false" aria-controls="hmFlag" aria-label="Buka atau tutup menu" title="Menu">
+    <img class="hm-pole-img" src="assets/images/ui/menu-gulir/tiang.webp" alt="" draggable="false">
+    <img class="hm-ham" src="assets/images/ui/white-glyphs/menu-garis.webp" alt="" draggable="false">
   </button>
-  <div class="hm-list" id="hmList" role="toolbar" aria-label="Aksi cepat">
-    <button class="hm-b" id="hmCam" type="button" aria-label="Ganti sudut kamera"><img src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"><span class="hm-t">Kamera</span><i class="hm-v" id="hmCamV">Free</i></button>
-    <button class="hm-b" id="hmFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"><span class="hm-t">Ikuti bidak</span><i class="hm-v" id="hmFollowV">Nyala</i></button>
-    <button class="hm-b" id="hmReset" type="button" aria-label="Reset kamera"><img src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"><span class="hm-t">Reset kamera</span></button>
-    <button class="hm-b" id="hmMode" type="button" aria-label="Ganti suasana"><img id="hmModeIco" src="assets/images/icon/ui/day.webp" alt="" draggable="false"><span class="hm-t">Suasana</span><i class="hm-v" id="hmModeV">Siang</i></button>
-    <button class="hm-b" id="hmSnd" type="button" aria-pressed="true" aria-label="Suara"><img id="hmSndIco" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false"><span class="hm-t">Suara</span><i class="hm-v" id="hmSndV">Nyala</i></button>
-    <button class="hm-b" id="hmHelp" type="button" aria-label="Aturan dan bantuan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2.9-1.2 1.8M12 16.6v.1"/></svg><span class="hm-t">Bantuan</span></button>
-    <button class="hm-b" id="hmSet" type="button" aria-label="Pengaturan"><img src="assets/images/icon/ui/gear.webp" alt="" draggable="false"><span class="hm-t">Pengaturan</span></button>
-    <button class="hm-b hm-pause" id="hmPause" type="button" aria-label="Jeda permainan"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></svg><span class="hm-t">Pause</span></button>
+  <div class="hm-flag" id="hmFlag" role="toolbar" aria-label="Aksi cepat">
+    <img class="hm-cloth" src="assets/images/ui/menu-gulir/bendera.webp" alt="" draggable="false">
+    <div class="hm-grid" id="hmList">
+      <button class="hm-b" id="hmCam" type="button" aria-label="Kamera" title="Kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"><span class="hm-pips" id="hmPips"><i></i><i></i><i></i><i></i></span></button>
+      <button class="hm-b" id="hmFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak" title="Ikuti bidak"><img class="hm-g" src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmReset" type="button" aria-label="Reset kamera" title="Reset kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmMode" type="button" aria-label="Suasana" title="Suasana"><img class="hm-g" src="assets/images/ui/white-glyphs/matahari.webp" alt="" draggable="false"><img class="hm-badge" src="assets/images/ui/white-glyphs/bulan.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmSnd" type="button" aria-pressed="true" aria-label="Suara" title="Suara"><img class="hm-g" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmHelp" type="button" aria-label="Bantuan" title="Bantuan"><img class="hm-g" src="assets/images/ui/white-glyphs/info-bulat.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmSet" type="button" aria-label="Pengaturan" title="Pengaturan"><img class="hm-g" src="assets/images/ui/white-glyphs/roda-gigi.webp" alt="" draggable="false"></button>
+      <button class="hm-b" id="hmPause" type="button" aria-label="Pause" title="Pause"><img class="hm-g" src="assets/images/ui/white-glyphs/jeda.webp" alt="" draggable="false"></button>
+    </div>
   </div>
 </nav>
 
@@ -199,10 +203,10 @@
       <h3>Tangga &amp; ular</h3>
       <p>Berhenti di dasar tangga: naik ke petak atas. Berhenti di kepala ular: turun ke petak bawah.</p>
       <h3>Kamera</h3>
-      <p>Tombol <b>Kamera</b> berganti sudut tiap diketuk: Free, Front, Top, POV. <b>Ikuti bidak</b> membuat kamera mengikuti pemain, <b>Reset kamera</b> mengembalikan posisi.</p>
+      <p>Ketuk ikon <b>kamera</b> untuk ganti sudut (Free, Front, Top, POV); titik kecil di bawahnya menunjukkan sudut aktif. Ikon <b>pin</b> membuat kamera mengikuti bidak, ikon <b>panah putar</b> mengembalikan posisi.</p>
       <p class="hm-keys">Desktop: <kbd>1</kbd> sudut kamera &middot; <kbd>2</kbd> ikuti bidak &middot; <kbd>3</kbd> reset &middot; <kbd>Esc</kbd> pause</p>
       <h3>Menu</h3>
-      <p><b>Suasana</b> berganti Siang &rarr; Malam &rarr; Auto. <b>Pengaturan</b> berisi grafis, musik, dan suara. <b>Pause</b> hanya menjeda permainan.</p>
+      <p>Ketuk tiang di kiri layar untuk menggulung bendera menu. <b>Matahari/bulan</b> mengganti suasana (Siang &rarr; Malam &rarr; Auto), <b>gear</b> membuka pengaturan grafis, musik dan suara, <b>jeda</b> hanya menjeda permainan.</p>
     </div>
     <button class="hm-done" type="button" id="hpDone">Mengerti</button>
   </div>
