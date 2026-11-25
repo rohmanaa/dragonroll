@@ -167,6 +167,8 @@ window.UT = window.UT || {};
   var SFX = {                       /* nama logis -> file yang ADA di assets/audio/sfx */
     button: 'ui/button-click.mp3',
     chest: 'ui/chest-reward.mp3',
+    bounce: 'bounce.mp3',          /* peti jatuh (pembukaan chest sinematik) */
+    pop: 'pop.mp3',                /* ledakan / hadiah muncul */
     kalah: '../../audio/sfx/ui/game-lose.mp3',
     power: 'ui/power-claim.mp3',
     notif: 'notification.mp3'        /* notif undangan teman (presence.js); file di root assets/audio/sfx/ */

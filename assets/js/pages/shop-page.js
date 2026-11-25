@@ -497,33 +497,11 @@ UT.PageModule.define('shop', function (env) {
     }
   }
 
-  /* Chest yang dibeli langsung terbuka: peti bergoyang sebentar, lalu hadiah dari server tampil. */
-  /* Power hadiah (id item dari server): nama dari ItemCatalog, ikon bila ada. */
-  function powerRow(id) {
-    if (!id) return '';
-    const it = window.ItemCatalog && ItemCatalog.byId(id);
-    return `<div class="cr-rw pw">${it && it.icon ? `<img src="${escapeHtml(it.icon)}" alt="">` : ''}Power: ${escapeHtml(it ? it.name : id)} ×1</div>`;
-  }
-
+  /* Chest yang dibeli langsung terbuka: layar pembukaan SINEMATIK bersama (core/chest-reveal.js); angka dompet baru disegarkan saat hadiah tampil. */
   function revealChest(chest, r) {
-    const img = `<img class="cr-img" src="${IC}${chest.image}" alt="">`;
-    openModal(`<h2>Membuka ${escapeHtml(chest.name)}…</h2><div class="cr">${img}</div>`);
-    const row = (icon, text) => `<div class="cr-rw"><img src="${IC}${icon}.webp" alt="">${text}</div>`;
-    setTimeout(() => {
-      if (!mOpen) return;
-      $('#mb').innerHTML = `<h2>${escapeHtml(chest.name)}</h2><div class="cr done">${img}</div>`
-        + row('hud/ikon-koin-emas', `+${fmt(r.coins)} Coin`)
-        + (r.gems > 0 ? row('gem-medal-icons/berlian-hijau', `+${fmt(r.gems)} Emerald`) : '')
-        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '')
-        + powerRow(r.power);
-      const heading = $('#mb h2');
-      if (heading) heading.id = 'modal-title';
-      renderCurrency();
-      pulse('#cur-co');
-      if (r.gems > 0) pulse('#cur-em');
-      playSound('coin');
-      buzz();
-    }, 1100);
+    UT.ChestReveal.play(Object.assign({}, r, { kind: chest.kind }), {
+      onRewards: () => { renderCurrency(); pulse('#cur-co'); if (r.gems > 0) pulse('#cur-em'); }
+    });
   }
 
   async function buyChest(kind) {

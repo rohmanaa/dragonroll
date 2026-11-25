@@ -142,7 +142,7 @@ t('migrasi shop: chest_buy TERBARU langsung membuka (tanpa timer/penyimpanan), s
 });
 t('shop: chest dibeli langsung tampil hadiah (revealChest) dan tidak lagi mengarahkan ke penyimpanan', () => {
   const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
-  assert.ok(js.includes('function revealChest') && js.includes('r.coins') && js.includes('r.xp'));
+  assert.ok(js.includes('function revealChest') && js.includes('UT.ChestReveal.play') && js.includes('kind: chest.kind'));
   assert.ok(!/masuk ke penyimpanan|data-go="chest\.html"/.test(js));
 });
 
@@ -156,7 +156,8 @@ t('Power dari chest: roll berbobot 1/harga, masuk stok akun (maks 999) di collec
   assert.ok(c.indexOf("'duplicate'") < c.indexOf('player_inventory'), 'stok Power hanya setelah dompet non-duplikat');
   assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_inventory'));
   const shop = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
-  assert.ok(shop.includes('powerRow(r.power)') && ch.includes('cReward.power'));
+  assert.ok(shop.includes('UT.ChestReveal.play') && ch.includes('UT.ChestReveal.play'));
+  assert.ok(fs.readFileSync(root('assets/js/core/chest-reveal.js'), 'utf8').includes('r.power'), 'reveal menampilkan Power hadiah');
 });
 
 t('Power chest murah: Kayu <=100 & Perak <=200 koin (harga katalog), Emas/Diamond semua; peluang tak berubah', () => {

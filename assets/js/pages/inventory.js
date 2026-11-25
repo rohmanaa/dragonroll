@@ -41,7 +41,7 @@ UT.PageModule.define('inventory', function (env) {
 
   /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI tab Power-up: hanya grid slot abu (chip jumlah),
      tanpa panel pratinjau kiri, satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
-  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, cSel = '', tt = 0;
+  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
   var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
   var CORD = ['wood', 'silver', 'gold', 'diamond'];
@@ -54,14 +54,6 @@ UT.PageModule.define('inventory', function (env) {
   function cOwned() { return CS && Array.isArray(CS.chests) ? CS.chests.filter(function (c) { return c.status !== 'collected'; }) : []; }
   function cHtml() {
     if (!cSV()) return '<div class="cempty">Masuk ke akun untuk<br>memakai Chest.</div>';
-    if (cReward) {
-      var k = CK[cReward.kind] || CK.wood, x = '<div class="rwd"><img class="mi" src="' + CIC + k.im + '.webp" alt=""><div class="rt">' + k.nm + ' Terbuka!</div>';
-      x += '<div class="rw"><img src="' + CIC + 'hud/ikon-koin-emas.webp" alt="">+' + fmt(cReward.coins) + ' Coin</div>';
-      if (cReward.gems > 0) x += '<div class="rw"><img src="' + CIC + 'gem-medal-icons/berlian-hijau.webp" alt="">+' + fmt(cReward.gems) + ' Gem</div>';
-      if (cReward.xp > 0) x += '<div class="rw">+' + fmt(cReward.xp) + ' XP</div>';
-      if (cReward.power) { var it = window.ItemCatalog && ItemCatalog.byId(cReward.power); x += '<div class="rw pw">' + (it && it.icon ? '<img src="' + it.icon + '" alt="">' : '') + 'Power: ' + (it ? it.name : cReward.power) + ' ×1</div>'; }
-      return x + '<button class="btn cb" type="button" data-cback><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MANTAP!</span></button></div>';
-    }
     if (!CS) return '<div class="cempty">Memuat…</div>';
     var L = cOwned(), by = {};
     L.forEach(function (c) { (by[c.kind] = by[c.kind] || []).push(c); });
@@ -82,18 +74,17 @@ UT.PageModule.define('inventory', function (env) {
     var w = cWS(); if (!cSV() || !w || !w.chestGet) { cPaint(); return Promise.resolve(); }
     return w.chestGet().then(function (r) { if (env.disposed) return; if (r && r.ok !== false && Array.isArray(r.daily)) CS = r; cPaint(); }, function () { cPaint(); });
   }
-  function cEnter() { cReward = null; cPaint(); cPull(); }
+  function cEnter() { cPaint(); cPull(); }
   function cOpen(id) {
     if (cBusy) return; cBusy = true;
     var w = cWS();
     Promise.resolve(w ? w.chestCollect(id) : { ok: false, reason: 'jaringan' }).then(function (r) {
       if (env.disposed) return;
-      if (r && r.ok) { if (Array.isArray(r.daily)) CS = r; try { if (SET().sound) UT.Audio.play('chest'); } catch (e2) {} cReward = r; }
+      if (r && r.ok) { if (Array.isArray(r.daily)) CS = r; cPaint(); UT.ChestReveal.play(r, { onClose: function () { if (!env.disposed) cPaint(); } }); }   /* layar sinematik (core/chest-reveal.js) */
       else { toast(CWM[r && r.reason] || 'Gagal, coba lagi'); return cPull(); }
     }).catch(function () { toast('Gagal, coba lagi'); }).then(function () { cBusy = false; cPaint(); });
   }
   if (cBox) cBox.addEventListener('click', function (e) {
-    if (e.target.closest('[data-cback]')) { snd(); cReward = null; cPaint(); return; }
     if (e.target.closest('[data-add]')) { snd(); nav('mode.html'); return; }
     var b = e.target.closest('button[data-kind]');
     if (b) { snd(); cSel = b.dataset.kind; cPaint(); return; }
