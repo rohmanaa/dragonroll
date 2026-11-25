@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- DRAGON ROLL / Ular Tangga Blok — UPDATE KE VERSI TERBARU (satu file, aman dijalankan ulang)
 -- Dibuat otomatis oleh tools/build-update-sql.sh dari supabase/migrations/*.sql — JANGAN diedit manual.
 -- Untuk proyek Supabase yang SUDAH berjalan: tempel seluruh isi file ini di SQL Editor lalu Run (sekali). Boleh diulang kapan saja.
@@ -4932,7 +4932,7 @@ revoke all on function public.claim_daily_reward() from public, anon;
 grant execute on function public.claim_daily_reward() to authenticated;
 
 -- Buka 1 Mystery Box. Peluang (per 100): 40% 500 koin | 30% 1.000 koin | 15% 2.000 koin | 10% 3 gem | 4% 8 gem | 1% 20 gem.
--- Nilai harapan ±1,0 rb koin + ±0,5 gem. Hasil diundi di server; kunci idempoten dompet = id acak per pembukaan.
+-- Nilai harapan Â±1,0 rb koin + Â±0,5 gem. Hasil diundi di server; kunci idempoten dompet = id acak per pembukaan.
 create or replace function public.open_mystery_box() returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare
@@ -5607,7 +5607,7 @@ grant execute on function public.claim_boss_reward(uuid) to authenticated;
 -- Terapkan SETELAH 202611130001_player_outfits.sql (butuh _item_equip_slot), 202611200001_aura_catalog.sql (versi _item_equip_slot sebelumnya)
 -- dan 202611280001_economy_phase3_gems.sql (kolom price_gems + buy_item harga emerald). Aman diulang (upsert / create or replace).
 -- Beli lewat buy_item (dompet server: koin T1-T4, emerald T5-T7), kepemilikan lewat inventory server, pilihan pet aktif tersimpan di
--- player_appearance.equipped['pet'] (ikut ke perangkat lain dan terlihat pemain lain lewat room_appearance_get) — jalur yang sama dengan aura.
+-- player_appearance.equipped['pet'] (ikut ke perangkat lain dan terlihat pemain lain lewat room_appearance_get) â€” jalur yang sama dengan aura.
 -- Metadata & skill pet ada di supabase/pet_catalog.sql (tabel pet_catalog, hanya-baca); file ini hanya urusan jual-beli & equip.
 -- Sumber kebenaran harga: assets/js/item-catalog.js (TIER_PRICE) -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 -- BEGIN PET SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)
@@ -7880,7 +7880,7 @@ where c.id = v.id;
 -- >>> 202611490001_tambang_world.sql
 -- ---------------------------------------------------------------------------
 -- ============================================================================
--- TAMBANG (Dragon Roll Mining World) — skema + RPC server, Supabase / Postgres.
+-- TAMBANG (Dragon Roll Mining World) â€” skema + RPC server, Supabase / Postgres.
 -- Terapkan SETELAH 202611110001_wallet_b1.sql (memakai public._wallet_apply).
 -- Idempoten: aman dijalankan ulang (create if not exists / create or replace).
 --
