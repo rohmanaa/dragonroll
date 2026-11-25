@@ -6412,6 +6412,7 @@ async function recordMatchServer(PD,m){
       if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6){ await new Promise(ok=>setTimeout(ok,1500)); continue; } /* server baru mencatat bila room sudah 'finished' */
       break;
     }
+    if(r&&r.ignored==='cpu_daily_limit'){ setWinRewardStatus(m.gameId,'Jatah koin lawan CPU hari ini sudah habis (5×). XP & poin hanya dari main online.'); return; }
     if(!r||r.ok===false||r.duplicate||r.ignored){
       setWinRewardStatus(m.gameId,r&&r.duplicate?'Hasil pertandingan sudah pernah dicatat.':'Hasil pertandingan gagal dicatat.');
       return;
@@ -6428,6 +6429,12 @@ async function recordMatchServer(PD,m){
       setWinCoins(m.gameId,'match',r.reward_coins); /* koin dasar menang/kalah dulu */
       if(igCoin>0){ const base=(WIN_COINS.boss|0)+(r.reward_coins|0); animateWinReward(m.gameId,'coins',base,base+igCoin,()=>setWinCoins(m.gameId,'ingame',igCoin)); } /* koin in-game menyusul */
       try{ const W0=UT.WalletService&&UT.WalletService.get(); if(W0&&W0.refresh) W0.refresh(); }catch(e){} /* cermin saldo koin di header/lobby */
+    }
+    if(r.online===false){ /* lawan CPU: server hanya membayar koin (maks 5x/hari); tanpa XP/poin/statistik -> tidak perlu sinkron profil, level-up, atau misi */
+      const cl=Number.isFinite(+r.cpu_left)?(r.cpu_left|0):null;
+      setWinRewardStatus(m.gameId,'Lawan CPU: hanya koin'+(cl!==null?' (sisa jatah hari ini: '+cl+'×)':'')+'. XP & poin hanya dari main online.');
+      try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((r.won?'Menang! ':'Kalah. ')+'+'+((r.reward_coins|0)+igCoin)+' koin'); },300); }catch(e){}
+      return;
     }
     const sp=await UT.Multiplayer.Progress.getMyProfile();
     if(!sp||!sp.exists){

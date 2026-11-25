@@ -4,7 +4,7 @@
 -- Cara pakai: tempel seluruh isi file ini di Supabase SQL Editor lalu Run. HANYA MEMBACA, tidak mengubah apa pun.
 --   Hasil 1 baris 'OK'  = semua tabel, kolom, fungsi (isinya sama persis dengan versi terbaru), dan katalog sudah lengkap.
 --   Hasil berisi daftar = itu yang BELUM masuk / masih versi lama. Perbaiki dengan menjalankan 01_update_to_latest.sql.
--- Cakupan: 60 migrasi (202611050001 s/d 202611500001); 177 fungsi, 34 tabel, 21 kolom tambahan.
+-- Cakupan: 61 migrasi (202611050001 s/d 202611510001); 177 fungsi, 34 tabel, 21 kolom tambahan.
 -- ============================================================================
 with fn(name, md5) as (values
   ('_ach_extra', '0b7762ba456b1252e4ded68b12d9ba89'),
@@ -164,7 +164,7 @@ with fn(name, md5) as (values
   ('set_my_prefs', '15730d00f5602ca5fb87a92eebd7799e'),
   ('start_game_room', 'e0812028f60a45a206f0a30823a37336'),
   ('submit_game_action', 'add6fd558cbe2774cc93e944bba478b3'),
-  ('submit_match_result', '83e84d7d1403df922f4aa1fe8a8ea49d'),
+  ('submit_match_result', 'a2d78cd7f8b03864b454a063c5fd6f72'),
   ('tambang_boost', '5e01a7476e8a6f1e0b9cb3a336ab556a'),
   ('tambang_claim', '78c28436447834f6622f54655a0c444b'),
   ('tambang_get', '8f1997ec6b72531a60e20640233471ec'),
