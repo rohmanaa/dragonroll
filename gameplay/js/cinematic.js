@@ -367,19 +367,19 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     ' float tw=mix(0.45+0.55*sin(uTime*(1.2+aSeed.w*2.5)+aSeed.x*40.0),0.35+0.65*pow(0.5+0.5*sin(uTime*(0.9+aSeed.w*1.6)+aSeed.y*30.0),3.0),step(0.5,mode)*(1.0-uNether));',
     ' tw=mix(tw,0.55+0.45*sin(uTime*(7.0+aSeed.w*9.0)+aSeed.z*50.0),uNether);',
     ' vA=fade*tw*clamp(uNight*2.0+uNether,0.0,1.0); /* siang = tanpa partikel; malam = kunang-kunang; Nether = bara */ vC=mix(mix(uColDay,uColNight,uNight),uColNether,uNether);',
-    ' vec4 mv=viewMatrix*vec4(wp,1.0); gl_Position=projectionMatrix*mv;',
+    ' vec4 mv=viewMatrix*vec4(wp,1.0); gl_Position=projectionMatrix*mv; vA*=smoothstep(4.0,9.0,-mv.z); /* dekat kamera = hilang (tidak jadi blob besar yang menempel di layar) */',
     ' float sz=uSize*(0.55+aSeed.w*0.9)*mix(1.0,1.55,uNight)*mix(1.0,0.7,uNether);',
-    ' gl_PointSize=clamp(sz*uPR*(26.0/max(-mv.z,1.0)),1.0,48.0); }'
+    ' gl_PointSize=clamp(sz*uPR*(26.0/max(-mv.z,1.0)),1.0,22.0*uPR); }'
   ].join('\n');
   var AMB_FRAG = [
     'precision mediump float; varying float vA; varying vec3 vC;',
     'void main(){ vec2 q=gl_PointCoord-0.5; float r=length(q)*2.0; float a=smoothstep(1.0,0.0,r); a=a*a; float core=smoothstep(0.35,0.0,r);',
-    ' gl_FragColor=vec4(vC*(0.6+core*1.6),a*vA); }'
+    ' gl_FragColor=vec4(vC*(0.6+core*1.1),a*vA); }'
   ].join('\n');
 
   function buildAmbient() {
     if (AMB.pts) return;
-    var n = S.coarse ? 260 : 520; AMB.n = n;
+    var n = S.coarse ? 70 : 150; AMB.n = n; /* dikurangi (sebelumnya 260/520) */
     var g = new T.BufferGeometry(), pos = new Float32Array(n * 3), seed = new Float32Array(n * 4);
     var s = 1337; function rr() { s = (s * 16807) % 2147483647; return s / 2147483647; }
     for (var i = 0; i < n; i++) { seed[i * 4] = rr() - 0.5; seed[i * 4 + 1] = rr(); seed[i * 4 + 2] = rr() - 0.5; seed[i * 4 + 3] = rr(); }
@@ -387,7 +387,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
     AMB.mat = new T.ShaderMaterial({
       vertexShader: AMB_VERT, fragmentShader: AMB_FRAG, transparent: true, depthWrite: false, depthTest: true, blending: T.AdditiveBlending, fog: false,
       uniforms: {
-        uTime: U.uTime, uNight: U.uNight, uNether: U.uNether, uSize: { value: 5.0 }, uPR: { value: 1 }, uCenter: { value: new T.Vector3() }, uBox: { value: new T.Vector3(28, 6.5, 24) },
+        uTime: U.uTime, uNight: U.uNight, uNether: U.uNether, uSize: { value: 4.0 }, uPR: { value: 1 }, uCenter: { value: new T.Vector3() }, uBox: { value: new T.Vector3(15, 4.2, 15) }, /* kotak kecil: hanya di sekitar board */
         uColDay: { value: new T.Color(1.0, 0.93, 0.72) }, uColNight: { value: new T.Color(0.75, 1.0, 0.45) }, uColNether: { value: new T.Color(1.0, 0.42, 0.10) }
       }
     });
@@ -494,7 +494,8 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
       o.s.position.set(x, o.y + Math.sin(o.ph) * 0.35 * mv, z);
       o.s.material.rotation += o.spin * dt * mv;
       var near = Math.max(0, Math.min(1, (dn - 0.15) / 0.7)); /* asap di depan papan menipis agar papan tetap terbaca */
-      o.s.material.opacity = Math.min(1, D * 1.1) * (1.0 - 0.85 * near);
+      var cd = cam ? Math.sqrt(Math.pow(cam.position.x - x, 2) + Math.pow(cam.position.y - o.y, 2) + Math.pow(cam.position.z - z, 2)) : 99; /* dekat kamera = menipis, tidak menutupi layar */
+      o.s.material.opacity = Math.min(1, D * 1.1) * (1.0 - 0.85 * near) * Math.max(0, Math.min(1, (cd - 6) / 7));
     }
   }
 
@@ -670,7 +671,7 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
       if (AMB.pts) {
         AMB.mat.uniforms.uPR.value = S.dpr; if (center) AMB.mat.uniforms.uCenter.value.set(center.x, 0.0, center.z);
         AMB.pts.visible = S.on && !S.reduce && S.level >= 1 && (U.uNight.value > 0.02 || U.uNether.value > 0.02); /* siang: tak digambar sama sekali */
-        AMB.mat.uniforms.uSize.value = 5.0;
+        AMB.mat.uniforms.uSize.value = 4.0;
       }
       if (S.sun) { U.uSunDirW.value.copy(S.sun.position).normalize(); if (skyMat) skyMat.uniforms.uSunDir.value.copy(U.uSunDirW.value); }
       /* fokus tilt-shift: pita tajam di sekitar pusat papan (sedikit di bawah tengah layar) */
