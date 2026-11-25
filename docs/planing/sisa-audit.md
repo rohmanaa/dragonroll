@@ -16,6 +16,10 @@ Dari membaca fungsi di database lokal (skema snapshot terbaru). Belum diuji ke S
 4. (rendah) `bump_player_counter('chests')` dilaporkan klien (maks 150/hari); menggerakkan misi "peti" (120 koin) dan achievement peti.
 5. (info) Syarat chest harian dihitung dari `player_match_history`. Sejak aturan baru, hasil CPU tetap menulis riwayat (maks 5/hari), jadi chest kayu dan perak bisa diklaim dari CPU; emas (10 main) butuh online.
 
+## Status perbaikan
+- Temuan 2 (boss CPU) dan 3 (XP chest): SELESAI di migrasi `202611520001_cpu_boss_off_chest_no_xp.sql` (boss CPU nonaktif, peti 0 XP), tes `cpu_boss_chest_xp_test.sql`. Belum diterapkan ke produksi.
+- Temuan 1 (iklan), 4 (counter peti), 5 (chest harian dari CPU): belum.
+
 ## Saran
 - Iklan: verifikasi sisi server (SSV jaringan iklan lewat Edge Function), atau turunkan hadiah dan batasi akun baru.
 - Boss CPU: hapus klaim ini, atau masukkan ke jatah 5x/hari CPU yang sama.

@@ -43,7 +43,7 @@ UT.PageModule.define('inventory', function (env) {
      tanpa panel pratinjau kiri, satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
   var CIC = 'assets/images/ui/', CS = null, cBusy = false, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
-  var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
+  var CDS = { wood: 'Berisi coin. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
   var CORD = ['wood', 'silver', 'gold', 'diamond'];
   var CWM = { 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...', 'sudah-diambil': 'Chest sudah diambil.', 'tidak-ada': 'Chest tidak ditemukan.' };
   var cBox = $('#chestBox');

@@ -3091,6 +3091,8 @@ async function serverBossClaim(p,gid){
       DRG.text='Hadiah: '+parts.join(' · ')+'.';
       if(DRG.rewardStatus&&DRG.rewardStatus.gameId===gid) DRG.rewardStatus=null;
       setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.'); try{ sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid}); }catch(e){}
+    }else if(r&&r.reason==='nonaktif'){ /* lawan CPU: hadiah boss dimatikan server; hadiah boss hanya di game online */
+      setBossRewardStatus(gid,'Hadiah '+bn+' hanya di game online.'); setMsg(DRG.rewardStatus.message);
     }else if(r&&(r.reason==='daily_cap'||r.reason==='terlalu-cepat')){
       setBossRewardStatus(gid,'Batas hadiah '+bn+' harian tercapai.'); setMsg(DRG.rewardStatus.message);
     }else if(r&&r.ok===false&&r.reason!=='sudah-klaim'&&r.reason!=='not_winner'&&r.reason!=='mode-lokal'){

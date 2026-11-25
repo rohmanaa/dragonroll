@@ -4,7 +4,7 @@
 -- Cara pakai: tempel seluruh isi file ini di Supabase SQL Editor lalu Run. HANYA MEMBACA, tidak mengubah apa pun.
 --   Hasil 1 baris 'OK'  = semua tabel, kolom, fungsi (isinya sama persis dengan versi terbaru), dan katalog sudah lengkap.
 --   Hasil berisi daftar = itu yang BELUM masuk / masih versi lama. Perbaiki dengan menjalankan 01_update_to_latest.sql.
--- Cakupan: 61 migrasi (202611050001 s/d 202611510001); 177 fungsi, 34 tabel, 21 kolom tambahan.
+-- Cakupan: 62 migrasi (202611050001 s/d 202611520001); 177 fungsi, 34 tabel, 21 kolom tambahan.
 -- ============================================================================
 with fn(name, md5) as (values
   ('_ach_extra', '0b7762ba456b1252e4ded68b12d9ba89'),
@@ -14,7 +14,7 @@ with fn(name, md5) as (values
   ('_chest_json', '671dc3e7996f6cb5100a98d4dd61d065'),
   ('_chest_open_secs', 'e58d5ea263adcdc84a003b07a515cb50'),
   ('_chest_plays_today', '1f5cbfce5c4324b781bdebcf53135ff9'),
-  ('_chest_roll', 'd8757643e6bb1f86d2b0a6b597f6bf5a'),
+  ('_chest_roll', 'cb0cafdb6792e4c94ce2dfdd86b6adc9'),
   ('_chest_roll_day', 'b8a54b5df70db6c7fff291099bf804f2'),
   ('_chest_shop', '83486f2aeb7e0c29bd85229ea7f4423f'),
   ('_chest_skip_cost', 'ec421366839f8dd6c6e2877221e93182'),
@@ -98,7 +98,7 @@ with fn(name, md5) as (values
   ('claim_achievement', '0ebc2dea8c279a01e1dcc9ab8860e907'),
   ('claim_ad_reward', '47e4b61a6977117ec241d0bb0146dbc7'),
   ('claim_boss_reward', '5a7daeadc5acd92dbd3a42f81c5740b0'),
-  ('claim_cpu_boss_reward', '61806092bb17dc4f6cb55763e516c657'),
+  ('claim_cpu_boss_reward', '3689369b76ec0bf51804f055691b312b'),
   ('claim_daily_reward', '23a9d64544f204b855489bbf7ca5cf3b'),
   ('claim_game_reward', '6ae999f56e120e4886334a3ed773685b'),
   ('claim_level_rewards', 'fbeed891deb21bb3ca3e239bcfcbef0b'),
