@@ -48,8 +48,8 @@ t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 3 ta
   const bar = InvTabs.mountChrome(env, 'dadu', u => navs.push(u), s => snds.push(s));
   assert.strictEqual(appended[0], bar); assert(bar.id === 'invtabs');
   assert.strictEqual(title.textContent, 'Perlengkapan'); assert(classes.has('inv-view'));
-  assert.strictEqual((bar.innerHTML.match(/class="tab/g) || []).length, 3);
-  assert(/class="tab on" type="button" data-k="dadu"/.test(bar.innerHTML));
+  assert.strictEqual((bar.innerHTML.match(/class="ut-tab tab/g) || []).length, 3);
+  assert(/class="ut-tab tab on" type="button" data-k="dadu"/.test(bar.innerHTML));
   assert.strictEqual(store['ut-inv-tab'], undefined);
   barClick({ target: { closest: () => ({ dataset: { k: 'dadu' } }) } });
   assert.deepStrictEqual(navs, []);

@@ -67,7 +67,7 @@ UT.PageModule.define('inventory', function (env) {
       h += '<button class="fslot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
     h += '<button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
-    return h + '</div></section><button class="btn" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
+    return h + '</div></section><button class="btn ut-gl ut-c-y" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
   }
   function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
   function cPull() {

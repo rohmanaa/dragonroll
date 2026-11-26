@@ -32,7 +32,7 @@
 
   function markup(active) {
     return tabsOf(groupOf(active || 'power')).map(function (t) {
-      return '<button class="tab' + (t.k === active ? ' on' : '') + '" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt=""></button>';
+      return '<button class="ut-tab tab' + (t.k === active ? ' on' : '') + '" type="button" data-k="' + t.k + '" aria-label="' + t.label + '"><img class="ic" src="assets/images/ui/' + t.icon + '" alt=""><span>' + t.label + '</span></button>';
     }).join('');
   }
   /* Chrome tab Inventory untuk tab yang berjalan sebagai view di shell: judul "Inventory", bar #invtabs (tab aktif = active),
@@ -43,7 +43,7 @@
     env.own(function () { D.body.classList.remove('inv-view'); });
     var title = D.querySelector('#title'); var grp = GROUPS[groupOf(active)]; if (title) title.textContent = grp.title;
     var bar = D.createElement('nav');
-    bar.id = 'invtabs'; bar.setAttribute('aria-label', grp.label);
+    bar.id = 'invtabs'; bar.className = 'ut-tabs'; bar.setAttribute('aria-label', grp.label);
     bar.innerHTML = markup(active);
     if (stage) stage.appendChild(bar);
     try { if (groupOf(active) === 'inv') sessionStorage.setItem('ut-inv-tab', active); else sessionStorage.removeItem('ut-inv-tab'); } catch (e) {}

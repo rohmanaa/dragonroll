@@ -19,18 +19,9 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 .view.on.ready{opacity:1}
 #stage #back,#stage #title,#tabs,.cur{pointer-events:auto}
 #stage{pointer-events:none}
-#back{position:absolute;left:auto;right:76px;top:40px;width:80px;height:80px;z-index:5}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#title{position:absolute;left:100px;top:34px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);color:#fff}
+#back{position:absolute;left:auto;right:100px;top:46px;width:80px;height:80px;z-index:7;padding:0}
 /* tab: baris penuh di tengah atas, antara judul dan tombol Tutup (tata letak Toko) */
-#tabs{position:absolute;left:330px;right:330px;top:20px;height:96px;display:flex;justify-content:center;gap:6px;border-bottom:0}
-.tab{position:relative;flex:1;max-width:240px;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:.7;transition:opacity .12s,transform .1s}
-.tab img.ic{height:56px;width:auto;max-width:80px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.tab span{font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(10,6,24,.6)}
-.tab:active{transform:scale(.95)}
-.tab.on{opacity:1}.tab.on span{color:#ffd45a}
-.tab img.ul{position:absolute;left:0;right:0;bottom:-20px;width:100%;height:36px;object-fit:fill;display:none}
-.tab.on img.ul{display:block}
+#tabs{position:absolute;left:100px;top:44px;width:900px;height:96px;z-index:7;--tab-h:76px;--tab-fs:24px}
 #fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s;z-index:60}
 #fade.on{opacity:1;pointer-events:all}
 @media (prefers-reduced-motion:reduce){.view{transition:none}#view-loading span{animation:none}}
@@ -41,18 +32,16 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 .native .empty img{height:calc(150px*var(--invs,1));width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45));opacity:.55}
 .native .empty strong{font:400 calc(44px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 3px 0 rgba(10,6,24,.6)}
 .native .empty p{margin:0;max-width:calc(560px*var(--invs,1));font:700 calc(26px*var(--invs,1))/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
-.native .empty button{position:relative;display:grid;place-items:center;width:calc(320px*var(--invs,1));height:calc(96px*var(--invs,1));margin-top:calc(8px*var(--invs,1));padding:0;border:0;background:none;cursor:pointer}
-.native .empty button img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;opacity:1}
-.native .empty button span{position:relative;font:400 calc(30px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.native .empty button:active{transform:translateY(3px)}
+.native .empty button{position:relative;display:grid;place-items:center;width:calc(320px*var(--invs,1));height:calc(96px*var(--invs,1));margin-top:calc(8px*var(--invs,1));padding:0}
+.native .empty button span{position:relative;font:400 calc(30px*var(--invs,1))/1 var(--font-title,'Lilita One',sans-serif)}
 
 /* tab Chest (native): pola UI tab Power-up (grid slot abu saja + tombol aksi tunggal, tanpa panel pratinjau kiri). Kanvas 1920x1080, ukuran lewat zoom:--invs */
 .view.native[data-k="chest"].on{display:grid;place-items:start center}
-#chestBox{margin-top:calc(120px*var(--invs,1))}
+#chestBox{margin-top:calc(170px*var(--invs,1))}
 #cbox{position:relative;width:1920px;height:900px;color:#fff;zoom:var(--invs,1);animation:cmIn .3s both}
 #cbox #cr{position:absolute;left:0;top:0;width:1920px;height:100%}
 /* grid sama dengan tab Power-up (zoom 1.5, slot 130px mulai dari kiri) */
-#cbox #cg{position:absolute;left:40px;top:2px;width:1200px;max-height:520px;display:grid;grid-template-columns:repeat(auto-fill,130px);grid-auto-rows:130px;justify-content:start;gap:20px;zoom:1.5;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:thin}
+#cbox #cg{position:absolute;left:62.67px;top:2px;width:1140px;max-height:520px;display:grid;grid-template-columns:repeat(auto-fill,130px);grid-auto-rows:130px;justify-content:start;gap:20px;zoom:1.5;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:thin}
 #cbox .fslot{position:relative;width:130px;height:130px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 #cbox .fslot:hover{filter:brightness(1.15)}#cbox .fslot:active{transform:scale(.95)}
 #cbox .fslot.gray{background-image:url(../../images/ui/slot-equipment/slot-terkunci.webp)}
@@ -63,11 +52,9 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 #cbox .fslot.add .pl{font:400 64px/1 var(--font-title,'Lilita One',sans-serif);color:#d9d3f3;text-shadow:0 3px 0 rgba(10,6,24,.6)}
 #cbox .fslot.add:hover{filter:brightness(1.2)}
 #cbox .cempty .fslot.add{display:grid;margin:24px auto 0}
-#cbox #cact{position:absolute;right:48px;bottom:30px;width:300px;height:84px;z-index:5}
-#cbox .btn{position:relative;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer;transition:transform .1s,filter .1s}
-#cbox .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
-#cbox .btn span{position:relative;font:400 28px/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-#cbox .btn:active{transform:translateY(3px)}#cbox .btn:hover{filter:brightness(1.1)}
+#cbox #cact{position:absolute;right:100px;bottom:30px;width:300px;height:84px;z-index:5}
+#cbox .btn{position:relative;display:grid;place-items:center;padding:0}
+#cbox .btn span{position:relative;font:400 28px/1 var(--font-title,'Lilita One',sans-serif)}
 #cbox .cb{width:260px;height:76px}
 #cbox .cempty{position:absolute;left:0;right:0;top:300px;text-align:center;font:400 40px/1.3 var(--font-title,'Lilita One',sans-serif);opacity:.85}
 #cbox .cempty small{display:block;margin-top:12px;font:700 24px/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
@@ -92,4 +79,19 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 .cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding-left:44px;padding-right:44px;color:#fff;text-shadow:0 3px 0 rgba(10,30,45,.6)}
 .cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 'Nunito','Segoe UI',sans-serif;color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
 .cur:active{filter:brightness(1.12)}
-#cur-em{left:60px}#cur-co{left:370px}
+#cur-em{left:100px}#cur-co{left:410px}
+
+/* ===== Tab & tombol dari komponen HUD (button.css / tabs.css): di sini hanya ukuran & tata letak ===== */
+/* tab atas: tampilan .ut-tabs/.ut-tab; tata letak sama dengan Hadiah & Misi */
+.tab.ut-tab{flex:1;min-width:0;flex-direction:row;gap:10px;padding:0}
+.tab.ut-tab.on{cursor:default}
+.tab.ut-tab img.ic{height:44px;width:auto;max-width:52px;flex:none}
+/* judul digantikan tab (sama dengan Hadiah & Misi): tetap ada untuk pembaca layar */
+#title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* tombol Tutup: .ut-gl .ut-c-r; X digambar CSS */
+#back img{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
+/* tombol: tampilan dari .ut-gl; gambar bingkai lama disembunyikan */
+.btn.ut-gl>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
