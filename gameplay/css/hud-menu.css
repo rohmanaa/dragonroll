@@ -53,11 +53,9 @@ body.playing .hm:not([hidden]){display:flex}
 /* modal Pengaturan & Bantuan */
 .hm-ov{position:fixed;inset:0;z-index:2147483645;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:rgba(6,4,18,.72)}
 .hm-ov[hidden]{display:none!important}
-.hm-box{position:relative;box-sizing:border-box;width:min(440px,100%);max-height:100%;overflow-y:auto;padding:22px 20px 18px;border-radius:20px;background:linear-gradient(#2a2050,#1b1433);border:3px solid #f1d9a0;box-shadow:0 10px 0 rgba(0,0,0,.4),0 18px 40px rgba(0,0,0,.5);color:#efe6cf;font-family:Nunito,system-ui,sans-serif}
-.hm-box h2{margin:0 36px 14px 0;font:400 28px/1.1 "Lilita One",Nunito,system-ui,sans-serif;color:#fff3d6;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+.hm-box{position:relative;box-sizing:border-box;width:min(440px,100%);max-height:100%;overflow-y:auto;padding:88px 20px 18px;color:#efe6cf;font-family:Nunito,system-ui,sans-serif}
 .hm-box h3{margin:14px 0 4px;font:800 14px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
 .hm-box p{margin:0 0 6px;font:600 15px/1.45 Nunito,system-ui,sans-serif}
-.hm-x{position:absolute;top:10px;right:10px;width:40px;height:40px;padding:0;--gl-r:12px;--gl-bw:3px;--gl-ledge:3px;font-size:18px;cursor:pointer}/* tampilan: .ut-gl .ut-c-r */
 .hm-sec{margin:0 0 14px}
 .hm-lbl{display:block;margin:0 0 6px;font:800 13px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
 .hm-seg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
