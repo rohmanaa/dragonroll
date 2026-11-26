@@ -5,6 +5,12 @@ const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 const js = rd('data/inventory/aura/_shared/js/efek.js'), html = rd('efek.html'), host = rd('assets/js/core/spa-host.js');
 let n = 0;
+t0();
+function t0() {
+  assert(html.includes('assets/components/button/button.css') && html.indexOf('assets/components/button/button.css') < html.indexOf('pet-page.css'), 'button.css sebelum CSS Pet');
+  assert(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-gl ut-c-r"/.test(html) && /class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
+  ['pc-pr no ut-gl ut-c-d','pc-pr used ut-gl ut-c-r','pc-pr own ut-gl ut-c-g','pc-pr ut-gl ut-c-y','pc-ic pc-eye ut-gl ut-c-b'].forEach(c => assert(js.includes(c), c));
+}
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
 t('efek.js = modul "efek"; timer/listener/langganan/rAF lewat env', () => {
