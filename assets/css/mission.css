@@ -1,25 +1,19 @@
 /* mission.html — mengikuti layar Missions (assets/penerapan/SCxZW6.png).
    Tab kiri (Daily / Hadiah / Achievements), header hadiah, baris misi dari kit (baris-misi*.webp). */
 #back{left:40px;top:30px;width:64px;height:72px}
-#back img,#home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back svg{display:none}
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
-#home:active,#back:active{transform:scale(.92)}
+#home:active{transform:scale(.92)}
 .cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
 
-/* ---- tab kiri ---- */
-#tabs{position:absolute;left:0;top:137px;width:352px;border-top:2px solid rgba(255,255,255,.16)}
-.tab{position:relative;display:block;width:352px;height:160px;border-bottom:2px solid rgba(255,255,255,.16)}
-.tab .ic{position:absolute;left:166px;top:34px;transform:translateX(-50%);height:62px;width:auto;opacity:.55;filter:grayscale(.2)}
-.tab .lb{position:absolute;left:0;width:332px;top:104px;text-align:center;font:400 30px/1 var(--font-title);color:#d9d3ee;opacity:.75;letter-spacing:.5px}
-.tab.on .ic,.tab.on .lb{opacity:1}
-.tab.on .lb{color:#ffe8a3}
-.tab .ul{display:none;position:absolute;left:-58px;top:62px;width:150px;height:36px;object-fit:fill;transform:rotate(-90deg)}
-.tab.on .ul{display:block}
-.tab .bd{position:absolute;left:276px;top:48px;width:56px;height:56px;display:grid;place-items:center;font:400 30px/1 var(--font-title);padding-bottom:4px}
+/* ---- tab kiri: tampilan dari komponen .ut-tabv (tabs.css); di sini hanya tata letak ---- */
+#tabs{position:absolute;left:0;top:137px;width:352px;display:flex;flex-direction:column;align-items:center;gap:22px;padding-top:14px}
+.tab{position:relative;display:block;flex:none;width:312px;height:150px;padding:0}
+.tab .ic{position:absolute;left:50%;top:22px;transform:translateX(-50%);height:62px;width:auto}
+.tab .lb{position:absolute;left:0;right:0;top:100px;text-align:center;font:400 30px/1 var(--font-title);letter-spacing:.5px}
+.tab .bd{position:absolute;right:10px;top:10px;width:56px;height:56px;display:grid;place-items:center;font:400 30px/1 var(--font-title);padding-bottom:4px}
 .tab .bd img{position:absolute;inset:0;width:100%;height:100%}
 .tab .bd b{position:relative;font-weight:400;text-shadow:0 2px 0 rgba(60,0,10,.6)}
 
@@ -42,7 +36,10 @@
 .hdr .gbtn2{position:absolute;right:170px;top:62px}
 
 .btn.cl{width:256px;height:100px}
-.btn.cl span{font-size:46px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
+.btn.cl span{font-size:46px}
+/* tombol: tampilan dari komponen .ut-gl (button.css); gambar bingkai lama disembunyikan */
+.btn.ut-gl>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
 .btn.cl.sm{width:190px;height:80px}.btn.cl.sm span{font-size:36px}
 
 .row{position:absolute;left:0;width:1450px;height:130px;background:url(../images/ui/missions/baris-misi.webp) center/100% 100% no-repeat}
@@ -140,7 +137,11 @@
 #stage:has(#pmodal){overflow:visible!important}
 html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/misi-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+/* tombol Tutup: .ut-gl .ut-c-r; X digambar CSS (cara sama dengan #pclose di hub) */
+#back{padding:0}
+#back img{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:100px;top:34px}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:6}   /* satu baris kiri bawah, sama dengan Shop/Pet/Aura */
 #stage #cur-em{left:60px!important}#stage #cur-co{left:370px!important}
