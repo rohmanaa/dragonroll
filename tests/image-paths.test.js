@@ -19,9 +19,7 @@ for (const file of walk(path.join(root, 'assets', 'js', 'pages')).filter(file =>
 }
 
 const modePage = fs.readFileSync(path.join(root, 'assets', 'js', 'pages', 'mode.js'), 'utf8');
-const quickStartButton = 'assets/images/buttons/tombol-ungu-polos.webp';
-assert.ok(modePage.includes(quickStartButton), 'quick-start buttons use the active purple button asset');
-assert.ok(fs.existsSync(path.join(root, quickStartButton)), 'quick-start button asset exists');
+assert.ok(modePage.includes("'ut-c-p'") && modePage.includes("'ut-gl'") === false && modePage.includes('opt ut-gl'), 'quick-start buttons use the HUD glossy purple button (ut-gl ut-c-p), no image frame');
 
 for (const file of walk(path.join(root, 'assets', 'css')).concat(walk(path.join(root, 'data', 'inventory'))).filter(file => file.endsWith('.css'))) {
   const css = fs.readFileSync(file, 'utf8');
