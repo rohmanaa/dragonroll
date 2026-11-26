@@ -266,8 +266,8 @@
   const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
   function liftHTML() {
     const l = D.lift();
-    if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="tambang-btn opn" data-lift="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
-    const up = (a, label, lv, mx, cost) => cost == null ? '<button class="tambang-up" data-lift="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/' + mx + '</small></button>' : '<button class="tambang-up" data-lift="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
+    if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="ut-gl ut-c-y tambang-btn opn" data-lift="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
+    const up = (a, label, lv, mx, cost) => cost == null ? '<button class="ut-gl ut-c-d sm tambang-up" data-lift="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/' + mx + '</small></button>' : '<button class="ut-gl ut-c-d sm tambang-up" data-lift="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
     const last = D.lastLoad();
     return '<div class="hd tambang-ttl">LIFT</div><div class="sb">Muatan Lv ' + l.cap_lv + ' · Kecepatan Lv ' + l.spd_lv + '</div>'
       + '<div class="pill"><img src="' + ORI + '" alt=""><b class="bt">' + fmt(l.cap) + '</b></div><div class="st">ore per angkut · kecepatan ×' + l.spd + '</div>'
@@ -276,14 +276,14 @@
   }
   function cardHTML(i) {
     const s = D.slots[i - 1]; if (!s) return '<div class="msg">Memuat…</div>';
-    if (!s.unlocked) return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Buka supaya penambang mulai menggali.<small>' + f2(s.base_rate) + ' /jam (Lv1)</small></div><button class="tambang-btn opn" data-a="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(s.unlock_cost) + '</span></button>';
-    const up = (a, label, lv, cost) => cost == null ? '<button class="tambang-up" data-a="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/5</small></button>' : '<button class="tambang-up" data-a="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
+    if (!s.unlocked) return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Buka supaya penambang mulai menggali.<small>' + f2(s.base_rate) + ' /jam (Lv1)</small></div><button class="ut-gl ut-c-y tambang-btn opn" data-a="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(s.unlock_cost) + '</span></button>';
+    const up = (a, label, lv, cost) => cost == null ? '<button class="ut-gl ut-c-d sm tambang-up" data-a="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/5</small></button>' : '<button class="ut-gl ut-c-d sm tambang-up" data-a="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
     return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><div class="sb">Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + '</div>'
       + '<div class="tambang-mix">' + mixHTML(s.mix) + '</div><div class="pill"><img src="' + ORI + '" alt=""><b class="bt"></b></div>'
       + '<div class="tambang-rt"><img src="' + ORI + '" alt=""><b class="rv"></b><small>/jam</small><span class="tambang-bst">⚡ x' + D.config.boost_mult + '</span></div>'
       + '<div class="tambang-bar"><i></i></div><div class="tambang-eta"></div>'
       + '<div class="tambang-rstw"><span class="tambang-rst"></span></div><div class="tambang-acts">'
-      + '<button class="tambang-btn y" data-a="boost"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
+      + '<button class="ut-gl ut-c-b tambang-btn y" data-a="boost"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
       + '<div class="tambang-ups">' + up('speed', 'Kecepatan', s.speed_lv, s.next_speed_cost) + up('cap', 'Peti', s.cap_lv, s.next_cap_cost) + '</div>'
       + (s.mgr ? '<div class="tambang-mgr on"><b>👔 Manager aktif</b><small>Percepat oleh manager · istirahat 5 mnt</small></div>' : '<button class="tambang-mgr" data-a="manager"><b>👔 Rekrut Manager</b><small>Boost &amp; istirahat 5 mnt (bukan 10) · <img src="' + EM + '" alt="">' + fmt(s.mgr_cost) + '</small></button>');
   }
