@@ -94,12 +94,12 @@ UT.PageModule.define('pet', function (env) {
 
   /* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN / LEPAS (sudah dimiliki) */
   function actionBar(item, owned, used) {
-    if (used) return '<button class="pc-pr used" type="button" data-act="use">LEPAS</button>';
-    if (owned) return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
+    if (used) return '<button class="pc-pr used ut-gl ut-c-r" type="button" data-act="use">LEPAS</button>';
+    if (owned) return '<button class="pc-pr own ut-gl ut-c-g" type="button" data-act="use">GUNAKAN</button>';
     const cost = costOf(item);
-    if (!cost) return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
+    if (!cost) return '<button class="pc-pr no ut-gl ut-c-d" type="button" disabled>TIDAK DIJUAL</button>';
     const gems = cost.gems > 0;
-    return `<button class="pc-pr" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
+    return `<button class="pc-pr ut-gl ut-c-y" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
   }
 
   /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = pratinjau 3D (modal), ikon info = detail */
@@ -120,8 +120,8 @@ UT.PageModule.define('pet', function (env) {
         + `<span class="pc-nm">${item.name}</span>`
         + `<span class="pc-th"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
-        + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
-        + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
+        + `<button class="pc-ic pc-eye ut-gl ut-c-b" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
+        + `<button class="pc-ic pc-det ut-gl ut-c-b" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
         + `</article>`;
     }).join('');
     if (html !== lastGridHtml) {
@@ -172,7 +172,7 @@ UT.PageModule.define('pet', function (env) {
       body.appendChild(status);
       if (metadataError) {
         const retry = document.createElement('button');
-        retry.className = 'pet-info-retry';
+        retry.className = 'pet-info-retry ut-gl ut-c-b';
         retry.type = 'button';
         retry.textContent = 'Coba lagi';
         retry.addEventListener('click', loadMetadata);

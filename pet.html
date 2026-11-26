@@ -10,6 +10,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="icon" href="assets/icons/favicon.ico" sizes="any">
   <link rel="stylesheet" href="assets/css/page.css">
+  <link rel="stylesheet" href="assets/components/button/button.css">
+  <link rel="stylesheet" href="assets/components/tabs/tabs.css">
   <link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css">
   <link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css">
   <link rel="stylesheet" href="assets/css/efek.css">
@@ -21,7 +23,7 @@
 <body class="fm notabs">
   <div id="wrap"><div id="stage">
     <div id="pmodal" aria-hidden="true"></div>
-    <button id="back" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+    <button id="back" class="ut-gl ut-c-r" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
     <div id="title" class="ttl">Pet</div>
     <div class="cur" id="cur-em"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
     <div class="cur" id="cur-co"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
@@ -33,13 +35,13 @@
     <div id="petStatus" class="pet-status" role="status" aria-live="polite" hidden></div>
     <dialog id="petInfo" aria-labelledby="petInfoTitle">
       <div class="pet-info-panel">
-        <button id="petInfoClose" type="button" aria-label="Tutup informasi tier">×</button>
+        <button id="petInfoClose" class="ut-gl ut-c-r" type="button" aria-label="Tutup informasi tier">×</button>
         <h2 id="petInfoTitle">Informasi Tier</h2>
         <div id="petInfoBody"></div>
       </div>
     </dialog>
     <div id="pv" aria-hidden="true"><div id="pvBox" class="pet-info-panel" role="dialog" aria-modal="true" aria-labelledby="nm">
-      <button id="pvClose" type="button" aria-label="Tutup pratinjau">×</button>
+      <button id="pvClose" class="ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau">×</button>
       <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
       <div id="petTitle">
         <div id="nm" class="ttl"></div>
@@ -50,8 +52,8 @@
     <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
       <h3 id="mt"></h3><p id="mx"></p>
       <div id="mbtns">
-        <button class="btn" id="m-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span></span></button>
-        <button class="btn" id="m-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+        <button class="btn ut-gl ut-c-r" id="m-no" type="button"><span></span></button>
+        <button class="btn ut-gl ut-c-g" id="m-ok" type="button"><span></span></button>
       </div>
     </div></div>
 

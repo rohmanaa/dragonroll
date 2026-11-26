@@ -27,7 +27,14 @@ assert.ok(html.includes('id="pv"') && html.includes('id="pvClose"') && /id="pv"[
 assert.ok(!page.includes('invtabs') && !page.includes('InvTabs'), 'bar tab dihapus');
 assert.ok(page.includes('class="pc-pr') && page.includes('data-act="use"') && page.includes('function openPreview') && page.includes('function closePreview'));
 assert.ok(pcss.includes('#stage #cur-em{left:60px!important}') && pcss.includes('bottom:28px'));
-assert.ok(pcss.includes('.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}'));
+assert.ok(pcss.includes('.pc-ic{width:64px;height:64px}') && !pcss.includes('.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}'), 'ikon mata/info = tombol HUD (.ut-gl), bukan ikon tanpa kotak');
+// komponen HUD (button.css): tombol Pet memakai ut-gl ut-c-<warna>, tanpa gambar bingkai tombol lama
+assert.ok(html.includes('assets/components/button/button.css') && html.includes('assets/components/tabs/tabs.css'));
+assert.ok(html.indexOf('assets/components/button/button.css') < html.indexOf('data/inventory/pet/_shared/css/pet-page.css'), 'button.css dimuat sebelum CSS Pet');
+assert.ok(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-gl ut-c-r"/.test(html) && /id="petInfoClose" class="ut-gl ut-c-r"/.test(html));
+assert.ok(/class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
+['pc-pr used ut-gl ut-c-r', 'pc-pr own ut-gl ut-c-g', 'pc-pr no ut-gl ut-c-d', 'pc-pr ut-gl ut-c-y', 'pc-ic pc-eye ut-gl ut-c-b', 'pc-ic pc-det ut-gl ut-c-b', 'pet-info-retry ut-gl ut-c-b'].forEach((c) => assert.ok(page.includes(c), c));
+assert.ok(!/tombol-(kuning|hijau|merah|gelap)-polos/.test(pcss), 'gambar bingkai tombol kartu dihapus dari CSS Pet');
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
 assert.ok(css.includes('border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
