@@ -140,16 +140,19 @@ html[data-graphics="low"] #grp .gset{transition:none}
 @keyframes nbpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
 
 
-/* ===== modal Chest: timeline progres game harian (semua gambar dari assets; kotak = bingkai-dialog.webp 9-slice, konvensi Toko) ===== */
+/* ===== modal Chest: timeline progres game harian (panel, tutup, KLAIM = CSS murni gaya kit modals; isi timeline tetap pakai gambar peti/bar) ===== */
 #chestMd{position:fixed;inset:0;z-index:70;background:rgba(10,8,30,.72);display:flex;align-items:center;justify-content:center}
 #chestMd[hidden]{display:none}
-#cbox{position:relative;width:1240px;padding:104px 56px 44px;color:#fff;isolation:isolate;zoom:var(--ls,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both}
-#cbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
-#cm-t{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 72px;line-height:70px;white-space:nowrap;font:400 40px/70px var(--font-title);
-  background:url(../../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;text-shadow:0 2px 0 rgba(20,5,70,.7)}
-#cm-x{position:absolute;right:-14px;top:-14px;width:84px;height:84px;padding:0;border:0;background:none;cursor:pointer;z-index:2}
-#cm-x img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
-#cm-x:hover{filter:brightness(1.12)}#cm-x:active{transform:scale(.92)}
+#cbox{position:relative;width:1240px;padding:104px 56px 44px;color:#fff;isolation:isolate;zoom:var(--ls,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both;
+  background:#4b4b4b;border:6px solid #000;border-radius:28px;box-shadow:inset 0 0 0 5px #6a6a6a,0 14px 44px rgba(0,0,0,.7)}
+/* kilau glossy atas: warna solid dengan pembatas tegas (gaya modal besar) */
+#cbox::before{content:'';position:absolute;top:5px;left:5px;right:5px;height:64px;border-radius:22px 22px 0 0;background:rgba(255,255,255,.13);z-index:-1;pointer-events:none}
+#cm-t{position:absolute;left:0;right:0;top:26px;margin:0;text-align:center;white-space:nowrap;font:400 46px/1.1 var(--font-title);
+  text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000,0 4px 0 #000}
+/* tombol tutup = komponen .ut-gl .ut-c-r (button.css); X digambar CSS (tanpa aset gambar) */
+#cm-x{position:absolute;right:22px;top:20px;width:76px;height:76px;padding:0;cursor:pointer;z-index:2}
+#cm-x::before,#cm-x::after{content:'';position:absolute;left:17px;right:17px;top:50%;height:9px;margin-top:-4.5px;border-radius:5px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#cm-x::before{transform:rotate(45deg)}#cm-x::after{transform:rotate(-45deg)}
 #cm-body .tot{text-align:center;font:400 34px/1 var(--font-title);margin:0 0 18px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #cm-body .tot b{color:#ffd45a;font-weight:400}
 #cm-body .tot small{display:block;margin-top:8px;font:400 20px/1 var(--font-title);opacity:.7}
@@ -166,10 +169,8 @@ html[data-graphics="low"] #grp .gset{transition:none}
 .tl .nd .rq{height:30px;margin-top:6px;font:400 22px/30px var(--font-title);opacity:.85}
 .tl .nd .act{height:70px;display:flex;align-items:flex-start;justify-content:center}
 .tl .nd .act i{font:400 22px/44px var(--font-title);font-style:normal;opacity:.75}
-.cb{position:relative;display:grid;place-items:center;width:160px;height:54px;padding:0;border:0;background:none;cursor:pointer;transition:transform .1s,filter .1s}
-.cb img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
-.cb span{position:relative;font:400 24px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.cb:active{transform:translateY(3px)}
+.cb{position:relative;display:grid;place-items:center;width:170px;height:58px;padding:0;cursor:pointer}  /* tampilan: .ut-gl .ut-c-g (button.css), tanpa gambar */
+.cb span{position:relative;font:400 26px/1 var(--font-title)}
 .cb[disabled]{filter:grayscale(.8) brightness(.7);pointer-events:none}
 #cm-body .cempty{padding:60px 10px;text-align:center;font:400 30px/1.3 var(--font-title);opacity:.8}
 #cm-toast{position:absolute;left:50%;bottom:-70px;transform:translate(-50%,16px);opacity:0;pointer-events:none;padding:12px 26px;border-radius:14px;white-space:nowrap;

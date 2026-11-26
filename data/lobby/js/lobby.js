@@ -250,7 +250,7 @@ function chestHtml(){
  D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
   h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
    '<div class="mk">'+(reached?'<img src="'+CIC+'missions/ikon-tab-harian-centang.webp" alt="">':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
-   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'"><img src="'+CIC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
+   (st==='ready'?'<button class="cb ut-gl ut-c-g" type="button" data-claim="'+d.kind+'"><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
  return h+'</div>'}
 function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
 function openChest(){
