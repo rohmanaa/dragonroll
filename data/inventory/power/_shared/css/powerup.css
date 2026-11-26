@@ -3,12 +3,14 @@
 
 /* ---- bar atas ---- */
 #back{left:40px;top:30px;width:64px;height:72px}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back svg{display:none}
+#back{padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
+#back img,#back svg{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#home:active,#back:active{transform:scale(.92)}
+#home:active{transform:scale(.92)}
 .cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}

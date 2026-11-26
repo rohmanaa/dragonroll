@@ -15,7 +15,9 @@
 #mycard .nm{font-size:40px;line-height:1}#mycard .sb{font:800 24px var(--font-body);margin-top:6px}
 #mycard .big{font-size:64px;color:#ffe08a}
 #reward{position:absolute;left:350px;top:900px;width:340px;height:100px}
-#reward span{font-size:40px;color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+#reward span{font:400 40px/1 var(--font-title);margin-top:0;text-shadow:inherit}   /* tampilan: .ut-gl .ut-c-y (button.css) */
+#reward img,#mbtns .btn img{display:none}
+#mbtns .btn span{margin-top:0;text-shadow:inherit}
 #board{position:absolute;left:820px;top:0;width:1060px;height:1080px}
 .cur{z-index:5}  /* di atas #board (panel peringkat menutupi tombol Coin/Gem tanpa ini) */
 #th{position:absolute;left:30px;right:30px;top:140px;display:grid;grid-template-columns:90px 1fr 190px 200px;font:400 26px var(--font-title);color:#b9b1d3;text-align:left}
@@ -74,7 +76,10 @@
 #stage:has(#pmodal){overflow:visible!important}
 html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/leaderboard-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+#back{padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
+#back img,#back svg{display:none}
+#back::before,#back::after{content:'';position:absolute;left:20px;right:20px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:100px;top:34px}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:6}
 #stage #cur-em{left:60px!important}#stage #cur-co{left:370px!important}

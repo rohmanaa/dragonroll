@@ -6,24 +6,24 @@
 <script>UT.PageShell.renderBase();</script>
 <title>Power-up — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup.css"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup-page.css?v=216"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup.css"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup-page.css?v=216"><link rel="stylesheet" href="assets/css/bg.css">
 <link rel="stylesheet" href="gameplay/css/particle-fx.css">
 
 </head>
 <body class="dm notabs">
 <div id="wrap"><div id="stage">
-  <button id="back" aria-label="Kembali"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Kembali"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   <div id="title" class="ttl">Power-up</div>
   <section id="right">
     <div id="grid" aria-label="Power-up yang dimiliki"></div>
     <div id="empty" hidden><strong>Belum punya Power-up</strong><small>Beli Power-up di Toko, lalu stoknya muncul di sini.</small>
-      <button class="btn" id="goShop" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA TOKO</span></button></div>
+      <button class="btn ut-gl ut-c-g" id="goShop" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA TOKO</span></button></div>
   </section>
 
   <div id="toast" role="status"></div>
 </div></div>
 <div id="pv" aria-hidden="true"><div id="pvBox" role="dialog" aria-modal="true" aria-labelledby="nm">
-  <button id="pvClose" type="button" aria-label="Tutup pratinjau">×</button>
+  <button id="pvClose" class="ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau">×</button>
   <div id="fpv"><div id="pa"></div><div id="p3d"></div></div>
   <div id="nm" class="ttl"></div>
   <div id="rar"></div>
