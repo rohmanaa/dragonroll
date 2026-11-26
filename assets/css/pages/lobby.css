@@ -143,16 +143,7 @@ html[data-graphics="low"] #grp .gset{transition:none}
 /* ===== modal Chest: timeline progres game harian (panel, tutup, KLAIM = CSS murni gaya kit modals; isi timeline tetap pakai gambar peti/bar) ===== */
 #chestMd{position:fixed;inset:0;z-index:70;background:rgba(10,8,30,.72);display:flex;align-items:center;justify-content:center}
 #chestMd[hidden]{display:none}
-#cbox{position:relative;width:1240px;padding:104px 56px 44px;color:#fff;isolation:isolate;zoom:var(--ls,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both;
-  background:#4b4b4b;border:6px solid #000;border-radius:28px;box-shadow:inset 0 0 0 5px #6a6a6a,0 14px 44px rgba(0,0,0,.7)}
-/* kilau glossy atas: warna solid dengan pembatas tegas (gaya modal besar) */
-#cbox::before{content:'';position:absolute;top:5px;left:5px;right:5px;height:64px;border-radius:22px 22px 0 0;background:rgba(255,255,255,.13);z-index:-1;pointer-events:none}
-#cm-t{position:absolute;left:0;right:0;top:26px;margin:0;text-align:center;white-space:nowrap;font:400 46px/1.1 var(--font-title);
-  text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000,0 4px 0 #000}
-/* tombol tutup = komponen .ut-gl .ut-c-r (button.css); X digambar CSS (tanpa aset gambar) */
-#cm-x{position:absolute;right:22px;top:20px;width:76px;height:76px;padding:0;cursor:pointer;z-index:2}
-#cm-x::before,#cm-x::after{content:'';position:absolute;left:17px;right:17px;top:50%;height:9px;margin-top:-4.5px;border-radius:5px;background:#fff;box-shadow:0 2px 0 #0d0a18}
-#cm-x::before{transform:rotate(45deg)}#cm-x::after{transform:rotate(-45deg)}
+#cbox{width:1240px;padding:104px 56px 44px;zoom:var(--ls,1);animation:cmIn .3s cubic-bezier(.2,1.2,.3,1) both}  /* tampilan panel/judul/tutup = assets/components/modal/modal-kit.css (.ut-mk) */
 #cm-body .tot{text-align:center;font:400 34px/1 var(--font-title);margin:0 0 18px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #cm-body .tot b{color:#ffd45a;font-weight:400}
 #cm-body .tot small{display:block;margin-top:8px;font:400 20px/1 var(--font-title);opacity:.7}
