@@ -76,7 +76,7 @@
       '<div class="crv-stage"><div class="crv-shadow"></div><img class="crv-chest" src="' + IC + 'chest-packs/' + M.im + '.webp" alt=""></div>' +
       '<div class="crv-ring"></div><div class="crv-fx"></div><div class="crv-flash"></div>' +
       '<div class="crv-title" aria-live="polite">' + esc(M.nm) + ' Terbuka!</div><div class="crv-rewards"></div>' +
-      '<button class="crv-ok" type="button">MANTAP!</button><div class="crv-hint">Ketuk untuk melewati</div>';
+      '<button class="crv-ok ut-gl ut-c-g" type="button">MANTAP!</button><div class="crv-hint">Ketuk untuk melewati</div>';
     doc.body.appendChild(el);
     var q = function (s) { return el.querySelector(s); }, box = q('.crv-rewards'), fx = q('.crv-fx');
     var timers = [], raf = [], state = 'intro', closed = false, sparkIv = null;
