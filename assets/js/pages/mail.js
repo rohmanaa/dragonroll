@@ -106,7 +106,7 @@ $('#claimAll').addEventListener('click',async()=>{
 
 /* ---- modal ---- */
 let okFn=null,mOpen=false;
-function modal(t,x,noL,okL,ok){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#m-ok').classList.toggle('ut-c-r',okL==='HAPUS');$('#m-ok').classList.toggle('ut-c-g',okL!=='HAPUS');$('#md').classList.add('on');mOpen=true}
+function modal(t,x,noL,okL,ok){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;$('#m-no').classList.toggle('ut-c-d',okL==='HAPUS');$('#m-no').classList.toggle('ut-c-r',okL!=='HAPUS');okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#m-ok').classList.toggle('ut-c-r',okL==='HAPUS');$('#m-ok').classList.toggle('ut-c-g',okL!=='HAPUS');$('#md').classList.add('on');mOpen=true}
 const closeM=()=>{$('#md').classList.remove('on');mOpen=false};
 $('#m-no').addEventListener('click',closeM);
 $('#m-ok').addEventListener('click',()=>{closeM();if(okFn)okFn()});

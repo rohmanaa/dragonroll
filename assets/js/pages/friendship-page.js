@@ -248,6 +248,8 @@ UT.PageModule.define('friendship', function (env) {
     $('#m-ok').disabled = false;
     $('#m-ok').classList.toggle('ut-c-r', okLabel === 'HAPUS');   /* hapus = merah, konfirmasi = hijau */
     $('#m-ok').classList.toggle('ut-c-g', okLabel !== 'HAPUS');
+    $('#m-no').classList.toggle('ut-c-d', okLabel === 'HAPUS');   /* BATAL netral bila tombol aksinya sudah merah */
+    $('#m-no').classList.toggle('ut-c-r', okLabel !== 'HAPUS');
     modalAction = onConfirm || null;
     $('#md').classList.add('on');
     const input = $('#mx input');
