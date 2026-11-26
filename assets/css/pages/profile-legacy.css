@@ -3,27 +3,10 @@
    Hanya informasi akun: nama, level + progres, foto profil, koleksi, aktivitas. */
 
 /* ---- bar atas (sama dengan karakter.html) ---- */
-#back{left:40px;top:30px;width:64px;height:72px}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back svg{display:none}
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
-#home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
-#home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#home:active,#back:active{transform:scale(.92)}
 .cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px;z-index:5} /* di atas #right/.pane (panel kanan menutupi area tombol Coin/Gem) */
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
-
-/* ---- kiri: tombol tab ---- */
-#menu{position:absolute;left:70px;top:150px;width:150px;display:flex;flex-direction:column;gap:34px}
-.mb{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .1s,filter .1s}
-.mb .ic{position:relative;width:140px;height:140px;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat}
-.mb .ic img{position:absolute;left:50%;top:50%;width:80px;height:80px;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.mb .lb{font:800 26px/1 var(--font-body);color:#d8d2ee;text-shadow:0 2px 0 rgba(10,6,24,.6);white-space:nowrap}
-.mb:hover{filter:brightness(1.15)}
-.mb:active{transform:scale(.95)}
-.mb.on .ic{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
-.mb.on .lb{color:#ffd45a}
 
 /* ---- tengah: karakter ---- */
 #mid{position:absolute;left:290px;top:0;width:880px;height:1080px}
@@ -61,8 +44,6 @@
 .ir{display:flex;align-items:center;height:62px;font:800 28px var(--font-body);border-bottom:1px solid rgba(255,255,255,.08)}
 .ir span{width:230px;color:#b9b2d6}
 .ir b{flex:1;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#up{position:absolute;left:300px;top:940px;width:340px;height:104px}
-#up span{font-size:34px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
 
 /* koleksi */
 #kol{position:absolute;left:0;top:226px;width:640px}
