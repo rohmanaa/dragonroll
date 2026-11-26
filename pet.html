@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="assets/css/page.css">
   <link rel="stylesheet" href="assets/components/button/button.css">
   <link rel="stylesheet" href="assets/components/tabs/tabs.css">
+  <link rel="stylesheet" href="assets/components/modal/modal-kit.css">
   <link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css">
   <link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css">
   <link rel="stylesheet" href="assets/css/efek.css">
@@ -34,14 +35,14 @@
 
     <div id="petStatus" class="pet-status" role="status" aria-live="polite" hidden></div>
     <dialog id="petInfo" aria-labelledby="petInfoTitle">
-      <div class="pet-info-panel">
-        <button id="petInfoClose" class="ut-gl ut-c-r" type="button" aria-label="Tutup informasi tier">×</button>
-        <h2 id="petInfoTitle">Informasi Tier</h2>
+      <div class="pet-info-panel ut-mk">
+        <button id="petInfoClose" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup informasi tier"></button>
+        <h2 id="petInfoTitle" class="ut-mk-t">Informasi Tier</h2>
         <div id="petInfoBody"></div>
       </div>
     </dialog>
-    <div id="pv" aria-hidden="true"><div id="pvBox" class="pet-info-panel" role="dialog" aria-modal="true" aria-labelledby="nm">
-      <button id="pvClose" class="ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau">×</button>
+    <div id="pv" aria-hidden="true"><div id="pvBox" class="pet-info-panel ut-mk" role="dialog" aria-modal="true" aria-labelledby="nm">
+      <button id="pvClose" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau"></button>
       <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
       <div id="petTitle">
         <div id="nm" class="ttl"></div>
@@ -49,8 +50,8 @@
       <div id="rar"></div>
       <p id="ds"></p>
     </div></div>
-    <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
-      <h3 id="mt"></h3><p id="mx"></p>
+    <div id="md"><div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
+      <h3 id="mt" class="ut-mk-t"></h3><p id="mx"></p>
       <div id="mbtns">
         <button class="btn ut-gl ut-c-r" id="m-no" type="button"><span></span></button>
         <button class="btn ut-gl ut-c-g" id="m-ok" type="button"><span></span></button>

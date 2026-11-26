@@ -1,4 +1,4 @@
-/* Modul 'pet' (tab Pet). Mandiri/embed: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
+/* Modul 'pet' (halaman Pet = grup tab sendiri, bukan tab inventory.html). Mandiri/embed room: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
    bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go, listener/timer dilepas lewat env saat unmount. */
 UT.PageModule.define('pet', function (env) {
   'use strict';
@@ -495,7 +495,7 @@ UT.PageModule.define('pet', function (env) {
     if ($('#md').classList.contains('on')) closeModal();
     else if ($('#petInfo').open) return;
     else if ($('#pv').classList.contains('on')) closePreview();
-    else navigate('lobby.html');
+    else navigate(backTarget());
   });
 
   /* di shell semua target lewat UT.Spa.go (view atau iframe); mandiri/embed: fade 330 ms lalu pindah halaman biasa */
@@ -505,7 +505,14 @@ UT.PageModule.define('pet', function (env) {
     env.setTimeout(() => { window.location.href = url; }, 330);
   }
 
-  $('#back').addEventListener('click', () => navigate('lobby.html'));
+  /* asal pembuka Pet (lobby / profil) dibaca dari ?from=; di shell URL lengkapnya ada di UT.Spa.current(). Selain daftar putih -> lobby */
+  function backTarget() {
+    let src = location.search;
+    try { const c = window.UT.Spa && window.UT.Spa.current && window.UT.Spa.current(); if (c && c.url && c.url.indexOf('?') >= 0) src = c.url.slice(c.url.indexOf('?')); } catch (e) { /* abaikan */ }
+    const f = new URLSearchParams(src).get('from') || '';
+    return /^(lobby|profile)\.html$/.test(f) ? f : 'lobby.html';
+  }
+  $('#back').addEventListener('click', () => navigate(backTarget()));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
 

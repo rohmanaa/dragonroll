@@ -12,9 +12,9 @@
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
   pointer-events:none;box-sizing:border-box;z-index:0;border:22px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
-html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
+html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
-html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:not(.ut-room-embed):has(#pmodal),html:not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 /* tombol Kembali -> Tutup di kanan atas (sama dengan hub Profil) */
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7;padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
 #back img,#back svg{display:none}
@@ -71,7 +71,6 @@ button.pc-pr:disabled{cursor:default}
 #pv{position:absolute;left:calc(-1 * var(--hub-ex,0px));top:calc(-1 * var(--hub-ey,0px));width:calc(1920px + 2 * var(--hub-ex,0px));height:calc(1080px + 2 * var(--hub-ey,0px));z-index:60;display:none;align-items:center;justify-content:center;background:rgba(8,4,20,.72)}
 #pv.on{display:flex}
 #pvBox{position:relative;width:1000px;height:820px;max-height:none;display:flex;flex-direction:column;align-items:center;padding:30px 30px 26px}
-#pvClose{position:absolute;right:20px;top:12px;z-index:3;width:60px;height:60px;padding:0;--gl-bw:3px;--gl-ledge:4px;--gl-r:14px;font:800 44px/48px var(--font-body);text-align:center;cursor:pointer}   /* tampilan: .ut-gl .ut-c-r (button.css) */
 #pv #fpv{position:relative;left:auto;top:auto;flex:none;width:100%;height:500px;overflow:visible;background:none;pointer-events:none;z-index:1}
 #petGl{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent;touch-action:none;pointer-events:auto;cursor:grab}
 #petGl:active{cursor:grabbing}

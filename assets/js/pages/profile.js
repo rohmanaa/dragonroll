@@ -195,7 +195,7 @@ function drawPet() {
     setImg(u); writePetPhoto(sig, u);
   }).catch(e => { console.warn('[profil] foto pet gagal', e); if (gen === petGen) setImg(thumb); });
 }
-$('#pet').onclick = () => { snd(); go('pet.html'); };
+$('#pet').onclick = () => { snd(); go('pet.html?from=profile.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
 $('#hid').onclick = () => {
   snd();

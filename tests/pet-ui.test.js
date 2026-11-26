@@ -11,7 +11,7 @@ const page = read('data/inventory/pet/_shared/js/pet-page.js');
 assert.ok(html.includes('<div id="petTitle">'));
 assert.ok(!html.includes('petInfoOpen'), 'tanda seru di modal preview dihapus');
 assert.ok(html.includes('<dialog id="petInfo" aria-labelledby="petInfoTitle">'));
-assert.ok(html.includes('<div class="pet-info-panel">'));
+assert.ok(html.includes('<div class="pet-info-panel ut-mk">'), 'panel detail memakai modal kit (.ut-mk)');
 assert.ok(!html.includes('glyph-putih/info-bulat.webp'));
 assert.ok(!html.includes('id="home"'));
 assert.deepStrictEqual(
@@ -31,14 +31,17 @@ assert.ok(pcss.includes('.pc-ic{width:64px;height:64px}') && !pcss.includes('.pc
 // komponen HUD (button.css): tombol Pet memakai ut-gl ut-c-<warna>, tanpa gambar bingkai tombol lama
 assert.ok(html.includes('assets/components/button/button.css') && html.includes('assets/components/tabs/tabs.css'));
 assert.ok(html.indexOf('assets/components/button/button.css') < html.indexOf('data/inventory/pet/_shared/css/pet-page.css'), 'button.css dimuat sebelum CSS Pet');
-assert.ok(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-gl ut-c-r"/.test(html) && /id="petInfoClose" class="ut-gl ut-c-r"/.test(html));
+assert.ok(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-mk-x ut-gl ut-c-r"/.test(html) && /id="petInfoClose" class="ut-mk-x ut-gl ut-c-r"/.test(html));
+// modal kit (modal-kit.css): detail, pratinjau & konfirmasi memakai .ut-mk (judul .ut-mk-t, tutup .ut-mk-x dengan X dari CSS, tanpa gambar bingkai/ikon)
+assert.ok(html.includes('assets/components/modal/modal-kit.css') && html.includes('id="pvBox" class="pet-info-panel ut-mk"') && html.includes('class="panel ut-mk" id="box"') && html.includes('id="mt" class="ut-mk-t"') && html.includes('id="petInfoTitle" class="ut-mk-t"'));
+assert.ok(!/id="(pvClose|petInfoClose)"[^>]*>[^<]/.test(html), 'tombol tutup modal tanpa teks/gambar (X digambar CSS)');
 assert.ok(/class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
 ['pc-pr used ut-gl ut-c-r', 'pc-pr own ut-gl ut-c-g', 'pc-pr no ut-gl ut-c-d', 'pc-pr ut-gl ut-c-y', 'pc-ic pc-eye ut-gl ut-c-b', 'pc-ic pc-det ut-gl ut-c-b', 'pet-info-retry ut-gl ut-c-b'].forEach((c) => assert.ok(page.includes(c), c));
 assert.ok(!/tombol-(kuning|hijau|merah|gelap)-polos/.test(pcss), 'gambar bingkai tombol kartu dihapus dari CSS Pet');
 assert.ok(css.includes('#petInfo::backdrop{'));
 assert.ok(css.includes('.pet-info-panel{'));
-assert.ok(css.includes('border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch'));
-assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 120px);overflow-y:auto;'));
+assert.ok(!css.includes('bingkai-dialog') && !/#petInfoClose\{|#pvClose\{/.test(css + pcss), 'bingkai gambar & gaya tombol tutup lama dihapus (kini .ut-mk di modal-kit.css)');
+assert.ok(css.includes('#petInfoBody{min-height:0;max-height:calc(82vh - 150px);overflow-y:auto;'));
 assert.ok(page.includes("$('#petInfo').showModal()"));
 assert.ok(page.includes("requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; })"));
 assert.ok(page.includes("$('#petInfoClose').addEventListener('click', () => $('#petInfo').close())"));
