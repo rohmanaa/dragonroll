@@ -61,19 +61,9 @@ html[data-graphics="low"] #ptabs .ptab img.ic{filter:none}
 
 /* mata uang (koin/emerald) tidak dibawa ke dalam hub */
 #stage.has-hub #pane .cur{display:none!important}
-/* sub-tab di bawah tab utama (Teman: Online/Semua/Permintaan, Pesan: Semua/Hadiah/Sistem) = tombol aset, sama dengan segmen Pengaturan */
-#stage.has-hub #pane .tabs{display:flex;gap:14px;top:152px;left:60px}
-#stage.has-hub #pane .tabs .tabb{position:relative;box-sizing:border-box;min-width:230px;height:72px;padding:0 30px;display:flex;align-items:center;justify-content:center;gap:10px;
-  font:400 30px/1 var(--font-title);color:#d6d0ec;text-shadow:0 2px 0 rgba(0,0,0,.6);
-  background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
-#stage.has-hub #pane .tabs .tabb.on{color:#fff;background-image:url(../images/ui/buttons-and-controls/tombol-biru-polos.webp)}
-#stage.has-hub #pane .tabs .tabb.on::after{display:none}
-#stage.has-hub #pane .tabs .tabb:hover{filter:brightness(1.12)}
-#stage.has-hub #pane .tabs .tabb:active{transform:scale(.96)}
-#stage.has-hub #pane .tabs .tabb i{margin:0;min-width:34px;padding:2px 8px;font-size:22px}
-
 /* Teman · Pesan · Pengaturan: isi langsung di atas bingkai kartu utama (#pmodal), TANPA kartu panel kedua.
    Area isi = x 72..1848, y 130..1058 (di bawah garis tab utama). */
+/* sub-tab (Teman, Pesan): tampilan dari komponen .ut-ul/.ut-ul-i (tabs.css); di sini hanya posisi */
 #stage.has-hub #pane .tabs{left:110px;top:156px}
 #stage.has-hub #pane #sbar{left:110px;top:248px;width:1700px}
 #stage.has-hub #pane #list{left:96px;top:360px;width:1728px;height:680px}

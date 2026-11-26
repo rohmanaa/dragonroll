@@ -33,15 +33,15 @@ function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walle
 function draw(){
   if(env.disposed)return;
   const un=unreadN(),pn=pendN(),ok=state==='ok';
-  $('#tabs').innerHTML='<button class="tabb'+(tab==='all'?' on':'')+'" data-k="all">SEMUA'+(un?'<i>'+un+'</i>':'')+'</button><button class="tabb'+(tab==='reward'?' on':'')+'" data-k="reward">HADIAH'+(pn?'<i>'+pn+'</i>':'')+'</button><button class="tabb'+(tab==='system'?' on':'')+'" data-k="system">SISTEM</button>';
+  $('#tabs').innerHTML='<button class="ut-ul-i'+(tab==='all'?' on':'')+'" data-k="all">SEMUA'+(un?'<i class="bd">'+un+'</i>':'')+'</button><button class="ut-ul-i'+(tab==='reward'?' on':'')+'" data-k="reward">HADIAH'+(pn?'<i class="bd">'+pn+'</i>':'')+'</button><button class="ut-ul-i'+(tab==='system'?' on':'')+'" data-k="system">SISTEM</button>';
   $('#sum').textContent=ok?mails.length+' surat · '+un+' belum dibaca':state==='loading'?'Memuat…':'';
   $('#readAll').classList.toggle('dis',!(ok&&un));$('#claimAll').classList.toggle('dis',!(ok&&pn));
   const a=mails.filter(m=>tab==='all'||m.kind===tab);
   if(!ok){$('#list').innerHTML='<div class="empty">'+(state==='loading'?'Memuat…':state==='local'?'Masuk ke akun untuk membuka Mail.':'Tidak dapat terhubung ke server.<br><small style="font:800 28px var(--font-body)">Ketuk untuk coba lagi</small>')+'</div>';return}
   $('#list').innerHTML=a.length?a.map(m=>{
     const ico=m.kind==='reward'?'item-icons/kado-merah':m.read?'white-glyphs/surat-terbuka':'item-icons/surat-segel';
-    const act=pending(m)?'<button class="btn sm ok" data-claim="'+m.id+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':m.kind==='reward'?'<button class="btn sm off"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>DIKLAIM</span></button>':'';
-    return '<div class="row mr'+(m.read?'':' unread')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="grow"><div class="nm ttl">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="tm">'+ago(m.at)+'</div><button class="rm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'white-glyphs/tong-sampah.webp" alt=""></button></div>'}).join('')
+    const act=pending(m)?'<button class="btn sm ok ut-gl ut-c-g" data-claim="'+m.id+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':m.kind==='reward'?'<button class="btn sm off ut-gl ut-c-d"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>DIKLAIM</span></button>':'';
+    return '<div class="row mr'+(m.read?'':' unread')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="grow"><div class="nm ttl">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="tm">'+ago(m.at)+'</div><button class="rm ut-gl ut-c-r sm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'white-glyphs/tong-sampah.webp" alt=""></button></div>'}).join('')
    :'<div class="empty">Tidak ada surat.</div>';
 }
 
@@ -84,7 +84,7 @@ function askDelete(m){
     if(r&&r.ok){mails=mails.filter(x=>x.id!==m.id);draw();toast('Surat dihapus')}else{fail(r);load()}
   });
 }
-$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tabb');if(b){tab=b.dataset.k;draw()}});
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b){tab=b.dataset.k;draw()}});
 $('#list').addEventListener('click',e=>{
   if(state==='error'){state='loading';draw();load();return}
   if(state!=='ok')return;
@@ -106,7 +106,7 @@ $('#claimAll').addEventListener('click',async()=>{
 
 /* ---- modal ---- */
 let okFn=null,mOpen=false;
-function modal(t,x,noL,okL,ok){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#md').classList.add('on');mOpen=true}
+function modal(t,x,noL,okL,ok){if(env.disposed)return;$('#mt').textContent=t;$('#mx').innerHTML=x;$('#m-no span').textContent=noL;$('#m-ok span').textContent=okL;okFn=ok;$('#m-ok').style.display=okL?'':'none';$('#m-ok').classList.toggle('ut-c-r',okL==='HAPUS');$('#m-ok').classList.toggle('ut-c-g',okL!=='HAPUS');$('#md').classList.add('on');mOpen=true}
 const closeM=()=>{$('#md').classList.remove('on');mOpen=false};
 $('#m-no').addEventListener('click',closeM);
 $('#m-ok').addEventListener('click',()=>{closeM();if(okFn)okFn()});
