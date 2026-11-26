@@ -8,12 +8,12 @@
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
 
-/* ---- tab kiri: tampilan dari komponen .ut-tabv (tabs.css); di sini hanya tata letak ---- */
-#tabs{position:absolute;left:0;top:137px;width:352px;display:flex;flex-direction:column;align-items:center;gap:22px;padding-top:14px}
-.tab{position:relative;display:block;flex:none;width:312px;height:150px;padding:0}
-.tab .ic{position:absolute;left:50%;top:22px;transform:translateX(-50%);height:62px;width:auto}
-.tab .lb{position:absolute;left:0;right:0;top:100px;text-align:center;font:400 30px/1 var(--font-title);letter-spacing:.5px}
-.tab .bd{position:absolute;right:10px;top:10px;width:56px;height:56px;display:grid;place-items:center;font:400 30px/1 var(--font-title);padding-bottom:4px}
+/* ---- tab atas: tampilan dari komponen .ut-tabs/.ut-tab (tabs.css), tata letak sama dengan tab hub (#ptabs di account-hub.css) ---- */
+#tabs{position:absolute;left:110px;top:44px;width:900px;height:96px;z-index:7;--tab-h:76px;--tab-fs:24px}
+.tab{position:relative;flex:1;min-width:0;flex-direction:row;gap:10px;padding:0}
+.tab.on{cursor:default}
+.tab .ic{height:44px;width:auto;max-width:52px;flex:none}
+.tab .bd{position:absolute;right:-6px;top:-14px;width:48px;height:48px;display:grid;place-items:center;font:400 26px/1 var(--font-title);padding-bottom:3px;z-index:1}
 .tab .bd img{position:absolute;inset:0;width:100%;height:100%}
 .tab .bd b{position:relative;font-weight:400;text-shadow:0 2px 0 rgba(60,0,10,.6)}
 
@@ -136,18 +136,18 @@
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 #stage:has(#pmodal){overflow:visible!important}
 html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/misi-bg.webp) center/cover no-repeat fixed,#2e293c!important}
-#back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
+#back{left:auto;right:76px;top:46px;width:80px;height:80px;z-index:7}
 /* tombol Tutup: .ut-gl .ut-c-r; X digambar CSS (cara sama dengan #pclose di hub) */
 #back{padding:0}
 #back img{display:none}
 #back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
 #back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
-#title{left:100px;top:34px}
+/* judul digantikan tab (sama dengan hub): tetap ada untuk pembaca layar, diisi render() */
+#title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:6}   /* satu baris kiri bawah, sama dengan Shop/Pet/Aura */
 #stage #cur-em{left:60px!important}#stage #cur-co{left:370px!important}
-/* isi di dalam bingkai: rel tab kiri + isi 1450px dikecilkan 88% agar muat di atas baris saldo (area isi x 72..1848, y 130..960) */
-#tabs{left:72px;top:140px;transform-origin:0 0;transform:scale(.88)}
-#body{left:400px;top:140px;transform-origin:0 0;transform:scale(.88)}
+/* isi di dalam bingkai, di bawah tab: 1450px dikecilkan 86% dan dipusatkan agar muat di atas baris saldo (area y 160..960) */
+#body{left:337px;top:160px;transform-origin:0 0;transform:scale(.86)}
 
 /* ===== Hadiah harian 30 hari: grid 4 kolom yang digulir; kelipatan 7 = hadiah besar (emas), Hari 30 = hadiah utama ===== */
 .dlist{position:absolute;left:0;top:0;width:1450px;bottom:116px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain;padding:12px 0 24px}

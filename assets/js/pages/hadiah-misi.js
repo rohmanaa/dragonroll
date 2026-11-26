@@ -159,7 +159,7 @@ function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walle
 function render(){
  if(env.disposed)return;
  const L=[['hadiah','HADIAH','item-icons/kado-merah'],['misi','MISI','missions/ikon-tab-harian-centang'],['ach','PENCAPAIAN','missions/ikon-tab-pencapaian-medali']];
- $('#tabs').innerHTML=L.map(a=>'<button class="tab ut-tabv'+(tab===a[0]?' on':'')+'" data-k="'+a[0]+'" aria-selected="'+(tab===a[0])+'"><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
+ $('#tabs').innerHTML=L.map(a=>'<button class="tab ut-tab'+(tab===a[0]?' on':'')+'" type="button" role="tab" data-k="'+a[0]+'" aria-selected="'+(tab===a[0])+'"><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
  const sc=($('#alist')||{}).scrollTop||0, qsc=($('#qlist')||{}).scrollTop||0, dsc=($('#dlist')||{}).scrollTop||0;
  $('#body').innerHTML=tab==='misi'?vMisi():tab==='ach'?vAch():vHadiah();
  const al=$('#alist');if(al)al.scrollTop=sc;
