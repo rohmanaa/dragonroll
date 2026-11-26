@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="assets/css/page.css">
 <link rel="stylesheet" href="assets/components/button/button.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
+<link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/css/sub.css">
 <link rel="stylesheet" href="assets/css/bg.css">
 <link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css">
@@ -48,8 +49,9 @@
   <main id="cards"></main>
 
   <div class="ov" id="modal">
-    <div class="box" id="box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button class="x ut-gl ut-c-r" id="mx" aria-label="Tutup">×</button>
+    <div class="box ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="ut-mk-x ut-gl ut-c-r" id="mx" aria-label="Tutup"></button>
+      <h2 class="ut-mk-t" id="modal-title"></h2>
       <div id="mb"></div>
     </div>
   </div>

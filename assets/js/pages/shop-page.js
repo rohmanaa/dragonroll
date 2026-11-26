@@ -446,8 +446,10 @@ UT.PageModule.define('shop', function (env) {
     clearTimeout(modalTimer);
     stopPreview();
     $('#mb').innerHTML = html;
+    /* judul dipindah ke .ut-mk-t (anak langsung kotak modal kit) */
     const heading = $('#mb h2');
-    if (heading) heading.id = 'modal-title';
+    $('#modal-title').textContent = heading ? heading.textContent : '';
+    if (heading) heading.remove();
     modal.style.display = 'grid';
     requestAnimationFrame(() => modal.classList.add('show'));
     mOpen = true;
