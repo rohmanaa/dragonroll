@@ -9,26 +9,26 @@
 <header class="hud" id="hud">
   <div class="tools">
     <span class="camgrp" id="camGrp" hidden>
-    <button class="btn small light" id="btnPreset" data-key="1" type="button" aria-label="Ganti sudut kamera"><img class="hi" src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"></button>
-    <button class="btn small light" id="btnTheme" type="button" aria-label="Ganti peta" hidden>Maps</button>
-    <button class="btn small light ico" id="btnFollow" data-key="2" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"></button>
-    <button class="btn small light ico" id="btnCam" data-key="3" type="button" aria-label="Reset kamera"><img class="hi" src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"></button>
+    <button class="hbtn ut-gl ut-c-p" id="btnPreset" data-key="1" type="button" aria-label="Ganti sudut kamera"><img class="hi" src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"></button>
+    <button class="hbtn ut-gl ut-c-p" id="btnTheme" type="button" aria-label="Ganti peta" hidden>Maps</button>
+    <button class="hbtn ut-gl ut-c-p" id="btnFollow" data-key="2" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"></button>
+    <button class="hbtn ut-gl ut-c-p" id="btnCam" data-key="3" type="button" aria-label="Reset kamera"><img class="hi" src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"></button>
     </span>
-    <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
-    <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
-    <button class="btn small light" id="btnSnd" type="button" aria-label="Suara: nyala" hidden><img class="hi" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false">Suara: nyala</button>
-    <button class="btn small light" id="btnPause" data-key="Esc" type="button" aria-label="Buka menu jeda" hidden><img class="hi" src="assets/images/ui/menu-pause/ikon-pengaturan.webp" alt="" draggable="false"></button>
+    <button class="hbtn ut-gl ut-c-p" id="btnNight" type="button" hidden>Mode: Siang</button>
+    <button class="hbtn ut-gl ut-c-p" id="btnDice" type="button" hidden>Dadu</button>
+    <button class="hbtn ut-gl ut-c-p" id="btnSnd" type="button" aria-label="Suara: nyala" hidden><img class="hi" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false">Suara: nyala</button>
+    <button class="hbtn ut-gl ut-c-p" id="btnPause" data-key="Esc" type="button" aria-label="Buka menu jeda" hidden><img class="hi" src="assets/images/ui/menu-pause/ikon-pengaturan.webp" alt="" draggable="false"></button>
     <button class="btn small light" id="btnMenu" type="button" aria-label="Tampilkan menu" aria-expanded="false" aria-controls="camGrp btnSnd btnPause">Menu</button>
   </div>
 </header>
 
 <aside class="side" id="side">
 <div class="emote-dock" id="emoteDock">
-  <button class="em-main" type="button" aria-label="Emote">
+  <button class="em-main ut-gl ut-c-p" type="button" aria-label="Emote">
     <img class="em-icon" src="assets/images/ui/white-glyphs/kotak-chat.webp" alt="">
     <span>Emote</span>
   </button>
-  <button class="em-tab" type="button" aria-label="Buka daftar emote" aria-expanded="false"><i>&#9656;</i></button>
+  <button class="em-tab ut-gl ut-c-p" type="button" aria-label="Buka daftar emote" aria-expanded="false"><i>&#9656;</i></button>
   <div class="em-list" role="group" aria-label="Pilih emote">
     <button type="button" data-e="&#128512;" aria-label="Senang">&#128512;</button>
     <button type="button" data-e="&#128514;" aria-label="Tertawa">&#128514;</button>
@@ -164,14 +164,14 @@
   <div class="hm-flag" id="hmFlag" role="toolbar" aria-label="Aksi cepat">
     <img class="hm-cloth" src="assets/images/ui/menu-gulir/bendera.webp" alt="" draggable="false">
     <div class="hm-grid" id="hmList">
-      <button class="hm-b" id="hmCam" type="button" aria-label="Kamera" title="Kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"><span class="hm-pips" id="hmPips"><i></i><i></i><i></i><i></i></span></button>
-      <button class="hm-b" id="hmFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak" title="Ikuti bidak"><img class="hm-g" src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmReset" type="button" aria-label="Reset kamera" title="Reset kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmMode" type="button" aria-label="Suasana" title="Suasana"><img class="hm-g" src="assets/images/ui/white-glyphs/matahari.webp" alt="" draggable="false"><img class="hm-badge" src="assets/images/ui/white-glyphs/bulan.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmSnd" type="button" aria-pressed="true" aria-label="Suara" title="Suara"><img class="hm-g" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmHelp" type="button" aria-label="Bantuan" title="Bantuan"><img class="hm-g" src="assets/images/ui/white-glyphs/info-bulat.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmSet" type="button" aria-label="Pengaturan" title="Pengaturan"><img class="hm-g" src="assets/images/ui/white-glyphs/roda-gigi.webp" alt="" draggable="false"></button>
-      <button class="hm-b" id="hmPause" type="button" aria-label="Pause" title="Pause"><img class="hm-g" src="assets/images/ui/white-glyphs/jeda.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmCam" type="button" aria-label="Kamera" title="Kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/kamera.webp" alt="" draggable="false"><span class="hm-pips" id="hmPips"><i></i><i></i><i></i><i></i></span></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak" title="Ikuti bidak"><img class="hm-g" src="assets/images/ui/white-glyphs/lokasi-pin.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmReset" type="button" aria-label="Reset kamera" title="Reset kamera"><img class="hm-g" src="assets/images/ui/white-glyphs/ulang.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmMode" type="button" aria-label="Suasana" title="Suasana"><img class="hm-g" src="assets/images/ui/white-glyphs/matahari.webp" alt="" draggable="false"><img class="hm-badge" src="assets/images/ui/white-glyphs/bulan.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmSnd" type="button" aria-pressed="true" aria-label="Suara" title="Suara"><img class="hm-g" src="assets/images/ui/white-glyphs/speaker-suara.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmHelp" type="button" aria-label="Bantuan" title="Bantuan"><img class="hm-g" src="assets/images/ui/white-glyphs/info-bulat.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmSet" type="button" aria-label="Pengaturan" title="Pengaturan"><img class="hm-g" src="assets/images/ui/white-glyphs/roda-gigi.webp" alt="" draggable="false"></button>
+      <button class="hm-b ut-gl ut-c-p" id="hmPause" type="button" aria-label="Pause" title="Pause"><img class="hm-g" src="assets/images/ui/white-glyphs/jeda.webp" alt="" draggable="false"></button>
     </div>
   </div>
 </nav>

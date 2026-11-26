@@ -176,7 +176,7 @@ html body #pauseMenu .lm-mode {
   grid-row: auto !important;
   margin: 0 !important;
   padding: 12px !important;
-  --gl-r: 50%;   /* tampilan: .ut-gl .ut-c-* (button.css) */
+  /* kotak; tampilan: .ut-gl .ut-c-* (button.css) */
   font: 800 30px/1.1 var(--gh-body) !important;
 }
 html body #pauseMenu .lm-mode:focus-visible { outline: 4px solid #fff3d0 !important; outline-offset: 6px !important; }
@@ -224,7 +224,7 @@ html body #pauseMenu .lm-x {
   width: 64px !important;
   height: 64px !important;
   padding: 0 !important;
-  --gl-r: 50%;   /* tampilan: .ut-gl .ut-c-r */
+  --gl-r: 12px;   /* tampilan: .ut-gl .ut-c-r */
   --gl-bw: 3px;
   font: 38px/1 var(--gh-title) !important;
 }

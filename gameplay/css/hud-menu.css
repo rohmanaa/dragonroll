@@ -29,7 +29,7 @@ body.playing .hm:not([hidden]){display:flex}
 
 /* 8 tombol ikon pada kain lurus (kiri, tanpa ujung panah) */
 .hm-grid{position:absolute;left:6.5%;top:12%;width:69%;height:76%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:calc(var(--h)*.04) calc(var(--w)*.014);align-items:center;justify-items:center}
-.hm-b{position:relative;box-sizing:border-box;width:100%;max-width:48px;aspect-ratio:1/1;padding:0;border:0;background:url(../../assets/images/ui/hud/tombol-bulat-kosong-ungu.webp) center/100% 100% no-repeat;cursor:pointer;-webkit-tap-highlight-color:transparent;opacity:0;transform:translateY(6px) scale(.85);transition:transform .12s,filter .15s}
+.hm-b{position:relative;box-sizing:border-box;width:100%;max-width:48px;aspect-ratio:1/1;padding:0;--gl-r:10px;--gl-bw:3px;--gl-ledge:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;opacity:0;transform:translateY(6px) scale(.85);transition:transform .12s,filter .15s}
 .hm.open .hm-b{opacity:1;transform:none;transition:opacity .25s,transform .3s cubic-bezier(.2,1.3,.4,1),filter .15s}
 .hm.open .hm-b:nth-child(1){transition-delay:.12s}.hm.open .hm-b:nth-child(2){transition-delay:.17s}.hm.open .hm-b:nth-child(3){transition-delay:.22s}.hm.open .hm-b:nth-child(4){transition-delay:.27s}
 .hm.open .hm-b:nth-child(5){transition-delay:.2s}.hm.open .hm-b:nth-child(6){transition-delay:.25s}.hm.open .hm-b:nth-child(7){transition-delay:.3s}.hm.open .hm-b:nth-child(8){transition-delay:.35s}
@@ -57,7 +57,7 @@ body.playing .hm:not([hidden]){display:flex}
 .hm-box h2{margin:0 36px 14px 0;font:400 28px/1.1 "Lilita One",Nunito,system-ui,sans-serif;color:#fff3d6;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.4)}
 .hm-box h3{margin:14px 0 4px;font:800 14px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
 .hm-box p{margin:0 0 6px;font:600 15px/1.45 Nunito,system-ui,sans-serif}
-.hm-x{position:absolute;top:10px;right:10px;width:40px;height:40px;padding:0;--gl-r:50%;--gl-bw:3px;--gl-ledge:3px;font-size:18px;cursor:pointer}/* tampilan: .ut-gl .ut-c-r */
+.hm-x{position:absolute;top:10px;right:10px;width:40px;height:40px;padding:0;--gl-r:12px;--gl-bw:3px;--gl-ledge:3px;font-size:18px;cursor:pointer}/* tampilan: .ut-gl .ut-c-r */
 .hm-sec{margin:0 0 14px}
 .hm-lbl{display:block;margin:0 0 6px;font:800 13px/1.2 Nunito,system-ui,sans-serif;color:#ffd45a;text-transform:uppercase;letter-spacing:.6px}
 .hm-seg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}

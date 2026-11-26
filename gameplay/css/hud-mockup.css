@@ -691,7 +691,20 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   box-shadow: none !important;
   font-size: 0 !important;
 }
-#hud .btn.small .hi { width: 32px !important; height: 32px !important; max-width: none !important; margin: 0 !important; filter: brightness(0) invert(1) !important; }
+#hud .hbtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 !important;
+  --gl-r: 12px;   /* kotak; tampilan: .ut-gl .ut-c-p (button.css) */
+  font-size: 0 !important;
+}
+#hud .btn.small .hi,
+#hud .hbtn .hi { width: 32px !important; height: 32px !important; max-width: none !important; margin: 0 !important; filter: brightness(0) invert(1) !important; }
 #hud #btnMenu {
   width: 46px !important;
   min-width: 46px !important;
@@ -735,11 +748,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   display: flex !important;
   pointer-events: auto !important;
 }
-#emoteDock .em-main {
-  border-color: #2b1a70 !important;
-  background: url("../../assets/images/ui/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
-  box-shadow: none !important;
-}
+#emoteDock .em-main { --gl-r: 12px; }   /* tampilan: .ut-gl .ut-c-p (button.css) */
 #emoteDock .em-main .em-icon { width: 34px !important; height: 34px !important; filter: brightness(0) invert(1) drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
 #emoteDock .em-list { border-color: #2b1a70 !important; background: #1b4ab0 !important; }
 #emoteDock .em-list button {
@@ -847,6 +856,7 @@ html body #readyScreen .rd-box {
 #hud .tools #btnMenu { order: -1; }
 #hud .tools .camgrp[hidden],
 #hud .tools .btn.small[hidden],
+#hud .tools .hbtn[hidden],
 #side .rcol .pnl.tn #rollHint[hidden],
 #side .rcol .pnl.tn .msg[hidden] { display: none !important; }
 html body #hud { max-width: none !important; }
@@ -1457,7 +1467,8 @@ body:has(#win[data-state="lose"]:not([hidden])) #utGameplayHud { visibility: hid
   #win[data-state="lose"] .lm-mode { height: clamp(48px, 10vh, 72px) !important; }
 }
 
-html body #hud .tools.open .btn.small .hi {
+html body #hud .tools.open .btn.small .hi,
+html body #hud .tools.open .hbtn .hi {
   opacity: 1 !important;
   filter: brightness(0) invert(1) !important;
 }
@@ -1465,15 +1476,10 @@ html body #hud .tools.open .btn.small {
   box-shadow: none !important;
   text-shadow: none !important;
 }
-html body #hud .tools.open .btn.small[aria-pressed="true"],
+html body #hud .tools.open .hbtn[aria-pressed="true"],
 html body #hud .tools.open #btnPreset[aria-expanded="true"],
 html body #hud .tools.open #btnSnd.muted {
-  background-image:
-    linear-gradient(rgba(255, 212, 79, .72), rgba(240, 150, 15, .72)),
-    url("../../assets/images/ui/hud/tombol-bulat-kosong-ungu.webp") !important;
-  background-position: center, center !important;
-  background-size: 100% 100%, 100% 100% !important;
-  background-repeat: no-repeat, no-repeat !important;
+  --b1: #ffe86a; --b2: #ffc61f; --b3: #f7a90c; --b4: #e98a06;   /* aktif = kuning (warna .ut-c-y) */
 }
 html body #hud .tools.open #btnMenu::before {
   filter: none !important;
