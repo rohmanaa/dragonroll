@@ -1,15 +1,15 @@
 /* inventory-bridge.js — dipasang di frame/dadu/efek/powerup/pet.html.
-   Frame/efek/powerup tampil sebagai TAB di inventory.html (dimuat di iframe dengan ?embed=inv).
-   Dadu dan Pet BUKAN tab Inventory lagi (Dadu dipasang dari Karakter; Pet punya grup tab sendiri): dibuka langsung -> shell play.html?go=<halaman>.
+   Frame/powerup tampil sebagai TAB di inventory.html (dimuat di iframe dengan ?embed=inv).
+   Dadu, Efek, dan Pet BUKAN tab Inventory lagi (Dadu & Efek bagian Perlengkapan; Pet punya grup tab sendiri): dibuka langsung -> shell play.html?go=<halaman>.
    - Mode embed: sembunyikan tombol kembali + judul (dipegang inventory.html) dan teruskan navigasi keluar (lobby, tambang, shop) ke induk.
    - Dibuka langsung (bukan embed, bukan dari room): alihkan ke inventory.html?tab=... agar tetap satu halaman. */
 (function () {
   'use strict';
-  var TABS = { 'frame.html': 'frame', 'dadu.html': 'dadu', 'efek.html': 'efek', 'powerup.html': 'power' };
-  var OWN_VIEW = { 'dadu.html': 1, 'pet.html': 1 };   // halaman mandiri di shell (bukan tab Inventory)
+  var TABS = { 'frame.html': 'frame', 'dadu.html': 'dadu', 'powerup.html': 'power' };
+  var OWN_VIEW = { 'dadu.html': 1, 'efek.html': 1, 'pet.html': 1 };   // halaman mandiri di shell (bukan tab Inventory)
   var q = new URLSearchParams(location.search), page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : location.pathname.split('/').pop();
   if (q.get('from') === 'room') return;                 // dipakai room.html: ditangani room-modal-bridge.js
-  if (OWN_VIEW[page]) {   // mode ?embed=inv sudah usang untuk Dadu/Pet; iframe (cadangan shell) tidak dialihkan lagi agar tak berputar
+  if (OWN_VIEW[page]) {   // mode ?embed=inv sudah usang untuk Dadu/Efek/Pet; iframe (cadangan shell) tidak dialihkan lagi agar tak berputar
     if (window.self === window.top) location.replace('play.html?go=' + page);
     return;
   }

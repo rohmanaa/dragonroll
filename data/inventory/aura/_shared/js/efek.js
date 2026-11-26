@@ -262,7 +262,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav(backTarget())});
 $('#pvClose').onclick=closePreview;
 $('#pv').onclick=e=>{if(e.target.id==='pv')closePreview()};
 
@@ -281,7 +281,14 @@ async function buy(f){
   showWallet(true);draw();
 }
 /* ---- navigasi ---- */
-$('#back').onclick=()=>{snd('button');nav('lobby.html')};
+/* asal pembuka Efek (lobby / profil) dibaca dari ?from=; di shell URL lengkapnya ada di UT.Spa.current(). Selain daftar putih -> lobby */
+function backTarget(){
+  let src=location.search;
+  try{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.url&&c.url.indexOf('?')>=0)src=c.url.slice(c.url.indexOf('?'))}catch(e){}
+  const f=new URLSearchParams(src).get('from')||'';
+  return /^(lobby|profile)\.html$/.test(f)?f:'lobby.html';
+}
+$('#back').onclick=()=>{snd('button');nav(backTarget())};
 $('#cur-co').onclick=()=>nav('shop.html?coin=1');
 $('#cur-em').onclick=()=>nav('tambang.html?from=efek.html');
 

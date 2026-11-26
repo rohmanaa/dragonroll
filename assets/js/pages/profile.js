@@ -21,7 +21,7 @@ const nav = u => {
   setTimeout(() => { location.href = u; }, 330);
 };
 /* halaman yang sudah ada (sama dengan BUILT di lobby); lainnya = toast */
-const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html'];
+const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html', 'inventory.html'];
 const go = u => BUILT.includes(u.split('?')[0]) ? nav(u) : toast('Segera hadir');
 
 /* ---- data: PlayerData (level/XP/skin/koleksi) + server get_my_profile (menang/main/streak, peringkat, misi) ---- */
@@ -218,7 +218,7 @@ $('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) ret
 $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
 function drawKol() {
   $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
