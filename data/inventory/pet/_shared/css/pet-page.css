@@ -23,7 +23,7 @@ html:not(.ut-room-embed):has(#pmodal),html:not(.ut-room-embed):has(#pmodal) body
 #title{left:100px;top:34px}
 
 /* ===== Kartu pet (gaya katalog kosmetik): satu baris kartu yang bisa digeser ke samping.
-   Isi kartu: nama, thumbnail, bar harga; warna kartu = tier (rarity); ikon mata = pratinjau, ikon info = detail.
+   Isi kartu: nama, thumbnail, bar harga; warna kartu = tier (rarity); ikon mata = pratinjau (modal bertab Pratinjau & Detail).
    Selektor #right #grid agar menang atas aturan #grid di karakter.css / frame.css / inv-tabbar.css / inventory-bridge (semuanya !important). ===== */
 html body.fm.notabs #right #grid{left:0!important;top:250px!important;width:1800px;height:610px!important;max-height:none!important;zoom:1;
   display:flex;flex-direction:row;gap:22px;grid-template-columns:none;overflow-x:auto;overflow-y:hidden;box-sizing:border-box;padding:12px 8px 24px;
@@ -52,10 +52,10 @@ html body.fm.notabs #right #grid{left:0!important;top:250px!important;width:1800
 .pc-pr b{font-weight:400}
 .pc-pr img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
 .pc-pr.own,.pc-pr.used,.pc-pr.no{font-size:28px}
-/* ikon di sudut bawah thumbnail: mata (kiri) = pratinjau 3D, info (kanan) = detail */
+/* ikon di sudut kiri bawah thumbnail: mata = modal pratinjau */
 .pc-ic{position:absolute;bottom:108px;z-index:4;display:grid;place-items:center;width:62px;height:62px;padding:0;--gl-bw:3px;--gl-ledge:4px;--gl-r:14px;cursor:pointer}   /* tampilan: .ut-gl .ut-c-b (button.css) */
 .pc-ic svg,.pc-ic img{width:38px;height:38px;object-fit:contain;display:block}
-.pc-eye{left:24px}.pc-det{right:24px}
+.pc-eye{left:24px}
 .pc-ic:focus-visible,.pc-sel:focus-visible{outline:4px solid #fff;outline-offset:3px}
 
 /* ===== redesain: grid selebar layar, ikon tanpa kotak tombol, bar harga = tombol, preview 3D di modal, saldo kiri bawah ===== */
@@ -70,14 +70,14 @@ button.pc-pr:disabled{cursor:default}
 #stage #cur-co{left:370px!important}
 #pv{position:absolute;left:calc(-1 * var(--hub-ex,0px));top:calc(-1 * var(--hub-ey,0px));width:calc(1920px + 2 * var(--hub-ex,0px));height:calc(1080px + 2 * var(--hub-ey,0px));z-index:60;display:none;align-items:center;justify-content:center;background:rgba(8,4,20,.72)}
 #pv.on{display:flex}
-#pvBox{position:relative;width:1000px;height:820px;max-height:none;display:flex;flex-direction:column;align-items:center;padding:30px 30px 26px}
-#pv #fpv{position:relative;left:auto;top:auto;flex:none;width:100%;height:500px;overflow:visible;background:none;pointer-events:none;z-index:1}
+#pvBox{position:relative;width:1000px;height:820px;max-height:none;display:flex;flex-direction:column;align-items:center;padding:24px 30px 26px}
+#pv #fpv{position:relative;left:auto;top:auto;flex:1;min-height:0;width:100%;height:auto;overflow:visible;background:none;pointer-events:none;z-index:1}
 #petGl{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent;touch-action:none;pointer-events:auto;cursor:grab}
 #petGl:active{cursor:grabbing}
-#pv #petTitle{position:static;width:auto;display:flex;align-items:center;gap:12px;margin-top:8px}
+#pv #petTitle{position:static;width:auto;display:flex;flex-direction:column;align-items:center;margin-top:16px}
 #pv #nm{position:static;width:auto;top:auto;margin:0;font-size:56px;line-height:1}
 #pv #rar{position:static;width:auto;margin-top:6px;font-size:28px}
-#pv #ds{position:static;left:auto;top:auto;width:100%;max-height:120px;margin:10px 0 0;padding:0 12px;overflow:hidden;text-align:center;font-size:22px;line-height:1.3}
+#pv #ds{position:static;left:auto;top:auto;flex:none;width:100%;max-height:120px;margin:10px 0 0;padding:0 12px;overflow:hidden;text-align:center;font-size:22px;line-height:1.3}
 
 /* bar aksi kartu = tombol HUD glossy (button.css): beli = kuning (ut-c-y), GUNAKAN = hijau (ut-c-g), LEPAS = merah (ut-c-r), tidak dijual = gelap (ut-c-d) */
 
@@ -93,7 +93,7 @@ button.pc-pr,.pc-pr{height:100px;font-size:50px}
 .pc-th img:not(.ck){height:calc(100% - 90px)}
 .pc-ic{bottom:140px;width:76px;height:76px}
 .pc-ic svg,.pc-ic img{width:56px;height:56px}
-.pc-eye{left:30px}.pc-det{right:30px}
+.pc-eye{left:30px}
 
 /* geser kartu: overflow-x pasti aktif, tanpa snap (mengganggu seret), kursor grab, gambar tidak ikut terseret */
 html body.fm.notabs #right #grid{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}

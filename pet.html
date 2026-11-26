@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css">
   <link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css">
   <link rel="stylesheet" href="assets/css/efek.css">
-  <link rel="stylesheet" href="data/inventory/pet/_shared/css/pet.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet-page.css?v=224">
+  <link rel="stylesheet" href="data/inventory/pet/_shared/css/pet.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet-page.css?v=226">
   <link rel="stylesheet" href="assets/css/bg.css">
   <link rel="stylesheet" href="assets/css/inv-tabbar.css">
   <script src="assets/js/systems/ambience.js"></script>
@@ -34,21 +34,25 @@
     </section>
 
     <div id="petStatus" class="pet-status" role="status" aria-live="polite" hidden></div>
-    <dialog id="petInfo" aria-labelledby="petInfoTitle">
-      <div class="pet-info-panel ut-mk">
-        <button id="petInfoClose" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup informasi tier"></button>
-        <h2 id="petInfoTitle" class="ut-mk-t">Informasi Tier</h2>
-        <div id="petInfoBody"></div>
-      </div>
-    </dialog>
     <div id="pv" aria-hidden="true"><div id="pvBox" class="pet-info-panel ut-mk" role="dialog" aria-modal="true" aria-labelledby="nm">
       <button id="pvClose" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau"></button>
-      <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
+      <nav id="pvTabs" class="ut-tabs" role="tablist" aria-label="Tampilan pet">
+        <button id="pvTabPreview" class="ut-tab on" type="button" role="tab" data-v="preview" aria-selected="true" aria-controls="pvPreview">Pratinjau</button>
+        <button id="pvTabDetail" class="ut-tab" type="button" role="tab" data-v="detail" aria-selected="false" aria-controls="pvDetail">Detail</button>
+      </nav>
       <div id="petTitle">
         <div id="nm" class="ttl"></div>
+        <div id="rar"></div>
       </div>
-      <div id="rar"></div>
-      <p id="ds"></p>
+      <div id="pvPanes">
+        <div id="pvPreview" class="pv-pane on" role="tabpanel" aria-labelledby="pvTabPreview">
+          <div id="fpv"><canvas id="petGl" aria-label="Pratinjau 3D pet"></canvas></div>
+          <p id="ds"></p>
+        </div>
+        <div id="pvDetail" class="pv-pane" role="tabpanel" aria-labelledby="pvTabDetail">
+          <div id="petInfoBody"></div>
+        </div>
+      </div>
     </div></div>
     <div id="md"><div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
       <h3 id="mt" class="ut-mk-t"></h3><p id="mx"></p>
@@ -84,6 +88,6 @@
   <script src="assets/js/core/shared-gl.js"></script>
   <script src="data/inventory/pet/_shared/js/pet-model-registry.js"></script>
   <script src="data/inventory/pet/_shared/js/pet-viewer.js"></script>
-  <script src="data/inventory/pet/_shared/js/pet-page.js?v=225"></script>
+  <script src="data/inventory/pet/_shared/js/pet-page.js?v=226"></script>
 </body>
 </html>
