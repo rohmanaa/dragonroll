@@ -6,7 +6,7 @@
 <script src="assets/js/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Dragon Roll — Tambang</title>
-<link rel="stylesheet" href="assets/components/button/button.css">
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-hud.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-world.css">
@@ -66,8 +66,8 @@
     <button class="ut-gl ut-c-p tambang-btn" id="tambang-reset" aria-label="Reset tambang"><img src="tambang-world/images/tambang-tombol-ungu-polos.webp" alt=""><img class="ic" src="tambang-world/images/tambang-ulang.webp" alt=""></button>
   </div>
 
-  <div id="tambang-md"><div class="tambang-panel" id="tambang-box">
-    <button class="tambang-x" id="tambang-mclose" aria-label="Tutup"></button><h3 id="tambang-mt">Reset Tambang</h3><p id="tambang-mx">Semua objek kembali ke susunan awal. Lanjutkan?</p>
+  <div id="tambang-md"><div class="tambang-panel ut-mk" id="tambang-box" role="dialog" aria-modal="true" aria-labelledby="tambang-mt">
+    <button class="ut-mk-x ut-gl ut-c-r" id="tambang-mclose" aria-label="Tutup"></button><h3 id="tambang-mt" class="ut-mk-t">Reset Tambang</h3><p id="tambang-mx">Semua objek kembali ke susunan awal. Lanjutkan?</p>
     <div id="tambang-mbtns">
       <button class="ut-gl ut-c-r tambang-btn" id="tambang-m-no"><img src="tambang-world/images/tambang-tombol-merah-polos.webp" alt=""><span>Batal</span></button>
       <button class="ut-gl ut-c-g tambang-btn" id="tambang-m-ok"><img src="tambang-world/images/tambang-tombol-hijau-polos.webp" alt=""><span>Reset</span></button>

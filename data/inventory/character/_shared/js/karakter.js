@@ -1413,7 +1413,7 @@ function stageDye(key,part){
   stage('d'+key,'Warna',part);selectedActionKey='dye';renderAct();
 }
 const modal=$('#modal');let mOpen=false;
-function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
+function openModal(html,init){$('#mb').innerHTML=html;const h=$('#mb h2');$('#modal-title').textContent=h?h.textContent:'';if(h)h.remove();modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();}
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing');},250);}
 $('#mx').addEventListener('click',closeModal);
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});

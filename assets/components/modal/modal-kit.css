@@ -33,3 +33,12 @@
 .ut-mk-x::before { transform: rotate(45deg); }
 .ut-mk-x::after { transform: rotate(-45deg); }
 .ut-mk-x > img { display: none; }
+
+/* Modal konfirmasi bergaya lama (#md > #box, halaman Dadu/Frame/Misi/Peringkat/Power): ukuran judul mengikuti kit, bukan #box>h3 */
+#md > #box.ut-mk > .ut-mk-t { font-size: 46px; }
+
+/* Modal bergaya .ov > .box (kredit.css: bingkai-gambar) -> kit: matikan border-image lama, pakai padding judul kit */
+.ov > .box.ut-mk { border: 6px solid #000; border-image: none; width: 1000px; max-height: 90%; padding: 110px 40px 40px; transform: none; font: 800 32px/1.3 var(--font-body); text-align: center; }
+.ov.show > .box.ut-mk, .ov.closing > .box.ut-mk { transform: none; }
+.ov > .box.ut-mk > #mb { max-height: 640px; overflow-y: auto; }
+.ov > .box.ut-mk .mb, .ov > .box.ut-mk .pack { margin-top: 18px; }

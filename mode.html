@@ -5,7 +5,7 @@
 <script>UT.PageShell.renderBase();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<link rel="stylesheet" href="assets/components/button/button.css">
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/css/mode.css"><link rel="stylesheet" href="assets/css/bg.css">
 
 <style>#mcancel[hidden]{display:none}.cur{cursor:pointer}.cur .v.bump{animation:bump .5s ease-out}@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}</style>
@@ -66,8 +66,8 @@
     </div>
   </section>
 
-  <div id="modal"><div id="mbox">
-    <div id="mt" class="ttl">MENCARI LAWAN…</div><div id="ms"></div>
+  <div id="modal"><div id="mbox" class="ut-mk" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <div id="mt" class="ut-mk-t">MENCARI LAWAN…</div><div id="ms"></div>
     <div class="spin" id="spin"></div><div id="mplayers"></div>
     <button id="mcancel" class="ut-gl ut-c-r"><span>BATAL</span></button>
   </div></div>
