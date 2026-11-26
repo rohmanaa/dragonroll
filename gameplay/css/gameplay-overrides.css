@@ -92,15 +92,14 @@ html body:is(.th-world,.th-nether) #pauseMenu .lm-srow input[type=range]::-webki
 html body:is(.th-world,.th-nether) #pauseMenu .lm-srow input[type=range]::-moz-range-track{background:var(--tp-p2)}
 
 /* tombol modal: utama = daun / warped, sekunder = kayu / crimson, Keluar tetap merah */
-html body:is(.th-world,.th-nether) .lm-mode:not(.lm-red):not(.lm-blue):not(.lm-grey),html body:is(.th-world,.th-nether) #pauseMenu .lm-resume,html body:is(.th-world,.th-nether) #readyScreen .rd-btn{
+html body:is(.th-world,.th-nether) #readyScreen .rd-btn{
   border-color:var(--tp-ol);background:linear-gradient(var(--tp-g1),var(--tp-g2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-g-sh);
   box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-g-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-g-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
-html body:is(.th-world,.th-nether) .lm-mode.lm-blue,html body:is(.th-world,.th-nether) #pauseMenu .lm-grey,html body:is(.th-world,.th-nether) .lm-chip{
+html body:is(.th-world,.th-nether) #pauseMenu .lm-grey,html body:is(.th-world,.th-nether) .lm-chip{
   border-color:var(--tp-ol);background:linear-gradient(var(--tp-s1),var(--tp-s2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-s-sh);
   box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-s-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-s-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
 html body:is(.th-world,.th-nether) #pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(var(--tp-p1),var(--tp-p2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-ol);
   box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-m-ring),inset 0 calc(var(--mu)*-.3) 0 rgba(0,0,0,.4),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
-html body:is(.th-world,.th-nether) .lm-mode.lm-red{border-color:var(--tp-ol);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
 html body:is(.th-world,.th-nether) #readyScreen .rd-card.ok .rd-btn{background:linear-gradient(var(--tp-y1),var(--tp-y2));text-shadow:0 calc(var(--mu)*.15) 0 var(--tp-y-sh);
   box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-y-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-y-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
 
@@ -109,8 +108,6 @@ html body:is(.th-world,.th-nether) .pucard{background:linear-gradient(var(--tp-m
   box-shadow:0 8px 0 var(--tp-ol),0 0 28px var(--tp-m-ring),inset 0 3px 3px rgba(255,255,255,.35),inset 0 0 0 4px var(--tp-m-ring)}
 html body:is(.th-world,.th-nether) #pcName{text-shadow:0 3px 0 var(--tp-ol)}
 html body:is(.th-world,.th-nether) .tm-box{background:linear-gradient(var(--tp-m1),var(--tp-m2));border-color:var(--tp-ol);color:var(--tp-m-txt);box-shadow:inset 0 0 0 3px var(--tp-m-ring),0 8px 0 rgba(0,0,0,.5)}
-html body:is(.th-world,.th-nether) .tm-bt .tm-y{background:linear-gradient(var(--tp-g1),var(--tp-g2));box-shadow:0 4px 0 var(--tp-ol)}
-html body:is(.th-world,.th-nether) .tm-bt .tm-n{background:linear-gradient(var(--tp-s1),var(--tp-s2));box-shadow:0 4px 0 var(--tp-ol)}
 
 /* bar Special Dice (saat dadu dilempar) */
 html body:is(.th-world,.th-nether) .dm-bar{background:var(--tp-dm-bg);box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 2px var(--tp-m-ring)}

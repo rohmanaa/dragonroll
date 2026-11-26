@@ -61,7 +61,7 @@
     function anyModal() { return !$('settingsMenu').hidden || !$('helpMenu').hidden; }
     function syncSettings() {
       var g = ops.getGraphics(), auto = !!ops.isGraphicsAuto();
-      [].forEach.call($('stGfx').querySelectorAll('button'), function (b) { var k = b.getAttribute('data-gfx'); b.setAttribute('aria-pressed', String(auto ? k === 'auto' : k === g)); });
+      [].forEach.call($('stGfx').querySelectorAll('button'), function (b) { var k = b.getAttribute('data-gfx'); var on = auto ? k === 'auto' : k === g; b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); });
       $('stGfxN').textContent = auto ? NOTE.auto + ' Sekarang: ' + ({ low: 'Rendah', normal: 'Normal', high: 'Tinggi', ultra: 'Ultra' }[g] || 'Tinggi') + '.' : (NOTE[g] || NOTE.high);
       var m = $('pmVol'), s = $('pmSfx');
       if (m) { m.value = ops.getMusicVol(); ops.paintRange(m); }

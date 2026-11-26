@@ -315,24 +315,10 @@ html body #win.win-result[data-state="lose"] .lm-box[class] {
   min-height: 0 !important;
   margin: 0 !important;
   padding: 0 8px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  color: #fff !important;
-  background-color: transparent !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: 100% 100% !important;
-  box-shadow: none !important;
-  font: 800 clamp(16px, 2vw, 24px)/1 'Baloo 2', 'Nunito', system-ui, sans-serif !important;
-  text-shadow: 0 2px 0 rgba(20, 10, 40, .65) !important;
+  font: 800 clamp(16px, 2vw, 24px)/1 'Baloo 2', 'Nunito', system-ui, sans-serif !important;   /* tampilan: .ut-gl (button.css) */
   cursor: pointer;
-  transition: filter .12s, transform .12s;
 }
 
-#win.win-result #btnAgain { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") !important; }
-#win.win-result #btnToMenu { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
-#win.win-result .lm-mode:hover { filter: brightness(1.08); transform: translateY(-2px); }
-#win.win-result .lm-mode:active { transform: translateY(2px); }
 #win.win-result .lm-mode:focus-visible { outline: 3px solid #fff3d0; outline-offset: 3px; }
 
 body:has(#win.win-result:not([hidden])) #hud,
