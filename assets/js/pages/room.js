@@ -330,8 +330,8 @@ function renderInvite(){
 /* ---------- DRAWER UNDANG TEMAN (dari kiri; tab Teman & Publik) ---------- */
 const root=document.documentElement;
 env.own(()=>root.classList.remove('dro'));
-function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFriends();renderDrawer();root.classList.add('dro');$('#dr').setAttribute('aria-hidden','false')}
-function closeDrawer(){root.classList.remove('dro');$('#dr').setAttribute('aria-hidden','true')}
+function openDrawer(tab){if(!ONLINE||!HOST)return;S.drTab=tab||'friends';loadFriends();renderDrawer();root.classList.add('dro');$('#dr').classList.add('on');$('#dr').setAttribute('aria-hidden','false')}
+function closeDrawer(){root.classList.remove('dro');$('#dr').classList.remove('on');$('#dr').setAttribute('aria-hidden','true')}
 function inviteLink(){return `${roomUrl()}?mode=online&format=${FORMAT}&count=4&role=guest&code=${S.room.code}`}
 const STL={lobby:'Di lobi',room:'Di room',game:'Sedang bermain'};
 async function loadFriends(){try{S.friends=await UT.Multiplayer.RoomService.listFriends()}catch(e){S.friends=S.friends||[]}renderPlayers();if(root.classList.contains('dro'))renderDrawer()}

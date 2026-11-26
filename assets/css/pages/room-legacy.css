@@ -99,9 +99,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 /* modal */
 .modal{position:absolute;inset:0;background:rgba(10,8,30,.72);display:none;place-items:center;z-index:40}
 .modal.on{display:grid}
-.box{width:1080px;max-height:900px;padding:40px 36px 34px;border-radius:26px;background:linear-gradient(180deg,#4a4272,#2c2547);border:5px solid #8d85b8;box-shadow:0 14px 30px rgba(0,0,0,.5);animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
+.box{width:1080px;max-height:900px;padding:104px 36px 34px;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
 @keyframes pop{from{transform:scale(.8);opacity:0}}
-.box h2{margin:0 0 22px;font-size:50px;text-align:center}
 .igrid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-height:560px;overflow:auto;padding:6px}
 .it{position:relative;height:178px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   background:linear-gradient(180deg,#5b5288,#40386a);border:3px solid #8077ad;box-shadow:0 5px 0 rgba(20,12,45,.55)}
