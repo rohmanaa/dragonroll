@@ -54,8 +54,10 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #cur-ht .v img{position:static;transform:none;top:auto;right:auto;left:auto;height:34px;width:40px;max-width:none;object-fit:contain;flex:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
 #cur-ht .v img.e{filter:brightness(0) opacity(.45)}
 #htime.ready{color:#9dff9f}
-#cur-em{left:auto;right:26px;top:30px}
-#cur-co{left:auto;right:26px;top:94px}
+/* Emerald & Coin = komponen bersama .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi/ukuran + animasi masuk */
+#cur-em,#cur-co{position:absolute;right:30px;width:330px;height:64px;--rb-fs:36px;animation:inT .6s cubic-bezier(.2,.9,.2,1) both}
+#cur-em{top:30px}
+#cur-co{top:94px;animation-delay:.07s}
 #cur-ht{right:26px;top:158px}
 /* hati: tanpa tombol +; status di kiri: hitung mundur isi ulang, SIAP bila penuh, +N bila lebih dari max */
 #cur-ht{cursor:default}

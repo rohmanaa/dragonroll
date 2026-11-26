@@ -28,12 +28,9 @@
   <button class="lbt locked" id="b-guild" data-act="guild" aria-label="Guild (terkunci)"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
 
   <!-- ===== kanan atas: Emerald, Coin, Hati (ikon + angka + tombol +) ===== -->
-  <div class="cur" id="cur-em" data-act="tambang" role="button" aria-label="Emerald, buka Tambang">
-    <img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
-  </div>
-  <div class="cur" id="cur-co" data-act="beliCoin" role="button" aria-label="Coin, buka Toko">
-    <img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
-  </div>
+  <!-- Emerald & Coin = komponen bersama UT.Hud 'resource-bar' (assets/components/resource-bar); isi dibangun lewat hydrate -->
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" data-act="tambang" aria-label="Emerald, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" data-act="beliCoin" aria-label="Coin, buka Toko"></div>
   <div class="cur" id="cur-ht" role="status" aria-label="Nyawa">
     <div class="v" id="v-ht" aria-hidden="true"></div><b id="htime" class="t-title"></b>
   </div>
@@ -95,6 +92,8 @@
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
 <script src="assets/js/core/shared-gl.js"></script>

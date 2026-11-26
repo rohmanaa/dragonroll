@@ -4,6 +4,7 @@ UT.PageModule.define('lobby',function(env){
 const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 const PD=window.PlayerData,AR=window.ItemArt;
+{const RB=window.UT&&UT.Hud&&UT.Hud.get&&UT.Hud.get('resource-bar');if(RB)RB.hydrate(document)}  /* Emerald/Coin: komponen bersama (idempoten) */
 const SET=()=>PD.settings();
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 let tt;function toast(m){const md=$('#chestMd'),t=(md&&!md.hidden&&$('#cm-toast'))||$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
