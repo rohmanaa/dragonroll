@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="assets/css/page.css">
 <link rel="stylesheet" href="assets/components/button/button.css">
+<link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
 <link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=222"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
@@ -34,7 +35,7 @@
     <button class="bt ut-gl ut-c-y" id="act" type="button" aria-label="Aksi item terpilih" style="display:none"><span></span></button>
   </section>
 
-  <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x ut-gl ut-c-r" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
+  <div class="ov" id="modal"><div class="box ut-mk" id="box" role="dialog" aria-modal="true" aria-label="Dialog karakter"><button class="x ut-mk-x ut-gl ut-c-r" id="mx" type="button" aria-label="Tutup"></button><div id="mb"></div></div></div>
   <div id="toast"></div>
 </div></div>
 <div id="fade"></div>
@@ -51,5 +52,6 @@
 <script src="assets/js/core/page-module.js"></script>
 <script src="data/inventory/character/_shared/js/character-sets.js"></script>
 <script src="data/inventory/character/_shared/js/karakter.js?v=229"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{openClass:"show"});}catch(e){}})();</script>
 </body>
 </html>
