@@ -17,14 +17,12 @@ html body #stage #dprev #fpv{position:absolute;left:18px;top:18px;right:auto;bot
 #dprev #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
 #dprev #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
 #dbtns{flex:none;display:flex;justify-content:flex-start;gap:14px;height:68px}
-#dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;border:0;background:none;cursor:pointer;font:800 28px/1 var(--font-body);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35);white-space:nowrap}
-#dbtns .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;cursor:pointer;font:400 34px/1 var(--font-title);white-space:nowrap}   /* tampilan: .ut-gl .ut-c-r/g (button.css); gambar bingkai lama disembunyikan */
+#dbtns .btn img{display:none}
 #dbtns .btn span{position:relative}
-#dbtns .btn.off{filter:grayscale(.85) brightness(.75);cursor:default}
 #dr{position:absolute;left:920px;top:150px;width:940px;height:820px;display:flex;flex-direction:column;padding:30px 34px 30px}
-#dtabs{flex:none;display:flex;gap:12px;margin-bottom:16px}
-#dtabs button{flex:none;min-width:240px;height:64px;padding:0 28px;border:0;border-radius:14px;background:rgba(255,255,255,.1);color:#cfc8ea;font:800 28px/1 var(--font-body);cursor:pointer}
-#dtabs button.on{background:linear-gradient(180deg,#ffd45a,#d98a14);color:#4a2a05;box-shadow:0 4px 0 #8a5508}
+#dtabs{flex:none;margin-bottom:16px;--tab-h:64px;--tab-fs:28px;gap:12px}   /* tampilan: .ut-seg / .ut-seg-i (tabs.css) */
+#dtabs .ut-seg-i{min-width:240px;justify-content:center}
 #dgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;gap:16px;overflow-y:auto;overflow-x:hidden;padding:4px 6px 6px 4px;align-content:start;touch-action:pan-y;scrollbar-width:none;-ms-overflow-style:none}
 #dgrid::-webkit-scrollbar{display:none;width:0;height:0}
 .dslot{position:relative;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;aspect-ratio:1/1;width:100%;height:auto;min-width:0;padding:14px 8px 12px;border:0;background:url(../../../../../assets/images/ui/slot-equipment/slot-terkunci.webp) center/100% 100% no-repeat;cursor:pointer;color:#fff;font-family:var(--font-body)}
