@@ -1,0 +1,71 @@
+/* tambang-coc.css — gaya HUD "game strategi mobile" (tebal, berlapis, glossy). HANYA kerangka HUD (tombol, panel, kartu, pil, tab);
+   ikon/gambar isi tidak diubah. Dimuat SETELAH tambang-hud.css. Semua digambar dengan CSS (tanpa gambar bingkai). */
+:root{
+  --k-line:#140f26;                 /* garis luar tebal */
+  --k-text:#fff;
+  --k-panel1:#4a4f86;--k-panel2:#2b2e56;--k-edge:#9aa1dd;--k-in:#1b1d3b;
+}
+/* ---------- TOMBOL ---------- */
+.tambang-btn{--b1:#ffd95a;--b2:#f08a12;--bd:#8a4305;--bs:#b85c06;
+  border:4px solid var(--k-line);border-radius:16px;
+  background:linear-gradient(180deg,var(--b1) 0,var(--b1) 8%,var(--b2) 100%);
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.5),inset 0 -6px 0 rgba(0,0,0,.18),0 7px 0 var(--bs),0 9px 10px rgba(0,0,0,.45);
+  margin-bottom:7px;transition:transform .08s,box-shadow .08s,filter .1s}
+.tambang-btn>img{display:none}                     /* bingkai gambar lama dimatikan; ikon di dalam <span> tetap */
+.tambang-btn span{margin-top:0;color:var(--k-text);
+  text-shadow:0 3px 0 rgba(0,0,0,.45);-webkit-text-stroke:0;paint-order:stroke fill;
+  filter:drop-shadow(0 2px 0 var(--k-line))}
+.tambang-btn:active{transform:translateY(5px);box-shadow:inset 0 4px 0 rgba(255,255,255,.4),inset 0 -4px 0 rgba(0,0,0,.18),0 2px 0 var(--bs),0 3px 6px rgba(0,0,0,.4)}
+.tambang-btn.off,.tambang-btn:disabled{filter:grayscale(1) brightness(.75)}
+.tambang-btn.poor{filter:saturate(.5) brightness(.9)}
+/* warna per tombol */
+#tambang-furn,#tambang-m-no,#tambang-mclose{--b1:#ff8a7a;--b2:#d42a2a;--bd:#7a1010;--bs:#8e1515}
+#tambang-forest,#tambang-m-ok{--b1:#9fe85a;--b2:#3fa51f;--bd:#1f5a0f;--bs:#2b7a14}
+#tambang-boostall{--b1:#6cc2ff;--b2:#1f70d8;--bd:#0f3f8a;--bs:#1a56ae}
+#tambang-liftb{--b1:#6fecd9;--b2:#1fa89d;--bd:#0d5f5a;--bs:#157f78}
+#tambang-gudang,#tambang-inv{--b1:#d99a58;--b2:#935a2a;--bd:#4a2a0e;--bs:#6b3f18}
+#tambang-gup,#tambang-reset{--b1:#be8cff;--b2:#6b3fc9;--bd:#33176f;--bs:#4d2a9a}
+#tambang-prod,#tambang-lock-btn{--b1:#ffe06a;--b2:#f39a15;--bd:#8a4305;--bs:#b85c06}
+#tambang-prod span{color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.45)}
+#tambang-tools .tambang-btn{height:78px}
+#tambang-gudang b{color:#fff3a8}
+#tambang-mbtns .tambang-btn{height:96px}
+#tambang-mclose{width:64px;height:64px}
+#tambang-mclose span{font-size:34px}
+.tambang-slot .opn{--b1:#ffe06a;--b2:#f39a15}
+.tambang-acts .tambang-btn{margin-bottom:6px}
+/* ---------- PANEL / DIALOG ---------- */
+.tambang-panel::before{inset:0;border:6px solid var(--k-edge);border-image:none;border-radius:24px;
+  background:linear-gradient(180deg,var(--k-panel1),var(--k-panel2));
+  box-shadow:0 0 0 5px var(--k-line),inset 0 0 0 4px var(--k-in),inset 0 10px 0 rgba(255,255,255,.07),0 14px 0 5px rgba(0,0,0,.38),0 24px 40px rgba(0,0,0,.5)}
+.tambang-panel>h3{height:70px;line-height:62px;padding:0 56px;top:-40px;border:5px solid var(--k-line);border-radius:16px;background:linear-gradient(180deg,#c597ff,#7b46d6 70%,#6a38c2);
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.5),inset 0 -5px 0 rgba(0,0,0,.2),0 6px 0 #3a1c7e,0 10px 14px rgba(0,0,0,.45);
+  color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+/* kartu sisi kanan (info tambang) */
+.tambang-slot::before{background:linear-gradient(180deg,var(--k-panel1),var(--k-panel2));border:6px solid var(--k-edge);border-radius:24px;
+  box-shadow:0 0 0 5px var(--k-line),inset 0 0 0 4px var(--k-in),inset 0 10px 0 rgba(255,255,255,.07),0 12px 0 5px rgba(0,0,0,.35),0 22px 36px rgba(0,0,0,.45)}
+.tambang-slot.locked::before{filter:grayscale(.55) brightness(.85)}
+/* ---------- PIL KOIN / EMERALD ---------- */
+.tambang-cur{clip-path:none;height:76px;border:4px solid var(--k-line);border-radius:38px;
+  background:linear-gradient(180deg,#3b4a86 0,#26305c 100%);
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.18),inset 0 -5px 0 rgba(0,0,0,.25),0 6px 0 #0f1430,0 8px 10px rgba(0,0,0,.4)}
+.tambang-cur .plus{width:46px;height:46px;right:14px;transform:translateY(-52%);display:grid;place-items:center;border-radius:50%;border:3px solid var(--k-line);
+  background:linear-gradient(180deg,#9fe85a,#3fa51f);color:#fff;font-size:38px;line-height:1;box-shadow:inset 0 3px 0 rgba(255,255,255,.45),0 3px 0 #1f5a0f;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+/* ---------- TAB LAYER ---------- */
+.tambang-tile{width:56px;height:56px;border:4px solid var(--k-line);border-radius:14px;
+  background:linear-gradient(180deg,#6b73b8,#3d4482);box-shadow:inset 0 4px 0 rgba(255,255,255,.3),inset 0 -4px 0 rgba(0,0,0,.2),0 5px 0 #1d2150}
+.tambang-tile>img:not(.lk){display:none}
+.tambang-tile.on{transform:translateY(-2px) scale(1.12);background:linear-gradient(180deg,#ffe06a,#f39a15);box-shadow:inset 0 4px 0 rgba(255,255,255,.55),inset 0 -4px 0 rgba(0,0,0,.2),0 5px 0 #b85c06,0 0 14px rgba(255,200,60,.6)}
+.tambang-tile.lk{background:linear-gradient(180deg,#5c5f78,#3a3c52);box-shadow:inset 0 4px 0 rgba(255,255,255,.15),inset 0 -4px 0 rgba(0,0,0,.25),0 5px 0 #20212f}
+.tambang-tile span{margin-top:0;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+.tambang-tile:active{transform:translateY(3px)}
+/* ---------- BAR & TOAST ---------- */
+.tambang-bar{border:3px solid var(--k-line);background:#0f0c20;box-shadow:inset 0 3px 5px rgba(0,0,0,.6)}
+.tambang-bar i{box-shadow:inset 0 4px 0 rgba(255,255,255,.4)}
+#tambang-toast{border:4px solid var(--k-line);border-radius:18px;background:linear-gradient(180deg,#4a4f86,#2b2e56);box-shadow:inset 0 3px 0 rgba(255,255,255,.2),0 6px 0 #0f1430,0 10px 16px rgba(0,0,0,.4);color:#fff}
+#tambang-toast[data-bad="1"]{border-color:#7a1010;background:linear-gradient(180deg,#a8453f,#6e1f1f)}
+/* tombol upgrade kecil di kartu */
+.tambang-up{border:4px solid var(--k-line);box-shadow:inset 0 4px 0 rgba(255,255,255,.4),0 5px 0 rgba(0,0,0,.35)}
+/* teks tombol selalu putih bertepi gelap (kontras di atas warna terang) */
+.tambang-btn span,.tambang-btn .bl2,.tambang-btn .bs,.tambang-btn.y span{color:#fff!important;text-shadow:0 3px 0 rgba(0,0,0,.45)}
+.tambang-btn #tambang-gcnt,#tambang-gudang b{color:#fff3a8!important}
