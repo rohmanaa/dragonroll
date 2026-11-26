@@ -20,8 +20,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 /* bar atas (page.css + sub.css) */
 #tambang-back{position:absolute;left:40px;top:30px;width:64px;height:72px;z-index:5}
 #tambang-home{position:absolute;left:calc(1812px + var(--ex,0px));top:30px;width:68px;height:72px;z-index:5}
-#tambang-back img,#tambang-home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#tambang-back:active,#tambang-home:active{transform:scale(.92)}
+#tambang-back,#tambang-home,.tambang-arr{display:grid;place-items:center}
+#tambang-back .ic,#tambang-home .ic,.tambang-arr .ic{width:68%;height:68%;object-fit:contain}
 #tambang-title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);z-index:5}
 #tambang-sum{position:absolute;left:142px;top:116px;font:800 32px var(--tambang-font-body);color:#ebe6ff;z-index:5;text-shadow:0 2px 0 rgba(10,6,24,.9),0 0 8px rgba(10,6,24,.9);white-space:nowrap}
 #tambang-sum b{color:#6be04a;font:400 40px var(--tambang-font-title)}
@@ -37,11 +37,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 
 /* navigasi layer: 6 tile stage dari kit */
 #tambang-nav{position:absolute;left:432px;top:26px;height:80px;display:flex;align-items:center;gap:4px;z-index:5}
-.tambang-arr{position:relative;width:52px;height:52px;transition:transform .1s,filter .1s}
-.tambang-arr img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.tambang-arr.up img{transform:rotate(90deg)}.tambang-arr.dn img{transform:rotate(-90deg)}
-.tambang-arr:active{transform:scale(.92)}
-.tambang-arr:disabled{filter:grayscale(1) brightness(.6);pointer-events:none}
+.tambang-arr{position:relative;width:52px;height:52px}
+.tambang-arr.up .ic{transform:rotate(90deg)}.tambang-arr.dn .ic{transform:rotate(-90deg)}
 .tambang-tile{position:relative;width:58px;height:58px;display:grid;place-items:center;transition:transform .12s,filter .12s}
 .tambang-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .tambang-tile span{position:relative;font:400 28px/1 var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-3px}
