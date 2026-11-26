@@ -12,7 +12,7 @@ t("slot equipment tetap di sisi karakter dan aksi kartu terpusat di kanan bawah"
   assert.ok(/<div id="eqL" aria-label="Perlengkapan sisi kiri"><\/div>/.test(html));
   assert.ok(/<div id="eqR" aria-label="Perlengkapan sisi kanan"><\/div>/.test(html));
   assert.ok(!/id="buy"/.test(html), "aksi pembelian/pemakaian tidak diletakkan di panel");
-  assert.ok(/<button class="bt" id="act"[^>]*><span><\/span><\/button>/.test(html), "tersedia tombol aksi tunggal");
+  assert.ok(/<button class="bt ut-gl ut-c-y" id="act"[^>]*><span><\/span><\/button>/.test(html), "tersedia tombol aksi tunggal (komponen HUD ut-gl kuning)");
   assert.ok(/fmtPrice\(ci\.price\)/.test(html));
   assert.ok(/const KOIN='assets\/images\/ui\/hud\/ikon-koin-emas\.webp'/.test(html));
   assert.ok(html.includes("label:'BELI '+fmtPrice(ci.price)+' COIN'"), "harga item tampil pada tombol aksi");
@@ -71,7 +71,7 @@ t("kaki karakter sejajar dengan batas bawah baris keempat slot", () => {
 t("tombol Acak dan Toko berada di dalam panel kiri bawah", () => {
   const info = html.indexOf('<section id="info">'),close = html.indexOf('</section>', info);
   assert.ok(info > html.indexOf('<section id="left">') && info < html.indexOf('<section id="right">'));
-  assert.ok(/<div id="panelActions"><button class="bt" id="rnd">🎲 Acak<\/button><button class="bt" id="shp">🛒 Toko<\/button><\/div>/.test(html.slice(info, close)));
+  assert.ok(/<div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">🎲 Acak<\/button><button class="bt ut-gl ut-c-d" id="shp">🛒 Toko<\/button><\/div>/.test(html.slice(info, close)));
   assert.ok(/\$\('#rnd'\)\.addEventListener/.test(html) && /\$\('#shp'\)\.addEventListener/.test(html));
 });
 t("card info berada di kiri bawah dengan area aksesori tambahan dan tanpa tombol pembelian", () => {
@@ -115,7 +115,7 @@ t("empat slot outfit di kiri dan empat slot equipment/aksesori di kanan memakai 
   assert.ok(/\.eq\.empty \.th \.em\{[^}]*filter:grayscale\(1\) brightness\(0\) invert\(1\)/.test(css));
   assert.ok(/\.eq \.th \.thimg\{[^}]*transform:none;opacity:1/.test(css), "thumbnail equipment tidak mewarisi translasi dan opacity ikon kosong");
 });
-t("tab memakai garis bawah NewGUI dan tetap mengelompokkan semua kategori editor", () => {
+t("tab memakai komponen HUD (ut-tabs/ut-tab) dan tetap mengelompokkan semua kategori editor", () => {
   const m = html.match(/const GROUPS=\[([\s\S]*?)\n\];/); assert.ok(m);
   const names = [...m[1].matchAll(/name:'([^']+)'/g)].map(x => x[1]);
   assert.deepStrictEqual(names, ["Gender", "Penampilan", "Outfit", "Aksesori", "Set"]);
@@ -125,12 +125,12 @@ t("tab memakai garis bawah NewGUI dan tetap mengelompokkan semua kategori editor
   const all = [...new Set(keys.flat().concat(hidden))].sort(), cats = [...regBlock("CATS").matchAll(/key:'(\w+)'/g)].map(x => x[1]).sort();
   assert.deepStrictEqual(all, cats, "kategori yang tidak ditampilkan langsung tetap dapat diakses dari slot equip");
   assert.ok(/<nav id="tabs"/.test(html) && /<nav id="subs"/.test(html));
-  assert.ok(/id="tabs" aria-label="Kategori"/.test(html));
-  assert.ok(/garis-bawah-tab-emas\.webp/.test(html));
-  assert.ok(/#tabs\{[^}]*grid-template-columns:repeat\(5,1fr\)/.test(css));
+  assert.ok(/id="tabs" class="ut-tabs" aria-label="Kategori"/.test(html) && /id="subs" class="ut-seg" aria-label="Sub kategori"/.test(html));
+  assert.ok(/ut-tab/.test(html), "tab kategori memakai komponen HUD (ut-tabs/ut-tab)");
+  assert.ok(/#tabs\{[^}]*width:900px/.test(css) && /#tabs \.ut-tab\{[^}]*flex:1 1 0/.test(css), "5 tab kategori berbagi lebar 900px lewat flex (komponen ut-tab)");
   assert.ok(/subsEl\.style\.display=G\.keys\.length>1\?'':'none'/.test(html), "Gender dan Aksesori tidak memiliki subkategori (Set kini subkategori Penampilan)");
   assert.ok(!/id="bh"|id="bht"/.test(html) && !/#bh|#bht/.test(css), "judul kategori tambahan tidak ditampilkan");
-  assert.ok(/<button class="bt" id="ofm" style="display:none">✏️ Kelola<\/button>/.test(html), "aksi Kelola outfit tetap tersedia");
+  assert.ok(/<button class="bt ut-gl ut-c-b" id="ofm" style="display:none">✏️ Kelola<\/button>/.test(html), "aksi Kelola outfit tetap tersedia");
   assert.ok(/#ofm\{[^}]*top:232px/.test(css), "Kelola outfit tidak lagi bergantung pada header");
   assert.ok(/#gwrap\{[^}]*top:318px[^}]*height:600px/.test(css), "grid memakai ruang tanpa header tambahan");
 });

@@ -65,7 +65,7 @@ test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
-  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/inventory/character/_shared/css/kredit.css")));
+  assert.ok(/b\.classList\.add\(o\.bg==='own'\?'ut-c-g':o\.bg==='owned'\|\|o\.bg==='no'\?'ut-c-d':'ut-c-b'\)/.test(read("data/inventory/character/_shared/js/karakter.js")), "karakter: badge kartu memakai komponen HUD (Dimiliki = gelap, bukan gambar abu)");
   assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.frame), 'frame: status warna slot (hijau/ungu/abu)');
   assert.ok(/const st=slotState\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes('d-ft') && scripts.dadu.includes("'DIPAKAI'") && scripts.dadu.includes("'DIMILIKI'") && scripts.dadu.includes("'TIDAK DIJUAL'"), 'dadu: status kartu (DIPAKAI / DIMILIKI / harga / TIDAK DIJUAL) di kaki kartu');
   const efekJs = read("data/inventory/aura/_shared/js/efek.js");

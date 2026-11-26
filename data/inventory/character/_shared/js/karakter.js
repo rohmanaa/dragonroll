@@ -1265,11 +1265,12 @@ function card(o){
   d.className='card st-'+status+(o.sel?' sel':'')+(o.lock?' lk':'');
   d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
   d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
-  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.keepBadge&&o.badge?'<button class="bt"></button>':'');
+  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.keepBadge&&o.badge?'<button class="bt ut-gl"></button>':'');
   d.querySelector('.nm').textContent=o.nm;
   if(o.keepBadge&&o.badge){
     const b=d.querySelector('.bt');b.textContent=o.badge;
     if(o.bg)b.classList.add(o.bg);
+    b.classList.add(o.bg==='own'?'ut-c-g':o.bg==='owned'||o.bg==='no'?'ut-c-d':'ut-c-b');
   }
   if(o.actionKey&&o.action)cardActions.set(o.actionKey,o.action);
   const choose=()=>{
@@ -1420,8 +1421,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 function confirmBuy(ci){
   const coins=PD.coins(),ok=coins>=ci.price;
   openModal(ok
-    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
-    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
     if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
@@ -1439,8 +1440,8 @@ function confirmBuySet(set){
   const coins=PD.coins(),ok=coins>=set.total,nm=set.n.replace(/^\S+\s/,'');
   const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2rem;margin:.4rem 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
   openModal(ok
-    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
-    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
     if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
@@ -1484,8 +1485,8 @@ function renderTabs(){
   const gi=grpOf(CATS[cat].key),G=GROUPS[gi];
   tabsEl.innerHTML='';subsEl.innerHTML='';
   GROUPS.forEach((g,i)=>{
-    const b=document.createElement('button');b.className='cat tab'+(i===gi?' on':'');
-    b.innerHTML='<span class="ce"></span><span class="cl"></span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt="">';
+    const b=document.createElement('button');b.className='cat tab ut-tab'+(i===gi?' on':'');
+    b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=g.ico;b.querySelector('.cl').textContent=g.name;
     b.setAttribute('aria-label',g.name);
     b.addEventListener('click',()=>{if(i!==gi||!g.keys.includes(CATS[cat].key))goCat(g.keys[0]);});
@@ -1493,7 +1494,7 @@ function renderTabs(){
   });
   subsEl.style.display=G.keys.length>1?'':'none';
   if(G.keys.length>1)G.keys.forEach(k=>{
-    const c=CATS.find(x=>x.key===k),b=document.createElement('button');b.className='cat sub'+(c===CATS[cat]?' on':'');
+    const c=CATS.find(x=>x.key===k),b=document.createElement('button');b.className='cat sub ut-seg-i'+(c===CATS[cat]?' on':'');
     b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
     b.setAttribute('aria-label',c.name);
@@ -1523,7 +1524,7 @@ function renderOpts(){
   }else if(c.type==='body'){
     optsEl.classList.add('flat');
     slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
-    const r=document.createElement('button');r.className='bt gd';r.textContent='Atur ulang';
+    const r=document.createElement('button');r.className='bt gd ut-gl ut-c-d';r.textContent='Atur ulang';
     r.addEventListener('click',()=>{stageBody({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
     selectedActionKey='body';
@@ -1626,7 +1627,7 @@ function curOutfitData(){
   return d;
 }
 function nameBox(title,val,okLabel,onOk,onCancel){
-  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no" id="no">Batal</button><button class="mb" id="yes">'+okLabel+'</button>',
+  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">'+okLabel+'</button>',
   ()=>{
     const inp=$('#onm'),go=()=>onOk(inp.value);
     $('#no').addEventListener('click',onCancel||closeModal);
@@ -1647,7 +1648,7 @@ function openSaveOutfit(){
 function openManageOutfits(){
   const outs=PD.outfits();
   if(!outs.length){closeModal();renderOpts();return;}
-  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb" id="ok" style="width:98%">Selesai</button>',
+  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt ut-gl ut-c-b" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no ut-gl ut-c-r" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb ut-gl ut-c-g" id="ok" style="width:98%">Selesai</button>',
   ()=>{
     $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
     $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
@@ -1660,7 +1661,7 @@ function openManageOutfits(){
     }));
     $('#mb').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
       const slot=+b.dataset.del,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
-      openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Hapus</button>',()=>{
+      openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-r" id="yes">Hapus</button>',()=>{
         $('#no').addEventListener('click',openManageOutfits);
         $('#yes').addEventListener('click',async()=>{
           const r=await outCall('deleteOutfit',slot);

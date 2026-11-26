@@ -3,12 +3,15 @@
 
 /* ---- bar atas ---- */
 #back{left:40px;top:30px;width:64px;height:72px}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back svg{display:none}
+/* tombol Tutup: tampilan = komponen .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
+#back{padding:0}
+#back img,#back svg{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#home:active,#back:active{transform:scale(.92)}
+#home:active{transform:scale(.92)}
 .cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
@@ -45,13 +48,6 @@
 
 /* ---- kanan ---- */
 #right{position:absolute;left:985px;top:0;width:900px;height:1080px}
-#tabs{position:absolute;left:0;top:130px;width:900px;height:96px;border-bottom:2px solid rgba(255,255,255,.18)}
-.tab{position:absolute;top:0;width:180px;height:92px;display:grid;place-items:center}
-.tab span{font:400 46px var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
-.tab img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));opacity:.85}
-.tab.on img{opacity:1}
-.tab .ul{position:absolute;left:0;right:0;bottom:-20px;width:100%;height:36px;object-fit:fill;display:none}
-.tab.on .ul{display:block}
 /* slot diperbesar 1.25x (5 kolom, ~162px): di HP layar lebar (20:9) stage 1920x1080 tampil di tinggi penuh jadi slot 130px terlalu kecil.
    zoom menskalakan slot + isi (ikon, harga, tag) bersama; left/top/ukuran di bawah sudah dibagi 1.25. Grid bisa di-scroll bila item > 4 baris. */
 #grid{position:absolute;left:4px;top:210px;width:740px;max-height:636px;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:130px;gap:20px;zoom:1.25;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
