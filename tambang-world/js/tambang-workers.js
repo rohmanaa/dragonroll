@@ -70,6 +70,7 @@
       root.position.x = far > 0.06 ? root.position.x + (tx - root.position.x) * Math.min(1, dt * 5) : tx;
       root.position.z += ((far > 0.06 ? 0.85 : 0.2) - root.position.z) * Math.min(1, dt * 8);
       if (far > 0.06) rig.setMode('walk');
+      else if (c.busy) { rig.setMode('idle'); w.nextAct -= dt; if (w.nextAct <= 0 && !rig.acting) { rig.act('grab'); w.nextAct = 0.55; } }
     } else if (w.mode === 'mine' || w.mode === 'grab') {
       /* slot produksi (layer 1-3): perilaku mengikuti status data tambang: locked | work | full | cheer */
       const D = MW.data, ps = root.userData.prodSlot, st = ps && D && D.ready ? D.status(ps) : 'work';

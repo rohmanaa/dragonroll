@@ -4,22 +4,26 @@
   'use strict';
   const MW = window.TambangMW, Wd = MW.world, $ = (id) => document.getElementById(id);
   const canvas = $('tambang-gl'), stage = $('tambang-stage'), toastEl = $('tambang-toast'), dock = $('tambang-dock');
-  const N = MW.LAYERS - 1, MIN = 0, SW = 1920, SH = 1080;
+  const N = MW.LAYERS - 1, MIN = 0, SH = 1080; let SW = 1920;    /* SW dinamis: lebar stage mengikuti rasio layar (min 1920 = 16:9, maks 2880 = 24:9) */
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   let showSlots = false, drag = null, pan = null, liftTimer = 0, toastTimer = 0;
 
   MW.buildWorld(canvas);
   const camera = Wd.camera, renderer = Wd.renderer, Snap = MW.Snap;
-  if (Wd.viewW !== 32) MW.setViewW(32);
-
+  
   /* ---------- fit stage: skala; ponsel potret → diputar 90° (seperti rig layar repo) ---------- */
   const view = { k: 1, rot: false, cx: 0, cy: 0 };
   function fit() {
     const W = window.innerWidth, H = window.innerHeight;
     view.rot = H > W; view.cx = W / 2; view.cy = H / 2;
+    const asp = view.rot ? H / W : W / H;
+    SW = Math.round(clamp(SH * asp, 1920, 2880));
+    stage.style.width = SW + 'px'; stage.style.marginLeft = (-SW / 2) + 'px'; stage.style.setProperty('--ex', (SW - 1920) + 'px');
+    canvas.style.width = SW + 'px';
+    if (Math.abs(Wd.viewW - SW / 60) > 0.01) MW.setViewW(SW / 60);
     view.k = view.rot ? Math.min(H / SW, W / SH) : Math.min(W / SW, H / SH);
     stage.style.transform = (view.rot ? 'rotate(90deg) ' : '') + 'scale(' + view.k + ')';
-    const bw = Math.round(clamp(SW * view.k * Math.min(window.devicePixelRatio || 1, 2), 640, 2560)), bh = Math.round(bw * 9 / 16);
+    const bw = Math.round(clamp(SW * view.k * Math.min(window.devicePixelRatio || 1, 2), 640, 2560)), bh = Math.round(bw * SH / SW);
     renderer.setPixelRatio(1); renderer.setSize(bw, bh, false);
   }
   window.addEventListener('resize', fit); window.addEventListener('orientationchange', fit); fit();
@@ -364,20 +368,25 @@
     ask('Konfirmasi', nm + '<br>seharga ' + fmt(c) + ' Koin?', 'BATAL', 'YA', async () => { D.feedback(); const r = await D.liftAct(a); if (!r.ok) { toast(D.MSG[r.reason] || 'Gagal', true); return; } syncLift(); buildCard(); paintCur($('tambang-cur-co')); toast(a === 'unlock' ? 'Lift dibuka!' : 'Lift di-upgrade!'); });
   }
   let trip = null;
-  function startTrip(pl) { trip = { n: pl.n, ores: pl.ores, mine: pl.mine, ph: 'up' }; Wd.lift.setLoad(0, 1, null); Wd.lift.goTo(pl.mine); }
+  function startTrip(pl) { trip = { n: pl.n, ores: pl.ores, mine: pl.mine, ph: 'up' }; MW.logi.hold[pl.mine] = pl.n; Wd.lift.setLoad(0, 1, null); Wd.lift.goTo(pl.mine); }
   const powN = (k) => k.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   function tripStep() {
     if (!trip) return; const lf = Wd.lift;
     if (Math.abs(lf.y - lf.target) >= 0.4 || lf.layer !== (trip.ph === 'up' ? trip.mine : 0)) return;
-    if (trip.ph === 'up') { lf.setLoad(trip.n, D.lift().cap, trip.ores); lf.goTo(0); trip.ph = 'down'; return; }
-    const tr = D.deliver(), n = trip.n; trip = null; lf.setLoad(0, 1, null); paintGudang(true); rerender();
+    if (trip.ph === 'load') return;
+    if (trip.ph === 'up') {   /* tiba di tambang: muat dari chest (kubus melayang ke kabin), lalu naik */
+      const tp = trip; tp.ph = 'load'; MW.logi.pickup(tp.mine);
+      setTimeout(() => { MW.logi.hold[tp.mine] = 0; }, 500);
+      setTimeout(() => { if (trip !== tp) return; lf.setLoad(tp.n, D.lift().cap, tp.ores); lf.goTo(0); tp.ph = 'down'; }, 1500); return;
+    }
+    const tr = D.deliver(), n = trip.n; MW.logi.hold = {}; trip = null; lf.setLoad(0, 1, null); paintGudang(true); rerender();
     const dp = tr && tr.drops, bonus = dp ? [dp.coin ? '+' + fmt(dp.coin) + ' Koin' : '', dp.gem ? '+' + fmt(dp.gem) + ' Emerald' : '', dp.power.length ? '🎁 Power ' + dp.power.map(powN).join(', ') : ''].filter(Boolean) : [];
     if (bonus.length) { paintCur($('tambang-cur-co')); MW.debris.spawn(new THREE.Vector3(28.6, MW.GROUND + 2.5, 1.8), 0xffd24d, 18); toast('✨ Hadiah langka! ' + bonus.join(' · '), false); }
     else if (tr && !(Wd.cur === 0 && md.classList.contains('on'))) toast('Lift tiba di Gudang · +' + fmt(n) + ' ore', false);
     setTimeout(() => { if (!trip) lf.goTo(0); }, 900);
   }
   function showCatchup(r) {
-    trip = null; Wd.lift.setLoad(0, 1, null); paintGudang(true); buildCard(); rerender();
+    trip = null; MW.logi.hold = {}; Wd.lift.setLoad(0, 1, null); paintGudang(true); buildCard(); rerender();
     const parts = []; if (r.ore > 0) parts.push('+' + fmt(r.ore) + ' ore'); if (r.wood > 0) parts.push('+' + fmt(r.wood) + ' kayu'); if (r.smelted > 0) parts.push(fmt(r.smelted) + ' dilebur'); if (r.coin > 0) parts.push('✨ +' + fmt(r.coin) + ' Koin'); if (r.gem > 0) parts.push('+' + fmt(r.gem) + ' Emerald'); if (r.power > 0) parts.push(r.power + ' Power-up'); paintCur();
     toast('Selama offline ' + dur(r.mins * 60) + (r.capped ? ' (maks)' : '') + ': ' + (parts.join(' · ') || 'belum ada hasil'), false);
   }
