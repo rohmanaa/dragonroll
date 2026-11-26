@@ -16,9 +16,9 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #vig{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,20,60,.3),transparent 22%,transparent 72%,rgba(10,10,50,.4))}
 /* header */
 #back{position:absolute;left:40px;top:30px;width:64px;height:72px}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+#back{display:grid;place-items:center}/* tampilan: .ut-gl .ut-c-r (button.css); ikon panah tetap */
+#back img{width:62%;height:62%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
 #back svg{position:absolute;left:50%;top:50%;width:46px;height:46px;transform:translate(-55%,-50%)}
-#back:active{transform:scale(.92)}
 #title{position:absolute;left:140px;top:22px;font-size:64px;line-height:1}
 #chips{position:absolute;left:142px;top:92px;display:flex;gap:10px}
 .chip{padding:4px 16px;border-radius:99px;background:rgba(24,18,48,.7);font-weight:800;font-size:20px;border:2px solid rgba(255,255,255,.25)}
@@ -34,12 +34,9 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #hrt span{color:#ffe08a;font-variant-numeric:tabular-nums}
 #hrt.empty{background:rgba(120,20,30,.78);border-color:#ff8a8a}
 
-.btn{position:relative;display:grid;place-items:center;transition:transform .1s,filter .1s}
-.btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
-.btn span{position:relative;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-6px}
-.btn:active{transform:translateY(3px) scale(.97)}
+.btn{position:relative;display:grid;place-items:center}
+.btn span{position:relative;font:400 34px/1 var(--font-title)}/* tampilan tombol: .ut-gl .ut-c-* (button.css) */
 .btn.off{filter:grayscale(1) brightness(.7);pointer-events:none}
-.btn.gold span{color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
 /* panel */
 .panel{position:absolute;background:rgba(38,31,62,.84);border-radius:24px;border:4px solid var(--line);box-shadow:inset 0 0 0 3px rgba(0,0,0,.35),0 8px 18px rgba(10,6,30,.4)}
 .panel>h3{position:absolute;left:24px;top:-22px;margin:0;padding:3px 28px 6px;font:400 30px var(--font-title);background:linear-gradient(180deg,#8e6df0,#5b3bc4);border-radius:12px;border:3px solid #2b1a70;text-shadow:0 2px 0 rgba(20,5,70,.7);white-space:nowrap}
@@ -74,7 +71,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #bar{display:flex;gap:16px;align-items:center;height:76px}
 #code{flex:1;height:76px;border-radius:14px;background:#1b1631;border:3px solid #4c4468;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-weight:800;font-size:24px}
 #code>span{white-space:nowrap;font-size:20px;color:#cfc8ee}#code b{font:400 42px var(--font-title);letter-spacing:5px;color:var(--gold)}
-#code button{padding:6px 16px;border-radius:10px;background:#5a5180;font-weight:800;font-size:20px}
+#code button{padding:6px 16px;font:400 22px var(--font-title)}
 .bsm{width:230px;height:76px}.bsm span{font-size:28px}
 #list{margin-top:16px;display:flex;flex-direction:column;gap:12px}
 #list.cmp .pl{height:94px;gap:16px}#list.cmp .av{width:68px;height:68px;font-size:36px}#list.cmp .pl .nm{font-size:32px}#list.cmp .pl.empty{font-size:22px}#list.cmp{gap:8px}
@@ -93,8 +90,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .badge.rdy{background:#43b63a;border-color:#12400e}
 .badge.wait{background:#5a5180;border-color:#2b2550;color:#d4cef0}
 .badge.bot{background:#3d8bff;border-color:#10357a}
-.mv{width:54px;height:54px;border-radius:12px;background:#5a5180;font-size:30px;display:grid;place-items:center}
-.mv:active{transform:scale(.9)}
+.mv{width:54px;height:54px;padding:0;font-size:30px;display:grid;place-items:center}/* tampilan: .ut-gl .ut-c-d */
 #foot{position:absolute;left:28px;right:28px;bottom:26px}
 #why{height:34px;text-align:center;font-weight:800;font-size:22px;color:#ffe08a;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #acts{display:flex;gap:20px;justify-content:center;margin-top:8px}
@@ -116,8 +112,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .mfoot{display:flex;gap:20px;justify-content:center;margin-top:22px;align-items:center}
 .mfoot .hint{font-weight:800;font-size:22px;color:#ddd7f7}
 .sw{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
-.sw button{padding:10px 34px;border-radius:12px;background:#3c3460;border:3px solid #6d6590;font:400 32px var(--font-title)}
-.sw button.on{background:#43b63a;border-color:#12400e}
+.sw .ut-seg-i{padding:10px 34px;font:400 32px var(--font-title)}/* tampilan: .ut-seg (tabs.css) */
 .row2{display:flex;gap:14px;margin-bottom:14px;align-items:center}
 .field{flex:1;height:68px;border-radius:12px;background:#1b1631;border:3px solid #4c4468;display:flex;align-items:center;padding:0 18px;font-weight:800;font-size:22px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .cp{width:130px;height:68px}.cp span{font-size:28px}

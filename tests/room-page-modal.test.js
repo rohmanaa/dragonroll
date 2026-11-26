@@ -101,7 +101,7 @@ test('modal Power & picker item: gaya modal Chest lobi (backdrop, bingkai-dialog
   const stageEnd = room.indexOf('<div id="pageModal"');
   assert.ok(room.indexOf('id="pm"') > stageEnd && room.indexOf('id="em"') > stageEnd, 'di luar #stage yang diskalakan');
   assert.ok(/\.cmd\{position:fixed;inset:0;[^}]*background:rgba\(10,8,30,\.72\)/.test(room), 'backdrop sama dengan #chestMd');
-  assert.ok(room.includes('panel-dialog/bingkai-dialog.webp') && room.includes('banner-label/banner-judul-ungu-polos.webp') && room.includes('tombol-tutup-bulat.webp'));
+  assert.ok(room.includes('panel-dialog/bingkai-dialog.webp') && room.includes('banner-label/banner-judul-ungu-polos.webp') && room.includes('id="pmX"') && /class="cmx ut-gl ut-c-r" id="pmX"/.test(room));
   assert.ok(room.includes("setProperty('--rs',s)") && /\.cbx\{[^}]*zoom:var\(--rs/.test(room), 'kotak diskalakan lewat zoom:var(--rs)');
   assert.ok(room.includes("$('#pmX').onclick=closePowerPick") && room.includes("e.key!=='Escape'"));
   assert.ok(room.includes("e.target.id==='pm'") && room.includes("e.target.id==='em'"), 'klik backdrop menutup');

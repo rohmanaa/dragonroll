@@ -165,7 +165,7 @@ function renderPower(){
  $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';
  $('#prow').innerHTML=Array.from({length:TMAX},(_,i)=>{
   const id=PW.equipped[i],p=id&&IC.byId(id);
-  return p?`<div class="ps full"><button type="button" class="ps-main" data-slot="${i}" aria-label="Ganti ${esc(p.name)}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="pn">${esc(p.name)}</span></button><button type="button" class="x" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
+  return p?`<div class="ps full"><button type="button" class="ps-main" data-slot="${i}" aria-label="Ganti ${esc(p.name)}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="pn">${esc(p.name)}</span></button><button type="button" class="x ut-gl ut-c-r sm" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
    :`<div class="ps"><button type="button" class="ps-main" data-slot="${i}" aria-label="Pilih Power"><b>+</b></button></div>`;
  }).join('');
  $('#pinfo').textContent=ONLINE?'Mode online: pilihan Power tidak dikirim ke room.':(PW.equipped.length?PW.equipped.map(id=>(IC.byId(id)||{}).name).filter(Boolean).join(' · '):'Pilih hingga '+TMAX+' Power untuk dibawa.');
@@ -189,7 +189,7 @@ function renderPowerPick(){
  $('#pmL').innerHTML=POWERS.map(p=>{
   const on=powerDraft.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=powerDraft.carry[p.id]||1,none=invReady()&&st<=0,max=carryMax(p.id);
   const state=on?'<div class="pstate installed">DIPASANG</div>':st>0?`<div class="pstate owned">DIMILIKI ×${st}</div>`:canBuyPower(p)?`<div class="pstate" data-buy="1">${PCOIN}${fmtPrice(p.price)}</div>`:'<div class="pstate zero">TIDAK DIJUAL</div>';
-  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:'';
+  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" class="ut-gl ut-c-d sm" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" class="ut-gl ut-c-d sm" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:'';
   const fx=UT.PowerFX&&UT.PowerFX.DATA[p.gameKey];
   return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — '+(on?'dipasang':st?'dimiliki '+st:canBuyPower(p)?'beli '+fmtPrice(p.price):'tidak dijual')+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${state}${info}</div>`;
  }).join('');
@@ -266,8 +266,8 @@ function prow(p,i){const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===me
  sub=ONLINE?'':`<div class="sb">Lv ${p.level} • ${kind}</div>`,
  bd=isHost?`<span class="badge host">${CROWN}HOST</span>`:p.kind==='bot'?'<span class="badge bot">BOT</span>':'',
  st=p.ready?'<span class="badge rdy">READY</span>':'<span class="badge wait">BELUM</span>',
- mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'',
- add=showAdd?`<button class="af ${sent?'sent':''}" data-af="${esc(p.id)}" data-nm="${esc(p.name)}" ${sent?'disabled':''} aria-label="Add Friend">${sent?'✓ Terkirim':'＋ Teman'}</button>`:'';
+ mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv ut-gl ut-c-d sm" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'',
+ add=showAdd?`<button class="af ut-gl sm ${sent?'ut-c-d sent':'ut-c-b'}" data-af="${esc(p.id)}" data-nm="${esc(p.name)}" ${sent?'disabled':''} aria-label="Add Friend">${sent?'✓ Terkirim':'＋ Teman'}</button>`:'';
  return `<div class="pl ${isMe?'me':''}">${avatar(p)}<div><div class="nm ttl">${esc(p.name)}${isMe?' (Kamu)':''}</div>${sub}</div><div class="grow"></div>${mv}${add}${bd}${st}</div>`}
 function srow(team){if(!ONLINE)return'';
  if(!HOST)return `<div class="pl empty">Slot kosong</div>`;
@@ -305,7 +305,7 @@ function check(){const P=S.room.players,h=me();
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
 function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textContent=(c.ok?'✅ ':'⏳ ')+c.msg;
- const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.querySelector('img').src='assets/images/buttons/'+(h.ready?'tombol-abu-polos':'../../images/ui/buttons-and-controls/tombol-hijau-polos')+'.webp';
+ const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.classList.toggle('ut-c-g',!h.ready);rb.classList.toggle('ut-c-d',!!h.ready);
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(!h.ready&&UT.HeartsGate&&!UT.HeartsGate.guard())return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
@@ -347,7 +347,7 @@ async function loadDrawerLooks(ids){try{const AS=window.UT&&UT.AppearanceService
  const r=await AS.usersAppearance(need);
  if(r&&r.ok){need.forEach(i=>{S.dApp[String(i).toLowerCase()]=r.byId[String(i).toLowerCase()]||EMPTY_LOOK});if(root.classList.contains('dro'))renderDrawer()}else need.forEach(i=>{delete S.dTry[i]})}catch(e){}}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
- return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv" data-add="${esc(id)}" data-nm="${esc(name)}"><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>＋ TEMAN</span></button>`}<button class="btn inv ${sent?'sent':''}" data-pinv="${esc(id)}" ${can?'':'disabled'}><img src="${sent?'assets/images/buttons/tombol-ungu-polos.webp':'assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp'}" alt=""><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
+ return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv ut-gl ut-c-b" data-add="${esc(id)}" data-nm="${esc(name)}"><span>＋ TEMAN</span></button>`}<button class="btn inv ut-gl ${sent?'ut-c-p sent':'ut-c-g'}" data-pinv="${esc(id)}" ${can?'':'disabled'}><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
 /* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
 const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
 function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}
