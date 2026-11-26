@@ -441,6 +441,8 @@ UT.PageModule.define('shop', function (env) {
   }
 
   const modal = $('#modal');
+  /* modal sungguhan: fokus masuk & kembali ke pemicu, Tab terkunci, elemen luar inert (UT.ModalKit); dibuka/ditutup lewat kelas .show */
+  try { if (UT.ModalKit) env.own(UT.ModalKit.watch(modal, { openClass: 'show', labelledBy: 'modal-title', initialFocus: '#mx' })); } catch (e) { /* abaikan */ }
   function openModal(html, init) {
     if (env.disposed) return;
     clearTimeout(modalTimer);
