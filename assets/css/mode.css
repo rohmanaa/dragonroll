@@ -97,10 +97,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 /* ---------- modal cari lawan ---------- */
 #modal{position:absolute;inset:0;background:rgba(10,8,30,.7);display:none;place-items:center;z-index:40}
 #modal.on{display:grid}
-#mbox{width:760px;padding:46px 40px 40px;border-radius:26px;background:linear-gradient(180deg,#4a4272,#2c2547);border:5px solid #8d85b8;text-align:center;
-  box-shadow:0 14px 30px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+#mbox{width:760px;padding:110px 40px 40px;text-align:center;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}   /* panel/judul = .ut-mk (modal-kit.css) */
 @keyframes pop{from{transform:scale(.7);opacity:0}}
-#mt{font-size:56px}
 #ms{font-weight:800;font-size:26px;margin-top:14px;color:#ddd7f7}
 .spin{width:90px;height:90px;margin:28px auto 6px;border-radius:50%;border:10px solid #5a5180;border-top-color:#ffd45a;animation:rot 1s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
