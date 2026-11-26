@@ -6,7 +6,7 @@
 <title>DRAGON ROLL</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/css/splash.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/pwa.js"></script><script src="assets/js/systems/ambience.js"></script>
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css"><link rel="stylesheet" href="assets/css/splash.css"><link rel="stylesheet" href="assets/css/night-fog.css"><script src="assets/js/pwa.js"></script><script src="assets/js/systems/ambience.js"></script>
 <style>
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
 body.quick #loadbox,body.quick #spin{visibility:hidden}
@@ -37,8 +37,8 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
   <button class="btn ut-gl ut-c-y" id="loginbtn" hidden><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>Login</span></button>
 
   <!-- LOGIN (username + password; akun asli lewat UT.Auth) -->
-  <div class="amodal" id="m-login"><div class="dlg">
-    <div class="dh"><span>Login</span><button class="x ut-gl ut-c-r" data-close aria-label="Tutup"><img src="assets/images/ui/white-glyphs/silang.webp" alt=""></button></div>
+  <div class="amodal" id="m-login"><div class="dlg ut-mk" role="dialog" aria-modal="true" aria-labelledby="t-login">
+    <h3 class="ut-mk-t" id="t-login">Login</h3><button class="ut-mk-x ut-gl ut-c-r" type="button" data-close aria-label="Tutup"></button>
     <div class="df">
       <label class="inp"><img src="assets/images/ui/white-glyphs/pengguna.webp" alt=""><input id="li-id" maxlength="16" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label class="inp"><img src="assets/images/ui/white-glyphs/gembok.webp" alt=""><input id="li-pw" type="password" placeholder="Password" autocomplete="current-password"></label>
@@ -49,8 +49,8 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
   </div></div>
 
   <!-- SIGN UP -->
-  <div class="amodal" id="m-signup"><div class="dlg">
-    <div class="dh"><span>Sign up</span><button class="x ut-gl ut-c-r" data-close aria-label="Tutup"><img src="assets/images/ui/white-glyphs/silang.webp" alt=""></button></div>
+  <div class="amodal" id="m-signup"><div class="dlg ut-mk" role="dialog" aria-modal="true" aria-labelledby="t-signup">
+    <h3 class="ut-mk-t" id="t-signup">Sign up</h3><button class="ut-mk-x ut-gl ut-c-r" type="button" data-close aria-label="Tutup"></button>
     <div class="df">
       <label class="inp"><img src="assets/images/ui/white-glyphs/pengguna.webp" alt=""><input id="su-us" maxlength="16" placeholder="Username (3–16: huruf, angka, _)" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label class="inp"><img src="assets/images/ui/white-glyphs/gembok.webp" alt=""><input id="su-pw" type="password" placeholder="Password (min. 6 karakter)" autocomplete="new-password"></label>
@@ -72,4 +72,5 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
 <script type="module" src="assets/js/auth.js"></script>
 <script src="assets/js/core/app-version.js"></script><script src="assets/js/systems/game-dialog.js"></script><script src="assets/js/systems/update-service.js"></script><script src="assets/js/services/tos-service.js"></script>
 <script src="assets/js/pages/splash.js"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{if(!(window.UT&&UT.ModalKit))return;[["m-login","#li-id"],["m-signup","#su-us"]].forEach(function(p){var m=document.getElementById(p[0]);if(m)UT.ModalKit.watch(m,{initialFocus:p[1]});});}catch(e){}})();</script>
 </body></html>
