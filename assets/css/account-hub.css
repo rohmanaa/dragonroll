@@ -54,8 +54,7 @@ body.hub::before,body.hub::after{content:none!important;display:none!important}
 /* panel gagal dimuat */
 .perr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;font:800 40px var(--font-body)}
 .perr p{margin:0 0 28px;text-shadow:0 2px 0 rgba(10,6,24,.6)}
-.perr-btn{font:400 36px var(--font-title);color:#fff;padding:14px 44px;border:0;border-radius:18px;background:#3d9e5f;box-shadow:0 6px 0 #1f6038;cursor:pointer}
-.perr-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #1f6038}
+.perr-btn{font:400 36px var(--font-title);padding:14px 44px;cursor:pointer}   /* tampilan: .ut-gl .ut-c-y (button.css) */
 
 html[data-graphics="low"] #ptabs .ptab img.ic{filter:none}
 @media (prefers-reduced-motion:reduce){#pane.loading{transition:none}}

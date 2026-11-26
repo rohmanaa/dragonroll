@@ -7,7 +7,7 @@
 <title>Dragon Roll — Pengaturan</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/css/settings.css"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/tabs/tabs.css"><link rel="stylesheet" href="assets/css/settings.css"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
 </head>
 <body class="sub">
@@ -31,30 +31,30 @@
   <!-- kolom kanan: pilihan -->
   <section id="opts">
     <div class="grp"><div class="cap">GRAFIK</div>
-      <div class="seg" id="seg-gfx"><button data-gfx="auto">Auto</button><button data-gfx="low">Rendah</button><button data-gfx="normal">Normal</button><button data-gfx="high">Tinggi</button><button data-gfx="ultra">Ultra</button></div>
+      <div class="ut-seg" id="seg-gfx"><button class="ut-seg-i" data-gfx="auto">Auto</button><button class="ut-seg-i" data-gfx="low">Rendah</button><button class="ut-seg-i" data-gfx="normal">Normal</button><button class="ut-seg-i" data-gfx="high">Tinggi</button><button class="ut-seg-i" data-gfx="ultra">Ultra</button></div>
       <div id="gfxn" class="note"></div></div>
     <div class="grp"><div class="cap">BAHASA</div>
-      <button class="btn" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
+      <button class="btn ut-gl ut-c-b" id="langBtn" aria-haspopup="dialog"><img class="bgb" src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><img class="fl" id="langFlag" src="" alt=""><span id="langName"></span></button></div>
     <div class="grp"><div class="cap">TAMPILAN</div>
-      <div class="seg" id="seg-display"><button type="button" data-display="fullscreen">Fullscreen</button><button type="button" data-display="normal">Normal</button></div></div>
+      <div class="ut-seg" id="seg-display"><button type="button" class="ut-seg-i" data-display="fullscreen">Fullscreen</button><button type="button" class="ut-seg-i" data-display="normal">Normal</button></div></div>
   </section>
 
   <div id="line"></div>
-  <button class="btn" id="logout"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>KELUAR AKUN</span></button>
+  <button class="btn ut-gl ut-c-r" id="logout"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>KELUAR AKUN</span></button>
 
   <!-- konfirmasi keluar -->
   <div id="confirm" role="dialog" aria-modal="true" aria-labelledby="cf-t"><div id="cbox">
     <div id="cf-t" class="ttl">KELUAR AKUN?</div>
     <div id="cf-s">Koin, item, dan progres tetap tersimpan dan kembali saat kamu login lagi.</div>
     <div class="cbtns">
-      <button class="btn" id="cf-no"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
-      <button class="btn" id="cf-ok"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
+      <button class="btn ut-gl ut-c-r" id="cf-no"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>BATAL</span></button>
+      <button class="btn ut-gl ut-c-r" id="cf-ok"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
     </div>
   </div></div>
   <!-- pilih bahasa -->
   <div id="lang" role="dialog" aria-modal="true" aria-labelledby="lg-t"><div id="lbox">
     <div id="lg-t" class="ttl">PILIH BAHASA</div>
-    <button id="lg-x" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+    <button id="lg-x" class="ut-gl ut-c-r" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
     <div id="lgrid"></div>
   </div></div>
   <div id="appver" data-app-version hidden></div>

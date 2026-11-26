@@ -42,9 +42,6 @@ body.ef #cur-co{left:auto!important;right:26px!important}
 .kcard{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .kcard::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .kcard.sel::before{border-image-source:url(../images/ui/hud/kartu-kosong-oranye.webp)}
-.seg{display:flex;gap:12px}
-.seg button{flex:1;height:84px;font:400 32px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat}
-.seg button.on{background-image:url(../images/ui/buttons-and-controls/tombol-biru-polos.webp)}
 .tg{width:140px;height:65px;background:url(../images/buttons/toggle-off.webp) center/100% 100% no-repeat}
 .tg.on{background-image:url(../images/buttons/toggle-on.webp)}
 input[type=range]{-webkit-appearance:none;appearance:none;height:26px;border-radius:13px;background:#1b1631;border:3px solid #4c4468}

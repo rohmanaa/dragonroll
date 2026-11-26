@@ -301,7 +301,7 @@
       pane.textContent = '';
       var box = el('div', null, 'perr'); box.setAttribute('role', 'alert');
       var msg = D.createElement('p'); msg.textContent = 'Gagal memuat ' + BY[key].label + '.';
-      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn'; btn.textContent = 'Coba lagi';
+      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn ut-gl ut-c-y'; btn.textContent = 'Coba lagi';
       btn.addEventListener('click', function () { select(key, true); });
       box.appendChild(msg); box.appendChild(btn); pane.appendChild(box);
       btn.focus({ preventScroll: true });
