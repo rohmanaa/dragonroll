@@ -12,13 +12,15 @@ button.sr,button.kr,#rank,#pet,#hid,.ecell{background:none;border:0;padding:0;co
 /* tombol emoji & ubah nama: tampilan dari komponen .ut-gl (button.css); di sini hanya reset ukuran teks */
 .eb,#pen{padding:0;color:#fff;font:inherit;cursor:pointer}
 
-/* panel kartu = gaya "Contoh Popup" (referensi/component/game-cards.html) versi gelap: tepi hitam, ring dalam, kilap dua tingkat. Isi ikut transparansi panel (--panel-a). */
-.pcard{position:absolute;box-sizing:border-box;border:3px solid #000;border-radius:18px;isolation:isolate;overflow:hidden;
-  background:linear-gradient(rgba(58,58,58,var(--panel-a,.84)) 0 50%,rgba(38,38,38,var(--panel-a,.84)) 50%);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.2),inset 0 4px 0 rgba(255,255,255,.28),inset 0 -5px 0 rgba(0,0,0,.3),0 3px 0 rgba(0,0,0,.4)}
-/* #hero punya ::after sendiri (gambar latar) di dalam tepi kartu */
+
+/* panel kartu = kartu dialog (kartu-toko-landscape.webp = kartu-toko diputar 90°), 9-slice, untuk Profil/Statistik/Koleksi */
+.pcard{position:absolute;box-sizing:border-box;border:0;border-radius:0;background:none;box-shadow:none;isolation:isolate;overflow:hidden}
+.pcard::before{content:"";position:absolute;inset:0;border:20px solid transparent;border-image:url(../../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 20px stretch;z-index:-1;pointer-events:none}
+/* isi kartu agak transparan (tepi tetap dari aset); #hero punya ::after sendiri (gambar latar) yang menimpa ini */
+.pcard::after{content:"";position:absolute;inset:16px;border-radius:10px;z-index:-1;pointer-events:none;background:rgba(18,13,36,calc(var(--panel-a,.84) * .79))}
 #hero{overflow:visible;left:100px;top:150px;width:1720px;height:440px}
-#hero::after{content:"";position:absolute;inset:8px;border-radius:12px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(12,8,30,.35),rgba(12,8,30,.7)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
+/* latar kartu Profil tetap profile-bg.webp, di dalam bingkai panel kartu */
+#hero::after{content:"";position:absolute;inset:16px;border-radius:10px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(12,8,30,.35),rgba(12,8,30,.7)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
 /* strip info: tiga kartu (komponen stat-card) selebar sama dengan kartu di atas/bawahnya */
 #infoc{position:absolute;left:100px;top:606px;width:1720px;height:96px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;font-size:34px}
 #infoc .ut-sc{height:96px;width:100%;cursor:default}
@@ -78,7 +80,7 @@ button.sr,button.kr,#rank,#pet,#hid,.ecell{background:none;border:0;padding:0;co
 #sg{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px 16px}
 .sr,.kr{position:relative;width:auto;height:auto;min-height:0;margin:0;padding:4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center}
 /* chip seragam untuk div DAN button (reset button di atas memberi padding/background 0, ditimpa di sini) */
-.sr,.kr,button.sr,button.kr{background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.09);border-radius:14px;padding:4px 14px}
+.sr,.kr,button.sr,button.kr{padding:4px 14px}   /* tampilan kotak: .card-panel-new (assets/components/card-panel-new) */
 .sr .ic,.kr .ic{width:56px;height:56px;background:none!important;border:0}.sr .ic img,.kr .ic img{width:48px;height:48px}
 .sr .nm,.kr .nm{width:auto;flex:none;font:400 22px/1 var(--font-title);color:#e4def8;text-shadow:0 2px 0 rgba(10,6,24,.5);white-space:nowrap}
 .sr .v{justify-content:flex-start;min-width:0;font:400 32px/1 var(--font-title)}

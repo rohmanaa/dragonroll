@@ -220,14 +220,14 @@ $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classLi
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
 const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr card-panel-new" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
 $('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr card-panel-new"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
