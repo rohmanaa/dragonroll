@@ -6,7 +6,7 @@
 <script src="assets/js/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Dragon Roll — Tambang</title>
-<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/tile-button/tile-button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
 <link rel="stylesheet" href="assets/components/modal/drawer.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-hud.css">
@@ -38,7 +38,7 @@
     <button class="ut-gl ut-c-b tambang-btn" id="tambang-boostall"><span>⚡ BOOST SEMUA</span></button>
   </div>
 
-  <button class="ut-gl ut-c-n tambang-btn" id="tambang-gudang" aria-label="Buka drawer"><span><img src="tambang-world/images/tambang-tas-kulit.webp" alt="">GUDANG <b id="tambang-gcnt">0</b></span></button>
+  <button class="ut-tile ut-tile-d" id="tambang-gudang" aria-label="Gudang"><div class="ico"><img src="tambang-world/images/tambang-tas-kulit.webp" alt=""><b id="tambang-gcnt" class="nb">0/0</b></div><div class="lb">GUDANG</div></button>
 
   <section id="tambang-card" class="tambang-slot" hidden></section>
   <div id="tambang-bubs"><button class="tambang-bub b" id="tambang-bub-b" aria-label="Boost tambang ini">⚡</button><button class="tambang-bub u" id="tambang-bub-u" aria-label="Upgrade tambang ini"><img src="tambang-world/images/tambang-panah-kembali.webp" alt=""></button></div>

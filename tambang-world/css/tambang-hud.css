@@ -138,10 +138,7 @@ body:has(#tambang-md.on)::after{content:'';position:fixed;inset:0;z-index:0;poin
 /* baris alat: Gudang / Produksi / Boost Semua / Lift */
 #tambang-tools{position:absolute;left:940px;top:120px;display:flex;gap:10px;z-index:5}
 #tambang-tools .tambang-btn{height:78px}
-#tambang-gudang{width:250px}
 #tambang-tools .tambang-btn>span{font-size:28px;display:flex;align-items:center;gap:6px}
-#tambang-gudang span{color:#fff}
-#tambang-gudang b{font:400 28px var(--tambang-font-title);color:#ffe08a}
 #tambang-tools .tambang-btn>span img{width:34px;height:34px}
 /* bubble aksi di atas pekerja */
 .tambang-bub{position:absolute;left:0;top:0;width:68px;height:68px;border-radius:50%;z-index:4;font:400 38px/1 var(--tambang-font-title);color:#fff;display:grid;place-items:center;border:4px solid rgba(0,0,0,.45);box-shadow:inset 0 4px 0 rgba(255,255,255,.35),0 5px 0 rgba(20,12,45,.6);text-shadow:0 2px 0 rgba(0,0,0,.6);transition:transform .1s,filter .1s}
@@ -297,6 +294,9 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 
 /* v4: bawah-tengah = BOOST SEMUA; pembuka drawer (Gudang) di kanan bawah */
 #tambang-tools .tambang-btn{width:300px}
-#tambang-gudang{position:absolute;right:28px;bottom:26px;width:250px;height:76px;z-index:5}
-#tambang-gudang>span{display:flex;align-items:center;justify-content:center;gap:8px;font-size:26px;white-space:nowrap}
-#tambang-gudang>span img{width:34px;height:34px}
+#tambang-gudang{position:absolute;right:28px;bottom:26px;width:132px;height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:5}
+#tambang-gudang .ico{position:relative;display:grid;place-items:center;height:72px}
+#tambang-gudang .ico img{max-height:76px;max-width:84px;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+#tambang-gudang .lb{font:400 22px/1 var(--tambang-font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55)}
+#tambang-gudang .nb{position:absolute;right:-30px;top:-14px;min-width:34px;padding:2px 8px;border:3px solid #000;border-radius:14px;background:#e53935;color:#fff;font:400 20px/1.2 var(--tambang-font-title);white-space:nowrap}
+#tambang-gudang.bump{animation:tambang-bump .4s}
