@@ -1,0 +1,19 @@
+/* player-card.css — kartu baris pemain (dari referensi/component/game-cards.html, kartu ".log"): panel krem glossy, tepi hitam.
+   Selector berawalan .ut-pc*; ukuran mengikuti font-size induk lewat em, jadi bisa dipakai di halaman mana pun.
+   Isi: .ut-pc-no (nomor) · avatar · .ut-pc-main (nama + .ut-pc-sub) · .ut-pc-pct (persen + bintang) · .ut-pc-val (nilai + ikon). */
+.ut-pc{box-sizing:border-box;position:relative;display:flex;align-items:center;gap:.5em;width:100%;min-height:2.6em;padding:.25em .7em;
+  color:#fff;border:.1em solid #000;border-radius:.3em;
+  background:linear-gradient(#e2ddd1 0 50%,#cbc5b7 50%);
+  box-shadow:inset 0 0 0 .07em rgba(255,255,255,.28),inset 0 .13em 0 rgba(255,255,255,.4),inset 0 -.17em 0 rgba(0,0,0,.25),0 .1em 0 rgba(0,0,0,.4)}
+.ut-pc.me{background:linear-gradient(#ffdf55 0 50%,#f5bc1c 50%)}
+.ut-pc.empty{color:#625d53;justify-content:flex-start}
+.ut-pc :is(.ut-pc-no,.ut-pc-nm,.ut-pc-sub,.ut-pc-pct,.ut-pc-val){text-shadow:-1px -1px 0 #161a24,1px -1px 0 #161a24,-1px 1px 0 #161a24,1px 1px 0 #161a24,0 2px 0 #161a24}
+.ut-pc-no{flex:none;width:1.6em;text-align:center;font-family:var(--font-title,inherit)}
+.ut-pc-main{flex:1;min-width:0}
+.ut-pc-nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-title,inherit)}
+.ut-pc-sub{display:block;font-size:.6em;line-height:1.1;opacity:.9}
+.ut-pc-pct,.ut-pc-val{flex:none;display:flex;align-items:center;justify-content:flex-end;gap:.15em;font-family:var(--font-title,inherit);white-space:nowrap}
+.ut-pc-pct{min-width:4.6em}
+.ut-pc-val{min-width:3.6em}
+.ut-pc-pct svg,.ut-pc-val img{flex:none;width:.8em;height:.8em;object-fit:contain}
+.ut-pc-pct svg.off path{fill:#9d978a}

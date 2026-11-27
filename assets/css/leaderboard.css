@@ -24,11 +24,9 @@
 #th{position:absolute;left:30px;right:30px;top:140px;display:grid;grid-template-columns:90px 1fr 190px 200px;font:400 26px var(--font-title);color:#b9b1d3;text-align:left}
 #th span:nth-child(3),#th span:nth-child(4){text-align:right}
 #rows{position:absolute;left:10px;right:10px;top:190px;height:860px;display:flex;flex-direction:column;gap:14px;padding:6px 4px}
-.rw{flex:none;height:82px}
-.rw .no{width:70px;font:400 40px var(--font-title);color:#d8d2ee;text-align:center}
-.rw .nm{font:800 32px var(--font-body)}
-.rw .sc{width:190px;text-align:right;font:400 36px var(--font-title);color:#ffe08a}
-.rw .wn{width:180px;text-align:right;font:400 34px var(--font-title);color:#d8d2ee;text-shadow:0 2px 0 rgba(0,0,0,.5)}
+/* baris = kartu pemain (assets/components/player-card); di sini hanya ukuran */
+.rw{flex:none;height:82px;font-size:32px}
+.rw .nm{font-size:32px}
 
 /* tab di atas tabel (kanan): tampilan komponen .ut-tabs/.ut-tab (tabs.css), tata letak sama dengan Toko/Hadiah & Misi; .lt tetap untuk JS */
 #ltabs{position:absolute;z-index:7;--tab-h:76px;--tab-fs:24px}
@@ -43,9 +41,8 @@
 .fa{flex:none}
 .pd .fa{margin-bottom:-6px;z-index:1}
 .rw .grow{min-width:0}
-.rw .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rw .lv{margin-top:2px;font:800 20px var(--font-body);color:#b9b1d3}
-#th span:nth-child(3),#th span:nth-child(4){text-align:right}
+.rw .lv{font:800 20px var(--font-body)}
+#th span:nth-child(3){text-align:center}#th span:nth-child(4){text-align:right;padding-right:12px}
 #mycard .sb{color:#d8d2ee}
 #mycard .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #rows .empty{margin-top:120px;font-size:40px;line-height:1.3}
@@ -87,8 +84,8 @@ html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/lea
 #mycard{left:260px;top:716px}
 #reward{left:360px;top:862px}
 #board{left:1000px;top:26px;width:840px}
-#th{grid-template-columns:90px 1fr 150px 174px;top:220px}
+#th{grid-template-columns:150px 1fr 210px 150px;top:220px}
 #rows{top:270px;height:760px}
-.rw .no{width:60px}
-.rw .sc{width:150px;font-size:34px}
-.rw .wn{width:150px;font-size:32px}
+.rw .no{width:60px;font-size:36px}
+.rw .pc{width:210px;min-width:0;font-size:30px}
+.rw .sc{width:150px;min-width:0;font-size:32px}
