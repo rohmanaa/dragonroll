@@ -1,0 +1,25 @@
+/* Hero Card (referensi/component/hero-card.html) — reusable, CSS saja.
+   .ut-hc > .ut-hc-frame > [.ut-hc-banner > .ut-hc-title + .ut-hc-badge] + .ut-hc-art + (isi bawah bebas); .ut-hc > .ut-hc-crown.
+   Bingkai & isi kartu SAMA untuk semua tier; yang berubah hanya latar belakang nama (.ut-hc-banner) lewat kelas r-<tier> di .ut-hc. */
+.ut-hc{position:relative;--hc-gold:#d9a52b;--hc-body:#6b4c33;--hc-banner-h:156px;
+  --hc-t0:#9a96b3;--hc-t1:#26243a;--hc-t2:#5e5a78}
+.ut-hc.r-uncommon{--hc-t0:#25bd40;--hc-t1:#0a2d0f;--hc-t2:#177a2a}
+.ut-hc.r-rare{--hc-t0:#1f6ee8;--hc-t1:#061136;--hc-t2:#0d45a4}
+.ut-hc.r-epic{--hc-t0:#a63bc6;--hc-t1:#290530;--hc-t2:#6d1f84}
+.ut-hc.r-legendary{--hc-t0:#ffb81f;--hc-t1:#3a2002;--hc-t2:#a86508}
+.ut-hc.r-mythic{--hc-t0:#c4182f;--hc-t1:#2c0508;--hc-t2:#841020}
+.ut-hc.r-divine{--hc-t0:#fff2b0;--hc-t1:#5c4710;--hc-t2:#c29a34}
+
+.ut-hc .ut-hc-frame{position:absolute;left:12px;right:12px;top:32px;bottom:6px;display:flex;flex-direction:column;box-sizing:border-box;padding:0;
+  border:8px solid var(--hc-gold);border-radius:28px;background:var(--hc-body);box-shadow:0 12px 20px rgba(0,0,0,.5)}
+.ut-hc .ut-hc-banner{position:absolute;z-index:5;left:-14px;right:-14px;top:-8px;height:var(--hc-banner-h);min-height:0;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 12px 18px;isolation:isolate;
+  background:var(--hc-t0);clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),50% 100%,0 calc(100% - 22px));color:#fff}
+.ut-hc .ut-hc-banner::before{content:"";position:absolute;z-index:-1;inset:4px;background:linear-gradient(180deg,var(--hc-t1),var(--hc-t2));
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 20px),50% 100%,0 calc(100% - 20px))}
+.ut-hc .ut-hc-title{font:400 42px/1.05 var(--font-title,'Lilita One',sans-serif);text-shadow:0 4px 0 #000;text-align:center}
+.ut-hc .ut-hc-badge{font:400 24px/34px var(--font-title,'Lilita One',sans-serif);padding:0 16px;border-radius:9px;background:#1c1c22;text-shadow:none}
+.ut-hc .ut-hc-art{position:relative;flex:1;min-height:0;margin:calc(var(--hc-banner-h) - 30px) 0 0;border-radius:0;overflow:hidden}
+.ut-hc .ut-hc-frame>:last-child:not(.ut-hc-art):not(.ut-hc-banner){margin:10px;width:auto;border-radius:16px}
+.ut-hc .ut-hc-crown{position:absolute;z-index:6;left:22px;right:22px;top:0;height:74px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20280%2052%22%3E%3Cg%20stroke%3D%22%234a2c05%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%2230%22%20y%3D%2218%22%20width%3D%22200%22%20height%3D%2211%22%20rx%3D%224%22%20fill%3D%22%23f2bd2c%22/%3E%3Cpath%20d%3D%22M8%2023.5L24%209L40%2023.5L24%2038Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M232%208L262%206L276%2022L266%2038L250%2028Z%22%20fill%3D%22%237d7488%22/%3E%3Cpath%20d%3D%22M208%2010H242V18H224V21H238V28H224V31H242V39H208Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M140%202L164%2014V37L140%2050L116%2037V14Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M140%208L158%2017V34L140%2044L122%2034V17Z%22%20fill%3D%22%23c98d12%22/%3E%3Cpath%20d%3D%22M129%2033L126%2019L134%2024L140%2015L146%2024L154%2019L151%2033Z%22%20fill%3D%22%23fff1b0%22/%3E%3C/g%3E%3Cpath%20d%3D%22M34%2021H112M168%2021H206%22%20stroke%3D%22%23fff3bd%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E") center top/contain no-repeat}

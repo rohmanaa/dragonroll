@@ -115,13 +115,13 @@ UT.PageModule.define('pet', function (env) {
       const rar = RARITY[item.rarity] ? item.rarity : 'common';
       const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
       const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      return `<article class="pc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
+      return `<article class="pc ut-hc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel ut-hc-frame">`
         + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
-        + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
+        + `<span class="pc-nm ut-hc-banner"><span class="ut-hc-title">${item.name}</span><span class="ut-hc-badge">Tier ${item.tier}</span></span>`
+        + `<span class="pc-th ut-hc-art"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
         + `<button class="pc-ic pc-eye ut-gl ut-c-b" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
-        + `</article>`;
+        + `<i class="ut-hc-crown" aria-hidden="true"></i></article>`;
     }).join('');
     if (html !== lastGridHtml) {
       $('#grid').innerHTML = html;
