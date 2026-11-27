@@ -63,13 +63,12 @@
   }
   /* Kartu reward Chest (compact, tengah layar): reuse #puCard + kelas 'chest'. Tidak ada SFX di sini: pemanggil (giveChest) memutar SFX Chest/Reward 1x. Ditutup lewat hideChestRewardCard. */
   function showChestRewardCard(who,text){
-     const c=$('puCard'),em=$('pcEmoji');
+     const c=$('chestCard'); if(!c) return;
      clearTimeout(atkTimer);
-     $('pcWho').textContent=who+' membuka peti'; $('pcName').textContent=text; $('pcDesc').textContent='';
-     em.textContent='🎁';
-     c.classList.remove('pop','power-hit','mob-hit'); c.classList.add('chest'); c.hidden=false; c.classList.add('pop');
+     $('ccWho').textContent=who+' membuka peti'; $('ccName').textContent=text;
+     c.hidden=false;
   }
-  function hideChestRewardCard(){ const c=$('puCard'); if(!c||!c.classList.contains('chest')) return; c.hidden=true; c.classList.remove('chest','pop','power-hit','mob-hit'); }
+  function hideChestRewardCard(){ const c=$('chestCard'); if(c) c.hidden=true; }
 
   UT.GameplayFeedback = { init: init, setCurrentMarker: setCurrentMarker, hideMarker: hideMarker, updateTurnMarkers: updateTurnMarkers, showPUCard: showPUCard, showAttackCard: showAttackCard, showChestRewardCard: showChestRewardCard, hideChestRewardCard: hideChestRewardCard };
 })(window, document);

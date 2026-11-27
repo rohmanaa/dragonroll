@@ -978,37 +978,16 @@ html body #puCard.pucard {
   background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .94) 14%, rgba(26, 14, 34, .94) 86%, transparent) !important;
   box-shadow: none !important;
 }
-/* Banner boss bertengkorak (banner-boss-tengkorak.webp, rasio 1400:638). Hanya combat biasa; fase Awakening tidak disentuh.
-   ::after = gambar banner (agak transparan, atur lewat --boss-banner-opacity); ::before = teks "BOSS" tepat di tengah panelnya. */
-#utGameplayHud .ut-ghud-c:not([data-awakening="true"]) { --boss-banner-w: 360px; --boss-banner-h: 164px; --boss-banner-opacity: .88; }
+/* Label BOSS = teks saja (tanpa gambar banner). Hanya combat biasa; fase Awakening tidak disentuh. */
 #utGameplayHud .ut-ghud-c:not([data-awakening="true"])::before {
   content: "BOSS";
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  width: var(--boss-banner-w);
-  height: var(--boss-banner-h);
-  margin: 0 auto;
-  padding-bottom: 6px; /* panel tengah banner sedikit di atas titik tengah gambar */
+  display: block;
+  margin: 0 auto 6px;
   color: #ffe9d0;
+  text-align: center;
   text-shadow: 0 0 12px #ff2a2a, 0 3px 0 #3a0000;
   font: 34px/1 var(--gh-title);
   letter-spacing: .06em;
-}
-#utGameplayHud .ut-ghud-c:not([data-awakening="true"])::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  left: 50%;
-  top: 0;
-  width: var(--boss-banner-w);
-  height: var(--boss-banner-h);
-  transform: translateX(-50%);
-  background: url("../../assets/images/ui/banner-label/banner-boss-tengkorak.webp") center / 100% 100% no-repeat;
-  opacity: var(--boss-banner-opacity);
-  pointer-events: none;
 }
 #utGameplayHud .ut-ghud-c:not([data-awakening="true"]) > * { position: relative; z-index: 1; }
 #utGameplayHud .ut-ghud-cw {
@@ -1085,17 +1064,15 @@ html body #puCard.pucard.mob-hit {
 #puCard #pcEmoji img { width: 100px !important; height: 100px !important; object-fit: contain !important; }
 #puCard #pcName { margin: 4px 0 !important; color: var(--gh-gold) !important; font: 56px/1.1 var(--gh-title) !important; }
 #puCard #pcDesc { margin: 6px 0 0 !important; color: #efe9ff !important; font: 700 28px/1.3 var(--gh-body) !important; }
-#puCard.pucard.chest { min-height: 0 !important; }
-#puCard.chest #pcEmoji {
-  width: 100px;
-  height: 100px;
-  min-height: 0;
-  margin: 12px auto;
-  color: transparent;
-  background: url("../../assets/images/ui/hud/ikon-kado-merah.webp") center / contain no-repeat;
-  font-size: 0;
+#chestCard {
+  position: fixed; left: 50%; top: 50%; z-index: 15;
+  width: 640px; max-width: 90vw; padding: 104px 48px 40px;
+  transform: translate(-50%, -50%); zoom: var(--ghud-stage-scale, 1);
+  text-align: center; pointer-events: none;
 }
-#puCard.chest #pcName { font-size: 48px !important; }
+#chestCard[hidden] { display: none; }
+#chestCard .cc-ico { font-size: 88px; line-height: 1.1; margin: 0 0 8px; }
+#chestCard .cc-name { margin: 0; color: var(--gh-gold); font: 56px/1.1 var(--gh-title); }
 
 #trapBar {
   display: grid !important;
@@ -1560,9 +1537,7 @@ html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) {
   box-shadow: 0 6px 0 rgba(10, 6, 25, .45), 0 0 22px rgba(255, 90, 108, .28) !important;
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"])::before {
-  width: var(--boss-banner-w);
-  height: var(--boss-banner-h);
-  margin: 0 auto -14px; /* ruang transparan bawah banner dipakai teks di bawahnya */
+  margin: 0 auto 4px;
   font-size: 34px;
 }
 html body #utGameplayHud .ut-ghud-c:not([hidden]):not([data-awakening="true"]) .ut-ghud-cw { font-size: 24px !important; }
