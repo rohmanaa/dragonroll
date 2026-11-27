@@ -1709,7 +1709,7 @@ function eqItems(){
 const sameEq=(a,b)=>!!a&&!!b&&!a.empty&&!b.empty&&a.k===b.k&&a.id===b.id;
 function eqSlot(it,compact){
   const d=document.createElement('button');
-  d.className='eq'+(compact?' compact':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
+  d.className='eq ut-slot'+(compact?' compact':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
   d.setAttribute('aria-label',it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.cat+': '+it.name+'. Pilih item terkait lalu gunakan tombol kanan bawah untuk melepas.');
   d.title=it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.name+' — pilih item terkait lalu gunakan tombol kanan bawah untuk melepas';
   d.innerHTML='<div class="th"><span class="em">'+it.ico+'</span></div><span class="en"></span>';

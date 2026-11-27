@@ -80,12 +80,11 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 #eqL,#eqR{position:absolute;top:140px;display:grid;grid-template-rows:repeat(4,124px);grid-auto-flow:row;gap:26px;z-index:3}
 #eqL{left:64px}
 #eqR{left:772px}
-.eq{position:relative;width:124px;height:124px;padding:0;background:none;isolation:isolate;transition:transform .1s,filter .1s}
-.eq::before{content:'';position:absolute;inset:0;z-index:-1;background:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;filter:grayscale(1) brightness(3)}
-.eq:hover{filter:brightness(1.15)}.eq:active{transform:scale(.95)}
-.eq.sel::before{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-terpilih.webp);filter:none}
-.eq.sel{filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
-.eq.empty .en{color:#b9b2d6}
+/* tampilan slot = komponen .ut-slot (assets/components/slot/slot.css); di sini hanya ukuran, warna isi, status pilih & isi slot */
+.eq{--slot-size:124px;--slot-bg:#8f887a;position:relative;width:124px;height:124px;padding:0;transition:transform .1s,filter .1s}
+.eq:hover{filter:brightness(1.08)}.eq:active{transform:scale(.95)}
+.eq.sel{outline:5px solid #ffe27a;outline-offset:2px}
+.eq.empty .en{color:#efeaff}
 .eq .th{position:absolute;left:8px;right:8px;top:6px;bottom:26px;display:grid;place-items:center}
 .eq .th .em{font-size:42px;line-height:1}
 .eq .th .thimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:none;opacity:1;pointer-events:none}
@@ -94,7 +93,7 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 .eq.more .th .em{font-size:38px}
 .eq.more .count{position:absolute;right:2px;top:-2px;padding:2px 5px;border-radius:8px;background:#6a3fc4;border:2px solid #ffd45a;font:800 14px/1 var(--font-body);color:#fff}
 .eq.empty .th .em{font:400 50px/1 var(--font-title);filter:grayscale(1) brightness(0) invert(1)}
-.eq.compact{width:56px;height:56px;flex:none}
+.eq.compact{--slot-size:56px;width:56px;height:56px;flex:none}
 .eq.compact .th{left:4px;right:4px;top:3px;bottom:15px}
 .eq.compact .th .em{font-size:24px}
 .eq.compact .en{left:2px;right:2px;bottom:2px;font-size:10px}
