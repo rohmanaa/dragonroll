@@ -2,14 +2,7 @@
    tepi hitam, ring dalam, kilap dua tingkat, isi abu sangat gelap. Dipakai untuk kotak-kotak di dalam panel (mis. Statistik & Koleksi Profil).
    Hanya tampilan kotak (latar, tepi, bayangan); tata letak isi diatur halaman. */
 .card-panel-new{box-sizing:border-box;position:relative;border:3px solid #000;border-radius:14px;color:#fff;
-  background:linear-gradient(#34343a 0 50%,#1f1f24 50%);
+  background:#26262b;
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.14),inset 0 3px 0 rgba(255,255,255,.2),inset 0 -4px 0 rgba(0,0,0,.35),0 3px 0 rgba(0,0,0,.4)}
 /* .deep = isi lebih gelap lagi (pratinjau / detail / latar foto) */
-.card-panel-new.deep{background:linear-gradient(#222227 0 50%,#131316 50%)}
-/* .framed = pakai bingkai gambar kartu (kartu-toko-landscape.webp, 9-slice) apa adanya; hanya ISI yang berwarna card-panel-new.
-   Isi = lapisan ::after di dalam bingkai (inset 16px); .deep ikut menggelapkan isi. Elemen perlu isolation:isolate (sudah di sini). */
-.card-panel-new.framed{border:0;border-radius:0;box-shadow:none;background:none;isolation:isolate}
-.card-panel-new.framed::before{content:"";position:absolute;inset:0;border:20px solid transparent;border-image:url(../../images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 20px stretch;z-index:-1;pointer-events:none}
-.card-panel-new.framed::after{content:"";position:absolute;inset:16px;border-radius:10px;z-index:-1;pointer-events:none;
-  background:linear-gradient(#34343a 0 50%,#1f1f24 50%);box-shadow:inset 0 3px 0 rgba(255,255,255,.12),inset 0 -4px 0 rgba(0,0,0,.3)}
-.card-panel-new.framed.deep::after{background:linear-gradient(#222227 0 50%,#131316 50%)}
+.card-panel-new.deep{background:#17171b}
