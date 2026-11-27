@@ -77,8 +77,8 @@ function drawGrid(){
   const html=list.map(x=>{
     const st=slotState(x),sell=canSell(x),gems=x.gems>0;
     const foot=st==='used'?'DIPAKAI':st==='own'?'DIMILIKI':sell?'<img src="'+LOCK+'" alt="">'+fmtPrice(gems?x.gems:x.price)+'<img src="'+(gems?GEM:KOIN)+'" alt="">':'TIDAK DIJUAL';
-    return '<button type="button" class="dslot '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
-      +'<span class="d-nm">'+x.name+'</span><span class="d-th">'+art(x)+'</span><span class="d-ft">'+foot+'</span></button>';
+    return '<button type="button" class="dslot ut-ct '+(st==='used'?'teal':st==='own'?'green':'gray')+' '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
+      +'<span class="d-nm ut-ct-nm">'+x.name+'</span><span class="d-th ut-ct-art">'+art(x)+'</span><span class="d-ft ut-ct-ft">'+foot+'</span></button>';
   }).join('')||'<p class="dempty">Belum ada dadu yang dimiliki.</p>';
   if(html!==lastGridHtml){$('#dgrid').innerHTML=html;lastGridHtml=html}
   markSelected();
