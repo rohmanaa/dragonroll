@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kumpulan Button</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 16px;
+    background: #2b2b2b;
+    font-family: Arial, sans-serif;
+    color: #eee;
+  }
+
+  h2.section {
+    margin: 0 0 16px;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #bbb;
+  }
+
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    padding: 24px;
+    margin: 0 auto 28px;
+    max-width: 960px;
+    border-radius: 14px;
+    background: #353535;
+  }
+  .group.green { background: #5a9a2c; }
+
+  /* =========================================
+     TOMBOL KOTAK (kuning, krem, abu-abu)
+     ========================================= */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #000;
+    cursor: pointer;
+    padding: 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, .6);
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .btn:hover  { filter: brightness(1.08); }
+  .btn:active { transform: translateY(2px) scale(.98); filter: brightness(.95); }
+
+  .btn-yellow {
+    width: 247px;
+    height: 247px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffc61a 0%, #f5b50a 55%, #e0980a 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, .85),
+      inset 0 -8px 0 rgba(150, 80, 0, .45),
+      inset 3px 0 0 rgba(255, 255, 255, .25),
+      inset -3px 0 0 rgba(120, 60, 0, .25);
+  }
+
+  .btn-beige {
+    width: 247px;
+    height: 247px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #cdbb92 0%, #bfab80 60%, #a8946b 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, .6),
+      inset 0 -7px 0 rgba(90, 70, 30, .4),
+      inset 3px 0 0 rgba(255, 255, 255, .2),
+      inset -3px 0 0 rgba(60, 40, 10, .2);
+  }
+
+  .btn-gray {
+    width: 237px;
+    height: 120px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #b4b4b4 0%, #9c9c9c 55%, #808080 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, .85),
+      inset 0 -8px 0 rgba(40, 40, 40, .45),
+      inset 3px 0 0 rgba(255, 255, 255, .25),
+      inset -3px 0 0 rgba(30, 30, 30, .25);
+  }
+
+  /* =========================================
+     TOMBOL PLUS (hijau glossy)
+     ========================================= */
+  .btn-plus {
+    --size: 64px;
+    width: var(--size);
+    height: var(--size);
+    padding: 0;
+    border: 3px solid #0b2a00;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #8fe03a 0 50%, #4fae14 50% 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255,255,255,.55),
+      inset 0 -4px 0 rgba(20,70,0,.35),
+      0 3px 0 rgba(0,0,0,.35);
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .btn-plus:hover  { filter: brightness(1.08); }
+  .btn-plus:active { transform: translateY(2px); box-shadow: inset 0 3px 0 rgba(255,255,255,.4), inset 0 -3px 0 rgba(20,70,0,.35); }
+  .btn-plus svg { width: 62%; height: 62%; filter: drop-shadow(0 2px 0 rgba(0,0,0,.45)); }
+  .btn-plus.sm { --size: 44px; border-radius: 9px; }
+  .btn-plus.lg { --size: 88px; border-radius: 16px; }
+
+  /* =========================================
+     TOMBOL COLLAPSE (#3c3c3c, tidak transparan)
+     ========================================= */
+  .collapse-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 76px;
+    padding-right: 4px;
+    background: #3c3c3c;
+    border: 3px solid #000;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,.1),
+      inset 0 3px 0 rgba(255,255,255,.14),
+      0 3px 0 rgba(0,0,0,.3);
+  }
+  .collapse-btn button {
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition: filter .15s ease, transform .08s ease;
+  }
+  .collapse-btn button:hover  { filter: brightness(1.2); }
+  .collapse-btn button:active { transform: scale(.94); }
+
+  .cb-left {
+    width: 76px;
+    overflow: hidden;
+    transition: width .3s ease, opacity .2s ease;
+  }
+  .cb-left svg { flex: none; width: 54px; height: 54px; filter: drop-shadow(0 2px 0 rgba(0,0,0,.4)); }
+
+  .cb-divider {
+    flex: none;
+    width: 2px;
+    height: 62%;
+    background: rgba(255,255,255,.22);
+    transition: width .3s ease, opacity .2s ease;
+  }
+
+  .cb-toggle { width: 66px; }
+  .cb-toggle svg { width: 34px; height: 34px; transition: transform .3s ease; }
+
+  /* keadaan tertutup: hanya panah yang tersisa */
+  .collapse-btn.collapsed .cb-left    { width: 0; opacity: 0; pointer-events: none; }
+  .collapse-btn.collapsed .cb-divider { width: 0; opacity: 0; }
+  .collapse-btn.collapsed .cb-toggle svg { transform: rotate(180deg); }
+
+  /* =========================================
+     TOMBOL BATTLE (bintang + ikon pedang)
+     ========================================= */
+  .battle-btn {
+    display: inline-flex;
+    flex-direction: column;
+    width: 112px;
+    padding: 0;
+    border: 3px solid #000;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #000;
+    font-family: inherit;
+    box-shadow: 0 4px 0 rgba(0,0,0,.35);
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .battle-btn:hover  { filter: brightness(1.08); }
+  .battle-btn:active { transform: translateY(2px) scale(.98); }
+
+  .bb-stars {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 4px 5px;
+    background: linear-gradient(180deg, #4a4a4a 0 50%, #303030 50% 100%);
+  }
+  .bb-stars svg { width: 17px; height: 17px; }
+  .bb-stars .on  { fill: #fff;    stroke: #1a1a1a; stroke-width: 1.4; }
+  .bb-stars .off { fill: #5a5a5a; stroke: #1a1a1a; stroke-width: 1.4; }
+
+  .bb-body {
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 6px 8px;
+    border-top: 3px solid #000;
+    background: linear-gradient(180deg, #ffc61a 0%, #f5b50a 55%, #e0980a 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255,255,255,.8),
+      inset 0 -7px 0 rgba(150,80,0,.45),
+      inset 3px 0 0 rgba(255,255,255,.2),
+      inset -3px 0 0 rgba(120,60,0,.2);
+  }
+  .bb-body .sword { width: 66px; height: 66px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+  .bb-label {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 2px 0 #000;
+  }
+
+  /* =========================================
+     POPOVER CLAIM
+     ========================================= */
+  .popover, .bubble { position: relative; }
+  .popover {
+    width: 210px;
+    padding: 10px;
+    margin-bottom: 14px;
+    background: #4a4440;
+    border: 3px solid #000;
+    border-radius: 14px;
+    text-align: center;
+  }
+  /* ekor popover: kotak diputar 45 derajat */
+  .popover::after, .bubble::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: inherit;
+    border: solid #000;
+    border-width: 0 3px 3px 0;
+  }
+  .popover::after { left: calc(50% - 9px); bottom: -11px; transform: rotate(45deg); }
+
+  .btn-claim {
+    width: 100%;
+    height: 66px;
+    border-width: 3px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 26px;
+    background: linear-gradient(180deg, #8fe03a 0 50%, #4fae14 50% 100%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.55), inset 0 -5px 0 rgba(20,70,0,.35);
+  }
+  .btn-claim:disabled { cursor: default; filter: grayscale(1); transform: none; }
+  .timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 9px;
+    font-weight: 900;
+    text-shadow: 0 2px 0 #000;
+  }
+  .timer svg { width: 22px; height: 22px; }
+
+  /* =========================================
+     CEKLIS, CEKLIS DALAM BUBBLE, SLOT
+     ========================================= */
+  .check { display: block; width: 48px; height: 48px; }
+
+  .bubble {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 76px;
+    margin-right: 12px;
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 18px;
+  }
+  .bubble::after { right: -11px; top: calc(50% - 9px); transform: rotate(-45deg); }
+
+  .slot {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    padding: 8px;
+    cursor: pointer;
+    background: #cfc8b8;
+    border: 3px solid #000;
+    border-radius: 12px;
+    box-shadow: inset 0 4px 0 rgba(0,0,0,.2);
+  }
+  .slot > svg { width: 100%; height: 100%; }
+  .slot .badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: none;
+    width: 26px;
+    height: 26px;
+    padding: 2px;
+    background: #f4ffe8;
+    border: 2px solid #000;
+    border-radius: 6px;
+  }
+  .slot .badge svg { display: block; width: 100%; height: 100%; }
+  .slot[aria-pressed="true"] .badge { display: block; }
+</style>
+</head>
+<body>
+
+  <h2 class="section">Tombol kotak</h2>
+  <div class="group">
+    <button class="btn btn-yellow">Kuning</button>
+    <button class="btn btn-beige">Krem</button>
+    <button class="btn btn-gray">Abu-abu</button>
+  </div>
+
+  <h2 class="section">Tombol plus</h2>
+  <div class="group green">
+    <button class="btn-plus sm" aria-label="Tambah">
+      <svg viewBox="0 0 24 24"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#fff" stroke="#1a1a1a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="btn-plus" aria-label="Tambah">
+      <svg viewBox="0 0 24 24"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#fff" stroke="#1a1a1a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="btn-plus lg" aria-label="Tambah">
+      <svg viewBox="0 0 24 24"><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="#fff" stroke="#1a1a1a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <h2 class="section">Tombol collapse</h2>
+  <div class="group green">
+
+    <!-- terbuka -->
+    <div class="collapse-btn">
+      <button class="cb-left" aria-label="Acara">
+        <svg viewBox="0 0 64 64">
+          <g transform="rotate(-12 32 34)">
+            <rect x="10" y="13" width="44" height="43" rx="5" fill="#f6f0e4" stroke="#2a1a10" stroke-width="3"/>
+            <path d="M10 26v-8a5 5 0 0 1 5-5h34a5 5 0 0 1 5 5v8z" fill="#e8743c" stroke="#2a1a10" stroke-width="3" stroke-linejoin="round"/>
+            <rect x="17" y="6" width="6" height="15" rx="3" fill="#4b8fe0" stroke="#1a2a50" stroke-width="2.5"/>
+            <rect x="41" y="6" width="6" height="15" rx="3" fill="#4b8fe0" stroke="#1a2a50" stroke-width="2.5"/>
+            <rect x="29" y="31" width="6" height="12" rx="3" fill="#e0262c" stroke="#5a0a0a" stroke-width="1.5"/>
+            <circle cx="32" cy="49.5" r="3.6" fill="#e0262c" stroke="#5a0a0a" stroke-width="1.5"/>
+          </g>
+        </svg>
+      </button>
+      <span class="cb-divider"></span>
+      <button class="cb-toggle" aria-label="Ciutkan / buka">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="8,3 17,12 8,21" stroke="#000" stroke-width="7"/>
+          <polyline points="8,3 17,12 8,21" stroke="#fff" stroke-width="3.6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- tertutup -->
+    <div class="collapse-btn collapsed">
+      <button class="cb-left" aria-label="Acara">
+        <svg viewBox="0 0 64 64">
+          <g transform="rotate(-12 32 34)">
+            <rect x="10" y="13" width="44" height="43" rx="5" fill="#f6f0e4" stroke="#2a1a10" stroke-width="3"/>
+            <path d="M10 26v-8a5 5 0 0 1 5-5h34a5 5 0 0 1 5 5v8z" fill="#e8743c" stroke="#2a1a10" stroke-width="3" stroke-linejoin="round"/>
+            <rect x="17" y="6" width="6" height="15" rx="3" fill="#4b8fe0" stroke="#1a2a50" stroke-width="2.5"/>
+            <rect x="41" y="6" width="6" height="15" rx="3" fill="#4b8fe0" stroke="#1a2a50" stroke-width="2.5"/>
+            <rect x="29" y="31" width="6" height="12" rx="3" fill="#e0262c" stroke="#5a0a0a" stroke-width="1.5"/>
+            <circle cx="32" cy="49.5" r="3.6" fill="#e0262c" stroke="#5a0a0a" stroke-width="1.5"/>
+          </g>
+        </svg>
+      </button>
+      <span class="cb-divider"></span>
+      <button class="cb-toggle" aria-label="Ciutkan / buka">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="8,3 17,12 8,21" stroke="#000" stroke-width="7"/>
+          <polyline points="8,3 17,12 8,21" stroke="#fff" stroke-width="3.6"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+
+  <h2 class="section">Tombol battle</h2>
+  <div class="group green">
+
+    <!-- 5 bintang -->
+    <button class="battle-btn" data-stars="5">
+      <span class="bb-stars"></span>
+      <span class="bb-body">
+        <svg class="sword" viewBox="0 0 64 64">
+          <g transform="rotate(45 32 32)">
+            <path d="M32 3 L38.5 11 V37 H25.5 V11 Z" fill="#dfe4ec" stroke="#2a2f3a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="30.8" y="11" width="2.4" height="26" fill="#a9b1bf"/>
+            <rect x="19" y="37" width="26" height="6.5" rx="3.2" fill="#e3ab2c" stroke="#5a3a00" stroke-width="2.5"/>
+            <rect x="28" y="43.5" width="8" height="11" rx="2" fill="#7a4a22" stroke="#2a1608" stroke-width="2.5"/>
+            <circle cx="32" cy="58" r="4.2" fill="#e3ab2c" stroke="#5a3a00" stroke-width="2.5"/>
+          </g>
+        </svg>
+        <span class="bb-label">Battle</span>
+      </span>
+    </button>
+
+    <!-- 3 bintang -->
+    <button class="battle-btn" data-stars="3">
+      <span class="bb-stars"></span>
+      <span class="bb-body">
+        <svg class="sword" viewBox="0 0 64 64">
+          <g transform="rotate(45 32 32)">
+            <path d="M32 3 L38.5 11 V37 H25.5 V11 Z" fill="#dfe4ec" stroke="#2a2f3a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="30.8" y="11" width="2.4" height="26" fill="#a9b1bf"/>
+            <rect x="19" y="37" width="26" height="6.5" rx="3.2" fill="#e3ab2c" stroke="#5a3a00" stroke-width="2.5"/>
+            <rect x="28" y="43.5" width="8" height="11" rx="2" fill="#7a4a22" stroke="#2a1608" stroke-width="2.5"/>
+            <circle cx="32" cy="58" r="4.2" fill="#e3ab2c" stroke="#5a3a00" stroke-width="2.5"/>
+          </g>
+        </svg>
+        <span class="bb-label">Battle</span>
+      </span>
+    </button>
+
+  </div>
+
+
+  <h2 class="section">Popover claim</h2>
+  <div class="group">
+    <div class="popover">
+      <button class="btn btn-claim">Claim!</button>
+      <div class="timer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4v3h-4z" fill="#e3ab2c"/><circle cx="12" cy="14" r="8.500" fill="#fff" stroke="#e3ab2c" stroke-width="2.500"/><path d="M12 9v5l3 2" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="sisa">1h 39m</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section">Ceklis</h2>
+  <div class="group green">
+    <svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12.500l5-5l4 4l7-8l4.500 4.500L11 20.500z" fill="#5cc21c" stroke="#123800" stroke-width="2" stroke-linejoin="round"/></svg>
+    <div class="bubble"><svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12.500l5-5l4 4l7-8l4.500 4.500L11 20.500z" fill="#5cc21c" stroke="#123800" stroke-width="2" stroke-linejoin="round"/></svg></div>
+  </div>
+
+  <h2 class="section">Slot (dengan dan tanpa ceklis)</h2>
+  <div class="group">
+    <button class="slot" aria-label="Panah" aria-pressed="true">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 50L46 18" stroke="#6b4324" stroke-width="5" stroke-linecap="round"/><path d="M58 6L52 28L36 12Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/><path d="M18 40L6 44L14 50L20 58L24 46Z" fill="#d9363e" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span class="badge"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12.500l5-5l4 4l7-8l4.500 4.500L11 20.500z" fill="#5cc21c" stroke="#123800" stroke-width="2" stroke-linejoin="round"/></svg></span>
+    </button>
+    <button class="slot" aria-label="Panah" aria-pressed="false">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 50L46 18" stroke="#6b4324" stroke-width="5" stroke-linecap="round"/><path d="M58 6L52 28L36 12Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/><path d="M18 40L6 44L14 50L20 58L24 46Z" fill="#d9363e" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span class="badge"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12.500l5-5l4 4l7-8l4.500 4.500L11 20.500z" fill="#5cc21c" stroke="#123800" stroke-width="2" stroke-linejoin="round"/></svg></span>
+    </button>
+  </div>
+
+  <script>
+    // isi bintang sesuai data-stars (dari 5)
+    document.querySelectorAll('.battle-btn').forEach(btn => {
+      const n = +btn.dataset.stars || 0;
+      const star = cls => `<svg viewBox="0 0 24 24" class="${cls}"><polygon points="12,1.8 15.1,8.4 22.3,9.2 17,14.1 18.4,21.2 12,17.7 5.6,21.2 7,14.1 1.7,9.2 8.9,8.4"/></svg>`;
+      btn.querySelector('.bb-stars').innerHTML =
+        Array.from({ length: 5 }, (_, i) => star(i < n ? 'on' : 'off')).join('');
+    });
+  </script>
+
+  <script>
+    // klik panah = ciutkan / buka tombol collapse
+    document.querySelectorAll('.collapse-btn .cb-toggle').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('.collapse-btn').classList.toggle('collapsed'));
+    });
+  </script>
+
+
+  <script>
+    // hitung mundur popover (contoh: 1 jam 39 menit)
+    const selesai = Date.now() + 99 * 60000;
+    const teks = document.getElementById('sisa');
+    const claim = document.querySelector('.btn-claim');
+    const jeda = setInterval(() => {
+      const m = Math.max(0, Math.ceil((selesai - Date.now()) / 60000));
+      teks.textContent = `${Math.floor(m / 60)}h ${m % 60}m`;
+      if (!m) clearInterval(jeda);
+    }, 1000);
+    claim.addEventListener('click', () => {
+      claim.textContent = 'Diklaim';
+      claim.disabled = true;
+      clearInterval(jeda);
+    });
+
+    // klik slot = pasang / lepas ceklis
+    document.querySelectorAll('.slot').forEach(s => s.addEventListener('click', () =>
+      s.setAttribute('aria-pressed', s.getAttribute('aria-pressed') !== 'true')));
+  </script>
+
+</body>
+</html>
