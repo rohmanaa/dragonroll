@@ -5,7 +5,7 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 ## assets/
 - `assets/audio/music/` — musik halaman dan gameplay; nama lama: `assets/music/`.
 - `assets/audio/sfx/` — efek suara `board/`, `dice/`, `dragon/`, `mob/`, `pet/`, `powerup/`, `reward/`, `ui/`, dan `win/`; nama lama: `assets/sfx/` dan `assets/new sound/`.
-- `assets/components/` — komponen UI reusable; dipakai: `ui-core.js`, `button/` (preload); belum dipakai: `badge/`, `card/`, `currency/`, `modal/`, `toast/`, `theme/` (dulu `hud/`).
+- `assets/components/` — komponen UI reusable; dipakai: `ui-core.js`, `button/` (preload; termasuk gaya glossy `.ut-gl .ut-c-*`), `tabs/` (tab atas/segmented/underline gaya Guild, `preview.html` untuk lihat semua; dipakai Tambang); belum dipakai: `badge/`, `card/`, `currency/`, `modal/`, `toast/`, `theme/` (dulu `hud/`).
 - `assets/css/base/` — reset dan aturan dasar semua halaman.
 - `assets/css/components/` — gaya komponen bersama.
 - `assets/css/pages/` — gaya khusus halaman; tiga file `*-legacy.css` berasal dari `legacy-pages/`.

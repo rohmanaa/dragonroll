@@ -63,7 +63,7 @@ async function load(t,force){
 
 /* ---- render ---- */
 function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
-function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt'+(t[0]===tab?' on':'')+'" data-k="'+t[0]+'"><img class="ul" src="'+IC+'navigation-icons/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+'white-glyphs/'+t[2]+'.webp" alt=""><span>'+t[1]+'</span></button>').join('')}
+function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt ut-tab'+(t[0]===tab?' on':'')+'" type="button" role="tab" aria-selected="'+(t[0]===tab)+'" data-k="'+t[0]+'"><img class="ic" src="'+IC+'white-glyphs/'+t[2]+'.webp" alt=""><span>'+t[1]+'</span></button>').join('')}
 function drawPodium(rows){
  const order=[1,0,2];
  $('#podium').innerHTML='<img class="pimg" src="'+IC+'leaderboard/podium-juara-voxel.webp" alt="">'+order.map(i=>{const p=rows[i];

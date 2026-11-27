@@ -21,7 +21,7 @@ const nav = u => {
   setTimeout(() => { location.href = u; }, 330);
 };
 /* halaman yang sudah ada (sama dengan BUILT di lobby); lainnya = toast */
-const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html'];
+const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html', 'inventory.html'];
 const go = u => BUILT.includes(u.split('?')[0]) ? nav(u) : toast('Segera hadir');
 
 /* ---- data: PlayerData (level/XP/skin/koleksi) + server get_my_profile (menang/main/streak, peringkat, misi) ---- */
@@ -44,7 +44,7 @@ const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
    Membuka profil berikutnya langsung menampilkan gambar itu: tanpa membangun karakter 3D, tanpa WebGL. Foto dibuat ulang hanya bila
    tampilan/perlengkapan/pose berubah. Pose = bentuk badan diam (bukan animasi) yang dipilih lewat tombol Pose. */
 let webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter && UT.SharedGL);
-const PHOTO_KEY = 'ut.profilePhoto.v1', PHOTO_VER = 1;
+const PHOTO_KEY = 'ut.profilePhoto.v1', PHOTO_VER = 3;
 const POSES = () => (UT.BlockyCharacter && UT.BlockyCharacter.poses) || [{id: 'pose1', n: 'Siap Tempur'}];
 function poseId() { let v = 'pose1'; try { v = UT.Prefs.get('profilePose', 'pose1'); } catch (e) {} return POSES().some(p => p.id === v) ? v : 'pose1'; }
 const lookSig = () => JSON.stringify([PD.look(), PD.gearLook()]);
@@ -60,13 +60,13 @@ function shoot(pose, kind, W, H) {
   sc.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
   const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); sc.add(sun);
   const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); sc.add(rim);
-  const w = new THREE.Group(); w.scale.setScalar(3.7); w.rotation.set(0, -.55, .05); w.add(ch.root); sc.add(w);
+  const w = new THREE.Group(); w.scale.setScalar(3.7); w.rotation.set(0, kind === 'full' ? -.55 : 0, kind === 'full' ? .05 : 0); w.add(ch.root); sc.add(w);   /* foto profil (bust) menghadap lurus ke depan; pratinjau Pose (full) tetap 3/4 */
   sc.updateMatrixWorld(true);
   const bb = new THREE.Box3().setFromObject(w), sz = bb.getSize(new THREE.Vector3());
   const tn = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)), asp = W / H;
   let cy, d;
   if (kind === 'full') { cy = (bb.min.y + bb.max.y) / 2; d = Math.max(sz.y * .56 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
-  else { const h = sz.y * .46; cy = bb.max.y - h * .5 + sz.y * .02; d = Math.max(h / 2 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
+  else { const h = sz.y * .46; d = Math.max(h / 2 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; const half = (d - sz.z * .5) * tn; cy = bb.max.y + (2 * .165 - 1) * half; }   /* puncak kepala tepat 16,5% dari tepi atas bingkai (bukan di tengah sisa ruang): margin atas kecil & tetap lega */
   cam.position.set(0, cy, d); cam.lookAt(0, cy, 0); cam.updateProjectionMatrix();
   const r = UT.SharedGL.offscreen();
   r.setPixelRatio(1); r.setSize(W, H, false); r.setClearColor(0x000000, 0); r.render(sc, cam);
@@ -195,7 +195,7 @@ function drawPet() {
     setImg(u); writePetPhoto(sig, u);
   }).catch(e => { console.warn('[profil] foto pet gagal', e); if (gen === petGen) setImg(thumb); });
 }
-$('#pet').onclick = () => { snd(); go('pet.html'); };
+$('#pet').onclick = () => { snd(); go('pet.html?from=profile.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
 $('#hid').onclick = () => {
   snd();
@@ -218,7 +218,7 @@ $('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) ret
 $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
   $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }

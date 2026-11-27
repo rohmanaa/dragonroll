@@ -1,0 +1,35 @@
+/* Dragon Roll — assets/components/modal/modal-kit.css
+   Gaya modal BERSAMA (CSS murni, tanpa gambar aset) dari kit modals.html: panel abu #4b4b4b + garis hitam + bingkai dalam + kilau glossy.
+   Pakai: tambahkan kelas ke markup modal yang sudah ada (tidak mengubah struktur/JS):
+     kotak   -> ut-mk                (panel; atur width/padding di CSS halaman, beri padding-top >= 100px untuk judul)
+     judul   -> ut-mk-t              (teks outline di tengah atas; elemen anak langsung kotak)
+     tutup   -> ut-mk-x ut-gl ut-c-r (tombol X merah; elemen anak langsung kotak; X digambar CSS, JANGAN pasang <img>)
+   Skala: kanvas 1920x1080 (ukuran px stage). Tombol aksi di dalam modal tetap komponen .ut-gl .ut-c-* (button.css).
+   Spesifisitas sengaja >= .panel>h3 / .panel::before (page.css) agar menimpa gaya bingkai-gambar lama tanpa !important. */
+.ut-mk {
+  position: relative; box-sizing: border-box; isolation: isolate; color: #fff;
+  background: #4b4b4b; border: 6px solid #000; border-radius: 28px;
+  box-shadow: inset 0 0 0 5px #6a6a6a, 0 14px 44px rgba(0, 0, 0, .7);
+}
+.ut-mk.ut-mk::before {
+  content: ''; position: absolute; inset: auto; top: 5px; left: 5px; right: 5px; height: 64px;
+  border: 0; border-image: none; border-radius: 22px 22px 0 0;
+  background: rgba(255, 255, 255, .13); z-index: -1; pointer-events: none;
+}
+.ut-mk > .ut-mk-t {
+  position: absolute; left: 0; right: 0; top: 26px; transform: none; height: auto; margin: 0; padding: 0;
+  text-align: center; white-space: nowrap; line-height: 1.1; background: none;
+  font: 400 46px/1.1 var(--font-title, 'Lilita One', 'Trebuchet MS', sans-serif); color: #fff;
+  text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000, 0 4px 0 #000;
+}
+/* tombol tutup: tampilan merah glossy dari .ut-gl .ut-c-r; di sini hanya posisi + tanda X (CSS) */
+.ut-mk > .ut-mk-x {
+  position: absolute; right: 22px; top: 20px; width: 76px; height: 76px; padding: 0; margin: 0; cursor: pointer; z-index: 3;
+}
+.ut-mk-x::before, .ut-mk-x::after {
+  content: ''; position: absolute; left: 17px; right: 17px; top: 50%; height: 9px; margin-top: -4.5px;
+  border-radius: 5px; background: #fff; box-shadow: 0 2px 0 #0d0a18;
+}
+.ut-mk-x::before { transform: rotate(45deg); }
+.ut-mk-x::after { transform: rotate(-45deg); }
+.ut-mk-x > img { display: none; }

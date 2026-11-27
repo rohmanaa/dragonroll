@@ -11,16 +11,21 @@
 
   /* ---------- saldo: PlayerData bila ada, kalau tidak tiruan lokal ---------- */
   const PD = window.PlayerData, LKEY = 'tambang:local';
+  /* MODE SERVER: akun login + UT.TambangService (RPC tambang_*) -> server sumber kebenaran; selain itu mode lokal (pratinjau). */
+  const TSV = () => window.UT && UT.TambangService && UT.TambangService.get && UT.TambangService.get();
+  const srvOn = () => { try { const t = TSV(); return !!(PD && PD.serverMode && PD.serverMode() && t && t.enabled()); } catch (e) { return false; } };
+  D.mode = srvOn() ? 'server' : 'lokal';
+  let srvApi = null;
   let L = null;
   const lsGet = () => { try { return JSON.parse(localStorage.getItem(LKEY)); } catch (e) { return null; } };
-  const lsSet = () => { try { localStorage.setItem(LKEY, JSON.stringify(L)); } catch (e) { } };
+  const lsSet = () => { if (D.mode === 'server') return; try { localStorage.setItem(LKEY, JSON.stringify(L)); } catch (e) { } };
   const subs = [];
   D.wallet = {
-    ready: () => true,
-    coins: () => L.coins,
-    gems: () => L.gems,
+    ready: () => D.mode === 'server' ? !!(PD.walletReady && PD.walletReady()) : true,
+    coins: () => D.mode === 'server' ? PD.coins() : L.coins,
+    gems: () => D.mode === 'server' ? PD.gems() : L.gems,
     subscribe: (f) => { subs.push(f); if (PD && PD.subscribe) try { PD.subscribe((r) => { if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') f(); }); } catch (e) { } },
-    add: (c, g) => { L.coins += c || 0; L.gems += g || 0; lsSet(); subs.forEach((f) => f()); }
+    add: (c, g) => { if (D.mode === 'server') return; L.coins += c || 0; L.gems += g || 0; lsSet(); subs.forEach((f) => f()); }
   };
   const settings = () => { try { return PD.settings(); } catch (e) { return {}; } };
   D.feedback = function () { try { if (settings().vibration && navigator.vibrate) navigator.vibrate(15); if (settings().sound) UT.Audio.play('button'); } catch (e) { } };
@@ -125,6 +130,7 @@
   let API = null;
   function pickApi() {
     const ms = window.UT && UT.MineService && UT.MineService.get && UT.MineService.get();
+    if (D.mode === 'server' && srvApi) return srvApi;
     D.mode = 'lokal'; return localApi;
   }
 
@@ -141,7 +147,7 @@
   D.load = async function () {
     API = pickApi(); const r = await API.get();
     if (!r || !r.ok) return r || { ok: false, reason: 'jaringan' };
-    r.slots.forEach(stamp); D.slots = r.slots; if (r.config) D.config = r.config; D.ready = true; if (D.onChange) D.onChange(); return r;
+    r.slots.forEach(stamp); D.slots = r.slots; if (r.config) D.config = r.config; const first = !D.ready; D.ready = true; if (D.onChange) D.onChange(); if (first && D.mode === 'server') setTimeout(() => D.catchup(), 0); return r;
   };
   D.act = async function (i, a) {
     if (!API) API = pickApi();
@@ -318,8 +324,8 @@
     D.offlineReport = { mins: Math.round(eff / 60000), capped: lost > 0, ore: ore, wood: wood, smelted: sm, coin: L.coins - c0, gem: L.gems - g0, power: D.powerTotal() - p0 };
     return D.offlineReport;
   };
-  D.MSG = { 'inventori-kosong': 'Inventori kosong — klaim dari Gudang dulu.', 'barang-tidak-ada': 'Barang tidak dikenal.', 'buka-berurutan': 'Buka tambang sebelumnya dulu — tambang dibuka berurutan.', 'perlu-manager': 'Boost dilakukan Manager. Rekrut Manager dulu (Emerald).', 'batas-klaim': 'Batas klaim hari ini sudah habis. Upgrade batas harian atau tunggu besok.', 'gudang-kosong': 'Peti Gudang masih kosong.', 'hanya-cadangan': 'Hanya cadangan bahan bakar yang tersisa di Gudang.', 'emerald-kurang': 'Emerald tidak cukup untuk merekrut Manager.', 'furnace-belum': 'Bangun Furnace dulu di Base Camp.', 'ore-kosong': 'Tidak ada ore untuk dilebur.', 'bahan-bakar-kurang': 'Bahan bakar kurang. Tebang kayu atau ambil batu bara.', 'resep-tidak-ada': 'Resep tidak dikenal.', 'lift-terkunci': 'Buka Lift dulu untuk mengangkut ore dari tambang ini.', 'saldo-kurang': 'Saldo tidak cukup.', 'sudah-dibuka': 'Tambang sudah dibuka.', 'level-maks': 'Sudah level maksimum.', 'boost-aktif': 'Percepat masih aktif.', 'batas-harian': 'Batas Percepat hari ini habis.', 'peti-kosong': 'Peti belum ada isinya.', 'terkunci': 'Buka tambang dulu.', 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses…', 'mode-lokal': 'Tambang butuh akun login.', 'slot-tidak-valid': 'Slot tidak valid.' };
-  L = lsGet() || rawNew(); [L.store, L.bag].forEach((B) => { if (B && B.inv && B.goods) GEMS.forEach((k) => { if (B.inv[k] > 0) { B.goods[k] += B.inv[k]; B.inv[k] = 0; } }); }); if (L.gup && L.gup.off > 2) L.gup.off = 2; if (L.gup && L.gup.off < 1) L.gup.off = 1; if (!L.powers) L.powers = {}; if (!L.drop) L.drop = { d: '', coin: 0, gem: 0, power: 0 };
+  D.MSG = { 'inventori-kosong': 'Inventori kosong — klaim dari Gudang dulu.', 'barang-tidak-ada': 'Barang tidak dikenal.', 'buka-berurutan': 'Buka tambang sebelumnya dulu — tambang dibuka berurutan.', 'perlu-manager': 'Boost dilakukan Manager. Rekrut Manager dulu (Emerald).', 'batas-klaim': 'Batas klaim hari ini sudah habis. Upgrade batas harian atau tunggu besok.', 'gudang-kosong': 'Peti Gudang masih kosong.', 'hanya-cadangan': 'Hanya cadangan bahan bakar yang tersisa di Gudang.', 'emerald-kurang': 'Emerald tidak cukup untuk merekrut Manager.', 'furnace-belum': 'Bangun Furnace dulu di Base Camp.', 'ore-kosong': 'Tidak ada ore untuk dilebur.', 'bahan-bakar-kurang': 'Bahan bakar kurang. Tebang kayu atau ambil batu bara.', 'resep-tidak-ada': 'Resep tidak dikenal.', 'lift-terkunci': 'Buka Lift dulu untuk mengangkut ore dari tambang ini.', 'saldo-kurang': 'Saldo tidak cukup.', 'sudah-dibuka': 'Tambang sudah dibuka.', 'level-maks': 'Sudah level maksimum.', 'boost-aktif': 'Percepat masih aktif.', 'batas-harian': 'Batas Percepat hari ini habis.', 'peti-kosong': 'Peti belum ada isinya.', 'terkunci': 'Buka tambang dulu.', 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses…', 'mode-lokal': 'Tambang butuh akun login.', 'slot-tidak-valid': 'Slot tidak valid.', 'server-belum-siap': 'Server Tambang belum siap (migrasi database belum dijalankan).', 'jenis-salah': 'Jenis upgrade tidak dikenal.', 'tambang-tidak-ada': 'Tambang tidak ada.' };
+  L = (D.mode === 'server' ? null : lsGet()) || rawNew(); if (D.mode === 'server') { L.coins = 0; L.gems = 0; } [L.store, L.bag].forEach((B) => { if (B && B.inv && B.goods) GEMS.forEach((k) => { if (B.inv[k] > 0) { B.goods[k] += B.inv[k]; B.inv[k] = 0; } }); }); if (L.gup && L.gup.off > 2) L.gup.off = 2; if (L.gup && L.gup.off < 1) L.gup.off = 1; if (!L.powers) L.powers = {}; if (!L.drop) L.drop = { d: '', coin: 0, gem: 0, power: 0 };
   { const ni = emptyInv(), ng = emptyGoods(); OREK.forEach((k) => { ni[k] = (L.inv && L.inv[k]) || 0; }); GOODS.forEach((k) => { ng[k] = (L.goods && L.goods[k]) || 0; }); L.inv = ni; L.goods = ng; }
   if (!L.store) { L.store = mkBag(); OREK.forEach((k) => { L.store.inv[k] = L.inv[k]; }); GOODS.forEach((k) => { L.store.goods[k] = L.goods[k]; }); L.store.wood = L.wood || 0; L.inv = emptyInv(); L.goods = emptyGoods(); L.wood = 0; }
   for (const k in L.mines) if (!L.mines[k].t0) L.mines[k].t0 = L.mines[k].at;
@@ -328,4 +334,82 @@
   if (!L.lift) L.lift = { on: 1, cap: 1, spd: 1 }; L.lift.on = 1; if (!L.inv) L.inv = emptyInv();
   if (L.wood == null) L.wood = 0; if (!L.forest) L.forest = { workers: 0, trees: [] }; if (L.furn == null) L.furn = 0;
   for (let k = 0; k < FOREST.trees; k++) if (!L.forest.trees[k]) L.forest.trees[k] = { at: 0 };   /* at = waktu tumbuh kembali (ms); 0 = berdiri */
+
+  /* ======================= MODE SERVER =======================
+     Server (migrasi 202611490001_tambang_world.sql + 202611500001_..._fix_sell.sql) = sumber kebenaran untuk SEMUA yang bernilai:
+     saldo, tambang, lift, Gudang, Inventori, gacha. Klien hanya menampilkan & menganimasikan. Setiap respons RPC memuat keadaan
+     lengkap -> hydrate() menimpa L, lalu tampilan membaca L seperti biasa (stok tambang dihitung ulang dengan rumus yang sama). */
+  if (D.mode === 'server') {
+    const ts = TSV();
+    const fromSrv = (b) => { const o = mkBag(); b = b || {}; Object.keys(b.ore || {}).forEach((k) => { if (k in o.inv) o.inv[k] = +b.ore[k] || 0; }); Object.keys(b.goods || {}).forEach((k) => { if (k in o.goods) o.goods[k] = +b.goods[k] || 0; }); o.wood = +b.wood || 0; return o; };
+    function hydrate(S) {
+      const t = Date.now(), m = {};
+      L.coins = +S.coins || 0; L.gems = +S.gems || 0;
+      (S.mines || []).forEach((x) => { m[x.slot] = { slot: x.slot, speed: x.speed_lv, cap: x.cap_lv, mgr: x.mgr ? 1 : 0, stock: +x.stock || 0, at: t, t0: Date.parse(x.t0) || t, bu: x.boost_left_secs > 0 ? t + x.boost_left_secs * 1000 : 0, bd: dayKey(), bc: D.config.boost_daily - x.boost_left_today }; });
+      L.mines = m;
+      L.lift = { on: 1, cap: S.lift.cap_lv, spd: S.lift.spd_lv };
+      L.gup = { cap: S.gudang.cap_lv, day: 1, off: S.gudang.off_lv };
+      L.store = fromSrv(S.store); L.bag = fromSrv(S.bag); L.transit = null;
+      L.furn = S.furn || 0; L.forest.workers = S.forest_workers || 0;
+      L.drop = { d: S.drops.day, coin: S.drops.coin, gem: S.drops.gem, power: S.drops.power }; L.powers = S.powers || {};
+      L.t0 = Date.parse(S.t0) || t; L.seen = t;
+      subs.forEach((f) => f());
+    }
+    /* Semua panggilan server diantrekan di sini (sweep/kerja berkala tidak menabrak aksi pemain; service menolak panggilan serentak). */
+    let chain = Promise.resolve();
+    const run = (fn) => { const p = chain.then(async () => { const r = await fn(); if (r && r.ok && r.mines) hydrate(r); return r; }); chain = p.catch(() => { }); return p; };
+    srvApi = {
+      get: async () => { const r = await run(() => ts.get()); if (!r || !r.ok) return r || { ok: false, reason: 'jaringan' }; return { ok: true, coins: L.coins, gems: L.gems, slots: [1, 2, 3, 4, 5].map(slotJson), config: D.config }; },
+      act: async (i, a) => {
+        let r;
+        if (a === 'unlock') r = await run(() => ts.unlock(i)); else if (a === 'manager') r = await run(() => ts.manager(i)); else if (a === 'boost') r = await run(() => ts.boost(i));
+        else if (a === 'speed' || a === 'cap') r = await run(() => ts.upgrade(i, a)); else return { ok: false, reason: 'lift-terkunci' };
+        if (r && r.ok) r.slot_data = slotJson(i);
+        return r || { ok: false, reason: 'jaringan' };
+      }
+    };
+    D.liftAct = async (a) => { if (a === 'unlock') return { ok: false, reason: 'sudah-dibuka' }; const r = await run(() => ts.liftUpgrade(a)); return r && r.ok ? { ok: true } : (r || { ok: false, reason: 'jaringan' }); };
+    D.gudangUp = async (k) => { if (k === 'day') return { ok: false, reason: 'level-maks' }; const r = await run(() => ts.gudangUpgrade(k)); return r && r.ok ? { ok: true } : (r || { ok: false, reason: 'jaringan' }); };
+    D.hire = async () => { const r = await run(() => ts.hire('forest')); return r && r.ok ? { ok: true } : (r || { ok: false, reason: 'jaringan' }); };
+    D.furnaceUp = async () => { const r = await run(() => ts.hire('furn')); return r && r.ok ? { ok: true } : (r || { ok: false, reason: 'jaringan' }); };
+    D.claim = async () => { const r = await run(() => ts.claim()); if (r && r.ok) r.left = bagTotal(L.store); return r || { ok: false, reason: 'jaringan' }; };
+    D.sellItem = async (grp, k, n) => { const r = await run(() => ts.sell(grp, k, n)); return r && r.ok ? { ok: true, n: r.sold, coins: r.earned, gems: 0 } : (r || { ok: false, reason: 'jaringan' }); };
+    D.sellAll = async () => { const r = await run(() => ts.sellAll()); return r && r.ok ? { ok: true, n: r.sold, coins: r.earned, gems: 0 } : (r || { ok: false, reason: 'jaringan' }); };
+    /* lift: rencana perjalanan hanya animasi (tidak mengubah stok); hasil nyata (muatan + gacha) datang dari server */
+    D.sweepPlan = function () {
+      if (L.transit) return null; const free = D.storeFree(); if (free < 1) return null;
+      const t = Date.now(), ids = Object.keys(L.mines).map(Number).sort((a, b) => a - b); if (!ids.length) return null;
+      for (let j = 0; j < ids.length; j++) {
+        const i = ids[(ids.findIndex((x) => x >= (L.swi || 0)) + j + ids.length) % ids.length], r = L.mines[i], have = Math.floor(stockNow(r, t)); if (have < 1) continue;
+        const n = Math.min(have, LIFT.cap[L.lift.cap], free); L.swi = i + 1; return { mine: i, n: n, ores: alloc(n, MIX[i]) };
+      }
+      return null;
+    };
+    D.onDrops = null; D.onCatchup = null; let pendingSmelt = 0;
+    const srvSweep = async () => { const r = await run(() => ts.sweep()); if (r && r.ok && r.swept && (r.swept.drop_coin || r.swept.drop_gem || (r.swept.drop_power || []).length) && D.onDrops) D.onDrops(r.swept); return r; };
+    const srvWork = async () => { const r = await run(() => ts.work()); if (r && r.ok && r.worked) pendingSmelt += r.worked.smelted || 0; return r; };
+    D.deliver = function () { srvSweep(); return { mine: 0, n: 0, ores: {}, drops: { coin: 0, gem: 0, power: [] } }; };
+    D.chop = (k) => { if (!D.treeUp(k) || D.storeFree() < FOREST.wood || D.restGlobal().resting) return 0; L.forest.trees[k].at = Date.now() + FOREST.regrowMs; return 0; };   /* kayu nyata dihitung server (tambang_work) */
+    let wT = 0;
+    D.tick = function () {
+      const t = Date.now(), gap = t - (L.seen || t), ev = { smelted: [], sweepDue: false, catchup: null };
+      if (gap > 20000) { L.seen = t; D.catchup(gap); return ev; }
+      L.seen = t; swT2 += gap; wT += gap;
+      if (swT2 >= SWEEP_MS) { swT2 = 0; ev.sweepDue = true; }
+      if (wT >= 20000) { wT = 0; srvWork(); }
+      while (pendingSmelt > 0 && ev.smelted.length < 3) { ev.smelted.push('copper'); pendingSmelt--; } pendingSmelt = 0;
+      return ev;
+    };
+    let swT2 = 0;
+    const SEEN = 'tambang:srv:seen';
+    D.save = () => { try { localStorage.setItem(SEEN, String(Date.now())); } catch (e) { } };
+    D.catchup = async function (gapIn) {
+      let gapMs = gapIn || 0; try { const v = +localStorage.getItem(SEEN); gapMs = Math.max(gapMs, v ? Date.now() - v : 0); } catch (e) { } D.save();
+      const b = { ore: bagTotal(L.store), wood: L.store.wood, c: PD.coins(), g: PD.gems(), p: D.powerTotal(), sm: pendingSmelt };
+      const r1 = await srvSweep(), r2 = await srvWork();
+      const sm = (r2 && r2.worked && r2.worked.smelted) || 0; pendingSmelt = 0;
+      D.offlineReport = { mins: Math.round(Math.min(gapMs, GST.off[L.gup.off] * 3.6e6) / 60000), capped: gapMs > GST.off[L.gup.off] * 3.6e6, ore: Math.max(0, (r1 && r1.swept ? r1.swept.ore : 0)), wood: Math.max(0, L.store.wood - b.wood), smelted: sm, coin: Math.max(0, PD.coins() - b.c), gem: Math.max(0, PD.gems() - b.g), power: Math.max(0, D.powerTotal() - b.p) };
+      if (gapMs >= 20000 && D.onCatchup) D.onCatchup(D.offlineReport); return D.offlineReport;
+    };
+  }
 })();

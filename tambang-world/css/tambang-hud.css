@@ -19,29 +19,22 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 
 /* bar atas (page.css + sub.css) */
 #tambang-back{position:absolute;left:40px;top:30px;width:64px;height:72px;z-index:5}
-#tambang-home{position:absolute;left:1812px;top:30px;width:68px;height:72px;z-index:5}
-#tambang-back img,#tambang-home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#tambang-back:active,#tambang-home:active{transform:scale(.92)}
+#tambang-home{position:absolute;left:calc(1812px + var(--ex,0px));top:30px;width:68px;height:72px;z-index:5}
+#tambang-back,#tambang-home,.tambang-arr{display:grid;place-items:center}
+#tambang-back .ic,#tambang-home .ic,.tambang-arr .ic{width:68%;height:68%;object-fit:contain}
 #tambang-title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);z-index:5}
 #tambang-sum{position:absolute;left:142px;top:116px;font:800 32px var(--tambang-font-body);color:#ebe6ff;z-index:5;text-shadow:0 2px 0 rgba(10,6,24,.9),0 0 8px rgba(10,6,24,.9);white-space:nowrap}
 #tambang-sum b{color:#6be04a;font:400 40px var(--tambang-font-title)}
-.tambang-cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;background:rgba(14,10,26,.6);
-  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);z-index:5}
-.tambang-cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;width:auto;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.tambang-cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--tambang-font-title);padding-left:44px;padding-right:44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
-.tambang-cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--tambang-font-body);color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.tambang-cur:active{filter:brightness(1.12)}
+/* Emerald & Coin = komponen bersama .ut-rbar (assets/components/resource-bar), seperti Lobby; posisi milik halaman */
+#tambang-cur-em,#tambang-cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}
 #tambang-cur-em{left:1100px}#tambang-cur-co{left:1420px}
-.tambang-cur.bump{animation:tambang-bump .4s}
+#tambang-cur-em.bump,#tambang-cur-co.bump{animation:tambang-bump .4s}
 @keyframes tambang-bump{40%{transform:scale(1.07)}}
 
 /* navigasi layer: 6 tile stage dari kit */
 #tambang-nav{position:absolute;left:432px;top:26px;height:80px;display:flex;align-items:center;gap:4px;z-index:5}
-.tambang-arr{position:relative;width:52px;height:52px;transition:transform .1s,filter .1s}
-.tambang-arr img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.tambang-arr.up img{transform:rotate(90deg)}.tambang-arr.dn img{transform:rotate(-90deg)}
-.tambang-arr:active{transform:scale(.92)}
-.tambang-arr:disabled{filter:grayscale(1) brightness(.6);pointer-events:none}
+.tambang-arr{position:relative;width:52px;height:52px}
+.tambang-arr.up .ic{transform:rotate(90deg)}.tambang-arr.dn .ic{transform:rotate(-90deg)}
 .tambang-tile{position:relative;width:58px;height:58px;display:grid;place-items:center;transition:transform .12s,filter .12s}
 .tambang-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .tambang-tile span{position:relative;font:400 28px/1 var(--tambang-font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-3px}
@@ -102,7 +95,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 body:has(#tambang-md.on)::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(10,8,30,.93)}
 
 /* panel produksi (kartu .slot dari data/mining/css/tambang.css, diperkecil agar dunia 3D tetap terlihat) */
-.tambang-slot{position:absolute;left:1440px;top:212px;width:440px;height:690px;display:flex;flex-direction:column;align-items:center;padding:78px 34px 26px;isolation:isolate;z-index:6;animation:tambang-inU .35s cubic-bezier(.2,.9,.2,1) both}
+.tambang-slot{position:absolute;left:calc(1440px + var(--ex,0px));top:212px;width:440px;height:690px;display:flex;flex-direction:column;align-items:center;padding:78px 34px 26px;isolation:isolate;z-index:6;animation:tambang-inU .35s cubic-bezier(.2,.9,.2,1) both}
 .tambang-slot::before{content:'';position:absolute;inset:0;background:url(../images/tambang-kartu-toko.webp) center/100% 100% no-repeat;z-index:-1}
 .tambang-slot.locked::before{filter:grayscale(.6) brightness(.85)}
 @keyframes tambang-inU{from{opacity:0;transform:translateY(30px)}}
@@ -208,7 +201,7 @@ body:has(#tambang-md.on)::after{content:'';position:fixed;inset:0;z-index:0;poin
 .tambang-mgr.poor{opacity:.6}
 
 /* overlay tambang terkunci (tanpa spoiler) */
-#tambang-lock{position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(14,10,30,.9),rgba(6,4,16,.97));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#tambang-lock{position:absolute;left:0;top:0;width:100%;height:1080px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(14,10,30,.9),rgba(6,4,16,.97));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 #tambang-lock.on{opacity:1}
 #tambang-lock img{width:196px;image-rendering:auto;height:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.45))}
 #tambang-lock b{font:400 76px var(--tambang-font-title);color:#fff;text-shadow:0 4px 0 #1b1030}
@@ -280,7 +273,7 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 .tambang-bigbtn[data-sellall]{width:640px;font-size:30px;white-space:nowrap}
 /* layout v3: home dihapus, mata uang ke kanan, tombol aksi di bawah */
 #tambang-home{display:none!important}
-#tambang-cur-em{left:1290px}#tambang-cur-co{left:1590px}
+#tambang-cur-em{left:calc(1290px + var(--ex,0px))}#tambang-cur-co{left:calc(1590px + var(--ex,0px))}
 #tambang-tools{left:50%;top:auto;bottom:26px;transform:translateX(-50%)}
 #tambang-tools2{left:50%;top:auto;bottom:112px;transform:translateX(-50%)}
 #tambang-toast{bottom:240px}

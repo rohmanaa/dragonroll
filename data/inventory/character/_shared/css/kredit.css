@@ -16,23 +16,16 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 #extraAcc{position:absolute;left:24px;right:360px;bottom:10px;height:56px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:thin}
 #extraAcc:empty{display:none}
 #panelActions{position:absolute;right:20px;bottom:10px;display:flex;gap:8px}
-#panelActions .bt{width:140px;height:56px;border-radius:10px;font:400 24px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
+#panelActions .bt{width:140px;height:56px;font:400 24px var(--font-title)}   /* tampilan: .ut-gl .ut-c-* (button.css) */
 /* ---- kanan: tab NewGUI, subkategori, grid ---- */
-#tabs{position:absolute;left:0;top:124px;width:900px;height:96px;display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid rgba(255,255,255,.18)}
-#subs{position:absolute;left:0;top:232px;width:900px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
-.cat{position:relative;min-width:0;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:filter .1s}
-.cat.tab{width:auto}
-.cat .ce{font-size:38px;line-height:1}
-.cat .cl{font:400 21px/1 var(--font-title);color:#d8d2ee;text-shadow:0 2px 0 rgba(10,6,24,.5);white-space:nowrap}
-.cat:hover{filter:brightness(1.2)}.cat:active{transform:scale(.96)}
-.cat.on .cl{color:#ffd45a}
-.cat .ul{position:absolute;left:0;right:0;bottom:-20px;width:100%;height:36px;object-fit:fill;display:none}
-.cat.on .ul{display:block}
-.cat.sub{height:72px;gap:0;border-bottom:2px solid rgba(255,255,255,.18)}
-.cat.sub .ce{display:none}
-.cat.sub .cl{font-size:19px}
-.cat.sub.on{border-bottom-color:#ffd45a}
-#ofm{position:absolute;right:0;top:232px;width:auto;height:54px;padding:0 24px;border-radius:12px;font:400 26px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
+/* tab kategori = komponen .ut-tabs/.ut-tab, subkategori = .ut-seg/.ut-seg-i (tabs.css); di sini hanya posisi & pembagian lebar */
+#tabs{position:absolute;left:0;top:124px;width:900px;height:96px}
+#tabs .ut-tab{flex:1 1 0;min-width:0;padding:0 6px}
+#tabs .ce{font-size:38px;line-height:1}
+#subs{position:absolute;left:0;top:232px;width:900px;--tab-h:64px;--tab-fs:21px}
+#subs .ut-seg-i{flex:1 1 0;min-width:0;justify-content:center;padding:0 4px}
+#subs .ce{display:none}
+#ofm{position:absolute;right:0;top:232px;width:auto;height:54px;padding:0 24px;font:400 26px var(--font-title)}
 #gwrap{position:absolute;left:0;top:318px;width:920px;height:600px;overflow-y:auto;overflow-x:hidden;padding:6px 8px 6px 0;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-y}
 #gwrap::-webkit-scrollbar,#grid::-webkit-scrollbar{display:none;width:0;height:0}
 #grid{position:static;left:auto;top:auto;width:900px;display:grid;grid-template-columns:repeat(6,140px);grid-auto-rows:236px;gap:14px 12px}
@@ -52,42 +45,36 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 .card .th.ph .em,.card .th.ph .sq{visibility:hidden}
 @keyframes thin{from{opacity:0;transform:scale(.92)}}
 .card .nm{font:400 22px/1.1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.card .bt{display:flex;flex:0 0 56px;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:10px;overflow:hidden;white-space:nowrap;font:400 24px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
+.card .bt{display:flex;flex:0 0 56px;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;overflow:hidden;white-space:nowrap;font:400 24px/1 var(--font-title)}
 .card .bt .coin{position:static;width:28px;height:28px;object-fit:contain}
-.card .bt.owned{background-image:url(../../../../../assets/images/buttons/tombol-abu-polos.webp);color:#34445f;text-shadow:0 1px 0 rgba(255,255,255,.65)}
-.card .bt.own{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp)}
-.card .bt.no{background-image:url(../../../../../assets/images/buttons/tombol-gelap-polos.webp);color:#d0d0e0}
 .card.lk .th{filter:grayscale(1) brightness(.55);opacity:.8}
 .card .ck{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;background:var(--g);border:3px solid #fff;display:grid;place-items:center;z-index:2}
 .card .ck svg{width:18px;height:18px}
 /* slider tubuh + tombol reset */
 .slrow{display:flex;flex-direction:column;gap:10px;padding:18px 24px;border:16px solid transparent;border-image:url(../../../../../assets/images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;font:800 28px var(--font-body)}
 .slrow input{width:100%;margin:0}
-#grid.flat>.bt{width:260px;height:64px;align-self:center;justify-self:center;font:400 30px var(--font-title);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp) center/100% 100% no-repeat;color:#4d2300}
+#grid.flat>.bt{width:260px;height:64px;align-self:center;justify-self:center;font:400 30px var(--font-title)}
 /* warna (dye) */
 #dyes{position:absolute;left:0;top:930px;width:580px;min-height:72px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(14,10,26,.55);border:3px solid #4c4468}
 #dyes:empty{display:none}
 #dyes .lbl{font:400 28px var(--font-title);margin-right:8px;color:#ffd45a}
 #dyes .sw{width:46px;height:46px;border-radius:10px;border:4px solid #17122b;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);flex:none}
 #dyes .sw.on{outline:4px solid #ffd45a;outline-offset:2px}
-#act{position:absolute;right:0;top:930px;width:280px;height:78px;display:none;align-items:center;justify-content:center;z-index:5;font:400 30px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
-#act:disabled{filter:grayscale(1) brightness(.7);pointer-events:none}
+#act{position:absolute;right:0;top:930px;width:280px;height:78px;display:none;align-items:center;justify-content:center;z-index:5;font:400 30px/1 var(--font-title)}
+#act:disabled{pointer-events:none}
 /* modal (beli / outfit) */
 .ov{position:absolute;inset:0;display:none;place-items:center;background:rgba(10,6,24,.6);z-index:60;opacity:0;transition:opacity .25s}
 .ov.show{opacity:1}
-.ov>.box{position:relative;width:760px;max-height:900px;overflow:auto;padding:70px 60px 54px;border:22px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;font:800 32px/1.3 var(--font-body);text-align:center;transform:scale(.88);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.ov>.box{position:relative;width:760px;max-height:900px;overflow:auto;padding:96px 60px 54px;font:800 32px/1.3 var(--font-body);text-align:center;transform:scale(.88);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
 .ov.show>.box{transform:scale(1)}.ov.closing>.box{transform:scale(.92)}
 .box h2{margin:0 0 18px;font:400 52px var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.6)}
 .box p{margin:8px 0}
 .box .row{display:flex;align-items:center;justify-content:center;gap:12px}
 .box .row img{width:56px;height:56px;object-fit:contain;position:static}
-.box .x{position:absolute;right:14px;top:10px;width:64px;height:64px;font:400 44px var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.box .mb,.box .pack{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:260px;height:90px;margin:18px 10px 0;padding:0 28px;font:400 38px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);
-  background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp) center/100% 100% no-repeat}
-.box .mb.no{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp)}
+/* tombol tutup .box .x: .ut-mk-x (modal-kit.css) */
+.box .mb,.box .pack{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:260px;height:90px;margin:18px 10px 0;padding:0 28px;font:400 38px var(--font-title)}   /* warna: .ut-gl .ut-c-g / .ut-c-r (button.css) */
 .box input[type=text]{width:100%;font:800 34px var(--font-body);padding:12px 18px;border-radius:10px;border:4px solid #4c4468;background:#1b1631;color:#fff;margin:10px 0;user-select:text}
-.box .bt{height:56px;min-width:64px;border-radius:10px;font:400 28px var(--font-title);background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center/100% 100% no-repeat}
-.box .bt.no{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp)}
+.box .bt{height:56px;min-width:64px;font:400 28px var(--font-title)}
 
 /* ---- empat slot outfit kiri dan empat slot aksesori/equipment kanan ---- */
 #eqL,#eqR{position:absolute;top:140px;display:grid;grid-template-rows:repeat(4,124px);grid-auto-flow:row;gap:26px;z-index:3}

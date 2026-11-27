@@ -35,7 +35,7 @@ UT.PageModule.define('inventory', function (env) {
   try { env.own(UT.Events.on('currencyChanged', curRender)); } catch (e) {}
   try { var PDs = curPD(); if (PDs && PDs.subscribe) env.own(PDs.subscribe(function (r) { if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') curRender(); })); } catch (e) {}
   try { var WSs = window.UT && UT.WalletService && UT.WalletService.get(); if (WSs && WSs.refresh && curPD() && curPD().serverMode && curPD().serverMode()) WSs.refresh().then(curRender, function () {}); } catch (e) {}
-  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); }
+  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); /* Enter/Spasi ditangani komponen .ut-rbar (memicu click) */ }
   curGo('#cur-em', 'tambang.html?from=inventory.html');
   curGo('#cur-co', 'shop.html?coin=1');
 
@@ -43,7 +43,7 @@ UT.PageModule.define('inventory', function (env) {
      tanpa panel pratinjau kiri, satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
   var CIC = 'assets/images/ui/', CS = null, cBusy = false, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
-  var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
+  var CDS = { wood: 'Berisi coin. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
   var CORD = ['wood', 'silver', 'gold', 'diamond'];
   var CWM = { 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...', 'sudah-diambil': 'Chest sudah diambil.', 'tidak-ada': 'Chest tidak ditemukan.' };
   var cBox = $('#chestBox');
@@ -67,7 +67,7 @@ UT.PageModule.define('inventory', function (env) {
       h += '<button class="fslot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
     h += '<button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
-    return h + '</div></section><button class="btn" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
+    return h + '</div></section><button class="btn ut-gl ut-c-y" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
   }
   function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
   function cPull() {

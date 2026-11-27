@@ -84,26 +84,17 @@
 .tm-box {
   width: 900px !important;
   max-width: none !important;
-  padding: 32px !important;
-  border: 4px solid var(--gh-line) !important;
-  border-radius: 22px !important;
+  padding: 118px 40px 36px !important;   /* bingkai/judul: modal kit (.ut-mk) */
   color: #fff !important;
-  background: var(--gh-panel) !important;
-  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
   font: 800 30px var(--gh-body) !important;
   zoom: var(--ghud-stage-scale, 1) !important;
 }
 
-.tm-box h4 { color: var(--gh-gold) !important; font: 56px var(--gh-title) !important; }
 .tm-box p,
 .tm-box small { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
 .tm-bt button {
   min-width: 240px !important;
   min-height: 76px !important;
-  border: 4px solid rgba(0, 0, 0, .45) !important;
-  border-radius: 18px !important;
-  color: #fff !important;
-  background: linear-gradient(#6cb7ff, #2f67c7) !important;
   font: 32px var(--gh-title) !important;
 }
 
@@ -133,16 +124,8 @@
 .lm-ov .lm-note { color: #efe9ff !important; font: 28px/1.3 var(--gh-body) !important; }
 .lm-ov .lm-mode {
   min-height: 76px !important;
-  border: 4px solid rgba(0, 0, 0, .45) !important;
-  border-radius: 18px !important;
-  color: #fff !important;
-  background: linear-gradient(#78e36b, #2f9f3d) !important;
   font: 30px var(--gh-title) !important;
 }
-.lm-ov .lm-mode.lm-blue,
-.lm-ov .lm-mode.lm-grey { background: linear-gradient(#6cb7ff, #2f67c7) !important; }
-.lm-ov .lm-mode.lm-red { background: linear-gradient(#ff7a8a, #c9283f) !important; }
-.lm-ov .lm-x { color: #fff !important; background: #6546ba !important; }
 
 #readyScreen {
   background: rgba(0, 0, 0, .72) !important;
@@ -703,7 +686,20 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   box-shadow: none !important;
   font-size: 0 !important;
 }
-#hud .btn.small .hi { width: 32px !important; height: 32px !important; max-width: none !important; margin: 0 !important; filter: brightness(0) invert(1) !important; }
+#hud .hbtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 !important;
+  --gl-r: 12px;   /* kotak; tampilan: .ut-gl .ut-c-p (button.css) */
+  font-size: 0 !important;
+}
+#hud .btn.small .hi,
+#hud .hbtn .hi { width: 32px !important; height: 32px !important; max-width: none !important; margin: 0 !important; filter: brightness(0) invert(1) !important; }
 #hud #btnMenu {
   width: 46px !important;
   min-width: 46px !important;
@@ -747,11 +743,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   display: flex !important;
   pointer-events: auto !important;
 }
-#emoteDock .em-main {
-  border-color: #2b1a70 !important;
-  background: url("../../assets/images/ui/hud/tombol-bulat-kosong-ungu.webp") center / 100% 100% no-repeat !important;
-  box-shadow: none !important;
-}
+#emoteDock .em-main { --gl-r: 12px; }   /* tampilan: .ut-gl .ut-c-p (button.css) */
 #emoteDock .em-main .em-icon { width: 34px !important; height: 34px !important; filter: brightness(0) invert(1) drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
 #emoteDock .em-list { border-color: #2b1a70 !important; background: #1b4ab0 !important; }
 #emoteDock .em-list button {
@@ -777,28 +769,22 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 
 .lm-ov,
 .tm-ov { background: rgba(10, 8, 30, .93) !important; backdrop-filter: none !important; }
-.lm-ov .lm-box,
-.tm-box {
+.lm-ov .lm-box:not(.ut-mk) {
   border: 0 !important;
   border-radius: 24px !important;
   background: url("../../assets/images/ui/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
+#exitConfirm .lm-box.ut-mk { width: 760px !important; padding: 118px 28px 28px !important; border: 6px solid #000 !important; border-radius: 28px !important; background: #4b4b4b !important; box-shadow: inset 0 0 0 5px #6a6a6a, 0 14px 44px rgba(0, 0, 0, .7) !important; color: #fff !important; }
+#exitConfirm .lm-box.ut-mk .lm-body { padding: 0 !important; }
+#exitConfirm .lm-box.ut-mk > .ut-mk-t { font-size: 46px !important; color: #fff !important; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000, 0 4px 0 #000 !important; }
 .lm-ov .lm-box { padding: 28px !important; }
 .lm-ov .lm-body { padding: 34px !important; }
 .lm-ov .lm-box h2 { color: #ffd45a !important; font-family: var(--gh-title) !important; }
 .lm-ov .lm-mode,
 .tm-bt button {
-  border: 0 !important;
-  border-radius: 18px !important;
-  background: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
-  box-shadow: none !important;
-  color: #fff !important;
-  font-family: var(--gh-title) !important;
+  font-family: var(--gh-title) !important;   /* tampilan: .ut-gl (button.css) */
 }
-.lm-ov .lm-mode.lm-blue,
-.lm-ov .lm-mode.lm-grey { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
-.lm-ov .lm-mode.lm-red { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp") !important; }
 #pauseMenu .lm-box { width: 900px !important; padding: 24px !important; }
 #pauseMenu .lm-body { display: grid !important; grid-template-columns: repeat(4, 170px) !important; justify-content: center; align-items: center; gap: 16px; }
 #pauseMenu #pmSub { grid-column: 1 / -1; margin: 0; color: #efe9ff; text-align: center; }
@@ -825,10 +811,6 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   justify-content: flex-end;
   gap: 8px;
   padding: 0 8px 10px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: url("../../assets/images/ui/menu-pause/tombol-bulat-kosong.webp") center / contain no-repeat !important;
-  box-shadow: none !important;
   font: 800 20px/1.1 var(--gh-body) !important;
 }
 #pauseMenu .lm-mode .lm-ic,
@@ -848,17 +830,8 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 #pauseMenu .lm-resume::before { background-image: url("../../assets/images/ui/menu-pause/ikon-lanjut.webp"); }
 #pauseMenu .lm-exit::before { background-image: url("../../assets/images/ui/menu-pause/ikon-menyerah.webp"); }
 #pauseMenu #pmModeIco { background-image: url("../../assets/images/ui/menu-pause/ikon-pengaturan.webp"); }
-#pauseMenu .lm-mode span { color: #fff3d0; text-shadow: 0 2px 0 var(--gh-ink); }
 #pauseMenu .lm-modewrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 #pauseMenu .lm-chip { color: #efe9ff; font: 800 18px var(--gh-body); }
-#pauseMenu .lm-x {
-  width: 64px !important;
-  height: 64px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  color: transparent !important;
-  background: url("../../assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp") center / contain no-repeat !important;
-}
 #pauseMenu .lm-srow { display: flex; align-items: center; gap: 10px; color: #fff3d0; font: 800 20px var(--gh-body); }
 #pauseMenu .lm-srow input[type="range"] { flex: 1; accent-color: #ffd45a; }
 #pauseMenu .lm-srow input[type="range"]::-webkit-slider-thumb { background: url("../../assets/images/ui/settings-icons/knob-slider.webp") center / contain no-repeat; }
@@ -880,6 +853,7 @@ html body #readyScreen .rd-box {
 #hud .tools #btnMenu { order: -1; }
 #hud .tools .camgrp[hidden],
 #hud .tools .btn.small[hidden],
+#hud .tools .hbtn[hidden],
 #side .rcol .pnl.tn #rollHint[hidden],
 #side .rcol .pnl.tn .msg[hidden] { display: none !important; }
 html body #hud { max-width: none !important; }
@@ -968,13 +942,15 @@ html body #puCard.pucard {
   border: 0 !important;
   border-top: 3px solid var(--gh-event-color) !important;
   border-bottom: 3px solid var(--gh-event-color) !important;
+  /* garis atas/bawah ikut memudar ke transparan di tepi kiri-kanan (sama dengan latar) */
+  border-image: linear-gradient(90deg, transparent, var(--gh-event-color) 14%, var(--gh-event-color) 86%, transparent) 1 !important;
   border-radius: 0 !important;
   color: var(--gh-event-color) !important;
   background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
   box-shadow: none !important;
   font: 800 36px/1.2 var(--gh-body) !important;
   text-align: center !important;
-  text-shadow: none !important;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 6px rgba(0, 0, 0, .6) !important;
 }
 #utGameplayHud .ut-ghud-b[data-k="turn"],
 #utGameplayHud .ut-ghud-b[data-k="extra"],
@@ -1171,14 +1147,8 @@ html body #puCard.pucard.mob-hit {
   min-width: 190px !important;
   min-height: 76px !important;
   padding: 0 24px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") center / 100% 100% no-repeat !important;
-  box-shadow: none !important;
-  color: #fff !important;
   font: 30px var(--gh-title) !important;
 }
-#trapBar button#trapOk { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") !important; }
 
 .tm-box {
   box-sizing: border-box !important;
@@ -1198,14 +1168,8 @@ html body #puCard.pucard.mob-hit {
   flex: none !important;
   width: 280px !important;
   min-height: 76px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") center / 100% 100% no-repeat !important;
-  box-shadow: none !important;
   font: 30px var(--gh-title) !important;
 }
-.tm-bt .tm-y { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp") !important; }   /* aset gambar (bukan gradasi CSS); menang atas .tm-bt button */
-.tm-bt .tm-n { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
 
 #readyScreen {
   background: rgba(0, 0, 0, .72) !important;
@@ -1474,19 +1438,8 @@ body:has(#win[data-state="lose"]:not([hidden])) #utGameplayHud { visibility: hid
   height: 88px !important;
   min-height: 88px !important;
   padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  color: #fff !important;
-  background-color: transparent !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: 100% 100% !important;
-  box-shadow: none !important;
-  font: 34px/1 var(--gh-title) !important;
-  text-shadow: 0 3px 0 rgba(20, 10, 40, .6) !important;
+  font: 34px/1 var(--gh-title) !important;   /* tampilan: .ut-gl (button.css) */
 }
-#win[data-state="lose"] #btnAgain { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp") !important; }
-#win[data-state="lose"] #btnToMenu { background-image: url("../../assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp") !important; }
 
 @media (max-width: 699px) {
   #utGameplayHud .ut-ghud-b { gap: 12px !important; padding: 12px 30px !important; font-size: 28px !important; }
@@ -1513,7 +1466,8 @@ body:has(#win[data-state="lose"]:not([hidden])) #utGameplayHud { visibility: hid
   #win[data-state="lose"] .lm-mode { height: clamp(48px, 10vh, 72px) !important; }
 }
 
-html body #hud .tools.open .btn.small .hi {
+html body #hud .tools.open .btn.small .hi,
+html body #hud .tools.open .hbtn .hi {
   opacity: 1 !important;
   filter: brightness(0) invert(1) !important;
 }
@@ -1521,15 +1475,10 @@ html body #hud .tools.open .btn.small {
   box-shadow: none !important;
   text-shadow: none !important;
 }
-html body #hud .tools.open .btn.small[aria-pressed="true"],
+html body #hud .tools.open .hbtn[aria-pressed="true"],
 html body #hud .tools.open #btnPreset[aria-expanded="true"],
 html body #hud .tools.open #btnSnd.muted {
-  background-image:
-    linear-gradient(rgba(255, 212, 79, .72), rgba(240, 150, 15, .72)),
-    url("../../assets/images/ui/hud/tombol-bulat-kosong-ungu.webp") !important;
-  background-position: center, center !important;
-  background-size: 100% 100%, 100% 100% !important;
-  background-repeat: no-repeat, no-repeat !important;
+  --b1: #ffe86a; --b2: #ffc61f; --b3: #f7a90c; --b4: #e98a06;   /* aktif = kuning (warna .ut-c-y) */
 }
 html body #hud .tools.open #btnMenu::before {
   filter: none !important;

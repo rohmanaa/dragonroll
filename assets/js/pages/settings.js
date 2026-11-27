@@ -73,7 +73,7 @@ function closeLang(){lgModal.classList.remove('on')}
 function drawLangGrid(){
  lgrid.innerHTML='';
  LANGS.forEach(l=>{
-  const b=document.createElement('button');b.className='kcard lc'+(l.id===curLang().id?' sel':'');
+  const b=document.createElement('button');b.className='ut-tabv lc'+(l.id===curLang().id?' on sel':'');
   b.innerHTML='<img class="'+(l.flag?'':'glb')+'" src="'+(l.flag||GLB)+'" alt=""><b>'+l.name+'</b>';
   b.onclick=()=>{PF().set('lang',l.id);buzz();drawLangBtn();closeLang();toast('Bahasa: '+l.name)};
   lgrid.appendChild(b);

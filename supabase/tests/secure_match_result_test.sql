@@ -27,25 +27,40 @@ from generate_series(1, 20) g;
 create temp table out(k text, v jsonb);
 grant all on out to authenticated;
 
--- 1. CPU: klien mengklaim XP 1.000.000 + menang -> XP klien DIABAIKAN; server hanya beri +30 XP (kecil, S5 migrasi 202611190003), 0 poin
+-- 1. CPU (aturan 26 Nov 2026): klien mengklaim XP 1.000.000 + menang -> TANPA XP, TANPA poin, TIDAK mengubah statistik/wins/plays; hanya koin (10 menang)
 set role authenticated; select set_config('request.jwt.claim.sub','aaaaaaaa-0000-0000-0000-000000000003',false);
-insert into out select 'cpu', public.submit_match_result('cpu-1', true, 'Cpu3', 1000000, null, 'online', 2, '{"dice":10}');
+insert into out select 'cpu', public.submit_match_result('cpu-1', true, 'Cpu3', 1000000, null, 'online', 2, '{"dice":10,"ingame_coins":999,"ingame_xp":999}');
 reset role;
-do $$ declare s public.player_stats; begin
-  select * into s from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000003';
-  assert s.xp = 30, 'XP palsu harus diabaikan (server beri +30), dapat '||s.xp;
-  assert s.points = 0 and s.week_points = 0, 'CPU tidak boleh dapat poin';
-  assert s.plays = 1 and s.wins = 1, 'CPU tetap dihitung main/menang';
-  assert (select mode from public.player_match_history where user_id=s.user_id) = 'cpu', 'mode ditentukan server, bukan klien';
+do $$ declare r jsonb; begin
+  select v into r from out where k='cpu';
+  assert (r->>'xp_gain')::int = 0 and (r->>'points')::int = 0, 'CPU tanpa XP/poin';
+  assert (r->>'online')::boolean is false, 'CPU bukan online';
+  assert (r->>'reward_coins')::int = 10, 'koin dasar CPU menang = 10';
+  assert (r->>'ingame_coins')::int = 30, 'koin in-game CPU dibatasi 30, dapat '||(r->>'ingame_coins');
+  assert (r->>'cpu_left')::int = 4, 'sisa jatah CPU = 4';
+  assert not exists (select 1 from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000003'), 'CPU tidak boleh membuat/mengubah player_stats (plays/wins/XP/statistik)';
+  assert (select count(*) from public.wallet_ledger where user_id='aaaaaaaa-0000-0000-0000-000000000003' and reason='match_cpu' and delta_coins=40) = 1, 'ledger match_cpu 40 koin';
+  assert (select mode from public.player_match_history where user_id='aaaaaaaa-0000-0000-0000-000000000003') = 'cpu', 'mode ditentukan server, bukan klien';
 end $$;
 
--- 2. Cepat beruntun (<45 dtk) diabaikan
+-- 2. CPU tidak lagi kena jeda 45 dtk, tetapi hanya 5 hasil/hari yang dibayar; ke-6 diabaikan penuh. match_id yang sama = duplikat.
+select set_config('request.jwt.claim.sub','aaaaaaaa-0000-0000-0000-000000000003',false);
 set role authenticated;
-insert into out select 'fast', public.submit_match_result('cpu-2', true, 'Cpu3', 1000000, null, null, 2, null);
+insert into out select 'dupcpu', public.submit_match_result('cpu-1', true, 'Cpu3', 0, null, null, 2, null);
+insert into out select 'cpu-2', public.submit_match_result('cpu-2', false, 'Cpu3', 0, null, null, 2, null);
+insert into out select 'cpu-3', public.submit_match_result('cpu-3', false, 'Cpu3', 0, null, null, 2, null);
+insert into out select 'cpu-4', public.submit_match_result('cpu-4', false, 'Cpu3', 0, null, null, 2, null);
+insert into out select 'cpu-5', public.submit_match_result('cpu-5', false, 'Cpu3', 0, null, null, 2, null);
+insert into out select 'cpu-6', public.submit_match_result('cpu-6', true, 'Cpu3', 0, null, null, 2, null);
 reset role;
 do $$ begin
-  assert (select v->>'ignored' from out where k='fast') = 'too_fast';
-  assert (select xp from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000003') = 30;
+  assert (select (v->>'duplicate')::boolean from out where k='dupcpu') is true, 'match_id sama = duplikat';
+  assert (select (v->>'reward_coins')::int from out where k='cpu-2') = 5, 'kalah CPU = 5 koin';
+  assert (select (v->>'cpu_left')::int from out where k='cpu-5') = 0, 'setelah ke-5 sisa 0';
+  assert (select v->>'ignored' from out where k='cpu-6') = 'cpu_daily_limit', 'ke-6 harus diabaikan';
+  assert (select count(*) from public.wallet_ledger where user_id='aaaaaaaa-0000-0000-0000-000000000003' and reason='match_cpu') = 5, 'tepat 5 baris ledger CPU';
+  assert not exists (select 1 from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000003'), 'statistik tetap kosong';
+  assert (select sum(delta_coins) from public.wallet_ledger where user_id='aaaaaaaa-0000-0000-0000-000000000003' and reason='match_cpu') = 40+4*5, 'total koin CPU = 40 + 4x5';
 end $$;
 
 -- 3. Online, room belum selesai -> ditolak (klien boleh coba lagi), statistik tidak berubah
@@ -58,14 +73,15 @@ do $$ begin
   assert not exists (select 1 from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000001'), 'tidak boleh ada statistik';
 end $$;
 
--- 3b. Online tetapi room TAK terverifikasi (tanpa log event server): XP kecil seperti CPU, 0 poin leaderboard, XP klien diabaikan
+-- 3b. Online tetapi room TAK terverifikasi (tanpa log event server): diperlakukan seperti CPU -> tanpa XP/poin/statistik, hanya koin CPU
 select set_config('request.jwt.claim.sub','aaaaaaaa-0000-0000-0000-000000000004',false);
 set role authenticated;
 insert into out select 'unverified', public.submit_match_result('u-1', true, 'P4', 1000000, 'bbbbbbbb-0000-0000-0000-000000000003', 'online', 2, null);
 reset role;
-do $$ declare s public.player_stats; begin
-  select * into s from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000004';
-  assert s.xp = 30 and s.points = 0 and s.week_points = 0, 'room tak terverifikasi harus 30 XP/0 poin, dapat '||s.xp||'/'||s.points;
+do $$ begin
+  assert (select (v->>'online')::boolean from out where k='unverified') is false;
+  assert (select (v->>'xp_gain')::int from out where k='unverified') = 0, 'room tak terverifikasi: 0 XP';
+  assert not exists (select 1 from public.player_stats where user_id='aaaaaaaa-0000-0000-0000-000000000004'), 'tidak ada statistik/poin';
 end $$;
 select set_config('request.jwt.claim.sub','aaaaaaaa-0000-0000-0000-000000000001',false);
 
@@ -101,7 +117,6 @@ end $$;
 
 -- 7. Bukan anggota room -> ditolak
 select set_config('request.jwt.claim.sub','aaaaaaaa-0000-0000-0000-000000000003',false);
-update public.player_stats set last_match_at = now() - interval '2 minutes' where user_id='aaaaaaaa-0000-0000-0000-000000000003';
 set role authenticated;
 do $$ begin
   begin
@@ -111,7 +126,7 @@ do $$ begin
 end $$;
 reset role;
 
--- 8. Leaderboard: user 3 (hanya CPU, 0 poin) tidak tampil; user 1 dan 2 tampil
+-- 8. Leaderboard: user 3 (hanya CPU, tanpa statistik) tidak tampil; user 1 dan 2 tampil
 set role authenticated;
 do $$ declare n int; begin
   select count(*) into n from public.get_leaderboard('global', 50);
@@ -137,4 +152,4 @@ do $$ begin
 end $$;
 reset role;
 rollback;
-\echo 'SEMUA SKENARIO LULUS (11)'
+\echo 'SEMUA SKENARIO LULUS'

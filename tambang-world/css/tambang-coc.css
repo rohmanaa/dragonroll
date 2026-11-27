@@ -1,0 +1,41 @@
+/* tambang-coc.css — gaya HUD "game strategi mobile" (tebal, berlapis, glossy). HANYA kerangka HUD (tombol, panel, kartu, pil, tab);
+   ikon/gambar isi tidak diubah. Dimuat SETELAH tambang-hud.css. Semua digambar dengan CSS (tanpa gambar bingkai). */
+:root{
+  --k-line:#140f26;                 /* garis luar tebal */
+  --k-text:#fff;
+  --k-panel1:#4a4f86;--k-panel2:#2b2e56;--k-edge:#9aa1dd;--k-in:#1b1d3b;
+}
+/* ---------- TOMBOL & TAB: gaya kit Guild dari komponen reusable (ut-button.css / ut-tabs.css) ----------
+   Di sini hanya penyesuaian tata letak khusus Tambang; warna/gradien/garis berasal dari .ut-gl .ut-c-* dan .ut-tabv. */
+.tambang-btn>img:not(.ic){display:none}            /* bingkai gambar lama dimatikan; ikon <img> di dalam <span> tetap */
+.tambang-btn{margin-bottom:6px}
+.tambang-btn span{margin-top:-2px;color:#fff!important;text-shadow:inherit}
+.tambang-btn #tambang-gcnt,#tambang-gudang b{color:#fff3a8!important}
+#tambang-tools .tambang-btn{height:78px}
+#tambang-mbtns .tambang-btn{height:96px}
+.tambang-slot .opn{margin-bottom:0}
+.tambang-acts .tambang-btn{margin-bottom:6px}
+.tambang-tile{width:56px;height:56px;--tab-lift:6px}
+.tambang-tile>img:not(.lk){display:none}
+.tambang-tile span{margin-top:0;color:#fff}
+.tambang-tile.on{transform:translateY(-6px) scale(1.1)}
+.tambang-tile.on span{color:#fff}
+.tambang-up{height:84px}
+.tambang-up.ut-gl{background:linear-gradient(180deg,var(--b1) 0,var(--b2) 48%,var(--b3) 52%,var(--b4) 100%)}
+/* ---------- PANEL / DIALOG ---------- */
+.tambang-panel::before{inset:0;border:6px solid var(--k-edge);border-image:none;border-radius:24px;
+  background:linear-gradient(180deg,var(--k-panel1),var(--k-panel2));
+  box-shadow:0 0 0 5px var(--k-line),inset 0 0 0 4px var(--k-in),inset 0 10px 0 rgba(255,255,255,.07),0 14px 0 5px rgba(0,0,0,.38),0 24px 40px rgba(0,0,0,.5)}
+.tambang-panel>h3{height:70px;line-height:62px;padding:0 56px;top:-40px;border:5px solid var(--k-line);border-radius:16px;background:linear-gradient(180deg,#c597ff,#7b46d6 70%,#6a38c2);
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.5),inset 0 -5px 0 rgba(0,0,0,.2),0 6px 0 #3a1c7e,0 10px 14px rgba(0,0,0,.45);
+  color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+/* kartu sisi kanan (info tambang) */
+.tambang-slot::before{background:linear-gradient(180deg,var(--k-panel1),var(--k-panel2));border:6px solid var(--k-edge);border-radius:24px;
+  box-shadow:0 0 0 5px var(--k-line),inset 0 0 0 4px var(--k-in),inset 0 10px 0 rgba(255,255,255,.07),0 12px 0 5px rgba(0,0,0,.35),0 22px 36px rgba(0,0,0,.45)}
+.tambang-slot.locked::before{filter:grayscale(.55) brightness(.85)}
+/* ---------- BAR & TOAST ---------- */
+.tambang-bar{border:3px solid var(--k-line);background:#0f0c20;box-shadow:inset 0 3px 5px rgba(0,0,0,.6)}
+.tambang-bar i{box-shadow:inset 0 4px 0 rgba(255,255,255,.4)}
+#tambang-toast{border:4px solid var(--k-line);border-radius:18px;background:linear-gradient(180deg,#4a4f86,#2b2e56);box-shadow:inset 0 3px 0 rgba(255,255,255,.2),0 6px 0 #0f1430,0 10px 16px rgba(0,0,0,.4);color:#fff}
+#tambang-toast[data-bad="1"]{border-color:#7a1010;background:linear-gradient(180deg,#a8453f,#6e1f1f)}
+#tambang-lock-btn>span{color:#fff!important;text-shadow:inherit!important}

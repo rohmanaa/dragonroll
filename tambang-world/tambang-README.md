@@ -1,5 +1,5 @@
 # Tambang — dunia 3D (Three.js r128)
-Buka `tambang-world.html` (butuh server statis atau file:// biasa; tanpa build).
+Halaman game: `tambang.html` di root repo (memuat folder ini). Versi mandiri `tambang-world.html` sudah dihapus dari repo.
 Semua berkas berawalan `tambang-`; namespace global `TambangMW` dan `TambangRig`; id/kelas DOM berawalan `tambang-`.
 - `css/tambang-hud.css`: HUD 1920x1080 (nilai dari referensi/newgui/game: common/page/sub/tambang/bg.css)
 - `css/tambang-world.css`: keadaan interaksi drag

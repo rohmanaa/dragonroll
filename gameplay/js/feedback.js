@@ -39,11 +39,16 @@
      const PUN=getPUN();
      const c=$('puCard'),em=$('pcEmoji'),keys=Object.keys(PUN);
      $('pcWho').textContent=p.name+' membuka peti'; $('pcName').textContent='...'; $('pcDesc').textContent='';
-     c.classList.remove('pop','chest','power-hit','mob-hit'); c.hidden=false;
+     c.classList.remove('pop','chest','power-hit','mob-hit'); hitDim(false); c.hidden=false;
      if(!reduce) for(let i=0;i<9;i++){ setIco(em,keys[i%keys.length]); await sleep(75); }
      sfx.rewardpower();
      setIco(em,k); $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
      await sleep(reduce?900:1500); c.hidden=true;
+  }
+  /* Overlay gelap saat kena hit mob: kartu #puCard tanpa latar, jadi teksnya tenggelam di adegan 3D. */
+  function hitDim(on) { /* elemen #hitDim ada di gameplay.html; tanpa elemen (mis. tes) tidak melakukan apa-apa */
+    var d = $('hitDim'); if (!d) return;
+    if (on) { d.hidden = false; void d.offsetWidth; d.classList.add('on'); } else { d.classList.remove('on'); d.hidden = true; }
   }
   var atkTimer = 0;
   function showAttackCard(attacker,defender,weapon,desc,o){
@@ -53,8 +58,8 @@
      $('pcName').textContent=PUN[weapon]?PUN[weapon][1]:weapon;
      $('pcDesc').textContent=desc;
      setIco(em,weapon,'⚔️');
-     c.classList.remove('pop','chest'); c.classList.toggle('power-hit',!!(o&&o.powerHit)); c.classList.toggle('mob-hit',weapon==='hit'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
-     clearTimeout(atkTimer); atkTimer=setTimeout(()=>c.hidden=true,1600); /* timer lama dibatalkan: card baru tidak ikut tertutup timer card sebelumnya */
+     c.classList.remove('pop','chest'); c.classList.toggle('power-hit',!!(o&&o.powerHit)); c.classList.toggle('mob-hit',weapon==='hit'); hitDim(weapon==='hit'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
+     clearTimeout(atkTimer); atkTimer=setTimeout(()=>{ c.hidden=true; hitDim(false); },1600); /* timer lama dibatalkan: card baru tidak ikut tertutup timer card sebelumnya */
   }
   /* Kartu reward Chest (compact, tengah layar): reuse #puCard + kelas 'chest'. Tidak ada SFX di sini: pemanggil (giveChest) memutar SFX Chest/Reward 1x. Ditutup lewat hideChestRewardCard. */
   function showChestRewardCard(who,text){

@@ -8,7 +8,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #back{position:absolute;left:24px;top:18px;width:96px;height:96px;z-index:5}
 #back img{position:absolute;inset:0;width:100%;height:100%}
 #back svg{position:absolute;left:50%;top:50%;width:46px;height:46px;transform:translate(-55%,-50%)}
-#back:active{transform:scale(.92)}
+#back.ut-gl{display:grid;place-items:center}
+#back.ut-gl img.bg{position:static;width:62%;height:62%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
 #title{position:absolute;left:140px;top:22px;font-size:64px;line-height:1}
 .cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;
   background:linear-gradient(180deg,#6f9db0,#55879b 55%,#4a7789);
@@ -29,6 +30,9 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #cur-co{left:auto!important;right:26px}
 body.ef #cur-em{left:auto!important;right:340px!important}
 body.ef #cur-co{left:auto!important;right:26px!important}
+/* Emerald & Coin = komponen .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi */
+#cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}
+.ut-rbar.bump{animation:bump .4s}
 @keyframes bump{40%{transform:scale(1.07)}}
 .btn{position:relative;display:grid;place-items:center;transition:transform .1s,filter .1s}
 .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
@@ -42,9 +46,6 @@ body.ef #cur-co{left:auto!important;right:26px!important}
 .kcard{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .kcard::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .kcard.sel::before{border-image-source:url(../images/ui/hud/kartu-kosong-oranye.webp)}
-.seg{display:flex;gap:12px}
-.seg button{flex:1;height:84px;font:400 32px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat}
-.seg button.on{background-image:url(../images/ui/buttons-and-controls/tombol-biru-polos.webp)}
 .tg{width:140px;height:65px;background:url(../images/buttons/toggle-off.webp) center/100% 100% no-repeat}
 .tg.on{background-image:url(../images/buttons/toggle-on.webp)}
 input[type=range]{-webkit-appearance:none;appearance:none;height:26px;border-radius:13px;background:#1b1631;border:3px solid #4c4468}

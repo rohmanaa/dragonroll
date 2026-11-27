@@ -146,7 +146,7 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
     // Rule kedua: page rewrite dengan trailing slash opsional
     const pageRule = content.rewrites.find(r => r.source && r.source.includes(':page') && r.source.includes(':id') && !r.source.includes(':rest'));
     assert.ok(pageRule, 'Harus ada rule untuk page rewrite');
-    assert.ok(pageRule.source.endsWith('/?'), 'Rule page harus menerima trailing slash opsional');
+    assert.ok(pageRule.source.endsWith('{/}?'), 'Rule page harus menerima trailing slash opsional (sintaks path-to-regexp {/}?; "/?" tidak valid dan menggagalkan deploy Vercel)');
   });
 
   console.log(n + ' tes lulus');

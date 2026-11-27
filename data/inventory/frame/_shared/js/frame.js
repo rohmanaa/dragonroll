@@ -81,6 +81,7 @@ function renderAct(){
   if(!f){b.style.display='none';return}
   b.style.display='';
   const m=isOwned(f),on=isUsed(f),sell=canSell(f);
+  b.classList.toggle('ut-c-d',on||(!m&&!sell)); b.classList.toggle('ut-c-y',!(on||(!m&&!sell)));   /* HUD: kuning = aksi (PAKAI/BELI), gelap = tidak bisa diklik */
   if(on){b.dataset.mode='used';b.disabled=true;sp.textContent='DIPAKAI'}
   else if(m){b.dataset.mode='equip';b.disabled=false;sp.textContent='PAKAI'}
   else if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)+(f.gems>0?' EMERALD':' COIN')}

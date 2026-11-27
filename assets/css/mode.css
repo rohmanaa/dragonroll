@@ -19,16 +19,11 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 
 /* ---------- header ---------- */
 #back{position:absolute;left:40px;top:30px;width:64px;height:72px}
-#back img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back:active{transform:scale(.92)}
+/* tombol Kembali: tampilan = komponen .ut-gl .ut-c-r (button.css); ikon panah tetap, di tengah */
+#back{display:grid;place-items:center}
+#back img.bg{width:62%;height:62%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
 #title{position:absolute;left:140px;top:26px;font-size:64px;line-height:1}
-.cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;
-  background:linear-gradient(180deg,#6f9db0,#4a7789);
-  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
-.cur::before{content:"";position:absolute;inset:4px;background:linear-gradient(180deg,#5b8a9d,#46758a);clip-path:polygon(19px 0,calc(100% - 19px) 0,100% 50%,calc(100% - 19px) 100%,19px 100%,0 50%)}
-.cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding:0 44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
-.cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--font-body);color:#a9cad8}
+#cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}   /* Emerald & Coin = komponen .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi */
 #cur-em{left:1300px}#cur-co{left:1606px}
 
 /* ---------- carousel peta ---------- */
@@ -50,9 +45,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .lock{display:none;position:absolute;inset:0;place-items:center;z-index:3}
 .lock img{width:130px}
 .map.locked .tag{background:#cfc7ee;border-color:#4a4270;color:#2b2550}
-.arrow{position:absolute;top:340px;width:76px;height:96px;display:grid;place-items:center;transition:transform .1s,filter .1s;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
-.arrow:active{transform:scale(.9);filter:brightness(1.15) drop-shadow(0 2px 2px rgba(0,0,0,.45))}
-.arrow img{width:auto;height:96px}
+.arrow{position:absolute;top:340px;width:76px;height:96px;display:grid;place-items:center}   /* tampilan: .ut-gl .ut-c-d (button.css) */
+.arrow img{width:auto;height:60px}
 #prev{left:8px}#next{right:8px}
 #dots{position:absolute;left:0;right:0;top:750px;display:flex;justify-content:center;gap:16px}
 #dots i{width:20px;height:20px;border-radius:50%;background:#3c3460;border:3px solid #8d85b8;transition:.2s}
@@ -88,29 +82,24 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .front .sb{font-weight:800;font-size:20px;opacity:.85}
 .back .q{font-size:30px;line-height:1.05;text-align:center;padding:0 40px}
 .opts{display:flex;gap:10px;width:100%;flex:1;align-items:center}
-.opt{position:relative;flex:1;height:118px;display:grid;place-items:center;transition:transform .1s}
-.opt img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
-.opt span{position:relative;z-index:1;font:400 40px/1 var(--font-title);margin-top:-14px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.opt small{position:absolute;z-index:1;bottom:18px;left:0;right:0;text-align:center;font-weight:800;font-size:17px;text-shadow:0 2px 0 rgba(0,0,0,.6)}
-.opt:active{transform:scale(.94)}
+.opt{position:relative;flex:1;height:118px;display:grid;place-items:center}   /* tampilan: .ut-gl .ut-c-* (button.css) */
+.opt span{position:relative;z-index:1;font:400 40px/1 var(--font-title);margin-top:-14px}
+.opt small{position:absolute;z-index:1;bottom:18px;left:0;right:0;text-align:center;font-weight:800;font-size:17px}
 .opt.col{flex-direction:column}
-.close{position:absolute;right:10px;top:8px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.35);font:800 26px/42px var(--font-body);text-align:center;z-index:3}
+.close{position:absolute;right:10px;top:8px;width:42px;height:42px;--gl-bw:3px;--gl-ledge:3px;--gl-r:50%;padding:0;font:800 26px/36px var(--font-body);text-align:center;z-index:3}
 
 /* ---------- modal cari lawan ---------- */
 #modal{position:absolute;inset:0;background:rgba(10,8,30,.7);display:none;place-items:center;z-index:40}
 #modal.on{display:grid}
-#mbox{width:760px;padding:46px 40px 40px;border-radius:26px;background:linear-gradient(180deg,#4a4272,#2c2547);border:5px solid #8d85b8;text-align:center;
-  box-shadow:0 14px 30px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+#mbox{width:760px;padding:110px 40px 40px;text-align:center;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}   /* panel/judul = .ut-mk (modal-kit.css) */
 @keyframes pop{from{transform:scale(.7);opacity:0}}
-#mt{font-size:56px}
 #ms{font-weight:800;font-size:26px;margin-top:14px;color:#ddd7f7}
 .spin{width:90px;height:90px;margin:28px auto 6px;border-radius:50%;border:10px solid #5a5180;border-top-color:#ffd45a;animation:rot 1s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
 #mplayers{display:flex;gap:18px;justify-content:center;margin-top:24px}
 #mplayers div{padding:10px 22px;border-radius:12px;background:#1b1631;border:3px solid #6d6590;font-weight:800;font-size:24px}
 #mcancel{position:relative;width:240px;height:84px;margin:28px auto 0;display:block}
-#mcancel img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
-#mcancel span{position:relative;font:400 38px/84px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#mcancel span{position:relative;font:400 38px/76px var(--font-title)}
 #toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);
   border:3px solid #8f86bf;font-weight:800;font-size:28px;transition:.28s;z-index:60;white-space:nowrap}
 #toast.on{opacity:1;transform:translate(-50%,0)}

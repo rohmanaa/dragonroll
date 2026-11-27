@@ -1,6 +1,6 @@
 /* mail.html — kotak masuk. Kerangka: page.css + sub.css (tab, baris, modal). */
 [hidden]{display:none!important}
-.tabs{left:60px;top:132px;gap:30px}
+.tabs{left:60px;top:132px}
 #sbar{position:absolute;left:70px;top:262px;width:1780px;height:96px;display:flex;gap:24px;align-items:center}
 #sum{flex:1;font:800 30px var(--font-body);color:#cfc8ea;text-shadow:0 2px 0 rgba(10,6,24,.5)}
 #readAll,#claimAll{width:380px;height:96px;flex:none}
@@ -20,10 +20,11 @@
 .rw span img{width:36px;height:36px;object-fit:contain}
 .mr .tm{flex:none;width:150px;text-align:right;font:800 20px var(--font-body);color:#b9b1d3}
 .btn.sm{width:176px;height:68px;flex:none}.btn.sm span{font-size:28px}
-.btn.sm.off{filter:grayscale(1) brightness(.7);pointer-events:none}
-.rm{width:64px;height:64px;border-radius:16px;background:#c0394d;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25);display:grid;place-items:center;flex:none}
+/* tombol: tampilan dari komponen .ut-gl (button.css); gambar bingkai lama disembunyikan, ikon tetap */
+.btn.ut-gl>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
+.rm{width:64px;height:64px;display:grid;place-items:center;flex:none;padding:0}
 .rm img{width:36px;height:36px}
-.rm:active{transform:scale(.9)}
 .empty{grid-column:1/-1;margin-top:120px;text-align:center;font:400 44px var(--font-title);color:#b9b1d3}
 /* modal isi surat */
 #mx{text-align:left;font-size:30px;line-height:1.45;max-height:300px;overflow-y:auto;scrollbar-width:none;margin:96px 50px 0;white-space:pre-line}

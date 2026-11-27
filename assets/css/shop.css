@@ -4,15 +4,9 @@
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home:active,#back:active{transform:scale(.92)}
-.cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
-.cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
 
 /* tab */
-#tabs{position:absolute;left:70px;top:132px;display:flex;gap:34px}
-.tabb{position:relative;padding:8px 34px 44px;font:400 48px/1 var(--font-title);color:#b9b1d3;letter-spacing:.5px;text-shadow:0 2px 0 rgba(10,6,24,.5)}
-.tabb.on{color:#ffe8a3}
-.tabb.on::after{content:'';position:absolute;left:50%;bottom:0;width:260px;height:38px;transform:translateX(-50%);background:url(../images/ui/navigation-icons/garis-bawah-tab-emas.webp) center/100% 100% no-repeat}
 
 /* kartu */
 #cards{position:absolute;left:0;right:0;top:270px;display:flex;justify-content:center;gap:70px}
@@ -31,7 +25,6 @@
 .card .amt{font:400 56px/1 var(--font-title);color:#ffb81c;text-shadow:0 3px 0 rgba(70,30,0,.7);margin:6px 0 26px}
 .card .amt small{display:block;margin-top:8px;font:800 26px var(--font-body);color:#b9b1d3;text-shadow:none}
 .buy{width:410px;height:112px}
-.buy span{display:flex;align-items:center;gap:12px;font:400 48px/1 var(--font-title);color:#0e4a12;text-shadow:0 2px 0 rgba(200,255,170,.45);margin-top:-8px}
 .buy span img{position:static;width:54px;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 
 /* dialog */
@@ -42,7 +35,6 @@
 #dlg-t{font-size:54px;line-height:1}
 #dlg-s{margin-top:18px;font:800 30px/1.3 var(--font-body);color:#ddd7f7}
 .dbtns{display:flex;gap:24px;justify-content:center;margin-top:40px}
-.dbtns .btn{width:330px;height:100px}.dbtns .btn span{font-size:36px}
 @keyframes pop{from{transform:scale(.7);opacity:0}}
 /* iklan simulasi */
 #ad{position:absolute;inset:0;z-index:75;display:none;place-items:center;background:rgba(10,8,30,.78);text-align:center}
@@ -62,11 +54,6 @@
 .brow{display:flex;gap:14px;justify-content:center;width:100%}
 .card.chest .buy{width:340px;height:104px}
 .card.chest.two .buy{width:172px}
-.buy.blue span{color:#fff;text-shadow:0 2px 0 rgba(0,30,80,.7)}
-.buy.ad span{color:#7a3b00;text-shadow:0 2px 0 rgba(255,235,150,.5);gap:8px;font-size:38px}
-.buy.ad span img{width:48px}
-.buy.ad small{font:800 26px var(--font-body)}
-.buy.dis{filter:grayscale(.85) brightness(.8)}
 /* efek cahaya peti (ala 8eYSQP): aura warna di belakang peti, pendar di tepi atas kartu, kilau berkedip */
 .card.fx{filter:drop-shadow(0 -4px 16px color-mix(in srgb,var(--g) 55%,transparent))}
 .card.fx .pic{position:relative}
@@ -99,19 +86,15 @@
 #rw-coin{display:flex;align-items:center;gap:12px;margin-top:16px}
 #rw-coin img{width:56px;height:auto}
 #rw-coin b{font:400 56px var(--font-title);color:#ffb81c;text-shadow:0 3px 0 rgba(70,30,0,.7)}
-#rw-ok{width:330px;height:100px;margin-top:24px}
-#rw-ok span{font-size:40px}
 
 .card .pic .glow{z-index:0}
-.card .buy:disabled{filter:grayscale(.8) brightness(.75);cursor:not-allowed}
-.card .buy.soon span{font-size:34px;color:#ddd7f7;text-shadow:0 2px 0 rgba(0,0,0,.55)}
+.card .buy.soon span{font-size:34px}
 #cards.history-view{display:block;overflow:auto;scrollbar-width:none}
 #cards.history-view::-webkit-scrollbar{display:none}
 .history-panel{width:1180px;min-height:640px;margin:0 auto;padding:52px 60px 48px;background:url(../images/ui/panel-dialog/kartu-toko.webp) center/100% 100% no-repeat;text-align:center}
 .history-head .nm{font:400 54px/1.1 var(--font-title);color:#d9d3ee}
 .history-head p{margin:12px 0 24px;color:#b9b1d3;font-size:26px;font-weight:800}
-.history-button{min-width:280px;height:74px;padding:0 28px;border-radius:20px;background:linear-gradient(#58d85a,#1f9a2a);box-shadow:0 5px 0 #136b1c,inset 0 3px 3px rgba(255,255,255,.5);font:400 32px var(--font-title)}
-.history-button:disabled{filter:grayscale(.8);cursor:wait}
+.history-button{min-width:280px;height:74px;padding:0 28px;font:400 32px var(--font-title)}
 #histlist{max-height:390px;overflow:auto;margin-top:24px;scrollbar-width:thin}
 .hr{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 20px;margin:8px 0;border-radius:16px;background:rgba(10,20,40,.55);text-align:left;font-size:24px}
 .hr .hl{min-width:0}.hr .hl b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -124,13 +107,9 @@
 
 #modal{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.78)}
 #modal.show{display:grid;opacity:1}
-#modal>.box{position:relative;width:840px;max-height:90%;overflow:auto;padding:64px 60px 54px;text-align:center;isolation:isolate;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
-#modal>.box::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
-#mb h2{margin:0 0 18px;font:400 54px/1 var(--font-title);text-shadow:0 2px 0 rgba(20,5,70,.7)}
+#modal>.box{position:relative;width:840px;max-height:90%;overflow:auto;text-align:center;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
 #mb p{margin:0 0 24px;color:#ddd7f7;font-size:30px;font-weight:800}
-.x{position:absolute;right:4px;top:4px;z-index:1;width:64px;height:64px;border-radius:14px;background:linear-gradient(#ff7a8a,#c9283f);border:4px solid rgba(0,0,0,.45);box-shadow:0 5px 0 rgba(20,12,45,.6);font:800 40px/1 var(--font-body)}
-.pack{display:flex;align-items:center;justify-content:space-between;width:100%;padding:20px 28px;border-radius:18px;background:linear-gradient(#ffd45a,#ff9a1f);box-shadow:0 5px 0 #9c5d0b;font:800 30px var(--font-body)}
-.pack:disabled{filter:grayscale(.8);cursor:not-allowed}
+.pack{display:flex;align-items:center;justify-content:space-between;width:100%;padding:20px 28px;font:800 30px var(--font-body)}
 /* (lapisan gelap tambahan body:has(#modal.show)::after dihapus: dobel dengan #modal; kini #modal sendiri menutup seluruh layar) */
 
 /* kilau tipis melayang di sekitar gambar Coin & Chest */
@@ -148,12 +127,6 @@
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/shop-voxel-pasar.webp) center/cover no-repeat;opacity:.35}
 
 /* ===== Toko ala Clash of Clans: tab ikon di tengah, kartu panjang bergulir ke samping, tanpa tombol beli ===== */
-#tabs{left:0;right:0;justify-content:center;gap:10px}
-.tabb{padding:6px 20px 46px;opacity:.72;transition:opacity .15s,transform .15s}
-.tabb img{display:block;width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
-.tabb.on{opacity:1}
-.tabb.on img{transform:translateY(-4px) scale(1.08)}
-.tabb.on::after{width:132px;height:30px}
 #cards{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 70px;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 #cards::-webkit-scrollbar{display:none}
 #cards>.card{flex:none;scroll-snap-align:center}
@@ -169,12 +142,7 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .card.item .pic img{max-width:none;max-height:none}
 .card.item .art .fr-img{position:absolute;inset:0;width:100%;height:100%;filter:none}
 .card.item .chip{position:absolute;z-index:3;right:34px;top:92px;min-width:62px;padding:4px 14px;border-radius:16px;background:rgba(10,8,26,.78);border:3px solid rgba(255,255,255,.35);font:400 34px/1.1 var(--font-title);color:#9fe3ff;text-align:center}
-.eye{position:absolute;z-index:3;left:36px;bottom:158px;width:70px;height:70px;border-radius:50%;background:rgba(10,8,26,.72);border:4px solid rgba(255,255,255,.55);display:grid;place-items:center;box-shadow:0 4px 0 rgba(0,0,0,.4)}
-.eye svg{width:40px;height:40px}
-.eye:active,.plate:active:not(:disabled){transform:scale(.94)}
-.plate{width:100%;max-width:320px;height:96px;margin-top:16px;border-radius:20px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(color-mix(in srgb,var(--g) 55%,#1b1230),color-mix(in srgb,var(--g) 28%,#0c0818));border:4px solid color-mix(in srgb,var(--g) 70%,#000);box-shadow:inset 0 3px 3px rgba(255,255,255,.25),0 5px 0 rgba(0,0,0,.4);font:400 48px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.6)}
-.plate img{width:54px;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
-.plate.own{font-size:38px;color:#cfc8ea;background:rgba(10,8,26,.55);border-color:rgba(255,255,255,.18);box-shadow:none;cursor:default}
+.eye{position:absolute;z-index:3;left:36px;bottom:158px;width:70px;height:70px;padding:0;display:grid;place-items:center}
 /* modal preview / konfirmasi */
 .pv{display:grid;place-items:center;height:340px;margin:0 0 18px;border-radius:24px;background:radial-gradient(circle,color-mix(in srgb,var(--g) 45%,transparent),rgba(10,8,26,.4) 72%)}
 .pv .art{width:300px;height:310px;display:grid;place-items:center;position:relative}
@@ -182,14 +150,8 @@ body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .pv .art .fr-th{width:100%;height:100%}
 .pv .art .fr-img{position:absolute;inset:0;width:100%;height:100%}
 .qty{display:flex;align-items:center;justify-content:center;gap:28px;margin:0 0 24px}
-.qty button{width:80px;height:80px;border-radius:20px;background:linear-gradient(#6b5fa8,#3a3068);box-shadow:0 5px 0 #1d1840;font:800 52px/1 var(--font-body)}
 .qty b{min-width:90px;font:400 64px var(--font-title)}
 .mrow{display:flex;gap:24px;justify-content:center}
-.mbtn{min-width:260px;height:96px;padding:0 28px;border-radius:22px;font:400 42px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.55);box-shadow:0 6px 0 rgba(0,0,0,.35),inset 0 3px 3px rgba(255,255,255,.4)}
-.mbtn.no{background:linear-gradient(#ff7a8a,#c9283f)}
-.mbtn.ok{background:linear-gradient(#58d85a,#1f9a2a)}
-.mbtn.ok span{display:flex;align-items:center;justify-content:center;gap:12px}
-.mbtn.ok img{width:52px;height:auto}
 /* tab Set: kartu pakai emoji tema set; daftar bagian di modal beli */
 .card.item.k-set .art{width:260px;height:280px}
 .setimg{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
@@ -226,10 +188,6 @@ html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #stage #cur-em{left:60px!important}
 #stage #cur-co{left:370px!important}
 /* tab ikon: baris tengah di antara judul dan tombol Tutup */
-#tabs{left:330px;right:330px;top:20px;gap:6px;justify-content:center;z-index:2}
-.tabb{padding:4px 14px 40px}
-.tabb img{width:76px;height:76px}
-.tabb.on::after{width:112px;height:28px}
 /* area kartu */
 #cards{left:60px;right:auto;width:1800px;top:175px;height:780px;box-sizing:border-box;padding:12px 8px 24px;gap:22px;align-items:center;z-index:1}
 #cards:has(.item){gap:22px;align-items:stretch}
@@ -253,35 +211,20 @@ html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 .card.item .art>svg,.card.item .art>img,.card.item .art .setimg,.card.item .art .dthumb{width:74%;height:auto;max-height:74%;object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
 .card.item .art .fr-th{width:70%;height:auto;aspect-ratio:1;position:relative}
 .card.item .chip{right:22px;top:112px;z-index:3}
-.eye{left:30px;bottom:140px;width:76px;height:76px;border:0;border-radius:0;background:none;box-shadow:none;z-index:3}
-.eye img{width:56px;height:56px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
-.eye:hover{filter:brightness(1.2)}
-button.plate{width:100%;max-width:none;height:100px;margin:0;border:0;border-radius:0;gap:10px;
-  background:url(../images/ui/buttons-and-controls/tombol-kuning-polos.webp) center/100% 100% no-repeat;box-shadow:none;
-  font:400 50px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6),0 0 6px rgba(10,6,24,.4)}
-button.plate img{width:56px;height:56px}
-button.plate:hover:not(:disabled){filter:brightness(1.12)}
-button.plate.own{background-image:url(../images/buttons/tombol-gelap-polos.webp);font-size:38px;color:#e6e2f6;opacity:.85}
+.eye{left:30px;bottom:140px;width:76px;height:76px;z-index:3}
+.eye img{width:44px;height:44px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
 /* modal: panel & tombol aset (sama dengan pet) */
-#modal>#box{width:1000px;padding:30px 30px 26px}
-#mx{position:absolute;right:20px;top:12px;z-index:3;width:60px;height:60px;padding:0;border:0!important;background:none!important;box-shadow:none!important;color:#fff;font:800 52px/1 var(--font-body);text-shadow:0 2px 4px rgba(0,0,0,.7)}
-#mb h2{font-size:56px;line-height:1;margin:0 0 6px}
+#modal>#box{width:1000px;padding:110px 30px 30px}
+#modal>#box>#mx{left:auto;right:22px;top:20px;margin:0}   /* frame.css/sub.css memberi #mx left/top/margin (gaya lama dialog pesan); X modal kit di pojok kanan atas */
 .pv{height:500px;background:none;border-radius:0;margin:0}
 .rar{margin-top:6px;font:400 28px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.6)}
 #mb p{margin:10px 0 0;font:700 24px/1.3 var(--font-body);color:#ddd7f7}
-.mbtn{min-width:300px;height:104px;border-radius:0;box-shadow:none;font-size:42px;background:center/100% 100% no-repeat}
-.mbtn.no{background-image:url(../images/ui/buttons-and-controls/tombol-merah-polos.webp)}
-.mbtn.ok{background-image:url(../images/ui/buttons-and-controls/tombol-hijau-polos.webp)}
 .mrow{margin-top:18px}
 
-#modal>#box>#mx{left:auto!important;right:20px!important;top:12px!important}
 .pv.sm{height:320px}
 .mrow .btn{width:330px;height:100px}
 .mrow .btn span{display:flex;align-items:center;justify-content:center;gap:10px;font-size:42px}
 .mrow .btn span img{position:static;width:50px;height:50px;object-fit:contain}
-#modal>#box>#mx{border-image:none!important;outline:0;border-radius:0!important}
-/* "Dimiliki": aset tombol gelap. Aturan lama `.plate.own{background:...}` mereset ukuran/ulang gambar (tampil ganda), jadi diset penuh di sini */
-button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;opacity:1;color:#e6e2f6;font-size:38px}
 /* panel mengikuti slider Pengaturan -> Transparansi panel (--panel-a diset shop-page.js); aturan alpha tetap .22 dihapus */
 /* performa gulir: kartu item tanpa drop-shadow besar di seluruh kartu & tanpa animasi gambar terus-menerus; render kartu di luar layar ditunda */
 .card.item.fx{filter:none}
@@ -297,3 +240,30 @@ button.plate.own{background:url(../images/buttons/tombol-gelap-polos.webp) cente
 /* lapisan gelap modal/dialog/iklan/hadiah menutup SELURUH layar (bukan hanya kanvas 16:9): sisi kiri-kanan sama gelapnya dengan tengah.
    --hub-ex/--hub-ey = sisa layar di luar kanvas 1920x1080 (diisi fit() di shop-page.js); #stage overflow:visible. */
 #modal,#dlg,#ad,#rw{inset:auto;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px)}
+
+/* ===== Tab & tombol dari komponen HUD (button.css / tabs.css): di sini hanya ukuran & tata letak ===== */
+/* tab atas: tampilan .ut-tabs/.ut-tab; tata letak sama dengan Hadiah & Misi. Kelas .tabb tetap untuk JS; aturan .tabb di sub.css dinetralkan. */
+#tabs{position:absolute;left:100px;top:44px;width:900px;height:96px;z-index:7;--tab-h:76px;--tab-fs:24px}
+.tabb.ut-tab{position:relative;flex:1;min-width:0;flex-direction:row;gap:10px;padding:0;font-size:var(--tab-fs);color:#fff}
+.tabb.ut-tab.on{cursor:default;color:#fff}
+.tabb.ut-tab.on::after{content:none}
+.tabb.ut-tab .ic{height:44px;width:auto;max-width:52px;flex:none;transform:none}
+/* judul digantikan tab (sama dengan Hadiah & Misi): tetap ada untuk pembaca layar */
+#title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* tombol Tutup: .ut-gl .ut-c-r; X digambar CSS (cara sama dengan Hadiah & Misi) */
+#back{right:100px;top:46px;padding:0}
+#back img{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
+/* margin kiri = kanan = 100px: tab, kartu, saldo, tombol Tutup */
+#stage #cur-em{left:100px!important}#stage #cur-co{left:410px!important}
+#cards{left:100px;width:1720px;padding-left:0;padding-right:0}
+/* tombol: tampilan dari .ut-gl; gambar bingkai lama disembunyikan, ikon harga (di dalam span / tombol) tetap */
+.btn.ut-gl>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
+.buy span{display:flex;align-items:center;gap:12px;font:400 48px/1 var(--font-title)}
+.buy span img{position:static;width:54px;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.plate{width:100%;max-width:none;height:100px;margin:0;display:flex;align-items:center;justify-content:center;gap:10px;font:400 50px/1 var(--font-title)}
+.plate img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.plate.own{font-size:38px;cursor:default}
+.qty button{width:80px;height:80px;padding:0;font:400 52px/1 var(--font-title)}

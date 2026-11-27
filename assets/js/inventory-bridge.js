@@ -1,16 +1,20 @@
 /* inventory-bridge.js — dipasang di frame/dadu/efek/powerup/pet.html.
-   Kelima halaman itu sekarang tampil sebagai TAB di inventory.html (dimuat di iframe dengan ?embed=inv).
+   Frame/powerup tampil sebagai TAB di inventory.html (dimuat di iframe dengan ?embed=inv).
+   Dadu, Efek, dan Pet BUKAN tab Inventory lagi (Dadu & Efek bagian Perlengkapan; Pet punya grup tab sendiri): dibuka langsung -> shell play.html?go=<halaman>.
    - Mode embed: sembunyikan tombol kembali + judul (dipegang inventory.html) dan teruskan navigasi keluar (lobby, tambang, shop) ke induk.
    - Dibuka langsung (bukan embed, bukan dari room): alihkan ke inventory.html?tab=... agar tetap satu halaman. */
 (function () {
   'use strict';
-  var TABS = { 'frame.html': 'frame', 'dadu.html': 'dadu', 'efek.html': 'efek', 'powerup.html': 'power', 'pet.html': 'pet' };
+  var TABS = { 'frame.html': 'frame', 'dadu.html': 'dadu', 'powerup.html': 'power' };
+  var OWN_VIEW = { 'dadu.html': 1, 'efek.html': 1, 'pet.html': 1 };   // halaman mandiri di shell (bukan tab Inventory)
   var q = new URLSearchParams(location.search), page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : location.pathname.split('/').pop();
   if (q.get('from') === 'room') return;                 // dipakai room.html: ditangani room-modal-bridge.js
+  if (OWN_VIEW[page]) {   // mode ?embed=inv sudah usang untuk Dadu/Efek/Pet; iframe (cadangan shell) tidak dialihkan lagi agar tak berputar
+    if (window.self === window.top) location.replace('play.html?go=' + page);
+    return;
+  }
   if (q.get('embed') !== 'inv') {
-    /* Dadu bukan tab Inventory lagi (dipasang dari Karakter): dibuka langsung -> masuk lewat shell play.html agar tetap di halaman Dadu */
-    if (page === 'dadu.html') location.replace('play.html?go=dadu.html');
-    else if (TABS[page]) location.replace('inventory.html?tab=' + TABS[page]);
+    if (TABS[page]) location.replace('inventory.html?tab=' + TABS[page]);
     return;
   }
   document.documentElement.classList.add('ut-inv-embed');

@@ -170,14 +170,14 @@
     var hub = el('div', 'phub'); hub.setAttribute('role', 'region'); hub.setAttribute('aria-labelledby', 'phub-title');
     var frame = el('div', 'pmodal'); frame.setAttribute('aria-hidden', 'true');   // bingkai kartu halaman (nama id lama dipertahankan untuk CSS)
     var title = el('h2', 'phub-title', 'sr-only');
-    var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
+    var tabs = el('nav', 'ptabs', 'ut-tabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
     var pane = el('div', 'pane'); pane.setAttribute('role', 'tabpanel'); pane.tabIndex = -1;
-    var xbtn = el('button', 'pclose'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
+    var xbtn = el('button', 'pclose', 'ut-gl ut-c-r'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
     var xi = D.createElement('img'); xi.src = 'assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp'; xi.alt = ''; xbtn.appendChild(xi);
 
     var tabBtns = {};
     TABS.forEach(function (t) {
-      var b = el('button', 'ptab-' + t.key, 'ptab'); b.type = 'button'; b.dataset.k = t.key;
+      var b = el('button', 'ptab-' + t.key, 'ptab ut-tab'); b.type = 'button'; b.dataset.k = t.key;
       b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', 'pane'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1;
       var ic = D.createElement('img'); ic.className = 'ic'; ic.src = t.icon; ic.alt = '';
       var sp = D.createElement('span'); sp.textContent = t.label;
@@ -301,7 +301,7 @@
       pane.textContent = '';
       var box = el('div', null, 'perr'); box.setAttribute('role', 'alert');
       var msg = D.createElement('p'); msg.textContent = 'Gagal memuat ' + BY[key].label + '.';
-      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn'; btn.textContent = 'Coba lagi';
+      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn ut-gl ut-c-y'; btn.textContent = 'Coba lagi';
       btn.addEventListener('click', function () { select(key, true); });
       box.appendChild(msg); box.appendChild(btn); pane.appendChild(box);
       btn.focus({ preventScroll: true });

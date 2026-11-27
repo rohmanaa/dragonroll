@@ -4,7 +4,7 @@ const path = require("path");
 const vm = require("vm");
 
 const root = path.join(__dirname, "..");
-const components = ["button", "badge", "card", "currency", "modal", "toast"];
+const components = ["button", "tabs", "badge", "card", "currency", "modal", "toast", "plus-button", "resource-bar"];
 
 for (const name of components) {
   const src = `https://example.test/assets/components/${name}/${name}.js?test=1`;

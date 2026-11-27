@@ -40,7 +40,7 @@ MW.LCFG = [
   }
 ];
 /* rel per layer: [x0,x1] */
-MW.RAILS = [null, [9.5, 19.8], [9.5, 19.8], [9.5, 19.8], [9.5, 19.8], null];
+MW.RAILS = [null, [9.5, 22.6], [9.5, 22.6], [9.5, 22.6], [9.5, 22.6], null];   /* rel sampai belakang penambang (tumpukan batu) */
 
 /* ---- slot template: tipe, x, opsi. z & lantai diisi otomatis ---- */
 MW.slotDefs = function (i) {
@@ -50,7 +50,7 @@ MW.slotDefs = function (i) {
   add('chest', 7.2, { fill: true });
   add('decor', 8.6, { fill: 'torch' });
   add('cartRail', 11.0, { fill: true, track: MW.RAILS[i], pusher: true });
-  add('mineral', 21.0, { fill: true });
+  add('mineral', 21.0);   /* tidak diisi: jalur cart sampai tumpukan batu */
   add('decor', 22.3);
   add('chest', 23.7);
   if (i === 2) add('grabber', 25.5, { fill: true, face: 1 });

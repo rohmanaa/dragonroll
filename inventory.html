@@ -6,7 +6,9 @@
 <title>Dragon Roll — Inventory</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/pages/inventory.css?v=213">
+<link rel="stylesheet" href="assets/components/button/button.css">
+<link rel="stylesheet" href="assets/components/tabs/tabs.css">
+<link rel="stylesheet" href="assets/css/pages/inventory.css?v=214">
 <link rel="stylesheet" href="assets/css/components/chest-reveal.css">
 
 </head>
@@ -14,15 +16,15 @@
 <div id="pframe" aria-hidden="true"></div>
 <div id="views"><div id="view-loading" role="status" aria-live="polite"><span></span><strong>Memuat kategori...</strong></div>
   <div class="view native ready" data-k="chest"><div id="chestBox" role="region" aria-label="Chest"></div></div>
-  <div class="view native ready" data-k="ore"><div class="empty"><img src="assets/images/ui/gem-medal-icons/berlian-biru.webp" alt=""><strong>Ore</strong><p>Belum ada ore. Hasil Tambang akan muncul di sini.</p><button class="btn" type="button" data-go="tambang.html"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA TAMBANG</span></button></div></div>
+  <div class="view native ready" data-k="ore"><div class="empty"><img src="assets/images/ui/gem-medal-icons/berlian-biru.webp" alt=""><strong>Ore</strong><p>Belum ada ore. Hasil Tambang akan muncul di sini.</p><button class="btn ut-gl ut-c-y" type="button" data-go="tambang.html"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA TAMBANG</span></button></div></div>
   <div class="view native ready" data-k="log"><div class="empty"><img src="assets/images/ui/item-icons/perisai-kayu.webp" alt=""><strong>Log</strong><p>Belum ada log. Hasil Farm akan muncul di sini.</p></div></div>
 </div>
 <div id="wrap"><div id="stage">
-  <button id="back" type="button" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" type="button" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
   <div id="title" class="ttl t-title">Inventory</div>
-  <div class="cur" id="cur-em" role="button" tabindex="0" aria-label="Emerald, buka Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co" role="button" tabindex="0" aria-label="Coin, buka Toko"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <nav id="tabs" aria-label="Kategori inventory"></nav>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" role="button" tabindex="0" aria-label="Emerald, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" role="button" tabindex="0" aria-label="Coin, buka Toko"></div>
+  <nav id="tabs" class="ut-tabs" aria-label="Kategori inventory"></nav>
 </div></div>
 <div id="invToast" role="status" aria-live="polite"></div>
 <div id="fade"></div>
@@ -31,6 +33,9 @@
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script>UT.App.init({page:'inventory'});</script>
+<script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/chest-reveal.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/core/inv-tabs.js"></script>

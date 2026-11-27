@@ -1,4 +1,4 @@
-/* Modul 'pet' (tab Pet). Mandiri/embed: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
+/* Modul 'pet' (halaman Pet = grup tab sendiri, bukan tab inventory.html). Mandiri/embed room: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
    bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go, listener/timer dilepas lewat env saat unmount. */
 UT.PageModule.define('pet', function (env) {
   'use strict';
@@ -94,15 +94,15 @@ UT.PageModule.define('pet', function (env) {
 
   /* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN / LEPAS (sudah dimiliki) */
   function actionBar(item, owned, used) {
-    if (used) return '<button class="pc-pr used" type="button" data-act="use">LEPAS</button>';
-    if (owned) return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
+    if (used) return '<button class="pc-pr used ut-gl ut-c-r" type="button" data-act="use">LEPAS</button>';
+    if (owned) return '<button class="pc-pr own ut-gl ut-c-g" type="button" data-act="use">GUNAKAN</button>';
     const cost = costOf(item);
-    if (!cost) return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
+    if (!cost) return '<button class="pc-pr no ut-gl ut-c-d" type="button" disabled>TIDAK DIJUAL</button>';
     const gems = cost.gems > 0;
-    return `<button class="pc-pr" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
+    return `<button class="pc-pr ut-gl ut-c-y" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
   }
 
-  /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = pratinjau 3D (modal), ikon info = detail */
+  /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = modal (tab Pratinjau 3D & Detail) */
   /* Grid hanya dibangun ulang bila isinya benar-benar berubah (dimiliki / dipakai / harga). Sebelumnya setiap draw() membuang semua kartu:
      thumbnail berkedip dan ketukan yang sedang berjalan bisa hilang saat saldo / inventori / sinkron akun memicu draw().
      Penanda pilihan (.sel) dipasang terpisah lewat markSelected() agar tidak ikut memaksa rebuild. */
@@ -120,8 +120,7 @@ UT.PageModule.define('pet', function (env) {
         + `<span class="pc-nm">${item.name}</span>`
         + `<span class="pc-th"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
-        + `<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
-        + `<button class="pc-ic pc-det" type="button" data-act="detail" aria-label="Detail ${item.name}" title="Detail"><img src="assets/images/ui/white-glyphs/seru-bulat.webp" alt=""></button>`
+        + `<button class="pc-ic pc-eye ut-gl ut-c-b" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
         + `</article>`;
     }).join('');
     if (html !== lastGridHtml) {
@@ -172,7 +171,7 @@ UT.PageModule.define('pet', function (env) {
       body.appendChild(status);
       if (metadataError) {
         const retry = document.createElement('button');
-        retry.className = 'pet-info-retry';
+        retry.className = 'pet-info-retry ut-gl ut-c-b';
         retry.type = 'button';
         retry.textContent = 'Coba lagi';
         retry.addEventListener('click', loadMetadata);
@@ -375,13 +374,6 @@ UT.PageModule.define('pet', function (env) {
     modal('Konfirmasi', `Beli ${item.name}\nseharga ${format(amount)} ${currency}?`, 'BATAL', 'BELI', () => buy(item));
   }
 
-  function openInfo() {
-    renderDetails(selected || PETS[0]);
-    $('#petInfoTitle').textContent = `Detail ${(selected || PETS[0]).name}`;
-    $('#petInfo').showModal();
-    env.requestAnimationFrame(() => { $('#petInfoBody').scrollTop = 0; });
-  }
-
   function runAction(item) {
     if (busy || !item) return;
     if (!PD.owns(item.id)) {
@@ -392,7 +384,20 @@ UT.PageModule.define('pet', function (env) {
     else void equip(item);
   }
 
+  /* tab di dalam modal: 'preview' (3D + cerita) atau 'detail' (peran & skill) */
+  function setView(view) {
+    $('#pvTabs').querySelectorAll('.ut-tab').forEach((tab) => {
+      const on = tab.dataset.v === view;
+      tab.classList.toggle('on', on);
+      tab.setAttribute('aria-selected', String(on));
+    });
+    $('#pvPreview').classList.toggle('on', view === 'preview');
+    $('#pvDetail').classList.toggle('on', view === 'detail');
+  }
+
   function openPreview() {
+    setView('preview');
+    $('#petInfoBody').scrollTop = 0;
     $('#pv').classList.add('on');
     $('#pv').setAttribute('aria-hidden', 'false');
     $('#pvClose').focus({ preventScroll: true });
@@ -403,7 +408,7 @@ UT.PageModule.define('pet', function (env) {
     $('#pv').setAttribute('aria-hidden', 'true');
   }
 
-  /* ketuk tombol bar bawah = beli/pakai/lepas; ikon info = detail; ikon mata ATAU badan kartu = pratinjau 3D.
+  /* ketuk tombol bar bawah = beli/pakai/lepas; ikon mata ATAU badan kartu = modal pratinjau (tab Pratinjau / Detail).
      Pratinjau: pilih -> isi modal + minta viewer -> baru buka modal (tanpa membangun ulang grid), jadi tampil langsung. */
   $('#grid').addEventListener('click', (event) => {
     const card = event.target.closest('.pc');
@@ -419,8 +424,7 @@ UT.PageModule.define('pet', function (env) {
     }
     markSelected();
     updatePreview();
-    if (act === 'detail') openInfo();
-    else openPreview();
+    openPreview();
   });
   /* geser baris kartu: roda mouse / Shift + roda = ke samping; tahan + seret mouse = geser (touch tetap pan bawaan) */
   const gridEl = $('#grid');
@@ -486,16 +490,17 @@ UT.PageModule.define('pet', function (env) {
   $('#md').addEventListener('click', (event) => {
     if (event.target.id === 'md') closeModal();
   });
-  $('#petInfoClose').addEventListener('click', () => $('#petInfo').close());
-  $('#petInfo').addEventListener('click', (event) => {
-    if (event.target === $('#petInfo')) $('#petInfo').close();
+  $('#pvTabs').addEventListener('click', (event) => {
+    const tab = event.target.closest('.ut-tab');
+    if (!tab || tab.classList.contains('on')) return;
+    snd('button');
+    setView(tab.dataset.v);
   });
   env.on(document, 'keydown', (event) => {
     if (event.key !== 'Escape') return;
     if ($('#md').classList.contains('on')) closeModal();
-    else if ($('#petInfo').open) return;
     else if ($('#pv').classList.contains('on')) closePreview();
-    else navigate('lobby.html');
+    else navigate(backTarget());
   });
 
   /* di shell semua target lewat UT.Spa.go (view atau iframe); mandiri/embed: fade 330 ms lalu pindah halaman biasa */
@@ -505,7 +510,14 @@ UT.PageModule.define('pet', function (env) {
     env.setTimeout(() => { window.location.href = url; }, 330);
   }
 
-  $('#back').addEventListener('click', () => navigate('lobby.html'));
+  /* asal pembuka Pet (lobby / profil) dibaca dari ?from=; di shell URL lengkapnya ada di UT.Spa.current(). Selain daftar putih -> lobby */
+  function backTarget() {
+    let src = location.search;
+    try { const c = window.UT.Spa && window.UT.Spa.current && window.UT.Spa.current(); if (c && c.url && c.url.indexOf('?') >= 0) src = c.url.slice(c.url.indexOf('?')); } catch (e) { /* abaikan */ }
+    const f = new URLSearchParams(src).get('from') || '';
+    return /^(lobby|profile)\.html$/.test(f) ? f : 'lobby.html';
+  }
+  $('#back').addEventListener('click', () => navigate(backTarget()));
   $('#cur-co').addEventListener('click', () => navigate('shop.html?coin=1'));
   $('#cur-em').addEventListener('click', () => navigate('tambang.html?from=pet.html'));
 

@@ -43,13 +43,13 @@ t('inventory.js: tab view (Pet) tidak dimuat di iframe saat di shell', () => {
 });
 t('InvTabs.markup: grup Pet = 1 tab; grup Inventory (tanpa aktif) = Power-up/Chest/Ore/Log, tak ada yang "on"; url tab', () => {
   const m = InvTabs.markup('pet');
-  assert.strictEqual((m.match(/class="tab/g) || []).length, 1);
-  assert.strictEqual((m.match(/class="tab on"/g) || []).length, 1);
-  assert(/class="tab on" type="button" data-k="pet"/.test(m));
+  assert.strictEqual((m.match(/class="ut-tab tab/g) || []).length, 1);
+  assert.strictEqual((m.match(/class="ut-tab tab on"/g) || []).length, 1);
+  assert(/class="ut-tab tab on" type="button" data-k="pet"/.test(m));
   assert.strictEqual(InvTabs.url('dadu'), 'dadu.html');
   assert.strictEqual(InvTabs.url('ore'), 'inventory.html?tab=ore');
-  assert.strictEqual((InvTabs.markup('').match(/class="tab"/g) || []).length, 4);
-  assert.strictEqual((InvTabs.markup('').match(/class="tab on"/g) || []).length, 0);
+  assert.strictEqual((InvTabs.markup('').match(/class="ut-tab tab"/g) || []).length, 4);
+  assert.strictEqual((InvTabs.markup('').match(/class="ut-tab tab on"/g) || []).length, 0);
 });
 t('CSS: bar tab dan mode view hanya aktif lewat #invtabs / body.inv-view (tidak menimpa halaman lain)', () => {
   const css = rd('assets/css/inv-tabbar.css');

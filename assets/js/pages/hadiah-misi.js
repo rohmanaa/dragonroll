@@ -80,7 +80,7 @@ function vHadiah(){
  h+='<div class="dlist scr" id="dlist"><div class="dgrid">';
  R.forEach((d,i)=>{const n=i+1,st=dState(i),ms=n%7===0,grand=n===DAYS;
   h+='<div class="dc '+st+(ms?' ms':'')+(d.fm?' fm':'')+(grand?' grand':'')+'" data-i="'+i+'"><div class="dn">Hari '+n+'</div>'+(d.x?'<div class="dx">'+d.x+'</div>':'')+'<img class="di '+(d.cls||'')+'" src="'+(d.src||IC+d.ic+'.webp')+'" alt=""><div class="dt">'+d.t+'</div>'+(st==='done'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+'</div>'});
- h+='</div></div><div class="foot" style="bottom:20px"><div class="note">'+(SD?'Login tiap hari tanpa bolos · Reset 00.00 WIB : <span style="color:#ff6f8d" id="rs">'+resetIn(DRESET)+'</span>':'')+'</div>'+(dayNow()?'<button class="btn cl" data-day="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+'</div>';
+ h+='</div></div><div class="foot" style="bottom:20px"><div class="note">'+(SD?'Login tiap hari tanpa bolos · Reset 00.00 WIB : <span style="color:#ff6f8d" id="rs">'+resetIn(DRESET)+'</span>':'')+'</div>'+(dayNow()?'<button class="btn cl ut-gl ut-c-y" data-day="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+'</div>';
  return h}
 
 /* ---- misi harian (server) ---- */
@@ -98,19 +98,19 @@ function vMisi(){
  if(!QS)return '<div class="msg">'+(SV()?'Memuat misi…':'Masuk ke akun untuk<br>membuka misi harian.')+'</div>';
  let h='<div class="hdr"><div class="alas"><img src="'+IC+'item-icons/gulungan-pena.webp" alt=""></div><h2>MISI HARIAN</h2><p>Selesaikan semua misi harian</p>'+
   '<div class="rs"><img src="'+IC+'missions/ikon-jam-weker.webp" alt="">Reset dalam : <b id="rs">'+resetIn(QRESET)+'</b></div>'+
-  (bs==='ready'?'<button class="btn cl sm gbtn2" data-bonus="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+
+  (bs==='ready'?'<button class="btn cl sm gbtn2 ut-gl ut-c-g" data-bonus="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+
   '<div class="rw g" style="right:46px;'+(bs==='claimed'?'opacity:.5':'')+'"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(bonusRw())+'</b></div></div>';
  h+='<div class="qlist scr" id="qlist">';
  L.forEach((q,i)=>{const ready=q.status==='ready',cl=q.status==='claimed';
   h+='<div class="row '+(ready?'ready':'')+' '+(cl?'fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
    '<img class="ri" src="'+IC+(QI[q.id]||'item-icons/gulungan-pena')+'.webp" alt=""><h3>'+esc(q.title)+'</h3><div class="ds">'+esc(q.desc)+'</div>'+
    '<div class="pb"><i style="width:'+Math.max(q.progress?8:0,q.progress/q.goal*100)+'%"></i></div>'+(ready?'':'<div class="pt">'+q.progress+' / '+q.goal+'</div>')+
-   (ready?'<div class="rinl"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(q.reward)+'</b></div><button class="btn cl" data-q="'+esc(q.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
+   (ready?'<div class="rinl"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(q.reward)+'</b></div><button class="btn cl ut-gl ut-c-g" data-q="'+esc(q.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
     :'<div class="rbox '+(cl?'done':'')+'"><img src="'+IC+(cl?'white-glyphs/centang':'hud/ikon-koin-emas')+'.webp" alt=""><b>'+(cl?'SELESAI':fmt(q.reward))+'</b></div>')+'</div>'});
  h+='</div>';
  const all=L.length&&L.every(q=>q.status==='claimed');
  h+='<div class="foot"><div class="note">'+(rdyN?rdyN+' misi siap diklaim':all?(bs==='claimed'?'Semua hadiah hari ini sudah diklaim':bs==='ready'?'Bonus siap diklaim!':''):'Selesaikan semua misi untuk bonus '+fmt(bonusRw())+' Coin + 3 Emerald')+'</div>'+
-  (rdyN?'<button class="btn cl wide" data-qall="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM SEMUA</span></button>':'')+'</div>';
+  (rdyN?'<button class="btn cl wide ut-gl ut-c-y" data-qall="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM SEMUA</span></button>':'')+'</div>';
  return h}
 
 /* ---- achievement (server: get_my_profile + claim_achievement) ---- */
@@ -147,7 +147,7 @@ function vAch(){
    '<img class="ri" src="'+IC+(AI[a.id]||'item-icons/piala')+'.webp" alt=""><h3>'+esc(a.name)+'</h3><div class="ds">'+esc(a.desc)+' '+fmt(g)+'×</div>'+
    '<div class="stars">'+[0,1,2].map(k=>'<img src="'+IC+'stage-chapter/bintang-stage-'+(k<a.st?'emas':'kosong')+'.webp" alt="">').join('')+'</div>'+
    '<div class="pb"><i style="width:'+Math.max(a.v?8:0,a.r*100)+'%"></i></div>'+(ready?'':'<div class="pt">'+fmt(Math.min(a.v,g))+' / '+fmt(g)+'</div>')+
-   (ready?'<div class="rinl2">'+two(rw[0],rw[1])+'</div><button class="btn cl" data-a="'+esc(a.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
+   (ready?'<div class="rinl2">'+two(rw[0],rw[1])+'</div><button class="btn cl ut-gl ut-c-g" data-a="'+esc(a.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
     :'<div class="rbox two '+(fin?'done':'')+'">'+(fin?'<img src="'+IC+'white-glyphs/centang.webp" alt=""><b>SELESAI</b>':two(rw[0],rw[1]))+'</div>')+'</div>'}).join('')+'</div>'}
 
 /* ---- util + render ---- */
@@ -159,7 +159,7 @@ function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walle
 function render(){
  if(env.disposed)return;
  const L=[['hadiah','HADIAH','item-icons/kado-merah'],['misi','MISI','missions/ikon-tab-harian-centang'],['ach','PENCAPAIAN','missions/ikon-tab-pencapaian-medali']];
- $('#tabs').innerHTML=L.map(a=>'<button class="tab'+(tab===a[0]?' on':'')+'" data-k="'+a[0]+'"><img class="ul" src="'+IC+'navigation-icons/garis-bawah-tab-emas.webp" alt=""><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
+ $('#tabs').innerHTML=L.map(a=>'<button class="tab ut-tab'+(tab===a[0]?' on':'')+'" type="button" role="tab" data-k="'+a[0]+'" aria-selected="'+(tab===a[0])+'"><img class="ic" src="'+IC+a[2]+'.webp" alt=""><span class="lb">'+a[1]+'</span>'+badge(cnt[a[0]]())+'</button>').join('');
  const sc=($('#alist')||{}).scrollTop||0, qsc=($('#qlist')||{}).scrollTop||0, dsc=($('#dlist')||{}).scrollTop||0;
  $('#body').innerHTML=tab==='misi'?vMisi():tab==='ach'?vAch():vHadiah();
  const al=$('#alist');if(al)al.scrollTop=sc;

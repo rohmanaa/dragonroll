@@ -121,12 +121,12 @@ const IC_GEM=GEM,IC_COIN=KOIN;
 const EYE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
 /* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN / LEPAS (dimiliki); "Tanpa Efek" yang aktif = DIPAKAI */
 function actionBar(f,m,on,sell){
-  if(on&&f.none)return '<button class="pc-pr no" type="button" disabled>DIPAKAI</button>';
-  if(on)return '<button class="pc-pr used" type="button" data-act="use">LEPAS</button>';
-  if(m)return '<button class="pc-pr own" type="button" data-act="use">GUNAKAN</button>';
-  if(!sell)return '<button class="pc-pr no" type="button" disabled>TIDAK DIJUAL</button>';
+  if(on&&f.none)return '<button class="pc-pr no ut-gl ut-c-d" type="button" disabled>DIPAKAI</button>';
+  if(on)return '<button class="pc-pr used ut-gl ut-c-r" type="button" data-act="use">LEPAS</button>';
+  if(m)return '<button class="pc-pr own ut-gl ut-c-g" type="button" data-act="use">GUNAKAN</button>';
+  if(!sell)return '<button class="pc-pr no ut-gl ut-c-d" type="button" disabled>TIDAK DIJUAL</button>';
   const gems=f.gems>0;
-  return '<button class="pc-pr" type="button" data-act="use"><b>'+fmtPrice(gems?f.gems:f.price)+'</b><img src="'+(gems?IC_GEM:IC_COIN)+'" alt=""></button>';
+  return '<button class="pc-pr ut-gl ut-c-y" type="button" data-act="use"><b>'+fmtPrice(gems?f.gems:f.price)+'</b><img src="'+(gems?IC_GEM:IC_COIN)+'" alt=""></button>';
 }
 /* Grid hanya dibangun ulang bila isinya berubah (dimiliki / dipakai / harga); penanda pilihan (.sel) dipasang terpisah */
 let lastGridHtml='';
@@ -141,7 +141,7 @@ function drawGrid(){
       +'<span class="pc-nm">'+x.name+'</span>'
       +'<span class="pc-th">'+art(x)+check+'</span></div>'
       +actionBar(x,m,on,sell)+'</div>'
-      +'<button class="pc-ic pc-eye" type="button" data-act="preview" aria-label="Pratinjau '+x.name+'" title="Pratinjau">'+EYE_SVG+'</button>'
+      +'<button class="pc-ic pc-eye ut-gl ut-c-b" type="button" data-act="preview" aria-label="Pratinjau '+x.name+'" title="Pratinjau">'+EYE_SVG+'</button>'
       +'</article>';
   }).join('');
   if(html!==lastGridHtml){$('#grid').innerHTML=html;lastGridHtml=html}
@@ -262,7 +262,7 @@ const closeM=()=>$('#md').classList.remove('on');
 $('#m-no').onclick=closeM;
 $('#m-ok').onclick=()=>{closeM();if(okFn)okFn()};
 $('#md').onclick=e=>{if(e.target.id==='md')closeM()};
-env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav('lobby.html')});
+env.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('#md').classList.contains('on'))closeM();else if(previewOpen())closePreview();else nav(backTarget())});
 $('#pvClose').onclick=closePreview;
 $('#pv').onclick=e=>{if(e.target.id==='pv')closePreview()};
 
@@ -281,7 +281,14 @@ async function buy(f){
   showWallet(true);draw();
 }
 /* ---- navigasi ---- */
-$('#back').onclick=()=>{snd('button');nav('lobby.html')};
+/* asal pembuka Efek (lobby / profil) dibaca dari ?from=; di shell URL lengkapnya ada di UT.Spa.current(). Selain daftar putih -> lobby */
+function backTarget(){
+  let src=location.search;
+  try{const c=UT.Spa&&UT.Spa.current&&UT.Spa.current();if(c&&c.url&&c.url.indexOf('?')>=0)src=c.url.slice(c.url.indexOf('?'))}catch(e){}
+  const f=new URLSearchParams(src).get('from')||'';
+  return /^(lobby|profile)\.html$/.test(f)?f:'lobby.html';
+}
+$('#back').onclick=()=>{snd('button');nav(backTarget())};
 $('#cur-co').onclick=()=>nav('shop.html?coin=1');
 $('#cur-em').onclick=()=>nav('tambang.html?from=efek.html');
 

@@ -16,6 +16,9 @@
 
 <link rel="stylesheet" href="assets/css/page.css">
 <link rel="stylesheet" href="assets/css/sub.css">
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
+
+<link rel="stylesheet" href="assets/components/tabs/tabs.css">
 <link rel="stylesheet" href="assets/css/friendship.css">
 <link rel="stylesheet" href="assets/css/bg.css">
 
@@ -23,29 +26,25 @@
 </head>
 <body class="dm">
 <div id="wrap"><div id="stage">
-  <button id="back" aria-label="Kembali"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Kembali"><img class="bg" src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   <div id="title" class="ttl">Teman</div>
-  <div class="cur" id="cur-em" role="button" tabindex="0" aria-label="Emerald, buka Tambang">
-    <img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
-  </div>
-  <div class="cur" id="cur-co" role="button" tabindex="0" aria-label="Coin, buka Toko">
-    <img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
-  </div>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" role="button" tabindex="0" aria-label="Emerald, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" role="button" tabindex="0" aria-label="Coin, buka Toko"></div>
 
-  <nav class="tabs" id="tabs" role="tablist" aria-label="Daftar teman"></nav>
+  <nav class="tabs ut-ul" id="tabs" role="tablist" aria-label="Daftar teman"></nav>
   <div id="sum"></div>
   <div id="sbar">
     <input id="q" class="field" type="search" placeholder="Cari teman..." autocomplete="off" aria-label="Cari teman">
-    <button class="btn" id="add" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>TAMBAH TEMAN</span></button>
+    <button class="btn ut-gl ut-c-y" id="add" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>TAMBAH TEMAN</span></button>
   </div>
   <main id="list" class="scr" aria-live="polite"></main>
 
   <div id="md">
-    <div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
-      <h3 id="mt"></h3><p id="mx"></p>
+    <div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
+      <h3 id="mt" class="ut-mk-t"></h3><p id="mx"></p>
       <div id="mbtns">
-        <button class="btn" id="m-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span></span></button>
-        <button class="btn" id="m-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+        <button class="btn ut-gl ut-c-r" id="m-no" type="button"><span></span></button>
+        <button class="btn ut-gl ut-c-g" id="m-ok" type="button"><span></span></button>
       </div>
     </div>
   </div>
@@ -67,9 +66,12 @@
 <script src="assets/js/services/hearts-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'friendship'});</script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/pages/friendship-page.js"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-ok"});}catch(e){}})();</script>
 </body>
 </html>

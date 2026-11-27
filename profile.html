@@ -6,6 +6,9 @@
 <title>Dragon Roll — Profil, Teman, Pesan &amp; Pengaturan</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/components/button/button.css">
+<link rel="stylesheet" href="assets/components/modal/modal-kit.css">
+<link rel="stylesheet" href="assets/components/tabs/tabs.css">
 <link rel="stylesheet" href="assets/css/account-hub.css">
 </head>
 <body class="hub">
@@ -16,13 +19,14 @@
   <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = foto pet 3D (dijepret sekali lalu di-cache, bukan thumbnail toko) -->
   <section id="hero" class="pcard">
     <div id="mid"><div id="art"></div></div>
-    <button id="frbtn" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
-    <button id="pobtn" type="button" aria-label="Pose foto profil"><i aria-hidden="true">🧍</i><span>Pose</span></button>
+    <button id="frbtn" class="ut-gl ut-c-b" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
+    <button id="pobtn" class="ut-gl ut-c-b" type="button" aria-label="Pose foto profil"><i aria-hidden="true">🧍</i><span>Pose</span></button>
     <div id="who">
       <div id="lv" aria-label="Level"><svg viewBox="0 0 64 74" aria-hidden="true"><defs><linearGradient id="pvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2a63d6"/></linearGradient></defs><path d="M32 3 L59 12 V37 C59 55 46 67 32 72 C18 67 5 55 5 37 V12 Z" fill="url(#pvg)" stroke="#ffd45a" stroke-width="4" stroke-linejoin="round"/><path d="M32 10 L53 17 V37 C53 51 43 60 32 65 C21 60 11 51 11 37 V17 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/></svg><b id="lvn">1</b></div>
-      <div id="nrow"><div id="hnm" class="ttl"></div><div id="pbtns"><button class="eb" data-i="0"></button><button class="eb" data-i="1"></button><button class="eb" data-i="2"></button><button id="pen" aria-label="Ubah nama">✏️</button></div></div>
+      <div id="nrow"><div id="hnm" class="ttl"></div><div id="pbtns"><button class="eb ut-gl ut-c-d" data-i="0"></button><button class="eb ut-gl ut-c-d" data-i="1"></button><button class="eb ut-gl ut-c-d" data-i="2"></button><button id="pen" class="ut-gl ut-c-b" aria-label="Ubah nama">✏️</button></div></div>
       <button id="hid" type="button" aria-label="Salin ID pengguna"></button>
-      <div id="guild" class="prow"><img src="assets/images/ui/white-glyphs/perisai-lambang.webp" alt=""><div class="gt"><b>Nama Guild</b><small>Segera hadir</small></div></div>
+      <i class="dv" id="dv1" aria-hidden="true"></i><i class="dv" id="dv2" aria-hidden="true"></i>
+      <div id="guild" class="prow"><img src="assets/images/ui/white-glyphs/perisai-lambang.webp" alt=""><div class="gt"><b>Nama Guild</b><small>Segera hadir</small></div><button id="gbtn" class="ut-gl ut-c-g" type="button" disabled aria-label="Guild (segera hadir)">Guild</button></div>
       <button id="rank" class="prow" type="button"><img src="assets/images/ui/item-icons/podium.webp" alt=""><div class="gt"><b id="rk-v">—</b><small>Peringkat Global</small></div><div class="rp"><b id="rk-p">—</b><small>Poin</small></div></button>
     </div>
     <button id="pet" type="button" aria-label="Pet"><span class="pimg"></span><span class="pnm"></span></button>
@@ -32,29 +36,29 @@
   <section id="kolc" class="pcard"><div class="ph">Koleksi</div><div id="kol"></div></section>
 
   <!-- pemilih emoji (3 slot "siapa dirimu") -->
-  <div id="epick" aria-hidden="true"><div class="ebox" role="dialog" aria-label="Pilih emoji"><div class="eh">Pilih emoji</div><div id="egrid"></div></div></div>
+  <div id="epick" aria-hidden="true"><div class="ebox ut-mk" role="dialog" aria-label="Pilih emoji"><div class="ut-mk-t">Pilih emoji</div><div id="egrid"></div></div></div>
   <!-- modal Frame: pilih / beli frame foto profil (dulu halaman Frame di Perlengkapan) -->
-  <div id="frmd" aria-hidden="true"><div id="frbox" role="dialog" aria-modal="true" aria-labelledby="frt">
-    <h3 id="frt" class="ttl">Frame</h3>
-    <button id="frx" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div id="frmd" aria-hidden="true"><div id="frbox" class="ut-mk" role="dialog" aria-modal="true" aria-labelledby="frt">
+    <h3 id="frt" class="ut-mk-t">Frame</h3>
+    <button id="frx" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup"></button>
     <div id="frbody">
       <div id="frpv"><div id="frart"></div><div id="frnm" class="ttl"></div><div id="frrar"></div><p id="frds"></p></div>
       <div id="frgrid" aria-label="Daftar frame"></div>
     </div>
-    <button class="btn" id="fract" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
-    <div id="frcf"><div class="cfb"><p id="frcft"></p><div class="cfr">
-      <button class="btn" id="frcf-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>BATAL</span></button>
-      <button class="btn" id="frcf-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button></div></div></div>
+    <button class="btn ut-gl ut-c-y" id="fract" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+    <div id="frcf"><div class="cfb ut-mk"><p id="frcft"></p><div class="cfr">
+      <button class="btn ut-gl ut-c-r" id="frcf-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>BATAL</span></button>
+      <button class="btn ut-gl ut-c-g" id="frcf-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button></div></div></div>
   </div></div>
   <!-- modal Pose: pilih pose foto profil (pose = bentuk badan diam, bukan animasi); SIMPAN menyimpan pose + foto agar profil tidak merender ulang -->
-  <div id="pomd" aria-hidden="true"><div id="pobox" role="dialog" aria-modal="true" aria-labelledby="pot">
-    <h3 id="pot" class="ttl">Pose</h3>
-    <button id="pox" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div id="pomd" aria-hidden="true"><div id="pobox" class="ut-mk" role="dialog" aria-modal="true" aria-labelledby="pot">
+    <h3 id="pot" class="ut-mk-t">Pose</h3>
+    <button id="pox" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup"></button>
     <div id="pobody">
       <div id="popv"><div id="poart"></div><div id="ponm" class="ttl"></div><p id="pohint">Foto profil menampilkan bagian atas badan.</p></div>
       <div id="pogrid" aria-label="Daftar pose"></div>
     </div>
-    <button class="btn" id="posave" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SIMPAN</span></button>
+    <button class="btn ut-gl ut-c-y" id="posave" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SIMPAN</span></button>
   </div></div>
   <div id="toast"></div>
 </template>

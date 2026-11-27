@@ -1,5 +1,5 @@
 /* friendship.html */
-.tabs{left:60px;top:132px;gap:30px}
+.tabs{left:60px;top:132px}
 #sum{position:absolute;left:1180px;top:150px;width:700px;text-align:right;font:800 30px var(--font-body);color:#cfc8ea;display:none}
 #sbar{position:absolute;left:70px;top:262px;width:1780px;height:96px;display:flex;gap:24px;align-items:center}
 #q{flex:1;height:92px;font-size:34px;padding:0 20px}
@@ -10,9 +10,11 @@
 .fc .sb{margin-top:6px;font:800 22px var(--font-body);color:#d8d2ee;display:flex;align-items:center;gap:10px}
 .dot{width:16px;height:16px;border-radius:50%;box-shadow:0 0 8px currentColor;display:inline-block}
 .btn.sm{width:176px;height:68px;flex:none}.btn.sm span{font-size:28px}
-.rm{width:64px;height:64px;border-radius:16px;background:#c0394d;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25);display:grid;place-items:center;flex:none}
+/* tombol: tampilan dari komponen .ut-gl (button.css); gambar bingkai lama disembunyikan, ikon tetap */
+.btn.ut-gl>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
+.rm{width:64px;height:64px;display:grid;place-items:center;flex:none;padding:0}
 .rm img{width:36px;height:36px}
-.rm:active{transform:scale(.9)}
 .empty{grid-column:1/-1;margin-top:120px;text-align:center;font:400 44px var(--font-title);color:#b9b1d3}
 
 .cell{flex:none;width:120px;text-align:center;line-height:1}
@@ -34,7 +36,6 @@
 .fc .dot.off{background:#8c8a9d;color:#8c8a9d}
 .fc .dot.request{background:#9e80ff;color:#9e80ff}
 .actions{display:flex;align-items:center;gap:14px;flex:none}
-.btn.sm.off{filter:grayscale(1) brightness(.7)}
 .stat.lk:disabled{cursor:not-allowed;opacity:.72}
 .stat.lk{cursor:pointer;border:0;font:inherit}
 .stat.lk.gold{background:rgba(255,196,60,.28);box-shadow:inset 0 0 0 2px rgba(255,204,70,.7)}

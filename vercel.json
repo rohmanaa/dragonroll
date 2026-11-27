@@ -8,7 +8,7 @@
       "destination": "/:rest"
     },
     {
-      "source": "/:t([a-z0-9]{20})/:page([a-z0-9-]+)/:id([0-9a-f-]{36})/?",
+      "source": "/:t([a-z0-9]{20})/:page([a-z0-9-]+)/:id([0-9a-f-]{36}){/}?",
       "destination": "/play.html?go=:page.html"
     }
   ]

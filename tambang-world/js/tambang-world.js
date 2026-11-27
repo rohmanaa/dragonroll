@@ -86,7 +86,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
   }
 
   function updateCart(c, dt) {
-    const m = c.userData.m; if (!m) return;
+    const m = c.userData.m; if (!m || m.ctl) return;
     if (m.min >= m.max) { m.moving = false; return; }
     if (m.wait > 0) { m.wait -= dt; m.moving = false; return; }
     m.moving = true; c.position.x += m.dir * m.speed * dt;
@@ -114,6 +114,12 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
     /* Layers */
     for (let i = 0; i < MW.LAYERS; i++) {
       const L = MW.buildLayer(i); MW.decor[i](L);
+      /* skirt: perpanjang terrain ke kiri/kanan (layar lebih lebar dari 16:9): kiri = salinan geser, kanan = cermin di tepi */
+      ['RockWalls', 'BackWall', 'Bricks', 'Minerals', 'GrassCaps'].forEach(n => {
+        const m = L.group.getObjectByName(n); if (!m || !m.isInstancedMesh) return;
+        const a = m.clone(); a.position.x = -MW.W; a.name = n + 'SkirtL'; L.group.add(a);
+        const b = m.clone(); b.scale.x = -1; b.position.x = MW.W * 2; b.name = n + 'SkirtR'; L.group.add(b);
+      });
       L.group.userData.sub = { attach_: attach };
       root.add(L.group); Wd.layers.push(L);
     }
@@ -126,7 +132,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
     const rider = MW.makeWorker(2); rider.userData.kind = 'rider'; rider.position.set(0.1, 0.26, 0.1);
     MW.setWorkerMode(rider, 'idle', { dir: 1 }); lift.cab.add(rider); Wd.rider = rider;
     /* Snap + isi awal */
-    MW.debris.init(root);
+    MW.debris.init(root); MW.logi.initFly(root);
     MW.Snap.build(Wd.layers, root);
     Wd.ready = true;
     populate();
@@ -162,6 +168,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
       const rs = open && L.index >= 1 ? MW.data.restOf(L.index) : { resting: false };
       L.resting = rs.resting;
       L.sub.Workers.children.forEach(w => { w.visible = open; w.userData.rest = rs.resting ? rs.kind : null; if (open && w.userData.w) MW.updateWorker(w, t, dt); });
+      MW.logi.update(L, dt, t, open, rs.resting);
       L.sub.Carts.visible = open; if (open && !rs.resting) L.sub.Carts.children.forEach(c => updateCart(c, dt)); else if (open) L.sub.Carts.children.forEach(c => { if (c.userData.m) c.userData.m.moving = false; });
       if (L.mgr) { const sd = MW.data.slots[L.index - 1]; L.mgr.visible = open && !!(sd && sd.mgr); if (L.mgr.visible) MW.updateWorker(L.mgr, t, dt); }
       L.sub.Chests.children.forEach(c => {
@@ -174,7 +181,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
         if (u.shake > 0) { u.shake -= dt; n.position.x = u.bx + Math.sin(t * 90) * 0.05 * Math.min(1, u.shake * 4); } else n.position.x = u.bx;
       });
     });
-    MW.debris.update(dt);
+    MW.debris.update(dt); MW.logi.tick(dt);
     if (Wd.rider) MW.updateWorker(Wd.rider, t, dt);
     Wd.lift.update(dt, t, Wd.pulley);
     updateLights(s, t);
@@ -187,6 +194,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
 MW.setViewW = function (w) {
   const Wd = MW.world; Wd.viewW = w;
   Wd.camera.left = -w / 2; Wd.camera.right = w / 2; Wd.camera.updateProjectionMatrix();
-  Wd.cxT = Math.max(w / 2, Math.min(MW.W - w / 2, Wd.cxT));
+  Wd.cxT = w >= MW.W ? MW.W / 2 : Math.max(w / 2, Math.min(MW.W - w / 2, Wd.cxT));
+  if (w >= MW.W) Wd.cx = MW.W / 2;
 };
 })();
