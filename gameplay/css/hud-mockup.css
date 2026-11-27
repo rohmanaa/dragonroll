@@ -940,9 +940,13 @@ html body #puCard.pucard {
   gap: 16px !important;
   padding: 18px 70px !important;
   border: 0 !important;
+  border-top: 3px solid var(--gh-event-color) !important;
+  border-bottom: 3px solid var(--gh-event-color) !important;
+  /* garis atas/bawah ikut memudar ke transparan di tepi kiri-kanan (sama dengan latar) */
+  border-image: linear-gradient(90deg, transparent, var(--gh-event-color) 14%, var(--gh-event-color) 86%, transparent) 1 !important;
   border-radius: 0 !important;
   color: var(--gh-event-color) !important;
-  background: none !important;          /* tanpa panel: hanya teks + outline */
+  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
   box-shadow: none !important;
   font: 800 36px/1.2 var(--gh-body) !important;
   text-align: center !important;
