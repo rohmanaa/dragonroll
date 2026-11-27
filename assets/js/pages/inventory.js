@@ -58,15 +58,15 @@ UT.PageModule.define('inventory', function (env) {
     var L = cOwned(), by = {};
     L.forEach(function (c) { (by[c.kind] = by[c.kind] || []).push(c); });
     var kinds = CORD.filter(function (q) { return by[q]; });
-    if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small><button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button></div>';
+    if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small><button class="fslot ut-slot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button></div>';
     if (!by[cSel]) cSel = kinds[0];
     var sk = CK[cSel] || CK.wood;
     var h = '<section id="cr"><div id="cg">';
     kinds.forEach(function (q) {
       var kk = CK[q] || CK.wood, n = by[q].length;
-      h += '<button class="fslot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
+      h += '<button class="fslot ut-slot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
-    h += '<button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
+    h += '<button class="fslot ut-slot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
     return h + '</div></section><button class="btn ut-gl ut-c-y" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
   }
   function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
