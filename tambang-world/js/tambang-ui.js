@@ -60,7 +60,7 @@
     const rd = D.wallet.ready();
     const co = fmt(D.wallet.coins()), em = fmt(D.wallet.gems());
     $('tambang-v-co').textContent = rd ? co : '—'; $('tambang-v-em').textContent = rd ? em : '—';
-    $('tambang-v-co').style.fontSize = co.length > 6 ? '34px' : ''; $('tambang-v-em').style.fontSize = em.length > 6 ? '34px' : '';
+    $('tambang-cur-co').style.setProperty('--rb-fs', co.length > 6 ? '22px' : ''); $('tambang-cur-em').style.setProperty('--rb-fs', em.length > 6 ? '22px' : '');
     if (bumpEl) { bumpEl.classList.remove('bump'); void bumpEl.offsetWidth; bumpEl.classList.add('bump'); }
   }
   MW.ui = { toast: toast };

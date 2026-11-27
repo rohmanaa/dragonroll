@@ -25,14 +25,10 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #tambang-title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);z-index:5}
 #tambang-sum{position:absolute;left:142px;top:116px;font:800 32px var(--tambang-font-body);color:#ebe6ff;z-index:5;text-shadow:0 2px 0 rgba(10,6,24,.9),0 0 8px rgba(10,6,24,.9);white-space:nowrap}
 #tambang-sum b{color:#6be04a;font:400 40px var(--tambang-font-title)}
-.tambang-cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;background:rgba(14,10,26,.6);
-  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);z-index:5}
-.tambang-cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;width:auto;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.tambang-cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--tambang-font-title);padding-left:44px;padding-right:44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
-.tambang-cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--tambang-font-body);color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.tambang-cur:active{filter:brightness(1.12)}
+/* Emerald & Coin = komponen bersama .ut-rbar (assets/components/resource-bar), seperti Lobby; posisi milik halaman */
+#tambang-cur-em,#tambang-cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}
 #tambang-cur-em{left:1100px}#tambang-cur-co{left:1420px}
-.tambang-cur.bump{animation:tambang-bump .4s}
+#tambang-cur-em.bump,#tambang-cur-co.bump{animation:tambang-bump .4s}
 @keyframes tambang-bump{40%{transform:scale(1.07)}}
 
 /* navigasi layer: 6 tile stage dari kit */
