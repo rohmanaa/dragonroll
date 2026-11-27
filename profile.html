@@ -19,7 +19,7 @@
 <!-- isi panel Profil; dipasang UT.AccountHub ke #pane (CSS panel ikut dimuat/dilepas bersama panelnya) -->
 <template id="tpl-profil" data-css="assets/css/pages/profile-legacy.css assets/css/pages/profile.css">
   <!-- kartu atas: kiri = foto karakter (dada-kepala, tanpa aura), tengah = level/nama/tombol/guild/rank, kanan = foto pet 3D (dijepret sekali lalu di-cache, bukan thumbnail toko) -->
-  <section id="hero" class="pcard">
+  <section id="hero" class="pcard card-panel-new">
     <div id="mid"><div id="art"></div></div>
     <button id="frbtn" class="ut-gl ut-c-b" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
     <button id="pobtn" class="ut-gl ut-c-b" type="button" aria-label="Pose foto profil"><i aria-hidden="true">🧍</i><span>Pose</span></button>
@@ -34,8 +34,8 @@
     <button id="pet" type="button" aria-label="Pet"><span class="pimg"></span><span class="pnm"></span></button>
   </section>
 
-  <section id="statc" class="pcard"><div class="ph">Statistik</div><div id="sg" class="card-panel-new"></div></section>
-  <section id="kolc" class="pcard"><div class="ph">Koleksi</div><div id="kol" class="card-panel-new"></div></section>
+  <section id="statc" class="pcard card-panel-new"><div class="ph">Statistik</div><div id="sg"></div></section>
+  <section id="kolc" class="pcard card-panel-new"><div class="ph">Koleksi</div><div id="kol"></div></section>
 
   <!-- pemilih emoji (3 slot "siapa dirimu") -->
   <div id="epick" aria-hidden="true"><div class="ebox ut-mk" role="dialog" aria-label="Pilih emoji"><div class="ut-mk-t">Pilih emoji</div><div id="egrid"></div></div></div>
