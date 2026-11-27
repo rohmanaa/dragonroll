@@ -140,7 +140,7 @@ UT.PageModule.define('shop', function (env) {
 
   function renderCoin() {
     return PACKS.map((pack, index) => {
-      return `<div class="card${index === 2 ? ' fx' : ''}${index === 2 && query.has('coin') ? ' hl' : ''}" style="--g:${pack.color}">
+      return `<div class="card card-panel-new${index === 2 ? ' fx' : ''}${index === 2 && query.has('coin') ? ' hl' : ''}" style="--g:${pack.color}">
         ${pack.best ? `<img class="rib" src="${IC}banner-label/pita-badge-biru.webp" alt=""><span class="rt">BEST</span>` : ''}
         <div class="nm">${pack.name}</div>
         <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}gold-packs/${pack.image}" alt=""></div>
@@ -154,7 +154,7 @@ UT.PageModule.define('shop', function (env) {
   }
 
   function renderChest() {
-    return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
+    return CHESTS.map(chest => `<div class="card card-panel-new chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
       <div class="amt sm"><small>Langsung dibuka · bisa dapat Power</small></div>
@@ -166,7 +166,7 @@ UT.PageModule.define('shop', function (env) {
   }
 
   function renderEmerald() {
-    return `<div class="card fx" style="--g:#38e070">
+    return `<div class="card card-panel-new fx" style="--g:#38e070">
       <div class="nm">Emerald</div>
       <div class="pic"><i class="glow"></i><img src="${IC}gem-medal-icons/berlian-hijau.webp" alt=""></div>
       <div class="amt sm"><small>Hadiah iklan belum tersedia</small></div>
@@ -177,7 +177,7 @@ UT.PageModule.define('shop', function (env) {
   }
 
   function renderHistory() {
-    return `<section class="history-panel">
+    return `<section class="history-panel card-panel-new">
       <div class="history-head"><div class="nm">Riwayat Transaksi</div><p>20 transaksi Coin dan Emerald terakhir.</p></div>
       <button class="history-button ut-gl ut-c-y" id="histbtn" type="button">Lihat Riwayat</button>
       <div id="histlist" role="list" aria-live="polite"></div>
@@ -220,7 +220,7 @@ UT.PageModule.define('shop', function (env) {
       const power = it.kind === 'powerup';
       const owned = !power && PD.owns(it.id);
       const qty = power ? PD.qty(it.id) : 0;
-      return `<div class="card item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
+      return `<div class="card card-panel-new item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
         <div class="nm">${escapeHtml(it.name)}</div>
         <div class="pic"><i class="glow"></i><div class="art">${art}</div></div>
         ${qty > 0 ? `<span class="chip" aria-label="Dimiliki ${qty}">×${qty}</span>` : ''}
@@ -328,7 +328,7 @@ UT.PageModule.define('shop', function (env) {
     return list.map(s => {
       const owned = s.miss.length === 0;
       const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
-      return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
+      return `<div class="card card-panel-new item fx k-set r-rare" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
         <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="data/frame/karakter/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>

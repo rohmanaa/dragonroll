@@ -1,7 +1,7 @@
 /* dadu.html — layout ala Line Get Rich: kiri = info (atas) + pratinjau 3D & tombol JUAL/BELI (bawah); kanan = tab Lihat Semua / Memiliki + grid slot kotak.
    Slot: terkunci = belum dibeli, hijau = dimiliki, biru = dipakai (aset assets/images/ui/slot-equipment). Kanvas 1920x1080. */
-.dpanel{position:relative;isolation:isolate;background:none;border:0}
-.dpanel::before{content:"";position:absolute;inset:0;border:20px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 20px stretch;z-index:-1;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+/* tampilan panel: .card-panel-new (assets/components/card-panel-new) */
+.dpanel{position:relative;isolation:isolate}
 #dl{position:absolute;left:60px;top:150px;width:820px;height:820px;display:flex;flex-direction:column;gap:16px}
 #dinfo{flex:none;height:300px;padding:26px 36px;overflow:hidden}
 #dinfo #nm{position:static;width:auto;top:auto;margin:0;font-size:52px;line-height:1.05}

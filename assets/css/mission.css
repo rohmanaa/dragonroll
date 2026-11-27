@@ -17,21 +17,6 @@
 
 /* ---- isi ---- */
 #body{position:absolute;left:416px;top:135px;width:1450px;height:930px}
-.hdr{position:relative;width:100%;height:210px;background:url(../images/ui/missions/panel-hadiah-harian-kosong.webp) center/100% 100% no-repeat}
-.hdr .alas{position:absolute;left:16px;top:16px;width:176px;height:176px;background:url(../images/ui/missions/alas-ikon-misi.webp) center/100% 100% no-repeat;display:grid;place-items:center}
-.hdr .alas img{width:128px;height:auto}
-.hdr h2{position:absolute;left:224px;top:46px;margin:0;font:800 48px/1 var(--font-body);letter-spacing:.5px;color:#f3effc}
-.hdr p{position:absolute;left:224px;top:112px;margin:0;font:600 34px/1 var(--font-body);color:#cbc4e0}
-.hdr .rs{position:absolute;right:76px;top:16px;display:flex;align-items:center;gap:10px;font:600 26px/1 var(--font-body);color:#c2bbd8}
-.hdr .rs img{width:32px;height:34px}.hdr .rs b{font-weight:600;color:#ff6f8d}
-.rw{position:relative;width:108px;height:108px;background-size:100% 100%;background-repeat:no-repeat;display:grid;place-items:center}
-.rw img{width:62px;height:62px;object-fit:contain;margin-top:-10px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.rw b{position:absolute;left:0;right:0;bottom:6px;text-align:center;font:400 24px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.8)}
-.rw.g{background-image:url(../images/ui/missions/slot-hadiah-hijau-kosong.webp)}
-.rw.b{background-image:url(../images/ui/missions/slot-hadiah-biru-kosong.webp)}
-.rw.p{background-image:url(../images/ui/missions/slot-hadiah-ungu-kosong.webp)}
-.hdr .rw{position:absolute;top:50px}
-.hdr .gbtn2{position:absolute;right:170px;top:62px}
 
 .btn.cl{width:256px;height:100px}
 .btn.cl span{font-size:46px}
@@ -40,46 +25,15 @@
 .btn.ut-gl span{text-shadow:inherit;margin-top:0}
 .btn.cl.sm{width:190px;height:80px}.btn.cl.sm span{font-size:36px}
 
-.row{position:absolute;left:0;width:100%;height:130px;background:url(../images/ui/missions/baris-misi.webp) center/100% 100% no-repeat}
-.row.ready{background-image:url(../images/ui/missions/baris-misi-siap-klaim.webp)}
-.row .ri{position:absolute;left:28px;top:26px;width:78px;height:78px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
-.row h3{position:absolute;left:164px;top:24px;margin:0;font:800 36px/1.1 var(--font-body);color:#f3effc}
-.row .ds{position:absolute;left:164px;top:72px;font:600 27px/1.1 var(--font-body);color:#b9b2d0}
-.pb{position:absolute;left:calc(100% - 604px);top:55px;width:198px;height:20px;background:url(../images/ui/missions/bar-progres-kosong.webp) center/100% 100% no-repeat}
-.pb i{position:absolute;left:0;top:-2px;height:24px;max-width:198px;background:url(../images/ui/missions/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat}
-.pt{position:absolute;left:calc(100% - 380px);top:44px;width:90px;font:600 30px/1.1 var(--font-body);color:#e4def5;white-space:nowrap}
-.rbox{position:absolute;left:calc(100% - 272px);top:13px;width:256px;height:104px;background:url(../images/ui/missions/slot-hadiah-misi-kosong.webp) center/100% 100% no-repeat;display:flex;align-items:center;justify-content:center;gap:12px}
-.rbox img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.rbox b{font:400 38px/1 var(--font-title);color:#e9e3f8;text-shadow:0 2px 0 rgba(0,0,0,.7)}
-.rbox.done{opacity:.6}
-.rinl{position:absolute;left:calc(100% - 360px);top:22px;width:80px;text-align:center}
-.rinl img{width:52px;height:52px;object-fit:contain;margin:0 auto}
-.rinl b{display:block;font:400 28px/1 var(--font-title);margin-top:-2px;text-shadow:0 2px 0 rgba(0,0,0,.7)}
-.row .cl{position:absolute;left:calc(100% - 272px);top:15px}
 .rbadge{position:absolute;left:0;top:-14px;width:54px;height:54px;display:grid;place-items:center;z-index:3}
 .rbadge img{position:absolute;inset:0;width:100%;height:100%}
 .rbadge b{position:relative;font:400 28px/1 var(--font-title);padding-bottom:3px;text-shadow:0 2px 0 rgba(60,0,10,.6)}
-.row.fin{opacity:.6}
 .foot{position:absolute;left:0;right:0;bottom:6px;height:100px}
 .foot .btn{position:absolute;right:0;top:0}
 .foot .note{position:absolute;left:0;top:28px;font:600 28px var(--font-body);color:#b9b2d0}
 
 /* ---- hadiah login 7 hari ---- */
-.dc{position:absolute;width:350px;height:310px;background-size:100% 100%;background-repeat:no-repeat;text-align:center}
-.dc.wait{background-image:url(../images/ui/panel-dialog/kartu-hari-login-terang.webp)}
-.dc.done{background-image:url(../images/ui/panel-dialog/kartu-hari-login-gelap.webp)}
-.dc.now{background-image:url(../images/ui/panel-dialog/kartu-hari-login-hari-ini.webp);margin:-4px 0 0 -4px;width:359px;height:319px;animation:pulse 1.8s ease-in-out infinite}
-.dc.big{height:650px;background-image:url(../images/ui/panel-dialog/kartu-hari-login-tinggi.webp)}
-.dc.big.done{filter:brightness(.55)}
-.dc.big.now{margin:0;width:350px;height:650px;filter:drop-shadow(0 0 14px rgba(255,225,120,.9))}
 @keyframes pulse{50%{filter:brightness(1.12)}}
-.dc .dn{position:absolute;left:0;right:0;top:20px;font:400 40px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.7)}
-.dc .di{position:absolute;left:50%;top:78px;transform:translateX(-50%);height:140px;width:auto;max-width:230px;object-fit:contain;filter:drop-shadow(0 6px 4px rgba(0,0,0,.5))}
-.dc.big .di{top:200px;height:230px;max-width:290px}
-.dc .dt{position:absolute;left:10px;right:10px;bottom:26px;font:400 36px/1.1 var(--font-title);color:#ffe8a3;text-shadow:0 2px 0 rgba(10,6,24,.8)}
-.dc.big .dt{bottom:80px;font-size:44px}
-.dc .ck{position:absolute;left:50%;top:50%;width:110px;height:110px;transform:translate(-50%,-30%);object-fit:contain;filter:drop-shadow(0 4px 4px rgba(0,0,0,.6))}
-.dc.done .di{opacity:.45}.dc.done .dt{opacity:.5}
 .dice-g{filter:sepia(1) hue-rotate(55deg) saturate(3.5) brightness(.95) drop-shadow(0 6px 4px rgba(0,0,0,.5))!important}
 .dice-y{filter:sepia(1) saturate(6) hue-rotate(-12deg) brightness(1.05) drop-shadow(0 6px 4px rgba(0,0,0,.5))!important}
 
@@ -89,11 +43,7 @@
 [hidden]{display:none!important}
 .msg{position:absolute;left:0;right:0;top:300px;text-align:center;font:400 44px/1.3 var(--font-title);color:#b9b2d0}
 .msg small{display:block;margin-top:10px;font:800 28px var(--font-body);color:#8f88ae}
-.row.ready .ds,.row.fin .ds{color:#c9c2df}
-.row h3,.row .ds{max-width:calc(100% - 850px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btn.cl[hidden]{display:none!important}
-.dc{cursor:pointer}
-.dc.wait{cursor:default}
 /* modal (sama dengan sub.css) */
 #md{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:none;align-items:center;justify-content:center}
 #md.on{display:flex}
@@ -106,25 +56,11 @@
 
 /* ---- achievement ---- */
 .alist{position:absolute;left:0;top:0;width:100%;height:930px;box-sizing:border-box;padding:4px 0 20px}
-.alist .row.ach{position:relative;left:auto;top:auto;margin-bottom:14px}
-.row.ach h3{top:18px}.row.ach .ds{top:60px;font-size:26px}
-.ach .stars{position:absolute;left:164px;top:90px;display:flex;gap:4px}
-.ach .stars img{width:30px;height:30px;object-fit:contain}
-.rinl2{position:absolute;left:calc(100% - 420px);top:20px;width:140px}
-.rinl2 span,.rbox.two span{display:flex;align-items:center;gap:6px}
-.rinl2 img{width:34px;height:34px;object-fit:contain}
-.rinl2 b{font:400 28px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.7)}
-.rbox.two{flex-direction:column;gap:2px}
-.rbox.two img{width:36px;height:36px}.rbox.two b{font-size:28px}
-.rbox.two.done{flex-direction:row}.rbox.two.done b{font-size:34px}
-.ach .pb{left:calc(100% - 660px);top:63px}
-.ach .pt{left:calc(100% - 450px);top:52px;width:170px;font-size:26px}
 
 .alist{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
 .alist::-webkit-scrollbar{display:none}
-.qlist{position:absolute;left:0;top:243px;width:100%;bottom:106px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
+.qlist{position:absolute;left:0;top:166px;width:100%;bottom:106px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain}
 .qlist::-webkit-scrollbar{display:none}
-.qlist .row{position:relative;left:auto;top:auto;margin-bottom:10px}
 
 /* ===== Panel penuh seperti Profil / Aura / Pet: bingkai-dialog penuh layar (ditarik 8px keluar, tanpa celah), isi sedikit transparan
    (--panel-a, slider Pengaturan -> Transparansi panel), latar = misi-bg.webp, judul kiri & tombol Tutup bulat kanan atas.
@@ -151,14 +87,43 @@ html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/mis
 .dlist{position:absolute;left:0;top:0;width:100%;bottom:116px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;touch-action:pan-y;overscroll-behavior:contain;padding:12px 0 24px}
 .dlist::-webkit-scrollbar{display:none}
 .dgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px}
-.dgrid .dc{position:relative;left:auto;top:auto;width:auto;height:310px}
-.dgrid .dc.now{margin:0;width:auto;height:310px}
-.dgrid .dc.ms.wait,.dgrid .dc.ms.now{filter:drop-shadow(0 0 10px rgba(255,214,90,.55))}
-.dgrid .dc.ms .dt{color:#fff3c4}
-.dgrid .dc.grand{filter:drop-shadow(0 0 16px rgba(255,214,90,.95))}
-.dgrid .dc.grand.done{filter:brightness(.6)}
-.dgrid .dc.grand .di{height:170px;top:62px;max-width:260px}
-.dc .dx{position:absolute;left:0;right:0;top:64px;font:400 26px/1 var(--font-title);color:#e2b8ff;text-shadow:0 2px 0 rgba(40,0,70,.85)}
+
+/* ===== Kartu: komponen stat-card (.ut-sc; abu = biasa/storage, .hp = hijau/hitpoint, .gold = kuning, .off = selesai). Di sini hanya bentuk & isi ===== */
+/* baris misi & pencapaian: ikon | info (label, nama, bar) | [bintang] | progres | hadiah + KLAIM */
+.row.ut-sc{position:relative;width:100%;height:130px;font-size:36px;padding:.35em .6em;gap:.55em;margin-bottom:10px;text-align:left}
+.alist .row.ut-sc{margin-bottom:14px}
+.row .ut-sc-ico{width:2.4em;height:2.4em}
+.row .ri{width:80%;height:80%}
+.row .ut-sc-l{font-size:.7em}.row .ut-sc-v{font-size:1.02em}
+.row .pt{flex:none;min-width:3.4em;text-align:right;font-size:.85em;overflow:visible}
+:is(.row,.hdr) .rbox{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;width:auto;min-width:4.9em;height:2.4em;padding:0 .3em;font-size:.9em}
+:is(.row,.hdr) .rbox img{width:1.3em;height:1.3em;object-fit:contain}
+:is(.row,.hdr) .rbox b{font:400 1em/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.7);white-space:nowrap}
+.row .rbox.two{flex-direction:column;gap:0;min-width:4.4em;font-size:.72em}.row .rbox.two span{display:flex;align-items:center;gap:6px}.row .rbox.two img{width:1.15em;height:1.15em}
+.row .rbox.done{flex-direction:row;gap:8px}
+.row .btn.cl{position:static;flex:none;width:210px;height:92px}.row .btn.cl span{font-size:40px}
+.row .stars{flex:none;display:flex;gap:2px}.row .stars img{width:34px;height:34px;object-fit:contain}
+.row.fin .rbadge{display:none}
+/* hadiah harian 30 hari: kartu vertikal (Hari n | ikon | hadiah). now = hijau (bisa diklaim), kelipatan 7 & Hari 30 = kuning, selesai = redup */
+.dc.ut-sc.wait{cursor:default}
+.dc .ck{position:absolute;left:50%;top:50%;width:110px;height:110px;transform:translate(-50%,-30%);object-fit:contain;filter:drop-shadow(0 4px 4px rgba(0,0,0,.6))}
+.dgrid .dc{width:auto}
+.dgrid .dc.now{filter:drop-shadow(0 0 12px rgba(174,230,63,.7))}
+.dgrid .dc.grand{filter:drop-shadow(0 0 16px rgba(255,214,90,.9))}
 .dgrid .dc.fm{filter:drop-shadow(0 0 12px rgba(190,120,255,.75))}
-.dgrid .dc.fm.done{filter:brightness(.6)}
-.dgrid .dc.grand .di{top:62px;height:170px;max-width:260px}
+.dgrid .dc.ms.wait{filter:drop-shadow(0 0 8px rgba(255,214,90,.45))}
+.dgrid .dc.off.ms,.dgrid .dc.off.grand,.dgrid .dc.off.fm{filter:grayscale(.55) brightness(.85)}
+/* header Misi Harian = kartu hitpoint (.ut-sc.hp): ikon | label, judul, reset | [KLAIM bonus] | hadiah bonus */
+.hdr.ut-sc{position:relative;width:100%;height:150px;font-size:42px;padding:.4em .6em;gap:.6em;text-align:left;margin-bottom:14px}
+.hdr .ut-sc-ico.alas{width:2.7em;height:2.7em}.hdr .alas img{width:80%;height:80%}
+.hdr .ut-sc-l{font-size:.62em}.hdr .ut-sc-v{font-size:1.1em}
+.hdr .rs{display:flex;align-items:center;gap:8px}.hdr .rs img{width:.8em;height:.85em;object-fit:contain;flex:none}
+.hdr .btn.sm{position:static;flex:none;width:190px;height:80px}
+/* kotak hitam hadiah diperbesar sampai ke border kartu; "Hari n" di atas & teks hadiah di bawah, di dalam kotak */
+.dc.ut-sc{position:relative;display:flex;align-items:stretch;height:310px;font-size:40px;padding:.12em;text-align:center;cursor:pointer}
+.dc.ut-sc.wait{cursor:default}
+.dc .ut-sc-ico{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;width:auto;height:auto;padding:1em .2em 1.45em;border-radius:.4em}
+.dc .di{width:auto;height:auto;max-width:88%;max-height:190px;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
+.dc.off .di{opacity:.5}
+.dc .ut-sc-l{position:absolute;top:.35em;left:0;right:0;z-index:1;font-size:.65em;text-align:center}
+.dc .ut-sc-v{position:absolute;left:.3em;right:.3em;bottom:.3em;z-index:1;max-width:none;font-size:.78em;line-height:1.1;white-space:normal;overflow:visible;text-align:center}

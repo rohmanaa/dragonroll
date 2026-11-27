@@ -94,12 +94,12 @@ UT.PageModule.define('pet', function (env) {
 
   /* bar bawah kartu = tombol aksi: harga (belum dimiliki) -> beli; GUNAKAN / LEPAS (sudah dimiliki) */
   function actionBar(item, owned, used) {
-    if (used) return '<button class="pc-pr used ut-gl ut-c-r" type="button" data-act="use">LEPAS</button>';
-    if (owned) return '<button class="pc-pr own ut-gl ut-c-g" type="button" data-act="use">GUNAKAN</button>';
+    if (used) return '<button class="pc-pr used ut-hc-btn red" type="button" data-act="use">LEPAS</button>';
+    if (owned) return '<button class="pc-pr own ut-hc-btn" type="button" data-act="use">GUNAKAN</button>';
     const cost = costOf(item);
-    if (!cost) return '<button class="pc-pr no ut-gl ut-c-d" type="button" disabled>TIDAK DIJUAL</button>';
+    if (!cost) return '<button class="pc-pr no ut-hc-btn gray" type="button" disabled>TIDAK DIJUAL</button>';
     const gems = cost.gems > 0;
-    return `<button class="pc-pr ut-gl ut-c-y" type="button" data-act="use"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></button>`;
+    return `<button class="pc-pr ut-hc-btn" type="button" data-act="use"><span class="ut-hc-btn-t">BELI</span><span class="ut-hc-price"><b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt=""></span></button>`;
   }
 
   /* kartu pet: nama, thumbnail, bar aksi; warna kartu = tier; klik kartu / ikon mata = modal (tab Pratinjau 3D & Detail) */
@@ -115,13 +115,13 @@ UT.PageModule.define('pet', function (env) {
       const rar = RARITY[item.rarity] ? item.rarity : 'common';
       const state = used ? 'dipakai' : owned ? 'dimiliki' : 'belum dimiliki';
       const check = used ? '<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">' : '';
-      return `<article class="pc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel">`
+      return `<article class="pc ut-hc r-${rar}${owned ? ' own' : ''}${used ? ' used' : ''}" data-id="${item.id}"><div class="pc-sel ut-hc-frame">`
         + `<div class="pc-top" role="group" aria-label="${item.name}, ${RARITY[rar][0]}, tier ${item.tier}, ${state}">`
-        + `<span class="pc-nm">${item.name}</span>`
-        + `<span class="pc-th"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
+        + `<span class="pc-nm ut-hc-banner"><span class="ut-hc-title">${item.name}</span><span class="ut-hc-badge">Tier ${item.tier}</span></span>`
+        + `<span class="pc-th ut-hc-art"><img src="${cardUrl(item)}" data-fb="${item.image || IMAGE_ROOT + item.gameKey + '/' + item.gameKey + '.png'}" alt="" decoding="async">${check}</span></div>`
         + `${actionBar(item, owned, used)}</div>`
-        + `<button class="pc-ic pc-eye ut-gl ut-c-b" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
-        + `</article>`;
+        + `<button class="pc-ic pc-eye ut-hc-ic" type="button" data-act="preview" aria-label="Pratinjau ${item.name}" title="Pratinjau">${EYE_SVG}</button>`
+        + `<i class="ut-hc-crown" aria-hidden="true"></i></article>`;
     }).join('');
     if (html !== lastGridHtml) {
       $('#grid').innerHTML = html;

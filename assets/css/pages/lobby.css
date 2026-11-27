@@ -71,10 +71,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 /* ===== tombol tile (Karakter, Guild, Chest, Shop, Inventory, Pet, Misi) ===== */
 .lbt{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:132px;height:132px;
   isolation:isolate;transition:transform .1s,filter .1s}
-.lbt::before{content:'';position:absolute;inset:0;z-index:-1;background:url(../../images/buttons/tile-stage-terkunci.webp) center/100% 100% no-repeat;
-  filter:drop-shadow(0 5px 0 rgba(10,6,30,.5))}
-/* Karakter & Toko: tile aktif (cokelat), tombol lain: tile terkunci (abu gelap) */
-#b-char::before,#b-shop::before{background-image:url(../../images/buttons/tile-stage-aktif.webp)}
+/* tampilan tombol = komponen tile-button: Karakter & Toko kuning (.ut-tile-y), lainnya abu gelap (.ut-tile-d) */
 .lbt .ico{position:relative;display:grid;place-items:center;height:72px}
 .lbt .ico img{max-height:72px;max-width:84px;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
 .lbt .ico img.bag{max-height:76px}
@@ -110,25 +107,14 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #b-char,#b-misi,#grp,#b-inv,#b-chest{animation:inB .6s cubic-bezier(.2,.9,.2,1) both}
 #b-misi{animation-delay:.07s}#grp{animation-delay:.14s}#b-inv{animation-delay:.21s}#b-chest{animation-delay:.28s}
 
-/* ===== grup lipat: Tambang, Mancing, Ranking (+ tombol < untuk menutup) ===== */
-#grp{position:absolute;left:294px;bottom:26px;height:100px;display:flex;align-items:stretch;border-radius:16px;overflow:hidden;
-  background:linear-gradient(180deg,rgba(82,92,118,.86),rgba(44,50,72,.9));border:3px solid rgba(18,22,36,.88);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 5px 0 rgba(10,6,30,.5)}
-#grp .gset{display:flex;overflow:hidden;max-width:360px;transition:max-width .28s ease}
-#grp.shut .gset{max-width:0}
-.gbtn{position:relative;width:114px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  border-right:2px solid rgba(18,22,36,.55);transition:filter .1s}
-.gbtn .gi{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.gbtn .lb{font:400 20px/1 var(--font-title);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.65)}
-.gbtn:hover{filter:brightness(1.15)}.gbtn:active{filter:brightness(1.3)}
+/* ===== grup lipat: Tambang, Mancing, Ranking — tampilan = komponen collapse-button; di sini hanya posisi, ukuran, dan isi ===== */
+#grp{position:absolute;left:294px;bottom:26px;--cb-h:100px;--cb-toggle:60px;--cb-max:312px;padding-left:4px}
+.gbtn{width:100px}   /* ikon saja, tanpa latar tombol & tulisan (nama ada di aria-label) */
+.gbtn .gi{width:68px;height:68px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
 .gbtn.locked{filter:saturate(.45) brightness(.8)}
-.gbtn .mlk{position:absolute;right:10px;bottom:30px;width:26px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-.gbtn .nbadge{right:8px;top:4px;width:38px;height:38px}
-#grpt{width:56px;flex:none;display:grid;place-items:center}
-#grpt:active{filter:brightness(1.3)}
-#grpt img{width:30px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));transition:transform .28s}
-#grp.shut #grpt img{transform:rotate(180deg)}
-html[data-graphics="low"] #grpt img,html[data-graphics="low"] .gbtn .mlk{filter:none!important}
+.gbtn .mlk{position:absolute;right:12px;bottom:14px;width:26px;height:auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.gbtn .nbadge{right:6px;top:6px;width:38px;height:38px}
+html[data-graphics="low"] .gbtn .mlk{filter:none!important}
 html[data-graphics="low"] #grp .gset{transition:none}
 
 /* ===== lencana merah berangka: hanya tampil bila ada yang perlu diklaim (Misi & Hadiah, Chest, Tambang) ===== */

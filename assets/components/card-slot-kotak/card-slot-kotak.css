@@ -1,0 +1,25 @@
+/* card-slot-kotak.css — "card-slot-kotak": kotak/slot reusable bergaya "Contoh Popup" (referensi/component/game-cards.html).
+   Ada DUA bagian seperti contohnya: LUAR = bingkai glossy (tepi hitam, ring, kilap dua tingkat, abu gelap #4a4a4a/#303030) — WARNA BORDER SELALU SAMA
+   untuk semua varian; DALAM = isi (lapisan ::before, inset .22em) yang warnanya berganti: krem (bawaan, seperti contoh) · gold · hijau · abu · abu-dark.
+   Ukuran memakai em (ikut font-size induk). Tata letak isi diatur halaman/komponen turunan; jangan menyalin CSS ini.
+
+   Pemakaian:  <div class="card-slot-kotak gold"> ...isi... </div>
+   Ganti warna isi sendiri:  style="--csk-fill:#9be; --csk-ink:#012"
+
+   Konvensi nama turunan per tempat: card-slot-<tempat> (mis. card-slot-misi, card-slot-hadiah). Turunan memakai class ini sebagai dasar
+   (<div class="card-slot-kotak card-slot-misi">) dan hanya menambah ukuran/tata letak di file komponennya sendiri. */
+.card-slot-kotak{
+  --csk-fill:#e9e5da;--csk-ink:#222;--csk-inset:.22em;
+  box-sizing:border-box;position:relative;isolation:isolate;display:block;min-width:0;
+  border:.11em solid #000;border-radius:.6em;color:var(--csk-ink);
+  background:linear-gradient(#4a4a4a 0 50%,#303030 50%);
+  box-shadow:inset 0 0 0 .07em rgba(255,255,255,.28),inset 0 .14em 0 rgba(255,255,255,.4),inset 0 -.18em 0 rgba(0,0,0,.25),0 .11em 0 rgba(0,0,0,.4)}
+.card-slot-kotak::before{content:"";position:absolute;inset:var(--csk-inset);border-radius:.45em;background:var(--csk-fill);z-index:-1;pointer-events:none}
+/* varian warna isi (border/bingkai tidak berubah) */
+.card-slot-kotak.krem{--csk-fill:#e9e5da;--csk-ink:#222}
+.card-slot-kotak.gold{--csk-fill:#f2c230;--csk-ink:#3a2600}
+.card-slot-kotak.hijau{--csk-fill:#86c82a;--csk-ink:#10300a}
+.card-slot-kotak.abu{--csk-fill:#bdbdbd;--csk-ink:#222}
+.card-slot-kotak.abu-dark{--csk-fill:#3a3a3a;--csk-ink:#fff}
+/* status */
+.card-slot-kotak.off{filter:grayscale(.55) brightness(.85)}

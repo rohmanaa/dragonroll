@@ -72,12 +72,17 @@ function drawMe(rows){
  const mine=rows.find(r=>r.me),L=PD.levelInfo(),nm=mine&&mine.name||PD.profile().name;
  const me=mine||{me:true,name:nm,uid:''};
  $('#mycard').innerHTML='<div class="row me"><div class="lbl ttl">POSISI KAMU</div>'+avatar(me,84)+'<div class="grow"><div class="nm ttl">'+esc(nm)+'</div><div class="sb">Lv. '+(mine&&mine.lv!=null?mine.lv:L.level)+' · '+(mine?fmt(mine.score)+' poin':'Belum masuk peringkat')+'</div></div><div class="big ttl">'+(mine?'#'+fmt(mine.pos):'—')+'</div></div>'}
+/* kartu pemain (referensi/component/game-cards.html): persen = menang/main dari data server; bintang = tingkat persen (>=70% 3, >=40% 2, >0% 1) */
+const pct=o=>{const p=Number(o.plays),w=Number(o.wins);return p>0&&isFinite(w)?Math.round(w/p*100):null};
+const stars=p=>p==null?0:p>=70?3:p>=40?2:p>0?1:0;
+const STAR='<svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 4l6 13 14 2-10 10 3 15-13-7-13 7 3-15L4 19l14-2z" fill="#fff" stroke="#3a352c" stroke-width="3"/></svg>';
 function drawRows(c){
  const box=$('#rows'),note=t=>{box.innerHTML='<div class="empty">'+t+'</div>'};
  if(c.state==='loading'&&!c.rows.length)return note('Memuat peringkat…');
  if(c.state==='error'&&!c.rows.length)return note('Tidak dapat terhubung ke server.<br><small>Ketuk untuk coba lagi</small>');
  if(!c.rows.length)return note(tab==='teman'?'Belum ada temanmu yang bermain.<br><small>Tambah teman lewat menu Teman</small>':tab==='mingguan'?'Belum ada yang bermain minggu ini.':'Belum ada pemain di peringkat.<br><small>Selesaikan satu pertandingan untuk masuk</small>');
- box.innerHTML=c.rows.map(o=>'<div class="row rw'+(o.me?' me':'')+'" data-n="'+esc(o.name)+'" data-r="'+o.pos+'"><span class="no">'+fmt(o.pos)+'</span>'+avatar(o,64)+'<div class="grow"><div class="nm">'+esc(o.name)+(o.me?' (Kamu)':'')+'</div><div class="lv">Lv. '+esc(o.lv==null?'—':o.lv)+'</div></div><span class="sc">'+fmt(o.score)+'</span><span class="wn">'+(o.wins==null?'—':fmt(o.wins))+'</span></div>').join('')}
+ box.innerHTML=c.rows.map(o=>{const pc=pct(o),n=stars(pc);
+  return '<div class="ut-pc rw'+(o.me?' me':'')+'" data-n="'+esc(o.name)+'" data-r="'+o.pos+'"><span class="ut-pc-no no">'+fmt(o.pos)+'</span>'+avatar(o,64)+'<div class="ut-pc-main grow"><span class="ut-pc-nm nm">'+esc(o.name)+(o.me?' (Kamu)':'')+'</span><span class="ut-pc-sub lv">Lv. '+esc(o.lv==null?'—':o.lv)+'</span></div><span class="ut-pc-pct pc">'+(pc==null?'—':pc+'%')+[0,1,2].map(i=>STAR.replace('<svg','<svg'+(i<n?'':' class="off"')) ).join('')+'</span><span class="ut-pc-val sc">'+(o.score==null?'—':fmt(o.score))+'<img src="'+IC+'item-icons/piala.webp" alt="" draggable="false"></span></div>'}).join('')}
 function draw(){
  if(env.disposed)return;
  const c=cur();drawTabs();drawPodium(c.rows);drawMe(c.rows);drawRows(c);renderCurrency()}

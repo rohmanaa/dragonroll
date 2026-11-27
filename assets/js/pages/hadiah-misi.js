@@ -79,7 +79,8 @@ function vHadiah(){
  if(!SV())h+='<div class="msg">Masuk ke akun untuk<br>mengklaim hadiah harian.</div>';
  h+='<div class="dlist scr" id="dlist"><div class="dgrid">';
  R.forEach((d,i)=>{const n=i+1,st=dState(i),ms=n%7===0,grand=n===DAYS;
-  h+='<div class="dc '+st+(ms?' ms':'')+(d.fm?' fm':'')+(grand?' grand':'')+'" data-i="'+i+'"><div class="dn">Hari '+n+'</div>'+(d.x?'<div class="dx">'+d.x+'</div>':'')+'<img class="di '+(d.cls||'')+'" src="'+(d.src||IC+d.ic+'.webp')+'" alt=""><div class="dt">'+d.t+'</div>'+(st==='done'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+'</div>'});
+  const vr=st==='now'?' hp':(ms||grand)?' gold':'';
+  h+='<div class="dc ut-sc'+vr+(st==='done'?' off':'')+' '+st+(ms?' ms':'')+(d.fm?' fm':'')+(grand?' grand':'')+'" data-i="'+i+'"><span class="ut-sc-l">Hari '+n+(d.x?' · '+d.x:'')+'</span><span class="ut-sc-ico"><img class="di '+(d.cls||'')+'" src="'+(d.src||IC+d.ic+'.webp')+'" alt=""></span><span class="ut-sc-v dt">'+d.t+'</span>'+(st==='done'?'<img class="ck" src="'+IC+'white-glyphs/centang.webp" alt="">':'')+'</div>'});
  h+='</div></div><div class="foot" style="bottom:20px"><div class="note">'+(SD?'Login tiap hari tanpa bolos · Reset 00.00 WIB : <span style="color:#ff6f8d" id="rs">'+resetIn(DRESET)+'</span>':'')+'</div>'+(dayNow()?'<button class="btn cl ut-gl ut-c-y" data-day="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+'</div>';
  return h}
 
@@ -96,17 +97,17 @@ async function srvClaim(call,onOk){
 function vMisi(){
  const L=qList(),rdyN=L.filter(q=>q.status==='ready').length,bs=bonusSt();
  if(!QS)return '<div class="msg">'+(SV()?'Memuat misi…':'Masuk ke akun untuk<br>membuka misi harian.')+'</div>';
- let h='<div class="hdr"><div class="alas"><img src="'+IC+'item-icons/gulungan-pena.webp" alt=""></div><h2>MISI HARIAN</h2><p>Selesaikan semua misi harian</p>'+
-  '<div class="rs"><img src="'+IC+'missions/ikon-jam-weker.webp" alt="">Reset dalam : <b id="rs">'+resetIn(QRESET)+'</b></div>'+
-  (bs==='ready'?'<button class="btn cl sm gbtn2 ut-gl ut-c-g" data-bonus="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+
-  '<div class="rw g" style="right:46px;'+(bs==='claimed'?'opacity:.5':'')+'"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(bonusRw())+'</b></div></div>';
+ let h='<div class="hdr ut-sc hp"><span class="ut-sc-ico alas"><img src="'+IC+'item-icons/gulungan-pena.webp" alt=""></span><div class="ut-sc-info"><span class="ut-sc-l">Selesaikan semua misi harian</span><span class="ut-sc-v">MISI HARIAN</span>'+
+   '<span class="rs ut-sc-l"><img src="'+IC+'missions/ikon-jam-weker.webp" alt="">Reset dalam : <b id="rs">'+resetIn(QRESET)+'</b></span></div>'+
+   (bs==='ready'?'<button class="btn cl sm ut-gl ut-c-y" data-bonus="1"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':'')+
+   '<span class="rbox ut-sc-ico" style="'+(bs==='claimed'?'opacity:.5':'')+'"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(bonusRw())+'</b></span></div>';
  h+='<div class="qlist scr" id="qlist">';
  L.forEach((q,i)=>{const ready=q.status==='ready',cl=q.status==='claimed';
-  h+='<div class="row '+(ready?'ready':'')+' '+(cl?'fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
-   '<img class="ri" src="'+IC+(QI[q.id]||'item-icons/gulungan-pena')+'.webp" alt=""><h3>'+esc(q.title)+'</h3><div class="ds">'+esc(q.desc)+'</div>'+
-   '<div class="pb"><i style="width:'+Math.max(q.progress?8:0,q.progress/q.goal*100)+'%"></i></div>'+(ready?'':'<div class="pt">'+q.progress+' / '+q.goal+'</div>')+
-   (ready?'<div class="rinl"><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(q.reward)+'</b></div><button class="btn cl ut-gl ut-c-g" data-q="'+esc(q.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
-    :'<div class="rbox '+(cl?'done':'')+'"><img src="'+IC+(cl?'white-glyphs/centang':'hud/ikon-koin-emas')+'.webp" alt=""><b>'+(cl?'SELESAI':fmt(q.reward))+'</b></div>')+'</div>'});
+   h+='<div class="row ut-sc'+(ready?' hp ready':'')+(cl?' off fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
+    '<span class="ut-sc-ico"><img class="ri" src="'+IC+(QI[q.id]||'item-icons/gulungan-pena')+'.webp" alt=""></span><div class="ut-sc-info"><span class="ut-sc-l">'+esc(q.desc)+'</span><span class="ut-sc-v">'+esc(q.title)+'</span>'+
+    '</div>'+(ready?'':'<span class="pt ut-sc-v">'+q.progress+' / '+q.goal+'</span>')+
+    (ready?'<span class="rbox ut-sc-ico">'+'<img src="'+IC+'hud/ikon-koin-emas.webp" alt="">'+'<b>'+fmt(q.reward)+'</b></span><button class="btn cl ut-gl ut-c-y" data-q="'+esc(q.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
+     :'<span class="rbox ut-sc-ico '+(cl?'done':'')+'"><img src="'+IC+(cl?'white-glyphs/centang':'hud/ikon-koin-emas')+'.webp" alt=""><b>'+(cl?'SELESAI':fmt(q.reward))+'</b></span>')+'</div>'});
  h+='</div>';
  const all=L.length&&L.every(q=>q.status==='claimed');
  h+='<div class="foot"><div class="note">'+(rdyN?rdyN+' misi siap diklaim':all?(bs==='claimed'?'Semua hadiah hari ini sudah diklaim':bs==='ready'?'Bonus siap diklaim!':''):'Selesaikan semua misi untuk bonus '+fmt(bonusRw())+' Coin + 3 Emerald')+'</div>'+
@@ -143,12 +144,11 @@ function vAch(){
  return '<div class="alist scr" id="alist">'+aList().map(a=>{
   const ready=a.pend>0,fin=a.done&&a.cl>=3,rw=ready?AC.reward(a.cl,a.st,a.rew):a.rew[Math.min(a.st,2)],g=a.tg;
   const two=(c,e)=>'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt=""><b>'+fmt(c)+'</b></span><span><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt=""><b>'+fmt(e)+'</b></span>';
-  return '<div class="row ach '+(ready?'ready':'')+' '+(fin?'fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
-   '<img class="ri" src="'+IC+(AI[a.id]||'item-icons/piala')+'.webp" alt=""><h3>'+esc(a.name)+'</h3><div class="ds">'+esc(a.desc)+' '+fmt(g)+'×</div>'+
-   '<div class="stars">'+[0,1,2].map(k=>'<img src="'+IC+'stage-chapter/bintang-stage-'+(k<a.st?'emas':'kosong')+'.webp" alt="">').join('')+'</div>'+
-   '<div class="pb"><i style="width:'+Math.max(a.v?8:0,a.r*100)+'%"></i></div>'+(ready?'':'<div class="pt">'+fmt(Math.min(a.v,g))+' / '+fmt(g)+'</div>')+
-   (ready?'<div class="rinl2">'+two(rw[0],rw[1])+'</div><button class="btn cl ut-gl ut-c-g" data-a="'+esc(a.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
-    :'<div class="rbox two '+(fin?'done':'')+'">'+(fin?'<img src="'+IC+'white-glyphs/centang.webp" alt=""><b>SELESAI</b>':two(rw[0],rw[1]))+'</div>')+'</div>'}).join('')+'</div>'}
+   return '<div class="row ach ut-sc'+(ready?' hp ready':'')+(fin?' off fin':'')+'">'+(ready?'<div class="rbadge"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>!</b></div>':'')+
+    '<span class="ut-sc-ico"><img class="ri" src="'+IC+(AI[a.id]||'item-icons/piala')+'.webp" alt=""></span><div class="ut-sc-info"><span class="ut-sc-l">'+esc(a.desc)+' '+fmt(g)+'×</span><span class="ut-sc-v">'+esc(a.name)+'</span>'+
+    '</div>'+'<div class="stars">'+[0,1,2].map(k=>'<img src="'+IC+'stage-chapter/bintang-stage-'+(k<a.st?'emas':'kosong')+'.webp" alt="">').join('')+'</div>'+(ready?'':'<span class="pt ut-sc-v">'+fmt(Math.min(a.v,g))+' / '+fmt(g)+'</span>')+
+    (ready?'<span class="rbox two ut-sc-ico">'+two(rw[0],rw[1])+'</span><button class="btn cl ut-gl ut-c-y" data-a="'+esc(a.id)+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>'
+     :'<span class="rbox two ut-sc-ico '+(fin?'done':'')+'">'+(fin?'<img src="'+IC+'white-glyphs/centang.webp" alt=""><b>SELESAI</b>':two(rw[0],rw[1]))+'</span>')+'</div>'}).join('')+'</div>'}
 
 /* ---- util + render ---- */
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
