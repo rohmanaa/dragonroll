@@ -269,13 +269,14 @@ async function claimChest(kind){
   const b=e.target.closest('button[data-claim]');if(!b||b.disabled)return;buzz();claimChest(b.dataset.claim)});
  env.on(document,'keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeChest()})}}
 
-/* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
-let MINE=null;
-function mineFull(){if(!MINE||!Array.isArray(MINE.slots))return 0;const el=(performance.now()-MINE.at)/1000,bm=(MINE.config&&MINE.config.boost_mult)||1;
- return MINE.slots.filter(s=>{if(!s||!s.unlocked)return false;const b=Math.min(el,(s.boost&&s.boost.left_secs)||0);return Math.min(s.cap,s.stock+s.rate*(el+b*(bm-1))/3600)>=s.cap-1e-6}).length}
-const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)return {ok:true};
- return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
-pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
+/* lencana Tambang = isi Gudang yang siap diklaim (sistem Tambang World: RPC tambang_get -> store). Rumus sama dengan tambang_claim:
+   barang jadi + semua ore + kayu, KECUALI cadangan bahan bakar (coal 5, wood 10) yang tidak ikut diklaim. Diperbarui tiap 60 dtk. */
+const MINE_KEEP={coal:5,wood:10};
+function mineClaimable(st){if(!st)return 0;let n=0;const sum=o=>Object.keys(o||{}).reduce((a,k)=>a+Math.max(0,+o[k]||0),0);
+ n+=sum(st.goods);Object.keys(st.ore||{}).forEach(k=>{n+=Math.max(0,(+st.ore[k]||0)-(MINE_KEEP[k]||0))});n+=Math.max(0,(+st.wood||0)-MINE_KEEP.wood);return Math.floor(n)}
+const pullMine=()=>{const T=UT.TambangService&&UT.TambangService.get();if(!SRV||!T)return {ok:true};
+ return T.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok&&r.store){setBadge('mineDot',mineClaimable(r.store))}return {ok:!!(r&&r.ok)}}).catch(()=>({ok:false}))};
+pullMine();setInterval(()=>{if(!document.hidden)pullMine()},60000);
 
 /* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 15 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
 const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();
