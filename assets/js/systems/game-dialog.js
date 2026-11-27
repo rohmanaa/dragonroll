@@ -15,19 +15,18 @@
   var UT = G.UT = G.UT || {};
   if (UT.GameDialog) return;
   var D = G.document;
-  var BTN = {
-    blue: 'assets/images/ui/buttons-and-controls/tombol-biru-polos.webp',
-    green: 'assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp',
-    yellow: 'assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp',
-    red: 'assets/images/ui/buttons-and-controls/tombol-merah-polos.webp'
-  };
+  /* warna tombol = komponen .ut-gl (button.css), tanpa gambar */
+  var BTN = { blue: 'ut-c-b', green: 'ut-c-g', yellow: 'ut-c-y', red: 'ut-c-r' };
   var CSS_ID = 'gd-css', SELF = (D && D.currentScript && D.currentScript.src) || '';
   var open = [];
 
   function ensureCss() {
     if (!D || D.getElementById(CSS_ID)) return;
-    var href = SELF ? new G.URL('../../css/components/game-dialog.css', SELF).href : 'assets/css/components/game-dialog.css';
-    var l = D.createElement('link'); l.rel = 'stylesheet'; l.id = CSS_ID; l.href = href; D.head.appendChild(l);
+    /* gaya modal kit (.ut-mk) + tombol (.ut-gl) dimuat dulu bila halaman belum memuatnya, lalu game-dialog.css */
+    function link(id, rel) { if (D.getElementById(id)) return; var l = D.createElement('link'); l.rel = 'stylesheet'; l.id = id; l.href = SELF ? new G.URL(rel, SELF).href : rel.replace(/^(\.\.\/)+/, 'assets/'); D.head.appendChild(l); }
+    if (!D.querySelector('link[href*="modal-kit.css"]')) link('gd-kit-css', '../../components/modal/modal-kit.css');
+    if (!D.querySelector('link[href*="button/button.css"]')) link('gd-btn-css', '../../components/button/button.css');
+    link(CSS_ID, '../../css/components/game-dialog.css');
   }
   function el(tag, cls, text) { var n = D.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
 
@@ -35,9 +34,9 @@
     opts = opts || {};
     ensureCss();
     var st = { closable: opts.closable !== false, buttons: [] };
-    var ov = el('div', 'gd-ov'), dlg = el('div', 'gd-dlg');
+    var ov = el('div', 'gd-ov'), dlg = el('div', 'gd-dlg ut-mk');
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
-    var head = el('div', 'gd-head'), x = el('button', 'gd-x'); x.type = 'button'; x.setAttribute('aria-label', 'Tutup');
+    var head = el('div', 'gd-head ut-mk-t'), x = el('button', 'gd-x ut-mk-x ut-gl ut-c-r'); x.type = 'button'; x.setAttribute('aria-label', 'Tutup');
     var body = el('div', 'gd-body'), msg = el('p', 'gd-msg'), sub = el('p', 'gd-sub'), badge = el('div', 'gd-badge');
     var bar = el('div', 'gd-bar'), fill = el('i'); bar.appendChild(fill);
     var btns = el('div', 'gd-btns');
@@ -48,8 +47,7 @@
     function setButtons(list) {
       st.buttons = list || []; btns.textContent = '';
       st.buttons.forEach(function (b) {
-        var n = el('button', 'gd-btn ' + (BTN[b.tone] ? b.tone : 'blue')); n.type = 'button'; n.disabled = !!b.disabled;
-        var im = el('img'); im.alt = ''; im.draggable = false; im.src = BTN[b.tone] || BTN.blue; n.appendChild(im);
+        var n = el('button', 'gd-btn ut-gl ' + (BTN[b.tone] || BTN.blue)); n.type = 'button'; n.disabled = !!b.disabled;
         n.appendChild(el('span', '', b.label || ''));
         n.addEventListener('click', function () { if (n.disabled) return; if (typeof b.onClick === 'function') b.onClick(api); if (!b.keepOpen) api.close(); });
         btns.appendChild(n);
@@ -86,10 +84,11 @@
     return api;
   }
 
-  /* Muat gambar dialog lebih dulu supaya bingkai tidak muncul belakangan (batas tunggu 1,2 dtk). */
+  /* Dulu memuat gambar bingkai; kini no-op (API dipertahankan untuk pemanggil lama). */
   function preload() {
-    var urls = [BTN.blue, BTN.green, BTN.yellow, 'assets/images/ui/panel-dialog/bingkai-dialog.webp', 'assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp'];
+    var urls = [];   /* modal kit = CSS murni, tidak ada gambar yang perlu dimuat */
     return new Promise(function (res) {
+      if (!urls.length) return res();
       var left = urls.length, done = function () { if (--left <= 0) res(); };
       urls.forEach(function (u) { var i = new G.Image(); i.onload = i.onerror = done; i.src = u; });
       setTimeout(res, 1200);
