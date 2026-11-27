@@ -35,7 +35,7 @@ UT.PageModule.define('inventory', function (env) {
   try { env.own(UT.Events.on('currencyChanged', curRender)); } catch (e) {}
   try { var PDs = curPD(); if (PDs && PDs.subscribe) env.own(PDs.subscribe(function (r) { if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') curRender(); })); } catch (e) {}
   try { var WSs = window.UT && UT.WalletService && UT.WalletService.get(); if (WSs && WSs.refresh && curPD() && curPD().serverMode && curPD().serverMode()) WSs.refresh().then(curRender, function () {}); } catch (e) {}
-  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); }
+  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); /* Enter/Spasi ditangani komponen .ut-rbar (memicu click) */ }
   curGo('#cur-em', 'tambang.html?from=inventory.html');
   curGo('#cur-co', 'shop.html?coin=1');
 

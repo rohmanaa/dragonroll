@@ -4,6 +4,7 @@
 #petGl:active{cursor:grabbing}
 #fpv .gl-fail{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#d8d2ee;font:700 20px var(--font-body)}
 .cur{z-index:6}
+#cur-em,#cur-co{z-index:6}
 /* modal pet (#pvBox, modal kit .ut-mk) = dua tab (.ut-tabs/.ut-tab): Pratinjau & Detail. Kedua panel ditumpuk di sel yang sama dan
    yang tidak aktif disembunyikan dengan visibility, supaya ukuran kanvas 3D tidak berubah saat pindah tab. */
 .pet-info-panel{position:relative;display:flex;flex-direction:column}

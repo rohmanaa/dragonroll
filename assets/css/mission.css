@@ -4,8 +4,6 @@
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home:active{transform:scale(.92)}
-.cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
-.cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
 
 /* ---- tab atas: tampilan dari komponen .ut-tabs/.ut-tab (tabs.css), tata letak sama dengan tab hub (#ptabs di account-hub.css) ---- */

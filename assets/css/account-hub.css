@@ -60,7 +60,7 @@ html[data-graphics="low"] #ptabs .ptab img.ic{filter:none}
 @media (prefers-reduced-motion:reduce){#pane.loading{transition:none}}
 
 /* mata uang (koin/emerald) tidak dibawa ke dalam hub */
-#stage.has-hub #pane .cur{display:none!important}
+#stage.has-hub #pane .cur,#stage.has-hub #pane #cur-em,#stage.has-hub #pane #cur-co{display:none!important}
 /* Teman · Pesan · Pengaturan: isi langsung di atas bingkai kartu utama (#pmodal), TANPA kartu panel kedua.
    Area isi = x 72..1848, y 130..1058 (di bawah garis tab utama). */
 /* sub-tab (Teman, Pesan): tampilan dari komponen .ut-ul/.ut-ul-i (tabs.css); di sini hanya posisi */

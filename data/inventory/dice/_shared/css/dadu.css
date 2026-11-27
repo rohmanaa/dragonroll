@@ -38,9 +38,6 @@ html body #stage #dprev #fpv{position:absolute;left:18px;top:18px;right:auto;bot
 .dempty{grid-column:1/-1;margin:40px 0;text-align:center;font:700 28px/1.3 var(--font-body);color:#cfc8ea}
 
 /* saldo emerald & coin: diperkecil */
-html body #stage #cur-em,html body #stage #cur-co{height:54px;width:190px;bottom:30px!important}
+html body #stage #cur-em,html body #stage #cur-co{height:44px;width:230px;--rb-fs:22px;bottom:30px!important}
 html body #stage #cur-em{left:60px!important}
-html body #stage #cur-co{left:270px!important}
-#stage #cur-em img,#stage #cur-co img{height:50px;left:8px}
-#stage #cur-em .v,#stage #cur-co .v{font-size:28px;padding-left:34px;padding-right:30px}
-#stage #cur-em .plus,#stage #cur-co .plus{font-size:32px;right:12px}
+html body #stage #cur-co{left:310px!important}

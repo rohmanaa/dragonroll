@@ -23,13 +23,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #back{display:grid;place-items:center}
 #back img.bg{width:62%;height:62%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
 #title{position:absolute;left:140px;top:26px;font-size:64px;line-height:1}
-.cur{position:absolute;top:26px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;
-  background:linear-gradient(180deg,#6f9db0,#4a7789);
-  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%);filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
-.cur::before{content:"";position:absolute;inset:4px;background:linear-gradient(180deg,#5b8a9d,#46758a);clip-path:polygon(19px 0,calc(100% - 19px) 0,100% 50%,calc(100% - 19px) 100%,19px 100%,0 50%)}
-.cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding:0 44px;text-shadow:0 3px 0 rgba(10,30,45,.6)}
-.cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 var(--font-body);color:#a9cad8}
+#cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}   /* Emerald & Coin = komponen .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi */
 #cur-em{left:1300px}#cur-co{left:1606px}
 
 /* ---------- carousel peta ---------- */

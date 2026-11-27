@@ -17,7 +17,7 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 .view.warm{display:block;pointer-events:none}
 .view.warm.on{pointer-events:auto}
 .view.on.ready{opacity:1}
-#stage #back,#stage #title,#tabs,.cur{pointer-events:auto}
+#stage #back,#stage #title,#tabs,#cur-em,#cur-co{pointer-events:auto}
 #stage{pointer-events:none}
 #back{position:absolute;left:auto;right:100px;top:46px;width:80px;height:80px;z-index:7;padding:0}
 /* tab: baris penuh di tengah atas, antara judul dan tombol Tutup (tata letak Toko) */
@@ -73,12 +73,7 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 #invToast.on{opacity:1;transform:translate(-50%,0)}
 
 /* saldo: kiri bawah seperti Toko/Pet (coin & emerald) */
-.cur{position:absolute;bottom:28px;height:80px;width:290px;display:flex;align-items:center;cursor:pointer;z-index:2;background:rgba(14,10,26,.6);
-  clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%)}
-.cur img{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:76px;width:auto;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-.cur .v{position:relative;z-index:2;flex:1;text-align:center;font:400 42px var(--font-title);padding-left:44px;padding-right:44px;color:#fff;text-shadow:0 3px 0 rgba(10,30,45,.6)}
-.cur .plus{position:absolute;right:20px;top:50%;transform:translateY(-52%);z-index:2;font:800 46px/1 'Nunito','Segoe UI',sans-serif;color:#a9cad8;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.cur:active{filter:brightness(1.12)}
+#cur-em,#cur-co{position:absolute;bottom:28px;width:290px;height:56px;--rb-fs:28px;z-index:2}   /* komponen .ut-rbar (assets/components/resource-bar) */
 #cur-em{left:100px}#cur-co{left:410px}
 
 /* ===== Tab & tombol dari komponen HUD (button.css / tabs.css): di sini hanya ukuran & tata letak ===== */

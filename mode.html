@@ -18,8 +18,8 @@
   <!-- header -->
   <button id="back" class="ut-gl ut-c-r" aria-label="Kembali ke lobby"><img class="bg" src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   <div id="title" class="ttl">PILIH MODE</div>
-  <div class="cur" id="cur-em" role="button" aria-label="Emerald, buka Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co" role="button" aria-label="Coin, buka Toko"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" role="button" aria-label="Emerald, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" role="button" aria-label="Coin, buka Toko"></div>
 
   <!-- peta -->
   <section id="maps">
@@ -86,6 +86,8 @@
 <script src="assets/js/hearts-gate.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/room-flow.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'mode'});</script>

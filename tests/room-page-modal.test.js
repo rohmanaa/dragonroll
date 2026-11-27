@@ -91,17 +91,17 @@ test('dadu/frame/efek: modal ringan native berisi item yang DIMILIKI saja (tanpa
   assert.ok(room.includes("const EQP={dice:{kind:'dice'"), 'picker dice/frame/effect');
   assert.ok(room.includes("PD.owns(i.id)"), 'hanya item yang dimiliki');
   assert.ok(room.includes("k==='skin')openPageModal('skin');else openEqPick(k)"), 'hanya karakter yang tetap membuka halaman Karakter');
-  assert.ok(/id="em"[^>]*>\s*<div class="cbx" role="dialog"/.test(room) && room.includes('id="emL"') && room.includes('id="emX"'));
+  assert.ok(/id="em"[^>]*>\s*<div class="cbx ut-mk" role="dialog"/.test(room) && room.includes('id="emL"') && room.includes('id="emX"'));
   assert.ok(room.includes("PD.unequip('aura')") && room.includes('PD.equip(id)'), 'pakai/lepas lewat PlayerData');
 });
 
 test('modal Power & picker item: gaya modal Chest lobi (backdrop, bingkai-dialog, banner judul, tutup bulat), di luar stage', () => {
-  assert.ok(/<div class="cmd" id="pm"[^>]*>\s*<div class="cbx" role="dialog"/.test(room) && room.includes('id="pmX"'));
-  assert.ok(/<div class="cmd" id="em"[^>]*>\s*<div class="cbx" role="dialog"/.test(room));
+  assert.ok(/<div class="cmd" id="pm"[^>]*>\s*<div class="cbx ut-mk" role="dialog"/.test(room) && room.includes('id="pmX"'));
+  assert.ok(/<div class="cmd" id="em"[^>]*>\s*<div class="cbx ut-mk" role="dialog"/.test(room));
   const stageEnd = room.indexOf('<div id="pageModal"');
   assert.ok(room.indexOf('id="pm"') > stageEnd && room.indexOf('id="em"') > stageEnd, 'di luar #stage yang diskalakan');
   assert.ok(/\.cmd\{position:fixed;inset:0;[^}]*background:rgba\(10,8,30,\.72\)/.test(room), 'backdrop sama dengan #chestMd');
-  assert.ok(room.includes('panel-dialog/bingkai-dialog.webp') && room.includes('banner-label/banner-judul-ungu-polos.webp') && room.includes('id="pmX"') && /class="cmx ut-gl ut-c-r" id="pmX"/.test(room));
+  assert.ok(room.includes('modal-kit.css') && room.includes('id="pmX"') && /class="cmx ut-mk-x ut-gl ut-c-r" id="pmX"/.test(room) && /id="pmT"/.test(room) && /class="ut-mk-t" id="pmT"/.test(room));
   assert.ok(room.includes("setProperty('--rs',s)") && /\.cbx\{[^}]*zoom:var\(--rs/.test(room), 'kotak diskalakan lewat zoom:var(--rs)');
   assert.ok(room.includes("$('#pmX').onclick=closePowerPick") && room.includes("e.key!=='Escape'"));
   assert.ok(room.includes("e.target.id==='pm'") && room.includes("e.target.id==='em'"), 'klik backdrop menutup');
