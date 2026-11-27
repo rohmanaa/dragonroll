@@ -10,7 +10,9 @@ const SET=()=>PD.settings();
 const fmt=n=>Number(n).toLocaleString('id-ID');
 const fmtPrice=n=>n>=100000?Math.round(n/1000)+'k':n>=1000?(n/1000).toLocaleString('id-ID',{maximumFractionDigits:1})+'k':fmt(n);
 const GEM='assets/images/ui/gem-medal-icons/berlian-hijau.webp',KOIN='assets/images/ui/hud/ikon-koin-emas.webp',LOCK='assets/images/ui/white-glyphs/gembok.webp';
-const RAR={common:['Biasa','#cfc8ea'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a']};
+const RAR={common:['Biasa','#cfc8ea'],uncommon:['Tidak Biasa','#8fe05a'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a'],mythic:['Mitos','#ff7a6a']};
+/* warna kartu mengikuti rarity: common abu · uncommon hijau · rare biru · epic ungu · legendary emas · mythic merah */
+const RARV={common:'gray',uncommon:'green',rare:'blue',epic:'purple',legendary:'gold',mythic:'red'};
 const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Emerald tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 /* data dari ItemCatalog + PlayerData (bukan data sendiri); off:true = takedown sementara */
 const FR=IC.items.filter(i=>i.kind==='dice'&&!i.off);
@@ -77,8 +79,8 @@ function drawGrid(){
   const html=list.map(x=>{
     const st=slotState(x),sell=canSell(x),gems=x.gems>0;
     const foot=st==='used'?'DIPAKAI':st==='own'?'DIMILIKI':sell?'<img src="'+LOCK+'" alt="">'+fmtPrice(gems?x.gems:x.price)+'<img src="'+(gems?GEM:KOIN)+'" alt="">':'TIDAK DIJUAL';
-    return '<button type="button" class="dslot ut-ci '+(st==='used'?'teal':st==='own'?'green':'gray')+' '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
-      +'<span class="d-nm ut-ci-nm">'+x.name+'</span><span class="d-th ut-ci-art">'+art(x)+'</span><span class="d-ft ut-ci-ft">'+foot+'</span></button>';
+    return '<button type="button" class="dslot ut-ci '+(RARV[x.rarity]||'gray')+' '+st+'" data-id="'+x.id+'" aria-label="'+x.name+', '+(st==='used'?'dipakai':st==='own'?'dimiliki':'terkunci')+'">'
+      +(st==='used'?'<span class="ut-ci-ck" aria-hidden="true"></span>':'')+'<span class="d-nm ut-ci-nm">'+x.name+'</span><span class="d-th ut-ci-art">'+art(x)+'</span><span class="d-ft ut-ci-ft">'+foot+'</span></button>';
   }).join('')||'<p class="dempty">Belum ada dadu yang dimiliki.</p>';
   if(html!==lastGridHtml){$('#dgrid').innerHTML=html;lastGridHtml=html}
   markSelected();
@@ -101,7 +103,7 @@ function updateButtons(){
   if(!f){set(b,'BELI',true);set(sl,'JUAL',true);return}
   const st=slotState(f);
   if(st==='used')set(b,'DIPAKAI',true);
-  else if(st==='own')set(b,'PAKAI',false);
+  else if(st==='own')set(b,'GUNAKAN',false);
   else if(canSell(f))set(b,'BELI '+fmtPrice(f.gems>0?f.gems:f.price),false);
   else set(b,'TIDAK DIJUAL',true);
   set(sl,'JUAL',!(st!=='locked'&&canSell(f)));

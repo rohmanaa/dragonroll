@@ -5,7 +5,7 @@
      <button class="ut-ci green" type="button">
        <span class="ut-ci-nm">Nama</span><span class="ut-ci-art"><img src="..." alt=""></span><span class="ut-ci-ft">DIMILIKI</span>
      </button>
-   Varian warna: gray (abu, Army Camp) · teal (biru kehijauan) · tan (krem) · green (Elixir). Warna sendiri: style="--top:#..;--bot:#..;--edge:#.."
+   Varian warna: gray · green (Elixir) · blue · purple · gold · red (urutan rarity: common → mythic) · teal · tan. Warna sendiri: style="--top:#..;--bot:#..;--edge:#.."
    Tata letak isi tambahan diatur halaman; jangan menyalin CSS ini. */
 .ut-ci{--top:#aaa;--bot:#888;--edge:#333;--ray:rgba(255,255,255,.08);
   box-sizing:border-box;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;aspect-ratio:168/226;
@@ -23,6 +23,10 @@
 .ut-ci.teal{--top:#52c6e0;--bot:#37a1bf;--edge:#26839e}
 .ut-ci.tan{--top:#d4c6b2;--bot:#bfae98;--edge:#2c2c2c;--ray:rgba(110,80,50,.10)}
 .ut-ci.green{--top:#a9e22e;--bot:#74b61c;--edge:#26430d}
+.ut-ci.blue{--top:#52b8f7;--bot:#1f7ccb;--edge:#123d78}
+.ut-ci.purple{--top:#a860f0;--bot:#6a2cc0;--edge:#32135f}
+.ut-ci.gold{--top:#ffd44d;--bot:#e8a01a;--edge:#6a420a}
+.ut-ci.red{--top:#ff7d6c;--bot:#d5352b;--edge:#6a1410}
 /* teks: putih, outline tipis + bayangan kecil di bawah (seperti .t di contoh) */
 .ut-ci-nm,.ut-ci-ft{color:#fff;font-weight:900;line-height:1;letter-spacing:.015em;
   text-shadow:-.05em -.05em 0 #141414,.05em -.05em 0 #141414,-.05em .05em 0 #141414,.05em .05em 0 #141414,0 .1em 0 #141414}
@@ -33,3 +37,7 @@
 .ut-ci-ft{flex:none;box-sizing:border-box;width:100%;height:2.2em;display:flex;align-items:center;justify-content:center;gap:.3em;white-space:nowrap;
   border-radius:.42em;background:rgba(0,0,0,.26);box-shadow:inset 0 .1em .15em rgba(0,0,0,.18)}
 .ut-ci-ft img{flex:none;width:1.15em;height:1.15em;object-fit:contain}
+/* penanda terpilih/dipakai: lingkaran hijau bercentang di pojok kanan atas */
+.ut-ci-ck{position:absolute;top:.3em;right:.3em;width:1.35em;height:1.35em;border:.1em solid #fff;border-radius:50%;pointer-events:none;
+  background:#3fbf3a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/70% no-repeat;
+  box-shadow:0 .08em 0 rgba(0,0,0,.35)}
