@@ -225,15 +225,15 @@ UT.PageModule.define('friendship', function (env) {
         actions = statusButton;
       }
       const dotClass = isRequest ? 'request' : friend.status === 'offline' ? 'off' : friend.status === 'busy' ? 'busy' : '';
-      const statHtml = isRequest ? '' : `<div class="cell"><b>${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small>POSISI</small></div>
-        <div class="cell"><b>${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small>LEVEL</small></div>
+      const statHtml = isRequest ? '' : `<div class="cell"><b class="ut-pc-t">${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small class="ut-pc-t">POSISI</small></div>
+        <div class="cell"><b class="ut-pc-t">${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small class="ut-pc-t">LEVEL</small></div>
         <div class="stat tr" title="Kemenangan"><img src="assets/images/ui/white-glyphs/piala.webp" alt=""><b>${stats.wins == null ? '—' : fmt(stats.wins)}</b></div>
         ${giftButton(friend)}`;
       const removeButton = isRequest ? '' : `<button class="rm ut-gl ut-c-r sm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/images/ui/white-glyphs/tong-sampah.webp" alt=""></button>`;
-      return `<article class="row fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
+      return `<article class="ut-pc fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
         ${avatarHtml(friend)}
-        <div class="grow"><div class="nm ttl">${escapeHtml(friend.name)}</div>
-          <div class="sb"><span class="dot ${dotClass}"></span>${escapeHtml(friend.mode)}</div>
+        <div class="ut-pc-main grow"><div class="ut-pc-nm nm">${escapeHtml(friend.name)}</div>
+          <div class="ut-pc-sub sb"><span class="dot ${dotClass}"></span>${escapeHtml(friend.mode)}</div>
         </div>
         ${statHtml}<div class="actions">${actions}</div>${removeButton}
       </article>`;

@@ -41,7 +41,7 @@ function draw(){
   $('#list').innerHTML=a.length?a.map(m=>{
     const ico=m.kind==='reward'?'item-icons/kado-merah':m.read?'white-glyphs/surat-terbuka':'item-icons/surat-segel';
     const act=pending(m)?'<button class="btn sm ok ut-gl ut-c-g" data-claim="'+m.id+'"><img src="'+IC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':m.kind==='reward'?'<button class="btn sm off ut-gl ut-c-d"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>DIKLAIM</span></button>':'';
-    return '<div class="row mr'+(m.read?'':' unread')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="grow"><div class="nm ttl">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="tm">'+ago(m.at)+'</div><button class="rm ut-gl ut-c-r sm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'white-glyphs/tong-sampah.webp" alt=""></button></div>'}).join('')
+    return '<div class="ut-pc mr'+(m.read?'':' unread me')+'" data-open="'+m.id+'"><div class="mi"><img src="'+IC+ico+'.webp" alt=""></div><div class="ut-pc-main grow"><div class="ut-pc-nm nm">'+esc(m.title)+(m.read?'':'<i></i>')+'</div><div class="ut-pc-sub sb">'+esc(m.body)+'</div></div>'+(m.kind==='reward'?rwHtml(m):'')+act+'<div class="ut-pc-t tm">'+ago(m.at)+'</div><button class="rm ut-gl ut-c-r sm" data-del="'+m.id+'" aria-label="Hapus"><img src="'+IC+'white-glyphs/tong-sampah.webp" alt=""></button></div>'}).join('')
    :'<div class="empty">Tidak ada surat.</div>';
 }
 
