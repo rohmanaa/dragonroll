@@ -81,7 +81,7 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 #eqL{left:64px}
 #eqR{left:772px}
 /* tampilan slot = komponen .ut-slot (assets/components/slot/slot.css); di sini hanya ukuran, warna isi, status pilih & isi slot */
-.eq{--slot-size:124px;--slot-bg:#8f887a;position:relative;width:124px;height:124px;padding:0;transition:transform .1s,filter .1s}
+.eq{--slot-size:124px;--slot-bg:#59544c;position:relative;width:124px;height:124px;padding:0;transition:transform .1s,filter .1s}
 .eq:hover{filter:brightness(1.08)}.eq:active{transform:scale(.95)}
 .eq.sel{outline:5px solid #ffe27a;outline-offset:2px}
 .eq.empty .en{color:#efeaff}
