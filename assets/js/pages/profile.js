@@ -303,7 +303,31 @@ $('#frcf-no').onclick = () => { snd(); $('#frcf').classList.remove('on'); };
 $('#frcf-ok').onclick = () => { snd(); $('#frcf').classList.remove('on'); const f = frOk; frOk = null; if (f) f(); };
 { const q = (UT.Spa && UT.Spa.current && UT.Spa.current()); const u = (q && q.url) || location.search; if (/[?&]frame=1\b/.test(u)) setTimeout(frameOpen, 0); }
 
-function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); }
+/* ---- strip info: Hitpoints = hati (HeartsService), Storage Capacity = Gudang tambang (TambangMW.data) ---- */
+function drawHp() {
+  try {
+    const H = UT.HeartsService && UT.HeartsService.get && UT.HeartsService.get(), v = $('#hp-v'), b = $('#hp-b'); if (!v || !b) return;
+    const s = H && H.snapshot();
+    if (!s || !s.enabled) { v.textContent = 'Tanpa batas'; b.style.width = '100%'; return; }
+    const mm = n => { n = Math.max(0, Math.ceil(n)); return String(Math.floor(n / 60)).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0'); };
+    v.innerHTML = s.hearts + '/' + s.max + (s.full ? '' : '<small> +1 ' + mm(s.nextInSecs) + '</small>');
+    b.style.width = Math.round(Math.min(1, s.hearts / (s.max || 1)) * 100) + '%';
+  } catch (e) { /* abaikan */ }
+}
+function drawStore() {
+  try {
+    const D = window.TambangMW && TambangMW.data, v = $('#st-v'), b = $('#st-b'); if (!v || !b || !D || !D.ready || !D.gudang) return;
+    const g = D.gudang(); v.textContent = fmt(g.used) + ' / ' + fmt(g.cap); b.style.width = Math.round(Math.min(1, g.used / (g.cap || 1)) * 100) + '%';
+  } catch (e) { /* abaikan */ }
+}
+$('#ic-store').onclick = () => { snd(); go('tambang.html?from=profile.html'); };
+try {
+  const H = UT.HeartsService && UT.HeartsService.get && UT.HeartsService.get();
+  if (H) { if (H.enabled && H.enabled()) H.get().catch(() => {}); if (H.onChange) env.own(H.onChange(drawHp)); const t = setInterval(drawHp, 1000); env.own(() => clearInterval(t)); }
+  const D = window.TambangMW && TambangMW.data;
+  if (D && D.load) D.load().then(() => { if (!env.disposed) drawStore(); }).catch(() => {});
+} catch (e) { /* abaikan */ }
+function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); drawHp(); drawStore(); }
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
 env.own(UT.Events.on('skinChanged', () => { draw(); buildChar(); }));

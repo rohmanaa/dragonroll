@@ -1,0 +1,20 @@
+/* stat-card.css — kartu info bergaya game (dari referensi/component/game-cards.html: .stat, .stat.hp, .pass).
+   Selector berawalan .ut-sc*; ukuran mengikuti font-size induk (em). Varian: (biasa = abu) · .hp (hijau) · .gold (kuning).
+   Isi: .ut-sc-ico (kotak ikon) + .ut-sc-info (.ut-sc-l label, .ut-sc-v nilai, .ut-sc-bar>i isi bar). */
+.ut-sc{box-sizing:border-box;display:flex;align-items:center;gap:.5em;min-width:0;height:3.6em;padding:.35em .5em;color:#fff;text-align:left;font-family:var(--font-title,inherit);
+  border:.11em solid #000;border-radius:.5em;background:linear-gradient(#d2d2d2 0 50%,#ababab 50%);
+  box-shadow:inset 0 0 0 .07em rgba(255,255,255,.28),inset 0 .14em 0 rgba(255,255,255,.4),inset 0 -.18em 0 rgba(0,0,0,.25),0 .11em 0 rgba(0,0,0,.4)}
+.ut-sc.hp{background:linear-gradient(#aee63f 0 50%,#7cc01c 50%)}
+.ut-sc.gold{background:linear-gradient(#ffdf55 0 50%,#f5bc1c 50%)}
+.ut-sc.off{filter:grayscale(.55) brightness(.85)}
+.ut-sc-ico{flex:none;display:grid;place-items:center;width:2.2em;height:2.2em;border:.07em solid #000;border-radius:.45em;background:#3c3c3c;
+  box-shadow:inset 0 0 0 .07em rgba(255,255,255,.1),inset 0 .1em 0 rgba(255,255,255,.14)}
+.ut-sc-ico img{width:78%;height:78%;object-fit:contain}
+.ut-sc-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:.1em}
+.ut-sc :is(.ut-sc-l,.ut-sc-v){display:block;font-weight:400;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:-1px -1px 0 #161a24,1px -1px 0 #161a24,-1px 1px 0 #161a24,1px 1px 0 #161a24,0 2px 0 #161a24}
+.ut-sc-l{font-size:.62em}
+.ut-sc-v{font-size:.9em}
+.ut-sc-v small{font-size:.6em;color:#a6ff3a}
+.ut-sc-bar{height:.28em;border-radius:.16em;border:.06em solid #333;background:rgba(0,0,0,.35);overflow:hidden}
+.ut-sc-bar>i{display:block;height:100%;width:0;background:linear-gradient(#9cec3c,#55b012);transition:width .3s}
