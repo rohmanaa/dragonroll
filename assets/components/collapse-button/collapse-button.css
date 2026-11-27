@@ -17,6 +17,10 @@
   background: #3c3c3c; border: 3px solid #000; border-radius: 14px;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .1), inset 0 3px 0 rgba(255, 255, 255, .14), 0 3px 0 rgba(0, 0, 0, .3);
 }
+/* varian krem: warna sama dengan tombol kotak .ut-tile-k */
+.ut-collapse.ut-collapse-k { background: linear-gradient(180deg, #cdbb92 0%, #bfab80 60%, #a8946b 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .6), inset 0 -5px 0 rgba(90, 70, 30, .4), 0 3px 0 rgba(0, 0, 0, .3); }
+.ut-collapse-k .ut-collapse-div { background: rgba(60, 40, 10, .35); }
 .ut-collapse-body { display: flex; align-self: stretch; overflow: hidden; max-width: var(--cb-max, 600px); transition: max-width .3s ease, opacity .2s ease, visibility 0s; }
 .ut-collapse-item, .ut-collapse-toggle {
   border: 0; background: none; padding: 0; margin: 0; cursor: pointer; color: #fff;
