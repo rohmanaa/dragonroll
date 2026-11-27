@@ -20,6 +20,22 @@
 .ut-hc .ut-hc-title{font:400 42px/1.05 var(--font-title,'Lilita One',sans-serif);text-shadow:0 4px 0 #000;text-align:center}
 .ut-hc .ut-hc-badge{font:400 24px/34px var(--font-title,'Lilita One',sans-serif);padding:0 16px;border-radius:9px;background:#1c1c22;text-shadow:none}
 .ut-hc .ut-hc-art{position:relative;flex:1;min-height:0;margin:calc(var(--hc-banner-h) - 30px) 0 0;border-radius:0;overflow:hidden}
-.ut-hc .ut-hc-frame>:last-child:not(.ut-hc-art):not(.ut-hc-banner){margin:10px;width:auto;border-radius:16px}
 .ut-hc .ut-hc-crown{position:absolute;z-index:6;left:22px;right:22px;top:0;height:74px;pointer-events:none;
   background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20280%2052%22%3E%3Cg%20stroke%3D%22%234a2c05%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%2230%22%20y%3D%2218%22%20width%3D%22200%22%20height%3D%2211%22%20rx%3D%224%22%20fill%3D%22%23f2bd2c%22/%3E%3Cpath%20d%3D%22M8%2023.5L24%209L40%2023.5L24%2038Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M232%208L262%206L276%2022L266%2038L250%2028Z%22%20fill%3D%22%237d7488%22/%3E%3Cpath%20d%3D%22M208%2010H242V18H224V21H238V28H224V31H242V39H208Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M140%202L164%2014V37L140%2050L116%2037V14Z%22%20fill%3D%22%23ffd54a%22/%3E%3Cpath%20d%3D%22M140%208L158%2017V34L140%2044L122%2034V17Z%22%20fill%3D%22%23c98d12%22/%3E%3Cpath%20d%3D%22M129%2033L126%2019L134%2024L140%2015L146%2024L154%2019L151%2033Z%22%20fill%3D%22%23fff1b0%22/%3E%3C/g%3E%3Cpath%20d%3D%22M34%2021H112M168%2021H206%22%20stroke%3D%22%23fff3bd%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E") center top/contain no-repeat}
+
+/* tombol bawah bergaya "Upgrade": .ut-hc-btn (hijau) / .red / .gray; isi: <span class="ut-hc-btn-t">judul</span> + opsional <span class="ut-hc-price">harga + ikon</span> */
+.ut-hc .ut-hc-btn{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;width:calc(100% - 20px);height:120px;margin:10px;padding:0;
+  border:4px solid #0b2a00;border-radius:18px;color:#fff;font:400 42px/1 var(--font-title,'Lilita One',sans-serif);text-shadow:0 3px 0 #000;cursor:pointer;
+  background:linear-gradient(180deg,#8fe03a 0 50%,#4fae14 50% 100%);box-shadow:inset 0 4px 0 rgba(255,255,255,.55),inset 0 -5px 0 rgba(0,0,0,.28),0 4px 0 rgba(0,0,0,.35);transition:transform .08s,filter .15s}
+.ut-hc .ut-hc-btn.red{border-color:#3a0505;background:linear-gradient(180deg,#ff6a5e 0 50%,#d0261e 50% 100%)}
+.ut-hc .ut-hc-btn.gray{border-color:#1c1c22;background:linear-gradient(180deg,#8a8a8a 0 50%,#5f5f5f 50% 100%)}
+.ut-hc .ut-hc-btn:hover:not(:disabled){filter:brightness(1.08)}
+.ut-hc .ut-hc-btn:active:not(:disabled){transform:translateY(3px) scale(.98);filter:brightness(.95)}
+.ut-hc .ut-hc-btn:disabled{cursor:default}
+.ut-hc .ut-hc-price{display:flex;align-items:center;gap:12px;padding:2px 18px;border-radius:12px;background:rgba(20,60,0,.6);font-size:38px;line-height:46px;white-space:nowrap}
+.ut-hc .ut-hc-price img{width:42px;height:42px;object-fit:contain}
+/* tombol ikon tembus pandang di atas gambar */
+.ut-hc .ut-hc-ic{position:absolute;z-index:4;display:grid;place-items:center;box-sizing:border-box;width:84px;height:84px;padding:0;border:4px solid rgba(43,29,18,.85);border-radius:16px;
+  background:rgba(122,100,80,.7);color:#fff;cursor:pointer;transition:transform .08s,filter .15s}
+.ut-hc .ut-hc-ic:hover{filter:brightness(1.08)}
+.ut-hc .ut-hc-ic:active{transform:translateY(2px) scale(.98)}

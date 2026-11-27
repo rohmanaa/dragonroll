@@ -39,7 +39,7 @@ assert.ok(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut
 assert.ok(html.includes('assets/components/modal/modal-kit.css') && html.includes('id="pvBox" class="pet-info-panel ut-mk"') && html.includes('class="panel ut-mk" id="box"') && html.includes('id="mt" class="ut-mk-t"'));
 assert.ok(!/id="pvClose"[^>]*>[^<]/.test(html), 'tombol tutup modal tanpa teks/gambar (X digambar CSS)');
 assert.ok(/class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
-['pc-pr used ut-gl ut-c-r', 'pc-pr own ut-gl ut-c-g', 'pc-pr no ut-gl ut-c-d', 'pc-pr ut-gl ut-c-y', 'pc-ic pc-eye ut-gl ut-c-b', 'pet-info-retry ut-gl ut-c-b'].forEach((c) => assert.ok(page.includes(c), c));
+['pc-pr used ut-hc-btn red', 'pc-pr own ut-hc-btn', 'pc-pr no ut-hc-btn gray', 'pc-pr ut-hc-btn', 'pc-ic pc-eye ut-hc-ic', 'pet-info-retry ut-gl ut-c-b'].forEach((c) => assert.ok(page.includes(c), c));
 assert.ok(!/tombol-(kuning|hijau|merah|gelap)-polos/.test(pcss), 'gambar bingkai tombol kartu dihapus dari CSS Pet');
 assert.ok(css.includes('.pet-info-panel{'));
 assert.ok(!css.includes('bingkai-dialog') && !/#petInfoClose\{|#pvClose\{/.test(css + pcss), 'bingkai gambar & gaya tombol tutup lama dihapus (kini .ut-mk di modal-kit.css)');
