@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource Bar</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    /* latar hijau bertekstur supaya efek kaca terlihat */
+    background:
+      radial-gradient(circle at 20% 25%, #2f5a22 0 90px, transparent 91px),
+      radial-gradient(circle at 75% 70%, #2a5120 0 120px, transparent 121px),
+      radial-gradient(circle at 55% 15%, #4a7d36 0 70px, transparent 71px),
+      radial-gradient(circle at 35% 80%, #46792f 0 100px, transparent 101px),
+      #3b6a2c;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 24px 40px 24px 24px;
+  }
+
+  .outline {
+    color: #fff;
+    font-weight: 900;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      0 2px 0 #000;
+  }
+
+  /* =========================================
+     RESOURCE BAR (bar kaca / semi-transparan)
+     ========================================= */
+  .res {
+    position: relative;
+    width: 300px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 48px;
+    border: 2px solid rgba(0, 0, 0, .75);
+    border-radius: 9px;
+    cursor: pointer;
+    /* efek kaca: separuh atas lebih terang, separuh bawah lebih gelap (pembatas tegas) */
+    background: linear-gradient(180deg, rgba(255,255,255,.34) 0 50%, rgba(70,70,70,.5) 50% 100%);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 3px 0 rgba(0,0,0,.25);
+    user-select: none;
+  }
+  .res:active { transform: translateY(1px); }
+
+  /* isi (level penyimpanan) — diisi dari kanan */
+  .res-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .res-fill {
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: var(--fill, 0%);
+    transition: width .6s ease;
+  }
+  .res.gold   .res-fill { background: linear-gradient(180deg, #ffe066 0 50%, #f2b705 50% 100%); }
+  .res.elixir .res-fill { background: linear-gradient(180deg, #f28bef 0 50%, #cf3bc9 50% 100%); }
+  .res.dark   .res-fill { background: linear-gradient(180deg, #8d7a9f 0 50%, #55406a 50% 100%); }
+  .res.gem    .res-fill { background: linear-gradient(180deg, #a8ee55 0 50%, #4aa417 50% 100%); }
+
+  .res-num {
+    position: relative;
+    z-index: 1;
+    font-size: 21px;
+    letter-spacing: .5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ikon di ujung kanan, menonjol keluar bar */
+  .res-icon {
+    position: absolute;
+    right: -24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    filter: drop-shadow(0 3px 0 rgba(0,0,0,.35));
+  }
+
+  /* koin emas */
+  .coin {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 28%, #fff7b0 0, #ffd83a 42%, #e2a200 82%);
+    border: 3px solid #7a5200;
+  }
+  .coin::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 3px solid rgba(150, 96, 0, .55);
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%);
+  }
+
+  /* tetes (elixir / dark elixir) */
+  .drop {
+    width: 42px; height: 54px;
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  }
+  .drop::after {
+    content: "";
+    position: absolute;
+    top: 9px; left: 9px;
+    width: 12px; height: 17px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.55);
+    transform: rotate(18deg);
+  }
+  .res.elixir .drop { background: radial-gradient(circle at 35% 30%, #ffa8f5, #d62ad0 58%, #8a1a86); border: 3px solid #4b0b49; }
+  .res.dark   .drop { background: radial-gradient(circle at 35% 30%, #9a86ad, #4f3b63 58%, #261b30); border: 3px solid #120b18; }
+
+  /* permata (gems) */
+  .gem-ico { width: 46px; height: 52px; }
+</style>
+</head>
+<body>
+
+<div class="stack">
+
+  <!-- Emas (dengan indikator isi) -->
+  <div class="res gold" data-value="12447652" data-fill="24">
+    <div class="res-track"><div class="res-fill"></div></div>
+    <span class="res-num outline">0</span>
+    <i class="res-icon coin"></i>
+  </div>
+
+  <!-- Elixir -->
+  <div class="res elixir" data-value="1435973" data-fill="0">
+    <div class="res-track"><div class="res-fill"></div></div>
+    <span class="res-num outline">0</span>
+    <i class="res-icon drop"></i>
+  </div>
+
+  <!-- Dark elixir -->
+  <div class="res dark" data-value="38210" data-fill="0">
+    <div class="res-track"><div class="res-fill"></div></div>
+    <span class="res-num outline">0</span>
+    <i class="res-icon drop"></i>
+  </div>
+
+  <!-- Gems -->
+  <div class="res gem" data-value="1250" data-fill="0">
+    <div class="res-track"><div class="res-fill"></div></div>
+    <span class="res-num outline">0</span>
+    <svg class="res-icon gem-ico" viewBox="0 0 46 52">
+      <defs>
+        <linearGradient id="gemG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#c8ff8a"/>
+          <stop offset="1" stop-color="#2f9a0e"/>
+        </linearGradient>
+      </defs>
+      <polygon points="23,3 43,14 43,38 23,49 3,38 3,14" fill="url(#gemG)" stroke="#1d5a06" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="23,3 43,14 23,24 3,14" fill="rgba(255,255,255,.45)"/>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+  // format angka dengan spasi sebagai pemisah ribuan: 1 435 973
+  const fmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  // animasi hitung naik
+  function countUp(el, to, ms = 900) {
+    const start = performance.now();
+    (function tick(now) {
+      const p = Math.min((now - start) / ms, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(to * eased);
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+  }
+
+  // atur nilai & level isi sebuah bar
+  function setResource(bar, value, fillPercent) {
+    bar.style.setProperty('--fill', fillPercent + '%');
+    countUp(bar.querySelector('.res-num'), value);
+  }
+
+  document.querySelectorAll('.res').forEach(bar => {
+    const value = +bar.dataset.value, fill = +bar.dataset.fill;
+    setResource(bar, value, fill);
+    bar.addEventListener('click', () => setResource(bar, value, fill)); // klik = putar ulang animasi
+  });
+</script>
+</body>
+</html>

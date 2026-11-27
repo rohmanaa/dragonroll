@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kumpulan Modal</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    background: #2f4a2a;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+  }
+
+  /* =========================================
+     UMUM
+     ========================================= */
+  .outline {
+    color: #fff;
+    font-weight: 900;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      0 3px 0 #000;
+  }
+  .small-outline {
+    color: #fff;
+    font-weight: 900;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+
+  .launch {
+    padding: 12px 22px;
+    border: 3px solid #000;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #b6f05a 0 50%, #6cb51a 50% 100%);
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .launch:active { transform: translateY(2px); }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    overflow: auto;
+  }
+  .overlay.show { display: flex; }
+
+  /* tombol tutup bersama untuk modal kecil & besar */
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #000;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #ff6d61 0 50%, #d9332a 50% 100%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.35);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .close:active { transform: translateY(2px); }
+
+  /* =========================================
+     1) MODAL KECIL  (.sm)
+     ========================================= */
+  .sm {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    padding: 16px 16px 18px;
+    background: #4b4b4b;
+    border: 4px solid #000;
+    border-radius: 18px;
+    box-shadow: inset 0 0 0 3px #6a6a6a, 0 10px 30px rgba(0,0,0,.6);
+  }
+  .sm h2 { margin: 4px 0 14px; text-align: center; font-size: 26px; }
+
+  .sm .card {
+    position: relative;
+    padding: 12px 14px 14px;
+    background: #6b6b6b;
+    border: 3px solid #333;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.25);
+  }
+  .sm .card .title { color: #fff; font-weight: bold; font-size: 15px; }
+  .sm .card .edit { position: absolute; top: 8px; right: 12px; color: #fff; font-size: 16px; }
+  .sm .card .label { margin-top: 14px; color: #5fd0c8; font-weight: bold; font-size: 14px; }
+
+  .sm .row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+  .sm .player .name { color: #c9b891; font-weight: bold; font-size: 15px; }
+  .sm .player .clan { display: flex; align-items: center; gap: 6px; color: #ddd; font-size: 13px; margin-top: 2px; }
+  .sm .player .stats { display: flex; align-items: center; gap: 10px; margin-top: 4px; color: #fff; font-weight: bold; font-size: 14px; }
+  .sm .stars { color: #e8e8e8; letter-spacing: 1px; }
+  .sm .stars .off { color: #444; }
+  .sm .trophy { color: #ffd23c; }
+
+  .sm .btn {
+    border: 3px solid #000;
+    border-radius: 9px;
+    color: #fff;
+    font-weight: 900;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 9px 14px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    transition: filter .15s ease, transform .08s ease;
+  }
+  .sm .btn:hover  { filter: brightness(1.08); }
+  .sm .btn:active { transform: translateY(2px); }
+  .sm .btn-blue {
+    background: linear-gradient(180deg, #4aa9ff 0%, #1f7de0 60%, #1566c4 100%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.55), inset 0 -4px 0 rgba(0,40,100,.4);
+    padding: 12px 22px;
+  }
+  .sm .btn-green {
+    flex: 1;
+    background: linear-gradient(180deg, #a6e64a 0%, #7ac61e 60%, #62a812 100%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.6), inset 0 -4px 0 rgba(30,80,0,.4);
+  }
+  .sm .actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  .sm .your-clan { margin: 14px 0 6px; color: #cfcfcf; font-size: 14px; }
+  .sm .clan-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: #3a3a3a;
+    border: 3px solid #000;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.12);
+  }
+  .sm .clan-row .cname { flex: 1; color: #fff; font-weight: 900; font-size: 15px; }
+  .sm .clan-row .status { color: #ddd; font-weight: bold; font-size: 14px; }
+
+  .sm .badge {
+    position: relative;
+    width: 30px; height: 34px;
+    background: linear-gradient(180deg, #ffcf3d, #d9981a);
+    border: 2px solid #5a3a00;
+    clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; color: #fff;
+    text-shadow: 0 1px 0 #000;
+  }
+  .sm .badge.dark { width: 20px; height: 22px; background: linear-gradient(180deg, #666, #222); border-color: #000; }
+
+  /* =========================================
+     2) MODAL BESAR  (.lg)
+     ========================================= */
+  .lg {
+    position: relative;
+    width: 100%;
+    max-width: 790px;
+    padding: 16px 18px 18px;
+    background: #4b4b4b;
+    border: 4px solid #000;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 3px #6a6a6a, 0 12px 40px rgba(0,0,0,.7);
+  }
+  /* kilau glossy: warna solid dengan pembatas tegas */
+  .lg::before {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px; right: 3px;
+    height: 36px;
+    border-radius: 16px 16px 0 0;
+    background: rgba(255,255,255,.13);
+    pointer-events: none;
+  }
+  .lg h2 { margin: 0; text-align: center; font-size: 26px; }
+  .lg h2 .lv { color: #ffd23c; }
+
+  .lg .top-progress {
+    position: relative;
+    width: 360px;
+    max-width: 70%;
+    height: 14px;
+    margin: 10px auto 14px;
+    background: linear-gradient(180deg, #333 0%, #333 50%, #1c1c1c 50%, #1c1c1c 100%);
+    border: 2px solid #111;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.3);
+  }
+  .lg .top-progress span {
+    display: block;
+    width: 10%;
+    height: 100%;
+    background: linear-gradient(180deg, #a8ee55 0%, #a8ee55 50%, #4aa417 50%, #4aa417 100%);
+    box-shadow: 0 0 6px rgba(130, 220, 60, .6);
+    border-radius: 2px;
+  }
+
+  .lg .content { display: flex; gap: 12px; flex-wrap: wrap; }
+  .lg .left  { flex: 0 0 328px; max-width: 100%; }
+  .lg .right { flex: 1 1 320px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+  .lg .scene {
+    position: relative;
+    height: 390px;
+    border: 4px solid #cfcfcf;
+    border-radius: 12px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 70% 15%, rgba(255,255,255,.7) 0 10%, transparent 11%),
+      linear-gradient(180deg, #5fb4f0 0%, #a9d8f5 48%, #6fae4a 48%, #4f8f34 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lg .scene img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .lg .scene .placeholder {
+    color: rgba(255,255,255,.85);
+    font-size: 13px;
+    text-align: center;
+    padding: 0 20px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.5);
+  }
+  .lg .info {
+    position: absolute;
+    top: 8px; left: 8px;
+    width: 26px; height: 26px;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    background: #2f7fd6;
+    color: #fff;
+    font-weight: 900;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  .lg .thumbs { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 6px; }
+  .lg .thumb {
+    position: relative;
+    flex: 1;
+    height: 66px;
+    border: 3px solid #2a2a2a;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #7a8aa0, #4a586c);
+    cursor: pointer;
+  }
+  .lg .thumb.active { border-color: #fff; background: linear-gradient(180deg, #9aa8bd, #5d6c82); }
+  .lg .thumb .num {
+    position: absolute; left: 4px; bottom: 3px;
+    min-width: 20px; padding: 0 5px;
+    background: #111; color: #fff;
+    font-size: 12px; font-weight: bold;
+    border-radius: 4px; text-align: center;
+  }
+  .lg .thumb .clock {
+    position: absolute; top: -8px; right: -6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #e9b83a; border: 2px solid #5a3a00;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lg .thumb .lock { position: absolute; right: 4px; bottom: 3px; font-size: 14px; }
+
+  .lg .stats {
+    display: flex; gap: 8px;
+    padding: 8px;
+    background: #fff;
+    border: 3px solid #e8e8e8;
+    border-radius: 12px;
+  }
+  .lg .stat {
+    flex: 1;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: #d9d9d9;
+    border: 2px solid #bdbdbd;
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .lg .stat .ico {
+    flex: none;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f1c24a, #c08a1a);
+    border: 2px solid #5a3a00;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .lg .stat .txt { font-size: 12px; color: #333; font-weight: bold; line-height: 1.3; flex: 1; min-width: 0; }
+  .lg .stat .txt b { display: block; font-size: 15px; color: #444; }
+  .lg .mini-bar { height: 5px; margin-top: 4px; background: #8a8a8a; border-radius: 3px; overflow: hidden; }
+  .lg .mini-bar span { display: block; width: 18%; height: 100%; background: #5cc02a; }
+
+  .lg .upgrade-panel {
+    flex: 1;
+    min-height: 220px;
+    padding: 12px 14px;
+    background: #3c3c3c;
+    border: 3px solid #333;
+    border-radius: 10px;
+  }
+  .lg .upgrade-panel .label { color: #7ed957; font-weight: bold; font-size: 13px; margin-bottom: 8px; }
+  .lg .upgrade-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    background: #4a4a4a;
+    border-radius: 8px;
+    color: #aaa; font-size: 15px; font-weight: bold;
+  }
+  .lg .timer {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 10px 3px 4px;
+    background: #2a2a2a;
+    border-radius: 6px;
+    color: #cfcfcf; font-size: 13px;
+  }
+  .lg .timer .c {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #9a7a30; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .lg .bottom { display: flex; gap: 10px; }
+  .lg .btn-upgrade {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    height: 74px;
+    border: 3px solid #000;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #b6f05a 0%, #82cf24 55%, #66ad14 100%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.6), inset 0 -5px 0 rgba(30,80,0,.4);
+    cursor: pointer;
+    padding: 0;
+    transition: filter .15s ease, transform .08s ease;
+  }
+  .lg .btn-upgrade:hover  { filter: brightness(1.07); }
+  .lg .btn-upgrade:active { transform: translateY(2px); }
+  .lg .btn-upgrade .cost { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+  .lg .gem {
+    width: 22px; height: 24px;
+    background: linear-gradient(135deg, #b8ff7a, #3aa512);
+    border: 2px solid #1d5a06;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    display: inline-block;
+  }
+  .lg .available {
+    flex: none;
+    width: 118px;
+    padding: 10px 8px;
+    background: #353535;
+    border: 3px solid #2a2a2a;
+    border-radius: 10px;
+    text-align: center;
+    color: #ddd;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .lg .available b { display: block; margin-top: 4px; font-size: 15px; color: #fff; }
+
+  /* =========================================
+     3) DRAWER  (.dr) — filter di kiri header
+     ========================================= */
+  .overlay.drawer-ov { align-items: stretch; justify-content: flex-end; padding: 0; overflow: hidden; }
+
+  .dr {
+    width: min(330px, 100%);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #5b4a38;
+    border-left: 4px solid #000;
+    box-shadow: -8px 0 30px rgba(0,0,0,.6);
+  }
+  .overlay.show .dr { animation: slideIn .3s ease; }
+  @keyframes slideIn { from { transform: translateX(105%); } to { transform: none; } }
+
+  .dr .head {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 58px;
+    padding: 0 10px;
+    background: linear-gradient(180deg, #55442f 0 50%, #3d3022 50% 100%);
+    border-bottom: 3px solid #000;
+  }
+  .dr .head h2 { flex: 1; margin: 0; text-align: center; font-size: 17px; }
+
+  .dr .sq-btn {
+    flex: none;
+    width: 40px; height: 40px;
+    border: 3px solid #000;
+    border-radius: 9px;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dr .sq-btn:active { transform: translateY(2px); }
+  .dr .filter-btn { background: linear-gradient(180deg, #b79c72 0 50%, #8d7450 50% 100%); }
+  .dr .filter-btn.active { background: linear-gradient(180deg, #ffd84a 0 50%, #f0a800 50% 100%); }
+  .dr .close-btn { background: linear-gradient(180deg, #ff6d61 0 50%, #d9332a 50% 100%); font-size: 20px; }
+
+  .dr .filter-pop {
+    position: absolute;
+    top: 64px; left: 8px; right: 8px;
+    z-index: 10;
+    padding: 12px 12px 14px;
+    background: #9a6b3b;
+    border: 3px solid #000;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 3px #b98750, 0 10px 24px rgba(0,0,0,.6);
+    display: none;
+  }
+  .dr .filter-pop.show { display: block; }
+  .dr .filter-pop::before {
+    content: "";
+    position: absolute;
+    top: -12px; left: 16px;
+    border: solid transparent;
+    border-bottom-color: #000;
+    border-width: 0 10px 12px 10px;
+  }
+
+  .dr .group-title { margin: 6px 0 6px 2px; font-size: 14px; }
+  .dr .group-title:first-child { margin-top: 0; }
+  .dr .opts { display: grid; gap: 7px; }
+  .dr .opts.c3 { grid-template-columns: repeat(3, 1fr); }
+  .dr .opts.c2 { grid-template-columns: repeat(2, 1fr); }
+
+  .dr .chip {
+    min-height: 36px;
+    padding: 6px 4px;
+    border: 3px solid #2b1a0a;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #a87a49 0 50%, #7c5429 50% 100%);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .dr .chip:active { transform: translateY(1px); }
+  .dr .chip.on { background: linear-gradient(180deg, #ffd84a 0 50%, #f0a800 50% 100%); }
+  .dr .res-chip { min-height: 44px; }
+
+  .dr .dot { display: inline-block; width: 24px; height: 24px; border-radius: 50%; }
+  .dr .dot.gold   { background: radial-gradient(circle at 35% 30%, #fff3a0, #f2c200 60%, #b88600); border: 2px solid #7a5a00; }
+  .dr .dot.elixir { width: 20px; height: 25px; background: radial-gradient(circle at 35% 30%, #ff9bf0, #d62ad0 60%, #8a1a86); border: 2px solid #4b0b49; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
+  .dr .dot.dark   { width: 20px; height: 25px; background: radial-gradient(circle at 35% 30%, #8d7a99, #4a3a58 60%, #261b30); border: 2px solid #120b18; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
+  .dr .dot.gem    { width: 14px; height: 16px; border-radius: 0; background: linear-gradient(135deg, #b8ff7a, #3aa512); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+
+  .dr .list { flex: 1; overflow-y: auto; padding: 10px 8px 6px; }
+
+  .dr .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 30px;
+    padding: 0 10px;
+    margin-bottom: 6px;
+    border: 3px solid #000;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #9be254 0 50%, #4fa81b 50% 100%);
+    font-size: 13px;
+  }
+  .dr .sec { margin: 12px 2px 6px; color: #eadcc0; font-size: 12px; font-weight: bold; text-shadow: 0 1px 0 #000; }
+
+  .dr .item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px 6px 6px;
+    margin-bottom: 6px;
+    border: 2px solid #2b1f12;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #8d7352 0 50%, #7a6243 50% 100%);
+  }
+  .dr .item .ic {
+    flex: none;
+    width: 44px; height: 44px;
+    border: 2px solid #000;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .dr .ic.army     { background: linear-gradient(180deg, #7fb3e6 0 50%, #4f86bd 50% 100%); }
+  .dr .ic.defense  { background: linear-gradient(180deg, #e69a7f 0 50%, #bd6a4f 50% 100%); }
+  .dr .ic.hero     { background: linear-gradient(180deg, #c49be6 0 50%, #9368bd 50% 100%); }
+  .dr .ic.resource { background: linear-gradient(180deg, #e6d67f 0 50%, #bdaa4f 50% 100%); }
+
+  .dr .item .name { flex: 1; min-width: 0; font-size: 13px; line-height: 1.25; }
+  .dr .item .new  { display: block; color: #8dff5a; font-size: 11px; font-weight: bold; text-shadow: 0 1px 0 #000; }
+  .dr .item .meta { flex: none; text-align: right; }
+  .dr .item .time { color: #efe5d0; font-size: 11px; font-weight: bold; text-shadow: 0 1px 0 #000; }
+  .dr .item .cost { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px; font-size: 13px; }
+  .dr .item .cost .dot { transform: scale(.65); margin: -4px; }
+  .dr .empty { padding: 20px 10px; text-align: center; color: #eadcc0; font-size: 13px; }
+
+  .dr .tabs { flex: none; display: flex; gap: 6px; padding: 8px; background: #3d3022; border-top: 3px solid #000; }
+  .dr .tab {
+    position: relative;
+    flex: 1;
+    height: 54px;
+    border: 3px solid #000;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #8d7352 0 50%, #6f5a40 50% 100%);
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 2px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .dr .tab.locked { filter: grayscale(.8) brightness(.75); }
+  .dr .tab .lock { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: 18px; }
+</style>
+</head>
+<body>
+
+<!-- tombol pembuka -->
+<button class="launch outline" data-open="ov-sm">Modal kecil</button>
+<button class="launch outline" data-open="ov-lg">Modal besar</button>
+<button class="launch outline" data-open="ov-dr">Drawer</button>
+
+
+<!-- ============ 1) MODAL KECIL ============ -->
+<div class="overlay" id="ov-sm">
+  <div class="sm" role="dialog" aria-modal="true" aria-labelledby="smTitle">
+    <button class="close" data-close aria-label="Tutup"><span class="outline">X</span></button>
+    <h2 class="outline" id="smTitle">Share</h2>
+
+    <div class="card">
+      <div class="title">SAD 😭</div>
+      <span class="edit">✎</span>
+      <div class="label">Attack against:</div>
+      <div class="row">
+        <div class="player">
+          <div class="name">zain✓</div>
+          <div class="clan"><span class="badge dark"></span> Soul</div>
+          <div class="stats">
+            <span>99%</span>
+            <span class="stars">★★<span class="off">★</span></span>
+            <span>+32 <span class="trophy">🏆</span></span>
+          </div>
+        </div>
+        <button class="btn btn-blue">Replay</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-green">Share link</button>
+      <button class="btn btn-green">Share code</button>
+    </div>
+
+    <div class="your-clan">Your clan</div>
+    <div class="clan-row">
+      <span class="badge">18</span>
+      <span class="cname">Rome 100 BC</span>
+      <span class="status">Sent</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ 2) MODAL BESAR ============ -->
+<div class="overlay" id="ov-lg">
+  <div class="lg" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+    <button class="close" data-close aria-label="Tutup"><span class="outline">X</span></button>
+
+    <h2 class="outline" id="lgTitle">Asisten Lab <span class="lv">Level 1</span></h2>
+    <div class="top-progress"><span></span></div>
+
+    <div class="content">
+      <div class="left">
+        <div class="scene">
+          <div class="info">i</div>
+          <!-- Ganti placeholder ini dengan gambar milikmu:
+               <img src="gambar.png" alt="Asisten Lab"> -->
+          <div class="placeholder">Letakkan gambar di sini<br>(&lt;img src="..."&gt;)</div>
+
+          <div class="thumbs">
+            <div class="thumb active"><span class="clock">⏱</span><span class="num">1</span></div>
+            <div class="thumb"><span class="clock">⏱</span><span class="num">3</span></div>
+            <div class="thumb"><span class="clock">⏱</span><span class="num">1</span></div>
+            <div class="thumb"><span class="lock">🔒</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="stats">
+          <div class="stat">
+            <div class="ico">⏱</div>
+            <div class="txt">Durasi kerja:<b>1j</b></div>
+          </div>
+          <div class="stat">
+            <div class="ico">🔍</div>
+            <div class="txt">Kecepatan kerja:<b>x1</b><div class="mini-bar"><span></span></div></div>
+          </div>
+        </div>
+
+        <div class="upgrade-panel">
+          <div class="label">Peningkatan berjalan:</div>
+          <div class="upgrade-row">
+            <span>Penambang</span>
+            <span class="timer"><span class="c">⏱</span>5h 19j 36m</span>
+          </div>
+        </div>
+
+        <div class="bottom">
+          <button class="btn-upgrade">
+            <span class="small-outline">Tingkatkan</span>
+            <span class="cost small-outline">500 <span class="gem"></span></span>
+          </button>
+          <div class="available">Tersedia dalam:<b>1j 43m</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ 3) DRAWER ============ -->
+<div class="overlay drawer-ov" id="ov-dr">
+  <aside class="dr" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+
+    <div class="head">
+      <button class="sq-btn filter-btn" id="filterBtn" aria-label="Filter" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+          <line x1="3" y1="6" x2="19" y2="6"/><circle cx="8" cy="6" r="2.4" fill="#fff"/>
+          <line x1="3" y1="16" x2="19" y2="16"/><circle cx="14" cy="16" r="2.4" fill="#fff"/>
+        </svg>
+      </button>
+
+      <h2 class="outline" id="drTitle">Struktur dan Pahlawan</h2>
+
+      <button class="sq-btn close-btn" data-close aria-label="Tutup"><span class="outline">X</span></button>
+
+      <div class="filter-pop" id="filterPop">
+        <div class="group-title outline">Resource</div>
+        <div class="opts c3">
+          <button class="chip res-chip" data-group="res" data-val="gold"><span class="dot gold"></span></button>
+          <button class="chip res-chip" data-group="res" data-val="elixir"><span class="dot elixir"></span></button>
+          <button class="chip res-chip" data-group="res" data-val="dark"><span class="dot dark"></span></button>
+        </div>
+
+        <div class="group-title outline" style="margin-top:12px">Type</div>
+        <div class="opts c3">
+          <button class="chip outline" data-group="type" data-val="army">Army</button>
+          <button class="chip outline" data-group="type" data-val="defense">Defense</button>
+          <button class="chip outline" data-group="type" data-val="hero">Hero</button>
+          <button class="chip outline" data-group="type" data-val="resource">Resource</button>
+          <button class="chip outline" data-group="type" data-val="new">New</button>
+          <button class="chip outline" data-group="type" data-val="nonseasonal">Non-Seasonal</button>
+        </div>
+
+        <div class="group-title outline" style="margin-top:12px">Sorting</div>
+        <div class="opts c2">
+          <button class="chip outline" data-group="sort" data-val="max">Cost Max</button>
+          <button class="chip outline" data-group="sort" data-val="min">Cost Min</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="tabs">
+      <div class="tab outline">0/4</div>
+      <div class="tab outline">1/2</div>
+      <div class="tab locked"><span class="lock">🔒</span></div>
+    </div>
+  </aside>
+</div>
+
+
+<script>
+  /* ---------- buka / tutup semua overlay ---------- */
+  const filterBtn = document.getElementById('filterBtn');
+  const filterPop = document.getElementById('filterPop');
+
+  function setPop(on) {
+    filterPop.classList.toggle('show', on);
+    filterBtn.classList.toggle('active', on);
+    filterBtn.setAttribute('aria-expanded', on);
+  }
+  function closeOverlay(ov) { ov.classList.remove('show'); setPop(false); }
+
+  document.querySelectorAll('[data-open]').forEach(btn =>
+    btn.addEventListener('click', () => document.getElementById(btn.dataset.open).classList.add('show')));
+
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) closeOverlay(ov); });
+    ov.querySelectorAll('[data-close]').forEach(x => x.addEventListener('click', () => closeOverlay(ov)));
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (filterPop.classList.contains('show')) return setPop(false);
+    document.querySelectorAll('.overlay.show').forEach(closeOverlay);
+  });
+
+  /* ---------- modal besar: pilih thumbnail ---------- */
+  document.querySelectorAll('.lg .thumb').forEach(t => {
+    t.addEventListener('click', () => {
+      if (t.querySelector('.lock')) return;
+      document.querySelectorAll('.lg .thumb').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  /* ---------- drawer: data & filter ---------- */
+  const running = [
+    { name: 'Balai Kota',      time: '1h 54m' },
+    { name: 'Menara Tesla',    time: '2h 23m' },
+    { name: 'Menara Penyihir', time: '2h 49m' },
+    { name: 'Meriam Roket',    time: '7h 1m'  },
+  ];
+
+  const items = [
+    { name: 'Pangeran Es',      group: 'rec',   time: '4m',     cost: 3500,    res: 'dark',   kind: 'army',     types: ['army', 'hero', 'nonseasonal'], icon: '🛡️' },
+    { name: 'Barak Pasukan',    group: 'rec',   time: '1h 12m', cost: 1500000, res: 'elixir', kind: 'army',     types: ['army', 'nonseasonal'],         icon: '⚔️' },
+    { name: 'Penyimpan Elixir', group: 'rec',   time: '3h',     cost: 250000,  res: 'gold',   kind: 'resource', types: ['resource', 'nonseasonal'],     icon: '🏺' },
+    { name: 'Gubuk Pembangun',  group: 'rec',   time: '',       cost: 2000,    res: 'gem',    kind: 'resource', types: ['resource', 'new'],             icon: '🏠', isNew: true },
+    { name: 'Menara Tesla x2',  group: 'other', time: '2h 23m', cost: 4200000, res: 'gold',   kind: 'defense',  types: ['defense', 'nonseasonal'],      icon: '⚡' },
+  ];
+
+  const state = { res: new Set(), type: new Set(), sort: null };
+  const listEl = document.getElementById('list');
+  const fmt = n => n.toLocaleString('id-ID');
+
+  function matches(it) {
+    if (state.res.size  && !state.res.has(it.res)) return false;
+    if (state.type.size && !it.types.some(t => state.type.has(t))) return false;
+    return true;
+  }
+
+  function itemHTML(it) {
+    return `
+      <div class="item">
+        <div class="ic ${it.kind}">${it.icon}</div>
+        <div class="name outline">${it.name}${it.isNew ? '<span class="new">Baru</span>' : ''}</div>
+        <div class="meta">
+          ${it.time ? `<div class="time">${it.time}</div>` : ''}
+          <div class="cost outline">${fmt(it.cost)} <span class="dot ${it.res}"></span></div>
+        </div>
+      </div>`;
+  }
+
+  function render() {
+    let rows = items.filter(matches);
+    if (state.sort === 'max') rows.sort((a, b) => b.cost - a.cost);
+    if (state.sort === 'min') rows.sort((a, b) => a.cost - b.cost);
+
+    const rec   = rows.filter(r => r.group === 'rec');
+    const other = rows.filter(r => r.group === 'other');
+
+    let html = running.map(r =>
+      `<div class="bar outline"><span>${r.name}</span><span>${r.time}</span></div>`).join('');
+
+    if (rec.length)   html += `<div class="sec">Peningkatan disarankan</div>` + rec.map(itemHTML).join('');
+    if (other.length) html += `<div class="sec">Peningkatan lainnya</div>`   + other.map(itemHTML).join('');
+    if (!rows.length) html += `<div class="empty">Tidak ada hasil untuk filter ini.</div>`;
+
+    listEl.innerHTML = html;
+  }
+
+  document.querySelectorAll('.dr .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const g = chip.dataset.group, v = chip.dataset.val;
+      if (g === 'sort') {
+        const wasOn = state.sort === v;
+        document.querySelectorAll('.dr [data-group="sort"]').forEach(c => c.classList.remove('on'));
+        state.sort = wasOn ? null : v;
+        if (!wasOn) chip.classList.add('on');
+      } else {
+        const set = state[g];
+        set.has(v) ? set.delete(v) : set.add(v);
+        chip.classList.toggle('on', set.has(v));
+      }
+      render();
+    });
+  });
+
+  filterBtn.addEventListener('click', e => { e.stopPropagation(); setPop(!filterPop.classList.contains('show')); });
+  document.querySelector('.dr').addEventListener('click', e => {
+    if (!filterPop.contains(e.target) && !filterBtn.contains(e.target)) setPop(false);
+  });
+
+  render();
+</script>
+</body>
+</html>

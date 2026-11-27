@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kumpulan Card</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 16px;
+    background: #2f4a2a;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    color: #eee;
+  }
+
+  h2.section {
+    max-width: 980px;
+    margin: 0 auto 12px;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #c9d8c2;
+  }
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 980px;
+    margin: 0 auto 30px;
+    padding: 24px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, .25);
+  }
+
+  /* teks: putih, outline TIPIS + bayangan kecil di bawah (sesuai referensi) */
+  .t {
+    color: #fff;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: .2px;
+    text-shadow:
+      -1px -1px 0 #161a24, 1px -1px 0 #161a24, -1px 1px 0 #161a24, 1px 1px 0 #161a24,
+      0 2px 0 #161a24;
+  }
+  .t.lime {
+    color: #b9ff2f;
+    text-shadow:
+      -1px -1px 0 #284f00, 1px -1px 0 #284f00, -1px 1px 0 #284f00, 1px 1px 0 #284f00,
+      0 2px 0 #284f00;
+  }
+  .t.cream { color: #f6f1bd; }
+  .t.dark  { color: #3b3a36; text-shadow: none; }
+
+  /* ---------- ikon kecil bersama ---------- */
+  .coin-i, .drop-i { --bw: max(1.5px, calc(var(--s, 22px) * .07)); display: inline-block; flex: none; }
+  .coin-i {
+    width: var(--s, 22px); height: var(--s, 22px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 28%, #fff7b0, #ffd83a 42%, #e8a800 85%);
+    border: var(--bw) solid #6e4b00;
+  }
+  .drop-i {
+    width: calc(var(--s, 22px) * .8); height: var(--s, 22px);
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    background: radial-gradient(circle at 35% 30%, #ffa8f5, #d62ad0 58%, #8a1a86);
+    border: var(--bw) solid #4b0b49;
+  }
+  .drop-i.gray { background: radial-gradient(circle at 35% 30%, #d8d8d8, #9a9a9a 60%, #6e6e6e); border-color: #444; }
+  .gem-i  { flex: none; width: var(--s, 22px); height: calc(var(--s, 22px) * 1.12); }
+  .clock-i { flex: none; width: 24px; height: 24px; }
+
+  /* =========================================
+     1) CARD SERANGAN
+     ========================================= */
+  .atk {
+    width: 496px;
+    max-width: 100%;
+    padding: 6px 8px 8px;
+    border: 2px solid #0f1a33;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #6674a4, #566595);
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.22), 0 3px 0 rgba(0,0,0,.28);
+  }
+  .atk-top { height: 36px; display: flex; align-items: center; gap: 6px; padding-left: 4px; }
+  .stars { display: flex; gap: 2px; }
+  .stars svg { width: 26px; height: 26px; stroke-width: 1.2; }
+  .stars .off { fill: #46527f; stroke: #3d4875; }
+  .stars .on  { fill: #ffd23c; stroke: #8a5a00; }
+  .atk-title { font-size: 21px; margin-left: 4px; }
+
+  .atk-body { display: flex; align-items: center; gap: 10px; }
+  .costs { display: flex; flex-direction: column; gap: 10px; width: 124px; padding-left: 2px; }
+  .cost { display: flex; align-items: center; gap: 8px; font-size: 18px; }
+
+  /* nampan cekung berisi slot pasukan */
+  .tray {
+    display: flex; gap: 6px;
+    padding: 6px;
+    background: #475179;
+    border: 1px solid #6a76a3;
+    border-radius: 9px;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.35);
+  }
+  .slot {
+    position: relative;
+    width: 56px; height: 66px;
+    border: 1px solid #a9b2cc;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, #4d5878, #343c58);
+  }
+  .slot svg { width: 82%; height: 82%; }
+  .slot .n { position: absolute; left: 3px; bottom: 1px; font-size: 15px; }
+
+  /* tombol Attack: glossy oranye, bingkai krem tipis */
+  .go {
+    margin-left: auto;
+    width: 132px; height: 66px;
+    border: 2px solid #2a1a0a;
+    border-radius: 9px;
+    cursor: pointer;
+    background: linear-gradient(180deg, #ffb83e 0%, #f6921e 48%, #e0690f 100%);
+    box-shadow: inset 0 0 0 2px #ffe1a0, inset 0 -4px 0 rgba(150,60,0,.35), 0 2px 0 rgba(0,0,0,.3);
+    font-size: 26px;
+    transition: filter .15s ease, transform .08s ease;
+  }
+  .go:hover  { filter: brightness(1.07); }
+  .go:active { transform: translateY(2px); }
+
+  /* =========================================
+     2) CARD UBIN
+     ========================================= */
+  .tile {
+    position: relative;
+    width: 154px; height: 99px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .tile:hover  { filter: brightness(1.06); }
+  .tile:active { transform: translateY(2px); }
+
+  .tile.silver {
+    border: 2px solid #56626e;
+    box-shadow: inset 0 0 0 3px #f1f3f5, 0 3px 0 rgba(0,0,0,.28);
+    background: linear-gradient(180deg, #d4d6d9 0%, #a9adb2 50%, #7d8187 100%);
+  }
+  .tile.orange {
+    width: 122px; height: 84px;
+    border: 2px solid #8a5a38;
+    box-shadow: inset 0 0 0 2px #fbeed8, 0 3px 0 rgba(0,0,0,.28);
+    background: linear-gradient(180deg, #ffbd44 0%, #f39a22 45%, #e46c0a 100%);
+  }
+  .tile .art { position: absolute; inset: 6px 8px 8px; display: flex; align-items: flex-end; justify-content: center; }
+  .tile .art svg { height: 100%; width: auto; aspect-ratio: 1; }
+  .tile .label {
+    position: absolute; left: 0; right: 0; bottom: 10px;
+    text-align: center; font-size: 22px;
+  }
+  .tile .badge {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 20px; height: 22px; padding: 0 5px;
+    border: 2px solid #f2f2f2;
+    border-radius: 6px;
+    background: #d6322b;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* =========================================
+     3) CARD TOKO
+        panel datar + cahaya radial + sinar halus
+        (tidak ada pembatas glossy di badan card)
+     ========================================= */
+  .shop-wrap { display: flex; flex-direction: column; width: 168px; }
+  .shop {
+    --top: #aaa; --bot: #888; --edge: #333; --ray: rgba(255,255,255,.08);
+    position: relative; z-index: 1;
+    width: 168px; height: 226px;
+    border: 2px solid var(--edge);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 50%, var(--ray) 0 9deg, transparent 9deg 18deg),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.34), rgba(255,255,255,0) 62%),
+      linear-gradient(180deg, var(--top), var(--bot));
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.28), inset 0 -4px 0 rgba(0,0,0,.14), 0 3px 0 rgba(0,0,0,.28);
+    transition: transform .08s ease, filter .15s ease;
+  }
+  .shop:hover  { filter: brightness(1.05); }
+  .shop:active { transform: translateY(2px); }
+
+  .shop .name  { position: absolute; top: 10px; left: 0; right: 0; font-size: 19px; white-space: nowrap; }
+  .shop .art   { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* kotak cekung di bawah (tidak penuh ke tepi) */
+  .shop .foot {
+    position: absolute; left: 8px; right: 8px; bottom: 8px; height: 42px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.26);
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.18);
+    font-size: 22px;
+  }
+
+  .shop .info-btn {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px;
+    border: 1.5px solid #3e3e3e;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #9b9b9b, #7d7d7d);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  /* --- Army Camp (abu-abu) --- */
+  .shop.gray { --top: #a0a0a0; --bot: #7a7a7a; --edge: #3a3a3a; --ray: rgba(255,255,255,.10); }
+  .shop.gray .name { left: 10px; right: auto; text-align: left; font-size: 18px; }
+  .shop.gray .art  { top: 40px; bottom: 76px; }
+  .iso {
+    width: 62px; height: 62px;
+    background: linear-gradient(135deg, #cfcfcf, #b3b3b3);
+    border: 1px solid rgba(255,255,255,.35);
+    transform: scaleY(.62) rotate(45deg);
+    box-shadow: 0 4px 6px rgba(0,0,0,.25);
+  }
+  .shop.gray .time  { position: absolute; left: 8px;  bottom: 54px; display: flex; align-items: center; gap: 4px; font-size: 16px; }
+  .shop.gray .built { position: absolute; right: 10px; bottom: 54px; text-align: right; line-height: 1.05; }
+  .shop.gray .built small { display: block; font-size: 12px; font-weight: 800; color: #3b3a36; }
+  .shop.gray .built b { font-size: 18px; }
+  .shop.gray .foot { background: #5e5e5e; }
+
+  /* --- Pocketful of Gems (biru kehijauan) --- */
+  .shop.teal { --top: #52c6e0; --bot: #37a1bf; --edge: #26839e; --ray: rgba(255,255,255,.10); }
+  .shop.teal .name { font-size: 17px; }
+  .shop.teal .amount { position: absolute; top: 40px; left: 26px; display: flex; align-items: center; gap: 8px; font-size: 25px; }
+  .shop.teal .art  { top: 76px; bottom: 58px; }
+  .shop.teal .foot { background: #2e6a7b; box-shadow: inset 0 2px 3px rgba(0,0,0,.25); }
+
+  /* --- Gold (krem) --- */
+  .shop.tan { --top: #d4c6b2; --bot: #bfae98; --edge: #2c2c2c; --ray: rgba(110,80,50,.10); }
+  .shop.tan .sub   { position: absolute; top: 48px; left: 0; right: 0; font-size: 15px; }
+  .shop.tan .art   { top: 66px; bottom: 76px; }
+  .shop.tan .total { position: absolute; left: 0; right: 0; bottom: 42px; font-size: 20px; }
+  .shop.tan .buy   { position: absolute; left: 0; right: 0; bottom: 10px; font-size: 22px; }
+  .shop.tan .buy .gem-i { position: absolute; right: 10px; bottom: -2px; }
+
+  /* --- Elixir (hijau) --- */
+  .shop.green { --top: #a9e22e; --bot: #74b61c; --edge: #26430d; --ray: rgba(255,255,255,.10); }
+  .shop.green .sub   { position: absolute; top: 48px; left: 0; right: 0; font-size: 15px; }
+  .shop.green .art   { top: 66px; bottom: 80px; }
+  .shop.green .total { position: absolute; left: 0; right: 0; bottom: 46px; font-size: 20px; }
+  .shop.green .free  { position: absolute; left: 0; right: 0; bottom: 12px; font-size: 27px; }
+
+  /* strip waktu: mengintip dari bawah card */
+  .strip {
+    position: relative; z-index: 0;
+    margin: -10px 8px 0;
+    padding: 14px 8px 5px;
+    border-radius: 0 0 10px 10px;
+    background: #d9d2c4;
+    box-shadow: 0 2px 0 rgba(0,0,0,.22);
+    text-align: center;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- simbol SVG bersama -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gemG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d4ff6a"/><stop offset="1" stop-color="#6fb512"/>
+    </linearGradient>
+    <symbol id="gem" viewBox="0 0 46 52">
+      <polygon points="23,3 43,14 43,38 23,49 3,38 3,14" fill="url(#gemG)" stroke="#2b5a05" stroke-width="3" stroke-linejoin="round"/>
+      <polygon points="23,3 43,14 23,24 3,14" fill="rgba(255,255,255,.4)"/>
+    </symbol>
+    <symbol id="clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="#c9c9c9" stroke="#3a3a3a" stroke-width="2"/>
+      <circle cx="12" cy="12" r="6.5" fill="#efefef" stroke="#6a6a6a" stroke-width="1"/>
+      <path d="M12 7v5l3 2" stroke="#3a3a3a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="star" viewBox="0 0 24 24">
+      <polygon points="12,1.8 15.1,8.4 22.3,9.2 17,14.1 18.4,21.2 12,17.7 5.6,21.2 7,14.1 1.7,9.2 8.9,8.4" stroke-linejoin="round"/>
+    </symbol>
+    <!-- siluet karakter generik (pengganti gambar) -->
+    <symbol id="person" viewBox="0 0 40 40">
+      <circle cx="20" cy="14" r="8" fill="currentColor" stroke="#1b1b1b" stroke-width="1.6"/>
+      <path d="M5 38c0-9 7-14 15-14s15 5 15 14z" fill="currentColor" stroke="#1b1b1b" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+
+<h2 class="section">Card serangan</h2>
+<div class="group">
+  <div class="atk">
+    <div class="atk-top">
+      <span class="stars" data-stars="0"></span>
+      <span class="atk-title t cream">Giant Smash</span>
+    </div>
+
+    <div class="atk-body">
+      <div class="costs">
+        <div class="cost t"><i class="coin-i" style="--s:26px"></i> 100 000</div>
+        <div class="cost t"><i class="drop-i" style="--s:26px"></i> 100 000</div>
+      </div>
+
+      <div class="tray">
+        <div class="slot" style="color:#e0a070"><svg><use href="#person"/></svg><span class="n t">x13</span></div>
+        <div class="slot" style="color:#7cc04a"><svg><use href="#person"/></svg><span class="n t">x11</span></div>
+        <div class="slot" style="color:#d8d8d0"><svg><use href="#person"/></svg><span class="n t">x2</span></div>
+      </div>
+
+      <button class="go t">Attack!</button>
+    </div>
+  </div>
+</div>
+
+
+<h2 class="section">Card ubin</h2>
+<div class="group">
+  <div class="tile silver">
+    <span class="badge t">9</span>
+    <div class="art" style="color:#e86fa8"><svg><use href="#person"/></svg></div>
+    <span class="label t">Practice</span>
+  </div>
+
+  <div class="tile orange">
+    <div class="art" style="color:#6cb83a"><svg><use href="#person"/></svg></div>
+  </div>
+</div>
+
+
+<h2 class="section">Card toko</h2>
+<div class="group">
+
+  <!-- Army Camp -->
+  <div class="shop-wrap">
+    <div class="shop gray">
+      <div class="name t">Army Camp</div>
+      <span class="info-btn t">i</span>
+      <div class="art"><div class="iso"></div></div>
+      <div class="time t"><svg class="clock-i"><use href="#clock"/></svg> 5M</div>
+      <div class="built"><small>Built:</small><b class="t">1/1</b></div>
+      <div class="foot t">250 <i class="drop-i gray" style="--s:24px"></i></div>
+    </div>
+  </div>
+
+  <!-- Gems -->
+  <div class="shop-wrap">
+    <div class="shop teal">
+      <div class="name t lime">Pocketful of Gems</div>
+      <div class="amount t"><svg class="gem-i" style="--s:28px"><use href="#gem"/></svg> 80</div>
+      <div class="art">
+        <svg viewBox="0 0 90 50" width="84" height="46" aria-hidden="true">
+          <polygon points="40,16 54,10 66,18 58,28 44,28" fill="url(#gemG)" stroke="#3f7a08" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="26,26 36,22 44,28 38,36 28,36" fill="url(#gemG)" stroke="#3f7a08" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="56,30 66,26 74,32 68,38 58,38" fill="url(#gemG)" stroke="#3f7a08" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="18" cy="30" r="3" fill="#b9e84a"/><circle cx="76" cy="22" r="2.5" fill="#b9e84a"/><circle cx="48" cy="40" r="2.5" fill="#b9e84a"/>
+        </svg>
+      </div>
+      <div class="foot t">€1.19</div>
+    </div>
+  </div>
+
+  <!-- Gold -->
+  <div class="shop-wrap">
+    <div class="shop tan">
+      <div class="name t">Gold</div>
+      <div class="sub t">6/6</div>
+      <div class="art"><i class="coin-i" style="--s:56px"></i></div>
+      <div class="total t">3 000 000</div>
+      <div class="buy t">250 <svg class="gem-i" style="--s:28px"><use href="#gem"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Elixir -->
+  <div class="shop-wrap">
+    <div class="shop green">
+      <div class="name t">Elixir</div>
+      <div class="sub t">1/1</div>
+      <div class="art"><i class="drop-i" style="--s:56px"></i></div>
+      <div class="total t">500 000</div>
+      <div class="free t">FREE</div>
+    </div>
+    <div class="strip t">5d 20h 4m 48s</div>
+  </div>
+
+</div>
+
+
+<script>
+  // isi bintang pada card serangan: data-stars = jumlah bintang menyala (0-3)
+  document.querySelectorAll('.stars').forEach(el => {
+    const n = +el.dataset.stars || 0;
+    el.innerHTML = Array.from({ length: 3 }, (_, i) =>
+      `<svg class="${i < n ? 'on' : 'off'}"><use href="#star"/></svg>`).join('');
+  });
+</script>
+</body>
+</html>

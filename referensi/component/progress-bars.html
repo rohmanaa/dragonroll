@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progress Bar</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    align-items: center;
+    justify-content: center;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    color: #eee;
+    background:
+      radial-gradient(circle at 20% 25%, #8fbf3a 0 90px, transparent 91px),
+      radial-gradient(circle at 78% 70%, #7fb232 0 120px, transparent 121px),
+      #8ab83c;                         /* rumput terang, seperti di referensi */
+  }
+
+  h2.section {
+    margin: 0 0 -10px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #25400c;
+  }
+
+  /* teks: putih, outline tipis + bayangan kecil di bawah */
+  .t {
+    color: #fff;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .3px;
+    text-shadow:
+      -1px -1px 0 #141414, 1px -1px 0 #141414, -1px 1px 0 #141414, 1px 1px 0 #141414,
+      0 2px 0 #141414;
+  }
+
+  /* =========================================
+     PROGRESS BAR — label DI ATAS bar
+     ========================================= */
+  .pb { --p: 50%; width: 300px; text-align: center; }
+  .pb-label { font-size: 26px; margin-bottom: 3px; }
+
+  .pb-bar {
+    position: relative;
+    height: 26px;
+    border: 3px solid #141414;           /* tepi gelap tebal, seperti referensi */
+    border-radius: 9px;
+    overflow: hidden;
+    background: rgba(50, 64, 18, .62);   /* jalur: hijau zaitun semi-transparan */
+    box-shadow: 0 2px 0 rgba(0,0,0,.25);
+  }
+  .pb-bar .fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: var(--p);
+    border-radius: 0 5px 5px 0;
+    transition: width .6s ease;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.38), inset 0 -3px 0 rgba(0,0,0,.16);
+  }
+  .pb.full .fill { border-radius: 0; }
+
+  /* warna isi: gradient glossy halus (terang di atas) */
+  .green  .fill { background: linear-gradient(180deg, #b6f25a 0%, #86d81e 32%, #78cc14 62%, #5ea60c 100%); }
+  .orange .fill { background: linear-gradient(180deg, #ffc83d 0%, #f9a21c 36%, #f08410 62%, #e2690a 100%); }
+  .blue   .fill { background: linear-gradient(180deg, #8fdcff 0%, #4db4f4 36%, #2f98e4 62%, #1f7ccb 100%); }
+  .red    .fill { background: linear-gradient(180deg, #ff9b8e 0%, #f2584a 36%, #e0382c 62%, #c02820 100%); }
+  .purple .fill { background: linear-gradient(180deg, #e6a0f6 0%, #c864e4 36%, #b24ad2 62%, #9434b4 100%); }
+
+  /* =========================================
+     BAR + IKON DI KIRI
+     ========================================= */
+  .lbar { display: flex; align-items: flex-end; gap: 8px; width: 330px; }
+  .lbar .ico {
+    flex: none;
+    width: 54px; height: 54px;
+    border: 2px solid #3d5220;
+    border-radius: 8px;
+    background: #66803a;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lbar .ico i {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff9a8a, #d12a1e 60%, #7a0e08);
+    border: 2px solid #3a0000;
+  }
+  .lbar .pb { flex: 1; width: auto; }
+  .lbar .pb-label { font-size: 22px; }
+
+  /* bar tipis */
+  .pb.slim .pb-bar { height: 14px; border-width: 2px; border-radius: 6px; }
+  .pb.slim .fill { box-shadow: inset 0 2px 0 rgba(255,255,255,.38), inset 0 -2px 0 rgba(0,0,0,.16); }
+
+  /* demo slider */
+  .demo { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #25400c; font-weight: bold; }
+  .demo input { width: 180px; }
+</style>
+</head>
+<body>
+
+  <h2 class="section">Bar dengan waktu</h2>
+  <div class="pb green full" id="timeBar" style="--p:100%">
+    <div class="pb-label t">7h 48m</div>
+    <div class="pb-bar"><div class="fill"></div></div>
+  </div>
+
+  <div class="demo">
+    Atur isi:
+    <input type="range" id="slider" min="0" max="100" value="100">
+    <span id="sliderVal">100%</span>
+  </div>
+
+  <h2 class="section">Bar berlabel + ikon</h2>
+  <div class="lbar">
+    <div class="ico"><i></i></div>
+    <div class="pb orange" style="--p:62%">
+      <div class="pb-label t">2d 5h</div>
+      <div class="pb-bar"><div class="fill"></div></div>
+    </div>
+  </div>
+
+  <h2 class="section">Varian warna</h2>
+  <div class="pb green"  style="--p:70%"><div class="pb-label t">70%</div><div class="pb-bar"><div class="fill"></div></div></div>
+  <div class="pb orange" style="--p:45%"><div class="pb-label t">45%</div><div class="pb-bar"><div class="fill"></div></div></div>
+  <div class="pb blue"   style="--p:85%"><div class="pb-label t">85%</div><div class="pb-bar"><div class="fill"></div></div></div>
+  <div class="pb red"    style="--p:30%"><div class="pb-label t">30%</div><div class="pb-bar"><div class="fill"></div></div></div>
+  <div class="pb purple" style="--p:55%"><div class="pb-label t">55%</div><div class="pb-bar"><div class="fill"></div></div></div>
+
+  <h2 class="section">Bar tipis</h2>
+  <div class="pb green slim" style="--p:40%"><div class="pb-bar"><div class="fill"></div></div></div>
+
+<script>
+  // atur isi sebuah bar: setProgress(elemen .pb, persen, teksLabelOpsional)
+  function setProgress(bar, percent, text) {
+    const p = Math.max(0, Math.min(100, percent));
+    bar.style.setProperty('--p', p + '%');
+    bar.classList.toggle('full', p >= 100);
+    const label = bar.querySelector('.pb-label');
+    if (text != null && label) label.textContent = text;
+  }
+
+  // demo slider pada bar waktu
+  const bar = document.getElementById('timeBar');
+  const slider = document.getElementById('slider');
+  const out = document.getElementById('sliderVal');
+  slider.addEventListener('input', () => {
+    setProgress(bar, +slider.value);
+    out.textContent = slider.value + '%';
+  });
+
+  // animasi isi saat halaman dibuka
+  document.querySelectorAll('.pb').forEach(b => {
+    const target = parseFloat(b.style.getPropertyValue('--p')) || 0;
+    b.style.setProperty('--p', '0%');
+    requestAnimationFrame(() => requestAnimationFrame(() => setProgress(b, target)));
+  });
+</script>
+</body>
+</html>
