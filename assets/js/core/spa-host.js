@@ -17,7 +17,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'tambang.html': 'tambang', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu' };
+  var VIEWS = { 'index.html': 'index', 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu', 'powerup.html': 'powerup', 'tos.html': 'tos' };
     var HUB_TABS = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };   // halaman yang kini panel di hub profile.html
     var INV_VIEW_TABS = { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
@@ -322,6 +322,7 @@
     api.canon = canon;
     api.current = function () { return current ? { name: current.name, url: current.url } : null; };
     api.initialUrl = function () { return initialUrl; };
+    api.viewList = function () { return Object.keys(VIEWS); };
     return api;
   }
 
