@@ -15,7 +15,7 @@
 .pcard{position:absolute;overflow:hidden;isolation:isolate}
 #hero{overflow:visible;left:100px;top:150px;width:1720px;height:470px}
 /* latar kartu Profil tetap profile-bg.webp, di dalam bingkai panel kartu */
-#hero::after{content:"";position:absolute;inset:5px;border-radius:10px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(12,8,30,.35),rgba(12,8,30,.7)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
+#hero::after{content:"";position:absolute;inset:5px;border-radius:10px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(6,4,14,.78),rgba(6,4,14,.92)),url(../../images/background/profile-bg.webp) center/cover no-repeat}
 #statc{left:100px;top:640px;width:840px;height:370px}
 #kolc{left:960px;top:640px;width:860px;height:370px}
 .ph{position:absolute;left:28px;top:12px;font:400 44px/1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
@@ -57,7 +57,7 @@
 
 /* kanan: pose pet (gambar statis, bukan model hidup) */
 #pet{position:absolute;left:1270px;top:24px;width:430px;height:422px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:18px;
-  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:0;outline:0;overflow:visible;transition:filter .1s}
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.06),rgba(0,0,0,.55));border:0;outline:0;overflow:visible;transition:filter .1s}
 #pet:hover{filter:brightness(1.1)}
 #phub #pet:focus-visible{outline:0}
 /* foto pet sengaja lebih besar dari kotaknya: kepala/sayap boleh sedikit keluar dari kartu */
@@ -71,6 +71,9 @@
 /* isinya kartu .ut-sc (komponen stat-card): abu = biasa, hijau = Rasio Kemenangan, kuning = koleksi lengkap */
 #sg,#kol{padding:12px;box-sizing:border-box;border-radius:12px;background:rgba(0,0,0,.28);box-shadow:inset 0 3px 0 rgba(0,0,0,.35)}   /* kotak isi: lebih gelap dari panel */
 .ps,.pk{width:100%;height:100%;min-height:0;font-size:32px;cursor:default;color:#fff}
+/* kotak isi: hanya ikon (tanpa kotak gelap di belakangnya), tanpa progress bar */
+.ps .ut-sc-ico,.pk .ut-sc-ico{background:none;border:0;box-shadow:none}
+.ps .ut-sc-ico img,.pk .ut-sc-ico img{width:88%;height:88%}
 .ps .ut-sc-l,.pk .ut-sc-l{font-size:.68em}
 .ps .ut-sc-v{font-size:1.05em}
 button.ps,button.pk{cursor:pointer}

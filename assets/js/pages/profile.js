@@ -220,18 +220,18 @@ $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classLi
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
 const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="pk ut-sc${t > 0 && a >= t ? ' gold' : ''}" type="button" data-u="${u}"><span class="ut-sc-ico"><img src="${K}${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${n}</span><span class="ut-sc-v">${a}/${t}</span><span class="ut-sc-bar"><i style="width:${t ? Math.round(a / t * 100) : 0}%"></i></span></span></button>`; }).join('');
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="pk ut-sc${t > 0 && a >= t ? ' gold' : ''}" type="button" data-u="${u}"><span class="ut-sc-ico"><img src="${K}${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${n}</span><span class="ut-sc-v">${a}/${t}</span></span></button>`; }).join('');
 }
 $('#kol').onclick = e => { const b = e.target.closest('.pk'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u, o) => { o = o || {}; const t = u ? 'button' : 'div'; return `<${t} class="ps ut-sc${o.cls ? ' ' + o.cls : ''}"${u ? ` data-u="${u}" type="button"` : ''}><span class="ut-sc-ico"><img src="${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${label}</span><span class="ut-sc-v">${v}</span>${o.bar != null ? `<span class="ut-sc-bar"><i style="width:${o.bar}%"></i></span>` : ''}</span></${t}>`; };
+  const row = (ic, label, v, u, o) => { o = o || {}; const t = u ? 'button' : 'div'; return `<${t} class="ps ut-sc${o.cls ? ' ' + o.cls : ''}"${u ? ` data-u="${u}" type="button"` : ''}><span class="ut-sc-ico"><img src="${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${label}</span><span class="ut-sc-v">${v}</span></span></${t}>`; };
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
-    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, { cls: 'hp', bar: wr }) +
+    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, { cls: 'hp' }) +
     row(K + 'item-icons/gulungan-misi.webp', 'Misi', MIS() + `<img class="go" src="${G}segitiga-kanan.webp" alt="">`, 'hadiah-misi.html') +
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
     row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +
