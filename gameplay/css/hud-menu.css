@@ -73,5 +73,15 @@ body.playing .hm:not([hidden]){display:flex}
 .hm-keys{color:#c9bfe0}
 .hm-box kbd{display:inline-block;min-width:20px;padding:1px 6px;border-radius:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font:800 12px/1.5 system-ui,sans-serif;text-align:center}
 
+/* modal kit di gameplay: kit berukuran kanvas 1920 (judul 46px, X 76px) -> terlalu besar & menimpa judul di layar perangkat.
+   .gp-mk = skala perangkat: judul 28px, X 42px, bingkai & strip header lebih tipis. Pasang bersama .ut-mk. */
+.ut-mk.gp-mk{border-width:4px;border-radius:20px;box-shadow:inset 0 0 0 3px #6a6a6a,0 10px 30px rgba(0,0,0,.7)}
+.ut-mk.gp-mk::before{top:3px;left:3px;right:3px;height:46px;border-radius:15px 15px 0 0}
+.ut-mk.gp-mk>.ut-mk-t{top:11px;padding:0 60px;overflow:hidden;text-overflow:ellipsis;font-size:28px;
+  text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 3px 0 #000}
+.ut-mk.gp-mk>.ut-mk-x{right:8px;top:6px;width:42px;height:42px;--gl-r:11px;--gl-bw:3px;--gl-ledge:4px}
+.ut-mk.gp-mk>.ut-mk-x::before,.ut-mk.gp-mk>.ut-mk-x::after{left:10px;right:10px;height:5px;margin-top:-2.5px;border-radius:3px;box-shadow:0 1px 0 #0d0a18}
+.hm-box.gp-mk{padding:66px 18px 16px}
+
 /* Pause murni jeda: 3 tombol (Lanjutkan, Ulang, Keluar) */
 html body #pauseMenu .lm-grid.lm-pm{grid-template-columns:repeat(3,170px)!important}

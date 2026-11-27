@@ -5894,7 +5894,7 @@ async function resolveMobAt(p,gid){
 function totemModal(p,what,gid){
   return new Promise(res=>{
     const ov=document.createElement('div'); ov.className='tm-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="tm-box"><div class="tm-ic"></div><h4>Pakai Totem?</h4><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y ut-gl ut-c-g"></button><button type="button" class="tm-n ut-gl ut-c-r">Tidak</button></div><small class="tm-t"></small></div>';
+    ov.innerHTML='<div class="tm-box ut-mk" role="document"><h4 class="ut-mk-t">Pakai Totem?</h4><div class="tm-ic"></div><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y ut-gl ut-c-g"></button><button type="button" class="tm-n ut-gl ut-c-r">Tidak</button></div><small class="tm-t"></small></div>';
     ov.querySelector('.tm-d').textContent=p.name+' kena '+what+'! Totem bisa menahannya (sisa '+p.pu.totem+').';
     ov.querySelector('.tm-y').textContent='Pakai Totem';
     try{ UT.Gameplay.Config.setPuIcon(ov.querySelector('.tm-ic'),'totem'); }catch(e){}
@@ -6792,9 +6792,9 @@ function profRender(){
   }
   m.hidden=false; m.setAttribute('aria-label','Profil '+p.name); m.textContent='';
   const local=isLocalPlayer(p),host=ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu);
-  const box=pmEl('div','pm-box'); box.style.setProperty('--pc',p.css||'#ffd45a');
-  const head=pmEl('div','pm-head'); head.appendChild(pmEl('b',null,p.name));
-  const x=pmEl('button','pm-x','✕'); x.type='button'; x.setAttribute('aria-label','Tutup'); x.addEventListener('click',profClose); head.appendChild(x); box.appendChild(head);
+  const box=pmEl('div','pm-box ut-mk gp-mk'); box.style.setProperty('--pc',p.css||'#ffd45a');
+  const ttl=pmEl('h2','ut-mk-t',p.name); ttl.id='pmTitle'; m.setAttribute('aria-labelledby','pmTitle'); box.appendChild(ttl);
+  const x=pmEl('button','pm-x ut-mk-x ut-gl ut-c-r'); x.type='button'; x.setAttribute('aria-label','Tutup'); x.addEventListener('click',profClose); box.appendChild(x);
   const body=pmEl('div','pm-body');
   const left=pmEl('div','pm-card'); const face=pmEl('div','pm-face'),im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name; face.appendChild(im); left.appendChild(face);
   const tags=pmEl('div','pm-tags'); if(local) tags.appendChild(pmEl('span','pm-tag me','AKU')); if(p.cpu) tags.appendChild(pmEl('span','pm-tag','CPU')); if(host) tags.appendChild(pmEl('span','pm-tag host','HOST'));
@@ -6814,7 +6814,7 @@ function profRender(){
   body.appendChild(st); box.appendChild(body);
   const foot=pmEl('div','pm-foot'); const th=document.createElement('img'); th.className='pm-th'; th.src=framedFace(p); th.alt=''; foot.appendChild(th);
   if(local){ /* tombol AUTO hanya untuk profil sendiri */
-    const on=!!autoRoll,ab=pmEl('button','pm-auto'+(on?' on':''),on?'AUTO PLAY: NYALA':'AUTO PLAY'); ab.type='button'; ab.setAttribute('aria-pressed',String(on)); ab.addEventListener('click',profToggleAuto); foot.appendChild(ab);
+    const on=!!autoRoll,ab=pmEl('button','pm-auto ut-gl '+(on?'ut-c-g on':'ut-c-b'),on?'AUTO PLAY: NYALA':'AUTO PLAY'); ab.type='button'; ab.setAttribute('aria-pressed',String(on)); ab.addEventListener('click',profToggleAuto); foot.appendChild(ab);
   } else foot.appendChild(pmEl('span','pm-spacer'));
   const sc=pmEl('div','pm-score'); sc.appendChild(pmEl('small','pm-lb','SKOR')); sc.appendChild(pmEl('b',null,p.score||0)); foot.appendChild(sc);
   box.appendChild(foot); m.appendChild(box);

@@ -62,6 +62,7 @@
 </div>
 </aside>
 
+<div id="hitDim" hidden aria-hidden="true"></div>
 <div id="puCard" class="pucard" hidden role="status" aria-live="polite"><p id="pcWho"></p><div id="pcEmoji"></div><h4 id="pcName"></h4><p id="pcDesc"></p></div>
 
 <div id="trapBar" hidden role="group" aria-label="Pasang jebakan"><span id="trapTxt"></span><span id="trapHint">Tap petak <b>hijau</b> untuk memilih</span><div class="trapAct"><button id="trapNo" class="ut-gl ut-c-r" type="button">Batal</button><button id="trapOk" class="ut-gl ut-c-g" type="button">Pasang</button></div></div>
@@ -145,9 +146,9 @@
 </section>
 
 <section class="overlay lm-ov" id="exitConfirm" role="alertdialog" aria-modal="true" aria-labelledby="ecTitle" aria-describedby="ecText" hidden style="z-index:30">
-  <div class="lm-box">
+  <div class="lm-box ut-mk">
+    <h2 class="ut-mk-t" id="ecTitle">Keluar?</h2>
     <div class="lm-body">
-      <h2 id="ecTitle">Keluar?</h2>
       <p class="lm-note" id="ecText">Permainan yang sedang berjalan tidak akan disimpan. Kembali ke lobi?</p>
       <div class="lm-grid lm-two">
         <button class="lm-mode lm-blue ut-gl ut-c-d" type="button" id="ecNo">Batal</button>
@@ -178,7 +179,7 @@
 </nav>
 
 <section class="hm-ov" id="settingsMenu" role="dialog" aria-modal="true" aria-labelledby="stTitle" hidden>
-  <div class="hm-box ut-mk">
+  <div class="hm-box ut-mk gp-mk">
     <button class="hm-x ut-mk-x ut-gl ut-c-r" type="button" id="stClose" aria-label="Tutup"></button>
     <h2 class="ut-mk-t" id="stTitle">Pengaturan</h2>
     <div class="hm-sec">
@@ -197,7 +198,7 @@
 </section>
 
 <section class="hm-ov" id="helpMenu" role="dialog" aria-modal="true" aria-labelledby="hpTitle" hidden>
-  <div class="hm-box ut-mk">
+  <div class="hm-box ut-mk gp-mk">
     <button class="hm-x ut-mk-x ut-gl ut-c-r" type="button" id="hpClose" aria-label="Tutup"></button>
     <h2 class="ut-mk-t" id="hpTitle">Cara bermain</h2>
     <div class="hm-help">

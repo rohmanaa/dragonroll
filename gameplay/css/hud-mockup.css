@@ -84,17 +84,12 @@
 .tm-box {
   width: 900px !important;
   max-width: none !important;
-  padding: 32px !important;
-  border: 4px solid var(--gh-line) !important;
-  border-radius: 22px !important;
+  padding: 118px 40px 36px !important;   /* bingkai/judul: modal kit (.ut-mk) */
   color: #fff !important;
-  background: var(--gh-panel) !important;
-  box-shadow: 0 8px 0 rgba(10, 6, 25, .5) !important;
   font: 800 30px var(--gh-body) !important;
   zoom: var(--ghud-stage-scale, 1) !important;
 }
 
-.tm-box h4 { color: var(--gh-gold) !important; font: 56px var(--gh-title) !important; }
 .tm-box p,
 .tm-box small { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
 .tm-bt button {
@@ -774,13 +769,15 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 
 .lm-ov,
 .tm-ov { background: rgba(10, 8, 30, .93) !important; backdrop-filter: none !important; }
-.lm-ov .lm-box,
-.tm-box {
+.lm-ov .lm-box:not(.ut-mk) {
   border: 0 !important;
   border-radius: 24px !important;
   background: url("../../assets/images/ui/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
   box-shadow: none !important;
 }
+#exitConfirm .lm-box.ut-mk { width: 760px !important; padding: 118px 28px 28px !important; border: 6px solid #000 !important; border-radius: 28px !important; background: #4b4b4b !important; box-shadow: inset 0 0 0 5px #6a6a6a, 0 14px 44px rgba(0, 0, 0, .7) !important; color: #fff !important; }
+#exitConfirm .lm-box.ut-mk .lm-body { padding: 0 !important; }
+#exitConfirm .lm-box.ut-mk > .ut-mk-t { font-size: 46px !important; color: #fff !important; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000, 0 4px 0 #000 !important; }
 .lm-ov .lm-box { padding: 28px !important; }
 .lm-ov .lm-body { padding: 34px !important; }
 .lm-ov .lm-box h2 { color: #ffd45a !important; font-family: var(--gh-title) !important; }
@@ -943,15 +940,13 @@ html body #puCard.pucard {
   gap: 16px !important;
   padding: 18px 70px !important;
   border: 0 !important;
-  border-top: 3px solid var(--gh-event-color) !important;
-  border-bottom: 3px solid var(--gh-event-color) !important;
   border-radius: 0 !important;
   color: var(--gh-event-color) !important;
-  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
+  background: none !important;          /* tanpa panel: hanya teks + outline */
   box-shadow: none !important;
   font: 800 36px/1.2 var(--gh-body) !important;
   text-align: center !important;
-  text-shadow: none !important;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 6px rgba(0, 0, 0, .6) !important;
 }
 #utGameplayHud .ut-ghud-b[data-k="turn"],
 #utGameplayHud .ut-ghud-b[data-k="extra"],
