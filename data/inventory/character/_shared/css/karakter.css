@@ -48,7 +48,7 @@
 #right{position:absolute;left:985px;top:0;width:900px;height:1080px}
 /* slot diperbesar 1.25x (5 kolom, ~162px): di HP layar lebar (20:9) stage 1920x1080 tampil di tinggi penuh jadi slot 130px terlalu kecil.
    zoom menskalakan slot + isi (ikon, harga, tag) bersama; left/top/ukuran di bawah sudah dibagi 1.25. Grid bisa di-scroll bila item > 4 baris. */
-#grid{position:absolute;left:4px;top:210px;width:740px;max-height:636px;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:130px;gap:20px;zoom:1.25;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+#grid{position:absolute;left:4px;top:210px;width:740px;max-height:636px;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:max-content;gap:20px;zoom:1.25;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
 .slot{position:relative;width:130px;height:130px;background:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
 .slot:hover{filter:brightness(1.15)}
 .slot:active{transform:scale(.95)}

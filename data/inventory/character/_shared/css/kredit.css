@@ -118,3 +118,19 @@ body.kr #info{top:700px}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:2}
 #stage #cur-em{left:60px!important}
 #stage #cur-co{left:370px!important}
+
+/* kartu item karakter = komponen card-item (.ut-ci, assets/components/card-item/card-item.css), sama seperti slot Dadu.
+   Gaya .card lama (bingkai ungu/hijau) dimatikan untuk .kcard; ukuran font disesuaikan dengan lebar kolom 130px (1em = 14.7px, rasio 168:226). */
+#grid .kcard{width:100%;height:auto;gap:0;font-size:14.7px;padding:.53em .42em .42em;justify-content:flex-start;animation:pop .35s both}
+#grid .kcard::before{content:none;display:none}
+#grid .kcard:hover{transform:none}
+#grid .kcard .nm{font:inherit;font-weight:900;text-shadow:inherit}
+#grid .kcard .th{display:block;margin:.2em 0}
+#grid .kcard .th .em{position:absolute;inset:0;display:grid;place-items:center;font-size:3.2em;line-height:1}
+#grid .kcard .th .sq{position:absolute;left:19%;top:19%;width:62%;height:auto;aspect-ratio:1}
+#grid .kcard .th.ph .em,#grid .kcard .th.ph .sq{visibility:hidden}
+#grid .kcard.lk{filter:saturate(.45) brightness(.82)}
+#grid .kcard.lk .th{filter:none;opacity:.7}
+#grid .kcard.sel{z-index:2;outline:0;filter:none;box-shadow:0 0 0 .14em #ffe27a,inset 0 .105em 0 rgba(255,255,255,.28),inset 0 -.21em 0 rgba(0,0,0,.14),0 .16em 0 rgba(0,0,0,.28)}
+#grid .kcard.lk.sel{filter:saturate(.45) brightness(.82)}
+#grid .kcard .ut-ci-ft{font-size:1em}

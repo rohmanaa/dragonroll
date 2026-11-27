@@ -1258,20 +1258,20 @@ actionEl.addEventListener('click',()=>{
   const state=action.state();
   if(!state.disabled)action.run(state);
 });
-/* Kartu hanya untuk pratinjau/pemilihan; aksi item ada pada tombol kanan bawah. */
+/* Kartu hanya untuk pratinjau/pemilihan; aksi item ada pada tombol kanan bawah.
+   Tampilan = komponen card-item (.ut-ci, sama seperti slot Dadu): warna mengikuti rarity, kotak cekung di bawah (.ut-ci-ft) berisi status/harga. */
+const RARV={common:'gray',uncommon:'green',rare:'blue',epic:'purple',legendary:'gold',mythic:'red'};
+const COINIMG='<img src="'+KOIN+'" alt="">';
+const lockFoot=ci=>ci&&canSell(ci)?fmtPrice(ci.price)+COINIMG:(ci&&pvpOf(ci)?'PVP':'TIDAK DIJUAL');
 function card(o){
   const d=document.createElement('div');
   const status=o.status||(o.lock?'lock':o.on?'used':'own');
-  d.className='card st-'+status+(o.sel?' sel':'')+(o.lock?' lk':'');
+  const ft=o.ft!=null?o.ft:(o.keepBadge&&o.badge)?o.badge:status==='used'?'DIPAKAI':status==='lock'?'TERKUNCI':'DIMILIKI';
+  d.className='card kcard ut-ci '+(RARV[o.rar]||'gray')+' st-'+status+(o.sel?' sel':'')+(o.lock?' lk':'');
   d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
   d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
-  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.keepBadge&&o.badge?'<button class="bt ut-gl"></button>':'');
+  d.innerHTML=(o.on?'<span class="ut-ci-ck" aria-hidden="true"></span>':'')+'<span class="nm ut-ci-nm"></span><span class="th ut-ci-art">'+o.th+'</span><span class="ut-ci-ft">'+ft+'</span>';
   d.querySelector('.nm').textContent=o.nm;
-  if(o.keepBadge&&o.badge){
-    const b=d.querySelector('.bt');b.textContent=o.badge;
-    if(o.bg)b.classList.add(o.bg);
-    b.classList.add(o.bg==='own'?'ut-c-g':o.bg==='owned'||o.bg==='no'?'ut-c-d':'ut-c-b');
-  }
   if(o.actionKey&&o.action)cardActions.set(o.actionKey,o.action);
   const choose=()=>{
     endPreview();
@@ -1509,13 +1509,13 @@ function renderOpts(){
   if(c.type==='gender'){
     [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
       const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.face=clone(cur.face);o.skin=cur.skin;o.body=clone(cur.body);return o;};
-      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
+      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],ft:'PILIH',on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
         actionKey:'gender:'+a[0],
         action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
         fn:()=>stage('g'+a[0],a[2],gpart(B())),
         tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',part:gpart}}));});
   }else if(c.type==='skin'){
-    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='k'+s.id),
+    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,ft:'PILIH',on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='k'+s.id),
       actionKey:'skin:'+s.id,
       action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
       fn:()=>stage('k'+s.id,s.n,{skin:s.id}),
@@ -1533,7 +1533,7 @@ function renderOpts(){
       const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
       const part=clone(p.set),name=p.n.replace(/^\S+\s/,'');
       const stat=setThumb(p); /* set bawaan = foto statis; PVP & outfit pribadi tetap jepretan 3D */
-      optsEl.appendChild(card({i:n++,th:stat?'<img class="thimg" src="'+stat+'" alt="" draggable="false" decoding="async">':emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
+      optsEl.appendChild(card({i:n++,th:stat?'<img class="thimg" src="'+stat+'" alt="" draggable="false" decoding="async">':emo(c.ico),nm:p.n,rar:'epic',ft:lock?(st.sellable?fmtPrice(st.total)+COINIMG:(st.pvp?'PVP':'TIDAK DIJUAL')):null,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
         actionKey:'set:'+p.id,
         action:{
           state:()=>lock
@@ -1561,7 +1561,7 @@ function renderOpts(){
     ACCS.filter(okG).forEach(it=>{
       const on=B().accessories.some(a=>a.id===it.id),onD=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
       const sell=canSell(ci),actionKey='acc:'+it.id;
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
+      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
         actionKey:actionKey,
         action:{
           state:()=>lock
@@ -1587,7 +1587,7 @@ function renderOpts(){
     REG[c.reg].filter(okG).forEach(it=>{
       const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===B()[c.key].id;
       const sell=canSell(ci),removable=['helm','chest','shoulder','cape','weapon','boots'].includes(c.key),actionKey='item:'+c.key+':'+it.id;
-      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
+      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
         actionKey:actionKey,
         action:{
           state:()=>lock
