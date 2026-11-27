@@ -426,11 +426,9 @@
   function drUp() {
     const fn = D.furnace(), f = D.forest(), l = D.lift(), rg = D.restGlobal(), act = D.smeltActive();
     const fst = fn.n < 1 ? 'Belum ada — tukang bakar datang sendiri' : rg.resting ? 'Tukang bakar ' + (rg.kind === 'sleep' ? 'tidur 😴' : 'makan 🍖') + ' · lanjut ' + dur(rg.left / 1000) : act ? 'Melebur otomatis 🔥 · antre ' + fmt(D.smeltQueue()) + ' ore' : 'Menunggu ore & bahan bakar';
-    let h = wallet() + '<div class="ut-dr-sec" id="dr-sec-furn">Furnace</div>'
+    let h = '<div class="ut-dr-sec" id="dr-sec-furn">Furnace</div>'
       + itm('🔥', 'defense', 'Furnace ' + fn.n + '/' + fn.max, fst, fn.next_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : (fn.next_cost === 0 ? '<span class="ut-dr-cost">GRATIS</span>' : cost(fn.next_cost)) + gbtn('BANGUN', 'data-furn="1"', fn.next_cost != null && D.wallet.coins() < fn.next_cost ? 'ut-c-d' : 'ut-c-g'));
-    const bp = D.boostPlan();
-    h += '<div class="ut-dr-sec" id="dr-sec-prod">Produksi <small>kecepatan & peti per tambang</small></div>'
-      + itm('⚡', 'hero', 'Boost semua tambang', bp.n ? bp.n + ' tambang · ×' + D.config.boost_mult : 'Perlu manager / sedang aktif', bp.n ? cost(bp.cost) + gbtn('BOOST', 'data-boostall="1"', D.wallet.coins() < bp.cost ? 'ut-c-d' : 'ut-c-b') : gbtn('BOOST', 'disabled', 'ut-c-d'));
+    h += '<div class="ut-dr-sec" id="dr-sec-prod">Produksi <small>kecepatan & peti per tambang</small></div>';
     D.slots.forEach((s, k) => { const i = k + 1;
       if (!s.unlocked) { h += itm('⛏', 'army', 'Tambang ' + i, 'Terkunci · ' + f2(s.base_rate) + ' /jam (Lv1)', buy('BUKA', 'data-unl="' + i + '"', s.unlock_cost), true); return; }
       h += itm('⛏', 'army', 'Tambang ' + i, 'Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + (s.mgr ? ' · 👔' : ''),
@@ -450,7 +448,7 @@
     const gems = ['lapis', 'amethyst', 'diamond'].map((k) => itm(dot(GOODC[k]), '', GOODN[k], 'permata · tidak dilebur', '<span class="ut-dr-cost">× ' + fmt(gd[k]) + '</span>', !gd[k])).join('');
     const fuel = itm(dot('#8a5a2b'), '', 'Kayu', 'bahan bakar · cadangan ' + g.keep.wood, '<span class="ut-dr-cost">× ' + fmt(D.wood()) + '</span>', !D.wood()) + itm(dot('#3a3a44'), '', 'Batu Bara', 'bahan bakar · cadangan ' + g.keep.coal, '<span class="ut-dr-cost">× ' + fmt(inv.coal) + '</span>', !inv.coal);
     const up = (k, nm, desc, cur, nx, c) => itm('📦', 'resource', nm + ' <em>' + cur + '</em>', desc + (nx != null ? ' · → ' + nx : ''), c == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(c) + gbtn('UPGRADE', 'data-gup="' + k + '"', D.wallet.coins() < c ? 'ut-c-d' : 'ut-c-g'));
-    return wallet() + '<div class="ut-dr-sec" style="margin-top:0">Peti Gudang <small>' + fmt(g.used) + ' / ' + fmt(g.cap) + '</small></div>'
+    return '<div class="ut-dr-sec" style="margin-top:0">Peti Gudang <small>' + fmt(g.used) + ' / ' + fmt(g.cap) + '</small></div>'
       + '<div class="ut-dr-fillbar' + (full ? ' warn' : '') + '"><i style="width:' + Math.min(100, g.used / Math.max(1, g.cap) * 100) + '%"></i></div>'
       + '<button class="ut-gl ' + (ready ? 'ut-c-g' : 'ut-c-d') + ' ut-dr-big" data-claim="1"' + (ready ? '' : ' disabled') + '>' + (ready ? 'KLAIM KE INVENTORI ORE' : 'GUDANG KOSONG') + '</button>'
       + '<p class="ut-dr-note">' + (full ? '⚠ Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '. Hasil klaim masuk Inventori › Ore.') + '</p>'

@@ -294,3 +294,9 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 .tambang-mgrb small{display:inline-flex;align-items:center;gap:6px;font:400 22px/1 var(--ut-font-title,'Lilita One',sans-serif)}
 .tambang-mgrb small img{width:26px;height:26px;object-fit:contain}
 #tambang-dr{z-index:60}
+
+/* v4: bawah-tengah = BOOST SEMUA; pembuka drawer (Gudang) di kanan bawah */
+#tambang-tools .tambang-btn{width:300px}
+#tambang-gudang{position:absolute;right:28px;bottom:26px;width:250px;height:76px;z-index:5}
+#tambang-gudang>span{display:flex;align-items:center;justify-content:center;gap:8px;font-size:26px;white-space:nowrap}
+#tambang-gudang>span img{width:34px;height:34px}
