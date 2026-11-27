@@ -85,7 +85,7 @@
       const on = +t.dataset.i === i; t.classList.toggle('on', on);
       t.firstElementChild.src = 'tambang-world/images/tambang-tile-stage-' + (on ? 'aktif' : 'biasa') + '.webp';
     });
-    upB.disabled = i === MIN; dnB.disabled = i >= maxNav(); tiles.forEach((t) => t.classList.toggle('lk', +t.dataset.i > maxNav())); prodB.style.display = i === 0 ? 'none' : '';
+    upB.disabled = i === MIN; dnB.disabled = i >= maxNav(); tiles.forEach((t) => t.classList.toggle('lk', +t.dataset.i > maxNav()));
   }
 
   /* ---------- navigasi layer ---------- */
@@ -264,7 +264,7 @@
 
 
   /* ---------- panel produksi (slot 1..3 = layer 1..3), logika dari data/mining/js/tambang.js ---------- */
-  const card = $('tambang-card'), prodB = $('tambang-prod'), liftB = $('tambang-liftb'); let cardOpen = false, cardFor = -1, panel = 'prod';
+  const card = $('tambang-card'); let cardOpen = true, cardFor = -1, panel = 'prod';
   const dur = (s) => { s = Math.max(0, Math.round(s)); if (s < 60) return s <= 1 ? '<1m' : s + 'd'; const m = Math.floor(s / 60), h = Math.floor(m / 60); return h >= 24 ? Math.floor(h / 24) + ' hr ' + (h % 24) + 'j' : h ? h + 'j ' + (m % 60) + 'm' : m + 'm'; };
   const q = (sel) => card.querySelector(sel);
   const ore = (k) => D.ORES[k];
@@ -325,9 +325,8 @@
   }
   function openPanel(which) {
     if (cardOpen && panel === which) cardOpen = false; else { cardOpen = true; panel = which; }
-    prodB.setAttribute('aria-expanded', cardOpen && panel === 'prod'); liftB.setAttribute('aria-expanded', cardOpen && panel === 'lift'); buildCard();
+    buildCard();
   }
-  prodB.addEventListener('click', () => { openPanel('prod'); }); liftB.addEventListener('click', () => openPanel('lift'));
   MW.ui.openPanel = openPanel;
   /* modal konfirmasi (sub.css #md) */
   let okFn = null;
@@ -357,7 +356,7 @@
     else if (a === 'boost') toast('Percepat aktif ⚡'); else toast('Upgrade berhasil!');
   }
   card.addEventListener('click', (e) => {
-    if (e.target.closest('[data-x]')) { cardOpen = false; prodB.setAttribute('aria-expanded', 'false'); liftB.setAttribute('aria-expanded', 'false'); buildCard(); return; }
+    if (e.target.closest('[data-x]')) { cardOpen = false; buildCard(); return; }
     const lb = e.target.closest('[data-lift]'); if (lb && !lb.disabled) { liftPre(lb.dataset.lift); return; }
     const b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
     pre(Wd.cur, b.dataset.a);
@@ -429,7 +428,9 @@
     const fst = fn.n < 1 ? 'Belum ada — tukang bakar datang sendiri' : rg.resting ? 'Tukang bakar ' + (rg.kind === 'sleep' ? 'tidur 😴' : 'makan 🍖') + ' · lanjut ' + dur(rg.left / 1000) : act ? 'Melebur otomatis 🔥 · antre ' + fmt(D.smeltQueue()) + ' ore' : 'Menunggu ore & bahan bakar';
     let h = wallet() + '<div class="ut-dr-sec" id="dr-sec-furn">Furnace</div>'
       + itm('🔥', 'defense', 'Furnace ' + fn.n + '/' + fn.max, fst, fn.next_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : (fn.next_cost === 0 ? '<span class="ut-dr-cost">GRATIS</span>' : cost(fn.next_cost)) + gbtn('BANGUN', 'data-furn="1"', fn.next_cost != null && D.wallet.coins() < fn.next_cost ? 'ut-c-d' : 'ut-c-g'));
-    h += '<div class="ut-dr-sec" id="dr-sec-prod">Produksi <small>kecepatan & peti per tambang</small></div>';
+    const bp = D.boostPlan();
+    h += '<div class="ut-dr-sec" id="dr-sec-prod">Produksi <small>kecepatan & peti per tambang</small></div>'
+      + itm('⚡', 'hero', 'Boost semua tambang', bp.n ? bp.n + ' tambang · ×' + D.config.boost_mult : 'Perlu manager / sedang aktif', bp.n ? cost(bp.cost) + gbtn('BOOST', 'data-boostall="1"', D.wallet.coins() < bp.cost ? 'ut-c-d' : 'ut-c-b') : gbtn('BOOST', 'disabled', 'ut-c-d'));
     D.slots.forEach((s, k) => { const i = k + 1;
       if (!s.unlocked) { h += itm('⛏', 'army', 'Tambang ' + i, 'Terkunci · ' + f2(s.base_rate) + ' /jam (Lv1)', buy('BUKA', 'data-unl="' + i + '"', s.unlock_cost), true); return; }
       h += itm('⛏', 'army', 'Tambang ' + i, 'Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + (s.mgr ? ' · 👔' : ''),
@@ -478,6 +479,7 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dr.classList.contains('on') && !md.classList.contains('on')) closeDrawer(); });
   dr.querySelectorAll('.ut-dr-tab').forEach((b) => b.addEventListener('click', () => { D.feedback(); drTab = b.dataset.dt; drL.scrollTop = 0; drRender(); }));
   drL.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-boostall]')) { closeDrawer(); boostAllFlow(); return; }
     if (e.target.closest('[data-goinv]')) { nav('inventory', 'inventory.html?tab=ore'); return; }
     if (e.target.closest('[data-claim]')) {
       const r = await D.claim(); D.feedback();
@@ -501,14 +503,14 @@
     }
   });
   gB.addEventListener('click', () => openBuilding('gudang'));
-  $('tambang-furn').addEventListener('click', () => openBuilding('tungku')); $('tambang-gup').addEventListener('click', () => openDrawer('up')); $('tambang-forest').addEventListener('click', () => openBuilding('hutan'));
   $('tambang-mclose').addEventListener('click', () => $('tambang-m-no').click());
-  $('tambang-boostall').addEventListener('click', () => {
+  function boostAllFlow() {
     const p = D.boostPlan();
     if (!p.n) { toast(D.slots.some((x) => x.unlocked && x.mgr) ? 'Tidak ada tambang yang bisa dipercepat' : D.MSG['perlu-manager'], true); return; }
     if (D.wallet.coins() < p.cost) { ask('Koin tidak cukup', 'Boost semua (' + p.n + ' tambang) butuh ' + fmt(p.cost) + ' Koin.<br>Saldo kamu ' + fmt(D.wallet.coins()) + ' Koin.<br><small style="font-size:26px;color:#b9b1d3">Beberapa tambang tetap dipercepat sesuai saldo bila kamu lanjut dari tombol Percepat per tambang.</small>', 'TUTUP', '', null); return; }
     ask('Boost Semua', 'Percepat ' + p.n + ' tambang ×' + D.config.boost_mult + '<br>seharga ' + fmt(p.cost) + ' Koin?', 'BATAL', 'PERCEPAT', async () => { D.feedback(); const r = await D.boostAll(); buildCard(); paintCur($('tambang-cur-co')); toast(r.ok ? 'Boost aktif di ' + r.n + ' tambang ⚡' : D.MSG['saldo-kurang'], !r.ok); });
-  });
+  }
+
   const bubB = $('tambang-bub-b'), bubU = $('tambang-bub-u'); let bubMode = '';
   bubB.addEventListener('click', () => { const i = Wd.cur, s = D.slots[i - 1]; if (!s || !s.unlocked) return; if (D.boostLeft(i) > 0) { toast('Percepat masih aktif', false); return; } pre(i, 'boost'); });
   bubU.addEventListener('click', () => { if (!cardOpen || panel !== 'prod') openPanel('prod'); });
@@ -523,8 +525,6 @@
       if (lb.textContent !== h) lb.textContent = h;
       lockBtn.classList.toggle('poor', !cu || D.wallet.coins() < s.unlock_cost); lockBtn.classList.toggle('wait', !cu);
     }
-    const pl = prodB.lastElementChild, want = on ? (s.can_unlock !== false ? '🔓 BUKA' : '🔒 TERKUNCI') : 'PRODUKSI';
-    if (pl.textContent !== want) pl.textContent = want; prodB.classList.toggle('open', on && s.can_unlock !== false);
   }
   function updateBubbles() {
     paintLock();

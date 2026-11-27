@@ -138,10 +138,9 @@ body:has(#tambang-md.on)::after{content:'';position:fixed;inset:0;z-index:0;poin
 /* baris alat: Gudang / Produksi / Boost Semua / Lift */
 #tambang-tools{position:absolute;left:940px;top:120px;display:flex;gap:10px;z-index:5}
 #tambang-tools .tambang-btn{height:78px}
-#tambang-gudang{width:250px}#tambang-prod{width:215px}#tambang-boostall{width:280px}#tambang-liftb{width:150px}
+#tambang-gudang{width:250px}
 #tambang-tools .tambang-btn>span{font-size:28px;display:flex;align-items:center;gap:6px}
-#tambang-prod span,#tambang-gudang span{color:#fff}
-#tambang-prod span{color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+#tambang-gudang span{color:#fff}
 #tambang-gudang b{font:400 28px var(--tambang-font-title);color:#ffe08a}
 #tambang-tools .tambang-btn>span img{width:34px;height:34px}
 /* bubble aksi di atas pekerja */
@@ -262,7 +261,6 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 #tambang-lock-btn>span{font:400 40px var(--tambang-font-title)!important;color:#4d2300!important;text-shadow:0 2px 0 rgba(255,236,160,.6);display:flex;align-items:center;justify-content:center;gap:8px}
 #tambang-lock-btn>span img{width:42px;height:42px}
 #tambang-lock-btn.poor{filter:saturate(.5) brightness(.9)}
-#tambang-prod.open{animation:tambangGlow 1.6s ease-in-out infinite}
 #tambang-lock .tambang-btn>img{position:absolute;inset:0;width:100%;height:100%;filter:none;object-fit:fill}
 #tambang-lock-btn{position:relative}
 #tambang-lock-btn>span{position:relative;width:100%;height:100%}

@@ -38,9 +38,9 @@
 .ut-dr-fillbar { position: relative; height: 1.5em; margin: 0 0 .8em; border: .25em solid #000; border-radius: .5em; background: #2a1f14; overflow: hidden; box-shadow: inset 0 .2em .4em rgba(0, 0, 0, .7); }
 .ut-dr-fillbar > i { display: block; height: 100%; background: linear-gradient(180deg, #a8ee55 0 50%, #4aa417 50% 100%); }
 .ut-dr-fillbar.warn > i { background: linear-gradient(180deg, #ff8a7a 0 50%, #d22d1f 50% 100%); }
-.ut-dr-item { display: flex; align-items: center; gap: .8em; padding: .6em .8em .6em .6em; margin-bottom: .6em; border: .2em solid #2b1f12; border-radius: .8em; background: linear-gradient(180deg, #8d7352 0 50%, #7a6243 50% 100%); }
+.ut-dr-item { display: flex; align-items: center; gap: .8em; padding: .45em .7em .45em .5em; margin-bottom: .45em; border: .2em solid #2b1f12; border-radius: .8em; background: linear-gradient(180deg, #8d7352 0 50%, #7a6243 50% 100%); }
 .ut-dr-item.z { opacity: .55; }
-.ut-dr-ic { flex: none; width: 4.4em; height: 4.4em; border: .2em solid #000; border-radius: .7em; display: flex; align-items: center; justify-content: center; font-size: 2em; background: linear-gradient(180deg, #e6d67f 0 50%, #bdaa4f 50% 100%); }
+.ut-dr-ic { flex: none; width: 2.9em; height: 2.9em; border: .2em solid #000; border-radius: .7em; display: flex; align-items: center; justify-content: center; font-size: 1.6em; background: linear-gradient(180deg, #e6d67f 0 50%, #bdaa4f 50% 100%); }
 .ut-dr-ic.army { background: linear-gradient(180deg, #7fb3e6 0 50%, #4f86bd 50% 100%); }
 .ut-dr-ic.defense { background: linear-gradient(180deg, #e69a7f 0 50%, #bd6a4f 50% 100%); }
 .ut-dr-ic.hero { background: linear-gradient(180deg, #c49be6 0 50%, #9368bd 50% 100%); }
