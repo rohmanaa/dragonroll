@@ -265,3 +265,10 @@ html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 .plate img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 .plate.own{font-size:38px;cursor:default}
 .qty button{width:80px;height:80px;padding:0;font:400 52px/1 var(--font-title)}
+
+/* kartu Shop = krem seperti Contoh Popup (game-cards): isi #e9e5da, teks gelap; sumur rarity di belakang gambar tetap berwarna */
+.card.card-panel-new{color:#222}
+.card.card-panel-new::before{background:#e9e5da}
+.card.card-panel-new .nm,.card.card-panel-new.item .nm{color:#222;text-shadow:none}
+.card.card-panel-new .amt{color:#c27a00;text-shadow:none}
+.card.card-panel-new .amt small,.card.card-panel-new .amt.sm small{color:#5a554b}

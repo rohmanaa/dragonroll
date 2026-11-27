@@ -168,3 +168,9 @@ html.pf-wide,html.pf-wide body.pf{background:url(../../images/background/profile
 /* gambar bingkai tombol lama disembunyikan (tombol memakai komponen .ut-gl .ut-c-*); ikon tombol Frame/Pose tetap */
 #fract>img,#posave>img,#frcf .btn>img{display:none}
 /* tombol tutup (frx, pox) = .ut-mk-x (modal-kit.css) */
+
+/* panel Statistik & Koleksi = krem seperti Contoh Popup (game-cards); kartu atas (#hero, latar foto) tetap gelap */
+#statc,#kolc{color:#222}
+#statc::before,#kolc::before{background:#e9e5da}
+#statc .ph,#kolc .ph{color:#222;text-shadow:none}
+#sg,#kol{background:rgba(0,0,0,.07);box-shadow:inset 0 3px 0 rgba(0,0,0,.12)}
