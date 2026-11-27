@@ -914,18 +914,16 @@ html body #puCard.pucard {
   justify-content: center !important;
   gap: 16px !important;
   padding: 18px 70px !important;
+  /* feedback = teks outline + ikon saja, TANPA panel/garis/latar di belakangnya */
   border: 0 !important;
-  border-top: 3px solid var(--gh-event-color) !important;
-  border-bottom: 3px solid var(--gh-event-color) !important;
-  /* garis atas/bawah ikut memudar ke transparan di tepi kiri-kanan (sama dengan latar) */
-  border-image: linear-gradient(90deg, transparent, var(--gh-event-color) 14%, var(--gh-event-color) 86%, transparent) 1 !important;
+  border-image: none !important;
   border-radius: 0 !important;
   color: var(--gh-event-color) !important;
-  background: linear-gradient(90deg, transparent, rgba(26, 14, 34, .9) 14%, rgba(26, 14, 34, .9) 86%, transparent) !important;
+  background: none !important;
   box-shadow: none !important;
   font: 800 36px/1.2 var(--gh-body) !important;
   text-align: center !important;
-  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 6px rgba(0, 0, 0, .6) !important;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 6px rgba(0, 0, 0, .6), 0 0 14px rgba(0, 0, 0, .75) !important;   /* tanpa panel: halo gelap tipis agar terbaca di atas petak terang */
 }
 #utGameplayHud .ut-ghud-b[data-k="turn"],
 #utGameplayHud .ut-ghud-b[data-k="extra"],
