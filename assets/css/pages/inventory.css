@@ -1,7 +1,7 @@
 /* inventory.css — halaman Inventory: tab atas (Frame, Dadu, Efek, Power-up, Pet) + isi tab dimuat di iframe. */
 html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,url(../../images/background/inventory-voxel-tas.webp) center/cover no-repeat fixed,#231d37!important;overflow:hidden}
 /* panel penuh layar (bingkai-dialog, 9-slice) di bawah isi tab, seperti Toko/Pet/Profil */
-#pframe{position:fixed;inset:-8px;z-index:0;pointer-events:none;box-sizing:border-box;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
+#pframe{position:fixed;inset:-8px;z-index:0;pointer-events:none;box-sizing:border-box;border:3px solid #000;border-radius:18px;color:#fff;background:linear-gradient(#4a4a4a 0 50%,#303030 50%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
 #pframe::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 #wrap{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:3!important}
 #stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;background:none!important;overflow:visible!important;pointer-events:none;z-index:3}

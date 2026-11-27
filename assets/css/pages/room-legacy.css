@@ -127,8 +127,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #players{animation:inR .6s .1s cubic-bezier(.2,.9,.2,1) both}
 @keyframes inL{from{opacity:0;transform:translateX(-90px)}}@keyframes inR{from{opacity:0;transform:translateX(120px)}}
 /* ---- bingkai dari kit (9-slice) ---- */
-.panel{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;}
-.panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.panel{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;backdrop-filter:none!important;border:3px solid #000;border-radius:18px;color:#fff;background:linear-gradient(#4a4a4a 0 50%,#303030 50%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
+.panel::before{content:"";position:absolute;inset:8px;border-radius:12px;background:#262626;z-index:-1;pointer-events:none}
 .slot{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
 .slot::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../../images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
 .it{background:none!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;}
