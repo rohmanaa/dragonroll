@@ -34,15 +34,8 @@
     <button id="pet" type="button" aria-label="Pet"><span class="pimg"></span><span class="pnm"></span></button>
   </section>
 
-  <!-- strip info: Storage = Gudang tambang, Hitpoints = hati (server), Gold Pass = belum ada datanya -->
-  <section id="infoc" aria-label="Info akun">
-    <button id="ic-store" class="ut-sc" type="button" aria-label="Storage Capacity, buka Tambang"><span class="ut-sc-ico"><img src="assets/images/ui/white-glyphs/peti-harta.webp" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">Storage Capacity:</span><span class="ut-sc-v" id="st-v">—</span><span class="ut-sc-bar"><i id="st-b"></i></span></span></button>
-    <div id="ic-hp" class="ut-sc hp" role="group" aria-label="Hitpoints"><span class="ut-sc-ico"><img src="assets/images/ui/white-glyphs/paha-ayam.webp" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">Hitpoints:</span><span class="ut-sc-v" id="hp-v">—</span><span class="ut-sc-bar"><i id="hp-b"></i></span></span></div>
-    <div id="ic-gold" class="ut-sc gold off" role="group" aria-label="Gold Pass (segera hadir)"><span class="ut-sc-ico"><img src="assets/images/ui/item-icons/mahkota.webp" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">Gold Pass:</span><span class="ut-sc-v">Segera hadir</span></span></div>
-  </section>
-
-  <section id="statc" class="pcard"><div class="ph">Statistik</div><div id="sg"></div></section>
-  <section id="kolc" class="pcard"><div class="ph">Koleksi</div><div id="kol"></div></section>
+  <section id="statc" class="pcard"><div class="ph">Statistik</div><div id="sg" class="card-panel-new"></div></section>
+  <section id="kolc" class="pcard"><div class="ph">Koleksi</div><div id="kol" class="card-panel-new"></div></section>
 
   <!-- pemilih emoji (3 slot "siapa dirimu") -->
   <div id="epick" aria-hidden="true"><div class="ebox ut-mk" role="dialog" aria-label="Pilih emoji"><div class="ut-mk-t">Pilih emoji</div><div id="egrid"></div></div></div>
@@ -79,7 +72,6 @@
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
-<script src="assets/js/services/hearts-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
 <script>UT.App.init({page:"profile"});</script>
@@ -95,7 +87,6 @@
 <script src="assets/js/core/account-hub.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script>UT.PageModule.managed=true;</script>
-<script src="tambang-world/js/tambang-data.js"></script>
 <script src="assets/js/pages/profile.js"></script>
 <script src="assets/js/pages/account.js"></script>
 <script>UT.PageModule.mount("profile");</script>

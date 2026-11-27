@@ -220,24 +220,24 @@ $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classLi
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
 const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr card-panel-new" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="pk ut-sc${t > 0 && a >= t ? ' gold' : ''}" type="button" data-u="${u}"><span class="ut-sc-ico"><img src="${K}${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${n}</span><span class="ut-sc-v">${a}/${t}</span><span class="ut-sc-bar"><i style="width:${t ? Math.round(a / t * 100) : 0}%"></i></span></span></button>`; }).join('');
 }
-$('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
+$('#kol').onclick = e => { const b = e.target.closest('.pk'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr card-panel-new"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u, o) => { o = o || {}; const t = u ? 'button' : 'div'; return `<${t} class="ps ut-sc${o.cls ? ' ' + o.cls : ''}"${u ? ` data-u="${u}" type="button"` : ''}><span class="ut-sc-ico"><img src="${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${label}</span><span class="ut-sc-v">${v}</span>${o.bar != null ? `<span class="ut-sc-bar"><i style="width:${o.bar}%"></i></span>` : ''}</span></${t}>`; };
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
-    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>') +
+    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, { cls: 'hp', bar: wr }) +
     row(K + 'item-icons/gulungan-misi.webp', 'Misi', MIS() + `<img class="go" src="${G}segitiga-kanan.webp" alt="">`, 'hadiah-misi.html') +
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
     row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +
     row(K + 'item-icons/gulungan-pena.webp', 'Main', p);
 }
-$('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
+$('#sg').onclick = e => { const b = e.target.closest('button.ps'); if (b) { snd(); go(b.dataset.u); } };
 
 
 /* ---- modal FRAME: pilih / beli frame foto profil. Data = ItemCatalog (kind 'frame'); pakai/beli lewat PlayerData + WalletService ---- */
@@ -303,31 +303,7 @@ $('#frcf-no').onclick = () => { snd(); $('#frcf').classList.remove('on'); };
 $('#frcf-ok').onclick = () => { snd(); $('#frcf').classList.remove('on'); const f = frOk; frOk = null; if (f) f(); };
 { const q = (UT.Spa && UT.Spa.current && UT.Spa.current()); const u = (q && q.url) || location.search; if (/[?&]frame=1\b/.test(u)) setTimeout(frameOpen, 0); }
 
-/* ---- strip info: Hitpoints = hati (HeartsService), Storage Capacity = Gudang tambang (TambangMW.data) ---- */
-function drawHp() {
-  try {
-    const H = UT.HeartsService && UT.HeartsService.get && UT.HeartsService.get(), v = $('#hp-v'), b = $('#hp-b'); if (!v || !b) return;
-    const s = H && H.snapshot();
-    if (!s || !s.enabled) { v.textContent = 'Tanpa batas'; b.style.width = '100%'; return; }
-    const mm = n => { n = Math.max(0, Math.ceil(n)); return String(Math.floor(n / 60)).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0'); };
-    v.innerHTML = s.hearts + '/' + s.max + (s.full ? '' : '<small> +1 ' + mm(s.nextInSecs) + '</small>');
-    b.style.width = Math.round(Math.min(1, s.hearts / (s.max || 1)) * 100) + '%';
-  } catch (e) { /* abaikan */ }
-}
-function drawStore() {
-  try {
-    const D = window.TambangMW && TambangMW.data, v = $('#st-v'), b = $('#st-b'); if (!v || !b || !D || !D.ready || !D.gudang) return;
-    const g = D.gudang(); v.textContent = fmt(g.used) + ' / ' + fmt(g.cap); b.style.width = Math.round(Math.min(1, g.used / (g.cap || 1)) * 100) + '%';
-  } catch (e) { /* abaikan */ }
-}
-$('#ic-store').onclick = () => { snd(); go('tambang.html?from=profile.html'); };
-try {
-  const H = UT.HeartsService && UT.HeartsService.get && UT.HeartsService.get();
-  if (H) { if (H.enabled && H.enabled()) H.get().catch(() => {}); if (H.onChange) env.own(H.onChange(drawHp)); const t = setInterval(drawHp, 1000); env.own(() => clearInterval(t)); }
-  const D = window.TambangMW && TambangMW.data;
-  if (D && D.load) D.load().then(() => { if (!env.disposed) drawStore(); }).catch(() => {});
-} catch (e) { /* abaikan */ }
-function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); drawHp(); drawStore(); }
+function draw() { drawAkun(); drawPet(); drawKol(); drawStat(); }
 
 /* ---- sinkron: event, dompet, tampilan server, get_my_profile ---- */
 env.own(UT.Events.on('skinChanged', () => { draw(); buildChar(); }));
