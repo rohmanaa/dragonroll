@@ -91,10 +91,10 @@ html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/mis
 /* ===== Kartu: komponen stat-card (.ut-sc; abu = biasa/storage, .hp = hijau/hitpoint, .gold = kuning, .off = selesai). Di sini hanya bentuk & isi ===== */
 /* baris misi & pencapaian: ikon | info (label, nama, bar) | [bintang] | progres | hadiah + KLAIM */
 .row.ut-sc{position:relative;width:100%;height:130px;font-size:36px;padding:.35em .6em;gap:.55em;margin-bottom:10px;text-align:left}
-/* warna kartu dibuat lebih gelap dari bawaan komponen: belum klaim (progres) = abu sedang, siap klaim = hijau lebih gelap, selesai = paling gelap */
-.row.ut-sc{background:linear-gradient(#9b9b9b 0 50%,#787878 50%)}
+/* warna kartu = krem seperti Contoh Popup (game-cards): progres = krem, siap klaim = hijau, selesai = krem lebih gelap; bentuk sama dengan baris Pesan/Teman */
+.row.ut-sc{background:linear-gradient(#e2ddd1 0 50%,#cbc5b7 50%);border-radius:.33em}
 .row.ut-sc.hp,.hdr.ut-sc.hp{background:linear-gradient(#8bbd32 0 50%,#659d17 50%)}
-.row.ut-sc.off{background:linear-gradient(#7c7c7c 0 50%,#606060 50%)}
+.row.ut-sc.off{background:linear-gradient(#b9b3a6 0 50%,#9d978a 50%);filter:none}
 .alist .row.ut-sc{margin-bottom:14px}
 .row .ut-sc-ico{width:2.4em;height:2.4em}
 .row .ri{width:80%;height:80%}
