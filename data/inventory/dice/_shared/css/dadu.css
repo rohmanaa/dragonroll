@@ -41,3 +41,12 @@ html body #stage #dview #fpv{position:absolute;left:18px;top:18px;right:auto;bot
 html body #stage #cur-em,html body #stage #cur-co{height:44px;width:230px;--rb-fs:22px;bottom:30px!important}
 html body #stage #cur-em{left:60px!important}
 html body #stage #cur-co{left:310px!important}
+
+/* panel Dadu = card-panel-new .popover (isi krem): warna teks disesuaikan jadi gelap */
+.dpanel.popover .ttl,.dpanel.popover #nm,.dpanel.popover #rar{color:#222;-webkit-text-stroke:0;text-shadow:none}
+.dpanel.popover #dinfo #ds,#dinfo.popover #ds{color:#3a3630}
+#dinfo.popover .dsec{background:rgba(0,0,0,.07)}
+#dinfo.popover .dsec>b{color:#222}
+#dinfo.popover .dsec>em.dsoon,#dinfo.popover .drow em{color:#7a7468}
+#dinfo.popover .drow{color:#3a3630}
+#dr.popover .dempty{color:#3a3630}
