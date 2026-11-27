@@ -68,8 +68,9 @@ UT.PageModule.define('friendship', function (env) {
 
   function renderCurrency() {
     if (env.disposed) return;
-    $('#v-em').textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
-    $('#v-co').textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
+    const em = $('#v-em'), co = $('#v-co');   /* tidak ada di panel hub (saldo disembunyikan di modal) */
+    if (em) em.textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
+    if (co) co.textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
   }
 
   function toast(message) {

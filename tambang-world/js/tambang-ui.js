@@ -4,6 +4,7 @@
   'use strict';
   const MW = window.TambangMW, Wd = MW.world, $ = (id) => document.getElementById(id);
   const canvas = $('tambang-gl'), stage = $('tambang-stage'), toastEl = $('tambang-toast'), dock = $('tambang-dock');
+  if (!canvas || !stage) return;   /* halaman Tambang belum/tidak ada di DOM (mis. dimuat ulang oleh SPA): jangan bangun dunia tanpa kanvas */
   const N = MW.LAYERS - 1, MIN = 0, SH = 1080; let SW = 1920;    /* SW dinamis: lebar stage mengikuti rasio layar (min 1920 = 16:9, maks 2880 = 24:9) */
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   let showSlots = false, drag = null, pan = null, liftTimer = 0, toastTimer = 0;

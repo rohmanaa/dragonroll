@@ -62,7 +62,7 @@ async function load(t,force){
 }
 
 /* ---- render ---- */
-function renderCurrency(){$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){{const em=$('#v-em'),co=$('#v-co');if(em)em.textContent=PD.walletReady()?fmt(PD.gems()):'—';if(co)co.textContent=PD.walletReady()?fmt(PD.coins()):'—'}}
 function drawTabs(){$('#ltabs').innerHTML=TABS.map(t=>'<button class="lt ut-tab'+(t[0]===tab?' on':'')+'" type="button" role="tab" aria-selected="'+(t[0]===tab)+'" data-k="'+t[0]+'"><img class="ic" src="'+IC+'white-glyphs/'+t[2]+'.webp" alt=""><span>'+t[1]+'</span></button>').join('')}
 function drawPodium(rows){
  const order=[1,0,2];

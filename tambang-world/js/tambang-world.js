@@ -95,6 +95,7 @@ MW.LIGHT_K = 0.75;    // skala lampu titik per layer
   }
 
   MW.buildWorld = function (canvas) {
+    if (!canvas) return null;
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: 'high-performance' });
     renderer.setClearColor(0x07060c, 1);
     const scene = new THREE.Scene();

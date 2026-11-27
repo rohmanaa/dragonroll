@@ -29,7 +29,7 @@ const ago=at=>{const d=Math.floor((Date.now()-new Date(at).getTime())/864e5);ret
 const rwHtml=m=>'<div class="rw">'+(m.gems?'<span><img src="'+IC+'gem-medal-icons/berlian-hijau.webp" alt="">'+fmt(m.gems)+'</span>':'')+(m.coins?'<span><img src="'+IC+'hud/ikon-koin-emas.webp" alt="">'+fmt(m.coins)+'</span>':'')+'</div>';
 
 /* ---- render ---- */
-function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){if(env.disposed)return;const em=$('#v-em'),co=$('#v-co');if(em)em.textContent=PD.walletReady()?fmt(PD.gems()):'—';if(co)co.textContent=PD.walletReady()?fmt(PD.coins()):'—'}
 function draw(){
   if(env.disposed)return;
   const un=unreadN(),pn=pendN(),ok=state==='ok';

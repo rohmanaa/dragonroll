@@ -155,7 +155,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 function resetIn(at){const s=Math.max(0,Math.ceil((at-Date.now())/1000));return [s/3600|0,(s%3600)/60|0,s%60].map(v=>String(v).padStart(2,'0')).join(':')}
 const badge=n=>n?'<span class="bd"><img src="'+IC+'missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b>'+n+'</b></span>':'';
 const cnt={misi:()=>qList().filter(q=>q.status==='ready').length+(bonusSt()==='ready'?1:0),hadiah:()=>dayNow()?1:0,ach:()=>SPS==='ok'?aList().filter(a=>a.pend>0).length:0};
-function renderCurrency(){if(env.disposed)return;$('#v-em').textContent=PD.walletReady()?fmt(PD.gems()):'—';$('#v-co').textContent=PD.walletReady()?fmt(PD.coins()):'—'}
+function renderCurrency(){if(env.disposed)return;{const em=$('#v-em'),co=$('#v-co');if(em)em.textContent=PD.walletReady()?fmt(PD.gems()):'—';if(co)co.textContent=PD.walletReady()?fmt(PD.coins()):'—'}}
 function render(){
  if(env.disposed)return;
  const L=[['hadiah','HADIAH','item-icons/kado-merah'],['misi','MISI','missions/ikon-tab-harian-centang'],['ach','PENCAPAIAN','missions/ikon-tab-pencapaian-medali']];
