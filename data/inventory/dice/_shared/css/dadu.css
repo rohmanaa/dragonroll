@@ -3,19 +3,20 @@
 /* tampilan panel: .card-panel-new (assets/components/card-panel-new) */
 .dpanel{position:relative;isolation:isolate}
 #dl{position:absolute;left:60px;top:150px;width:820px;height:820px;display:flex;flex-direction:column;gap:16px}
-#dinfo{flex:none;height:300px;padding:26px 36px;overflow:hidden}
-#dinfo #nm{position:static;width:auto;top:auto;margin:0;font-size:52px;line-height:1.05}
-#dinfo #rar{position:static;width:auto;margin-top:4px;font-size:26px}
-#dinfo #ds{position:static;width:auto;max-height:none;margin:8px 0 0;padding:0;text-align:left;font-size:22px;line-height:1.3;color:#e8e2ff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#dstats{margin-top:12px;display:grid;gap:8px}
-.dst{display:grid;grid-template-columns:230px 1fr 170px;align-items:center;gap:14px;font:700 21px/1 var(--font-body);color:#d8d0f5}
-.dst i{height:12px;border-radius:6px;background:rgba(255,255,255,.12)}
-.dst em{font-style:normal;text-align:right;color:#9a90c4;font-size:19px}
-#dprev{flex:1;min-height:0;position:relative;overflow:hidden}
-html body #stage #dprev #fpv{position:absolute;left:18px;top:18px;right:auto;bottom:auto;width:calc(100% - 36px)!important;height:calc(100% - 36px)!important;max-width:none;max-height:none;margin:0;transform:none;overflow:hidden;cursor:pointer;touch-action:manipulation}
-#dprev #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
-#dprev #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
-#dprev #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
+#dinfo{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:24px 36px 26px;overflow:hidden}
+.dhead{flex:none;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+#dinfo #nm{position:static;width:auto;top:auto;margin:0;font-size:48px;line-height:1.05}
+#dinfo #rar{position:static;width:auto;margin:0;font-size:26px;white-space:nowrap}
+#dview{flex:1;min-height:0;position:relative;overflow:hidden}
+#dinfo #ds{flex:none;position:static;width:auto;max-height:none;margin:0;padding:0;text-align:center;font-size:22px;line-height:1.3;color:#e8e2ff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* Bonus Dadu & Efek Khusus = placeholder "segera hadir" */
+.dsec{flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;border-radius:12px;background:rgba(255,255,255,.06)}
+.dsec b{font:700 24px/1 var(--font-body);color:#fff}
+.dsoon{font:700 20px/1 var(--font-body);color:#9a90c4}
+html body #stage #dview #fpv{position:absolute;left:18px;top:18px;right:auto;bottom:auto;width:calc(100% - 36px)!important;height:calc(100% - 36px)!important;max-width:none;max-height:none;margin:0;transform:none;overflow:hidden;cursor:pointer;touch-action:manipulation}
+#dview #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
+#dview #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
+#dview #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
 #dbtns{flex:none;display:flex;justify-content:flex-start;gap:14px;height:68px}
 #dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;cursor:pointer;font:400 34px/1 var(--font-title);white-space:nowrap}   /* tampilan: .ut-gl .ut-c-r/g (button.css); gambar bingkai lama disembunyikan */
 #dbtns .btn img{display:none}

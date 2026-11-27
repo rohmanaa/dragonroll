@@ -17,19 +17,15 @@
   <div id="cur-em" data-rbar="gem" data-value-id="v-em"></div>
   <div id="cur-co" data-rbar="coin" data-value-id="v-co"></div>
 
-  <!-- kiri: info (atas) + pratinjau 3D & tombol (bawah); kanan: tab + grid slot kotak -->
+  <!-- kiri: satu panel (nama + pratinjau 3D + bonus/efek) & tombol (bawah); kanan: tab + grid slot kotak -->
   <section id="dl" aria-label="Detail dadu">
     <div id="dinfo" class="dpanel card-panel-new deep">
-      <div id="nm" class="ttl"></div>
-      <div id="rar"></div>
+      <div class="dhead"><div id="nm" class="ttl"></div><div id="rar"></div></div>
+      <div id="dview"><div id="fpv" title="Ketuk untuk melempar dadu"></div></div>
       <p id="ds"></p>
-      <div id="dstats" aria-label="Kelebihan dadu">
-        <div class="dst"><span>Bonus dadu</span><i></i><em>segera hadir</em></div>
-        <div class="dst"><span>Kelebihan</span><i></i><em>segera hadir</em></div>
-        <div class="dst"><span>Efek max level</span><i></i><em>segera hadir</em></div>
-      </div>
+      <div class="dsec"><b>Bonus Dadu</b><span class="dsoon">Segera hadir</span></div>
+      <div class="dsec"><b>Efek Khusus</b><span class="dsoon">Segera hadir</span></div>
     </div>
-    <div id="dprev" class="dpanel card-panel-new deep"><div id="fpv" title="Ketuk untuk melempar dadu"></div></div>
     <div id="dbtns">
       <button class="btn ut-gl ut-c-r" id="b-sell" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>JUAL</span></button>
       <button class="btn ut-gl ut-c-g" id="b-buy" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button>
