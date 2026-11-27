@@ -142,17 +142,7 @@ body.hf-shake{animation:hfShake .35s}
 @media (prefers-reduced-motion:reduce){#bossFx::before{animation:none}#bossFx.critical.hit .boss-hit-label,#bossFx.hit .boss-hit-damage{animation:none;opacity:1}}
 
 /* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
-.tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
-.tm-box{width:min(250px,78vw);text-align:center;padding:12px 14px 12px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:10px;color:#f1e8d6;transform-origin:center center;animation:tmin .22s ease-out}
 @keyframes tmin{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
-.tm-ic{font-size:30px;line-height:1;display:flex;justify-content:center}
-.tm-ic .puimg{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
-.tm-box h4{margin:4px 0 3px;font-size:16px}
-.tm-box .tm-d{margin:0 0 9px;font-size:12px;line-height:1.35}
-.tm-bt{display:flex;gap:8px}
-.tm-bt button{flex:1;min-height:36px;font-weight:800;font-size:13px;cursor:pointer}/* tampilan: .ut-gl */
-.tm-box .tm-t{display:block;margin-top:7px;opacity:.7;font-size:11px}
-@media(prefers-reduced-motion:reduce){.tm-box{animation:none}}
 #trapBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 7.2rem);z-index:58;display:flex;flex-direction:column;align-items:center;gap:.35rem;width:max-content;max-width:min(94vw,30rem);padding:.65rem .9rem .7rem;background:linear-gradient(180deg,rgba(26,38,64,.88),rgba(14,22,40,.92));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:.12rem solid rgba(92,255,140,.55);border-radius:1.1rem;box-shadow:0 .5rem 1.6rem rgba(0,0,0,.45),0 0 1.2rem rgba(61,255,122,.22);color:#fff;font-weight:800}
 #trapBar[hidden]{display:none}#trapTxt{text-align:center;font-size:.98rem;line-height:1.25}#trapHint{font-size:.78rem;font-weight:700;color:#9ff5bd;letter-spacing:.02em}#trapHint b{color:#3dff7a}
 #trapBar .trapAct{display:flex;gap:.55rem;margin-top:.15rem}
@@ -1075,3 +1065,14 @@ html body #side .rcol .pnl.tn #btnAuto:disabled{opacity:.45;filter:grayscale(.6)
 
 /* --- Modal "Pilih kartu": lebar mengikuti jumlah pemain (bukan selalu lebar) --- */
 body #readyScreen .rd-box{width:fit-content;min-width:min(250px,100%);max-width:100%;padding-left:calc(var(--mu)*2.6);padding-right:calc(var(--mu)*2.6);box-sizing:border-box}
+
+/* Modal Pakai Totem = MODAL KECIL (referensi/component/modals.html .sm) -> kit .ut-mk + .gp-mk (skala perangkat, hud-menu.css) */
+.tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(10,8,30,.78);padding:16px}
+.tm-box.ut-mk{width:min(380px,92vw);padding:60px 16px 18px;text-align:center;animation:tmin .22s ease-out}
+.tm-box .tm-ic{display:grid;place-items:center;margin:0 auto 6px;font-size:30px;line-height:1}
+.tm-box .tm-ic .puimg,.tm-box .tm-ic img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.tm-box .tm-d{margin:0 0 12px;font:800 17px/1.35 var(--font-body,'Nunito',system-ui,sans-serif);color:#fff}
+.tm-bt{display:flex;gap:10px;justify-content:center}
+.tm-bt button{flex:1;min-height:52px;padding:0 10px;font:400 21px/1 var(--font-title,'Lilita One',sans-serif);cursor:pointer}   /* tampilan: .ut-gl */
+.tm-box .tm-t{display:block;margin-top:10px;font:800 13px var(--font-body,system-ui,sans-serif);color:#cfc8e6}
+@media(prefers-reduced-motion:reduce){.tm-box{animation:none}}

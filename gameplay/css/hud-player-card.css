@@ -182,7 +182,6 @@ html body #players .pg .pr .av .tag {
 .pm-spacer { flex: 1 1 auto; }
 .pm-auto { flex: 1 1 auto; min-height: 54px; padding: 0 14px; font: 400 20px/1 "Lilita One", var(--font-display, sans-serif); letter-spacing: .03em; cursor: pointer; }  /* tampilan: .ut-gl .ut-c-b / .ut-c-g */
 .pm-auto:active { transform: translateY(2px); filter: brightness(.93); }
-.pm-auto.on { background-image: url(../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp); text-shadow: 0 2px 0 #0f4a1c, 0 0 3px #0f4a1c; }
 .pm-score { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
 .pm-score b { font-size: 34px; color: #ffcf6b; text-shadow: 0 2px 0 #7a4a10, 0 3px 0 #000; }
 @media (max-width: 480px) { .pm-body { flex-direction: column; align-items: stretch; } .pm-card { flex-direction: row; max-width: none; flex-basis: auto; } .pm-face { width: 96px; } .pm-tags { justify-content: flex-start; } }

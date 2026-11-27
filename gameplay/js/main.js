@@ -5894,7 +5894,7 @@ async function resolveMobAt(p,gid){
 function totemModal(p,what,gid){
   return new Promise(res=>{
     const ov=document.createElement('div'); ov.className='tm-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="tm-box ut-mk" role="document"><h4 class="ut-mk-t">Pakai Totem?</h4><div class="tm-ic"></div><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y ut-gl ut-c-g"></button><button type="button" class="tm-n ut-gl ut-c-r">Tidak</button></div><small class="tm-t"></small></div>';
+    ov.innerHTML='<div class="tm-box ut-mk gp-mk" role="document"><h4 class="ut-mk-t">Pakai Totem?</h4><div class="tm-ic"></div><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y ut-gl ut-c-g"></button><button type="button" class="tm-n ut-gl ut-c-r">Tidak</button></div><small class="tm-t"></small></div>';
     ov.querySelector('.tm-d').textContent=p.name+' kena '+what+'! Totem bisa menahannya (sisa '+p.pu.totem+').';
     ov.querySelector('.tm-y').textContent='Pakai Totem';
     try{ UT.Gameplay.Config.setPuIcon(ov.querySelector('.tm-ic'),'totem'); }catch(e){}

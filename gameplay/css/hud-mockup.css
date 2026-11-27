@@ -76,27 +76,8 @@
   zoom: var(--ghud-stage-scale, 1) !important;
 }
 
-.tm-ov {
-  background: rgba(0, 0, 0, .72) !important;
-  backdrop-filter: none !important;
-}
 
-.tm-box {
-  width: 900px !important;
-  max-width: none !important;
-  padding: 118px 40px 36px !important;   /* bingkai/judul: modal kit (.ut-mk) */
-  color: #fff !important;
-  font: 800 30px var(--gh-body) !important;
-  zoom: var(--ghud-stage-scale, 1) !important;
-}
 
-.tm-box p,
-.tm-box small { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
-.tm-bt button {
-  min-width: 240px !important;
-  min-height: 76px !important;
-  font: 32px var(--gh-title) !important;
-}
 
 .lm-ov {
   --mu: 9px !important;
@@ -781,8 +762,7 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
 .lm-ov .lm-box { padding: 28px !important; }
 .lm-ov .lm-body { padding: 34px !important; }
 .lm-ov .lm-box h2 { color: #ffd45a !important; font-family: var(--gh-title) !important; }
-.lm-ov .lm-mode,
-.tm-bt button {
+.lm-ov .lm-mode {
   font-family: var(--gh-title) !important;   /* tampilan: .ut-gl (button.css) */
 }
 #pauseMenu .lm-box { width: 900px !important; padding: 24px !important; }
@@ -915,11 +895,6 @@ html body #pauseMenu .lm-box,
 html body #exitConfirm .lm-box {
   zoom: 1 !important;
   margin: 0 auto !important;
-  transform: scale(var(--ghud-stage-scale, 1)) !important;
-  transform-origin: center center !important;
-}
-html body .tm-ov .tm-box {
-  zoom: 1 !important;
   transform: scale(var(--ghud-stage-scale, 1)) !important;
   transform-origin: center center !important;
 }
@@ -1150,26 +1125,6 @@ html body #puCard.pucard.mob-hit {
   font: 30px var(--gh-title) !important;
 }
 
-.tm-box {
-  box-sizing: border-box !important;
-  width: 900px !important;
-  max-width: none !important;
-  padding: 36px 48px !important;
-  text-align: center !important;
-}
-.tm-box .tm-ic { display: grid !important; place-items: center !important; width: 110px !important; height: 110px !important; margin: 0 auto 8px !important; }
-.tm-box .tm-ic img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
-.tm-box h4 { margin: 8px 0 !important; color: var(--gh-gold) !important; font: 56px/1.1 var(--gh-title) !important; }
-.tm-box .tm-d,
-.tm-box .tm-t { color: #efe9ff !important; font: 26px/1.3 var(--gh-body) !important; }
-.tm-box .tm-t { display: block !important; margin-top: 12px !important; color: var(--gh-gold) !important; }
-.tm-bt { justify-content: center !important; gap: 24px !important; margin-top: 16px !important; }
-.tm-bt button {
-  flex: none !important;
-  width: 280px !important;
-  min-height: 76px !important;
-  font: 30px var(--gh-title) !important;
-}
 
 #readyScreen {
   background: rgba(0, 0, 0, .72) !important;
