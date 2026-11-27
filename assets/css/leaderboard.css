@@ -29,12 +29,11 @@
 .rw .sc{width:190px;text-align:right;font:400 36px var(--font-title);color:#ffe08a}
 .rw .wn{width:180px;text-align:right;font:400 34px var(--font-title);color:#d8d2ee;text-shadow:0 2px 0 rgba(0,0,0,.5)}
 
-/* tab kiri: tampilan komponen tabs.css (.ut-tabv = mixin visual untuk elemen berukuran tetap); ditumpuk tegak, aktif kuning & bergeser ke kanan */
-#ltabs{position:absolute;left:0;top:130px;width:230px;display:flex;flex-direction:column;gap:22px;--tab-lift:0px}
-.lt{position:relative;width:100%;height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0}
-.lt .ic{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
-.lt span{font:400 24px/1 var(--font-title)}
-.lt.on{transform:translateX(14px);cursor:default}
+/* tab di atas tabel (kanan): tampilan komponen .ut-tabs/.ut-tab (tabs.css), tata letak sama dengan Toko/Hadiah & Misi; .lt tetap untuk JS */
+#ltabs{position:absolute;z-index:7;--tab-h:76px;--tab-fs:24px}
+.lt.ut-tab{position:relative;flex:1;min-width:0;flex-direction:row;gap:10px;padding:0;color:#fff}
+.lt.ut-tab.on{cursor:default}
+.lt .ic{height:44px;width:auto;max-width:52px;flex:none}
 
 /* ---- bagian port ke dragonroll (data server) ---- */
 [hidden]{display:none!important}
@@ -82,13 +81,13 @@ html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/lea
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px;z-index:6}
 #stage #cur-em{left:60px!important}#stage #cur-co{left:370px!important}
 /* isi di dalam bingkai (area isi x 72..1848, y 130..1058) */
-#ltabs{left:84px;top:156px;width:200px}
-#podium,#pfxb,#pfxf{left:300px;top:160px}
-#mycard{left:360px;top:716px}
-#reward{left:460px;top:862px}
+#ltabs{left:1010px;top:130px;width:820px;height:96px}
+#podium,#pfxb,#pfxf{left:200px;top:160px}
+#mycard{left:260px;top:716px}
+#reward{left:360px;top:862px}
 #board{left:1000px;top:26px;width:840px}
-#th{grid-template-columns:90px 1fr 150px 174px}
-#rows{height:820px}
+#th{grid-template-columns:90px 1fr 150px 174px;top:220px}
+#rows{top:270px;height:760px}
 .rw .no{width:60px}
 .rw .sc{width:150px;font-size:34px}
 .rw .wn{width:150px;font-size:32px}
