@@ -735,9 +735,16 @@ html body:has(#readyScreen) #players .pg .turn-chip { display: none !important; 
   line-height: 1;
 }
 
-#utGameplayHud,
-#trapBar,
-#puCard {
+/* Feedback (#utGameplayHud, #puCard) tanpa gambar bingkai: kontainer transparan; kartu tengah memakai panel CSS .pucard. */
+#utGameplayHud {
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-family: var(--gh-body) !important;
+}
+#trapBar {
   border: 0 !important;
   border-radius: 20px !important;
   background: url("../../assets/images/ui/panel-dialog/bingkai-dialog.webp") center / 100% 100% no-repeat !important;
