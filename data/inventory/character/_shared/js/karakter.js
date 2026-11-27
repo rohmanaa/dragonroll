@@ -73,9 +73,13 @@ const camera=new THREE.PerspectiveCamera(40,1,0.1,200);
 const renderer=UT.SharedGL.acquire('karakter',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
 scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfcf,0.85));
+/* tingkat bayangan mengikuti Pengaturan > Grafik: Rendah/Normal = tanpa peta bayangan; Tinggi 1024; Ultra 2048 (karakter hanya bayangan-diri, tanpa bayangan lantai) */
+const shTier=()=>{const g=document.documentElement.getAttribute('data-graphics');return g==='ultra'?2048:g==='high'?1024:0};
+let shLast=shTier();
+renderer.shadowMap.enabled=shLast>0;
 const sun=new THREE.DirectionalLight(0xfff0d0,0.55);
-sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
+sun.castShadow=shLast>0;
+sun.shadow.mapSize.set(shLast||1024,shLast||1024);
 sun.shadow.camera.left=-9;sun.shadow.camera.right=9;sun.shadow.camera.top=9;sun.shadow.camera.bottom=-9;
 sun.shadow.camera.near=1;sun.shadow.camera.far=40;
 sun.shadow.bias=-0.0006;
@@ -84,6 +88,8 @@ scene.add(sun);scene.add(sun.target);
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.ShadowMaterial({opacity:0.3}));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 ground.visible=false; /* tanpa bayangan lantai di bawah karakter */
+function applyShadowTier(){const s=shTier();if(s===shLast)return;shLast=s;renderer.shadowMap.enabled=s>0;sun.castShadow=s>0;if(s>0){sun.shadow.mapSize.set(s,s);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}scene.traverse(o=>{const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{x.needsUpdate=true})})}
+addEventListener('ut-ambience',applyShadowTier);
 
 /* ================================================================
    3. DATA: warna (dye) & opsi dasar
@@ -1252,19 +1258,20 @@ actionEl.addEventListener('click',()=>{
   const state=action.state();
   if(!state.disabled)action.run(state);
 });
-/* Kartu hanya untuk pratinjau/pemilihan; aksi item ada pada tombol kanan bawah. */
+/* Kartu hanya untuk pratinjau/pemilihan; aksi item ada pada tombol kanan bawah.
+   Tampilan = komponen card-item (.ut-ci, sama seperti slot Dadu): warna mengikuti rarity, kotak cekung di bawah (.ut-ci-ft) berisi status/harga. */
+const RARV={common:'gray',uncommon:'green',rare:'blue',epic:'purple',legendary:'gold',mythic:'red'};
+const COINIMG='<img src="'+KOIN+'" alt="">';
+const lockFoot=ci=>ci&&canSell(ci)?fmtPrice(ci.price)+COINIMG:(ci&&pvpOf(ci)?'PVP':'TIDAK DIJUAL');
 function card(o){
   const d=document.createElement('div');
   const status=o.status||(o.lock?'lock':o.on?'used':'own');
-  d.className='card st-'+status+(o.sel?' sel':'')+(o.lock?' lk':'');
+  const ft=o.ft!=null?o.ft:(o.keepBadge&&o.badge)?o.badge:status==='used'?'DIPAKAI':status==='lock'?'TERKUNCI':'DIMILIKI';
+  d.className='card kcard ut-ci '+(RARV[o.rar]||'gray')+' st-'+status+(o.sel?' sel':'')+(o.lock?' lk':'');
   d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',o.nm);
   d.style.animationDelay=Math.min(o.i||0,14)*22+'ms';
-  d.innerHTML=(o.on?'<span class="ck">'+CKSVG+'</span>':'')+'<div class="th">'+o.th+'</div><span class="nm"></span>'+(o.keepBadge&&o.badge?'<button class="bt"></button>':'');
+  d.innerHTML=(o.on?'<span class="ut-ci-ck" aria-hidden="true"></span>':'')+'<span class="nm ut-ci-nm"></span><span class="th ut-ci-art">'+o.th+'</span><span class="ut-ci-ft">'+ft+'</span>';
   d.querySelector('.nm').textContent=o.nm;
-  if(o.keepBadge&&o.badge){
-    const b=d.querySelector('.bt');b.textContent=o.badge;
-    if(o.bg)b.classList.add(o.bg);
-  }
   if(o.actionKey&&o.action)cardActions.set(o.actionKey,o.action);
   const choose=()=>{
     endPreview();
@@ -1414,8 +1421,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 function confirmBuy(ci){
   const coins=PD.coins(),ok=coins>=ci.price;
   openModal(ok
-    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
-    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+    ?'<h2>Konfirmasi</h2><p>Beli '+ci.name+'?</p><div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(ci.price)+'</div><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(ci.price-coins)+' coin lagi.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
     if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
@@ -1433,8 +1440,8 @@ function confirmBuySet(set){
   const coins=PD.coins(),ok=coins>=set.total,nm=set.n.replace(/^\S+\s/,'');
   const list=set.cis.map(c=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2rem;margin:.4rem 0"><span>'+c.name+'</span><span style="color:#ffe36a">'+fmt(c.price)+'</span></div>').join('');
   openModal(ok
-    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Beli</button>'
-    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no" id="no">Batal</button><button class="mb" id="more">Dapatkan Coin</button>',
+    ?'<h2>Beli Set '+nm+'?</h2>'+list+'<div class="row" style="justify-content:center;gap:.8rem;color:#ffe36a;font-size:2.8rem"><span style="color:#fff">Total</span><img src="assets/images/icon/currency/coin.webp" alt="" style="width:3rem;height:3rem">'+fmt(set.total)+'</div><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">Beli</button>'
+    :'<h2>Coin tidak cukup</h2><p>Kamu butuh '+fmt(set.total-coins)+' coin lagi untuk set ini.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="more">Dapatkan Coin</button>',
   ()=>{
     $('#no').addEventListener('click',closeModal);
     if(!ok){$('#more').addEventListener('click',()=>{nav('shop.html');});return;}
@@ -1478,8 +1485,8 @@ function renderTabs(){
   const gi=grpOf(CATS[cat].key),G=GROUPS[gi];
   tabsEl.innerHTML='';subsEl.innerHTML='';
   GROUPS.forEach((g,i)=>{
-    const b=document.createElement('button');b.className='cat tab'+(i===gi?' on':'');
-    b.innerHTML='<span class="ce"></span><span class="cl"></span><img class="ul" src="assets/images/ui/navigation-icons/garis-bawah-tab-emas.webp" alt="">';
+    const b=document.createElement('button');b.className='cat tab ut-tab'+(i===gi?' on':'');
+    b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=g.ico;b.querySelector('.cl').textContent=g.name;
     b.setAttribute('aria-label',g.name);
     b.addEventListener('click',()=>{if(i!==gi||!g.keys.includes(CATS[cat].key))goCat(g.keys[0]);});
@@ -1487,7 +1494,7 @@ function renderTabs(){
   });
   subsEl.style.display=G.keys.length>1?'':'none';
   if(G.keys.length>1)G.keys.forEach(k=>{
-    const c=CATS.find(x=>x.key===k),b=document.createElement('button');b.className='cat sub'+(c===CATS[cat]?' on':'');
+    const c=CATS.find(x=>x.key===k),b=document.createElement('button');b.className='cat sub ut-seg-i'+(c===CATS[cat]?' on':'');
     b.innerHTML='<span class="ce"></span><span class="cl"></span>';
     b.querySelector('.ce').textContent=c.ico;b.querySelector('.cl').textContent=c.name;
     b.setAttribute('aria-label',c.name);
@@ -1502,13 +1509,13 @@ function renderOpts(){
   if(c.type==='gender'){
     [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
       const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.face=clone(cur.face);o.skin=cur.skin;o.body=clone(cur.body);return o;};
-      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
+      optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],ft:'PILIH',on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
         actionKey:'gender:'+a[0],
         action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
         fn:()=>stage('g'+a[0],a[2],gpart(B())),
         tq:{key:'g|'+a[0]+JSON.stringify([cfg.skin,cfg.hair.dye,cfg.eyes.dye,cfg.body]),fr:'full',part:gpart}}));});
   }else if(c.type==='skin'){
-    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='k'+s.id),
+    SKINS.forEach(s=>{const on=s.id===B().skin;optsEl.appendChild(card({i:n++,th:sq(s.c),nm:s.n,ft:'PILIH',on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='k'+s.id),
       actionKey:'skin:'+s.id,
       action:{state:()=>on?{mode:'used',label:'DIPAKAI',disabled:true}:{mode:'equip',label:'PAKAI',disabled:false},run:()=>commitDraft()},
       fn:()=>stage('k'+s.id,s.n,{skin:s.id}),
@@ -1517,7 +1524,7 @@ function renderOpts(){
   }else if(c.type==='body'){
     optsEl.classList.add('flat');
     slider('Tinggi','height',0.9,1.1);slider('Besar badan','build',0.9,1.15);
-    const r=document.createElement('button');r.className='bt gd';r.textContent='Atur ulang';
+    const r=document.createElement('button');r.className='bt gd ut-gl ut-c-d';r.textContent='Atur ulang';
     r.addEventListener('click',()=>{stageBody({body:{height:1,build:1}});renderOpts();});
     optsEl.appendChild(r);
     selectedActionKey='body';
@@ -1526,7 +1533,7 @@ function renderOpts(){
       const st=setStatus(p),lock=st.miss.length>0,on=!lock&&setOn(p);
       const part=clone(p.set),name=p.n.replace(/^\S+\s/,'');
       const stat=setThumb(p); /* set bawaan = foto statis; PVP & outfit pribadi tetap jepretan 3D */
-      optsEl.appendChild(card({i:n++,th:stat?'<img class="thimg" src="'+stat+'" alt="" draggable="false" decoding="async">':emo(c.ico),nm:p.n,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
+      optsEl.appendChild(card({i:n++,th:stat?'<img class="thimg" src="'+stat+'" alt="" draggable="false" decoding="async">':emo(c.ico),nm:p.n,rar:'epic',ft:lock?(st.sellable?fmtPrice(st.total)+COINIMG:(st.pvp?'PVP':'TIDAK DIJUAL')):null,on:on,lock:lock,sel:!!(pv&&((pv.set&&pv.set.id===p.id)||(pv.draft&&pv.key==='p'+p.id))),
         actionKey:'set:'+p.id,
         action:{
           state:()=>lock
@@ -1554,7 +1561,7 @@ function renderOpts(){
     ACCS.filter(okG).forEach(it=>{
       const on=B().accessories.some(a=>a.id===it.id),onD=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
       const sell=canSell(ci),actionKey='acc:'+it.id;
-      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
+      optsEl.appendChild(card({i:n++,th:emo(c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='a'+it.id))),
         actionKey:actionKey,
         action:{
           state:()=>lock
@@ -1580,7 +1587,7 @@ function renderOpts(){
     REG[c.reg].filter(okG).forEach(it=>{
       const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===B()[c.key].id;
       const sell=canSell(ci),removable=['helm','chest','shoulder','cape','weapon','boots'].includes(c.key),actionKey='item:'+c.key+':'+it.id;
-      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
+      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
         actionKey:actionKey,
         action:{
           state:()=>lock
@@ -1620,7 +1627,7 @@ function curOutfitData(){
   return d;
 }
 function nameBox(title,val,okLabel,onOk,onCancel){
-  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no" id="no">Batal</button><button class="mb" id="yes">'+okLabel+'</button>',
+  openModal('<h2>'+title+'</h2><input id="onm" type="text" maxlength="'+PD.outfitNameMax+'" autocomplete="off" value="'+esc(val)+'" style="width:100%;box-sizing:border-box;font:inherit;font-size:2.6rem;padding:.8rem 1.2rem;border-radius:1rem;border:.3rem solid #172033;margin:.8rem 0"><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-g" id="yes">'+okLabel+'</button>',
   ()=>{
     const inp=$('#onm'),go=()=>onOk(inp.value);
     $('#no').addEventListener('click',onCancel||closeModal);
@@ -1641,7 +1648,7 @@ function openSaveOutfit(){
 function openManageOutfits(){
   const outs=PD.outfits();
   if(!outs.length){closeModal();renderOpts();return;}
-  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb" id="ok" style="width:98%">Selesai</button>',
+  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt ut-gl ut-c-b" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no ut-gl ut-c-r" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb ut-gl ut-c-g" id="ok" style="width:98%">Selesai</button>',
   ()=>{
     $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
     $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
@@ -1654,7 +1661,7 @@ function openManageOutfits(){
     }));
     $('#mb').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
       const slot=+b.dataset.del,o=PD.outfits().find(x=>x.slot===slot);if(!o)return;
-      openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no" id="no">Batal</button><button class="mb" id="yes">Hapus</button>',()=>{
+      openModal('<h2>Hapus Outfit?</h2><p>'+esc(o.name)+' akan dihapus.</p><button class="mb no ut-gl ut-c-r" id="no">Batal</button><button class="mb ut-gl ut-c-r" id="yes">Hapus</button>',()=>{
         $('#no').addEventListener('click',openManageOutfits);
         $('#yes').addEventListener('click',async()=>{
           const r=await outCall('deleteOutfit',slot);
@@ -1702,7 +1709,7 @@ function eqItems(){
 const sameEq=(a,b)=>!!a&&!!b&&!a.empty&&!b.empty&&a.k===b.k&&a.id===b.id;
 function eqSlot(it,compact){
   const d=document.createElement('button');
-  d.className='eq'+(compact?' compact':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
+  d.className='eq ut-slot'+(compact?' compact':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
   d.setAttribute('aria-label',it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.cat+': '+it.name+'. Pilih item terkait lalu gunakan tombol kanan bawah untuk melepas.');
   d.title=it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.name+' — pilih item terkait lalu gunakan tombol kanan bawah untuk melepas';
   d.innerHTML='<div class="th"><span class="em">'+it.ico+'</span></div><span class="en"></span>';

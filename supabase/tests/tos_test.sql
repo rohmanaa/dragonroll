@@ -28,9 +28,12 @@ do $$ begin
 end $$;
 
 -- ===== versi tidak valid ditolak; versi lama di tabel = needs; tidak bisa diturunkan =====
+reset role;
+create temp table _tv as select public._tos_current_version() as v;
+grant select on _tv to authenticated;
 set role authenticated; select set_config('request.jwt.claim.sub','eeeeeeee-0000-0000-0000-0000000000b2',false);
 insert into out select 'bad0', public.tos_accept(0);
-insert into out select 'badN', public.tos_accept(public._tos_current_version() + 1);
+insert into out select 'badN', public.tos_accept((select v from _tv) + 1);
 reset role;
 insert into public.player_tos(user_id, tos_version) values ('eeeeeeee-0000-0000-0000-0000000000b2', 1);
 do $$ begin

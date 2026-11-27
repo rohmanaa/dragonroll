@@ -6,30 +6,30 @@
 <script>UT.PageShell.renderBase();</script>
 <title>Peringkat — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/css/sub.css"><link rel="stylesheet" href="assets/css/leaderboard.css"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/tabs/tabs.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css"><link rel="stylesheet" href="assets/components/player-card/player-card.css"><link rel="stylesheet" href="assets/css/sub.css"><link rel="stylesheet" href="assets/css/leaderboard.css"><link rel="stylesheet" href="assets/css/bg.css">
 
 </head>
 <body class="dm">
 <div id="wrap"><div id="stage">
   <div id="pmodal" aria-hidden="true"></div>
-  <button id="back" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
   <div id="title" class="ttl">Peringkat</div>
-  <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <nav id="ltabs" aria-label="Kategori"></nav>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" role="button" aria-label="Tambah gem, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" role="button" aria-label="Tambah coin, buka Toko"></div>
+  <nav id="ltabs" class="ut-tabs" role="tablist" aria-label="Kategori"></nav>
   <div id="pfxb" aria-hidden="true"><i class="pg g2"></i><i class="pg g3"></i><i class="pg g1"></i></div>
   <section id="podium"></section>
   <div id="pfxf" aria-hidden="true"><i class="pshine"></i><canvas id="pfxc"></canvas></div>
   <div id="mycard"></div>
-  <button class="btn" id="reward"><img src="assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>HADIAH</span></button>
+  <button class="btn ut-gl ut-c-y" id="reward"><img src="assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>HADIAH</span></button>
   <section id="board">
-    <div id="th"><span>#</span><span>PEMAIN</span><span>SKOR</span><span>MENANG</span></div>
+    <div id="th"><span>#</span><span>PEMAIN</span><span>MENANG</span><span>SKOR</span></div>
     <div id="rows" class="scr"></div>
   </section>
-  <div id="md"><div class="panel" id="box">
-    <h3 id="mt"></h3><div id="mx"></div>
+  <div id="md"><div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h3 id="mt" class="ut-mk-t"></h3><div id="mx"></div>
     <div id="mbtns">
-      <button class="btn" id="m-no"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>TUTUP</span></button>
+      <button class="btn ut-gl ut-c-r" id="m-no"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>TUTUP</span></button>
     </div>
   </div></div>
   <div id="toast" role="status"></div>
@@ -43,6 +43,8 @@
 <script src="data/inventory/frame/_shared/js/frame-avatar.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script src="assets/js/podium-fx.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
@@ -50,4 +52,5 @@
 <script src="assets/js/renderers/blocky-character.js"></script><script src="assets/js/renderers/character-face.js"></script><script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/pages/leaderboard.js"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-no"});}catch(e){}})();</script>
 </body></html>

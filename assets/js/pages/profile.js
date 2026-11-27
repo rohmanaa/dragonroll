@@ -21,7 +21,7 @@ const nav = u => {
   setTimeout(() => { location.href = u; }, 330);
 };
 /* halaman yang sudah ada (sama dengan BUILT di lobby); lainnya = toast */
-const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html'];
+const BUILT = ['karakter.html', 'mode.html', 'settings.html', 'room.html', 'hadiah-misi.html', 'shop.html', 'profile.html', 'frame.html', 'dadu.html', 'efek.html', 'powerup.html', 'leaderboard.html', 'friendship.html', 'tambang.html', 'mail.html', 'pet.html', 'inventory.html'];
 const go = u => BUILT.includes(u.split('?')[0]) ? nav(u) : toast('Segera hadir');
 
 /* ---- data: PlayerData (level/XP/skin/koleksi) + server get_my_profile (menang/main/streak, peringkat, misi) ---- */
@@ -32,7 +32,9 @@ const PROF = {uid: '—', rank: null,
 const pname = () => PD.profile().name;
 const eqSkin = () => IC.byId(PD.equippedId('skin')) || IC.byId('skin.steve');
 const owned = k => PD.ownedItems().filter(o => o.item.kind === k).length;
-const total = k => IC.items.filter(i => i.kind === k && !i.off).length;
+/* Item hadiah (source 'event', mis. 15 frame Login 30 hari) disembunyikan sampai dimiliki: tidak ada spoiler di daftar maupun hitungan koleksi. */
+const shown = i => !i.off && (i.source !== 'event' || PD.owns(i.id));
+const total = k => IC.items.filter(i => i.kind === k && shown(i)).length;
 const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
 
 /* Esc dan tombol Tutup dikelola hub (UT.AccountHub): kembali ke halaman asal, bukan hanya ke lobby. */
@@ -42,7 +44,7 @@ const MIS = () => ((SRV && SRV.counters) || {}).missions_done || 0;
    Membuka profil berikutnya langsung menampilkan gambar itu: tanpa membangun karakter 3D, tanpa WebGL. Foto dibuat ulang hanya bila
    tampilan/perlengkapan/pose berubah. Pose = bentuk badan diam (bukan animasi) yang dipilih lewat tombol Pose. */
 let webOk = typeof THREE !== 'undefined' && !!(window.UT && UT.BlockyCharacter && UT.SharedGL);
-const PHOTO_KEY = 'ut.profilePhoto.v1', PHOTO_VER = 1;
+const PHOTO_KEY = 'ut.profilePhoto.v1', PHOTO_VER = 3;
 const POSES = () => (UT.BlockyCharacter && UT.BlockyCharacter.poses) || [{id: 'pose1', n: 'Siap Tempur'}];
 function poseId() { let v = 'pose1'; try { v = UT.Prefs.get('profilePose', 'pose1'); } catch (e) {} return POSES().some(p => p.id === v) ? v : 'pose1'; }
 const lookSig = () => JSON.stringify([PD.look(), PD.gearLook()]);
@@ -58,13 +60,13 @@ function shoot(pose, kind, W, H) {
   sc.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xb9cdf0, 0x4a3a62, .3));
   const sun = new THREE.DirectionalLight(0xffe2b0, .78); sun.position.set(7, 9, 6); sc.add(sun);
   const rim = new THREE.DirectionalLight(0x8fb4ff, .35); rim.position.set(-8, 5, -6); sc.add(rim);
-  const w = new THREE.Group(); w.scale.setScalar(3.7); w.rotation.set(0, -.55, .05); w.add(ch.root); sc.add(w);
+  const w = new THREE.Group(); w.scale.setScalar(3.7); w.rotation.set(0, kind === 'full' ? -.55 : 0, kind === 'full' ? .05 : 0); w.add(ch.root); sc.add(w);   /* foto profil (bust) menghadap lurus ke depan; pratinjau Pose (full) tetap 3/4 */
   sc.updateMatrixWorld(true);
   const bb = new THREE.Box3().setFromObject(w), sz = bb.getSize(new THREE.Vector3());
   const tn = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)), asp = W / H;
   let cy, d;
   if (kind === 'full') { cy = (bb.min.y + bb.max.y) / 2; d = Math.max(sz.y * .56 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
-  else { const h = sz.y * .46; cy = bb.max.y - h * .5 + sz.y * .02; d = Math.max(h / 2 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; }
+  else { const h = sz.y * .46; d = Math.max(h / 2 / tn, (sz.x * .62) / (tn * asp)) + sz.z * .5; const half = (d - sz.z * .5) * tn; cy = bb.max.y + (2 * .165 - 1) * half; }   /* puncak kepala tepat 16,5% dari tepi atas bingkai (bukan di tengah sisa ruang): margin atas kecil & tetap lega */
   cam.position.set(0, cy, d); cam.lookAt(0, cy, 0); cam.updateProjectionMatrix();
   const r = UT.SharedGL.offscreen();
   r.setPixelRatio(1); r.setSize(W, H, false); r.setClearColor(0x000000, 0); r.render(sc, cam);
@@ -168,13 +170,32 @@ function drawAkun() {
   $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
   $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
 }
+/* ---- kanan: FOTO pet 3D (seperti foto karakter), bukan thumbnail webp toko ----
+   Model pet dibangun sekali lewat UT.PetPhoto (renderer offscreen, cahaya redup, tanpa partikel) lalu disimpan di localStorage per pet.
+   Membuka profil berikutnya langsung memakai gambar itu. Jika WebGL/modelnya gagal, jatuh ke gambar thumbnail lama. */
+const PET_KEY = 'ut.petPhoto.v1', PET_VER = 3, PET_W = 1036, PET_H = 860;   /* 2x dari #pet .pimg (518x430) */
+let petGen = 0;
+const petSig = gk => gk + '|v' + PET_VER;
+function readPetPhoto() { try { const o = JSON.parse(localStorage.getItem(PET_KEY) || 'null'); return o && o.sig && o.url ? o : null; } catch (e) { return null; } }
+function writePetPhoto(sig, url) { try { localStorage.setItem(PET_KEY, JSON.stringify({sig, url})); } catch (e) { /* penuh/diblokir: foto tetap tampil, hanya tidak di-cache */ } }
 function drawPet() {
-  const id = PD.equippedId('pet'), it = id && IC.byId(id), el = $('#pet');
+  const id = PD.equippedId('pet'), it = id && IC.byId(id), el = $('#pet'), im = el.querySelector('.pimg');
   el.classList.toggle('empty', !it);
-  el.querySelector('.pimg').style.backgroundImage = `url(${it ? (it.image || 'data/inventory/pet/items/' + it.gameKey + '/' + it.gameKey + '.png') : K + 'lobby/pet.webp'})`;
   el.querySelector('.pnm').textContent = it ? it.name : 'Belum ada pet';
+  const setImg = u => { if (!env.disposed) im.style.backgroundImage = `url(${u})`; };
+  const thumb = it ? (it.image || 'data/inventory/pet/items/' + it.gameKey + '/' + it.gameKey + '.png') : K + 'lobby/pet.webp';
+  const gen = ++petGen;
+  if (!it) { setImg(thumb); return; }
+  const sig = petSig(it.gameKey), c = readPetPhoto();
+  if (c && c.sig === sig) { setImg(c.url); return; }   /* pet sama dengan foto tersimpan: pakai gambar, tanpa render */
+  im.style.backgroundImage = 'none';
+  if (typeof THREE === 'undefined' || !(window.UT && UT.PetPhoto && UT.SharedGL)) { setImg(thumb); return; }
+  UT.PetPhoto.shoot(it.gameKey, PET_W, PET_H).then(u => {
+    if (env.disposed || gen !== petGen) return;   /* pet diganti saat dirender: abaikan hasil lama */
+    setImg(u); writePetPhoto(sig, u);
+  }).catch(e => { console.warn('[profil] foto pet gagal', e); if (gen === petGen) setImg(thumb); });
 }
-$('#pet').onclick = () => { snd(); go('pet.html'); };
+$('#pet').onclick = () => { snd(); go('pet.html?from=profile.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
 $('#hid').onclick = () => {
   snd();
@@ -197,32 +218,32 @@ $('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) ret
 $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","inventory.html?tab=dadu"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","inventory.html?tab=efek"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
-  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
+  $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="pk ut-sc${t > 0 && a >= t ? ' gold' : ''}" type="button" data-u="${u}"><span class="ut-sc-ico"><img src="${K}${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${n}</span><span class="ut-sc-v">${a}/${t}</span></span></button>`; }).join('');
 }
-$('#kol').onclick = e => { const b = e.target.closest('.kr'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
+$('#kol').onclick = e => { const b = e.target.closest('.pk'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
 /* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
-  const row = (ic, label, v, u) => `<${u ? 'button' : 'div'} class="sr"${u ? ` data-u="${u}"` : ''}><div class="ic"><img src="${ic}" alt=""></div><div class="nm">${label}</div><div class="v">${v}</div></${u ? 'button' : 'div'}>`;
+  const row = (ic, label, v, u, o) => { o = o || {}; const t = u ? 'button' : 'div'; return `<${t} class="ps ut-sc${o.cls ? ' ' + o.cls : ''}"${u ? ` data-u="${u}" type="button"` : ''}><span class="ut-sc-ico"><img src="${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${label}</span><span class="ut-sc-v">${v}</span></span></${t}>`; };
   const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
-    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>') +
+    row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, { cls: 'hp' }) +
     row(K + 'item-icons/gulungan-misi.webp', 'Misi', MIS() + `<img class="go" src="${G}segitiga-kanan.webp" alt="">`, 'hadiah-misi.html') +
     row(K + 'item-icons/piala.webp', 'Win / Lose', w + ' / ' + Math.max(0, p - w)) +
     row(K + 'gem-medal-icons/petir-emas.webp', 'Win Streak', PROF.streak) +
     row(K + 'item-icons/gulungan-pena.webp', 'Main', p);
 }
-$('#sg').onclick = e => { const b = e.target.closest('button.sr'); if (b) { snd(); go(b.dataset.u); } };
+$('#sg').onclick = e => { const b = e.target.closest('button.ps'); if (b) { snd(); go(b.dataset.u); } };
 
 
 /* ---- modal FRAME: pilih / beli frame foto profil. Data = ItemCatalog (kind 'frame'); pakai/beli lewat PlayerData + WalletService ---- */
 const FRR = {common: ['Biasa', '#cfc8ea'], rare: ['Langka', '#4db3e6'], epic: ['Epik', '#b07cff'], legendary: ['Legendaris', '#ffd45a']};
 const FRW = {'saldo-kurang': 'Coin tidak cukup.', 'gem-kurang': 'Emerald tidak cukup.', 'sudah-dimiliki': 'Frame sudah dimiliki.', 'tidak-tersedia': 'Frame tidak tersedia.', 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...'};
-const frList = () => IC.items.filter(i => i.kind === 'frame' && !i.off);
+const frList = () => IC.items.filter(i => i.kind === 'frame' && shown(i));
 const frSell = i => !!i && ((typeof i.price === 'number' && i.price > 0) || (typeof i.gems === 'number' && i.gems > 0)) && !i.starter;
 const frPrice = n => n >= 1000 ? (n / 1000).toLocaleString('id-ID', {maximumFractionDigits: 1}) + 'k' : fmt(n);
 let frSel = null, frBusy = false, frOk = null;

@@ -13,7 +13,7 @@ assert.ok(!css.includes('.pd.p1 .ps{bottom:'));
 assert.ok(html.includes('fmt(p.score)'));
 assert.ok(!html.includes('id="home"'), 'redundant Home button must not overlap the coin balance');
 assert.ok(!html.includes("$('#home').addEventListener"), 'leaderboard has no duplicate Home navigation');
-assert.ok(html.includes('id="cur-co"') && html.includes('ikon-koin-emas.webp'));
+assert.ok(html.includes('id="cur-co"') && html.includes('data-rbar="coin"'))   // ikon koin dibangun komponen resource-bar;
 
 const frameFx = html.indexOf('data/inventory/frame/_shared/js/frame-fx.js');
 const frameAvatar = html.indexOf('data/inventory/frame/_shared/js/frame-avatar.js');

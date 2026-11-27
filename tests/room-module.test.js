@@ -17,7 +17,9 @@ t('mode tidak valid -> mode.html lewat UT.Spa.go (replace), fallback location.re
   assert(/UT\.Spa\.go\('mode\.html',\{replace:true\}\)/.test(js) && /location\.replace\('mode\.html'\)/.test(js));
 });
 t('tautan undangan memakai room.html, bukan location.pathname (di shell = play.html)', () => {
-  assert(/const roomUrl=\(\)=>location\.origin\+location\.pathname\.replace\(\/\[\^\/\]\*\$\/,''\)\+'room\.html'/.test(js));
+  assert(/const roomUrl=\(\)=>location\.origin \+ \(document\.baseURI \|\| \(location\.origin \+ '\/'\)\)/.test(js));
+  assert(/replace\([^)]*\)/.test(js));
+  assert(/'room\.html'/.test(js));
   assert(!/\$\{location\.origin\}\$\{location\.pathname\}/.test(js));
   assert((js.match(/\$\{roomUrl\(\)\}\?mode=online/g) || []).length === 2);
 });
@@ -60,7 +62,7 @@ t('room.html mandiri tetap memuat modul multiplayer (blok module inline) dan roo
 });
 t('spa-host: room terdaftar; <script type=module> dimuat lewat import(); skrip yang sudah ada tidak diunduh ulang', () => {
   assert(/'room\.html': 'room'/.test(host));
-  assert(/mods\[src\] = 1/.test(host) && /import\(new G\.URL\(src, G\.location\.href\)\.href\)/.test(host));
+  assert(/mods\[src\] = 1/.test(host) && /import\(new G\.URL\(src, base\(\)\)\.href\)/.test(host) && /function base\(\) \{ return \(G\.document && G\.document\.baseURI\) \|\| G\.location\.href; \}/.test(host));
   assert(/function inDoc\(k\)/.test(host) && /scripts\[k\] = Promise\.resolve\(\)/.test(host));
 });
 t('frame-guard mengenal room; play.js punya prefetch', () => {

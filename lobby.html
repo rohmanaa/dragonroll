@@ -4,7 +4,7 @@
 <script src="assets/js/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <script src="assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"></script>
-<title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><link rel="stylesheet" id="ut-vt" href="assets/css/pages/lobby-2.css"><link rel="stylesheet" href="assets/css/pages/lobby-legacy.css"><link rel="stylesheet" href="assets/css/pages/lobby.css"><link rel="stylesheet" href="assets/css/scene-bg.css">
+<title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><link rel="stylesheet" id="ut-vt" href="assets/css/pages/lobby-2.css"><link rel="stylesheet" href="assets/components/tile-button/tile-button.css"><link rel="stylesheet" href="assets/components/collapse-button/collapse-button.css"><link rel="stylesheet" href="assets/css/pages/lobby-legacy.css"><link rel="stylesheet" href="assets/css/pages/lobby.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 
 
 </head>
@@ -22,40 +22,38 @@
   </div>
 
   <!-- ===== kiri: Pet (tepat di bawah profil), Dadu + Aura di bawah Pet, Guild (tengah-bawah); Chest dihapus sementara ===== -->
-  <button class="lbt sm" id="b-pet" data-act="pet" aria-label="Pet"><div class="ico"><img src="assets/images/ui/lobby/pet.webp" alt=""></div><div class="lb">PET</div></button>
-  <button class="lbt sm" id="b-dice" data-act="dadu" aria-label="Dadu"><div class="ico"><img src="assets/images/ui/feature-icons/dadu.webp" alt=""></div><div class="lb">DADU</div></button>
-  <button class="lbt sm" id="b-aura" data-act="efek" aria-label="Aura"><div class="ico"><img src="assets/images/ui/gem-medal-icons/kristal-api.webp" alt=""></div><div class="lb">AURA</div></button>
-  <button class="lbt locked" id="b-guild" data-act="guild" aria-label="Guild (terkunci)"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
+  <button class="lbt sm ut-tile ut-tile-k" id="b-pet" data-act="pet" aria-label="Pet"><div class="ico"><img src="assets/images/ui/lobby/pet.webp" alt=""></div><div class="lb">PET</div></button>
+  <button class="lbt sm ut-tile ut-tile-k" id="b-dice" data-act="dadu" aria-label="Dadu"><div class="ico"><img src="assets/images/ui/feature-icons/dadu.webp" alt=""></div><div class="lb">DADU</div></button>
+  <button class="lbt sm ut-tile ut-tile-k" id="b-aura" data-act="efek" aria-label="Aura"><div class="ico"><img src="assets/images/ui/gem-medal-icons/kristal-api.webp" alt=""></div><div class="lb">AURA</div></button>
+  <button class="lbt locked ut-tile ut-tile-k" id="b-guild" data-act="guild" aria-label="Guild (terkunci)"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
 
   <!-- ===== kanan atas: Emerald, Coin, Hati (ikon + angka + tombol +) ===== -->
-  <div class="cur" id="cur-em" data-act="tambang" role="button" aria-label="Emerald, buka Tambang">
-    <img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div>
-  </div>
-  <div class="cur" id="cur-co" data-act="beliCoin" role="button" aria-label="Coin, buka Toko">
-    <img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div>
-  </div>
+  <!-- Emerald & Coin = komponen bersama UT.Hud 'resource-bar' (assets/components/resource-bar); isi dibangun lewat hydrate -->
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" data-act="tambang" aria-label="Emerald, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" data-act="beliCoin" aria-label="Coin, buka Toko"></div>
   <div class="cur" id="cur-ht" role="status" aria-label="Nyawa">
     <div class="v" id="v-ht" aria-hidden="true"></div><b id="htime" class="t-title"></b>
   </div>
 
   <!-- ===== kanan tengah: Shop ===== -->
-  <button class="lbt" id="b-shop" data-act="toko" aria-label="Toko"><div class="ico"><img src="assets/images/ui/item-icons/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
+  <button class="lbt ut-tile ut-tile-y" id="b-shop" data-act="toko" aria-label="Toko"><div class="ico"><img src="assets/images/ui/item-icons/toko.webp" alt=""></div><div class="lb">TOKO</div></button>
 
   <!-- ===== kiri bawah: Karakter, Misi, grup lipat (Tambang, Mancing, Ranking) ===== -->
-  <button class="lbt" id="b-char" data-act="karakter" aria-label="Karakter"><div class="ico"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
-  <button class="lbt sm" id="b-misi" data-act="hadiahMisi" aria-label="Misi &amp; Hadiah"><div class="ico"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""></div><div class="lb">MISI</div><span class="nbadge" hidden id="questDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-  <div id="grp">
-    <div class="gset">
-      <button class="gbtn" data-act="tambang" aria-label="Tambang"><img class="gi" src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span class="lb">Tambang</span><span class="nbadge" hidden id="mineDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-      <button class="gbtn locked" data-act="mancing" aria-label="Mancing (terkunci)"><img class="gi" src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><span class="lb">Mancing</span><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
-      <button class="gbtn" data-act="leaderboard" aria-label="Ranking"><img class="gi" src="assets/images/ui/item-icons/podium.webp" alt=""><span class="lb">Ranking</span></button>
+  <button class="lbt ut-tile ut-tile-y" id="b-char" data-act="karakter" aria-label="Karakter"><div class="ico"><img src="assets/images/ui/item-icons/helm-ksatria.webp" alt=""></div><div class="lb">KARAKTER</div></button>
+  <button class="lbt sm ut-tile ut-tile-k" id="b-misi" data-act="hadiahMisi" aria-label="Misi &amp; Hadiah"><div class="ico"><img src="assets/images/ui/item-icons/gulungan-misi.webp" alt=""></div><div class="lb">MISI</div><span class="nbadge" hidden id="questDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+  <div id="grp" class="ut-collapse ut-collapse-k flip">
+    <div class="gset ut-collapse-body">
+      <button class="gbtn ut-collapse-item" data-act="tambang" aria-label="Tambang"><img class="gi" src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><span class="nbadge" hidden id="mineDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+      <button class="gbtn ut-collapse-item locked" data-act="mancing" aria-label="Mancing (terkunci)"><img class="gi" src="assets/images/ui/item-icons/ikan-biru.webp" alt=""><img class="mlk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
+      <button class="gbtn ut-collapse-item" data-act="leaderboard" aria-label="Ranking"><img class="gi" src="assets/images/ui/item-icons/podium.webp" alt=""></button>
     </div>
-    <button id="grpt" type="button" aria-label="Tutup menu" aria-expanded="true"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+    <span class="ut-collapse-div" aria-hidden="true"></span>
+    <button id="grpt" class="ut-collapse-toggle" type="button" aria-label="Tutup menu" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="8,3 17,12 8,21"/><polyline points="8,3 17,12 8,21"/></svg></button>
   </div>
 
   <!-- ===== kanan bawah: Inventory + Battle (MULAI) ===== -->
-  <button class="lbt" id="b-chest" data-act="chest" aria-label="Chest"><div class="ico"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""></div><div class="lb">CHEST</div><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
-  <button class="lbt" id="b-inv" data-act="inventory" aria-label="Inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
+  <button class="lbt ut-tile ut-tile-k" id="b-chest" data-act="chest" aria-label="Chest"><div class="ico"><img src="assets/images/ui/gem-medal-icons/peti-biru-gem.webp" alt=""></div><div class="lb">CHEST</div><span class="nbadge" hidden id="chestDot"><img src="assets/images/ui/missions/lencana-notifikasi-merah-segi-delapan.webp" alt=""><b></b></span></button>
+  <button class="lbt ut-tile ut-tile-k" id="b-inv" data-act="inventory" aria-label="Inventory"><div class="ico"><img class="bag" src="assets/images/icon/lobby/inventory.webp" alt=""></div><div class="lb">INVENTORY</div></button>
   <button id="go" data-act="mulai" aria-label="Mulai">
     <img src="assets/images/buttons/tombol-play-lobby.webp" alt="">
     <span>MULAI!</span><i class="shc" aria-hidden="true"><b></b></i>
@@ -66,11 +64,11 @@
 </div>
 </div>
 
-<!-- ===== modal Chest: timeline progres game harian (Kayu -> Silver -> Gold) + tombol KLAIM; chest hasil klaim masuk Inventory.
+<!-- ===== modal Chest (panel + tutup + KLAIM = CSS murni, tanpa gambar aset): timeline progres game harian (Kayu -> Silver -> Gold) + tombol KLAIM; chest hasil klaim masuk Inventory.
      Di LUAR #stage (yang di-scale): backdrop fixed menutup lebar penuh layar; kotak diskalakan lewat zoom:var(--ls). ===== -->
-<div id="chestMd" hidden><div id="cbox" role="dialog" aria-modal="true" aria-labelledby="cm-t">
-  <h3 id="cm-t">Chest Harian</h3>
-  <button id="cm-x" type="button" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+<div id="chestMd" hidden><div id="cbox" class="ut-mk" role="dialog" aria-modal="true" aria-labelledby="cm-t">
+  <h3 id="cm-t" class="ut-mk-t">Chest Harian</h3>
+  <button id="cm-x" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup"></button>
   <div id="cm-body"></div>
   <div id="cm-toast" role="status"></div>
 </div></div>
@@ -91,10 +89,12 @@
 <script src="assets/js/hearts-gate.js"></script>
 <script src="assets/js/services/mail-service.js"></script>
 <script src="assets/js/data/achievement-data.js"></script>
-<script src="data/mining/js/mine-service.js"></script>
+<script src="tambang-world/js/tambang-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
 <script src="assets/js/core/shared-gl.js"></script>

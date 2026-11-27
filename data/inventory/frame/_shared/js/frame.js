@@ -11,7 +11,8 @@ const GEM='assets/images/ui/gem-medal-icons/berlian-hijau.webp',KOIN='assets/ima
 const RAR={common:['Biasa','#cfc8ea'],rare:['Langka','#4db3e6'],epic:['Epik','#b07cff'],legendary:['Legendaris','#ffd45a']};
 const WMSG={'saldo-kurang':'Coin tidak cukup.','gem-kurang':'Emerald tidak cukup.','sudah-dimiliki':'Item sudah dimiliki.','tidak-tersedia':'Item tidak tersedia.','jaringan':'Tidak dapat terhubung ke server.','belum-login':'Silakan login ulang.','sedang-diproses':'Sedang diproses...'};
 /* data dari ItemCatalog + PlayerData (bukan data sendiri); off:true = takedown sementara */
-const FR=IC.items.filter(i=>i.kind==='frame'&&!i.off);
+/* frame hadiah (source 'event', mis. seri Login 30 hari) disembunyikan sampai dimiliki: tanpa spoiler. Dihitung ulang tiap pakai karena kepemilikan bisa berubah. */
+const frAll=()=>IC.items.filter(i=>i.kind==='frame'&&!i.off&&(i.source!=='event'||PD.owns(i.id)));
 const isOwned=i=>PD.owns(i.id),isUsed=i=>PD.isEquipped(i.id);
 const canSell=i=>!!i&&((typeof i.price==='number'&&i.price>0)||(typeof i.gems==='number'&&i.gems>0))&&!i.starter;
 const art=i=>AR.frame(i.id);
@@ -33,18 +34,18 @@ function showWallet(bump){
 
 /* ---- gambar ulang ---- */
 function pickDefault(){
-  if(sel&&FR.includes(sel))return;
-  sel=FR.find(isUsed)||FR.find(isOwned)||FR[0]||null;
+  if(sel&&frAll().includes(sel))return;
+  sel=frAll().find(isUsed)||frAll().find(isOwned)||frAll()[0]||null;
 }
 function draw(){
   if(env.disposed)return;
   pickDefault();
   renderAct();
-  let html=FR.map(x=>{
+  let html=frAll().map(x=>{
     const m=isOwned(x),on=isUsed(x),sell=canSell(x);
     const st=on?'st-used':m?'st-own':'st-lock';
     return `<button class="fslot ${st}${x===sel?' sel':''}${m?'':' lk'}" data-id="${x.id}" aria-label="${x.name} — ${on?'dipakai':m?'dimiliki':sell?'beli '+fmtPrice(x.gems>0?x.gems:x.price):'tidak dijual'}"><div class="th">${art(x)}</div>${on?'<img class="ck" src="assets/images/ui/white-glyphs/centang.webp" alt="">':''}</button>`}).join('');
-  for(let i=FR.length;i<Math.max(20,Math.ceil(FR.length/5)*5);i++)html+='<div class="slot empty"></div>';
+  for(let i=frAll().length;i<Math.max(20,Math.ceil(frAll().length/5)*5);i++)html+='<div class="slot empty"></div>';
   $('#grid').innerHTML=html;
   if(!sel){$('#fpv').innerHTML='';$('#nm').textContent='Frame';$('#rar').textContent='';$('#ds').textContent='Belum ada frame di game ini.';showWallet();return}
   const f=sel,mine=isOwned(f),on=isUsed(f),r=RAR[f.rarity]||RAR.common;
@@ -68,7 +69,7 @@ function buySelected(f){
 }
 $('#grid').onclick=e=>{
   const c=e.target.closest('.fslot');if(!c)return;
-  const f=FR.find(x=>x.id===c.dataset.id);if(!f)return;
+  const f=frAll().find(x=>x.id===c.dataset.id);if(!f)return;
   sel=f;
   snd('button');draw();
 };
@@ -80,6 +81,7 @@ function renderAct(){
   if(!f){b.style.display='none';return}
   b.style.display='';
   const m=isOwned(f),on=isUsed(f),sell=canSell(f);
+  b.classList.toggle('ut-c-d',on||(!m&&!sell)); b.classList.toggle('ut-c-y',!(on||(!m&&!sell)));   /* HUD: kuning = aksi (PAKAI/BELI), gelap = tidak bisa diklik */
   if(on){b.dataset.mode='used';b.disabled=true;sp.textContent='DIPAKAI'}
   else if(m){b.dataset.mode='equip';b.disabled=false;sp.textContent='PAKAI'}
   else if(sell){b.dataset.mode='buy';b.disabled=false;sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)+(f.gems>0?' EMERALD':' COIN')}

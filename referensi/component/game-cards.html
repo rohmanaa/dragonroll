@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Card Info Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:32px 16px;background:#1c1c1c;font-family:'Lilita One','Trebuchet MS',sans-serif;color:#fff;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center;align-content:flex-start}
+.t{color:#fff;text-shadow:-1px -1px 0 #161a24,1px -1px 0 #161a24,-1px 1px 0 #161a24,1px 1px 0 #161a24,0 2px 0 #161a24}
+.stat{width:360px;max-width:100%;height:100px;display:flex;gap:14px;align-items:center;padding:10px 14px;border-radius:14px;border:3px solid #6d6d6d;background:linear-gradient(#dcdcdc,#a9a9a9);box-shadow:inset 0 3px 0 rgba(255,255,255,.6),0 3px 0 rgba(0,0,0,.4)}
+.stat.hp{border-color:#4d8a0c;background:linear-gradient(#c6f24e,#7cc61c)}
+.ico{width:62px;height:62px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(0,0,0,.18)}
+.info{flex:1;display:flex;flex-direction:column;gap:3px}
+.info b,.info strong{font-weight:400}
+.info b{font-size:20px}.info strong{font-size:28px}
+.bar{height:9px;border-radius:5px;border:2px solid #333;background:linear-gradient(#9cec3c,#55b012)}
+.plus{color:#a6ff3a;margin-left:8px}
+.pass{width:520px;max-width:100%;min-height:76px;display:flex;align-items:center;gap:12px;padding:8px 14px;border:3px solid #a87400;border-radius:8px;background:linear-gradient(#ffe45c,#f5bc1c)}
+.pass>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:18px;text-align:center}
+.row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.log{width:520px;max-width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 14px;border:2px solid #8f897c;border-radius:6px;background:linear-gradient(#e4dfd3,#c9c3b5);font-size:18px}
+.log.empty{color:#625d53;font-size:16px;justify-content:flex-start}
+.dialog{width:400px;max-width:100%;padding:8px;border:3px solid #222;border-radius:18px;background:#8d877c}
+.dialog>div{padding:18px 20px;border-radius:12px;background:#e9e5da;color:#222;text-align:center;font-family:'Trebuchet MS',Arial,sans-serif;font-weight:700}
+.dialog h2{margin:0;font:400 26px 'Lilita One','Trebuchet MS',sans-serif}
+.dialog p{line-height:1.5;margin:16px 0 20px}
+.ok{width:150px;height:60px;border:2px solid #2a1a0a;border-radius:10px;cursor:pointer;font:400 25px 'Lilita One',sans-serif;background:linear-gradient(#ffb83e 0%,#f6921e 48%,#e0690f);box-shadow:inset 0 0 0 2px #ffe1a0,inset 0 -4px 0 rgba(150,60,0,.35),0 3px 0 rgba(0,0,0,.3)}
+.ok:hover{filter:brightness(1.07)}.ok:active{transform:translateY(2px)}
+/* glossy ala tombol gelap: garis tepi hitam, ring dalam, kilap dua tingkat */
+.stat,.pass,.log,.dialog,.ok{border:3px solid #000;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
+.stat{background:linear-gradient(#d2d2d2 0 50%,#ababab 50%)}
+.stat.hp{border-color:#000;background:linear-gradient(#aee63f 0 50%,#7cc01c 50%)}
+.pass{background:linear-gradient(#ffdf55 0 50%,#f5bc1c 50%)}
+.log{background:linear-gradient(#e2ddd1 0 50%,#cbc5b7 50%)}
+.dialog{background:linear-gradient(#4a4a4a 0 50%,#303030 50%)}
+.ok{background:linear-gradient(#ffae35 0 50%,#ea7a14 50%)}
+.ico{border:2px solid #000;background:#3c3c3c;box-shadow:inset 0 0 0 2px rgba(255,255,255,.1),inset 0 3px 0 rgba(255,255,255,.14)}
+</style></head>
+<body>
+<div class="stat"><div class="ico"><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 5L42 14V34L24 44L6 34V14Z" fill="#39404f" stroke="#12151d" stroke-width="3"/><path d="M6 14L24 23L42 14M24 23V44" fill="none" stroke="#8b96ad" stroke-width="3"/></svg></div><div class="info"><b class="t">Storage Capacity:</b><strong class="t">50 000</strong><div class="bar"></div></div></div>
+<div class="stat hp"><div class="ico"><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 42C8 31 4 23 6 15C9 6 20 6 24 14C28 6 39 6 42 15C44 23 40 31 24 42Z" fill="#e8455f" stroke="#5c1020" stroke-width="3"/><circle cx="15" cy="16" r="4" fill="#ff9aaa"/></svg></div><div class="info"><b class="t">Hitpoints:</b><strong class="t">10 800<span class="plus">+400</span></strong><div class="bar"></div></div></div>
+<div class="pass"><svg width="44" height="44" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><circle cx="24" cy="24" r="19" fill="#ffd23c" stroke="#7a5200" stroke-width="3"/><path d="M24 12l3.6 7.6 8.2 1-6 5.7 1.6 8.2-7.4-4-7.4 4 1.6-8.2-6-5.7 8.2-1z" fill="#fff4b0" stroke="#7a5200" stroke-width="2"/></svg><div><span class="t">With the Gold Pass you could save up to:</span><span class="row t">5 400 000 <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><circle cx="24" cy="24" r="20" fill="#ffd83a" stroke="#6e4b00" stroke-width="4"/></svg>&nbsp;&nbsp; 2d 14h 24m <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><circle cx="24" cy="24" r="20" fill="#eee" stroke="#444" stroke-width="5"/><path d="M24 13v12l8 5" fill="none" stroke="#444" stroke-width="5"/></svg></span></div></div>
+<div class="log"><span class="t">NAMA PEMAIN</span><span class="row t">80% <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 4l6 13 14 2-10 10 3 15-13-7-13 7 3-15L4 19l14-2z" fill="#fff" stroke="#3a352c" stroke-width="3"/></svg><svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 4l6 13 14 2-10 10 3 15-13-7-13 7 3-15L4 19l14-2z" fill="#9d978a" stroke="#3a352c" stroke-width="3"/></svg><svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M24 4l6 13 14 2-10 10 3 15-13-7-13 7 3-15L4 19l14-2z" fill="#9d978a" stroke="#3a352c" stroke-width="3"/></svg></span><span class="row t">+13 <svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true" stroke-linejoin="round"><path d="M13 6h22v12c0 8-5 12-11 12s-11-4-11-12zM13 10H5c0 8 4 11 9 11M35 10h8c0 8-4 11-9 11M21 30h6v7h-6zM14 37h20v7H14z" fill="#f4c430" stroke="#5a3d00" stroke-width="3"/></svg></span></div>
+<div class="log empty">No defenses received.</div>
+<div class="dialog" role="group" aria-label="Contoh popup"><div><h2>Contoh Popup</h2><p>Ini hanya contoh tampilan.<br>Tulis pesan untuk pemain di sini.</p><button class="ok t" type="button">Okay</button></div></div>
+</body></html>

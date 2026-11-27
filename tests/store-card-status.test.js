@@ -49,25 +49,25 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
   const currencyPrice = 'data-action="buy"><img src="${x.gems>0?GEM:KOIN}" alt="">${fmtPrice(x.gems>0?x.gems:x.price)}';
   assert.ok(scripts.frame.includes("sp.textContent='BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'frame: harga beli ada di tombol aksi #act');
   assert.ok(!scripts.frame.includes(currencyPrice), 'frame: kartu slot tidak lagi memuat badge harga');
-  assert.ok(scripts.dadu.includes("<b>'+fmtPrice(gems?f.gems:f.price)+'</b>"), 'dadu: harga beli ada di bar aksi kartu (seperti Pet)');
+  assert.ok(scripts.dadu.includes("fmtPrice(gems?x.gems:x.price)") && scripts.dadu.includes("'BELI '+fmtPrice(f.gems>0?f.gems:f.price)"), 'dadu: harga ada di kaki kartu (d-ft) dan di tombol aksi BELI');
   assert.ok(!scripts.dadu.includes(currencyPrice), 'dadu: kartu slot tidak lagi memuat badge harga');
-  assert.ok(powerScript.includes("sp.innerHTML='BELI '+fmtPrice(i.price)+' '+COIN"), 'power: tombol aksi menampilkan ikon Coin');
+  /* power (inventaris): sejak 23 Nov 2026 hanya menampilkan item yang DIMILIKI -> tidak ada tombol BELI di halaman ini; pembelian lewat Toko/Room */
   assert.ok(powerPageCss.includes('#act span img{position:static;'), 'power: ikon Coin ditata di dalam tombol aksi');
   assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(pages.room));
 });
 
 test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
-  assert.ok(/#use\{[^}]*left:auto;right:48px/.test(petCss), "pet: tombol aksi tidak mewarisi posisi kiri");
-  assert.ok(petScript.includes('label.innerHTML = `<img src="${icon}" alt="">${format(amount)}`;'), "pet: ikon harga memakai path aset langsung");
+  /* pet: sejak redesain grid kartu (.pc-pr) tombol #use kanan-bawah tidak ada lagi -> tidak diuji */
+  assert.ok(petScript.includes('<b>${format(gems ? cost.gems : cost.coins)}</b><img src="${gems ? IC_GEM : IC_COIN}" alt="">') && /IC_COIN\s*=\s*'assets\/images\//.test(petScript), "pet: ikon harga (IC_COIN/IC_GEM) memakai path aset langsung");
   assert.ok(!petScript.includes("ITEM_ROOT + icon"), "pet: path ikon tidak menggandakan root aset");
 });
 
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
-  assert.ok(/\.card \.bt\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(read("data/inventory/character/_shared/css/kredit.css")));
+  assert.ok(/b\.classList\.add\(o\.bg==='own'\?'ut-c-g':o\.bg==='owned'\|\|o\.bg==='no'\?'ut-c-d':'ut-c-b'\)/.test(read("data/inventory/character/_shared/js/karakter.js")), "karakter: badge kartu memakai komponen HUD (Dimiliki = gelap, bukan gambar abu)");
   assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.frame), 'frame: status warna slot (hijau/ungu/abu)');
-  assert.ok(/const m=isOwned\(x\),on=isUsed\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes("class=\"pc-pr own\"") && scripts.dadu.includes('DIPAKAI'), 'dadu: status kartu (GUNAKAN / DIPAKAI / harga) seperti Pet');
+  assert.ok(/const st=slotState\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes('d-ft') && scripts.dadu.includes("'DIPAKAI'") && scripts.dadu.includes("'DIMILIKI'") && scripts.dadu.includes("'TIDAK DIJUAL'"), 'dadu: status kartu (DIPAKAI / DIMILIKI / harga / TIDAK DIJUAL) di kaki kartu');
   const efekJs = read("data/inventory/aura/_shared/js/efek.js");
   assert.ok(/const m=isOwned\(x\),on=isUsed\(x\),sell=canSell\(x\)/.test(efekJs), "efek: status kartu dihitung per item");
   assert.ok(!/id="act"/.test(pages.efek) && efekJs.includes('>LEPAS</button>') && efekJs.includes('>GUNAKAN</button>'), "efek: bar aksi di kartu (LEPAS/GUNAKAN/harga) seperti Pet");

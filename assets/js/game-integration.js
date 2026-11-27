@@ -57,7 +57,8 @@
     if (night !== null) out.night = night;
     var np = new URLSearchParams({ mode: mode, skins: skins.join(','), theme: theme, dice: dice });
     if (night !== null) np.set('night', night);
-    history.replaceState(null, '', location.pathname + '?' + np.toString());
+    var base = document.baseURI || (location.origin + '/');
+    history.replaceState(null, '', base + 'gameplay.html?' + np.toString());
     try { sessionStorage.setItem('ut-config', JSON.stringify(out)); } catch (e) {}
     window.__utConfig = out; /* untuk pengujian/diagnostik */
   } catch (e) { /* jangan pernah menghalangi game */ }

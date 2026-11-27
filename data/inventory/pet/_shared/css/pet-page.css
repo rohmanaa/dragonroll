@@ -12,15 +12,18 @@
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
   pointer-events:none;box-sizing:border-box;z-index:0;border:22px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 / 22px stretch}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
-html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
+html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
-html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal),html:not(.ut-inv-embed):not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:not(.ut-room-embed):has(#pmodal),html:not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
 /* tombol Kembali -> Tutup di kanan atas (sama dengan hub Profil) */
-#back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7}
+#back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7;padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
+#back img,#back svg{display:none}
+#back::before,#back::after{content:'';position:absolute;left:20px;right:20px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:100px;top:34px}
 
 /* ===== Kartu pet (gaya katalog kosmetik): satu baris kartu yang bisa digeser ke samping.
-   Isi kartu: nama, thumbnail, bar harga; warna kartu = tier (rarity); ikon mata = pratinjau, ikon info = detail.
+   Isi kartu: nama, thumbnail, bar harga; warna kartu = tier (rarity); ikon mata = pratinjau (modal bertab Pratinjau & Detail).
    Selektor #right #grid agar menang atas aturan #grid di karakter.css / frame.css / inv-tabbar.css / inventory-bridge (semuanya !important). ===== */
 html body.fm.notabs #right #grid{left:0!important;top:250px!important;width:1800px;height:610px!important;max-height:none!important;zoom:1;
   display:flex;flex-direction:row;gap:22px;grid-template-columns:none;overflow-x:auto;overflow-y:hidden;box-sizing:border-box;padding:12px 8px 24px;
@@ -45,52 +48,40 @@ html body.fm.notabs #right #grid{left:0!important;top:250px!important;width:1800
 .pc-th img:not(.ck){position:absolute;left:8px;right:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 78px);object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
 .pc-th::after{content:"";position:absolute;left:8px;right:8px;top:8px;bottom:8px;background:linear-gradient(to bottom,transparent 0%,rgba(10,6,24,.42) 45%,rgba(10,6,24,.78) 100%);z-index:3;pointer-events:none;border-radius:8px}
 .pc .ck{position:absolute;right:8px;top:8px;width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
-.pc-pr{flex:none;height:76px;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:12px;font:400 38px/1 var(--font-title);
-  background:rgba(10,6,24,.34);box-shadow:inset 0 4px 8px rgba(0,0,0,.35),inset 0 0 0 3px rgba(255,255,255,.1);text-shadow:0 3px 0 rgba(10,6,24,.6)}
+.pc-pr{flex:none;height:76px;display:flex;align-items:center;justify-content:center;gap:10px;font:400 38px/1 var(--font-title)}   /* tampilan: .ut-gl .ut-c-y/g/r/d (button.css) */
 .pc-pr b{font-weight:400}
 .pc-pr img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
 .pc-pr.own,.pc-pr.used,.pc-pr.no{font-size:28px}
-.pc-pr.own{color:#e6e2f6}
-.pc-pr.used{background:rgba(40,150,66,.6)}
-.pc-pr.no{opacity:.75}
-/* ikon di sudut bawah thumbnail: mata (kiri) = pratinjau 3D, info (kanan) = detail */
-.pc-ic{position:absolute;bottom:108px;z-index:2;display:grid;place-items:center;width:62px;height:62px;padding:0;border:3px solid #cfe4ff;border-radius:13px;
-  background:linear-gradient(180deg,#5aa2ff,#2f62d6);box-shadow:0 4px 0 #1b3f95,0 6px 8px rgba(0,0,0,.4);cursor:pointer;transition:transform .1s,filter .1s}
-.pc-ic:hover{filter:brightness(1.15)}
-.pc-ic:active{transform:translateY(2px) scale(.94)}
+/* ikon di sudut kiri bawah thumbnail: mata = modal pratinjau */
+.pc-ic{position:absolute;bottom:108px;z-index:4;display:grid;place-items:center;width:62px;height:62px;padding:0;--gl-bw:3px;--gl-ledge:4px;--gl-r:14px;cursor:pointer}   /* tampilan: .ut-gl .ut-c-b (button.css) */
 .pc-ic svg,.pc-ic img{width:38px;height:38px;object-fit:contain;display:block}
-.pc-eye{left:24px}.pc-det{right:24px}
+.pc-eye{left:24px}
 .pc-ic:focus-visible,.pc-sel:focus-visible{outline:4px solid #fff;outline-offset:3px}
 
 /* ===== redesain: grid selebar layar, ikon tanpa kotak tombol, bar harga = tombol, preview 3D di modal, saldo kiri bawah ===== */
 #stage #right{left:60px;top:0;width:1800px}
 .pc-top{flex:1;min-height:0;display:flex;flex-direction:column;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:center;cursor:default;pointer-events:none}
-button.pc-pr{width:100%;padding:0;border:0;color:#fff;cursor:pointer}
-button.pc-pr:hover:not(:disabled){filter:brightness(1.15)}
+button.pc-pr{width:100%;padding:0;cursor:pointer}
 button.pc-pr:disabled{cursor:default}
-.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}
+.pc-ic{width:64px;height:64px}
 .pc-ic svg,.pc-ic img{width:46px;height:46px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
-.pc-ic:hover{filter:brightness(1.2)}
 #stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px}
 #stage #cur-em{left:60px!important}
 #stage #cur-co{left:370px!important}
 #pv{position:absolute;left:calc(-1 * var(--hub-ex,0px));top:calc(-1 * var(--hub-ey,0px));width:calc(1920px + 2 * var(--hub-ex,0px));height:calc(1080px + 2 * var(--hub-ey,0px));z-index:60;display:none;align-items:center;justify-content:center;background:rgba(8,4,20,.72)}
 #pv.on{display:flex}
-#pvBox{position:relative;width:1000px;height:820px;max-height:none;display:flex;flex-direction:column;align-items:center;padding:30px 30px 26px}
-#pvClose{position:absolute;right:20px;top:12px;z-index:3;width:60px;height:60px;padding:0;border:0;background:none;color:#fff;font:800 52px/1 var(--font-body);text-shadow:0 2px 4px rgba(0,0,0,.7);cursor:pointer}
-#pv #fpv{position:relative;left:auto;top:auto;flex:none;width:100%;height:500px;overflow:visible;background:none;pointer-events:none;z-index:1}
+#pvBox{position:relative;width:1000px;height:820px;max-height:none;display:flex;flex-direction:column;align-items:center;padding:24px 30px 26px}
+#pv #fpv{position:relative;left:auto;top:auto;flex:1;min-height:0;width:100%;height:auto;overflow:visible;background:none;pointer-events:none;z-index:1}
 #petGl{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent;touch-action:none;pointer-events:auto;cursor:grab}
 #petGl:active{cursor:grabbing}
-#pv #petTitle{position:static;width:auto;display:flex;align-items:center;gap:12px;margin-top:8px}
+#pv #petTitle{position:static;width:auto;display:flex;flex-direction:column;align-items:center;margin-top:16px}
 #pv #nm{position:static;width:auto;top:auto;margin:0;font-size:56px;line-height:1}
 #pv #rar{position:static;width:auto;margin-top:6px;font-size:28px}
-#pv #ds{position:static;left:auto;top:auto;width:100%;max-height:120px;margin:10px 0 0;padding:0 12px;overflow:hidden;text-align:center;font-size:22px;line-height:1.3}
+#pv #ds{position:static;left:auto;top:auto;flex:none;width:100%;max-height:120px;margin:10px 0 0;padding:0 12px;overflow:hidden;text-align:center;font-size:22px;line-height:1.3}
 
-/* bar aksi kartu memakai aset tombol: beli = kuning, GUNAKAN = hijau, LEPAS = merah, tidak dijual = gelap */
-button.pc-pr{border-radius:0;background:url(../../../../../assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp) center/100% 100% no-repeat;box-shadow:none;color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6),0 0 6px rgba(10,6,24,.4)}
-button.pc-pr.own{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp);color:#fff}
-button.pc-pr.used{background-image:url(../../../../../assets/images/ui/buttons-and-controls/tombol-merah-polos.webp)}
-button.pc-pr.no{background-image:url(../../../../../assets/images/buttons/tombol-gelap-polos.webp)}
+/* bar aksi kartu = tombol HUD glossy (button.css): beli = kuning (ut-c-y), GUNAKAN = hijau (ut-c-g), LEPAS = merah (ut-c-r), tidak dijual = gelap (ut-c-d) */
+
+#mbtns .btn span{margin-top:0;text-shadow:inherit}   /* modal konfirmasi: teks tombol ikut gaya .ut-gl */
 
 /* kartu potret 9:16, lebih tinggi dan lebar */
 html body.fm.notabs #right #grid{top:175px!important;height:780px!important}
@@ -102,7 +93,7 @@ button.pc-pr,.pc-pr{height:100px;font-size:50px}
 .pc-th img:not(.ck){height:calc(100% - 90px)}
 .pc-ic{bottom:140px;width:76px;height:76px}
 .pc-ic svg,.pc-ic img{width:56px;height:56px}
-.pc-eye{left:30px}.pc-det{right:30px}
+.pc-eye{left:30px}
 
 /* geser kartu: overflow-x pasti aktif, tanpa snap (mengganggu seret), kursor grab, gambar tidak ikut terseret */
 html body.fm.notabs #right #grid{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:none;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-x}
@@ -114,3 +105,6 @@ html body.fm.notabs #right #grid.drag{cursor:grabbing}
    tanpa makhluk latar (ular/mob) dari ilustrasi penuh. Sebelumnya object-fit:contain + inset membuat gambar kecil dengan pita kosong. ===== */
 .pc-th img:not(.ck){left:0;right:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .pc-th::after{left:0;right:0;top:0;bottom:0;border-radius:0}
+
+/* kartu pet memakai komponen hero-card (hanya pet.html yang memberi kelas .ut-hc): mata di kiri atas gambar */
+#grid .pc.ut-hc .pc-eye{left:30px;top:190px;bottom:auto}

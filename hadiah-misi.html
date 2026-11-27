@@ -5,37 +5,42 @@
 <script>UT.PageShell.renderBase();</script>
 <title>Hadiah &amp; Misi — Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/css/mission.css"><link rel="stylesheet" href="assets/css/bg.css"><link rel="stylesheet" href="gameplay/css/particle-fx.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css"><link rel="stylesheet" href="assets/components/tabs/tabs.css">
+<link rel="stylesheet" href="assets/components/stat-card/stat-card.css"><link rel="stylesheet" href="assets/css/mission.css"><link rel="stylesheet" href="assets/css/bg.css"><link rel="stylesheet" href="gameplay/css/particle-fx.css">
 
 </head>
 <body class="ms">
 <div id="wrap"><div id="stage">
   <div id="pmodal" aria-hidden="true"></div>
-  <button id="back" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Tutup, kembali ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
   <div id="title" class="ttl">Hadiah Harian</div>
-  <div class="cur" id="cur-em" role="button" aria-label="Tambah gem, buka Tambang"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co" role="button" aria-label="Tambah coin, buka Toko"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
-  <nav id="tabs"></nav>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em" role="button" aria-label="Tambah gem, buka Tambang"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co" role="button" aria-label="Tambah coin, buka Toko"></div>
+  <nav id="tabs" class="ut-tabs" role="tablist" aria-label="Hadiah, Misi, Pencapaian"></nav>
   <main id="body"></main>
-  <div id="md"><div class="panel" id="box">
-    <h3 id="mt"></h3><div id="mx"></div>
-    <div id="mbtns"><button class="btn" id="m-ok"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MANTAP!</span></button></div>
+  <div id="md"><div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h3 id="mt" class="ut-mk-t"></h3><div id="mx"></div>
+    <div id="mbtns"><button class="btn ut-gl ut-c-g" id="m-ok"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MANTAP!</span></button></div>
   </div></div>
   <div id="toast" role="status"></div>
 </div></div>
 <div id="fade"></div>
 <script src="assets/js/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
+<script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/data/quest-data.js"></script>
 <script src="assets/js/data/achievement-data.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'hadiahmisi'});</script>
 <script src="gameplay/js/fx.js"></script>
 <script src="gameplay/js/particle-fx.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/pages/hadiah-misi.js"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-ok"});}catch(e){}})();</script>
 </body></html>

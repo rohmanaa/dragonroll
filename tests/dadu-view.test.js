@@ -17,8 +17,8 @@ t('dadu.js = modul "dadu"; timer/listener/langganan lewat env', () => {
   assert(/if\(env\.disposed\)return;/.test(js));
 });
 t('DiceKit: mount dengan sharedGL:"inv-dadu"; unmount = KIT.dispose(); event dicekit-ready lewat env; mount tidak jalan setelah unmount', () => {
-  assert(/sound:!!SET\(\)\.sound,sharedGL:'inv-dadu'\}\)/.test(js));
-  assert(/env\.own\(\(\)=>\{try\{if\(KIT\)KIT\.dispose\(\)\}catch\(e\)\{\}KIT=null\}\)/.test(js));
+  const mnt = js.match(/DiceKit\.mount\(host,\{diceId:k,[^}]*sound:!!SET\(\)\.sound\}\)/); assert(mnt && !/sharedGL/.test(mnt[0]), 'renderer sendiri (three r170), bukan SharedGL r128: shader efek gagal di renderer bersama');
+  assert(/function disposeKit\(\)\{[\s\S]*?k\.dispose\(\)/.test(js) && /env\.own\(\(\)=>\{disposeKit\(\);stopSnaps\(\)\}\)/.test(js), 'unmount melepas kit + konteks WebGL');
   assert(/env\.addEventListener\('dicekit-ready'/.test(js));
   assert(/function mountKit\(\)\{\n  if\(env\.disposed\|\|KIT\|\|!window\.DiceKit\)return;/.test(js));
 });
@@ -39,7 +39,7 @@ t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js d
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < d && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < d);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < i('dice-kit/index.js'));
   assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
-  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="pv"/.test(html) && /id="grid"/.test(html) && !/id="act"/.test(html), 'kartu + modal pratinjau seperti Pet');
+  assert(i('pet/_shared/css/pet-page.css') > 0 && /id="dgrid"/.test(html) && /id="pmodal"/.test(html) && /id="fpv"/.test(html) && !/id="act"/.test(html), 'grid kartu + modal pratinjau (gaya Frame/Pet)');
 });
 t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'dadu\.html': 'dadu'/.test(host) && /dadu: 'dadu\.html'/.test(host));

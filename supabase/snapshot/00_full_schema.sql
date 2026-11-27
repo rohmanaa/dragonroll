@@ -4,7 +4,7 @@
 -- Untuk proyek Supabase BARU/KOSONG: tempel seluruh isi file ini di SQL Editor lalu Run (sekali).
 -- Syarat dashboard: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
 -- JANGAN dijalankan di proyek yang sudah memakai migrasi (tabel sudah ada) dan JANGAN ditaruh di supabase/migrations/.
--- Isi: 55 migrasi, urut: 202611050001 s/d 202611450001
+-- Isi: 62 migrasi, urut: 202611050001 s/d 202611520001
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -2050,20 +2050,34 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('feather', 'powerup', 80, false, true),
   ('fire_charge', 'powerup', 120, false, true),
   ('frame.amethyst', 'frame', 12000, false, false),
+  ('frame.batusenja', 'frame', null, false, false),
+  ('frame.batutua', 'frame', null, false, false),
+  ('frame.bayanganender', 'frame', null, false, false),
+  ('frame.bintangsafir', 'frame', null, false, false),
   ('frame.celestial', 'frame', null, false, false),
   ('frame.copper', 'frame', 1500, false, false),
   ('frame.cosmic', 'frame', null, false, false),
   ('frame.default', 'frame', null, true, false),
   ('frame.diamond', 'frame', 9000, false, false),
   ('frame.dragon', 'frame', null, false, false),
+  ('frame.emasrubi', 'frame', null, false, false),
   ('frame.ender', 'frame', null, false, false),
   ('frame.gold', 'frame', 6000, false, false),
+  ('frame.hutanzamrud', 'frame', null, false, false),
   ('frame.iron', 'frame', 2500, false, false),
+  ('frame.kristalsafir', 'frame', null, false, false),
+  ('frame.mahkotarubi', 'frame', null, false, false),
+  ('frame.nagaapi', 'frame', null, false, false),
   ('frame.nether', 'frame', 20000, false, false),
+  ('frame.peraksayap', 'frame', null, false, false),
+  ('frame.perunggu', 'frame', null, false, false),
   ('frame.phoenix', 'frame', null, false, false),
-  ('frame.setia', 'frame', null, false, false),
+  ('frame.rubikerajaan', 'frame', null, false, false),
+  ('frame.sayapsurgawi', 'frame', null, false, false),
   ('frame.stone', 'frame', 500, false, false),
   ('frame.storm', 'frame', null, false, false),
+  ('frame.tembagaukir', 'frame', null, false, false),
+  ('frame.zamrudrambat', 'frame', null, false, false),
   ('gear.acc.beard', 'gear', 100, false, false),
   ('gear.acc.belt', 'gear', 80, false, false),
   ('gear.acc.bow', 'gear', 80, false, false),
@@ -6829,13 +6843,53 @@ grant execute on function public.chest_buy(text) to authenticated;
 --    1: 300 koin        2: 500 koin        3: Mystery Box     4: 5 gem          5: 800 koin       6: 10 gem        7: 2.000 koin + 15 gem
 --    8: 400 koin        9: 600 koin       10: 8 gem          11: 1.000 koin    12: Mystery Box   13: 12 gem      14: 3.000 koin + 20 gem
 --   15: 500 koin       16: 700 koin       17: 10 gem         18: 1.200 koin    19: Mystery Box   20: 15 gem      21: 4.000 koin + 25 gem
---   22: 600 koin       23: 800 koin       24: 12 gem         25: 1.500 koin    26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
---   29: 2.000 koin     30: 6.000 koin + 50 gem + Frame Setia (item eksklusif, tidak dijual; diberikan sekali, putaran berikutnya hanya koin + gem)
-
--- Frame hadiah Hari 30. Harga null + bukan starter = tidak bisa dibeli di Toko; hanya diberikan oleh claim_daily_reward.
--- (Sumber kebenaran katalog: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
-insert into public.item_catalog(id, kind, price_coins, starter, stackable) values ('frame.setia', 'frame', null, false, false)
+--   22: 600 koin       23: 800 koin       24: 12 gem         25: FRAME         26: Mystery Box   27: 18 gem      28: 3.000 koin + 20 gem
+--   29: 2.000 koin     30: 6.000 koin + 50 gem
+--   (Hari 25 sekarang = 1 Frame eksklusif, hadiah tersendiri; kalau semua frame sudah dimiliki diganti 1.500 koin. Lihat bawah.)
+--
+-- Frame Hari 25: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain mencapai Hari 25 dia mendapat frame
+-- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki,
+-- Hari 25 diganti 1.500 koin (nominal lama Hari 25). Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
+-- (Sumber kebenaran katalog klien: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
+insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
+  ('frame.nagaapi', 'frame', null, false, false),
+  ('frame.batutua', 'frame', null, false, false),
+  ('frame.perunggu', 'frame', null, false, false),
+  ('frame.tembagaukir', 'frame', null, false, false),
+  ('frame.peraksayap', 'frame', null, false, false),
+  ('frame.emasrubi', 'frame', null, false, false),
+  ('frame.kristalsafir', 'frame', null, false, false),
+  ('frame.zamrudrambat', 'frame', null, false, false),
+  ('frame.rubikerajaan', 'frame', null, false, false),
+  ('frame.batusenja', 'frame', null, false, false),
+  ('frame.bintangsafir', 'frame', null, false, false),
+  ('frame.hutanzamrud', 'frame', null, false, false),
+  ('frame.mahkotarubi', 'frame', null, false, false),
+  ('frame.bayanganender', 'frame', null, false, false),
+  ('frame.sayapsurgawi', 'frame', null, false, false)
 on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
+
+create or replace function public._daily_frame_order() returns text[]
+language sql immutable as $$
+  select array[
+  'frame.nagaapi',
+  'frame.batutua',
+  'frame.perunggu',
+  'frame.tembagaukir',
+  'frame.peraksayap',
+  'frame.emasrubi',
+  'frame.kristalsafir',
+  'frame.zamrudrambat',
+  'frame.rubikerajaan',
+  'frame.batusenja',
+  'frame.bintangsafir',
+  'frame.hutanzamrud',
+  'frame.mahkotarubi',
+  'frame.bayanganender',
+  'frame.sayapsurgawi'
+  ]
+$$;
+revoke all on function public._daily_frame_order() from public, anon, authenticated;
 
 alter table public.player_daily_reward drop constraint if exists player_daily_reward_claimed_check;
 alter table public.player_daily_reward add constraint player_daily_reward_claimed_check check (claimed between 0 and 30);
@@ -6858,7 +6912,7 @@ language sql immutable as $$
       ( 6,'gem',     0, 10), ( 7,'mix',  2000, 15), ( 8,'coin',  400,  0), ( 9,'coin',  600,  0), (10,'gem',     0,  8),
       (11,'coin', 1000,  0), (12,'box',     0,  0), (13,'gem',     0, 12), (14,'mix',  3000, 20), (15,'coin',  500,  0),
       (16,'coin',  700,  0), (17,'gem',     0, 10), (18,'coin', 1200,  0), (19,'box',     0,  0), (20,'gem',     0, 15),
-      (21,'mix',  4000, 25), (22,'coin',  600,  0), (23,'coin',  800,  0), (24,'gem',     0, 12), (25,'coin', 1500,  0),
+      (21,'mix',  4000, 25), (22,'coin',  600,  0), (23,'coin',  800,  0), (24,'gem',     0, 12), (25,'frame',   0,  0),
       (26,'box',     0,  0), (27,'gem',     0, 18), (28,'mix',  3000, 20), (29,'coin', 2000,  0), (30,'mix',  6000, 50)
     ) as v(day, type, coins, gems)
    where v.day = case when p_day between 1 and 30 then p_day else 1 end
@@ -6893,6 +6947,15 @@ begin
 
   select r.type, r.coins, r.gems into v_type, v_dc, v_dg from public._daily_reward_for(v_idx + 1) r;
 
+  -- Hari 25 (type 'frame'): frame eksklusif pertama dalam urutan yang belum dimiliki; semua sudah dimiliki -> 1.500 koin.
+  if v_type = 'frame' then
+    select t.f into v_item
+      from unnest(public._daily_frame_order()) with ordinality as t(f, n)
+     where not exists (select 1 from public.player_inventory i where i.user_id = v_uid and i.item_id = t.f)
+     order by t.n limit 1;
+    if v_item is null then v_dc := 1500; end if;
+  end if;
+
   -- Kunci idempoten per tanggal WIB: klaim kedua di hari yang sama tidak mungkin, walau logika streak salah.
   v_res := public._wallet_apply(v_uid, v_dc, v_dg, 'daily', v_today::text);
   if (v_res ->> 'duplicate')::boolean then
@@ -6904,9 +6967,8 @@ begin
          updated_at = now()
    where user_id = v_uid;
 
-  -- Hari 30: Frame Setia (sekali per akun; kalau sudah punya, v_item tetap null).
-  if v_idx + 1 = 30 then
-    insert into public.player_inventory(user_id, item_id) values (v_uid, 'frame.setia') on conflict do nothing returning item_id into v_item;
+  if v_item is not null then
+    insert into public.player_inventory(user_id, item_id) values (v_uid, v_item) on conflict do nothing;
   end if;
 
   return jsonb_build_object('ok', true, 'day', v_idx + 1, 'type', v_type, 'item', v_item, 'duplicate', false,
@@ -7456,4 +7518,1250 @@ begin
 end;
 $$;
 revoke all on function public._appearance_normalize(uuid, jsonb, jsonb, jsonb) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611460001_chest_power_cheap.sql
+-- ---------------------------------------------------------------------------
+-- Power dari chest dibatasi menurut jenis chest: Kayu hanya Power murah (harga <= 100 koin: Ramuan Ganjil/Genap, Bulu, Perisai Kayu, Rumput),
+-- Perak sampai harga <= 200 koin (ditambah Pedang, Fire Charge, TNT, Totem, Apel Emas), Emas & Diamond semua Power (bobot ~ 1/harga seperti sebelumnya).
+-- Peluang Power tidak berubah (5% / 12% / 20% / 35%). Mendefinisi ulang _chest_roll dari 202611400001; batas harga ada di v_pmax.
+
+create or replace function public._chest_roll(p_kind text) returns jsonb
+language plpgsql volatile as $$
+declare v_c int; v_g int := 0; v_x int; v_pc numeric; v_pw text; v_pmax int;
+begin
+  if p_kind = 'wood' then
+    v_c := 50 + floor(random() * 51)::int;  v_x := 10; v_pc := 0.05; v_pmax := 100;
+  elsif p_kind = 'silver' then
+    v_c := 150 + floor(random() * 101)::int; v_x := 25; v_pc := 0.12; v_pmax := 200;
+    if random() < 0.10 then v_g := 1; end if;
+  elsif p_kind = 'gold' then
+    v_c := 350 + floor(random() * 151)::int; v_x := 60; v_g := 1; v_pc := 0.20;
+  elsif p_kind = 'diamond' then
+    v_c := 1000 + floor(random() * 401)::int; v_x := 200; v_g := 3; v_pc := 0.35;
+  else
+    raise exception 'BAD_CHEST_KIND';
+  end if;
+  if random() < v_pc then   -- undian berbobot 1/harga (perlombaan eksponensial: kunci = -ln(u) * harga, terkecil menang)
+    select id into v_pw from public.item_catalog
+     where kind = 'powerup' and price_coins is not null and (v_pmax is null or price_coins <= v_pmax)
+     order by (-ln(1 - random())) * price_coins limit 1;
+  end if;
+  return jsonb_build_object('coins', v_c, 'gems', v_g, 'xp', v_x, 'power', v_pw);
+end;
+$$;
+revoke all on function public._chest_roll(text) from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611470001_chest_shop_gems.sql
+-- ---------------------------------------------------------------------------
+-- Chest di shop HANYA bisa dibeli dengan EMERALD (gem). Menggantikan _chest_shop() dari 202611370001 (sebelumnya Kayu/Perak/Emas dibeli dengan koin).
+--   Harga (gem):   Kayu 2 | Perak 5 | Emas 12 | Diamond 25     (kurs shop ~50 koin per gem)
+--   Rata-rata hadiah (koin-setara, termasuk Power & gem): Kayu ~82 | Perak ~222 | Emas ~504 | Diamond ~1400 -> Kayu/Perak/Emas sedikit di bawah harga (sink gem),
+--   Diamond sedikit di atas (sengaja, hadiah dibesarkan). Ubah angka HANYA di sini + CHESTS di assets/js/pages/shop-page.js (ada tes yang menjaga keduanya sama).
+-- chest_buy tidak berubah: sudah memeriksa gem & koin dari _chest_shop() sebelum chest dibuat (kolom coins kini 0 -> tidak pernah memotong koin).
+create or replace function public._chest_shop() returns table(kind text, coins int, gems int)
+language sql immutable as $$
+  select * from (values
+    ('wood',     0,  2),
+    ('silver',   0,  5),
+    ('gold',     0, 12),
+    ('diamond',  0, 25)
+  ) v(kind, coins, gems)
+$$;
+revoke all on function public._chest_shop() from public, anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611480001_catalog_resync.sql
+-- ---------------------------------------------------------------------------
+-- Sinkron ulang katalog SERVER dengan katalog klien (assets/js/item-catalog.js): 183 item, aman dijalankan berulang (upsert).
+-- KENAPA: sebagian item baru (mis. Dadu Matrix Epik, 23 Nov) hanya ditambahkan dengan MENGEDIT migrasi lama (202611110002, 202611170001, dst.) lewat
+--   tools/wallet/gen-item-seed.js. Database yang migrasi lamanya sudah pernah dijalankan TIDAK ikut berubah -> baris item tidak ada di server ->
+--   beli di shop ditolak server dengan "Item tidak tersedia" (reason 'tidak-tersedia'), padahal item tampil di shop (katalog klien).
+-- ISI: menyisipkan item yang belum ada dan menyamakan jenis/harga (koin ATAU emerald)/starter/stackable dengan katalog klien (satu-satunya sumber harga);
+--   lalu menyamakan gender gear. Tidak menyentuh inventori, dompet, atau data pemain.
+-- Setelah item baru ditambah ke item-catalog.js: jalankan ulang file ini (atau buat migrasi baru) -- jangan hanya mengedit migrasi lama.
+insert into public.item_catalog(id, kind, price_coins, price_gems, starter, stackable) values
+  ('aura.amethyst', 'aura', 15000, null, false, false),
+  ('aura.celestial', 'aura', null, 3000, false, false),
+  ('aura.dragon', 'aura', null, 1500, false, false),
+  ('aura.electric', 'aura', 5000, null, false, false),
+  ('aura.emerald', 'aura', 5000, null, false, false),
+  ('aura.ender', 'aura', 15000, null, false, false),
+  ('aura.flame', 'aura', 2000, null, false, false),
+  ('aura.frost', 'aura', 2000, null, false, false),
+  ('aura.nature', 'aura', 600, null, false, false),
+  ('aura.nether', 'aura', 15000, null, false, false),
+  ('aura.ocean', 'aura', 15000, null, false, false),
+  ('aura.sculk', 'aura', null, 500, false, false),
+  ('aura.shadow', 'aura', null, 500, false, false),
+  ('aura.solar', 'aura', null, 500, false, false),
+  ('aura.stone', 'aura', 600, null, false, false),
+  ('blaze_core', 'powerup', 400, null, false, true),
+  ('diamond_sword', 'powerup', 250, null, false, true),
+  ('dice.amethyst', 'dice', 30000, null, false, false),
+  ('dice.copper', 'dice', 1500, null, false, false),
+  ('dice.diamond', 'dice', 30000, null, false, false),
+  ('dice.dragon', 'dice', null, 3000, false, false),
+  ('dice.emas', 'dice', 9000, null, false, false),
+  ('dice.emerald', 'dice', 30000, null, false, false),
+  ('dice.ender', 'dice', null, 1500, false, false),
+  ('dice.frost', 'dice', null, 600, false, false),
+  ('dice.iron', 'dice', 1500, null, false, false),
+  ('dice.klasik', 'dice', null, null, true, false),
+  ('dice.lapis', 'dice', 9000, null, false, false),
+  ('dice.magma', 'dice', null, 600, false, false),
+  ('dice.matrix', 'dice', 30000, null, false, false),
+  ('dice.netherite', 'dice', null, 1500, false, false),
+  ('dice.obsidian', 'dice', 30000, null, false, false),
+  ('dice.prismarine', 'dice', null, 600, false, false),
+  ('dice.quartz', 'dice', null, 600, false, false),
+  ('dice.redstone', 'dice', 30000, null, false, false),
+  ('dice.rumput', 'dice', 500, null, false, false),
+  ('dice.sculk', 'dice', null, 1500, false, false),
+  ('dice.stone', 'dice', 500, null, false, false),
+  ('dice.tnt', 'dice', 1500, null, false, false),
+  ('dice.void', 'dice', null, 1500, false, false),
+  ('dice.wood', 'dice', 500, null, false, false),
+  ('dragon_crystal', 'powerup', 800, null, false, true),
+  ('feather', 'powerup', 80, null, false, true),
+  ('fire_charge', 'powerup', 120, null, false, true),
+  ('frame.amethyst', 'frame', 12000, null, false, false),
+  ('frame.batusenja', 'frame', null, null, false, false),
+  ('frame.batutua', 'frame', null, null, false, false),
+  ('frame.bayanganender', 'frame', null, null, false, false),
+  ('frame.bintangsafir', 'frame', null, null, false, false),
+  ('frame.celestial', 'frame', null, 1500, false, false),
+  ('frame.copper', 'frame', 1500, null, false, false),
+  ('frame.cosmic', 'frame', null, 2000, false, false),
+  ('frame.default', 'frame', null, null, true, false),
+  ('frame.diamond', 'frame', 9000, null, false, false),
+  ('frame.dragon', 'frame', null, 800, false, false),
+  ('frame.emasrubi', 'frame', null, null, false, false),
+  ('frame.ender', 'frame', null, 450, false, false),
+  ('frame.gold', 'frame', 6000, null, false, false),
+  ('frame.hutanzamrud', 'frame', null, null, false, false),
+  ('frame.iron', 'frame', 2500, null, false, false),
+  ('frame.kristalsafir', 'frame', null, null, false, false),
+  ('frame.mahkotarubi', 'frame', null, null, false, false),
+  ('frame.nagaapi', 'frame', null, null, false, false),
+  ('frame.nether', 'frame', 20000, null, false, false),
+  ('frame.peraksayap', 'frame', null, null, false, false),
+  ('frame.perunggu', 'frame', null, null, false, false),
+  ('frame.phoenix', 'frame', null, 1100, false, false),
+  ('frame.rubikerajaan', 'frame', null, null, false, false),
+  ('frame.sayapsurgawi', 'frame', null, null, false, false),
+  ('frame.stone', 'frame', 500, null, false, false),
+  ('frame.storm', 'frame', null, 600, false, false),
+  ('frame.tembagaukir', 'frame', null, null, false, false),
+  ('frame.zamrudrambat', 'frame', null, null, false, false),
+  ('gear.acc.beard', 'gear', 100, null, false, false),
+  ('gear.acc.belt', 'gear', 80, null, false, false),
+  ('gear.acc.bow', 'gear', 80, null, false, false),
+  ('gear.acc.earrings', 'gear', 150, null, false, false),
+  ('gear.acc.glasses', 'gear', 120, null, false, false),
+  ('gear.acc.gloves', 'gear', 100, null, false, false),
+  ('gear.acc.goggles', 'gear', 200, null, false, false),
+  ('gear.acc.mustache', 'gear', 80, null, false, false),
+  ('gear.acc.necklace', 'gear', 200, null, false, false),
+  ('gear.acc.pack', 'gear', 150, null, false, false),
+  ('gear.acc.purse', 'gear', 150, null, false, false),
+  ('gear.acc.scarf', 'gear', 100, null, false, false),
+  ('gear.boots.cloth', 'gear', 60, null, false, false),
+  ('gear.boots.flat', 'gear', 80, null, false, false),
+  ('gear.boots.knee', 'gear', 150, null, false, false),
+  ('gear.boots.mahkota', 'gear', null, null, false, false),
+  ('gear.boots.mary', 'gear', null, null, true, false),
+  ('gear.boots.none', 'gear', null, null, true, false),
+  ('gear.boots.rival', 'gear', null, null, false, false),
+  ('gear.boots.sandal', 'gear', 60, null, false, false),
+  ('gear.boots.shoes', 'gear', null, null, true, false),
+  ('gear.boots.tall', 'gear', 120, null, false, false),
+  ('gear.cape.long', 'gear', 400, null, false, false),
+  ('gear.cape.mahkota', 'gear', null, null, false, false),
+  ('gear.cape.rival', 'gear', null, null, false, false),
+  ('gear.cape.short', 'gear', 250, null, false, false),
+  ('gear.cape.wings', 'gear', 900, null, false, false),
+  ('gear.chest.bodice', 'gear', 300, null, false, false),
+  ('gear.chest.leather', 'gear', 350, null, false, false),
+  ('gear.chest.mahkota', 'gear', null, null, false, false),
+  ('gear.chest.plate', 'gear', 700, null, false, false),
+  ('gear.chest.rival', 'gear', null, null, false, false),
+  ('gear.chest.valk', 'gear', 800, null, false, false),
+  ('gear.eyes.mahkota', 'gear', null, null, false, false),
+  ('gear.eyes.rival', 'gear', null, null, false, false),
+  ('gear.hair.mahkota', 'gear', null, null, false, false),
+  ('gear.hair.rival', 'gear', null, null, false, false),
+  ('gear.helm.beret', 'gear', 150, null, false, false),
+  ('gear.helm.crown', 'gear', 900, null, false, false),
+  ('gear.helm.flowers', 'gear', 250, null, false, false),
+  ('gear.helm.knight', 'gear', 400, null, false, false),
+  ('gear.helm.mahkota', 'gear', null, null, false, false),
+  ('gear.helm.ribbon', 'gear', 150, null, false, false),
+  ('gear.helm.rival', 'gear', null, null, false, false),
+  ('gear.helm.straw', 'gear', 120, null, false, false),
+  ('gear.helm.tiara', 'gear', 600, null, false, false),
+  ('gear.helm.wizard', 'gear', 300, null, false, false),
+  ('gear.legs.bare', 'gear', null, null, true, false),
+  ('gear.legs.formal', 'gear', 250, null, false, false),
+  ('gear.legs.lskirt', 'gear', 150, null, false, false),
+  ('gear.legs.mahkota', 'gear', null, null, false, false),
+  ('gear.legs.pants', 'gear', null, null, true, false),
+  ('gear.legs.rival', 'gear', null, null, false, false),
+  ('gear.legs.shorts', 'gear', 80, null, false, false),
+  ('gear.legs.skirt', 'gear', null, null, true, false),
+  ('gear.legs.tights', 'gear', 100, null, false, false),
+  ('gear.shoulder.gem', 'gear', 500, null, false, false),
+  ('gear.shoulder.leather', 'gear', 200, null, false, false),
+  ('gear.shoulder.mahkota', 'gear', null, null, false, false),
+  ('gear.shoulder.pad', 'gear', 350, null, false, false),
+  ('gear.shoulder.rival', 'gear', null, null, false, false),
+  ('gear.shoulder.ruffle', 'gear', 250, null, false, false),
+  ('gear.shoulder.spiked', 'gear', 450, null, false, false),
+  ('gear.top.blouse', 'gear', null, null, true, false),
+  ('gear.top.cardigan', 'gear', 200, null, false, false),
+  ('gear.top.coat', 'gear', 400, null, false, false),
+  ('gear.top.dress', 'gear', 300, null, false, false),
+  ('gear.top.mahkota', 'gear', null, null, false, false),
+  ('gear.top.overall', 'gear', 150, null, false, false),
+  ('gear.top.rival', 'gear', null, null, false, false),
+  ('gear.top.robe', 'gear', 350, null, false, false),
+  ('gear.top.sundress', 'gear', 200, null, false, false),
+  ('gear.top.tee', 'gear', null, null, true, false),
+  ('gear.top.tunic', 'gear', 120, null, false, false),
+  ('gear.top.vest', 'gear', 150, null, false, false),
+  ('gear.weapon.axe', 'gear', 450, null, false, false),
+  ('gear.weapon.mahkota', 'gear', null, null, false, false),
+  ('gear.weapon.parasol', 'gear', 200, null, false, false),
+  ('gear.weapon.rapier', 'gear', 450, null, false, false),
+  ('gear.weapon.rival', 'gear', null, null, false, false),
+  ('gear.weapon.staff', 'gear', 350, null, false, false),
+  ('gear.weapon.sword', 'gear', 300, null, false, false),
+  ('gear.weapon.wand', 'gear', 300, null, false, false),
+  ('golden_apple', 'powerup', 200, null, false, true),
+  ('grass', 'powerup', 100, null, false, true),
+  ('ice_crystal', 'powerup', 250, null, false, true),
+  ('nether_star', 'powerup', 1000, null, false, true),
+  ('netherite_sword', 'powerup', 450, null, false, true),
+  ('pet.arcane_owl', 'pet', 60000, null, false, false),
+  ('pet.celestial_kitsune', 'pet', null, 6000, false, false),
+  ('pet.copper_golem', 'pet', 9000, null, false, false),
+  ('pet.crystal_axolotl', 'pet', 25000, null, false, false),
+  ('pet.forest_pup', 'pet', 3000, null, false, false),
+  ('pet.inferno_dragon', 'pet', null, 3000, false, false),
+  ('pet.storm_wolf', 'pet', null, 1500, false, false),
+  ('potion_even', 'powerup', 60, null, false, true),
+  ('potion_odd', 'powerup', 60, null, false, true),
+  ('skin.alex', 'skin', null, null, true, false),
+  ('skin.creeper', 'skin', null, null, true, false),
+  ('skin.ender', 'skin', 700, null, false, false),
+  ('skin.skeleton', 'skin', 300, null, false, false),
+  ('skin.steve', 'skin', null, null, true, false),
+  ('skin.zombie', 'skin', null, null, true, false),
+  ('sword', 'powerup', 120, null, false, true),
+  ('theme.minecraft', 'theme', null, null, true, false),
+  ('theme.nether', 'theme', null, null, false, false),
+  ('tnt', 'powerup', 150, null, false, true),
+  ('totem', 'powerup', 200, null, false, true),
+  ('trident', 'powerup', 600, null, false, true),
+  ('wooden_shield', 'powerup', 90, null, false, true)
+on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, price_gems = excluded.price_gems,
+  starter = excluded.starter, stackable = excluded.stackable;
+
+update public.item_catalog c set gender = v.g
+from (values
+  ('gear.acc.beard', 'm'),
+  ('gear.acc.belt', null),
+  ('gear.acc.bow', 'f'),
+  ('gear.acc.earrings', 'f'),
+  ('gear.acc.glasses', null),
+  ('gear.acc.gloves', null),
+  ('gear.acc.goggles', null),
+  ('gear.acc.mustache', 'm'),
+  ('gear.acc.necklace', 'f'),
+  ('gear.acc.pack', null),
+  ('gear.acc.purse', 'f'),
+  ('gear.acc.scarf', null),
+  ('gear.boots.cloth', null),
+  ('gear.boots.flat', 'f'),
+  ('gear.boots.knee', 'f'),
+  ('gear.boots.mahkota', null),
+  ('gear.boots.mary', 'f'),
+  ('gear.boots.none', null),
+  ('gear.boots.rival', null),
+  ('gear.boots.sandal', null),
+  ('gear.boots.shoes', null),
+  ('gear.boots.tall', null),
+  ('gear.cape.long', null),
+  ('gear.cape.mahkota', null),
+  ('gear.cape.rival', null),
+  ('gear.cape.short', null),
+  ('gear.cape.wings', 'f'),
+  ('gear.chest.bodice', 'f'),
+  ('gear.chest.leather', null),
+  ('gear.chest.mahkota', null),
+  ('gear.chest.plate', null),
+  ('gear.chest.rival', null),
+  ('gear.chest.valk', 'f'),
+  ('gear.eyes.mahkota', null),
+  ('gear.eyes.rival', null),
+  ('gear.hair.mahkota', null),
+  ('gear.hair.rival', null),
+  ('gear.helm.beret', 'f'),
+  ('gear.helm.crown', null),
+  ('gear.helm.flowers', 'f'),
+  ('gear.helm.knight', null),
+  ('gear.helm.mahkota', null),
+  ('gear.helm.ribbon', 'f'),
+  ('gear.helm.rival', null),
+  ('gear.helm.straw', null),
+  ('gear.helm.tiara', 'f'),
+  ('gear.helm.wizard', null),
+  ('gear.legs.bare', null),
+  ('gear.legs.formal', 'm'),
+  ('gear.legs.lskirt', 'f'),
+  ('gear.legs.mahkota', null),
+  ('gear.legs.pants', null),
+  ('gear.legs.rival', null),
+  ('gear.legs.shorts', null),
+  ('gear.legs.skirt', 'f'),
+  ('gear.legs.tights', 'f'),
+  ('gear.shoulder.gem', 'f'),
+  ('gear.shoulder.leather', null),
+  ('gear.shoulder.mahkota', null),
+  ('gear.shoulder.pad', null),
+  ('gear.shoulder.rival', null),
+  ('gear.shoulder.ruffle', 'f'),
+  ('gear.shoulder.spiked', 'm'),
+  ('gear.top.blouse', 'f'),
+  ('gear.top.cardigan', 'f'),
+  ('gear.top.coat', 'm'),
+  ('gear.top.dress', 'f'),
+  ('gear.top.mahkota', null),
+  ('gear.top.overall', null),
+  ('gear.top.rival', null),
+  ('gear.top.robe', null),
+  ('gear.top.sundress', 'f'),
+  ('gear.top.tee', null),
+  ('gear.top.tunic', null),
+  ('gear.top.vest', null),
+  ('gear.weapon.axe', 'm'),
+  ('gear.weapon.mahkota', null),
+  ('gear.weapon.parasol', 'f'),
+  ('gear.weapon.rapier', 'f'),
+  ('gear.weapon.rival', null),
+  ('gear.weapon.staff', null),
+  ('gear.weapon.sword', null),
+  ('gear.weapon.wand', 'f')
+) as v(id, g)
+where c.id = v.id;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611490001_tambang_world.sql
+-- ---------------------------------------------------------------------------
+-- ============================================================================
+-- TAMBANG (Dragon Roll Mining World) — skema + RPC server, Supabase / Postgres.
+-- Terapkan SETELAH 202611110001_wallet_b1.sql (memakai public._wallet_apply).
+-- Idempoten: aman dijalankan ulang (create if not exists / create or replace).
+--
+-- Prinsip (sama dengan dompet B1):
+--   * Klien TIDAK pernah mengirim nominal/jumlah barang. Semua angka dihitung di server.
+--   * Tabel tidak bisa diakses langsung (RLS aktif + revoke); klien hanya lewat RPC (authenticated).
+--   * Setiap perubahan Koin/Emerald lewat public._wallet_apply -> tercatat di wallet_ledger, anti-dobel.
+--   * Angka ekonomi = salinan tambang-data.js (mode lokal). Ubah di public._tb_cfg() SAJA bila mau menyeimbangkan.
+-- ============================================================================
+
+-- ============ 1. Konfigurasi ekonomi (satu tempat) ============
+-- Array bergaya JSON; indeks = level / nomor tambang (indeks 0 = placeholder).
+create or replace function public._tb_cfg() returns jsonb
+language sql immutable as $$
+  select jsonb_build_object(
+    'start_coins', 250,            -- hadiah awal sekali (mirip pratinjau lokal 1250 = 1000 dompet + 250). 0 untuk mematikan
+    'start_gems',  12,
+    'base',    jsonb_build_array(0,0.8,1.2,2,3.2,4.8,7.2),            -- ore/jam dasar per tambang
+    'unlock',  jsonb_build_array(0,500,2000,6000,15000,40000,100000),   -- biaya buka tambang (Koin)
+    'smult',   jsonb_build_array(0,1,1.25,1.5,1.75,2),                  -- pengali level kecepatan
+    'cap',     jsonb_build_array(0,15,20,25,30,40),                     -- kapasitas peti tambang per level
+    'upc_speed', jsonb_build_array(0,0,400,1000,2500,6000),
+    'upc_cap',   jsonb_build_array(0,0,300,800,2000,5000),
+    'upf',     jsonb_build_array(0,1,1.5,2,2.5,3,3.5),                  -- pengali biaya per nomor tambang
+    'bcost',   jsonb_build_array(0,150,200,300,450,650,900),            -- biaya boost (Koin)
+    'mgr',     jsonb_build_array(0,1,2,3,5,8),                          -- biaya Manager (Emerald)
+    'boost_mult', 2, 'boost_secs', 14400, 'boost_daily', 4,
+    'work_secs', 1800, 'rest_secs', 600, 'rest_mgr_secs', 300,          -- kerja 30 mnt, istirahat 10 mnt (5 mnt dgn Manager)
+    'mix', jsonb_build_object(
+      '1', jsonb_build_object('copper',1),
+      '2', jsonb_build_object('coal',0.5,'iron',0.5),
+      '3', jsonb_build_object('lapis',0.5,'amethyst',0.5),
+      '4', jsonb_build_object('gold',0.6,'lapis',0.4),
+      '5', jsonb_build_object('diamond',0.4,'gold',0.3,'amethyst',0.3)),
+    'gems', jsonb_build_array('lapis','amethyst','diamond'),            -- permata: tidak dilebur, langsung jadi barang
+    'lift_cap',     jsonb_build_array(0,20,35,60,100,160),
+    'lift_cap_cost',jsonb_build_array(0,0,800,2200,6000,15000),
+    'lift_spd',     jsonb_build_array(0,1,1.4,1.9),
+    'lift_spd_cost',jsonb_build_array(0,0,1500,5000),
+    'sweep_secs', 15,
+    'g_cap',      jsonb_build_array(0,60,120,250,500,1000),             -- kapasitas Gudang
+    'g_cap_cost', jsonb_build_array(0,0,600,1800,5000,14000),
+    'g_off',      jsonb_build_array(0,2,3),                             -- jam akumulasi offline
+    'g_off_cost', jsonb_build_array(0,0,3000),
+    'keep_wood', 10, 'keep_coal', 5,                                    -- cadangan bahan bakar: tidak ikut diklaim
+    'forest_max', 3, 'forest_hire', jsonb_build_array(0,600,1500,4000), 'chop_secs', 12, 'wood_per_tree', 4,
+    'furn_max', 3, 'furn_cost', jsonb_build_array(0,0,3000,9000), 'smelt_secs', 6,
+    'fuel_wood', 2, 'fuel_coal', 4,
+    'recipes', jsonb_build_object(                                      -- ore -> batangan : bahan bakar per batang
+      'copper', jsonb_build_object('fuel',1), 'iron', jsonb_build_object('fuel',1), 'gold', jsonb_build_object('fuel',2)),
+    'drop', jsonb_build_object(                                         -- gacha tiap ore tiba di Gudang
+      'coin_p',0.06,'coin_max',5,'gem_p',0.015,'gem_max',2,'power_p',0.008,'power_max',1),
+    'powers', jsonb_build_array('sword','feather','tnt','totem','potion_odd','potion_even','grass','diamond_sword',
+      'netherite_sword','wooden_shield','golden_apple','fire_charge','ice_crystal','blaze_core','trident','dragon_crystal','nether_star'),
+    'sell', jsonb_build_object(
+      'goods', jsonb_build_object('copper',20,'iron',30,'lapis',80,'gold',120,'amethyst',150,'diamond',400),
+      'ore',   jsonb_build_object('copper',5,'iron',7,'lapis',20,'gold',30,'amethyst',25,'diamond',60,'coal',3),
+      'wood',  jsonb_build_object('wood',1))
+  );
+$$;
+
+-- ============ 2. Tabel ============
+create table if not exists public.tambang_player (
+  user_id     uuid primary key references auth.users(id) on delete cascade,
+  t0          timestamptz not null default now(),       -- patokan siklus kerja/istirahat global (penebang & tukang bakar)
+  lift_cap    smallint not null default 1 check (lift_cap between 1 and 5),
+  lift_spd    smallint not null default 1 check (lift_spd between 1 and 3),
+  g_cap       smallint not null default 1 check (g_cap between 1 and 5),
+  g_off       smallint not null default 1 check (g_off between 1 and 2),
+  furn        smallint not null default 0 check (furn between 0 and 3),
+  forest_workers smallint not null default 0 check (forest_workers between 0 and 3),
+  store       jsonb not null default '{"ore":{},"goods":{},"wood":0}',   -- isi Gudang
+  bag         jsonb not null default '{"ore":{},"goods":{},"wood":0}',   -- Inventori pemain
+  transit     jsonb,                                    -- muatan lift yang sedang jalan {mine,ores,n}
+  sweep_n     bigint not null default 0,                -- penghitung perjalanan lift (kunci anti-dobel)
+  sell_n      bigint not null default 0,
+  swi         smallint not null default 0,              -- tambang berikut yang disapu lift
+  last_sweep  timestamptz not null default now(),
+  last_work   timestamptz not null default now(),       -- terakhir penebang/tukang bakar diselesaikan
+  drop_day    date not null default current_date,
+  drop_coin   smallint not null default 0,
+  drop_gem    smallint not null default 0,
+  drop_power  smallint not null default 0,
+  powers      jsonb not null default '{}',
+  claim_total bigint not null default 0,                -- statistik saja; TIDAK ada batas harian
+  seen        timestamptz not null default now(),
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create table if not exists public.tambang_mine (
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  slot        smallint not null check (slot between 1 and 5),
+  speed_lv    smallint not null default 1 check (speed_lv between 1 and 5),
+  cap_lv      smallint not null default 1 check (cap_lv between 1 and 5),
+  mgr         boolean  not null default false,
+  stock       numeric  not null default 0 check (stock >= 0),
+  at          timestamptz not null default now(),       -- stock berlaku pada waktu ini
+  t0          timestamptz not null default now(),       -- patokan siklus kerja/istirahat
+  boost_until timestamptz,
+  boost_day   date,
+  boost_n     smallint not null default 0,
+  primary key (user_id, slot)
+);
+
+create table if not exists public.tambang_event (       -- jejak audit ringan (bukan sumber kebenaran saldo)
+  id         bigint generated always as identity primary key,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  kind       text not null check (char_length(kind) between 1 and 30),
+  detail     jsonb not null default '{}',
+  created_at timestamptz not null default now()
+);
+create index if not exists tambang_event_user_idx on public.tambang_event (user_id, id desc);
+
+alter table public.tambang_player enable row level security;
+alter table public.tambang_mine   enable row level security;
+alter table public.tambang_event  enable row level security;
+revoke all on public.tambang_player, public.tambang_mine, public.tambang_event from anon, authenticated;
+
+-- ============ 3. Fungsi internal (TIDAK bisa dipanggil klien) ============
+create or replace function public._tb_day() returns date
+language sql stable as $$ select (now() at time zone 'Asia/Jakarta')::date $$;
+
+-- ambil elemen array cfg (indeks 0-based) sebagai numeric
+create or replace function public._tb_n(p_key text, p_i int) returns numeric
+language sql immutable as $$ select (public._tb_cfg() -> p_key ->> p_i)::numeric $$;
+
+create or replace function public._tb_bag_total(b jsonb) returns bigint
+language sql immutable as $$
+  select coalesce((select sum(v::bigint) from jsonb_each_text(b->'ore')   as x(k,v)),0)
+       + coalesce((select sum(v::bigint) from jsonb_each_text(b->'goods') as x(k,v)),0)
+       + coalesce((b->>'wood')::bigint,0)
+$$;
+
+-- tambah/kurangi 1 item di tas: grp 'ore'|'goods'; item 'wood' lewat grp 'wood'
+create or replace function public._tb_bag_add(b jsonb, p_grp text, p_item text, p_n bigint) returns jsonb
+language plpgsql immutable as $$
+declare cur bigint;
+begin
+  if p_grp = 'wood' then
+    return jsonb_set(b, '{wood}', to_jsonb(coalesce((b->>'wood')::bigint,0) + p_n));
+  end if;
+  cur := coalesce((b->p_grp->>p_item)::bigint, 0);
+  return jsonb_set(b, array[p_grp, p_item], to_jsonb(cur + p_n), true);
+end $$;
+
+create or replace function public._tb_bag_get(b jsonb, p_grp text, p_item text) returns bigint
+language sql immutable as $$
+  select case when p_grp = 'wood' then coalesce((b->>'wood')::bigint,0)
+              else coalesce((b->p_grp->>p_item)::bigint,0) end
+$$;
+
+-- detik KERJA antara a dan b untuk siklus (t0, W kerja, C total)
+create or replace function public._tb_worked_to(p_t0 timestamptz, p_x timestamptz, w numeric, c numeric) returns numeric
+language sql immutable as $$
+  select floor(d / c) * w + least(w, d - floor(d / c) * c)
+  from (select greatest(0, extract(epoch from (p_x - p_t0))) as d) q
+$$;
+
+create or replace function public._tb_worked(p_t0 timestamptz, p_a timestamptz, p_b timestamptz, p_mgr boolean) returns numeric
+language sql immutable as $$
+  with k as (select (public._tb_cfg()->>'work_secs')::numeric w,
+                    (public._tb_cfg()->>'work_secs')::numeric + (case when p_mgr then (public._tb_cfg()->>'rest_mgr_secs')::numeric
+                                                                     else (public._tb_cfg()->>'rest_secs')::numeric end) c)
+  select greatest(0, public._tb_worked_to(p_t0, p_b, k.w, k.c) - public._tb_worked_to(p_t0, p_a, k.w, k.c)) from k
+$$;
+
+-- stok tambang pada waktu p_now (dibatasi kapasitas), termasuk bonus boost
+create or replace function public._tb_stock(m public.tambang_mine, p_now timestamptz) returns numeric
+language plpgsql stable as $$
+declare
+  cfg jsonb := public._tb_cfg();
+  rate numeric := (cfg->'base'->>m.slot)::numeric * (cfg->'smult'->>m.speed_lv)::numeric;
+  cap  numeric := (cfg->'cap'->>m.cap_lv)::numeric;
+  w numeric; wb numeric := 0;
+begin
+  w := public._tb_worked(m.t0, m.at, p_now, m.mgr);
+  if m.boost_until is not null and m.boost_until > m.at then
+    wb := public._tb_worked(m.t0, m.at, least(m.boost_until, p_now), m.mgr);
+  end if;
+  return least(cap, m.stock + rate * (w + wb * ((cfg->>'boost_mult')::numeric - 1)) / 3600.0);
+end $$;
+
+-- bagi n ore menurut bobot (sisa terbesar) -> jsonb {ore: jumlah}
+create or replace function public._tb_alloc(p_n int, p_mix jsonb) returns jsonb
+language plpgsql immutable as $$
+declare
+  out jsonb := '{}'; k text; x numeric; f int; used int := 0; rem record; j int := 0; cnt int;
+begin
+  for k, x in select key, value::numeric * p_n from jsonb_each_text(p_mix) loop
+    f := floor(x); out := out || jsonb_build_object(k, f); used := used + f;
+  end loop;
+  cnt := (select count(*) from jsonb_object_keys(p_mix));
+  while used < p_n loop
+    select key into k from (
+      select key, (value::numeric * p_n) - floor(value::numeric * p_n) as fr
+      from jsonb_each_text(p_mix) order by fr desc, key offset (j % cnt) limit 1) s;
+    out := jsonb_set(out, array[k], to_jsonb((out->>k)::int + 1));
+    used := used + 1; j := j + 1;
+  end loop;
+  return out;
+end $$;
+
+create or replace function public._tb_ensure(p_user uuid) returns public.tambang_player
+language plpgsql security definer set search_path = public as $$
+declare p public.tambang_player; cfg jsonb := public._tb_cfg(); sc bigint := (cfg->>'start_coins')::bigint; sg bigint := (cfg->>'start_gems')::bigint;
+begin
+  if p_user is null then raise exception 'AUTH_REQUIRED'; end if;
+  insert into public.tambang_player(user_id) values (p_user) on conflict (user_id) do nothing;
+  select * into p from public.tambang_player where user_id = p_user for update;   -- kunci: tidak ada balapan antar-RPC
+  perform public._wallet_ensure(p_user);                                  -- saldo awal dompet standar (1000 Koin)
+  if sc > 0 or sg > 0 then perform public._wallet_apply(p_user, sc, sg, 'tb_start', 'start'); end if;   -- idempoten (ledger unik)
+  return p;
+end $$;
+
+create or replace function public._tb_log(p_user uuid, p_kind text, p_detail jsonb) returns void
+language sql security definer set search_path = public as $$
+  insert into public.tambang_event(user_id, kind, detail) values (p_user, p_kind, coalesce(p_detail,'{}'));
+$$;
+
+revoke all on function public._tb_cfg(), public._tb_day(), public._tb_n(text,int), public._tb_bag_total(jsonb),
+  public._tb_bag_add(jsonb,text,text,bigint), public._tb_bag_get(jsonb,text,text),
+  public._tb_worked_to(timestamptz,timestamptz,numeric,numeric), public._tb_worked(timestamptz,timestamptz,timestamptz,boolean),
+  public._tb_stock(public.tambang_mine,timestamptz), public._tb_alloc(int,jsonb),
+  public._tb_ensure(uuid), public._tb_log(uuid,text,jsonb) from public, anon, authenticated;
+
+-- JSON keadaan lengkap untuk klien
+create or replace function public._tb_state(p_user uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  p public.tambang_player; cfg jsonb := public._tb_cfg(); w public.player_wallet; ms jsonb; today date := public._tb_day();
+begin
+  select * into p from public.tambang_player where user_id = p_user;
+  select * into w from public.player_wallet where user_id = p_user;
+  select coalesce(jsonb_agg(jsonb_build_object(
+      'slot', m.slot, 'speed_lv', m.speed_lv, 'cap_lv', m.cap_lv, 'mgr', m.mgr,
+      'stock', public._tb_stock(m, now()), 'cap', (cfg->'cap'->>m.cap_lv)::numeric,
+      'boost_left_secs', greatest(0, ceil(extract(epoch from (coalesce(m.boost_until, now()) - now())))),
+      'boost_left_today', (cfg->>'boost_daily')::int - (case when m.boost_day = today then m.boost_n else 0 end),
+      't0', m.t0) order by m.slot), '[]')
+    into ms from public.tambang_mine m where m.user_id = p_user;
+  return jsonb_build_object('ok', true, 'now', now(),
+    'coins', coalesce(w.coins,0), 'gems', coalesce(w.gems,0), 'mines', ms,
+    'lift', jsonb_build_object('cap_lv', p.lift_cap, 'spd_lv', p.lift_spd,
+      'cap', (cfg->'lift_cap'->>p.lift_cap)::int, 'spd', (cfg->'lift_spd'->>p.lift_spd)::numeric,
+      'transit', p.transit),
+    'gudang', jsonb_build_object('cap_lv', p.g_cap, 'cap', (cfg->'g_cap'->>p.g_cap)::int, 'used', public._tb_bag_total(p.store),
+      'off_lv', p.g_off, 'off_h', (cfg->'g_off'->>p.g_off)::int),
+    'store', p.store, 'bag', p.bag, 'furn', p.furn, 'forest_workers', p.forest_workers,
+    'drops', jsonb_build_object('day', p.drop_day, 'coin', case when p.drop_day = today then p.drop_coin else 0 end,
+      'gem', case when p.drop_day = today then p.drop_gem else 0 end, 'power', case when p.drop_day = today then p.drop_power else 0 end),
+    'powers', p.powers, 't0', p.t0);
+end $$;
+revoke all on function public._tb_state(uuid) from public, anon, authenticated;
+
+-- ============ 4. RPC untuk klien (authenticated) ============
+-- Semua RPC: {ok:true,...,state} atau {ok:false, reason:'...'}  (reason sama dengan mode lokal)
+
+create or replace function public.tambang_get() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player;
+begin
+  p := public._tb_ensure(uid);
+  update public.tambang_player set seen = now() where user_id = uid;
+  return public._tb_state(uid);
+end $$;
+
+create or replace function public.tambang_unlock(p_slot int) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cost bigint;
+begin
+  p := public._tb_ensure(uid);
+  if p_slot not between 1 and 5 then return jsonb_build_object('ok', false, 'reason', 'tambang-tidak-ada'); end if;
+  if exists (select 1 from public.tambang_mine where user_id = uid and slot = p_slot) then return jsonb_build_object('ok', false, 'reason', 'sudah-dibuka'); end if;
+  if p_slot > 1 and not exists (select 1 from public.tambang_mine where user_id = uid and slot = p_slot - 1) then
+    return jsonb_build_object('ok', false, 'reason', 'buka-berurutan'); end if;
+  cost := public._tb_n('unlock', p_slot);
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_unlock', 'm' || p_slot);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  insert into public.tambang_mine(user_id, slot) values (uid, p_slot);
+  perform public._tb_log(uid, 'unlock', jsonb_build_object('slot', p_slot, 'cost', cost));
+  return public._tb_state(uid);
+end $$;
+
+-- kind: 'speed' | 'cap'
+create or replace function public.tambang_upgrade(p_slot int, p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; m public.tambang_mine; lv int; cost bigint; st numeric;
+begin
+  p := public._tb_ensure(uid);
+  if p_kind not in ('speed','cap') then return jsonb_build_object('ok', false, 'reason', 'jenis-salah'); end if;
+  select * into m from public.tambang_mine where user_id = uid and slot = p_slot for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'terkunci'); end if;
+  lv := case when p_kind = 'speed' then m.speed_lv else m.cap_lv end;
+  if lv >= 5 then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+  cost := round(public._tb_n('upc_' || p_kind, lv + 1) * public._tb_n('upf', p_slot));
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_up_' || p_kind, p_slot || '-' || (lv + 1));
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  st := public._tb_stock(m, now());                      -- kunci stok sebelum laju berubah
+  update public.tambang_mine set stock = st, at = now(),
+    speed_lv = speed_lv + (case when p_kind = 'speed' then 1 else 0 end),
+    cap_lv   = cap_lv   + (case when p_kind = 'cap'   then 1 else 0 end)
+  where user_id = uid and slot = p_slot;
+  return public._tb_state(uid);
+end $$;
+
+create or replace function public.tambang_manager(p_slot int) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; m public.tambang_mine; cost bigint; st numeric;
+begin
+  p := public._tb_ensure(uid);
+  select * into m from public.tambang_mine where user_id = uid and slot = p_slot for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'terkunci'); end if;
+  if m.mgr then return jsonb_build_object('ok', false, 'reason', 'sudah-dibuka'); end if;
+  cost := public._tb_n('mgr', p_slot);
+  begin
+    perform public._wallet_apply(uid, 0, -cost, 'tb_mgr', 'm' || p_slot);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_GEMS' then return jsonb_build_object('ok', false, 'reason', 'emerald-kurang'); end if; raise;
+  end;
+  st := public._tb_stock(m, now());
+  update public.tambang_mine set stock = st, at = now(), t0 = now(), mgr = true where user_id = uid and slot = p_slot;
+  return public._tb_state(uid);
+end $$;
+
+create or replace function public.tambang_boost(p_slot int) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; m public.tambang_mine; cfg jsonb := public._tb_cfg(); today date := public._tb_day(); n int; cost bigint; st numeric;
+begin
+  p := public._tb_ensure(uid);
+  select * into m from public.tambang_mine where user_id = uid and slot = p_slot for update;
+  if not found then return jsonb_build_object('ok', false, 'reason', 'terkunci'); end if;
+  if not m.mgr then return jsonb_build_object('ok', false, 'reason', 'perlu-manager'); end if;
+  if m.boost_until is not null and m.boost_until > now() then return jsonb_build_object('ok', false, 'reason', 'boost-aktif'); end if;
+  n := case when m.boost_day = today then m.boost_n else 0 end;
+  if n >= (cfg->>'boost_daily')::int then return jsonb_build_object('ok', false, 'reason', 'batas-harian'); end if;
+  cost := public._tb_n('bcost', p_slot);
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_boost', p_slot || '-' || (extract(epoch from clock_timestamp()) * 1000000)::bigint);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  st := public._tb_stock(m, now());
+  update public.tambang_mine set stock = st, at = now(),
+    boost_until = now() + make_interval(secs => (cfg->>'boost_secs')::int), boost_day = today, boost_n = n + 1
+  where user_id = uid and slot = p_slot;
+  return public._tb_state(uid);
+end $$;
+
+-- kind: 'cap' | 'spd'
+create or replace function public.tambang_lift_upgrade(p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; lv int; cost bigint;
+begin
+  p := public._tb_ensure(uid);
+  if p_kind = 'cap' then
+    if p.lift_cap >= 5 then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.lift_cap + 1; cost := public._tb_n('lift_cap_cost', lv);
+  elsif p_kind = 'spd' then
+    if p.lift_spd >= 3 then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.lift_spd + 1; cost := public._tb_n('lift_spd_cost', lv);
+  else return jsonb_build_object('ok', false, 'reason', 'jenis-salah'); end if;
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_lift_' || p_kind, lv::text);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  if p_kind = 'cap' then update public.tambang_player set lift_cap = lv, updated_at = now() where user_id = uid;
+  else update public.tambang_player set lift_spd = lv, updated_at = now() where user_id = uid; end if;
+  return public._tb_state(uid);
+end $$;
+
+-- kind: 'cap' (kapasitas peti Gudang) | 'off' (jam akumulasi offline). TIDAK ada batas klaim harian.
+create or replace function public.tambang_gudang_upgrade(p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; lv int; cost bigint;
+begin
+  p := public._tb_ensure(uid);
+  if p_kind = 'cap' then
+    if p.g_cap >= 5 then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.g_cap + 1; cost := public._tb_n('g_cap_cost', lv);
+  elsif p_kind = 'off' then
+    if p.g_off >= 2 then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.g_off + 1; cost := public._tb_n('g_off_cost', lv);
+  else return jsonb_build_object('ok', false, 'reason', 'jenis-salah'); end if;
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_g_' || p_kind, lv::text);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  if p_kind = 'cap' then update public.tambang_player set g_cap = lv, updated_at = now() where user_id = uid;
+  else update public.tambang_player set g_off = lv, updated_at = now() where user_id = uid; end if;
+  return public._tb_state(uid);
+end $$;
+
+-- Furnace / penebang: beli sekali per level (kind 'furn' | 'forest')
+create or replace function public.tambang_hire(p_kind text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); lv int; cost bigint;
+begin
+  p := public._tb_ensure(uid);
+  if p_kind = 'furn' then
+    if p.furn >= (cfg->>'furn_max')::int then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.furn + 1; cost := public._tb_n('furn_cost', lv);
+  elsif p_kind = 'forest' then
+    if p.forest_workers >= (cfg->>'forest_max')::int then return jsonb_build_object('ok', false, 'reason', 'level-maks'); end if;
+    lv := p.forest_workers + 1; cost := public._tb_n('forest_hire', lv);
+  else return jsonb_build_object('ok', false, 'reason', 'jenis-salah'); end if;
+  begin
+    perform public._wallet_apply(uid, -cost, 0, 'tb_hire_' || p_kind, lv::text);
+  exception when others then
+    if sqlerrm = 'INSUFFICIENT_COINS' then return jsonb_build_object('ok', false, 'reason', 'saldo-kurang'); end if; raise;
+  end;
+  if p_kind = 'furn' then update public.tambang_player set furn = lv, last_work = case when furn = 0 then now() else last_work end, updated_at = now() where user_id = uid;
+  else update public.tambang_player set forest_workers = lv, last_work = case when forest_workers = 0 then now() else last_work end, updated_at = now() where user_id = uid; end if;
+  return public._tb_state(uid);
+end $$;
+
+-- Satu perjalanan lift: tambang -> Gudang (+ gacha). Klien memanggil ~tiap 15 dtk dan sekali saat online lagi
+-- (kejar offline dibatasi g_off jam). Server menolak bila terlalu cepat (rate-limit), jadi spam tidak menambah hasil.
+create or replace function public.tambang_sweep() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); now_ts timestamptz := now();
+  trips int; offmax int; done int := 0; free bigint; ids int[]; i int; k int; j int; m public.tambang_mine; have int; n int; got jsonb;
+  mix jsonb; item text; q int; dc int; dg int; coin_got bigint := 0; gem_got bigint := 0; powers_got text[] := '{}'; today date := public._tb_day();
+  pw text; c bigint; total_ore int := 0; spd numeric; interval_s numeric; gcapv int; v_store jsonb; pws jsonb; err text; last_sw timestamptz;
+begin
+  p := public._tb_ensure(uid);
+  spd := (cfg->'lift_spd'->>p.lift_spd)::numeric;                         -- lift lebih cepat -> interval lebih pendek
+  interval_s := greatest(3, (cfg->>'sweep_secs')::numeric / spd);
+  offmax := (cfg->'g_off'->>p.g_off)::int * 3600;
+  trips := least(floor(extract(epoch from (now_ts - p.last_sweep)) / interval_s)::int,
+                 floor(offmax / interval_s)::int, 2000);
+  if trips < 1 then return public._tb_state(uid); end if;                 -- belum waktunya
+  v_store := p.store; pws := p.powers; gcapv := (cfg->'g_cap'->>p.g_cap)::int;
+  if p.drop_day <> today then p.drop_day := today; p.drop_coin := 0; p.drop_gem := 0; p.drop_power := 0; end if;
+  select array_agg(slot order by slot) into ids from public.tambang_mine where user_id = uid;
+  if ids is null then update public.tambang_player set last_sweep = now_ts where user_id = uid; return public._tb_state(uid); end if;
+
+  while done < trips loop
+    free := gcapv - public._tb_bag_total(v_store);
+    exit when free < 1;
+    -- pilih tambang berstok berikutnya (round-robin mulai p.swi)
+    n := 0; i := null;
+    for j in 0 .. array_length(ids,1) - 1 loop
+      k := ids[((coalesce((select array_position(ids, x) from unnest(ids) x where x >= p.swi order by x limit 1), 1) - 1 + j) % array_length(ids,1)) + 1];
+      select * into m from public.tambang_mine where user_id = uid and slot = k for update;
+      have := floor(public._tb_stock(m, now_ts))::int;
+      if have >= 1 then i := k; n := least(have, (cfg->'lift_cap'->>p.lift_cap)::int, free::int); exit; end if;
+    end loop;
+    exit when i is null;
+    update public.tambang_mine set stock = public._tb_stock(m, now_ts) - n, at = now_ts where user_id = uid and slot = i;
+    got := public._tb_alloc(n, cfg->'mix'->(i::text));
+    for item, q in select key, value::int from jsonb_each_text(got) loop
+      v_store := public._tb_bag_add(v_store, case when cfg->'gems' ? item then 'goods' else 'ore' end, item, q);
+    end loop;
+    total_ore := total_ore + n; p.swi := i + 1; p.sweep_n := p.sweep_n + 1; done := done + 1;
+    -- gacha: peluang kecil per ore, dibatasi per hari (Asia/Jakarta)
+    dc := 0; dg := 0;
+    for k in 1 .. n loop
+      if p.drop_coin < (cfg->'drop'->>'coin_max')::int and random() < (cfg->'drop'->>'coin_p')::numeric then
+        c := round((40 + random() * 60) * (1 + i * 0.6)); coin_got := coin_got + c; p.drop_coin := p.drop_coin + 1; end if;
+      if p.drop_gem < (cfg->'drop'->>'gem_max')::int and random() < (cfg->'drop'->>'gem_p')::numeric then
+        gem_got := gem_got + 1 + (case when random() < 0.3 then 1 else 0 end); p.drop_gem := p.drop_gem + 1; end if;
+      if p.drop_power < (cfg->'drop'->>'power_max')::int and random() < (cfg->'drop'->>'power_p')::numeric then
+        pw := cfg->'powers'->>floor(random() * jsonb_array_length(cfg->'powers'))::int;
+        powers_got := powers_got || pw; p.drop_power := p.drop_power + 1;
+        pws := jsonb_set(pws, array[pw], to_jsonb(coalesce((pws->>pw)::int, 0) + 1), true); end if;
+    end loop;
+  end loop;
+
+  if coin_got > 0 or gem_got > 0 then
+    perform public._wallet_apply(uid, coin_got, gem_got, 'tb_drop', 's' || p.sweep_n);   -- ref unik per perjalanan
+  end if;
+  update public.tambang_player set store = v_store, powers = pws, swi = p.swi, sweep_n = p.sweep_n,
+    drop_day = p.drop_day, drop_coin = p.drop_coin, drop_gem = p.drop_gem, drop_power = p.drop_power,
+    last_sweep = case when done < trips then now_ts else p.last_sweep + make_interval(secs => done * interval_s) end,
+    updated_at = now_ts
+  where user_id = uid;
+  return public._tb_state(uid) || jsonb_build_object('swept', jsonb_build_object('trips', done, 'ore', total_ore,
+    'drop_coin', coin_got, 'drop_gem', gem_got, 'drop_power', to_jsonb(powers_got)));
+end $$;
+
+-- Penebang + tukang bakar (hitungan waktu, termasuk offline). Kerja 30 mnt / istirahat 10 mnt (rasio kerja 0.75 dipakai sbg hampiran).
+create or replace function public.tambang_work() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); now_ts timestamptz := now();
+  duty numeric := (cfg->>'work_secs')::numeric / ((cfg->>'work_secs')::numeric + (cfg->>'rest_secs')::numeric);
+  el numeric; offmax numeric; chops int; smelts int; v_store jsonb; free bigint; w int := 0; sm int := 0; rid text; fuel int; need int; uw int; uc int; cnt int;
+begin
+  p := public._tb_ensure(uid);
+  offmax := (cfg->'g_off'->>p.g_off)::int * 3600;
+  el := least(extract(epoch from (now_ts - p.last_work)), offmax) * duty;
+  v_store := p.store;
+  if p.forest_workers > 0 then
+    chops := floor(el / (cfg->>'chop_secs')::numeric)::int * p.forest_workers;
+    free := (cfg->'g_cap'->>p.g_cap)::int - public._tb_bag_total(v_store);
+    w := least(chops * (cfg->>'wood_per_tree')::int, greatest(0, free))::int;
+    if w > 0 then v_store := public._tb_bag_add(v_store, 'wood', 'wood', w); end if;
+  end if;
+  if p.furn > 0 then
+    smelts := least(floor(el / (cfg->>'smelt_secs')::numeric)::int * p.furn, 5000);
+    while smelts > 0 loop
+      cnt := 0;
+      for rid in select key from jsonb_each(cfg->'recipes') order by key loop
+        fuel := (cfg->'recipes'->rid->>'fuel')::int;
+        continue when public._tb_bag_get(v_store,'ore',rid) < 1;
+        continue when public._tb_bag_get(v_store,'wood','wood') * (cfg->>'fuel_wood')::int + public._tb_bag_get(v_store,'ore','coal') * (cfg->>'fuel_coal')::int < fuel;
+        need := fuel;
+        uw := least(public._tb_bag_get(v_store,'wood','wood'), ceil(need::numeric / (cfg->>'fuel_wood')::int))::int;
+        need := need - least(need, uw * (cfg->>'fuel_wood')::int);
+        v_store := public._tb_bag_add(v_store,'wood','wood', -uw);
+        if need > 0 then uc := ceil(need::numeric / (cfg->>'fuel_coal')::int)::int; v_store := public._tb_bag_add(v_store,'ore','coal', -uc); end if;
+        v_store := public._tb_bag_add(v_store,'ore', rid, -1);
+        v_store := public._tb_bag_add(v_store,'goods', rid, 1);
+        sm := sm + 1; smelts := smelts - 1; cnt := cnt + 1;
+        exit when smelts <= 0;
+      end loop;
+      exit when cnt = 0;
+    end loop;
+  end if;
+  update public.tambang_player set store = v_store, last_work = now_ts, updated_at = now_ts where user_id = uid;
+  return public._tb_state(uid) || jsonb_build_object('worked', jsonb_build_object('wood', w, 'smelted', sm));
+end $$;
+
+-- KLAIM: Gudang -> Inventori. Tanpa batas harian; cadangan bahan bakar (10 kayu + 5 batu bara) tetap tinggal di Gudang.
+create or replace function public.tambang_claim() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); s jsonb; b jsonb; k text; q bigint; moved bigint := 0; keep bigint;
+begin
+  p := public._tb_ensure(uid); s := p.store; b := p.bag;
+  if public._tb_bag_total(s) < 1 then return jsonb_build_object('ok', false, 'reason', 'gudang-kosong'); end if;
+  for k, q in select key, value::bigint from jsonb_each_text(s->'goods') loop
+    if q > 0 then b := public._tb_bag_add(b,'goods',k,q); s := public._tb_bag_add(s,'goods',k,-q); moved := moved + q; end if;
+  end loop;
+  for k, q in select key, value::bigint from jsonb_each_text(s->'ore') loop
+    keep := case when k = 'coal' then (cfg->>'keep_coal')::bigint else 0 end;
+    if q - keep > 0 then b := public._tb_bag_add(b,'ore',k,q-keep); s := public._tb_bag_add(s,'ore',k,-(q-keep)); moved := moved + (q-keep); end if;
+  end loop;
+  q := coalesce((s->>'wood')::bigint,0) - (cfg->>'keep_wood')::bigint;
+  if q > 0 then b := public._tb_bag_add(b,'wood','wood',q); s := public._tb_bag_add(s,'wood','wood',-q); moved := moved + q; end if;
+  if moved < 1 then return jsonb_build_object('ok', false, 'reason', 'hanya-cadangan'); end if;
+  update public.tambang_player set store = s, bag = b, claim_total = claim_total + moved, updated_at = now() where user_id = uid;
+  return public._tb_state(uid) || jsonb_build_object('moved', moved);
+end $$;
+
+-- JUAL dari Inventori -> Koin. p_grp 'goods'|'ore'|'wood'; p_qty null = semua. Harga dari _tb_cfg().
+create or replace function public.tambang_sell(p_grp text, p_item text, p_qty int default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); price numeric; have bigint; q bigint; c bigint;
+begin
+  p := public._tb_ensure(uid);
+  price := (cfg->'sell'->p_grp->>p_item)::numeric;
+  if price is null then return jsonb_build_object('ok', false, 'reason', 'barang-tidak-ada'); end if;
+  have := public._tb_bag_get(p.bag, p_grp, p_item);
+  q := least(coalesce(p_qty, have), have);
+  if q < 1 then return jsonb_build_object('ok', false, 'reason', 'inventori-kosong'); end if;
+  c := (price * q)::bigint;
+  update public.tambang_player set bag = public._tb_bag_add(bag, p_grp, p_item, -q), sell_n = sell_n + 1, updated_at = now() where user_id = uid returning sell_n into p.sell_n;
+  perform public._wallet_apply(uid, c, 0, 'tb_sell', p.sell_n::text);
+  return public._tb_state(uid) || jsonb_build_object('sold', q, 'coins', c);
+end $$;
+
+create or replace function public.tambang_sell_all() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); grp text; item text; price numeric; have bigint; total bigint := 0; n bigint := 0; b jsonb;
+begin
+  p := public._tb_ensure(uid); b := p.bag;
+  for grp in select jsonb_object_keys(cfg->'sell') loop
+    for item, price in select key, value::numeric from jsonb_each_text(cfg->'sell'->grp) loop
+      have := public._tb_bag_get(b, grp, item);
+      if have > 0 then total := total + (price * have)::bigint; n := n + have; b := public._tb_bag_add(b, grp, item, -have); end if;
+    end loop;
+  end loop;
+  if n < 1 then return jsonb_build_object('ok', false, 'reason', 'inventori-kosong'); end if;
+  update public.tambang_player set bag = b, sell_n = sell_n + 1, updated_at = now() where user_id = uid returning sell_n into p.sell_n;
+  perform public._wallet_apply(uid, total, 0, 'tb_sell', p.sell_n::text);
+  return public._tb_state(uid) || jsonb_build_object('sold', n, 'coins', total);
+end $$;
+
+-- ============ 5. Hak akses: hanya pengguna login ============
+revoke all on function public.tambang_get(), public.tambang_unlock(int), public.tambang_upgrade(int,text), public.tambang_manager(int),
+  public.tambang_boost(int), public.tambang_lift_upgrade(text), public.tambang_gudang_upgrade(text), public.tambang_hire(text),
+  public.tambang_sweep(), public.tambang_work(), public.tambang_claim(), public.tambang_sell(text,text,int), public.tambang_sell_all()
+  from public, anon;
+grant execute on function public.tambang_get(), public.tambang_unlock(int), public.tambang_upgrade(int,text), public.tambang_manager(int),
+  public.tambang_boost(int), public.tambang_lift_upgrade(text), public.tambang_gudang_upgrade(text), public.tambang_hire(text),
+  public.tambang_sweep(), public.tambang_work(), public.tambang_claim(), public.tambang_sell(text,text,int), public.tambang_sell_all()
+  to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611500001_tambang_world_fix_sell.sql
+-- ---------------------------------------------------------------------------
+-- Perbaikan: hasil jual memakai kunci 'earned' (bukan 'coins') agar tidak menimpa saldo dompet di JSON keadaan.
+-- create or replace: aman dijalankan ulang, hak akses (grant) tetap.
+
+create or replace function public.tambang_sell(p_grp text, p_item text, p_qty int default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); price numeric; have bigint; q bigint; c bigint;
+begin
+  p := public._tb_ensure(uid);
+  price := (cfg->'sell'->p_grp->>p_item)::numeric;
+  if price is null then return jsonb_build_object('ok', false, 'reason', 'barang-tidak-ada'); end if;
+  have := public._tb_bag_get(p.bag, p_grp, p_item);
+  q := least(coalesce(p_qty, have), have);
+  if q < 1 then return jsonb_build_object('ok', false, 'reason', 'inventori-kosong'); end if;
+  c := (price * q)::bigint;
+  update public.tambang_player set bag = public._tb_bag_add(bag, p_grp, p_item, -q), sell_n = sell_n + 1, updated_at = now() where user_id = uid returning sell_n into p.sell_n;
+  perform public._wallet_apply(uid, c, 0, 'tb_sell', p.sell_n::text);
+  return public._tb_state(uid) || jsonb_build_object('sold', q, 'earned', c);
+end $$;
+
+create or replace function public.tambang_sell_all() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); p public.tambang_player; cfg jsonb := public._tb_cfg(); grp text; item text; price numeric; have bigint; total bigint := 0; n bigint := 0; b jsonb;
+begin
+  p := public._tb_ensure(uid); b := p.bag;
+  for grp in select jsonb_object_keys(cfg->'sell') loop
+    for item, price in select key, value::numeric from jsonb_each_text(cfg->'sell'->grp) loop
+      have := public._tb_bag_get(b, grp, item);
+      if have > 0 then total := total + (price * have)::bigint; n := n + have; b := public._tb_bag_add(b, grp, item, -have); end if;
+    end loop;
+  end loop;
+  if n < 1 then return jsonb_build_object('ok', false, 'reason', 'inventori-kosong'); end if;
+  update public.tambang_player set bag = b, sell_n = sell_n + 1, updated_at = now() where user_id = uid returning sell_n into p.sell_n;
+  perform public._wallet_apply(uid, total, 0, 'tb_sell', p.sell_n::text);
+  return public._tb_state(uid) || jsonb_build_object('sold', n, 'earned', total);
+end $$;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611510001_cpu_coins_only_online_xp.sql
+-- ---------------------------------------------------------------------------
+-- Aturan ekonomi match (keputusan Rans, 26 Nov 2026):
+--   * Online terverifikasi : XP, koin, poin, kemenangan, statistik (tidak berubah).
+--   * Lawan CPU / room tak terverifikasi : TANPA XP, TANPA poin, tidak mengubah plays/wins/streak/statistik
+--     (jadi tidak masuk leaderboard dan tidak menaikkan achievement/misi berbasis statistik).
+--     Hanya koin, maksimal 5 hasil per hari WIB (reason ledger 'match_cpu').
+--   * Hasil CPU ke-6 dst di hari yang sama: diabaikan penuh -> {ok:true, ignored:'cpu_daily_limit'}.
+-- Alasan: XP tanpa batas membuka hadiah level-up yang melewati batas koin harian, dan statistik CPU
+-- (dikirim klien) membayar emerald lewat achievement. Lihat docs/planing/audit-ekonomi.md.
+
+create or replace function public.submit_match_result(
+  p_match_id text,
+  p_won boolean,
+  p_name text,
+  p_xp_total bigint default 0,
+  p_room_id uuid default null,
+  p_mode text default null,
+  p_players int default null,
+  p_stats jsonb default null
+) returns jsonb
+language plpgsql security definer set search_path = public, auth as $$
+#variable_conflict use_column
+declare
+  c_xp_win  constant int := 120;
+  c_xp_loss constant int := 40;
+  c_pts_win constant int := 100;
+  c_pts_loss constant int := 10;
+  c_coin_win       constant bigint := 40;
+  c_coin_loss      constant bigint := 15;
+  c_coin_win_cpu   constant bigint := 10;
+  c_coin_loss_cpu  constant bigint := 5;
+  c_coin_daily_cap constant bigint := 300;  -- batas koin match ONLINE per hari WIB
+  c_cpu_daily_max  constant int := 5;       -- jumlah hasil CPU yang boleh dibayar per hari WIB
+  c_ingame_coin_online constant int := 60;
+  c_ingame_xp_online   constant int := 60;
+  c_ingame_coin_cpu    constant int := 30;
+  v_uid    uuid := auth.uid();
+  v_name   text := left(btrim(coalesce(p_name, '')), 24);
+  v_wk     date := (date_trunc('week', now() at time zone 'utc'))::date;
+  v_rows   integer;
+  v_s      public.player_stats;
+  v_room   public.game_rooms;
+  v_online boolean := false;
+  v_won    boolean := coalesce(p_won, false);
+  v_key    text := p_match_id;
+  v_widx   int;
+  v_winner text;
+  v_pts    int;
+  v_gain   int;
+  v_xp     bigint;
+  v_coins  bigint := 0;
+  v_ig_coin bigint := 0;
+  v_ig_xp  int := 0;
+  v_today  bigint;
+  v_cpu_n  int;
+  v_dice  int := public._clamp_json_int(p_stats, 'dice', 300);
+  v_lad   int := public._clamp_json_int(p_stats, 'ladders', 60);
+  v_snk   int := public._clamp_json_int(p_stats, 'snakes', 60);
+  v_skl   int := public._clamp_json_int(p_stats, 'skills', 100);
+  v_drg   int := public._clamp_json_int(p_stats, 'dragon_hits', 100);
+  v_ids   text[] := '{}';
+  v_swins text[];
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  if p_match_id is null or char_length(p_match_id) not between 1 and 80 then raise exception 'BAD_MATCH_ID'; end if;
+  if v_name = '' then v_name := 'Player'; end if;
+
+  if p_room_id is not null then
+    if not public.is_game_room_member(p_room_id) then raise exception 'ROOM_ACCESS_DENIED'; end if;
+    select * into v_room from public.game_rooms where id = p_room_id;
+    if v_room.status <> 'finished' then
+      return jsonb_build_object('ok', false, 'reason', 'room_not_finished');
+    end if;
+    v_widx := case when (v_room.game_state -> 'snapshot' ->> 'winnerIndex') ~ '^[0-9]+$'
+                   then (v_room.game_state -> 'snapshot' ->> 'winnerIndex')::int end;
+    v_winner := case when v_widx is not null then v_room.game_state -> 'snapshot' -> 'players' -> v_widx ->> 'networkId' end;
+    if v_winner is null then
+      return jsonb_build_object('ok', false, 'reason', 'no_result');
+    end if;
+    if public._room_is_verified(p_room_id) then
+      v_online := true;
+      v_won := (v_winner = v_uid::text);   -- klaim klien (p_won) diabaikan
+    end if;
+  end if;
+
+  ------------------------------------------------------------------
+  -- JALUR CPU / room tak terverifikasi: hanya koin, maks 5 per hari.
+  ------------------------------------------------------------------
+  if not v_online then
+    perform public._wallet_ensure(v_uid);
+    perform 1 from public.player_wallet where user_id = v_uid for update;   -- serialisasi: batas 5x tidak bisa dilompati paralel
+
+    select count(*) into v_cpu_n from public.wallet_ledger
+      where user_id = v_uid and reason = 'match_cpu' and created_at >= public._wib_day_start();
+    if v_cpu_n >= c_cpu_daily_max then
+      return jsonb_build_object('ok', true, 'ignored', 'cpu_daily_limit', 'online', false, 'cpu_left', 0);
+    end if;
+
+    insert into public.player_match_results(user_id, match_id) values (v_uid, v_key) on conflict do nothing;
+    get diagnostics v_rows = row_count;
+    if v_rows = 0 then return jsonb_build_object('ok', true, 'duplicate', true); end if;
+
+    v_coins   := case when v_won then c_coin_win_cpu else c_coin_loss_cpu end;
+    v_ig_coin := public._clamp_json_int(p_stats, 'ingame_coins', c_ingame_coin_cpu);
+    perform public._wallet_apply(v_uid, v_coins + v_ig_coin, 0, 'match_cpu', v_key);
+
+    insert into public.player_match_history(user_id, match_id, won, mode, players, xp_gain, points, detail)
+    values (v_uid, v_key, v_won, 'cpu',
+            case when p_players between 1 and 8 then p_players end, 0, 0,
+            jsonb_build_object('ingame_coins', v_ig_coin))
+    on conflict do nothing;
+    delete from public.player_match_history h
+    where h.user_id = v_uid
+      and h.id not in (select id from public.player_match_history
+                       where user_id = v_uid order by created_at desc, id desc limit 50);
+
+    return jsonb_build_object('ok', true, 'duplicate', false, 'won', v_won, 'online', false,
+                              'points', 0, 'xp_gain', 0, 'reward_coins', v_coins,
+                              'ingame_coins', v_ig_coin, 'ingame_xp', 0,
+                              'cpu_left', c_cpu_daily_max - v_cpu_n - 1);
+  end if;
+
+  ------------------------------------------------------------------
+  -- JALUR ONLINE terverifikasi (logika sama seperti 202611340001).
+  ------------------------------------------------------------------
+  v_ig_coin := public._clamp_json_int(p_stats, 'ingame_coins', c_ingame_coin_online);
+  v_ig_xp   := public._clamp_json_int(p_stats, 'ingame_xp',    c_ingame_xp_online);
+
+  v_gain := (case when v_won then c_xp_win else c_xp_loss end) + v_ig_xp;
+  v_pts  := case when v_won then c_pts_win else c_pts_loss end;
+
+  insert into public.player_stats(user_id, name) values (v_uid, v_name) on conflict (user_id) do nothing;
+  select * into v_s from public.player_stats where user_id = v_uid for update;
+
+  if v_s.last_match_at is not null and v_s.last_match_at > now() - interval '45 seconds' then
+    return jsonb_build_object('ok', true, 'ignored', 'too_fast');
+  end if;
+
+  perform 1 from public.player_room_credits
+    where user_id = v_uid and room_id = p_room_id and credited_at > now() - interval '3 minutes';
+  if found then return jsonb_build_object('ok', true, 'duplicate', true); end if;
+  insert into public.player_room_credits(user_id, room_id, credited_at) values (v_uid, p_room_id, now())
+    on conflict (user_id, room_id) do update set credited_at = excluded.credited_at;
+  v_key := left('room:' || p_room_id::text || ':' || to_char(now() at time zone 'utc', 'YYYYMMDDHH24MISS'), 80);
+
+  insert into public.player_match_results(user_id, match_id) values (v_uid, v_key) on conflict do nothing;
+  get diagnostics v_rows = row_count;
+  if v_rows = 0 then return jsonb_build_object('ok', true, 'duplicate', true); end if;
+
+  if v_s.week_key <> v_wk then v_s.week_key := v_wk; v_s.week_points := 0; end if;
+  v_xp := least(v_s.xp + v_gain, 1000000);
+
+  v_swins := v_s.skill_wins;
+  if v_won and p_stats is not null and jsonb_typeof(p_stats -> 'skill_ids') = 'array' then
+    select coalesce(array_agg(left(x, 30)), '{}') into v_ids
+    from (select jsonb_array_elements_text(p_stats -> 'skill_ids') as x limit 8) q
+    where btrim(x) <> '';
+    select coalesce(array_agg(x order by x), '{}') into v_swins
+    from (select distinct x from unnest(v_s.skill_wins || v_ids) as x limit 40) q;
+  end if;
+
+  update public.player_stats set
+    name          = v_name,
+    xp            = v_xp,
+    level         = public.level_from_xp(v_xp),
+    plays         = v_s.plays + 1,
+    wins          = v_s.wins + (case when v_won then 1 else 0 end),
+    streak        = case when v_won then v_s.streak + 1 else 0 end,
+    best_streak   = greatest(v_s.best_streak, case when v_won then v_s.streak + 1 else 0 end),
+    points        = v_s.points + v_pts,
+    week_key      = v_s.week_key,
+    week_points   = v_s.week_points + v_pts,
+    dice_rolls    = v_s.dice_rolls + v_dice,
+    ladders       = v_s.ladders + v_lad,
+    snakes        = v_s.snakes + v_snk,
+    skills_used   = v_s.skills_used + v_skl,
+    dragon_hits   = v_s.dragon_hits + v_drg,
+    skill_wins    = v_swins,
+    last_match_at = now(),
+    updated_at    = now()
+  where user_id = v_uid;
+
+  insert into public.player_match_history(user_id, match_id, won, mode, players, xp_gain, points, detail)
+  values (v_uid, v_key, v_won, 'online',
+          case when p_players between 1 and 8 then p_players end,
+          (v_xp - v_s.xp)::int, v_pts,
+          jsonb_build_object('dice', v_dice, 'ladders', v_lad, 'snakes', v_snk, 'skills', v_skl, 'dragon_hits', v_drg,
+                             'ingame_coins', v_ig_coin, 'ingame_xp', v_ig_xp))
+  on conflict do nothing;
+
+  delete from public.player_match_history h
+  where h.user_id = v_uid
+    and h.id not in (select id from public.player_match_history
+                     where user_id = v_uid order by created_at desc, id desc limit 50);
+
+  v_coins := case when v_won then c_coin_win else c_coin_loss end;
+  perform public._wallet_ensure(v_uid);
+  perform 1 from public.player_wallet where user_id = v_uid for update;
+  select coalesce(sum(delta_coins), 0) into v_today from public.wallet_ledger
+    where user_id = v_uid and reason = 'match' and created_at >= public._wib_day_start();
+  v_coins := greatest(least(v_coins, c_coin_daily_cap - v_today), 0);
+  v_ig_coin := greatest(least(v_ig_coin, c_coin_daily_cap - v_today - v_coins), 0);
+  if v_coins + v_ig_coin > 0 then perform public._wallet_apply(v_uid, v_coins + v_ig_coin, 0, 'match', v_key); end if;
+
+  return jsonb_build_object('ok', true, 'duplicate', false, 'won', v_won, 'online', true,
+                            'points', v_pts, 'xp_gain', (v_xp - v_s.xp)::int, 'reward_coins', v_coins,
+                            'ingame_coins', v_ig_coin, 'ingame_xp', least(v_ig_xp, (v_xp - v_s.xp)::int));
+end;
+$$;
+revoke all on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) from public, anon;
+grant execute on function public.submit_match_result(text, boolean, text, bigint, uuid, text, int, jsonb) to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- >>> 202611520001_cpu_boss_off_chest_no_xp.sql
+-- ---------------------------------------------------------------------------
+-- Lanjutan aturan ekonomi 26 Nov 2026 (lihat docs/planing/sisa-audit.md):
+--   1. Hadiah boss lawan CPU dimatikan. Klaimnya tidak bisa diverifikasi server (token bebas) dan
+--      melewati aturan "CPU hanya koin, maks 5 hasil/hari" (3 x 100 koin/hari tanpa main).
+--      Hadiah boss online (claim_boss_reward) tidak berubah.
+--   2. Peti tidak lagi memberi XP (XP hanya dari match online). Kunci 'xp' tetap ada di hasil (bernilai 0)
+--      supaya klien lama tidak rusak; klien menyembunyikan hadiah bernilai nol.
+
+create or replace function public.claim_cpu_boss_reward(p_token text)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'AUTH_REQUIRED'; end if;
+  return jsonb_build_object('ok', false, 'reason', 'nonaktif');
+end;
+$$;
+revoke all on function public.claim_cpu_boss_reward(text) from public, anon;
+grant execute on function public.claim_cpu_boss_reward(text) to authenticated;
+
+create or replace function public._chest_roll(p_kind text)
+returns jsonb language plpgsql as $$
+declare v_c int; v_g int := 0; v_x int := 0; v_pc numeric; v_pw text; v_pmax int;
+begin
+  if p_kind = 'wood' then
+    v_c := 50 + floor(random() * 51)::int;  v_pc := 0.05; v_pmax := 100;
+  elsif p_kind = 'silver' then
+    v_c := 150 + floor(random() * 101)::int; v_pc := 0.12; v_pmax := 200;
+    if random() < 0.10 then v_g := 1; end if;
+  elsif p_kind = 'gold' then
+    v_c := 350 + floor(random() * 151)::int; v_g := 1; v_pc := 0.20;
+  elsif p_kind = 'diamond' then
+    v_c := 1000 + floor(random() * 401)::int; v_g := 3; v_pc := 0.35;
+  else
+    raise exception 'BAD_CHEST_KIND';
+  end if;
+  if random() < v_pc then   -- undian berbobot 1/harga (perlombaan eksponensial: kunci = -ln(u) * harga, terkecil menang)
+    select id into v_pw from public.item_catalog
+     where kind = 'powerup' and price_coins is not null and (v_pmax is null or price_coins <= v_pmax)
+     order by (-ln(1 - random())) * price_coins limit 1;
+  end if;
+  return jsonb_build_object('coins', v_c, 'gems', v_g, 'xp', v_x, 'power', v_pw);
+end;
+$$;
 

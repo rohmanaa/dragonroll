@@ -87,11 +87,11 @@ document.querySelectorAll('.opts').forEach(o=>{
   const pairs=o.dataset.pairs?o.dataset.pairs.split('|').map(p=>p.split(':')):null;
   const counts=o.dataset.counts?o.dataset.counts.split(','):['2','3','4'];
   const list=pairs?pairs.map(([f,c,l,s])=>({format:f,count:c,label:l,sub:s})):counts.map(c=>({format:o.dataset.format,count:c,label:o.dataset.format==='team'?'2 vs 2':c,sub:o.dataset.format==='team'?'4 pemain':'pemain'}));
-  const color=o.closest('#quick')?'ungu':'hijau';
+  const color=o.closest('#quick')?'ut-c-p':'ut-c-g';
   list.forEach(it=>{
-    const b=document.createElement('button');b.className='opt';
-    const image=pairs&&it.format==='team'?'assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp':color==='ungu'?'assets/images/buttons/tombol-ungu-polos.webp':'assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp';
-    b.innerHTML=`<img src="${image}" alt=""><span>${it.label}</span><small>${it.sub}</small>`;
+    const b=document.createElement('button');b.className='opt ut-gl';
+    b.classList.add(pairs&&it.format==='team'?'ut-c-y':color);
+    b.innerHTML=`<span>${it.label}</span><small>${it.sub}</small>`;
     b.onclick=e=>{e.stopPropagation();buzz();pick(o.dataset,it)};o.appendChild(b);
   });
 });

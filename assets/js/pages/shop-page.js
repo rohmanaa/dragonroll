@@ -21,10 +21,10 @@ UT.PageModule.define('shop', function (env) {
     { coins: 6000, gems: 120, name: 'Kantong Koin', image: 'gold-kantong.webp', color: '#ff8f1f' }
   ];
   const CHESTS = [
-    { kind: 'wood', name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp', coins: 90, open: '10 menit' },
-    { kind: 'silver', name: 'Peti Perak', image: 'chest-packs/peti-perak.webp', coins: 250, open: '1 jam' },
-    { kind: 'gold', name: 'Peti Emas', image: 'chest-packs/peti-emas.webp', coins: 600, open: '4 jam' },
-    { kind: 'diamond', name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', gems: 25, open: '8 jam', color: '#4de8e0' }
+    { kind: 'wood', name: 'Peti Kayu', image: 'chest-packs/peti-kayu.webp', gems: 2 },
+    { kind: 'silver', name: 'Peti Perak', image: 'chest-packs/peti-perak.webp', gems: 5 },
+    { kind: 'gold', name: 'Peti Emas', image: 'chest-packs/peti-emas.webp', gems: 12 },
+    { kind: 'diamond', name: 'Peti Diamond', image: 'chest-packs/peti-diamond.webp', gems: 25, color: '#4de8e0' }
   ];
   const WMSG = {
     'saldo-kurang': 'Coin tidak cukup.',
@@ -113,8 +113,9 @@ UT.PageModule.define('shop', function (env) {
   }
   function renderCurrency() {
     if (env.disposed) return;
-    $('#v-em').textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
-    $('#v-co').textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
+    const em = $('#v-em'), co = $('#v-co');
+    if (em) em.textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
+    if (co) co.textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
   }
   function pulse(selector) {
     const el = $(selector);
@@ -139,12 +140,12 @@ UT.PageModule.define('shop', function (env) {
 
   function renderCoin() {
     return PACKS.map((pack, index) => {
-      return `<div class="card${index === 2 ? ' fx' : ''}${index === 2 && query.has('coin') ? ' hl' : ''}" style="--g:${pack.color}">
+      return `<div class="card card-panel-new${index === 2 ? ' fx' : ''}${index === 2 && query.has('coin') ? ' hl' : ''}" style="--g:${pack.color}">
         ${pack.best ? `<img class="rib" src="${IC}banner-label/pita-badge-biru.webp" alt=""><span class="rt">BEST</span>` : ''}
         <div class="nm">${pack.name}</div>
         <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}gold-packs/${pack.image}" alt=""></div>
         <div class="amt">+${fmt(pack.coins)} Coin</div>
-        <button class="btn buy" data-i="${index}" aria-label="Tukar ${pack.gems} Emerald menjadi ${fmt(pack.coins)} Coin">
+        <button class="btn buy ut-gl ut-c-g" data-i="${index}" aria-label="Tukar ${pack.gems} Emerald menjadi ${fmt(pack.coins)} Coin">
           <img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt="">
           <span><img src="${IC}gem-medal-icons/berlian-hijau.webp" alt="">${pack.gems}</span>
         </button>
@@ -153,11 +154,11 @@ UT.PageModule.define('shop', function (env) {
   }
 
   function renderChest() {
-    return CHESTS.map(chest => `<div class="card chest fx" style="--g:${chest.color || '#6e8fe8'}">
+    return CHESTS.map(chest => `<div class="card card-panel-new chest fx" style="--g:${chest.color || '#6e8fe8'}">
       <div class="nm">${chest.name}</div>
       <div class="pic"><i class="glow"></i><i class="sp a"></i><i class="sp b"></i><i class="sp c"></i><i class="sp d"></i><i class="sp e"></i><img src="${IC}${chest.image}" alt=""></div>
       <div class="amt sm"><small>Langsung dibuka · bisa dapat Power</small></div>
-      <button class="btn buy" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
+      <button class="btn buy ut-gl ut-c-g" data-chest="${chest.kind}" aria-label="Beli ${chest.name} seharga ${fmt(chest.gems || chest.coins)} ${chest.gems ? 'Emerald' : 'Coin'}">
         <img src="${IC}buttons-and-controls/${chest.gems ? 'tombol-biru-polos' : 'tombol-hijau-polos'}.webp" alt="">
         <span><img src="${IC}${chest.gems ? 'gem-medal-icons/berlian-hijau' : 'hud/ikon-koin-emas'}.webp" alt="">${fmt(chest.gems || chest.coins)}</span>
       </button>
@@ -165,20 +166,20 @@ UT.PageModule.define('shop', function (env) {
   }
 
   function renderEmerald() {
-    return `<div class="card fx" style="--g:#38e070">
+    return `<div class="card card-panel-new fx" style="--g:#38e070">
       <div class="nm">Emerald</div>
       <div class="pic"><i class="glow"></i><img src="${IC}gem-medal-icons/berlian-hijau.webp" alt=""></div>
       <div class="amt sm"><small>Hadiah iklan belum tersedia</small></div>
-      <button class="btn buy soon" id="adbtn" type="button" disabled>
+      <button class="btn buy soon ut-gl ut-c-d" id="adbtn" type="button" disabled>
         <img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>SEGERA HADIR</span>
       </button>
     </div>`;
   }
 
   function renderHistory() {
-    return `<section class="history-panel">
+    return `<section class="history-panel card-panel-new">
       <div class="history-head"><div class="nm">Riwayat Transaksi</div><p>20 transaksi Coin dan Emerald terakhir.</p></div>
-      <button class="history-button" id="histbtn" type="button">Lihat Riwayat</button>
+      <button class="history-button ut-gl ut-c-y" id="histbtn" type="button">Lihat Riwayat</button>
       <div id="histlist" role="list" aria-live="polite"></div>
     </section>`;
   }
@@ -219,12 +220,12 @@ UT.PageModule.define('shop', function (env) {
       const power = it.kind === 'powerup';
       const owned = !power && PD.owns(it.id);
       const qty = power ? PD.qty(it.id) : 0;
-      return `<div class="card item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
+      return `<div class="card card-panel-new item fx k-${key} r-${it.rarity || 'common'}" style="--g:${RCOL[it.rarity] || RCOL.common}">
         <div class="nm">${escapeHtml(it.name)}</div>
         <div class="pic"><i class="glow"></i><div class="art">${art}</div></div>
         ${qty > 0 ? `<span class="chip" aria-label="Dimiliki ${qty}">×${qty}</span>` : ''}
-        ${art ? `<button class="eye" type="button" data-pv="${escapeHtml(it.id)}" aria-label="Lihat ${escapeHtml(it.name)}">${EYE}</button>` : ''}
-        <button class="plate${owned ? ' own' : ''}" type="button" data-buy="${escapeHtml(it.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Sudah dimiliki' : 'Beli ' + escapeHtml(it.name)}">
+        ${art ? `<button class="eye ut-gl ut-c-b sm" type="button" data-pv="${escapeHtml(it.id)}" aria-label="Lihat ${escapeHtml(it.name)}">${EYE}</button>` : ''}
+        <button class="plate ut-gl ${owned ? 'ut-c-d own' : 'ut-c-g'}" type="button" data-buy="${escapeHtml(it.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Sudah dimiliki' : 'Beli ' + escapeHtml(it.name)}">
           ${owned ? 'Dimiliki' : priceHtml(it)}
         </button>
       </div>`;
@@ -247,8 +248,8 @@ UT.PageModule.define('shop', function (env) {
     let qty = 1;
     openModal(`<h2>${escapeHtml(it.name)}</h2><div class="pv sm" style="--g:${RCOL[it.rarity] || RCOL.common}"><div class="pvh"></div></div>
       <p>${escapeHtml(it.desc || '')}</p>
-      ${power ? '<div class="qty"><button type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
-      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
+      ${power ? '<div class="qty"><button class="ut-gl ut-c-d" type="button" id="q-dn" aria-label="Kurangi">−</button><b id="q-n">1</b><button class="ut-gl ut-c-d" type="button" id="q-up" aria-label="Tambah">+</button></div>' : ''}
+      <div class="mrow"><button class="btn ut-gl ut-c-r" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn ut-gl ut-c-g" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span id="m-pr">${priceHtml(it)}</span></button></div>`, () => {
       startPreview(it);
       const sync = () => {
         if (power) $('#q-n').textContent = qty;
@@ -327,11 +328,11 @@ UT.PageModule.define('shop', function (env) {
     return list.map(s => {
       const owned = s.miss.length === 0;
       const icon = SET_ICON[s.p.id] || 'helm-ksatria', name = escapeHtml(s.p.n.replace(/^\S+\s/, ''));
-      return `<div class="card item fx k-set r-rare" style="--g:${RCOL.rare}">
+      return `<div class="card card-panel-new item fx k-set r-rare" style="--g:${RCOL.rare}">
         <div class="nm">${name}</div>
         <div class="pic"><i class="glow"></i><div class="art"><img class="setimg" src="data/frame/karakter/${s.p.id}-${setGender()}.webp" onerror="this.onerror=null;this.src='${IC}item-icons/${icon}.webp'" alt="" draggable="false"></div></div>
         <span class="chip" aria-label="Dimiliki ${s.parts.length - s.miss.length} dari ${s.parts.length} bagian">${s.parts.length - s.miss.length}/${s.parts.length}</span>
-        <button class="plate${owned ? ' own' : ''}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
+        <button class="plate ut-gl ${owned ? 'ut-c-d own' : 'ut-c-g'}" type="button" data-set="${escapeHtml(s.p.id)}" ${owned ? 'disabled' : ''} aria-label="${owned ? 'Set sudah dimiliki' : 'Beli set ' + name}">
           ${owned ? 'Dimiliki' : `${fmt(s.total)}<img src="${IC}hud/ikon-koin-emas.webp" alt="">`}
         </button>
       </div>`;
@@ -346,7 +347,7 @@ UT.PageModule.define('shop', function (env) {
     openModal(`<h2>Beli Set ${name}?</h2>
       <div class="slist">${rows}</div>
       <p>Bagian yang sudah kamu miliki tidak ditagih. Pakai set-nya di menu Karakter.</p>
-      <div class="mrow"><button class="btn" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>${fmt(s.total)}${coin}</span></button></div>`, () => {
+      <div class="mrow"><button class="btn ut-gl ut-c-r" type="button" id="m-no"><img src="${IC}buttons-and-controls/tombol-merah-polos.webp" alt=""><span>Batal</span></button><button class="btn ut-gl ut-c-g" type="button" id="m-ok"><img src="${IC}buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>${fmt(s.total)}${coin}</span></button></div>`, () => {
       $('#m-no').addEventListener('click', closeModal);
       $('#m-ok').addEventListener('click', () => buySetNow(s));
     });
@@ -441,13 +442,17 @@ UT.PageModule.define('shop', function (env) {
   }
 
   const modal = $('#modal');
+  /* modal sungguhan: fokus masuk & kembali ke pemicu, Tab terkunci, elemen luar inert (UT.ModalKit); dibuka/ditutup lewat kelas .show */
+  try { if (UT.ModalKit) env.own(UT.ModalKit.watch(modal, { openClass: 'show', labelledBy: 'modal-title', initialFocus: '#mx' })); } catch (e) { /* abaikan */ }
   function openModal(html, init) {
     if (env.disposed) return;
     clearTimeout(modalTimer);
     stopPreview();
     $('#mb').innerHTML = html;
+    /* judul dipindah ke .ut-mk-t (anak langsung kotak modal kit) */
     const heading = $('#mb h2');
-    if (heading) heading.id = 'modal-title';
+    $('#modal-title').textContent = heading ? heading.textContent : '';
+    if (heading) heading.remove();
     modal.style.display = 'grid';
     requestAnimationFrame(() => modal.classList.add('show'));
     mOpen = true;
@@ -470,7 +475,7 @@ UT.PageModule.define('shop', function (env) {
     }, 250);
   }
   function gemShop() {
-    openModal('<h2>Tambah Emerald</h2><p>Segera hadir.</p><button class="pack" disabled><span>Soon</span><span>⏳</span></button>');
+    openModal('<h2>Tambah Emerald</h2><p>Segera hadir.</p><button class="pack ut-gl ut-c-d" disabled><span>Soon</span><span>⏳</span></button>');
   }
 
   async function exchange(index) {
@@ -497,33 +502,11 @@ UT.PageModule.define('shop', function (env) {
     }
   }
 
-  /* Chest yang dibeli langsung terbuka: peti bergoyang sebentar, lalu hadiah dari server tampil. */
-  /* Power hadiah (id item dari server): nama dari ItemCatalog, ikon bila ada. */
-  function powerRow(id) {
-    if (!id) return '';
-    const it = window.ItemCatalog && ItemCatalog.byId(id);
-    return `<div class="cr-rw pw">${it && it.icon ? `<img src="${escapeHtml(it.icon)}" alt="">` : ''}Power: ${escapeHtml(it ? it.name : id)} ×1</div>`;
-  }
-
+  /* Chest yang dibeli langsung terbuka: layar pembukaan SINEMATIK bersama (core/chest-reveal.js); angka dompet baru disegarkan saat hadiah tampil. */
   function revealChest(chest, r) {
-    const img = `<img class="cr-img" src="${IC}${chest.image}" alt="">`;
-    openModal(`<h2>Membuka ${escapeHtml(chest.name)}…</h2><div class="cr">${img}</div>`);
-    const row = (icon, text) => `<div class="cr-rw"><img src="${IC}${icon}.webp" alt="">${text}</div>`;
-    setTimeout(() => {
-      if (!mOpen) return;
-      $('#mb').innerHTML = `<h2>${escapeHtml(chest.name)}</h2><div class="cr done">${img}</div>`
-        + row('hud/ikon-koin-emas', `+${fmt(r.coins)} Coin`)
-        + (r.gems > 0 ? row('gem-medal-icons/berlian-hijau', `+${fmt(r.gems)} Emerald`) : '')
-        + (r.xp > 0 ? `<div class="cr-rw xp">+${fmt(r.xp)} XP</div>` : '')
-        + powerRow(r.power);
-      const heading = $('#mb h2');
-      if (heading) heading.id = 'modal-title';
-      renderCurrency();
-      pulse('#cur-co');
-      if (r.gems > 0) pulse('#cur-em');
-      playSound('coin');
-      buzz();
-    }, 1100);
+    UT.ChestReveal.play(Object.assign({}, r, { kind: chest.kind }), {
+      onRewards: () => { renderCurrency(); pulse('#cur-co'); if (r.gems > 0) pulse('#cur-em'); }
+    });
   }
 
   async function buyChest(kind) {

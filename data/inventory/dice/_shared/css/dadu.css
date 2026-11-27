@@ -1,48 +1,52 @@
 /* dadu.html — layout ala Line Get Rich: kiri = info (atas) + pratinjau 3D & tombol JUAL/BELI (bawah); kanan = tab Lihat Semua / Memiliki + grid slot kotak.
    Slot: terkunci = belum dibeli, hijau = dimiliki, biru = dipakai (aset assets/images/ui/slot-equipment). Kanvas 1920x1080. */
-.dpanel{position:relative;isolation:isolate;background:none;border:0}
-.dpanel::before{content:"";position:absolute;inset:0;border:20px solid transparent;border-image:url(../../../../../assets/images/ui/panel-dialog/kartu-toko-landscape.webp) 44 / 20px stretch;z-index:-1;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+/* tampilan panel: .card-panel-new (assets/components/card-panel-new) */
+.dpanel{position:relative;isolation:isolate}
 #dl{position:absolute;left:60px;top:150px;width:820px;height:820px;display:flex;flex-direction:column;gap:16px}
-#dinfo{flex:none;height:300px;padding:26px 36px;overflow:hidden}
-#dinfo #nm{position:static;width:auto;top:auto;margin:0;font-size:52px;line-height:1.05}
-#dinfo #rar{position:static;width:auto;margin-top:4px;font-size:26px}
-#dinfo #ds{position:static;width:auto;max-height:none;margin:8px 0 0;padding:0;text-align:left;font-size:22px;line-height:1.3;color:#e8e2ff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#dstats{margin-top:12px;display:grid;gap:8px}
-.dst{display:grid;grid-template-columns:230px 1fr 170px;align-items:center;gap:14px;font:700 21px/1 var(--font-body);color:#d8d0f5}
-.dst i{height:12px;border-radius:6px;background:rgba(255,255,255,.12)}
-.dst em{font-style:normal;text-align:right;color:#9a90c4;font-size:19px}
-#dprev{flex:1;min-height:0;position:relative;overflow:hidden}
-html body #stage #dprev #fpv{position:absolute;left:18px;top:18px;right:auto;bottom:auto;width:calc(100% - 36px)!important;height:calc(100% - 36px)!important;max-width:none;max-height:none;margin:0;transform:none;overflow:hidden;cursor:pointer;touch-action:manipulation}
-#dprev #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
-#dprev #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
-#dprev #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
+#dinfo{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:24px 36px 26px;overflow:hidden}
+.dhead{flex:none;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+#dinfo #nm{position:static;width:auto;top:auto;margin:0;font-size:48px;line-height:1.05}
+#dinfo #rar{position:static;width:auto;margin:0;font-size:26px;white-space:nowrap}
+#dview{flex:1;min-height:0;position:relative;overflow:hidden}
+#dinfo #ds{flex:none;position:static;width:auto;max-height:none;margin:0;padding:0;text-align:center;font-size:22px;line-height:1.3;color:#e8e2ff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* Bonus Dadu & Efek Khusus = placeholder "segera hadir" */
+.dsec{flex:none;display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-radius:12px;background:rgba(255,255,255,.06)}
+.dsec>b{font:700 24px/1 var(--font-body);color:#fff}
+.dsec>em.dsoon{font-style:normal;font:700 21px/1 var(--font-body);color:#9a90c4}
+.drow{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:12px;font:700 21px/1 var(--font-body);color:#d8d0f5}
+.drow img{width:34px;height:34px;object-fit:contain}
+.drow em{font-style:normal;font-size:20px;color:#9a90c4}
+html body #stage #dview #fpv{position:absolute;left:18px;top:18px;right:auto;bottom:auto;width:calc(100% - 36px)!important;height:calc(100% - 36px)!important;max-width:none;max-height:none;margin:0;transform:none;overflow:hidden;cursor:pointer;touch-action:manipulation}
+#dview #fpv canvas{width:100%!important;height:100%!important;display:block;pointer-events:auto}
+#dview #fpv .fb3d{width:100%;height:100%;display:grid;place-items:center;animation:bob2 2.4s ease-in-out infinite}
+#dview #fpv .fb3d svg{width:50%;height:50%;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
 #dbtns{flex:none;display:flex;justify-content:flex-start;gap:14px;height:68px}
-#dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;border:0;background:none;cursor:pointer;font:800 28px/1 var(--font-body);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35);white-space:nowrap}
-#dbtns .btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#dbtns .btn{position:relative;flex:none;width:230px;height:100%;padding:0;cursor:pointer;font:400 34px/1 var(--font-title);white-space:nowrap}   /* tampilan: .ut-gl .ut-c-r/g (button.css); gambar bingkai lama disembunyikan */
+#dbtns .btn img{display:none}
 #dbtns .btn span{position:relative}
-#dbtns .btn.off{filter:grayscale(.85) brightness(.75);cursor:default}
 #dr{position:absolute;left:920px;top:150px;width:940px;height:820px;display:flex;flex-direction:column;padding:30px 34px 30px}
-#dtabs{flex:none;display:flex;gap:12px;margin-bottom:16px}
-#dtabs button{flex:none;min-width:240px;height:64px;padding:0 28px;border:0;border-radius:14px;background:rgba(255,255,255,.1);color:#cfc8ea;font:800 28px/1 var(--font-body);cursor:pointer}
-#dtabs button.on{background:linear-gradient(180deg,#ffd45a,#d98a14);color:#4a2a05;box-shadow:0 4px 0 #8a5508}
+#dtabs{flex:none;margin-bottom:16px;--tab-h:64px;--tab-fs:28px;gap:12px}   /* tampilan: .ut-seg / .ut-seg-i (tabs.css) */
+#dtabs .ut-seg-i{min-width:240px;justify-content:center}
 #dgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:max-content;gap:16px;overflow-y:auto;overflow-x:hidden;padding:4px 6px 6px 4px;align-content:start;touch-action:pan-y;scrollbar-width:none;-ms-overflow-style:none}
 #dgrid::-webkit-scrollbar{display:none;width:0;height:0}
-.dslot{position:relative;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;aspect-ratio:1/1;width:100%;height:auto;min-width:0;padding:14px 8px 12px;border:0;background:url(../../../../../assets/images/ui/slot-equipment/slot-terkunci.webp) center/100% 100% no-repeat;cursor:pointer;color:#fff;font-family:var(--font-body)}
-.dslot.own{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-hijau.webp)}
-.dslot.used{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-biru.webp)}
-.dslot.sel{transform:scale(1.05);z-index:1;filter:drop-shadow(0 0 10px rgba(255,230,120,.95)) brightness(1.12)}
-.d-nm{flex:none;max-width:100%;font:800 19px/1.1 var(--font-body);text-align:center;text-shadow:0 2px 3px rgba(0,0,0,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.d-th{position:relative;flex:1 1 0;min-height:0;width:100%;margin:4px 0}
+/* slot dadu = komponen card-item (.ut-ci, gaya card "Elixir" di referensi/component/cards.html); warna mengikuti rarity (lihat RARV di dadu.js); belum dimiliki = diredupkan */
+.dslot{font-size:19px;padding:.53em .42em .42em}
+.dslot.locked{filter:saturate(.45) brightness(.82)}
+.dslot.sel{z-index:1;box-shadow:0 0 0 .14em #ffe27a,inset 0 .105em 0 rgba(255,255,255,.28),inset 0 -.21em 0 rgba(0,0,0,.14),0 .16em 0 rgba(0,0,0,.28)}
 .d-th img.dthumb,.d-th svg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
-.dslot.locked .d-th{opacity:.55;filter:grayscale(.6)}
-.d-ft{flex:none;display:flex;align-items:center;justify-content:center;gap:5px;max-width:100%;font:800 19px/1 var(--font-body);text-shadow:0 2px 3px rgba(0,0,0,.75);white-space:nowrap}
-.d-ft img{flex:none;width:22px;height:22px;object-fit:contain;position:static}
+.dslot.locked .d-th{opacity:.7}
 .dempty{grid-column:1/-1;margin:40px 0;text-align:center;font:700 28px/1.3 var(--font-body);color:#cfc8ea}
 
 /* saldo emerald & coin: diperkecil */
-html body #stage #cur-em,html body #stage #cur-co{height:54px;width:190px;bottom:30px!important}
+html body #stage #cur-em,html body #stage #cur-co{height:44px;width:230px;--rb-fs:22px;bottom:30px!important}
 html body #stage #cur-em{left:60px!important}
-html body #stage #cur-co{left:270px!important}
-#stage #cur-em img,#stage #cur-co img{height:50px;left:8px}
-#stage #cur-em .v,#stage #cur-co .v{font-size:28px;padding-left:34px;padding-right:30px}
-#stage #cur-em .plus,#stage #cur-co .plus{font-size:32px;right:12px}
+html body #stage #cur-co{left:310px!important}
+
+/* panel Dadu = card-panel-new .popover (isi krem): warna teks disesuaikan jadi gelap */
+.dpanel.popover .ttl,.dpanel.popover #nm,.dpanel.popover #rar{color:#222;-webkit-text-stroke:0;text-shadow:none}
+.dpanel.popover #dinfo #ds,#dinfo.popover #ds{color:#3a3630}
+#dinfo.popover .dsec{background:rgba(0,0,0,.07)}
+#dinfo.popover .dsec>b{color:#222}
+#dinfo.popover .dsec>em.dsoon,#dinfo.popover .drow em{color:#7a7468}
+#dinfo.popover .drow{color:#3a3630}
+#dr.popover .dempty{color:#3a3630}

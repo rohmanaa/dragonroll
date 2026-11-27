@@ -3,12 +3,14 @@
 
 /* ---- bar atas ---- */
 #back{left:40px;top:30px;width:64px;height:72px}
-#back img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#back svg{display:none}
+#back{padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
+#back img,#back svg{display:none}
+#back::before,#back::after{content:'';position:absolute;left:16px;right:16px;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:#fff;box-shadow:0 2px 0 #0d0a18}
+#back::before{transform:rotate(45deg)}#back::after{transform:rotate(-45deg)}
 #title{left:140px;top:28px;font-size:72px;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #home{position:absolute;left:1812px;top:30px;width:68px;height:72px}
 #home img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
-#home:active,#back:active{transform:scale(.92)}
+#home:active{transform:scale(.92)}
 .cur{background:rgba(14,10,26,.6)!important;filter:none!important;top:26px}
 .cur::before{background:none!important}
 #cur-em{left:1100px}#cur-co{left:1420px}
@@ -81,10 +83,11 @@
 #ds{position:absolute;left:190px;width:600px;top:762px;margin:0;text-align:center;font:700 26px/1.4 var(--font-body);color:#d8d2ee}
 
 /* kartu frame di grid (class sendiri supaya aturan .slot img di karakter.css tidak ikut) */
-.fslot{position:relative;width:130px;height:130px;background:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
-.fslot:hover{filter:brightness(1.15)}
+/* tampilan slot = komponen .ut-slot (assets/components/slot/slot.css); di sini hanya ukuran, status pilih & tombol tambah */
+.fslot{--slot-size:130px;transition:transform .1s,filter .1s}
+.fslot:hover{filter:brightness(1.08)}
 .fslot:active{transform:scale(.95)}
-.fslot.sel{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.fslot.sel{outline:5px solid #ffe27a;outline-offset:2px}
 .fslot .fr{position:absolute;left:50%;top:12px;width:78px;height:78px;transform:translateX(-50%)}
 .fslot.lk .fr{opacity:.55}
 .fslot .tag{z-index:2;position:absolute;right:6px;top:6px;padding:1px 7px;border-radius:5px;background:#2c9a3a;border:2px solid #9be86a;font:400 15px/1.2 var(--font-title);text-shadow:0 1px 0 rgba(0,0,0,.6)}

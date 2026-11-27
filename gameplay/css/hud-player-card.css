@@ -155,17 +155,11 @@ html body #players .pg .pr .av .tag {
 /* ---------- modal profil pemain (tengah layar) ---------- */
 .pm { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgba(6, 4, 14, .62); backdrop-filter: blur(2px); }
 .pm[hidden] { display: none; }
-.pm-box { position: relative; isolation: isolate; width: min(94vw, 540px); max-height: 92vh; padding: 10px 8px 4px; border: 0; border-radius: 0; background: none; box-shadow: none; color: #f1ecff; font-family: var(--font-display, "Fredoka", "Trebuchet MS", sans-serif); animation: pm-in .22s cubic-bezier(.2, 1.4, .4, 1) both; }
-.pm-box::before { content: ''; position: absolute; inset: -8px; border: 22px solid transparent; border-image: url(../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch; z-index: -1; pointer-events: none; }
+.pm-box { position: relative; width: min(94vw, 540px); max-height: 92vh; padding: 66px 14px 6px; color: #f1ecff; font-family: var(--font-display, "Fredoka", "Trebuchet MS", sans-serif); animation: pm-in .22s cubic-bezier(.2, 1.4, .4, 1) both; }  /* bingkai, judul & tombol X: modal kit (.ut-mk .gp-mk) */
 @keyframes pm-in { from { opacity: 0; transform: scale(.88) translateY(12px); } to { opacity: 1; transform: none; } }
-.pm-head { position: relative; display: flex; align-items: center; justify-content: center; padding: 6px 52px 10px; background: none; border-bottom: 2px solid rgba(255, 255, 255, .14); }
-.pm-head b { color: #fff; font-size: 22px; letter-spacing: .04em; text-shadow: 0 2px 0 #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pm-x { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; padding: 0; background: url(../../assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp) center / contain no-repeat; color: transparent; font-size: 0; cursor: pointer; }
-.pm-x:hover { filter: brightness(1.2); }
-.pm-x:active { transform: translateY(-50%) scale(.94); }
 .pm-body { display: flex; gap: 14px; padding: 14px 8px; align-items: flex-start; max-height: calc(92vh - 170px); overflow: auto; }
 .pm-card { flex: 0 0 38%; max-width: 190px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.pm-face { width: 100%; aspect-ratio: 1; box-sizing: border-box; padding: 8px; border: 14px solid transparent; border-image: url(../../assets/images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 14px stretch; background: none; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--pc, #ffd45a) 60%, transparent)); }
+.pm-face { width: 100%; aspect-ratio: 1; box-sizing: border-box; padding: 8px; border: 3px solid rgba(255, 255, 255, .22); border-radius: 12px; background: rgba(0, 0, 0, .28); filter: drop-shadow(0 0 8px color-mix(in srgb, var(--pc, #ffd45a) 60%, transparent)); }
 .pm-face img { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
 .pm-tags { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
 .pm-tag { padding: 2px 9px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: #e8e3ff; font-size: 12px; font-weight: 800; }
@@ -186,9 +180,8 @@ html body #players .pg .pr .av .tag {
 .pm-foot { display: flex; align-items: center; gap: 12px; padding: 10px 8px 12px; border-top: 2px dashed rgba(255, 255, 255, .18); }
 .pm-th { width: 54px; height: 54px; object-fit: contain; border-radius: 8px; border: 2px solid #8d819f; background: #1c1828; image-rendering: pixelated; }
 .pm-spacer { flex: 1 1 auto; }
-.pm-auto { flex: 1 1 auto; min-height: 54px; border: 0; padding: 0 14px; background: url(../../assets/images/ui/buttons-and-controls/tombol-biru-polos.webp) center / 100% 100% no-repeat; color: #fff; font: inherit; font-size: 20px; font-weight: 900; letter-spacing: .03em; text-shadow: 0 2px 0 #0b3a6e, 0 0 3px #0b3a6e; cursor: pointer; }
+.pm-auto { flex: 1 1 auto; min-height: 54px; padding: 0 14px; font: 400 20px/1 "Lilita One", var(--font-display, sans-serif); letter-spacing: .03em; cursor: pointer; }  /* tampilan: .ut-gl .ut-c-b / .ut-c-g */
 .pm-auto:active { transform: translateY(2px); filter: brightness(.93); }
-.pm-auto.on { background-image: url(../../assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp); text-shadow: 0 2px 0 #0f4a1c, 0 0 3px #0f4a1c; }
 .pm-score { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
 .pm-score b { font-size: 34px; color: #ffcf6b; text-shadow: 0 2px 0 #7a4a10, 0 3px 0 #000; }
 @media (max-width: 480px) { .pm-body { flex-direction: column; align-items: stretch; } .pm-card { flex-direction: row; max-width: none; flex-basis: auto; } .pm-face { width: 96px; } .pm-tags { justify-content: flex-start; } }

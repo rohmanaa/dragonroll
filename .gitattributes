@@ -9,3 +9,4 @@
 referensi/** -text -diff
 old/** -text -diff
 supabase/** -text -diff
+supabase/snapshot/*.sql text eol=lf

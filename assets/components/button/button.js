@@ -3,7 +3,7 @@
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('button', { label:'Main', variant:'primary', size:'md', onClick:fn });
            parent.appendChild(el);
-   Opsi: label, variant (primary|secondary|ghost|danger), size (sm|md|lg), disabled, type (button|submit|reset),
+   Opsi: label, variant (primary|secondary|ghost|danger|yellow|green|blue|red|purple|teal|brown|dark), size (sm|md|lg), disabled, type (button|submit|reset),
          onClick, className, ariaLabel. Hasil: HTMLButtonElement dengan kelas ut-btn ut-btn-<variant> ut-btn-<size>.
    Stylesheet assets/components/button/button.css dimuat otomatis (di samping button.js) bila belum ada;
    halaman juga boleh memasang <link> sendiri dengan id="ut-btn-css". */
@@ -21,7 +21,8 @@
   /* Idempotent: registrasi pertama dipertahankan. */
   if (UT.Hud.has('button')) return;
 
-  var VARIANTS = ['primary', 'secondary', 'ghost', 'danger'];
+  var VARIANTS = ['primary', 'secondary', 'ghost', 'danger', 'yellow', 'green', 'blue', 'red', 'purple', 'teal', 'brown', 'dark'];
+  var GLOSS = { yellow: 'y', green: 'g', blue: 'b', red: 'r', purple: 'p', teal: 't', brown: 'n', dark: 'd' }; /* varian glossy gaya Guild */
   var SIZES = ['sm', 'md', 'lg'];
   var TYPES = ['button', 'submit', 'reset'];
   var CSS_ID = 'ut-btn-css';
@@ -52,7 +53,7 @@
     var el = doc.createElement('button');
 
     el.type = pick(opts.type, TYPES, 'button');
-    el.className = 'ut-btn ut-btn-' + variant + ' ut-btn-' + size;
+    el.className = 'ut-btn ut-btn-' + variant + ' ut-btn-' + size + (GLOSS[variant] ? ' ut-gl ut-c-' + GLOSS[variant] : '');
     if (typeof opts.className === 'string') {
       opts.className.split(/\s+/).forEach(function (c) { if (c) el.classList.add(c); });
     }

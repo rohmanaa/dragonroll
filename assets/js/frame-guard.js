@@ -7,7 +7,7 @@
       /* SPA tahap 2: Lobby/Karakter yang dimuat di iframe pembungkus diambil alih view di play.html (tanpa muat ulang dokumen, tanpa WebGL baru).
          Hanya iframe #f milik pembungkus (pembungkus luar, atau shell bersarang play.html?nested=1 di HP portrait); bukan iframe lain, mis. Karakter di modal room. */
       try {
-        var pg = location.pathname.split('/').pop(), P = window.parent;
+        var pg = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : (location.pathname.split('/').pop() || 'index.html');
         if (window.frameElement && window.frameElement.id === 'f' && P.UT && P.UT.Spa
             && /^(lobby|karakter|profile|leaderboard|tambang|friendship|shop|mode|hadiah-misi|mail|settings|room|inventory|pet|frame|efek|dadu)\.html$/.test(pg) && P.UT.Spa.canView(pg + location.search)) {
           window.stop();
@@ -17,7 +17,7 @@
       return;
     }
     if (location.search.indexOf('noframe=1') > -1) return;     // mode debug
-    var page = location.pathname.split('/').pop() || 'index.html';
+    var page = (window.UT && window.UT.PrettyUrl) ? window.UT.PrettyUrl.getGoFromUrl() : (location.pathname.split('/').pop() || 'index.html');
     if (page === 'play.html' || page === 'index.html') return; // pembungkus & landing tidak dibungkus
     location.replace('play.html?go=' + encodeURIComponent(page + location.search + location.hash));
   } catch (e) { /* cross-origin / sandbox: biarkan halaman tampil apa adanya */ }

@@ -29,7 +29,10 @@ assert.ok(!lobby.includes('UT.FloatingIsland.create(THREE'));
 assert.ok(!lobby.includes('id="bdrop"'));
 assert.ok(lobby.includes('assets/images/background/lobby-kastel.webp'));
 assert.ok(!lobby.includes('lobby-bg.webp'));
-assert.ok(lobby.includes('assets/images/ui/hud/ikon-koin-emas.webp'));
+/* Emerald & Coin = komponen bersama resource-bar (ikon dipecahkan oleh komponen, bukan ditulis di lobby.html) */
+assert.ok(lobby.includes('data-rbar="gem"') && lobby.includes('data-rbar="coin"'));
+assert.ok(lobby.includes('assets/components/resource-bar/resource-bar.js'));
+assert.ok(PG.readFileSync(path.join(root, 'assets/components/resource-bar/resource-bar.js'), 'utf8').includes("'ikon-koin-emas.webp'"));
 assert.ok(!lobby.includes('assets/images/icon/mode/console.webp'));
 assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})'));
 assert.ok(lobby.includes('AUR.update(motionDt)'));

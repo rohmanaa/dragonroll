@@ -4,6 +4,7 @@ UT.PageModule.define('lobby',function(env){
 const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 const PD=window.PlayerData,AR=window.ItemArt;
+{const RB=window.UT&&UT.Hud&&UT.Hud.get&&UT.Hud.get('resource-bar');if(RB)RB.hydrate(document)}  /* Emerald/Coin: komponen bersama (idempoten) */
 const SET=()=>PD.settings();
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 let tt;function toast(m){const md=$('#chestMd'),t=(md&&!md.hidden&&$('#cm-toast'))||$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
@@ -44,7 +45,9 @@ addEventListener('pageshow',e=>{if(e.persisted)$('#fade').classList.remove('on')
 
 /* ================= 3D: karakter, bayangan, aura, dan animasi lobby main ================= */
 const cv=$('#gl3d'),isLow=()=>document.documentElement.getAttribute('data-graphics')==='low';
-let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null;
+let G3=false,renderer=null,scene,cam,hero,bc=null,bcW=null,AUR=null,auraQ=false,contact=null,sunL=null,shLast=-1;
+/* tingkat bayangan mengikuti Pengaturan > Grafik: Rendah/Normal = tanpa peta bayangan (cukup bayangan semu di kaki); Tinggi 1024; Ultra 2048 */
+function shTier(){const g=document.documentElement.getAttribute('data-graphics');return g==='ultra'?2048:g==='high'?1024:0}
 try{
  if(typeof THREE!=='undefined'&&UT.BlockyCharacter&&UT.FloatingIsland&&cv){
   renderer=UT.SharedGL.acquire('lobby',{canvas:cv,shadows:true}).renderer;  /* satu renderer + satu kanvas untuk seluruh sesi (state direset tiap acquire) */
@@ -52,7 +55,7 @@ try{
   const amb=new THREE.AmbientLight(0xdff6ff,.42),hemi=new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5);
   scene.add(amb,hemi);
   const sun=new THREE.DirectionalLight(0xffd88a,1.05);
-  sun.position.set(16,20,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.normalBias=.03;
+  sun.position.set(16,20,10);sun.castShadow=shTier()>0;sun.shadow.mapSize.set(shTier()||1024,shTier()||1024);sunL=sun;sun.shadow.normalBias=.03;
   Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});
   sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0008;scene.add(sun);
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,40),new THREE.ShadowMaterial({opacity:.34,depthWrite:false}));
@@ -102,8 +105,10 @@ try{
 env.own(()=>{try{if(scene)scene.traverse(o=>{if(o.geometry)o.geometry.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{if(x.map)x.map.dispose();x.dispose()})});if(AUR&&AUR.clearAll)AUR.clearAll()}catch(e){console.error('[lobby] dispose gagal',e)}try{UT.SharedGL.release('lobby')}catch(e){}renderer=null;G3=false});
 function applyLights(){
  if(!renderer)return;
- const highQuality=!isLow();
- renderer.shadowMap.enabled=highQuality;
+ const s=shTier();if(s===shLast)return;shLast=s;
+ renderer.shadowMap.enabled=s>0;
+ if(sunL){sunL.castShadow=s>0;if(s>0){sunL.shadow.mapSize.set(s,s);if(sunL.shadow.map){sunL.shadow.map.dispose();sunL.shadow.map=null}}}
+ if(scene)scene.traverse(o=>{const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{x.needsUpdate=true})});
 }
 addEventListener('ut-ambience',applyLights);applyLights();
 function fit3d(){
@@ -245,7 +250,7 @@ function chestHtml(){
  D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
   h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+
    '<div class="mk">'+(reached?'<img src="'+CIC+'missions/ikon-tab-harian-centang.webp" alt="">':needs[i])+'</div><div class="rq">'+needs[i]+' game</div><div class="act">'+
-   (st==='ready'?'<button class="cb" type="button" data-claim="'+d.kind+'"><img src="'+CIC+'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
+   (st==='ready'?'<button class="cb ut-gl ut-c-g" type="button" data-claim="'+d.kind+'"><span>KLAIM</span></button>':done?'<i>Diklaim</i>':'<i>'+Math.min(plays,needs[i])+' / '+needs[i]+'</i>')+'</div></div>'});
  return h+'</div>'}
 function paintChest(){const b=$('#cm-body');if(b)b.innerHTML=chestHtml()}
 function openChest(){
@@ -264,13 +269,14 @@ async function claimChest(kind){
   const b=e.target.closest('button[data-claim]');if(!b||b.disabled)return;buzz();claimChest(b.dataset.claim)});
  env.on(document,'keydown',e=>{if(e.key==='Escape'&&!md.hidden)closeChest()})}}
 
-/* lencana Tambang = jumlah slot yang peti-nya penuh (siap diambil); rumus perkiraan sama dengan halaman Tambang, dihitung ulang tiap 15 dtk dari data server terakhir */
-let MINE=null;
-function mineFull(){if(!MINE||!Array.isArray(MINE.slots))return 0;const el=(performance.now()-MINE.at)/1000,bm=(MINE.config&&MINE.config.boost_mult)||1;
- return MINE.slots.filter(s=>{if(!s||!s.unlocked)return false;const b=Math.min(el,(s.boost&&s.boost.left_secs)||0);return Math.min(s.cap,s.stock+s.rate*(el+b*(bm-1))/3600)>=s.cap-1e-6}).length}
-const pullMine=()=>{const M=UT.MineService&&UT.MineService.get();if(!SRV||!M)return {ok:true};
- return M.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok!==false&&Array.isArray(r.slots)){MINE=r;MINE.at=performance.now();setBadge('mineDot',mineFull())}return {ok:!!(r&&r.ok!==false)}}).catch(()=>({ok:false}))};
-pullMine();setInterval(()=>{if(!document.hidden&&MINE)setBadge('mineDot',mineFull())},15000);
+/* lencana Tambang = isi Gudang yang siap diklaim (sistem Tambang World: RPC tambang_get -> store). Rumus sama dengan tambang_claim:
+   barang jadi + semua ore + kayu, KECUALI cadangan bahan bakar (coal 5, wood 10) yang tidak ikut diklaim. Diperbarui tiap 60 dtk. */
+const MINE_KEEP={coal:5,wood:10};
+function mineClaimable(st){if(!st)return 0;let n=0;const sum=o=>Object.keys(o||{}).reduce((a,k)=>a+Math.max(0,+o[k]||0),0);
+ n+=sum(st.goods);Object.keys(st.ore||{}).forEach(k=>{n+=Math.max(0,(+st.ore[k]||0)-(MINE_KEEP[k]||0))});n+=Math.max(0,(+st.wood||0)-MINE_KEEP.wood);return Math.floor(n)}
+const pullMine=()=>{const T=UT.TambangService&&UT.TambangService.get();if(!SRV||!T)return {ok:true};
+ return T.get().then(r=>{if(env.disposed)return {ok:false};if(r&&r.ok&&r.store){setBadge('mineDot',mineClaimable(r.store))}return {ok:!!(r&&r.ok)}}).catch(()=>({ok:false}))};
+pullMine();setInterval(()=>{if(!document.hidden)pullMine()},60000);
 
 /* ---------- Hati / nyawa: 5 default, -1 tiap match dimulai, +1 tiap 15 menit (server: hearts-service). Tamu = 5 penuh tanpa batas. ---------- */
 const HRT=UT.HeartsService&&UT.HeartsService.get&&UT.HeartsService.get();

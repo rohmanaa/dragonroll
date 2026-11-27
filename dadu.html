@@ -6,50 +6,50 @@
 <title>Dragon Roll — Dadu</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css"><link rel="stylesheet" href="assets/css/efek.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet-page.css?v=224"><link rel="stylesheet" href="data/inventory/dice/_shared/css/dadu.css?v=219"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/css/page.css"><link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/card-panel-new/card-panel-new.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css"><link rel="stylesheet" href="assets/components/card-item/card-item.css"><link rel="stylesheet" href="assets/components/tabs/tabs.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css"><link rel="stylesheet" href="assets/css/efek.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet.css"><link rel="stylesheet" href="data/inventory/pet/_shared/css/pet-page.css?v=224"><link rel="stylesheet" href="data/inventory/dice/_shared/css/dadu.css?v=220"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
 </head>
 <body class="fm notabs">
 <div id="wrap"><div id="stage">
   <div id="pmodal" aria-hidden="true"></div>
-  <button id="back" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
   <div id="title" class="ttl">Dadu</div>
-  <div class="cur" id="cur-em"><img src="assets/images/ui/gem-medal-icons/berlian-hijau.webp" alt=""><div class="v" id="v-em">—</div><div class="plus">+</div></div>
-  <div class="cur" id="cur-co"><img src="assets/images/ui/hud/ikon-koin-emas.webp" alt=""><div class="v" id="v-co">—</div><div class="plus">+</div></div>
+  <div id="cur-em" data-rbar="gem" data-value-id="v-em"></div>
+  <div id="cur-co" data-rbar="coin" data-value-id="v-co"></div>
 
-  <!-- kiri: info (atas) + pratinjau 3D & tombol (bawah); kanan: tab + grid slot kotak -->
+  <!-- kiri: satu panel (nama + pratinjau 3D + bonus/efek) & tombol (bawah); kanan: tab + grid slot kotak -->
   <section id="dl" aria-label="Detail dadu">
-    <div id="dinfo" class="dpanel">
-      <div id="nm" class="ttl"></div>
-      <div id="rar"></div>
+    <div id="dinfo" class="dpanel card-panel-new popover deep">
+      <div class="dhead"><div id="nm" class="ttl"></div><div id="rar"></div></div>
+      <div id="dview"><div id="fpv" title="Ketuk untuk melempar dadu"></div></div>
       <p id="ds"></p>
-      <div id="dstats" aria-label="Kelebihan dadu">
-        <div class="dst"><span>Bonus dadu</span><i></i><em>segera hadir</em></div>
-        <div class="dst"><span>Kelebihan</span><i></i><em>segera hadir</em></div>
-        <div class="dst"><span>Efek max level</span><i></i><em>segera hadir</em></div>
+      <div class="dsec"><b>Bonus Dadu</b>
+        <div class="drow"><img src="assets/images/ui/gem-medal-icons/semanggi.webp" alt=""><span>Keberuntungan</span><em>Soon</em></div>
+        <div class="drow"><img src="assets/images/ui/item-icons/perisai-kayu.webp" alt=""><span>Pertahanan</span><em>Soon</em></div>
+        <div class="drow"><img src="assets/images/ui/item-icons/koin-tumpuk.webp" alt=""><span>Ekonomi</span><em>Soon</em></div>
       </div>
+      <div class="dsec"><b>Efek Khusus</b><em class="dsoon">Soon</em></div>
     </div>
-    <div id="dprev" class="dpanel"><div id="fpv" title="Ketuk untuk melempar dadu"></div></div>
     <div id="dbtns">
-      <button class="btn" id="b-sell" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>JUAL</span></button>
-      <button class="btn" id="b-buy" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button>
+      <button class="btn ut-gl ut-c-r" id="b-sell" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>JUAL</span></button>
+      <button class="btn ut-gl ut-c-g" id="b-buy" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BELI</span></button>
     </div>
   </section>
 
-  <section id="dr" class="dpanel" aria-label="Koleksi dadu">
-    <div id="dtabs" role="tablist">
-      <button type="button" role="tab" class="on" data-tab="all" aria-selected="true">Lihat Semua</button>
-      <button type="button" role="tab" data-tab="own" aria-selected="false">Memiliki</button>
+  <section id="dr" class="dpanel card-panel-new popover" aria-label="Koleksi dadu">
+    <div id="dtabs" class="ut-seg" role="tablist">
+      <button type="button" role="tab" class="ut-seg-i on" data-tab="all" aria-selected="true">Lihat Semua</button>
+      <button type="button" role="tab" class="ut-seg-i" data-tab="own" aria-selected="false">Memiliki</button>
     </div>
     <div id="dgrid"></div>
   </section>
 
   <!-- modal konfirmasi beli / coin kurang -->
-  <div id="md"><div class="panel" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
-    <h3 id="mt"></h3><p id="mx"></p>
+  <div id="md"><div class="panel ut-mk" id="box" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <h3 id="mt" class="ut-mk-t"></h3><p id="mx"></p>
     <div id="mbtns">
-      <button class="btn" id="m-no" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span></span></button>
-      <button class="btn" id="m-ok" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span></span></button>
+      <button class="btn ut-gl ut-c-r" id="m-no" type="button"><span></span></button>
+      <button class="btn ut-gl ut-c-g" id="m-ok" type="button"><span></span></button>
     </div>
   </div></div>
 
@@ -65,10 +65,13 @@
 <script src="assets/js/core/page-module.js"></script>
 <script src="assets/js/core/inv-tabs.js"></script>
 <script src="assets/components/ui-core.js"></script>
+<script src="assets/components/plus-button/plus-button.js"></script>
+<script src="assets/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'dadu'});</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/core/shared-gl.js"></script>
 <script type="module" src="assets/js/renderers/dice-kit/index.js"></script>
 <script src="data/inventory/dice/_shared/js/dadu.js"></script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-ok"});}catch(e){}})();</script>
 </body></html>

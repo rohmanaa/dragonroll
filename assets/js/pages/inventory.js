@@ -35,15 +35,15 @@ UT.PageModule.define('inventory', function (env) {
   try { env.own(UT.Events.on('currencyChanged', curRender)); } catch (e) {}
   try { var PDs = curPD(); if (PDs && PDs.subscribe) env.own(PDs.subscribe(function (r) { if (r === 'server-wallet' || r === 'storage' || r === 'pageshow') curRender(); })); } catch (e) {}
   try { var WSs = window.UT && UT.WalletService && UT.WalletService.get(); if (WSs && WSs.refresh && curPD() && curPD().serverMode && curPD().serverMode()) WSs.refresh().then(curRender, function () {}); } catch (e) {}
-  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); }
+  function curGo(id, url) { var el = $(id); if (!el) return; var go = function () { snd(); nav(url); }; el.addEventListener('click', go); /* Enter/Spasi ditangani komponen .ut-rbar (memicu click) */ }
   curGo('#cur-em', 'tambang.html?from=inventory.html');
   curGo('#cur-co', 'shop.html?coin=1');
 
   /* ---- Tab Chest (native): HANYA chest yang sudah dimiliki (hasil klaim di Lobby), pola UI tab Power-up: hanya grid slot abu (chip jumlah),
      tanpa panel pratinjau kiri, satu tombol BUKA kanan bawah. Tanpa harga. BUKA = hadiah langsung (tanpa timer; server: chest_collect). Klaim ada di modal Chest di Lobby. ---- */
-  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cReward = null, cSel = '', tt = 0;
+  var CIC = 'assets/images/ui/', CS = null, cBusy = false, cSel = '', tt = 0;
   var CK = { wood: { nm: 'Peti Kayu', im: 'chest-packs/peti-kayu' }, silver: { nm: 'Peti Silver', im: 'chest-packs/peti-perak' }, gold: { nm: 'Peti Gold', im: 'chest-packs/peti-emas' }, diamond: { nm: 'Peti Diamond', im: 'chest-packs/peti-diamond' } };
-  var CDS = { wood: 'Berisi coin dan XP. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
+  var CDS = { wood: 'Berisi coin. Hadiah dasar dari game harian.', silver: 'Coin lebih banyak, kadang gem atau power-up.', gold: 'Hadiah besar: coin, gem, dan peluang power-up.', diamond: 'Hadiah terbaik dengan gem dan power-up langka.' };
   var CORD = ['wood', 'silver', 'gold', 'diamond'];
   var CWM = { 'jaringan': 'Tidak dapat terhubung ke server.', 'belum-login': 'Silakan login ulang.', 'sedang-diproses': 'Sedang diproses...', 'sudah-diambil': 'Chest sudah diambil.', 'tidak-ada': 'Chest tidak ditemukan.' };
   var cBox = $('#chestBox');
@@ -54,46 +54,37 @@ UT.PageModule.define('inventory', function (env) {
   function cOwned() { return CS && Array.isArray(CS.chests) ? CS.chests.filter(function (c) { return c.status !== 'collected'; }) : []; }
   function cHtml() {
     if (!cSV()) return '<div class="cempty">Masuk ke akun untuk<br>memakai Chest.</div>';
-    if (cReward) {
-      var k = CK[cReward.kind] || CK.wood, x = '<div class="rwd"><img class="mi" src="' + CIC + k.im + '.webp" alt=""><div class="rt">' + k.nm + ' Terbuka!</div>';
-      x += '<div class="rw"><img src="' + CIC + 'hud/ikon-koin-emas.webp" alt="">+' + fmt(cReward.coins) + ' Coin</div>';
-      if (cReward.gems > 0) x += '<div class="rw"><img src="' + CIC + 'gem-medal-icons/berlian-hijau.webp" alt="">+' + fmt(cReward.gems) + ' Gem</div>';
-      if (cReward.xp > 0) x += '<div class="rw">+' + fmt(cReward.xp) + ' XP</div>';
-      if (cReward.power) { var it = window.ItemCatalog && ItemCatalog.byId(cReward.power); x += '<div class="rw pw">' + (it && it.icon ? '<img src="' + it.icon + '" alt="">' : '') + 'Power: ' + (it ? it.name : cReward.power) + ' ×1</div>'; }
-      return x + '<button class="btn cb" type="button" data-cback><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MANTAP!</span></button></div>';
-    }
     if (!CS) return '<div class="cempty">Memuat…</div>';
     var L = cOwned(), by = {};
     L.forEach(function (c) { (by[c.kind] = by[c.kind] || []).push(c); });
     var kinds = CORD.filter(function (q) { return by[q]; });
-    if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small><button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button></div>';
+    if (!kinds.length) return '<div class="cempty">Belum ada chest.<small>Main game, lalu klaim chest harian lewat tombol Chest di Lobby.</small><button class="fslot ut-slot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button></div>';
     if (!by[cSel]) cSel = kinds[0];
     var sk = CK[cSel] || CK.wood;
     var h = '<section id="cr"><div id="cg">';
     kinds.forEach(function (q) {
       var kk = CK[q] || CK.wood, n = by[q].length;
-      h += '<button class="fslot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
+      h += '<button class="fslot ut-slot gray' + (q === cSel ? ' sel' : '') + '" type="button" data-kind="' + q + '" aria-label="' + kk.nm + ', jumlah ' + n + ', ketuk untuk memilih"><img class="dc" src="' + CIC + kk.im + '.webp" alt=""><span class="chip-n">' + (n > 99 ? '99+' : n) + '</span></button>';
     });
-    h += '<button class="fslot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
-    return h + '</div></section><button class="btn" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
+    h += '<button class="fslot ut-slot add" type="button" data-add aria-label="Main game untuk mendapat chest"><span class="pl">+</span></button>';
+    return h + '</div></section><button class="btn ut-gl ut-c-y" id="cact" type="button" aria-label="Buka ' + sk.nm + '"><img src="' + CIC + 'buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA</span></button>';
   }
   function cPaint() { if (!env.disposed && cBox) cBox.innerHTML = '<div id="cbox">' + cHtml() + '</div>'; }
   function cPull() {
     var w = cWS(); if (!cSV() || !w || !w.chestGet) { cPaint(); return Promise.resolve(); }
     return w.chestGet().then(function (r) { if (env.disposed) return; if (r && r.ok !== false && Array.isArray(r.daily)) CS = r; cPaint(); }, function () { cPaint(); });
   }
-  function cEnter() { cReward = null; cPaint(); cPull(); }
+  function cEnter() { cPaint(); cPull(); }
   function cOpen(id) {
     if (cBusy) return; cBusy = true;
     var w = cWS();
     Promise.resolve(w ? w.chestCollect(id) : { ok: false, reason: 'jaringan' }).then(function (r) {
       if (env.disposed) return;
-      if (r && r.ok) { if (Array.isArray(r.daily)) CS = r; try { if (SET().sound) UT.Audio.play('chest'); } catch (e2) {} cReward = r; }
+      if (r && r.ok) { if (Array.isArray(r.daily)) CS = r; cPaint(); UT.ChestReveal.play(r, { onClose: function () { if (!env.disposed) cPaint(); } }); }   /* layar sinematik (core/chest-reveal.js) */
       else { toast(CWM[r && r.reason] || 'Gagal, coba lagi'); return cPull(); }
     }).catch(function () { toast('Gagal, coba lagi'); }).then(function () { cBusy = false; cPaint(); });
   }
   if (cBox) cBox.addEventListener('click', function (e) {
-    if (e.target.closest('[data-cback]')) { snd(); cReward = null; cPaint(); return; }
     if (e.target.closest('[data-add]')) { snd(); nav('mode.html'); return; }
     var b = e.target.closest('button[data-kind]');
     if (b) { snd(); cSel = b.dataset.kind; cPaint(); return; }
@@ -135,6 +126,7 @@ UT.PageModule.define('inventory', function (env) {
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
     Array.prototype.forEach.call(host.querySelectorAll('.native'), function (p) { p.classList.toggle('on', p.dataset.k === t.k); });
     if (t.k === 'chest') cEnter();
+    if (t.k === 'ore' && UT.InvOre) UT.InvOre.enter($('#oreBox'));
     if (t.native) {   /* Chest / Ore / Log: isi native, tanpa iframe */
       Object.keys(frames).forEach(function (x) { frames[x].classList.remove('on'); });
       loading.hidden = true;

@@ -15,12 +15,12 @@ const reg = IR.create(), res = FrameCat.register(reg), items = reg.getCategory('
 /* ---- A. manifest ---- */
 t('A. register: 14 manifest terdaftar, tidak ada yang ditolak', () => {
   assert.deepStrictEqual(res.rejected, []); assert.strictEqual(res.ok, true);
-  assert.strictEqual(res.registered, 15); assert.strictEqual(items.length, 15); assert.strictEqual(reg.rejected().length, 0);
+  assert.strictEqual(res.registered, 29); assert.strictEqual(items.length, 29); assert.strictEqual(reg.rejected().length, 0);
 });
 t('A. 14 Frame ItemCatalog = 14 manifest: tidak ada yang hilang/ekstra/ganda', () => {
-  assert.strictEqual(catFrames.length, 15);
+  assert.strictEqual(catFrames.length, 29);
   const a = catFrames.map(i => i.id).sort(), b = items.map(i => i.id).sort();
-  assert.deepStrictEqual(b, a); assert.strictEqual(new Set(b).size, 15);
+  assert.deepStrictEqual(b, a); assert.strictEqual(new Set(b).size, 29);
   const c = reg.checkCompleteness('frame', catFrames.map(i => i.id)); assert.deepStrictEqual(c.missing, []); assert.deepStrictEqual(c.extra, []);
   assert.deepStrictEqual(c.incomplete, []);
 });
@@ -61,13 +61,24 @@ t('A. paritas visual dengan frame-fx.js: fxKey ada di FR, tier & margin sama', (
   for (const m of fx.matchAll(/^D\('([a-z]+)',(\d+),/gm)) tier[m[1]] = +m[2];
   const mC = JSON.parse(fx.match(/var MARGIN_C = (\{[^}]*\})/)[1].replace(/([a-z]+):/g, '"$1":'));
   assert.strictEqual(Object.keys(tier).length, 14);
-  items.forEach(m => {
+  const pixel = items.filter(m => m.source !== 'event'), art = items.filter(m => m.source === 'event');
+  pixel.forEach(m => {
     const k = m.visual.fxKey; assert.ok(k in tier, m.id + ' fxKey ' + k);
     assert.strictEqual(m.visual.tier, tier[k], m.id + ' tier');
     assert.strictEqual(m.visual.marginCells, mC[k], m.id + ' margin');
-    assert.strictEqual(m.visual.fxKey, m.gameKey === 'default' ? 'wood' : m.gameKey === 'setia' ? 'gold' : m.gameKey, m.id + ' pemetaan fxKey (setia memakai animasi gold)');
+    assert.strictEqual(m.visual.fxKey, m.gameKey === 'default' ? 'wood' : m.gameKey, m.id + ' pemetaan fxKey');
   });
-  assert.strictEqual(new Set(items.map(m => m.visual.fxKey)).size, 14);
+  assert.strictEqual(new Set(pixel.map(m => m.visual.fxKey)).size, 14);
+  /* frame hadiah bergambar (seri login 30 hari): gambar + efek aura ada di tabel ART frame-fx.js; margin jendela = mC manifest */
+  const artTbl = {}; for (const m of fx.matchAll(/^\s{4}([a-z]+): \{ mC: (\d+), c: \[[\d,]+\], fx: \[([^\]]*)\] \}/gm)) artTbl[m[1]] = { mC: +m[2], fx: m[3] };
+  assert.strictEqual(art.length, 15); assert.strictEqual(Object.keys(artTbl).length, 15);
+  art.forEach(m => {
+    assert.ok(m.gameKey in artTbl, m.id + ' ada di tabel ART'); assert.strictEqual(m.visual.art, true);
+    assert.strictEqual(m.visual.mC, artTbl[m.gameKey].mC, m.id + ' margin jendela');
+    assert.ok(artTbl[m.gameKey].fx.length > 0, m.id + ' punya efek aura');
+    assert.ok(m.price === null && m.gems === null && !m.starter, m.id + ' tidak dijual (tanpa spoiler di Toko)');
+    assert.ok(fs.existsSync(path.join(__dirname, '..', m.assets.image)), m.id + ' gambar ada');
+  });
 });
 t('A. gambar manifest = ItemCatalog.image; kategori memakai FRAME_TAB_ICON yang sama', () => {
   catFrames.forEach(c => assert.strictEqual(byId[c.id].assets.image, c.image, c.id));
@@ -89,11 +100,12 @@ t('C. tiap path gambar menunjuk file yang ADA, tidak kosong, berheader WebP (RIF
     const b = fs.readFileSync(f); assert.ok(b.length > 100, 'terlalu kecil: ' + p);
     assert.strictEqual(b.slice(0, 4).toString('latin1'), 'RIFF', p); assert.strictEqual(b.slice(8, 12).toString('latin1'), 'WEBP', p);
   });
-  assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 15, 'tiap frame punya gambar sendiri');
+  assert.strictEqual(new Set(items.map(m => m.assets.image)).size, 29, 'tiap frame punya gambar sendiri');
 });
 t('C. gambar tersedia di disk untuk setiap file yang dirujuk frame-fx (FILE2KEY) dan sebaliknya', () => {
   const map = JSON.parse(rd('data/inventory/frame/_shared/js/frame-fx.js').match(/var FILE2KEY = (\{[^}]*\})/)[1].replace(/'/g, '"'));
-  items.forEach(m => assert.ok(m.assets.image.replace(/^data\/frame\/|\.webp$/g, '') in map, m.id + ' tidak ada di FILE2KEY'));
+  items.filter(m => m.source !== 'event').forEach(m => assert.ok(m.assets.image.replace(/^data\/frame\/|\.webp$/g, '') in map, m.id + ' tidak ada di FILE2KEY'));
+  items.filter(m => m.source === 'event').forEach(m => assert.ok(!(m.gameKey in map), m.id + ' frame bergambar tidak boleh ada di FILE2KEY (ia memakai tabel ART)'));
 });
 
 /* ---- struktur folder ---- */
@@ -116,17 +128,17 @@ t('jalur browser: manifest.js + index.js dimuat di vm tanpa require -> 14 terdaf
   vm.runInContext(rd('assets/js/core/item-registry.js'), ctx);
   FrameCat.keys.forEach(k => vm.runInContext(rd('data/inventory/frame/' + k + '/manifest.js'), ctx, { filename: k + '/manifest.js' }));
   vm.runInContext(rd('data/inventory/frame/index.js'), ctx);
-  assert.strictEqual(ctx.UT.ItemManifests.length, 15);
+  assert.strictEqual(ctx.UT.ItemManifests.length, 29);
   const r2 = ctx.UT.ItemRegistry.create(), out = ctx.UT.ItemCategories.frame.register(r2);
-  assert.strictEqual(out.ok, true); assert.strictEqual(out.registered, 15);
+  assert.strictEqual(out.ok, true); assert.strictEqual(out.registered, 29);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(r2.getAll())), JSON.parse(JSON.stringify(items)));
 });
 t('jalur browser: manifest dimuat dobel -> registrasi kedua ditolak (duplicate-registration), tidak ada item ganda', () => {
   const r = IR.create(); assert.strictEqual(FrameCat.register(r).ok, true);
   const again = FrameCat.register(r);
-  assert.strictEqual(again.ok, false); assert.strictEqual(again.rejected.length, 15);
+  assert.strictEqual(again.ok, false); assert.strictEqual(again.rejected.length, 29);
   assert.ok(again.rejected.every(x => x.reason === 'duplicate-registration'));
-  assert.strictEqual(r.getCategory('frame').count, 15);
+  assert.strictEqual(r.getCategory('frame').count, 29);
 });
 t('fallback: ID frame tak dikenal/ditolak -> frame.default (starter)', () => {
   assert.strictEqual(reg.getItemOrFallback('frame.tidak-ada').id, 'frame.default');
@@ -134,8 +146,8 @@ t('fallback: ID frame tak dikenal/ditolak -> frame.default (starter)', () => {
 });
 
 /* ---- kompatibilitas sistem lama ---- */
-t('ItemCatalog tidak berubah: 169 item, 15 frame, byId/byGameKey/defaultEquipped utuh', () => {
-  assert.strictEqual(IC.items.length, 169);
+t('ItemCatalog tidak berubah: 183 item, 29 frame, byId/byGameKey/defaultEquipped utuh', () => {
+  assert.strictEqual(IC.items.length, 183);
   assert.strictEqual(IC.byId('frame.gold').gameKey, 'gold'); assert.strictEqual(IC.byGameKey('frame', 'gold').id, 'frame.gold');
   assert.strictEqual(IC.defaultEquipped.frame, 'frame.default'); assert.strictEqual(IC.byId('frame.gold').slot, 'frame');
 });

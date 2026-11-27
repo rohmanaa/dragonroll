@@ -13,21 +13,22 @@
 #opts{position:absolute;left:1080px;top:170px;width:770px;display:flex;flex-direction:column;gap:34px}
 .grp{height:auto}
 .cap{font:800 30px var(--font-body);color:#cfc8ea;letter-spacing:1px;margin:6px 0 10px}
-#opts .seg{gap:14px}
-#opts .seg button{height:78px;font-size:30px}
-#seg-display button.active{filter:brightness(1.18);outline:3px solid rgba(255,255,255,.8);outline-offset:-7px}
-#seg-display button:disabled{opacity:.5}
+/* segmen: tampilan dari komponen .ut-seg/.ut-seg-i (tabs.css); di sini hanya tata letak */
+#opts .ut-seg{display:flex;gap:14px;--tab-h:78px;--tab-fs:30px}
+#opts .ut-seg-i{flex:1;justify-content:center;padding:0}
+#seg-display button:disabled{opacity:.5;cursor:not-allowed}
 #seg-display button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 #line{position:absolute;left:70px;right:70px;top:820px;border-top:3px solid rgba(255,255,255,.13)}
 #appver{position:absolute;left:70px;top:900px;font:700 30px var(--font-body);color:rgba(255,255,255,.55)}
 #appver[hidden]{display:none}
 #logout{position:absolute;right:70px;top:860px;width:330px;height:104px}
-#logout span{font-size:36px;color:#2a2238;text-shadow:0 2px 0 rgba(255,255,255,.35)}
+#logout span{font-size:36px}
+/* tombol: tampilan dari komponen .ut-gl (button.css); gambar bingkai lama disembunyikan, ikon (bendera) tetap */
+#logout>img,.cbtns .btn>img,#langBtn>.bgb,#lg-x>img{display:none}
+.btn.ut-gl span{text-shadow:inherit;margin-top:0}
 #confirm{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.72)}
 #confirm.on{display:grid}
-#cbox{position:relative;width:820px;padding:64px 50px 48px;text-align:center;isolation:isolate;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
-#cbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
-#cf-t{font-size:56px;line-height:1}
+#cbox{width:820px;padding:118px 50px 52px;text-align:center;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
 #cf-s{margin-top:18px;font:800 28px var(--font-body);color:#ddd7f7}
 .cbtns{display:flex;gap:24px;justify-content:center;margin-top:40px}
 .cbtns .btn{width:300px;height:96px}
@@ -36,18 +37,13 @@
 #langBtn{width:380px;height:78px}
 #langBtn .fl{position:absolute;left:26px;top:50%;transform:translateY(-50%);width:auto;height:58px;object-fit:contain}
 #langBtn .fl.glb{height:40px;opacity:.9}
-#langBtn span{font:400 34px/1 var(--font-title);margin:-6px 0 0 70px}
+#langBtn span{font:400 34px/1 var(--font-title);margin:0 0 0 70px}
 #lang{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:rgba(10,8,30,.72)}
 #lang.on{display:grid}
-#lbox{position:relative;width:1060px;padding:74px 50px 50px;isolation:isolate;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
-#lbox::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../images/ui/panel-dialog/bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
-#lg-t{text-align:center;font-size:54px;line-height:1;margin-bottom:34px}
-#lg-x{position:absolute;right:26px;top:22px;width:72px;height:72px}
-#lg-x img{width:100%;height:100%}
-#lg-x:active{transform:scale(.92)}
+#lbox{width:1060px;padding:118px 50px 54px;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
+/* tutup (lg-x) = .ut-mk-x (modal-kit.css) */
 #lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.lc{isolation:isolate;height:150px;gap:6px;transition:transform .1s}
-.lc:active{transform:scale(.96)}
+.lc{display:flex;flex-direction:column;align-items:center;justify-content:center;height:150px;gap:6px}
 .lc img{height:72px;width:auto}
 .lc img.glb{height:48px;margin:12px 0;opacity:.9}
 .lc b{font:800 28px var(--font-body);line-height:1}

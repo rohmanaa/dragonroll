@@ -5,7 +5,7 @@
 <script>UT.PageShell.renderBase();</script>
 <title>Game Room</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="assets/css/pages/room-legacy.css"><link rel="stylesheet" href="assets/css/pages/room.css"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css"><link rel="stylesheet" href="assets/components/tabs/tabs.css"><link rel="stylesheet" href="assets/css/pages/room-legacy.css"><link rel="stylesheet" href="assets/css/pages/room.css"><link rel="stylesheet" href="assets/css/bg.css">
 
 </head>
 <body class="dm">
@@ -13,42 +13,42 @@
 <div id="stage">
   <div id="sun"></div><div id="vig"></div>
 
-  <button id="back" aria-label="Kembali ke Mode"><img class="bg" src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+  <button id="back" class="ut-gl ut-c-r" aria-label="Kembali ke Mode"><img class="bg" src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
   <div id="title" class="ttl">GAME ROOM</div>
   <div id="chips"></div>
   <div id="hrt" class="chip" hidden role="status"></div>
-  <button class="btn" id="leave" aria-label="Keluar ke lobby"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>KELUAR</span></button>
+  <button class="btn ut-gl ut-c-r" id="leave" aria-label="Keluar ke lobby"><span>KELUAR</span></button>
 
   <section class="panel" id="equip"><h3>EQUIPMENT</h3><div class="grid" id="eq"></div></section>
-  <section class="panel" id="power"><h3>POWER <button type="button" id="powerPage" aria-label="Buka Power-up" title="Power-up"><img src="assets/images/ui/gem-medal-icons/petir-ungu.webp" alt=""></button></h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
+  <section class="panel" id="power"><h3>POWER <button type="button" id="powerPage" class="ut-gl ut-c-p sm" aria-label="Buka Power-up" title="Power-up"><img src="assets/images/ui/gem-medal-icons/petir-ungu.webp" alt=""></button></h3><div id="pcnt"></div><div class="row" id="prow" aria-label="Lima slot Power"></div><div class="info" id="pinfo"></div></section>
   <section class="panel" id="mapi"><h3>MAP INFORMATION</h3><div class="pic" id="mArt"></div><div class="txt" id="mTxt"></div></section>
 
   <section class="panel" id="players"><h3>PLAYER ROOM</h3>
     <div id="bar">
-      <div id="code"><span id="codeLbl"></span><b id="codeV">------</b><button id="cp1" hidden>SALIN</button></div>
-      <button class="btn bsm" id="invB" hidden><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>AKSES</span></button>
-      <button class="btn bsm" id="invD" hidden><img src="assets/images/ui/buttons-and-controls/tombol-biru-polos.webp" alt=""><span>INVITE</span></button>
+      <div id="code"><span id="codeLbl"></span><b id="codeV">------</b><button id="cp1" class="ut-gl ut-c-d sm" hidden>SALIN</button></div>
+      <button class="btn bsm ut-gl ut-c-p" id="invB" hidden><span>AKSES</span></button>
+      <button class="btn bsm ut-gl ut-c-b" id="invD" hidden><span>INVITE</span></button>
     </div>
     <div id="list"></div>
     <div id="foot"><div id="why"></div>
       <div id="acts">
-        <button class="btn" id="rdy"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>READY</span></button>
-        <button class="btn gold" id="start"><img src="assets/images/ui/buttons-and-controls/tombol-kuning-polos.webp" alt=""><span>START GAME</span></button>
+        <button class="btn ut-gl ut-c-g" id="rdy"><span>READY</span></button>
+        <button class="btn gold ut-gl ut-c-y" id="start"><span>START GAME</span></button>
       </div></div>
     <span id="cnt" hidden></span>
   </section>
 
-  <div class="modal" id="inv"><div class="box" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ttl">AKSES ROOM</h2>
-    <div class="sw"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div>
-    <div class="row2"><div class="field" id="icode"></div><button class="btn cp" id="cCode"><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>KODE</span></button></div>
-    <div class="row2"><div class="field">Link undangan</div><button class="btn cp" id="cLink"><img src="assets/images/buttons/tombol-ungu-polos.webp" alt=""><span>LINK</span></button></div>
+  <div class="modal" id="inv"><div class="box ut-mk" role="dialog" aria-modal="true" aria-label="Akses room" style="width:900px"><h2 class="ut-mk-t">AKSES ROOM</h2>
+    <div class="sw ut-seg"><button class="ut-seg-i" id="sPriv">PRIVAT</button><button class="ut-seg-i" id="sPub">PUBLIK</button></div>
+    <div class="row2"><div class="field" id="icode"></div><button class="btn cp ut-gl ut-c-p" id="cCode"><span>KODE</span></button></div>
+    <div class="row2"><div class="field">Link undangan</div><button class="btn cp ut-gl ut-c-p" id="cLink"><span>LINK</span></button></div>
     <div class="fl" id="fl"></div>
-    <div class="mfoot"><span class="hint" id="slotInfo"></span><button class="btn" id="invX" style="width:240px;height:84px"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+    <div class="mfoot"><span class="hint" id="slotInfo"></span><button class="btn ut-gl ut-c-r" id="invX" style="width:240px;height:84px"><span>TUTUP</span></button></div></div></div>
 
-  <div class="modal" id="dr" aria-hidden="true"><div class="box" role="dialog" aria-modal="true" aria-label="Undang Teman"><h2 class="ttl">UNDANG TEMAN</h2>
-    <div class="sw"><button id="dTf">TEMAN ONLINE</button><button id="dTp">PEMAIN ONLINE</button></div>
+  <div class="modal" id="dr" aria-hidden="true"><div class="box ut-mk" role="dialog" aria-modal="true" aria-label="Undang Teman"><h2 class="ut-mk-t">UNDANG TEMAN</h2>
+    <div class="sw ut-seg"><button class="ut-seg-i" id="dTf">TEMAN ONLINE</button><button class="ut-seg-i" id="dTp">PEMAIN ONLINE</button></div>
     <div class="fl" id="drL"></div>
-    <div class="mfoot"><span class="hint" id="drCnt"></span><button class="btn" id="drX" style="width:240px;height:84px"><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>TUTUP</span></button></div></div></div>
+    <div class="mfoot"><span class="hint" id="drCnt"></span><button class="btn ut-gl ut-c-r" id="drX" style="width:240px;height:84px"><span>TUTUP</span></button></div></div></div>
 
   <div id="toast"></div>
 </div>
@@ -57,14 +57,14 @@
   <iframe id="pageModalFrame" title="Equipment" tabindex="0" allow="fullscreen; autoplay"></iframe>
 </div>
 <!-- Modal Power & pilih item (Dadu/Frame/Efek): gaya modal Chest lobi (backdrop + kotak bingkai-dialog 9-slice, banner judul, tombol tutup bulat). Di LUAR #stage; kotak diskalakan lewat zoom:var(--rs). -->
-<div class="cmd" id="pm" aria-hidden="true"><div class="cbx" role="dialog" aria-modal="true" aria-labelledby="pmT">
-  <h3 class="cmt" id="pmT">PILIH POWER</h3>
-  <button type="button" class="cmx" id="pmX" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+<div class="cmd" id="pm" aria-hidden="true"><div class="cbx ut-mk" role="dialog" aria-modal="true" aria-labelledby="pmT">
+  <h3 class="ut-mk-t" id="pmT">PILIH POWER</h3>
+  <button type="button" class="cmx ut-mk-x ut-gl ut-c-r" id="pmX" aria-label="Tutup"></button>
   <div class="igrid" id="pmL"></div>
-  <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn" id="pdone" style="width:220px;height:76px"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>SELESAI</span></button></div></div></div>
-<div class="cmd" id="em" aria-hidden="true"><div class="cbx" role="dialog" aria-modal="true" aria-labelledby="emT">
-  <h3 class="cmt" id="emT">PILIH DADU</h3>
-  <button type="button" class="cmx" id="emX" aria-label="Tutup"><img src="assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp" alt=""></button>
+  <div class="mfoot"><span class="hint" id="pmHint"></span><button class="btn ut-gl ut-c-g" id="pdone" style="width:220px;height:76px"><span>SELESAI</span></button></div></div></div>
+<div class="cmd" id="em" aria-hidden="true"><div class="cbx ut-mk" role="dialog" aria-modal="true" aria-labelledby="emT">
+  <h3 class="ut-mk-t" id="emT">PILIH DADU</h3>
+  <button type="button" class="cmx ut-mk-x ut-gl ut-c-r" id="emX" aria-label="Tutup"></button>
   <div class="igrid" id="emL"></div>
   <div class="mfoot"><span class="hint" id="emHint"></span></div></div></div>
 </div>
@@ -93,4 +93,5 @@ import './assets/js/multiplayer/room-service.js';
 import './assets/js/multiplayer/presence.js';
 window.dispatchEvent(new Event('ut:multiplayer-ready'));
 </script>
+<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{if(!(window.UT&&UT.ModalKit))return;[["inv","#invX"],["dr","#drX"],["pm","#pmX"],["em","#emX"]].forEach(function(p){var m=document.getElementById(p[0]);if(m)UT.ModalKit.watch(m,{initialFocus:p[1]});});}catch(e){}})();</script>
 </body></html>

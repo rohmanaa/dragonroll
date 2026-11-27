@@ -32,7 +32,7 @@ t('mail.html memuat page-module.js sebelum mail.js; tanpa id bentrok shell', () 
 });
 t('spa-host dan frame-guard mengenal mail; play.js punya prefetch', () => {
   assert(/'mail\.html': 'mail'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/chest\|mail[|)]/.test(rd('assets/js/frame-guard.js')));
+  assert(/hadiah-misi\|mail[|)]/.test(rd('assets/js/frame-guard.js')));
   assert(/'mail\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 console.log(n + ' tes lulus');

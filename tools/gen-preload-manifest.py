@@ -12,11 +12,12 @@ INC_DIRS = ("assets", "data", "gameplay", "hud", "promosi")
 EXT = {
     ".png", ".webp", ".jpg", ".jpeg", ".gif", ".svg", ".mp3", ".ogg",
     ".wav", ".js", ".css", ".woff", ".woff2", ".webm",
+    ".glb", ".gltf", ".bin", ".ktx2",
 }
 SKIP_PARTS = {"old", "doc", "referensi", "node_modules"}
 # Media yang disimpan service worker di cache PERMANEN (sw.js MEDIA). Hash = id blob git (12 hex) -> SW hanya
 # mengunduh ulang file yang hash-nya berubah, bukan seluruh aset tiap SW naik versi.
-MEDIA_EXT = {".png", ".webp", ".jpg", ".jpeg", ".gif", ".svg", ".mp3", ".ogg", ".wav", ".woff", ".woff2"}
+MEDIA_EXT = {".png", ".webp", ".jpg", ".jpeg", ".gif", ".svg", ".mp3", ".ogg", ".wav", ".woff", ".woff2", ".glb", ".gltf", ".bin", ".ktx2"}
 
 
 def git_output(*args, input_bytes=None):

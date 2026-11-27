@@ -96,7 +96,8 @@
 
   /* ---- pemuat skrip/halaman (sama pola dengan UT.Spa, tapi untuk panel di dalam hub) ---- */
   var scripts = Object.create(null), pages = Object.create(null);
-  function keyOf(src) { try { return new G.URL(src, G.location.href).pathname; } catch (e) { return src; } }
+  function baseOf() { return (G.document && G.document.baseURI) || G.location.href; }   /* baseURI, bukan location.href (pretty URL) */
+  function keyOf(src) { try { return new G.URL(src, baseOf()).pathname; } catch (e) { return src; } }
   function loadScripts(list, mods) {
     mods = mods || {};
     return Promise.all(list.map(function (src) {
@@ -105,7 +106,7 @@
         var already = Array.prototype.some.call(D.scripts || [], function (s) { return s.src && keyOf(s.src) === k; });
         if (already) scripts[k] = Promise.resolve();
         else if (mods[src]) {
-          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) { delete scripts[k]; warn('[AccountHub] gagal memuat modul ' + src, e); });
+          scripts[k] = import(new G.URL(src, baseOf()).href).catch(function (e) { delete scripts[k]; warn('[AccountHub] gagal memuat modul ' + src, e); });
         } else {
           scripts[k] = new Promise(function (res) {
             var s = D.createElement('script');
@@ -169,14 +170,14 @@
     var hub = el('div', 'phub'); hub.setAttribute('role', 'region'); hub.setAttribute('aria-labelledby', 'phub-title');
     var frame = el('div', 'pmodal'); frame.setAttribute('aria-hidden', 'true');   // bingkai kartu halaman (nama id lama dipertahankan untuk CSS)
     var title = el('h2', 'phub-title', 'sr-only');
-    var tabs = el('nav', 'ptabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
+    var tabs = el('nav', 'ptabs', 'ut-tabs'); tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', 'Profil, Teman, Pesan, Pengaturan');
     var pane = el('div', 'pane'); pane.setAttribute('role', 'tabpanel'); pane.tabIndex = -1;
-    var xbtn = el('button', 'pclose'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
+    var xbtn = el('button', 'pclose', 'ut-gl ut-c-r'); xbtn.type = 'button'; xbtn.setAttribute('aria-label', 'Tutup');
     var xi = D.createElement('img'); xi.src = 'assets/images/ui/buttons-and-controls/tombol-tutup-bulat.webp'; xi.alt = ''; xbtn.appendChild(xi);
 
     var tabBtns = {};
     TABS.forEach(function (t) {
-      var b = el('button', 'ptab-' + t.key, 'ptab'); b.type = 'button'; b.dataset.k = t.key;
+      var b = el('button', 'ptab-' + t.key, 'ptab ut-tab'); b.type = 'button'; b.dataset.k = t.key;
       b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', 'pane'); b.setAttribute('aria-selected', 'false'); b.tabIndex = -1;
       var ic = D.createElement('img'); ic.className = 'ic'; ic.src = t.icon; ic.alt = '';
       var sp = D.createElement('span'); sp.textContent = t.label;
@@ -233,8 +234,10 @@
     function syncUrl(key) {
       var u = hubUrl(key, from);
       try {
-        if (UT.Spa && UT.Spa.viewActive) G.history.replaceState({ spa: u }, '', (G.location.pathname || 'play.html') + '?go=' + encodeURIComponent(u));
-        else G.history.replaceState(G.history.state, '', u);
+        if (UT.Spa && UT.Spa.viewActive) {
+          var base = G.document && G.document.baseURI ? G.document.baseURI : (G.location.origin + '/');
+          G.history.replaceState({ spa: u }, '', base + 'play.html?go=' + encodeURIComponent(u));
+        } else G.history.replaceState(G.history.state, '', u);
       } catch (e) { /* abaikan */ }
     }
 
@@ -298,7 +301,7 @@
       pane.textContent = '';
       var box = el('div', null, 'perr'); box.setAttribute('role', 'alert');
       var msg = D.createElement('p'); msg.textContent = 'Gagal memuat ' + BY[key].label + '.';
-      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn'; btn.textContent = 'Coba lagi';
+      var btn = D.createElement('button'); btn.type = 'button'; btn.className = 'perr-btn ut-gl ut-c-y'; btn.textContent = 'Coba lagi';
       btn.addEventListener('click', function () { select(key, true); });
       box.appendChild(msg); box.appendChild(btn); pane.appendChild(box);
       btn.focus({ preventScroll: true });

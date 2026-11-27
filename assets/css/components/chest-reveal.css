@@ -1,0 +1,87 @@
+/* chest-reveal.css — layar pembukaan chest sinematik (assets/js/core/chest-reveal.js). Satuan vmin agar pas di HP & tablet; --c = warna jenis chest. */
+.crv{position:fixed;inset:0;z-index:9999;display:block;overflow:hidden;font-family:var(--font-title,'Lilita One',sans-serif);color:#fff;-webkit-tap-highlight-color:transparent;user-select:none;opacity:0;transition:opacity .3s}
+.crv.in{opacity:1}.crv.out{opacity:0;transition:opacity .25s}
+.crv-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,rgba(40,28,70,.72) 0%,rgba(8,4,20,.93) 62%,#04020c 100%)}
+.crv-rays{position:absolute;left:50%;top:44%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;transform:scale(.4);opacity:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--c) 92%,#fff) 0 7deg,transparent 7deg 20deg);
+  -webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.55) 22%,transparent 46%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.55) 22%,transparent 46%);animation:crvSpin 16s linear infinite;transition:opacity .6s,transform .8s}
+.crv.s2 .crv-rays{opacity:.65;transform:scale(.8)}
+.crv.s3 .crv-rays,.crv.burst .crv-rays{opacity:.85;transform:scale(1)}
+.crv.open .crv-rays{opacity:.55}
+/* pemusatan lewat margin (bukan translate): properti `rotate` dihitung SEBELUM `transform`, translate(-50%) akan ikut berputar dan sinar melayang keluar layar */
+@keyframes crvSpin{to{rotate:360deg}}
+.crv-glow{position:absolute;left:50%;top:46%;width:90vmin;height:90vmin;transform:translate(-50%,-50%) scale(.5);border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(circle,color-mix(in srgb,var(--c) 85%,#fff) 0,color-mix(in srgb,var(--c) 40%,transparent) 36%,transparent 68%);transition:opacity .5s,transform .5s}
+.crv.s1 .crv-glow{opacity:.3;transform:translate(-50%,-50%) scale(.7)}
+.crv.s2 .crv-glow{opacity:.6;transform:translate(-50%,-50%) scale(.9)}
+.crv.s3 .crv-glow{opacity:1;transform:translate(-50%,-50%) scale(1.15);animation:crvPulse .22s ease-in-out infinite alternate}
+.crv.open .crv-glow{opacity:.55;transform:translate(-50%,-62%) scale(1.1)}
+@keyframes crvPulse{to{transform:translate(-50%,-50%) scale(1.3)}}
+
+/* peti */
+.crv-stage{position:absolute;left:50%;top:52%;width:min(46vmin,320px);transform:translate(-50%,-50%);transition:transform .7s cubic-bezier(.2,1.2,.3,1)}
+.crv-chest{display:block;width:100%;height:auto;filter:drop-shadow(0 2.2vmin 1.6vmin rgba(0,0,0,.6));animation:crvDrop .75s cubic-bezier(.3,0,.4,1) both;transform-origin:50% 90%}
+.crv-shadow{position:absolute;left:50%;bottom:-3%;width:80%;height:9%;transform:translateX(-50%) scale(.2);border-radius:50%;background:rgba(0,0,0,.55);filter:blur(.8vmin);animation:crvShadow .75s ease-in both}
+@keyframes crvDrop{0%{transform:translateY(-110vh) rotate(-8deg) scale(1.15)}55%{transform:translateY(0) rotate(0) scale(1)}68%{transform:translateY(-7vmin) rotate(1deg) scale(1.02,.98)}82%{transform:translateY(0) scale(1.05,.95)}91%{transform:translateY(-1.8vmin)}100%{transform:translateY(0) scale(1)}}
+@keyframes crvShadow{0%{transform:translateX(-50%) scale(.1);opacity:0}55%{transform:translateX(-50%) scale(1);opacity:1}100%{transform:translateX(-50%) scale(1);opacity:1}}
+.crv.s1 .crv-chest{animation:crvS1 .55s ease-in-out infinite}
+.crv.s2 .crv-chest{animation:crvS2 .3s ease-in-out infinite;filter:drop-shadow(0 2.2vmin 1.6vmin rgba(0,0,0,.6)) brightness(1.15)}
+.crv.s3 .crv-chest{animation:crvS3 .13s linear infinite;filter:drop-shadow(0 0 3vmin var(--c)) brightness(1.5)}
+.crv.s3 .crv-stage{animation:crvJolt .2s linear infinite}
+@keyframes crvS1{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+@keyframes crvS2{0%,100%{transform:rotate(-3.4deg) translateY(0)}50%{transform:rotate(3.4deg) translateY(-.6vmin)}}
+@keyframes crvS3{0%{transform:translate(-.9vmin,0) rotate(-6deg)}25%{transform:translate(.9vmin,-.6vmin) rotate(5deg)}50%{transform:translate(-.6vmin,.5vmin) rotate(-5deg)}75%{transform:translate(.7vmin,-.4vmin) rotate(6deg)}100%{transform:translate(-.9vmin,0) rotate(-6deg)}}
+@keyframes crvJolt{0%,100%{margin-top:0}50%{margin-top:-.5vmin}}
+.crv.burst .crv-chest{animation:crvPop .55s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes crvPop{0%{transform:scale(1) rotate(-4deg);filter:brightness(3)}35%{transform:scale(1.4) translateY(-4vmin) rotate(3deg);filter:brightness(2.2)}100%{transform:scale(1) rotate(0);filter:drop-shadow(0 2.2vmin 1.6vmin rgba(0,0,0,.6)) brightness(1)}}
+.crv.open .crv-stage{transform:translate(-50%,-168%) scale(.55)}
+.crv.burst .crv-shadow{opacity:0;transition:opacity .3s}
+
+/* kilat + cincin + partikel */
+.crv-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.crv.burst .crv-flash{animation:crvFlash .6s ease-out both}
+@keyframes crvFlash{0%{opacity:.95}100%{opacity:0}}
+.crv-ring{position:absolute;left:50%;top:50%;width:30vmin;height:30vmin;margin:-15vmin 0 0 -15vmin;border-radius:50%;border:1.4vmin solid var(--c);opacity:0;pointer-events:none}
+.crv.burst .crv-ring{animation:crvRing .8s ease-out both}
+@keyframes crvRing{0%{transform:scale(.2);opacity:1}100%{transform:scale(4.2);opacity:0;border-width:.2vmin}}
+.crv-fx{position:absolute;left:50%;top:52%;width:0;height:0;pointer-events:none}
+.crv-p{position:absolute;left:0;top:0;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);background:var(--k);rotate:var(--r);box-shadow:0 0 1.2vmin var(--k);opacity:0;animation:crvSpark 1.1s ease-out var(--d) both}
+.crv-p.b{animation:crvBurstP 1.25s cubic-bezier(.1,.7,.3,1) var(--d) both}
+@keyframes crvSpark{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(calc(var(--x) * .4),calc(var(--y) * 1.6));opacity:0}}
+@keyframes crvBurstP{0%{transform:translate(0,0) scale(1);opacity:1}60%{transform:translate(var(--x),var(--y)) scale(1);opacity:1}100%{transform:translate(var(--x),calc(var(--y) + 16vmin)) scale(.2);opacity:0}}
+.crv.burst .crv-bg{animation:crvShake .5s linear both}
+@keyframes crvShake{0%,100%{transform:none}20%{transform:translate(-1.1vmin,.6vmin)}40%{transform:translate(1vmin,-.7vmin)}60%{transform:translate(-.7vmin,-.4vmin)}80%{transform:translate(.6vmin,.5vmin)}}
+
+/* judul + hadiah */
+.crv-title{position:absolute;left:0;right:0;top:9%;text-align:center;font-size:min(9.5vmin,64px);line-height:1;color:#fff;text-shadow:0 .5vmin 0 rgba(10,6,24,.7),0 0 3vmin var(--c);opacity:0;transform:translateY(-4vmin) scale(.6);transition:opacity .35s,transform .5s cubic-bezier(.2,1.6,.4,1)}
+.crv.titled .crv-title{opacity:1;transform:none}
+.crv-rewards{position:absolute;left:0;right:0;top:57%;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:2.4vmin 2.6vmin;padding:0 4vmin}
+.crv-r{min-width:min(24vmin,170px);display:flex;flex-direction:column;align-items:center;gap:.6vmin;padding:2vmin 2.4vmin;border-radius:2.4vmin;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05));border:.5vmin solid color-mix(in srgb,var(--c) 60%,#fff 20%);box-shadow:0 0 3vmin color-mix(in srgb,var(--c) 45%,transparent),inset 0 0 2vmin rgba(255,255,255,.08);animation:crvCard .55s cubic-bezier(.2,1.7,.4,1) both}
+.crv-r.now{animation:none}
+.crv-r img{width:min(11vmin,76px);height:min(11vmin,76px);object-fit:contain;filter:drop-shadow(0 .6vmin .5vmin rgba(0,0,0,.5))}
+.crv-r b{font-weight:400;font-size:min(8vmin,54px);line-height:1;text-shadow:0 .4vmin 0 rgba(10,6,24,.65);font-variant-numeric:tabular-nums}
+.crv-r:not(.pw) b::before{content:'+'}
+.crv-r span{font-size:min(4.2vmin,28px);color:#e6defa;text-shadow:0 .25vmin 0 rgba(10,6,24,.6)}
+.crv-xpb{display:grid;place-items:center;width:min(11vmin,76px);height:min(11vmin,76px);border-radius:50%;font-style:normal;font-size:min(4.8vmin,32px);background:radial-gradient(circle at 35% 30%,#ffe9a0,#e0a22a 70%);color:#5a3a00;text-shadow:none;box-shadow:inset 0 -.8vmin 0 rgba(0,0,0,.18),0 .6vmin .5vmin rgba(0,0,0,.45)}
+.crv-r.r-xp{border-color:#ffd45a}.crv-r.r-gem{border-color:#5be58f}
+.crv-r.pw{border-color:#9fe3ff;background:linear-gradient(180deg,rgba(120,220,255,.28),rgba(120,220,255,.08));box-shadow:0 0 4.5vmin rgba(120,220,255,.75),inset 0 0 2vmin rgba(255,255,255,.18);overflow:hidden;animation:crvCard .6s cubic-bezier(.2,1.8,.4,1) both,crvPw 1.4s ease-in-out .6s infinite alternate}
+.crv-r.pw::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);animation:crvShine 1.6s ease-in-out .5s infinite}
+.crv-r.pw{position:relative}.crv-r.pw b{color:#9fe3ff}
+@keyframes crvCard{0%{transform:translateY(8vmin) scale(.2);opacity:0}60%{transform:translateY(-1vmin) scale(1.14);opacity:1}100%{transform:none;opacity:1}}
+@keyframes crvPw{to{box-shadow:0 0 6.5vmin rgba(120,220,255,.95),inset 0 0 2vmin rgba(255,255,255,.18)}}
+@keyframes crvShine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+
+.crv-ok{position:absolute;left:50%;bottom:7%;transform:translate(-50%,3vmin) scale(.8);min-width:min(46vmin,320px);height:min(13vmin,86px);padding:0 4vmin;--gl-r:2.4vmin;font:400 min(5.6vmin,38px)/1 var(--font-title,'Lilita One',sans-serif);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s,transform .4s cubic-bezier(.2,1.6,.4,1)}   /* tampilan: .ut-gl .ut-c-g (button.css) */
+.crv.done .crv-ok{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
+.crv-ok.ut-gl:not(:disabled):active{transform:translate(-50%,.5vmin) scale(.97)}
+.crv-hint{position:absolute;left:0;right:0;bottom:2.2%;text-align:center;font-size:min(3.4vmin,22px);color:rgba(255,255,255,.55);transition:opacity .3s;pointer-events:none}
+.crv.done .crv-hint{opacity:0}
+
+/* Diamond/Emas: sorot lebih megah */
+.crv.tier-gold .crv-title,.crv.tier-diamond .crv-title{font-size:min(11vmin,72px)}
+.crv.tier-diamond .crv-rays{filter:saturate(1.3)}
+
+@media (prefers-reduced-motion:reduce){
+  .crv,.crv *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .crv-rays,.crv-glow,.crv-fx{display:none}
+}

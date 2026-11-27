@@ -225,16 +225,116 @@ class Inst{
   /* Margin jendela mode ringkas per frame (default 5 sel). Sayap Phoenix/Surgawi melebar sampai 1 sel di luar jendela -> kepotong;
      jendela diperlebar, lalu kanvas diskalakan (setKey) sehingga badan frame & lubang avatar tetap sama ukurannya. */
   var MARGIN_C = { phoenix: 7, celestial: 7, storm: 6 }; FR.forEach(function (f) { if (MARGIN_C[f.id]) f.mC = MARGIN_C[f.id]; });
+  /* ===== Frame BERGAMBAR hadiah Login 30 hari (seri 15 frame; gambar di data/frame/<nama>.webp, bukan digambar kode) =====
+     Gambar sudah dinormalkan: lubang avatar 23 sel tepat di tengah, jendela (Wc sel) cukup lebar untuk tanduk/sayap/api.
+     Kanvas = Wc*6 px, diskalakan Wc/42 seperti frame bersayap, sehingga lubang avatar sama dengan frame lain.
+     "Sentuhan aura": cahaya berdenyut mengikuti siluet, kilau yang menyapu badan frame, dan partikel sesuai tema
+     (bara, kilau bintang, daun, kabut). Kolom: c = warna aura, mC = margin jendela (sel), fx = efek. */
+  var ART = {
+    nagaapi: { mC: 8, c: [255,122,40], fx: ['glow',  'embers',  'sweep'] },
+    batutua: { mC: 5, c: [205,205,220], fx: ['dust',  'sweep'] },
+    perunggu: { mC: 5, c: [255,200,120], fx: ['sparkle',  'sweep'] },
+    tembagaukir: { mC: 5, c: [255,150,90], fx: ['sparkle',  'sweep'] },
+    peraksayap: { mC: 5, c: [220,236,255], fx: ['glow',  'sparkle',  'sweep'] },
+    emasrubi: { mC: 5, c: [255,216,90], fx: ['glow',  'sparkle',  'sweep'] },
+    kristalsafir: { mC: 5, c: [110,190,255], fx: ['glow',  'sparkle',  'sweep'] },
+    zamrudrambat: { mC: 5, c: [90,230,130], fx: ['glow',  'leaf',  'sweep'] },
+    rubikerajaan: { mC: 5, c: [255,90,110], fx: ['glow',  'sparkle',  'sweep'] },
+    batusenja: { mC: 5, c: [170,110,255], fx: ['wisp',  'sweep'] },
+    bintangsafir: { mC: 5, c: [130,200,255], fx: ['glow',  'sparkle',  'sweep'] },
+    hutanzamrud: { mC: 5, c: [110,255,140], fx: ['glow',  'leaf',  'sweep'] },
+    mahkotarubi: { mC: 8, c: [255,80,100], fx: ['glow',  'embers',  'sweep'] },
+    bayanganender: { mC: 8, c: [190,90,255], fx: ['glow',  'wisp'] },
+    sayapsurgawi: { mC: 8, c: [255,232,150], fx: ['glow',  'halo',  'sparkle',  'sweep'] }
+  };
+  var ART_IMG = {};
+  function artImage(key, cb) {
+    var e = ART_IMG[key];
+    if (!e) { e = ART_IMG[key] = { img: new Image(), ok: false, wait: [] }; e.img.onload = function () { e.ok = true; e.wait.splice(0).forEach(function (f) { f(); }); }; e.img.src = 'data/frame/' + key + '.webp'; }
+    if (e.ok) return e.img; if (cb) e.wait.push(cb); return null;
+  }
+  function ArtInst(key, cv, lite) {
+    this.art = true; this.key = key; this.cv = cv; this.lite = !!lite; this.t = 0; this.parts = []; this.vis = true; this.fps = lite ? 12 : 30; this.acc2 = 0;
+    this.R = rngf(Array.prototype.reduce.call(key, function (a, ch) { return (a * 31 + ch.charCodeAt(0)) >>> 0; }, 7));
+    this.def = ART[key]; this.W = (B + 2 * this.def.mC) * S; this.still = false; this.rt = {};
+    this.lay = document.createElement('canvas'); this.lay.width = this.lay.height = this.W;
+    this.swp = document.createElement('canvas'); this.swp.width = this.swp.height = this.W;
+  }
+  ArtInst.prototype.has = function (f) { return this.def.fx.indexOf(f) >= 0; };
+  ArtInst.prototype.ring = function () {   /* titik acak di cincin bingkai (satuan sel, pusat 0,0), di luar lubang avatar */
+    var R = this.R, h = (B + 2 * this.def.mC) / 2, lo = 11.5, hi = Math.min(h - 1.5, 19.5), r = lo + R() * (hi - lo), u = (R() * 2 - 1) * r, sd = Math.floor(R() * 4);
+    return sd === 0 ? [u, -r] : sd === 1 ? [u, r] : sd === 2 ? [-r, u] : [r, u];
+  };
+  ArtInst.prototype.spawn = function (kind) {
+    var R = this.R, c = this.def.c, q = this.ring(), p = { x: q[0], y: q[1], life: 0, k: kind, c: c, sz: .6 + R() * .7, ph: R() * 6.283 };
+    if (kind === 'embers') { p.vx = (R() - .5) * 2; p.vy = -(5 + R() * 7); p.max = .8 + R() * .9; p.c = mixc([255, 210, 90], c, R() * .8); p.add = true; p.sz = .5 + R() * .8; }
+    else if (kind === 'sparkle') { p.vx = 0; p.vy = 0; p.max = .6 + R() * .6; p.star = true; p.add = true; p.c = mixc([255, 255, 255], c, R() * .6); p.sz = .8 + R() * 1.1; p.top = true; }
+    else if (kind === 'wisp') { p.vx = q[0] * .12; p.vy = -1.2 - R() * 1.5; p.max = 1.6 + R() * 1.2; p.sz = 2 + R() * 2.2; p.add = true; }
+    else if (kind === 'leaf') { p.y = -16 + R() * 6; p.x = (R() * 2 - 1) * 17; p.vx = 0; p.vy = 3 + R() * 2.5; p.max = 1.6 + R() * 1; p.sz = .8 + R() * .5; p.c = mixc([255, 255, 255], c, .75 + R() * .25); }
+    else { p.vx = (R() - .5) * 1.2; p.vy = -(.8 + R() * 1.4); p.max = 1.3 + R() * 1.2; p.sz = .35 + R() * .35; p.c = [190, 190, 205]; }   /* dust */
+    this.parts.push(p);
+  };
+  ArtInst.prototype.update = function (dt) {
+    if (this.still) return; this.t += dt; var rate = { embers: 15, sparkle: 5, wisp: 3, leaf: 3, dust: 4 };
+    for (var f in rate) { if (!this.has(f) || this.lite) continue; this.rt[f] = (this.rt[f] || 0) + dt * rate[f]; while (this.rt[f] >= 1) { this.rt[f] -= 1; this.spawn(f); } }
+    for (var n = this.parts.length - 1; n >= 0; n--) {
+      var p = this.parts[n]; p.life += dt; if (p.life >= p.max) { this.parts.splice(n, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; if (p.k === 'leaf') p.x += Math.sin(this.t * 3 + p.ph) * 2.2 * dt;
+    }
+    if (this.parts.length > 90) this.parts.splice(0, this.parts.length - 90);
+  };
+  ArtInst.prototype.draw = function () {
+    var cv = this.cv, x = cv.getContext('2d'), W = this.W, k = S, c = this.def.c, me = this, img = artImage(this.key, function () { me.draw(); });
+    x.clearRect(0, 0, W, W); if (!img) return;
+    var pulse = .5 + .5 * Math.sin(this.t * 2.2), hs = 23 * k, h0 = (W - hs) / 2;
+    /* lapisan di belakang frame: cahaya siluet + partikel lembut; lubang avatar dikosongkan agar efek tidak menutupi avatar */
+    var lx = this.lay.getContext('2d'); lx.clearRect(0, 0, W, W);
+    if (this.has('glow')) { lx.save(); lx.shadowColor = css(c, .55 + .35 * pulse); lx.shadowBlur = (this.lite ? 7 : 10 + 6 * pulse) * k / 3; lx.shadowOffsetX = -W * 2; lx.drawImage(img, W * 2, 0, W, W); lx.restore(); }
+    for (var i = 0; i < this.parts.length; i++) { if (!this.parts[i].top) this.dot(lx, this.parts[i], W / 2, k); }
+    lx.save(); lx.globalCompositeOperation = 'destination-out'; lx.fillStyle = '#000'; lx.fillRect(h0, h0, hs, hs); lx.restore();
+    x.drawImage(this.lay, 0, 0);
+    x.drawImage(img, 0, 0, W, W);
+    /* kilau menyapu badan frame (hanya piksel frame) tiap beberapa detik */
+    if (this.has('sweep') && !this.lite) {
+      var ph = this.t % 4.2; if (ph < 1.3) {
+        var sx = this.swp.getContext('2d'), pos = (-.25 + 1.5 * ph / 1.3) * W, d = W * .16;
+        sx.globalCompositeOperation = 'source-over'; sx.clearRect(0, 0, W, W); sx.drawImage(img, 0, 0, W, W);
+        sx.globalCompositeOperation = 'source-atop'; var g = sx.createLinearGradient(pos - d, pos - d, pos + d, pos + d);
+        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        sx.fillStyle = g; sx.fillRect(0, 0, W, W); sx.globalCompositeOperation = 'source-over';
+        x.save(); x.globalCompositeOperation = 'lighter'; x.drawImage(this.swp, 0, 0); x.restore();
+      }
+    }
+    if (this.has('halo') && !this.lite) {   /* cincin halo emas berputar di atas frame */
+      x.save(); x.globalCompositeOperation = 'lighter'; var cy = W / 2 - 20.5 * k, rx = 7.5 * k, ry = 1.9 * k;
+      for (var j = 0; j < 56; j++) { var a = j / 56 * 6.283 + this.t * .7, px = W / 2 + Math.cos(a) * rx, py = cy + Math.sin(a) * ry; x.fillStyle = css(c, Math.sin(a) > 0 ? .75 : .3); x.fillRect(px - k * .35, py - k * .35, k * .7, k * .7); }
+      x.restore();
+    }
+    /* kilau bintang di atas frame (di luar lubang) */
+    x.save(); x.beginPath(); x.rect(0, 0, W, W); x.rect(h0, h0, hs, hs); x.clip('evenodd');
+    for (var m = 0; m < this.parts.length; m++) { if (this.parts[m].top) this.dot(x, this.parts[m], W / 2, k); }
+    x.restore();
+  };
+  ArtInst.prototype.dot = function (x, p, o, k) {
+    var u = p.life / p.max, a = Math.max(0, u < .2 ? u / .2 : 1 - (u - .2) / .8), px = o + p.x * k, py = o + p.y * k, sz = p.sz * k;
+    x.save(); x.globalCompositeOperation = p.add ? 'lighter' : 'source-over';
+    if (p.k === 'wisp') { var g = x.createRadialGradient(px, py, 0, px, py, sz * 1.6); g.addColorStop(0, css(p.c, .38 * a)); g.addColorStop(1, css(p.c, 0)); x.fillStyle = g; x.fillRect(px - sz * 2, py - sz * 2, sz * 4, sz * 4); }
+    else if (p.star) { var tw = a * (.7 + .3 * Math.sin(p.life * 18 + p.ph)); x.fillStyle = css(p.c, tw); x.fillRect(px - sz * .5, py - sz * .12, sz, sz * .24); x.fillRect(px - sz * .12, py - sz * .5, sz * .24, sz); x.fillStyle = css([255, 255, 255], tw); x.fillRect(px - sz * .18, py - sz * .18, sz * .36, sz * .36); }
+    else if (p.k === 'leaf') { x.fillStyle = css(p.c, a * .9); x.translate(px, py); x.rotate(p.life * 2 + p.ph); x.fillRect(-sz * .6, -sz * .3, sz * 1.2, sz * .6); }
+    else { x.fillStyle = css(p.c, a * (p.add ? .95 : .6)); x.fillRect(px - sz * .5, py - sz * .5, sz, sz); }
+    x.restore();
+  };
+  function artKey(name) { return Object.prototype.hasOwnProperty.call(ART, name) ? name : null; }
   /* nama file gambar -> id desain */
   var FILE2KEY = { 'frame-default': 'wood', 'stone': 'stone', 'copper': 'copper', 'iron': 'iron', 'frame-gold': 'gold', 'diamond': 'diamond', 'amethyst': 'amethyst',
-    'nether': 'nether', 'ender': 'ender', 'storm': 'storm', 'dragon': 'dragon', 'phoenix': 'phoenix', 'celestial': 'celestial', 'cosmic': 'cosmic', 'setia': 'gold' };   /* setia (frame hadiah Login 30 hari) memakai animasi gold */
+    'nether': 'nether', 'ender': 'ender', 'storm': 'storm', 'dragon': 'dragon', 'phoenix': 'phoenix', 'celestial': 'celestial', 'cosmic': 'cosmic' };
   var RE = /data\/frame\/([a-z-]+)\.webp/;
   function keyOf(x) {
     if (!x) return null; x = String(x);
-    var m = x.match(RE); if (m) return FILE2KEY[m[1]] || null;
+    var m = x.match(RE); if (m) return FILE2KEY[m[1]] || artKey(m[1]);
     if (x.indexOf('frame.') === 0) x = x.slice(6);
     if (x === 'default') x = 'wood';
-    return FRAMES[x] ? x : null;
+    return FRAMES[x] ? x : artKey(x);
   }
   var reduce = false; try { reduce = g.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   var live = [], io = null, last = 0, running = false;
@@ -242,7 +342,18 @@ class Inst{
     if (io || !g.IntersectionObserver) return;
     io = new IntersectionObserver(function (es) { es.forEach(function (e) { var i = e.target.__ffx; if (i) i.vis = e.isIntersecting; }); });
   }
+  function dropInst(cv) { var o = cv.__ffx; if (!o) return; var n = live.indexOf(o); if (n >= 0) live.splice(n, 1); if (io) io.unobserve(cv); cv.__ffx = null; }
+  function setArt(cv, key) {
+    var def = ART[key], inst = cv.__ffx;
+    if (inst && !(inst.art && inst.key === key)) { dropInst(cv); inst = null; }
+    if (!inst) { inst = cv.__ffx = new ArtInst(key, cv, cv.__lite); live.push(inst); ensureIO(); if (io) io.observe(cv); }
+    cv.width = cv.height = inst.W; cv.style.scale = String((B + 2 * def.mC) / (B + 10));
+    if (reduce || inst.lite) inst.still = true;
+    inst.draw(); if (!inst.still) start();
+  }
   function setKey(cv, key) {
+    if (ART[key]) return setArt(cv, key);
+    if (cv.__ffx && cv.__ffx.art) { dropInst(cv); cv.width = cv.height = 252; }
     var f = FRAMES[key] || FRAMES.wood; ensure(f);
     var inst = cv.__ffx;
     if (!inst) { inst = cv.__ffx = new Inst(f, cv, { compact: true, lite: cv.__lite }); inst.vis = true; inst.fps = cv.__lite ? 12 : 30; inst.acc2 = 0; live.push(inst); ensureIO(); if (io) io.observe(cv); }
@@ -256,7 +367,7 @@ class Inst{
     for (var n = live.length - 1; n >= 0; n--) {
       var i = live[n];
       if (!i.cv.isConnected) { live.splice(n, 1); if (io) io.unobserve(i.cv); continue; }
-      if (i.vis === false || document.hidden) continue;
+      if (i.vis === false || document.hidden || i.still) continue;
       i.acc2 += dt; if (i.acc2 < 1 / i.fps) continue;
       var d = Math.min(.1, i.acc2); i.acc2 = 0; i.update(d); i.draw();
     }
@@ -284,11 +395,12 @@ class Inst{
     var l = root.querySelectorAll ? root.querySelectorAll('img[src*="data/frame/"]') : []; for (var i = 0; i < l.length; i++) upgrade(l[i]);
   }
   function dataURL(key, full) {
+    var ak = artKey(keyOf(key)); if (ak) return 'data/frame/' + ak + '.webp';   /* frame bergambar: gambar statis apa adanya */
     var f = FRAMES[keyOf(key) || 'wood']; ensure(f);
     var c = document.createElement('canvas'); c.width = c.height = (full ? G : B + 2 * (f.mC || 5)) * S;
     var i = new Inst(f, c, { clean: true, compact: !full }); i.draw(); return c.toDataURL();
   }
-  g.FrameFX = { keyOf: keyOf, upgrade: scan, dataURL: dataURL, frames: FRAMES, ready: true };
+  g.FrameFX = { keyOf: keyOf, upgrade: scan, dataURL: dataURL, frames: FRAMES, art: ART, ready: true };
   function init() {
     scan(document);
     try { new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { scan(n); }); }); }).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}

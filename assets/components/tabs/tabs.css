@@ -1,0 +1,58 @@
+/* Ular Tangga Blok — assets/components/tabs/tabs.css (HUD-Gloss; gaya kit Guild, tanpa gambar)
+   Tiga jenis tab, semua CSS. Prefiks .ut-tab* / .ut-seg* / .ut-ul*.
+   1) TAB ATAS (glossy, aktif kuning & terangkat)   : <nav class="ut-tabs"><button class="ut-tab on">…</button>…</nav>
+   2) SEGMENTED (pil gelap, aktif kuning)            : <div class="ut-seg"><button class="ut-seg-i on">…</button>…</div>
+   3) UNDERLINE (teks + garis emas, badge merah)     : <div class="ut-ul"><button class="ut-ul-i on">Judul<i class="bd">3</i></button>…</div>
+   Mixin visual-saja untuk elemen berukuran tetap milik halaman: tambahkan  ut-tabv  (+ .on untuk aktif, .lk untuk terkunci).
+   Isi tab boleh <img class="ic"> + <span>. Atur ukuran lewat --tab-w / --tab-h / --tab-fs. */
+.ut-tabv, .ut-tab {
+  --t1: #6b655b; --t2: #59544c; --t3: #524d46; --t4: #45413b; --tl: #0d0a18; --tab-lift: 8px;
+  border: 4px solid var(--tl); border-radius: 16px 16px 6px 6px;
+  background: linear-gradient(180deg, var(--t1) 0, var(--t2) 48%, var(--t3) 52%, var(--t4) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .28), inset 0 -5px 0 rgba(0, 0, 0, .28), 0 4px 0 var(--tl);
+  color: #fff; font-weight: 400; cursor: pointer;
+  text-shadow: -2px -2px 0 var(--tl), 2px -2px 0 var(--tl), -2px 2px 0 var(--tl), 2px 2px 0 var(--tl), 0 2px 0 var(--tl);
+  transition: transform .08s, filter .1s;
+}
+.ut-tabv:hover, .ut-tab:hover { transform: translateY(-2px); }
+.ut-tabv.on, .ut-tab.on, .ut-tab[aria-selected="true"] {
+  --t1: #ffe86a; --t2: #ffc61f; --t3: #f7a90c; --t4: #e98a06;
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, .55), inset 0 -6px 0 rgba(0, 0, 0, .2), 0 4px 0 var(--tl);
+  transform: translateY(calc(var(--tab-lift) * -1));
+}
+.ut-tabv.lk { --t1: #55514b; --t2: #47433d; --t3: #403d38; --t4: #35322e; filter: brightness(.92); }
+.ut-tabv:active, .ut-tab:active { transform: translateY(3px); }
+/* tab atas penuh */
+.ut-tabs { display: flex; align-items: flex-end; gap: 10px; }
+.ut-tab {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-width: var(--tab-w, 120px); height: var(--tab-h, 76px); padding: 0 16px; margin-top: 10px;
+  font: 400 var(--tab-fs, 21px)/1 var(--ut-font-title, 'Lilita One', sans-serif); white-space: nowrap;
+}
+.ut-tab.on, .ut-tab[aria-selected="true"] { height: calc(var(--tab-h, 76px) + 12px); }
+.ut-tab .ic { width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .5)); }
+/* segmented */
+.ut-seg { display: inline-flex; gap: 8px; }
+.ut-seg-i {
+  display: inline-flex; align-items: center; height: var(--tab-h, 48px); padding: 0 28px; border-radius: 13px;
+  border: 3px solid #0d0a18; cursor: pointer; font: 400 var(--tab-fs, 24px)/1 var(--ut-font-title, 'Lilita One', sans-serif); color: #fff;
+  background: linear-gradient(180deg, #6b655b 0, #59544c 48%, #524d46 52%, #45413b 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .35), inset 0 -4px 0 rgba(0, 0, 0, .26), 0 4px 0 #0d0a18;
+  text-shadow: -2px -2px 0 #0d0a18, 2px -2px 0 #0d0a18, -2px 2px 0 #0d0a18, 2px 2px 0 #0d0a18;
+}
+.ut-seg-i.on { background: linear-gradient(180deg, #ffe86a 0, #ffc61f 48%, #f7a90c 52%, #e98a06 100%); }
+.ut-seg-i:active { transform: translateY(3px); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .3), 0 1px 0 #0d0a18; }
+/* underline */
+.ut-ul { display: flex; gap: 6px; }
+.ut-ul-i {
+  position: relative; padding: 4px 18px 22px; background: none; border: 0; cursor: pointer;
+  font: 400 var(--tab-fs, 34px)/1 var(--ut-font-title, 'Lilita One', sans-serif); color: #b9b2dc; text-shadow: 0 2px 0 rgba(10, 6, 24, .5);
+}
+.ut-ul-i:hover { color: #fff; }
+.ut-ul-i.on { color: #ffe8a3; }
+.ut-ul-i.on::after {
+  content: ''; position: absolute; left: 50%; bottom: 0; width: 140px; max-width: 80%; height: 12px; transform: translateX(-50%);
+  border-radius: 8px; border: 3px solid #0d0a18; background: linear-gradient(180deg, #ffe86a, #e98a06); box-shadow: 0 3px 0 #0d0a18;
+}
+.ut-ul-i small { font-size: .7em; opacity: .8; margin-left: 6px; }
+.ut-ul-i i.bd { display: inline-block; margin-left: 8px; min-width: 34px; padding: 1px 9px; border-radius: 20px; background: #e0364b; font: 400 22px/1.2 var(--ut-font-title, 'Lilita One', sans-serif); font-style: normal; color: #fff; vertical-align: middle; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }

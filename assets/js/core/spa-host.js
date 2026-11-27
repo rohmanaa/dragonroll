@@ -34,7 +34,9 @@
   function makeLoader(G) {
     var D = G.document, cache = {}, scripts = Object.create(null);
 
-    function key(src) { try { return new G.URL(src, G.location.href).pathname; } catch (e) { return src; } }
+    /* basis = baseURI (<base href="/">), BUKAN location.href: di pretty URL (/token/halaman/uuid/) location.href membuat kunci skrip berbeda tiap rute -> skrip inti dimuat/dijalankan ulang (registry modul hilang) */
+    function base() { return (G.document && G.document.baseURI) || G.location.href; }
+    function key(src) { try { return new G.URL(src, base()).pathname; } catch (e) { return src; } }
     Array.prototype.forEach.call(D.scripts || [], function (s) { if (s.src) scripts[key(s.src)] = Promise.resolve(); });
 
     function parse(html) {
@@ -80,7 +82,7 @@
       list.forEach(function (src) {
         var k = key(src);
         if (!scripts[k] && mods[src]) {
-          scripts[k] = import(new G.URL(src, G.location.href).href).catch(function (e) {
+          scripts[k] = import(new G.URL(src, base()).href).catch(function (e) {
             delete scripts[k]; if (G.console) console.warn('[Spa] gagal memuat modul', src, e);
           });
         } else if (!scripts[k] && inDoc(k)) {
@@ -131,7 +133,12 @@
         });
       });
     }
-    return { enter: enter };
+    /* prepare: siapkan halaman SEBELUM dibuka (ambil+parse HTML, unduh+jalankan skrip). Aman: skrip halaman hanya mendefinisikan modul
+       (PageModule.managed=true -> tidak mount); DOM dan CSS baru dipasang saat enter(). */
+    function prepare(page) {
+      return fetchPage(page).then(function (p) { return loadScripts(p.js, p.mods); });
+    }
+    return { enter: enter, prepare: prepare };
   }
 
   /* ================= host ================= */
@@ -180,8 +187,18 @@
 
     function pushHistory(url, opts) {
       if (opts.history === 'none') return;
-      var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');   // shell bersarang (HP portrait): pertahankan flag agar reload tidak keluar dari bersarang
-      var link = (G.location.pathname || 'play.html') + '?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
+      var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');
+      var link;
+      if (G.UT && G.UT.PrettyUrl && G.UT.PrettyUrl.shouldUsePretty()) {
+        var page = pageOf(url);
+        var token = G.UT.PrettyUrl.getToken();
+        var uuid = G.UT.PrettyUrl.genUuid();
+        link = G.UT.PrettyUrl.buildUrl(page, token, uuid);
+        if (nested) link += '?nested=1';
+      } else {
+        var base = G.document && G.document.baseURI ? G.document.baseURI : (G.location.origin + '/');
+        link = base + 'play.html?' + (nested ? 'nested=1&' : '') + 'go=' + encodeURIComponent(url);
+      }
       try {
         if (opts.replace) G.history.replaceState({ spa: url }, '', link);
         else G.history.pushState({ spa: url }, '', link);
@@ -284,7 +301,19 @@
       } catch (e) { /* abaikan */ }
     }
 
+    /* preload(url): siapkan view di latar (idle) agar saat dibuka tinggal pasang DOM+mount. Mengembalikan Promise<boolean>. */
+    var prepared = Object.create(null);
+    function preload(url) {
+      var name = viewName(url), pg = pageOf(url);
+      if (!name || !canView(url) || prepared[pg]) return Promise.resolve(false);
+      prepared[pg] = 1;
+      if (!loader) loader = makeLoader(G);
+      if (!loader.prepare) return Promise.resolve(false);
+      return loader.prepare(pg).then(function () { return true; }, function (e) { delete prepared[pg]; warn('[Spa] preload gagal ' + pg, e); return false; });
+    }
+
     api.mount = install;
+    api.preload = preload;
     api.start = start;
     api.go = go;
     api.canView = canView;

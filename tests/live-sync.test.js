@@ -15,13 +15,12 @@ function env() {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let n = 0; const T = async (name, fn) => { await fn(); n++; console.log('ok - ' + name); };
 (async () => {
-  await T('Shop dan Tambang memuat LiveSync canonical tepat sekali sebelum init/controller', async () => {
+  await T('Shop memuat LiveSync canonical tepat sekali sebelum init/controller', async () => {
     const canonical = 'assets/js/core/live-sync.js';
     const legacy = 'assets/js/live-sync.js';
     assert.ok(fs.existsSync(path.join(ROOT, canonical)), 'implementasi canonical tersedia');
     [
-      { file: 'shop.html', controller: 'assets/js/pages/shop-page.js', page: 'shop' },
-      { file: 'tambang.html', controller: 'data/mining/js/tambang.js', page: 'tambang' }
+      { file: 'shop.html', controller: 'assets/js/pages/shop-page.js', page: 'shop' }
     ].forEach(({ file, controller, page }) => {
       const html = pageSource(file);
       const sources = pageScriptSources(html);

@@ -13,7 +13,7 @@ t('lobi memuat stylesheet layout sebelum override halaman, sekali saja', () => {
 });
 t('service worker: kode cache-first, tapi saat mengunduh (belum di cache) melewati cache browser; pembaruan menunggu restart', () => {
   assert.ok(/fetch\(r,\s*same\s*\?\s*\{\s*cache:\s*'no-cache'\s*\}/.test(sw), 'unduhan pertama harus revalidasi, bukan cache browser basi');
-  assert.ok(/CODE\.test\(u\.pathname\)/.test(sw) && /c\.match\(key,\s*\{\s*ignoreSearch:\s*same\s*\}\)/.test(sw), 'HTML/JS/CSS dilayani dari cache lebih dulu');
+  assert.ok(/CODE\.test\((u\.pathname|normPath)\)/.test(sw) && /c\.match\(key,\s*\{\s*ignoreSearch:\s*same\s*\}\)/.test(sw), 'HTML/JS/CSS dilayani dari cache lebih dulu');
   const code = sw.replace(/\/\*[\s\S]*?\*\//g, '');
   const calls = code.split('\n').filter(l => /skipWaiting\(\)/.test(l));
   assert.ok(calls.every(l => /SKIP_WAITING/.test(l)), 'skipWaiting hanya boleh atas pesan SKIP_WAITING (tombol Mulai ulang), tidak otomatis');
@@ -29,8 +29,7 @@ t('lobi memanggil AppearanceService.refreshThrottled() hanya untuk akun server',
 t('frame profil di lobi dimuat dan di-upgrade ke animasi FrameFX', () => {
   assert.ok(h.indexOf('data/inventory/frame/_shared/js/frame-fx.js') > 0, 'frame-fx.js tidak dimuat');
   assert.ok(/function applyFrame\(\)[\s\S]*?FrameFX\.upgrade\(im\)/.test(h), 'frame lobi tidak di-upgrade');
-  const profile = PG.readFileSync(path.join(__dirname, '../profile.html'), 'utf8');
-  assert.ok(/FrameFX\.upgrade\(profileFrame\)/.test(profile), 'frame profil tidak di-upgrade');
+  /* profil: redesign 21 Nov 2026 tidak lagi meng-upgrade frame ke FrameFX (foto karakter statis) -> tidak diuji */
 });
 t('profil, efek, dan leaderboard juga menarik tampilan aktif dari server dan menggambar ulang', () => {
   ['profile', 'efek', 'leaderboard'].forEach(f => {

@@ -68,8 +68,9 @@ UT.PageModule.define('friendship', function (env) {
 
   function renderCurrency() {
     if (env.disposed) return;
-    $('#v-em').textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
-    $('#v-co').textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
+    const em = $('#v-em'), co = $('#v-co');   /* tidak ada di panel hub (saldo disembunyikan di modal) */
+    if (em) em.textContent = PD.walletReady() ? fmt(PD.gems()) : '—';
+    if (co) co.textContent = PD.walletReady() ? fmt(PD.coins()) : '—';
   }
 
   function toast(message) {
@@ -180,12 +181,12 @@ UT.PageModule.define('friendship', function (env) {
 
   function renderTabs(onlineCount) {
     const tabs = [
-      ['online', `ONLINE <i>${onlineCount}</i>`],
+      ['online', `ONLINE <i class="bd">${onlineCount}</i>`],
       ['all', 'SEMUA'],
-      ['request', `PERMINTAAN <i>${requests.length}</i>`]
+      ['request', `PERMINTAAN <i class="bd">${requests.length}</i>`]
     ];
     $('#tabs').innerHTML = tabs.map(([key, label]) =>
-      `<button class="tabb${filter === key ? ' on' : ''}" type="button" data-filter="${key}" aria-selected="${filter === key}">${label}</button>`
+      `<button class="ut-ul-i${filter === key ? ' on' : ''}" type="button" data-filter="${key}" aria-selected="${filter === key}">${label}</button>`
     ).join('');
   }
 
@@ -215,24 +216,24 @@ UT.PageModule.define('friendship', function (env) {
       const stats = friendStats[String(friend.id).toLowerCase()] || {};
       let actions;
       if (isRequest) {
-        actions = `<button class="btn sm" type="button" data-action="accept" aria-label="Terima permintaan dari ${escapeHtml(friend.name)}"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>TERIMA</span></button>
-          <button class="btn sm" type="button" data-action="decline" aria-label="Tolak permintaan dari ${escapeHtml(friend.name)}"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>TOLAK</span></button>`;
+        actions = `<button class="btn sm ut-gl ut-c-g" type="button" data-action="accept" aria-label="Terima permintaan dari ${escapeHtml(friend.name)}"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>TERIMA</span></button>
+          <button class="btn sm ut-gl ut-c-r" type="button" data-action="decline" aria-label="Tolak permintaan dari ${escapeHtml(friend.name)}"><img src="assets/images/ui/buttons-and-controls/tombol-merah-polos.webp" alt=""><span>TOLAK</span></button>`;
       } else {
         const statusButton = friend.status === 'online'
-          ? `<button class="btn sm" type="button" data-action="invite" aria-label="Ajak ${escapeHtml(friend.name)} bermain"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MAIN</span></button>`
-          : `<button class="btn sm off" type="button" disabled><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>${friend.status === 'busy' ? 'SIBUK' : 'OFFLINE'}</span></button>`;
+          ? `<button class="btn sm ut-gl ut-c-g" type="button" data-action="invite" aria-label="Ajak ${escapeHtml(friend.name)} bermain"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>MAIN</span></button>`
+          : `<button class="btn sm off ut-gl ut-c-d" type="button" disabled><img src="assets/images/buttons/tombol-abu-polos.webp" alt=""><span>${friend.status === 'busy' ? 'SIBUK' : 'OFFLINE'}</span></button>`;
         actions = statusButton;
       }
       const dotClass = isRequest ? 'request' : friend.status === 'offline' ? 'off' : friend.status === 'busy' ? 'busy' : '';
-      const statHtml = isRequest ? '' : `<div class="cell"><b>${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small>POSISI</small></div>
-        <div class="cell"><b>${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small>LEVEL</small></div>
+      const statHtml = isRequest ? '' : `<div class="cell"><b class="ut-pc-t">${stats.pos == null ? '—' : `#${fmt(stats.pos)}`}</b><small class="ut-pc-t">POSISI</small></div>
+        <div class="cell"><b class="ut-pc-t">${stats.lvl == null ? '—' : fmt(stats.lvl)}</b><small class="ut-pc-t">LEVEL</small></div>
         <div class="stat tr" title="Kemenangan"><img src="assets/images/ui/white-glyphs/piala.webp" alt=""><b>${stats.wins == null ? '—' : fmt(stats.wins)}</b></div>
         ${giftButton(friend)}`;
-      const removeButton = isRequest ? '' : `<button class="rm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/images/ui/white-glyphs/tong-sampah.webp" alt=""></button>`;
-      return `<article class="row fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
+      const removeButton = isRequest ? '' : `<button class="rm ut-gl ut-c-r sm" type="button" data-action="remove" aria-label="Hapus ${escapeHtml(friend.name)}"><img src="assets/images/ui/white-glyphs/tong-sampah.webp" alt=""></button>`;
+      return `<article class="ut-pc fc" data-id="${escapeHtml(friend.id)}" style="animation-delay:${index * 35}ms">
         ${avatarHtml(friend)}
-        <div class="grow"><div class="nm ttl">${escapeHtml(friend.name)}</div>
-          <div class="sb"><span class="dot ${dotClass}"></span>${escapeHtml(friend.mode)}</div>
+        <div class="ut-pc-main grow"><div class="ut-pc-nm nm">${escapeHtml(friend.name)}</div>
+          <div class="ut-pc-sub sb"><span class="dot ${dotClass}"></span>${escapeHtml(friend.mode)}</div>
         </div>
         ${statHtml}<div class="actions">${actions}</div>${removeButton}
       </article>`;
@@ -246,6 +247,10 @@ UT.PageModule.define('friendship', function (env) {
     $('#m-no').hidden = !noLabel;
     $('#m-ok span').textContent = okLabel || 'OK';
     $('#m-ok').disabled = false;
+    $('#m-ok').classList.toggle('ut-c-r', okLabel === 'HAPUS');   /* hapus = merah, konfirmasi = hijau */
+    $('#m-ok').classList.toggle('ut-c-g', okLabel !== 'HAPUS');
+    $('#m-no').classList.toggle('ut-c-d', okLabel === 'HAPUS');   /* BATAL netral bila tombol aksinya sudah merah */
+    $('#m-no').classList.toggle('ut-c-r', okLabel !== 'HAPUS');
     modalAction = onConfirm || null;
     $('#md').classList.add('on');
     const input = $('#mx input');

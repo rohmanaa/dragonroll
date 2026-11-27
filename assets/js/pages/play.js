@@ -12,9 +12,13 @@
   function frameUrl(u) { try { if (!NESTED && window.matchMedia(ROT).matches) return nestedUrl(u); } catch (e) {} return u; }
   var f = document.getElementById('f'), ov = document.getElementById('ov'), go = 'splash.html';
   try {
-    var q = new URLSearchParams(location.search).get('go');
-    // hanya halaman .html di folder yang sama (bukan play.html/index.html) agar tidak jadi open redirect
-    if (q && /^[A-Za-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/.test(q) && !/^(play|index)\.html/.test(q)) go = q;
+    if (window.UT && UT.PrettyUrl && UT.PrettyUrl.shouldUsePretty()) {
+      go = UT.PrettyUrl.getGoFromUrl();
+    } else {
+      var q = new URLSearchParams(location.search).get('go');
+      // hanya halaman .html di folder yang sama (bukan play.html/index.html) agar tidak jadi open redirect
+      if (q && /^[A-Za-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/.test(q) && !/^(play|index)\.html/.test(q)) go = q;
+    }
   } catch (e) {}
 
   /* ================= Layar memuat (kondisional, bukan timer) =================
@@ -22,7 +26,7 @@
      Halaman baru selesai (load + font + gambar) -> layar memuat dihilangkan.
      splash.html punya layar muat sendiri (pulau melayang), jadi layar dadu ini tidak ditampilkan di atasnya. */
   var SELF_LOADING = /^splash\.html$/;
-  function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
+  function pageName(w) { try { return (w.UT && w.UT.PrettyUrl) ? w.UT.PrettyUrl.getGoFromUrl() : (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
   /* Overlay antar-halaman menutup halaman tujuan langsung, lalu menampilkan tirai awan jika pemuatan belum selesai.
      Ini indikator kesiapan halaman, bukan persentase unduhan; progres byte nyata hanya ditampilkan di splash.
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
@@ -85,7 +89,9 @@
       arm();
     });
   }
-  function whenReady(w, cb) {
+  /* snappy: profil cepat untuk view pada grafik Normal ke atas -- tunggu gambar maks 0,6 dtk (bukan 1,5) dan settle 40/160 ms (bukan 100/500). Rendah: tetap hati-hati. */
+  function snappy() { try { return document.documentElement.getAttribute('data-graphics') !== 'low'; } catch (e) { return false; } }
+  function whenReady(w, cb, fast) {
     var d; try { d = w.document; } catch (e) { cb(); return; }
     var fonts = (d && d.fonts && d.fonts.ready) ? d.fonts.ready.catch(function () {}) : Promise.resolve();
     var imgs = [];
@@ -101,6 +107,7 @@
         }
         im.addEventListener('load', finish); im.addEventListener('error', finish);
         timer = setTimeout(finish, 1500);
+        if (fast) { clearTimeout(timer); timer = setTimeout(finish, 600); }
       });
     });
     /* latar harus sudah ter-decode, kalau tidak frame pertama tampil polos */
@@ -138,7 +145,7 @@
     var all = [fonts, bg, shownBody, gp].concat(bgs).concat(waits);
     Promise.all(all).then(function () {
       stage('Menampilkan halaman');
-      return settle(w, d, 100, pageName(w) === 'gameplay.html' ? 1200 : 500);
+      return fast ? settle(w, d, 40, 160) : settle(w, d, 100, pageName(w) === 'gameplay.html' ? 1200 : 500);
     }).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
@@ -235,7 +242,21 @@
       var c = navigator.connection || {};
       if (c.saveData || /2g/.test(c.effectiveType || '')) return;
       var list = NEXT[name] || [];
-      var run = function () { list.forEach(warm); };
+      var run = function () {
+        /* Prefetch dibatasi sesuai tier grafik; jangan unduh semua halaman kandidat sekaligus. */
+        var tier = document.documentElement.getAttribute('data-graphics') || 'normal';
+        var warmCount = tier === 'low' ? 0 : tier === 'normal' ? 1 : tier === 'high' ? 3 : 9;
+        list.slice(0, warmCount).forEach(warm);
+        /* siapkan view SPA di latar sesuai tingkat grafik: rendah=tidak; normal=1 halaman berikutnya; tinggi=3; ultra=semua */
+        try {
+          var g = document.documentElement.getAttribute('data-graphics') || 'normal';
+          var n = g === 'low' ? 0 : g === 'normal' ? 1 : g === 'high' ? 3 : 9;
+          if (n && window.UT && UT.Spa && UT.Spa.preload) {
+            var q = list.slice(0, n), i = 0;
+            (function nxt() { if (i >= q.length) return; UT.Spa.preload(q[i++]).then(function () { setTimeout(nxt, 400); }); })();
+          }
+        } catch (e) {}
+      };
       if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 3000 }); else setTimeout(run, 1500);
     } catch (e) {}
   }
@@ -268,10 +289,12 @@
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);
+    if (!NESTED && window.UT && UT.GraphicsAuto) UT.GraphicsAuto.afterReady();   // Grafik Auto: ukur frame time, turun sendiri bila berat
   });
   /* ================= SPA tahap 2: Lobby & Karakter dirender langsung di #view (tanpa iframe) =================
      Layar memuat, musik, dan prefetch tetap milik pembungkus; UT.Spa memanggil hook ini saat berpindah rute. */
   document.addEventListener('click', afterTap, true);      // ketukan pada view (klik di iframe tidak sampai ke sini)
+  if (!NESTED && window.UT && UT.GraphicsAuto) { try { UT.GraphicsAuto.boot(); } catch (e) {} }   // Grafik Auto: pilih tingkat sebelum halaman dibangun
   if (window.UT && UT.Spa) {
     UT.Spa.mount({
       frame: f, view: document.getElementById('view'), frameUrl: frameUrl,
@@ -285,9 +308,10 @@
         },
         ready: function (name) {
           stage('Menampilkan halaman');
-          whenReady(window, hideOv);
+          whenReady(window, hideOv, snappy());
           setWant(true);
           prefetchNext(UT.Spa.page || name + '.html');
+          if (!NESTED && UT.GraphicsAuto) UT.GraphicsAuto.afterReady();
         }
       }
     });

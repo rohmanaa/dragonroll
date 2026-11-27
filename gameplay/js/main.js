@@ -2152,8 +2152,12 @@ function readGraphics(){
   try{ const a=UT.Prefs.get('ambience',null); if(a&&a.graphics) return a.graphics; }catch(e){}
   return 'high';
 }
-function setGraphicsPref(g){ /* dari menu Pengaturan gameplay: simpan ke PlayerData (+ cermin Prefs) lalu terapkan langsung */
+function gfxAutoApi(){ return UT.GraphicsAuto||null; } /* assets/js/systems/graphics-auto.js (dimuat di gameplay.html) */
+function setGraphicsPref(g){ /* dari menu Pengaturan gameplay; aturan sama dengan halaman Pengaturan: Auto = preferensi lokal, tingkat manual mematikan Auto */
+  const GA=gfxAutoApi();
+  if(g==='auto'){ try{ if(GA) GA.setEnabled(true); }catch(e){} applyCineGraphics(); return; }
   if(['low','normal','high','ultra'].indexOf(g)<0) return;
+  try{ if(GA) GA.setEnabled(false); }catch(e){}
   try{ const PD=window.PlayerData; if(PD&&PD.setSettings) PD.setSettings({graphics:g}); }catch(e){}
   try{ const a=UT.Prefs.get('ambience',null)||{}; UT.Prefs.set('ambience',{mode:a.mode||'day',graphics:g}); }catch(e){}
   document.documentElement.setAttribute('data-graphics',g);
@@ -3087,6 +3091,8 @@ async function serverBossClaim(p,gid){
       DRG.text='Hadiah: '+parts.join(' · ')+'.';
       if(DRG.rewardStatus&&DRG.rewardStatus.gameId===gid) DRG.rewardStatus=null;
       setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.'); try{ sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid}); }catch(e){}
+    }else if(r&&r.reason==='nonaktif'){ /* lawan CPU: hadiah boss dimatikan server; hadiah boss hanya di game online */
+      setBossRewardStatus(gid,'Hadiah '+bn+' hanya di game online.'); setMsg(DRG.rewardStatus.message);
     }else if(r&&(r.reason==='daily_cap'||r.reason==='terlalu-cepat')){
       setBossRewardStatus(gid,'Batas hadiah '+bn+' harian tercapai.'); setMsg(DRG.rewardStatus.message);
     }else if(r&&r.ok===false&&r.reason!=='sudah-klaim'&&r.reason!=='not_winner'&&r.reason!=='mode-lokal'){
@@ -5888,7 +5894,7 @@ async function resolveMobAt(p,gid){
 function totemModal(p,what,gid){
   return new Promise(res=>{
     const ov=document.createElement('div'); ov.className='tm-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="tm-box"><div class="tm-ic"></div><h4>Pakai Totem?</h4><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y"></button><button type="button" class="tm-n">Tidak</button></div><small class="tm-t"></small></div>';
+    ov.innerHTML='<div class="tm-box ut-mk gp-mk" role="document"><h4 class="ut-mk-t">Pakai Totem?</h4><div class="tm-ic"></div><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y ut-gl ut-c-g"></button><button type="button" class="tm-n ut-gl ut-c-r">Tidak</button></div><small class="tm-t"></small></div>';
     ov.querySelector('.tm-d').textContent=p.name+' kena '+what+'! Totem bisa menahannya (sisa '+p.pu.totem+').';
     ov.querySelector('.tm-y').textContent='Pakai Totem';
     try{ UT.Gameplay.Config.setPuIcon(ov.querySelector('.tm-ic'),'totem'); }catch(e){}
@@ -6408,6 +6414,7 @@ async function recordMatchServer(PD,m){
       if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6){ await new Promise(ok=>setTimeout(ok,1500)); continue; } /* server baru mencatat bila room sudah 'finished' */
       break;
     }
+    if(r&&r.ignored==='cpu_daily_limit'){ setWinRewardStatus(m.gameId,'Jatah koin lawan CPU hari ini sudah habis (5×). XP & poin hanya dari main online.'); return; }
     if(!r||r.ok===false||r.duplicate||r.ignored){
       setWinRewardStatus(m.gameId,r&&r.duplicate?'Hasil pertandingan sudah pernah dicatat.':'Hasil pertandingan gagal dicatat.');
       return;
@@ -6424,6 +6431,12 @@ async function recordMatchServer(PD,m){
       setWinCoins(m.gameId,'match',r.reward_coins); /* koin dasar menang/kalah dulu */
       if(igCoin>0){ const base=(WIN_COINS.boss|0)+(r.reward_coins|0); animateWinReward(m.gameId,'coins',base,base+igCoin,()=>setWinCoins(m.gameId,'ingame',igCoin)); } /* koin in-game menyusul */
       try{ const W0=UT.WalletService&&UT.WalletService.get(); if(W0&&W0.refresh) W0.refresh(); }catch(e){} /* cermin saldo koin di header/lobby */
+    }
+    if(r.online===false){ /* lawan CPU: server hanya membayar koin (maks 5x/hari); tanpa XP/poin/statistik -> tidak perlu sinkron profil, level-up, atau misi */
+      const cl=Number.isFinite(+r.cpu_left)?(r.cpu_left|0):null;
+      setWinRewardStatus(m.gameId,'Lawan CPU: hanya koin'+(cl!==null?' (sisa jatah hari ini: '+cl+'×)':'')+'. XP & poin hanya dari main online.');
+      try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((r.won?'Menang! ':'Kalah. ')+'+'+((r.reward_coins|0)+igCoin)+' koin'); },300); }catch(e){}
+      return;
     }
     const sp=await UT.Multiplayer.Progress.getMyProfile();
     if(!sp||!sp.exists){
@@ -6779,9 +6792,9 @@ function profRender(){
   }
   m.hidden=false; m.setAttribute('aria-label','Profil '+p.name); m.textContent='';
   const local=isLocalPlayer(p),host=ONLINE_ROOM?isHostPlayer(p):(p.idx===0&&!p.cpu);
-  const box=pmEl('div','pm-box'); box.style.setProperty('--pc',p.css||'#ffd45a');
-  const head=pmEl('div','pm-head'); head.appendChild(pmEl('b',null,p.name));
-  const x=pmEl('button','pm-x','✕'); x.type='button'; x.setAttribute('aria-label','Tutup'); x.addEventListener('click',profClose); head.appendChild(x); box.appendChild(head);
+  const box=pmEl('div','pm-box ut-mk gp-mk'); box.style.setProperty('--pc',p.css||'#ffd45a');
+  const ttl=pmEl('h2','ut-mk-t',p.name); ttl.id='pmTitle'; m.setAttribute('aria-labelledby','pmTitle'); box.appendChild(ttl);
+  const x=pmEl('button','pm-x ut-mk-x ut-gl ut-c-r'); x.type='button'; x.setAttribute('aria-label','Tutup'); x.addEventListener('click',profClose); box.appendChild(x);
   const body=pmEl('div','pm-body');
   const left=pmEl('div','pm-card'); const face=pmEl('div','pm-face'),im=document.createElement('img'); im.src=framedFace(p); im.alt=p.name; face.appendChild(im); left.appendChild(face);
   const tags=pmEl('div','pm-tags'); if(local) tags.appendChild(pmEl('span','pm-tag me','AKU')); if(p.cpu) tags.appendChild(pmEl('span','pm-tag','CPU')); if(host) tags.appendChild(pmEl('span','pm-tag host','HOST'));
@@ -6801,7 +6814,7 @@ function profRender(){
   body.appendChild(st); box.appendChild(body);
   const foot=pmEl('div','pm-foot'); const th=document.createElement('img'); th.className='pm-th'; th.src=framedFace(p); th.alt=''; foot.appendChild(th);
   if(local){ /* tombol AUTO hanya untuk profil sendiri */
-    const on=!!autoRoll,ab=pmEl('button','pm-auto'+(on?' on':''),on?'AUTO PLAY: NYALA':'AUTO PLAY'); ab.type='button'; ab.setAttribute('aria-pressed',String(on)); ab.addEventListener('click',profToggleAuto); foot.appendChild(ab);
+    const on=!!autoRoll,ab=pmEl('button','pm-auto ut-gl '+(on?'ut-c-g on':'ut-c-b'),on?'AUTO PLAY: NYALA':'AUTO PLAY'); ab.type='button'; ab.setAttribute('aria-pressed',String(on)); ab.addEventListener('click',profToggleAuto); foot.appendChild(ab);
   } else foot.appendChild(pmEl('span','pm-spacer'));
   const sc=pmEl('div','pm-score'); sc.appendChild(pmEl('small','pm-lb','SKOR')); sc.appendChild(pmEl('b',null,p.score||0)); foot.appendChild(sc);
   box.appendChild(foot); m.appendChild(box);
@@ -6873,6 +6886,7 @@ UT.GameplayPause.bind({
 UT.GameplayHudMenu.bind({
   setMenuOpen:v=>setHudMenuOpen(v),
   camName:()=>CAM_NAMES[camCfg.preset]||'Free',
+  camIndex:()=>Math.max(0,CAM_ORDER.indexOf(camCfg.preset)),
   isFollow:()=>camCfg.follow,
   camNext:()=>{ ensureAudio(); camMenuClose(); camNextPreset(); },
   toggleFollow:()=>camSetFollow(!camCfg.follow),
@@ -6882,7 +6896,7 @@ UT.GameplayHudMenu.bind({
   isMuted:()=>muted,
   toggleSound:()=>$('btnSnd').click(),
   pause:()=>$('btnPause').click(),
-  getGraphics:readGraphics, setGraphics:setGraphicsPref,
+  getGraphics:readGraphics, setGraphics:setGraphicsPref, isGraphicsAuto:()=>{ try{ const GA=gfxAutoApi(); return !!(GA&&GA.enabled()); }catch(e){ return false; } },
   getMusicVol:()=>musicVol, setMusicVol:setMusicVol, getSfxVol:()=>sfxVol, setSfxVol:setSfxVol, paintRange:paintRange,
   onSfxCommit:()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} }
 });

@@ -23,7 +23,8 @@ for (const [, asset] of css.matchAll(/url\(["']?([^"')]+\.webp)["']?\)/g)) {
   assert.ok(fs.existsSync(path.resolve(root, 'gameplay/css', asset)), `expected result screen asset ${asset}`);
 }
 
-assert.match(css, /#win\.win-result #btnToMenu\s*\{[^}]*tombol-biru-polos\.webp/s);
+assert.match(require('fs').readFileSync(require('path').join(__dirname, '../gameplay.html'), 'utf8'), /id="btnToMenu"/);
+assert.match(require('fs').readFileSync(require('path').join(__dirname, '../gameplay.html'), 'utf8'), /class="lm-mode lm-blue ut-gl ut-c-b"[^>]*id="btnToMenu"/);  // tombol memakai komponen HUD (ut-gl biru), tanpa gambar bingkai
 assert.match(css, /display:\s*contents\s*!important/);
 assert.match(css, /#win\[data-state="lose"\]\.win-result \.lm-eyebrow\s*\{[^}]*width:\s*fit-content\s*!important/s);
 assert.match(main, /setWinReward\(m\.gameId,'xp',r\.xp_gain\)/);
