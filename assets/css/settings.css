@@ -51,4 +51,4 @@
 .row .ic{object-fit:contain}
 #toast{position:absolute;left:50%;bottom:36px;transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:80;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.92);font:800 30px var(--font-body);color:#fff;transition:.25s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
-body.sub::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:url(../images/background/settings-voxel-bengkel.webp) center/cover no-repeat;opacity:.35}
+body.sub::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}

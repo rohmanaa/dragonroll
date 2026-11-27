@@ -14,7 +14,7 @@
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
-html:not(.ut-room-embed):has(#pmodal),html:not(.ut-room-embed):has(#pmodal) body{background:url(../../../../../assets/images/background/inventory-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:not(.ut-room-embed):has(#pmodal),html:not(.ut-room-embed):has(#pmodal) body{background:#2e293c!important}
 /* tombol Kembali -> Tutup di kanan atas (sama dengan hub Profil) */
 #back{left:auto;right:76px;top:40px;width:80px;height:80px;z-index:7;padding:0}   /* tampilan: .ut-gl .ut-c-r (button.css); gambar bingkai lama disembunyikan, X digambar CSS */
 #back img,#back svg{display:none}

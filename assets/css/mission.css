@@ -69,7 +69,7 @@
   pointer-events:none;box-sizing:border-box;z-index:0;border:3px solid #000;border-radius:18px;color:#fff;background:linear-gradient(#4a4a4a 0 50%,#303030 50%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 #stage:has(#pmodal){overflow:visible!important}
-html:has(#pmodal),html:has(#pmodal) body{background:url(../images/background/misi-bg.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#pmodal),html:has(#pmodal) body{background:#2e293c!important}
 #back{left:auto;right:100px;top:46px;width:80px;height:80px;z-index:7}
 /* tombol Tutup: .ut-gl .ut-c-r; X digambar CSS (cara sama dengan #pclose di hub) */
 #back{padding:0}

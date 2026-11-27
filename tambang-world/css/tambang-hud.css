@@ -76,8 +76,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 /* modal (sub.css #md/#box + page.css .panel) */
 #tambang-md{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:none;align-items:center;justify-content:center}
 #tambang-md.on{display:flex}
-.tambang-panel{position:absolute}
-.tambang-panel::before{content:'';position:absolute;inset:-8px;border:22px solid transparent;border-image:url(../images/tambang-bingkai-dialog.webp) 44 fill / 22px stretch;z-index:-1;pointer-events:none}
+.tambang-panel{position:absolute;background:#2e1f14}
+.tambang-panel::before{content:'';position:absolute;inset:-8px;background:#2e1f14;z-index:-1;pointer-events:none}
 .tambang-panel>h3{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 54px;font:400 40px/70px var(--tambang-font-title);background:url(../images/tambang-banner-judul-ungu-polos.webp) center/100% 100% no-repeat;white-space:nowrap;text-shadow:0 2px 0 rgba(20,5,70,.7)}
 #tambang-box{position:relative;width:820px;min-height:440px;margin-top:20px;padding-bottom:150px}
 #tambang-mx{margin:96px 50px 0;text-align:center;font:700 34px/1.4 var(--tambang-font-body);color:#fff}

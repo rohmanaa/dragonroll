@@ -12,12 +12,10 @@
 /* Latar halaman = gambar latar MASING-MASING panel (assets/images/background), dipilih lewat #pane[data-tab] (diisi UT.AccountHub.setActiveTab):
    profil = profile-bg (+ varian lebar untuk layar >= 2:1), teman = friendship-bg, pesan = mail-voxel-pesan, setelan = settings-voxel-bengkel. Aturan dasar di bawah (profil) dipakai juga sebelum panel pertama selesai dimuat.
    Warna dasar = warna isi bingkai (#2e293c). */
-html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg.webp) center/cover no-repeat fixed,#2e293c!important}
-@media (min-aspect-ratio:2/1){
-  html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:url(../images/background/profile-bg-wide.webp) center/cover no-repeat fixed,#2e293c!important}}
-html:has(#pane[data-tab="teman"]),html:has(#pane[data-tab="teman"]) body{background:url(../images/background/friendship-bg.webp) center/cover no-repeat fixed,#2e293c!important}
-html:has(#pane[data-tab="pesan"]),html:has(#pane[data-tab="pesan"]) body{background:url(../images/background/mail-voxel-pesan.webp) center/cover no-repeat fixed,#2e293c!important}
-html:has(#pane[data-tab="setelan"]),html:has(#pane[data-tab="setelan"]) body{background:url(../images/background/settings-voxel-bengkel.webp) center/cover no-repeat fixed,#2e293c!important}
+html:has(#stage.has-hub),html:has(#stage.has-hub) body{background:#2e293c!important}
+html:has(#pane[data-tab="teman"]),html:has(#pane[data-tab="teman"]) body{background:#2e293c!important}
+html:has(#pane[data-tab="pesan"]),html:has(#pane[data-tab="pesan"]) body{background:#2e293c!important}
+html:has(#pane[data-tab="setelan"]),html:has(#pane[data-tab="setelan"]) body{background:#2e293c!important}
 body.hub::before,body.hub::after{content:none!important;display:none!important}
 
 /* Panel = bingkai-dialog.webp PENUH layar (9-slice, konvensi repo: 44 / 22px). Tepi batu pekat dari aset; isi = ::before (warna isi aset
