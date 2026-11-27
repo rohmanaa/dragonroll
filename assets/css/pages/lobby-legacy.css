@@ -75,5 +75,5 @@ html,body{background:#0e0b1c!important} /* latar lobby = scene-bg.js (lobby-kast
 html[data-graphics="low"] #go{animation:none;will-change:auto}
 html[data-graphics="low"] #go .shc{display:none}
 html[data-graphics="low"] #lvl,html[data-graphics="low"] .cur,html[data-graphics="low"] .cur img,
-html[data-graphics="low"] .lbt .ico img,html[data-graphics="low"] .lbt::before,html[data-graphics="low"] .gbtn .gi,
+html[data-graphics="low"] .lbt .ico img,html[data-graphics="low"] .gbtn .gi,
 html[data-graphics="low"] #go img,html[data-graphics="low"] #go:hover img,html[data-graphics="low"] .lbt .lk{filter:none!important}
