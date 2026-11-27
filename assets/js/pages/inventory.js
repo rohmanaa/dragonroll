@@ -126,6 +126,7 @@ UT.PageModule.define('inventory', function (env) {
     try { sessionStorage.setItem(KEY, t.k); if (!inShell()) history.replaceState(null, '', 'inventory.html?tab=' + t.k); } catch (e) {}   /* di shell URL milik play.html?go=... */
     Array.prototype.forEach.call(host.querySelectorAll('.native'), function (p) { p.classList.toggle('on', p.dataset.k === t.k); });
     if (t.k === 'chest') cEnter();
+    if (t.k === 'ore' && UT.InvOre) UT.InvOre.enter($('#oreBox'));
     if (t.native) {   /* Chest / Ore / Log: isi native, tanpa iframe */
       Object.keys(frames).forEach(function (x) { frames[x].classList.remove('on'); });
       loading.hidden = true;

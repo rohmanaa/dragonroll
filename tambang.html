@@ -8,6 +8,7 @@
 <title>Dragon Roll — Tambang</title>
 <link rel="stylesheet" href="assets/components/button/button.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
+<link rel="stylesheet" href="assets/components/modal/drawer.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-hud.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-world.css">
 <link rel="stylesheet" href="tambang-world/css/tambang-coc.css">
@@ -40,7 +41,6 @@
     <button class="ut-gl ut-c-y tambang-btn" id="tambang-prod" aria-expanded="false"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span>PRODUKSI</span></button>
     <button class="ut-gl ut-c-b tambang-btn" id="tambang-boostall"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span>⚡ BOOST SEMUA</span></button>
     <button class="ut-gl ut-c-n tambang-btn" id="tambang-gudang"><img src="tambang-world/images/tambang-tombol-coklat-polos.webp" alt=""><span><img src="tambang-world/images/tambang-tas-kulit.webp" alt="">GUDANG <b id="tambang-gcnt">0</b></span></button>
-    <button class="ut-gl ut-c-n tambang-btn x0" id="tambang-inv"><img src="tambang-world/images/tambang-tombol-coklat-polos.webp" alt=""><span>🎒 INVENTORI</span></button>
     <button class="ut-gl ut-c-p tambang-btn x0" id="tambang-gup"><img src="tambang-world/images/tambang-tombol-ungu-polos.webp" alt=""><span>⬆ UPGRADE</span></button>
   </div>
 
@@ -66,6 +66,11 @@
     <button class="ut-gl ut-c-p tambang-btn" id="tambang-reset" aria-label="Reset tambang"><img src="tambang-world/images/tambang-tombol-ungu-polos.webp" alt=""><img class="ic" src="tambang-world/images/tambang-ulang.webp" alt=""></button>
   </div>
 
+  <div class="ut-dr-ov" id="tambang-dr"><aside class="ut-dr" role="dialog" aria-modal="true" aria-labelledby="tambang-dr-t">
+    <div class="ut-dr-head"><h2 class="ut-dr-h" id="tambang-dr-t">Upgrade</h2><button class="ut-dr-x" id="tambang-dr-x" aria-label="Tutup"></button></div>
+    <div class="ut-dr-list" id="tambang-dr-l"></div>
+    <div class="ut-dr-tabs"><button class="ut-dr-tab on" data-dt="up"><span class="ic">⬆</span>UPGRADE</button><button class="ut-dr-tab" data-dt="gd"><span class="ic">📦</span>GUDANG</button></div>
+  </aside></div>
   <div id="tambang-md"><div class="tambang-panel ut-mk" id="tambang-box" role="dialog" aria-modal="true" aria-labelledby="tambang-mt">
     <button class="ut-mk-x ut-gl ut-c-r" id="tambang-mclose" aria-label="Tutup"></button><h3 id="tambang-mt" class="ut-mk-t">Reset Tambang</h3><p id="tambang-mx">Semua objek kembali ke susunan awal. Lanjutkan?</p>
     <div id="tambang-mbtns">

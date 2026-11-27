@@ -290,7 +290,7 @@
       + '<div class="tambang-rstw"><span class="tambang-rst"></span></div><div class="tambang-acts">'
       + '<button class="ut-gl ut-c-b tambang-btn y" data-a="boost"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
       + '<div class="tambang-ups">' + up('speed', 'Kecepatan', s.speed_lv, s.next_speed_cost) + up('cap', 'Peti', s.cap_lv, s.next_cap_cost) + '</div>'
-      + (s.mgr ? '<div class="tambang-mgr on"><b>👔 Manager aktif</b><small>Percepat oleh manager · istirahat 5 mnt</small></div>' : '<button class="tambang-mgr" data-a="manager"><b>👔 Rekrut Manager</b><small>Boost &amp; istirahat 5 mnt (bukan 10) · <img src="' + EM + '" alt="">' + fmt(s.mgr_cost) + '</small></button>');
+      + (s.mgr ? '<div class="tambang-mgr on"><b>👔 Manager aktif</b><small>Percepat oleh manager · istirahat 5 mnt</small></div>' : '<button class="ut-gl ' + (D.wallet.gems() < s.mgr_cost ? 'ut-c-d' : 'ut-c-p') + ' tambang-mgrb" data-a="manager"><b>👔 BELI MANAGER</b><small>Boost &amp; istirahat 5 mnt · <img src="' + EM + '" alt="">' + fmt(s.mgr_cost) + '</small></button>');
   }
   const CLOSE = '<button class="tambang-x" data-x="1" aria-label="Tutup"></button>';
   function buildCard() {
@@ -331,7 +331,7 @@
   MW.ui.openPanel = openPanel;
   /* modal konfirmasi (sub.css #md) */
   let okFn = null;
-  function ask(t, x, noL, okL, ok) { md.classList.remove('bld'); if (typeof bldOpen !== 'undefined') bldOpen = null; $('tambang-mt').textContent = t; $('tambang-mx').innerHTML = x; q2('tambang-m-no').textContent = noL; q2('tambang-m-ok').textContent = okL; okFn = ok; $('tambang-m-ok').style.display = okL ? '' : 'none'; md.classList.add('on'); }
+  function ask(t, x, noL, okL, ok) { $('tambang-mt').textContent = t; $('tambang-mx').innerHTML = x; q2('tambang-m-no').textContent = noL; q2('tambang-m-ok').textContent = okL; okFn = ok; $('tambang-m-ok').style.display = okL ? '' : 'none'; md.classList.add('on'); }
   const q2 = (id) => $(id).querySelector('span');
   $('tambang-m-no').addEventListener('click', () => { okFn = null; md.classList.remove('on'); });
   $('tambang-m-ok').addEventListener('click', () => { const f = okFn; okFn = null; md.classList.remove('on'); if (f) f(); });
@@ -380,14 +380,14 @@
       setTimeout(() => { MW.logi.hold[tp.mine] = 0; }, 500);
       setTimeout(() => { if (trip !== tp) return; lf.setLoad(tp.n, D.lift().cap, tp.ores); lf.goTo(0); tp.ph = 'down'; }, 1500); return;
     }
-    const tr = D.deliver(), n = trip.n; MW.logi.hold = {}; trip = null; lf.setLoad(0, 1, null); paintGudang(true); rerender();
+    const tr = D.deliver(), n = trip.n; MW.logi.hold = {}; trip = null; lf.setLoad(0, 1, null); paintGudang(true); drRender();
     const dp = tr && tr.drops, bonus = dp ? [dp.coin ? '+' + fmt(dp.coin) + ' Koin' : '', dp.gem ? '+' + fmt(dp.gem) + ' Emerald' : '', dp.power.length ? '🎁 Power ' + dp.power.map(powN).join(', ') : ''].filter(Boolean) : [];
     if (bonus.length) { paintCur($('tambang-cur-co')); MW.debris.spawn(new THREE.Vector3(28.6, MW.GROUND + 2.5, 1.8), 0xffd24d, 18); toast('✨ Hadiah langka! ' + bonus.join(' · '), false); }
     else if (tr && !(Wd.cur === 0 && md.classList.contains('on'))) toast('Lift tiba di Gudang · +' + fmt(n) + ' ore', false);
     setTimeout(() => { if (!trip) lf.goTo(0); }, 900);
   }
   function showCatchup(r) {
-    trip = null; MW.logi.hold = {}; Wd.lift.setLoad(0, 1, null); paintGudang(true); buildCard(); rerender();
+    trip = null; MW.logi.hold = {}; Wd.lift.setLoad(0, 1, null); paintGudang(true); buildCard(); drRender();
     const parts = []; if (r.ore > 0) parts.push('+' + fmt(r.ore) + ' ore'); if (r.wood > 0) parts.push('+' + fmt(r.wood) + ' kayu'); if (r.smelted > 0) parts.push(fmt(r.smelted) + ' dilebur'); if (r.coin > 0) parts.push('✨ +' + fmt(r.coin) + ' Koin'); if (r.gem > 0) parts.push('+' + fmt(r.gem) + ' Emerald'); if (r.power > 0) parts.push(r.power + ' Power-up'); paintCur();
     toast('Selama offline ' + dur(r.mins * 60) + (r.capped ? ' (maks)' : '') + ': ' + (parts.join(' · ') || 'belum ada hasil'), false);
   }
@@ -400,9 +400,9 @@
     if (ev.smelted.length) {
       const n = D.furnace().n; Wd.layers[0].burst = 1;
       MW.debris.spawn(new THREE.Vector3(7.2 + 3.8 * Math.floor(Math.random() * n) + 1.4, MW.GROUND + 1.6, 1.6), 0xff9a3a, 8);
-      paintGudang(); rerender();
+      paintGudang(); drRender();
     }
-    if (ev.sweepDue && !trip && !document.hidden) { const pl = D.sweepPlan(); if (pl) { startTrip(pl); paintGudang(); rerender(); } }
+    if (ev.sweepDue && !trip && !document.hidden) { const pl = D.sweepPlan(); if (pl) { startTrip(pl); paintGudang(); drRender(); } }
   }, 1000);
   window.addEventListener('pagehide', () => D.save()); document.addEventListener('visibilitychange', () => { if (document.hidden) D.save(); });
   function syncLift() { const l = D.lift(); Wd.lift.setLocked(!l.on); Wd.lift.speedMul = l.spd; if (!trip) Wd.lift.goTo(0); if (!l.on) Wd.lift.setLoad(0, 1, null); }
@@ -413,96 +413,95 @@
   /* ---------- gudang (ore mentah), boost semua, bubble di atas pekerja ---------- */
   const gB = $('tambang-gudang');
   function paintGudang(bump) { const g0 = D.gudang(); $('tambang-gcnt').textContent = fmt(g0.used) + '/' + fmt(g0.cap); if (bump) { gB.classList.remove('bump'); void gB.offsetWidth; gB.classList.add('bump'); } }
-  /* ---------- modal bangunan: Gudang / Tungku / Hutan ---------- */
+  /* ---------- DRAWER Tambang (kit "modals"): tab bawah UPGRADE (furnace, produksi, hutan, lift) | GUDANG (peti, klaim, ore, upgrade gudang) ---------- */
   const IC = { gem: 'tambang-world/images/tambang-berlian-hijau.webp', coin: 'tambang-world/images/tambang-ikon-koin-emas.webp' };
-  const cell = (c, n, v) => '<span class="tambang-cell' + (v ? '' : ' z') + '"><i style="background:' + c + '"></i>' + n + '<b>' + fmt(v) + '</b></span>';
-  const stat = (lbl, v, mx, warn) => '<div class="tambang-stat' + (warn ? ' warn' : '') + '"><small>' + lbl + '</small><b>' + fmt(v) + '<em> / ' + fmt(mx) + '</em></b>' + bar(v, mx) + '</div>';
-  const oreRow = (k, inv) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + '<b>' + fmt(inv[k]) + '</b></span>';
   const GOODN = { copper: 'Batang Copper', iron: 'Batang Iron', gold: 'Batang Emas', lapis: 'Lapis Lazuli', amethyst: 'Amethyst', diamond: 'Diamond' }, GOODC = { copper: '#e0804a', iron: '#d6d0c8', gold: '#ffd24d', lapis: '#3a5fe0', amethyst: '#b06cff', diamond: '#6fe8ff' };
-  let gtab = 'peti';
-  const bar = (v, mx) => '<div class="tambang-bar" style="width:auto;margin:6px 0"><i style="width:' + Math.min(100, v / Math.max(1, mx) * 100) + '%"></i></div>';
-  function gudangHTML() {
-    const g = D.gudang(), inv = D.inv(), gd = D.goods();
-    const vals = '<div class="tambang-vals"><span class="tambang-val"><img src="' + IC.gem + '" alt="">' + fmt(D.wallet.gems()) + '</span><span class="tambang-val"><img src="' + IC.coin + '" alt="">' + fmt(D.wallet.coins()) + '</span></div>';
-    const tabs = '';
-    if (gtab === 'hutan') return vals + forestSec();
-    if (gtab === 'up') {
-      const pips = (lv, mx) => '<span class="tambang-pips">' + Array.from({ length: mx }, (_, i) => '<i' + (i < lv ? ' class="on"' : '') + '></i>').join('') + '</span>';
-      const row = (k, nm, desc, cur, nx, cost, lv, mx) => '<div class="tambang-rec up"><div class="nm">' + nm + pips(lv, mx) + '<span class="cur">' + cur + (nx != null ? ' <em>→ ' + nx + '</em>' : ' <em>MAKS</em>') + '</span><small>' + desc + '</small></div>' + (cost == null ? '<button class="go" disabled>MAKS</button>' : '<button class="go' + (D.wallet.coins() < cost ? ' poor' : '') + '" data-gup="' + k + '"><img src="' + IC.coin + '" alt="">' + fmt(cost) + '</button>') + '</div>';
-      return vals + '<div class="tambang-sec"><h4>UPGRADE GUDANG <small>dibayar Koin</small></h4>'
-        + row('cap', 'Kapasitas peti', 'Muatan otomatis dari lift & hutan', fmt(g.cap) + ' item', g.next_cap == null ? null : fmt(g.next_cap), g.next_cap_cost, g.cap_lv, 5)
-        + row('off', 'Waktu offline', 'Pekerja tetap jalan saat kamu pergi', g.off_h + ' jam', g.next_off == null ? null : g.next_off + ' jam', g.next_off_cost, g.off_lv, 2) + '</div>';
-    }
-    const full = g.used >= g.cap, dr = D.drops(), ready = g.used > 0;
-    return '<div class="tambang-stats">' + stat('PETI GUDANG', g.used, g.cap, full) + '</div>'
-      + '<button class="tambang-bigbtn claim" data-claim="1"' + (ready ? '' : ' disabled') + '>' + (ready ? 'KLAIM KE INVENTORI' : 'GUDANG KOSONG') + '</button>'
-      + '<p class="tambang-note">' + (full ? '⚠ Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '.') + '</p>'
-      + '<div class="tambang-sec"><h4>ORE MENTAH <small>antre dilebur</small></h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(ore(k).c, ore(k).n.replace('Ore ', ''), inv[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>HASIL LEBUR</h4><div class="tambang-cells">' + ['copper', 'iron', 'gold'].map((k) => cell(GOODC[k], GOODN[k].replace('Batang ', ''), gd[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>PERMATA <small>tidak dilebur</small></h4><div class="tambang-cells">' + ['lapis', 'amethyst', 'diamond'].map((k) => cell(GOODC[k], GOODN[k].replace(' Lazuli', ''), gd[k])).join('') + '</div></div>'
-      + '<div class="tambang-sec"><h4>BAHAN BAKAR <small>cadangan ' + g.keep.wood + ' kayu · ' + g.keep.coal + ' batu bara tidak ikut diklaim</small></h4><div class="tambang-cells two">' + cell('#8a5a2b', 'Kayu', D.wood()) + cell('#3a3a44', 'Batu Bara', inv.coal) + '</div></div>'
-      + '<p class="tambang-note">Inventori ' + fmt(g.bag) + ' item · Offline: Gudang tetap bekerja maks ' + g.off_h + ' jam</p>';
+  const dr = $('tambang-dr'), drL = $('tambang-dr-l'), drT = $('tambang-dr-t');
+  let drTab = 'up';
+  const cost = (c) => '<span class="ut-dr-cost"><img src="' + IC.coin + '" alt="">' + fmt(c) + '</span>';
+  const gbtn = (lbl, attr, cls) => '<button class="ut-gl ' + cls + ' sm" ' + attr + '>' + lbl + '</button>';
+  const buy = (lbl, attr, c) => c == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(c) + gbtn(lbl, attr, D.wallet.coins() < c ? 'ut-c-d' : 'ut-c-g');
+  const itm = (ic, icCls, nm, sm, meta, z) => '<div class="ut-dr-item' + (z ? ' z' : '') + '"><div class="ut-dr-ic ' + (icCls || '') + '">' + ic + '</div><div class="ut-dr-name">' + nm + (sm ? '<small>' + sm + '</small>' : '') + '</div><div class="ut-dr-meta">' + (meta || '') + '</div></div>';
+  const dot = (c) => '<i style="background:' + c + '"></i>';
+  const wallet = () => '<div class="ut-dr-wal"><span><img src="' + IC.coin + '" alt="">' + fmt(D.wallet.coins()) + '</span><span><img src="' + IC.gem + '" alt="">' + fmt(D.wallet.gems()) + '</span></div>';
+  function drUp() {
+    const fn = D.furnace(), f = D.forest(), l = D.lift(), rg = D.restGlobal(), act = D.smeltActive();
+    const fst = fn.n < 1 ? 'Belum ada — tukang bakar datang sendiri' : rg.resting ? 'Tukang bakar ' + (rg.kind === 'sleep' ? 'tidur 😴' : 'makan 🍖') + ' · lanjut ' + dur(rg.left / 1000) : act ? 'Melebur otomatis 🔥 · antre ' + fmt(D.smeltQueue()) + ' ore' : 'Menunggu ore & bahan bakar';
+    let h = wallet() + '<div class="ut-dr-sec" id="dr-sec-furn">Furnace</div>'
+      + itm('🔥', 'defense', 'Furnace ' + fn.n + '/' + fn.max, fst, fn.next_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : (fn.next_cost === 0 ? '<span class="ut-dr-cost">GRATIS</span>' : cost(fn.next_cost)) + gbtn('BANGUN', 'data-furn="1"', fn.next_cost != null && D.wallet.coins() < fn.next_cost ? 'ut-c-d' : 'ut-c-g'));
+    h += '<div class="ut-dr-sec" id="dr-sec-prod">Produksi <small>kecepatan & peti per tambang</small></div>';
+    D.slots.forEach((s, k) => { const i = k + 1;
+      if (!s.unlocked) { h += itm('⛏', 'army', 'Tambang ' + i, 'Terkunci · ' + f2(s.base_rate) + ' /jam (Lv1)', buy('BUKA', 'data-unl="' + i + '"', s.unlock_cost), true); return; }
+      h += itm('⛏', 'army', 'Tambang ' + i, 'Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + (s.mgr ? ' · 👔' : ''),
+        (s.next_speed_cost == null ? gbtn('KEC. MAKS', 'disabled', 'ut-c-d') : gbtn('KEC. ' + fmt(s.next_speed_cost), 'data-mup="' + i + ':speed"', D.wallet.coins() < s.next_speed_cost ? 'ut-c-d' : 'ut-c-g'))
+        + (s.next_cap_cost == null ? gbtn('PETI MAKS', 'disabled', 'ut-c-d') : gbtn('PETI ' + fmt(s.next_cap_cost), 'data-mup="' + i + ':cap"', D.wallet.coins() < s.next_cap_cost ? 'ut-c-d' : 'ut-c-g'))); });
+    h += '<div class="ut-dr-sec" id="dr-sec-forest">Hutan</div>'
+      + itm('🌲', 'resource', 'Hutan' + (f.workers > 0 ? ' · ' + f.workers + '/' + f.max + ' penebang' : ''), f.workers > 0 ? 'Pohon ' + f.up + '/' + f.total + ' · +' + f.yield + ' kayu/pohon · tumbuh ±' + f.regrow_min + ' mnt' : 'Kayu = bahan bakar Furnace', f.next_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(f.next_cost) + gbtn(f.workers > 0 ? '+ PENEBANG' : 'BUKA', 'data-hire="1"', D.wallet.coins() < f.next_cost ? 'ut-c-d' : 'ut-c-g'));
+    h += '<div class="ut-dr-sec" id="dr-sec-lift">Lift <small>gratis · bisa di-upgrade</small></div>';
+    h += itm('🛗', 'hero', 'Muatan Lv ' + l.cap_lv, fmt(l.cap) + ' ore per angkut', l.next_cap_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(l.next_cap_cost) + gbtn('UPGRADE', 'data-lup="cap"', D.wallet.coins() < l.next_cap_cost ? 'ut-c-d' : 'ut-c-g'));
+    h += itm('🛗', 'hero', 'Kecepatan Lv ' + l.spd_lv, 'kecepatan ×' + l.spd, l.next_spd_cost == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(l.next_spd_cost) + gbtn('UPGRADE', 'data-lup="spd"', D.wallet.coins() < l.next_spd_cost ? 'ut-c-d' : 'ut-c-g'));
+    return h;
   }
-  function invHTML() {
-    const bg = D.bag(), pl = D.sellPlan(), W = D.SELL, rows = [];
-    const price = (pr) => (pr.c ? fmt(pr.c) + ' Koin' : '') + (pr.g ? fmt(pr.g) + ' Emerald' : '');
-    const row = (grp, k, nm, col, q) => { if (q < 1) return; const pr = W[grp][k];
-      rows.push('<div class="tambang-rec up"><div class="nm"><i class="tambang-dot" style="background:' + col + '"></i>' + nm + ' × ' + fmt(q) + '<span class="cur" style="font-size:24px">' + price(pr) + ' <em>/ buah</em></span></div><button class="go" data-sell="' + grp + ':' + k + '">JUAL</button></div>'); };
-    Object.keys(GOODN).forEach((k) => row('goods', k, GOODN[k], GOODC[k], bg.goods[k]));
-    ['copper', 'iron', 'lapis', 'gold', 'amethyst', 'diamond', 'coal'].forEach((k) => row('ore', k, ore(k).n, ore(k).c, bg.inv[k]));
-    row('wood', 'wood', 'Kayu', '#8a5a2b', bg.wood);
-    const pw = D.powers(), pk = Object.keys(pw).filter((k) => pw[k] > 0);
-    const vals = '<div class="tambang-vals"><span class="tambang-val"><img src="' + IC.gem + '" alt="">' + fmt(D.wallet.gems()) + '</span><span class="tambang-val"><img src="' + IC.coin + '" alt="">' + fmt(D.wallet.coins()) + '</span></div>';
-    return vals + (pl.n ? '<button class="tambang-bigbtn claim" data-sellall="1">JUAL SEMUA · +' + (pl.coins ? fmt(pl.coins) + ' Koin' : '') + (pl.coins && pl.gems ? ' ' : '') + (pl.gems ? '+' + fmt(pl.gems) + ' Emerald' : '') + '</button>' : '')
-      + '<div class="tambang-sec"><h4>BARANG <small>' + fmt(D.gudang().bag) + ' item</small></h4>' + (rows.length ? rows.join('') : '<p class="tambang-note">Inventori kosong.<br>Klaim hasil dari Gudang dulu, lalu jual di sini.</p>') + '</div>'
-      + (pk.length ? '<div class="tambang-sec"><h4>POWER-UP <small>hadiah langka · belum bisa dijual</small></h4><div class="tambang-cells">' + pk.map((k) => cell('#ffd24d', powN(k), pw[k])).join('') + '</div></div>' : '');
+  function drGd() {
+    const g = D.gudang(), inv = D.inv(), gd = D.goods(), full = g.used >= g.cap, ready = g.used > 0;
+    const ores = ['copper', 'iron', 'gold'].map((k) => itm(dot(ore(k).c), '', ore(k).n, 'antre dilebur', '<span class="ut-dr-cost">× ' + fmt(inv[k]) + '</span>', !inv[k])).join('');
+    const bars = ['copper', 'iron', 'gold'].map((k) => itm(dot(GOODC[k]), '', GOODN[k], 'hasil lebur', '<span class="ut-dr-cost">× ' + fmt(gd[k]) + '</span>', !gd[k])).join('');
+    const gems = ['lapis', 'amethyst', 'diamond'].map((k) => itm(dot(GOODC[k]), '', GOODN[k], 'permata · tidak dilebur', '<span class="ut-dr-cost">× ' + fmt(gd[k]) + '</span>', !gd[k])).join('');
+    const fuel = itm(dot('#8a5a2b'), '', 'Kayu', 'bahan bakar · cadangan ' + g.keep.wood, '<span class="ut-dr-cost">× ' + fmt(D.wood()) + '</span>', !D.wood()) + itm(dot('#3a3a44'), '', 'Batu Bara', 'bahan bakar · cadangan ' + g.keep.coal, '<span class="ut-dr-cost">× ' + fmt(inv.coal) + '</span>', !inv.coal);
+    const up = (k, nm, desc, cur, nx, c) => itm('📦', 'resource', nm + ' <em>' + cur + '</em>', desc + (nx != null ? ' · → ' + nx : ''), c == null ? gbtn('MAKS', 'disabled', 'ut-c-d') : cost(c) + gbtn('UPGRADE', 'data-gup="' + k + '"', D.wallet.coins() < c ? 'ut-c-d' : 'ut-c-g'));
+    return wallet() + '<div class="ut-dr-sec" style="margin-top:0">Peti Gudang <small>' + fmt(g.used) + ' / ' + fmt(g.cap) + '</small></div>'
+      + '<div class="ut-dr-fillbar' + (full ? ' warn' : '') + '"><i style="width:' + Math.min(100, g.used / Math.max(1, g.cap) * 100) + '%"></i></div>'
+      + '<button class="ut-gl ' + (ready ? 'ut-c-g' : 'ut-c-d') + ' ut-dr-big" data-claim="1"' + (ready ? '' : ' disabled') + '>' + (ready ? 'KLAIM KE INVENTORI ORE' : 'GUDANG KOSONG') + '</button>'
+      + '<p class="ut-dr-note">' + (full ? '⚠ Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '. Hasil klaim masuk Inventori › Ore.') + '</p>'
+      + '<div class="ut-dr-sec">Ore mentah</div>' + ores + '<div class="ut-dr-sec">Hasil lebur</div>' + bars + '<div class="ut-dr-sec">Permata</div>' + gems + '<div class="ut-dr-sec">Bahan bakar</div>' + fuel
+      + '<div class="ut-dr-sec" id="dr-sec-gup">Upgrade Gudang <small>dibayar Koin</small></div>'
+      + up('cap', 'Kapasitas peti', 'Muatan otomatis dari lift & hutan', fmt(g.cap) + ' item', g.next_cap == null ? null : fmt(g.next_cap), g.next_cap_cost)
+      + up('off', 'Waktu offline', 'Pekerja tetap jalan saat kamu pergi', g.off_h + ' jam', g.next_off == null ? null : g.next_off + ' jam', g.next_off_cost)
+      + '<button class="ut-gl ut-c-b ut-dr-big" data-goinv="1">BUKA INVENTORI ORE</button><p class="ut-dr-note">Jual ore, batang, dan permata di Inventori › Ore.</p>';
   }
-  function forestSec() {
-    const f = D.forest(), open = f.workers > 0;
-    return '<div class="tambang-sec"><h4>HUTAN · ' + (open ? 'penebang ' + f.workers + ' / ' + f.max : 'belum dibuka') + '</h4>'
-      + '<p>' + (open ? 'Pohon berdiri ' + f.up + ' / ' + f.total + ' · +' + f.yield + ' kayu per pohon, tumbuh lagi ±' + f.regrow_min + ' menit.' : 'Buka hutan dengan mempekerjakan penebang pertama. Kayu dipakai sebagai bahan bakar Furnace.') + '</p></div>'
-      + (f.next_cost == null ? '<button class="tambang-bigbtn" disabled>Penebang MAKS</button>' : '<button class="tambang-bigbtn' + (D.wallet.coins() < f.next_cost ? ' poor' : '') + '" data-hire="1">' + (open ? 'Tambah penebang' : 'Buka Hutan') + ' · ' + fmt(f.next_cost) + ' Koin</button>');
+  function drRender() {
+    if (!dr.classList.contains('on')) return;
+    const st = drL.scrollTop; drT.textContent = drTab === 'up' ? 'Upgrade' : 'Gudang';
+    drL.innerHTML = drTab === 'up' ? drUp() : drGd(); drL.scrollTop = st;
+    dr.querySelectorAll('.ut-dr-tab').forEach((b) => b.classList.toggle('on', b.dataset.dt === drTab));
   }
-  function tungkuHTML() {
-    const inv = D.inv(), fu = D.fuelUnits(), fn = D.furnace(), act = D.smeltActive(), rg = D.restGlobal();
-    const rows = Object.keys(D.RECIPES).map((id) => { const r = D.RECIPES[id];
-      return '<div class="tambang-rec"><img src="' + r.ic + '" alt=""' + (r.fl ? ' style="filter:' + r.fl + '"' : '') + '><div class="nm">' + ore(r.ore).n + ' × ' + fmt(inv[r.ore]) + '<small>+' + r.qty + ' ' + r.n + ' · bakar ' + r.fuel + '</small></div></div>'; }).join('');
-    const up = fn.next_cost == null ? '<button class="tambang-bigbtn" disabled>Furnace MAKS (3)</button>' : '<button class="tambang-bigbtn' + (D.wallet.coins() < fn.next_cost ? ' poor' : '') + '" data-furn="1">Bangun Furnace ke-' + (fn.n + 1) + ' · ' + (fn.next_cost === 0 ? 'GRATIS' : fmt(fn.next_cost) + ' Koin') + '</button>';
-    const st = fn.n < 1 ? 'Bangun furnace; tukang bakar datang sendiri.' : rg.resting ? 'Tukang bakar ' + (rg.kind === 'sleep' ? 'tidur 😴' : 'makan 🍖') + ' · lanjut ' + dur(rg.left / 1000) : act ? 'Melebur otomatis 🔥 · antre ' + fmt(D.smeltQueue()) + ' ore' : (D.smeltQueue() < 1 ? 'Menunggu ore dari lift.' : 'Bahan bakar kurang — tunggu penebang kirim kayu.');
-    return '<div class="tambang-sec" style="margin-top:0"><h4>FURNACE ' + fn.n + ' / ' + fn.max + '</h4><p>' + st + '</p></div>' + up
-      + '<div class="tambang-sec"><h4>BAHAN BAKAR · tenaga ' + fmt(fu) + '</h4><p>Kayu ' + fmt(D.wood()) + ' (×' + D.FUEL.wood + ') · Batu bara ' + fmt(inv.coal) + ' (×' + D.FUEL.coal + '). Hasil masuk Gudang lalu di-Klaim.</p></div>'
-      + '<div class="tambang-sec"><h4>RESEP · otomatis</h4>' + rows + '</div>';
+  function openDrawer(tab, sec) {
+    drTab = tab; dr.classList.add('on'); drL.scrollTop = 0; drRender();
+    const t = sec && $('dr-sec-' + sec); if (t) drL.scrollTop = Math.max(0, t.offsetTop - 12);
   }
-  const BLD = { gudang: ['Gudang', () => { gtab = 'peti'; return gudangHTML(); }], inventori: ['Inventori', invHTML], gupgrade: ['Upgrade Gudang', () => { gtab = 'up'; return gudangHTML(); }], hutan: ['Hutan', () => { gtab = 'hutan'; return gudangHTML(); }], tungku: ['Furnace', tungkuHTML] };
-  let bldOpen = null;
-  function openBuilding(bid) { if (!BLD[bid]) return; ask(BLD[bid][0], BLD[bid][1](), 'TUTUP', '', null); md.classList.add('bld'); bldOpen = bid; $('tambang-m-no').addEventListener('click', clearBld, { once: true }); }
-  function clearBld() { bldOpen = null; }
-  function rerender() { if (bldOpen && md.classList.contains('on')) $('tambang-mx').innerHTML = BLD[bldOpen][1](); }
-  MW.ui.onWood = function (n) { if (n > 0) toast('+' + n + ' kayu'); paintGudang(true); rerender(); };
-  $('tambang-mx').addEventListener('click', async (e) => {
-        if (e.target.closest('[data-claim]')) {
+  function closeDrawer() { dr.classList.remove('on'); }
+  const BLD_MAP = { gudang: ['gd'], gupgrade: ['gd', 'gup'], tungku: ['up', 'furn'], hutan: ['up', 'forest'] };
+  function openBuilding(bid) { if (bid === 'inventori') { nav('inventory', 'inventory.html?tab=ore'); return; } const m = BLD_MAP[bid]; if (m) openDrawer(m[0], m[1]); }
+  MW.ui.onWood = function (n) { if (n > 0) toast('+' + n + ' kayu'); paintGudang(true); drRender(); };
+  $('tambang-dr-x').addEventListener('click', closeDrawer);
+  dr.addEventListener('click', (e) => { if (e.target === dr) closeDrawer(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dr.classList.contains('on') && !md.classList.contains('on')) closeDrawer(); });
+  dr.querySelectorAll('.ut-dr-tab').forEach((b) => b.addEventListener('click', () => { D.feedback(); drTab = b.dataset.dt; drL.scrollTop = 0; drRender(); }));
+  drL.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-goinv]')) { nav('inventory', 'inventory.html?tab=ore'); return; }
+    if (e.target.closest('[data-claim]')) {
       const r = await D.claim(); D.feedback();
-      if (!r.ok) toast(D.MSG[r.reason] || 'Gagal', true); else { toast('+' + fmt(r.moved) + ' item masuk inventori'); MW.debris.spawn(new THREE.Vector3(28.6, MW.GROUND + 2, 1.8), 0x2fe07a, 14); }
-      paintGudang(true); rerender(); return;
+      if (!r.ok) toast(D.MSG[r.reason] || 'Gagal', true); else { toast('+' + fmt(r.moved) + ' item masuk Inventori › Ore'); MW.debris.spawn(new THREE.Vector3(28.6, MW.GROUND + 2, 1.8), 0x2fe07a, 14); }
+      paintGudang(true); drRender(); return;
     }
-    const sl = e.target.closest('[data-sell]');
-    if (sl) { const q = sl.dataset.sell.split(':'), r = await D.sellItem(q[0], q[1]); D.feedback(); if (r.ok) { toast('Terjual ' + fmt(r.n) + ' · +' + (r.coins ? fmt(r.coins) + ' Koin' : '') + (r.gems ? ' +' + fmt(r.gems) + ' Emerald' : '')); paintCur(); } else toast(D.MSG[r.reason] || 'Gagal', true); rerender(); return; }
-    if (e.target.closest('[data-sellall]')) { const r = await D.sellAll(); D.feedback(); if (r.ok) { toast('Terjual ' + fmt(r.n) + ' barang · +' + (r.coins ? fmt(r.coins) + ' Koin' : '') + (r.gems ? ' +' + fmt(r.gems) + ' Emerald' : '')); paintCur(); MW.debris.spawn(new THREE.Vector3(16, MW.GROUND + 2, 2), 0xffd24d, 20); } else toast(D.MSG[r.reason] || 'Gagal', true); rerender(); return; }
+    const mu = e.target.closest('[data-mup]'); if (mu && !mu.disabled) { const q = mu.dataset.mup.split(':'); pre(+q[0], q[1]); return; }
+    const un = e.target.closest('[data-unl]'); if (un && !un.disabled) { pre(+un.dataset.unl, 'unlock'); return; }
+    const lu = e.target.closest('[data-lup]'); if (lu && !lu.disabled) { liftPre(lu.dataset.lup); return; }
     const gu = e.target.closest('[data-gup]');
-    if (gu && !gu.disabled) { const r = await D.gudangUp(gu.dataset.gup); D.feedback(); if (r.ok) { toast('Gudang di-upgrade!'); paintCur($('tambang-cur-co')); } else toast(D.MSG[r.reason] || 'Koin tidak cukup', true); paintGudang(); rerender(); return; }
+    if (gu && !gu.disabled) { const r = await D.gudangUp(gu.dataset.gup); D.feedback(); if (r.ok) { toast('Gudang di-upgrade!'); paintCur($('tambang-cur-co')); } else toast(D.MSG[r.reason] || 'Koin tidak cukup', true); paintGudang(); drRender(); return; }
     if (e.target.closest('[data-furn]')) {
       const fn = D.furnace(); if (fn.next_cost == null) return;
       if (D.wallet.coins() < fn.next_cost) { toast('Koin tidak cukup', true); return; }
-      const r = await D.furnaceUp(); if (r.ok) { toast(D.furnace().n === 1 ? 'Furnace pertama dibangun (gratis)!' : 'Furnace baru dibangun!'); paintCur($('tambang-cur-co')); MW.debris.spawn(new THREE.Vector3(7.2 + 3.8 * (D.furnace().n - 1) + 0.0, MW.GROUND + 1.5, 1.4), 0xff9a3a, 16); } else toast(D.MSG[r.reason] || 'Gagal', true); rerender(); return;
+      const r = await D.furnaceUp(); if (r.ok) { toast(D.furnace().n === 1 ? 'Furnace pertama dibangun (gratis)!' : 'Furnace baru dibangun!'); paintCur($('tambang-cur-co')); MW.debris.spawn(new THREE.Vector3(7.2 + 3.8 * (D.furnace().n - 1), MW.GROUND + 1.5, 1.4), 0xff9a3a, 16); } else toast(D.MSG[r.reason] || 'Gagal', true); drRender(); return;
     }
     if (e.target.closest('[data-hire]')) {
       const f = D.forest(); if (f.next_cost == null) return;
       if (D.wallet.coins() < f.next_cost) { toast('Koin tidak cukup', true); return; }
-      const r = await D.hire(); if (r.ok) { toast(D.forest().workers === 1 ? 'Hutan dibuka! Penebang pertama bergabung' : 'Penebang baru bergabung!'); paintCur($('tambang-cur-co')); } else toast(D.MSG[r.reason] || 'Gagal', true); rerender();
+      const r = await D.hire(); if (r.ok) { toast(D.forest().workers === 1 ? 'Hutan dibuka! Penebang pertama bergabung' : 'Penebang baru bergabung!'); paintCur($('tambang-cur-co')); } else toast(D.MSG[r.reason] || 'Gagal', true); drRender();
     }
   });
   gB.addEventListener('click', () => openBuilding('gudang'));
-  $('tambang-inv').addEventListener('click', () => openBuilding('inventori')); $('tambang-furn').addEventListener('click', () => openBuilding('tungku')); $('tambang-gup').addEventListener('click', () => openBuilding('gupgrade')); $('tambang-forest').addEventListener('click', () => openBuilding('hutan'));
+  $('tambang-furn').addEventListener('click', () => openBuilding('tungku')); $('tambang-gup').addEventListener('click', () => openDrawer('up')); $('tambang-forest').addEventListener('click', () => openBuilding('hutan'));
   $('tambang-mclose').addEventListener('click', () => $('tambang-m-no').click());
   $('tambang-boostall').addEventListener('click', () => {
     const p = D.boostPlan();
