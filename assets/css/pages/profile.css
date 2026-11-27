@@ -26,7 +26,7 @@ button.sr,button.kr,#rank,#pet,#hid,.ecell{background:none;border:0;padding:0;co
 
 /* kiri: foto karakter */
 #mid{position:absolute;left:0;top:0;width:470px;height:470px}
-#art{position:absolute;left:-10px;top:-26px;width:490px;height:496px;pointer-events:none;filter:brightness(.82) saturate(1.05) contrast(1.04)}
+#art{position:absolute;left:-10px;top:-26px;width:490px;height:496px;pointer-events:none;filter:brightness(.82) saturate(1.05) contrast(1.04);clip-path:inset(26px 10px 16px 26px)}   /* dipotong di tepi dalam kartu (inset 16px): badan keluar rapi dari bawah bingkai, tidak menimpa border */
 #mid::after{content:"";position:absolute;right:0;top:20px;bottom:20px;width:2px;background:linear-gradient(transparent,rgba(255,255,255,.25),transparent);pointer-events:none}
 
 /* tengah: [level kecil] [nama + emoji di sampingnya] / ID; tanpa bar progres */
