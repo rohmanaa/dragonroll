@@ -61,8 +61,9 @@ button.sr,button.kr,#rank,#pet,#hid,.ecell{background:none;border:0;padding:0;co
 
 /* kanan: pose pet (gambar statis, bukan model hidup) */
 #pet{position:absolute;left:1270px;top:24px;width:430px;height:422px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:18px;
-  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:3px solid rgba(255,255,255,.14);overflow:visible;transition:filter .1s}
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.14),rgba(10,6,24,.35));border:0;outline:0;overflow:visible;transition:filter .1s}
 #pet:hover{filter:brightness(1.1)}
+#phub #pet:focus-visible{outline:0}
 /* foto pet sengaja lebih besar dari kotaknya: kepala/sayap boleh sedikit keluar dari kartu */
 #pet .pimg{position:absolute;left:-44px;right:-44px;top:-56px;bottom:48px;background:center/contain no-repeat;filter:drop-shadow(0 10px 8px rgba(0,0,0,.5))}
 #pet.empty .pimg{opacity:.35;filter:grayscale(1)}

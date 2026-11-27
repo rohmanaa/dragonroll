@@ -218,7 +218,7 @@ $('#egrid').onclick = ev => { const c = ev.target.closest('.ecell'); if (!c) ret
 $('#epick').onclick = ev => { if (ev.target === $('#epick')) $('#epick').classList.remove('on'); };
 
 /* ---- kanan: KOLEKSI (dimiliki / total katalog) ---- */
-const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html"]];
+const KOL=[["Karakter","skin","item-icons/helm-ksatria.webp","#e5604e","karakter.html"],["Frame","frame","feature-icons/frame.webp","#e89a52","#frame"],["Dadu","dice","feature-icons/dadu.webp","#3fc6a8","dadu.html"],["Efek","aura","gem-medal-icons/kristal-api.webp","#d26f9c","efek.html?from=profile.html"],["Power-up","powerup","gem-medal-icons/petir-ungu.webp","#4db3e6","inventory.html?tab=power"],["Pet","pet","lobby/pet.webp","#b07cff","pet.html?from=profile.html"]];
 function drawKol() {
   $('#kol').innerHTML = KOL.map(([n, k, ic, c, u]) => { const a = owned(k), t = Math.max(total(k), a); return `<button class="kr" data-u="${u}" style="--c:${c}"><div class="ic"><img src="${K}${ic}" alt=""></div><div class="nm">${n}</div><em>${a}/${t}</em></button>`; }).join('');
 }
