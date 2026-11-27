@@ -33,3 +33,12 @@
 .ut-mk-x::before { transform: rotate(45deg); }
 .ut-mk-x::after { transform: rotate(-45deg); }
 .ut-mk-x > img { display: none; }
+
+/* Tanpa scrollbar di modal: isi tetap bisa digulir (roda/sentuh/seret), tapi bilah tidak pernah tampil.
+   Dulu bilah muncul sesaat saat modal dibuka (animasi pop/scale membuat isi sempat melebihi kotak) walau ukurannya sebenarnya pas. */
+.ut-mk, .ut-mk *, .ov > .box, .ov > .box *, #md #box, #md #box *, .gd-dlg, .gd-dlg * { scrollbar-width: none; -ms-overflow-style: none; }
+.ut-mk::-webkit-scrollbar, .ut-mk *::-webkit-scrollbar,
+.ov > .box::-webkit-scrollbar, .ov > .box *::-webkit-scrollbar,
+#md #box::-webkit-scrollbar, #md #box *::-webkit-scrollbar,
+.gd-dlg::-webkit-scrollbar, .gd-dlg *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.ut-mk, .ov > .box { overflow-x: hidden; overscroll-behavior: contain; }
