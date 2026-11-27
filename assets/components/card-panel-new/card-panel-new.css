@@ -1,8 +1,9 @@
-/* card-panel-new.css — "card-panel-new": kotak isi bergaya "Contoh Popup" (referensi/component/game-cards.html) versi gelap:
-   tepi hitam, ring dalam, kilap dua tingkat, isi abu sangat gelap. Dipakai untuk kotak-kotak di dalam panel (mis. Statistik & Koleksi Profil).
-   Hanya tampilan kotak (latar, tepi, bayangan); tata letak isi diatur halaman. */
-.card-panel-new{box-sizing:border-box;position:relative;border:3px solid #000;border-radius:14px;color:#fff;
-  background:#26262b;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.14),inset 0 3px 0 rgba(255,255,255,.2),inset 0 -4px 0 rgba(0,0,0,.35),0 3px 0 rgba(0,0,0,.4)}
+/* card-panel-new.css — "card-panel-new": panel bergaya "Contoh Popup" (referensi/component/game-cards.html) tapi isinya gelap.
+   Ada DUA bagian seperti contohnya: LUAR = bingkai glossy (tepi hitam, ring, kilap dua tingkat, abu gelap #4a4a4a/#303030),
+   DALAM = isi (lapisan ::before, inset 8px) berwarna gelap SOLID, tanpa kilap (contoh aslinya krem). Tata letak isi diatur halaman. */
+.card-panel-new{box-sizing:border-box;position:relative;isolation:isolate;border:3px solid #000;border-radius:18px;color:#fff;
+  background:linear-gradient(#4a4a4a 0 50%,#303030 50%);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
+.card-panel-new::before{content:"";position:absolute;inset:8px;border-radius:12px;background:#262626;z-index:-1;pointer-events:none}
 /* .deep = isi lebih gelap lagi (pratinjau / detail / latar foto) */
-.card-panel-new.deep{background:#17171b}
+.card-panel-new.deep::before{background:#161616}
