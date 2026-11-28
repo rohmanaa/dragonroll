@@ -43,7 +43,7 @@
   const md = $('tambang-md');
   $('tambang-reset').addEventListener('click', () => ask('Reset Tambang', 'Semua objek kembali ke susunan awal.<br>Lanjutkan?', 'BATAL', 'RESET', () => { $('tambang-fade').classList.add('on'); setTimeout(() => location.reload(), 360); }));
   const D = MW.data, fmt = (n) => Number(n).toLocaleString('id-ID'), f1 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), f2 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const ORI = 'tambang-world/images/tambang-kristal-heksagon.webp', EM = 'tambang-world/images/tambang-berlian-hijau.webp', CN = 'tambang-world/images/tambang-ikon-koin-emas.webp';
+  const ORI = 'assets/images/ui/item-icons/ore-iron.webp', EM = 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', CN = 'assets/images/ui/hud/ikon-koin-emas.webp';
   /* navigasi: Kembali ke halaman asal (?from=, daftar putih seperti repo), Home ke lobby, Coin ke toko. Di luar game hanya memicu event. */
   const FROM_OK = ['lobby', 'karakter', 'frame', 'dadu', 'efek', 'powerup', 'profile', 'leaderboard', 'friendship', 'shop', 'mode', 'misi', 'hadiah-misi', 'dailyreward', 'settings', 'mail'];
   const FROM = (() => { const f = new URLSearchParams(location.search).get('from') || '', m = /^([a-z-]+)\.html$/.exec(f); return m && FROM_OK.indexOf(m[1]) >= 0 ? f : 'lobby.html'; })();
@@ -268,7 +268,7 @@
   const dur = (s) => { s = Math.max(0, Math.round(s)); if (s < 60) return s <= 1 ? '<1m' : s + 'd'; const m = Math.floor(s / 60), h = Math.floor(m / 60); return h >= 24 ? Math.floor(h / 24) + ' hr ' + (h % 24) + 'j' : h ? h + 'j ' + (m % 60) + 'm' : m + 'm'; };
   const q = (sel) => card.querySelector(sel);
   const ore = (k) => D.ORES[k];
-  const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore"><i style="background:' + ore(k).c + '"></i>' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
+  const mixHTML = (m) => Object.keys(m || {}).map((k) => '<span class="tambang-ore">' + (UT.ItemIcon && UT.ItemIcon.src('ore-' + k) || k === 'coal' ? UT.ItemIcon.html(k === 'coal' ? 'coal' : 'ore-' + k) : '<i style="background:' + ore(k).c + '"></i>') + ' ' + ore(k).n.replace('Ore ', '') + ' ' + Math.round(m[k] * 100) + '%</span>').join('');
   function liftHTML() {
     const l = D.lift();
     if (!l.on) return '<div class="hd tambang-ttl">LIFT</div><img class="gm" src="tambang-world/images/tambang-gembok-besar.webp" alt=""><div class="msg">Lift terkunci.<small>Buka lift untuk mengangkut ore dari Tambang 2–6 ke gudang.</small></div><button class="ut-gl ut-c-y tambang-btn opn" data-lift="unlock"><img src="tambang-world/images/tambang-tombol-kuning-polos.webp" alt=""><span><img src="' + CN + '" alt="">' + fmt(l.unlock_cost) + '</span></button>';
@@ -413,7 +413,7 @@
   const gB = $('tambang-gudang');
   function paintGudang(bump) { const g0 = D.gudang(); $('tambang-gcnt').textContent = fmt(g0.used) + '/' + fmt(g0.cap); if (bump) { gB.classList.remove('bump'); void gB.offsetWidth; gB.classList.add('bump'); } }
   /* ---------- DRAWER Tambang (kit "modals"): tab bawah UPGRADE (furnace, produksi, hutan, lift) | GUDANG (peti, klaim, ore, upgrade gudang) ---------- */
-  const IC = { gem: 'tambang-world/images/tambang-berlian-hijau.webp', coin: 'tambang-world/images/tambang-ikon-koin-emas.webp' };
+  const IC = { gem: 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', coin: 'assets/images/ui/hud/ikon-koin-emas.webp' };
   const GOODN = { copper: 'Batang Copper', iron: 'Batang Iron', gold: 'Batang Emas', lapis: 'Lapis Lazuli', amethyst: 'Amethyst', diamond: 'Diamond' }, GOODC = { copper: '#e0804a', iron: '#d6d0c8', gold: '#ffd24d', lapis: '#3a5fe0', amethyst: '#b06cff', diamond: '#6fe8ff' };
   const ico = (k) => (UT.ItemIcon ? UT.ItemIcon.html(k) : '');
   $('tambang-boostall').firstElementChild.innerHTML = ico('boost') + 'BOOST SEMUA';
