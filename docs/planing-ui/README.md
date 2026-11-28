@@ -50,15 +50,25 @@ Tombol aksi `ut-gl` sesuai warna; bila aksi merah, BATAL jadi `d` (gelap). Hapus
 
 Selesai bila: tiap dialog punya fokus awal, Tab terkurung, `Esc` menutup, `inert` di luar; tangkapan layar 1920×1080 & 1080×1920 sebelum/sesudah.
 
-## 5. Keputusan terbuka (perlu jawabanmu)
+## 5. Keputusan (sudah dijawab 28 Nov 2026)
 
-1. **Power-up sebagai view?** Sekarang tab Inventory di iframe. Menjadikannya view = ubah tes `spa-host` (`viewName('powerup.html') === null`), tambah importmap three ke `play.html`, ubah `powerup.js` jadi `UT.PageModule` (±150 baris, ada 3D & audio). Kerja sedang–besar; manfaat: pindah tab Power-up tanpa iframe.
-2. **Tambang & Gameplay tetap di luar shell?** Kode saat ini begitu. Tidak ada rencana mengubah.
-3. **Gold Pass & Storage di Profil:** belum ada datanya (hati ada di `HeartsService`; kapasitas Gudang ada di `tambang-data.js`). Mau dihidupkan lagi sebagai kartu terpisah, atau tetap dihapus?
-4. **Gambar `kartu-toko-landscape.webp`:** sudah tidak dipakai kode mana pun; hapus file? Sama untuk aset bingkai lama yang yatim.
-5. **Folder `docs/planing/` lama** (audit ekonomi): hapus atau pertahankan sebagai arsip?
+1. **Power-up tetap di Inventory sebagai tab (iframe).** Tidak dijadikan view SPA; tes `spa-host` tidak diubah. Prioritas: navigasi lancar.
+2. **Tambang & Gameplay tetap di luar shell.**
+3. **Gold Pass & Storage di Profil dihapus** dari rencana Profil. Gold Pass dipindah ke rencana event mingguan (bagian 7).
+4. **Folder `docs/planing/` lama dihapus** (audit ekonomi ikut hilang; riwayat git masih menyimpannya).
+5. Aset yatim (`kartu-toko-landscape.webp` dan bingkai lama): belum diputuskan, bersihkan setelah modal kit selesai.
 
 ## 6. Urutan kerja yang disarankan
 
-1 (kamu) → 2 → 3 → 4.1 → 4.2–4.4 → 4.5 → keputusan 5.1 → 4.6.
+1 (kamu) → 2 → 3 → 4.1 → 4.2–4.4 → 4.5 → 4.6.
 Tiap langkah satu commit + SW +1. Tangkapan layar & klik-uji dikerjakan per halaman sebelum commit.
+
+## 7. Rencana nanti: event mingguan & Gold Pass (belum dikerjakan)
+
+Ide: peti di Lobby tidak hanya terbuka karena "main sekian kali", tetapi lewat misi mingguan. Gold Pass jadi jalur hadiah event ini.
+
+- **Misi mingguan (contoh):** naik tangga N kali · turun ular N kali · menang N kali · kalah N kali · main N kali.
+- **Hadiah:** peti, dan hadiah khusus (mis. frame eksklusif) — daftar hadiah menyusul.
+- **Gold Pass:** jalur hadiah tambahan di event; bentuk dan harga belum ditentukan.
+- **Yang perlu diputuskan nanti:** hari reset mingguan, penyimpanan progres (lokal atau server), cara menghitung tangga/ular di data game, tampilan di Lobby dan Profil.
+- Jangan dikerjakan sebelum bagian 1–4 selesai.
