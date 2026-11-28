@@ -14,9 +14,10 @@
   ];
   var CSS = '#oreBox{width:min(720px,94vw);margin:0 auto}.iore{padding:10px 12px 24px;color:#fff;font-family:var(--ut-font-body,Nunito,sans-serif)}.iore h4{margin:14px 4px 6px;font:400 22px var(--ut-font-title,"Lilita One",sans-serif);color:#eadcc0;text-shadow:0 2px 0 #000}'
     + '.iore .r{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px;border:2px solid #2b1f12;border-radius:12px;background:linear-gradient(180deg,#8d7352 0 50%,#7a6243 50% 100%)}'
-    + '.iore .c{flex:none;width:34px;height:34px;border:2px solid #000;border-radius:8px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.25)}.iore .n{flex:1;min-width:0;font:400 20px/1.15 var(--ut-font-title,"Lilita One",sans-serif);text-shadow:0 2px 0 #000}.iore .n small{display:block;font:800 13px var(--ut-font-body,Nunito,sans-serif);color:#efe5d0}'
+    + '.iore .c{flex:none;width:48px;height:48px;display:grid;place-items:center}.iore .c .ut-ic{width:48px;height:48px}.iore .n{flex:1;min-width:0;font:400 20px/1.15 var(--ut-font-title,"Lilita One",sans-serif);text-shadow:0 2px 0 #000}.iore .n small{display:block;font:800 13px var(--ut-font-body,Nunito,sans-serif);color:#efe5d0}'
     + '.iore .ut-gl{min-width:84px;min-height:38px;padding:0 12px;font:400 17px var(--ut-font-title,"Lilita One",sans-serif);--gl-bw:3px;--gl-r:11px;--gl-ledge:4px;margin-bottom:4px;cursor:pointer}'
     + '.iore .all{display:block;width:100%;min-height:52px;margin:6px 0 10px;font-size:22px}.iore .msg{min-height:20px;margin:4px 6px;font:800 14px var(--ut-font-body,Nunito,sans-serif);color:#fff3a8;text-shadow:0 1px 0 #000}.iore .emp{text-align:center;padding:28px 10px;font:800 16px var(--ut-font-body,Nunito,sans-serif);color:#eadcc0}';
+  function iconKey(g, k) { if (g === 'wood') return 'wood'; if (k === 'coal') return 'coal'; if (g === 'ore') return 'ore-' + k; return (k === 'copper' || k === 'iron' || k === 'gold') ? 'ingot-' + k : 'gem-' + k; }
   var fmt = function (n) { return Number(n).toLocaleString('id-ID'); };
   var busy = false;
   function svc() { return UT.TambangService && UT.TambangService.get && UT.TambangService.get(); }
@@ -28,7 +29,7 @@
     CAT.forEach(function (s) {
       var rows = '';
       s.items.forEach(function (it) { var q = qty(b, s.grp, it[0]); if (q < 1) return; total += q * it[3]; n += q;
-        rows += '<div class="r"><i class="c" style="background:' + it[2] + '"></i><div class="n">' + it[1] + ' × ' + fmt(q) + '<small>' + fmt(it[3]) + ' Koin / buah</small></div><button class="ut-gl ut-c-g" type="button" data-sell="' + s.grp + ':' + it[0] + ':' + q + '">JUAL</button></div>'; });
+        rows += '<div class="r"><i class="c">' + (UT.ItemIcon ? UT.ItemIcon.html(iconKey(s.grp, it[0])) : '') + '</i><div class="n">' + it[1] + ' × ' + fmt(q) + '<small>' + fmt(it[3]) + ' Koin / buah</small></div><button class="ut-gl ut-c-g" type="button" data-sell="' + s.grp + ':' + it[0] + ':' + q + '">JUAL</button></div>'; });
       if (rows) h += '<h4>' + s.sec + '</h4>' + rows;
     });
     if (!n) return empty('Belum ada ore. Klaim dari Gudang di Tambang, hasilnya muncul di sini.');

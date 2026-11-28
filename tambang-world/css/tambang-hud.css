@@ -296,7 +296,8 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 #tambang-tools .tambang-btn{width:300px}
 #tambang-gudang{position:absolute;right:28px;bottom:26px;width:132px;height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:5}
 #tambang-gudang .ico{position:relative;display:grid;place-items:center;height:72px}
-#tambang-gudang .ico img{max-height:76px;max-width:84px;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
+#tambang-gudang .ico img{max-height:92px;max-width:100px;width:auto;filter:drop-shadow(0 4px 3px rgba(0,0,0,.45))}
 #tambang-gudang .lb{font:400 22px/1 var(--tambang-font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55)}
 #tambang-gudang .nb{position:absolute;right:-30px;top:-14px;min-width:34px;padding:2px 8px;border:3px solid #000;border-radius:14px;background:#e53935;color:#fff;font:400 20px/1.2 var(--tambang-font-title);white-space:nowrap}
 #tambang-gudang.bump{animation:tambang-bump .4s}
+.tambang-mgrb b .ut-ic,.tambang-mgr b .ut-ic{width:1.5em;height:1.5em;margin:-.2em .1em -.2em 0}
