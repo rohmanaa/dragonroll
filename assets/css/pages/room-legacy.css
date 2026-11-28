@@ -148,9 +148,3 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .pl.lock:hover{filter:brightness(1.2)}.pl.lock:active{transform:scale(.98)}
 /* latar voxel malam (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
-
-/* tombol kembali di kanan atas; KELUAR di sebelah kirinya */
-#back{left:auto;right:26px}
-#leave{right:116px}
-#title{left:40px}
-#chips{left:42px}
