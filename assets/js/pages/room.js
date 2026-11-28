@@ -165,8 +165,8 @@ function renderPower(){
  $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';
  $('#prow').innerHTML=Array.from({length:TMAX},(_,i)=>{
   const id=PW.equipped[i],p=id&&IC.byId(id);
-  return p?`<div class="ps full"><button type="button" class="ps-main" data-slot="${i}" aria-label="Ganti ${esc(p.name)}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="pn">${esc(p.name)}</span></button><button type="button" class="x ut-gl ut-c-r sm" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
-   :`<div class="ps"><button type="button" class="ps-main" data-slot="${i}" aria-label="Pilih Power"><b>+</b></button></div>`;
+  return p?`<div class="ps full"><button type="button" class="ps-main ut-slot" data-slot="${i}" aria-label="Ganti ${esc(p.name)} — dibawa ×${PW.carry[id]||1}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="chip-n">${PW.carry[id]||1}</span></button><button type="button" class="x ut-gl ut-c-r sm" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
+   :`<div class="ps"><button type="button" class="ps-main ut-slot add" data-slot="${i}" aria-label="Pilih Power"><b>+</b></button></div>`;
  }).join('');
  $('#pinfo').textContent=ONLINE?'Mode online: pilihan Power tidak dikirim ke room.':(PW.equipped.length?PW.equipped.map(id=>(IC.byId(id)||{}).name).filter(Boolean).join(' · '):'Pilih hingga '+TMAX+' Power untuk dibawa.');
 }
