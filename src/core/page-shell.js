@@ -33,7 +33,24 @@ window.UT = window.UT || {};
 
   UT.PageShell.FONT_PRELOAD = ['assets/fonts/lilita-one-latin-400-normal.woff2', 'assets/fonts/nunito-latin-600-normal.woff2', 'assets/fonts/nunito-latin-800-normal.woff2'];
 
+  /* document.write hanya valid selama dokumen masih diparse (skrip klasik inline). Entry boot berupa ES module
+     (deferred) berjalan setelah parse selesai: di sana Chrome memblokir document.write ("asynchronously-loaded external script"),
+     sehingga session.js/font/prefs diam-diam tidak pernah dimuat. Fallback: injeksi DOM; skrip async=false agar urutan eksekusi terjaga. */
+  function canDocWrite() { return !doc.readyState || doc.readyState === 'loading'; }
+
+  function injectTag(tagName, attrs) {
+    var el = doc.createElement(tagName);
+    Object.keys(attrs || {}).forEach(function (key) {
+      var value = attrs[key];
+      if (value === null || value === undefined || value === false) return;
+      el.setAttribute(key, value === true ? '' : String(value));
+    });
+    if (tagName === 'script') el.async = false;
+    (doc.head || doc.documentElement).appendChild(el);
+  }
+
   UT.PageShell.writeTag = function (tagName, attrs, text) {
+    if (!canDocWrite() && !text) { injectTag(tagName, attrs); return; }
     var out = '<' + tagName;
     Object.keys(attrs || {}).forEach(function (key) {
       var value = attrs[key];

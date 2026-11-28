@@ -3,6 +3,7 @@ import '../core/session.js';
 import '../boot/boot-guard.js';
 import '../boot/landscape.js';
 import '../gameplay/js/hud-scale.js';
+import '../vendor/three.min.js'; /* THREE global (r128) — dulu <script src> klasik di gameplay.html, hilang saat konversi ke boot module; wajib sebelum three-fallback.js & main.js */
 import '../gameplay/js/three-fallback.js';
 import '../core/item-registry.js';
 import '../../data/inventory/aura/nature/manifest.js';
