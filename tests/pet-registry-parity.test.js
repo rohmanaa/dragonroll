@@ -283,7 +283,7 @@ t('pet.html: item-registry.js -> 7 manifest -> pet/index.js -> item-catalog.js -
 });
 t('pet.html: simulasi urutan tag -> petSource = registry, katalog = baseline', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w; const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  srcs(rd('pet.html')).filter(f => /^assets\/js\/(?:core\/(?:item-registry|session)|item-catalog)\.js$|^data\/inventory\/pet\/(?:items\/[^/]+\/manifest\.js|index\.js)$/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
+  srcs(rd('pet.html')).filter(f => /^src\/(?:core\/(?:item-registry|session)|stores\/item-catalog)\.js$|^data\/inventory\/pet\/(?:items\/[^/]+\/manifest\.js|index\.js)$/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'registry'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Halaman lain tidak memuat manifest Pet; gameplay.html tidak berubah', () => {

@@ -1,6 +1,6 @@
 -- Dadu: daftarkan 24 skin dadu (koleksi Dragon Roll) ke katalog SERVER.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage/hardcode di gameplay). Aman diulang (upsert).
--- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 -- Harga dadu baru adalah usulan berdasarkan rarity/tier; ubah di item-catalog.js lalu jalankan gen-item-seed.js --write dan terapkan ulang.
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('dice.amethyst', 'dice', 450, false, false),
@@ -28,4 +28,3 @@ insert into public.item_catalog(id, kind, price_coins, starter, stackable) value
   ('dice.void', 'dice', 1800, false, false),
   ('dice.wood', 'dice', 100, false, false)
 on conflict (id) do update set kind = excluded.kind, price_coins = excluded.price_coins, starter = excluded.starter, stackable = excluded.stackable;
-

@@ -1,3 +1,4 @@
+require("./_boot-compat.js");
 /* Tes Power-3D (Batch 1): peta power-up -> model 3D, jalur impor, dan konsistensi nama. Jalankan: node tests/power3d.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");

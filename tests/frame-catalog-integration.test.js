@@ -132,7 +132,7 @@ t('Halaman lain memakai jalur fallback Frame tanpa manifest Frame; Registry kate
 t('Simulasi urutan halaman: menjalankan skrip PERSIS menurut urutan tag di HTML -> frameSource = registry di setiap halaman terhubung', () => {
   WIRED.forEach(p => { const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
     const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-    srcs(rd(p + '.html')).filter(f => /^(assets\/js\/(core\/(item-registry|session)|item-catalog)|data\/inventory\/frame\/(?!_shared\/))/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
+    srcs(rd(p + '.html')).filter(f => /^(src\/(core\/(item-registry|session)|stores\/item-catalog)|data\/inventory\/frame\/(?!_shared\/))/.test(f)).forEach(f => vm.runInContext(rd(f), ctx));
     assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry', p); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items, p); });
 });
 console.log('\n' + n + ' tes lulus');

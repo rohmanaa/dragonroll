@@ -166,7 +166,7 @@ t('Aset B: FORMAT path lulus 24/24 (assets per item kosong: dadu prosedural Dice
 t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan seluruh modul dice-kit yang dimuat dadu.html; sfx dice-roll.mp3 milik audio gameplay tetap ada', () => {
   assert.ok(ex(DiceCat.category.assets.renderKit) && fs.statSync(path.join(ROOT, DiceCat.category.assets.renderKit)).size > 1000);
   DICEKIT_FILES.forEach(f => assert.ok(ex(f), f));
-  assert.ok(!fs.existsSync(path.join(ROOT, 'src/renderers/dice-kit')), 'legacy dice-kit directory must be removed');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'assets/js/dice-kit')), 'legacy dice-kit directory must be removed');
   assert.ok(ex('assets/audio/sfx/dice/dice-roll.mp3') && /roll:'dice\/dice-roll\.mp3'/.test(rd('src/gameplay/js/audio.js')));
   DICE_CHAIN.forEach(f => assert.ok(ex(f), f));
 });

@@ -1,3 +1,4 @@
+require("./_boot-compat.js");
 /* Tes Character Registry Stage 8.2: metadata paritas, kompatibilitas Skin, urutan script, dan model dasar. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');

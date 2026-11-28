@@ -10,7 +10,7 @@ do $$ begin
   end if;
 end $$;
 
--- 2. Harga baru dadu/frame/aura (sumber: src/stores/item-catalog.js TIER_PRICE)
+-- 2. Harga baru dadu/frame/aura (sumber: assets/js/item-catalog.js TIER_PRICE)
 -- BEGIN TIER PRICE SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)
 update public.item_catalog c set price_coins = v.c, price_gems = v.g
 from (values
@@ -256,4 +256,3 @@ end;
 $$;
 revoke all on function public.claim_boss_reward(uuid) from public, anon;
 grant execute on function public.claim_boss_reward(uuid) to authenticated;
-

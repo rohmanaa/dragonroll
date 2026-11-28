@@ -1,4 +1,4 @@
--- Sinkron ulang katalog SERVER dengan katalog klien (src/stores/item-catalog.js): 183 item, aman dijalankan berulang (upsert).
+-- Sinkron ulang katalog SERVER dengan katalog klien (assets/js/item-catalog.js): 183 item, aman dijalankan berulang (upsert).
 -- KENAPA: sebagian item baru (mis. Dadu Matrix Epik, 23 Nov) hanya ditambahkan dengan MENGEDIT migrasi lama (202611110002, 202611170001, dst.) lewat
 --   tools/wallet/gen-item-seed.js. Database yang migrasi lamanya sudah pernah dijalankan TIDAK ikut berubah -> baris item tidak ada di server ->
 --   beli di shop ditolak server dengan "Item tidak tersedia" (reason 'tidak-tersedia'), padahal item tampil di shop (katalog klien).
@@ -279,4 +279,3 @@ from (values
   ('gear.weapon.wand', 'f')
 ) as v(id, g)
 where c.id = v.id;
-

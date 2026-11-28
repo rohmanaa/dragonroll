@@ -74,7 +74,7 @@ t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importm
   const g = gameplaySource();
   const loader = rd('src/gameplay/js/power3d-loader.js');
   const main = rd('src/gameplay/js/main.js');
-  assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../src/renderers/power-3d/power-overlay.js") > 0);
+  assert.ok(g.indexOf('<script type="importmap">') >= 0 && loader.indexOf("../../renderers/power-3d/power-overlay.js") > 0);
   assert.ok(!/const o=\{sword:0,feather:0/.test(main), 'daftar Power tetap masih ada');
   assert.ok(main.indexOf('guard:!!p.guard,frozen:!!p.frozen') > 0 && main.indexOf("'shield','guard','frozen'") > 0);
   assert.ok(main.indexOf('function skipFrozen') > 0 && /function nextTurn\(\)\{[^}]*skipFrozen\(\)/.test(main));

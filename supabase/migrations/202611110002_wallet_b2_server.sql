@@ -1,7 +1,7 @@
 -- Dompet server, TAHAP B2 (sisi server). Terapkan SETELAH 202611110001_wallet_b1.sql.
 --
 -- Isi:
---   1. item_catalog  : harga & aturan item di SERVER (disalin dari game/src/stores/item-catalog.js lewat
+--   1. item_catalog  : harga & aturan item di SERVER (disalin dari game/assets/js/item-catalog.js lewat
 --                      game/tools/wallet/gen-item-seed.js; klien tidak bisa menentukan harga).
 --   2. player_inventory + buy_item(item_id) + inventory_get() : beli di toko, saldo & inventory SATU transaksi.
 --   3. claim_boss_reward(room_id): hadiah boss ke PEMENANG sebenarnya (bukan host), sekali per room, batas harian.
@@ -373,4 +373,3 @@ end;
 $$;
 revoke all on function public.claim_achievement(text, bigint) from public, anon;
 grant execute on function public.claim_achievement(text, bigint) to authenticated;
-
