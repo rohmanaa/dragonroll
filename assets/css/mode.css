@@ -134,3 +134,14 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .back .q{font-size:28px}
 /* latar voxel langit (sama caranya dengan tambang.css: lapisan tetap di belakang #wrap, agak transparan di atas gradien ungu bg.css) */
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+
+/* tombol kembali di kanan atas, Emerald & Coin di kiri bawah */
+#back{left:auto;right:40px}
+#title{left:40px}
+#stage #cur-em,#stage #cur-co{top:auto;bottom:24px}
+#stage #cur-em{left:70px}#stage #cur-co{left:420px}
+#maps{height:820px}
+#mapview{height:620px}
+.arrow{top:305px}
+#dots{top:680px}
+#mapinfo{top:722px}

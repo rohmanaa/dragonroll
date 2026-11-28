@@ -34,3 +34,7 @@ html body.notabs #grid{left:40px;top:122px;width:1200px;max-height:520px;grid-te
 .fslot.add{--slot-bg:#8f887a;display:grid;place-items:center}
 .fslot.add .pl{font:400 64px/1 var(--font-title);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6)}
 .fslot.add:hover{filter:brightness(1.2)}
+
+/* tombol kembali di kanan atas */
+#stage #back{left:auto;right:40px}
+#stage #title{left:40px}

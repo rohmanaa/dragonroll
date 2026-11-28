@@ -304,3 +304,11 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 .tambang-ore .ut-ic{width:1.5em;height:1.5em;margin:-.2em .15em -.2em 0}
 .tambang-rst .ut-ic,.tambang-bst .ut-ic,#tambang-lock-btn .ut-ic{width:1.4em;height:1.4em;margin:-.2em .1em}
 .tambang-bub.b .ut-ic{width:70%;height:70%}
+
+/* tombol kembali di kanan atas, Emerald & Coin di kiri bawah */
+#tambang-back{left:auto;right:40px}
+#tambang-title{left:40px}
+#tambang-sum{left:42px}
+#tambang-nav{left:332px}
+#tambang-stage #tambang-cur-em,#tambang-stage #tambang-cur-co{top:auto;bottom:28px}
+#tambang-stage #tambang-cur-em{left:60px}#tambang-stage #tambang-cur-co{left:390px}
