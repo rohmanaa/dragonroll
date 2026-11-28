@@ -77,7 +77,7 @@ t('mode jalan/lari/idle: tick stabil dan kembali ke idle; lompat selesai', () =>
 t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di rig', () => {
   const g = read('gameplay.html'), main = read('src/gameplay/js/main.js');
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
-  assert.ok(idx('vendor/three.min.js') < idx('src/renderers/blocky-character.js'));
+  assert.ok(idx('vendor/three.r170.module.min.js') < idx('src/renderers/blocky-character.js'));
   assert.ok(idx('player-data.js') < idx('src/renderers/blocky-character.js'));
   assert.ok(idx('src/renderers/blocky-character.js') < idx('src/renderers/character-face.js'));
   assert.ok(idx('src/gameplay/js/main.js') > idx('src/renderers/blocky-character.js'));

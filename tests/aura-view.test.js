@@ -76,8 +76,8 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   ];
   pages.forEach(({ html: f, source, update }) => {
     const g = read(f), js = read(source), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
-    assert.ok(i('vendor/three.min.js') < i('src/renderers/blocky-character.js'), f);
-    assert.ok(i('three.min.js') < i('src/renderers/aura-fx.js') && i('src/renderers/blocky-character.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'), f);
+    assert.ok(i(g.includes('three.r170.module') ? 'vendor/three.r170.module.min.js' : 'vendor/three.min.js') < i('src/renderers/blocky-character.js'), f);
+    assert.ok(i(g.includes('three.r170.module') ? 'three.r170.module.min.js' : 'three.min.js') < i('src/renderers/aura-fx.js') && i('src/renderers/blocky-character.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'), f);
     assert.ok(/UT\.AuraView\.create\(/.test(js) && update.test(js), source);
   });
   const gameplay = read('src/gameplay/js/main.js');
@@ -90,7 +90,7 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
 });
 t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
   const g = read('karakter.html'), js = read('data/inventory/character/_shared/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
-  assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'));
+  assert.ok(i(g.includes('three.r170.module') ? 'vendor/three.r170.module.min.js' : 'vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'));
   assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(js) && /auraSync\(\)/.test(js) && /AUR\.clear\(root\)/.test(js));
   /* aura TIDAK tampil di pratinjau karakter (permintaan desain): auraSync() tetap ada tapi tidak dipanggil dan AUR.update(dt) tidak dijalankan tiap frame */
   assert.ok(!/AUR\.update\(dt\)/.test(js), 'pratinjau karakter tidak menjalankan aura');

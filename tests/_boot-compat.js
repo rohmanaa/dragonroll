@@ -11,6 +11,8 @@ fs.readFileSync = function (p, ...rest) {
   if (!m) return r;
   let boot; try { boot = orig.call(fs, path.join(root, m[1]), 'utf8'); } catch (e) { return r; }
   const tags = [...boot.matchAll(/^import '([^']+)';/gm)]
-    .map(x => '<script src="' + path.posix.normalize(path.posix.join('src/boot', x[1])) + '"></script>').join('\n');
+    .map(x => path.posix.normalize(path.posix.join('src/boot', x[1])))
+    .filter(u => !r.includes('src="' + u + '"'))   /* modul yang sudah ada sebagai tag tidak diduplikasi */
+    .map(u => '<script src="' + u + '"></script>').join('\n');
   return r + '\n<!-- boot-compat -->\n' + tags + '\n';
 };
