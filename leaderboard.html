@@ -2,7 +2,7 @@
 <html lang="id"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/js/core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Peringkat â€” Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
@@ -35,23 +35,24 @@
   <div id="toast" role="status"></div>
 </div></div>
 <div id="fade"></div>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="src/stores/item-catalog.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/services/wallet-service.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/services/wallet-service.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-avatar.js"></script>
-<script src="assets/js/core/app.js"></script>
+<script src="src/core/app.js"></script>
 <script src="src/components/ui-core.js"></script>
 <script src="src/components/plus-button/plus-button.js"></script>
 <script src="src/components/resource-bar/resource-bar.js"></script>
-<script src="assets/js/core/live-sync.js"></script>
-<script src="assets/js/podium-fx.js"></script>
+<script src="src/core/live-sync.js"></script>
+<script src="src/fx/podium-fx.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
-<script src="assets/js/vendor/three.min.js"></script>
-<script src="assets/js/renderers/blocky-character.js"></script><script src="assets/js/renderers/character-face.js"></script><script src="assets/js/services/appearance-service.js"></script>
-<script src="assets/js/core/page-module.js"></script>
-<script src="assets/js/pages/leaderboard.js"></script>
-<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-no"});}catch(e){}})();</script>
+<script src="src/vendor/three.min.js"></script>
+<script src="src/renderers/blocky-character.js"></script><script src="src/renderers/character-face.js"></script><script src="src/services/appearance-service.js"></script>
+<script src="src/core/page-module.js"></script>
+<script src="src/views/leaderboard.js"></script>
+<script src="src/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-no"});}catch(e){}})();</script>
 </body></html>
+
 

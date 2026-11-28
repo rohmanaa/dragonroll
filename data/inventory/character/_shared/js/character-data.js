@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — data/inventory/character/_shared/js/character-data.js
-   DATA KARAKTER BERSAMA (voxel) — satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
+﻿/* Ular Tangga Blok â€” data/inventory/character/_shared/js/character-data.js
+   DATA KARAKTER BERSAMA (voxel) â€” satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
    (lobby, leaderboard, profil, shop, inventory, dll). Skrip klasik (tanpa import/export), global: UT.CharacterData.
    - Data di bawah diekstrak apa adanya dari gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
      addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model Gameplay berubah).
@@ -7,7 +7,7 @@
      karakter menghadap +z; kanan karakter = -x. noEdge=1: detail tanpa garis tepi (mata, mulut, dll).
      tag: 0 biasa | 2 batang Blaze (berputar di gameplay) | 3 blok kepala 0.3 (di gameplay = 27 kubus 0.1 dengan variasi warna 0.09).
    - Grup: 'player' (skin palette gameplay), 'mob' (mob di petak papan), 'wild' (mob liar di luar papan, mis. Golem).
-   - Skin PNG (hero, knight, ...) memakai tekstur: lihat ItemArt.character()/face() (assets/js/renderers/item-art.js). Di sini hanya
+   - Skin PNG (hero, knight, ...) memakai tekstur: lihat ItemArt.character()/face() (src/renderers/item-art.js). Di sini hanya
      metadata + fallback ke 'steve'.
    API:
      UT.CharacterData.list(group)                 -> ['steve', ...]
@@ -265,3 +265,4 @@
   UT.CharacterData = { version: 1, list: list, get: get, svg: svg, face: face, mesh: mesh, SEATS: SEATS, groups: Object.keys(META) };
   UT.CharacterRigAdapter = { resolve: resolveRig, create: createRig };
 })(window);
+

@@ -1,4 +1,4 @@
-/* Tes integrasi Stage 3: ItemRegistry (14 manifest Frame) -> ItemCatalog -> konsumen existing.
+﻿/* Tes integrasi Stage 3: ItemRegistry (14 manifest Frame) -> ItemCatalog -> konsumen existing.
    Jalankan: node tests/frame-catalog-integration.test.js
    Pembanding = tests/fixtures/item-catalog-baseline.json (snapshot runtime ItemCatalog SEBELUM integrasi; 147 item asli + 20 item set PVP).
    Yang TIDAK diuji di sini: pemuatan nyata di browser (NOT TESTED kecuali ada laporan browser terpisah). */
@@ -15,8 +15,8 @@ function boot(registry, extra) {
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
   const files = [];
-  if (registry) { files.push('assets/js/core/item-registry.js'); FrameCat.keys.forEach(k => files.push('data/inventory/frame/' + k + '/manifest.js')); files.push('data/inventory/frame/index.js'); }
-  files.push('assets/js/core/session.js', 'assets/js/item-catalog.js'); (extra || []).forEach(f => files.push(f));
+  if (registry) { files.push('src/core/item-registry.js'); FrameCat.keys.forEach(k => files.push('data/inventory/frame/' + k + '/manifest.js')); files.push('data/inventory/frame/index.js'); }
+  files.push('src/core/session.js', 'src/stores/item-catalog.js'); (extra || []).forEach(f => files.push(f));
   files.forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
@@ -58,16 +58,16 @@ t('Frame: 14/14 metadata (id, name, kind, rarity, price, gems, starter, desc, fe
   const fr = ICr.items.filter(i => i.kind === 'frame'), bf = base.items.filter(i => i.kind === 'frame'); assert.strictEqual(fr.length, 29);
   fr.forEach((f, i) => ['id', 'name', 'kind', 'rarity', 'price', 'gems', 'starter', 'desc', 'featured', 'image', 'gameKey', 'category', 'slot', 'stackable'].forEach(k => assert.strictEqual(f[k], bf[i][k], f.id + '.' + k)));
 });
-t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) — nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
+t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) â€” nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
   /* Bukti sumber: ubah satu manifest di salinan lalu muat ulang -> katalog mengikuti manifest, bukan literal/TIER_PRICE. */
-  const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js')), reg = IR.create(); FrameCat.register(reg);
+  const IR = require(path.join(ROOT, 'src/core/item-registry.js')), reg = IR.create(); FrameCat.register(reg);
   const m = JSON.parse(JSON.stringify(reg.getItem('frame.stone'))); m.name = 'Frame Batu UJI'; m.gems = 77; m.price = null;
   const ctx = boot(false); /* VM bersih lalu pasang Registry tiruan dengan manifest termutasi */
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const c2 = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  vm.runInContext(rd('assets/js/core/item-registry.js'), c2);
+  vm.runInContext(rd('src/core/item-registry.js'), c2);
   FrameCat.keys.forEach(k => { let src = rd('data/inventory/frame/' + k + '/manifest.js'); if (k === 'stone') src = src.replace('"Frame Batu"', '"Frame Batu UJI"').replace('price: 500', 'price: null').replace(/gems: null/, 'gems: 77'); vm.runInContext(src, c2); });
-  vm.runInContext(rd('data/inventory/frame/index.js'), c2); vm.runInContext(rd('assets/js/item-catalog.js'), c2);
+  vm.runInContext(rd('data/inventory/frame/index.js'), c2); vm.runInContext(rd('src/stores/item-catalog.js'), c2);
   const s = c2.ItemCatalog.byId('frame.stone'); assert.strictEqual(c2.ItemCatalog.frameSource(), 'registry');
   assert.strictEqual(s.name, 'Frame Batu UJI'); assert.strictEqual(s.gems, 77); assert.strictEqual(s.price, null);
 });
@@ -78,21 +78,21 @@ t('Registry: item Frame dari katalog berasal dari Registry bersama (shared) dan 
   const f = reg.getItem('frame.storm'); assert.strictEqual(f.visual.tier, 5); assert.strictEqual(f.visual.marginCells, 6); assert.strictEqual(f.visual.fxKey, 'storm');
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali di VM sama tidak menggandakan registrasi / tidak melempar', () => {
-  const ctx = boot(true); vm.runInContext(rd('assets/js/item-catalog.js'), ctx);
+  const ctx = boot(true); vm.runInContext(rd('src/stores/item-catalog.js'), ctx);
   assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry'); assert.strictEqual(ctx.UT.ItemRegistry.shared().getCategory('frame').count, 29);
   assert.strictEqual(ctx.UT.ItemRegistry.shared().rejected().length, 0);
 });
 t('Ketahanan: Registry ada tetapi manifest belum dimuat -> jalur cadangan, katalog tetap 183 item identik baseline', () => {
   const store = {}, w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
-  ['assets/js/core/item-registry.js', 'data/inventory/frame/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
+  ['src/core/item-registry.js', 'data/inventory/frame/index.js', 'src/stores/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.frameSource(), 'legacy'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Ketahanan: jalur Registry tidak bergantung pada DOM (tanpa document/localStorage global)', () => { assert.strictEqual(typeof viaReg.document, 'undefined'); });
 
 /* ---- konsumen existing: PlayerData / AppearanceService / server catalog ---- */
 t('PlayerData: perilaku sama di kedua jalur (kepemilikan starter, equip, pemasangan frame, penolakan tanpa login)', () => {
-  const snap = ctx => { const PD = (() => { vm.runInContext(rd('assets/js/player-data.js'), ctx); return ctx.PlayerData; })();
+  const snap = ctx => { const PD = (() => { vm.runInContext(rd('src/stores/player-data.js'), ctx); return ctx.PlayerData; })();
     const o = { owns: base.items.filter(i => i.kind === 'frame').map(f => PD.owns(f.id)), eq: PD.equippedId('frame'), isEq: PD.isEquipped('frame.default'),
       coins: PD.coins(), gems: PD.gems(), buy: PD.purchase('frame.stone'), buyGem: PD.purchase('frame.ender'), eqUnowned: PD.equip('frame.stone'), eqStarter: PD.equip('frame.default') };
     return o; };
@@ -100,7 +100,7 @@ t('PlayerData: perilaku sama di kedua jalur (kepemilikan starter, equip, pemasan
   assert.strictEqual(b.eq, 'frame.default'); assert.strictEqual(b.owns[0], true); assert.strictEqual(b.owns[1], false);
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error', () => {
-  const ctx = boot(true, ['assets/js/player-data.js']); const Svc = require(path.join(ROOT, 'assets/js/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 183);
+  const ctx = boot(true, ['src/stores/player-data.js']); const Svc = require(path.join(ROOT, 'src/services/appearance-service.js')); assert.ok(Svc); assert.strictEqual(ctx.ItemCatalog.items.length, 183);
 });
 t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL fase 3) dan frame.default starter (harga server null)', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), blk = /BEGIN TIER PRICE SEED[\s\S]*?END TIER PRICE SEED/.exec(sql)[0];
@@ -114,14 +114,14 @@ t('Server catalog: harga/gems Frame hasil integrasi = seed server (migrasi SQL f
 
 /* ---- pemuatan skrip: tag <script> klasik statis, urutan di halaman ---- */
 const WIRED = ['shop', 'karakter', 'profile', 'frame'];
-const CHAIN = ['assets/js/core/item-registry.js'].concat(FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js'), ['data/inventory/frame/index.js']);
+const CHAIN = ['src/core/item-registry.js'].concat(FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js'), ['data/inventory/frame/index.js']);
 const srcs = h => (h.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
 t('Halaman: registry -> 14 manifest -> index.js berurutan dan sebelum item-catalog.js', () => {
-  WIRED.forEach(p => { const s = srcs(rd(p + '.html')), i = s.indexOf('assets/js/item-catalog.js');
+  WIRED.forEach(p => { const s = srcs(rd(p + '.html')), i = s.indexOf('src/stores/item-catalog.js');
     const indexes = CHAIN.map(f => s.indexOf(f));
     assert.ok(indexes.every(x => x >= 0 && x < i), p);
     assert.deepStrictEqual(indexes, indexes.slice().sort((a, b) => a - b), p);
-    CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, p + ' ' + f));
+    CHAIN.concat(['src/stores/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, p + ' ' + f));
     const fx = s.indexOf('data/inventory/frame/_shared/js/frame-fx.js'); assert.ok(fx < 0 || fx > i, p + ': frame-fx.js (bila dimuat) tetap sesudah katalog'); });
 });
 t('Halaman: semua file rantai ada di disk', () => { CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f)); assert.strictEqual(CHAIN.length, 31); });
@@ -136,3 +136,4 @@ t('Simulasi urutan halaman: menjalankan skrip PERSIS menurut urutan tag di HTML 
     assert.strictEqual(ctx.ItemCatalog.frameSource(), 'registry', p); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items, p); });
 });
 console.log('\n' + n + ' tes lulus');
+

@@ -1,16 +1,16 @@
-/* profile.js (SPA tahap 3): dibungkus UT.PageModule; semua navigasi lewat UT.Spa.go di shell; cleanup renderer/tekstur/kelas html. */
+﻿/* profile.js (SPA tahap 3): dibungkus UT.PageModule; semua navigasi lewat UT.Spa.go di shell; cleanup renderer/tekstur/kelas html. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const src = fs.readFileSync(path.join(root, 'assets/js/pages/profile.js'), 'utf8');
+const src = fs.readFileSync(path.join(root, 'src/views/profile.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'profile.html'), 'utf8');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
 t('panel Profil dibungkus UT.PageModule.define("profil"); hub-nya modul "profile" (account.js)', () => {
   assert(/UT\.PageModule\.define\('profil'/.test(src));
-  const acc = fs.readFileSync(path.join(root, 'assets/js/pages/account.js'), 'utf8');
+  const acc = fs.readFileSync(path.join(root, 'src/views/account.js'), 'utf8');
   assert(/UT\.PageModule\.define\('profile'/.test(acc));
 });
 t('panel Profil tidak memasang tab lama dan tidak meninggalkan halaman lewat Esc (hub yang mengelola)', () => {
@@ -50,3 +50,4 @@ t('tombol Coin/Gem berada di atas panel kanan (z-index) - dulu tertutup #right',
   assert(/\.cur\{[^}]*z-index:\s*[1-9]/.test(css));
 });
 console.log(n + ' tes lulus');
+

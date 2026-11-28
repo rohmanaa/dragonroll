@@ -1,10 +1,10 @@
-/* Tes statis room.html: avatar pemain online lain = wajah karakter dari server (room_appearance_get), bukan huruf awal. */
+﻿/* Tes statis room.html: avatar pemain online lain = wajah karakter dari server (room_appearance_get), bukan huruf awal. */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const PG = require("./_page");
 const g = PG.readFileSync(path.join(__dirname, '..', 'room.html'), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 t('appearance-service.js dimuat sebelum app.js dan skrip room', () => {
-  const a = g.indexOf('assets/js/services/appearance-service.js'), b = g.indexOf('assets/js/player-data.js'), c = g.indexOf('assets/js/core/app.js');
+  const a = g.indexOf('src/services/appearance-service.js'), b = g.indexOf('src/stores/player-data.js'), c = g.indexOf('src/core/app.js');
   assert.ok(b > 0 && a > b && a < c);
 });
 t('avatar() memakai UT.CharacterFace.urlData + frame pemain; fallback huruf awal & karakter bawaan', () => {
@@ -20,3 +20,4 @@ t('loadLooks: ambil lewat roomAppearance sekali per pemain baru, ulang bila gaga
   assert.ok(/FACE_DONE=true;renderEq\(\);renderPlayers\(\);loadLooks\(\);/.test(g));
 });
 console.log(n + ' tes lulus');
+

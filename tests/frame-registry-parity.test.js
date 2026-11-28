@@ -1,14 +1,14 @@
-/* Tes paritas Frame: manifest data/inventory/frame/* <-> ItemCatalog (runtime) <-> frame-fx.js <-> seed server (migrasi SQL) <-> file di disk.
+﻿/* Tes paritas Frame: manifest data/inventory/frame/* <-> ItemCatalog (runtime) <-> frame-fx.js <-> seed server (migrasi SQL) <-> file di disk.
    Jalankan: node tests/frame-registry-parity.test.js
    Empat lapis dilaporkan TERPISAH (lulus satu lapis != lulus lapis lain):
      A. manifest valid   B. FORMAT path aset   C. file ada di disk + header WebP valid   D. pemuatan aset di browser = TIDAK diuji di sini. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
-const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w);
+const w = {}; new Function('window', rd('src/stores/item-catalog.js'))(w);
 const IC = w.ItemCatalog, catFrames = IC.items.filter(i => i.kind === 'frame');
 const reg = IR.create(), res = FrameCat.register(reg), items = reg.getCategory('frame').items, byId = {}; items.forEach(i => { byId[i.id] = i; });
 
@@ -45,7 +45,7 @@ t('A. paritas HARGA (koin) dan GEMS dengan ItemCatalog runtime (bukan literal fr
     if (m.source === 'event') assert.ok(m.price === null && m.gems === null, c.id + ': frame hadiah tidak dijual');
   });
 });
-t('A. paritas HARGA dengan seed server (migrasi fase 3) — default = starter gratis', () => {
+t('A. paritas HARGA dengan seed server (migrasi fase 3) â€” default = starter gratis', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), seed = {};
   for (const m of sql.matchAll(/\('frame\.([a-z]+)',\s*(\d+|null),\s*(\d+|null)\)/g)) seed[m[1]] = { price: m[2] === 'null' ? null : +m[2], gems: m[3] === 'null' ? null : +m[3] };
   assert.strictEqual(Object.keys(seed).length, 13, 'seed server: 13 frame berbayar');
@@ -83,7 +83,7 @@ t('A. paritas visual dengan frame-fx.js: fxKey ada di FR, tier & margin sama', (
 t('A. gambar manifest = ItemCatalog.image; kategori memakai FRAME_TAB_ICON yang sama', () => {
   catFrames.forEach(c => assert.strictEqual(byId[c.id].assets.image, c.image, c.id));
   assert.strictEqual(FrameCat.category.assets.tabIcon, 'data/inventory/frame/_shared/img/icon-frame.webp');
-  assert.ok(/FRAME_TAB_ICON = 'data\/inventory\/frame\/_shared\/img\/icon-frame\.webp'/.test(rd('assets/js/item-catalog.js')));
+  assert.ok(/FRAME_TAB_ICON = 'data\/inventory\/frame\/_shared\/img\/icon-frame\.webp'/.test(rd('src/stores/item-catalog.js')));
 });
 
 /* ---- B. format path ---- */
@@ -125,7 +125,7 @@ t('manifest.js bagian dari data dibekukan registry; ID folder = gameKey = bagian
 /* ---- jalur browser (tanpa require): antrean UT.ItemManifests ---- */
 t('jalur browser: manifest.js + index.js dimuat di vm tanpa require -> 14 terdaftar identik dengan jalur Node', () => {
   const ctx = { console }; ctx.window = ctx; ctx.window.window = ctx; vm.createContext(ctx);
-  vm.runInContext(rd('assets/js/core/item-registry.js'), ctx);
+  vm.runInContext(rd('src/core/item-registry.js'), ctx);
   FrameCat.keys.forEach(k => vm.runInContext(rd('data/inventory/frame/' + k + '/manifest.js'), ctx, { filename: k + '/manifest.js' }));
   vm.runInContext(rd('data/inventory/frame/index.js'), ctx);
   assert.strictEqual(ctx.UT.ItemManifests.length, 29);
@@ -152,7 +152,8 @@ t('ItemCatalog tidak berubah: 183 item, 29 frame, byId/byGameKey/defaultEquipped
   assert.strictEqual(IC.defaultEquipped.frame, 'frame.default'); assert.strictEqual(IC.byId('frame.gold').slot, 'frame');
 });
 t('registry berdiri sendiri: ItemCatalog/PlayerData tidak diubah atau dimuat olehnya', () => {
-  const src = rd('assets/js/core/item-registry.js');
+  const src = rd('src/core/item-registry.js');
   assert.ok(!/ItemCatalog|PlayerData|localStorage|document\.|window\.[a-z]/i.test(src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/typeof window[^;]*/g, '').replace(/root\.UT[^;]*;/g, '')));
 });
 console.log('\n' + n + ' tes lulus');
+

@@ -1,11 +1,11 @@
-/* Tes katalog Aura: 15 aura = kind 'aura' (slot opsional 'aura'), id sama dengan aura-fx.js, harga naik per rarity, seed server sinkron.
+﻿/* Tes katalog Aura: 15 aura = kind 'aura' (slot opsional 'aura'), id sama dengan aura-fx.js, harga naik per rarity, seed server sinkron.
    Jalankan: node tests/aura-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(root, p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
-const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w); const IC = w.ItemCatalog;
+const w = {}; new Function('window', rd('src/stores/item-catalog.js'))(w); const IC = w.ItemCatalog;
 const auras = IC.items.filter(i => i.kind === 'aura');
-const fxIds = [...rd('assets/js/renderers/aura-fx.js').matchAll(/\{ id: '(\w+)', name: '[^']+', rarity: '(\w+)'/g)].map(m => [m[1], m[2]]);
+const fxIds = [...rd('src/renderers/aura-fx.js').matchAll(/\{ id: '(\w+)', name: '[^']+', rarity: '(\w+)'/g)].map(m => [m[1], m[2]]);
 t('15 aura di katalog, id & rarity sama dengan aura-fx.js', () => {
   assert.strictEqual(auras.length, 15); assert.strictEqual(fxIds.length, 15);
   fxIds.forEach(([id, r]) => { const it = IC.byId('aura.' + id); assert.ok(it, id); assert.strictEqual(it.rarity, r); assert.strictEqual(it.gameKey, id); });
@@ -51,7 +51,7 @@ function boot() {
   const store = {}, ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(rd('assets/js/' + f), ctx));
+  ['src/core/session.js', 'src/stores/item-catalog.js', 'src/stores/player-data.js'].forEach(f => vm.runInContext(rd(f), ctx));
   return { PD: ctx.PlayerData, store };
 }
 const own = (PD, store, ...ids) => { PD.coins(); const st = JSON.parse(store[PD.key]); ids.forEach(id => { st.inventory[id] = { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ }; }); store[PD.key] = JSON.stringify(st); };
@@ -73,3 +73,4 @@ t('pembelian aura lokal tanpa akun ditolak (harga dipegang server)', () => {
   assert.strictEqual(PD.purchase('aura.nature').ok, false);
 });
 console.log(n + ' tes lulus');
+

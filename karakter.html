@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
-<html lang="id"><head><script src="assets/js/room-modal-bridge.js"></script><meta charset="utf-8">
+<html lang="id"><head><script src="src/multiplayer/room-modal-bridge.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/js/core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Karakter - Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="src/components/modal/modal-kit.css">
 <link rel="stylesheet" href="src/components/tabs/tabs.css">
 <link rel="stylesheet" href="src/components/slot/slot.css"><link rel="stylesheet" href="src/components/card-panel-new/card-panel-new.css"><link rel="stylesheet" href="src/components/card-item/card-item.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=227"><link rel="stylesheet" href="src/styles/bg.css">
-<script src="assets/js/systems/ambience.js"></script>
+<script src="src/systems/ambience.js"></script>
 </head>
 <body class="kr">
 <div id="wrap"><div id="stage">
@@ -41,22 +41,23 @@
 </div></div>
 <div id="fade"></div>
 
-<script src="assets/js/vendor/three.min.js"></script>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script><script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/renderers/aura-fx.js"></script><script src="assets/js/renderers/aura-view.js"></script>
-<script src="assets/js/services/wallet-service.js"></script>
-<script src="assets/js/services/appearance-service.js"></script>
-<script src="assets/js/core/app.js"></script>
+<script src="src/vendor/three.min.js"></script>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="src/stores/item-catalog.js"></script><script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/renderers/aura-fx.js"></script><script src="src/renderers/aura-view.js"></script>
+<script src="src/services/wallet-service.js"></script>
+<script src="src/services/appearance-service.js"></script>
+<script src="src/core/app.js"></script>
 <script>UT.App.init({page:'karakter'});</script>
 <script src="src/components/ui-core.js"></script>
 <script src="src/components/plus-button/plus-button.js"></script>
 <script src="src/components/resource-bar/resource-bar.js"></script>
-<script src="assets/js/core/shared-gl.js"></script>
-<script src="assets/js/core/page-module.js"></script>
+<script src="src/core/shared-gl.js"></script>
+<script src="src/core/page-module.js"></script>
 <script src="data/inventory/character/_shared/js/character-sets.js"></script>
 <script src="data/inventory/character/_shared/js/karakter.js?v=230"></script>
-<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{openClass:"show"});}catch(e){}})();</script>
+<script src="src/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{openClass:"show"});}catch(e){}})();</script>
 </body>
 </html>
+
 

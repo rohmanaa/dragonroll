@@ -1,9 +1,9 @@
-/* mail (SPA tahap 3): modul halaman, ?from dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/listener/polling. */
+﻿/* mail (SPA tahap 3): modul halaman, ?from dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/listener/polling. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/mail.js'), html = rd('mail.html');
+const js = rd('src/views/mail.js'), html = rd('mail.html');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -31,8 +31,9 @@ t('mail.html memuat page-module.js sebelum mail.js; tanpa id bentrok shell', () 
   assert(!/id="(view|f|ov)"/.test(html));
 });
 t('spa-host dan frame-guard mengenal mail; play.js punya prefetch', () => {
-  assert(/'mail\.html': 'mail'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/hadiah-misi\|mail[|)]/.test(rd('assets/js/frame-guard.js')));
-  assert(/'mail\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'mail\.html': 'mail'/.test(rd('src/core/spa-host.js')));
+  assert(/hadiah-misi\|mail[|)]/.test(rd('src/boot/frame-guard.js')));
+  assert(/'mail\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+

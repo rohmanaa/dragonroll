@@ -1,9 +1,9 @@
--- Power-up berstok (consumable). Aturan:
+﻿-- Power-up berstok (consumable). Aturan:
 --   * Stok = player_inventory.qty milik tiap akun. Power tidak otomatis dimiliki; dibeli per JUMLAH (buy_powerup).
 --   * Memilih Loadout di Room TIDAK mengurangi stok. Stok baru berkurang saat Power benar-benar dipakai (use_powerup).
 --   * Yang tidak terpakai tidak pernah dipotong, jadi otomatis "kembali" ke Inventory setelah pertandingan.
 --   * Skin, Dice, karakter, dll tetap permanen: hanya kind 'powerup' memakai sistem ini.
--- Harga di bawah HARUS sama dengan assets/js/item-catalog.js (klien hanya menampilkan; server yang menagih).
+-- Harga di bawah HARUS sama dengan src/stores/item-catalog.js (klien hanya menampilkan; server yang menagih).
 -- Catatan: buy_item lama memakai kunci ledger item#(qty+1); begitu stok bisa berkurang kunci itu bisa bentrok,
 -- jadi power-up dibeli lewat buy_powerup dengan ID operasi unik (p_op_id; kirim ulang ID sama tidak menagih dua kali).
 
@@ -174,3 +174,4 @@ end;
 $$;
 revoke all on function public.buy_item(text) from public, anon;
 grant execute on function public.buy_item(text) to authenticated;
+

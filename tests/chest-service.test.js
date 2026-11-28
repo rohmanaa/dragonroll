@@ -1,7 +1,7 @@
-/* Tes sistem Chest (klien): method WalletService.chest* memanggil RPC yang benar, tanpa nominal dari klien, cermin saldo dari hasil server.
+﻿/* Tes sistem Chest (klien): method WalletService.chest* memanggil RPC yang benar, tanpa nominal dari klien, cermin saldo dari hasil server.
    Tes statis: tab Chest di Inventory, tombol di Lobby, aset gambar, dan migrasi. Jalankan: node tests/chest-service.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
-const Svc = require('../assets/js/services/wallet-service.js');
+const Svc = require('../src/services/wallet-service.js');
 const root = p => path.join(__dirname, '..', p);
 let n = 0; const queue = []; const t = (name, fn) => queue.push([name, fn]);
 
@@ -57,14 +57,14 @@ t('error jaringan / AUTH_REQUIRED dipetakan, tidak melempar', async () => {
   assert.strictEqual((await f.svc.chestCollect(1)).reason, 'jaringan');
 });
 t('statis: tab Chest di Inventory memuat aset yang ada; chest.html sudah dihapus', () => {
-  const ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8'), ih = fs.readFileSync(root('inventory.html'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
-  ['chest.html', 'assets/js/pages/chest.js', 'src/styles/chest.css'].forEach(f => assert.ok(!fs.existsSync(root(f)), f + ' harus sudah dihapus'));
+  const ij = fs.readFileSync(root('src/views/inventory.js'), 'utf8'), ih = fs.readFileSync(root('inventory.html'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
+  ['chest.html', 'src/views/chest.js', 'src/styles/chest.css'].forEach(f => assert.ok(!fs.existsSync(root(f)), f + ' harus sudah dihapus'));
   [...ij.matchAll(/im: '(chest-packs\/[\w\-]+)'/g)].map(m => m[1]).forEach(p => assert.ok(fs.existsSync(root('assets/images/ui/' + p + '.webp')), 'aset hilang: ' + p));
   [...(lh + ih).matchAll(/assets\/images\/ui\/[\w\-\/]+\.webp/g)].map(m => m[0]).forEach(p => assert.ok(fs.existsSync(root(p)), 'aset hilang: ' + p));
   assert.ok(ij.includes("diamond: { nm:") && ih.includes('data-k="chest"') && ih.includes('services/wallet-service.js'));
 });
 t('statis: Lobby = modal timeline klaim (Kayu/Silver/Gold); Inventory = slot chest yang dimiliki, ketuk untuk buka', () => {
-  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8'), ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
+  const lj = fs.readFileSync(root('data/lobby/js/lobby.js'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8'), ij = fs.readFileSync(root('src/views/inventory.js'), 'utf8');
   assert.ok(/id="b-chest" data-act="chest"/.test(lh) && lh.indexOf('id="b-chest"') < lh.indexOf('id="b-inv"'));
   assert.ok(!/id="grp"[\s\S]*data-act="chest"[\s\S]*id="grpt"/.test(lh), 'Chest tidak di grup lipat');
   assert.ok(/id="chestMd"/.test(lh) && /act==='chest'\)\{openChest\(\)/.test(lj) && !/chest:'chest\.html'/.test(lj));
@@ -75,7 +75,7 @@ t('statis: Lobby = modal timeline klaim (Kayu/Silver/Gold); Inventory = slot che
   const lc = fs.readFileSync(root('src/styles/pages/lobby.css'), 'utf8');
   assert.ok(/#chestMd\{position:fixed;inset:0/.test(lc), 'backdrop fixed memenuhi layar');
   assert.ok(lh.indexOf('id="chestMd"') > lh.indexOf('id="fade"') - 900 && !/<div id="stage"[^]*<div id="chestMd"[^]*<div id="fade"/.test(lh.replace(/<div id="chestMd"[^]*?<\/div><\/div>/, '')) === true, 'modal di luar #stage');
-  const tabs = require('../assets/js/core/inv-tabs.js');
+  const tabs = require('../src/core/inv-tabs.js');
   assert.deepStrictEqual(tabs.GROUPS.inv.keys, ['power', 'chest', 'ore', 'log']);
 });
 t('timeline Lobby: bar maju per ruas menurut jumlah game', () => {
@@ -114,7 +114,7 @@ t('chestBuy: hanya kirim jenis chest; saldo dicerminkan dari server; ditolak tid
   assert.strictEqual((await fake({}, false).svc.chestBuy('wood')).reason, 'mode-lokal');
 });
 t('shop: tombol beli aktif (tidak ada "SEGERA HADIR" di kartu chest) dan harga di klien = harga di SQL', () => {
-  const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
+  const js = fs.readFileSync(root('src/views/shop-page.js'), 'utf8');
   const card = js.slice(js.indexOf('function renderChest'), js.indexOf('function renderEmerald'));
   assert.ok(card.includes('data-chest') && !/SEGERA HADIR|Fitur belum tersedia/.test(card));
   const defs = fs.readdirSync(root('supabase/migrations')).sort().filter(f => /function public\._chest_shop\(\)/.test(fs.readFileSync(root('supabase/migrations/' + f), 'utf8')));
@@ -141,7 +141,7 @@ t('migrasi shop: chest_buy TERBARU langsung membuka (tanpa timer/penyimpanan), s
   assert.ok(sql.includes("'coins', (v_rw ->> 'coins')::int") && sql.includes("'wallet_coins'"));
 });
 t('shop: chest dibeli langsung tampil hadiah (revealChest) dan tidak lagi mengarahkan ke penyimpanan', () => {
-  const js = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8');
+  const js = fs.readFileSync(root('src/views/shop-page.js'), 'utf8');
   assert.ok(js.includes('function revealChest') && js.includes('UT.ChestReveal.play') && js.includes('kind: chest.kind'));
   assert.ok(!/masuk ke penyimpanan|data-go="chest\.html"/.test(js));
 });
@@ -155,9 +155,9 @@ t('Power dari chest: roll berbobot 1/harga, masuk stok akun (maks 999) di collec
   const b = sql.slice(sql.indexOf('function public.chest_buy')), c = sql.slice(sql.indexOf('function public.chest_collect'), sql.indexOf('function public.chest_buy'));
   assert.ok(c.indexOf("'duplicate'") < c.indexOf('player_inventory'), 'stok Power hanya setelah dompet non-duplikat');
   assert.ok(b.indexOf("'saldo-kurang'") < b.indexOf('insert into public.player_inventory'));
-  const shop = fs.readFileSync(root('assets/js/pages/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8');
+  const shop = fs.readFileSync(root('src/views/shop-page.js'), 'utf8'), ch = fs.readFileSync(root('src/views/inventory.js'), 'utf8');
   assert.ok(shop.includes('UT.ChestReveal.play') && ch.includes('UT.ChestReveal.play'));
-  assert.ok(fs.readFileSync(root('assets/js/core/chest-reveal.js'), 'utf8').includes('r.power'), 'reveal menampilkan Power hadiah');
+  assert.ok(fs.readFileSync(root('src/core/chest-reveal.js'), 'utf8').includes('r.power'), 'reveal menampilkan Power hadiah');
 });
 
 t('Power chest murah: Kayu <=100 & Perak <=200 koin (harga katalog), Emas/Diamond semua; peluang tak berubah', () => {
@@ -174,3 +174,4 @@ t('Power chest murah: Kayu <=100 & Perak <=200 koin (harga katalog), Emas/Diamon
   for (const [name, fn] of queue) { try { await fn(); n++; console.log('ok  - ' + name); } catch (e) { console.error('GAGAL - ' + name + '\n' + (e.stack || e)); process.exit(1); } }
   console.log(n + ' tes lulus');
 })();
+

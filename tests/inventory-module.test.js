@@ -1,9 +1,9 @@
-/* inventory (SPA tahap 3): view di shell, ?tab= dari URL rute aktif, tanpa history.replaceState di shell, nav lewat UT.Spa.go. */
+﻿/* inventory (SPA tahap 3): view di shell, ?tab= dari URL rute aktif, tanpa history.replaceState di shell, nav lewat UT.Spa.go. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/inventory.js'), html = rd('inventory.html');
+const js = rd('src/views/inventory.js'), html = rd('inventory.html');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 t('dibungkus UT.PageModule.define("inventory")', () => { assert(/UT\.PageModule\.define\('inventory'/.test(js)); assert(/\}\);\s*$/.test(js)); });
@@ -21,8 +21,9 @@ t('inventory.html memuat page-module.js sebelum inventory.js; tanpa id bentrok s
   assert(!/id="(view|f|ov)"/.test(html));
 });
 t('spa-host, frame-guard, play.js mengenal inventory', () => {
-  assert(/'inventory\.html': 'inventory'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/room\|inventory(\|pet\|frame\|efek\|dadu)*\)/.test(rd("assets/js/frame-guard.js")));
-  assert(/'inventory\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'inventory\.html': 'inventory'/.test(rd('src/core/spa-host.js')));
+  assert(/room\|inventory(\|pet\|frame\|efek\|dadu)*\)/.test(rd("src/boot/frame-guard.js")));
+  assert(/'inventory\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+

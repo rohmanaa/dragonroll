@@ -1,8 +1,8 @@
--- Aura karakter (kategori Efek): daftarkan 15 aura ke katalog SERVER + izinkan slot 'aura' pada tampilan aktif.
+﻿-- Aura karakter (kategori Efek): daftarkan 15 aura ke katalog SERVER + izinkan slot 'aura' pada tampilan aktif.
 -- Terapkan SETELAH 202611130001_player_outfits.sql (butuh _item_equip_slot) dan 202611170001_dice_catalog.sql. Aman diulang.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage). Beli lewat buy_item (dompet server), pilihan aura
 -- aktif tersimpan di player_appearance.equipped['aura'] dan ikut ke perangkat lain / dilihat pemain di room (room_appearance_get).
--- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('aura.amethyst', 'aura', 1800, false, false),
   ('aura.celestial', 'aura', 10000, false, false),
@@ -31,3 +31,4 @@ language sql stable security definer set search_path = public as $$
   from public.item_catalog c where c.id = p_id;
 $$;
 revoke all on function public._item_equip_slot(text) from public, anon, authenticated;
+

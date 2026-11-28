@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — gameplay/js/duel-ui.js
-   DUEL PVP — tampilan "Dadu Duel Blok": 3 giliran, kamera sinematik 3D, dadu CSS-3D, serangan per karakter.
+﻿/* Ular Tangga Blok â€” gameplay/js/duel-ui.js
+   DUEL PVP â€” tampilan "Dadu Duel Blok": 3 giliran, kamera sinematik 3D, dadu CSS-3D, serangan per karakter.
    Aturan murni ada di duel-core.js (UT.Gameplay.Duel); file ini hanya MEMAINKAN hasilnya (UT.GameplayDuelUI).
    Dipandu main.js (offline & host/tamu online):
      open(opts) -> intro() -> [waitForRoll(n) -> lockRoll() -> revealRolls([a,b]) -> turn(hasilDuel.round().turn)] x maks 3 -> result() -> close()
@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
-  var TEMPLATE = "<canvas id=\"du2-c\"></canvas>\n<div id=\"du2-vig\"></div><div id=\"du2-hurt\"></div>\n<div class=\"lb\" id=\"du2-lb1\"></div><div class=\"lb\" id=\"du2-lb2\"></div>\n<div id=\"du2-top\" class=\"hud\">\n  <div class=\"pcard\"><div class=\"port\"><canvas id=\"du2-pgL\" width=\"16\" height=\"16\"></canvas></div><div class=\"pinfo\"><div class=\"pname me\" id=\"du2-nl\">KAMU</div><div class=\"hpb\"><u id=\"du2-hl2\"></u><i id=\"du2-hl\"></i></div><div class=\"hexes\" id=\"du2-el\"><b></b><b></b><b></b></div></div></div>\n  <div id=\"du2-mid\"><div id=\"du2-plaque\"><b>DADU DUEL</b><small id=\"du2-rnd\">GILIRAN 1/3</small></div></div>\n  <div class=\"pcard r\"><div class=\"port\"><canvas id=\"du2-pgR\" width=\"16\" height=\"16\"></canvas></div><div class=\"pinfo\"><div class=\"pname ai\" id=\"du2-nr\">LAWAN</div><div class=\"hpb\"><u id=\"du2-hr2\"></u><i id=\"du2-hr\"></i></div><div class=\"hexes\" id=\"du2-er\"><b></b><b></b><b></b></div></div></div>\n</div>\n<div class=\"die\" id=\"du2-dieL\"><div class=\"cube\" id=\"du2-cL\"></div></div><div class=\"die\" id=\"du2-dieR\"><div class=\"cube\" id=\"du2-cR\"></div></div>\n<div class=\"abox hud fade\" id=\"du2-aL\"><div class=\"v\" id=\"du2-vL\">—</div><div class=\"s\"><b id=\"du2-sL\">SIAP</b></div></div>\n<div class=\"abox hud fade\" id=\"du2-aR\"><div class=\"v\" id=\"du2-vR\">—</div><div class=\"s\"><b id=\"du2-sR\">SIAP</b></div></div>\n<div id=\"du2-hint\" class=\"hud fade\">Tekan ROLL untuk memulai ronde.</div>\n<button id=\"du2-roll\" class=\"hud fade\"><span class=\"ic\">🎲</span>ROLL<small>SPASI</small></button>\n<div id=\"du2-vs\">VS</div><div id=\"du2-banner\"><b id=\"du2-bt\"></b><small id=\"du2-bs\"></small></div>\n<div id=\"du2-result\"><div class=\"box\"><h2 id=\"du2-rh\"></h2><div id=\"du2-rdl\"></div></div></div>\n<div id=\"du2-choose\" hidden></div>\n<div id=\"du2-rot\"><i></i><b>Putar ponsel ke mode landscape</b></div>";
+  var TEMPLATE = "<canvas id=\"du2-c\"></canvas>\n<div id=\"du2-vig\"></div><div id=\"du2-hurt\"></div>\n<div class=\"lb\" id=\"du2-lb1\"></div><div class=\"lb\" id=\"du2-lb2\"></div>\n<div id=\"du2-top\" class=\"hud\">\n  <div class=\"pcard\"><div class=\"port\"><canvas id=\"du2-pgL\" width=\"16\" height=\"16\"></canvas></div><div class=\"pinfo\"><div class=\"pname me\" id=\"du2-nl\">KAMU</div><div class=\"hpb\"><u id=\"du2-hl2\"></u><i id=\"du2-hl\"></i></div><div class=\"hexes\" id=\"du2-el\"><b></b><b></b><b></b></div></div></div>\n  <div id=\"du2-mid\"><div id=\"du2-plaque\"><b>DADU DUEL</b><small id=\"du2-rnd\">GILIRAN 1/3</small></div></div>\n  <div class=\"pcard r\"><div class=\"port\"><canvas id=\"du2-pgR\" width=\"16\" height=\"16\"></canvas></div><div class=\"pinfo\"><div class=\"pname ai\" id=\"du2-nr\">LAWAN</div><div class=\"hpb\"><u id=\"du2-hr2\"></u><i id=\"du2-hr\"></i></div><div class=\"hexes\" id=\"du2-er\"><b></b><b></b><b></b></div></div></div>\n</div>\n<div class=\"die\" id=\"du2-dieL\"><div class=\"cube\" id=\"du2-cL\"></div></div><div class=\"die\" id=\"du2-dieR\"><div class=\"cube\" id=\"du2-cR\"></div></div>\n<div class=\"abox hud fade\" id=\"du2-aL\"><div class=\"v\" id=\"du2-vL\">â€”</div><div class=\"s\"><b id=\"du2-sL\">SIAP</b></div></div>\n<div class=\"abox hud fade\" id=\"du2-aR\"><div class=\"v\" id=\"du2-vR\">â€”</div><div class=\"s\"><b id=\"du2-sR\">SIAP</b></div></div>\n<div id=\"du2-hint\" class=\"hud fade\">Tekan ROLL untuk memulai ronde.</div>\n<button id=\"du2-roll\" class=\"hud fade\"><span class=\"ic\">ðŸŽ²</span>ROLL<small>SPASI</small></button>\n<div id=\"du2-vs\">VS</div><div id=\"du2-banner\"><b id=\"du2-bt\"></b><small id=\"du2-bs\"></small></div>\n<div id=\"du2-result\"><div class=\"box\"><h2 id=\"du2-rh\"></h2><div id=\"du2-rdl\"></div></div></div>\n<div id=\"du2-choose\" hidden></div>\n<div id=\"du2-rot\"><i></i><b>Putar ponsel ke mode landscape</b></div>";
   var inner = null, bootFailed = false;
 
   function loadFonts() {
@@ -607,7 +607,7 @@ const shade=(hex,k)=>{const m=/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(h
 function diceSkin(i,sk){const d=$(i?'dieR':'dieL');d.style.setProperty('--df1',sk.face);d.style.setProperty('--df2',shade(sk.face,.86));d.style.setProperty('--dp',sk.pip);d.style.setProperty('--dr',sk.rim)}
 function diceSkinReset(){['dieL','dieR'].forEach(id=>['--df1','--df2','--dp','--dr'].forEach(p=>$(id).style.removeProperty(p)))}
 function loadDiceSkin(key,i){const ep=epoch;
-  try{if(!diceCatP)diceCatP=import('../../assets/js/renderers/dice-kit/dice-catalog.js');
+  try{if(!diceCatP)diceCatP=import('../../src/renderers/dice-kit/dice-catalog.js');
     diceCatP.then(m=>{if(ep!==epoch)return;const d=m.getDice?m.getDice(key):null,mt=d&&d.material;if(!mt)return;
       diceSkin(i,{face:mt.base||'#f4ead2',pip:(mt.pip&&mt.pip.color)||'#1c2a4a',rim:mt.accent||'#d9b45a'})}).catch(()=>{})}catch(e){}}
 
@@ -643,7 +643,7 @@ async function playTurn(res){
     if(!G.ko&&l.state!=='dead'){await wait(.3);if(l.state==='down'){await wait(.9)}setState(l,'idle');await mv(l,BASE[l.side],0,.35)}}
   const mx=res.max||100;P.hp=res.hp[0]*100/mx;E.hp=res.hp[1]*100/mx;G.turn=res.n;hud();
   if(res.over){if(res.draw||res.dw==null)await drawEnd();else{const dw=res.dw===0?P:E;await matchEnd(dw,other(dw),res.by==='ko')}return}
-  label(0,'—','SIAP');label(1,'—','SIAP');baseShot();RT.classList.remove('act');G.phase='wait'}
+  label(0,'â€”','SIAP');label(1,'â€”','SIAP');baseShot();RT.classList.remove('act');G.phase='wait'}
 
 const UI={
   /* o: {names,css,faces,dice,reducedMotion,fighters:[{rig|config|preset|local|knight|model},...]}. Tanpa fighters = layar pilih lawan saja. */
@@ -655,7 +655,7 @@ const UI={
     options.reducedMotion=!!o.reducedMotion;
     diceSkinReset();(o.dice||[]).slice(0,2).forEach((k,i)=>{if(k)loadDiceSkin(k,i)});
     clearFx();Object.assign(G,{phase:'intro',turn:0,ko:false,ts:1,tsT:0,shake:0,fov:0,paused:false,busy:true});
-    setup(o);label(0,'—','SIAP');label(1,'—','SIAP');diceReset();baseShot();camInit=false;
+    setup(o);label(0,'â€”','SIAP');label(1,'â€”','SIAP');diceReset();baseShot();camInit=false;
     $('roll').disabled=true;$('hint').textContent='';$('vs').classList.remove('on');$('banner').classList.remove('on');
     resize();hud();loopStart();return true},
   chooseOpponent(foes){const ch=$('choose');ch.innerHTML='';const h=document.createElement('b');h.textContent='PILIH LAWAN';ch.appendChild(h);ch.hidden=false;
@@ -667,7 +667,7 @@ const UI={
     shot(-5,1.6,6,0,1.4,0,3,34);await wait(q);shot(5,1.6,7,0,1.4,0,3,36);await wait(q);
     $('vs').classList.remove('on');baseShot();RT.classList.remove('cine','act');G.phase='wait';G.busy=false},
   /* true = pemain menekan ROLL (atau 5 detik habis -> otomatis); false = UI ditutup / dikunci */
-  waitForRoll(round){const b=$('roll');b.disabled=false;G.phase='wait';diceReset();label(0,'—','SIAP');label(1,'—','SIAP');
+  waitForRoll(round){const b=$('roll');b.disabled=false;G.phase='wait';diceReset();label(0,'â€”','SIAP');label(1,'â€”','SIAP');
     $('hint').style.opacity=1;if(!$('hint').textContent)$('hint').textContent='Tekan ROLL untuk giliran '+round+' dari 3.';
     return new Promise(res=>{if(rollRes)rollRes(false);rollRes=res;clearRollTimer();let left=Math.round(ROLL_LIMIT_MS/1000);const s=rollSmall();if(s)s.textContent=left+' dtk';
       rollTick=setInterval(()=>{left--;const t=rollSmall();if(t&&left>0)t.textContent=left+' dtk'},1000);rollTimer=setTimeout(pressRoll,ROLL_LIMIT_MS)})},
@@ -676,9 +676,9 @@ const UI={
     if(rollRes){const r=rollRes;rollRes=null;r(false)}},
   /* dadu berguling lalu mendarat; values = [dadu pemain 0, dadu pemain 1] */
   async revealRolls(values){const ep=epoch;ensureAudio();baseShot();G.phase='roll';$('hint').style.opacity=0;
-    label(0,'—','MELEMPAR…');label(1,'—','MELEMPAR…');diceRoll(true);sfx('roll');await wait(options.reducedMotion?.4:1.3);
+    label(0,'â€”','MELEMPARâ€¦');label(1,'â€”','MELEMPARâ€¦');diceRoll(true);sfx('roll');await wait(options.reducedMotion?.4:1.3);
     diceRoll(false);diceFace('cL',values[0]);diceFace('cR',values[1]);sfx('hit');
-    label(0,values[0]+' · '+ACT_NAME[values[0]],ACT_NAME[values[0]],1);label(1,values[1]+' · '+ACT_NAME[values[1]],ACT_NAME[values[1]],1);
+    label(0,values[0]+' Â· '+ACT_NAME[values[0]],ACT_NAME[values[0]],1);label(1,values[1]+' Â· '+ACT_NAME[values[1]],ACT_NAME[values[1]],1);
     await wait(1.1)},
   /* hp: [hp0,hp1] (dari duel-core), turns = giliran yang sudah selesai */
   state(hp,turns,max){max=max||100;if(P&&E){P.hp=hp[0]*100/max;E.hp=hp[1]*100/max}if(turns!=null)G.turn=turns;hud()},
@@ -746,3 +746,4 @@ function loopStop(){running=false;cancelAnimationFrame(raf)}
   });
   UT.GameplayDuelUI = UI;
 })();
+

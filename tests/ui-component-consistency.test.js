@@ -83,8 +83,8 @@ test('card/panel containers tetap utuh', () => {
 });
 
 // 5. Service Worker version bumped
-test('sw.js: versi service worker diperbarui ke ut-pwa-v611', () => {
-  assert.ok(swJs.includes("const VERSION = 'ut-pwa-v611';"), 'SW VERSION harus v611');
+test('sw.js: versi service worker diperbarui ke ut-pwa-v612', () => {
+  assert.ok(swJs.includes("const VERSION = 'ut-pwa-v612';"), 'SW VERSION harus v612');
 });
 
 console.log(`${n} UI component consistency tests passed.`);

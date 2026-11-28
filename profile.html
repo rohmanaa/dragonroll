@@ -1,7 +1,7 @@
 ﻿<!doctype html>
 <html lang="id"><head><base href="/"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/js/core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Dragon Roll â€” Profil, Teman, Pesan &amp; Pengaturan</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
@@ -64,31 +64,32 @@
   </div></div>
   <div id="toast"></div>
 </template>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="src/stores/item-catalog.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
 <script src="data/inventory/character/_shared/js/character-view.js"></script>
-<script src="assets/js/renderers/item-art.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/services/wallet-service.js"></script>
-<script src="assets/js/services/appearance-service.js"></script>
-<script src="assets/js/core/app.js"></script>
+<script src="src/renderers/item-art.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/services/wallet-service.js"></script>
+<script src="src/services/appearance-service.js"></script>
+<script src="src/core/app.js"></script>
 <script src="src/components/ui-core.js"></script>
 <script>UT.App.init({page:"profile"});</script>
-<script src="assets/js/vendor/three.min.js"></script>
-<script src="assets/js/renderers/blocky-character.js"></script>
-<script src="assets/js/renderers/character-face.js"></script>
-<script src="assets/js/renderers/aura-fx.js"></script>
-<script src="assets/js/renderers/aura-view.js"></script>
-<script src="assets/js/core/shared-gl.js"></script>
+<script src="src/vendor/three.min.js"></script>
+<script src="src/renderers/blocky-character.js"></script>
+<script src="src/renderers/character-face.js"></script>
+<script src="src/renderers/aura-fx.js"></script>
+<script src="src/renderers/aura-view.js"></script>
+<script src="src/core/shared-gl.js"></script>
 <script src="data/inventory/pet/_shared/js/pet-model-registry.js"></script>
 <script src="data/inventory/pet/_shared/js/pet-photo.js"></script>
-<script src="assets/js/core/modal-kit.js"></script>
-<script src="assets/js/core/account-hub.js"></script>
-<script src="assets/js/core/page-module.js"></script>
+<script src="src/core/modal-kit.js"></script>
+<script src="src/core/account-hub.js"></script>
+<script src="src/core/page-module.js"></script>
 <script>UT.PageModule.managed=true;</script>
-<script src="assets/js/pages/profile.js"></script>
-<script src="assets/js/pages/account.js"></script>
+<script src="src/views/profile.js"></script>
+<script src="src/views/account.js"></script>
 <script>UT.PageModule.mount("profile");</script>
 </body></html>
+
 

@@ -1,4 +1,4 @@
--- Outfit pribadi + tampilan aktif di SERVER. Terapkan SETELAH 202611120001_wallet_b6_ad_reward.sql
+﻿-- Outfit pribadi + tampilan aktif di SERVER. Terapkan SETELAH 202611120001_wallet_b6_ad_reward.sql
 -- (butuh item_catalog + player_inventory dari B2 dan is_game_room_member dari 202611060001).
 --
 -- Isi:
@@ -12,7 +12,7 @@
 -- security definer yang memakai auth.uid(). Validasi satu pintu di fungsi internal _outfit_normalize /
 -- _appearance_normalize; data yang ditolak tidak menulis apa pun (tidak ada simpan setengah).
 -- Kepemilikan: item dimiliki bila item starter ATAU ada di player_inventory (starter tidak disimpan di inventory server).
--- Bentuk data outfit sama dengan PlayerData klien (assets/js/player-data.js, cleanOutfitData):
+-- Bentuk data outfit sama dengan PlayerData klien (src/stores/player-data.js, cleanOutfitData):
 --   { gender:'m'|'f', top|legs|boots|helm|chest|shoulder|cape|weapon:{id, dye?}, accessories:[{id, dye?}] }
 
 -- ============ 1. Gender item ============
@@ -398,3 +398,4 @@ end;
 $$;
 revoke all on function public.room_appearance_get(uuid) from public, anon;
 grant execute on function public.room_appearance_get(uuid) to authenticated;
+

@@ -1,4 +1,4 @@
--- Set PVP: Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, celana, sepatu, mahkota, zirah, bahu, jubah, pedang).
+﻿-- Set PVP: Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, celana, sepatu, mahkota, zirah, bahu, jubah, pedang).
 -- Terapkan SETELAH 202611310001_pvp_wins_unlock.sql (butuh pvp_unlocks, player_stats.pvp_wins) dan 202611130001_player_outfits.sql.
 -- Aman diulang (upsert / create or replace).
 --
@@ -9,7 +9,7 @@
 --   * _appearance_normalize: wajah (eyes) & rambut (hair) yang ADA di katalog kini wajib dimiliki. Sebelumnya hanya dicek bentuk
 --     datanya, sehingga id wajah terkunci bisa disimpan lewat appearance_save tanpa memiliki. Mata/rambut dasar (tidak ada di katalog)
 --     tetap gratis.
---   * Angka min_wins di sini harus sama dengan unlock.wins di assets/js/item-catalog.js (PVP_SETS); itu hanya info tampilan.
+--   * Angka min_wins di sini harus sama dengan unlock.wins di src/stores/item-catalog.js (PVP_SETS); itu hanya info tampilan.
 
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('gear.boots.mahkota', 'gear', null, false, false),
@@ -184,3 +184,4 @@ begin
   return jsonb_build_object('ok', true, 'look', v_look, 'equipped', v_eq, 'gear_dye', v_gd);
 end;
 $$;
+

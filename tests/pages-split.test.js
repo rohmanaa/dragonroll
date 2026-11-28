@@ -24,10 +24,10 @@ t("semua src/href ke assets/{js,css}/pages ada, dan url() CSS halaman menunjuk f
     });
   });
 });
-t("import() dinamis di JS halaman memakai path relatif ke assets/js/pages (../../../assets/...)", () => {
-  fs.readdirSync(path.join(root, "assets/js/pages")).forEach(f => {
-    const js = fs.readFileSync(path.join(root, "assets/js/pages", f), "utf8");
-    [...js.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)].forEach(m => assert.ok(fs.existsSync(path.join(root, "assets/js/pages", m[1])), f + " import(" + m[1] + ")"));
+t("import() dinamis di JS halaman memakai path relatif ke src/views (../../../assets/...)", () => {
+  fs.readdirSync(path.join(root, "src/views")).forEach(f => {
+    const js = fs.readFileSync(path.join(root, "src/views", f), "utf8");
+    [...js.matchAll(/import\(\s*['"]([^'"]+)['"]\s*\)/g)].forEach(m => assert.ok(fs.existsSync(path.join(root, "src/views", m[1])), f + " import(" + m[1] + ")"));
   });
 });
 console.log(n + " tes lulus");

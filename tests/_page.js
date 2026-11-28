@@ -1,4 +1,4 @@
-/* Pembaca halaman untuk tes: CSS/JS halaman sudah dipecah ke src/styles/pages & assets/js/pages (tools/extract-inline.py).
+/* Pembaca halaman untuk tes: CSS/JS halaman sudah dipecah ke src/styles/pages & src/views (tools/extract-inline.py).
    readFileSync() di sini mengembalikan HTML dengan blok itu disatukan kembali di posisi aslinya, supaya tes statis
    yang membaca teks halaman (urutan skrip, regex isi skrip) tetap bekerja. File selain .html diteruskan apa adanya. */
 const fs = require("fs"), path = require("path");

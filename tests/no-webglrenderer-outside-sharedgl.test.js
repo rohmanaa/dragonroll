@@ -1,4 +1,4 @@
-/* Kriteria SPA: tidak ada `new THREE.WebGLRenderer` di luar UT.SharedGL.
+﻿/* Kriteria SPA: tidak ada `new THREE.WebGLRenderer` di luar UT.SharedGL.
    PENGECUALIAN_SENGAJA = memang mandiri (halaman contoh, gameplay dibekukan).
    PELANGGAR_TERSISA    = utang migrasi; setiap tahap tab MENGHAPUS satu entri dari daftar ini (tes gagal bila entri sudah bersih,
    supaya daftar tidak membusuk). */
@@ -10,20 +10,20 @@ const ROOT = path.join(__dirname, '..');
 const SKIP_DIRS = new Set(['node_modules', '.git', 'referensi', 'release', 'tests', 'audit', 'docs', 'promosi', 'tools']);
 const PATTERN = /new\s+(?:THREE|T)\.WebGLRenderer\s*\(/;
 
-const SHARED_GL = 'assets/js/core/shared-gl.js';
+const SHARED_GL = 'src/core/shared-gl.js';
 const PENGECUALIAN_SENGAJA = [
-  'assets/js/pages/floatingsample.js',
+  'src/views/floatingsample.js',
   'gameplay/js/main.js',
   'gameplay/js/duel-ui.js',          // di area gameplay yang dibekukan
   'tambang-world/js/tambang-world.js'   // halaman mandiri demo tambang-world
 ];
 const PELANGGAR_TERSISA = [
-  'assets/js/renderers/power-3d/power-renderer.js'
+  'src/renderers/power-3d/power-renderer.js'
 ];
 /* MODE GANDA: SharedGL bila pemanggil meminta (opts.sharedGL: tab Dadu di shell); selain itu renderer sendiri karena gameplay.html (dibekukan)
    memakai DiceKit yang sama dan boleh punya beberapa instance sekaligus (SharedGL = satu pemilik pada satu waktu). */
-const MODE_GANDA = ['assets/js/renderers/dice-kit/dice-renderer.js'];
-const PEMEGANG_OFFSCREEN = ['assets/js/renderers/character-face.js'];   // jalur cadangan bila SharedGL.offscreen tidak ada
+const MODE_GANDA = ['src/renderers/dice-kit/dice-renderer.js'];
+const PEMEGANG_OFFSCREEN = ['src/renderers/character-face.js'];   // jalur cadangan bila SharedGL.offscreen tidak ada
 
 function walk(dir, out) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -41,7 +41,7 @@ for (const f of PELANGGAR_TERSISA) assert.ok(hits.includes(f), f + ' sudah bersi
 
 /* Dadu (tahap 4): dice-renderer mode ganda; tab Dadu SELALU lewat SharedGL */
 for (const f of MODE_GANDA) assert.ok(hits.includes(f), f + ' sudah tidak punya jalur mandiri: pindahkan ke daftar bersih');
-const dr = fs.readFileSync(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-renderer.js'), 'utf8');
+const dr = fs.readFileSync(path.join(ROOT, 'src/renderers/dice-kit/dice-renderer.js'), 'utf8');
 assert.match(dr, /opts\.sharedGL && globalThis\.UT && globalThis\.UT\.SharedGL/);
 assert.match(dr, /SGL\.acquire\(String\(opts\.sharedGL\)/);
 assert.match(dr, /SharedGL\.release\(this\._glOwner\)/);
@@ -59,7 +59,8 @@ assert.match(viewer, /SGL\.acquire\(GL_OWNER/);
 assert.match(viewer, /SharedGL\.release\(GL_OWNER/);
 assert.ok(!/forceContextLoss/.test(viewer), 'renderer bersama tidak boleh dimatikan oleh satu halaman');
 const pet = fs.readFileSync(path.join(ROOT, 'pet.html'), 'utf8');
-assert.ok(pet.indexOf('assets/js/core/shared-gl.js') > pet.indexOf('assets/js/vendor/three.min.js'));
-assert.ok(pet.indexOf('assets/js/core/shared-gl.js') < pet.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
+assert.ok(pet.indexOf('src/core/shared-gl.js') > pet.indexOf('src/vendor/three.min.js'));
+assert.ok(pet.indexOf('src/core/shared-gl.js') < pet.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
 
 console.log('ok - WebGLRenderer hanya di SharedGL; pelanggar tersisa: ' + PELANGGAR_TERSISA.length);
+

@@ -1,11 +1,11 @@
-/* Tes set PVP Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, ..., pedang) di Karakter. Jalankan: node tests/pvp-knight-gear.test.js
+﻿/* Tes set PVP Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, ..., pedang) di Karakter. Jalankan: node tests/pvp-knight-gear.test.js
    Mengunci: (1) katalog klien, (2) builder di karakter.js benar-benar dieksekusi dengan stub (tanpa WebGL), (3) migrasi server sama
    dengan katalog, (4) kabel UI klaim, (5) seed katalog server tidak usang. TIDAK menguji render WebGL maupun SQL asli (butuh browser/Postgres). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), cp = require('child_process'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
-const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w);
+const w = {}; new Function('window', rd('src/stores/item-catalog.js'))(w);
 const C = w.ItemCatalog, pvp = C.items.filter(i => i.unlock && i.unlock.type === 'pvp');
 const PARTS = ['eyes', 'hair', 'top', 'legs', 'boots', 'helm', 'chest', 'shoulder', 'cape', 'weapon'];
 const SETS = { mahkota: 10, rival: 20 };
@@ -95,7 +95,7 @@ t('UI: item & set PVP menampilkan MENANG N PVP dan klaim lewat server (bukan bel
   assert.ok(K.includes('UT.Multiplayer.Progress.claimPvpUnlocks(ids)'));
   assert.ok(K.includes("if(!SV()){toast('Masuk ke akun untuk membuka item PVP.');return;}"), 'tamu/lokal tidak bisa membuka');
   assert.ok(!K.includes('PD.grant') && !/PD\.(add|give)\w*\(/.test(K.slice(K.indexOf('async function claimPvp'), K.indexOf('function startPreview'))), 'klien tidak memberi item sendiri');
-  assert.ok(rd('assets/js/multiplayer/progress-service.js').includes("rpc('claim_pvp_unlocks',{p_item_ids:itemIds})"));
+  assert.ok(rd('src/multiplayer/progress-service.js').includes("rpc('claim_pvp_unlocks',{p_item_ids:itemIds})"));
 });
 
 /* ---- migrasi server ---- */
@@ -125,3 +125,4 @@ t('seed katalog server (gen-item-seed --check) tidak usang', () => {
   assert.strictEqual(r.status, 0, r.stdout + r.stderr);
 });
 console.log(n + ' tes lulus');
+

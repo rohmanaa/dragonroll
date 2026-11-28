@@ -1,12 +1,12 @@
-/* Hub Profil · Teman · Pesan · Pengaturan (satu halaman penuh, bukan modal): helper murni + pemeriksaan statis kode/markup.
+﻿/* Hub Profil Â· Teman Â· Pesan Â· Pengaturan (satu halaman penuh, bukan modal): helper murni + pemeriksaan statis kode/markup.
    Perilaku DOM (fokus, inert, Esc, ganti tab) diverifikasi terpisah dengan jsdom; tes ini tanpa dependensi agar jalan di CI. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
 const rd = p => fs.readFileSync(path.join(root, p), 'utf8');
-const H = require(path.join(root, 'assets/js/core/account-hub.js'));
-const MK = require(path.join(root, 'assets/js/core/modal-kit.js'));
+const H = require(path.join(root, 'src/core/account-hub.js'));
+const MK = require(path.join(root, 'src/core/modal-kit.js'));
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -39,7 +39,7 @@ t('hubUrl mengunci from yang tidak valid', () => {
   assert.strictEqual(H.hubUrl('xx'), 'profile.html?tab=profil');
 });
 
-const hub = rd('assets/js/core/account-hub.js');
+const hub = rd('src/core/account-hub.js');
 t('hub = halaman penuh (bukan modal): tanpa role=dialog/aria-modal/inert/focus trap/klik-luar; ada tombol Tutup, Esc, tablist/tab/tabpanel', () => {
   assert(!/hub\.setAttribute\('role', 'dialog'\)/.test(hub) && !/hub\.setAttribute\('aria-modal'/.test(hub), 'kerangka hub tidak boleh role=dialog/aria-modal (dialog kecil dalam panel tetap boleh)');
   assert(!/inertOthers/.test(hub) && !/trapTab/.test(hub) && !/pointerdown/.test(hub) && !/backdrop/.test(hub) && !/EMBED/.test(hub));
@@ -66,9 +66,9 @@ t('ganti tab = in-place: replaceState (bukan pushState/location.href), unmount s
   assert(/busy/.test(hub) && /want/.test(hub));
 });
 t('pane Teman/Pesan/Pengaturan tidak lagi memasang tab lama; Esc Pengaturan/Profil tidak meninggalkan halaman', () => {
-  ['friendship-page.js', 'mail.js', 'settings.js', 'profile.js'].forEach(f => assert(!/ProfileTabs/.test(rd('assets/js/pages/' + f)), f));
-  assert(!/else home\(\)/.test(rd('assets/js/pages/settings.js')));
-  assert(!/Escape/.test(rd('assets/js/pages/profile.js')));
+  ['friendship-page.js', 'mail.js', 'settings.js', 'profile.js'].forEach(f => assert(!/ProfileTabs/.test(rd('src/views/' + f)), f));
+  assert(!/else home\(\)/.test(rd('src/views/settings.js')));
+  assert(!/Escape/.test(rd('src/views/profile.js')));
 });
 t('profile.html = host hub: #stage kosong, template Profil, managed=true sebelum modul panel, account.js lalu mount mandiri', () => {
   const h = rd('profile.html');
@@ -86,8 +86,8 @@ t('friendship/mail/settings.html: dialihkan ke hub bila dibuka langsung; tab lam
     assert(h.indexOf('hub-redirect.js') < h.indexOf('page-shell.js'), f + ': pengalihan harus paling awal');
     assert(!/profile-tabs/.test(h), f);
   });
-  assert(/profile\.html\?tab=/.test(rd('assets/js/core/hub-redirect.js')));
-  assert(/hub-redirect/.test(rd('assets/js/core/spa-host.js')) && /hub-redirect/.test(hub));   // tidak boleh ikut dimuat pemuat view
+  assert(/profile\.html\?tab=/.test(rd('src/core/hub-redirect.js')));
+  assert(/hub-redirect/.test(rd('src/core/spa-host.js')) && /hub-redirect/.test(hub));   // tidak boleh ikut dimuat pemuat view
 });
 t('ModalKit: API lengkap & trapTab membungkus di batas', () => {
   ['watch', 'trapTab', 'inertOthers', 'focusables'].forEach(k => assert.strictEqual(typeof MK[k], 'function', k));
@@ -105,3 +105,4 @@ t('ModalKit: API lengkap & trapTab membungkus di batas', () => {
   assert.strictEqual(prevented, 2);
 });
 console.log(n + ' tes lulus');
+

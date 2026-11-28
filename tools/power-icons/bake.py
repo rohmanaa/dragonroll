@@ -1,4 +1,4 @@
-"""Render ikon Power dari model 3D (assets/js/renderers/power3d) ke data/power/3d/<gameKey>.png.
+﻿"""Render ikon Power dari model 3D (src/renderers/power3d) ke data/power/3d/<gameKey>.png.
 Jalankan dari akar repo:  python3 tools/power-icons/bake.py [key ...]   (butuh playwright + Chrome/Chromium; tanpa argumen = semua power).
 Power baru: tambahkan di KEY_TO_POWER3D (power-show.js), lalu jalankan dengan key-nya saja agar ikon lain tidak berubah."""
 import base64, http.server, os, socketserver, threading, sys
@@ -25,3 +25,4 @@ with sync_playwright() as p:
         open(os.path.join(OUT, k + '.png'), 'wb').write(base64.b64decode(d.split(',', 1)[1])); print('ok', k)
     b.close()
 srv.shutdown()
+

@@ -1,9 +1,9 @@
-/* Tes paritas Pet (Stage 4): manifest data/inventory/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
+﻿/* Tes paritas Pet (Stage 4): manifest data/inventory/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
    Jalankan: node tests/pet-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada + header WebP  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
@@ -17,10 +17,10 @@ const reg = IR.create(), res = PetCat.register(reg), items = reg.getCategory('pe
 function boot(chains) {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  chains.concat(['src/core/session.js', 'src/stores/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
-const PET_CHAIN = ['assets/js/core/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);
+const PET_CHAIN = ['src/core/item-registry.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js'), ['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaPet = boot(PET_CHAIN), viaBoth = boot(PET_CHAIN.concat(FRAME_CHAIN));
 
@@ -45,7 +45,7 @@ t('Registry: urutan manifest = urutan ItemCatalog (tier 1..7); KEYS = gameKey', 
   assert.deepStrictEqual(items.map(i => i.id), bp.map(i => i.id)); assert.deepStrictEqual(PetCat.keys, bp.map(i => i.gameKey));
   assert.deepStrictEqual(items.map(i => i.tier), [1, 2, 3, 4, 5, 6, 7]);
 });
-t('Registry: nilai manifest dibekukan (deep-freeze) — mutasi tidak mengubah Registry', () => {
+t('Registry: nilai manifest dibekukan (deep-freeze) â€” mutasi tidak mengubah Registry', () => {
   const it = reg.getItem('pet.forest_pup'); assert.ok(Object.isFrozen(it) && Object.isFrozen(it.visual) && Object.isFrozen(it.visual.colors));
 });
 
@@ -78,13 +78,13 @@ t('ItemCatalog: kategori non-Pet tidak berubah (176 item) dan Frame 29/29 sama d
   const IC = viaBoth.ItemCatalog; assert.deepStrictEqual(clone(IC.items.filter(i => i.kind !== 'pet')), base.items.filter(i => i.kind !== 'pet'));
   assert.deepStrictEqual(clone(IC.items.filter(i => i.kind === 'frame')), bf);
 });
-t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) — bentuk item = baseline; manifest sengaja mengubah katalog (bukti sumber)', () => {
+t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) â€” bentuk item = baseline; manifest sengaja mengubah katalog (bukti sumber)', () => {
   assert.deepStrictEqual(Object.keys(viaPet.ItemCatalog.byId('pet.storm_wolf')).sort(), Object.keys(bp[4]).sort());
   const c2 = boot([]); /* VM bersih dengan manifest storm_wolf termutasi */
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
-  const x = vm.createContext(Object.assign(w, { console, Date, JSON, Math })); vm.runInContext(rd('assets/js/core/item-registry.js'), x);
+  const x = vm.createContext(Object.assign(w, { console, Date, JSON, Math })); vm.runInContext(rd('src/core/item-registry.js'), x);
   PetCat.keys.forEach(k => { let s = rd('data/inventory/pet/items/' + k + '/manifest.js'); if (k === 'storm_wolf') s = s.replace('"Storm Wolf"', '"Storm Wolf UJI"').replace('gems: 1500', 'gems: 1501'); vm.runInContext(s, x); });
-  vm.runInContext(rd('data/inventory/pet/index.js'), x); vm.runInContext(rd('assets/js/item-catalog.js'), x);
+  vm.runInContext(rd('data/inventory/pet/index.js'), x); vm.runInContext(rd('src/stores/item-catalog.js'), x);
   const s = x.ItemCatalog.byId('pet.storm_wolf'); assert.strictEqual(x.ItemCatalog.petSource(), 'registry'); assert.strictEqual(s.name, 'Storm Wolf UJI'); assert.strictEqual(s.gems, 1501);
 });
 t('ItemCatalog: semua API lama tetap ada; cost/byId/byGameKey/optionalSlots/KIND_META.pet sama di semua jalur', () => {
@@ -98,17 +98,17 @@ t('ItemCatalog: semua API lama tetap ada; cost/byId/byGameKey/optionalSlots/KIND
 t('Ketahanan: Registry + index.js ada tetapi manifest belum dimuat -> jalur cadangan, katalog identik baseline', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {} }, Date, JSON, Math }));
-  ['assets/js/core/item-registry.js', 'data/inventory/pet/index.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
+  ['src/core/item-registry.js', 'data/inventory/pet/index.js', 'src/stores/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx));
   assert.strictEqual(ctx.ItemCatalog.petSource(), 'legacy'); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 t('Pemuatan ganda: item-catalog.js dimuat dua kali tidak menggandakan registrasi', () => {
-  vm.runInContext(rd('assets/js/item-catalog.js'), viaBoth); const R = viaBoth.UT.ItemRegistry.shared();
+  vm.runInContext(rd('src/stores/item-catalog.js'), viaBoth); const R = viaBoth.UT.ItemRegistry.shared();
   assert.strictEqual(R.getCategory('pet').count, 7); assert.strictEqual(R.getCategory('frame').count, 29); assert.strictEqual(R.rejected().length, 0);
 });
 
 /* ---- konsumen existing ---- */
 t('PlayerData: kepemilikan/equipped/pembelian identik antara jalur cadangan dan jalur Registry (struktur & transaksi tidak berubah)', () => {
-  const snap = ctx => { vm.runInContext(rd('assets/js/player-data.js'), ctx); const PD = ctx.PlayerData;
+  const snap = ctx => { vm.runInContext(rd('src/stores/player-data.js'), ctx); const PD = ctx.PlayerData;
     return clone({ owns: bp.map(p => PD.owns(p.id)), eq: PD.equippedId('pet'), eqF: PD.equippedId('frame'), coins: PD.coins(), gems: PD.gems(), buy: PD.purchase('pet.forest_pup'), buyG: PD.purchase('pet.storm_wolf'),
       eqUnowned: PD.equip('pet.forest_pup'), snapshot: PD.snapshot ? PD.snapshot() : null }); };
   const strip = o => JSON.parse(JSON.stringify(o, (k, v) => (/At$/.test(k) ? undefined : v)));   /* buang cap waktu (createdAt/acquiredAt/...) */
@@ -122,7 +122,7 @@ t('Pet catalog / pet-page: konsumen membaca IC.items kind pet urut tier; gambar 
   items.forEach(m => assert.strictEqual(m.assets.image, 'data/inventory/pet/items/' + m.gameKey + '/' + m.gameKey.replace(/_/g, '-') + '.webp'));
 });
 t('AppearanceService: memuat dengan katalog jalur Registry tanpa error; slot pet opsional', () => {
-  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('assets/js/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'assets/js/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 183);
+  const ctx = boot(PET_CHAIN.concat(FRAME_CHAIN)); vm.runInContext(rd('src/stores/player-data.js'), ctx); assert.ok(require(path.join(ROOT, 'src/services/appearance-service.js'))); assert.strictEqual(ctx.ItemCatalog.items.length, 183);
 });
 t('Server catalog: id/harga/gems/starter/kind Pet = seed server (migrasi pet) dan supabase/pet_catalog.sql (tanpa mengubah SQL)', () => {
   const seed = /BEGIN PET SEED[\s\S]*?END PET SEED/.exec(rd('supabase/migrations/202611290001_pet_catalog.sql'))[0]; let seen = 0;
@@ -263,21 +263,21 @@ t('Aset: gambar Pet baru dan ke-21 SFX terdaftar di preload-manifest.json dengan
 });
 t('SFX: pet.html memuat manifest + pet/index.js SEBELUM PetViewer', () => {
   const s = srcs(rd('pet.html')), pv = s.indexOf(PV_PATH); assert.ok(pv > 0);
-  const catalog = s.indexOf('assets/js/item-catalog.js'), playerData = s.indexOf('assets/js/player-data.js');
-  const three = s.indexOf('assets/js/vendor/three.min.js'), registry = s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js');
+  const catalog = s.indexOf('src/stores/item-catalog.js'), playerData = s.indexOf('src/stores/player-data.js');
+  const three = s.indexOf('src/vendor/three.min.js'), registry = s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js');
   assert.ok(catalog >= 0 && catalog < playerData && playerData < three && three < registry && registry < pv);
-  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.ok(s.indexOf(f) >= 0 && s.indexOf(f) < pv, f));
+  PET_CHAIN.concat(['src/stores/item-catalog.js']).forEach(f => assert.ok(s.indexOf(f) >= 0 && s.indexOf(f) < pv, f));
 });
 t('D. pemuatan aset/visual/audio di browser: NOT TESTED (tidak diuji oleh tes ini)', () => { assert.ok(true); });
 
 /* ---- pemuatan skrip ---- */
 t('pet.html: item-registry.js -> 7 manifest -> pet/index.js -> item-catalog.js -> skrip halaman; tepat satu kali; tanpa document.write', () => {
-  const html = rd('pet.html'), s = srcs(html), i = s.indexOf('assets/js/item-catalog.js'); assert.deepStrictEqual(s.slice(i - PET_CHAIN.length, i), PET_CHAIN);
-  PET_CHAIN.concat(['assets/js/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('data/inventory/pet/_shared/js/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
+  const html = rd('pet.html'), s = srcs(html), i = s.indexOf('src/stores/item-catalog.js'); assert.deepStrictEqual(s.slice(i - PET_CHAIN.length, i), PET_CHAIN);
+  PET_CHAIN.concat(['src/stores/item-catalog.js']).forEach(f => assert.strictEqual(s.filter(x => x === f).length, 1, f)); assert.ok(s.indexOf('data/inventory/pet/_shared/js/pet-page.js') > i); assert.ok(!/document\.write/.test(html));
   assert.strictEqual(s.filter(x => x === 'data/inventory/pet/_shared/js/pet-model-registry.js').length, 1);
-  assert.ok(s.indexOf('assets/js/vendor/three.min.js') < s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
-  assert.ok(s.indexOf('assets/js/item-catalog.js') < s.indexOf('assets/js/player-data.js'));
-  assert.ok(s.indexOf('assets/js/player-data.js') < s.indexOf('assets/js/vendor/three.min.js'));
+  assert.ok(s.indexOf('src/vendor/three.min.js') < s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
+  assert.ok(s.indexOf('src/stores/item-catalog.js') < s.indexOf('src/stores/player-data.js'));
+  assert.ok(s.indexOf('src/stores/player-data.js') < s.indexOf('src/vendor/three.min.js'));
   assert.ok(s.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js') < s.indexOf(PV_PATH));
   PET_CHAIN.forEach(f => assert.ok(fs.existsSync(path.join(ROOT, f)), f));
 });
@@ -290,6 +290,7 @@ t('Halaman lain tidak memuat manifest Pet; gameplay.html tidak berubah', () => {
   fs.readdirSync(ROOT).filter(f => /\.html$/.test(f) && f !== 'pet.html').forEach(f => assert.ok(!/inventory\/pet\/items\/[^"']*manifest\.js/.test(rd(f)), f)); /* halaman lain boleh memakai CSS pet-page (dadu/frame), tapi tidak memuat manifest Pet */
 });
 t('Loader lama dibuang: tidak ada document.write di berkas Registry/manifest/index/katalog', () => {
-  ['assets/js/core/item-registry.js', 'assets/js/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
+  ['src/core/item-registry.js', 'src/stores/item-catalog.js', 'data/inventory/pet/index.js', 'data/inventory/frame/index.js'].concat(PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js')).forEach(f => assert.ok(!/document\.write/.test(rd(f)), f));
 });
 console.log('\n' + n + ' tes lulus');
+

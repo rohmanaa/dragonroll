@@ -103,21 +103,21 @@
     "assets/Images/mode/turnamen.webp": "assets/images/ui/mode/turnamen.webp",
     "assets/js/character-data.js": "data/karakter/js/character-data.js",
     "assets/js/mine-island.js": "data/tambang/js/mine-island.js",
-    "assets/js/pages/dadu.js": "data/dice/js/dadu.js",
-    "assets/js/pages/efek.js": "data/aura/js/efek.js",
-    "assets/js/pages/frame.js": "data/frame/js/frame.js",
-    "assets/js/pages/karakter.js": "data/karakter/js/karakter.js",
-    "assets/js/pages/lobby.js": "data/lobby/js/lobby.js",
-    "assets/js/pages/pet-page.js": "data/pet/js/pet-page.js",
-    "assets/js/pages/powerup.js": "data/power/js/powerup.js",
-    "assets/js/pages/tambang.js": "data/tambang/js/tambang.js",
-    "assets/js/renderers/character-view.js": "data/karakter/js/character-view.js",
-    "assets/js/renderers/frame-avatar.js": "data/frame/js/frame-avatar.js",
-    "assets/js/renderers/frame-fx.js": "data/frame/js/frame-fx.js",
-    "assets/js/renderers/pet-model-registry.js": "data/pet/js/pet-model-registry.js",
-    "assets/js/renderers/pet-viewer.js": "data/pet/js/pet-viewer.js",
-    "assets/js/renderers/room-dice-art.js": "data/dice/js/room-dice-art.js",
-    "assets/js/services/mine-service.js": "data/tambang/js/mine-service.js",
+    "src/views/dadu.js": "data/dice/js/dadu.js",
+    "src/views/efek.js": "data/aura/js/efek.js",
+    "src/views/frame.js": "data/frame/js/frame.js",
+    "src/views/karakter.js": "data/karakter/js/karakter.js",
+    "src/views/lobby.js": "data/lobby/js/lobby.js",
+    "src/views/pet-page.js": "data/pet/js/pet-page.js",
+    "src/views/powerup.js": "data/power/js/powerup.js",
+    "src/views/tambang.js": "data/tambang/js/tambang.js",
+    "src/renderers/character-view.js": "data/karakter/js/character-view.js",
+    "src/renderers/frame-avatar.js": "data/frame/js/frame-avatar.js",
+    "src/renderers/frame-fx.js": "data/frame/js/frame-fx.js",
+    "src/renderers/pet-model-registry.js": "data/pet/js/pet-model-registry.js",
+    "src/renderers/pet-viewer.js": "data/pet/js/pet-viewer.js",
+    "src/renderers/room-dice-art.js": "data/dice/js/room-dice-art.js",
+    "src/services/mine-service.js": "data/tambang/js/mine-service.js",
     "assets/music/gameplay.mp3": "assets/audio/music/gameplay.mp3",
     "assets/ng/css/bg.css": "assets/css/bg.css",
     "assets/ng/css/common.css": "assets/css/common.css",
@@ -519,21 +519,21 @@
     "assets/Images/mode/turnamen.webp": "phase1",
     "assets/js/character-data.js": "phase3",
     "assets/js/mine-island.js": "phase3",
-    "assets/js/pages/dadu.js": "phase3",
-    "assets/js/pages/efek.js": "phase3",
-    "assets/js/pages/frame.js": "phase2",
-    "assets/js/pages/karakter.js": "phase3",
-    "assets/js/pages/lobby.js": "phase2",
-    "assets/js/pages/pet-page.js": "phase3",
-    "assets/js/pages/powerup.js": "phase2",
-    "assets/js/pages/tambang.js": "phase3",
-    "assets/js/renderers/character-view.js": "phase3",
-    "assets/js/renderers/frame-avatar.js": "phase2",
-    "assets/js/renderers/frame-fx.js": "phase2",
-    "assets/js/renderers/pet-model-registry.js": "phase3",
-    "assets/js/renderers/pet-viewer.js": "phase3",
-    "assets/js/renderers/room-dice-art.js": "phase3",
-    "assets/js/services/mine-service.js": "phase3",
+    "src/views/dadu.js": "phase3",
+    "src/views/efek.js": "phase3",
+    "src/views/frame.js": "phase2",
+    "src/views/karakter.js": "phase3",
+    "src/views/lobby.js": "phase2",
+    "src/views/pet-page.js": "phase3",
+    "src/views/powerup.js": "phase2",
+    "src/views/tambang.js": "phase3",
+    "src/renderers/character-view.js": "phase3",
+    "src/renderers/frame-avatar.js": "phase2",
+    "src/renderers/frame-fx.js": "phase2",
+    "src/renderers/pet-model-registry.js": "phase3",
+    "src/renderers/pet-viewer.js": "phase3",
+    "src/renderers/room-dice-art.js": "phase3",
+    "src/services/mine-service.js": "phase3",
     "assets/music/gameplay.mp3": "phase1",
     "assets/ng/css/bg.css": "phase1",
     "assets/ng/css/common.css": "phase1",
@@ -837,7 +837,7 @@
     {
       "file": "assets/css/base.css",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "old/dailyreward.html",
@@ -880,7 +880,7 @@
       "file": "assets/css/fonts.css",
       "used_by": [
         "README.md",
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -932,8 +932,8 @@
     {
       "file": "assets/css/night-fog.css",
       "used_by": [
-        "assets/js/pages/splash.js",
-        "assets/js/renderers/night-fog.js",
+        "src/views/splash.js",
+        "src/renderers/night-fog.js",
         "assets/preload-manifest.json",
         "splash.html"
       ],
@@ -1045,7 +1045,7 @@
     {
       "file": "assets/css/scene-bg.css",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "old/dailyreward.html",
@@ -1062,7 +1062,7 @@
     {
       "file": "assets/css/shared-ui.css",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay/css/gameplay.css",
         "old/dailyreward.html",
@@ -1414,7 +1414,7 @@
     {
       "file": "assets/Images/background/inventory-voxel-tas.webp",
       "used_by": [
-        "assets/js/inventory-bridge.js",
+        "src/stores/inventory-bridge.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -1552,7 +1552,7 @@
     {
       "file": "assets/Images/background/map-nether.webp",
       "used_by": [
-        "assets/js/pages/mode.js",
+        "src/views/mode.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -1565,7 +1565,7 @@
     {
       "file": "assets/Images/background/map-world.webp",
       "used_by": [
-        "assets/js/pages/mode.js",
+        "src/views/mode.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -1821,7 +1821,7 @@
       "file": "assets/Images/fx/fog1.webp",
       "used_by": [
         "assets/css/night-fog.css",
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -1835,7 +1835,7 @@
       "file": "assets/Images/fx/fog2.webp",
       "used_by": [
         "assets/css/night-fog.css",
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -1900,11 +1900,11 @@
     {
       "file": "assets/Images/icon/currency/coin.webp",
       "used_by": [
-        "assets/js/pages/karakter.js",
+        "src/views/karakter.js",
         "assets/preload-manifest.json",
         "lobby.html",
-        "old/assets/js/pages/dailyreward.js",
-        "old/assets/js/pages/misi.js",
+        "old/src/views/dailyreward.js",
+        "old/src/views/misi.js",
         "old/misi.html",
         "tests/lobby-background.test.js"
       ],
@@ -1931,7 +1931,7 @@
       "file": "assets/Images/icon/currency/emerald.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "old/assets/js/pages/dailyreward.js",
+        "old/src/views/dailyreward.js",
         "old/misi.html"
       ],
       "status": "referenced",
@@ -1969,11 +1969,11 @@
       "file": "assets/Images/icon/items/dadu.webp",
       "used_by": [
         "assets/Images/icon/README.md",
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "gameplay/css/gameplay.css",
         "gameplay/js/hud.js",
-        "old/assets/js/pages/misi.js"
+        "old/src/views/misi.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/items/dadu.webp",
@@ -1985,7 +1985,7 @@
     {
       "file": "assets/Images/icon/items/efek.webp",
       "used_by": [
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -2011,7 +2011,7 @@
       "file": "assets/Images/icon/items/power.webp",
       "used_by": [
         "assets/Images/icon/README.md",
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "gameplay/css/gameplay.css",
         "gameplay/js/hud.js"
@@ -2051,7 +2051,7 @@
       "file": "assets/Images/icon/lobby/gift.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "old/assets/js/pages/dailyreward.js",
+        "old/src/views/dailyreward.js",
         "old/misi.html"
       ],
       "status": "referenced",
@@ -2092,7 +2092,7 @@
       "file": "assets/Images/icon/lobby/inventory.webp",
       "used_by": [
         "assets/Images/icon/README.md",
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "lobby.html"
       ],
@@ -2107,7 +2107,7 @@
       "file": "assets/Images/icon/lobby/leader.webp",
       "used_by": [
         "assets/Images/icon/README.md",
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "gameplay/css/gameplay.css"
@@ -2146,7 +2146,7 @@
     {
       "file": "assets/Images/icon/lobby/shop.webp",
       "used_by": [
-        "assets/js/renderers/item-art.js",
+        "src/renderers/item-art.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/dadu.js",
         "referensi/newgui/game/js/efek.js",
@@ -2165,7 +2165,7 @@
     {
       "file": "assets/Images/icon/lobby/trophy.webp",
       "used_by": [
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -2178,7 +2178,7 @@
     {
       "file": "assets/Images/icon/mode/calndar.webp",
       "used_by": [
-        "assets/js/data/quest-data.js",
+        "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "old/misi.html"
       ],
@@ -2253,7 +2253,7 @@
     {
       "file": "assets/Images/icon/mode/robot.webp",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -2755,25 +2755,25 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/auth.js",
+      "file": "src/services/auth.js",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "splash.html",
         "supabase/migrations/202611090002_player_display_name.sql",
         "supabase/snapshot/00_full_schema.sql"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/auth.js",
+      "proposed_target": "src/services/auth.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/auth.js",
+      "planned_target": "src/services/auth.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/boot-guard.js",
+      "file": "src/boot/boot-guard.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -2800,19 +2800,19 @@
         "tests/room-page-modal.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/boot-guard.js",
+      "proposed_target": "src/boot/boot-guard.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/boot-guard.js",
+      "planned_target": "src/boot/boot-guard.js",
       "hold_reason": null
     },
     {
       "file": "assets/js/character-data.js",
       "used_by": [
         "assets/js/character-data.js",
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
-        "assets/js/renderers/character-view.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
+        "src/renderers/character-view.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "data/inventory/character/index.js",
@@ -2841,9 +2841,9 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/app.js",
+      "file": "src/core/app.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -2869,14 +2869,14 @@
         "tests/room-looks.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/app.js",
+      "proposed_target": "src/core/app.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/app.js",
+      "planned_target": "src/core/app.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/item-registry.js",
+      "file": "src/core/item-registry.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -2904,16 +2904,16 @@
         "tests/power-registry-parity.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/item-registry.js",
+      "proposed_target": "src/core/item-registry.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/item-registry.js",
+      "planned_target": "src/core/item-registry.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/live-sync.js",
+      "file": "src/core/live-sync.js",
       "used_by": [
-        "assets/js/core/live-sync.js",
+        "src/core/live-sync.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -2930,14 +2930,14 @@
         "tests/live-sync.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/live-sync.js",
+      "proposed_target": "src/core/live-sync.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/live-sync.js",
+      "planned_target": "src/core/live-sync.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/prefs-sync.js",
+      "file": "src/core/prefs-sync.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -2965,14 +2965,14 @@
         "tests/prefs-sync.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/prefs-sync.js",
+      "proposed_target": "src/core/prefs-sync.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/prefs-sync.js",
+      "planned_target": "src/core/prefs-sync.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/prefs.js",
+      "file": "src/core/prefs.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -3004,14 +3004,14 @@
         "tests/settings-prefs.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/prefs.js",
+      "proposed_target": "src/core/prefs.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/prefs.js",
+      "planned_target": "src/core/prefs.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/core/session.js",
+      "file": "src/core/session.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -3055,60 +3055,60 @@
         "tests/settings-prefs.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/core/session.js",
+      "proposed_target": "src/core/session.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/core/session.js",
+      "planned_target": "src/core/session.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/data/achievement-data.js",
+      "file": "src/data/achievement-data.js",
       "used_by": [
         "assets/preload-manifest.json",
         "hadiah-misi.html",
         "tests/achievement-data.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/data/achievement-data.js",
+      "proposed_target": "src/data/achievement-data.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/data/achievement-data.js",
+      "planned_target": "src/data/achievement-data.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/data/quest-data.js",
+      "file": "src/data/quest-data.js",
       "used_by": [
         "assets/preload-manifest.json",
         "hadiah-misi.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/data/quest-data.js",
+      "proposed_target": "src/data/quest-data.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/data/quest-data.js",
+      "planned_target": "src/data/quest-data.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/floating-island.js",
+      "file": "src/fx/floating-island.js",
       "used_by": [
         "assets/css/scene-bg.css",
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "floatingsample.html",
         "lobby.html",
-        "old/assets/js/pages/dailyreward.js",
+        "old/src/views/dailyreward.js",
         "old/dailyreward.html",
         "tests/lobby-background.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/floating-island.js",
+      "proposed_target": "src/fx/floating-island.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/floating-island.js",
+      "planned_target": "src/fx/floating-island.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/frame-guard.js",
+      "file": "src/boot/frame-guard.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -3136,29 +3136,29 @@
         "tambang.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/frame-guard.js",
+      "proposed_target": "src/boot/frame-guard.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/frame-guard.js",
+      "planned_target": "src/boot/frame-guard.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/game-integration.js",
+      "file": "src/services/game-integration.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "tests/dice-registry-parity.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/game-integration.js",
+      "proposed_target": "src/services/game-integration.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/game-integration.js",
+      "planned_target": "src/services/game-integration.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/inventory-bridge.js",
+      "file": "src/stores/inventory-bridge.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -3168,16 +3168,16 @@
         "powerup.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/inventory-bridge.js",
+      "proposed_target": "src/stores/inventory-bridge.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/inventory-bridge.js",
+      "planned_target": "src/stores/inventory-bridge.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/item-catalog.js",
+      "file": "src/stores/item-catalog.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "data/inventory/dice/index.js",
@@ -3229,16 +3229,16 @@
         "tools/wallet/gen-item-seed.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/item-catalog.js",
+      "proposed_target": "src/stores/item-catalog.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/item-catalog.js",
+      "planned_target": "src/stores/item-catalog.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/landscape.js",
+      "file": "src/boot/landscape.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "gameplay/js/afk.js",
@@ -3246,17 +3246,17 @@
         "old/misi.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/landscape.js",
+      "proposed_target": "src/boot/landscape.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/landscape.js",
+      "planned_target": "src/boot/landscape.js",
       "hold_reason": null
     },
     {
       "file": "assets/js/mine-island.js",
       "used_by": [
         "assets/js/mine-island.js",
-        "assets/js/pages/tambang.js",
+        "src/views/tambang.js",
         "assets/preload-manifest.json",
         "tambang.html",
         "tests/mine-island.test.js"
@@ -3269,122 +3269,122 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/mob-view.js",
+      "file": "src/boot/mob-view.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
-        "old/assets/js/pages/dailyreward.js",
+        "old/src/views/dailyreward.js",
         "old/dailyreward.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/mob-view.js",
+      "proposed_target": "src/boot/mob-view.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/mob-view.js",
+      "planned_target": "src/boot/mob-view.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/client.js",
+      "file": "src/multiplayer/client.js",
       "used_by": [
-        "assets/js/auth.js",
-        "assets/js/core/prefs-sync.js",
-        "assets/js/pages/pet-page.js",
-        "assets/js/pages/profile.js",
-        "assets/js/services/appearance-service.js",
-        "assets/js/services/mail-service.js",
-        "assets/js/services/mine-service.js",
-        "assets/js/services/wallet-service.js",
+        "src/services/auth.js",
+        "src/core/prefs-sync.js",
+        "src/views/pet-page.js",
+        "src/views/profile.js",
+        "src/services/appearance-service.js",
+        "src/services/mail-service.js",
+        "src/services/mine-service.js",
+        "src/services/wallet-service.js",
         "assets/preload-manifest.json",
         "referensi/newgui/README.md",
         "tests/no-cdn.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/client.js",
+      "proposed_target": "src/multiplayer/client.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/client.js",
+      "planned_target": "src/multiplayer/client.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/config.example.js",
+      "file": "src/multiplayer/config.example.js",
       "used_by": [
         "README.md",
         "assets/preload-manifest.json",
         "supabase/README.md"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/config.example.js",
+      "proposed_target": "src/multiplayer/config.example.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/config.example.js",
+      "planned_target": "src/multiplayer/config.example.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/event-log.js",
+      "file": "src/multiplayer/event-log.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tests/multiplayer/event-log.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/event-log.js",
+      "proposed_target": "src/multiplayer/event-log.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/event-log.js",
+      "planned_target": "src/multiplayer/event-log.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/game-sync.js",
+      "file": "src/multiplayer/game-sync.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay/js/multiplayer-init.js",
         "referensi/newgui/README.md"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/game-sync.js",
+      "proposed_target": "src/multiplayer/game-sync.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/game-sync.js",
+      "planned_target": "src/multiplayer/game-sync.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/presence.js",
+      "file": "src/multiplayer/presence.js",
       "used_by": [
-        "assets/js/core/app.js",
-        "assets/js/pages/friendship-page.js",
+        "src/core/app.js",
+        "src/views/friendship-page.js",
         "assets/preload-manifest.json",
         "mode.html",
         "referensi/newgui/README.md",
         "room.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/presence.js",
+      "proposed_target": "src/multiplayer/presence.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/presence.js",
+      "planned_target": "src/multiplayer/presence.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/progress-service.js",
+      "file": "src/multiplayer/progress-service.js",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/lobby.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/lobby.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js",
         "referensi/newgui/README.md"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/progress-service.js",
+      "proposed_target": "src/multiplayer/progress-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/progress-service.js",
+      "planned_target": "src/multiplayer/progress-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/multiplayer/room-service.js",
+      "file": "src/multiplayer/room-service.js",
       "used_by": [
-        "assets/js/pages/leaderboard.js",
-        "assets/js/pages/lobby.js",
+        "src/views/leaderboard.js",
+        "src/views/lobby.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js",
         "mode.html",
@@ -3392,14 +3392,14 @@
         "room.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/multiplayer/room-service.js",
+      "proposed_target": "src/multiplayer/room-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/multiplayer/room-service.js",
+      "planned_target": "src/multiplayer/room-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/dadu.js",
+      "file": "src/views/dadu.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -3414,7 +3414,7 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/efek.js",
+      "file": "src/views/efek.js",
       "used_by": [
         "assets/preload-manifest.json",
         "efek.html"
@@ -3427,20 +3427,20 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/floatingsample.js",
+      "file": "src/views/floatingsample.js",
       "used_by": [
         "assets/preload-manifest.json",
         "floatingsample.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/floatingsample.js",
+      "proposed_target": "src/views/floatingsample.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/floatingsample.js",
+      "planned_target": "src/views/floatingsample.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/frame.js",
+      "file": "src/views/frame.js",
       "used_by": [
         "assets/preload-manifest.json",
         "frame.html",
@@ -3454,33 +3454,33 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/friendship-page.js",
+      "file": "src/views/friendship-page.js",
       "used_by": [
         "assets/preload-manifest.json",
         "friendship.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/friendship-page.js",
+      "proposed_target": "src/views/friendship-page.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/friendship-page.js",
+      "planned_target": "src/views/friendship-page.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/hadiah-misi.js",
+      "file": "src/views/hadiah-misi.js",
       "used_by": [
         "assets/preload-manifest.json",
         "hadiah-misi.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/hadiah-misi.js",
+      "proposed_target": "src/views/hadiah-misi.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/hadiah-misi.js",
+      "planned_target": "src/views/hadiah-misi.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/inventory.js",
+      "file": "src/views/inventory.js",
       "used_by": [
         "assets/preload-manifest.json",
         "inventory.html",
@@ -3488,16 +3488,16 @@
         "tests/dice-registry-parity.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/inventory.js",
+      "proposed_target": "src/views/inventory.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/inventory.js",
+      "planned_target": "src/views/inventory.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/karakter.js",
+      "file": "src/views/karakter.js",
       "used_by": [
-        "assets/js/renderers/blocky-character.js",
+        "src/renderers/blocky-character.js",
         "assets/preload-manifest.json",
         "karakter.html",
         "tests/aura-view.test.js",
@@ -3511,20 +3511,20 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/leaderboard.js",
+      "file": "src/views/leaderboard.js",
       "used_by": [
         "assets/preload-manifest.json",
         "leaderboard.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/leaderboard.js",
+      "proposed_target": "src/views/leaderboard.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/leaderboard.js",
+      "planned_target": "src/views/leaderboard.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/lobby.js",
+      "file": "src/views/lobby.js",
       "used_by": [
         "assets/preload-manifest.json",
         "lobby.html",
@@ -3539,33 +3539,33 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/mail.js",
+      "file": "src/views/mail.js",
       "used_by": [
         "assets/preload-manifest.json",
         "mail.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/mail.js",
+      "proposed_target": "src/views/mail.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/mail.js",
+      "planned_target": "src/views/mail.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/mode.js",
+      "file": "src/views/mode.js",
       "used_by": [
         "assets/preload-manifest.json",
         "mode.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/mode.js",
+      "proposed_target": "src/views/mode.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/mode.js",
+      "planned_target": "src/views/mode.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/pet-page.js",
+      "file": "src/views/pet-page.js",
       "used_by": [
         "assets/preload-manifest.json",
         "pet.html",
@@ -3581,21 +3581,21 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/play.js",
+      "file": "src/views/play.js",
       "used_by": [
         "assets/preload-manifest.json",
         "play.html",
         "sw.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/play.js",
+      "proposed_target": "src/views/play.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/play.js",
+      "planned_target": "src/views/play.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/powerup.js",
+      "file": "src/views/powerup.js",
       "used_by": [
         "assets/preload-manifest.json",
         "powerup.html",
@@ -3609,48 +3609,48 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/profile.js",
+      "file": "src/views/profile.js",
       "used_by": [
         "assets/preload-manifest.json",
         "profile.html",
         "tests/aura-view.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/profile.js",
+      "proposed_target": "src/views/profile.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/profile.js",
+      "planned_target": "src/views/profile.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/room.js",
+      "file": "src/views/room.js",
       "used_by": [
         "assets/preload-manifest.json",
         "room.html",
         "tests/store-card-status.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/room.js",
+      "proposed_target": "src/views/room.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/room.js",
+      "planned_target": "src/views/room.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/settings.js",
+      "file": "src/views/settings.js",
       "used_by": [
         "assets/preload-manifest.json",
         "settings.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/settings.js",
+      "proposed_target": "src/views/settings.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/settings.js",
+      "planned_target": "src/views/settings.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/shop-page.js",
+      "file": "src/views/shop-page.js",
       "used_by": [
         "assets/preload-manifest.json",
         "shop.html",
@@ -3658,28 +3658,28 @@
         "tests/shop-render.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/shop-page.js",
+      "proposed_target": "src/views/shop-page.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/shop-page.js",
+      "planned_target": "src/views/shop-page.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/splash.js",
+      "file": "src/views/splash.js",
       "used_by": [
         "assets/preload-manifest.json",
         "splash.html",
         "sw.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pages/splash.js",
+      "proposed_target": "src/views/splash.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pages/splash.js",
+      "planned_target": "src/views/splash.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pages/tambang.js",
+      "file": "src/views/tambang.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tambang.html",
@@ -3693,9 +3693,9 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/player-data.js",
+      "file": "src/stores/player-data.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -3732,57 +3732,57 @@
         "tests/room-looks.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/player-data.js",
+      "proposed_target": "src/stores/player-data.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/player-data.js",
+      "planned_target": "src/stores/player-data.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/podium-fx.js",
+      "file": "src/fx/podium-fx.js",
       "used_by": [
         "assets/preload-manifest.json",
         "leaderboard.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/podium-fx.js",
+      "proposed_target": "src/fx/podium-fx.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/podium-fx.js",
+      "planned_target": "src/fx/podium-fx.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/preloader.js",
+      "file": "src/boot/preloader.js",
       "used_by": [
         "assets/preload-manifest.json",
         "splash.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/preloader.js",
+      "proposed_target": "src/boot/preloader.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/preloader.js",
+      "planned_target": "src/boot/preloader.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/pwa.js",
+      "file": "src/boot/pwa.js",
       "used_by": [
         "assets/preload-manifest.json",
         "index.html",
         "splash.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/pwa.js",
+      "proposed_target": "src/boot/pwa.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/pwa.js",
+      "planned_target": "src/boot/pwa.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/aura-fx.js",
+      "file": "src/renderers/aura-fx.js",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/renderers/aura-fx.js",
+        "src/stores/item-catalog.js",
+        "src/renderers/aura-fx.js",
         "assets/preload-manifest.json",
         "data/inventory/aura/amethyst/manifest.js",
         "data/inventory/aura/celestial/manifest.js",
@@ -3812,16 +3812,16 @@
         "tools/aura-fx/build.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/aura-fx.js",
+      "proposed_target": "src/renderers/aura-fx.js",
       "dynamic_used_by": [],
       "planned_target": "data/aura/js/aura-fx.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/aura-view.js",
+      "file": "src/renderers/aura-view.js",
       "used_by": [
-        "assets/js/renderers/aura-view.js",
+        "src/renderers/aura-view.js",
         "assets/preload-manifest.json",
         "data/inventory/aura/index.js",
         "gameplay.html",
@@ -3832,18 +3832,18 @@
         "tests/aura-view.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/aura-view.js",
+      "proposed_target": "src/renderers/aura-view.js",
       "dynamic_used_by": [],
       "planned_target": "data/aura/js/aura-view.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/blocky-character.js",
+      "file": "src/renderers/blocky-character.js",
       "used_by": [
-        "assets/js/pages/room.js",
-        "assets/js/renderers/blocky-character.js",
-        "assets/js/renderers/character-face.js",
+        "src/views/room.js",
+        "src/renderers/blocky-character.js",
+        "src/renderers/character-face.js",
         "assets/preload-manifest.json",
         "efek.html",
         "friendship.html",
@@ -3859,17 +3859,17 @@
         "tools/blocky-character/template.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/blocky-character.js",
+      "proposed_target": "src/renderers/blocky-character.js",
       "dynamic_used_by": [],
       "planned_target": "data/karakter/js/blocky-character.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/character-face.js",
+      "file": "src/renderers/character-face.js",
       "used_by": [
-        "assets/js/pages/room.js",
-        "assets/js/renderers/character-face.js",
+        "src/views/room.js",
+        "src/renderers/character-face.js",
         "assets/preload-manifest.json",
         "friendship.html",
         "gameplay.html",
@@ -3879,16 +3879,16 @@
         "tests/blocky-actions.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/character-face.js",
+      "proposed_target": "src/renderers/character-face.js",
       "dynamic_used_by": [],
       "planned_target": "data/karakter/js/character-face.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/character-view.js",
+      "file": "src/renderers/character-view.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "profile.html",
         "room.html",
@@ -3902,22 +3902,22 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceAnimation.js",
+      "file": "src/renderers/dice-kit/DiceAnimation.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tests/dice-landing-stall.test.mjs"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceAnimation.js",
+      "proposed_target": "src/renderers/dice-kit/DiceAnimation.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceAnimation.js",
       "phase": null,
       "hold_reason": "dice kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceCatalog.js",
+      "file": "src/renderers/dice-kit/DiceCatalog.js",
       "used_by": [
-        "assets/js/renderers/room-dice-art.js",
+        "src/renderers/room-dice-art.js",
         "assets/preload-manifest.json",
         "data/inventory/dice/amethyst/manifest.js",
         "data/inventory/dice/copper/manifest.js",
@@ -3950,132 +3950,132 @@
         "tests/room-page-modal.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceCatalog.js",
+      "proposed_target": "src/renderers/dice-kit/DiceCatalog.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceCatalog.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceEffects.js",
+      "file": "src/renderers/dice-kit/DiceEffects.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay/js/dice-throw.js",
         "tests/dice-sound-variation.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceEffects.js",
+      "proposed_target": "src/renderers/dice-kit/DiceEffects.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceEffects.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceEffectsCore.js",
+      "file": "src/renderers/dice-kit/DiceEffectsCore.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay/js/dice-throw.js",
         "tests/dice-sound-variation.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceEffectsCore.js",
+      "proposed_target": "src/renderers/dice-kit/DiceEffectsCore.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceEffectsCore.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceMaterials.js",
+      "file": "src/renderers/dice-kit/DiceMaterials.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceMaterials.js",
+      "proposed_target": "src/renderers/dice-kit/DiceMaterials.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceMaterials.js",
       "phase": null,
       "hold_reason": "dice kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DicePhysics.js",
+      "file": "src/renderers/dice-kit/DicePhysics.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/dice-kit/DicePhysics.js",
+      "proposed_target": "src/renderers/dice-kit/DicePhysics.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DicePhysics.js",
       "phase": null,
       "hold_reason": "dice kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceRenderer.js",
+      "file": "src/renderers/dice-kit/DiceRenderer.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay/js/dice-pad.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceRenderer.js",
+      "proposed_target": "src/renderers/dice-kit/DiceRenderer.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceRenderer.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceTextures.js",
+      "file": "src/renderers/dice-kit/DiceTextures.js",
       "used_by": [
-        "assets/js/renderers/room-dice-art.js",
+        "src/renderers/room-dice-art.js",
         "assets/preload-manifest.json",
         "gameplay/js/dice-throw.js",
         "tests/room-page-modal.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/DiceTextures.js",
+      "proposed_target": "src/renderers/dice-kit/DiceTextures.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/DiceTextures.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/index.js",
+      "file": "src/renderers/dice-kit/index.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
         "gameplay.html"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/dice-kit/index.js",
+      "proposed_target": "src/renderers/dice-kit/index.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/index.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/dice-kit/RoomEnvironment.js",
+      "file": "src/renderers/dice-kit/RoomEnvironment.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/dice-kit/RoomEnvironment.js",
+      "proposed_target": "src/renderers/dice-kit/RoomEnvironment.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/RoomEnvironment.js",
       "phase": null,
       "hold_reason": "dice kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/dice-kit/RoundedBoxGeometry.js",
+      "file": "src/renderers/dice-kit/RoundedBoxGeometry.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/dice-kit/RoundedBoxGeometry.js",
+      "proposed_target": "src/renderers/dice-kit/RoundedBoxGeometry.js",
       "dynamic_used_by": [],
       "planned_target": "data/dice/js/dice-kit/RoundedBoxGeometry.js",
       "phase": null,
       "hold_reason": "dice kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/frame-avatar.js",
+      "file": "src/renderers/frame-avatar.js",
       "used_by": [
         "assets/preload-manifest.json",
         "friendship.html",
@@ -4091,9 +4091,9 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/frame-fx.js",
+      "file": "src/renderers/frame-fx.js",
       "used_by": [
-        "assets/js/item-catalog.js",
+        "src/stores/item-catalog.js",
         "assets/preload-manifest.json",
         "frame.html",
         "friendship.html",
@@ -4116,10 +4116,10 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/item-art.js",
+      "file": "src/renderers/item-art.js",
       "used_by": [
         "assets/js/character-data.js",
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -4135,28 +4135,28 @@
         "tools/character-data/template.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/renderers/item-art.js",
+      "proposed_target": "src/renderers/item-art.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/renderers/item-art.js",
+      "planned_target": "src/renderers/item-art.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/night-fog.js",
+      "file": "src/renderers/night-fog.js",
       "used_by": [
-        "assets/js/pages/splash.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "splash.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/renderers/night-fog.js",
+      "proposed_target": "src/renderers/night-fog.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/renderers/night-fog.js",
+      "planned_target": "src/renderers/night-fog.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/pet-model-registry.js",
+      "file": "src/renderers/pet-model-registry.js",
       "used_by": [
         "assets/preload-manifest.json",
         "pet.html",
@@ -4172,7 +4172,7 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/pet-viewer.js",
+      "file": "src/renderers/pet-viewer.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/pet/arcane_owl/manifest.js",
@@ -4196,62 +4196,62 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/power3d/power-overlay.js",
+      "file": "src/renderers/power3d/power-overlay.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay/js/power3d-loader.js",
         "tests/power-rules.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/power3d/power-overlay.js",
+      "proposed_target": "src/renderers/power3d/power-overlay.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/power-overlay.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/power3d/power-show.js",
+      "file": "src/renderers/power3d/power-show.js",
       "used_by": [
-        "assets/js/pages/powerup.js",
+        "src/views/powerup.js",
         "assets/preload-manifest.json",
         "tests/power3d.test.js",
         "tools/power-icons/bake.html"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/power-show.js",
+      "proposed_target": "src/renderers/power3d/power-show.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/power-show.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerAnimation.js",
+      "file": "src/renderers/power3d/PowerAnimation.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerAnimation.js",
+      "proposed_target": "src/renderers/power3d/PowerAnimation.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerAnimation.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerAura.js",
+      "file": "src/renderers/power3d/PowerAura.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerAura.js",
+      "proposed_target": "src/renderers/power3d/PowerAura.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerAura.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerCatalog.js",
+      "file": "src/renderers/power3d/PowerCatalog.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
@@ -4260,117 +4260,117 @@
         "tests/power3d.test.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerCatalog.js",
+      "proposed_target": "src/renderers/power3d/PowerCatalog.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerCatalog.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerConfig.js",
+      "file": "src/renderers/power3d/PowerConfig.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerConfig.js",
+      "proposed_target": "src/renderers/power3d/PowerConfig.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerConfig.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerEffects.js",
+      "file": "src/renderers/power3d/PowerEffects.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerEffects.js",
+      "proposed_target": "src/renderers/power3d/PowerEffects.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerEffects.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerGeometry.js",
+      "file": "src/renderers/power3d/PowerGeometry.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerGeometry.js",
+      "proposed_target": "src/renderers/power3d/PowerGeometry.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerGeometry.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerLighting.js",
+      "file": "src/renderers/power3d/PowerLighting.js",
       "used_by": [
         "assets/preload-manifest.json"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerLighting.js",
+      "proposed_target": "src/renderers/power3d/PowerLighting.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerLighting.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerMaterials.js",
+      "file": "src/renderers/power3d/PowerMaterials.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerMaterials.js",
+      "proposed_target": "src/renderers/power3d/PowerMaterials.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerMaterials.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerParticles.js",
+      "file": "src/renderers/power3d/PowerParticles.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerParticles.js",
+      "proposed_target": "src/renderers/power3d/PowerParticles.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerParticles.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerRegistry.js",
+      "file": "src/renderers/power3d/PowerRegistry.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
         "tests/power-registry-parity.test.js"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerRegistry.js",
+      "proposed_target": "src/renderers/power3d/PowerRegistry.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerRegistry.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerRenderer.js",
+      "file": "src/renderers/power3d/PowerRenderer.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tools/power-icons/bake.html"
       ],
       "status": "frozen_category",
-      "proposed_target": "assets/js/renderers/power3d/PowerRenderer.js",
+      "proposed_target": "src/renderers/power3d/PowerRenderer.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerRenderer.js",
       "phase": null,
       "hold_reason": "power3d kit held until gameplay"
     },
     {
-      "file": "assets/js/renderers/power3d/PowerSound.js",
+      "file": "src/renderers/power3d/PowerSound.js",
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
@@ -4379,14 +4379,14 @@
         "tests/power-rules.test.js"
       ],
       "status": "frozen_gameplay",
-      "proposed_target": "assets/js/renderers/power3d/PowerSound.js",
+      "proposed_target": "src/renderers/power3d/PowerSound.js",
       "dynamic_used_by": [],
       "planned_target": "data/power/js/power3d/PowerSound.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "assets/js/renderers/room-dice-art.js",
+      "file": "src/renderers/room-dice-art.js",
       "used_by": [
         "assets/preload-manifest.json",
         "room.html",
@@ -4400,11 +4400,11 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/renderers/scene-bg.js",
+      "file": "src/renderers/scene-bg.js",
       "used_by": [
         "assets/css/scene-bg.css",
-        "assets/js/pages/splash.js",
-        "assets/js/renderers/scene-bg.js",
+        "src/views/splash.js",
+        "src/renderers/scene-bg.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "old/dailyreward.html",
@@ -4412,30 +4412,30 @@
         "tests/lobby-background.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/renderers/scene-bg.js",
+      "proposed_target": "src/renderers/scene-bg.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/renderers/scene-bg.js",
+      "planned_target": "src/renderers/scene-bg.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/room-flow.js",
+      "file": "src/multiplayer/room-flow.js",
       "used_by": [
-        "assets/js/room-flow.js",
+        "src/multiplayer/room-flow.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "mode.html",
         "room.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/room-flow.js",
+      "proposed_target": "src/multiplayer/room-flow.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/room-flow.js",
+      "planned_target": "src/multiplayer/room-flow.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/room-modal-bridge.js",
+      "file": "src/multiplayer/room-modal-bridge.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -4447,27 +4447,27 @@
         "tests/room-page-modal.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/room-modal-bridge.js",
+      "proposed_target": "src/multiplayer/room-modal-bridge.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/room-modal-bridge.js",
+      "planned_target": "src/multiplayer/room-modal-bridge.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/services/ads-service.js",
+      "file": "src/services/ads-service.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tests/player-data-server.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/services/ads-service.js",
+      "proposed_target": "src/services/ads-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/services/ads-service.js",
+      "planned_target": "src/services/ads-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/services/appearance-service.js",
+      "file": "src/services/appearance-service.js",
       "used_by": [
         "assets/preload-manifest.json",
         "efek.html",
@@ -4486,14 +4486,14 @@
         "tests/room-looks.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/services/appearance-service.js",
+      "proposed_target": "src/services/appearance-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/services/appearance-service.js",
+      "planned_target": "src/services/appearance-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/services/mail-service.js",
+      "file": "src/services/mail-service.js",
       "used_by": [
         "README.md",
         "assets/preload-manifest.json",
@@ -4502,14 +4502,14 @@
         "tests/mail-service.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/services/mail-service.js",
+      "proposed_target": "src/services/mail-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/services/mail-service.js",
+      "planned_target": "src/services/mail-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/services/mine-service.js",
+      "file": "src/services/mine-service.js",
       "used_by": [
         "assets/preload-manifest.json",
         "tambang.html",
@@ -4523,7 +4523,7 @@
       "hold_reason": null
     },
     {
-      "file": "assets/js/services/wallet-service.js",
+      "file": "src/services/wallet-service.js",
       "used_by": [
         "assets/preload-manifest.json",
         "dadu.html",
@@ -4552,31 +4552,31 @@
         "tests/power-registry-parity.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/services/wallet-service.js",
+      "proposed_target": "src/services/wallet-service.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/services/wallet-service.js",
+      "planned_target": "src/services/wallet-service.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/splash-fx.js",
+      "file": "src/fx/splash-fx.js",
       "used_by": [
         "assets/preload-manifest.json",
         "splash.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/splash-fx.js",
+      "proposed_target": "src/fx/splash-fx.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/splash-fx.js",
+      "planned_target": "src/fx/splash-fx.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/systems/ambience.js",
+      "file": "src/systems/ambience.js",
       "used_by": [
         "assets/css/scene-bg.css",
-        "assets/js/pages/splash.js",
-        "assets/js/renderers/scene-bg.js",
+        "src/views/splash.js",
+        "src/renderers/scene-bg.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -4591,73 +4591,73 @@
         "splash.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/systems/ambience.js",
+      "proposed_target": "src/systems/ambience.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/systems/ambience.js",
+      "planned_target": "src/systems/ambience.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/supabase-js-2.119.0.mjs",
+      "file": "src/vendor/supabase-js-2.119.0.mjs",
       "used_by": [
         "README.md",
-        "assets/js/multiplayer/client.js",
+        "src/multiplayer/client.js",
         "tests/no-cdn.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/supabase-js-2.119.0.mjs",
+      "proposed_target": "src/vendor/supabase-js-2.119.0.mjs",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/supabase-js-2.119.0.mjs",
+      "planned_target": "src/vendor/supabase-js-2.119.0.mjs",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/three-addons/environments/RoomEnvironment.js",
+      "file": "src/vendor/three-addons/environments/RoomEnvironment.js",
       "used_by": [
-        "assets/js/renderers/power3d/PowerLighting.js",
+        "src/renderers/power3d/PowerLighting.js",
         "assets/preload-manifest.json",
         "tests/power3d.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/three-addons/environments/RoomEnvironment.js",
+      "proposed_target": "src/vendor/three-addons/environments/RoomEnvironment.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/three-addons/environments/RoomEnvironment.js",
+      "planned_target": "src/vendor/three-addons/environments/RoomEnvironment.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/three-addons/geometries/RoundedBoxGeometry.js",
+      "file": "src/vendor/three-addons/geometries/RoundedBoxGeometry.js",
       "used_by": [
-        "assets/js/renderers/power3d/PowerGeometry.js",
+        "src/renderers/power3d/PowerGeometry.js",
         "assets/preload-manifest.json",
         "tests/power3d.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/three-addons/geometries/RoundedBoxGeometry.js",
+      "proposed_target": "src/vendor/three-addons/geometries/RoundedBoxGeometry.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/three-addons/geometries/RoundedBoxGeometry.js",
+      "planned_target": "src/vendor/three-addons/geometries/RoundedBoxGeometry.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/three-addons/utils/BufferGeometryUtils.js",
+      "file": "src/vendor/three-addons/utils/BufferGeometryUtils.js",
       "used_by": [
-        "assets/js/renderers/power3d/PowerAura.js",
+        "src/renderers/power3d/PowerAura.js",
         "assets/preload-manifest.json",
         "tests/power3d.test.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/three-addons/utils/BufferGeometryUtils.js",
+      "proposed_target": "src/vendor/three-addons/utils/BufferGeometryUtils.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/three-addons/utils/BufferGeometryUtils.js",
+      "planned_target": "src/vendor/three-addons/utils/BufferGeometryUtils.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/three.min.js",
+      "file": "src/vendor/three.min.js",
       "used_by": [
-        "assets/js/pages/room.js",
-        "assets/js/pages/splash.js",
+        "src/views/room.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -4681,21 +4681,21 @@
         "tools/aura-fx/build.js"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/three.min.js",
+      "proposed_target": "src/vendor/three.min.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/three.min.js",
+      "planned_target": "src/vendor/three.min.js",
       "hold_reason": null
     },
     {
-      "file": "assets/js/vendor/three.r170.module.min.js",
+      "file": "src/vendor/three.r170.module.min.js",
       "used_by": [
-        "assets/js/renderers/dice-kit/DiceAnimation.js",
-        "assets/js/renderers/dice-kit/DiceEffects.js",
-        "assets/js/renderers/dice-kit/DiceMaterials.js",
-        "assets/js/renderers/dice-kit/DiceRenderer.js",
-        "assets/js/renderers/dice-kit/RoomEnvironment.js",
-        "assets/js/renderers/dice-kit/RoundedBoxGeometry.js",
+        "src/renderers/dice-kit/DiceAnimation.js",
+        "src/renderers/dice-kit/DiceEffects.js",
+        "src/renderers/dice-kit/DiceMaterials.js",
+        "src/renderers/dice-kit/DiceRenderer.js",
+        "src/renderers/dice-kit/RoomEnvironment.js",
+        "src/renderers/dice-kit/RoundedBoxGeometry.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "powerup.html",
@@ -4703,16 +4703,16 @@
         "tools/power-icons/bake.html"
       ],
       "status": "retained",
-      "proposed_target": "assets/js/vendor/three.r170.module.min.js",
+      "proposed_target": "src/vendor/three.r170.module.min.js",
       "dynamic_used_by": [],
       "phase": null,
-      "planned_target": "assets/js/vendor/three.r170.module.min.js",
+      "planned_target": "src/vendor/three.r170.module.min.js",
       "hold_reason": null
     },
     {
       "file": "assets/music/community.mp3",
       "used_by": [
-        "assets/js/pages/play.js",
+        "src/views/play.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js"
       ],
@@ -4726,7 +4726,7 @@
     {
       "file": "assets/music/first_light_particles.mp3",
       "used_by": [
-        "assets/js/pages/play.js",
+        "src/views/play.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js"
       ],
@@ -4765,7 +4765,7 @@
     {
       "file": "assets/music/rainy.mp3",
       "used_by": [
-        "assets/js/pages/play.js",
+        "src/views/play.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js"
       ],
@@ -4779,7 +4779,7 @@
     {
       "file": "assets/music/sunset_plains.mp3",
       "used_by": [
-        "assets/js/pages/play.js",
+        "src/views/play.js",
         "assets/preload-manifest.json",
         "gameplay/js/main.js"
       ],
@@ -5408,7 +5408,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-buku.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5421,7 +5421,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-bumi.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5434,7 +5434,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-kalender.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5447,7 +5447,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-kuda.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5460,7 +5460,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-naga.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5473,7 +5473,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-pedang.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5486,7 +5486,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-piala.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5499,7 +5499,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-tangga.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5512,7 +5512,7 @@
     {
       "file": "assets/ng/komponen/achievement/ach-ular.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -5994,7 +5994,7 @@
     {
       "file": "assets/ng/komponen/banner-label/pita-badge-biru.webp",
       "used_by": [
-        "assets/js/pages/shop-page.js",
+        "src/views/shop-page.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/shop.js"
       ],
@@ -6504,7 +6504,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/bintang-kilau.webp",
       "used_by": [
-        "assets/js/pages/efek.js",
+        "src/views/efek.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/efek.js",
         "referensi/newgui/game/js/room.js"
@@ -6519,7 +6519,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/bola-dunia-garis.webp",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/settings.js"
       ],
@@ -6548,7 +6548,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/centang.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/mission.js"
@@ -6563,7 +6563,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/dadu.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "gameplay/css/hud-mockup.css",
         "referensi/newgui/game/js/mission.js"
@@ -6578,11 +6578,11 @@
     {
       "file": "assets/ng/komponen/glyph-putih/gembok.webp",
       "used_by": [
-        "assets/js/pages/dadu.js",
-        "assets/js/pages/efek.js",
-        "assets/js/pages/frame.js",
-        "assets/js/pages/room.js",
-        "assets/js/pages/tambang.js",
+        "src/views/dadu.js",
+        "src/views/efek.js",
+        "src/views/frame.js",
+        "src/views/room.js",
+        "src/views/tambang.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
@@ -6641,7 +6641,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/hati-garis.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
+        "src/views/friendship-page.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -6750,7 +6750,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/nada.webp",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/settings.js"
       ],
@@ -6844,7 +6844,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/piala.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
+        "src/views/friendship-page.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -6912,7 +6912,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/speaker-mati.webp",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/settings.js"
       ],
@@ -6940,7 +6940,7 @@
     {
       "file": "assets/ng/komponen/glyph-putih/surat-terbuka.webp",
       "used_by": [
-        "assets/js/pages/mail.js",
+        "src/views/mail.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mail.js"
       ],
@@ -7005,8 +7005,8 @@
     {
       "file": "assets/ng/komponen/glyph-putih/tong-sampah.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
-        "assets/js/pages/mail.js",
+        "src/views/friendship-page.js",
+        "src/views/mail.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -7135,17 +7135,17 @@
     {
       "file": "assets/ng/komponen/hud/ikon-koin-emas.webp",
       "used_by": [
-        "assets/js/pages/dadu.js",
-        "assets/js/pages/efek.js",
-        "assets/js/pages/frame.js",
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/karakter.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/pet-page.js",
-        "assets/js/pages/powerup.js",
-        "assets/js/pages/room.js",
-        "assets/js/pages/shop-page.js",
-        "assets/js/pages/tambang.js",
+        "src/views/dadu.js",
+        "src/views/efek.js",
+        "src/views/frame.js",
+        "src/views/hadiah-misi.js",
+        "src/views/karakter.js",
+        "src/views/mail.js",
+        "src/views/pet-page.js",
+        "src/views/powerup.js",
+        "src/views/room.js",
+        "src/views/shop-page.js",
+        "src/views/tambang.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -7371,7 +7371,7 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/berlian-biru.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js",
         "referensi/newgui/game/js/powerup.js",
@@ -7387,14 +7387,14 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/berlian-hijau.webp",
       "used_by": [
-        "assets/js/pages/dadu.js",
-        "assets/js/pages/efek.js",
-        "assets/js/pages/frame.js",
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/pet-page.js",
-        "assets/js/pages/shop-page.js",
-        "assets/js/pages/tambang.js",
+        "src/views/dadu.js",
+        "src/views/efek.js",
+        "src/views/frame.js",
+        "src/views/hadiah-misi.js",
+        "src/views/mail.js",
+        "src/views/pet-page.js",
+        "src/views/shop-page.js",
+        "src/views/tambang.js",
         "assets/preload-manifest.json",
         "dadu.html",
         "efek.html",
@@ -7485,7 +7485,7 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/kantong-koin.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -7499,9 +7499,9 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/kristal-api.webp",
       "used_by": [
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/profile.js",
-        "assets/js/pages/room.js",
+        "src/views/inventory.js",
+        "src/views/profile.js",
+        "src/views/room.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/efek.js",
         "referensi/newgui/game/js/mission.js",
@@ -7522,7 +7522,7 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/medali-1.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/shop.js"
       ],
@@ -7536,7 +7536,7 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/medali-2.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -7549,7 +7549,7 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/medali-3.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -7590,8 +7590,8 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/petir-emas.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/efek.js",
@@ -7608,8 +7608,8 @@
     {
       "file": "assets/ng/komponen/ikon-gem-medali/petir-ungu.webp",
       "used_by": [
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/profile.js",
+        "src/views/inventory.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/efek.js",
         "referensi/newgui/game/js/mission.js",
@@ -7658,7 +7658,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/gembok.webp",
       "used_by": [
-        "assets/js/pages/mode.js",
+        "src/views/mode.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mode.js"
       ],
@@ -7672,7 +7672,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/gerbang-dungeon.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "mode.html",
         "referensi/newgui/game/mode.html"
@@ -7701,7 +7701,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/gulungan-misi.webp",
       "used_by": [
-        "assets/js/pages/profile.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "referensi/newgui/game/lobby.html"
@@ -7716,7 +7716,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/gulungan-pena.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -7730,7 +7730,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/helm-ksatria.webp",
       "used_by": [
-        "assets/js/pages/profile.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "referensi/newgui/game/js/profile.js",
@@ -7762,8 +7762,8 @@
     {
       "file": "assets/ng/komponen/ikon-item/kado-merah.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/mail.js",
+        "src/views/hadiah-misi.js",
+        "src/views/mail.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mail.js",
         "referensi/newgui/game/js/mission.js"
@@ -7778,7 +7778,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/kalender.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -7792,7 +7792,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/koin-tumpuk.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -7806,7 +7806,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/mahkota.webp",
       "used_by": [
-        "assets/js/pages/profile.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "gameplay/css/win-screen.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
@@ -7841,8 +7841,8 @@
     {
       "file": "assets/ng/komponen/ikon-item/pedang-silang.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js",
         "referensi/newgui/game/js/powerup.js",
@@ -7858,8 +7858,8 @@
     {
       "file": "assets/ng/komponen/ikon-item/pedang.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js",
         "referensi/newgui/game/js/powerup.js",
@@ -7890,8 +7890,8 @@
     {
       "file": "assets/ng/komponen/ikon-item/piala.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "referensi/newgui/game/js/mission.js",
@@ -7909,8 +7909,8 @@
     {
       "file": "assets/ng/komponen/ikon-item/podium.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "referensi/newgui/game/lobby.html",
@@ -7954,7 +7954,7 @@
     {
       "file": "assets/ng/komponen/ikon-item/surat-segel.webp",
       "used_by": [
-        "assets/js/pages/mail.js",
+        "src/views/mail.js",
         "assets/preload-manifest.json",
         "lobby.html",
         "referensi/newgui/game/js/mail.js",
@@ -7984,10 +7984,10 @@
     {
       "file": "assets/ng/komponen/ikon-navigasi/garis-bawah-tab-emas.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/karakter.js",
-        "assets/js/pages/leaderboard.js",
+        "src/views/hadiah-misi.js",
+        "src/views/inventory.js",
+        "src/views/karakter.js",
+        "src/views/leaderboard.js",
         "assets/ng/css/shop.css",
         "assets/ng/css/sub.css",
         "assets/preload-manifest.json",
@@ -8135,7 +8135,7 @@
     {
       "file": "assets/ng/komponen/ikon-pengaturan/ikon-musik-mati.webp",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/settings.js",
         "referensi/newgui/game/settings.html",
@@ -8151,7 +8151,7 @@
     {
       "file": "assets/ng/komponen/ikon-pengaturan/ikon-speaker.webp",
       "used_by": [
-        "assets/js/pages/settings.js",
+        "src/views/settings.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/settings.js",
         "referensi/newgui/game/settings.html",
@@ -8247,7 +8247,7 @@
     {
       "file": "assets/ng/komponen/leaderboard/podium-juara-voxel.webp",
       "used_by": [
-        "assets/js/pages/leaderboard.js",
+        "src/views/leaderboard.js",
         "assets/ng/css/leaderboard.css",
         "assets/preload-manifest.json"
       ],
@@ -8285,8 +8285,8 @@
     {
       "file": "assets/ng/komponen/lobby/pet.webp",
       "used_by": [
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/profile.js",
+        "src/views/inventory.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "tests/pet-catalog.test.js"
       ],
@@ -8517,7 +8517,7 @@
     {
       "file": "assets/ng/komponen/misi/ikon-jam-weker.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -8531,7 +8531,7 @@
     {
       "file": "assets/ng/komponen/misi/ikon-tab-harian-centang.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -8545,7 +8545,7 @@
     {
       "file": "assets/ng/komponen/misi/ikon-tab-pencapaian-medali.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -8588,7 +8588,7 @@
     {
       "file": "assets/ng/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
+        "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
         "gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
@@ -8674,9 +8674,9 @@
     {
       "file": "assets/ng/komponen/new-icon/dadu.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/profile.js",
+        "src/views/hadiah-misi.js",
+        "src/views/inventory.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/dadu.css",
@@ -8695,8 +8695,8 @@
     {
       "file": "assets/ng/komponen/new-icon/frame.webp",
       "used_by": [
-        "assets/js/pages/inventory.js",
-        "assets/js/pages/profile.js",
+        "src/views/inventory.js",
+        "src/views/profile.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/profile.js",
         "referensi/newgui/game/lobby.html"
@@ -8781,8 +8781,8 @@
     {
       "file": "assets/ng/komponen/paket-chest/peti-emas.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/hadiah-misi.js",
+        "src/views/shop-page.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js",
         "referensi/newgui/game/js/shop.js"
@@ -8797,8 +8797,8 @@
     {
       "file": "assets/ng/komponen/paket-chest/peti-kayu.webp",
       "used_by": [
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/hadiah-misi.js",
+        "src/views/shop-page.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/mission.js",
         "referensi/newgui/game/js/shop.js",
@@ -8814,7 +8814,7 @@
     {
       "file": "assets/ng/komponen/paket-chest/peti-legendaris.webp",
       "used_by": [
-        "assets/js/pages/shop-page.js",
+        "src/views/shop-page.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/shop.js"
       ],
@@ -8828,7 +8828,7 @@
     {
       "file": "assets/ng/komponen/paket-chest/peti-perak.webp",
       "used_by": [
-        "assets/js/pages/shop-page.js",
+        "src/views/shop-page.js",
         "assets/preload-manifest.json",
         "referensi/newgui/game/js/shop.js"
       ],
@@ -9402,9 +9402,9 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-abu-polos.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/friendship-page.js",
+        "src/views/mail.js",
+        "src/views/shop-page.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/powerup.css",
@@ -9430,9 +9430,9 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-abu.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/friendship-page.js",
+        "src/views/mail.js",
+        "src/views/shop-page.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/powerup.css",
@@ -9458,7 +9458,7 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/page.css",
@@ -9490,7 +9490,7 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-biru.webp",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/page.css",
@@ -9586,10 +9586,10 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/friendship-page.js",
+        "src/views/hadiah-misi.js",
+        "src/views/mail.js",
+        "src/views/shop-page.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/powerup.css",
@@ -9637,10 +9637,10 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-hijau.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
-        "assets/js/pages/hadiah-misi.js",
-        "assets/js/pages/mail.js",
-        "assets/js/pages/shop-page.js",
+        "src/views/friendship-page.js",
+        "src/views/hadiah-misi.js",
+        "src/views/mail.js",
+        "src/views/shop-page.js",
         "assets/ng/css/frame.css",
         "assets/ng/css/kredit.css",
         "assets/ng/css/powerup.css",
@@ -9732,7 +9732,7 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
+        "src/views/friendship-page.js",
         "assets/ng/css/kredit.css",
         "assets/preload-manifest.json",
         "dadu.html",
@@ -9773,7 +9773,7 @@
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-merah.webp",
       "used_by": [
-        "assets/js/pages/friendship-page.js",
+        "src/views/friendship-page.js",
         "assets/ng/css/kredit.css",
         "assets/preload-manifest.json",
         "dadu.html",
@@ -9962,7 +9962,7 @@
     {
       "file": "assets/preload-manifest.json",
       "used_by": [
-        "assets/js/preloader.js",
+        "src/boot/preloader.js",
         "tests/aura-registry-parity.test.js",
         "tests/character-registry-parity.test.js",
         "tests/dice-registry-parity.test.js",
@@ -10318,7 +10318,7 @@
     {
       "file": "assets/sfx/notification.mp3",
       "used_by": [
-        "assets/js/multiplayer/presence.js",
+        "src/multiplayer/presence.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -10469,9 +10469,9 @@
     {
       "file": "assets/sfx/ui/button-click.mp3",
       "used_by": [
-        "assets/js/core/app.js",
-        "assets/js/pages/play.js",
-        "assets/js/pages/splash.js",
+        "src/core/app.js",
+        "src/views/play.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -10484,8 +10484,8 @@
     {
       "file": "assets/sfx/ui/chest-reward.mp3",
       "used_by": [
-        "assets/js/core/app.js",
-        "assets/js/pages/splash.js",
+        "src/core/app.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -10498,8 +10498,8 @@
     {
       "file": "assets/sfx/ui/game-lose.mp3",
       "used_by": [
-        "assets/js/core/app.js",
-        "assets/js/pages/splash.js",
+        "src/core/app.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay/js/audio.js"
       ],
@@ -10513,8 +10513,8 @@
     {
       "file": "assets/sfx/ui/power-claim.mp3",
       "used_by": [
-        "assets/js/core/app.js",
-        "assets/js/pages/splash.js",
+        "src/core/app.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json"
       ],
       "status": "referenced",
@@ -10698,9 +10698,9 @@
     {
       "file": "data/frame/frame-default.webp",
       "used_by": [
-        "assets/js/pages/lobby.js",
-        "assets/js/pages/profile.js",
-        "assets/js/renderers/frame-avatar.js",
+        "src/views/lobby.js",
+        "src/views/profile.js",
+        "src/renderers/frame-avatar.js",
         "assets/preload-manifest.json",
         "data/inventory/frame/default/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -12170,14 +12170,14 @@
     {
       "file": "data/inventory/pet/arcane_owl/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/arcane_owl/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/arcane_owl/model.js",
       "phase": "phase3",
@@ -12253,14 +12253,14 @@
     {
       "file": "data/inventory/pet/celestial_kitsune/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/celestial_kitsune/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/celestial_kitsune/model.js",
       "phase": "phase3",
@@ -12310,14 +12310,14 @@
     {
       "file": "data/inventory/pet/copper_golem/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/copper_golem/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/copper_golem/model.js",
       "phase": "phase3",
@@ -12393,14 +12393,14 @@
     {
       "file": "data/inventory/pet/crystal_axolotl/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/crystal_axolotl/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/crystal_axolotl/model.js",
       "phase": "phase3",
@@ -12476,14 +12476,14 @@
     {
       "file": "data/inventory/pet/forest_pup/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/forest_pup/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/forest_pup/model.js",
       "phase": "phase3",
@@ -12577,14 +12577,14 @@
     {
       "file": "data/inventory/pet/inferno_dragon/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/inferno_dragon/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/inferno_dragon/model.js",
       "phase": "phase3",
@@ -12635,14 +12635,14 @@
     {
       "file": "data/inventory/pet/storm_wolf/model.js",
       "used_by": [
-        "assets/js/renderers/pet-model-registry.js",
+        "src/renderers/pet-model-registry.js",
         "assets/preload-manifest.json",
         "tests/pet-model-registry.test.js"
       ],
       "status": "referenced",
       "proposed_target": "data/pet/items/storm_wolf/model.js",
       "dynamic_used_by": [
-        "assets/js/renderers/pet-model-registry.js"
+        "src/renderers/pet-model-registry.js"
       ],
       "planned_target": "data/pet/items/storm_wolf/model.js",
       "phase": "phase3",
@@ -13077,8 +13077,8 @@
     {
       "file": "data/power/3d/feather.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/feather/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13121,8 +13121,8 @@
     {
       "file": "data/power/3d/grass.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/grass/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13179,8 +13179,8 @@
     {
       "file": "data/power/3d/potion_even.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/potion_even/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13195,8 +13195,8 @@
     {
       "file": "data/power/3d/potion_odd.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/potion_odd/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13211,8 +13211,8 @@
     {
       "file": "data/power/3d/sword.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/sword/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13227,8 +13227,8 @@
     {
       "file": "data/power/3d/tnt.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
         "assets/preload-manifest.json",
         "data/inventory/power/tnt/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13243,9 +13243,9 @@
     {
       "file": "data/power/3d/totem.png",
       "used_by": [
-        "assets/js/item-catalog.js",
-        "assets/js/pages/splash.js",
-        "assets/js/renderers/item-art.js",
+        "src/stores/item-catalog.js",
+        "src/views/splash.js",
+        "src/renderers/item-art.js",
         "assets/preload-manifest.json",
         "data/inventory/power/totem/manifest.js",
         "tests/fixtures/item-catalog-baseline.json"
@@ -13288,7 +13288,7 @@
     {
       "file": "data/power/power-fx.js",
       "used_by": [
-        "assets/js/pages/powerup.js",
+        "src/views/powerup.js",
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
         "gameplay.html",
@@ -13308,11 +13308,11 @@
     {
       "file": "gameplay/assets/maps/banner-maps/nether.webp",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/preload-manifest.json"
       ],
       "dynamic_used_by": [
-        "assets/js/pages/room.js"
+        "src/views/room.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "gameplay/assets/maps/banner-maps/nether.webp",
@@ -13323,11 +13323,11 @@
     {
       "file": "gameplay/assets/maps/banner-maps/world.webp",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/preload-manifest.json"
       ],
       "dynamic_used_by": [
-        "assets/js/pages/room.js"
+        "src/views/room.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "gameplay/assets/maps/banner-maps/world.webp",
@@ -13338,7 +13338,7 @@
     {
       "file": "gameplay/js/maps/nether.js",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "gameplay/js/maps/nether.js",
@@ -13371,7 +13371,7 @@
     {
       "file": "gameplay/js/maps/world.js",
       "used_by": [
-        "assets/js/pages/room.js",
+        "src/views/room.js",
         "assets/preload-manifest.json",
         "gameplay.html",
         "gameplay/js/maps/world.js",
@@ -13641,35 +13641,35 @@
       ]
     },
     {
-      "file": "assets/js/renderers/aura-fx.js",
+      "file": "src/renderers/aura-fx.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html"
       ]
     },
     {
-      "file": "assets/js/renderers/aura-view.js",
+      "file": "src/renderers/aura-view.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html"
       ]
     },
     {
-      "file": "assets/js/renderers/blocky-character.js",
+      "file": "src/renderers/blocky-character.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html"
       ]
     },
     {
-      "file": "assets/js/renderers/character-face.js",
+      "file": "src/renderers/character-face.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceAnimation.js",
+      "file": "src/renderers/dice-kit/DiceAnimation.js",
       "reason": "dice kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13677,77 +13677,77 @@
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceCatalog.js",
+      "file": "src/renderers/dice-kit/DiceCatalog.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/dice-throw.js"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceEffects.js",
+      "file": "src/renderers/dice-kit/DiceEffects.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/dice-throw.js"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceEffectsCore.js",
+      "file": "src/renderers/dice-kit/DiceEffectsCore.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/dice-throw.js"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceMaterials.js",
+      "file": "src/renderers/dice-kit/DiceMaterials.js",
       "reason": "dice kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DicePhysics.js",
+      "file": "src/renderers/dice-kit/DicePhysics.js",
       "reason": "dice kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceRenderer.js",
+      "file": "src/renderers/dice-kit/DiceRenderer.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/dice-pad.js"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/DiceTextures.js",
+      "file": "src/renderers/dice-kit/DiceTextures.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/dice-throw.js"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/RoomEnvironment.js",
+      "file": "src/renderers/dice-kit/RoomEnvironment.js",
       "reason": "dice kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/RoundedBoxGeometry.js",
+      "file": "src/renderers/dice-kit/RoundedBoxGeometry.js",
       "reason": "dice kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/dice-kit/index.js",
+      "file": "src/renderers/dice-kit/index.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html"
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerAnimation.js",
+      "file": "src/renderers/power3d/PowerAnimation.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13755,7 +13755,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerAura.js",
+      "file": "src/renderers/power3d/PowerAura.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13763,7 +13763,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerCatalog.js",
+      "file": "src/renderers/power3d/PowerCatalog.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13774,14 +13774,14 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerConfig.js",
+      "file": "src/renderers/power3d/PowerConfig.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerEffects.js",
+      "file": "src/renderers/power3d/PowerEffects.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13789,7 +13789,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerGeometry.js",
+      "file": "src/renderers/power3d/PowerGeometry.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13797,14 +13797,14 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerLighting.js",
+      "file": "src/renderers/power3d/PowerLighting.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json"
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerMaterials.js",
+      "file": "src/renderers/power3d/PowerMaterials.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13812,7 +13812,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerParticles.js",
+      "file": "src/renderers/power3d/PowerParticles.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13820,7 +13820,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerRegistry.js",
+      "file": "src/renderers/power3d/PowerRegistry.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13829,7 +13829,7 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerRenderer.js",
+      "file": "src/renderers/power3d/PowerRenderer.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
         "assets/preload-manifest.json",
@@ -13837,24 +13837,24 @@
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/PowerSound.js",
+      "file": "src/renderers/power3d/PowerSound.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/audio.js"
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/power-overlay.js",
+      "file": "src/renderers/power3d/power-overlay.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay/js/power3d-loader.js"
       ]
     },
     {
-      "file": "assets/js/renderers/power3d/power-show.js",
+      "file": "src/renderers/power3d/power-show.js",
       "reason": "power3d kit held until gameplay",
       "referenced_by": [
-        "assets/js/pages/powerup.js",
+        "src/views/powerup.js",
         "assets/preload-manifest.json",
         "tests/power3d.test.js",
         "tools/power-icons/bake.html"
@@ -15578,14 +15578,14 @@
     ],
     "known_broken_unmodified": [
       {
-        "referrer": "assets/js/pages/room.js",
+        "referrer": "src/views/room.js",
         "literal": "gameplay/maps/banner-maps/world.webp",
         "source": "gameplay/assets/maps/banner-maps/world.webp",
         "target": "data/maps/img/banner-maps/world.webp",
         "note": "Literal path does not resolve to the existing source as written; retain explicit alias for the later path rewrite."
       },
       {
-        "referrer": "assets/js/pages/room.js",
+        "referrer": "src/views/room.js",
         "literal": "gameplay/maps/banner-maps/nether.webp",
         "source": "gameplay/assets/maps/banner-maps/nether.webp",
         "target": "data/maps/img/banner-maps/nether.webp",
@@ -15599,8 +15599,8 @@
       "note": "Two-step staging is applied per movable file. The root folder rename remains deferred while gameplay-referenced children are frozen."
     },
     "returned_to_assets_js": [
-      "assets/js/frame-guard.js",
-      "assets/js/renderers/item-art.js"
+      "src/boot/frame-guard.js",
+      "src/renderers/item-art.js"
     ],
     "deferred_filename_cleanup": {
       "label": "perapihan nama, fase terpisah",
@@ -15697,14 +15697,14 @@
     {
       "old": "data/inventory/pet/",
       "new": "data/pet/items/",
-      "referrer": "assets/js/pages/pet-page.js",
+      "referrer": "src/views/pet-page.js",
       "phase": 3,
       "reason": "IMAGE_ROOT used for pet item card images"
     },
     {
       "old": "assets/sfx/",
       "new": "assets/audio/sfx/",
-      "referrer": "assets/js/core/app.js",
+      "referrer": "src/core/app.js",
       "phase": 1,
       "reason": "Shared audio base; the gameplay-only defeat sound uses a relative exception."
     }
@@ -15712,112 +15712,112 @@
   "version_base": 197,
   "dynamic_rewrites": [
     {
-      "referrer": "assets/js/core/app.js",
+      "referrer": "src/core/app.js",
       "old": "kalah: 'ui/game-lose.mp3'",
       "new": "kalah: '../../sfx/ui/game-lose.mp3'",
       "phase": 1,
       "reason": "Retain the frozen gameplay audio file after moving the shared SFX base."
     },
     {
-      "referrer": "assets/js/pages/room.js",
+      "referrer": "src/views/room.js",
       "old": "assets/ng/komponen/tombol-dan-kontrol/",
       "new": "assets/images/tombol/",
       "phase": 1,
       "reason": "Room button images are assembled dynamically."
     },
     {
-      "referrer": "assets/js/pages/room.js",
+      "referrer": "src/views/room.js",
       "old": "assets/images/tombol/tombol-biru-polos.webp",
       "new": "assets/images/tombol/../../ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp",
       "phase": 1,
       "reason": "The blue invite button remains frozen with Gameplay."
     },
     {
-      "referrer": "assets/js/pages/room.js",
+      "referrer": "src/views/room.js",
       "old": "'tombol-hijau-polos'",
       "new": "'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos'",
       "phase": 1,
       "reason": "The green invite button remains frozen with Gameplay."
     },
     {
-      "referrer": "assets/js/pages/lobby.js",
-      "old": "../../../assets/js/pages/",
+      "referrer": "src/views/lobby.js",
+      "old": "../../../src/views/",
       "new": "",
       "phase": 2,
       "reason": "Navigation page URLs resolve from the document, not the moved script."
     },
     {
-      "referrer": "assets/js/pages/frame.js",
-      "old": "../../../assets/js/pages/",
+      "referrer": "src/views/frame.js",
+      "old": "../../../src/views/",
       "new": "",
       "phase": 2,
       "reason": "Navigation page URLs resolve from the document, not the moved script."
     },
     {
-      "referrer": "assets/js/pages/powerup.js",
-      "old": "../../../assets/js/pages/",
+      "referrer": "src/views/powerup.js",
+      "old": "../../../src/views/",
       "new": "",
       "phase": 2,
       "reason": "Navigation page URLs resolve from the document, not the moved script."
     },
     {
-      "referrer": "assets/js/pages/pet-page.js",
+      "referrer": "src/views/pet-page.js",
       "old": "const ITEM_ROOT = 'assets/ng/komponen/';",
       "new": "const ITEM_ROOT = 'assets/images/ui/';",
       "phase": 3,
       "reason": "The Pet currency icon uses a dynamic shared-image prefix."
     },
     {
-      "referrer": "assets/js/pages/pet-page.js",
+      "referrer": "src/views/pet-page.js",
       "old": "'hud/ikon-koin-emas.webp'",
       "new": "'../../ng/komponen/hud/ikon-koin-emas.webp'",
       "phase": 3,
       "reason": "Gameplay freezes the coin icon in its existing source directory."
     },
     {
-      "referrer": "assets/js/pages/hadiah-misi.js",
+      "referrer": "src/views/hadiah-misi.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/inventory.js",
+      "referrer": "src/views/inventory.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/leaderboard.js",
+      "referrer": "src/views/leaderboard.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/mail.js",
+      "referrer": "src/views/mail.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/profile.js",
+      "referrer": "src/views/profile.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/settings.js",
+      "referrer": "src/views/settings.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
       "reason": "Page artwork paths are assembled from a shared dynamic UI-image prefix."
     },
     {
-      "referrer": "assets/js/pages/shop-page.js",
+      "referrer": "src/views/shop-page.js",
       "old": "assets/ng/komponen/",
       "new": "assets/images/ui/",
       "phase": 1,
@@ -15837,4 +15837,5 @@
     "phase3": 56
   }
 }
+
 

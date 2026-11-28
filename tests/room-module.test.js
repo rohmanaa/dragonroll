@@ -1,10 +1,10 @@
-/* room (SPA tahap 3): modul halaman, parameter dari URL rute aktif, tautan undangan ke room.html, modul multiplayer dimuat sendiri,
+﻿/* room (SPA tahap 3): modul halaman, parameter dari URL rute aktif, tautan undangan ke room.html, modul multiplayer dimuat sendiri,
    cleanup langganan realtime/Presence/LiveSync/kelas html, dan dukungan <script type="module"> di spa-host. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/room.js'), html = rd('room.html'), host = rd('assets/js/core/spa-host.js');
+const js = rd('src/views/room.js'), html = rd('room.html'), host = rd('src/core/spa-host.js');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -66,7 +66,8 @@ t('spa-host: room terdaftar; <script type=module> dimuat lewat import(); skrip y
   assert(/function inDoc\(k\)/.test(host) && /scripts\[k\] = Promise\.resolve\(\)/.test(host));
 });
 t('frame-guard mengenal room; play.js punya prefetch', () => {
-  assert(/mail\|settings\|room[|)]/.test(rd('assets/js/frame-guard.js')));
-  assert(/'room\.html': \['gameplay\.html', 'mode\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/mail\|settings\|room[|)]/.test(rd('src/boot/frame-guard.js')));
+  assert(/'room\.html': \['gameplay\.html', 'mode\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+

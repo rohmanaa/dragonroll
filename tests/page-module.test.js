@@ -1,7 +1,7 @@
-/* UT.PageModule: mount menjalankan body, unmount melepas SEMUA registrasi halaman (timer, interval, rAF, listener, langganan). */
+﻿/* UT.PageModule: mount menjalankan body, unmount melepas SEMUA registrasi halaman (timer, interval, rAF, listener, langganan). */
 const assert = require('assert');
 const path = require('path');
-const PM = require(path.join(__dirname, '..', 'assets/js/core/page-module.js'));
+const PM = require(path.join(__dirname, '..', 'src/core/page-module.js'));
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -130,3 +130,4 @@ t('mount modul yang tidak dikenal melempar error', () => {
 });
 
 console.log(n + ' tes lulus');
+

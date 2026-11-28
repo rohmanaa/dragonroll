@@ -51,7 +51,7 @@ $('#logout').onclick=openCf;$('#cf-no').onclick=closeCf;
 cf.addEventListener('click',e=>{if(e.target===cf)closeCf()});
 /* Esc: hanya menutup dialog dalam panel; Esc tanpa dialog = kembali ke halaman asal, dikelola UT.AccountHub */
 addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(lgModal.classList.contains('on'))closeLang();else if(cf.classList.contains('on'))closeCf()});
-$('#cf-ok').onclick=()=>{closeCf();import('../auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})};
+$('#cf-ok').onclick=()=>{closeCf();import('../services/auth.js').then(()=>UT.Auth.signOut()).catch(()=>{}).then(()=>{try{sessionStorage.removeItem('ut:booted')}catch(e){}UT.Session.clear();location.replace('splash.html')})};
 /* bahasa: pilihan disimpan di pref 'lang' (teks game belum diterjemahkan; hanya menyimpan pilihan) */
 const BF=IC+'language-flags/',GLB=IC+'white-glyphs/bola-dunia-garis.webp';
 const LANGS=[

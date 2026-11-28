@@ -1,7 +1,7 @@
-/* UT.SharedGL: satu renderer untuk seluruh sesi; state direset tiap acquire; release melepas kanvas; konteks hilang memberi tahu pemilik. */
+﻿/* UT.SharedGL: satu renderer untuk seluruh sesi; state direset tiap acquire; release melepas kanvas; konteks hilang memberi tahu pemilik. */
 const assert = require('assert');
 const path = require('path');
-const SGL = require(path.join(__dirname, '..', 'assets/js/core/shared-gl.js'));
+const SGL = require(path.join(__dirname, '..', 'src/core/shared-gl.js'));
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -111,3 +111,4 @@ t('acquire tanpa owner atau tanpa THREE melempar error', () => {
   assert.throws(() => SGL.create({ THREE: {}, document: {}, G: {} }).acquire('a'));
 });
 console.log(n + ' tes lulus');
+

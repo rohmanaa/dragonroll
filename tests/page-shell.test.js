@@ -1,17 +1,17 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const root = path.join(__dirname, '..');
 const htmls = fs.readdirSync(root).filter(name => name.endsWith('.html'));
 const baseRefs = [
-  'assets/js/frame-guard.js',
-  'assets/js/core/session.js',
-  'assets/js/boot-guard.js',
+  'src/boot/frame-guard.js',
+  'src/core/session.js',
+  'src/boot/boot-guard.js',
   'src/styles/fonts.css',
   'src/styles/common.css',
-  'assets/js/core/prefs.js',
-  'assets/js/core/prefs-sync.js'
+  'src/core/prefs.js',
+  'src/core/prefs-sync.js'
 ];
 
 const t = (name, fn) => { fn(); console.log('ok - ' + name); };
@@ -30,7 +30,7 @@ t('shared shell writes base scripts and styles in dependency-safe order', () => 
   const writes = [];
   const window = {};
   const document = { write: html => writes.push(html) };
-  vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/js/core/page-shell.js'), 'utf8'), { window, document });
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'src/core/page-shell.js'), 'utf8'), { window, document });
   window.UT.PageShell.renderBase();
   const output = writes.join('');
   const positions = baseRefs.map(ref => output.indexOf(ref));
@@ -42,9 +42,10 @@ t('shared shell supports pages that omit optional imports', () => {
   const writes = [];
   const window = {};
   const document = { write: html => writes.push(html) };
-  vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/js/core/page-shell.js'), 'utf8'), { window, document });
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'src/core/page-shell.js'), 'utf8'), { window, document });
   window.UT.PageShell.renderBase({ frameGuard: false, bootGuard: false, commonCss: false, prefsSync: false });
   const output = writes.join('');
   ['frame-guard.js', 'boot-guard.js', 'common.css', 'prefs-sync.js'].forEach(ref => assert.ok(!output.includes(ref), ref));
   ['core/session.js', 'fonts.css', 'core/prefs.js'].forEach(ref => assert.ok(output.includes(ref), ref));
 });
+

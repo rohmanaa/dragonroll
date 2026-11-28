@@ -1,4 +1,4 @@
-/* Tes URL pretty: verifikasi <base href="/"> sebagai elemen pertama di <head>
+﻿/* Tes URL pretty: verifikasi <base href="/"> sebagai elemen pertama di <head>
    dan tidak ada JS yang menyusun URL aset dari location.pathname.
    Jalan di Node 20 (CommonJS). */
 const assert = require('assert');
@@ -52,17 +52,17 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
   // Tes 4: Verifikasi tidak ada JS yang menggunakan location.pathname untuk membangun URL aset
   // Cek file JS utama yang kemungkinan membangun URL dari pathname
   const jsFilesToCheck = [
-    'assets/js/core/spa-host.js',
-    'assets/js/core/account-hub.js',
-    'assets/js/core/pretty-url.js',
-    'assets/js/pages/play.js',
-    'assets/js/pwa.js',
-    'assets/js/frame-guard.js',
-    'assets/js/boot-guard.js',
-    'assets/js/inventory-bridge.js',
-    'assets/js/core/hub-redirect.js',
-    'assets/js/game-integration.js',
-    'assets/js/pages/room.js'
+    'src/core/spa-host.js',
+    'src/core/account-hub.js',
+    'src/core/pretty-url.js',
+    'src/views/play.js',
+    'src/boot/pwa.js',
+    'src/boot/frame-guard.js',
+    'src/boot/boot-guard.js',
+    'src/stores/inventory-bridge.js',
+    'src/core/hub-redirect.js',
+    'src/services/game-integration.js',
+    'src/views/room.js'
   ];
 
   await t('Tidak ada konstruksi URL aset dari location.pathname di file JS kritis', () => {
@@ -103,7 +103,7 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
   // Tes 5: spa-host.js menggunakan document.baseURI atau location.origin
   await t('spa-host.js: pushHistory menggunakan document.baseURI/location.origin', () => {
-    const content = fs.readFileSync(path.join(__dirname, '..', 'assets/js/core/spa-host.js'), 'utf-8');
+    const content = fs.readFileSync(path.join(__dirname, '..', 'src/core/spa-host.js'), 'utf-8');
     assert.ok(/G\.document\.baseURI/.test(content) || /G\.location\.origin/.test(content),
       'spa-host.js harus menggunakan G.document.baseURI atau G.location.origin');
     assert.ok(!/(G\.location\.pathname\s*\|\|\s*['"]play\.html['"])/.test(content),
@@ -112,7 +112,7 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
   // Tes 6: account-hub.js menggunakan document.baseURI atau location.origin
   await t('account-hub.js: syncUrl menggunakan document.baseURI/location.origin', () => {
-    const content = fs.readFileSync(path.join(__dirname, '..', 'assets/js/core/account-hub.js'), 'utf-8');
+    const content = fs.readFileSync(path.join(__dirname, '..', 'src/core/account-hub.js'), 'utf-8');
     assert.ok(/G\.document\.baseURI/.test(content) || /G\.location\.origin/.test(content),
       'account-hub.js harus menggunakan G.document.baseURI atau G.location.origin');
     assert.ok(!/(G\.location\.pathname\s*\|\|\s*['"]play\.html['"])/.test(content),
@@ -121,7 +121,7 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
   // Tes 7: pwa.js mendaftarkan SW dengan /sw.js absolut
   await t('pwa.js: service worker didaftarkan dengan /sw.js absolut', () => {
-    const content = fs.readFileSync(path.join(__dirname, '..', 'assets/js/pwa.js'), 'utf-8');
+    const content = fs.readFileSync(path.join(__dirname, '..', 'src/boot/pwa.js'), 'utf-8');
     assert.ok(/navigator\.serviceWorker\.register.*sw\.js/.test(content),
       'pwa.js harus mendaftarkan /sw.js absolut');
     assert.ok(/scope.*\//.test(content),

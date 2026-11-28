@@ -9,10 +9,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRS = {  # fase -> [(awalan lama, awalan baru)]  (selalu berakhiran /)
     "styles":     [("assets/css/", "src/styles/")],
     "components": [("src/components/", "src/components/")],
-    "js": [("assets/js/pages/", "src/views/"), ("assets/js/core/", "src/core/"), ("assets/js/services/", "src/services/"),
-           ("assets/js/data/", "src/data/"), ("assets/js/multiplayer/", "src/multiplayer/"),
-           ("assets/js/renderers/", "src/renderers/"), ("assets/js/systems/", "src/systems/"),
-           ("assets/js/vendor/", "src/vendor/")],
+    "js": [("src/views/", "src/views/"), ("src/core/", "src/core/"), ("src/services/", "src/services/"),
+           ("src/data/", "src/data/"), ("src/multiplayer/", "src/multiplayer/"),
+           ("src/renderers/", "src/renderers/"), ("src/systems/", "src/systems/"),
+           ("src/vendor/", "src/vendor/")],
     "tambang":  [("tambang-world/js/", "src/tambang/js/"), ("tambang-world/css/", "src/tambang/css/")],
     "gameplay": [("gameplay/js/", "src/gameplay/js/"), ("gameplay/css/", "src/gameplay/css/")],
 }
@@ -97,7 +97,7 @@ def rewrite_text(text, old_file, new_file, moves, dir_pairs, all_old):
     return text, n[0]
 
 def prefix_pass(text, pairs):
-    """Awalan berbasis akar halaman ('assets/js/core/x.js', './assets/...') di string mana pun, juga di daftar segmen path.join."""
+    """Awalan berbasis akar halaman ('src/core/x.js', './assets/...') di string mana pun, juga di daftar segmen path.join."""
     n = 0
     for old, new in sorted(pairs, key=lambda p: -len(p[0])):
         pat = re.compile(r"(?<![\w\-])((?:\./)?)" + re.escape(old))
@@ -151,4 +151,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

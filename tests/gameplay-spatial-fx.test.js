@@ -1,4 +1,4 @@
-/* Phase 2 — Spatial FX: lifecycle, cleanup, seed deterministik, kualitas, reduce-motion, dan penyambungan di main.js.
+﻿/* Phase 2 â€” Spatial FX: lifecycle, cleanup, seed deterministik, kualitas, reduce-motion, dan penyambungan di main.js.
    Node + stub THREE (tanpa WebGL): yang diuji adalah logika/lifecycle, bukan tampilan. */
 const assert = require('assert');
 const fs = require('fs');
@@ -531,7 +531,7 @@ test('audio: memakai UT.GameplayAudio (sfx) yang ada, satu suara spasial per 250
 });
 
 test('reward FX terikat pada klaim sukses dan menggunakan data rarity/reward yang tersedia', () => {
-  const rewardPage = fs.readFileSync(path.join(root, 'assets/js/pages/hadiah-misi.js'), 'utf8');
+  const rewardPage = fs.readFileSync(path.join(root, 'src/views/hadiah-misi.js'), 'utf8');
   const claimDay = rewardPage.slice(rewardPage.indexOf('async function claimDay('), rewardPage.indexOf('function vHadiah('));
   const claimAch = rewardPage.slice(rewardPage.indexOf('async function claimAch('), rewardPage.indexOf('function vAch('));
   assert.ok(claimDay.indexOf('if(!r.ok)') < claimDay.indexOf('rewardBurst('), 'daily feedback harus setelah server menyetujui klaim');
@@ -573,3 +573,4 @@ test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', (
   for (const t of tests) { await t.fn(); count++; console.log('ok - ' + t.name); }
   console.log(count + ' tes spatial FX lulus');
 })().catch(error => { console.error(error); process.exit(1); });
+

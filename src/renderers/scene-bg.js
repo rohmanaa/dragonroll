@@ -1,6 +1,6 @@
-/* SceneBackground — komponen latar reusable (Stage 4).
+﻿/* SceneBackground â€” komponen latar reusable (Stage 4).
    Pakai:  UT.SceneBG.mount(container?, {preset:'full'|'soft', clouds:5, image, effects:{...}}) -> {el, destroy()}
-   Otomatis: <script src="assets/js/renderers/scene-bg.js" data-auto data-preset="soft"></script> (dipasang saat <body> ada).
+   Otomatis: <script src="src/renderers/scene-bg.js" data-auto data-preset="soft"></script> (dipasang saat <body> ada).
    Isi: langit + gambar latar (opsional; tanpa gambar = hitam polos) + 5 awan voxel 3D melayang kiri->kanan + fog cyan + sinar emas kanan-atas + volumetric + bloom lembut.
    TIDAK memuat pulau melayang / karakter (komponen terpisah). Tanpa WebGL tambahan (murni DOM/CSS/canvas 2D). */
 (function () {
@@ -105,7 +105,7 @@
     [['sky', 'sbg-sky'], ['fog', 'sbg-fog'], ['sun', 'sbg-sun'], ['rays', 'sbg-rays'], ['bloom', 'sbg-bloom']].forEach(function (p) {
       if (fx[p[0]]) { var d = document.createElement('div'); d.className = p[1]; el.appendChild(d); }
     });
-    /* suasana malam (assets/js/systems/ambience.js): bintang + bulan; tersembunyi di siang hari lewat CSS */
+    /* suasana malam (src/systems/ambience.js): bintang + bulan; tersembunyi di siang hari lewat CSS */
     if (fx.sky) { var st = document.createElement('div'); st.className = 'sbg-stars'; try { st.style.backgroundImage = 'url(' + starTile() + ')'; } catch (e) {} el.appendChild(st); var mn = document.createElement('div'); mn.className = 'sbg-moon'; el.appendChild(mn); }
     var layer = document.createElement('div'); layer.className = 'sbg-clouds';
     /* fase berbasis jam dinding -> awan melanjutkan posisinya saat pindah halaman (tidak "reset") */
@@ -166,3 +166,4 @@
     }
   }
 })();
+

@@ -1,7 +1,7 @@
-/* UT.Spa: rute Lobby/Karakter jadi view di #view (tanpa iframe), rute lain lewat iframe; urutan unmount -> release -> leave -> mount; fallback bila gagal. */
+﻿/* UT.Spa: rute Lobby/Karakter jadi view di #view (tanpa iframe), rute lain lewat iframe; urutan unmount -> release -> leave -> mount; fallback bila gagal. */
 const assert = require('assert');
 const path = require('path');
-const Spa = require(path.join(__dirname, '..', 'assets/js/core/spa-host.js'));
+const Spa = require(path.join(__dirname, '..', 'src/core/spa-host.js'));
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
 const tick = () => new Promise(r => setTimeout(r, 0));
@@ -180,3 +180,4 @@ function setup(o) {
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

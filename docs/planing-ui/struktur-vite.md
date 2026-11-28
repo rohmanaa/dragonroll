@@ -3,7 +3,7 @@
 Status: draf, belum dieksekusi. Keputusan Rans (26 Nov 2026): folder dan path ala Vue/Vite, tetap JS biasa (tanpa framework Vue, tanpa berkas .vue).
 
 ## Kondisi sekarang (hasil pemindaian)
-- Shell satu halaman `play.html` + `UT.Spa` (`assets/js/core/spa-host.js`) sudah memuat 17 halaman sebagai view. Di luar shell: Splash, Gameplay, Tambang, Power-up, Index/TOS. Halaman `.html` lama di root masih ada (24 berkas).
+- Shell satu halaman `play.html` + `UT.Spa` (`src/core/spa-host.js`) sudah memuat 17 halaman sebagai view. Di luar shell: Splash, Gameplay, Tambang, Power-up, Index/TOS. Halaman `.html` lama di root masih ada (24 berkas).
 - Kode bersama di `assets/js` (105 berkas, tanpa vendor); aset item di `data/`; game di `gameplay/` + `gameplay.html`; dunia tambang di `tambang-world/`.
 - 856 tag `<script src>` klasik di halaman; 9 `type="module"`. Hanya 32 dari 105 berkas JS yang memakai `import/export`. Kode berbagi namespace global `window.UT`.
 - Jalur buka: PWA (`sw.js` + `manifest.webmanifest` + `tools/gen-preload-manifest.py`), Electron (`main.js` memuat `index.html`, paket `**/*`), dan hosting statis.
@@ -13,10 +13,10 @@ Status: draf, belum dieksekusi. Keputusan Rans (26 Nov 2026): folder dan path al
 ```
 src/
   index.html  play.html  splash.html  gameplay.html  tambang.html  powerup.html  tos.html   (entri Vite)
-  views/        <- assets/js/pages/*      (satu berkas per view SPA: shop.js, profile.js, ...)
+  views/        <- src/views/*      (satu berkas per view SPA: shop.js, profile.js, ...)
   components/   <- src/components/*    (css + js per komponen: modal, tabs, button, ...)
-  services/     <- assets/js/services/*
-  core/         <- assets/js/core/*       (spa-host, page-shell, app, chest-reveal, ...)
+  services/     <- src/services/*
+  core/         <- src/core/*       (spa-host, page-shell, app, chest-reveal, ...)
   stores/       <- player-data.js, item-catalog.js, inventory-bridge.js
   systems/  renderers/  multiplayer/  data/ (katalog JS)
   styles/       <- assets/css/*
@@ -60,4 +60,5 @@ Aset yang path-nya dibentuk saat runtime (`data/inventory/<kategori>/<id>/...`, 
 2. Fase 3 (ES module) dikerjakan sekarang, bukan setelah rilis.
 3. Folder logika halaman bernama `views/`.
 4. Mulai sekarang, tidak menunggu bagian 3-4 (hub, modal kit). Pekerjaan UI baru harus ditunda atau diarahkan ke path baru setelah Fase 1.
+
 

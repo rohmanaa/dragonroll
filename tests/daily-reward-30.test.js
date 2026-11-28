@@ -1,4 +1,4 @@
-/* Tes login harian 30 hari: tabel hadiah di SQL (_daily_reward_for) harus sama dengan label di klien (array R di hadiah-misi.js),
+﻿/* Tes login harian 30 hari: tabel hadiah di SQL (_daily_reward_for) harus sama dengan label di klien (array R di hadiah-misi.js),
    streak ketat tetap di server, dan lobi memakai batas 30. Tes statis. Jalankan: node tests/daily-reward-30.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const root = p => path.join(__dirname, '..', p);
@@ -7,7 +7,7 @@ let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const sql = read('supabase/migrations/202611390001_daily_reward_30.sql');
 const rows = [...sql.matchAll(/\(\s*(\d+),'(coin|gem|box|mix|frame)',\s*(\d+),\s*(\d+)\)/g)].map(m => ({ day: +m[1], type: m[2], coins: +m[3], gems: +m[4] }));
-const js = read('assets/js/pages/hadiah-misi.js');
+const js = read('src/views/hadiah-misi.js');
 const rBlock = js.slice(js.indexOf('const R=['), js.indexOf('function applyDaily'));
 const labels = [...rBlock.matchAll(/\{t:'([^']+)'/g)].map(m => m[1]);
 const num = s => +s.replace(/\./g, '');
@@ -52,14 +52,14 @@ t('Hari 25 memberi frame eksklusif pertama yang belum dimiliki (semua dimiliki -
   assert.ok(/v_type = 'frame' then[\s\S]*unnest\(public\._daily_frame_order\(\)\) with ordinality[\s\S]*not exists \(select 1 from public\.player_inventory[\s\S]*v_dc := 1500/.test(sql), 'cadangan 1.500 koin bila semua frame sudah dimiliki');
   assert.ok(/'item', v_item/.test(sql));
   const order = [...sql.match(/_daily_frame_order\(\) returns text\[\][\s\S]*?array\[([\s\S]*?)\]\s*\$\$/)[1].matchAll(/'(frame\.[a-z]+)'/g)].map(m => m[1]);
-  const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
+  const C = {}; new Function('window', read('src/stores/item-catalog.js'))(C);
   const ev = C.ItemCatalog.items.filter(i => i.kind === 'frame' && i.source === 'event').map(i => i.id);
   assert.strictEqual(order.length, 15); assert.deepStrictEqual(order, ev);
   assert.strictEqual(order[0], 'frame.nagaapi', 'Frame Naga Api jadi hadiah pertama');
   order.forEach(id => assert.ok(new RegExp("\\('" + id.replace('.', '\\.') + "', 'frame', null, false, false\\)").test(sql), id + ' terdaftar di item_catalog'));
 });
 t('frame hadiah tidak dijual dan tidak ada spoiler: tanpa harga/gem, kartu Hari 25 hanya "Frame Misteri" (terpisah dari peti Hari 30)', () => {
-  const C = {}; new Function('window', read('assets/js/item-catalog.js'))(C);
+  const C = {}; new Function('window', read('src/stores/item-catalog.js'))(C);
   const ev = C.ItemCatalog.items.filter(i => i.kind === 'frame' && i.source === 'event');
   ev.forEach(f => { assert.ok(!f.price && !f.gems && !f.starter, f.id); assert.strictEqual(C.ItemCatalog.cost(f), null, f.id + ' tidak muncul di Toko'); assert.ok(fs.existsSync(root(f.image)), f.id + ' gambar'); });
   assert.strictEqual(labels[24], 'Frame Misteri'); assert.ok(!/Frame/.test(labels[29]), 'Hari 30 murni koin + gem');
@@ -69,3 +69,4 @@ t('snapshot skema memuat migrasi 30 hari', () => {
   assert.ok(read('supabase/snapshot/00_full_schema.sql').includes('202611390001_daily_reward_30.sql'));
 });
 console.log(n + ' tes lulus');
+

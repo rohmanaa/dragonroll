@@ -1,10 +1,10 @@
-/* Tes hadiah naik level (sisi klien): WalletService.claimLevelRewards + hook modal di gameplay/js/main.js.
+﻿/* Tes hadiah naik level (sisi klien): WalletService.claimLevelRewards + hook modal di gameplay/js/main.js.
    Nominal dihitung SERVER (supabase/migrations/202611300001_level_up_rewards.sql, diuji supabase/tests/level_up_rewards_test.sql);
    tes ini memastikan klien tidak menghitung nominal sendiri, mencerminkan saldo dari balasan server, dan ikon hadiah ada.
    Jalankan: node tests/level-up-reward.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const WS = require(path.join(ROOT, 'assets/js/services/wallet-service.js'));
+const WS = require(path.join(ROOT, 'src/services/wallet-service.js'));
 let n = 0; const t = async (name, fn) => { await fn(); n++; console.log('ok - ' + name); };
 const mk = (reply, opts) => { const calls = [], mirrored = [];
   const PD = { serverMode: () => !(opts && opts.local), applyServerWallet: o => mirrored.push(o) };
@@ -56,3 +56,4 @@ const mk = (reply, opts) => { const calls = [], mirrored = [];
   });
   console.log('\n' + n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

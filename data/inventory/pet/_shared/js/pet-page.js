@@ -1,4 +1,4 @@
-/* Modul 'pet' (halaman Pet = grup tab sendiri, bukan tab inventory.html). Mandiri/embed room: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri — mount/unmount oleh UT.Spa,
+﻿/* Modul 'pet' (halaman Pet = grup tab sendiri, bukan tab inventory.html). Mandiri/embed room: mount otomatis seperti sebelumnya. Di shell (play.html): view sendiri â€” mount/unmount oleh UT.Spa,
    bar tab Inventory dipasang di sini, navigasi lewat UT.Spa.go, listener/timer dilepas lewat env saat unmount. */
 UT.PageModule.define('pet', function (env) {
   'use strict';
@@ -85,8 +85,8 @@ UT.PageModule.define('pet', function (env) {
   function showWallet() {
     if (env.disposed) return;
     const ready = PD.walletReady();
-    $('#v-em').textContent = ready ? format(PD.gems()) : '—';
-    $('#v-co').textContent = ready ? format(PD.coins()) : '—';
+    $('#v-em').textContent = ready ? format(PD.gems()) : 'â€”';
+    $('#v-co').textContent = ready ? format(PD.coins()) : 'â€”';
   }
 
   const EYE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg>';
@@ -197,7 +197,7 @@ UT.PageModule.define('pet', function (env) {
     const detail = metadata.get(selected.gameKey);
     const rarity = RARITY[selected.rarity] || RARITY.common;
     $('#nm').textContent = selected.name;
-    $('#rar').textContent = `${rarity[0]} · Tier ${selected.tier}`;
+    $('#rar').textContent = `${rarity[0]} Â· Tier ${selected.tier}`;
     $('#rar').style.color = rarity[1];
     $('#ds').textContent = detail ? detail.lore : selected.desc;
     $('#petGl').setAttribute('aria-label', `Pratinjau 3D ${selected.name}`);
@@ -225,7 +225,7 @@ UT.PageModule.define('pet', function (env) {
     renderDetails(selected || PETS[0]);
     try {
       if (!window.UT.Multiplayer || !window.UT.Multiplayer.getClient) {
-        await import('../../../../../assets/js/multiplayer/client.js');
+        await import('../../../../../src/multiplayer/client.js');
       }
       const client = await window.UT.Multiplayer.getClient();
       const { data, error } = await client
@@ -578,3 +578,4 @@ UT.PageModule.define('pet', function (env) {
   void loadMetadata();
   document.documentElement.classList.add('ut-ready');
 });
+

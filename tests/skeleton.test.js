@@ -1,8 +1,8 @@
-/* Sistem "item memuat" ala COC: kerangka UI langsung tampil, gambar item yang belum tiba = placeholder kilap lalu fade-in. */
+﻿/* Sistem "item memuat" ala COC: kerangka UI langsung tampil, gambar item yang belum tiba = placeholder kilap lalu fade-in. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { create } = require('../assets/js/systems/skeleton.js');
+const { create } = require('../src/systems/skeleton.js');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
@@ -45,7 +45,7 @@ const mk = () => create({ G: {}, document: null, delay: 20 });
     a.complete = true; a.fire('load'); assert.ok(a.classList.contains('ut-sk-in'));
   });
   await t('semua halaman mendapat sistem ini lewat renderBase; font utama di-preload dan ada di repo; font-display bukan swap', () => {
-    const ps = rd('assets/js/core/page-shell.js');
+    const ps = rd('src/core/page-shell.js');
     assert.ok(/enabled\('skeleton'\) \? 'src\/styles\/components\/skeleton\.css'/.test(ps) && /enabled\('skeleton'\) \? 'assets\/js\/systems\/skeleton\.js'/.test(ps));
     const m = /FONT_PRELOAD = \[([^\]]+)\]/.exec(ps); assert.ok(m);
     const fonts = m[1].match(/'([^']+)'/g).map(x => x.replace(/'/g, '')); assert.ok(fonts.length >= 3);
@@ -54,9 +54,10 @@ const mk = () => create({ G: {}, document: null, delay: 20 });
     assert.ok(/'assets\/js\/systems\/skeleton\.js'/.test(rd('sw.js')) && /skeleton\.css/.test(rd('sw.js')));
   });
   await t('spa-host: prepare() menghangatkan CSS + aset url() ke cache sebelum halaman dibuka; hormati Save-Data/2g', () => {
-    const s = rd('assets/js/core/spa-host.js');
+    const s = rd('src/core/spa-host.js');
     assert.ok(/function prepare\(page\) \{\s*return fetchPage\(page\)\.then\(function \(p\) \{ warmCss\(p\)/.test(s));
     assert.ok(/saveData/.test(s.slice(s.indexOf('function warmCss'))) && /woff2/.test(s.slice(s.indexOf('function warmCss'))));
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

@@ -1,11 +1,11 @@
-/* Tes katalog Pet: 7 pet = kind 'pet' (slot opsional 'pet'), id sama dengan supabase/pet_catalog.sql, harga koin T1-T4 / emerald T5-T7,
+﻿/* Tes katalog Pet: 7 pet = kind 'pet' (slot opsional 'pet'), id sama dengan supabase/pet_catalog.sql, harga koin T1-T4 / emerald T5-T7,
    migrasi + seed server sinkron, dan beli/kepemilikan/pakai lewat jalur yang sama dengan aura.
    Jalankan: node tests/pet-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
 const PG = require("./_page");
 const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
-const w = {}; new Function('window', rd('assets/js/item-catalog.js'))(w); const IC = w.ItemCatalog;
+const w = {}; new Function('window', rd('src/stores/item-catalog.js'))(w); const IC = w.ItemCatalog;
 const pets = IC.items.filter(i => i.kind === 'pet').sort((a, b) => a.tier - b.tier);
 const MIG = 'supabase/migrations/202611290001_pet_catalog.sql';
 
@@ -71,7 +71,7 @@ function boot() {
   const store = {}, ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const win = { addEventListener() {}, localStorage: ls }; win.window = win;
   const ctx = vm.createContext(Object.assign(win, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(rd('assets/js/' + f), ctx));
+  ['src/core/session.js', 'src/stores/item-catalog.js', 'src/stores/player-data.js'].forEach(f => vm.runInContext(rd(f), ctx));
   return { PD: ctx.PlayerData, store };
 }
 const own = (PD, store, ...ids) => { PD.coins(); const st = JSON.parse(store[PD.key]); ids.forEach(id => { st.inventory[id] = { qty: 1, acquiredAt: Date.now(), seq: st.nextSeq++ }; }); store[PD.key] = JSON.stringify(st); };
@@ -103,7 +103,7 @@ t('halaman Pet aktif berada di root, memuat viewer dan metadata server tanpa dom
   const html = rd('pet.html'), page = rd('data/inventory/pet/_shared/js/pet-page.js');
   assert.ok(html.includes('data/inventory/pet/_shared/js/pet-viewer.js'));
   assert.ok(html.includes('data/inventory/pet/_shared/js/pet-model-registry.js'));
-  assert.ok(html.indexOf('assets/js/vendor/three.min.js') < html.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
+  assert.ok(html.indexOf('src/vendor/three.min.js') < html.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js'));
   assert.ok(html.indexOf('data/inventory/pet/_shared/js/pet-model-registry.js') < html.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
   assert.ok(html.indexOf('data/inventory/pet/_shared/js/pet-viewer.js') < html.indexOf('data/inventory/pet/_shared/js/pet-page.js'));
   assert.ok(html.includes('data/inventory/pet/_shared/js/pet-page.js'));
@@ -122,3 +122,4 @@ t('lobby dan profil mengarah ke halaman Pet root', () => {
   assert.ok(!rd('lobby.html').includes('referensi/newgui/game/pet.html'));
 });
 console.log(n + ' tes lulus');
+

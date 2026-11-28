@@ -1,6 +1,6 @@
--- ============================================================================
--- DRAGON ROLL / Ular Tangga Blok — UPDATE KE VERSI TERBARU (satu file, aman dijalankan ulang)
--- Dibuat otomatis oleh tools/build-update-sql.sh dari supabase/migrations/*.sql — JANGAN diedit manual.
+﻿-- ============================================================================
+-- DRAGON ROLL / Ular Tangga Blok â€” UPDATE KE VERSI TERBARU (satu file, aman dijalankan ulang)
+-- Dibuat otomatis oleh tools/build-update-sql.sh dari supabase/migrations/*.sql â€” JANGAN diedit manual.
 -- Untuk proyek Supabase yang SUDAH berjalan: tempel seluruh isi file ini di SQL Editor lalu Run (sekali). Boleh diulang kapan saja.
 -- Tidak mengubah data pemain: hanya tabel/fungsi/katalog/definisi yang disamakan ke versi terbaru.
 -- Isi: 62 migrasi, urut: 202611050001 s/d 202611520001
@@ -1379,7 +1379,7 @@ grant execute on function public.claim_achievement(text, bigint) to authenticate
 -- Nama tampilan di leaderboard/profil ditentukan SERVER, bukan nama kiriman klien.
 -- Terapkan SETELAH 202611090001_player_progress.sql.
 --
--- Akun game dibuat dengan email internal <username-huruf-kecil>@dragonroll-game.com (lihat assets/js/auth.js).
+-- Akun game dibuat dengan email internal <username-huruf-kecil>@dragonroll-game.com (lihat src/services/auth.js).
 -- Email itu unik dan tidak bisa diubah pemain (tidak ada konfirmasi email), jadi dipakai sebagai sumber nama:
 --   * akun terdaftar : nama = username dari akun (huruf besar/kecil dari metadata dipakai hanya bila cocok dengan email)
 --   * pemain anonim  : nama dari klien, dibersihkan (karakter kontrol dibuang, spasi dirapikan, maks 24, kosong -> 'Player')
@@ -1988,7 +1988,7 @@ grant execute on function public.wallet_history(int) to authenticated;
 -- Dompet server, TAHAP B2 (sisi server). Terapkan SETELAH 202611110001_wallet_b1.sql.
 --
 -- Isi:
---   1. item_catalog  : harga & aturan item di SERVER (disalin dari game/assets/js/item-catalog.js lewat
+--   1. item_catalog  : harga & aturan item di SERVER (disalin dari game/src/stores/item-catalog.js lewat
 --                      game/tools/wallet/gen-item-seed.js; klien tidak bisa menentukan harga).
 --   2. player_inventory + buy_item(item_id) + inventory_get() : beli di toko, saldo & inventory SATU transaksi.
 --   3. claim_boss_reward(room_id): hadiah boss ke PEMENANG sebenarnya (bukan host), sekali per room, batas harian.
@@ -2925,7 +2925,7 @@ grant execute on function public.ad_reward_get() to authenticated;
 -- security definer yang memakai auth.uid(). Validasi satu pintu di fungsi internal _outfit_normalize /
 -- _appearance_normalize; data yang ditolak tidak menulis apa pun (tidak ada simpan setengah).
 -- Kepemilikan: item dimiliki bila item starter ATAU ada di player_inventory (starter tidak disimpan di inventory server).
--- Bentuk data outfit sama dengan PlayerData klien (assets/js/player-data.js, cleanOutfitData):
+-- Bentuk data outfit sama dengan PlayerData klien (src/stores/player-data.js, cleanOutfitData):
 --   { gender:'m'|'f', top|legs|boots|helm|chest|shoulder|cape|weapon:{id, dye?}, accessories:[{id, dye?}] }
 
 -- ============ 1. Gender item ============
@@ -3476,7 +3476,7 @@ grant execute on function public.set_my_prefs(jsonb) to authenticated;
 -- ---------------------------------------------------------------------------
 -- Frame profil: daftarkan 14 frame (4 lama + 10 baru) ke katalog SERVER.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage). Aman diulang (upsert).
--- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('frame.amethyst', 'frame', 1500, false, false),
   ('frame.celestial', 'frame', 7500, false, false),
@@ -3500,7 +3500,7 @@ on conflict (id) do update set kind = excluded.kind, price_coins = excluded.pric
 -- ---------------------------------------------------------------------------
 -- Dadu: daftarkan 24 skin dadu (koleksi Dragon Roll) ke katalog SERVER.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage/hardcode di gameplay). Aman diulang (upsert).
--- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 -- Harga dadu baru adalah usulan berdasarkan rarity/tier; ubah di item-catalog.js lalu jalankan gen-item-seed.js --write dan terapkan ulang.
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('dice.amethyst', 'dice', 450, false, false),
@@ -4308,7 +4308,7 @@ grant execute on function public.bump_player_counter(text, int) to authenticated
 -- Terapkan SETELAH 202611130001_player_outfits.sql (butuh _item_equip_slot) dan 202611170001_dice_catalog.sql. Aman diulang.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage). Beli lewat buy_item (dompet server), pilihan aura
 -- aktif tersimpan di player_appearance.equipped['aura'] dan ikut ke perangkat lain / dilihat pemain di room (room_appearance_get).
--- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('aura.amethyst', 'aura', 1800, false, false),
   ('aura.celestial', 'aura', 10000, false, false),
@@ -4345,7 +4345,7 @@ revoke all on function public._item_equip_slot(text) from public, anon, authenti
 -- Power Batch 2-3: daftarkan 10 Power baru ke katalog SERVER (kind 'powerup', consumable ber-quantity, belum dijual: harga null).
 -- Terapkan SETELAH 202611110002_wallet_b2_server.sql. Aman diulang (upsert). Power lama (sword, feather, tnt, totem, grass, potion_odd, potion_even)
 -- tidak berubah: id dan stok pemain tetap. Aturan main Power ada di klien (gameplay/config.js C.PUR + usePU); server hanya memegang kepemilikan/jumlah.
--- Sumber kebenaran: assets/js/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('blaze_core', 'powerup', null, false, true),
   ('diamond_sword', 'powerup', null, false, true),
@@ -4394,7 +4394,7 @@ grant execute on function public.appearance_get_many(uuid[]) to authenticated;
 --   * Memilih Loadout di Room TIDAK mengurangi stok. Stok baru berkurang saat Power benar-benar dipakai (use_powerup).
 --   * Yang tidak terpakai tidak pernah dipotong, jadi otomatis "kembali" ke Inventory setelah pertandingan.
 --   * Skin, Dice, karakter, dll tetap permanen: hanya kind 'powerup' memakai sistem ini.
--- Harga di bawah HARUS sama dengan assets/js/item-catalog.js (klien hanya menampilkan; server yang menagih).
+-- Harga di bawah HARUS sama dengan src/stores/item-catalog.js (klien hanya menampilkan; server yang menagih).
 -- Catatan: buy_item lama memakai kunci ledger item#(qty+1); begitu stok bisa berkurang kunci itu bisa bentrok,
 -- jadi power-up dibeli lewat buy_powerup dengan ID operasi unik (p_op_id; kirim ulang ID sama tidak menagih dua kali).
 
@@ -4932,7 +4932,7 @@ revoke all on function public.claim_daily_reward() from public, anon;
 grant execute on function public.claim_daily_reward() to authenticated;
 
 -- Buka 1 Mystery Box. Peluang (per 100): 40% 500 koin | 30% 1.000 koin | 15% 2.000 koin | 10% 3 gem | 4% 8 gem | 1% 20 gem.
--- Nilai harapan ±1,0 rb koin + ±0,5 gem. Hasil diundi di server; kunci idempoten dompet = id acak per pembukaan.
+-- Nilai harapan Â±1,0 rb koin + Â±0,5 gem. Hasil diundi di server; kunci idempoten dompet = id acak per pembukaan.
 create or replace function public.open_mystery_box() returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare
@@ -5352,7 +5352,7 @@ do $$ begin
   end if;
 end $$;
 
--- 2. Harga baru dadu/frame/aura (sumber: assets/js/item-catalog.js TIER_PRICE)
+-- 2. Harga baru dadu/frame/aura (sumber: src/stores/item-catalog.js TIER_PRICE)
 -- BEGIN TIER PRICE SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)
 update public.item_catalog c set price_coins = v.c, price_gems = v.g
 from (values
@@ -5607,9 +5607,9 @@ grant execute on function public.claim_boss_reward(uuid) to authenticated;
 -- Terapkan SETELAH 202611130001_player_outfits.sql (butuh _item_equip_slot), 202611200001_aura_catalog.sql (versi _item_equip_slot sebelumnya)
 -- dan 202611280001_economy_phase3_gems.sql (kolom price_gems + buy_item harga emerald). Aman diulang (upsert / create or replace).
 -- Beli lewat buy_item (dompet server: koin T1-T4, emerald T5-T7), kepemilikan lewat inventory server, pilihan pet aktif tersimpan di
--- player_appearance.equipped['pet'] (ikut ke perangkat lain dan terlihat pemain lain lewat room_appearance_get) — jalur yang sama dengan aura.
+-- player_appearance.equipped['pet'] (ikut ke perangkat lain dan terlihat pemain lain lewat room_appearance_get) â€” jalur yang sama dengan aura.
 -- Metadata & skill pet ada di supabase/pet_catalog.sql (tabel pet_catalog, hanya-baca); file ini hanya urusan jual-beli & equip.
--- Sumber kebenaran harga: assets/js/item-catalog.js (TIER_PRICE) -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
+-- Sumber kebenaran harga: src/stores/item-catalog.js (TIER_PRICE) -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 -- BEGIN PET SEED (dibuat oleh tools/wallet/gen-item-seed.js; jangan edit tangan)
 insert into public.item_catalog(id, kind, price_coins, price_gems, starter, stackable) values
   ('pet.arcane_owl', 'pet', 60000, null, false, false),
@@ -6440,7 +6440,7 @@ grant execute on function public.submit_match_result(text, boolean, text, bigint
 --   * _appearance_normalize: wajah (eyes) & rambut (hair) yang ADA di katalog kini wajib dimiliki. Sebelumnya hanya dicek bentuk
 --     datanya, sehingga id wajah terkunci bisa disimpan lewat appearance_save tanpa memiliki. Mata/rambut dasar (tidak ada di katalog)
 --     tetap gratis.
---   * Angka min_wins di sini harus sama dengan unlock.wins di assets/js/item-catalog.js (PVP_SETS); itu hanya info tampilan.
+--   * Angka min_wins di sini harus sama dengan unlock.wins di src/stores/item-catalog.js (PVP_SETS); itu hanya info tampilan.
 
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('gear.boots.mahkota', 'gear', null, false, false),
@@ -6852,7 +6852,7 @@ grant execute on function public.chest_buy(text) to authenticated;
 --   * Hari 1-7 TIDAK berubah (nominal sama dengan fase 1), jadi pemain yang sedang di tengah putaran lama tidak dirugikan:
 --     akun dengan claimed = 7 yang login tanpa bolos kini lanjut ke Hari 8, bukan mulai dari 1.
 --   * Setelah Hari 30 putaran mulai lagi dari Hari 1.
---   * Tabel hadiah ada di SATU tempat: _daily_reward_for(hari). Klien (assets/js/pages/hadiah-misi.js, array R) hanya label tampilan;
+--   * Tabel hadiah ada di SATU tempat: _daily_reward_for(hari). Klien (src/views/hadiah-misi.js, array R) hanya label tampilan;
 --     tests/daily-reward-30.test.js memastikan keduanya sama. Tipe: coin | gem | box (Mystery Box, +1 box) | mix (koin + gem).
 --
 --   Hari : hadiah
@@ -6866,7 +6866,7 @@ grant execute on function public.chest_buy(text) to authenticated;
 -- Frame Hari 25: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain mencapai Hari 25 dia mendapat frame
 -- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki,
 -- Hari 25 diganti 1.500 koin (nominal lama Hari 25). Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
--- (Sumber kebenaran katalog klien: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
+-- (Sumber kebenaran katalog klien: src/stores/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('frame.nagaapi', 'frame', null, false, false),
   ('frame.batutua', 'frame', null, false, false),
@@ -7213,7 +7213,7 @@ grant execute on function public.hearts_consume() to authenticated;
 -- Terapkan SETELAH 202611410001_hearts.sql (hanya butuh auth.users + auth.uid()).
 --
 --   Versi TOS terbaru ada di _tos_current_version() (satu-satunya tempat di server). Naikkan angkanya saat teks TOS/Privasi berubah:
---   semua akun dengan tos_version lebih kecil akan diminta konfirmasi lagi di Lobby. Klien (assets/js/services/tos-service.js) menyimpan
+--   semua akun dengan tos_version lebih kecil akan diminta konfirmasi lagi di Lobby. Klien (src/services/tos-service.js) menyimpan
 --   salinan angka yang sama (FALLBACK_CURRENT) hanya untuk tamu tanpa akun; tests/tos-service.test.js menjaga keduanya tetap sama.
 --   Klien tidak pernah menulis tabel langsung: hanya lewat RPC security definer. Versi tidak bisa diturunkan.
 
@@ -7576,7 +7576,7 @@ revoke all on function public._chest_roll(text) from public, anon, authenticated
 -- Chest di shop HANYA bisa dibeli dengan EMERALD (gem). Menggantikan _chest_shop() dari 202611370001 (sebelumnya Kayu/Perak/Emas dibeli dengan koin).
 --   Harga (gem):   Kayu 2 | Perak 5 | Emas 12 | Diamond 25     (kurs shop ~50 koin per gem)
 --   Rata-rata hadiah (koin-setara, termasuk Power & gem): Kayu ~82 | Perak ~222 | Emas ~504 | Diamond ~1400 -> Kayu/Perak/Emas sedikit di bawah harga (sink gem),
---   Diamond sedikit di atas (sengaja, hadiah dibesarkan). Ubah angka HANYA di sini + CHESTS di assets/js/pages/shop-page.js (ada tes yang menjaga keduanya sama).
+--   Diamond sedikit di atas (sengaja, hadiah dibesarkan). Ubah angka HANYA di sini + CHESTS di src/views/shop-page.js (ada tes yang menjaga keduanya sama).
 -- chest_buy tidak berubah: sudah memeriksa gem & koin dari _chest_shop() sebelum chest dibuat (kolom coins kini 0 -> tidak pernah memotong koin).
 create or replace function public._chest_shop() returns table(kind text, coins int, gems int)
 language sql immutable as $$
@@ -7593,7 +7593,7 @@ revoke all on function public._chest_shop() from public, anon, authenticated;
 -- ---------------------------------------------------------------------------
 -- >>> 202611480001_catalog_resync.sql
 -- ---------------------------------------------------------------------------
--- Sinkron ulang katalog SERVER dengan katalog klien (assets/js/item-catalog.js): 183 item, aman dijalankan berulang (upsert).
+-- Sinkron ulang katalog SERVER dengan katalog klien (src/stores/item-catalog.js): 183 item, aman dijalankan berulang (upsert).
 -- KENAPA: sebagian item baru (mis. Dadu Matrix Epik, 23 Nov) hanya ditambahkan dengan MENGEDIT migrasi lama (202611110002, 202611170001, dst.) lewat
 --   tools/wallet/gen-item-seed.js. Database yang migrasi lamanya sudah pernah dijalankan TIDAK ikut berubah -> baris item tidak ada di server ->
 --   beli di shop ditolak server dengan "Item tidak tersedia" (reason 'tidak-tersedia'), padahal item tampil di shop (katalog klien).
@@ -7880,7 +7880,7 @@ where c.id = v.id;
 -- >>> 202611490001_tambang_world.sql
 -- ---------------------------------------------------------------------------
 -- ============================================================================
--- TAMBANG (Dragon Roll Mining World) — skema + RPC server, Supabase / Postgres.
+-- TAMBANG (Dragon Roll Mining World) â€” skema + RPC server, Supabase / Postgres.
 -- Terapkan SETELAH 202611110001_wallet_b1.sql (memakai public._wallet_apply).
 -- Idempoten: aman dijalankan ulang (create if not exists / create or replace).
 --
@@ -8780,4 +8780,5 @@ begin
   return jsonb_build_object('coins', v_c, 'gems', v_g, 'xp', v_x, 'power', v_pw);
 end;
 $$;
+
 

@@ -1,6 +1,6 @@
-/* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
+﻿/* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
-const src = fs.readFileSync(path.join(__dirname, '../assets/js/core/live-sync.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '../src/core/live-sync.js'), 'utf8');
 const ROOT = path.join(__dirname, '..');
 const pageSource = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const pageScriptSources = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
@@ -16,11 +16,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 let n = 0; const T = async (name, fn) => { await fn(); n++; console.log('ok - ' + name); };
 (async () => {
   await T('Shop memuat LiveSync canonical tepat sekali sebelum init/controller', async () => {
-    const canonical = 'assets/js/core/live-sync.js';
+const canonical = 'src/core/live-sync.js';
     const legacy = 'assets/js/live-sync.js';
     assert.ok(fs.existsSync(path.join(ROOT, canonical)), 'implementasi canonical tersedia');
     [
-      { file: 'shop.html', controller: 'assets/js/pages/shop-page.js', page: 'shop' }
+      { file: 'shop.html', controller: 'src/views/shop-page.js', page: 'shop' }
     ].forEach(({ file, controller, page }) => {
       const html = pageSource(file);
       const sources = pageScriptSources(html);
@@ -77,3 +77,4 @@ let n = 0; const T = async (name, fn) => { await fn(); n++; console.log('ok - ' 
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

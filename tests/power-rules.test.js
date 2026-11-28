@@ -1,4 +1,4 @@
-/* Tes aturan Power (Batch 2-3): 17 Power punya nama (PUN), aturan (PUR), katalog, ikon, efek 2D, model 3D, suara, dan migrasi server.
+﻿/* Tes aturan Power (Batch 2-3): 17 Power punya nama (PUN), aturan (PUR), katalog, ikon, efek 2D, model 3D, suara, dan migrasi server.
    Jalankan: node tests/power-rules.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
@@ -7,7 +7,7 @@ const gameplaySource = () => rd('gameplay.html') + rd('gameplay/js/main.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const w = { addEventListener() {} }; w.window = w; const ctx = vm.createContext(w);
-vm.runInContext(rd('assets/js/item-catalog.js'), ctx);
+vm.runInContext(rd('src/stores/item-catalog.js'), ctx);
 vm.runInContext(rd('data/power/power-fx.js'), ctx);
 vm.runInContext(rd('gameplay/js/config.js'), ctx);
 const IC = ctx.ItemCatalog, pus = IC.items.filter(i => i.kind === 'powerup'), C = ctx.UT.Gameplay.Config, FX = ctx.UT.PowerFX;
@@ -58,7 +58,7 @@ t('tiap Power punya ikon 3D (file ada), efek 2D, dan peta model 3D', () => {
   assert.ok(FX.has('shield_block') && FX.has('totem_block'));
 });
 t('suara: PowerSound punya suara untuk tiap Power (gameKey dan id model 3D)', () => {
-  const src = rd('assets/js/renderers/power-3d/power-sound.js'), vm_ = src.match(/const VOICE = \{([\s\S]*?)\};/)[1];
+  const src = rd('src/renderers/power-3d/power-sound.js'), vm_ = src.match(/const VOICE = \{([\s\S]*?)\};/)[1];
   keys.forEach(k => assert.ok(new RegExp('\\b' + k + ':').test(vm_), 'suara tidak ada: ' + k));
   ['iron_sword', 'ender_pearl', 'potion_red', 'potion_blue'].forEach(k => assert.ok(new RegExp('\\b' + k + ':').test(vm_), k));
 });
@@ -73,7 +73,7 @@ t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importm
   const g = gameplaySource();
   const loader = rd('gameplay/js/power3d-loader.js');
   const main = rd('gameplay/js/main.js');
-  assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../assets/js/renderers/power-3d/power-overlay.js") > 0);
+  assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../src/renderers/power-3d/power-overlay.js") > 0);
   assert.ok(!/const o=\{sword:0,feather:0/.test(main), 'daftar Power tetap masih ada');
   assert.ok(main.indexOf('guard:!!p.guard,frozen:!!p.frozen') > 0 && main.indexOf("'shield','guard','frozen'") > 0);
   assert.ok(main.indexOf('function skipFrozen') > 0 && /function nextTurn\(\)\{[^}]*skipFrozen\(\)/.test(main));
@@ -150,3 +150,4 @@ t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   assert.strictEqual(IC.normalizePowerId('apple'), 'totem');
 });
 console.log(n + ' tes lulus');
+

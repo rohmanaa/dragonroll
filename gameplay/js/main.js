@@ -1,4 +1,4 @@
-
+﻿
     if (window.__NO_THREE) { throw new Error('Three.js tidak dimuat'); }
 (function(){
 'use strict';
@@ -567,7 +567,7 @@ function addCampfire(B,x,z){
   for(let i=0;i<8;i++){ const a=i/8*Math.PI*2; addBox(B,x+Math.cos(a)*0.46,0.07,z+Math.sin(a)*0.46,0.15,0.14,0.15,ljit(0x8A8A8A,0.12),{tex:MT.COBBLE}); }
   addBox(B,x,0.03,z,0.7,0.06,0.7,0x2A2522,F);
   [0.2,1.0,1.8,2.6].forEach(a=>addBox(B,x,0.16,z,0.62,0.1,0.1,ljit(0x6B4423,0.08),{yaw:a,tex:MT.LOG}));
-  /* 4 kayu duduk: satu per slot pemain (posisi = SLOT*2.2, sama dengan slotPos(…,0)); bidak duduk di sini sebelum mulai */
+  /* 4 kayu duduk: satu per slot pemain (posisi = SLOT*2.2, sama dengan slotPos(â€¦,0)); bidak duduk di sini sebelum mulai */
   SLOT.forEach(o=>{
     const sx=x+o[0]*2.2,sz=z+o[1]*2.2,yaw=(o[0]*o[1]>0)?Math.PI/4:-Math.PI/4;
     addBox(B,sx,0.12,sz,0.62,0.24,0.28,ljit(0x7A4E2A,0.08),{yaw:yaw,tex:MT.LOG});
@@ -747,7 +747,7 @@ function makeCreature(kind,c1,c2,far){
   }
   o.g=g; return o;
 }
-/* Strider berjalan DI lava (bukan melayang di atasnya): permukaan lava papan Nether y=-0.2, kaki terendam ±0.25. Di darat tetap y0. */
+/* Strider berjalan DI lava (bukan melayang di atasnya): permukaan lava papan Nether y=-0.2, kaki terendam Â±0.25. Di darat tetap y0. */
 const STRIDER_WADE_Y=-0.45;
 function roamGy(o){ return (o.kind==='strider'&&BOARD_CUSTOM&&nIsLava(o.x,o.z))?STRIDER_WADE_Y:(o.y0||0); }
 function spawnRoamers(){
@@ -1382,7 +1382,7 @@ function lift(B,fn,h){
   for(let i=l0+1;i<B.lpos.length;i+=3) B.lpos[i]+=h;
 }
 /* ===== Rumput ala referensi + pohon / batu / semak dari blok pixel kecil ===== */
-const GRASS_REF={h:0.275,s:0.46,l:[0.395,0.425,0.455,0.487,0.52]}; /* s = kejenuhan (naikkan kalau mau lebih cerah seperti referensi); l = 5 nuansa gelap→terang */
+const GRASS_REF={h:0.275,s:0.46,l:[0.395,0.425,0.455,0.487,0.52]}; /* s = kejenuhan (naikkan kalau mau lebih cerah seperti referensi); l = 5 nuansa gelapâ†’terang */
 function hsl2hex(h,s,l){ const a=s*Math.min(l,1-l),f=n=>{ const k=(n+h*12)%12; return l-a*Math.max(-1,Math.min(k-3,9-k,1)); }; return (Math.round(f(0)*255)<<16)|(Math.round(f(8)*255)<<8)|Math.round(f(4)*255); }
 const GRASS_PAL=GRASS_REF.l.map(l=>hsl2hex(GRASS_REF.h,GRASS_REF.s,l));
 const sgh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; return v-Math.floor(v); };
@@ -1411,7 +1411,7 @@ function grassShade(x,z){
   v=Math.max(0,Math.min(0.999,(v-0.5)*1.9+0.5));
   return new THREE.Color(GRASS_PAL[Math.floor(v*5)]).offsetHSL(0,0,(sgh(x,z,3)-0.5)*0.012);
 }
-/* satu muka atas saja (4 vertex) — untuk tambalan rumput, jauh lebih hemat daripada kotak penuh */
+/* satu muka atas saja (4 vertex) â€” untuk tambalan rumput, jauh lebih hemat daripada kotak penuh */
 function addTopQuad(B,cx,y,cz,sx,sz,color,tex){
   const hx=sx/2,hz=sz/2,base=B.n;
   [[-1,1],[1,1],[1,-1],[-1,-1]].forEach(v=>{ B.pos.push(cx+v[0]*hx,y,cz+v[1]*hz); B.nor.push(0,1,0); B.col.push(color.r,color.g,color.b); if(B.tid) B.tid.push(tex||0); });
@@ -1796,7 +1796,7 @@ function addMcEnv(DB){
   addEastMountain(DB);
   /* gunung hulu dimundurkan: kiri ke arah hutan, kanan ke belakang (utara). Sungai menyambung tanpa celah dari hulu sampai terrain z>=7. */
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
-  blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
+  blockRect(-10.5,-0.2,3.1,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) â€” dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-22.9,-20.5,RVC(RV_Z0)-1.8,RVC(RV_Z0)+1.8,false,2); /* tinggi 2x; gunung air mentok di tepi belakang pulau; sejajar awal sungai (buildRiverWorld) */
   const HOUSE_A={x:-10.8,z:-2.4},HOUSE_B={x:-10.8,z:2.2},PORTAL_P={x:2.0,z:-11.5}; /* 2 rumah dipindah ke lahan datar kiri board; portal Nether mundur ke dataran datar di belakang (x 0..4, z -13..-7) */
   const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||x>5.3||nearRiver(x,z,0.4)||roadAt(x,z,0.5)||(Math.abs(x-PORTAL_P.x)<1.6&&Math.abs(z-PORTAL_P.z)<1.4)||(Math.abs(x-HOUSE_A.x)<1.2&&Math.abs(z-HOUSE_A.z)<1.2)||(Math.abs(x-HOUSE_B.x)<1.2&&Math.abs(z-HOUSE_B.z)<1.2);
@@ -2152,7 +2152,7 @@ function readGraphics(){
   try{ const a=UT.Prefs.get('ambience',null); if(a&&a.graphics) return a.graphics; }catch(e){}
   return 'high';
 }
-function gfxAutoApi(){ return UT.GraphicsAuto||null; } /* assets/js/systems/graphics-auto.js (dimuat di gameplay.html) */
+function gfxAutoApi(){ return UT.GraphicsAuto||null; } /* src/systems/graphics-auto.js (dimuat di gameplay.html) */
 function setGraphicsPref(g){ /* dari menu Pengaturan gameplay; aturan sama dengan halaman Pengaturan: Auto = preferensi lokal, tingkat manual mematikan Auto */
   const GA=gfxAutoApi();
   if(g==='auto'){ try{ if(GA) GA.setEnabled(true); }catch(e){} applyCineGraphics(); return; }
@@ -2202,7 +2202,7 @@ function tileBlock(n,t,th){
 function hmSync(){ try{ UT.GameplayHudMenu.sync(); }catch(e){} } /* salin status ke dock menu (hud-menu.js) */
 function updateNightUI(){
   hmSync();
-  $('btnNight').textContent='Mode: '+(autoDN?'Auto · ':'')+(night?'Malam':'Siang');
+  $('btnNight').textContent='Mode: '+(autoDN?'Auto Â· ':'')+(night?'Malam':'Siang');
   if($('nDay')) $('nDay').setAttribute('aria-pressed',String(!night));
   if($('nNight')) $('nNight').setAttribute('aria-pressed',String(night));
 }
@@ -3088,7 +3088,7 @@ async function serverBossClaim(p,gid){
       const parts=[]; if(r.reward_coins>0) parts.push('+'+r.reward_coins+' Coin'); if(r.reward_gems>0) parts.push('+'+r.reward_gems+' Gem');
       DRG.reward={gameId:gid,coins:r.reward_coins,gems:r.reward_gems};
       setWinCoins(gid,'boss',r.reward_coins); setWinReward(gid,'gems',r.reward_gems);
-      DRG.text='Hadiah: '+parts.join(' · ')+'.';
+      DRG.text='Hadiah: '+parts.join(' Â· ')+'.';
       if(DRG.rewardStatus&&DRG.rewardStatus.gameId===gid) DRG.rewardStatus=null;
       setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.'); try{ sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid}); }catch(e){}
     }else if(r&&r.reason==='nonaktif'){ /* lawan CPU: hadiah boss dimatikan server; hadiah boss hanya di game online */
@@ -3108,7 +3108,7 @@ async function dragonDefeatReward(p,gid){
     return;
   }
   const parts=[]; if(R.coins>0) parts.push('+'+R.coins+' Coin'); if(R.gems>0) parts.push('+'+R.gems+' Gem');
-  DRG.text='Hadiah: '+parts.join(' · ')+'.';
+  DRG.text='Hadiah: '+parts.join(' Â· ')+'.';
   const bn=BOSS==='wither'?'Wither':'Dragon';
   setMsg(p.name+' mendapat hadiah '+bn+': '+parts.join(', ')+'.');
   sfx.rewardpower(); hud('showResult','Hadiah '+bn,parts.join('  '),{ttl:2200,gid});
@@ -4571,7 +4571,7 @@ async function teleport(p,to,fire){
 }
 
 /* ---------- Ender Pearl: lubang hitam + tukar posisi ----------
-   enderHole(pos,scale): lubang hitam (inti hitam + 2 cincin ungu + partikel terhisap) di dekat pion; timeline TETAP 2,3 dtk: buka 0,7 · tahan · tutup 0,4 (dipakai juga oleh pemain online lewat cue 'eport').
+   enderHole(pos,scale): lubang hitam (inti hitam + 2 cincin ungu + partikel terhisap) di dekat pion; timeline TETAP 2,3 dtk: buka 0,7 Â· tahan Â· tutup 0,4 (dipakai juga oleh pemain online lewat cue 'eport').
    enderSwapAnim(p,L,a,b): lubang membuka di dekat kedua pion -> keduanya terhisap (mengecil + berputar) -> posisi ditukar -> muncul dari lubang lawan -> lubang menutup.
    Aset baru: tidak ada (geometri THREE + SFX enderman yang sudah ada). reduce-motion: tukar langsung seperti teleport biasa. */
 const EH_LIFE=2.3;
@@ -4619,7 +4619,7 @@ function enderVictimFx(L,p,from,to){ /* feedback untuk pemain yang DITUKAR: vign
     if(ENDER_HIT_TIMER) ENDER_HIT_TIMER.clear();
     const old=document.getElementById('enderHit'); if(old) old.remove();
     const d=document.createElement('div'); d.id='enderHit';
-    d.innerHTML='<div class="eh-vig"></div><div class="eh-txt"></div>'; d.querySelector('.eh-txt').textContent=L.name+' ditukar oleh '+p.name+' · petak '+from+' → '+to;
+    d.innerHTML='<div class="eh-vig"></div><div class="eh-txt"></div>'; d.querySelector('.eh-txt').textContent=L.name+' ditukar oleh '+p.name+' Â· petak '+from+' â†’ '+to;
     document.body.appendChild(d);
     let task=null;
     task=trackFxTimeout(()=>{ d.remove(); if(ENDER_HIT_TIMER===task) ENDER_HIT_TIMER=null; },1700,'ender-hit-overlay',()=>{ d.remove(); if(ENDER_HIT_TIMER===task) ENDER_HIT_TIMER=null; });
@@ -4914,7 +4914,7 @@ const againGate=()=>{ const HG=window.UT&&UT.HeartsGate; return HG?HG.spend():Pr
 const ROOM_CFG=(()=>{try{return UT.RoomFlow&&UT.RoomFlow.lastRoom?UT.RoomFlow.lastRoom():null}catch(e){return null}})();
 const ONLINE_ROOM=!!(ROOM_CFG&&ROOM_CFG.mode==='online'&&ROOM_CFG.roomId);
 const ONLINE_HOST=!!(ONLINE_ROOM&&ROOM_CFG.host!==false);
-/* Resume: Tahap 5b — status 'sedang main' diambil lobby dari server (RoomService.activeRoom); tidak ada key lokal. Sisa key lama dibersihkan. */
+/* Resume: Tahap 5b â€” status 'sedang main' diambil lobby dari server (RoomService.activeRoom); tidak ada key lokal. Sisa key lama dibersihkan. */
 try{ localStorage.removeItem('ut-mp-active'); }catch(e){}
 let MP_SYNC=null,MP_ID=null,MP_CONNECTING=false,MP_APPLYING=false;
 const MP_LEFT=new Set(); /* networkId pemain yang keluar dari game: disembunyikan dari HUD & tidak ikut 'Main lagi' */
@@ -5002,7 +5002,7 @@ function faceURL(k){
   FCV[k]=cv; return FURL[k]=cv.toDataURL();
 }
 const PUN=UT.Gameplay.Config.PUN;
-const PUR=UT.Gameplay.Config.PUR||{}; /* aturan Power (data) — dipakai usePU/cpuPUValid/HUD */
+const PUR=UT.Gameplay.Config.PUR||{}; /* aturan Power (data) â€” dipakai usePU/cpuPUValid/HUD */
 /* Loadout Power: hanya Power yang dipilih di Room (sessionStorage 'ut-room' -> cfg.powers) yang dibawa ke gameplay (tombol HUD + stok awal).
    Tanpa konfigurasi Room (null) = perilaku lama (semua Power). ID & efek Power tidak berubah. */
 /* Takedown sementara: Power dengan off:true di item-catalog.js tidak muncul, tidak dipilih, tidak dipakai (CPU & pemain). Stok/ID/aturan tetap utuh. */
@@ -5103,7 +5103,7 @@ async function applyChestReward(p,rw,gid){
     case 'power':{
       const ks=Object.keys(PUN).filter(puAvail); if(!ks.length) return {text:'Kosong'};
       const k=ks[Math.floor(Math.random()*ks.length)]; p.pu[k]=(p.pu[k]|0)+1; renderChips();
-      return {text:'Power: '+PUN[k][1]+' ×1'};
+      return {text:'Power: '+PUN[k][1]+' Ã—1'};
     }
     case 'bonus': p.bonus=2; renderChips(); return {text:'Bonus Langkah! Dadu berikutnya +2'};
     case 'lucky': chestFlag(p,'lucky'); return {text:'Pasti 6! Dadu berikutnya 6'};
@@ -5117,7 +5117,7 @@ async function giveChest(p,tok){
    if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
    CHEST_LC.active=true; CHEST_LC.done.add(tok); const n=p.pos,gid=gameId;
    msBump(p,'chests');
-   try{ if(isLocalPlayer(p)) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.bumpCounter('chests',1)).catch(()=>{}); }catch(e){}
+   try{ if(isLocalPlayer(p)) import(new URL('src/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.bumpCounter('chests',1)).catch(()=>{}); }catch(e){}
    try{
      openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
@@ -5182,7 +5182,7 @@ async function puDefend(q,gid,what){
 function skipFrozen(){
   for(let i=0;i<players.length&&players[cur]&&players[cur].frozen;i++){
     const q=players[cur]; q.frozen=false; puFx('pr:'+q.idx,'pfx-hit');
-    setMsg(q.name+' membeku — giliran dilewati.'); try{ fb('event','info',q.name+' membeku — giliran dilewati',{ttl:1800}); }catch(e){}
+    setMsg(q.name+' membeku â€” giliran dilewati.'); try{ fb('event','info',q.name+' membeku â€” giliran dilewati',{ttl:1800}); }catch(e){}
     cur=(cur+1)%players.length;
   }
 }
@@ -5291,7 +5291,7 @@ function trapsSync(list){ /* guest: samakan dengan snapshot host */
 }
 const trapRange=(p,k)=>{ const R=PUR[k]||{}; return {lo:p.pos+1,hi:Math.min(GOAL-1,p.pos+(R.range||6))}; };
 const trapTileOk=(p,k,n)=>{ const r=trapRange(p,k); return Number.isInteger(n)&&n>=r.lo&&n<=r.hi&&!TRAPS.some(t=>t.tile===n); };
-function cpuTrapTile(p,k){ /* CPU: 2–5 petak di depan, hindari petak yang sudah berjebakan */
+function cpuTrapTile(p,k){ /* CPU: 2â€“5 petak di depan, hindari petak yang sudah berjebakan */
   const r=trapRange(p,k),c=[]; for(let n=Math.min(r.hi,r.lo+1);n<=Math.min(r.hi,r.lo+4);n++) if(trapTileOk(p,k,n)) c.push(n);
   return c.length?c[Math.floor(Math.random()*c.length)]:null;
 }
@@ -5315,7 +5315,7 @@ function trapPick(p,k){
       const h=new THREE.Mesh(new THREE.BoxGeometry(1,0.5,1),hitMat); h.position.set(tl.x,tl.h,tl.z); h.userData.tile=n; marks.add(h); hits.push(h); });
     scene.add(marks);
     const bar=$('trapBar'),txt=$('trapTxt'),ok=$('trapOk'),cv=$('c');
-    const upd=()=>{ const tl=TILES[tile]; ghost.position.set(tl.x,tl.h,tl.z); txt.textContent=PUN[k][1]+' → petak '+tile+' ('+(tile-p.pos)+' di depan)'; ok.disabled=false; focus=ghost; };
+    const upd=()=>{ const tl=TILES[tile]; ghost.position.set(tl.x,tl.h,tl.z); txt.textContent=PUN[k][1]+' â†’ petak '+tile+' ('+(tile-p.pos)+' di depan)'; ok.disabled=false; focus=ghost; };
     let down=null;
     const onDown=e=>{ down={x:e.clientX,y:e.clientY}; };
     const onUp=e=>{ if(!down) return; const dx=e.clientX-down.x,dy=e.clientY-down.y; down=null; if(dx*dx+dy*dy>64) return; /* geser kamera = bukan tap */
@@ -5364,7 +5364,7 @@ async function usePU(k,cpu,tileArg){
   if(puBossBlocked(p,k)){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0],local:true})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
   if(R.kind==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, atau serangan Power.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
   if(!puOn(k)) return deny(PUN[k][1]+' sedang dinonaktifkan sementara.'); /* takedown: ditolak sebelum konsumsi */
-  if(!puMapOk(k)) return deny(PUN[k][1]+': '+ItemCatalog.powerMapNote(k)+' — tidak bisa dipakai di map '+ItemCatalog.mapName(themeKey)+'.'); /* Power per map: stok tidak berkurang */
+  if(!puMapOk(k)) return deny(PUN[k][1]+': '+ItemCatalog.powerMapNote(k)+' â€” tidak bisa dipakai di map '+ItemCatalog.mapName(themeKey)+'.'); /* Power per map: stok tidak berkurang */
   const gid=gameId,T=puTargets(p,k);
   if(R.kind==='guard'&&p.guard) return deny('Wooden Shield sudah aktif.');
   if(R.kind==='dice'&&(p.odd||p.even||p.lucky)) return deny('Dadu berikutnya sudah ditentukan (Ramuan / Pasti 6). Lempar dulu.');
@@ -5415,7 +5415,7 @@ async function usePU(k,cpu,tileArg){
       if(R.self&&hits.length&&p.pos!==oldP&&p.pos>0&&p.pos<GOAL){ await resolveTileAt(p,gid); if(gid!==gameId) throw STALE; renderChips(); }
     }
     if(R.kind==='swap'){ const L=T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
-      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); enderVictimFx(L,p,b,a); sfx.playerHurt(); await enderSwapAnim(p,L,a,b); if(gid!==gameId) throw STALE; p.pos=b; L.pos=a; renderChips();
+      if(by) blocked.push({q:L,by}); else { const a=p.pos,b=L.pos; hit=true; hits.push(L); powerFxPawn(k,p); powerFxPawn(k,L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' â†” '+b+')'); enderVictimFx(L,p,b,a); sfx.playerHurt(); await enderSwapAnim(p,L,a,b); if(gid!==gameId) throw STALE; p.pos=b; L.pos=a; renderChips();
         /* Bertukar = mendarat di petak baru: jebakan, ular, tangga, dan mob di petak tujuan ikut diproses (resolveTileAt) */
         for(const q of [p,L]){ if(q.pos>0&&q.pos<GOAL){ await resolveTileAt(q,gid); if(gid!==gameId) throw STALE; renderChips(); } } } }
     if(R.kind==='freeze'){ const L=T.find(q=>!q.frozen)||T[0],by=await puDefend(L,gid,PUN[k][1]+' '+p.name);
@@ -5431,11 +5431,11 @@ async function usePU(k,cpu,tileArg){
   }catch(e){ if(e===STALE) return; console.error(e); }
   if(gid!==gameId) return;
   blocked.forEach(({q,by})=>{ pawnAct(q.pawn,'block'); puFx('pr:'+q.idx,'pfx-shield'); powerFxPawn(by==='guard'?'shield_block':'totem_block',q,null,p.pawn.position); }); if(blocked.length){ sfx.pop(); renderChips(); }
-  /* Feedback: Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Power self/area/diblok = banner HUD singkat. Urutan: pakai → efek → feedback → lanjut. */
+  /* Feedback: Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Power self/area/diblok = banner HUD singkat. Urutan: pakai â†’ efek â†’ feedback â†’ lanjut. */
   const mv=q=>{ const d=old[q.idx]-(pushed[q.idx]!=null?pushed[q.idx]:q.pos); return q.name+(d>0?' mundur '+d+' petak':' tidak bergerak'); };
   if(offense&&R.kind!=='trap'){
     const parts=hits.map(q=>R.kind==='swap'?'Bertukar posisi dengan '+q.name:R.kind==='freeze'?q.name+' membeku':mv(q)).concat(blocked.map(b=>b.q.name+' menahan dengan '+(b.by==='guard'?'Wooden Shield':'Totem')));
-    setMsg(p.name+' → '+PUN[k][1]+' → '+parts.join(', '));
+    setMsg(p.name+' â†’ '+PUN[k][1]+' â†’ '+parts.join(', '));
     if(R.kind==='area'||!hit){ const po={gid,icon:PUN[k][0],desc:parts.join(', ')}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); } /* hit tunggal: card tengah sudah tampil */
   }else{
     let desc=PUN[k][2]; if(R.ladder) desc=p.pos>oldP?'Maju dari '+oldP+' ke '+p.pos:desc; if(R.kind==='trap') desc='Jebakan dipasang di petak '+tile+'. Musuh yang mendarat di sana mundur '+R.back+'.';
@@ -5443,7 +5443,7 @@ async function usePU(k,cpu,tileArg){
   }
   p.activePower=null; busy=false; if(!p.cpu) setRoll(true); focus=p.pawn; renderChips(); startTurnTimer(); /* setelah Power, hitung ulang 10 dtk */
 }
-/* Stage 4.1.21 — feedback Power lewat sistem class-toggle existing (renderChips + data-state). renderChips() membangun ulang DOM, jadi feedback disimpan sebagai
+/* Stage 4.1.21 â€” feedback Power lewat sistem class-toggle existing (renderChips + data-state). renderChips() membangun ulang DOM, jadi feedback disimpan sebagai
    cap waktu pendek lalu dipasang ulang dengan animation-delay negatif (animasi lanjut, tidak restart). Tanpa timer/rAF/listener baru; kedaluwarsa otomatis. */
 const PUFX={}, PUFX_MS=650;
 function puFx(key,cls){ mpCue({k:'pufx',key:key,cls:cls}); if(reduce) return; PUFX[key]={cls,t:performance.now()}; }
@@ -5649,10 +5649,10 @@ function startTurnTimer(){
   if(ONLINE_ROOM&&!ONLINE_HOST){ A.start('turn',duration,()=>{},tick); return; } /* tamu: hanya hitung mundur tampilan; host yang me-roll */
   A.start('turn',duration,()=>{
     if(gid!==gameId||gameOver||players[cur]!==who||busy||paused) return; /* sudah main / pindah giliran / jeda -> abaikan */
-    if(wasAuto){ fb('event','info',who.name+' AUTO — roll otomatis',{gid}); doRoll({afk:true}); return; }
+    if(wasAuto){ fb('event','info',who.name+' AUTO â€” roll otomatis',{gid}); doRoll({afk:true}); return; }
     const toAuto=afkMiss(who);
     setMsg(toAuto?who.name+' tidak aktif 3x. Mode AUTO aktif.':who.name+' tidak aktif. Auto roll...');
-    fb('event','info',who.name+(toAuto?' AFK 3x — mode AUTO':' AFK — auto roll'),{gid});
+    fb('event','info',who.name+(toAuto?' AFK 3x â€” mode AUTO':' AFK â€” auto roll'),{gid});
     if(toAuto){ try{ renderChips(); }catch(e){} }
     doRoll({afk:true});
   },tick);
@@ -5915,7 +5915,7 @@ async function askTotem(p,gid,what){
   setMsg(p.name+' kena '+what+'. Pakai Totem?');
   let use;
   if(ONLINE_ROOM&&ONLINE_HOST&&p.networkId&&p.networkId!==MP_ID&&!p.left&&!p.auto){ /* korban = tamu: tanya di layarnya, bukan di layar host */
-    try{ fb('event','info',p.name+' kena '+what+' — memilih Totem...',{gid,ttl:2400}); }catch(e){}
+    try{ fb('event','info',p.name+' kena '+what+' â€” memilih Totem...',{gid,ttl:2400}); }catch(e){}
     use=await mpAskGuestTotem(p,what,gid);
   } else if(ONLINE_ROOM&&p.networkId&&p.networkId!==MP_ID){ use=true; } /* tamu keluar/AUTO: otomatis pakai */
   else use=await totemModal(p,what,gid);
@@ -6040,7 +6040,7 @@ function mpRunDuelCue(c){
   }
   if(c.f==='close'){ MP_DUEL=null; try{ UI.close(); }catch(e){} return Promise.resolve(); }
   const D=MP_DUEL; if(!D) return Promise.resolve();
-  if(c.f==='won'){ const w=players.find(q=>q.idx===c.i); try{ if(w&&isLocalPlayer(w)) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} return Promise.resolve(); }
+  if(c.f==='won'){ const w=players.find(q=>q.idx===c.i); try{ if(w&&isLocalPlayer(w)) import(new URL('src/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} return Promise.resolve(); }
   if(c.f==='wait'){
     const me=D.pair.some(q=>q.networkId===MP_ID&&!q.auto&&!q.left);
     if(!me){ UI.lockRoll('MENUNGGU PEMAIN...'); return Promise.resolve(); } /* penonton / pemain AUTO: tidak ada tombol */
@@ -6084,7 +6084,7 @@ async function duelCheck(p,gid){
       DU.log('Tekan ROLL untuk giliran '+(s.round+1)+' dari '+s.cfg.maxRounds+(s.round+1===s.cfg.maxRounds?' (serangan pamungkas!)':'.'));
       const ready=await duelWaitRolls(DU,UI,pair,did,s.round+1,st); st();
       if(!ready) return null;
-      let rolls; if(ONLINE_ROOM){ try{ rolls=await duelServerRolls(pair); }catch(e){ console.error('[multiplayer] duel dice failed',e); st(); setMsg('Dadu duel dari server gagal. Duel dibatalkan.'); DU.log('Dadu server gagal · duel dibatalkan'); await sleep(1200); st(); DU.close(); return null; } st(); } else rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]; /* online: dadu tiap sisi diundi server (roll_game_dice), seperti dadu giliran */
+      let rolls; if(ONLINE_ROOM){ try{ rolls=await duelServerRolls(pair); }catch(e){ console.error('[multiplayer] duel dice failed',e); st(); setMsg('Dadu duel dari server gagal. Duel dibatalkan.'); DU.log('Dadu server gagal Â· duel dibatalkan'); await sleep(1200); st(); DU.close(); return null; } st(); } else rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]; /* online: dadu tiap sisi diundi server (roll_game_dice), seperti dadu giliran */
       await DU.revealRolls(rolls); st();
       const r=D.round(s,rolls); s=r.state;
       await DU.turn(r.turn); st(); /* seluruh animasi giliran (serangan, hit, K.O./seri) dimainkan UI dari hasil duel-core */
@@ -6101,7 +6101,7 @@ async function duelCheck(p,gid){
     const w=pair[out.winner],l=pair[out.loser];
     setMsg(w.name+' menang duel! '+l.name+' mundur '+out.back+' petak.');
     if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
-    try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
+    try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('src/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
     if(ONLINE_ROOM&&!w.cpu) DU.won(w.idx); /* tamu pemenang mencatat counter menang PVP-nya sendiri */
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
@@ -6390,7 +6390,7 @@ async function recordMatchServer(PD,m){
   try{
     const lp=players.find(q=>isLocalPlayer(q)),mm=(lp&&lp.ms)||{},ST={dice:mm.dice|0,ladders:mm.ladders|0,snakes:mm.snakes|0,skills:mm.skills|0,dragon_hits:mm.dragon_hits|0,ingame_coins:mm.coins|0,ingame_xp:mm.xp|0,skill_ids:(mm.skill_ids||[]).slice()};
     const lvBefore=PD.levelInfo().level;
-    await import(new URL('assets/js/multiplayer/room-service.js', document.baseURI).href); await import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href);
+    await import(new URL('src/multiplayer/room-service.js', document.baseURI).href); await import(new URL('src/multiplayer/progress-service.js', document.baseURI).href);
     const RS=UT.Multiplayer&&UT.Multiplayer.RoomService;
     if(!RS||!RS.submitMatchResult){ setWinRewardStatus(m.gameId,'Hasil pertandingan tidak dapat dimuat.'); return; }
     let r=null;
@@ -6399,7 +6399,7 @@ async function recordMatchServer(PD,m){
       if(r&&r.ok===false&&r.reason==='room_not_finished'&&n<6){ await new Promise(ok=>setTimeout(ok,1500)); continue; } /* server baru mencatat bila room sudah 'finished' */
       break;
     }
-    if(r&&r.ignored==='cpu_daily_limit'){ setWinRewardStatus(m.gameId,'Jatah koin lawan CPU hari ini sudah habis (5×). XP & poin hanya dari main online.'); return; }
+    if(r&&r.ignored==='cpu_daily_limit'){ setWinRewardStatus(m.gameId,'Jatah koin lawan CPU hari ini sudah habis (5Ã—). XP & poin hanya dari main online.'); return; }
     if(!r||r.ok===false||r.duplicate||r.ignored){
       setWinRewardStatus(m.gameId,r&&r.duplicate?'Hasil pertandingan sudah pernah dicatat.':'Hasil pertandingan gagal dicatat.');
       return;
@@ -6419,7 +6419,7 @@ async function recordMatchServer(PD,m){
     }
     if(r.online===false){ /* lawan CPU: server hanya membayar koin (maks 5x/hari); tanpa XP/poin/statistik -> tidak perlu sinkron profil, level-up, atau misi */
       const cl=Number.isFinite(+r.cpu_left)?(r.cpu_left|0):null;
-      setWinRewardStatus(m.gameId,'Lawan CPU: hanya koin'+(cl!==null?' (sisa jatah hari ini: '+cl+'×)':'')+'. XP & poin hanya dari main online.');
+      setWinRewardStatus(m.gameId,'Lawan CPU: hanya koin'+(cl!==null?' (sisa jatah hari ini: '+cl+'Ã—)':'')+'. XP & poin hanya dari main online.');
       try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((r.won?'Menang! ':'Kalah. ')+'+'+((r.reward_coins|0)+igCoin)+' koin'); },300); }catch(e){}
       return;
     }
@@ -6434,7 +6434,7 @@ async function recordMatchServer(PD,m){
     const bossStatus=DRG.rewardStatus&&DRG.rewardStatus.gameId===m.gameId?DRG.rewardStatus.message:'';
     setWinRewardStatus(m.gameId,bossStatus||(a&&a.ok?'':'XP dan poin tercatat, tetapi progres level gagal disimpan.'));
     const won=!!r.won,bits=['+'+(r.xp_gain|0)+' XP']; if(r.points>0) bits.push('+'+r.points+' poin'); if((r.reward_coins|0)+igCoin>0) bits.push('+'+((r.reward_coins|0)+igCoin)+' koin'); if(a&&a.ok&&a.level>lvBefore) bits.push('LEVEL '+a.level+'!');
-    try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' · ')); },300); }catch(e){}
+    try{ setTimeout(()=>{ if(gameOver&&gameId===m.gameId) setMsg((won?'Menang! ':'Kalah. ')+bits.join(' Â· ')); },300); }catch(e){}
     try{ const W=UT.WalletService&&UT.WalletService.get(); if(W) W.questTrack(won?'win':'play'); }catch(e){} /* progres misi dihitung server (win juga menghitung play) */
     if(a&&a.ok&&a.level>lvBefore){ try{ showLevelUpWithRewards(a.level,m.gameId); }catch(e){} } /* modal Naik Level (z-index tinggi, di atas layar hasil); hadiah dihitung & dibayar server */
   }catch(e){ console.warn('[stats] gagal mencatat ke server',e); setWinRewardStatus(m.gameId,'Hasil pertandingan gagal dimuat.'); }
@@ -6452,7 +6452,7 @@ async function showLevelUpWithRewards(level,gid){
       serverSaid=true; paidNew=Array.isArray(r.levels)&&r.levels.length>0;
       if(r.reward_coins>0) rewards.push({kind:'coins',amount:'+'+r.reward_coins,label:'Koin'});
       if(r.reward_gems>0) rewards.push({kind:'gems',amount:'+'+r.reward_gems,label:'Emerald'});
-      const lv=Array.isArray(r.levels)?r.levels:[]; if(lv.length>1) note='Hadiah level '+lv[0].level+'–'+lv[lv.length-1].level;
+      const lv=Array.isArray(r.levels)?r.levels:[]; if(lv.length>1) note='Hadiah level '+lv[0].level+'â€“'+lv[lv.length-1].level;
     }
   }catch(e){ console.warn('[level-up] klaim hadiah gagal',e); }
   /* Server = penentu: bila server menjawab & tidak ada level baru yang dibayar, level ini sudah pernah dirayakan (cache lokal ketinggalan) -> jangan tampilkan lagi. */
@@ -6650,7 +6650,7 @@ function applyGameSnapshot(s){
    if(v.ms&&typeof v.ms==='object')p.ms=v.ms;
    if(v.pawn&&p.pawn){p.pawn.position.set(v.pawn.x,v.pawn.y,v.pawn.z);p.pawn.rotation.y=v.pawn.ry||0;}
   });
-  if(!ONLINE_HOST){ try{ const lp=players.find(q=>isLocalPlayer(q)),d=lp&&lp.ms?Math.min(20,(lp.ms.chests|0)-CH_SENT):0; if(d>0){ CH_SENT+=d; import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.bumpCounter('chests',d)).catch(()=>{}); } }catch(e){} }
+  if(!ONLINE_HOST){ try{ const lp=players.find(q=>isLocalPlayer(q)),d=lp&&lp.ms?Math.min(20,(lp.ms.chests|0)-CH_SENT):0; if(d>0){ CH_SENT+=d; import(new URL('src/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.bumpCounter('chests',d)).catch(()=>{}); } }catch(e){} }
   if(!ONLINE_HOST&&Array.isArray(s.traps))trapsSync(s.traps);
   cur=Math.max(0,Math.min(players.length-1,Number(s.cur)||0));winnerIndex=Number.isInteger(s.winnerIndex)?s.winnerIndex:-1;
   busy=false;gameOver=!!s.gameOver;AWK.done=!!s.awake;AWK.running=false;WF.risen=!!s.witherRisen;
@@ -6683,7 +6683,7 @@ function initMultiplayerBridge(){
   onDuelRoll:onMpDuelRoll,
   onEmote:onMpEmote,
   onAutoRoll:onMpAutoRoll,
-  onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar — mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
+  onPlayerLeft:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||q.cpu||q.auto) return; q.auto=true; q.left=true; q.afkMiss=AFK_MAX_MISS; try{ fb('event','info',q.name+' keluar â€” mode AUTO',{gid:gameId,ttl:2200}); }catch(e){} renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); },
   onPlayerJoin:key=>{ if(!ONLINE_HOST||gameOver||!key||key===MP_ID) return; const q=mpPlayerByNet(key); if(!q||!q.left) return; afkReset(q); renderChips(); publishGameSnapshot(); if(players[cur]===q&&!busy&&!paused) startTurnTimer(); }, /* kembali ke game -> kendali dikembalikan */
   onHostLeft:()=>{ if(ONLINE_HOST||gameOver) return; try{ setMsg('Host meninggalkan permainan. Kembali ke menu...'); fb('event','info','Host meninggalkan permainan',{gid:gameId,ttl:2600}); }catch(e){} setTimeout(exitToRoom,2600); },
   onLoadout:pl=>{ if(!ONLINE_HOST||!pl) return; const p=mpPlayerByNet(pl.playerId); if(!p||p.loadout||p.pos>0) return; p.pu=loadoutPU(Array.isArray(pl.powers)?pl.powers:[],pl.carry); p.loadout=true; renderChips(); publishGameSnapshot(); },
@@ -6792,7 +6792,7 @@ function profRender(){
   if(p.pos===GOAL&&p.dragonReady) st.appendChild(profBar(BOSS==='wither'?'WITHER':'NAGA',p.dhp,p.hpMax||100,p.dhp+'/'+(p.hpMax||100),'linear-gradient(90deg,#ff7a5a,#d62b2b)'));
   const pus=Object.keys(p.pu||{}).filter(k=>p.pu[k]>0&&PUN[k]);
   const chips=pmEl('div','pm-chips');
-  pus.forEach(k=>chips.appendChild(pmEl('span','pm-chip',PUN[k][1]+' ×'+p.pu[k])));
+  pus.forEach(k=>chips.appendChild(pmEl('span','pm-chip',PUN[k][1]+' Ã—'+p.pu[k])));
   const buffs=[]; if(p.bonus) buffs.push('Bonus langkah +'+p.bonus); if(p.extra) buffs.push('Giliran tambahan'); if(p.odd) buffs.push('Dadu ganjil'); if(p.even) buffs.push('Dadu genap'); if(p.lucky) buffs.push('Dadu pasti 6'); if(p.shield) buffs.push('Kebal serangan'); if(p.guard) buffs.push('Perisai'); if(p.frozen) buffs.push('Beku');
   buffs.forEach(t=>chips.appendChild(pmEl('span','pm-chip buff',t)));
   const sec=pmEl('div','pm-sec'); sec.appendChild(pmEl('span','pm-lb','POWER & BUFF')); if(chips.childNodes.length) sec.appendChild(chips); else sec.appendChild(pmEl('span','pm-none','Tidak ada')); st.appendChild(sec);
@@ -6933,7 +6933,7 @@ function frame(now){
   requestAnimationFrame(frame);
   runFrame(now);
 }
-/* Satu langkah game (logika + render). Tab tersembunyi: tween memakai selisih waktu nyata (maks 2 dtk) supaya animasi/giliran tetap maju walau hanya dipanggil ±1x/dtk; render dilewati. */
+/* Satu langkah game (logika + render). Tab tersembunyi: tween memakai selisih waktu nyata (maks 2 dtk) supaya animasi/giliran tetap maju walau hanya dipanggil Â±1x/dtk; render dilewati. */
 function runFrame(now){
   const raw=(now-last)/1000,dt=Math.min(0.05,raw),tdt=document.hidden?Math.min(2,raw):dt; last=now;
   if(TRAPS.length||TRAP_PICK) trapTick(now);
@@ -7018,7 +7018,7 @@ function runFrame(now){
     else renderer.render(scene,camera);
   }
 }
-/* Pindah tab/aplikasi: browser menghentikan requestAnimationFrame, jadi game ikut berhenti. Saat tersembunyi, langkahkan game lewat timer (browser membatasi ±1x/dtk). */
+/* Pindah tab/aplikasi: browser menghentikan requestAnimationFrame, jadi game ikut berhenti. Saat tersembunyi, langkahkan game lewat timer (browser membatasi Â±1x/dtk). */
 let BG_TIMER=0;
 function bgStep(){ BG_TIMER=0; if(!document.hidden) return; try{ runFrame(performance.now()); }catch(e){ console.error(e); } BG_TIMER=setTimeout(bgStep,250); }
 document.addEventListener('visibilitychange',()=>{
@@ -7087,3 +7087,4 @@ requestAnimationFrame(frame);
 /* sinyal ke pembungkus (play.js): adegan sudah menggambar frame pertamanya -> layar "Memuat" boleh dibuka */
 requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ document.documentElement.classList.add('gp-ready'); }catch(e){} }));
 })();
+

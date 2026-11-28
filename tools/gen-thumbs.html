@@ -1,8 +1,8 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <base href="../">
 <title>Generator thumbnail (Set karakter + Dadu)</title>
-<script type="importmap">{"imports":{"three":"./assets/js/vendor/three.r170.module.min.js","three/addons/":"./assets/js/vendor/three-addons/"}}</script>
+<script type="importmap">{"imports":{"three":"./src/vendor/three.r170.module.min.js","three/addons/":"./src/vendor/three-addons/"}}</script>
 <style>
 body{margin:0;padding:16px;background:#1b1633;color:#f1ecff;font:15px/1.45 system-ui,sans-serif}
 h1{margin:0 0 6px;font-size:20px}h2{margin:22px 0 8px;font-size:16px}p{margin:4px 0;opacity:.85}
@@ -18,19 +18,19 @@ button:disabled{opacity:.45}#log{white-space:pre-wrap;background:#0f0b22;border-
 <p><label><input type="checkbox" id="k-s" checked> Set</label> <label><input type="checkbox" id="k-d" checked> Dadu</label> <label><input type="checkbox" id="k-p" checked> Power</label> <label><input type="checkbox" id="k-a" checked> Aura</label> <label><input type="checkbox" id="k-t" checked> Pet</label> &nbsp;|&nbsp; <label><input type="checkbox" id="auraChar" checked> Aura: sertakan karakter (matikan = efek saja)</label></p>
 <button id="go">1. Render semua</button><button id="zip" disabled>2. Unduh ZIP</button>
 <div id="log"></div>
-<h2>Set karakter → data/frame/karakter/&lt;id&gt;-&lt;m|f&gt;.webp</h2><div class="g" id="gs"></div>
-<h2>Dadu → data/inventory/dice/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gd"></div>
-<h2>Power → data/inventory/power/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gp"></div>
-<h2>Aura → data/inventory/aura/&lt;id&gt;/&lt;id&gt;.webp</h2><div class="g" id="ga"></div>
-<h2>Pet → data/inventory/pet/items/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gt"></div>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/pet/items/forest_pup/manifest.js"></script><script src="data/inventory/pet/items/copper_golem/manifest.js"></script><script src="data/inventory/pet/items/crystal_axolotl/manifest.js"></script><script src="data/inventory/pet/items/arcane_owl/manifest.js"></script><script src="data/inventory/pet/items/storm_wolf/manifest.js"></script><script src="data/inventory/pet/items/inferno_dragon/manifest.js"></script><script src="data/inventory/pet/items/celestial_kitsune/manifest.js"></script><script src="data/inventory/pet/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<h2>Set karakter â†’ data/frame/karakter/&lt;id&gt;-&lt;m|f&gt;.webp</h2><div class="g" id="gs"></div>
+<h2>Dadu â†’ data/inventory/dice/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gd"></div>
+<h2>Power â†’ data/inventory/power/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gp"></div>
+<h2>Aura â†’ data/inventory/aura/&lt;id&gt;/&lt;id&gt;.webp</h2><div class="g" id="ga"></div>
+<h2>Pet â†’ data/inventory/pet/items/&lt;key&gt;/&lt;key&gt;.webp</h2><div class="g" id="gt"></div>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/pet/items/forest_pup/manifest.js"></script><script src="data/inventory/pet/items/copper_golem/manifest.js"></script><script src="data/inventory/pet/items/crystal_axolotl/manifest.js"></script><script src="data/inventory/pet/items/arcane_owl/manifest.js"></script><script src="data/inventory/pet/items/storm_wolf/manifest.js"></script><script src="data/inventory/pet/items/inferno_dragon/manifest.js"></script><script src="data/inventory/pet/items/celestial_kitsune/manifest.js"></script><script src="data/inventory/pet/index.js"></script><script src="src/stores/item-catalog.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
 <script src="data/inventory/character/_shared/js/character-sets.js"></script>
-<script src="assets/js/renderers/item-art.js"></script>
-<script src="assets/js/vendor/three.min.js"></script><script src="assets/js/core/shared-gl.js"></script><script src="assets/js/renderers/blocky-character.js"></script><script src="assets/js/renderers/aura-fx.js"></script><script src="data/inventory/character/_shared/js/character-view.js"></script><script src="assets/js/renderers/shop-preview.js"></script><script type="module" src="assets/js/renderers/dice-kit/index.js"></script>
+<script src="src/renderers/item-art.js"></script>
+<script src="src/vendor/three.min.js"></script><script src="src/core/shared-gl.js"></script><script src="src/renderers/blocky-character.js"></script><script src="src/renderers/aura-fx.js"></script><script src="data/inventory/character/_shared/js/character-view.js"></script><script src="src/renderers/shop-preview.js"></script><script type="module" src="src/renderers/dice-kit/index.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/player-data.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/stores/player-data.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 (function(){
@@ -126,7 +126,7 @@ function loadScript(src){return new Promise(function(res,rej){var e=document.cre
 
 /* ---------- POWER (model 3D PowerRenderer): satu frame setelah animasi muncul selesai ---------- */
 async function doPower(){
-  var mod=await import('./assets/js/renderers/power-3d/power-show.js');
+  var mod=await import('./src/renderers/power-3d/power-show.js');
   var keys=Object.keys(mod.KEY_TO_POWER3D).slice(0,window.__genLimit||99);
   var host=document.createElement('div');host.style.cssText='position:fixed;left:-9999px;top:0;width:560px;height:560px;visibility:hidden';document.body.appendChild(host);
   var H=mod.mount(host,{quality:'medium',sound:false}),pr=H.renderer;H.stop();pr.resize&&pr.resize();
@@ -188,7 +188,7 @@ async function doPet(){
     if(r&&!r.__thumbHook){var rr=r.render.bind(r);r.render=function(a,b){rr(a,b);if(cap){var f=cap;cap=null;f(r.domElement)}};r.__thumbHook=1}
     return g};
   try{
-    if(!UT.PageModule)await loadScript('assets/js/core/page-module.js');
+    if(!UT.PageModule)await loadScript('src/core/page-module.js');
     await loadScript('data/inventory/pet/_shared/js/pet-model-registry.js');
     await loadScript('data/inventory/pet/_shared/js/pet-viewer.js');
     await wait(400);
@@ -228,3 +228,4 @@ $('zip').onclick=async function(){
 };
 })();
 </script></body></html>
+

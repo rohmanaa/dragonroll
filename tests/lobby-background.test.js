@@ -8,7 +8,7 @@ const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
 assert.ok(rawLobby.includes('src/styles/pages/lobby.css'));
 assert.ok(lobby.includes('src/styles/scene-bg.css'));
-assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"'));
+assert.ok(lobby.includes('src/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"'));
 assert.ok(lobby.includes('.sbg-clouds{display:none!important}'));
 assert.ok(lobby.includes('.sbg-stars,.sbg-moon,.sbg-fog,.sbg-rays{display:none!important}'));
 assert.ok(lobby.includes('.sbg-lights{opacity:.3}'));
@@ -23,7 +23,7 @@ assert.ok(lobby.includes('contact.position.set(0,-2.62,.12)'));
 assert.ok(lobby.includes('const LOBBY_MOTION_SCALE=.72;'));
 assert.ok(lobby.includes('bc.tick(motionDt);stepLobby(motionDt);'));
 assert.ok(lobby.includes('id="gl3d"'));
-assert.ok(lobby.includes('assets/js/floating-island.js'));
+assert.ok(lobby.includes('src/fx/floating-island.js'));
 assert.ok(lobby.includes('UT.FloatingIsland.contactShadow(THREE'));
 assert.ok(!lobby.includes('UT.FloatingIsland.create(THREE'));
 assert.ok(!lobby.includes('id="bdrop"'));
@@ -51,4 +51,5 @@ for (const icon of ['assets/images/ui/hud/ikon-koin-emas.webp']) {
 assert.ok(lobby.includes('assets/images/ui/item-icons/podium.webp'));
 assert.ok(lobby.includes('assets/images/buttons/tombol-play-lobby.webp'));
 console.log('ok - lobby keeps ui-newgui HUD over main WebP backdrop, character, aura, and animations');
+
 

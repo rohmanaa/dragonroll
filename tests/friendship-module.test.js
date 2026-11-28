@@ -1,9 +1,9 @@
-/* friendship (SPA tahap 3): modul halaman, navigasi lewat UT.Spa.go, cleanup langganan/Presence/LiveSync/listener, #home tidak lagi melempar error. */
+﻿/* friendship (SPA tahap 3): modul halaman, navigasi lewat UT.Spa.go, cleanup langganan/Presence/LiveSync/listener, #home tidak lagi melempar error. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/friendship-page.js'), html = rd('friendship.html');
+const js = rd('src/views/friendship-page.js'), html = rd('friendship.html');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -33,9 +33,9 @@ t('LiveSync dilepas dan dihentikan saat unmount', () => assert(/UT\.LiveSync\.re
 t('render/toast/renderCurrency/loadData dijaga env.disposed (DOM view sudah dibuang)', () => { assert((js.match(/env\.disposed/g) || []).length >= 6); });
 t('friendship.html memuat page-module.js sebelum friendship-page.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/friendship-page.js')));
 t('spa-host, frame-guard, dan play.js mengenal friendship', () => {
-  assert(/'friendship\.html': 'friendship'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/tambang\|friendship/.test(rd('assets/js/frame-guard.js')));
-  assert(/'friendship\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'friendship\.html': 'friendship'/.test(rd('src/core/spa-host.js')));
+  assert(/tambang\|friendship/.test(rd('src/boot/frame-guard.js')));
+  assert(/'friendship\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 t('kirim hati: tombol data-action="gift" -> UT.HeartsService.send; status dari hearts_friends; script dimuat', () => {
   assert(/data-action="gift"/.test(js) && /HS\(\)\.send\(id\)/.test(js) && /svc\.friends\(\)/.test(js));
@@ -44,3 +44,4 @@ t('kirim hati: tombol data-action="gift" -> UT.HeartsService.send; status dari h
   assert(!/<svg/i.test(js.slice(js.indexOf('function giftButton'), js.indexOf('async function loadGifts'))), 'pakai paha-ayam.webp, bukan SVG');
 });
 console.log(n + ' tes lulus');
+

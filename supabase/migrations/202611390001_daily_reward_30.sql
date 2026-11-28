@@ -1,9 +1,9 @@
--- Login harian 30 hari (dari 7 hari). Idempotent (create or replace / drop constraint if exists).
+﻿-- Login harian 30 hari (dari 7 hari). Idempotent (create or replace / drop constraint if exists).
 --   * Streak KETAT: bolos 1 hari (tanggal WIB) -> kembali ke Hari 1. Aturan ini sudah ada di _daily_effective_claimed; hanya batas putaran 7 -> 30.
 --   * Hari 1-7 TIDAK berubah (nominal sama dengan fase 1), jadi pemain yang sedang di tengah putaran lama tidak dirugikan:
 --     akun dengan claimed = 7 yang login tanpa bolos kini lanjut ke Hari 8, bukan mulai dari 1.
 --   * Setelah Hari 30 putaran mulai lagi dari Hari 1.
---   * Tabel hadiah ada di SATU tempat: _daily_reward_for(hari). Klien (assets/js/pages/hadiah-misi.js, array R) hanya label tampilan;
+--   * Tabel hadiah ada di SATU tempat: _daily_reward_for(hari). Klien (src/views/hadiah-misi.js, array R) hanya label tampilan;
 --     tests/daily-reward-30.test.js memastikan keduanya sama. Tipe: coin | gem | box (Mystery Box, +1 box) | mix (koin + gem).
 --
 --   Hari : hadiah
@@ -17,7 +17,7 @@
 -- Frame Hari 25: ada 15 frame hadiah (urutan di _daily_frame_order). Tiap kali pemain mencapai Hari 25 dia mendapat frame
 -- pertama dalam urutan yang BELUM dimilikinya: putaran ke-1 = Naga Api, ke-2 = Batu Tua, dst. Setelah semuanya dimiliki,
 -- Hari 25 diganti 1.500 koin (nominal lama Hari 25). Harga null + bukan starter = tidak bisa dibeli di Toko; hanya claim_daily_reward yang memberikannya.
--- (Sumber kebenaran katalog klien: assets/js/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
+-- (Sumber kebenaran katalog klien: src/stores/item-catalog.js; tools/wallet/gen-item-seed.js --check menjaganya sama.)
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values
   ('frame.nagaapi', 'frame', null, false, false),
   ('frame.batutua', 'frame', null, false, false),
@@ -146,3 +146,4 @@ end;
 $$;
 revoke all on function public.claim_daily_reward() from public, anon;
 grant execute on function public.claim_daily_reward() to authenticated;
+

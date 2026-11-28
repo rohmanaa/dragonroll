@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const PG = require("./_page");
 const path = require('path');
@@ -44,20 +44,20 @@ test('equipment modal fills the viewport with an opaque backdrop outside the Roo
   assert.ok(/#pageModal iframe\{[^}]*background:var\(--room-backdrop\)/.test(room));
   assert.ok(/#pageModalLoading\{[^}]*background:var\(--room-backdrop\)/.test(room));
   assert.ok(/<div id="toast"><\/div>\s*<\/div>\s*<div id="pageModal"/.test(room), 'modal is outside the scaled Room stage');
-  const bridge = read('assets/js/room-modal-bridge.js');
+  const bridge = read('src/multiplayer/room-modal-bridge.js');
   assert.ok(bridge.includes('background:#4b4162!important'));
   assert.ok(bridge.includes('background:#483e60!important'));
   assert.ok(!bridge.includes('background:transparent'), 'embedded page uses an opaque Room background');
   assert.ok(read('src/styles/pages/room-legacy.css').includes('--room-backdrop:#4b4162'));
-  const bootGuard = read('assets/js/boot-guard.js');
+  const bootGuard = read('src/boot/boot-guard.js');
   assert.ok(bootGuard.includes("get('from') === 'room'"), 'embedded pages skip the cinematic black fade');
 });
 
 test('embedded pages close the parent modal from their back controls', () => {
   for (const file of ['dadu.html', 'karakter.html', 'frame.html', 'efek.html', 'powerup.html']) {
-    assert.ok(read(file).includes('assets/js/room-modal-bridge.js'), `${file} bridge`);
+    assert.ok(read(file).includes('src/multiplayer/room-modal-bridge.js'), `${file} bridge`);
   }
-  const bridge = read('assets/js/room-modal-bridge.js');
+  const bridge = read('src/multiplayer/room-modal-bridge.js');
   assert.ok(bridge.includes("closest('#back, #home')"));
   assert.ok(bridge.includes("type: 'ut-room-modal-close'"));
   assert.ok(!bridge.includes('.ut-curbar'));
@@ -109,3 +109,4 @@ test('modal Power & picker item: gaya modal Chest lobi (backdrop, bingkai-dialog
 });
 
 console.log(count + ' tests passed');
+

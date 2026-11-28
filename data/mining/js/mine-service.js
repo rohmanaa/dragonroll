@@ -1,4 +1,4 @@
-/* Mine service — satu-satunya pintu klien ke TAMBANG di SERVER (lihat doc/fitur/tambang/TAMBANG.md).
+﻿/* Mine service â€” satu-satunya pintu klien ke TAMBANG di SERVER (lihat doc/fitur/tambang/TAMBANG.md).
    Klien tidak pernah mengirim nominal, jam, atau hasil: server (RPC mine_*) yang menghitung. Semua angka ekonomi dibaca dari mine_get().
    Aktif hanya untuk akun login (PlayerData.serverMode()). Method async, TIDAK melempar untuk kegagalan jaringan: {ok:false, reason}.
    Setiap hasil yang memuat saldo menyegarkan cermin PlayerData lewat applyServerWallet().
@@ -82,8 +82,8 @@
       getClient: async function () {
         if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) {
           var clientUrl = SELF
-            ? new URL('../../../assets/js/multiplayer/client.js', SELF)
-            : new URL('assets/js/multiplayer/client.js', w.location.href);
+            ? new URL('../../../src/multiplayer/client.js', SELF)
+            : new URL('src/multiplayer/client.js', w.location.href);
           await import(clientUrl.href);
         }
         return w.UT.Multiplayer.getClient();
@@ -94,3 +94,4 @@
 
   return { create: create, get: getInstance };
 });
+

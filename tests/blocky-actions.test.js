@@ -1,4 +1,4 @@
-/* Tes API karakter blocky untuk gameplay: preset, tampilan dari server, aksi (serang/bertahan/sedih/sorak), mode jalan/lari.
+﻿/* Tes API karakter blocky untuk gameplay: preset, tampilan dari server, aksi (serang/bertahan/sedih/sorak), mode jalan/lari.
    Jalankan: node tests/blocky-actions.test.js   (tanpa browser: canvas dipalsukan, tidak ada render WebGL) */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
@@ -12,9 +12,9 @@ global.navigator = { userAgent: 'node', hardwareConcurrency: 8, deviceMemory: 8 
 global.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
 global.sessionStorage = global.localStorage; global.addEventListener = () => {}; global.location = { href: '', search: '', pathname: '/gameplay.html' };
 global.UT = {};
-global.THREE = require(R + 'assets/js/vendor/three.min.js');
+global.THREE = require(R + 'src/vendor/three.min.js');
 const THREE = global.THREE;
-for (const f of ['item-catalog.js', 'player-data.js', 'renderers/blocky-character.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
+for (const f of ['src/stores/item-catalog.js', 'src/stores/player-data.js', 'src/renderers/blocky-character.js']) vm.runInThisContext(read(f), { filename: f });
 const BC = UT.BlockyCharacter;
 
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -76,10 +76,10 @@ t('mode jalan/lari/idle: tick stabil dan kembali ke idle; lompat selesai', () =>
 t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di rig', () => {
   const g = read('gameplay.html'), main = read('gameplay/js/main.js');
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
-  assert.ok(idx('vendor/three.min.js') < idx('assets/js/renderers/blocky-character.js'));
-  assert.ok(idx('player-data.js') < idx('assets/js/renderers/blocky-character.js'));
-  assert.ok(idx('assets/js/renderers/blocky-character.js') < idx('assets/js/renderers/character-face.js'));
-  assert.ok(idx('gameplay/js/main.js') > idx('assets/js/renderers/blocky-character.js'));
+  assert.ok(idx('vendor/three.min.js') < idx('src/renderers/blocky-character.js'));
+  assert.ok(idx('player-data.js') < idx('src/renderers/blocky-character.js'));
+  assert.ok(idx('src/renderers/blocky-character.js') < idx('src/renderers/character-face.js'));
+  assert.ok(idx('gameplay/js/main.js') > idx('src/renderers/blocky-character.js'));
   const used = ['loadFromPlayer', 'loadPreset', 'loadFromData', 'setMode', 'act', 'jump', 'tick', 'height'];
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));
   assert.ok(/UT\.AppearanceService/.test(main) && /roomAppearance/.test(main));
@@ -177,3 +177,4 @@ t('aksi mine: berulang tanpa pose netral, tiap siklus 1 hantaman, tangan kanan t
   const box2 = new THREE.Box3().setFromObject(c.root); assert.ok(Math.abs(box2.min.y) < 0.15, 'kaki tetap di lantai');
 });
 console.log(n + ' tes lulus');
+

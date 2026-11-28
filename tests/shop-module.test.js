@@ -1,9 +1,9 @@
-/* shop (SPA tahap 3): modul halaman, parameter dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
+﻿/* shop (SPA tahap 3): modul halaman, parameter dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/shop-page.js'), html = rd('shop.html');
+const js = rd('src/views/shop-page.js'), html = rd('shop.html');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -31,8 +31,9 @@ t('LiveSync dilepas dan dihentikan saat unmount', () => assert(/UT\.LiveSync\.re
 t('callback async dijaga env.disposed (history, exchange, chestBuy, wallet.refresh, render, toast, modal)', () => { assert((js.match(/env\.disposed/g) || []).length >= 9); });
 t('shop.html memuat page-module.js sebelum shop-page.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/shop-page.js')));
 t('spa-host dan frame-guard mengenal shop; play.js punya prefetch shop', () => {
-  assert(/'shop\.html': 'shop'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/tambang\|friendship\|shop/.test(rd('assets/js/frame-guard.js')));
-  assert(/'shop\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'shop\.html': 'shop'/.test(rd('src/core/spa-host.js')));
+  assert(/tambang\|friendship\|shop/.test(rd('src/boot/frame-guard.js')));
+  assert(/'shop\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+

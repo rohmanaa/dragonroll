@@ -1,10 +1,10 @@
-/* Tes paritas Dice (Stage 5): manifest data/inventory/dice/* <-> ItemCatalog (baseline & runtime) <-> DiceKit <-> seed server <-> halaman.
+﻿/* Tes paritas Dice (Stage 5): manifest data/inventory/dice/* <-> ItemCatalog (baseline & runtime) <-> DiceKit <-> seed server <-> halaman.
    Jalankan: node tests/dice-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8'), ex = p => fs.existsSync(path.join(ROOT, p));
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
@@ -19,12 +19,12 @@ const reg = IR.create(), res = DiceCat.register(reg), items = reg.getCategory('d
 function boot(chains) {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
-  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  chains.concat(['src/core/session.js', 'src/stores/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   return ctx;
 }
-const DICE_CHAIN = ['assets/js/core/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
+const DICE_CHAIN = ['src/core/item-registry.js'].concat(DiceCat.keys.map(k => 'data/inventory/dice/' + k + '/manifest.js'), ['data/inventory/dice/index.js']);
 const DICEKIT_FILES = ['dice-animation.js', 'dice-catalog.js', 'dice-effects.js', 'dice-effects-core.js', 'dice-materials.js', 'dice-physics.js', 'dice-renderer.js', 'dice-textures.js', 'index.js', 'room-environment.js', 'rounded-box-geometry.js']
-  .map(name => 'assets/js/renderers/dice-kit/' + name);
+  .map(name => 'src/renderers/dice-kit/' + name);
 const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const legacy = boot([]), viaDice = boot(DICE_CHAIN), viaAll = boot(DICE_CHAIN.concat(PET_CHAIN, FRAME_CHAIN));
@@ -98,19 +98,19 @@ t('ItemCatalog: sumber = manifest (mutasi manifest pada VM bersih mengubah katal
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math }));
   DICE_CHAIN.forEach(f => { let s = rd(f); if (f.endsWith('dragon/manifest.js')) s = s.replace('gems: 3000', 'gems: 3001'); vm.runInContext(s, ctx, { filename: f }); });
-  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['src/core/session.js', 'src/stores/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.byId('dice.dragon').gems, 3001); assert.strictEqual(ctx.ItemCatalog.diceSource(), 'registry');
 });
 t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, katalog tetap utuh', () => {
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console: { error() {}, log() {}, warn() {} }, Date, JSON, Math }));
   DICE_CHAIN.filter(f => !f.endsWith('/tnt/manifest.js')).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['src/core/session.js', 'src/stores/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.diceSource(), 'legacy'); assert.strictEqual(ctx.ItemCatalog.items.length, 183); assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
 });
 
 /* ---- Equip / Shop / Inventory / Gameplay (integrasi lintas sistem) ---- */
-t('Equip: slot dice terpasang selalu valid — DEFAULT dice.klasik ada di Registry & starter; semua Dice kind dice, slot dice, kategori aksesori', () => {
+t('Equip: slot dice terpasang selalu valid â€” DEFAULT dice.klasik ada di Registry & starter; semua Dice kind dice, slot dice, kategori aksesori', () => {
   const IC = viaDice.ItemCatalog; assert.strictEqual(IC.defaultEquipped.dice, 'dice.klasik'); assert.strictEqual(DiceCat.category.fallbackId, IC.defaultEquipped.dice);
   assert.strictEqual(IC.byId('dice.klasik').starter, true);
   IC.items.filter(i => i.kind === 'dice').forEach(i => { assert.strictEqual(i.slot, 'dice'); assert.strictEqual(i.category, 'aksesori'); assert.ok(Object.isFrozen(i)); });
@@ -118,19 +118,19 @@ t('Equip: slot dice terpasang selalu valid — DEFAULT dice.klasik ada di Regist
 });
 t('Shop/Inventory: dadu.html membaca kind dice dari ItemCatalog (tanpa salinan data); shop.js/inventory.js tidak membaca metadata dice', () => {
   assert.ok(/IC\.items\.filter\(i=>i\.kind==='dice'/.test(rd('data/inventory/dice/_shared/js/dadu.js')));
-  ['assets/js/pages/shop.js', 'assets/js/pages/inventory.js'].forEach(f => { if (ex(f)) assert.ok(!/kind\s*===?\s*'dice'/.test(rd(f)), f); });
+  ['src/views/shop.js', 'src/views/inventory.js'].forEach(f => { if (ex(f)) assert.ok(!/kind\s*===?\s*'dice'/.test(rd(f)), f); });
   const IC = viaDice.ItemCatalog; const shown = IC.items.filter(i => i.kind === 'dice' && !i.off); assert.strictEqual(shown.length, 24);
   shown.forEach(i => { const c = IC.cost(i); if (i.starter) assert.strictEqual(c, null); else assert.ok(c && ((c.coins > 0) !== (c.gems > 0)), i.id); });
 });
 t('Equip->Gameplay: tiap gameKey Dice ada di DiceKit (DiceCatalog.js) sehingga dadu terpasang = dadu yang dirender; urutan sama', () => {
-  const ids = [...rd('assets/js/renderers/dice-kit/dice-catalog.js').matchAll(/^\s{2}\{\s*\n\s{4}id: '([a-z0-9_]+)'/gm)].map(m => m[1]);
+  const ids = [...rd('src/renderers/dice-kit/dice-catalog.js').matchAll(/^\s{2}\{\s*\n\s{4}id: '([a-z0-9_]+)'/gm)].map(m => m[1]);
   assert.deepStrictEqual(ids, DiceCat.keys);
-  assert.ok(/PD\.owns\('dice\.' \+ dice\)/.test(rd('assets/js/game-integration.js')) && /eqKey\('dice'\) \|\| 'klasik'/.test(rd('assets/js/game-integration.js')));
+  assert.ok(/PD\.owns\('dice\.' \+ dice\)/.test(rd('src/services/game-integration.js')) && /eqKey\('dice'\) \|\| 'klasik'/.test(rd('src/services/game-integration.js')));
   assert.ok(/window\.ItemCatalog\.byId\(di\)/.test(rd('gameplay/js/main.js')) && /p\.diceKey=\(it&&it\.gameKey\)/.test(rd('gameplay/js/main.js')));
   assert.ok(/DiceKit\.has\(want\.key\) \? want\.key : 'klasik'/.test(rd('gameplay/js/dice-ui.js')));
 });
 t('Gameplay implementation tetap utuh dan file SFX hanya berpindah path', () => {
-  cp.execFileSync('git', ['diff', '--quiet', '--find-renames=100%', 'HEAD', '--', 'assets/js/player-data.js', 'assets/js/game-integration.js', 'supabase'], { cwd: ROOT });
+  cp.execFileSync('git', ['diff', '--quiet', '--find-renames=100%', 'HEAD', '--', 'src/stores/player-data.js', 'src/services/game-integration.js', 'supabase'], { cwd: ROOT });
   const python = process.platform === 'win32' ? 'python' : 'python3';
   const gameplay = cp.execFileSync(python, ['tools/rename-stage1.py', '--verify-only'], { cwd: ROOT }).toString();
   assert.ok(/Pembekuan gameplay sudah dicabut/.test(gameplay), gameplay);
@@ -153,8 +153,8 @@ t('Server: seed klien-server sinkron (gen-item-seed --check) dan harga/gems/star
 t('Server/PlayerData: manifest tidak memuat kepemilikan/saldo/equip/transaksi; skema PlayerData & server tidak berubah', () => {
   const FORBIDDEN = /^(owned|owns|equipped|equip|balance|wallet|coins|purchase|transaction|inventory)$/i;
   items.forEach(i => Object.keys(i).forEach(k => assert.ok(!FORBIDDEN.test(k), i.id + ' field terlarang ' + k)));
-  assert.ok(!/ItemRegistry|ItemCategories|data\/inventory\/dice/.test(rd('assets/js/player-data.js')));
-  assert.strictEqual(cp.execSync('git diff --name-only HEAD -- supabase assets/js/player-data.js', { cwd: ROOT }).toString().trim(), '');
+  assert.ok(!/ItemRegistry|ItemCategories|data\/inventory\/dice/.test(rd('src/stores/player-data.js')));
+  assert.strictEqual(cp.execSync('git diff --name-only HEAD -- supabase src/stores/player-data.js', { cwd: ROOT }).toString().trim(), '');
 });
 
 /* ---- Aset (lapisan dipisah) ---- */
@@ -163,10 +163,10 @@ t('Aset B: FORMAT path lulus 24/24 (assets per item kosong: dadu prosedural Dice
   items.forEach(m => { const v = IR.validateAssetPaths(m, reg.getCategory('dice')); assert.strictEqual(v.ok, true, m.id); assert.deepStrictEqual(clone(m.assets), {}); });
   assert.strictEqual(IR.validateAssetPaths({ assets: { x: DiceCat.category.assets.renderKit } }, null).ok, true);
 });
-t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan seluruh modul dice-kit yang dimuat dadu.html; sfx dice-roll.mp3 milik audio gameplay tetap ada', () => {
+t('Aset C: berkas rujukan benar-benar ada â€” renderKit (DiceCatalog.js) dan seluruh modul dice-kit yang dimuat dadu.html; sfx dice-roll.mp3 milik audio gameplay tetap ada', () => {
   assert.ok(ex(DiceCat.category.assets.renderKit) && fs.statSync(path.join(ROOT, DiceCat.category.assets.renderKit)).size > 1000);
   DICEKIT_FILES.forEach(f => assert.ok(ex(f), f));
-  assert.ok(!fs.existsSync(path.join(ROOT, 'assets/js/dice-kit')), 'legacy dice-kit directory must be removed');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'src/renderers/dice-kit')), 'legacy dice-kit directory must be removed');
   assert.ok(ex('assets/audio/sfx/dice/dice-roll.mp3') && /roll:'dice\/dice-roll\.mp3'/.test(rd('gameplay/js/audio.js')));
   DICE_CHAIN.forEach(f => assert.ok(ex(f), f));
 });
@@ -174,7 +174,7 @@ t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan sel
 /* ---- Halaman ---- */
 t('Halaman: dadu/room memuat rantai Dice berurutan (registry -> 24 manifest -> index -> item-catalog), tanpa skrip ganda, semua berkas ada', () => {
   ['dadu.html', 'room.html'].forEach(h => { const s = srcs(rd(h)); assert.strictEqual(new Set(s).size, s.length, h + ' skrip ganda');
-    const iReg = s.indexOf('assets/js/core/item-registry.js'), iIdx = s.indexOf('data/inventory/dice/index.js'), iCat = s.indexOf('assets/js/item-catalog.js');
+    const iReg = s.indexOf('src/core/item-registry.js'), iIdx = s.indexOf('data/inventory/dice/index.js'), iCat = s.indexOf('src/stores/item-catalog.js');
     assert.ok(iReg >= 0 && iReg < iIdx && iIdx < iCat, h);
     DiceCat.keys.forEach(k => { const i = s.indexOf('data/inventory/dice/' + k + '/manifest.js'); assert.ok(i > iReg && i < iIdx, h + ' ' + k); });
     s.filter(x => /^data\/inventory\/dice\/|^assets\/js\/item-(registry|catalog)\.js$/.test(x)).forEach(x => assert.ok(ex(x), h + ' 404: ' + x)); });   /* hanya berkas rantai Dice/Registry/Catalog (room.html punya 404 lama di luar lingkup: gameplay/particle-fx.js, lihat audit) */
@@ -191,8 +191,8 @@ t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice
 });
 
 /* ---- DiceKit (modul ES) : paritas visual katalog <-> DiceKit ---- */
-t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collection/materialName selaras (nama emas dicatat: "Gold Dice" vs "Dadu Emas" — sudah ada sebelumnya, tidak diubah)', async () => {
-  const { DICE_CATALOG, validateCatalog } = await import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/dice-kit/dice-catalog.js')).href);
+t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collection/materialName selaras (nama emas dicatat: "Gold Dice" vs "Dadu Emas" â€” sudah ada sebelumnya, tidak diubah)', async () => {
+  const { DICE_CATALOG, validateCatalog } = await import(pathToFileURL(path.join(ROOT, 'src/renderers/dice-kit/dice-catalog.js')).href);
   assert.deepStrictEqual(validateCatalog(), []); assert.deepStrictEqual(DICE_CATALOG.map(d => d.id), DiceCat.keys);
   DICE_CATALOG.forEach(d => { const m = byId['dice.' + d.id]; assert.strictEqual(m.visual.bg, d.material.base, d.id); assert.strictEqual(m.visual.pip, d.material.pip.color, d.id);
     if (m.visual.accent !== undefined) assert.strictEqual(m.visual.accent, d.material.accent, d.id);
@@ -202,3 +202,4 @@ t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collect
 });
 
 (async () => { let n = 0; for (const [name, fn] of tests) { await fn(); n++; console.log('ok - ' + name); } console.log('PASS ' + n + '/' + tests.length); })().catch(e => { console.error(e); process.exit(1); });
+

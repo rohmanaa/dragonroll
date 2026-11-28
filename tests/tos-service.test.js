@@ -1,8 +1,8 @@
-/* Persetujuan TOS/Privasi: versi klien = versi server, akun login lewat RPC, tamu lewat localStorage, Sign up wajib centang. */
+﻿/* Persetujuan TOS/Privasi: versi klien = versi server, akun login lewat RPC, tamu lewat localStorage, Sign up wajib centang. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { create, FALLBACK_CURRENT } = require('../assets/js/services/tos-service.js');
+const { create, FALLBACK_CURRENT } = require('../src/services/tos-service.js');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
@@ -36,7 +36,7 @@ function mem() { const m = {}; return { getItem: k => (k in m ? m[k] : null), se
     assert.strictEqual(await tos.status(), null); assert.strictEqual(await tos.accept(), false);
   });
   await t('Sign up: wajib centang TOS+Privasi, lalu UT.Tos.accept() setelah akun jadi', () => {
-    const h = rd('splash.html'), js = rd('assets/js/pages/splash.js');
+    const h = rd('splash.html'), js = rd('src/views/splash.js');
     assert.ok(/id="su-tos"/.test(h) && /tos\.html#privasi/.test(h) && h.indexOf('tos-service.js') > 0 && h.indexOf('tos-service.js') < h.indexOf('pages/splash.js'));
     assert.ok(/su-tos"\)\.checked/.test(js) && /UT\.Tos\.accept\(\)/.test(js));
     assert.ok(js.indexOf('su-tos").checked') < js.indexOf('UT.Auth.signUp'), 'cek centang sebelum membuat akun');
@@ -48,3 +48,4 @@ function mem() { const m = {}; return { getItem: k => (k in m ? m[k] : null), se
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

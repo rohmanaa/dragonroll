@@ -1,6 +1,6 @@
-/* Tes klien Mail (tanpa jaringan): pembungkus RPC, validasi id, tidak dobel, cermin saldo, kegagalan tidak melempar. */
+﻿/* Tes klien Mail (tanpa jaringan): pembungkus RPC, validasi id, tidak dobel, cermin saldo, kegagalan tidak melempar. */
 const assert = require('assert');
-const { create } = require('../assets/js/services/mail-service.js');
+const { create } = require('../src/services/mail-service.js');
 const ID = '11111111-2222-3333-4444-555555555555';
 
 function setup(handlers, opts) {
@@ -71,3 +71,4 @@ const ok = d => async () => ({ data: d, error: null });
 
   console.log('ok - mail-service'); console.log('1 tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

@@ -1,4 +1,4 @@
-/* profile.js — panel PROFIL di dalam hub (assets/js/pages/account.js + UT.AccountHub). Dibungkus modul UT.PageModule ('profil');
+﻿/* profile.js â€” panel PROFIL di dalam hub (src/views/account.js + UT.AccountHub). Dibungkus modul UT.PageModule ('profil');
    hub yang me-mount/unmount-nya saat tab Profil dipilih/ditinggalkan. Kerangka modal, tab, tombol X, dan Esc dikelola hub.
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, langganan, dan renderer WebGL bersama (SharedGL). */
 UT.PageModule.define('profil', function(env) {
@@ -26,8 +26,8 @@ const go = u => BUILT.includes(u.split('?')[0]) ? nav(u) : toast('Segera hadir')
 
 /* ---- data: PlayerData (level/XP/skin/koleksi) + server get_my_profile (menang/main/streak, peringkat, misi) ---- */
 let SRV = null;
-const PROF = {uid: '—', rank: null,
- get joined() { try { return new Date(PD.joinedAt()).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}); } catch (e) { return '—'; } },
+const PROF = {uid: 'â€”', rank: null,
+ get joined() { try { return new Date(PD.joinedAt()).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}); } catch (e) { return 'â€”'; } },
  get win() { return SRV ? SRV.wins : PD.stats().wins; }, get play() { return SRV ? SRV.plays : PD.stats().plays; }, get streak() { return SRV ? SRV.streak : PD.stats().streak; }};
 const pname = () => PD.profile().name;
 const eqSkin = () => IC.byId(PD.equippedId('skin')) || IC.byId('skin.steve');
@@ -119,7 +119,7 @@ function drawPose() {
   if (env.disposed || !poOpen()) return;
   const L = POSES(), saved = poseId();
   if (!poSel || !L.some(p => p.id === poSel)) poSel = saved;
-  $('#pogrid').innerHTML = L.map(p => `<button class="fslot ${p.id === saved ? 'st-used' : 'st-own'}${p.id === poSel ? ' sel' : ''}" type="button" data-id="${p.id}" aria-label="${p.n}${p.id === saved ? ' — dipakai' : ''}"><span class="pth"></span><span class="pnm2">${p.n}</span></button>`).join('');
+  $('#pogrid').innerHTML = L.map(p => `<button class="fslot ${p.id === saved ? 'st-used' : 'st-own'}${p.id === poSel ? ' sel' : ''}" type="button" data-id="${p.id}" aria-label="${p.n}${p.id === saved ? ' â€” dipakai' : ''}"><span class="pth"></span><span class="pnm2">${p.n}</span></button>`).join('');
   const cur = L.find(p => p.id === poSel) || L[0];
   $('#ponm').textContent = cur.n;
   const b = $('#posave'), sp = b.querySelector('span');
@@ -158,17 +158,17 @@ $('#pogrid').onclick = e => { const c = e.target.closest('.fslot'); if (!c) retu
 $('#posave').onclick = () => { poseSave(); };
 
 /* ---- tengah: AKUN ---- */
-const EMO = ['😎', '🔥', '🐉', '⚔️', '👑', '🛡️', '🎲', '🍀', '😈', '🤖', '🦊', '🐺', '🌟', '💎', '😴', '🥷', '🧙', '🏆', '💀', '🌈', '😂', '🥶', '🌋', '🐍'];
+const EMO = ['ðŸ˜Ž', 'ðŸ”¥', 'ðŸ‰', 'âš”ï¸', 'ðŸ‘‘', 'ðŸ›¡ï¸', 'ðŸŽ²', 'ðŸ€', 'ðŸ˜ˆ', 'ðŸ¤–', 'ðŸ¦Š', 'ðŸº', 'ðŸŒŸ', 'ðŸ’Ž', 'ðŸ˜´', 'ðŸ¥·', 'ðŸ§™', 'ðŸ†', 'ðŸ’€', 'ðŸŒˆ', 'ðŸ˜‚', 'ðŸ¥¶', 'ðŸŒ‹', 'ðŸ'];
 /* 3 emoji "siapa dirimu" disimpan lokal (UT.Prefs 'profileEmoji'); belum disinkronkan ke server */
-const emo = () => { let a = null; try { a = UT.Prefs.get('profileEmoji', null); } catch (e) {} if (!Array.isArray(a)) a = ['😎', '🔥', '🐉']; return [0, 1, 2].map(i => a[i] || EMO[i]); };
+const emo = () => { let a = null; try { a = UT.Prefs.get('profileEmoji', null); } catch (e) {} if (!Array.isArray(a)) a = ['ðŸ˜Ž', 'ðŸ”¥', 'ðŸ‰']; return [0, 1, 2].map(i => a[i] || EMO[i]); };
 function drawAkun() {
   const L = PD.levelInfo();
   $('#hnm').textContent = pname();
-  $('#hid').textContent = `ID ${PROF.uid} · Bergabung ${PROF.joined}`;
+  $('#hid').textContent = `ID ${PROF.uid} Â· Bergabung ${PROF.joined}`;
   const lvn = $('#lvn'); lvn.textContent = L.level; lvn.classList.toggle('w3', String(L.level).length >= 3);
   const e = emo(); document.querySelectorAll('.eb').forEach((b, i) => { b.textContent = e[i]; b.setAttribute('aria-label', 'Emoji ' + (i + 1)); });
-  $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : '—';
-  $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : '—';
+  $('#rk-v').textContent = PROF.rank ? '#' + fmt(PROF.rank) : 'â€”';
+  $('#rk-p').textContent = SRV && SRV.points != null ? fmt(SRV.points) : 'â€”';
 }
 /* ---- kanan: FOTO pet 3D (seperti foto karakter), bukan thumbnail webp toko ----
    Model pet dibangun sekali lewat UT.PetPhoto (renderer offscreen, cahaya redup, tanpa partikel) lalu disimpan di localStorage per pet.
@@ -199,15 +199,15 @@ $('#pet').onclick = () => { snd(); go('pet.html?from=profile.html'); };
 $('#rank').onclick = () => { snd(); go('leaderboard.html'); };
 $('#hid').onclick = () => {
   snd();
-  if (!PROF.uid || PROF.uid === '—') { toast('ID belum tersedia'); return; }
+  if (!PROF.uid || PROF.uid === 'â€”') { toast('ID belum tersedia'); return; }
   const ok = () => toast('ID pengguna disalin'), fail = () => toast('Gagal menyalin ID');
   try { navigator.clipboard.writeText(PROF.uid).then(ok, fail); } catch (x) { fail(); }
 };
 $('#pen').onclick = () => {
   snd(); const un = UT.Session.username();
   if (un) { toast('Nama mengikuti username akunmu: ' + un); return; }
-  const v = (prompt('Nama baru (3–12 karakter)', pname()) || '').trim();
-  if (!v) return; if (v.length < 3 || v.length > 12) { toast('Nama 3–12 karakter'); return; }
+  const v = (prompt('Nama baru (3â€“12 karakter)', pname()) || '').trim();
+  if (!v) return; if (v.length < 3 || v.length > 12) { toast('Nama 3â€“12 karakter'); return; }
   PD.setName(v); draw(); toast('Nama diperbarui');
 };
 /* pemilih emoji: tap salah satu dari 3 emoji -> pilih pengganti */
@@ -224,11 +224,11 @@ function drawKol() {
 }
 $('#kol').onclick = e => { const b = e.target.closest('.pk'); if (b) { snd(); if (b.dataset.u === '#frame') frameOpen(); else go(b.dataset.u); } };
 
-/* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "—") ---- */
+/* ---- kanan: STATISTIK (server get_my_profile; offline = data lokal / "â€”") ---- */
 function drawStat() {
   const w = PROF.win, p = PROF.play, wr = p ? Math.round(w / p * 100) : 0;
   const row = (ic, label, v, u, o) => { o = o || {}; const t = u ? 'button' : 'div'; return `<${t} class="ps ut-sc${o.cls ? ' ' + o.cls : ''}"${u ? ` data-u="${u}" type="button"` : ''}><span class="ut-sc-ico"><img src="${ic}" alt=""></span><span class="ut-sc-info"><span class="ut-sc-l">${label}</span><span class="ut-sc-v">${v}</span></span></${t}>`; };
-  const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : '—';
+  const rk = PROF.rank ? '#' + fmt(PROF.rank) + (PROF.rank === 1 ? `<img src="${K}item-icons/mahkota.webp" alt="">` : '') : 'â€”';
   $('#sg').innerHTML =
     row(K + 'item-icons/podium.webp', 'Peringkat', rk, 'leaderboard.html') +
     row(K + 'item-icons/pedang-silang.webp', 'Rasio Kemenangan', wr + '%<small>' + w + '/' + p + '</small>', null, { cls: 'hp' }) +
@@ -254,7 +254,7 @@ function drawFrame() {
   if (!frSel || !L.includes(frSel)) frSel = L.find(i => PD.isEquipped(i.id)) || L.find(i => PD.owns(i.id)) || L[0] || null;
   $('#frgrid').innerHTML = L.map(x => {
     const m = PD.owns(x.id), on = PD.isEquipped(x.id);
-    return `<button class="fslot ${on ? 'st-used' : m ? 'st-own' : 'st-lock'}${x === frSel ? ' sel' : ''}" type="button" data-id="${x.id}" aria-label="${x.name} — ${on ? 'dipakai' : m ? 'dimiliki' : frSell(x) ? 'beli ' + frPrice(x.gems > 0 ? x.gems : x.price) : 'tidak dijual'}"><div class="th">${AR.frame(x.id)}</div>${on ? `<img class="ck" src="${G}centang.webp" alt="">` : ''}</button>`;
+    return `<button class="fslot ${on ? 'st-used' : m ? 'st-own' : 'st-lock'}${x === frSel ? ' sel' : ''}" type="button" data-id="${x.id}" aria-label="${x.name} â€” ${on ? 'dipakai' : m ? 'dimiliki' : frSell(x) ? 'beli ' + frPrice(x.gems > 0 ? x.gems : x.price) : 'tidak dijual'}"><div class="th">${AR.frame(x.id)}</div>${on ? `<img class="ck" src="${G}centang.webp" alt="">` : ''}</button>`;
   }).join('');
   const b = $('#fract'), sp = b.querySelector('span'), f = frSel;
   if (!f) { b.style.display = 'none'; $('#frnm').textContent = 'Frame'; $('#frds').textContent = 'Belum ada frame.'; $('#frart').innerHTML = ''; return; }
@@ -263,7 +263,7 @@ function drawFrame() {
   $('#frart').innerHTML = AR.frame(f.id);
   $('#frnm').textContent = f.name;
   $('#frrar').textContent = r[0]; $('#frrar').style.color = r[1];
-  $('#frds').textContent = f.desc + (m ? '' : (sell ? ' Belum dimiliki — ini hanya preview, beli untuk memakainya.' : ' Belum dimiliki dan tidak dijual. Hanya preview.'));
+  $('#frds').textContent = f.desc + (m ? '' : (sell ? ' Belum dimiliki â€” ini hanya preview, beli untuk memakainya.' : ' Belum dimiliki dan tidak dijual. Hanya preview.'));
   if (on) { b.dataset.mode = 'used'; b.disabled = true; sp.textContent = 'DIPAKAI'; }
   else if (m) { b.dataset.mode = 'equip'; b.disabled = false; sp.textContent = 'PAKAI'; }
   else if (sell) { b.dataset.mode = 'buy'; b.disabled = false; sp.textContent = 'BELI ' + frPrice(f.gems > 0 ? f.gems : f.price) + (f.gems > 0 ? ' EMERALD' : ' COIN'); }
@@ -346,3 +346,4 @@ buildChar();
 /* tandai dokumen sudah siap */
 document.documentElement.classList.add('ut-ready');
 });
+

@@ -1,6 +1,6 @@
-/* Tes klien hati/nyawa (tanpa jaringan): proyeksi hitung mundur, pembungkus RPC, tanpa server = tanpa batas, tidak dobel, gagal tidak melempar. */
+﻿/* Tes klien hati/nyawa (tanpa jaringan): proyeksi hitung mundur, pembungkus RPC, tanpa server = tanpa batas, tidak dobel, gagal tidak melempar. */
 const assert = require('assert');
-const { create, project } = require('../assets/js/services/hearts-service.js');
+const { create, project } = require('../src/services/hearts-service.js');
 
 // ---- project(): proyeksi lokal dari status server ----
 const T0 = 1000000;
@@ -86,3 +86,4 @@ function setup(handlers, opts) {
 
   console.log('hearts-service: semua lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

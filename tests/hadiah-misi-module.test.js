@@ -1,9 +1,9 @@
-/* hadiah-misi (SPA tahap 3): modul halaman, tab dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
+﻿/* hadiah-misi (SPA tahap 3): modul halaman, tab dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/hadiah-misi.js'), html = rd('hadiah-misi.html');
+const js = rd('src/views/hadiah-misi.js'), html = rd('hadiah-misi.html');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -33,8 +33,9 @@ t('callback async dijaga env.disposed', () => { assert((js.match(/env\.disposed/
 t('hadiah-misi.html memuat page-module.js sebelum hadiah-misi.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/hadiah-misi.js')));
 t('halaman tidak punya id bentrok dengan shell (view, f, ov)', () => assert(!/id="(view|f|ov)"/.test(html)));
 t('spa-host dan frame-guard mengenal hadiah-misi; play.js punya prefetch', () => {
-  assert(/'hadiah-misi\.html': 'hadiah-misi'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/mode\|hadiah-misi[|)]/.test(rd('assets/js/frame-guard.js')));
-  assert(/'hadiah-misi\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'hadiah-misi\.html': 'hadiah-misi'/.test(rd('src/core/spa-host.js')));
+  assert(/mode\|hadiah-misi[|)]/.test(rd('src/boot/frame-guard.js')));
+  assert(/'hadiah-misi\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+

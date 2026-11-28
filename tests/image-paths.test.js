@@ -14,11 +14,11 @@ const localAsset = (source, target) => {
 };
 
 const staleUiDirs = /(?:^|\/)(?:bendera-bahasa|glyph-putih|ikon-gem-medali|ikon-item|ikon-navigasi|ikon-pengaturan|karakter-monster|misi|new-icon|paket-chest|paket-gold|tombol-dan-kontrol)\//;
-for (const file of walk(path.join(root, 'assets', 'js', 'pages')).filter(file => file.endsWith('.js'))) {
+for (const file of walk(path.join(root, 'src', 'views')).filter(file => file.endsWith('.js'))) {
   assert.ok(!staleUiDirs.test(fs.readFileSync(file, 'utf8')), `${path.relative(root, file)} references a retired image folder`);
 }
 
-const modePage = fs.readFileSync(path.join(root, 'assets', 'js', 'pages', 'mode.js'), 'utf8');
+const modePage = fs.readFileSync(path.join(root, 'src', 'views', 'mode.js'), 'utf8');
 assert.ok(modePage.includes("'ut-c-p'") && modePage.includes("'ut-gl'") === false && modePage.includes('opt ut-gl'), 'quick-start buttons use the HUD glossy purple button (ut-gl ut-c-p), no image frame');
 
 for (const file of walk(path.join(root, 'src', 'styles')).concat(walk(path.join(root, 'data', 'inventory'))).filter(file => file.endsWith('.css'))) {

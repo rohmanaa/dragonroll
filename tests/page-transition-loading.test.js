@@ -1,9 +1,9 @@
-const assert = require('node:assert/strict');
+﻿const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.join(__dirname, '..');
-const js = fs.readFileSync(path.join(root, 'assets/js/pages/play.js'), 'utf8');
+const js = fs.readFileSync(path.join(root, 'src/views/play.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'src/styles/pages/play.css'), 'utf8');
 
 const show = js.match(/function showOv\(kind\) \{([\s\S]*?)\n  \}\n  function hideOv/);
@@ -21,3 +21,4 @@ assert.match(js, /im\.addEventListener\('error', finish\);[\s\S]*?timer = setTim
 assert.match(js, /Promise\.all\(all\)\.then\(function \(\)[\s\S]*?settle\(w, d/, 'curtain opens after page readiness checks settle');
 
 console.log('ok - page transitions cover immediately, show the loading spinner only when needed, and avoid fake percentages');
+

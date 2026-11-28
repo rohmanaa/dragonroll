@@ -1,4 +1,4 @@
-/* Tes mode dompet server (B5): PlayerData overlay + WalletService. Jalankan: node game/tests/player-data-server.test.js */
+﻿/* Tes mode dompet server (B5): PlayerData overlay + WalletService. Jalankan: node game/tests/player-data-server.test.js */
 const assert = require('assert');
 const fs = require('fs'), path = require('path'), vm = require('vm');
 let n = 0; const queue = []; const t = (name, fn) => queue.push([name, fn]);
@@ -100,7 +100,7 @@ t('edit devtools pada saldo lokal ditimpa server saat refresh', () => {
 });
 
 /* ---------- WalletService dengan klien Supabase palsu ---------- */
-const WS = require('../assets/js/services/wallet-service.js');
+const WS = require('../src/services/wallet-service.js');
 function svc(handlers, flag) {
   const env = flag === false ? boot() : loginOn();   /* mode lokal = belum login */
   const calls = [];
@@ -207,7 +207,7 @@ t('WS.dailyGet mengembalikan status server', async () => {
 });
 
 /* ---------- Iklan berhadiah ---------- */
-const ADS = require('../assets/js/services/ads-service.js');
+const ADS = require('../src/services/ads-service.js');
 t('Ads: iklan selesai -> token valid untuk server, unik tiap tayangan', async () => {
   const A = ADS.create({ provider: { show: async () => ({ completed: true }) } });
   const a = await A.show(), b = await A.show();
@@ -398,3 +398,4 @@ t('Katalog: harga power-up klien = harga migrasi server (202611230001) dan buy_i
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok -', name); }
   console.log(n + ' tes lulus');
 })().catch(e => { console.error('GAGAL:', e && e.stack || e); process.exit(1); });
+

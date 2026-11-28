@@ -1,5 +1,5 @@
-const assert = require('assert');
-const A = require('../assets/js/data/achievement-data.js');
+﻿const assert = require('assert');
+const A = require('../src/data/achievement-data.js');
 assert.strictEqual(A.ACH.length, 18);
 A.ACH.forEach(a => { assert.strictEqual(a[4].length, 3); assert.ok(a[4][0] < a[4][1] && a[4][1] < a[4][2], a[0]); });
 // tanpa data server: semua nol, tidak ada yang bisa diklaim
@@ -23,3 +23,4 @@ assert.strictEqual(A.info({ claims: { menang: -4 } }, {}).find(a => a.id === 'me
 // hadiah kumulatif
 assert.deepStrictEqual(A.reward(0, 3), [8500, 21]); assert.deepStrictEqual(A.reward(1, 2), [2000, 5]); assert.deepStrictEqual(A.reward(2, 2), [0, 0]);
 console.log('ok - achievement-data'); console.log('1 tes lulus');
+

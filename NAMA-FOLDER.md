@@ -32,16 +32,16 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 - `assets/images/ui/missions/` â€” ikon dan panel misi.
 - `assets/images/ui/panel-dialog/`, `slot-equipment/`, dan `stage-chapter/` â€” dialog, slot perlengkapan Power, serta ikon chapter gameplay.
 - `assets/images/ui/white-glyphs/` â€” glyph putih untuk HUD dan tombol; nama lama: `glyph-putih/`.
-- `assets/js/core/` â€” utilitas inti aplikasi.
-- `assets/js/data/` â€” data statis untuk halaman.
-- `assets/js/multiplayer/` â€” layanan dan UI multiplayer.
-- `assets/js/pages/` â€” skrip halaman aplikasi.
-- `assets/js/renderers/` â€” `dice-kit/` untuk dadu dan `power-3d/` untuk efek Power 3D; dahulu `power3d/`.
-- `assets/js/services/` â€” layanan aplikasi dan integrasi data.
-- `assets/js/systems/` â€” sistem UI dan gameplay bersama.
-- `assets/js/systems/game-dialog.js` + `assets/css/components/game-dialog.css` â€” dialog bergaya game (bingkai, header, X bulat, tombol polos) yang dipakai bersama; modal Unduh Data dan Ketentuan Layanan memakainya.
-- `assets/js/systems/update-service.js` â€” cek/unduh/restart pembaruan dengan konfirmasi pemain (hanya dari Lobby); `assets/js/services/tos-service.js` â€” persetujuan Ketentuan Layanan/Privasi (server untuk akun, localStorage untuk tamu); halaman isinya `tos.html`.
-- `assets/js/vendor/` â€” pustaka pihak ketiga; `three-addons/` berisi add-on Three.js, nama upstream dipertahankan.
+- `src/core/` â€” utilitas inti aplikasi.
+- `src/data/` â€” data statis untuk halaman.
+- `src/multiplayer/` â€” layanan dan UI multiplayer.
+- `src/views/` â€” skrip halaman aplikasi.
+- `src/renderers/` â€” `dice-kit/` untuk dadu dan `power-3d/` untuk efek Power 3D; dahulu `power3d/`.
+- `src/services/` â€” layanan aplikasi dan integrasi data.
+- `src/systems/` â€” sistem UI dan gameplay bersama.
+- `src/systems/game-dialog.js` + `assets/css/components/game-dialog.css` â€” dialog bergaya game (bingkai, header, X bulat, tombol polos) yang dipakai bersama; modal Unduh Data dan Ketentuan Layanan memakainya.
+- `src/systems/update-service.js` â€” cek/unduh/restart pembaruan dengan konfirmasi pemain (hanya dari Lobby); `src/services/tos-service.js` â€” persetujuan Ketentuan Layanan/Privasi (server untuk akun, localStorage untuk tamu); halaman isinya `tos.html`.
+- `src/vendor/` â€” pustaka pihak ketiga; `three-addons/` berisi add-on Three.js, nama upstream dipertahankan.
 
 ## data/
 - `data/inventory/<kategori>/` â€” kategori item pemain: `aura/`, `character/`, `dice/`, `frame/`, `pet/`, dan `power/`. Item berada di folder gameKey/ID; kode dan gaya kategori bersama berada di `_shared/`.
@@ -54,4 +54,5 @@ Ringkasan isi folder dan fitur yang menggunakannya. Path ditulis sesuai nama di 
 - `data/` hanya menampung kode/aset per fitur atau halaman, bukan kategori item pemain.
 
 referensi/ = mockup, tidak dipakai aplikasi, jangan diubah
+
 

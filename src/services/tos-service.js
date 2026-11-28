@@ -1,4 +1,4 @@
-/* tos-service.js — persetujuan Ketentuan Layanan + Kebijakan Privasi.
+﻿/* tos-service.js â€” persetujuan Ketentuan Layanan + Kebijakan Privasi.
    Akun login: status disimpan di server (RPC tos_status / tos_accept, migrasi 202611420001_tos_acceptance.sql).
    Tamu tanpa akun: disimpan di localStorage; saat membuat akun, centang persetujuan di form Sign up lalu UT.Tos.accept() menulisnya ke server.
    Versi terbaru dipegang SERVER (_tos_current_version). FALLBACK_CURRENT di bawah hanya untuk tamu; tests/tos-service.test.js menjaganya sama.
@@ -87,7 +87,7 @@
       G: w,
       getClient: async function () {
         if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) {
-          var u = SELF ? new URL('../multiplayer/client.js', SELF) : new URL('assets/js/multiplayer/client.js', w.location.href);
+          var u = SELF ? new URL('../multiplayer/client.js', SELF) : new URL('src/multiplayer/client.js', w.location.href);
           await import(u.href);
         }
         return w.UT.Multiplayer.getClient();
@@ -97,3 +97,4 @@
   }
   return { create: create, get: get, FALLBACK_CURRENT: FALLBACK_CURRENT };
 });
+

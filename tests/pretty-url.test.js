@@ -1,8 +1,8 @@
-/* Tes UT.PrettyUrl: pemetaan slug<->halaman, format token & uuid, penolakan slug tak dikenal.
+﻿/* Tes UT.PrettyUrl: pemetaan slug<->halaman, format token & uuid, penolakan slug tak dikenal.
    Jalan di Node 20 (CommonJS), tidak bergantung pada global navigator. */
 const assert = require('assert');
 const path = require('path');
-const PrettyUrl = require(path.join(__dirname, '..', 'assets/js/core/pretty-url.js'));
+const PrettyUrl = require(path.join(__dirname, '..', 'src/core/pretty-url.js'));
 
 /* default: DIMATIKAN -> tidak ada URL pretty; logika modul tetap diuji dengan menyalakannya manual */
 assert.strictEqual(PrettyUrl.isEnabled(), false);

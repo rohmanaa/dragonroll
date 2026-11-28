@@ -1,4 +1,4 @@
-/* Lobi harus menampilkan tampilan/outfit AKTIF akun dari server tanpa membuka halaman Karakter dulu. Jalankan: node tests/lobby-appearance.test.js */
+﻿/* Lobi harus menampilkan tampilan/outfit AKTIF akun dari server tanpa membuka halaman Karakter dulu. Jalankan: node tests/lobby-appearance.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const PG = require("./_page");
 const h = PG.readFileSync(path.join(__dirname, '../lobby.html'), 'utf8');
@@ -19,7 +19,7 @@ t('service worker: kode cache-first, tapi saat mengunduh (belum di cache) melewa
   assert.ok(calls.every(l => /SKIP_WAITING/.test(l)), 'skipWaiting hanya boleh atas pesan SKIP_WAITING (tombol Mulai ulang), tidak otomatis');
 });
 t('lobi memuat appearance-service.js setelah wallet-service.js', () => {
-  const w = h.indexOf('assets/js/services/wallet-service.js'), a = h.indexOf('assets/js/services/appearance-service.js');
+  const w = h.indexOf('src/services/wallet-service.js'), a = h.indexOf('src/services/appearance-service.js');
   assert.ok(w > 0 && a > w, 'urutan skrip salah');
 });
 t('lobi memanggil AppearanceService.refreshThrottled() hanya untuk akun server', () => {
@@ -36,7 +36,7 @@ t('profil, efek, dan leaderboard juga menarik tampilan aktif dari server dan men
     const x = PG.readFileSync(path.join(__dirname, '../' + f + '.html'), 'utf8');
     assert.ok(/refreshThrottled\(\)/.test(x), f + ': tidak memanggil refreshThrottled');
     assert.ok(/r==='server-appearance'\|\|r==='server-outfits'/.test(x), f + ': tidak menggambar ulang saat tampilan dari server masuk');
-    assert.ok(x.indexOf('assets/js/services/appearance-service.js') > 0, f + ': appearance-service.js tidak dimuat');
+    assert.ok(x.indexOf('src/services/appearance-service.js') > 0, f + ': appearance-service.js tidak dimuat');
   });
 });
 t('karakter & avatar dibangun ulang saat tampilan/outfit dari server masuk', () => {
@@ -46,7 +46,8 @@ t('karakter & avatar dibangun ulang saat tampilan/outfit dari server masuk', () 
   assert.ok(m[0].indexOf('buildHero()') > 0 && m[0].indexOf('renderAvatar()') > 0);
 });
 t('alasan notifikasi yang dipakai lobi benar-benar dikirim PlayerData', () => {
-  const pd = PG.readFileSync(path.join(__dirname, '../assets/js/player-data.js'), 'utf8');
+  const pd = PG.readFileSync(path.join(__dirname, '../src/stores/player-data.js'), 'utf8');
   assert.ok(pd.indexOf("notify('server-appearance')") > 0 && pd.indexOf("notify('server-outfits')") > 0);
 });
 console.log(n + ' tes lulus');
+

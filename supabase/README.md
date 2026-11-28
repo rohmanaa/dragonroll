@@ -1,12 +1,12 @@
-# Supabase setup — Ular Tangga multiplayer
+﻿# Supabase setup â€” Ular Tangga multiplayer
 
 ## Required Supabase project settings
 
 1. Use the supplied Supabase project (`lusyvfqgrxurcrhigkal`).
-2. In **Authentication → Providers → Anonymous**, enable anonymous sign-ins.
+2. In **Authentication â†’ Providers â†’ Anonymous**, enable anonymous sign-ins.
 3. Apply `supabase/migrations/202611050001_multiplayer.sql` in the SQL Editor (or with Supabase CLI).
-4. Confirm `public.game_rooms` is enabled for Realtime. The migration attempts to add it to `supabase_realtime`; if publication permissions prevent that, enable it from Database → Publications / Realtime settings.
-5. The public project URL and publishable key are already configured in `assets/js/multiplayer/config.example.js`. If the key is rotated, update that file and commit the new public key. This key is designed to be public; never use the service_role/secret key.
+4. Confirm `public.game_rooms` is enabled for Realtime. The migration attempts to add it to `supabase_realtime`; if publication permissions prevent that, enable it from Database â†’ Publications / Realtime settings.
+5. The public project URL and publishable key are already configured in `src/multiplayer/config.example.js`. If the key is rotated, update that file and commit the new public key. This key is designed to be public; never use the service_role/secret key.
 6. In Vercel, import the GitHub repository and leave **Root Directory** empty (repo root; game files now live at the repo root), **Framework Preset** to `Other`, **Build Command** to none, and **Output Directory** to `.`. The site is static; no Vercel Functions or server environment variables are needed.
 
 ## Anonymous player identity
@@ -47,7 +47,7 @@ The host browser is authoritative and must stay connected during a match. This i
 
 ## Event log (Langkah 2)
 
-`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `laporan-audit.html` (bagian "Langkah 2 — Fondasi event log multiplayer").
+`supabase/migrations/202611060001_game_events.sql` menambah `game_events` (log berurutan per room), RPC `submit_game_action`, `set_game_public_profile`, `claim_game_reward`. Terapkan setelah `202611050001_multiplayer.sql` dan pastikan `game_events` ada di Realtime publication. Detail dan hasil uji: `laporan-audit.html` (bagian "Langkah 2 â€” Fondasi event log multiplayer").
 
 ## Statistik pemain & leaderboard (`202611080001_player_stats.sql`)
 
@@ -82,3 +82,4 @@ Terapkan setelah `202611100002_roll_game_dice.sql`. Mengganti `roll_game_dice` m
 
 ## Snapshot skema lengkap (proyek baru)
 `supabase/snapshot/00_full_schema.sql` = gabungan semua migrasi dalam satu file, untuk menyiapkan proyek Supabase BARU/kosong lewat SQL Editor (sekali jalan). Dibuat otomatis: `sh tools/build-schema-snapshot.sh`. Jangan taruh di `supabase/migrations/` (produksi sudah memakai migrasi satu per satu). Setiap menambah migrasi, buat ulang snapshot dan commit; `tests/schema-snapshot.test.js` memeriksanya di CI.
+

@@ -1,7 +1,7 @@
-/* SceneBackground — komponen latar reusable (Stage 4).
+﻿/* SceneBackground â€” komponen latar reusable (Stage 4).
    Hanya latar: langit + gambar latar (opsional) + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
-   (itu komponen terpisah: assets/js/floating-island.js dan karakter milik tiap halaman).
-   Dipasang lewat assets/js/renderers/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
+   (itu komponen terpisah: src/fx/floating-island.js dan karakter milik tiap halaman).
+   Dipasang lewat src/renderers/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
 html.sbg-on body{background:transparent!important}
 html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman diganti oleh latar scene-bg */
 
@@ -49,7 +49,7 @@ html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman digant
   .sbg-cloud{animation:none;transform:translate3d(calc(var(--x)*1vw),0,0)}.sbg-rays{animation:none}}
 
 
-/* ================= SUASANA MALAM (assets/js/systems/ambience.js memasang html[data-ambience="night"]) =================
+/* ================= SUASANA MALAM (src/systems/ambience.js memasang html[data-ambience="night"]) =================
    Siang = tampilan di atas. Malam: langit navy, bintang, bulan + cahaya bulan dingin, awan redup, gambar latar digelapkan. */
 .sbg-stars,.sbg-moon{display:none}
 .sbg-img{transition:filter .6s ease}
@@ -116,3 +116,4 @@ html[data-ambience="night"] .sbg.sbg-ownnight .sbg-img{filter:none}
 html[data-ambience="night"] .sbg.sbg-ownnight::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 88% 82% at 50% 54%,transparent 50%,rgba(3,7,28,.5) 100%)}
 /* langit gambar malam digelapkan: gradasi biru tua dikalikan (multiply) ke gambar -> langit jadi malam, obor/tungku & bagian bawah tetap terang */
 html[data-ambience="night"] .sbg.sbg-ownnight .sbg-sky{display:block;mix-blend-mode:multiply;background:linear-gradient(180deg,#070d34 0%,#0f1c58 16%,#2a3e86 30%,#6f7fbc 44%,#c5cce6 56%,#fff 68%)}
+

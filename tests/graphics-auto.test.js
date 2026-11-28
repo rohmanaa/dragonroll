@@ -1,7 +1,7 @@
-/* Grafik Auto: heuristik detect(), preferensi lokal, penulisan tingkat ke PlayerData, turun-sendiri (governor) dan batasnya. */
+﻿/* Grafik Auto: heuristik detect(), preferensi lokal, penulisan tingkat ke PlayerData, turun-sendiri (governor) dan batasnya. */
 const assert = require('assert');
 const path = require('path');
-const GA = require(path.join(__dirname, '..', 'assets/js/systems/graphics-auto.js'));
+const GA = require(path.join(__dirname, '..', 'src/systems/graphics-auto.js'));
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -71,3 +71,4 @@ t('afterReady: tidak melakukan apa-apa bila Auto mati; terjadwal bila aktif', ()
 });
 
 console.log(n + ' tes lulus');
+

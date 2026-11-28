@@ -1,6 +1,6 @@
-/* Tes katalog gear karakter. Jalankan: node tests/gear-catalog.test.js */
+﻿/* Tes katalog gear karakter. Jalankan: node tests/gear-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
-const w = {}; new Function('window', fs.readFileSync(path.join(__dirname, '../assets/js/item-catalog.js'), 'utf8'))(w);
+const w = {}; new Function('window', fs.readFileSync(path.join(__dirname, '../src/stores/item-catalog.js'), 'utf8'))(w);
 const C = w.ItemCatalog, gear = C.items.filter(i => i.kind === 'gear');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
@@ -31,3 +31,4 @@ t('item non-gear tidak berubah (slot lama tetap)', () => {
   assert.strictEqual(C.byId('tnt').slot, null);
 });
 console.log(n + ' tes lulus');
+

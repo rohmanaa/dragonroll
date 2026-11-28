@@ -1,5 +1,5 @@
-const assert = require('assert');
-const THREE = require('../assets/js/vendor/three.min.js');
+﻿const assert = require('assert');
+const THREE = require('../src/vendor/three.min.js');
 const PvpKnight = require('../gameplay/js/pvp-knight-rig.js');
 
 function run() {
@@ -35,3 +35,4 @@ function run() {
 }
 
 run();
+

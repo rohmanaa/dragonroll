@@ -1,4 +1,4 @@
-/* chest-reveal.css — layar pembukaan chest sinematik (assets/js/core/chest-reveal.js). Satuan vmin agar pas di HP & tablet; --c = warna jenis chest. */
+﻿/* chest-reveal.css â€” layar pembukaan chest sinematik (src/core/chest-reveal.js). Satuan vmin agar pas di HP & tablet; --c = warna jenis chest. */
 .crv{position:fixed;inset:0;z-index:9999;display:block;overflow:hidden;font-family:var(--font-title,'Lilita One',sans-serif);color:#fff;-webkit-tap-highlight-color:transparent;user-select:none;opacity:0;transition:opacity .3s}
 .crv.in{opacity:1}.crv.out{opacity:0;transition:opacity .25s}
 .crv-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,rgba(40,28,70,.72) 0%,rgba(8,4,20,.93) 62%,#04020c 100%)}
@@ -85,3 +85,4 @@
   .crv,.crv *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .crv-rays,.crv-glow,.crv-fx{display:none}
 }
+

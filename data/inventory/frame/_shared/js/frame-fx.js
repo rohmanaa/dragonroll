@@ -1,10 +1,10 @@
-/* Frame profil beranimasi (desain: tools/frame-design/Character_Frames.html).
+﻿/* Frame profil beranimasi (desain: tools/frame-design/Character_Frames.html).
    Frame digambar lewat kode (pixel 56x56 sel, bingkai 3 sel, lubang avatar 26x26) + efek hidup: kilau, partikel, petir, halo, api, bintang.
    Mode "ringkas" (42x42 sel) dipakai di game: lubang avatar = 26/42 = 61.9% lebar gambar, di tengah (19.05% dari tiap sisi).
 
    Cara pakai: tidak perlu mengubah halaman. Setiap <img src="data/frame/<nama>.webp"> otomatis diganti <canvas> beranimasi
    (class/id/style dipertahankan, dan properti .src tetap bisa diganti seperti <img>). Satu loop rAF bersama; canvas di luar layar dilewati.
-   API: FrameFX.keyOf(frameId|path), FrameFX.dataURL(../../../assets/js/renderers/key), FrameFX.upgrade(root). prefers-reduced-motion: digambar sekali (statis). */
+   API: FrameFX.keyOf(frameId|path), FrameFX.dataURL(../../../src/renderers/key), FrameFX.upgrade(root). prefers-reduced-motion: digambar sekali (statis). */
 (function (g) {
   'use strict';
   if (g.FrameFX) return;
@@ -407,3 +407,4 @@ class Inst{
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })(window);
+

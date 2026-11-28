@@ -35,13 +35,13 @@ naikkan `VERSION` di `sw.js` (+1) Â· commit + push ke `main` Â· laporkan yan
 
 ## 4. Modal kit untuk sisa halaman
 
-Resep (dari Shop/Pet): tambah `src/components/modal/modal-kit.css` + `assets/js/core/modal-kit.js`; kotak jadi `.ut-mk` dengan `padding-top â‰¥ 100px`;
+Resep (dari Shop/Pet): tambah `src/components/modal/modal-kit.css` + `src/core/modal-kit.js`; kotak jadi `.ut-mk` dengan `padding-top â‰¥ 100px`;
 judul `.ut-mk-t` anak langsung; tutup `.ut-mk-x ut-gl ut-c-r` (tanpa `<img>`); `UT.ModalKit.watch(el,{openClass,labelledBy,initialFocus})` dibungkus `try` dan `env.own`.
 Tombol aksi `ut-gl` sesuai warna; bila aksi merah, BATAL jadi `d` (gelap). Hapus CSS bingkai/tombol lama setelah dicek tidak dipakai halaman lain.
 
 | Urutan | Target | File utama | Catatan |
 |---|---|---|---|
-| 1 | Popup bersama | `assets/js/systems/game-dialog.js`, `assets/js/hearts-gate.js`, `UT.UI.modal` di `core/app.js`, `core/chest-reveal.js` | Dipakai banyak halaman; ubah sekali, cek semua pemakai |
+| 1 | Popup bersama | `src/systems/game-dialog.js`, `src/services/hearts-gate.js`, `UT.UI.modal` di `core/app.js`, `core/chest-reveal.js` | Dipakai banyak halaman; ubah sekali, cek semua pemakai |
 | 2 | Dadu, Frame | `dadu.html`, `frame.html` (`#md`: `#mt #mx #mbtns #m-no #m-ok`) | Struktur sama, kerjakan bersamaan |
 | 3 | Karakter, Power-up | `karakter.html` (`#modal #box #mx #mb`), `powerup.html` (`#pv #pvBox #pvClose`) | Power-up sudah punya `ut-mk`; tinggal verifikasi |
 | 4 | Room, Mode | `room.html` (`#inv #dr #pm #em`, tombol `.cmx`), `mode.html` (`#modal #mcancel`) | Ada `tests/room-page-modal.test.js`; `mode.js` harus tetap memuat `tombol-ungu-polos.webp` |
@@ -76,4 +76,5 @@ Ide: peti di Lobby tidak hanya terbuka karena "main sekian kali", tetapi lewat m
 ## 8. Rencana: struktur folder ala Vue + Vite
 
 Lihat `struktur-vite.md` (keputusan sudah dijawab 26 Nov 2026: langsung di main, ES module sekarang, folder `views/`, mulai sekarang).
+
 

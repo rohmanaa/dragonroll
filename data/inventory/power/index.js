@@ -1,4 +1,4 @@
-/* Kategori Power (Stage 6) — mendaftarkan manifest Power ke ItemRegistry.
+﻿/* Kategori Power (Stage 6) â€” mendaftarkan manifest Power ke ItemRegistry.
    ID Registry memakai powerup.<gameKey>; ItemCatalog memetakan kembali ke ID gameplay lama (gameKey).
    Aset dan perilaku tetap di renderer/engine bersama; manifest hanya menyimpan metadata dan referensinya. */
 (function (root, factory) {
@@ -14,15 +14,15 @@
   var CATEGORY = {
     key: 'powerup', kind: 'powerup', label: 'Power-up',
     assets: {
-      modelCatalog: 'assets/js/renderers/power-3d/power-catalog.js',
-      modelRegistry: 'assets/js/renderers/power-3d/power-registry.js',
-      geometry: 'assets/js/renderers/power-3d/power-geometry.js',
-      materials: 'assets/js/renderers/power-3d/power-materials.js',
-      animation: 'assets/js/renderers/power-3d/power-animation.js',
-      effects3d: 'assets/js/renderers/power-3d/power-effects.js',
-      particles3d: 'assets/js/renderers/power-3d/power-particles.js',
-      aura: 'assets/js/renderers/power-3d/power-aura.js',
-      audio: 'assets/js/renderers/power-3d/power-sound.js',
+      modelCatalog: 'src/renderers/power-3d/power-catalog.js',
+      modelRegistry: 'src/renderers/power-3d/power-registry.js',
+      geometry: 'src/renderers/power-3d/power-geometry.js',
+      materials: 'src/renderers/power-3d/power-materials.js',
+      animation: 'src/renderers/power-3d/power-animation.js',
+      effects3d: 'src/renderers/power-3d/power-effects.js',
+      particles3d: 'src/renderers/power-3d/power-particles.js',
+      aura: 'src/renderers/power-3d/power-aura.js',
+      audio: 'src/renderers/power-3d/power-sound.js',
       effects2d: 'data/power/power-fx.js',
       particleEngine: 'gameplay/js/particle-fx.js',
       particleStyles: 'gameplay/css/particle-fx.css',
@@ -55,3 +55,4 @@
 
   return { category: CATEGORY, keys: KEYS.slice(), manifests: manifests, register: register };
 });
+

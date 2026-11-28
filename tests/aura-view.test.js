@@ -1,4 +1,4 @@
-/* Tes UT.AuraView (assets/js/renderers/aura-view.js): kunci aura dari katalog/PlayerData/data server, dan siklus pasang-ganti-lepas pada karakter blocky. */
+﻿/* Tes UT.AuraView (src/renderers/aura-view.js): kunci aura dari katalog/PlayerData/data server, dan siklus pasang-ganti-lepas pada karakter blocky. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
 const R = path.join(__dirname, '..') + path.sep, read = f => PG.readFileSync(R + f, 'utf8');
@@ -9,8 +9,8 @@ global.document = { createElement: () => ({ width: 0, height: 0, style: {}, getC
 global.navigator = { userAgent: 'node', hardwareConcurrency: 8, deviceMemory: 8 };
 global.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
 global.sessionStorage = global.localStorage; global.addEventListener = () => {}; global.location = { href: '', search: '', pathname: '/' };
-global.UT = {}; global.THREE = require(R + 'assets/js/vendor/three.min.js');
-for (const f of ['item-catalog.js', 'player-data.js', 'renderers/blocky-character.js', 'renderers/aura-fx.js', 'renderers/aura-view.js']) vm.runInThisContext(read('assets/js/' + f), { filename: f });
+global.UT = {}; global.THREE = require(R + 'src/vendor/three.min.js');
+for (const f of ['src/stores/item-catalog.js', 'src/stores/player-data.js', 'src/renderers/blocky-character.js', 'src/renderers/aura-fx.js', 'src/renderers/aura-view.js']) vm.runInThisContext(read(f), { filename: f });
 const AV = UT.AuraView, FX = UT.AuraFX;
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 const auras = ItemCatalog.items.filter(i => i.kind === 'aura');
@@ -75,8 +75,8 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   ];
   pages.forEach(({ html: f, source, update }) => {
     const g = read(f), js = read(source), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
-    assert.ok(i('vendor/three.min.js') < i('assets/js/renderers/blocky-character.js'), f);
-    assert.ok(i('three.min.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/blocky-character.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'), f);
+    assert.ok(i('vendor/three.min.js') < i('src/renderers/blocky-character.js'), f);
+    assert.ok(i('three.min.js') < i('src/renderers/aura-fx.js') && i('src/renderers/blocky-character.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'), f);
     assert.ok(/UT\.AuraView\.create\(/.test(js) && update.test(js), source);
   });
   const gameplay = read('gameplay/js/main.js');
@@ -89,9 +89,10 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
 });
 t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronkan di loop dan diupdate tiap frame', () => {
   const g = read('karakter.html'), js = read('data/inventory/character/_shared/js/karakter.js'), i = x => { const k = g.indexOf(x); assert.ok(k > 0, x); return k; };
-  assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('assets/js/renderers/aura-fx.js') && i('assets/js/renderers/aura-fx.js') < i('assets/js/renderers/aura-view.js'));
+  assert.ok(i('vendor/three.min.js') < i('player-data.js') && i('player-data.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'));
   assert.ok(/UT\.AuraView\.create\(scene,camera\)/.test(js) && /auraSync\(\)/.test(js) && /AUR\.clear\(root\)/.test(js));
   /* aura TIDAK tampil di pratinjau karakter (permintaan desain): auraSync() tetap ada tapi tidak dipanggil dan AUR.update(dt) tidak dijalankan tiap frame */
   assert.ok(!/AUR\.update\(dt\)/.test(js), 'pratinjau karakter tidak menjalankan aura');
 });
 console.log(n + ' tes lulus');
+

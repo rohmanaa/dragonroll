@@ -1,4 +1,4 @@
-/* Tidak boleh ada CDN eksternal untuk font/skrip: semua lokal (offline-ready). Jalankan: node tests/no-cdn.test.js */
+﻿/* Tidak boleh ada CDN eksternal untuk font/skrip: semua lokal (offline-ready). Jalankan: node tests/no-cdn.test.js */
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const root = path.join(__dirname, ".."); let n = 0;
 const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
@@ -11,7 +11,7 @@ t("semua halaman yang memakai font lokal memuat src/styles/fonts.css", () => {
     const html = fs.readFileSync(path.join(root, f), "utf8");
     assert.ok(/assets\/js\/core\/page-shell\.js/.test(html) && /PageShell\.renderBase/.test(html), f);
   });
-  assert.ok(/src\/styles\/fonts\.css/.test(fs.readFileSync(path.join(root, "assets/js/core/page-shell.js"), "utf8")));
+  assert.ok(/src\/styles\/fonts\.css/.test(fs.readFileSync(path.join(root, "src/core/page-shell.js"), "utf8")));
   assert.ok(/src\/styles\/fonts\.css/.test(fs.readFileSync(path.join(root, "gameplay.html"), "utf8")), "gameplay.html");
 });
 t("fonts.css merujuk file woff2 yang ada", () => {
@@ -20,8 +20,9 @@ t("fonts.css merujuk file woff2 yang ada", () => {
   files.forEach(f => assert.ok(fs.existsSync(path.join(root, "assets/fonts", f)), f));
 });
 t("client multiplayer memakai supabase-js lokal, bukan esm.sh", () => {
-  const js = fs.readFileSync(path.join(root, "assets/js/multiplayer/client.js"), "utf8");
+  const js = fs.readFileSync(path.join(root, "src/multiplayer/client.js"), "utf8");
   assert.ok(!/esm\.sh/.test(js) && /\.\.\/vendor\/supabase-js-[\d.]+\.mjs/.test(js));
-  assert.ok(fs.existsSync(path.join(root, "assets/js/vendor/supabase-js-2.119.0.mjs")));
+  assert.ok(fs.existsSync(path.join(root, "src/vendor/supabase-js-2.119.0.mjs")));
 });
 console.log(n + " tes lulus");
+

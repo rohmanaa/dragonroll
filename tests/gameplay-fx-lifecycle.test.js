@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -170,8 +170,8 @@ test('overlay Power 3D dihentikan saat visual dihentikan dan di-dispose saat kel
   FX.dispose();
   assert.strictEqual(stopped, 2);
   assert.strictEqual(disposed, 1);
-  const overlay = fs.readFileSync(path.join(root, 'assets/js/renderers/power-3d/power-overlay.js'), 'utf8');
-  const renderer = fs.readFileSync(path.join(root, 'assets/js/renderers/power-3d/power-renderer.js'), 'utf8');
+  const overlay = fs.readFileSync(path.join(root, 'src/renderers/power-3d/power-overlay.js'), 'utf8');
+  const renderer = fs.readFileSync(path.join(root, 'src/renderers/power-3d/power-renderer.js'), 'utf8');
   assert.match(overlay, /fx\.track\(\{ stop \}, \{ type: 'power-overlay', scope: 'visual' \}\)/);
   assert.match(overlay, /export function stop\(\)/);
   assert.match(overlay, /export function dispose\(\)/);
@@ -207,3 +207,4 @@ test('Ender Hole dilacak terpisah dari tween gameplay dan reset menghentikan vis
 });
 
 console.log('\n' + count + ' tes lifecycle lulus');
+

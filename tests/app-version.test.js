@@ -1,9 +1,9 @@
-/* Versi game = VERSION di sw.js: SW menjawab GET_VERSION, halaman (splash, settings) mengisi dari sana tanpa edit manual tiap rilis. */
+﻿/* Versi game = VERSION di sw.js: SW menjawab GET_VERSION, halaman (splash, settings) mengisi dari sana tanpa edit manual tiap rilis. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const AV = require('../assets/js/core/app-version.js');
+const AV = require('../src/core/app-version.js');
 const swSrc = rd('sw.js');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
@@ -70,3 +70,4 @@ class MC { constructor() { const a = {}, b = {}; this.port1 = a; this.port2 = { 
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

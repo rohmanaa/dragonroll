@@ -1,7 +1,7 @@
-/* Tes pembukaan chest sinematik (core/chest-reveal.js): jadwal murni, urutan hadiah, skala drama per jenis, mode kurangi-gerakan, dan kabel halaman/aset.
+﻿/* Tes pembukaan chest sinematik (core/chest-reveal.js): jadwal murni, urutan hadiah, skala drama per jenis, mode kurangi-gerakan, dan kabel halaman/aset.
    Jalankan: node tests/chest-reveal.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
-const R = require('../assets/js/core/chest-reveal.js');
+const R = require('../src/core/chest-reveal.js');
 const root = p => path.join(__dirname, '..', p), read = p => fs.readFileSync(root(p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok  - ' + name); };
 const full = k => ({ kind: k, coins: 420, gems: 2, xp: 60, power: 'sword' });
@@ -36,14 +36,14 @@ t('play() aman tanpa DOM (Node): tidak melempar dan mengembalikan kendali', () =
   const c = R.play(full('gold'), {}); assert.ok(typeof c.skip === 'function' && typeof c.close === 'function'); c.skip(); c.close();
 });
 t('kabel: Inventory & Shop memuat css + js reveal SEBELUM skrip halaman dan memanggil play(); SFX yang dipakai ada', () => {
-  for (const [html, js] of [['inventory.html', 'assets/js/pages/inventory.js'], ['shop.html', 'assets/js/pages/shop-page.js']]) {
+  for (const [html, js] of [['inventory.html', 'src/views/inventory.js'], ['shop.html', 'src/views/shop-page.js']]) {
     const h = read(html);
     assert.ok(h.includes('src/styles/components/chest-reveal.css'), html + ' css');
     assert.strictEqual((h.match(/assets\/js\/core\/chest-reveal\.js/g) || []).length, 1, html + ' js tepat sekali');
     assert.ok(h.indexOf('chest-reveal.js') < h.indexOf(js), html + ' urutan');
     assert.ok(read(js).includes('UT.ChestReveal.play'), js);
   }
-  const app = read('assets/js/core/app.js');
+  const app = read('src/core/app.js');
   ['chest', 'bounce', 'pop', 'power'].forEach(s => {
     const m = app.match(new RegExp("\\n\\s*" + s + ": '([^']+)'")); assert.ok(m, 'SFX tak terdaftar: ' + s);
     assert.ok(fs.existsSync(root('assets/audio/sfx/' + m[1])), 'file SFX hilang: ' + m[1]);
@@ -57,3 +57,4 @@ t('css: hormati prefers-reduced-motion, tombol OK baru bisa diklik saat selesai,
   ['s1', 's2', 's3', 'burst', 'open', 'titled', 'done'].forEach(s => assert.ok(c.includes('.crv.' + s), 'kelas ' + s));
 });
 console.log(n + ' tes lulus');
+

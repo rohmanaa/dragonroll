@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — assets/js/room-flow.js
+﻿/* Ular Tangga Blok â€” src/multiplayer/room-flow.js
    Jembatan Mode Selection -> Game Room -> Gameplay. Skrip klasik; butuh item-catalog.js + player-data.js.
    Parameter room (sama dengan prototipe): room.html?mode=vsc|local|online&format=solo|team&count=2..4[&role=guest&code=XXXX]
    Hook (CustomEvent di window; panggil preventDefault() untuk mengambil alih router/engine):
@@ -95,3 +95,4 @@
 
   UT.RoomFlow = { MODES: MODES, maps: maps, getMap: getMap, setMap: setMap, navigate: navigate, launch: launch, lastRoom: lastRoom, returnUrl: returnUrl, exitGame: exitGame, gameMode: gameMode };
 })(window);
+

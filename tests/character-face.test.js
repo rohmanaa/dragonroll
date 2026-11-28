@@ -1,4 +1,4 @@
-/* Tes pemisahan Wajah (bentuk wajah) dari Mata. Jalankan: node tests/character-face.test.js */
+﻿/* Tes pemisahan Wajah (bentuk wajah) dari Mata. Jalankan: node tests/character-face.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const R = p => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -15,7 +15,7 @@ function faces(src) {
 t('FACES identik di renderer (template) dan builder Karakter', () => {
   const sl = s => s.slice(s.indexOf('const lipC='), s.indexOf('/* ---- rambut ---- */'));
   assert.strictEqual(sl(SRC.template), sl(SRC.karakter));
-  assert.strictEqual(R('assets/js/renderers/blocky-character.js'), SRC.template, 'asset runtime = template');
+  assert.strictEqual(R('src/renderers/blocky-character.js'), SRC.template, 'asset runtime = template');
 });
 t('wajah: id unik, ada nama, klasik jadi pilihan pertama (default)', () => {
   const F = faces(SRC.template); const ids = F.map(f => f.id);
@@ -52,7 +52,7 @@ t('builder: face terdaftar di REG/KEYMAP/normalize/DEFAULT/START dan UI Wajah + 
     assert.ok(s.includes('const face=find(\'face\',cfg.face.id)'));
   });
   const k = SRC.karakter;
-  assert.ok(k.includes("{key:'face',label:'😊 Wajah',reg:'face'}") && k.includes("{key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true}"));
+  assert.ok(k.includes("{key:'face',label:'ðŸ˜Š Wajah',reg:'face'}") && k.includes("{key:'eyes',label:'ðŸ‘ï¸ Mata',reg:'eyes',keepDye:true}"));
   assert.ok(k.includes("keys:['skin','face','eyes','hair','body']"));
   assert.ok(k.includes('face:cfg.face,eyes:cfg.eyes'), 'face ikut disimpan ke PlayerData');
 });
@@ -62,7 +62,7 @@ function boot() {
   const store = {}; const ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(R('assets/js/' + f), ctx));
+  ['src/core/session.js', 'src/stores/item-catalog.js', 'src/stores/player-data.js'].forEach(f => vm.runInContext(R(f), ctx));
   return ctx.PlayerData;
 }
 const LOOK = { gender: 'f', skin: 's3', eyes: { id: 'lash', dye: 'blue' }, hair: { id: 'bob', dye: 'brown' }, body: { height: 1, build: 1 } };
@@ -79,7 +79,7 @@ t('PlayerData.look: face tidak valid dibuang (bukan menolak seluruh look)', () =
   assert.strictEqual(PD.look().face, undefined);
 });
 t('katalog: slot eyes berlabel Mata (wajah bukan lagi nama slot mata)', () => {
-  assert.ok(R('assets/js/item-catalog.js').includes("{ key: 'eyes', label: 'Mata' }"));
+  assert.ok(R('src/stores/item-catalog.js').includes("{ key: 'eyes', label: 'Mata' }"));
 });
 console.log(n + ' tes lulus');
 
@@ -94,3 +94,4 @@ console.log(n + ' tes lulus');
   });
   console.log(n + ' tes lulus (total)');
 })();
+

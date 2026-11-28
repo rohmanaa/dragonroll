@@ -11,23 +11,23 @@ const ASSETS=[
   'src/styles/base.css',
   'src/styles/shared-ui.css',
   'src/styles/scene-bg.css',
-  'assets/js/systems/ambience.js',
+  'src/systems/ambience.js',
   'src/styles/night-fog.css',
-  'assets/js/renderers/night-fog.js',
+  'src/renderers/night-fog.js',
   'assets/images/effects/fx-fog-1.webp',
   'assets/images/effects/fx-fog-2.webp',
-  'assets/js/renderers/scene-bg.js',
-  'assets/js/floating-island.js',
+  'src/renderers/scene-bg.js',
+  'src/fx/floating-island.js',
   'data/inventory/character/_shared/js/character-data.js',
   'data/inventory/character/_shared/js/character-view.js',
-  'assets/js/mob-view.js',
-  'assets/js/landscape.js',
-  'assets/js/boot-guard.js',
-  'assets/js/item-catalog.js',
-  'assets/js/renderers/item-art.js',
-  'assets/js/player-data.js',
-  'assets/js/core/app.js',
-  'assets/js/game-integration.js',
+  'src/boot/mob-view.js',
+  'src/boot/landscape.js',
+  'src/boot/boot-guard.js',
+  'src/stores/item-catalog.js',
+  'src/renderers/item-art.js',
+  'src/stores/player-data.js',
+  'src/core/app.js',
+  'src/services/game-integration.js',
   'src/components/ui-core.js',
   'src/components/button/button.css',
   'src/components/button/button.js',
@@ -60,7 +60,7 @@ const ASSETS=[
   'data/power/3d/potion_odd.png',
   'data/power/3d/potion_even.png',
   'data/power/3d/grass.png',
-  'assets/js/vendor/three.min.js',
+  'src/vendor/three.min.js',
   'src/styles/fonts.css',
   'assets/images/ui/achievement/ach-pedang.webp'
 ];
@@ -173,4 +173,5 @@ $("#su-ok").onclick=()=>submit($("#su-ok"),"#su-err",async()=>{
 });
 document.documentElement.classList.add("ut-ready");
 })();
+
 

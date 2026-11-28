@@ -1,4 +1,4 @@
-/* Tes AppearanceService (tahap b): outfit + tampilan aktif lewat server. Jalankan: node tests/appearance-service.test.js */
+﻿/* Tes AppearanceService (tahap b): outfit + tampilan aktif lewat server. Jalankan: node tests/appearance-service.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 let n = 0; const queue = []; const t = (name, fn) => queue.push([name, fn]);
 
@@ -13,7 +13,7 @@ function boot(opts) {
   ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
-const Svc = require('../assets/js/services/appearance-service.js');
+const Svc = require('../src/services/appearance-service.js');
 const ACCT = { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 'tester' }) };
 const loginOn = () => boot({ store: ACCT, flag: true });
 const tick = ms => new Promise(r => setTimeout(r, ms || 0));
@@ -234,3 +234,4 @@ t('refreshThrottled: penarikan gagal TIDAK mengisi penanda waktu (halaman beriku
   for (const [name, fn] of queue) { await fn(); n++; console.log('ok - ' + name); }
   console.log('\n' + n + ' tes lulus');
 })().catch(e => { console.error('GAGAL:', e && e.stack || e); process.exit(1); });
+

@@ -1,4 +1,4 @@
-const assert = require("assert");
+﻿const assert = require("assert");
 const fs = require("fs");
 const PG = require("./_page");
 const path = require("path");
@@ -15,7 +15,7 @@ const pages = {
 const scripts = {
   frame: read("frame.html"),
   dadu: read("data/inventory/dice/_shared/js/dadu.js"),
-  room: read("assets/js/pages/room.js")
+  room: read("src/views/room.js")
 };
 const headers = ["karakter.html", "frame.html", "dadu.html", "powerup.html", "shop.html", "friendship.html", "hadiah-misi.html", "tambang.html", "profile.html"];
 const pageCss = read("src/styles/page.css");
@@ -90,3 +90,4 @@ test("Power-up hanya menunjukkan stok dan tombol beli; status pasang tetap di Ro
 });
 
 console.log(n + " tes lulus");
+

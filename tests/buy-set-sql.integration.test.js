@@ -1,4 +1,4 @@
-/* Tes integrasi buy_set: klien ASLI (WalletService + PlayerData) terhadap SQL ASLI di Postgres uji.
+﻿/* Tes integrasi buy_set: klien ASLI (WalletService + PlayerData) terhadap SQL ASLI di Postgres uji.
    Tidak jalan tanpa PSQL_CMD (DB uji dengan migrasi sampai 202611140001), jadi aman di CI biasa. Contoh:
      PSQL_CMD="psql -X -q -At -v ON_ERROR_STOP=1 -d ulartangga_test" node tests/buy-set-sql.integration.test.js
    Isi: (1) [dihapus di Tahap 3c: paritas dengan PlayerData.purchaseSet lokal]; (2) klien server memakai WalletService.buySet -> cermin cocok dengan DB; (3) dua buy_set paralel tidak menagih dua kali. */
@@ -7,7 +7,7 @@ const assert = require('assert');
 const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs'), path = require('path'), vm = require('vm');
-const WS = require('../assets/js/services/wallet-service.js');
+const WS = require('../src/services/wallet-service.js');
 
 function q(sql) {
   return new Promise((res, rej) => {
@@ -105,3 +105,4 @@ t('KONKURENSI (deterministik): sesi 2 masuk saat sesi 1 belum commit -> menunggu
   catch (e) { console.error('GAGAL:', e && e.stack || e); process.exitCode = 1; }
   finally { if (users.length) await q("delete from auth.users where id in (" + users.map(lit).join(',') + ")").catch(() => {}); }
 })();
+

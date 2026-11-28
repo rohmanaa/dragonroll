@@ -1,10 +1,10 @@
-/* Tes paritas Power Stage 6: manifest <-> ItemCatalog baseline <-> renderer/FX/audio <-> server catalog.
+﻿/* Tes paritas Power Stage 6: manifest <-> ItemCatalog baseline <-> renderer/FX/audio <-> server catalog.
    Pemuatan nyata di browser tidak diuji di sini. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const { pathToFileURL } = require('url');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const ex = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const PowerCat = require(path.join(ROOT, 'data/inventory/power/index.js'));
 const PetCat = require(path.join(ROOT, 'data/inventory/pet/index.js'));
 const DiceCat = require(path.join(ROOT, 'data/inventory/dice/index.js'));
@@ -12,7 +12,7 @@ const FrameCat = require(path.join(ROOT, 'data/inventory/frame/index.js'));
 const base = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
 const baseline = base.items.filter(i => i.kind === 'powerup');
 const srcs = html => (html.match(/<script[^>]+src="([^"]+)"/g) || []).map(x => /src="([^"]+)"/.exec(x)[1]);
-const POWER_CHAIN = ['assets/js/core/item-registry.js']
+const POWER_CHAIN = ['src/core/item-registry.js']
   .concat(PowerCat.keys.map(k => 'data/inventory/power/' + k + '/manifest.js'), ['data/inventory/power/index.js']);
 const FRAME_CHAIN = FrameCat.keys.map(k => 'data/inventory/frame/' + k + '/manifest.js').concat(['data/inventory/frame/index.js']);
 const PET_CHAIN = PetCat.keys.map(k => 'data/inventory/pet/items/' + k + '/manifest.js').concat(['data/inventory/pet/index.js']);
@@ -31,8 +31,8 @@ function boot(chains, playerData) {
   const w = { addEventListener() {}, localStorage };
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math, localStorage }));
-  chains.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  if (playerData) vm.runInContext(rd('assets/js/player-data.js'), ctx, { filename: 'assets/js/player-data.js' });
+  chains.concat(['src/core/session.js', 'src/stores/item-catalog.js']).forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  if (playerData) vm.runInContext(rd('src/stores/player-data.js'), ctx, { filename: 'src/stores/player-data.js' });
   return ctx;
 }
 
@@ -79,8 +79,8 @@ t('ItemCatalog: jalur Registry/legacy/gabungan identik dengan baseline dan API l
   assert.strictEqual(viaPower.ItemCatalog.byId('sword').slot, null);
 });
 t('Fallback: manifest kosong atau tidak lengkap mempertahankan seluruh katalog legacy', () => {
-  const empty = boot(['assets/js/core/item-registry.js', 'data/inventory/power/index.js']);
-  const one = boot(['assets/js/core/item-registry.js', 'data/inventory/power/sword/manifest.js', 'data/inventory/power/index.js']);
+  const empty = boot(['src/core/item-registry.js', 'data/inventory/power/index.js']);
+  const one = boot(['src/core/item-registry.js', 'data/inventory/power/sword/manifest.js', 'data/inventory/power/index.js']);
   [empty, one].forEach(ctx => {
     assert.strictEqual(ctx.ItemCatalog.powerSource(), 'legacy');
     assert.deepStrictEqual(clone(ctx.ItemCatalog.items), base.items);
@@ -104,9 +104,9 @@ t('Folder dan ikon: tepat 17 manifest unik, format path valid, PNG icon ada dan 
 });
 t('Shop/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tidak ada script duplikat', () => {
   ['shop.html', 'room.html', 'gameplay.html', 'powerup.html'].forEach(file => {
-    const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
+    const scripts = srcs(rd(file)), cat = scripts.indexOf('src/stores/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' script ganda');
-    assert.ok(scripts.indexOf('assets/js/core/item-registry.js') >= 0, file + ' Registry');
+    assert.ok(scripts.indexOf('src/core/item-registry.js') >= 0, file + ' Registry');
     assert.ok(scripts.indexOf('data/inventory/power/index.js') < cat, file + ' power index');
     PowerCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/power/' + k + '/manifest.js');
@@ -123,9 +123,9 @@ t('Shop/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tid
 });
 t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama yang benar-benar tersedia', async () => {
   const [{ POWER_ITEMS }, { PowerSound }, powerRegistry] = await Promise.all([
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-catalog.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-sound.js')).href),
-    import(pathToFileURL(path.join(ROOT, 'assets/js/renderers/power-3d/power-registry.js')).href)
+    import(pathToFileURL(path.join(ROOT, 'src/renderers/power-3d/power-catalog.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'src/renderers/power-3d/power-sound.js')).href),
+    import(pathToFileURL(path.join(ROOT, 'src/renderers/power-3d/power-registry.js')).href)
   ]);
   const modelById = Object.fromEntries(POWER_ITEMS.map(m => [m.id, m]));
   const expectedMap = {};
@@ -170,7 +170,7 @@ t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi p
   assert.ok(/powerSynth\(k,'hit'\)/.test(audio), 'trigger must use the Power-specific hit');
   assert.ok(/if\(k==='tnt'\|\|k==='fire_charge'\|\|k==='blaze_core'\)\{[\s\S]*?if\(\(k==='fire_charge'\|\|k==='blaze_core'\)&&powerFiles\(k,'activate'\)\) return null;[\s\S]*?return powerSynth\(k,'activate'\)/.test(audio), 'trap placement only plays the Fire Charge or Blaze Core ignition');
   assert.ok(!audio.includes('creeper-explosion.mp3'), 'Power explosions must not reuse the Creeper explosion');
-  const voicesSrc = rd('assets/js/renderers/power-3d/power-sound.js');
+  const voicesSrc = rd('src/renderers/power-3d/power-sound.js');
   const voiceBlock = /const VOICE = \{([\s\S]*?)\};/.exec(voicesSrc)[1];
   const voices = Object.fromEntries(Array.from(voiceBlock.matchAll(/([A-Za-z_]\w*):\s*'([^']+)'/g), m => [m[1], m[2]]));
   const assignedVoices = manifests.map(m => voices[m.visual.modelKey] || voices[m.gameKey]);
@@ -267,7 +267,7 @@ t('PlayerData dan server: Power tetap consumable non-equip; RPC use/buy dan harg
     assert.strictEqual(prices[m.gameKey], m.price, m.gameKey + ' harga server Coin');
     assert.strictEqual(m.gems, null, m.gameKey + ' tidak memakai Emerald');
   });
-  const wallet = rd('assets/js/services/wallet-service.js');
+  const wallet = rd('src/services/wallet-service.js');
   assert.ok(/rpc\('buy_powerup'/.test(wallet) && /rpc\('use_powerup'/.test(wallet));
   assert.ok(/p_item_id: String\(itemId \|\| ''\)/.test(wallet));
 });
@@ -308,3 +308,4 @@ t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual 
   for (const [name, fn] of tests) { await fn(); console.log('ok - ' + name); }
   console.log('PASS ' + tests.length + '/' + tests.length);
 })().catch(e => { console.error(e); process.exit(1); });
+

@@ -1,4 +1,4 @@
-/* Sinkronkan katalog SERVER dengan katalog klien (assets/js/item-catalog.js = satu-satunya sumber harga & gender).
+﻿/* Sinkronkan katalog SERVER dengan katalog klien (src/stores/item-catalog.js = satu-satunya sumber harga & gender).
    Blok yang dijaga:
      1. harga/starter/stackable  -> migrasi B2   (202611110002_wallet_b2_server.sql)
      2. gender item gear         -> migrasi outfit (202611130001_player_outfits.sql)
@@ -10,7 +10,7 @@
 'use strict';
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
-const CAT = path.join(ROOT, 'assets', 'js', 'item-catalog.js');
+const CAT = path.join(ROOT, 'src', 'stores', 'item-catalog.js');
 const MIGDIR = path.join(ROOT, 'supabase', 'migrations');
 
 const w = {}; new Function('window', fs.readFileSync(CAT, 'utf8'))(w);
@@ -59,3 +59,4 @@ BLOCKS.forEach(b => {
   else console.log(block);
 });
 if (check) { if (stale) process.exit(1); console.log('seed sinkron (' + items.length + ' item, ' + gearItems.length + ' gear)'); }
+

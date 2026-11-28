@@ -1,8 +1,8 @@
-/* Layar muat khusus gameplay: timer NAIK (bukan hitung mundur), "Mempersiapkan" -> "Siap?", pill hanya wifi + ms (tanpa LTE/baterai), pedang dari aset repo. */
+﻿/* Layar muat khusus gameplay: timer NAIK (bukan hitung mundur), "Mempersiapkan" -> "Siap?", pill hanya wifi + ms (tanpa LTE/baterai), pedang dari aset repo. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const GL = require('../assets/js/pages/gameplay-loading.js');
+const GL = require('../src/views/gameplay-loading.js');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
@@ -45,14 +45,14 @@ function fakeDoc() {
     g.ready(); assert.strictEqual(doc.els['gl-txt'].textContent, 'Siap?'); assert.ok(doc.els.gl.classList.contains('rdy'));
     g.stop(); g.start(); assert.strictEqual(doc.els['gl-txt'].textContent, 'Mempersiapkan'); assert.ok(!doc.els.gl.classList.contains('rdy')); g.stop();
   });
-  await t('ping: "NN ms" dari HEAD no-store + X-UT-Fresh; gagal = "— ms" dan ikon wifi redup', async () => {
+  await t('ping: "NN ms" dari HEAD no-store + X-UT-Fresh; gagal = "â€” ms" dan ikon wifi redup', async () => {
     let clock = 0, fail = false; const calls = [], doc = fakeDoc();
     const g = GL.create({ document: doc, now: () => clock, fetch: (u, init) => { calls.push({ u, init }); clock += 42; return fail ? Promise.reject(new Error('x')) : Promise.resolve({ ok: true }); } });
     g.start(); await sleep(20);
     assert.strictEqual(doc.els['gl-ms'].textContent, '42 ms'); assert.ok(!doc.els['gl-wifi'].classList.contains('off'));
     assert.strictEqual(calls[0].init.method, 'HEAD'); assert.strictEqual(calls[0].init.cache, 'no-store'); assert.strictEqual(calls[0].init.headers['X-UT-Fresh'], '1');
     g.stop(); fail = true; g.start(); await sleep(20);
-    assert.strictEqual(doc.els['gl-ms'].textContent, '— ms'); assert.ok(doc.els['gl-wifi'].classList.contains('off')); g.stop();
+    assert.strictEqual(doc.els['gl-ms'].textContent, 'â€” ms'); assert.ok(doc.els['gl-wifi'].classList.contains('off')); g.stop();
   });
   await t('play.html: pill hanya wifi + ms (tanpa LTE/baterai), pedang aset repo yang ada, teks tidak "Pull"', () => {
     const h = rd('play.html'), gl = h.slice(h.indexOf('id="gl"'));
@@ -64,7 +64,7 @@ function fakeDoc() {
     assert.ok(/gameplay-loading\.css/.test(h));
   });
   await t('play.js: layar khusus hanya untuk tujuan gameplay (ut:nav-heavy / gameplay.html); "Siap?" sebelum layar dibuka', () => {
-    const js = rd('assets/js/pages/play.js');
+    const js = rd('src/views/play.js');
     assert.ok(/name === 'gameplay\.html' && shown\) setGp\(true\)/.test(js));
     assert.ok((js.match(/if \((toGp|heavy)\) setGp\(true\)/g) || []).length === 2, 'kedua jalur peluncuran (iframe & SPA)');
     assert.ok(/GL\.ready\(\)/.test(js) && /GL\.stop\(\)/.test(js));
@@ -72,3 +72,4 @@ function fakeDoc() {
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

@@ -1,9 +1,9 @@
-/* RoomFlow di shell SPA: navigate/launch/exitGame lewat UT.Spa.go (shell tidak ditinggalkan); tanpa UT.Spa (mandiri / di iframe) tetap location.href. */
+﻿/* RoomFlow di shell SPA: navigate/launch/exitGame lewat UT.Spa.go (shell tidak ditinggalkan); tanpa UT.Spa (mandiri / di iframe) tetap location.href. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const src = fs.readFileSync(path.join(__dirname, '..', 'assets/js/room-flow.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, '..', 'src/multiplayer/room-flow.js'), 'utf8');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
 
@@ -89,3 +89,4 @@ function load(withSpa) {
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

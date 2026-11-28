@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict';
-import { DiceAnimator } from '../assets/js/renderers/dice-kit/dice-animation.js';
-import { D6_FACES } from '../assets/js/renderers/dice-kit/dice-catalog.js';
-import * as THREE from '../assets/js/vendor/three.r170.module.min.js';
+﻿import assert from 'node:assert/strict';
+import { DiceAnimator } from '../src/renderers/dice-kit/dice-animation.js';
+import { D6_FACES } from '../src/renderers/dice-kit/dice-catalog.js';
+import * as THREE from '../src/vendor/three.r170.module.min.js';
 
 const calls = [];
 const animator = Object.create(DiceAnimator.prototype);
@@ -91,3 +91,4 @@ assert.equal(fallback.pos[1], fallback.restY, 'fallback face correction must sta
 fallback.update(0.2);
 assert.equal(fallback.pos[1], fallback.restY, 'fallback landing must not restore a raised position');
 console.log('ok - gameplay drop rolls land on their result without a post-landing lift');
+

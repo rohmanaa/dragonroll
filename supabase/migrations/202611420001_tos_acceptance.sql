@@ -1,8 +1,8 @@
--- Persetujuan Ketentuan Layanan + Kebijakan Privasi (SERVER-SIDE), satu catatan per akun.
+﻿-- Persetujuan Ketentuan Layanan + Kebijakan Privasi (SERVER-SIDE), satu catatan per akun.
 -- Terapkan SETELAH 202611410001_hearts.sql (hanya butuh auth.users + auth.uid()).
 --
 --   Versi TOS terbaru ada di _tos_current_version() (satu-satunya tempat di server). Naikkan angkanya saat teks TOS/Privasi berubah:
---   semua akun dengan tos_version lebih kecil akan diminta konfirmasi lagi di Lobby. Klien (assets/js/services/tos-service.js) menyimpan
+--   semua akun dengan tos_version lebih kecil akan diminta konfirmasi lagi di Lobby. Klien (src/services/tos-service.js) menyimpan
 --   salinan angka yang sama (FALLBACK_CURRENT) hanya untuk tamu tanpa akun; tests/tos-service.test.js menjaga keduanya tetap sama.
 --   Klien tidak pernah menulis tabel langsung: hanya lewat RPC security definer. Versi tidak bisa diturunkan.
 
@@ -60,3 +60,4 @@ end;
 $$;
 revoke all on function public.tos_accept(int) from public, anon;
 grant execute on function public.tos_accept(int) to authenticated;
+

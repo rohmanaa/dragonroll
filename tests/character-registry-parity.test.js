@@ -1,11 +1,11 @@
-/* Tes Character Registry Stage 8.2: metadata paritas, kompatibilitas Skin, urutan script, dan model dasar. */
+﻿/* Tes Character Registry Stage 8.2: metadata paritas, kompatibilitas Skin, urutan script, dan model dasar. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const CharacterCat = require(path.join(ROOT, 'data/inventory/character/index.js'));
 const baseline = JSON.parse(rd('tests/fixtures/item-catalog-baseline.json'));
-const BASE_CHAIN = ['assets/js/core/item-registry.js']
+const BASE_CHAIN = ['src/core/item-registry.js']
   .concat(CharacterCat.keys.map(k => 'data/inventory/character/' + k + '/manifest.js'), ['data/inventory/character/index.js']);
 const PAGES = ['karakter.html', 'lobby.html', 'profile.html', 'room.html', 'gameplay.html', 'mode.html', 'leaderboard.html', 'hadiah-misi.html'];
 const srcs = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
@@ -20,9 +20,9 @@ function boot(chain, withPlayerData) {
   };
   const w = { addEventListener() {}, localStorage }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math, localStorage }));
-  chain.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js'])
+  chain.concat(['src/core/session.js', 'src/stores/item-catalog.js'])
     .forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  if (withPlayerData) vm.runInContext(rd('assets/js/player-data.js'), ctx, { filename: 'assets/js/player-data.js' });
+  if (withPlayerData) vm.runInContext(rd('src/stores/player-data.js'), ctx, { filename: 'src/stores/player-data.js' });
   return { ctx, store };
 }
 
@@ -106,7 +106,7 @@ test('ItemCatalog mengambil metadata Karakter dari manifest saat Registry lengka
     if (f.endsWith('/ender/manifest.js')) source = source.replace("name: 'Enderman'", "name: 'Manifest Enderman'").replace('price: 700', 'price: 701');
     vm.runInContext(source, ctx, { filename: f });
   });
-  ['assets/js/core/session.js', 'assets/js/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
+  ['src/core/session.js', 'src/stores/item-catalog.js'].forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
   assert.strictEqual(ctx.ItemCatalog.skinSource(), 'registry');
   assert.strictEqual(ctx.ItemCatalog.byId('skin.ender').name, 'Manifest Enderman');
   assert.strictEqual(ctx.ItemCatalog.byId('skin.ender').price, 701);
@@ -141,14 +141,14 @@ test('PlayerData tetap memakai equipped.skin; registrasi tidak mengubah ownershi
   assert.strictEqual(b.PlayerData.equippedId('skin'), 'skin.steve');
   assert.strictEqual(b.PlayerData.look().skin, 's3');
   assert.strictEqual(b.PlayerData.owns('character.steve'), false);
-  assert.ok(!/ItemRegistry|ItemCategories|data\/inventory\/character/.test(rd('assets/js/player-data.js')));
+  assert.ok(!/ItemRegistry|ItemCategories|data\/inventory\/character/.test(rd('src/stores/player-data.js')));
 });
 
 test('Halaman konsumen memuat Registry, enam manifest, index, lalu ItemCatalog tanpa duplikasi', () => {
   PAGES.forEach(file => {
-    const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
+    const scripts = srcs(rd(file)), cat = scripts.indexOf('src/stores/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' tidak boleh memuat skrip ganda');
-    const registry = scripts.indexOf('assets/js/core/item-registry.js'), index = scripts.indexOf('data/inventory/character/index.js');
+    const registry = scripts.indexOf('src/core/item-registry.js'), index = scripts.indexOf('data/inventory/character/index.js');
     assert.ok(registry >= 0 && registry < index && index < cat, file);
     CharacterCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/character/' + k + '/manifest.js');
@@ -167,3 +167,4 @@ test('Service Worker cache version naik dan preload mencatat semua manifest deng
 });
 
 console.log('PASS ' + passed + '/' + passed);
+

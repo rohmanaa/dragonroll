@@ -1,11 +1,11 @@
-/* Tes Power-3D (Batch 1): peta power-up -> model 3D, jalur impor, dan konsistensi nama. Jalankan: node tests/power3d.test.js */
+﻿/* Tes Power-3D (Batch 1): peta power-up -> model 3D, jalur impor, dan konsistensi nama. Jalankan: node tests/power3d.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
 const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const w = { addEventListener() {} }; w.window = w; const ctx = vm.createContext(w);
-vm.runInContext(rd('assets/js/item-catalog.js'), ctx);
+vm.runInContext(rd('src/stores/item-catalog.js'), ctx);
 const IC = ctx.ItemCatalog, pus = IC.items.filter(i => i.kind === 'powerup');
 const powerKeys = require('../data/inventory/power/index.js').keys;
 const map = Object.fromEntries(powerKeys.map(k => [k, require('../data/inventory/power/' + k + '/manifest.js').visual.modelKey]));
@@ -17,7 +17,7 @@ t('setiap kunci peta adalah gameKey power-up yang ada di katalog game', () => {
   Object.keys(map).forEach(k => assert.ok(pus.some(p => p.gameKey === k), 'tidak ada power-up ' + k));
 });
 t('setiap id 3D di peta ada di PowerCatalog.js', () => {
-  const ids = (rd('assets/js/renderers/power-3d/power-catalog.js').match(/\bid:\s*'(\w+)'/g) || []).map(s => s.match(/'(\w+)'/)[1]);
+  const ids = (rd('src/renderers/power-3d/power-catalog.js').match(/\bid:\s*'(\w+)'/g) || []).map(s => s.match(/'(\w+)'/)[1]);
   assert.strictEqual(ids.length, 17);
   Object.values(map).forEach(v => assert.ok(ids.indexOf(v) >= 0, 'model 3D tidak ada: ' + v));
 });
@@ -39,23 +39,23 @@ t('importmap powerup.html menunjuk file lokal yang ada', () => {
   assert.ok(ex(im['three/addons/'].replace('./', '')), 'folder addons tidak ada');
 });
 t('semua impor mesin 3D (relatif dan three/addons) menunjuk file yang ada', () => {
-  fs.readdirSync(path.join(root, 'assets/js/renderers/power-3d')).filter(f => f.endsWith('.js')).forEach(f => {
-    const src = rd('assets/js/renderers/power-3d/' + f);
+  fs.readdirSync(path.join(root, 'src/renderers/power-3d')).filter(f => f.endsWith('.js')).forEach(f => {
+    const src = rd('src/renderers/power-3d/' + f);
     (src.match(/from\s+'([^']+)'/g) || []).forEach(m => {
       const spec = m.match(/'([^']+)'/)[1];
       if (spec === 'three') return;
-      if (spec.indexOf('three/addons/') === 0) assert.ok(ex('assets/js/vendor/three-addons/' + spec.slice(13)), f + ' -> ' + spec);
-      else if (spec[0] === '.') assert.ok(ex(path.posix.join('assets/js/renderers/power-3d', spec)), f + ' -> ' + spec);
+      if (spec.indexOf('three/addons/') === 0) assert.ok(ex('src/vendor/three-addons/' + spec.slice(13)), f + ' -> ' + spec);
+      else if (spec[0] === '.') assert.ok(ex(path.posix.join('src/renderers/power-3d', spec)), f + ' -> ' + spec);
       else assert.fail('impor tak dikenal: ' + spec);
     });
   });
   ['utils/BufferGeometryUtils.js', 'geometries/RoundedBoxGeometry.js', 'environments/RoomEnvironment.js'].forEach(a => {
-    const s = rd('assets/js/vendor/three-addons/' + a); (s.match(/from\s+'([^']+)'/g) || []).forEach(m => assert.strictEqual(m.match(/'([^']+)'/)[1], 'three', a));
+    const s = rd('src/vendor/three-addons/' + a); (s.match(/from\s+'([^']+)'/g) || []).forEach(m => assert.strictEqual(m.match(/'([^']+)'/)[1], 'three', a));
   });
 });
 t('powerup.html punya wadah #p3d dan cadangan ke tampilan lama (showThemeArt)', () => {
   const h = rd('powerup.html');
-  assert.ok(h.indexOf('id="p3d"') > 0); const pj = rd('data/inventory/power/_shared/js/powerup.js'); assert.ok(pj.indexOf("import('../../../../../assets/js/renderers/power-3d/power-show.js')") > 0); /* path relatif dari data/inventory/power/_shared/js/powerup.js */
+  assert.ok(h.indexOf('id="p3d"') > 0); const pj = rd('data/inventory/power/_shared/js/powerup.js'); assert.ok(pj.indexOf("import('../../../../../src/renderers/power-3d/power-show.js')") > 0); /* path relatif dari data/inventory/power/_shared/js/powerup.js */
   assert.ok(/catch\(e=>\{this\.state=3/.test(h), 'tidak ada cadangan saat impor gagal');
 });
 t('Power: klik pilihan tidak membangun ulang grid/FX, renderer dipakai ulang dan berhenti saat preview tersembunyi', () => {
@@ -78,7 +78,7 @@ t('Power: preview mengaktifkan suara sesuai pengaturan dan Nether Star memainkan
   assert.ok(pj.includes('stopNetherStarPreview()'), 'preview dihentikan saat berpindah power');
 });
 t('Power-3D mendukung kualitas Low sampai Ultra dengan scaling bertahap', () => {
-  const source = rd('assets/js/renderers/power-3d/power-config.js').replace(/^export /gm, '');
+  const source = rd('src/renderers/power-3d/power-config.js').replace(/^export /gm, '');
   const load = device => vm.runInNewContext(source + '\n;({ QUALITY, detectQuality })', { navigator: device });
   const profiles = load({ userAgent: 'Desktop', deviceMemory: 4, hardwareConcurrency: 4 }).QUALITY;
   assert.deepStrictEqual(Object.keys(profiles), ['low', 'medium', 'high', 'ultra']);
@@ -97,3 +97,4 @@ t('Power-3D mendukung kualitas Low sampai Ultra dengan scaling bertahap', () => 
   cases.forEach(([device, expected]) => assert.strictEqual(load(device).detectQuality(), expected));
 });
 console.log(n + ' tes lulus');
+

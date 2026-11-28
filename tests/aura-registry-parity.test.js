@@ -1,10 +1,10 @@
-/* Tes Registry Aura Stage 7: manifest, ItemCatalog, aset bersama, halaman konsumen, dan PlayerData. */
+﻿/* Tes Registry Aura Stage 7: manifest, ItemCatalog, aset bersama, halaman konsumen, dan PlayerData. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));
-const IR = require(path.join(ROOT, 'assets/js/core/item-registry.js'));
+const IR = require(path.join(ROOT, 'src/core/item-registry.js'));
 const AuraCat = require(path.join(ROOT, 'data/inventory/aura/index.js'));
-const BASE_CHAIN = ['assets/js/core/item-registry.js']
+const BASE_CHAIN = ['src/core/item-registry.js']
   .concat(AuraCat.keys.map(k => 'data/inventory/aura/' + k + '/manifest.js'), ['data/inventory/aura/index.js']);
 const srcs = html => Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), m => m[1]);
 
@@ -18,9 +18,9 @@ function boot(chain, withPlayerData) {
   };
   const w = { addEventListener() {}, localStorage }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { console, Date, JSON, Math, localStorage }));
-  chain.concat(['assets/js/core/session.js', 'assets/js/item-catalog.js'])
+  chain.concat(['src/core/session.js', 'src/stores/item-catalog.js'])
     .forEach(f => vm.runInContext(rd(f), ctx, { filename: f }));
-  if (withPlayerData) vm.runInContext(rd('assets/js/player-data.js'), ctx, { filename: 'assets/js/player-data.js' });
+  if (withPlayerData) vm.runInContext(rd('src/stores/player-data.js'), ctx, { filename: 'src/stores/player-data.js' });
   return { ctx, store };
 }
 
@@ -47,7 +47,7 @@ test('Manifest paritas dengan katalog fallback dan definisi AuraFX: nama, rarity
     assert.deepStrictEqual(clone(m.visual.colors), clone(b.colors), b.id + '.colors');
     assert.strictEqual(m.visual.effectKey, b.gameKey, b.id + '.effectKey');
   });
-  const fx = Array.from(rd('assets/js/renderers/aura-fx.js').matchAll(/\{ id: '([^']+)', name: '([^']+)', rarity: '([^']+)', theme: '([^']+)', colors: \[([^\]]+)\]/g), m => ({
+  const fx = Array.from(rd('src/renderers/aura-fx.js').matchAll(/\{ id: '([^']+)', name: '([^']+)', rarity: '([^']+)', theme: '([^']+)', colors: \[([^\]]+)\]/g), m => ({
     id: m[1], name: m[2], rarity: m[3], theme: m[4], colors: Array.from(m[5].matchAll(/'([^']+)'/g), c => c[1])
   }));
   assert.strictEqual(fx.length, 15);
@@ -85,9 +85,9 @@ test('Semua manifest dan referensi aset bersama valid, tersedia di filesystem', 
 
 test('Shop, Character, Lobby, Profile, Gameplay memuat Aura Registry sebelum ItemCatalog', () => {
   ['efek.html', 'karakter.html', 'lobby.html', 'profile.html', 'gameplay.html'].forEach(file => {
-    const scripts = srcs(rd(file)), cat = scripts.indexOf('assets/js/item-catalog.js');
+    const scripts = srcs(rd(file)), cat = scripts.indexOf('src/stores/item-catalog.js');
     assert.strictEqual(new Set(scripts).size, scripts.length, file + ' tidak boleh memuat skrip ganda');
-    const registry = scripts.indexOf('assets/js/core/item-registry.js'), index = scripts.indexOf('data/inventory/aura/index.js');
+    const registry = scripts.indexOf('src/core/item-registry.js'), index = scripts.indexOf('data/inventory/aura/index.js');
     assert.ok(registry >= 0 && registry < index, file + ' ItemRegistry sebelum manifest');
     AuraCat.keys.forEach(k => {
       const i = scripts.indexOf('data/inventory/aura/' + k + '/manifest.js');
@@ -97,9 +97,9 @@ test('Shop, Character, Lobby, Profile, Gameplay memuat Aura Registry sebelum Ite
   });
   ['lobby.html', 'profile.html', 'gameplay.html', 'karakter.html'].forEach(file => {
     const scripts = srcs(rd(file));
-    assert.ok(scripts.indexOf('assets/js/renderers/aura-fx.js') >= 0 && scripts.indexOf('assets/js/renderers/aura-fx.js') < scripts.indexOf('assets/js/renderers/aura-view.js'), file);
+    assert.ok(scripts.indexOf('src/renderers/aura-fx.js') >= 0 && scripts.indexOf('src/renderers/aura-fx.js') < scripts.indexOf('src/renderers/aura-view.js'), file);
   });
-  assert.ok(/k:\s*'efek',\s*page:\s*'efek\.html'/.test(rd('assets/js/core/inv-tabs.js')), 'Inventory membuka tab Efek/Aura yang menggunakan halaman shop');
+  assert.ok(/k:\s*'efek',\s*page:\s*'efek\.html'/.test(rd('src/core/inv-tabs.js')), 'Inventory membuka tab Efek/Aura yang menggunakan halaman shop');
 });
 
 test('Service Worker version dan preload manifest mencakup semua berkas Aura baru', () => {
@@ -124,3 +124,4 @@ test('PlayerData tetap mewajibkan ownership untuk equip dan menyimpan Aura di sl
 });
 
 console.log('PASS ' + passed + '/' + passed);
+

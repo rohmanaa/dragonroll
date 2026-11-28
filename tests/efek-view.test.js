@@ -3,7 +3,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('data/inventory/aura/_shared/js/efek.js'), html = rd('efek.html'), host = rd('assets/js/core/spa-host.js');
+const js = rd('data/inventory/aura/_shared/js/efek.js'), html = rd('efek.html'), host = rd('src/core/spa-host.js');
 let n = 0;
 t0();
 function t0() {
@@ -46,18 +46,19 @@ t('efek.html: page-module/inv-tabs sebelum efek.js, shared-gl setelah three.js; 
 });
 t('routing: efek.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'efek\.html': 'efek'/.test(host) && /efek: 'efek\.html'/.test(host));
-  assert(/efek: 'efek\.html'/.test(rd('assets/js/core/inv-tabs.js')));
-  assert(/\|efek\|dadu\)\\\.html/.test(rd('assets/js/frame-guard.js')));
-  assert(/'efek\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/efek: 'efek\.html'/.test(rd('src/core/inv-tabs.js')));
+  assert(/\|efek\|dadu\)\\\.html/.test(rd('src/boot/frame-guard.js')));
+  assert(/'efek\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 t('modal kit: pratinjau & konfirmasi memakai .ut-mk', () => {
   assert(html.includes('src/components/modal/modal-kit.css') && /id="pvBox" class="pet-info-panel ut-mk"/.test(html) && /class="panel ut-mk" id="box"/.test(html) && /id="mt" class="ut-mk-t"/.test(html));
 });
 t('rute: efek.html bukan tab Inventory; Tutup/Esc kembali ke asal; Profil membuka halamannya langsung', () => {
-  const br = rd('assets/js/inventory-bridge.js'), prof = rd('assets/js/pages/profile.js');
+  const br = rd('src/stores/inventory-bridge.js'), prof = rd('src/views/profile.js');
   assert(/OWN_VIEW = \{[^}]*'efek\.html': 1/.test(br) && !/TABS = \{[^}]*'efek\.html'/.test(br));
   assert(/nav\(backTarget\(\)\)/.test(js) && !/nav\('lobby\.html'\)/.test(js));
   assert(prof.includes('"efek.html?from=profile.html"') && !/inventory\.html\?tab=(efek|dadu)/.test(prof) && /BUILT = \[[^\]]*'inventory\.html'/.test(prof));
 });
 console.log(n + ' tes lulus');
+
 

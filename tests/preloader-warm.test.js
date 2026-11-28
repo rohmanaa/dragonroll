@@ -1,4 +1,4 @@
-/* Pembukaan berikutnya tidak memindai/mengunduh ulang ratusan file yang sudah ada di cache perangkat. */
+﻿/* Pembukaan berikutnya tidak memindai/mengunduh ulang ratusan file yang sudah ada di cache perangkat. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -13,8 +13,8 @@ function env(cachedSet, files, marker) {
   Object.defineProperty(global, 'caches', { configurable: true, value: { match: async u => (cachedSet.has(u) ? {} : undefined) } });
   global.requestAnimationFrame = f => setTimeout(() => f(performance.now()), 0);
   global.fetch = async u => { calls.push(u); if (u === 'assets/preload-manifest.json') return { ok: true, json: async () => files }; if (files[u] === 'FAIL') return { ok: true, status: 404, body: null, arrayBuffer: async () => new ArrayBuffer(0) }; return { ok: true, status: 200, body: null, headers: { get: () => null }, arrayBuffer: async () => new ArrayBuffer(8) }; };
-  delete require.cache[require.resolve('../assets/js/preloader.js')];
-  require('../assets/js/preloader.js');
+  delete require.cache[require.resolve('../src/boot/preloader.js')];
+  require('../src/boot/preloader.js');
   return { P: global.UT_Preload, calls, store };
 }
 function manifest() { const m = {}; for (let i = 0; i < 30; i++) m['assets/js/f' + i + '.js'] = 1000 + i; for (let i = 0; i < 30; i++) m['assets/img/i' + i + '.webp'] = 5000 + i; return m; }
@@ -52,9 +52,10 @@ const sigOf = m => Object.keys(m).length + ':' + Object.values(m).reduce((a, b) 
     assert.strictEqual(e.store['ut:preload:sig'], undefined);
   });
   await t('splash: batas tunggu cek pembaruan dipersingkat (maks 2,5 dtk) dan sw.js memakai ulang handle cache', () => {
-    assert.ok(/promptOnSplash\(2500,/.test(fs.readFileSync(path.join(__dirname, '..', 'assets/js/pages/splash.js'), 'utf8')));
+    assert.ok(/promptOnSplash\(2500,/.test(fs.readFileSync(path.join(__dirname, '..', 'src/views/splash.js'), 'utf8')));
     const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
     assert.ok(/const mediaCache = /.test(sw) && /const codeCache = /.test(sw) && !/respondWith\(caches\.open/.test(sw));
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

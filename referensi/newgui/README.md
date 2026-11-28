@@ -1,4 +1,4 @@
-# Dragon Roll (ular-tangga) — Peta Halaman, Flow, dan Logika
+﻿# Dragon Roll (ular-tangga) â€” Peta Halaman, Flow, dan Logika
 
 Dokumen ini hasil membaca langsung isi repo `rohmanaa/ular-tangga` (branch `main`, commit terakhir `8238ab4`).
 Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
@@ -17,9 +17,9 @@ Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
 
 ## 1. Gambaran Umum
 
-- Game ular tangga 3D bertema voxel/Minecraft, dibuat dengan HTML + JS biasa (tanpa framework) dan Three.js (`assets/js/vendor/three.min.js`).
+- Game ular tangga 3D bertema voxel/Minecraft, dibuat dengan HTML + JS biasa (tanpa framework) dan Three.js (`src/vendor/three.min.js`).
 - Nama produk di UI: **DRAGON ROLL**. Nama internal lama: "Ular Tangga Blok".
-- Semua halaman dijalankan di dalam pembungkus `play.html` (iframe). Di HP portrait iframe diputar 90° supaya halaman selalu melihat viewport landscape.
+- Semua halaman dijalankan di dalam pembungkus `play.html` (iframe). Di HP portrait iframe diputar 90Â° supaya halaman selalu melihat viewport landscape.
 - Backend: **Supabase** (Auth, RPC, Realtime). Data pemain (koin, emerald, inventory, XP, misi, tambang) disimpan di server. `localStorage` dipakai sebagai cache.
 - Semua halaman non-gameplay berbagi satu set modul di `assets/js/` dan gaya di `assets/css/`.
 
@@ -29,9 +29,9 @@ Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
 |---|---|
 | `*.html` (root) | 22 halaman produksi (lihat bagian 3 sampai 7) |
 | `assets/js/` | Modul bersama: `player-data`, `wallet-service`, `appearance-service`, `auth`, `session`, `prefs`, `prefs-sync`, `item-catalog`, `room-flow`, dll. |
-| `assets/js/multiplayer/` | `client`, `room-service`, `presence`, `game-sync`, `progress-service`, `event-log` |
-| `assets/js/renderers/dice-kit/` | Mesin dadu 3D bersama (dipakai `dadu.html` dan `gameplay.html`) |
-| `assets/js/renderers/power3d/` | Renderer ikon power 3D |
+| `src/multiplayer/` | `client`, `room-service`, `presence`, `game-sync`, `progress-service`, `event-log` |
+| `src/renderers/dice-kit/` | Mesin dadu 3D bersama (dipakai `dadu.html` dan `gameplay.html`) |
+| `src/renderers/power3d/` | Renderer ikon power 3D |
 | `gameplay/` | Modul khusus gameplay: `game-core` (aturan murni), `config`, `hud`, `ready`, `afk`, `dice-ui`, `audio`, `maps/` (world, nether), dll. |
 | `hud/` | Komponen UI bersama (`button`, `card`, `currency`, `modal`, `toast`, `badge`) dan tema `fantasy` |
 | `data/` | Gambar frame, ikon power 3D, `power-fx.js` |
@@ -46,34 +46,34 @@ Repo sudah dipindah GitHub ke `rohmanaa/dragonroll`.
 ## 2. Flow Utama (peta navigasi)
 
 ```
-index.html ──redirect──▶ play.html?go=splash.html
-                              │ (iframe)
-                              ▼
-                        splash.html  ── intro logo → preload aset → cek login
-                              │            belum login: tombol LOGIN → modal DAFTAR/MASUK
-                              ▼ (setelah login, fade ke hitam)
-                          lobby.html  ◀──────────────── tombol Back/Home dari hampir semua halaman
-   ┌──────────┬───────────┼────────────┬──────────────┬─────────────┐
-   ▼          ▼           ▼            ▼              ▼             ▼
+index.html â”€â”€redirectâ”€â”€â–¶ play.html?go=splash.html
+                              â”‚ (iframe)
+                              â–¼
+                        splash.html  â”€â”€ intro logo â†’ preload aset â†’ cek login
+                              â”‚            belum login: tombol LOGIN â†’ modal DAFTAR/MASUK
+                              â–¼ (setelah login, fade ke hitam)
+                          lobby.html  â—€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ tombol Back/Home dari hampir semua halaman
+   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+   â–¼          â–¼           â–¼            â–¼              â–¼             â–¼
 karakter   frame/dadu/  profile     leaderboard   hadiah-misi    shop / tambang
 .html      efek/powerup .html       .html         .html          friendship / settings
                                                   (dailyreward + misi)
 
-lobby ──MULAI!──▶ mode.html ──pilih tile──▶ room.html ──START──▶ gameplay.html
-                      │                         ▲                      │
-                      └── Quick Start ──(simulasi)──────────────────────┤
-                                                                       ▼
-                                           keluar/menang → RoomFlow.returnUrl()
+lobby â”€â”€MULAI!â”€â”€â–¶ mode.html â”€â”€pilih tileâ”€â”€â–¶ room.html â”€â”€STARTâ”€â”€â–¶ gameplay.html
+                      â”‚                         â–²                      â”‚
+                      â””â”€â”€ Quick Start â”€â”€(simulasi)â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+                                                                       â–¼
+                                           keluar/menang â†’ RoomFlow.returnUrl()
                                            (room.html / mode.html / lobby.html)
 ```
 
 ### Aturan navigasi penting
 
-- **Boot guard** (`assets/js/boot-guard.js`): halaman apa pun yang dibuka langsung tanpa lewat splash atau tanpa login dialihkan ke `splash.html?next=<halaman>`. Setelah loading, splash kembali ke halaman tujuan.
-- **Frame guard** (`assets/js/frame-guard.js`): halaman yang dibuka di luar `play.html` dialihkan ke `play.html?go=<halaman>`. `?noframe=1` dipakai untuk debug.
+- **Boot guard** (`src/boot/boot-guard.js`): halaman apa pun yang dibuka langsung tanpa lewat splash atau tanpa login dialihkan ke `splash.html?next=<halaman>`. Setelah loading, splash kembali ke halaman tujuan.
+- **Frame guard** (`src/boot/frame-guard.js`): halaman yang dibuka di luar `play.html` dialihkan ke `play.html?go=<halaman>`. `?noframe=1` dipakai untuk debug.
 - **`play.html?go=`** hanya menerima nama file `.html` di folder yang sama (mencegah open redirect).
 - **Resume online** di `lobby.html`: bila server mencatat room `playing` yang masih memuat pemain ini (tab ditutup/refresh), lobby otomatis `location.replace` ke `room.html?...&role=guest&code=XXXX`. Dilewati bila `sessionStorage['ut-mp-exited']` cocok (baru keluar lewat menu).
-- Tombol "+" di bar mata uang: Emerald → `tambang.html?from=<halaman>`, Coin → `shop.html?coin=1`.
+- Tombol "+" di bar mata uang: Emerald â†’ `tambang.html?from=<halaman>`, Coin â†’ `shop.html?coin=1`.
 
 ---
 
@@ -98,15 +98,15 @@ lobby ──MULAI!──▶ mode.html ──pilih tile──▶ room.html ──
 - **Logika:**
   1. Intro logo 2,4 detik (hanya saat start dingin, tanpa `?next`) + suara `dragon-studio.mp3`.
   2. `UT_Preload.runAuto(ASSETS)` memuat kode, gambar, audio, data. Label berubah: "Memuat game", "Memuat gambar", "Memuat musik & suara", "Menyiapkan dunia".
-  3. Cek akun: `UT.Auth.check()`. Sudah login → "Halo, <username>" → lanjut. Belum → tombol LOGIN → `UT.Auth.signUp` / `signIn`.
+  3. Cek akun: `UT.Auth.check()`. Sudah login â†’ "Halo, <username>" â†’ lanjut. Belum â†’ tombol LOGIN â†’ `UT.Auth.signUp` / `signIn`.
   4. Fade ke hitam, `sessionStorage['ut:booted']='1'`, lalu `location.replace(dest)`. `dest` = `?next=` yang lolos regex `.html`, atau `lobby.html`.
-- **Aturan akun:** username 3–16 karakter (huruf, angka, underscore), password minimal 6. Username dipetakan ke email internal `<username>@dragonroll-game.com` (tidak pernah dikirimi email; "Confirm email" di Supabase harus dimatikan).
+- **Aturan akun:** username 3â€“16 karakter (huruf, angka, underscore), password minimal 6. Username dipetakan ke email internal `<username>@dragonroll-game.com` (tidak pernah dikirimi email; "Confirm email" di Supabase harus dimatikan).
 
 ---
 
 ## 4. Lobby dan Pemilihan Mode
 
-### `lobby.html` — Menu utama
+### `lobby.html` â€” Menu utama
 - **Isi:** scene 3D pulau melayang dengan karakter pemain (animasi idle, ketuk untuk lompat/aksi acak). HUD: kartu profil (avatar + frame, level, XP bar, nama, bendera), bar Emerald dan Coin, tombol **MAIL**, **SETTINGS**, **LEADERBOARD**, grup koleksi (**Karakter, Frame, Dadu, Efek, Power-up**), **Toko**, **Teman**, **Hadiah & Misi**, **Tambang**, dan tombol besar **MULAI!**.
 - **Navigasi (peta `ACT`):**
 
@@ -125,32 +125,32 @@ lobby ──MULAI!──▶ mode.html ──pilih tile──▶ room.html ──
 
 - **Logika:**
   - Data dibaca dari `PlayerData` (skin terpasang, frame, mata uang, nama, XP). Event `currencyChanged`, `skinChanged`, `frameChanged` memperbarui tampilan.
-  - **Level/XP:** `lvInfo(xp)` — level 1 butuh 400 XP, tiap level berikutnya +100 XP (`400 + 100*(L-1)`), maksimum level 999. Bila XP server lebih tinggi (main di perangkat lain), XP server dipakai.
+  - **Level/XP:** `lvInfo(xp)` â€” level 1 butuh 400 XP, tiap level berikutnya +100 XP (`400 + 100*(L-1)`), maksimum level 999. Bila XP server lebih tinggi (main di perangkat lain), XP server dipakai.
   - Saat dibuka: `Multiplayer.Progress.dailyLogin()` (mencatat login harian ke server) dan cek resume room online.
-  - Saldo tampil "—" sampai server membalas (`PD.walletReady()`).
+  - Saldo tampil "â€”" sampai server membalas (`PD.walletReady()`).
   - Pengaturan Grafik "Rendah" mematikan bayangan dan resolusi 1x. Suasana (siang/malam/ikut sistem) mengubah pencahayaan scene.
 
-### `mode.html` — Pilih Mode
+### `mode.html` â€” Pilih Mode
 - **Isi:** carousel **peta** (loop, geser/swipe, panah, dots) lalu dua kartu besar:
-  - **QUICK START** (ungu): tile **SOLO** (flip → 2/3/4 pemain) dan **TEAM** (2 vs 2).
-  - **CREATE ROOM** (hijau): tile **VS COMPUTER** (2/3/4 peserta), **MULTI PLAYER** (satu perangkat, gantian, 2/3/4 pemain), **CREATE ROOM** (online; flip → SOLO atau TEAM).
-- **Peta:** diambil dari `ItemCatalog` (item `kind:'theme'`) — World (Minecraft) dan Nether, ditambah kartu **The End** yang terkunci (SOON, tidak bisa dipilih). Pilihan peta disimpan di `UT.Prefs['roomMap']`.
+  - **QUICK START** (ungu): tile **SOLO** (flip â†’ 2/3/4 pemain) dan **TEAM** (2 vs 2).
+  - **CREATE ROOM** (hijau): tile **VS COMPUTER** (2/3/4 peserta), **MULTI PLAYER** (satu perangkat, gantian, 2/3/4 pemain), **CREATE ROOM** (online; flip â†’ SOLO atau TEAM).
+- **Peta:** diambil dari `ItemCatalog` (item `kind:'theme'`) â€” World (Minecraft) dan Nether, ditambah kartu **The End** yang terkunci (SOON, tidak bisa dipilih). Pilihan peta disimpan di `UT.Prefs['roomMap']`.
 - **Logika:**
   - Hanya satu tile yang flip terbuka pada satu waktu.
-  - **Quick Start** memanggil `ranked(format, n)`: menampilkan modal "MENCARI LAWAN…" selama 2,4 detik (**simulasi**, bukan matchmaking nyata), lalu "LAWAN DITEMUKAN!" dan `RoomFlow.launch(cfg)` langsung ke gameplay. Lawan dibuat palsu (`Lawan 1`, dst.).
+  - **Quick Start** memanggil `ranked(format, n)`: menampilkan modal "MENCARI LAWANâ€¦" selama 2,4 detik (**simulasi**, bukan matchmaking nyata), lalu "LAWAN DITEMUKAN!" dan `RoomFlow.launch(cfg)` langsung ke gameplay. Lawan dibuat palsu (`Lawan 1`, dst.).
   - **Create Room** memanggil `RoomFlow.navigate('room', {mode, format, count})` ke `room.html`.
   - Fungsi `quickJoin(format)` (mencari room publik via `RoomService.quickJoin`) sudah ditulis di file, tetapi **tidak dipanggil dari tile mana pun** saat ini.
   - Mulai membuka presence (`status:'lobby'`) untuk fitur teman.
 
-### `room.html` — Game Room (persiapan sebelum main)
+### `room.html` â€” Game Room (persiapan sebelum main)
 - **Parameter URL:** `?mode=vsc|local|online&format=solo|team&count=2..4[&role=guest&code=XXXXXX][&invite=<uuid>]`.
 - **Isi:** kolom kiri **Equipment** (skin, frame, dadu, efek), **Power Loadout** (pilih sampai 5 power), **Map Information**; kolom kanan **Player Room** (daftar pemain, tombol **ROOM ACCESS** / **INVITE**, **READY**, **START GAME**). Modal pilih item, modal Invite Friend (privat/publik, kode, link, daftar teman), drawer "Undang Teman" (teman online / pemain online).
 - **Logika per mode:**
-  - **vsc / local (offline):** pemain dibuat di klien (Bot atau Pemain 2..n). Semua otomatis siap. START → `RoomFlow.launch`.
+  - **vsc / local (offline):** pemain dibuat di klien (Bot atau Pemain 2..n). Semua otomatis siap. START â†’ `RoomFlow.launch`.
   - **online:** host membuat room di server (`RoomService.createRoom`, kode 6 karakter acak, awalnya privat, `maxPlayers` 2 untuk solo / 4 untuk team). Tamu masuk lewat `joinRoom({code})`. Room disinkronkan realtime (`applyRemoteRoom`).
     - Host: bisa mengubah akses Privat/Publik, membuka slot (`setSlots`), menyalin kode/link, mengundang teman.
     - **Syarat START (`check()`):** online team harus 4 pemain dan tim 2 vs 2; online solo minimal 2 pemain; kamu harus READY; semua pemain lain harus READY. START hanya aktif untuk host.
-    - START online → `RoomService.startRoom(id, {roomConfig})`; semua klien yang melihat status `playing` + `game_state.roomConfig` otomatis meluncurkan gameplay.
+    - START online â†’ `RoomService.startRoom(id, {roomConfig})`; semua klien yang melihat status `playing` + `game_state.roomConfig` otomatis meluncurkan gameplay.
     - Pemain online **tidak** mengirim power loadout (`powers: []`) dan memakai skin/dadu dari akun masing-masing.
   - **Team offline:** host bisa memindah pemain antar tim (maks 2 per tim).
   - Tombol keluar: `RoomService.leaveRoom`; bila game sedang berjalan ditolak (`GAME_IN_PROGRESS`).
@@ -165,14 +165,14 @@ Lima halaman ini berbagi satu template (tab navigasi `NAV` antar kategori: Karak
 ### Pola umum (frame, dadu, efek, powerup)
 - **Isi:** bar atas (Back, judul, Emerald, Coin), panel preview 3D/gambar (`#show`), info item (nama, rarity, deskripsi), baris "Terbaru", grid kartu item, tombol aksi (`#use`).
 - **Status kartu:** `Digunakan` / `Gunakan` (dimiliki), harga Coin (terkunci tapi dijual), `Tidak dijual` (terkunci, tidak dijual).
-- **Item yang belum dimiliki tetap tampil dan bisa di-preview.** Beli lewat modal **Konfirmasi** (cek Coin). Bila Coin kurang muncul modal "Coin tidak cukup" dengan tombol **Dapatkan Coin** (→ `shop.html`).
+- **Item yang belum dimiliki tetap tampil dan bisa di-preview.** Beli lewat modal **Konfirmasi** (cek Coin). Bila Coin kurang muncul modal "Coin tidak cukup" dengan tombol **Dapatkan Coin** (â†’ `shop.html`).
 - **Beli:** akun login memakai `WalletService.buy(id)` (server); fallback lokal `PD.purchase(id)`. Setelah beli langsung di-equip (`PD.equip`), kecuali power-up.
-- **Power-up** adalah consumable: tidak bisa di-equip, hanya menampilkan jumlah dimiliki (`×N`). Tidak dijual di toko; didapat dari gameplay atau hadiah.
+- **Power-up** adalah consumable: tidak bisa di-equip, hanya menampilkan jumlah dimiliki (`Ã—N`). Tidak dijual di toko; didapat dari gameplay atau hadiah.
 
 ### `karakter.html`
 - Halaman terbesar setelah gameplay (1860 baris). Editor karakter blocky 3D.
 - **Tab kategori:** Gender, Kulit, Mata, Rambut, Baju, Celana, Sepatu, Kepala (helm), Zirah, Bahu, Jubah, Senjata, Aksesori (multi-pilih), Tubuh, **Set**.
-- **Fitur:** pewarnaan (dye), ganti pose, putar 360°, simpan foto, preview item terkunci.
+- **Fitur:** pewarnaan (dye), ganti pose, putar 360Â°, simpan foto, preview item terkunci.
 - **Beli Set:** modal "Beli Set <nama>?" berisi daftar item dan total harga; server memvalidasi lewat RPC `buy_set` (maks 20 item unik per set).
 - **Outfit pribadi:** tombol "Simpan tampilan" (tersimpan di server lewat `AppearanceService`, ada batas slot `PD.outfitLimit`), kelola (ganti nama, hapus). Outfit hanya cocok dengan gender yang sama.
 
@@ -180,7 +180,7 @@ Lima halaman ini berbagi satu template (tab navigasi `NAV` antar kategori: Karak
 - Frame foto profil. Kategori aktif `frame`. Preview gambar `.webp` frame.
 
 ### `dadu.html`
-- Skin dadu. Preview memakai **Dice Kit** (`DiceKit.thumb` untuk kartu, `DiceKit.mount` untuk preview 3D dengan fisika kocok-lempar). Ada 20 dadu (katalog di `assets/js/renderers/dice-kit/DiceCatalog.js`).
+- Skin dadu. Preview memakai **Dice Kit** (`DiceKit.thumb` untuk kartu, `DiceKit.mount` untuk preview 3D dengan fisika kocok-lempar). Ada 20 dadu (katalog di `src/renderers/dice-kit/DiceCatalog.js`).
 
 ### `efek.html`
 - Efek/aura. Memakai `BlockyCharacter` dan `AuraFX` (aura voxel 3D) untuk preview di karakter. (README lama menyebut halaman ini kosong; sekarang sudah berisi aura.)
@@ -192,23 +192,23 @@ Lima halaman ini berbagi satu template (tab navigasi `NAV` antar kategori: Karak
 
 ## 6. Halaman Ekonomi, Hadiah, dan Sosial
 
-### `shop.html` — Toko
+### `shop.html` â€” Toko
 - Hanya menjual **Coin** (item kosmetik dibeli di halaman koleksi masing-masing).
-- **Panel Beli Coin:** tukar Emerald → Coin: **10 → 500**, **40 → 2.500**, **120 → 10.000** (paket ke-3 ditandai "best"). Akun login memakai `WalletService.exchange(i)`.
+- **Panel Beli Coin:** tukar Emerald â†’ Coin: **10 â†’ 500**, **40 â†’ 2.500**, **120 â†’ 10.000** (paket ke-3 ditandai "best"). Akun login memakai `WalletService.exchange(i)`.
 - **Panel Emerald:** "Tonton Iklan" (`UT.Ads.show()`), dapat +N Emerald. Provider iklan bawaan adalah **simulasi** (overlay hitung mundur); nominal ditentukan server (`claim_ad_reward`), klien hanya mengirim token unik per tayangan.
 - `?coin=1` men-scroll dan menyorot panel Coin.
 
-### `tambang.html` — Tambang Emerald (pasif, server-side)
+### `tambang.html` â€” Tambang Emerald (pasif, server-side)
 - **Isi:** 3 slot tambang. Header menampilkan ringkasan produksi total per jam.
-- **Aksi per slot** (semua lewat RPC `mine_*` di `MineService`): **Buka** (bayar Coin), **Ambil** emerald dari peti (`mine_collect`), **Percepat** (boost; punya batas harian dan pengali `boost_mult`), upgrade **Kecepatan** (Lv 1–5) dan upgrade **Peti** (kapasitas, Lv 1–5).
-- **Logika tampilan:** klien memperkirakan stok (`est`) dari `stock + rate*waktu` supaya angka berjalan mulus; kebenaran tetap dari server. Boost habis → sinkron ulang `mine_get`.
+- **Aksi per slot** (semua lewat RPC `mine_*` di `MineService`): **Buka** (bayar Coin), **Ambil** emerald dari peti (`mine_collect`), **Percepat** (boost; punya batas harian dan pengali `boost_mult`), upgrade **Kecepatan** (Lv 1â€“5) dan upgrade **Peti** (kapasitas, Lv 1â€“5).
+- **Logika tampilan:** klien memperkirakan stok (`est`) dari `stock + rate*waktu` supaya angka berjalan mulus; kebenaran tetap dari server. Boost habis â†’ sinkron ulang `mine_get`.
 - **Navigasi:** Back ke halaman asal (`?from=`), tombol Home ke lobby, tombol "+" Coin ke toko.
 - Dokumentasi: `doc/fitur/tambang/TAMBANG.md`.
 
-### `hadiah-misi.html` — Hadiah Harian + Misi Harian
+### `hadiah-misi.html` â€” Hadiah Harian + Misi Harian
 - Satu halaman dengan dua tab di kiri (**Hadiah**, **Misi**). Isi kedua tab ditulis langsung di file ini (bukan iframe), dengan kode yang sama seperti `dailyreward.html` dan `misi.html`. Kedua halaman itu juga masih bisa dibuka sendiri dan mengenali `?embed=1` (mode transparan bila dibenamkan).
 
-### `dailyreward.html` — Hadiah Harian (7 hari)
+### `dailyreward.html` â€” Hadiah Harian (7 hari)
 - **Isi:** kalender 7 hari, peti 3D, hitung mundur reset, tombol Lihat Detail.
 - **Hadiah:**
 
@@ -216,35 +216,35 @@ Lima halaman ini berbagi satu template (tab navigasi `NAV` antar kategori: Karak
 |---|---|
 | 1 | 50 Gem |
 | 2 | 1.000 Coin |
-| 3 | Mystery Box ×1 |
-| 4 | Dadu Rumput ×1 |
-| 5 | Dadu Emas ×1 |
+| 3 | Mystery Box Ã—1 |
+| 4 | Dadu Rumput Ã—1 |
+| 5 | Dadu Emas Ã—1 |
 | 6 | 2.000 Coin |
 | 7 | Skin Epic Enderman (permanen) |
 
-Bila dadu atau skin sudah dimiliki, hadiah diganti kompensasi (dadu → Coin, skin → Gem); nominalnya ditentukan server.
+Bila dadu atau skin sudah dimiliki, hadiah diganti kompensasi (dadu â†’ Coin, skin â†’ Gem); nominalnya ditentukan server.
 
 - **Logika:** status klaim hanya dari server (`daily_reward_get`). Satu klaim per hari; kartu berstatus `done` / `now` / `wait`. Hari yang benar-benar bisa diklaim hanya `now`.
 
-### `misi.html` — Misi Harian
+### `misi.html` â€” Misi Harian
 - **3 misi** (`assets/js/quest-data.js`): **Login Harian** (goal 1, hadiah 50 Coin), **Mainkan Permainan** (selesaikan 1 pertandingan, 75), **Raih Kemenangan** (menangkan 3 pertandingan, 150). **Bonus** menyelesaikan semua: 100.
 - **Logika:** progres, klaim, dan reset (hari WIB) seluruhnya di server (`quest_get`, `quest_claim*`). Tombol **Klaim** per misi, **Klaim Semua**, dan **Klaim Bonus**.
 
-### `profile.html` — Profil
-- **Layout 3 kolom:** kiri karakter 3D + kartu pemain (tombol simpan foto, ganti pose, putar 360°); tengah **Informasi** (nama dengan tombol ubah, ID pengguna dengan tombol salin, level/XP, peringkat), **Koleksi**, **Aktivitas** (riwayat); kanan **Achievement**.
-- **Achievement:** 15 achievement × 3 bintang (misalnya "Sang Legenda": menangkan pertandingan, target 500/1000/2000). Progres dari server (`get_my_profile`); klaim divalidasi server (`claim_achievement`).
+### `profile.html` â€” Profil
+- **Layout 3 kolom:** kiri karakter 3D + kartu pemain (tombol simpan foto, ganti pose, putar 360Â°); tengah **Informasi** (nama dengan tombol ubah, ID pengguna dengan tombol salin, level/XP, peringkat), **Koleksi**, **Aktivitas** (riwayat); kanan **Achievement**.
+- **Achievement:** 15 achievement Ã— 3 bintang (misalnya "Sang Legenda": menangkan pertandingan, target 500/1000/2000). Progres dari server (`get_my_profile`); klaim divalidasi server (`claim_achievement`).
 - **Logika:** Level/XP dari `PlayerData`; menang/main/streak, peringkat, riwayat dari server. Bila belum pernah main, profil menampilkan data kosong tanpa membuat sesi baru.
 
-### `leaderboard.html` — Peringkat
+### `leaderboard.html` â€” Peringkat
 - **Isi:** podium 3 teratas (karakter 3D), kartu "Posisi Kamu", tab **Global / Teman / Mingguan**, tabel `# | Pemain | Skor | Rank`, tombol hadiah.
 - **Logika:** `RoomService.getLeaderboard(scope, 50)` dengan scope `global` / `friends` / `weekly`. Tampilan avatar peserta diambil dari `AppearanceService`.
 
-### `friendship.html` — Teman & Sosial
+### `friendship.html` â€” Teman & Sosial
 - **Isi:** hero, tab **Online** (dengan jumlah), **Semua**, **Permintaan** (dengan jumlah), kotak pencarian, tombol **Tambah Teman**, daftar kartu teman.
-- **Logika:** `listFriends` / `listRequests` dari server; status online dari **Presence** (`lobby` → "Di lobi", status lain → sibuk). Terima/tolak permintaan (`acceptFriendRequest`). Tombol main di kartu teman → `room.html?mode=online&format=solo&count=4&invite=<id teman>`, yang membuat room lalu mengirim undangan.
+- **Logika:** `listFriends` / `listRequests` dari server; status online dari **Presence** (`lobby` â†’ "Di lobi", status lain â†’ sibuk). Terima/tolak permintaan (`acceptFriendRequest`). Tombol main di kartu teman â†’ `room.html?mode=online&format=solo&count=4&invite=<id teman>`, yang membuat room lalu mengirim undangan.
 - Catatan: angka awal Emerald di HTML (`120`) hanya placeholder; langsung ditimpa saldo asli.
 
-### `settings.html` — Pengaturan
+### `settings.html` â€” Pengaturan
 - **Grafik:** Tinggi / Rendah.
 - **Suara:** slider dan toggle **Musik**, slider dan toggle **Efek suara**, toggle **Getar**.
 - **Suasana:** Siang / Malam / Sistem.
@@ -268,27 +268,27 @@ Bila dadu atau skin sudah dimiliki, hadiah diganti kompensasi (dadu → Coin, sk
 3. **Lempar dadu:** dadu 3D (Dice Kit) dengan hasil yang sudah ditentukan `gameplay.html` (supaya aturan seperti Ramuan atau Pasti 6 tetap berlaku).
 4. **Gerak + efek petak:** pion berjalan, lalu efek petak dijalankan (ular, tangga, mob, peti).
 5. **Menang/kalah:** panel hasil, konfeti, lalu catat statistik ke server.
-6. **Keluar:** `menu jeda → keluar` → `RoomFlow.exitGame()` kembali ke asal masuk (room / mode / lobby).
+6. **Keluar:** `menu jeda â†’ keluar` â†’ `RoomFlow.exitGame()` kembali ke asal masuk (room / mode / lobby).
 
 **Aturan papan (`gameplay/game-core.js`, aturan murni tanpa DOM, bisa dites di Node):**
-- Dadu 1–6. Angka **6** = giliran tambahan.
+- Dadu 1â€“6. Angka **6** = giliran tambahan.
 - **Tiga kali 6 berturut-turut** = giliran hangus (tanpa bergerak).
-- Melewati petak akhir = **memantul** (`akhir − kelebihan`).
-- **Tangga** (naik): 8→26, 20→41, 36→55, 51→72, 71→91.
-- **Ular** (turun): 17→4, 32→12, 47→27, 62→44, 98→77.
+- Melewati petak akhir = **memantul** (`akhir âˆ’ kelebihan`).
+- **Tangga** (naik): 8â†’26, 20â†’41, 36â†’55, 51â†’72, 71â†’91.
+- **Ular** (turun): 17â†’4, 32â†’12, 47â†’27, 62â†’44, 98â†’77.
 - Tanpa rantai: sekali naik/turun, tidak berlanjut ke ular/tangga berikutnya.
 - Petak akhir: **World = 100** (Ender Dragon), **Nether = 120** (Wither).
 
 **Isi papan (`gameplay/config.js`):**
 - **Mob** di petak: Zombie (2), Creeper (30), Skeleton (38), Enderman (53), Villager (85), Blaze (66, hanya di Nether). Mob jahat memundurkan pemain (Skeleton 1, Zombie 1, Blaze 3, Warden 10, dst.). Peta Nether punya mob tambahan (Piglin, Hoglin, Ghast, dll.).
-- **Peti (Chest)** di petak 6, 11, 22, 60, 64, 82, 89. Reward acak berbobot: kosong 15%, maju 1–3 langkah 19%, mundur 1–3 langkah 5%, "Pasti 6" 9%, tambah roll 15%, bonus +2 pada dadu berikutnya 19%, meluncur ke tangga terdekat 9%, meluncur ke ular terdekat 9%. (Power sengaja 0% dari peti.)
+- **Peti (Chest)** di petak 6, 11, 22, 60, 64, 82, 89. Reward acak berbobot: kosong 15%, maju 1â€“3 langkah 19%, mundur 1â€“3 langkah 5%, "Pasti 6" 9%, tambah roll 15%, bonus +2 pada dadu berikutnya 19%, meluncur ke tangga terdekat 9%, meluncur ke ular terdekat 9%. (Power sengaja 0% dari peti.)
 
 **Power-up (17 power, datanya di `UT.Gameplay.Config.PUR`):**
 Iron/Diamond/Netherite Sword (serang musuh dekat, mundur 2/3/5), Wooden Shield (tahan 1 serangan), TNT (pemain terdepan mundur 6), Feather (giliran tambahan), Golden Apple (+3 pada dadu berikutnya), Totem (pilih pakai saat kena ular/mob/serangan), Ender Pearl (tukar posisi dengan pemain terdepan), Ramuan Ganjil / Genap (dadu berikutnya ganjil/genap), Fire Charge, Ice Crystal (bekukan pemain terdepan satu giliran), Blaze Core (semua musuh di depan mundur 2), Trident, Dragon Crystal (meluncur ke tangga terdekat atau maju 6), Nether Star (semua musuh mundur 3 + giliran tambahan). Sebagian power tidak bisa dipakai saat fase boss (`boss:false`).
 
 **Fase Boss (petak akhir):**
-- **World — Ender Dragon:** pemain pertama yang tiba di Block 100 memicu *Dragon Awakening* (arena naik, tower naik, End Crystal muncul, naga spawn; kontrol terkunci selama animasi; hanya 1× per game). Pemain harus menghancurkan **6 End Crystal** (Crystal n hancur bila melempar angka n, urutan bebas), baru boleh menyerang naga (damage per angka dadu × `DMG` = 5). Di fase ini pemain manusia memakai **Special Dice**: tahan tombol Roll, angka berputar 1→6, lepas untuk memilih angka. Hadiah mengalahkan naga: **500 Coin + 10 Emerald**, 1× per game, divalidasi server (`serverBossClaim`, ada batas harian dan token anti-ganda).
-- **Nether — Wither:** kamera menyorot benteng, 6 Skeleton Hitam muncul (Skeleton n mati bila melempar n), tembok runtuh, jembatan muncul, lalu **Wither 120 HP**. Mekanik dadu tahan-lepas sama. Skeleton dan Wither tidak menyerang balik. (Komentar di `gameplay/maps/nether.js` yang menyebut fase Wither belum dibuat sudah usang.)
+- **World â€” Ender Dragon:** pemain pertama yang tiba di Block 100 memicu *Dragon Awakening* (arena naik, tower naik, End Crystal muncul, naga spawn; kontrol terkunci selama animasi; hanya 1Ã— per game). Pemain harus menghancurkan **6 End Crystal** (Crystal n hancur bila melempar angka n, urutan bebas), baru boleh menyerang naga (damage per angka dadu Ã— `DMG` = 5). Di fase ini pemain manusia memakai **Special Dice**: tahan tombol Roll, angka berputar 1â†’6, lepas untuk memilih angka. Hadiah mengalahkan naga: **500 Coin + 10 Emerald**, 1Ã— per game, divalidasi server (`serverBossClaim`, ada batas harian dan token anti-ganda).
+- **Nether â€” Wither:** kamera menyorot benteng, 6 Skeleton Hitam muncul (Skeleton n mati bila melempar n), tembok runtuh, jembatan muncul, lalu **Wither 120 HP**. Mekanik dadu tahan-lepas sama. Skeleton dan Wither tidak menyerang balik. (Komentar di `gameplay/maps/nether.js` yang menyebut fase Wither belum dibuat sudah usang.)
 
 **Online (host-authoritative):**
 - Host menjalankan engine; tamu mengirim niat lewat Realtime broadcast (`roll_request`, `power_request`); host menyimpan snapshot ke server dan semua klien menerapkannya (`makeGameSnapshot` / `applyGameSnapshot`).
@@ -298,7 +298,7 @@ Iron/Diamond/Netherite Sword (serang musuh dekat, mundur 2/3/5), Wooden Shield (
 **Statistik dan hadiah:** hasil dicatat sekali per match (token unik; lawan CPU atau online saja). Yang dicatat per pemain: dadu, tangga, ular, skill, pukulan ke naga, peti. Menambah XP, peringkat, dan progres achievement/misi di server.
 
 **Kamera dan UI:**
-- Preset kamera **Free / Front / Top / POV Bidak** (default Free: yaw 0, pitch 1.0, zoom 0.905, pan x −0.01, z 0.15). Mode **ANGLE** (kamera bebas) atau **LOCK** (terkunci di tengah papan), tombol **FOLLOW**.
+- Preset kamera **Free / Front / Top / POV Bidak** (default Free: yaw 0, pitch 1.0, zoom 0.905, pan x âˆ’0.01, z 0.15). Mode **ANGLE** (kamera bebas) atau **LOCK** (terkunci di tengah papan), tombol **FOLLOW**.
 - Pinch/scroll zoom dibatasi 0.4 sampai 1.5.
 - HUD: kartu pemain (kiri atas), tombol suara/menu (kanan atas), banner event (tengah atas), inventori power-up (kiri bawah), panel giliran + dadu + tombol Roll/Auto (kanan bawah), emote di atas pion (lokal + sinkron online), menu jeda (lanjut, siang/malam, keluar dengan konfirmasi).
 - Modul HUD terpisah: `gameplay/hud.js`, `gameplay/hud-scale.js`, `gameplay/feedback.js`, `gameplay/particle-fx.js`, `gameplay/fx.js`.
@@ -330,12 +330,12 @@ Iron/Diamond/Netherite Sword (serang musuh dekat, mundur 2/3/5), Wooden Shield (
 | `session.js` | Cache sesi login di `localStorage['ut-auth']` ({id, username}). Satu pintu untuk semua pembaca sesi. Kebenaran sesi tetap dari Supabase Auth |
 | `auth.js` | Daftar/masuk/cek sesi (username + password via Supabase Auth) |
 | `player-data.js` (`PlayerData`) | **Single source of truth** sisi klien: saldo, inventory, item aktif, pengaturan, profil, XP. Disimpan per akun di `localStorage` (`ularTanggaBlok:player:v1:acct:<id>`). Semua saldo mulai 0 sampai server membalas (`walletReady`) |
-| `wallet-service.js` | Satu-satunya pintu klien ke dompet **server**: beli item, tukar Emerald→Coin, klaim hadiah harian/misi, klaim iklan. Klien tidak pernah mengirim nominal |
+| `wallet-service.js` | Satu-satunya pintu klien ke dompet **server**: beli item, tukar Emeraldâ†’Coin, klaim hadiah harian/misi, klaim iklan. Klien tidak pernah mengirim nominal |
 | `appearance-service.js` | Outfit pribadi dan tampilan aktif di server (server menang saat refresh) |
 | `mine-service.js` | RPC tambang (`mine_get/unlock/upgrade/boost/collect`) |
 | `prefs.js` / `prefs-sync.js` | Preferensi lokal + sinkron ke server (debounce) |
 | `item-catalog.js` | Satu-satunya sumber harga dan metadata item (skin, frame, dadu, tema/peta, power-up) |
-| `room-flow.js` | Jembatan Mode → Room → Gameplay (`navigate`, `launch`, `returnUrl`, `exitGame`) |
+| `room-flow.js` | Jembatan Mode â†’ Room â†’ Gameplay (`navigate`, `launch`, `returnUrl`, `exitGame`) |
 | `multiplayer/client.js` | Bootstrap klien Supabase |
 | `multiplayer/room-service.js` | Room: buat, gabung, siap, mulai, keluar, slot, leaderboard, teman |
 | `multiplayer/presence.js` | Status online (`lobby`, `room`) untuk daftar teman |
@@ -343,13 +343,13 @@ Iron/Diamond/Netherite Sword (serang musuh dekat, mundur 2/3/5), Wooden Shield (
 | `multiplayer/progress-service.js` | Profil, riwayat, achievement, login harian |
 | `ads-service.js` | Iklan berhadiah (provider simulasi bawaan) |
 
-**Supabase (`supabase/migrations`, 31 file):** multiplayer, game events, room slots, friendships/requests, player stats/progress, hasil match aman, wallet (b1–b6, termasuk iklan), outfit, `buy_set`, prefs, katalog frame/dadu/aura/power, tambang, counter achievement dari server, dll.
+**Supabase (`supabase/migrations`, 31 file):** multiplayer, game events, room slots, friendships/requests, player stats/progress, hasil match aman, wallet (b1â€“b6, termasuk iklan), outfit, `buy_set`, prefs, katalog frame/dadu/aura/power, tambang, counter achievement dari server, dll.
 
 ---
 
 ## 10. Catatan Temuan (ketidakkonsistenan yang terbaca di kode)
 
-1. **README usang:** menyebut `skins.html`, `ular tangga.html`/`ular-tangga.html`, `assets/js/app-ui.js`, dan `assets/js/navigation.js` — file-file ini **tidak ada** di repo. README juga menyebut "tanpa akun/server" padahal sekarang memakai Supabase, dan efek "kerangka kosong" padahal sudah ada aura.
+1. **README usang:** menyebut `skins.html`, `ular tangga.html`/`ular-tangga.html`, `assets/js/app-ui.js`, dan `assets/js/navigation.js` â€” file-file ini **tidak ada** di repo. README juga menyebut "tanpa akun/server" padahal sekarang memakai Supabase, dan efek "kerangka kosong" padahal sudah ada aura.
 2. **Quick Start = simulasi:** `ranked()` di `mode.html` memalsukan pencarian lawan; `quickJoin()` yang asli ada tetapi tidak terhubung ke tile.
 3. **MAIL** dan **Hadiah gratis** di lobi hanya menampilkan toast "segera hadir". Peta **The End** terkunci (SOON).
 4. **Iklan:** provider bawaan simulasi; server hanya membatasi jumlah klaim, belum memverifikasi tayangan lewat callback jaringan iklan.
@@ -366,13 +366,14 @@ Semua halaman, CSS, JS, dan aset GUI berada di `game/`. Buka lewat server statis
 
 | File | Isi |
 |---|---|
-| `index.html` → `splash.html` | Loading, login/daftar (simulasi di localStorage) |
+| `index.html` â†’ `splash.html` | Loading, login/daftar (simulasi di localStorage) |
 | `lobby.html`, `mode.html`, `room.html` | Menu, pilih mode, game room |
 | `karakter.html` | Pilih hero (10 karakter), dipakai lewat `js/heroes.js` |
 | `settings.html` | Grafik, suara, getar, suasana |
-| `shop.html` | Toko: tukar Emerald → Coin (10→500, 40→2.500, 120→10.000, ke-3 BEST), tab Emerald: Tonton Iklan (simulasi, +5). `?coin=1` buka tab Coin, `?from=` untuk Back |
+| `shop.html` | Toko: tukar Emerald â†’ Coin (10â†’500, 40â†’2.500, 120â†’10.000, ke-3 BEST), tab Emerald: Tonton Iklan (simulasi, +5). `?coin=1` buka tab Coin, `?from=` untuk Back |
 | `css/` | `common.css` + satu CSS per halaman |
 | `js/` | `heroes.js` (daftar hero) + satu JS per halaman |
 | `assets/` | Kit komponen UI. **Root `assets/` = sumber utama**; `game/assets/` = salinan siap pakai (lihat Aturan Aset) |
 
 Belum dibuat: gameplay (tombol START/Quick Start sementara menampilkan toast "Gameplay segera hadir"), Layar Siap (kartu urutan), power-up, fase Boss (Ender Dragon / Wither), multiplayer online (butuh Supabase), serta halaman koleksi, tambang, misi, profil, leaderboard, teman.
+

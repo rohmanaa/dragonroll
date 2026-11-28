@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/js/afk.js (Stage 4.1.15: timer AFK / auto-action; CP4b: hold + pending action)
+﻿/* Ular Tangga Blok â€” gameplay/js/afk.js (Stage 4.1.15: timer AFK / auto-action; CP4b: hold + pending action)
    Skrip klasik (tanpa import/export). Dimuat SEBELUM gameplay/js/ready.js dan blok skrip gameplay inline.
    HANYA manajer timer: satu timer aktif per id (start dengan id yang sama menggantikan yang lama),
    tidak ada state gameplay, tidak menyentuh DOM selain MEMBACA status overlay. Aman bila dimuat berkali-kali.
@@ -7,13 +7,13 @@
    CP4b HOLD: semua timer manajer ini DITAHAN (tidak tick, tidak menembak) selama tab tersembunyi
      (document.visibilityState==='hidden') ATAU overlay "Putar HP" (#ut-rotate.on dari landscape.js) tampil.
      Saat bebas lagi, sisa waktu dilanjutkan persis (end digeser selama ditahan). Tidak ada timer kedua.
-   CP4b PENDING ACTION (generik, belum dipakai gameplay mana pun — untuk aksi masa depan yang butuh input pemain):
+   CP4b PENDING ACTION (generik, belum dipakai gameplay mana pun â€” untuk aksi masa depan yang butuh input pemain):
      var h = UT.GameplayAFK.pending.open({ id:'power-target', type:'power', owner:playerIdx, ms:15000,
                                            fallback:function(){...aksi aman...}, cleanup:function(){...tutup modal...},
                                            valid:function(){ return gid===gameId; } });
-     h.complete(result)  — jalur manual; SATU-KALI: menghentikan timer, menjalankan cleanup, return true. Kedua kali -> false.
-     timeout             — SATU-KALI: bila valid() (opsional) true -> fallback(), lalu cleanup(). Setelah complete(), fallback TIDAK jalan.
-     h.cancel()          — batalkan tanpa fallback (cleanup tetap jalan). pending.clearAll() dipanggil dari clearAll()
+     h.complete(result)  â€” jalur manual; SATU-KALI: menghentikan timer, menjalankan cleanup, return true. Kedua kali -> false.
+     timeout             â€” SATU-KALI: bila valid() (opsional) true -> fallback(), lalu cleanup(). Setelah complete(), fallback TIDAK jalan.
+     h.cancel()          â€” batalkan tanpa fallback (cleanup tetap jalan). pending.clearAll() dipanggil dari clearAll()
                            (restart / pagehide) -> semua pending ditutup tanpa fallback. pending.current(id)/has(id) untuk cek.
      open() dengan id sama menggantikan pending lama (yang lama di-cancel tanpa fallback). Timer memakai manajer ini (id 'pending:'+id)
      sehingga ikut ditahan saat tab hidden / Putar HP. */
@@ -27,7 +27,7 @@
   function blocked() {
     try {
       if (win.document && win.document.visibilityState === 'hidden') return true;
-      var ro = win.document && win.document.getElementById('ut-rotate'); /* overlay "Putar HP" (assets/js/landscape.js) */
+      var ro = win.document && win.document.getElementById('ut-rotate'); /* overlay "Putar HP" (src/boot/landscape.js) */
       return !!(ro && ro.classList && ro.classList.contains('on'));
     } catch (e) { return false; }
   }
@@ -99,3 +99,4 @@
   } catch (e) {}
   UT.GameplayAFK = { start: start, clear: clear, clearAll: clearAll, has: function (id) { return !!T[id]; }, remaining: remaining, held: sync, pending: pending };
 })(window);
+

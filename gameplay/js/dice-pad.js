@@ -1,5 +1,5 @@
-/* Dice Pad FX + Emote (visual saja). Tidak menyentuh hasil dadu / giliran / logika game.
-   - Tatakan dadu sekarang objek 3D Three.js di scene Dice Kit (assets/js/renderers/dice-kit/dice-renderer.js _buildPad), bukan SVG; file ini tinggal Emote.
+﻿/* Dice Pad FX + Emote (visual saja). Tidak menyentuh hasil dadu / giliran / logika game.
+   - Tatakan dadu sekarang objek 3D Three.js di scene Dice Kit (src/renderers/dice-kit/dice-renderer.js _buildPad), bukan SVG; file ini tinggal Emote.
    - Emote: tombol kiri bawah; memunculkan balon emoji dan mengirim CustomEvent 'ut:emote' (siap disambung ke multiplayer). */
 (function (win, doc) {
   'use strict';
@@ -35,3 +35,4 @@
   (win.UT = win.UT || {}).DicePadFX = { init: init };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init();
 })(window, document);
+

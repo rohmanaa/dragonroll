@@ -1,9 +1,9 @@
-/* Layar penuh / normal: Electron lewat electronAPI, web lewat Fullscreen API dokumen paling atas; tombol Pengaturan terhubung. */
+﻿/* Layar penuh / normal: Electron lewat electronAPI, web lewat Fullscreen API dokumen paling atas; tombol Pengaturan terhubung. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const DM = require('../assets/js/core/display-mode.js');
+const DM = require('../src/core/display-mode.js');
 let n = 0;
 async function t(name, fn) { await fn(); n++; console.log('ok -', name); }
 
@@ -70,10 +70,10 @@ const win = (d, extra) => Object.assign({ document: d, setTimeout: (f) => f(), a
     const h = rd('settings.html'), i = h.indexOf('pages/settings.js');
     assert(h.indexOf('core/display-mode.js') > 0 && h.indexOf('core/display-mode.js') < i);
     assert(h.indexOf('core/page-module.js') > 0 && h.indexOf('core/page-module.js') < i);
-    assert(!fs.existsSync(path.join(__dirname, '../assets/js/pages/settings-electron.js')));
+    assert(!fs.existsSync(path.join(__dirname, '../src/views/settings-electron.js')));
   });
   await t('settings.js: tombol tampilan memakai UT.Display; dibungkus PageModule; nav lewat UT.Spa.go; langganan dilepas', () => {
-    const js = rd('assets/js/pages/settings.js');
+    const js = rd('src/views/settings.js');
     assert(/UT\.PageModule\.define\('settings'/.test(js) && /\}\);\s*$/.test(js));
     assert(/UT\.Display/.test(js) && /D\.set\(want\)/.test(js) && /env\.own\(D\.on\(/.test(js));
     assert(/const go=u=>\{if\(UT\.Spa&&UT\.Spa\.go\)/.test(js));
@@ -82,9 +82,10 @@ const win = (d, extra) => Object.assign({ document: d, setTimeout: (f) => f(), a
     assert(!/window\.addEventListener/.test(js));
   });
   await t('settings terdaftar di spa-host, frame-guard, prefetch play.js', () => {
-    assert(/'settings\.html': 'settings'/.test(rd('assets/js/core/spa-host.js')));
-    assert(/mail\|settings[|)]/.test(rd('assets/js/frame-guard.js')));
-    assert(/'settings\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+    assert(/'settings\.html': 'settings'/.test(rd('src/core/spa-host.js')));
+    assert(/mail\|settings[|)]/.test(rd('src/boot/frame-guard.js')));
+    assert(/'settings\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+

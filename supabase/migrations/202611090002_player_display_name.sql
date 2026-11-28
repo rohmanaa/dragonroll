@@ -1,7 +1,7 @@
--- Nama tampilan di leaderboard/profil ditentukan SERVER, bukan nama kiriman klien.
+﻿-- Nama tampilan di leaderboard/profil ditentukan SERVER, bukan nama kiriman klien.
 -- Terapkan SETELAH 202611090001_player_progress.sql.
 --
--- Akun game dibuat dengan email internal <username-huruf-kecil>@dragonroll-game.com (lihat assets/js/auth.js).
+-- Akun game dibuat dengan email internal <username-huruf-kecil>@dragonroll-game.com (lihat src/services/auth.js).
 -- Email itu unik dan tidak bisa diubah pemain (tidak ada konfirmasi email), jadi dipakai sebagai sumber nama:
 --   * akun terdaftar : nama = username dari akun (huruf besar/kecil dari metadata dipakai hanya bila cocok dengan email)
 --   * pemain anonim  : nama dari klien, dibersihkan (karakter kontrol dibuang, spasi dirapikan, maks 24, kosong -> 'Player')
@@ -40,3 +40,4 @@ create trigger player_stats_enforce_name
 
 -- Rapikan baris yang sudah ada (memicu trigger di atas).
 update public.player_stats set name = name;
+

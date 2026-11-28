@@ -1,10 +1,10 @@
-/* Frame sebagai view SPA (tab Inventory tanpa iframe) + helper bar tab bersama UT.InvTabs.mountChrome. */
+﻿/* Frame sebagai view SPA (tab Inventory tanpa iframe) + helper bar tab bersama UT.InvTabs.mountChrome. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('data/inventory/frame/_shared/js/frame.js'), html = rd('frame.html'), host = rd('assets/js/core/spa-host.js');
-const InvTabs = require('../assets/js/core/inv-tabs.js');
+const js = rd('data/inventory/frame/_shared/js/frame.js'), html = rd('frame.html'), host = rd('src/core/spa-host.js');
+const InvTabs = require('../src/core/inv-tabs.js');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -30,8 +30,8 @@ t('frame.html: page-module.js + inv-tabs.js sebelum frame.js; CSS bar tab', () =
 });
 t('spa-host: frame.html = view; canon memetakan semua tab view; frame-guard & prefetch mengenal frame', () => {
   assert(/'frame\.html': 'frame'/.test(host) && /INV_VIEW_TABS = \{ frame: 'frame\.html', dadu: 'dadu\.html', efek: 'efek\.html', pet: 'pet\.html' \}/.test(host));
-  assert(/\|pet\|frame\|efek\|dadu\)\\\.html/.test(rd('assets/js/frame-guard.js')));
-  assert(/'frame\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/\|pet\|frame\|efek\|dadu\)\\\.html/.test(rd('src/boot/frame-guard.js')));
+  assert(/'frame\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
   assert.deepStrictEqual(InvTabs.VIEW_TABS, { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' });
 });
 t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 3 tab (Karakter/Dadu/Efek; Frame = modal di Profil), klik tab lain = buka halamannya; tab aktif diabaikan; tab terakhir Inventory tidak diingat; unmount melepas class', () => {
@@ -59,3 +59,4 @@ t('mountChrome (grup Perlengkapan): judul Perlengkapan, class inv-view, bar 3 ta
   delete global.document; delete global.sessionStorage;
 });
 console.log(n + ' tes lulus');
+

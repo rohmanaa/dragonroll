@@ -1,4 +1,4 @@
-/* Kategori Aura — metadata 15 Aura dari ItemRegistry; perilaku visual tetap di engine AuraFX bersama. */
+﻿/* Kategori Aura â€” metadata 15 Aura dari ItemRegistry; perilaku visual tetap di engine AuraFX bersama. */
 (function (root, factory) {
   var api = factory(typeof require === 'function' ? require : null);
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -12,7 +12,7 @@
     key: 'aura',
     kind: 'aura',
     label: 'Aura',
-    assets: { renderer: 'assets/js/renderers/aura-fx.js', view: 'assets/js/renderers/aura-view.js' }
+    assets: { renderer: 'src/renderers/aura-fx.js', view: 'src/renderers/aura-view.js' }
   };
 
   function manifests() {
@@ -49,3 +49,4 @@
 
   return { category: CATEGORY, keys: KEYS.slice(), manifests: manifests, register: register };
 });
+

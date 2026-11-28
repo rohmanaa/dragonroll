@@ -1,9 +1,9 @@
-/* mode (SPA tahap 3): modul halaman, id #view tidak bentrok dengan shell, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
+﻿/* mode (SPA tahap 3): modul halaman, id #view tidak bentrok dengan shell, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/mode.js'), html = rd('mode.html'), css = rd('src/styles/mode.css');
+const js = rd('src/views/mode.js'), html = rd('mode.html'), css = rd('src/styles/mode.css');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -49,13 +49,14 @@ t('mode.html memuat page-module.js sebelum mode.js; blok module Presence tetap u
   assert(/Presence\.start\(\{status:'lobby'\}\)/.test(html));
 });
 t('spa-host, frame-guard mengenal mode; app.js memulai Presence untuk halaman mode; play.js punya prefetch mode', () => {
-  assert(/'mode\.html': 'mode'/.test(rd('assets/js/core/spa-host.js')));
-  assert(/friendship\|shop\|mode[|)]/.test(rd('assets/js/frame-guard.js')));
-  assert(/'mail','mode'\]\.indexOf\(UT\.App\.page\)/.test(rd('assets/js/core/app.js')));
-  assert(/'mode\.html': \['gameplay\.html', 'room\.html', 'lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/'mode\.html': 'mode'/.test(rd('src/core/spa-host.js')));
+  assert(/friendship\|shop\|mode[|)]/.test(rd('src/boot/frame-guard.js')));
+  assert(/'mail','mode'\]\.indexOf\(UT\.App\.page\)/.test(rd('src/core/app.js')));
+  assert(/'mode\.html': \['gameplay\.html', 'room\.html', 'lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 t('play.js: hook leave shell memakai overlay "now" bila ut:nav-heavy disetel (peluncuran gameplay dari view)', () => {
-  const p = rd('assets/js/pages/play.js');
+  const p = rd('src/views/play.js');
   assert(/leave: function \(kind\) \{[\s\S]*?ut:nav-heavy[\s\S]*?removeItem\('ut:nav-heavy'\)[\s\S]*?\(kind === 'now' \|\| heavy\) \? 'now' : 'delay'/.test(p));
 });
 console.log(n + ' tes lulus');
+

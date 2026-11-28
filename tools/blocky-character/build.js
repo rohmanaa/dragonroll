@@ -1,10 +1,10 @@
-/* Jalankan dari akar repo: node tools/blocky-character/build.js
+﻿/* Jalankan dari akar repo: node tools/blocky-character/build.js
    template.js adalah source kanonis; asset runtime dihasilkan verbatim setelah validasi kontrak. */
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const SOURCE = path.join(__dirname, 'template.js');
-const TARGET = path.join(ROOT, 'assets', 'js', 'renderers', 'blocky-character.js');
+const TARGET = path.join(ROOT, 'src', 'renderers', 'blocky-character.js');
 const ACTIONS = ['spinball', 'toss', 'dribble', 'throw', 'mine', 'attack', 'bow', 'block', 'sad', 'cheer', 'wave', 'flip', 'backflip', 'spin', 'roll'];
 const API = [
   'createBaseRig:function',
@@ -36,7 +36,7 @@ function build(checkOnly) {
   validateSource(source);
   if (checkOnly) {
     const generated = fs.readFileSync(TARGET, 'utf8');
-    if (generated !== source) throw new Error('assets/js/renderers/blocky-character.js tidak sama dengan template kanonis');
+    if (generated !== source) throw new Error('src/renderers/blocky-character.js tidak sama dengan template kanonis');
     return { bytes: Buffer.byteLength(source), checked: true };
   }
   fs.writeFileSync(TARGET, source, 'utf8');
@@ -46,7 +46,7 @@ function build(checkOnly) {
 if (require.main === module) {
   try {
     const result = build(process.argv.includes('--check'));
-    console.log('assets/js/renderers/blocky-character.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
+    console.log('src/renderers/blocky-character.js', result.bytes, 'bytes', result.checked ? '(parity ok)' : '(generated)');
   } catch (error) {
     console.error('BlockyCharacter build failed:', error.message);
     process.exitCode = 1;
@@ -54,3 +54,4 @@ if (require.main === module) {
 }
 
 module.exports = { build, validateSource };
+

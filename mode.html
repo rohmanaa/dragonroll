@@ -1,7 +1,7 @@
 ﻿<!doctype html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/js/core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
@@ -77,28 +77,29 @@
 
 <div id="fade"></div>
 
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="assets/js/item-catalog.js"></script>
-<script src="assets/js/renderers/item-art.js"></script>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="src/stores/item-catalog.js"></script>
+<script src="src/renderers/item-art.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/services/wallet-service.js"></script>
-<script src="assets/js/services/hearts-service.js"></script>
-<script src="assets/js/hearts-gate.js"></script>
-<script src="assets/js/core/app.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/services/wallet-service.js"></script>
+<script src="src/services/hearts-service.js"></script>
+<script src="src/services/hearts-gate.js"></script>
+<script src="src/core/app.js"></script>
 <script src="src/components/ui-core.js"></script>
 <script src="src/components/plus-button/plus-button.js"></script>
 <script src="src/components/resource-bar/resource-bar.js"></script>
-<script src="assets/js/room-flow.js"></script>
-<script src="assets/js/core/live-sync.js"></script>
+<script src="src/multiplayer/room-flow.js"></script>
+<script src="src/core/live-sync.js"></script>
 <script>UT.App.init({page:'mode'});</script>
-<script src="assets/js/core/page-module.js"></script>
-<script src="assets/js/pages/mode.js"></script>
+<script src="src/core/page-module.js"></script>
+<script src="src/views/mode.js"></script>
 <script type="module">
-import './assets/js/multiplayer/room-service.js';
-import './assets/js/multiplayer/presence.js';
+import './src/multiplayer/room-service.js';
+import './src/multiplayer/presence.js';
 window.dispatchEvent(new Event('ut:multiplayer-ready'));
 window.UT.Multiplayer.Presence.start({status:'lobby'});
 </script>
-<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#mcancel"});}catch(e){}})();</script>
+<script src="src/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#mcancel"});}catch(e){}})();</script>
 </body></html>
+
 

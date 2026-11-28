@@ -1,4 +1,4 @@
-/* Shared head assets for non-gameplay pages. */
+﻿/* Shared head assets for non-gameplay pages. */
 window.UT = window.UT || {};
 
 (function (win, doc) {
@@ -67,9 +67,9 @@ window.UT = window.UT || {};
 
     UT.PageShell.render({
       sharedJs: [
-        enabled('frameGuard') ? 'assets/js/frame-guard.js' : null,
-        enabled('session') ? 'assets/js/core/session.js' : null,
-        enabled('bootGuard') ? 'assets/js/boot-guard.js' : null
+        enabled('frameGuard') ? 'src/boot/frame-guard.js' : null,
+        enabled('session') ? 'src/core/session.js' : null,
+        enabled('bootGuard') ? 'src/boot/boot-guard.js' : null
       ]
     });
     /* Font utama dimuat paralel dengan CSS (preload), bukan baru ditemukan setelah fonts.css diurai -> teks tidak sempat tampil dengan font cadangan. */
@@ -85,10 +85,11 @@ window.UT = window.UT || {};
     });
     UT.PageShell.render({
       sharedJs: [
-        enabled('prefs') ? 'assets/js/core/prefs.js' : null,
-        enabled('prefsSync') ? 'assets/js/core/prefs-sync.js' : null,
-        enabled('skeleton') ? 'assets/js/systems/skeleton.js' : null
+        enabled('prefs') ? 'src/core/prefs.js' : null,
+        enabled('prefsSync') ? 'src/core/prefs-sync.js' : null,
+        enabled('skeleton') ? 'src/systems/skeleton.js' : null
       ]
     });
   };
 })(window, document);
+

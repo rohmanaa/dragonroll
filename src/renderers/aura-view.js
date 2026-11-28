@@ -1,4 +1,4 @@
-/* assets/js/renderers/aura-view.js — memasang AURA yang sedang dipakai (item katalog kind 'aura', slot 'aura') pada karakter 3D di halaman mana pun.
+﻿/* src/renderers/aura-view.js â€” memasang AURA yang sedang dipakai (item katalog kind 'aura', slot 'aura') pada karakter 3D di halaman mana pun.
    Pembungkus tipis di atas UT.AuraFX (aura-fx.js) agar lobby, profil, dan gameplay tidak menyalin logika efek.html.
    Butuh (dimuat lebih dulu): three.min.js, item-catalog.js, player-data.js, aura-fx.js. Semua fungsi aman dipanggil bila modul/WebGL tidak ada (tidak error, aura saja yang tak tampil).
    API:
@@ -74,3 +74,4 @@
 
   UT.AuraView = { equippedKey: equippedKey, keyFromEquipped: keyFromEquipped, quality: quality, create: create };
 })(window);
+

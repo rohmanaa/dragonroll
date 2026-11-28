@@ -1,10 +1,10 @@
-/* Tes Tahap 6e: UT.Session = satu pintu ke cache sesi login. Jalankan: node tests/session.test.js */
+﻿/* Tes Tahap 6e: UT.Session = satu pintu ke cache sesi login. Jalankan: node tests/session.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 function boot(store) {
   store = Object.assign({}, store || {});
   const ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { localStorage: ls }; w.window = w;
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js/core/session.js'), 'utf8'), vm.createContext(w));
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/core/session.js'), 'utf8'), vm.createContext(w));
   return { S: w.UT.Session, store };
 }
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -33,3 +33,4 @@ t('dimuat dua kali tidak menimpa objek Session', () => {
   const { S } = boot({}); assert.strictEqual(typeof S.read, 'function');
 });
 console.log(n + ' tes lulus');
+

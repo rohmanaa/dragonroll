@@ -1,4 +1,4 @@
-/* room.js — dipindah dari blok script inline (room.html). Tahap 3 SPA: dibungkus UT.PageModule ('room'); halaman mandiri otomatis mount,
+﻿/* room.js â€” dipindah dari blok script inline (room.html). Tahap 3 SPA: dibungkus UT.PageModule ('room'); halaman mandiri otomatis mount,
    unmount() melepas timer, listener, langganan room (realtime), Presence, LiveSync, dan kelas html (dro, mp-online). Callback async dijaga env.disposed. */
 UT.PageModule.define('room',function(env){
 const {setTimeout,clearTimeout,addEventListener}=env;
@@ -20,7 +20,7 @@ const COUNT=ONLINE?4:Math.min(4,Math.max(2,parseInt(q.get('count'),10)||2));
 let HOST=!(ONLINE&&q.get('role')==='guest');
 const jc=(q.get('code')||'').toUpperCase(),JOIN=(!HOST&&/^[A-Z0-9]{6,8}$/.test(jc))?jc:null;
 const MAP=RF.getMap(),TILES=100;
-const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Room • Team':'Create Room • Solo'};
+const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Room â€¢ Team':'Create Room â€¢ Solo'};
 const cap=()=>ONLINE?((S.room&&S.room.max)||(TEAM?4:2)):COUNT;
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>PD.levelInfo().level; /* satu rumus dengan profil (PlayerData.levelInfo) */
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
@@ -43,11 +43,11 @@ function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=n
 function renderRoomHeader(){
  document.documentElement.classList.toggle('mp-online',ONLINE);if(ONLINE)env.own(()=>document.documentElement.classList.remove('mp-online'));
  const t=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
- $('#chips').innerHTML=`<span class="chip">${t}</span><span class="chip">${esc(MAP?MAP.name.replace(/^Map /,''):'-')}</span><span class="chip">${cap()} pemain</span>`+(ONLINE?`<span class="chip on">● ${HOST?'HOST':'TAMU'}</span>`:'<span class="chip">OFFLINE</span>');
+ $('#chips').innerHTML=`<span class="chip">${t}</span><span class="chip">${esc(MAP?MAP.name.replace(/^Map /,''):'-')}</span><span class="chip">${cap()} pemain</span>`+(ONLINE?`<span class="chip on">â— ${HOST?'HOST':'TAMU'}</span>`:'<span class="chip">OFFLINE</span>');
  $('#invB').hidden=!(ONLINE&&HOST);$('#invD').hidden=!(ONLINE&&HOST);
  const code=S.room.code||'------';
  $('#codeV').hidden=!ONLINE;$('#cp1').hidden=!ONLINE;
- $('#codeLbl').textContent=ONLINE?'KODE ROOM':(MODE==='vsc'?'Lawan bot — bot otomatis siap':'Satu perangkat, bermain bergantian');
+ $('#codeLbl').textContent=ONLINE?'KODE ROOM':(MODE==='vsc'?'Lawan bot â€” bot otomatis siap':'Satu perangkat, bermain bergantian');
  $('#codeV').textContent=code;$('#icode').textContent='Kode: '+code;
 }
 function applyRemoteRoom(row){
@@ -89,13 +89,13 @@ function skinArt(it){if(window.UT&&UT.CharacterFace){const h=UT.CharacterFace.ht
 function loadFace(){
  /* skrip yang sudah ada di dokumen (shell: three.min.js dari Lobby/Karakter) TIDAK dimuat ulang */
  const L=u=>new Promise(r=>{const abs=new URL(u,document.baseURI).href;if(Array.prototype.some.call(document.scripts,x=>x.src===abs))return r();const e=document.createElement('script');e.src=u;e.onload=e.onerror=()=>r();document.head.appendChild(e)});
- return L('assets/js/vendor/three.min.js').then(()=>env.disposed||L('assets/js/renderers/blocky-character.js')).then(()=>env.disposed||L('assets/js/renderers/character-face.js')).then(()=>{if(env.disposed)return;FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)env.own(UT.CharacterFace.watch(()=>{renderEq();renderPlayers()}))})}
+ return L('src/vendor/three.min.js').then(()=>env.disposed||L('src/renderers/blocky-character.js')).then(()=>env.disposed||L('src/renderers/character-face.js')).then(()=>{if(env.disposed)return;FACE_DONE=true;renderEq();renderPlayers();loadLooks();try{if(root.classList.contains('dro'))renderDrawer()}catch(e){}if(UT.CharacterFace)env.own(UT.CharacterFace.watch(()=>{renderEq();renderPlayers()}))})}
 function skinGo(){if(ONLINE){toast('Ubah karakter lewat menu Karakter di lobby sebelum masuk room.');return}leave('karakter.html')}
 function renderEq(){
  $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?IC.byId(PD.equippedId('aura')):eqItem(k);
   const ar=k==='effect'?(it?eqArt(it):`<img src="${EFFECT_ICON}" alt="" draggable="false">`):k==='skin'?skinArt(it):(it?art(it):'');
   const nm=k==='effect'?(it?esc(it.name.replace(/ Aura$/,'')):'Tanpa'):k==='skin'?'Kustom':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-');
-  return `<button class="slot" data-k="${k}" aria-label="Ganti ${l}"><span class="chg">✎</span><div class="k">${l}</div><span class="art">${ar}</span><div class="v">${nm}</div></button>`}).join('');
+  return `<button class="slot" data-k="${k}" aria-label="Ganti ${l}"><span class="chg">âœŽ</span><div class="k">${l}</div><span class="art">${ar}</span><div class="v">${nm}</div></button>`}).join('');
 }
 const PAGE_VIEWS={dice:['dadu.html','Dadu'],skin:['karakter.html','Karakter'],frame:['frame.html','Frame'],effect:['efek.html','Efek'],power:['powerup.html','Power-up']};
 let pageTrigger=null;
@@ -128,7 +128,7 @@ function renderEqPick(){
   const list=IC.items.filter(i=>i.kind===c.kind&&!i.off&&PD.owns(i.id));
   const none=c.none?`<button type="button" class="it${PD.equippedId('aura')?'':' sel'}" data-id="__none" aria-pressed="${!PD.equippedId('aura')}"><span class="art"><img src="${EFFECT_ICON}" alt="" draggable="false"></span><div class="n">Tanpa Efek</div>${PD.equippedId('aura')?'':'<div class="u">DIPASANG</div>'}</button>`:'';
   $('#emL').innerHTML=none+list.map(i=>{const on=PD.isEquipped(i.id);return `<button type="button" class="it${on?' sel':''}" data-id="${esc(i.id)}" aria-pressed="${on}"><span class="art">${eqArt(i)}</span><div class="n">${esc(i.name)}</div>${on?'<div class="u">DIPASANG</div>':''}</button>`}).join('')||'<p class="empty">Belum ada item yang dimiliki.</p>';
-  $('#emHint').textContent=list.length+' item dimiliki · ketuk untuk memakai';
+  $('#emHint').textContent=list.length+' item dimiliki Â· ketuk untuk memakai';
 }
 function openEqPick(k){const c=EQP[k];if(!c)return;eqPick=k;$('#emT').textContent=c.title;renderEqPick();fwOpen('#em')}
 function closeEqPick(){if(!eqPick)return;eqPick=null;fwClose('#em');renderEq();if(ONLINE)publishProfile()}
@@ -162,13 +162,13 @@ function fitP(){ /* Power tidak otomatis dimiliki: lepas yang stoknya 0, dan dib
 function renderPower(){
  fitP();
  const units=PW.equipped.reduce((n,id)=>n+(PW.carry[id]||1),0);
- $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS · '+units+' UNIT';
+ $('#pcnt').textContent=PW.equipped.length+' / '+TMAX+' JENIS Â· '+units+' UNIT';
  $('#prow').innerHTML=Array.from({length:TMAX},(_,i)=>{
   const id=PW.equipped[i],p=id&&IC.byId(id);
-  return p?`<div class="ps full"><button type="button" class="ps-main ut-slot" data-slot="${i}" aria-label="Ganti ${esc(p.name)} — dibawa ×${PW.carry[id]||1}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="chip-n">${PW.carry[id]||1}</span></button><button type="button" class="x ut-gl ut-c-r sm" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">×</button></div>`
+  return p?`<div class="ps full"><button type="button" class="ps-main ut-slot" data-slot="${i}" aria-label="Ganti ${esc(p.name)} â€” dibawa Ã—${PW.carry[id]||1}"><img src="${esc(p.icon)}" alt="" draggable="false"><span class="chip-n">${PW.carry[id]||1}</span></button><button type="button" class="x ut-gl ut-c-r sm" data-remove="${i}" aria-label="Hapus ${esc(p.name)}">Ã—</button></div>`
    :`<div class="ps"><button type="button" class="ps-main ut-slot add" data-slot="${i}" aria-label="Pilih Power"><b>+</b></button></div>`;
  }).join('');
- $('#pinfo').textContent=ONLINE?'Mode online: pilihan Power tidak dikirim ke room.':(PW.equipped.length?PW.equipped.map(id=>(IC.byId(id)||{}).name).filter(Boolean).join(' · '):'Pilih hingga '+TMAX+' Power untuk dibawa.');
+ $('#pinfo').textContent=ONLINE?'Mode online: pilihan Power tidak dikirim ke room.':(PW.equipped.length?PW.equipped.map(id=>(IC.byId(id)||{}).name).filter(Boolean).join(' Â· '):'Pilih hingga '+TMAX+' Power untuk dibawa.');
 }
 $('#prow').onclick=e=>{
  const remove=e.target.closest('[data-remove]');
@@ -185,13 +185,13 @@ function renderPowerPick(){
   powerDraft.equipped.forEach(id=>{const max=carryMax(id);powerDraft.carry[id]=Math.max(1,Math.min(powerDraft.carry[id]||1,max))});
  }
  const units=powerDraft.equipped.reduce((n,id)=>n+(powerDraft.carry[id]||1),0);
- $('#pmHint').textContent='Dipilih '+powerDraft.equipped.length+'/'+TMAX+' jenis · '+units+' unit'+(ONLINE?' · Tidak dikirim dalam mode online':'');
+ $('#pmHint').textContent='Dipilih '+powerDraft.equipped.length+'/'+TMAX+' jenis Â· '+units+' unit'+(ONLINE?' Â· Tidak dikirim dalam mode online':'');
  $('#pmL').innerHTML=POWERS.map(p=>{
   const on=powerDraft.equipped.includes(p.id),ok=pOk(p.id),mn=IC.powerMapNote(p.id),st=stockOf(p.id),cy=powerDraft.carry[p.id]||1,none=invReady()&&st<=0,max=carryMax(p.id);
-  const state=on?'<div class="pstate installed">DIPASANG</div>':st>0?`<div class="pstate owned">DIMILIKI ×${st}</div>`:canBuyPower(p)?`<div class="pstate" data-buy="1">${PCOIN}${fmtPrice(p.price)}</div>`:'<div class="pstate zero">TIDAK DIJUAL</div>';
-  const info=on&&CMAX<=1?`<div class="pin">Dibawa ×1 · Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" class="ut-gl ut-c-d sm" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>−</button><b>×${cy}</b><button type="button" class="ut-gl ut-c-d sm" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:'';
+  const state=on?'<div class="pstate installed">DIPASANG</div>':st>0?`<div class="pstate owned">DIMILIKI Ã—${st}</div>`:canBuyPower(p)?`<div class="pstate" data-buy="1">${PCOIN}${fmtPrice(p.price)}</div>`:'<div class="pstate zero">TIDAK DIJUAL</div>';
+  const info=on&&CMAX<=1?`<div class="pin">Dibawa Ã—1 Â· Sisa ${Math.max(0,st-1)} di Inventory</div>`:on?`<div class="pst"><button type="button" class="ut-gl ut-c-d sm" data-d="-1" aria-label="Kurangi yang dibawa" ${cy<=1?'disabled':''}>âˆ’</button><b>Ã—${cy}</b><button type="button" class="ut-gl ut-c-d sm" data-d="1" aria-label="Tambah yang dibawa" ${cy>=max?'disabled':''}>+</button></div><div class="pin">Sisa ${Math.max(0,st-cy)} di Inventory</div>`:'';
   const fx=UT.PowerFX&&UT.PowerFX.DATA[p.gameKey];
-  return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' — '+(on?'dipasang':st?'dimiliki '+st:canBuyPower(p)?'beli '+fmtPrice(p.price):'tidak dijual')+(mn?' — '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' — '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">✓</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${state}${info}</div>`;
+  return `<div class="pc it ${on?'sel':''}${ok&&!none?'':' dis'}" data-id="${esc(p.id)}" role="checkbox" tabindex="${ok&&!none?0:-1}" aria-checked="${on}" aria-disabled="${!ok||none}" aria-label="${esc(p.name+' â€” '+(on?'dipasang':st?'dimiliki '+st:canBuyPower(p)?'beli '+fmtPrice(p.price):'tidak dijual')+(mn?' â€” '+mn:''))}" title="${esc(p.name+(mn?' ['+mn+']':'')+' â€” '+p.desc+(fx?' Efek: '+fx.note+'.':''))}"><span class="ck">âœ“</span><img src="${esc(p.icon)}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div>${mn?`<div class="pmn">${esc(mn)}</div>`:''}${state}${info}</div>`;
  }).join('');
 }
 function openPowerPick(){powerDraft={equipped:PW.equipped.slice(),carry:Object.assign({},PW.carry)};renderPowerPick();fwOpen('#pm')}
@@ -206,7 +206,7 @@ $('#pmL').onclick=e=>{
   if(d>0&&cur>=max)return toast(stockOf(id)<=cur?'Stok '+(pi?pi.name:'Power')+' hanya '+stockOf(id):'Maksimal '+CMAX+' unit per jenis untuk satu pertandingan');
   powerDraft.carry[id]=Math.max(1,Math.min(max,cur+d));renderPowerPick();return;
  }
- if(!pOk(id))return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' — tidak bisa dibawa ke map '+IC.mapName(MAPKEY));
+ if(!pOk(id))return toast((pi?pi.name:'Power')+': '+IC.powerMapNote(id)+' â€” tidak bisa dibawa ke map '+IC.mapName(MAPKEY));
  if(powerDraft.equipped.includes(id)){powerDraft.equipped=powerDraft.equipped.filter(x=>x!==id);delete powerDraft.carry[id]}
  else{
   if(invReady()&&stockOf(id)<=0)return toast((pi?pi.name:'Power')+': stok 0. Beli dulu di halaman Power-up');
@@ -263,15 +263,15 @@ const CROWN='<svg viewBox="0 0 24 24" aria-label="Host"><path d="M3 18.5h18l1-11
 function prow(p,i){const meId=S.mpIdentity&&S.mpIdentity.id||'me',isMe=p.id===meId,isHost=p.kind==='host',
  fr=new Set((S.friends||[]).map(f=>f.friend_id)),showAdd=ONLINE&&!isMe&&p.kind!=='bot'&&!fr.has(p.id),sent=!!S.reqSent[p.id],
  kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal',player:'Pemain'}[p.kind]||'',
- sub=ONLINE?'':`<div class="sb">Lv ${p.level} • ${kind}</div>`,
+ sub=ONLINE?'':`<div class="sb">Lv ${p.level} â€¢ ${kind}</div>`,
  bd=isHost?`<span class="badge host">${CROWN}HOST</span>`:p.kind==='bot'?'<span class="badge bot">BOT</span>':'',
  st=p.ready?'<span class="badge rdy">READY</span>':'<span class="badge wait">BELUM</span>',
- mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv ut-gl ut-c-d sm" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'',
- add=showAdd?`<button class="af ut-gl sm ${sent?'ut-c-d sent':'ut-c-b'}" data-af="${esc(p.id)}" data-nm="${esc(p.name)}" ${sent?'disabled':''} aria-label="Add Friend">${sent?'✓ Terkirim':'＋ Teman'}</button>`:'';
+ mv=(TEAM&&HOST&&!ONLINE)?`<button class="mv ut-gl ut-c-d sm" data-mv="${p.id}" aria-label="Pindah tim">â‡„</button>`:'',
+ add=showAdd?`<button class="af ut-gl sm ${sent?'ut-c-d sent':'ut-c-b'}" data-af="${esc(p.id)}" data-nm="${esc(p.name)}" ${sent?'disabled':''} aria-label="Add Friend">${sent?'âœ“ Terkirim':'ï¼‹ Teman'}</button>`:'';
  return `<div class="pl ${isMe?'me':''}">${avatar(p)}<div><div class="nm ttl">${esc(p.name)}${isMe?' (Kamu)':''}</div>${sub}</div><div class="grow"></div>${mv}${add}${bd}${st}</div>`}
 function srow(team){if(!ONLINE)return'';
  if(!HOST)return `<div class="pl empty">Slot kosong</div>`;
- return `<button class="pl empty" data-share="1">＋ UNDANG TEMAN</button>`}
+ return `<button class="pl empty" data-share="1">ï¼‹ UNDANG TEMAN</button>`}
 /* slot terkunci: online -> sentuh untuk membuka (host); offline -> hanya penanda terkunci */
 function lrow(){const lk='<img src="assets/images/ui/white-glyphs/gembok.webp" alt="" draggable="false">';
  if(ONLINE)return `<button class="pl empty lock" data-open="1" aria-label="Sentuh untuk membuka">${lk}<span>SLOT TERKUNCI</span><b>${HOST?'BUKA':'HOST'}</b></button>`;
@@ -303,8 +303,8 @@ function check(){const P=S.room.players,h=me();
  if(ONLINE){if(TEAM){if(P.length<4)return{ok:false,msg:`Butuh ${4-P.length} pemain lagi untuk 2 vs 2`};if(P.filter(p=>p.team===1).length!==2)return{ok:false,msg:'Atur tim menjadi 2 vs 2'}}else if(P.length<2)return{ok:false,msg:'Butuh minimal 2 pemain'}}
  if(!h.ready)return{ok:false,msg:'Tekan READY untuk bersiap'};
  const n=P.filter(p=>!p.ready).length;if(n)return{ok:false,msg:`Menunggu ${n} pemain Ready`};
- return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
-function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textContent=(c.ok?'✅ ':'⏳ ')+c.msg;
+ return{ok:true,msg:HOST?'Semua siap â€” tekan START GAME!':'Menunggu host memulai'}}
+function renderBottom(){const c=check(),h=me()||{ready:false};$('#why').textContent=(c.ok?'âœ… ':'â³ ')+c.msg;
  const rb=$('#rdy');rb.querySelector('span').textContent=h.ready?'BATAL READY':'READY';rb.classList.toggle('ut-c-g',!h.ready);rb.classList.toggle('ut-c-d',!!h.ready);
  const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
@@ -347,7 +347,7 @@ async function loadDrawerLooks(ids){try{const AS=window.UT&&UT.AppearanceService
  const r=await AS.usersAppearance(need);
  if(r&&r.ok){need.forEach(i=>{S.dApp[String(i).toLowerCase()]=r.byId[String(i).toLowerCase()]||EMPTY_LOOK});if(root.classList.contains('dro'))renderDrawer()}else need.forEach(i=>{delete S.dTry[i]})}catch(e){}}
 function drow(id,name,status,isFriend,left){const can=status==='lobby'&&left>0,sent=!!S.sent[id];
- return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv ut-gl ut-c-b" data-add="${esc(id)}" data-nm="${esc(name)}"><span>＋ TEMAN</span></button>`}<button class="btn inv ut-gl ${sent?'ut-c-p sent':'ut-c-g'}" data-pinv="${esc(id)}" ${can?'':'disabled'}><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
+ return `<div class="fr">${drAvatar(id,name)}<div class="grow">${esc(name)}<small class="${status==='lobby'?'on_':'wt_'}">${STL[status]||''}</small></div>${isFriend?'':`<button class="btn inv ut-gl ut-c-b" data-add="${esc(id)}" data-nm="${esc(name)}"><span>ï¼‹ TEMAN</span></button>`}<button class="btn inv ut-gl ${sent?'ut-c-p sent':'ut-c-g'}" data-pinv="${esc(id)}" ${can?'':'disabled'}><span>${status!=='lobby'?'SIBUK':sent?'KIRIM LAGI':'UNDANG'}</span></button></div>`}
 /* nama teman: pakai nama live dari presence bila bukan placeholder tamu ('Player' / 'Player-XXXX'); salinan friend_name bisa usang */
 const isPh=n=>/^Player(-[0-9A-F]{4})?$/i.test(String(n||'').trim());
 function friendName(p,fr){const f=(fr.find(x=>x.friend_id===p.id)||{}).friend_name;return !isPh(p.name)?p.name:(f||p.name)}
@@ -397,3 +397,4 @@ addEventListener('resize',fit);fit();
 try{if(PD.serverMode&&PD.serverMode()&&UT.WalletService&&UT.WalletService.get()){UT.WalletService.get().refresh();if(UT.LiveSync){UT.LiveSync.add('wallet',()=>{if(!env.disposed)UT.WalletService.get().refresh()});UT.LiveSync.start({interval:20000});env.own(()=>{try{UT.LiveSync.remove('wallet');UT.LiveSync.stop()}catch(e){}})}}}catch(e){}
 document.documentElement.classList.add('ut-ready');
 });
+

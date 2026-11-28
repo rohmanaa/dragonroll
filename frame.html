@@ -1,13 +1,13 @@
 ﻿<!doctype html>
-<html lang="id"><head><script src="assets/js/room-modal-bridge.js"></script><script src="assets/js/inventory-bridge.js"></script><meta charset="utf-8">
+<html lang="id"><head><script src="src/multiplayer/room-modal-bridge.js"></script><script src="src/stores/inventory-bridge.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/js/core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <title>Dragon Roll â€” Frame</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
 <link rel="stylesheet" href="src/styles/page.css"><link rel="stylesheet" href="src/components/button/button.css"><link rel="stylesheet" href="src/components/tabs/tabs.css"><link rel="stylesheet" href="src/components/modal/modal-kit.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame.css"><link rel="stylesheet" href="data/inventory/frame/_shared/css/frame-page.css?v=211"><link rel="stylesheet" href="src/styles/bg.css"><link rel="stylesheet" href="src/styles/inv-tabbar.css">
-<script src="assets/js/systems/ambience.js"></script>
+<script src="src/systems/ambience.js"></script>
 </head>
 <body class="fm notabs">
 <div id="wrap"><div id="stage">
@@ -40,21 +40,22 @@
   <div id="toast"></div>
 </div></div>
 <div id="fade"></div>
-<script src="assets/js/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="assets/js/item-catalog.js"></script>
+<script src="src/core/item-registry.js"></script><script src="data/inventory/frame/default/manifest.js"></script><script src="data/inventory/frame/stone/manifest.js"></script><script src="data/inventory/frame/copper/manifest.js"></script><script src="data/inventory/frame/iron/manifest.js"></script><script src="data/inventory/frame/gold/manifest.js"></script><script src="data/inventory/frame/diamond/manifest.js"></script><script src="data/inventory/frame/amethyst/manifest.js"></script><script src="data/inventory/frame/nether/manifest.js"></script><script src="data/inventory/frame/ender/manifest.js"></script><script src="data/inventory/frame/storm/manifest.js"></script><script src="data/inventory/frame/dragon/manifest.js"></script><script src="data/inventory/frame/phoenix/manifest.js"></script><script src="data/inventory/frame/celestial/manifest.js"></script><script src="data/inventory/frame/cosmic/manifest.js"></script><script src="data/inventory/frame/nagaapi/manifest.js"></script><script src="data/inventory/frame/batutua/manifest.js"></script><script src="data/inventory/frame/perunggu/manifest.js"></script><script src="data/inventory/frame/tembagaukir/manifest.js"></script><script src="data/inventory/frame/peraksayap/manifest.js"></script><script src="data/inventory/frame/emasrubi/manifest.js"></script><script src="data/inventory/frame/kristalsafir/manifest.js"></script><script src="data/inventory/frame/zamrudrambat/manifest.js"></script><script src="data/inventory/frame/rubikerajaan/manifest.js"></script><script src="data/inventory/frame/batusenja/manifest.js"></script><script src="data/inventory/frame/bintangsafir/manifest.js"></script><script src="data/inventory/frame/hutanzamrud/manifest.js"></script><script src="data/inventory/frame/mahkotarubi/manifest.js"></script><script src="data/inventory/frame/bayanganender/manifest.js"></script><script src="data/inventory/frame/sayapsurgawi/manifest.js"></script><script src="data/inventory/frame/index.js"></script><script src="src/stores/item-catalog.js"></script>
 <script src="data/inventory/character/_shared/js/character-data.js"></script>
-<script src="assets/js/renderers/item-art.js"></script>
+<script src="src/renderers/item-art.js"></script>
 <script src="data/inventory/frame/_shared/js/frame-fx.js"></script>
-<script src="assets/js/player-data.js"></script>
-<script src="assets/js/services/wallet-service.js"></script>
-<script src="assets/js/core/app.js"></script>
-<script src="assets/js/core/page-module.js"></script>
-<script src="assets/js/core/inv-tabs.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/services/wallet-service.js"></script>
+<script src="src/core/app.js"></script>
+<script src="src/core/page-module.js"></script>
+<script src="src/core/inv-tabs.js"></script>
 <script src="src/components/ui-core.js"></script>
 <script src="src/components/plus-button/plus-button.js"></script>
 <script src="src/components/resource-bar/resource-bar.js"></script>
-<script src="assets/js/core/live-sync.js"></script>
+<script src="src/core/live-sync.js"></script>
 <script>UT.App.init({page:'frame'});</script>
 <script src="data/inventory/frame/_shared/js/frame.js"></script>
-<script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-ok"});}catch(e){}})();</script>
+<script src="src/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("md");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"mt",initialFocus:"#m-ok"});}catch(e){}})();</script>
 </body></html>
+
 

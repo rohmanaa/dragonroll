@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Move assets from mapping.json and rewrite only affected path references."""
 
 import argparse
@@ -246,8 +246,8 @@ def refresh_mapping(data):
     held_prefixes = (
         ("data/inventory/dice/", "dice category held until gameplay"),
         ("data/inventory/frame/", "frame category held until gameplay"),
-        ("assets/js/renderers/dice-kit/", "dice kit held until gameplay"),
-        ("assets/js/renderers/power3d/", "power3d kit held until gameplay"),
+        ("src/renderers/dice-kit/", "dice kit held until gameplay"),
+        ("src/renderers/power3d/", "power3d kit held until gameplay"),
     )
     for source, record in inventory.items():
         for prefix, reason in held_prefixes:
@@ -286,35 +286,35 @@ def refresh_mapping(data):
         {
             "old": "assets/sfx/",
             "new": "assets/audio/sfx/",
-            "referrer": "assets/js/core/app.js",
+            "referrer": "src/core/app.js",
             "phase": 1,
             "reason": "Shared audio base; the gameplay-only defeat sound uses a relative exception.",
         },
     ]
     data["dynamic_rewrites"] = [
         {
-            "referrer": "assets/js/core/app.js",
+            "referrer": "src/core/app.js",
             "old": "kalah: 'ui/game-lose.mp3'",
             "new": "kalah: '../../sfx/ui/game-lose.mp3'",
             "phase": 1,
             "reason": "Retain the frozen gameplay audio file after moving the shared SFX base.",
         },
         {
-            "referrer": "assets/js/pages/room.js",
+            "referrer": "src/views/room.js",
             "old": "assets/ng/komponen/tombol-dan-kontrol/",
             "new": "assets/images/tombol/",
             "phase": 1,
             "reason": "Room button images are assembled dynamically.",
         },
         {
-            "referrer": "assets/js/pages/room.js",
+            "referrer": "src/views/room.js",
             "old": "assets/images/tombol/tombol-biru-polos.webp",
             "new": "assets/images/tombol/../../ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp",
             "phase": 1,
             "reason": "The blue invite button remains frozen with Gameplay.",
         },
         {
-            "referrer": "assets/js/pages/room.js",
+            "referrer": "src/views/room.js",
             "old": "'tombol-hijau-polos'",
             "new": "'../../ng/komponen/tombol-dan-kontrol/tombol-hijau-polos'",
             "phase": 1,
@@ -322,8 +322,8 @@ def refresh_mapping(data):
         },
     ] + [
         {
-            "referrer": "assets/js/pages/{}.js".format(page),
-            "old": "../../../assets/js/pages/",
+            "referrer": "src/views/{}.js".format(page),
+            "old": "../../../src/views/",
             "new": "",
             "phase": 2,
             "reason": "Navigation page URLs resolve from the document, not the moved script.",
@@ -331,14 +331,14 @@ def refresh_mapping(data):
         for page in ("lobby", "frame", "powerup")
     ] + [
         {
-            "referrer": "assets/js/pages/pet-page.js",
+            "referrer": "src/views/pet-page.js",
             "old": "const ITEM_ROOT = 'assets/ng/komponen/';",
             "new": "const ITEM_ROOT = 'assets/images/ui/';",
             "phase": 3,
             "reason": "The Pet currency icon uses a dynamic shared-image prefix.",
         },
         {
-            "referrer": "assets/js/pages/pet-page.js",
+            "referrer": "src/views/pet-page.js",
             "old": "'hud/ikon-koin-emas.webp'",
             "new": "'../../ng/komponen/hud/ikon-koin-emas.webp'",
             "phase": 3,
@@ -346,7 +346,7 @@ def refresh_mapping(data):
         },
     ] + [
         {
-            "referrer": "assets/js/pages/{}.js".format(page),
+            "referrer": "src/views/{}.js".format(page),
             "old": "assets/ng/komponen/",
             "new": "assets/images/ui/",
             "phase": 1,
@@ -571,7 +571,7 @@ def check_references(data):
         current = indexed_by_case.get(physical_path.lower(), physical_path)
         if Path(current).suffix.lower() not in {".html", ".css", ".js", ".mjs"}:
             continue
-        if current.startswith(("tests/", "tools/", "assets/js/vendor/")):
+        if current.startswith(("tests/", "tools/", "src/vendor/")):
             continue
         path = ROOT / Path(physical_path)
         if not path.is_file():
@@ -678,3 +678,4 @@ if __name__ == "__main__":
     except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
         print("ERROR: {}".format(error), file=sys.stderr)
         sys.exit(1)
+

@@ -1,5 +1,5 @@
-/* Kategori Frame (pilot Stage 2) — mendaftarkan kategori + 29 manifest ke ItemRegistry.
-   Urutan KEYS = urutan di ItemCatalog (assets/js/item-catalog.js). Satu item = satu folder (nama folder = gameKey).
+﻿/* Kategori Frame (pilot Stage 2) â€” mendaftarkan kategori + 29 manifest ke ItemRegistry.
+   Urutan KEYS = urutan di ItemCatalog (src/stores/item-catalog.js). Satu item = satu folder (nama folder = gameKey).
    Asset TIDAK dipindah: manifest merujuk path existing di data/frame/ (aset & renderer frame-fx.js tidak berubah).
    Halaman yang memuat rantai ini mengadopsi metadata lewat ItemCatalog; fallback legacy tetap tersedia.
    Node : require('data/inventory/frame/index.js').register(registry)
@@ -37,3 +37,4 @@
 
   return { category: CATEGORY, keys: KEYS.slice(), manifests: manifests, register: register };
 });
+

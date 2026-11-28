@@ -1,11 +1,11 @@
-/* Pet sebagai view SPA (tab Inventory tanpa iframe): modul 'pet' + 'pet-viewer', bar tab bersama, routing inventory?tab=pet -> view pet. */
+﻿/* Pet sebagai view SPA (tab Inventory tanpa iframe): modul 'pet' + 'pet-viewer', bar tab bersama, routing inventory?tab=pet -> view pet. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 const page = rd('data/inventory/pet/_shared/js/pet-page.js'), viewer = rd('data/inventory/pet/_shared/js/pet-viewer.js');
-const html = rd('pet.html'), inv = rd('assets/js/pages/inventory.js'), host = rd('assets/js/core/spa-host.js');
-const InvTabs = require('../assets/js/core/inv-tabs.js');
+const html = rd('pet.html'), inv = rd('src/views/inventory.js'), host = rd('src/core/spa-host.js');
+const InvTabs = require('../src/core/inv-tabs.js');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -57,3 +57,4 @@ t('CSS: bar tab dan mode view hanya aktif lewat #invtabs / body.inv-view (tidak 
   assert(sel.every(s => /#invtabs|body\.inv-view/.test(s)), sel.join(' | '));
 });
 console.log(n + ' tes lulus');
+

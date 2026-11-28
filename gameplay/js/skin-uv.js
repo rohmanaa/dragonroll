@@ -1,8 +1,8 @@
-/* Ular Tangga Blok — gameplay/js/skin-uv.js (Stage 4.1.14.9: PNG skin 64x64 -> UV box Minecraft)
+﻿/* Ular Tangga Blok â€” gameplay/js/skin-uv.js (Stage 4.1.14.9: PNG skin 64x64 -> UV box Minecraft)
    Skrip klasik (tanpa import/export/type=module). Dimuat SEBELUM blok skrip gameplay.
    Isi: matematika UV murni + (CP2) perakit model 3D bertekstur. TANPA rnd(), TANPA state gameplay,
    TANPA mengubah aset PNG. Palette renderer lama di gameplay.html tetap fallback.
-   Tata letak = skin Minecraft modern 64x64 (sama dengan crop di assets/js/renderers/item-art.js):
+   Tata letak = skin Minecraft modern 64x64 (sama dengan crop di src/renderers/item-art.js):
      kepala  (0,0)  overlay (32,0)     badan   (16,16) overlay (16,32)
      lengan kanan (40,16) overlay (40,32)   lengan kiri (32,48) overlay (48,48)
      kaki kanan   (0,16)  overlay (0,32)    kaki kiri   (16,48) overlay (0,48)
@@ -91,3 +91,4 @@
 
   UT.GameplaySkin = { TEX: TEX, FACE_ORDER: FACE_ORDER, boxUV: boxUV, parts: parts, applyBoxUV: applyBoxUV, detectSlim: detectSlim, buildModel: buildModel };
 })(window);
+

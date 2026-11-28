@@ -1,9 +1,9 @@
-/* Dadu sebagai view SPA: modul 'dadu'; DiceKit memakai renderer bersama (sharedGL:'inv-dadu') hanya untuk tab ini — gameplay tetap mandiri. */
+﻿/* Dadu sebagai view SPA: modul 'dadu'; DiceKit memakai renderer bersama (sharedGL:'inv-dadu') hanya untuk tab ini â€” gameplay tetap mandiri. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('data/inventory/dice/_shared/js/dadu.js'), html = rd('dadu.html'), host = rd('assets/js/core/spa-host.js'), dr = rd('assets/js/renderers/dice-kit/dice-renderer.js');
+const js = rd('data/inventory/dice/_shared/js/dadu.js'), html = rd('dadu.html'), host = rd('src/core/spa-host.js'), dr = rd('src/renderers/dice-kit/dice-renderer.js');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
@@ -27,7 +27,7 @@ t('DiceRenderer: SharedGL hanya bila diminta (opts.sharedGL); dispose melepas (t
   assert(/SGL\.acquire\(String\(opts\.sharedGL\), \{ shadows: true \}\)/.test(dr));
   assert(/else renderer = new THREE\.WebGLRenderer\(\{ antialias: this\.q\.antialias, alpha: this\.opt\.transparent, powerPreference: 'high-performance' \}\);/.test(dr), 'jalur mandiri gameplay tidak berubah');
   assert(/if \(this\._glOwner\) \{ globalThis\.UT\.SharedGL\.release\(this\._glOwner\); this\._glOwner = null; \}[^\n]*\n    else \{ this\.renderer\.dispose\(\); this\.renderer\.domElement\.remove\(\); \}/.test(dr));
-  assert(!/sharedGL/.test(rd('gameplay.html')) && !/sharedGL/.test(rd('assets/js/renderers/dice-kit/index.js')), 'gameplay tidak meminta SharedGL');
+  assert(!/sharedGL/.test(rd('gameplay.html')) && !/sharedGL/.test(rd('src/renderers/dice-kit/index.js')), 'gameplay tidak meminta SharedGL');
 });
 t('di shell nav lewat UT.Spa.go (location.href hanya cadangan); tanpa bar tab (tampilan sama dengan Pet)', () => {
   assert(/MANAGED&&UT\.Spa&&UT\.Spa\.go\)\{UT\.Spa\.go\(u\)/.test(js));
@@ -43,8 +43,9 @@ t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js d
 });
 t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
   assert(/'dadu\.html': 'dadu'/.test(host) && /dadu: 'dadu\.html'/.test(host));
-  assert(/dadu: 'dadu\.html'/.test(rd('assets/js/core/inv-tabs.js')));
-  assert(/\|dadu\)\\\.html/.test(rd('assets/js/frame-guard.js')));
-  assert(/'dadu\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
+  assert(/dadu: 'dadu\.html'/.test(rd('src/core/inv-tabs.js')));
+  assert(/\|dadu\)\\\.html/.test(rd('src/boot/frame-guard.js')));
+  assert(/'dadu\.html': \['lobby\.html'\]/.test(rd('src/views/play.js')));
 });
 console.log(n + ' tes lulus');
+
