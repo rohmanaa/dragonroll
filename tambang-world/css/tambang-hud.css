@@ -302,3 +302,5 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 #tambang-gudang.bump{animation:tambang-bump .4s}
 .tambang-mgrb b .ut-ic,.tambang-mgr b .ut-ic{width:1.5em;height:1.5em;margin:-.2em .1em -.2em 0}
 .tambang-ore .ut-ic{width:1.5em;height:1.5em;margin:-.2em .15em -.2em 0}
+.tambang-rst .ut-ic,.tambang-bst .ut-ic,#tambang-lock-btn .ut-ic{width:1.4em;height:1.4em;margin:-.2em .1em}
+.tambang-bub.b .ut-ic{width:70%;height:70%}

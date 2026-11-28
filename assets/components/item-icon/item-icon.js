@@ -3,13 +3,14 @@
    Pakai:  UT.ItemIcon.html('ore-copper')  ->  '<img class="ut-ic" src="assets/images/ui/item-icons/ore-copper.webp">'
            UT.ItemIcon.html('ingot-gold', {size:'2em'});  UT.ItemIcon.src('coal');  UT.ItemIcon.keys()
    Kunci: ore-copper|iron|gold|lapis|amethyst|diamond, coal, ingot-copper|iron|gold, gem-lapis|amethyst|diamond,
-          wood, fuel, furnace, forest, lift, mine, gudang, manager, boost   (alias lama: tree=forest, pickaxe=mine, bag=gudang)
+          wood, fuel, furnace, forest, lift, mine, gudang, manager, boost, sleep, food, gift, sparkle, lock, unlock, warn, lumber, time, chestfull   (alias lama: tree=forest, pickaxe=mine, bag=gudang)
    Path relatif ke halaman di root; ubah UT.ItemIcon.base bila halaman ada di subfolder. */
 (function (win) {
   'use strict';
   var UT = win.UT = win.UT || {};
   var KEYS = ['ore-copper', 'ore-iron', 'ore-gold', 'ore-lapis', 'ore-amethyst', 'ore-diamond', 'coal', 'ingot-copper', 'ingot-iron', 'ingot-gold',
-    'gem-lapis', 'gem-amethyst', 'gem-diamond', 'wood', 'fuel', 'furnace', 'forest', 'lift', 'mine', 'gudang', 'manager', 'boost'];
+    'gem-lapis', 'gem-amethyst', 'gem-diamond', 'wood', 'fuel', 'furnace', 'forest', 'lift', 'mine', 'gudang', 'manager', 'boost',
+    'sleep', 'food', 'gift', 'sparkle', 'lock', 'unlock', 'warn', 'lumber', 'time', 'chestfull'];
   var ALIAS = { tree: 'forest', pickaxe: 'mine', bag: 'gudang' };
   var api = {
     base: 'assets/images/ui/item-icons/',

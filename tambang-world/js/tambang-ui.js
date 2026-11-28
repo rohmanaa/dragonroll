@@ -43,6 +43,7 @@
   const md = $('tambang-md');
   $('tambang-reset').addEventListener('click', () => ask('Reset Tambang', 'Semua objek kembali ke susunan awal.<br>Lanjutkan?', 'BATAL', 'RESET', () => { $('tambang-fade').classList.add('on'); setTimeout(() => location.reload(), 360); }));
   const D = MW.data, fmt = (n) => Number(n).toLocaleString('id-ID'), f1 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }), f2 = (n) => Number(n).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const ico = (k) => (UT.ItemIcon ? UT.ItemIcon.html(k) : '');
   const ORI = 'assets/images/ui/item-icons/ore-iron.webp', EM = 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', CN = 'assets/images/ui/hud/ikon-koin-emas.webp';
   /* navigasi: Kembali ke halaman asal (?from=, daftar putih seperti repo), Home ke lobby, Coin ke toko. Di luar game hanya memicu event. */
   const FROM_OK = ['lobby', 'karakter', 'frame', 'dadu', 'efek', 'powerup', 'profile', 'leaderboard', 'friendship', 'shop', 'mode', 'misi', 'hadiah-misi', 'dailyreward', 'settings', 'mail'];
@@ -285,7 +286,7 @@
     const up = (a, label, lv, cost) => cost == null ? '<button class="ut-gl ut-c-d sm tambang-up" data-a="' + a + '" disabled><b>' + label + ' MAKS</b><small>Lv ' + lv + '/5</small></button>' : '<button class="ut-gl ut-c-d sm tambang-up" data-a="' + a + '"><b>' + label + ' Lv ' + (lv + 1) + '</b><small><img src="' + CN + '" alt="">' + fmt(cost) + '</small></button>';
     return '<div class="hd tambang-ttl">TAMBANG ' + i + '</div><div class="sb">Kec. Lv ' + s.speed_lv + ' · Peti Lv ' + s.cap_lv + '</div>'
       + '<div class="tambang-mix">' + mixHTML(s.mix) + '</div><div class="pill"><img src="' + ORI + '" alt=""><b class="bt"></b></div>'
-      + '<div class="tambang-rt"><img src="' + ORI + '" alt=""><b class="rv"></b><small>/jam</small><span class="tambang-bst">⚡ x' + D.config.boost_mult + '</span></div>'
+      + '<div class="tambang-rt"><img src="' + ORI + '" alt=""><b class="rv"></b><small>/jam</small><span class="tambang-bst">' + ico('boost') + ' x' + D.config.boost_mult + '</span></div>'
       + '<div class="tambang-bar"><i></i></div><div class="tambang-eta"></div>'
       + '<div class="tambang-rstw"><span class="tambang-rst"></span></div><div class="tambang-acts">'
       + '<button class="ut-gl ut-c-b tambang-btn y" data-a="boost"><img src="tambang-world/images/tambang-tombol-biru-polos.webp" alt=""><span><b class="bl2">Percepat</b><small class="bs"></small></span></button></div>'
@@ -312,7 +313,7 @@
     q('.bt').textContent = f1(v) + ' / ' + fmt(s.cap);
     const rs = D.restOf(i);
     q('.tambang-eta').textContent = rs.resting ? 'Istirahat · lanjut ' + dur(rs.left / 1000) : v >= s.cap - 1e-6 ? 'Peti penuh! Menunggu lift' : 'Penuh dalam ' + dur(Math.max(0, s.full_in_secs - (performance.now() - s.at) / 1000));
-    q('.tambang-rst').textContent = rs.resting ? (rs.kind === 'sleep' ? '😴 Tidur' : '🍖 Makan') + ' · lanjut ' + dur(rs.left / 1000) : '⛏ Kerja · istirahat ' + dur(rs.left / 1000) + ' lagi';
+    q('.tambang-rst').innerHTML = rs.resting ? ico(rs.kind === 'sleep' ? 'sleep' : 'food') + (rs.kind === 'sleep' ? ' Tidur' : ' Makan') + ' · lanjut ' + dur(rs.left / 1000) : ico('mine') + ' Kerja · istirahat ' + dur(rs.left / 1000) + ' lagi';
     card.classList.toggle('rest', !!rs.resting);
     const bb = q('[data-a="boost"]');
     if (!s.mgr) { bb.disabled = false; q('.bl2').textContent = 'Percepat'; q('.bs').textContent = 'Perlu Manager'; }
@@ -415,7 +416,6 @@
   /* ---------- DRAWER Tambang (kit "modals"): tab bawah UPGRADE (furnace, produksi, hutan, lift) | GUDANG (peti, klaim, ore, upgrade gudang) ---------- */
   const IC = { gem: 'assets/images/ui/gem-medal-icons/berlian-hijau.webp', coin: 'assets/images/ui/hud/ikon-koin-emas.webp' };
   const GOODN = { copper: 'Batang Copper', iron: 'Batang Iron', gold: 'Batang Emas', lapis: 'Lapis Lazuli', amethyst: 'Amethyst', diamond: 'Diamond' }, GOODC = { copper: '#e0804a', iron: '#d6d0c8', gold: '#ffd24d', lapis: '#3a5fe0', amethyst: '#b06cff', diamond: '#6fe8ff' };
-  const ico = (k) => (UT.ItemIcon ? UT.ItemIcon.html(k) : '');
   $('tambang-boostall').firstElementChild.innerHTML = ico('boost') + 'BOOST SEMUA';
   document.querySelector('[data-dt="up"] .ic').innerHTML = ico("mine"); document.querySelector('[data-dt="gd"] .ic').innerHTML = ico('bag');
   const dr = $('tambang-dr'), drL = $('tambang-dr-l'), drT = $('tambang-dr-t');
@@ -454,7 +454,7 @@
     return '<div class="ut-dr-sec" style="margin-top:0">Peti Gudang <small>' + fmt(g.used) + ' / ' + fmt(g.cap) + '</small></div>'
       + '<div class="ut-dr-fillbar' + (full ? ' warn' : '') + '"><i style="width:' + Math.min(100, g.used / Math.max(1, g.cap) * 100) + '%"></i></div>'
       + '<button class="ut-gl ' + (ready ? 'ut-c-g' : 'ut-c-d') + ' ut-dr-big" data-claim="1"' + (ready ? '' : ' disabled') + '>' + (ready ? 'KLAIM KE INVENTORI ORE' : 'GUDANG KOSONG') + '</button>'
-      + '<p class="ut-dr-note">' + (full ? '⚠ Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '. Hasil klaim masuk Inventori › Ore.') + '</p>'
+      + '<p class="ut-dr-note">' + (full ? ico('warn') + ' Peti penuh — pengangkutan berhenti sampai kamu klaim.' : 'Lift & penebang mengisi otomatis' + (g.transit ? ' · di lift: ' + fmt(g.transit) : '') + '. Hasil klaim masuk Inventori › Ore.') + '</p>'
       + '<div class="ut-dr-sec">Ore mentah</div>' + ores + '<div class="ut-dr-sec">Hasil lebur</div>' + bars + '<div class="ut-dr-sec">Permata</div>' + gems + '<div class="ut-dr-sec">Bahan bakar</div>' + fuel
       + '<div class="ut-dr-sec" id="dr-sec-gup">Upgrade Gudang <small>dibayar Koin</small></div>'
       + up('cap', 'Kapasitas peti', 'Muatan otomatis dari lift & hutan', fmt(g.cap) + ' item', g.next_cap == null ? null : fmt(g.next_cap), g.next_cap_cost)
@@ -512,6 +512,7 @@
     ask('Boost Semua', 'Percepat ' + p.n + ' tambang ×' + D.config.boost_mult + '<br>seharga ' + fmt(p.cost) + ' Koin?', 'BATAL', 'PERCEPAT', async () => { D.feedback(); const r = await D.boostAll(); buildCard(); paintCur($('tambang-cur-co')); toast(r.ok ? 'Boost aktif di ' + r.n + ' tambang ⚡' : D.MSG['saldo-kurang'], !r.ok); });
   }
 
+  $('tambang-bub-b').innerHTML = ico('boost');
   const bubB = $('tambang-bub-b'), bubU = $('tambang-bub-u'); let bubMode = '';
   bubB.addEventListener('click', () => { const i = Wd.cur, s = D.slots[i - 1]; if (!s || !s.unlocked) return; if (D.boostLeft(i) > 0) { toast('Percepat masih aktif', false); return; } pre(i, 'boost'); });
   bubU.addEventListener('click', () => { if (!cardOpen || panel !== 'prod') openPanel('prod'); });
@@ -522,8 +523,8 @@
     if (lockEl.classList.contains('on') !== on) lockEl.classList.toggle('on', on);
     if (on) {
       lockT.textContent = 'TAMBANG ' + i;
-      const cu = s.can_unlock !== false, lb = lockBtn.lastElementChild, h = cu ? '🔓 BUKA · ' + fmt(s.unlock_cost) + ' Koin' : '🔒 Buka Tambang ' + (i - 1) + ' dulu';
-      if (lb.textContent !== h) lb.textContent = h;
+      const cu = s.can_unlock !== false, lb = lockBtn.lastElementChild, h = cu ? ico('unlock') + ' BUKA · ' + fmt(s.unlock_cost) + ' Koin' : ico('lock') + ' Buka Tambang ' + (i - 1) + ' dulu';
+      if (lb.dataset.h !== h) { lb.dataset.h = h; lb.innerHTML = h; }
       lockBtn.classList.toggle('poor', !cu || D.wallet.coins() < s.unlock_cost); lockBtn.classList.toggle('wait', !cu);
     }
   }
