@@ -1,5 +1,5 @@
 /* page.css — gaya bersama halaman baru (karakter, settings, splash) mengikuti lobby/room: langit, tombol kembali, bar mata uang, panel + banner dari kit. */
-:root{--line:#6d6590;--gold:#ffd45a}
+:root{--line:var(--panel-line, #6d6590);--gold:var(--dr-gold-light, #ffd45a)}
 body.sub #stage{background:linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%)}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
 .ttl{font-family:var(--font-title);letter-spacing:.5px;text-shadow:0 3px 0 rgba(20,10,40,.55);-webkit-text-stroke:1.5px rgba(20,10,40,.55);paint-order:stroke fill}
@@ -39,7 +39,7 @@ body.ef #cur-co{left:auto!important;right:26px!important}
 .btn span{position:relative;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6);margin-top:-6px}
 .btn:active{transform:translateY(3px) scale(.97)}
 .btn.off{filter:grayscale(1) brightness(.7);pointer-events:none}
-.btn.gold span{color:#4d2300;text-shadow:0 2px 0 rgba(255,236,160,.6)}
+.btn.gold span{color:var(--dr-gold-deep, #4d2300);text-shadow:0 2px 0 rgba(255,236,160,.6)}
 .panel{position:absolute;border:3px solid #000;border-radius:18px;color:#fff;background:linear-gradient(#4a4a4a 0 50%,#303030 50%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
 .panel::before{content:"";position:absolute;inset:8px;border-radius:12px;background:#262626;z-index:-1;pointer-events:none}
 .panel>h3{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 54px;line-height:70px;font:400 30px/70px var(--font-title);background:url(../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;white-space:nowrap;text-shadow:0 2px 0 rgba(20,5,70,.7)}
