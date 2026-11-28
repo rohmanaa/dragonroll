@@ -19,7 +19,7 @@ function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gem
 function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';const h=$('#ht-name');if(h)h.textContent=n}
 function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),pct=Math.min(100,i.xpIn/i.xpMax*100);
  const lv=$('#lvnum');lv.textContent=i.level;lv.classList.toggle('w3',String(i.level).length>=3);
- const l=$('#ht-lv'),p=$('#ht-pct'),f=$('#ht-fill');if(l)l.textContent=i.level;if(p)p.textContent=pct.toFixed(1)+'%';if(f)f.setAttribute('width',Math.max(0,326*pct/100))}
+ const xb=$('#ht-xp'),xf=$('#ht-xpf');if(xf)xf.style.width=pct.toFixed(1)+'%';if(xb)xb.setAttribute('aria-valuenow',Math.round(pct));const l=$('#ht-lv'),p=$('#ht-pct'),f=$('#ht-fill');if(l)l.textContent=i.level;if(p)p.textContent=pct.toFixed(1)+'%';if(f)f.setAttribute('width',Math.max(0,326*pct/100))}
 /* event: UI ikut berubah tanpa reload halaman */
 env.own(UT.Events.on('currencyChanged',()=>{renderCurrency();renderXp()}));
 if(PD.subscribe)env.own(PD.subscribe(()=>{renderName();renderXp();renderCurrency()}));
@@ -196,7 +196,7 @@ const loadProgress=()=>import('../../../assets/js/multiplayer/progress-service.j
 loadProgress().then(P=>{if(env.disposed)return;return P.dailyLogin&&P.dailyLogin()}).catch(()=>{});
 /* ID pemain di bawah nama (format sama dengan halaman Profil: # + 8 huruf pertama user id); tanpa sesi login -> kosong & tersembunyi */
 import('../../../assets/js/multiplayer/client.js').then(()=>UT.Multiplayer.getClient()).then(c=>c.auth.getSession()).then(({data})=>{
- if(env.disposed||!data||!data.session)return;const e=$('#ht-id');if(e)e.textContent='ID #'+data.session.user.id.slice(0,8).toUpperCase()}).catch(()=>{});
+ if(env.disposed||!data||!data.session)return;}).catch(()=>{});
 /* lencana merah berangka (aset lencana-notifikasi-merah-segi-delapan): tampil hanya bila n>0; angka >99 jadi 99+ */
 function setBadge(id,n){const el=$('#'+id);if(!el)return;n=Math.max(0,Math.floor(+n)||0);el.hidden=!n;if(!n)return;
  const t=n>99?'99+':String(n);el.querySelector('b').textContent=t;el.classList.toggle('w2',t.length===2);el.classList.toggle('w3',t.length>=3)}
