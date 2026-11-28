@@ -72,3 +72,7 @@ Ide: peti di Lobby tidak hanya terbuka karena "main sekian kali", tetapi lewat m
 - **Gold Pass:** jalur hadiah tambahan di event; bentuk dan harga belum ditentukan.
 - **Yang perlu diputuskan nanti:** hari reset mingguan, penyimpanan progres (lokal atau server), cara menghitung tangga/ular di data game, tampilan di Lobby dan Profil.
 - Jangan dikerjakan sebelum bagian 1–4 selesai.
+
+## 8. Rencana: struktur folder ala Vue + Vite
+
+Lihat `struktur-vite.md` (draf, belum dieksekusi; ada 4 keputusan yang menunggu jawaban).
