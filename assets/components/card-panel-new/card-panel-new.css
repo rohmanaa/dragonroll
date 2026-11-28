@@ -7,8 +7,8 @@
 .card-panel-new::before{content:"";position:absolute;inset:8px;border-radius:12px;background:#262626;z-index:-1;pointer-events:none}
 /* .deep = isi lebih gelap lagi (pratinjau / detail / latar foto) */
 .card-panel-new.deep::before{background:#161616}
-/* .popover = isi krem seperti "Contoh Popup" di referensi/component/game-cards.html (.dialog>div: #e9e5da, teks #222); bingkai luar tetap gelap glossy.
+/* .popover = isi krem seperti "Contoh Popup" di referensi/component/game-cards.html (.dialog>div: #f0e8db, teks #222); bingkai luar tetap gelap glossy.
    Pakai: class="card-panel-new popover". Teks di dalamnya otomatis gelap; halaman tidak perlu menimpa warna dasar. */
-.card-panel-new.popover{color:#222}
-.card-panel-new.popover::before{background:#e9e5da}
-.card-panel-new.popover.deep::before{background:#e9e5da}
+.card-panel-new.popover{color:#222;--cp-row:#cdbfb6;--cp-row-ink:#6a5f58}   /* --cp-row: warna baris/kotak di atas krem (lebih gelap dari panel agar tidak menyatu, ala Clash of Clans: panel #f0e8db, baris #cdbfb6) */
+.card-panel-new.popover::before{background:#f0e8db}
+.card-panel-new.popover.deep::before{background:#f0e8db}

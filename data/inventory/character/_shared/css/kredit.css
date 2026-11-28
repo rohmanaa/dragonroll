@@ -140,5 +140,5 @@ body.kr #info{top:700px}
 #gpanel{position:absolute;left:0;top:306px;width:900px;height:616px;pointer-events:none}
 #gwrap{left:18px;top:322px;width:864px;height:584px}
 #grid{zoom:1;width:auto;max-height:none;overflow:visible;grid-template-columns:repeat(6,1fr);grid-auto-rows:max-content;gap:14px;padding:6px 4px}   /* 6 kolom pas di dalam panel krem (kartu ~131px lebar) */
-#dyes{background:#e9e5da;border:3px solid #000;color:#222;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 3px 0 rgba(0,0,0,.4)}
+#dyes{background:#f0e8db;border:3px solid #000;color:#222;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 3px 0 rgba(0,0,0,.4)}
 #dyes .lbl{color:#222}
