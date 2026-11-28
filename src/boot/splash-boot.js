@@ -1,0 +1,20 @@
+import '../core/page-shell.js';
+import '../boot/pwa.js';
+import '../systems/ambience.js';
+import '../fx/splash-fx.js';
+import '../renderers/night-fog.js';
+import '../stores/item-catalog.js';
+import '../stores/player-data.js';
+import '../boot/preloader.js';
+import '../services/auth.js';
+import '../core/app-version.js';
+import '../systems/game-dialog.js';
+import '../systems/update-service.js';
+import '../services/tos-service.js';
+import '../views/splash.js';
+import '../core/modal-kit.js';
+
+UT.PageShell.renderBase({"bootGuard":false,"prefsSync":false});
+UT.SplashFX&&UT.SplashFX.mount();
+(function(){var h=document.getElementById("scene");if(h&&UT.NightFog)UT.NightFog.mount(h,{variant:"bottom",after:document.getElementById("vig")})})();
+(function(){try{if(!(window.UT&&UT.ModalKit))return;[["m-login","#li-id"],["m-signup","#su-us"]].forEach(function(p){var m=document.getElementById(p[0]);if(m)UT.ModalKit.watch(m,{initialFocus:p[1]});});}catch(e){}})();
