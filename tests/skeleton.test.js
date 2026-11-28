@@ -52,7 +52,7 @@ const mk = () => create({ G: {}, document: null, delay: 20 });
     const fonts = m[1].match(/'([^']+)'/g).map(x => x.replace(/'/g, '')); assert.ok(fonts.length >= 3);
     fonts.forEach(f => assert.ok(fs.existsSync(path.join(__dirname, '..', f)), 'font preload harus ada: ' + f));
     assert.ok(!/font-display:\s*swap/.test(rd('src/styles/fonts.css')));
-    assert.ok(/'systems\/skeleton\.js'/.test(rd('sw.js')) && /skeleton\.css/.test(rd('sw.js')));
+    assert.ok(/'src\/systems\/skeleton\.js'/.test(rd('sw.js')) && /skeleton\.css/.test(rd('sw.js'))); /* path CORE harus berawalan src/ (tanpa itu Cache.add 404) */
   });
   await t('spa-host: prepare() menghangatkan CSS + aset url() ke cache sebelum halaman dibuka; hormati Save-Data/2g', () => {
     const s = rd('src/core/spa-host.js');

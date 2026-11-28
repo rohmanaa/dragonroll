@@ -10,11 +10,11 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v617';
+const VERSION = 'ut-pwa-v618';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
-const CORE = ['index.html', 'play.html', 'splash.html', 'styles/pages/play.css', 'views/play.js', 'systems/skeleton.js', 'styles/components/skeleton.css', 'systems/graphics-auto.js', 'views/gameplay-loading.js', 'styles/pages/gameplay-loading.css', 'views/splash.js', 'systems/game-dialog.js', 'systems/update-service.js', 'styles/components/game-dialog.css', 'styles/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'core/pretty-url.js'];
+const CORE = ['index.html', 'play.html', 'splash.html', 'src/styles/pages/play.css', 'src/views/play.js', 'src/systems/skeleton.js', 'src/styles/components/skeleton.css', 'src/systems/graphics-auto.js', 'src/views/gameplay-loading.js', 'src/styles/pages/gameplay-loading.css', 'src/views/splash.js', 'src/systems/game-dialog.js', 'src/systems/update-service.js', 'src/styles/components/game-dialog.css', 'src/styles/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'src/core/pretty-url.js'];
 /* handle cache dibuka SEKALI lalu dipakai ulang: sebelumnya caches.open() dipanggil di setiap request (ratusan kali per halaman) */
 const mediaCache = () => (mediaCache.p = mediaCache.p || caches.open(MEDIA_CACHE));
 const codeCache = () => (codeCache.p = codeCache.p || caches.open(VERSION));

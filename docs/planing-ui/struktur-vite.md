@@ -49,6 +49,15 @@ Aset yang path-nya dibentuk saat runtime (`data/inventory/<kategori>/<id>/...`, 
 - Tes (127 berkas) punya path keras: diperbarui bersama skrip pindah.
 - Jangan ubah ID, harga, atau kunci penyimpanan saat memindahkan aset (aturan `STRUKTUR.md`); `STRUKTUR.md` diperbarui di akhir.
 
+## Jebakan Fase 3 (ES module) — wajib dicek sebelum tiap commit
+Ditemukan 28 Nov 2026 setelah konversi ke `*-boot.js` membuat game blank ungu. Tes Node TIDAK menangkapnya: `tests/_boot-compat.js` mengubah `import` kembali menjadi `<script>`, jadi urutan eksekusi asli di browser tidak teruji.
+1. **Urutan eksekusi.** Semua `import` dievaluasi lebih dulu dari kode di bawahnya. Modul yang membaca global `window.UT.*` saat dievaluasi (mis. `auth.js` -> `UT.Session`) harus mengimpor penyedianya sendiri. Jangan mengandalkan skrip yang disuntik belakangan oleh `PageShell.renderBase()`.
+2. **`document.write` tidak jalan di module** (deferred; Chrome memblokirnya). `PageShell.writeTag` kini jatuh ke injeksi DOM (`async=false`) bila dokumen sudah selesai diparse. Jangan menulis kode baru yang memakai `document.write` dari module.
+3. **Skrip klasik yang ikut hilang.** Saat memindahkan daftar `<script src>` ke `import`, cocokkan satu per satu, termasuk vendor global seperti `src/vendor/three.min.js` (THREE r128). UMD global tetap bisa di-`import` (efek samping mengisi `globalThis.THREE`), seperti `tambang-boot.js`.
+4. **CSS `[hidden]`.** Atribut `hidden` kalah oleh `display:flex/grid` di CSS penulis. Elemen yang dialihkan lewat `el.hidden` butuh aturan `#id[hidden]{display:none}`.
+5. **Verifikasi wajib di browser sungguhan:** `CHROME=/usr/bin/google-chrome python3 -I tools/smoke-boot.py` (splash, gameplay, lobby: tanpa `pageerror`, `UT.Session` ada, overlay `#ov` tidak menutupi layar, THREE ada). Tes ini gagal (8 pernyataan) di kode sebelum perbaikan dan lolos sesudahnya. Ada juga dua pemeriksaan statis: tiap id yang dipakai `splash.js` ada di `splash.html` (dulu `#fade` hilang -> TAP TO START crash), dan tiap path `CORE` di `sw.js` ada di disk (dulu tanpa `src/` -> 404 di `Cache.add`). Setiap memindahkan folder, perbarui daftar path di `sw.js`.
+6. **Masalah terbuka:** di `lobby.html` yang berjalan di iframe, skrip view `mode`/`shop`/`karakter` auto-mount dan melempar error `null` (smoke menandainya WARN). Perlu diperiksa sebelum Fase 3 dilanjutkan ke halaman lain.
+
 ## Kriteria selesai per fase
 - Fase 1: semua tes lulus (kecuali yang sudah merah sebelumnya), tiap halaman terbuka lewat server statis biasa, tidak ada 404 di konsol.
 - Fase 2: `npm run dev` dan `npm run build` jalan; `dist/` bisa dibuka lewat `file://` dan di Electron.
