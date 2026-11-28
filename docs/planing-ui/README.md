@@ -75,4 +75,4 @@ Ide: peti di Lobby tidak hanya terbuka karena "main sekian kali", tetapi lewat m
 
 ## 8. Rencana: struktur folder ala Vue + Vite
 
-Lihat `struktur-vite.md` (draf, belum dieksekusi; ada 4 keputusan yang menunggu jawaban).
+Lihat `struktur-vite.md` (keputusan sudah dijawab 26 Nov 2026: langsung di main, ES module sekarang, folder `views/`, mulai sekarang).

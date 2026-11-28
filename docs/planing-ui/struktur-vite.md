@@ -31,7 +31,7 @@ vite.config.js  package.json
 Aset yang path-nya dibentuk saat runtime (`data/inventory/<kategori>/<id>/...`, gambar item, SFX) tetap statis di `public/` dan tidak di-import, sesuai aturan repo: `assets/` hanya UI statis, gambar item di `data/`.
 
 ## Fase
-**Fase 0: persiapan.** Cabang `struktur-vite` (jika dipilih). Catat baseline: tes Node (tes merah yang sudah ada dicatat di `README.md` folder ini), daftar URL halaman, ukuran cache SW. Bekukan perubahan fitur selama pemindahan; ini bentrok dengan pekerjaan modal kit dan hub, jadi kerjakan setelah bagian 3-4 selesai atau di antara dua tugas.
+**Fase 0: persiapan.** Catat baseline: tes Node (tes merah yang sudah ada dicatat di `README.md` folder ini), daftar URL halaman, ukuran cache SW. Bekukan perubahan fitur selama pemindahan (pekerjaan modal kit dan hub menyentuh berkas yang sama).
 
 **Fase 1: pindah folder dengan skrip otomatis (tanpa Vite).** `tools/restructure.py` memindahkan berkas dengan `git mv` dan memperbarui semua referensi: `src=`/`href=`, `import`, `url()` di CSS, string path di JS, `sw.js`, `manifest`, `gen-preload-manifest.py`, tes. Per domain, tiap domain diakhiri tes: styles -> components -> core/services/stores -> views -> renderers/systems/multiplayer -> data -> gameplay (terakhir).
 
@@ -55,8 +55,8 @@ Aset yang path-nya dibentuk saat runtime (`data/inventory/<kategori>/<id>/...`, 
 - Fase 3: tiap view yang dikonversi memuat satu entry module dan lolos tes.
 - Fase 4: SW baru menggantikan SW lama tanpa cache basi.
 
-## Keputusan yang masih perlu dari Rans
-1. Cabang `struktur-vite` lalu gabung ke `main` setelah semua halaman diuji, atau langsung ke `main` per fase?
-2. Fase 3 (ES module) sekarang atau setelah rilis?
-3. Nama folder logika halaman: `views/` (seperti Vue, cocok dengan view SPA) atau tetap `pages/`?
-4. Kapan mulai: setelah bagian 3-4 (hub dan modal kit) selesai, atau sekarang?
+## Keputusan Rans (26 Nov 2026)
+1. Langsung di `main`, tanpa cabang. Konsekuensi: tidak boleh ada commit lain ke `main` selama satu fase berjalan (bekukan sesi lain, atau tarik dan gabung sebelum tiap push). Tiap fase diakhiri satu push setelah tes hijau.
+2. Fase 3 (ES module) dikerjakan sekarang, bukan setelah rilis.
+3. Folder logika halaman bernama `views/`.
+4. Mulai sekarang, tidak menunggu bagian 3-4 (hub, modal kit). Pekerjaan UI baru harus ditunda atau diarahkan ke path baru setelah Fase 1.
