@@ -31,6 +31,8 @@ window.UT = window.UT || {};
     return out;
   }
 
+  UT.PageShell.FONT_PRELOAD = ['assets/fonts/lilita-one-latin-400-normal.woff2', 'assets/fonts/nunito-latin-600-normal.woff2', 'assets/fonts/nunito-latin-800-normal.woff2'];
+
   UT.PageShell.writeTag = function (tagName, attrs, text) {
     var out = '<' + tagName;
     Object.keys(attrs || {}).forEach(function (key) {
@@ -70,16 +72,22 @@ window.UT = window.UT || {};
         enabled('bootGuard') ? 'assets/js/boot-guard.js' : null
       ]
     });
+    /* Font utama dimuat paralel dengan CSS (preload), bukan baru ditemukan setelah fonts.css diurai -> teks tidak sempat tampil dengan font cadangan. */
+    var preload = enabled('fonts') ? UT.PageShell.FONT_PRELOAD.map(function (href) {
+      return { href: href, attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: true } };
+    }) : [];
     UT.PageShell.render({
-      sharedCss: [
+      sharedCss: preload.concat([
         enabled('fonts') ? 'assets/css/fonts.css' : null,
-        enabled('commonCss') ? 'assets/css/common.css' : null
-      ]
+        enabled('commonCss') ? 'assets/css/common.css' : null,
+        enabled('skeleton') ? 'assets/css/components/skeleton.css' : null
+      ])
     });
     UT.PageShell.render({
       sharedJs: [
         enabled('prefs') ? 'assets/js/core/prefs.js' : null,
-        enabled('prefsSync') ? 'assets/js/core/prefs-sync.js' : null
+        enabled('prefsSync') ? 'assets/js/core/prefs-sync.js' : null,
+        enabled('skeleton') ? 'assets/js/systems/skeleton.js' : null
       ]
     });
   };

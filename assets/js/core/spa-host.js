@@ -140,7 +140,27 @@
     /* prepare: siapkan halaman SEBELUM dibuka (ambil+parse HTML, unduh+jalankan skrip). Aman: skrip halaman hanya mendefinisikan modul
        (PageModule.managed=true -> tidak mount); DOM dan CSS baru dipasang saat enter(). */
     function prepare(page) {
-      return fetchPage(page).then(function (p) { return loadScripts(p.js, p.mods); });
+      return fetchPage(page).then(function (p) { warmCss(p); return loadScripts(p.js, p.mods); });
+    }
+    /* Hangatkan CSS halaman + aset url() di dalamnya (bingkai, latar, font) ke cache service worker SEBELUM halaman dibuka:
+       saat enter() memasang <link>, CSS-nya sudah di cache (tanpa tunggu jaringan) dan gambar/font CSS tidak muncul belakangan. Idle, dilewati bila Save-Data. */
+    var warmed = {};
+    function warmCss(p) {
+      try { var c = G.navigator && G.navigator.connection; if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return; } catch (e) {}
+      (p.css || []).forEach(function (href) {
+        var u; try { u = new G.URL(href, base()); } catch (e) { return; }
+        if (u.origin !== G.location.origin || warmed[u.pathname]) return;
+        warmed[u.pathname] = 1;
+        G.fetch(u.href).then(function (r) { return r.ok ? r.text() : ''; }).then(function (txt) {
+          var re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g, m, n = 0;
+          while ((m = re.exec(txt)) && n < 40) {
+            if (/^(data:|https?:|\/\/|#)/i.test(m[2]) || !/\.(webp|png|jpe?g|svg|woff2)([?#]|$)/i.test(m[2])) continue;
+            var a; try { a = new G.URL(m[2], u.href); } catch (e) { continue; }
+            if (a.origin !== G.location.origin || warmed[a.pathname]) continue;
+            warmed[a.pathname] = 1; n++; G.fetch(a.href).catch(function () {});
+          }
+        }).catch(function () {});
+      });
     }
     return { enter: enter, prepare: prepare };
   }
