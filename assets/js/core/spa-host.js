@@ -24,6 +24,7 @@
   var SKIP_JS = /(^|\/)(page-shell|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
 
+  var keptUrl = Object.create(null);   // href gambar yang sudah dipegang/didekode di latar (diisi retain() di pemuat, dibaca settle() di host)
   function pageOf(url) {
     var m = /^([A-Za-z0-9_-]+\.html)(?:[?#]|$)/.exec(String(url || ''));
     return m ? m[1] : '';
@@ -140,7 +141,23 @@
     /* prepare: siapkan halaman SEBELUM dibuka (ambil+parse HTML, unduh+jalankan skrip). Aman: skrip halaman hanya mendefinisikan modul
        (PageModule.managed=true -> tidak mount); DOM dan CSS baru dipasang saat enter(). */
     function prepare(page) {
-      return fetchPage(page).then(function (p) { warmCss(p); return loadScripts(p.js, p.mods); });
+      return fetchPage(page).then(function (p) { warmCss(p); warmImgs(p); return loadScripts(p.js, p.mods); });
+    }
+    /* Menyimpan di cache (fetch) saja TIDAK cukup: gambar masih harus didekode + dilukis saat halaman dibuka, sehingga tetap muncul menyusul.
+       Di sini gambar halaman (<img> di HTML + url() di CSS) dibuat sebagai objek Image dan didekode di latar; referensinya DIPEGANG supaya
+       hasil dekode tetap di memori sampai halaman dibuka (batas KEEP_MAX agar memori HP aman). */
+    var kept = [], KEEP_MAX = 500;
+    function retain(href) {
+      if (!href || keptUrl[href] || kept.length >= KEEP_MAX || !G.Image) return;
+      keptUrl[href] = 1;
+      try { var im = new G.Image(); im.decoding = 'async'; im.src = href; kept.push(im); if (im.decode) im.decode().catch(function () {}); } catch (e) { /* abaikan */ }
+    }
+    function warmImgs(p) {
+      try {
+        var c = G.navigator && G.navigator.connection; if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return;
+        var re = /<img\b[^>]*?\bsrc\s*=\s*(["'])([^"']+)\1/gi, m;
+        while ((m = re.exec(p.html || ''))) { if (/^(data:|https?:|\/\/)/i.test(m[2])) continue; try { retain(new G.URL(m[2], base()).href); } catch (e) { /* abaikan */ } }
+      } catch (e) { /* abaikan */ }
     }
     /* Hangatkan CSS halaman + aset url() di dalamnya (bingkai, latar, font) ke cache service worker SEBELUM halaman dibuka:
        saat enter() memasang <link>, CSS-nya sudah di cache (tanpa tunggu jaringan) dan gambar/font CSS tidak muncul belakangan. Idle, dilewati bila Save-Data. */
@@ -153,11 +170,11 @@
         warmed[u.pathname] = 1;
         G.fetch(u.href).then(function (r) { return r.ok ? r.text() : ''; }).then(function (txt) {
           var re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g, m, n = 0;
-          while ((m = re.exec(txt)) && n < 40) {
+          while ((m = re.exec(txt)) && n < 80) {
             if (/^(data:|https?:|\/\/|#)/i.test(m[2]) || !/\.(webp|png|jpe?g|svg|woff2)([?#]|$)/i.test(m[2])) continue;
             var a; try { a = new G.URL(m[2], u.href); } catch (e) { continue; }
             if (a.origin !== G.location.origin || warmed[a.pathname]) continue;
-            warmed[a.pathname] = 1; n++; G.fetch(a.href).catch(function () {});
+            warmed[a.pathname] = 1; n++; if (/\.(woff2)([?#]|$)/i.test(a.pathname)) G.fetch(a.href).catch(function () {}); else retain(a.href);
           }
         }).catch(function () {});
       });
@@ -225,7 +242,7 @@
       } catch (e) { /* abaikan */ }
       return out;
     }
-    function pendingImages() {
+    function pendingImages(withDecode) {
       var waits = [], seen = Object.create(null);
       function add(src) {
         if (!src || seen[src] || bgDone[src]) return;
@@ -239,7 +256,7 @@
       }
       Array.prototype.forEach.call(view.querySelectorAll('img'), function (i) {
         if (!i.complete && i.src) waits.push(new Promise(function (res) { i.addEventListener('load', res, { once: true }); i.addEventListener('error', res, { once: true }); }));
-        else if (i.decode && i.src) waits.push(i.decode().catch(function () {}));
+        else if (withDecode && i.decode && i.src && !keptUrl[i.src]) waits.push(i.decode().catch(function () {}));
       });
       var els = view.querySelectorAll('*'), n = Math.min(els.length, 800);
       for (var k = 0; k < n; k++) bgUrls(els[k]).forEach(function (u) { try { add(new G.URL(u, G.document.baseURI).href); } catch (e) { /* abaikan */ } });
@@ -249,7 +266,7 @@
       if (!G.document || !view || !view.querySelectorAll || !G.Image || !G.getComputedStyle) return Promise.resolve();
       var t0 = Date.now();
       function pass(n) {
-        var w = pendingImages();
+        var w = pendingImages(n === 0);
         if (!w.length || n >= 3 || Date.now() - t0 > SETTLE_CAP) return Promise.resolve();
         return Promise.all(w).then(function () {
           return new Promise(function (r) { (G.requestAnimationFrame || G.setTimeout)(function () { r(); }, 16); });
