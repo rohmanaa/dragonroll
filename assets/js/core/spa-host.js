@@ -209,6 +209,56 @@
     function showFrame(on) { if (frame) frame.classList.toggle('off', !on); }
     function showView(on) { if (view) view.hidden = !on; }
 
+    /* "Tertahan" (class .pending = opacity 0, tetap punya layout): view dipasang + modulnya di-mount DI BALIK layar, baru ditampilkan setelah gambar
+       (<img> dan url() di CSS: latar, bingkai) selesai diunduh + didekode, maksimal SETTLE_CAP ms. Tanpa ini view tampil dulu lalu gambar/bingkai
+       muncul menyusul satu per satu (terlihat berantakan sebelum rapi). Dilewati bila tidak ada DOM (tes Node). */
+    var SETTLE_CAP = 1200, bgDone = Object.create(null);
+    function bgUrls(el) {
+      var out = [];
+      try {
+        var cs = G.getComputedStyle(el);
+        [cs.backgroundImage, cs.borderImageSource, cs.webkitMaskImage].forEach(function (v) {
+          if (!v || v === 'none') return;
+          var re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g, m;
+          while ((m = re.exec(v))) if (!/^data:/i.test(m[2])) out.push(m[2]);
+        });
+      } catch (e) { /* abaikan */ }
+      return out;
+    }
+    function pendingImages() {
+      var waits = [], seen = Object.create(null);
+      function add(src) {
+        if (!src || seen[src] || bgDone[src]) return;
+        seen[src] = 1;
+        waits.push(new Promise(function (res) {
+          var im = new G.Image();
+          im.onload = im.onerror = function () { bgDone[src] = 1; res(); };
+          im.src = src;
+          if (im.complete) { bgDone[src] = 1; res(); }
+        }));
+      }
+      Array.prototype.forEach.call(view.querySelectorAll('img'), function (i) {
+        if (!i.complete && i.src) waits.push(new Promise(function (res) { i.addEventListener('load', res, { once: true }); i.addEventListener('error', res, { once: true }); }));
+        else if (i.decode && i.src) waits.push(i.decode().catch(function () {}));
+      });
+      var els = view.querySelectorAll('*'), n = Math.min(els.length, 800);
+      for (var k = 0; k < n; k++) bgUrls(els[k]).forEach(function (u) { try { add(new G.URL(u, G.document.baseURI).href); } catch (e) { /* abaikan */ } });
+      return waits;
+    }
+    function settle() {
+      if (!G.document || !view || !view.querySelectorAll || !G.Image || !G.getComputedStyle) return Promise.resolve();
+      var t0 = Date.now();
+      function pass(n) {
+        var w = pendingImages();
+        if (!w.length || n >= 3 || Date.now() - t0 > SETTLE_CAP) return Promise.resolve();
+        return Promise.all(w).then(function () {
+          return new Promise(function (r) { (G.requestAnimationFrame || G.setTimeout)(function () { r(); }, 16); });
+        }).then(function () { return pass(n + 1); });   // modul mungkin menambah DOM/gambar baru
+      }
+      return Promise.race([pass(0), new Promise(function (r) { G.setTimeout(r, SETTLE_CAP); })]);
+    }
+    function hold(on) { try { if (view && view.classList) view.classList.toggle('pending', !!on); } catch (e) { /* abaikan */ } }
+
     function pushHistory(url, opts) {
       if (opts.history === 'none') return;
       var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');
@@ -237,7 +287,7 @@
       try { PM().unmount(c.name); } catch (e) { warn('[Spa] unmount gagal', e); }
       try { GL().release(c.name); } catch (e) { warn('[Spa] release GL gagal', e); }
       try { c.leave(); } catch (e) { warn('[Spa] leave gagal', e); }
-      showView(false);
+      hold(false); showView(false);
     }
 
     function enterFrame(url) {
@@ -255,12 +305,13 @@
       return loader.enter(name, url, view).then(function (leave) {
         if (id !== navId) { leave(); return; }
         current = { name: name, url: url, leave: leave };
-        showView(true);
+        hold(true); showView(true);
         var A = UT().App;
         if (A) { if (!A.ready) A.init({ page: name }); else if (A.setPage) A.setPage(name); }
         PM().mount(name);
         playFadeIn();
         if (hooks.ready) hooks.ready(name, true);
+        settle().then(function () { if (id === navId) hold(false); }, function () { if (id === navId) hold(false); });
       }).catch(function (e) {
         if (id !== navId) return;
         warn('[Spa] view gagal, pakai iframe', e);
