@@ -1,4 +1,4 @@
-﻿/* UT.SharedGL: satu renderer untuk seluruh sesi; state direset tiap acquire; release melepas kanvas; konteks hilang memberi tahu pemilik. */
+/* UT.SharedGL: satu renderer untuk seluruh sesi; state direset tiap acquire; release melepas kanvas; konteks hilang memberi tahu pemilik. */
 const assert = require('assert');
 const path = require('path');
 const SGL = require(path.join(__dirname, '..', 'src/core/shared-gl.js'));

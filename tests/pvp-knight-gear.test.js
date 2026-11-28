@@ -1,4 +1,4 @@
-﻿/* Tes set PVP Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, ..., pedang) di Karakter. Jalankan: node tests/pvp-knight-gear.test.js
+/* Tes set PVP Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, ..., pedang) di Karakter. Jalankan: node tests/pvp-knight-gear.test.js
    Mengunci: (1) katalog klien, (2) builder di karakter.js benar-benar dieksekusi dengan stub (tanpa WebGL), (3) migrasi server sama
    dengan katalog, (4) kabel UI klaim, (5) seed katalog server tidak usang. TIDAK menguji render WebGL maupun SQL asli (butuh browser/Postgres). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), cp = require('child_process'), vm = require('vm');

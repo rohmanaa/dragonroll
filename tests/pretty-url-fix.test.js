@@ -1,4 +1,4 @@
-﻿/* Tes URL pretty: verifikasi <base href="/"> sebagai elemen pertama di <head>
+/* Tes URL pretty: verifikasi <base href="/"> sebagai elemen pertama di <head>
    dan tidak ada JS yang menyusun URL aset dari location.pathname.
    Jalan di Node 20 (CommonJS). */
 const assert = require('assert');

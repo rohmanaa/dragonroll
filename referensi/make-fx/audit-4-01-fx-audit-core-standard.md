@@ -1,13 +1,13 @@
-﻿# Dragon Roll â€” Audit FX & Core FX Standard (Tahap 1)
+﻿# Dragon Roll — Audit FX & Core FX Standard (Tahap 1)
 
-Tanggal: 16 Nov 2026 Â· Branch dasar: `main` @ `12ecb91` Â· Mode: **read-only** (tidak ada file repo yang diubah)
+Tanggal: 16 Nov 2026 · Branch dasar: `main` @ `12ecb91` · Mode: **read-only** (tidak ada file repo yang diubah)
 Simpan sebagai: `audit/4/01-audit-fx-core-standard.md`
 
 ## 0. Ruang lingkup & batasan
 
 - Sumber: standar FX (dokumen spesifikasi) + kode repo `rohmanaa/dragonroll`.
 - `gameplay.html` dan `gameplay/` berstatus **dibekukan** di `STRUKTUR.md`. Pemilik repo menyatakan bagian gameplay sudah diizinkan. Audit ini hanya membaca; perubahan nanti tetap minimal.
-- **Belum diverifikasi** (tidak bisa dijalankan di sini): FPS nyata di HP/desktop, kebocoran memori runtime, perilaku multiplayer dua klien, seluruh suite test. Yang sudah dijalankan: `aura-fx`, `power3d`, `game-core` â†’ semuanya PASS.
+- **Belum diverifikasi** (tidak bisa dijalankan di sini): FPS nyata di HP/desktop, kebocoran memori runtime, perilaku multiplayer dua klien, seluruh suite test. Yang sudah dijalankan: `aura-fx`, `power3d`, `game-core` → semuanya PASS.
 
 ## 1. Inventaris FX yang ada
 
@@ -25,55 +25,55 @@ Tidak ada engine partikel ganda yang bersaing: DOM `ParticleFX` (layer 2D) dan T
 
 ## 2. Temuan
 
-Tingkat: ðŸ”´ perlu tindakan Â· ðŸŸ¡ sebaiknya Â· ðŸŸ¢ sudah baik
+Tingkat: 🔴 perlu tindakan · 🟡 sebaiknya · 🟢 sudah baik
 
 **Cleanup & lifecycle**
-- ðŸ”´ F1 â€” `tween()` tidak punya handle/cancel. Tween lama tidak dibersihkan saat game baru; keamanan bergantung pada guard `gid!==gameId â†’ STALE` di tiap pemanggil. `enderHole` adalah tween "fire-and-forget" tanpa guard; objeknya baru dibuang saat tween selesai (maks 2,3 dtk), jadi bisa tertinggal sebentar setelah reset.
-- ðŸŸ¡ F2 â€” `clearConfetti()` (membersihkan confetti + blasts) hanya dipanggil di satu tempat (`main.js:5753`, reset). `sparks` (sparkle) tidak ikut dibersihkan oleh `clearConfetti`. Jalur akhir game/pindah scene perlu diverifikasi.
-- ðŸŸ¢ F3 â€” Disposal Three.js: `enderHole` dan `sparkle` membuang geometry/material; `aura-fx` & `dice-effects` punya dispose + pool.
+- 🔴 F1 — `tween()` tidak punya handle/cancel. Tween lama tidak dibersihkan saat game baru; keamanan bergantung pada guard `gid!==gameId → STALE` di tiap pemanggil. `enderHole` adalah tween "fire-and-forget" tanpa guard; objeknya baru dibuang saat tween selesai (maks 2,3 dtk), jadi bisa tertinggal sebentar setelah reset.
+- 🟡 F2 — `clearConfetti()` (membersihkan confetti + blasts) hanya dipanggil di satu tempat (`main.js:5753`, reset). `sparks` (sparkle) tidak ikut dibersihkan oleh `clearConfetti`. Jalur akhir game/pindah scene perlu diverifikasi.
+- 🟢 F3 — Disposal Three.js: `enderHole` dan `sparkle` membuang geometry/material; `aura-fx` & `dice-effects` punya dispose + pool.
 
 **Performa & kualitas**
-- ðŸ”´ F4 â€” Tidak ada level kualitas global (Low/Medium/High/Ultra). Jumlah partikel `fx.js` tetap (110 / 58 per ledakan). Swap Ender Pearl memicu 2 ledakan (116 mesh) sekaligus. `ParticleFX.configure()` ada tetapi **tidak dipanggil siapa pun**.
-- ðŸŸ¡ F5 â€” Tidak ada pooling di `fx.js`: tiap partikel = `new THREE.Mesh`; `sparkle` membuat `MeshBasicMaterial` baru per partikel (14 per panggilan). Aman karena di-dispose, tetapi menambah GC di HP.
-- ðŸŸ¢ F6 â€” Seed deteksi perangkat sudah ada di `dice-throw.js` (mobile, `hardwareConcurrency`, `deviceMemory`) â†’ bisa dipakai ulang untuk kualitas global.
+- 🔴 F4 — Tidak ada level kualitas global (Low/Medium/High/Ultra). Jumlah partikel `fx.js` tetap (110 / 58 per ledakan). Swap Ender Pearl memicu 2 ledakan (116 mesh) sekaligus. `ParticleFX.configure()` ada tetapi **tidak dipanggil siapa pun**.
+- 🟡 F5 — Tidak ada pooling di `fx.js`: tiap partikel = `new THREE.Mesh`; `sparkle` membuat `MeshBasicMaterial` baru per partikel (14 per panggilan). Aman karena di-dispose, tetapi menambah GC di HP.
+- 🟢 F6 — Seed deteksi perangkat sudah ada di `dice-throw.js` (mobile, `hardwareConcurrency`, `deviceMemory`) → bisa dipakai ulang untuk kualitas global.
 
 **Accessibility**
-- ðŸ”´ F7 â€” Reduce-motion tidak seragam. `main.js:228` membaca `const reduce` **sekali saat load** (tidak berubah bila pengguna mengganti pengaturan), sedangkan `RMQ` (baris 2282) dan `ParticleFX` membaca live. `aura-fx.js`, `power-particles.js`, `dice-effects-core.js` tidak punya referensi reduce sendiri (dice menerima `opt.reduce` dari pemanggil) â€” perlu diverifikasi per modul.
-- ðŸŸ¡ F8 â€” Screen shake memakai satu kelas `hf-shake` (360 ms) untuk hit boss dan hit pemain; belum berskala dengan tingkat damage (standar Â§C).
+- 🔴 F7 — Reduce-motion tidak seragam. `main.js:228` membaca `const reduce` **sekali saat load** (tidak berubah bila pengguna mengganti pengaturan), sedangkan `RMQ` (baris 2282) dan `ParticleFX` membaca live. `aura-fx.js`, `power-particles.js`, `dice-effects-core.js` tidak punya referensi reduce sendiri (dice menerima `opt.reduce` dari pemanggil) — perlu diverifikasi per modul.
+- 🟡 F8 — Screen shake memakai satu kelas `hf-shake` (360 ms) untuk hit boss dan hit pemain; belum berskala dengan tingkat damage (standar §C).
 
 **Multiplayer**
-- ðŸŸ¢ F9 â€” Arsitektur sudah sesuai prinsip standar: host menyiarkan *cue* ringan (`blast`, `confetti`, `eport`, `sfx`, â€¦); partikel tidak dikirim lewat jaringan; FX tidak mengubah hasil gameplay; guard `MP_SEQ` mencegah mirror ganda.
-- ðŸŸ¡ F10 â€” Cue belum punya **ID event** (standar Â§7.5). Dedup hanya lewat guard `MP_SEQ` dan antrean `MP_CUE_CHAIN`. Seed tidak dikirim, jadi sebaran `Math.random` berbeda antar klien (hanya visual; dapat diterima).
-- ðŸŸ¡ F11 â€” `enderVictimFx` (vignette + teks untuk yang ditukar) tidak terlihat di daftar `MPFB`; **perlu diverifikasi** apakah pemain yang ditukar di perangkat lain melihatnya.
+- 🟢 F9 — Arsitektur sudah sesuai prinsip standar: host menyiarkan *cue* ringan (`blast`, `confetti`, `eport`, `sfx`, …); partikel tidak dikirim lewat jaringan; FX tidak mengubah hasil gameplay; guard `MP_SEQ` mencegah mirror ganda.
+- 🟡 F10 — Cue belum punya **ID event** (standar §7.5). Dedup hanya lewat guard `MP_SEQ` dan antrean `MP_CUE_CHAIN`. Seed tidak dikirim, jadi sebaran `Math.random` berbeda antar klien (hanya visual; dapat diterima).
+- 🟡 F11 — `enderVictimFx` (vignette + teks untuk yang ditukar) tidak terlihat di daftar `MPFB`; **perlu diverifikasi** apakah pemain yang ditukar di perangkat lain melihatnya.
 
 **Ender Pearl / Teleport (acuan kualitas pertama)**
-- ðŸŸ¢ F12 â€” Sudah mencakup sebagian besar urutan Â§3A: lubang hitam (inti + 2 cincin ungu + 70 partikel terhisap), kedua pion terhisap, posisi ditukar, muncul dari lubang lawan, ledakan ungu-hitam, lubang menutup, SFX `enderman`, mode reduce-motion = teleport langsung.
-- ðŸŸ¡ F13 â€” Durasi swap total **2,3 dtk** (0,7 + 0,7 + 0,5 + 0,4), di atas target teleport 0,9â€“1,6 dtk. Komentar kode menyebut timeline "TETAP", jadi ini keputusan desain yang perlu dikonfirmasi. Bentuk portal runtuh masih lewat skala, belum ledakan partikel dari portal itu sendiri.
-- ðŸŸ¡ F14 â€” `enderman` hanya satu file SFX tanpa variasi.
+- 🟢 F12 — Sudah mencakup sebagian besar urutan §3A: lubang hitam (inti + 2 cincin ungu + 70 partikel terhisap), kedua pion terhisap, posisi ditukar, muncul dari lubang lawan, ledakan ungu-hitam, lubang menutup, SFX `enderman`, mode reduce-motion = teleport langsung.
+- 🟡 F13 — Durasi swap total **2,3 dtk** (0,7 + 0,7 + 0,5 + 0,4), di atas target teleport 0,9–1,6 dtk. Komentar kode menyebut timeline "TETAP", jadi ini keputusan desain yang perlu dikonfirmasi. Bentuk portal runtuh masih lewat skala, belum ledakan partikel dari portal itu sendiri.
+- 🟡 F14 — `enderman` hanya satu file SFX tanpa variasi.
 
 **Audio**
-- ðŸŸ¢ F15 â€” Sesuai standar: file asli dulu + fallback sintetis, volume mengikuti slider, SFX pemain lain lebih pelan (`MP_SFX_GAIN`), `rollStop` untuk loop.
+- 🟢 F15 — Sesuai standar: file asli dulu + fallback sintetis, volume mengikuti slider, SFX pemain lain lebih pelan (`MP_SFX_GAIN`), `rollStop` untuk loop.
 
 **Pengujian**
-- ðŸŸ¡ F16 â€” Tidak ada test khusus untuk `gameplay/fx.js`, `enderHole`/`enderSwapAnim`, `ParticleFX`, atau kontrak cue FX. Test FX hanya ada untuk aura, power3d, dan dadu.
+- 🟡 F16 — Tidak ada test khusus untuk `gameplay/fx.js`, `enderHole`/`enderSwapAnim`, `ParticleFX`, atau kontrak cue FX. Test FX hanya ada untuk aura, power3d, dan dadu.
 
 ## 3. Usulan Core FX Standard (untuk Tahap 1 bagian 2)
 
 Prinsip: **tambah lapisan tipis di `UT.GameplayFX`, jangan buat engine baru, jangan ubah aturan gameplay.**
 
-1. **Lifecycle** â€” `FX.track({id,type,update,stop,dispose})` mendaftarkan efek aktif; `FX.stopAll()` dipanggil di reset/akhir game/pindah scene. Efek lama (`enderHole`, `sparkle`) dibungkus bertahap, bukan ditulis ulang.
-2. **Quality** â€” `FX.quality()` mengembalikan `low|medium|high|ultra` dari preferensi + heuristik perangkat `dice-throw.js`. Fungsi `FX.n(base)` menskalakan jumlah partikel. Menyambungkan juga `ParticleFX.configure()` yang kini tidak terpakai.
-3. **Reduce-motion** â€” satu `FX.reduced()` live (berbasis `matchMedia`), dipakai menggantikan `const reduce` secara bertahap.
-4. **Timing** â€” tabel durasi standar dijadikan konstanta (`FX.T.micro/hit/skill/teleport/...`) sebagai target, bukan batas wajib.
-5. **Kontrak cue** â€” tambah `fid` (ID event, mis. `gameId:seq`) dan `seed` opsional pada cue FX; klien mengabaikan `fid` yang sudah diputar. Cue lama tanpa `fid` tetap diterima (kompatibel mundur).
-6. **Pooling** â€” pool mesh/material untuk `fx.js` (confetti/explosion/sparkle), dengan batas jumlah aktif.
-7. **Tempat kode** â€” modul FX baru di `src/gameplay/js/` dengan pola `UT.*` (classic script) yang sama; FX berbasis item/identitas ke `data/` (katalog).
+1. **Lifecycle** — `FX.track({id,type,update,stop,dispose})` mendaftarkan efek aktif; `FX.stopAll()` dipanggil di reset/akhir game/pindah scene. Efek lama (`enderHole`, `sparkle`) dibungkus bertahap, bukan ditulis ulang.
+2. **Quality** — `FX.quality()` mengembalikan `low|medium|high|ultra` dari preferensi + heuristik perangkat `dice-throw.js`. Fungsi `FX.n(base)` menskalakan jumlah partikel. Menyambungkan juga `ParticleFX.configure()` yang kini tidak terpakai.
+3. **Reduce-motion** — satu `FX.reduced()` live (berbasis `matchMedia`), dipakai menggantikan `const reduce` secara bertahap.
+4. **Timing** — tabel durasi standar dijadikan konstanta (`FX.T.micro/hit/skill/teleport/...`) sebagai target, bukan batas wajib.
+5. **Kontrak cue** — tambah `fid` (ID event, mis. `gameId:seq`) dan `seed` opsional pada cue FX; klien mengabaikan `fid` yang sudah diputar. Cue lama tanpa `fid` tetap diterima (kompatibel mundur).
+6. **Pooling** — pool mesh/material untuk `fx.js` (confetti/explosion/sparkle), dengan batas jumlah aktif.
+7. **Tempat kode** — modul FX baru di `src/gameplay/js/` dengan pola `UT.*` (classic script) yang sama; FX berbasis item/identitas ke `data/` (katalog).
 
 ## 4. Risiko & hal yang tidak boleh disentuh
 
 - Aturan damage, gerak, dadu, giliran, dan penyelesaian swap (`p.pos`, `slotPos`, callback `await`).
 - Jangan hapus FX lama sebelum pengganti terbukti.
-- `gameplay/` dibekukan â†’ semua perubahan di sana minimal dan dicatat per checkpoint.
+- `gameplay/` dibekukan → semua perubahan di sana minimal dan dicatat per checkpoint.
 - Setelah perubahan aset: naikkan `VERSION` di `sw.js` dan jalankan `python3 tools/gen-preload-manifest.py`.
 
 ## 5. Rencana checkpoint berikutnya

@@ -1,4 +1,4 @@
-﻿# AUDIT & REFECTORING CSS BERSAMA (SHARED CSS) â€” TAHAP 3
+# AUDIT & REFECTORING CSS BERSAMA (SHARED CSS) — TAHAP 3
 
 **Tanggal:** 2026-11-28  
 **Branch:** `feat/shared-css-cleanup-stage3` (bercabang dari `feat/design-tokens-stage2` @ `ebfc3411`)  

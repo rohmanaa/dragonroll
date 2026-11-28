@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/item-icon/item-icon.css : ukuran ikon item (UT.ItemIcon). */
+/* Dragon Roll — src/components/item-icon/item-icon.css : ukuran ikon item (UT.ItemIcon). */
 .ut-ic { display: inline-block; width: 1.6em; height: 1.6em; vertical-align: middle; flex: none; object-fit: contain; pointer-events: none; }
 .ut-ic-lg { width: 2.6em; height: 2.6em; }
 

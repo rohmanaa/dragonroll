@@ -1,4 +1,4 @@
-﻿/* inventory (SPA tahap 3): view di shell, ?tab= dari URL rute aktif, tanpa history.replaceState di shell, nav lewat UT.Spa.go. */
+/* inventory (SPA tahap 3): view di shell, ?tab= dari URL rute aktif, tanpa history.replaceState di shell, nav lewat UT.Spa.go. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +17,7 @@ t('?tab= dari URL rute aktif; replaceState dimatikan di shell', () => {
 });
 t('listener lewat env', () => { assert(/var addEventListener = env\.addEventListener/.test(js)); assert(!/window\.addEventListener/.test(js)); });
 t('inventory.html memuat page-module.js sebelum inventory.js; tanpa id bentrok shell', () => {
-  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/inventory.js'));
+  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('views/inventory.js'));
   assert(!/id="(view|f|ov)"/.test(html));
 });
 t('spa-host, frame-guard, play.js mengenal inventory', () => {

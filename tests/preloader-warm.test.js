@@ -1,4 +1,4 @@
-﻿/* Pembukaan berikutnya tidak memindai/mengunduh ulang ratusan file yang sudah ada di cache perangkat. */
+/* Pembukaan berikutnya tidak memindai/mengunduh ulang ratusan file yang sudah ada di cache perangkat. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

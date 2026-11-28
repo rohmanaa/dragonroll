@@ -1,6 +1,6 @@
-﻿/* Jalankan dari akar repo:  node tools/aura-fx/build.js
-   Sumber: tools/aura-fx/src/*.js (ES module, ditulis untuk three r169 â€” paket "aura-3d").
-   Hasil : src/renderers/aura-fx.js â€” satu skrip klasik (global UT.AuraFX) untuk three.js r128 global (src/vendor/three.min.js).
+/* Jalankan dari akar repo:  node tools/aura-fx/build.js
+   Sumber: tools/aura-fx/src/*.js (ES module, ditulis untuk three r169 — paket "aura-3d").
+   Hasil : src/renderers/aura-fx.js — satu skrip klasik (global UT.AuraFX) untuk three.js r128 global (src/vendor/three.min.js).
    Penyesuaian r128: tanpa import/export; shader pakai <encodings_fragment> (bukan <colorspace_fragment>); colorSpace tekstur di-guard. */
 const fs = require('fs'), path = require('path'), ROOT = path.join(__dirname, '..', '..'), SRC = path.join(__dirname, 'src');
 const MODS = [ // urutan = dependensi
@@ -11,7 +11,7 @@ const MODS = [ // urutan = dependensi
   ['System', 'AuraSystem', ['AuraSystem']],
 ];
 const VAR = { AuraConfig: 'Config', AuraParticles: 'Particles', AuraCatalog: 'Catalog', AuraDecor: 'Decor' };
-let out = `/* src/renderers/aura-fx.js â€” GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
+let out = `/* src/renderers/aura-fx.js — GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
    Aura karakter voxel 3D (15 aura, Common..Divine). Skrip klasik, global UT.AuraFX; perlu global THREE (r128).
      const sys = new UT.AuraFX.AuraSystem(scene, camera, {quality:'medium'});
      const aura = sys.attach(object3D, 'dragon', {intensity:1,size:1,speed:1,tint:null}, {height:2});

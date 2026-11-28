@@ -1,4 +1,4 @@
-﻿/* Mengekstrak data box dari modul Gameplay aktif (tanpa menjalankan game). Dipanggil oleh build.js. */
+/* Mengekstrak data box dari modul Gameplay aktif (tanpa menjalankan game). Dipanggil oleh build.js. */
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..','..'); /* = folder game/ */
 const page=fs.readFileSync(path.join(ROOT,'gameplay.html'),'utf8');

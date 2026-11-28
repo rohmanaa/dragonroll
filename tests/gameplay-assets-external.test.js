@@ -1,4 +1,5 @@
-﻿const assert = require('assert');
+require("./_boot-compat.js");
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
@@ -32,8 +33,8 @@ assert.ok(html.indexOf('href="src/gameplay/css/dice-pad.css"') < html.indexOf('h
 assert.ok(html.indexOf('href="src/gameplay/css/gameplay-overrides.css"') < html.indexOf('href="src/gameplay/css/hud-mockup.css"'));
 
 const main = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
-assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/progress-service\.js', document\.baseURI\)/g) || []).length, 5);
-assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/room-service\.js', document\.baseURI\)/g) || []).length, 1);
+assert.strictEqual((main.match(/new URL\('src\/multiplayer\/progress-service\.js', document\.baseURI\)/g) || []).length, 5);
+assert.strictEqual((main.match(/new URL\('src\/multiplayer\/room-service\.js', document\.baseURI\)/g) || []).length, 1);
 console.log('ok - gameplay CSS and JavaScript are external with load order preserved');
 
 

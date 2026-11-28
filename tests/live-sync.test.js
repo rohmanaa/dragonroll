@@ -1,4 +1,4 @@
-﻿/* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
+/* LiveSync: penyegar data server tanpa refresh halaman. Jalankan: node tests/live-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const src = fs.readFileSync(path.join(__dirname, '../src/core/live-sync.js'), 'utf8');
 const ROOT = path.join(__dirname, '..');

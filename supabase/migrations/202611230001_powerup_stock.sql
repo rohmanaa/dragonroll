@@ -1,4 +1,4 @@
-﻿-- Power-up berstok (consumable). Aturan:
+-- Power-up berstok (consumable). Aturan:
 --   * Stok = player_inventory.qty milik tiap akun. Power tidak otomatis dimiliki; dibeli per JUMLAH (buy_powerup).
 --   * Memilih Loadout di Room TIDAK mengurangi stok. Stok baru berkurang saat Power benar-benar dipakai (use_powerup).
 --   * Yang tidak terpakai tidak pernah dipotong, jadi otomatis "kembali" ke Inventory setelah pertandingan.

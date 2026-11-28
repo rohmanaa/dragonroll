@@ -1,4 +1,4 @@
-﻿/* Frame profil beranimasi (desain: tools/frame-design/Character_Frames.html).
+/* Frame profil beranimasi (desain: tools/frame-design/Character_Frames.html).
    Frame digambar lewat kode (pixel 56x56 sel, bingkai 3 sel, lubang avatar 26x26) + efek hidup: kilau, partikel, petir, halo, api, bintang.
    Mode "ringkas" (42x42 sel) dipakai di game: lubang avatar = 26/42 = 61.9% lebar gambar, di tengah (19.05% dari tiap sisi).
 

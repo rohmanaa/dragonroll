@@ -1,4 +1,4 @@
-﻿/* Popup undangan teman (presence.js): tombol GABUNG/TOLAK memakai aset gambar (bukan gradien CSS) dan GABUNG tidak meninggalkan shell SPA. */
+/* Popup undangan teman (presence.js): tombol GABUNG/TOLAK memakai aset gambar (bukan gradien CSS) dan GABUNG tidak meninggalkan shell SPA. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

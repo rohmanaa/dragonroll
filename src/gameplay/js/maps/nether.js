@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok - src/gameplay/js/maps/nether.js
+/* Ular Tangga Blok - src/gameplay/js/maps/nether.js
    Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH src/gameplay/js/maps/registry.js
    dan SEBELUM src/gameplay/js/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
    Isi definisi:

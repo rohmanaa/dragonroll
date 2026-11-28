@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/currency/currency.js (Stage 4.0.5: komponen Currency reusable)
+/* Ular Tangga Blok — src/components/currency/currency.js (Stage 4.0.5: komponen Currency reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/currency/currency.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('currency', { type:'coin', value:8450, size:'lg' });
@@ -6,7 +6,7 @@
    Opsi: type (gem|coin; lainnya -> gem), value (angka / string angka), size (sm|md|lg; lainnya -> md),
          className, ariaLabel.
    Hasil: <span class="ut-currency ut-currency-<type> ut-currency-<size>">
-            <span class="ut-currency-icon"><svg/></span><span class="ut-currency-value">â€¦</span></span>
+            <span class="ut-currency-icon"><svg/></span><span class="ut-currency-value">…</span></span>
    Komponen hanya MENAMPILKAN value yang diberikan (apa adanya, tanpa format ribuan; pemanggil yang memformat).
    Tidak membaca/menulis PlayerData maupun localStorage. Bukan elemen interaktif: tanpa tabindex, tanpa role.
    Semua isi dibuat lewat DOM/SVG API + textContent; tidak ada HTML string.

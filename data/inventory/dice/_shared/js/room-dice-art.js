@@ -1,4 +1,4 @@
-﻿import { getDice } from '../../../../../src/renderers/dice-kit/dice-catalog.js';
+import { getDice } from '../../../../../src/renderers/dice-kit/dice-catalog.js';
 import { diceThumbDataURL } from '../../../../../src/renderers/dice-kit/dice-textures.js';
 
 window.RoomDiceArt = {

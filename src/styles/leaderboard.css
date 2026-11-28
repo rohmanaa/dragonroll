@@ -1,4 +1,4 @@
-﻿/* leaderboard.html â€” kiri: podium + kartu posisi kamu; kanan: tab + tabel */
+/* leaderboard.html — kiri: podium + kartu posisi kamu; kanan: tab + tabel */
 #podium{position:absolute;left:190px;top:130px;width:660px;height:540px}
 #podium .pimg{position:absolute;left:0;bottom:0;width:100%;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.45))}
 .pd{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)}

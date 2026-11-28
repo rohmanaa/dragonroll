@@ -1,4 +1,4 @@
-﻿# Hati / nyawa (tahap 1)
+# Hati / nyawa (tahap 1)
 
 - Tiap pemain punya **5 hati** (default). **1 hati terpakai tiap match dimulai** (semua mode, termasuk "Mulai ulang"/"Main lagi" di gameplay). Terisi lagi otomatis **1 hati / 15 menit** sampai penuh.
 - **Server yang menentukan** (`supabase/migrations/202611410001_hearts.sql`: `hearts_get`, `hearts_consume`). Isi ulang dihitung malas dari jam server (tanpa cron). Angka hanya di `_hearts_max()` & `_hearts_regen_secs()`.
@@ -7,8 +7,8 @@
 - Kebijakan: hanya `hati-habis` yang memblokir. Gagal jaringan/belum login = lolos; tamu/lokal = tanpa batas.
 - Tes: `tests/hearts-service.test.js`, `tests/room-flow-spa.test.js`, `supabase/tests/hearts_test.sql` (DB uji).
 
-## Tahap 2 â€” kirim hati ke teman (migrasi `202611420001_hearts_friends.sql`)
-- Halaman Pertemanan: tombol hati di tiap baris teman (`paha-ayam.webp`). Normal `+1`, emas `+2`, sudah dikirim hari ini `âœ“` (redup).
+## Tahap 2 — kirim hati ke teman (migrasi `202611420001_hearts_friends.sql`)
+- Halaman Pertemanan: tombol hati di tiap baris teman (`paha-ayam.webp`). Normal `+1`, emas `+2`, sudah dikirim hari ini `✓` (redup).
 - 1 hati / hari / teman (hari = tanggal Asia/Jakarta), maksimal 25 teman berbeda per hari. Server: `hearts_friends()` (status), `hearts_send(friend)`.
 - Penerima langsung +1 hati tanpa klaim; boleh > 5 (isi ulang otomatis tetap berhenti di 5; hadiah tidak hilang saat sedang isi ulang).
 - Pengirim dapat fee Emerald lewat `_wallet_apply(reason 'heart_gift')`: 1; bila penerima tidak aktif >= 30 hari: 2 dan ikon teman itu emas.

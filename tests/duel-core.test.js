@@ -1,4 +1,4 @@
-﻿const assert = require('assert');
+const assert = require('assert');
 const D = require('../src/gameplay/js/duel-core.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 const types = r => r.events.map(e => e.type);

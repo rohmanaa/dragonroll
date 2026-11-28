@@ -1,4 +1,4 @@
-﻿const assert = require('assert');
+const assert = require('assert');
 const C = require('../src/gameplay/js/game-core.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 const at = (s, i, pos, sixes) => { const x = JSON.parse(JSON.stringify(s)); x.cfg = s.cfg; x.players[i].pos = pos; if (sixes != null) x.players[i].sixes = sixes; return x; };

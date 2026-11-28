@@ -1,4 +1,4 @@
-﻿/* UT.PageModule: mount menjalankan body, unmount melepas SEMUA registrasi halaman (timer, interval, rAF, listener, langganan). */
+/* UT.PageModule: mount menjalankan body, unmount melepas SEMUA registrasi halaman (timer, interval, rAF, listener, langganan). */
 const assert = require('assert');
 const path = require('path');
 const PM = require(path.join(__dirname, '..', 'src/core/page-module.js'));

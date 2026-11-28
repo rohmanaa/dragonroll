@@ -1,4 +1,4 @@
-﻿import assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { DiceAnimator } from '../src/renderers/dice-kit/dice-animation.js';
 import { D6_FACES } from '../src/renderers/dice-kit/dice-catalog.js';
 import * as THREE from '../src/vendor/three.r170.module.min.js';

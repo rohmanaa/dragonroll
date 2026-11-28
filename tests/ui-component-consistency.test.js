@@ -1,4 +1,4 @@
-﻿/* tests/ui-component-consistency.test.js
+/* tests/ui-component-consistency.test.js
    Memastikan konsistensi interaction states (focus-visible, hover restrictions, active, disabled)
    pada komponen UI bersama (Button, Tabs, Modal, Cards) selaras dengan Tahap 5. */
 const assert = require('assert');

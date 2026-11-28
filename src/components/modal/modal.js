@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/modal/modal.js (Stage 4.0.6: komponen Modal reusable)
+/* Ular Tangga Blok — src/components/modal/modal.js (Stage 4.0.6: komponen Modal reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/modal/modal.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var m = UT.Hud.create('modal', { title:'Reward', content: someElement });

@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/badge/badge.js (Stage 4.0.8: komponen Badge / Tag reusable)
+/* Ular Tangga Blok — src/components/badge/badge.js (Stage 4.0.8: komponen Badge / Tag reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/badge/badge.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat registry kedua.
    Pakai:  var el = UT.Hud.create('badge', { label:'Owned', variant:'success', size:'md' });

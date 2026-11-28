@@ -1,4 +1,4 @@
-﻿/* Tes sistem Chest (klien): method WalletService.chest* memanggil RPC yang benar, tanpa nominal dari klien, cermin saldo dari hasil server.
+/* Tes sistem Chest (klien): method WalletService.chest* memanggil RPC yang benar, tanpa nominal dari klien, cermin saldo dari hasil server.
    Tes statis: tab Chest di Inventory, tombol di Lobby, aset gambar, dan migrasi. Jalankan: node tests/chest-service.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const Svc = require('../src/services/wallet-service.js');

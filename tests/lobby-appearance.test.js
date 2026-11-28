@@ -1,4 +1,4 @@
-﻿/* Lobi harus menampilkan tampilan/outfit AKTIF akun dari server tanpa membuka halaman Karakter dulu. Jalankan: node tests/lobby-appearance.test.js */
+/* Lobi harus menampilkan tampilan/outfit AKTIF akun dari server tanpa membuka halaman Karakter dulu. Jalankan: node tests/lobby-appearance.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const PG = require("./_page");
 const h = PG.readFileSync(path.join(__dirname, '../lobby.html'), 'utf8');

@@ -1,4 +1,4 @@
-﻿/* Phase 2 â€” Spatial FX: lifecycle, cleanup, seed deterministik, kualitas, reduce-motion, dan penyambungan di main.js.
+/* Phase 2 — Spatial FX: lifecycle, cleanup, seed deterministik, kualitas, reduce-motion, dan penyambungan di main.js.
    Node + stub THREE (tanpa WebGL): yang diuji adalah logika/lifecycle, bukan tampilan. */
 const assert = require('assert');
 const fs = require('fs');

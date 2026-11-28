@@ -1,16 +1,16 @@
-﻿/* Gameplay Dice UI â€” dadu gameplay = DADU 3D ASLI dari Dice Kit (src/renderers/dice-kit, modul bersama dengan preview Inventory dadu.html).
+/* Gameplay Dice UI — dadu gameplay = DADU 3D ASLI dari Dice Kit (src/renderers/dice-kit, modul bersama dengan preview Inventory dadu.html).
    Kubus CSS lama sudah dihapus: fisika kocok-lempar, tekstur/material skin, efek partikel/aura, dan suara semuanya dari DiceKit.
    TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Ramuan Ganjil-Genap/Pasti 6/6=giliran ekstra/tiga 6 tetap di sana);
    kit hanya menampilkan lemparan yang berakhir di angka itu (roll(forcedValue)).
    Classic script. Namespace: UT.GameplayDiceUI.
    API:
-     init(sceneEl?)       â€” pasang panggung 3D (dadu + tatakan) di #dieScene (idempoten; menunggu modul DiceKit bila belum siap)
-     showDie(v, anim)     â€” anim=true: kocok + lempar fisika yang berakhir di v, mengembalikan Promise (selesai saat dadu mendarat dan angka tampil)
+     init(sceneEl?)       — pasang panggung 3D (dadu + tatakan) di #dieScene (idempoten; menunggu modul DiceKit bila belum siap)
+     showDie(v, anim)     — anim=true: kocok + lempar fisika yang berakhir di v, mengembalikan Promise (selesai saat dadu mendarat dan angka tampil)
                             anim=false: dadu diam dengan muka v di atas (mengembalikan Promise yang sudah selesai)
-     roll(v) / setValue(v) / reset()  â€” = showDie(v,true) / showDie(v,false) / showDie(1,false)
-     setSkin(gameKey)     â€” ganti skin dadu (material 3D)
-     setSound(on) / setVolume(0..1) â€” ikuti pengaturan suara gameplay
-     ready                â€” true bila dadu 3D sudah terpasang
+     roll(v) / setValue(v) / reset()  — = showDie(v,true) / showDie(v,false) / showDie(1,false)
+     setSkin(gameKey)     — ganti skin dadu (material 3D)
+     setSound(on) / setVolume(0..1) — ikuti pengaturan suara gameplay
+     ready                — true bila dadu 3D sudah terpasang
    Guard gameId/STALE tetap di pemanggil (gameplay.html): modul ini tidak menahan state game. */
 (function (win, doc) {
   'use strict';

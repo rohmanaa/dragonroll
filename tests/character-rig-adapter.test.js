@@ -1,3 +1,4 @@
+require("./_boot-compat.js");
 /* Tes fondasi rig CharacterData/BlockyCharacter tanpa mengubah pilihan renderer halaman. */
 const assert = require('assert');
 const fs = require('fs');

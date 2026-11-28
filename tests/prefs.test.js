@@ -1,4 +1,4 @@
-﻿/* Tes UT.Prefs (Tahap 2 penghapusan localStorage). Jalankan: node tests/prefs.test.js */
+/* Tes UT.Prefs (Tahap 2 penghapusan localStorage). Jalankan: node tests/prefs.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const SRC = fs.readFileSync(path.join(__dirname, '../src/core/prefs.js'), 'utf8');
 function boot(store, opts) {

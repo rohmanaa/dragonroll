@@ -1,4 +1,5 @@
-﻿/* Tidak boleh ada CDN eksternal untuk font/skrip: semua lokal (offline-ready). Jalankan: node tests/no-cdn.test.js */
+require("./_boot-compat.js");
+/* Tidak boleh ada CDN eksternal untuk font/skrip: semua lokal (offline-ready). Jalankan: node tests/no-cdn.test.js */
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const root = path.join(__dirname, ".."); let n = 0;
 const t = (name, fn) => { fn(); n++; console.log("ok - " + name); };
@@ -9,7 +10,7 @@ t("halaman tidak memuat Google Fonts (fonts.googleapis/gstatic)", () => {
 t("semua halaman yang memakai font lokal memuat src/styles/fonts.css", () => {
   ["splash.html", "play.html", "lobby.html", "karakter.html"].forEach(f => {
     const html = fs.readFileSync(path.join(root, f), "utf8");
-    assert.ok(/assets\/js\/core\/page-shell\.js/.test(html) && /PageShell\.renderBase/.test(html), f);
+    assert.ok(/src\/core\/page-shell\.js/.test(html) && /PageShell\.renderBase/.test(html), f);
   });
   assert.ok(/src\/styles\/fonts\.css/.test(fs.readFileSync(path.join(root, "src/core/page-shell.js"), "utf8")));
   assert.ok(/src\/styles\/fonts\.css/.test(fs.readFileSync(path.join(root, "gameplay.html"), "utf8")), "gameplay.html");

@@ -1,4 +1,4 @@
-﻿/* tambang-hud.css â€” HUD Tambang, nilai disalin dari referensi/newgui/game (common/page/sub/tambang/bg.css).
+/* tambang-hud.css — HUD Tambang, nilai disalin dari referensi/newgui/game (common/page/sub/tambang/bg.css).
    Kanvas 1920x1080 yang diskalakan; semua id/kelas berawalan tambang- agar tidak menimpa CSS halaman lain. */
 @font-face{font-family:'Lilita One';src:url(../fonts/tambang-lilita-one.woff2) format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Nunito';src:url(../fonts/tambang-nunito-600.woff2) format('woff2');font-weight:600;font-display:swap}

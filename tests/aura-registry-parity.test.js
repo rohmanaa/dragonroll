@@ -1,4 +1,5 @@
-﻿/* Tes Registry Aura Stage 7: manifest, ItemCatalog, aset bersama, halaman konsumen, dan PlayerData. */
+require("./_boot-compat.js");
+/* Tes Registry Aura Stage 7: manifest, ItemCatalog, aset bersama, halaman konsumen, dan PlayerData. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const ROOT = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p)), clone = o => JSON.parse(JSON.stringify(o));

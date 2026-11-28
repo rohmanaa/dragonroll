@@ -1,4 +1,4 @@
-﻿/* Tes klien hati/nyawa (tanpa jaringan): proyeksi hitung mundur, pembungkus RPC, tanpa server = tanpa batas, tidak dobel, gagal tidak melempar. */
+/* Tes klien hati/nyawa (tanpa jaringan): proyeksi hitung mundur, pembungkus RPC, tanpa server = tanpa batas, tidak dobel, gagal tidak melempar. */
 const assert = require('assert');
 const { create, project } = require('../src/services/hearts-service.js');
 

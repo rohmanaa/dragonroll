@@ -1,4 +1,4 @@
-﻿-- Dadu: daftarkan 24 skin dadu (koleksi Dragon Roll) ke katalog SERVER.
+-- Dadu: daftarkan 24 skin dadu (koleksi Dragon Roll) ke katalog SERVER.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage/hardcode di gameplay). Aman diulang (upsert).
 -- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 -- Harga dadu baru adalah usulan berdasarkan rarity/tier; ubah di item-catalog.js lalu jalankan gen-item-seed.js --write dan terapkan ulang.

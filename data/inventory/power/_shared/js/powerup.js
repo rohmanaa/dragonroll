@@ -1,4 +1,4 @@
-﻿/* powerup.js â€” dipindah dari <script> inline (powerup.html). */
+/* powerup.js — dipindah dari <script> inline (powerup.html). */
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('id-ID');
 function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);$('#stage').style.transform='scale('+k+')';document.documentElement.style.setProperty('--k',k)}addEventListener('resize',fit);fit();
@@ -31,7 +31,7 @@ const thumb=i=>i.icon?'<img src="'+i.icon+'" alt="">':(AR&&AR.powerup?AR.powerup
 function renderGrid(){
   let html=LIST.map(i=>{
     const k=qty(i);
-    return '<button class="fslot ut-slot st-own'+(i===sel?' sel':'')+'" data-id="'+i.id+'" aria-label="'+i.name+' â€” stok Ã—'+k+', ketuk untuk lihat detail"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><span class="chip-n">'+k+'</span></button>'}).join('');
+    return '<button class="fslot ut-slot st-own'+(i===sel?' sel':'')+'" data-id="'+i.id+'" aria-label="'+i.name+' — stok ×'+k+', ketuk untuk lihat detail"><div class="dc" style="--c:'+RC[i.rarity]+'">'+thumb(i)+'</div><span class="chip-n">'+k+'</span></button>'}).join('');
   html+='<button class="fslot ut-slot add" type="button" data-add aria-label="Tambah Power-up, buka Toko"><span class="pl">+</span></button>';
   $('#grid').innerHTML=html;
   $('#empty').hidden=LIST.length>0;
@@ -41,7 +41,7 @@ function renderInfo(){
   const c=RC[i.rarity],n=qty(i);
   $('#pa').innerHTML='<div class="dice pw" id="die" style="--c:'+c+'"><i class="ring"></i>'+thumb(i)+'</div>';
   $('#nm').textContent=i.name;
-  const r=$('#rar');r.textContent=RN[i.rarity]+' Â· stok Ã—'+n;r.style.color=c;
+  const r=$('#rar');r.textContent=RN[i.rarity]+' · stok ×'+n;r.style.color=c;
   $('#ds').textContent=i.desc+(IC.powerMapNote(i.id)?' ['+IC.powerMapNote(i.id)+']':'')+PFX.note(i)+' Stok baru berkurang saat dipakai di pertandingan.';
 }
 function refresh(){LIST=CI.powerup.filter(i=>qty(i)>0);if(!sel||!LIST.includes(sel))sel=LIST[0]||null;renderGrid();renderInfo();if(!sel&&$('#pv').classList.contains('on'))closePv();P3D.sync()}

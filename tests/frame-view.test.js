@@ -1,4 +1,4 @@
-﻿/* Frame sebagai view SPA (tab Inventory tanpa iframe) + helper bar tab bersama UT.InvTabs.mountChrome. */
+/* Frame sebagai view SPA (tab Inventory tanpa iframe) + helper bar tab bersama UT.InvTabs.mountChrome. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

@@ -1,4 +1,4 @@
-﻿/* Tes mode dompet server (B5): PlayerData overlay + WalletService. Jalankan: node game/tests/player-data-server.test.js */
+/* Tes mode dompet server (B5): PlayerData overlay + WalletService. Jalankan: node game/tests/player-data-server.test.js */
 const assert = require('assert');
 const fs = require('fs'), path = require('path'), vm = require('vm');
 let n = 0; const queue = []; const t = (name, fn) => queue.push([name, fn]);
@@ -13,7 +13,7 @@ function boot(opts) {
   if (opts.flagOff) w.UT_SERVER_WALLET = false;
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ['core/session.js', 'stores/item-catalog.js', 'stores/player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store, ctx };
 }
 const ACCT = { 'ut-auth': JSON.stringify({ id: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb', username: 'tester' }) };

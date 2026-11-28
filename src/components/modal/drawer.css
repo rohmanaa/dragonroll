@@ -1,6 +1,6 @@
-﻿/* Ular Tangga Blok â€” src/components/modal/drawer.css  (HUD-Gloss; Drawer dari kit "modals", CSS murni tanpa gambar)
+/* Ular Tangga Blok — src/components/modal/drawer.css  (HUD-Gloss; Drawer dari kit "modals", CSS murni tanpa gambar)
    Panel samping kanan: header (judul + X), daftar bergulir, tab kategori di bawah.
-   Prefiks .ut-dr*. Ukuran memakai em; skala dasar = --dr-k (default 1.8 â†’ cocok kanvas 1920x1080; pakai 1 untuk halaman biasa).
+   Prefiks .ut-dr*. Ukuran memakai em; skala dasar = --dr-k (default 1.8 → cocok kanvas 1920x1080; pakai 1 untuk halaman biasa).
    Pakai:
      <div class="ut-dr-ov" id="x">                                  (tambah .on untuk membuka)
        <aside class="ut-dr" role="dialog" aria-modal="true">
@@ -8,7 +8,7 @@
          <div class="ut-dr-list">
            <div class="ut-dr-sec">Bagian</div>
            <div class="ut-dr-bar"><span>Label</span><span>nilai</span></div>              (bar hijau)
-           <div class="ut-dr-item"><div class="ut-dr-ic">â›</div><div class="ut-dr-name">Nama<small>ket</small></div>
+           <div class="ut-dr-item"><div class="ut-dr-ic">⛏</div><div class="ut-dr-name">Nama<small>ket</small></div>
              <div class="ut-dr-meta"><div class="ut-dr-cost">500</div><button class="ut-btn ut-gl ut-c-g sm">UPGRADE</button></div></div>
          </div>
          <div class="ut-dr-tabs"><button class="ut-dr-tab on">UPGRADE</button><button class="ut-dr-tab">GUDANG</button></div>

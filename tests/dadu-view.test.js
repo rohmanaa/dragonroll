@@ -1,4 +1,4 @@
-﻿/* Dadu sebagai view SPA: modul 'dadu'; DiceKit memakai renderer bersama (sharedGL:'inv-dadu') hanya untuk tab ini â€” gameplay tetap mandiri. */
+/* Dadu sebagai view SPA: modul 'dadu'; DiceKit memakai renderer bersama (sharedGL:'inv-dadu') hanya untuk tab ini — gameplay tetap mandiri. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

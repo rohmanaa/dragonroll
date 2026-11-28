@@ -1,4 +1,4 @@
-﻿/* Hub Profil Â· Teman Â· Pesan Â· Pengaturan (satu halaman penuh, bukan modal): helper murni + pemeriksaan statis kode/markup.
+/* Hub Profil · Teman · Pesan · Pengaturan (satu halaman penuh, bukan modal): helper murni + pemeriksaan statis kode/markup.
    Perilaku DOM (fokus, inert, Esc, ganti tab) diverifikasi terpisah dengan jsdom; tes ini tanpa dependensi agar jalan di CI. */
 const assert = require('assert');
 const fs = require('fs');
@@ -75,8 +75,8 @@ t('profile.html = host hub: #stage kosong, template Profil, managed=true sebelum
   assert(/<div id="stage"><\/div>/.test(h) && /<template id="tpl-profil"/.test(h));
   const i = s => h.indexOf(s);
   assert(i('core/modal-kit.js') > 0 && i('core/account-hub.js') > i('core/modal-kit.js'));
-  assert(i('PageModule.managed=true') > i('core/page-module.js') && i('PageModule.managed=true') < i('pages/profile.js'));
-  assert(i('pages/account.js') > i('pages/profile.js') && i('PageModule.mount("profile")') > i('pages/account.js'));
+  assert(i('PageModule.managed=true') > i('core/page-module.js') && i('PageModule.managed=true') < i('views/profile.js'));
+  assert(i('views/account.js') > i('views/profile.js') && i('PageModule.mount("profile")') > i('views/account.js'));
   assert(!/profile-tabs/.test(h));
 });
 t('friendship/mail/settings.html: dialihkan ke hub bila dibuka langsung; tab lama dibuang', () => {

@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/gameplay/js/ready.js (Ready Screen pra-game: ACAK GILIRAN)
+/* Ular Tangga Blok — src/gameplay/js/ready.js (Ready Screen pra-game: ACAK GILIRAN)
    Skrip klasik. Dimuat SETELAH src/gameplay/js/afk.js. Hanya presentasi + state urutan; tidak memuat logic gameplay.
      UT.GameplayReady.show(players, opts) -> Promise
         players: array objek pemain existing ({name,key,css,cpu,...}); modul menulis p.turnOrder (1..n), p.ready, p.autoReady.
@@ -12,7 +12,7 @@
           Pemain manusia yang diam sampai waktu habis dipilihkan kartu acak (tidak pernah stuck).
        3. Setelah semua kartu terpilih, semua kartu ter-flip menampilkan angka (besar) + nama pemain.
        4. Layar ditutup; resolve(array pemain berurutan sesuai giliran). p.turnOrder ditulis dari angka kartu yang sama.
-     UT.GameplayReady.cancel() â€” tutup + bersihkan semua timer (restart/unload). */
+     UT.GameplayReady.cancel() — tutup + bersihkan semua timer (restart/unload). */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -123,7 +123,7 @@
           var picked = item.player.turnOrder > 0, current = !ordered && item.player === active;
           item.node.classList.toggle('act', current);
           item.status.classList.toggle('ok', picked);
-          item.status.textContent = picked ? 'Giliran ' + item.player.turnOrder : current ? 'Memilihâ€¦' : 'Menunggu';
+          item.status.textContent = picked ? 'Giliran ' + item.player.turnOrder : current ? 'Memilih…' : 'Menunggu';
         });
       }
 
@@ -174,10 +174,10 @@
           A().start(reg('pick-auto'), 700, function () { take(f[0], p, true); }); return;
         }
         if (p.cpu) {
-          setAvail(false); time.classList.remove('active'); setMessage(p.name + ' sedang memilihâ€¦'); renderRoster(p, false);
+          setAvail(false); time.classList.remove('active'); setMessage(p.name + ' sedang memilih…'); renderRoster(p, false);
           A().start(reg('pick-cpu'), 700 + Math.floor(rng() * 500), function () { take(randomFree(), p, true); }); return;
         }
-        setMessage('Giliran kamu memilih â€” ketuk satu kartu'); time.classList.add('active'); updateTimer(secs); time.classList.remove('low'); renderRoster(p, false);
+        setMessage('Giliran kamu memilih — ketuk satu kartu'); time.classList.add('active'); updateTimer(secs); time.classList.remove('low'); renderRoster(p, false);
         setAvail(true);
         var fs = f[0]; if (fs) { try { fs.b.focus({ preventScroll: true }); } catch (e) {} }
         A().start(reg('pick'), secs * 1000, function () { take(randomFree(), p, true); }, function (s) {
@@ -201,7 +201,7 @@
 
       function allPicked() {
         if (finished) return; finished = true; setAvail(false); time.classList.remove('active'); renderRoster(null, true);
-        setMessage('Membuka kartuâ€¦');
+        setMessage('Membuka kartu…');
         A().start(reg('pick-flip'), 600, function () {
           if (ctx.cancelled) return;
           var ordered = players.slice().sort(function (a, b) { return a.turnOrder - b.turnOrder; });
@@ -222,7 +222,7 @@
       var animateShuffle = true;
       try { animateShuffle = !(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) {}
       if (animateShuffle) {
-        setMessage('Kartu diacakâ€¦');
+        setMessage('Kartu diacak…');
         grid.classList.add('shuf');
         A().start(reg('shuffle'), 3100, function () {
           if (ctx.cancelled) return;

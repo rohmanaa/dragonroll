@@ -1,4 +1,4 @@
-﻿/* RoomFlow di shell SPA: navigate/launch/exitGame lewat UT.Spa.go (shell tidak ditinggalkan); tanpa UT.Spa (mandiri / di iframe) tetap location.href. */
+/* RoomFlow di shell SPA: navigate/launch/exitGame lewat UT.Spa.go (shell tidak ditinggalkan); tanpa UT.Spa (mandiri / di iframe) tetap location.href. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

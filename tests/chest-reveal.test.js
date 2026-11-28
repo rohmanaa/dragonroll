@@ -1,4 +1,4 @@
-﻿/* Tes pembukaan chest sinematik (core/chest-reveal.js): jadwal murni, urutan hadiah, skala drama per jenis, mode kurangi-gerakan, dan kabel halaman/aset.
+/* Tes pembukaan chest sinematik (core/chest-reveal.js): jadwal murni, urutan hadiah, skala drama per jenis, mode kurangi-gerakan, dan kabel halaman/aset.
    Jalankan: node tests/chest-reveal.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const R = require('../src/core/chest-reveal.js');
@@ -39,7 +39,7 @@ t('kabel: Inventory & Shop memuat css + js reveal SEBELUM skrip halaman dan mema
   for (const [html, js] of [['inventory.html', 'src/views/inventory.js'], ['shop.html', 'src/views/shop-page.js']]) {
     const h = read(html);
     assert.ok(h.includes('src/styles/components/chest-reveal.css'), html + ' css');
-    assert.strictEqual((h.match(/assets\/js\/core\/chest-reveal\.js/g) || []).length, 1, html + ' js tepat sekali');
+    assert.strictEqual((h.match(/src\/core\/chest-reveal\.js/g) || []).length, 1, html + ' js tepat sekali');
     assert.ok(h.indexOf('chest-reveal.js') < h.indexOf(js), html + ' urutan');
     assert.ok(read(js).includes('UT.ChestReveal.play'), js);
   }

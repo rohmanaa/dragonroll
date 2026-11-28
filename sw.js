@@ -1,4 +1,4 @@
-﻿/* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
+/* Service worker DRAGON ROLL (PWA). Scope: / (root repo).
    Strategi: SEMUA aset (HTML/JS/CSS/JSON + gambar/font/suara + library cdnjs/fonts) = CACHE-FIRST: sekali tersimpan di perangkat tidak diunduh ulang,
    jadi pindah halaman tidak menunggu jaringan. Lewat jaringan hanya bila belum ada di cache (disimpan, dan diambil dengan revalidasi supaya tidak basi).
    PEMBARUAN: ganti/tambah aset => naikkan VERSION. SW baru memasang cache sendiri lalu MENUNGGU; baru aktif (cache lama dibuang) setelah

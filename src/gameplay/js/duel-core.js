@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/gameplay/js/duel-core.js
+/* Ular Tangga Blok — src/gameplay/js/duel-core.js
    ATURAN DUEL PVP (Dadu Duel Blok) MURNI: tanpa DOM, THREE, audio, atau animasi. Hanya data -> data.
    Sama seperti game-core.js: bisa dipakai di browser (UT.Gameplay.Duel) dan Node (require) untuk tes,
    serta nanti di server agar dadu & hasil duel tidak bisa dicurangi di klien.

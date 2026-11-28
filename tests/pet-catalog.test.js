@@ -1,4 +1,4 @@
-﻿/* Tes katalog Pet: 7 pet = kind 'pet' (slot opsional 'pet'), id sama dengan supabase/pet_catalog.sql, harga koin T1-T4 / emerald T5-T7,
+/* Tes katalog Pet: 7 pet = kind 'pet' (slot opsional 'pet'), id sama dengan supabase/pet_catalog.sql, harga koin T1-T4 / emerald T5-T7,
    migrasi + seed server sinkron, dan beli/kepemilikan/pakai lewat jalur yang sama dengan aura.
    Jalankan: node tests/pet-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');

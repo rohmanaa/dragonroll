@@ -1,4 +1,4 @@
-﻿/* Jalankan dari akar repo: node tools/character-data/build.js
+/* Jalankan dari akar repo: node tools/character-data/build.js
    Geometri diekstrak dari src/gameplay/js/main.js; metadata rig hidup di generator agar ikut regenerasi. */
 const fs = require('fs');
 const path = require('path');

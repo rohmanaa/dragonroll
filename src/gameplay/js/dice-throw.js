@@ -1,18 +1,18 @@
-﻿/* Dice Throw â€” dadu 3D di dunia game: DILEMPAR bidak lalu jatuh di dekat bidak.
+/* Dice Throw — dadu 3D di dunia game: DILEMPAR bidak lalu jatuh di dekat bidak.
    Hanya VISUAL. Angka final (1..6) tetap dari gameplay (main.js); modul ini cuma menampilkan lemparan yang berakhir di angka itu.
    Indikator hasil dekat profil (#dieScene via UT.GameplayDiceUI) tetap dipakai oleh main.js: ditampilkan saat dadu mendarat.
    Classic script. Butuh global THREE (three.min.js). Namespace: UT.GameplayDiceThrow.
    API:
-     init(scene)                          â€” pasang ke scene dunia (idempoten)
-     throwFrom(pawnPos, v, opt) -> Promise â€” lempar dari posisi bidak (THREE.Vector3), mendarat dengan muka atas = v.
+     init(scene)                          — pasang ke scene dunia (idempoten)
+     throwFrom(pawnPos, v, opt) -> Promise — lempar dari posisi bidak (THREE.Vector3), mendarat dengan muka atas = v.
                                              Dadu = objek 3D di scene dunia (ikut kamera/zoom). Skin/material = DiceKit; efek (partikel, ring, pilar,
                                              aura tepi, flash cahaya, suara per material) = DiceEffects DiceKit yang dijalankan dengan THREE game
                                              (DiceEffectsCore.js) di scene yang sama. Efek belum siap/gagal -> dadu tetap jalan tanpa efek.
                                              opt: {camera, canvas, onThrow(), onBounce(speed), onLand(), reduce, hold}
-     setSkin(key) / setSound(on) / setVolume(0..1) â€” ikut pengaturan gameplay
-     showNumber(v) / hideNumber()         â€” angka hasil di atas tombol emote
-     skip()                               â€” paksa dadu langsung rebah di angkanya (dipanggil bila terlalu lama)
-     ready                                â€” true bila siap */
+     setSkin(key) / setSound(on) / setVolume(0..1) — ikut pengaturan gameplay
+     showNumber(v) / hideNumber()         — angka hasil di atas tombol emote
+     skip()                               — paksa dadu langsung rebah di angkanya (dipanggil bila terlalu lama)
+     ready                                — true bila siap */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -78,7 +78,7 @@
     }
     return kmods;
   }
-  /* Studio env kecil (kubus gradasi + softbox) supaya logam/emas/permata/clearcoat punya pantulan seperti RoomEnvironment DiceKit â€” hanya dipasang ke material dadu, bukan ke scene */
+  /* Studio env kecil (kubus gradasi + softbox) supaya logam/emas/permata/clearcoat punya pantulan seperti RoomEnvironment DiceKit — hanya dipasang ke material dadu, bukan ke scene */
   var envTex = null, skinKey = null, skinP = null;
   function envCube() {
     if (envTex !== null) return envTex || null;

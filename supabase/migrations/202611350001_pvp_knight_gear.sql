@@ -1,4 +1,4 @@
-﻿-- Set PVP: Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, celana, sepatu, mahkota, zirah, bahu, jubah, pedang).
+-- Set PVP: Ksatria Mahkota & Ksatria Rival (wajah, rambut, baju, celana, sepatu, mahkota, zirah, bahu, jubah, pedang).
 -- Terapkan SETELAH 202611310001_pvp_wins_unlock.sql (butuh pvp_unlocks, player_stats.pvp_wins) dan 202611130001_player_outfits.sql.
 -- Aman diulang (upsert / create or replace).
 --

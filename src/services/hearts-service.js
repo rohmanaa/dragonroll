@@ -1,4 +1,4 @@
-﻿/* Hearts service â€” satu-satunya pintu klien ke HATI/NYAWA di SERVER (supabase/migrations/202611410001_hearts.sql).
+/* Hearts service — satu-satunya pintu klien ke HATI/NYAWA di SERVER (supabase/migrations/202611410001_hearts.sql).
    Tiap pemain punya 5 hati; 1 hati terpakai tiap match dimulai; terisi lagi otomatis 1 hati / 15 menit sampai penuh.
    Klien tidak pernah mengirim jumlah/waktu: server (RPC hearts_*) yang menghitung; klien hanya memproyeksikan hitung mundur
    dari next_in_secs terakhir supaya HUD bergerak tiap detik tanpa polling.
@@ -81,7 +81,7 @@
       catch (e) { return fail(e); }
       finally { inflight = false; }
     }
-    /* Tahap 2 â€” kirim hati ke teman (server menghitung fee/emas/batas; klien hanya mengirim id teman). */
+    /* Tahap 2 — kirim hati ke teman (server menghitung fee/emas/batas; klien hanya mengirim id teman). */
     /* Status per teman: {ok, limit, sent_today, fee, fee_gold, friends:[{friend_id, sent_today, gold}]} */
     async function friends() {
       if (!enabled()) return { ok: false, reason: 'mode-lokal' };

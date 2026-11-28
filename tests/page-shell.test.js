@@ -1,4 +1,5 @@
-﻿const assert = require('assert');
+require("./_boot-compat.js");
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -20,7 +21,7 @@ t('root pages share base imports except gameplay and standalone redirects/demos'
   const standalone = new Set(['gameplay.html', 'index.html', 'floatingsample.html']);
   htmls.filter(name => !standalone.has(name)).forEach(name => {
     const html = fs.readFileSync(path.join(root, name), 'utf8');
-    assert.match(html, /assets\/js\/core\/page-shell\.js/, name);
+    assert.match(html, /src\/core\/page-shell\.js/, name);
     assert.match(html, /PageShell\.renderBase/, name);
     baseRefs.forEach(ref => assert.ok(!html.includes(ref), name + ' still duplicates ' + ref));
   });

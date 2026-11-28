@@ -1,4 +1,4 @@
-﻿/* Tes statis room.html: avatar pemain online lain = wajah karakter dari server (room_appearance_get), bukan huruf awal. */
+/* Tes statis room.html: avatar pemain online lain = wajah karakter dari server (room_appearance_get), bukan huruf awal. */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const PG = require("./_page");
 const g = PG.readFileSync(path.join(__dirname, '..', 'room.html'), 'utf8');

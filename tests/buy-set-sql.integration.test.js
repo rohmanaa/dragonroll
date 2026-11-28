@@ -1,4 +1,4 @@
-﻿/* Tes integrasi buy_set: klien ASLI (WalletService + PlayerData) terhadap SQL ASLI di Postgres uji.
+/* Tes integrasi buy_set: klien ASLI (WalletService + PlayerData) terhadap SQL ASLI di Postgres uji.
    Tidak jalan tanpa PSQL_CMD (DB uji dengan migrasi sampai 202611140001), jadi aman di CI biasa. Contoh:
      PSQL_CMD="psql -X -q -At -v ON_ERROR_STOP=1 -d ulartangga_test" node tests/buy-set-sql.integration.test.js
    Isi: (1) [dihapus di Tahap 3c: paritas dengan PlayerData.purchaseSet lokal]; (2) klien server memakai WalletService.buySet -> cermin cocok dengan DB; (3) dua buy_set paralel tidak menagih dua kali. */
@@ -36,7 +36,7 @@ function boot(opts) {
   const ls = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const w = { addEventListener() {}, localStorage: ls }; if (opts.flag) w.UT_SERVER_WALLET = true; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ['core/session.js', 'stores/item-catalog.js', 'stores/player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog };
 }
 const gear = IC => IC.items.filter(i => i.kind === 'gear' && !i.starter && i.price > 0 && !i.stackable).map(i => i.id).sort();

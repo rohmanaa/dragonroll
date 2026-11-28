@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/tabs/tabs.js (komponen Tabs reusable; skrip klasik)
+/* Ular Tangga Blok — src/components/tabs/tabs.js (komponen Tabs reusable; skrip klasik)
    Urutan muat: ui-core.js -> tabs.js. Mendaftar ke UT.Hud; memuat tabs.css otomatis dari folder yang sama.
    var t = UT.Hud.create('tabs', { kind:'top'|'seg'|'ul', items:[{id,label,icon,badge}], active:'id', onChange:fn(id) });
    parent.appendChild(t.el);  t.select('id');  Hasil: { el, select(id), get() }. */

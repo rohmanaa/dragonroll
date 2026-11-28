@@ -1,4 +1,4 @@
-﻿# DRAGON ROLL (Ular Tangga Blok)
+# DRAGON ROLL (Ular Tangga Blok)
 
 Game ular tangga bertema voxel/Minecraft dengan mode solo, vs robot, dan multiplayer online (Supabase). Situs statis, tanpa build step, dan dipasang sebagai PWA.
 
@@ -8,7 +8,7 @@ Game ular tangga bertema voxel/Minecraft dengan mode solo, vs robot, dan multipl
 python3 -m http.server 8000
 ```
 
-Buka `http://localhost:8000/` (masuk lewat `index.html` â†’ `play.html?go=splash.html`). Service worker (`sw.js`) butuh `http://localhost` atau HTTPS, jadi jangan buka lewat `file://`.
+Buka `http://localhost:8000/` (masuk lewat `index.html` → `play.html?go=splash.html`). Service worker (`sw.js`) butuh `http://localhost` atau HTTPS, jadi jangan buka lewat `file://`.
 
 ## Halaman
 
@@ -88,11 +88,11 @@ Status: **rancangan** (belum ada kode/migrasi). Dasarnya memakai sistem Mail yan
 ### Aturan
 - **Satu surat per rilis** berjudul "Catatan Perbaikan #N" berisi **maksimal 15 bug** (satu baris per bug: area + masalah singkat). Bug berlebih menunggu rilis berikutnya.
 - **Dikirim ke semua pemain** dengan `_mail_send_all(judul, isi, coin, gem, 'bugfix-<N>', kedaluwarsa)`. `dedupe_key` `bugfix-<N>` membuat kirim ulang aman (tidak ganda) dan jadi penanda surat jenis ini.
-- **Hadiah: koin + emerald** (`gem` di server = emerald). Usulan: 200 koin + 5 emerald per surat (batas tabel: koin â‰¤ 1.000.000, gem â‰¤ 10.000).
+- **Hadiah: koin + emerald** (`gem` di server = emerald). Usulan: 200 koin + 5 emerald per surat (batas tabel: koin ≤ 1.000.000, gem ≤ 10.000).
 - **Hadiah cair saat surat dibuka (dibaca)**, tanpa tombol Klaim. Cukup satu kali per akun per surat.
 
 ### Perubahan yang dibutuhkan (saat diimplementasi)
-1. Migrasi baru (timestamp > migrasi terakhir): longgarkan batas `body` dari 500 ke 1200 karakter. 15 baris Ã— Â±70 karakter â‰ˆ 1050, tidak muat di 500.
+1. Migrasi baru (timestamp > migrasi terakhir): longgarkan batas `body` dari 500 ke 1200 karakter. 15 baris × ±70 karakter ≈ 1050, tidak muat di 500.
 2. RPC baru `mail_open(p_id)`: tandai dibaca; bila `dedupe_key like 'bugfix-%'` dan belum diklaim, klaim lewat `_wallet_apply(..., 'mail', id)` dalam satu transaksi. Klien memanggilnya saat surat dibuka. `mail_read_all` **tidak** memberi hadiah, supaya hadiah hanya untuk yang benar-benar membuka surat.
 3. `mail.js`: pakai `mail_open` untuk surat `bugfix-*`, lalu tampilkan hadiah yang masuk (komponen `rwHtml` sudah ada).
 4. Tes SQL di `supabase/tests/` (klaim ganda ditolak, `mail_read_all` tidak memberi hadiah, hadiah masuk tepat sekali), jalankan `sh tools/build-schema-snapshot.sh`, naikkan `VERSION` di `sw.js`.

@@ -1,4 +1,4 @@
-﻿/* Layout: kanvas 3D memenuhi layar. HUD di atas (pemain + alat), dock di bawah (pesan + dadu), menu dan hasil sebagai kartu di tengah. Warna langit berganti sesuai tema. */
+/* Layout: kanvas 3D memenuhi layar. HUD di atas (pemain + alat), dock di bawah (pesan + dadu), menu dan hasil sebagai kartu di tengah. Warna langit berganti sesuai tema. */
 :root{
   --sky-top:#5EC1FF;
   --sky-bot:#DDF4FF;
@@ -396,7 +396,7 @@ body #readyScreen .rd-btn{border:calc(var(--mu)*.3) solid #0b1838;border-radius:
 body #readyScreen .rd-card.ok .rd-btn{background:linear-gradient(#4fd24c,#259a2e);color:#fff;box-shadow:inset 0 0 0 calc(var(--mu)*.15) #8cf08a,inset 0 calc(var(--mu)*-.3) 0 rgba(0,70,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #0d4a14}
 body #readyScreen .rd-btn:active:not(:disabled){transform:translateY(calc(var(--mu)*.2))}
 body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a;outline-offset:calc(var(--mu)*.15)}
-/* ===== HUD UPGRADE v2 (mengikuti referensi) â€” CSS scoped ke #side; canvas/scene 3D tidak disentuh =====
+/* ===== HUD UPGRADE v2 (mengikuti referensi) — CSS scoped ke #side; canvas/scene 3D tidak disentuh =====
    Sistem: panel biru glossy, pill header navy bertumpuk di tepi atas panel, outline terang 3px, tombol utama emas. */
 #side{--slot:clamp(54px,4.7vw,76px);--ok:#3cc23c;--warn:#ffb62a;--off:#7a8fb0;--navy:#0d3a9a;--rim:#6cc0ff}
 #side .pnl{position:relative;overflow:visible}
@@ -600,7 +600,7 @@ body .pucard{min-width:clamp(250px,22vw,340px);padding:18px 30px 20px}
   #side .tn #btnRoll:not(:disabled),#side .pr.on,#side .tn.swap #turnName,#side .tn.swap .tn-av{animation:none}
   #side .pb,#side .pr,#side .tn #btnRoll{transition:none}
 }
-/* Panel giliran (kanan bawah) â€” layout grid, transparan, hanya nama + dadu + tombol Roll */
+/* Panel giliran (kanan bawah) — layout grid, transparan, hanya nama + dadu + tombol Roll */
 #side{--tav:clamp(62px,5.2vw,80px)}
 body #side .rcol .pnl.tn{
   display:grid;

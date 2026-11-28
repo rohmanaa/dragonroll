@@ -1,4 +1,5 @@
-﻿/* Modal "Unduh Data" di Lobby: pembaruan hanya diunduh setelah pemain menekan Unduh; Mulai ulang = SKIP_WAITING lalu reload. */
+require("./_boot-compat.js");
+/* Modal "Unduh Data" di Lobby: pembaruan hanya diunduh setelah pemain menekan Unduh; Mulai ulang = SKIP_WAITING lalu reload. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -105,7 +106,7 @@ function setup(opts) {
   });
   await t('Splash: cek server DULU (sebelum mengunduh aset); modal muncul di awal, bar loading menyusul', () => {
     const h = rd('splash.html'), j = rd('src/views/splash.js'), i = n => h.indexOf(n);
-    assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('pages/splash.js'));
+    assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('views/splash.js'));
     assert.ok(/promptOnSplash\(\d+,\{/.test(j) && /progress:ev=>/.test(j), 'progres unduhan tampil di bar splash');
     assert.ok(j.indexOf('promptOnSplash') < j.indexOf('UT_Preload.runAuto(ASSETS'), 'cek pembaruan sebelum preloader mengunduh aset');
   });
@@ -120,7 +121,7 @@ function setup(opts) {
     let resolved = false; s.svc.promptOnSplash(1000, { progress: e => prog.push(e), status: x => stat.push(x) }).then(() => { resolved = true; });
     await new Promise(r => setTimeout(r, 120));
     assert.ok(prog.length >= 1 && prog[0].total === 5 * 1048576, 'progres unduhan dikirim ke splash');
-    assert.ok(stat.includes('Mengunduh pembaruanâ€¦') && stat.includes('Memulai ulangâ€¦'));
+    assert.ok(stat.includes('Mengunduh pembaruan…') && stat.includes('Memulai ulang…'));
     assert.deepStrictEqual(s.posted, [{ type: 'SKIP_WAITING' }]); assert.strictEqual(s.reloads[0], BASE);
     assert.strictEqual(resolved, false, 'halaman berpindah; splash tidak lanjut memuat aset');
   });

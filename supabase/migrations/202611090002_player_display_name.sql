@@ -1,4 +1,4 @@
-﻿-- Nama tampilan di leaderboard/profil ditentukan SERVER, bukan nama kiriman klien.
+-- Nama tampilan di leaderboard/profil ditentukan SERVER, bukan nama kiriman klien.
 -- Terapkan SETELAH 202611090001_player_progress.sql.
 --
 -- Akun game dibuat dengan email internal <username-huruf-kecil>@dragonroll-game.com (lihat src/services/auth.js).

@@ -1,19 +1,19 @@
-﻿/* Ular Tangga Blok â€” src/gameplay/js/hud.js (Stage 4.0.9: Gameplay HUD + event feedback)
+/* Ular Tangga Blok — src/gameplay/js/hud.js (Stage 4.0.9: Gameplay HUD + event feedback)
    Skrip klasik (tanpa import/export/type=module). Dimuat dari gameplay.html SEBELUM blok skrip gameplay.
    Hanya PRESENTASI: tidak mengubah state, dadu, gerak, aturan, power, atau perhitungan naga.
    gameplay.html tetap source of truth; HUD mengikuti event yang sudah ada (bukan sebaliknya).
    Pemisahan: UT.Hud (game/hud/) = komponen UI umum; UT.GameplayHUD (file ini) = feedback khusus gameplay.
    Tidak membuat render loop, audio, atau listener dokumen. Semua timer dibersihkan oleh reset().
    API:
-     UT.GameplayHUD.init({getGameId:fn, isPaused:fn})   â€” sekali; dipakai untuk membuang feedback basi
-     UT.GameplayHUD.reset()                             â€” game baru/diulang: bersihkan timer + sembunyikan
-     UT.GameplayHUD.showTurn(player, {extra})           â€” "Giliran X" / "Giliran Computer" / "Giliran tambahan!"
-     UT.GameplayHUD.showEvent(kind, text, {ttl, gid})   â€” LEVEL 1: banner kecil non-blocking (role=status)
+     UT.GameplayHUD.init({getGameId:fn, isPaused:fn})   — sekali; dipakai untuk membuang feedback basi
+     UT.GameplayHUD.reset()                             — game baru/diulang: bersihkan timer + sembunyikan
+     UT.GameplayHUD.showTurn(player, {extra})           — "Giliran X" / "Giliran Computer" / "Giliran tambahan!"
+     UT.GameplayHUD.showEvent(kind, text, {ttl, gid})   — LEVEL 1: banner kecil non-blocking (role=status)
      UT.GameplayHUD.showPower(key, name, who, {icon,desc,gid,text})  LEVEL 1: kartu Power (ikon, pemain, nama Power, efek) di stack; text = pesan satu baris
-     UT.GameplayHUD.showCombat(att, def, text, {hp,maxHp,ttl,gid,awakening}) â€” strip combat + bar HP naga (opsional)
-     UT.GameplayHUD.hideCombat()                        â€” sembunyikan strip combat dan hentikan timer
-     UT.GameplayHUD.showResult(title, text, {ttl, gid}) â€” LEVEL 2: panel penting non-blocking (role=status)
-     UT.GameplayHUD.updatePlayer(player)                â€” sinkronkan bar HP naga bila sedang tampil
+     UT.GameplayHUD.showCombat(att, def, text, {hp,maxHp,ttl,gid,awakening}) — strip combat + bar HP naga (opsional)
+     UT.GameplayHUD.hideCombat()                        — sembunyikan strip combat dan hentikan timer
+     UT.GameplayHUD.showResult(title, text, {ttl, gid}) — LEVEL 2: panel penting non-blocking (role=status)
+     UT.GameplayHUD.updatePlayer(player)                — sinkronkan bar HP naga bila sedang tampil
    Feedback stack (Stage 4.1.14): semua feedback LEVEL 1 masuk ke SATU .feedback-stack (kolom, gap tetap => tidak overlap).
      Item baru muncul di ATAS (slide-down), item lama bergeser turun. Prioritas hanya presentasi, state ada di HUD ini:
      NORMAL    = kind 'turn' / 'extra' (showTurn)   maksimal 1 sekaligus: yang baru menggantikan yang lama, tidak menggusur IMPORTANT
@@ -26,8 +26,8 @@
   if (UT.GameplayHUD) return;
 
   var STYLE_ID = 'ut-ghud-css';
-  var ICON = { turn: 'ðŸŽ²', extra: 'âœ¨', ladder: 'ðŸªœ', snake: 'ðŸ', mob: 'ðŸ‘¾', chest: 'ðŸŽ', power: 'âš¡', three6: 'ðŸŽ²',
-               bounce: 'â†©ï¸', shield: 'ðŸ›¡ï¸', dragon: 'ðŸ‰', info: 'â„¹ï¸' };
+  var ICON = { turn: '🎲', extra: '✨', ladder: '🪜', snake: '🐍', mob: '👾', chest: '🎁', power: '⚡', three6: '🎲',
+               bounce: '↩️', shield: '🛡️', dragon: '🐉', info: 'ℹ️' };
   /* Ikon gambar untuk banner event (aset buatan sendiri, 256px). Jenis yang tidak ada di sini tetap memakai emoji di ICON.
      Emoji juga jadi cadangan bila gambar gagal dimuat. Ikon kustom dari pemanggil (o.icon) selalu dipakai apa adanya. */
   var IMG_DIR = 'assets/images/icon/';
@@ -225,7 +225,7 @@
       if (stale(o) || !build()) return H;
       if (o && o.awakening) combat.setAttribute('data-awakening', 'true');
       else combat.removeAttribute('data-awakening');
-      cWho.textContent = (att || '') + (def ? ' â†’ ' + def : '');
+      cWho.textContent = (att || '') + (def ? ' → ' + def : '');
       cText.textContent = text ? String(text) : '';
       var mx = (o && o.maxHp) || 100, hp = o && typeof o.hp === 'number' ? Math.max(0, Math.min(mx, o.hp)) : null;
       combatBoss = (o && o.bossName) || 'Ender Dragon';
@@ -242,7 +242,7 @@
     showResult: function (title, text, o) {
       if (!title || stale(o) || !build()) return H;
       pTitle.textContent = String(title); pText.textContent = text ? String(text) : ''; pText.hidden = !text;
-      hideCombat(); /* prioritas: Result/Victory > Dragon Combat â€” strip combat tidak menumpuk dengan panel hasil */
+      hideCombat(); /* prioritas: Result/Victory > Dragon Combat — strip combat tidak menumpuk dengan panel hasil */
       clearTimeout(tPanel); retrigger(panel);
       tPanel = setTimeout(hidePanel, ttlOf(o, 2400));
       return H;

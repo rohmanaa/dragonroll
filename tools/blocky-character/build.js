@@ -1,4 +1,4 @@
-﻿/* Jalankan dari akar repo: node tools/blocky-character/build.js
+/* Jalankan dari akar repo: node tools/blocky-character/build.js
    template.js adalah source kanonis; asset runtime dihasilkan verbatim setelah validasi kontrak. */
 const fs = require('fs');
 const path = require('path');

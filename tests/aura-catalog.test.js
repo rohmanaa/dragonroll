@@ -1,4 +1,4 @@
-﻿/* Tes katalog Aura: 15 aura = kind 'aura' (slot opsional 'aura'), id sama dengan aura-fx.js, harga naik per rarity, seed server sinkron.
+/* Tes katalog Aura: 15 aura = kind 'aura' (slot opsional 'aura'), id sama dengan aura-fx.js, harga naik per rarity, seed server sinkron.
    Jalankan: node tests/aura-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const root = path.join(__dirname, '..'), rd = p => fs.readFileSync(path.join(root, p), 'utf8');

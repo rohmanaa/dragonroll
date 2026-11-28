@@ -1,4 +1,4 @@
-﻿/* Efek (Aura) sebagai view SPA: modul 'efek', renderer pratinjau 3D milik UT.SharedGL (acquire saat mount, release saat unmount). */
+/* Efek (Aura) sebagai view SPA: modul 'efek', renderer pratinjau 3D milik UT.SharedGL (acquire saat mount, release saat unmount). */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

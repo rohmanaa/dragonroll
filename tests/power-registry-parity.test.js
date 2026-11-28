@@ -1,4 +1,4 @@
-﻿/* Tes paritas Power Stage 6: manifest <-> ItemCatalog baseline <-> renderer/FX/audio <-> server catalog.
+/* Tes paritas Power Stage 6: manifest <-> ItemCatalog baseline <-> renderer/FX/audio <-> server catalog.
    Pemuatan nyata di browser tidak diuji di sini. */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const { pathToFileURL } = require('url');

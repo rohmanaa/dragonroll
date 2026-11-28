@@ -1,4 +1,4 @@
-﻿/* leaderboard (SPA tahap 3): modul halaman, navigasi lewat UT.Spa.go, cleanup LiveSync/PodiumFX/langganan, mount podium tidak lagi inline. */
+/* leaderboard (SPA tahap 3): modul halaman, navigasi lewat UT.Spa.go, cleanup LiveSync/PodiumFX/langganan, mount podium tidak lagi inline. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +21,7 @@ t('PodiumFX di-mount dari modul dan punya unmount', () => {
   assert(/unmount: function/.test(fx) && /removeEventListener\('visibilitychange', onVis\)/.test(fx));
   assert(!/<script>UT\.PodiumFX/.test(html));
 });
-t('leaderboard.html memuat page-module.js sebelum leaderboard.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/leaderboard.js')));
+t('leaderboard.html memuat page-module.js sebelum leaderboard.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('views/leaderboard.js')));
 t('frame-guard dan play.js mengenal leaderboard', () => { assert(/profile\|leaderboard/.test(rd('src/boot/frame-guard.js'))); assert(/'leaderboard\.html': \['lobby\.html'\]/.test(rd('src/views/play.js'))); });
 t('tombol Coin/Gem berada di atas #board (z-index) - dulu tertutup', () => {
   assert(/\.cur\{z-index:\s*[1-9]/.test(rd('src/styles/leaderboard.css')));

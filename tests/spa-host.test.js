@@ -1,4 +1,4 @@
-﻿/* UT.Spa: rute Lobby/Karakter jadi view di #view (tanpa iframe), rute lain lewat iframe; urutan unmount -> release -> leave -> mount; fallback bila gagal. */
+/* UT.Spa: rute Lobby/Karakter jadi view di #view (tanpa iframe), rute lain lewat iframe; urutan unmount -> release -> leave -> mount; fallback bila gagal. */
 const assert = require('assert');
 const path = require('path');
 const Spa = require(path.join(__dirname, '..', 'src/core/spa-host.js'));

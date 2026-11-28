@@ -1,4 +1,4 @@
-﻿/* Kategori Pet (Stage 4) â€” mendaftarkan kategori + 7 manifest ke ItemRegistry (pola sama dengan data/inventory/frame/index.js).
+/* Kategori Pet (Stage 4) — mendaftarkan kategori + 7 manifest ke ItemRegistry (pola sama dengan data/inventory/frame/index.js).
    Urutan KEYS = urutan di ItemCatalog (src/stores/item-catalog.js, tier 1..7). Satu item = satu folder (nama folder = gameKey).
    Gambar, model, dan SFX khusus Pet berada di folder item masing-masing; SFX yang dipakai Gameplay Power tetap di assets/audio/sfx/pet/. Tanpa fallbackId: slot pet opsional, tidak ada pet bawaan.
    Node : require('data/inventory/pet/index.js').register(registry)

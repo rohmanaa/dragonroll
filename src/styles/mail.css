@@ -1,4 +1,4 @@
-﻿/* mail.html â€” kotak masuk. Kerangka: page.css + sub.css (tab, baris, modal). */
+/* mail.html — kotak masuk. Kerangka: page.css + sub.css (tab, baris, modal). */
 [hidden]{display:none!important}
 .tabs{left:60px;top:132px}
 #sbar{position:absolute;left:70px;top:262px;width:1780px;height:96px;display:flex;gap:24px;align-items:center}

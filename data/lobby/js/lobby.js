@@ -1,4 +1,4 @@
-﻿/* lobby.js â€” dipindah dari <script> inline (lobby.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('lobby').
+/* lobby.js — dipindah dari <script> inline (lobby.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('lobby').
    Halaman mandiri otomatis mount; unmount() melepas timer, rAF, listener, langganan, LiveSync, dan renderer. */
 UT.PageModule.define('lobby',function(env){
 const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
@@ -9,13 +9,13 @@ const SET=()=>PD.settings();
 const buzz=()=>{try{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)}catch(e){}};
 let tt;function toast(m){const md=$('#chestMd'),t=(md&&!md.hidden&&$('#cm-toast'))||$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1900)}
 
-/* ---------- data: SEMUA dari PlayerData (single source of truth); saldo "â€”" sampai server membalas ---------- */
+/* ---------- data: SEMUA dari PlayerData (single source of truth); saldo "—" sampai server membalas ---------- */
 let SRV_XP=0;
 function lvInfo(xp){let L=1,left=Math.max(0,Math.floor(+xp)||0);while(left>=400+100*(L-1)&&L<999){left-=400+100*(L-1);L++}return{level:L,xpIn:left,xpMax:400+100*(L-1)}}
 function renderAvatar(){const fb=()=>(AR&&(AR.face(PD.equippedId('skin'))||AR.face('skin.steve')))||'';if(UT.CharacterFace)UT.CharacterFace.mount($('#ava'),fb);else $('#ava').innerHTML=fb()}
 function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=$('#avf');if(im){im.src=(f&&f.image)||'data/frame/frame-default.webp';if(window.FrameFX)FrameFX.upgrade(im)}}
-function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='â€”';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
-function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'â€”');setNum('#v-co',ok?fmt(PD.coins()):'â€”')}
+function setNum(id,txt){const e=$(id);if(!e||e.textContent===txt)return;const had=e.textContent&&e.textContent!=='—';e.textContent=txt;if(had){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}}
+function renderCurrency(){const ok=PD.walletReady();setNum('#v-em',ok?fmt(PD.gems()):'—');setNum('#v-co',ok?fmt(PD.coins()):'—')}
 function renderName(){const n=(PD.profile()&&PD.profile().name)||'Pemain';const h=$('#ht-name');if(h)h.textContent=n}
 function renderXp(){const i=lvInfo(Math.max(PD.xp?PD.xp():0,SRV_XP)),pct=Math.min(100,i.xpIn/i.xpMax*100);
  const lv=$('#lvnum');lv.textContent=i.level;lv.classList.toggle('w3',String(i.level).length>=3);
@@ -30,7 +30,7 @@ env.own(UT.Events.on('frameChanged',applyFrame));
 const ACT={profil:'profile.html',karakter:'karakter.html',inventory:'inventory.html',leaderboard:'leaderboard.html',toko:'shop.html',beliCoin:'shop.html?coin=1',teman:'friendship.html',hadiahMisi:'hadiah-misi.html',dadu:'dadu.html',efek:'efek.html',tambang:'tambang.html?from=lobby.html',settings:'settings.html',mail:'mail.html?from=lobby.html',pet:'pet.html',mulai:'mode.html'};
 /* halaman GUI baru yang datanya belum disambung ke server: tetap "segera hadir" */
 const SOON={guild:'Guild segera hadir',mancing:'Mancing masih terkunci'};
-/* Profil Â· Teman Â· Pesan Â· Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
+/* Profil · Teman · Pesan · Pengaturan = SATU halaman hub (profile.html?tab=...), bukan modal; tombol Kembali di hub mengarah balik ke Lobby (&from=lobby.html). */
 const HUB_TAB={profil:'profil',teman:'teman',mail:'pesan',settings:'setelan'};
 function navTo(url){if(!/^[a-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/i.test(url)||/^(play|index|splash)\.html/i.test(url))return;
  if(UT.Spa&&UT.Spa.go){UT.Spa.go(url);return}
@@ -242,10 +242,10 @@ function chestFill(plays,needs){let prev=0,from=CSTART;
   prev=needs[i];from=to}
  return CPOS[CPOS.length-1]}
 function chestHtml(){
- if(!CS)return '<div class="cempty">Memuatâ€¦</div>';
+ if(!CS)return '<div class="cempty">Memuat…</div>';
  const D=CS.daily,needs=D.map(d=>+d.need||0),top=Math.max.apply(null,needs.concat([1])),plays=Math.max(0,+CS.plays_today||0);
  const fill=chestFill(plays,needs);
- let h='<div class="tot"><b>'+Math.min(plays,top)+' / '+top+'</b> game hari ini<small>Reset tiap hari (WIB) Â· chest hasil klaim masuk Inventory</small></div>';
+ let h='<div class="tot"><b>'+Math.min(plays,top)+' / '+top+'</b> game hari ini<small>Reset tiap hari (WIB) · chest hasil klaim masuk Inventory</small></div>';
  h+='<div class="tl"><div class="trk"><div class="fil" style="width:'+Math.max(0,Math.min(100,(fill-CSTART)/(CPOS[CPOS.length-1]-CSTART)*100)).toFixed(1)+'%"></div></div>';
  D.forEach((d,i)=>{const k=CK[d.kind]||CK.wood,st=d.status,done=st==='claimed',reached=done||st==='ready';
   h+='<div class="nd '+(reached?'ok':'todo')+'" style="left:'+(CPOS[i]||50)+'%"><img class="im" src="'+CIC+k.im+'.webp" alt=""><div class="nm">'+k.nm+'</div>'+

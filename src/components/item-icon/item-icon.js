@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/item-icon/item-icon.js
+/* Dragon Roll — src/components/item-icon/item-icon.js
    Ikon item (gambar webp 256px di assets/images/ui/item-icons/).
    Pakai:  UT.ItemIcon.html('ore-copper')  ->  '<img class="ut-ic" src="assets/images/ui/item-icons/ore-copper.webp">'
            UT.ItemIcon.html('ingot-gold', {size:'2em'});  UT.ItemIcon.src('coal');  UT.ItemIcon.keys()

@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/toast/toast.js (Stage 4.0.7: komponen Toast reusable)
+/* Ular Tangga Blok — src/components/toast/toast.js (Stage 4.0.7: komponen Toast reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/toast/toast.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem toast global kedua.
    Pakai:  var t = UT.Hud.create('toast', { message: 'Berhasil disimpan', variant: 'success' });

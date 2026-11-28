@@ -1,4 +1,5 @@
-﻿const assert = require('assert');
+require("./_boot-compat.js");
+const assert = require('assert');
 const fs = require('fs');
 const PG = require("./_page");
 const path = require('path');

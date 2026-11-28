@@ -1,4 +1,4 @@
-﻿/* SPA Host (tahap 2) â€” shell play.html merender halaman "view" (Lobby, Karakter) langsung di #view tanpa iframe,
+/* SPA Host (tahap 2) — shell play.html merender halaman "view" (Lobby, Karakter) langsung di #view tanpa iframe,
    sehingga pindah Lobby <-> Karakter tidak memuat ulang dokumen, three.min.js, maupun membuat konteks WebGL baru.
    Halaman lain tetap berjalan di <iframe id="f"> (jalur lama) sampai tahap 3.
 
@@ -6,9 +6,9 @@
      mount({frame, view, hooks}) -> pasang shell (dipanggil play.js)          hooks: { leave(kind), ready(name, isView) }
      start(url)                  -> true bila url dirender sebagai view; false = pemanggil memuat url di iframe
      go(url, opts)               -> pindah rute; view atau iframe. opts: {replace, history:'none', kind}
-     canView(url) Â· viewName(url) Â· viewActive Â· page Â· current()
+     canView(url) · viewName(url) · viewActive · page · current()
    Syarat view: halaman terdaftar (VIEWS), sudah lewat splash + login (sama dengan boot-guard), bukan ?noframe=1, bukan ?from=room,
-   dan viewport tidak sedang diputar (HP portrait: play.html memutar iframe 90Â°, trik itu tidak bisa dipakai untuk view -> tetap iframe).
+   dan viewport tidak sedang diputar (HP portrait: play.html memutar iframe 90°, trik itu tidak bisa dipakai untuk view -> tetap iframe).
    Skrip klasik; dapat dimuat di browser (window.UT.Spa) maupun Node (module.exports) untuk tes; create(deps) menerima stub. */
 (function (root, factory) {
   var api = factory();
@@ -339,7 +339,7 @@
     }
 
     /* inventory.html bagi tab yang sudah jadi view (Pet) = langsung view-nya: tab dari ?tab=, atau tab terakhir (sessionStorage) bila tanpa ?tab= */
-    /* Profil Â· Teman Â· Pesan Â· Pengaturan = SATU halaman (hub profile.html, modul 'profile'): friendship/mail/settings.html dialihkan ke
+    /* Profil · Teman · Pesan · Pengaturan = SATU halaman (hub profile.html, modul 'profile'): friendship/mail/settings.html dialihkan ke
        profile.html?tab=... (mempertahankan ?from=). Sinkron dengan UT.AccountHub.canon. */
     function hubCanon(url) {
       var tab = HUB_TABS[pageOf(url)];

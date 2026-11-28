@@ -1,4 +1,5 @@
-﻿/* Sistem "item memuat" ala COC: kerangka UI langsung tampil, gambar item yang belum tiba = placeholder kilap lalu fade-in. */
+require("./_boot-compat.js");
+/* Sistem "item memuat" ala COC: kerangka UI langsung tampil, gambar item yang belum tiba = placeholder kilap lalu fade-in. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -46,12 +47,12 @@ const mk = () => create({ G: {}, document: null, delay: 20 });
   });
   await t('semua halaman mendapat sistem ini lewat renderBase; font utama di-preload dan ada di repo; font-display bukan swap', () => {
     const ps = rd('src/core/page-shell.js');
-    assert.ok(/enabled\('skeleton'\) \? 'src\/styles\/components\/skeleton\.css'/.test(ps) && /enabled\('skeleton'\) \? 'assets\/js\/systems\/skeleton\.js'/.test(ps));
+    assert.ok(/enabled\('skeleton'\) \? 'src\/styles\/components\/skeleton\.css'/.test(ps) && /enabled\('skeleton'\) \? 'src\/systems\/skeleton\.js'/.test(ps));
     const m = /FONT_PRELOAD = \[([^\]]+)\]/.exec(ps); assert.ok(m);
     const fonts = m[1].match(/'([^']+)'/g).map(x => x.replace(/'/g, '')); assert.ok(fonts.length >= 3);
     fonts.forEach(f => assert.ok(fs.existsSync(path.join(__dirname, '..', f)), 'font preload harus ada: ' + f));
     assert.ok(!/font-display:\s*swap/.test(rd('src/styles/fonts.css')));
-    assert.ok(/'assets\/js\/systems\/skeleton\.js'/.test(rd('sw.js')) && /skeleton\.css/.test(rd('sw.js')));
+    assert.ok(/'src\/systems\/skeleton\.js'/.test(rd('sw.js')) && /skeleton\.css/.test(rd('sw.js')));
   });
   await t('spa-host: prepare() menghangatkan CSS + aset url() ke cache sebelum halaman dibuka; hormati Save-Data/2g', () => {
     const s = rd('src/core/spa-host.js');

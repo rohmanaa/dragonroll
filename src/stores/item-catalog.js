@@ -1,4 +1,4 @@
-﻿/* Katalog item Ular Tangga Blok â€” sumber metadata publik dan fallback kategori legacy.
+/* Katalog item Ular Tangga Blok — sumber metadata publik dan fallback kategori legacy.
    Kategori yang belum memakai Registry tetap mempertahankan builder legacy sebagai fallback.
    `gameKey` = kunci yang dipakai lobby.html / gameplay.html.
    Kepemilikan pemain TIDAK disimpan di sini (lihat player-data.js). */
@@ -6,13 +6,13 @@
   'use strict';
 
   var RARITY = {
-    common:    { key: 'common',    label: 'Umum',       rank: 1, stars: 'â˜…' },
-    uncommon:  { key: 'uncommon',  label: 'Tak Biasa',  rank: 1.5, stars: 'â˜…' },
-    rare:      { key: 'rare',      label: 'Langka',     rank: 2, stars: 'â˜…â˜…' },
-    epic:      { key: 'epic',      label: 'Epik',       rank: 3, stars: 'â˜…â˜…â˜…' },
-    legendary: { key: 'legendary', label: 'Legendaris', rank: 4, stars: 'â˜…â˜…â˜…â˜…' },
-    mythic:    { key: 'mythic',    label: 'Mitos',      rank: 5, stars: 'â˜…â˜…â˜…â˜…â˜…' },
-    divine:    { key: 'divine',    label: 'Ilahi',      rank: 6, stars: 'â˜…â˜…â˜…â˜…â˜…â˜…' }
+    common:    { key: 'common',    label: 'Umum',       rank: 1, stars: '★' },
+    uncommon:  { key: 'uncommon',  label: 'Tak Biasa',  rank: 1.5, stars: '★' },
+    rare:      { key: 'rare',      label: 'Langka',     rank: 2, stars: '★★' },
+    epic:      { key: 'epic',      label: 'Epik',       rank: 3, stars: '★★★' },
+    legendary: { key: 'legendary', label: 'Legendaris', rank: 4, stars: '★★★★' },
+    mythic:    { key: 'mythic',    label: 'Mitos',      rank: 5, stars: '★★★★★' },
+    divine:    { key: 'divine',    label: 'Ilahi',      rank: 6, stars: '★★★★★★' }
   };
 
   var CATEGORIES = [
@@ -26,7 +26,7 @@
   var SKIN_GROUPS = ['Default', 'Adventure', 'Fantasy', 'Rare', 'Epic', 'Legendary'];
 
   /* kind: skin -> bidak karakter | dice -> skin dadu | theme -> tema papan | powerup -> power-up gameplay
-     slot powerup = null: consumable (quantity), BUKAN equipment â€” tidak masuk defaultEquipped. */
+     slot powerup = null: consumable (quantity), BUKAN equipment — tidak masuk defaultEquipped. */
   var KIND_META = {
     skin:    { category: 'skin',     noun: 'Karakter',   slot: 'skin' },
     dice:    { category: 'aksesori', noun: 'Skin dadu',  slot: 'dice' },
@@ -203,7 +203,7 @@
     /* TAKEDOWN sementara: off:true = tidak tampil di halaman Power/Room, tidak dipilih, tidak dipakai CPU/pemain. Data tetap utuh (lihat offNote). */
     powerup('sword',   'Iron Sword', 'common', 'Serang musuh di petak yang sama, ia mundur 2.', { price: 120, off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Iron Sword akan diganti item lain. JANGAN DIHAPUS: ID 'sword', baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
     powerup('feather', 'Feather',    'common', 'Giliran tambahan sekali lempar.', { price: 80 }),
-    powerup('tnt',     'TNT',        'common', 'Jebakan: pasang di petak 1â€“6 di depanmu. Musuh yang mendarat di sana (dan 1 petak sekitarnya) mundur 6 petak.', { price: 150 }),
+    powerup('tnt',     'TNT',        'common', 'Jebakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 1 petak sekitarnya) mundur 6 petak.', { price: 150 }),
     powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, atau serangan Power dari pemain lain, kamu bisa memilih memakai Totem untuk menahannya.', { price: 200 }),
     powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.', { price: 60 }),
     powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.', { price: 60 }),
@@ -214,9 +214,9 @@
     powerup('netherite_sword', 'Netherite Sword', 'epic',      'Musuh dalam jarak 4 petak mundur 5 petak.', { price: 450, off: true, offNote: "DITURUNKAN SEMENTARA (takedown): cukup satu pedang (Diamond Sword); Netherite Sword akan diganti item lain. JANGAN DIHAPUS: ID, baris server, stok pemain, model 3D, ikon, aturan (PUN/PUR) dan efek tetap ada." }),
     powerup('wooden_shield',   'Wooden Shield',   'common',    'Menahan 1 serangan Power dari pemain lain secara otomatis.', { price: 90, maps: ['minecraft'] }),
     powerup('golden_apple',    'Golden Apple',    'rare',      'Dadu berikutnya mendapat bonus +3 petak.', { price: 200, maps: ['minecraft'] }),
-    powerup('fire_charge',     'Fire Charge',     'common',    'Jebakan api: pasang di petak 1â€“6 di depanmu. Musuh yang mendarat di sana mundur 3 petak.', { price: 120, maps: ['nether'] }),
+    powerup('fire_charge',     'Fire Charge',     'common',    'Jebakan api: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana mundur 3 petak.', { price: 120, maps: ['nether'] }),
     powerup('ice_crystal',     'Ice Crystal',     'rare',      'Pemain terdepan membeku dan melewatkan giliran berikutnya.', { price: 250, maps: ['minecraft'] }),
-    powerup('blaze_core',      'Blaze Core',      'epic',      'Jebakan ledakan: pasang di petak 1â€“6 di depanmu. Musuh yang mendarat di sana (dan 2 petak sekitarnya) mundur 2 petak.', { price: 400, maps: ['nether'] }),
+    powerup('blaze_core',      'Blaze Core',      'epic',      'Jebakan ledakan: pasang di petak 1–6 di depanmu. Musuh yang mendarat di sana (dan 2 petak sekitarnya) mundur 2 petak.', { price: 400, maps: ['nether'] }),
     powerup('trident',         'Trident',         'legendary', 'Pemain terdepan mundur 4 petak dan kamu maju 2 petak.', { price: 600 }),
     powerup('dragon_crystal',  'Dragon Crystal',  'legendary', 'Meluncur ke Tangga terdekat di depanmu; bila tidak ada, maju 6 petak.', { price: 800 }),
     powerup('nether_star',     'Nether Star',     'legendary', 'Semua musuh mundur 3 petak dan kamu mendapat giliran tambahan.', { price: 1000 })
@@ -339,7 +339,7 @@
     set.items.forEach(function (it) {
       PVP_GEAR.push(gear(it[0], set.key, it[1], null, null, {
         rarity: 'legendary', price: null, starter: false, source: 'event', group: 'PVP',
-        desc: it[1] + ' â€” bagian set ' + set.label + '. Dibuka dengan memenangkan ' + set.wins + ' PVP Clash.',
+        desc: it[1] + ' — bagian set ' + set.label + '. Dibuka dengan memenangkan ' + set.wins + ' PVP Clash.',
         unlock: { type: 'pvp', wins: set.wins, set: set.key }
       }));
     });
@@ -400,7 +400,7 @@
   ];
   ITEMS = ITEMS.concat(PETS);
 
-  /* ===== HARGA TIER (Fase 3 ekonomi) â€” satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura, pet).
+  /* ===== HARGA TIER (Fase 3 ekonomi) — satu-satunya tempat harga koleksi bertingkat (dadu, frame, aura, pet).
      Harga naik tiap tier (koin curam di T3-T4, emerald T5-T7 = target jangka panjang). Tier bawah = koin; tier atas = EMERALD saja (gems).
      Aturan: harga emerald tier pertama >= nilai koin tier koin terakhir / 50 (kurs seragam 50 koin per emerald),
      supaya tidak ada jalan pintas menukar koin -> emerald -> item. Ubah angka di sini, lalu:

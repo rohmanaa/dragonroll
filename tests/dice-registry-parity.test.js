@@ -1,4 +1,4 @@
-﻿/* Tes paritas Dice (Stage 5): manifest data/inventory/dice/* <-> ItemCatalog (baseline & runtime) <-> DiceKit <-> seed server <-> halaman.
+/* Tes paritas Dice (Stage 5): manifest data/inventory/dice/* <-> ItemCatalog (baseline & runtime) <-> DiceKit <-> seed server <-> halaman.
    Jalankan: node tests/dice-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm'), cp = require('child_process');
@@ -110,7 +110,7 @@ t('ItemCatalog: manifest Dice yang tidak cocok (hilang satu) -> jalur cadangan, 
 });
 
 /* ---- Equip / Shop / Inventory / Gameplay (integrasi lintas sistem) ---- */
-t('Equip: slot dice terpasang selalu valid â€” DEFAULT dice.klasik ada di Registry & starter; semua Dice kind dice, slot dice, kategori aksesori', () => {
+t('Equip: slot dice terpasang selalu valid — DEFAULT dice.klasik ada di Registry & starter; semua Dice kind dice, slot dice, kategori aksesori', () => {
   const IC = viaDice.ItemCatalog; assert.strictEqual(IC.defaultEquipped.dice, 'dice.klasik'); assert.strictEqual(DiceCat.category.fallbackId, IC.defaultEquipped.dice);
   assert.strictEqual(IC.byId('dice.klasik').starter, true);
   IC.items.filter(i => i.kind === 'dice').forEach(i => { assert.strictEqual(i.slot, 'dice'); assert.strictEqual(i.category, 'aksesori'); assert.ok(Object.isFrozen(i)); });
@@ -163,7 +163,7 @@ t('Aset B: FORMAT path lulus 24/24 (assets per item kosong: dadu prosedural Dice
   items.forEach(m => { const v = IR.validateAssetPaths(m, reg.getCategory('dice')); assert.strictEqual(v.ok, true, m.id); assert.deepStrictEqual(clone(m.assets), {}); });
   assert.strictEqual(IR.validateAssetPaths({ assets: { x: DiceCat.category.assets.renderKit } }, null).ok, true);
 });
-t('Aset C: berkas rujukan benar-benar ada â€” renderKit (DiceCatalog.js) dan seluruh modul dice-kit yang dimuat dadu.html; sfx dice-roll.mp3 milik audio gameplay tetap ada', () => {
+t('Aset C: berkas rujukan benar-benar ada — renderKit (DiceCatalog.js) dan seluruh modul dice-kit yang dimuat dadu.html; sfx dice-roll.mp3 milik audio gameplay tetap ada', () => {
   assert.ok(ex(DiceCat.category.assets.renderKit) && fs.statSync(path.join(ROOT, DiceCat.category.assets.renderKit)).size > 1000);
   DICEKIT_FILES.forEach(f => assert.ok(ex(f), f));
   assert.ok(!fs.existsSync(path.join(ROOT, 'src/renderers/dice-kit')), 'legacy dice-kit directory must be removed');
@@ -191,7 +191,7 @@ t('Service worker: VERSION dinaikkan dan preload-manifest memuat semua aset Dice
 });
 
 /* ---- DiceKit (modul ES) : paritas visual katalog <-> DiceKit ---- */
-t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collection/materialName selaras (nama emas dicatat: "Gold Dice" vs "Dadu Emas" â€” sudah ada sebelumnya, tidak diubah)', async () => {
+t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collection/materialName selaras (nama emas dicatat: "Gold Dice" vs "Dadu Emas" — sudah ada sebelumnya, tidak diubah)', async () => {
   const { DICE_CATALOG, validateCatalog } = await import(pathToFileURL(path.join(ROOT, 'src/renderers/dice-kit/dice-catalog.js')).href);
   assert.deepStrictEqual(validateCatalog(), []); assert.deepStrictEqual(DICE_CATALOG.map(d => d.id), DiceCat.keys);
   DICE_CATALOG.forEach(d => { const m = byId['dice.' + d.id]; assert.strictEqual(m.visual.bg, d.material.base, d.id); assert.strictEqual(m.visual.pip, d.material.pip.color, d.id);

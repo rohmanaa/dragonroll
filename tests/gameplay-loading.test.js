@@ -1,4 +1,4 @@
-﻿/* Layar muat khusus gameplay: timer NAIK (bukan hitung mundur), "Mempersiapkan" -> "Siap?", pill hanya wifi + ms (tanpa LTE/baterai), pedang dari aset repo. */
+/* Layar muat khusus gameplay: timer NAIK (bukan hitung mundur), "Mempersiapkan" -> "Siap?", pill hanya wifi + ms (tanpa LTE/baterai), pedang dari aset repo. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -45,7 +45,7 @@ function fakeDoc() {
     g.ready(); assert.strictEqual(doc.els['gl-txt'].textContent, 'Siap?'); assert.ok(doc.els.gl.classList.contains('rdy'));
     g.stop(); g.start(); assert.strictEqual(doc.els['gl-txt'].textContent, 'Mempersiapkan'); assert.ok(!doc.els.gl.classList.contains('rdy')); g.stop();
   });
-  await t('ping: "NN ms" dari HEAD no-store + X-UT-Fresh; gagal = "â€” ms" dan ikon wifi redup', async () => {
+  await t('ping: "NN ms" dari HEAD no-store + X-UT-Fresh; gagal = "— ms" dan ikon wifi redup', async () => {
     let clock = 0, fail = false; const calls = [], doc = fakeDoc();
     const g = GL.create({ document: doc, now: () => clock, fetch: (u, init) => { calls.push({ u, init }); clock += 42; return fail ? Promise.reject(new Error('x')) : Promise.resolve({ ok: true }); } });
     g.start(); await sleep(20);

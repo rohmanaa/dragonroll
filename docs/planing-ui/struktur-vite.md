@@ -1,4 +1,4 @@
-﻿# Rencana Struktur Folder ala Vue + Vite (JS biasa)
+# Rencana Struktur Folder ala Vue + Vite (JS biasa)
 
 Status: draf, belum dieksekusi. Keputusan Rans (26 Nov 2026): folder dan path ala Vue/Vite, tetap JS biasa (tanpa framework Vue, tanpa berkas .vue).
 

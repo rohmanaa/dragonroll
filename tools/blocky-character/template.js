@@ -1,4 +1,4 @@
-﻿/* BLOCKY-CHARACTER-SOURCE:v1
+/* BLOCKY-CHARACTER-SOURCE:v1
    Source kanonis renderer reusable UT.BlockyCharacter; build.js menyalin template ini ke asset runtime.
    Editor Karakter berada di data/inventory/character/_shared/js/karakter.js dan bukan source generator renderer reusable.
    Jangan mengedit src/renderers/blocky-character.js secara langsung; regenerasi dengan node tools/blocky-character/build.js.
@@ -131,7 +131,7 @@ const hand=new THREE.Group();hand.position.y=-5.5*S;armR.el.add(hand);
 
 const slots={head:[],hair:[],body:[],helm:[],chest:[],shoulder:[],cape:[],weapon:[],acc:[],tool:[]};
 let torsoMesh=null,tails=[],wpg=null,wpBase=0;
-let toolG=null; /* alat kerja di tangan kanan (beliung penambang) â€” bukan item katalog, tak ikut penyimpanan/pembelian */
+let toolG=null; /* alat kerja di tangan kanan (beliung penambang) — bukan item katalog, tak ikut penyimpanan/pembelian */
 let headMesh=null,blinkMats=null,blinkT=2.5,blinkClose=0; /* kedip: wajah (+z kepala) ditukar ke tekstur mata terpejam sesaat */
 function add(slot,parent,obj){parent.add(obj);slots[slot].push([parent,obj]);return obj;}
 function clear(slot){
@@ -160,7 +160,7 @@ const EYES=[
   {id:'sparkle',n:'Berbinar',g:'f',dyes:'eye',def:'purple',brow:2,px:(m,y,ic)=>y===3?(m===1?0xffffff:ic):(y===4?(m===1?0xffffff:shade(ic,0.6)):undefined)}
 ];
 
-/* ---- wajah (bentuk wajah: hidung, mulut, pipi) â€” TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
+/* ---- wajah (bentuk wajah: hidung, mulut, pipi) — TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
    px(x,y,m,c): warna piksel wajah 8x8 (x 0-7, y 0-7, m = kolom cermin 0-3) atau undefined = kulit polos; c = {sk,skD,fem,hD}. Baris mata/alis diatur EYES. */
 const lipC=c=>c.fem?0xc4565f:0x8c4a3c;
 const FACES=[
@@ -823,30 +823,30 @@ const owned=(key,it)=>{if(previewAll)return true;const c=catItem(key,it);return 
 const NONE_GEAR={helm:{id:'none'},chest:{id:'none'},shoulder:{id:'none'},cape:{id:'none'},weapon:{id:'none'},accessories:[]};
 const gear=o=>Object.assign(clone(NONE_GEAR),o);
 const PRESETS=[
-  {id:'citizen',n:'ðŸ™‚ Warga',set:gear({top:{id:'tee',dye:'blue'},legs:{id:'pants',dye:'navy'},boots:{id:'shoes',dye:'brown'}})},
-  {id:'knight',n:'ðŸ›¡ï¸ Ksatria',set:gear({top:{id:'tunic',dye:'red'},legs:{id:'pants',dye:'navy'},boots:{id:'tall',dye:'brown'},
+  {id:'citizen',n:'🙂 Warga',set:gear({top:{id:'tee',dye:'blue'},legs:{id:'pants',dye:'navy'},boots:{id:'shoes',dye:'brown'}})},
+  {id:'knight',n:'🛡️ Ksatria',set:gear({top:{id:'tunic',dye:'red'},legs:{id:'pants',dye:'navy'},boots:{id:'tall',dye:'brown'},
     chest:{id:'plate',dye:'steel'},shoulder:{id:'pad',dye:'steel'},cape:{id:'long',dye:'red'},weapon:{id:'sword',dye:'steel'},accessories:[{id:'belt',dye:'brown'}]})},
-  {id:'mage',n:'ðŸ§™ Penyihir',set:gear({top:{id:'robe',dye:'purple'},legs:{id:'pants',dye:'purple'},boots:{id:'cloth',dye:'black'},
+  {id:'mage',n:'🧙 Penyihir',set:gear({top:{id:'robe',dye:'purple'},legs:{id:'pants',dye:'purple'},boots:{id:'cloth',dye:'black'},
     helm:{id:'wizard',dye:'purple'},weapon:{id:'staff',dye:'blue'}})},
-  {id:'farmer',n:'ðŸŒ¾ Petani',set:gear({top:{id:'overall',dye:'blue'},legs:{id:'pants',dye:'blue'},boots:{id:'shoes',dye:'brown'},helm:{id:'straw',dye:'straw'}})},
-  {id:'explorer',n:'ðŸ§­ Petualang',set:gear({top:{id:'vest',dye:'green'},legs:{id:'pants',dye:'brown'},boots:{id:'tall',dye:'brown'},
+  {id:'farmer',n:'🌾 Petani',set:gear({top:{id:'overall',dye:'blue'},legs:{id:'pants',dye:'blue'},boots:{id:'shoes',dye:'brown'},helm:{id:'straw',dye:'straw'}})},
+  {id:'explorer',n:'🧭 Petualang',set:gear({top:{id:'vest',dye:'green'},legs:{id:'pants',dye:'brown'},boots:{id:'tall',dye:'brown'},
     accessories:[{id:'belt',dye:'brown'},{id:'pack',dye:'brown'},{id:'goggles',dye:'bronze'}]})},
-  {id:'noble',n:'ðŸ‘‘ Bangsawan',set:gear({top:{id:'coat',dye:'navy'},legs:{id:'formal',dye:'black'},boots:{id:'shoes',dye:'black'},
+  {id:'noble',n:'👑 Bangsawan',set:gear({top:{id:'coat',dye:'navy'},legs:{id:'formal',dye:'black'},boots:{id:'shoes',dye:'black'},
     helm:{id:'crown',dye:'gold'},cape:{id:'short',dye:'navy'},accessories:[{id:'belt',dye:'black'}]})}
 ];
 PRESETS.forEach(p=>p.g='m');
 const FP=(id,n,set)=>PRESETS.push({id:id,n:n,g:'f',set:gear(set)});
-FP('citizen','ðŸ™‚ Warga',{top:{id:'blouse',dye:'white'},legs:{id:'skirt',dye:'navy'},boots:{id:'mary',dye:'black'},accessories:[{id:'bow',dye:'red'}]});
-FP('knight','ðŸ›¡ï¸ Ksatria',{top:{id:'tunic',dye:'purple'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
+FP('citizen','🙂 Warga',{top:{id:'blouse',dye:'white'},legs:{id:'skirt',dye:'navy'},boots:{id:'mary',dye:'black'},accessories:[{id:'bow',dye:'red'}]});
+FP('knight','🛡️ Ksatria',{top:{id:'tunic',dye:'purple'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
   chest:{id:'valk',dye:'steel'},shoulder:{id:'gem',dye:'steel'},cape:{id:'long',dye:'purple'},weapon:{id:'rapier',dye:'steel'},accessories:[{id:'belt',dye:'black'}]});
-FP('mage','ðŸ§™ Penyihir',{top:{id:'robe',dye:'navy'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
+FP('mage','🧙 Penyihir',{top:{id:'robe',dye:'navy'},legs:{id:'tights',dye:'black'},boots:{id:'knee',dye:'black'},
   helm:{id:'wizard',dye:'navy'},weapon:{id:'wand',dye:'pink'},accessories:[{id:'earrings',dye:'gold'}]});
-FP('farmer','ðŸŒ¾ Petani',{top:{id:'sundress',dye:'yellow'},legs:{id:'bare'},boots:{id:'sandal',dye:'tan'},helm:{id:'straw',dye:'straw'}});
-FP('explorer','ðŸ§­ Petualang',{top:{id:'vest',dye:'green'},legs:{id:'shorts',dye:'brown'},boots:{id:'tall',dye:'brown'},
+FP('farmer','🌾 Petani',{top:{id:'sundress',dye:'yellow'},legs:{id:'bare'},boots:{id:'sandal',dye:'tan'},helm:{id:'straw',dye:'straw'}});
+FP('explorer','🧭 Petualang',{top:{id:'vest',dye:'green'},legs:{id:'shorts',dye:'brown'},boots:{id:'tall',dye:'brown'},
   accessories:[{id:'belt',dye:'brown'},{id:'goggles',dye:'bronze'},{id:'purse',dye:'brown'}]});
-FP('princess','ðŸ‘‘ Putri',{top:{id:'dress',dye:'pink'},legs:{id:'tights',dye:'white'},boots:{id:'mary',dye:'pink'},
+FP('princess','👑 Putri',{top:{id:'dress',dye:'pink'},legs:{id:'tights',dye:'white'},boots:{id:'mary',dye:'pink'},
   helm:{id:'tiara',dye:'gold'},cape:{id:'short',dye:'pink'},accessories:[{id:'necklace',dye:'gold'},{id:'earrings',dye:'gold'},{id:'gloves',dye:'white'}]});
-FP('fairy','ðŸ§š Peri',{top:{id:'sundress',dye:'mint'},legs:{id:'bare'},boots:{id:'flat',dye:'mint'},
+FP('fairy','🧚 Peri',{top:{id:'sundress',dye:'mint'},legs:{id:'bare'},boots:{id:'flat',dye:'mint'},
   helm:{id:'flowers',dye:'pink'},cape:{id:'wings',dye:'lilac'},weapon:{id:'wand',dye:'mint'},accessories:[{id:'earrings',dye:'gold'}]});
 const DEFAULT=Object.assign({
   version:1,
@@ -950,7 +950,7 @@ function buildHead(){
   ],0,4,0));
   blinkMats={open:faceOpen,shut:faceShut};blinkClose=0;blinkT=1.5+Math.random()*3;
 }
-/* Kedip: dipanggil tiap frame. Mata terbuka 2â€“5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
+/* Kedip: dipanggil tiap frame. Mata terbuka 2–5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
 function blinkStep(dt){
   if(!headMesh||!blinkMats||eyeIsClosedStyle())return;
   if(blinkClose>0){
@@ -1147,7 +1147,7 @@ const BOW_REL=0.74; /* saat tali dilepas (bagian dari durasi aksi) */
 const ACT_STATIC={block:ACT_B,sad:ACT_SAD,cheer:ACT_CHEER,wave:ACT_WAVE};
 const ACT_DUR={spinball:3.0,toss:3.0,dribble:2.4,throw:2.6,mine:0.85,attack:0.75,bow:1.2,block:1.0,sad:1.6,cheer:2.4,wave:2.0,flip:0.7,backflip:0.7,spin:0.7,roll:0.75};
 const ROLL_PY=0.8,ROLL_LIFT=0.3; /* guling di lantai: poros tubuh & angkatan kecil agar badan tidak menembus lantai */
-let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') â€” dibaca halaman untuk percikan batu */
+let strikeN=0; /* jumlah hantaman beliung (aksi 'mine') — dibaca halaman untuk percikan batu */
 const ACT_AIR={flip:1,backflip:1,spin:1}; /* aksi yang melompat dulu (salto/putar di udara) */
 const fx={rx:0,ry:0,py:1,lift:0}; /* rotasi badan utuh dari aksi: rx = salto (+ ke depan), ry = putar; py = tinggi poros (satuan lokal) */
 let act=null,bowAim=0; /* bowAim = sudut bidik ke atas (rad), diatur pemanggil sebelum act('bow') */

@@ -1,9 +1,9 @@
-﻿/* Dragon Roll â€” src/components/collapse-button/collapse-button.css
+/* Dragon Roll — src/components/collapse-button/collapse-button.css
    Tombol / bar lipat reusable dari referensi/component/buttons.html ("Tombol collapse", #3c3c3c tidak transparan). CSS murni.
    Isi = ikon saja, tanpa latar tombol atau garis pemisah antar ikon (satu-satunya garis: sebelum panah). Beri aria-label pada tiap tombol.
    Struktur:
      <div class="ut-collapse">
-       <div class="ut-collapse-body"><button class="ut-collapse-item">â€¦</button> â€¦</div>
+       <div class="ut-collapse-body"><button class="ut-collapse-item">…</button> …</div>
        <span class="ut-collapse-div"></span>
        <button class="ut-collapse-toggle" type="button" aria-expanded="true" aria-label="Tutup menu">
          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="8,3 17,12 8,21"/><polyline points="8,3 17,12 8,21"/></svg>

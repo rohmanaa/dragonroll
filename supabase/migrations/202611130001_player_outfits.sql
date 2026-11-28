@@ -1,4 +1,4 @@
-﻿-- Outfit pribadi + tampilan aktif di SERVER. Terapkan SETELAH 202611120001_wallet_b6_ad_reward.sql
+-- Outfit pribadi + tampilan aktif di SERVER. Terapkan SETELAH 202611120001_wallet_b6_ad_reward.sql
 -- (butuh item_catalog + player_inventory dari B2 dan is_game_room_member dari 202611060001).
 --
 -- Isi:

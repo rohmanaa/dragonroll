@@ -1,4 +1,4 @@
-﻿# World redesign notes (Dragon Roll x playful diorama look)
+# World redesign notes (Dragon Roll x playful diorama look)
 
 Scope: **colour, lighting and baked shading only.** No gameplay logic, coordinates, tile numbering,
 collision, camera, snakes/ladders, pawns or asset lists were touched. The seeded `rnd()` call order is unchanged,

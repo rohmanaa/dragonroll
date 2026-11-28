@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/card/card.js (Stage 4.0.4: komponen Card reusable)
+/* Ular Tangga Blok — src/components/card/card.js (Stage 4.0.4: komponen Card reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/button/button.js -> card.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('card', { variant:'elevated', padding:'md', children:[node1, node2] });
@@ -61,7 +61,7 @@
     if (typeof opts.role === 'string' && opts.role) el.setAttribute('role', opts.role); /* hanya bila diminta */
     if (opts.ariaLabel) el.setAttribute('aria-label', String(opts.ariaLabel));
 
-    /* children: HTMLElement atau HTMLElement[] â€” hanya node elemen yang diterima, tidak pernah string HTML. */
+    /* children: HTMLElement atau HTMLElement[] — hanya node elemen yang diterima, tidak pernah string HTML. */
     var kids = opts.children;
     if (isElement(kids)) kids = [kids];
     if (Array.isArray(kids)) {

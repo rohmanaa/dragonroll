@@ -1,4 +1,4 @@
-﻿/* Tes integrasi Stage 3: ItemRegistry (14 manifest Frame) -> ItemCatalog -> konsumen existing.
+/* Tes integrasi Stage 3: ItemRegistry (14 manifest Frame) -> ItemCatalog -> konsumen existing.
    Jalankan: node tests/frame-catalog-integration.test.js
    Pembanding = tests/fixtures/item-catalog-baseline.json (snapshot runtime ItemCatalog SEBELUM integrasi; 147 item asli + 20 item set PVP).
    Yang TIDAK diuji di sini: pemuatan nyata di browser (NOT TESTED kecuali ada laporan browser terpisah). */
@@ -58,7 +58,7 @@ t('Frame: 14/14 metadata (id, name, kind, rarity, price, gems, starter, desc, fe
   const fr = ICr.items.filter(i => i.kind === 'frame'), bf = base.items.filter(i => i.kind === 'frame'); assert.strictEqual(fr.length, 29);
   fr.forEach((f, i) => ['id', 'name', 'kind', 'rarity', 'price', 'gems', 'starter', 'desc', 'featured', 'image', 'gameKey', 'category', 'slot', 'stackable'].forEach(k => assert.strictEqual(f[k], bf[i][k], f.id + '.' + k)));
 });
-t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) â€” nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
+t('Frame: tiap item katalog berasal dari manifest Registry (bukan literal) — nilai yang sengaja dibedakan di manifest muncul di katalog', () => {
   /* Bukti sumber: ubah satu manifest di salinan lalu muat ulang -> katalog mengikuti manifest, bukan literal/TIER_PRICE. */
   const IR = require(path.join(ROOT, 'src/core/item-registry.js')), reg = IR.create(); FrameCat.register(reg);
   const m = JSON.parse(JSON.stringify(reg.getItem('frame.stone'))); m.name = 'Frame Batu UJI'; m.gems = 77; m.price = null;

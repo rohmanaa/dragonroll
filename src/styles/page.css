@@ -1,4 +1,4 @@
-﻿/* page.css â€” gaya bersama halaman baru (karakter, settings, splash) mengikuti lobby/room: langit, tombol kembali, bar mata uang, panel + banner dari kit. */
+/* page.css — gaya bersama halaman baru (karakter, settings, splash) mengikuti lobby/room: langit, tombol kembali, bar mata uang, panel + banner dari kit. */
 :root{--line:var(--panel-line, #6d6590);--gold:var(--dr-gold-light, #ffd45a)}
 body.sub #stage{background:linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%)}
 img{display:block;-webkit-user-drag:none;pointer-events:none}

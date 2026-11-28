@@ -1,4 +1,4 @@
-﻿-- Ekonomi fase 3: harga emerald (tier atas), tier berharga landai, tambang dibeli emerald, kurs seragam, hadiah boss online.
+-- Ekonomi fase 3: harga emerald (tier atas), tier berharga landai, tambang dibeli emerald, kurs seragam, hadiah boss online.
 -- Aman dijalankan ulang (create or replace / update). Data pemain tidak diubah: hanya harga & biaya ke depan.
 -- JANGAN edit blok seed tangan: jalankan node tools/wallet/gen-item-seed.js --write.
 

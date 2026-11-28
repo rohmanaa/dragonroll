@@ -1,7 +1,7 @@
-﻿/* Dragon Roll â€” src/components/tile-button/tile-button.css
+/* Dragon Roll — src/components/tile-button/tile-button.css
    Tombol kotak reusable dari referensi/component/buttons.html ("Tombol kotak"). CSS murni, tanpa gambar.
    Hanya TAMPILAN: ukuran, posisi, display, dan isi tetap milik halaman.
-   Pakai:  <button class="ut-tile ut-tile-d">â€¦</button>
+   Pakai:  <button class="ut-tile ut-tile-d">…</button>
    Warna:  (bawaan) / ut-tile-d = abu gelap (turunan Krem: susunan gradien & bayangan sama, warnanya abu)
            ut-tile-y = kuning (aktif / utama)   ut-tile-k = krem (asli)
    Ubah ukuran garis / sudut lewat --tile-bw (bawaan 4px) dan --tile-r (bawaan 18px). */

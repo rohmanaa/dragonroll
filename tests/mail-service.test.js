@@ -1,4 +1,4 @@
-﻿/* Tes klien Mail (tanpa jaringan): pembungkus RPC, validasi id, tidak dobel, cermin saldo, kegagalan tidak melempar. */
+/* Tes klien Mail (tanpa jaringan): pembungkus RPC, validasi id, tidak dobel, cermin saldo, kegagalan tidak melempar. */
 const assert = require('assert');
 const { create } = require('../src/services/mail-service.js');
 const ID = '11111111-2222-3333-4444-555555555555';

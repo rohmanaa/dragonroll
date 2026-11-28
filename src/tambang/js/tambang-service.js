@@ -1,4 +1,4 @@
-﻿/* Tambang service â€” satu-satunya pintu klien Tambang World ke SERVER (RPC tambang_*, migrasi 202611490001_tambang_world.sql).
+/* Tambang service — satu-satunya pintu klien Tambang World ke SERVER (RPC tambang_*, migrasi 202611490001_tambang_world.sql).
    Klien tidak pernah mengirim nominal, jam, atau hasil: server menghitung semuanya dan mengubah dompet lewat _wallet_apply.
    Aktif hanya untuk akun login (PlayerData.serverMode()). Method async, TIDAK melempar untuk kegagalan jaringan: {ok:false, reason}.
    Setiap hasil yang memuat saldo (coins/gems) menyegarkan cermin PlayerData lewat applyServerWallet(), jadi angka Koin/Emerald di

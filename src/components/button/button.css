@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/button/button.css (Stage 4.0.3)
+/* Ular Tangga Blok — src/components/button/button.css (Stage 4.0.3)
    Semua selector berawalan .ut-btn*; tidak menyentuh .btn/.cta/.bt/.ab/.mb/.pack/.heroBtn/.bb milik halaman.
    Ukuran memakai em (mengikuti font-size tombol) + rem untuk font-size, selaras skala rem halaman.
    Variabel halaman (--bd, --y1, --y2) dipakai bila ada, dengan fallback. */
@@ -67,7 +67,7 @@
 }
 
 /* ==========================================================================
-   GLOSSY (gaya kit Guild) â€” tambahan Stage HUD-Gloss
+   GLOSSY (gaya kit Guild) — tambahan Stage HUD-Gloss
    Tombol 4 lapis gradien + garis luar tebal + "ledge" keras + teks putih bertepi gelap.
    Dua cara pakai:
    1) Komponen penuh :  <button class="ut-btn ut-gl ut-c-y">Main</button>  (atau UT.Hud.create('button',{variant:'yellow'}))
@@ -108,5 +108,5 @@
 .ut-gl.sm { --gl-bw: 3px; --gl-r: 13px; --gl-ledge: 4px; }
 /* ut-btn + ut-gl: tombol komponen penuh bergaya glossy */
 .ut-btn.ut-gl { min-height: 2.4em; border-radius: var(--gl-r); margin-bottom: var(--gl-ledge); font-family: var(--ut-font-title, 'Lilita One', inherit, sans-serif); }
-/* varian JS: yellow|green|blue|red|purple|teal|brown|dark  â†’ ut-gl ut-c-* */
+/* varian JS: yellow|green|blue|red|purple|teal|brown|dark  → ut-gl ut-c-* */
 

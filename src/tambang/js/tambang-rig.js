@@ -1,4 +1,4 @@
-﻿/* tambang-rig.js â€” rig karakter pekerja tambang (global: window.TambangRig)
+/* tambang-rig.js — rig karakter pekerja tambang (global: window.TambangRig)
    Mengacu pada UT.BlockyCharacter (src/renderers/blocky-character.js) di repo dragonroll:
    - skala 1 voxel-px = 1/16 satuan, tinggi ~2 satuan, kaki di y=0, menghadap +z
    - hierarki: root > hips > upper > head ; bahu (sh) > siku (el) ; paha (g) > lutut (knee) ; titik genggam `hand`

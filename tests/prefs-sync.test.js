@@ -1,4 +1,4 @@
-﻿/* Tes Tahap 7b: UT.PrefsSync (UT.Prefs <-> server). Jalankan: node tests/prefs-sync.test.js */
+/* Tes Tahap 7b: UT.PrefsSync (UT.Prefs <-> server). Jalankan: node tests/prefs-sync.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const SYNC = require('../src/core/prefs-sync.js');
 function mkPrefs(init) {

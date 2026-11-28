@@ -1,4 +1,4 @@
-﻿-- Login harian 30 hari (dari 7 hari). Idempotent (create or replace / drop constraint if exists).
+-- Login harian 30 hari (dari 7 hari). Idempotent (create or replace / drop constraint if exists).
 --   * Streak KETAT: bolos 1 hari (tanggal WIB) -> kembali ke Hari 1. Aturan ini sudah ada di _daily_effective_claimed; hanya batas putaran 7 -> 30.
 --   * Hari 1-7 TIDAK berubah (nominal sama dengan fase 1), jadi pemain yang sedang di tengah putaran lama tidak dirugikan:
 --     akun dengan claimed = 7 yang login tanpa bolos kini lanjut ke Hari 8, bukan mulai dari 1.

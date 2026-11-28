@@ -5,7 +5,7 @@ const fs = require("fs"), path = require("path");
 const root = path.join(__dirname, "..");
 const rd = p => fs.readFileSync(path.join(root, p), "utf8");
 function inline(html) {
-  html = html.replace(/<script([^>]*?)\ssrc="((?:assets\/js\/pages\/|(?:data\/(?:lobby|mining)\/js\/|data\/inventory\/(?:frame|power|pet|character|dice|aura)\/_shared\/js\/))[^"]+)"([^>]*)><\/script>/g, (m, a, src, b) => "<script" + a + " src=\"" + src + "\"" + b + ">" + rd(src.split(/[?#]/, 1)[0]) + "</script>");
+  html = html.replace(/<script([^>]*?)\ssrc="((?:src\/views\/|(?:data\/(?:lobby|mining)\/js\/|data\/inventory\/(?:frame|power|pet|character|dice|aura)\/_shared\/js\/))[^"]+)"([^>]*)><\/script>/g, (m, a, src, b) => "<script" + a + " src=\"" + src + "\"" + b + ">" + rd(src.split(/[?#]/, 1)[0]) + "</script>");
   html = html.replace(/<link rel="stylesheet"( id="[^"]+")? href="(src\/styles\/pages\/[^"]+)">/g, (m, id, href) => "<style" + (id || "") + ">" + rd(href.split(/[?#]/, 1)[0]) + "</style>");
   return html;
 }

@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/toast/toast.css (Stage 4.0.7)
+/* Ular Tangga Blok — src/components/toast/toast.css (Stage 4.0.7)
    Semua selector berawalan .ut-toast; tidak menyentuh #toast / .toast / .on milik halaman.
    Elemen .ut-toast-stack dan .ut-toast.ut-toast-hud hanya ada di DOM saat toast tampil, jadi memuat file ini tidak mengubah UI existing.
    Akar toast HUD memakai kelas dasar .ut-toast (dibagi dengan UT.UI.toast / base.css) + .ut-toast-hud; semua aturan di sini

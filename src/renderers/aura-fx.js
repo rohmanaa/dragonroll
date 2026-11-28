@@ -1,4 +1,4 @@
-﻿/* src/renderers/aura-fx.js â€” GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
+/* src/renderers/aura-fx.js — GENERATED oleh tools/aura-fx/build.js dari tools/aura-fx/src (paket aura-3d). JANGAN edit manual.
    Aura karakter voxel 3D (15 aura, Common..Divine). Skrip klasik, global UT.AuraFX; perlu global THREE (r128).
      const sys = new UT.AuraFX.AuraSystem(scene, camera, {quality:'medium'});
      const aura = sys.attach(object3D, 'dragon', {intensity:1,size:1,speed:1,tint:null}, {height:2});
@@ -8,8 +8,8 @@
 window.UT=window.UT||{};
 const Config = (function(){
 /**
- * AuraConfig.js â€” util kecil, rarity (Common..Divine), preset Tier 1â€“7 dan preset kualitas.
- * Satuan panjang di seluruh sistem = "u" (1u â‰ˆ 1 blok Minecraft, karakter standar 1.8u tinggi).
+ * AuraConfig.js — util kecil, rarity (Common..Divine), preset Tier 1–7 dan preset kualitas.
+ * Satuan panjang di seluruh sistem = "u" (1u ≈ 1 blok Minecraft, karakter standar 1.8u tinggi).
  */
 const TAU = Math.PI * 2;
 const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
@@ -61,7 +61,7 @@ return { TAU, clamp, lerp, rnd, pick, smooth, RARITY, TIER, QUALITY, detectQuali
 })();
 const Particles = (function(){
 /**
- * AuraParticles.js â€” partikel VOXEL ber-pool (ring buffer) memakai InstancedMesh.
+ * AuraParticles.js — partikel VOXEL ber-pool (ring buffer) memakai InstancedMesh.
  * 6 pool: {cube, plate, shard} x {additive (cahaya), solid (voxel padat berlampu)}.
  * Satu sistem dipakai bersama semua aura -> jumlah draw call tetap (6) berapa pun jumlah karakter.
  * Mode 0 = bebas (velocity, gravity, drag); mode 1 = orbit relatif terhadap anchor hidup (mengikuti karakter).
@@ -193,7 +193,7 @@ return { VoxelParticles };
 })();
 const Catalog = (function(){
 /**
- * AuraCatalog.js â€” SATU katalog data untuk 15 aura. Tidak ada kode render per aura.
+ * AuraCatalog.js — SATU katalog data untuk 15 aura. Tidak ada kode render per aura.
  *
  * emit[]  = emitter partikel voxel: zone (foot|body|head|ambient), mode (orbit|helix|rise|drift|fall),
  *           shape (cube|plate|shard|leafG|leafT; leaf* = daun bertekstur webp, hanya solid), solid (voxel padat berlampu) / additive (cahaya), rate (per detik, sebelum
@@ -375,7 +375,7 @@ return { AURAS, getAura };
 })();
 const Decor = (function(){
 /**
- * AuraDecor.js â€” elemen non-partikel aura, semuanya dikontrol data katalog (fx[]):
+ * AuraDecor.js — elemen non-partikel aura, semuanya dikontrol data katalog (fx[]):
  *   ring (cincin kaki berlapis, 15 gaya shader), fog, halo, backRing, glow, wings (voxel bitmap), horns,
  *   silhouette, dragonShadow, arcs (petir voxel), distort.
  * Builder: (spec, ctx) -> { follow:'pos'|'yaw', ground?:true, obj, update(t, dt, s), dispose() }
@@ -685,7 +685,7 @@ return { DECOR };
 })();
 const System = (function(){
 /**
- * AuraSystem.js â€” satu engine untuk semua aura (data dari AuraCatalog).
+ * AuraSystem.js — satu engine untuk semua aura (data dari AuraCatalog).
  *
  * const sys = new AuraSystem(scene, camera, { quality: 'medium', reducedMotion: false });
  * const aura = sys.attach(characterObject3D, 'dragon', { intensity: 1, size: 1, speed: 1, tint: null });

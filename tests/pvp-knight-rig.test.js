@@ -1,4 +1,4 @@
-﻿const assert = require('assert');
+const assert = require('assert');
 const THREE = require('../src/vendor/three.min.js');
 const PvpKnight = require('../src/gameplay/js/pvp-knight-rig.js');
 

@@ -1,4 +1,5 @@
-﻿/* Duel UI baru (Dadu Duel Blok): tes struktur + kontrak API. Animasi 3D diuji manual/di browser. */
+require("./_boot-compat.js");
+/* Duel UI baru (Dadu Duel Blok): tes struktur + kontrak API. Animasi 3D diuji manual/di browser. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

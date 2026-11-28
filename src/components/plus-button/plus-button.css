@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/plus-button/plus-button.css
+/* Dragon Roll — src/components/plus-button/plus-button.css
    Tombol plus (hijau glossy) reusable. Tampilan dasar = kit glossy repo (.ut-gl .ut-c-g di button.css), jadi
    di-import di sini agar komponen berdiri sendiri. Selector berawalan .ut-plus*.
    Ukuran mengikuti font-size elemen (em): sm 2.2em, md 3.2em, lg 4.4em. Dengan font-size 20px => 44 / 64 / 88px (sama dengan kit buttons.html).

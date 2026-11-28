@@ -1,4 +1,4 @@
-﻿Frozen inventory (gameplay.html and gameplay/** are never edited or moved)
+Frozen inventory (gameplay.html and gameplay/** are never edited or moved)
 Gameplay-referenced paths: 205
 
 assets/Images/icon/items/dadu.webp	[referenced_by_gameplay]	src/gameplay/css/gameplay.css, src/gameplay/js/hud.js

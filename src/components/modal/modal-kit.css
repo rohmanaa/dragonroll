@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/modal/modal-kit.css
+/* Dragon Roll — src/components/modal/modal-kit.css
    Gaya modal BERSAMA (CSS murni, tanpa gambar aset) dari kit modals.html: panel abu #4b4b4b + garis hitam + bingkai dalam + kilau glossy.
    Pakai: tambahkan kelas ke markup modal yang sudah ada (tidak mengubah struktur/JS):
      kotak   -> ut-mk                (panel; atur width/padding di CSS halaman, beri padding-top >= 100px untuk judul)

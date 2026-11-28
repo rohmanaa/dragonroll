@@ -1,4 +1,5 @@
-﻿/* Tes hadiah naik level (sisi klien): WalletService.claimLevelRewards + hook modal di src/gameplay/js/main.js.
+require("./_boot-compat.js");
+/* Tes hadiah naik level (sisi klien): WalletService.claimLevelRewards + hook modal di src/gameplay/js/main.js.
    Nominal dihitung SERVER (supabase/migrations/202611300001_level_up_rewards.sql, diuji supabase/tests/level_up_rewards_test.sql);
    tes ini memastikan klien tidak menghitung nominal sendiri, mencerminkan saldo dari balasan server, dan ikon hadiah ada.
    Jalankan: node tests/level-up-reward.test.js */
@@ -52,7 +53,7 @@ const mk = (reply, opts) => { const calls = [], mirrored = [];
     assert.strictEqual(fs.readFileSync(f).slice(8, 12).toString(), 'WEBP');
   });
   await t('gameplay.html memuat level-up.js dan wallet-service.js (UT.LevelUp / UT.WalletService tersedia)', async () => {
-    const h = rd('gameplay.html'); assert.ok(h.includes('src/gameplay/js/level-up.js')); assert.ok(/assets\/js\/services\/wallet-service\.js/.test(h));
+    const h = rd('gameplay.html'); assert.ok(h.includes('src/gameplay/js/level-up.js')); assert.ok(/src\/services\/wallet-service\.js/.test(h));
   });
   console.log('\n' + n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

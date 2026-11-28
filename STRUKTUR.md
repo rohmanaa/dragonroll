@@ -1,4 +1,4 @@
-﻿# Struktur Aset
+# Struktur Aset
 
 - `assets/` berisi aset statis dan kode umum yang dipakai lintas halaman atau domain.
 - Gunakan `assets/images/`, `assets/audio/{music,sfx}/`, `assets/fonts/`, dan `assets/icons/` untuk aset umum.

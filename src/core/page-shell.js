@@ -1,4 +1,4 @@
-﻿/* Shared head assets for non-gameplay pages. */
+/* Shared head assets for non-gameplay pages. */
 window.UT = window.UT || {};
 
 (function (win, doc) {

@@ -1,4 +1,4 @@
-﻿/* Layar penuh / normal: Electron lewat electronAPI, web lewat Fullscreen API dokumen paling atas; tombol Pengaturan terhubung. */
+/* Layar penuh / normal: Electron lewat electronAPI, web lewat Fullscreen API dokumen paling atas; tombol Pengaturan terhubung. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -67,7 +67,7 @@ const win = (d, extra) => Object.assign({ document: d, setTimeout: (f) => f(), a
     assert.strictEqual(await D.set(false), false); assert.deepStrictEqual(calls, [false]);
   });
   await t('settings.html memuat display-mode.js & page-module.js sebelum settings.js; settings-electron.js yang tak terpakai sudah dihapus', () => {
-    const h = rd('settings.html'), i = h.indexOf('pages/settings.js');
+    const h = rd('settings.html'), i = h.indexOf('views/settings.js');
     assert(h.indexOf('core/display-mode.js') > 0 && h.indexOf('core/display-mode.js') < i);
     assert(h.indexOf('core/page-module.js') > 0 && h.indexOf('core/page-module.js') < i);
     assert(!fs.existsSync(path.join(__dirname, '../src/views/settings-electron.js')));

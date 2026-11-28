@@ -1,4 +1,4 @@
-﻿/* Tes AppearanceService (tahap b): outfit + tampilan aktif lewat server. Jalankan: node tests/appearance-service.test.js */
+/* Tes AppearanceService (tahap b): outfit + tampilan aktif lewat server. Jalankan: node tests/appearance-service.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 let n = 0; const queue = []; const t = (name, fn) => queue.push([name, fn]);
 
@@ -10,7 +10,7 @@ function boot(opts) {
   if (opts.flag) w.UT_SERVER_WALLET = true;
   w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  ['core/session.js', 'item-catalog.js', 'player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  ['core/session.js', 'stores/item-catalog.js', 'stores/player-data.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, IC: ctx.ItemCatalog, store };
 }
 const Svc = require('../src/services/appearance-service.js');

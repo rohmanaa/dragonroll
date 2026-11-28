@@ -1,4 +1,4 @@
-﻿/* Komponen collapse-button & tile-button (assets/components) dan pemakaiannya di Lobby. */
+/* Komponen collapse-button & tile-button (assets/components) dan pemakaiannya di Lobby. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

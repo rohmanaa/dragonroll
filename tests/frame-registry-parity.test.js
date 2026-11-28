@@ -1,4 +1,4 @@
-﻿/* Tes paritas Frame: manifest data/inventory/frame/* <-> ItemCatalog (runtime) <-> frame-fx.js <-> seed server (migrasi SQL) <-> file di disk.
+/* Tes paritas Frame: manifest data/inventory/frame/* <-> ItemCatalog (runtime) <-> frame-fx.js <-> seed server (migrasi SQL) <-> file di disk.
    Jalankan: node tests/frame-registry-parity.test.js
    Empat lapis dilaporkan TERPISAH (lulus satu lapis != lulus lapis lain):
      A. manifest valid   B. FORMAT path aset   C. file ada di disk + header WebP valid   D. pemuatan aset di browser = TIDAK diuji di sini. */
@@ -45,7 +45,7 @@ t('A. paritas HARGA (koin) dan GEMS dengan ItemCatalog runtime (bukan literal fr
     if (m.source === 'event') assert.ok(m.price === null && m.gems === null, c.id + ': frame hadiah tidak dijual');
   });
 });
-t('A. paritas HARGA dengan seed server (migrasi fase 3) â€” default = starter gratis', () => {
+t('A. paritas HARGA dengan seed server (migrasi fase 3) — default = starter gratis', () => {
   const sql = rd('supabase/migrations/202611280001_economy_phase3_gems.sql'), seed = {};
   for (const m of sql.matchAll(/\('frame\.([a-z]+)',\s*(\d+|null),\s*(\d+|null)\)/g)) seed[m[1]] = { price: m[2] === 'null' ? null : +m[2], gems: m[3] === 'null' ? null : +m[3] };
   assert.strictEqual(Object.keys(seed).length, 13, 'seed server: 13 frame berbayar');

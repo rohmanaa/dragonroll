@@ -1,4 +1,4 @@
-﻿/* mail (SPA tahap 3): modul halaman, ?from dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/listener/polling. */
+/* mail (SPA tahap 3): modul halaman, ?from dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/listener/polling. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -27,7 +27,7 @@ t('penjaga window.__curSub dihapus; langganan dilepas via env.own', () => {
 });
 t('callback async (list, claim, remove, readAll, claimAll, refresh) dijaga env.disposed', () => assert((js.match(/env\.disposed/g) || []).length >= 11));
 t('mail.html memuat page-module.js sebelum mail.js; tanpa id bentrok shell', () => {
-  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/mail.js'));
+  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('views/mail.js'));
   assert(!/id="(view|f|ov)"/.test(html));
 });
 t('spa-host dan frame-guard mengenal mail; play.js punya prefetch', () => {

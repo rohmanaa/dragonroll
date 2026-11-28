@@ -1,4 +1,4 @@
-﻿/* Simulasi match penuh: papan -> 6 Crystal -> HP boss (balapan per pemain). Pakai: node game/tools/sim/boss-balance.js
+/* Simulasi match penuh: papan -> 6 Crystal -> HP boss (balapan per pemain). Pakai: node game/tools/sim/boss-balance.js
    Asumsi: tiap pemain berlomba menghabiskan HP boss-nya sendiri; angka 6 tidak memberi giliran tambahan di fase boss;
    "diarahkan" = bidikan Special Dice sempurna. Mob, peti, power, totem belum dimodelkan. */
 const C=require('../../src/gameplay/js/game-core.js');

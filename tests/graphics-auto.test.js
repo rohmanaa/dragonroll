@@ -1,4 +1,4 @@
-﻿/* Grafik Auto: heuristik detect(), preferensi lokal, penulisan tingkat ke PlayerData, turun-sendiri (governor) dan batasnya. */
+/* Grafik Auto: heuristik detect(), preferensi lokal, penulisan tingkat ke PlayerData, turun-sendiri (governor) dan batasnya. */
 const assert = require('assert');
 const path = require('path');
 const GA = require(path.join(__dirname, '..', 'src/systems/graphics-auto.js'));

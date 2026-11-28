@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/resource-bar/resource-bar.css
+/* Dragon Roll — src/components/resource-bar/resource-bar.css
    Resource bar (Emerald / Coin): bar kaca dua-nada (kit resource-bars.html), tombol + hijau di kiri, ikon menonjol di kanan.
    Selector berawalan .ut-rbar*. Ukuran mengikuti font-size (em): atur lewat --rb-fs, lebar --rb-w, tinggi --rb-h pada elemen/induk.
    Posisi (absolute/right/top) SELALU milik halaman, bukan komponen. */

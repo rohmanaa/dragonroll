@@ -1,4 +1,4 @@
-﻿/* mode (SPA tahap 3): modul halaman, id #view tidak bentrok dengan shell, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
+/* mode (SPA tahap 3): modul halaman, id #view tidak bentrok dengan shell, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

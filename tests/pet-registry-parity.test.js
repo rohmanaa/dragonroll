@@ -1,4 +1,4 @@
-﻿/* Tes paritas Pet (Stage 4): manifest data/inventory/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
+/* Tes paritas Pet (Stage 4): manifest data/inventory/pet/items/* <-> ItemCatalog (baseline & runtime) <-> seed server <-> file di disk.
    Jalankan: node tests/pet-registry-parity.test.js
    Lapisan aset dilaporkan TERPISAH: A. manifest valid  B. FORMAT path  C. file ada + header WebP  D. pemuatan di browser = TIDAK diuji di sini (NOT TESTED). */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
@@ -45,7 +45,7 @@ t('Registry: urutan manifest = urutan ItemCatalog (tier 1..7); KEYS = gameKey', 
   assert.deepStrictEqual(items.map(i => i.id), bp.map(i => i.id)); assert.deepStrictEqual(PetCat.keys, bp.map(i => i.gameKey));
   assert.deepStrictEqual(items.map(i => i.tier), [1, 2, 3, 4, 5, 6, 7]);
 });
-t('Registry: nilai manifest dibekukan (deep-freeze) â€” mutasi tidak mengubah Registry', () => {
+t('Registry: nilai manifest dibekukan (deep-freeze) — mutasi tidak mengubah Registry', () => {
   const it = reg.getItem('pet.forest_pup'); assert.ok(Object.isFrozen(it) && Object.isFrozen(it.visual) && Object.isFrozen(it.visual.colors));
 });
 
@@ -78,7 +78,7 @@ t('ItemCatalog: kategori non-Pet tidak berubah (176 item) dan Frame 29/29 sama d
   const IC = viaBoth.ItemCatalog; assert.deepStrictEqual(clone(IC.items.filter(i => i.kind !== 'pet')), base.items.filter(i => i.kind !== 'pet'));
   assert.deepStrictEqual(clone(IC.items.filter(i => i.kind === 'frame')), bf);
 });
-t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) â€” bentuk item = baseline; manifest sengaja mengubah katalog (bukti sumber)', () => {
+t('ItemCatalog: Pet dari Registry tidak mendapat field baru (mis. image) — bentuk item = baseline; manifest sengaja mengubah katalog (bukti sumber)', () => {
   assert.deepStrictEqual(Object.keys(viaPet.ItemCatalog.byId('pet.storm_wolf')).sort(), Object.keys(bp[4]).sort());
   const c2 = boot([]); /* VM bersih dengan manifest storm_wolf termutasi */
   const w = { addEventListener() {}, localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} } }; w.window = w;

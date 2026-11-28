@@ -1,4 +1,4 @@
-﻿/* Tes login harian 30 hari: tabel hadiah di SQL (_daily_reward_for) harus sama dengan label di klien (array R di hadiah-misi.js),
+/* Tes login harian 30 hari: tabel hadiah di SQL (_daily_reward_for) harus sama dengan label di klien (array R di hadiah-misi.js),
    streak ketat tetap di server, dan lobi memakai batas 30. Tes statis. Jalankan: node tests/daily-reward-30.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const root = p => path.join(__dirname, '..', p);

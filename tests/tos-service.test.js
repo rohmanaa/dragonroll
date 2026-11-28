@@ -1,4 +1,5 @@
-﻿/* Persetujuan TOS/Privasi: versi klien = versi server, akun login lewat RPC, tamu lewat localStorage, Sign up wajib centang. */
+require("./_boot-compat.js");
+/* Persetujuan TOS/Privasi: versi klien = versi server, akun login lewat RPC, tamu lewat localStorage, Sign up wajib centang. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -37,7 +38,7 @@ function mem() { const m = {}; return { getItem: k => (k in m ? m[k] : null), se
   });
   await t('Sign up: wajib centang TOS+Privasi, lalu UT.Tos.accept() setelah akun jadi', () => {
     const h = rd('splash.html'), js = rd('src/views/splash.js');
-    assert.ok(/id="su-tos"/.test(h) && /tos\.html#privasi/.test(h) && h.indexOf('tos-service.js') > 0 && h.indexOf('tos-service.js') < h.indexOf('pages/splash.js'));
+    assert.ok(/id="su-tos"/.test(h) && /tos\.html#privasi/.test(h) && h.indexOf('tos-service.js') > 0 && h.indexOf('tos-service.js') < h.indexOf('views/splash.js'));
     assert.ok(/su-tos"\)\.checked/.test(js) && /UT\.Tos\.accept\(\)/.test(js));
     assert.ok(js.indexOf('su-tos").checked') < js.indexOf('UT.Auth.signUp'), 'cek centang sebelum membuat akun');
   });

@@ -1,4 +1,4 @@
-﻿/* karakter.js â€” dipindah dari <script> inline (karakter.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('karakter').
+/* karakter.js — dipindah dari <script> inline (karakter.html). Tahap 1 SPA: dibungkus modul UT.PageModule ('karakter').
    Halaman mandiri otomatis mount; unmount() melepas rAF, listener, observer, langganan, dan renderer. */
 UT.PageModule.define('karakter',function(env){
 const{setTimeout,clearTimeout,setInterval,clearInterval,requestAnimationFrame,cancelAnimationFrame,addEventListener,removeEventListener}=env;
@@ -140,7 +140,7 @@ const hand=new THREE.Group();hand.position.y=-5.5*S;armR.el.add(hand);
    ================================================================ */
 const slots={head:[],hair:[],body:[],helm:[],chest:[],shoulder:[],cape:[],weapon:[],acc:[],tool:[]};
 let torsoMesh=null,tails=[],wpg=null,wpBase=0;
-let toolG=null; /* alat kerja di tangan kanan (beliung penambang) â€” bukan item katalog, tak ikut penyimpanan/pembelian */
+let toolG=null; /* alat kerja di tangan kanan (beliung penambang) — bukan item katalog, tak ikut penyimpanan/pembelian */
 let headMesh=null,blinkMats=null,blinkT=2.5,blinkClose=0; /* kedip: wajah (+z kepala) ditukar ke tekstur mata terpejam sesaat */
 function add(slot,parent,obj){parent.add(obj);slots[slot].push([parent,obj]);return obj;}
 function clear(slot){
@@ -170,7 +170,7 @@ const EYES=[
   {id:'sparkle',n:'Berbinar',g:'f',dyes:'eye',def:'purple',brow:2,px:(m,y,ic)=>y===3?(m===1?0xffffff:ic):(y===4?(m===1?0xffffff:shade(ic,0.6)):undefined)}
 ];
 
-/* ---- wajah (bentuk wajah: hidung, mulut, pipi) â€” TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
+/* ---- wajah (bentuk wajah: hidung, mulut, pipi) — TERPISAH dari mata (EYES); dasar penampilan gratis, bukan item dagangan ----
    px(x,y,m,c): warna piksel wajah 8x8 (x 0-7, y 0-7, m = kolom cermin 0-3) atau undefined = kulit polos; c = {sk,skD,fem,hD}. Baris mata/alis diatur EYES. */
 const lipC=c=>c.fem?0xc4565f:0x8c4a3c;
 const FACES=[
@@ -837,7 +837,7 @@ const gear=o=>Object.assign(clone(NONE_GEAR),o);
 const PRESETS=UT.CharacterSets.male.map(p=>({id:p.id,n:p.n,g:'m',set:gear(clone(p.set))}));
 UT.CharacterSets.female.forEach(p=>PRESETS.push({id:p.id,n:p.n,g:'f',set:gear(clone(p.set))}));
 /* Set PVP (unisex): wajah + rambut + semua perlengkapan; terkunci sampai dibuka server (kemenangan PVP). */
-[['mahkota','ðŸ‘‘ Ksatria Mahkota'],['rival','ðŸ—¡ï¸ Ksatria Rival']].forEach(a=>['m','f'].forEach(g=>{
+[['mahkota','👑 Ksatria Mahkota'],['rival','🗡️ Ksatria Rival']].forEach(a=>['m','f'].forEach(g=>{
   const k=a[0];
   PRESETS.push({id:'pvp_'+k+'_'+g,n:a[1],g:g,pvp:k,set:gear({
     eyes:{id:k,dye:k==='rival'?'red':'blue'},hair:{id:k,dye:k==='rival'?'black':'silver'},
@@ -946,7 +946,7 @@ function buildHead(){
   ],0,4,0));
   blinkMats={open:faceOpen,shut:faceShut};blinkClose=0;blinkT=1.5+Math.random()*3;
 }
-/* Kedip: dipanggil tiap frame. Mata terbuka 2â€“5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
+/* Kedip: dipanggil tiap frame. Mata terbuka 2–5,5 dtk, terpejam 0,11 dtk; sesekali kedip ganda. */
 function blinkStep(dt){
   if(!headMesh||!blinkMats||eyeIsClosedStyle())return;
   if(blinkClose>0){
@@ -1204,28 +1204,28 @@ $('#rnd').addEventListener('click',()=>{endPreview();randomize();});
 $('#shp').addEventListener('click',()=>{nav('shop.html');});
 $('#cur-em').addEventListener('click',()=>{nav('tambang.html?from=karakter.html')});$('#cur-co').addEventListener('click',()=>{nav('shop.html?coin=1')});
 function setMode(m){mode=m;}
-function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'â€”');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'â€”');}catch(e){}}
-try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){} /* Tahap 6d: saldo tampil 'â€”' sampai server membalas, lalu otomatis diperbarui */
+function renderCurrency(){try{$('#v-em').textContent=(PD.walletReady()?fmt(PD.gems()):'—');$('#v-co').textContent=(PD.walletReady()?fmt(PD.coins()):'—');}catch(e){}}
+try{env.own(PD.subscribe(r=>{if(r==='server-wallet'||r==='storage'||r==='pageshow')try{renderCurrency()}catch(e){}}))}catch(e){} /* Tahap 6d: saldo tampil '—' sampai server membalas, lalu otomatis diperbarui */
 renderCurrency();
 try{env.own(UT.Events.on('currencyChanged',renderCurrency));}catch(e){}
 
 const CATS=[
-  {key:'gender',label:'âš§ Gender',type:'gender'},
-  {key:'skin',label:'ðŸŽ¨ Kulit',type:'skin'},
-  {key:'face',label:'ðŸ˜Š Wajah',reg:'face'},
-  {key:'eyes',label:'ðŸ‘ï¸ Mata',reg:'eyes',keepDye:true},
-  {key:'hair',label:'ðŸ’‡ Rambut',reg:'hair',keepDye:true},
-  {key:'top',label:'ðŸ‘• Baju',reg:'top'},
-  {key:'legs',label:'ðŸ‘– Celana',reg:'legs'},
-  {key:'boots',label:'ðŸ‘¢ Sepatu',reg:'boots'},
-  {key:'helm',label:'â›‘ï¸ Kepala',reg:'helm'},
-  {key:'chest',label:'ðŸ›¡ï¸ Zirah',reg:'chest'},
-  {key:'shoulder',label:'ðŸ¦¾ Bahu',reg:'shoulder'},
-  {key:'cape',label:'ðŸ§£ Jubah',reg:'cape'},
-  {key:'weapon',label:'âš”ï¸ Senjata',reg:'weapon'},
-  {key:'accessories',label:'ðŸŽ’ Aksesori',type:'multi'},
-  {key:'body',label:'ðŸ“ Tubuh',type:'body'},
-  {key:'preset',label:'ðŸŽ­ Set',type:'preset'}
+  {key:'gender',label:'⚧ Gender',type:'gender'},
+  {key:'skin',label:'🎨 Kulit',type:'skin'},
+  {key:'face',label:'😊 Wajah',reg:'face'},
+  {key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true},
+  {key:'hair',label:'💇 Rambut',reg:'hair',keepDye:true},
+  {key:'top',label:'👕 Baju',reg:'top'},
+  {key:'legs',label:'👖 Celana',reg:'legs'},
+  {key:'boots',label:'👢 Sepatu',reg:'boots'},
+  {key:'helm',label:'⛑️ Kepala',reg:'helm'},
+  {key:'chest',label:'🛡️ Zirah',reg:'chest'},
+  {key:'shoulder',label:'🦾 Bahu',reg:'shoulder'},
+  {key:'cape',label:'🧣 Jubah',reg:'cape'},
+  {key:'weapon',label:'⚔️ Senjata',reg:'weapon'},
+  {key:'accessories',label:'🎒 Aksesori',type:'multi'},
+  {key:'body',label:'📏 Tubuh',type:'body'},
+  {key:'preset',label:'🎭 Set',type:'preset'}
 ];
 CATS.forEach(c=>{const i=c.label.indexOf(' ');c.ico=c.label.slice(0,i);c.name=c.label.slice(i+1);});
 let cat=0,accSel=null,eqSel=null; /* eqSel: slot "sedang dipakai" yang dipilih (kolom kiri) */
@@ -1471,11 +1471,11 @@ function slider(label,key,min,max){
 }
 /* Tab bergaya NewGUI; subkategori tetap tersedia untuk editor yang punya banyak bagian. */
 const GROUPS=[
-  {name:'Gender',ico:'âš§',keys:['gender']},
-  {name:'Penampilan',ico:'ðŸŽ¨',keys:['skin','face','eyes','hair','body']},
-  {name:'Outfit',ico:'ðŸ‘•',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
-  {name:'Aksesori',ico:'ðŸŽ’',keys:['accessories']},
-  {name:'Set',ico:'ðŸŽ­',keys:['preset']}
+  {name:'Gender',ico:'⚧',keys:['gender']},
+  {name:'Penampilan',ico:'🎨',keys:['skin','face','eyes','hair','body']},
+  {name:'Outfit',ico:'👕',keys:['top','legs','helm','chest','shoulder','cape','weapon','boots']},
+  {name:'Aksesori',ico:'🎒',keys:['accessories']},
+  {name:'Set',ico:'🎭',keys:['preset']}
 ];   /* Set (preset) = tab sendiri setelah Aksesori (bukan sub Penampilan); Outfit memuat Baju/Celana/Kepala/Zirah/Bahu/Jubah/Senjata/Sepatu */
 const subsEl=$('#subs');
 const slotTabs={chest:'Outfit',shoulder:'Outfit',cape:'Outfit',weapon:'Outfit'};
@@ -1507,7 +1507,7 @@ function renderOpts(){
   THUMB.reset();
   const c=CATS[cat];let n=0;
   if(c.type==='gender'){
-    [['m','ðŸ‘¨','Laki-laki'],['f','ðŸ‘©','Perempuan']].forEach(a=>{const on=B().gender===a[0];
+    [['m','👨','Laki-laki'],['f','👩','Perempuan']].forEach(a=>{const on=B().gender===a[0];
       const gpart=cur=>{if(cur.gender===a[0])return {};const o=clone(START[a[0]]);o.hair.dye=cur.hair.dye;o.eyes.dye=cur.eyes.dye;o.face=clone(cur.face);o.skin=cur.skin;o.body=clone(cur.body);return o;};
       optsEl.appendChild(card({i:n++,th:emo(a[1]),nm:a[2],ft:'PILIH',on:on,status:on?'used':'own',sel:!!(pv&&pv.draft&&pv.key==='g'+a[0]),
         actionKey:'gender:'+a[0],
@@ -1556,7 +1556,7 @@ function renderOpts(){
     /* outfit pribadi: tampil di samping set bawaan (hanya yang sesuai gender), lalu kartu "Simpan tampilan" bila slot masih ada */
     const outs=PD.outfits();
     outs.filter(o=>o.data.gender===cfg.gender).forEach(o=>presetCard(outfitPreset(o)));
-    if(outs.length<PD.outfitLimit)optsEl.appendChild(card({i:n++,th:emo('âž•'),nm:'Simpan tampilan',badge:outs.length+'/'+PD.outfitLimit,keepBadge:true,bg:BG.def,fn:openSaveOutfit}));
+    if(outs.length<PD.outfitLimit)optsEl.appendChild(card({i:n++,th:emo('➕'),nm:'Simpan tampilan',badge:outs.length+'/'+PD.outfitLimit,keepBadge:true,bg:BG.def,fn:openSaveOutfit}));
   }else if(c.type==='multi'){
     ACCS.filter(okG).forEach(it=>{
       const on=B().accessories.some(a=>a.id===it.id),onD=cfg.accessories.some(a=>a.id===it.id),ci=catItem('acc',it),lock=!!ci&&!PD.owns(ci.id);
@@ -1587,7 +1587,7 @@ function renderOpts(){
     REG[c.reg].filter(okG).forEach(it=>{
       const ci=catItem(c.reg,it),lock=!!ci&&!PD.owns(ci.id),on=it.id===B()[c.key].id;
       const sell=canSell(ci),removable=['helm','chest','shoulder','cape','weapon','boots'].includes(c.key),actionKey='item:'+c.key+':'+it.id;
-      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'ðŸš«':c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
+      optsEl.appendChild(card({i:n++,th:emo(it.id==='none'?'🚫':c.ico),nm:it.n,rar:ci&&ci.rarity,ft:lock?lockFoot(ci):null,on:on,lock:lock,status:lock?'lock':on?'used':'own',sel:!!(pv&&((ci&&pv.ci===ci)||(pv.draft&&pv.key==='i'+c.key+it.id))),
         actionKey:actionKey,
         action:{
           state:()=>lock
@@ -1619,7 +1619,7 @@ const outCall=(m,...a)=>{if(SV()){const s=AS();return s?s[m](...a):Promise.resol
 function outfitPreset(o){
   const set={accessories:clone(o.data.accessories)};
   SLOTK.forEach(k=>{set[k]=clone(o.data[k]);});
-  return {id:'o'+o.slot,n:'ðŸ’¾ '+o.name,g:o.data.gender,set:gear(set),outfit:o.slot};
+  return {id:'o'+o.slot,n:'💾 '+o.name,g:o.data.gender,set:gear(set),outfit:o.slot};
 }
 function curOutfitData(){
   const d={gender:cfg.gender,accessories:cfg.accessories.map(a=>({id:a.id,dye:a.dye}))};
@@ -1648,7 +1648,7 @@ function openSaveOutfit(){
 function openManageOutfits(){
   const outs=PD.outfits();
   if(!outs.length){closeModal();renderOpts();return;}
-  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt ut-gl ut-c-b" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">âœï¸</button> <button class="bt no ut-gl ut-c-r" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">ðŸ—‘ï¸</button></span></div>').join('')+'<button class="mb ut-gl ut-c-g" id="ok" style="width:98%">Selesai</button>',
+  openModal('<h2>Kelola Outfit</h2>'+outs.map(o=>'<div class="row" style="justify-content:space-between;gap:.8rem;font-size:2.4rem;margin:.6rem 0"><span>'+esc(o.name)+'</span><span><button class="bt ut-gl ut-c-b" data-ren="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">✏️</button> <button class="bt no ut-gl ut-c-r" data-del="'+o.slot+'" style="width:auto;display:inline-flex;padding:0 1.2rem">🗑️</button></span></div>').join('')+'<button class="mb ut-gl ut-c-g" id="ok" style="width:98%">Selesai</button>',
   ()=>{
     $('#ok').addEventListener('click',()=>{closeModal();renderOpts();});
     $('#mb').querySelectorAll('[data-ren]').forEach(b=>b.addEventListener('click',()=>{
@@ -1703,7 +1703,7 @@ function eqItems(){
   const c=B(),main=[],acc=[];
   EQK.forEach(k=>{const cc=CATS.find(x=>x.key===k),o=c[k],it=(o&&o.id!=='none')?find(k,o.id):null;
     main.push(it&&it.id!=='none'?{k:k,id:it.id,name:it.n,cat:cc.name,ico:cc.ico,dye:o.dye||'',acc:false,empty:false}:{k:k,cat:cc.name,ico:cc.ico,empty:true});});
-  (c.accessories||[]).forEach(a=>{const it=find('acc',a.id);if(!it)return;acc.push({k:'acc',id:it.id,name:it.n,cat:'Aksesori',ico:'ðŸŽ’',dye:a.dye||'',acc:true,empty:false});});
+  (c.accessories||[]).forEach(a=>{const it=find('acc',a.id);if(!it)return;acc.push({k:'acc',id:it.id,name:it.n,cat:'Aksesori',ico:'🎒',dye:a.dye||'',acc:true,empty:false});});
   return {main:main,acc:acc};
 }
 const sameEq=(a,b)=>!!a&&!!b&&!a.empty&&!b.empty&&a.k===b.k&&a.id===b.id;
@@ -1711,7 +1711,7 @@ function eqSlot(it,compact){
   const d=document.createElement('button');
   d.className='eq ut-slot'+(compact?' compact':'')+(it.empty?' empty':'')+(sameEq(it,eqSel)?' sel':'');
   d.setAttribute('aria-label',it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.cat+': '+it.name+'. Pilih item terkait lalu gunakan tombol kanan bawah untuk melepas.');
-  d.title=it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.name+' â€” pilih item terkait lalu gunakan tombol kanan bawah untuk melepas';
+  d.title=it.empty?(it.acc?'Aksesori kosong':it.cat+' kosong'):it.name+' — pilih item terkait lalu gunakan tombol kanan bawah untuk melepas';
   d.innerHTML='<div class="th"><span class="em">'+it.ico+'</span></div><span class="en"></span>';
   d.querySelector('.en').textContent=it.empty?(it.acc?'Aksesori':it.cat):it.name;
   d.addEventListener('click',()=>{
@@ -1734,7 +1734,7 @@ function renderEq(){
   el.innerHTML='';ea.innerHTML='';extra.innerHTML='';
   E.main.slice(0,4).forEach(it=>el.appendChild(eqSlot(it)));
   const right=E.main.slice(4).concat(E.acc.slice(0,2));
-  while(right.length<4)right.push({empty:true,k:'acc',cat:'Aksesori',ico:'ðŸŽ’',acc:true});
+  while(right.length<4)right.push({empty:true,k:'acc',cat:'Aksesori',ico:'🎒',acc:true});
   right.forEach(it=>ea.appendChild(eqSlot(it)));
   E.acc.slice(2).forEach(it=>extra.appendChild(eqSlot(it,true)));
   info.classList.toggle('hasextras',E.acc.length>2);

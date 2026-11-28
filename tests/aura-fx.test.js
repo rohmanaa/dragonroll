@@ -1,4 +1,4 @@
-﻿/* Tes aura 3D (src/renderers/aura-fx.js) + karakter blocky (src/renderers/blocky-character.js) di three.js r128 yang dipakai halaman.
+/* Tes aura 3D (src/renderers/aura-fx.js) + karakter blocky (src/renderers/blocky-character.js) di three.js r128 yang dipakai halaman.
    Jalankan: node tests/aura-fx.test.js   (tanpa browser: canvas dipalsukan, tidak ada render WebGL) */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");

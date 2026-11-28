@@ -1,4 +1,4 @@
-﻿/* Modal "Pakai Totem?": tombol memakai komponen HUD (ut-gl): Pakai = hijau (ut-c-g), Tidak = merah (ut-c-r).
+/* Modal "Pakai Totem?": tombol memakai komponen HUD (ut-gl): Pakai = hijau (ut-c-g), Tidak = merah (ut-c-r).
    Tidak boleh ada lagi aturan gambar/gradasi !important pada .tm-y / .tm-n yang menimpa komponen. */
 const assert = require('assert');
 const fs = require('fs');

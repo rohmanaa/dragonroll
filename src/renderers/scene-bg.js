@@ -1,4 +1,4 @@
-﻿/* SceneBackground â€” komponen latar reusable (Stage 4).
+/* SceneBackground — komponen latar reusable (Stage 4).
    Pakai:  UT.SceneBG.mount(container?, {preset:'full'|'soft', clouds:5, image, effects:{...}}) -> {el, destroy()}
    Otomatis: <script src="src/renderers/scene-bg.js" data-auto data-preset="soft"></script> (dipasang saat <body> ada).
    Isi: langit + gambar latar (opsional; tanpa gambar = hitam polos) + 5 awan voxel 3D melayang kiri->kanan + fog cyan + sinar emas kanan-atas + volumetric + bloom lembut.

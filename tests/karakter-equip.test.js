@@ -1,3 +1,4 @@
+require("./_boot-compat.js");
 /* Kolom slot "sedang dipakai" di karakter.html. Jalankan: node tests/karakter-equip.test.js
    Mengunci aturan: hanya kategori yang BISA dilepas (punya opsi 'none') + aksesori; gender/kulit/mata/rambut/tubuh dan
    Baju & Celana dasar (tanpa opsi 'none') tidak masuk slot. */

@@ -1,4 +1,4 @@
-﻿-- Frame profil: daftarkan 14 frame (4 lama + 10 baru) ke katalog SERVER.
+-- Frame profil: daftarkan 14 frame (4 lama + 10 baru) ke katalog SERVER.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage). Aman diulang (upsert).
 -- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).
 insert into public.item_catalog(id, kind, price_coins, starter, stackable) values

@@ -1,4 +1,4 @@
-﻿/* SceneBackground â€” komponen latar reusable (Stage 4).
+/* SceneBackground — komponen latar reusable (Stage 4).
    Hanya latar: langit + gambar latar (opsional) + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
    (itu komponen terpisah: src/fx/floating-island.js dan karakter milik tiap halaman).
    Dipasang lewat src/renderers/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */

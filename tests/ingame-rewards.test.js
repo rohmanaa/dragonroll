@@ -1,4 +1,4 @@
-﻿/* Tes reward in-game: pool Chest (koin/XP/Power), koin tiga-6, dan migrasi pembayaran server. Jalankan: node tests/ingame-rewards.test.js */
+/* Tes reward in-game: pool Chest (koin/XP/Power), koin tiga-6, dan migrasi pembayaran server. Jalankan: node tests/ingame-rewards.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 global.window = global; require('../src/gameplay/js/config.js');
 const CFG = global.UT.Gameplay.Config, root = p => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
@@ -14,7 +14,7 @@ t('setiap id di pool punya penanganan di applyChestReward (selain empty)', () =>
   const fn = main.slice(main.indexOf('async function applyChestReward'), main.indexOf('/* CHEST-REWARD:END */'));
   CFG.CHEST_POOL.filter(r => r.id !== 'empty').forEach(r => assert.ok(new RegExp("case '" + r.id + "'").test(fn), 'tanpa case: ' + r.id));
 });
-t('nominal: rentang koin/XP valid, tiga-6 = 10 koin, pagar klien â‰¤ batas server', () => {
+t('nominal: rentang koin/XP valid, tiga-6 = 10 koin, pagar klien ≤ batas server', () => {
   ['coins', 'xp'].forEach(k => { const [a, b] = CFG.CHEST_AMOUNT[k]; assert.ok(a > 0 && b >= a); });
   assert.strictEqual(CFG.TRIPLE_SIX_COINS, 10);
   const sql = root('supabase/migrations/202611340001_match_ingame_bonus.sql');

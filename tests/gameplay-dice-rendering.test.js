@@ -1,4 +1,5 @@
-﻿const assert = require('assert');
+require("./_boot-compat.js");
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const gameplay = fs.readFileSync(path.join(__dirname, '../gameplay.html'), 'utf8');

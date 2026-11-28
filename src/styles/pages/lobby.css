@@ -1,4 +1,4 @@
-﻿/* lobby.css â€” override halaman lobby (lobby v3). Path url() relatif ke folder ini. */
+/* lobby.css — override halaman lobby (lobby v3). Path url() relatif ke folder ini. */
 html,body{background:#0b0d16!important}
 body{overflow:hidden}
 #gl3d{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1;pointer-events:none}
@@ -107,7 +107,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 #b-char,#b-misi,#grp,#b-inv,#b-chest{animation:inB .6s cubic-bezier(.2,.9,.2,1) both}
 #b-misi{animation-delay:.07s}#grp{animation-delay:.14s}#b-inv{animation-delay:.21s}#b-chest{animation-delay:.28s}
 
-/* ===== grup lipat: Tambang, Mancing, Ranking â€” tampilan = komponen collapse-button; di sini hanya posisi, ukuran, dan isi ===== */
+/* ===== grup lipat: Tambang, Mancing, Ranking — tampilan = komponen collapse-button; di sini hanya posisi, ukuran, dan isi ===== */
 #grp{position:absolute;left:294px;bottom:26px;--cb-h:100px;--cb-toggle:60px;--cb-max:312px;padding-left:4px}
 .gbtn{width:100px}   /* ikon saja, tanpa latar tombol & tulisan (nama ada di aria-label) */
 .gbtn .gi{width:68px;height:68px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}

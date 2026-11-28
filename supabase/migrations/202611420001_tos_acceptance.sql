@@ -1,4 +1,4 @@
-﻿-- Persetujuan Ketentuan Layanan + Kebijakan Privasi (SERVER-SIDE), satu catatan per akun.
+-- Persetujuan Ketentuan Layanan + Kebijakan Privasi (SERVER-SIDE), satu catatan per akun.
 -- Terapkan SETELAH 202611410001_hearts.sql (hanya butuh auth.users + auth.uid()).
 --
 --   Versi TOS terbaru ada di _tos_current_version() (satu-satunya tempat di server). Naikkan angkanya saat teks TOS/Privasi berubah:

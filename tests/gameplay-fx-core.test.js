@@ -1,4 +1,4 @@
-﻿/* Global GameplayFX quality and ParticleFX integration tests. Run: node tests/gameplay-fx-core.test.js */
+/* Global GameplayFX quality and ParticleFX integration tests. Run: node tests/gameplay-fx-core.test.js */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

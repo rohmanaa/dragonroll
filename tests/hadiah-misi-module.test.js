@@ -1,4 +1,4 @@
-﻿/* hadiah-misi (SPA tahap 3): modul halaman, tab dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
+/* hadiah-misi (SPA tahap 3): modul halaman, tab dari URL rute aktif, navigasi lewat UT.Spa.go, cleanup langganan/LiveSync/listener/timer. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +30,7 @@ t('timer & listener lewat env; visibilitychange lewat env.on', () => {
 });
 t('LiveSync (wallet + ach) dilepas dan dihentikan saat unmount', () => assert(/UT\.LiveSync\.remove\('wallet'\);UT\.LiveSync\.remove\('ach'\);UT\.LiveSync\.stop\(\)/.test(js)));
 t('callback async dijaga env.disposed', () => { assert((js.match(/env\.disposed/g) || []).length >= 14, 'env.disposed: ' + (js.match(/env\.disposed/g) || []).length); });
-t('hadiah-misi.html memuat page-module.js sebelum hadiah-misi.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/hadiah-misi.js')));
+t('hadiah-misi.html memuat page-module.js sebelum hadiah-misi.js', () => assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('views/hadiah-misi.js')));
 t('halaman tidak punya id bentrok dengan shell (view, f, ov)', () => assert(!/id="(view|f|ov)"/.test(html)));
 t('spa-host dan frame-guard mengenal hadiah-misi; play.js punya prefetch', () => {
   assert(/'hadiah-misi\.html': 'hadiah-misi'/.test(rd('src/core/spa-host.js')));

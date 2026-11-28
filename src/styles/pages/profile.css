@@ -1,4 +1,4 @@
-﻿/* profile.css â€” layout PROFIL baru (kanvas 1920x1080, dimuat SETELAH profile-legacy.css).
+/* profile.css — layout PROFIL baru (kanvas 1920x1080, dimuat SETELAH profile-legacy.css).
    Kartu atas #hero: kiri foto karakter dada-kepala (3D tanpa aura), tengah level/nama/4 tombol/guild/rank, kanan foto pet 3D (boleh sedikit keluar kartu).
    Di bawahnya: kartu Statistik dan Koleksi berupa kotak-kotak. Koordinat anak kartu relatif ke kartunya. */
 #art canvas,#art img.phot{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}

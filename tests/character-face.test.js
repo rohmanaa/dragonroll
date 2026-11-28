@@ -1,4 +1,4 @@
-﻿/* Tes pemisahan Wajah (bentuk wajah) dari Mata. Jalankan: node tests/character-face.test.js */
+/* Tes pemisahan Wajah (bentuk wajah) dari Mata. Jalankan: node tests/character-face.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const R = p => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
@@ -52,7 +52,7 @@ t('builder: face terdaftar di REG/KEYMAP/normalize/DEFAULT/START dan UI Wajah + 
     assert.ok(s.includes('const face=find(\'face\',cfg.face.id)'));
   });
   const k = SRC.karakter;
-  assert.ok(k.includes("{key:'face',label:'ðŸ˜Š Wajah',reg:'face'}") && k.includes("{key:'eyes',label:'ðŸ‘ï¸ Mata',reg:'eyes',keepDye:true}"));
+  assert.ok(k.includes("{key:'face',label:'😊 Wajah',reg:'face'}") && k.includes("{key:'eyes',label:'👁️ Mata',reg:'eyes',keepDye:true}"));
   assert.ok(k.includes("keys:['skin','face','eyes','hair','body']"));
   assert.ok(k.includes('face:cfg.face,eyes:cfg.eyes'), 'face ikut disimpan ke PlayerData');
 });

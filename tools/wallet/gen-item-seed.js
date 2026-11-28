@@ -1,4 +1,4 @@
-﻿/* Sinkronkan katalog SERVER dengan katalog klien (src/stores/item-catalog.js = satu-satunya sumber harga & gender).
+/* Sinkronkan katalog SERVER dengan katalog klien (src/stores/item-catalog.js = satu-satunya sumber harga & gender).
    Blok yang dijaga:
      1. harga/starter/stackable  -> migrasi B2   (202611110002_wallet_b2_server.sql)
      2. gender item gear         -> migrasi outfit (202611130001_player_outfits.sql)

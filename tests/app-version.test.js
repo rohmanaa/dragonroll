@@ -1,4 +1,5 @@
-﻿/* Versi game = VERSION di sw.js: SW menjawab GET_VERSION, halaman (splash, settings) mengisi dari sana tanpa edit manual tiap rilis. */
+require("./_boot-compat.js");
+/* Versi game = VERSION di sw.js: SW menjawab GET_VERSION, halaman (splash, settings) mengisi dari sana tanpa edit manual tiap rilis. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/resource-bar/resource-bar.js (komponen Resource Bar reusable: Emerald & Coin)
+/* Dragon Roll — src/components/resource-bar/resource-bar.js (komponen Resource Bar reusable: Emerald & Coin)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: ui-core.js -> resource-bar.js -> kode halaman.
    Mendaftar ke registry UT.Hud; memakai komponen 'plus-button' bila sudah dimuat (muat plus-button.js lebih dulu).
    Komponen hanya MENAMPILKAN angka; sumber data tetap PlayerData (halaman yang mengisi teks lewat setValue / #<valueId>).
@@ -89,7 +89,7 @@
     var num = doc.createElement('span');
     num.className = 'ut-rbar-num';
     if (o.valueId) num.id = String(o.valueId);
-    num.textContent = o.value == null ? 'â€”' : String(o.value);
+    num.textContent = o.value == null ? '—' : String(o.value);
     el.appendChild(num);
 
     var img = doc.createElement('img');
@@ -99,9 +99,9 @@
     el.appendChild(img);
 
     el.setValue = function (v) {
-      var t = v == null ? 'â€”' : String(v);
+      var t = v == null ? '—' : String(v);
       if (num.textContent === t) return;
-      var had = num.textContent && num.textContent !== 'â€”';
+      var had = num.textContent && num.textContent !== '—';
       num.textContent = t;
       if (had) { num.classList.remove('bump'); void num.offsetWidth; num.classList.add('bump'); }
     };

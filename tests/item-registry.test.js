@@ -1,4 +1,4 @@
-﻿/* Tes ItemRegistry (src/core/item-registry.js) â€” murni logika, tanpa DOM/ItemCatalog. Jalankan: node tests/item-registry.test.js */
+/* Tes ItemRegistry (src/core/item-registry.js) — murni logika, tanpa DOM/ItemCatalog. Jalankan: node tests/item-registry.test.js */
 const assert = require('assert'), path = require('path');
 const IR = require(path.join(__dirname, '../src/core/item-registry.js'));
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };

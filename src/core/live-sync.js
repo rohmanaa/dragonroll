@@ -1,11 +1,11 @@
-﻿/* src/core/live-sync.js â€” penyegar data server supaya halaman selalu mutakhir TANPA refresh halaman.
+/* src/core/live-sync.js — penyegar data server supaya halaman selalu mutakhir TANPA refresh halaman.
    Tanpa Realtime & tanpa migrasi: hanya memanggil ulang RPC yang sudah ada (wallet_get, profil/XP, tampilan, ...).
    Hasil tiap tugas masuk lewat PlayerData seperti biasa, jadi event currencyChanged/skinChanged/... otomatis memperbarui UI.
    API:
      UT.LiveSync.add(nama, fn, {minGap})  -> daftar tugas; fn() boleh mengembalikan Promise; {ok:false} / throw = gagal
      UT.LiveSync.start({interval,maxInterval,minGap,immediate}) / stop()
      UT.LiveSync.now(alasan)              -> jalankan sekarang (tetap menghormati minGap, tab tersembunyi, offline)
-   Pemicu: timer (Â±20 dtk, hanya saat tab terlihat), tab kembali aktif (visibilitychange/focus/pageshow), koneksi pulih (online).
+   Pemicu: timer (±20 dtk, hanya saat tab terlihat), tab kembali aktif (visibilitychange/focus/pageshow), koneksi pulih (online).
    Gagal berturut-turut -> jeda dilipatgandakan sampai maxInterval; sukses -> kembali normal. Tidak pernah dua putaran bersamaan. */
 (function (win) {
   'use strict';

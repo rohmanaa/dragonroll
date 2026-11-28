@@ -1,4 +1,4 @@
-﻿# SFX â€” Ular Tangga Blok
+# SFX — Ular Tangga Blok
 
 Struktur: `assets/audio/sfx/<kategori>/<nama>.<ext>` (nama kebab-case, maksimal 3 kata).
 Semua path file gameplay dikumpulkan di **satu tabel `FILE`** di `src/gameplay/js/audio.js`; ganti/menambah file cukup ubah baris di sana.
@@ -15,18 +15,18 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 | | `ladder-up.mp3` | naik tangga | `naiktangga` |
 | | `snake-bite.mp3` | dicaplok ular | `caplokular` |
 | | `block-100.mp3` | tiba di Block 100 | `hundred` |
-| | `move-back.mp3`, `snake-bite-alt.mp3` | *belum dipakai* | â€” |
+| | `move-back.mp3`, `snake-bite-alt.mp3` | *belum dipakai* | — |
 | `reward/` | `chest-open.mp3` / `chest-close.mp3` | peti di board | `chest` / `chestClose` |
 | | `power-reward.mp3` | hadiah power-up / hadiah Dragon | `rewardpower` |
-| `powerup/` | `sword-use.mp3` | *belum dipakai* (Pedang) | â€” |
+| `powerup/` | `sword-use.mp3` | *belum dipakai* (Pedang) | — |
 | `win/` | `firework-launch.ogg` | Firework visual (`UT.FireworkFX`), 1x per event | `firework` |
 | `mob/` | `mob-punch.mp3` | mob menghantam (lapis pukulan) | `hit` |
 | | `player-hurt.mp3` | pemain kena hit (creeper, skeleton, melee) | `playerHurt` |
 | | `creeper-fuse.mp3` | creeper menyala | `creeper` |
 | | `skeleton-shoot.mp3` | skeleton menembak | `skeltonSh` |
 | | `enderman-teleport.mp3` | enderman teleport | `enderman` |
-| | `creeper-explosion.mp3`, `creeper-hiss.mp3`, `enderman-alt.mp3`, `mob-hit-alt.mp3` | *belum dipakai* | â€” |
-| `dragon/` | `naga-bumper.mp3` | suara naga Â±1 dtk pada intro logo `splash.html` (taruh file dari Pixabay di sini; bila belum ada, intro tetap jalan tanpa suara) | â€” |
+| | `creeper-explosion.mp3`, `creeper-hiss.mp3`, `enderman-alt.mp3`, `mob-hit-alt.mp3` | *belum dipakai* | — |
+| `dragon/` | `naga-bumper.mp3` | suara naga ±1 dtk pada intro logo `splash.html` (taruh file dari Pixabay di sini; bila belum ada, intro tetap jalan tanpa suara) | — |
 | `dragon/` | `dragon-idle.mp3` | naga muncul / bertengger / saat diserang | `dragonSpawn`, `dragonIdle` |
 | | `dragon-hurt.mp3` / `dragon-death.mp3` | naga kena / kalah | `dragonHurt` / `dragonDeath` |
 | | `earthquake.mp3` | gempa saat gunung runtuh | `quakeStart` / `quakeStop` |
@@ -72,15 +72,15 @@ Nama file ini disimpan langsung di `assets/audio/sfx/` dan tetap memakai fallbac
 
 ## Identitas Suara Power
 
-Katalog saat ini memiliki 17 Power. Tiap game key memakai resep SFX tersendiri di `src/renderers/power-3d/power-sound.js`; aktivasi dan efek utama memakai fase terpisah, termasuk efek khas Power saat jebakan terpicu. Suara tidak mengambil musik atau ledakan Creeper sebagai fallback. Penggunaan berulang mendapat variasi pitch kecil Â±2%.
+Katalog saat ini memiliki 17 Power. Tiap game key memakai resep SFX tersendiri di `src/renderers/power-3d/power-sound.js`; aktivasi dan efek utama memakai fase terpisah, termasuk efek khas Power saat jebakan terpicu. Suara tidak mengambil musik atau ledakan Creeper sebagai fallback. Penggunaan berulang mendapat variasi pitch kecil ±2%.
 
 | Lapisan | Rentang sasaran |
 |---|---:|
-| Aktivasi | 0,2â€“0,5 dtk |
-| Slash / impact | 0,2â€“0,7 dtk |
-| Ledakan | 0,5â€“1,2 dtk |
-| Efek magic | 0,5â€“1,5 dtk |
-| Efek legendary | 1â€“2,5 dtk |
+| Aktivasi | 0,2–0,5 dtk |
+| Slash / impact | 0,2–0,7 dtk |
+| Ledakan | 0,5–1,2 dtk |
+| Efek magic | 0,5–1,5 dtk |
+| Efek legendary | 1–2,5 dtk |
 
 SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel `FILE` di `src/gameplay/js/audio.js`. Nama sumber disederhanakan menjadi kebab-case:
 
@@ -136,30 +136,30 @@ SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel
 | `potion-even-healing-magic.mp3` | Efek magic cerah (0,6 dtk) | Ramuan Genap |
 | `potion-even-magic-chime.mp3` | Chime naik (0,6 dtk; layer pendamping) | Ramuan Genap |
 
-Feather memakai volume 68%, pitch dasar 1,1 dengan variasi Â±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
+Feather memakai volume 68%, pitch dasar 1,1 dengan variasi ±2%, dan satu sparkle sintetis bereverb ringan pada finish. Power tanpa layer file memakai suara sintetis unik berbasis material/elemen; file pedang dan Feather yang gagal diputar kembali ke resep sintetis Power yang sama.
 
-Diamond Sword memakai empat layer berurutan: aktivasi 0,3 dtk, slash 0,4 dtk, impact metal 0,5 dtk, dan resonansi kristal 0,3 dtk. Volume 85%, pitch dasar 1,05 Â±2%, bass ringan, serta reverb medium-light; fallback sintetisnya juga punya slash dan finish kristal. Attack/impact lebih berat dan lebih berkilau daripada Iron Sword.
+Diamond Sword memakai empat layer berurutan: aktivasi 0,3 dtk, slash 0,4 dtk, impact metal 0,5 dtk, dan resonansi kristal 0,3 dtk. Volume 85%, pitch dasar 1,05 ±2%, bass ringan, serta reverb medium-light; fallback sintetisnya juga punya slash dan finish kristal. Attack/impact lebih berat dan lebih berkilau daripada Iron Sword.
 
-Wooden Shield berbunyi equip 0,3 dtk saat dipakai; impact kayu 0,4 dtk dan resonansi pelindung 0,3 dtk hanya saat shield benar-benar memblokir serangan. Volume 80%, pitch 0,95 Â±2%, impact kering dengan getaran kayu low-mid dan reverb sangat ringan (0,06 dtk).
+Wooden Shield berbunyi equip 0,3 dtk saat dipakai; impact kayu 0,4 dtk dan resonansi pelindung 0,3 dtk hanya saat shield benar-benar memblokir serangan. Volume 80%, pitch 0,95 ±2%, impact kering dengan getaran kayu low-mid dan reverb sangat ringan (0,06 dtk).
 
-Golden Apple memakai chime emas 0,3 dtk, gigitan renyah 0,3 dtk, healing energy yang naik 0,7 dtk, lalu sparkle 0,3 dtk. Volume 75%, pitch 1,05 Â±2%, dan reverb medium-light pada lapisan magis; fallback sintetis mempertahankan urutan aktivasi, gigitan, healing, dan finish.
+Golden Apple memakai chime emas 0,3 dtk, gigitan renyah 0,3 dtk, healing energy yang naik 0,7 dtk, lalu sparkle 0,3 dtk. Volume 75%, pitch 1,05 ±2%, dan reverb medium-light pada lapisan magis; fallback sintetis mempertahankan urutan aktivasi, gigitan, healing, dan finish.
 
-Fire Charge berbunyi ignition 0,2 dtk saat dipasang; ketika terpicu, energi api naik 0,4 dtk, proyektil melesat 0,4 dtk, lalu impact menyembur 0,5 dtk. Volume 85%, pitch 1,0 Â±2%, reverb medium dan bara tipis. Launch dibuat cepat dengan bass ringan, berbeda dari boom TNT yang berat.
+Fire Charge berbunyi ignition 0,2 dtk saat dipasang; ketika terpicu, energi api naik 0,4 dtk, proyektil melesat 0,4 dtk, lalu impact menyembur 0,5 dtk. Volume 85%, pitch 1,0 ±2%, reverb medium dan bara tipis. Launch dibuat cepat dengan bass ringan, berbeda dari boom TNT yang berat.
 
-Ice Crystal memakai chime 0,3 dtk, charging 0,4 dtk, release 0,4 dtk, lalu impact 0,6 dtk dengan layer crack dan pecahan kristal. Volume 78%, pitch 1,1 Â±2%, reverb medium, high-frequency jernih, dan low-end ringan agar efeknya tajam tanpa gemuruh.
+Ice Crystal memakai chime 0,3 dtk, charging 0,4 dtk, release 0,4 dtk, lalu impact 0,6 dtk dengan layer crack dan pecahan kristal. Volume 78%, pitch 1,1 ±2%, reverb medium, high-frequency jernih, dan low-end ringan agar efeknya tajam tanpa gemuruh.
 
-Blaze Core berbunyi ignition dalam 0,3 dtk saat dipasang; saat terpicu, energi molten berdengung 0,6 dtk, eruption 0,5 dtk, lalu resonansi bara 0,5 dtk. Volume 85%, pitch 0,9 Â±2%, bass kuat dan reverb medium, dengan bara serta pulse energi. Karakternya berat dan magmatik, bukan ledakan TNT.
+Blaze Core berbunyi ignition dalam 0,3 dtk saat dipasang; saat terpicu, energi molten berdengung 0,6 dtk, eruption 0,5 dtk, lalu resonansi bara 0,5 dtk. Volume 85%, pitch 0,9 ±2%, bass kuat dan reverb medium, dengan bara serta pulse energi. Karakternya berat dan magmatik, bukan ledakan TNT.
 
-Trident memakai charge elektrik 0,3 dtk, crackle naik 0,5 dtk, electric whoosh 0,4 dtk, lalu sambaran dengan thunder 0,7 dtk. Volume 85%, pitch 0,95 Â±2%, bass medium-strong dan reverb medium; crackle listrik ditambahkan tipis agar strike tetap tajam tanpa memanjangkan thunder.
+Trident memakai charge elektrik 0,3 dtk, crackle naik 0,5 dtk, electric whoosh 0,4 dtk, lalu sambaran dengan thunder 0,7 dtk. Volume 85%, pitch 0,95 ±2%, bass medium-strong dan reverb medium; crackle listrik ditambahkan tipis agar strike tetap tajam tanpa memanjangkan thunder.
 
-Nether Star memakai chime surgawi 0,4 dtk, cosmic charge 0,8 dtk, energy blast 0,7 dtk, lalu resonansi kristal 0,8 dtk. Lapisan ditumpangtindihkan tipis agar keseluruhan berakhir sekitar 2,5 dtk. Volume 90%, pitch 0,85 Â±2%, bass kuat dengan kompresi, reverb cinematic, dan shimmer high-frequency; fallback sintetis mempertahankan empat fase kosmik ini.
+Nether Star memakai chime surgawi 0,4 dtk, cosmic charge 0,8 dtk, energy blast 0,7 dtk, lalu resonansi kristal 0,8 dtk. Lapisan ditumpangtindihkan tipis agar keseluruhan berakhir sekitar 2,5 dtk. Volume 90%, pitch 0,85 ±2%, bass kuat dengan kompresi, reverb cinematic, dan shimmer high-frequency; fallback sintetis mempertahankan empat fase kosmik ini.
 
 TNT berbunyi fuse sintetis singkat saat dipasang; saat terpicu, tiga layer ledakan dipitch pada 0,9 dan selesai sekitar 1,7 dtk. Boom mendapat bass shelf +6 dB, kompresor antardistorsi, dan reverb medium; debris akhir sedikit lebih pelan. Layer dan resep TNT berbeda dari Blaze Core.
 
-Totem memakai volume 75%, pitch 0,95 Â±2%, resonansi EQ ringan, dan reverb medium 0,28 dtk. Saat Totem memblokir serangan, hanya layer perlindungan yang berbunyi.
+Totem memakai volume 75%, pitch 0,95 ±2%, resonansi EQ ringan, dan reverb medium 0,28 dtk. Saat Totem memblokir serangan, hanya layer perlindungan yang berbunyi.
 
-Ramuan Ganjil memakai glass-pop sintetis 0,2 dtk, minum + bubbling pendek 0,4 dtk, lalu shimmer misterius menurun selama 0,6 dtk; volumenya 70%, pitch 1,0 Â±1%, dengan reverb ringan.
+Ramuan Ganjil memakai glass-pop sintetis 0,2 dtk, minum + bubbling pendek 0,4 dtk, lalu shimmer misterius menurun selama 0,6 dtk; volumenya 70%, pitch 1,0 ±1%, dengan reverb ringan.
 
-Ramuan Genap memakai glass-pop sintetis 0,2 dtk, gulp 0,4 dtk, lalu healing magic dan bright ascending chime selama 0,6 dtk; volumenya 70%, pitch 1,1 Â±2%, dengan reverb ringan. Nada akhir naik dan karakternya cerah/beruntung, kontras dengan shimmer Ramuan Ganjil. Keduanya memiliki fallback sintetis alchemy.
+Ramuan Genap memakai glass-pop sintetis 0,2 dtk, gulp 0,4 dtk, lalu healing magic dan bright ascending chime selama 0,6 dtk; volumenya 70%, pitch 1,1 ±2%, dengan reverb ringan. Nada akhir naik dan karakternya cerah/beruntung, kontras dengan shimmer Ramuan Ganjil. Keduanya memiliki fallback sintetis alchemy.
 
 

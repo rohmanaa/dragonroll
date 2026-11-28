@@ -1,4 +1,4 @@
-﻿/* Tes klien Tambang World (tanpa jaringan): pembungkus RPC tambang_*, penolakan lokal, tidak dobel, cermin saldo, kegagalan tidak melempar. */
+/* Tes klien Tambang World (tanpa jaringan): pembungkus RPC tambang_*, penolakan lokal, tidak dobel, cermin saldo, kegagalan tidak melempar. */
 const assert = require('assert');
 const { create } = require('../src/tambang/js/tambang-service.js');
 

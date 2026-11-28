@@ -1,4 +1,4 @@
-﻿/* Tes katalog gear karakter. Jalankan: node tests/gear-catalog.test.js */
+/* Tes katalog gear karakter. Jalankan: node tests/gear-catalog.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path');
 const w = {}; new Function('window', fs.readFileSync(path.join(__dirname, '../src/stores/item-catalog.js'), 'utf8'))(w);
 const C = w.ItemCatalog, gear = C.items.filter(i => i.kind === 'gear');

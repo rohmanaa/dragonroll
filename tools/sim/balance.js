@@ -1,4 +1,4 @@
-﻿/* Simulasi balance Dragon Roll â€” memakai game-core.js (aturan murni) dengan RNG ber-seed.
+/* Simulasi balance Dragon Roll — memakai game-core.js (aturan murni) dengan RNG ber-seed.
    Pakai:  node game/tools/sim/balance.js            -> laporan
            node game/tools/sim/balance.js --check    -> gagal (exit 1) bila di luar batas (untuk CI)
            node game/tools/sim/balance.js --n 50000 --seed 7
@@ -51,7 +51,7 @@ function simulate(board, players, n, seed) {
 
 const out = [];
 Object.keys(BOARDS).forEach(b => [2, 3, 4].forEach(p => out.push(simulate(b, p, N, SEED + p))));
-console.log('Simulasi balance (aturan inti) â€” N=' + N + ', seed=' + SEED + '\n');
+console.log('Simulasi balance (aturan inti) — N=' + N + ', seed=' + SEED + '\n');
 console.table(out.map(o => ({ papan: o.board, pemain: o.players, 'median lempar': o.rollsMedian, 'p10-p90': o.rollsP10 + '-' + o.rollsP90, 'lempar/pemain': o.rollsPerPlayerMedian, 'menang per kursi %': o.seatWinPct.join(' / '), 'keunggulan kursi1 (pp)': o.seat1AdvantagePct, 'pemimpin@25 menang %': o.leaderAtRoll25WinsPct, ular: o.snakesPerGame, tangga: o.laddersPerGame, 'tak selesai': o.unfinished })));
 
 if (CHECK) {

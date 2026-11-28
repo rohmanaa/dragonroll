@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/components/button/button.js (Stage 4.0.3: komponen Button reusable)
+/* Ular Tangga Blok — src/components/button/button.js (Stage 4.0.3: komponen Button reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: app.js -> src/components/ui-core.js -> src/components/button/button.js.
    Mendaftar ke registry UT.Hud (dibuat di ui-core.js); TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('button', { label:'Main', variant:'primary', size:'md', onClick:fn });

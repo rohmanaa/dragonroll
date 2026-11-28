@@ -1,4 +1,4 @@
-﻿-- Dompet server, TAHAP B2 (sisi server). Terapkan SETELAH 202611110001_wallet_b1.sql.
+-- Dompet server, TAHAP B2 (sisi server). Terapkan SETELAH 202611110001_wallet_b1.sql.
 --
 -- Isi:
 --   1. item_catalog  : harga & aturan item di SERVER (disalin dari game/src/stores/item-catalog.js lewat

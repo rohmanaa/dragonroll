@@ -1,4 +1,4 @@
-﻿# DRAGON ROLL â€” LAPORAN AUDIT TAHAP 5
+# DRAGON ROLL — LAPORAN AUDIT TAHAP 5
 ## UI Component Consistency & Interaction States
 
 **Repository:** `rohmanaa/dragonroll`  

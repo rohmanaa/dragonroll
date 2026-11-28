@@ -1,4 +1,4 @@
-﻿/* Kategori Aura â€” metadata 15 Aura dari ItemRegistry; perilaku visual tetap di engine AuraFX bersama. */
+/* Kategori Aura — metadata 15 Aura dari ItemRegistry; perilaku visual tetap di engine AuraFX bersama. */
 (function (root, factory) {
   var api = factory(typeof require === 'function' ? require : null);
   if (typeof module === 'object' && module.exports) module.exports = api;

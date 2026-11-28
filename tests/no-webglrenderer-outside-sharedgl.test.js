@@ -1,4 +1,4 @@
-﻿/* Kriteria SPA: tidak ada `new THREE.WebGLRenderer` di luar UT.SharedGL.
+/* Kriteria SPA: tidak ada `new THREE.WebGLRenderer` di luar UT.SharedGL.
    PENGECUALIAN_SENGAJA = memang mandiri (halaman contoh, gameplay dibekukan).
    PELANGGAR_TERSISA    = utang migrasi; setiap tahap tab MENGHAPUS satu entri dari daftar ini (tes gagal bila entri sudah bersih,
    supaya daftar tidak membusuk). */

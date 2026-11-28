@@ -1,4 +1,4 @@
-﻿/* Tes API karakter blocky untuk gameplay: preset, tampilan dari server, aksi (serang/bertahan/sedih/sorak), mode jalan/lari.
+/* Tes API karakter blocky untuk gameplay: preset, tampilan dari server, aksi (serang/bertahan/sedih/sorak), mode jalan/lari.
    Jalankan: node tests/blocky-actions.test.js   (tanpa browser: canvas dipalsukan, tidak ada render WebGL) */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");

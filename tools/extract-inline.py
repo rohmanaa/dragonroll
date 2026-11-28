@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Pecah <style> dan <script> inline halaman root (kecuali gameplay.html) ke src/styles/pages/ dan src/views/.
 Posisi tag dipertahankan (urutan eksekusi/cascade sama). Inline kecil (<MIN) dan importmap tetap inline.
 Jalankan ulang aman (idempoten): hanya memproses blok inline yang masih ada."""
@@ -28,7 +28,7 @@ for p in sorted(glob.glob('*.html')):
             i += 1
     def write_css(body, attr_id):
         fn = free('css', 'css'); os.makedirs('src/styles/pages', exist_ok=True)
-        open('src/styles/pages/' + fn, 'w', encoding='utf8').write('/* %s â€” dipindah dari <style> inline (%s). Path url() relatif ke folder ini. */\n' % (fn, p) + fix_css_urls(body).strip('\n') + '\n')
+        open('src/styles/pages/' + fn, 'w', encoding='utf8').write('/* %s — dipindah dari <style> inline (%s). Path url() relatif ke folder ini. */\n' % (fn, p) + fix_css_urls(body).strip('\n') + '\n')
         write_css.n += 1
         return '<link rel="stylesheet"%s href="src/styles/pages/%s">' % ((' id="%s"' % attr_id) if attr_id else '', fn)
     write_css.n = 0
@@ -57,7 +57,7 @@ for p in sorted(glob.glob('*.html')):
         os.makedirs('src/views', exist_ok=True)
         body = re.sub(r"""import\((['\"])(?:\./)?(assets/[^'\"]+)\1\)""", lambda m: 'import(%s../../../%s%s)' % (m.group(1), m.group(2), m.group(1)), body)  # import() dinamis: relatif ke file skrip, bukan halaman
         if 'module' in attrs: assert not re.search(r'\bimport\b', body), (p, 'module dengan import')
-        open('src/views/' + fn, 'w', encoding='utf8').write('/* %s â€” dipindah dari <script> inline (%s). */\n' % (fn, p) + body.strip('\n') + '\n')
+        open('src/views/' + fn, 'w', encoding='utf8').write('/* %s — dipindah dari <script> inline (%s). */\n' % (fn, p) + body.strip('\n') + '\n')
         return '<script%s src="src/views/%s"></script>' % (attrs, fn)
     js_one.n = 0
     s = re.sub(r'<script([^>]*)>(.*?)</script>', js_one, s, flags=re.S)

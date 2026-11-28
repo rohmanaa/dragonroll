@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Move assets from mapping.json and rewrite only affected path references."""
 
 import argparse

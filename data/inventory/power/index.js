@@ -1,4 +1,4 @@
-﻿/* Kategori Power (Stage 6) â€” mendaftarkan manifest Power ke ItemRegistry.
+/* Kategori Power (Stage 6) — mendaftarkan manifest Power ke ItemRegistry.
    ID Registry memakai powerup.<gameKey>; ItemCatalog memetakan kembali ke ID gameplay lama (gameKey).
    Aset dan perilaku tetap di renderer/engine bersama; manifest hanya menyimpan metadata dan referensinya. */
 (function (root, factory) {

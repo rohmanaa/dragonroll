@@ -6,8 +6,8 @@ function boot(store, withPrefs) {
   Object.defineProperty(ls, 'length', { get: () => Object.keys(store).length }); ls.key = i => Object.keys(store)[i] || null;
   const w = { addEventListener() {}, localStorage: ls }; w.window = w;
   const ctx = vm.createContext(Object.assign(w, { localStorage: ls, console, Date, JSON, Math }));
-  const files = (withPrefs === false ? [] : ['core/prefs.js']).concat(['core/session.js', 'item-catalog.js', 'player-data.js']);
-  files.forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', f), 'utf8'), ctx));
+  const files = (withPrefs === false ? [] : ['core/prefs.js']).concat(['core/session.js', 'stores/item-catalog.js', 'stores/player-data.js']);
+  files.forEach(f => vm.runInContext(fs.readFileSync(path.join(__dirname, '../src', f), 'utf8'), ctx));
   return { PD: ctx.PlayerData, store, ctx };
 }
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };

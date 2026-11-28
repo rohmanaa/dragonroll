@@ -1,13 +1,13 @@
-﻿/* Power FX â€” DATA efek visual tiap Power (partikel kecil, asap, percikan, gelembung, dll).
+/* Power FX — DATA efek visual tiap Power (partikel kecil, asap, percikan, gelembung, dll).
    Hanya memakai engine UT.ParticleFX.burstAt (src/gameplay/js/particle-fx.js): layer #fx-layer, batas partikel, cleanup animationend, otomatis mati saat reduced-motion.
    Tanpa timer/rAF/listener; urutan lapisan dijadwalkan lewat delayMin (CSS animation-delay). Aman-gagal: modul/engine tak ada -> return 0, gameplay tetap jalan.
    Classic script. Namespace: UT.PowerFX.
-   API: play(key, x, y[, o]) Â· playAtElement(key, el[, o]) Â· has(key) Â· keyFor(key) Â· DATA
-   key = gameKey Power; Registry visual.effect2d memilih efeknya, dengan gameKey sebagai fallback. Efek tambahan: totem_block Â· shield_block Â· get.
+   API: play(key, x, y[, o]) · playAtElement(key, el[, o]) · has(key) · keyFor(key) · DATA
+   key = gameKey Power; Registry visual.effect2d memilih efeknya, dengan gameKey sebagai fallback. Efek tambahan: totem_block · shield_block · get.
    o = { scale: pengali jumlah & jarak partikel (default 1) }.
    Tiap entri DATA = { name, note, layers[] }. Layer = opsi UT.ParticleFX.burstAt:
-     count Â· colors[] Â· size Â· sizeJitter Â· distance Â· distanceJitter Â· duration Â· spread Â· angle (0=kanan, -90=atas) Â· gravity (+ turun, - naik)
-     scale (akhir; >1 = membesar seperti asap) Â· rotate Â· shape('square'|'round'|'bar') Â· delayMin Â· delay Â· ease
+     count · colors[] · size · sizeJitter · distance · distanceJitter · duration · spread · angle (0=kanan, -90=atas) · gravity (+ turun, - naik)
+     scale (akhir; >1 = membesar seperti asap) · rotate · shape('square'|'round'|'bar') · delayMin · delay · ease
    Cara tambah/ubah efek: cukup edit DATA di bawah (tiap Power mandiri, tidak ada kode khusus per Power di tempat lain). */
 (function (win) {
   'use strict';
@@ -18,7 +18,7 @@
   var FIRE = ['#fff2a0', '#ffc93c', '#ff9a1a', '#ff6a00', '#e8340a'];
 
   var DATA = {
-    /* PEDANG â€” tebasan putih-baja menyilang + percikan logam */
+    /* PEDANG — tebasan putih-baja menyilang + percikan logam */
     sword: {
       name: 'Iron Sword', note: 'tebasan bar putih menyilang + percikan kuning kecil',
       layers: [
@@ -28,7 +28,7 @@
       ]
     },
 
-    /* BULU â€” bulu putih melayang pelan + kilau halus */
+    /* BULU — bulu putih melayang pelan + kilau halus */
     feather: {
       name: 'Feather', note: 'bulu putih kecil melayang naik lalu turun pelan + kilau',
       layers: [
@@ -37,7 +37,7 @@
       ]
     },
 
-    /* TNT â€” ledakan api kecil (kuning -> oranye -> merah) + asap abu naik + bara */
+    /* TNT — ledakan api kecil (kuning -> oranye -> merah) + asap abu naik + bara */
     tnt: {
       name: 'TNT', note: 'blok api kecil + asap abu membesar + bara jatuh',
       layers: [
@@ -47,7 +47,7 @@
       ]
     },
 
-    /* TOTEM â€” cincin kilau emas-hijau + percikan naik (rasa Totem of Undying) */
+    /* TOTEM — cincin kilau emas-hijau + percikan naik (rasa Totem of Undying) */
     totem: {
       name: 'Totem', note: 'cincin kilau emas & hijau, lalu percikan naik',
       layers: [
@@ -56,7 +56,7 @@
       ]
     },
 
-    /* RAMUAN GANJIL (merah) â€” gelembung merah naik + cipratan */
+    /* RAMUAN GANJIL (merah) — gelembung merah naik + cipratan */
     potion_odd: {
       name: 'Ramuan Ganjil', note: 'gelembung merah naik + cipratan merah tua',
       layers: [
@@ -65,7 +65,7 @@
       ]
     },
 
-    /* RAMUAN GENAP (biru) â€” gelembung biru naik + cipratan */
+    /* RAMUAN GENAP (biru) — gelembung biru naik + cipratan */
     potion_even: {
       name: 'Ramuan Genap', note: 'gelembung biru naik + cipratan biru tua',
       layers: [
@@ -74,7 +74,7 @@
       ]
     },
 
-    /* RUMPUT / BLOCK â€” serpihan rumput & tanah + debu */
+    /* RUMPUT / BLOCK — serpihan rumput & tanah + debu */
     grass: {
       name: 'Ender Pearl', note: 'serpihan hijau & tanah berputar + debu',
       layers: [
@@ -84,7 +84,7 @@
       ]
     },
 
-    /* TOTEM MENAHAN SERANGAN â€” kilatan emas + cincin hijau */
+    /* TOTEM MENAHAN SERANGAN — kilatan emas + cincin hijau */
     /* ---- Batch 2-3 (key = gameKey; warna/gaya mengikuti aura model 3D di src/renderers/power-3d/power-catalog.js) ---- */
     diamond_sword: {
       name: 'Diamond Sword', note: 'tebasan cyan menyilang + serpihan kristal',
@@ -174,7 +174,7 @@
       ]
     },
 
-    /* DAPAT POWER â€” kilau emas kecil */
+    /* DAPAT POWER — kilau emas kecil */
     get: {
       name: 'Dapat Power', note: 'kilau emas kecil naik',
       layers: [

@@ -1,8 +1,8 @@
-﻿/* Kategori Dice (Stage 5) â€” mendaftarkan kategori + 24 manifest ke ItemRegistry (pola sama dengan data/inventory/frame|pet/index.js).
+/* Kategori Dice (Stage 5) — mendaftarkan kategori + 24 manifest ke ItemRegistry (pola sama dengan data/inventory/frame|pet/index.js).
    Urutan KEYS = urutan di ItemCatalog (src/stores/item-catalog.js). Satu item = satu folder (nama folder = gameKey = id DiceKit).
    fallbackId 'dice.klasik' = dadu bawaan (DEFAULT_EQUIPPED.dice di ItemCatalog; starter).
    Asset TIDAK dipindah: render/material/efek/suara dadu tetap di src/renderers/dice-kit/ (DiceCatalog.js = sumber material & efek; efek suara prosedural di DiceEffectsCore.js);
-   assets.renderKit di bawah hanya REFERENSI ke sumber render itu (bukan salinan). Berkas SFX dice-roll.mp3 dimiliki peta audio gameplay (src/gameplay/js/audio.js) â€” tidak diduplikasi di sini.
+   assets.renderKit di bawah hanya REFERENSI ke sumber render itu (bukan salinan). Berkas SFX dice-roll.mp3 dimiliki peta audio gameplay (src/gameplay/js/audio.js) — tidak diduplikasi di sini.
    Node : require('data/inventory/dice/index.js').register(registry)
    Browser: muat tiap <folder>/manifest.js (mengisi UT.ItemManifests) lalu berkas ini; ItemCatalog memanggil register() sendiri. */
 (function (root, factory) {

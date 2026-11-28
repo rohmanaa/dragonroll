@@ -1,12 +1,12 @@
-﻿/* Ular Tangga Blok â€” src/gameplay/js/biomes.js (Stage 4.1.14.5: extract biome data)
+/* Ular Tangga Blok — src/gameplay/js/biomes.js (Stage 4.1.14.5: extract biome data)
    Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH src/gameplay/js/themes.js dan config.js
    dan SEBELUM blok skrip gameplay inline.
    HANYA data biome statis. Tidak ada THREE, DOM, RNG, localStorage, timer, atau state gameplay di sini.
    Dipindahkan APA ADANYA dari gameplay.html (nilai, key, dan URUTAN tidak diubah):
-     BIO      â€” warna [c1,c2] hewan (pig/cow) per theme.key; fallback pembaca: BIO.rumput
-     PK / R   â€” warna puncak (PK) dan air/sungai (R) buildMcTerrain per theme.key;
+     BIO      — warna [c1,c2] hewan (pig/cow) per theme.key; fallback pembaca: BIO.rumput
+     PK / R   — warna puncak (PK) dan air/sungai (R) buildMcTerrain per theme.key;
                 theme tanpa entry (rumput) dan minecraft memakai nilai MC / FALLBACK
-     PALETTES â€” palet area mulai: sandy.default dipakai semua theme kecuali salju (sandy.salju),
+     PALETTES — palet area mulai: sandy.default dipakai semua theme kecuali salju (sandy.salju),
                 format [sandy, sandy2]
    Pembaca (gameplay.html) tetap memegang logic pemilihan (th.key==='minecraft', th.key==='salju', ||fallback).
    Namespace: UT.Gameplay.Biomes. Idempotent: tidak menimpa object yang sudah ada. */

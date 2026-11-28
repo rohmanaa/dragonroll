@@ -1,5 +1,5 @@
-﻿/* Ular Tangga Blok â€” data/inventory/character/_shared/js/character-data.js
-   DATA KARAKTER BERSAMA (voxel) â€” satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
+/* Ular Tangga Blok — data/inventory/character/_shared/js/character-data.js
+   DATA KARAKTER BERSAMA (voxel) — satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
    (lobby, leaderboard, profil, shop, inventory, dll). Skrip klasik (tanpa import/export), global: UT.CharacterData.
    - Data di bawah diekstrak apa adanya dari src/gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
      addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model Gameplay berubah).

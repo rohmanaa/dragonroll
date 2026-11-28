@@ -1,4 +1,4 @@
-﻿/* Dragon Roll â€” src/components/plus-button/plus-button.js (komponen Plus Button reusable)
+/* Dragon Roll — src/components/plus-button/plus-button.js (komponen Plus Button reusable)
    Skrip klasik (tanpa import/export/type=module). Urutan muat: ui-core.js -> plus-button.js.
    Mendaftar ke registry UT.Hud; TIDAK membuat sistem UI kedua.
    Pakai:  var el = UT.Hud.create('plus-button', { size:'md', onClick:fn, ariaLabel:'Tambah' });

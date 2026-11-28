@@ -1,4 +1,4 @@
-﻿/* Hearts gate â€” lapisan UI tipis di atas UT.HeartsService (src/services/hearts-service.js), khusus browser.
+/* Hearts gate — lapisan UI tipis di atas UT.HeartsService (src/services/hearts-service.js), khusus browser.
    Dipakai SEMUA jalur yang memulai match: RoomFlow.launch (Quick Start / VS Computer / Create Room / Online),
    serta "Mulai ulang" & "Main lagi" di gameplay. Satu pintu = aturan hati tidak bisa terlewat di salah satu jalur.
 
@@ -51,7 +51,7 @@
   function tick() {
     var H = svc(); if (!H || !el) return;
     var s = H.snapshot(), t = el.querySelector('#hgt'), m = el.querySelector('#hgmsg');
-    if (s.hearts > 0) { m.textContent = 'Hati sudah terisi! Silakan main lagi.'; t.textContent = 'â™¥ ' + s.hearts; }
+    if (s.hearts > 0) { m.textContent = 'Hati sudah terisi! Silakan main lagi.'; t.textContent = '♥ ' + s.hearts; }
     else { m.textContent = 'Hati berikutnya terisi dalam'; t.textContent = mmss(s.nextInSecs); }
   }
   function showEmpty() {

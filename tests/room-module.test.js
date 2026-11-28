@@ -1,4 +1,4 @@
-﻿/* room (SPA tahap 3): modul halaman, parameter dari URL rute aktif, tautan undangan ke room.html, modul multiplayer dimuat sendiri,
+/* room (SPA tahap 3): modul halaman, parameter dari URL rute aktif, tautan undangan ke room.html, modul multiplayer dimuat sendiri,
    cleanup langganan realtime/Presence/LiveSync/kelas html, dan dukungan <script type="module"> di spa-host. */
 const assert = require('assert');
 const fs = require('fs');
@@ -49,15 +49,15 @@ t('modul multiplayer dimuat lewat import() di shell, dijaga flag started (tanpa 
 });
 t('loadFace tidak memuat ulang skrip yang sudah ada di dokumen (three.min.js bersama)', () => {
   assert(/Array\.prototype\.some\.call\(document\.scripts,x=>x\.src===abs\)/.test(js));
-  assert(/env\.disposed\|\|L\('assets\/js\/renderers\/blocky-character\.js'\)/.test(js));
+  assert(/env\.disposed\|\|L\('src\/renderers\/blocky-character\.js'\)/.test(js));
 });
 t('toast dijaga env.disposed', () => assert(/function toast\(m\)\{if\(env\.disposed\)return;/.test(js)));
 t('room.html memuat page-module.js sebelum room.js; tanpa id bentrok shell', () => {
-  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('pages/room.js'));
+  assert(html.indexOf('core/page-module.js') > 0 && html.indexOf('core/page-module.js') < html.indexOf('views/room.js'));
   assert(!/id="(view|f|ov)"/.test(html));
 });
 t('room.html mandiri tetap memuat modul multiplayer (blok module inline) dan room-dice-art', () => {
-  assert(/import '\.\/assets\/js\/multiplayer\/room-service\.js'/.test(html) && /ut:multiplayer-ready/.test(html));
+  assert(/import '\.\/src\/multiplayer\/room-service\.js'/.test(html) && /ut:multiplayer-ready/.test(html));
   assert(/<script type="module" src="data\/inventory\/dice\/_shared\/js\/room-dice-art\.js">/.test(html));
 });
 t('spa-host: room terdaftar; <script type=module> dimuat lewat import(); skrip yang sudah ada tidak diunduh ulang', () => {

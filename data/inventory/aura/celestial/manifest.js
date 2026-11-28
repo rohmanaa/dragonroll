@@ -1,4 +1,4 @@
-﻿(function (g, m) {
+(function (g, m) {
   if (typeof module === 'object' && module.exports) module.exports = m;
   else ((g.UT = g.UT || {}).ItemManifests = g.UT.ItemManifests || []).push(m);
 })(typeof window !== 'undefined' ? window : this, {

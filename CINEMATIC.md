@@ -1,4 +1,4 @@
-﻿# Lapisan Sinematik (three.js)
+# Lapisan Sinematik (three.js)
 File baru: `src/gameplay/js/cinematic.js` (dimuat sebelum `main.js`). Tanpa library tambahan, 100% offline.
 Hook di `main.js`: 5 titik kecil (patch MAT, init, look di applyLook, resize, render). Logika game tidak disentuh.
 

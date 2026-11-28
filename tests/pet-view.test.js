@@ -1,4 +1,4 @@
-﻿/* Pet sebagai view SPA (tab Inventory tanpa iframe): modul 'pet' + 'pet-viewer', bar tab bersama, routing inventory?tab=pet -> view pet. */
+/* Pet sebagai view SPA (tab Inventory tanpa iframe): modul 'pet' + 'pet-viewer', bar tab bersama, routing inventory?tab=pet -> view pet. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

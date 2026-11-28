@@ -1,4 +1,4 @@
-﻿-- Power Batch 2-3: daftarkan 10 Power baru ke katalog SERVER (kind 'powerup', consumable ber-quantity, belum dijual: harga null).
+-- Power Batch 2-3: daftarkan 10 Power baru ke katalog SERVER (kind 'powerup', consumable ber-quantity, belum dijual: harga null).
 -- Terapkan SETELAH 202611110002_wallet_b2_server.sql. Aman diulang (upsert). Power lama (sword, feather, tnt, totem, grass, potion_odd, potion_even)
 -- tidak berubah: id dan stok pemain tetap. Aturan main Power ada di klien (gameplay/config.js C.PUR + usePU); server hanya memegang kepemilikan/jumlah.
 -- Sumber kebenaran: src/stores/item-catalog.js -> tools/wallet/gen-item-seed.js (jalankan --check sebelum deploy).

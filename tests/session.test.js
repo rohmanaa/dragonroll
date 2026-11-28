@@ -1,4 +1,4 @@
-﻿/* Tes Tahap 6e: UT.Session = satu pintu ke cache sesi login. Jalankan: node tests/session.test.js */
+/* Tes Tahap 6e: UT.Session = satu pintu ke cache sesi login. Jalankan: node tests/session.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 function boot(store) {
   store = Object.assign({}, store || {});

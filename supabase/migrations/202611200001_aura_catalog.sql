@@ -1,4 +1,4 @@
-﻿-- Aura karakter (kategori Efek): daftarkan 15 aura ke katalog SERVER + izinkan slot 'aura' pada tampilan aktif.
+-- Aura karakter (kategori Efek): daftarkan 15 aura ke katalog SERVER + izinkan slot 'aura' pada tampilan aktif.
 -- Terapkan SETELAH 202611130001_player_outfits.sql (butuh _item_equip_slot) dan 202611170001_dice_catalog.sql. Aman diulang.
 -- Harga/starter dibaca server dari item_catalog (bukan dari klien/localStorage). Beli lewat buy_item (dompet server), pilihan aura
 -- aktif tersimpan di player_appearance.equipped['aura'] dan ikut ke perangkat lain / dilihat pemain di room (room_appearance_get).

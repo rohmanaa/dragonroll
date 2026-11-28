@@ -1,4 +1,4 @@
-﻿const assert = require("assert");
+const assert = require("assert");
 const fs = require("fs");
 const PG = require("./_page");
 const path = require("path");

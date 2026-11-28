@@ -1,8 +1,8 @@
-﻿/* Ular Tangga Blok â€” src/components/tabs/tabs.css (HUD-Gloss; gaya kit Guild, tanpa gambar)
+/* Ular Tangga Blok — src/components/tabs/tabs.css (HUD-Gloss; gaya kit Guild, tanpa gambar)
    Tiga jenis tab, semua CSS. Prefiks .ut-tab* / .ut-seg* / .ut-ul*.
-   1) TAB ATAS (abu-krem, aktif krem terang menyatu dengan panel)   : <nav class="ut-tabs"><button class="ut-tab on">â€¦</button>â€¦</nav>
-   2) SEGMENTED (pil abu-krem, aktif krem terang)            : <div class="ut-seg"><button class="ut-seg-i on">â€¦</button>â€¦</div>
-   3) UNDERLINE (teks + garis emas, badge merah)     : <div class="ut-ul"><button class="ut-ul-i on">Judul<i class="bd">3</i></button>â€¦</div>
+   1) TAB ATAS (abu-krem, aktif krem terang menyatu dengan panel)   : <nav class="ut-tabs"><button class="ut-tab on">…</button>…</nav>
+   2) SEGMENTED (pil abu-krem, aktif krem terang)            : <div class="ut-seg"><button class="ut-seg-i on">…</button>…</div>
+   3) UNDERLINE (teks + garis emas, badge merah)     : <div class="ut-ul"><button class="ut-ul-i on">Judul<i class="bd">3</i></button>…</div>
    Mixin visual-saja untuk elemen berukuran tetap milik halaman: tambahkan  ut-tabv  (+ .on untuk aktif, .lk untuk terkunci).
    Isi tab boleh <img class="ic"> + <span>. Atur ukuran lewat --tab-w / --tab-h / --tab-fs. */
 .ut-tabv, .ut-tab {

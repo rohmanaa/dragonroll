@@ -1,4 +1,4 @@
-﻿# Peta folder icon
+# Peta folder icon
 
 Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/images/icon/<grup>/<nama>.webp`.
 
@@ -10,7 +10,7 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/images/icon/<
 | `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
 | `lobby/` | shop, inventory, chest, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`chest`) |
 | `mode/` | console, mode-khusus, tutorial, calendar, kontak, robot | halaman Pilih Mode, judul Profil |
-| `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1â€“3) |
+| `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1–3) |
 | `profile/` | user, globe, camera, 360 | halaman Profil; Gameplay: preset kamera (`camera`) |
 
 Catatan:

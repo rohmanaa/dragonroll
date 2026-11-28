@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” src/gameplay/js/cinematic.js
+/* Ular Tangga Blok — src/gameplay/js/cinematic.js
    Lapisan SINEMATIK untuk adegan three.js (r128, skrip klasik, tanpa addon/CDN: offline-ready).
    Dimuat SEBELUM src/gameplay/js/main.js. Semua efek murni visual: tidak menyentuh logika game, input, atau HUD HTML.
 

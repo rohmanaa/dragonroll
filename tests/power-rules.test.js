@@ -1,4 +1,5 @@
-﻿/* Tes aturan Power (Batch 2-3): 17 Power punya nama (PUN), aturan (PUR), katalog, ikon, efek 2D, model 3D, suara, dan migrasi server.
+require("./_boot-compat.js");
+/* Tes aturan Power (Batch 2-3): 17 Power punya nama (PUN), aturan (PUR), katalog, ikon, efek 2D, model 3D, suara, dan migrasi server.
    Jalankan: node tests/power-rules.test.js */
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");

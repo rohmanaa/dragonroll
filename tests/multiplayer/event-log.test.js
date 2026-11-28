@@ -1,4 +1,4 @@
-﻿// Jalankan: node --test tests/multiplayer/
+// Jalankan: node --test tests/multiplayer/
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const EventLog = require('../../src/multiplayer/event-log.js');
