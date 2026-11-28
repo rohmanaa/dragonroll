@@ -6,8 +6,7 @@ body.kr #left{width:960px}
 #show>canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #show>canvas:active{cursor:grabbing}
 /* info */
-body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;padding:24px 30px 84px;border:20px solid transparent;display:block;isolation:isolate}
-body.kr #info::before{content:'';position:absolute;inset:-20px;border:3px solid #000;border-radius:16px;background:linear-gradient(180deg,#5a5a5a,#404040);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28);z-index:-1;pointer-events:none}
+body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;padding:24px 30px 84px;display:block}
 #info .badge{position:absolute;left:24px;top:-24px;padding:2px 22px;border-radius:10px;background:#6a3fc4;border:3px solid #b79cff;font:400 26px/1.2 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #iname{font:400 42px/1.1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #idesc{margin-top:6px;font:700 24px/1.3 var(--font-body);color:#d8d2ee}
@@ -134,3 +133,12 @@ body.kr #info{top:700px}
 #grid .kcard.sel{z-index:2;outline:0;filter:none;box-shadow:0 0 0 .14em #ffe27a,inset 0 .105em 0 rgba(255,255,255,.28),inset 0 -.21em 0 rgba(0,0,0,.14),0 .16em 0 rgba(0,0,0,.28)}
 #grid .kcard.lk.sel{filter:saturate(.45) brightness(.82)}
 #grid .kcard .ut-ci-ft{font-size:1em}
+
+/* ---- seragam krem: panel info & panel grid = card-panel-new .popover (bingkai gelap glossy, isi krem), kartu item tetap berwarna rarity ---- */
+#iname{color:#222;text-shadow:none}
+#idesc{color:#3a3630}
+#gpanel{position:absolute;left:0;top:306px;width:900px;height:616px;pointer-events:none}
+#gwrap{left:18px;top:322px;width:864px;height:584px}
+#grid{zoom:1;width:auto;max-height:none;overflow:visible;grid-template-columns:repeat(6,1fr);grid-auto-rows:max-content;gap:14px;padding:6px 4px}   /* 6 kolom pas di dalam panel krem (kartu ~131px lebar) */
+#dyes{background:#e9e5da;border:3px solid #000;color:#222;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 3px 0 rgba(0,0,0,.4)}
+#dyes .lbl{color:#222}

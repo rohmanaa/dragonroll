@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="assets/components/button/button.css">
 <link rel="stylesheet" href="assets/components/modal/modal-kit.css">
 <link rel="stylesheet" href="assets/components/tabs/tabs.css">
-<link rel="stylesheet" href="assets/components/slot/slot.css"><link rel="stylesheet" href="assets/components/card-item/card-item.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=223"><link rel="stylesheet" href="assets/css/bg.css">
+<link rel="stylesheet" href="assets/components/slot/slot.css"><link rel="stylesheet" href="assets/components/card-panel-new/card-panel-new.css"><link rel="stylesheet" href="assets/components/card-item/card-item.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=226"><link rel="stylesheet" href="assets/css/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
 </head>
 <body class="kr">
@@ -23,13 +23,14 @@
   <section id="left">
     <div id="show"><canvas id="gl"></canvas></div>
     <div id="eqL" aria-label="Perlengkapan sisi kiri"></div><div id="eqR" aria-label="Perlengkapan sisi kanan"></div>
-    <section id="info"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><div id="extraAcc" aria-label="Aksesori tambahan"></div><div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">🎲 Acak</button><button class="bt ut-gl ut-c-d" id="shp">🛒 Toko</button></div></section>
+    <section id="info" class="card-panel-new popover"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><div id="extraAcc" aria-label="Aksesori tambahan"></div><div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">🎲 Acak</button><button class="bt ut-gl ut-c-d" id="shp">🛒 Toko</button></div></section>
   </section>
 
   <section id="right">
     <nav id="tabs" class="ut-tabs" aria-label="Kategori"></nav>
     <nav id="subs" class="ut-seg" aria-label="Sub kategori"></nav>
     <button class="bt ut-gl ut-c-b" id="ofm" style="display:none">✏️ Kelola</button>
+    <div id="gpanel" class="card-panel-new popover" aria-hidden="true"></div>
     <div id="gwrap"><div id="grid"></div></div>
     <div id="dyes"></div>
     <button class="bt ut-gl ut-c-y" id="act" type="button" aria-label="Aksi item terpilih" style="display:none"><span></span></button>

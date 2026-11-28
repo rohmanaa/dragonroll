@@ -169,8 +169,22 @@ html.pf-wide,html.pf-wide body.pf{background:#150f2e linear-gradient(180deg,#0b0
 #fract>img,#posave>img,#frcf .btn>img{display:none}
 /* tombol tutup (frx, pox) = .ut-mk-x (modal-kit.css) */
 
-/* panel Statistik & Koleksi = krem seperti Contoh Popup (game-cards); kartu atas (#hero, latar foto) tetap gelap */
+/* panel Statistik, Koleksi & kartu atas (#hero) = krem seperti Contoh Popup (game-cards); foto pet tetap di sumur gelap */
 #statc,#kolc{color:#222}
 #statc::before,#kolc::before{background:#e9e5da}
 #statc .ph,#kolc .ph{color:#222;text-shadow:none}
 #sg,#kol{background:rgba(0,0,0,.07);box-shadow:inset 0 3px 0 rgba(0,0,0,.12)}
+#hero{color:#222}
+#hero::before{background:#e9e5da}
+#hero::after{content:none}
+#hero #hnm{color:#222;text-shadow:none}
+#hero #hid{color:#6a6458}
+#hero .dv{background:linear-gradient(90deg,transparent,rgba(0,0,0,.22) 16%,rgba(0,0,0,.22) 84%,transparent);box-shadow:none}
+#hero #mid::after{background:linear-gradient(transparent,rgba(0,0,0,.2),transparent)}
+#hero #rank,#hero .prow{color:#222}
+#hero .prow b{color:#222;text-shadow:none}
+#hero .prow small{color:#6a6458}
+#hero .prow .rp{background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.14);box-shadow:inset 0 3px 0 rgba(0,0,0,.1)}
+#hero .prow .rp b{color:#b86e00}
+#hero #guild>img{filter:brightness(0) opacity(.6)}
+#hero #pet{background:radial-gradient(circle at 50% 40%,#3d3856,#1b1730)}   /* sumur gelap untuk foto pet di kartu krem */
