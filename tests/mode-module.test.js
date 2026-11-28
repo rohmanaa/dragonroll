@@ -44,7 +44,7 @@ t('simulasi Quick Start memakai setTimeout milik env (batal otomatis saat unmoun
   assert(!/window\.setTimeout/.test(js));
 });
 t('mode.html memuat page-module.js sebelum mode.js; blok module Presence tetap untuk halaman mandiri', () => {
-  const a = html.indexOf('core/page-module.js'), b = html.indexOf('pages/mode.js');
+  const a = html.indexOf('core/page-module.js'), b = html.indexOf('views/mode.js');
   assert(a > 0 && a < b);
   assert(/Presence\.start\(\{status:'lobby'\}\)/.test(html));
 });

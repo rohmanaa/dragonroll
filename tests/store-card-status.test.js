@@ -15,7 +15,8 @@ const pages = {
 const scripts = {
   frame: read("frame.html"),
   dadu: read("data/inventory/dice/_shared/js/dadu.js"),
-  room: read("src/views/room.js")
+  room: read("src/views/room.js"),
+  powerup: read("data/inventory/power/_shared/js/powerup.js")
 };
 const headers = ["karakter.html", "frame.html", "dadu.html", "powerup.html", "shop.html", "friendship.html", "hadiah-misi.html", "tambang.html", "profile.html"];
 const pageCss = read("src/styles/page.css");
@@ -30,7 +31,8 @@ const test = (name, fn) => { fn(); n++; console.log("ok - " + name); };
 
 test("harga ringkas pada kartu konsisten untuk semua halaman", () => {
   for (const [name, html] of Object.entries(pages)) {
-    const match = html.match(/const fmtPrice=(n=>[^;]+);/);
+    const src = scripts[name] || html;
+    const match = src.match(/const fmtPrice=(n=>[^;]+);/);
     assert.ok(match, name + " memiliki formatter harga");
     const formatter = new Function("fmt", "return (" + match[1] + ")")(
       value => Number(value).toLocaleString("id-ID")
@@ -53,7 +55,7 @@ test("tombol beli menampilkan ikon mata uang yang sesuai dan harga saja", () => 
   assert.ok(!scripts.dadu.includes(currencyPrice), 'dadu: kartu slot tidak lagi memuat badge harga');
   /* power (inventaris): sejak 23 Nov 2026 hanya menampilkan item yang DIMILIKI -> tidak ada tombol BELI di halaman ini; pembelian lewat Toko/Room */
   assert.ok(powerPageCss.includes('#act span img{position:static;'), 'power: ikon Coin ditata di dalam tombol aksi');
-  assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(pages.room));
+  assert.ok(/data-buy="1">\$\{PCOIN\}\$\{fmtPrice\(p\.price\)\}/.test(scripts.room));
 });
 
 test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
@@ -65,7 +67,7 @@ test("tombol Pet rata kanan dan ikon Coin memakai path WebP langsung", () => {
 test("status Dimiliki memakai warna biru-abu dan status lain tetap di bawah item", () => {
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(frameCss));
   assert.ok(/\.fslot \.pr\.owned\{background-image:url\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/images\/buttons\/tombol-abu-polos\.webp\)/.test(powerCss));
-  assert.ok(/b\.classList\.add\(o\.bg==='own'\?'ut-c-g':o\.bg==='owned'\|\|o\.bg==='no'\?'ut-c-d':'ut-c-b'\)/.test(read("data/inventory/character/_shared/js/karakter.js")), "karakter: badge kartu memakai komponen HUD (Dimiliki = gelap, bukan gambar abu)");
+  assert.ok(/const BG=\{own:'own',owned:'owned',def:'',lock:'no'\}/.test(read("data/inventory/character/_shared/js/karakter.js")), "karakter: status kartu memakai BG (own/owned/def/lock)");
   assert.ok(/const st=on\?'st-used':m\?'st-own':'st-lock'/.test(scripts.frame), 'frame: status warna slot (hijau/ungu/abu)');
   assert.ok(/const st=slotState\(x\),sell=canSell\(x\)/.test(scripts.dadu) && scripts.dadu.includes('d-ft') && scripts.dadu.includes("'DIPAKAI'") && scripts.dadu.includes("'DIMILIKI'") && scripts.dadu.includes("'TIDAK DIJUAL'"), 'dadu: status kartu (DIPAKAI / DIMILIKI / harga / TIDAK DIJUAL) di kaki kartu');
   const efekJs = read("data/inventory/aura/_shared/js/efek.js");
@@ -82,9 +84,9 @@ test("tombol Home hilang dan saldo rata kanan pada halaman yang diminta", () => 
 });
 
 test("Power-up hanya menunjukkan stok dan tombol beli; status pasang tetap di Room", () => {
-  assert.ok(/class="chip-n">'\+k\+'<\/span>/.test(pages.powerup), 'power: chip jumlah kepemilikan di kanan atas');
-  assert.ok(/st-own|st-lock/.test(pages.powerup), 'power: status warna slot (ungu/abu)');
-  assert.ok(!/roomPowers|DIPASANG|installed/.test(pages.powerup));
+  assert.ok(/class="chip-n">'\+k\+'<\/span>/.test(scripts.powerup), 'power: chip jumlah kepemilikan di kanan atas');
+  assert.ok(/st-own|st-lock/.test(scripts.powerup), 'power: status warna slot (ungu/abu)');
+  assert.ok(!/roomPowers|DIPASANG|installed/.test(scripts.powerup));
   assert.ok(/data-buy="1"/.test(scripts.room) && /power:\['powerup\.html','Power-up'\]/.test(scripts.room));
   assert.ok(/class="pstate installed">DIPASANG/.test(scripts.room));
 });

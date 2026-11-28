@@ -54,7 +54,7 @@
     function start() {
       if (running) return; running = true; t0 = now(); build();
       var gl = $('gl'); if (gl && gl.classList) gl.classList.remove('rdy');
-      text('gl-txt', 'Mempersiapkan'); setPing(ping == null ? null : ping); if (ping == null) text('gl-ms', '… ms');
+      text('gl-txt', 'Mempersiapkan'); setPing(ping == null ? null : ping); if (ping == null) text('gl-ms', '— ms');
       render(); clearInterval(tickT); clearInterval(pingT);
       tickT = setInterval(render, 250); measure(); pingT = setInterval(measure, PING_EVERY);
     }

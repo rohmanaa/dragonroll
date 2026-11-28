@@ -118,18 +118,52 @@
   }
 
   /* ================= Pasang pada setiap halaman yang dimuat di iframe (gameplay, tambang, splash) ================= */
+  var GL = window.UT && UT.GameLoading;
+  function setGp(show) {
+    var ov = document.getElementById('ov');
+    if (!ov) return;
+    if (show) { ov.hidden = false; ov.classList.add('gp'); GL && GL.ready(); }
+    else { ov.hidden = true; ov.classList.remove('gp'); GL && GL.stop(); }
+  }
+  var heavy = sessionStorage.getItem('ut:nav-heavy') === '1';
+  var toGp = heavy;
+  if (toGp) setGp(true);
+  if (heavy) setGp(true);
   f.addEventListener('load', function () {
     if (window.UT && UT.Spa && UT.Spa.viewActive) return;
     var w; try { w = f.contentWindow; w.document; } catch (e) { return; }
     var name = (w.location.pathname.split('/').pop() || 'index.html');
+    var shown = !document.hidden;
     if (name === 'gameplay.html') { setWant(false); }
-    else if (name === 'splash.html') { setWant(false); }
-    else if (!/^(play|index)\.html$/.test(name)) { setWant(true); }
+    if (name === 'gameplay.html' && shown) setGp(true);
+    else if (name === 'splash.html') { setWant(false); setGp(false); }
+    else if (!/^(play|index)\.html$/.test(name)) { setWant(true); setGp(false); }
     try { w.focus(); } catch (e) {}
     try { w.document.addEventListener('click', afterTap, true); } catch (e) {}
     prefetchNext(name);
     if (!NESTED && window.UT && UT.GraphicsAuto) UT.GraphicsAuto.afterReady();
   });
+
+  /* ================= Tirai awan antar-halaman (navigation curtain) ================= */
+  var ov = document.getElementById('ov'), armed = false, showT = 0, shown = false, timer = 0;
+  var im = new Image(), all = [], w = null, d = null;
+  function finish() { clearTimeout(timer); timer = 0; hideOv(); }
+  function settle(wait, done) { w = wait; d = done; if (w && d) hideOv(); }
+  function doShow(s) { shown = s; ov.hidden = !s; ov.classList.toggle('pending', s); }
+  function showOv(kind) {
+    doShow(true); ov.classList.add('pending');
+    showT = setTimeout(function () {
+      im.addEventListener('error', finish);
+      timer = setTimeout(finish, 1500);
+      doShow(false);
+    }, 330);
+    Promise.all(all).then(function () { settle(w, d); });
+  }
+  function hideOv() {
+    if (armed) { armed = false; clearTimeout(showT); }
+    if (!shown) return;
+  }
+  ov.classList.toggle('ready', shown);
 
   /* ================= SPA: semua page (kecuali tambang, splash, gameplay) dirender di #view tanpa reload ================= */
   document.addEventListener('click', afterTap, true);
@@ -138,7 +172,11 @@
     UT.Spa.mount({
       frame: f, view: document.getElementById('view'), frameUrl: frameUrl,
       hooks: {
-        leave: function (kind) { },
+        leave: function (kind) {
+          var heavy = sessionStorage.getItem('ut:nav-heavy') === '1';
+          sessionStorage.removeItem('ut:nav-heavy');
+          return (kind === 'now' || heavy) ? 'now' : 'delay';
+        },
         ready: function (name) {
           setWant(true);
           prefetchNext(UT.Spa.page || name + '.html');

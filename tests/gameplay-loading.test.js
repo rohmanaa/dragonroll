@@ -52,7 +52,7 @@ function fakeDoc() {
     assert.strictEqual(doc.els['gl-ms'].textContent, '42 ms'); assert.ok(!doc.els['gl-wifi'].classList.contains('off'));
     assert.strictEqual(calls[0].init.method, 'HEAD'); assert.strictEqual(calls[0].init.cache, 'no-store'); assert.strictEqual(calls[0].init.headers['X-UT-Fresh'], '1');
     g.stop(); fail = true; g.start(); await sleep(20);
-    assert.strictEqual(doc.els['gl-ms'].textContent, 'â€” ms'); assert.ok(doc.els['gl-wifi'].classList.contains('off')); g.stop();
+    assert.strictEqual(doc.els['gl-ms'].textContent, '— ms'); assert.ok(doc.els['gl-wifi'].classList.contains('off')); g.stop();
   });
   await t('play.html: pill hanya wifi + ms (tanpa LTE/baterai), pedang aset repo yang ada, teks tidak "Pull"', () => {
     const h = rd('play.html'), gl = h.slice(h.indexOf('id="gl"'));
@@ -60,7 +60,7 @@ function fakeDoc() {
     assert.ok(!/LTE|baterai|battery|%/i.test(gl), 'tanpa LTE/baterai');
     assert.ok(!/Pull|wake up/i.test(gl));
     const m = /class="gl-sword" src="([^"]+)"/.exec(h); assert.ok(m && fs.existsSync(path.join(__dirname, '..', m[1])), 'aset pedang harus ada: ' + (m && m[1]));
-    assert.ok(h.indexOf('gameplay-loading.js') > 0 && h.indexOf('gameplay-loading.js') < h.indexOf('pages/play.js'));
+    const pb = rd('src/boot/play-boot.js'); assert.ok(pb.indexOf('gameplay-loading.js') > 0 && pb.indexOf('gameplay-loading.js') < pb.indexOf('views/play.js'));
     assert.ok(/gameplay-loading\.css/.test(h));
   });
   await t('play.js: layar khusus hanya untuk tujuan gameplay (ut:nav-heavy / gameplay.html); "Siap?" sebelum layar dibuka', () => {
