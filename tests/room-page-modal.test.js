@@ -33,10 +33,10 @@ test('equipment slots open their corresponding full-screen page modal', () => {
 });
 
 test('room loads its layout stylesheet before page-specific overrides exactly once', () => {
-  const layout = roomSource.indexOf('assets/css/pages/room-legacy.css');
-  const overrides = roomSource.indexOf('assets/css/pages/room.css');
+  const layout = roomSource.indexOf('src/styles/pages/room-legacy.css');
+  const overrides = roomSource.indexOf('src/styles/pages/room.css');
   assert.ok(layout > 0 && overrides > layout);
-  assert.strictEqual((roomSource.match(/assets\/css\/pages\/room\.css/g) || []).length, 1);
+  assert.strictEqual((roomSource.match(/src\/styles\/pages\/room\.css/g) || []).length, 1);
 });
 
 test('equipment modal fills the viewport with an opaque backdrop outside the Room stage', () => {
@@ -48,7 +48,7 @@ test('equipment modal fills the viewport with an opaque backdrop outside the Roo
   assert.ok(bridge.includes('background:#4b4162!important'));
   assert.ok(bridge.includes('background:#483e60!important'));
   assert.ok(!bridge.includes('background:transparent'), 'embedded page uses an opaque Room background');
-  assert.ok(read('assets/css/pages/room-legacy.css').includes('--room-backdrop:#4b4162'));
+  assert.ok(read('src/styles/pages/room-legacy.css').includes('--room-backdrop:#4b4162'));
   const bootGuard = read('assets/js/boot-guard.js');
   assert.ok(bootGuard.includes("get('from') === 'room'"), 'embedded pages skip the cinematic black fade');
 });
@@ -67,7 +67,7 @@ test('embedded pages close the parent modal from their back controls', () => {
 
 test('effects page keeps its back button and removes the home button', () => {
   const effect = read('efek.html');
-  const pageCss = read('assets/css/page.css');
+  const pageCss = read('src/styles/page.css');
   assert.ok(effect.includes('id="back"'));
   assert.ok(!effect.includes('id="home"'));
   assert.ok(!effect.includes("$('#home')"));

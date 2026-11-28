@@ -1,4 +1,4 @@
-/* NightFog — kabut malam (3 lapis, CSS; lihat assets/css/night-fog.css). Tampil hanya saat html[data-ambience="night"].
+/* NightFog — kabut malam (3 lapis, CSS; lihat src/styles/night-fog.css). Tampil hanya saat html[data-ambience="night"].
    Pakai:  UT.NightFog.mount(host, {variant:'bottom'|'player', before:node, after:node}) -> {el, destroy()}
    'player' = kabut gelap di belakang karakter lobby: posisi mengikuti geometri latar yang sama dengan penempatan karakter (lobby.html placeHero). */
 (function () {

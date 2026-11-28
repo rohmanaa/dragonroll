@@ -1,4 +1,4 @@
-/* Halaman root (selain gameplay.html) tidak boleh menyimpan CSS/JS besar inline: pecah ke assets/css/pages & assets/js/pages
+/* Halaman root (selain gameplay.html) tidak boleh menyimpan CSS/JS besar inline: pecah ke src/styles/pages & assets/js/pages
    (python3 tools/extract-inline.py). Inline kecil (<300 karakter, mis. bootstrap UT.App.init) dan importmap boleh. */
 const assert = require("assert"), fs = require("fs"), path = require("path");
 const root = path.join(__dirname, ".."); let n = 0;
@@ -16,11 +16,11 @@ t("semua src/href ke assets/{js,css}/pages ada, dan url() CSS halaman menunjuk f
     const h = fs.readFileSync(path.join(root, f), "utf8");
     [...h.matchAll(/(?:src|href)="(assets\/(?:js|css)\/pages\/[^"?]+)(?:\?[^"]*)?"/g)].forEach(m => assert.ok(fs.existsSync(path.join(root, m[1])), f + " -> " + m[1]));
   });
-  fs.readdirSync(path.join(root, "assets/css/pages")).forEach(c => {
-    const css = fs.readFileSync(path.join(root, "assets/css/pages", c), "utf8");
+  fs.readdirSync(path.join(root, "src/styles/pages")).forEach(c => {
+    const css = fs.readFileSync(path.join(root, "src/styles/pages", c), "utf8");
     [...css.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)].forEach(m => {
       if (/^(data:|https?:|\/\/|#)/.test(m[1])) return;
-      assert.ok(fs.existsSync(path.join(root, "assets/css/pages", m[1].split(/[?#]/)[0])), c + " url(" + m[1] + ")");
+      assert.ok(fs.existsSync(path.join(root, "src/styles/pages", m[1].split(/[?#]/)[0])), c + " url(" + m[1] + ")");
     });
   });
 });

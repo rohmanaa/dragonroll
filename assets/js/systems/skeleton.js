@@ -3,7 +3,7 @@
    - Gambar yang sudah ada di cache/langsung siap TIDAK berkedip: placeholder baru muncul bila gambar masih belum siap setelah DELAY ms.
    - Dikecualikan: img di #ov / #gl (layar muat) dan yang bertanda data-no-sk.
    - Gambar gagal dimuat -> placeholder dilepas (tidak berputar selamanya).
-   Ditambahkan ke setiap halaman lewat UT.PageShell.renderBase (opsi skeleton, bawaan aktif). Gaya: assets/css/components/skeleton.css.
+   Ditambahkan ke setiap halaman lewat UT.PageShell.renderBase (opsi skeleton, bawaan aktif). Gaya: src/styles/components/skeleton.css.
    Skrip klasik; di Node (module.exports) untuk tes: create(deps). Batasan: gambar tanpa ukuran dari CSS (0x0 saat memuat) tidak menampakkan kotak placeholder. */
 (function (root, factory) {
   var api = factory(root);

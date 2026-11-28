@@ -318,13 +318,13 @@ try {
 try { const A = SV() && UT.AppearanceService && UT.AppearanceService.get(); if (A) A.refreshThrottled().catch(() => {}); } catch (e) {}
 (async () => {
   try {
-    await import('../../../assets/js/multiplayer/client.js');
+    await import('../multiplayer/client.js');
     if (env.disposed) return;
     const c = await UT.Multiplayer.getClient(), {data} = await c.auth.getSession();
     if (env.disposed) return;
     if (!data.session) return;
     PROF.uid = '#' + data.session.user.id.slice(0, 8).toUpperCase();
-    await import('../../../assets/js/multiplayer/progress-service.js');
+    await import('../multiplayer/progress-service.js');
     if (env.disposed) return;
     const sp = await UT.Multiplayer.Progress.getMyProfile();
     if (env.disposed) return;

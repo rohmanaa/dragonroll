@@ -58,7 +58,7 @@ t('error jaringan / AUTH_REQUIRED dipetakan, tidak melempar', async () => {
 });
 t('statis: tab Chest di Inventory memuat aset yang ada; chest.html sudah dihapus', () => {
   const ij = fs.readFileSync(root('assets/js/pages/inventory.js'), 'utf8'), ih = fs.readFileSync(root('inventory.html'), 'utf8'), lh = fs.readFileSync(root('lobby.html'), 'utf8');
-  ['chest.html', 'assets/js/pages/chest.js', 'assets/css/chest.css'].forEach(f => assert.ok(!fs.existsSync(root(f)), f + ' harus sudah dihapus'));
+  ['chest.html', 'assets/js/pages/chest.js', 'src/styles/chest.css'].forEach(f => assert.ok(!fs.existsSync(root(f)), f + ' harus sudah dihapus'));
   [...ij.matchAll(/im: '(chest-packs\/[\w\-]+)'/g)].map(m => m[1]).forEach(p => assert.ok(fs.existsSync(root('assets/images/ui/' + p + '.webp')), 'aset hilang: ' + p));
   [...(lh + ih).matchAll(/assets\/images\/ui\/[\w\-\/]+\.webp/g)].map(m => m[0]).forEach(p => assert.ok(fs.existsSync(root(p)), 'aset hilang: ' + p));
   assert.ok(ij.includes("diamond: { nm:") && ih.includes('data-k="chest"') && ih.includes('services/wallet-service.js'));
@@ -72,7 +72,7 @@ t('statis: Lobby = modal timeline klaim (Kayu/Silver/Gold); Inventory = slot che
   assert.ok(lj.includes('plays_today') && lj.includes('chestFill'), 'timeline memakai progres game dari server');
   assert.ok(ij.includes('chestCollect') && !/chestClaimDaily|chestStart|chestOpenNow|secsLeft|seconds_left|data-claim/.test(ij), 'inventory hanya membuka, tanpa klaim/timer');
   assert.ok(ij.includes("data-kind") && ij.includes('id="cact"') && ij.includes('>BUKA<') && ij.includes(', jumlah '), 'pola Power-up: pilih slot, satu tombol BUKA, jumlah dimiliki (aria-label slot; teks "Dimiliki" dihapus saat redesain inventaris)');
-  const lc = fs.readFileSync(root('assets/css/pages/lobby.css'), 'utf8');
+  const lc = fs.readFileSync(root('src/styles/pages/lobby.css'), 'utf8');
   assert.ok(/#chestMd\{position:fixed;inset:0/.test(lc), 'backdrop fixed memenuhi layar');
   assert.ok(lh.indexOf('id="chestMd"') > lh.indexOf('id="fade"') - 900 && !/<div id="stage"[^]*<div id="chestMd"[^]*<div id="fade"/.test(lh.replace(/<div id="chestMd"[^]*?<\/div><\/div>/, '')) === true, 'modal di luar #stage');
   const tabs = require('../assets/js/core/inv-tabs.js');

@@ -40,7 +40,7 @@ html[data-ambience="night"] .sbg-sky{background:linear-gradient(180deg,rgba(5,12
 .cur{width:330px;height:64px;background:none;clip-path:none;filter:none}
 /* bar: hitam transparan, tanpa bayangan/garis */
 .cur::before{content:'';position:absolute;inset:auto 0 auto 0;top:50%;height:48px;transform:translateY(-50%);border-radius:0;
-  background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) center/100% 100% no-repeat;
+  background:url(../../../assets/images/ui/missions/isi-bar-progres-oranye.webp) center/100% 100% no-repeat;
   filter:brightness(0);opacity:.5;clip-path:none;box-shadow:none}
 /* tanda + langsung di dalam bar (tanpa tombol), di kiri */
 .cur .plus{position:absolute;left:14px;top:50%;right:auto;transform:translateY(-52%);z-index:2;
@@ -134,14 +134,14 @@ html[data-graphics="low"] #grp .gset{transition:none}
 #cm-body .tot b{color:#ffd45a;font-weight:400}
 #cm-body .tot small{display:block;margin-top:8px;font:400 20px/1 var(--font-title);opacity:.7}
 .tl{position:relative;height:330px}
-.tl .trk{position:absolute;left:4%;right:16%;top:174px;height:26px;overflow:hidden;background:url(../../images/ui/missions/bar-progres-kosong.webp) center/100% 100% no-repeat}
-.tl .fil{position:absolute;left:0;top:0;bottom:0;width:0;background:url(../../images/ui/missions/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat;transition:width .5s ease}
+.tl .trk{position:absolute;left:4%;right:16%;top:174px;height:26px;overflow:hidden;background:url(../../../assets/images/ui/missions/bar-progres-kosong.webp) center/100% 100% no-repeat}
+.tl .fil{position:absolute;left:0;top:0;bottom:0;width:0;background:url(../../../assets/images/ui/missions/isi-bar-progres-oranye.webp) left center/100% 100% no-repeat;transition:width .5s ease}
 .tl .nd{position:absolute;top:0;width:260px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
 .tl .nd img.im{height:120px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 .tl .nd.todo img.im{filter:grayscale(.7) brightness(.7) drop-shadow(0 4px 3px rgba(0,0,0,.5))}
 .tl .nd .nm{height:36px;font:400 28px/36px var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .tl .nd .mk{position:relative;z-index:2;margin-top:4px;width:56px;height:56px;display:grid;place-items:center;font:400 22px/1 var(--font-title);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6);
-  background:url(../../images/ui/missions/alas-ikon-misi.webp) center/100% 100% no-repeat}
+  background:url(../../../assets/images/ui/missions/alas-ikon-misi.webp) center/100% 100% no-repeat}
 .tl .nd .mk img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.5))}
 .tl .nd .rq{height:30px;margin-top:6px;font:400 22px/30px var(--font-title);opacity:.85}
 .tl .nd .act{height:70px;display:flex;align-items:flex-start;justify-content:center}

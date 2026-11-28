@@ -21,7 +21,7 @@ for (const file of walk(path.join(root, 'assets', 'js', 'pages')).filter(file =>
 const modePage = fs.readFileSync(path.join(root, 'assets', 'js', 'pages', 'mode.js'), 'utf8');
 assert.ok(modePage.includes("'ut-c-p'") && modePage.includes("'ut-gl'") === false && modePage.includes('opt ut-gl'), 'quick-start buttons use the HUD glossy purple button (ut-gl ut-c-p), no image frame');
 
-for (const file of walk(path.join(root, 'assets', 'css')).concat(walk(path.join(root, 'data', 'inventory'))).filter(file => file.endsWith('.css'))) {
+for (const file of walk(path.join(root, 'src', 'styles')).concat(walk(path.join(root, 'data', 'inventory'))).filter(file => file.endsWith('.css'))) {
   const css = fs.readFileSync(file, 'utf8');
   for (const match of css.matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/g)) localAsset(file, match[2].trim());
 }

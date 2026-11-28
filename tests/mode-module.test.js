@@ -3,7 +3,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const rd = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const js = rd('assets/js/pages/mode.js'), html = rd('mode.html'), css = rd('assets/css/mode.css');
+const js = rd('assets/js/pages/mode.js'), html = rd('mode.html'), css = rd('src/styles/mode.css');
 let n = 0;
 function t(name, fn) { fn(); n++; console.log('ok -', name); }
 

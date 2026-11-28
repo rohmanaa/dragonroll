@@ -42,7 +42,7 @@ async function add(path,cv,grid,label){
   var b=await toBlob(cv);
   if(!b||b.type!=='image/webp'){log('PERINGATAN: browser ini tidak bisa mengenkode WebP ('+path+'). Pakai Chrome.');return}
   out.push({path:path,blob:b});
-  var d=document.createElement('div');d.className='c';var im=new Image();im.src=URL.createObjectURL(b);d.appendChild(im);
+  var d=document.createElement('div');d.className='c';var im=new Image();im.src=URL.createObjecturl(b);d.appendChild(im);
   d.appendChild(document.createTextNode(label));$(grid).appendChild(d);
 }
 /* ---------- SET karakter (semua bagian set dirender, termasuk yang tidak dimiliki) ---------- */
@@ -224,7 +224,7 @@ window.__gen={doSets:doSets,doDice:doDice,doPower:doPower,doAura:doAura,doPet:do
 $('zip').onclick=async function(){
   if(!window.JSZip){alert('JSZip gagal dimuat (perlu internet ke cdnjs)');return}
   var z=new JSZip();out.forEach(function(f){z.file(f.path,f.blob)});
-  var b=await z.generateAsync({type:'blob'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='thumbs-dragonroll.zip';a.click();
+  var b=await z.generateAsync({type:'blob'}),a=document.createElement('a');a.href=URL.createObjecturl(b);a.download='thumbs-dragonroll.zip';a.click();
 };
 })();
 </script></body></html>

@@ -38,7 +38,7 @@ t('play() aman tanpa DOM (Node): tidak melempar dan mengembalikan kendali', () =
 t('kabel: Inventory & Shop memuat css + js reveal SEBELUM skrip halaman dan memanggil play(); SFX yang dipakai ada', () => {
   for (const [html, js] of [['inventory.html', 'assets/js/pages/inventory.js'], ['shop.html', 'assets/js/pages/shop-page.js']]) {
     const h = read(html);
-    assert.ok(h.includes('assets/css/components/chest-reveal.css'), html + ' css');
+    assert.ok(h.includes('src/styles/components/chest-reveal.css'), html + ' css');
     assert.strictEqual((h.match(/assets\/js\/core\/chest-reveal\.js/g) || []).length, 1, html + ' js tepat sekali');
     assert.ok(h.indexOf('chest-reveal.js') < h.indexOf(js), html + ' urutan');
     assert.ok(read(js).includes('UT.ChestReveal.play'), js);
@@ -52,7 +52,7 @@ t('kabel: Inventory & Shop memuat css + js reveal SEBELUM skrip halaman dan mema
   ['hud/ikon-koin-emas', 'gem-medal-icons/berlian-hijau'].forEach(i => assert.ok(fs.existsSync(root('assets/images/ui/' + i + '.webp')), i));
 });
 t('css: hormati prefers-reduced-motion, tombol OK baru bisa diklik saat selesai, overlay di atas semua', () => {
-  const c = read('assets/css/components/chest-reveal.css');
+  const c = read('src/styles/components/chest-reveal.css');
   assert.ok(/prefers-reduced-motion:\s*reduce/.test(c) && /\.crv\.done \.crv-ok\{[^}]*pointer-events:auto/.test(c) && /\.crv\{[^}]*z-index:9999/.test(c));
   ['s1', 's2', 's3', 'burst', 'open', 'titled', 'done'].forEach(s => assert.ok(c.includes('.crv.' + s), 'kelas ' + s));
 });

@@ -66,7 +66,7 @@ class MC { constructor() { const a = {}, b = {}; this.port1 = a; this.port2 = { 
       assert(/data-app-version/.test(h) && /core\/app-version\.js/.test(h), f);
       assert(!/ut-pwa-v\d+|Versi v\d+/.test(h), f + ' tidak boleh berisi nomor versi tetap');
     }
-    assert(/#ver\b/.test(rd('assets/css/splash.css')) && /#appver\b/.test(rd('assets/css/settings.css')));
+    assert(/#ver\b/.test(rd('src/styles/splash.css')) && /#appver\b/.test(rd('src/styles/settings.css')));
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

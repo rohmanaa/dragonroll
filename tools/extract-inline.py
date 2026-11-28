@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pecah <style> dan <script> inline halaman root (kecuali gameplay.html) ke assets/css/pages/ dan assets/js/pages/.
+"""Pecah <style> dan <script> inline halaman root (kecuali gameplay.html) ke src/styles/pages/ dan assets/js/pages/.
 Posisi tag dipertahankan (urutan eksekusi/cascade sama). Inline kecil (<MIN) dan importmap tetap inline.
 Jalankan ulang aman (idempoten): hanya memproses blok inline yang masih ada."""
 import re, os, glob, sys
@@ -27,10 +27,10 @@ for p in sorted(glob.glob('*.html')):
             if not os.path.exists('assets/%s/pages/%s' % (sub, fn)): return fn
             i += 1
     def write_css(body, attr_id):
-        fn = free('css', 'css'); os.makedirs('assets/css/pages', exist_ok=True)
-        open('assets/css/pages/' + fn, 'w', encoding='utf8').write('/* %s — dipindah dari <style> inline (%s). Path url() relatif ke folder ini. */\n' % (fn, p) + fix_css_urls(body).strip('\n') + '\n')
+        fn = free('css', 'css'); os.makedirs('src/styles/pages', exist_ok=True)
+        open('src/styles/pages/' + fn, 'w', encoding='utf8').write('/* %s — dipindah dari <style> inline (%s). Path url() relatif ke folder ini. */\n' % (fn, p) + fix_css_urls(body).strip('\n') + '\n')
         write_css.n += 1
-        return '<link rel="stylesheet"%s href="assets/css/pages/%s">' % ((' id="%s"' % attr_id) if attr_id else '', fn)
+        return '<link rel="stylesheet"%s href="src/styles/pages/%s">' % ((' id="%s"' % attr_id) if attr_id else '', fn)
     write_css.n = 0
     def run(m):
         blocks = re.findall(r'<style([^>]*)>(.*?)</style>', m.group(0), re.S)

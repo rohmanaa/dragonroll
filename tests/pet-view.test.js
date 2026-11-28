@@ -31,7 +31,7 @@ t('pet.html memuat page-module.js + inv-tabs.js sebelum viewer/page, dan CSS bar
   const i = s => html.indexOf(s);
   assert(i('core/page-module.js') > 0 && i('core/inv-tabs.js') > 0);
   assert(i('core/page-module.js') < i('pet-viewer.js') && i('core/inv-tabs.js') < i('pet-page.js'));
-  assert(i('assets/css/inv-tabbar.css') > 0);
+  assert(i('src/styles/inv-tabbar.css') > 0);
 });
 t('spa-host: pet.html = view; inventory-bridge dilewati (tidak mengalihkan shell); canon inventory?tab=pet', () => {
   assert(/'pet\.html': 'pet'/.test(host) && /inventory-bridge/.test(host));
@@ -52,7 +52,7 @@ t('InvTabs.markup: grup Pet = 1 tab; grup Inventory (tanpa aktif) = Power-up/Che
   assert.strictEqual((InvTabs.markup('').match(/class="ut-tab tab on"/g) || []).length, 0);
 });
 t('CSS: bar tab dan mode view hanya aktif lewat #invtabs / body.inv-view (tidak menimpa halaman lain)', () => {
-  const css = rd('assets/css/inv-tabbar.css');
+  const css = rd('src/styles/inv-tabbar.css');
   const sel = css.split('}').map(b => b.split('{')[0].trim()).filter(Boolean);
   assert(sel.every(s => /#invtabs|body\.inv-view/.test(s)), sel.join(' | '));
 });

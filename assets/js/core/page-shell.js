@@ -78,9 +78,9 @@ window.UT = window.UT || {};
     }) : [];
     UT.PageShell.render({
       sharedCss: preload.concat([
-        enabled('fonts') ? 'assets/css/fonts.css' : null,
-        enabled('commonCss') ? 'assets/css/common.css' : null,
-        enabled('skeleton') ? 'assets/css/components/skeleton.css' : null
+        enabled('fonts') ? 'src/styles/fonts.css' : null,
+        enabled('commonCss') ? 'src/styles/common.css' : null,
+        enabled('skeleton') ? 'src/styles/components/skeleton.css' : null
       ])
     });
     UT.PageShell.render({

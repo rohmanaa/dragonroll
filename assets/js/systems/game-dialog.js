@@ -1,5 +1,5 @@
 /* game-dialog.js — dialog bergaya game yang dipakai bersama (modal "Unduh Data", modal "Ketentuan Layanan").
-   Skrip klasik. Gaya: assets/css/components/game-dialog.css (dimuat otomatis di samping skrip ini bila belum ada).
+   Skrip klasik. Gaya: src/styles/components/game-dialog.css (dimuat otomatis di samping skrip ini bila belum ada).
    Semua teks lewat textContent (tanpa HTML string).
 
      var d = UT.GameDialog.open({

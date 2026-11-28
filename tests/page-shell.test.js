@@ -8,8 +8,8 @@ const baseRefs = [
   'assets/js/frame-guard.js',
   'assets/js/core/session.js',
   'assets/js/boot-guard.js',
-  'assets/css/fonts.css',
-  'assets/css/common.css',
+  'src/styles/fonts.css',
+  'src/styles/common.css',
   'assets/js/core/prefs.js',
   'assets/js/core/prefs-sync.js'
 ];

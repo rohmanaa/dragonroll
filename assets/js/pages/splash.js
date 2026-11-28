@@ -8,11 +8,11 @@ const dest=/^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx)&&!/^(splash|loading)\.html/
 let booted=false;try{booted=sessionStorage.getItem("ut:booted")==="1"}catch(e){}
 const quick=!!q.get("next")&&booted; /* dialihkan guard di tengah sesi: tanpa bar, langsung masuk bila sudah login */
 const ASSETS=[
-  'assets/css/base.css',
-  'assets/css/shared-ui.css',
-  'assets/css/scene-bg.css',
+  'src/styles/base.css',
+  'src/styles/shared-ui.css',
+  'src/styles/scene-bg.css',
   'assets/js/systems/ambience.js',
-  'assets/css/night-fog.css',
+  'src/styles/night-fog.css',
   'assets/js/renderers/night-fog.js',
   'assets/images/effects/fx-fog-1.webp',
   'assets/images/effects/fx-fog-2.webp',
@@ -61,7 +61,7 @@ const ASSETS=[
   'data/power/3d/potion_even.png',
   'data/power/3d/grass.png',
   'assets/js/vendor/three.min.js',
-  'assets/css/fonts.css',
+  'src/styles/fonts.css',
   'assets/images/ui/achievement/ach-pedang.webp'
 ];
 ASSETS.unshift(dest.split("?")[0]);

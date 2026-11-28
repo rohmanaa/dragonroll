@@ -29,6 +29,6 @@ assert.ok(js.includes("loading.hidden = frames[t.k].classList.contains('ready')"
 
 assert.ok(js.includes("function warm()") && js.includes("classList.add('warm')"), 'pemanasan tab di latar belakang');
 assert.ok(js.includes("c.saveData") && js.includes("deviceMemory"), 'pemanasan dilewati di perangkat hemat');
-assert.match(fs.readFileSync(path.join(root, 'assets/css/pages/inventory.css'), 'utf8'), /\.view\.warm\{display:block;pointer-events:none\}/);
+assert.match(fs.readFileSync(path.join(root, 'src/styles/pages/inventory.css'), 'utf8'), /\.view\.warm\{display:block;pointer-events:none\}/);
 
 console.log('ok - inventory shell memuat tab sekali tanpa menduplikasi Registry kategori');

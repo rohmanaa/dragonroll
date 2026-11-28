@@ -6,10 +6,10 @@ const raw = fs.readFileSync(path.join(__dirname, '../lobby.html'), 'utf8');
 const sw = fs.readFileSync(path.join(__dirname, '../sw.js'), 'utf8');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 t('lobi memuat stylesheet layout sebelum override halaman, sekali saja', () => {
-  const base = raw.indexOf('href="assets/css/pages/lobby-legacy.css"'), overrides = raw.indexOf('href="assets/css/pages/lobby.css"');
+  const base = raw.indexOf('href="src/styles/pages/lobby-legacy.css"'), overrides = raw.indexOf('href="src/styles/pages/lobby.css"');
   assert.ok(base > 0 && overrides > base, 'stylesheet layout harus dimuat sebelum override lobby');
-  assert.strictEqual((raw.match(/href="assets\/css\/pages\/lobby\.css"/g) || []).length, 1, 'lobby.css dimuat lebih dari sekali');
-  assert.ok(fs.existsSync(path.join(__dirname, '../assets/css/pages/lobby-legacy.css')), 'stylesheet layout tidak ada');
+  assert.strictEqual((raw.match(/href="src\/styles\/pages\/lobby\.css"/g) || []).length, 1, 'lobby.css dimuat lebih dari sekali');
+  assert.ok(fs.existsSync(path.join(__dirname, '../src/styles/pages/lobby-legacy.css')), 'stylesheet layout tidak ada');
 });
 t('service worker: kode cache-first, tapi saat mengunduh (belum di cache) melewati cache browser; pembaruan menunggu restart', () => {
   assert.ok(/fetch\(r,\s*same\s*\?\s*\{\s*cache:\s*'no-cache'\s*\}/.test(sw), 'unduhan pertama harus revalidasi, bukan cache browser basi');

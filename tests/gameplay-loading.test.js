@@ -68,7 +68,7 @@ function fakeDoc() {
     assert.ok(/name === 'gameplay\.html' && shown\) setGp\(true\)/.test(js));
     assert.ok((js.match(/if \((toGp|heavy)\) setGp\(true\)/g) || []).length === 2, 'kedua jalur peluncuran (iframe & SPA)');
     assert.ok(/GL\.ready\(\)/.test(js) && /GL\.stop\(\)/.test(js));
-    const css = rd('assets/css/pages/gameplay-loading.css'); assert.ok(/#ov\.gp \.ld\{display:none/.test(css), 'ring berputar umum disembunyikan di mode gameplay');
+    const css = rd('src/styles/pages/gameplay-loading.css'); assert.ok(/#ov\.gp \.ld\{display:none/.test(css), 'ring berputar umum disembunyikan di mode gameplay');
   });
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });

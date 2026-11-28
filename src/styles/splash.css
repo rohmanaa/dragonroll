@@ -5,7 +5,7 @@ html{font-size:min(calc(100vw/120),calc(100vh/67.5))}
 html,body{margin:0;width:100%;height:100%;background:#120d14!important;overflow:hidden}
 #scene{position:fixed;inset:0;overflow:hidden}
 #cave{position:absolute;inset:0;
-  background:url(../images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
+  background:url(../../assets/images/background/splash-loading.webp) center/cover no-repeat,#1a1420}
 /* TAP TO START: latar sama persis dengan saat loading (splash-loading.webp) */
 #beam,#floor{display:none} /* foto latar sudah punya berkas cahaya & lantai sendiri */
 #splashfx{position:absolute;inset:0;pointer-events:none}
@@ -60,8 +60,8 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 .inp:focus-within{background:#241d36}
 .rem{display:flex;align-items:center;gap:1.4rem;font:700 2rem var(--font-body);color:#fff;cursor:pointer;margin:.2rem 0 0 .2rem;position:relative}
 .rem input{position:absolute;opacity:0;width:0;height:0}
-.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../images/buttons/checkbox-kosong.webp) center/100% 100% no-repeat}
-.rem input:checked+.cb{background-image:url(../images/buttons/checkbox-dicentang.webp)}
+.cb{width:3.9rem;height:3.9rem;flex:none;background:url(../../assets/images/buttons/checkbox-kosong.webp) center/100% 100% no-repeat}
+.rem input:checked+.cb{background-image:url(../../assets/images/buttons/checkbox-dicentang.webp)}
 .rem.tos{align-items:center;gap:1.2rem;font:700 1.7rem/1.3 var(--font-body);color:#d8d2ee;margin:.4rem 0 0}
 .rem.tos .cb{width:3.4rem;height:3.4rem}
 .rem.tos a{color:#5c8de0;font-weight:800;text-decoration:none}

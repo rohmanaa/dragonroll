@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const js = fs.readFileSync(path.join(root, 'assets/js/pages/play.js'), 'utf8');
-const css = fs.readFileSync(path.join(root, 'assets/css/pages/play.css'), 'utf8');
+const css = fs.readFileSync(path.join(root, 'src/styles/pages/play.css'), 'utf8');
 
 const show = js.match(/function showOv\(kind\) \{([\s\S]*?)\n  \}\n  function hideOv/);
 assert.ok(show, 'navigation curtain handler exists');

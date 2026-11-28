@@ -21,7 +21,7 @@ window.bake = (key) => {
   pr.renderer.render(pr.scene, pr.camera);
   const out = document.createElement('canvas'); out.width = out.height = 192;
   const g = out.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(pr.renderer.domElement, 0, 0, 192, 192);
-  return out.toDataURL('image/png');
+  return out.toDataurl('image/png');
 };
 window.ready = true;
 </script></body></html>

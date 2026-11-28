@@ -18,7 +18,7 @@ const scripts = {
   room: read("assets/js/pages/room.js")
 };
 const headers = ["karakter.html", "frame.html", "dadu.html", "powerup.html", "shop.html", "friendship.html", "hadiah-misi.html", "tambang.html", "profile.html"];
-const pageCss = read("assets/css/page.css");
+const pageCss = read("src/styles/page.css");
 const frameCss = read("data/inventory/frame/_shared/css/frame.css");
 const powerCss = read("data/inventory/power/_shared/css/powerup.css");
 const powerPageCss = read("data/inventory/power/_shared/css/powerup-page.css");

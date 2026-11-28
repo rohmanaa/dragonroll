@@ -50,7 +50,7 @@ t('hub = halaman penuh (bukan modal): tanpa role=dialog/aria-modal/inert/focus t
   assert(/tombol-tutup-bulat\.webp/.test(hub) && /'pclose'/.test(hub) && !/panah-kembali/.test(hub));
 });
 t('CSS hub: latar halaman standar (tanpa lapisan gelap/embed), tombol Tutup #pclose', () => {
-  const css = rd('assets/css/account-hub.css');
+  const css = rd('src/styles/account-hub.css');
   assert(!/pbackdrop|ut-hub-embed|has-hub\)\{?\s*background|rgba\(10,8,24,\.66\)/.test(css), 'tidak ada lapisan gelap/embed');
   assert(/#pclose\{/.test(css) && !/#pback/.test(css));
   assert(!/embed=lobby|ut-hub-embed/.test(rd('profile.html')));

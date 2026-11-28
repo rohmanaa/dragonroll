@@ -6,8 +6,8 @@ const root = path.join(__dirname, '..');
 const rawLobby = fs.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 const lobby = PG.readFileSync(path.join(root, 'lobby.html'), 'utf8');
 
-assert.ok(rawLobby.includes('assets/css/pages/lobby.css'));
-assert.ok(lobby.includes('assets/css/scene-bg.css'));
+assert.ok(rawLobby.includes('src/styles/pages/lobby.css'));
+assert.ok(lobby.includes('src/styles/scene-bg.css'));
 assert.ok(lobby.includes('assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"'));
 assert.ok(lobby.includes('.sbg-clouds{display:none!important}'));
 assert.ok(lobby.includes('.sbg-stars,.sbg-moon,.sbg-fog,.sbg-rays{display:none!important}'));

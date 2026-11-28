@@ -341,7 +341,7 @@ body.th-nether #pcName{color:#ffd27a}
 body.th-nether .card{background:linear-gradient(#c0502e,#8a2a1e);box-shadow:0 10px 0 var(--bd),0 22px 30px rgba(0,0,0,.35),inset 0 3px 3px rgba(255,200,150,.5)}
 body.th-nether #pauseMenu,body.th-nether #exitConfirm{background:rgba(42,6,6,.55)}
 body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
-/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.webp; lihat assets/css/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
+/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.webp; lihat src/styles/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
 .lm-ov{--mu:clamp(5.2px,min(1vw,1.85vh),9px);align-items:center;justify-content:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff}
 body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .lm-ov:not([hidden]){animation:lmFade .25s both}

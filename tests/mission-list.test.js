@@ -5,7 +5,7 @@ const path = require("path");
 
 const read = file => PG.readFileSync(path.join(__dirname, "..", file), "utf8");
 const html = read("hadiah-misi.html");
-const css = read("assets/css/mission.css");
+const css = read("src/styles/mission.css");
 
 assert.ok(!/\.qlist[^}]*height:430px/.test(html), "tinggi list tidak lagi dibatasi 430px");
 assert.ok(/\.qlist\{[^}]*top:166px[^}]*bottom:106px[^}]*overflow-y:auto/.test(css), "list mengisi area sampai tepat di atas footer dan tetap scrollable");

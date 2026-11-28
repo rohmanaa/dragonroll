@@ -51,7 +51,7 @@ async function load(t,force){
  if(c&&c.state==='ok'&&!force&&Date.now()-c.at<20000)return;
  CACHE[t]={state:'loading',rows:(c&&c.rows)||[]};if(t===tab)draw();
  try{
-  await import('../../../assets/js/multiplayer/room-service.js');
+  await import('../multiplayer/room-service.js');
   if(env.disposed)return;
   const rows=await UT.Multiplayer.RoomService.getLeaderboard(SCOPE[t],50);
   if(env.disposed)return;

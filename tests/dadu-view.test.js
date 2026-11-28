@@ -38,7 +38,7 @@ t('dadu.html: page-module/inv-tabs sebelum dadu.js, shared-gl setelah three.js d
   const i = s => html.indexOf(s), d = i('dice/_shared/js/dadu.js');
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < d && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < d);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < i('dice-kit/index.js'));
-  assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
+  assert(i('src/styles/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
   assert(i('pet/_shared/css/pet-page.css') > 0 && /id="dgrid"/.test(html) && /id="pmodal"/.test(html) && /id="fpv"/.test(html) && !/id="act"/.test(html), 'grid kartu + modal pratinjau (gaya Frame/Pet)');
 });
 t('routing: dadu.html = view; masuk daftar tab view, frame-guard, prefetch', () => {

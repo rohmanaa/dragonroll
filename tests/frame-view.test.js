@@ -26,7 +26,7 @@ t('frame.html: page-module.js + inv-tabs.js sebelum frame.js; CSS bar tab', () =
   const i = s => html.indexOf(s);
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < i('frame/_shared/js/frame.js'));
   assert(i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < i('frame/_shared/js/frame.js'));
-  assert(i('assets/css/inv-tabbar.css') > 0);
+  assert(i('src/styles/inv-tabbar.css') > 0);
 });
 t('spa-host: frame.html = view; canon memetakan semua tab view; frame-guard & prefetch mengenal frame', () => {
   assert(/'frame\.html': 'frame'/.test(host) && /INV_VIEW_TABS = \{ frame: 'frame\.html', dadu: 'dadu\.html', efek: 'efek\.html', pet: 'pet\.html' \}/.test(host));

@@ -121,14 +121,14 @@ const ownedSkinN=()=>{try{return PD.ownedItems().filter(o=>o.item.kind==='skin')
 const aList=()=>AC.info(SP);
 async function loadSP(){
  if(!SV())return;
- try{await import('../../../assets/js/multiplayer/progress-service.js');const sp=await UT.Multiplayer.Progress.getMyProfile();
+ try{await import('../multiplayer/progress-service.js');const sp=await UT.Multiplayer.Progress.getMyProfile();
   if(env.disposed)return;
   if(sp){SP=sp.exists?sp:{counters:{},claims:{}};SPS='ok'}else if(SPS!=='ok')SPS='error'}
  catch(e){if(env.disposed)return;console.warn('[achievement] gagal memuat',e);if(SPS!=='ok')SPS='error'}
  render()}
 async function claimAch(id,target){
  const a=aList().find(x=>x.id===id);if(!a||a.pend<1||abusy)return;abusy=true;
- try{await import('../../../assets/js/multiplayer/progress-service.js');
+ try{await import('../multiplayer/progress-service.js');
   const r=await UT.Multiplayer.Progress.claimAchievement(id,null),stars=Math.min(3,+(r&&r.stars)||0);
   if(env.disposed)return;
   if(!r||!r.ok){SP=Object.assign({},SP,{claims:Object.assign({},SP&&SP.claims,{[id]:Math.max(a.cl,+(r&&r.claimed)||0)})});toast('Belum ada reward untuk diklaim');return}

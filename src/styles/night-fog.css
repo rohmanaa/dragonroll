@@ -7,8 +7,8 @@ html[data-ambience="night"] .nfog{display:block}
 .nfog .nfl.l2,.nfog .nfl.l3{animation:nf-op2 21s linear infinite,nf-move 13s linear infinite}
 .nfog .nfl.l3{animation-delay:-6s,-6.5s}
 .nfog .nfl i{float:left;width:50%;height:100%;background:var(--fc);
-  -webkit-mask:url(../images/effects/fx-fog-1.webp) center/100% 100% no-repeat;mask:url(../images/effects/fx-fog-1.webp) center/100% 100% no-repeat}
-.nfog .nfl.l2 i,.nfog .nfl.l3 i{-webkit-mask-image:url(../images/effects/fx-fog-2.webp);mask-image:url(../images/effects/fx-fog-2.webp)}
+  -webkit-mask:url(../../assets/images/effects/fx-fog-1.webp) center/100% 100% no-repeat;mask:url(../../assets/images/effects/fx-fog-1.webp) center/100% 100% no-repeat}
+.nfog .nfl.l2 i,.nfog .nfl.l3 i{-webkit-mask-image:url(../../assets/images/effects/fx-fog-2.webp);mask-image:url(../../assets/images/effects/fx-fog-2.webp)}
 @keyframes nf-move{0%{left:0}100%{left:-100%}}
 @keyframes nf-op1{0%{opacity:.1}22%{opacity:.5}40%{opacity:.28}58%{opacity:.4}80%{opacity:.16}100%{opacity:.1}}
 @keyframes nf-op2{0%{opacity:.5}25%{opacity:.2}50%{opacity:.1}80%{opacity:.3}100%{opacity:.5}}

@@ -4,8 +4,8 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'profile.html'), 'utf8');
-const baseCss = 'assets/css/pages/profile-legacy.css';
-const pageCss = 'assets/css/pages/profile.css';
+const baseCss = 'src/styles/pages/profile-legacy.css';
+const pageCss = 'src/styles/pages/profile.css';
 
 /* CSS panel Profil kini dimuat hub per-panel: daftar ada di atribut data-css pada <template id="tpl-profil"> (urutan = urutan muat) */
 const m = /<template id="tpl-profil" data-css="([^"]+)"/.exec(html);

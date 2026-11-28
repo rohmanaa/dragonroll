@@ -41,7 +41,7 @@ t('efek.html: page-module/inv-tabs sebelum efek.js, shared-gl setelah three.js; 
   const i = s => html.indexOf(s), e = i('aura/_shared/js/efek.js');
   assert(i('core/page-module.js') > 0 && i('core/page-module.js') < e && i('core/inv-tabs.js') > 0 && i('core/inv-tabs.js') < e);
   assert(i('vendor/three.min.js') > 0 && i('core/shared-gl.js') > i('vendor/three.min.js') && i('core/shared-gl.js') < e);
-  assert(i('assets/css/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
+  assert(i('src/styles/inv-tabbar.css') < 0 && !/id="invtabs"/.test(html), 'tanpa bar tab');
   assert(i('pet/_shared/css/pet-page.css') > 0 && /id="pv"/.test(html) && /id="grid"/.test(html) && !/id="act"/.test(html), 'kartu + modal pratinjau seperti Pet');
 });
 t('routing: efek.html = view; masuk daftar tab view, frame-guard, prefetch', () => {
