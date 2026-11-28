@@ -1,9 +1,9 @@
-﻿<!doctype html><html lang="id"><head><script type="importmap">{"imports":{"three":"./src/vendor/three.r170.module.min.js","three/addons/":"./src/vendor/three-addons/"}}</script><script src="src/boot/frame-guard.js"></script><script src="src/core/session.js"></script><script src="src/boot/boot-guard.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="stylesheet" href="src/styles/base/reset.css"><link rel="stylesheet" href="src/styles/utilities/common.css"><link rel="stylesheet" href="src/styles/components/overlay.css"><link rel="stylesheet" href="src/styles/utilities/loading.css"><link rel="stylesheet" href="src/gameplay/css/particle-fx.css"><link rel="stylesheet" href="src/gameplay/css/duel.css"><link rel="stylesheet" href="src/gameplay/css/gameplay-base.css"><title>Ular Tangga Blok</title><script src="src/boot/landscape.js"></script></head><body>
-<link rel="stylesheet" href="src/styles/fonts.css">
-<link rel="stylesheet" href="src/components/button/button.css">
-<link rel="stylesheet" href="src/components/modal/modal-kit.css">
-<link rel="stylesheet" href="src/components/tabs/tabs.css">
-<link rel="stylesheet" href="src/gameplay/css/gameplay.css">
+﻿<!doctype html><html lang="id"><head><script type="importmap">{"imports":{"three":"./src/vendor/three.r170.module.min.js","three/addons/":"./src/vendor/three-addons/"}}</script><script src="boot/frame-guard.js"></script><script src="core/session.js"></script><script src="boot/boot-guard.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="stylesheet" href="styles/base/reset.css"><link rel="stylesheet" href="styles/utilities/common.css"><link rel="stylesheet" href="styles/components/overlay.css"><link rel="stylesheet" href="styles/utilities/loading.css"><link rel="stylesheet" href="gameplay/css/particle-fx.css"><link rel="stylesheet" href="gameplay/css/duel.css"><link rel="stylesheet" href="gameplay/css/gameplay-base.css"><title>Ular Tangga Blok</title><script src="boot/landscape.js"></script></head><body>
+<link rel="stylesheet" href="styles/fonts.css">
+<link rel="stylesheet" href="components/button/button.css">
+<link rel="stylesheet" href="components/modal/modal-kit.css">
+<link rel="stylesheet" href="components/tabs/tabs.css">
+<link rel="stylesheet" href="gameplay/css/gameplay.css">
 
 <canvas id="c" aria-label="Papan ular tangga 3D"></canvas>
 
@@ -217,69 +217,70 @@
   </div>
 </section>
 
-<script src="src/gameplay/js/hud-scale.js"></script>
-<script src="src/vendor/three.min.js"></script>
-<script src="src/gameplay/js/three-fallback.js"></script>
-<script src="src/core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="src/stores/item-catalog.js"></script>
-<script src="src/renderers/item-art.js"></script>
-<script src="src/core/prefs.js"></script><script src="src/core/prefs-sync.js"></script><script src="src/stores/player-data.js"></script><script src="src/services/appearance-service.js"></script>
-<script src="src/services/wallet-service.js"></script>
-<script src="src/services/hearts-service.js"></script>
-<script src="src/services/hearts-gate.js"></script>
-<script src="src/multiplayer/room-flow.js"></script>
-<script src="src/services/game-integration.js"></script>
-<script src="src/renderers/blocky-character.js"></script><script src="src/renderers/character-face.js"></script>
-<script src="src/renderers/aura-fx.js"></script><script src="src/renderers/aura-view.js"></script>
-<script src="src/core/app.js"></script>
-<script src="src/gameplay/js/app-init.js"></script>
-<script src="src/gameplay/js/module-bridge.js"></script>
-<script src="src/gameplay/js/game-core.js"></script>
-<script src="src/gameplay/js/duel-core.js"></script>
-<script src="src/gameplay/js/maps/registry.js"></script>
-<script src="src/gameplay/js/maps/world.js"></script>
-<script src="src/gameplay/js/maps/nether.js"></script>
-<script src="src/gameplay/js/themes.js"></script>
-<script src="src/gameplay/js/config.js"></script>
-<script src="src/gameplay/js/biomes.js"></script>
-<script src="src/gameplay/js/hud.js"></script>
-<link rel="stylesheet" href="src/gameplay/css/dice-pad.css">
-<script src="src/gameplay/js/dice-ui.js"></script>
-<script src="src/gameplay/js/dice-throw.js"></script>
-<script type="module" src="src/renderers/dice-kit/index.js"></script>
-<script type="module" src="src/gameplay/js/power3d-loader.js"></script>
-<script src="src/gameplay/js/dice-pad.js"></script>
-<script src="src/gameplay/js/audio.js"></script>
-<script src="src/gameplay/js/voxel-geom.js"></script>
-<script src="src/gameplay/js/fx.js"></script>
-<script src="src/gameplay/js/particle-fx.js"></script>
-<script src="src/gameplay/js/firework-fx.js"></script>
-<script src="src/gameplay/js/creeper-fx.js"></script>
+<script src="gameplay/js/hud-scale.js"></script>
+<script src="vendor/three.min.js"></script>
+<script src="gameplay/js/three-fallback.js"></script>
+<script src="core/item-registry.js"></script><script src="data/inventory/aura/nature/manifest.js"></script><script src="data/inventory/aura/stone/manifest.js"></script><script src="data/inventory/aura/flame/manifest.js"></script><script src="data/inventory/aura/frost/manifest.js"></script><script src="data/inventory/aura/electric/manifest.js"></script><script src="data/inventory/aura/emerald/manifest.js"></script><script src="data/inventory/aura/ender/manifest.js"></script><script src="data/inventory/aura/nether/manifest.js"></script><script src="data/inventory/aura/amethyst/manifest.js"></script><script src="data/inventory/aura/ocean/manifest.js"></script><script src="data/inventory/aura/solar/manifest.js"></script><script src="data/inventory/aura/shadow/manifest.js"></script><script src="data/inventory/aura/sculk/manifest.js"></script><script src="data/inventory/aura/dragon/manifest.js"></script><script src="data/inventory/aura/celestial/manifest.js"></script><script src="data/inventory/aura/index.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="data/inventory/character/steve/manifest.js"></script><script src="data/inventory/character/alex/manifest.js"></script><script src="data/inventory/character/creeper/manifest.js"></script><script src="data/inventory/character/zombie/manifest.js"></script><script src="data/inventory/character/skeleton/manifest.js"></script><script src="data/inventory/character/ender/manifest.js"></script><script src="data/inventory/character/index.js"></script><script src="stores/item-catalog.js"></script>
+<script src="renderers/item-art.js"></script>
+<script src="core/prefs.js"></script><script src="core/prefs-sync.js"></script><script src="stores/player-data.js"></script><script src="services/appearance-service.js"></script>
+<script src="services/wallet-service.js"></script>
+<script src="services/hearts-service.js"></script>
+<script src="services/hearts-gate.js"></script>
+<script src="multiplayer/room-flow.js"></script>
+<script src="services/game-integration.js"></script>
+<script src="renderers/blocky-character.js"></script><script src="renderers/character-face.js"></script>
+<script src="renderers/aura-fx.js"></script><script src="renderers/aura-view.js"></script>
+<script src="core/app.js"></script>
+<script src="gameplay/js/app-init.js"></script>
+<script src="gameplay/js/module-bridge.js"></script>
+<script src="gameplay/js/game-core.js"></script>
+<script src="gameplay/js/duel-core.js"></script>
+<script src="gameplay/js/maps/registry.js"></script>
+<script src="gameplay/js/maps/world.js"></script>
+<script src="gameplay/js/maps/nether.js"></script>
+<script src="gameplay/js/themes.js"></script>
+<script src="gameplay/js/config.js"></script>
+<script src="gameplay/js/biomes.js"></script>
+<script src="gameplay/js/hud.js"></script>
+<link rel="stylesheet" href="gameplay/css/dice-pad.css">
+<script src="gameplay/js/dice-ui.js"></script>
+<script src="gameplay/js/dice-throw.js"></script>
+<script type="module" src="renderers/dice-kit/index.js"></script>
+<script type="module" src="gameplay/js/power3d-loader.js"></script>
+<script src="gameplay/js/dice-pad.js"></script>
+<script src="gameplay/js/audio.js"></script>
+<script src="gameplay/js/voxel-geom.js"></script>
+<script src="gameplay/js/fx.js"></script>
+<script src="gameplay/js/particle-fx.js"></script>
+<script src="gameplay/js/firework-fx.js"></script>
+<script src="gameplay/js/creeper-fx.js"></script>
 <script src="data/power/power-fx.js"></script>
-<script src="src/gameplay/js/skin-uv.js"></script>
-<script src="src/gameplay/js/feedback.js"></script>
-<script src="src/gameplay/js/afk.js"></script>
-<script src="src/gameplay/js/ready.js"></script>
-<script src="src/gameplay/js/pause.js"></script>
-<script src="src/systems/graphics-auto.js"></script>
-<script src="src/gameplay/js/hud-menu.js"></script>
-<script src="src/gameplay/js/pvp-knight-rig.js"></script>
-<script src="src/gameplay/js/duel-ui.js"></script>
-<script src="src/gameplay/js/cinematic.js"></script>
-<script src="src/gameplay/js/main.js"></script>
+<script src="gameplay/js/skin-uv.js"></script>
+<script src="gameplay/js/feedback.js"></script>
+<script src="gameplay/js/afk.js"></script>
+<script src="gameplay/js/ready.js"></script>
+<script src="gameplay/js/pause.js"></script>
+<script src="systems/graphics-auto.js"></script>
+<script src="gameplay/js/hud-menu.js"></script>
+<script src="gameplay/js/pvp-knight-rig.js"></script>
+<script src="gameplay/js/duel-ui.js"></script>
+<script src="gameplay/js/cinematic.js"></script>
+<script src="gameplay/js/main.js"></script>
 
-<script src="src/gameplay/js/hud-sync.js"></script>
-<link rel="stylesheet" href="src/gameplay/css/gameplay-overrides.css">
+<script src="gameplay/js/hud-sync.js"></script>
+<link rel="stylesheet" href="gameplay/css/gameplay-overrides.css">
 
-<link rel="stylesheet" href="src/gameplay/css/hud-mockup.css">
-<link rel="stylesheet" href="src/gameplay/css/hud-player-card.css">
-<link rel="stylesheet" href="src/gameplay/css/pause.css">
-<link rel="stylesheet" href="src/gameplay/css/hud-menu.css">
-<link rel="stylesheet" href="src/gameplay/css/win-screen.css">
-<link rel="stylesheet" href="src/gameplay/css/level-up.css">
-<link rel="stylesheet" href="src/gameplay/css/action-icons.css">
-<script src="src/gameplay/js/level-up.js"></script>
-<script type="module" src="src/gameplay/js/multiplayer-init.js"></script>
+<link rel="stylesheet" href="gameplay/css/hud-mockup.css">
+<link rel="stylesheet" href="gameplay/css/hud-player-card.css">
+<link rel="stylesheet" href="gameplay/css/pause.css">
+<link rel="stylesheet" href="gameplay/css/hud-menu.css">
+<link rel="stylesheet" href="gameplay/css/win-screen.css">
+<link rel="stylesheet" href="gameplay/css/level-up.css">
+<link rel="stylesheet" href="gameplay/css/action-icons.css">
+<script src="gameplay/js/level-up.js"></script>
+<script type="module" src="gameplay/js/multiplayer-init.js"></script>
 </body></html>
+
 
 
 

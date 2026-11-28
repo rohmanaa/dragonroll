@@ -607,7 +607,7 @@ const shade=(hex,k)=>{const m=/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(h
 function diceSkin(i,sk){const d=$(i?'dieR':'dieL');d.style.setProperty('--df1',sk.face);d.style.setProperty('--df2',shade(sk.face,.86));d.style.setProperty('--dp',sk.pip);d.style.setProperty('--dr',sk.rim)}
 function diceSkinReset(){['dieL','dieR'].forEach(id=>['--df1','--df2','--dp','--dr'].forEach(p=>$(id).style.removeProperty(p)))}
 function loadDiceSkin(key,i){const ep=epoch;
-  try{if(!diceCatP)diceCatP=import('../../src/renderers/dice-kit/dice-catalog.js');
+  try{if(!diceCatP)diceCatP=import('../../renderers/dice-kit/dice-catalog.js');
     diceCatP.then(m=>{if(ep!==epoch)return;const d=m.getDice?m.getDice(key):null,mt=d&&d.material;if(!mt)return;
       diceSkin(i,{face:mt.base||'#f4ead2',pip:(mt.pip&&mt.pip.color)||'#1c2a4a',rim:mt.accent||'#d9b45a'})}).catch(()=>{})}catch(e){}}
 

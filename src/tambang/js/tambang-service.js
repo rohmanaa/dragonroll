@@ -101,7 +101,7 @@
       getClient: async function () {
         if (!(w.UT && w.UT.Multiplayer && w.UT.Multiplayer.getClient)) {
           var clientUrl = SELF
-            ? new URL('../../src/multiplayer/client.js', SELF)
+            ? new URL('../../multiplayer/client.js', SELF)
             : new URL('src/multiplayer/client.js', w.location.href);
           await import(clientUrl.href);
         }

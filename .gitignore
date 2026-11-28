@@ -2,3 +2,4 @@
 supabase/.env
 node_modules/
 release/
+dist/

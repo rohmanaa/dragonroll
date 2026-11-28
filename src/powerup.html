@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="id"><head><script type="importmap">{"imports":{"three":"./src/vendor/three.r170.module.min.js","three/addons/":"./src/vendor/three-addons/"}}</script><script src="multiplayer/room-modal-bridge.js"></script><script src="stores/inventory-bridge.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="core/page-shell.js"></script>
+<script>UT.PageShell.renderBase();</script>
+<title>Power-up â€” Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+
+<link rel="stylesheet" href="styles/page.css"><link rel="stylesheet" href="components/button/button.css"><link rel="stylesheet" href="components/modal/modal-kit.css"><link rel="stylesheet" href="components/slot/slot.css"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup.css?v=218"><link rel="stylesheet" href="data/inventory/power/_shared/css/powerup-page.css?v=218"><link rel="stylesheet" href="styles/bg.css">
+<link rel="stylesheet" href="gameplay/css/particle-fx.css">
+
+</head>
+<body class="dm notabs">
+<div id="wrap"><div id="stage">
+  <button id="back" class="ut-gl ut-c-r" aria-label="Kembali"><img src="assets/images/ui/navigation-icons/panah-kembali.webp" alt=""></button>
+  <div id="title" class="ttl">Power-up</div>
+  <section id="right">
+    <div id="grid" aria-label="Power-up yang dimiliki"></div>
+    <div id="empty" hidden><strong>Belum punya Power-up</strong><small>Beli Power-up di Toko, lalu stoknya muncul di sini.</small>
+      <button class="btn ut-gl ut-c-g" id="goShop" type="button"><img src="assets/images/ui/buttons-and-controls/tombol-hijau-polos.webp" alt=""><span>BUKA TOKO</span></button></div>
+  </section>
+
+  <div id="toast" role="status"></div>
+</div></div>
+<div id="pv" aria-hidden="true"><div id="pvBox" class="ut-mk" role="dialog" aria-modal="true" aria-labelledby="nm">
+  <button id="pvClose" class="ut-mk-x ut-gl ut-c-r" type="button" aria-label="Tutup pratinjau"></button>
+  <div id="fpv"><div id="pa"></div><div id="p3d"></div></div>
+  <div id="nm" class="ttl"></div>
+  <div id="rar"></div>
+  <p id="ds"></p>
+</div></div>
+<div id="fade"></div>
+<script src="core/item-registry.js"></script><script src="data/inventory/power/sword/manifest.js"></script><script src="data/inventory/power/feather/manifest.js"></script><script src="data/inventory/power/tnt/manifest.js"></script><script src="data/inventory/power/totem/manifest.js"></script><script src="data/inventory/power/potion_odd/manifest.js"></script><script src="data/inventory/power/potion_even/manifest.js"></script><script src="data/inventory/power/grass/manifest.js"></script><script src="data/inventory/power/diamond_sword/manifest.js"></script><script src="data/inventory/power/netherite_sword/manifest.js"></script><script src="data/inventory/power/wooden_shield/manifest.js"></script><script src="data/inventory/power/golden_apple/manifest.js"></script><script src="data/inventory/power/fire_charge/manifest.js"></script><script src="data/inventory/power/ice_crystal/manifest.js"></script><script src="data/inventory/power/blaze_core/manifest.js"></script><script src="data/inventory/power/trident/manifest.js"></script><script src="data/inventory/power/dragon_crystal/manifest.js"></script><script src="data/inventory/power/nether_star/manifest.js"></script><script src="data/inventory/power/index.js"></script><script src="stores/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/css/particle-fx.css"><script src="gameplay/js/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
+<script src="data/inventory/character/_shared/js/character-data.js"></script>
+<script src="renderers/item-art.js"></script>
+<script src="stores/player-data.js"></script>
+<script src="services/wallet-service.js"></script>
+<script src="core/app.js"></script>
+<script src="components/ui-core.js"></script>
+<script>UT.App.init({page:'powerup'});</script>
+<script src="data/inventory/power/_shared/js/powerup.js?v=218"></script>
+<script src="core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("pv");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{labelledBy:"nm",initialFocus:"#pvClose"});}catch(e){}})();</script>
+</body></html>
+
+
+
+

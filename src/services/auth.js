@@ -1,7 +1,7 @@
 // Akun DRAGON ROLL: username + password (minimal 6) lewat Supabase Auth.
 // Supabase Auth butuh email, jadi username dipetakan ke email internal <username>@EMAIL_DOMAIN (tidak pernah dikirimi email).
 // Syarat dashboard Supabase: Authentication > Providers > Email aktif dan "Confirm email" DIMATIKAN.
-import './multiplayer/client.js';
+import '../multiplayer/client.js';
 const MP = window.UT.Multiplayer;
 const EMAIL_DOMAIN = 'dragonroll-game.com';
 const SS = window.UT.Session; if (!SS) throw new Error('session.js belum dimuat');

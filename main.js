@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+const isDev = !app.isPackaged;
+
 let win;
 
 function createWindow() {
@@ -22,7 +24,13 @@ function createWindow() {
     }
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  if (isDev) {
+    win.loadURL('http://localhost:5173/').catch(() => {
+      win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    });
+  } else {
+    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+  }
 }
 
 ipcMain.handle('window:set-fullscreen', (event, value) => {
