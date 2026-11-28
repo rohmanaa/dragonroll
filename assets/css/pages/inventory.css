@@ -37,19 +37,24 @@ html,body{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixe
 
 /* tab Chest (native): pola UI tab Power-up (grid slot abu saja + tombol aksi tunggal, tanpa panel pratinjau kiri). Kanvas 1920x1080, ukuran lewat zoom:--invs */
 .view.native[data-k="chest"].on{display:grid;place-items:start center}
-#chestBox{margin-top:calc(170px*var(--invs,1))}
+#chestBox,#oreBox{margin-top:calc(170px*var(--invs,1))}
 #cbox{position:relative;width:1920px;height:900px;color:#fff;zoom:var(--invs,1);animation:cmIn .3s both}
 #cbox #cr{position:absolute;left:0;top:0;width:1920px;height:100%}
 /* grid sama dengan tab Power-up (zoom 1.5, slot 130px mulai dari kiri) */
 #cbox #cg{position:absolute;left:62.67px;top:2px;width:1140px;max-height:520px;display:grid;grid-template-columns:repeat(auto-fill,130px);grid-auto-rows:130px;justify-content:start;gap:20px;zoom:1.5;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:thin}
 #cbox .fslot{--slot-size:130px;transition:transform .1s,filter .1s}   /* tampilan slot = komponen .ut-slot (slot.css) */
 #cbox .fslot:hover{filter:brightness(1.08)}#cbox .fslot:active{transform:scale(.95)}
-#cbox .fslot .dc{position:absolute;left:50%;top:50%;width:78px;height:78px;transform:translate(-50%,-50%);object-fit:contain}
+#cbox .fslot .dc{display:block;position:absolute;left:50%;top:50%;width:78px;height:78px;transform:translate(-50%,-50%);object-fit:contain}
 #cbox .fslot .chip-n{z-index:2;position:absolute;right:6px;top:6px;min-width:30px;padding:1px 7px;border-radius:5px;text-align:center;background:#2c9a3a;border:2px solid #9be86a;font:400 17px/1.3 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.6)}
 #cbox .fslot.add{display:grid;place-items:center}
 #cbox .fslot.add .pl{font:400 64px/1 var(--font-title,'Lilita One',sans-serif);color:#fff;text-shadow:0 3px 0 rgba(10,6,24,.6)}
 #cbox .fslot.add:hover{filter:brightness(1.2)}
 #cbox .cempty .fslot.add{display:grid;margin:24px auto 0}
+#cbox .fslot .dc .ut-ic{width:100%;height:100%;object-fit:contain;display:block}
+#cbox #cact2{position:absolute;right:420px;bottom:30px;width:240px;height:84px;z-index:5}
+#cbox .oinfo{position:absolute;right:100px;bottom:130px;width:640px;text-align:right;font:400 36px/1.2 var(--font-title,'Lilita One',sans-serif);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#cbox .oinfo small{display:block;font:700 24px/1.3 'Nunito','Segoe UI',sans-serif;color:#d9d3f3}
+#cbox .oinfo .msg{display:block;min-height:28px;font:700 22px/1.3 'Nunito','Segoe UI',sans-serif;font-style:normal;color:#fff3a8}
 #cbox #cact{position:absolute;right:100px;bottom:30px;width:300px;height:84px;z-index:5}
 #cbox .btn{position:relative;display:grid;place-items:center;padding:0}
 #cbox .btn span{position:relative;font:400 28px/1 var(--font-title,'Lilita One',sans-serif)}

@@ -10,6 +10,9 @@
 /* DUA warna: terang (bawaan) & gelap (terpilih) — gaya slot Clash of Clans. Terpasang/dipakai = tepi hijau + ceklis. */
 .ut-slot.sel,.ut-slot.dk,.ut-slot[aria-current="true"]{--slot-bg:linear-gradient(180deg,#8f8f8f 0,#777 100%)}
 .ut-slot[aria-pressed="true"],.ut-slot.on{--slot-rim:#6fd43a}
+/* ikon item di dalam slot diberi garis tepi gelap tipis supaya tidak menyatu dengan isi slot yang terang */
+.ut-slot{--slot-ink:#2a2a33;--slot-ol:calc(var(--slot-size) * .014)}
+.ut-slot img:not(.keep-raw),.ut-slot canvas.keep-ol{filter:drop-shadow(var(--slot-ol) 0 0 var(--slot-ink)) drop-shadow(calc(var(--slot-ol) * -1) 0 0 var(--slot-ink)) drop-shadow(0 var(--slot-ol) 0 var(--slot-ink)) drop-shadow(0 calc(var(--slot-ol) * -1) 0 var(--slot-ink))}
 .ut-slot.sm{--slot-size:64px}
 .ut-slot.lg{--slot-size:120px}
 .ut-slot>img,.ut-slot>svg,.ut-slot>canvas{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
