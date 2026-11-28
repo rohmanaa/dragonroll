@@ -1,3 +1,4 @@
+@import url("tokens.css");
 /* Gaya bersama halaman game/ (kanvas 1920x1080 yang diskalakan) */
 :root{--ink:#1b1430;--panel:rgba(38,31,62,.88);--panel-line:#6d6590;--gold:#ffd45a;--font-title:'Lilita One',Impact,sans-serif;--font-body:'Nunito','Segoe UI',system-ui,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}

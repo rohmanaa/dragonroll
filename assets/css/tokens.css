@@ -1,0 +1,60 @@
+/* =====================================================
+   DRAGON ROLL — GLOBAL DESIGN TOKENS
+   Stage 2: Color Foundation
+   Tidak mengubah warna komponen yang sudah ada.
+   ===================================================== */
+
+:root {
+  /* BRAND PALETTE */
+  --dr-stone: #211E29;
+  --dr-slate: #393342;
+  --dr-cream: #E6DCC8;
+  --dr-gold: #E8B83F;
+  --dr-crimson: #A92D3B;
+  --dr-void: #120E1A;
+
+  /* GOLD VARIANTS */
+  --dr-gold-light: #FFD45A;
+  --dr-gold-deep: #C99518;
+
+  /* CRIMSON VARIANTS */
+  --dr-crimson-light: #C93849;
+  --dr-crimson-deep: #7E1C27;
+
+  /* SEMANTIC COLORS */
+  --dr-bg-page: var(--dr-stone);
+  --dr-bg-panel: var(--dr-slate);
+  --dr-bg-panel-raised: linear-gradient(
+    180deg,
+    #4A4254,
+    #312C3A
+  );
+
+  --dr-text-primary: #FFFFFF;
+  --dr-text-secondary: var(--dr-cream);
+  --dr-text-muted: rgba(230, 220, 200, .65);
+
+  --dr-border-strong: var(--dr-void);
+  --dr-border-soft: rgba(230, 220, 200, .22);
+
+  --dr-accent-primary: var(--dr-gold);
+  --dr-accent-brand: var(--dr-crimson);
+
+  /* BUTTON GRADIENTS */
+  --dr-button-gold: linear-gradient(
+    180deg,
+    var(--dr-gold-light),
+    var(--dr-gold) 48%,
+    var(--dr-gold-deep) 100%
+  );
+
+  --dr-button-crimson: linear-gradient(
+    180deg,
+    var(--dr-crimson-light),
+    var(--dr-crimson) 50%,
+    var(--dr-crimson-deep) 100%
+  );
+
+  /* OVERLAY */
+  --dr-overlay: rgba(18, 14, 26, .72);
+}
