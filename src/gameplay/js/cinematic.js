@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/js/cinematic.js
+﻿/* Ular Tangga Blok â€” src/gameplay/js/cinematic.js
    Lapisan SINEMATIK untuk adegan three.js (r128, skrip klasik, tanpa addon/CDN: offline-ready).
-   Dimuat SEBELUM gameplay/js/main.js. Semua efek murni visual: tidak menyentuh logika game, input, atau HUD HTML.
+   Dimuat SEBELUM src/gameplay/js/main.js. Semua efek murni visual: tidak menyentuh logika game, input, atau HUD HTML.
 
    Isi:
    1. Pipeline post-processing sendiri  : scene -> RT HDR (MSAA) -> bloom (mip chain) + tilt-shift DOF + aberasi kromatik
@@ -719,3 +719,4 @@ var DOOM = { v: 0, t: 0, dbg: null, g: null, sp: [], fogObj: null, fn: 0, ff: 0 
   };
   UT.Cinema = API;
 })(window);
+

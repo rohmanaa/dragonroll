@@ -1,10 +1,10 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
-const css = fs.readFileSync(path.join(root, 'gameplay/css/gameplay.css'), 'utf8');
+const main = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
+const css = fs.readFileSync(path.join(root, 'src/gameplay/css/gameplay.css'), 'utf8');
 const hitStart = main.indexOf('async function hitDragon(p,v){');
 const hitEnd = main.indexOf('\n}', hitStart);
 assert.ok(hitStart >= 0 && hitEnd > hitStart, 'Dragon hit handler should exist');
@@ -22,3 +22,4 @@ assert.match(css, /#bossFx\.critical\.hit \.boss-hit-label\s*\{animation:bossCri
 assert.match(css, /#bossFx::before[^}]*box-shadow:inset 0 0 180px rgba\(255,0,0,\.28\)/, 'The fight overlay should retain a capped red screen-edge vignette');
 
 console.log('ok - Dragon hits show Critical with a persistent red vignette and no boss bar');
+

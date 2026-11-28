@@ -1,6 +1,6 @@
 ﻿const assert = require('assert');
 const THREE = require('../src/vendor/three.min.js');
-const PvpKnight = require('../gameplay/js/pvp-knight-rig.js');
+const PvpKnight = require('../src/gameplay/js/pvp-knight-rig.js');
 
 function run() {
   assert.ok(PvpKnight, 'PvpKnight module exports correctly');
@@ -35,4 +35,5 @@ function run() {
 }
 
 run();
+
 

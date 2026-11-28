@@ -160,15 +160,15 @@
     { "old": "assets/images/ui/new-icon/freinds.webp", "new": "assets/images/ui/feature-icons/friends.webp" },
     { "old": "assets/images/ui/new-icon/teamvsteam.webp", "new": "assets/images/ui/feature-icons/team-vs-team.webp" },
     { "old": "assets/images/ui/new-icon/vscomputer.webp", "new": "assets/images/ui/feature-icons/vs-computer.webp" },
-    { "old": "../new sound/", "new": "", "files": ["gameplay/js/audio.js"] },
-    { "old": "win/Firework_launch.ogg", "new": "win/firework-launch.ogg", "files": ["gameplay/js/audio.js", "gameplay/js/firework-fx.js", "assets/sfx/README.md"] },
-    { "old": "dragon-areana-up-before-crystal.mp3", "new": "dragon-arena-up-before-crystal.mp3", "files": ["gameplay/js/audio.js", "assets/sfx/README.md"] },
-    { "old": "setalah-hancurkan-crsytal.mp3", "new": "setalah-hancurkan-crystal.mp3", "files": ["gameplay/js/audio.js", "assets/sfx/README.md"] },
-    { "old": "crystall-was-destroy.mp3", "new": "crystal-destroyed.mp3", "files": ["gameplay/js/audio.js", "assets/sfx/README.md"] },
-    { "old": "dragonAwakening.mp3", "new": "dragon-awakening.mp3", "files": ["gameplay/js/audio.js", "assets/sfx/README.md"] },
-    { "old": "'ikon-item'", "new": "'item-icons'", "files": ["gameplay/js/main.js"] },
-    { "old": "'glyph-putih'", "new": "'white-glyphs'", "files": ["gameplay/js/main.js"] },
-    { "old": "'ikon-gem-medali'", "new": "'gem-medal-icons'", "files": ["gameplay/js/main.js"] },
+    { "old": "../new sound/", "new": "", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "win/Firework_launch.ogg", "new": "win/firework-launch.ogg", "files": ["src/gameplay/js/audio.js", "src/gameplay/js/firework-fx.js", "assets/sfx/README.md"] },
+    { "old": "dragon-areana-up-before-crystal.mp3", "new": "dragon-arena-up-before-crystal.mp3", "files": ["src/gameplay/js/audio.js", "assets/sfx/README.md"] },
+    { "old": "setalah-hancurkan-crsytal.mp3", "new": "setalah-hancurkan-crystal.mp3", "files": ["src/gameplay/js/audio.js", "assets/sfx/README.md"] },
+    { "old": "crystall-was-destroy.mp3", "new": "crystal-destroyed.mp3", "files": ["src/gameplay/js/audio.js", "assets/sfx/README.md"] },
+    { "old": "dragonAwakening.mp3", "new": "dragon-awakening.mp3", "files": ["src/gameplay/js/audio.js", "assets/sfx/README.md"] },
+    { "old": "'ikon-item'", "new": "'item-icons'", "files": ["src/gameplay/js/main.js"] },
+    { "old": "'glyph-putih'", "new": "'white-glyphs'", "files": ["src/gameplay/js/main.js"] },
+    { "old": "'ikon-gem-medali'", "new": "'gem-medal-icons'", "files": ["src/gameplay/js/main.js"] },
     { "old": "mode/calndar", "new": "mode/calendar", "files": ["src/data/quest-data.js"] }
   ],
   "reverse_path_replacements": [
@@ -182,9 +182,9 @@
     { "old": "assets/audio/music/first-light-particles.mp3", "new": "assets/music/first_light_particles.mp3" },
     { "old": "assets/audio/music/sunset-plains.mp3", "new": "assets/music/sunset_plains.mp3" },
     { "old": "assets/audio/music/", "new": "assets/music/" },
-    { "old": "SFX_DIR='assets/audio/sfx/', NS='';", "new": "SFX_DIR='assets/sfx/', NS='../new sound/';", "files": ["gameplay/js/audio.js"] },
-    { "old": "folder assets/audio/sfx/", "new": "folder assets/new sound/", "files": ["gameplay/js/audio.js"] },
-    { "old": "file ada di assets/audio/sfx/", "new": "file ada di assets/new sound/", "files": ["gameplay/js/audio.js"] },
+    { "old": "SFX_DIR='assets/audio/sfx/', NS='';", "new": "SFX_DIR='assets/sfx/', NS='../new sound/';", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "folder assets/audio/sfx/", "new": "folder assets/new sound/", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "file ada di assets/audio/sfx/", "new": "file ada di assets/new sound/", "files": ["src/gameplay/js/audio.js"] },
     { "old": "assets/audio/sfx/readme.md", "new": "assets/sfx/README.md" },
     { "old": "assets/audio/sfx/", "new": "assets/sfx/" },
     { "old": "src/renderers/power-3d", "new": "src/renderers/power3d" },
@@ -211,14 +211,14 @@
     { "old": "src/renderers/power-3d/power-registry.js", "new": "src/renderers/power3d/PowerRegistry.js" },
     { "old": "src/renderers/power-3d/power-renderer.js", "new": "src/renderers/power3d/PowerRenderer.js" },
     { "old": "src/renderers/power-3d/power-sound.js", "new": "src/renderers/power3d/PowerSound.js" },
-    { "old": "win/firework-launch.ogg", "new": "win/Firework_launch.ogg", "files": ["gameplay/js/audio.js", "gameplay/js/firework-fx.js"] },
-    { "old": "dragon-arena-up-before-crystal.mp3", "new": "dragon-areana-up-before-crystal.mp3", "files": ["gameplay/js/audio.js"] },
-    { "old": "setalah-hancurkan-crystal.mp3", "new": "setalah-hancurkan-crsytal.mp3", "files": ["gameplay/js/audio.js"] },
-    { "old": "crystal-destroyed.mp3", "new": "crystall-was-destroy.mp3", "files": ["gameplay/js/audio.js"] },
-    { "old": "dragon-awakening.mp3", "new": "dragonAwakening.mp3", "files": ["gameplay/js/audio.js"] },
-    { "old": "'item-icons'", "new": "'ikon-item'", "files": ["gameplay/js/main.js"] },
-    { "old": "'white-glyphs'", "new": "'glyph-putih'", "files": ["gameplay/js/main.js"] },
-    { "old": "'gem-medal-icons'", "new": "'ikon-gem-medali'", "files": ["gameplay/js/main.js"] }
+    { "old": "win/firework-launch.ogg", "new": "win/Firework_launch.ogg", "files": ["src/gameplay/js/audio.js", "src/gameplay/js/firework-fx.js"] },
+    { "old": "dragon-arena-up-before-crystal.mp3", "new": "dragon-areana-up-before-crystal.mp3", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "setalah-hancurkan-crystal.mp3", "new": "setalah-hancurkan-crsytal.mp3", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "crystal-destroyed.mp3", "new": "crystall-was-destroy.mp3", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "dragon-awakening.mp3", "new": "dragonAwakening.mp3", "files": ["src/gameplay/js/audio.js"] },
+    { "old": "'item-icons'", "new": "'ikon-item'", "files": ["src/gameplay/js/main.js"] },
+    { "old": "'white-glyphs'", "new": "'glyph-putih'", "files": ["src/gameplay/js/main.js"] },
+    { "old": "'gem-medal-icons'", "new": "'ikon-gem-medali'", "files": ["src/gameplay/js/main.js"] }
   ],
   "reference_exclusions": [
     "mapping.json",
@@ -252,4 +252,5 @@
   ],
   "sw_version": "ut-pwa-v203"
 }
+
 

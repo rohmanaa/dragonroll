@@ -13,8 +13,8 @@ const PATTERN = /new\s+(?:THREE|T)\.WebGLRenderer\s*\(/;
 const SHARED_GL = 'src/core/shared-gl.js';
 const PENGECUALIAN_SENGAJA = [
   'src/views/floatingsample.js',
-  'gameplay/js/main.js',
-  'gameplay/js/duel-ui.js',          // di area gameplay yang dibekukan
+  'src/gameplay/js/main.js',
+  'src/gameplay/js/duel-ui.js',          // di area gameplay yang dibekukan
   'src/tambang/js/tambang-world.js'   // halaman mandiri demo tambang-world
 ];
 const PELANGGAR_TERSISA = [
@@ -63,5 +63,6 @@ assert.ok(pet.indexOf('src/core/shared-gl.js') > pet.indexOf('src/vendor/three.m
 assert.ok(pet.indexOf('src/core/shared-gl.js') < pet.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
 
 console.log('ok - WebGLRenderer hanya di SharedGL; pelanggar tersisa: ' + PELANGGAR_TERSISA.length);
+
 
 

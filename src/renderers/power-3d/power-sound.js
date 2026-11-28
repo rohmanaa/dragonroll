@@ -1,8 +1,8 @@
-/**
- * PowerSound.js — suara Power sintetis (WebAudio, tanpa file audio). Fase umum: spawn · activate · hit · disappear; Feather juga punya finish.
+﻿/**
+ * PowerSound.js â€” suara Power sintetis (WebAudio, tanpa file audio). Fase umum: spawn Â· activate Â· hit Â· disappear; Feather juga punya finish.
  * Dipakai: PowerRenderer (pratinjau halaman Power, otomatis lewat callback animator) dan gameplay (audio.js sfx.power -> UT.PowerSound.play(key)).
  * Key = gameKey Power (sword, grass, potion_odd, ...) ATAU id model 3D (iron_sword, ender_pearl, potion_red, ...).
- * Kontrol: setEnabled(bool) · setVolume(0..1) · ensure([ctx]) (buat/resume AudioContext; boleh meminjam ctx milik gameplay/js/audio.js).
+ * Kontrol: setEnabled(bool) Â· setVolume(0..1) Â· ensure([ctx]) (buat/resume AudioContext; boleh meminjam ctx milik src/gameplay/js/audio.js).
  * Semua kegagalan audio ditelan (try/catch): suara tidak pernah menghentikan game.
  */
 let ctx = null, enabled = true, volume = 1, pitchScale = 1;
@@ -173,7 +173,7 @@ export const PowerSound = {
   has: (key) => !!VOICE[ALIAS[key] || key],
   /**
    * play(key, { phase: 'spawn'|'activate'|'swing'|'drink'|'hit'|'finish'|'disappear'|'use', tier, volume, ctx })
-   * 'use' = activate lalu hit (~0,35 dtk kemudian) — dipakai gameplay saat Power dipakai.
+   * 'use' = activate lalu hit (~0,35 dtk kemudian) â€” dipakai gameplay saat Power dipakai.
    */
   play(key, o = {}) {
     const id = ALIAS[key] || key, fam = FAMILY[VOICE[id]];
@@ -210,3 +210,4 @@ export const PowerSound = {
     return true;
   },
 };
+

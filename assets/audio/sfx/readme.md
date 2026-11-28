@@ -1,7 +1,7 @@
 ﻿# SFX â€” Ular Tangga Blok
 
 Struktur: `assets/audio/sfx/<kategori>/<nama>.<ext>` (nama kebab-case, maksimal 3 kata).
-Semua path file gameplay dikumpulkan di **satu tabel `FILE`** di `gameplay/js/audio.js`; ganti/menambah file cukup ubah baris di sana.
+Semua path file gameplay dikumpulkan di **satu tabel `FILE`** di `src/gameplay/js/audio.js`; ganti/menambah file cukup ubah baris di sana.
 Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loading.html`, `splash.html`, `play.html`.
 
 | Folder | File | Dipakai untuk | Fungsi (`sfx.*`) |
@@ -82,7 +82,7 @@ Katalog saat ini memiliki 17 Power. Tiap game key memakai resep SFX tersendiri d
 | Efek magic | 0,5â€“1,5 dtk |
 | Efek legendary | 1â€“2,5 dtk |
 
-SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel `FILE` di `gameplay/js/audio.js`. Nama sumber disederhanakan menjadi kebab-case:
+SFX berbasis file disimpan di `assets/audio/sfx/powerup/` dan dirujuk dari tabel `FILE` di `src/gameplay/js/audio.js`. Nama sumber disederhanakan menjadi kebab-case:
 
 | File | Lapisan | Power |
 |---|---|---|
@@ -161,4 +161,5 @@ Totem memakai volume 75%, pitch 0,95 Â±2%, resonansi EQ ringan, dan reverb med
 Ramuan Ganjil memakai glass-pop sintetis 0,2 dtk, minum + bubbling pendek 0,4 dtk, lalu shimmer misterius menurun selama 0,6 dtk; volumenya 70%, pitch 1,0 Â±1%, dengan reverb ringan.
 
 Ramuan Genap memakai glass-pop sintetis 0,2 dtk, gulp 0,4 dtk, lalu healing magic dan bright ascending chime selama 0,6 dtk; volumenya 70%, pitch 1,1 Â±2%, dengan reverb ringan. Nada akhir naik dan karakternya cerah/beruntung, kontras dengan shimmer Ramuan Ganjil. Keduanya memiliki fallback sintetis alchemy.
+
 

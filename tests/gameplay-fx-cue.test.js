@@ -1,10 +1,10 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { harness } = require('./helpers/fx-harness');
 const root = path.join(__dirname, '..');
-const mainSrc = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
+const mainSrc = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
 
 const plain = value => JSON.parse(JSON.stringify(value)); /* objek dari vm context beda realm -> bandingkan sebagai data biasa */
 let count = 0;
@@ -434,3 +434,4 @@ test('main.js: Ender Hole menerima seed dari cue dan tidak mengubah durasi swap 
   }
   console.log('\n' + count + ' tes cue lulus');
 })().catch(error => { console.error(error); process.exit(1); });
+

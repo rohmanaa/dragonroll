@@ -1,10 +1,10 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
-const hud = fs.readFileSync(path.join(root, 'gameplay/css/hud-mockup.css'), 'utf8');
+const main = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
+const hud = fs.readFileSync(path.join(root, 'src/gameplay/css/hud-mockup.css'), 'utf8');
 
 assert.match(main, /const appendCard=\(\)=>\{\s*if\(turnChip&&topSeat\) group\.appendChild\(turnChip\);\s*group\.appendChild\(card\);\s*if\(turnChip&&!topSeat\) group\.appendChild\(turnChip\);\s*\}/); /* kursi atas: penanda di atas frame; kursi bawah: tepat di bawah frame */
 assert.match(main, /row\.appendChild\(extra\)/, 'crystal / HP boss masuk ke tab kecil kartu pemain (r2)');
@@ -16,3 +16,4 @@ assert.match(hud, /#players \.pg\.p1 \{[^}]*top:/);
 assert.match(hud, /#players \.pg\.p2 \{[^}]*top:/);
 
 console.log('ok - crystal and dragon progress follows the player panel edge');
+

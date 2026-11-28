@@ -74,12 +74,12 @@ t('mode jalan/lari/idle: tick stabil dan kembali ke idle; lompat selesai', () =>
   c.setMode('idle'); c.jump(); assert.strictEqual(c.airborne, true); run(c, 1); assert.strictEqual(c.airborne, false);
 });
 t('gameplay.html memuat skrip karakter baru berurutan & memakai API yang ada di rig', () => {
-  const g = read('gameplay.html'), main = read('gameplay/js/main.js');
+  const g = read('gameplay.html'), main = read('src/gameplay/js/main.js');
   const idx = s => { const i = g.indexOf(s); assert.ok(i > 0, s); return i; };
   assert.ok(idx('vendor/three.min.js') < idx('src/renderers/blocky-character.js'));
   assert.ok(idx('player-data.js') < idx('src/renderers/blocky-character.js'));
   assert.ok(idx('src/renderers/blocky-character.js') < idx('src/renderers/character-face.js'));
-  assert.ok(idx('gameplay/js/main.js') > idx('src/renderers/blocky-character.js'));
+  assert.ok(idx('src/gameplay/js/main.js') > idx('src/renderers/blocky-character.js'));
   const used = ['loadFromPlayer', 'loadPreset', 'loadFromData', 'setMode', 'act', 'jump', 'tick', 'height'];
   const c = make(); used.forEach(k => assert.strictEqual(typeof c[k], 'function', k));
   assert.ok(/UT\.AppearanceService/.test(main) && /roomAppearance/.test(main));
@@ -177,4 +177,5 @@ t('aksi mine: berulang tanpa pose netral, tiap siklus 1 hantaman, tangan kanan t
   const box2 = new THREE.Box3().setFromObject(c.root); assert.ok(Math.abs(box2.min.y) < 0.15, 'kaki tetap di lantai');
 });
 console.log(n + ' tes lulus');
+
 

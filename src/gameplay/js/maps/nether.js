@@ -1,6 +1,6 @@
-/* Ular Tangga Blok - gameplay/js/maps/nether.js
-   Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH gameplay/js/maps/registry.js
-   dan SEBELUM gameplay/js/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
+﻿/* Ular Tangga Blok - src/gameplay/js/maps/nether.js
+   Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH src/gameplay/js/maps/registry.js
+   dan SEBELUM src/gameplay/js/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
    Isi definisi:
      theme     data tampilan (warna, langit, dekor, ...) - isi PERSIS seperti yang dulu di themes.js
      goal/boss petak akhir dan jenis fase boss (Nether = 120, Wither)
@@ -111,3 +111,4 @@
      hemi:0xFF8A5A,decor:'nether',snow:false,ember:0xFFA23A,cloud:0x6A2A22,flag:0x3AA8F0}
   });
 })(window);
+

@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+﻿import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
@@ -99,7 +99,7 @@ function createHarness(withKit) {
     requestAnimationFrame: () => 1,
     cancelAnimationFrame() {}
   });
-  vm.runInContext(fs.readFileSync('gameplay/js/dice-throw.js', 'utf8'), context);
+  vm.runInContext(fs.readFileSync('src/gameplay/js/dice-throw.js', 'utf8'), context);
   win.UT.GameplayDiceThrow.init(scene);
   return { api: win.UT.GameplayDiceThrow, clock, scene, get stage() { return stage; }, rollResolvers, animations, Vector3 };
 }
@@ -136,3 +136,4 @@ function createHarness(withKit) {
 }
 
 console.log('ok - stale dice fade timers do not hide the next throw');
+

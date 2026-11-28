@@ -195,7 +195,7 @@ test('pagehide melepaskan listener, DOM partikel, dan resource FX tepat sekali',
 });
 
 test('Ender Hole dilacak terpisah dari tween gameplay dan reset menghentikan visual', () => {
-  const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
+  const main = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
   assert.match(main, /const EH_LIFE=2\.3/);
   assert.match(main, /type:'ender-hole',scope:'visual',category:'transition'/);
   assert.match(main, /visualTween=tweenVisual\(EH_LIFE/);
@@ -207,4 +207,5 @@ test('Ender Hole dilacak terpisah dari tween gameplay dan reset menghentikan vis
 });
 
 console.log('\n' + count + ' tes lifecycle lulus');
+
 

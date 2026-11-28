@@ -1,4 +1,4 @@
-/* Ular Tangga Blok — gameplay/js/game-core.js
+﻿/* Ular Tangga Blok â€” src/gameplay/js/game-core.js
    INTI ATURAN MURNI: tanpa DOM, THREE, audio, atau animasi. Hanya data -> data.
    Bisa dipakai di browser (UT.Gameplay.Core) dan Node (require) untuk tes otomatis,
    serta nanti di server agar dadu & hasil tidak bisa dicurangi di klien.
@@ -193,3 +193,4 @@
 
   return { DEFAULTS: DEFAULTS, validateBoard: validateBoard, planMove: planMove, sixesAfter: sixesAfter, mobEffect: mobEffect, chestMove: chestMove, chestNearest: chestNearest, pickChestReward: pickChestReward, SOFT_CAP: SOFT_CAP, create: create, roll: roll, rollValue: rollValue };
 });
+

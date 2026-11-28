@@ -3,13 +3,13 @@
 const assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 const PG = require("./_page");
 const root = path.join(__dirname, '..'), rd = p => PG.readFileSync(path.join(root, p), 'utf8'), ex = p => fs.existsSync(path.join(root, p));
-const gameplaySource = () => rd('gameplay.html') + rd('gameplay/js/main.js');
+const gameplaySource = () => rd('gameplay.html') + rd('src/gameplay/js/main.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok - ' + name); };
 
 const w = { addEventListener() {} }; w.window = w; const ctx = vm.createContext(w);
 vm.runInContext(rd('src/stores/item-catalog.js'), ctx);
 vm.runInContext(rd('data/power/power-fx.js'), ctx);
-vm.runInContext(rd('gameplay/js/config.js'), ctx);
+vm.runInContext(rd('src/gameplay/js/config.js'), ctx);
 const IC = ctx.ItemCatalog, pus = IC.items.filter(i => i.kind === 'powerup'), C = ctx.UT.Gameplay.Config, FX = ctx.UT.PowerFX;
 const keys = Array.from(pus, i => i.gameKey); /* Array.from: array dari konteks vm -> array biasa (deepStrictEqual) */
 const NEW = ['diamond_sword', 'netherite_sword', 'wooden_shield', 'golden_apple', 'fire_charge', 'ice_crystal', 'blaze_core', 'trident', 'dragon_crystal', 'nether_star'];
@@ -71,8 +71,8 @@ t('Power baru terdaftar di server: migrasi 10 baris powerup + seed B2 sinkron', 
 });
 t('gameplay.html memakai aturan data: tanpa daftar Power tetap lama, ada importmap + loader power3d, snapshot membawa guard/frozen', () => {
   const g = gameplaySource();
-  const loader = rd('gameplay/js/power3d-loader.js');
-  const main = rd('gameplay/js/main.js');
+  const loader = rd('src/gameplay/js/power3d-loader.js');
+  const main = rd('src/gameplay/js/main.js');
   assert.ok(g.indexOf('<script type="importmap">') > 0 && loader.indexOf("../../src/renderers/power-3d/power-overlay.js") > 0);
   assert.ok(!/const o=\{sword:0,feather:0/.test(main), 'daftar Power tetap masih ada');
   assert.ok(main.indexOf('guard:!!p.guard,frozen:!!p.frozen') > 0 && main.indexOf("'shield','guard','frozen'") > 0);
@@ -97,7 +97,7 @@ t('Power per map: World = Ice Crystal/Wooden Shield/Golden Apple; Nether = Blaze
   assert.strictEqual(IC.powerMapNote('blaze_core'), 'Hanya di Nether'); assert.strictEqual(IC.powerMapNote('ice_crystal'), 'Hanya di World'); assert.strictEqual(IC.powerMapNote('tnt'), '');
   assert.ok(IC.powerOnMap('blaze_core', null) && IC.powerOnMap('blaze_core', undefined), 'mapKey kosong = boleh');
   const mapKeys = ['minecraft', 'nether']; Object.keys(only).forEach(m => assert.ok(mapKeys.indexOf(m) >= 0));
-  assert.ok(/key: 'minecraft'/.test(rd('gameplay/js/maps/world.js')) && /key: 'nether'/.test(rd('gameplay/js/maps/nether.js')), 'key map berubah?');
+  assert.ok(/key: 'minecraft'/.test(rd('src/gameplay/js/maps/world.js')) && /key: 'nether'/.test(rd('src/gameplay/js/maps/nether.js')), 'key map berubah?');
 });
 t('Power per map terpasang di Room (kunci + auto-lepas + cfg disaring), gameplay (puAvail/puMapOk, tolak sebelum konsumsi) dan halaman Power (catatan)', () => {
   const r = rd('room.html'), g = gameplaySource();
@@ -150,4 +150,5 @@ t('stok Power lama tetap terbaca: ID lama tidak berubah', () => {
   assert.strictEqual(IC.normalizePowerId('apple'), 'totem');
 });
 console.log(n + ' tes lulus');
+
 

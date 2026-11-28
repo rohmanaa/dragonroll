@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -26,7 +26,7 @@ const context = {
   clearTimeout: () => {},
 };
 
-vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../gameplay/js/feedback.js'), 'utf8'), context);
+vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src/gameplay/js/feedback.js'), 'utf8'), context);
 const feedback = window.UT.GameplayFeedback;
 
 feedback.showAttackCard('Blaze', 'Villager CPU', 'hit', 'Blaze menghantam Villager CPU.', { silent: true });
@@ -40,13 +40,14 @@ feedback.showAttackCard('Player', 'Mob', 'power', 'Power kena.', { powerHit: tru
 assert.ok(elements.puCard.classList.contains('power-hit'), 'power hit card should keep its existing transparent style');
 assert.ok(!elements.puCard.classList.contains('mob-hit'));
 
-const css = fs.readFileSync(path.join(__dirname, '../gameplay/css/hud-mockup.css'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, '../src/gameplay/css/hud-mockup.css'), 'utf8');
 assert.match(css, /html body #puCard\.pucard\.mob-hit\s*\{[^}]*background:\s*none\s*!important;[^}]*box-shadow:\s*none\s*!important;/s);
 
-const main = fs.readFileSync(path.join(__dirname, '../gameplay/js/main.js'), 'utf8');
-const hitCss = fs.readFileSync(path.join(__dirname, '../gameplay/css/gameplay.css'), 'utf8');
+const main = fs.readFileSync(path.join(__dirname, '../src/gameplay/js/main.js'), 'utf8');
+const hitCss = fs.readFileSync(path.join(__dirname, '../src/gameplay/css/gameplay.css'), 'utf8');
 assert.ok(main.includes("add('hf-cinema')"), 'hit effect should add the cinematic screen overlay');
 assert.ok(main.includes("sfx.playerHurt(); hitBlastFx(q); pawnAct(q.pawn,'block')"), 'trap victims should receive the screen hit effect');
 assert.ok(hitCss.includes('#hitFx .hf-cinema::before,#hitFx .hf-cinema::after'), 'hit overlay should add brief cinematic bars');
 assert.ok(hitCss.includes('@keyframes hfCinema') && hitCss.includes('@keyframes hfLetterbox'), 'cinematic overlay should fade out');
 console.log('ok - mob hit notification appears without its panel background');
+

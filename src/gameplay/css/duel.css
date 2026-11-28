@@ -1,5 +1,5 @@
-/* Ular Tangga Blok — gameplay/css/duel.css
-   Tampilan duel PVP "Dadu Duel Blok" (dipasang oleh gameplay/js/duel-ui.js). Semua selektor berawalan #du2 agar tidak bentrok dengan CSS game.
+﻿/* Ular Tangga Blok â€” src/gameplay/css/duel.css
+   Tampilan duel PVP "Dadu Duel Blok" (dipasang oleh src/gameplay/js/duel-ui.js). Semua selektor berawalan #du2 agar tidak bentrok dengan CSS game.
    Tema gelap-hangat sengaja tetap (mengikuti game induk). Layout dirancang landscape. */
 /* saat duel: sembunyikan canvas & HUD papan supaya GPU/pikiran fokus ke arena */
 body.duel-active #c,
@@ -110,3 +110,4 @@ body.duel-active #trapBar { display: none !important }
 #du2 #du2-choose button{font:700 16px var(--disp);padding:10px 22px;min-width:200px;border:3px solid var(--pc,#f6cf55);background:var(--panel);color:var(--ink);border-radius:6px;cursor:pointer}
 #du2.selecting #du2-top,#du2.selecting .die,#du2.selecting .abox,#du2.selecting #du2-hint,#du2.selecting #du2-roll{display:none}
 #du2.norot #du2-rot{display:none!important}
+

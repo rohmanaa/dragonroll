@@ -1,4 +1,4 @@
-﻿/* Ular Tangga Blok â€” gameplay/js/duel-ui.js
+﻿/* Ular Tangga Blok â€” src/gameplay/js/duel-ui.js
    DUEL PVP â€” tampilan "Dadu Duel Blok": 3 giliran, kamera sinematik 3D, dadu CSS-3D, serangan per karakter.
    Aturan murni ada di duel-core.js (UT.Gameplay.Duel); file ini hanya MEMAINKAN hasilnya (UT.GameplayDuelUI).
    Dipandu main.js (offline & host/tamu online):
@@ -7,7 +7,7 @@
    Rig petarung (opts.fighters[i].rig, atau dipilih otomatis oleh rigFor):
      BARU  : 'archer' (Shuri, pemanah), 'knight' (Raja Blok)           -> rig prosedural dengan animasi sendiri
      LAMA  : 'ksatria' (Ksatria Mahkota/UT.PvpKnight), 'blocky' (karakter asli/UT.BlockyCharacter), 'model' (klon model bidak)
-   Semua cue tampilan bisa dicerminkan ke tamu (argumen JSON biasa). CSS: gameplay/css/duel.css (semua berawalan #du2). */
+   Semua cue tampilan bisa dicerminkan ke tamu (argumen JSON biasa). CSS: src/gameplay/css/duel.css (semua berawalan #du2). */
 (function () {
   'use strict';
   var UT = window.UT = window.UT || {};
@@ -746,4 +746,5 @@ function loopStop(){running=false;cancelAnimationFrame(raf)}
   });
   UT.GameplayDuelUI = UI;
 })();
+
 

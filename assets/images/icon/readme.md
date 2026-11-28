@@ -1,4 +1,4 @@
-# Peta folder icon
+﻿# Peta folder icon
 
 Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/images/icon/<grup>/<nama>.webp`.
 
@@ -10,7 +10,7 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/images/icon/<
 | `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
 | `lobby/` | shop, inventory, chest, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`chest`) |
 | `mode/` | console, mode-khusus, tutorial, calendar, kontak, robot | halaman Pilih Mode, judul Profil |
-| `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1–3) |
+| `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1â€“3) |
 | `profile/` | user, globe, camera, 360 | halaman Profil; Gameplay: preset kamera (`camera`) |
 
 Catatan:
@@ -18,7 +18,7 @@ Catatan:
 - Path dinamis Shop/Inventory memakai `catImg` untuk memilih file di `assets/images/icon/items/`; Profil memakai ikon berdasarkan grup dan nama.
 - Semua icon baru berukuran 256x256 (cukup untuk tampil <= 64px di layar 3x). Jangan taruh file 1024px di sini; perkecil dulu agar loading ringan.
 
-## Peta ikon Gameplay (`gameplay.html`, `gameplay/js/hud.js`)
+## Peta ikon Gameplay (`gameplay.html`, `src/gameplay/js/hud.js`)
 
 | Elemen HUD | Aset |
 |---|---|
@@ -59,3 +59,4 @@ Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi M
 | Kamera bebas (`#btnAngle`, ANGLE) | `tabler/lock-open.svg` |
 | Suara nyala / mati (`#btnSnd`) | `tabler/volume.svg` / `tabler/volume-off.svg` |
 | Menu (`#btnMenu`) | `tabler/menu-2.svg` |
+

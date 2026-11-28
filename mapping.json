@@ -1064,7 +1064,7 @@
       "used_by": [
         "src/views/splash.js",
         "assets/preload-manifest.json",
-        "gameplay/css/gameplay.css",
+        "src/gameplay/css/gameplay.css",
         "old/dailyreward.html",
         "old/misi.html"
       ],
@@ -1971,8 +1971,8 @@
         "assets/Images/icon/README.md",
         "src/data/quest-data.js",
         "assets/preload-manifest.json",
-        "gameplay/css/gameplay.css",
-        "gameplay/js/hud.js",
+        "src/gameplay/css/gameplay.css",
+        "src/gameplay/js/hud.js",
         "old/src/views/misi.js"
       ],
       "status": "frozen_gameplay",
@@ -2013,8 +2013,8 @@
         "assets/Images/icon/README.md",
         "src/data/quest-data.js",
         "assets/preload-manifest.json",
-        "gameplay/css/gameplay.css",
-        "gameplay/js/hud.js"
+        "src/gameplay/css/gameplay.css",
+        "src/gameplay/js/hud.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/items/power.webp",
@@ -2078,7 +2078,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/hud.js",
+        "src/gameplay/js/hud.js",
         "old/misi.html"
       ],
       "status": "frozen_gameplay",
@@ -2110,7 +2110,7 @@
         "src/data/quest-data.js",
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/css/gameplay.css"
+        "src/gameplay/css/gameplay.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/lobby/leader.webp",
@@ -2411,7 +2411,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/tabler/camera.svg",
@@ -2438,7 +2438,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/tabler/lock-open.svg",
@@ -2452,7 +2452,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/tabler/lock.svg",
@@ -2544,7 +2544,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/pause.js"
+        "src/gameplay/js/pause.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/ui/day.webp",
@@ -2634,7 +2634,7 @@
       "used_by": [
         "assets/Images/icon/README.md",
         "assets/preload-manifest.json",
-        "gameplay/js/pause.js"
+        "src/gameplay/js/pause.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/Images/icon/ui/night.webp",
@@ -3241,7 +3241,7 @@
         "src/views/splash.js",
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/js/afk.js",
+        "src/gameplay/js/afk.js",
         "old/dailyreward.html",
         "old/misi.html"
       ],
@@ -3336,7 +3336,7 @@
       "file": "src/multiplayer/game-sync.js",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/multiplayer-init.js",
+        "src/gameplay/js/multiplayer-init.js",
         "referensi/newgui/README.md"
       ],
       "status": "retained",
@@ -3370,7 +3370,7 @@
         "src/views/lobby.js",
         "src/views/profile.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js",
+        "src/gameplay/js/main.js",
         "referensi/newgui/README.md"
       ],
       "status": "retained",
@@ -3386,7 +3386,7 @@
         "src/views/leaderboard.js",
         "src/views/lobby.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js",
+        "src/gameplay/js/main.js",
         "mode.html",
         "referensi/newgui/README.md",
         "room.html"
@@ -3943,7 +3943,7 @@
         "data/inventory/dice/tnt/manifest.js",
         "data/inventory/dice/void/manifest.js",
         "data/inventory/dice/wood/manifest.js",
-        "gameplay/js/dice-throw.js",
+        "src/gameplay/js/dice-throw.js",
         "referensi/newgui/README.md",
         "tests/dice-landing-stall.test.mjs",
         "tests/dice-registry-parity.test.js",
@@ -3960,7 +3960,7 @@
       "file": "src/renderers/dice-kit/DiceEffects.js",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/dice-throw.js",
+        "src/gameplay/js/dice-throw.js",
         "tests/dice-sound-variation.test.js"
       ],
       "status": "frozen_gameplay",
@@ -3974,7 +3974,7 @@
       "file": "src/renderers/dice-kit/DiceEffectsCore.js",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/dice-throw.js",
+        "src/gameplay/js/dice-throw.js",
         "tests/dice-sound-variation.test.js"
       ],
       "status": "frozen_gameplay",
@@ -4012,7 +4012,7 @@
       "file": "src/renderers/dice-kit/DiceRenderer.js",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/dice-pad.js"
+        "src/gameplay/js/dice-pad.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "src/renderers/dice-kit/DiceRenderer.js",
@@ -4026,7 +4026,7 @@
       "used_by": [
         "src/renderers/room-dice-art.js",
         "assets/preload-manifest.json",
-        "gameplay/js/dice-throw.js",
+        "src/gameplay/js/dice-throw.js",
         "tests/room-page-modal.test.js"
       ],
       "status": "frozen_gameplay",
@@ -4126,7 +4126,7 @@
         "frame.html",
         "friendship.html",
         "gameplay.html",
-        "gameplay/js/skin-uv.js",
+        "src/gameplay/js/skin-uv.js",
         "lobby.html",
         "mode.html",
         "powerup.html",
@@ -4199,7 +4199,7 @@
       "file": "src/renderers/power3d/power-overlay.js",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/power3d-loader.js",
+        "src/gameplay/js/power3d-loader.js",
         "tests/power-rules.test.js"
       ],
       "status": "frozen_gameplay",
@@ -4374,7 +4374,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
-        "gameplay/js/audio.js",
+        "src/gameplay/js/audio.js",
         "tests/power-registry-parity.test.js",
         "tests/power-rules.test.js"
       ],
@@ -4714,7 +4714,7 @@
       "used_by": [
         "src/views/play.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/music/community.mp3",
@@ -4728,7 +4728,7 @@
       "used_by": [
         "src/views/play.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/music/first_light_particles.mp3",
@@ -4753,7 +4753,7 @@
       "file": "assets/music/muncul-naga.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/music/muncul-naga.mp3",
@@ -4767,7 +4767,7 @@
       "used_by": [
         "src/views/play.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/music/rainy.mp3",
@@ -4781,7 +4781,7 @@
       "used_by": [
         "src/views/play.js",
         "assets/preload-manifest.json",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/music/sunset_plains.mp3",
@@ -5526,7 +5526,7 @@
       "file": "assets/ng/komponen/banner-label/banner-boss-tengkorak.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/banner-label/banner-boss-tengkorak.webp",
@@ -5539,7 +5539,7 @@
       "file": "assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp",
@@ -5552,7 +5552,7 @@
       "file": "assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp",
@@ -5565,7 +5565,7 @@
       "file": "assets/ng/komponen/banner-label/banner-judul-biru-polos.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/banner-label/banner-judul-biru-polos.webp",
@@ -5578,7 +5578,7 @@
       "file": "assets/ng/komponen/banner-label/banner-judul-biru.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/banner-label/banner-judul-biru.webp",
@@ -5752,7 +5752,7 @@
         "assets/ng/css/room.css",
         "assets/ng/css/shop.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/lobby.css",
         "referensi/newgui/game/css/mode.css",
@@ -5776,7 +5776,7 @@
         "assets/ng/css/room.css",
         "assets/ng/css/shop.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/lobby.css",
         "referensi/newgui/game/css/mode.css",
@@ -6565,7 +6565,7 @@
       "used_by": [
         "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/js/mission.js"
       ],
       "status": "frozen_gameplay",
@@ -6655,7 +6655,7 @@
       "file": "assets/ng/komponen/glyph-putih/info-bulat.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/pet.html",
         "tests/pet-ui.test.js"
@@ -6765,7 +6765,7 @@
       "file": "assets/ng/komponen/glyph-putih/panah-atas.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -6805,7 +6805,7 @@
       "file": "assets/ng/komponen/glyph-putih/perisai-lambang.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/glyph-putih/perisai-lambang.webp",
@@ -6818,7 +6818,7 @@
       "file": "assets/ng/komponen/glyph-putih/peti-harta.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -6832,7 +6832,7 @@
       "file": "assets/ng/komponen/glyph-putih/petir.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/glyph-putih/petir.webp",
@@ -6870,7 +6870,7 @@
       "file": "assets/ng/komponen/glyph-putih/segitiga-kanan.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -6992,7 +6992,7 @@
       "file": "assets/ng/komponen/glyph-putih/tengkorak.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7020,7 +7020,7 @@
       "file": "assets/ng/komponen/glyph-putih/tongkat-ular.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7034,7 +7034,7 @@
       "file": "assets/ng/komponen/glyph-putih/ulang-maju.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7049,7 +7049,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7063,7 +7063,7 @@
       "file": "assets/ng/komponen/hud/bar-hp-boss.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7122,7 +7122,7 @@
       "file": "assets/ng/komponen/hud/ikon-kado-merah.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7247,7 +7247,7 @@
         "assets/ng/css/page.css",
         "assets/ng/css/room.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/css/lobby.css",
         "referensi/newgui/game/css/mode.css",
         "referensi/newgui/game/css/page.css",
@@ -7290,7 +7290,7 @@
       "file": "assets/ng/komponen/hud/lencana-level-sayap.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/level-up.js"
+        "src/gameplay/js/level-up.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/hud/lencana-level-sayap.webp",
@@ -7330,7 +7330,7 @@
       "file": "assets/ng/komponen/hud/ornamen-sirip-kanan.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7344,7 +7344,7 @@
       "file": "assets/ng/komponen/hud/ornamen-sirip-kiri.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7358,7 +7358,7 @@
       "file": "assets/ng/komponen/hud/tombol-bulat-kosong-ungu.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -7808,7 +7808,7 @@
       "used_by": [
         "src/views/profile.js",
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/win-screen.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/profile.js",
         "referensi/newgui/game/js/shop.js"
@@ -8169,7 +8169,7 @@
       "used_by": [
         "assets/ng/css/page.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/page.css"
       ],
@@ -8374,7 +8374,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -8389,7 +8389,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -8404,7 +8404,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -8432,7 +8432,7 @@
       "file": "assets/ng/komponen/menu-pause/teks-pause-krem.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -8446,7 +8446,7 @@
       "file": "assets/ng/komponen/menu-pause/tombol-bulat-kosong.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html"
       ],
       "status": "frozen_gameplay",
@@ -8475,7 +8475,7 @@
       "used_by": [
         "assets/ng/css/mission.css",
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/win-screen.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/mission.css"
       ],
@@ -8560,7 +8560,7 @@
       "file": "assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp",
@@ -8574,7 +8574,7 @@
       "used_by": [
         "assets/ng/css/mission.css",
         "assets/preload-manifest.json",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/win-screen.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/mission.css"
       ],
@@ -8590,7 +8590,7 @@
       "used_by": [
         "src/views/hadiah-misi.js",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/mission.js"
       ],
@@ -8936,7 +8936,7 @@
         "assets/ng/css/shop.css",
         "assets/ng/css/splash.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/lobby.css",
         "referensi/newgui/game/css/mode.css",
@@ -9464,9 +9464,9 @@
         "assets/ng/css/page.css",
         "assets/ng/css/powerup.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
+        "src/gameplay/css/win-screen.css",
         "powerup.html",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/page.css",
@@ -9496,9 +9496,9 @@
         "assets/ng/css/page.css",
         "assets/ng/css/powerup.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
+        "src/gameplay/css/win-screen.css",
         "powerup.html",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/css/page.css",
@@ -9598,8 +9598,8 @@
         "efek.html",
         "frame.html",
         "friendship.html",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/win-screen.css",
         "hadiah-misi.html",
         "mail.html",
         "pet.html",
@@ -9649,8 +9649,8 @@
         "efek.html",
         "frame.html",
         "friendship.html",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/win-screen.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/win-screen.css",
         "hadiah-misi.html",
         "mail.html",
         "pet.html",
@@ -9690,8 +9690,8 @@
       "used_by": [
         "assets/ng/css/kredit.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/level-up.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/level-up.css",
         "leaderboard.html",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/shop.js",
@@ -9712,8 +9712,8 @@
       "used_by": [
         "assets/ng/css/kredit.css",
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/level-up.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/level-up.css",
         "leaderboard.html",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/js/shop.js",
@@ -9739,8 +9739,8 @@
         "efek.html",
         "frame.html",
         "friendship.html",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
         "leaderboard.html",
         "mail.html",
         "pet.html",
@@ -9780,8 +9780,8 @@
         "efek.html",
         "frame.html",
         "friendship.html",
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
         "leaderboard.html",
         "mail.html",
         "pet.html",
@@ -9909,7 +9909,7 @@
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/css/hud-mockup.css",
+        "src/gameplay/css/hud-mockup.css",
         "referensi/newgui/game/Mockup_GUI_Ular_Tangga_Blok.html",
         "referensi/newgui/game/settings.html",
         "settings.html"
@@ -9980,7 +9980,7 @@
       "file": "assets/sfx/board/block-100.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/board/block-100.mp3",
@@ -9993,7 +9993,7 @@
       "file": "assets/sfx/board/ladder-up.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/board/ladder-up.mp3",
@@ -10018,7 +10018,7 @@
       "file": "assets/sfx/board/pawn-hop.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/board/pawn-hop.mp3",
@@ -10043,7 +10043,7 @@
       "file": "assets/sfx/board/snake-bite.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/board/snake-bite.mp3",
@@ -10056,7 +10056,7 @@
       "file": "assets/sfx/dice/dice-roll.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js",
+        "src/gameplay/js/audio.js",
         "tests/dice-registry-parity.test.js",
         "tests/item-registry.test.js"
       ],
@@ -10096,7 +10096,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/crystal-appear.mp3",
@@ -10110,7 +10110,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/crystal-break.mp3",
@@ -10123,7 +10123,7 @@
       "file": "assets/sfx/dragon/dragon-death.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/dragon-death.mp3",
@@ -10136,7 +10136,7 @@
       "file": "assets/sfx/dragon/dragon-hurt.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/dragon-hurt.mp3",
@@ -10149,7 +10149,7 @@
       "file": "assets/sfx/dragon/dragon-idle.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/dragon-idle.mp3",
@@ -10162,7 +10162,7 @@
       "file": "assets/sfx/dragon/dragon-spawn.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/dragon-spawn.mp3",
@@ -10175,7 +10175,7 @@
       "file": "assets/sfx/dragon/earthquake.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/earthquake.mp3",
@@ -10188,7 +10188,7 @@
       "file": "assets/sfx/dragon/tower-rise.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/dragon/tower-rise.mp3",
@@ -10202,7 +10202,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/creeper-explosion.mp3",
@@ -10216,7 +10216,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/creeper-fuse.mp3",
@@ -10254,7 +10254,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/enderman-teleport.mp3",
@@ -10280,7 +10280,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/mob-punch.mp3",
@@ -10293,7 +10293,7 @@
       "file": "assets/sfx/mob/player-hurt.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/player-hurt.mp3",
@@ -10306,7 +10306,7 @@
       "file": "assets/sfx/mob/skeleton-shoot.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/mob/skeleton-shoot.mp3",
@@ -10334,7 +10334,7 @@
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
         "data/inventory/pet/celestial_kitsune/manifest.js",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/pet/celestial-kitsune-bell.mp3",
@@ -10349,7 +10349,7 @@
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
         "data/inventory/pet/celestial_kitsune/manifest.js",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/pet/celestial-kitsune-shine.mp3",
@@ -10364,7 +10364,7 @@
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
         "data/inventory/pet/inferno_dragon/manifest.js",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/pet/inferno-dragon-fire.mp3",
@@ -10379,7 +10379,7 @@
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
         "data/inventory/pet/storm_wolf/manifest.js",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/pet/storm-wolf-zap.mp3",
@@ -10393,7 +10393,7 @@
       "used_by": [
         "assets/preload-manifest.json",
         "assets/sfx/README.md",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/powerup/sword-use.mp3",
@@ -10405,7 +10405,7 @@
     {
       "file": "assets/sfx/README.md",
       "used_by": [
-        "gameplay/js/audio.js",
+        "src/gameplay/js/audio.js",
         "tests/dice-registry-parity.test.js"
       ],
       "status": "frozen_gameplay",
@@ -10419,7 +10419,7 @@
       "file": "assets/sfx/reward/chest-close.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/reward/chest-close.mp3",
@@ -10432,7 +10432,7 @@
       "file": "assets/sfx/reward/chest-open.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/reward/chest-open.mp3",
@@ -10445,7 +10445,7 @@
       "file": "assets/sfx/reward/power-reward.mp3",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/reward/power-reward.mp3",
@@ -10501,7 +10501,7 @@
         "src/core/app.js",
         "src/views/splash.js",
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/ui/game-lose.mp3",
@@ -10540,8 +10540,8 @@
       "file": "assets/sfx/win/Firework_launch.ogg",
       "used_by": [
         "assets/preload-manifest.json",
-        "gameplay/js/audio.js",
-        "gameplay/js/firework-fx.js"
+        "src/gameplay/js/audio.js",
+        "src/gameplay/js/firework-fx.js"
       ],
       "status": "frozen_gameplay",
       "proposed_target": "assets/sfx/win/Firework_launch.ogg",
@@ -13292,7 +13292,7 @@
         "assets/preload-manifest.json",
         "data/inventory/power/index.js",
         "gameplay.html",
-        "gameplay/js/main.js",
+        "src/gameplay/js/main.js",
         "powerup.html",
         "room.html",
         "tests/power-registry-parity.test.js",
@@ -13336,50 +13336,50 @@
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "gameplay/js/maps/nether.js",
+      "file": "src/gameplay/js/maps/nether.js",
       "used_by": [
         "src/views/room.js",
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/js/maps/nether.js",
+        "src/gameplay/js/maps/nether.js",
         "referensi/newgui/README.md",
         "tests/power-rules.test.js"
       ],
       "dynamic_used_by": [],
       "status": "frozen_gameplay",
-      "proposed_target": "gameplay/js/maps/nether.js",
+      "proposed_target": "src/gameplay/js/maps/nether.js",
       "planned_target": "data/maps/js/nether.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "gameplay/js/maps/registry.js",
+      "file": "src/gameplay/js/maps/registry.js",
       "used_by": [
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/js/maps/nether.js",
-        "gameplay/js/maps/registry.js",
-        "gameplay/js/maps/world.js"
+        "src/gameplay/js/maps/nether.js",
+        "src/gameplay/js/maps/registry.js",
+        "src/gameplay/js/maps/world.js"
       ],
       "dynamic_used_by": [],
       "status": "frozen_gameplay",
-      "proposed_target": "gameplay/js/maps/registry.js",
+      "proposed_target": "src/gameplay/js/maps/registry.js",
       "planned_target": "data/maps/js/registry.js",
       "phase": null,
       "hold_reason": "gameplay reference"
     },
     {
-      "file": "gameplay/js/maps/world.js",
+      "file": "src/gameplay/js/maps/world.js",
       "used_by": [
         "src/views/room.js",
         "assets/preload-manifest.json",
         "gameplay.html",
-        "gameplay/js/maps/world.js",
+        "src/gameplay/js/maps/world.js",
         "tests/power-rules.test.js"
       ],
       "dynamic_used_by": [],
       "status": "frozen_gameplay",
-      "proposed_target": "gameplay/js/maps/world.js",
+      "proposed_target": "src/gameplay/js/maps/world.js",
       "planned_target": "data/maps/js/world.js",
       "phase": null,
       "hold_reason": "gameplay reference"
@@ -13578,23 +13578,23 @@
       "file": "assets/Images/icon/items/dadu.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/gameplay.css",
-        "gameplay/js/hud.js"
+        "src/gameplay/css/gameplay.css",
+        "src/gameplay/js/hud.js"
       ]
     },
     {
       "file": "assets/Images/icon/items/power.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/gameplay.css",
-        "gameplay/js/hud.js"
+        "src/gameplay/css/gameplay.css",
+        "src/gameplay/js/hud.js"
       ]
     },
     {
       "file": "assets/Images/icon/lobby/invenotry.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/hud.js"
+        "src/gameplay/js/hud.js"
       ]
     },
     {
@@ -13602,42 +13602,42 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/css/gameplay.css"
+        "src/gameplay/css/gameplay.css"
       ]
     },
     {
       "file": "assets/Images/icon/tabler/camera.svg",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/Images/icon/tabler/lock-open.svg",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/Images/icon/tabler/lock.svg",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/Images/icon/ui/day.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/pause.js"
+        "src/gameplay/js/pause.js"
       ]
     },
     {
       "file": "assets/Images/icon/ui/night.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/pause.js"
+        "src/gameplay/js/pause.js"
       ]
     },
     {
@@ -13680,21 +13680,21 @@
       "file": "src/renderers/dice-kit/DiceCatalog.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/dice-throw.js"
+        "src/gameplay/js/dice-throw.js"
       ]
     },
     {
       "file": "src/renderers/dice-kit/DiceEffects.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/dice-throw.js"
+        "src/gameplay/js/dice-throw.js"
       ]
     },
     {
       "file": "src/renderers/dice-kit/DiceEffectsCore.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/dice-throw.js"
+        "src/gameplay/js/dice-throw.js"
       ]
     },
     {
@@ -13715,14 +13715,14 @@
       "file": "src/renderers/dice-kit/DiceRenderer.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/dice-pad.js"
+        "src/gameplay/js/dice-pad.js"
       ]
     },
     {
       "file": "src/renderers/dice-kit/DiceTextures.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/dice-throw.js"
+        "src/gameplay/js/dice-throw.js"
       ]
     },
     {
@@ -13840,14 +13840,14 @@
       "file": "src/renderers/power3d/PowerSound.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "src/renderers/power3d/power-overlay.js",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/power3d-loader.js"
+        "src/gameplay/js/power3d-loader.js"
       ]
     },
     {
@@ -13864,196 +13864,196 @@
       "file": "assets/music/community.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/music/first_light_particles.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/music/muncul-naga.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/music/rainy.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/music/sunset_plains.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/new sound/bounce.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/chomp.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/crystall-was-destroy.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/dragonAwakening.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/gulp.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/hiss.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/ladder.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/pop.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/shuffle.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/villager.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/win.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/new sound/win2.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-boss-tengkorak.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-judul-biru-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-judul-biru.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-judul-ungu-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/banner-label/banner-judul-ungu.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/apple.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/bulu.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/dadu.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/info-bulat.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14067,7 +14067,7 @@
       "file": "assets/ng/komponen/glyph-putih/kepingan-salju.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
@@ -14081,7 +14081,7 @@
       "file": "assets/ng/komponen/glyph-putih/kristal-heksagon.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
@@ -14095,35 +14095,35 @@
       "file": "assets/ng/komponen/glyph-putih/panah-atas.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/perisai-lambang.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/peti-harta.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/petir.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/segitiga-kanan.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14137,21 +14137,21 @@
       "file": "assets/ng/komponen/glyph-putih/tengkorak.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/tongkat-ular.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/glyph-putih/ulang-maju.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14159,14 +14159,14 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/bar-hp-boss.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14187,7 +14187,7 @@
       "file": "assets/ng/komponen/hud/ikon-kado-merah.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14201,28 +14201,28 @@
       "file": "assets/ng/komponen/hud/kartu-kosong-ungu.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/lencana-hex-hijau.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/lencana-hex-merah.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/lencana-level-sayap.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/level-up.js"
+        "src/gameplay/js/level-up.js"
       ]
     },
     {
@@ -14243,84 +14243,84 @@
       "file": "assets/ng/komponen/hud/ornamen-sirip-kanan.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/ornamen-sirip-kiri.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/hud/tombol-bulat-kosong-ungu.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-gem-medali/berlian-ungu.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-gem-medali/gem-heksagon-ungu.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-gem-medali/panah-tombak.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-gem-medali/petir-emas.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/bom.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/helm-sayap.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/mahkota.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/pedang.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/perisai-kayu.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
@@ -14334,21 +14334,21 @@
       "file": "assets/ng/komponen/ikon-item/ramuan-hijau.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-item/ramuan-ungu.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
       "file": "assets/ng/komponen/ikon-pengaturan/knob-slider.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14356,7 +14356,7 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14364,7 +14364,7 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14372,7 +14372,7 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14386,49 +14386,49 @@
       "file": "assets/ng/komponen/menu-pause/teks-pause-krem.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/menu-pause/tombol-bulat-kosong.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/misi/bar-progres-kosong.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/misi/isi-bar-progres-oranye.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/ng/komponen/panel-dialog/bingkai-dialog.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
@@ -14456,7 +14456,7 @@
       "file": "assets/ng/komponen/slot-equipment/slot-terkunci.webp",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
@@ -14477,298 +14477,298 @@
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-biru.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css",
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-hijau.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/win-screen.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/win-screen.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/level-up.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/level-up.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-kuning.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/level-up.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/level-up.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-merah.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css",
-        "gameplay/css/pause.css"
+        "src/gameplay/css/hud-mockup.css",
+        "src/gameplay/css/pause.css"
       ]
     },
     {
       "file": "assets/ng/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/css/hud-mockup.css"
+        "src/gameplay/css/hud-mockup.css"
       ]
     },
     {
       "file": "assets/sfx/README.md",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/board/block-100.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/board/ladder-up.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/board/pawn-hop.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/board/snake-bite.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dice/dice-roll.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon-areana-up-before-crystal.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/crystal-appear.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/crystal-break.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/dragon-death.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/dragon-hurt.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/dragon-idle.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/dragon-spawn.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/earthquake.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/dragon/tower-rise.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/creeper-explosion.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/creeper-fuse.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/enderman-teleport.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/mob-punch.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/player-hurt.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/mob/skeleton-shoot.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/pet/celestial-kitsune-bell.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/pet/celestial-kitsune-shine.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/pet/inferno-dragon-fire.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/pet/storm-wolf-zap.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/powerup/sword-use.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/reward/chest-close.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/reward/chest-open.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/reward/power-reward.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/setalah-hancurkan-crsytal.mp3",
       "reason": "referenced_by_gameplay_dynamic_path",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/ui/game-lose.mp3",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js"
+        "src/gameplay/js/audio.js"
       ]
     },
     {
       "file": "assets/sfx/win/Firework_launch.ogg",
       "reason": "referenced_by_gameplay",
       "referenced_by": [
-        "gameplay/js/audio.js",
-        "gameplay/js/firework-fx.js"
+        "src/gameplay/js/audio.js",
+        "src/gameplay/js/firework-fx.js"
       ]
     },
     {
@@ -15444,7 +15444,7 @@
       "reason": "referenced_by_gameplay",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/js/main.js"
+        "src/gameplay/js/main.js"
       ]
     },
     {
@@ -15462,29 +15462,29 @@
       ]
     },
     {
-      "file": "gameplay/js/maps/nether.js",
+      "file": "src/gameplay/js/maps/nether.js",
       "reason": "gameplay_source",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/js/maps/nether.js"
+        "src/gameplay/js/maps/nether.js"
       ]
     },
     {
-      "file": "gameplay/js/maps/registry.js",
+      "file": "src/gameplay/js/maps/registry.js",
       "reason": "gameplay_source",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/js/maps/nether.js",
-        "gameplay/js/maps/registry.js",
-        "gameplay/js/maps/world.js"
+        "src/gameplay/js/maps/nether.js",
+        "src/gameplay/js/maps/registry.js",
+        "src/gameplay/js/maps/world.js"
       ]
     },
     {
-      "file": "gameplay/js/maps/world.js",
+      "file": "src/gameplay/js/maps/world.js",
       "reason": "gameplay_source",
       "referenced_by": [
         "gameplay.html",
-        "gameplay/js/maps/world.js"
+        "src/gameplay/js/maps/world.js"
       ]
     }
   ],
@@ -15837,5 +15837,6 @@
     "phase3": 56
   }
 }
+
 
 

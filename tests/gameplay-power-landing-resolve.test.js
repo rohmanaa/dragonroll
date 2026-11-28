@@ -1,10 +1,10 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
 /* Bug: pion yang dipindah Power (Trident, Sword/TNT/jebakan, Swap) diam di kepala ular / dasar tangga.
    Semua gerakan Power harus memanggil resolveTileAt (satu jalur dengan dadu). */
-const main = fs.readFileSync(path.join(__dirname, '..', 'gameplay/js/main.js'), 'utf8');
+const main = fs.readFileSync(path.join(__dirname, '..', 'src/gameplay/js/main.js'), 'utf8');
 const slice = (a, b) => { const s = main.indexOf(a), e = main.indexOf(b, s); assert.ok(s >= 0 && e > s, 'anchor missing: ' + a); return main.slice(s, e); };
 
 const strike = slice("if(R.kind==='strike'||R.kind==='area'){", "if(R.kind==='swap'){");
@@ -22,3 +22,4 @@ assert.ok(/pushedOthers\.push\(q\)/.test(trap) && /for\(const q of pushedOthers\
 assert.ok(/const mv=q=>\{ const d=old\[q\.idx\]-\(pushed\[q\.idx\]!=null\?pushed\[q\.idx\]:q\.pos\)/.test(main), 'teks "mundur N petak" memakai jarak dorongan, bukan posisi setelah ular/tangga');
 
 console.log('ok - Power (Trident, Sword/TNT, jebakan, Swap) memproses petak pendaratan via resolveTileAt');
+

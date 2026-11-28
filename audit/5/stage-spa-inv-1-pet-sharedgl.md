@@ -6,7 +6,7 @@ Branch: `spa-inv-pet` (dari `main` 8eeb2b6). Tidak di-merge ke main.
 - `data/inventory/pet/_shared/js/pet-viewer.js`: tidak lagi `new THREE.WebGLRenderer`; memakai `UT.SharedGL.acquire('inv-pet', {canvas, shadows:false})`. Kanvas halaman diganti kanvas bersama (id/class/style/aria disalin), jadi `canvas` di viewer diperbarui ke kanvas hasil acquire. Teardown memanggil `SharedGL.release('inv-pet')`; renderer bersama TIDAK di-dispose dan tidak `forceContextLoss`.
 - `pet.html`: memuat `src/core/shared-gl.js` setelah `three.min.js`, sebelum `pet-viewer.js`.
 - `tests/pet-viewer-lifecycle.test.js`: stub `UT.SharedGL`; assert acquire/release dan renderer tidak di-dispose.
-- `tests/no-webglrenderer-outside-sharedgl.test.js` (baru): penjaga kriteria. Pelanggar tersisa: power-renderer.js, dice-renderer.js, efek.js. Pengecualian sengaja: floatingsample.js, gameplay/js/main.js, gameplay/js/duel-ui.js (dibekukan).
+- `tests/no-webglrenderer-outside-sharedgl.test.js` (baru): penjaga kriteria. Pelanggar tersisa: power-renderer.js, dice-renderer.js, efek.js. Pengecualian sengaja: floatingsample.js, src/gameplay/js/main.js, src/gameplay/js/duel-ui.js (dibekukan).
 
 ## Tidak berubah
 gameplay.html, gameplay/, game-integration.js, player-data.js, supabase/, data/frame, ItemCatalog (147 â†’ 167 item total sesuai baseline), API publik. Tab Pet MASIH iframe.
@@ -38,4 +38,5 @@ Keputusan pemilik: tab harus semudah halaman lain (seperti Lobby/Karakter), buka
 - Tes: spa-host (canon), pet-view (baru), pet-viewer-lifecycle, inventory-tabs/module, aura-registry-parity diperbarui. Seluruh suite = 6 kegagalan yang sama dengan baseline main (pesan identik).
 - NOT TESTED di browser: tampilan view Pet (posisi bar tab, latar, judul "Inventory"), pindah Lobbyâ†”Petâ†”tab lain berulang kali (mount/unmount viewer, SharedGL), tombol kembali/Esc.
 - Pemanasan tab (v315) tetap ada untuk tab iframe yang tersisa (frame, dadu, efek, power); hilang saat tab-tab itu dijadikan view.
+
 

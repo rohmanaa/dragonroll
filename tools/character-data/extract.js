@@ -1,8 +1,8 @@
-/* Mengekstrak data box dari modul Gameplay aktif (tanpa menjalankan game). Dipanggil oleh build.js. */
+﻿/* Mengekstrak data box dari modul Gameplay aktif (tanpa menjalankan game). Dipanggil oleh build.js. */
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const ROOT=path.join(__dirname,'..','..'); /* = folder game/ */
 const page=fs.readFileSync(path.join(ROOT,'gameplay.html'),'utf8');
-if(!page.includes('src="gameplay/js/main.js"')) throw new Error('gameplay.html tidak memuat gameplay/js/main.js');
+if(!page.includes('src="src/gameplay/js/main.js"')) throw new Error('gameplay.html tidak memuat src/gameplay/js/main.js');
 const src=fs.readFileSync(path.join(ROOT,'gameplay','js','main.js'),'utf8').replace(/\r\n/g,'\n');
 function fn(name){ const i=src.indexOf('function '+name+'('); if(i<0) throw new Error('no '+name);
   let d=0,j=src.indexOf('{',i),k=j; for(;k<src.length;k++){ if(src[k]==='{')d++; else if(src[k]==='}'){ d--; if(d===0) break; } } return src.slice(i,k+1); }
@@ -26,3 +26,4 @@ for(const [k,f] of [['creeper','addCreeper'],['ender','addEnderman'],['skeleton'
 { const B=mk(),R=mk(); R.tag=2; sb.addBlaze(B,R); out.mobs.blaze=B.boxes.concat(R.boxes); }
 for(const k of ['golem','spider','zombie','skeleton','creeper']){ sb.LIST=[]; sb.makeHostile(k); out.wild[k]=sb.LIST; }
 module.exports=out;
+

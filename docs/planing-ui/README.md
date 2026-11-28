@@ -46,7 +46,7 @@ Tombol aksi `ut-gl` sesuai warna; bila aksi merah, BATAL jadi `d` (gelap). Hapus
 | 3 | Karakter, Power-up | `karakter.html` (`#modal #box #mx #mb`), `powerup.html` (`#pv #pvBox #pvClose`) | Power-up sudah punya `ut-mk`; tinggal verifikasi |
 | 4 | Room, Mode | `room.html` (`#inv #dr #pm #em`, tombol `.cmx`), `mode.html` (`#modal #mcancel`) | Ada `tests/room-page-modal.test.js`; `mode.js` harus tetap memuat `tombol-ungu-polos.webp` |
 | 5 | Splash | `splash.html` (`.amodal #m-login #m-signup`) | Di luar shell; uji login/daftar |
-| 6 | Gameplay | `gameplay/css/{pause,win-screen,level-up,hud-menu}.css` | Sengaja berbeda (overlay in-game) â€” putuskan: biarkan atau seragamkan |
+| 6 | Gameplay | `src/gameplay/css/{pause,win-screen,level-up,hud-menu}.css` | Sengaja berbeda (overlay in-game) â€” putuskan: biarkan atau seragamkan |
 
 Selesai bila: tiap dialog punya fokus awal, Tab terkurung, `Esc` menutup, `inert` di luar; tangkapan layar 1920Ã—1080 & 1080Ã—1920 sebelum/sesudah.
 
@@ -76,5 +76,6 @@ Ide: peti di Lobby tidak hanya terbuka karena "main sekian kali", tetapi lewat m
 ## 8. Rencana: struktur folder ala Vue + Vite
 
 Lihat `struktur-vite.md` (keputusan sudah dijawab 26 Nov 2026: langsung di main, ES module sekarang, folder `views/`, mulai sekarang).
+
 
 

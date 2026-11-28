@@ -2,9 +2,9 @@
 const fs = require('fs');
 const path = require('path');
 const read = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const main = read('gameplay/js/main.js');
+const main = read('src/gameplay/js/main.js');
 const sync = read('src/multiplayer/game-sync.js');
-const ui = read('gameplay/js/duel-ui.js');
+const ui = read('src/gameplay/js/duel-ui.js');
 
 /* duelCheck: room online tidak lagi dilewati total; hanya TAMU (bukan host) yang tidak menjalankan duel */
 const duelCheck = main.slice(main.indexOf('async function duelCheck('), main.indexOf('async function playTurn('));
@@ -28,4 +28,5 @@ assert(/lockRoll\(label_\)/.test(ui) && /'lockRoll'/.test(ui));
 /* mode offline tidak berubah: satu tombol ROLL */
 assert(/if\(!ONLINE_ROOM\) return UI\.waitForRoll\(round\)/.test(main));
 console.log('duel-online-wiring ok');
+
 

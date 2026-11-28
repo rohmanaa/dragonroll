@@ -1,155 +1,155 @@
 ﻿Frozen inventory (gameplay.html and gameplay/** are never edited or moved)
 Gameplay-referenced paths: 205
 
-assets/Images/icon/items/dadu.webp	[referenced_by_gameplay]	gameplay/css/gameplay.css, gameplay/js/hud.js
-assets/Images/icon/items/power.webp	[referenced_by_gameplay]	gameplay/css/gameplay.css, gameplay/js/hud.js
-assets/Images/icon/lobby/invenotry.webp	[referenced_by_gameplay]	gameplay/js/hud.js
-assets/Images/icon/lobby/leader.webp	[referenced_by_gameplay]	gameplay.html, gameplay/css/gameplay.css
-assets/Images/icon/tabler/camera.svg	[referenced_by_gameplay]	gameplay/js/main.js
-assets/Images/icon/tabler/lock-open.svg	[referenced_by_gameplay]	gameplay/js/main.js
-assets/Images/icon/tabler/lock.svg	[referenced_by_gameplay]	gameplay/js/main.js
-assets/Images/icon/ui/day.webp	[referenced_by_gameplay]	gameplay/js/pause.js
-assets/Images/icon/ui/night.webp	[referenced_by_gameplay]	gameplay/js/pause.js
+assets/Images/icon/items/dadu.webp	[referenced_by_gameplay]	src/gameplay/css/gameplay.css, src/gameplay/js/hud.js
+assets/Images/icon/items/power.webp	[referenced_by_gameplay]	src/gameplay/css/gameplay.css, src/gameplay/js/hud.js
+assets/Images/icon/lobby/invenotry.webp	[referenced_by_gameplay]	src/gameplay/js/hud.js
+assets/Images/icon/lobby/leader.webp	[referenced_by_gameplay]	gameplay.html, src/gameplay/css/gameplay.css
+assets/Images/icon/tabler/camera.svg	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/Images/icon/tabler/lock-open.svg	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/Images/icon/tabler/lock.svg	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/Images/icon/ui/day.webp	[referenced_by_gameplay]	src/gameplay/js/pause.js
+assets/Images/icon/ui/night.webp	[referenced_by_gameplay]	src/gameplay/js/pause.js
 src/renderers/aura-fx.js	[referenced_by_gameplay]	gameplay.html
 src/renderers/aura-view.js	[referenced_by_gameplay]	gameplay.html
 src/renderers/blocky-character.js	[referenced_by_gameplay]	gameplay.html
 src/renderers/character-face.js	[referenced_by_gameplay]	gameplay.html
-src/renderers/dice-kit/DiceCatalog.js	[referenced_by_gameplay]	gameplay/js/dice-throw.js
-src/renderers/dice-kit/DiceEffects.js	[referenced_by_gameplay]	gameplay/js/dice-throw.js
-src/renderers/dice-kit/DiceEffectsCore.js	[referenced_by_gameplay]	gameplay/js/dice-throw.js
-src/renderers/dice-kit/DiceRenderer.js	[referenced_by_gameplay]	gameplay/js/dice-pad.js
-src/renderers/dice-kit/DiceTextures.js	[referenced_by_gameplay]	gameplay/js/dice-throw.js
+src/renderers/dice-kit/DiceCatalog.js	[referenced_by_gameplay]	src/gameplay/js/dice-throw.js
+src/renderers/dice-kit/DiceEffects.js	[referenced_by_gameplay]	src/gameplay/js/dice-throw.js
+src/renderers/dice-kit/DiceEffectsCore.js	[referenced_by_gameplay]	src/gameplay/js/dice-throw.js
+src/renderers/dice-kit/DiceRenderer.js	[referenced_by_gameplay]	src/gameplay/js/dice-pad.js
+src/renderers/dice-kit/DiceTextures.js	[referenced_by_gameplay]	src/gameplay/js/dice-throw.js
 src/renderers/dice-kit/index.js	[referenced_by_gameplay]	gameplay.html
-src/renderers/power3d/PowerSound.js	[referenced_by_gameplay]	gameplay/js/audio.js
-src/renderers/power3d/power-overlay.js	[referenced_by_gameplay]	gameplay/js/power3d-loader.js
-assets/music/community.mp3	[referenced_by_gameplay]	gameplay/js/main.js
-assets/music/first_light_particles.mp3	[referenced_by_gameplay]	gameplay/js/main.js
-assets/music/muncul-naga.mp3	[referenced_by_gameplay]	gameplay/js/main.js
-assets/music/rainy.mp3	[referenced_by_gameplay]	gameplay/js/main.js
-assets/music/sunset_plains.mp3	[referenced_by_gameplay]	gameplay/js/main.js
-assets/new sound/bounce.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/chomp.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/crystall-was-destroy.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/dragonAwakening.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/gulp.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/hiss.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/ladder.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/pop.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/shuffle.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/villager.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/win.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/new sound/win2.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/ng/komponen/banner-label/banner-boss-tengkorak.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/banner-label/banner-judul-biru-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/banner-label/banner-judul-biru.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/banner-label/banner-judul-ungu-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/banner-label/banner-judul-ungu.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/apple.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/glyph-putih/bulu.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/glyph-putih/dadu.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/info-bulat.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
+src/renderers/power3d/PowerSound.js	[referenced_by_gameplay]	src/gameplay/js/audio.js
+src/renderers/power3d/power-overlay.js	[referenced_by_gameplay]	src/gameplay/js/power3d-loader.js
+assets/music/community.mp3	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/music/first_light_particles.mp3	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/music/muncul-naga.mp3	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/music/rainy.mp3	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/music/sunset_plains.mp3	[referenced_by_gameplay]	src/gameplay/js/main.js
+assets/new sound/bounce.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/chomp.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/crystall-was-destroy.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/dragonAwakening.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/gulp.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/hiss.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/ladder.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/pop.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/shuffle.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/villager.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/win.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/new sound/win2.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/ng/komponen/banner-label/banner-boss-tengkorak.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/banner-label/banner-hasil-kalah-merah.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/banner-label/banner-hasil-menang-emas.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/banner-label/banner-judul-biru-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/banner-label/banner-judul-biru.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/banner-label/banner-judul-ungu-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/banner-label/banner-judul-ungu.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/apple.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/glyph-putih/bulu.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/glyph-putih/dadu.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/info-bulat.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
 assets/ng/komponen/glyph-putih/kamera.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/glyph-putih/kepingan-salju.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
+assets/ng/komponen/glyph-putih/kepingan-salju.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
 assets/ng/komponen/glyph-putih/kotak-chat.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/glyph-putih/kristal-heksagon.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
+assets/ng/komponen/glyph-putih/kristal-heksagon.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
 assets/ng/komponen/glyph-putih/lokasi-pin.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/glyph-putih/panah-atas.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/perisai-lambang.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/peti-harta.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/petir.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/segitiga-kanan.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/panah-atas.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/perisai-lambang.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/peti-harta.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/petir.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/segitiga-kanan.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
 assets/ng/komponen/glyph-putih/speaker-suara.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/glyph-putih/tengkorak.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/tongkat-ular.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/ulang-maju.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/glyph-putih/ulang.webp	[referenced_by_gameplay]	gameplay.html, gameplay/css/hud-mockup.css
-assets/ng/komponen/hud/bar-hp-boss.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/tengkorak.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/tongkat-ular.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/ulang-maju.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/glyph-putih/ulang.webp	[referenced_by_gameplay]	gameplay.html, src/gameplay/css/hud-mockup.css
+assets/ng/komponen/hud/bar-hp-boss.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
 assets/ng/komponen/hud/ikon-buku-sihir-ungu.webp	[referenced_by_gameplay]	gameplay.html
 assets/ng/komponen/hud/ikon-gem-biru.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/hud/ikon-kado-merah.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
+assets/ng/komponen/hud/ikon-kado-merah.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
 assets/ng/komponen/hud/ikon-koin-emas.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/hud/kartu-kosong-ungu.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/hud/lencana-hex-hijau.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/hud/lencana-hex-merah.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/hud/lencana-level-sayap.webp	[referenced_by_gameplay]	gameplay/js/level-up.js
+assets/ng/komponen/hud/kartu-kosong-ungu.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/hud/lencana-hex-hijau.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/hud/lencana-hex-merah.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/hud/lencana-level-sayap.webp	[referenced_by_gameplay]	src/gameplay/js/level-up.js
 assets/ng/komponen/hud/lencana-lvl-biru-polos.webp	[referenced_by_gameplay]	gameplay.html
 assets/ng/komponen/hud/lencana-lvl-biru.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/hud/ornamen-sirip-kanan.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/hud/ornamen-sirip-kiri.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/hud/tombol-bulat-kosong-ungu.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/ikon-gem-medali/berlian-ungu.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-gem-medali/gem-heksagon-ungu.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-gem-medali/panah-tombak.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-gem-medali/petir-emas.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-item/bom.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-item/helm-sayap.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-item/mahkota.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/ikon-item/pedang.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-item/perisai-kayu.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
+assets/ng/komponen/hud/ornamen-sirip-kanan.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/hud/ornamen-sirip-kiri.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/hud/tombol-bulat-kosong-ungu.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/ikon-gem-medali/berlian-ungu.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-gem-medali/gem-heksagon-ungu.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-gem-medali/panah-tombak.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-gem-medali/petir-emas.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-item/bom.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-item/helm-sayap.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-item/mahkota.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/ikon-item/pedang.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-item/perisai-kayu.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
 assets/ng/komponen/ikon-item/piala.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/ikon-item/ramuan-hijau.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-item/ramuan-ungu.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
-assets/ng/komponen/ikon-pengaturan/knob-slider.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/menu-pause/ikon-lanjut.webp	[referenced_by_gameplay]	gameplay.html, gameplay/css/hud-mockup.css
-assets/ng/komponen/menu-pause/ikon-menyerah.webp	[referenced_by_gameplay]	gameplay.html, gameplay/css/hud-mockup.css
-assets/ng/komponen/menu-pause/ikon-pengaturan.webp	[referenced_by_gameplay]	gameplay.html, gameplay/css/hud-mockup.css
+assets/ng/komponen/ikon-item/ramuan-hijau.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-item/ramuan-ungu.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
+assets/ng/komponen/ikon-pengaturan/knob-slider.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/menu-pause/ikon-lanjut.webp	[referenced_by_gameplay]	gameplay.html, src/gameplay/css/hud-mockup.css
+assets/ng/komponen/menu-pause/ikon-menyerah.webp	[referenced_by_gameplay]	gameplay.html, src/gameplay/css/hud-mockup.css
+assets/ng/komponen/menu-pause/ikon-pengaturan.webp	[referenced_by_gameplay]	gameplay.html, src/gameplay/css/hud-mockup.css
 assets/ng/komponen/menu-pause/ikon-ulang.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/menu-pause/teks-pause-krem.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/menu-pause/tombol-bulat-kosong.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/misi/bar-progres-kosong.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/misi/isi-bar-progres-oranye.webp	[referenced_by_gameplay]	gameplay/css/win-screen.css
-assets/ng/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/ng/komponen/panel-dialog/bingkai-dialog.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
+assets/ng/komponen/menu-pause/teks-pause-krem.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/menu-pause/tombol-bulat-kosong.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/misi/bar-progres-kosong.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/misi/isi-bar-progres-oranye-runcing.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/misi/isi-bar-progres-oranye.webp	[referenced_by_gameplay]	src/gameplay/css/win-screen.css
+assets/ng/komponen/misi/lencana-notifikasi-merah-segi-delapan.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/ng/komponen/panel-dialog/bingkai-dialog.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
 assets/ng/komponen/slot-equipment/slot-biru.webp	[referenced_by_gameplay]	gameplay.html
 assets/ng/komponen/slot-equipment/slot-coklat.webp	[referenced_by_gameplay]	gameplay.html
 assets/ng/komponen/slot-equipment/slot-hijau.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/slot-equipment/slot-terkunci.webp	[referenced_by_gameplay_dynamic_path]	gameplay/js/main.js
+assets/ng/komponen/slot-equipment/slot-terkunci.webp	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/main.js
 assets/ng/komponen/slot-equipment/slot-ungu.webp	[referenced_by_gameplay]	gameplay.html
 assets/ng/komponen/stage-chapter/bintang-hasil-emas.webp	[referenced_by_gameplay]	gameplay.html
-assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/pause.css, gameplay/css/win-screen.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-biru.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/pause.css, gameplay/css/win-screen.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/win-screen.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-hijau.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/win-screen.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/level-up.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-kuning.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/level-up.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/pause.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-merah.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css, gameplay/css/pause.css
-assets/ng/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp	[referenced_by_gameplay]	gameplay/css/hud-mockup.css
-assets/sfx/README.md	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/board/block-100.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/board/ladder-up.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/board/pawn-hop.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/board/snake-bite.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dice/dice-roll.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon-areana-up-before-crystal.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/sfx/dragon/crystal-appear.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/crystal-break.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/dragon-death.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/dragon-hurt.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/dragon-idle.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/dragon-spawn.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/earthquake.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/dragon/tower-rise.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/creeper-explosion.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/creeper-fuse.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/enderman-teleport.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/mob-punch.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/player-hurt.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/mob/skeleton-shoot.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/pet/celestial-kitsune-bell.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/pet/celestial-kitsune-shine.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/pet/inferno-dragon-fire.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/pet/storm-wolf-zap.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/powerup/sword-use.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/reward/chest-close.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/reward/chest-open.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/reward/power-reward.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/setalah-hancurkan-crsytal.mp3	[referenced_by_gameplay_dynamic_path]	gameplay/js/audio.js
-assets/sfx/ui/game-lose.mp3	[referenced_by_gameplay]	gameplay/js/audio.js
-assets/sfx/win/Firework_launch.ogg	[referenced_by_gameplay]	gameplay/js/audio.js, gameplay/js/firework-fx.js
+assets/ng/komponen/tombol-dan-kontrol/tombol-biru-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/pause.css, src/gameplay/css/win-screen.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-biru.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/pause.css, src/gameplay/css/win-screen.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-hijau-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/win-screen.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-hijau.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/win-screen.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-kuning-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/level-up.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-kuning.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/level-up.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-merah-polos.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/pause.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-merah.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css, src/gameplay/css/pause.css
+assets/ng/komponen/tombol-dan-kontrol/tombol-tutup-bulat.webp	[referenced_by_gameplay]	src/gameplay/css/hud-mockup.css
+assets/sfx/README.md	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/board/block-100.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/board/ladder-up.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/board/pawn-hop.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/board/snake-bite.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dice/dice-roll.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon-areana-up-before-crystal.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/sfx/dragon/crystal-appear.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/crystal-break.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/dragon-death.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/dragon-hurt.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/dragon-idle.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/dragon-spawn.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/earthquake.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/dragon/tower-rise.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/creeper-explosion.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/creeper-fuse.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/enderman-teleport.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/mob-punch.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/player-hurt.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/mob/skeleton-shoot.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/pet/celestial-kitsune-bell.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/pet/celestial-kitsune-shine.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/pet/inferno-dragon-fire.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/pet/storm-wolf-zap.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/powerup/sword-use.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/reward/chest-close.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/reward/chest-open.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/reward/power-reward.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/setalah-hancurkan-crsytal.mp3	[referenced_by_gameplay_dynamic_path]	src/gameplay/js/audio.js
+assets/sfx/ui/game-lose.mp3	[referenced_by_gameplay]	src/gameplay/js/audio.js
+assets/sfx/win/Firework_launch.ogg	[referenced_by_gameplay]	src/gameplay/js/audio.js, src/gameplay/js/firework-fx.js
 data/inventory/aura/amethyst/manifest.js	[referenced_by_gameplay]	gameplay.html
 data/inventory/aura/celestial/manifest.js	[referenced_by_gameplay]	gameplay.html
 data/inventory/aura/dragon/manifest.js	[referenced_by_gameplay]	gameplay.html
@@ -205,7 +205,7 @@ data/inventory/power/tnt/manifest.js	[referenced_by_gameplay]	gameplay.html
 data/inventory/power/totem/manifest.js	[referenced_by_gameplay]	gameplay.html
 data/inventory/power/trident/manifest.js	[referenced_by_gameplay]	gameplay.html
 data/inventory/power/wooden_shield/manifest.js	[referenced_by_gameplay]	gameplay.html
-data/power/power-fx.js	[referenced_by_gameplay]	gameplay.html, gameplay/js/main.js
+data/power/power-fx.js	[referenced_by_gameplay]	gameplay.html, src/gameplay/js/main.js
 
 Held categories/kits: 47
 src/renderers/dice-kit/DiceAnimation.js	[dice kit held until gameplay]	assets/preload-manifest.json, tests/dice-landing-stall.test.mjs
@@ -252,9 +252,9 @@ data/inventory/frame/phoenix/manifest.js	[frame category held until gameplay]	as
 data/inventory/frame/storm/manifest.js	[frame category held until gameplay]	assets/preload-manifest.json, frame.html, inventory.html, karakter.html, profile.html, shop.html
 gameplay/assets/maps/banner-maps/nether.webp	[gameplay_source]	gameplay/** file path
 gameplay/assets/maps/banner-maps/world.webp	[gameplay_source]	gameplay/** file path
-gameplay/js/maps/nether.js	[gameplay_source]	gameplay.html, gameplay/js/maps/nether.js
-gameplay/js/maps/registry.js	[gameplay_source]	gameplay.html, gameplay/js/maps/nether.js, gameplay/js/maps/registry.js, gameplay/js/maps/world.js
-gameplay/js/maps/world.js	[gameplay_source]	gameplay.html, gameplay/js/maps/world.js
+src/gameplay/js/maps/nether.js	[gameplay_source]	gameplay.html, src/gameplay/js/maps/nether.js
+src/gameplay/js/maps/registry.js	[gameplay_source]	gameplay.html, src/gameplay/js/maps/nether.js, src/gameplay/js/maps/registry.js, src/gameplay/js/maps/world.js
+src/gameplay/js/maps/world.js	[gameplay_source]	gameplay.html, src/gameplay/js/maps/world.js
 
 DB/seed-deferred paths: 31
 data/frame/amethyst.webp	[tests/fixtures/item-catalog-baseline.json]
@@ -300,4 +300,5 @@ assets/Images/icon/mode/modekhsusus.webp
 assets/ng/komponen/new-icon/freinds.webp
 assets/sfx/dragon-areana-up-before-crystal.mp3
 assets/sfx/setalah-hancurkan-crsytal.mp3
+
 

@@ -1,10 +1,10 @@
-/* Duel UI baru (Dadu Duel Blok): tes struktur + kontrak API. Animasi 3D diuji manual/di browser. */
+﻿/* Duel UI baru (Dadu Duel Blok): tes struktur + kontrak API. Animasi 3D diuji manual/di browser. */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const read = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-const ui = read('gameplay/js/duel-ui.js'), css = read('gameplay/css/duel.css'), main = read('gameplay/js/main.js'), html = read('gameplay.html');
+const ui = read('src/gameplay/js/duel-ui.js'), css = read('src/gameplay/css/duel.css'), main = read('src/gameplay/js/main.js'), html = read('gameplay.html');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 
 t('API publik: urutan open -> intro -> waitForRoll -> revealRolls -> turn -> result -> close', () => {
@@ -69,3 +69,4 @@ t('main.js memakai alur baru: DU.turn(r.turn) dan hasil seri/menang-kalah', () =
   assert(/rig:'archer'/.test(main) && /rig:\(f\.idx%2\?'knight':'archer'\)/.test(main));
 });
 console.log('\n' + n + ' tes duel-ui lulus');
+

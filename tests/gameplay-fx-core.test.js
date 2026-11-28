@@ -1,4 +1,4 @@
-/* Global GameplayFX quality and ParticleFX integration tests. Run: node tests/gameplay-fx-core.test.js */
+﻿/* Global GameplayFX quality and ParticleFX integration tests. Run: node tests/gameplay-fx-core.test.js */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -46,8 +46,8 @@ function harness(device, reducedMotion) {
   };
   const document = {};
   const context = { window, document, THREE, console: window.console, Number, Math, isFinite };
-  vm.runInNewContext(read('gameplay/js/fx.js'), context, { filename: 'gameplay/js/fx.js' });
-  vm.runInNewContext(read('gameplay/js/particle-fx.js'), context, { filename: 'gameplay/js/particle-fx.js' });
+  vm.runInNewContext(read('src/gameplay/js/fx.js'), context, { filename: 'src/gameplay/js/fx.js' });
+  vm.runInNewContext(read('src/gameplay/js/particle-fx.js'), context, { filename: 'src/gameplay/js/particle-fx.js' });
   return { FX: window.UT.GameplayFX, ParticleFX: window.UT.ParticleFX, window, media, setMotion: value => { motion = !!value; }, scene };
 }
 
@@ -160,7 +160,7 @@ test('API FX lama dan alias ParticleFX tetap tersedia', () => {
   assert.strictEqual(h.window.particleFX, h.ParticleFX);
 });
 test('feedback reduced-motion statis tidak memakai shake atau flash animasi', () => {
-  const main = read('gameplay/js/main.js'), css = read('gameplay/css/gameplay.css');
+  const main = read('src/gameplay/js/main.js'), css = read('src/gameplay/css/gameplay.css');
   assert.match(main, /function fxReduced\(\)\{ return FX&&typeof FX\.reduced==='function'\?FX\.reduced\(\):reduce; \}/);
   assert.match(main, /if\(fxReduced\(\)\)\{ add\('hf-static-hit'/);
   const rule = /#hitFx \.hf-static-hit\{([^}]*)\}/.exec(css);
@@ -169,7 +169,7 @@ test('feedback reduced-motion statis tidak memakai shake atau flash animasi', ()
 });
 
 test('perubahan Reduce Motion diterapkan live dan listener dilepas saat pagehide', () => {
-  const main = read('gameplay/js/main.js');
+  const main = read('src/gameplay/js/main.js');
   const setup = main.match(/const reduceMq=matchMedia\('\(prefers-reduced-motion: reduce\)'\);\s*let reduce=reduceMq\.matches;\s*const onReduceChange=e=>\{\s*reduce=!!e\.matches;\s*\};\s*if\(reduceMq\.addEventListener\) reduceMq\.addEventListener\('change',onReduceChange\);\s*else if\(reduceMq\.addListener\) reduceMq\.addListener\(onReduceChange\);/);
   assert.ok(setup, 'media query harus diperbarui saat preferensi berubah');
   let listener = null;
@@ -196,3 +196,4 @@ test('perubahan Reduce Motion diterapkan live dan listener dilepas saat pagehide
 });
 
 console.log('\n' + count + ' tes lulus');
+

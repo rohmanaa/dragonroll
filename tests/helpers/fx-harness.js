@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -164,9 +164,10 @@ function harness(options) {
     }
   };
   const context = { window, document, THREE, console: window.console, Number, Math, isFinite, Set, Array };
-  vm.runInNewContext(fs.readFileSync(path.join(root, 'gameplay/js/fx.js'), 'utf8'), context, { filename: 'gameplay/js/fx.js' });
-  vm.runInNewContext(fs.readFileSync(path.join(root, 'gameplay/js/particle-fx.js'), 'utf8'), context, { filename: 'gameplay/js/particle-fx.js' });
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'src/gameplay/js/fx.js'), 'utf8'), context, { filename: 'src/gameplay/js/fx.js' });
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'src/gameplay/js/particle-fx.js'), 'utf8'), context, { filename: 'src/gameplay/js/particle-fx.js' });
   return { FX: window.UT.GameplayFX, ParticleFX: window.UT.ParticleFX, window, document, scene, windowListeners, timers, setMotion: value => { motion = !!value; } };
 }
 
 module.exports = { harness, FakeNode };
+

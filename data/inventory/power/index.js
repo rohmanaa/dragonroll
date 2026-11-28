@@ -24,9 +24,9 @@
       aura: 'src/renderers/power-3d/power-aura.js',
       audio: 'src/renderers/power-3d/power-sound.js',
       effects2d: 'data/power/power-fx.js',
-      particleEngine: 'gameplay/js/particle-fx.js',
-      particleStyles: 'gameplay/css/particle-fx.css',
-      gameplayAudio: 'gameplay/js/audio.js'
+      particleEngine: 'src/gameplay/js/particle-fx.js',
+      particleStyles: 'src/gameplay/css/particle-fx.css',
+      gameplayAudio: 'src/gameplay/js/audio.js'
     }
   };
 
@@ -55,4 +55,5 @@
 
   return { category: CATEGORY, keys: KEYS.slice(), manifests: manifests, register: register };
 });
+
 

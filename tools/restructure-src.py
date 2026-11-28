@@ -14,7 +14,7 @@ DIRS = {  # fase -> [(awalan lama, awalan baru)]  (selalu berakhiran /)
            ("src/renderers/", "src/renderers/"), ("src/systems/", "src/systems/"),
            ("src/vendor/", "src/vendor/")],
     "tambang":  [("src/tambang/js/", "src/tambang/js/"), ("src/tambang/css/", "src/tambang/css/")],
-    "gameplay": [("gameplay/js/", "src/gameplay/js/"), ("gameplay/css/", "src/gameplay/css/")],
+    "gameplay": [("src/gameplay/js/", "src/src/gameplay/js/"), ("src/gameplay/css/", "src/src/gameplay/css/")],
 }
 FILES = {  # fase -> {berkas lama: berkas baru}
     "js": dict(
@@ -151,6 +151,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

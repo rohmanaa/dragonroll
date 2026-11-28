@@ -5,9 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { harness } = require('./helpers/fx-harness');
 const root = path.join(__dirname, '..');
-const mainSrc = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
-const fxSrc = fs.readFileSync(path.join(root, 'gameplay/js/fx.js'), 'utf8');
-const cssSrc = fs.readFileSync(path.join(root, 'gameplay/css/gameplay.css'), 'utf8');
+const mainSrc = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
+const fxSrc = fs.readFileSync(path.join(root, 'src/gameplay/js/fx.js'), 'utf8');
+const cssSrc = fs.readFileSync(path.join(root, 'src/gameplay/css/gameplay.css'), 'utf8');
 
 let count = 0;
 const tests = [];
@@ -573,4 +573,5 @@ test('FX spasial tidak membuat loop/engine baru dan tidak menyentuh gameplay', (
   for (const t of tests) { await t.fn(); count++; console.log('ok - ' + t.name); }
   console.log(count + ' tes spatial FX lulus');
 })().catch(error => { console.error(error); process.exit(1); });
+
 

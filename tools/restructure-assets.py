@@ -185,7 +185,7 @@ def reference_rewriter(text, origin, post_referrer, mapping):
 
 def dynamic_gameplay_paths():
     paths = set()
-    main_path = ROOT / "gameplay/js/main.js"
+    main_path = ROOT / "src/gameplay/js/main.js"
     main = main_path.read_text(encoding="utf-8")
     hud_base = re.search(r"""const\s+GAME_HUD_ASSETS\s*=\s*['"]([^'"]+)['"]""", main)
     if hud_base:
@@ -200,7 +200,7 @@ def dynamic_gameplay_paths():
         for group, name in re.findall(r"""addBuff\(\s*'([^']+)'\s*,\s*'([^']+)'""", main):
             paths.add(posixpath.normpath(base + group + "/" + name + ".webp"))
 
-    audio_path = ROOT / "gameplay/js/audio.js"
+    audio_path = ROOT / "src/gameplay/js/audio.js"
     audio = audio_path.read_text(encoding="utf-8")
     sfx_dir = re.search(r"""const\s+SFX_DIR\s*=\s*'([^']+)'""", audio)
     ns = re.search(r"""NS\s*=\s*'([^']+)'""", audio)
@@ -230,7 +230,7 @@ def refresh_mapping(data):
         record = {
             "file": source,
             "reason": "referenced_by_gameplay_dynamic_path",
-            "referenced_by": ["gameplay/js/main.js" if "/komponen/" in source else "gameplay/js/audio.js"],
+            "referenced_by": ["src/gameplay/js/main.js" if "/komponen/" in source else "src/gameplay/js/audio.js"],
         }
         frozen[source] = record
         added.append(source)
@@ -678,4 +678,5 @@ if __name__ == "__main__":
     except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
         print("ERROR: {}".format(error), file=sys.stderr)
         sys.exit(1)
+
 

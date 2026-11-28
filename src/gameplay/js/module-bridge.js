@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/js/module-bridge.js (Stage 4.1.2: Gameplay module bridge)
+﻿/* Ular Tangga Blok â€” src/gameplay/js/module-bridge.js (Stage 4.1.2: Gameplay module bridge)
    Skrip klasik (tanpa import/export/type=module). Dimuat dari gameplay.html SETELAH app.js
-   dan SEBELUM gameplay/js/hud.js serta blok skrip gameplay inline.
+   dan SEBELUM src/gameplay/js/hud.js serta blok skrip gameplay inline.
    HANYA namespace: tidak ada logic, data, atau state gameplay di sini.
    gameplay.html tetap source of truth; extraction dilakukan di sub-step berikutnya.
    Idempotent: aman dimuat lebih dari sekali, tidak menimpa object yang sudah ada
@@ -9,13 +9,13 @@
      UT.Gameplay.Config / Rules / Themes / Audio / Dice / FX /
      UT.Gameplay.Geometry / Pawn / Camera / Dragon / Core
    API minimal:
-     UT.Gameplay.registerModule(name, api) — isi namespace yang masih kosong dengan api; false bila
+     UT.Gameplay.registerModule(name, api) â€” isi namespace yang masih kosong dengan api; false bila
                                               nama tidak dikenal/api bukan object/namespace sudah terisi
-     UT.Gameplay.hasModule(name)           — true bila namespace sudah terisi (bukan sekadar ada)
-   UT.Gameplay.Feedback — kontrak pemisahan feedback (ADAPTER tipis, bukan sistem baru):
-     Feedback.short(key, name, who, opts) — Power (opts.text = pesan singkat kustom, mis. Power ditolak): banner HUD singkat (UT.GameplayHUD.showPower), BUKAN modal Chest
-     Feedback.event(kind, text, opts) — event gameplay: banner HUD (UT.GameplayHUD.showEvent)
-     Feedback.reward(...args)         — reward Chest: modal besar; presenter didaftarkan gameplay.html lewat
+     UT.Gameplay.hasModule(name)           â€” true bila namespace sudah terisi (bukan sekadar ada)
+   UT.Gameplay.Feedback â€” kontrak pemisahan feedback (ADAPTER tipis, bukan sistem baru):
+     Feedback.short(key, name, who, opts) â€” Power (opts.text = pesan singkat kustom, mis. Power ditolak): banner HUD singkat (UT.GameplayHUD.showPower), BUKAN modal Chest
+     Feedback.event(kind, text, opts) â€” event gameplay: banner HUD (UT.GameplayHUD.showEvent)
+     Feedback.reward(...args)         â€” reward Chest: modal besar; presenter didaftarkan gameplay.html lewat
                                         Feedback.setRewardPresenter(fn). Mengembalikan false bila belum terdaftar.
    Tidak mengekspos players, scene, renderer, camera, dan tidak membuat UT.Gameplay.State. */
 (function (win) {
@@ -81,3 +81,4 @@
     };
   }
 })(window);
+

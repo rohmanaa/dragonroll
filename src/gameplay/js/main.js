@@ -84,7 +84,7 @@ function dragonMusicStop(instant){ try{ if(MP_SEQ===0) mpCue({k:'dmusic',i:!!ins
 
 /* ---------- Aturan papan ---------- */
 const ROW_H=0.8;
-/* Data statis papan/mob/power dari gameplay/js/config.js (single source: UT.Gameplay.Config). */
+/* Data statis papan/mob/power dari src/gameplay/js/config.js (single source: UT.Gameplay.Config). */
 let LADDERS=UT.Gameplay.Config.LADDERS;
 let SNAKES=UT.Gameplay.Config.SNAKES;
 const DMG=UT.Gameplay.Config.DMG;
@@ -115,7 +115,7 @@ const PLAYER_DEFS=[
   {name:'Zombie',key:'zombie',hex:0x2DB5A6,css:'#2b8f87'},
   {name:'Skeleton',key:'skeleton',hex:0xD0D0D0,css:'#6f7378'}
 ];
-/* Stage 4.1.14.9: skin PNG 64x64 (renderer 3D bertekstur = gameplay/js/skin-uv.js). Daftar TERPISAH agar PLAYER_DEFS
+/* Stage 4.1.14.9: skin PNG 64x64 (renderer 3D bertekstur = src/gameplay/js/skin-uv.js). Daftar TERPISAH agar PLAYER_DEFS
    (urutan default + pemilihan CPU acak) tidak berubah. Pawn palette tetap dibuat dulu sebagai fallback (Steve). */
 const PNG_DEFS=[
   {name:'Hero',key:'hero',hex:0xE5484D,css:'#c93a3f',png:true},
@@ -208,7 +208,7 @@ function upgradePawnPNG(g,pal,k){
     const mdl=UT.GameplaySkin.buildModel(THREE,m.tex,{slim:m.slim}); g.add(mdl); pal.visible=false; g.userData.png=mdl; if(g.userData.outlineOn) pawnOutline(g,true,g.userData.outlineHex);
   }).catch(()=>{});
 }
-/* Geometri papan murni (tile serpentine, tinggi terrain) = UT.GameplayVoxelGeom (gameplay/js/voxel-geom.js). Rumus dipindah apa adanya. */
+/* Geometri papan murni (tile serpentine, tinggi terrain) = UT.GameplayVoxelGeom (src/gameplay/js/voxel-geom.js). Rumus dipindah apa adanya. */
 const GV=UT.GameplayVoxelGeom;
 let TILES=GV.buildTiles();
 function terrainTop(x,z){ if(TILES.cells){ const h=TILES.cells[Math.floor(x)+','+Math.floor(z)]; return h===undefined?0:h; } return GV.terrainTop(TILES,x,z); }
@@ -244,7 +244,7 @@ function slotPos(pi,n){
 }
 
 /* ---------- Tema ---------- */
-const THEMES=UT.Gameplay.Themes.LIST; /* data tema dari gameplay/js/themes.js (single source). Urutan array menentukan seed dunia (indexOf) dan tema default (THEMES[0]). */
+const THEMES=UT.Gameplay.Themes.LIST; /* data tema dari src/gameplay/js/themes.js (single source). Urutan array menentukan seed dunia (indexOf) dan tema default (THEMES[0]). */
 
 /* ---------- Renderer ---------- */
 const coarse=matchMedia('(pointer:coarse)').matches;
@@ -290,11 +290,11 @@ function jit(hex,amt){ const c=new THREE.Color(hex); c.offsetHSL(0,0,(rnd()-0.5)
 function pick(a){ return a[Math.floor(rnd()*a.length)]; }
 
 /*GEOM-START*/
-/* Pembangun kotak voxel murni (FACES/CORNERS/EDGES, makeBatch, addBox, addOBox) dipindah ke gameplay/js/voxel-geom.js; batas audit marker tetap. */
+/* Pembangun kotak voxel murni (FACES/CORNERS/EDGES, makeBatch, addBox, addOBox) dipindah ke src/gameplay/js/voxel-geom.js; batas audit marker tetap. */
 const makeBatch=GV.makeBatch,addBox=GV.addBox,addOBox=GV.addOBox;
 /*GEOM-END*/
 const MAT=new THREE.MeshLambertMaterial({vertexColors:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
-const CINE=(window.UT&&UT.Cinema)||null; /* gameplay/js/cinematic.js: post-processing, langit shader, partikel ambient (opsional; null = tampilan lama) */
+const CINE=(window.UT&&UT.Cinema)||null; /* src/gameplay/js/cinematic.js: post-processing, langit shader, partikel ambient (opsional; null = tampilan lama) */
 if(CINE){ try{ CINE.patchMaterial(MAT); }catch(e){ console.warn(e); } }
 const LINE_MAT=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6});
 /* ===== Tekstur rumput World (netral/abu-abu, seamless). WARNA & kekuatan diatur dari CSS (body.th-world di gameplay-overrides.css):
@@ -4120,7 +4120,7 @@ function faceCamera(pawn){
 const lerp=(a,b,k)=>a+(b-a)*k;
 
 /* ---------- Suara ---------- */
-/* SFX = UT.GameplayAudio (gameplay/js/audio.js). Kapan suara dimainkan tetap ditentukan di sini; mute/musik/persistence tetap di sini. */
+/* SFX = UT.GameplayAudio (src/gameplay/js/audio.js). Kapan suara dimainkan tetap ditentukan di sini; mute/musik/persistence tetap di sini. */
 let muted=false;
 const GA=window.UT&&UT.GameplayAudio;
 function ensureAudio(){ try{ if(GA) GA.ensure(); }catch(e){} }
@@ -4131,7 +4131,7 @@ let MP_SEQ=0; /* >0 = host sedang menjalankan sequence yang juga dijalankan ulan
 const sfx=new Proxy(sfx0,{get(t,k){ const v=t[k]; if(typeof v!=='function'||typeof k!=='string'||SFX_DENY[k]) return v; return function(...a){ try{ if(MP_SEQ===0) mpCue({k:'sfx',n:k,a:k==='power'?[a[0]]:[]}); }catch(e){} return v.apply(t,a); }; }}); /* modul tak termuat -> senyap, game tetap jalan (bukan implementasi audio kedua) */
 
 /* ---------- Dadu ---------- */
-/* Presentation dadu = UT.GameplayDiceUI (gameplay/js/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
+/* Presentation dadu = UT.GameplayDiceUI (src/gameplay/js/dice-ui.js). Hasil dadu (random/Ramuan/6/tiga 6) tetap ditentukan di gameplay ini. */
 function showDie(v,anim){
   const visual=$('dieScene');
   if(visual&&Number.isInteger(v)&&v>=1&&v<=6) visual.setAttribute('aria-label','Hasil dadu '+v);
@@ -4148,7 +4148,7 @@ function diceKeyFor(p){
   return p.idx===0?diceKey:'klasik';
 }
 function dieRoll(v,pl){
-  /* Dadu DILEMPAR bidak giliran dan jatuh di dekatnya (UT.GameplayDiceThrow, gameplay/js/dice-throw.js). Angka v tetap dari gameplay.
+  /* Dadu DILEMPAR bidak giliran dan jatuh di dekatnya (UT.GameplayDiceThrow, src/gameplay/js/dice-throw.js). Angka v tetap dari gameplay.
      Indikator di dekat profil (#dieScene) menampilkan hasil saat dadu dunia mendarat. Modul/bidak tak ada atau reduce-motion -> dadu panel lama. */
   const T=window.UT&&UT.GameplayDiceThrow, pw=pl&&pl.pawn;
   if(!reduce&&T&&T.ready&&pw&&pw.visible!==false&&Number.isInteger(v)&&v>=1&&v<=6){
@@ -4921,7 +4921,7 @@ const MP_LEFT=new Set(); /* networkId pemain yang keluar dari game: disembunyika
 if(ONLINE_ROOM) document.body.classList.add('mp-online');
 
 function setMsg(t){ $('msg').textContent=t; }
-/* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (gameplay/js/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
+/* Stage 4.0.9: jembatan presentasi ke UT.GameplayHUD (src/gameplay/js/hud.js). Aman bila HUD tidak termuat; tidak mengubah state/logic. */
 const HUD_MIRROR={showCombat:1,showResult:1,hideCombat:1};
 function hud(f,...a){ try{ if(HUD_MIRROR[f]&&MP_SEQ===0&&ONLINE_ROOM&&ONLINE_HOST) mpCue({k:'hud',f:f,a:JSON.parse(JSON.stringify(a))}); }catch(e){} return hud0(f,...a); }
 function hud0(f,...a){ try{ const H=window.UT&&UT.GameplayHUD; if(H&&H[f]) H[f](...a); }catch(e){ console.error(e); } }
@@ -5135,7 +5135,7 @@ async function giveChest(p,tok){
    }finally{ if(FBK) FBK.hideChestRewardCard(); closeChest(n); CHEST_LC.active=false; }
 }
 try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
-/* Presentasi visual feedback = UT.GameplayFeedback (gameplay/js/feedback.js). Routing teks/HUD tetap UT.Gameplay.Feedback (fb(...)); kapan kartu tampil tetap ditentukan di sini. */
+/* Presentasi visual feedback = UT.GameplayFeedback (src/gameplay/js/feedback.js). Routing teks/HUD tetap UT.Gameplay.Feedback (fb(...)); kapan kartu tampil tetap ditentukan di sini. */
 const FBK=(window.UT&&UT.GameplayFeedback)||null; /* modul tak termuat -> presentasi visual dilewati, gameplay tetap jalan */
 if(FBK) FBK.init({sfx,sleep,reduce});
 async function showPUCard(p,k){ if(FBK) return FBK.showPUCard(p,k); }
@@ -5961,7 +5961,7 @@ async function resolveAfterChestMove(p,gid){ const duel=await resolveTileAt(p,gi
    Offline (solo/vs CPU/lokal): satu tombol ROLL, dadu Math.random. Online: host menjalankan duel, dadu tiap sisi diundi server (roll_game_dice), tamu memutar ulang tampilan lewat cue 'duel' (lihat blok 'Duel PVP online' di atas).
    Penalti kalah: mundur 10% papan (+ skip 1 giliran bila Heavy Defeat). Skip giliran memakai flag p.frozen yang sudah ada (skipFrozen). */
 /* ---- Duel PVP online (host-authoritative) ----
-   Host menjalankan duel penuh (aturan = duel-core.js, dadu tiap sisi = roll_game_dice di server). Setiap langkah tampilan dikirim ke tamu sebagai cue 'duel' dan diputar ulang di layar mereka (gameplay/js/duel-ui.js).
+   Host menjalankan duel penuh (aturan = duel-core.js, dadu tiap sisi = roll_game_dice di server). Setiap langkah tampilan dikirim ke tamu sebagai cue 'duel' dan diputar ulang di layar mereka (src/gameplay/js/duel-ui.js).
    Tiap ronde: pemain manusia yang ikut duel menekan ROLL sendiri (tamu -> event 'duel_roll' ke host); host menunggu semuanya maks DUEL_ROLL_MS, sisanya (CPU/AUTO/keluar/timeout) jalan otomatis. State duel (HP, Revenge, posisi) hanya di host. */
 const DUEL_ROLL_MS=12000;
 let MP_DUEL_SEQ=0;      /* id duel (host) */
@@ -7087,4 +7087,5 @@ requestAnimationFrame(frame);
 /* sinyal ke pembungkus (play.js): adegan sudah menggambar frame pertamanya -> layar "Memuat" boleh dibuka */
 requestAnimationFrame(()=>requestAnimationFrame(()=>{ try{ document.documentElement.classList.add('gp-ready'); }catch(e){} }));
 })();
+
 

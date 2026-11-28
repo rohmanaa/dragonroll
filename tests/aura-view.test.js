@@ -71,7 +71,7 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
   const pages = [
     { html: 'lobby.html', source: 'data/lobby/js/lobby.js', update: /AUR\.update\(motionDt\)/ },
     /* profil: sejak redesign 21 Nov 2026 memakai foto karakter statis (render sekali, tanpa aura) -> tidak diuji memakai UT.AuraView */
-    { html: 'gameplay.html', source: 'gameplay/js/main.js', update: /PAURA\.update\(dt\)/ }
+    { html: 'gameplay.html', source: 'src/gameplay/js/main.js', update: /PAURA\.update\(dt\)/ }
   ];
   pages.forEach(({ html: f, source, update }) => {
     const g = read(f), js = read(source), i = x => { const k = g.indexOf(x); assert.ok(k > 0, f + ': ' + x); return k; };
@@ -79,7 +79,7 @@ t('lobby, profil, gameplay memuat skrip aura berurutan (three -> blocky -> aura-
     assert.ok(i('three.min.js') < i('src/renderers/aura-fx.js') && i('src/renderers/blocky-character.js') < i('src/renderers/aura-fx.js') && i('src/renderers/aura-fx.js') < i('src/renderers/aura-view.js'), f);
     assert.ok(/UT\.AuraView\.create\(/.test(js) && update.test(js), source);
   });
-  const gameplay = read('gameplay/js/main.js');
+  const gameplay = read('src/gameplay/js/main.js');
   assert.ok(/keyFromEquipped\(seed\.equipped\)/.test(gameplay), 'pemain lain: aura dari data server');
   assert.ok(/A\.set\(b\.root,u\.auraKey/.test(gameplay), 'Aura dipasang pada pion gameplay');
   assert.ok(/PAURA\.update\(dt\)/.test(gameplay), 'AuraFX diperbarui setiap frame');
@@ -95,4 +95,5 @@ t('karakter.html: skrip aura dimuat setelah three & player-data; aura disinkronk
   assert.ok(!/AUR\.update\(dt\)/.test(js), 'pratinjau karakter tidak menjalankan aura');
 });
 console.log(n + ' tes lulus');
+
 

@@ -1,7 +1,7 @@
 ﻿/* Ular Tangga Blok â€” data/inventory/character/_shared/js/character-data.js
    DATA KARAKTER BERSAMA (voxel) â€” satu sumber detail model karakter & mob gameplay, untuk dipakai halaman mana pun
    (lobby, leaderboard, profil, shop, inventory, dll). Skrip klasik (tanpa import/export), global: UT.CharacterData.
-   - Data di bawah diekstrak apa adanya dari gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
+   - Data di bawah diekstrak apa adanya dari src/gameplay/js/main.js (makePawn / addCreeper / addEnderman / addSkeleton / addZombie /
      addWarden / addVillager / addBlaze / makeHostile) oleh tools/character-data/build.js (jalankan ulang bila model Gameplay berubah).
    - Satu box = [x, y, z, w, h, d, '#rrggbb', noEdge, tag]. Pusat box; satuan dunia gameplay; dasar kaki di y=0;
      karakter menghadap +z; kanan karakter = -x. noEdge=1: detail tanpa garis tepi (mata, mulut, dll).
@@ -239,4 +239,5 @@
   UT.CharacterData = { version: 1, list: list, get: get, svg: svg, face: face, mesh: mesh, SEATS: SEATS, groups: Object.keys(META) };
   UT.CharacterRigAdapter = { resolve: resolveRig, create: createRig };
 })(window);
+
 

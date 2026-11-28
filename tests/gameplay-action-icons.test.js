@@ -1,10 +1,10 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'gameplay.html'), 'utf8');
-const main = fs.readFileSync(path.join(root, 'gameplay/js/main.js'), 'utf8');
+const main = fs.readFileSync(path.join(root, 'src/gameplay/js/main.js'), 'utf8');
 const preload = JSON.parse(fs.readFileSync(path.join(root, 'assets/preload-manifest.json'), 'utf8'));
 
 assert.match(html, /id="btnRoll"[^>]*aria-label="Roll"[^>]*><img id="btnRollIcon"[^>]*alt=""/);
@@ -22,3 +22,4 @@ for (const name of ['roll', 'hancurkan', 'serang']) {
 }
 
 console.log('ok - gameplay Roll/Hancurkan/Serang buttons use transparent WebP icons');
+

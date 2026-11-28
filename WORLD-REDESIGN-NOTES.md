@@ -1,4 +1,4 @@
-# World redesign notes (Dragon Roll x playful diorama look)
+﻿# World redesign notes (Dragon Roll x playful diorama look)
 
 Scope: **colour, lighting and baked shading only.** No gameplay logic, coordinates, tile numbering,
 collision, camera, snakes/ladders, pawns or asset lists were touched. The seeded `rnd()` call order is unchanged,
@@ -7,10 +7,10 @@ so world/decor placement is identical to before.
 ## Files changed (small, targeted)
 | File | Change |
 |---|---|
-| `gameplay/js/maps/world.js` | Sky `#4A8FC9/#AFCFE2` -> `#3DA5E8/#BDEBF0` (sky blue to turquoise haze, also tints fog); warmer/lighter tile-column wood+earth; fresher ground; warm grass bounce light (`hemi`); white clouds |
-| `gameplay/js/main.js` | Island palette (fresh grass, warm earth, natural stone, livelier flowers); `WORLD_GRADE` tile-top colour grade; warm sunlight + sky-tinted fill in `applyLook` (World only); cooler/lighter background mountains for aerial depth |
-| `gameplay/js/voxel-geom.js` | Baked ambient occlusion: foot of every box side darkened, underside darker. Colour only, no geometry change. Tunable: `UT.GameplayVoxelGeom.AO.foot` / `.under` (set `foot=0` to disable; per box: `{ao:false}`) |
-| `gameplay/js/biomes.js` | River water turquoise `#35B9DC`; golden start-area sand |
+| `src/gameplay/js/maps/world.js` | Sky `#4A8FC9/#AFCFE2` -> `#3DA5E8/#BDEBF0` (sky blue to turquoise haze, also tints fog); warmer/lighter tile-column wood+earth; fresher ground; warm grass bounce light (`hemi`); white clouds |
+| `src/gameplay/js/main.js` | Island palette (fresh grass, warm earth, natural stone, livelier flowers); `WORLD_GRADE` tile-top colour grade; warm sunlight + sky-tinted fill in `applyLook` (World only); cooler/lighter background mountains for aerial depth |
+| `src/gameplay/js/voxel-geom.js` | Baked ambient occlusion: foot of every box side darkened, underside darker. Colour only, no geometry change. Tunable: `UT.GameplayVoxelGeom.AO.foot` / `.under` (set `foot=0` to disable; per box: `{ao:false}`) |
+| `src/gameplay/js/biomes.js` | River water turquoise `#35B9DC`; golden start-area sand |
 | `sw.js` | `VERSION` ut-pwa-v280 -> v281 so players pick up the new JS |
 
 ## Design decisions
@@ -37,3 +37,4 @@ so world/decor placement is identical to before.
 - Pemetaan: kategori material `MT` (id per vertex via `addBox(..,{tex:MT.X})`) -> tile, per tema di `TEX_PACK_MAP` (main.js). **Map baru = tambah 1 entri tema + tandai bagian dengan MT.** Kategori tanpa entri tetap polos/painterly.
 - CSS: `--world-pack` (1/0 saklar), `--world-pack-tex` (kekuatan), `--world-pack-size` (unit dunia per tile). `body.th-world` dan `body.th-nether`.
 - Nether baru ditandai: tanah/kolom (netherrack), nylium crimson/warped, soul sand, basalt, magma, batu hangus (blackstone), tiang (nether bricks), bingkai portal. Belum: pulau Nether, jamur, ghast, dll.
+

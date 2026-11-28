@@ -1,5 +1,5 @@
-const assert = require('assert');
-const D = require('../gameplay/js/duel-core.js');
+﻿const assert = require('assert');
+const D = require('../src/gameplay/js/duel-core.js');
 let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 const types = r => r.events.map(e => e.type);
 /* rumus: dmg = 6 + (menang-kalah)*5 (+8 bila menang=6); giliran ke-3 x1.8; lawan dadu 2 -> x0.45 (min 3) */
@@ -80,3 +80,4 @@ t('play() selalu selesai paling lama di giliran 3 (acak)', () => {
   for (let i = 0; i < 300; i++) { const r = D.play(D.create()); assert.ok(r.state.over); assert.ok(r.state.round <= 3); assert.ok(r.state.draw || r.state.winner !== null); }
 });
 console.log('\n' + n + ' tes duel-core lulus');
+

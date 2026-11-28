@@ -1,4 +1,4 @@
-/* Jembatan data pemain -> gameplay.html. Dimuat SEBELUM skrip game; tidak mengubah logika game.
+﻿/* Jembatan data pemain -> gameplay.html. Dimuat SEBELUM skrip game; tidak mengubah logika game.
    Tugas: pastikan konfigurasi awal (URL/sessionStorage "ut-config") hanya memakai skin, tema, dan
    dadu yang DIMILIKI pemain, dan isi default dari item yang sedang dipakai bila game dibuka langsung.
    gameplay.html membaca konfigurasi lewat readLobbyConfig(); di sini hanya URL/ut-config yang dinormalisasi. */
@@ -9,11 +9,11 @@
 
   var MODES = ['cpu', '2', '3', '4'];
   function eqKey(slot) { var it = IC.byId(PD.equippedId(slot)); return it ? it.gameKey : null; }
-  /* Tahap 3.2: skin PNG belum punya renderer di gameplay.html (DEFERRED — tahap integrasi gameplay).
+  /* Tahap 3.2: skin PNG belum punya renderer di gameplay.html (DEFERRED â€” tahap integrasi gameplay).
      Hanya skin 'palette' (legacy) yang diteruskan; skin PNG yang dipakai/dimiliki jatuh ke skin cadangan,
      TANPA mengubah kepemilikan atau skin terpasang di PlayerData. */
   var FALLBACK_KEY = (IC.byId(IC.fallbackSkinId()) || {}).gameKey || 'steve';
-  function playable(k) { var it = IC.byGameKey('skin', k); return !!it && (it.renderer === 'palette' || it.renderer === 'png'); } /* 4.1.14.9: PNG punya renderer 3D (gameplay/js/skin-uv.js); gagal muat -> palette Steve di gameplay */
+  function playable(k) { var it = IC.byGameKey('skin', k); return !!it && (it.renderer === 'palette' || it.renderer === 'png'); } /* 4.1.14.9: PNG punya renderer 3D (src/gameplay/js/skin-uv.js); gagal muat -> palette Steve di gameplay */
   function eqSkinKey() { var it = IC.byId(PD.equippedId('skin')); return !it ? null : ((it.renderer === 'palette' || it.renderer === 'png') ? it.gameKey : FALLBACK_KEY); }
   function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
 
@@ -63,3 +63,4 @@
     window.__utConfig = out; /* untuk pengujian/diagnostik */
   } catch (e) { /* jangan pernah menghalangi game */ }
 })();
+

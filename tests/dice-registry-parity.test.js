@@ -126,8 +126,8 @@ t('Equip->Gameplay: tiap gameKey Dice ada di DiceKit (DiceCatalog.js) sehingga d
   const ids = [...rd('src/renderers/dice-kit/dice-catalog.js').matchAll(/^\s{2}\{\s*\n\s{4}id: '([a-z0-9_]+)'/gm)].map(m => m[1]);
   assert.deepStrictEqual(ids, DiceCat.keys);
   assert.ok(/PD\.owns\('dice\.' \+ dice\)/.test(rd('src/services/game-integration.js')) && /eqKey\('dice'\) \|\| 'klasik'/.test(rd('src/services/game-integration.js')));
-  assert.ok(/window\.ItemCatalog\.byId\(di\)/.test(rd('gameplay/js/main.js')) && /p\.diceKey=\(it&&it\.gameKey\)/.test(rd('gameplay/js/main.js')));
-  assert.ok(/DiceKit\.has\(want\.key\) \? want\.key : 'klasik'/.test(rd('gameplay/js/dice-ui.js')));
+  assert.ok(/window\.ItemCatalog\.byId\(di\)/.test(rd('src/gameplay/js/main.js')) && /p\.diceKey=\(it&&it\.gameKey\)/.test(rd('src/gameplay/js/main.js')));
+  assert.ok(/DiceKit\.has\(want\.key\) \? want\.key : 'klasik'/.test(rd('src/gameplay/js/dice-ui.js')));
 });
 t('Gameplay implementation tetap utuh dan file SFX hanya berpindah path', () => {
   cp.execFileSync('git', ['diff', '--quiet', '--find-renames=100%', 'HEAD', '--', 'src/stores/player-data.js', 'src/services/game-integration.js', 'supabase'], { cwd: ROOT });
@@ -167,7 +167,7 @@ t('Aset C: berkas rujukan benar-benar ada â€” renderKit (DiceCatalog.js) da
   assert.ok(ex(DiceCat.category.assets.renderKit) && fs.statSync(path.join(ROOT, DiceCat.category.assets.renderKit)).size > 1000);
   DICEKIT_FILES.forEach(f => assert.ok(ex(f), f));
   assert.ok(!fs.existsSync(path.join(ROOT, 'src/renderers/dice-kit')), 'legacy dice-kit directory must be removed');
-  assert.ok(ex('assets/audio/sfx/dice/dice-roll.mp3') && /roll:'dice\/dice-roll\.mp3'/.test(rd('gameplay/js/audio.js')));
+  assert.ok(ex('assets/audio/sfx/dice/dice-roll.mp3') && /roll:'dice\/dice-roll\.mp3'/.test(rd('src/gameplay/js/audio.js')));
   DICE_CHAIN.forEach(f => assert.ok(ex(f), f));
 });
 
@@ -202,4 +202,5 @@ t('DiceKit: id/urutan DiceCatalog = manifest; warna bg/accent/pip & tier/collect
 });
 
 (async () => { let n = 0; for (const [name, fn] of tests) { await fn(); n++; console.log('ok - ' + name); } console.log('PASS ' + n + '/' + tests.length); })().catch(e => { console.error(e); process.exit(1); });
+
 

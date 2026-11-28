@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/js/level-up.js
+﻿/* Ular Tangga Blok â€” src/gameplay/js/level-up.js
    Modal "Naik Level" (referensi: referensi/newgui/assets/penerapan/CyJ1Oe.png).
-   Skrip klasik (tanpa import/export). Dimuat dari gameplay.html; CSS: gameplay/css/level-up.css (z-index tinggi).
+   Skrip klasik (tanpa import/export). Dimuat dari gameplay.html; CSS: src/gameplay/css/level-up.css (z-index tinggi).
    Pakai:  UT.LevelUp.show({ level: 3, rewards: [{kind:'coins'|'gems', amount:'+250', label:'Koin'} atau {icon:'assets/...webp', amount:60, label:'Energi'}], note: 'Energi maks naik ke 60', onClose: fn })
    - level   : wajib, angka level baru.
    - rewards : opsional; bagian "HADIAH" disembunyikan bila kosong (tidak ada hadiah karangan).
@@ -106,3 +106,4 @@
 
   UT.LevelUp = { show: show, close: close, isOpen: function () { return !!root; } };
 })(window, document);
+

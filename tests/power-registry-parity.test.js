@@ -115,11 +115,11 @@ t('Shop/Room/Gameplay/Power-up: rantai Registry selesai sebelum ItemCatalog; tid
   });
   ['powerup.html', 'room.html'].forEach(file => {
     const html = rd(file);
-    assert.ok(html.includes('gameplay/css/particle-fx.css'), file + ' particle CSS');
-    assert.ok(html.includes('gameplay/js/particle-fx.js'), file + ' particle engine');
+    assert.ok(html.includes('src/gameplay/css/particle-fx.css'), file + ' particle CSS');
+    assert.ok(html.includes('src/gameplay/js/particle-fx.js'), file + ' particle engine');
   });
-  assert.ok(ex('gameplay/css/particle-fx.css'));
-  assert.ok(ex('gameplay/js/particle-fx.js'));
+  assert.ok(ex('src/gameplay/css/particle-fx.css'));
+  assert.ok(ex('src/gameplay/js/particle-fx.js'));
 });
 t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama yang benar-benar tersedia', async () => {
   const [{ POWER_ITEMS }, { PowerSound }, powerRegistry] = await Promise.all([
@@ -157,7 +157,7 @@ t('Model, animasi, aura, FX, dan audio: manifest merujuk entri sistem bersama ya
   }
 });
 t('Audio gameplay: file Power valid, setiap Power punya suara unik dan variasi pitch', () => {
-  const audio = rd('gameplay/js/audio.js');
+  const audio = rd('src/gameplay/js/audio.js');
   const fileBlock = /const FILE=\{([\s\S]*?)\};/.exec(audio)[1].replace(/\/\*[\s\S]*?\*\//g, '');
   const filePaths = {};
   for (const m of fileBlock.matchAll(/([A-Za-z]\w*)\s*:\s*(NS\s*\+\s*)?'([^']+)'/g)) {
@@ -308,4 +308,5 @@ t('Service worker preload: seluruh manifest Power tersedia dengan ukuran aktual 
   for (const [name, fn] of tests) { await fn(); console.log('ok - ' + name); }
   console.log('PASS ' + tests.length + '/' + tests.length);
 })().catch(e => { console.error(e); process.exit(1); });
+
 

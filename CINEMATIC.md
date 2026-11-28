@@ -1,5 +1,5 @@
-# Lapisan Sinematik (three.js)
-File baru: `gameplay/js/cinematic.js` (dimuat sebelum `main.js`). Tanpa library tambahan, 100% offline.
+﻿# Lapisan Sinematik (three.js)
+File baru: `src/gameplay/js/cinematic.js` (dimuat sebelum `main.js`). Tanpa library tambahan, 100% offline.
 Hook di `main.js`: 5 titik kecil (patch MAT, init, look di applyLook, resize, render). Logika game tidak disentuh.
 
 Efek: HDR + MSAA render target, bloom (mip chain), tilt-shift DOF, aberasi kromatik, soft-shoulder tone mapping,
@@ -24,3 +24,4 @@ Uji manual: `UT.Cinema.debugDoom(1)` di console (`debugDoom(null)` untuk kembali
   Tekan dilakukan di vertex shader material voxel (uPress), nomor = plane terpisah (LABS di buildLabels).
 - Aurora = 7 tirai 3D yang tertambat ke dunia (ring radius 54 di sekeliling papan), bukan overlay layar; bintang = kubah langit + Points. Terlihat saat kamera diturunkan/diputar ke arah langit.
   Malam: sedang; saat Doom: lebih kuat. Tidak muncul di Nether.
+

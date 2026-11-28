@@ -1,6 +1,6 @@
-/* Ular Tangga Blok — gameplay/js/config.js (Stage 4.1.3: extract gameplay config)
-   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH gameplay/js/module-bridge.js
-   dan SEBELUM gameplay/js/hud.js serta blok skrip gameplay inline.
+﻿/* Ular Tangga Blok â€” src/gameplay/js/config.js (Stage 4.1.3: extract gameplay config)
+   Skrip klasik (tanpa import/export/type=module). Dimuat SETELAH src/gameplay/js/module-bridge.js
+   dan SEBELUM src/gameplay/js/hud.js serta blok skrip gameplay inline.
    HANYA data/konfigurasi statis. Tidak ada logic, closure state, atau akses DOM/THREE di sini.
    Satu-satunya sumber (single source of truth) untuk data di bawah; gameplay.html membacanya lewat
    UT.Gameplay.Config.* dan tidak menyimpan salinan.
@@ -78,29 +78,29 @@
   C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */
 
   C.PUN = C.PUN || {
-    sword: ['🗡️', 'Iron Sword', 'serang musuh di petak yang sama: mundur 2', 'Iron'],
-    feather: ['🪶', 'Feather', 'giliran tambahan'],
-    tnt: ['🧨', 'TNT', 'jebakan di petak 1–6 di depan: musuh yang mendarat (dan 1 petak sekitarnya) mundur 6'],
-    totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, atau serangan Power'],
-    potion_odd: ['🧪', 'Ramuan Ganjil', 'dadu berikutnya ganjil (1, 3, atau 5)', 'Ganjil'],
-    potion_even: ['🧪', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
-    grass: ['🟣', 'Ender Pearl', 'tukar posisi dengan pemain terdepan', 'Pearl'],
-    diamond_sword: ['🗡️', 'Diamond Sword', 'musuh dalam jarak 2 petak mundur 3', 'Diamond'],
-    netherite_sword: ['🗡️', 'Netherite Sword', 'musuh dalam jarak 4 petak mundur 5', 'Netherite'],
-    wooden_shield: ['🛡️', 'Wooden Shield', 'menahan 1 serangan Power dari pemain lain otomatis', 'Shield'],
-    golden_apple: ['🍎', 'Golden Apple', 'dadu berikutnya bonus +3 petak', 'Apple'],
-    fire_charge: ['🔥', 'Fire Charge', 'jebakan api di petak 1–6 di depan: musuh yang mendarat mundur 3', 'Fire'],
-    ice_crystal: ['🧊', 'Ice Crystal', 'pemain terdepan membeku: lewati giliran berikutnya', 'Ice'],
-    blaze_core: ['🔶', 'Blaze Core', 'jebakan ledakan di petak 1–6 di depan: musuh yang mendarat (dan 2 petak sekitarnya) mundur 2', 'Blaze'],
-    trident: ['🔱', 'Trident', 'pemain terdepan mundur 4, kamu maju 2', 'Trident'],
-    dragon_crystal: ['💎', 'Dragon Crystal', 'meluncur ke Tangga terdekat di depan, atau maju 6', 'Crystal'],
-    nether_star: ['⭐', 'Nether Star', 'semua musuh mundur 3 dan kamu dapat giliran tambahan', 'Star']
+    sword: ['ðŸ—¡ï¸', 'Iron Sword', 'serang musuh di petak yang sama: mundur 2', 'Iron'],
+    feather: ['ðŸª¶', 'Feather', 'giliran tambahan'],
+    tnt: ['ðŸ§¨', 'TNT', 'jebakan di petak 1â€“6 di depan: musuh yang mendarat (dan 1 petak sekitarnya) mundur 6'],
+    totem: ['ðŸ—¿', 'Totem', 'pilih pakai saat kena ular, mob jahat, atau serangan Power'],
+    potion_odd: ['ðŸ§ª', 'Ramuan Ganjil', 'dadu berikutnya ganjil (1, 3, atau 5)', 'Ganjil'],
+    potion_even: ['ðŸ§ª', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
+    grass: ['ðŸŸ£', 'Ender Pearl', 'tukar posisi dengan pemain terdepan', 'Pearl'],
+    diamond_sword: ['ðŸ—¡ï¸', 'Diamond Sword', 'musuh dalam jarak 2 petak mundur 3', 'Diamond'],
+    netherite_sword: ['ðŸ—¡ï¸', 'Netherite Sword', 'musuh dalam jarak 4 petak mundur 5', 'Netherite'],
+    wooden_shield: ['ðŸ›¡ï¸', 'Wooden Shield', 'menahan 1 serangan Power dari pemain lain otomatis', 'Shield'],
+    golden_apple: ['ðŸŽ', 'Golden Apple', 'dadu berikutnya bonus +3 petak', 'Apple'],
+    fire_charge: ['ðŸ”¥', 'Fire Charge', 'jebakan api di petak 1â€“6 di depan: musuh yang mendarat mundur 3', 'Fire'],
+    ice_crystal: ['ðŸ§Š', 'Ice Crystal', 'pemain terdepan membeku: lewati giliran berikutnya', 'Ice'],
+    blaze_core: ['ðŸ”¶', 'Blaze Core', 'jebakan ledakan di petak 1â€“6 di depan: musuh yang mendarat (dan 2 petak sekitarnya) mundur 2', 'Blaze'],
+    trident: ['ðŸ”±', 'Trident', 'pemain terdepan mundur 4, kamu maju 2', 'Trident'],
+    dragon_crystal: ['ðŸ’Ž', 'Dragon Crystal', 'meluncur ke Tangga terdekat di depan, atau maju 6', 'Crystal'],
+    nether_star: ['â­', 'Nether Star', 'semua musuh mundur 3 dan kamu dapat giliran tambahan', 'Star']
   };
   /* Aturan Power (DATA, bukan kode per Power; dibaca usePU/cpuPUValid di gameplay.html). Angka di sini = SATU sumber.
-     kind: trap (JEBAKAN di petak: range = pilihan petak 1..range di depan, radius = petak sekitar ikut kena, back = mundur; musuh yang MENDARAT memicu, pemasang kebal, sekali pakai) · strike (satu target mundur) · area (banyak target mundur) · swap (tukar posisi) · freeze (target lewati giliran) · guard (tahan 1 serangan Power)
-           · totem (diputuskan saat kena) · dice (flag dadu berikutnya) · self (efek ke diri)
-     target: 'same' petak sama · 'near' terdekat dalam range (dua arah) · 'ahead' terdekat DI DEPAN dalam range · 'leader' pemain terdepan · 'allAhead' semua di depan · 'all' semua musuh
-     back = petak mundur · self = maju untuk diri bila kena · bonus = tambah bonus dadu · extra = giliran tambahan · ladder/fallback = ke tangga terdekat atau maju fallback
+     kind: trap (JEBAKAN di petak: range = pilihan petak 1..range di depan, radius = petak sekitar ikut kena, back = mundur; musuh yang MENDARAT memicu, pemasang kebal, sekali pakai) Â· strike (satu target mundur) Â· area (banyak target mundur) Â· swap (tukar posisi) Â· freeze (target lewati giliran) Â· guard (tahan 1 serangan Power)
+           Â· totem (diputuskan saat kena) Â· dice (flag dadu berikutnya) Â· self (efek ke diri)
+     target: 'same' petak sama Â· 'near' terdekat dalam range (dua arah) Â· 'ahead' terdekat DI DEPAN dalam range Â· 'leader' pemain terdepan Â· 'allAhead' semua di depan Â· 'all' semua musuh
+     back = petak mundur Â· self = maju untuk diri bila kena Â· bonus = tambah bonus dadu Â· extra = giliran tambahan Â· ladder/fallback = ke tangga terdekat atau maju fallback
      boss:false = tidak bisa dipakai saat fase Naga/Wither (p.pos===GOAL) */
   C.PUR = C.PUR || {
     sword:           { kind: 'strike', target: 'same',   back: 2, boss: false },
@@ -140,3 +140,4 @@
     el.appendChild(im); return el;
   };
 })(window);
+

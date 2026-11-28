@@ -1,9 +1,9 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
 /* Bug: Enderman teleport ke kepala ular (mis. 62) -> pion diam, tidak turun. Efek mob harus diikuti pemrosesan petak pendaratan. */
-const main = fs.readFileSync(path.join(__dirname, '..', 'gameplay/js/main.js'), 'utf8');
+const main = fs.readFileSync(path.join(__dirname, '..', 'src/gameplay/js/main.js'), 'utf8');
 const start = main.indexOf('async function resolveTileAt(p,gid,depth){');
 const end = main.indexOf('async function resolveAfterChestMove', start);
 assert.ok(start >= 0 && end > start, 'resolveTileAt should accept a depth guard');
@@ -18,3 +18,4 @@ assert.ok(/const landing=await A\(resolveTileAt\(p,gid,d\+1\)\);\s*if\(landing\)
 assert.ok(mobBranch.indexOf('resolveMobAt') < mobBranch.indexOf('resolveTileAt'), 'landing tile resolves after the mob effect');
 
 console.log('ok - mob-moved pawns resolve their landing tiles and trigger PvP collisions');
+

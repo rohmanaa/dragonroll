@@ -1,15 +1,15 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const gameplay = fs.readFileSync(path.join(__dirname, '../gameplay.html'), 'utf8');
-const hudCss = fs.readFileSync(path.join(__dirname, '../gameplay/css/hud-mockup.css'), 'utf8');
-const dicePadCss = fs.readFileSync(path.join(__dirname, '../gameplay/css/dice-pad.css'), 'utf8');
-const diceUi = fs.readFileSync(path.join(__dirname, '../gameplay/js/dice-ui.js'), 'utf8');
+const hudCss = fs.readFileSync(path.join(__dirname, '../src/gameplay/css/hud-mockup.css'), 'utf8');
+const dicePadCss = fs.readFileSync(path.join(__dirname, '../src/gameplay/css/dice-pad.css'), 'utf8');
+const diceUi = fs.readFileSync(path.join(__dirname, '../src/gameplay/js/dice-ui.js'), 'utf8');
 
 assert.doesNotMatch(gameplay, /class="gh-dice"|new-icon\/dadu\.webp/);
 assert.match(gameplay, /id="dieScene"[^>]*role="img"/);
-assert.match(gameplay, /<script src="gameplay\/js\/dice-ui\.js"><\/script>/);
-assert.match(gameplay, /href="gameplay\/css\/dice-pad\.css"/);
+assert.match(gameplay, /<script src="src\/gameplay\/js\/dice-ui\.js"><\/script>/);
+assert.match(gameplay, /href="src\/gameplay\/css\/dice-pad\.css"/);
 const sceneRule = hudCss.match(/#side \.rcol \.pnl\.tn #dieScene\s*\{([^}]*)\}/);
 assert.ok(sceneRule, 'expected a gameplay 3D die scene rule');
 assert.match(sceneRule[1], /opacity:\s*1\s*!important/);
@@ -28,3 +28,4 @@ assert.ok(width > 210 && height > 182, 'expected the Dice Kit canvas to be large
 assert.strictEqual(width + 2 * left, 64, 'expected the canvas to be horizontally centered');
 assert.strictEqual(height + 2 * top, 64, 'expected the canvas to be vertically centered');
 console.log('ok - gameplay displays the Dice Kit die, not the static die image');
+
