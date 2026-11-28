@@ -1,28 +1,23 @@
 /* Ular Tangga Blok — gameplay/js/duel-core.js
-   ATURAN DUEL PVP (Clash) MURNI: tanpa DOM, THREE, audio, atau animasi. Hanya data -> data.
+   ATURAN DUEL PVP (Dadu Duel Blok) MURNI: tanpa DOM, THREE, audio, atau animasi. Hanya data -> data.
    Sama seperti game-core.js: bisa dipakai di browser (UT.Gameplay.Duel) dan Node (require) untuk tes,
    serta nanti di server agar dadu & hasil duel tidak bisa dicurangi di klien.
 
-   Aturan (gaya batu-gunting-kertas):
+   Aturan (sistem baru, dari prototipe Dadu_Duel_Blok.html):
    - Dua pemain bertemu (mendarat) di petak yang sama. Petak START (<=1) dan petak akhir = Safe Tile (tanpa duel).
-   - Masing-masing 3 Hearts. Kedua pemain roll d6 bersamaan; dadu diubah jadi 3 aksi (2 sisi dadu per aksi):
-       1-2 Attack  : beri 1 damage
-       3-4 Defense : bertahan, menahan Attack lawan
-       5-6 Heal    : dapat 1 hati (maks 3)
-   - Siapa mengalahkan siapa:
-       Attack  vs Defense -> serangan diblokir (0 damage)
-       Attack  vs Heal    -> serangan masuk, Heal gagal (terganggu)
-       Attack  vs Attack  -> saling kena 1
-       Heal    vs Defense -> Heal berhasil
-       Heal    vs Heal    -> keduanya +1
-       Defense vs Defense -> tidak terjadi apa-apa
-   - Hanya 3 ronde. Setelah ronde 3 selesai TIDAK ada ronde berikutnya (tanpa Sudden Death).
-     Hati 0 = kalah lebih awal. Setelah ronde 3: hati lebih banyak menang, sama = DRAW.
+   - Masing-masing punya HP 100. Hanya 3 GILIRAN. Tiap giliran kedua pemain roll d6 bersamaan:
+       angka lebih besar = penyerang giliran itu; angka kembar = IMBANG (senjata beradu, tanpa damage).
+       Angka dadu juga nama aksinya: 1 MELESET, 2 TANGKIS, 3 SERANG, 4 SERANG KUAT, 5 SKILL, 6 KRITIS.
+   - Damage = 6 + (dadu menang - dadu kalah) * 5, +8 bila dadu menang = 6.
+       Giliran ke-3 = SERANGAN PAMUNGKAS: damage x1.8.
+       Bila dadu lawan = 2 (TANGKIS): damage x0.45 (minimal 3), diblokir sebagian.
+   - HP 0 = K.O., duel langsung selesai. Setelah giliran ke-3: HP lebih banyak menang.
+     HP sama = SERI (TIDAK ada adu ulang / sudden death).
    - Hasil:
        Menang : hadiah (XP) + bertahan di petak
-       Kalah  : hadiah kecil + mundur 5 petak (minimal petak 1)
-       Draw   : tanpa hadiah, kedua pemain tetap di petak yang sama
-   API: create(opts) -> state ; round(state, rolls|rng) -> {state, events} ; outcome(state, ctx) -> hasil.
+       Kalah  : hadiah kecil + mundur backTiles petak (minimal petak 1)
+       Seri   : tanpa hadiah, kedua pemain tetap di petak yang sama
+   API: create(opts) -> state ; round(state, rolls|rng) -> {state, events, turn} ; outcome(state, ctx) -> hasil.
    State tidak dimutasi. */
 (function (root, factory) {
   var api = factory();
@@ -33,23 +28,26 @@
   'use strict';
 
   var DEFAULTS = {
-    maxHp: 3,
-    maxRounds: 3,
+    maxHp: 100,
+    maxRounds: 3,   /* jumlah giliran (tetap 3) */
     backTiles: 5,   /* petak mundur bagi yang kalah */
     xpWin: 20,
     xpLose: 5,
     xpDraw: 0,
-    reviveHp: 2     /* HP pemain kalah setelah duel (di luar duel) */
+    reviveHp: 50,   /* HP pemain kalah setelah duel (di luar duel) */
+    ultMult: 1.8,   /* pengali damage giliran terakhir */
+    guardMult: 0.45,/* pengali damage bila lawan menangkis (dadu 2) */
+    guardMin: 3
   };
 
-  /* dadu 1-6 -> aksi. atk = damage yang diberikan. */
+  /* dadu 1-6 -> aksi (nama dipakai UI) */
   var ACTIONS = {
-    1: { id: 'attack',  name: 'Attack',  atk: 1 },
-    2: { id: 'attack',  name: 'Attack',  atk: 1 },
-    3: { id: 'defense', name: 'Defense', atk: 0 },
-    4: { id: 'defense', name: 'Defense', atk: 0 },
-    5: { id: 'heal',    name: 'Heal',    atk: 0 },
-    6: { id: 'heal',    name: 'Heal',    atk: 0 }
+    1: { id: 'miss',   name: 'MELESET' },
+    2: { id: 'guard',  name: 'TANGKIS' },
+    3: { id: 'attack', name: 'SERANG' },
+    4: { id: 'power',  name: 'SERANG KUAT' },
+    5: { id: 'skill',  name: 'SKILL' },
+    6: { id: 'crit',   name: 'KRITIS!' }
   };
 
   function actionOf(v) { return ACTIONS[v]; }
@@ -73,94 +71,89 @@
     return {
       cfg: cfg,
       hp: [cfg.maxHp, cfg.maxHp],
-      mom: [0, 0],    /* dipertahankan (selalu 0) agar UI/cue lama tetap kompatibel */
-      round: 0,
+      round: 0,       /* giliran yang sudah dimainkan */
       over: false,
       draw: false,
-      winner: null,   /* 0 | 1 | null (draw) */
-      loser: null
+      winner: null,   /* 0 | 1 | null (seri) */
+      loser: null,
+      by: null        /* 'ko' | 'hp' | 'draw' setelah selesai */
     };
   }
 
   function clone(s) {
-    return { cfg: s.cfg, hp: s.hp.slice(), mom: s.mom.slice(), round: s.round, over: s.over, draw: s.draw, winner: s.winner, loser: s.loser };
+    return { cfg: s.cfg, hp: s.hp.slice(), round: s.round, over: s.over, draw: s.draw, winner: s.winner, loser: s.loser, by: s.by };
   }
 
-  function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+  /* Damage satu serangan: dadu menang rw, dadu kalah rl, ult = giliran terakhir. -> {dmg, blocked} */
+  function damage(rw, rl, ult, cfg) {
+    cfg = cfg || DEFAULTS;
+    var dmg = 6 + (rw - rl) * 5 + (rw === 6 ? 8 : 0);
+    if (ult) dmg = Math.round(dmg * cfg.ultMult);
+    var blocked = rl === 2;
+    if (blocked) dmg = Math.max(cfg.guardMin, Math.round(dmg * cfg.guardMult));
+    return { dmg: dmg, blocked: blocked };
+  }
 
-  /* Satu ronde: kedua pemain roll bersamaan. rolls = [a,b] (angka 1-6) atau fungsi rng. */
+  /* Satu giliran: kedua pemain roll bersamaan. rolls = [a,b] (angka 1-6) atau fungsi rng.
+     turn = ringkasan untuk UI: {n, rolls, winner/loser (pemenang GILIRAN; null=imbang), dmg, blocked, ult, hp, over, by, dw (pemenang DUEL), draw} */
   function round(state, rolls) {
     if (state.over) throw new Error('duel sudah selesai');
-    var s = clone(state), ev = [], r, i, o, cfg = s.cfg;
+    var s = clone(state), ev = [], r, cfg = s.cfg;
     if (Array.isArray(rolls)) r = [rollValue(rolls[0]), rollValue(rolls[1])];
     else r = [rollValue(rolls), rollValue(rolls)];
+    var ult = s.round === cfg.maxRounds - 1;
     s.round++;
-    ev.push({ type: 'round', n: s.round });
+    ev.push({ type: 'round', n: s.round, ult: ult });
     ev.push({ type: 'roll', values: r.slice() });
 
-    var act = [ACTIONS[r[0]].id, ACTIONS[r[1]].id];
-    var dmg = [0, 0], heal = [0, 0], blocked = [false, false];
-    for (i = 0; i < 2; i++) {
-      o = 1 - i;
-      if (act[i] === 'attack') {
-        if (act[o] === 'defense') blocked[o] = true;
-        else dmg[o] = 1;
-      }
-      /* Heal berhasil kecuali diserang di ronde yang sama */
-      if (act[i] === 'heal' && act[o] !== 'attack') heal[i] = 1;
+    var w = r[0] > r[1] ? 0 : r[1] > r[0] ? 1 : null, dmg = 0, blocked = false, l = null;
+    if (w === null) ev.push({ type: 'clash' });
+    else {
+      l = 1 - w;
+      var d = damage(r[w], r[l], ult, cfg);
+      dmg = d.dmg; blocked = d.blocked;
+      s.hp[l] = Math.max(0, s.hp[l] - dmg);
+      ev.push({ type: blocked ? 'block' : 'hit', target: l, by: w, dmg: dmg, ult: ult });
     }
-    if (act[0] === 'attack' && act[1] === 'attack') ev.push({ type: 'clash' });
-    for (i = 0; i < 2; i++) {
-      if (dmg[i] > 0) ev.push({ type: 'hit', target: i, by: 1 - i, dmg: dmg[i], action: 'attack', finisher: false });
-      else if (blocked[i]) ev.push({ type: 'block', who: i });
-      if (heal[i] > 0 && s.hp[i] < cfg.maxHp) ev.push({ type: 'heal', who: i });
-    }
-    for (i = 0; i < 2; i++) s.hp[i] = clamp(s.hp[i] - dmg[i] + heal[i], 0, cfg.maxHp);
-    ev.push({ type: 'state', hp: s.hp.slice(), mom: s.mom.slice() });
+    ev.push({ type: 'state', hp: s.hp.slice() });
 
-    var w = null, ended = false;
-    if (s.hp[0] === 0 && s.hp[1] === 0) { ended = true; ev.push({ type: 'double_ko' }); }
-    else if (s.hp[0] === 0 || s.hp[1] === 0) { ended = true; w = s.hp[0] === 0 ? 1 : 0; }
+    var ended = false, win = null, by = null;
+    if (s.hp[0] === 0 || s.hp[1] === 0) { ended = true; win = s.hp[0] === 0 ? 1 : 0; by = 'ko'; }
     else if (s.round >= cfg.maxRounds) {
       ended = true;
-      if (s.hp[0] !== s.hp[1]) { w = s.hp[0] > s.hp[1] ? 0 : 1; ev.push({ type: 'decision', by: 'hp' }); }
+      if (s.hp[0] !== s.hp[1]) { win = s.hp[0] > s.hp[1] ? 0 : 1; by = 'hp'; ev.push({ type: 'decision', by: 'hp' }); }
+      else by = 'draw';
     }
     if (ended) {
-      s.over = true;
-      if (w === null) { s.draw = true; ev.push({ type: 'draw' }); }
-      else { s.winner = w; s.loser = 1 - w; ev.push({ type: 'ko', winner: w, loser: 1 - w, heavy: false, byFinisher: false }); }
+      s.over = true; s.by = by;
+      if (win === null) { s.draw = true; ev.push({ type: 'draw' }); }
+      else { s.winner = win; s.loser = 1 - win; ev.push({ type: 'ko', winner: win, loser: 1 - win, by: by }); }
     }
-    return { state: s, events: ev };
+    return {
+      state: s, events: ev,
+      turn: { n: s.round, rolls: r.slice(), winner: w, loser: l, dmg: dmg, blocked: blocked, ult: ult, hp: s.hp.slice(), over: s.over, by: s.by, dw: s.winner, draw: s.draw, max: cfg.maxHp }
+    };
   }
 
   /* Hasil & hadiah setelah duel selesai. ctx: {pos, goal}.
      -> {draw, winner, loser, kind:'win'|'draw', back, from, to, skipTurn:false, xp:{winner,loser}, reviveHp}
-     Kalah: mundur backTiles petak (tidak pernah di bawah petak 1). Draw: tanpa hadiah, tidak ada yang bergerak. */
+     Kalah: mundur backTiles petak (tidak pernah di bawah petak 1). Menang: bertahan. Seri: tanpa hadiah, tidak ada yang bergerak. */
   function outcome(state, ctx) {
     if (!state.over) throw new Error('duel belum selesai');
     var cfg = state.cfg, pos = (ctx && ctx.pos) || 1;
     if (state.draw) {
-      return { draw: true, winner: null, loser: null, kind: 'draw', byFinisher: false, back: 0, from: pos, to: pos,
-               skipTurn: false, xp: { winner: cfg.xpDraw, loser: cfg.xpDraw }, reviveHp: cfg.maxHp, revengeFor: null };
+      return { draw: true, winner: null, loser: null, kind: 'draw', by: 'draw', back: 0, from: pos, to: pos,
+               skipTurn: false, xp: { winner: cfg.xpDraw, loser: cfg.xpDraw }, reviveHp: cfg.maxHp };
     }
     var to = Math.max(1, pos - cfg.backTiles);
     return {
-      draw: false,
-      winner: state.winner,
-      loser: state.loser,
-      kind: 'win',
-      byFinisher: false,
-      back: pos - to,
-      from: pos,
-      to: to,
-      skipTurn: false,
-      xp: { winner: cfg.xpWin, loser: cfg.xpLose },
-      reviveHp: cfg.reviveHp,
-      revengeFor: null
+      draw: false, winner: state.winner, loser: state.loser, kind: 'win', by: state.by,
+      back: pos - to, from: pos, to: to, skipTurn: false,
+      xp: { winner: cfg.xpWin, loser: cfg.xpLose }, reviveHp: cfg.reviveHp
     };
   }
 
-  /* Mainkan duel sampai selesai (untuk simulasi/CPU/tes). rng opsional. Selalu berakhir paling lama di ronde 3. */
+  /* Mainkan duel sampai selesai (untuk simulasi/CPU/tes). rng opsional. Selalu berakhir paling lama di giliran 3. */
   function play(state, rng) {
     var s = state, all = [], n = 0;
     while (!s.over && n++ < 10) { var r = round(s, rng || Math.random); s = r.state; all = all.concat(r.events); }
@@ -169,6 +162,6 @@
 
   return {
     DEFAULTS: DEFAULTS, ACTIONS: ACTIONS, actionOf: actionOf, isSafeTile: isSafeTile,
-    rollValue: rollValue, create: create, round: round, outcome: outcome, play: play
+    rollValue: rollValue, damage: damage, create: create, round: round, outcome: outcome, play: play
   };
 });

@@ -14,7 +14,7 @@ assert(/\(ONLINE_ROOM&&!ONLINE_HOST\)/.test(duelCheck), 'tamu tidak menjalankan 
 assert(/duelServerRolls\(pair\)/.test(duelCheck) && /serverRoll\(q,'normal',null\)/.test(main));
 /* setiap langkah tampilan dicerminkan ke tamu */
 assert(/mpDuelUI\(UI,pair,did\)/.test(duelCheck));
-['open', 'intro', 'banner', 'log', 'state', 'actions', 'act', 'impact', 'pop', 'shake', 'revealRolls', 'result'].forEach(n => {
+['open', 'intro', 'banner', 'log', 'state', 'turn', 'act', 'impact', 'pop', 'shake', 'revealRolls', 'result'].forEach(n => {
   assert(main.includes("'" + n + "'"), 'cue duel ' + n);
 });
 /* cue 'duel' sampai di tamu dan 'go' diproses di luar antrean */
@@ -24,7 +24,7 @@ assert(/c\.k==='duel'&&c\.f==='go'/.test(main));
 assert(/onDuelRoll:onMpDuelRoll/.test(main));
 assert(/event:'duel_roll'/.test(sync) && /sendDuelRoll/.test(sync) && /onDuelRoll/.test(sync));
 /* UI */
-assert(/lockRoll:\s*function/.test(ui));
+assert(/lockRoll\(label_\)/.test(ui) && /'lockRoll'/.test(ui));
 /* mode offline tidak berubah: satu tombol ROLL */
 assert(/if\(!ONLINE_ROOM\) return UI\.waitForRoll\(round\)/.test(main));
 console.log('duel-online-wiring ok');

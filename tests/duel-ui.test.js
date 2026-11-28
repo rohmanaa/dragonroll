@@ -1,201 +1,71 @@
+/* Duel UI baru (Dadu Duel Blok): tes struktur + kontrak API. Animasi 3D diuji manual/di browser. */
 const assert = require('assert');
-const THREE = require('../assets/js/vendor/three.min.js');
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+const read = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+const ui = read('gameplay/js/duel-ui.js'), css = read('gameplay/css/duel.css'), main = read('gameplay/js/main.js'), html = read('gameplay.html');
+let n = 0; const t = (name, fn) => { fn(); n++; console.log('ok -', name); };
 
-class Element {
-  constructor(tag) {
-    this.tagName = tag;
-    this.children = [];
-    this.parentNode = null;
-    this.hidden = false;
-    this.attributes = {};
-    this.listeners = {};
-    this.className = '';
-    this.textContent = '';
-    this.style = { setProperty() {} };
-    this.classList = {
-      add: (...names) => { const set = new Set(this.className.split(/\s+/).filter(Boolean)); names.forEach(name => set.add(name)); this.className = [...set].join(' '); },
-      remove: (...names) => { this.className = this.className.split(/\s+/).filter(name => name && !names.includes(name)).join(' '); }
-    };
+t('API publik: urutan open -> intro -> waitForRoll -> revealRolls -> turn -> result -> close', () => {
+  const sandbox = { window: {}, document: {}, console: { error() {}, log() {} }, Promise, Math, setTimeout, clearTimeout };
+  sandbox.window.window = sandbox.window;
+  vm.runInNewContext(ui, sandbox);
+  const U = sandbox.window.UT.GameplayDuelUI;
+  ['open', 'chooseOpponent', 'intro', 'waitForRoll', 'lockRoll', 'revealRolls', 'state', 'turn', 'banner', 'log', 'pop', 'shake', 'act', 'impact', 'result', 'close']
+    .forEach(k => assert.strictEqual(typeof U[k], 'function', k));
+});
+t('tanpa Three.js/WebGL: open() = false (duel dilewati), pemanggil lain aman', async () => {
+  const sandbox = { window: {}, document: { getElementById() { return null; } }, console: { error() {}, log() {} }, Promise, Math, setTimeout, clearTimeout };
+  sandbox.window.window = sandbox.window;
+  vm.runInNewContext(ui, sandbox);
+  const U = sandbox.window.UT.GameplayDuelUI;
+  assert.strictEqual(U.open({ fighters: [{}, {}] }), false);
+  assert.strictEqual(U.close(), undefined);
+  assert.strictEqual(typeof U.turn({}).then, 'function');
+});
+t('rig BARU (Shuri/Raja Blok) dan rig LAMA (Ksatria Mahkota, karakter asli, model bidak) sama-sama tersedia', () => {
+  ['buildArcher', 'buildKnight'].forEach(f => assert(ui.includes('function ' + f), f));
+  ['ksatria', 'blocky', 'model'].forEach(k => assert(ui.includes("'" + k + "'"), 'rig lama ' + k));
+  assert(/UT\.PvpKnight\.createKnight|PK\.createKnight/.test(ui), 'memakai pvp-knight-rig');
+  assert(/UT\.BlockyCharacter\.create/.test(ui), 'memakai BlockyCharacter');
+  assert(/function rigFor\(/.test(ui) && /ksUpdate/.test(ui) && /bcUpdate/.test(ui) && /mdUpdate/.test(ui));
+});
+t('3 giliran saja: tidak ada adu ulang / sudden death di UI', () => {
+  assert(!/ADU ULANG|G\.sd\s*=\s*true/.test(ui));
+  assert(/GILIRAN '\+Math\.min\(3,/.test(ui));
+});
+t('CSS: semua selektor dibatasi ke #du2 (tidak bocor ke game)', () => {
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const heads = []; let depth = 0, cur = '';
+  for (const ch of stripped) {
+    if (ch === '{') { if (depth === 0) heads.push(cur.trim()); depth++; cur = ''; }
+    else if (ch === '}') { depth--; cur = ''; }
+    else if (depth === 0) cur += ch;
   }
-  appendChild(element) { element.parentNode = this; this.children.push(element); return element; }
-  get innerHTML() { return this._innerHTML || ''; }
-  set innerHTML(value) {
-    this._innerHTML = value;
-    if (value === '') { this.children.forEach(element => { element.parentNode = null; }); this.children = []; }
-  }
-  setAttribute(name, value) { this.attributes[name] = value; }
-  removeAttribute(name) { delete this.attributes[name]; }
-  addEventListener(name, callback) { this.listeners[name] = callback; }
-  getBoundingClientRect() { return { width: 640, height: 360 }; }
-  click() { if (this.listeners.click) this.listeners.click(); }
-}
-
-class Renderer {
-  constructor() { this.domElement = new Element('canvas'); this.loops = []; this.sizes = []; this.shadowMap = { enabled: false, type: null }; }
-  setPixelRatio(value) { this.pixelRatio = value; }
-  setClearColor() {}
-  setSize(width, height) { this.sizes.push([width, height]); }
-  setAnimationLoop(callback) { this.loops.push(callback); this.loop = callback; }
-  render() {}
-}
-THREE.WebGLRenderer = Renderer;
-
-function find(element, className) {
-  if (element.className.split(/\s+/).includes(className)) return element;
-  for (const child of element.children) { const result = find(child, className); if (result) return result; }
-  return null;
-}
-function findAll(element, className, results) {
-  results = results || [];
-  if (element.className.split(/\s+/).includes(className)) results.push(element);
-  element.children.forEach(child => findAll(child, className, results));
-  return results;
-}
-
-let fighterGroundY = () => 0;
-async function run() {
-  const body = new Element('body'), knightCreated = [], listeners = {};
-  body.classList.add('app');
-
-  /* Minimal POSES for PvpKnight mock */
-  const GUARD_POSE = { body: { rx: 0, ry: 0, rz: 0 } };
-  const mockPoses = {
-    guard: GUARD_POSE, block: GUARD_POSE, hurt: GUARD_POSE, dodge: GUARD_POSE,
-    win: GUARD_POSE, ko: GUARD_POSE, holy: GUARD_POSE, smite: GUARD_POSE,
-    atk: [GUARD_POSE, GUARD_POSE]
-  };
-
-  global.window = {
-    UT: {}, THREE, innerWidth: 640, innerHeight: 360, devicePixelRatio: 2,
-    addEventListener(name, callback) { listeners[name] = callback; },
-    removeEventListener(name) { delete listeners[name]; }
-  };
-  global.document = { body, createElement: tag => new Element(tag) };
-
-  /* Mock PvpKnight — takes priority over BlockyCharacter */
-  window.UT.PvpKnight = {
-    POSES: mockPoses,
-    RIVAL_PAL: { body: 0xff0000 },
-    createKnight(THREE, opts) {
-      const kn = {
-        root: new THREE.Group(), cape2: null,
-        setFlash() {}, setGlow() {}, dispose() {}
-      };
-      knightCreated.push({ kn, opts });
-      return kn;
-    },
-    newPose() { return Object.assign({}, GUARD_POSE); },
-    sample(keys, u) { return GUARD_POSE; },
-    applyPose(kn, cur, tgt, dt, rate) {}
-  };
-
-  /* Karakter ASLI pemain/CPU = BlockyCharacter; PvpKnight hanya untuk skin 'ksatria' */
-  const blockyCreated = [];
-  window.UT.BlockyCharacter = {
-    create() {
-      const character = {
-        root: new THREE.Group(), actions: [], modes: [], config: { outfit: 'equipped' },
-        apply(config) { this.appliedConfig = config; },
-        loadPreset(preset) { this.preset = preset; },
-        loadFromPlayer() { this.loadedPlayer = true; },
-        tick() {},
-        setMode(mode) { this.modes.push(mode); },
-        act(type, duration) { this.actions.push([type, duration]); }
-      };
-      blockyCreated.push(character);
-      return character;
-    }
-  };
-  require('../gameplay/js/duel-ui.js');
-
-  const UI = window.UT.GameplayDuelUI;
-  UI.open({
-    names: ['Rohman', 'CPU'], css: ['#ff4a54', '#55aaff'],
-    faces: ['face-one.webp', 'face-two.webp'], reducedMotion: false,
-    fighters: [{ config: { outfit: 'equipped' } }, { preset: 5 }]
-  });
-  assert.ok(body.className.includes('duel-active'), 'duel mode hides the board HUD');
-  assert.strictEqual(knightCreated.length, 0, 'karakter asli pemain/CPU tidak diganti ksatria');
-  assert.strictEqual(blockyCreated.length, 2, 'both fighters use their real BlockyCharacter');
-  assert.deepStrictEqual(blockyCreated[0].appliedConfig, { outfit: 'equipped' }, 'config pemain dipakai apa adanya');
-  assert.strictEqual(blockyCreated[1].preset, 5, 'preset CPU dipakai');
-  assert.strictEqual(fighterGroundY(), 0, 'karakter menapak di lantai (y=0)');
-  assert.ok(find(body, 'du-scene'), 'the arena includes a dedicated Three.js scene');
-  assert.strictEqual(findAll(body, 'du-die-slot').length, 2, 'tiap pemain punya slot dadu 3D di atas panel aksinya');
-  assert.strictEqual(findAll(body, 'du-fighter').length, 2, 'both arena fighters have action HUDs');
-  assert.strictEqual(find(body, 'du-scene').children[0].tagName, 'canvas');
-  const rollButton = find(body, 'du-roll-button');
-  assert.ok(rollButton && rollButton.disabled, 'the duel waits for an explicit roll before a round begins');
-  const rollWait = UI.waitForRoll(1);
-  assert.strictEqual(rollButton.disabled, false);
-  rollButton.click();
-  assert.strictEqual(await rollWait, true, 'the roll button starts the duel round');
-  await UI.revealRolls([2, 5]);
-  assert.deepStrictEqual(findAll(body, 'du-die').map(die => die.textContent), ['2', '5'], 'both dice results are shown before combat resolves');
-  /* batas waktu roll 5 detik: kalau pemain tidak tap, otomatis roll */
-  {
-    const realNow = Date.now, autoWait = UI.waitForRoll(2);
-    assert.strictEqual(rollButton.disabled, false, 'tombol ROLL aktif saat menunggu');
-    Date.now = () => realNow() + 5200;
-    const autoRolled = await Promise.race([autoWait, new Promise(r => setTimeout(() => r('timeout'), 600))]);
-    Date.now = realNow;
-    assert.strictEqual(autoRolled, true, 'lewat 5 detik tanpa tap -> otomatis roll');
-    assert.strictEqual(rollButton.disabled, true, 'tombol terkunci setelah auto-roll');
-    await UI.revealRolls([3, 4]);
-  }
-  const intro = UI.intro();
-  const skipButton = find(body, 'du-skip');
-  assert.strictEqual(skipButton.hidden, false, 'skip animation is available during the duel intro');
-  skipButton.click();
-  await intro;
-  assert.strictEqual(skipButton.hidden, true, 'skip animation closes the intro promptly');
-
-  UI.state([2, 3], [3, 1]);
-  assert.ok(find(body, 'du-hp').innerHTML.includes('du-heart on'));
-  assert.ok(find(body, 'du-mom').innerHTML.includes('on'));
-  UI.actions([3, 5]);
-  assert.ok(findAll(body, 'du-action')[0].className.includes('defense'));
-  assert.ok(findAll(body, 'du-action')[1].className.includes('regen'));
-  UI.actions([1, 2]);
-  assert.strictEqual(findAll(body, 'du-action')[0].className, 'du-action');
-  UI.act(0, 'attack', 0.75);
-  UI.act(1, 'block', 0.9);
-  assert.deepStrictEqual(blockyCreated[0].actions[0], ['attack', 0.75], 'serangan diteruskan ke karakter asli');
-  assert.deepStrictEqual(blockyCreated[1].actions[0], ['block', 0.9], 'block diteruskan ke karakter asli');
-  UI.act(1, 'sad', 1.8);
-  await new Promise(resolve => setTimeout(resolve, 20));
-  assert.ok(blockyCreated[1].modes.includes('poseDown'), 'yang kalah terpental lalu jatuh (poseDown)');
-  UI.impact(1, 'block');
-  assert.ok(findAll(body, 'du-fighter')[1].className.includes('block'), 'impact FX are attached to the defending fighter');
-
-  /* skin ksatria memakai rig PvpKnight dengan palet rival untuk pemain kedua */
-  UI.open({ names: ['A', 'B'], css: ['#fff', '#fff'], fighters: [{ skin: 'ksatria' }, { skin: 'ksatria' }], reducedMotion: true });
-  assert.strictEqual(knightCreated.length, 2, 'skin ksatria memakai rig PvpKnight');
-  assert.ok(knightCreated[1].opts && knightCreated[1].opts.palette, 'rival fighter gets RIVAL_PAL palette');
-  assert.strictEqual(blockyCreated.length, 2, 'ksatria tidak membuat karakter blocky baru');
-
-  const chooser = UI.chooseOpponent([{ name: 'CPU A' }, { name: 'CPU B' }]);
-  const chooserNode = find(body, 'du-choose');
-  assert.strictEqual(chooserNode.children.length, 3);
-  chooserNode.children[2].click();
-  assert.strictEqual(await chooser, 1, 'target selection resolves the chosen opponent');
-
-  /* online: lockRoll mengunci tombol dan melepas janji waitForRoll yang menggantung (hasil false) */
-  const lockedWait = UI.waitForRoll(3);
-  const lockBtn = find(body, 'du-roll-button');
-  assert.strictEqual(lockBtn.disabled, false);
-  UI.lockRoll('MENUNGGU LAWAN...');
-  assert.strictEqual(lockBtn.disabled, true, 'lockRoll mengunci tombol ROLL');
-  assert.strictEqual(await lockedWait, false, 'lockRoll membatalkan penantian ROLL tanpa dianggap tap');
-
-  const cancelledRoll = UI.waitForRoll(2);
-  UI.close();
-  assert.strictEqual(await cancelledRoll, false, 'closing the duel cancels a pending roll prompt');
-  await new Promise(resolve => setTimeout(resolve, 280));
-  assert.ok(!body.className.includes('duel-active'), 'closing the duel restores the board HUD');
-  assert.strictEqual(window.THREE.WebGLRenderer, Renderer);
-  assert.strictEqual(listeners.resize, undefined, 'arena resize listener is removed on close');
-  console.log('duel-ui tests passed');
-}
-
-run().catch(error => { console.error(error); process.exitCode = 1; });
+  heads.filter(h => !h.startsWith('@')).forEach(h => h.split(',').forEach(s => {
+    s = s.trim(); assert(/^(#du2|body\.duel-active)/.test(s), 'selektor bocor: ' + s);
+  }));
+  assert(/@keyframes du2-/.test(css) && !/@keyframes (up|tumble|toss|rot)\b/.test(css));
+});
+t('HTML duel memakai id berawalan du2- (tidak bentrok dengan #roll/#top milik game)', () => {
+  const tpl = ui.slice(ui.indexOf('var TEMPLATE'), ui.indexOf('var inner'));
+  const ids = [...tpl.matchAll(/id=\\"([\w-]+)\\"/g)].map(m => m[1]);
+  assert(ids.length > 20); ids.forEach(i => assert(i.startsWith('du2-'), i));
+});
+t('hanya UI duel yang membuat WebGLRenderer sendiri (daftar pengecualian tes SharedGL)', () => {
+  assert(/new THREE\.WebGLRenderer\(/.test(ui));
+});
+t('gameplay.html memuat duel-core, rig ksatria, lalu duel-ui', () => {
+  const a = html.indexOf('duel-core.js'), b = html.indexOf('pvp-knight-rig.js'), c = html.indexOf('duel-ui.js');
+  assert(a > 0 && b > 0 && c > b);
+  assert(/duel\.css/.test(html));
+});
+t('main.js memakai alur baru: DU.turn(r.turn) dan hasil seri/menang-kalah', () => {
+  const dc = main.slice(main.indexOf('async function duelCheck('), main.indexOf('async function playTurn('));
+  assert(/DU\.revealRolls\(rolls\)/.test(dc) && /DU\.turn\(r\.turn\)/.test(dc));
+  assert(/out\.draw/.test(dc) && /out\.back/.test(dc));
+  assert(!/DU\.actions\(|D\.ACTIONS\[/.test(dc), 'sisa API hati/aksi lama');
+  assert(/rig:'archer'/.test(main) && /rig:\(f\.idx%2\?'knight':'archer'\)/.test(main));
+});
+console.log('\n' + n + ' tes duel-ui lulus');

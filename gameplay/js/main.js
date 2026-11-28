@@ -5975,9 +5975,13 @@ function duelOpenOpts(pair){
     names:pair.map(f=>f.name),css:pair.map(f=>f.css),faces:pair.map(plainFace),reducedMotion:reduce,
     dice:pair.map(f=>duelLocal(f)?diceKey:null), /* skin dadu dari katalog DiceKit; pemain lokal = dadu yang dipakai, lainnya bawaan */
     fighters:pair.map(f=>{
-      const bc=f.pawn.userData&&f.pawn.userData.bc, kn=(duelLocal(f)&&equippedGameKey('skin')==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
+      const bc=f.pawn.userData&&f.pawn.userData.bc, sk=duelLocal(f)?equippedGameKey('skin'):null, kn=(sk==='ksatria'); /* rig ksatria hanya bila skin Ksatria dipakai */
+      /* rig BARU duel (duel-ui.js): skin 'shuri' = pemanah, 'rajablok' = ksatria blok; lawan CPU memakai keduanya bergantian. Rig LAMA (ksatria, karakter asli, model bidak) tetap dipakai bila tidak ada pilihan di atas */
+      if(sk==='shuri') return {rig:'archer'};
+      if(sk==='rajablok') return {rig:'knight'};
       if(bc&&bc.config) return kn?{config:bc.config,knight:true}:{config:bc.config};
       if(kn) return {knight:true};
+      if(f.cpu) return {rig:(f.idx%2?'knight':'archer')};
       /* bidak tanpa rig karakter baru (mis. CPU = Villager voxel, atau bidak skin PNG): pakai model bidaknya SENDIRI, bukan preset acak */
       const u=f.pawn.userData||{},src=u.png||u.pal;
       if(src&&src.clone){ try{ const m=src.clone(true); m.visible=true; return {model:m}; }catch(e){} }
@@ -5989,7 +5993,7 @@ function duelOpenOpts(pair){
 function mpDuelUI(UI,pair,did){
   const o={},idx=pair.map(q=>q.idx);
   o.open=opts=>{ mpCue({k:'duel',f:'open',did:did,idx:idx}); return UI.open(opts); };
-  ['intro','banner','log','state','actions','act','impact','pop','shake','revealRolls','result'].forEach(n=>{
+  ['intro','banner','log','state','turn','act','impact','pop','shake','revealRolls','result'].forEach(n=>{
     o[n]=(...a)=>{ mpCue({k:'duel',f:n,a:JSON.parse(JSON.stringify(a))}); return UI[n](...a); };
   });
   o.close=()=>{ mpCue({k:'duel',f:'close'}); return UI.close(); };
@@ -6073,56 +6077,37 @@ async function duelCheck(p,gid){
   try{
     pair.forEach(m=>{ m.duelHp=D.DEFAULTS.maxHp; });
     setMsg(p.name+' bertemu '+q.name+'! Duel dimulai.'); fb('event','info',p.name+' vs '+q.name+': Duel!',{gid,ttl:1400});
-    DU.open(duelOpenOpts(pair));
-    DU.state(s.hp,s.mom); const intro=DU.intro(); sfx.crystalAppear();
+    if(DU.open(duelOpenOpts(pair))===false){ setMsg('Arena duel tidak bisa dibuka. Duel dilewati.'); return null; } /* Three.js/WebGL tak tersedia */
+    DU.state(s.hp,0); const intro=DU.intro(); sfx.crystalAppear();
     await intro; st();
     while(!s.over&&guard++<60){
-      DU.banner('ROUND '+(s.round+1)+'/'+s.cfg.maxRounds);
-      DU.log('Tekan tombol ROLL untuk memulai ronde.');
+      DU.log('Tekan ROLL untuk giliran '+(s.round+1)+' dari '+s.cfg.maxRounds+(s.round+1===s.cfg.maxRounds?' (serangan pamungkas!)':'.'));
       const ready=await duelWaitRolls(DU,UI,pair,did,s.round+1,st); st();
       if(!ready) return null;
       let rolls; if(ONLINE_ROOM){ try{ rolls=await duelServerRolls(pair); }catch(e){ console.error('[multiplayer] duel dice failed',e); st(); setMsg('Dadu duel dari server gagal. Duel dibatalkan.'); DU.log('Dadu server gagal · duel dibatalkan'); await sleep(1200); st(); DU.close(); return null; } st(); } else rolls=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]; /* online: dadu tiap sisi diundi server (roll_game_dice), seperti dadu giliran */
       await DU.revealRolls(rolls); st();
       const r=D.round(s,rolls); s=r.state;
-      DU.actions(rolls);
-      DU.log(pair[0].name+' memilih '+D.ACTIONS[rolls[0]].name+'  VS  '+pair[1].name+' memilih '+D.ACTIONS[rolls[1]].name);
-      pair.forEach((m,i)=>{
-        const aid=D.ACTIONS[rolls[i]].id,action=aid==='attack'?'attack':(aid==='defense'?'block':'heal');
-        if(action) DU.act(i,action,action==='attack'?0.75:0.9);
-      });
-      await sleep(360); st();
-      r.events.forEach(e=>{
-        if(e.type==='clash'){ DU.shake(); sfx.hit(); }
-        else if(e.type==='hit'){ DU.impact(e.target,e.finisher?'heavy':'hit'); DU.pop(e.target,'-'+e.dmg,'hit'); sfx.hit(); sfx.playerHurt(); }
-        else if(e.type==='block'){ DU.impact(e.who,'block'); DU.pop(e.who,'BLOCK','blk'); }
-        else if(e.type==='heal') DU.pop(e.who,'+1','heal');
-        else if(e.type==='finisher'){ DU.pop(e.who,'FINISHER!','fin'); DU.shake(); sfx.crystalBreak(); }
-        else if(e.type==='double_ko'){ DU.log('KEDUANYA JATUH · SERI'); }
-      });
-      DU.state(s.hp,s.mom); await sleep(550); st();
+      await DU.turn(r.turn); st(); /* seluruh animasi giliran (serangan, hit, K.O./seri) dimainkan UI dari hasil duel-core */
+      sfx.hit();
     }
     const out=D.outcome(s,{pos:p.pos,goal:GOAL});
     if(out.draw){ /* SERI: tanpa hadiah, kedua bidak tetap di petak yang sama */
-      DU.banner('SERI!'); setMsg('Duel seri! '+p.name+' dan '+q.name+' tetap di petak '+out.from+', tanpa hadiah.');
-      DU.log('Seri · tanpa hadiah · kedua pemain tetap di petak '+out.from);
-      DU.result('Seri',[p.name+': tetap di petak '+out.from+', tanpa hadiah',q.name+': tetap di petak '+out.from+', tanpa hadiah']);
+      setMsg('Duel seri! '+p.name+' dan '+q.name+' tetap di petak '+out.from+', tanpa hadiah.');
+      DU.result('SERI',[p.name+': tetap di petak '+out.from+', tanpa hadiah',q.name+': tetap di petak '+out.from+', tanpa hadiah'],'draw');
       await sleep(2400); st();
       DU.close(); await sleep(280); st();
       return null;
     }
     const w=pair[out.winner],l=pair[out.loser];
-    DU.banner(w.name+' menang!'); setMsg(w.name+' menang duel! '+l.name+' mundur '+out.back+' petak.');
-    sfx.hit(); if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
+    setMsg(w.name+' menang duel! '+l.name+' mundur '+out.back+' petak.');
+    if(!w.cpu) sfx.victory(); else if(!l.cpu) sfx.playerHurt();
     try{ if(isLocalPlayer(w)&&!w.cpu) import(new URL('assets/js/multiplayer/progress-service.js', document.baseURI).href).then(()=>UT.Multiplayer.Progress.recordPvpWin()).catch(()=>{}); }catch(e){} /* counter menang PVP ke server (batas harian di server) */
     if(ONLINE_ROOM&&!w.cpu) DU.won(w.idx); /* tamu pemenang mencatat counter menang PVP-nya sendiri */
     w.duelXp=(w.duelXp||0)+out.xp.winner; l.duelXp=(l.duelXp||0)+out.xp.loser; /* tercatat lokal; XP server tetap dari hasil match */
     l.duelHp=out.reviveHp;
-    DU.act(out.winner,'cheer',1.4); DU.act(out.loser,'sad',1.8);
-    DU.impact(out.loser,'hit');
-    DU.pop(out.loser,'DEFEATED','hit'); DU.shake();
-    DU.result('Menang & Kalah',[
+    DU.result(w.name+' MENANG',[
       w.name+': menang, bertahan di petak '+out.from+', +'+out.xp.winner+' XP',
-      l.name+': kalah, mundur '+out.back+' petak ke petak '+out.to+', +'+out.xp.loser+' XP']);
+      l.name+': kalah, mundur '+out.back+' petak ke petak '+out.to+', +'+out.xp.loser+' XP'],'win');
     await sleep(2800); st(); /* jeda hasil duel ~2,8 detik agar kartu hasil terbaca */
     DU.close();
     await sleep(280); st();
