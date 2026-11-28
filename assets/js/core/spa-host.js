@@ -17,7 +17,7 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
-  var VIEWS = { 'index.html': 'index', 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu', 'powerup.html': 'powerup', 'tos.html': 'tos' };
+  var VIEWS = { 'lobby.html': 'lobby', 'karakter.html': 'karakter', 'profile.html': 'profile', 'friendship.html': 'friendship', 'shop.html': 'shop', 'mode.html': 'mode', 'hadiah-misi.html': 'hadiah-misi', 'mail.html': 'mail', 'settings.html': 'settings', 'leaderboard.html': 'leaderboard', 'room.html': 'room', 'inventory.html': 'inventory', 'pet.html': 'pet', 'frame.html': 'frame', 'efek.html': 'efek', 'dadu.html': 'dadu' };
     var HUB_TABS = { 'friendship.html': 'teman', 'mail.html': 'pesan', 'settings.html': 'setelan' };   // halaman yang kini panel di hub profile.html
     var INV_VIEW_TABS = { frame: 'frame.html', dadu: 'dadu.html', efek: 'efek.html', pet: 'pet.html' };   // tab Inventory yang sudah jadi view (sinkron dengan UT.InvTabs.VIEW_TABS)
   var BASE_CSS = ['assets/css/common.css'];                       // halaman biasa memuat ini lewat UT.PageShell.renderBase()
@@ -127,6 +127,10 @@
           (p.cls || '').split(/\s+/).filter(Boolean).forEach(function (c) { if (!D.body.classList.contains(c)) { D.body.classList.add(c); added.push(c); } });
           return loadScripts(p.js, p.mods);
         }).then(function () {
+          /* resource-bar.js hanya mengisi [data-rbar] saat pertama dimuat; DOM view yang dipasang sesudahnya harus diisi di sini
+             sebelum modul halaman di-mount (kalau tidak #v-em / #v-co belum ada) */
+          var H = G.UT && G.UT.Hud;
+          if (H && H.has && H.has('resource-bar')) H.get('resource-bar').hydrate(view);
           if (p.sbg && G.UT && G.UT.SceneBG) sbg = G.UT.SceneBG.mount(view, p.sbg);
           if (p.title) D.title = p.title;
           return leave;

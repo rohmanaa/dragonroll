@@ -35,7 +35,7 @@ function setup(o) {
     assert.strictEqual(Spa.viewName('karakter.html?x=1'), 'karakter');
     assert.strictEqual(Spa.viewName('profile.html'), 'profile');
     assert.strictEqual(Spa.viewName('leaderboard.html'), 'leaderboard');
-    assert.strictEqual(Spa.viewName('tambang.html?from=profile.html'), 'tambang');
+    assert.strictEqual(Spa.viewName('tambang.html?from=profile.html'), null);   // Tambang tetap lewat iframe
     assert.strictEqual(Spa.viewName('friendship.html'), 'friendship');
     assert.strictEqual(Spa.viewName('shop.html?coin=1'), 'shop');
     assert.strictEqual(Spa.viewName('hadiah-misi.html?tab=misi'), 'hadiah-misi');

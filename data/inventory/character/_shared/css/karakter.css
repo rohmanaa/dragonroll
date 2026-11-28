@@ -49,21 +49,16 @@
 /* slot diperbesar 1.25x (5 kolom, ~162px): di HP layar lebar (20:9) stage 1920x1080 tampil di tinggi penuh jadi slot 130px terlalu kecil.
    zoom menskalakan slot + isi (ikon, harga, tag) bersama; left/top/ukuran di bawah sudah dibagi 1.25. Grid bisa di-scroll bila item > 4 baris. */
 #grid{position:absolute;left:4px;top:210px;width:740px;max-height:636px;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:max-content;gap:20px;zoom:1.25;overflow-y:auto;overflow-x:hidden;padding:6px 4px;box-sizing:content-box;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
-.slot{position:relative;width:130px;height:130px;background:url(../../../../../assets/images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+.slot{position:relative;width:130px;height:130px;background:#59544c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;transition:transform .1s,filter .1s}
 .slot:hover{filter:brightness(1.15)}
 .slot:active{transform:scale(.95)}
-.slot.sel{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+.slot.sel{background:#6d675e;box-shadow:inset 0 0 0 4px #ffd45a,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
 .slot img{position:absolute;left:50%;top:8px;width:84px;height:84px;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 3px 2px rgba(0,0,0,.5))}
 .slot .n{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:400 22px/1 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.7)}
 .slot .tag{z-index:2;position:absolute;right:6px;top:6px;padding:1px 7px;border-radius:5px;background:#2c9a3a;border:2px solid #9be86a;font:400 15px/1.2 var(--font-title);text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.slot.empty{background-image:url(../../../../../assets/images/ui/slot-equipment/slot-terkunci.webp);opacity:.55;pointer-events:none}
+.slot.empty{background:#3a3732;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;opacity:.55;pointer-events:none}
 #use{position:absolute;left:5px;top:940px;width:276px;height:104px}
 #use span{font-size:38px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
 
-/* Latar halaman Karakter: gambar voxel kastel cover penuh layar (assets/images/background/karakter-voxel-kastel.webp), agak transparan seperti halaman lain:
-   lapisan gelap ungu .65 di atas gambar, di atas dasar ungu gelap (= setara opacity .35). Karakter & panel info tetap di posisi semula.
-   body.kr lebih spesifik daripada html,body di bg.css; mode embed room (room-modal-bridge.js) tetap menimpanya. */
-html,body.kr{background:
- linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,
- url(../../../../../assets/images/background/karakter-voxel-kastel.webp) center/cover no-repeat fixed,
- #231d37!important}
+/* Latar halaman Karakter: warna polos (tanpa gambar), sama dengan halaman panel lain. */
+html,body.kr{background:#2e293c!important}

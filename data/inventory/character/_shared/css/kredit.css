@@ -7,7 +7,7 @@ body.kr #left{width:960px}
 #show>canvas:active{cursor:grabbing}
 /* info */
 body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;padding:24px 30px 84px;border:20px solid transparent;display:block;isolation:isolate}
-body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid transparent;border-image:url(../../../../../assets/images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;filter:grayscale(1) brightness(1.7);z-index:-1;pointer-events:none}
+body.kr #info::before{content:'';position:absolute;inset:-20px;border:3px solid #000;border-radius:16px;background:linear-gradient(180deg,#5a5a5a,#404040);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28);z-index:-1;pointer-events:none}
 #info .badge{position:absolute;left:24px;top:-24px;padding:2px 22px;border-radius:10px;background:#6a3fc4;border:3px solid #b79cff;font:400 26px/1.2 var(--font-title);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 #iname{font:400 42px/1.1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
 #idesc{margin-top:6px;font:700 24px/1.3 var(--font-body);color:#d8d2ee}
@@ -31,10 +31,10 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 #grid{position:static;left:auto;top:auto;width:900px;display:grid;grid-template-columns:repeat(6,140px);grid-auto-rows:236px;gap:14px 12px}
 #grid.flat{grid-template-columns:1fr;grid-auto-rows:auto;gap:16px}
 .card{position:relative;width:140px;height:236px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:8px 6px 8px;cursor:pointer;animation:pop .35s both;transition:transform .1s}
-.card::before{content:'';position:absolute;inset:-2px;border:16px solid transparent;border-image:url(../../../../../assets/images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;z-index:-1;pointer-events:none;filter:grayscale(1) brightness(1.7)}
+.card::before{content:'';position:absolute;inset:-2px;border:3px solid #000;border-radius:16px;background:linear-gradient(180deg,#5a5a5a,#404040);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28);z-index:-1;pointer-events:none}
 .card{isolation:isolate}
 .card.st-lock::before{filter:grayscale(1) brightness(.78)}
-.card.st-used::before{border-image-source:url(../../../../../assets/images/ui/hud/kartu-kosong-hijau.webp);filter:none}
+.card.st-used::before{background:linear-gradient(180deg,#4f9a2c,#2f6a1c);filter:none}
 .card.sel{outline:3px solid #ffd45a;outline-offset:3px;filter:drop-shadow(0 0 8px rgba(255,220,110,.55))}
 .card:hover{transform:translateY(-3px)}
 @keyframes pop{from{opacity:0;transform:scale(.88)}}
@@ -51,7 +51,7 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 .card .ck{position:absolute;right:6px;top:6px;width:32px;height:32px;border-radius:50%;background:var(--g);border:3px solid #fff;display:grid;place-items:center;z-index:2}
 .card .ck svg{width:18px;height:18px}
 /* slider tubuh + tombol reset */
-.slrow{display:flex;flex-direction:column;gap:10px;padding:18px 24px;border:16px solid transparent;border-image:url(../../../../../assets/images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 16px stretch;font:800 28px var(--font-body)}
+.slrow{display:flex;flex-direction:column;gap:10px;border:3px solid #000;border-radius:16px;background:linear-gradient(180deg,#5a5a5a,#404040);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28);padding:31px 37px;font:800 28px var(--font-body)}
 .slrow input{width:100%;margin:0}
 #grid.flat>.bt{width:260px;height:64px;align-self:center;justify-self:center;font:400 30px var(--font-title)}
 /* warna (dye) */
@@ -101,7 +101,7 @@ body.kr #info::before{content:'';position:absolute;inset:-20px;border:20px solid
 
 /* ===== Karakter: disamakan dengan Toko/Pet — panel bingkai, judul kiri + tombol Tutup bulat kanan atas, karakter di KARTU TOKO asli, saldo kiri bawah; latar halaman tetap milik Karakter ===== */
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
-  pointer-events:none;box-sizing:border-box;z-index:0;border:3px solid #000;border-radius:18px;color:#fff;background:linear-gradient(#4a4a4a 0 50%,#303030 50%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 4px 0 rgba(255,255,255,.4),inset 0 -5px 0 rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.4)}
+  pointer-events:none;box-sizing:border-box;z-index:0;border:3px solid #000;border-radius:18px;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.16)}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(46,41,60,var(--panel-a,.84))}
 html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #stage:has(#pmodal){overflow:visible!important}
@@ -109,9 +109,9 @@ html.ut-inv-embed #pmodal,html.ut-room-embed #pmodal{display:none}
 #title{left:100px;top:34px}
 /* slot kiri/kanan dirapatkan agar kartu + info + saldo muat tanpa tabrakan */
 #eqL,#eqR{top:128px;grid-template-rows:repeat(4,124px);gap:12px}
-/* kartu karakter = aset kartu-toko.webp, tetap POTRET (rasio asli 506x747, tidak jadi kotak): tinggi = kolom slot (y 128-660), lebar 360, di tengah antara slot kiri & kanan */
+/* kartu karakter = CSS, tetap POTRET (rasio asli 506x747, tidak jadi kotak): tinggi = kolom slot (y 128-660), lebar 360, di tengah antara slot kiri & kanan */
 #show{left:300px;top:128px;width:360px;height:532px;box-sizing:border-box;padding:54px 22px 28px;overflow:visible;z-index:1;
-  background:url(../../../../../assets/images/ui/panel-dialog/kartu-toko.webp) center/100% 100% no-repeat}
+  border:3px solid #000;border-radius:22px;background:linear-gradient(180deg,#4a4a4a,#2a2a2a);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28)}
 #show>canvas{border-radius:10px;background:none}
 body.kr #info{top:700px}
 /* saldo Emerald & Coin: kiri bawah (di bawah panel info, y ~972-1052) */

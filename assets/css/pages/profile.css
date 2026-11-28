@@ -118,10 +118,10 @@ html.pf-wide,html.pf-wide body.pf{background:#150f2e linear-gradient(180deg,#0b0
 #frrar{margin-top:8px;font:400 30px/1 var(--font-title)}
 #frds{margin:12px 0 0;font:700 22px/1.35 var(--font-body);color:#d8d2ee}
 #frgrid{flex:1;display:grid;grid-template-columns:repeat(5,130px);grid-auto-rows:130px;gap:20px;zoom:1.15;align-content:start;max-height:560px;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:thin}
-#frgrid .fslot{position:relative;width:130px;height:130px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#frgrid .fslot{position:relative;width:130px;height:130px;padding:0;border:0;cursor:pointer;background:#59544c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;transition:transform .1s,filter .1s}
 #frgrid .fslot:hover{filter:brightness(1.15)}#frgrid .fslot:active{transform:scale(.95)}
-#frgrid .fslot.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
-#frgrid .fslot.st-used,#frgrid .fslot.st-used.sel{background-image:url(../../images/ui/slot-equipment/slot-hijau.webp)}
+#frgrid .fslot.sel{background:#6d675e;box-shadow:inset 0 0 0 4px #ffd45a,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#frgrid .fslot.st-used,#frgrid .fslot.st-used.sel{background:#4f8f2c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px}
 #frgrid .fslot.st-lock{filter:grayscale(1) brightness(.75)}#frgrid .fslot.st-lock.sel{filter:grayscale(1) brightness(.95) drop-shadow(0 0 8px rgba(255,220,110,.7))}
 #frgrid .fslot .th{position:absolute;left:50%;top:50%;width:88px;height:88px;transform:translate(-50%,-50%)}
 #frgrid .fslot.st-lock .th{opacity:.55}
@@ -155,10 +155,10 @@ html.pf-wide,html.pf-wide body.pf{background:#150f2e linear-gradient(180deg,#0b0
 #pohint{margin:10px 0 0;font:700 22px/1.35 var(--font-body);color:#d8d2ee}
 #pogrid{flex:1;display:grid;grid-template-columns:repeat(4,150px);grid-auto-rows:190px;gap:20px;align-content:start;justify-content:start;max-height:560px;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-y}
 #pogrid::-webkit-scrollbar{display:none;width:0;height:0}
-#pogrid .fslot{position:relative;width:150px;height:190px;padding:0;border:0;cursor:pointer;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;transition:transform .1s,filter .1s}
+#pogrid .fslot{position:relative;width:150px;height:190px;padding:0;border:0;cursor:pointer;background:#59544c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;transition:transform .1s,filter .1s}
 #pogrid .fslot:hover{filter:brightness(1.15)}#pogrid .fslot:active{transform:scale(.95)}
-#pogrid .fslot.sel{background-image:url(../../images/ui/slot-equipment/slot-terpilih.webp);filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
-#pogrid .fslot.st-used,#pogrid .fslot.st-used.sel{background-image:url(../../images/ui/slot-equipment/slot-hijau.webp)}
+#pogrid .fslot.sel{background:#6d675e;box-shadow:inset 0 0 0 4px #ffd45a,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;filter:drop-shadow(0 0 8px rgba(255,220,110,.7))}
+#pogrid .fslot.st-used,#pogrid .fslot.st-used.sel{background:#4f8f2c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px}
 #pogrid .fslot .pth{position:absolute;left:12px;right:12px;top:10px;bottom:38px}
 #pogrid .fslot .pth img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 #pogrid .fslot .pnm2{position:absolute;left:6px;right:6px;bottom:8px;font:400 22px/1 var(--font-title);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 0 rgba(0,0,0,.7)}

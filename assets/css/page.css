@@ -44,8 +44,8 @@ body.ef #cur-co{left:auto!important;right:26px!important}
 .panel::before{content:"";position:absolute;inset:8px;border-radius:12px;background:#262626;z-index:-1;pointer-events:none}
 .panel>h3{position:absolute;left:50%;top:-34px;transform:translateX(-50%);margin:0;height:84px;padding:0 54px;line-height:70px;font:400 30px/70px var(--font-title);background:url(../images/ui/banner-label/banner-judul-ungu-polos.webp) center/100% 100% no-repeat;white-space:nowrap;text-shadow:0 2px 0 rgba(20,5,70,.7)}
 .kcard{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.kcard::before{content:'';position:absolute;inset:-2px;border:18px solid transparent;border-image:url(../images/ui/hud/kartu-kosong-ungu.webp) 40 fill / 20px stretch;z-index:-1;pointer-events:none}
-.kcard.sel::before{border-image-source:url(../images/ui/hud/kartu-kosong-oranye.webp)}
+.kcard::before{content:'';position:absolute;inset:-2px;border:3px solid #000;border-radius:16px;background:linear-gradient(180deg,#5a5a5a,#404040);box-shadow:inset 0 3px 0 rgba(255,255,255,.22),inset 0 -5px 0 rgba(0,0,0,.28);z-index:-1;pointer-events:none}
+.kcard.sel::before{background:linear-gradient(180deg,#e8941a,#a85c08)}
 .tg{width:140px;height:65px;background:url(../images/buttons/toggle-off.webp) center/100% 100% no-repeat}
 .tg.on{background-image:url(../images/buttons/toggle-on.webp)}
 input[type=range]{-webkit-appearance:none;appearance:none;height:26px;border-radius:13px;background:#1b1631;border:3px solid #4c4468}
@@ -54,5 +54,5 @@ input[type=range]::-moz-range-thumb{width:56px;height:56px;border:0;background:u
 #toast{position:absolute;left:50%;bottom:30px;transform:translate(-50%,30px);opacity:0;pointer-events:none;padding:14px 34px;border-radius:16px;background:rgba(24,18,48,.94);border:3px solid #8f86c0;font-weight:800;font-size:26px;z-index:80;transition:.2s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #fade{z-index:90}
-.field{border:18px solid transparent;border-image:url(../images/ui/hud/kartu-kosong-krem.webp) 40 fill / 20px stretch;background:none;padding:6px 10px;font:800 28px var(--font-body);color:#fff;user-select:text;width:100%;outline:0}
+.field{border:3px solid #000;border-radius:14px;background:#262626;box-shadow:inset 0 3px 6px rgba(0,0,0,.5);padding:21px 25px;font:800 28px var(--font-body);color:#fff;user-select:text;width:100%;outline:0}
 .field::placeholder{color:#b9a98f}

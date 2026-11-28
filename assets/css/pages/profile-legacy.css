@@ -50,7 +50,7 @@
 .kr{position:relative;display:flex;align-items:center;gap:18px;height:104px;margin-bottom:14px;padding:0 20px 0 14px;background:rgba(14,10,26,.5);border:3px solid rgba(255,255,255,.1);border-radius:14px;transition:transform .1s,filter .1s;width:100%;text-align:left}
 .kr:hover{filter:brightness(1.15)}
 .kr:active{transform:scale(.98)}
-.kr .ic{flex:none;width:80px;height:80px;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;position:relative}
+.kr .ic{flex:none;width:80px;height:80px;background:#59544c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;position:relative}
 .kr .ic img{position:absolute;left:50%;top:50%;width:50px;height:50px;object-fit:contain;transform:translate(-50%,-50%)}
 .kr .nm{width:170px;font:400 34px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.5)}
 .kr i{flex:1;height:16px;background:rgba(10,6,24,.55);border-radius:3px;overflow:hidden}
@@ -62,7 +62,7 @@
 .sr{position:relative;display:flex;align-items:center;gap:18px;height:104px;margin-bottom:14px;padding:0 20px 0 14px;background:rgba(14,10,26,.5);border:3px solid rgba(255,255,255,.1);border-radius:14px;width:100%;text-align:left;transition:transform .1s,filter .1s}
 button.sr:hover{filter:brightness(1.15)}
 button.sr:active{transform:scale(.98)}
-.sr .ic{flex:none;width:80px;height:80px;background:url(../../images/ui/slot-equipment/slot-ungu.webp) center/100% 100% no-repeat;position:relative}
+.sr .ic{flex:none;width:80px;height:80px;background:#59544c;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;position:relative}
 .sr .ic img{position:absolute;left:50%;top:50%;width:50px;height:50px;object-fit:contain;transform:translate(-50%,-50%)}
 .sr .nm{flex:1;font:400 32px/1 var(--font-title);text-shadow:0 2px 0 rgba(10,6,24,.5);white-space:nowrap}
 .sr i.bar{flex:none;width:130px;height:16px;background:rgba(10,6,24,.55);border-radius:3px;overflow:hidden}
