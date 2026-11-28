@@ -18,7 +18,7 @@
 #hero::after{content:"";position:absolute;inset:8px;border-radius:12px;z-index:-1;pointer-events:none;background:linear-gradient(rgba(6,4,14,.78),rgba(6,4,14,.92))}
 #statc{left:100px;top:640px;width:840px;height:370px}
 #kolc{left:960px;top:640px;width:860px;height:370px}
-.ph{position:absolute;left:28px;top:12px;font:400 44px/1 var(--font-title);color:#ffd45a;text-shadow:0 3px 0 rgba(10,6,24,.5)}
+.ph{position:absolute;left:28px;top:12px;font:400 44px/1 var(--font-title);color:var(--dr-gold-light, #ffd45a);text-shadow:0 3px 0 rgba(10,6,24,.5)}
 
 /* kiri: foto karakter */
 #mid{position:absolute;left:0;top:0;width:470px;height:470px}
@@ -36,7 +36,7 @@
 #pbtns{position:static;flex:none;display:flex;gap:8px}
 .eb,#pen{position:relative;width:56px;height:56px;font-size:30px;line-height:48px;text-align:center}
 #pen{margin-left:4px}
-#hid{position:absolute;left:112px;top:66px;max-width:610px;font:800 24px/1.2 var(--font-body);color:#cfc8ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hid{position:absolute;left:112px;top:66px;max-width:610px;font:800 24px/1.2 var(--font-body);color:var(--dr-text-secondary, #cfc8ea);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prow{position:absolute;left:0;width:740px;height:92px;box-sizing:border-box;display:flex;align-items:center;gap:18px;padding:0 24px 0 18px;isolation:isolate}
 /* dua blok (Guild, Peringkat) dipisah garis pembagi seperti kartu profil CoC; tiap blok setinggi 116px, ikon 96px, angka dalam chip */
 .dv{position:absolute;left:0;width:740px;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.34) 16%,rgba(255,255,255,.34) 84%,transparent);box-shadow:0 2px 0 rgba(10,6,24,.4);pointer-events:none}
@@ -47,7 +47,7 @@
 #guild>img{opacity:.85}
 .prow .gt{flex:1;min-width:0}
 .prow b{display:block;font:400 44px/1 var(--font-title);text-shadow:0 3px 0 rgba(10,6,24,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prow small{display:block;margin-top:8px;font:800 24px/1 var(--font-body);color:#cfc8ea}
+.prow small{display:block;margin-top:8px;font:800 24px/1 var(--font-body);color:var(--dr-text-muted, #cfc8ea)}
 .prow .rp{flex:none;min-width:190px;box-sizing:border-box;padding:12px 22px 10px;text-align:center;border-radius:14px;background:rgba(10,6,24,.5);border:2px solid rgba(255,255,255,.12);box-shadow:inset 0 3px 0 rgba(0,0,0,.25)}
 .prow .rp b{color:#ffd45a;font-size:40px}
 .prow .rp small{margin-top:5px;font-size:20px}

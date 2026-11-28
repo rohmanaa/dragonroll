@@ -30,7 +30,7 @@
 .rbadge b{position:relative;font:400 28px/1 var(--font-title);padding-bottom:3px;text-shadow:0 2px 0 rgba(60,0,10,.6)}
 .foot{position:absolute;left:0;right:0;bottom:6px;height:100px}
 .foot .btn{position:absolute;right:0;top:0}
-.foot .note{position:absolute;left:0;top:28px;font:600 28px var(--font-body);color:#b9b2d0}
+.foot .note{position:absolute;left:0;top:28px;font:600 28px var(--font-body);color:var(--dr-text-secondary, #b9b2d0)}
 
 /* ---- hadiah login 7 hari ---- */
 @keyframes pulse{50%{filter:brightness(1.12)}}
@@ -41,8 +41,8 @@
 
 /* ---- bagian port ke dragonroll ---- */
 [hidden]{display:none!important}
-.msg{position:absolute;left:0;right:0;top:300px;text-align:center;font:400 44px/1.3 var(--font-title);color:#b9b2d0}
-.msg small{display:block;margin-top:10px;font:800 28px var(--font-body);color:#8f88ae}
+.msg{position:absolute;left:0;right:0;top:300px;text-align:center;font:400 44px/1.3 var(--font-title);color:var(--dr-text-secondary, #b9b2d0)}
+.msg small{display:block;margin-top:10px;font:800 28px var(--font-body);color:var(--dr-text-muted, #8f88ae)}
 .btn.cl[hidden]{display:none!important}
 /* modal (sama dengan sub.css) */
 #md{position:absolute;inset:0;z-index:70;background:rgba(8,4,20,.66);display:none;align-items:center;justify-content:center}
