@@ -1,7 +1,7 @@
 /* inv-tabbar.css — bar tab Inventory untuk tab yang menjadi view sendiri (Pet). Hanya aktif bila body.inv-view / #invtabs ada (diset pet-page.js
    saat berjalan di shell); aturan sama dengan inventory.css (posisi/gaya tab) dan inventory-bridge.js (latar voxel tas, grid mulai y=250). */
 #invtabs{position:absolute;left:985px;top:130px;width:900px;height:96px;z-index:6;--tab-h:76px;--tab-fs:24px}
-html:has(body.inv-view),body.inv-view{background:linear-gradient(rgba(35,29,55,.65),rgba(35,29,55,.65)) fixed,#231d37!important}
+html:has(body.inv-view),body.inv-view{background:linear-gradient(rgba(30,30,30,.65),rgba(30,30,30,.65)) fixed,#1e1e1e!important}
 body.inv-view.notabs #grid{top:250px!important;max-height:500px!important}
 #invtabs .tab.ut-tab{flex:1;min-width:0;flex-direction:row;gap:10px;padding:0}
 #invtabs .tab.ut-tab.on{cursor:default}

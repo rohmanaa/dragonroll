@@ -7,7 +7,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 [hidden]{display:none!important}
 html,body{margin:0;height:100%;overflow:hidden;font-family:var(--tambang-font-body);color:#fff;
-  background:#231d37 radial-gradient(ellipse at 22% 8%,#4b4163 0%,#352d4b 50%,#231d37 100%) fixed}
+  background:#1e1e1e radial-gradient(ellipse at 22% 8%,#3a3a3a 0%,#2b2b2b 50%,#1e1e1e 100%) fixed}
 button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
 #tambang-wrap{position:fixed;inset:0;display:block;z-index:1}
