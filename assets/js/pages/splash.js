@@ -132,7 +132,7 @@ if(quick){document.body.classList.add("quick");afterLoad()}
 else{
   /* URUTAN: 1) cek pembaruan ke server DULU (sebelum mengunduh aset apa pun) -> 2) bila ada, modal Unduh Data (X = tunda) -> 3) baru bar loading memuat aset */
   $("#lbl").textContent="Memeriksa pembaruan…";LOG.sys("Cek pembaruan…");
-  Promise.resolve(UT.Update&&UT.Update.promptOnSplash(4000,{
+  Promise.resolve(UT.Update&&UT.Update.promptOnSplash(2500,{
     /* modal hanya konfirmasi; progres unduhan pembaruan tampil di bar splash ini */
     progress:ev=>{const p=ev.total>0?Math.min(100,Math.round(ev.loaded/ev.total*100)):0;$("#fill").style.width=p+"%";
       $("#lbl").textContent="Mengunduh pembaruan… "+(ev.total>0?mb(ev.loaded)+" / "+mb(ev.total)+" MB ("+p+"%)":"")},

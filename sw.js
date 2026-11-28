@@ -10,11 +10,14 @@
    dimigrasikan: isi media dicocokkan dengan hash, yang cocok dipakai ulang tanpa unduh.
    JALANKAN ulang tools/gen-preload-manifest.py setiap mengganti/menambah media (tes tests/sw-incremental-media.test.js menjaganya).
    Request Range (audio) dilayani dari cache bila file sudah tersimpan penuh; bila belum, lewat jaringan biasa. Non-GET tidak disentuh. */
-const VERSION = 'ut-pwa-v600';
+const VERSION = 'ut-pwa-v601';
 const MEDIA_CACHE = 'ut-media'; /* permanen: tidak dibuang saat VERSION naik */
 const MEDIA_INDEX = '__media-index__'; /* kunci indeks hash di MEDIA_CACHE */
 const MEDIA_HASH_URL = 'assets/media-hash.json';
 const CORE = ['index.html', 'play.html', 'splash.html', 'assets/css/pages/play.css', 'assets/js/pages/play.js', 'assets/js/systems/skeleton.js', 'assets/css/components/skeleton.css', 'assets/js/systems/graphics-auto.js', 'assets/js/pages/gameplay-loading.js', 'assets/css/pages/gameplay-loading.css', 'assets/js/pages/splash.js', 'assets/js/systems/game-dialog.js', 'assets/js/systems/update-service.js', 'assets/css/components/game-dialog.css', 'assets/css/fonts.css', 'manifest.webmanifest', 'assets/images/background/clouds/cloud-1.svg', 'assets/images/background/clouds/cloud-2.svg', 'assets/images/background/clouds/cloud-3.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'assets/js/core/pretty-url.js'];
+/* handle cache dibuka SEKALI lalu dipakai ulang: sebelumnya caches.open() dipanggil di setiap request (ratusan kali per halaman) */
+const mediaCache = () => (mediaCache.p = mediaCache.p || caches.open(MEDIA_CACHE));
+const codeCache = () => (codeCache.p = codeCache.p || caches.open(VERSION));
 const CODE = /\.(html|js|css|json|webmanifest)$/i;
 const MEDIA = /\.(png|webp|jpe?g|gif|svg|ico|woff2?|mp3|ogg|wav|glb|gltf|bin|ktx2)$/i;
 const EXTRA_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -96,7 +99,7 @@ self.addEventListener('fetch', e => {
 
   if (same && isMedia) {
     const range = r.headers.get('range');
-    e.respondWith(caches.open(MEDIA_CACHE).then(async c => {
+    e.respondWith(mediaCache().then(async c => {
       const key = new Request(r.url); /* kunci tanpa header Range */
       const hit = await c.match(key);
       if (hit) return range ? sliceRange(hit, range) : hit;
@@ -110,7 +113,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   if ((same && (r.mode === 'navigate' || CODE.test(normPath))) || !same) {
-    e.respondWith(caches.open(same ? VERSION : MEDIA_CACHE).then(async c => { /* library/font luar: URL ber-versi, simpan permanen */
+    e.respondWith((same ? codeCache() : mediaCache()).then(async c => { /* library/font luar: URL ber-versi, simpan permanen */
       const key = new Request(same ? u.origin + normPath : r.url); /* kunci tanpa query (?v=, ?next=) */
       const hit = await c.match(key, { ignoreSearch: same });
       if (hit) return hit;
