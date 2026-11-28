@@ -179,3 +179,5 @@ t('aksi mine: berulang tanpa pose netral, tiap siklus 1 hantaman, tangan kanan t
 console.log(n + ' tes lulus');
 
 
+
+

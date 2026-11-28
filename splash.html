@@ -1,12 +1,12 @@
 ﻿<!doctype html>
 <html lang="id"><head><base href="/"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script src="core/page-shell.js"></script>
+<script src="src/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase({"bootGuard":false,"prefsSync":false});</script>
 <title>DRAGON ROLL</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
-<link rel="stylesheet" href="components/button/button.css"><link rel="stylesheet" href="components/modal/modal-kit.css"><link rel="stylesheet" href="styles/splash.css"><link rel="stylesheet" href="styles/night-fog.css"><script src="boot/pwa.js"></script><script src="systems/ambience.js"></script>
+<link rel="stylesheet" href="src/components/button/button.css"><link rel="stylesheet" href="src/components/modal/modal-kit.css"><link rel="stylesheet" href="src/styles/splash.css"><link rel="stylesheet" href="src/styles/night-fog.css"><script src="src/boot/pwa.js"></script><script src="src/systems/ambience.js"></script>
 <style>
 /* tambahan data asli: mode cepat (guard mengalihkan di tengah sesi), tombol sibuk */
 body.quick #loadbox,body.quick #spin{visibility:hidden}
@@ -62,17 +62,18 @@ body.quick #loadbox,body.quick #spin{visibility:hidden}
   <div id="ver" data-app-version hidden></div>
 </div>
 <div id="fade"></div>
-<script src="fx/splash-fx.js"></script><script>UT.SplashFX&&UT.SplashFX.mount()</script>
-<script src="renderers/night-fog.js"></script><script>/* TAP TO START malam: kabut tipis di dasar layar (di atas latar & vinyet, di bawah tombol/UI) */
+<script src="src/fx/splash-fx.js"></script><script>UT.SplashFX&&UT.SplashFX.mount()</script>
+<script src="src/renderers/night-fog.js"></script><script>/* TAP TO START malam: kabut tipis di dasar layar (di atas latar & vinyet, di bawah tombol/UI) */
 (function(){var h=document.getElementById("scene");if(h&&UT.NightFog)UT.NightFog.mount(h,{variant:"bottom",after:document.getElementById("vig")})})();</script>
-<script src="stores/item-catalog.js"></script>
-<script src="stores/player-data.js"></script>
-<script src="boot/preloader.js"></script>
-<script type="module" src="services/auth.js"></script>
-<script src="core/app-version.js"></script><script src="systems/game-dialog.js"></script><script src="systems/update-service.js"></script><script src="services/tos-service.js"></script>
-<script src="views/splash.js"></script>
-<script src="core/modal-kit.js"></script><script>(function(){try{if(!(window.UT&&UT.ModalKit))return;[["m-login","#li-id"],["m-signup","#su-us"]].forEach(function(p){var m=document.getElementById(p[0]);if(m)UT.ModalKit.watch(m,{initialFocus:p[1]});});}catch(e){}})();</script>
+<script src="src/stores/item-catalog.js"></script>
+<script src="src/stores/player-data.js"></script>
+<script src="src/boot/preloader.js"></script>
+<script type="module" src="src/services/auth.js"></script>
+<script src="src/core/app-version.js"></script><script src="src/systems/game-dialog.js"></script><script src="src/systems/update-service.js"></script><script src="src/services/tos-service.js"></script>
+<script src="src/views/splash.js"></script>
+<script src="src/core/modal-kit.js"></script><script>(function(){try{if(!(window.UT&&UT.ModalKit))return;[["m-login","#li-id"],["m-signup","#su-us"]].forEach(function(p){var m=document.getElementById(p[0]);if(m)UT.ModalKit.watch(m,{initialFocus:p[1]});});}catch(e){}})();</script>
 </body></html>
+
 
 
 

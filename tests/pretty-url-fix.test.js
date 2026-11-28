@@ -151,3 +151,5 @@ function t(name, fn) { fn(); n++; console.log('ok -', name); }
 
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
+
+

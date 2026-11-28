@@ -36,3 +36,4 @@ assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/progress-serv
 assert.strictEqual((main.match(/new URL\('assets\/js\/multiplayer\/room-service\.js', document\.baseURI\)/g) || []).length, 1);
 console.log('ok - gameplay CSS and JavaScript are external with load order preserved');
 
+

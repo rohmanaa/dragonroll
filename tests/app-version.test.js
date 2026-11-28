@@ -71,3 +71,4 @@ class MC { constructor() { const a = {}, b = {}; this.port1 = a; this.port2 = { 
   console.log(n + ' tes lulus');
 })().catch(e => { console.error(e); process.exit(1); });
 
+

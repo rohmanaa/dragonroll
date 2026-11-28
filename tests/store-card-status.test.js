@@ -91,3 +91,4 @@ test("Power-up hanya menunjukkan stok dan tombol beli; status pasang tetap di Ro
 
 console.log(n + " tes lulus");
 
+

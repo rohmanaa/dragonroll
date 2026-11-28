@@ -99,3 +99,5 @@ t('Power-3D mendukung kualitas Low sampai Ultra dengan scaling bertahap', () => 
 console.log(n + ' tes lulus');
 
 
+
+

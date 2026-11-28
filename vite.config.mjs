@@ -4,8 +4,7 @@ import path from 'path';
 const __dirname = path.resolve();
 
 export default defineConfig({
-  root: 'src',
-  publicDir: '.',
+  root: '.',
   base: './',
   resolve: {
     alias: {

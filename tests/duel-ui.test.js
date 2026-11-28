@@ -70,3 +70,5 @@ t('main.js memakai alur baru: DU.turn(r.turn) dan hasil seri/menang-kalah', () =
 });
 console.log('\n' + n + ' tes duel-ui lulus');
 
+
+
