@@ -9,3 +9,11 @@
 #act span{font:400 26px/1 var(--font-title);margin-top:0;text-shadow:inherit}   /* tampilan: .ut-gl .ut-c-y (PAKAI/BELI) atau .ut-c-d (DIPAKAI/TIDAK DIJUAL), diatur renderAct */
 #act img,#mbtns .btn img{display:none}
 #mbtns .btn span{margin-top:0;text-shadow:inherit}   /* modal konfirmasi: teks tombol ikut gaya .ut-gl */
+/* tombol Tutup di kanan atas + judul di kiri, sama dengan halaman Inventory / Dadu / Efek / Pet (bawaan karakter.css menaruhnya di kiri) */
+#back{left:auto;right:100px;top:46px;width:80px;height:80px;z-index:7}
+#back::before,#back::after{left:20px;right:20px}
+#title{left:100px;top:34px}
+/* saldo di kiri bawah (seperti Dadu / Pet) agar tidak menabrak tombol Tutup */
+#stage #cur-em,#stage #cur-co{top:auto!important;right:auto!important;bottom:28px}
+#stage #cur-em{left:60px!important}
+#stage #cur-co{left:370px!important}
