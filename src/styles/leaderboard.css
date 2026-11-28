@@ -1,4 +1,4 @@
-/* leaderboard.html — kiri: podium + kartu posisi kamu; kanan: tab + tabel */
+﻿/* leaderboard.html â€” kiri: podium + kartu posisi kamu; kanan: tab + tabel */
 #podium{position:absolute;left:190px;top:130px;width:660px;height:540px}
 #podium .pimg{position:absolute;left:0;bottom:0;width:100%;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.45))}
 .pd{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)}
@@ -24,7 +24,7 @@
 #th{position:absolute;left:30px;right:30px;top:140px;display:grid;grid-template-columns:90px 1fr 190px 200px;font:400 26px var(--font-title);color:var(--dr-text-secondary, #b9b1d3);text-align:left}
 #th span:nth-child(3),#th span:nth-child(4){text-align:right}
 #rows{position:absolute;left:10px;right:10px;top:190px;height:860px;display:flex;flex-direction:column;gap:14px;padding:6px 4px}
-/* baris = kartu pemain (assets/components/player-card); di sini hanya ukuran */
+/* baris = kartu pemain (src/components/player-card); di sini hanya ukuran */
 .rw{flex:none;height:82px;font-size:32px}
 .rw .nm{font-size:32px}
 
@@ -89,3 +89,4 @@ html:has(#pmodal),html:has(#pmodal) body{background:#2e293c!important}
 .rw .no{width:60px;font-size:36px}
 .rw .pc{width:210px;min-width:0;font-size:30px}
 .rw .sc{width:150px;min-width:0;font-size:32px}
+

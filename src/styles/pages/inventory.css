@@ -1,4 +1,4 @@
-/* inventory.css — halaman Inventory: tab atas (Frame, Dadu, Efek, Power-up, Pet) + isi tab dimuat di iframe. */
+﻿/* inventory.css â€” halaman Inventory: tab atas (Frame, Dadu, Efek, Power-up, Pet) + isi tab dimuat di iframe. */
 html,body{background:linear-gradient(rgba(30,30,30,.65),rgba(30,30,30,.65)) fixed,#1e1e1e!important;overflow:hidden}
 /* panel penuh layar (bingkai-dialog, 9-slice) di bawah isi tab, seperti Toko/Pet/Profil */
 #pframe{position:fixed;inset:-8px;z-index:0;pointer-events:none;box-sizing:border-box;border:3px solid #000;border-radius:18px;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.16)}
@@ -76,7 +76,7 @@ html,body{background:linear-gradient(rgba(30,30,30,.65),rgba(30,30,30,.65)) fixe
 #invToast.on{opacity:1;transform:translate(-50%,0)}
 
 /* saldo: kiri bawah seperti Toko/Pet (coin & emerald) */
-#cur-em,#cur-co{position:absolute;bottom:28px;width:290px;height:56px;--rb-fs:28px;z-index:2}   /* komponen .ut-rbar (assets/components/resource-bar) */
+#cur-em,#cur-co{position:absolute;bottom:28px;width:290px;height:56px;--rb-fs:28px;z-index:2}   /* komponen .ut-rbar (src/components/resource-bar) */
 #cur-em{left:100px}#cur-co{left:410px}
 
 /* ===== Tab & tombol dari komponen HUD (button.css / tabs.css): di sini hanya ukuran & tata letak ===== */
@@ -93,3 +93,4 @@ html,body{background:linear-gradient(rgba(30,30,30,.65),rgba(30,30,30,.65)) fixe
 /* tombol: tampilan dari .ut-gl; gambar bingkai lama disembunyikan */
 .btn.ut-gl>img{display:none}
 .btn.ut-gl span{text-shadow:inherit;margin-top:0}
+

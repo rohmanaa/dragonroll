@@ -1,0 +1,74 @@
+﻿/* Ular Tangga Blok â€” src/components/modal/drawer.css  (HUD-Gloss; Drawer dari kit "modals", CSS murni tanpa gambar)
+   Panel samping kanan: header (judul + X), daftar bergulir, tab kategori di bawah.
+   Prefiks .ut-dr*. Ukuran memakai em; skala dasar = --dr-k (default 1.8 â†’ cocok kanvas 1920x1080; pakai 1 untuk halaman biasa).
+   Pakai:
+     <div class="ut-dr-ov" id="x">                                  (tambah .on untuk membuka)
+       <aside class="ut-dr" role="dialog" aria-modal="true">
+         <div class="ut-dr-head"><h2 class="ut-dr-h">Judul</h2><button class="ut-dr-x" aria-label="Tutup"></button></div>
+         <div class="ut-dr-list">
+           <div class="ut-dr-sec">Bagian</div>
+           <div class="ut-dr-bar"><span>Label</span><span>nilai</span></div>              (bar hijau)
+           <div class="ut-dr-item"><div class="ut-dr-ic">â›</div><div class="ut-dr-name">Nama<small>ket</small></div>
+             <div class="ut-dr-meta"><div class="ut-dr-cost">500</div><button class="ut-btn ut-gl ut-c-g sm">UPGRADE</button></div></div>
+         </div>
+         <div class="ut-dr-tabs"><button class="ut-dr-tab on">UPGRADE</button><button class="ut-dr-tab">GUDANG</button></div>
+       </aside></div>
+   Tombol di dalam baris memakai komponen button (.ut-gl .ut-c-*). */
+.ut-dr-ov { position: absolute; inset: 0; z-index: 8; display: none; justify-content: flex-end; background: rgba(0, 0, 0, .55); }
+.ut-dr-ov.on { display: flex; }
+.ut-dr {
+  --k: var(--dr-k, 1.8); font-size: calc(var(--k) * 10px); font-family: var(--ut-font-body, 'Nunito', sans-serif); color: #fff;
+  width: min(34em, 100%); height: 100%; display: flex; flex-direction: column; background: #5b4a38; border-left: .4em solid #000; box-shadow: -.8em 0 3em rgba(0, 0, 0, .6);
+}
+.ut-dr-ov.on .ut-dr { animation: ut-dr-in .28s ease; }
+@keyframes ut-dr-in { from { transform: translateX(105%); } to { transform: none; } }
+.ut-dr-head { position: relative; flex: none; display: flex; align-items: center; gap: .8em; height: 5.8em; padding: 0 1em; background: linear-gradient(180deg, #55442f 0 50%, #3d3022 50% 100%); border-bottom: .3em solid #000; }
+.ut-dr-h, .ut-dr-ol { color: #fff; font-weight: 900; text-shadow: -.1em -.1em 0 #000, .1em -.1em 0 #000, -.1em .1em 0 #000, .1em .1em 0 #000, 0 .15em 0 #000; }
+.ut-dr-h { flex: 1; margin: 0; text-align: center; font: 400 2em/1 var(--ut-font-title, 'Lilita One', sans-serif); }
+.ut-dr-x { flex: none; position: relative; width: 4em; height: 4em; border: .3em solid #000; border-radius: .9em; padding: 0; cursor: pointer; background: linear-gradient(180deg, #ff6d61 0 50%, #d9332a 50% 100%); box-shadow: inset 0 .3em 0 rgba(255, 255, 255, .35); }
+.ut-dr-x::before, .ut-dr-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1.9em; height: .35em; margin: -.175em 0 0 -.95em; border-radius: .2em; background: #fff; box-shadow: 0 .12em 0 #000; transform: rotate(45deg); }
+.ut-dr-x::after { transform: rotate(-45deg); }
+.ut-dr-x:active { transform: translateY(.2em); }
+.ut-dr-list { flex: 1; min-height: 0; overflow-y: auto; padding: 1em .8em .6em; }
+.ut-dr-sec { margin: 1.2em .2em .6em; color: #eadcc0; font: 400 1.5em/1 var(--ut-font-title, 'Lilita One', sans-serif); text-shadow: 0 .1em 0 #000; letter-spacing: .02em; }
+.ut-dr-sec:first-child { margin-top: 0; }
+.ut-dr-sec small { font: 800 .75em var(--ut-font-body, 'Nunito', sans-serif); color: #cdbb97; margin-left: .5em; letter-spacing: 0; }
+.ut-dr-bar { display: flex; align-items: center; justify-content: space-between; height: 3em; padding: 0 1em; margin-bottom: .6em; border: .3em solid #000; border-radius: .7em; background: linear-gradient(180deg, #9be254 0 50%, #4fa81b 50% 100%); font: 800 1.3em var(--ut-font-body, 'Nunito', sans-serif); color: #fff; text-shadow: -.08em -.08em 0 #000, .08em -.08em 0 #000, -.08em .08em 0 #000, .08em .08em 0 #000; }
+.ut-dr-bar.warn { background: linear-gradient(180deg, #ff8a7a 0 50%, #d22d1f 50% 100%); }
+.ut-dr-fillbar { position: relative; height: 1.5em; margin: 0 0 .8em; border: .25em solid #000; border-radius: .5em; background: #2a1f14; overflow: hidden; box-shadow: inset 0 .2em .4em rgba(0, 0, 0, .7); }
+.ut-dr-fillbar > i { display: block; height: 100%; background: linear-gradient(180deg, #a8ee55 0 50%, #4aa417 50% 100%); }
+.ut-dr-fillbar.warn > i { background: linear-gradient(180deg, #ff8a7a 0 50%, #d22d1f 50% 100%); }
+.ut-dr-item { display: flex; align-items: center; gap: .8em; padding: .45em .7em .45em .5em; margin-bottom: .45em; border: .2em solid #2b1f12; border-radius: .8em; background: linear-gradient(180deg, #8d7352 0 50%, #7a6243 50% 100%); }
+.ut-dr-item.z { opacity: .55; }
+.ut-dr-ic { flex: none; width: 2.9em; height: 2.9em; border: .2em solid #000; border-radius: .7em; display: flex; align-items: center; justify-content: center; font-size: 1.6em; background: linear-gradient(180deg, #e6d67f 0 50%, #bdaa4f 50% 100%); }
+.ut-dr-ic.army { background: linear-gradient(180deg, #7fb3e6 0 50%, #4f86bd 50% 100%); }
+.ut-dr-ic.defense { background: linear-gradient(180deg, #e69a7f 0 50%, #bd6a4f 50% 100%); }
+.ut-dr-ic.hero { background: linear-gradient(180deg, #c49be6 0 50%, #9368bd 50% 100%); }
+.ut-dr-ic > i { display: block; width: .8em; height: .8em; border: .08em solid #000; border-radius: .15em; box-shadow: inset 0 -.15em 0 rgba(0, 0, 0, .25); }
+.ut-dr-ic > img { width: 78%; height: 78%; object-fit: contain; }
+.ut-dr-name { flex: 1; min-width: 0; font: 400 1.35em/1.2 var(--ut-font-title, 'Lilita One', sans-serif); text-shadow: -.08em -.08em 0 #000, .08em -.08em 0 #000, -.08em .08em 0 #000, .08em .08em 0 #000; }
+.ut-dr-name small { display: block; margin-top: .15em; font: 800 .72em/1.25 var(--ut-font-body, 'Nunito', sans-serif); color: #efe5d0; text-shadow: 0 .1em 0 #000; }
+.ut-dr-name em { font-style: normal; color: #8dff5a; }
+.ut-dr-meta { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: .3em; }
+.ut-dr-cost { display: inline-flex; align-items: center; gap: .3em; font: 400 1.2em var(--ut-font-title, 'Lilita One', sans-serif); text-shadow: -.08em -.08em 0 #000, .08em -.08em 0 #000, -.08em .08em 0 #000, .08em .08em 0 #000; }
+.ut-dr-cost img { width: 1.4em; height: 1.4em; object-fit: contain; }
+.ut-dr-meta .ut-btn, .ut-dr-meta .ut-gl { min-width: 6.2em; min-height: 2.5em; padding: 0 .9em; font: 400 1.2em var(--ut-font-title, 'Lilita One', sans-serif); margin-bottom: .45em; --gl-bw: .25em; --gl-r: .8em; --gl-ledge: .35em; }
+.ut-dr-big { display: block; width: 100%; min-height: 3.2em; margin: .2em 0 .9em; font: 400 1.6em var(--ut-font-title, 'Lilita One', sans-serif); --gl-bw: .25em; --gl-r: .9em; --gl-ledge: .4em; }
+.ut-dr-note { margin: .2em .2em .8em; color: #efe5d0; font: 800 1em/1.35 var(--ut-font-body, 'Nunito', sans-serif); text-shadow: 0 .1em 0 #000; }
+.ut-dr-empty { padding: 2em 1em; text-align: center; color: #eadcc0; font: 800 1.1em var(--ut-font-body, 'Nunito', sans-serif); }
+.ut-dr-tabs { flex: none; display: flex; gap: .6em; padding: .8em; background: #3d3022; border-top: .3em solid #000; }
+.ut-dr-tab { position: relative; flex: 1; height: 5.4em; border: .3em solid #000; border-radius: .8em; background: linear-gradient(180deg, #8d7352 0 50%, #6f5a40 50% 100%); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: .1em; padding: 0 0 .25em; cursor: pointer; font: 400 1.3em var(--ut-font-title, 'Lilita One', sans-serif); color: #fff; text-shadow: -.08em -.08em 0 #000, .08em -.08em 0 #000, -.08em .08em 0 #000, .08em .08em 0 #000; }
+.ut-dr-tab .ic { font-size: 1.5em; line-height: 1; }
+.ut-dr-tab.on { background: linear-gradient(180deg, #ffd84a 0 50%, #f0a800 50% 100%); }
+.ut-dr-tab.locked { filter: grayscale(.8) brightness(.75); }
+.ut-dr-tab b { position: absolute; top: -.7em; right: -.4em; min-width: 1.7em; padding: .1em .4em; border-radius: 1em; background: #e0364b; border: .15em solid #000; font: 400 .8em var(--ut-font-title, 'Lilita One', sans-serif); }
+
+/* baris saldo (Koin | Emerald) */
+.ut-dr-wal { display: flex; gap: .6em; margin: 0 0 1em; }
+.ut-dr-wal > span { flex: 1; display: flex; align-items: center; justify-content: center; gap: .5em; height: 3.2em; border: .25em solid #000; border-radius: .8em; background: #3d3022; box-shadow: inset 0 .15em 0 rgba(255, 255, 255, .12); font: 400 1.35em var(--ut-font-title, 'Lilita One', sans-serif); text-shadow: -.08em -.08em 0 #000, .08em -.08em 0 #000, -.08em .08em 0 #000, .08em .08em 0 #000; }
+.ut-dr-wal img { width: 1.5em; height: 1.5em; object-fit: contain; }
+
+/* ikon item gambar (UT.ItemIcon) mengisi kotak ikon */
+.ut-dr-ic .ut-ic { width: 2.2em; height: 2.2em; margin: -.35em; filter: drop-shadow(0 .08em 0 rgba(0,0,0,.35)); }
+.ut-dr-tab .ic .ut-ic { width: 2em; height: 2em; margin: -.3em 0; }
+

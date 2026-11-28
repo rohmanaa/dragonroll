@@ -1,16 +1,16 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id"><head><base href="/"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="assets/js/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
-<title>Dragon Roll — Profil, Teman, Pesan &amp; Pengaturan</title>
+<title>Dragon Roll â€” Profil, Teman, Pesan &amp; Pengaturan</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="stylesheet" href="src/styles/page.css"><link rel="stylesheet" href="src/styles/bg.css">
-<link rel="stylesheet" href="assets/components/button/button.css">
-<link rel="stylesheet" href="assets/components/modal/modal-kit.css">
-<link rel="stylesheet" href="assets/components/tabs/tabs.css">
-<link rel="stylesheet" href="assets/components/stat-card/stat-card.css">
-<link rel="stylesheet" href="assets/components/card-panel-new/card-panel-new.css">
+<link rel="stylesheet" href="src/components/button/button.css">
+<link rel="stylesheet" href="src/components/modal/modal-kit.css">
+<link rel="stylesheet" href="src/components/tabs/tabs.css">
+<link rel="stylesheet" href="src/components/stat-card/stat-card.css">
+<link rel="stylesheet" href="src/components/card-panel-new/card-panel-new.css">
 <link rel="stylesheet" href="src/styles/account-hub.css">
 </head>
 <body class="hub">
@@ -22,14 +22,14 @@
   <section id="hero" class="pcard card-panel-new deep">
     <div id="mid"><div id="art"></div></div>
     <button id="frbtn" class="ut-gl ut-c-b" type="button" aria-label="Frame profil"><img src="assets/images/ui/feature-icons/frame.webp" alt=""><span>Frame</span></button>
-    <button id="pobtn" class="ut-gl ut-c-b" type="button" aria-label="Pose foto profil"><i aria-hidden="true">🧍</i><span>Pose</span></button>
+    <button id="pobtn" class="ut-gl ut-c-b" type="button" aria-label="Pose foto profil"><i aria-hidden="true">ðŸ§</i><span>Pose</span></button>
     <div id="who">
       <div id="lv" aria-label="Level"><svg viewBox="0 0 64 74" aria-hidden="true"><defs><linearGradient id="pvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#2a63d6"/></linearGradient></defs><path d="M32 3 L59 12 V37 C59 55 46 67 32 72 C18 67 5 55 5 37 V12 Z" fill="url(#pvg)" stroke="#ffd45a" stroke-width="4" stroke-linejoin="round"/><path d="M32 10 L53 17 V37 C53 51 43 60 32 65 C21 60 11 51 11 37 V17 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/></svg><b id="lvn">1</b></div>
-      <div id="nrow"><div id="hnm" class="ttl"></div><div id="pbtns"><button class="eb ut-gl ut-c-d" data-i="0"></button><button class="eb ut-gl ut-c-d" data-i="1"></button><button class="eb ut-gl ut-c-d" data-i="2"></button><button id="pen" class="ut-gl ut-c-b" aria-label="Ubah nama">✏️</button></div></div>
+      <div id="nrow"><div id="hnm" class="ttl"></div><div id="pbtns"><button class="eb ut-gl ut-c-d" data-i="0"></button><button class="eb ut-gl ut-c-d" data-i="1"></button><button class="eb ut-gl ut-c-d" data-i="2"></button><button id="pen" class="ut-gl ut-c-b" aria-label="Ubah nama">âœï¸</button></div></div>
       <button id="hid" type="button" aria-label="Salin ID pengguna"></button>
       <i class="dv" id="dv1" aria-hidden="true"></i><i class="dv" id="dv2" aria-hidden="true"></i>
       <div id="guild" class="prow"><img src="assets/images/ui/white-glyphs/perisai-lambang.webp" alt=""><div class="gt"><b>Nama Guild</b><small>Segera hadir</small></div><button id="gbtn" class="ut-gl ut-c-g" type="button" disabled aria-label="Guild (segera hadir)">Guild</button></div>
-      <button id="rank" class="prow" type="button"><img src="assets/images/ui/item-icons/podium.webp" alt=""><div class="gt"><b id="rk-v">—</b><small>Peringkat Global</small></div><div class="rp"><b id="rk-p">—</b><small>Poin</small></div></button>
+      <button id="rank" class="prow" type="button"><img src="assets/images/ui/item-icons/podium.webp" alt=""><div class="gt"><b id="rk-v">â€”</b><small>Peringkat Global</small></div><div class="rp"><b id="rk-p">â€”</b><small>Poin</small></div></button>
     </div>
     <button id="pet" type="button" aria-label="Pet"><span class="pimg"></span><span class="pnm"></span></button>
   </section>
@@ -73,7 +73,7 @@
 <script src="assets/js/services/wallet-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
-<script src="assets/components/ui-core.js"></script>
+<script src="src/components/ui-core.js"></script>
 <script>UT.App.init({page:"profile"});</script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script src="assets/js/renderers/blocky-character.js"></script>
@@ -91,3 +91,4 @@
 <script src="assets/js/pages/account.js"></script>
 <script>UT.PageModule.mount("profile");</script>
 </body></html>
+

@@ -1,4 +1,4 @@
-/* karakter.html — editor karakter 3D asli dalam GUI newgui (kanvas 1920x1080). Menimpa tata letak karakter.css. */
+﻿/* karakter.html â€” editor karakter 3D asli dalam GUI newgui (kanvas 1920x1080). Menimpa tata letak karakter.css. */
 body.kr{--g:#2c9a3a}
 body.kr #left{width:960px}
 /* ---- kiri: karakter 3D yang dapat diputar ---- */
@@ -79,7 +79,7 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 #eqL,#eqR{position:absolute;top:140px;display:grid;grid-template-rows:repeat(4,124px);grid-auto-flow:row;gap:26px;z-index:3}
 #eqL{left:64px}
 #eqR{left:772px}
-/* tampilan slot = komponen .ut-slot (assets/components/slot/slot.css); di sini hanya ukuran, warna isi, status pilih & isi slot */
+/* tampilan slot = komponen .ut-slot (src/components/slot/slot.css); di sini hanya ukuran, warna isi, status pilih & isi slot */
 .eq{--slot-size:124px;position:relative;width:124px;height:124px;padding:0;transition:transform .1s,filter .1s}
 .eq:hover{filter:brightness(1.08)}.eq:active{transform:scale(.95)}
 .eq.empty .en{color:#efeaff}
@@ -97,7 +97,7 @@ body.kr #info{position:absolute;left:70px;top:760px;width:820px;height:240px;pad
 .eq.compact .en{left:2px;right:2px;bottom:2px;font-size:10px}
 .eq.compact.empty .th .em{font-size:24px}
 
-/* ===== Karakter: disamakan dengan Toko/Pet — panel bingkai, judul kiri + tombol Tutup bulat kanan atas, karakter di KARTU TOKO asli, saldo kiri bawah; latar halaman tetap milik Karakter ===== */
+/* ===== Karakter: disamakan dengan Toko/Pet â€” panel bingkai, judul kiri + tombol Tutup bulat kanan atas, karakter di KARTU TOKO asli, saldo kiri bawah; latar halaman tetap milik Karakter ===== */
 #pmodal{position:absolute;left:calc(-1 * var(--hub-ex,0px) - 8px);top:calc(-1 * var(--hub-ey,0px) - 8px);width:calc(1920px + 2 * var(--hub-ex,0px) + 16px);height:calc(1080px + 2 * var(--hub-ey,0px) + 16px);
   pointer-events:none;box-sizing:border-box;z-index:0;border:3px solid #000;border-radius:18px;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.16)}
 #pmodal::before{content:"";position:absolute;inset:0;background:rgba(38,38,38,var(--panel-a,.84))}
@@ -117,7 +117,7 @@ body.kr #info{top:700px}
 #stage #cur-em{left:60px!important}
 #stage #cur-co{left:370px!important}
 
-/* kartu item karakter = komponen card-item (.ut-ci, assets/components/card-item/card-item.css), sama seperti slot Dadu.
+/* kartu item karakter = komponen card-item (.ut-ci, src/components/card-item/card-item.css), sama seperti slot Dadu.
    Gaya .card lama (bingkai ungu/hijau) dimatikan untuk .kcard; ukuran font disesuaikan dengan lebar kolom 130px (1em = 14.7px, rasio 168:226). */
 #grid .kcard{width:100%;height:auto;gap:0;font-size:14.7px;padding:.53em .42em .42em;justify-content:flex-start;animation:pop .35s both}
 #grid .kcard::before{content:none;display:none}
@@ -141,3 +141,4 @@ body.kr #info{top:700px}
 #grid{zoom:1;width:auto;max-height:none;overflow:visible;grid-template-columns:repeat(6,1fr);grid-auto-rows:max-content;gap:14px;padding:6px 4px}   /* 6 kolom pas di dalam panel krem (kartu ~131px lebar) */
 #dyes{background:#f0e8db;border:3px solid #000;color:#222;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 3px 0 rgba(0,0,0,.4)}
 #dyes .lbl{color:#222}
+

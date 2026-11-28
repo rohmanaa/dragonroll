@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Pindahkan KODE ke struktur ala Vue (src/) dan perbarui referensinya. Media tidak dipindah di fase ini.
 Pemakaian:
   python3 tools/restructure-src.py <fase> [--apply]      fase: styles | components | js | tambang | gameplay
@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DIRS = {  # fase -> [(awalan lama, awalan baru)]  (selalu berakhiran /)
     "styles":     [("assets/css/", "src/styles/")],
-    "components": [("assets/components/", "src/components/")],
+    "components": [("src/components/", "src/components/")],
     "js": [("assets/js/pages/", "src/views/"), ("assets/js/core/", "src/core/"), ("assets/js/services/", "src/services/"),
            ("assets/js/data/", "src/data/"), ("assets/js/multiplayer/", "src/multiplayer/"),
            ("assets/js/renderers/", "src/renderers/"), ("assets/js/systems/", "src/systems/"),
@@ -151,3 +151,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

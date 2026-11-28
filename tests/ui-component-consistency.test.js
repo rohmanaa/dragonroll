@@ -1,4 +1,4 @@
-/* tests/ui-component-consistency.test.js
+﻿/* tests/ui-component-consistency.test.js
    Memastikan konsistensi interaction states (focus-visible, hover restrictions, active, disabled)
    pada komponen UI bersama (Button, Tabs, Modal, Cards) selaras dengan Tahap 5. */
 const assert = require('assert');
@@ -6,12 +6,12 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const buttonCss = fs.readFileSync(path.join(root, 'assets/components/button/button.css'), 'utf8');
-const tabsCss = fs.readFileSync(path.join(root, 'assets/components/tabs/tabs.css'), 'utf8');
-const modalCss = fs.readFileSync(path.join(root, 'assets/components/modal/modal-kit.css'), 'utf8');
-const cardCss = fs.readFileSync(path.join(root, 'assets/components/card/card.css'), 'utf8');
-const statCardCss = fs.readFileSync(path.join(root, 'assets/components/stat-card/stat-card.css'), 'utf8');
-const cardPanelNewCss = fs.readFileSync(path.join(root, 'assets/components/card-panel-new/card-panel-new.css'), 'utf8');
+const buttonCss = fs.readFileSync(path.join(root, 'src/components/button/button.css'), 'utf8');
+const tabsCss = fs.readFileSync(path.join(root, 'src/components/tabs/tabs.css'), 'utf8');
+const modalCss = fs.readFileSync(path.join(root, 'src/components/modal/modal-kit.css'), 'utf8');
+const cardCss = fs.readFileSync(path.join(root, 'src/components/card/card.css'), 'utf8');
+const statCardCss = fs.readFileSync(path.join(root, 'src/components/stat-card/stat-card.css'), 'utf8');
+const cardPanelNewCss = fs.readFileSync(path.join(root, 'src/components/card-panel-new/card-panel-new.css'), 'utf8');
 const swJs = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 
 let n = 0;
@@ -83,8 +83,9 @@ test('card/panel containers tetap utuh', () => {
 });
 
 // 5. Service Worker version bumped
-test('sw.js: versi service worker diperbarui ke ut-pwa-v609', () => {
-  assert.ok(swJs.includes("const VERSION = 'ut-pwa-v609';"), 'SW VERSION harus v609');
+test('sw.js: versi service worker diperbarui ke ut-pwa-v611', () => {
+  assert.ok(swJs.includes("const VERSION = 'ut-pwa-v611';"), 'SW VERSION harus v611');
 });
 
 console.log(`${n} UI component consistency tests passed.`);
+

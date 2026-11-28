@@ -1,4 +1,4 @@
-/* page.css — gaya bersama halaman baru (karakter, settings, splash) mengikuti lobby/room: langit, tombol kembali, bar mata uang, panel + banner dari kit. */
+﻿/* page.css â€” gaya bersama halaman baru (karakter, settings, splash) mengikuti lobby/room: langit, tombol kembali, bar mata uang, panel + banner dari kit. */
 :root{--line:var(--panel-line, #6d6590);--gold:var(--dr-gold-light, #ffd45a)}
 body.sub #stage{background:linear-gradient(180deg,#53b8f2 0%,#8bd5fa 46%,#d6f1ff 100%)}
 img{display:block;-webkit-user-drag:none;pointer-events:none}
@@ -30,7 +30,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #cur-co{left:auto!important;right:26px}
 body.ef #cur-em{left:auto!important;right:340px!important}
 body.ef #cur-co{left:auto!important;right:26px!important}
-/* Emerald & Coin = komponen .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi */
+/* Emerald & Coin = komponen .ut-rbar (src/components/resource-bar); halaman hanya mengatur posisi */
 #cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}
 .ut-rbar.bump{animation:bump .4s}
 @keyframes bump{40%{transform:scale(1.07)}}
@@ -56,3 +56,4 @@ input[type=range]::-moz-range-thumb{width:56px;height:56px;border:0;background:u
 #fade{z-index:90}
 .field{border:3px solid #000;border-radius:14px;background:#262626;box-shadow:inset 0 3px 6px rgba(0,0,0,.5);padding:21px 25px;font:800 28px var(--font-body);color:#fff;user-select:text;width:100%;outline:0}
 .field::placeholder{color:#b9a98f}
+

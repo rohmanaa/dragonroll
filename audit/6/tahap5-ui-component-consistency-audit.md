@@ -1,4 +1,4 @@
-# DRAGON ROLL — LAPORAN AUDIT TAHAP 5
+﻿# DRAGON ROLL â€” LAPORAN AUDIT TAHAP 5
 ## UI Component Consistency & Interaction States
 
 **Repository:** `rohmanaa/dragonroll`  
@@ -14,16 +14,16 @@
 Tahap 5 berfokus pada penyelarasan konsistensi interaksi komponen antarmuka (UI Components) bersama di seluruh Dragon Roll tanpa mengubah desain, layout, warna, gradien, margin, padding, border, atau fungsi yang sudah ada.
 
 Komponen yang diaudit:
-1. **Buttons:** `assets/components/button/button.css` (`.ut-btn` dan `.ut-gl`)
-2. **Tabs:** `assets/components/tabs/tabs.css` (`.ut-tab`, `.ut-tabv`, `.ut-seg-i`, `.ut-ul-i`)
-3. **Modals:** `assets/components/modal/modal-kit.css` dan `assets/css/components/game-dialog.css`
-4. **Cards & Panels:** `assets/components/card/card.css`, `assets/components/stat-card/stat-card.css`, dan `assets/components/card-panel-new/card-panel-new.css`
+1. **Buttons:** `src/components/button/button.css` (`.ut-btn` dan `.ut-gl`)
+2. **Tabs:** `src/components/tabs/tabs.css` (`.ut-tab`, `.ut-tabv`, `.ut-seg-i`, `.ut-ul-i`)
+3. **Modals:** `src/components/modal/modal-kit.css` dan `assets/css/components/game-dialog.css`
+4. **Cards & Panels:** `src/components/card/card.css`, `src/components/stat-card/stat-card.css`, dan `src/components/card-panel-new/card-panel-new.css`
 
 ---
 
 ### 2. Temuan Audit per Komponen
 
-#### 2.1 Buttons (`assets/components/button/button.css`)
+#### 2.1 Buttons (`src/components/button/button.css`)
 - **Focus State:**
   - Komponen `.ut-btn` telah memiliki `:focus-visible` (`outline: .18em solid #fff; outline-offset: .12em; box-shadow: ...`).
   - Komponen `.ut-gl` (Glossy button bergaya guild, dipakai hampir di seluruh halaman game seperti Room, Shop, Mail, Settings, Lobby) sama sekali **tidak memiliki** `:focus-visible`.
@@ -35,7 +35,7 @@ Komponen yang diaudit:
   - Aturan `.ut-gl:disabled, .ut-gl.off` dipertahankan seutuhnya tanpa perubahan karena sudah tepat guna dan tidak bertentangan.
 - **Tindakan:** Menambahkan `.ut-gl:focus-visible` dengan spesifikasi `outline: .18em solid #fff; outline-offset: .12em;` selaras dengan `.ut-btn`.
 
-#### 2.2 Tabs (`assets/components/tabs/tabs.css`)
+#### 2.2 Tabs (`src/components/tabs/tabs.css`)
 - **Hover Leak pada Touch Device:**
   - Aturan `.ut-tabv:hover, .ut-tab:hover { transform: translateY(-2px); }` dan `.ut-ul-i:hover { color: #fff; }` tidak dibungkus dalam `@media (hover: hover)`.
   - Pada perangkat layar sentuh (mobile/tablet), state `:hover` dapat tertahan (sticky) setelah pemain mengetuk tab, menimbulkan visual glitch.
@@ -45,7 +45,7 @@ Komponen yang diaudit:
   - Membungkus hover rules ke dalam `@media (hover: hover)`.
   - Menambahkan `:focus-visible` seragam (`outline: .18em solid #fff; outline-offset: .12em;`) untuk `.ut-tab`, `.ut-tabv`, `.ut-seg-i`, dan `.ut-ul-i` (dengan `border-radius: 6px` pada underline tab).
 
-#### 2.3 Modals (`assets/components/modal/modal-kit.css` & `game-dialog.css`)
+#### 2.3 Modals (`src/components/modal/modal-kit.css` & `game-dialog.css`)
 - **Tombol Tutup (`.ut-mk-x`):**
   - Di seluruh repository, tombol close modal selalu menggunakan gabungan kelas: `class="ut-mk-x ut-gl ut-c-r"`.
   - Dengan disediakannya `.ut-gl:focus-visible` pada `button.css`, tombol tutup modal otomatis memperoleh ring fokus keyboard putih yang jelas tanpa perlu menambahkan kode berlebih di `modal-kit.css`.
@@ -61,7 +61,7 @@ Komponen yang diaudit:
 
 ### 3. Ringkasan Perubahan Kode
 
-1. **`assets/components/button/button.css`**:
+1. **`src/components/button/button.css`**:
    - Menambahkan:
      ```css
      .ut-gl:focus-visible {
@@ -69,7 +69,7 @@ Komponen yang diaudit:
        outline-offset: .12em;
      }
      ```
-2. **`assets/components/tabs/tabs.css`**:
+2. **`src/components/tabs/tabs.css`**:
    - Membungkus hover ke dalam `@media (hover: hover)`:
      ```css
      @media (hover: hover) {
@@ -122,3 +122,4 @@ Komponen yang diaudit:
 ### 5. Rekomendasi untuk Tahap 6
 
 Tahap 5 telah menstabilkan konsistensi fokus dan interaksi pada semua komponen bersama tingkat atom/molekul (button, tab, modal, card). Tahap selanjutnya dapat melangkah ke integrasi tata letak mikro per halaman atau persiapan tahap rilis.
+

@@ -1,5 +1,5 @@
-/* =========================================================================
-   DRAGON ROLL — PILIH MODE  (README bagian 4: mode.html)
+﻿/* =========================================================================
+   DRAGON ROLL â€” PILIH MODE  (README bagian 4: mode.html)
    Kanvas 1920x1080. Gaya sama dengan lobby.html. Aset: assets/images/ui/**
    ========================================================================= */
 :root{--panel-line:#6d6590;--font-title:'Lilita One','Baloo 2',Impact,sans-serif;--font-body:'Nunito','Segoe UI',system-ui,sans-serif}
@@ -23,7 +23,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 #back{display:grid;place-items:center}
 #back img.bg{width:62%;height:62%;object-fit:contain;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
 #title{position:absolute;left:140px;top:26px;font-size:64px;line-height:1}
-#cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}   /* Emerald & Coin = komponen .ut-rbar (assets/components/resource-bar); halaman hanya mengatur posisi */
+#cur-em,#cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}   /* Emerald & Coin = komponen .ut-rbar (src/components/resource-bar); halaman hanya mengatur posisi */
 #cur-em{left:1300px}#cur-co{left:1606px}
 
 /* ---------- carousel peta ---------- */
@@ -134,3 +134,4 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .back .q{font-size:28px}
 /* latar voxel langit (sama caranya dengan tambang.css: lapisan tetap di belakang #wrap, agak transparan di atas gradien ungu bg.css) */
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+

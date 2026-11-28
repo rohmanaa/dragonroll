@@ -1,4 +1,4 @@
-# Rencana Struktur Folder ala Vue + Vite (JS biasa)
+﻿# Rencana Struktur Folder ala Vue + Vite (JS biasa)
 
 Status: draf, belum dieksekusi. Keputusan Rans (26 Nov 2026): folder dan path ala Vue/Vite, tetap JS biasa (tanpa framework Vue, tanpa berkas .vue).
 
@@ -14,7 +14,7 @@ Status: draf, belum dieksekusi. Keputusan Rans (26 Nov 2026): folder dan path al
 src/
   index.html  play.html  splash.html  gameplay.html  tambang.html  powerup.html  tos.html   (entri Vite)
   views/        <- assets/js/pages/*      (satu berkas per view SPA: shop.js, profile.js, ...)
-  components/   <- assets/components/*    (css + js per komponen: modal, tabs, button, ...)
+  components/   <- src/components/*    (css + js per komponen: modal, tabs, button, ...)
   services/     <- assets/js/services/*
   core/         <- assets/js/core/*       (spa-host, page-shell, app, chest-reveal, ...)
   stores/       <- player-data.js, item-catalog.js, inventory-bridge.js
@@ -60,3 +60,4 @@ Aset yang path-nya dibentuk saat runtime (`data/inventory/<kategori>/<id>/...`, 
 2. Fase 3 (ES module) dikerjakan sekarang, bukan setelah rilis.
 3. Folder logika halaman bernama `views/`.
 4. Mulai sekarang, tidak menunggu bagian 3-4 (hub, modal kit). Pekerjaan UI baru harus ditunda atau diarahkan ke path baru setelah Fase 1.
+

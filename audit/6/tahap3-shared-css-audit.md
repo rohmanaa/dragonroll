@@ -1,4 +1,4 @@
-# AUDIT & REFECTORING CSS BERSAMA (SHARED CSS) — TAHAP 3
+﻿# AUDIT & REFECTORING CSS BERSAMA (SHARED CSS) â€” TAHAP 3
 
 **Tanggal:** 2026-11-28  
 **Branch:** `feat/shared-css-cleanup-stage3` (bercabang dari `feat/design-tokens-stage2` @ `ebfc3411`)  
@@ -18,8 +18,8 @@ Berdasarkan penelusuran terhadap seluruh file HTML, JavaScript (`page-shell.js`,
 | `assets/css/page.css` | Utility lama: bar mata uang, tombol `#back`, `.btn.gold`, `.panel`, range slider | `<link>` di head berbagai halaman lama |
 | `assets/css/sub.css` | Layout sub-halaman (Leaderboard, Friendship, Tambang): `#back`, `#title`, `.tabs`, `.row`, `#md` | `<link>` di head sub-halaman |
 | `assets/css/base.css` | File kompatibilitas wrapper (`reset.css`, `utilities/common.css`, `components/overlay.css`) | Hanya dimuat oleh `gameplay.html` |
-| `assets/components/button/button.css` | Komponen tombol modular global (`.ut-btn`, `.ut-gl`) | `<link>` di hampir semua halaman |
-| `assets/components/modal/modal-kit.css` | Komponen popup modal modular global (`.ut-mk`, `.ut-mk-t`, `.ut-mk-x`) | `<link>` di halaman bermodal |
+| `src/components/button/button.css` | Komponen tombol modular global (`.ut-btn`, `.ut-gl`) | `<link>` di hampir semua halaman |
+| `src/components/modal/modal-kit.css` | Komponen popup modal modular global (`.ut-mk`, `.ut-mk-t`, `.ut-mk-x`) | `<link>` di halaman bermodal |
 
 ---
 
@@ -81,3 +81,4 @@ Berdasarkan penelusuran terhadap seluruh file HTML, JavaScript (`page-shell.js`,
    - Jalankan seluruh unit test (`node tests/*.test.js`).
    - Pastikan tidak ada kegagalan test baru (hanya baseline).
    - Perbarui versi cache di `sw.js` (ke `ut-pwa-v601`).
+

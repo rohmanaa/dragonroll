@@ -1,4 +1,4 @@
-{
+﻿{
   "schema_version": 3,
   "gameplay_html_authorized": false,
   "mapping": {
@@ -1605,7 +1605,7 @@
       "file": "assets/Images/background/mode-bg.webp",
       "used_by": [
         "assets/preload-manifest.json",
-        "assets/components/theme/preview.html"
+        "src/components/theme/preview.html"
       ],
       "status": "referenced",
       "proposed_target": "assets/images/background/mode-bg.webp",
@@ -15837,3 +15837,4 @@
     "phase3": 56
   }
 }
+

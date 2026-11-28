@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const PG = require("./_page");
 const path = require('path');
@@ -31,8 +31,8 @@ assert.ok(lobby.includes('assets/images/background/lobby-kastel.webp'));
 assert.ok(!lobby.includes('lobby-bg.webp'));
 /* Emerald & Coin = komponen bersama resource-bar (ikon dipecahkan oleh komponen, bukan ditulis di lobby.html) */
 assert.ok(lobby.includes('data-rbar="gem"') && lobby.includes('data-rbar="coin"'));
-assert.ok(lobby.includes('assets/components/resource-bar/resource-bar.js'));
-assert.ok(PG.readFileSync(path.join(root, 'assets/components/resource-bar/resource-bar.js'), 'utf8').includes("'ikon-koin-emas.webp'"));
+assert.ok(lobby.includes('src/components/resource-bar/resource-bar.js'));
+assert.ok(PG.readFileSync(path.join(root, 'src/components/resource-bar/resource-bar.js'), 'utf8').includes("'ikon-koin-emas.webp'"));
 assert.ok(!lobby.includes('assets/images/icon/mode/console.webp'));
 assert.ok(lobby.includes('AUR.only(bc.root,UT.AuraView.equippedKey(),{facing:-hero.rotation.y})'));
 assert.ok(lobby.includes('AUR.update(motionDt)'));
@@ -51,3 +51,4 @@ for (const icon of ['assets/images/ui/hud/ikon-koin-emas.webp']) {
 assert.ok(lobby.includes('assets/images/ui/item-icons/podium.webp'));
 assert.ok(lobby.includes('assets/images/buttons/tombol-play-lobby.webp'));
 console.log('ok - lobby keeps ui-newgui HUD over main WebP backdrop, character, aura, and animations');
+

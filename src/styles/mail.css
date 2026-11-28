@@ -1,4 +1,4 @@
-/* mail.html — kotak masuk. Kerangka: page.css + sub.css (tab, baris, modal). */
+﻿/* mail.html â€” kotak masuk. Kerangka: page.css + sub.css (tab, baris, modal). */
 [hidden]{display:none!important}
 .tabs{left:60px;top:132px}
 #sbar{position:absolute;left:70px;top:262px;width:1780px;height:96px;display:flex;gap:24px;align-items:center}
@@ -11,7 +11,7 @@
 /* warna kartu = krem seperti Contoh Popup (game-cards): sudah dibaca = krem, belum dibaca = kuning */
 .ut-pc.mr{background:linear-gradient(#e2ddd1 0 50%,#cbc5b7 50%);border-radius:.33em}
 .ut-pc.mr.me{background:linear-gradient(#ffdf55 0 50%,#f5bc1c 50%)}
-.mr{font-size:40px}   /* kartu: assets/components/player-card; surat belum dibaca = kuning (.me) */
+.mr{font-size:40px}   /* kartu: src/components/player-card; surat belum dibaca = kuning (.me) */
 .mr .mi{flex:none;width:84px;height:84px;display:grid;place-items:center}
 .mr .mi img{width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
 .mr .grow{min-width:0}
@@ -37,3 +37,4 @@
 #mbtns .btn[hidden]{display:none!important}
 /* latar voxel pesan (cara sama dengan tambang.css/mode.css: lapisan tetap di belakang #wrap, agak transparan) */
 body.dm::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id"><head><script src="assets/js/room-modal-bridge.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="assets/js/core/page-shell.js"></script>
@@ -6,10 +6,10 @@
 <title>Karakter - Dragon Roll</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 
 <link rel="stylesheet" href="src/styles/page.css">
-<link rel="stylesheet" href="assets/components/button/button.css">
-<link rel="stylesheet" href="assets/components/modal/modal-kit.css">
-<link rel="stylesheet" href="assets/components/tabs/tabs.css">
-<link rel="stylesheet" href="assets/components/slot/slot.css"><link rel="stylesheet" href="assets/components/card-panel-new/card-panel-new.css"><link rel="stylesheet" href="assets/components/card-item/card-item.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=227"><link rel="stylesheet" href="src/styles/bg.css">
+<link rel="stylesheet" href="src/components/button/button.css">
+<link rel="stylesheet" href="src/components/modal/modal-kit.css">
+<link rel="stylesheet" href="src/components/tabs/tabs.css">
+<link rel="stylesheet" href="src/components/slot/slot.css"><link rel="stylesheet" href="src/components/card-panel-new/card-panel-new.css"><link rel="stylesheet" href="src/components/card-item/card-item.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/karakter.css"><link rel="stylesheet" href="data/inventory/character/_shared/css/kredit.css?v=227"><link rel="stylesheet" href="src/styles/bg.css">
 <script src="assets/js/systems/ambience.js"></script>
 </head>
 <body class="kr">
@@ -23,13 +23,13 @@
   <section id="left">
     <div id="show"><canvas id="gl"></canvas></div>
     <div id="eqL" aria-label="Perlengkapan sisi kiri"></div><div id="eqR" aria-label="Perlengkapan sisi kanan"></div>
-    <section id="info" class="card-panel-new popover"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><div id="extraAcc" aria-label="Aksesori tambahan"></div><div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">🎲 Acak</button><button class="bt ut-gl ut-c-d" id="shp">🛒 Toko</button></div></section>
+    <section id="info" class="card-panel-new popover"><span class="badge" id="irar"></span><div id="iname"></div><div id="idesc"></div><div id="extraAcc" aria-label="Aksesori tambahan"></div><div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">ðŸŽ² Acak</button><button class="bt ut-gl ut-c-d" id="shp">ðŸ›’ Toko</button></div></section>
   </section>
 
   <section id="right">
     <nav id="tabs" class="ut-tabs" aria-label="Kategori"></nav>
     <nav id="subs" class="ut-seg" aria-label="Sub kategori"></nav>
-    <button class="bt ut-gl ut-c-b" id="ofm" style="display:none">✏️ Kelola</button>
+    <button class="bt ut-gl ut-c-b" id="ofm" style="display:none">âœï¸ Kelola</button>
     <div id="gpanel" class="card-panel-new popover" aria-hidden="true"></div>
     <div id="gwrap"><div id="grid"></div></div>
     <div id="dyes"></div>
@@ -49,9 +49,9 @@
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
 <script>UT.App.init({page:'karakter'});</script>
-<script src="assets/components/ui-core.js"></script>
-<script src="assets/components/plus-button/plus-button.js"></script>
-<script src="assets/components/resource-bar/resource-bar.js"></script>
+<script src="src/components/ui-core.js"></script>
+<script src="src/components/plus-button/plus-button.js"></script>
+<script src="src/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/shared-gl.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="data/inventory/character/_shared/js/character-sets.js"></script>
@@ -59,3 +59,4 @@
 <script src="assets/js/core/modal-kit.js"></script><script>(function(){try{var m=document.getElementById("modal");if(m&&window.UT&&UT.ModalKit)UT.ModalKit.watch(m,{openClass:"show"});}catch(e){}})();</script>
 </body>
 </html>
+

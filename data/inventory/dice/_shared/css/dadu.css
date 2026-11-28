@@ -1,6 +1,6 @@
-/* dadu.html — layout ala Line Get Rich: kiri = info (atas) + pratinjau 3D & tombol JUAL/BELI (bawah); kanan = tab Lihat Semua / Memiliki + grid slot kotak.
+﻿/* dadu.html â€” layout ala Line Get Rich: kiri = info (atas) + pratinjau 3D & tombol JUAL/BELI (bawah); kanan = tab Lihat Semua / Memiliki + grid slot kotak.
    Slot: terkunci = belum dibeli, hijau = dimiliki, biru = dipakai (aset assets/images/ui/slot-equipment). Kanvas 1920x1080. */
-/* tampilan panel: .card-panel-new (assets/components/card-panel-new) */
+/* tampilan panel: .card-panel-new (src/components/card-panel-new) */
 .dpanel{position:relative;isolation:isolate}
 #dl{position:absolute;left:60px;top:150px;width:820px;height:820px;display:flex;flex-direction:column;gap:16px}
 #dinfo{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:24px 36px 26px;overflow:hidden}
@@ -51,3 +51,4 @@ html body #stage #cur-co{left:310px!important}
 #dinfo.popover .drow{color:#2e2824}
 #dr.popover .dempty{color:#3a3630}
 #dinfo #rar:not(:empty){align-self:center;padding:3px 16px 5px;border-radius:12px;background:#2b2740;border:3px solid #000;box-shadow:inset 0 3px 0 rgba(255,255,255,.18)}   /* warna teks = warna rarity (inline dari JS) */
+

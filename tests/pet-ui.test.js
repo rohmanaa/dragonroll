@@ -1,4 +1,4 @@
-const assert = require('assert');
+﻿const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
@@ -32,11 +32,11 @@ assert.ok(page.includes('class="pc-pr') && page.includes('data-act="use"') && pa
 assert.ok(pcss.includes('#stage #cur-em{left:60px!important}') && pcss.includes('bottom:28px'));
 assert.ok(pcss.includes('.pc-ic{width:64px;height:64px}') && !pcss.includes('.pc-ic{width:64px;height:64px;border:0;border-radius:0;background:none;box-shadow:none}'), 'ikon mata/info = tombol HUD (.ut-gl), bukan ikon tanpa kotak');
 // komponen HUD (button.css): tombol Pet memakai ut-gl ut-c-<warna>, tanpa gambar bingkai tombol lama
-assert.ok(html.includes('assets/components/button/button.css') && html.includes('assets/components/tabs/tabs.css'));
-assert.ok(html.indexOf('assets/components/button/button.css') < html.indexOf('data/inventory/pet/_shared/css/pet-page.css'), 'button.css dimuat sebelum CSS Pet');
+assert.ok(html.includes('src/components/button/button.css') && html.includes('src/components/tabs/tabs.css'));
+assert.ok(html.indexOf('src/components/button/button.css') < html.indexOf('data/inventory/pet/_shared/css/pet-page.css'), 'button.css dimuat sebelum CSS Pet');
 assert.ok(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-mk-x ut-gl ut-c-r"/.test(html));
 // modal kit (modal-kit.css): detail, pratinjau & konfirmasi memakai .ut-mk (judul .ut-mk-t, tutup .ut-mk-x dengan X dari CSS, tanpa gambar bingkai/ikon)
-assert.ok(html.includes('assets/components/modal/modal-kit.css') && html.includes('id="pvBox" class="pet-info-panel ut-mk"') && html.includes('class="panel ut-mk" id="box"') && html.includes('id="mt" class="ut-mk-t"'));
+assert.ok(html.includes('src/components/modal/modal-kit.css') && html.includes('id="pvBox" class="pet-info-panel ut-mk"') && html.includes('class="panel ut-mk" id="box"') && html.includes('id="mt" class="ut-mk-t"'));
 assert.ok(!/id="pvClose"[^>]*>[^<]/.test(html), 'tombol tutup modal tanpa teks/gambar (X digambar CSS)');
 assert.ok(/class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
 ['pc-pr used ut-hc-btn red', 'pc-pr own ut-hc-btn', 'pc-pr no ut-hc-btn gray', 'pc-pr ut-hc-btn', 'pc-ic pc-eye ut-hc-ic', 'pet-info-retry ut-gl ut-c-b'].forEach((c) => assert.ok(page.includes(c), c));
@@ -59,3 +59,4 @@ assert.deepStrictEqual(
   fs.readFileSync(path.join(root, 'referensi/newgui/assets/komponen/panel-dialog/bingkai-dialog.webp'))
 );
 console.log('ok - Pet shows Preview and Detail tabs in one modal, removes the duplicate home icon, and keeps skills at the bottom');
+

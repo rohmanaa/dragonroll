@@ -1,4 +1,4 @@
-/* tambang-hud.css — HUD Tambang, nilai disalin dari referensi/newgui/game (common/page/sub/tambang/bg.css).
+﻿/* tambang-hud.css â€” HUD Tambang, nilai disalin dari referensi/newgui/game (common/page/sub/tambang/bg.css).
    Kanvas 1920x1080 yang diskalakan; semua id/kelas berawalan tambang- agar tidak menimpa CSS halaman lain. */
 @font-face{font-family:'Lilita One';src:url(../fonts/tambang-lilita-one.woff2) format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Nunito';src:url(../fonts/tambang-nunito-600.woff2) format('woff2');font-weight:600;font-display:swap}
@@ -25,7 +25,7 @@ img{display:block;-webkit-user-drag:none;pointer-events:none}
 #tambang-title{position:absolute;left:140px;top:28px;font-size:72px;line-height:1;font-weight:400;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(10,6,24,.5);z-index:5}
 #tambang-sum{position:absolute;left:142px;top:116px;font:800 32px var(--tambang-font-body);color:#ebe6ff;z-index:5;text-shadow:0 2px 0 rgba(10,6,24,.9),0 0 8px rgba(10,6,24,.9);white-space:nowrap}
 #tambang-sum b{color:#6be04a;font:400 40px var(--tambang-font-title)}
-/* Emerald & Coin = komponen bersama .ut-rbar (assets/components/resource-bar), seperti Lobby; posisi milik halaman */
+/* Emerald & Coin = komponen bersama .ut-rbar (src/components/resource-bar), seperti Lobby; posisi milik halaman */
 #tambang-cur-em,#tambang-cur-co{position:absolute;top:26px;width:290px;height:56px;--rb-fs:28px;z-index:5}
 #tambang-cur-em{left:1100px}#tambang-cur-co{left:1420px}
 #tambang-cur-em.bump,#tambang-cur-co.bump{animation:tambang-bump .4s}
@@ -304,3 +304,4 @@ button:focus-visible{outline:4px solid #7fd0ff;outline-offset:2px}
 .tambang-ore .ut-ic{width:1.5em;height:1.5em;margin:-.2em .15em -.2em 0}
 .tambang-rst .ut-ic,.tambang-bst .ut-ic,#tambang-lock-btn .ut-ic{width:1.4em;height:1.4em;margin:-.2em .1em}
 .tambang-bub.b .ut-ic{width:70%;height:70%}
+

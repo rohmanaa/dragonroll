@@ -1,4 +1,4 @@
-/* Efek (Aura) sebagai view SPA: modul 'efek', renderer pratinjau 3D milik UT.SharedGL (acquire saat mount, release saat unmount). */
+﻿/* Efek (Aura) sebagai view SPA: modul 'efek', renderer pratinjau 3D milik UT.SharedGL (acquire saat mount, release saat unmount). */
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +7,7 @@ const js = rd('data/inventory/aura/_shared/js/efek.js'), html = rd('efek.html'),
 let n = 0;
 t0();
 function t0() {
-  assert(html.includes('assets/components/button/button.css') && html.indexOf('assets/components/button/button.css') < html.indexOf('pet-page.css'), 'button.css sebelum CSS Pet');
+  assert(html.includes('src/components/button/button.css') && html.indexOf('src/components/button/button.css') < html.indexOf('pet-page.css'), 'button.css sebelum CSS Pet');
   assert(/id="back" class="ut-gl ut-c-r"/.test(html) && /id="pvClose" class="ut-mk-x ut-gl ut-c-r"/.test(html) && /class="btn ut-gl ut-c-r" id="m-no"/.test(html) && /class="btn ut-gl ut-c-g" id="m-ok"/.test(html) && !/tombol-(merah|hijau)-polos/.test(html));
   ['pc-pr no ut-gl ut-c-d','pc-pr used ut-gl ut-c-r','pc-pr own ut-gl ut-c-g','pc-pr ut-gl ut-c-y','pc-ic pc-eye ut-gl ut-c-b'].forEach(c => assert(js.includes(c), c));
 }
@@ -51,7 +51,7 @@ t('routing: efek.html = view; masuk daftar tab view, frame-guard, prefetch', () 
   assert(/'efek\.html': \['lobby\.html'\]/.test(rd('assets/js/pages/play.js')));
 });
 t('modal kit: pratinjau & konfirmasi memakai .ut-mk', () => {
-  assert(html.includes('assets/components/modal/modal-kit.css') && /id="pvBox" class="pet-info-panel ut-mk"/.test(html) && /class="panel ut-mk" id="box"/.test(html) && /id="mt" class="ut-mk-t"/.test(html));
+  assert(html.includes('src/components/modal/modal-kit.css') && /id="pvBox" class="pet-info-panel ut-mk"/.test(html) && /class="panel ut-mk" id="box"/.test(html) && /id="mt" class="ut-mk-t"/.test(html));
 });
 t('rute: efek.html bukan tab Inventory; Tutup/Esc kembali ke asal; Profil membuka halamannya langsung', () => {
   const br = rd('assets/js/inventory-bridge.js'), prof = rd('assets/js/pages/profile.js');
@@ -60,3 +60,4 @@ t('rute: efek.html bukan tab Inventory; Tutup/Esc kembali ke asal; Profil membuk
   assert(prof.includes('"efek.html?from=profile.html"') && !/inventory\.html\?tab=(efek|dadu)/.test(prof) && /BUILT = \[[^\]]*'inventory\.html'/.test(prof));
 });
 console.log(n + ' tes lulus');
+

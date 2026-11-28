@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="assets/js/core/page-shell.js"></script>
 <script>UT.PageShell.renderBase();</script>
 <script src="assets/js/renderers/scene-bg.js" data-auto data-preset="soft" data-image="assets/images/background/lobby-kastel.webp" data-lights="lobby"></script>
-<title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><link rel="stylesheet" id="ut-vt" href="src/styles/pages/lobby-2.css"><link rel="stylesheet" href="assets/components/tile-button/tile-button.css"><link rel="stylesheet" href="assets/components/collapse-button/collapse-button.css"><link rel="stylesheet" href="src/styles/pages/lobby-legacy.css"><link rel="stylesheet" href="src/styles/pages/lobby.css"><link rel="stylesheet" href="src/styles/scene-bg.css"><link rel="stylesheet" href="assets/components/modal/modal-kit.css">
+<title>Lobby</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any"><link rel="stylesheet" id="ut-vt" href="src/styles/pages/lobby-2.css"><link rel="stylesheet" href="src/components/tile-button/tile-button.css"><link rel="stylesheet" href="src/components/collapse-button/collapse-button.css"><link rel="stylesheet" href="src/styles/pages/lobby-legacy.css"><link rel="stylesheet" href="src/styles/pages/lobby.css"><link rel="stylesheet" href="src/styles/scene-bg.css"><link rel="stylesheet" href="src/components/modal/modal-kit.css">
 
 
 </head>
@@ -28,7 +28,7 @@
   <button class="lbt locked ut-tile ut-tile-k" id="b-guild" data-act="guild" aria-label="Guild (terkunci)"><div class="ico"><img src="assets/images/ui/item-icons/panji-pedang.webp" alt=""></div><div class="lb">GUILD</div><img class="lk" src="assets/images/ui/white-glyphs/gembok.webp" alt=""></button>
 
   <!-- ===== kanan atas: Emerald, Coin, Hati (ikon + angka + tombol +) ===== -->
-  <!-- Emerald & Coin = komponen bersama UT.Hud 'resource-bar' (assets/components/resource-bar); isi dibangun lewat hydrate -->
+  <!-- Emerald & Coin = komponen bersama UT.Hud 'resource-bar' (src/components/resource-bar); isi dibangun lewat hydrate -->
   <div id="cur-em" data-rbar="gem" data-value-id="v-em" data-act="tambang" aria-label="Emerald, buka Tambang"></div>
   <div id="cur-co" data-rbar="coin" data-value-id="v-co" data-act="beliCoin" aria-label="Coin, buka Toko"></div>
   <div class="cur" id="cur-ht" role="status" aria-label="Nyawa">
@@ -92,12 +92,13 @@
 <script src="tambang-world/js/tambang-service.js"></script>
 <script src="assets/js/services/appearance-service.js"></script>
 <script src="assets/js/core/app.js"></script>
-<script src="assets/components/ui-core.js"></script>
-<script src="assets/components/plus-button/plus-button.js"></script>
-<script src="assets/components/resource-bar/resource-bar.js"></script>
+<script src="src/components/ui-core.js"></script>
+<script src="src/components/plus-button/plus-button.js"></script>
+<script src="src/components/resource-bar/resource-bar.js"></script>
 <script src="assets/js/core/live-sync.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
 <script src="assets/js/core/shared-gl.js"></script>
 <script src="assets/js/core/page-module.js"></script>
 <script src="data/lobby/js/lobby.js"></script>
 </body></html>
+

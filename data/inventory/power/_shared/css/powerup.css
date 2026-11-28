@@ -1,4 +1,4 @@
-/* karakter.html — mengikuti layar Equipment (assets/penerapan/fcuBiA.png): latar ungu gelap,
+﻿/* karakter.html â€” mengikuti layar Equipment (assets/penerapan/fcuBiA.png): latar ungu gelap,
    slot samping, hero di pedestal, nama + level + statistik di kiri, tab + grid slot di kanan. */
 
 /* ---- bar atas ---- */
@@ -67,7 +67,7 @@
 .slot.empty{background:#3a3732;box-shadow:inset 0 0 0 4px #000,inset 0 8px 0 rgba(0,0,0,.2);border-radius:18px;opacity:.55;pointer-events:none}
 #use{position:absolute;left:5px;top:940px;width:276px;height:104px}
 #use span{font-size:38px;color:#17420a;text-shadow:0 2px 0 rgba(220,255,160,.55);margin-top:-8px}
-/* frame.html — memakai template karakter.css (bar atas, tab, grid, tombol). Hanya bagian khusus frame di sini. */
+/* frame.html â€” memakai template karakter.css (bar atas, tab, grid, tombol). Hanya bagian khusus frame di sini. */
 
 /* preview besar + komposisi frame (bingkai kit di bawah, foto profil di dalamnya) */
 #fpv{position:absolute;left:270px;top:150px;width:420px;height:420px}
@@ -83,7 +83,7 @@
 #ds{position:absolute;left:190px;width:600px;top:762px;margin:0;text-align:center;font:700 26px/1.4 var(--font-body);color:#d8d2ee}
 
 /* kartu frame di grid (class sendiri supaya aturan .slot img di karakter.css tidak ikut) */
-/* tampilan slot = komponen .ut-slot (assets/components/slot/slot.css); di sini hanya ukuran, status pilih & tombol tambah */
+/* tampilan slot = komponen .ut-slot (src/components/slot/slot.css); di sini hanya ukuran, status pilih & tombol tambah */
 .fslot{--slot-size:130px;transition:transform .1s,filter .1s}
 .fslot:hover{filter:brightness(1.08)}
 .fslot:active{transform:scale(.95)}
@@ -114,7 +114,7 @@
 #mbtns .btn span{font-size:32px}
 /* tanpa tab kategori (frame, dadu): grid naik ke atas */
 body.notabs #grid{top:120px;max-height:728px}
-/* efek.html — memakai karakter.css + frame.css + dadu.css (kartu .fslot, tombol aksi, modal). Bagian khusus aura di sini. */
+/* efek.html â€” memakai karakter.css + frame.css + dadu.css (kartu .fslot, tombol aksi, modal). Bagian khusus aura di sini. */
 #fpv{left:300px;top:170px;width:360px;height:360px}
 .dice{position:relative;width:100%;height:100%;animation:bob2 2.4s ease-in-out infinite;filter:drop-shadow(0 14px 10px rgba(0,0,0,.45))}
 .dice>img{position:absolute;left:18%;top:18%;width:64%;height:64%;object-fit:contain;transform-origin:50% 55%;z-index:2}
@@ -154,3 +154,4 @@ body.notabs #grid{top:120px;max-height:728px}
 .qb:active{transform:scale(.92)}
 #mx .qt{display:flex;justify-content:center;align-items:center;gap:12px;font:400 46px/1 var(--font-title);margin-bottom:6px}
 #mx .qt img{width:52px;height:52px;object-fit:contain}
+

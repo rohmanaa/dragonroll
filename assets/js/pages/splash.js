@@ -1,4 +1,4 @@
-/* splash.js — dipindah dari blok script inline (splash.html). */
+﻿/* splash.js â€” dipindah dari blok script inline (splash.html). */
 (()=>{
 const $=s=>document.querySelector(s);
 const q=new URLSearchParams(location.search);
@@ -28,9 +28,9 @@ const ASSETS=[
   'assets/js/player-data.js',
   'assets/js/core/app.js',
   'assets/js/game-integration.js',
-  'assets/components/ui-core.js',
-  'assets/components/button/button.css',
-  'assets/components/button/button.js',
+  'src/components/ui-core.js',
+  'src/components/button/button.css',
+  'src/components/button/button.js',
   'assets/audio/sfx/ui/button-click.mp3',
   'assets/audio/sfx/ui/chest-reward.mp3',
   'assets/audio/sfx/ui/game-lose.mp3',
@@ -67,7 +67,7 @@ const ASSETS=[
 ASSETS.unshift(dest.split("?")[0]);
 let pct=0;
 
-/* ---- SYSTEM LOG: SATU baris di atas bar loading = kategori yang sedang dimuat ("Loading gambar... 12/80 · 340/900"); pesan sistem (cek pembaruan) menggantikannya ---- */
+/* ---- SYSTEM LOG: SATU baris di atas bar loading = kategori yang sedang dimuat ("Loading gambar... 12/80 Â· 340/900"); pesan sistem (cek pembaruan) menggantikannya ---- */
 const LOG=(()=>{
   const line=$("#syslog");
   if(!line)return{sys(){},ev(){}};
@@ -79,9 +79,9 @@ const LOG=(()=>{
   const C={};let sysMsg="",total=0,done=0,cur="",dirty=false,urlCat={};
   function paint(){if(dirty)return;dirty=true;requestAnimationFrame(()=>{dirty=false;
     let t=sysMsg;
-    if(!t){const c=C[cur];t=c?"Loading "+cur+"... "+c.done+"/"+c.total+(total?" · "+done+"/"+total:""):""}
+    if(!t){const c=C[cur];t=c?"Loading "+cur+"... "+c.done+"/"+c.total+(total?" Â· "+done+"/"+total:""):""}
     line.textContent=t;
-    /* satu teks saja di bar: setelah fase unduh selesai, rincian "Loading gambar… n/m" menggantikan label */
+    /* satu teks saja di bar: setelah fase unduh selesai, rincian "Loading gambarâ€¦ n/m" menggantikan label */
     if(window.__lblLoad&&!window.__lblDl)$("#lbl").textContent=t||$("#lbl").textContent})}
   function ev(e){
     if(e.type==="sys"){sysMsg=e.msg;return paint()}
@@ -100,8 +100,8 @@ function mb(b){return (b/1048576).toFixed(b<10485760?1:0)}
 function setPct(p,kind,info){pct=p;$("#fill").style.width=p+"%";
   window.__lblLoad=true;window.__lblDl=!!(info&&info.fresh&&p<100);
   const lb=$("#lbl");
-  if(window.__lblDl)lb.textContent="Mengunduh aset… "+mb(info.dlGot)+" / "+mb(info.dlTotal)+" MB ("+Math.round(p)+"%)";
-  else{const s=$("#syslog");lb.textContent=(s&&s.textContent)||("Loading… "+Math.round(p)+"%")}}
+  if(window.__lblDl)lb.textContent="Mengunduh asetâ€¦ "+mb(info.dlGot)+" / "+mb(info.dlTotal)+" MB ("+Math.round(p)+"%)";
+  else{const s=$("#syslog");lb.textContent=(s&&s.textContent)||("Loadingâ€¦ "+Math.round(p)+"%")}}
 let leaving=false;
 function go(){
   if(leaving)return;leaving=true;
@@ -131,15 +131,15 @@ try{window.PlayerData&&PlayerData.snapshot()}catch(e){} /* jalankan migrasi/muat
 if(quick){document.body.classList.add("quick");afterLoad()}
 else{
   /* URUTAN: 1) cek pembaruan ke server DULU (sebelum mengunduh aset apa pun) -> 2) bila ada, modal Unduh Data (X = tunda) -> 3) baru bar loading memuat aset */
-  $("#lbl").textContent="Memeriksa pembaruan…";LOG.sys("Cek pembaruan…");
+  $("#lbl").textContent="Memeriksa pembaruanâ€¦";LOG.sys("Cek pembaruanâ€¦");
   Promise.resolve(UT.Update&&UT.Update.promptOnSplash(2500,{
     /* modal hanya konfirmasi; progres unduhan pembaruan tampil di bar splash ini */
     progress:ev=>{const p=ev.total>0?Math.min(100,Math.round(ev.loaded/ev.total*100)):0;$("#fill").style.width=p+"%";
-      $("#lbl").textContent="Mengunduh pembaruan… "+(ev.total>0?mb(ev.loaded)+" / "+mb(ev.total)+" MB ("+p+"%)":"")},
+      $("#lbl").textContent="Mengunduh pembaruanâ€¦ "+(ev.total>0?mb(ev.loaded)+" / "+mb(ev.total)+" MB ("+p+"%)":"")},
     status:t=>{$("#lbl").textContent=t;LOG.sys(t);if(/^Mengunduh/.test(t))$("#fill").style.width="0%";else if(/^(Menyiapkan|Memulai)/.test(t))$("#fill").style.width="100%"}
   })).catch(()=>{})
     .then(()=>UT_Preload.runAuto(ASSETS,(p,k,i)=>{setPct(p,k,i)}))
-    .then(()=>{setPct(100);LOG.sys("Siap ✓ cek login…");setTimeout(afterLoad,300)});
+    .then(()=>{setPct(100);LOG.sys("Siap âœ“ cek loginâ€¦");setTimeout(afterLoad,300)});
 }
 
 /* ---- dialog login / sign up ---- */
@@ -154,7 +154,7 @@ $("#to-signup").onclick=e=>{e.preventDefault();openSignup()};
 $("#to-login").onclick=e=>{e.preventDefault();openLogin()};
 document.querySelectorAll(".inp input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter"){(i.closest("#m-login")?$("#li-ok"):$("#su-ok")).click()}}));
 
-/* aksi akun asli: validasi & pesan galat dari UT.Auth (username 3–16, password min. 6) */
+/* aksi akun asli: validasi & pesan galat dari UT.Auth (username 3â€“16, password min. 6) */
 async function submit(btn,errId,fn){
   setErr(errId,"");btn.disabled=true;const lbl=btn.querySelector("span"),t=lbl.textContent;lbl.textContent="Tunggu...";
   try{
@@ -173,3 +173,4 @@ $("#su-ok").onclick=()=>submit($("#su-ok"),"#su-err",async()=>{
 });
 document.documentElement.classList.add("ut-ready");
 })();
+
