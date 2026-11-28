@@ -13,7 +13,7 @@ DIRS = {  # fase -> [(awalan lama, awalan baru)]  (selalu berakhiran /)
            ("src/data/", "src/data/"), ("src/multiplayer/", "src/multiplayer/"),
            ("src/renderers/", "src/renderers/"), ("src/systems/", "src/systems/"),
            ("src/vendor/", "src/vendor/")],
-    "tambang":  [("tambang-world/js/", "src/tambang/js/"), ("tambang-world/css/", "src/tambang/css/")],
+    "tambang":  [("src/tambang/js/", "src/tambang/js/"), ("src/tambang/css/", "src/tambang/css/")],
     "gameplay": [("gameplay/js/", "src/gameplay/js/"), ("gameplay/css/", "src/gameplay/css/")],
 }
 FILES = {  # fase -> {berkas lama: berkas baru}
@@ -151,5 +151,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 

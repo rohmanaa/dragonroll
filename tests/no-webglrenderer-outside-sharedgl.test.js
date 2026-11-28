@@ -15,7 +15,7 @@ const PENGECUALIAN_SENGAJA = [
   'src/views/floatingsample.js',
   'gameplay/js/main.js',
   'gameplay/js/duel-ui.js',          // di area gameplay yang dibekukan
-  'tambang-world/js/tambang-world.js'   // halaman mandiri demo tambang-world
+  'src/tambang/js/tambang-world.js'   // halaman mandiri demo tambang-world
 ];
 const PELANGGAR_TERSISA = [
   'src/renderers/power-3d/power-renderer.js'
@@ -63,4 +63,5 @@ assert.ok(pet.indexOf('src/core/shared-gl.js') > pet.indexOf('src/vendor/three.m
 assert.ok(pet.indexOf('src/core/shared-gl.js') < pet.indexOf('data/inventory/pet/_shared/js/pet-viewer.js'));
 
 console.log('ok - WebGLRenderer hanya di SharedGL; pelanggar tersisa: ' + PELANGGAR_TERSISA.length);
+
 
