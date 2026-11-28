@@ -87,7 +87,6 @@
 .fslot{--slot-size:130px;transition:transform .1s,filter .1s}
 .fslot:hover{filter:brightness(1.08)}
 .fslot:active{transform:scale(.95)}
-.fslot.sel{outline:5px solid #ffe27a;outline-offset:2px}
 .fslot .fr{position:absolute;left:50%;top:12px;width:78px;height:78px;transform:translateX(-50%)}
 .fslot.lk .fr{opacity:.55}
 .fslot .tag{z-index:2;position:absolute;right:6px;top:6px;padding:1px 7px;border-radius:5px;background:#2c9a3a;border:2px solid #9be86a;font:400 15px/1.2 var(--font-title);text-shadow:0 1px 0 rgba(0,0,0,.6)}

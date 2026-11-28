@@ -43,10 +43,11 @@ html body #stage #cur-em{left:60px!important}
 html body #stage #cur-co{left:310px!important}
 
 /* panel Dadu = card-panel-new .popover (isi krem): warna teks disesuaikan jadi gelap */
-.dpanel.popover .ttl,.dpanel.popover #nm,.dpanel.popover #rar{color:#222;-webkit-text-stroke:0;text-shadow:none}
+.dpanel.popover .ttl,.dpanel.popover #nm{color:#222;-webkit-text-stroke:0;text-shadow:none}
 .dpanel.popover #dinfo #ds,#dinfo.popover #ds{color:#3a3630}
-#dinfo.popover .dsec{background:rgba(0,0,0,.07)}
+#dinfo.popover .dsec{background:var(--cp-row);box-shadow:0 3px 0 rgba(90,70,60,.22)}
 #dinfo.popover .dsec>b{color:#222}
-#dinfo.popover .dsec>em.dsoon,#dinfo.popover .drow em{color:#7a7468}
-#dinfo.popover .drow{color:#3a3630}
+#dinfo.popover .dsec>em.dsoon,#dinfo.popover .drow em{color:var(--cp-row-ink)}
+#dinfo.popover .drow{color:#2e2824}
 #dr.popover .dempty{color:#3a3630}
+#dinfo #rar:not(:empty){align-self:center;padding:3px 16px 5px;border-radius:12px;background:#2b2740;border:3px solid #000;box-shadow:inset 0 3px 0 rgba(255,255,255,.18)}   /* warna teks = warna rarity (inline dari JS) */

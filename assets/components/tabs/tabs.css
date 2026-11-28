@@ -1,15 +1,15 @@
 /* Ular Tangga Blok — assets/components/tabs/tabs.css (HUD-Gloss; gaya kit Guild, tanpa gambar)
    Tiga jenis tab, semua CSS. Prefiks .ut-tab* / .ut-seg* / .ut-ul*.
-   1) TAB ATAS (glossy, aktif kuning & terangkat)   : <nav class="ut-tabs"><button class="ut-tab on">…</button>…</nav>
-   2) SEGMENTED (pil gelap, aktif kuning)            : <div class="ut-seg"><button class="ut-seg-i on">…</button>…</div>
+   1) TAB ATAS (abu-krem, aktif krem terang menyatu dengan panel)   : <nav class="ut-tabs"><button class="ut-tab on">…</button>…</nav>
+   2) SEGMENTED (pil abu-krem, aktif krem terang)            : <div class="ut-seg"><button class="ut-seg-i on">…</button>…</div>
    3) UNDERLINE (teks + garis emas, badge merah)     : <div class="ut-ul"><button class="ut-ul-i on">Judul<i class="bd">3</i></button>…</div>
    Mixin visual-saja untuk elemen berukuran tetap milik halaman: tambahkan  ut-tabv  (+ .on untuk aktif, .lk untuk terkunci).
    Isi tab boleh <img class="ic"> + <span>. Atur ukuran lewat --tab-w / --tab-h / --tab-fs. */
 .ut-tabv, .ut-tab {
-  --t1: #6b655b; --t2: #59544c; --t3: #524d46; --t4: #45413b; --tl: #0d0a18; --tab-lift: 8px;
-  border: 4px solid var(--tl); border-radius: 16px 16px 6px 6px;
+  --t1: #cbc3b6; --t2: #bdb5a7; --t3: #b4ab9d; --t4: #a79e90; --tl: #0d0a18; --tb: #8a8174; --tab-lift: 0px;
+  border: 3px solid var(--tb); border-bottom: 0; border-radius: 16px 16px 0 0;
   background: linear-gradient(180deg, var(--t1) 0, var(--t2) 48%, var(--t3) 52%, var(--t4) 100%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .28), inset 0 -5px 0 rgba(0, 0, 0, .28), 0 4px 0 var(--tl);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .35), inset 0 -5px 0 rgba(0, 0, 0, .12);
   color: #fff; font-weight: 400; cursor: pointer;
   text-shadow: -2px -2px 0 var(--tl), 2px -2px 0 var(--tl), -2px 2px 0 var(--tl), 2px 2px 0 var(--tl), 0 2px 0 var(--tl);
   transition: transform .08s, filter .1s;
@@ -22,11 +22,11 @@
   outline-offset: .12em;
 }
 .ut-tabv.on, .ut-tab.on, .ut-tab[aria-selected="true"] {
-  --t1: #ffe86a; --t2: #ffc61f; --t3: #f7a90c; --t4: #e98a06;
-  box-shadow: inset 0 4px 0 rgba(255, 255, 255, .55), inset 0 -6px 0 rgba(0, 0, 0, .2), 0 4px 0 var(--tl);
+  --t1: #f0ebe1; --t2: #ebe5da; --t3: #e8e1d5; --t4: #e4ddd0; --tb: #a39a8c;
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, .6);
   transform: translateY(calc(var(--tab-lift) * -1));
 }
-.ut-tabv.lk { --t1: #55514b; --t2: #47433d; --t3: #403d38; --t4: #35322e; filter: brightness(.92); }
+.ut-tabv.lk { --t1: #a39b8e; --t2: #978f82; --t3: #918979; --t4: #857d70; filter: brightness(.92); }
 .ut-tabv:active, .ut-tab:active { transform: translateY(3px); }
 /* tab atas penuh */
 .ut-tabs { display: flex; align-items: flex-end; gap: 10px; }
@@ -41,17 +41,17 @@
 .ut-seg { display: inline-flex; gap: 8px; }
 .ut-seg-i {
   display: inline-flex; align-items: center; height: var(--tab-h, 48px); padding: 0 28px; border-radius: 13px;
-  border: 3px solid #0d0a18; cursor: pointer; font: 400 var(--tab-fs, 24px)/1 var(--ut-font-title, 'Lilita One', sans-serif); color: #fff;
-  background: linear-gradient(180deg, #6b655b 0, #59544c 48%, #524d46 52%, #45413b 100%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .35), inset 0 -4px 0 rgba(0, 0, 0, .26), 0 4px 0 #0d0a18;
+  border: 3px solid #8a8174; cursor: pointer; font: 400 var(--tab-fs, 24px)/1 var(--ut-font-title, 'Lilita One', sans-serif); color: #fff;
+  background: linear-gradient(180deg, #cbc3b6 0, #bdb5a7 48%, #b4ab9d 52%, #a79e90 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .4), inset 0 -4px 0 rgba(0, 0, 0, .12), 0 4px 0 #6f675b;
   text-shadow: -2px -2px 0 #0d0a18, 2px -2px 0 #0d0a18, -2px 2px 0 #0d0a18, 2px 2px 0 #0d0a18;
 }
-.ut-seg-i.on { background: linear-gradient(180deg, #ffe86a 0, #ffc61f 48%, #f7a90c 52%, #e98a06 100%); }
+.ut-seg-i.on { background: linear-gradient(180deg, #f0ebe1 0, #ebe5da 48%, #e8e1d5 52%, #e4ddd0 100%); }
 .ut-seg-i:focus-visible {
   outline: .18em solid #fff;
   outline-offset: .12em;
 }
-.ut-seg-i:active { transform: translateY(3px); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .3), 0 1px 0 #0d0a18; }
+.ut-seg-i:active { transform: translateY(3px); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .3), 0 1px 0 #6f675b; }
 /* underline */
 .ut-ul { display: flex; gap: 6px; }
 .ut-ul-i {

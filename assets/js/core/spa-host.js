@@ -24,6 +24,7 @@
   var SKIP_JS = /(^|\/)(page-shell|hub-redirect|room-modal-bridge|inventory-bridge|frame-guard|boot-guard)\.js$/;
   var ROTATED = '(orientation:portrait) and (pointer:coarse)';    // sama dengan aturan rotasi di play.css
 
+  var keptUrl = Object.create(null);   // href gambar yang sudah dipegang/didekode di latar (diisi retain() di pemuat, dibaca settle() di host)
   function pageOf(url) {
     var m = /^([A-Za-z0-9_-]+\.html)(?:[?#]|$)/.exec(String(url || ''));
     return m ? m[1] : '';
@@ -140,7 +141,43 @@
     /* prepare: siapkan halaman SEBELUM dibuka (ambil+parse HTML, unduh+jalankan skrip). Aman: skrip halaman hanya mendefinisikan modul
        (PageModule.managed=true -> tidak mount); DOM dan CSS baru dipasang saat enter(). */
     function prepare(page) {
-      return fetchPage(page).then(function (p) { return loadScripts(p.js, p.mods); });
+      return fetchPage(page).then(function (p) { warmCss(p); warmImgs(p); return loadScripts(p.js, p.mods); });
+    }
+    /* Menyimpan di cache (fetch) saja TIDAK cukup: gambar masih harus didekode + dilukis saat halaman dibuka, sehingga tetap muncul menyusul.
+       Di sini gambar halaman (<img> di HTML + url() di CSS) dibuat sebagai objek Image dan didekode di latar; referensinya DIPEGANG supaya
+       hasil dekode tetap di memori sampai halaman dibuka (batas KEEP_MAX agar memori HP aman). */
+    var kept = [], KEEP_MAX = 500;
+    function retain(href) {
+      if (!href || keptUrl[href] || kept.length >= KEEP_MAX || !G.Image) return;
+      keptUrl[href] = 1;
+      try { var im = new G.Image(); im.decoding = 'async'; im.src = href; kept.push(im); if (im.decode) im.decode().catch(function () {}); } catch (e) { /* abaikan */ }
+    }
+    function warmImgs(p) {
+      try {
+        var c = G.navigator && G.navigator.connection; if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return;
+        var re = /<img\b[^>]*?\bsrc\s*=\s*(["'])([^"']+)\1/gi, m;
+        while ((m = re.exec(p.html || ''))) { if (/^(data:|https?:|\/\/)/i.test(m[2])) continue; try { retain(new G.URL(m[2], base()).href); } catch (e) { /* abaikan */ } }
+      } catch (e) { /* abaikan */ }
+    }
+    /* Hangatkan CSS halaman + aset url() di dalamnya (bingkai, latar, font) ke cache service worker SEBELUM halaman dibuka:
+       saat enter() memasang <link>, CSS-nya sudah di cache (tanpa tunggu jaringan) dan gambar/font CSS tidak muncul belakangan. Idle, dilewati bila Save-Data. */
+    var warmed = {};
+    function warmCss(p) {
+      try { var c = G.navigator && G.navigator.connection; if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return; } catch (e) {}
+      (p.css || []).forEach(function (href) {
+        var u; try { u = new G.URL(href, base()); } catch (e) { return; }
+        if (u.origin !== G.location.origin || warmed[u.pathname]) return;
+        warmed[u.pathname] = 1;
+        G.fetch(u.href).then(function (r) { return r.ok ? r.text() : ''; }).then(function (txt) {
+          var re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g, m, n = 0;
+          while ((m = re.exec(txt)) && n < 80) {
+            if (/^(data:|https?:|\/\/|#)/i.test(m[2]) || !/\.(webp|png|jpe?g|svg|woff2)([?#]|$)/i.test(m[2])) continue;
+            var a; try { a = new G.URL(m[2], u.href); } catch (e) { continue; }
+            if (a.origin !== G.location.origin || warmed[a.pathname]) continue;
+            warmed[a.pathname] = 1; n++; if (/\.(woff2)([?#]|$)/i.test(a.pathname)) G.fetch(a.href).catch(function () {}); else retain(a.href);
+          }
+        }).catch(function () {});
+      });
     }
     return { enter: enter, prepare: prepare };
   }
@@ -189,6 +226,56 @@
     function showFrame(on) { if (frame) frame.classList.toggle('off', !on); }
     function showView(on) { if (view) view.hidden = !on; }
 
+    /* "Tertahan" (class .pending = opacity 0, tetap punya layout): view dipasang + modulnya di-mount DI BALIK layar, baru ditampilkan setelah gambar
+       (<img> dan url() di CSS: latar, bingkai) selesai diunduh + didekode, maksimal SETTLE_CAP ms. Tanpa ini view tampil dulu lalu gambar/bingkai
+       muncul menyusul satu per satu (terlihat berantakan sebelum rapi). Dilewati bila tidak ada DOM (tes Node). */
+    var SETTLE_CAP = 1200, bgDone = Object.create(null);
+    function bgUrls(el) {
+      var out = [];
+      try {
+        var cs = G.getComputedStyle(el);
+        [cs.backgroundImage, cs.borderImageSource, cs.webkitMaskImage].forEach(function (v) {
+          if (!v || v === 'none') return;
+          var re = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g, m;
+          while ((m = re.exec(v))) if (!/^data:/i.test(m[2])) out.push(m[2]);
+        });
+      } catch (e) { /* abaikan */ }
+      return out;
+    }
+    function pendingImages(withDecode) {
+      var waits = [], seen = Object.create(null);
+      function add(src) {
+        if (!src || seen[src] || bgDone[src]) return;
+        seen[src] = 1;
+        waits.push(new Promise(function (res) {
+          var im = new G.Image();
+          im.onload = im.onerror = function () { bgDone[src] = 1; res(); };
+          im.src = src;
+          if (im.complete) { bgDone[src] = 1; res(); }
+        }));
+      }
+      Array.prototype.forEach.call(view.querySelectorAll('img'), function (i) {
+        if (!i.complete && i.src) waits.push(new Promise(function (res) { i.addEventListener('load', res, { once: true }); i.addEventListener('error', res, { once: true }); }));
+        else if (withDecode && i.decode && i.src && !keptUrl[i.src]) waits.push(i.decode().catch(function () {}));
+      });
+      var els = view.querySelectorAll('*'), n = Math.min(els.length, 800);
+      for (var k = 0; k < n; k++) bgUrls(els[k]).forEach(function (u) { try { add(new G.URL(u, G.document.baseURI).href); } catch (e) { /* abaikan */ } });
+      return waits;
+    }
+    function settle() {
+      if (!G.document || !view || !view.querySelectorAll || !G.Image || !G.getComputedStyle) return Promise.resolve();
+      var t0 = Date.now();
+      function pass(n) {
+        var w = pendingImages(n === 0);
+        if (!w.length || n >= 3 || Date.now() - t0 > SETTLE_CAP) return Promise.resolve();
+        return Promise.all(w).then(function () {
+          return new Promise(function (r) { (G.requestAnimationFrame || G.setTimeout)(function () { r(); }, 16); });
+        }).then(function () { return pass(n + 1); });   // modul mungkin menambah DOM/gambar baru
+      }
+      return Promise.race([pass(0), new Promise(function (r) { G.setTimeout(r, SETTLE_CAP); })]);
+    }
+    function hold(on) { try { if (view && view.classList) view.classList.toggle('pending', !!on); } catch (e) { /* abaikan */ } }
+
     function pushHistory(url, opts) {
       if (opts.history === 'none') return;
       var nested = /[?&]nested=1(&|$)/.test(G.location.search || '');
@@ -217,7 +304,7 @@
       try { PM().unmount(c.name); } catch (e) { warn('[Spa] unmount gagal', e); }
       try { GL().release(c.name); } catch (e) { warn('[Spa] release GL gagal', e); }
       try { c.leave(); } catch (e) { warn('[Spa] leave gagal', e); }
-      showView(false);
+      hold(false); showView(false);
     }
 
     function enterFrame(url) {
@@ -235,12 +322,13 @@
       return loader.enter(name, url, view).then(function (leave) {
         if (id !== navId) { leave(); return; }
         current = { name: name, url: url, leave: leave };
-        showView(true);
+        hold(true); showView(true);
         var A = UT().App;
         if (A) { if (!A.ready) A.init({ page: name }); else if (A.setPage) A.setPage(name); }
         PM().mount(name);
         playFadeIn();
         if (hooks.ready) hooks.ready(name, true);
+        settle().then(function () { if (id === navId) hold(false); }, function () { if (id === navId) hold(false); });
       }).catch(function (e) {
         if (id !== navId) return;
         warn('[Spa] view gagal, pakai iframe', e);

@@ -26,7 +26,9 @@ window.UT_Preload = (function () {
   function cachedFlags(list) {
     if (!window.caches) return Promise.resolve(list.map(function () { return false; }));
     return Promise.all(list.map(function (u) {
-      return isMedia(u) ? caches.match(u).then(function (h) { return !!h; }, function () { return false; }) : false;
+      if (isExt(u)) return false;
+      /* media DAN kode (js/css/html/json) yang sudah ada di perangkat dilewati: tidak ada lagi ratusan fetch lewat service worker tiap pembukaan */
+      return caches.match(u, { ignoreSearch: !isMedia(u) }).then(function (h) { return !!h; }, function () { return false; });
     }));
   }
   function isExt(u) { return /^https?:\/\//i.test(u) && u.indexOf(location.origin) !== 0; }
@@ -35,7 +37,8 @@ window.UT_Preload = (function () {
     sizes = sizes || {}; minMs = minMs || 0;
     var list = [], seen = {};
     urls.forEach(function (u) { if (!seen[u]) { seen[u] = 1; list.push(u); } });
-    var N = list.length, exp = [], got = [], cached = [], doneN = 0, next = 0, t0 = performance.now(), shown = 0;
+    var N = list.length, exp = [], got = [], cached = [], doneN = 0, next = 0, t0 = performance.now(), shown = 0, failed = 0;
+    api.lastFailed = 0;
     list.forEach(function (u, i) { exp[i] = sizes[u] || (isExt(u) ? EXT_SIZE : DEF_SIZE); got[i] = 0; });
 
     var curKind = 'kode';
@@ -45,7 +48,7 @@ window.UT_Preload = (function () {
         if (cached[i]) { got[i] = exp[i]; doneN++; emit({ type: 'cache', url: u, kind: kindOf(u), bytes: exp[i] }); res(); return; } /* sudah ada di perangkat */
         curKind = kindOf(u);
         emit({ type: 'start', url: u, kind: curKind, bytes: exp[i] });
-        function done() { if (fin) return; fin = true; clearTimeout(tm); var ok = !bad; got[i] = exp[i]; doneN++; emit({ type: ok ? 'ok' : 'fail', url: u, kind: curKind, bytes: exp[i], ms: Math.round(performance.now() - t1) }); res(); }
+        function done() { if (fin) return; fin = true; clearTimeout(tm); var ok = !bad; if (!ok) api.lastFailed = ++failed; got[i] = exp[i]; doneN++; emit({ type: ok ? 'ok' : 'fail', url: u, kind: curKind, bytes: exp[i], ms: Math.round(performance.now() - t1) }); res(); }
         function arm() { clearTimeout(tm); tm = setTimeout(function () { bad = true; done(); }, TIMEOUT); } /* timeout = tanpa byte baru selama TIMEOUT */
         function attempt(n) {
           arm();
@@ -108,9 +111,32 @@ window.UT_Preload = (function () {
       m = m || {};
       var rest = Object.keys(m).sort(function (a, b) { return (m[a] || 0) - (m[b] || 0); }); /* kecil -> besar: musik terakhir */
       var urls = (extra || []).concat(rest);
-      return run(urls, onProgress, 0, m);
+      var sig = sigOf(m), full = function () {
+        return run(urls, onProgress, 0, m).then(function () { if (rest.length && !api.lastFailed) { try { localStorage.setItem(SIG_KEY, sig); } catch (e) {} } });
+      }, had = null;
+      try { had = localStorage.getItem(SIG_KEY); } catch (e) {}
+      if (!rest.length || had !== sig) return full();
+      /* Pembukaan berikutnya: daftar aset sama dengan yang pernah selesai diunduh + contoh file masih ada di cache perangkat -> langsung siap, tanpa memindai ulang 1000+ file. */
+      return warmOk(m).then(function (ok) {
+        if (!ok) return full();
+        emit({ type: 'sys', msg: 'Aset sudah tersimpan ✓' });
+        onProgress(100, 'kode', { fresh: false, dlGot: 0, dlTotal: 0 });
+      });
     });
   }
-  api.run = run; api.runAuto = runAuto;
+  var SIG_KEY = 'ut:preload:sig';
+  /* tanda tangan daftar aset: berubah bila ada file ditambah/dihapus/berubah ukuran (preload-manifest.json dibuat ulang tiap rilis) */
+  function sigOf(m) { var k = Object.keys(m), t = 0; k.forEach(function (p) { t += m[p] || 0; }); return k.length + ':' + t; }
+  function sampleOf(list, n) { var out = [], step = Math.max(1, Math.floor(list.length / n)); for (var i = 0; i < list.length && out.length < n; i += step) out.push(list[i]); return out; }
+  /* contoh tersebar merata: 10 kode + 10 media. Sesudah pembaruan versi cache kode baru kosong -> contoh kode tidak ketemu -> unduh penuh seperti biasa. */
+  function warmOk(m) {
+    if (!window.caches) return Promise.resolve(false);
+    var keys = Object.keys(m).filter(function (u) { return !isExt(u); });
+    var s = sampleOf(keys.filter(function (u) { return !isMedia(u); }), 10).concat(sampleOf(keys.filter(isMedia), 10));
+    if (!s.length) return Promise.resolve(false);
+    return Promise.all(s.map(function (u) { return caches.match(u, { ignoreSearch: !isMedia(u) }).then(function (h) { return !!h; }, function () { return false; }); }))
+      .then(function (r) { return r.every(Boolean); });
+  }
+  api.run = run; api.runAuto = runAuto; api._sigOf = sigOf; api._warmOk = warmOk;
   return api;
 })();

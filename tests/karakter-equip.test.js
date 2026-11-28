@@ -69,13 +69,13 @@ t("kaki karakter sejajar dengan batas bawah baris keempat slot", () => {
   assert.strictEqual(Number(feetY[1]), target);
 });
 t("tombol Acak dan Toko berada di dalam panel kiri bawah", () => {
-  const info = html.indexOf('<section id="info">'),close = html.indexOf('</section>', info);
+  const info = html.indexOf('<section id="info"'),close = html.indexOf('</section>', info);
   assert.ok(info > html.indexOf('<section id="left">') && info < html.indexOf('<section id="right">'));
   assert.ok(/<div id="panelActions"><button class="bt ut-gl ut-c-b" id="rnd">🎲 Acak<\/button><button class="bt ut-gl ut-c-d" id="shp">🛒 Toko<\/button><\/div>/.test(html.slice(info, close)));
   assert.ok(/\$\('#rnd'\)\.addEventListener/.test(html) && /\$\('#shp'\)\.addEventListener/.test(html));
 });
 t("card info berada di kiri bawah dengan area aksesori tambahan dan tanpa tombol pembelian", () => {
-  const info = html.indexOf('<section id="info">'),right = html.indexOf('<section id="right">'),extra = html.indexOf('<div id="extraAcc"');
+  const info = html.indexOf('<section id="info"'),right = html.indexOf('<section id="right">'),extra = html.indexOf('<div id="extraAcc"');
   assert.ok(info < right && extra > info);
   assert.ok(!/id="buy"/.test(html.slice(info, html.indexOf('</section>', info))));
   assert.ok(/body\.kr #info\{[^}]*left:70px;top:760px;width:820px;height:240px/.test(css));

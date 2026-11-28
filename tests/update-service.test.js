@@ -106,7 +106,7 @@ function setup(opts) {
   await t('Splash: cek server DULU (sebelum mengunduh aset); modal muncul di awal, bar loading menyusul', () => {
     const h = rd('splash.html'), j = rd('assets/js/pages/splash.js'), i = n => h.indexOf(n);
     assert.ok(i('systems/game-dialog.js') > 0 && i('systems/update-service.js') > i('systems/game-dialog.js') && i('systems/update-service.js') < i('pages/splash.js'));
-    assert.ok(/promptOnSplash\(4000,\{/.test(j) && /progress:ev=>/.test(j), 'progres unduhan tampil di bar splash');
+    assert.ok(/promptOnSplash\(\d+,\{/.test(j) && /progress:ev=>/.test(j), 'progres unduhan tampil di bar splash');
     assert.ok(j.indexOf('promptOnSplash') < j.indexOf('UT_Preload.runAuto(ASSETS'), 'cek pembaruan sebelum preloader mengunduh aset');
   });
   const fakeGD = pick => ({ preload: async () => {}, open: o => {

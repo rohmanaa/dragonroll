@@ -70,10 +70,10 @@
       try {
         var reg = await nav.serviceWorker.getRegistration();
         if (!reg || !nav.serviceWorker.controller) return null;
-        var sw = await fresh(SW_URL); if (!sw.ok) return null;
-        var next = parseVersion(await sw.text()), cur = await runningVersion();
+        var both = await Promise.all([fresh(SW_URL), runningVersion()]), sw = both[0]; if (!sw.ok) return null;
+        var next = parseVersion(await sw.text()), cur = both[1];
         if (!next || !cur || next === cur) { writeFlag(FLAG_DONE, null); return { available: false }; }
-        var hr = await fresh(HASH_URL), sr = await fresh(SIZE_URL);
+        var two = await Promise.all([fresh(HASH_URL), fresh(SIZE_URL)]), hr = two[0], sr = two[1];
         var freshIdx = hr.ok ? await hr.json() : null, sizes = sr.ok ? await sr.json() : {};
         var p = plan(await storedIndex(reg.scope), freshIdx, sizes);
         return { available: true, version: next, label: g.UT && g.UT.Version ? g.UT.Version.label(next) : next,
